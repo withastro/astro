@@ -35,11 +35,11 @@ export function vitePluginMdxPostprocess(astroConfig: AstroConfig): Plugin {
 					imports,
 				);
 
-				// During build, replace absolute filesystem paths in string literals
-				// with root-relative paths for dist/ portability. This normalizes
-				// server:component-path attributes and moduleId values to match the
-				// manifest keys (see plugin-manifest.ts).
-				if (this.environment.config.command === 'build') {
+				// When portableOutput is enabled during build, replace absolute filesystem
+				// paths in string literals with root-relative paths for dist/ portability.
+				// This normalizes server:component-path attributes and moduleId values to
+				// match the manifest keys (see plugin-manifest.ts).
+				if (this.environment.config.command === 'build' && astroConfig.experimental.portableOutput) {
 					const normalizedRoot = normalizePath(fileURLToPath(astroConfig.root));
 					if (id.startsWith(normalizedRoot)) {
 						const escaped = normalizedRoot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

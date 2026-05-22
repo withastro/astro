@@ -11,12 +11,11 @@ setGetEnv((key) => process.env[key]);
 
 const app = createApp({ streaming: !options.experimentalDisableStreaming });
 
-// Resolve the session storage base path at runtime. The manifest stores a path
-// relative to the project root (e.g., "node_modules/.astro/sessions") for
-// portability. Resolve it against manifest.rootDir which is itself resolved
-// from import.meta.url — so it points to the correct location as long as
-// node_modules/ is co-located with dist/.
-if (app.manifest.sessionConfig?.options?.base && !path.isAbsolute(app.manifest.sessionConfig.options.base)) {
+// When portableOutput is enabled, the session storage base path is stored
+// relative to the project root (e.g., "node_modules/.astro/sessions").
+// Resolve it against manifest.rootDir which is itself resolved from
+// import.meta.url at runtime.
+if (options.portableOutput && app.manifest.sessionConfig?.options?.base && !path.isAbsolute(app.manifest.sessionConfig.options.base)) {
 	app.manifest.sessionConfig.options.base = fileURLToPath(
 		new URL(app.manifest.sessionConfig.options.base, app.manifest.rootDir),
 	);

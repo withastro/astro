@@ -284,14 +284,15 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 					const transformResult = await compile(source, filename);
 
-					// During production builds only, replace absolute filesystem paths
-					// in the compiled output with root-relative paths for portability.
-					// The compiler embeds the absolute `filename` in string literals for
-					// $$createComponent, $$createMetadata, and $$renderScript calls
-					// (including variants with query strings). This must match the keys
-					// in the componentMetadata and entryModules maps (relativized in
-					// plugin-manifest.ts). In dev mode, both sides use absolute paths.
-					if (this.environment.config.command === 'build') {
+					// When portableOutput is enabled during build, replace absolute filesystem
+					// paths in the compiled output with root-relative paths. The compiler embeds
+					// the absolute `filename` in string literals for $$createComponent,
+					// $$createMetadata, and $$renderScript calls. This must match the keys in
+					// the componentMetadata and entryModules maps (relativized in plugin-manifest.ts).
+					const portableBuild =
+						this.environment.config.command === 'build' &&
+						config.experimental.portableOutput;
+					if (portableBuild) {
 						const normalizedRoot = normalizePath(fileURLToPath(config.root));
 						if (filename.startsWith(normalizedRoot)) {
 							const escaped = normalizedRoot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -300,10 +301,10 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						}
 					}
 
-					// During build, normalize resolvedPath in component metadata to match
-					// the root-relative paths used in the compiled output and manifest.
+					// When portableOutput is enabled during build, normalize resolvedPath in
+					// component metadata to match the root-relative paths in the compiled output.
 					const normalizeResolvedPath = (comp: (typeof transformResult.serverComponents)[number]) => {
-						if (this.environment.config.command === 'build') {
+						if (portableBuild) {
 							const nr = normalizePath(fileURLToPath(config.root));
 							if (comp.resolvedPath.startsWith(nr)) {
 								return { ...comp, resolvedPath: comp.resolvedPath.slice(nr.length - 1) };

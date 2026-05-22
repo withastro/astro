@@ -43,22 +43,31 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 			'astro:config:setup': async ({ updateConfig, config, logger, command }) => {
 				let session = config.session;
 				_config = config;
+				const portable = config.experimental.portableOutput;
 				if (!session?.driver) {
 					logger.info('Enabling sessions with filesystem storage');
-					// Store the path relative to the project root for portability.
-					// The Node adapter's server entry resolves this against
-					// manifest.rootDir at runtime (which itself is resolved from
-					// import.meta.url). This works as long as node_modules/ is
-					// co-located with dist/.
-					const absBase = fileURLToPath(new URL('sessions', config.cacheDir));
-					const rootBase = path.relative(fileURLToPath(config.root), absBase);
-					session = {
-						driver: sessionDrivers.fsLite({
-							base: rootBase.split(path.sep).join('/'),
-						}),
-						cookie: session?.cookie,
-						ttl: session?.ttl,
-					};
+					if (portable) {
+						// Store the path relative to the project root for portability.
+						// The Node adapter's server entry resolves this against
+						// manifest.rootDir at runtime.
+						const absBase = fileURLToPath(new URL('sessions', config.cacheDir));
+						const rootBase = path.relative(fileURLToPath(config.root), absBase);
+						session = {
+							driver: sessionDrivers.fsLite({
+								base: rootBase.split(path.sep).join('/'),
+							}),
+							cookie: session?.cookie,
+							ttl: session?.ttl,
+						};
+					} else {
+						session = {
+							driver: sessionDrivers.fsLite({
+								base: fileURLToPath(new URL('sessions', config.cacheDir)),
+							}),
+							cookie: session?.cookie,
+							ttl: session?.ttl,
+						};
+					}
 				}
 
 				updateConfig({
@@ -78,11 +87,13 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 						plugins: [
 							createConfigPlugin({
 								...userOptions,
-								// Pass just the folder names for portability. resolveClientDir()
-								// uses these to compute a relative offset and locate the server
-								// directory via import.meta.url at runtime.
-								client: path.basename(fileURLToPath(_config.build.client)),
-								server: path.basename(fileURLToPath(_config.build.server)),
+								portableOutput: portable,
+								client: portable
+									? path.basename(fileURLToPath(_config.build.client))
+									: _config.build.client?.toString(),
+								server: portable
+									? path.basename(fileURLToPath(_config.build.server))
+									: _config.build.server?.toString(),
 								host: _config.server.host,
 								port: _config.server.port,
 								staticHeaders: userOptions.staticHeaders ?? false,

@@ -102,14 +102,14 @@ export async function manifestBuildPostHook(
 		// these routes. Stripping keeps the entry chunk small on platforms like
 		// Cloudflare Workers that re-parse it on every cold isolate start.
 		const ssrManifest = stripPrerenderedRouteStyles(manifest);
-		// The manifest's relative directory paths are computed from buildServerDir, but the
-		// manifest chunk may be nested deeper (e.g., in chunks/). Adjust paths to be
-		// relative to the chunk's actual directory so import.meta.url resolution works.
-		const adjustedSsrManifest = adjustManifestPathsForChunk(
-			ssrManifest,
-			ssrManifestChunk.fileName,
-		);
-		const code = injectManifest(adjustedSsrManifest, ssrManifestChunk.code);
+		// When portableOutput is enabled, the manifest's relative directory paths are
+		// computed from buildServerDir, but the chunk may be nested deeper (e.g., in
+		// chunks/). Adjust paths to be relative to the chunk's actual directory.
+		const finalSsrManifest =
+			options.settings.config.experimental.portableOutput
+				? adjustManifestPathsForChunk(ssrManifest, ssrManifestChunk.fileName)
+				: ssrManifest;
+		const code = injectManifest(finalSsrManifest, ssrManifestChunk.code);
 		mutate(ssrManifestChunk.fileName, code, false);
 	}
 
@@ -119,19 +119,21 @@ export async function manifestBuildPostHook(
 	);
 
 	if (prerenderManifestChunk) {
-		// The prerender manifest runs during the build (not at deployment), so it needs
-		// absolute paths to resolve files on the build machine's filesystem.
-		// Unlike the SSR manifest which uses relative paths for portability.
-		const prerenderManifest: SerializedSSRManifest = {
-			...manifest,
-			rootDir: options.settings.config.root.toString(),
-			cacheDir: options.settings.config.cacheDir.toString(),
-			outDir: options.settings.config.outDir.toString(),
-			srcDir: options.settings.config.srcDir.toString(),
-			publicDir: options.settings.config.publicDir.toString(),
-			buildClientDir: options.settings.config.build.client.toString(),
-			buildServerDir: options.settings.config.build.server.toString(),
-		};
+		// When portableOutput is enabled, the prerender manifest needs absolute paths
+		// since it runs during the build (not at deployment).
+		const prerenderManifest =
+			options.settings.config.experimental.portableOutput
+				? {
+						...manifest,
+						rootDir: options.settings.config.root.toString(),
+						cacheDir: options.settings.config.cacheDir.toString(),
+						outDir: options.settings.config.outDir.toString(),
+						srcDir: options.settings.config.srcDir.toString(),
+						publicDir: options.settings.config.publicDir.toString(),
+						buildClientDir: options.settings.config.build.client.toString(),
+						buildServerDir: options.settings.config.build.server.toString(),
+					}
+				: manifest;
 		const code = injectManifest(prerenderManifest, prerenderManifestChunk.code);
 		mutate(prerenderManifestChunk.fileName, code, true);
 	}
@@ -243,16 +245,18 @@ async function buildManifest(
 	const assetQueryString = assetQueryParams ? assetQueryParams.toString() : undefined;
 
 	const appendAssetQuery = (pth: string) => (assetQueryString ? `${pth}?${assetQueryString}` : pth);
-	// Relativize any absolute filesystem paths in entryModules keys for portability.
-	// Some keys are virtual module IDs (e.g., "\0virtual:...") or package specifiers
-	// that should stay as-is. Only absolute filesystem paths need normalization.
-	const normalizedRoot = normalizePath(fileURLToPath(settings.config.root));
+	const portable = settings.config.experimental.portableOutput;
+	// When portableOutput is enabled, relativize absolute filesystem paths in
+	// entryModules keys so the manifest doesn't contain machine-specific paths.
+	const normalizedRoot = portable ? normalizePath(fileURLToPath(settings.config.root)) : '';
 	const entryModules = Object.fromEntries(
 		Object.entries(rawEntryModules).map(([key, value]) => {
 			let normalizedKey = key;
-			const nk = normalizePath(key);
-			if (nk.startsWith(normalizedRoot)) {
-				normalizedKey = nk.slice(normalizedRoot.length - 1);
+			if (portable) {
+				const nk = normalizePath(key);
+				if (nk.startsWith(normalizedRoot)) {
+					normalizedKey = nk.slice(normalizedRoot.length - 1);
+				}
 			}
 			return [normalizedKey, value ? appendAssetQuery(value) : value];
 		}),
@@ -414,25 +418,27 @@ async function buildManifest(
 		experimentalLogger = settings.config.experimental.logger;
 	}
 
-	// Compute directory paths relative to buildServerDir so that the built output
-	// is portable — it can be moved to a different machine or directory and still work.
-	// At runtime, these relative paths are resolved against import.meta.url (the actual
-	// location of the server entry) in deserializeManifest().
-	const serverDir = fileURLToPath(opts.settings.config.build.server);
-	const relativeDir = (dir: URL) => {
-		const rel = path.relative(serverDir, fileURLToPath(dir));
-		// Ensure trailing slash and use posix separators for cross-platform consistency
-		return rel.split(path.sep).join('/') + '/';
-	};
+	// When portableOutput is enabled, compute directory paths relative to
+	// buildServerDir so that the built output can be moved to a different machine
+	// or directory. At runtime, these are resolved against import.meta.url.
+	const dirToString = portable
+		? (() => {
+				const serverDir = fileURLToPath(opts.settings.config.build.server);
+				return (dir: URL) => {
+					const rel = path.relative(serverDir, fileURLToPath(dir));
+					return rel.split(path.sep).join('/') + '/';
+				};
+			})()
+		: (dir: URL) => dir.toString();
 
 	return {
-		rootDir: relativeDir(opts.settings.config.root),
-		cacheDir: relativeDir(opts.settings.config.cacheDir),
-		outDir: relativeDir(opts.settings.config.outDir),
-		srcDir: relativeDir(opts.settings.config.srcDir),
-		publicDir: relativeDir(opts.settings.config.publicDir),
-		buildClientDir: relativeDir(opts.settings.config.build.client),
-		buildServerDir: './',
+		rootDir: dirToString(opts.settings.config.root),
+		cacheDir: dirToString(opts.settings.config.cacheDir),
+		outDir: dirToString(opts.settings.config.outDir),
+		srcDir: dirToString(opts.settings.config.srcDir),
+		publicDir: dirToString(opts.settings.config.publicDir),
+		buildClientDir: dirToString(opts.settings.config.build.client),
+		buildServerDir: portable ? './' : opts.settings.config.build.server.toString(),
 		adapterName: opts.settings.adapter?.name ?? '',
 		assetsDir: opts.settings.config.build.assets,
 		routes,
@@ -449,25 +455,27 @@ async function buildManifest(
 			poolSize: 0,
 			contentCache: false,
 		},
-		componentMetadata: Array.from(internals.componentMetadata).map(([key, value]) => {
-			// Relativize absolute module IDs to root-relative paths for portability.
-			// This must match the moduleId normalization done in vite-plugin-astro's transform.
-			const nk = normalizePath(key);
-			const relativeKey = nk.startsWith(normalizedRoot)
-				? nk.slice(normalizedRoot.length - 1)
-				: nk;
-			return [relativeKey, value] as [string, typeof value];
-		}),
+		componentMetadata: portable
+			? Array.from(internals.componentMetadata).map(([key, value]) => {
+					const nk = normalizePath(key);
+					const relativeKey = nk.startsWith(normalizedRoot)
+						? nk.slice(normalizedRoot.length - 1)
+						: nk;
+					return [relativeKey, value] as [string, typeof value];
+				})
+			: Array.from(internals.componentMetadata),
 		renderers: [],
 		clientDirectives: Array.from(settings.clientDirectives),
 		entryModules,
-		inlinedScripts: Array.from(internals.inlinedScripts).map(([key, value]) => {
-			const nk = normalizePath(key);
-			const relativeKey = nk.startsWith(normalizedRoot)
-				? nk.slice(normalizedRoot.length - 1)
-				: nk;
-			return [relativeKey, value] as [string, typeof value];
-		}),
+		inlinedScripts: portable
+			? Array.from(internals.inlinedScripts).map(([key, value]) => {
+					const nk = normalizePath(key);
+					const relativeKey = nk.startsWith(normalizedRoot)
+						? nk.slice(normalizedRoot.length - 1)
+						: nk;
+					return [relativeKey, value] as [string, typeof value];
+				})
+			: Array.from(internals.inlinedScripts),
 		assets: staticFiles.map(prefixAssetPath),
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,

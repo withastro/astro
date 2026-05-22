@@ -98,12 +98,14 @@ export function vitePluginServerIslands({
 					command === 'build' && this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 
 				if (astro) {
-					// During build, normalize resolvedPath to root-relative to match the
-					// paths in compiled output (normalized by vite-plugin-astro). This
-					// ensures the serverIslandNameMap keys match server:component-path values.
-					const normalizedRoot = command === 'build'
-						? normalizePath(fileURLToPath(settings.config.root))
-						: undefined;
+					// When portableOutput is enabled during build, normalize resolvedPath to
+					// root-relative to match the paths in compiled output (normalized by
+					// vite-plugin-astro). This ensures the serverIslandNameMap keys match
+					// server:component-path values.
+					const normalizedRoot =
+						command === 'build' && settings.config.experimental.portableOutput
+							? normalizePath(fileURLToPath(settings.config.root))
+							: undefined;
 					const normalizeResolved = (p: string) => {
 						if (normalizedRoot && p.startsWith(normalizedRoot)) {
 							return p.slice(normalizedRoot.length - 1);

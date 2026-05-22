@@ -1,25 +1,41 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { pathToFileURL } from 'node:url';
 import { resolveClientDir } from '../../dist/shared.js';
 
+const baseOptions = {
+	mode: 'middleware' as const,
+	host: false as const,
+	port: 4321,
+	staticHeaders: false,
+	bodySizeLimit: 0,
+	portableOutput: false,
+};
+
 describe('resolveClientDir', () => {
-	it('throws a descriptive error when the server folder is not found in the path', () => {
-		// The adapter now bakes plain folder names (e.g., "client", "server")
-		// into the config, not absolute file:// URLs.
-		// When import.meta.url (of shared.js) does not contain a "server" segment,
-		// the while loop should terminate and throw instead of looping forever.
-		// This simulates what happens when the entry point is bundled with esbuild
-		// into a path that lacks the expected "server" directory segment.
+	it('throws a descriptive error with folder names (portableOutput)', () => {
 		assert.throws(
 			() =>
 				resolveClientDir({
+					...baseOptions,
+					portableOutput: true,
 					client: 'client',
 					server: 'server',
-					mode: 'middleware',
-					host: false,
-					port: 4321,
-					staticHeaders: false,
-					bodySizeLimit: 0,
+				}),
+			{
+				message: /Could not find the server directory "server".*bundled into a single file/,
+			},
+		);
+	});
+
+	it('throws a descriptive error with file:// URLs (default)', () => {
+		const root = new URL('project/dist/', pathToFileURL('/'));
+		assert.throws(
+			() =>
+				resolveClientDir({
+					...baseOptions,
+					client: new URL('client/', root).href,
+					server: new URL('server/', root).href,
 				}),
 			{
 				message: /Could not find the server directory "server".*bundled into a single file/,
