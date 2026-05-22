@@ -242,11 +242,21 @@ async function buildManifest(
 		const outFolder = getOutFolder(opts.settings, route.pathname, route);
 		const outFile = getOutFile(opts.settings.config, outFolder, route.pathname, route);
 		const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
+
+		const pageData = internals.pagesByKeys.get(makePageDataKey(route.route, route.component));
+		const styles = pageData
+			? pageData.styles
+					.sort(cssOrder)
+					.map(({ sheet }) => sheet)
+					.map((s) => (s.type === 'external' ? { ...s, src: prefixAssetPath(s.src) } : s))
+					.reduce(mergeInlineCss, [])
+			: [];
+
 		routes.push({
 			file,
 			links: [],
 			scripts: [],
-			styles: [],
+			styles,
 			routeData: serializeRouteData(route, settings.config.trailingSlash),
 		});
 		staticFiles.push(file);
