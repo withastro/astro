@@ -49,7 +49,7 @@ function warnDeprecatedMarkdownOptions(
 }
 
 let didWarnAboutLegacyMarkdownPlugins = false;
-let didWarnAboutProcessorSwap = false;
+let didWarnAboutProcessorMismatch = false;
 
 /**
  * Folds legacy `markdown.{remark,rehype}Plugins` / `remarkRehype` into the unified
@@ -89,24 +89,22 @@ async function coerceLegacyMarkdownPlugins(
 				'[astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.',
 			);
 		}
-	} else {
-		// Third-party processors can't run remark/rehype plugins, so legacy plugins force a
-		// swap to `unified()`. Warn loudly — this changes the active Markdown processor.
-		if (!didWarnAboutProcessorSwap) {
-			didWarnAboutProcessorSwap = true;
-			console.warn(
-				`[astro] Found deprecated \`markdown.remarkPlugins\`/\`rehypePlugins\`/\`remarkRehype\`, so the ` +
-					`Markdown processor was switched from \`${current.name}\` to \`unified\`. ` +
-					`To keep \`${current.name}\`, remove those options; to silence this warning, set ` +
-					'`markdown.processor: unified({...})` from `@astrojs/markdown-remark` explicitly.',
-			);
-		}
-		md.processor = unified({ remarkPlugins, rehypePlugins, remarkRehype });
+		delete md.remarkPlugins;
+		delete md.rehypePlugins;
+		delete md.remarkRehype;
+	} else if (!didWarnAboutProcessorMismatch) {
+		// Third-party processors can't run remark/rehype plugins. We *don't* swap the
+		// user's chosen processor — that would silently flip their Markdown engine.
+		// Instead, leave the legacy keys in place (so other tooling can still see them)
+		// and warn loudly: the plugins won't run until they move to `unified()`.
+		didWarnAboutProcessorMismatch = true;
+		console.warn(
+			`[astro] \`markdown.remarkPlugins\`/\`rehypePlugins\`/\`remarkRehype\` are set, but your ` +
+				`\`${current.name}\` processor doesn't run them. Move them to \`unified({...})\` from ` +
+				'`@astrojs/markdown-remark` and set `markdown.processor: unified({...})` if you want ' +
+				'them to apply.',
+		);
 	}
-
-	delete md.remarkPlugins;
-	delete md.rehypePlugins;
-	delete md.remarkRehype;
 }
 
 /**
