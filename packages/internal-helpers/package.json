@@ -18,7 +18,15 @@
     "./cli": "./dist/cli.js",
     "./create-filter": "./dist/create-filter.js",
     "./request": "./dist/request.js",
-    "./object": "./dist/object.js"
+    "./object": "./dist/object.js",
+    "./markdown": "./dist/markdown.js",
+    "./shiki": "./dist/shiki.js"
+  },
+  "imports": {
+    "#shiki-engine": {
+      "workerd": "./dist/shiki-engine-workerd.js",
+      "default": "./dist/shiki-engine-default.js"
+    }
   },
   "typesVersions": {
     "*": {
@@ -39,6 +47,12 @@
       ],
       "object": [
         "./dist/object.d.ts"
+      ],
+      "markdown": [
+        "./dist/markdown.d.ts"
+      ],
+      "shiki": [
+        "./dist/shiki.d.ts"
       ]
     }
   },
@@ -53,7 +67,12 @@
     "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
-    "picomatch": "^4.0.4"
+    "@types/hast": "^3.0.4",
+    "@types/mdast": "^4.0.4",
+    "picomatch": "^4.0.4",
+    "retext-smartypants": "^6.2.0",
+    "shiki": "^4.0.2",
+    "unified": "^11.0.5"
   },
   "devDependencies": {
     "@types/picomatch": "^4.0.2",
