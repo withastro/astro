@@ -263,7 +263,19 @@ export class FetchState implements AstroFetchState {
 		this.slots = undefined;
 		// Parse the URL once and derive both pathname and url from it.
 		const url = new URL(request.url);
-		this.pathname = this.#computePathname(url);
+		// When domain-based i18n routing detected a locale from the Host header,
+		// the domain pathname includes the locale prefix (e.g. /en/boats/1/foo)
+		// that the matched route pattern expects. Use it instead of the raw URL
+		// pathname so that param extraction produces correct values.
+		if (this.renderOptions.domainPathname) {
+			try {
+				this.pathname = decodeURI(this.renderOptions.domainPathname);
+			} catch {
+				this.pathname = this.renderOptions.domainPathname;
+			}
+		} else {
+			this.pathname = this.#computePathname(url);
+		}
 		this.timeStart = performance.now();
 		this.clientAddress = options?.clientAddress;
 		this.locals = (options?.locals ?? {}) as App.Locals;

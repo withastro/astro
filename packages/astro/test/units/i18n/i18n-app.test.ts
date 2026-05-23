@@ -35,6 +35,11 @@ const localePage = createComponent((result, props, slots) => {
 	return render`<h1 id="locale">${Astro.currentLocale}</h1><h2 id="path">${Astro.url.pathname}</h2>`;
 });
 
+const paramsPage = createComponent((result, props, slots) => {
+	const Astro = result.createAstro(props, slots);
+	return render`<h1 id="locale">${Astro.currentLocale}</h1><span id="id">${Astro.params.id}</span><span id="slug">${Astro.params.slug}</span>`;
+});
+
 const notFoundPage = createComponent(() => {
 	return render`<h1 id="not-found">404 Not Found</h1>`;
 });
@@ -409,6 +414,64 @@ describe('i18n via App - domains-prefix-other-locales', () => {
 		assert.equal(res.status, 200);
 		const $ = cheerio.load(await res.text());
 		assert.equal($('#locale').text(), 'en');
+	});
+});
+
+// #16854: Dynamic routes with non-spread params should work with domain-based i18n
+describe('i18n via App - domains-prefix-other-locales with dynamic params (#16854)', () => {
+	const i18n = makeI18nConfig({
+		strategy: 'domains-prefix-other-locales',
+		locales: ['fi', 'en'],
+		defaultLocale: 'fi',
+	});
+	i18n.domainLookupTable = { 'https://en.example.com': 'en' };
+	i18n.domains = { en: 'https://en.example.com' };
+
+	const middleware = createI18nMiddleware(i18n, '/', 'ignore', 'directory');
+
+	function createDomainApp() {
+		return createTestApp(
+			[
+				createPage(paramsPage, {
+					route: '/boats/[id]/[slug]',
+					segments: [[staticPart('boats')], [dynamicPart('id')], [dynamicPart('slug')]],
+					pathname: undefined,
+				}),
+				createPage(paramsPage, {
+					route: '/en/boats/[id]/[slug]',
+					segments: [
+						[staticPart('en')],
+						[staticPart('boats')],
+						[dynamicPart('id')],
+						[dynamicPart('slug')],
+					],
+					pathname: undefined,
+				}),
+			],
+			{ i18n, middleware: () => ({ onRequest: middleware }) },
+		);
+	}
+
+	it('resolves params for dynamic route on non-default locale domain', async () => {
+		const app = createDomainApp();
+		const res = await app.render(
+			new Request('https://en.example.com/boats/1/sunset-cruiser', {
+				headers: { 'X-Forwarded-Host': 'en.example.com', 'X-Forwarded-Proto': 'https' },
+			}),
+		);
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#id').text(), '1');
+		assert.equal($('#slug').text(), 'sunset-cruiser');
+	});
+
+	it('resolves params for dynamic route on default locale domain', async () => {
+		const app = createDomainApp();
+		const res = await app.render(new Request('http://example.com/boats/2/blue-wave'));
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#id').text(), '2');
+		assert.equal($('#slug').text(), 'blue-wave');
 	});
 });
 

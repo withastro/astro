@@ -95,6 +95,13 @@ export interface ResolvedRenderOptions {
 	locals: RequiredRenderOptions['locals'] | undefined;
 	routeData: RequiredRenderOptions['routeData'] | undefined;
 	waitUntil: RequiredRenderOptions['waitUntil'] | undefined;
+	/**
+	 * Locale-prefixed pathname computed from domain-based i18n routing.
+	 * When set, overrides the URL-derived pathname in FetchState so that
+	 * param extraction matches the route pattern.
+	 * @internal
+	 */
+	domainPathname?: string;
 }
 
 export interface RenderErrorOptions extends ResolvedRenderOptions {
@@ -456,11 +463,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		}
 		// For domain-based i18n, compute the locale-prefixed pathname from
 		// the Host header and pass it so FetchState can match correctly.
-		if (!routeData) {
-			const domainPathname = this.computePathnameFromDomain(request);
-			if (domainPathname) {
-				routeData = this.pipeline.matchRoute(this.safeDecodeURI(domainPathname));
-			}
+		const domainPathname = this.computePathnameFromDomain(request);
+		if (!routeData && domainPathname) {
+			routeData = this.pipeline.matchRoute(this.safeDecodeURI(domainPathname));
 		}
 		const resolvedOptions: ResolvedRenderOptions = {
 			addCookieHeader,
@@ -469,6 +474,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			locals,
 			routeData,
 			waitUntil,
+			domainPathname,
 		};
 
 		let response: Response;
