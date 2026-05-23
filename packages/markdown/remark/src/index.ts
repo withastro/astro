@@ -38,6 +38,12 @@ export {
 	type ShikiHighlighterHighlightOptions,
 } from './shiki.js';
 export * from './types.js';
+export {
+	isUnifiedProcessor,
+	type UnifiedProcessorDescriptor,
+	type UnifiedProcessorOptions,
+	unified,
+} from './processor.js';
 
 export const syntaxHighlightDefaults: Required<SyntaxHighlightConfig> = {
 	type: 'shiki',
