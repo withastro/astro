@@ -1,6 +1,10 @@
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { markdownConfigDefaults } from '@astrojs/markdown-remark';
+import {
+	type AstroMarkdownProcessorOptions,
+	isUnifiedProcessor,
+	markdownConfigDefaults,
+} from '@astrojs/markdown-remark';
 import type {
 	AstroIntegration,
 	AstroIntegrationLogger,
@@ -8,14 +12,22 @@ import type {
 	ContentEntryType,
 	HookParameters,
 } from 'astro';
+import type { MarkdownProcessorEntry } from 'astro/markdown';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
-import type { OptimizeOptions } from './rehype-optimize-static.js';
 import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
 import { type VitePluginMdxOptions, vitePluginMdx } from './vite-plugin-mdx.js';
 import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
+import type { OptimizeOptions } from './rehype-optimize-static.js';
 
-export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | 'rehypePlugins'> & {
+// `gfm`/`smartypants` are deprecated and stay unset unless the user opts in; the
+// MDX pipelines treat an absent value as the default (on), like the `.md` processors.
+type SharedMarkdownOptions = Required<
+	Pick<AstroMarkdownProcessorOptions, 'syntaxHighlight' | 'shikiConfig'>
+> &
+	Pick<AstroMarkdownProcessorOptions, 'gfm' | 'smartypants'>;
+
+export type MdxOptions = SharedMarkdownOptions & {
 	extendMarkdownConfig: boolean;
 	recmaPlugins: PluggableList;
 	// Markdown allows strings as remark and rehype plugins.
@@ -24,6 +36,12 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	rehypePlugins: PluggableList;
 	remarkRehype: RemarkRehypeOptions;
 	optimize: boolean | OptimizeOptions;
+	/**
+	 * Override the markdown processor for `.mdx` files. Defaults to `config.markdown.processor`.
+	 * Use this to run `.mdx` files through a different processor (or the same processor with
+	 * different options) than your `.md` files.
+	 */
+	processor?: MarkdownProcessorEntry;
 };
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -89,18 +107,55 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				const extendMarkdownConfig =
 					partialMdxOptions.extendMarkdownConfig ?? defaultMdxOptions.extendMarkdownConfig;
 
+				const markdownConfig = extendMarkdownConfig ? config.markdown : markdownConfigDefaults;
+
 				const resolvedMdxOptions = applyDefaultOptions({
 					options: partialMdxOptions,
-					defaults: markdownConfigToMdxOptions(
-						extendMarkdownConfig ? config.markdown : markdownConfigDefaults,
-						logger,
-					),
+					defaults: markdownConfigToMdxOptions(markdownConfig, logger),
 				});
+
+				const descriptor = partialMdxOptions.processor ?? config.markdown.processor;
+
+				if (extendMarkdownConfig && isUnifiedProcessor(descriptor)) {
+					// Per docs: when MDX provides its own plugin list, it REPLACES the
+					// markdown processor's plugins; when MDX omits it, MDX inherits.
+					// (Object-shaped options like `remarkRehype` still merge.)
+					if (partialMdxOptions.remarkPlugins === undefined) {
+						resolvedMdxOptions.remarkPlugins = ignoreStringPlugins(
+							descriptor.options.remarkPlugins,
+							logger,
+						);
+					}
+					if (partialMdxOptions.rehypePlugins === undefined) {
+						resolvedMdxOptions.rehypePlugins = ignoreStringPlugins(
+							descriptor.options.rehypePlugins,
+							logger,
+						);
+					}
+					resolvedMdxOptions.remarkRehype = {
+						...descriptor.options.remarkRehype,
+						...resolvedMdxOptions.remarkRehype,
+					};
+					// `gfm`/`smartypants` from `unified({...})` apply to `.mdx` too, unless
+					// `mdx({...})` set its own.
+					if (partialMdxOptions.gfm === undefined && descriptor.options.gfm !== undefined) {
+						resolvedMdxOptions.gfm = descriptor.options.gfm;
+					}
+					if (
+						partialMdxOptions.smartypants === undefined &&
+						descriptor.options.smartypants !== undefined
+					) {
+						resolvedMdxOptions.smartypants = descriptor.options.smartypants;
+					}
+				}
+				// Third-party processors don't expose their plugins to MDX's built-in option
+				// merging; they handle their own pipeline via `createMdxRenderer`.
 
 				// Mutate `mdxOptions` so that `vitePluginMdx` can reference the actual options
 				Object.assign(vitePluginMdxOptions, {
 					mdxOptions: resolvedMdxOptions,
 					srcDir: config.srcDir,
+					processor: descriptor,
 				});
 				// @ts-expect-error After we assign, we don't need to reference `mdxOptions` in this context anymore.
 				// Re-assign it so that the garbage can be collected later.
@@ -117,15 +172,16 @@ const defaultMdxOptions = {
 } satisfies Partial<MdxOptions>;
 
 function markdownConfigToMdxOptions(
-	markdownConfig: typeof markdownConfigDefaults,
-	logger: AstroIntegrationLogger,
+	markdownConfig: SharedMarkdownOptions,
+	_logger: AstroIntegrationLogger,
 ): MdxOptions {
 	return {
 		...defaultMdxOptions,
 		...markdownConfig,
-		remarkPlugins: ignoreStringPlugins(markdownConfig.remarkPlugins, logger),
-		rehypePlugins: ignoreStringPlugins(markdownConfig.rehypePlugins, logger),
-		remarkRehype: (markdownConfig.remarkRehype as any) ?? {},
+		// Plugins come from the processor descriptor — merged in astro:config:done.
+		remarkPlugins: [],
+		rehypePlugins: [],
+		remarkRehype: {},
 	};
 }
 
