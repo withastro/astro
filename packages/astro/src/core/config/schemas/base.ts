@@ -4,8 +4,9 @@ import type {
 	RemarkRehype as _RemarkRehype,
 	Smartypants as _Smartypants,
 	ShikiConfig,
-} from '@astrojs/markdown-remark';
-import { markdownConfigDefaults, syntaxHighlightDefaults, unified } from '@astrojs/markdown-remark';
+} from '@astrojs/internal-helpers/markdown';
+import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/internal-helpers/markdown';
+import { satteri } from '@astrojs/markdown-satteri';
 import type { MarkdownProcessorEntry } from '../../../markdown/index.js';
 import type { OutgoingHttpHeaders } from 'node:http';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
@@ -453,7 +454,7 @@ export const AstroConfigSchema = z.object({
 				// A factory (not a shared value) so every config gets its own descriptor —
 				// integrations extend the pipeline by mutating `processor.options`, which
 				// would otherwise leak across configs built in the same process.
-				.default(() => unified()),
+				.default(() => satteri()),
 		})
 		.prefault({}),
 	vite: z

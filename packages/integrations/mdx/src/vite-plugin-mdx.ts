@@ -1,4 +1,3 @@
-import { isUnifiedProcessor } from '@astrojs/markdown-remark';
 import type { SSRError } from 'astro';
 import type { MarkdownProcessorEntry, MdxRenderer } from 'astro/markdown';
 import { VFile } from 'vfile';
@@ -6,9 +5,11 @@ import type { Plugin } from 'vite';
 import type { MdxOptions } from './index.js';
 import { safeParseFrontmatter } from './utils.js';
 
-// Inlined name-check to avoid eagerly importing `@astrojs/markdown-satteri`
-// (optional peer dep — the user must install it explicitly to opt in).
+// Inlined name-checks to avoid eagerly importing the unified/satteri runtime
+// modules. Both `@astrojs/markdown-remark` and `@astrojs/markdown-satteri` are
+// optional peer deps in v7 — the active processor's package is loaded lazily.
 const isSatteriProcessor = (p: { name: string }): boolean => p.name === 'satteri';
+const isUnifiedProcessor = (p: { name: string }): boolean => p.name === 'unified';
 
 export interface VitePluginMdxOptions {
 	mdxOptions: MdxOptions;

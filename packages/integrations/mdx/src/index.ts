@@ -2,9 +2,8 @@ import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import {
 	type AstroMarkdownProcessorOptions,
-	isUnifiedProcessor,
 	markdownConfigDefaults,
-} from '@astrojs/markdown-remark';
+} from '@astrojs/internal-helpers/markdown';
 import type {
 	AstroIntegration,
 	AstroIntegrationLogger,
@@ -21,9 +20,21 @@ import { type VitePluginMdxOptions, vitePluginMdx } from './vite-plugin-mdx.js';
 import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
 
-// Inlined name-check to avoid eagerly importing `@astrojs/markdown-satteri`
-// (optional peer dep — the user must install it explicitly to opt in).
+// Inlined name-checks to avoid eagerly importing the unified/satteri runtime
+// modules. Both `@astrojs/markdown-remark` and `@astrojs/markdown-satteri` are
+// optional peer deps in v7 — the active processor's package is loaded lazily.
 const isSatteriProcessor = (p: { name: string }): boolean => p.name === 'satteri';
+type UnifiedDescriptor = MarkdownProcessorEntry & {
+	name: 'unified';
+	options: {
+		remarkPlugins: PluggableList;
+		rehypePlugins: PluggableList;
+		remarkRehype: Record<string, unknown>;
+		gfm?: boolean;
+		smartypants?: boolean | object;
+	};
+};
+const isUnifiedProcessor = (p: { name: string }): p is UnifiedDescriptor => p.name === 'unified';
 
 // `gfm`/`smartypants` are deprecated and stay unset unless the user opts in; the
 // MDX pipelines treat an absent value as the default (on), like the `.md` processors.

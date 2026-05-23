@@ -19,6 +19,7 @@
     "./create-filter": "./dist/create-filter.js",
     "./request": "./dist/request.js",
     "./object": "./dist/object.js",
+    "./frontmatter": "./dist/frontmatter.js",
     "./markdown": "./dist/markdown.js",
     "./shiki": "./dist/shiki.js"
   },
@@ -48,6 +49,9 @@
       "object": [
         "./dist/object.d.ts"
       ],
+      "frontmatter": [
+        "./dist/frontmatter.d.ts"
+      ],
       "markdown": [
         "./dist/markdown.d.ts"
       ],
@@ -67,13 +71,16 @@
     "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
+    "js-yaml": "^4.1.1",
     "picomatch": "^4.0.4",
     "retext-smartypants": "^6.2.0",
     "shiki": "^4.0.2",
+    "smol-toml": "^1.6.0",
     "unified": "^11.0.5"
   },
   "devDependencies": {
     "@types/hast": "^3.0.4",
+    "@types/js-yaml": "^4.0.9",
     "@types/mdast": "^4.0.4",
     "@types/picomatch": "^4.0.2",
     "astro-scripts": "workspace:*"

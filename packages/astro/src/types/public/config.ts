@@ -7,7 +7,7 @@ import type {
 	ShikiConfig,
 	Smartypants,
 	SyntaxHighlightConfigType,
-} from '@astrojs/markdown-remark';
+} from '@astrojs/internal-helpers/markdown';
 import type { MarkdownProcessorEntry } from '../../markdown/index.js';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';

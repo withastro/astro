@@ -1,4 +1,5 @@
-import type { RehypePlugin } from '@astrojs/markdown-remark';
+import type { RehypePlugin } from '@astrojs/internal-helpers/markdown';
+import type { Program } from 'estree';
 import type { RootContent } from 'hast';
 import type {} from 'mdast-util-mdx';
 import type {
@@ -130,14 +131,18 @@ function parseImports(children: RootContent[]) {
 	for (const child of children) {
 		if (child.type !== 'mdxjsEsm') continue;
 
-		const body = child.data?.estree?.body;
+		// Cast `data` since `mdast-util-mdx`'s augmentation of `MdxjsEsmHastData` to add
+		// `estree` isn't visible after adding `@astrojs/internal-helpers` as a direct dep
+		// (a `unified` dedup quirk).
+		const estree = (child.data as { estree?: Program } | undefined)?.estree;
+		const body = estree?.body;
 		if (!body) continue;
 
 		for (const ast of body) {
 			if (ast.type !== 'ImportDeclaration') continue;
 
 			const source = ast.source.value as string;
-			const specs: ImportSpecifier[] = ast.specifiers.map((spec) => {
+			const specs: ImportSpecifier[] = ast.specifiers.map((spec: any) => {
 				switch (spec.type) {
 					case 'ImportDefaultSpecifier':
 						return { local: spec.local.name, imported: 'default' };

@@ -533,9 +533,9 @@ importers:
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
-      '@astrojs/markdown-remark':
+      '@astrojs/markdown-satteri':
         specifier: workspace:*
-        version: link:../markdown/remark
+        version: link:../markdown/satteri
       '@astrojs/telemetry':
         specifier: workspace:*
         version: link:../telemetry
@@ -699,12 +699,18 @@ importers:
       '@astrojs/compiler-rs':
         specifier: ^0.1.6
         version: 0.1.6
+      '@astrojs/markdown-remark':
+        specifier: workspace:*
+        version: link:../markdown/remark
       '@playwright/test':
         specifier: 1.58.2
         version: 1.58.2
       '@types/aria-query':
         specifier: ^5.0.4
         version: 5.0.4
+      '@types/estree':
+        specifier: ^1.0.8
+        version: 1.0.8
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
@@ -5189,9 +5195,6 @@ importers:
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../../internal-helpers
-      '@astrojs/markdown-remark':
-        specifier: workspace:*
-        version: link:../../markdown/remark
       '@mdx-js/mdx':
         specifier: ^3.1.1
         version: 3.1.1
@@ -5229,6 +5232,9 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
     devDependencies:
+      '@astrojs/markdown-remark':
+        specifier: workspace:*
+        version: link:../../markdown/remark
       '@astrojs/markdown-satteri':
         specifier: workspace:*
         version: link:../../markdown/satteri
@@ -5316,6 +5322,9 @@ importers:
 
   packages/integrations/mdx/test/fixtures/image-remark-imgattr:
     dependencies:
+      '@astrojs/markdown-remark':
+        specifier: workspace:*
+        version: link:../../../../../markdown/remark
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../..
@@ -5334,6 +5343,9 @@ importers:
 
   packages/integrations/mdx/test/fixtures/mdx-frontmatter-injection:
     dependencies:
+      '@astrojs/markdown-remark':
+        specifier: workspace:*
+        version: link:../../../../../markdown/remark
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../..
@@ -6482,6 +6494,9 @@ importers:
 
   packages/internal-helpers:
     dependencies:
+      js-yaml:
+        specifier: ^4.1.1
+        version: 4.1.1
       picomatch:
         specifier: ^4.0.4
         version: 4.0.4
@@ -6491,6 +6506,9 @@ importers:
       shiki:
         specifier: ^4.0.2
         version: 4.0.2
+      smol-toml:
+        specifier: ^1.6.0
+        version: 1.6.1
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -6498,6 +6516,9 @@ importers:
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
       '@types/mdast':
         specifier: ^4.0.4
         version: 4.0.4

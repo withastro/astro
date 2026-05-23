@@ -1,5 +1,6 @@
 import { existsSync, promises as fs } from 'node:fs';
-import { parseFrontmatter, type MarkdownProcessor } from '@astrojs/markdown-remark';
+import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
+import type { MarkdownProcessor } from '@astrojs/internal-helpers/markdown';
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';

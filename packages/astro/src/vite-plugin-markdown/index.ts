@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { isFrontmatterValid, type MarkdownProcessor } from '@astrojs/markdown-remark';
+import { isFrontmatterValid } from '@astrojs/internal-helpers/frontmatter';
+import type { MarkdownProcessor } from '@astrojs/internal-helpers/markdown';
 import type { Plugin } from 'vite';
 import { safeParseFrontmatter } from '../content/utils.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';

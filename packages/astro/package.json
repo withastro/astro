@@ -136,7 +136,7 @@
   "dependencies": {
     "@astrojs/compiler": "^4.0.0",
     "@astrojs/internal-helpers": "workspace:*",
-    "@astrojs/markdown-remark": "workspace:*",
+    "@astrojs/markdown-satteri": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
     "@capsizecss/unpack": "^4.0.0",
     "@clack/prompts": "^1.1.0",
@@ -193,11 +193,21 @@
   "optionalDependencies": {
     "sharp": "^0.34.0"
   },
+  "peerDependencies": {
+    "@astrojs/markdown-remark": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@astrojs/markdown-remark": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@astrojs/check": "workspace:*",
     "@astrojs/compiler-rs": "^0.1.6",
+    "@astrojs/markdown-remark": "workspace:*",
     "@playwright/test": "1.58.2",
     "@types/aria-query": "^5.0.4",
+    "@types/estree": "^1.0.8",
     "@types/hast": "^3.0.4",
     "@types/html-escaper": "3.0.4",
     "@types/http-cache-semantics": "^4.2.0",

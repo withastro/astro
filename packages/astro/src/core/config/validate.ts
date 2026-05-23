@@ -44,7 +44,7 @@ function warnDeprecatedMarkdownOptions(
 	const names = deprecated.map((key) => `\`markdown.${key}\``).join(' and ');
 	const isPlural = deprecated.length > 1;
 	console.warn(
-		`[astro] ${names} ${isPlural ? 'are' : 'is'} deprecated. Move ${isPlural ? 'them' : 'it'} onto your processor instead (e.g. \`unified({ gfm: false, smartypants: false })\`). Will be removed in a future major.`,
+		`[astro] ${names} ${isPlural ? 'are' : 'is'} deprecated. Move ${isPlural ? 'them' : 'it'} onto your processor instead (e.g. \`satteri({ features: { gfm: false, smartPunctuation: false } })\` or \`unified({ gfm: false, smartypants: false })\` after installing \`@astrojs/markdown-remark\`). Will be removed in a future major.`,
 	);
 }
 
@@ -74,15 +74,22 @@ async function coerceLegacyMarkdownPlugins(
 		return;
 	}
 
-	const { unified, isUnifiedProcessor } = await import('@astrojs/markdown-remark');
+	let unified: typeof import('@astrojs/markdown-remark').unified;
+	let isUnifiedProcessor: typeof import('@astrojs/markdown-remark').isUnifiedProcessor;
+	try {
+		({ unified, isUnifiedProcessor } = await import('@astrojs/markdown-remark'));
+	} catch {
+		throw new Error(
+			'`markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` require `@astrojs/markdown-remark`. Install it with:\n  npm install @astrojs/markdown-remark',
+		);
+	}
 
 	const current = md.processor;
-	if (!current || isUnifiedProcessor(current)) {
+	if (current && isUnifiedProcessor(current)) {
 		// `createRenderer` reads `.options.*` at render time, so in-place mutation propagates.
-		const target = (current ?? (md.processor = unified())) as ReturnType<typeof unified>;
-		target.options.remarkPlugins.push(...remarkPlugins);
-		target.options.rehypePlugins.push(...rehypePlugins);
-		Object.assign(target.options.remarkRehype, remarkRehype);
+		current.options.remarkPlugins.push(...remarkPlugins);
+		current.options.rehypePlugins.push(...rehypePlugins);
+		Object.assign(current.options.remarkRehype, remarkRehype);
 		if (!didWarnAboutLegacyMarkdownPlugins) {
 			didWarnAboutLegacyMarkdownPlugins = true;
 			console.warn(
@@ -90,14 +97,17 @@ async function coerceLegacyMarkdownPlugins(
 			);
 		}
 	} else {
-		// Third-party processors can't run remark/rehype plugins, so legacy plugins force a
-		// swap to `unified()`. Warn loudly — this changes the active Markdown processor.
+		// The default processor (Sätteri) and other third-party processors can't run remark/rehype
+		// plugins, so legacy plugins force a swap to `unified()`. Warn loudly — this changes the
+		// active Markdown processor away from the default native pipeline.
 		if (!didWarnAboutProcessorSwap) {
 			didWarnAboutProcessorSwap = true;
+			const replaced = current?.name ?? 'satteri';
 			console.warn(
 				`[astro] Found deprecated \`markdown.remarkPlugins\`/\`rehypePlugins\`/\`remarkRehype\`, so the ` +
-					`Markdown processor was switched from \`${current.name}\` to \`unified\`. ` +
-					`To keep \`${current.name}\`, remove those options; to silence this warning, set ` +
+					`Markdown processor was switched from \`${replaced}\`` +
+					`${replaced === 'satteri' ? ' (the default native pipeline)' : ''} to \`unified\`. ` +
+					`To keep \`${replaced}\`, remove those options; to silence this warning, set ` +
 					'`markdown.processor: unified({...})` from `@astrojs/markdown-remark` explicitly.',
 			);
 		}
