@@ -3,6 +3,7 @@ import type {
 	MarkdownProcessor,
 } from '@astrojs/markdown-remark';
 import type { PluggableList } from 'unified';
+import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 export type { AstroMarkdownProcessorOptions } from '@astrojs/markdown-remark';
 export {
@@ -64,19 +65,4 @@ export interface MdxRenderResult {
 }
 
 /** MDX rendering metadata produced by `createMdxRenderer` and surfaced on Vite's `meta.astro`. */
-export interface AstroComponentMetadata {
-	exportName: string;
-	localName: string;
-	specifier: string;
-	resolvedPath: string;
-}
-
-export interface AstroMetadata {
-	hydratedComponents: AstroComponentMetadata[];
-	clientOnlyComponents: AstroComponentMetadata[];
-	serverComponents: AstroComponentMetadata[];
-	scripts: never[];
-	propagation: 'none';
-	containsHead: false;
-	pageOptions: Record<string, never>;
-}
+export type AstroMetadata = PluginMetadata['astro'];
