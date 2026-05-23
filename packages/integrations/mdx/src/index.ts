@@ -117,9 +117,9 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				const descriptor = partialMdxOptions.processor ?? config.markdown.processor;
 
 				if (extendMarkdownConfig && isUnifiedProcessor(descriptor)) {
-					// Per docs: when MDX provides its own plugin list, it REPLACES the
-					// markdown processor's plugins; when MDX omits it, MDX inherits.
-					// (Object-shaped options like `remarkRehype` still merge.)
+					// MDX inherits from the processor descriptor only when the user did NOT
+					// pass that option to `mdx({...})`. Following the historical contract:
+					// MDX's value REPLACES the markdown processor's value (no per-key merge).
 					if (partialMdxOptions.remarkPlugins === undefined) {
 						resolvedMdxOptions.remarkPlugins = ignoreStringPlugins(
 							descriptor.options.remarkPlugins,
@@ -132,10 +132,9 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 							logger,
 						);
 					}
-					resolvedMdxOptions.remarkRehype = {
-						...descriptor.options.remarkRehype,
-						...resolvedMdxOptions.remarkRehype,
-					};
+					if (partialMdxOptions.remarkRehype === undefined) {
+						resolvedMdxOptions.remarkRehype = { ...descriptor.options.remarkRehype };
+					}
 					// `gfm`/`smartypants` from `unified({...})` apply to `.mdx` too, unless
 					// `mdx({...})` set its own.
 					if (partialMdxOptions.gfm === undefined && descriptor.options.gfm !== undefined) {
@@ -178,6 +177,10 @@ function markdownConfigToMdxOptions(
 	return {
 		...defaultMdxOptions,
 		...markdownConfig,
+		// Deprecated `markdown.{gfm,smartypants}` may be unset (optional in the schema);
+		// fall back to the processor defaults so the MDX pipeline still enables them by default.
+		gfm: markdownConfig.gfm ?? markdownConfigDefaults.gfm,
+		smartypants: markdownConfig.smartypants ?? markdownConfigDefaults.smartypants,
 		// Plugins come from the processor descriptor — merged in astro:config:done.
 		remarkPlugins: [],
 		rehypePlugins: [],
