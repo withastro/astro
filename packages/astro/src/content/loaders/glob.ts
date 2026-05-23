@@ -67,6 +67,24 @@ function checkPrefix(pattern: string | Array<string>, prefix: string) {
 	return pattern.startsWith(prefix);
 }
 
+function matchesPattern(entry: string, pattern: string | Array<string>) {
+	if (!Array.isArray(pattern)) {
+		return picomatch.isMatch(entry, pattern);
+	}
+
+	const positivePatterns = pattern.filter((p) => !p.startsWith('!'));
+	const negativePatterns = pattern.filter((p) => p.startsWith('!')).map((p) => p.slice(1));
+
+	if (positivePatterns.length === 0) {
+		return false;
+	}
+
+	return (
+		positivePatterns.some((p) => picomatch.isMatch(entry, p)) &&
+		!negativePatterns.some((p) => picomatch.isMatch(entry, p))
+	);
+}
+
 export const secretLegacyFlag = Symbol('astro.legacy-glob');
 
 /**
@@ -336,7 +354,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 			watcher.add(filePath);
 
 			const matchesGlob = (entry: string) =>
-				!entry.startsWith('../') && picomatch.isMatch(entry, globOptions.pattern);
+				!entry.startsWith('../') && matchesPattern(entry, globOptions.pattern);
 
 			const basePath = fileURLToPath(baseDir);
 
