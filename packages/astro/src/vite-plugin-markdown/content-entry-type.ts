@@ -17,10 +17,13 @@ export const markdownContentEntryType: ContentEntryType = {
 	handlePropagation: true,
 
 	async getRenderFunction(config) {
-		const { processor: descriptor, ...rest } = config.markdown;
-		const processor = await descriptor.createRenderer({
-			image: config.image,
-			...rest,
+		const { markdown, image } = config;
+		const processor = await markdown.processor.createRenderer({
+			image,
+			syntaxHighlight: markdown.syntaxHighlight,
+			shikiConfig: markdown.shikiConfig,
+			gfm: markdown.gfm,
+			smartypants: markdown.smartypants,
 		});
 		return async function renderToString(entry) {
 			// Process markdown even if it's empty as remark/rehype plugins may add content or frontmatter dynamically

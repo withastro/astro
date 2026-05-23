@@ -1,10 +1,15 @@
-import { isUnifiedProcessor } from '@astrojs/markdown-remark';
+import type { UnifiedProcessorDescriptor } from '@astrojs/markdown-remark';
 import type { SSRError } from 'astro';
 import type { MarkdownProcessorEntry, MdxRenderer } from 'astro/markdown';
 import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
 import type { MdxOptions } from './index.js';
 import { safeParseFrontmatter } from './utils.js';
+
+// Inlined name-check so MDX doesn't eagerly load `@astrojs/markdown-remark`
+// (it's only needed when the user's active processor is `unified()`).
+const isUnifiedProcessor = (p: { name: string }): p is UnifiedProcessorDescriptor =>
+	p.name === 'unified';
 
 export interface VitePluginMdxOptions {
 	mdxOptions: MdxOptions;

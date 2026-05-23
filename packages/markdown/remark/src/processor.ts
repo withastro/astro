@@ -5,7 +5,7 @@ import type {
 	RemarkPlugins,
 	RemarkRehype,
 	Smartypants,
-} from './types.js';
+} from '@astrojs/internal-helpers/markdown';
 
 export interface UnifiedProcessorOptions {
 	remarkPlugins?: RemarkPlugins;

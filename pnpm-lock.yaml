@@ -5189,6 +5189,9 @@ importers:
 
   packages/integrations/mdx:
     dependencies:
+      '@astrojs/internal-helpers':
+        specifier: workspace:*
+        version: link:../../internal-helpers
       '@astrojs/markdown-remark':
         specifier: workspace:*
         version: link:../../markdown/remark
@@ -6476,10 +6479,34 @@ importers:
 
   packages/internal-helpers:
     dependencies:
+      '@types/hast':
+        specifier: ^3.0.4
+        version: 3.0.4
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
+      js-yaml:
+        specifier: ^4.1.1
+        version: 4.1.1
       picomatch:
         specifier: ^4.0.4
         version: 4.0.4
+      retext-smartypants:
+        specifier: ^6.2.0
+        version: 6.2.0
+      shiki:
+        specifier: ^4.0.2
+        version: 4.0.2
+      smol-toml:
+        specifier: ^1.6.0
+        version: 1.6.1
+      unified:
+        specifier: ^11.0.5
+        version: 11.0.5
     devDependencies:
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
       '@types/picomatch':
         specifier: ^4.0.2
         version: 4.0.2
@@ -6783,9 +6810,6 @@ importers:
       hast-util-to-text:
         specifier: ^4.0.2
         version: 4.0.2
-      js-yaml:
-        specifier: ^4.1.1
-        version: 4.1.1
       mdast-util-definitions:
         specifier: ^6.0.0
         version: 6.0.0
@@ -6807,15 +6831,6 @@ importers:
       remark-smartypants:
         specifier: ^3.0.2
         version: 3.0.2
-      retext-smartypants:
-        specifier: ^6.2.0
-        version: 6.2.0
-      shiki:
-        specifier: ^4.0.0
-        version: 4.0.2
-      smol-toml:
-        specifier: ^1.6.0
-        version: 1.6.1
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -6838,9 +6853,6 @@ importers:
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
       '@types/mdast':
         specifier: ^4.0.4
         version: 4.0.4
@@ -6851,11 +6863,14 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       esbuild:
-        specifier: ^0.27.3
-        version: 0.27.3
+        specifier: ^0.28.0
+        version: 0.28.0
       mdast-util-mdx-expression:
         specifier: ^2.0.1
         version: 2.0.1
+      shiki:
+        specifier: ^4.0.0
+        version: 4.0.2
 
   packages/telemetry:
     dependencies:

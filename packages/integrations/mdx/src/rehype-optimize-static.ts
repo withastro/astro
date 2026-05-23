@@ -1,4 +1,4 @@
-import type { RehypePlugin } from '@astrojs/markdown-remark';
+import type { RehypePlugin } from '@astrojs/internal-helpers/markdown';
 import type { Expression } from 'estree';
 import { SKIP, visit } from 'estree-util-visit';
 import type { Element, RootContent, RootContentMap } from 'hast';

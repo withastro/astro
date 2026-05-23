@@ -2,9 +2,14 @@ import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import {
 	type AstroMarkdownProcessorOptions,
-	isUnifiedProcessor,
 	markdownConfigDefaults,
-} from '@astrojs/markdown-remark';
+} from '@astrojs/internal-helpers/markdown';
+import type { UnifiedProcessorDescriptor } from '@astrojs/markdown-remark';
+
+// Inlined name-check so MDX doesn't eagerly load `@astrojs/markdown-remark`
+// (it's only needed when the user's active processor is `unified()`).
+const isUnifiedProcessor = (p: { name: string }): p is UnifiedProcessorDescriptor =>
+	p.name === 'unified';
 import type {
 	AstroIntegration,
 	AstroIntegrationLogger,

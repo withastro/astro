@@ -1,3 +1,4 @@
+import { markdownConfigDefaults } from '@astrojs/internal-helpers/markdown';
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import remarkGfm from 'remark-gfm';
@@ -6,7 +7,6 @@ import remarkRehype from 'remark-rehype';
 import remarkSmartypants from 'remark-smartypants';
 import { unified } from 'unified';
 import { VFile } from 'vfile';
-import { defaultExcludeLanguages } from './highlight.js';
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
 import { rehypeImages } from './rehype-images.js';
@@ -14,58 +14,63 @@ import { rehypePrism } from './rehype-prism.js';
 import { rehypeShiki } from './rehype-shiki.js';
 import { remarkCollectImages } from './remark-collect-images.js';
 import type {
-	AstroMarkdownOptions,
 	AstroMarkdownProcessorOptions,
+	MarkdownHeading,
 	MarkdownProcessor,
-	SyntaxHighlightConfig,
-} from './types.js';
+} from '@astrojs/internal-helpers/markdown';
 
+// `vfile.data.astro` is populated by the unified pipeline as it renders.
+declare module 'vfile' {
+	interface DataMap {
+		astro: {
+			headings?: MarkdownHeading[];
+			localImagePaths?: string[];
+			remoteImagePaths?: string[];
+			frontmatter?: Record<string, any>;
+		};
+	}
+}
+
+export type { Node } from 'unist';
+// The markdown contract types live in `@astrojs/internal-helpers/markdown`;
+// re-exported so consumers keep a single import surface.
+export type {
+	AstroMarkdownProcessorOptions,
+	MarkdownHeading,
+	MarkdownProcessor,
+	MarkdownProcessorRenderOptions,
+	MarkdownProcessorRenderResult,
+	RehypePlugin,
+	RehypePlugins,
+	RemarkPlugin,
+	RemarkPlugins,
+	RemarkRehype,
+	ShikiConfig,
+	Smartypants,
+	SyntaxHighlightConfig,
+	SyntaxHighlightConfigType,
+} from '@astrojs/internal-helpers/markdown';
 export {
 	extractFrontmatter,
 	isFrontmatterValid,
 	type ParseFrontmatterOptions,
 	type ParseFrontmatterResult,
 	parseFrontmatter,
-} from './frontmatter.js';
+} from '@astrojs/internal-helpers/frontmatter';
 export { rehypeHeadingIds } from './rehype-collect-headings.js';
 export { rehypePrism } from './rehype-prism.js';
 export { rehypeShiki } from './rehype-shiki.js';
 export { remarkCollectImages } from './remark-collect-images.js';
-export {
-	type CreateShikiHighlighterOptions,
-	createShikiHighlighter,
-	type ShikiHighlighter,
-	type ShikiHighlighterHighlightOptions,
-} from './shiki.js';
-export * from './types.js';
 export {
 	isUnifiedProcessor,
 	type UnifiedProcessorDescriptor,
 	type UnifiedProcessorOptions,
 	unified,
 } from './processor.js';
-
-export const syntaxHighlightDefaults: Required<SyntaxHighlightConfig> = {
-	type: 'shiki',
-	excludeLangs: defaultExcludeLanguages,
-};
-
-export const markdownConfigDefaults: Required<AstroMarkdownOptions> = {
-	syntaxHighlight: syntaxHighlightDefaults,
-	shikiConfig: {
-		langs: [],
-		theme: 'github-dark',
-		themes: {},
-		wrap: false,
-		transformers: [],
-		langAlias: {},
-	},
-	remarkPlugins: [],
-	rehypePlugins: [],
-	remarkRehype: {},
-	gfm: true,
-	smartypants: true,
-};
+export {
+	markdownConfigDefaults,
+	syntaxHighlightDefaults,
+} from '@astrojs/internal-helpers/markdown';
 
 // Skip nonessential plugins during performance benchmark runs
 const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);

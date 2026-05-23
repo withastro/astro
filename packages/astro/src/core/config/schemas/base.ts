@@ -4,8 +4,9 @@ import type {
 	RemarkRehype as _RemarkRehype,
 	Smartypants as _Smartypants,
 	ShikiConfig,
-} from '@astrojs/markdown-remark';
-import { markdownConfigDefaults, syntaxHighlightDefaults, unified } from '@astrojs/markdown-remark';
+} from '@astrojs/internal-helpers/markdown';
+import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/internal-helpers/markdown';
+import { unified } from '@astrojs/markdown-remark';
 import type { MarkdownProcessorEntry } from '../../../markdown/index.js';
 import type { OutgoingHttpHeaders } from 'node:http';
 import { type BuiltinTheme, bundledThemes } from 'shiki';

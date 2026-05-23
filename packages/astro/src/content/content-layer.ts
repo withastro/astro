@@ -1,5 +1,6 @@
 import { existsSync, promises as fs } from 'node:fs';
-import { parseFrontmatter, type MarkdownProcessor } from '@astrojs/markdown-remark';
+import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
+import type { MarkdownProcessor } from '@astrojs/internal-helpers/markdown';
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
@@ -151,8 +152,14 @@ export class ContentLayer {
 		options?: RenderMarkdownOptions,
 	): Promise<RenderedContent> {
 		if (!this.#markdownProcessor) {
-			const { processor: descriptor, ...rest } = this.#settings.config.markdown;
-			this.#markdownProcessor = await descriptor.createRenderer(rest);
+			const { markdown, image } = this.#settings.config;
+			this.#markdownProcessor = await markdown.processor.createRenderer({
+				image,
+				syntaxHighlight: markdown.syntaxHighlight,
+				shikiConfig: markdown.shikiConfig,
+				gfm: markdown.gfm,
+				smartypants: markdown.smartypants,
+			});
 		}
 		const { frontmatter, content: body } = parseFrontmatter(content);
 		const { code, metadata } = await this.#markdownProcessor.render(body, {

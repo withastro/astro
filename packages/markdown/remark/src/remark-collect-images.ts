@@ -3,7 +3,7 @@ import type { Root } from 'mdast';
 import { definitions } from 'mdast-util-definitions';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
-import type { AstroMarkdownProcessorOptions } from './types.js';
+import type { AstroMarkdownProcessorOptions } from '@astrojs/internal-helpers/markdown';
 
 export function remarkCollectImages(opts: AstroMarkdownProcessorOptions['image']) {
 	const domains = opts?.domains ?? [];

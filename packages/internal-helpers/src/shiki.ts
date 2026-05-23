@@ -1,6 +1,7 @@
 import type { Properties, Root } from 'hast';
 import {
 	type BuiltinLanguage,
+	type BuiltinTheme,
 	type BundledLanguage,
 	createCssVariablesTheme,
 	createHighlighter,
@@ -14,8 +15,9 @@ import {
 	type ThemeRegistration,
 	type ThemeRegistrationRaw,
 } from 'shiki';
-import type { ThemePresets } from './types.js';
 import { loadShikiEngine } from '#shiki-engine';
+
+export type ThemePresets = BuiltinTheme | 'css-variables';
 
 export interface ShikiHighlighter {
 	codeToHast(
@@ -299,6 +301,3 @@ async function createShikiHighlighterInternal({
 function normalizePropAsString(value: Properties[string]): string | null {
 	return Array.isArray(value) ? value.join(' ') : (value as string | null);
 }
-
-// Re-export ThemePresets type for consumers
-export type { ThemePresets };
