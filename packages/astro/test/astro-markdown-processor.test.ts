@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import { unified, type MarkdownProcessor } from '@astrojs/markdown-remark';
 import * as cheerio from 'cheerio';
 import { type AstroInlineConfig, loadFixture } from './test-utils.ts';

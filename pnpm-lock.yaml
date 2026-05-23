@@ -4957,9 +4957,6 @@ importers:
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../../internal-helpers
-      '@astrojs/markdown-remark':
-        specifier: workspace:*
-        version: link:../../markdown/remark
       '@astrojs/prism':
         specifier: workspace:*
         version: link:../../astro-prism
