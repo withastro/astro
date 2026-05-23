@@ -1,14 +1,6 @@
 {
-  "extends": "../../../tsconfig.json",
-  "compilerOptions": {
-    "moduleResolution": "Bundler",
-    "skipLibCheck": true,
-    "rootDir": "../../../../",
-    "types": ["@testing-library/svelte"]
-  },
-  "include": [
-    "./types/testing-library/Component.ts",
-    "./types/testing-library/Component.svelte",
-    "../../../../packages/integrations/svelte/svelte-shims.d.ts"
-  ]
+  // Separate tsconfig needed: verifies the Astro-wrapped Svelte component type
+  // is assignable to svelte.Component, as required by @testing-library/svelte render().
+  "extends": "./tsconfig.json",
+  "include": ["types/testing-library"]
 }
