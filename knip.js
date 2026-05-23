@@ -83,7 +83,7 @@ export default {
 			ignoreDependencies: ['solid-devtools'],
 		},
 		'packages/integrations/svelte': {
-			entry: [testEntry],
+			entry: [srcEntry, dtsEntry, testEntry],
 			// Used in testing-library compatibility tests but not directly imported
 			ignoreDependencies: ['@testing-library/svelte'],
 		},
