@@ -6,6 +6,10 @@ import type { Plugin } from 'vite';
 import type { MdxOptions } from './index.js';
 import { safeParseFrontmatter } from './utils.js';
 
+// Inlined name-check to avoid eagerly importing `@astrojs/markdown-satteri`
+// (optional peer dep — the user must install it explicitly to opt in).
+const isSatteriProcessor = (p: { name: string }): boolean => p.name === 'satteri';
+
 export interface VitePluginMdxOptions {
 	mdxOptions: MdxOptions;
 	srcDir: URL;
@@ -99,6 +103,17 @@ async function resolveMdxRenderer(
 			},
 			{ optimize: opts.mdxOptions.optimize, recmaPlugins: opts.mdxOptions.recmaPlugins },
 		);
+	}
+
+	if (isSatteriProcessor(processor)) {
+		const { createMdxProcessor: createSatteriMdxProcessor } = await import('./satteri/index.js');
+		const satteriProcessor = createSatteriMdxProcessor(opts.mdxOptions, { srcDir: opts.srcDir });
+		return {
+			async process(content, filePath, frontmatter) {
+				const result = await satteriProcessor.process(content, filePath, frontmatter);
+				return { code: result.code, map: null, astroMetadata: result.astroMetadata };
+			},
+		};
 	}
 
 	if (isUnifiedProcessor(processor)) {

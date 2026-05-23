@@ -67,14 +67,14 @@
     "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
-    "@types/hast": "^3.0.4",
-    "@types/mdast": "^4.0.4",
     "picomatch": "^4.0.4",
     "retext-smartypants": "^6.2.0",
     "shiki": "^4.0.2",
     "unified": "^11.0.5"
   },
   "devDependencies": {
+    "@types/hast": "^3.0.4",
+    "@types/mdast": "^4.0.4",
     "@types/picomatch": "^4.0.2",
     "astro-scripts": "workspace:*"
   },

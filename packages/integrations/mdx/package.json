@@ -34,6 +34,7 @@
     "test": "astro-scripts test --timeout 70000 \"test/**/*.test.ts\""
   },
   "dependencies": {
+    "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@mdx-js/mdx": "^3.1.1",
     "acorn": "^8.16.0",
@@ -49,9 +50,16 @@
     "vfile": "^6.0.3"
   },
   "peerDependencies": {
+    "@astrojs/markdown-satteri": "workspace:*",
     "astro": "^6.0.0"
   },
+  "peerDependenciesMeta": {
+    "@astrojs/markdown-satteri": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@astrojs/markdown-satteri": "workspace:*",
     "@shikijs/rehype": "^4.0.2",
     "@shikijs/twoslash": "^4.0.2",
     "@types/estree": "^1.0.8",
@@ -68,6 +76,7 @@
     "remark-math": "^6.0.0",
     "remark-rehype": "^11.1.2",
     "remark-toc": "^9.0.0",
+    "satteri": "^0.6.3",
     "shiki": "^4.0.2",
     "unified": "^11.0.5",
     "vite": "^7.3.2"

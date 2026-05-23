@@ -5186,6 +5186,9 @@ importers:
 
   packages/integrations/mdx:
     dependencies:
+      '@astrojs/internal-helpers':
+        specifier: workspace:*
+        version: link:../../internal-helpers
       '@astrojs/markdown-remark':
         specifier: workspace:*
         version: link:../../markdown/remark
@@ -5226,6 +5229,9 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
     devDependencies:
+      '@astrojs/markdown-satteri':
+        specifier: workspace:*
+        version: link:../../markdown/satteri
       '@shikijs/rehype':
         specifier: ^4.0.2
         version: 4.0.2
@@ -5274,6 +5280,9 @@ importers:
       remark-toc:
         specifier: ^9.0.0
         version: 9.0.0
+      satteri:
+        specifier: ^0.6.3
+        version: 0.6.3
       shiki:
         specifier: ^4.0.2
         version: 4.0.2
@@ -6473,12 +6482,6 @@ importers:
 
   packages/internal-helpers:
     dependencies:
-      '@types/hast':
-        specifier: ^3.0.4
-        version: 3.0.4
-      '@types/mdast':
-        specifier: ^4.0.4
-        version: 4.0.4
       picomatch:
         specifier: ^4.0.4
         version: 4.0.4
@@ -6492,6 +6495,12 @@ importers:
         specifier: ^11.0.5
         version: 11.0.5
     devDependencies:
+      '@types/hast':
+        specifier: ^3.0.4
+        version: 3.0.4
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
       '@types/picomatch':
         specifier: ^4.0.2
         version: 4.0.2
