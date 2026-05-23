@@ -5,7 +5,8 @@ import type {
 	Smartypants as _Smartypants,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
-import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
+import { markdownConfigDefaults, syntaxHighlightDefaults, unified } from '@astrojs/markdown-remark';
+import type { MarkdownProcessorEntry } from '../../../markdown/index.js';
 import type { OutgoingHttpHeaders } from 'node:http';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
 import * as z from 'zod/v4';
@@ -418,14 +419,41 @@ export const AstroConfigSchema = z.object({
 			remarkRehype: z
 				.custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
-			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
+			// Deprecated: left undefined unless the user explicitly sets them, so the
+			// deprecation warning only fires when actually used. The active processor
+			// (`unified()`) supplies the real default (`gfm`/smart punctuation on) when
+			// these are absent.
+			gfm: z.boolean().optional(),
 			smartypants: z
 				.union([z.boolean(), smartypantsOptionsSchema])
 				.transform((val): false | Smartypants => {
 					if (val === true) return smartypantsOptionsSchema.parse({});
 					return val;
 				})
-				.prefault(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
+				.optional(),
+			processor: z
+				.object({
+					name: z.string(),
+					// `z.custom` preserves reference identity; `z.record` would clone, breaking
+					// the closure inside `createRenderer` that reads `descriptor.options.*`.
+					options: z
+						.custom<Record<string, unknown>>(
+							(v) => typeof v === 'object' && v !== null && !Array.isArray(v),
+						)
+						.default(() => ({})),
+					createRenderer: z.custom<MarkdownProcessorEntry['createRenderer']>(
+						(v) => typeof v === 'function',
+					),
+					createMdxRenderer: z
+						.custom<MarkdownProcessorEntry['createMdxRenderer']>(
+							(v) => v === undefined || typeof v === 'function',
+						)
+						.optional(),
+				})
+				// A factory (not a shared value) so every config gets its own descriptor —
+				// integrations extend the pipeline by mutating `processor.options`, which
+				// would otherwise leak across configs built in the same process.
+				.default(() => unified()),
 		})
 		.prefault({}),
 	vite: z

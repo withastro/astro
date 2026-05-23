@@ -1,10 +1,6 @@
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import {
-	createMarkdownProcessor,
-	isFrontmatterValid,
-	type MarkdownProcessor,
-} from '@astrojs/markdown-remark';
+import { isFrontmatterValid, type MarkdownProcessor } from '@astrojs/markdown-remark';
 import type { Plugin } from 'vite';
 import { safeParseFrontmatter } from '../content/utils.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -81,9 +77,10 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 
 				// Lazily initialize the Markdown processor
 				if (!processor) {
-					processor = createMarkdownProcessor({
+					const { processor: descriptor, ...rest } = settings.config.markdown;
+					processor = descriptor.createRenderer({
 						image: settings.config.image,
-						...settings.config.markdown,
+						...rest,
 					});
 				}
 
