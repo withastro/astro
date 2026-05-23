@@ -50,9 +50,16 @@
     "vfile": "^6.0.3"
   },
   "peerDependencies": {
+    "@astrojs/markdown-satteri": "workspace:*",
     "astro": "^6.0.0"
   },
+  "peerDependenciesMeta": {
+    "@astrojs/markdown-satteri": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@astrojs/markdown-satteri": "workspace:*",
     "@shikijs/rehype": "^4.0.2",
     "@shikijs/twoslash": "^4.0.2",
     "@types/estree": "^1.0.8",
@@ -69,6 +76,7 @@
     "remark-math": "^6.0.0",
     "remark-rehype": "^11.1.2",
     "remark-toc": "^9.0.0",
+    "satteri": "^0.6.3",
     "shiki": "^4.0.2",
     "unified": "^11.0.5",
     "vite": "^7.3.2"

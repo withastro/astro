@@ -13,8 +13,9 @@ import type {
 } from 'astro';
 import type { MarkdownProcessor } from 'astro/markdown';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
+import type { Features, HastPluginDefinition, MdastPluginDefinition } from 'satteri';
 import type { PluggableList } from 'unified';
-import { isUnifiedProcessor } from './processor-guards.js';
+import { isSatteriProcessor, isUnifiedProcessor } from './processor-guards.js';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
 import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
 import { type VitePluginMdxOptions, vitePluginMdx } from './vite-plugin-mdx.js';
@@ -34,6 +35,12 @@ export type MdxOptions = SharedMarkdownOptions & {
 	rehypePlugins: PluggableList;
 	remarkRehype: RemarkRehypeOptions;
 	optimize: boolean | OptimizeOptions;
+	/** Sätteri-only: mdast plugins for the Sätteri MDX pipeline. Ignored by the unified pipeline. */
+	mdastPlugins: MdastPluginDefinition[];
+	/** Sätteri-only: hast plugins for the Sätteri MDX pipeline. Ignored by the unified pipeline. */
+	hastPlugins: HastPluginDefinition[];
+	/** Sätteri-only: feature flags for the Sätteri compiler. Ignored by the unified pipeline. */
+	features?: Features;
 	/**
 	 * Override the markdown processor for `.mdx` files. Defaults to `config.markdown.processor`.
 	 * Use this to run `.mdx` files through a different processor (or the same processor with
@@ -114,39 +121,52 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 
 				const processor = partialMdxOptions.processor ?? config.markdown.processor;
 
-				if (extendMarkdownConfig && isUnifiedProcessor(processor)) {
+				if (extendMarkdownConfig) {
 					// MDX inherits from the processor only when the user did NOT pass that option
 					// to `mdx({...})`. Following the historical contract: MDX's value REPLACES the
 					// markdown processor's value (no per-key merge).
-					if (partialMdxOptions.remarkPlugins === undefined) {
-						resolvedMdxOptions.remarkPlugins = ignoreStringPlugins(
-							processor.options.remarkPlugins,
-							logger,
-						);
+					if (isSatteriProcessor(processor)) {
+						if (partialMdxOptions.mdastPlugins === undefined) {
+							resolvedMdxOptions.mdastPlugins = [...processor.options.mdastPlugins];
+						}
+						if (partialMdxOptions.hastPlugins === undefined) {
+							resolvedMdxOptions.hastPlugins = [...processor.options.hastPlugins];
+						}
+						resolvedMdxOptions.features = {
+							...processor.options.features,
+							...resolvedMdxOptions.features,
+						};
+					} else if (isUnifiedProcessor(processor)) {
+						if (partialMdxOptions.remarkPlugins === undefined) {
+							resolvedMdxOptions.remarkPlugins = ignoreStringPlugins(
+								processor.options.remarkPlugins,
+								logger,
+							);
+						}
+						if (partialMdxOptions.rehypePlugins === undefined) {
+							resolvedMdxOptions.rehypePlugins = ignoreStringPlugins(
+								processor.options.rehypePlugins,
+								logger,
+							);
+						}
+						if (partialMdxOptions.remarkRehype === undefined) {
+							resolvedMdxOptions.remarkRehype = { ...processor.options.remarkRehype };
+						}
+						// `gfm`/`smartypants` from `unified({...})` apply to `.mdx` too, unless
+						// `mdx({...})` set its own.
+						if (partialMdxOptions.gfm === undefined && processor.options.gfm !== undefined) {
+							resolvedMdxOptions.gfm = processor.options.gfm;
+						}
+						if (
+							partialMdxOptions.smartypants === undefined &&
+							processor.options.smartypants !== undefined
+						) {
+							resolvedMdxOptions.smartypants = processor.options.smartypants;
+						}
 					}
-					if (partialMdxOptions.rehypePlugins === undefined) {
-						resolvedMdxOptions.rehypePlugins = ignoreStringPlugins(
-							processor.options.rehypePlugins,
-							logger,
-						);
-					}
-					if (partialMdxOptions.remarkRehype === undefined) {
-						resolvedMdxOptions.remarkRehype = { ...processor.options.remarkRehype };
-					}
-					// `gfm`/`smartypants` from `unified({...})` apply to `.mdx` too, unless
-					// `mdx({...})` set its own.
-					if (partialMdxOptions.gfm === undefined && processor.options.gfm !== undefined) {
-						resolvedMdxOptions.gfm = processor.options.gfm;
-					}
-					if (
-						partialMdxOptions.smartypants === undefined &&
-						processor.options.smartypants !== undefined
-					) {
-						resolvedMdxOptions.smartypants = processor.options.smartypants;
-					}
+					// Third-party processors don't expose their plugins to MDX's built-in option
+					// merging; they handle their own pipeline via `createMdxRenderer`.
 				}
-				// Third-party processors don't expose their plugins to MDX's built-in option
-				// merging; they handle their own pipeline via `createMdxRenderer`.
 
 				// Mutate `mdxOptions` so that `vitePluginMdx` can reference the actual options
 				Object.assign(vitePluginMdxOptions, {
@@ -166,6 +186,8 @@ const defaultMdxOptions = {
 	extendMarkdownConfig: true,
 	recmaPlugins: [],
 	optimize: false,
+	mdastPlugins: [],
+	hastPlugins: [],
 } satisfies Partial<MdxOptions>;
 
 function markdownConfigToMdxOptions(
@@ -204,5 +226,8 @@ function applyDefaultOptions({
 		rehypePlugins: options.rehypePlugins ?? defaults.rehypePlugins,
 		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,
 		optimize: options.optimize ?? defaults.optimize,
+		mdastPlugins: options.mdastPlugins ?? defaults.mdastPlugins,
+		hastPlugins: options.hastPlugins ?? defaults.hastPlugins,
+		features: options.features ?? defaults.features,
 	};
 }

@@ -5163,6 +5163,9 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
     devDependencies:
+      '@astrojs/markdown-satteri':
+        specifier: workspace:*
+        version: link:../../markdown/satteri
       '@shikijs/rehype':
         specifier: ^4.0.2
         version: 4.0.2
@@ -5211,6 +5214,9 @@ importers:
       remark-toc:
         specifier: ^9.0.0
         version: 9.0.0
+      satteri:
+        specifier: ^0.6.3
+        version: 0.6.3
       shiki:
         specifier: ^4.0.2
         version: 4.0.2
