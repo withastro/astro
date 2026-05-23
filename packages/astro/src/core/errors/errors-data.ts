@@ -1059,6 +1059,9 @@ export const UnsupportedExternalRedirect = {
 
 /**
  * @docs
+ * @message
+ * **Example error message:**<br/>
+ * InvalidRedirectDestination: The redirect from "/posts" to "/blog" is invalid. The destination "/blog" does not match any existing route in your project.
  * @see
  * - [Configured redirects](https://docs.astro.build/en/guides/routing/#configured-redirects)
  * @description
