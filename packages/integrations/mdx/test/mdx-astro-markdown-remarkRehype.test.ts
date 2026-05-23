@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { unified } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from './test-utils.ts';
@@ -57,7 +58,7 @@ describe('MDX with Astro Markdown remark-rehype config', () => {
 		);
 	});
 
-	it('Renders footnotes with values from custom configuration without extending the default', async () => {
+	it('Renders footnotes by merging mdx remarkRehype on top of the markdown processor remarkRehype', async () => {
 		const fixture = await loadFixture({
 			root: new URL('./fixtures/mdx-astro-markdown-remarkRehype/', import.meta.url),
 			integrations: [
@@ -68,9 +69,11 @@ describe('MDX with Astro Markdown remark-rehype config', () => {
 				}),
 			],
 			markdown: {
-				remarkRehype: {
-					footnoteBackLabel: 'Kembali ke konten',
-				},
+				processor: unified({
+					remarkRehype: {
+						footnoteBackLabel: 'Kembali ke konten',
+					},
+				}),
 			},
 		});
 
@@ -81,7 +84,7 @@ describe('MDX with Astro Markdown remark-rehype config', () => {
 		assert.equal(document.querySelector('#footnote-label')!.textContent, 'Catatan kaki');
 		assert.equal(
 			document.querySelector('.data-footnote-backref')!.getAttribute('aria-label'),
-			'Back to reference 1',
+			'Kembali ke konten',
 		);
 	});
 });

@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import { unified } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import { parseHTML } from 'linkedom';
 import remarkToc from 'remark-toc';
@@ -25,7 +26,9 @@ describe('MDX plugins - Astro config integration', () => {
 						'astro:config:setup': ({ updateConfig }) => {
 							updateConfig({
 								markdown: {
-									rehypePlugins: [rehypeExamplePlugin],
+									processor: unified({
+										rehypePlugins: [rehypeExamplePlugin],
+									}),
 								},
 							});
 						},
@@ -81,17 +84,30 @@ describe('MDX plugins - Astro config integration', () => {
 				const html = await fixture.readFile(FILE);
 				const { document } = parseHTML(html);
 
-				assert.notEqual(selectRemarkExample(document), null, 'MDX remark plugins not applied.');
-				assert.notEqual(selectRehypeExample(document), null, 'MDX rehype plugins not applied.');
+				// Coerce element/null to boolean before asserting — assert.equal on a raw
+				// linkedom Element vs null pulls util.inspect through the DOM's circular
+				// refs and can take down the test process on failure.
+				assert.equal(
+					selectRemarkExample(document) !== null,
+					true,
+					'MDX remark plugins not applied.',
+				);
+				assert.equal(
+					selectRehypeExample(document) !== null,
+					true,
+					'MDX rehype plugins not applied.',
+				);
 			});
 
 			it('Handles Markdown plugins', async () => {
 				const html = await fixture.readFile(FILE);
 				const { document } = parseHTML(html);
 
+				// MDX provides its own `remarkPlugins`, so per docs it replaces
+				// markdown's `remarkToc` regardless of `extendMarkdownConfig`.
 				assert.equal(
-					selectTocLink(document),
-					null,
+					selectTocLink(document) !== null,
+					false,
 					'`remarkToc` plugin applied unexpectedly. Should override Markdown config.',
 				);
 			});
@@ -100,10 +116,11 @@ describe('MDX plugins - Astro config integration', () => {
 				const html = await fixture.readFile(FILE);
 				const { document } = parseHTML(html);
 
+				const gfmLinkPresent = selectGfmLink(document) !== null;
 				if (extendMarkdownConfig === true) {
-					assert.equal(selectGfmLink(document), null, 'Does not respect `markdown.gfm` option.');
+					assert.equal(gfmLinkPresent, false, 'Does not respect `markdown.gfm` option.');
 				} else {
-					assert.notEqual(selectGfmLink(document), null, 'Respects `markdown.gfm` unexpectedly.');
+					assert.equal(gfmLinkPresent, true, 'Respects `markdown.gfm` unexpectedly.');
 				}
 			});
 

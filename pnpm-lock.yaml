@@ -5472,6 +5472,9 @@ importers:
 
   packages/integrations/mdx/test/fixtures/mdx-vite-env-vars:
     dependencies:
+      '@astrojs/markdown-satteri':
+        specifier: workspace:*
+        version: link:../../../../../markdown/satteri
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../..

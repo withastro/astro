@@ -165,6 +165,9 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 							...resolvedMdxOptions.features,
 						};
 					} else if (isUnifiedProcessor(descriptor)) {
+						// Per docs: when MDX provides its own plugin list, it REPLACES the
+						// markdown processor's plugins; when MDX omits it, MDX inherits.
+						// (Object-shaped options like `remarkRehype` still merge.)
 						if (partialMdxOptions.remarkPlugins === undefined) {
 							resolvedMdxOptions.remarkPlugins = ignoreStringPlugins(
 								descriptor.options.remarkPlugins,
@@ -177,9 +180,10 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 								logger,
 							);
 						}
-						if (partialMdxOptions.remarkRehype === undefined) {
-							resolvedMdxOptions.remarkRehype = { ...descriptor.options.remarkRehype };
-						}
+						resolvedMdxOptions.remarkRehype = {
+							...descriptor.options.remarkRehype,
+							...resolvedMdxOptions.remarkRehype,
+						};
 						// `gfm`/`smartypants` from `unified({...})` apply to `.mdx` too, unless
 						// `mdx({...})` set its own.
 						if (partialMdxOptions.gfm === undefined && descriptor.options.gfm !== undefined) {
