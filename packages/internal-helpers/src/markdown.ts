@@ -171,18 +171,6 @@ export interface AstroMetadata {
 	pageOptions: object;
 }
 
-export function createDefaultAstroMetadata(): AstroMetadata {
-	return {
-		hydratedComponents: [],
-		clientOnlyComponents: [],
-		serverComponents: [],
-		scripts: [],
-		propagation: 'none',
-		containsHead: false,
-		pageOptions: {},
-	};
-}
-
 // Languages never syntax-highlighted by default (e.g. `math`, handled elsewhere).
 export const defaultExcludeLanguages = ['math'];
 
