@@ -1,5 +1,23 @@
 # @astrojs/cloudflare
 
+## 13.5.4
+
+### Patch Changes
+
+- [#16769](https://github.com/withastro/astro/pull/16769) [`428cb1b`](https://github.com/withastro/astro/commit/428cb1bb80f9c5672ed68bfc219fa700b7a569fa) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Forwards user-provided `optimizeDeps` settings (exclude, include, esbuildOptions.loader) to SSR/prerender environments. Previously, top-level `vite.optimizeDeps` in the Astro config was silently ignored for server environments because Vite 6 scopes it to client-only and the adapter's `configEnvironment` hook did not forward it. This caused packages with non-standard file types (e.g. `.data` files) to fail during dev-mode dependency optimization with errors like "No loader is configured for '.data' files".
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.5.3
+
+### Patch Changes
+
+- [#16801](https://github.com/withastro/astro/pull/16801) [`d619277`](https://github.com/withastro/astro/commit/d6192772a424b12bdf5f5991c3c882c3ae5cd707) Thanks [@ematipico](https://github.com/ematipico)! - Reverts a change to the esbuild dep-scan plugin that caused `astro check` and `astro build` to fail by making esbuild incorrectly bundle `virtual:` modules (e.g. from expressive-code)
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 13.5.2
 
 ### Patch Changes

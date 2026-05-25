@@ -1,5 +1,37 @@
 # astro
 
+## 6.3.7
+
+### Patch Changes
+
+- [#16821](https://github.com/withastro/astro/pull/16821) [`9c76b12`](https://github.com/withastro/astro/commit/9c76b12052c445416df6b034d7b6df66957a0503) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes request body handling in the Node adapter when `req.body` is a `Buffer`, `Uint8Array`, or `ArrayBuffer`. Previously, binary body data was incorrectly JSON-stringified (producing `{"type":"Buffer","data":[...]}`) instead of being passed through directly. This affected libraries like `serverless-http` that set `req.body` to a `Buffer`.
+
+- [#16785](https://github.com/withastro/astro/pull/16785) [`de96360`](https://github.com/withastro/astro/commit/de963608d82e9bab74896945aa6503ba164ddbb0) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `vite.build.minify`, `vite.build.sourcemap`, and `vite.build.rollupOptions.output` (e.g. `compact`) being ignored for client-side builds. These top-level Vite build options are now properly forwarded to the client environment, with environment-specific overrides (`vite.environments.client.build.*`) taking priority when set.
+
+- [#16819](https://github.com/withastro/astro/pull/16819) [`b5dd8f1`](https://github.com/withastro/astro/commit/b5dd8f1e82813a646c4c61510764fc83b2fcafd4) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes custom elements in MDX files bypassing the renderer pipeline. Custom elements (tags containing hyphens like `<my-element>`) in `.mdx` files are now routed through registered renderers for SSR, matching the behavior of `.astro` files. If no renderer claims the element, it falls back to rendering as raw HTML.
+
+- [#16808](https://github.com/withastro/astro/pull/16808) [`765896c`](https://github.com/withastro/astro/commit/765896cd4d03755093d6c9f47d69285ac910b848) Thanks [@ematipico](https://github.com/ematipico)! - Fixes dynamic routes returning 400 Bad Request when the URL contains a literal `%` character, such as paths built with `encodeURIComponent('%?.pdf')`
+
+- [#16804](https://github.com/withastro/astro/pull/16804) [`90d2aca`](https://github.com/withastro/astro/commit/90d2aca7536e600062e6b9d787ef7e60990a23fe) Thanks [@jp-knj](https://github.com/jp-knj)! - Fixes a v6 regression where `astro:i18n` could not be imported from client `<script>` blocks.
+
+## 6.3.6
+
+### Patch Changes
+
+- [#16774](https://github.com/withastro/astro/pull/16774) [`8f77583`](https://github.com/withastro/astro/commit/8f7758313df4af52e83e039bb64c41006de93c4e) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes markdown images with empty alt text (`![](image.jpg)`) in content collections dropping the `alt` attribute entirely. The `alt=""` attribute is now correctly preserved in the rendered HTML output, which is important for accessibility (indicating decorative images).
+
+- [#16776](https://github.com/withastro/astro/pull/16776) [`3d10b5e`](https://github.com/withastro/astro/commit/3d10b5e16256ff9999e757f86cf2c4f04c36a311) Thanks [@matthewp](https://github.com/matthewp)! - Fixes HMR serving stale content when components are passed as props via `getStaticPaths()`
+
+- [#16784](https://github.com/withastro/astro/pull/16784) [`7453860`](https://github.com/withastro/astro/commit/7453860fb4fb34017365c135678bfd76f1f9aeb5) Thanks [@ematipico](https://github.com/ematipico)! - Improved the printing of the build time if it goes over the 60 seconds.
+
+- [#16665](https://github.com/withastro/astro/pull/16665) [`3dbbcee`](https://github.com/withastro/astro/commit/3dbbcee0a7015867cb1b6770440ba51d1eee3445) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes remote SVG sources erroring with `dangerouslyProcessSVG` after the v6.3 SVG-processing gate. The default Sharp service now resolves the output format from the source up-front when it can (URL extension, `data:` MIME, ESM metadata), and from the actual buffer at request time when it can't, so SVG sources pass through untouched without needing to set `image.dangerouslyProcessSVG: true` or an explicit `format="svg"`.
+
+  The error message has also been updated to point at `format="svg"` as the simpler workaround when an SVG source is encountered without `dangerouslyProcessSVG` enabled.
+
+- [#16777](https://github.com/withastro/astro/pull/16777) [`1754b91`](https://github.com/withastro/astro/commit/1754b91dec1e5d9839ddfc39fbf2ee1fbb9391a4) Thanks [@matthewp](https://github.com/matthewp)! - Fixes HMR serving stale content for dynamically imported components through barrel files
+
+- [#16730](https://github.com/withastro/astro/pull/16730) [`068d924`](https://github.com/withastro/astro/commit/068d924402dced7670530774f36cca301f91e60c) Thanks [@harshagarwalnyu](https://github.com/harshagarwalnyu)! - Fixes an issue where the `file()` content loader did not generate a valid JSON Schema for collections whose JSON or YAML data is a top-level array instead of an object.
+
 ## 6.3.5
 
 ### Patch Changes

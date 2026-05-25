@@ -307,6 +307,65 @@ describe('static redirects — invalid redirect destination throws', () => {
 			},
 		);
 	});
+
+	it('throws InvalidRedirectDestination when dynamic origin redirects to static destination', async () => {
+		// Regression test for https://github.com/withastro/astro/issues/16482
+		// where a redirect like /project/[slug] -> / produced a misleading
+		// "getStaticPaths required" error pointing at index.astro instead of
+		// a clear error about the param mismatch in the redirect config.
+		await assert.rejects(
+			() =>
+				createStaticBuildOptions({
+					pages: {
+						'src/pages/index.astro': '---\n---\n<p>Home</p>',
+					},
+					inlineConfig: {
+						redirects: {
+							'/project/[slug]': '/',
+						},
+					},
+				}),
+			(err: Error & { name: string }) => {
+				// Should NOT be the misleading getStaticPaths error
+				assert.ok(!err.message.includes('getStaticPaths()'));
+				// Should mention the missing param
+				assert.ok(err.message.includes('[slug]'));
+				assert.equal(err.name, 'InvalidRedirectDestination');
+				return true;
+			},
+		);
+	});
+
+	it('throws InvalidRedirectDestination when destination has fewer params than origin', async () => {
+		// Regression test for https://github.com/withastro/astro/issues/16482
+		// where a redirect from a route with more params to one with fewer params
+		// produced a misleading error at build time.
+		await assert.rejects(
+			() =>
+				createStaticBuildOptions({
+					pages: {
+						'src/pages/posts/[id].astro':
+							'---\nexport function getStaticPaths() { return [{ params: { id: "1" } }]; }\n---\n<p>Post</p>',
+					},
+					inlineConfig: {
+						redirects: {
+							'/old/[id]/[page]': '/posts/[id]',
+						},
+					},
+				}),
+			(err: Error & { name: string }) => {
+				// Should NOT be the misleading getStaticPaths error
+				assert.ok(!err.message.includes('getStaticPaths()'));
+				// Should mention [page] as a missing param
+				assert.ok(err.message.includes('[page]'));
+				// The "missing dynamic parameter(s)" portion should only list [page],
+				// not [id] which is present in both source and destination
+				assert.ok(err.message.includes('missing dynamic parameter(s) [page]'));
+				assert.equal(err.name, 'InvalidRedirectDestination');
+				return true;
+			},
+		);
+	});
 });
 
 describe('Astro.redirect() in a page component — build.redirects = false', () => {

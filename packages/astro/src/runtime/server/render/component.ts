@@ -26,7 +26,8 @@ import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { maybeRenderHead } from './head.js';
 import { createRenderInstruction } from './instruction.js';
 import { containsServerDirective, ServerIslandComponent } from './server-islands.js';
-import { type ComponentSlots, renderSlot, renderSlots, renderSlotToString } from './slot.js';
+import { renderChild } from './any.js';
+import { type ComponentSlots, renderSlots, renderSlotToString } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
@@ -416,10 +417,15 @@ function sanitizeElementName(tag: string) {
 
 function renderFragmentComponent(result: SSRResult, slots: ComponentSlots = {}): RenderInstance {
 	const slot = slots?.default;
+	// Eagerly evaluate the slot to trigger creation of nested component instances
+	// (and their propagator registration for head content like styles/scripts).
+	// Without this, propagating components (e.g. Content from render()) nested inside
+	// a Fragment named slot won't register before bufferHeadContent() runs.
+	const preRendered = slot?.(result);
 	return {
 		render(destination) {
-			if (slot == null) return;
-			return renderSlot(result, slot).render(destination);
+			if (preRendered == null) return;
+			return renderChild(destination, preRendered);
 		},
 	};
 }
