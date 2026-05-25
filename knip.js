@@ -90,6 +90,9 @@ export default {
 		'packages/markdown/remark': {
 			entry: [srcEntry, dtsEntry, testEntry],
 		},
+		'packages/markdown/satteri': {
+			entry: [srcEntry, dtsEntry, testEntry],
+		},
 		'packages/upgrade': {
 			entry: ['src/index.ts', testEntry],
 		},
