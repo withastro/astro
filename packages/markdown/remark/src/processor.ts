@@ -1,5 +1,4 @@
 import type {
-	AstroMarkdownProcessorOptions,
 	MarkdownProcessor,
 	RehypePlugins,
 	RemarkPlugins,
@@ -18,23 +17,21 @@ export interface UnifiedProcessorOptions {
 }
 
 /**
- * The descriptor returned by `unified()`. Integrations extend the pipeline by mutating
- * `descriptor.options.remarkPlugins` / `rehypePlugins` / `remarkRehype` directly.
+ * Resolved options on the processor returned by `unified()`. Always populated
+ * (the factory normalises absent inputs into defaults).
  */
-export interface UnifiedProcessorDescriptor {
-	readonly name: 'unified';
-	options: {
-		remarkPlugins: RemarkPlugins;
-		rehypePlugins: RehypePlugins;
-		remarkRehype: RemarkRehype;
-		gfm?: boolean;
-		smartypants?: boolean | Smartypants;
-	};
-	createRenderer(shared: AstroMarkdownProcessorOptions): Promise<MarkdownProcessor>;
+export interface UnifiedResolvedOptions {
+	remarkPlugins: RemarkPlugins;
+	rehypePlugins: RehypePlugins;
+	remarkRehype: RemarkRehype;
+	gfm?: boolean;
+	smartypants?: boolean | Smartypants;
 }
 
-export function unified(opts: UnifiedProcessorOptions = {}): UnifiedProcessorDescriptor {
-	const descriptor: UnifiedProcessorDescriptor = {
+export function unified(
+	opts: UnifiedProcessorOptions = {},
+): MarkdownProcessor<UnifiedResolvedOptions> {
+	const processor: MarkdownProcessor<UnifiedResolvedOptions> = {
 		name: 'unified',
 		options: {
 			remarkPlugins: [...(opts.remarkPlugins ?? [])],
@@ -48,19 +45,21 @@ export function unified(opts: UnifiedProcessorOptions = {}): UnifiedProcessorDes
 			const { createMarkdownProcessor } = await import('./index.js');
 			return createMarkdownProcessor({
 				...shared,
-				remarkPlugins: descriptor.options.remarkPlugins,
-				rehypePlugins: descriptor.options.rehypePlugins,
-				remarkRehype: descriptor.options.remarkRehype,
+				remarkPlugins: processor.options.remarkPlugins,
+				rehypePlugins: processor.options.rehypePlugins,
+				remarkRehype: processor.options.remarkRehype,
 				// `unified({ gfm, smartypants })` wins; fall back to the deprecated
 				// top-level `markdown.gfm` / `markdown.smartypants` while they still exist.
-				gfm: descriptor.options.gfm ?? shared.gfm,
-				smartypants: descriptor.options.smartypants ?? shared.smartypants,
+				gfm: processor.options.gfm ?? shared.gfm,
+				smartypants: processor.options.smartypants ?? shared.smartypants,
 			});
 		},
 	};
-	return descriptor;
+	return processor;
 }
 
-export function isUnifiedProcessor(p: { name: string }): p is UnifiedProcessorDescriptor {
+export function isUnifiedProcessor(
+	p: { name: string },
+): p is MarkdownProcessor<UnifiedResolvedOptions> {
 	return p.name === 'unified';
 }

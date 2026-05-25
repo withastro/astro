@@ -52,7 +52,7 @@ export function createMinimalSettings(root: URL, overrides: Record<string, any> 
 			...defaultConfig,
 			...overrideConfig,
 			// Tests often spread custom markdown options without a processor; preserve the
-			// default `unified()` descriptor so `processor.createRenderer(...)` is always callable.
+			// default `unified()` processor so `processor.createRenderer(...)` is always callable.
 			markdown: { ...defaultConfig.markdown, ...(overrideConfig.markdown || {}) },
 		},
 		dotAstroDir: new URL('./.astro/', root),

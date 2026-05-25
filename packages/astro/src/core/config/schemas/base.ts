@@ -7,7 +7,7 @@ import type {
 } from '@astrojs/internal-helpers/markdown';
 import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/internal-helpers/markdown';
 import { unified } from '@astrojs/markdown-remark';
-import type { MarkdownProcessorEntry } from '../../../markdown/index.js';
+import type { MarkdownProcessor } from '../../../markdown/index.js';
 import type { OutgoingHttpHeaders } from 'node:http';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
 import * as z from 'zod/v4';
@@ -436,22 +436,20 @@ export const AstroConfigSchema = z.object({
 				.object({
 					name: z.string(),
 					// `z.custom` preserves reference identity; `z.record` would clone, breaking
-					// the closure inside `createRenderer` that reads `descriptor.options.*`.
+					// the closure inside `createRenderer` that reads `processor.options.*`.
 					options: z
-						.custom<Record<string, unknown>>(
-							(v) => typeof v === 'object' && v !== null && !Array.isArray(v),
-						)
+						.custom<object>((v) => typeof v === 'object' && v !== null && !Array.isArray(v))
 						.default(() => ({})),
-					createRenderer: z.custom<MarkdownProcessorEntry['createRenderer']>(
+					createRenderer: z.custom<MarkdownProcessor['createRenderer']>(
 						(v) => typeof v === 'function',
 					),
 					createMdxRenderer: z
-						.custom<MarkdownProcessorEntry['createMdxRenderer']>(
+						.custom<MarkdownProcessor['createMdxRenderer']>(
 							(v) => v === undefined || typeof v === 'function',
 						)
 						.optional(),
 				})
-				// A factory (not a shared value) so every config gets its own descriptor —
+				// A factory (not a shared value) so every config gets its own processor —
 				// integrations extend the pipeline by mutating `processor.options`, which
 				// would otherwise leak across configs built in the same process.
 				.default(() => unified()),

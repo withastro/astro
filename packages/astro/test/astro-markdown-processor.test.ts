@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { unified, type MarkdownProcessor } from '@astrojs/markdown-remark';
+import { unified, type MarkdownRenderer } from '@astrojs/markdown-remark';
 import * as cheerio from 'cheerio';
 import { type AstroInlineConfig, loadFixture } from './test-utils.ts';
 
@@ -20,7 +20,7 @@ describe('markdown.processor', () => {
 		});
 	});
 
-	describe('unified() descriptor', () => {
+	describe('unified() processor', () => {
 		it('applies remarkPlugins passed via unified({...})', async () => {
 			const fixture = await loadFixture({
 				root: FIXTURE_ROOT,
@@ -68,7 +68,7 @@ describe('markdown.processor', () => {
 			assert.equal($('#rehype-marker').length, 1);
 		});
 
-		it('forwards gfm and smartypants overrides on the descriptor', async () => {
+		it('forwards gfm and smartypants overrides on the processor', async () => {
 			const fixture = await loadFixture({
 				root: FIXTURE_ROOT,
 				outDir: './dist/markdown-processor-unified-gfm-off/',
@@ -108,12 +108,12 @@ describe('markdown.processor', () => {
 	});
 
 	describe('third-party processor', () => {
-		it('uses the descriptor’s createRenderer for .md files', async () => {
+		it('uses the processor’s createRenderer for .md files', async () => {
 			const calls: string[] = [];
 			const dummyProcessor = {
 				name: 'dummy',
 				options: {},
-				async createRenderer(): Promise<MarkdownProcessor> {
+				async createRenderer(): Promise<MarkdownRenderer> {
 					return {
 						async render(content) {
 							calls.push(content);
@@ -149,7 +149,7 @@ describe('markdown.processor', () => {
 			const dummyProcessor = {
 				name: 'dummy',
 				options: {},
-				async createRenderer(): Promise<MarkdownProcessor> {
+				async createRenderer(): Promise<MarkdownRenderer> {
 					return {
 						async render() {
 							return {

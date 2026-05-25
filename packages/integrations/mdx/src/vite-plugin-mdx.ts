@@ -1,20 +1,18 @@
-import type { UnifiedProcessorDescriptor } from '@astrojs/markdown-remark';
 import type { SSRError } from 'astro';
-import type { MarkdownProcessorEntry, MdxRenderer } from 'astro/markdown';
+import type { MarkdownProcessor, MdxRenderer } from 'astro/markdown';
 import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
 import type { MdxOptions } from './index.js';
 import { safeParseFrontmatter } from './utils.js';
 
-// Inlined name-check so MDX doesn't eagerly load `@astrojs/markdown-remark`
-// (it's only needed when the user's active processor is `unified()`).
-const isUnifiedProcessor = (p: { name: string }): p is UnifiedProcessorDescriptor =>
-	p.name === 'unified';
+// Name-check here only dispatches to a pipeline; we don't read `processor.options`,
+// so no narrowing — that's index.ts's concern.
+const isUnifiedProcessor = (p: { name: string }) => p.name === 'unified';
 
 export interface VitePluginMdxOptions {
 	mdxOptions: MdxOptions;
 	srcDir: URL;
-	processor: MarkdownProcessorEntry;
+	processor: MarkdownProcessor;
 }
 
 // NOTE: Do not destructure `opts` as we're assigning a reference that will be mutated later
@@ -138,6 +136,6 @@ async function resolveMdxRenderer(
 
 	throw new Error(
 		`The markdown processor "${processor.name}" does not provide MDX support. ` +
-			`Implement \`createMdxRenderer\` on the processor descriptor to enable MDX rendering.`,
+			`Implement \`createMdxRenderer\` on the processor to enable MDX rendering.`,
 	);
 }

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isFrontmatterValid } from '@astrojs/internal-helpers/frontmatter';
-import type { MarkdownProcessor } from '@astrojs/internal-helpers/markdown';
+import type { MarkdownRenderer } from '@astrojs/internal-helpers/markdown';
 import type { Plugin } from 'vite';
 import { safeParseFrontmatter } from '../content/utils.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -29,13 +29,13 @@ const astroErrorModulePath = normalizePath(
 );
 
 export default function markdown({ settings, logger }: AstroPluginOptions): Plugin {
-	let processor: Promise<MarkdownProcessor> | undefined;
+	let renderer: Promise<MarkdownRenderer> | undefined;
 
 	return {
 		enforce: 'pre',
 		name: 'astro:markdown',
 		buildEnd() {
-			processor = undefined;
+			renderer = undefined;
 		},
 		resolveId: {
 			filter: {
@@ -76,10 +76,10 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 
 				const fileURL = pathToFileURL(fileId);
 
-				// Lazily initialize the Markdown processor
-				if (!processor) {
+				// Lazily initialize the Markdown renderer
+				if (!renderer) {
 					const { markdown: md, image } = settings.config;
-					processor = md.processor.createRenderer({
+					renderer = md.processor.createRenderer({
 						image,
 						syntaxHighlight: md.syntaxHighlight,
 						shikiConfig: md.shikiConfig,
@@ -88,7 +88,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 					});
 				}
 
-				const renderResult = await (await processor).render(raw.content, {
+				const renderResult = await (await renderer).render(raw.content, {
 					fileURL,
 					frontmatter: raw.frontmatter,
 				});

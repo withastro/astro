@@ -1,6 +1,6 @@
 import { existsSync, promises as fs } from 'node:fs';
 import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
-import type { MarkdownProcessor } from '@astrojs/internal-helpers/markdown';
+import type { MarkdownRenderer } from '@astrojs/internal-helpers/markdown';
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
@@ -50,7 +50,7 @@ export class ContentLayer {
 	#watcher?: WrappedWatcher;
 	#lastConfigDigest?: string;
 	#unsubscribe?: () => void;
-	#markdownProcessor?: MarkdownProcessor;
+	#markdownRenderer?: MarkdownRenderer;
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 	#contentConfigObserver: ContentObservable;
 
@@ -151,9 +151,9 @@ export class ContentLayer {
 		content: string,
 		options?: RenderMarkdownOptions,
 	): Promise<RenderedContent> {
-		if (!this.#markdownProcessor) {
+		if (!this.#markdownRenderer) {
 			const { markdown, image } = this.#settings.config;
-			this.#markdownProcessor = await markdown.processor.createRenderer({
+			this.#markdownRenderer = await markdown.processor.createRenderer({
 				image,
 				syntaxHighlight: markdown.syntaxHighlight,
 				shikiConfig: markdown.shikiConfig,
@@ -162,7 +162,7 @@ export class ContentLayer {
 			});
 		}
 		const { frontmatter, content: body } = parseFrontmatter(content);
-		const { code, metadata } = await this.#markdownProcessor.render(body, {
+		const { code, metadata } = await this.#markdownRenderer.render(body, {
 			frontmatter,
 			fileURL: options?.fileURL,
 		});

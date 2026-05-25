@@ -14,9 +14,9 @@ import { rehypePrism } from './rehype-prism.js';
 import { rehypeShiki } from './rehype-shiki.js';
 import { remarkCollectImages } from './remark-collect-images.js';
 import type {
-	AstroMarkdownProcessorOptions,
+	AstroMarkdownOptions,
 	MarkdownHeading,
-	MarkdownProcessor,
+	MarkdownRenderer,
 } from '@astrojs/internal-helpers/markdown';
 
 // `vfile.data.astro` is populated by the unified pipeline as it renders.
@@ -35,11 +35,12 @@ export type { Node } from 'unist';
 // The markdown contract types live in `@astrojs/internal-helpers/markdown`;
 // re-exported so consumers keep a single import surface.
 export type {
-	AstroMarkdownProcessorOptions,
+	AstroMarkdownOptions,
 	MarkdownHeading,
 	MarkdownProcessor,
-	MarkdownProcessorRenderOptions,
-	MarkdownProcessorRenderResult,
+	MarkdownRenderer,
+	MarkdownRenderOptions,
+	MarkdownRenderResult,
 	RehypePlugin,
 	RehypePlugins,
 	RemarkPlugin,
@@ -63,8 +64,8 @@ export { rehypeShiki } from './rehype-shiki.js';
 export { remarkCollectImages } from './remark-collect-images.js';
 export {
 	isUnifiedProcessor,
-	type UnifiedProcessorDescriptor,
 	type UnifiedProcessorOptions,
+	type UnifiedResolvedOptions,
 	unified,
 } from './processor.js';
 export {
@@ -79,8 +80,8 @@ const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
  * Create a markdown preprocessor to render multiple markdown files
  */
 export async function createMarkdownProcessor(
-	opts?: AstroMarkdownProcessorOptions,
-): Promise<MarkdownProcessor> {
+	opts?: AstroMarkdownOptions,
+): Promise<MarkdownRenderer> {
 	const {
 		syntaxHighlight = markdownConfigDefaults.syntaxHighlight,
 		shikiConfig = markdownConfigDefaults.shikiConfig,

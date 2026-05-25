@@ -3,9 +3,9 @@ import type { Root } from 'mdast';
 import { definitions } from 'mdast-util-definitions';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
-import type { AstroMarkdownProcessorOptions } from '@astrojs/internal-helpers/markdown';
+import type { AstroMarkdownOptions } from '@astrojs/internal-helpers/markdown';
 
-export function remarkCollectImages(opts: AstroMarkdownProcessorOptions['image']) {
+export function remarkCollectImages(opts: AstroMarkdownOptions['image']) {
 	const domains = opts?.domains ?? [];
 	const remotePatterns = opts?.remotePatterns ?? [];
 

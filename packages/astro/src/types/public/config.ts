@@ -8,7 +8,7 @@ import type {
 	Smartypants,
 	SyntaxHighlightConfigType,
 } from '@astrojs/internal-helpers/markdown';
-import type { MarkdownProcessorEntry } from '../../markdown/index.js';
+import type { MarkdownProcessor } from '../../markdown/index.js';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
@@ -2176,7 +2176,7 @@ export interface AstroUserConfig<
 		/**
 		 * @docs
 		 * @name markdown.processor
-		 * @type {MarkdownProcessorEntry}
+		 * @type {MarkdownProcessor}
 		 * @version 6.x
 		 * @description
 		 * Configure the markdown processor used to render `.md` files. Defaults to `unified()` from
@@ -2197,7 +2197,7 @@ export interface AstroUserConfig<
 		 * });
 		 * ```
 		 */
-		processor?: MarkdownProcessorEntry;
+		processor?: MarkdownProcessor;
 	};
 
 	/**

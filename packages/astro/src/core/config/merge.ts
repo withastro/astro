@@ -58,10 +58,9 @@ function mergeConfigRecursively(
 			merged[key] = value;
 			continue;
 		}
-		// `markdown.processor` is a processor descriptor — atomic replacement.
-		// Deep-merging would mix the inactive default's options into the user's chosen
-		// processor (e.g. user passes a third-party descriptor, the default unified()
-		// `createRenderer` would leak in).
+		// `markdown.processor` is replaced atomically. Deep-merging would mix the inactive
+		// default's options into the user's chosen processor (e.g. user passes a third-party
+		// processor, the default unified() `createRenderer` would leak in).
 		if (
 			key === 'processor' &&
 			rootPath === 'markdown' &&

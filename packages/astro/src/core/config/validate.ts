@@ -53,7 +53,7 @@ let didWarnAboutProcessorMismatch = false;
 
 /**
  * Folds legacy `markdown.{remark,rehype}Plugins` / `remarkRehype` into the unified
- * processor descriptor and clears the legacy keys. Mutates `config` in place.
+ * processor and clears the legacy keys. Mutates `config` in place.
  * Runs on every validate pass so integration-added legacy plugins are picked up.
  * Without this they'd land in `config.markdown.*` and be silently dropped.
  */
