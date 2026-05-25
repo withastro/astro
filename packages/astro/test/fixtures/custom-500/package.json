@@ -1,8 +1,0 @@
-{
-  "name": "@test/custom-500",
-  "version": "0.0.0",
-  "private": true,
-  "dependencies": {
-    "astro": "workspace:*"
-  }
-}
