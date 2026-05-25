@@ -193,4 +193,46 @@ describe('getStaticPaths caching behavior', () => {
 		assert.equal(callCount, 2, 'new module should bypass cache');
 		assert.equal(result3.keyed.get('/one')?.props?.title, 'new');
 	});
+
+	it('does not log "route cache overwritten" on repeated SSR requests for the same module', async () => {
+		const messages: string[] = [];
+		const capturingDestination: AstroLoggerDestination<AstroLoggerMessage> = {
+			write: (msg) => {
+				messages.push(msg.message);
+				return true;
+			},
+		};
+		const warnLogger = new AstroLogger({ destination: capturingDestination, level: 'warn' });
+		const ssrCache = new RouteCache(warnLogger, 'production');
+
+		const route = makeRoute({
+			segments: [[dynamicPart('slug')]],
+			trailingSlash: 'never',
+			route: '/[slug]',
+			pathname: undefined,
+			type: 'page',
+			prerender: false,
+		});
+
+		const testMod = mod({ default: () => null });
+		const opts = {
+			mod: testMod,
+			route,
+			routeCache: ssrCache,
+			ssr: true,
+			base: '/' as const,
+			trailingSlash: 'never' as const,
+		};
+
+		await callGetStaticPaths(opts);
+		await callGetStaticPaths(opts);
+		await callGetStaticPaths(opts);
+
+		const overwriteWarnings = messages.filter((m) => m.includes('route cache overwritten'));
+		assert.equal(
+			overwriteWarnings.length,
+			0,
+			`SSR should not log "route cache overwritten" on repeated calls; got: ${overwriteWarnings.join(' | ')}`,
+		);
+	});
 });

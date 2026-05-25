@@ -47,7 +47,11 @@ export async function callGetStaticPaths({
 	// No static paths in SSR mode. Return an empty RouteCacheEntry.
 	if (ssr && !route.prerender) {
 		const entry: GetStaticPathsResultKeyed = Object.assign([], { keyed: new Map() });
-		routeCache.set(route, { ...cached, staticPaths: entry });
+		// Store `mod` alongside the entry so the fast-path above hits on
+		// subsequent requests; otherwise `cached.mod === mod` is always false
+		// in SSR and we re-enter this branch, triggering the "route cache
+		// overwritten" warning on every request after the first.
+		routeCache.set(route, { ...cached, mod, staticPaths: entry });
 		return entry;
 	}
 
