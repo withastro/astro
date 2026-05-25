@@ -8,9 +8,9 @@ import Slugger from 'github-slugger';
 import type { Features, HastNode, HastPluginDefinition, MdastPluginDefinition } from 'satteri';
 import { createShikiHighlighter } from '@astrojs/internal-helpers/shiki';
 import type {
-	AstroMarkdownProcessorOptions,
+	AstroMarkdownOptions,
 	MarkdownHeading,
-	MarkdownProcessor,
+	MarkdownRenderer,
 } from '@astrojs/internal-helpers/markdown';
 
 type HighlightFn = (code: string, lang: string, meta?: string) => Promise<string>;
@@ -27,7 +27,7 @@ async function loadSatteri(): Promise<typeof import('satteri')> {
 export function createCollectImagesPlugin(
 	localImagePaths: Set<string>,
 	remoteImagePaths: Set<string>,
-	image: AstroMarkdownProcessorOptions['image'] = {},
+	image: AstroMarkdownOptions['image'] = {},
 ): MdastPluginDefinition {
 	const domains = image?.domains ?? [];
 	const remotePatterns = image?.remotePatterns ?? [];
@@ -211,7 +211,7 @@ export function createShikiPlugin(
 	};
 }
 
-export interface SatteriMarkdownProcessorOptions extends AstroMarkdownProcessorOptions {
+export interface SatteriMarkdownProcessorOptions extends AstroMarkdownOptions {
 	mdastPlugins?: MdastPluginDefinition[];
 	hastPlugins?: HastPluginDefinition[];
 	features?: Features;
@@ -219,7 +219,7 @@ export interface SatteriMarkdownProcessorOptions extends AstroMarkdownProcessorO
 
 export async function createSatteriMarkdownProcessor(
 	opts?: SatteriMarkdownProcessorOptions,
-): Promise<MarkdownProcessor> {
+): Promise<MarkdownRenderer> {
 	const s = await loadSatteri();
 
 	const {

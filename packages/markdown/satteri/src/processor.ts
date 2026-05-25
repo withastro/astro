@@ -1,9 +1,6 @@
+import type { MarkdownProcessor } from '@astrojs/internal-helpers/markdown';
+import type { Features, HastPluginDefinition, MdastPluginDefinition } from 'satteri';
 import { createSatteriMarkdownProcessor } from './satteri-processor.js';
-import type {
-	AstroMarkdownProcessorOptions,
-	MarkdownProcessor,
-} from '@astrojs/internal-helpers/markdown';
-import type { MdastPluginDefinition, HastPluginDefinition, Features } from 'satteri';
 
 export interface SatteriProcessorOptions {
 	mdastPlugins?: MdastPluginDefinition[];
@@ -12,21 +9,19 @@ export interface SatteriProcessorOptions {
 }
 
 /**
- * The descriptor returned by `satteri()`. Integrations extend the pipeline by mutating
- * `descriptor.options.mdastPlugins` / `hastPlugins` / `features` directly.
+ * Resolved options on the processor returned by `satteri()`. Always populated
+ * (the factory normalises absent inputs into defaults).
  */
-export interface SatteriProcessorDescriptor {
-	readonly name: 'satteri';
-	options: {
-		mdastPlugins: MdastPluginDefinition[];
-		hastPlugins: HastPluginDefinition[];
-		features: Features;
-	};
-	createRenderer(shared: AstroMarkdownProcessorOptions): Promise<MarkdownProcessor>;
+export interface SatteriResolvedOptions {
+	mdastPlugins: MdastPluginDefinition[];
+	hastPlugins: HastPluginDefinition[];
+	features: Features;
 }
 
-export function satteri(opts: SatteriProcessorOptions = {}): SatteriProcessorDescriptor {
-	const descriptor: SatteriProcessorDescriptor = {
+export function satteri(
+	opts: SatteriProcessorOptions = {},
+): MarkdownProcessor<SatteriResolvedOptions> {
+	const processor: MarkdownProcessor<SatteriResolvedOptions> = {
 		name: 'satteri',
 		options: {
 			mdastPlugins: [...(opts.mdastPlugins ?? [])],
@@ -38,15 +33,17 @@ export function satteri(opts: SatteriProcessorOptions = {}): SatteriProcessorDes
 		createRenderer(shared) {
 			return createSatteriMarkdownProcessor({
 				...shared,
-				mdastPlugins: descriptor.options.mdastPlugins,
-				hastPlugins: descriptor.options.hastPlugins,
-				features: descriptor.options.features,
+				mdastPlugins: processor.options.mdastPlugins,
+				hastPlugins: processor.options.hastPlugins,
+				features: processor.options.features,
 			});
 		},
 	};
-	return descriptor;
+	return processor;
 }
 
-export function isSatteriProcessor(p: { name: string }): p is SatteriProcessorDescriptor {
+export function isSatteriProcessor(
+	p: { name: string },
+): p is MarkdownProcessor<SatteriResolvedOptions> {
 	return p.name === 'satteri';
 }
