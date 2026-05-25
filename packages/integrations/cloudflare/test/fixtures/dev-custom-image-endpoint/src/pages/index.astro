@@ -1,0 +1,14 @@
+---
+import { Picture } from 'astro:assets';
+import placeholder from '../placeholder.jpg';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Dev Custom Image Endpoint Test</title>
+	</head>
+	<body>
+		<Picture src={placeholder} widths={[100]} formats={['webp']} alt="placeholder" />
+	</body>
+</html>
