@@ -2184,7 +2184,20 @@ export interface AstroUserConfig<
 		 * and pass `satteri()` here to opt-in to the Sätteri Rust/WASM pipeline, which is faster but
 		 * does not support remark/rehype plugins.
 		 *
-		 * 
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 * import { unified } from '@astrojs/markdown-remark';
+		 * import remarkToc from 'remark-toc';
+		 *
+		 * export default defineConfig({
+		 *   markdown: {
+		 *     processor: unified({
+		 *       remarkPlugins: [remarkToc],
+		 *     }),
+		 *   },
+		 * });
+		 * ```
 		 */
 		processor?: MarkdownProcessor;
 	};
