@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
+import { baseService } from '../../../dist/assets/services/service.js';
 import type { GetImageResult, UnresolvedImageTransform } from '../../../dist/assets/types.js';
 import { getImage } from '../../../dist/assets/internal.js';
 import { installImageService } from '../mocks.ts';
@@ -278,7 +279,7 @@ describe('getImage', () => {
 			assert.equal(result.attributes.position, undefined);
 		});
 
-		it('includes object-position in style attribute when position is provided', async () => {
+		it('does not add inline style for position (CSP compliance)', async () => {
 			const result = await renderImage({
 				src: 'https://example.com/photo.jpg',
 				width: 300,
@@ -288,10 +289,24 @@ describe('getImage', () => {
 				position: 'left top',
 			});
 
-			assert.match(result.attributes.style, /object-position:\s*left top/);
+			// Position should only live in the data attribute, not in inline styles
+			assert.equal(result.attributes['data-astro-image-pos'], 'left-top');
+			const style = result.attributes.style;
+			if (typeof style === 'string') {
+				assert.ok(
+					!style.includes('object-position'),
+					'inline style should not contain object-position',
+				);
+			} else if (typeof style === 'object' && style !== null) {
+				assert.equal(
+					'objectPosition' in style,
+					false,
+					'style object should not contain objectPosition',
+				);
+			}
 		});
 
-		it('merges position into existing style object without overwriting', async () => {
+		it('preserves user-provided style without injecting position', async () => {
 			const result = await renderImage({
 				src: 'https://example.com/photo.jpg',
 				width: 300,
@@ -302,15 +317,14 @@ describe('getImage', () => {
 				style: { color: 'red' },
 			});
 
-			assert.deepStrictEqual(result.attributes.style, {
-				color: 'red',
-				objectPosition: 'top right',
-			});
+			// User style should be preserved as-is, position only in data attribute
+			assert.equal(result.attributes['data-astro-image-pos'], 'top-right');
+			assert.deepStrictEqual(result.attributes.style, { color: 'red' });
 		});
 	});
 
 	describe('format', () => {
-		it('defaults to webp format', async () => {
+		it('defaults to webp for remote images with a non-svg extension', async () => {
 			const result = await renderImage({
 				src: 'https://example.com/photo.jpg',
 				width: 800,
@@ -320,6 +334,41 @@ describe('getImage', () => {
 			});
 			const params = new URL(result.src, 'http://localhost').searchParams;
 			assert.equal(params.get('f'), 'webp');
+		});
+
+		it('defaults to svg for remote URLs ending in .svg so they pass through', async () => {
+			const result = await renderImage({
+				src: 'https://example.com/icon.svg',
+				width: 64,
+				height: 64,
+				alt: 'Format test',
+			});
+			const params = new URL(result.src, 'http://localhost').searchParams;
+			assert.equal(params.get('f'), 'svg');
+		});
+
+		it('defaults to svg for data:image/svg+xml so they pass through', async () => {
+			// Data URIs aren't in the test allowlist, so the URL is returned as-is by getURL — verify
+			// the resolved transform options instead.
+			const svg = 'data:image/svg+xml,%3Csvg/%3E';
+			const result = await renderImage({
+				src: svg,
+				width: 32,
+				height: 32,
+				alt: 'Format test',
+			});
+			assert.equal(result.options.format, 'svg');
+		});
+
+		it('omits format param for remote URLs without a detectable extension (resolved by /_image at request time)', async () => {
+			const result = await renderImage({
+				src: 'https://example.com/api/avatar',
+				width: 64,
+				height: 64,
+				alt: 'Format test',
+			});
+			const params = new URL(result.src, 'http://localhost').searchParams;
+			assert.equal(params.has('f'), false);
 		});
 
 		it('respects explicit format', async () => {
@@ -494,5 +543,152 @@ describe('getImage - remotePatterns', () => {
 			);
 			assert.equal(result.src, 'https://other.com/photo.jpg');
 		});
+	});
+});
+
+describe('getImage - peekRemoteFormatForStaticEmit', () => {
+	let probedFormat: string | undefined;
+	let probeCalls = 0;
+	let probeError: Error | undefined;
+
+	// `baseService.getURL` reads `import.meta.env.BASE_URL`, which isn't set in unit tests.
+	const stubGetURL = (options: { src: string | { src: string } }) =>
+		typeof options.src === 'string' ? options.src : options.src.src;
+
+	const localServiceWithProbe = {
+		...baseService,
+		getURL: stubGetURL,
+		// `isLocalService` only checks for `transform`, so a stub is enough.
+		async transform() {
+			return { data: new Uint8Array(), format: 'webp' };
+		},
+		async getRemoteSize(_url: string) {
+			probeCalls++;
+			if (probeError) throw probeError;
+			return { format: probedFormat, width: 100, height: 100 };
+		},
+	};
+
+	const imageConfig = {
+		service: { entrypoint: 'test', config: {} },
+		domains: ['example.com'],
+		remotePatterns: [],
+		endpoint: { route: '/_image' },
+		dangerouslyProcessSVG: false,
+		responsiveStyles: false,
+	};
+
+	beforeEach(() => {
+		probedFormat = undefined;
+		probeCalls = 0;
+		probeError = undefined;
+		(globalThis as any).astroAsset = {
+			imageService: localServiceWithProbe,
+			addStaticImage: () => '/_astro/peeked.hash.png',
+		};
+	});
+
+	afterEach(() => {
+		(globalThis as any).astroAsset = undefined;
+	});
+
+	it('commits the probed format when the URL has no detectable extension', async () => {
+		probedFormat = 'png';
+		const result = await getImage(
+			{ src: 'https://example.com/api/avatar', width: 64, height: 64, alt: 'no-ext' },
+			imageConfig,
+		);
+		assert.equal(probeCalls, 1);
+		// Raster sources default to webp.
+		assert.equal(result.options.format, 'webp');
+	});
+
+	it('preserves svg through the peek so SVGs do not get rasterized', async () => {
+		probedFormat = 'svg';
+		const result = await getImage(
+			{ src: 'https://example.com/api/avatar', width: 64, height: 64, alt: 'svg-peek' },
+			imageConfig,
+		);
+		assert.equal(probeCalls, 1);
+		assert.equal(result.options.format, 'svg');
+	});
+
+	it('does not peek when the URL extension already resolved a format', async () => {
+		probedFormat = 'svg';
+		const result = await getImage(
+			{ src: 'https://example.com/photo.jpg', width: 64, height: 64, alt: 'has-ext' },
+			imageConfig,
+		);
+		assert.equal(probeCalls, 0);
+		assert.equal(result.options.format, 'webp');
+	});
+
+	it('does not peek when the caller already set an explicit format', async () => {
+		probedFormat = 'svg';
+		const result = await getImage(
+			{
+				src: 'https://example.com/api/avatar',
+				width: 64,
+				height: 64,
+				alt: 'explicit',
+				format: 'png',
+			},
+			imageConfig,
+		);
+		assert.equal(probeCalls, 0);
+		assert.equal(result.options.format, 'png');
+	});
+
+	it('does not peek when not running at build time (no addStaticImage)', async () => {
+		probedFormat = 'svg';
+		(globalThis as any).astroAsset = { imageService: localServiceWithProbe };
+		const result = await getImage(
+			{ src: 'https://example.com/api/avatar', width: 64, height: 64, alt: 'ssr' },
+			imageConfig,
+		);
+		assert.equal(probeCalls, 0);
+		assert.equal(result.options.format, undefined);
+	});
+
+	it('does not peek when the remote URL is not allowed', async () => {
+		probedFormat = 'svg';
+		const result = await getImage(
+			{ src: 'https://untrusted.com/api/avatar', width: 64, height: 64, alt: 'blocked' },
+			imageConfig,
+		);
+		assert.equal(probeCalls, 0);
+		assert.equal(result.options.format, undefined);
+	});
+
+	it('does not peek for external (non-local) services', async () => {
+		// External service has no `transform`, so `isLocalService` returns false.
+		const externalService = {
+			...baseService,
+			getURL: stubGetURL,
+			async getRemoteSize(_url: string) {
+				probeCalls++;
+				return { format: 'svg', width: 100, height: 100 };
+			},
+		};
+		(globalThis as any).astroAsset = {
+			imageService: externalService,
+			addStaticImage: () => '/_astro/peeked.hash.png',
+		};
+		const result = await getImage(
+			{ src: 'https://example.com/api/avatar', width: 64, height: 64, alt: 'external' },
+			imageConfig,
+		);
+		assert.equal(probeCalls, 0);
+		assert.equal(result.options.format, undefined);
+	});
+
+	it('falls back to undefined when the probe throws', async () => {
+		probeError = new Error('network down');
+		const result = await getImage(
+			{ src: 'https://example.com/api/avatar', width: 64, height: 64, alt: 'probe-fail' },
+			imageConfig,
+		);
+		assert.equal(probeCalls, 1);
+		assert.equal(result.options.format, undefined);
 	});
 });

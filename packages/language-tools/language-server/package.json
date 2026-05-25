@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/language-server",
-  "version": "2.16.8",
+  "version": "2.16.9",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@astrojs/compiler": "^2.13.1",
-    "@astrojs/yaml2ts": "^0.2.3",
+    "@astrojs/yaml2ts": "^0.2.4",
     "@jridgewell/sourcemap-codec": "^1.5.5",
     "@volar/kit": "~2.4.28",
     "@volar/language-core": "~2.4.28",
@@ -46,7 +46,7 @@
     "vscode-uri": "^3.1.0"
   },
   "devDependencies": {
-    "@types/node": "^20.9.0",
+    "@types/node": "^22.10.6",
     "@volar/test-utils": "~2.4.28",
     "@volar/typescript": "~2.4.28",
     "astro-scripts": "workspace:*",

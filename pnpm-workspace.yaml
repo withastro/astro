@@ -18,6 +18,18 @@ preferWorkspacePackages: true
 linkWorkspacePackages: true
 saveWorkspaceProtocol: false # This prevents the examples to have the `workspace:` prefix
 autoInstallPeers: false
+dedupePeers: true
+
+overrides:
+  # If a dependency has a peer dependency on `@types/node` and the version range accepts `22`,
+  # we force it to resolve to `^22.19.0`. This helps reduce the number of duplicate packages
+  # in `node_modules/`.
+  #
+  # For example, `vite@7.3.2` has a peer dependency `"@types/node": "^20.19.0 || >=22.12.0"`.
+  # pnpm could install the same `vite@7.3.2` multiple times, one with `@types/node@20`, one
+  # with `@types/node@22`, one with `@types/node@25`, etc.. By adding this override, we force
+  # pnpm to only keep one installation of `vite@7.3.2` with `@types/node@22`.
+  '@types/node@22': '^22.19.0'
 
 publicHoistPattern:
   # `astro sync` could try to import `@astrojs/db` but could fail due to linked dependencies in the monorepo.
@@ -29,16 +41,6 @@ minimumReleaseAgeExclude:
   # TODO: remove once more stable
   - '@flue/*'
   - '@astrojs/*'
-  # Netlify Vite Plugin and deps. New version required for bug fix.
-  # TODO: remove this block after 2026/05/15
-  - '@netlify/vite-plugin@2.12.3'
-  - '@netlify/dev@4.18.3'
-  - '@netlify/runtime@4.1.21'
-  - '@netlify/edge-functions-dev@1.0.17'
-  - '@netlify/blobs@10.7.5'
-  - '@netlify/functions-dev@1.2.8'
-  - '@netlify/otel@6.0.0'
-  - '@netlify/zip-it-and-ship-it@14.5.6'
 peerDependencyRules:
   allowAny:
     - 'astro'
