@@ -33,8 +33,8 @@ export function toTSX(code: string, className: string): string {
 			result = tsx.replace(
 				'export default class extends __sveltets_2_createSvelte2TsxComponent(',
 				`function ${className}__AstroComponent_Inner(_props: import('@astrojs/svelte/svelte-shims.d.ts').PropsWithClientDirectives<typeof Component.props>): any { return {}; }\n` +
-				`const ${className}__AstroComponent_ = ${className}__AstroComponent_Inner as unknown as typeof ${className}__AstroComponent_Inner & { (this: void, _internals: import('svelte').ComponentInternals, _props: typeof Component.props): Record<string, any>; };\n` +
-				`export default ${className}__AstroComponent_;\nlet Component = `,
+					`const ${className}__AstroComponent_ = ${className}__AstroComponent_Inner as unknown as typeof ${className}__AstroComponent_Inner & { (this: void, _internals: import('svelte').ComponentInternals, _props: typeof Component.props): Record<string, any>; };\n` +
+					`export default ${className}__AstroComponent_;\nlet Component = `,
 			);
 		}
 	} catch {
