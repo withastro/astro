@@ -1,8 +1,6 @@
-import {
-	createDefaultAstroMetadata,
-	type MarkdownHeading,
-} from '@astrojs/internal-helpers/markdown';
+import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import { createShikiHighlighter } from '@astrojs/internal-helpers/shiki';
+import { createDefaultAstroMetadata } from 'astro/markdown';
 import {
 	satteriCollectImagesPlugin,
 	satteriHeadingIdsPlugin,
