@@ -3,11 +3,8 @@ import type { MarkdownProcessor, MdxRenderer } from 'astro/markdown';
 import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
 import type { MdxOptions } from './index.js';
+import { isUnifiedProcessor } from './processor-guards.js';
 import { safeParseFrontmatter } from './utils.js';
-
-// Name-check here only dispatches to a pipeline; we don't read `processor.options`,
-// so no narrowing — that's index.ts's concern.
-const isUnifiedProcessor = (p: { name: string }) => p.name === 'unified';
 
 export interface VitePluginMdxOptions {
 	mdxOptions: MdxOptions;

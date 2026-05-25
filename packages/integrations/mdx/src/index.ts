@@ -4,7 +4,6 @@ import {
 	type AstroMarkdownOptions,
 	markdownConfigDefaults,
 } from '@astrojs/internal-helpers/markdown';
-import type { UnifiedResolvedOptions } from '@astrojs/markdown-remark';
 import type {
 	AstroIntegration,
 	AstroIntegrationLogger,
@@ -15,15 +14,11 @@ import type {
 import type { MarkdownProcessor } from 'astro/markdown';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
+import { isUnifiedProcessor } from './processor-guards.js';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
 import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
 import { type VitePluginMdxOptions, vitePluginMdx } from './vite-plugin-mdx.js';
 import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
-
-// Inlined name-check so MDX doesn't eagerly load `@astrojs/markdown-remark`
-// (it's only needed when the user's active processor is `unified()`).
-const isUnifiedProcessor = (p: { name: string }): p is MarkdownProcessor<UnifiedResolvedOptions> =>
-	p.name === 'unified';
 
 // `gfm`/`smartypants` are deprecated and stay unset unless the user opts in; the
 // MDX pipelines treat an absent value as the default (on), like the `.md` processors.
