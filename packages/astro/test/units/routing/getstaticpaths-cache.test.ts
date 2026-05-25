@@ -214,7 +214,7 @@ describe('getStaticPaths caching behavior', () => {
 			prerender: false,
 		});
 
-		const testMod = mod({ default: () => null });
+		const testMod = mod({});
 		const opts = {
 			mod: testMod,
 			route,
