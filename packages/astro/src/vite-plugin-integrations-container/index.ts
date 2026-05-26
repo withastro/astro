@@ -25,9 +25,7 @@ export default function astroIntegrationsContainerPlugin({
 		async buildStart() {
 			if (settings.injectedRoutes.length === settings.resolvedInjectedRoutes.length) return;
 			settings.resolvedInjectedRoutes = await Promise.all(
-				settings.injectedRoutes.map((route) =>
-					resolveEntryPoint(route, server, this),
-				),
+				settings.injectedRoutes.map((route) => resolveEntryPoint(route, server, this)),
 			);
 		},
 	};
