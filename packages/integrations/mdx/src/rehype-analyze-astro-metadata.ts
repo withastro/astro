@@ -1,4 +1,6 @@
-import type { RehypePlugin } from '@astrojs/internal-helpers/markdown';
+import type { AstroMetadata, RehypePlugin } from '@astrojs/internal-helpers/markdown';
+import { AstroError, AstroErrorData } from 'astro/errors';
+import { resolvePath } from 'astro/markdown';
 import type { RootContent } from 'hast';
 import type {} from 'mdast-util-mdx';
 import type {
@@ -8,18 +10,21 @@ import type {
 } from 'mdast-util-mdx-jsx';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
-import { AstroError } from '../core/errors/errors.js';
-import { AstroErrorData } from '../core/errors/index.js';
-import { resolvePath } from '../core/viteUtils.js';
-import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
-import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
 export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 	return (tree, file) => {
 		// Initial metadata for this MDX file, it will be mutated as we traverse the tree
-		const metadata = createDefaultAstroMetadata();
+		const metadata: AstroMetadata = {
+			hydratedComponents: [],
+			clientOnlyComponents: [],
+			serverComponents: [],
+			scripts: [],
+			propagation: 'none',
+			containsHead: false,
+			pageOptions: {},
+		};
 
 		// Parse imports in this file. This is used to match components with their import source
 		const imports = parseImports(tree.children);
@@ -40,10 +45,10 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 			// Match this component with its import source
 			const matchedImport = findMatchingImport(tagName, imports);
 			if (!matchedImport) {
-				throw new AstroError({
-					...AstroErrorData.NoMatchingImport,
-					message: AstroErrorData.NoMatchingImport.message(node.name!),
-				});
+				throw new AstroError(
+					AstroErrorData.NoMatchingImport.message(node.name!),
+					AstroErrorData.NoMatchingImport.hint,
+				);
 			}
 
 			// If this is an Astro component, that means the `client:` directive is misused as it doesn't
@@ -100,8 +105,8 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 	};
 };
 
-export function getAstroMetadata(file: VFile) {
-	return file.data.__astroMetadata as PluginMetadata['astro'] | undefined;
+export function getAstroMetadata(file: VFile): AstroMetadata | undefined {
+	return file.data.__astroMetadata as AstroMetadata | undefined;
 }
 
 type ImportSpecifier = { local: string; imported: string };
