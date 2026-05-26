@@ -15,7 +15,7 @@ import type { APIContext } from '../../../dist/types/public/context.js';
  * Migrated from the integration test in test/astro-cookies.test.ts.
  */
 
-// -- Route factories --
+// #region Route factories
 
 function getJsonEndpoint() {
 	return createEndpoint(
@@ -131,7 +131,9 @@ function toEndpointRoute() {
 	);
 }
 
-// -- Tests --
+// #endregion
+
+// #region Tests
 
 describe('Astro.cookies', () => {
 	it('is able to get cookies from the request', async () => {
