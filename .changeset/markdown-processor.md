@@ -31,7 +31,6 @@ In addition to this new configuration option, Astro provides a new alternative p
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
 import { satteri } from '@astrojs/markdown-satteri';
-import remarkToc from 'remark-toc';
 
 export default defineConfig({
   markdown: {
