@@ -13,9 +13,8 @@ import type {
 } from 'astro';
 import type { MarkdownProcessor } from 'astro/markdown';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
-import type { Features, HastPluginDefinition, MdastPluginDefinition } from 'satteri';
 import type { PluggableList } from 'unified';
-import { isSatteriProcessor, isUnifiedProcessor } from './processor-guards.js';
+import { isUnifiedProcessor } from './processor-guards.js';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
 import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
 import { type VitePluginMdxOptions, vitePluginMdx } from './vite-plugin-mdx.js';
@@ -29,6 +28,13 @@ type SharedMarkdownOptions = Required<Pick<AstroMarkdownOptions, 'syntaxHighligh
 export type MdxOptions = SharedMarkdownOptions & {
 	extendMarkdownConfig: boolean;
 	recmaPlugins: PluggableList;
+	optimize: boolean | OptimizeOptions;
+	/**
+	 * Override the markdown processor for `.mdx` files. Defaults to `config.markdown.processor`.
+	 * Use this to run `.mdx` files through a different processor (or the same processor with
+	 * different options) than your `.md` files.
+	 */
+	processor?: MarkdownProcessor;
 	// Markdown allows strings as remark and rehype plugins.
 	// This is not supported by the MDX compiler, so override types here.
 	/**
@@ -43,19 +49,18 @@ export type MdxOptions = SharedMarkdownOptions & {
 	 * @deprecated Pass `remarkRehype` to `unified({ remarkRehype })` from `@astrojs/markdown-remark` and set it as `markdown.processor` instead — MDX will inherit it. Will be removed in a future major.
 	 */
 	remarkRehype: RemarkRehypeOptions;
+};
+
+/**
+ * MDX pipeline options. Excludes user-only control fields (`extendMarkdownConfig`, `processor`).
+ * @internal
+ */
+export type ResolvedMdxOptions = SharedMarkdownOptions & {
+	recmaPlugins: PluggableList;
 	optimize: boolean | OptimizeOptions;
-	/** Sätteri-only: mdast plugins for the Sätteri MDX pipeline. Ignored by the unified pipeline. */
-	mdastPlugins: MdastPluginDefinition[];
-	/** Sätteri-only: hast plugins for the Sätteri MDX pipeline. Ignored by the unified pipeline. */
-	hastPlugins: HastPluginDefinition[];
-	/** Sätteri-only: feature flags for the Sätteri compiler. Ignored by the unified pipeline. */
-	features?: Features;
-	/**
-	 * Override the markdown processor for `.mdx` files. Defaults to `config.markdown.processor`.
-	 * Use this to run `.mdx` files through a different processor (or the same processor with
-	 * different options) than your `.md` files.
-	 */
-	processor?: MarkdownProcessor;
+	remarkPlugins: PluggableList;
+	rehypePlugins: PluggableList;
+	remarkRehype: RemarkRehypeOptions;
 };
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -132,52 +137,39 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 
 				const processor = partialMdxOptions.processor ?? config.markdown.processor;
 
-				if (extendMarkdownConfig) {
+				if (extendMarkdownConfig && isUnifiedProcessor(processor)) {
 					// MDX inherits from the processor only when the user did NOT pass that option
 					// to `mdx({...})`. Following the historical contract: MDX's value REPLACES the
 					// markdown processor's value (no per-key merge).
-					if (isSatteriProcessor(processor)) {
-						if (partialMdxOptions.mdastPlugins === undefined) {
-							resolvedMdxOptions.mdastPlugins = [...processor.options.mdastPlugins];
-						}
-						if (partialMdxOptions.hastPlugins === undefined) {
-							resolvedMdxOptions.hastPlugins = [...processor.options.hastPlugins];
-						}
-						resolvedMdxOptions.features = {
-							...processor.options.features,
-							...resolvedMdxOptions.features,
-						};
-					} else if (isUnifiedProcessor(processor)) {
-						if (partialMdxOptions.remarkPlugins === undefined) {
-							resolvedMdxOptions.remarkPlugins = ignoreStringPlugins(
-								processor.options.remarkPlugins,
-								logger,
-							);
-						}
-						if (partialMdxOptions.rehypePlugins === undefined) {
-							resolvedMdxOptions.rehypePlugins = ignoreStringPlugins(
-								processor.options.rehypePlugins,
-								logger,
-							);
-						}
-						if (partialMdxOptions.remarkRehype === undefined) {
-							resolvedMdxOptions.remarkRehype = { ...processor.options.remarkRehype };
-						}
-						// `gfm`/`smartypants` from `unified({...})` apply to `.mdx` too, unless
-						// `mdx({...})` set its own.
-						if (partialMdxOptions.gfm === undefined && processor.options.gfm !== undefined) {
-							resolvedMdxOptions.gfm = processor.options.gfm;
-						}
-						if (
-							partialMdxOptions.smartypants === undefined &&
-							processor.options.smartypants !== undefined
-						) {
-							resolvedMdxOptions.smartypants = processor.options.smartypants;
-						}
+					if (partialMdxOptions.remarkPlugins === undefined) {
+						resolvedMdxOptions.remarkPlugins = ignoreStringPlugins(
+							processor.options.remarkPlugins,
+							logger,
+						);
 					}
-					// Third-party processors don't expose their plugins to MDX's built-in option
-					// merging; they handle their own pipeline via `createMdxRenderer`.
+					if (partialMdxOptions.rehypePlugins === undefined) {
+						resolvedMdxOptions.rehypePlugins = ignoreStringPlugins(
+							processor.options.rehypePlugins,
+							logger,
+						);
+					}
+					if (partialMdxOptions.remarkRehype === undefined) {
+						resolvedMdxOptions.remarkRehype = { ...processor.options.remarkRehype };
+					}
+					// `gfm`/`smartypants` from `unified({...})` apply to `.mdx` too, unless
+					// `mdx({...})` set its own.
+					if (partialMdxOptions.gfm === undefined && processor.options.gfm !== undefined) {
+						resolvedMdxOptions.gfm = processor.options.gfm;
+					}
+					if (
+						partialMdxOptions.smartypants === undefined &&
+						processor.options.smartypants !== undefined
+					) {
+						resolvedMdxOptions.smartypants = processor.options.smartypants;
+					}
 				}
+				// Third-party processors handle their own pipeline via `createMdxRenderer`
+				// (or, in Sätteri's case, by reading from `processor.options` directly).
 
 				// Mutate `mdxOptions` so that `vitePluginMdx` can reference the actual options
 				Object.assign(vitePluginMdxOptions, {
@@ -195,10 +187,6 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 
 const defaultMdxOptions = {
 	extendMarkdownConfig: true,
-	recmaPlugins: [],
-	optimize: false,
-	mdastPlugins: [],
-	hastPlugins: [],
 } satisfies Partial<MdxOptions>;
 
 let didWarnAboutDeprecatedMdxPluginOptions = false;
@@ -227,14 +215,15 @@ function warnDeprecatedMdxPluginOptions(
 function markdownConfigToMdxOptions(
 	markdownConfig: SharedMarkdownOptions,
 	_logger: AstroIntegrationLogger,
-): MdxOptions {
+): ResolvedMdxOptions {
 	return {
-		...defaultMdxOptions,
 		...markdownConfig,
 		// Deprecated `markdown.{gfm,smartypants}` may be unset (optional in the schema);
 		// fall back to the processor defaults so the MDX pipeline still enables them by default.
 		gfm: markdownConfig.gfm ?? markdownConfigDefaults.gfm,
 		smartypants: markdownConfig.smartypants ?? markdownConfigDefaults.smartypants,
+		recmaPlugins: [],
+		optimize: false,
 		// Plugins come from the processor — merged in astro:config:done.
 		remarkPlugins: [],
 		rehypePlugins: [],
@@ -247,21 +236,17 @@ function applyDefaultOptions({
 	defaults,
 }: {
 	options: Partial<MdxOptions>;
-	defaults: MdxOptions;
-}): MdxOptions {
+	defaults: ResolvedMdxOptions;
+}): ResolvedMdxOptions {
 	return {
 		syntaxHighlight: options.syntaxHighlight ?? defaults.syntaxHighlight,
-		extendMarkdownConfig: options.extendMarkdownConfig ?? defaults.extendMarkdownConfig,
-		recmaPlugins: options.recmaPlugins ?? defaults.recmaPlugins,
-		remarkRehype: options.remarkRehype ?? defaults.remarkRehype,
+		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,
 		gfm: options.gfm ?? defaults.gfm,
 		smartypants: options.smartypants ?? defaults.smartypants,
+		recmaPlugins: options.recmaPlugins ?? defaults.recmaPlugins,
+		optimize: options.optimize ?? defaults.optimize,
 		remarkPlugins: options.remarkPlugins ?? defaults.remarkPlugins,
 		rehypePlugins: options.rehypePlugins ?? defaults.rehypePlugins,
-		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,
-		optimize: options.optimize ?? defaults.optimize,
-		mdastPlugins: options.mdastPlugins ?? defaults.mdastPlugins,
-		hastPlugins: options.hastPlugins ?? defaults.hastPlugins,
-		features: options.features ?? defaults.features,
+		remarkRehype: options.remarkRehype ?? defaults.remarkRehype,
 	};
 }

@@ -2,12 +2,12 @@ import type { SSRError } from 'astro';
 import type { MarkdownProcessor, MdxRenderer } from 'astro/markdown';
 import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
-import type { MdxOptions } from './index.js';
+import type { ResolvedMdxOptions } from './index.js';
 import { isSatteriProcessor, isUnifiedProcessor } from './processor-guards.js';
 import { safeParseFrontmatter } from './utils.js';
 
 export interface VitePluginMdxOptions {
-	mdxOptions: MdxOptions;
+	mdxOptions: ResolvedMdxOptions;
 	srcDir: URL;
 	processor: MarkdownProcessor;
 }
@@ -103,7 +103,9 @@ async function resolveMdxRenderer(
 
 	if (isSatteriProcessor(processor)) {
 		const { createMdxProcessor: createSatteriMdxProcessor } = await import('./satteri/index.js');
-		const satteriProcessor = createSatteriMdxProcessor(opts.mdxOptions, { srcDir: opts.srcDir });
+		const satteriProcessor = createSatteriMdxProcessor(opts.mdxOptions, processor.options, {
+			srcDir: opts.srcDir,
+		});
 		return {
 			async process(content, filePath, frontmatter) {
 				const result = await satteriProcessor.process(content, filePath, frontmatter);
