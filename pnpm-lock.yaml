@@ -6925,18 +6925,6 @@ importers:
         specifier: ^4.21.0
         version: 4.21.0
 
-  triage/gh-16491:
-    dependencies:
-      '@astrojs/cloudflare':
-        specifier: workspace:*
-        version: link:../../packages/integrations/cloudflare
-      astro:
-        specifier: workspace:*
-        version: link:../../packages/astro
-      fake-usd-pkg:
-        specifier: file:./fake-usd-pkg/fake-usd-pkg-1.0.1.tgz
-        version: file:triage/gh-16491/fake-usd-pkg/fake-usd-pkg-1.0.1.tgz
-
 packages:
 
   '@anthropic-ai/sdk@0.91.1':
@@ -12258,10 +12246,6 @@ packages:
     resolution: {directory: packages/integrations/cloudflare/test/fixtures/prerender-node-env/fake-svelte-pkg, type: directory}
     peerDependencies:
       svelte: ^5.0.0
-
-  fake-usd-pkg@file:triage/gh-16491/fake-usd-pkg/fake-usd-pkg-1.0.1.tgz:
-    resolution: {integrity: sha512-d6wQ+zU3mEgYXII+IHC3YqIOzTgem7sLhTHF4whe4xR69/ib16dCHGRgoOjV9JGoeUUuAu96/cb/beY+qEcd1w==, tarball: file:triage/gh-16491/fake-usd-pkg/fake-usd-pkg-1.0.1.tgz}
-    version: 1.0.1
 
   fast-decode-uri-component@1.0.1:
     resolution: {integrity: sha512-WKgKWg5eUxvRZGwW8FvfbaH7AXSh2cL+3j5fMGzUMCxWBJ3dV3a7Wz8y2f/uQ0e3B6WmodD3oS54jTQ9HVTIIg==}
@@ -22421,8 +22405,6 @@ snapshots:
   fake-svelte-pkg@file:packages/integrations/cloudflare/test/fixtures/prerender-node-env/fake-svelte-pkg(svelte@5.55.3):
     dependencies:
       svelte: 5.55.3
-
-  fake-usd-pkg@file:triage/gh-16491/fake-usd-pkg/fake-usd-pkg-1.0.1.tgz: {}
 
   fast-decode-uri-component@1.0.1: {}
 

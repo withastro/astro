@@ -274,13 +274,11 @@ export class FetchState implements AstroFetchState {
 		this.url = normalizeUrl(url);
 		this.cookies = new AstroCookies(request);
 
-		// Apply X-Forwarded-* headers from the request. This must happen
-		// after this.url is set so it can update protocol/host/port, and
-		// before route resolution so the correct URL is used for matching.
-		// Guard inlined here so the method call is skipped entirely on the
-		// hot path (most requests have no forwarded headers).
-		const h = request.headers;
-		if (h.has('x-forwarded-proto') || h.has('x-forwarded-host') || h.has('x-forwarded-port')) {
+		// Apply X-Forwarded-* headers only when the user has configured
+		// allowedDomains — without it, forwarded headers are never trusted
+		// and the validation is a no-op. This avoids header lookups on the
+		// hot path for the vast majority of apps.
+		if (pipeline.manifest.allowedDomains && pipeline.manifest.allowedDomains.length > 0) {
 			this.#applyForwardedHeaders();
 		}
 
@@ -859,9 +857,8 @@ export class FetchState implements AstroFetchState {
 	 * `allowedDomains`, and updates `this.url` accordingly. Also resolves
 	 * `clientAddress` from X-Forwarded-For when the host is trusted.
 	 *
-	 * This runs inside the FetchState constructor so that user-provided
-	 * fetch handlers (`src/app.ts`) can set forwarded headers on the
-	 * request before constructing FetchState and have them take effect.
+	 * Only called when `allowedDomains` is configured — without it,
+	 * forwarded headers are never trusted.
 	 */
 	#applyForwardedHeaders(): void {
 		const headers = this.request.headers;
@@ -901,7 +898,7 @@ export class FetchState implements AstroFetchState {
 		const hostTrusted = validated.host !== undefined;
 		if (hostTrusted && !this.clientAddress) {
 			const forwardedFor = getFirstForwardedValue(
-				headers.get('x-forwarded-for') ?? undefined,
+				this.request.headers.get('x-forwarded-for') ?? undefined,
 			);
 			if (forwardedFor) {
 				this.clientAddress = forwardedFor;
