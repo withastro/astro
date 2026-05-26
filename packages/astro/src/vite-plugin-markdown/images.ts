@@ -22,13 +22,12 @@ export function getMarkdownCodeForImages(
 												'\\\\$&',
 											)} + '[^"]*)"', 'g');
 											let match;
-											let occurrenceCounter = 0;
 											while ((match = regex.exec(html)) !== null) {
-													const matchKey = ${rawUrl} + '_' + occurrenceCounter;
 													const imageProps = JSON.parse(match[1].replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'"));
 													const { src, ...props } = imageProps;
-													imageSources[matchKey] = await getImage({src: Astro__${entry.safeName}, ...props});
-													occurrenceCounter++;
+													// Key on the decoded src so it lines up with the lookup in updateImageReferences,
+													// which JSON-parses the attribute too (so its key uses the decoded path).
+													imageSources[src + '_' + imageProps.index] = await getImage({src: Astro__${entry.safeName}, ...props});
 											}
 									}`;
 						})
@@ -42,12 +41,9 @@ export function getMarkdownCodeForImages(
 												'\\\\$&',
 											)} + '[^"]*)"', 'g');
 											let match;
-											let occurrenceCounter = 0;
 											while ((match = regex.exec(html)) !== null) {
-													const matchKey = ${rawUrl} + '_' + occurrenceCounter;
 													const props = JSON.parse(match[1].replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'"));
-													imageSources[matchKey] = await getImage(props);
-													occurrenceCounter++;
+													imageSources[props.src + '_' + props.index] = await getImage(props);
 											}
 									}`;
 						})
