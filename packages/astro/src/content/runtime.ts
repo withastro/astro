@@ -461,6 +461,9 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	// function because getImage is async.
 	for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
 		try {
+			// Markdown processors disagree on which character references to emit when
+			// serialising attribute values: remark uses the numeric forms (`&#x22;` / `&#x27;`),
+			// satteri uses the named forms (`&quot;` / `&apos;`). Decode both before JSON.parse.
 			const decodedImagePath = JSON.parse(
 				imagePath.replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'"),
 			);
