@@ -85,7 +85,7 @@ export async function callGetStaticPaths({
 }
 
 interface RouteCacheEntry {
-	mod?: ComponentInstance;
+	mod: ComponentInstance;
 	staticPaths: GetStaticPathsResultKeyed;
 }
 

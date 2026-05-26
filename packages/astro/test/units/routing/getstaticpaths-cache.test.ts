@@ -1,9 +1,8 @@
 import assert from 'node:assert/strict';
-import { describe, it, before, beforeEach } from 'node:test';
+import { describe, it, beforeEach } from 'node:test';
 import type { ComponentInstance } from '../../../dist/types/astro.js';
-import type { AstroLoggerMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
-import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { RouteCache, callGetStaticPaths } from '../../../dist/core/render/route-cache.js';
+import { SpyLogger } from '../test-utils.ts';
 import { dynamicPart, makeRoute } from './test-helpers.ts';
 
 function mod(overrides: Partial<ComponentInstance>): ComponentInstance {
@@ -12,18 +11,11 @@ function mod(overrides: Partial<ComponentInstance>): ComponentInstance {
 
 describe('getStaticPaths caching behavior', () => {
 	let routeCache: RouteCache;
-	let logger: AstroLogger;
+	let logger: SpyLogger;
 	let callCount: number;
 
-	const destination: AstroLoggerDestination<AstroLoggerMessage> = {
-		write: () => true,
-	};
-
-	before(() => {
-		logger = new AstroLogger({ destination, level: 'error' });
-	});
-
 	beforeEach(() => {
+		logger = new SpyLogger();
 		routeCache = new RouteCache(logger, 'production');
 		callCount = 0;
 	});
@@ -195,15 +187,8 @@ describe('getStaticPaths caching behavior', () => {
 	});
 
 	it('does not log "route cache overwritten" on repeated SSR requests for the same module', async () => {
-		const messages: string[] = [];
-		const capturingDestination: AstroLoggerDestination<AstroLoggerMessage> = {
-			write: (msg) => {
-				messages.push(msg.message);
-				return true;
-			},
-		};
-		const warnLogger = new AstroLogger({ destination: capturingDestination, level: 'warn' });
-		const ssrCache = new RouteCache(warnLogger, 'production');
+		const spyLogger = new SpyLogger();
+		const ssrCache = new RouteCache(spyLogger, 'production');
 
 		const route = makeRoute({
 			segments: [[dynamicPart('slug')]],
@@ -228,11 +213,7 @@ describe('getStaticPaths caching behavior', () => {
 		await callGetStaticPaths(opts);
 		await callGetStaticPaths(opts);
 
-		const overwriteWarnings = messages.filter((m) => m.includes('route cache overwritten'));
-		assert.equal(
-			overwriteWarnings.length,
-			0,
-			`SSR should not log "route cache overwritten" on repeated calls; got: ${overwriteWarnings.join(' | ')}`,
-		);
+		const overwriteWarnings = spyLogger.logs.filter((l) => l.message.includes('route cache overwritten'));
+		assert.equal(overwriteWarnings.length, 0, 'SSR should not log "route cache overwritten" on repeated calls');
 	});
 });
