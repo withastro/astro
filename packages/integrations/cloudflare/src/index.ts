@@ -1,5 +1,8 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, readFile, rename, stat } from 'node:fs/promises';
+import { appendFile, readFile, rename, stat, writeFile } from 'node:fs/promises';
+import { relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { normalizePath } from 'vite';
 import { createInterface } from 'node:readline/promises';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
@@ -172,7 +175,7 @@ export default function createIntegration({
 				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
 				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
 
-				cfPluginConfig = {
+				const adapterPluginConfig: Partial<PluginConfig> = {
 					config: cloudflareConfigCustomizer({
 						needsSessionKVBinding,
 						sessionKVBindingName,
@@ -200,11 +203,21 @@ export default function createIntegration({
 						},
 					}),
 				};
+				// Resolve the full `@cloudflare/vite-plugin` config exactly once by merging
+				// the user's `cloudflare({...})` options (e.g. `remoteBindings`,
+				// `inspectorPort`, `persistState`, `configPath`, `auxiliaryWorkers`) with
+				// the adapter's computed bindings/wrangler wiring. Downstream call sites
+				// (the dev/build plugin instance, the prerenderer's preview server, and
+				// the `astro preview` entrypoint) then just spread `cfPluginConfig` and
+				// cannot accidentally drop user options (see #16705 and related CHANGELOG
+				// entries).
+				cfPluginConfig = { ...cloudflareOptions, ...adapterPluginConfig };
 
-				// The preview entrypoint uses Cloudflare's vite plugin and so it needs access
-				// to the config. But there's no proper API for this so we use globalThis.
+				// The preview entrypoint uses Cloudflare's vite plugin and so it needs
+				// access to the resolved config. There's no proper API for this so we
+				// use globalThis.
 				if (command === 'preview') {
-					globalThis.astroCloudflareOptions = cfPluginConfig;
+					globalThis.astroCloudflareConfig = cfPluginConfig;
 				}
 
 				// Including prismjs files in `optimizeDeps.includes` when `@astrojs/prism` is not installed
@@ -239,10 +252,9 @@ export default function createIntegration({
 								? [createNodePrerenderPlugin()]
 								: []),
 							cfVitePlugin({
-								...cloudflareOptions,
 								...cfPluginConfig,
 								viteEnvironment: { name: 'ssr' },
-								devOnly: () => _buildOutput === 'static',
+								assetsOnly: () => _buildOutput === 'static',
 							}),
 							{
 								name: '@astrojs/cloudflare:cf-imports',
@@ -443,7 +455,6 @@ export default function createIntegration({
 				if (prerenderEnvironment === 'workerd') {
 					setPrerenderer(
 						createCloudflarePrerenderer({
-							cloudflareOptions,
 							root: _config.root,
 							serverDir: _config.build.server,
 							clientDir: _config.build.client,
@@ -493,6 +504,26 @@ export default function createIntegration({
 						} catch {
 							// File may not exist — that's fine
 						}
+					}
+					// The @cloudflare/vite-plugin computes assets.directory from the
+					// modified client outDir which includes the base prefix. However,
+					// Cloudflare's asset binding resolves the full request URL path
+					// (including the base) against the directory, so it must point to
+					// the original un-prefixed client root.
+					// Note: this patches the generated build-output wrangler.json (in
+					// dist/server/), not the project's source wrangler.json.
+					try {
+						const wranglerJsonUrl = new URL('./wrangler.json', _config.build.server);
+						const raw = await readFile(wranglerJsonUrl, 'utf-8');
+						const wranglerConfig = JSON.parse(raw);
+						if (wranglerConfig.assets?.directory) {
+							wranglerConfig.assets.directory = normalizePath(
+								relative(fileURLToPath(_config.build.server), fileURLToPath(_originalClientDir)),
+							);
+							await writeFile(wranglerJsonUrl, JSON.stringify(wranglerConfig));
+						}
+					} catch {
+						// wrangler.json may not exist or may contain invalid JSON
 					}
 				}
 

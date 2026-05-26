@@ -1,8 +1,0 @@
----
-let html = '';
-if (Astro.slots.has('block')) {
-	html = await Astro.slots.render('block', [{ test: 'block' }]);
-}
----
-
-<Fragment set:html={html} />
