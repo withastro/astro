@@ -4428,7 +4428,7 @@ importers:
         version: 7.3.2(@types/node@22.19.19)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
     devDependencies:
       '@cloudflare/workers-types':
-        specifier: ^4.20260412.1
+        specifier: ^4.20260508.1
         version: 4.20260508.1
       '@types/node':
         specifier: ^22.19.0
