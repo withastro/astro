@@ -2,12 +2,12 @@ import type { SSRError } from 'astro';
 import type { MarkdownProcessor, MdxRenderer } from 'astro/markdown';
 import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
-import type { MdxOptions } from './index.js';
+import type { ResolvedMdxOptions } from './index.js';
 import { isUnifiedProcessor } from './processor-guards.js';
 import { safeParseFrontmatter } from './utils.js';
 
 export interface VitePluginMdxOptions {
-	mdxOptions: MdxOptions;
+	mdxOptions: ResolvedMdxOptions;
 	srcDir: URL;
 	processor: MarkdownProcessor;
 }
