@@ -213,7 +213,13 @@ describe('getStaticPaths caching behavior', () => {
 		await callGetStaticPaths(opts);
 		await callGetStaticPaths(opts);
 
-		const overwriteWarnings = spyLogger.logs.filter((l) => l.message.includes('route cache overwritten'));
-		assert.equal(overwriteWarnings.length, 0, 'SSR should not log "route cache overwritten" on repeated calls');
+		const overwriteWarnings = spyLogger.logs.filter((l) =>
+			l.message.includes('route cache overwritten'),
+		);
+		assert.equal(
+			overwriteWarnings.length,
+			0,
+			'SSR should not log "route cache overwritten" on repeated calls',
+		);
 	});
 });
