@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 13.5.5
+
+### Patch Changes
+
+- [#16607](https://github.com/withastro/astro/pull/16607) [`98297af`](https://github.com/withastro/astro/commit/98297afb4fad0b61a69ff84b842cf65e5d71f5a4) Thanks [@alexanderflodin](https://github.com/alexanderflodin)! - Fixes incorrect `assets.directory` in the generated `wrangler.json` when a `base` path is configured
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 13.5.4
 
 ### Patch Changes
