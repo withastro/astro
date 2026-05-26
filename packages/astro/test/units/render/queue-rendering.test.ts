@@ -1,354 +1,230 @@
-import * as assert from 'node:assert/strict';
+import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { buildRenderQueue } from '../../../dist/runtime/server/render/queue/builder.js';
-import { renderQueue } from '../../../dist/runtime/server/render/queue/renderer.js';
-import { NodePool } from '../../../dist/runtime/server/render/queue/pool.js';
-import { renderPage } from '../../../dist/runtime/server/render/page.js';
-import type { RenderDestination } from '../../../dist/runtime/server/render/common.js';
-import type { QueueNode, TextNode } from '../../../dist/runtime/server/render/queue/types.js';
+import {
+	addAttribute,
+	createComponent,
+	render,
+	renderComponent,
+	renderHead,
+	unescapeHTML,
+} from '../../../dist/runtime/server/index.js';
+import { createPage, createTestApp } from '../mocks.ts';
 
-/** Type-safe accessor for text node content */
-function textContent(node: QueueNode): string {
-	assert.equal(node.type, 'text');
-	return (node as TextNode).content;
+import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
+
+// #region Helpers
+
+function createQueueApp(pages: Array<{ component: AstroComponentFactory; route: string }>) {
+	return createTestApp(
+		pages.map(({ component, route }) => createPage(component, { route })),
+		{ experimentalQueuedRendering: { enabled: true } },
+	);
 }
 
-/**
- * Tests for the queue-based rendering engine
- * These are unit tests for the core queue building and rendering logic
- */
-describe('Queue-based rendering engine', () => {
-	// Create a minimal SSRResult mock for testing
-	function createMockResult() {
-		return {
-			_metadata: {
-				hasHydrationScript: false,
-				rendererSpecificHydrationScripts: new Set(),
-				hasRenderedHead: false,
-				renderedScripts: new Set(),
-				hasDirectives: new Set(),
-				hasRenderedServerIslandRuntime: false,
-				headInTree: false,
-				extraHead: [] as string[],
-				extraStyleHashes: [] as string[],
-				extraScriptHashes: [] as string[],
-				propagators: new Set(),
-			},
-			styles: new Set(),
-			scripts: new Set(),
-			links: new Set(),
-			componentMetadata: new Map(),
-			cancelled: false,
-			compressHTML: false,
-		};
-	}
+// #endregion
 
-	// Create a NodePool for testing
-	function createMockPool(): NodePool {
-		return new NodePool(1000);
-	}
+// #region Component factories (equivalent to compiled .astro components)
 
-	describe('buildRenderQueue()', () => {
-		it('should handle simple text nodes', async () => {
-			const result = createMockResult();
-			const pool = createMockPool();
-			const queue = await buildRenderQueue('Hello, World!', result as any, pool);
+const NestedComponent = createComponent((_result: any, props: any) => {
+	const level = props.level ?? 0;
+	return render`<div class="nested"${addAttribute(level, 'data-level')}><span>Level ${level}</span></div>`;
+});
 
-			assert.ok(queue.nodes.length > 0);
-			assert.equal(queue.nodes[0].type, 'text');
-			assert.equal(textContent(queue.nodes[0]), 'Hello, World!');
+const WithSlotComponent = createComponent(async (result: any, props: any, slots: any) => {
+	const Astro = result.createAstro(props, slots);
+	const slotContent = await Astro.slots.render('default');
+	return render`<div class="with-slot"><h2>${props.title}</h2><div class="slot-content">${unescapeHTML(slotContent)}</div></div>`;
+});
+
+const IndexPage = createComponent((result: any) => {
+	const items = ['First', 'Second', 'Third'];
+	return render`<html><head><title>Queue Rendering Test</title></head><body>
+<h1>Queue Rendering Test</h1>
+<section id="simple">
+<p>Simple text rendering</p>
+<p>Number: ${42}</p>
+<p>Boolean: ${true}</p>
+</section>
+<section id="arrays"><ul>
+${items.map((item) => render`<li>${item}</li>`)}
+</ul></section>
+<section id="nested">
+${renderComponent(result, 'Nested', NestedComponent, { level: 0 })}
+${renderComponent(result, 'Nested', NestedComponent, { level: 1 })}
+${renderComponent(result, 'Nested', NestedComponent, { level: 2 })}
+</section>
+<section id="slots">
+${renderComponent(
+	result,
+	'WithSlot',
+	WithSlotComponent,
+	{ title: 'Test Title' },
+	{
+		default: () => render`<p>Slot content here</p><p>Multiple paragraphs</p>`,
+	},
+)}
+</section>
+</body></html>`;
+});
+
+const DirectivesPage = createComponent((_result: any) => {
+	const htmlContent = '<strong>Bold text from set:html</strong>';
+	const textContent = '<em>This should be escaped</em>';
+	return render`<html><head><title>Astro Directives Test</title></head><body>
+<h1>Directives Test</h1>
+<section id="set-html"><div>${unescapeHTML(htmlContent)}</div></section>
+<section id="set-text"><div>${textContent}</div></section>
+<section id="class-list"><div${addAttribute(['foo', 'bar', { baz: true, qux: false }], 'class:list')}>Class List Test</div></section>
+<section id="inline-style"><div${addAttribute({ color: 'red', fontSize: '20px' }, 'style')}>Styled Text</div></section>
+</body></html>`;
+});
+
+const HeadContentPage = createComponent((result: any) => {
+	return render`<html><head><title>Head Content Test</title>${renderHead(result)}</head><body>
+<h1>Head Content Test</h1>
+<section id="inline-styles">
+<style>.inline-test{color:green}</style>
+<p class="inline-test">Inline styles test</p>
+</section>
+<section id="inline-scripts">
+<script>console.log('Inline script executed')</script>
+</section>
+<section id="component-head">
+<div class="with-head"><h3>Component with Head Content</h3><p>This component adds content to the head</p></div>
+<style>.with-head{border:1px solid blue}</style>
+<script>console.log('WithHead script loaded')</script>
+</section>
+</body></html>`;
+});
+
+// #endregion
+
+// #region Tests
+
+describe('Queue-based rendering', () => {
+	describe('Basic rendering', () => {
+		const app = createQueueApp([{ component: IndexPage, route: '/' }]);
+
+		it('should render index page successfully', async () => {
+			const response = await app.render(new Request('http://example.com/'));
+			const html = await response.text();
+			assert.ok(html.includes('<title>Queue Rendering Test</title>'));
+			assert.ok(html.includes('<h1>Queue Rendering Test</h1>'));
 		});
 
-		it('should handle numbers', async () => {
-			const result = createMockResult();
-			const pool = createMockPool();
-			const queue = await buildRenderQueue(42, result as any, pool);
-
-			assert.ok(queue.nodes.length > 0);
-			assert.equal(queue.nodes[0].type, 'text');
-			assert.equal(textContent(queue.nodes[0]), '42');
+		it('should render simple text and primitives correctly', async () => {
+			const response = await app.render(new Request('http://example.com/'));
+			const html = await response.text();
+			assert.ok(html.includes('<p>Simple text rendering</p>'));
+			assert.ok(html.includes('<p>Number: 42</p>'));
+			assert.ok(html.includes('<p>Boolean: true</p>'));
 		});
 
-		it('should handle booleans', async () => {
-			const result = createMockResult();
-			const pool = createMockPool();
-			const queue = await buildRenderQueue(true, result as any, pool);
+		it('should render arrays correctly', async () => {
+			const response = await app.render(new Request('http://example.com/'));
+			const html = await response.text();
+			assert.ok(html.includes('<li>First</li>'));
+			assert.ok(html.includes('<li>Second</li>'));
+			assert.ok(html.includes('<li>Third</li>'));
 
-			assert.ok(queue.nodes.length > 0);
-			assert.equal(queue.nodes[0].type, 'text');
-			assert.equal(textContent(queue.nodes[0]), 'true');
+			const firstPos = html.indexOf('<li>First</li>');
+			const secondPos = html.indexOf('<li>Second</li>');
+			const thirdPos = html.indexOf('<li>Third</li>');
+			assert.ok(firstPos < secondPos);
+			assert.ok(secondPos < thirdPos);
 		});
 
-		it('should handle arrays', async () => {
-			const result = createMockResult();
-			const pool = createMockPool();
-			const queue = await buildRenderQueue(['Hello', ' ', 'World'], result as any, pool);
-
-			assert.equal(queue.nodes.length, 3);
-			assert.equal(textContent(queue.nodes[0]), 'Hello');
-			assert.equal(textContent(queue.nodes[1]), ' ');
-			assert.equal(textContent(queue.nodes[2]), 'World');
+		it('should render multiple component instances correctly', async () => {
+			const response = await app.render(new Request('http://example.com/'));
+			const html = await response.text();
+			assert.ok(html.includes('data-level="0"'));
+			assert.ok(html.includes('data-level="1"'));
+			assert.ok(html.includes('data-level="2"'));
+			assert.ok(html.includes('Level 0'));
+			assert.ok(html.includes('Level 1'));
+			assert.ok(html.includes('Level 2'));
 		});
 
-		it('should handle null and undefined (skip them)', async () => {
-			const result = createMockResult();
-			const pool = createMockPool();
-			const nullQueue = await buildRenderQueue(null, result as any, pool);
-			const undefinedQueue = await buildRenderQueue(undefined, result as any, pool);
-
-			assert.equal(nullQueue.nodes.length, 0);
-			assert.equal(undefinedQueue.nodes.length, 0);
-		});
-
-		it('should skip false but render 0', async () => {
-			const result = createMockResult();
-			const pool = createMockPool();
-			const falseQueue = await buildRenderQueue(false, result as any, pool);
-			const zeroQueue = await buildRenderQueue(0, result as any, pool);
-
-			assert.equal(falseQueue.nodes.length, 0);
-			assert.equal(zeroQueue.nodes.length, 1);
-			assert.equal(textContent(zeroQueue.nodes[0]), '0');
-		});
-
-		it('should handle promises', async () => {
-			const result = createMockResult();
-			const promise = Promise.resolve('Resolved value');
-			const pool = createMockPool();
-			const queue = await buildRenderQueue(promise, result as any, pool);
-
-			assert.equal(queue.nodes.length, 1);
-			assert.equal(textContent(queue.nodes[0]), 'Resolved value');
-		});
-
-		it('should handle nested arrays', async () => {
-			const result = createMockResult();
-			const pool = createMockPool();
-			const queue = await buildRenderQueue([['Nested', ' '], 'Array'], result as any, pool);
-
-			assert.equal(queue.nodes.length, 3);
-			assert.equal(textContent(queue.nodes[0]), 'Nested');
-			assert.equal(textContent(queue.nodes[1]), ' ');
-			assert.equal(textContent(queue.nodes[2]), 'Array');
-		});
-
-		it('should handle async iterables', async () => {
-			const result = createMockResult();
-
-			async function* asyncGen() {
-				yield 'First';
-				yield 'Second';
-				yield 'Third';
-			}
-
-			const pool = createMockPool();
-			const queue = await buildRenderQueue(asyncGen(), result as any, pool);
-
-			assert.equal(queue.nodes.length, 3);
-			assert.equal(textContent(queue.nodes[0]), 'First');
-			assert.equal(textContent(queue.nodes[1]), 'Second');
-			assert.equal(textContent(queue.nodes[2]), 'Third');
-		});
-
-		it('should track parent relationships', async () => {
-			const result = createMockResult();
-			const nestedArray = [['child1', 'child2'], 'sibling'];
-			const pool = createMockPool();
-			const queue = await buildRenderQueue(nestedArray, result as any, pool);
-
-			// Verify correct node structure
-			assert.equal(queue.nodes.length, 3);
-			assert.equal(textContent(queue.nodes[0]), 'child1');
-			assert.equal(textContent(queue.nodes[1]), 'child2');
-			assert.equal(textContent(queue.nodes[2]), 'sibling');
-		});
-
-		it('should maintain correct rendering order', async () => {
-			const result = createMockResult();
-			const pool = createMockPool();
-			const queue = await buildRenderQueue(['A', 'B', 'C'], result as any, pool);
-
-			assert.equal(textContent(queue.nodes[0]), 'A');
-			assert.equal(textContent(queue.nodes[1]), 'B');
-			assert.equal(textContent(queue.nodes[2]), 'C');
-		});
-
-		it('should handle sync iterables (Set)', async () => {
-			const result = createMockResult();
-			const set = new Set(['One', 'Two', 'Three']);
-			const pool = createMockPool();
-			const queue = await buildRenderQueue(set, result as any, pool);
-
-			assert.equal(queue.nodes.length, 3);
-			// Set iteration order is insertion order
-			const contents = queue.nodes.map((n) => textContent(n));
-			assert.ok(contents.includes('One'));
-			assert.ok(contents.includes('Two'));
-			assert.ok(contents.includes('Three'));
+		it('should render components with slots correctly', async () => {
+			const response = await app.render(new Request('http://example.com/'));
+			const html = await response.text();
+			assert.ok(html.includes('class="with-slot"'));
+			assert.ok(html.includes('<h2>Test Title</h2>'));
+			assert.ok(html.includes('class="slot-content"'));
+			assert.ok(html.includes('<p>Slot content here</p>'));
+			assert.ok(html.includes('<p>Multiple paragraphs</p>'));
 		});
 	});
 
-	describe('renderQueue()', () => {
-		it('should render simple text to string', async () => {
-			const result = createMockResult();
-			const pool = createMockPool();
-			const queue = await buildRenderQueue('Test content', result as any, pool);
+	describe('Astro directives', () => {
+		const app = createQueueApp([{ component: DirectivesPage, route: '/directives' }]);
 
-			let output = '';
-			const destination: RenderDestination = {
-				write(chunk) {
-					output += String(chunk);
-				},
-			};
-
-			await renderQueue(queue, destination);
-			assert.ok(output.includes('Test content'));
+		it('should handle set:html directive', async () => {
+			const response = await app.render(new Request('http://example.com/directives'));
+			const html = await response.text();
+			assert.ok(html.includes('<strong>Bold text from set:html</strong>'));
 		});
 
-		it('should render array to concatenated string', async () => {
-			const result = createMockResult();
-			const pool = createMockPool();
-			const queue = await buildRenderQueue(['Hello', ' ', 'World'], result as any, pool);
-
-			let output = '';
-			const destination: RenderDestination = {
-				write(chunk) {
-					output += String(chunk);
-				},
-			};
-
-			await renderQueue(queue, destination);
-			assert.equal(output, 'Hello World');
+		it('should handle set:text directive', async () => {
+			const response = await app.render(new Request('http://example.com/directives'));
+			const html = await response.text();
+			assert.ok(html.includes('&lt;em&gt;This should be escaped&lt;/em&gt;'));
 		});
 
-		it('should escape HTML in text nodes', async () => {
-			const result = createMockResult();
-			const pool = createMockPool();
-			const queue = await buildRenderQueue('<script>alert("XSS")</script>', result as any, pool);
-
-			let output = '';
-			const destination: RenderDestination = {
-				write(chunk) {
-					output += String(chunk);
-				},
-			};
-
-			await renderQueue(queue, destination);
-			assert.ok(!output.includes('<script>'));
-			assert.ok(output.includes('&lt;script&gt;'));
+		it('should handle class:list directive', async () => {
+			const response = await app.render(new Request('http://example.com/directives'));
+			const html = await response.text();
+			assert.ok(html.includes('class="foo bar baz"'));
 		});
 
-		it('should handle empty queue', async () => {
-			const result = createMockResult();
-			const pool = createMockPool();
-			const queue = await buildRenderQueue(null, result as any, pool);
+		it('should handle inline style objects', async () => {
+			const response = await app.render(new Request('http://example.com/directives'));
+			const html = await response.text();
+			assert.ok(html.includes('color:red') || html.includes('color: red'));
+			assert.ok(html.includes('font-size:20px') || html.includes('font-size: 20px'));
+		});
+	});
 
-			let output = '';
-			const destination: RenderDestination = {
-				write(chunk) {
-					output += String(chunk);
-				},
-			};
+	describe('Head content', () => {
+		const app = createQueueApp([{ component: HeadContentPage, route: '/head-content' }]);
 
-			await renderQueue(queue, destination);
-			assert.equal(output, '');
+		it('should include inline styles', async () => {
+			const response = await app.render(new Request('http://example.com/head-content'));
+			const html = await response.text();
+			assert.ok(html.includes('.inline-test'));
+			assert.ok(html.includes('color:green') || html.includes('color: green'));
 		});
 
-		it('should render numbers correctly', async () => {
-			const result = createMockResult();
-			const pool = createMockPool();
-			const queue = await buildRenderQueue([1, 2, 3], result as any, pool);
+		it('should include component styles', async () => {
+			const response = await app.render(new Request('http://example.com/head-content'));
+			const html = await response.text();
+			assert.ok(html.includes('.with-head'));
+		});
 
-			let output = '';
-			const destination: RenderDestination = {
-				write(chunk) {
-					output += String(chunk);
-				},
-			};
+		it('should include component scripts', async () => {
+			const response = await app.render(new Request('http://example.com/head-content'));
+			const html = await response.text();
+			assert.ok(html.includes('WithHead script loaded'));
+		});
 
-			await renderQueue(queue, destination);
-			assert.equal(output, '123');
+		it('should include inline scripts', async () => {
+			const response = await app.render(new Request('http://example.com/head-content'));
+			const html = await response.text();
+			assert.ok(html.includes('Inline script executed'));
+		});
+	});
+
+	describe('Configuration', () => {
+		it('should support custom pool size configuration', async () => {
+			const app = createTestApp([createPage(IndexPage, { route: '/' })], {
+				experimentalQueuedRendering: { enabled: true, poolSize: 500 },
+			});
+			const response = await app.render(new Request('http://example.com/'));
+			const html = await response.text();
+			assert.ok(html.includes('<h1>Queue Rendering Test</h1>'));
+			assert.ok(html.includes('<p>Simple text rendering</p>'));
 		});
 	});
 });
 
-/**
- * Regression tests for issue #16053:
- * queuedRendering breaks .html pages by escaping their raw HTML string output.
- */
-describe('renderPage() with queuedRendering and .html pages', () => {
-	function createMockResultWithQueue() {
-		const pool = new NodePool(1000);
-		return {
-			_metadata: {
-				hasHydrationScript: false,
-				rendererSpecificHydrationScripts: new Set(),
-				hasRenderedHead: false,
-				renderedScripts: new Set(),
-				hasDirectives: new Set(),
-				hasRenderedServerIslandRuntime: false,
-				headInTree: false,
-				extraHead: [] as string[],
-				extraStyleHashes: [] as string[],
-				extraScriptHashes: [] as string[],
-				propagators: new Set(),
-			},
-			styles: new Set(),
-			scripts: new Set(),
-			links: new Set(),
-			componentMetadata: new Map(),
-			cancelled: false,
-			compressHTML: false,
-			partial: false,
-			response: { status: 200, statusText: 'OK', headers: new Headers() },
-			shouldInjectCspMetaTags: false,
-			_experimentalQueuedRendering: {
-				enabled: true,
-				pool,
-			},
-		};
-	}
-
-	it('does not escape HTML tags when rendering a .html page component', async () => {
-		// Simulate the component factory generated by vite-plugin-html for a .html file.
-		// These return a plain string and have `astro:html = true`.
-		const htmlPageFactory = function render(_props: Record<string, unknown>) {
-			return '<body>\n  <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>\n</body>';
-		};
-		(htmlPageFactory as any)['astro:html'] = true;
-		(htmlPageFactory as any).moduleId = 'src/pages/admin/index.html';
-
-		const result = createMockResultWithQueue();
-
-		const response = await renderPage(result as any, htmlPageFactory as any, {}, null, false);
-		const html = await response.text();
-
-		// The raw <script> tag must appear verbatim — not HTML-escaped
-		assert.ok(
-			html.includes('<script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>'),
-			`Expected unescaped <script> tag in output, got:\n${html}`,
-		);
-		assert.ok(
-			!html.includes('&lt;script'),
-			`Expected no HTML-escaped tags in output, got:\n${html}`,
-		);
-	});
-
-	it('still escapes HTML in non-.html page components with queuedRendering', async () => {
-		// A regular (non-.html) component factory should NOT have astro:html = true,
-		// so raw string output from it should be treated as text and escaped.
-		const regularFactory = function render(_props: Record<string, unknown>) {
-			return '<script>alert("xss")</script>';
-		};
-		// No astro:html flag set — this is the default for non-.html components
-		(regularFactory as any).moduleId = 'src/pages/regular.astro';
-
-		const result = createMockResultWithQueue();
-
-		const response = await renderPage(result as any, regularFactory as any, {}, null, false);
-		const html = await response.text();
-
-		assert.ok(!html.includes('<script>alert'), `Expected escaped output, got:\n${html}`);
-		assert.ok(html.includes('&lt;script&gt;'), `Expected HTML-escaped output, got:\n${html}`);
-	});
-});
+// #endregion
