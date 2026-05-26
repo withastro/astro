@@ -3,7 +3,7 @@
 '@astrojs/mdx': minor
 ---
 
-Adds the new opt-in `@astrojs/markdown-satteri` package — a Sätteri (Rust/WASM) based markdown processor. Install it and pass `satteri()` to `markdown.processor` to use it; the default remains `unified()`.
+Adds `@astrojs/markdown-satteri`, a Markdown processor based on [Sätteri](https://satteri.bruits.org), a fast Markdown pipeline written in Rust. Sätteri is much faster than the default Remark-based processor, and supports a wide range of Markdown features out of the box, without requiring additional plugins. In the future, we plan to make this the default Markdown processor in Astro.
 
 ```sh
 npm install @astrojs/markdown-satteri
@@ -20,6 +20,4 @@ export default defineConfig({
 });
 ```
 
-`@astrojs/mdx` now dispatches `.mdx` files through the Sätteri pipeline when `markdown.processor` is `satteri()`. The package is wired as an optional peer dep of `@astrojs/mdx`, so users who stay on the default `unified()` pipeline don't need to install it.
-
-Sätteri does not support remark/rehype plugins (those are remark-only). Use `satteri({ mdastPlugins, hastPlugins, features })` to extend the Sätteri pipeline, or stay on `unified()` if you need remark/rehype plugin support.
+Note that this processor currently does not support Prism syntax highlighting, and require using `syntaxHighlight: 'shiki'` or disabling syntax highlighting altogether for now.

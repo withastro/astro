@@ -12,10 +12,16 @@ describe('satteri markdown', () => {
 
 	it('collects headings into metadata', async () => {
 		const processor = await createSatteriMarkdownProcessor();
-		const { metadata } = await processor.render('# One\n\n## Two');
+		const { metadata } = await processor.render(
+			'# One\n\n## Two\n\n### Three\n\n#### Four\n\n##### Five\n\n###### Six',
+		);
 		assert.deepEqual(metadata.headings, [
 			{ depth: 1, slug: 'one', text: 'One' },
 			{ depth: 2, slug: 'two', text: 'Two' },
+			{ depth: 3, slug: 'three', text: 'Three' },
+			{ depth: 4, slug: 'four', text: 'Four' },
+			{ depth: 5, slug: 'five', text: 'Five' },
+			{ depth: 6, slug: 'six', text: 'Six' },
 		]);
 	});
 

@@ -18,6 +18,20 @@ export interface SatteriResolvedOptions {
 	features: Features;
 }
 
+/**
+ * Use the Sätteri Markdown processor for `markdown.processor`. Extend the pipeline
+ * with mdast or hast plugins, or toggle Markdown features.
+ *
+ * ```js
+ * import { satteri } from '@astrojs/markdown-satteri';
+ *
+ * export default defineConfig({
+ *   markdown: {
+ *     processor: satteri({ features: { directive: true } }),
+ *   },
+ * });
+ * ```
+ */
 export function satteri(
 	opts: SatteriProcessorOptions = {},
 ): MarkdownProcessor<SatteriResolvedOptions> {
