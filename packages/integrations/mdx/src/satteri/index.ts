@@ -1,11 +1,12 @@
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import { createShikiHighlighter } from '@astrojs/internal-helpers/shiki';
-import { createDefaultAstroMetadata } from 'astro/markdown';
+import type { SatteriResolvedOptions } from '@astrojs/markdown-satteri';
 import {
 	satteriCollectImagesPlugin,
 	satteriHeadingIdsPlugin,
 	satteriShikiPlugin,
 } from '@astrojs/markdown-satteri';
+import { createDefaultAstroMetadata } from 'astro/markdown';
 import {
 	mdxToJs,
 	type HastPluginDefinition,
@@ -13,7 +14,7 @@ import {
 	type MdxCompileOptions,
 } from 'satteri';
 import { ASTRO_IMAGE_IMPORT, USES_ASTRO_IMAGE_FLAG } from '../image-constants.js';
-import type { MdxOptions } from '../index.js';
+import type { ResolvedMdxOptions } from '../index.js';
 import { shouldAddCharset } from './charset.js';
 import { type AstroMetadata, createAstroMetadataPlugin } from './hast-astro-metadata.js';
 import { createImageToComponentPlugin, type ImageImportInfo } from './hast-images-to-component.js';
@@ -38,7 +39,11 @@ interface CreateMdxProcessorContext {
 	srcDir: URL;
 }
 
-export function createMdxProcessor(mdxOptions: MdxOptions, ctx: CreateMdxProcessorContext) {
+export function createMdxProcessor(
+	mdxOptions: ResolvedMdxOptions,
+	satteriOptions: SatteriResolvedOptions,
+	ctx: CreateMdxProcessorContext,
+) {
 	let highlightFn: HighlightFn | undefined;
 	let initPromise: Promise<void> | undefined;
 
@@ -110,8 +115,8 @@ export function createMdxProcessor(mdxOptions: MdxOptions, ctx: CreateMdxProcess
 			const excludeLangs =
 				typeof syntaxHighlight === 'object' ? syntaxHighlight.excludeLangs : undefined;
 
-			const allMdastPlugins: MdastPluginDefinition[] = mdxOptions.mdastPlugins?.length
-				? [collectImages, ...mdxOptions.mdastPlugins]
+			const allMdastPlugins: MdastPluginDefinition[] = satteriOptions.mdastPlugins.length
+				? [collectImages, ...satteriOptions.mdastPlugins]
 				: [collectImages];
 
 			const hastPlugins: HastPluginDefinition[] = [];
@@ -121,8 +126,8 @@ export function createMdxProcessor(mdxOptions: MdxOptions, ctx: CreateMdxProcess
 				hastPlugins.push(satteriShikiPlugin(highlightFn, excludeLangs, { mdx: true }));
 			}
 			hastPlugins.push(headingIds, imageToComponent, astroMeta);
-			if (mdxOptions.hastPlugins?.length) {
-				hastPlugins.push(...mdxOptions.hastPlugins);
+			if (satteriOptions.hastPlugins.length) {
+				hastPlugins.push(...satteriOptions.hastPlugins);
 			}
 
 			let optimizeStatic: MdxCompileOptions['optimizeStatic'];
@@ -144,9 +149,13 @@ export function createMdxProcessor(mdxOptions: MdxOptions, ctx: CreateMdxProcess
 				hastPlugins,
 				optimizeStatic,
 				features: {
+					...satteriOptions.features,
 					gfm: mdxOptions.gfm !== false,
-					smartPunctuation: mdxOptions.smartypants !== false,
-					...mdxOptions.features,
+					// `mdxOptions.smartypants` is always boolean-shaped; skip the override when
+					// satteri's `smartPunctuation` is an object so granular config isn't clobbered.
+					...(typeof satteriOptions.features.smartPunctuation === 'object'
+						? {}
+						: { smartPunctuation: mdxOptions.smartypants !== false }),
 				},
 				filename: filePath,
 				jsxImportSource: 'astro',
