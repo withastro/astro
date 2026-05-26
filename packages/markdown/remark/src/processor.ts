@@ -28,6 +28,23 @@ export interface UnifiedResolvedOptions {
 	smartypants?: boolean | Smartypants;
 }
 
+/**
+ * Build the default remark/rehype-based Markdown processor for `markdown.processor`.
+ * Pass remark/rehype plugins and remark-rehype options here; `gfm` and `smartypants`
+ * default to `true` when omitted.
+ *
+ * ```js
+ * import { defineConfig } from 'astro/config';
+ * import { unified } from '@astrojs/markdown-remark';
+ * import remarkToc from 'remark-toc';
+ *
+ * export default defineConfig({
+ *   markdown: {
+ *     processor: unified({ remarkPlugins: [remarkToc] }),
+ *   },
+ * });
+ * ```
+ */
 export function unified(
 	opts: UnifiedProcessorOptions = {},
 ): MarkdownProcessor<UnifiedResolvedOptions> {
