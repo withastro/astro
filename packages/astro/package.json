@@ -240,7 +240,6 @@
       "./astro-jsx": "./astro-jsx.d.ts",
       "./tsconfigs/*.json": "./tsconfigs/*",
       "./tsconfigs/*": "./tsconfigs/*.json",
-      "./jsx/rehype.js": "./dist/jsx/rehype.js",
       "./jsx-runtime": {
         "types": "./jsx-runtime.d.ts",
         "default": "./dist/jsx-runtime/index.js"
