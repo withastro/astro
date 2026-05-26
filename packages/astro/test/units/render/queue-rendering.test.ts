@@ -80,7 +80,7 @@ const DirectivesPage = createComponent((_result: any) => {
 });
 
 const HeadContentPage = createComponent((result: any) => {
-	return render`<html><head><title>Head Content Test</title>${renderHead(result)}</head><body>
+	return render`<html><head><title>Head Content Test</title>${renderHead()}</head><body>
 <h1>Head Content Test</h1>
 <section id="inline-styles">
 <style>.inline-test{color:green}</style>

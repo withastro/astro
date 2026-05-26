@@ -2152,12 +2152,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/astro-directives:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/astro-doctype:
     dependencies:
       astro:
@@ -3594,21 +3588,6 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../..
-
-  packages/astro/test/fixtures/queue-rendering:
-    dependencies:
-      '@astrojs/react':
-        specifier: workspace:*
-        version: link:../../../../integrations/react
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/react-and-solid:
     dependencies:
