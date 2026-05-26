@@ -7,7 +7,7 @@ import { getCookiesFromResponse } from '../cookies/response.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { matchRoute } from '../routing/match.js';
-import { provideSession } from '../session/handler.js';
+import { provideSession } from '../session/provider.js';
 import type { ErrorHandler } from './handler.js';
 
 type ErrorPagePath =

@@ -36,7 +36,7 @@ import { cssOrder, mergeInlineCss } from '../runtime.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
 import { cacheConfigToManifest } from '../../cache/utils.js';
-import { sessionConfigToManifest } from '../../session/utils.js';
+import { sessionConfigToManifest, sessionsDisabled } from '../../session/utils.js';
 
 /**
  * Unified manifest system architecture:
@@ -395,6 +395,7 @@ async function buildManifest(
 		allowedDomains: settings.config.security?.allowedDomains,
 		key: encodedKey,
 		sessionConfig: sessionConfigToManifest(settings.config.session),
+		sessionsDisabled: sessionsDisabled(settings.config.session),
 		cacheConfig: cacheConfigToManifest(
 			settings.config.experimental?.cache,
 			settings.config.experimental?.routeRules,

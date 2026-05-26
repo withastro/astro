@@ -612,7 +612,7 @@ export default function netlifyIntegration(
 
 				let session = config.session;
 
-				if (!session?.driver) {
+				if (session !== false && !session?.driver) {
 					logger.info('Enabling sessions with Netlify Blobs');
 
 					session = {

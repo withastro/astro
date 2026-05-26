@@ -545,8 +545,10 @@ describe('Config Validation', () => {
 					ttl: 60 * 60, // 1 hour
 				},
 			});
-			assert.equal(result.session?.ttl, 60 * 60);
-			assert.equal(result.session?.driver, undefined);
+			assert.notEqual(result.session, false);
+			const session = result.session as Exclude<typeof result.session, false>;
+			assert.equal(session?.ttl, 60 * 60);
+			assert.equal(session?.driver, undefined);
 		});
 	});
 

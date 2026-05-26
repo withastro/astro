@@ -25,7 +25,7 @@ import { VIRTUAL_PAGES_MODULE_ID } from '../vite-plugin-pages/index.js';
 import { ASTRO_RENDERERS_MODULE_ID } from '../vite-plugin-renderers/index.js';
 import { ASTRO_ROUTES_MODULE_ID } from '../vite-plugin-routes/index.js';
 import { cacheConfigToManifest } from '../core/cache/utils.js';
-import { sessionConfigToManifest } from '../core/session/utils.js';
+import { sessionConfigToManifest, sessionsDisabled } from '../core/session/utils.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { resolveMiddlewareMode } from '../integrations/adapter-utils.js';
 
@@ -217,6 +217,7 @@ async function createSerializedManifest(
 			encodedKey ??
 			(await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey())),
 		sessionConfig: sessionConfigToManifest(settings.config.session),
+		sessionsDisabled: sessionsDisabled(settings.config.session),
 		cacheConfig: cacheConfigToManifest(
 			settings.config.experimental?.cache,
 			settings.config.experimental?.routeRules,

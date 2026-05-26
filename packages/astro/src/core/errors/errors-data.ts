@@ -2209,6 +2209,24 @@ export const SessionStorageSaveError = {
 
 /**
  * @docs
+ * @message `Astro.session` is unavailable because `session: false` is set in your `astro.config`.
+ * @see
+ * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
+ * @description
+ * Thrown when code reads `Astro.session` (or `context.session`) in a project that
+ * has set `session: false` in `astro.config`. The session runtime is intentionally
+ * not bundled in this mode, so the API is not available at request time.
+ */
+export const SessionDisabledError = {
+	name: 'SessionDisabledError',
+	title: 'Sessions are disabled.',
+	message:
+		'`Astro.session` is unavailable because `session: false` is set in your `astro.config`. Remove the flag, or do not access `Astro.session` in this project.',
+	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name Cache Errors
  */
