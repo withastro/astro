@@ -30,8 +30,17 @@ export type MdxOptions = SharedMarkdownOptions & {
 	recmaPlugins: PluggableList;
 	// Markdown allows strings as remark and rehype plugins.
 	// This is not supported by the MDX compiler, so override types here.
+	/**
+	 * @deprecated Pass `remarkPlugins` to `unified({ remarkPlugins })` from `@astrojs/markdown-remark` and set it as `markdown.processor` instead — MDX will inherit them. Will be removed in a future major.
+	 */
 	remarkPlugins: PluggableList;
+	/**
+	 * @deprecated Pass `rehypePlugins` to `unified({ rehypePlugins })` from `@astrojs/markdown-remark` and set it as `markdown.processor` instead — MDX will inherit them. Will be removed in a future major.
+	 */
 	rehypePlugins: PluggableList;
+	/**
+	 * @deprecated Pass `remarkRehype` to `unified({ remarkRehype })` from `@astrojs/markdown-remark` and set it as `markdown.processor` instead — MDX will inherit it. Will be removed in a future major.
+	 */
 	remarkRehype: RemarkRehypeOptions;
 	optimize: boolean | OptimizeOptions;
 	/**
@@ -100,6 +109,8 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				});
 			},
 			'astro:config:done': ({ config, logger }) => {
+				warnDeprecatedMdxPluginOptions(partialMdxOptions, logger);
+
 				// We resolve the final MDX options here so that other integrations have a chance to modify
 				// `config.markdown` before we access it
 				const extendMarkdownConfig =
@@ -167,6 +178,29 @@ const defaultMdxOptions = {
 	recmaPlugins: [],
 	optimize: false,
 } satisfies Partial<MdxOptions>;
+
+let didWarnAboutDeprecatedMdxPluginOptions = false;
+
+function warnDeprecatedMdxPluginOptions(
+	options: Partial<MdxOptions>,
+	logger: AstroIntegrationLogger,
+): void {
+	if (didWarnAboutDeprecatedMdxPluginOptions) return;
+	const deprecated = (['remarkPlugins', 'rehypePlugins', 'remarkRehype'] as const).filter(
+		(key) => options[key] !== undefined,
+	);
+	if (deprecated.length === 0) return;
+	didWarnAboutDeprecatedMdxPluginOptions = true;
+
+	const names = deprecated.map((key) => `\`${key}\``).join(', ');
+	const isPlural = deprecated.length > 1;
+	logger.warn(
+		`${names} on \`mdx({...})\` ${isPlural ? 'are' : 'is'} deprecated. ` +
+			`Pass ${isPlural ? 'them' : 'it'} to \`unified({...})\` from \`@astrojs/markdown-remark\` ` +
+			`and set it as \`markdown.processor\` instead — MDX will inherit ${isPlural ? 'them' : 'it'}. ` +
+			'Will be removed in a future major.',
+	);
+}
 
 function markdownConfigToMdxOptions(
 	markdownConfig: SharedMarkdownOptions,

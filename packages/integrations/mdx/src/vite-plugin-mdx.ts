@@ -103,7 +103,7 @@ async function resolveMdxRenderer(
 
 	if (isUnifiedProcessor(processor)) {
 		const { createMdxProcessor } = await import('./plugins.js');
-		const { getAstroMetadata } = await import('astro/jsx/rehype.js');
+		const { getAstroMetadata } = await import('./rehype-analyze-astro-metadata.js');
 		const unifiedProcessor = createMdxProcessor(opts.mdxOptions, { sourcemap });
 		return {
 			async process(content, filePath, frontmatter) {

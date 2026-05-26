@@ -50,7 +50,7 @@
     "vfile": "^6.0.3"
   },
   "peerDependencies": {
-    "astro": "^6.0.0"
+    "astro": "^6.4.0"
   },
   "devDependencies": {
     "@shikijs/rehype": "^4.0.2",

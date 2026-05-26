@@ -1,6 +1,6 @@
 ---
 'astro': minor
-'@astrojs/mdx': minor
+'@astrojs/mdx': major
 '@astrojs/markdown-remark': minor
 ---
 
@@ -43,7 +43,7 @@ export default defineConfig({
 
 This processor does not support the remark and rehype plugins. This means you may need to convert them to [MDAST or HAST plugins](https://satteri.bruits.org/docs/plugins/) to retain your current functionality.
 
-The existing top-level `markdown.remarkPlugins`, `markdown.rehypePlugins`, `markdown.remarkRehype`, `markdown.gfm`, and `markdown.smartypants` options still work, but are now deprecated and will be removed in a future major update. To anticipate their removal, move them onto `unified({...})` (or your preferred plugin processor) :
+The existing top-level `markdown.remarkPlugins`, `markdown.rehypePlugins`, `markdown.remarkRehype`, `markdown.gfm`, and `markdown.smartypants` options still work, but are now deprecated and will be removed in a future major update. The matching `remarkPlugins`, `rehypePlugins`, and `remarkRehype` options on the MDX integration are also deprecated for the same reason. To anticipate their removal, move them onto `unified({...})` (or your preferred plugin processor) :
 
 ```diff
 // astro.config.mjs
