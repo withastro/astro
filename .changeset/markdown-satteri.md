@@ -1,6 +1,5 @@
 ---
 '@astrojs/markdown-satteri': minor
-'@astrojs/mdx': minor
 ---
 
 Adds `@astrojs/markdown-satteri`, a Markdown processor based on [Sätteri](https://satteri.bruits.org), a fast Markdown pipeline written in Rust.
