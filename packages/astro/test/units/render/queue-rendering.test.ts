@@ -25,18 +25,18 @@ function createQueueApp(pages: Array<{ component: AstroComponentFactory; route: 
 
 // #region Component factories (equivalent to compiled .astro components)
 
-const NestedComponent = createComponent((_result: any, props: any) => {
+const NestedComponent = createComponent((_result, props) => {
 	const level = props.level ?? 0;
 	return render`<div class="nested"${addAttribute(level, 'data-level')}><span>Level ${level}</span></div>`;
 });
 
-const WithSlotComponent = createComponent(async (result: any, props: any, slots: any) => {
+const WithSlotComponent = createComponent(async (result, props, slots) => {
 	const Astro = result.createAstro(props, slots);
 	const slotContent = await Astro.slots.render('default');
 	return render`<div class="with-slot"><h2>${props.title}</h2><div class="slot-content">${unescapeHTML(slotContent)}</div></div>`;
 });
 
-const IndexPage = createComponent((result: any) => {
+const IndexPage = createComponent((result) => {
 	const items = ['First', 'Second', 'Third'];
 	return render`<html><head><title>Queue Rendering Test</title></head><body>
 <h1>Queue Rendering Test</h1>
@@ -67,7 +67,7 @@ ${renderComponent(
 </body></html>`;
 });
 
-const DirectivesPage = createComponent((_result: any) => {
+const DirectivesPage = createComponent((_result) => {
 	const htmlContent = '<strong>Bold text from set:html</strong>';
 	const textContent = '<em>This should be escaped</em>';
 	return render`<html><head><title>Astro Directives Test</title></head><body>
@@ -79,7 +79,7 @@ const DirectivesPage = createComponent((_result: any) => {
 </body></html>`;
 });
 
-const HeadContentPage = createComponent((result: any) => {
+const HeadContentPage = createComponent((_result) => {
 	return render`<html><head><title>Head Content Test</title>${renderHead()}</head><body>
 <h1>Head Content Test</h1>
 <section id="inline-styles">

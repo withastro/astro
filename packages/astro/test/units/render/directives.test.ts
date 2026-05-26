@@ -17,13 +17,13 @@ import { createPage, createTestApp } from '../mocks.ts';
 
 // Equivalent to: <h1 style={$$definedVars}>{title}</h1>
 // with <style define:vars={{ textColor: 'red' }}>.title { color: var(--textColor); }</style>
-const TitleComponent = createComponent((_result: any, props: any) => {
+const TitleComponent = createComponent((_result, props) => {
 	const $$definedVars = defineStyleVars([{ textColor: 'red' }]);
 	return render`<h1${addAttribute($$definedVars, 'style')}>${props.title ?? 'Default'}</h1>`;
 });
 
 // Mirrors the compiled output of define-vars.astro
-const DefineVarsPage = createComponent((result: any) => {
+const DefineVarsPage = createComponent((result) => {
 	const foo = 'bar';
 	const bg = 'white';
 	const fg = 'black';
@@ -55,7 +55,7 @@ ${renderComponent(result, 'Title', TitleComponent, {})}
 });
 
 // Mirrors the compiled output of set-html.astro
-const SetHtmlPage = createComponent((result: any) => {
+const SetHtmlPage = createComponent((_result) => {
 	return render`<html><head>${renderHead()}</head><body>
 <div id="text">${unescapeHTML('a')}</div>
 <div id="zero">${unescapeHTML(0)}</div>
@@ -68,12 +68,12 @@ const SetHtmlPage = createComponent((result: any) => {
 });
 
 // Mirrors a page with set:html Fragment as slot children
-const SetHtmlChildrenPage = createComponent((_result: any) => {
+const SetHtmlChildrenPage = createComponent((_result) => {
 	return render`<html><body>${unescapeHTML('<p>Test</p>')}</body></html>`;
 });
 
 // Mirrors set:html={fetch('/api')} — unescapeHTML handles Promises and Response objects
-const SetHtmlFetchPage = createComponent((_result: any) => {
+const SetHtmlFetchPage = createComponent((_result) => {
 	const fakeResponse = new Response('<p id="fetched-html">works</p>', {
 		headers: { 'Content-Type': 'text/html' },
 	});
