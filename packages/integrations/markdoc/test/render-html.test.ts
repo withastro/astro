@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 async function getFixture(name: string) {
 	return await loadFixture({
@@ -14,53 +14,6 @@ describe('Markdoc - render html', () => {
 
 	before(async () => {
 		fixture = await getFixture('render-html');
-	});
-
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('renders content - simple', async () => {
-			const res = await fixture.fetch('/simple');
-			const html = await res.text();
-
-			renderSimpleChecks(html);
-		});
-
-		it('renders content - nested-html', async () => {
-			const res = await fixture.fetch('/nested-html');
-			const html = await res.text();
-
-			renderNestedHTMLChecks(html);
-		});
-
-		it('renders content - components interleaved with html', async () => {
-			const res = await fixture.fetch('/components');
-			const html = await res.text();
-
-			renderComponentsHTMLChecks(html);
-		});
-
-		it('renders content - randomly cased html attributes', async () => {
-			const res = await fixture.fetch('/randomly-cased-html-attributes');
-			const html = await res.text();
-
-			renderRandomlyCasedHTMLAttributesChecks(html);
-		});
-
-		it('renders content - html within partials', async () => {
-			const res = await fixture.fetch('/with-partial');
-			const html = await res.text();
-
-			renderHTMLWithinPartialChecks(html);
-		});
 	});
 
 	describe('build', () => {

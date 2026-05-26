@@ -25,8 +25,9 @@ These variables are referenced throughout this skill. They may be passed as args
 6. Write a unit test
 7. Ensure no regressions
 8. Generate git diff
-9. Append fix details to `report.md`
-10. Clean up the working directory
+9. Create a changeset
+10. Append fix details to `report.md`
+11. Clean up the working directory
 
 ## Step 1: Review the Diagnosis
 
@@ -138,7 +139,13 @@ git diff packages/
 
 This captures all your changes for the report.
 
-## Step 9: Write Output
+## Step 9: Create a Changeset
+
+**Only do this if the fix was successful** (i.e., you are on the high-confidence path and the fix resolves the issue). If the fix failed or was skipped, skip this step entirely.
+
+Load the `changeset` skill and follow its instructions to create a changeset for the fix. Since this is a bug fix, the bump type will almost always be `patch`.
+
+## Step 10: Write Output
 
 Append your fix details to the existing `report.md` (written by reproduce and diagnose skills).
 
@@ -151,10 +158,11 @@ The report must include all information needed for a final GitHub comment to be 
 - Whether the fix was successful or not
 - Verification results (did the fix resolve the original error?)
 - Unit test details: what test was added, where it lives, and what it verifies. If no test was added, explain why.
+- Changeset details: what changeset file was created and which packages it covers. If no changeset was created, explain why.
 - Any alternative approaches considered and their tradeoffs
 - If the fix failed: what was tried and why it didn't work
 
-## Step 10: Clean Up the Working Directory
+## Step 11: Clean Up the Working Directory
 
 1. Run `git status` and review all changed files
 2. Revert any changes that are NOT part of the fix:

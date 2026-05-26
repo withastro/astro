@@ -1,5 +1,48 @@
 # @astrojs/cloudflare
 
+## 13.5.4
+
+### Patch Changes
+
+- [#16769](https://github.com/withastro/astro/pull/16769) [`428cb1b`](https://github.com/withastro/astro/commit/428cb1bb80f9c5672ed68bfc219fa700b7a569fa) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Forwards user-provided `optimizeDeps` settings (exclude, include, esbuildOptions.loader) to SSR/prerender environments. Previously, top-level `vite.optimizeDeps` in the Astro config was silently ignored for server environments because Vite 6 scopes it to client-only and the adapter's `configEnvironment` hook did not forward it. This caused packages with non-standard file types (e.g. `.data` files) to fail during dev-mode dependency optimization with errors like "No loader is configured for '.data' files".
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.5.3
+
+### Patch Changes
+
+- [#16801](https://github.com/withastro/astro/pull/16801) [`d619277`](https://github.com/withastro/astro/commit/d6192772a424b12bdf5f5991c3c882c3ae5cd707) Thanks [@ematipico](https://github.com/ematipico)! - Reverts a change to the esbuild dep-scan plugin that caused `astro check` and `astro build` to fail by making esbuild incorrectly bundle `virtual:` modules (e.g. from expressive-code)
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.5.2
+
+### Patch Changes
+
+- [#16708](https://github.com/withastro/astro/pull/16708) [`bb709ff`](https://github.com/withastro/astro/commit/bb709ffdd45ab936eba6e2ce69dd0cb2ed75bfe4) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixed a bug where a cascade of reloads would cause the page to crash during the first visit when building or developing with Cloudflare SSR in Astro v6 due to dependency loading issues.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.5.1
+
+### Patch Changes
+
+- [#16707](https://github.com/withastro/astro/pull/16707) [`2ff3f8f`](https://github.com/withastro/astro/commit/2ff3f8f4e457fba8fd82b7b342edf13d6ce093de) Thanks [@helio-cf](https://github.com/helio-cf)! - Fixes `remoteBindings: false` being ignored during `astro build`. The Cloudflare prerenderer's internal Vite preview server now receives the user's adapter options, so remote-flagged bindings (e.g. a D1 database with `remote: true` in `wrangler.toml`) are emulated locally during build, matching the existing `astro dev` behavior.
+
+- [#16652](https://github.com/withastro/astro/pull/16652) [`98c32cc`](https://github.com/withastro/astro/commit/98c32ccdc7761bb1fad56533535866a10582c4e9) Thanks [@greatjourney589](https://github.com/greatjourney589)! - Fixes user-declared KV namespace bindings being duplicated in the generated `dist/server/wrangler.json`, which caused wrangler validation to fail with "<binding> assigned to multiple KV Namespace bindings." The Astro Cloudflare config customizer now returns only the auto-injected `SESSION` binding and lets `@cloudflare/vite-plugin` merge it with the user's wrangler config, instead of pre-merging the user's bindings into the output.
+
+- [#16272](https://github.com/withastro/astro/pull/16272) [`4f9521e`](https://github.com/withastro/astro/commit/4f9521eeb0e20865f3a74c41a4ec99758127b902) Thanks [@barry3406](https://github.com/barry3406)! - Fixes `.astro` files failing with `No matching export in "html:..." for import "default"` when default-imported from a `.ts` file
+
+- [#15723](https://github.com/withastro/astro/pull/15723) [`9256345`](https://github.com/withastro/astro/commit/92563452ce866d9f9b950ad4b2adc808d10e8014) Thanks [@rururux](https://github.com/rururux)! - Fixes an issue where the `<Prism />` component failed to work in Cloudflare Workers.
+
+- Updated dependencies [[`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce)]:
+  - @astrojs/internal-helpers@0.9.1
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 13.5.0
 
 ### Minor Changes

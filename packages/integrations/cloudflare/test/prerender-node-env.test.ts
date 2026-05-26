@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import * as devalue from 'devalue';
 import cloudflare from '../dist/index.js';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
@@ -120,5 +121,20 @@ describe('prerenderEnvironment: node', () => {
 		const html = await res.text();
 		assert.ok(html.includes('id="has-cf"'), 'Expected the SSR page to contain the has-cf element');
 		assert.ok(html.includes('>true<'), 'Expected Astro.request.cf to be available in the SSR page');
+	});
+
+	it('serves action requests through workerd without exhausting the POST body', async () => {
+		const res = await fixture.fetch('/_actions/hello', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({}),
+		});
+
+		assert.equal(res.status, 200, 'Expected action endpoint to return 200 in dev');
+		const data = devalue.parse(await res.text()) as { hasCf: boolean; message: string };
+		assert.equal(data.hasCf, true, 'Expected the action to run in the workerd runtime');
+		assert.equal(data.message, 'Hello, World!');
 	});
 });

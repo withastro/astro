@@ -5,6 +5,8 @@ on:
     types: [release-published]
   workflow_dispatch:
 
+permissions: {}
+
 env:
   IMAGE: ghcr.io/${{ github.repository }}/flue-sandbox
 
@@ -15,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
-      contents: write
-      pull-requests: write
-      packages: read
+      contents: write # Push merge branch
+      pull-requests: write # Create/update merge PR
+      packages: read # Pull sandbox image from GHCR
     steps:
       - name: Lowercase image name
         run: echo "IMAGE=${IMAGE,,}" >> "$GITHUB_ENV"
@@ -75,6 +77,8 @@ jobs:
       - name: Setup PNPM
         if: steps.check-next.outputs.exists == 'true' && steps.merge.outputs.conflict == 'true'
         uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+        with:
+          version: 11.0.9
 
       - name: Setup Node
         if: steps.check-next.outputs.exists == 'true' && steps.merge.outputs.conflict == 'true'

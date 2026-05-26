@@ -16,6 +16,7 @@ describe('Assets Prefix', () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-assets-prefix/',
 				outDir: './dist/static',
+				cacheDir: './node_modules/.astro-test/static/',
 			});
 			await fixture.build();
 		});
@@ -89,6 +90,7 @@ describe('Assets Prefix', () => {
 			fixture = await loadFixture({
 				root: './fixtures/astro-assets-prefix/',
 				outDir: './dist/server',
+				cacheDir: './node_modules/.astro-test/server/',
 				build: {
 					assetsPrefix: '/starting-slash',
 				},
@@ -115,6 +117,7 @@ describe('Assets Prefix', () => {
 				output: 'server',
 				adapter: testAdapter(),
 				outDir: './dist/server',
+				cacheDir: './node_modules/.astro-test/server/',
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();
@@ -173,6 +176,7 @@ describe('Assets Prefix', () => {
 				output: 'server',
 				adapter: testAdapter(),
 				outDir: './dist/server-path-prefix',
+				cacheDir: './node_modules/.astro-test/server-path-prefix/',
 				build: {
 					assetsPrefix: '/starting-slash',
 				},
@@ -215,6 +219,8 @@ describe('Assets Prefix Multiple CDN', () => {
 					assetsPrefix,
 				},
 				outDir: './dist/astro-assets-prefix-multi-cdn-assets-prefix-multiple-cdn-static/',
+				cacheDir:
+					'./node_modules/.astro-test/astro-assets-prefix-multi-cdn-assets-prefix-multiple-cdn-static/',
 			});
 			await fixture.build();
 		});
@@ -283,6 +289,8 @@ describe('Assets Prefix Multiple CDN', () => {
 					assetsPrefix,
 				},
 				outDir: './dist/astro-assets-prefix-multi-cdn-assets-prefix-multiple-cdn-server/',
+				cacheDir:
+					'./node_modules/.astro-test/astro-assets-prefix-multi-cdn-assets-prefix-multiple-cdn-server/',
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();

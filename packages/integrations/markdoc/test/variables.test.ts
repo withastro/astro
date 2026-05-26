@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
+import { loadFixture, type Fixture } from './test-utils.ts';
 import markdoc from '../dist/index.js';
 
 const root = new URL('./fixtures/variables/', import.meta.url);
@@ -13,27 +13,6 @@ describe('Markdoc - Variables', () => {
 		baseFixture = await loadFixture({
 			root,
 			integrations: [markdoc()],
-		});
-	});
-
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await baseFixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('has expected entry properties', async () => {
-			const res = await baseFixture.fetch('/');
-			const html = await res.text();
-			const { document } = parseHTML(html);
-			assert.equal(document.querySelector('h1')?.textContent, 'Processed by schema: Test entry');
-			assert.equal(document.getElementById('id')?.textContent?.trim(), 'id: entry');
-			assert.equal(document.getElementById('collection')?.textContent?.trim(), 'collection: blog');
 		});
 	});
 

@@ -17,6 +17,7 @@ describe('Adapter', () => {
 					},
 				}),
 				outDir: './dist/featuresSupport-adapter/',
+				cacheDir: './node_modules/.astro-test/featuresSupport-adapter/',
 			});
 			await fixture.build();
 		} catch (e) {
@@ -40,6 +41,7 @@ describe('Adapter', () => {
 					},
 				}),
 				outDir: './dist/featuresSupport-adapter/',
+				cacheDir: './node_modules/.astro-test/featuresSupport-adapter/',
 			});
 			await fixture.build();
 		} catch (e) {

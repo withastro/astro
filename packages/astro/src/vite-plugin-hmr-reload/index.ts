@@ -1,4 +1,4 @@
-import type { EnvironmentModuleNode, Plugin } from 'vite';
+import { isRunnableDevEnvironment, type EnvironmentModuleNode, type Plugin } from 'vite';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
 import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css/util.js';
 import { isAstroServerEnvironment } from '../environments.js';
@@ -26,7 +26,7 @@ export default function hmrReload(): Plugin {
 		enforce: 'post',
 		hotUpdate: {
 			order: 'post',
-			handler({ modules, server, timestamp }) {
+			handler({ modules, server, timestamp, file }) {
 				if (!isAstroServerEnvironment(this.environment)) return;
 
 				let hasSsrOnlyModules = false;
@@ -60,7 +60,33 @@ export default function hmrReload(): Plugin {
 				}
 
 				if (hasSsrOnlyModules) {
+					// Invalidate all recursively-invalidated modules (importers) in the
+					// runner cache, not just the directly changed files. Without this,
+					// barrel files like index.ts stay cached and dynamic import() calls
+					// return stale exports.
+					if (isRunnableDevEnvironment(this.environment)) {
+						for (const invalidated of invalidatedModules) {
+							if (invalidated.id == null) continue;
+							const runnerModule = this.environment.runner.evaluatedModules.getModuleById(
+								invalidated.id,
+							);
+							if (runnerModule) {
+								this.environment.runner.evaluatedModules.invalidateModule(runnerModule);
+							}
+						}
+					}
+					// Tell the browser to reload the page.
 					server.ws.send({ type: 'full-reload' });
+					// For non-runnable environments (e.g. Cloudflare's workerd), we can't
+					// directly access the module runner. Send a full-reload through the
+					// environment's hot channel so the remote runner clears its cache.
+					if (!isRunnableDevEnvironment(this.environment)) {
+						this.environment.hot.send({
+							type: 'full-reload',
+							triggeredBy: file,
+							path: '*',
+						});
+					}
 					return [];
 				}
 

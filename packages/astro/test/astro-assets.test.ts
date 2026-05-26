@@ -12,6 +12,7 @@ describe('Assets', () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-assets/',
 			outDir: './dist/astro-assets/',
+			cacheDir: './node_modules/.astro-test/astro-assets/',
 		});
 		await fixture.build();
 	});

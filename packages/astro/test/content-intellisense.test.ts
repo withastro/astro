@@ -53,12 +53,25 @@ describe('Content Intellisense', () => {
 		const schema = JSON.parse(
 			await fixture.readFile('../../.astro/collections/data-cl.schema.json'),
 		);
-		assert.equal(schema.type, 'object');
-		assert.equal(schema.additionalProperties.type, 'object');
-		assert.deepEqual(schema.additionalProperties.properties, {
+		assert.ok(schema.anyOf, 'Expected anyOf in schema');
+		assert.equal(schema.anyOf.length, 2);
+
+		// Array branch
+		assert.equal(schema.anyOf[0].type, 'array');
+		assert.equal(schema.anyOf[0].items.type, 'object');
+		assert.deepEqual(schema.anyOf[0].items.properties, {
 			name: { type: 'string' },
 			color: { type: 'string' },
 		});
+
+		// Object branch
+		assert.equal(schema.anyOf[1].type, 'object');
+		assert.equal(schema.anyOf[1].additionalProperties.type, 'object');
+		assert.deepEqual(schema.anyOf[1].additionalProperties.properties, {
+			name: { type: 'string' },
+			color: { type: 'string' },
+		});
+		assert.ok(schema.anyOf[1].properties.$schema, 'Expected $schema in object branch');
 	});
 
 	it('manifest exists', async () => {

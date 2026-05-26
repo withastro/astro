@@ -28,7 +28,8 @@ export default function virtualModulePlugin({ settings }: { settings: AstroSetti
   defaultLocale: ${JSON.stringify(config.i18n.defaultLocale)},
   locales: ${JSON.stringify(config.i18n.locales)},
   routing: ${JSON.stringify(routing)},
-  fallback: ${JSON.stringify(config.i18n.fallback)}
+  fallback: ${JSON.stringify(config.i18n.fallback)},
+  domains: ${JSON.stringify(config.i18n.domains)}
 };`;
 	}
 
@@ -118,6 +119,7 @@ const build = {
   server: new URL(manifest.buildServerDir),
   client: new URL(manifest.buildClientDir),
   format: manifest.buildFormat,
+  assetsPrefix: manifest.assetsPrefix,
 };
 
 const cacheDir = new URL(manifest.cacheDir);

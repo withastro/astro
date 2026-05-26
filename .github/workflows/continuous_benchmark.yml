@@ -15,6 +15,8 @@ on:
       - 'packages/astro/src/**/*.ts'
       - 'benchmark/**'
 
+permissions: {}
+
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
@@ -29,8 +31,8 @@ jobs:
       matrix:
         shard: [ "1/4", "2/4", "3/4", "4/4" ]
     permissions:
-      contents: read
-      pull-requests: write
+      contents: read # Checkout only
+      pull-requests: write # CodSpeed posts benchmark results as PR comment
     steps:
       - name: Check out repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
