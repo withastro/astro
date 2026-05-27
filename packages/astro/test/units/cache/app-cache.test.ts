@@ -444,7 +444,7 @@ describe('context.cache with CDN-style provider', () => {
 		const cachePage = createComponent((result, props, slots) => {
 			const Astro = result.createAstro(props, slots);
 			Astro.cache.set({ maxAge: 120, tags: ['home'] });
-			return render`<html><head>${renderHead(result)}</head><body><h1>Cache Test</h1></body></html>`;
+			return render`<html><head>${renderHead()}</head><body><h1>Cache Test</h1></body></html>`;
 		});
 		const app = createCdnApp([createPage(cachePage, { route: '/' })]);
 		const response = await app.render(new Request('http://example.com/'));
@@ -484,7 +484,7 @@ describe('context.cache disabled (no provider configured)', () => {
 		const cachePage = createComponent((result, props, slots) => {
 			const Astro = result.createAstro(props, slots);
 			Astro.cache.set({ maxAge: 120, tags: ['home'] });
-			return render`<html><head>${renderHead(result)}</head><body><h1>Cache Test</h1></body></html>`;
+			return render`<html><head>${renderHead()}</head><body><h1>Cache Test</h1></body></html>`;
 		});
 		// No cacheProvider or cacheConfig
 		const app = createTestApp([createPage(cachePage, { route: '/' })]);
