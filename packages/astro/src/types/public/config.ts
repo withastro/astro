@@ -2180,9 +2180,7 @@ export interface AstroUserConfig<
 		 * @version 6.4.0
 		 * @description
 		 * Configures the Markdown processor used to render `.md` files. Defaults to `unified()` from
-		 * `@astrojs/markdown-remark` (the remark/rehype pipeline). Install `@astrojs/markdown-satteri`
-		 * and pass `satteri()` here to opt-in to the Sätteri Rust/WASM pipeline, which is faster but
-		 * does not support remark/rehype plugins.
+		 * `@astrojs/markdown-remark` (the remark/rehype pipeline).
 		 *
 		 * ```js
 		 * // astro.config.mjs
