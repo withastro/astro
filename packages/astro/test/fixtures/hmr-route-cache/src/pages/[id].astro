@@ -1,0 +1,7 @@
+---
+export async function getStaticPaths() {
+	return [{ params: { id: 'test' }, props: { callTime: Date.now() } }];
+}
+const { callTime } = Astro.props;
+---
+<p id="time">{callTime}</p>
