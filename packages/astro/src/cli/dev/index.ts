@@ -1,9 +1,7 @@
-import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { isAgent } from 'am-i-vibing';
 import colors from 'piccolore';
 import devServer from '../../core/dev/index.js';
-import { checkExistingServer, removeLockFile, writeLockFile } from '../../core/dev/lockfile.js';
+import { checkExistingServer, removeLockFile, resolveRootURL, writeLockFile } from '../../core/dev/lockfile.js';
 import { printHelp } from '../../core/messages/runtime.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 
@@ -17,11 +15,6 @@ function isRunByAgent(): boolean {
 	} catch {
 		return false;
 	}
-}
-
-function resolveRootURL(flags: Flags): URL {
-	const rootPath = typeof flags.root === 'string' ? resolve(flags.root) : process.cwd();
-	return pathToFileURL(rootPath + '/');
 }
 
 export async function dev({ flags }: DevOptions) {
@@ -97,7 +90,7 @@ export async function dev({ flags }: DevOptions) {
 	}
 
 	// Foreground dev server: check lock file, start server, write lock file
-	const root = resolveRootURL(flags);
+	const root = resolveRootURL(flags.root);
 	const existingServer = checkExistingServer(root);
 	if (existingServer) {
 		const message = [

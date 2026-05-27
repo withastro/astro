@@ -1,17 +1,11 @@
 import { readFileSync, existsSync, statSync, createReadStream, watch } from 'node:fs';
-import { resolve } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import type { AstroLogger } from '../../core/logger/core.js';
 import type { Flags } from '../flags.js';
-import { checkExistingServer, getLogFileURL, isProcessAlive } from '../../core/dev/lockfile.js';
-
-function resolveRootURL(flags: Flags): URL {
-	const rootPath = typeof flags.root === 'string' ? resolve(flags.root) : process.cwd();
-	return pathToFileURL(rootPath + '/');
-}
+import { checkExistingServer, getLogFileURL, resolveRootURL, isProcessAlive } from '../../core/dev/lockfile.js';
 
 export async function logs({ flags, logger }: { flags: Flags; logger: AstroLogger }): Promise<void> {
-	const root = resolveRootURL(flags);
+	const root = resolveRootURL(flags.root);
 	const existing = checkExistingServer(root);
 
 	if (!existing) {
