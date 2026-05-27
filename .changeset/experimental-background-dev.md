@@ -4,7 +4,7 @@
 
 Adds background dev server management for AI coding agents.
 
-When an AI coding agent is detected (via the [`am-i-vibing`](https://github.com/ascorbic/am-i-vibing) library), `astro dev` now automatically starts the dev server as a detached background process. This prevents the dev server from blocking the agent's terminal and allows it to continue working while the server runs.
+When an AI coding agent is detected, `astro dev` now automatically starts the dev server as a detached background process. This prevents the dev server from blocking the agent's terminal and allows it to continue working while the server runs.
 
 A lock file (`.astro/dev.json`) is written when the dev server starts, recording the server's URL, port, and PID. This prevents duplicate servers from being started for the same project.
 
