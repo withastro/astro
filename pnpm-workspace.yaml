@@ -41,6 +41,12 @@ minimumReleaseAgeExclude:
   # TODO: remove once more stable
   - '@flue/*'
   - '@astrojs/*'
+  - '@cloudflare/*'
+  - workerd
+  - miniflare
+  - wrangler
+  - 'satteri'
+  - '@bruits/*'
 peerDependencyRules:
   allowAny:
     - 'astro'

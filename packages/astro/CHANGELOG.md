@@ -1,5 +1,21 @@
 # astro
 
+## 6.3.8
+
+### Patch Changes
+
+- [#16830](https://github.com/withastro/astro/pull/16830) [`f2bf3cb`](https://github.com/withastro/astro/commit/f2bf3cb257788ff657ffbe9044fe6225e6662cb7) Thanks [@matthewp](https://github.com/matthewp)! - Fixes 404s for dynamically imported JS chunks when using an adapter with `assetQueryParams` (e.g. Vercel skew protection)
+
+- [#16831](https://github.com/withastro/astro/pull/16831) [`ace96ba`](https://github.com/withastro/astro/commit/ace96ba5024129cbeb9d8e75134f4f8bdf42a57a) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a misleading `GetStaticPathsRequired` error when a redirect is configured from a dynamic route to a static (or less-dynamic) destination. For example, `'/project/[slug]': '/'` previously produced a confusing error pointing at `index.astro`. Astro now detects the parameter mismatch at config validation time and throws a clear `InvalidRedirectDestination` error naming the missing parameters.
+
+- [#16702](https://github.com/withastro/astro/pull/16702) [`b7d1758`](https://github.com/withastro/astro/commit/b7d1758efbe0544520b4b15577d2e0dd944bf8a1) Thanks [@matthewp](https://github.com/matthewp)! - Fixes scoped styles from `.astro` components being dropped when rendered inside MDX content (`<Content />` from `render(entry)`) passed through a named slot using `<Fragment slot="X">`. The Fragment component now eagerly evaluates its slot contents to ensure propagating components register their styles before head content is flushed.
+
+- [#16823](https://github.com/withastro/astro/pull/16823) [`3df6a45`](https://github.com/withastro/astro/commit/3df6a453243ff4d1d983d0fb6d259617f50be211) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes missing CSS for conditionally rendered Svelte components in production builds
+
+- [#16836](https://github.com/withastro/astro/pull/16836) [`3d7adfa`](https://github.com/withastro/astro/commit/3d7adfae7d063661d85d92061a15f728fa5df2bd) Thanks [@LongYC](https://github.com/LongYC)! - Document compressHTML: "jsx" config is only available since Astro v6.2.0
+
+- [#16864](https://github.com/withastro/astro/pull/16864) [`334ce13`](https://github.com/withastro/astro/commit/334ce135807666df283dc4cd4d5f6dad1b1b80cc) Thanks [@cheets](https://github.com/cheets)! - Fixes a false-positive `Internal Warning: route cache overwritten` logged on every SSR request for dynamic routes
+
 ## 6.3.7
 
 ### Patch Changes
