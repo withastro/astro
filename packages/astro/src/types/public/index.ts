@@ -4,7 +4,7 @@ export type {
 	RehypePlugins,
 	RemarkPlugins,
 	ShikiConfig,
-} from '@astrojs/markdown-remark';
+} from '@astrojs/internal-helpers/markdown';
 export type {
 	ExternalImageService,
 	ImageService,

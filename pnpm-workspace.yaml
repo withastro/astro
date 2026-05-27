@@ -45,6 +45,8 @@ minimumReleaseAgeExclude:
   - workerd
   - miniflare
   - wrangler
+  - 'satteri'
+  - '@bruits/*'
 peerDependencyRules:
   allowAny:
     - 'astro'
