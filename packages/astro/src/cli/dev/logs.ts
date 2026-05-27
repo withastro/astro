@@ -74,12 +74,14 @@ export async function logs({ flags, logger }: { flags: Flags; logger: AstroLogge
 		}
 	}, 1000);
 
-	// Clean up on Ctrl+C
-	process.on('SIGINT', () => {
+	// Clean up on termination signals
+	const cleanup = () => {
 		watcher.close();
 		clearInterval(aliveCheck);
 		process.exit(0);
-	});
+	};
+	process.on('SIGINT', cleanup);
+	process.on('SIGTERM', cleanup);
 
 	// Keep the process alive
 	await new Promise(() => {});
