@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { HastPluginDefinition } from 'satteri';
-import { createSatteriMarkdownProcessor } from '../dist/index.js';
+import { createSatteriMarkdownProcessor, satteriHeadingIdsPlugin } from '../dist/index.js';
 
 describe('satteri markdown', () => {
 	it('renders basic markdown', async () => {
@@ -54,6 +54,24 @@ describe('satteri markdown', () => {
 		const processor = await createSatteriMarkdownProcessor();
 		const { metadata } = await processor.render('![alt](./local.png)');
 		assert.deepEqual(metadata.localImagePaths, ['./local.png']);
+	});
+
+	it('lets user plugins read heading IDs when `satteriHeadingIdsPlugin()` runs first', async () => {
+		let seenId: unknown;
+		const readIdPlugin: HastPluginDefinition = {
+			name: 'read-heading-id',
+			element: {
+				filter: ['h1'],
+				visit(node) {
+					seenId = node.properties?.id;
+				},
+			},
+		};
+		const processor = await createSatteriMarkdownProcessor({
+			hastPlugins: [satteriHeadingIdsPlugin(), readIdPlugin],
+		});
+		await processor.render('# Hello world');
+		assert.equal(seenId, 'hello-world');
 	});
 
 	it('respects heading IDs set by a user hast plugin in both DOM and `headings`', async () => {

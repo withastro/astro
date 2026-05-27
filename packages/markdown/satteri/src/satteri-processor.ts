@@ -104,8 +104,8 @@ export function makeFragmentNode(html: string): HastNode {
 }
 
 export function createHeadingIdsPlugin(
-	headings: MarkdownHeading[],
-	frontmatter: Record<string, any> | undefined,
+	headings?: MarkdownHeading[],
+	frontmatter?: Record<string, any>,
 ): HastPluginDefinition {
 	const slugger = new Slugger();
 	return {
@@ -121,7 +121,7 @@ export function createHeadingIdsPlugin(
 				const existingId = node.properties?.id;
 				const slug = typeof existingId === 'string' ? existingId : slugger.slug(text);
 				const depth = Number.parseInt(node.tagName[1], 10);
-				headings.push({ depth, slug, text });
+				headings?.push({ depth, slug, text });
 				if (typeof existingId !== 'string') {
 					ctx.setProperty(node, 'id', slug);
 				}
