@@ -35,7 +35,10 @@ export function matchStaticAsset(
  * Tries the ASSETS binding as a fallback for an unmatched route.
  * Returns the asset `Response` if found (non-404), `undefined` otherwise.
  */
-export async function fallbackToAssets(requestUrl: string, env: Env): Promise<Response | undefined> {
+export async function fallbackToAssets(
+	requestUrl: string,
+	env: Env,
+): Promise<Response | undefined> {
 	const asset = await env.ASSETS.fetch(
 		requestUrl.replace(/index.html$/, '').replace(/\.html$/, ''),
 	);

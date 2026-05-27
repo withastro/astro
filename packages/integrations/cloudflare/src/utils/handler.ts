@@ -1,8 +1,5 @@
 import { env as globalEnv } from 'cloudflare:workers';
-import {
-	compileImageConfig,
-	isPrerender,
-} from 'virtual:astro-cloudflare:config';
+import { compileImageConfig, isPrerender } from 'virtual:astro-cloudflare:config';
 import type { RenderOptions } from 'astro/app';
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
