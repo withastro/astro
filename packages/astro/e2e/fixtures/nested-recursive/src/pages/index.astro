@@ -2,8 +2,7 @@
 import PreactCounter from '../components/preact/PreactCounter.tsx';
 import ReactCounter from '../components/react/ReactCounter.jsx';
 import SolidCounter from '../components/solid/SolidCounter.tsx';
-// TODO: Re-enable once Svelte is compatible with Vite v8
-// import SvelteCounter from '../components/svelte/SvelteCounter.svelte';
+import SvelteCounter from '../components/svelte/SvelteCounter.svelte';
 import VueCounter from '../components/vue/VueCounter.vue';
 ---
 
@@ -18,9 +17,9 @@ import VueCounter from '../components/vue/VueCounter.vue';
 			<ReactCounter id="react-counter" client:idle>
 				<PreactCounter id="preact-counter" client:idle>
 					<SolidCounter id="solid-counter" client:idle>
-					<!-- <SvelteCounter id="svelte-counter" client:idle> -->
+					<SvelteCounter id="svelte-counter" client:idle>
 						<VueCounter id="vue-counter" client:idle />
-					<!-- </SvelteCounter> -->
+					</SvelteCounter>
 					</SolidCounter>
 				</PreactCounter>
 			</ReactCounter>

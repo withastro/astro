@@ -13,9 +13,7 @@ test.afterAll(async () => {
 	await devServer.stop();
 });
 
-// TODO: Re-enable once Svelte is compatible with Vite v8
-test.describe
-	.skip('Nested Frameworks in Svelte', () => {
+test.describe('Nested Frameworks in Svelte', () => {
 		test('React counter', async ({ astro, page }) => {
 			await page.goto(astro.resolveUrl('/'));
 

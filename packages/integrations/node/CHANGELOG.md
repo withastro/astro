@@ -7,6 +7,19 @@
 - Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
   - astro@7.0.0-alpha.0
 
+## 10.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce)]:
+  - @astrojs/internal-helpers@0.9.1
+
+## 10.1.0
+
+### Minor Changes
+
+- [#16639](https://github.com/withastro/astro/pull/16639) [`4d72482`](https://github.com/withastro/astro/commit/4d7248223b919bfd3557fba6f56b4474b4bd58c7) Thanks [@ematipico](https://github.com/ematipico)! - The adapter now depends on Astro 6.3.0.
+
 ## 10.0.6
 
 ### Patch Changes

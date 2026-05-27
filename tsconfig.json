@@ -2,8 +2,14 @@
 // tsconfig.json so a single `tsc -b` covers the whole monorepo.
 {
   "extends": "./configs/tsconfig.base.json",
-  "files": ["./prettier.config.mjs"],
+  "files": [
+    // Root config files that aren't in any package
+    "./prettier.config.mjs",
+    "./eslint.config.js",
+    "./knip.js"
+  ],
   "references": [
+    { "path": "./benchmark/tsconfig.json" },
     { "path": "./packages/internal-helpers/tsconfig.json" },
     { "path": "./packages/telemetry/tsconfig.json" },
     { "path": "./packages/astro-prism/tsconfig.json" },

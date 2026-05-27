@@ -11,6 +11,12 @@
 - Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
   - astro@7.0.0-alpha.0
 
+## 8.1.1
+
+### Patch Changes
+
+- [#16642](https://github.com/withastro/astro/pull/16642) [`53059be`](https://github.com/withastro/astro/commit/53059bec978a5124fc61a23035cefbfc93754a01) Thanks [@ocavue](https://github.com/ocavue)! - Adds support for TypeScript v6 to peer dependencies range.
+
 ## 8.1.0
 
 ### Minor Changes

@@ -79,6 +79,8 @@ export interface AstroFetchState {
 	readonly locals: App.Locals;
 	/** Route params derived from routeData + pathname. */
 	readonly params: Params | undefined;
+	/** The `Response` produced by handlers, if any. Set after rendering. */
+	response: Response | undefined;
 	/** Default HTTP status for the rendered response. */
 	status: number;
 
@@ -168,6 +170,11 @@ export class FetchState implements AstroFetchState {
 	 * allocate an empty object per request.
 	 */
 	slots: Record<string, any> | undefined;
+	/**
+	 * The `Response` produced by handlers, if any. Set after page
+	 * rendering or middleware completes.
+	 */
+	response: Response | undefined;
 	/**
 	 * Default HTTP status for the rendered response. Callers override
 	 * before rendering runs (e.g. `AstroHandler` sets this from

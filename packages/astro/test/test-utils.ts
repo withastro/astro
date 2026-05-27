@@ -38,7 +38,9 @@ export type RequestHandler = (
 	res: ServerResponse,
 	next?: (err?: unknown) => void,
 	locals?: object,
-) => void | Promise<void>;
+	// We use `PromiseLike` instead of `Promise` as the return type to bypass the `no-floating-promises` eslint rule.
+	// See https://typescript-eslint.io/rules/no-floating-promises/
+) => void | PromiseLike<void>;
 
 // `startServer` is defined in `@astrojs/node` so we cannot import it directly.
 // See https://github.com/withastro/astro/blob/astro@6.0.0/packages/integrations/node/src/server.ts#L21
@@ -168,7 +170,6 @@ export async function loadFixture(inlineConfig: AstroInlineConfig): Promise<Fixt
 			delete process.env.NODE_ENV;
 			const t0 = performance.now();
 			await build(mergeConfig(resolvedInlineConfig, extraInlineConfig), {
-				teardownCompiler: false,
 				...options,
 			});
 			CILogger.logBuild({ fixture: root as string, duration: performance.now() - t0 });
@@ -268,18 +269,14 @@ export async function loadFixture(inlineConfig: AstroInlineConfig): Promise<Fixt
 				expandDirectories: false,
 			}),
 		clean: async () => {
-			await fs.promises.rm(config.outDir, {
-				maxRetries: 10,
-				recursive: true,
-				force: true,
-			});
-			const astroCache = new URL('./node_modules/.astro', config.root);
-			if (fs.existsSync(astroCache)) {
-				await fs.promises.rm(astroCache, {
-					maxRetries: 10,
-					recursive: true,
-					force: true,
-				});
+			for (const dir of [config.outDir, config.cacheDir]) {
+				if (fs.existsSync(dir)) {
+					await fs.promises.rm(dir, {
+						maxRetries: 10,
+						recursive: true,
+						force: true,
+					});
+				}
 			}
 		},
 		loadAdapterEntryModule: async () => {

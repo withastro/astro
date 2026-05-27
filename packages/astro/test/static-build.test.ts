@@ -35,6 +35,7 @@ describe('Static build', () => {
 			root: './fixtures/static-build/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/static-build-static-build/',
 		});
 		await fixture.build({
 			// @ts-expect-error - logger is @intneral API
@@ -198,6 +199,7 @@ describe('Static build SSR', () => {
 	it('Copies public files', async () => {
 		const fixture = await loadFixture({
 			root: './fixtures/static-build-ssr/',
+			outDir: './dist/static-build-static-build-ssr/',
 		});
 		await fixture.build();
 
@@ -210,6 +212,7 @@ describe('Static build with configured redirects', () => {
 	it('Sets isPrerendered true in middleware', async () => {
 		const fixture = await loadFixture({
 			root: './fixtures/static-redirect/',
+			outDir: './dist/static-build-static-build-with-configured-redirects/',
 		});
 
 		await assert.doesNotReject(

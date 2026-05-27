@@ -37,6 +37,7 @@ export type { AstroIntegrationLogger } from '../../core/logger/core.js';
 export type { AstroSession } from '../../core/session/runtime.js';
 export type { ToolbarServerHelpers } from '../../runtime/client/dev-toolbar/helpers.js';
 export type { AstroEnvironmentNames } from '../../core/constants.js';
+export type { Fetchable } from '../../core/fetch/types.js';
 export type { SessionDriver, SessionDriverConfig } from '../../core/session/types.js';
 export type {
 	CacheProvider,

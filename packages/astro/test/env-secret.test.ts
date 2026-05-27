@@ -20,6 +20,7 @@ describe('astro:env secret variables', () => {
 		process.env.KNOWN_SECRET = '5';
 		fixture = await loadFixture({
 			root: './fixtures/astro-env-server-secret/',
+			outDir: './dist/env-secret-astro-env-secret-variables/',
 		});
 		devServer = await fixture.startDevServer();
 		const response = await fixture.fetch('/');
@@ -36,6 +37,7 @@ describe('astro:env secret variables', () => {
 					UNKNOWN_SECRET: 'abc',
 				},
 			}),
+			outDir: './dist/env-secret-astro-env-secret-variables/',
 		});
 		await fixture.build();
 		assert.equal(true, true);
@@ -51,6 +53,7 @@ describe('astro:env secret variables', () => {
 					UNKNOWN_SECRET: 'abc',
 				},
 			}),
+			outDir: './dist/env-secret-astro-env-secret-variables/',
 		});
 		await fixture.build();
 		const app = await fixture.loadTestAdapterApp();
@@ -73,6 +76,7 @@ describe('astro:env secret variables', () => {
 			env: {
 				validateSecrets: true,
 			},
+			outDir: './dist/env-secret-astro-env-secret-variables/',
 		});
 
 		try {
@@ -81,7 +85,7 @@ describe('astro:env secret variables', () => {
 		} catch (e: any) {
 			const error = e.errors[0] as any as AstroError;
 			assert.equal(error instanceof Error, true);
-			assert.equal(error.title, 'Invalid Environment Variables');
+			assert.equal(error.title, 'Invalid environment variables.');
 			assert.equal(error.message.includes('KNOWN_SECRET is missing'), true);
 		}
 	});

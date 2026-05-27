@@ -1,4 +1,4 @@
-import type { EnvironmentModuleNode, Plugin } from 'vite';
+import { isRunnableDevEnvironment, type EnvironmentModuleNode, type Plugin } from 'vite';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
 import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css/util.js';
 import { isAstroServerEnvironment } from '../environments.js';
@@ -26,7 +26,7 @@ export default function hmrReload(): Plugin {
 		enforce: 'post',
 		hotUpdate: {
 			order: 'post',
-			handler({ modules, server, timestamp }) {
+			handler({ modules, server, timestamp, file }) {
 				if (!isAstroServerEnvironment(this.environment)) return;
 
 				let hasSsrOnlyModules = false;
@@ -44,6 +44,18 @@ export default function hmrReload(): Plugin {
 					if (clientModule != null) continue;
 
 					this.environment.moduleGraph.invalidateModule(mod, invalidatedModules, timestamp, true);
+					// Also invalidate the module in the SSR module runner's evaluation cache.
+					// Server-side moduleGraph invalidation only clears `transformResult`, but
+					// the runner may still hold a stale evaluated result. When the runner's
+					// `fetchModule` call triggers a fresh server transform, the transform
+					// re-populates `transformResult` before the runner checks it, causing a
+					// false cache hit that serves stale content.
+					if (isRunnableDevEnvironment(this.environment)) {
+						const runnerModule = this.environment.runner.evaluatedModules.getModuleById(mod.id!);
+						if (runnerModule) {
+							this.environment.runner.evaluatedModules.invalidateModule(runnerModule);
+						}
+					}
 					hasSsrOnlyModules = true;
 				}
 
@@ -60,7 +72,18 @@ export default function hmrReload(): Plugin {
 				}
 
 				if (hasSsrOnlyModules) {
+					// Tell the browser to reload the page.
 					server.ws.send({ type: 'full-reload' });
+					// For non-runnable environments (e.g. Cloudflare's workerd), we can't
+					// directly access the module runner. Send a full-reload through the
+					// environment's hot channel so the remote runner clears its cache.
+					if (!isRunnableDevEnvironment(this.environment)) {
+						this.environment.hot.send({
+							type: 'full-reload',
+							triggeredBy: file,
+							path: '*',
+						});
+					}
 					return [];
 				}
 

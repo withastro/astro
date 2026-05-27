@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { parse as parseDevalue } from 'devalue';
-import { fixLineEndings, loadFixture, type Fixture, type DevServer } from './test-utils.ts';
+import { fixLineEndings, loadFixture, type Fixture } from './test-utils.ts';
 import markdoc from '../dist/index.js';
 
 function formatPost<T extends { body: string }>(post: T): T {
@@ -22,35 +22,6 @@ describe('Markdoc - Content Collections', () => {
 		baseFixture = await loadFixture({
 			root,
 			integrations: [markdoc()],
-		});
-	});
-
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await baseFixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('loads entry', async () => {
-			const res = await baseFixture.fetch('/entry.json');
-			const post = parseDevalue(await res.text());
-			assert.deepEqual(formatPost(post), post1Entry);
-		});
-
-		it('loads collection', async () => {
-			const res = await baseFixture.fetch('/collection.json');
-			const posts = parseDevalue(await res.text());
-			assert.notEqual(posts, null);
-
-			assert.deepEqual(
-				posts.sort(sortById).map((post: { id: string; body: string }) => formatPost(post)),
-				[post1Entry, post2Entry, post3Entry],
-			);
 		});
 	});
 

@@ -16,6 +16,8 @@ describe('Astro dev headers', () => {
 			server: {
 				headers,
 			},
+			outDir: './dist/astro-dev-headers-astro-dev-headers/',
+			cacheDir: './node_modules/.astro-test/astro-dev-headers-astro-dev-headers/',
 		});
 		await fixture.build();
 		devServer = await fixture.startDevServer();
@@ -56,6 +58,8 @@ describe('Astro dev with vite.base path', () => {
 			vite: {
 				base: '/hello',
 			},
+			outDir: './dist/astro-dev-headers-astro-dev-with-vite-base-path/',
+			cacheDir: './node_modules/.astro-test/astro-dev-headers-astro-dev-with-vite-base-path/',
 		});
 		await fixture.build();
 		devServer = await fixture.startDevServer();

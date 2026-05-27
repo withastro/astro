@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 /**
  * @see https://github.com/withastro/astro/issues/14252
@@ -56,28 +56,6 @@ describe('Conditional rendering styles', () => {
 				hasChildStyles,
 				`Child component styles (background-color: red) should be included in build output even when conditionally rendered. CSS found: ${allCss.substring(0, 500)}`,
 			);
-		});
-	});
-
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('includes styles for conditionally rendered Svelte components', async () => {
-			const html = await fixture.fetch('/').then((res) => res.text());
-
-			// In dev mode, styles are typically injected via JS
-			// The component should be present and work correctly
-			const hasParentComponent = html.includes('parent');
-
-			assert.ok(hasParentComponent, 'Parent component should be present in dev mode');
 		});
 	});
 });

@@ -47,6 +47,8 @@ describe('Server islands', () => {
 				security: {
 					csp: true,
 				},
+				outDir: './dist/csp-server-islands-ssr/',
+				cacheDir: './node_modules/.astro-test/csp-server-islands-ssr/',
 			});
 			process.env.ASTRO_KEY = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=';
 			await fixture.build();
@@ -98,6 +100,8 @@ describe('Server islands', () => {
 				security: {
 					csp: true,
 				},
+				outDir: './dist/csp-server-islands-hybrid/',
+				cacheDir: './node_modules/.astro-test/csp-server-islands-hybrid/',
 			});
 		});
 

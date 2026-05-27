@@ -12,6 +12,8 @@ describe('With include option', () => {
 		fixture = await loadFixture({
 			root: './fixtures/multiple-jsx-renderers/',
 			integrations: [woof({ include: '**/*.woof.jsx' }), meow({ include: '**/*.meow.jsx' })],
+			outDir: './dist/multiple-jsx-renderers-with-include-option/',
+			cacheDir: './node_modules/.astro-test/multiple-jsx-renderers-with-include-option/',
 		});
 		await fixture.build();
 	});
@@ -88,6 +90,8 @@ describe('Without include option', () => {
 		fixture = await loadFixture({
 			root: './fixtures/multiple-jsx-renderers/',
 			integrations: [woof(), meow()],
+			outDir: './dist/multiple-jsx-renderers-without-include-option/',
+			cacheDir: './node_modules/.astro-test/multiple-jsx-renderers-without-include-option/',
 		});
 		await fixture.build();
 	});

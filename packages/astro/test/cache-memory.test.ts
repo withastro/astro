@@ -12,6 +12,7 @@ describe('Memory cache provider', () => {
 			root: './fixtures/cache-memory/',
 			output: 'server',
 			adapter: testAdapter(),
+			outDir: './dist/cache-memory/',
 		});
 		await fixture.build({});
 		app = await fixture.loadTestAdapterApp();

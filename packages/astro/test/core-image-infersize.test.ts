@@ -18,6 +18,7 @@ describe('astro:image:infersize', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-infersize/',
+				outDir: './dist/core-image-infersize-dev/',
 			});
 
 			const logger = new AstroLogger({
@@ -103,6 +104,7 @@ describe('astro:image:infersize', () => {
 						transform: { path: remoteAvatarUrl, scale: 2 },
 					}),
 				},
+				outDir: './dist/core-image-infersize-dev-with-custom-image-service/',
 			});
 
 			customDevServer = await customFixture.startDevServer({});

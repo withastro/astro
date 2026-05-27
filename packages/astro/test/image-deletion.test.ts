@@ -14,6 +14,7 @@ describe('astro:assets - delete images that are unused', () => {
 				image: {
 					service: testImageService(),
 				},
+				outDir: './dist/image-deletion-build-ssg/',
 			});
 
 			await fixture.build();
@@ -54,6 +55,7 @@ describe('astro:assets - delete images that are unused', () => {
 				image: {
 					service: testImageService(),
 				},
+				outDir: './dist/image-deletion-build-ssr/',
 			});
 
 			await fixture.build();
