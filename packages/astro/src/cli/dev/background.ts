@@ -69,7 +69,7 @@ export async function background({
 		removeLockFile(root);
 	}
 
-	// Build the args for the child process: `astro dev` without --background
+	// Build the args for the child process: plain `astro dev` (no --background)
 	const args: string[] = ['dev'];
 	if (flags.port) args.push('--port', String(flags.port));
 	if (flags.host != null) {

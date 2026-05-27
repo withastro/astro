@@ -23,25 +23,25 @@ export async function dev({ flags }: DevOptions) {
 			commandName: 'astro dev',
 			usage: '[command] [...flags]',
 			tables: {
-				Commands: [
-					['background', 'Start the dev server as a background process.'],
-					['stop', 'Stop a running background dev server.'],
-					['status', 'Check if a dev server is running.'],
-					['logs [--follow]', 'View logs from a background dev server.'],
+			Commands: [
+				['stop', 'Stop a running background dev server.'],
+				['status', 'Check if a dev server is running.'],
+				['logs [--follow]', 'View logs from a background dev server.'],
+			],
+			Flags: [
+				['--background', 'Start the dev server as a background process.'],
+				['--mode', `Specify the mode of the project. Defaults to "development".`],
+				['--port', `Specify which port to run on. Defaults to 4321.`],
+				['--host', `Listen on all addresses, including LAN and public addresses.`],
+				['--host <custom-address>', `Expose on a network IP address at <custom-address>`],
+				['--open', 'Automatically open the app in the browser on server start'],
+				['--force', 'Clear the content layer cache, forcing a full rebuild.'],
+				[
+					'--allowed-hosts',
+					'Specify a comma-separated list of allowed hosts or allow any hostname.',
 				],
-				Flags: [
-					['--mode', `Specify the mode of the project. Defaults to "development".`],
-					['--port', `Specify which port to run on. Defaults to 4321.`],
-					['--host', `Listen on all addresses, including LAN and public addresses.`],
-					['--host <custom-address>', `Expose on a network IP address at <custom-address>`],
-					['--open', 'Automatically open the app in the browser on server start'],
-					['--force', 'Clear the content layer cache, forcing a full rebuild.'],
-					[
-						'--allowed-hosts',
-						'Specify a comma-separated list of allowed hosts or allow any hostname.',
-					],
-					['--help (-h)', 'See all available flags.'],
-				],
+				['--help (-h)', 'See all available flags.'],
+			],
 			},
 			description: `Check ${colors.cyan(
 				'https://docs.astro.build/en/reference/cli-reference/#astro-dev',
@@ -80,10 +80,10 @@ export async function dev({ flags }: DevOptions) {
 		return;
 	}
 
-	// Handle `astro dev background` or auto-enable when an AI coding agent is detected.
+	// Handle `astro dev --background` or auto-enable when an AI coding agent is detected.
 	// Skip if ASTRO_DEV_BACKGROUND is set — this means we're the spawned child process
 	// and should run the foreground dev server, not recurse into background mode.
-	if (subcommand === 'background' || agentDetected) {
+	if (flags.background || agentDetected) {
 		const { background } = await import('./background.js');
 		await background({ flags, logger });
 		return;
