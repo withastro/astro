@@ -190,10 +190,9 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 
 		const self = this;
 		await self.#loadFetchHandler();
-		// RouteCache is intentionally not cleared per request. devMatch() can use
-		// getStaticPaths() to test dynamic route candidates before the later render
-		// resolves props from the same static-path table. HMR/content invalidation
-		// clears stale entries through module identity checks or content-change events.
+		// Clear the route cache on every dev request so that getStaticPaths()
+		// re-runs when external data (e.g. a headless CMS) changes between requests.
+		self.pipeline.clearRouteCache();
 
 		let handled = true;
 		await runWithErrorHandling({
