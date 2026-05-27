@@ -44,10 +44,14 @@ export async function callGetStaticPaths({
 
 	validateDynamicRouteModule(mod, { ssr, route });
 
-	// No static paths in SSR mode. Return an empty RouteCacheEntry.
-	if (ssr && !route.prerender) {
+	// No static paths in SSR mode or for internal routes. Return an empty RouteCacheEntry.
+	if ((ssr && !route.prerender) || route.origin === 'internal') {
 		const entry: GetStaticPathsResultKeyed = Object.assign([], { keyed: new Map() });
-		routeCache.set(route, { ...cached, staticPaths: entry });
+		// Store `mod` alongside the entry so the fast-path above hits on
+		// subsequent requests; otherwise `cached.mod === mod` is always false
+		// in SSR and we re-enter this branch, triggering the "route cache
+		// overwritten" warning on every request after the first.
+		routeCache.set(route, { ...cached, mod, staticPaths: entry });
 		return entry;
 	}
 
@@ -81,7 +85,7 @@ export async function callGetStaticPaths({
 }
 
 interface RouteCacheEntry {
-	mod?: ComponentInstance;
+	mod: ComponentInstance;
 	staticPaths: GetStaticPathsResultKeyed;
 }
 

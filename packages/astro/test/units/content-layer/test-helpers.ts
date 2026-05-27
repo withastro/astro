@@ -2,6 +2,7 @@ import path from 'node:path';
 import { tmpdir } from 'node:os';
 import { mkdtempSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
+import { unified } from '@astrojs/markdown-remark';
 
 /**
  * Creates a temporary directory for tests
@@ -41,14 +42,18 @@ export function createMinimalSettings(root: URL, overrides: Record<string, any> 
 		root,
 		srcDir: new URL('./src/', root),
 		cacheDir: new URL('./.cache/', root),
-		markdown: {},
+		markdown: { processor: unified() },
 		experimental: {},
 	};
 
+	const overrideConfig = overrides.config || {};
 	const settings: Record<string, any> = {
 		config: {
 			...defaultConfig,
-			...(overrides.config || {}),
+			...overrideConfig,
+			// Tests often spread custom markdown options without a processor; preserve the
+			// default `unified()` processor so `processor.createRenderer(...)` is always callable.
+			markdown: { ...defaultConfig.markdown, ...(overrideConfig.markdown || {}) },
 		},
 		dotAstroDir: new URL('./.astro/', root),
 		contentEntryTypes: [],

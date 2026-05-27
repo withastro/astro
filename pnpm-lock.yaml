@@ -33,10 +33,10 @@ importers:
         version: 2.29.8(@types/node@22.19.19)
       '@flue/cli':
         specifier: ^0.3.10
-        version: 0.3.10(typescript@6.0.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)
+        version: 0.3.10(typescript@6.0.3)(wrangler@4.95.0)(ws@8.20.1)(zod@4.3.6)
       '@flue/sdk':
         specifier: ^0.3.10
-        version: 0.3.10(typescript@6.0.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)
+        version: 0.3.10(typescript@6.0.3)(wrangler@4.95.0)(ws@8.20.1)(zod@4.3.6)
       '@types/node':
         specifier: ^22.19.0
         version: 22.19.19
@@ -197,7 +197,7 @@ importers:
         specifier: ^10.1.1
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
       hono:
         specifier: ^4.12.14
@@ -206,7 +206,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
 
   examples/blog:
@@ -218,10 +218,10 @@ importers:
         specifier: ^4.0.18
         version: link:../../packages/astro-rss
       '@astrojs/sitemap':
-        specifier: ^3.7.2
+        specifier: ^3.7.3
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
       sharp:
         specifier: ^0.34.3
@@ -230,7 +230,7 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
 
   examples/container-with-vitest:
@@ -239,7 +239,7 @@ importers:
         specifier: ^5.0.5
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -270,7 +270,7 @@ importers:
         specifier: ^3.15.8
         version: 3.15.8
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
 
   examples/framework-multiple:
@@ -285,7 +285,7 @@ importers:
         specifier: ^6.0.1
         version: link:../../packages/integrations/solid
       '@astrojs/svelte':
-        specifier: ^8.1.1
+        specifier: ^8.1.2
         version: link:../../packages/integrations/svelte
       '@astrojs/vue':
         specifier: ^6.0.1
@@ -297,7 +297,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -327,7 +327,7 @@ importers:
         specifier: ^2.8.1
         version: 2.8.2(preact@10.29.0)
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -345,7 +345,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -360,7 +360,7 @@ importers:
         specifier: ^6.0.1
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.11
@@ -369,10 +369,10 @@ importers:
   examples/framework-svelte:
     dependencies:
       '@astrojs/svelte':
-        specifier: ^8.1.1
+        specifier: ^8.1.2
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -384,7 +384,7 @@ importers:
         specifier: ^6.0.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.29
@@ -396,25 +396,25 @@ importers:
         specifier: ^10.1.1
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
 
   examples/ssr:
@@ -423,10 +423,10 @@ importers:
         specifier: ^10.1.1
         version: link:../../packages/integrations/node
       '@astrojs/svelte':
-        specifier: ^8.1.1
+        specifier: ^8.1.2
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -435,7 +435,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
       sass:
         specifier: ^1.97.3
@@ -450,7 +450,7 @@ importers:
         specifier: ^22.19.0
         version: 22.19.19
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -459,7 +459,7 @@ importers:
         specifier: ^1.0.5
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -471,7 +471,7 @@ importers:
         specifier: ^5.1.3
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -486,7 +486,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(nanostores@1.1.1)(preact@10.29.0)
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
       nanostores:
         specifier: ^1.1.1
@@ -507,7 +507,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -519,7 +519,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^6.3.7
+        specifier: ^6.3.8
         version: link:../../packages/astro
       vitest:
         specifier: ^4.1.0
@@ -747,12 +747,6 @@ importers:
       hono:
         specifier: ^4.12.14
         version: 4.12.16
-      mdast-util-mdx:
-        specifier: ^3.0.0
-        version: 3.0.0
-      mdast-util-mdx-jsx:
-        specifier: ^3.2.0
-        version: 3.2.0
       node-mocks-http:
         specifier: ^1.17.2
         version: 1.17.2(@types/express@5.0.6)(@types/node@22.19.19)
@@ -2134,12 +2128,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/astro-cookies:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/astro-css-bundling:
     dependencies:
       astro:
@@ -2298,6 +2286,9 @@ importers:
 
   packages/astro/test/fixtures/astro-markdown-plugins:
     dependencies:
+      '@astrojs/markdown-remark':
+        specifier: workspace:*
+        version: link:../../../../markdown/remark
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -2363,12 +2354,6 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/astro-mode:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/astro-not-response:
     dependencies:
       astro:
         specifier: workspace:*
@@ -2501,12 +2486,6 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/build-readonly-file:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/cache-memory:
     dependencies:
       astro:
         specifier: workspace:*
@@ -4054,21 +4033,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/streaming:
-    dependencies:
-      '@astrojs/react':
-        specifier: workspace:*
-        version: link:../../../../integrations/react
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
-
   packages/astro/test/fixtures/svelte-component:
     dependencies:
       '@astrojs/svelte':
@@ -4415,8 +4379,8 @@ importers:
         specifier: workspace:*
         version: link:../../underscore-redirects
       '@cloudflare/vite-plugin':
-        specifier: ^1.32.3
-        version: 1.32.3(@cloudflare/workers-types@4.20260228.0)(vite@7.3.2)(workerd@1.20260415.1)
+        specifier: ^1.39.0
+        version: 1.39.0(@cloudflare/workers-types@4.20260228.0)(vite@7.3.2)(workerd@1.20260526.1)
       piccolore:
         specifier: ^0.1.3
         version: 0.1.3
@@ -4475,7 +4439,7 @@ importers:
     devDependencies:
       wrangler:
         specifier: ^4.83.0
-        version: 4.83.0(@cloudflare/workers-types@4.20260228.0)
+        version: 4.83.0
 
   packages/integrations/cloudflare/test/fixtures/astro-env:
     dependencies:
@@ -4488,7 +4452,7 @@ importers:
     devDependencies:
       wrangler:
         specifier: ^4.83.0
-        version: 4.83.0(@cloudflare/workers-types@4.20260228.0)
+        version: 4.83.0
 
   packages/integrations/cloudflare/test/fixtures/binding-image-service:
     dependencies:
@@ -4536,7 +4500,7 @@ importers:
         version: link:../../../../../astro
       wrangler:
         specifier: ^4.83.0
-        version: 4.83.0(@cloudflare/workers-types@4.20260228.0)
+        version: 4.83.0
 
   packages/integrations/cloudflare/test/fixtures/dev-image-endpoint:
     dependencies:
@@ -4650,7 +4614,7 @@ importers:
     devDependencies:
       wrangler:
         specifier: ^4.83.0
-        version: 4.83.0(@cloudflare/workers-types@4.20260228.0)
+        version: 4.83.0
 
   packages/integrations/cloudflare/test/fixtures/server-entry:
     dependencies:
@@ -4687,7 +4651,7 @@ importers:
         version: link:../../../../../astro
       wrangler:
         specifier: ^4.83.0
-        version: 4.83.0(@cloudflare/workers-types@4.20260228.0)
+        version: 4.83.0
 
   packages/integrations/cloudflare/test/fixtures/sql-import:
     dependencies:
@@ -4888,9 +4852,6 @@ importers:
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../../internal-helpers
-      '@astrojs/markdown-remark':
-        specifier: workspace:*
-        version: link:../../markdown/remark
       '@astrojs/prism':
         specifier: workspace:*
         version: link:../../astro-prism
@@ -5120,6 +5081,9 @@ importers:
 
   packages/integrations/mdx:
     dependencies:
+      '@astrojs/internal-helpers':
+        specifier: workspace:*
+        version: link:../../internal-helpers
       '@astrojs/markdown-remark':
         specifier: workspace:*
         version: link:../../markdown/remark
@@ -5160,6 +5124,9 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
     devDependencies:
+      '@astrojs/markdown-satteri':
+        specifier: workspace:*
+        version: link:../../markdown/satteri
       '@shikijs/rehype':
         specifier: ^4.0.2
         version: 4.0.2
@@ -5208,6 +5175,9 @@ importers:
       remark-toc:
         specifier: ^9.0.0
         version: 9.0.0
+      satteri:
+        specifier: ^0.6.3
+        version: 0.6.3
       shiki:
         specifier: ^4.0.2
         version: 4.0.2
@@ -6410,10 +6380,34 @@ importers:
 
   packages/internal-helpers:
     dependencies:
+      '@types/hast':
+        specifier: ^3.0.4
+        version: 3.0.4
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
+      js-yaml:
+        specifier: ^4.1.1
+        version: 4.1.1
       picomatch:
         specifier: ^4.0.4
         version: 4.0.4
+      retext-smartypants:
+        specifier: ^6.2.0
+        version: 6.2.0
+      shiki:
+        specifier: ^4.0.2
+        version: 4.0.2
+      smol-toml:
+        specifier: ^1.6.0
+        version: 1.6.1
+      unified:
+        specifier: ^11.0.5
+        version: 11.0.5
     devDependencies:
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
       '@types/picomatch':
         specifier: ^4.0.2
         version: 4.0.2
@@ -6717,9 +6711,6 @@ importers:
       hast-util-to-text:
         specifier: ^4.0.2
         version: 4.0.2
-      js-yaml:
-        specifier: ^4.1.1
-        version: 4.1.1
       mdast-util-definitions:
         specifier: ^6.0.0
         version: 6.0.0
@@ -6741,15 +6732,6 @@ importers:
       remark-smartypants:
         specifier: ^3.0.2
         version: 3.0.2
-      retext-smartypants:
-        specifier: ^6.2.0
-        version: 6.2.0
-      shiki:
-        specifier: ^4.0.0
-        version: 4.0.2
-      smol-toml:
-        specifier: ^1.6.0
-        version: 1.6.1
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -6772,9 +6754,6 @@ importers:
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
       '@types/mdast':
         specifier: ^4.0.4
         version: 4.0.4
@@ -6785,11 +6764,30 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       esbuild:
-        specifier: ^0.27.3
-        version: 0.27.3
+        specifier: ^0.28.0
+        version: 0.28.0
       mdast-util-mdx-expression:
         specifier: ^2.0.1
         version: 2.0.1
+      shiki:
+        specifier: ^4.0.0
+        version: 4.0.2
+
+  packages/markdown/satteri:
+    dependencies:
+      '@astrojs/internal-helpers':
+        specifier: workspace:*
+        version: link:../../internal-helpers
+      github-slugger:
+        specifier: ^2.0.0
+        version: 2.0.0
+      satteri:
+        specifier: ^0.6.3
+        version: 0.6.3
+    devDependencies:
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
 
   packages/telemetry:
     dependencies:
@@ -7425,6 +7423,32 @@ packages:
   '@borewit/text-codec@0.2.2':
     resolution: {integrity: sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ==}
 
+  '@bruits/satteri-darwin-arm64@0.6.3':
+    resolution: {integrity: sha512-oKgMfpmNzQ8vaqmkE37PBu8tOyVjoOc4s+DV2tLpWvO6WO467qn/+Nbcirm/ceer7wUM8v4vMLGcZO0gkRzBEg==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@bruits/satteri-darwin-x64@0.6.3':
+    resolution: {integrity: sha512-9I5pbwZRWH5LvhoCtwpRr4rYSDe43/dLvps6zO70ipVF2XbH4rJ20T+EfvPcmou5jsWMsq9Ybn5GX3PwlSrBaw==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@bruits/satteri-linux-x64-gnu@0.6.3':
+    resolution: {integrity: sha512-aFfw2DL2HpIcAQ8I3ZEtKuz+/GoF0H0sq387jAlvr00Q7buiiFbvARFuQlvTk00N7u3SJIh/3+YkKssTJDT+yQ==}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@bruits/satteri-wasm32-wasi@0.6.3':
+    resolution: {integrity: sha512-DdpfnJ+04Mb4YtHaxAeETUvhdxFKg3URnroGY39FvweJEgeXx8cFNutuF5w904BhqaiblhmF76AoBnJwNLxsXg==}
+    engines: {node: '>=14.0.0'}
+    cpu: [wasm32]
+
+  '@bruits/satteri-win32-x64-msvc@0.6.3':
+    resolution: {integrity: sha512-J/CZqACnBbv77eImx/JeO5RmCuCyliihiC81u3M4VobA8eupsygaPen3/UFFqf3yfeHvMlE3myilouh/2iHMOA==}
+    cpu: [x64]
+    os: [win32]
+
   '@capsizecss/unpack@4.0.0':
     resolution: {integrity: sha512-VERIM64vtTP1C4mxQ5thVT9fK0apjPFobqybMtA1UdUujWka24ERHbRHFGmpbbhp73MhV+KSsHQH9C6uOTdEQA==}
     engines: {node: '>=18'}
@@ -7517,6 +7541,10 @@ packages:
     resolution: {integrity: sha512-SIOD2DxrRRwQ+jgzlXCqoEFiKOFqaPjhnNTGKXSRLvp1HiOvapLaFG2kEr9dYQTYe8rKrd9uvDUzmAITeNyaHQ==}
     engines: {node: '>=18.0.0'}
 
+  '@cloudflare/kv-asset-handler@0.5.0':
+    resolution: {integrity: sha512-jxQYkj8dSIzc0cD6cMMNdOc1UVjqSqu8BZdor5s8cGjW2I8BjODt/kWPVdY+u9zj3ms75Q5qaZgnxUad83+eAg==}
+    engines: {node: '>=22.0.0'}
+
   '@cloudflare/shell@0.3.6':
     resolution: {integrity: sha512-k2tjxzIAeMU932L98KOOcq0Z37TXdnXY+WrOirCupVfrBYH3UaS7AaiYdjRc5w44NlK/ea9hBQvdHSDI7TTdLQ==}
 
@@ -7529,13 +7557,28 @@ packages:
       workerd:
         optional: true
 
-  '@cloudflare/vite-plugin@1.32.3':
-    resolution: {integrity: sha512-a8ZkCA/SOiJ36jT3LlBLkUb7ZzGInhYJoTY4BMRBGdk+nsh44HavbNvtu/RdaqS5VJEMLM4+LqVIJ+V0ahGeFg==}
+  '@cloudflare/unenv-preset@2.16.1':
+    resolution: {integrity: sha512-ECxObrMfyTl5bhQf/lZCXwo5G6xX9IAUo+nDMKK4SZ8m4Jvvxp52vilxyySSWh2YTZz8+HQ07qGH/2rEom1vDw==}
+    peerDependencies:
+      unenv: 2.0.0-rc.24
+      workerd: '>1.20260305.0 <2.0.0-0'
+    peerDependenciesMeta:
+      workerd:
+        optional: true
+
+  '@cloudflare/vite-plugin@1.39.0':
+    resolution: {integrity: sha512-AHC+KSR+3dtGu7Ab7I0Ode4Whx12TxMEmiZt7w+Fc3/2wYNByIzbb6cndWZ78tnveFdO1xhNLv1YaNngxGtOPg==}
     peerDependencies:
       vite: ^6.1.0 || ^7.0.0 || ^8.0.0
 
   '@cloudflare/workerd-darwin-64@1.20260415.1':
     resolution: {integrity: sha512-dsxaKsQm3LnPGNPEdsRv09QN3Y4DqCw7kX5j6noKqbAtro2jTr95sVlYM1jUxZ5FkOl1f7SXgaKKB9t5H5Nkbg==}
+    engines: {node: '>=16'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@cloudflare/workerd-darwin-64@1.20260526.1':
+    resolution: {integrity: sha512-/pR3GH3gfv0PUp7DjI8v0aAIDOqFwibq4bg5xT7TZgcVdBV/cJQWckdXCMqiRtHiawLwogUX00EIOINkYJ1Zqg==}
     engines: {node: '>=16'}
     cpu: [x64]
     os: [darwin]
@@ -7546,8 +7589,20 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
+  '@cloudflare/workerd-darwin-arm64@1.20260526.1':
+    resolution: {integrity: sha512-rcyu0iANYfaiezKh3Mcao1O4IIgVfQldxduiL5TZT1sP0NIeRY4YReSTrzPxNnXxSYaIqaqRHMcHbUM/ic4knA==}
+    engines: {node: '>=16'}
+    cpu: [arm64]
+    os: [darwin]
+
   '@cloudflare/workerd-linux-64@1.20260415.1':
     resolution: {integrity: sha512-tU+9pwsqCy8afOVlGtiWrWQc/fedQK4SRm4KPIAt+zOiQWDxWASm6YGBUJis5c648WN80yz47qnmdDi8DQNOcA==}
+    engines: {node: '>=16'}
+    cpu: [x64]
+    os: [linux]
+
+  '@cloudflare/workerd-linux-64@1.20260526.1':
+    resolution: {integrity: sha512-5EZAEnlLwa9oGJRo8Nd3iY5Wcd9ROGNNG90xNIGp8MEjj8v2jTn42NC47fCZKFdnLj3+S+vWEhu1x0GVJnALjA==}
     engines: {node: '>=16'}
     cpu: [x64]
     os: [linux]
@@ -7558,8 +7613,20 @@ packages:
     cpu: [arm64]
     os: [linux]
 
+  '@cloudflare/workerd-linux-arm64@1.20260526.1':
+    resolution: {integrity: sha512-X/YBQXeXFeCN7QTStoWrATEBc9WKl7PIqkw/dQkjyJ72gh3rkLe0+Xkzp3wO7gtxTDQMa7NPGy1W4+sdMf8q1g==}
+    engines: {node: '>=16'}
+    cpu: [arm64]
+    os: [linux]
+
   '@cloudflare/workerd-windows-64@1.20260415.1':
     resolution: {integrity: sha512-4NuMLlerI0Ijua3Ir8HXQ+qyNvCUDEG5gDco5Om+sAiK6rnWiz+aGoSlbB8W16yW9QAgzCstbmXLiVknUBflfQ==}
+    engines: {node: '>=16'}
+    cpu: [x64]
+    os: [win32]
+
+  '@cloudflare/workerd-windows-64@1.20260526.1':
+    resolution: {integrity: sha512-R+tqpFFdcfZIljx8fIW9rj9fRTtDgfoA2yonsfAGa6e8snrmr+38mdFHtkRC0D3UyZpn/hOtmXiUBfdX2gMR7Q==}
     engines: {node: '>=16'}
     cpu: [x64]
     os: [win32]
@@ -7935,11 +8002,20 @@ packages:
   '@emnapi/core@1.8.1':
     resolution: {integrity: sha512-AvT9QFpxK0Zd8J0jopedNm+w/2fIzvtPKPjqyw9jwvBaReTTqPBk9Hixaz7KbjimP+QNz605/XnjFcDAL2pqBg==}
 
+  '@emnapi/core@1.9.1':
+    resolution: {integrity: sha512-mukuNALVsoix/w1BJwFzwXBN/dHeejQtuVzcDsfOEsdpCumXb/E9j8w11h5S54tT1xhifGfbbSm/ICrObRb3KA==}
+
   '@emnapi/runtime@1.8.1':
     resolution: {integrity: sha512-mehfKSMWjjNol8659Z8KxEMrdSJDDot5SXMq00dM8BN4o+CLNXQ0xH2V7EchNHV4RmbZLmmPdEaXZc5H2FXmDg==}
 
+  '@emnapi/runtime@1.9.1':
+    resolution: {integrity: sha512-VYi5+ZVLhpgK4hQ0TAjiQiZ6ol0oe4mBx7mVv7IflsiEp0OWoVsp/+f9Vc1hOhE0TtkORVrI1GvzyreqpgWtkA==}
+
   '@emnapi/wasi-threads@1.1.0':
     resolution: {integrity: sha512-WI0DdZ8xFSbgMjR1sFsKABJ/C5OnRrjT06JXbZKexJGrDuPTzZdDYfFlsgcCXCyf+suG5QU2e/y1Wo2V/OapLQ==}
+
+  '@emnapi/wasi-threads@1.2.0':
+    resolution: {integrity: sha512-N10dEJNSsUx41Z6pZsXU8FjPjpBEplgH24sfkmITrBED1/U2Esum9F3lfLrMjKHHjmi557zQn7kR9R+XWXu5Rg==}
 
   '@envelop/instrumentation@1.0.0':
     resolution: {integrity: sha512-cxgkB66RQB95H3X27jlnxCRNTmPuSTgmBAq6/4n2Dtv4hsk4yz8FadA1ggmd0uZzvKqWD6CR+WFgTjhDqg7eyw==}
@@ -9017,6 +9093,12 @@ packages:
 
   '@napi-rs/wasm-runtime@1.1.1':
     resolution: {integrity: sha512-p64ah1M1ld8xjWv3qbvFwHiFVWrq1yFvV4f7w+mzaqiR4IlSgkqhcRdHwsGgomwzBH51sRY4NEowLxnaBjcW/A==}
+
+  '@napi-rs/wasm-runtime@1.1.4':
+    resolution: {integrity: sha512-3NQNNgA1YSlJb/kMH1ildASP9HW7/7kYnRI2szWJaofaS1hWmbGI4H+d3+22aGzXXN9IJ+n+GiFVcGipJP18ow==}
+    peerDependencies:
+      '@emnapi/core': ^1.7.1
+      '@emnapi/runtime': ^1.7.1
 
   '@neon-rs/load@0.0.4':
     resolution: {integrity: sha512-kTPhdZyTQxB+2wpiRcFWrDcejc4JI6tkPuS7UZCG4l6Zvc5kU/gGQ/ozvHTh1XR5tS+UlfAfGuPajjzQjCiHCw==}
@@ -13728,6 +13810,11 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
+  miniflare@4.20260526.0:
+    resolution: {integrity: sha512-JYQ7jPZZWoaaj9jWHb8Ucp6Cu2SbDVqIsAJhumqdzzLkkfq0pYkDeino/sZfW1ixJWPjv/C44zjm9gVJC2izCA==}
+    engines: {node: '>=22.0.0'}
+    hasBin: true
+
   minimatch@10.2.4:
     resolution: {integrity: sha512-oRjTw/97aTBN0RHbYCdtF1MQfvusSIBQM0IZEgzl6426+8jSC0nF1a/GmnVLpfB9yyr6g6FTqWqiZVbxrtaCIg==}
     engines: {node: 18 || 20 || >=22}
@@ -14911,6 +14998,26 @@ packages:
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
+  rosie-skills-darwin-arm64@0.6.4:
+    resolution: {integrity: sha512-rn1s5hqFKcxeiDEWWoFa1hdGPshR8TkwHLzy/cBavb9XJNAaUxbe3oQ78W9sQkRHAgRyzJYyk9tw68Qrdnizgg==}
+    cpu: [arm64]
+    os: [darwin]
+
+  rosie-skills-freebsd-x64@0.6.4:
+    resolution: {integrity: sha512-SxCRduPBMtfjkQ+q56Yw9OLA3PyaqoALzt7kER7IDKuUVfM2O/1w8sa5xhTDiCvWkZJixnH5d5Ya6KT+/Mwcng==}
+    cpu: [x64]
+    os: [freebsd]
+
+  rosie-skills-linux-x64@0.6.4:
+    resolution: {integrity: sha512-D9Y9mfu7goB0s0X59uU3hcFeUTef3VbpCIDwFMzyvJrAq3XhRACWBDMHQsHlyWdHxTXPX/ILyW65RXyrJlgqng==}
+    cpu: [x64]
+    os: [linux]
+
+  rosie-skills@0.6.4:
+    resolution: {integrity: sha512-ojfhSiQRdZ2QyWbmKAHOSAUbaLYrTc5zIH7mS1jKoP8KCFSQddwVhMyFqldckTeybTfW3zNcsZzyOTzGTN1SBA==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   router@2.2.0:
     resolution: {integrity: sha512-nLTrUKm2UyiL7rlhapu/Zl45FwNgkZGaCpZbIHajDYgwlJCOzLSk+cIPAnsEqV955GjILJnKbdQC1nVPz+gAYQ==}
     engines: {node: '>= 18'}
@@ -14953,6 +15060,9 @@ packages:
     resolution: {integrity: sha512-+4N/u9dZ4PrgzGgPlKnaaRQx64RO0JBKs9sDhQ2pLgN6JQZ25uPQZKQYaBJU48Kd5BxgXoJ4e09Dq7nMcOUW3A==}
     engines: {node: '>=14.0.0'}
     hasBin: true
+
+  satteri@0.6.3:
+    resolution: {integrity: sha512-iY5xd2tBDQveYRFkL1F0cegkabWSVoXHi64e1p49SiCs1bZDaqTQPGQI+PqEQIaWkz0iqK80CuQQUYvhsssviw==}
 
   sax@1.6.0:
     resolution: {integrity: sha512-6R3J5M4AcbtLUdZmRv2SygeVaM7IhrLXu9BmnOGmmACak8fiUtOsYNWUS4uK7upbmHIBbLBeFeI//477BKLBzA==}
@@ -16207,6 +16317,11 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
 
+  workerd@1.20260526.1:
+    resolution: {integrity: sha512-IHzymht98p10JH1zzwdCpbViAqw97HrwKl7+KfZeASFMsYSrIsAULWdPn0LRC5FTUzBpamLNyKCCKxbgXHgRHQ==}
+    engines: {node: '>=16'}
+    hasBin: true
+
   workerpool@9.3.4:
     resolution: {integrity: sha512-TmPRQYYSAnnDiEB0P/Ytip7bFGvqnSU6I2BcuSw7Hx+JSg/DsUi5ebYfc8GYaSdpuvOcEs6dXxPurOYpe9QFwg==}
 
@@ -16216,6 +16331,16 @@ packages:
     hasBin: true
     peerDependencies:
       '@cloudflare/workers-types': ^4.20260415.1
+    peerDependenciesMeta:
+      '@cloudflare/workers-types':
+        optional: true
+
+  wrangler@4.95.0:
+    resolution: {integrity: sha512-vgXzFVSCdUbeCadgVXvu8fK5tzNm8T9W+7lriyGWZMx0B1+CAdr4d8JTlZszHfgjypRAHmAxb49etZGIRD9pgg==}
+    engines: {node: '>=22.0.0'}
+    hasBin: true
+    peerDependencies:
+      '@cloudflare/workers-types': ^4.20260526.1
     peerDependenciesMeta:
       '@cloudflare/workers-types':
         optional: true
@@ -16253,6 +16378,18 @@ packages:
 
   ws@8.19.0:
     resolution: {integrity: sha512-blAT2mjOEIi0ZzruJfIhb3nps74PRWTCz1IjglWEEpQl5XS/UNama6u2/rjFkDDouqr4L67ry+1aGIALViWjDg==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
+  ws@8.20.1:
+    resolution: {integrity: sha512-It4dO0K5v//JtTXuPkfEOaI3uUN87iYPnqo/ZzqCoG3g8uhA66QUMs/SrM0YK7/NAu+r4LMh/9dq2A7k+rHs+w==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -17264,6 +17401,25 @@ snapshots:
 
   '@borewit/text-codec@0.2.2': {}
 
+  '@bruits/satteri-darwin-arm64@0.6.3':
+    optional: true
+
+  '@bruits/satteri-darwin-x64@0.6.3':
+    optional: true
+
+  '@bruits/satteri-linux-x64-gnu@0.6.3':
+    optional: true
+
+  '@bruits/satteri-wasm32-wasi@0.6.3':
+    dependencies:
+      '@emnapi/core': 1.9.1
+      '@emnapi/runtime': 1.9.1
+      '@napi-rs/wasm-runtime': 1.1.4(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
+    optional: true
+
+  '@bruits/satteri-win32-x64-msvc@0.6.3':
+    optional: true
+
   '@capsizecss/unpack@4.0.0':
     dependencies:
       fontkitten: 1.0.2
@@ -17446,6 +17602,8 @@ snapshots:
 
   '@cloudflare/kv-asset-handler@0.4.2': {}
 
+  '@cloudflare/kv-asset-handler@0.5.0': {}
+
   '@cloudflare/shell@0.3.6(@modelcontextprotocol/sdk@1.29.0)(zod@4.3.6)':
     dependencies:
       '@cloudflare/codemode': 0.3.4(@modelcontextprotocol/sdk@1.29.0)(zod@4.3.6)
@@ -17462,14 +17620,20 @@ snapshots:
     optionalDependencies:
       workerd: 1.20260415.1
 
-  '@cloudflare/vite-plugin@1.32.3(@cloudflare/workers-types@4.20260228.0)(vite@7.3.2)(workerd@1.20260415.1)':
+  '@cloudflare/unenv-preset@2.16.1(unenv@2.0.0-rc.24)(workerd@1.20260526.1)':
     dependencies:
-      '@cloudflare/unenv-preset': 2.16.0(unenv@2.0.0-rc.24)(workerd@1.20260415.1)
-      miniflare: 4.20260415.0
+      unenv: 2.0.0-rc.24
+    optionalDependencies:
+      workerd: 1.20260526.1
+
+  '@cloudflare/vite-plugin@1.39.0(@cloudflare/workers-types@4.20260228.0)(vite@7.3.2)(workerd@1.20260526.1)':
+    dependencies:
+      '@cloudflare/unenv-preset': 2.16.1(unenv@2.0.0-rc.24)(workerd@1.20260526.1)
+      miniflare: 4.20260526.0
       unenv: 2.0.0-rc.24
       vite: 7.3.2(@types/node@22.19.19)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
-      wrangler: 4.83.0(@cloudflare/workers-types@4.20260228.0)
-      ws: 8.18.0
+      wrangler: 4.95.0(@cloudflare/workers-types@4.20260228.0)
+      ws: 8.20.1
     transitivePeerDependencies:
       - '@cloudflare/workers-types'
       - bufferutil
@@ -17479,16 +17643,31 @@ snapshots:
   '@cloudflare/workerd-darwin-64@1.20260415.1':
     optional: true
 
+  '@cloudflare/workerd-darwin-64@1.20260526.1':
+    optional: true
+
   '@cloudflare/workerd-darwin-arm64@1.20260415.1':
+    optional: true
+
+  '@cloudflare/workerd-darwin-arm64@1.20260526.1':
     optional: true
 
   '@cloudflare/workerd-linux-64@1.20260415.1':
     optional: true
 
+  '@cloudflare/workerd-linux-64@1.20260526.1':
+    optional: true
+
   '@cloudflare/workerd-linux-arm64@1.20260415.1':
     optional: true
 
+  '@cloudflare/workerd-linux-arm64@1.20260526.1':
+    optional: true
+
   '@cloudflare/workerd-windows-64@1.20260415.1':
+    optional: true
+
+  '@cloudflare/workerd-windows-64@1.20260526.1':
     optional: true
 
   '@cloudflare/workers-types@4.20260228.0': {}
@@ -17882,12 +18061,28 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
+  '@emnapi/core@1.9.1':
+    dependencies:
+      '@emnapi/wasi-threads': 1.2.0
+      tslib: 2.8.1
+    optional: true
+
   '@emnapi/runtime@1.8.1':
     dependencies:
       tslib: 2.8.1
     optional: true
 
+  '@emnapi/runtime@1.9.1':
+    dependencies:
+      tslib: 2.8.1
+    optional: true
+
   '@emnapi/wasi-threads@1.1.0':
+    dependencies:
+      tslib: 2.8.1
+    optional: true
+
+  '@emnapi/wasi-threads@1.2.0':
     dependencies:
       tslib: 2.8.1
     optional: true
@@ -18292,9 +18487,9 @@ snapshots:
       fastq: 1.20.1
       glob: 13.0.3
 
-  '@flue/cli@0.3.10(typescript@6.0.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)':
+  '@flue/cli@0.3.10(typescript@6.0.3)(wrangler@4.95.0)(ws@8.20.1)(zod@4.3.6)':
     dependencies:
-      '@flue/sdk': 0.3.10(typescript@6.0.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)
+      '@flue/sdk': 0.3.10(typescript@6.0.3)(wrangler@4.95.0)(ws@8.20.1)(zod@4.3.6)
       '@vercel/detect-agent': 1.2.3
     transitivePeerDependencies:
       - '@cfworker/json-schema'
@@ -18309,12 +18504,12 @@ snapshots:
       - ws
       - zod
 
-  '@flue/sdk@0.3.10(typescript@6.0.3)(wrangler@4.83.0)(ws@8.19.0)(zod@4.3.6)':
+  '@flue/sdk@0.3.10(typescript@6.0.3)(wrangler@4.95.0)(ws@8.20.1)(zod@4.3.6)':
     dependencies:
       '@cloudflare/shell': 0.3.6(@modelcontextprotocol/sdk@1.29.0)(zod@4.3.6)
       '@hono/node-server': 1.19.14(hono@4.12.16)
-      '@mariozechner/pi-agent-core': 0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.19.0)(zod@4.3.6)
-      '@mariozechner/pi-ai': 0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.19.0)(zod@4.3.6)
+      '@mariozechner/pi-agent-core': 0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.20.1)(zod@4.3.6)
+      '@mariozechner/pi-ai': 0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.20.1)(zod@4.3.6)
       '@modelcontextprotocol/sdk': 1.29.0
       '@valibot/to-json-schema': 1.5.0(valibot@1.2.0)
       esbuild: 0.25.5
@@ -18323,7 +18518,7 @@ snapshots:
       package-up: 5.0.0
       valibot: 1.2.0(typescript@6.0.3)
     optionalDependencies:
-      wrangler: 4.83.0(@cloudflare/workers-types@4.20260228.0)
+      wrangler: 4.95.0(@cloudflare/workers-types@4.20260228.0)
     transitivePeerDependencies:
       - '@cfworker/json-schema'
       - '@tanstack/ai'
@@ -18631,9 +18826,9 @@ snapshots:
       - encoding
       - supports-color
 
-  '@mariozechner/pi-agent-core@0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.19.0)(zod@4.3.6)':
+  '@mariozechner/pi-agent-core@0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.20.1)(zod@4.3.6)':
     dependencies:
-      '@mariozechner/pi-ai': 0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.19.0)(zod@4.3.6)
+      '@mariozechner/pi-ai': 0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.20.1)(zod@4.3.6)
       typebox: 1.1.37
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
@@ -18644,14 +18839,14 @@ snapshots:
       - ws
       - zod
 
-  '@mariozechner/pi-ai@0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.19.0)(zod@4.3.6)':
+  '@mariozechner/pi-ai@0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.20.1)(zod@4.3.6)':
     dependencies:
       '@anthropic-ai/sdk': 0.91.1(zod@4.3.6)
       '@aws-sdk/client-bedrock-runtime': 3.1041.0
       '@google/genai': 1.51.0(@modelcontextprotocol/sdk@1.29.0)
       '@mistralai/mistralai': 2.2.1
       chalk: 5.6.2
-      openai: 6.26.0(ws@8.19.0)(zod@4.3.6)
+      openai: 6.26.0(ws@8.20.1)(zod@4.3.6)
       partial-json: 0.1.7
       proxy-agent: 6.5.0
       typebox: 1.1.37
@@ -18762,6 +18957,13 @@ snapshots:
     dependencies:
       '@emnapi/core': 1.8.1
       '@emnapi/runtime': 1.8.1
+      '@tybys/wasm-util': 0.10.1
+    optional: true
+
+  '@napi-rs/wasm-runtime@1.1.4(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)':
+    dependencies:
+      '@emnapi/core': 1.9.1
+      '@emnapi/runtime': 1.9.1
       '@tybys/wasm-util': 0.10.1
     optional: true
 
@@ -24362,6 +24564,18 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
+  miniflare@4.20260526.0:
+    dependencies:
+      '@cspotcode/source-map-support': 0.8.1
+      sharp: 0.34.5
+      undici: 7.24.8
+      workerd: 1.20260526.1
+      ws: 8.20.1
+      youch: 4.1.0-beta.10
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   minimatch@10.2.4:
     dependencies:
       brace-expansion: 5.0.2
@@ -24634,9 +24848,9 @@ snapshots:
       is-inside-container: 1.0.0
       wsl-utils: 0.1.0
 
-  openai@6.26.0(ws@8.19.0)(zod@4.3.6):
+  openai@6.26.0(ws@8.20.1)(zod@4.3.6):
     optionalDependencies:
-      ws: 8.19.0
+      ws: 8.20.1
       zod: 4.3.6
 
   optionator@0.9.4:
@@ -25781,6 +25995,21 @@ snapshots:
       '@rollup/rollup-win32-x64-msvc': 4.59.1
       fsevents: 2.3.3
 
+  rosie-skills-darwin-arm64@0.6.4:
+    optional: true
+
+  rosie-skills-freebsd-x64@0.6.4:
+    optional: true
+
+  rosie-skills-linux-x64@0.6.4:
+    optional: true
+
+  rosie-skills@0.6.4:
+    optionalDependencies:
+      rosie-skills-darwin-arm64: 0.6.4
+      rosie-skills-freebsd-x64: 0.6.4
+      rosie-skills-linux-x64: 0.6.4
+
   router@2.2.0:
     dependencies:
       debug: 4.4.3(supports-color@8.1.1)
@@ -25826,6 +26055,19 @@ snapshots:
       source-map-js: 1.2.1
     optionalDependencies:
       '@parcel/watcher': 2.5.6
+
+  satteri@0.6.3:
+    dependencies:
+      '@types/estree-jsx': 1.0.5
+      '@types/hast': 3.0.4
+      '@types/mdast': 4.0.4
+      '@types/unist': 3.0.3
+    optionalDependencies:
+      '@bruits/satteri-darwin-arm64': 0.6.3
+      '@bruits/satteri-darwin-x64': 0.6.3
+      '@bruits/satteri-linux-x64-gnu': 0.6.3
+      '@bruits/satteri-wasm32-wasi': 0.6.3
+      '@bruits/satteri-win32-x64-msvc': 0.6.3
 
   sax@1.6.0: {}
 
@@ -27145,9 +27387,17 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20260415.1
       '@cloudflare/workerd-windows-64': 1.20260415.1
 
+  workerd@1.20260526.1:
+    optionalDependencies:
+      '@cloudflare/workerd-darwin-64': 1.20260526.1
+      '@cloudflare/workerd-darwin-arm64': 1.20260526.1
+      '@cloudflare/workerd-linux-64': 1.20260526.1
+      '@cloudflare/workerd-linux-arm64': 1.20260526.1
+      '@cloudflare/workerd-windows-64': 1.20260526.1
+
   workerpool@9.3.4: {}
 
-  wrangler@4.83.0(@cloudflare/workers-types@4.20260228.0):
+  wrangler@4.83.0:
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.2
       '@cloudflare/unenv-preset': 2.16.0(unenv@2.0.0-rc.24)(workerd@1.20260415.1)
@@ -27157,6 +27407,23 @@ snapshots:
       path-to-regexp: 6.3.0
       unenv: 2.0.0-rc.24
       workerd: 1.20260415.1
+    optionalDependencies:
+      fsevents: 2.3.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  wrangler@4.95.0(@cloudflare/workers-types@4.20260228.0):
+    dependencies:
+      '@cloudflare/kv-asset-handler': 0.5.0
+      '@cloudflare/unenv-preset': 2.16.1(unenv@2.0.0-rc.24)(workerd@1.20260526.1)
+      blake3-wasm: 2.1.5
+      esbuild: 0.27.3
+      miniflare: 4.20260526.0
+      path-to-regexp: 6.3.0
+      rosie-skills: 0.6.4
+      unenv: 2.0.0-rc.24
+      workerd: 1.20260526.1
     optionalDependencies:
       '@cloudflare/workers-types': 4.20260228.0
       fsevents: 2.3.3
@@ -27192,6 +27459,8 @@ snapshots:
   ws@8.18.0: {}
 
   ws@8.19.0: {}
+
+  ws@8.20.1: {}
 
   wsl-utils@0.1.0:
     dependencies:
