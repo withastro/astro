@@ -11,12 +11,12 @@ export function isFrontmatterValid(frontmatter: Record<string, any>) {
 	return typeof frontmatter === 'object' && frontmatter !== null;
 }
 
-// Capture frontmatter wrapped with `---` or `+++`, including any characters and new lines within it.
-// Only capture if `---` or `+++` exists near the top of the file, including:
-// 1. Start of file (including if has BOM encoding)
-// 2. Start of file with any whitespace (but `---` or `+++` must still start on a new line)
+// Capture frontmatter wrapped with `---` or `+++` near the top of the file —
+// either at the very start (allowing a BOM) or after leading whitespace, with
+// the fence still starting on a new line.
 const frontmatterRE = /(?:^\uFEFF?|^\s*\n)(?:---|\+\+\+)([\s\S]*?\n)(?:---|\+\+\+)/;
 const frontmatterTypeRE = /(?:^\uFEFF?|^\s*\n)(---|\+\+\+)/;
+
 export function extractFrontmatter(code: string): string | undefined {
 	return frontmatterRE.exec(code)?.[1];
 }
@@ -24,6 +24,7 @@ export function extractFrontmatter(code: string): string | undefined {
 function getFrontmatterParser(code: string): [string, (str: string) => unknown] {
 	return frontmatterTypeRE.exec(code)?.[1] === '+++' ? ['+++', toml.parse] : ['---', yaml.load];
 }
+
 export interface ParseFrontmatterOptions {
 	/**
 	 * How the frontmatter should be handled in the returned `content` string.

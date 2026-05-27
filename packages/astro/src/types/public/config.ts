@@ -7,7 +7,8 @@ import type {
 	ShikiConfig,
 	Smartypants,
 	SyntaxHighlightConfigType,
-} from '@astrojs/markdown-remark';
+} from '@astrojs/internal-helpers/markdown';
+import type { MarkdownProcessor } from '../../markdown/index.js';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
@@ -2085,6 +2086,7 @@ export interface AstroUserConfig<
 		 * @docs
 		 * @name markdown.remarkPlugins
 		 * @type {RemarkPlugins}
+		 * @deprecated Pass `remarkPlugins` to `unified({ remarkPlugins })` from `@astrojs/markdown-remark` and set it as `markdown.processor` instead. Will be removed in a future major.
 		 * @description
 		 * Pass [remark plugins](https://github.com/remarkjs/remark) to customize how your Markdown is built. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
@@ -2102,6 +2104,7 @@ export interface AstroUserConfig<
 		 * @docs
 		 * @name markdown.rehypePlugins
 		 * @type {RehypePlugins}
+		 * @deprecated Pass `rehypePlugins` to `unified({ rehypePlugins })` from `@astrojs/markdown-remark` and set it as `markdown.processor` instead. Will be removed in a future major.
 		 * @description
 		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
@@ -2121,6 +2124,7 @@ export interface AstroUserConfig<
 		 * @type {boolean}
 		 * @default `true`
 		 * @version 2.0.0
+		 * @deprecated Pass `gfm` to your processor instead (e.g. `unified({ gfm: false })`). Will be removed in a future major.
 		 * @description
 		 * Astro uses [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) by default. To disable this, set the `gfm` flag to `false`:
 		 *
@@ -2140,6 +2144,7 @@ export interface AstroUserConfig<
 		 * @type {boolean | Smartypants}
 		 * @default `true`
 		 * @version 2.0.0
+		 * @deprecated Pass `smartypants` to your processor instead (e.g. `unified({ smartypants: false })`). Will be removed in a future major.
 		 * @description
 		 * Whether to use the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) to transform straight quotes into smart quotes, dashes into en/em dashes, and triple dots into ellipses.
 		 *
@@ -2153,6 +2158,7 @@ export interface AstroUserConfig<
 		 * @docs
 		 * @name markdown.remarkRehype
 		 * @type {RemarkRehype}
+		 * @deprecated Pass `remarkRehype` to `unified({ remarkRehype })` from `@astrojs/markdown-remark` and set it as `markdown.processor` instead. Will be removed in a future major.
 		 * @description
 		 * Pass options to [remark-rehype](https://github.com/remarkjs/remark-rehype#api).
 		 *
@@ -2166,6 +2172,32 @@ export interface AstroUserConfig<
 		 * ```
 		 */
 		remarkRehype?: RemarkRehype;
+
+		/**
+		 * @docs
+		 * @name markdown.processor
+		 * @type {MarkdownProcessor}
+		 * @version 6.4.0
+		 * @description
+		 * Configures the Markdown processor used to render `.md` files. Defaults to `unified()` from
+		 * `@astrojs/markdown-remark` (the remark/rehype pipeline).
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 * import { unified } from '@astrojs/markdown-remark';
+		 * import remarkToc from 'remark-toc';
+		 *
+		 * export default defineConfig({
+		 *   markdown: {
+		 *     processor: unified({
+		 *       remarkPlugins: [remarkToc],
+		 *     }),
+		 *   },
+		 * });
+		 * ```
+		 */
+		processor?: MarkdownProcessor;
 	};
 
 	/**

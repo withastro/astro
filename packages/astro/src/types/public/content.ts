@@ -1,4 +1,4 @@
-import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import type * as rollup from 'rollup';
 import type { DataEntry, RenderedContent } from '../../content/data-store.js';
 import type { LiveCollectionError } from '../../content/loaders/errors.js';

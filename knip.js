@@ -87,7 +87,16 @@ export default {
 			// Used in testing-library compatibility tests but not directly imported
 			ignoreDependencies: ['@testing-library/svelte'],
 		},
+		'packages/integrations/mdx': {
+			entry: [srcEntry, dtsEntry, testEntry],
+			// Optional peer dep: type-only imports for narrowing the `satteri()` processor.
+			// Knip flags it because the peer is referenced from source; the runtime stays gated by name-check.
+			ignoreDependencies: ['@astrojs/markdown-satteri'],
+		},
 		'packages/markdown/remark': {
+			entry: [srcEntry, dtsEntry, testEntry],
+		},
+		'packages/markdown/satteri': {
 			entry: [srcEntry, dtsEntry, testEntry],
 		},
 		'packages/upgrade': {

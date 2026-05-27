@@ -3,11 +3,14 @@ import type { MdxJsxAttribute, MdxjsEsm } from 'mdast-util-mdx';
 import type { MdxJsxFlowElementHast } from 'mdast-util-mdx-jsx';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
+import {
+	ASTRO_IMAGE_ELEMENT,
+	ASTRO_IMAGE_IMPORT,
+	USES_ASTRO_IMAGE_FLAG,
+} from './image-constants.js';
 import { jsToTreeNode } from './utils.js';
 
-export const ASTRO_IMAGE_ELEMENT = 'astro-image';
-export const ASTRO_IMAGE_IMPORT = '__AstroImage__';
-export const USES_ASTRO_IMAGE_FLAG = '__usesAstroImage';
+export { ASTRO_IMAGE_ELEMENT, ASTRO_IMAGE_IMPORT, USES_ASTRO_IMAGE_FLAG };
 
 function createArrayAttribute(name: string, values: (string | number)[]): MdxJsxAttribute {
 	return {

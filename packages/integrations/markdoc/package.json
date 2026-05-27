@@ -63,7 +63,6 @@
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
-    "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/prism": "workspace:*",
     "@markdoc/markdoc": "^0.5.4",
     "esbuild": "^0.27.3",
