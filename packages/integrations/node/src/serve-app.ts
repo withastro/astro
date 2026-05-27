@@ -2,7 +2,11 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { createReadStream } from 'node:fs';
 import path from 'node:path';
 import { Readable } from 'node:stream';
-import { createRequestFromNodeRequest, writeResponse, getAbortControllerCleanup } from 'astro/app/node';
+import {
+	createRequestFromNodeRequest,
+	writeResponse,
+	getAbortControllerCleanup,
+} from 'astro/app/node';
 import type { BaseApp } from 'astro/app';
 import { resolveClientDir } from './shared.js';
 import type { Options, RequestHandler } from './types.js';

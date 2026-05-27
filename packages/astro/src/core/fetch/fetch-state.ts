@@ -39,10 +39,7 @@ import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { routeHasHtmlExtension } from '../routing/helpers.js';
 import type { ResolvedRenderOptions } from '../app/base.js';
 import { getRenderOptions } from '../app/render-options.js';
-import {
-	getFirstForwardedValue,
-	validateForwardedHeaders,
-} from '../app/validate-headers.js';
+import { getFirstForwardedValue, validateForwardedHeaders } from '../app/validate-headers.js';
 
 /**
  * Describes a lazily-created value that handlers can contribute to the

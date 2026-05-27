@@ -158,8 +158,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		// forwarded headers before FetchState picks them up.
 		const protocol = isHttps ? 'https' : 'http';
 		const host =
-			(incomingRequest.headers[':authority'] as string | undefined) ??
-			incomingRequest.headers.host;
+			(incomingRequest.headers[':authority'] as string | undefined) ?? incomingRequest.headers.host;
 
 		const origin = `${protocol}://${host}`;
 		const url = new URL(origin + incomingRequest.url);

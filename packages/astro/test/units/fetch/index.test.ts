@@ -709,9 +709,7 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 			},
 		});
 		// Use BaseFetchState directly to pass clientAddress via options
-		const { FetchState: BaseFetchState } = await import(
-			'../../../dist/core/fetch/fetch-state.js'
-		);
+		const { FetchState: BaseFetchState } = await import('../../../dist/core/fetch/fetch-state.js');
 		const { appSymbol: sym } = await import('../../../dist/core/constants.js');
 		Reflect.set(request, sym, app);
 		const state = new BaseFetchState(app.pipeline, request, {

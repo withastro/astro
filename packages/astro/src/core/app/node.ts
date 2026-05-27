@@ -66,11 +66,14 @@ export function createRequestFromNodeRequest(
 
 	const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
 	const protocol = isEncrypted ? 'https' : 'http';
-	const hostname = typeof req.headers.host === 'string'
-		? req.headers.host
-		: typeof req.headers[':authority'] === 'string'
-			? req.headers[':authority']
-			: serverPort ? `localhost:${serverPort}` : 'localhost';
+	const hostname =
+		typeof req.headers.host === 'string'
+			? req.headers.host
+			: typeof req.headers[':authority'] === 'string'
+				? req.headers[':authority']
+				: serverPort
+					? `localhost:${serverPort}`
+					: 'localhost';
 
 	let url: URL;
 	try {
@@ -103,8 +106,7 @@ export function createRequestFromNodeRequest(
 	);
 	const forwardedHost = getFirstForwardedValue(req.headers['x-forwarded-host']);
 	const hostValidated =
-		validatedHostname !== undefined ||
-		(forwardedHost !== undefined && allowedDomains.length > 0);
+		validatedHostname !== undefined || (forwardedHost !== undefined && allowedDomains.length > 0);
 	const forwardedClientIp = hostValidated
 		? getFirstForwardedValue(req.headers['x-forwarded-for'])
 		: undefined;
@@ -212,10 +214,7 @@ export function createRequest(
  * signal is aborted when the connection closes. Shared by both
  * `createRequest` and `createRequestFromNodeRequest`.
  */
-function wireAbortController(
-	req: NodeRequest,
-	controller: AbortController,
-): void {
+function wireAbortController(req: NodeRequest, controller: AbortController): void {
 	const socket = getRequestSocket(req);
 	if (socket && typeof socket.on === 'function') {
 		const existingCleanup = getAbortControllerCleanup(req);
