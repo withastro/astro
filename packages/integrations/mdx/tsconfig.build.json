@@ -3,6 +3,7 @@
   "references": [
     { "path": "../../astro/tsconfig.json" },
     { "path": "../../internal-helpers/tsconfig.json" },
-    { "path": "../../markdown/remark/tsconfig.json" }
+    { "path": "../../markdown/remark/tsconfig.json" },
+    { "path": "../../markdown/satteri/tsconfig.json" }
   ]
 }

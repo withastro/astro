@@ -14,7 +14,7 @@ import type {
 import type { MarkdownProcessor } from 'astro/markdown';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
-import { isUnifiedProcessor } from './processor-guards.js';
+import { isSatteriProcessor, isUnifiedProcessor } from './processor-guards.js';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
 import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
 import { type VitePluginMdxOptions, vitePluginMdx } from './vite-plugin-mdx.js';
@@ -168,8 +168,24 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 						resolvedMdxOptions.smartypants = processor.options.smartypants;
 					}
 				}
-				// Third-party processors don't expose their plugins to MDX's built-in option
-				// merging; they handle their own pipeline via `createMdxRenderer`.
+				if (extendMarkdownConfig && isSatteriProcessor(processor)) {
+					// `gfm`/`smartPunctuation` from `satteri({ features: {...} })` apply to `.mdx`
+					// too, unless `mdx({...})` set its own. Mirrors the unified branch above.
+					const features = processor.options.features;
+					if (partialMdxOptions.gfm === undefined && features.gfm !== undefined) {
+						resolvedMdxOptions.gfm = features.gfm;
+					}
+					// `smartPunctuation` can be `boolean | SmartPunctuationOptions`; only the boolean
+					// form is shape-compatible with `mdxOptions.smartypants`. Object configs stay on
+					// the processor and are applied at the satteri/mdx boundary.
+					if (
+						partialMdxOptions.smartypants === undefined &&
+						typeof features.smartPunctuation === 'boolean'
+					) {
+						resolvedMdxOptions.smartypants = features.smartPunctuation;
+					}
+				}
+				// Other third-party processors handle their own pipeline via `createMdxRenderer`.
 
 				// Mutate `mdxOptions` so that `vitePluginMdx` can reference the actual options
 				Object.assign(vitePluginMdxOptions, {

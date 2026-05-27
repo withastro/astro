@@ -1,6 +1,7 @@
 import type { AstroMetadata, RehypePlugin } from '@astrojs/internal-helpers/markdown';
 import { AstroError, AstroErrorData } from 'astro/errors';
 import { resolvePath } from 'astro/markdown';
+import type { Program } from 'estree';
 import type { RootContent } from 'hast';
 import type {} from 'mdast-util-mdx';
 import type {
@@ -135,7 +136,10 @@ function parseImports(children: RootContent[]) {
 	for (const child of children) {
 		if (child.type !== 'mdxjsEsm') continue;
 
-		const body = child.data?.estree?.body;
+		// satteri and `mdast-util-mdxjs-esm` both augment `hast` for `mdxjsEsm` with
+		// conflicting `data` types; the one that wins doesn't necessarily model `estree`, so type
+		// the access here. The unified pipeline's nodes always carry the program.
+		const body = (child.data as { estree?: Program } | undefined)?.estree?.body;
 		if (!body) continue;
 
 		for (const ast of body) {
