@@ -36,7 +36,7 @@ jobs:
             echo "No 'next' branch found — nothing to do."
           fi
 
-      # --- runtime/: clean checkout of workflow source, used for AI execution environment ---
+      # runtime: clean checkout of workflow source, used for AI execution environment
 
       - name: Checkout runtime
         if: steps.check-next.outputs.exists == 'true'
@@ -62,9 +62,9 @@ jobs:
         working-directory: runtime
         run: pnpm install --frozen-lockfile
 
-      # --- operand/: dirty merge tree, what the AI operates on ---
+      # operand: dirty merge tree, what the AI operates on
 
-      - name: Checkout operand (full history, with push token)
+      - name: Checkout operand
         if: steps.check-next.outputs.exists == 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -104,7 +104,7 @@ jobs:
 
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
 
-      # --- AI conflict resolution (only when merge has conflicts) ---
+      # AI conflict resolution (only when merge has conflicts)
 
       - name: Log in to GHCR
         if: steps.check-next.outputs.exists == 'true' && steps.merge.outputs.conflict == 'true'
@@ -154,7 +154,7 @@ jobs:
             --workspace ../runtime/.flue \
             --output .
 
-      # --- Open or update PR (runs for both clean and conflict merges) ---
+      # Open or update PR (runs for both clean and conflict merges)
 
       - name: Open or update PR
         if: steps.check-next.outputs.exists == 'true'
