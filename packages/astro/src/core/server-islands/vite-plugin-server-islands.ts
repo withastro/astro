@@ -1,4 +1,5 @@
-import type { ConfigEnv, DevEnvironment, Plugin as VitePlugin } from 'vite';
+import { fileURLToPath } from 'node:url';
+import { normalizePath, type ConfigEnv, type DevEnvironment, type Plugin as VitePlugin } from 'vite';
 import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
@@ -97,26 +98,42 @@ export function vitePluginServerIslands({
 					command === 'build' && this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 
 				if (astro) {
+					// When portableOutput is enabled during build, normalize resolvedPath to
+					// root-relative to match the paths in compiled output (normalized by
+					// vite-plugin-astro). This ensures the serverIslandNameMap keys match
+					// server:component-path values.
+					const normalizedRoot =
+						command === 'build' && settings.config.experimental.portableOutput
+							? normalizePath(fileURLToPath(settings.config.root))
+							: undefined;
+					const normalizeResolved = (p: string) => {
+						if (normalizedRoot && p.startsWith(normalizedRoot)) {
+							return p.slice(normalizedRoot.length - 1);
+						}
+						return p;
+					};
+
 					for (const comp of astro.serverComponents) {
 						if (!settings.adapter) {
 							throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 						}
 
+						const resolvedPath = normalizeResolved(comp.resolvedPath);
 						const island = serverIslandsState.discover({
-							resolvedPath: comp.resolvedPath,
+							resolvedPath,
 							localName: comp.localName,
 							specifier: comp.specifier ?? comp.resolvedPath,
 							importer: id,
 						});
 
-						if (isBuildSsr && !serverIslandsState.hasReferenceId(comp.resolvedPath)) {
+						if (isBuildSsr && !serverIslandsState.hasReferenceId(resolvedPath)) {
 							const referenceId = this.emitFile({
 								type: 'chunk',
 								id: island.specifier,
 								importer: island.importer,
 								name: island.islandName,
 							});
-							serverIslandsState.setReferenceId(comp.resolvedPath, referenceId);
+							serverIslandsState.setReferenceId(resolvedPath, referenceId);
 						}
 					}
 				}

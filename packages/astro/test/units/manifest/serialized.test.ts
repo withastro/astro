@@ -7,6 +7,23 @@ import {
 import { createBasicSettings, type AstroSettings } from '../test-utils.ts';
 
 /**
+ * Extracts a top-level JSON object from `code` starting at `offset`.
+ * Walks the string counting `{` / `}` to find the matching close brace.
+ * Returns the substring including both braces, or `undefined` if the
+ * input doesn't start with `{` or braces are unbalanced.
+ */
+function extractJsonObject(code: string, offset: number): string | undefined {
+	if (code[offset] !== '{') return undefined;
+	let depth = 0;
+	for (let i = offset; i < code.length; i++) {
+		if (code[i] === '{') depth++;
+		else if (code[i] === '}') depth--;
+		if (depth === 0) return code.slice(offset, i + 1);
+	}
+	return undefined;
+}
+
+/**
  * Invoke the plugin's load handler (as it runs in dev mode) and return the
  * parsed SerializedSSRManifest that is embedded in the generated module code.
  */
@@ -15,10 +32,13 @@ async function getManifest(settings: AstroSettings) {
 	const load = plugin.load;
 	// @ts-expect-error: Property `handler` does not exist on `load`
 	const result = await load.handler.call({}, SERIALIZED_MANIFEST_RESOLVED_ID);
-	// The generated code contains: _deserializeManifest((<json>))
-	const match = /_deserializeManifest\(\((.+)\)\)/s.exec(result.code);
-	assert.ok(match, 'Could not find manifest JSON in plugin output');
-	return JSON.parse(match[1]);
+	// The generated code contains: _deserializeManifest(({...}), import.meta.url)
+	const marker = '_deserializeManifest((';
+	const start = result.code.indexOf(marker);
+	assert.ok(start !== -1, 'Could not find manifest call in plugin output');
+	const json = extractJsonObject(result.code, start + marker.length);
+	assert.ok(json, 'Could not extract manifest JSON from plugin output');
+	return JSON.parse(json);
 }
 
 describe('serializedManifestPlugin - dev mode', () => {
@@ -224,5 +244,36 @@ describe('serializedManifestPlugin - dev mode', () => {
 			assert.equal(typeof manifest.buildClientDir, 'string');
 			assert.equal(typeof manifest.buildServerDir, 'string');
 		});
+	});
+});
+
+describe('extractJsonObject', () => {
+	it('extracts a flat object', () => {
+		const code = 'foo({"a":1})';
+		assert.equal(extractJsonObject(code, 4), '{"a":1}');
+	});
+
+	it('extracts a nested object', () => {
+		const code = 'x({"a":{"b":2},"c":3}), other)';
+		assert.equal(extractJsonObject(code, 2), '{"a":{"b":2},"c":3}');
+	});
+
+	it('returns undefined when offset is not at {', () => {
+		assert.equal(extractJsonObject('foo', 0), undefined);
+	});
+
+	it('returns undefined for unbalanced braces', () => {
+		assert.equal(extractJsonObject('{"a":1', 0), undefined);
+	});
+
+	it('handles empty object', () => {
+		assert.equal(extractJsonObject('{}', 0), '{}');
+	});
+
+	it('stops at the correct closing brace with trailing content', () => {
+		const code = 'call({"k":"v"}), import.meta.url)';
+		const json = extractJsonObject(code, 5);
+		assert.equal(json, '{"k":"v"}');
+		assert.deepEqual(JSON.parse(json!), { k: 'v' });
 	});
 });

@@ -1,5 +1,7 @@
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { glob } from 'tinyglobby';
+import { normalizePath } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
 import { resolveMiddlewareMode } from '../../../integrations/adapter-utils.js';
@@ -100,7 +102,14 @@ export async function manifestBuildPostHook(
 		// these routes. Stripping keeps the entry chunk small on platforms like
 		// Cloudflare Workers that re-parse it on every cold isolate start.
 		const ssrManifest = stripPrerenderedRouteStyles(manifest);
-		const code = injectManifest(ssrManifest, ssrManifestChunk.code);
+		// When portableOutput is enabled, the manifest's relative directory paths are
+		// computed from buildServerDir, but the chunk may be nested deeper (e.g., in
+		// chunks/). Adjust paths to be relative to the chunk's actual directory.
+		const finalSsrManifest =
+			options.settings.config.experimental.portableOutput
+				? adjustManifestPathsForChunk(ssrManifest, ssrManifestChunk.fileName)
+				: ssrManifest;
+		const code = injectManifest(finalSsrManifest, ssrManifestChunk.code);
 		mutate(ssrManifestChunk.fileName, code, false);
 	}
 
@@ -110,7 +119,22 @@ export async function manifestBuildPostHook(
 	);
 
 	if (prerenderManifestChunk) {
-		const code = injectManifest(manifest, prerenderManifestChunk.code);
+		// When portableOutput is enabled, the prerender manifest needs absolute paths
+		// since it runs during the build (not at deployment).
+		const prerenderManifest =
+			options.settings.config.experimental.portableOutput
+				? {
+						...manifest,
+						rootDir: options.settings.config.root.toString(),
+						cacheDir: options.settings.config.cacheDir.toString(),
+						outDir: options.settings.config.outDir.toString(),
+						srcDir: options.settings.config.srcDir.toString(),
+						publicDir: options.settings.config.publicDir.toString(),
+						buildClientDir: options.settings.config.build.client.toString(),
+						buildServerDir: options.settings.config.build.server.toString(),
+					}
+				: manifest;
+		const code = injectManifest(prerenderManifest, prerenderManifestChunk.code);
 		mutate(prerenderManifestChunk.fileName, code, true);
 	}
 }
@@ -144,6 +168,40 @@ async function createManifest(
 	const encodedKey = await encodeKey(await buildOpts.key);
 	const manifest = await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
 	return manifest;
+}
+
+/**
+ * Adjusts the manifest's relative directory paths to account for the chunk's depth
+ * within buildServerDir. The manifest paths are relative to buildServerDir (e.g., `../../`
+ * for rootDir), but the chunk may be nested deeper (e.g., `chunks/entry.mjs`). This
+ * function prepends the necessary `../` segments so that resolving against the chunk's
+ * import.meta.url produces the correct absolute paths.
+ */
+function adjustManifestPathsForChunk(
+	manifest: SerializedSSRManifest,
+	chunkFileName: string,
+): SerializedSSRManifest {
+	// chunkFileName is relative to buildServerDir, e.g., "chunks/foo.mjs" or "entry.mjs"
+	const chunkDir = path.posix.dirname(chunkFileName);
+	if (chunkDir === '.' || chunkDir === '') {
+		// Chunk is directly in buildServerDir — no adjustment needed
+		return manifest;
+	}
+	// Compute the prefix needed to go from the chunk's directory back to buildServerDir
+	// e.g., for "chunks/foo.mjs", chunkDir is "chunks", prefix is "../"
+	const depth = chunkDir.split('/').length;
+	const prefix = '../'.repeat(depth);
+
+	return {
+		...manifest,
+		rootDir: prefix + manifest.rootDir,
+		cacheDir: prefix + manifest.cacheDir,
+		outDir: prefix + manifest.outDir,
+		srcDir: prefix + manifest.srcDir,
+		publicDir: prefix + manifest.publicDir,
+		buildClientDir: prefix + manifest.buildClientDir,
+		buildServerDir: prefix + manifest.buildServerDir,
+	};
 }
 
 /**
@@ -187,11 +245,21 @@ async function buildManifest(
 	const assetQueryString = assetQueryParams ? assetQueryParams.toString() : undefined;
 
 	const appendAssetQuery = (pth: string) => (assetQueryString ? `${pth}?${assetQueryString}` : pth);
+	const portable = settings.config.experimental.portableOutput;
+	// When portableOutput is enabled, relativize absolute filesystem paths in
+	// entryModules keys so the manifest doesn't contain machine-specific paths.
+	const normalizedRoot = portable ? normalizePath(fileURLToPath(settings.config.root)) : '';
 	const entryModules = Object.fromEntries(
-		Object.entries(rawEntryModules).map(([key, value]) => [
-			key,
-			value ? appendAssetQuery(value) : value,
-		]),
+		Object.entries(rawEntryModules).map(([key, value]) => {
+			let normalizedKey = key;
+			if (portable) {
+				const nk = normalizePath(key);
+				if (nk.startsWith(normalizedRoot)) {
+					normalizedKey = nk.slice(normalizedRoot.length - 1);
+				}
+			}
+			return [normalizedKey, value ? appendAssetQuery(value) : value];
+		}),
 	);
 	if (settings.scripts.some((script) => script.stage === 'page')) {
 		staticFiles.push(rawEntryModules[PAGE_SCRIPT_ID]);
@@ -350,14 +418,27 @@ async function buildManifest(
 		experimentalLogger = settings.config.experimental.logger;
 	}
 
+	// When portableOutput is enabled, compute directory paths relative to
+	// buildServerDir so that the built output can be moved to a different machine
+	// or directory. At runtime, these are resolved against import.meta.url.
+	const dirToString = portable
+		? (() => {
+				const serverDir = fileURLToPath(opts.settings.config.build.server);
+				return (dir: URL) => {
+					const rel = path.relative(serverDir, fileURLToPath(dir));
+					return rel.split(path.sep).join('/') + '/';
+				};
+			})()
+		: (dir: URL) => dir.toString();
+
 	return {
-		rootDir: opts.settings.config.root.toString(),
-		cacheDir: opts.settings.config.cacheDir.toString(),
-		outDir: opts.settings.config.outDir.toString(),
-		srcDir: opts.settings.config.srcDir.toString(),
-		publicDir: opts.settings.config.publicDir.toString(),
-		buildClientDir: opts.settings.config.build.client.toString(),
-		buildServerDir: opts.settings.config.build.server.toString(),
+		rootDir: dirToString(opts.settings.config.root),
+		cacheDir: dirToString(opts.settings.config.cacheDir),
+		outDir: dirToString(opts.settings.config.outDir),
+		srcDir: dirToString(opts.settings.config.srcDir),
+		publicDir: dirToString(opts.settings.config.publicDir),
+		buildClientDir: dirToString(opts.settings.config.build.client),
+		buildServerDir: portable ? './' : opts.settings.config.build.server.toString(),
 		adapterName: opts.settings.adapter?.name ?? '',
 		assetsDir: opts.settings.config.build.assets,
 		routes,
@@ -374,11 +455,27 @@ async function buildManifest(
 			poolSize: 0,
 			contentCache: false,
 		},
-		componentMetadata: Array.from(internals.componentMetadata),
+		componentMetadata: portable
+			? Array.from(internals.componentMetadata).map(([key, value]) => {
+					const nk = normalizePath(key);
+					const relativeKey = nk.startsWith(normalizedRoot)
+						? nk.slice(normalizedRoot.length - 1)
+						: nk;
+					return [relativeKey, value] as [string, typeof value];
+				})
+			: Array.from(internals.componentMetadata),
 		renderers: [],
 		clientDirectives: Array.from(settings.clientDirectives),
 		entryModules,
-		inlinedScripts: Array.from(internals.inlinedScripts),
+		inlinedScripts: portable
+			? Array.from(internals.inlinedScripts).map(([key, value]) => {
+					const nk = normalizePath(key);
+					const relativeKey = nk.startsWith(normalizedRoot)
+						? nk.slice(normalizedRoot.length - 1)
+						: nk;
+					return [relativeKey, value] as [string, typeof value];
+				})
+			: Array.from(internals.inlinedScripts),
 		assets: staticFiles.map(prefixAssetPath),
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,

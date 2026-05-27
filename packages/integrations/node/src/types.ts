@@ -39,6 +39,7 @@ export interface Options extends UserOptions {
 	client: string;
 	staticHeaders: boolean;
 	bodySizeLimit: number;
+	portableOutput: boolean;
 }
 
 export type RequestHandler = (...args: RequestHandlerParams) => void | Promise<void>;

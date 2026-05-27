@@ -2915,6 +2915,30 @@ export interface AstroUserConfig<
 		chromeDevtoolsWorkspace?: boolean;
 
 		/**
+		 * @name experimental.portableOutput
+		 * @type {boolean}
+		 * @default `false`
+		 * @description
+		 * Makes the build `dist/` directory portable. When enabled, the built output
+		 * can be moved to a different machine or directory and run with
+		 * `node dist/server/entry.mjs` without rebuilding.
+		 *
+		 * This replaces absolute filesystem paths in the SSR manifest with relative
+		 * paths that are resolved at runtime against the server entry's location.
+		 *
+		 * `node_modules/` must be co-located with `dist/` at the deployment target.
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     portableOutput: true,
+		 *   },
+		 * }
+		 * ```
+		 */
+		portableOutput?: boolean;
+
+		/**
 		 * @name experimental.svgOptimizer
 		 * @type {SvgOptimizer}
 		 * @default `undefined`

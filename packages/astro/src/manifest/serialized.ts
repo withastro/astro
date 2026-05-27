@@ -115,7 +115,7 @@ export function serializedManifestPlugin({
 					import { routes } from '${ASTRO_ROUTES_MODULE_ID}';
 					import { pageMap } from '${VIRTUAL_PAGES_MODULE_ID}';
 
-					const _manifest = _deserializeManifest((${manifestData}));
+					const _manifest = _deserializeManifest((${manifestData})${settings.config.experimental.portableOutput ? ', import.meta.url' : ''});
 
 				  // _manifest.routes contains enriched route info with scripts and styles,
 				  // TODO port this info over to virtual:astro:routes to prevent the need to
@@ -177,6 +177,9 @@ async function createSerializedManifest(
 		experimentalLogger = settings.config.experimental.logger;
 	}
 
+	// Dev/sync manifests use absolute file:// URLs since they run on the build
+	// machine with full filesystem access. Production manifests (in plugin-manifest.ts)
+	// use relative paths for portability.
 	return {
 		rootDir: settings.config.root.toString(),
 		srcDir: settings.config.srcDir.toString(),
