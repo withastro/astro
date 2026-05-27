@@ -106,8 +106,8 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		validateSecrets: false,
 	},
 	prerenderConflictBehavior: 'warn',
+	fetchFile: 'app',
 	experimental: {
-		advancedRouting: false,
 		clientPrerender: false,
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
@@ -528,18 +528,10 @@ export const AstroConfigSchema = z.object({
 		.enum(['error', 'warn', 'ignore'])
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.prerenderConflictBehavior),
+	fetchFile: z.string().nullable().optional().default(ASTRO_CONFIG_DEFAULTS.fetchFile),
 	fonts: z.array(FontFamilySchema).optional(),
 	experimental: z
 		.strictObject({
-			advancedRouting: z
-				.union([
-					z.boolean(),
-					z.strictObject({
-						fetchFile: z.string().nullable().optional().default('app'),
-					}),
-				])
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.advancedRouting),
 			clientPrerender: z
 				.boolean()
 				.optional()

@@ -2,7 +2,7 @@
 
 ## Overview
 
-When a project enables `experimental.advancedRouting` and provides a custom `src/app.ts`, the user composes Astro's request pipeline themselves. This means they can accidentally omit a handler for a feature they've configured (e.g. sessions, i18n, actions). To catch this, `BaseApp.#warnMissingFeatures()` runs a one-shot check after the first request and warns about any configured features the custom pipeline doesn't call.
+When a project provides a custom `src/app.ts`, the user composes Astro's request pipeline themselves. This means they can accidentally omit a handler for a feature they've configured (e.g. sessions, i18n, actions). To catch this, `BaseApp.#warnMissingFeatures()` runs a one-shot check after the first request and warns about any configured features the custom pipeline doesn't call.
 
 ## How it works
 

@@ -27,14 +27,9 @@ const DEFAULT_FETCH_FILE = 'app';
 export function vitePluginFetchable({ settings }: { settings: AstroSettings }): VitePlugin {
 	let resolvedUserAppId: string | undefined;
 	let userAppPresent = false;
-	const advancedRoutingConfig = settings.config.experimental.advancedRouting;
-	const advancedRoutingEnabled = !!advancedRoutingConfig;
-	const fetchFile =
-		(typeof advancedRoutingConfig === 'object' ? advancedRoutingConfig.fetchFile : undefined) ??
-		DEFAULT_FETCH_FILE;
+	const fetchFile = settings.config.fetchFile ?? DEFAULT_FETCH_FILE;
 	// When fetchFile is null the feature is explicitly disabled.
-	const fetchFileDisabled =
-		typeof advancedRoutingConfig === 'object' && advancedRoutingConfig.fetchFile === null;
+	const fetchFileDisabled = settings.config.fetchFile === null;
 
 	const normalizedSrcDir = viteNormalizePath(fileURLToPath(settings.config.srcDir));
 
@@ -79,7 +74,7 @@ export function vitePluginFetchable({ settings }: { settings: AstroSettings }): 
 					return FETCHABLE_RESOLVED_MODULE_ID;
 				}
 				const resolved = await this.resolve(`${normalizedSrcDir}${fetchFile}`);
-				userAppPresent = advancedRoutingEnabled && !!resolved;
+				userAppPresent = !!resolved;
 				resolvedUserAppId = resolved?.id;
 				return FETCHABLE_RESOLVED_MODULE_ID;
 			},

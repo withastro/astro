@@ -1401,6 +1401,35 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @kind heading
+	 * @name Fetch File
+	 * @type {string | null}
+	 * @default `'app'`
+	 * @version 6.x.0
+	 * @description
+	 *
+	 * Customizes the file used as the advanced routing entrypoint inside `srcDir`.
+	 * Defaults to `'app'`, meaning Astro looks for `src/app.ts` (or `.js` / `.mjs` / `.mts`).
+	 *
+	 * The fetch file allows you to compose Astro's request pipeline with the
+	 * Web Fetch standard or your own Hono middleware.
+	 *
+	 * If you already have a `src/app.ts` file in use for other purposes, define a
+	 * different filename or set the value to `null` to disable the entrypoint:
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   fetchFile: 'fetch.ts',
+	 * });
+	 * ```
+	 */
+	fetchFile?: string | null;
+
+	/**
+	 * @docs
+	 * @kind heading
 	 * @version 5.7.0
 	 * @name Session Options
 	 * @description
@@ -2791,43 +2820,6 @@ export interface AstroUserConfig<
 	 * These flags are not guaranteed to be stable.
 	 */
 	experimental?: {
-		/**
-		 * @name experimental.advancedRouting
-		 * @type {boolean | object}
-		 * @default `false`
-		 * @description
-		 * Enables `src/app.ts` as an advanced routing entrypoint, allowing you to
-		 * compose Astro's request pipeline with the Web Fetch standard or your own Hono middleware.
-		 *
-		 * Pass `true` to enable with default settings, or an object to customize:
-		 *
-		 * ```js
-		 * export default defineConfig({
-		 *   experimental: {
-		 *     advancedRouting: {
-		 *       fetchFile: 'fetch.ts',
-		 *     },
-		 *   },
-		 * });
-		 * ```
-		 */
-		advancedRouting?:
-			| boolean
-			| {
-					/**
-					 * @name experimental.advancedRouting.fetchFile
-					 * @type {string | null}
-					 * @default 'app'
-					 * @description
-					 *
-					 * Customizes the file used as the advanced routing entrypoint inside `srcDir`.
-					 * Defaults to `'app'`, meaning Astro looks for `src/app.ts`.
-					 *
-					 * If you already have a `src/app.ts` file in use for other purposes, define a different filename or set the value to `null` to disable the entrypoint.
-					 */
-					fetchFile?: string | null;
-			  };
-
 		/**
 		 *
 		 * @name experimental.clientPrerender
