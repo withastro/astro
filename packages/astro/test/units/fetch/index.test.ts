@@ -12,7 +12,7 @@ import {
 	i18n,
 } from '../../../dist/core/fetch/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createEndpoint, createPage, createRedirect, createTestApp, createRouteData } from '../mocks.ts';
+import { createEndpoint, createPage, createRedirect, createTestApp } from '../mocks.ts';
 import { dynamicPart } from '../routing/test-helpers.ts';
 
 /** A simple page component that renders `<h1>Hello</h1>`. */
