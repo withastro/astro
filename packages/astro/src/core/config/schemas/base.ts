@@ -106,7 +106,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		validateSecrets: false,
 	},
 	prerenderConflictBehavior: 'warn',
-	fetchFile: 'app',
+	fetchFile: 'fetch',
 	experimental: {
 		clientPrerender: false,
 		contentIntellisense: false,

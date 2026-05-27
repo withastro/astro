@@ -10,7 +10,7 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 /**
  * Virtual module that exposes the app's top-level fetch handler.
  *
- * If the user has a `src/app.ts` (or `.js` / `.mjs` / `.mts`) file that
+ * If the user has a `src/fetch.ts` (or `.js` / `.mjs` / `.mts`) file that
  * default-exports a `{ fetch }` object, the virtual module re-exports it.
  * Otherwise it re-exports `defaultFetchHandler` from the built-in pipeline.
  *
@@ -22,7 +22,7 @@ const FETCHABLE_MODULE_ID = 'virtual:astro:fetchable';
 const FETCHABLE_RESOLVED_MODULE_ID = '\0' + FETCHABLE_MODULE_ID;
 // Default segment under `srcDir` to probe for the user's handler module.
 // Matches how `vitePluginMiddleware` resolves `src/middleware`.
-const DEFAULT_FETCH_FILE = 'app';
+const DEFAULT_FETCH_FILE = 'fetch';
 
 export function vitePluginFetchable({ settings }: { settings: AstroSettings }): VitePlugin {
 	let resolvedUserAppId: string | undefined;

@@ -139,7 +139,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	#errorHandler: ErrorHandler;
 
 	/**
-	 * Whether a custom fetch handler (from `src/app.ts`) has been set
+	 * Whether a custom fetch handler (from `src/fetch.ts`) has been set
 	 * via `setFetchHandler`. When false, the `DefaultFetchHandler` is
 	 * in use and all features are implicitly active.
 	 */
@@ -180,7 +180,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	/**
 	 * Override the fetch handler used to dispatch requests. Entrypoints
 	 * call this with the default export of `virtual:astro:fetchable` to
-	 * plug in a user-authored handler from `src/app.ts`.
+	 * plug in a user-authored handler from `src/fetch.ts`.
 	 */
 	setFetchHandler(handler: { fetch: FetchHandler }): void {
 		this.#fetchHandler = handler;
@@ -516,7 +516,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	}
 
 	/**
-	 * One-shot check: after the first request with a custom `src/app.ts`,
+	 * One-shot check: after the first request with a custom `src/fetch.ts`,
 	 * compare `usedFeatures` against the manifest and warn about any
 	 * configured features the user's pipeline doesn't call.
 	 */
@@ -554,8 +554,8 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		for (const feature of missing) {
 			this.logger.warn(
 				'router',
-				`Your project uses ${feature}, but your custom src/app.ts does not call the ${feature}() handler. ` +
-					`This feature will not work unless you add it to your app.ts pipeline.`,
+			`Your project uses ${feature}, but your custom src/fetch.ts does not call the ${feature}() handler. ` +
+				`This feature will not work unless you add it to your fetch.ts pipeline.`,
 			);
 		}
 	}

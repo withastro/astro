@@ -34,7 +34,7 @@ import { loadLogger } from './logger/load.js';
 
 /**
  * Bit flags for pipeline features that handler classes register as
- * "used" when a custom `src/app.ts` fetch handler is in play. After the
+ * "used" when a custom `src/fetch.ts` fetch handler is in play. After the
  * first request (dev) or at runtime (prod SSR), we compare against the
  * manifest to warn about features the user configured but forgot to
  * include in their custom pipeline.
@@ -68,7 +68,7 @@ export abstract class Pipeline {
 	/**
 	 * Bit mask of pipeline features activated by handler classes.
 	 * Each handler sets its bit via `|=`. Only meaningful when a
-	 * custom `src/app.ts` fetch handler is in use.
+	 * custom `src/fetch.ts` fetch handler is in use.
 	 */
 	usedFeatures = 0;
 

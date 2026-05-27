@@ -1403,17 +1403,17 @@ export interface AstroUserConfig<
 	 * @kind heading
 	 * @name Fetch File
 	 * @type {string | null}
-	 * @default `'app'`
+	 * @default `'fetch'`
 	 * @version 6.x.0
 	 * @description
 	 *
-	 * Customizes the file used as the advanced routing entrypoint inside `srcDir`.
-	 * Defaults to `'app'`, meaning Astro looks for `src/app.ts` (or `.js` / `.mjs` / `.mts`).
+	 * Customizes the file used as the fetch entrypoint inside `srcDir`.
+	 * Defaults to `'fetch'`, meaning Astro looks for `src/fetch.ts` (or `.js` / `.mjs` / `.mts`).
 	 *
 	 * The fetch file allows you to compose Astro's request pipeline with the
 	 * Web Fetch standard or your own Hono middleware.
 	 *
-	 * If you already have a `src/app.ts` file in use for other purposes, define a
+	 * If you already have a `src/fetch.ts` file in use for other purposes, define a
 	 * different filename or set the value to `null` to disable the entrypoint:
 	 *
 	 * ```js
@@ -1421,7 +1421,7 @@ export interface AstroUserConfig<
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
-	 *   fetchFile: 'fetch.ts',
+	 *   fetchFile: 'handler',
 	 * });
 	 * ```
 	 */
