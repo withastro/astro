@@ -41,6 +41,8 @@ minimumReleaseAgeExclude:
   # TODO: remove once more stable
   - '@flue/*'
   - '@astrojs/*'
+  - 'satteri'
+  - '@bruits/*'
 peerDependencyRules:
   allowAny:
     - 'astro'
