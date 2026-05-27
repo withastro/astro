@@ -3190,6 +3190,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/hmr-content-api:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/hmr-markdown:
     dependencies:
       astro:
@@ -3197,6 +3203,12 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/hmr-new-page:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/hmr-route-cache:
     dependencies:
       astro:
         specifier: workspace:*
