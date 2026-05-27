@@ -281,9 +281,9 @@ export async function createSatteriMarkdownProcessor(
 			if (highlightFn) {
 				hastPlugins.push(createShikiPlugin(highlightFn, syntaxHighlightExcludeLangs));
 			}
-			hastPlugins.push(createHeadingIdsPlugin(headings, frontmatter));
 			hastPlugins.push(...userHastPlugins);
 			hastPlugins.push(createImageMarkerPlugin(localImagePaths, remoteImagePaths));
+			hastPlugins.push(createHeadingIdsPlugin(headings, frontmatter));
 
 			const { html } = await s.markdownToHtml(content, {
 				mdastPlugins: allMdastPlugins,

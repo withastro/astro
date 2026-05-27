@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { HastPluginDefinition } from 'satteri';
 import { createSatteriMarkdownProcessor } from '../dist/index.js';
 
 describe('satteri markdown', () => {
@@ -53,5 +54,23 @@ describe('satteri markdown', () => {
 		const processor = await createSatteriMarkdownProcessor();
 		const { metadata } = await processor.render('![alt](./local.png)');
 		assert.deepEqual(metadata.localImagePaths, ['./local.png']);
+	});
+
+	it('respects heading IDs set by a user hast plugin in both DOM and `headings`', async () => {
+		const setIdPlugin: HastPluginDefinition = {
+			name: 'set-heading-id',
+			element: {
+				filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+				visit(node, ctx) {
+					ctx.setProperty(node, 'id', 'custom-id');
+				},
+			},
+		};
+		const processor = await createSatteriMarkdownProcessor({
+			hastPlugins: [setIdPlugin],
+		});
+		const { code, metadata } = await processor.render('# Title');
+		assert.match(code, /<h1 id="custom-id">Title<\/h1>/);
+		assert.deepEqual(metadata.headings, [{ depth: 1, slug: 'custom-id', text: 'Title' }]);
 	});
 });

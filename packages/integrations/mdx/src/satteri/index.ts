@@ -125,10 +125,10 @@ export function createMdxProcessor(
 				// rather than a raw HTML node, since the Sätteri pipeline is compiling to JSX.
 				hastPlugins.push(satteriShikiPlugin(highlightFn, excludeLangs, { mdx: true }));
 			}
-			hastPlugins.push(headingIds, imageToComponent, astroMeta);
 			if (satteriOptions.hastPlugins.length) {
 				hastPlugins.push(...satteriOptions.hastPlugins);
 			}
+			hastPlugins.push(imageToComponent, headingIds, astroMeta);
 
 			let optimizeStatic: MdxCompileOptions['optimizeStatic'];
 			if (mdxOptions.optimize) {
