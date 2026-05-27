@@ -62,6 +62,7 @@ export function serializeLockFile(data: LockFileData): string {
 
 /**
  * Check if a process with the given PID is alive.
+ * Signal 0 does not kill the process — it only checks whether the process exists.
  */
 export function isProcessAlive(pid: number): boolean {
 	try {
@@ -91,10 +92,15 @@ export function readLockFile(root: URL): LockFileData | null {
 export function writeLockFile(root: URL, data: LockFileData): void {
 	const lockFileURL = getLockFileURL(root);
 	const dirPath = fileURLToPath(new URL('.astro/', root));
-	if (!existsSync(dirPath)) {
-		mkdirSync(dirPath, { recursive: true });
+	try {
+		if (!existsSync(dirPath)) {
+			mkdirSync(dirPath, { recursive: true });
+		}
+		writeFileSync(lockFileURL, serializeLockFile(data), 'utf-8');
+	} catch (err) {
+		const message = err instanceof Error ? err.message : String(err);
+		throw new Error(`Failed to write lock file: ${message}`);
 	}
-	writeFileSync(lockFileURL, serializeLockFile(data), 'utf-8');
 }
 
 /**
@@ -104,8 +110,12 @@ export function removeLockFile(root: URL): void {
 	const lockFileURL = getLockFileURL(root);
 	try {
 		unlinkSync(lockFileURL);
-	} catch {
-		// File doesn't exist, that's fine
+	} catch (err: any) {
+		// ENOENT means the file doesn't exist, which is fine.
+		// Any other error (permissions, etc.) should be surfaced.
+		if (err?.code !== 'ENOENT') {
+			throw err;
+		}
 	}
 }
 
