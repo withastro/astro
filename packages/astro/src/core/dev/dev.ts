@@ -27,6 +27,7 @@ import { piccoloreTextStyler } from '../../cli/infra/piccolore-text-styler.js';
 
 export interface DevServer {
 	address: AddressInfo;
+	resolvedUrls: vite.ResolvedServerUrls;
 	handle: (req: http.IncomingMessage, res: http.ServerResponse<http.IncomingMessage>) => void;
 	watcher: vite.FSWatcher;
 	stop(): Promise<void>;
@@ -145,6 +146,9 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	return {
 		address: devServerAddressInfo,
+		get resolvedUrls() {
+			return restart.container.viteServer.resolvedUrls || { local: [], network: [] };
+		},
 		get watcher() {
 			return restart.container.viteServer.watcher;
 		},

@@ -107,8 +107,8 @@ export async function dev({ flags }: DevOptions) {
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const server = await devServer(inlineConfig);
 
-	// Write the lock file now that we know the bound port
-	const serverUrl = `http://localhost:${server.address.port}`;
+	// Use Vite's resolved local URL which accounts for host and protocol (http/https).
+	const serverUrl = new URL(server.resolvedUrls.local[0]).origin;
 	writeLockFile(root, {
 		pid: process.pid,
 		port: server.address.port,
