@@ -89,6 +89,12 @@ export async function dev({ flags }: DevOptions) {
 		return;
 	}
 
+	// Unknown subcommand — exit with an error before starting the server.
+	if (subcommand) {
+		logger.error('SKIP_FORMAT', `Unknown command: astro dev ${subcommand}\n\nRun \`astro dev --help\` to see available commands.`);
+		process.exit(1);
+	}
+
 	// Foreground dev server: check lock file, start server, write lock file
 	const root = resolveRootURL(flags.root);
 	const existingServer = checkExistingServer(root);
