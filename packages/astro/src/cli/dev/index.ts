@@ -57,6 +57,12 @@ export async function dev({ flags }: DevOptions) {
 		return;
 	}
 
+	// When an AI coding agent is detected, enable background mode and JSON logging automatically.
+	const agentDetected = !process.env.ASTRO_DEV_BACKGROUND && isRunByAgent();
+	if (agentDetected) {
+		flags.experimentalJson = true;
+	}
+
 	const logger = createLoggerFromFlags(flags);
 	const subcommand = flags._[3]?.toString();
 
@@ -84,7 +90,7 @@ export async function dev({ flags }: DevOptions) {
 	// Handle `astro dev background` or auto-enable when an AI coding agent is detected.
 	// Skip if ASTRO_DEV_BACKGROUND is set — this means we're the spawned child process
 	// and should run the foreground dev server, not recurse into background mode.
-	if (subcommand === 'background' || (isRunByAgent() && !process.env.ASTRO_DEV_BACKGROUND)) {
+	if (subcommand === 'background' || agentDetected) {
 		const { background } = await import('./background.js');
 		await background({ flags, logger });
 		return;
