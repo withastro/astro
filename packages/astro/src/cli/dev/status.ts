@@ -1,8 +1,6 @@
-import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import type { AstroLogger } from '../../core/logger/core.js';
 import type { Flags } from '../flags.js';
-import { checkExistingServer } from '../../core/dev/lockfile.js';
+import { checkExistingServer, resolveRootURL } from '../../core/dev/lockfile.js';
 
 export interface StatusResult {
 	running: boolean;
@@ -17,20 +15,15 @@ export function formatStatusOutput(result: StatusResult): string {
 	return JSON.stringify(result);
 }
 
-function resolveRootURL(flags: Flags): URL {
-	const rootPath = typeof flags.root === 'string' ? resolve(flags.root) : process.cwd();
-	return pathToFileURL(rootPath + '/');
-}
-
 export async function status({
 	flags,
 	logger,
 }: { flags: Flags; logger: AstroLogger }): Promise<void> {
-	const root = resolveRootURL(flags);
+	const root = resolveRootURL(flags.root);
 	const existing = checkExistingServer(root);
 
 	if (!existing) {
-		logger.info(null, 'No dev server is running.');
+		logger.info('SKIP_FORMAT', 'No dev server is running.');
 		return;
 	}
 
@@ -38,7 +31,7 @@ export async function status({
 	const uptime = Math.floor((Date.now() - startedAt) / 1000);
 
 	logger.info(
-		null,
+		'SKIP_FORMAT',
 		`Dev server running at ${existing.url} (pid ${existing.pid}, uptime ${uptime}s${existing.background ? ', background' : ''})`,
 	);
 }

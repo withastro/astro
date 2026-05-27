@@ -38,7 +38,7 @@ export async function background({
 	// Check for existing server
 	const existing = checkExistingServer(root);
 	if (existing && !flags.force) {
-		logger.info(null, `Dev server already running at ${existing.url} (pid ${existing.pid})\n` +
+		logger.info('SKIP_FORMAT', `Dev server already running at ${existing.url} (pid ${existing.pid})\n` +
 			'  Stop:   astro dev stop\n' +
 			'  Status: astro dev status\n' +
 			'  Logs:   astro dev logs');
@@ -109,7 +109,7 @@ export async function background({
 
 	const childPid = child.pid;
 	if (!childPid) {
-		logger.error(null, 'Failed to spawn background dev server process.');
+		logger.error('SKIP_FORMAT', 'Failed to spawn background dev server process.');
 		process.exitCode = 1;
 		return;
 	}
@@ -121,7 +121,7 @@ export async function background({
 	while (Date.now() < deadline) {
 		// Check if child is still alive
 		if (!isProcessAlive(childPid)) {
-			logger.error(null, 'Dev server process exited before becoming ready.');
+			logger.error('SKIP_FORMAT', 'Dev server process exited before becoming ready.');
 			process.exitCode = 1;
 			return;
 		}
@@ -129,7 +129,7 @@ export async function background({
 		// Check for the lock file (written by the child's dev server)
 		const lockData = readLockFile(root);
 		if (lockData && lockData.pid === childPid) {
-			logger.info(null, `Dev server running at ${lockData.url} (pid ${lockData.pid})\n` +
+			logger.info('SKIP_FORMAT', `Dev server running at ${lockData.url} (pid ${lockData.pid})\n` +
 				'  Stop:   astro dev stop\n' +
 				'  Status: astro dev status\n' +
 				'  Logs:   astro dev logs');
@@ -147,6 +147,6 @@ export async function background({
 	}
 	removeLockFile(root);
 
-	logger.error(null, `Dev server failed to start within ${timeout / 1000}s.`);
+	logger.error('SKIP_FORMAT', `Dev server failed to start within ${timeout / 1000}s.`);
 	process.exitCode = 1;
 }

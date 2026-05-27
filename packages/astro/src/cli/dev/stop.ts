@@ -17,7 +17,7 @@ export async function stop({ flags, logger }: { flags: Flags; logger: AstroLogge
 	const existing = checkExistingServer(root);
 
 	if (!existing) {
-		logger.info(null, 'No dev server is running.');
+		logger.info('SKIP_FORMAT', 'No dev server is running.');
 		return;
 	}
 
@@ -46,5 +46,5 @@ export async function stop({ flags, logger }: { flags: Flags; logger: AstroLogge
 	// Clean up the lock file in case the process didn't remove it
 	removeLockFile(root);
 
-	logger.info(null, `Stopped dev server (pid ${existing.pid}).`);
+	logger.info('SKIP_FORMAT', `Stopped dev server (pid ${existing.pid}).`);
 }
