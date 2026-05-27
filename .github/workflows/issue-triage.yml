@@ -98,7 +98,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.CI_ANTHROPIC_API_KEY }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
-          pnpm exec flue run issue-triage \
+          pnpm exec flue run .flue/workflows/issue-triage.ts \
             --target node \
-            --id "issue-triage-$ISSUE_NUMBER" \
             --payload "{\"issueNumber\": $ISSUE_NUMBER}"

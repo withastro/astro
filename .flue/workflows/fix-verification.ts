@@ -1,4 +1,4 @@
-import type { FlueContext } from '@flue/runtime';
+import { createAgent, type FlueContext } from '@flue/runtime';
 import { local } from '@flue/runtime/node';
 import * as v from 'valibot';
 import {
@@ -11,21 +11,20 @@ import {
 	removeGitHubLabel,
 } from '../lib/github.ts';
 
-// CLI-only agent: no HTTP trigger. Invoked from GitHub Actions via `flue run fix-verification`.
-export const triggers = {};
+const agent = createAgent(() => ({
+	sandbox: local({
+		env: {
+			GH_TOKEN: GITHUB_TOKEN_BASE,
+		},
+	}),
+	model: 'anthropic/claude-sonnet-4-20250514',
+}));
 
-export default async function ({ init, payload }: FlueContext) {
+export async function run({ init, payload }: FlueContext) {
 	const issueNumber = payload.issueNumber as number;
 	const branch = `flue/fix-${issueNumber}`;
 
-	const harness = await init({
-		sandbox: local({
-			env: {
-				GH_TOKEN: GITHUB_TOKEN_BASE,
-			},
-		}),
-		model: 'anthropic/claude-sonnet-4-20250514',
-	});
+	const harness = await init(agent);
 	const session = await harness.session();
 
 	const issueDetails = await fetchIssueDetails(issueNumber);

@@ -1,4 +1,4 @@
-import type { FlueContext, FlueSession } from '@flue/runtime';
+import { createAgent, type FlueContext, type FlueSession } from '@flue/runtime';
 import { local } from '@flue/runtime/node';
 import * as v from 'valibot';
 import {
@@ -12,8 +12,25 @@ import {
 	removeGitHubLabel,
 } from '../lib/github.ts';
 
-// CLI-only agent: no HTTP trigger. Invoked from GitHub Actions via `flue run issue-triage`.
-export const triggers = {};
+const agent = createAgent(() => ({
+	sandbox: local({
+		env: {
+			// Git/GitHub auth
+			GH_TOKEN: GITHUB_TOKEN_BASE,
+			// GitHub Actions env vars needed by pkg-pr-new for preview releases
+			GITHUB_ACTIONS: process.env.GITHUB_ACTIONS,
+			GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY,
+			GITHUB_RUN_ID: process.env.GITHUB_RUN_ID,
+			GITHUB_RUN_ATTEMPT: process.env.GITHUB_RUN_ATTEMPT,
+			GITHUB_ACTOR_ID: process.env.GITHUB_ACTOR_ID,
+			GITHUB_SHA: process.env.GITHUB_SHA,
+			GITHUB_REF_NAME: process.env.GITHUB_REF_NAME,
+			GITHUB_OUTPUT: process.env.GITHUB_OUTPUT,
+			GITHUB_EVENT_PATH: process.env.GITHUB_EVENT_PATH,
+		},
+	}),
+	model: 'anthropic/claude-opus-4-6',
+}));
 
 function assert(condition: unknown, message: string): asserts condition {
 	if (!condition) throw new Error(message);
@@ -249,33 +266,11 @@ async function runTriagePipeline(
 	};
 }
 
-export default async function ({ init, payload }: FlueContext) {
+export async function run({ init, payload }: FlueContext) {
 	const issueNumber = payload.issueNumber as number;
 	const branch = `flue/fix-${issueNumber}`;
 
-	// Initialize the agent and session.
-	// The local() sandbox runs commands directly on the host via child_process.exec.
-	// Env vars are explicitly forwarded — only allowlisted shell essentials (PATH, HOME, etc.)
-	// are inherited by default.
-	const harness = await init({
-		sandbox: local({
-			env: {
-				// Git/GitHub auth
-				GH_TOKEN: GITHUB_TOKEN_BASE,
-				// GitHub Actions env vars needed by pkg-pr-new for preview releases
-				GITHUB_ACTIONS: process.env.GITHUB_ACTIONS,
-				GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY,
-				GITHUB_RUN_ID: process.env.GITHUB_RUN_ID,
-				GITHUB_RUN_ATTEMPT: process.env.GITHUB_RUN_ATTEMPT,
-				GITHUB_ACTOR_ID: process.env.GITHUB_ACTOR_ID,
-				GITHUB_SHA: process.env.GITHUB_SHA,
-				GITHUB_REF_NAME: process.env.GITHUB_REF_NAME,
-				GITHUB_OUTPUT: process.env.GITHUB_OUTPUT,
-				GITHUB_EVENT_PATH: process.env.GITHUB_EVENT_PATH,
-			},
-		}),
-		model: 'anthropic/claude-opus-4-6',
-	});
+	const harness = await init(agent);
 	const session = await harness.session();
 
 	const issueDetails = await fetchIssueDetails(issueNumber);

@@ -1,10 +1,7 @@
-import type { FlueContext } from '@flue/runtime';
+import { createAgent, type FlueContext } from '@flue/runtime';
 import { local } from '@flue/runtime/node';
 import * as v from 'valibot';
 import { fetchCIFailureLogs, postPRComment } from './github.ts';
-
-// CLI-only agent: no HTTP trigger. Invoked from GitHub Actions via `flue run merge-fix`.
-export const triggers = {};
 
 const GITHUB_TOKEN = process.env.FREDKBOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN || '';
 
@@ -12,18 +9,20 @@ export const args = v.object({
 	prNumber: v.number(),
 });
 
-export default async function mergeFix({ init, payload }: FlueContext) {
+const agent = createAgent(() => ({
+	sandbox: local({
+		env: {
+			GH_TOKEN: GITHUB_TOKEN,
+		},
+	}),
+	model: 'anthropic/claude-opus-4-6',
+}));
+
+export async function run({ init, payload }: FlueContext) {
 	const prNumber = payload.prNumber as number;
 	const branch = 'ci/merge-main-to-next';
 
-	const harness = await init({
-		sandbox: local({
-			env: {
-				GH_TOKEN: GITHUB_TOKEN,
-			},
-		}),
-		model: 'anthropic/claude-opus-4-6',
-	});
+	const harness = await init(agent);
 	const session = await harness.session();
 
 	// Fetch CI failure logs before entering the sandbox.

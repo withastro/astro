@@ -1,9 +1,6 @@
-import type { FlueContext } from '@flue/runtime';
+import { createAgent, type FlueContext } from '@flue/runtime';
 import { local } from '@flue/runtime/node';
 import * as v from 'valibot';
-
-// CLI-only agent: no HTTP trigger. Invoked from GitHub Actions via `flue run merge-resolve`.
-export const triggers = {};
 
 const GITHUB_TOKEN = process.env.FREDKBOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN || '';
 
@@ -12,18 +9,20 @@ export const args = v.object({
 	hasConflicts: v.boolean(),
 });
 
-export default async function mergeResolve({ init, payload }: FlueContext) {
+const agent = createAgent(() => ({
+	sandbox: local({
+		env: {
+			GH_TOKEN: GITHUB_TOKEN,
+		},
+	}),
+	model: 'anthropic/claude-opus-4-6',
+}));
+
+export async function run({ init, payload }: FlueContext) {
 	const branch = payload.branch as string;
 	const hasConflicts = payload.hasConflicts as boolean;
 
-	const harness = await init({
-		sandbox: local({
-			env: {
-				GH_TOKEN: GITHUB_TOKEN,
-			},
-		}),
-		model: 'anthropic/claude-opus-4-6',
-	});
+	const harness = await init(agent);
 	const session = await harness.session();
 
 	// Step 1: Resolve all merge conflicts (source code, JSON, YAML, etc.)
