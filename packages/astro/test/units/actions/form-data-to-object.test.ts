@@ -461,4 +461,28 @@ describe('formDataToObject', () => {
 			unexpected: '42',
 		});
 	});
+
+	it('unwraps array elements before coercing', () => {
+		const formData = new FormData();
+		formData.append('nums', '1');
+		formData.append('nums', '2');
+		formData.append('bools', 'true');
+		formData.append('bools', 'false');
+		formData.append('nested', '42');
+		formData.append('defaultNums', '99');
+
+		const input = z.object({
+			nums: z.array(z.number().optional()),
+			bools: z.array(z.boolean().nullable()),
+			nested: z.array(z.number().optional().nullable()),
+			defaultNums: z.array(z.number().default(0)),
+		});
+
+		const res = formDataToObject(formData, input);
+
+		assert.deepEqual(res.nums, [1, 2]);
+		assert.deepEqual(res.bools, [true, false]);
+		assert.deepEqual(res.nested, [42]);
+		assert.deepEqual(res.defaultNums, [99]);
+	});
 });

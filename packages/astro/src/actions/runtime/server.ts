@@ -402,9 +402,30 @@ function formDataHasKeyOrPrefix(formKeys: string[], key: string): boolean {
 	return formKeys.some((k) => k === key || k.startsWith(prefix));
 }
 
+/**
+ * Unwraps known Zod wrappers (optional, nullable, default) to reach the base type.
+ * Uses internal `_zod.def` shapes because Zod lacks a universal public unwrap API
+ * across different wrapper types.
+ */
+function unwrap(validator: z.$ZodTypeAny): z.$ZodTypeAny {
+	let v = validator;
+	const MAX_DEPTH = 20; // Defensive guard against malformed validators
+	let depth = 0;
+	while (
+		depth++ < MAX_DEPTH &&
+		(v instanceof z.$ZodOptional || v instanceof z.$ZodNullable || v instanceof z.$ZodDefault)
+	) {
+		const inner = v._zod?.def?.innerType ?? v._zod?.def?.schema ?? v._zod?.def?.element;
+		if (!inner) break;
+		v = inner;
+	}
+	return v;
+}
+
 function handleFormDataGetAll(key: string, formData: FormData, validator: z.$ZodArray) {
 	const entries = Array.from(formData.getAll(key));
-	const elementValidator = validator._zod.def.element;
+	const elementValidator = unwrap(validator._zod.def.element);
+
 	if (elementValidator instanceof z.$ZodNumber) {
 		return entries.map(Number);
 	} else if (elementValidator instanceof z.$ZodBoolean) {
