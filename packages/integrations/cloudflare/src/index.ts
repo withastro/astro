@@ -122,10 +122,10 @@ export default function createIntegration({
 	...cloudflareOptions
 }: Options = {}): AstroIntegration {
 	let _config: AstroConfig;
+	let _buildOutput: 'server' | 'static';
 	let _originalClientDir: URL;
 
 	let _routes: IntegrationResolvedRoute[];
-	let _isFullyStatic = false;
 	let cfPluginConfig: PluginConfig;
 
 	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
@@ -251,7 +251,11 @@ export default function createIntegration({
 							...(prerenderEnvironment === 'node' && command === 'dev'
 								? [createNodePrerenderPlugin()]
 								: []),
-							cfVitePlugin({ ...cfPluginConfig, viteEnvironment: { name: 'ssr' } }),
+							cfVitePlugin({
+								...cfPluginConfig,
+								viteEnvironment: { name: 'ssr' },
+								assetsOnly: () => _buildOutput === 'static',
+							}),
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
@@ -387,13 +391,10 @@ export default function createIntegration({
 			},
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
-				// Check if all non-internal routes are prerendered (fully static site)
-				const nonInternalRoutes = routes.filter((route) => route.origin !== 'internal');
-				_isFullyStatic =
-					nonInternalRoutes.length > 0 && nonInternalRoutes.every((route) => route.isPrerendered);
 			},
-			'astro:config:done': ({ setAdapter, config, injectTypes, logger }) => {
+			'astro:config:done': ({ setAdapter, config, injectTypes, logger, buildOutput }) => {
 				_config = config;
+				_buildOutput = buildOutput;
 				_originalClientDir = new URL(config.build.client.href);
 
 				// When a base path is configured, nest the client output directory under
@@ -412,9 +413,10 @@ export default function createIntegration({
 				setAdapter({
 					name: '@astrojs/cloudflare',
 					adapterFeatures: {
-						buildOutput: 'server',
+						buildOutput,
 						middlewareMode: 'classic',
 						preserveBuildClientDir: true,
+						preserveBuildServerDir: true,
 					},
 					entrypointResolution: 'auto',
 					previewEntrypoint: '@astrojs/cloudflare/entrypoints/preview',
@@ -570,7 +572,7 @@ export default function createIntegration({
 						),
 					),
 					dir,
-					buildOutput: _isFullyStatic ? 'static' : 'server',
+					buildOutput: _buildOutput,
 					assets,
 				});
 
