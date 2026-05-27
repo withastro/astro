@@ -175,7 +175,7 @@ export default function createIntegration({
 				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
 				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
 
-				cfPluginConfig = {
+				const adapterPluginConfig: Partial<PluginConfig> = {
 					config: cloudflareConfigCustomizer({
 						needsSessionKVBinding,
 						sessionKVBindingName,
@@ -203,11 +203,21 @@ export default function createIntegration({
 						},
 					}),
 				};
+				// Resolve the full `@cloudflare/vite-plugin` config exactly once by merging
+				// the user's `cloudflare({...})` options (e.g. `remoteBindings`,
+				// `inspectorPort`, `persistState`, `configPath`, `auxiliaryWorkers`) with
+				// the adapter's computed bindings/wrangler wiring. Downstream call sites
+				// (the dev/build plugin instance, the prerenderer's preview server, and
+				// the `astro preview` entrypoint) then just spread `cfPluginConfig` and
+				// cannot accidentally drop user options (see #16705 and related CHANGELOG
+				// entries).
+				cfPluginConfig = { ...cloudflareOptions, ...adapterPluginConfig };
 
-				// The preview entrypoint uses Cloudflare's vite plugin and so it needs access
-				// to the config. But there's no proper API for this so we use globalThis.
+				// The preview entrypoint uses Cloudflare's vite plugin and so it needs
+				// access to the resolved config. There's no proper API for this so we
+				// use globalThis.
 				if (command === 'preview') {
-					globalThis.astroCloudflareOptions = cfPluginConfig;
+					globalThis.astroCloudflareConfig = cfPluginConfig;
 				}
 
 				// Including prismjs files in `optimizeDeps.includes` when `@astrojs/prism` is not installed
@@ -241,11 +251,7 @@ export default function createIntegration({
 							...(prerenderEnvironment === 'node' && command === 'dev'
 								? [createNodePrerenderPlugin()]
 								: []),
-							cfVitePlugin({
-								...cloudflareOptions,
-								...cfPluginConfig,
-								viteEnvironment: { name: 'ssr' },
-							}),
+							cfVitePlugin({ ...cfPluginConfig, viteEnvironment: { name: 'ssr' } }),
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
@@ -447,7 +453,6 @@ export default function createIntegration({
 				if (prerenderEnvironment === 'workerd') {
 					setPrerenderer(
 						createCloudflarePrerenderer({
-							cloudflareOptions,
 							root: _config.root,
 							serverDir: _config.build.server,
 							clientDir: _config.build.client,
