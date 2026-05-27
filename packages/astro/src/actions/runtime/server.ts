@@ -407,7 +407,7 @@ function formDataHasKeyOrPrefix(formKeys: string[], key: string): boolean {
  * Uses internal `_zod.def` shapes because Zod lacks a universal public unwrap API
  * across different wrapper types.
  */
-function unwrap(validator: z.$ZodTypeAny): z.$ZodTypeAny {
+function unwrap(validator: z.$ZodType): z.$ZodType {
 	let v = validator;
 	const MAX_DEPTH = 20; // Defensive guard against malformed validators
 	let depth = 0;
@@ -415,7 +415,7 @@ function unwrap(validator: z.$ZodTypeAny): z.$ZodTypeAny {
 		depth++ < MAX_DEPTH &&
 		(v instanceof z.$ZodOptional || v instanceof z.$ZodNullable || v instanceof z.$ZodDefault)
 	) {
-		const inner = v._zod?.def?.innerType ?? v._zod?.def?.schema ?? v._zod?.def?.element;
+		const inner = v._zod?.def?.innerType;
 		if (!inner) break;
 		v = inner;
 	}
