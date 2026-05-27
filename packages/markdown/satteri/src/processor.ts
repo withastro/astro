@@ -56,8 +56,8 @@ export function satteri(
 	return processor;
 }
 
-export function isSatteriProcessor(
-	p: { name: string },
-): p is MarkdownProcessor<SatteriResolvedOptions> {
+export function isSatteriProcessor(p: {
+	name: string;
+}): p is MarkdownProcessor<SatteriResolvedOptions> {
 	return p.name === 'satteri';
 }

@@ -73,8 +73,8 @@ export function unified(
 	return processor;
 }
 
-export function isUnifiedProcessor(
-	p: { name: string },
-): p is MarkdownProcessor<UnifiedResolvedOptions> {
+export function isUnifiedProcessor(p: {
+	name: string;
+}): p is MarkdownProcessor<UnifiedResolvedOptions> {
 	return p.name === 'unified';
 }

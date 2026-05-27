@@ -25,7 +25,10 @@ interface MdxProcessorExtraOptions {
 	sourcemap: boolean;
 }
 
-export function createMdxProcessor(mdxOptions: ResolvedMdxOptions, extraOptions: MdxProcessorExtraOptions) {
+export function createMdxProcessor(
+	mdxOptions: ResolvedMdxOptions,
+	extraOptions: MdxProcessorExtraOptions,
+) {
 	return createProcessor({
 		remarkPlugins: getRemarkPlugins(mdxOptions),
 		rehypePlugins: getRehypePlugins(mdxOptions),

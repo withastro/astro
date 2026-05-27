@@ -22,7 +22,9 @@ import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
 
 // `gfm`/`smartypants` are deprecated and stay unset unless the user opts in; the
 // MDX pipelines treat an absent value as the default (on), like the `.md` processors.
-type SharedMarkdownOptions = Required<Pick<AstroMarkdownOptions, 'syntaxHighlight' | 'shikiConfig'>> &
+type SharedMarkdownOptions = Required<
+	Pick<AstroMarkdownOptions, 'syntaxHighlight' | 'shikiConfig'>
+> &
 	Pick<AstroMarkdownOptions, 'gfm' | 'smartypants'>;
 
 export type MdxOptions = SharedMarkdownOptions & {

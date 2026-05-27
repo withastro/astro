@@ -5,7 +5,10 @@ import type {
 	Smartypants as _Smartypants,
 	ShikiConfig,
 } from '@astrojs/internal-helpers/markdown';
-import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/internal-helpers/markdown';
+import {
+	markdownConfigDefaults,
+	syntaxHighlightDefaults,
+} from '@astrojs/internal-helpers/markdown';
 import { unified } from '@astrojs/markdown-remark';
 import type { MarkdownProcessor } from '../../../markdown/index.js';
 import type { OutgoingHttpHeaders } from 'node:http';
