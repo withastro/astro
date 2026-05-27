@@ -504,7 +504,10 @@ function getClientInput(
  * This is true when the build output is 'server', or when server islands
  * were discovered during the prerender build (even for static sites).
  */
-function needsServerBuild(settings: StaticBuildOptions['settings'], builder: vite.ViteBuilder): boolean {
+function needsServerBuild(
+	settings: StaticBuildOptions['settings'],
+	builder: vite.ViteBuilder,
+): boolean {
 	if (settings.buildOutput === 'server') {
 		return true;
 	}
