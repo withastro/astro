@@ -45,8 +45,6 @@ minimumReleaseAgeExclude:
   - workerd
   - miniflare
   - wrangler
-# TODO: remove once @cloudflare/vite-plugin preview release is replaced with a stable version
-blockExoticSubdeps: false
 peerDependencyRules:
   allowAny:
     - 'astro'
