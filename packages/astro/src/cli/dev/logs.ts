@@ -10,8 +10,7 @@ export async function logs({ flags, logger }: { flags: Flags; logger: AstroLogge
 
 	if (!existing) {
 		logger.error('SKIP_FORMAT', 'No dev server is running.');
-		process.exitCode = 1;
-		return;
+		process.exit(1);
 	}
 
 	if (!existing.background) {
@@ -19,16 +18,14 @@ export async function logs({ flags, logger }: { flags: Flags; logger: AstroLogge
 			'SKIP_FORMAT',
 			'The running dev server was not started with `astro dev background`. View logs in the terminal where it was started.',
 		);
-		process.exitCode = 1;
-		return;
+		process.exit(1);
 	}
 
 	const logFileURL = getLogFileURL(root);
 	const logFilePath = fileURLToPath(logFileURL);
 	if (!existsSync(logFilePath)) {
 		logger.error('SKIP_FORMAT', 'No log file found.');
-		process.exitCode = 1;
-		return;
+		process.exit(1);
 	}
 
 	const follow = flags.follow || flags.f;
