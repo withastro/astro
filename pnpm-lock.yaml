@@ -130,7 +130,7 @@ importers:
         version: 5.2.0(tinybench@2.9.0)(vite@7.3.2)(vitest@4.1.0)
       vitest:
         specifier: ^4.1.0
-        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@7.3.2)
+        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
 
   benchmark/packages/adapter:
     dependencies:
@@ -197,7 +197,7 @@ importers:
         specifier: ^10.1.2
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
       hono:
         specifier: ^4.12.14
@@ -206,13 +206,13 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
 
   examples/blog:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^6.0.0
+        specifier: ^6.0.1
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
         specifier: ^4.0.18
@@ -221,7 +221,7 @@ importers:
         specifier: ^3.7.3
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
       sharp:
         specifier: ^0.34.3
@@ -230,7 +230,7 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
 
   examples/container-with-vitest:
@@ -239,7 +239,7 @@ importers:
         specifier: ^5.0.6
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -249,7 +249,7 @@ importers:
         version: 18.3.1(react@18.3.1)
       vitest:
         specifier: ^4.1.0
-        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@7.3.2)
+        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
     devDependencies:
       '@types/react':
         specifier: ^18.3.28
@@ -270,7 +270,7 @@ importers:
         specifier: ^3.15.8
         version: 3.15.8
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
 
   examples/framework-multiple:
@@ -297,7 +297,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -327,7 +327,7 @@ importers:
         specifier: ^2.8.1
         version: 2.8.2(preact@10.29.0)
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -345,7 +345,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -360,7 +360,7 @@ importers:
         specifier: ^6.0.1
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.11
@@ -372,7 +372,7 @@ importers:
         specifier: ^8.1.2
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -384,7 +384,7 @@ importers:
         specifier: ^6.0.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.29
@@ -396,25 +396,25 @@ importers:
         specifier: ^10.1.2
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
 
   examples/ssr:
@@ -426,7 +426,7 @@ importers:
         specifier: ^8.1.2
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -435,7 +435,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
       sass:
         specifier: ^1.97.3
@@ -450,7 +450,7 @@ importers:
         specifier: ^22.19.0
         version: 22.19.19
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -459,19 +459,19 @@ importers:
         specifier: ^1.0.6
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
 
   examples/with-mdx:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^6.0.0
+        specifier: ^6.0.1
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
         specifier: ^5.1.4
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -486,7 +486,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(nanostores@1.1.1)(preact@10.29.0)
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
       nanostores:
         specifier: ^1.1.1
@@ -498,7 +498,7 @@ importers:
   examples/with-tailwindcss:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^6.0.0
+        specifier: ^6.0.1
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.2.1
@@ -507,7 +507,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -519,11 +519,11 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: link:../../packages/astro
       vitest:
         specifier: ^4.1.0
-        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@7.3.2)
+        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
 
   packages/astro:
     dependencies:
@@ -788,7 +788,7 @@ importers:
         version: 11.0.5
       vitest:
         specifier: ^4.1.0
-        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@7.3.2)
+        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
     optionalDependencies:
       sharp:
         specifier: ^0.34.0
@@ -4115,7 +4115,7 @@ importers:
         version: link:../../..
       vitest:
         specifier: ^4.1.0
-        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@7.3.2)
+        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
 
   packages/astro/test/fixtures/vue-component:
     dependencies:
@@ -16122,7 +16122,6 @@ packages:
       '@vitest/ui': 4.1.0
       happy-dom: '*'
       jsdom: '*'
-      vite: ^6.0.0 || ^7.0.0 || ^8.0.0-0
     peerDependenciesMeta:
       '@edge-runtime/vm':
         optional: true
@@ -17693,7 +17692,7 @@ snapshots:
       '@codspeed/core': 5.2.0
       tinybench: 2.9.0
       vite: 7.3.2(@types/node@22.19.19)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
-      vitest: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@7.3.2)
+      vitest: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
     transitivePeerDependencies:
       - debug
 
@@ -20322,7 +20321,7 @@ snapshots:
       svelte: 5.55.3
     optionalDependencies:
       vite: 7.3.2(@types/node@22.19.19)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
-      vitest: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@7.3.2)
+      vitest: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
 
   '@textlint/ast-node-types@15.5.1': {}
 
@@ -27155,7 +27154,7 @@ snapshots:
     optionalDependencies:
       vite: 7.3.2(@types/node@22.19.19)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
 
-  vitest@4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@7.3.2):
+  vitest@4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3):
     dependencies:
       '@vitest/expect': 4.1.0
       '@vitest/mocker': 4.1.0(vite@7.3.2)
@@ -27181,7 +27180,17 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@types/node': 22.19.19
     transitivePeerDependencies:
+      - jiti
+      - less
+      - lightningcss
       - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - terser
+      - tsx
+      - yaml
 
   volar-service-css@0.0.70(@volar/language-service@2.4.28):
     dependencies:

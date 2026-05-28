@@ -1,5 +1,11 @@
 # @astrojs/markdown-satteri
 
+## 0.2.1
+
+### Patch Changes
+
+- [#16883](https://github.com/withastro/astro/pull/16883) [`eeb064c`](https://github.com/withastro/astro/commit/eeb064ca9452fd9d0ad9b7557059a646a90a3e57) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes missing provenance information on the publish
+
 ## 0.2.0
 
 ### Minor Changes
