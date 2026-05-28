@@ -47,8 +47,7 @@
     "eslint:ci": "NODE_OPTIONS=\"--max-old-space-size=8192\" eslint --cache --concurrency=auto",
     "lint:fix": "biome lint --write --unsafe",
     "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail exec publint",
-    "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",
-    "preinstall": "npx only-allow pnpm"
+    "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format"
   },
   "workspaces": [
     "packages/markdown/*",
@@ -76,7 +75,6 @@
     "eslint": "^10.4.0",
     "eslint-plugin-regexp": "^3.1.0",
     "knip": "5.82.1",
-    "only-allow": "^1.2.2",
     "pkg-pr-new": "^0.0.71",
     "prettier": "^3.8.1",
     "prettier-plugin-astro": "^0.14.1",
