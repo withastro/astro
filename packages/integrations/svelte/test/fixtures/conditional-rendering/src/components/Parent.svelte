@@ -1,9 +1,14 @@
 <script lang="ts">
   import Child from './Child.svelte';
 
-  // Use a dynamic condition that can't be statically analyzed
-  // The child may or may not render at runtime, so its CSS must be included
-  let showChild = $state(Math.random() > 0.5);
+  // Start with false so the child is NOT rendered during SSR/prerendering.
+  // This tests that CSS for conditionally rendered components is still included
+  // even when the condition is false during the server build.
+  let showChild = $state(false);
+
+  $effect(() => {
+    showChild = true;
+  });
 </script>
 
 <div class="parent">

@@ -1,9 +1,8 @@
 import assert from 'node:assert/strict';
-import { describe, it, before, beforeEach } from 'node:test';
+import { describe, it, beforeEach } from 'node:test';
 import type { ComponentInstance } from '../../../dist/types/astro.js';
-import type { AstroLoggerMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
-import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { RouteCache, callGetStaticPaths } from '../../../dist/core/render/route-cache.js';
+import { SpyLogger } from '../test-utils.ts';
 import { dynamicPart, makeRoute } from './test-helpers.ts';
 
 function mod(overrides: Partial<ComponentInstance>): ComponentInstance {
@@ -12,18 +11,11 @@ function mod(overrides: Partial<ComponentInstance>): ComponentInstance {
 
 describe('getStaticPaths caching behavior', () => {
 	let routeCache: RouteCache;
-	let logger: AstroLogger;
+	let logger: SpyLogger;
 	let callCount: number;
 
-	const destination: AstroLoggerDestination<AstroLoggerMessage> = {
-		write: () => true,
-	};
-
-	before(() => {
-		logger = new AstroLogger({ destination, level: 'error' });
-	});
-
 	beforeEach(() => {
+		logger = new SpyLogger();
 		routeCache = new RouteCache(logger, 'production');
 		callCount = 0;
 	});
@@ -129,5 +121,105 @@ describe('getStaticPaths caching behavior', () => {
 		});
 
 		assert.equal(callCount, 2, 'getStaticPaths called again after cache clear');
+	});
+
+	it('re-calls getStaticPaths when module identity changes (HMR)', async () => {
+		const route = makeRoute({
+			segments: [[dynamicPart('slug')]],
+			trailingSlash: 'never',
+			route: '/[slug]',
+			pathname: undefined,
+			type: 'page',
+			prerender: true,
+		});
+
+		const oldMod = mod({
+			getStaticPaths: async () => {
+				callCount++;
+				return [{ params: { slug: 'one' }, props: { title: 'old' } }];
+			},
+		});
+
+		// First call with original module
+		const result1 = await callGetStaticPaths({
+			mod: oldMod,
+			route,
+			routeCache,
+			ssr: false,
+			base: '/',
+			trailingSlash: 'never',
+		});
+
+		assert.equal(callCount, 1);
+		assert.equal(result1.length, 1);
+
+		// Same module should hit cache
+		const _result2 = await callGetStaticPaths({
+			mod: oldMod,
+			route,
+			routeCache,
+			ssr: false,
+			base: '/',
+			trailingSlash: 'never',
+		});
+
+		assert.equal(callCount, 1, 'same module should use cache');
+
+		// Simulate HMR: a new module object with updated getStaticPaths
+		const newMod = mod({
+			getStaticPaths: async () => {
+				callCount++;
+				return [{ params: { slug: 'one' }, props: { title: 'new' } }];
+			},
+		});
+
+		const result3 = await callGetStaticPaths({
+			mod: newMod,
+			route,
+			routeCache,
+			ssr: false,
+			base: '/',
+			trailingSlash: 'never',
+		});
+
+		assert.equal(callCount, 2, 'new module should bypass cache');
+		assert.equal(result3.keyed.get('/one')?.props?.title, 'new');
+	});
+
+	it('does not log "route cache overwritten" on repeated SSR requests for the same module', async () => {
+		const spyLogger = new SpyLogger();
+		const ssrCache = new RouteCache(spyLogger, 'production');
+
+		const route = makeRoute({
+			segments: [[dynamicPart('slug')]],
+			trailingSlash: 'never',
+			route: '/[slug]',
+			pathname: undefined,
+			type: 'page',
+			prerender: false,
+		});
+
+		const testMod = mod({});
+		const opts = {
+			mod: testMod,
+			route,
+			routeCache: ssrCache,
+			ssr: true,
+			base: '/' as const,
+			trailingSlash: 'never' as const,
+		};
+
+		await callGetStaticPaths(opts);
+		await callGetStaticPaths(opts);
+		await callGetStaticPaths(opts);
+
+		const overwriteWarnings = spyLogger.logs.filter((l) =>
+			l.message.includes('route cache overwritten'),
+		);
+		assert.equal(
+			overwriteWarnings.length,
+			0,
+			'SSR should not log "route cache overwritten" on repeated calls',
+		);
 	});
 });

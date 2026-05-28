@@ -6,6 +6,7 @@ import {
 	addPullRequestLabels,
 	createPullRequest,
 	fetchIssueDetails,
+	findPullRequest,
 	postGitHubComment,
 	removeGitHubLabel,
 } from '../lib/github.ts';
@@ -102,6 +103,20 @@ Return your classification.`,
 
 	// The fix is verified! Remove the label and create a PR.
 	await removeGitHubLabel(issueNumber, 'fix pending verification');
+
+	// Check if a PR already exists for this branch.
+	const existingPr = await findPullRequest(branch);
+
+	if (existingPr) {
+		console.info(`PR already exists: ${existingPr.html_url}`);
+
+		await postGitHubComment(
+			issueNumber,
+			`The fix has been verified! A pull request already exists: ${existingPr.html_url}`,
+		);
+
+		return { verified: true, prNumber: existingPr.number, prUrl: existingPr.html_url };
+	}
 
 	// Use the astro-pr-writer skill to generate a good PR title and body.
 	const prContent = await session.skill('astro-pr-writer/SKILL.md', {
