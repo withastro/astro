@@ -70,7 +70,28 @@ export class AstroHandler {
 		return this.#pagesHandler.handle(state, ctx);
 	}
 
+	/**
+	 * All pipeline features — ORed together so `AstroHandler` can mark
+	 * every feature as "used" in a single write. This prevents the
+	 * one-shot `#warnMissingFeatures` check from emitting false positives
+	 * when the first request short-circuits (e.g. a redirect) before
+	 * every individual handler has had a chance to set its own bit.
+	 */
+	static #allFeatures =
+		PipelineFeatures.redirects |
+		PipelineFeatures.sessions |
+		PipelineFeatures.actions |
+		PipelineFeatures.middleware |
+		PipelineFeatures.i18n |
+		PipelineFeatures.cache;
+
 	async handle(state: FetchState): Promise<Response> {
+		// AstroHandler is the "batteries-included" handler that wires up
+		// every pipeline feature internally. Mark them all as used so the
+		// missing-feature warning in BaseApp never fires — the user didn't
+		// forget to include anything.
+		state.pipeline.usedFeatures |= AstroHandler.#allFeatures;
+
 		const trailingSlashRedirect = this.#trailingSlashHandler.handle(state);
 		if (trailingSlashRedirect) {
 			return trailingSlashRedirect;
