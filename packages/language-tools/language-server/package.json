@@ -46,7 +46,7 @@
     "vscode-uri": "^3.1.0"
   },
   "devDependencies": {
-    "@types/node": "^22.10.6",
+    "@types/node": "^22.19.0",
     "@volar/test-utils": "~2.4.28",
     "@volar/typescript": "~2.4.28",
     "astro-scripts": "workspace:*",

@@ -37,7 +37,7 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@types/node": "^22.10.6",
+    "@types/node": "^22.19.0",
     "@types/yargs": "^17.0.35",
     "astro-scripts": "workspace:*",
     "tinyglobby": "^0.2.16",
