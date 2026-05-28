@@ -1,6 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { stripVTControlCharacters } from 'node:util';
+import {
+	isUnifiedProcessor,
+	type RehypePlugin,
+	type RemarkPlugin,
+} from '@astrojs/markdown-remark';
 import * as z from 'zod/v4';
 import { fontProviders } from '../../../dist/assets/fonts/providers/index.js';
 import { LocalFontProvider } from '../../../dist/assets/fonts/providers/local.js';
@@ -625,34 +630,36 @@ describe('Config Validation', () => {
 
 	describe('markdown legacy plugins', () => {
 		it('preserves legacy markdown.rehypePlugins on the validated config (pre-6.0 mdx compat)', async () => {
-			const plugin = () => (tree) => tree;
+			const plugin: RehypePlugin = () => (tree) => tree;
 			const result = await validateConfig({
 				markdown: { rehypePlugins: [plugin] },
 			});
 			// Pre-6.0 `@astrojs/mdx` reads `config.markdown.rehypePlugins` directly to feed
 			// its own MDX-side processor, so the legacy key must survive validation.
 			assert.deepEqual(result.markdown.rehypePlugins, [plugin]);
-			const options = result.markdown.processor.options;
-			assert.deepEqual(options.rehypePlugins, [plugin]);
+			const { processor } = result.markdown;
+			assert.ok(isUnifiedProcessor(processor));
+			assert.deepEqual(processor.options.rehypePlugins, [plugin]);
 		});
 
 		it('does not duplicate legacy plugins across repeated validateConfigRefined passes', async () => {
-			const remark = () => (tree) => tree;
-			const rehype = () => (tree) => tree;
+			const remark: RemarkPlugin = () => (tree) => tree;
+			const rehype: RehypePlugin = () => (tree) => tree;
 			const validated = await validateConfig({
 				markdown: { remarkPlugins: [remark], rehypePlugins: [rehype] },
 			});
 			// The second pass runs after `astro:config:setup`; without the WeakMap guard
 			// it would re-fold the same plugins and double them up.
 			const again = await validateConfigRefined(validated);
-			const options = again.markdown.processor.options;
-			assert.deepEqual(options.remarkPlugins, [remark]);
-			assert.deepEqual(options.rehypePlugins, [rehype]);
+			const { processor } = again.markdown;
+			assert.ok(isUnifiedProcessor(processor));
+			assert.deepEqual(processor.options.remarkPlugins, [remark]);
+			assert.deepEqual(processor.options.rehypePlugins, [rehype]);
 		});
 
 		it('folds integration-appended legacy plugins without re-folding the originals', async () => {
-			const userPlugin = () => (tree) => tree;
-			const integrationPlugin = () => (tree) => tree;
+			const userPlugin: RehypePlugin = () => (tree) => tree;
+			const integrationPlugin: RehypePlugin = () => (tree) => tree;
 			const validated = await validateConfig({
 				markdown: { rehypePlugins: [userPlugin] },
 			});
@@ -660,8 +667,9 @@ describe('Config Validation', () => {
 			// (Starlight-style `updateConfig({ markdown: { rehypePlugins: [...] } })`).
 			validated.markdown.rehypePlugins.push(integrationPlugin);
 			const refined = await validateConfigRefined(validated);
-			const options = refined.markdown.processor.options;
-			assert.deepEqual(options.rehypePlugins, [userPlugin, integrationPlugin]);
+			const { processor } = refined.markdown;
+			assert.ok(isUnifiedProcessor(processor));
+			assert.deepEqual(processor.options.rehypePlugins, [userPlugin, integrationPlugin]);
 		});
 	});
 
