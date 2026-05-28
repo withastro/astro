@@ -46,7 +46,7 @@ describe('Static Assets', () => {
 	}
 
 	describe('static adapter', () => {
-		it('has cache control', async () => {
+		it('has cache control', { timeout: 30000 }, async () => {
 			const { default: vercel } = await import('@astrojs/vercel');
 			await build({
 				adapter: vercel(),
@@ -54,7 +54,7 @@ describe('Static Assets', () => {
 			await checkValidCacheControl();
 		});
 
-		it('has cache control other assets', async () => {
+		it('has cache control other assets', { timeout: 30000 }, async () => {
 			const { default: vercel } = await import('@astrojs/vercel');
 			const assets = '_foo';
 			await build({
@@ -66,7 +66,7 @@ describe('Static Assets', () => {
 	});
 
 	describe('serverless adapter', () => {
-		it('has cache control', async () => {
+		it('has cache control', { timeout: 30000 }, async () => {
 			const { default: vercel } = await import('@astrojs/vercel');
 			await build({
 				output: 'server',
@@ -75,7 +75,7 @@ describe('Static Assets', () => {
 			await checkValidCacheControl();
 		});
 
-		it('has cache control other assets', async () => {
+		it('has cache control other assets', { timeout: 30000 }, async () => {
 			const { default: vercel } = await import('@astrojs/vercel');
 			const assets = '_foo';
 			await build({

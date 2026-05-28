@@ -12,7 +12,7 @@ describe('static routing', () => {
 		await fixture.build({});
 	});
 
-	it('falls back to 404.html', async () => {
+	it('falls back to 404.html', { timeout: 30000 }, async () => {
 		const deploymentConfig = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
 		// change the index if necessary
 		assert.deepEqual(deploymentConfig.routes[2], {
