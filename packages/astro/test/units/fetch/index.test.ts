@@ -13,6 +13,7 @@ import {
 } from '../../../dist/core/fetch/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createEndpoint, createPage, createRedirect, createTestApp } from '../mocks.ts';
+import { dynamicPart } from '../routing/test-helpers.ts';
 
 /** A simple page component that renders `<h1>Hello</h1>`. */
 const simplePage = createComponent((_result: any, _props: any, _slots: any) => {
@@ -51,6 +52,32 @@ describe('FetchState (astro/fetch)', () => {
 		const state = new FetchState(request);
 		assert.ok(state.routeData, 'routeData should be set by the constructor');
 		assert.equal(state.routeData!.route, '/');
+	});
+
+	it('falls through to SSR route when prerendered dynamic route matches first', () => {
+		// Regression test for #16834: when a prerendered dynamic route like
+		// [a_prebuild].astro matches before an SSR dynamic route like [b_ssr].astro,
+		// the SSR route should be used instead of returning 404.
+		const prerenderPage = createPage(simplePage, {
+			route: '/[a_prebuild]',
+			prerender: true,
+			pathname: undefined,
+			segments: [[dynamicPart('a_prebuild')]],
+		});
+		const ssrPage = createPage(simplePage, {
+			route: '/[b_ssr]',
+			prerender: false,
+			pathname: undefined,
+			segments: [[dynamicPart('b_ssr')]],
+		});
+
+		const app = createTestApp([prerenderPage, ssrPage], { serverLike: true });
+		const request = stampApp(new Request('http://example.com/foobar'), app);
+		const state = new FetchState(request);
+
+		assert.ok(state.routeData, 'routeData should be set to the SSR route');
+		assert.equal(state.routeData!.route, '/[b_ssr]');
+		assert.equal(state.routeData!.prerender, false);
 	});
 });
 

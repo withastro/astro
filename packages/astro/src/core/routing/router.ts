@@ -118,6 +118,41 @@ export class Router {
 		const params = getParams(route, pathname);
 		return { type: 'match', route, params, pathname };
 	}
+
+	/**
+	 * Returns all routes that match the given pathname, in priority order.
+	 * Used when the first match (e.g. a prerendered route) cannot serve
+	 * the request and subsequent matches need to be tried.
+	 */
+	public matchAll(
+		inputPathname: string,
+		{ allowWithoutBase = false }: { allowWithoutBase?: boolean } = {},
+	): RouteData[] {
+		const normalized = getRedirectForPathname(inputPathname);
+		if (normalized.redirect) {
+			return [];
+		}
+
+		const baseResult = stripBase(
+			normalized.pathname,
+			this.#base,
+			this.#baseWithoutTrailingSlash,
+			this.#trailingSlash,
+		);
+		if (!baseResult && !allowWithoutBase) {
+			return [];
+		}
+
+		let pathname = baseResult ?? normalized.pathname;
+		if (this.#buildFormat === 'file') {
+			pathname = normalizeFileFormatPathname(pathname);
+		}
+
+		return this.#routes.filter((candidate) => {
+			if (candidate.pattern.test(pathname)) return true;
+			return candidate.fallbackRoutes.some((fallbackRoute) => fallbackRoute.pattern.test(pathname));
+		});
+	}
 }
 
 /**
