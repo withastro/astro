@@ -150,7 +150,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.CI_ANTHROPIC_API_KEY }}
           PR_NUMBER: ${{ steps.pr.outputs.number }}
         run: |
-          pnpm flue run .flue/workflows/merge-fix/WORKFLOW.ts \
-            --sandbox $IMAGE:latest \
-            --args "{\"prNumber\": $PR_NUMBER}" \
-            --model anthropic/claude-sonnet-4-20250514
+          pnpm exec flue run merge-fix \
+            --target node \
+            --payload "{\"prNumber\": $PR_NUMBER}"

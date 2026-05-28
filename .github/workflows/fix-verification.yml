@@ -51,6 +51,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.CI_ANTHROPIC_API_KEY }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
-          pnpm exec flue run .flue/workflows/fix-verification.ts \
+          pnpm exec flue run fix-verification \
             --target node \
             --payload "{\"issueNumber\": $ISSUE_NUMBER}"
