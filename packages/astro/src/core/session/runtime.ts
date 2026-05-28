@@ -53,6 +53,8 @@ export class AstroSession {
 	#dirty = false;
 	// Whether the session cookie has been set.
 	#cookieSet = false;
+	// Whether the session ID was sourced from a client cookie rather than freshly generated.
+	#sessionIDFromCookie = false;
 	// The local data is "partial" if it has not been loaded from storage yet and only
 	// contains values that have been set or deleted in-memory locally.
 	// We do this to avoid the need to block on loading data when it is only being set.
@@ -152,7 +154,8 @@ export class AstroSession {
 	 * Deletes a session value.
 	 */
 	delete(key: string) {
-		this.#data?.delete(key);
+		this.#data ??= new Map();
+		this.#data.delete(key);
 		if (this.#partial) {
 			this.#toDelete.add(key);
 		}
@@ -242,7 +245,9 @@ export class AstroSession {
 
 		// Create new session
 		this.#sessionID = crypto.randomUUID();
+		this.#sessionIDFromCookie = false;
 		this.#data = data;
+		this.#dirty = true;
 		await this.#setCookie();
 
 		// Clean up old session asynchronously
@@ -292,7 +297,7 @@ export class AstroSession {
 		if (this.#toDestroy.size > 0) {
 			const cleanupPromises = [...this.#toDestroy].map((sessionId) =>
 				storage.removeItem(sessionId).catch((err) => {
-					console.error(`Failed to clean up session ${sessionId}:`, err);
+					console.error('Failed to clean up session %s:', sessionId, err);
 				}),
 			);
 			await Promise.all(cleanupPromises);
@@ -339,15 +344,35 @@ export class AstroSession {
 	 */
 
 	async #ensureData() {
-		const storage = await this.#ensureStorage();
 		if (this.#data && !this.#partial) {
 			return this.#data;
 		}
 		this.#data ??= new Map();
 
+		// If no session ID has been set yet (no prior set() call) and there is no
+		// session cookie, there is nothing to load from storage. Returning early
+		// avoids initialising the storage driver and making a guaranteed-miss read
+		// on every anonymous request.
+		if (!this.#sessionID && !this.#cookies.get(this.#cookieName)?.value) {
+			this.#partial = false;
+			return this.#data;
+		}
+
+		const storage = await this.#ensureStorage();
+
 		// We stored this as a devalue string, but unstorage will have parsed it as JSON
 		const raw = await storage.get<any[]>(this.#ensureSessionID());
 		if (!raw) {
+			if (this.#sessionIDFromCookie) {
+				// The session ID was supplied by the client cookie but has no corresponding
+				// server-side data. Generate a new server-controlled ID rather than
+				// accepting an unrecognized value from the client.
+				this.#sessionID = crypto.randomUUID();
+				this.#sessionIDFromCookie = false;
+				if (this.#cookieSet) {
+					await this.#setCookie();
+				}
+			}
 			// If there is no existing data in storage we don't need to merge anything
 			// and can just return the existing local data.
 			return this.#data;
@@ -403,7 +428,15 @@ export class AstroSession {
 	 * Returns the session ID, generating a new one if it does not exist.
 	 */
 	#ensureSessionID() {
-		this.#sessionID ??= this.#cookies.get(this.#cookieName)?.value ?? crypto.randomUUID();
+		if (!this.#sessionID) {
+			const cookieValue = this.#cookies.get(this.#cookieName)?.value;
+			if (cookieValue) {
+				this.#sessionID = cookieValue;
+				this.#sessionIDFromCookie = true;
+			} else {
+				this.#sessionID = crypto.randomUUID();
+			}
+		}
 		return this.#sessionID;
 	}
 

@@ -51,11 +51,11 @@ async function loadLocalImage(src: string, url: URL) {
 			}
 		}
 	} else {
-		// Otherwise we'll assume it's a local URL and try to load it via fetch
+		// Otherwise, we'll assume it's a local URL and try to load it via fetch
 		const sourceUrl = new URL(src, url.origin);
 		// This is only allowed if this is the same origin
 		if (sourceUrl.origin !== url.origin) {
-			returnValue = undefined;
+			return undefined;
 		}
 		return loadRemoteImage(sourceUrl);
 	}

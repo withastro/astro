@@ -7,7 +7,7 @@ const astroEntryPrefix = '\0astro-entry:';
 /**
  * When adding hydrated or client:only components as Rollup inputs, sometimes we're not using all
  * of the export names, e.g. `import { Counter } from './ManyComponents.jsx'`. This plugin proxies
- * entries to re-export only the names the user is using.
+ * entries to re-export only the names that the user is using.
  */
 export function pluginComponentEntry(internals: BuildInternals): VitePlugin {
 	const componentToExportNames = new Map<string, string[]>();

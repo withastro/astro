@@ -12,7 +12,7 @@ import type { Options, RequestHandler } from './types.js';
  */
 export default function createMiddleware(app: BaseApp, options: Options): RequestHandler {
 	const handler = createAppHandler(app, options);
-	const logger = app.getAdapterLogger();
+	const logger = app.adapterLogger;
 	// using spread args because express trips up if the function's
 	// stringified body includes req, res, next, locals directly
 	return async (...args) => {

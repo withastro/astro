@@ -1,11 +1,11 @@
 import { stripVTControlCharacters } from 'node:util';
-import deepDiff from 'deep-diff';
+import diff from 'microdiff';
 import { sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { customAlphabet } from 'nanoid';
 import color from 'piccolore';
 import { isSerializedSQL } from '../../runtime/types.js';
-import { hasPrimaryKey, isDbError } from '../../runtime/utils.js';
+import { getDbError, hasPrimaryKey } from '../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../consts.js';
 import { createClient } from '../db-client/libsql-node.js';
 import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
@@ -122,7 +122,8 @@ export async function getTableChangeQueries({
 	const added = getAdded(oldTable.columns, newTable.columns);
 	const dropped = getDropped(oldTable.columns, newTable.columns);
 	/** Any foreign key changes require a full table recreate */
-	const hasForeignKeyChanges = Boolean(deepDiff(oldTable.foreignKeys, newTable.foreignKeys));
+	const hasForeignKeyChanges =
+		diff(oldTable.foreignKeys ?? [], newTable.foreignKeys ?? []).length > 0;
 
 	if (!hasForeignKeyChanges && isEmpty(updated) && isEmpty(added) && isEmpty(dropped)) {
 		return {
@@ -357,12 +358,15 @@ function getDropped<T>(oldObj: Record<string, T>, newObj: Record<string, T>) {
 	return dropped;
 }
 
-function getUpdated<T>(oldObj: Record<string, T>, newObj: Record<string, T>) {
+function getUpdated<T extends Record<string, unknown>>(
+	oldObj: Record<string, T>,
+	newObj: Record<string, T>,
+) {
 	const updated: Record<string, T> = {};
 	for (const [key, value] of Object.entries(newObj)) {
 		const oldValue = oldObj[key];
 		if (!oldValue) continue;
-		if (deepDiff(oldValue, value)) updated[key] = value;
+		if (diff(oldValue, value).length > 0) updated[key] = value;
 	}
 	return updated;
 }
@@ -389,9 +393,9 @@ function getUpdatedColumns(oldColumns: DBColumns, newColumns: DBColumns): Update
 			// If parsing fails, move on to the standard diff.
 		}
 
-		const diff = deepDiff(oldColumn, newColumn);
+		const diffResult = diff(oldColumn, newColumn);
 
-		if (diff) {
+		if (diffResult.length > 0) {
 			updated[key] = { old: oldColumn, new: newColumn };
 		}
 	}
@@ -447,20 +451,21 @@ async function getDbCurrentSnapshot(
 
 		return JSON.parse(res.snapshot);
 	} catch (error) {
+		const dbError = getDbError(error);
 		// Don't handle errors that are not from libSQL
 		if (
-			isDbError(error) &&
+			dbError &&
 			// If the schema was never pushed to the database yet the table won't exist.
 			// Treat a missing snapshot table as an empty table.
 
 			// When connecting to a remote database in that condition
 			// the query will fail with the following error code and message.
-			((error.code === 'SQLITE_UNKNOWN' &&
-				error.message === 'SQLITE_UNKNOWN: SQLite error: no such table: _astro_db_snapshot') ||
+			((dbError.code === 'SQLITE_UNKNOWN' &&
+				dbError.message === 'SQLITE_UNKNOWN: SQLite error: no such table: _astro_db_snapshot') ||
 				// When connecting to a local or in-memory database that does not have a snapshot table yet
 				// the query will fail with the following error code and message.
-				(error.code === 'SQLITE_ERROR' &&
-					error.message === 'SQLITE_ERROR: no such table: _astro_db_snapshot'))
+				(dbError.code === 'SQLITE_ERROR' &&
+					dbError.message === 'SQLITE_ERROR: no such table: _astro_db_snapshot'))
 		) {
 			return;
 		}

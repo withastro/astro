@@ -1,7 +1,9 @@
 // IMPORTANT: this file is the entrypoint for "astro/config". Keep it as light as possible!
 
 import type { SharpImageServiceConfig } from '../assets/services/sharp.js';
+import type { MemoryCacheProviderOptions } from '../core/cache/memory-provider.js';
 
+import type { CacheProviderConfig } from '../core/cache/types.js';
 import type { ImageServiceConfig } from '../types/public/index.js';
 
 export { fontProviders } from '../assets/fonts/providers/index.js';
@@ -10,6 +12,8 @@ export { validateConfig } from '../core/config/validate.js';
 export { envField } from '../env/config.js';
 export { defineConfig, getViteConfig } from './index.js';
 export { sessionDrivers } from '../core/session/drivers.js';
+export { svgoOptimizer } from '../assets/svg/svgo.js';
+export { logHandlers } from '../core/logger/handlers.js';
 
 /**
  * Return the configuration needed to use the Sharp-based image service
@@ -31,5 +35,19 @@ export function passthroughImageService(): ImageServiceConfig {
 	return {
 		entrypoint: 'astro/assets/services/noop',
 		config: {},
+	};
+}
+
+/**
+ * Return the configuration needed to use the built-in in-memory LRU cache provider.
+ * This is a runtime-agnostic provider suitable for single-instance deployments.
+ */
+export function memoryCache(
+	config: MemoryCacheProviderOptions = {},
+): CacheProviderConfig<MemoryCacheProviderOptions> {
+	return {
+		name: 'memory',
+		entrypoint: 'astro/cache/memory',
+		config,
 	};
 }

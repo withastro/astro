@@ -1,7 +1,6 @@
 {
   "extends": "astro/tsconfigs/base",
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "@custom-renderer/*": ["src/custom-renderer/*"]
     },

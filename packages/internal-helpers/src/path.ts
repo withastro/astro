@@ -15,6 +15,24 @@ export function prependForwardSlash(path: string) {
 	return path[0] === '/' ? path : '/' + path;
 }
 
+export const MANY_LEADING_SLASHES = /^\/{2,}/;
+
+export function collapseDuplicateLeadingSlashes(path: string) {
+	if (!path) {
+		return path;
+	}
+	return path.replace(MANY_LEADING_SLASHES, '/');
+}
+
+const MANY_SLASHES = /\/{2,}/g;
+
+export function collapseDuplicateSlashes(path: string) {
+	if (!path) {
+		return path;
+	}
+	return path.replace(MANY_SLASHES, '/');
+}
+
 export const MANY_TRAILING_SLASHES = /\/{2,}$/g;
 
 export function collapseDuplicateTrailingSlashes(path: string, trailingSlash: boolean) {
@@ -130,9 +148,9 @@ export function isRemotePath(src: string) {
 		return false;
 	}
 
-	// Check for Unix absolute path (starts with / but not // or /\)
+	// Check for Unix absolute path (starts with / followed by a normal path character)
 	// This needs to be before the backslash check
-	if (decoded[0] === '/' && decoded[1] !== '/' && decoded[1] !== '\\') {
+	if (decoded[0] === '/' && /^\/[\w.@-]/.test(decoded)) {
 		return false;
 	}
 

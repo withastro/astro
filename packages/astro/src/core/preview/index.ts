@@ -1,17 +1,17 @@
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { AstroIntegrationLogger } from '../../core/logger/core.js';
+import { AstroIntegrationLogger } from '../logger/core.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import type { PreviewModule, PreviewServer } from '../../types/public/preview.js';
 import { resolveConfig } from '../config/config.js';
-import { createNodeLogger } from '../logger/node.js';
+import { loadOrCreateNodeLogger } from '../logger/load.js';
 import { createSettings } from '../config/settings.js';
 import { createRoutesList } from '../routing/create-manifest.js';
-import { getPrerenderDefault } from '../../prerender/utils.js';
+import { getClientOutputDirectory, getPrerenderDefault } from '../../prerender/utils.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';
@@ -24,8 +24,8 @@ import { getResolvedHostForHttpServer } from './util.js';
  */
 export default async function preview(inlineConfig: AstroInlineConfig): Promise<PreviewServer> {
 	ensureProcessNodeEnv('production');
-	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'preview');
+	const logger = await loadOrCreateNodeLogger(astroConfig, inlineConfig ?? {});
 	telemetry.record(eventCliSession('preview', userConfig));
 
 	const _settings = await createSettings(
@@ -40,15 +40,17 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 		logger: logger,
 	});
 
-	// Create a route manifest so we can know if the build output is a static site or not
-	await createRoutesList({ settings: settings, cwd: inlineConfig.root }, logger);
+	// Create a route manifest and determine buildOutput from actual routes.
+	// Route scanning sets settings.buildOutput to 'server' if any route is non-prerendered.
 	settings.buildOutput = getPrerenderDefault(settings.config) ? 'static' : 'server';
+	await createRoutesList({ settings: settings, cwd: inlineConfig.root }, logger);
 
 	await runHookConfigDone({ settings: settings, logger: logger, command: 'preview' });
 
-	if (settings.buildOutput === 'static') {
-		if (!fs.existsSync(settings.config.outDir)) {
-			const outDirPath = fileURLToPath(settings.config.outDir);
+	if (settings.buildOutput === 'static' && !settings.adapter?.previewEntrypoint) {
+		const clientOutDir = getClientOutputDirectory(settings);
+		if (!fs.existsSync(clientOutDir)) {
+			const outDirPath = fileURLToPath(clientOutDir);
 			throw new Error(
 				`[preview] The output directory ${outDirPath} does not exist. Did you run \`astro build\`?`,
 			);
@@ -89,6 +91,7 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 		base: settings.config.base,
 		logger: new AstroIntegrationLogger(logger.options, settings.adapter.name),
 		headers: settings.config.server.headers,
+		allowedHosts: settings.config.server.allowedHosts,
 		root: settings.config.root,
 	});
 

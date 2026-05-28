@@ -1,9 +1,5 @@
 {
-  "extends": "../tsconfig.json",
-  "compilerOptions": {
-    "outDir": "dist",
-    "emitDeclarationOnly": true,
-    "checkJs": true
-  },
-  "include": ["src", ".vscode-test.js"]
+  "extends": "../../../configs/tsconfig.base.json",
+  "include": ["./scripts/*.mjs"],
+  "references": [{ "path": "./tsconfig.build.json" }, { "path": "./tsconfig.test.json" }]
 }

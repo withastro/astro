@@ -45,7 +45,7 @@ For example: "This is clean code" is a subjective point and should have limited 
 
 In contrast: "Tabs are more accessible than spaces" is an objective point and should be strongly considered in a theoretical style discussion on tabs vs. spaces. (Fred: Believe me, I write this as someone who personally prefers spaces over tabs in my own code!)
 
-Sometimes, not everyone will agree on style changes and 100% consensus is impossible. This is a condition commonly referred to as bike-shedding. If consensus can not be reached, a simple majority vote among core contributors (L3) will suffice.
+Sometimes, not everyone will agree on style changes and 100% consensus is impossible. This is a condition commonly referred to as bike-shedding. If consensus cannot be reached, a simple majority vote among core contributors (L3) will suffice.
 
 _Note: This process is new, we are still figuring it out! This process will be moved into GOVERNANCE.md when finalized._
 

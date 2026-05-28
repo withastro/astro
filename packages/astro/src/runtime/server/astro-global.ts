@@ -95,5 +95,11 @@ export function createAstro(site: string | undefined): AstroGlobal {
 		get session(): any {
 			throw createError('session');
 		},
+		get cache(): any {
+			throw createError('cache');
+		},
+		get logger(): any {
+			throw createError('logger');
+		},
 	};
 }

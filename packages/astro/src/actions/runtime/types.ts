@@ -103,7 +103,9 @@ export type ActionAPIContext = Pick<
 	| 'preferredLocaleList'
 	| 'originPathname'
 	| 'session'
+	| 'cache'
 	| 'csp'
+	| 'logger'
 >;
 
 export type MaybePromise<T> = T | Promise<T>;

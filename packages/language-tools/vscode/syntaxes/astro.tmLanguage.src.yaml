@@ -9,13 +9,13 @@ injections:
   # ---- EMBEDDED LANGUAGES
 
   # Format:
-  #  'L:meta.<script|style|template>.astro (meta.lang.<lang> | meta.lang.<langalternative> | ...) - (meta source)'
+  #  'L:meta.<script|style|template>.astro (meta.lang.<lang> | meta.lang.<langalternative> | ...) - (meta.embedded.block source)'
   #     patterns: [{begin: '(?<=>)(?!</)', end: '(?=</)', name: meta.embedded.block.astro,
   #     contentName: source.<lang>, patterns: [{ include: source.<lang> }]}]
 
   # Style/Script Languages
   # JSON | 'application/ld+json'
-  'L:(meta.script.astro) (meta.lang.json) - (meta source)':
+  'L:(meta.script.astro) (meta.lang.json) - (meta.embedded.block source)':
     patterns:
       [
         {
@@ -28,7 +28,7 @@ injections:
       ]
 
   # JavaScript | 'javascript' | 'source.js' | 'partytown'
-  'L:(meta.script.astro) (meta.lang.js | meta.lang.javascript | meta.lang.partytown | meta.lang.node) - (meta source)':
+  'L:(meta.script.astro) (meta.lang.js | meta.lang.javascript | meta.lang.partytown | meta.lang.node) - (meta.embedded.block source)':
     patterns:
       [
         {
@@ -48,7 +48,7 @@ injections:
       ]
 
   # TypeScript | 'ts'
-  'L:(meta.script.astro) (meta.lang.ts | meta.lang.typescript) - (meta source)':
+  'L:(meta.script.astro) (meta.lang.ts | meta.lang.typescript) - (meta.embedded.block source)':
     patterns:
       [
         {
@@ -69,7 +69,7 @@ injections:
 
   # Script Languages
   # Default (JavaScript)
-  'L:meta.script.astro - meta.lang - (meta source)':
+  'L:meta.script.astro - meta.lang - (meta.embedded.block source)':
     patterns:
       [
         {
@@ -92,7 +92,7 @@ injections:
 
   # Style Languages
   # Stylus | 'stylus' | 'source.stylus'
-  'L:meta.style.astro meta.lang.stylus - (meta source)':
+  'L:meta.style.astro meta.lang.stylus - (meta.embedded.block source)':
     patterns:
       [
         {
@@ -105,7 +105,7 @@ injections:
       ]
 
   # Sass | 'sass' | 'source.sass'
-  'L:meta.style.astro meta.lang.sass - (meta source)':
+  'L:meta.style.astro meta.lang.sass - (meta.embedded.block source)':
     patterns:
       [
         {
@@ -118,7 +118,7 @@ injections:
       ]
 
   # CSS | 'css' | 'source.css'
-  'L:meta.style.astro meta.lang.css - (meta source)':
+  'L:meta.style.astro meta.lang.css - (meta.embedded.block source)':
     patterns:
       [
         {
@@ -131,7 +131,7 @@ injections:
       ]
 
   # SCSS | 'scss' | 'source.css.scss'
-  'L:meta.style.astro meta.lang.scss - (meta source)':
+  'L:meta.style.astro meta.lang.scss - (meta.embedded.block source)':
     patterns:
       [
         {
@@ -144,7 +144,7 @@ injections:
       ]
 
   # Less | 'less' | 'source.css.less'
-  'L:meta.style.astro meta.lang.less - (meta source)':
+  'L:meta.style.astro meta.lang.less - (meta.embedded.block source)':
     patterns:
       [
         {
@@ -157,7 +157,7 @@ injections:
       ]
 
   # PostCSS | 'postcss' | 'source.css.postcss'
-  'L:meta.style.astro meta.lang.postcss - (meta source)':
+  'L:meta.style.astro meta.lang.postcss - (meta.embedded.block source)':
     patterns:
       [
         {
@@ -170,7 +170,7 @@ injections:
       ]
 
   # Default (CSS)
-  'L:meta.style.astro - meta.lang - (meta source)':
+  'L:meta.style.astro - meta.lang - (meta.embedded.block source)':
     patterns:
       [
         {
@@ -181,6 +181,14 @@ injections:
           patterns: [{ include: source.css }],
         },
       ]
+
+  # ---- SCRIPT/STYLE INSIDE EXPRESSIONS
+  # Inside expressions ({...}), content is scoped as source.tsx. We need to inject
+  # script/style tag handling so they get proper language injection instead of being
+  # treated as plain JSX elements.
+  'L:meta.embedded.expression.astro - meta.embedded.block':
+    patterns:
+      - include: '#tags-lang'
 
 # Start of grammar.
 patterns:

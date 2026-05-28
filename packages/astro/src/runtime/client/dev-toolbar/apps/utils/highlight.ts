@@ -47,7 +47,7 @@ export function positionHighlight(highlight: DevToolbarHighlight, rect: DOMRect)
 	highlight.style.display = 'block';
 	// If the highlight is fixed, don't position based on scroll
 	const scrollY = highlight.style.position === 'fixed' ? 0 : window.scrollY;
-	// Make an highlight that is 10px bigger than the element on all sides
+	// Make a highlight that is 10px bigger than the element on all sides
 	highlight.style.top = `${Math.max(rect.top + scrollY - 10, 0)}px`;
 	highlight.style.left = `${Math.max(rect.left + window.scrollX - 10, 0)}px`;
 	highlight.style.width = `${rect.width + 15}px`;

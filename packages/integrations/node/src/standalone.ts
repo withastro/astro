@@ -24,12 +24,19 @@ export default function standalone(
 ) {
 	const port = process.env.PORT ? Number(process.env.PORT) : (options.port ?? 8080);
 	const host = process.env.HOST ?? hostOptions(options.host);
-	const handler = createStandaloneHandler(app, options, headersMap);
+	// Ensure the resolved port (which may come from process.env.PORT) is used
+	// by createRequest for origin construction, not just the build-time config port.
+	// We spread a new object because `options` may be a frozen module namespace.
+	const resolvedOptions = { ...options, port };
+	const handler = createStandaloneHandler(app, resolvedOptions, headersMap);
 	const server = createServer(handler, host, port);
 	server.server.listen(port, host);
 	if (process.env.ASTRO_NODE_LOGGING !== 'disabled') {
-		logListeningOn(app.getAdapterLogger(), server.server, host);
+		logListeningOn(app.adapterLogger, server.server, host);
 	}
+	server.server.on('close', () => {
+		app.logger.close();
+	});
 	return {
 		server,
 		done: server.closed(),

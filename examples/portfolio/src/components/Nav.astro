@@ -124,7 +124,7 @@ const isCurrentPage = (href: string) => {
 			};
 
 			// Toggle menu visibility when the menu button is clicked.
-			btn.addEventListener('click', () => setExpanded(menu.hidden));
+			btn.addEventListener('click', () => setExpanded(menu.hidden === true));
 
 			// Hide menu button for large screens.
 			const handleViewports = (e: MediaQueryList | MediaQueryListEvent) => {

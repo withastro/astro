@@ -5,16 +5,20 @@ import ReactDOM from 'react-dom/server';
 import { incrementId } from './context.js';
 import StaticHtml from './static-html.js';
 import type { RendererContext } from './types.js';
+import { createFilter } from '@astrojs/internal-helpers/create-filter';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 const reactTypeof = Symbol.for('react.element');
 const reactTransitionalTypeof = Symbol.for('react.transitional.element');
+
+const filter = opts?.include || opts?.exclude ? createFilter(opts.include, opts.exclude) : null;
 
 async function check(
 	this: RendererContext,
 	Component: any,
 	props: Record<string, any>,
 	children: any,
+	metadata?: AstroComponentMetadata,
 ) {
 	// Note: there are packages that do some unholy things to create "components".
 	// Checking the $$typeof property catches most of these patterns.
@@ -30,6 +34,10 @@ async function check(
 
 	if (Component.prototype != null && typeof Component.prototype.render === 'function') {
 		return React.Component.isPrototypeOf(Component) || React.PureComponent.isPrototypeOf(Component);
+	}
+
+	if (filter && metadata?.componentUrl && !filter(metadata.componentUrl)) {
+		return false;
 	}
 
 	let isReactComponent = false;
@@ -121,6 +129,13 @@ async function renderToStaticMarkup(
 	} else {
 		html = await renderToPipeableStreamAsync(vnode, renderOptions);
 	}
+	// Strip React 19 auto-injected resource hints (preloads, etc.) from island output.
+	// These should be in <head>, not inside the island.
+	// See: https://github.com/facebook/react/issues/27910
+	html = html.replace(
+		/<link\s[^>]*rel="(?:preload|modulepreload|stylesheet|preconnect|dns-prefetch)"[^>]*>/g,
+		'',
+	);
 	return { html, attrs };
 }
 

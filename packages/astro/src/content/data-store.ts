@@ -1,4 +1,4 @@
-import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import * as devalue from 'devalue';
 
 export interface RenderedContent {
@@ -9,7 +9,7 @@ export interface RenderedContent {
 		imagePaths?: Array<string>;
 		/** Any headings that are present in this file. */
 		headings?: MarkdownHeading[];
-		/** Raw frontmatter, parsed parsed from the file. This may include data from remark plugins. */
+		/** Raw frontmatter, parsed from the file. This may include data from remark plugins. */
 		frontmatter?: Record<string, any>;
 		/** Any other metadata that is present in this file. */
 		[key: string]: unknown;

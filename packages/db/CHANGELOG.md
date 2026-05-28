@@ -1,5 +1,78 @@
 # @astrojs/db
 
+## 0.21.2
+
+### Patch Changes
+
+- [#16661](https://github.com/withastro/astro/pull/16661) [`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0) Thanks [@ocavue](https://github.com/ocavue)! - Updates `typescript` to v6. No changes are needed from users.
+
+## 0.21.1
+
+### Patch Changes
+
+- [#16534](https://github.com/withastro/astro/pull/16534) [`5cf6c51`](https://github.com/withastro/astro/commit/5cf6c51188b52d22f133ea9373da0080f74701f9) Thanks [@matthewp](https://github.com/matthewp)! - Fixes compatibility with Zod 4.4.0 for the `server` config property and error formatting
+
+## 0.21.0
+
+### Minor Changes
+
+- [#16289](https://github.com/withastro/astro/pull/16289) [`5d580c0`](https://github.com/withastro/astro/commit/5d580c0b743f9e87befd74e45721f1b5ac9fa166) Thanks [@maxmalkin](https://github.com/maxmalkin)! - Adds a new `getDbError()` helper exported from `astro:db`. It walks the error `.cause` chain and returns the underlying `LibsqlError`, or `undefined` if the error did not originate from libSQL. This is needed because `drizzle-orm` 0.44+ wraps query errors in a `DrizzleQueryError` whose `.cause` is the real `LibsqlError`.
+
+  #### Upgrading
+
+  Code that reads `.code` or `.message` after catching a database error should migrate from `isDbError()` to `getDbError()`:
+
+  ```ts
+  // Before
+  import { isDbError } from 'astro:db';
+  try {
+    await db.insert(MyTable).values({ ... });
+  } catch (e) {
+    if (isDbError(e)) {
+      console.error(e.code, e.message);
+    }
+  }
+
+  // After
+  import { getDbError } from 'astro:db';
+  try {
+    await db.insert(MyTable).values({ ... });
+  } catch (e) {
+    const dbError = getDbError(e);
+    if (dbError) {
+      console.error(dbError.code, dbError.message);
+    }
+  }
+  ```
+
+  `isDbError()` is still exported and still returns `true` for wrapped errors, but its return type is now `boolean` instead of the `err is LibsqlError` type predicate. Code that relied on the narrowing to access `.code` or `.message` directly will now produce a TypeScript error pointing you to `getDbError()`.
+
+### Patch Changes
+
+- [#16289](https://github.com/withastro/astro/pull/16289) [`5d580c0`](https://github.com/withastro/astro/commit/5d580c0b743f9e87befd74e45721f1b5ac9fa166) Thanks [@maxmalkin](https://github.com/maxmalkin)! - Fixes a SQL injection vulnerability by updating `drizzle-orm` to `^0.45.2`, patching GHSA-gpj5-g38j-94v9 (CVE-2026-39356).
+
+## 0.20.1
+
+### Patch Changes
+
+- [#15364](https://github.com/withastro/astro/pull/15364) [`948b693`](https://github.com/withastro/astro/commit/948b693e6f083df3823a0907b4afe938f059bfdb) Thanks [@VagnoDev](https://github.com/VagnoDev)! - Replace deprecated deep-diff with microdiff and resolve subdependency warnings.
+
+## 0.20.0
+
+### Minor Changes
+
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- [#14956](https://github.com/withastro/astro/pull/14956) [`0ff51df`](https://github.com/withastro/astro/commit/0ff51dfa3c6c615af54228e159f324034472b1a2) Thanks [@matthewp](https://github.com/matthewp)! - Updates usage of zod to own dependency rather than relying on `astro/zod`
+
+- [#15373](https://github.com/withastro/astro/pull/15373) [`14252b2`](https://github.com/withastro/astro/commit/14252b22f9129f51fae9b224386ab6c4ea1b76c5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates zod to v4
+
+- [#14589](https://github.com/withastro/astro/pull/14589) [`7038f07`](https://github.com/withastro/astro/commit/7038f0700898a17cb87b5a2e408480c1226a47f4) Thanks [@43081j](https://github.com/43081j)! - Improves CLI styling
+
 ## 0.19.0-beta.4
 
 ### Patch Changes
@@ -28,7 +101,7 @@
 
 ### Minor Changes
 
-- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
 
 ## 0.19.0
 
@@ -402,7 +475,7 @@
 
 - [#11304](https://github.com/withastro/astro/pull/11304) [`2e70741`](https://github.com/withastro/astro/commit/2e70741362afc1e7d03c8b2a9d8edb8466dfe9c3) Thanks [@Fryuni](https://github.com/Fryuni)! - Removes the `AstroDbIntegration` type
 
-  Astro integration hooks can now be extended and as such `@astrojs/db` no longer needs to declare it's own integration type. Using `AstroIntegration` will have the same type.
+  Astro integration hooks can now be extended and as such `@astrojs/db` no longer needs to declare its own integration type. Using `AstroIntegration` will have the same type.
 
   If you were using the `AstroDbIntegration` type, apply this change to your integration code:
 

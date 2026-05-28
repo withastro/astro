@@ -1,6 +1,6 @@
 import { ErrorBoundary, Show, createResource, createSignal, createUniqueId } from 'solid-js';
 
-// It may be good to try short and long sleep times.
+// It may be good to try long and short sleep times.
 // But short is faster for testing.
 const SLEEP_MS = 10;
 

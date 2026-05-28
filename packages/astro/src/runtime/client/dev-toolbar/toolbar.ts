@@ -445,7 +445,7 @@ export class AstroDevToolbar extends HTMLElement {
 			if (!closeApp) return;
 		}
 
-		// TODO(fks): Handle a app that hasn't loaded yet.
+		// TODO(fks): Handle an app that hasn't loaded yet.
 		// Currently, this will just do nothing.
 		if (app.status !== 'ready') return;
 

@@ -15,7 +15,7 @@ import {
 } from 'vite';
 import parseArgs from 'yargs-parser';
 import * as z from 'zod/v4';
-import { AstroDbError, isDbError } from '../../runtime/utils.js';
+import { AstroDbError, getDbError } from '../../runtime/utils.js';
 import { CONFIG_FILE_NAMES, DB_PATH, VIRTUAL_MODULE_ID } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
 import { resolveDbConfig } from '../load-file.js';
@@ -234,8 +234,9 @@ async function executeSeedFile({
 	try {
 		await mod.default();
 	} catch (e) {
-		if (isDbError(e)) {
-			throw new AstroDbError(EXEC_ERROR(e.message));
+		const dbError = getDbError(e);
+		if (dbError) {
+			throw new AstroDbError(EXEC_ERROR(dbError.message));
 		}
 		throw e;
 	}

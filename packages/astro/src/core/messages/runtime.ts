@@ -11,7 +11,7 @@ import {
 import { padMultilineString } from '../util-runtime.js';
 import type { AstroVersionProvider, TextStyler } from '../../cli/definitions.js';
 import type { AstroConfig } from '../../types/public/index.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 
 const {
 	bgGreen,
@@ -176,6 +176,12 @@ export function telemetryReset() {
 export function fsStrictWarning() {
 	const title = yellow('▶ ' + `${bold('vite.server.fs.strict')} has been disabled!`);
 	const subtitle = `  Files on your machine are likely accessible on your network.`;
+	return `${title}\n${subtitle}\n`;
+}
+
+export function vite8Warning({ viteVersion }: { viteVersion: string }) {
+	const title = yellow('▶ ' + `Vite ${bold(viteVersion)} detected in your project.`);
+	const subtitle = `  Astro requires Vite 7. Add ${bold('"overrides": { "vite": "^7" }')} to your ${bold('package.json')} to avoid issues.`;
 	return `${title}\n${subtitle}\n`;
 }
 
@@ -395,7 +401,7 @@ export function printHelp({
 	console.log(message.join('\n') + '\n');
 }
 
-export function warnIfCspWithShiki(config: AstroConfig, logger: Logger): void {
+export function warnIfCspWithShiki(config: AstroConfig, logger: AstroLogger): void {
 	// Check if CSP is enabled
 	const cspEnabled = config.security.csp !== false;
 	if (!cspEnabled) return;

@@ -92,8 +92,11 @@ export function matchPathname(url: URL, pathname?: string, allowWildcard = false
 		return slicedPathname !== url.pathname && url.pathname.startsWith(slicedPathname);
 	} else if (pathname.endsWith('/*')) {
 		const slicedPathname = pathname.slice(0, -1); // * length
+		if (!url.pathname.startsWith(slicedPathname)) {
+			return false;
+		}
 		const additionalPathChunks = url.pathname
-			.replace(slicedPathname, '')
+			.slice(slicedPathname.length)
 			.split('/')
 			.filter(Boolean);
 		return additionalPathChunks.length === 1;

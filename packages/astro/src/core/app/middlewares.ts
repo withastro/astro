@@ -54,7 +54,7 @@ export function createOriginCheckMiddleware(): MiddlewareHandler {
 	});
 }
 
-function hasFormLikeHeader(contentType: string | null): boolean {
+export function hasFormLikeHeader(contentType: string | null): boolean {
 	if (contentType) {
 		for (const FORM_CONTENT_TYPE of FORM_CONTENT_TYPES) {
 			if (contentType.toLowerCase().includes(FORM_CONTENT_TYPE)) {

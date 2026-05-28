@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@tailwindcss/vite": "^4.2.0",
+    "@tailwindcss/vite": "^4.2.2",
     "astro": "workspace:*",
-    "tailwindcss": "^4.2.0"
+    "tailwindcss": "^4.2.2"
   }
 }

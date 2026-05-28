@@ -12,7 +12,7 @@ import {
 import * as z from 'zod/v4';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType } from '../types/public/content.js';
@@ -69,7 +69,7 @@ type CollectionEntryMap = {
 
 type CreateContentGeneratorParams = {
 	contentConfigObserver: ContentObservable;
-	logger: Logger;
+	logger: AstroLogger;
 	settings: AstroSettings;
 	/** This is required for loading the content config */
 	viteServer: ViteDevServer;
@@ -444,7 +444,7 @@ async function writeContentFiles({
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
 	viteServer: ViteDevServer;
-	logger: Logger;
+	logger: AstroLogger;
 	settings: AstroSettings;
 }) {
 	let dataTypesStr = '';
@@ -550,7 +550,7 @@ async function writeContentFiles({
 					contentPaths.contentDir + `${key}/`,
 				).toString();
 
-				// Save entry path in lower case to avoid case sensitivity issues between Windows and Unix
+				// Save entry path in lowercase to avoid case sensitivity issues between Windows and Unix
 				contentCollectionManifest.entries[entryPath.toLowerCase()] = key;
 			});
 		});
@@ -608,7 +608,7 @@ async function generateJSONSchema(
 	collectionConfig: CollectionConfig,
 	collectionKey: string,
 	collectionSchemasDir: URL,
-	logger: Logger,
+	logger: AstroLogger,
 ) {
 	let zodSchemaForJson =
 		typeof collectionConfig.schema === 'function'
@@ -621,21 +621,30 @@ async function generateJSONSchema(
 
 	// The `file()` loader uses a schema which applies to every item in the file rather than a schema
 	// for the whole file. We special case this to provide the correct JSON schema to users.
-	// TODO: it would be nice if loaders could indicate this behavior so it wasn’t unique to the built-in loader.
+	// TODO: it would be nice if loaders could indicate this behavior so it wasn't unique to the built-in loader.
 	if (
 		collectionConfig.type === CONTENT_LAYER_TYPE &&
 		collectionConfig.loader.name === 'file-loader'
 	) {
-		// `file()` supports arrays of items, but you can’t set `$schema` when using a top-level array,
-		// so we’re only handling the object case.
-		// We use `z.object()` instead of `z.record()` for compatibility with the next `if` statement.
-		zodSchemaForJson = z.object({}).catchall(zodSchemaForJson);
+		// `file()` supports both top-level arrays and record objects. Generate an anyOf schema
+		// so VS Code validates correctly regardless of which shape the source file uses.
+		// `$schema` is injected into the object branch only — top-level array JSON files cannot
+		// reference a schema property per the JSON Schema spec.
+		const itemSchema = zodSchemaForJson;
+		zodSchemaForJson = z.union([
+			z.array(itemSchema),
+			z.object({ $schema: z.string().optional() }).catchall(itemSchema),
+		]);
 	}
 
 	if (zodSchemaForJson instanceof z.ZodObject) {
+		const existingMeta = z.globalRegistry.get(zodSchemaForJson);
 		zodSchemaForJson = zodSchemaForJson.extend({
 			$schema: z.string().optional(),
 		});
+		if (existingMeta) {
+			z.globalRegistry.add(zodSchemaForJson, existingMeta);
+		}
 	}
 
 	try {
@@ -648,6 +657,9 @@ async function generateJSONSchema(
 					ctx.jsonSchema.format = 'date-time';
 				}
 			},
+			// Collection schemas are used for parsing collection input, so we need to tell Zod to use the
+			// input shape when generating a JSON schema.
+			io: 'input',
 		});
 		const schemaStr = JSON.stringify(schema, null, 2);
 		const schemaJsonPath = new URL(

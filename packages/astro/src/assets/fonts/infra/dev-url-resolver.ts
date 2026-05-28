@@ -3,6 +3,7 @@ import { createPlaceholderURL, stringifyPlaceholderURL } from '../../utils/url.j
 import type { UrlResolver } from '../definitions.js';
 
 export class DevUrlResolver implements UrlResolver {
+	readonly #urls = new Set<string>();
 	#resolved = false;
 	readonly #base: string;
 	readonly #searchParams: URLSearchParams;
@@ -28,10 +29,16 @@ export class DevUrlResolver implements UrlResolver {
 			url.searchParams.set(key, value);
 		});
 
-		return stringifyPlaceholderURL(url);
+		const result = stringifyPlaceholderURL(url);
+		this.#urls.add(result);
+		return result;
 	}
 
 	get cspResources(): Array<string> {
 		return this.#resolved ? ["'self'"] : [];
+	}
+
+	get urls(): Array<string> {
+		return Array.from(this.#urls);
 	}
 }

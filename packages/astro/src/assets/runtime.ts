@@ -1,22 +1,41 @@
+import { generateCspDigest } from '../core/encryption.js';
 import {
 	createComponent,
 	render,
 	spreadAttributes,
 	unescapeHTML,
 } from '../runtime/server/index.js';
+import type { SSRResult } from '../types/public/internal.js';
 import type { ImageMetadata } from './types.js';
 
 export interface SvgComponentProps {
 	meta: ImageMetadata;
 	attributes: Record<string, string>;
 	children: string;
+	styles: string[];
 }
 
-export function createSvgComponent({ meta, attributes, children }: SvgComponentProps) {
-	const Component = createComponent((_, props) => {
-		const normalizedProps = normalizeProps(attributes, props);
+export function createSvgComponent({ meta, attributes, children, styles }: SvgComponentProps) {
+	const hasStyles = styles.length > 0;
 
-		return render`<svg${spreadAttributes(normalizedProps)}>${unescapeHTML(children)}</svg>`;
+	const Component = createComponent({
+		async factory(result: SSRResult, props: Record<string, any>) {
+			const normalizedProps = normalizeProps(attributes, props);
+
+			// When CSP is enabled, hash each SVG <style> so the browser allows them.
+			// The styles stay inside the <svg> where they belong — we only need the
+			// hashes registered before the CSP meta tag is emitted in the <head>.
+			// propagation: 'self' ensures init() runs during bufferHeadContent().
+			if (hasStyles && result.cspDestination) {
+				for (const style of styles) {
+					const hash = await generateCspDigest(style, result.cspAlgorithm);
+					result._metadata.extraStyleHashes.push(hash);
+				}
+			}
+
+			return render`<svg${spreadAttributes(normalizedProps)}>${unescapeHTML(children)}</svg>`;
+		},
+		propagation: hasStyles ? 'self' : 'none',
 	});
 
 	if (import.meta.env.DEV) {

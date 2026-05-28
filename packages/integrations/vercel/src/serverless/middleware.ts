@@ -119,19 +119,22 @@ import { createContext, trySerializeLocals } from 'astro/middleware';
 export default async function middleware(request, context) {
 	const ctx = createContext({
 		request,
-		params: {}
+		params: {},
+		clientAddress: request.headers.get('x-real-ip') || undefined,
 	});
 	Object.assign(ctx.locals, { vercel: { edge: context }, ...${handlerTemplateCall} });
 	const { origin } = new URL(request.url);
 	const next = async () => {
 		const { vercel, ...locals } = ctx.locals;
 		const response = await fetch(new URL('/${NODE_PATH}', request.url), {
+			method: request.method,
 			headers: {
 				...Object.fromEntries(request.headers.entries()),
 				'${ASTRO_MIDDLEWARE_SECRET_HEADER}': '${middlewareSecret}',
 				'${ASTRO_PATH_HEADER}': request.url.replace(origin, ''),
 				'${ASTRO_LOCALS_HEADER}': trySerializeLocals(locals)
-			}
+			},
+			...(request.body ? { body: request.body, duplex: 'half' } : {}),
 		});
 		return new Response(response.body, {
 			status: response.status,

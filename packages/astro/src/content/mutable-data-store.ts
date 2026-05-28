@@ -50,17 +50,20 @@ export class MutableDataStore extends ImmutableDataStore {
 		if (collection) {
 			collection.delete(String(key));
 			this.#saveToDiskDebounced();
+			this.#writeAssetsImportsDebounced();
 		}
 	}
 
 	clear(collectionName: string) {
 		this._collections.delete(collectionName);
 		this.#saveToDiskDebounced();
+		this.#writeAssetsImportsDebounced();
 	}
 
 	clearAll() {
 		this._collections.clear();
 		this.#saveToDiskDebounced();
+		this.#writeAssetsImportsDebounced();
 	}
 
 	addAssetImport(assetImport: string, filePath?: string) {
@@ -89,8 +92,32 @@ export class MutableDataStore extends ImmutableDataStore {
 		}
 	}
 
+	/**
+	 * Rebuilds #assetImports from the current entries in _collections.
+	 * This ensures stale import IDs are removed when entries are updated or deleted,
+	 * preventing unrecoverable ImageNotFound errors in astro dev after a content entry's
+	 * image path is temporarily set to an invalid value and then restored.
+	 */
+	#rebuildAssetImports() {
+		this.#assetImports.clear();
+		for (const collection of this._collections.values()) {
+			for (const entry of collection.values()) {
+				const typedEntry = entry as DataEntry;
+				if (typedEntry.assetImports?.length) {
+					for (const assetImport of typedEntry.assetImports) {
+						const id = imageSrcToImportId(assetImport, typedEntry.filePath);
+						if (id) {
+							this.#assetImports.add(id);
+						}
+					}
+				}
+			}
+		}
+	}
+
 	async writeAssetImports(filePath: PathLike) {
 		this.#assetsFile = filePath;
+		this.#rebuildAssetImports();
 
 		if (this.#assetImports.size === 0) {
 			try {

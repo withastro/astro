@@ -3,7 +3,7 @@ import { ensureProcessNodeEnv } from '../../core/util.js';
 import { createLoggerFromFlags, type Flags, flagsToAstroInlineConfig } from '../flags.js';
 import { getPackage } from '../install-package.js';
 
-export async function check(flags: Flags) {
+export async function check(flags: Flags): Promise<boolean | void> {
 	ensureProcessNodeEnv('production');
 	const logger = createLoggerFromFlags(flags);
 	const getPackageOpts = {

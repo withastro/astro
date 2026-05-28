@@ -9,7 +9,11 @@ import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import type { RenderOptions } from './base.js';
 import { App } from './app.js';
 import type { NodeAppHeadersJson, SerializedSSRManifest, SSRManifest } from './types.js';
-import { validateForwardedHeaders, validateHost } from './validate-headers.js';
+import {
+	getFirstForwardedValue,
+	validateForwardedHeaders,
+	validateHost,
+} from './validate-headers.js';
 
 /**
  * Allow the request body to be explicitly overridden. For example, this
@@ -34,24 +38,103 @@ interface NodeRequest extends IncomingMessage {
  * })
  * ```
  */
+/**
+ * Internal version of `createRequest` that skips X-Forwarded-* header
+ * validation. Forwarded headers are resolved later inside `FetchState`,
+ * so doing it here too would duplicate work on every request.
+ *
+ * Use this for all internal call sites that go through `app.render()`
+ * (which creates a `FetchState`). The public `createRequest` keeps the
+ * forwarded header logic for external adapters that may not use
+ * `FetchState`.
+ */
+export function createRequestFromNodeRequest(
+	req: NodeRequest,
+	{
+		skipBody = false,
+		allowedDomains = [],
+		bodySizeLimit,
+		port: serverPort,
+	}: {
+		skipBody?: boolean;
+		allowedDomains?: Partial<RemotePattern>[];
+		bodySizeLimit?: number;
+		port?: number;
+	} = {},
+): Request {
+	const controller = new AbortController();
+
+	const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
+	const protocol = isEncrypted ? 'https' : 'http';
+	const hostname =
+		typeof req.headers.host === 'string'
+			? req.headers.host
+			: typeof req.headers[':authority'] === 'string'
+				? req.headers[':authority']
+				: serverPort
+					? `localhost:${serverPort}`
+					: 'localhost';
+
+	let url: URL;
+	try {
+		url = new URL(`${protocol}://${hostname}${req.url}`);
+	} catch {
+		url = new URL(`${protocol}://${hostname}`);
+	}
+
+	const options: RequestInit = {
+		method: req.method || 'GET',
+		headers: makeRequestHeaders(req),
+		signal: controller.signal,
+	};
+	const bodyAllowed = options.method !== 'HEAD' && options.method !== 'GET' && skipBody === false;
+	if (bodyAllowed) {
+		Object.assign(options, makeRequestBody(req, bodySizeLimit));
+	}
+
+	const request = new Request(url, options);
+
+	wireAbortController(req, controller);
+
+	// Resolve client address. Trust X-Forwarded-For only when the Host
+	// header is validated against allowedDomains (same rule as createRequest).
+	const untrustedHostname = req.headers.host ?? req.headers[':authority'];
+	const validatedHostname = validateHost(
+		typeof untrustedHostname === 'string' ? untrustedHostname : undefined,
+		protocol,
+		allowedDomains,
+	);
+	const forwardedHost = getFirstForwardedValue(req.headers['x-forwarded-host']);
+	const hostValidated =
+		validatedHostname !== undefined || (forwardedHost !== undefined && allowedDomains.length > 0);
+	const forwardedClientIp = hostValidated
+		? getFirstForwardedValue(req.headers['x-forwarded-for'])
+		: undefined;
+	const clientIp = forwardedClientIp || req.socket?.remoteAddress;
+	if (clientIp) {
+		Reflect.set(request, clientAddressSymbol, clientIp);
+	}
+
+	return request;
+}
+
 export function createRequest(
 	req: NodeRequest,
 	{
 		skipBody = false,
 		allowedDomains = [],
-	}: { skipBody?: boolean; allowedDomains?: Partial<RemotePattern>[] } = {},
+		bodySizeLimit,
+		port: serverPort,
+	}: {
+		skipBody?: boolean;
+		allowedDomains?: Partial<RemotePattern>[];
+		bodySizeLimit?: number;
+		port?: number;
+	} = {},
 ): Request {
 	const controller = new AbortController();
 
 	const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
-
-	// Parses multiple header and returns first value if available.
-	const getFirstForwardedValue = (multiValueHeader?: string | string[]) => {
-		return multiValueHeader
-			?.toString()
-			?.split(',')
-			.map((e) => e.trim())?.[0];
-	};
 
 	const providedProtocol = isEncrypted ? 'https' : 'http';
 	const untrustedHostname = req.headers.host ?? req.headers[':authority'];
@@ -76,7 +159,14 @@ export function createRequest(
 		allowedDomains,
 	);
 	const hostname = validated.host ?? validatedHostname ?? 'localhost';
-	const port = validated.port;
+	// Use the validated forwarded port if available. When falling back to 'localhost'
+	// (no validated host), use the actual server listening port so that the constructed
+	// URL origin includes it (e.g., http://localhost:4321 instead of http://localhost).
+	// This ensures the CSRF origin comparison uses the correct port without trusting
+	// any value from the request headers.
+	const port =
+		validated.port ??
+		(!validated.host && !validatedHostname && serverPort ? String(serverPort) : undefined);
 
 	let url: URL;
 	try {
@@ -95,11 +185,36 @@ export function createRequest(
 	};
 	const bodyAllowed = options.method !== 'HEAD' && options.method !== 'GET' && skipBody === false;
 	if (bodyAllowed) {
-		Object.assign(options, makeRequestBody(req));
+		Object.assign(options, makeRequestBody(req, bodySizeLimit));
 	}
 
 	const request = new Request(url, options);
 
+	wireAbortController(req, controller);
+
+	// Get the IP of end client behind the proxy.
+	// Only trust X-Forwarded-For when the request's host was validated against allowedDomains,
+	// meaning it arrived through a trusted proxy. Without this check, any client can spoof
+	// their IP via this header.
+	// @example "1.1.1.1,8.8.8.8" => "1.1.1.1"
+	const hostValidated = validated.host !== undefined || validatedHostname !== undefined;
+	const forwardedClientIp = hostValidated
+		? getFirstForwardedValue(req.headers['x-forwarded-for'])
+		: undefined;
+	const clientIp = forwardedClientIp || req.socket?.remoteAddress;
+	if (clientIp) {
+		Reflect.set(request, clientAddressSymbol, clientIp);
+	}
+
+	return request;
+}
+
+/**
+ * Wires an AbortController to the underlying socket so the request
+ * signal is aborted when the connection closes. Shared by both
+ * `createRequest` and `createRequestFromNodeRequest`.
+ */
+function wireAbortController(req: NodeRequest, controller: AbortController): void {
 	const socket = getRequestSocket(req);
 	if (socket && typeof socket.on === 'function') {
 		const existingCleanup = getAbortControllerCleanup(req);
@@ -139,16 +254,6 @@ export function createRequest(
 			onSocketClose();
 		}
 	}
-
-	// Get the IP of end client behind the proxy.
-	// @example "1.1.1.1,8.8.8.8" => "1.1.1.1"
-	const forwardedClientIp = getFirstForwardedValue(req.headers['x-forwarded-for']);
-	const clientIp = forwardedClientIp || req.socket?.remoteAddress;
-	if (clientIp) {
-		Reflect.set(request, clientAddressSymbol, clientIp);
-	}
-
-	return request;
 }
 
 /**
@@ -203,7 +308,8 @@ export async function writeResponse(source: Response, destination: ServerRespons
 			// also because of an error anywhere in the stream.
 			reader.cancel().catch((err) => {
 				console.error(
-					`There was an uncaught error in the middle of the stream while rendering ${destination.req.url}.`,
+					'There was an uncaught error in the middle of the stream while rendering %s.',
+					destination.req.url,
 					err,
 				);
 			});
@@ -235,9 +341,8 @@ export class NodeApp extends App {
 
 	match(req: NodeRequest | Request, allowPrerenderedRoutes = false) {
 		if (!(req instanceof Request)) {
-			req = createRequest(req, {
+			req = createRequestFromNodeRequest(req, {
 				skipBody: true,
-				allowedDomains: this.manifest.allowedDomains,
 			});
 		}
 		return super.match(req, allowPrerenderedRoutes);
@@ -245,9 +350,7 @@ export class NodeApp extends App {
 
 	render(request: NodeRequest | Request, options?: RenderOptions): Promise<Response> {
 		if (!(request instanceof Request)) {
-			request = createRequest(request, {
-				allowedDomains: this.manifest.allowedDomains,
-			});
+			request = createRequestFromNodeRequest(request);
 		}
 		return super.render(request, options);
 	}
@@ -308,10 +411,17 @@ function makeRequestHeaders(req: NodeRequest): Headers {
 	return headers;
 }
 
-function makeRequestBody(req: NodeRequest): RequestInit {
+function makeRequestBody(req: NodeRequest, bodySizeLimit?: number): RequestInit {
 	if (req.body !== undefined) {
 		if (typeof req.body === 'string' && req.body.length > 0) {
 			return { body: Buffer.from(req.body) };
+		}
+
+		// Pass through binary data directly. Buffer, Uint8Array, and other typed arrays
+		// are valid BodyInit values and must not be JSON-stringified. Without this check
+		// they fall into the plain-object branch below because typeof returns 'object'.
+		if (req.body instanceof ArrayBuffer || ArrayBuffer.isView(req.body)) {
+			return { body: req.body as BodyInit };
 		}
 
 		if (typeof req.body === 'object' && req.body !== null && Object.keys(req.body).length > 0) {
@@ -324,20 +434,24 @@ function makeRequestBody(req: NodeRequest): RequestInit {
 			req.body !== null &&
 			typeof (req.body as any)[Symbol.asyncIterator] !== 'undefined'
 		) {
-			return asyncIterableToBodyProps(req.body as AsyncIterable<any>);
+			return asyncIterableToBodyProps(req.body as AsyncIterable<any>, bodySizeLimit);
 		}
 	}
 
 	// Return default body.
-	return asyncIterableToBodyProps(req);
+	return asyncIterableToBodyProps(req, bodySizeLimit);
 }
 
-function asyncIterableToBodyProps(iterable: AsyncIterable<any>): RequestInit {
+function asyncIterableToBodyProps(
+	iterable: AsyncIterable<any>,
+	bodySizeLimit?: number,
+): RequestInit {
+	const source = bodySizeLimit != null ? limitAsyncIterable(iterable, bodySizeLimit) : iterable;
 	return {
 		// Node uses undici for the Request implementation. Undici accepts
 		// a non-standard async iterable for the body.
 		// @ts-expect-error
-		body: iterable,
+		body: source,
 		// The duplex property is required when using a ReadableStream or async
 		// iterable for the body. The type definitions do not include the duplex
 		// property because they are not up-to-date.
@@ -345,7 +459,47 @@ function asyncIterableToBodyProps(iterable: AsyncIterable<any>): RequestInit {
 	};
 }
 
-function getAbortControllerCleanup(req?: NodeRequest): (() => void) | undefined {
+/**
+ * Wraps an async iterable with a size limit. If the total bytes received
+ * exceed the limit, an error is thrown.
+ */
+async function* limitAsyncIterable(
+	iterable: AsyncIterable<any>,
+	limit: number,
+): AsyncGenerator<any> {
+	let received = 0;
+	for await (const chunk of iterable) {
+		const byteLength =
+			chunk instanceof Uint8Array
+				? chunk.byteLength
+				: typeof chunk === 'string'
+					? Buffer.byteLength(chunk)
+					: 0;
+		received += byteLength;
+		if (received > limit) {
+			throw new Error(`Body size limit exceeded: received more than ${limit} bytes`);
+		}
+		yield chunk;
+	}
+}
+
+/**
+ * Returns the cleanup function for the AbortController and socket listeners created by `createRequest()`
+ * for the NodeJS IncomingMessage. This should only be called directly if the request is not
+ * being handled by Astro, i.e. if not calling `writeResponse()` after `createRequest()`.
+ * ```js
+ * import { createRequest, getAbortControllerCleanup } from 'astro/app/node';
+ * import { createServer } from 'node:http';
+ *
+ * const server = createServer(async (req, res) => {
+ *     const request = createRequest(req);
+ *     const cleanup = getAbortControllerCleanup(req);
+ *     if (cleanup) cleanup();
+ *     // can now safely call another handler
+ * })
+ * ```
+ */
+export function getAbortControllerCleanup(req?: NodeRequest): (() => void) | undefined {
 	if (!req) return undefined;
 	const cleanup = Reflect.get(req, nodeRequestAbortControllerCleanupSymbol);
 	return typeof cleanup === 'function' ? cleanup : undefined;

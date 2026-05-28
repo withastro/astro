@@ -9,6 +9,7 @@ import {
 	type RenderDestination,
 } from '../common.js';
 import { promiseWithResolvers } from '../util.js';
+import { bufferPropagatedHead } from '../head-propagation/runtime.js';
 import type { AstroComponentFactory } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
 import { isRenderTemplateResult } from './render-template.js';
@@ -211,18 +212,7 @@ async function callComponentAsTemplateResultOrResponse(
 // Recursively calls component instances that might have head content
 // to be propagated up.
 export async function bufferHeadContent(result: SSRResult) {
-	const iterator = result._metadata.propagators.values();
-	while (true) {
-		const { value, done } = iterator.next();
-		if (done) {
-			break;
-		}
-		// Call component instances that might have head content to be propagated up.
-		const returnValue = await value.init(result);
-		if (isHeadAndContent(returnValue) && returnValue.head) {
-			result._metadata.extraHead.push(returnValue.head);
-		}
-	}
+	await bufferPropagatedHead(result);
 }
 
 export async function renderToAsyncIterable(
@@ -281,7 +271,7 @@ export async function renderToAsyncIterable(
 				await next.promise;
 			}
 
-			// Only create a new promise if rendering is still ongoing. Otherwise
+			// Only create a new promise if rendering is still ongoing. Otherwise,
 			// there will be a dangling promises that breaks tests (probably not an actual app)
 			if (!renderingComplete) {
 				next = promiseWithResolvers();

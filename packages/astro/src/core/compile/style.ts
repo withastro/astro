@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import { preprocessCSS, type ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../types/public/config.js';
 import { AstroErrorData, CSSError, positionAt } from '../errors/index.js';
@@ -91,6 +92,46 @@ function rewriteCssUrls(css: string, base: string): string {
 	});
 }
 
+/**
+ * Workaround for https://github.com/withastro/astro/issues/16524.
+ *
+ * When `vite.css.transformer === 'lightningcss'`, lightningcss flattens nested
+ * selectors (e.g. `.parent { :where(& > :not(:last-child)) { ... } }`) BEFORE
+ * `@astrojs/compiler` injects scope attributes. The injector then sees a
+ * top-level rule whose leading compound is `:where(...)` rather than
+ * `.parent`, and falls back to prepending `[data-astro-cid-X]` as a new
+ * leading compound, which constrains the wrong element.
+ *
+ * To preserve the structural shape the scope injector expects, we ask
+ * lightningcss to skip its `Nesting` lowering pass for the per-component
+ * preprocess call. Vite's downstream pipeline still lowers nesting for the
+ * final bundle, so the produced CSS remains compatible with the user's
+ * targets.
+ *
+ * Returns a NEW config object (no mutation of the shared `viteConfig`) so
+ * that parallel `.astro` compilations don't race on a shared mutable
+ * property. Returns `undefined` if `lightningcss` cannot be resolved from
+ * the user's project, in which case the caller falls back to the original
+ * config (and Vite's preprocessCSS will surface the misconfiguration).
+ */
+function withNestingExcluded(viteConfig: ResolvedConfig): ResolvedConfig | undefined {
+	let Features: { Nesting: number };
+	try {
+		// `lightningcss` is loaded by Vite as an optional peer dep, so we
+		// resolve it from the user's project root (where Vite resolves it).
+		const requireFromRoot = createRequire(viteConfig.root + '/');
+		Features = (requireFromRoot('lightningcss') as { Features: { Nesting: number } }).Features;
+	} catch {
+		return undefined;
+	}
+	const lcss = (viteConfig.css?.lightningcss ?? {}) as { exclude?: number };
+	const prevExclude = lcss.exclude ?? 0;
+	return {
+		...viteConfig,
+		css: { ...viteConfig.css, lightningcss: { ...lcss, exclude: prevExclude | Features.Nesting } },
+	} as ResolvedConfig;
+}
+
 export function createStylePreprocessor({
 	filename,
 	viteConfig,
@@ -111,7 +152,16 @@ export function createStylePreprocessor({
 		const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
 		const id = `${filename}?astro&type=style&index=${index}&lang${lang}`;
 		try {
-			const result = await preprocessCSS(content, id, viteConfig);
+			// Workaround for #16524: when lightningcss is the Vite CSS transformer,
+			// exclude its Nesting lowering pass so the Astro compiler's scope
+			// injector still sees `.parent` (and not `:where(.parent ...)`) as the
+			// leading compound. Vite's downstream pipeline still lowers nesting
+			// for the final bundle.
+			const effectiveViteConfig =
+				viteConfig.css?.transformer === 'lightningcss'
+					? (withNestingExcluded(viteConfig) ?? viteConfig)
+					: viteConfig;
+			const result = await preprocessCSS(content, id, effectiveViteConfig);
 
 			// Rewrite CSS URLs to include the base path
 			// This is necessary because preprocessCSS doesn't handle URL rewriting

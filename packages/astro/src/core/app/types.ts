@@ -15,12 +15,18 @@ import type {
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import type { CspDirective } from '../csp/config.js';
-import type { LoggerLevel } from '../logger/core.js';
+import type {
+	AstroLoggerDestination,
+	AstroLoggerLevel,
+	AstroLoggerMessage,
+} from '../logger/core.js';
 import type { RoutingStrategies } from './common.js';
+import type { CacheProviderFactory, SSRManifestCache } from '../cache/types.js';
 import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.js';
 import type { DevToolbarPlacement } from '../../types/public/toolbar.js';
 import type { MiddlewareMode } from '../../types/public/integrations.js';
 import type { BaseApp } from './base.js';
+import type { LoggerHandlerConfig } from '../logger/config.js';
 
 type ComponentPath = string;
 
@@ -73,12 +79,12 @@ export type SSRManifest = {
 	userAssetsBase: string | undefined;
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: NonNullable<AstroConfig['build']>['format'];
-	compressHTML: boolean;
+	compressHTML: boolean | 'jsx';
 	experimentalQueuedRendering: {
 		enabled: boolean;
 		/** Node pool size for memory reuse (default: 1000, set to 0 to disable pooling) */
 		poolSize?: number;
-		/** Whether to enable HTMLString caching (default: true) */
+		/** Whether to enable HTMLString caching for deduplicating repeated HTML fragments (default: true) */
 		contentCache?: boolean;
 	};
 	assetsPrefix?: AssetsPrefix;
@@ -110,12 +116,18 @@ export type SSRManifest = {
 	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
+	logger?: () =>
+		| Promise<{ default: AstroLoggerDestination<AstroLoggerMessage> }>
+		| { default: AstroLoggerDestination<AstroLoggerMessage> };
 	actions?: () => Promise<SSRActions> | SSRActions;
 	sessionDriver?: () => Promise<{ default: SessionDriverFactory | null }>;
+	cacheProvider?: () => Promise<{ default: CacheProviderFactory | null }>;
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
 	actionBodySizeLimit: number;
+	serverIslandBodySizeLimit: number;
 	sessionConfig?: SSRManifestSession;
+	cacheConfig?: SSRManifestCache;
 	cacheDir: URL;
 	srcDir: URL;
 	outDir: URL;
@@ -146,7 +158,9 @@ export type SSRManifest = {
 		placement: DevToolbarPlacement | undefined;
 	};
 	internalFetchHeaders?: Record<string, string>;
-	logLevel: LoggerLevel;
+	logLevel: AstroLoggerLevel;
+	// Configure that tells us how to load the logger
+	experimentalLogger: LoggerHandlerConfig | undefined;
 };
 
 export type SSRActions = {
@@ -183,6 +197,7 @@ export interface SSRManifestSession extends BaseSessionConfig {
 export type SerializedSSRManifest = Omit<
 	SSRManifest,
 	| 'middleware'
+	| 'logger'
 	| 'routes'
 	| 'assets'
 	| 'componentMetadata'

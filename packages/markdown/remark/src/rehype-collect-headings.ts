@@ -4,7 +4,9 @@ import type { MdxTextExpression } from 'mdast-util-mdx-expression';
 import type { Node } from 'unist';
 import { visit } from 'unist-util-visit';
 import type { VFile } from 'vfile';
-import type { MarkdownHeading, RehypePlugin } from './types.js';
+import type { MarkdownHeading, RehypePlugin } from '@astrojs/internal-helpers/markdown';
+
+import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
 
 const rawNodeTypes = new Set(['text', 'raw', 'mdxTextExpression']);
 const codeTagNames = new Set(['code', 'pre']);
@@ -117,7 +119,14 @@ function getMdxFrontmatterVariableValue(frontmatter: Record<string, any>, path: 
 	let value = frontmatter;
 
 	for (const key of path) {
-		if (!value[key]) return undefined;
+		if (
+			FORBIDDEN_PATH_KEYS.has(key) ||
+			!value ||
+			typeof value !== 'object' ||
+			!Object.hasOwn(value, key)
+		) {
+			return undefined;
+		}
 
 		value = value[key];
 	}

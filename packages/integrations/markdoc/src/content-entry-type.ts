@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { parseFrontmatter } from '@astrojs/markdown-remark';
+import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
@@ -342,7 +342,7 @@ async function emitOptimizedImages(
 				}
 			} else if (isComponent) {
 				// If the user is using the {% image %} tag, always pass the `src` attribute as `__optimizedSrc`, even if it's an external URL or absolute path.
-				// That way, the component can decide whether to optimize it or not.
+				// That way, the component can decide whether or not to optimize it.
 				node.attributes[attributeName] = node.attributes.src;
 			}
 		}

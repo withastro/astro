@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { resolve as resolvePath } from 'node:path';
 import type { CreatePreviewServer } from 'astro';
 import {
 	preview,
@@ -18,8 +20,15 @@ const createPreviewServer: CreatePreviewServer = async ({
 	headers,
 	port,
 	host,
+	allowedHosts,
 	root,
 }) => {
+	const wranglerConfigPath = resolvePath(fileURLToPath(root), '.wrangler/deploy/config.json');
+	if (!existsSync(wranglerConfigPath)) {
+		logger.error('No build output found. Run `astro build` before running `astro preview`.');
+		process.exit(1);
+	}
+
 	const startServerTime = performance.now();
 	let previewServer: VitePreviewServer;
 
@@ -37,10 +46,10 @@ const createPreviewServer: CreatePreviewServer = async ({
 				port,
 				headers,
 				open: false,
-				allowedHosts: [],
+				allowedHosts,
 			},
 			plugins: [
-				cfVitePlugin({ ...globalThis.astroCloudflareOptions, viteEnvironment: { name: 'ssr' } }),
+				cfVitePlugin({ ...globalThis.astroCloudflareConfig, viteEnvironment: { name: 'ssr' } }),
 			],
 		});
 	} catch (err) {
