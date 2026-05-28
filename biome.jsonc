@@ -4,6 +4,7 @@
     "includes": [
       "**",
       "!**/vendor",
+      "!**/astro.code-snippets",
       "!!**/smoke",
       "!!**/fixtures",
       "!!**/fixture",
