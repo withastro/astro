@@ -5800,10 +5800,10 @@ importers:
         version: 7.3.2(@types/node@22.19.19)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.8.3)
     devDependencies:
       '@types/react':
-        specifier: ^18.0.0
+        specifier: ^18.3.29
         version: 18.3.29
       '@types/react-dom':
-        specifier: ^18.0.0
+        specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.29)
       astro:
         specifier: workspace:*
