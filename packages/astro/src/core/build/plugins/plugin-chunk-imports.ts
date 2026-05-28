@@ -1,7 +1,27 @@
-import { init, parse } from 'es-module-lexer';
+import { init, type ImportSpecifier, parse } from 'es-module-lexer';
 import type { Plugin as VitePlugin } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 import type { StaticBuildOptions } from '../types.js';
+
+/**
+ * Returns the static module specifier of an import, or `undefined` if it can't
+ * be statically determined. es-module-lexer only populates `imp.n` for static
+ * imports and plain-string dynamic imports. Rolldown emits dynamic imports as
+ * template literals (`import(`./chunk.js`)`), for which `imp.n` is undefined,
+ * so the specifier is derived from the raw slice (skipping any interpolation).
+ */
+function getImportSpecifier(code: string, imp: ImportSpecifier): string | undefined {
+	if (imp.n != null) return imp.n;
+	if (imp.d > -1) {
+		const raw = code.slice(imp.s, imp.e);
+		const quote = raw[0];
+		if ((quote === '`' || quote === '"' || quote === "'") && raw.at(-1) === quote) {
+			const inner = raw.slice(1, -1);
+			if (!inner.includes('${')) return inner;
+		}
+	}
+	return undefined;
+}
 
 /**
  * Appends assetQueryParams (e.g., ?dpl=<VERCEL_DEPLOYMENT_ID>) to relative
@@ -41,9 +61,10 @@ export function pluginChunkImports(options: StaticBuildOptions): VitePlugin | un
 				const [imports] = parse(chunk.code);
 
 				// Filter to relative JS imports only
-				const relativeImports = imports.filter(
-					(imp) => imp.n && /^\.\.?\//.test(imp.n) && /\.(?:js|mjs)$/.test(imp.n),
-				);
+				const relativeImports = imports.filter((imp) => {
+					const name = getImportSpecifier(chunk.code, imp);
+					return name != null && /^\.\.?\//.test(name) && /\.(?:js|mjs)$/.test(name);
+				});
 
 				if (relativeImports.length === 0) continue;
 
