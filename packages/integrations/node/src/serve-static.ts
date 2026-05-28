@@ -6,7 +6,7 @@ import type { BaseApp } from 'astro/app';
 import send from 'send';
 import { resolveClientDir } from './shared.js';
 import type { NodeAppHeadersJson, Options } from './types.js';
-import { createRequest } from 'astro/app/node';
+import { createRequestFromNodeRequest } from 'astro/app/node';
 
 /**
  * Resolves a URL path to a filesystem path within the client directory,
@@ -64,8 +64,7 @@ export function createStaticHandler(
 			let pathname = urlPath;
 
 			if (headersMap && headersMap.length > 0) {
-				const request = createRequest(req, {
-					allowedDomains: app.getAllowedDomains?.() ?? [],
+				const request = createRequestFromNodeRequest(req, {
 					port: options.port,
 				});
 				const routeData = app.match(request, true);

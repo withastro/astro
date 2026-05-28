@@ -296,8 +296,16 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		if (allowPrerenderedRoutes) {
 			return routeData;
 		}
-		// missing routes fall-through, pre rendered are handled by static layer
+		// Prerendered routes are served as static files by the hosting layer.
+		// When the first match is a prerendered *dynamic* route, try to find
+		// a non-prerendered route that can serve this path. Dynamic prerendered
+		// routes only cover their specific static paths, so an SSR route with
+		// the same pattern should handle all other URLs.
 		if (routeData.prerender) {
+			if (routeData.params.length > 0) {
+				const allMatches = this.pipeline.matchAllRoutes(decodeURI(pathname));
+				return allMatches.find((r) => !r.prerender);
+			}
 			return undefined;
 		}
 		return routeData;
