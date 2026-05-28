@@ -15,7 +15,7 @@ A lock file (`.astro/dev.json`) is written when the dev server starts, recording
 - `astro dev status` — Check if a dev server is running and display its URL, PID, and uptime.
 - `astro dev logs` — View logs from a background dev server. Use `--follow` (`-f`) to stream new output as it's written.
 
-These are also available for human use, but are primarily designed for AI coding agents that start and manage dev servers programmatically.
+These allow you to start and manage dev servers programmatically and were designed with AI coding agents in mind.
 
 #### What should I do?
 
