@@ -2,7 +2,7 @@ name: Preview release
 
 on:
   pull_request:
-    branches: [main, next]
+    branches: [main, next, 5-legacy]
     types: [labeled]
 
 concurrency:
@@ -93,10 +93,10 @@ jobs:
 
       # This step doesn't work for forks
       - name: Remove Preview Label
-        uses: actions-ecosystem/action-remove-labels@2ce5d41b4b6aa8503e285553f75ed56e0a40bae0 # v1.3.0
-        with:
-          labels: "pr preview"
-
+        run: gh pr edit ${{ github.event.number }} --remove-label "pr preview"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
       - name: Publish packages
         run: |
           packages=$(echo '${{ steps.compute-affected-packages.outputs.affected-packages }}' | jq -r '.[]' | tr '\n' ' ')

@@ -7,6 +7,10 @@ description: Triage a bug report. Reproduces the bug, diagnoses the root cause, 
 
 Triage a bug report end-to-end: reproduce the bug, diagnose the root cause, verify whether the behavior is intentional, and attempt a fix.
 
+## General Rules
+
+**Do not get stuck on infrastructure problems.** If a server won't start, a port is blocked, or a tool is unavailable in the CI environment — bail out after 2 attempts and write your report with the data you already have. Looping on server restarts or missing CLI tools wastes your entire time budget. A partial report with solid findings is infinitely more valuable than no report because you ran out of time fighting a stale process.
+
 ## Input
 
 You need either:

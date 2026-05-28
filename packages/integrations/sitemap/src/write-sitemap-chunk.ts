@@ -7,6 +7,7 @@ import type { AstroConfig } from 'astro';
 import { SitemapAndIndexStream, SitemapIndexStream, SitemapStream } from 'sitemap';
 import replace from 'stream-replace-string';
 import type { SitemapItem } from './index.js';
+import { getLatestLastmod } from './utils/lastmod.js';
 
 type WriteSitemapChunkConfig = {
 	filenameBase: string;
@@ -91,11 +92,15 @@ export async function writeSitemapChunk(
 				}
 
 				const url = new URL(publicPath, sitemapHostname).toString();
+				// Stamp this index entry with the freshest lastmod among the
+				// URLs that land in this file (items are written in order,
+				// `limit` per file), falling back to the global `lastmod`.
+				const fileLastmod = getLatestLastmod(items.slice(i * limit, (i + 1) * limit)) ?? lastmod;
 
 				// Collect this sitemap URL for the index
-				sitemapUrls.push({ url, lastmod });
+				sitemapUrls.push({ url, lastmod: fileLastmod });
 
-				return [{ url, lastmod }, sitemapStream, stream];
+				return [{ url, lastmod: fileLastmod }, sitemapStream, stream];
 			},
 		});
 

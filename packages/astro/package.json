@@ -49,6 +49,7 @@
       "default": "./dist/jsx-runtime/index.js"
     },
     "./compiler-runtime": "./dist/runtime/compiler/index.js",
+    "./markdown": "./dist/markdown/index.js",
     "./runtime/*": "./dist/runtime/*",
     "./config": "./dist/config/entrypoint.js",
     "./container": "./dist/container/index.js",
@@ -251,6 +252,7 @@
         "default": "./dist/jsx-runtime/index.js"
       },
       "./compiler-runtime": "./dist/runtime/compiler/index.js",
+      "./markdown": "./dist/markdown/index.js",
       "./runtime/*": "./dist/runtime/*",
       "./config": "./dist/config/entrypoint.js",
       "./container": "./dist/container/index.js",

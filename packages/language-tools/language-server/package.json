@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/language-server",
-  "version": "2.16.9",
+  "version": "2.16.10",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -46,7 +46,7 @@
     "vscode-uri": "^3.1.0"
   },
   "devDependencies": {
-    "@types/node": "^20.9.0",
+    "@types/node": "^22.10.6",
     "@volar/test-utils": "~2.4.28",
     "@volar/typescript": "~2.4.28",
     "astro-scripts": "workspace:*",

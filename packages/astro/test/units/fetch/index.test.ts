@@ -548,3 +548,224 @@ describe('Context providers', () => {
 });
 
 // #endregion
+
+// #region X-Forwarded-* header resolution
+
+describe('FetchState X-Forwarded-* header resolution', () => {
+	it('ignores forwarded headers when allowedDomains is not configured', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })]);
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-proto': 'https',
+					'x-forwarded-host': 'example.com',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.protocol, 'http:');
+		assert.equal(state.url.hostname, 'localhost');
+	});
+
+	it('applies X-Forwarded-Proto when allowedDomains is configured', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: '**' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-proto': 'https',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.protocol, 'https:');
+	});
+
+	it('applies X-Forwarded-Host when allowedDomains matches', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-host': 'example.com',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.hostname, 'example.com');
+		assert.equal(state.url.port, '');
+	});
+
+	it('applies both X-Forwarded-Proto and X-Forwarded-Host together', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-proto': 'https',
+					'x-forwarded-host': 'example.com',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.protocol, 'https:');
+		assert.equal(state.url.hostname, 'example.com');
+	});
+
+	it('applies X-Forwarded-Port when allowedDomains has port patterns', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com', port: '8080' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-host': 'example.com',
+					'x-forwarded-port': '8080',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.hostname, 'example.com');
+		assert.equal(state.url.port, '8080');
+	});
+
+	it('rejects X-Forwarded-Host when it does not match allowedDomains', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'trusted.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-host': 'evil.com',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.hostname, 'localhost');
+	});
+
+	it('resolves clientAddress from X-Forwarded-For when host is trusted', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-host': 'example.com',
+					'x-forwarded-for': '203.0.113.50, 70.41.3.18',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.clientAddress, '203.0.113.50');
+	});
+
+	it('does not resolve clientAddress from X-Forwarded-For when host is not trusted', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'trusted.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-host': 'evil.com',
+					'x-forwarded-for': '203.0.113.50',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.clientAddress, undefined);
+	});
+
+	it('does not override clientAddress when already provided via options', async () => {
+		// This simulates the case where the adapter already resolved the
+		// client address (e.g. from the Node socket) and passed it through
+		// render options.
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = new Request('http://localhost:4321/', {
+			headers: {
+				'x-forwarded-host': 'example.com',
+				'x-forwarded-for': '203.0.113.50',
+			},
+		});
+		// Use BaseFetchState directly to pass clientAddress via options
+		const { FetchState: BaseFetchState } = await import('../../../dist/core/fetch/fetch-state.js');
+		const { appSymbol: sym } = await import('../../../dist/core/constants.js');
+		Reflect.set(request, sym, app);
+		const state = new BaseFetchState(app.pipeline, request, {
+			clientAddress: '10.0.0.1',
+			addCookieHeader: false,
+			locals: undefined,
+			prerenderedErrorPageFetch: fetch,
+			routeData: undefined,
+			waitUntil: undefined,
+		});
+
+		assert.equal(state.clientAddress, '10.0.0.1');
+	});
+
+	it('handles headers set by user fetch handler before FetchState creation', () => {
+		// This is the core use case from the issue: user sets forwarded
+		// headers in their src/app.ts fetch() before creating FetchState.
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = stampApp(new Request('http://localhost:4321/'), app);
+
+		// Simulate what a user would do in src/app.ts:
+		request.headers.set('x-forwarded-host', 'example.com');
+		request.headers.set('x-forwarded-proto', 'https');
+
+		const state = new FetchState(request);
+
+		assert.equal(state.url.protocol, 'https:');
+		assert.equal(state.url.hostname, 'example.com');
+	});
+
+	it('renders through the full pipeline with forwarded headers applied', async () => {
+		// End-to-end: forwarded headers should be visible in Astro.url
+		// when rendering through the astro() combined handler.
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-proto': 'https',
+					'x-forwarded-host': 'example.com',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		// Verify URL was updated before the handler runs
+		assert.equal(state.url.protocol, 'https:');
+		assert.equal(state.url.hostname, 'example.com');
+
+		const response = await astro(state);
+		assert.equal(response.status, 200);
+	});
+});
+
+// #endregion
