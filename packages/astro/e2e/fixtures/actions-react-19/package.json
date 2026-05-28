@@ -14,7 +14,7 @@
 		"@astrojs/db": "workspace:*",
 		"@astrojs/node": "workspace:*",
 		"@astrojs/react": "workspace:*",
-		"@types/react": "^19.0.0",
+		"@types/react": "^19.2.15",
 		"@types/react-dom": "^19.2.3",
 		"astro": "workspace:*",
 		"react": "19.2.6",

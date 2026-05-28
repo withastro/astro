@@ -883,7 +883,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../integrations/react
       '@types/react':
-        specifier: ^19.0.0
+        specifier: ^19.2.15
         version: 19.2.15
       '@types/react-dom':
         specifier: ^19.2.3
