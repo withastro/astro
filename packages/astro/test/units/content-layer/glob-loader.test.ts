@@ -1,4 +1,5 @@
 import { strict as assert } from 'node:assert';
+import { fileURLToPath } from 'node:url';
 import { describe, it } from 'node:test';
 import { glob } from '../../../dist/content/loaders/glob.js';
 import { defineCollection } from '../../../dist/content/config.js';
@@ -13,6 +14,23 @@ import {
 
 describe('Glob Loader', () => {
 	const root = new URL('../../fixtures/content-layer/', import.meta.url);
+
+	function createWatcher() {
+		const listeners = new Map<string, Array<(path: string) => Promise<void> | void>>();
+
+		return {
+			add() {},
+			on(event: string, callback: (path: string) => Promise<void> | void) {
+				const callbacks = listeners.get(event) ?? [];
+				callbacks.push(callback);
+				listeners.set(event, callbacks);
+				return this;
+			},
+			async emit(event: string, path: string) {
+				await Promise.all((listeners.get(event) ?? []).map((callback) => callback(path)));
+			},
+		};
+	}
 
 	it('loads markdown files with glob pattern', async () => {
 		const store = new MutableDataStore();
@@ -76,7 +94,7 @@ describe('Glob Loader', () => {
 		await contentLayer.sync();
 
 		const entries = store.values('probes');
-		assert.equal(entries.length, 6);
+		assert.equal(entries.length, 7);
 
 		// Verify voyager probes are excluded
 		assert.ok(entries.every((e) => !e.id.startsWith('voyager')));
@@ -84,6 +102,47 @@ describe('Glob Loader', () => {
 		// Check that other probes exist
 		const cassini = entries.find((e) => e.id === 'cassini');
 		assert.ok(cassini);
+	});
+
+	it('ignores watcher changes excluded by negated glob patterns', async () => {
+		const store = new MutableDataStore();
+		const watcher = createWatcher();
+		const settings = createMinimalSettings(root, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			probes: defineCollection({
+				loader: glob({
+					pattern: ['src/data/space-probes/*.md', '!src/data/space-probes/voyager-*'],
+					base: '.',
+				}),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			watcher: watcher as any,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		const before = store.values('probes').map((entry) => entry.id);
+		await watcher.emit(
+			'change',
+			fileURLToPath(new URL('src/data/space-probes/voyager-1.md', root)),
+		);
+		await watcher.emit('change', fileURLToPath(new URL('src/content/space/columbia.md', root)));
+		const after = store.values('probes').map((entry) => entry.id);
+
+		assert.deepEqual(after, before);
 	});
 
 	it('retains body by default', async () => {
