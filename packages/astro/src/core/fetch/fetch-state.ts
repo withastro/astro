@@ -39,6 +39,7 @@ import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { routeHasHtmlExtension } from '../routing/helpers.js';
 import type { ResolvedRenderOptions } from '../app/base.js';
 import { getRenderOptions } from '../app/render-options.js';
+import { getFirstForwardedValue, validateForwardedHeaders } from '../app/validate-headers.js';
 
 /**
  * Describes a lazily-created value that handlers can contribute to the
@@ -269,6 +270,14 @@ export class FetchState implements AstroFetchState {
 		this.locals = (options?.locals ?? {}) as App.Locals;
 		this.url = normalizeUrl(url);
 		this.cookies = new AstroCookies(request);
+
+		// Apply X-Forwarded-* headers only when the user has configured
+		// allowedDomains — without it, forwarded headers are never trusted
+		// and the validation is a no-op. This avoids header lookups on the
+		// hot path for the vast majority of apps.
+		if (pipeline.manifest.allowedDomains && pipeline.manifest.allowedDomains.length > 0) {
+			this.#applyForwardedHeaders();
+		}
 
 		// Set origin pathname for rewrite tracking.
 		if (!Reflect.get(request, originPathnameSymbol)) {
@@ -792,8 +801,17 @@ export class FetchState implements AstroFetchState {
 		const matched = pipeline.matchRoute(this.pathname);
 		// In production SSR, prerendered routes are served as static files
 		// by the hosting layer and should not be rendered by the app.
+		// When the first match is a prerendered *dynamic* route, try to find
+		// a non-prerendered route that can serve this path. Dynamic prerendered
+		// routes only cover their specific static paths, so an SSR route with
+		// the same pattern should handle all other URLs.
 		if (matched && matched.prerender && pipeline.manifest.serverLike) {
-			this.routeData = undefined;
+			if (matched.params.length > 0) {
+				const allMatches = pipeline.matchAllRoutes(this.pathname);
+				this.routeData = allMatches.find((r) => !r.prerender);
+			} else {
+				this.routeData = undefined;
+			}
 		} else {
 			this.routeData = matched;
 		}
@@ -836,6 +854,61 @@ export class FetchState implements AstroFetchState {
 		} catch (e: any) {
 			this.pipeline.logger.error(null, e.toString());
 			return pathname;
+		}
+	}
+
+	/**
+	 * Reads X-Forwarded-Proto, X-Forwarded-Host, and X-Forwarded-Port
+	 * from the request headers, validates them against the manifest's
+	 * `allowedDomains`, and updates `this.url` accordingly. Also resolves
+	 * `clientAddress` from X-Forwarded-For when the host is trusted.
+	 *
+	 * Only called when `allowedDomains` is configured — without it,
+	 * forwarded headers are never trusted.
+	 */
+	#applyForwardedHeaders(): void {
+		const headers = this.request.headers;
+		const allowedDomains = this.pipeline.manifest.allowedDomains;
+
+		const validated = validateForwardedHeaders(
+			getFirstForwardedValue(headers.get('x-forwarded-proto') ?? undefined),
+			getFirstForwardedValue(headers.get('x-forwarded-host') ?? undefined),
+			getFirstForwardedValue(headers.get('x-forwarded-port') ?? undefined),
+			allowedDomains,
+		);
+
+		// Nothing validated — nothing to apply.
+		if (!validated.protocol && !validated.host && !validated.port) return;
+
+		if (validated.protocol) {
+			this.url.protocol = validated.protocol + ':';
+		}
+		if (validated.host) {
+			// The validated host may include a port (e.g. "example.com:8080").
+			const colonIdx = validated.host.indexOf(':');
+			if (colonIdx !== -1) {
+				this.url.hostname = validated.host.slice(0, colonIdx);
+				this.url.port = validated.host.slice(colonIdx + 1);
+			} else {
+				this.url.hostname = validated.host;
+				// Clear port so default port for the protocol is used.
+				this.url.port = '';
+			}
+		}
+		if (validated.port) {
+			this.url.port = validated.port;
+		}
+
+		// Trust X-Forwarded-For only when the host was validated, meaning
+		// the request arrived through a trusted proxy.
+		const hostTrusted = validated.host !== undefined;
+		if (hostTrusted && !this.clientAddress) {
+			const forwardedFor = getFirstForwardedValue(
+				this.request.headers.get('x-forwarded-for') ?? undefined,
+			);
+			if (forwardedFor) {
+				this.clientAddress = forwardedFor;
+			}
 		}
 	}
 

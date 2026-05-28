@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.10.0
+
+### Minor Changes
+
+- [#16848](https://github.com/withastro/astro/pull/16848) [`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds `markdown`, `frontmatter`, and `shiki` helper modules, shared by Astro's content pipeline.
+
 ## 0.9.1
 
 ### Patch Changes

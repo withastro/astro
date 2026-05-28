@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.3.8",
+  "version": "6.4.2",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -39,6 +39,7 @@
     "./astro-jsx": "./astro-jsx.d.ts",
     "./tsconfigs/*.json": "./tsconfigs/*",
     "./tsconfigs/*": "./tsconfigs/*.json",
+    "./jsx/rehype.js": "./dist/jsx/rehype.js",
     "./jsx-runtime": {
       "types": "./jsx-runtime.d.ts",
       "default": "./dist/jsx-runtime/index.js"
@@ -211,6 +212,8 @@
     "expect-type": "^1.3.0",
     "fs-fixture": "^2.13.0",
     "hono": "^4.12.14",
+    "mdast-util-mdx": "^3.0.0",
+    "mdast-util-mdx-jsx": "^3.2.0",
     "node-mocks-http": "^1.17.2",
     "parse-srcset": "^1.0.2",
     "rehype-autolink-headings": "^7.1.0",
@@ -240,6 +243,7 @@
       "./astro-jsx": "./astro-jsx.d.ts",
       "./tsconfigs/*.json": "./tsconfigs/*",
       "./tsconfigs/*": "./tsconfigs/*.json",
+      "./jsx/rehype.js": "./dist/jsx/rehype.js",
       "./jsx-runtime": {
         "types": "./jsx-runtime.d.ts",
         "default": "./dist/jsx-runtime/index.js"

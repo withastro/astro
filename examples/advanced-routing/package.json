@@ -13,8 +13,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/node": "^10.1.1",
-    "astro": "^6.3.8",
+    "@astrojs/node": "^10.1.2",
+    "astro": "^6.4.2",
     "hono": "^4.12.14"
   }
 }
