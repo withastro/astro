@@ -8,6 +8,7 @@ import {
 	addGitHubLabels,
 	fetchIssueDetails,
 	fetchRepoLabels,
+	gitPush,
 	postGitHubComment,
 	removeGitHubLabel,
 } from '../lib/github.ts';
@@ -307,7 +308,7 @@ export async function run({ init, payload }: FlueContext) {
 					`git commit -m ${JSON.stringify(triageResult.commitMessage ?? defaultMessage)}`,
 				);
 			}
-			const pushResult = await session.shell(`git push -f origin ${branch}`);
+			const pushResult = await gitPush(branch, { force: true });
 			console.info('push result:', pushResult);
 			isPushed = pushResult.exitCode === 0;
 		}

@@ -1,8 +1,7 @@
 import { createAgent, type FlueContext } from '@flue/runtime';
 import { local } from '@flue/runtime/node';
 import * as v from 'valibot';
-
-const GITHUB_TOKEN = process.env.FREDKBOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN || '';
+import { GITHUB_TOKEN_BASE, gitPush } from '../../lib/github.ts';
 
 export const args = v.object({
 	branch: v.string(),
@@ -12,7 +11,9 @@ export const args = v.object({
 const agent = createAgent(() => ({
 	sandbox: local({
 		env: {
-			GH_TOKEN: GITHUB_TOKEN,
+			// Read-only token for gh CLI reads inside the sandbox.
+			// Write operations (git push) go through the orchestrator.
+			GH_TOKEN: GITHUB_TOKEN_BASE,
 		},
 	}),
 	model: 'anthropic/claude-opus-4-6',
@@ -79,7 +80,7 @@ export async function run({ init, payload }: FlueContext) {
 			: 'chore: merge main into next';
 
 	await session.shell(`git commit -m ${JSON.stringify(commitMsg)} --allow-empty`);
-	const pushResult = await session.shell(`git push -f origin ${branch}`);
+	const pushResult = await gitPush(branch, { force: true });
 
 	if (pushResult.exitCode !== 0) {
 		return {

@@ -1,9 +1,8 @@
 import { createAgent, type FlueContext } from '@flue/runtime';
 import { local } from '@flue/runtime/node';
 import * as v from 'valibot';
+import { GITHUB_TOKEN_BASE, gitPush } from '../../lib/github.ts';
 import { fetchCIFailureLogs, postPRComment } from './github.ts';
-
-const GITHUB_TOKEN = process.env.FREDKBOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN || '';
 
 export const args = v.object({
 	prNumber: v.number(),
@@ -12,7 +11,9 @@ export const args = v.object({
 const agent = createAgent(() => ({
 	sandbox: local({
 		env: {
-			GH_TOKEN: GITHUB_TOKEN,
+			// Read-only token for gh CLI reads inside the sandbox.
+			// Write operations (git push, post comment) go through the orchestrator.
+			GH_TOKEN: GITHUB_TOKEN_BASE,
 		},
 	}),
 	model: 'anthropic/claude-opus-4-6',
@@ -56,7 +57,7 @@ export async function run({ init, payload }: FlueContext) {
 	if (status.stdout.trim()) {
 		await session.shell('git add -A');
 		await session.shell('git commit -m "chore: fix CI failures for main-to-next merge"');
-		const pushResult = await session.shell(`git push origin ${branch}`);
+		const pushResult = await gitPush(branch);
 		console.info('push result:', pushResult);
 
 		if (pushResult.exitCode !== 0) {

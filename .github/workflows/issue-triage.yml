@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
-      contents: write # Push fix branches
+      contents: read # Read repo (push uses FREDKBOT_GITHUB_TOKEN)
       issues: read # Read issue details for triage
       id-token: write # OIDC auth for pkg.pr.new preview releases
     steps:
