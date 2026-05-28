@@ -1,11 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { stripVTControlCharacters } from 'node:util';
-import {
-	isUnifiedProcessor,
-	type RehypePlugin,
-	type RemarkPlugin,
-} from '@astrojs/markdown-remark';
+import { isUnifiedProcessor, type RehypePlugin, type RemarkPlugin } from '@astrojs/markdown-remark';
 import * as z from 'zod/v4';
 import { fontProviders } from '../../../dist/assets/fonts/providers/index.js';
 import { LocalFontProvider } from '../../../dist/assets/fonts/providers/local.js';
