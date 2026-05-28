@@ -58,7 +58,12 @@
   "engines": {
     "node": ">=22.12.0"
   },
-  "packageManager": "pnpm@11.0.9",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.0.9"
+    }
+  },
   "dependencies": {
     "astro-benchmark": "workspace:*"
   },
