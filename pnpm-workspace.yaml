@@ -51,14 +51,6 @@ peerDependencyRules:
   allowAny:
     - 'astro'
     - 'vite'
-onlyBuiltDependencies:
-  - 'esbuild'
-  - 'workerd'
-  - '@biomejs/biome'
-  - 'sharp'
-  - '@parcel/watcher'
-  - 'keytar'
-  - '@vscode/vsce-sign'
 
 patchedDependencies:
   '@changesets/get-github-info@0.7.0': patches/@changesets__get-github-info@0.7.0.patch
