@@ -819,7 +819,14 @@ export class FetchState implements AstroFetchState {
 
 		// Fall back to a 404 route so middleware can still run.
 		if (!this.routeData) {
-			this.routeData = getCustom404Route(pipeline.manifestData);
+			const custom404 = getCustom404Route(pipeline.manifestData);
+			// Only use SSR 404 routes here. Prerendered 404 pages are already
+			// built to static HTML, so the pipeline can't render them at
+			// runtime. Leaving routeData unset lets the error handler serve
+			// the pre-built page from disk instead.
+			if (custom404 && !custom404.prerender) {
+				this.routeData = custom404;
+			}
 		}
 		if (!this.routeData) {
 			pipeline.logger.debug('router', "Astro hasn't found routes that match " + this.request.url);
