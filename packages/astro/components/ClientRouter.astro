@@ -136,7 +136,7 @@ const { fallback = 'animate' } = Astro.props;
 			const options: Options = { sourceElement: submitter ?? form };
 			if (method === 'get') {
 				const params = new URLSearchParams(formData as any);
-				const url = new URL(action);
+				const url = new URL(action, location.href);
 				url.search = params.toString();
 				action = url.toString();
 			} else {
