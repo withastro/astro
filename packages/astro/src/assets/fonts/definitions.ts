@@ -44,10 +44,7 @@ export interface FontMetricsResolver {
 }
 
 export interface SystemFallbacksProvider {
-	getLocalFonts: (
-		fallback: GenericFallbackName,
-		variant: FallbackVariant,
-	) => Array<string> | null;
+	getLocalFonts: (fallback: GenericFallbackName, variant: FallbackVariant) => Array<string> | null;
 	getMetricsForLocalFont: (family: string) => FontFaceMetrics;
 }
 

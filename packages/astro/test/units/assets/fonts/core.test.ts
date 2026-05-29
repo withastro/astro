@@ -1607,10 +1607,7 @@ describe('fonts core', () => {
 					systemFallbacksProvider: variantProvider,
 					fontMetricsResolver,
 				});
-				assert.deepStrictEqual(result?.fallbacks, [
-					'Test-xxx fallback: Arial Bold',
-					'sans-serif',
-				]);
+				assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial Bold', 'sans-serif']);
 			});
 
 			it('selects the bold list for string weight "bold"', async () => {
@@ -1623,10 +1620,7 @@ describe('fonts core', () => {
 					systemFallbacksProvider: variantProvider,
 					fontMetricsResolver,
 				});
-				assert.deepStrictEqual(result?.fallbacks, [
-					'Test-xxx fallback: Arial Bold',
-					'sans-serif',
-				]);
+				assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial Bold', 'sans-serif']);
 			});
 
 			it('treats variable weight ranges as normal', async () => {
