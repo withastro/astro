@@ -1,6 +1,8 @@
 import type { AstroLogger } from '../../core/logger/core.js';
 import type { Flags } from '../flags.js';
-import { checkExistingServer, resolveRootURL } from '../../core/dev/lockfile.js';
+import { pathToFileURL } from 'node:url';
+import { checkExistingServer } from '../../core/dev/lockfile.js';
+import { resolveRoot } from '../../core/config/config.js';
 
 export interface StatusResult {
 	running: boolean;
@@ -19,7 +21,7 @@ export async function status({
 	flags,
 	logger,
 }: { flags: Flags; logger: AstroLogger }): Promise<void> {
-	const root = resolveRootURL(flags.root);
+	const root = pathToFileURL(resolveRoot(flags.root) + '/');
 	const existing = checkExistingServer(root);
 
 	if (!existing) {

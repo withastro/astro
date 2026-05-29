@@ -1,14 +1,5 @@
 import { existsSync, readFileSync, unlinkSync, writeFileSync, mkdirSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-
-/**
- * Resolve the project root as a URL from an optional root flag.
- */
-export function resolveRootURL(root?: string): URL {
-	const rootPath = typeof root === 'string' ? resolve(root) : process.cwd();
-	return pathToFileURL(rootPath + '/');
-}
+import { fileURLToPath } from 'node:url';
 
 /** Maximum time (ms) to wait for a process to exit after SIGTERM before escalating to SIGKILL. */
 export const GRACEFUL_SHUTDOWN_TIMEOUT = 5000;

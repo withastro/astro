@@ -1,7 +1,9 @@
 import { isAgent } from 'am-i-vibing';
 import colors from 'piccolore';
 import devServer from '../../core/dev/index.js';
-import { checkExistingServer, removeLockFile, resolveRootURL, writeLockFile } from '../../core/dev/lockfile.js';
+import { pathToFileURL } from 'node:url';
+import { checkExistingServer, removeLockFile, writeLockFile } from '../../core/dev/lockfile.js';
+import { resolveRoot } from '../../core/config/config.js';
 import { printHelp } from '../../core/messages/runtime.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 
@@ -96,7 +98,7 @@ export async function dev({ flags }: DevOptions) {
 	}
 
 	// Foreground dev server: check lock file, start server, write lock file
-	const root = resolveRootURL(flags.root);
+	const root = pathToFileURL(resolveRoot(flags.root) + '/');
 	const existingServer = checkExistingServer(root);
 	if (existingServer) {
 		const message = [

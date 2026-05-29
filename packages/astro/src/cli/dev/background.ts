@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, openSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroLogger } from '../../core/logger/core.js';
 import type { Flags } from '../flags.js';
 import {
@@ -9,10 +9,10 @@ import {
 	getLogFileURL,
 	readLockFile,
 	removeLockFile,
-	resolveRootURL,
 	isProcessAlive,
 	GRACEFUL_SHUTDOWN_TIMEOUT,
 } from '../../core/dev/lockfile.js';
+import { resolveRoot } from '../../core/config/config.js';
 
 export interface BackgroundResult {
 	pid: number;
@@ -33,7 +33,7 @@ export async function background({
 	flags,
 	logger,
 }: { flags: Flags; logger: AstroLogger }): Promise<void> {
-	const root = resolveRootURL(flags.root);
+	const root = pathToFileURL(resolveRoot(flags.root) + '/');
 
 	// Check for existing server
 	const existing = checkExistingServer(root);
