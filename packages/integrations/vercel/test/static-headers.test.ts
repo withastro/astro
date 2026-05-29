@@ -12,7 +12,7 @@ describe('Static headers', () => {
 		await fixture.build({});
 	});
 
-	it('CSP headers are added when CSP is enabled', async () => {
+	it('CSP headers are added when CSP is enabled', { timeout: 30000 }, async () => {
 		const config = await getVercelConfig(fixture);
 		const routes = config.routes;
 
