@@ -11,7 +11,7 @@ import {
 	pages,
 	i18n,
 } from '../../../dist/core/fetch/index.js';
-import { PipelineFeatures } from '../../../dist/core/base-pipeline.js';
+import { ALL_PIPELINE_FEATURES } from '../../../dist/core/base-pipeline.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createEndpoint, createPage, createRedirect, createTestApp } from '../mocks.ts';
 import { dynamicPart } from '../routing/test-helpers.ts';
@@ -455,16 +455,9 @@ describe('astro() combined handler', () => {
 		// astro() is the "batteries-included" handler — it should mark
 		// every feature as used so the one-shot warnMissingFeatures check
 		// in BaseApp never fires a false positive.
-		const allFeatures =
-			PipelineFeatures.redirects |
-			PipelineFeatures.sessions |
-			PipelineFeatures.actions |
-			PipelineFeatures.middleware |
-			PipelineFeatures.i18n |
-			PipelineFeatures.cache;
 		assert.equal(
-			state.pipeline.usedFeatures & allFeatures,
-			allFeatures,
+			state.pipeline.usedFeatures & ALL_PIPELINE_FEATURES,
+			ALL_PIPELINE_FEATURES,
 			'astro() should mark all pipeline features as used',
 		);
 	});
