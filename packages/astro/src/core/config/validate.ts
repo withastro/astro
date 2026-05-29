@@ -51,11 +51,11 @@ function warnDeprecatedMarkdownOptions(
 let didWarnAboutLegacyMarkdownPlugins = false;
 let didWarnAboutProcessorMismatch = false;
 
+const migratedLegacyPluginCounts = new WeakMap<object, { remark: number; rehype: number }>();
 /**
  * Folds legacy `markdown.{remark,rehype}Plugins` / `remarkRehype` into the unified
- * processor and clears the legacy keys. Mutates `config` in place.
- * Runs on every validate pass so integration-added legacy plugins are picked up.
- * Without this they'd land in `config.markdown.*` and be silently dropped.
+ * processor (mutates `config`). Runs on every validate pass to catch integration-added
+ * legacy plugins.
  */
 async function coerceLegacyMarkdownPlugins(
 	config: Pick<AstroUserConfig, 'markdown'>,
@@ -80,23 +80,29 @@ async function coerceLegacyMarkdownPlugins(
 	if (!current || isUnifiedProcessor(current)) {
 		// `createRenderer` reads `.options.*` at render time, so in-place mutation propagates.
 		const target = (current ?? (md.processor = unified())) as ReturnType<typeof unified>;
-		target.options.remarkPlugins.push(...remarkPlugins);
-		target.options.rehypePlugins.push(...rehypePlugins);
+		const counts = migratedLegacyPluginCounts.get(target.options) ?? { remark: 0, rehype: 0 };
+		// Only push entries past what we've already folded; mergeConfig appends, so they sit at the tail.
+		if (remarkPlugins.length > counts.remark) {
+			target.options.remarkPlugins.push(...remarkPlugins.slice(counts.remark));
+		}
+		if (rehypePlugins.length > counts.rehype) {
+			target.options.rehypePlugins.push(...rehypePlugins.slice(counts.rehype));
+		}
+		// `remarkRehype` is an object, so Object.assign is idempotent for unchanged keys
+		// and absorbs any new keys integrations add.
 		Object.assign(target.options.remarkRehype, remarkRehype);
+		migratedLegacyPluginCounts.set(target.options, {
+			remark: remarkPlugins.length,
+			rehype: rehypePlugins.length,
+		});
 		if (!didWarnAboutLegacyMarkdownPlugins) {
 			didWarnAboutLegacyMarkdownPlugins = true;
 			console.warn(
 				'[astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.',
 			);
 		}
-		delete md.remarkPlugins;
-		delete md.rehypePlugins;
-		delete md.remarkRehype;
 	} else if (!didWarnAboutProcessorMismatch) {
-		// Third-party processors can't run remark/rehype plugins. We *don't* swap the
-		// user's chosen processor — that would silently flip their Markdown engine.
-		// Instead, leave the legacy keys in place (so other tooling can still see them)
-		// and warn loudly: the plugins won't run until they move to `unified()`.
+		// Third-party processors can't run remark/rehype plugins. And if they can, they should be passed directly to the processor (like it is for unified) instead of the legacy keys, so we warn either way.
 		didWarnAboutProcessorMismatch = true;
 		console.warn(
 			`[astro] \`markdown.remarkPlugins\`/\`rehypePlugins\`/\`remarkRehype\` are set, but your ` +

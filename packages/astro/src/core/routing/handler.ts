@@ -15,7 +15,7 @@ import { provideSession } from '../session/handler.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import type { BaseApp } from '../app/base.js';
-import { type Pipeline, PipelineFeatures } from '../base-pipeline.js';
+import { type Pipeline, ALL_PIPELINE_FEATURES, PipelineFeatures } from '../base-pipeline.js';
 
 export class AstroHandler {
 	#app: BaseApp<Pipeline>;
@@ -71,6 +71,12 @@ export class AstroHandler {
 	}
 
 	async handle(state: FetchState): Promise<Response> {
+		// AstroHandler is the "batteries-included" handler that wires up
+		// every pipeline feature internally. Mark them all as used so the
+		// missing-feature warning in BaseApp never fires — the user didn't
+		// forget to include anything.
+		state.pipeline.usedFeatures |= ALL_PIPELINE_FEATURES;
+
 		const trailingSlashRedirect = this.#trailingSlashHandler.handle(state);
 		if (trailingSlashRedirect) {
 			return trailingSlashRedirect;

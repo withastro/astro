@@ -11,8 +11,10 @@ import {
 	pages,
 	i18n,
 } from '../../../dist/core/fetch/index.js';
+import { ALL_PIPELINE_FEATURES } from '../../../dist/core/base-pipeline.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createEndpoint, createPage, createRedirect, createTestApp } from '../mocks.ts';
+import { dynamicPart } from '../routing/test-helpers.ts';
 
 /** A simple page component that renders `<h1>Hello</h1>`. */
 const simplePage = createComponent((_result: any, _props: any, _slots: any) => {
@@ -51,6 +53,32 @@ describe('FetchState (astro/fetch)', () => {
 		const state = new FetchState(request);
 		assert.ok(state.routeData, 'routeData should be set by the constructor');
 		assert.equal(state.routeData!.route, '/');
+	});
+
+	it('falls through to SSR route when prerendered dynamic route matches first', () => {
+		// Regression test for #16834: when a prerendered dynamic route like
+		// [a_prebuild].astro matches before an SSR dynamic route like [b_ssr].astro,
+		// the SSR route should be used instead of returning 404.
+		const prerenderPage = createPage(simplePage, {
+			route: '/[a_prebuild]',
+			prerender: true,
+			pathname: undefined,
+			segments: [[dynamicPart('a_prebuild')]],
+		});
+		const ssrPage = createPage(simplePage, {
+			route: '/[b_ssr]',
+			prerender: false,
+			pathname: undefined,
+			segments: [[dynamicPart('b_ssr')]],
+		});
+
+		const app = createTestApp([prerenderPage, ssrPage], { serverLike: true });
+		const request = stampApp(new Request('http://example.com/foobar'), app);
+		const state = new FetchState(request);
+
+		assert.ok(state.routeData, 'routeData should be set to the SSR route');
+		assert.equal(state.routeData!.route, '/[b_ssr]');
+		assert.equal(state.routeData!.prerender, false);
 	});
 });
 
@@ -404,6 +432,34 @@ describe('astro() combined handler', () => {
 
 		assert.equal(response.status, 200);
 		assert.match(await response.text(), /middleware/);
+	});
+
+	it('marks all pipeline features as used even when first request is a redirect', async () => {
+		const app = createTestApp(
+			[
+				createRedirect({ route: '/old', redirect: '/new' }),
+				createPage(simplePage, { route: '/new' }),
+			],
+			{
+				middleware: async () => ({
+					onRequest: async (_ctx: any, next: any) => next(),
+				}),
+			},
+		);
+		const request = stampApp(new Request('http://example.com/old'), app);
+		const state = new FetchState(request);
+
+		const response = await astro(state);
+		assert.equal(response.status, 301);
+
+		// astro() is the "batteries-included" handler — it should mark
+		// every feature as used so the one-shot warnMissingFeatures check
+		// in BaseApp never fires a false positive.
+		assert.equal(
+			state.pipeline.usedFeatures & ALL_PIPELINE_FEATURES,
+			ALL_PIPELINE_FEATURES,
+			'astro() should mark all pipeline features as used',
+		);
 	});
 });
 

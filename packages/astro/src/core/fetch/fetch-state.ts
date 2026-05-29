@@ -801,8 +801,17 @@ export class FetchState implements AstroFetchState {
 		const matched = pipeline.matchRoute(this.pathname);
 		// In production SSR, prerendered routes are served as static files
 		// by the hosting layer and should not be rendered by the app.
+		// When the first match is a prerendered *dynamic* route, try to find
+		// a non-prerendered route that can serve this path. Dynamic prerendered
+		// routes only cover their specific static paths, so an SSR route with
+		// the same pattern should handle all other URLs.
 		if (matched && matched.prerender && pipeline.manifest.serverLike) {
-			this.routeData = undefined;
+			if (matched.params.length > 0) {
+				const allMatches = pipeline.matchAllRoutes(this.pathname);
+				this.routeData = allMatches.find((r) => !r.prerender);
+			} else {
+				this.routeData = undefined;
+			}
 		} else {
 			this.routeData = matched;
 		}
