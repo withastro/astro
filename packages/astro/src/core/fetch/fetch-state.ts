@@ -15,7 +15,6 @@ import { AstroCookies } from '../cookies/index.js';
 import { type Pipeline, Slots } from '../render/index.js';
 import {
 	ASTRO_GENERATOR,
-	DEFAULT_404_COMPONENT,
 	fetchStateSymbol,
 	originPathnameSymbol,
 	pipelineSymbol,
@@ -36,7 +35,7 @@ import { Rewrites } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
 import { normalizeUrl } from '../util/normalized-url.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
-import { routeHasHtmlExtension } from '../routing/helpers.js';
+import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
 import type { ResolvedRenderOptions } from '../app/base.js';
 import { getRenderOptions } from '../app/render-options.js';
 import { getFirstForwardedValue, validateForwardedHeaders } from '../app/validate-headers.js';
@@ -820,9 +819,7 @@ export class FetchState implements AstroFetchState {
 
 		// Fall back to a 404 route so middleware can still run.
 		if (!this.routeData) {
-			this.routeData = pipeline.manifestData.routes.find(
-				(route) => route.component === '404.astro' || route.component === DEFAULT_404_COMPONENT,
-			);
+			this.routeData = getCustom404Route(pipeline.manifestData);
 		}
 		if (!this.routeData) {
 			pipeline.logger.debug('router', "Astro hasn't found routes that match " + this.request.url);

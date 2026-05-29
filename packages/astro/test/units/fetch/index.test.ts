@@ -79,6 +79,16 @@ describe('FetchState (astro/fetch)', () => {
 		assert.equal(state.routeData!.route, '/[b_ssr]');
 		assert.equal(state.routeData!.prerender, false);
 	});
+
+	it('falls back to the 404 route when no route matches', () => {
+		const notFoundPage = createPage(simplePage, { route: '/404' });
+		const app = createTestApp([createPage(simplePage, { route: '/' }), notFoundPage]);
+		const request = stampApp(new Request('http://example.com/does-not-exist'), app);
+		const state = new FetchState(request);
+
+		assert.ok(state.routeData, 'routeData should fall back to the 404 route');
+		assert.equal(state.routeData!.route, '/404');
+	});
 });
 
 // #endregion
@@ -236,6 +246,24 @@ describe('pages()', () => {
 		assert.equal(response.status, 200);
 		const text = await response.text();
 		assert.match(text, /<h1>Hello<\/h1>/);
+	});
+
+	it('renders the 404 page for unmatched routes instead of throwing', async () => {
+		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Not Found</h1>`;
+		});
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(notFoundPage, { route: '/404' }),
+		]);
+		const request = stampApp(new Request('http://example.com/does-not-exist'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 404);
+		const text = await response.text();
+		assert.match(text, /<h1>Not Found<\/h1>/);
 	});
 
 	it('renders an endpoint', async () => {
