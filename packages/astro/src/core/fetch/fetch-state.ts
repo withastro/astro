@@ -579,10 +579,8 @@ export class FetchState implements AstroFetchState {
 		}
 		return {
 			insertDirective(payload) {
-				if (state?.result?.directives) {
+				if (state.result) {
 					state.result.directives = pushDirective(state.result.directives, payload);
-				} else {
-					state?.result?.directives.push(payload);
 				}
 			},
 			insertScriptResource(resource) {
