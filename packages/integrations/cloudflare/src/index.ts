@@ -296,6 +296,8 @@ export default function createIntegration({
 													'astro > picomatch',
 													'astro/app',
 													'astro/app/fetch/default-handler',
+													'astro/fetch',
+													'astro/hono',
 													'astro/assets',
 													'astro/assets/runtime',
 													'astro/assets/utils/inferRemoteSize.js',
