@@ -48,6 +48,16 @@ export const PipelineFeatures = {
 	cache: 1 << 5,
 } as const;
 
+/** All feature bits ORed together. Keep next to `PipelineFeatures` so
+ *  new flags are hard to forget. */
+export const ALL_PIPELINE_FEATURES =
+	PipelineFeatures.redirects |
+	PipelineFeatures.sessions |
+	PipelineFeatures.actions |
+	PipelineFeatures.middleware |
+	PipelineFeatures.i18n |
+	PipelineFeatures.cache;
+
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
  * These are mostly known when the server first starts up and do not change.
