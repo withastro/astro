@@ -19,6 +19,13 @@ import {
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
 
+/**
+ * Create an `AstroSettings` object from a fully-resolved `AstroConfig`,
+ * populating default content-entry types, client directives, and other
+ * runtime bookkeeping without loading a tsconfig.
+ * @param config Resolved Astro configuration.
+ * @param logLevel Logging verbosity for the current session.
+ */
 export function createBaseSettings(
 	config: AstroConfig,
 	logLevel: AstroInlineConfig['logLevel'],
@@ -165,6 +172,13 @@ export function createBaseSettings(
 	};
 }
 
+/**
+ * Create an `AstroSettings` object from a fully-resolved `AstroConfig`,
+ * including tsconfig loading and watch-file registration.
+ * @param config Resolved Astro configuration.
+ * @param logLevel Logging verbosity for the current session.
+ * @param cwd Optional working directory used to locate `tsconfig.json`.
+ */
 export async function createSettings(
 	config: AstroConfig,
 	logLevel: AstroInlineConfig['logLevel'],

@@ -12,6 +12,12 @@ import {
 	validateRemotePatterns,
 } from './refined-validators.js';
 
+/**
+ * Second-pass validation schema that runs cross-field semantic checks on a
+ * fully-parsed `AstroConfig` (e.g. i18n consistency, asset prefix shape,
+ * font CSS variable format). Used after the base schema and the relative
+ * transforms have both completed.
+ */
 export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((config, ctx) => {
 	let issues: ConfigValidationIssue[] = [];
 	issues = issues.concat(

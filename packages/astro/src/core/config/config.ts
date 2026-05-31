@@ -17,6 +17,11 @@ import { mergeConfig } from './merge.js';
 import { validateConfig } from './validate.js';
 import { loadConfigWithVite } from './vite-load.js';
 
+/**
+ * Resolve the project root directory to an absolute path.
+ * Falls back to `process.cwd()` when no directory is given.
+ * @param cwd A relative or absolute path, or a `file://` URL.
+ */
 export function resolveRoot(cwd?: string | URL): string {
 	if (cwd instanceof URL) {
 		cwd = fileURLToPath(cwd);

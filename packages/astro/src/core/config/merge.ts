@@ -80,6 +80,13 @@ function mergeConfigRecursively(
 	return merged;
 }
 
+/**
+ * Deep-merge two Astro config objects. Arrays are concatenated, objects are
+ * recursed, and special keys (`vite`, `server`, `markdown.processor`) receive
+ * bespoke handling so that overrides behave predictably.
+ * @param defaults The base config (typically from the user's config file).
+ * @param overrides Partial overrides (e.g. from integrations or inline config).
+ */
 export function mergeConfig<C extends AstroConfig | AstroInlineConfig>(
 	defaults: C,
 	overrides: DeepPartial<C>,

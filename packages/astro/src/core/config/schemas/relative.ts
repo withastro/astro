@@ -13,6 +13,15 @@ function resolveDirAsUrl(dir: string, root: string) {
 	return pathToFileURL(resolvedDir);
 }
 
+/**
+ * Extend the base `AstroConfigSchema` with path transforms that resolve
+ * directory strings (`root`, `srcDir`, `publicDir`, `outDir`, `cacheDir`,
+ * `build.client`, `build.server`) relative to a given filesystem root.
+ * Also normalizes `base` and `image.endpoint.route` according to
+ * `trailingSlash` and handles `server` as a function-or-object union.
+ * @param cmd The running Astro command (e.g. `'dev'`, `'build'`).
+ * @param fileProtocolRoot Absolute filesystem root used for path resolution.
+ */
 export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 	let originalBuildClient: string;
 	let originalBuildServer: string;

@@ -4,11 +4,17 @@ import { readTsconfig, type TsconfigResult } from 'get-tsconfig';
 import { parse as parseJsonc, type ParseError } from 'jsonc-parser';
 import type { CompilerOptions, TypeAcquisition } from 'typescript';
 
+/** Default tsconfig that extends Astro's base configuration. */
 export const defaultTSConfig: TSConfig = { extends: 'astro/tsconfigs/base' };
 
+/** Frameworks that require custom TypeScript compiler settings for JSX support. */
 export type frameworkWithTSSettings = 'vue' | 'react' | 'preact' | 'solid-js';
 // The following presets unfortunately cannot be inside the specific integrations, as we need
 // them even in cases where the integrations are not installed
+/**
+ * Per-framework tsconfig presets merged when a framework integration is detected.
+ * Each entry maps to compiler options needed for that framework's JSX transform.
+ */
 export const presets = new Map<frameworkWithTSSettings, TSConfig>([
 	[
 		'vue', // Settings needed for template intellisense when using Volar
@@ -47,6 +53,7 @@ export const presets = new Map<frameworkWithTSSettings, TSConfig>([
 	],
 ]);
 
+/** Result of successfully loading and resolving a tsconfig/jsconfig file. */
 export interface TSConfigLoadedResult {
 	error?: undefined;
 	/** Absolute path of the root tsconfig/jsconfig file that was loaded. */
@@ -62,6 +69,7 @@ export interface TSConfigLoadedResult {
 	sources: string[];
 }
 
+/** Discriminated union of tsconfig load outcomes: success, parse error, or missing file. */
 export type TSConfigResult =
 	| TSConfigLoadedResult
 	| { error: 'invalid-config'; message: string }
@@ -137,6 +145,12 @@ export async function loadTSConfig(root: string | undefined): Promise<TSConfigRe
 	};
 }
 
+/**
+ * Merge framework-specific TypeScript compiler options into an existing tsconfig.
+ * Returns the target unchanged if the framework has no preset.
+ * @param target The tsconfig to augment.
+ * @param framework The framework whose preset should be merged in.
+ */
 export function updateTSConfigForFramework(
 	target: TSConfig,
 	framework: frameworkWithTSSettings,
@@ -190,6 +204,7 @@ type StripEnums<T extends Record<string, any>> = {
 						: any;
 };
 
+/** Subset of `tsconfig.json` fields that Astro reads and manipulates. */
 export interface TSConfig {
 	compilerOptions?: StripEnums<CompilerOptions>;
 	compileOnSave?: boolean;

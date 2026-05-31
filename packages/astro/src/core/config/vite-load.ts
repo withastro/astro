@@ -12,6 +12,14 @@ interface LoadConfigWithViteOptions {
 	fs: typeof fsType;
 }
 
+/**
+ * Load an Astro config file using Vite's module runner as a fallback when
+ * native Node.js `import()` fails (e.g. for `.ts` files). Closes the
+ * temporary Vite dev server after loading.
+ * @param options.root Project root directory.
+ * @param options.configPath Absolute path to the config file.
+ * @param options.fs Filesystem module to use for file operations.
+ */
 export async function loadConfigWithVite({
 	configPath,
 	fs,

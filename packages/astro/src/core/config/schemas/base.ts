@@ -58,6 +58,7 @@ export type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
 /** @lintignore */
 export type Smartypants = ComplexifyWithOmit<_Smartypants>;
 
+/** Default values for every Astro config field, used as fallbacks during validation. */
 export const ASTRO_CONFIG_DEFAULTS = {
 	root: '.',
 	srcDir: './src',
@@ -152,6 +153,7 @@ const smartypantsOptionsSchema: z.ZodType<Smartypants> = z.object({
 	quotes: z.boolean().default(true),
 });
 
+/** Base Zod schema for the full Astro user configuration. Paths are raw strings at this stage; the relative schema applies file-system transforms. */
 export const AstroConfigSchema = z.object({
 	root: z
 		.string()
@@ -610,4 +612,5 @@ export const AstroConfigSchema = z.object({
 		.prefault({}),
 });
 
+/** Inferred TypeScript type produced by parsing `AstroConfigSchema`. */
 export type AstroConfigType = z.infer<typeof AstroConfigSchema>;
