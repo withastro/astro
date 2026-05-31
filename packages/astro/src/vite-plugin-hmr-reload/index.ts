@@ -106,9 +106,9 @@ export default function hmrReload(): Plugin {
 				// module graph, find no HMR boundary (e.g. .astro files), and trigger
 				// a full-reload that causes unnecessary program reloads for the module
 				// runner. The client environment handles HMR for these modules natively.
-				/*if (modules.length > 0) {
+				if (modules.length > 0) {
 					return [];
-				}*/
+				}
 			},
 		},
 	};
