@@ -4,8 +4,8 @@ import { createBasicPipeline } from '../test-utils.ts';
 
 describe('actions HMR cache invalidation', () => {
 	it('clearActions() resets the cached resolved actions', async () => {
-		const firstActions = { server: { greet: () => 'hello' } };
-		const secondActions = { server: { greet: () => 'updated' } };
+		const firstActions = { server: { greet: () => 'hello' } } as any;
+		const secondActions = { server: { greet: () => 'updated' } } as any;
 
 		let callCount = 0;
 		const pipeline = createBasicPipeline({
@@ -15,7 +15,7 @@ describe('actions HMR cache invalidation', () => {
 					return callCount === 1 ? firstActions : secondActions;
 				},
 			},
-		});
+		} as any);
 
 		// First call should invoke the factory and cache the result.
 		const result1 = await pipeline.getActions();
