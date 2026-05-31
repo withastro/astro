@@ -128,8 +128,15 @@ export default function createIntegration({
 	let _routes: IntegrationResolvedRoute[];
 	let cfPluginConfig: PluginConfig;
 
-	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
-	const needsImagesBinding = runtimeService === 'cloudflare-binding';
+	// These are computed inside `astro:config:setup` where `config.output` is
+	// available, so they can adapt the default image service for static output.
+	let buildService: ReturnType<typeof normalizeImageServiceConfig>['buildService'];
+	let needsImagesBinding: boolean;
+	// The effective image service config, accounting for output mode.
+	// When the user hasn't explicitly set `imageService` and the output is
+	// static, we default to `'compile'` instead of `'cloudflare-binding'`
+	// because there's no worker runtime to handle `/_image` requests.
+	let effectiveImageService: ImageServiceConfig | undefined;
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -138,6 +145,14 @@ export default function createIntegration({
 				if (!!process.versions.webcontainer) {
 					throw new Error('`workerd` does not run on Stackblitz.');
 				}
+
+				// When imageService is not explicitly set and the output is static,
+				// default to 'compile' since there's no worker runtime to handle
+				// the /_image endpoint that 'cloudflare-binding' relies on.
+				effectiveImageService = imageService ?? (config.output !== 'server' ? 'compile' : undefined);
+				const normalized = normalizeImageServiceConfig(effectiveImageService);
+				buildService = normalized.buildService;
+				needsImagesBinding = normalized.runtimeService === 'cloudflare-binding';
 
 				let session = config.session;
 				const isCompile = buildService === 'compile';
@@ -380,7 +395,7 @@ export default function createIntegration({
 							cfPrismPlugin(),
 						],
 					},
-					image: setImageConfig(imageService, config.image, command, logger),
+					image: setImageConfig(effectiveImageService, config.image, command, logger),
 				});
 
 				if (cloudflareOptions.configPath) {

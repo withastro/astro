@@ -70,10 +70,16 @@ export async function prepareAssetsGenerationEnv(
 	}
 
 	const isServerOutput = settings.buildOutput === 'server';
+	const preserveClientDir = settings.adapter?.adapterFeatures?.preserveBuildClientDir;
 	let serverRoot: URL, clientRoot: URL;
 	if (isServerOutput) {
 		// Images are collected during prerender, which outputs to .prerender/ subdirectory
 		serverRoot = new URL('.prerender/', settings.config.build.server);
+		clientRoot = settings.config.build.client;
+	} else if (preserveClientDir) {
+		// Adapters like Cloudflare use a separate client directory even for static builds.
+		// Source images land in the client dir, and optimized images should be written there too.
+		serverRoot = settings.config.build.client;
 		clientRoot = settings.config.build.client;
 	} else {
 		serverRoot = getOutDirWithinCwd(settings.config.outDir);

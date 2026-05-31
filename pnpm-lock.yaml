@@ -6878,6 +6878,27 @@ importers:
         specifier: ^4.21.0
         version: 4.21.0
 
+  triage/gh-16930:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../packages/integrations/cloudflare
+      '@astrojs/mdx':
+        specifier: ^6.0.1
+        version: link:../../packages/integrations/mdx
+      '@astrojs/rss':
+        specifier: ^4.0.18
+        version: link:../../packages/astro-rss
+      '@astrojs/sitemap':
+        specifier: ^3.7.3
+        version: link:../../packages/integrations/sitemap
+      astro:
+        specifier: ^6.4.2
+        version: link:../../packages/astro
+      sharp:
+        specifier: ^0.34.3
+        version: 0.34.5
+
 packages:
 
   '@anthropic-ai/sdk@0.91.1':
