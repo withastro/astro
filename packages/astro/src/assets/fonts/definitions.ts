@@ -2,6 +2,7 @@ import type * as unifont from 'unifont';
 import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 import type {
 	CssProperties,
+	FallbackVariant,
 	FontFaceMetrics,
 	FontFileData,
 	FontProvider,
@@ -43,7 +44,7 @@ export interface FontMetricsResolver {
 }
 
 export interface SystemFallbacksProvider {
-	getLocalFonts: (fallback: GenericFallbackName) => Array<string> | null;
+	getLocalFonts: (fallback: GenericFallbackName, variant: FallbackVariant) => Array<string> | null;
 	getMetricsForLocalFont: (family: string) => FontFaceMetrics;
 }
 

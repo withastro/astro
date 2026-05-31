@@ -537,3 +537,40 @@ describe('i18n via App - domain with localhost and ports (#12385)', () => {
 		assert.equal($('#locale').text(), 'en');
 	});
 });
+
+describe('i18n via AstroHandler (no middleware) - prefix-always (#16800)', () => {
+	// This tests the handler-based i18n flow where I18n.finalize() runs
+	// as a post-processing step after AstroMiddleware, NOT as an internal
+	// middleware. This is the default code path for non-manual routing.
+	const i18n = makeI18nConfig({ strategy: 'pathname-prefix-always' });
+
+	function createHandlerApp() {
+		// Do NOT pass middleware — this forces i18n to be handled by
+		// AstroHandler's post-processing step (I18n.finalize), not by
+		// a middleware in the chain.
+		return createTestApp([localeCatchAll('en'), localeCatchAll('fr')], {
+			i18n,
+		});
+	}
+
+	it('redirects root / to /en/ via handler post-processing', async () => {
+		const app = createHandlerApp();
+		const res = await app.render(new Request('http://example.com/'));
+		assert.equal(res.status, 302);
+		assert.ok(res.headers.get('Location')?.includes('/en'));
+	});
+
+	it('renders locale-prefixed pages normally', async () => {
+		const app = createHandlerApp();
+		const res = await app.render(new Request('http://example.com/en/about'));
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#locale').text(), 'en');
+	});
+
+	it('returns 404 for paths without locale prefix', async () => {
+		const app = createHandlerApp();
+		const res = await app.render(new Request('http://example.com/about'));
+		assert.equal(res.status, 404);
+	});
+});
