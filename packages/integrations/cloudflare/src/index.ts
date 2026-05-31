@@ -294,6 +294,18 @@ export default function createIntegration({
 													'astro > neotraverse/modern',
 													'astro > piccolore',
 													'astro > picomatch',
+													// Direct includes as fallback for the `astro > <dep>` entries above.
+													// The nested `astro > <dep>` syntax can silently fail to resolve in
+													// non-workspace npm/pnpm environments. When that happens, these deps
+													// get discovered at runtime instead of being pre-bundled, which triggers
+													// sequential re-optimizations that race with the workerd module runner
+													// and cause "file does not exist" errors. Direct includes provide a
+													// reliable fallback. See https://github.com/withastro/astro/issues/16933
+													'zod/v4',
+													'zod/v4/core',
+													'devalue',
+													'@oslojs/encoding',
+													'cookie',
 													'astro/app',
 													'astro/app/fetch/default-handler',
 													'astro/fetch',
