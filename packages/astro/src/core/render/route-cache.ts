@@ -59,7 +59,11 @@ export async function callGetStaticPaths({
 	// Add a check here to make TypeScript happy.
 	// This is already checked in validateDynamicRouteModule().
 	if (!mod.getStaticPaths) {
-		throw new Error('Unexpected Error.');
+		throw new Error(
+			`Unexpected error: the module for route "${route.route}" (component: ${route.component}) does not export a getStaticPaths function. ` +
+			`This route expects static paths but the module has no getStaticPaths() export. ` +
+			`Ensure ${route.component} defines and exports a getStaticPaths() function.`
+		);
 	}
 
 	// Calculate your static paths.
