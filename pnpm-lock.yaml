@@ -570,8 +570,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       devalue:
-        specifier: ^5.6.3
-        version: 5.6.4
+        specifier: ^5.8.1
+        version: 5.8.1
       diff:
         specifier: ^8.0.3
         version: 8.0.3
@@ -4416,8 +4416,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       devalue:
-        specifier: ^5.6.3
-        version: 5.6.4
+        specifier: ^5.8.1
+        version: 5.8.1
       prismjs:
         specifier: ^1.30.0
         version: 1.30.0
@@ -4884,8 +4884,8 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       devalue:
-        specifier: ^5.6.3
-        version: 5.6.4
+        specifier: ^5.8.1
+        version: 5.8.1
       linkedom:
         specifier: ^0.18.12
         version: 0.18.12
@@ -5411,8 +5411,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       devalue:
-        specifier: ^5.6.3
-        version: 5.6.4
+        specifier: ^5.8.1
+        version: 5.8.1
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -5548,8 +5548,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       devalue:
-        specifier: ^5.6.3
-        version: 5.6.4
+        specifier: ^5.8.1
+        version: 5.8.1
       express:
         specifier: ^5.2.1
         version: 5.2.1
@@ -5762,8 +5762,8 @@ importers:
         specifier: ^2.8.2
         version: 2.8.2(preact@10.29.0)
       devalue:
-        specifier: ^5.6.4
-        version: 5.6.4
+        specifier: ^5.8.1
+        version: 5.8.1
       preact-render-to-string:
         specifier: ^6.6.6
         version: 6.6.6(preact@10.29.0)
@@ -5790,8 +5790,8 @@ importers:
         specifier: ^5.2.0
         version: 5.2.0(vite@7.3.2)
       devalue:
-        specifier: ^5.6.4
-        version: 5.6.4
+        specifier: ^5.8.1
+        version: 5.8.1
       ultrahtml:
         specifier: ^1.6.0
         version: 1.6.0
@@ -11778,8 +11778,8 @@ packages:
   dettle@1.0.5:
     resolution: {integrity: sha512-ZVyjhAJ7sCe1PNXEGveObOH9AC8QvMga3HJIghHawtG7mE4K5pW9nz/vDGAr/U7a3LWgdOzEE7ac9MURnyfaTA==}
 
-  devalue@5.6.4:
-    resolution: {integrity: sha512-Gp6rDldRsFh/7XuouDbxMH3Mx8GMCcgzIb1pDTvNyn8pZGQ22u+Wa+lGV9dQCltFQ7uVw0MhRyb8XDskNFOReA==}
+  devalue@5.8.1:
+    resolution: {integrity: sha512-4CXDYRBGqN+57wVJkuXBYmpAVUSg3L6JAQa/DFqm238G73E1wuyc/JhGQJzN7vUf/CMphYau2zXbfWzDR5aTEw==}
 
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
@@ -21936,7 +21936,7 @@ snapshots:
 
   dettle@1.0.5: {}
 
-  devalue@5.6.4: {}
+  devalue@5.8.1: {}
 
   devlop@1.1.0:
     dependencies:
@@ -26333,7 +26333,7 @@ snapshots:
       aria-query: 5.3.1
       axobject-query: 4.1.0
       clsx: 2.1.1
-      devalue: 5.6.4
+      devalue: 5.8.1
       esm-env: 1.2.2
       esrap: 2.2.4
       is-reference: 3.0.3
