@@ -335,8 +335,14 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 
 			watcher.add(filePath);
 
+			// Use picomatch() to compile patterns into a matcher function.
+			// picomatch.isMatch() with array patterns containing negation entries (!pattern)
+			// incorrectly treats each array element independently, causing negation patterns
+			// to match everything. A compiled matcher correctly handles negation patterns.
+			// See https://github.com/withastro/astro/issues/16851
+			const matchGlob = picomatch(globOptions.pattern);
 			const matchesGlob = (entry: string) =>
-				!entry.startsWith('../') && picomatch.isMatch(entry, globOptions.pattern);
+				!entry.startsWith('../') && matchGlob(entry);
 
 			const basePath = fileURLToPath(baseDir);
 
