@@ -39,6 +39,23 @@ suite('Extension Test Suite', () => {
 		assert.strictEqual(hasAstroRef, true, 'Should find Astro reference');
 	}).timeout(50000);
 
+	test('can find references through Astro.locals inside Astro files', async () => {
+		const doc = await vscode.workspace.openTextDocument(
+			vscode.Uri.file(path.join(__dirname, '../fixtures/utilClass.ts')),
+		);
+
+		const references = await waitForTS<vscode.Location[]>(
+			'vscode.executeReferenceProvider',
+			[doc.uri, doc.positionAt(doc.getText().indexOf('toUpper'))],
+			(result) => result.some((ref) => ref.uri.path.includes('LocalsReference.astro')),
+		);
+
+		const hasAstroLocalsRef = references.some((ref) =>
+			ref.uri.path.includes('LocalsReference.astro'),
+		);
+		assert.strictEqual(hasAstroLocalsRef, true, 'Should find Astro.locals reference');
+	}).timeout(50000);
+
 	test('can get completions for Astro components', async () => {
 		const doc = await vscode.workspace.openTextDocument(
 			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts')),

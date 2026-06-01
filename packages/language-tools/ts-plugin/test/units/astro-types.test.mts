@@ -30,6 +30,7 @@ function createFixture() {
 		].join('\n'),
 	);
 	fs.writeFileSync(path.join(astroPackage, 'astro-jsx.d.ts'), '');
+	fs.writeFileSync(path.join(astroPackage, 'jsx-runtime.d.ts'), 'export {};');
 	fs.writeFileSync(
 		utilsFile,
 		[

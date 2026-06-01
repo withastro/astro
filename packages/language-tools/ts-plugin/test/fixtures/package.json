@@ -1,0 +1,6 @@
+{
+	"private": true,
+	"devDependencies": {
+		"astro": "link:./test-astro"
+	}
+}
