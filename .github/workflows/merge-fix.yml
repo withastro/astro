@@ -94,7 +94,7 @@ jobs:
 
       - name: Setup PNPM
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
-        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - name: Setup Node
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'

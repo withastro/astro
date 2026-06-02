@@ -60,6 +60,10 @@ export class I18n {
 		state.pipeline.usedFeatures |= PipelineFeatures.i18n;
 		const i18n = this.#i18n;
 		const typeHeader = response.headers.get(ROUTE_TYPE_HEADER);
+		// We don't need this header anymore, and we shouldn't pass downstream to users.
+		if (typeHeader) {
+			response.headers.delete(ROUTE_TYPE_HEADER);
+		}
 
 		// This is a case where we are internally rendering a 404/500, so we
 		// need to bypass checks that were done already.

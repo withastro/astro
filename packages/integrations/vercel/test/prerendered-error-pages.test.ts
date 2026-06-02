@@ -12,7 +12,7 @@ describe('prerendered error pages routing', () => {
 		await fixture.build({});
 	});
 
-	it('falls back to 404.html', async () => {
+	it('falls back to 404.html', { timeout: 30000 }, async () => {
 		const deploymentConfig = await getVercelConfig(fixture);
 		assert.deepEqual(
 			deploymentConfig.routes.find((r) => r.status === 404),

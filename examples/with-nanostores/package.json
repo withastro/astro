@@ -13,9 +13,9 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/preact": "^5.1.4",
+    "@astrojs/preact": "^5.1.5",
     "@nanostores/preact": "^1.0.0",
-    "astro": "^6.4.2",
+    "astro": "^6.4.3",
     "nanostores": "^1.1.1",
     "preact": "^10.28.4"
   }
