@@ -278,10 +278,12 @@ export class FetchState implements AstroFetchState {
 			this.#applyForwardedHeaders();
 		}
 
-		// Set origin pathname for rewrite tracking.
-		if (!Reflect.get(request, originPathnameSymbol)) {
+		// Set origin pathname for rewrite tracking. Use this.request
+		// (not the local parameter) because #applyForwardedHeaders()
+		// may have reconstructed it with a forwarded URL.
+		if (!Reflect.get(this.request, originPathnameSymbol)) {
 			setOriginPathname(
-				request,
+				this.request,
 				this.pathname,
 				pipeline.manifest.trailingSlash,
 				pipeline.manifest.buildFormat,
@@ -913,6 +915,17 @@ export class FetchState implements AstroFetchState {
 			if (forwardedFor) {
 				this.clientAddress = forwardedFor;
 			}
+		}
+
+		// Reconstruct the Request with the resolved URL so that
+		// request.url stays in sync with this.url. Request.url is a
+		// readonly string, so we must create a new Request object.
+		const oldRequest = this.request;
+		this.request = new Request(this.url, oldRequest);
+		// Carry over any symbol-keyed properties (e.g. appSymbol,
+		// clientAddressSymbol) that were attached to the old request.
+		for (const sym of Object.getOwnPropertySymbols(oldRequest)) {
+			Reflect.set(this.request, sym, Reflect.get(oldRequest, sym));
 		}
 	}
 

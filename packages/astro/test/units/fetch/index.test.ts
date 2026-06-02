@@ -850,6 +850,50 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 		const response = await astro(state);
 		assert.equal(response.status, 200);
 	});
+
+	it('updates request.url to match the forwarded URL', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/page', {
+				headers: {
+					'x-forwarded-proto': 'https',
+					'x-forwarded-host': 'example.com',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		// state.url should reflect the forwarded origin
+		assert.equal(state.url.protocol, 'https:');
+		assert.equal(state.url.hostname, 'example.com');
+
+		// state.request.url must also reflect the forwarded origin
+		// (regression test for #16945)
+		const requestUrl = new URL(state.request.url);
+		assert.equal(requestUrl.protocol, 'https:');
+		assert.equal(requestUrl.hostname, 'example.com');
+		assert.equal(requestUrl.pathname, '/page');
+	});
+
+	it('does not reconstruct request when no forwarded headers are validated', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'trusted.com' }],
+		});
+		const original = new Request('http://localhost:4321/', {
+			headers: {
+				'x-forwarded-host': 'evil.com',
+			},
+		});
+		const request = stampApp(original, app);
+		const state = new FetchState(request);
+
+		// Rejected forwarded host — request should stay unchanged
+		assert.equal(state.url.hostname, 'localhost');
+		assert.equal(new URL(state.request.url).hostname, 'localhost');
+	});
 });
 
 // #endregion
