@@ -11,6 +11,7 @@ import {
 	pages,
 	i18n,
 } from '../../../dist/core/fetch/index.js';
+import { ALL_PIPELINE_FEATURES } from '../../../dist/core/base-pipeline.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createEndpoint, createPage, createRedirect, createTestApp } from '../mocks.ts';
 import { dynamicPart } from '../routing/test-helpers.ts';
@@ -78,6 +79,16 @@ describe('FetchState (astro/fetch)', () => {
 		assert.ok(state.routeData, 'routeData should be set to the SSR route');
 		assert.equal(state.routeData!.route, '/[b_ssr]');
 		assert.equal(state.routeData!.prerender, false);
+	});
+
+	it('falls back to the 404 route when no route matches', () => {
+		const notFoundPage = createPage(simplePage, { route: '/404' });
+		const app = createTestApp([createPage(simplePage, { route: '/' }), notFoundPage]);
+		const request = stampApp(new Request('http://example.com/does-not-exist'), app);
+		const state = new FetchState(request);
+
+		assert.ok(state.routeData, 'routeData should fall back to the 404 route');
+		assert.equal(state.routeData!.route, '/404');
 	});
 });
 
@@ -236,6 +247,24 @@ describe('pages()', () => {
 		assert.equal(response.status, 200);
 		const text = await response.text();
 		assert.match(text, /<h1>Hello<\/h1>/);
+	});
+
+	it('renders the 404 page for unmatched routes instead of throwing', async () => {
+		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Not Found</h1>`;
+		});
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(notFoundPage, { route: '/404' }),
+		]);
+		const request = stampApp(new Request('http://example.com/does-not-exist'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 404);
+		const text = await response.text();
+		assert.match(text, /<h1>Not Found<\/h1>/);
 	});
 
 	it('renders an endpoint', async () => {
@@ -431,6 +460,34 @@ describe('astro() combined handler', () => {
 
 		assert.equal(response.status, 200);
 		assert.match(await response.text(), /middleware/);
+	});
+
+	it('marks all pipeline features as used even when first request is a redirect', async () => {
+		const app = createTestApp(
+			[
+				createRedirect({ route: '/old', redirect: '/new' }),
+				createPage(simplePage, { route: '/new' }),
+			],
+			{
+				middleware: async () => ({
+					onRequest: async (_ctx: any, next: any) => next(),
+				}),
+			},
+		);
+		const request = stampApp(new Request('http://example.com/old'), app);
+		const state = new FetchState(request);
+
+		const response = await astro(state);
+		assert.equal(response.status, 301);
+
+		// astro() is the "batteries-included" handler — it should mark
+		// every feature as used so the one-shot warnMissingFeatures check
+		// in BaseApp never fires a false positive.
+		assert.equal(
+			state.pipeline.usedFeatures & ALL_PIPELINE_FEATURES,
+			ALL_PIPELINE_FEATURES,
+			'astro() should mark all pipeline features as used',
+		);
 	});
 });
 

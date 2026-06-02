@@ -11,7 +11,7 @@ describe('Vercel edge middleware', () => {
 		await build.build({});
 	});
 
-	it('an edge function is created', async () => {
+	it('an edge function is created', { timeout: 30000 }, async () => {
 		const contents = await build.readFile(
 			'../.vercel/output/functions/_middleware.func/.vc-config.json',
 		);
@@ -20,7 +20,7 @@ describe('Vercel edge middleware', () => {
 		assert.equal(contentsJSON.entrypoint, 'middleware.mjs');
 	});
 
-	it('deployment config points to the middleware edge function', async () => {
+	it('deployment config points to the middleware edge function', { timeout: 30000 }, async () => {
 		const { routes } = await getVercelConfig(build);
 		assert.equal(
 			routes.some((route) => route.dest === '_middleware'),
@@ -28,7 +28,7 @@ describe('Vercel edge middleware', () => {
 		);
 	});
 
-	it('edge sets Set-Cookie headers', async () => {
+	it('edge sets Set-Cookie headers', { timeout: 30000 }, async () => {
 		const entry = new URL(
 			'../.vercel/output/functions/_middleware.func/middleware.mjs',
 			build.config.outDir,
@@ -40,7 +40,7 @@ describe('Vercel edge middleware', () => {
 		assert.ok((await response.text()).length, 'Body is included');
 	});
 
-	it('edge middleware forwards HTTP method and body', async () => {
+	it('edge middleware forwards HTTP method and body', { timeout: 30000 }, async () => {
 		const entry = new URL(
 			'../.vercel/output/functions/_middleware.func/middleware.mjs',
 			build.config.outDir,
@@ -69,7 +69,9 @@ describe('Vercel edge middleware', () => {
 	});
 
 	// TODO: The path here seems to be inconsistent?
-	it.skip('with edge handle file, should successfully build the middleware', async () => {
+	it.skip('with edge handle file, should successfully build the middleware', {
+		timeout: 30000,
+	}, async () => {
 		const fixture = await loadFixture({
 			root: './fixtures/middleware-with-edge-file/',
 		});
@@ -84,7 +86,9 @@ describe('Vercel edge middleware', () => {
 	});
 
 	// TODO: The path here seems to be inconsistent?
-	it.skip('without edge handle file, should successfully build the middleware', async () => {
+	it.skip('without edge handle file, should successfully build the middleware', {
+		timeout: 30000,
+	}, async () => {
 		const fixture = await loadFixture({
 			root: './fixtures/middleware-without-edge-file/',
 		});

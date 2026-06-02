@@ -57,7 +57,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
-    "devalue": "^5.6.3",
+    "devalue": "^5.8.1",
     "typescript": "^6.0.3"
   },
   "astro": {
