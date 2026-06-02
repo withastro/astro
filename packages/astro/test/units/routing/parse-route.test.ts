@@ -25,4 +25,30 @@ describe('parseRoute', () => {
 		assert.equal(pageRoute.route, '/blog/post');
 		assert.equal(pageRoute.isIndex, false);
 	});
+
+	it('preserves casing of dynamic param names in route pattern', () => {
+		const options: ParseRouteConfig = {
+			config: { base: '/', trailingSlash: 'ignore' } as AstroConfig,
+			pageExtensions: [],
+		};
+
+		const route = parseRoute('blog/[postId].astro', options, {
+			component: 'src/pages/blog/[postId].astro',
+		});
+		assert.equal(route.route, '/blog/[postId]');
+		assert.deepEqual(route.params, ['postId']);
+	});
+
+	it('preserves casing of multiple camelCase dynamic params', () => {
+		const options: ParseRouteConfig = {
+			config: { base: '/', trailingSlash: 'ignore' } as AstroConfig,
+			pageExtensions: [],
+		};
+
+		const route = parseRoute('users/[userId]/posts/[postSlug].astro', options, {
+			component: 'src/pages/users/[userId]/posts/[postSlug].astro',
+		});
+		assert.equal(route.route, '/users/[userId]/posts/[postSlug]');
+		assert.deepEqual(route.params, ['userId', 'postSlug']);
+	});
 });

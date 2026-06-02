@@ -166,12 +166,12 @@ describe('Route matching', () => {
 			const sortedRouteNames = sortedMatches.map((match) => match.route);
 
 			assert.deepEqual(sortedRouteNames, [
-				'/[astaticdynamic]',
-				'/[xstaticdynamic]',
-				'/[serverdynamic]',
-				'/[...astaticrest]',
-				'/[...xstaticrest]',
-				'/[...serverrest]',
+				'/[aStaticDynamic]',
+				'/[xStaticDynamic]',
+				'/[serverDynamic]',
+				'/[...aStaticRest]',
+				'/[...xStaticRest]',
+				'/[...serverRest]',
 			]);
 		});
 	});
