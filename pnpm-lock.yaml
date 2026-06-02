@@ -201,7 +201,7 @@ importers:
         version: link:../../packages/astro
       hono:
         specifier: ^4.12.14
-        version: 4.12.16
+        version: 4.12.18
 
   examples/basics:
     dependencies:
@@ -743,7 +743,7 @@ importers:
         version: 2.13.0
       hono:
         specifier: ^4.12.14
-        version: 4.12.16
+        version: 4.12.18
       mdast-util-mdx:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2146,12 +2146,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/astro-directives:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/astro-doctype:
     dependencies:
       astro:
@@ -2499,15 +2493,6 @@ importers:
 
   packages/astro/test/fixtures/cache-memory-query-include:
     dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/cache-route:
-    dependencies:
-      '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -3592,21 +3577,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/queue-rendering:
-    dependencies:
-      '@astrojs/react':
-        specifier: workspace:*
-        version: link:../../../../integrations/react
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
-
   packages/astro/test/fixtures/react-and-solid:
     dependencies:
       '@astrojs/react':
@@ -3877,15 +3847,6 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
-
-  packages/astro/test/fixtures/ssr-api-route:
-    dependencies:
-      '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
-      astro:
-        specifier: workspace:*
-        version: link:../../..
 
   packages/astro/test/fixtures/ssr-assets:
     dependencies:
@@ -6806,16 +6767,13 @@ importers:
       is-wsl:
         specifier: ^3.1.1
         version: 3.1.1
-      which-pm-runs:
-        specifier: ^1.1.0
-        version: 1.1.0
+      package-manager-detector:
+        specifier: ^1.6.0
+        version: 1.6.0
     devDependencies:
       '@types/node':
         specifier: ^22.19.0
         version: 22.19.19
-      '@types/which-pm-runs':
-        specifier: ^1.0.2
-        version: 1.0.2
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
@@ -10385,9 +10343,6 @@ packages:
   '@types/vscode@1.109.0':
     resolution: {integrity: sha512-0Pf95rnwEIwDbmXGC08r0B4TQhAbsHQ5UyTIgVgoieDe4cOnf92usuR5dEczb6bTKEp7ziZH4TV1TRGPPCExtw==}
 
-  '@types/which-pm-runs@1.0.2':
-    resolution: {integrity: sha512-M0ZefeDApctHbjqtATOiixiwafG7pXD3exxnjku4XmX9+2DmONGghv5Z8Pnm0lNLBZKvDQyuG+4pLkH2UkP5gg==}
-
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
@@ -12676,8 +12631,8 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
-  hono@4.12.16:
-    resolution: {integrity: sha512-jN0ZewiNAWSe5khM3EyCmBb250+b40wWbwNILNfEvq84VREWwOIkuUsFONk/3i3nqkz7Oe1PcpM2mwQEK2L9Kg==}
+  hono@4.12.18:
+    resolution: {integrity: sha512-RWzP96k/yv0PQfyXnWjs6zot20TqfpfsNXhOnev8d1InAxubW93L11/oNUc3tQqn2G0bSdAOBpX+2uDFHV7kdQ==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -18369,13 +18324,13 @@ snapshots:
   '@flue/sdk@0.3.10(typescript@6.0.3)(wrangler@4.95.0)(ws@8.20.1)(zod@4.3.6)':
     dependencies:
       '@cloudflare/shell': 0.3.6(@modelcontextprotocol/sdk@1.29.0)(zod@4.3.6)
-      '@hono/node-server': 1.19.14(hono@4.12.16)
+      '@hono/node-server': 1.19.14(hono@4.12.18)
       '@mariozechner/pi-agent-core': 0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.20.1)(zod@4.3.6)
       '@mariozechner/pi-ai': 0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.20.1)(zod@4.3.6)
       '@modelcontextprotocol/sdk': 1.29.0
       '@valibot/to-json-schema': 1.5.0(valibot@1.2.0)
       esbuild: 0.25.5
-      hono: 4.12.16
+      hono: 4.12.18
       just-bash: 2.14.3
       package-up: 5.0.0
       valibot: 1.2.0(typescript@6.0.3)
@@ -18410,9 +18365,9 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@hono/node-server@1.19.14(hono@4.12.16)':
+  '@hono/node-server@1.19.14(hono@4.12.18)':
     dependencies:
-      hono: 4.12.16
+      hono: 4.12.18
 
   '@humanfs/core@0.19.1': {}
 
@@ -18777,7 +18732,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.29.0':
     dependencies:
-      '@hono/node-server': 1.19.14(hono@4.12.16)
+      '@hono/node-server': 1.19.14(hono@4.12.18)
       ajv: 8.20.0
       ajv-formats: 3.0.1
       content-type: 1.0.5
@@ -18787,7 +18742,7 @@ snapshots:
       eventsource-parser: 3.0.8
       express: 5.2.1
       express-rate-limit: 8.4.1(express@5.2.1)
-      hono: 4.12.16
+      hono: 4.12.18
       jose: 6.2.3
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -20382,8 +20337,6 @@ snapshots:
   '@types/unist@3.0.3': {}
 
   '@types/vscode@1.109.0': {}
-
-  '@types/which-pm-runs@1.0.2': {}
 
   '@types/ws@8.18.1':
     dependencies:
@@ -23099,7 +23052,7 @@ snapshots:
 
   he@1.2.0: {}
 
-  hono@4.12.16: {}
+  hono@4.12.18: {}
 
   hookable@5.5.3: {}
 
