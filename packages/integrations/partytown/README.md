@@ -1,6 +1,6 @@
 # @astrojs/partytown 🎉
 
-This **[Astro integration][astro-integration]** enables [Partytown](https://partytown.builder.io/) in your Astro project.
+This **[Astro integration][astro-integration]** enables [Partytown](https://partytown.qwik.dev/) in your Astro project.
 
 ## Documentation
 

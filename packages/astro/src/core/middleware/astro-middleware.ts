@@ -2,7 +2,6 @@ import type { FetchState } from '../fetch/fetch-state.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
 import { type Pipeline, PipelineFeatures } from '../base-pipeline.js';
-import { ROUTE_TYPE_HEADER } from '../constants.js';
 import { attachCookiesToResponse } from '../cookies/index.js';
 import { applyRewriteToState } from '../rewrites/handler.js';
 import { callMiddleware } from './callMiddleware.js';
@@ -77,9 +76,6 @@ export class AstroMiddleware {
 	}
 
 	#finalize(state: FetchState, response: Response): Response {
-		if (response.headers.get(ROUTE_TYPE_HEADER)) {
-			response.headers.delete(ROUTE_TYPE_HEADER);
-		}
 		// LEGACY: we put cookies on the response object,
 		// where the adapter might be expecting to read it.
 		// New code should be using `app.render({ addCookieHeader: true })` instead.
