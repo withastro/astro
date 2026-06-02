@@ -53,7 +53,7 @@
     "astro": "^6.0.0"
   },
   "devDependencies": {
-    "@types/node": "^22.10.6",
+    "@types/node": "^22.19.0",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",

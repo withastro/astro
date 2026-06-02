@@ -70,7 +70,7 @@
     "@changesets/cli": "^2.29.8",
     "@flue/cli": "^0.3.10",
     "@flue/sdk": "^0.3.10",
-    "@types/node": "^22.10.6",
+    "@types/node": "^22.19.0",
     "bgproc": "^0.2.0",
     "esbuild": "0.25.5",
     "eslint": "^10.4.0",

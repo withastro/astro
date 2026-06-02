@@ -44,7 +44,7 @@
     "@fastify/middie": "^9.1.0",
     "@fastify/static": "^9.0.0",
     "@types/express": "^5.0.6",
-    "@types/node": "^22.10.6",
+    "@types/node": "^22.19.0",
     "@types/send": "^1.2.1",
     "@types/server-destroy": "^1.0.4",
     "astro": "workspace:*",
