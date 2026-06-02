@@ -102,5 +102,5 @@ function joinSegments(segments: RoutePart[][]): string {
 		return segment.map((part) => (part.dynamic ? `[${part.content}]` : part.content)).join('');
 	});
 
-	return `/${arr.join('/')}`.toLowerCase();
+	return `/${arr.join('/')}`;
 }
