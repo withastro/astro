@@ -776,11 +776,14 @@ export class FetchState implements AstroFetchState {
 	 */
 	/**
 	 * Strip `.html` / `/index.html` suffixes from the pathname so the
-	 * rendering pipeline sees the canonical route path. Skipped when the
-	 * matched route itself has an `.html` extension in its definition.
+	 * rendering pipeline sees the canonical route path. Only applies to
+	 * page routes where `.html` is framework-injected. Endpoint routes
+	 * preserve `.html` because any such suffix is user-provided (e.g.
+	 * from `getStaticPaths` params). Skipped when the matched route
+	 * itself has an `.html` extension in its definition.
 	 */
 	#stripHtmlExtension(): void {
-		if (this.routeData && !routeHasHtmlExtension(this.routeData)) {
+		if (this.routeData && this.routeData.type === 'page' && !routeHasHtmlExtension(this.routeData)) {
 			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 		}
 	}
