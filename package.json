@@ -61,7 +61,7 @@
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "11.0.9"
+      "version": "11.5.0"
     }
   },
   "dependencies": {

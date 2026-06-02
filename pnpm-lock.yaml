@@ -567,8 +567,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       devalue:
-        specifier: ^5.6.3
-        version: 5.6.4
+        specifier: ^5.8.1
+        version: 5.8.1
       diff:
         specifier: ^8.0.3
         version: 8.0.3
@@ -2149,12 +2149,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/astro-directives:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/astro-doctype:
     dependencies:
       astro:
@@ -2502,15 +2496,6 @@ importers:
 
   packages/astro/test/fixtures/cache-memory-query-include:
     dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/cache-route:
-    dependencies:
-      '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -3592,21 +3577,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/queue-rendering:
-    dependencies:
-      '@astrojs/react':
-        specifier: workspace:*
-        version: link:../../../../integrations/react
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
-
   packages/astro/test/fixtures/react-and-solid:
     dependencies:
       '@astrojs/react':
@@ -3877,15 +3847,6 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
-
-  packages/astro/test/fixtures/ssr-api-route:
-    dependencies:
-      '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
-      astro:
-        specifier: workspace:*
-        version: link:../../..
 
   packages/astro/test/fixtures/ssr-assets:
     dependencies:
@@ -4413,8 +4374,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       devalue:
-        specifier: ^5.6.3
-        version: 5.6.4
+        specifier: ^5.8.1
+        version: 5.8.1
       prismjs:
         specifier: ^1.30.0
         version: 1.30.0
@@ -4881,8 +4842,8 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       devalue:
-        specifier: ^5.6.3
-        version: 5.6.4
+        specifier: ^5.8.1
+        version: 5.8.1
       linkedom:
         specifier: ^0.18.12
         version: 0.18.12
@@ -5408,8 +5369,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       devalue:
-        specifier: ^5.6.3
-        version: 5.6.4
+        specifier: ^5.8.1
+        version: 5.8.1
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -5545,8 +5506,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       devalue:
-        specifier: ^5.6.3
-        version: 5.6.4
+        specifier: ^5.8.1
+        version: 5.8.1
       express:
         specifier: ^5.2.1
         version: 5.2.1
@@ -5759,8 +5720,8 @@ importers:
         specifier: ^2.8.2
         version: 2.8.2(preact@10.29.0)
       devalue:
-        specifier: ^5.6.4
-        version: 5.6.4
+        specifier: ^5.8.1
+        version: 5.8.1
       preact-render-to-string:
         specifier: ^6.6.6
         version: 6.6.6(preact@10.29.0)
@@ -5787,8 +5748,8 @@ importers:
         specifier: ^5.2.0
         version: 5.2.0(vite@7.3.2)
       devalue:
-        specifier: ^5.6.4
-        version: 5.6.4
+        specifier: ^5.8.1
+        version: 5.8.1
       ultrahtml:
         specifier: ^1.6.0
         version: 1.6.0
@@ -6806,16 +6767,13 @@ importers:
       is-wsl:
         specifier: ^3.1.1
         version: 3.1.1
-      which-pm-runs:
-        specifier: ^1.1.0
-        version: 1.1.0
+      package-manager-detector:
+        specifier: ^1.6.0
+        version: 1.6.0
     devDependencies:
       '@types/node':
         specifier: ^22.19.0
         version: 22.19.19
-      '@types/which-pm-runs':
-        specifier: ^1.0.2
-        version: 1.0.2
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
@@ -10427,9 +10385,6 @@ packages:
   '@types/vscode@1.109.0':
     resolution: {integrity: sha512-0Pf95rnwEIwDbmXGC08r0B4TQhAbsHQ5UyTIgVgoieDe4cOnf92usuR5dEczb6bTKEp7ziZH4TV1TRGPPCExtw==}
 
-  '@types/which-pm-runs@1.0.2':
-    resolution: {integrity: sha512-M0ZefeDApctHbjqtATOiixiwafG7pXD3exxnjku4XmX9+2DmONGghv5Z8Pnm0lNLBZKvDQyuG+4pLkH2UkP5gg==}
-
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
@@ -11775,8 +11730,8 @@ packages:
   dettle@1.0.5:
     resolution: {integrity: sha512-ZVyjhAJ7sCe1PNXEGveObOH9AC8QvMga3HJIghHawtG7mE4K5pW9nz/vDGAr/U7a3LWgdOzEE7ac9MURnyfaTA==}
 
-  devalue@5.6.4:
-    resolution: {integrity: sha512-Gp6rDldRsFh/7XuouDbxMH3Mx8GMCcgzIb1pDTvNyn8pZGQ22u+Wa+lGV9dQCltFQ7uVw0MhRyb8XDskNFOReA==}
+  devalue@5.8.1:
+    resolution: {integrity: sha512-4CXDYRBGqN+57wVJkuXBYmpAVUSg3L6JAQa/DFqm238G73E1wuyc/JhGQJzN7vUf/CMphYau2zXbfWzDR5aTEw==}
 
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
@@ -20370,8 +20325,6 @@ snapshots:
 
   '@types/vscode@1.109.0': {}
 
-  '@types/which-pm-runs@1.0.2': {}
-
   '@types/ws@8.18.1':
     dependencies:
       '@types/node': 22.19.19
@@ -21929,7 +21882,7 @@ snapshots:
 
   dettle@1.0.5: {}
 
-  devalue@5.6.4: {}
+  devalue@5.8.1: {}
 
   devlop@1.1.0:
     dependencies:
@@ -26322,7 +26275,7 @@ snapshots:
       aria-query: 5.3.1
       axobject-query: 4.1.0
       clsx: 2.1.1
-      devalue: 5.6.4
+      devalue: 5.8.1
       esm-env: 1.2.2
       esrap: 2.2.4
       is-reference: 3.0.3
