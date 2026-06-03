@@ -191,19 +191,19 @@ importers:
   examples/advanced-routing:
     dependencies:
       '@astrojs/node':
-        specifier: ^10.1.2
+        specifier: ^10.1.3
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
       hono:
         specifier: ^4.12.14
-        version: 4.12.16
+        version: 4.12.18
 
   examples/basics:
     dependencies:
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
 
   examples/blog:
@@ -218,7 +218,7 @@ importers:
         specifier: ^3.7.3
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
       sharp:
         specifier: ^0.34.3
@@ -227,16 +227,16 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
 
   examples/container-with-vitest:
     dependencies:
       '@astrojs/react':
-        specifier: ^5.0.6
+        specifier: ^5.0.7
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -267,16 +267,16 @@ importers:
         specifier: ^3.15.8
         version: 3.15.8
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
 
   examples/framework-multiple:
     dependencies:
       '@astrojs/preact':
-        specifier: ^5.1.4
+        specifier: ^5.1.5
         version: link:../../packages/integrations/preact
       '@astrojs/react':
-        specifier: ^5.0.6
+        specifier: ^5.0.7
         version: link:../../packages/integrations/react
       '@astrojs/solid-js':
         specifier: ^6.0.1
@@ -294,7 +294,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -318,13 +318,13 @@ importers:
   examples/framework-preact:
     dependencies:
       '@astrojs/preact':
-        specifier: ^5.1.4
+        specifier: ^5.1.5
         version: link:../../packages/integrations/preact
       '@preact/signals':
         specifier: ^2.8.1
         version: 2.8.2(preact@10.29.0)
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -333,7 +333,7 @@ importers:
   examples/framework-react:
     dependencies:
       '@astrojs/react':
-        specifier: ^5.0.6
+        specifier: ^5.0.7
         version: link:../../packages/integrations/react
       '@types/react':
         specifier: ^18.3.28
@@ -342,7 +342,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -357,7 +357,7 @@ importers:
         specifier: ^6.0.1
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.11
@@ -369,7 +369,7 @@ importers:
         specifier: ^8.1.2
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -381,7 +381,7 @@ importers:
         specifier: ^6.0.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.29
@@ -390,40 +390,40 @@ importers:
   examples/hackernews:
     dependencies:
       '@astrojs/node':
-        specifier: ^10.1.2
+        specifier: ^10.1.3
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
 
   examples/ssr:
     dependencies:
       '@astrojs/node':
-        specifier: ^10.1.2
+        specifier: ^10.1.3
         version: link:../../packages/integrations/node
       '@astrojs/svelte':
         specifier: ^8.1.2
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -432,7 +432,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
       sass:
         specifier: ^1.97.3
@@ -447,7 +447,7 @@ importers:
         specifier: ^22.19.0
         version: 22.19.19
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -456,7 +456,7 @@ importers:
         specifier: ^1.0.6
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -465,10 +465,10 @@ importers:
         specifier: ^6.0.1
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
-        specifier: ^5.1.4
+        specifier: ^5.1.5
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -477,13 +477,13 @@ importers:
   examples/with-nanostores:
     dependencies:
       '@astrojs/preact':
-        specifier: ^5.1.4
+        specifier: ^5.1.5
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
         specifier: ^1.0.0
         version: 1.0.0(nanostores@1.1.1)(preact@10.29.0)
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
       nanostores:
         specifier: ^1.1.1
@@ -504,7 +504,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -516,7 +516,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^6.4.2
+        specifier: ^6.4.3
         version: link:../../packages/astro
       vitest:
         specifier: ^4.1.0
@@ -743,7 +743,7 @@ importers:
         version: 2.13.0
       hono:
         specifier: ^4.12.14
-        version: 4.12.16
+        version: 4.12.18
       mdast-util-mdx:
         specifier: ^3.0.0
         version: 3.0.0
@@ -12653,8 +12653,8 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
-  hono@4.12.16:
-    resolution: {integrity: sha512-jN0ZewiNAWSe5khM3EyCmBb250+b40wWbwNILNfEvq84VREWwOIkuUsFONk/3i3nqkz7Oe1PcpM2mwQEK2L9Kg==}
+  hono@4.12.18:
+    resolution: {integrity: sha512-RWzP96k/yv0PQfyXnWjs6zot20TqfpfsNXhOnev8d1InAxubW93L11/oNUc3tQqn2G0bSdAOBpX+2uDFHV7kdQ==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -18284,13 +18284,13 @@ snapshots:
   '@flue/sdk@0.3.10(typescript@6.0.3)(wrangler@4.95.0)(ws@8.20.1)(zod@4.3.6)':
     dependencies:
       '@cloudflare/shell': 0.3.6(@modelcontextprotocol/sdk@1.29.0)(zod@4.3.6)
-      '@hono/node-server': 1.19.14(hono@4.12.16)
+      '@hono/node-server': 1.19.14(hono@4.12.18)
       '@mariozechner/pi-agent-core': 0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.20.1)(zod@4.3.6)
       '@mariozechner/pi-ai': 0.71.1(@modelcontextprotocol/sdk@1.29.0)(ws@8.20.1)(zod@4.3.6)
       '@modelcontextprotocol/sdk': 1.29.0
       '@valibot/to-json-schema': 1.5.0(valibot@1.2.0)
       esbuild: 0.25.5
-      hono: 4.12.16
+      hono: 4.12.18
       just-bash: 2.14.3
       package-up: 5.0.0
       valibot: 1.2.0(typescript@6.0.3)
@@ -18325,9 +18325,9 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@hono/node-server@1.19.14(hono@4.12.16)':
+  '@hono/node-server@1.19.14(hono@4.12.18)':
     dependencies:
-      hono: 4.12.16
+      hono: 4.12.18
 
   '@humanfs/core@0.19.1': {}
 
@@ -18692,7 +18692,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.29.0':
     dependencies:
-      '@hono/node-server': 1.19.14(hono@4.12.16)
+      '@hono/node-server': 1.19.14(hono@4.12.18)
       ajv: 8.20.0
       ajv-formats: 3.0.1
       content-type: 1.0.5
@@ -18702,7 +18702,7 @@ snapshots:
       eventsource-parser: 3.0.8
       express: 5.2.1
       express-rate-limit: 8.4.1(express@5.2.1)
-      hono: 4.12.16
+      hono: 4.12.18
       jose: 6.2.3
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -23018,7 +23018,7 @@ snapshots:
 
   he@1.2.0: {}
 
-  hono@4.12.16: {}
+  hono@4.12.18: {}
 
   hookable@5.5.3: {}
 

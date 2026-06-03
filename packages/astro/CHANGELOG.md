@@ -1,5 +1,21 @@
 # astro
 
+## 6.4.3
+
+### Patch Changes
+
+- [#16900](https://github.com/withastro/astro/pull/16900) [`17a0fbd`](https://github.com/withastro/astro/commit/17a0fbd34d11db765e79caf269bfd5f43ef51da8) Thanks [@ocavue](https://github.com/ocavue)! - Bumps `devalue` dependency to v5.8.1
+
+- [#16016](https://github.com/withastro/astro/pull/16016) [`0d85e1b`](https://github.com/withastro/astro/commit/0d85e1b7ea58a243bd1b61bdfb951c4fd87b9db5) Thanks [@felmonon](https://github.com/felmonon)! - Fix a false positive in the dev toolbar accessibility audit for anchors with text inside closed `<details>` elements.
+
+- [#16911](https://github.com/withastro/astro/pull/16911) [`79c6c46`](https://github.com/withastro/astro/commit/79c6c469a735bece8a80200f7b188e15f1abff24) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a bug where `experimental.advancedRouting` with `astro/hono` handlers threw `TypeError: Cannot read properties of undefined (reading 'route')` for unmatched routes instead of rendering the custom 404 page.
+
+- [#16899](https://github.com/withastro/astro/pull/16899) [`239c469`](https://github.com/withastro/astro/commit/239c469cd2cd66d147a302a2ca14e07a0891f9b8) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a false "does not call the middleware() handler" warning when using `astro()` in a custom `src/app.ts` and the first request is a redirect route.
+
+- [#16887](https://github.com/withastro/astro/pull/16887) [`493acdb`](https://github.com/withastro/astro/commit/493acdb4abc56534e9efa68af16e3ef273d7d88b) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `redirectToDefaultLocale` not working after the Advanced Routing refactoring.
+
+- [#16908](https://github.com/withastro/astro/pull/16908) [`ef53ab9`](https://github.com/withastro/astro/commit/ef53ab91e8362b50bb1a3ab73d9350b93ea41de4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves optimized fallbacks generation when using the Fonts API by using better metrics for bold variants
+
 ## 6.4.2
 
 ### Patch Changes

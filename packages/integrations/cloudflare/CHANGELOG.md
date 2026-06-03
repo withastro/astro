@@ -1,5 +1,16 @@
 # @astrojs/cloudflare
 
+## 13.6.1
+
+### Patch Changes
+
+- [#16914](https://github.com/withastro/astro/pull/16914) [`4bdd240`](https://github.com/withastro/astro/commit/4bdd240a6174b12ee9344d9b97456079aa5975ce) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro/fetch` and `astro/hono` being discovered at runtime during dev instead of pre-bundled
+
+- [#16693](https://github.com/withastro/astro/pull/16693) [`9e6edc2`](https://github.com/withastro/astro/commit/9e6edc2da5ccf06243588a7f519dea5fbcc126cd) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes a link in the documentation specifying where to open an issue for the adapter.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 13.6.0
 
 ### Minor Changes
