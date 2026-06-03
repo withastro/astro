@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-satteri",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -28,7 +28,7 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "github-slugger": "^2.0.0",
-    "satteri": "^0.6.3"
+    "satteri": "^0.8.0"
   },
   "devDependencies": {
     "astro-scripts": "workspace:*"

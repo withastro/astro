@@ -1,3 +1,4 @@
+import { pathToFileURL } from 'node:url';
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import { createShikiHighlighter } from '@astrojs/internal-helpers/shiki';
 import type { SatteriResolvedOptions } from '@astrojs/markdown-satteri';
@@ -150,14 +151,16 @@ export function createMdxProcessor(
 				optimizeStatic,
 				features: {
 					...satteriOptions.features,
-					gfm: mdxOptions.gfm !== false,
-					// `mdxOptions.smartypants` is always boolean-shaped; skip the override when
-					// satteri's `smartPunctuation` is an object so granular config isn't clobbered.
+					// `mdxOptions.gfm`/`smartypants` are always boolean-shaped; skip the override when
+					// satteri's feature is an object so granular config isn't clobbered.
+					...(typeof satteriOptions.features.gfm === 'object'
+						? {}
+						: { gfm: mdxOptions.gfm !== false }),
 					...(typeof satteriOptions.features.smartPunctuation === 'object'
 						? {}
 						: { smartPunctuation: mdxOptions.smartypants !== false }),
 				},
-				filename: filePath,
+				fileURL: pathToFileURL(filePath),
 				jsxImportSource: 'astro',
 			});
 			let compiled = mdxResult.code;

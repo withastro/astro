@@ -10,6 +10,16 @@
 
 - Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
   - astro@7.0.0-alpha.0
+## 13.6.1
+
+### Patch Changes
+
+- [#16914](https://github.com/withastro/astro/pull/16914) [`4bdd240`](https://github.com/withastro/astro/commit/4bdd240a6174b12ee9344d9b97456079aa5975ce) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro/fetch` and `astro/hono` being discovered at runtime during dev instead of pre-bundled
+
+- [#16693](https://github.com/withastro/astro/pull/16693) [`9e6edc2`](https://github.com/withastro/astro/commit/9e6edc2da5ccf06243588a7f519dea5fbcc126cd) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes a link in the documentation specifying where to open an issue for the adapter.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
 
 ## 13.6.0
 

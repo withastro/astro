@@ -293,7 +293,7 @@ export async function createSatteriMarkdownProcessor(
 					smartPunctuation: smartypants !== false,
 					...userFeatures,
 				},
-				filename: renderOpts?.fileURL?.pathname,
+				fileURL: renderOpts?.fileURL,
 			});
 
 			return {
