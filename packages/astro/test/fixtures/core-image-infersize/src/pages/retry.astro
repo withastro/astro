@@ -1,0 +1,10 @@
+---
+import { Image } from 'astro:assets';
+
+const remoteImageUrl = process.env.ASTRO_REMOTE_IMAGE_RETRY_URL;
+if (!remoteImageUrl) {
+	throw new Error('ASTRO_REMOTE_IMAGE_RETRY_URL is required for this test page.');
+}
+---
+
+<Image src={remoteImageUrl} inferSize={true} alt="" id="retry-image" />
