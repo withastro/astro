@@ -174,6 +174,7 @@ export default function createIntegration({
 				const needsImagesBindingForDev = isCompile && command === 'dev';
 				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
 				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
+				const isTypeGenOnly = command === 'build' || command === 'sync';
 
 				const adapterPluginConfig: Partial<PluginConfig> = {
 					config: cloudflareConfigCustomizer({
@@ -241,6 +242,18 @@ export default function createIntegration({
 				// include, and esbuildOptions (e.g. loader) entries are respected.
 				const userOptimizeDeps = config.vite?.optimizeDeps;
 
+				const cloudflareVitePlugins = cfVitePlugin({
+					...cfPluginConfig,
+					viteEnvironment: { name: 'ssr' },
+					assetsOnly: () => _buildOutput === 'static',
+				});
+				// Avoid starting the Cloudflare dev runtime during type generation. See #16332.
+				if (isTypeGenOnly) {
+					for (const plugin of cloudflareVitePlugins) {
+						plugin.configureServer = undefined;
+					}
+				}
+
 				updateConfig({
 					build: {
 						redirects: false,
@@ -251,11 +264,7 @@ export default function createIntegration({
 							...(prerenderEnvironment === 'node' && command === 'dev'
 								? [createNodePrerenderPlugin()]
 								: []),
-							cfVitePlugin({
-								...cfPluginConfig,
-								viteEnvironment: { name: 'ssr' },
-								assetsOnly: () => _buildOutput === 'static',
-							}),
+							cloudflareVitePlugins,
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
@@ -271,6 +280,10 @@ export default function createIntegration({
 							{
 								name: '@astrojs/cloudflare:environment',
 								configEnvironment(environmentName, _options) {
+									// Avoid dependency optimization during type generation. See #16332.
+									if (isTypeGenOnly) {
+										return { optimizeDeps: { noDiscovery: true, include: [] } };
+									}
 									const isServerEnvironment = ['astro', 'ssr', 'prerender'].includes(
 										environmentName,
 									);
