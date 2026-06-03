@@ -5,15 +5,17 @@ import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css
 import { isAstroServerEnvironment } from '../environments.js';
 
 const STYLE_EXT_REGEX = /\.(?:css|scss|sass|less|styl|pcss)$/i;
+const RAW_QUERY_REGEX = /(?:\?|&)raw(?:&|$)/;
+
+function hasStyleExtension(id: string): boolean {
+	return STYLE_EXT_REGEX.test(id.split('?')[0]);
+}
 
 function isStyleModule(mod: EnvironmentModuleNode): boolean {
-	if (mod.file && STYLE_EXT_REGEX.test(mod.file)) return true;
+	if (mod.id && RAW_QUERY_REGEX.test(mod.id) && hasStyleExtension(mod.id)) return false;
+	if (mod.file && hasStyleExtension(mod.file)) return true;
 	// CSS modules and other style files may have query params in their id (e.g. ?used, ?direct)
-	if (mod.id) {
-		const idPath = mod.id.split('?')[0];
-		if (STYLE_EXT_REGEX.test(idPath)) return true;
-	}
-	return false;
+	return mod.id ? hasStyleExtension(mod.id) : false;
 }
 
 /**

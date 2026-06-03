@@ -171,6 +171,24 @@ describe('astro:hmr-reload', () => {
 		assert.equal(result.length, 0, 'should return empty array for styles');
 	});
 
+	it('invalidates raw CSS imports as SSR-only modules', () => {
+		const mod = createMockModule('/src/styles/main.css?raw', '/src/styles/main.css');
+		const ctx = createMockContext({
+			environmentName: 'ssr',
+			modules: [mod],
+			clientModuleIds: [],
+		});
+
+		const result = ctx.call();
+
+		assert.ok(Array.isArray(result), 'should return an array');
+		assert.equal(result.length, 0, 'should return empty array');
+		assert.equal(ctx.invalidated.length, 1, 'should invalidate raw CSS module');
+		assert.equal(ctx.invalidated[0], mod);
+		assert.equal(ctx.wsSent.length, 1);
+		assert.deepEqual(ctx.wsSent[0], { type: 'full-reload' });
+	});
+
 	it('invalidates importers in the module graph for dynamic import chains', () => {
 		const component = createMockModule('/src/components/MyComponent.astro');
 		const barrel = createMockModule('/src/components/index.ts');
