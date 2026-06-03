@@ -272,7 +272,10 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		try {
 			return decodeURI(pathname);
 		} catch (e: any) {
-			this.adapterLogger.error(e.toString());
+			// Malformed request paths are expected client input (commonly from automated
+			// scanners) rather than a server fault, and this runs per-request on the hot
+			// path. Log at `debug` so it stays diagnosable without flooding error logs.
+			this.adapterLogger.debug(e.toString());
 			return pathname;
 		}
 	}

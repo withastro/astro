@@ -51,10 +51,14 @@ describe('Malformed URI handling in App.match', () => {
 		assert.equal(app.match(request), undefined, 'no route should match a malformed path');
 	});
 
-	it('render() does not return a 500 for a malformed percent-sequence', async () => {
+	it('render() returns a 404 for a malformed percent-sequence', async () => {
 		const request = new Request('http://example.com/%C0%AF');
 		const response = await app.render(request);
-		assert.notEqual(response.status, 500, 'a malformed path must not cause an uncaught 500');
+		assert.equal(
+			response.status,
+			404,
+			'a malformed path must resolve to a normal 404, not an uncaught 500',
+		);
 	});
 
 	it('valid routes still match', () => {
