@@ -780,7 +780,11 @@ export class FetchState implements AstroFetchState {
 	 * itself has an `.html` extension in its definition.
 	 */
 	#stripHtmlExtension(): void {
-		if (this.routeData && this.routeData.type === 'page' && !routeHasHtmlExtension(this.routeData)) {
+		if (
+			this.routeData &&
+			this.routeData.type === 'page' &&
+			!routeHasHtmlExtension(this.routeData)
+		) {
 			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 		}
 	}
