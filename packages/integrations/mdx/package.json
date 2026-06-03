@@ -76,7 +76,7 @@
     "remark-math": "^6.0.0",
     "remark-rehype": "^11.1.2",
     "remark-toc": "^9.0.0",
-    "satteri": "^0.6.3",
+    "satteri": "^0.7.0",
     "shiki": "^4.0.2",
     "unified": "^11.0.5",
     "vite": "^7.3.2"
