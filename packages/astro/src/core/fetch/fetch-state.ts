@@ -639,7 +639,14 @@ export class FetchState implements AstroFetchState {
 			}
 		} else {
 			let pathname = routeData.pathname;
-			if (url && !routeData.pattern.test(url.pathname)) {
+			// For domain-based i18n the locale prefix comes from the Host header,
+			// not the URL. `this.pathname` carries the locale-prefixed path the
+			// route matched against (e.g. `/en/boats/1/foo`), whereas `url.pathname`
+			// does not. This matters for dynamic routes, which have no static
+			// `routeData.pathname` to fall back to. See #16854.
+			if (this.renderOptions.domainPathname) {
+				pathname = this.pathname;
+			} else if (url && !routeData.pattern.test(url.pathname)) {
 				for (const fallbackRoute of routeData.fallbackRoutes) {
 					if (fallbackRoute.pattern.test(url.pathname)) {
 						pathname = fallbackRoute.pathname;

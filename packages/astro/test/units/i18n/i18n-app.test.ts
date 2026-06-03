@@ -430,29 +430,33 @@ describe('i18n via App - domains-prefix-other-locales with dynamic params (#1685
 	const middleware = createI18nMiddleware(i18n, '/', 'ignore', 'directory');
 
 	function createDomainApp() {
-		return createTestApp(
-			[
-				createPage(paramsPage, {
-					route: '/boats/[id]/[slug]',
-					segments: [[staticPart('boats')], [dynamicPart('id')], [dynamicPart('slug')]],
-					pathname: undefined,
-				}),
-				createPage(paramsPage, {
-					route: '/en/boats/[id]/[slug]',
-					segments: [
-						[staticPart('en')],
-						[staticPart('boats')],
-						[dynamicPart('id')],
-						[dynamicPart('slug')],
-					],
-					pathname: undefined,
-				}),
+		const fiPage = createPage(paramsPage, {
+			route: '/boats/[id]/[slug]',
+			segments: [[staticPart('boats')], [dynamicPart('id')], [dynamicPart('slug')]],
+		});
+		const enPage = createPage(paramsPage, {
+			route: '/en/boats/[id]/[slug]',
+			segments: [
+				[staticPart('en')],
+				[staticPart('boats')],
+				[dynamicPart('id')],
+				[dynamicPart('slug')],
 			],
-			{ i18n, middleware: () => ({ onRequest: middleware }) },
-		);
+		});
+		// Real Astro leaves `pathname` undefined for dynamic routes, but the mock
+		// defaults it to the route string (which contains the `/en/` prefix). That
+		// would mask the `Astro.currentLocale` bug, since locale detection would
+		// find the prefix in routeData.pathname instead of relying on the
+		// domain-derived pathname. Null it out so the test reproduces #16854.
+		fiPage.routeData.pathname = undefined;
+		enPage.routeData.pathname = undefined;
+		return createTestApp([fiPage, enPage], {
+			i18n,
+			middleware: () => ({ onRequest: middleware }),
+		});
 	}
 
-	it('resolves params for dynamic route on non-default locale domain', async () => {
+	it('resolves params and currentLocale for dynamic route on non-default locale domain', async () => {
 		const app = createDomainApp();
 		const res = await app.render(
 			new Request('https://en.example.com/boats/1/sunset-cruiser', {
@@ -463,15 +467,17 @@ describe('i18n via App - domains-prefix-other-locales with dynamic params (#1685
 		const $ = cheerio.load(await res.text());
 		assert.equal($('#id').text(), '1');
 		assert.equal($('#slug').text(), 'sunset-cruiser');
+		assert.equal($('#locale').text(), 'en');
 	});
 
-	it('resolves params for dynamic route on default locale domain', async () => {
+	it('resolves params and currentLocale for dynamic route on default locale domain', async () => {
 		const app = createDomainApp();
 		const res = await app.render(new Request('http://example.com/boats/2/blue-wave'));
 		assert.equal(res.status, 200);
 		const $ = cheerio.load(await res.text());
 		assert.equal($('#id').text(), '2');
 		assert.equal($('#slug').text(), 'blue-wave');
+		assert.equal($('#locale').text(), 'fi');
 	});
 });
 
