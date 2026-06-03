@@ -1,12 +1,10 @@
 import {
-	appendForwardSlash,
 	collapseDuplicateLeadingSlashes,
-	joinPaths,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import { matchPattern } from '@astrojs/internal-helpers/remote';
-import { normalizeTheLocale } from '../../i18n/index.js';
+import { computePathnameFromDomain } from '../i18n/domain.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RemotePattern, RouteData } from '../../types/public/index.js';
 import { type Pipeline, PipelineFeatures } from '../base-pipeline.js';
@@ -95,13 +93,6 @@ export interface ResolvedRenderOptions {
 	locals: RequiredRenderOptions['locals'] | undefined;
 	routeData: RequiredRenderOptions['routeData'] | undefined;
 	waitUntil: RequiredRenderOptions['waitUntil'] | undefined;
-	/**
-	 * Locale-prefixed pathname computed from domain-based i18n routing.
-	 * When set, overrides the URL-derived pathname in FetchState so that
-	 * param extraction matches the route pattern.
-	 * @internal
-	 */
-	domainPathname?: string;
 }
 
 export interface RenderErrorOptions extends ResolvedRenderOptions {
@@ -346,76 +337,14 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	}
 
 	private computePathnameFromDomain(request: Request): string | undefined {
-		let pathname: string | undefined = undefined;
-		const url = new URL(request.url);
-
-		if (
-			this.manifest.i18n &&
-			(this.manifest.i18n.strategy === 'domains-prefix-always' ||
-				this.manifest.i18n.strategy === 'domains-prefix-other-locales' ||
-				this.manifest.i18n.strategy === 'domains-prefix-always-no-redirect')
-		) {
-			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
-			let host = request.headers.get('X-Forwarded-Host');
-			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto
-			let protocol = request.headers.get('X-Forwarded-Proto');
-			if (protocol) {
-				// this header doesn't have a colon at the end, so we add to be in line with URL#protocol, which does have it
-				protocol = protocol + ':';
-			} else {
-				// we fall back to the protocol of the request
-				protocol = url.protocol;
-			}
-			if (!host) {
-				// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Host
-				host = request.headers.get('Host');
-			}
-			// If we don't have a host and a protocol, it's impossible to proceed
-			if (host && protocol) {
-				// The header might have a port in their name, so we remove it
-				host = host.split(':')[0];
-				try {
-					let locale;
-					const hostAsUrl = new URL(`${protocol}//${host}`);
-					for (const [domainKey, localeValue] of Object.entries(
-						this.manifest.i18n.domainLookupTable,
-					)) {
-						// This operation should be safe because we force the protocol via zod inside the configuration
-						// If not, then it means that the manifest was tampered
-						const domainKeyAsUrl = new URL(domainKey);
-
-						if (
-							hostAsUrl.host === domainKeyAsUrl.host &&
-							hostAsUrl.protocol === domainKeyAsUrl.protocol
-						) {
-							locale = localeValue;
-							break;
-						}
-					}
-
-					if (locale) {
-						pathname = prependForwardSlash(
-							joinPaths(normalizeTheLocale(locale), this.removeBase(url.pathname)),
-						);
-						if (this.manifest.trailingSlash === 'always') {
-							pathname = appendForwardSlash(pathname);
-						} else if (this.manifest.trailingSlash === 'never') {
-							pathname = removeTrailingForwardSlash(pathname);
-						} else if (url.pathname.endsWith('/')) {
-							// trailingSlash === 'ignore': preserve the original trailing slash
-							pathname = appendForwardSlash(pathname);
-						}
-					}
-				} catch (e: any) {
-					this.logger.error(
-						'router',
-						`Astro tried to parse ${protocol}//${host} as an URL, but it threw a parsing error. Check the X-Forwarded-Host and X-Forwarded-Proto headers.`,
-					);
-					this.logger.error('router', `Error: ${e}`);
-				}
-			}
-		}
-		return pathname;
+		return computePathnameFromDomain(
+			request,
+			new URL(request.url),
+			this.manifest.i18n,
+			this.manifest.base,
+			this.manifest.trailingSlash,
+			this.logger,
+		);
 	}
 
 	public async render(
@@ -461,11 +390,14 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				});
 			}
 		}
-		// For domain-based i18n, compute the locale-prefixed pathname from
-		// the Host header and pass it so FetchState can match correctly.
-		const domainPathname = this.computePathnameFromDomain(request);
-		if (!routeData && domainPathname) {
-			routeData = this.pipeline.matchRoute(this.safeDecodeURI(domainPathname));
+		// For domain-based i18n, match against the locale-prefixed pathname
+		// derived from the Host header. FetchState recomputes this pathname
+		// itself for param/locale resolution, so it isn't threaded through here.
+		if (!routeData) {
+			const domainPathname = this.computePathnameFromDomain(request);
+			if (domainPathname) {
+				routeData = this.pipeline.matchRoute(this.safeDecodeURI(domainPathname));
+			}
 		}
 		const resolvedOptions: ResolvedRenderOptions = {
 			addCookieHeader,
@@ -474,7 +406,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			locals,
 			routeData,
 			waitUntil,
-			domainPathname,
 		};
 
 		let response: Response;

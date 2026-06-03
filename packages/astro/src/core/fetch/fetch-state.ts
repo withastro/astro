@@ -35,6 +35,7 @@ import { Rewrites } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
 import { normalizeUrl } from '../util/normalized-url.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
+import { computePathnameFromDomain } from '../i18n/domain.js';
 import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
 import type { ResolvedRenderOptions } from '../app/base.js';
 import { getRenderOptions } from '../app/render-options.js';
@@ -236,6 +237,13 @@ export class FetchState implements AstroFetchState {
 	#rewrites: Rewrites | undefined;
 	/** Memoized Astro page partial. */
 	#astroPagePartial?: Omit<AstroGlobal, 'props' | 'self' | 'slots'>;
+	/**
+	 * Locale-prefixed pathname derived from the Host header for domain-based
+	 * i18n routing (e.g. `/en/boats/1/foo`), or `undefined` when the request
+	 * isn't served from a locale-mapped domain. When set, `this.pathname` is
+	 * derived from it so locale/param resolution match the route pattern.
+	 */
+	#domainPathname: string | undefined;
 	/** Memoized current locale. */
 	#currentLocale: APIContext['currentLocale'];
 	/** Memoized preferred locale. */
@@ -263,15 +271,25 @@ export class FetchState implements AstroFetchState {
 		this.slots = undefined;
 		// Parse the URL once and derive both pathname and url from it.
 		const url = new URL(request.url);
-		// When domain-based i18n routing detected a locale from the Host header,
-		// the domain pathname includes the locale prefix (e.g. /en/boats/1/foo)
-		// that the matched route pattern expects. Use it instead of the raw URL
-		// pathname so that param extraction produces correct values.
-		if (this.renderOptions.domainPathname) {
+		// For domain-based i18n routing, the locale prefix is derived from the
+		// request's Host header rather than its URL. When a locale is detected,
+		// the resulting pathname includes the prefix (e.g. /en/boats/1/foo) that
+		// the matched route pattern expects — use it instead of the raw URL
+		// pathname so param and locale resolution produce correct values.
+		const domainPathname = computePathnameFromDomain(
+			request,
+			url,
+			pipeline.manifest.i18n,
+			pipeline.manifest.base,
+			pipeline.manifest.trailingSlash,
+			pipeline.logger,
+		);
+		if (domainPathname) {
+			this.#domainPathname = domainPathname;
 			try {
-				this.pathname = decodeURI(this.renderOptions.domainPathname);
+				this.pathname = decodeURI(domainPathname);
 			} catch {
-				this.pathname = this.renderOptions.domainPathname;
+				this.pathname = domainPathname;
 			}
 		} else {
 			this.pathname = this.#computePathname(url);
@@ -644,7 +662,7 @@ export class FetchState implements AstroFetchState {
 			// route matched against (e.g. `/en/boats/1/foo`), whereas `url.pathname`
 			// does not. This matters for dynamic routes, which have no static
 			// `routeData.pathname` to fall back to. See #16854.
-			if (this.renderOptions.domainPathname) {
+			if (this.#domainPathname) {
 				pathname = this.pathname;
 			} else if (url && !routeData.pattern.test(url.pathname)) {
 				for (const fallbackRoute of routeData.fallbackRoutes) {
