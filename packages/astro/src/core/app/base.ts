@@ -22,7 +22,6 @@ import { appSymbol } from '../constants.js';
 import { DefaultErrorHandler } from '../errors/default-handler.js';
 import type { ErrorHandler } from '../errors/handler.js';
 import { setRenderOptions } from './render-options.js';
-import { MultiLevelEncodingError } from '../util/pathname.js';
 import type { WaitUntilHook } from '../wait-until.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
@@ -457,24 +456,15 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		};
 
 		let response: Response;
-		try {
-			if (this.#fetchHandler instanceof DefaultFetchHandler) {
-				// Fast path: pass options directly, skip Reflect.set/get round-trip
-				Reflect.set(request, appSymbol, this);
-				response = await this.#fetchHandler.renderWithOptions(request, resolvedOptions);
-			} else {
-				// User-provided fetch handler: stamp options + app on the request
-				setRenderOptions(request, resolvedOptions);
-				Reflect.set(request, appSymbol, this);
-				response = await this.#fetchHandler.fetch(request);
-			}
-		} catch (err: any) {
-			// Multi-level encoding (e.g., %2561 → %61) is rejected during URL
-			// normalization in FetchState. Return 400 without rendering an error page.
-			if (err instanceof MultiLevelEncodingError) {
-				return new Response('Bad Request', { status: 400 });
-			}
-			throw err;
+		if (this.#fetchHandler instanceof DefaultFetchHandler) {
+			// Fast path: pass options directly, skip Reflect.set/get round-trip
+			Reflect.set(request, appSymbol, this);
+			response = await this.#fetchHandler.renderWithOptions(request, resolvedOptions);
+		} else {
+			// User-provided fetch handler: stamp options + app on the request
+			setRenderOptions(request, resolvedOptions);
+			Reflect.set(request, appSymbol, this);
+			response = await this.#fetchHandler.fetch(request);
 		}
 		this.#warnMissingFeatures();
 		if (response.headers.get(ASTRO_ERROR_HEADER)) {
