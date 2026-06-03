@@ -1,5 +1,4 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createMarkdownProcessor } from '@astrojs/markdown-remark';
 import { safeParseFrontmatter } from '../content/utils.js';
 import type { ContentEntryType } from '../types/public/content.js';
 
@@ -18,9 +17,13 @@ export const markdownContentEntryType: ContentEntryType = {
 	handlePropagation: true,
 
 	async getRenderFunction(config) {
-		const processor = await createMarkdownProcessor({
-			image: config.image,
-			...config.markdown,
+		const { markdown, image } = config;
+		const processor = await markdown.processor.createRenderer({
+			image,
+			syntaxHighlight: markdown.syntaxHighlight,
+			shikiConfig: markdown.shikiConfig,
+			gfm: markdown.gfm,
+			smartypants: markdown.smartypants,
 		});
 		return async function renderToString(entry) {
 			// Process markdown even if it's empty as remark/rehype plugins may add content or frontmatter dynamically

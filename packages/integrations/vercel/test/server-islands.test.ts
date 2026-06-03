@@ -12,7 +12,7 @@ describe('Server Islands', () => {
 		await fixture.build({});
 	});
 
-	it('server islands route is in the config', async () => {
+	it('server islands route is in the config', { timeout: 30000 }, async () => {
 		const config = await getVercelConfig(fixture);
 		let found = null;
 		for (const route of config.routes) {

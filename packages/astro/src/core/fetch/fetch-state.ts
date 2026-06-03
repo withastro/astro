@@ -15,7 +15,6 @@ import { AstroCookies } from '../cookies/index.js';
 import { type Pipeline, Slots } from '../render/index.js';
 import {
 	ASTRO_GENERATOR,
-	DEFAULT_404_COMPONENT,
 	fetchStateSymbol,
 	originPathnameSymbol,
 	pipelineSymbol,
@@ -36,9 +35,10 @@ import { Rewrites } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
 import { normalizeUrl } from '../util/normalized-url.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
-import { routeHasHtmlExtension } from '../routing/helpers.js';
+import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
 import type { ResolvedRenderOptions } from '../app/base.js';
 import { getRenderOptions } from '../app/render-options.js';
+import { getFirstForwardedValue, validateForwardedHeaders } from '../app/validate-headers.js';
 
 /**
  * Describes a lazily-created value that handlers can contribute to the
@@ -269,6 +269,14 @@ export class FetchState implements AstroFetchState {
 		this.locals = (options?.locals ?? {}) as App.Locals;
 		this.url = normalizeUrl(url);
 		this.cookies = new AstroCookies(request);
+
+		// Apply X-Forwarded-* headers only when the user has configured
+		// allowedDomains — without it, forwarded headers are never trusted
+		// and the validation is a no-op. This avoids header lookups on the
+		// hot path for the vast majority of apps.
+		if (pipeline.manifest.allowedDomains && pipeline.manifest.allowedDomains.length > 0) {
+			this.#applyForwardedHeaders();
+		}
 
 		// Set origin pathname for rewrite tracking.
 		if (!Reflect.get(request, originPathnameSymbol)) {
@@ -570,10 +578,8 @@ export class FetchState implements AstroFetchState {
 		}
 		return {
 			insertDirective(payload) {
-				if (state?.result?.directives) {
+				if (state.result) {
 					state.result.directives = pushDirective(state.result.directives, payload);
-				} else {
-					state?.result?.directives.push(payload);
 				}
 			},
 			insertScriptResource(resource) {
@@ -767,11 +773,18 @@ export class FetchState implements AstroFetchState {
 	 */
 	/**
 	 * Strip `.html` / `/index.html` suffixes from the pathname so the
-	 * rendering pipeline sees the canonical route path. Skipped when the
-	 * matched route itself has an `.html` extension in its definition.
+	 * rendering pipeline sees the canonical route path. Only applies to
+	 * page routes where `.html` is framework-injected. Endpoint routes
+	 * preserve `.html` because any such suffix is user-provided (e.g.
+	 * from `getStaticPaths` params). Skipped when the matched route
+	 * itself has an `.html` extension in its definition.
 	 */
 	#stripHtmlExtension(): void {
-		if (this.routeData && !routeHasHtmlExtension(this.routeData)) {
+		if (
+			this.routeData &&
+			this.routeData.type === 'page' &&
+			!routeHasHtmlExtension(this.routeData)
+		) {
 			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 		}
 	}
@@ -792,8 +805,17 @@ export class FetchState implements AstroFetchState {
 		const matched = pipeline.matchRoute(this.pathname);
 		// In production SSR, prerendered routes are served as static files
 		// by the hosting layer and should not be rendered by the app.
+		// When the first match is a prerendered *dynamic* route, try to find
+		// a non-prerendered route that can serve this path. Dynamic prerendered
+		// routes only cover their specific static paths, so an SSR route with
+		// the same pattern should handle all other URLs.
 		if (matched && matched.prerender && pipeline.manifest.serverLike) {
-			this.routeData = undefined;
+			if (matched.params.length > 0) {
+				const allMatches = pipeline.matchAllRoutes(this.pathname);
+				this.routeData = allMatches.find((r) => !r.prerender);
+			} else {
+				this.routeData = undefined;
+			}
 		} else {
 			this.routeData = matched;
 		}
@@ -802,9 +824,14 @@ export class FetchState implements AstroFetchState {
 
 		// Fall back to a 404 route so middleware can still run.
 		if (!this.routeData) {
-			this.routeData = pipeline.manifestData.routes.find(
-				(route) => route.component === '404.astro' || route.component === DEFAULT_404_COMPONENT,
-			);
+			const custom404 = getCustom404Route(pipeline.manifestData);
+			// Only use SSR 404 routes here. Prerendered 404 pages are already
+			// built to static HTML, so the pipeline can't render them at
+			// runtime. Leaving routeData unset lets the error handler serve
+			// the pre-built page from disk instead.
+			if (custom404 && !custom404.prerender) {
+				this.routeData = custom404;
+			}
 		}
 		if (!this.routeData) {
 			pipeline.logger.debug('router', "Astro hasn't found routes that match " + this.request.url);
@@ -836,6 +863,61 @@ export class FetchState implements AstroFetchState {
 		} catch (e: any) {
 			this.pipeline.logger.error(null, e.toString());
 			return pathname;
+		}
+	}
+
+	/**
+	 * Reads X-Forwarded-Proto, X-Forwarded-Host, and X-Forwarded-Port
+	 * from the request headers, validates them against the manifest's
+	 * `allowedDomains`, and updates `this.url` accordingly. Also resolves
+	 * `clientAddress` from X-Forwarded-For when the host is trusted.
+	 *
+	 * Only called when `allowedDomains` is configured — without it,
+	 * forwarded headers are never trusted.
+	 */
+	#applyForwardedHeaders(): void {
+		const headers = this.request.headers;
+		const allowedDomains = this.pipeline.manifest.allowedDomains;
+
+		const validated = validateForwardedHeaders(
+			getFirstForwardedValue(headers.get('x-forwarded-proto') ?? undefined),
+			getFirstForwardedValue(headers.get('x-forwarded-host') ?? undefined),
+			getFirstForwardedValue(headers.get('x-forwarded-port') ?? undefined),
+			allowedDomains,
+		);
+
+		// Nothing validated — nothing to apply.
+		if (!validated.protocol && !validated.host && !validated.port) return;
+
+		if (validated.protocol) {
+			this.url.protocol = validated.protocol + ':';
+		}
+		if (validated.host) {
+			// The validated host may include a port (e.g. "example.com:8080").
+			const colonIdx = validated.host.indexOf(':');
+			if (colonIdx !== -1) {
+				this.url.hostname = validated.host.slice(0, colonIdx);
+				this.url.port = validated.host.slice(colonIdx + 1);
+			} else {
+				this.url.hostname = validated.host;
+				// Clear port so default port for the protocol is used.
+				this.url.port = '';
+			}
+		}
+		if (validated.port) {
+			this.url.port = validated.port;
+		}
+
+		// Trust X-Forwarded-For only when the host was validated, meaning
+		// the request arrived through a trusted proxy.
+		const hostTrusted = validated.host !== undefined;
+		if (hostTrusted && !this.clientAddress) {
+			const forwardedFor = getFirstForwardedValue(
+				this.request.headers.get('x-forwarded-for') ?? undefined,
+			);
+			if (forwardedFor) {
+				this.clientAddress = forwardedFor;
+			}
 		}
 	}
 

@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 8.1.2
+
+### Patch Changes
+
+- [#16496](https://github.com/withastro/astro/pull/16496) [`4d79750`](https://github.com/withastro/astro/commit/4d79750c3535d35bbec521e8d93546bf73e2ea6a) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixed an issue where type errors occurred during testing library type checks because Astro overrides Svelte 5 component types.
+
 ## 8.1.1
 
 ### Patch Changes
