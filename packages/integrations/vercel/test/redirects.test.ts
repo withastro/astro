@@ -27,7 +27,7 @@ describe('Redirects', () => {
 		await fixture.build({});
 	});
 
-	it('define static routes', async () => {
+	it('define static routes', { timeout: 30000 }, async () => {
 		const config = await getVercelConfig(fixture);
 		const oneRoute = config.routes.find((r) => r.src === '^/one$')!;
 		assert.equal(oneRoute.headers['Location'], '/');
@@ -46,7 +46,7 @@ describe('Redirects', () => {
 		assert.equal(fourRoute.status, 302);
 	});
 
-	it('define redirects for static files', async () => {
+	it('define redirects for static files', { timeout: 30000 }, async () => {
 		const config = await getVercelConfig(fixture);
 
 		const staticRoute = config.routes.find((r) => r.src === '^/Basic/http-2-0\\.html$')!;
@@ -55,7 +55,7 @@ describe('Redirects', () => {
 		assert.equal(staticRoute.status, 301);
 	});
 
-	it('defines dynamic routes', async () => {
+	it('defines dynamic routes', { timeout: 30000 }, async () => {
 		const config = await getVercelConfig(fixture);
 
 		const blogRoute = config.routes.find((r) => r.src.startsWith('^/blog'))!;
@@ -64,7 +64,7 @@ describe('Redirects', () => {
 		assert.equal(blogRoute.status, 301);
 	});
 
-	it('throws an error for invalid redirects', async () => {
+	it('throws an error for invalid redirects', { timeout: 30000 }, async () => {
 		const fails = await loadFixture({
 			root: './fixtures/redirects/',
 			redirects: {

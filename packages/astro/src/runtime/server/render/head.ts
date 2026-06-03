@@ -71,11 +71,7 @@ export function renderAllHeadContent(result: SSRResult) {
 	const sep = result.compressHTML === true || result.compressHTML === 'jsx' ? '' : '\n';
   content += styles.join(sep) + links.join(sep) + scripts.join(sep);
 
-	if (result._metadata.extraHead.length > 0) {
-		for (const part of result._metadata.extraHead) {
-			content += part;
-		}
-	}
+	content += result._metadata.extraHead.join('');
 
 	return markHTMLString(content);
 }

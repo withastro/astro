@@ -1,5 +1,35 @@
 # astro
 
+## 6.4.3
+
+### Patch Changes
+
+- [#16900](https://github.com/withastro/astro/pull/16900) [`17a0fbd`](https://github.com/withastro/astro/commit/17a0fbd34d11db765e79caf269bfd5f43ef51da8) Thanks [@ocavue](https://github.com/ocavue)! - Bumps `devalue` dependency to v5.8.1
+
+- [#16016](https://github.com/withastro/astro/pull/16016) [`0d85e1b`](https://github.com/withastro/astro/commit/0d85e1b7ea58a243bd1b61bdfb951c4fd87b9db5) Thanks [@felmonon](https://github.com/felmonon)! - Fix a false positive in the dev toolbar accessibility audit for anchors with text inside closed `<details>` elements.
+
+- [#16911](https://github.com/withastro/astro/pull/16911) [`79c6c46`](https://github.com/withastro/astro/commit/79c6c469a735bece8a80200f7b188e15f1abff24) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a bug where `experimental.advancedRouting` with `astro/hono` handlers threw `TypeError: Cannot read properties of undefined (reading 'route')` for unmatched routes instead of rendering the custom 404 page.
+
+- [#16899](https://github.com/withastro/astro/pull/16899) [`239c469`](https://github.com/withastro/astro/commit/239c469cd2cd66d147a302a2ca14e07a0891f9b8) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a false "does not call the middleware() handler" warning when using `astro()` in a custom `src/app.ts` and the first request is a redirect route.
+
+- [#16887](https://github.com/withastro/astro/pull/16887) [`493acdb`](https://github.com/withastro/astro/commit/493acdb4abc56534e9efa68af16e3ef273d7d88b) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `redirectToDefaultLocale` not working after the Advanced Routing refactoring.
+
+- [#16908](https://github.com/withastro/astro/pull/16908) [`ef53ab9`](https://github.com/withastro/astro/commit/ef53ab91e8362b50bb1a3ab73d9350b93ea41de4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves optimized fallbacks generation when using the Fonts API by using better metrics for bold variants
+
+## 6.4.2
+
+### Patch Changes
+
+- [#16889](https://github.com/withastro/astro/pull/16889) [`b94bcfd`](https://github.com/withastro/astro/commit/b94bcfd8da64a3f2862a20572e7a9847aebdbc70) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes a `plugins is not iterable` crash when using a pre-6.0 `@astrojs/mdx` alongside integrations (e.g. Starlight) that set `markdown.remarkPlugins`, `markdown.rehypePlugins`, or `markdown.remarkRehype`.
+
+- [#16878](https://github.com/withastro/astro/pull/16878) [`b9f6bb9`](https://github.com/withastro/astro/commit/b9f6bb9a238b909d491ca4a7a99620908faf58a8) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes an issue where on-demand (SSR) dynamic routes would return 404 when a prerendered dynamic route with the same URL pattern was sorted first alphabetically. In production builds with `@astrojs/node` adapter, if `[a_prebuild].astro` (prerender=true) came before `[b_ssr].astro` alphabetically, requests to URLs not in the prerendered route's static paths would 404 instead of falling through to the SSR route. The fix adds fallthrough logic so that when a prerendered dynamic route matches but can't serve the request, Astro tries subsequent matching routes.
+
+## 6.4.1
+
+### Patch Changes
+
+- [#16883](https://github.com/withastro/astro/pull/16883) [`eeb064c`](https://github.com/withastro/astro/commit/eeb064ca9452fd9d0ad9b7557059a646a90a3e57) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Restores the `astro/jsx/rehype.js` entry point so that older versions of `@astrojs/mdx` continue to work when used with Astro 6.x. This entry point will be removed in Astro 7.0.
+
 ## 6.4.0
 
 ### Minor Changes

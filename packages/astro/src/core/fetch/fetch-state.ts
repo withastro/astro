@@ -15,7 +15,6 @@ import { AstroCookies } from '../cookies/index.js';
 import { type Pipeline, Slots } from '../render/index.js';
 import {
 	ASTRO_GENERATOR,
-	DEFAULT_404_COMPONENT,
 	fetchStateSymbol,
 	originPathnameSymbol,
 	pipelineSymbol,
@@ -36,7 +35,7 @@ import { Rewrites } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
 import { normalizeUrl } from '../util/normalized-url.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
-import { routeHasHtmlExtension } from '../routing/helpers.js';
+import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
 import type { ResolvedRenderOptions } from '../app/base.js';
 import { getRenderOptions } from '../app/render-options.js';
 import { getFirstForwardedValue, validateForwardedHeaders } from '../app/validate-headers.js';
@@ -579,10 +578,8 @@ export class FetchState implements AstroFetchState {
 		}
 		return {
 			insertDirective(payload) {
-				if (state?.result?.directives) {
+				if (state.result) {
 					state.result.directives = pushDirective(state.result.directives, payload);
-				} else {
-					state?.result?.directives.push(payload);
 				}
 			},
 			insertScriptResource(resource) {
@@ -801,8 +798,17 @@ export class FetchState implements AstroFetchState {
 		const matched = pipeline.matchRoute(this.pathname);
 		// In production SSR, prerendered routes are served as static files
 		// by the hosting layer and should not be rendered by the app.
+		// When the first match is a prerendered *dynamic* route, try to find
+		// a non-prerendered route that can serve this path. Dynamic prerendered
+		// routes only cover their specific static paths, so an SSR route with
+		// the same pattern should handle all other URLs.
 		if (matched && matched.prerender && pipeline.manifest.serverLike) {
-			this.routeData = undefined;
+			if (matched.params.length > 0) {
+				const allMatches = pipeline.matchAllRoutes(this.pathname);
+				this.routeData = allMatches.find((r) => !r.prerender);
+			} else {
+				this.routeData = undefined;
+			}
 		} else {
 			this.routeData = matched;
 		}
@@ -811,9 +817,14 @@ export class FetchState implements AstroFetchState {
 
 		// Fall back to a 404 route so middleware can still run.
 		if (!this.routeData) {
-			this.routeData = pipeline.manifestData.routes.find(
-				(route) => route.component === '404.astro' || route.component === DEFAULT_404_COMPONENT,
-			);
+			const custom404 = getCustom404Route(pipeline.manifestData);
+			// Only use SSR 404 routes here. Prerendered 404 pages are already
+			// built to static HTML, so the pipeline can't render them at
+			// runtime. Leaving routeData unset lets the error handler serve
+			// the pre-built page from disk instead.
+			if (custom404 && !custom404.prerender) {
+				this.routeData = custom404;
+			}
 		}
 		if (!this.routeData) {
 			pipeline.logger.debug('router', "Astro hasn't found routes that match " + this.request.url);
