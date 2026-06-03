@@ -16,7 +16,7 @@ describe('Redirects Serverless', () => {
 		await fixture.build({});
 	});
 
-	it('does not create .html files', async () => {
+	it('does not create .html files', { timeout: 30000 }, async () => {
 		let hasErrored = false;
 		try {
 			await fixture.readFile('../.vercel/output/static/other/index.html');

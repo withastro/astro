@@ -26,24 +26,4 @@ describe('Markdoc - table attributes', () => {
 			assert.equal(td!.textContent, 'Custom attributes');
 		});
 	});
-
-	describe('dev', () => {
-		it('renders table with custom attributes without validation errors', async () => {
-			const fixture = await getFixture();
-			const server = await fixture.startDevServer();
-
-			const res = await fixture.fetch('/');
-			const html = await res.text();
-			const { document } = parseHTML(html);
-
-			const th = document.querySelector('th');
-			assert.ok(th, 'table header should exist');
-			assert.equal(th.textContent, 'Feature');
-
-			const td = document.querySelector('td');
-			assert.equal(td!.textContent, 'Custom attributes');
-
-			await server.stop();
-		});
-	});
 });

@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { IncomingMessage } from 'node:http';
 import type * as vite from 'vite';
 import { isRunnableDevEnvironment, type RunnableDevEnvironment } from 'vite';
-import type { SSRManifest } from '../core/app/types.js';
+import type { RouteInfo, SSRManifest } from '../core/app/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES, devPrerenderMiddlewareSymbol } from '../core/constants.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -148,23 +148,23 @@ export default function createVitePluginAstroServer({
 
 							try {
 								const pathname = decodeURI(new URL(request.url, 'http://localhost').pathname);
-								const { routes } =
-									await prerenderHandler.environment.runner.import('virtual:astro:routes');
-								const routesList = { routes: routes.map((r: any) => r.routeData) };
+								const { routes } = (await prerenderHandler.environment.runner.import(
+									'virtual:astro:routes',
+								)) as { routes: RouteInfo[] };
+								const routesList = { routes: routes.map((route) => route.routeData) };
+								// This is intentionally a broad prerender gate. The real dev route
+								// resolution happens in AstroServerApp.handleRequest(), which also
+								// checks getStaticPaths() and prerender tie-breaks that matchRoute()
+								// cannot express here.
 								const matches = matchAllRoutes(pathname, routesList);
 
 								if (!matches.some((route) => route.prerender)) {
 									return next();
 								}
 
-								const handled = await new Promise<boolean>((resolve) => {
-									localStorage.run(request, () => {
-										prerenderHandler
-											.handler(request, response, { prerenderOnly: true })
-											.then((result: boolean) => resolve(result))
-											.catch(() => resolve(true));
-									});
-								});
+								const handled = await localStorage.run(request, () =>
+									prerenderHandler.handler(request, response, { prerenderOnly: true }),
+								);
 
 								if (!handled) {
 									return next();

@@ -11,6 +11,7 @@ describe('Astro config formats', () => {
 		const fixture = await loadFixture({
 			root: './fixtures/dev-render/',
 			outDir: './dist/config-format/',
+			cacheDir: './node_modules/.astro-test/config-format/',
 		});
 		const devServer = await fixture.startDevServer();
 		assert.ok(devServer, 'Dev server started, which means the config loaded.');

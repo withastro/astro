@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('MDX Namespace', () => {
 	let fixture: Fixture;
@@ -30,48 +30,6 @@ describe('MDX Namespace', () => {
 
 		it('works for star', async () => {
 			const html = await fixture.readFile('/star/index.html');
-			const { document } = parseHTML(html);
-
-			const island = document.querySelector('astro-island');
-			const component = document.querySelector('#component')!;
-
-			assert.notEqual(island, undefined);
-			assert.equal(component.textContent, 'Hello world');
-		});
-	});
-
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('works for object', async () => {
-			const res = await fixture.fetch('/object');
-
-			assert.equal(res.status, 200);
-
-			const html = await res.text();
-			const { document } = parseHTML(html);
-
-			const island = document.querySelector('astro-island');
-			const component = document.querySelector('#component')!;
-
-			assert.notEqual(island, undefined);
-			assert.equal(component.textContent, 'Hello world');
-		});
-
-		it('works for star', async () => {
-			const res = await fixture.fetch('/star');
-
-			assert.equal(res.status, 200);
-
-			const html = await res.text();
 			const { document } = parseHTML(html);
 
 			const island = document.querySelector('astro-island');

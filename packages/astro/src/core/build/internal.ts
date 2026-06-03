@@ -115,6 +115,14 @@ export interface BuildInternals {
 		moduleIds: string[];
 		prerender: boolean;
 	}>;
+
+	/**
+	 * Component exports that were rendered during the SSR build.
+	 * Used by the client build's cssScopeTo recovery to distinguish between
+	 * CSS that was tree-shaken because the component wasn't rendered in SSR
+	 * vs CSS that was included in SSR.
+	 */
+	ssrRenderedExports?: Map<string, Set<string>>;
 }
 
 /**

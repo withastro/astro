@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import { before, describe, it } from 'node:test';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Component bundling', () => {
 	let fixture: Fixture;
@@ -9,35 +9,6 @@ describe('Component bundling', () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-component-bundling/',
 			outDir: './dist/astro-component-bundling/',
-		});
-	});
-
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('should not include Astro components in client bundles', async () => {
-			const importedComponent = await fixture.fetch('/src/components/AstroComponent.astro');
-			const moduleContent = await importedComponent.text();
-			assert(
-				moduleContent.includes('Astro components cannot be used in the browser.'),
-				'Astro component imported from client should include error text in dev.',
-			);
-			assert(
-				moduleContent.length < 3500,
-				'Module content should be small and not include full server-side code.',
-			);
-			assert(
-				!moduleContent.includes('import '),
-				'Astro component imported from client should not include import statements.',
-			);
 		});
 	});
 

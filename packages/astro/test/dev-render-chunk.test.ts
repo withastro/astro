@@ -12,6 +12,7 @@ describe('core/render chunk', () => {
 			root: './fixtures/dev-render/',
 			logLevel: 'silent',
 			outDir: './dist/dev-render-chunk/',
+			cacheDir: './node_modules/.astro-test/dev-render-chunk/',
 		});
 		devServer = await fixture.startDevServer();
 	});

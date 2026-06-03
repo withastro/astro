@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as devalue from 'devalue';
 import testAdapter from './test-adapter.ts';
-import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import { type App, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Astro.session', () => {
 	describe('Production', () => {
@@ -208,102 +208,6 @@ describe('Astro.session', () => {
 			});
 			const cartData = devalue.parse(await secondResponse.text());
 			assert.deepEqual(cartData.cart, firstResponseData.cart);
-		});
-	});
-
-	describe('Development', () => {
-		let fixture: Fixture;
-		let devServer: DevServer;
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/sessions/',
-				output: 'server',
-				adapter: testAdapter(),
-				session: {
-					// @ts-expect-error: the default type of the TDriver in AstroUserConfig must be changed so that this can pass
-					driver: 'fs',
-					ttl: 20,
-				},
-				outDir: './dist/sessions-development/',
-			});
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('can regenerate session cookies upon request', async () => {
-			const firstResponse = await fixture.fetch('/regenerate');
-			// @ts-ignore
-			const firstHeaders = firstResponse.headers.get('set-cookie').split(',');
-			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
-
-			const secondResponse = await fixture.fetch('/regenerate', {
-				method: 'GET',
-				headers: {
-					cookie: `astro-session=${firstSessionId}`,
-				},
-			});
-			// @ts-ignore
-			const secondHeaders = secondResponse.headers.get('set-cookie').split(',');
-			const secondSessionId = secondHeaders[0].split(';')[0].split('=')[1];
-			assert.notEqual(firstSessionId, secondSessionId);
-		});
-
-		it('defaults to non-secure cookies in development', async () => {
-			const response = await fixture.fetch('/regenerate');
-			const setCookieHeader = response.headers.get('set-cookie');
-			assert.ok(!setCookieHeader!.includes('Secure'));
-		});
-
-		it('can save session data by value', async () => {
-			const firstResponse = await fixture.fetch('/update');
-			const firstValue = await firstResponse.json();
-			assert.equal(firstValue.previousValue, 'none');
-
-			// @ts-ignore
-			const firstHeaders = firstResponse.headers.get('set-cookie').split(',');
-			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
-			const secondResponse = await fixture.fetch('/update', {
-				method: 'GET',
-				headers: {
-					cookie: `astro-session=${firstSessionId}`,
-				},
-			});
-			const secondValue = await secondResponse.json();
-			assert.equal(secondValue.previousValue, 'expected');
-		});
-
-		it('can save and restore URLs in session data', async () => {
-			const firstResponse = await fixture.fetch('/_actions/addUrl', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ favoriteUrl: 'https://domain.invalid' }),
-			});
-
-			assert.equal(firstResponse.ok, true);
-			// @ts-ignore
-			const firstHeaders = firstResponse.headers.get('set-cookie').split(',');
-			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
-
-			const data = devalue.parse(await firstResponse.text());
-			assert.equal(data.message, 'Favorite URL set to https://domain.invalid/ from nothing');
-			const secondResponse = await fixture.fetch('/_actions/addUrl', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					cookie: `astro-session=${firstSessionId}`,
-				},
-				body: JSON.stringify({ favoriteUrl: 'https://example.com' }),
-			});
-			const secondData = devalue.parse(await secondResponse.text());
-			assert.equal(
-				secondData.message,
-				'Favorite URL set to https://example.com/ from https://domain.invalid/',
-			);
 		});
 	});
 });

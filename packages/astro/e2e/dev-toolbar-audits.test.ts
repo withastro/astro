@@ -57,7 +57,7 @@ test.describe('Dev Toolbar - Audits', () => {
 		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
 		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
 
-		expect(auditHighlights).toHaveCount(1);
+		await expect(auditHighlights).toHaveCount(1);
 
 		await page.click('body');
 
@@ -67,7 +67,7 @@ test.describe('Dev Toolbar - Audits', () => {
 
 		await appButton.click();
 
-		expect(auditHighlights).toHaveCount(1);
+		await expect(auditHighlights).toHaveCount(1);
 	});
 
 	test('does not warn about perf issue for below the fold image in relative container', async ({
@@ -83,7 +83,7 @@ test.describe('Dev Toolbar - Audits', () => {
 		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
 		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
 
-		expect(auditHighlights).toHaveCount(0);
+		await expect(auditHighlights).toHaveCount(0);
 	});
 
 	test('can warn about perf issue for below the fold image in absolute container', async ({
@@ -99,7 +99,7 @@ test.describe('Dev Toolbar - Audits', () => {
 		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
 		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
 
-		expect(auditHighlights).toHaveCount(1);
+		await expect(auditHighlights).toHaveCount(1);
 	});
 
 	test('does not warn about image inside framework component', async ({ page, astro }) => {
@@ -258,5 +258,23 @@ test.describe('Dev Toolbar - Audits', () => {
 
 		const count = await auditHighlights.count();
 		expect(count).toEqual(0);
+	});
+
+	test('does not warn about anchor text inside closed details but still warns for hidden text', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/a11y-hidden-anchor'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
+		await appButton.click();
+
+		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
+		const missingContentHighlights = auditCanvas.locator(
+			'astro-dev-toolbar-highlight[data-audit-code="a11y-missing-content"]',
+		);
+
+		await expect(missingContentHighlights).toHaveCount(1);
 	});
 });

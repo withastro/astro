@@ -559,6 +559,25 @@ function createRedirectRoutes(
 			});
 		}
 
+		// If the source has dynamic params and the destination route exists but has
+		// fewer params, the build will fail later with a misleading error (e.g.,
+		// "getStaticPaths required" pointing at the wrong file). Catch this early.
+		if (
+			params.length > 0 &&
+			redirectRoute &&
+			!URL.canParse(destination) &&
+			getPrerenderDefault(config)
+		) {
+			const destParams = redirectRoute.params ?? [];
+			const missingParams = params.filter((p) => !destParams.includes(p));
+			if (missingParams.length > 0) {
+				throw new AstroError({
+					...InvalidRedirectDestination,
+					message: InvalidRedirectDestination.message(from, destination, missingParams),
+				});
+			}
+		}
+
 		routes.push({
 			type: 'redirect',
 			// For backwards compatibility, a redirect is never considered an index route.
@@ -983,7 +1002,7 @@ function joinSegments(segments: RoutePart[][]): string {
 		return segment.map((rp) => (rp.dynamic ? `[${rp.content}]` : rp.content)).join('');
 	});
 
-	return `/${arr.join('/')}`.toLowerCase();
+	return `/${arr.join('/')}`;
 }
 
 function replaceOrKeep(original: string, from: string, to: string): string {

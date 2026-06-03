@@ -69,6 +69,7 @@ describe('Static build: vite plugins included when required', () => {
 				},
 			],
 			outDir: './dist/static-build-vite-plugins/',
+			cacheDir: './node_modules/.astro-test/static-build-vite-plugins/',
 		});
 		await fixture.build();
 	});

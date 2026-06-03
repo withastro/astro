@@ -6,7 +6,7 @@ import type { BaseApp } from 'astro/app';
 import send from 'send';
 import { resolveClientDir } from './shared.js';
 import type { NodeAppHeadersJson, Options } from './types.js';
-import { createRequest } from 'astro/app/node';
+import { createRequestFromNodeRequest } from 'astro/app/node';
 
 /**
  * Resolves a URL path to a filesystem path within the client directory,
@@ -64,8 +64,7 @@ export function createStaticHandler(
 			let pathname = urlPath;
 
 			if (headersMap && headersMap.length > 0) {
-				const request = createRequest(req, {
-					allowedDomains: app.getAllowedDomains?.() ?? [],
+				const request = createRequestFromNodeRequest(req, {
 					port: options.port,
 				});
 				const routeData = app.match(request, true);
@@ -124,6 +123,14 @@ export function createStaticHandler(
 			const stream = send(req, normalizedPathname, {
 				root: client,
 				dotfiles: normalizedPathname.startsWith('/.well-known/') ? 'allow' : 'deny',
+				// When build.format is 'file' or 'preserve', pages are output as
+				// `page.html` instead of `page/index.html`. Tell `send` to try
+				// appending `.html` so that clean URLs like `/about` resolve to
+				// `/about.html` on disk.
+				extensions:
+					app.manifest.buildFormat === 'file' || app.manifest.buildFormat === 'preserve'
+						? ['html']
+						: [],
 			});
 
 			let forwardError = false;
