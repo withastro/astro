@@ -14,7 +14,7 @@ import {
 import { ALL_PIPELINE_FEATURES } from '../../../dist/core/base-pipeline.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createEndpoint, createPage, createRedirect, createTestApp } from '../mocks.ts';
-import { dynamicPart } from '../routing/test-helpers.ts';
+import { dynamicPart, spreadPart } from '../routing/test-helpers.ts';
 
 /** A simple page component that renders `<h1>Hello</h1>`. */
 const simplePage = createComponent((_result: any, _props: any, _slots: any) => {
@@ -89,6 +89,28 @@ describe('FetchState (astro/fetch)', () => {
 
 		assert.ok(state.routeData, 'routeData should fall back to the 404 route');
 		assert.equal(state.routeData!.route, '/404');
+	});
+
+	it('preserves .html in pathname for endpoint routes with dynamic params', () => {
+		// Regression test for #16941: when a dynamic endpoint returns a param
+		// value like `file.html`, the `.html` suffix must not be stripped from
+		// the pathname. Only page routes should have `.html` stripped (it is
+		// framework-injected there), but for endpoints the suffix is user-provided.
+		const endpoint = createEndpoint(
+			{ GET: () => new Response('ok') },
+			{
+				route: '/[...path]',
+				pathname: undefined,
+				segments: [[spreadPart('path')]],
+			},
+		);
+		const app = createTestApp([endpoint]);
+		const request = stampApp(new Request('http://example.com/file.html'), app);
+		const state = new FetchState(request);
+
+		assert.ok(state.routeData, 'routeData should be set');
+		assert.equal(state.routeData!.type, 'endpoint');
+		assert.equal(state.pathname, '/file.html', '.html should be preserved for endpoint routes');
 	});
 });
 
