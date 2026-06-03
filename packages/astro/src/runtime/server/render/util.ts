@@ -274,8 +274,9 @@ export interface RendererFlusher {
 	flush(): void | Promise<void>;
 }
 
-export const isNode =
-	typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]';
+export const isNode = typeof process !== "undefined"
+  && Object.prototype.toString.call(process) === "[object process]"
+  && !(typeof navigator !== "undefined" && navigator.userAgent === "Cloudflare-Workers");
 // @ts-expect-error: Deno is not part of the types.
 export const isDeno = typeof Deno !== 'undefined';
 
