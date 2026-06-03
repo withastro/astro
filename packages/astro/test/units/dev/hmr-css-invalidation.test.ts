@@ -15,6 +15,25 @@ import hmrReload from '../../../dist/vite-plugin-hmr-reload/index.js';
  * tested with mocks. That path is verified through manual integration testing.
  */
 describe('astro:hmr-reload CSS invalidation', () => {
+	type HotUpdateHandler = (
+		this: { environment: unknown },
+		context: {
+			modules: Array<{ id: string | null; file?: string }>;
+			server: unknown;
+			timestamp: number;
+			file: string;
+		},
+	) => unknown;
+
+	function getHotUpdateHandler(): HotUpdateHandler {
+		const plugin = hmrReload();
+		const hotUpdate = plugin.hotUpdate;
+
+		assert.ok(hotUpdate && typeof hotUpdate === 'object' && 'handler' in hotUpdate);
+
+		return hotUpdate.handler as unknown as HotUpdateHandler;
+	}
+
 	/**
 	 * Creates a mock environment and context for testing the hotUpdate handler.
 	 * The environment mock is not a real RunnableDevEnvironment, so
@@ -36,7 +55,12 @@ describe('astro:hmr-reload CSS invalidation', () => {
 			moduleGraph: {
 				idToModuleMap: moduleGraphEntries,
 				getModuleById: (id: string) => moduleGraphEntries.get(id) ?? null,
-				invalidateModule: (mod: { id: string }, _seen?: Set<unknown>, _ts?: number, _isHmr?: boolean) => {
+				invalidateModule: (
+					mod: { id: string },
+					_seen?: Set<unknown>,
+					_ts?: number,
+					_isHmr?: boolean,
+				) => {
 					invalidatedModuleGraphIds.push(mod.id);
 				},
 			},
@@ -73,10 +97,9 @@ describe('astro:hmr-reload CSS invalidation', () => {
 			],
 		});
 
-		const plugin = hmrReload();
-		const hotUpdate = plugin.hotUpdate as { order: string; handler: Function };
+		const hotUpdate = getHotUpdateHandler();
 
-		const result = hotUpdate.handler.call(
+		const result = hotUpdate.call(
 			{ environment },
 			{
 				modules: [{ id: '/path/to/global.css', file: '/path/to/global.css' }],
@@ -111,15 +134,12 @@ describe('astro:hmr-reload CSS invalidation', () => {
 
 		const { environment, server, invalidatedModuleGraphIds } = createMockContext({
 			modules: [{ id: '/path/to/styles.scss', file: '/path/to/styles.scss' }],
-			moduleGraphEntries: [
-				[devCssId, { id: devCssId }],
-			],
+			moduleGraphEntries: [[devCssId, { id: devCssId }]],
 		});
 
-		const plugin = hmrReload();
-		const hotUpdate = plugin.hotUpdate as { order: string; handler: Function };
+		const hotUpdate = getHotUpdateHandler();
 
-		const result = hotUpdate.handler.call(
+		const result = hotUpdate.call(
 			{ environment },
 			{
 				modules: [{ id: '/path/to/styles.scss', file: '/path/to/styles.scss' }],
@@ -141,19 +161,16 @@ describe('astro:hmr-reload CSS invalidation', () => {
 
 		const { environment, server, invalidatedModuleGraphIds } = createMockContext({
 			modules: [{ id: '/path/to/component.astro', file: '/path/to/component.astro' }],
-			moduleGraphEntries: [
-				[devCssId, { id: devCssId }],
-			],
+			moduleGraphEntries: [[devCssId, { id: devCssId }]],
 		});
 
 		// The .astro file exists in the client module graph too
 		server.environments.client.moduleGraph.getModuleById = (id: string) =>
 			id === '/path/to/component.astro' ? { id } : null;
 
-		const plugin = hmrReload();
-		const hotUpdate = plugin.hotUpdate as { order: string; handler: Function };
+		const hotUpdate = getHotUpdateHandler();
 
-		const result = hotUpdate.handler.call(
+		const result = hotUpdate.call(
 			{ environment },
 			{
 				modules: [{ id: '/path/to/component.astro', file: '/path/to/component.astro' }],
@@ -175,10 +192,9 @@ describe('astro:hmr-reload CSS invalidation', () => {
 			modules: [{ id: '/path/to/styles.css', file: '/path/to/styles.css' }],
 		});
 
-		const plugin = hmrReload();
-		const hotUpdate = plugin.hotUpdate as { order: string; handler: Function };
+		const hotUpdate = getHotUpdateHandler();
 
-		const result = hotUpdate.handler.call(
+		const result = hotUpdate.call(
 			{ environment },
 			{
 				modules: [{ id: '/path/to/styles.css', file: '/path/to/styles.css' }],
@@ -198,10 +214,9 @@ describe('astro:hmr-reload CSS invalidation', () => {
 			moduleGraphEntries: [],
 		});
 
-		const plugin = hmrReload();
-		const hotUpdate = plugin.hotUpdate as { order: string; handler: Function };
+		const hotUpdate = getHotUpdateHandler();
 
-		const result = hotUpdate.handler.call(
+		const result = hotUpdate.call(
 			{ environment },
 			{
 				modules: [{ id: '/path/to/styles.css', file: '/path/to/styles.css' }],

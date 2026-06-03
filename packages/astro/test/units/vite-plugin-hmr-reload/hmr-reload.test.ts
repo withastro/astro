@@ -45,6 +45,7 @@ describe('astro:hmr-reload', () => {
 		const environment = {
 			name: options.environmentName,
 			moduleGraph: {
+				idToModuleMap: new Map(),
 				invalidateModule(mod: any, seen?: Set<any>, _ts?: number, _hmr?: boolean) {
 					invalidated.push(mod);
 					if (seen) {
