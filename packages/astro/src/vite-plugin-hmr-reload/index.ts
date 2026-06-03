@@ -8,10 +8,13 @@ const STYLE_EXT_REGEX = /\.(?:css|scss|sass|less|styl|pcss)$/i;
 const RAW_QUERY_REGEX = /(?:\?|&)raw(?:&|$)/;
 
 function hasStyleExtension(id: string): boolean {
+	// Style module IDs may include Vite query params such as ?used or ?direct.
 	return STYLE_EXT_REGEX.test(id.split('?')[0]);
 }
 
 function isStyleModule(mod: EnvironmentModuleNode): boolean {
+	// CSS imported with ?raw is a JS string export, so SSR importers need to be invalidated
+	// instead of relying on Vite's client-side CSS HMR handling.
 	if (mod.id && RAW_QUERY_REGEX.test(mod.id) && hasStyleExtension(mod.id)) return false;
 	if (mod.file && hasStyleExtension(mod.file)) return true;
 	// CSS modules and other style files may have query params in their id (e.g. ?used, ?direct)
