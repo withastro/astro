@@ -69,7 +69,7 @@ export function renderAllHeadContent(result: SSRResult) {
 	// order will still work. In prod, all CSS are stylesheet links.
 	// In the future, it may be better to have only an array of head elements to avoid these assumptions.
 	const sep = result.compressHTML === true || result.compressHTML === 'jsx' ? '' : '\n';
-  content += styles.join(sep) + links.join(sep) + scripts.join(sep);
+	content += styles.join(sep) + links.join(sep) + scripts.join(sep);
 
 	content += result._metadata.extraHead.join('');
 
