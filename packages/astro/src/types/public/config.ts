@@ -2179,8 +2179,24 @@ export interface AstroUserConfig<
 		 * @type {MarkdownProcessor}
 		 * @version 6.4.0
 		 * @description
-		 * Configures the Markdown processor used to render `.md` files. Defaults to `unified()` from
-		 * `@astrojs/markdown-remark` (the remark/rehype pipeline).
+		 * Configures the Markdown processor used to render `.md` files. Defaults to `satteri()` from
+		 * `@astrojs/markdown-satteri`, Astro's native Markdown pipeline.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 * import { satteri } from '@astrojs/markdown-satteri';
+		 *
+		 * export default defineConfig({
+		 *   markdown: {
+		 *     processor: satteri({
+		 *       features: { gfm: false },
+		 *     }),
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * To keep the remark/rehype pipeline, install `@astrojs/markdown-remark` and pass `unified()`:
 		 *
 		 * ```js
 		 * // astro.config.mjs

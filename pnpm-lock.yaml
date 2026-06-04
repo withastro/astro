@@ -533,9 +533,9 @@ importers:
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
-      '@astrojs/markdown-remark':
+      '@astrojs/markdown-satteri':
         specifier: workspace:*
-        version: link:../markdown/remark
+        version: link:../markdown/satteri
       '@astrojs/telemetry':
         specifier: workspace:*
         version: link:../telemetry
@@ -696,12 +696,18 @@ importers:
       '@astrojs/check':
         specifier: workspace:*
         version: link:../language-tools/astro-check
+      '@astrojs/markdown-remark':
+        specifier: workspace:*
+        version: link:../markdown/remark
       '@playwright/test':
         specifier: 1.58.2
         version: 1.58.2
       '@types/aria-query':
         specifier: ^5.0.4
         version: 5.0.4
+      '@types/estree':
+        specifier: ^1.0.8
+        version: 1.0.8
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
@@ -5175,6 +5181,9 @@ importers:
 
   packages/integrations/mdx/test/fixtures/image-remark-imgattr:
     dependencies:
+      '@astrojs/markdown-remark':
+        specifier: workspace:*
+        version: link:../../../../../markdown/remark
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../..
@@ -5193,6 +5202,9 @@ importers:
 
   packages/integrations/mdx/test/fixtures/mdx-frontmatter-injection:
     dependencies:
+      '@astrojs/markdown-remark':
+        specifier: workspace:*
+        version: link:../../../../../markdown/remark
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../..
@@ -5319,6 +5331,9 @@ importers:
 
   packages/integrations/mdx/test/fixtures/mdx-vite-env-vars:
     dependencies:
+      '@astrojs/markdown-satteri':
+        specifier: workspace:*
+        version: link:../../../../../markdown/satteri
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../..

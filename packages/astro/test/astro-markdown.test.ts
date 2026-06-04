@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import { unified } from '@astrojs/markdown-remark';
 import * as cheerio from 'cheerio';
 import { type Fixture, fixLineEndings, loadFixture } from './test-utils.ts';
 
@@ -62,9 +63,12 @@ describe('Astro Markdown', () => {
 		});
 
 		it('handles Prism', async () => {
+			// Prism is only supported by the remark/rehype pipeline, so opt into `unified()`
+			// explicitly — the default `satteri()` processor rejects `syntaxHighlight: 'prism'`.
 			const prismFixture = await loadFixture({
 				root: FIXTURE_ROOT,
 				markdown: {
+					processor: unified(),
 					syntaxHighlight: 'prism',
 				},
 				outDir: './dist/astro-markdown-syntax-highlighting/',

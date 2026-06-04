@@ -9,7 +9,7 @@ import {
 	markdownConfigDefaults,
 	syntaxHighlightDefaults,
 } from '@astrojs/internal-helpers/markdown';
-import { unified } from '@astrojs/markdown-remark';
+import { satteri } from '@astrojs/markdown-satteri';
 import type { MarkdownProcessor } from '../../../markdown/index.js';
 import type { OutgoingHttpHeaders } from 'node:http';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
@@ -424,7 +424,7 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
 			// Deprecated: left undefined unless the user explicitly sets them, so the
 			// deprecation warning only fires when actually used. The active processor
-			// (`unified()`) supplies the real default (`gfm`/smart punctuation on) when
+			// (`satteri()`) supplies the real default (`gfm`/smart punctuation on) when
 			// these are absent.
 			gfm: z.boolean().optional(),
 			smartypants: z
@@ -454,7 +454,7 @@ export const AstroConfigSchema = z.object({
 				// A factory (not a shared value) so every config gets its own processor —
 				// integrations extend the pipeline by mutating `processor.options`, which
 				// would otherwise leak across configs built in the same process.
-				.default(() => unified()),
+				.default(() => satteri()),
 		})
 		.prefault({}),
 	vite: z

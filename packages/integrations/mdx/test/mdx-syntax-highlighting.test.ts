@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { unified } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import rehypeShiki from '@shikijs/rehype';
 import { transformerTwoslash } from '@shikijs/twoslash';
@@ -63,6 +64,8 @@ describe('MDX syntax highlighting', () => {
 				root: FIXTURE_ROOT,
 				markdown: {
 					syntaxHighlight: 'prism',
+					// Prism is only available on the remark/rehype pipeline.
+					processor: unified(),
 				},
 				integrations: [mdx()],
 			});
@@ -81,6 +84,8 @@ describe('MDX syntax highlighting', () => {
 					root: FIXTURE_ROOT,
 					markdown: {
 						syntaxHighlight: 'shiki',
+						// `mdx({ syntaxHighlight: 'prism' })` needs the remark/rehype pipeline.
+						processor: unified(),
 					},
 					integrations: [
 						mdx({
@@ -107,6 +112,8 @@ describe('MDX syntax highlighting', () => {
 			root: FIXTURE_ROOT,
 			markdown: {
 				syntaxHighlight: false,
+				// Custom rehype highlighters run on the remark/rehype pipeline.
+				processor: unified(),
 			},
 			integrations: [
 				mdx({
@@ -139,6 +146,8 @@ describe('MDX syntax highlighting', () => {
 			root: FIXTURE_ROOT,
 			markdown: {
 				syntaxHighlight: false,
+				// Custom rehype highlighters run on the remark/rehype pipeline.
+				processor: unified(),
 			},
 			integrations: [
 				mdx({

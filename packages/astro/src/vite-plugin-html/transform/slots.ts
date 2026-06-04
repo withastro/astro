@@ -15,7 +15,10 @@ const rehypeSlots: Plugin<[{ s: MagicString }], Root> = ({ s }) => {
 				const first = node.children.at(0) ?? node;
 				const last = node.children.at(-1) ?? node;
 				const text = file.value
-					.slice(first.position?.start.offset ?? 0, last.position?.end.offset ?? 0)
+					.slice(
+						(first as any).position?.start.offset ?? 0,
+						(last as any).position?.end.offset ?? 0,
+					)
 					.toString();
 				s.overwrite(
 					start,
