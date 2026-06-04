@@ -470,7 +470,7 @@ export async function renderPath({
 			relativeLocation: locationSite,
 			from: fromPath,
 		});
-		if (config.compressHTML === true) {
+		if (config.compressHTML) {
 			body = body.replaceAll('\n', '');
 		}
 		if (route.type !== 'redirect') {

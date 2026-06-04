@@ -122,3 +122,56 @@ describe('HTML minification (JSX mode)', () => {
 		});
 	});
 });
+
+describe('HTML minification (default)', () => {
+	let html: string;
+	before(async () => {
+		// This fixture intentionally leaves `compressHTML` unset to exercise the default.
+		const fixture = await loadFixture({
+			root: './fixtures/minification-html-default/',
+			build: { inlineStylesheets: 'never' },
+			outDir: './dist/minification-html-default/',
+		});
+		await fixture.build();
+		html = await fixture.readFile('/index.html');
+	});
+
+	it('strips whitespace between inline elements, following JSX rules', () => {
+		// The discriminator: HTML-aware compression (`true`) keeps a single space
+		// here, while the default JSX rules remove it entirely.
+		assert.ok(
+			html.includes('<span>hello</span><em>world</em>'),
+			'whitespace between inline elements should be removed',
+		);
+	});
+
+	it('collapses multi-line text into a single line', () => {
+		assert.ok(html.includes('<p id="multi-line">Hello world</p>'));
+	});
+
+	it('preserves whitespace inside <pre> tags', () => {
+		assert.match(html, /<pre id="preserved">\n\s+keep\n\s+this\n\s+whitespace/);
+	});
+
+	it('removes every newline outside of <pre>', () => {
+		const withoutPre = html.replace(/<pre[\s\S]*?<\/pre>/g, '');
+		assert.equal(NEW_LINES.test(withoutPre), false);
+	});
+});
+
+describe('HTML minification (compressHTML: true differs from the default)', () => {
+	it('keeps a single space between inline elements', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/minification-html-default/',
+			build: { inlineStylesheets: 'never' },
+			outDir: './dist/minification-html-true/',
+			compressHTML: true,
+		});
+		await fixture.build();
+		const html = await fixture.readFile('/index.html');
+		assert.ok(
+			html.includes('<span>hello</span> <em>world</em>'),
+			'HTML-aware compression should preserve inline whitespace as a single space',
+		);
+	});
+});

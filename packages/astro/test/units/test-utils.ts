@@ -162,7 +162,7 @@ export function createBasicPipeline(
 		adapterName?: string;
 		clientDirectives?: Map<string, string>;
 		inlinedScripts?: Map<string, string>;
-		compressHTML?: boolean;
+		compressHTML?: boolean | 'jsx';
 		i18n?: SSRManifest['i18n'];
 		middleware?: SSRManifest['middleware'];
 		routeCache?: RouteCache;
