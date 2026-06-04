@@ -74,7 +74,7 @@ describe('CSS scoped styles with a case-mismatched project root', {
 	it('injects the scoped style into the page (issue #14013)', () => {
 		const injectedStyles = $('style').text().replace(/\s/g, '');
 		assert.equal(
-			injectedStyles.includes('color:rgb(255,165,0)'),
+			injectedStyles.includes('color:#123456'),
 			true,
 			'expected the scoped <style> to be injected even though the root case differs from disk',
 		);
