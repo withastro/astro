@@ -1,11 +1,11 @@
 import { pathToFileURL } from 'node:url';
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
-import { createShikiHighlighter } from '@astrojs/internal-helpers/shiki';
 import type { SatteriResolvedOptions } from '@astrojs/markdown-satteri';
 import {
 	satteriCollectImagesPlugin,
+	satteriCreateHighlightFn,
 	satteriHeadingIdsPlugin,
-	satteriShikiPlugin,
+	satteriHighlightPlugin,
 } from '@astrojs/markdown-satteri';
 import { createDefaultAstroMetadata } from 'astro/markdown';
 import {
@@ -48,38 +48,12 @@ export function createMdxProcessor(
 	let highlightFn: HighlightFn | undefined;
 	let initPromise: Promise<void> | undefined;
 
-	function initShiki() {
-		const syntaxHighlight = mdxOptions.syntaxHighlight;
-		const syntaxHighlightType =
-			typeof syntaxHighlight === 'string'
-				? syntaxHighlight
-				: syntaxHighlight
-					? syntaxHighlight.type
-					: undefined;
-
-		if (syntaxHighlightType === 'prism') {
-			throw new Error(
-				'Prism syntax highlighting is not supported by the `satteri()` markdown processor. Use shiki instead, or switch to `markdown.processor: unified({...})`.',
-			);
-		}
-
-		if (syntaxHighlightType === 'shiki') {
-			const shikiConfig = mdxOptions.shikiConfig ?? {};
-			initPromise = createShikiHighlighter({
-				langs: shikiConfig.langs,
-				theme: shikiConfig.theme,
-				themes: shikiConfig.themes,
-				langAlias: shikiConfig.langAlias,
-			}).then((hl) => {
-				highlightFn = (code, lang, meta) =>
-					hl.codeToHtml(code, lang, {
-						meta,
-						wrap: shikiConfig.wrap,
-						defaultColor: shikiConfig.defaultColor,
-						transformers: shikiConfig.transformers,
-					});
-			});
-		}
+	function initHighlighter() {
+		initPromise = satteriCreateHighlightFn(mdxOptions.syntaxHighlight, mdxOptions.shikiConfig).then(
+			(fn) => {
+				highlightFn = fn;
+			},
+		);
 	}
 
 	return {
@@ -89,7 +63,7 @@ export function createMdxProcessor(
 			frontmatter: Record<string, any>,
 		): Promise<CompileMdxResult> {
 			if (!highlightFn && !initPromise) {
-				initShiki();
+				initHighlighter();
 			}
 			if (initPromise) await initPromise;
 
@@ -124,7 +98,7 @@ export function createMdxProcessor(
 			if (highlightFn) {
 				// `mdx: true` wraps the highlighted HTML in a JSX `<Fragment set:html>` node
 				// rather than a raw HTML node, since the Sätteri pipeline is compiling to JSX.
-				hastPlugins.push(satteriShikiPlugin(highlightFn, excludeLangs, { mdx: true }));
+				hastPlugins.push(satteriHighlightPlugin(highlightFn, excludeLangs, { mdx: true }));
 			}
 			if (satteriOptions.hastPlugins.length) {
 				hastPlugins.push(...satteriOptions.hastPlugins);
