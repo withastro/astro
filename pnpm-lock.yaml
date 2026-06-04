@@ -6748,6 +6748,9 @@ importers:
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../../internal-helpers
+      '@astrojs/prism':
+        specifier: workspace:*
+        version: link:../../astro-prism
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
