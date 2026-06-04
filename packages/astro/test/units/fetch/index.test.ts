@@ -809,8 +809,6 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 	});
 
 	it('handles headers set by user fetch handler before FetchState creation', () => {
-		// This is the core use case from the issue: user sets forwarded
-		// headers in their src/app.ts fetch() before creating FetchState.
 		const app = createTestApp([createPage(simplePage, { route: '/' })], {
 			allowedDomains: [{ hostname: 'example.com' }],
 		});
@@ -827,8 +825,6 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 	});
 
 	it('renders through the full pipeline with forwarded headers applied', async () => {
-		// End-to-end: forwarded headers should be visible in Astro.url
-		// when rendering through the astro() combined handler.
 		const app = createTestApp([createPage(simplePage, { route: '/' })], {
 			allowedDomains: [{ hostname: 'example.com' }],
 		});
@@ -843,7 +839,6 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 		);
 		const state = new FetchState(request);
 
-		// Verify URL was updated before the handler runs
 		assert.equal(state.url.protocol, 'https:');
 		assert.equal(state.url.hostname, 'example.com');
 
@@ -866,12 +861,9 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 		);
 		const state = new FetchState(request);
 
-		// state.url should reflect the forwarded origin
 		assert.equal(state.url.protocol, 'https:');
 		assert.equal(state.url.hostname, 'example.com');
 
-		// state.request.url must also reflect the forwarded origin
-		// (regression test for #16945)
 		const requestUrl = new URL(state.request.url);
 		assert.equal(requestUrl.protocol, 'https:');
 		assert.equal(requestUrl.hostname, 'example.com');
@@ -893,6 +885,76 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 		// Rejected forwarded host — request should stay unchanged
 		assert.equal(state.url.hostname, 'localhost');
 		assert.equal(new URL(state.request.url).hostname, 'localhost');
+	});
+
+	it('carries appSymbol onto the reconstructed request so the app still resolves', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const original = new Request('http://localhost:4321/', {
+			headers: {
+				'x-forwarded-proto': 'https',
+				'x-forwarded-host': 'example.com',
+			},
+		});
+		const request = stampApp(original, app);
+		const state = new FetchState(request);
+
+		assert.notEqual(state.request, original);
+		assert.equal(Reflect.get(state.request, appSymbol), app);
+		const response = await astro(state);
+		assert.equal(response.status, 200);
+	});
+
+	it('preserves method, headers and body when reconstructing for forwarded headers', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/api' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/api', {
+				method: 'POST',
+				headers: {
+					'content-type': 'application/x-www-form-urlencoded',
+					'x-forwarded-proto': 'https',
+					'x-forwarded-host': 'example.com',
+				},
+				body: 'token=abc123',
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(new URL(state.request.url).protocol, 'https:');
+		assert.equal(new URL(state.request.url).hostname, 'example.com');
+		assert.equal(state.request.method, 'POST');
+		assert.equal(state.request.headers.get('content-type'), 'application/x-www-form-urlencoded');
+		assert.equal(await state.request.text(), 'token=abc123');
+	});
+
+	it('preserves a streaming request body (duplex) when reconstructing', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/api' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const body = new ReadableStream({
+			start(controller) {
+				controller.enqueue(new TextEncoder().encode('chunked-payload'));
+				controller.close();
+			},
+		});
+		const init: any = {
+			method: 'POST',
+			headers: {
+				'x-forwarded-proto': 'https',
+				'x-forwarded-host': 'example.com',
+			},
+			body,
+			duplex: 'half',
+		};
+		const request = stampApp(new Request('http://localhost:4321/api', init), app);
+		const state = new FetchState(request);
+
+		assert.equal(new URL(state.request.url).hostname, 'example.com');
+		assert.equal(await state.request.text(), 'chunked-payload');
 	});
 });
 
