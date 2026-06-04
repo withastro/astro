@@ -12,6 +12,12 @@
 
 <style>
 	h1 {
-		color: rgb(255, 165, 0);
+		/* 
+		A hex value already in its shortest canonical form: the Rust compiler
+		(@astrojs/compiler-rs) re-serializes CSS values when injecting scope
+		attributes, so a value with a shorter equivalent (e.g. `rgb(255, 165, 0)`
+		collapses to `orange`) would not survive verbatim for the assertion. 
+		*/
+		color: #123456;
 	}
 </style>
