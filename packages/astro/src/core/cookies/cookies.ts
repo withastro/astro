@@ -135,7 +135,7 @@ class AstroCookies implements AstroCookiesInterface {
 		const values = this.#ensureParsed();
 		if (key in values) {
 			const value = values[key];
-			if (value) {
+			if (value !== undefined) {
 				let decodedValue: string;
 				try {
 					decodedValue = decode(value);

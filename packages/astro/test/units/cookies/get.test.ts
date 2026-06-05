@@ -49,6 +49,18 @@ describe('astro/src/core/cookies', () => {
 			assert.equal(cookies.get('url')!.value, encode(url));
 		});
 
+		it('gets empty cookie values', () => {
+			const req = new Request('http://example.com/', {
+				headers: {
+					cookie: 'foo=',
+				},
+			});
+			const cookies = new AstroCookies(req);
+
+			assert.equal(cookies.has('foo'), true);
+			assert.equal(cookies.get('foo')!.value, '');
+		});
+
 		it("Returns undefined is the value doesn't exist", () => {
 			const req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);
