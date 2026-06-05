@@ -780,13 +780,41 @@ export class FetchState implements AstroFetchState {
 	 * Used by context creation (APIContext, Astro global) so that
 	 * provider values like `session` and `cache` appear as properties
 	 * without hard-coding the keys.
+	 *
+	 * Always defines a `session` getter (returning `undefined` when no
+	 * provider is registered) so `ctx.session` / `Astro.session` is a
+	 * present property regardless of whether the sessions handler was
+	 * included in the pipeline.
 	 */
 	defineProviderGetters(target: Record<string, any>): void {
-		if (!this.#providers) return;
 		const state = this;
-		for (const key of this.#providers.keys()) {
-			Object.defineProperty(target, key, {
-				get: () => state.resolve(key),
+		if (this.#providers) {
+			for (const key of this.#providers.keys()) {
+				Object.defineProperty(target, key, {
+					get: () => state.resolve(key),
+					enumerable: true,
+					configurable: true,
+				});
+			}
+		}
+		// Ensure `session` is always a defined property even when the
+		// sessions handler is not part of the pipeline. Warns once on
+		// access so users know they need to configure session storage.
+		if (!this.#providers?.has('session')) {
+			let warned = false;
+			Object.defineProperty(target, 'session', {
+				get() {
+					if (!warned) {
+						warned = true;
+						state.pipeline.logger.warn(
+							'session',
+							'`Astro.session` was accessed but no session storage is configured. ' +
+								'Either configure the storage manually or use an adapter that provides session storage. ' +
+								'For more information, see https://docs.astro.build/en/guides/sessions/',
+						);
+					}
+					return undefined;
+				},
 				enumerable: true,
 				configurable: true,
 			});
