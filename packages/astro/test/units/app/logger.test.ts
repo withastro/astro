@@ -43,6 +43,23 @@ function createAppWithLogger(experimentalLogger?: LoggerHandlerConfig) {
 }
 
 describe('SSR Logger', () => {
+	it('adapterLogger re-creates itself after the pipeline logger is replaced', async () => {
+		const app = createAppWithLogger({ entrypoint: 'astro/logger/json' });
+
+		// Access adapterLogger before getLogger() — caches it with the default options
+		const beforeOptions = app.adapterLogger.options;
+
+		await app.pipeline.getLogger();
+
+		// After getLogger() replaces pipeline.logger, adapterLogger should re-create
+		const afterOptions = app.adapterLogger.options;
+		assert.notEqual(
+			beforeOptions,
+			afterOptions,
+			'adapterLogger should re-create when the pipeline logger is replaced',
+		);
+	});
+
 	it('resolves a custom logger destination from the manifest on first request', async () => {
 		const app = createAppWithLogger({ entrypoint: 'astro/logger/json' });
 
