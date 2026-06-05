@@ -96,7 +96,7 @@ export type ContainerRenderOptions = {
 	routeType?: RouteType;
 
 	/**
-	 * Allows to pass `Astro.props` to an Astro component:
+	 * Allows passing `Astro.props` to an Astro component:
 	 *
 	 * ```js
 	 * container.renderToString(Endpoint, { props: { "lorem": "ipsum" } });
@@ -105,9 +105,9 @@ export type ContainerRenderOptions = {
 	props?: Props;
 
 	/**
-	 * When `false`, it forces to render the component as it was a full-fledged page.
+	 * When `false`, it forces the component to render as if it were a full-fledged page.
 	 *
-	 * By default, the container API render components as [partials](https://docs.astro.build/en/basics/astro-pages/#page-partials).
+	 * By default, the container API renders components as [partials](https://docs.astro.build/en/basics/astro-pages/#page-partials).
 	 *
 	 */
 	partial?: boolean;
