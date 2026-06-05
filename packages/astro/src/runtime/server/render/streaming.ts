@@ -62,6 +62,23 @@ export async function renderStreaming(
 ): Promise<void> {
 	const stack: unknown[] = [root];
 
+	// Per-render content cache for HTML element tags in the MDX/.md (astro:jsx)
+	// path, where open/close tags are constructed per element. A tag string
+	// depends only on the tag name (close tags always; open tags when attr-less),
+	// so repeated elements (thousands of <p>/<li>/…) share one cached string
+	// instead of re-building and re-wrapping it each time. The keys are tag names,
+	// so the cache stays tiny (~one entry per distinct tag).
+	const openTagCache = new Map<string, string>();
+	const closeTagCache = new Map<string, HTMLString>();
+	const closeTagFor = (type: string): HTMLString => {
+		let tag = closeTagCache.get(type);
+		if (tag === undefined) {
+			tag = new HTMLString(`</${type}>`);
+			closeTagCache.set(type, tag);
+		}
+		return tag;
+	};
+
 	// Streaming-mode buffer (written directly to `destination`).
 	let batch = '';
 	// Buffered-tail mode (entered on the first async dynamic node).
@@ -136,16 +153,48 @@ export async function renderStreaming(
 
 		// HTML element (e.g. 'div', 'span').
 		if (typeof type === 'string' && type !== ClientOnlyPlaceholder) {
-			const { children, ...props } = vnode.props ?? {};
-			const attrs = spreadAttributes(props);
-			if ((children == null || children === '') && voidElementNames.test(type)) {
-				emitStatic(`<${type}${attrs}/>`);
-				return;
+			const props = vnode.props;
+			// Detect attributes without the rest-spread allocation. Markdown/MDX is
+			// dominated by attr-less elements (<p>, <li>, <strong>…), for which we
+			// skip both the rest-spread and `spreadAttributes`.
+			let hasAttrs = false;
+			if (props) {
+				for (const key in props) {
+					if (key !== 'children') {
+						hasAttrs = true;
+						break;
+					}
+				}
 			}
-			emitStatic(`<${type}${attrs}>`);
-			// Push close tag first so it is emitted after the children.
-			stack.push(markHTMLString(`</${type}>`));
-			if (children != null && children !== '') {
+			const children = props?.children;
+			const isVoid = (children == null || children === '') && voidElementNames.test(type);
+
+			if (!hasAttrs) {
+				// Attr-less: skip the rest-spread + spreadAttributes entirely, and
+				// reuse the cached (constant) open/close tag strings for this tag.
+				const key = isVoid ? `${type}/` : type;
+				let openTag = openTagCache.get(key);
+				if (openTag === undefined) {
+					openTag = isVoid ? `<${type}/>` : `<${type}>`;
+					openTagCache.set(key, openTag);
+				}
+				emitStatic(openTag);
+				if (!isVoid) {
+					// Push close tag first so it is emitted after the children.
+					stack.push(closeTagFor(type));
+				}
+			} else {
+				const { children: _children, ...attrsProps } = props ?? {};
+				const attrs = spreadAttributes(attrsProps);
+				if (isVoid) {
+					emitStatic(`<${type}${attrs}/>`);
+					return;
+				}
+				emitStatic(`<${type}${attrs}>`);
+				stack.push(markHTMLString(`</${type}>`));
+			}
+
+			if (!isVoid && children != null && children !== '') {
 				// `<script>`/`<style>` string content is raw HTML, not escaped.
 				if (typeof children === 'string' && (type === 'style' || type === 'script')) {
 					stack.push(markHTMLString(children));
