@@ -99,6 +99,16 @@ export default function hmrReload(): Plugin {
 				if (hasSkippedStyleModules) {
 					return [];
 				}
+
+				// If we processed modules but none were SSR-only (all were found in the
+				// client module graph), return an empty array to prevent Vite's default
+				// HMR propagation. Without this, Vite would propagate through the SSR
+				// module graph, find no HMR boundary (e.g. .astro files), and trigger
+				// a full-reload that causes unnecessary program reloads for the module
+				// runner. The client environment handles HMR for these modules natively.
+				if (modules.length > 0) {
+					return [];
+				}
 			},
 		},
 	};

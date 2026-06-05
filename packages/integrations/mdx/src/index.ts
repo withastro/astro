@@ -174,7 +174,10 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					// `gfm`/`smartPunctuation` from `satteri({ features: {...} })` apply to `.mdx`
 					// too, unless `mdx({...})` set its own. Mirrors the unified branch above.
 					const features = processor.options.features;
-					if (partialMdxOptions.gfm === undefined && features.gfm !== undefined) {
+					// `gfm` can be `boolean | GfmOptions`; only the boolean form is shape-compatible
+					// with `mdxOptions.gfm`. Object configs stay on the processor and are applied at
+					// the satteri/mdx boundary, like `smartPunctuation` below.
+					if (partialMdxOptions.gfm === undefined && typeof features.gfm === 'boolean') {
 						resolvedMdxOptions.gfm = features.gfm;
 					}
 					// `smartPunctuation` can be `boolean | SmartPunctuationOptions`; only the boolean
