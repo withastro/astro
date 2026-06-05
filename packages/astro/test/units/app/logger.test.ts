@@ -46,7 +46,7 @@ describe('SSR Logger', () => {
 	it('adapterLogger re-creates itself after the pipeline logger is replaced', async () => {
 		const app = createAppWithLogger({ entrypoint: 'astro/logger/json' });
 
-		// Access adapterLogger before getLogger() — caches it with the default options
+		// Access adapterLogger before getLogger(), caches it with the default options
 		const beforeOptions = app.adapterLogger.options;
 
 		await app.pipeline.getLogger();
