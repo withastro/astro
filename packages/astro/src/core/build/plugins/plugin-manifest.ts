@@ -371,8 +371,6 @@ async function buildManifest(
 		assetsPrefix: settings.config.build.assetsPrefix,
 		experimentalQueuedRendering: {
 			enabled: settings.config.experimental.queuedRendering?.enabled ?? false,
-			poolSize: 0,
-			contentCache: false,
 		},
 		componentMetadata: Array.from(internals.componentMetadata),
 		renderers: [],

@@ -7,8 +7,7 @@ import { renderCspContent } from './csp.js';
 import type { AstroComponentFactory } from './index.js';
 import { isDeno, isNode } from './util.js';
 import { isAstroComponentFactory } from './astro/factory.js';
-import { buildRenderQueue } from './queue/builder.js';
-import { renderQueue } from './queue/renderer.js';
+import { renderStreaming } from './streaming.js';
 import { chunkToString } from './common.js';
 
 export async function renderPage(
@@ -27,28 +26,18 @@ export async function renderPage(
 
 		let str: string;
 
-		// Check if queue rendering is enabled
+		// Check if queue (streaming) rendering is enabled
 		if (result._experimentalQueuedRendering && result._experimentalQueuedRendering.enabled) {
-			// Queue rendering: Call the component to get the render result,
-			// then process it through the queue system
-
-			// Call the component function to get the vnode tree
+			// Streaming rendering: call the component to get the vnode tree,
+			// then process it through the streaming engine.
 			let vnode = await (componentFactory as any)(pageProps);
 
 			// .html pages return plain strings that are already valid HTML.
-			// Mark them as safe HTML so the queue builder doesn't escape the content.
+			// Mark them as safe HTML so the engine doesn't escape the content.
 			if ((componentFactory as any)['astro:html'] && typeof vnode === 'string') {
 				vnode = markHTMLString(vnode);
 			}
 
-			// Build a render queue from the vnode tree
-			const queue = await buildRenderQueue(
-				vnode,
-				result,
-				result._experimentalQueuedRendering.pool!,
-			);
-
-			// Render the queue to a string
 			let html = '';
 			let renderedFirst = false;
 			const destination = {
@@ -68,7 +57,7 @@ export async function renderPage(
 					html += chunkToString(result, chunk);
 				},
 			};
-			await renderQueue(queue, destination);
+			await renderStreaming(vnode, result, destination);
 			str = html;
 		} else {
 			// Standard rendering path (non-MDX or queue rendering disabled)
