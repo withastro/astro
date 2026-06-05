@@ -17,7 +17,7 @@ export const hostOptions = (host: Options['host']): string => {
 	return host;
 };
 
-export default function standalone(
+export default async function standalone(
 	app: BaseApp,
 	options: Options,
 	headersMap: NodeAppHeadersJson | undefined,
@@ -30,6 +30,10 @@ export default function standalone(
 	const resolvedOptions = { ...options, port };
 	const handler = createStandaloneHandler(app, resolvedOptions, headersMap);
 	const server = createServer(handler, host, port);
+	// Resolve the user-configured logger before starting the server so that
+	// the startup message uses the correct destination and adapterLogger is
+	// created from the already-replaced pipeline.logger.
+	await app.pipeline.getLogger();
 	server.server.listen(port, host);
 	if (process.env.ASTRO_NODE_LOGGING !== 'disabled') {
 		logListeningOn(app.adapterLogger, server.server, host);
