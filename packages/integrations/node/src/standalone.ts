@@ -32,11 +32,9 @@ export default function standalone(
 	const server = createServer(handler, host, port);
 	server.server.listen(port, host);
 	if (process.env.ASTRO_NODE_LOGGING !== 'disabled') {
-		// Resolve the user-configured logger before logging the startup message.
-		// getLogger() resolves before the OS finishes binding the port (and emitting
-		// 'listening'), so logListeningOn's once('listening') handler is registered
-		// in time. standalone() stays synchronous so callers receive the server object
-		// immediately, as they did before.
+		// Resolve the logger before the 'listening' event fires so the startup message
+		// uses the correct destination. standalone() stays synchronous so callers get
+		// the server object immediately.
 		app.pipeline.getLogger().then(() => logListeningOn(app.adapterLogger, server.server, host));
 	}
 	server.server.on('close', () => {
