@@ -180,8 +180,8 @@ describe('astro:hmr-reload CSS invalidation', () => {
 			},
 		);
 
-		// For client-visible module changes, the handler returns undefined
-		assert.equal(result, undefined);
+		// For client-visible module changes, the handler returns [] to prevent default SSR propagation
+		assert.deepEqual(result, []);
 
 		// The dev-css module should NOT be invalidated (CSS invalidation is for style-only changes)
 		assert.equal(invalidatedModuleGraphIds.length, 0);
