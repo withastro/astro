@@ -1,5 +1,25 @@
 # astro
 
+## 6.4.4
+
+### Patch Changes
+
+- [#16926](https://github.com/withastro/astro/pull/16926) [`1b39ae8`](https://github.com/withastro/astro/commit/1b39ae8485406937501d8a734afe2a464d671064) Thanks [@narendraio](https://github.com/narendraio)! - Prevents `App.match()` from throwing on request paths that contain an invalid percent-sequence.
+
+- [#16924](https://github.com/withastro/astro/pull/16924) [`2c0bc94`](https://github.com/withastro/astro/commit/2c0bc943d96d602b429ce3ecbb379d01a46903b5) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes an issue where editing a client-side component (e.g. with `client:idle`, `client:load`, etc.) caused an unnecessary full program reload of the backend during development.
+
+- [#16958](https://github.com/withastro/astro/pull/16958) [`2c1d50f`](https://github.com/withastro/astro/commit/2c1d50f5f9d557d7cdc17fd75f3a10fd203699c9) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes a bug where static file endpoints using `getStaticPaths` with `.html` in dynamic param values (e.g. `{ path: 'file.html' }`) would fail with a `NoMatchingStaticPathFound` error during build. The `.html` suffix is no longer incorrectly stripped from endpoint route pathnames.
+
+- [#16855](https://github.com/withastro/astro/pull/16855) [`c610cda`](https://github.com/withastro/astro/commit/c610cda44b273c15a6e7eaa4a84fa194002643e1) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes dynamic routes returning 500 "TypeError: Missing parameter" when using domain-based i18n routing in SSR.
+
+- [#16946](https://github.com/withastro/astro/pull/16946) [`606c37b`](https://github.com/withastro/astro/commit/606c37b886a9e25170ba82634cc81a8a775e8ac6) Thanks [@ematipico](https://github.com/ematipico)! - Fixes `Astro.routePattern` to preserve original casing of dynamic parameter names from filenames. Previously, a file at `src/pages/blog/[postId].astro` would return `/blog/[postid]` for `Astro.routePattern` due to an internal `.toLowerCase()` call. It now correctly returns `/blog/[postId]`.
+
+- [#16720](https://github.com/withastro/astro/pull/16720) [`16d49b6`](https://github.com/withastro/astro/commit/16d49b694071be212fb8c5a141ade72e8717a30e) Thanks [@thomas-callahan-collibra](https://github.com/thomas-callahan-collibra)! - Fix an issue where dynamic routes would return the string `[object Object]` instead of the expected content, in certain runtimes.
+
+- [#16703](https://github.com/withastro/astro/pull/16703) [`17390a6`](https://github.com/withastro/astro/commit/17390a6184d5cbd5ff85b7f652a92f5a6a7b0557) Thanks [@henrybrewer00-dotcom](https://github.com/henrybrewer00-dotcom)! - Fixes styles being stripped when the project root is started with a path whose case differs from the actual filesystem case (e.g. running `astro dev` from `d:\dev\app` while the folder on disk is `D:\dev\app`).
+
+- [#16855](https://github.com/withastro/astro/pull/16855) [`c610cda`](https://github.com/withastro/astro/commit/c610cda44b273c15a6e7eaa4a84fa194002643e1) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `Astro.currentLocale` returning the default locale instead of the domain's locale on dynamic routes served from a mapped domain.
+
 ## 6.4.3
 
 ### Patch Changes

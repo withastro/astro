@@ -14,7 +14,7 @@ import {
 import { ALL_PIPELINE_FEATURES } from '../../../dist/core/base-pipeline.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createEndpoint, createPage, createRedirect, createTestApp } from '../mocks.ts';
-import { dynamicPart } from '../routing/test-helpers.ts';
+import { dynamicPart, spreadPart } from '../routing/test-helpers.ts';
 
 /** A simple page component that renders `<h1>Hello</h1>`. */
 const simplePage = createComponent((_result: any, _props: any, _slots: any) => {
@@ -89,6 +89,28 @@ describe('FetchState (astro/fetch)', () => {
 
 		assert.ok(state.routeData, 'routeData should fall back to the 404 route');
 		assert.equal(state.routeData!.route, '/404');
+	});
+
+	it('preserves .html in pathname for endpoint routes with dynamic params', () => {
+		// Regression test for #16941: when a dynamic endpoint returns a param
+		// value like `file.html`, the `.html` suffix must not be stripped from
+		// the pathname. Only page routes should have `.html` stripped (it is
+		// framework-injected there), but for endpoints the suffix is user-provided.
+		const endpoint = createEndpoint(
+			{ GET: () => new Response('ok') },
+			{
+				route: '/[...path]',
+				pathname: undefined,
+				segments: [[spreadPart('path')]],
+			},
+		);
+		const app = createTestApp([endpoint]);
+		const request = stampApp(new Request('http://example.com/file.html'), app);
+		const state = new FetchState(request);
+
+		assert.ok(state.routeData, 'routeData should be set');
+		assert.equal(state.routeData!.type, 'endpoint');
+		assert.equal(state.pathname, '/file.html', '.html should be preserved for endpoint routes');
 	});
 });
 
@@ -809,8 +831,6 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 	});
 
 	it('handles headers set by user fetch handler before FetchState creation', () => {
-		// This is the core use case from the issue: user sets forwarded
-		// headers in their src/app.ts fetch() before creating FetchState.
 		const app = createTestApp([createPage(simplePage, { route: '/' })], {
 			allowedDomains: [{ hostname: 'example.com' }],
 		});
@@ -827,8 +847,6 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 	});
 
 	it('renders through the full pipeline with forwarded headers applied', async () => {
-		// End-to-end: forwarded headers should be visible in Astro.url
-		// when rendering through the astro() combined handler.
 		const app = createTestApp([createPage(simplePage, { route: '/' })], {
 			allowedDomains: [{ hostname: 'example.com' }],
 		});
@@ -843,12 +861,122 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 		);
 		const state = new FetchState(request);
 
-		// Verify URL was updated before the handler runs
 		assert.equal(state.url.protocol, 'https:');
 		assert.equal(state.url.hostname, 'example.com');
 
 		const response = await astro(state);
 		assert.equal(response.status, 200);
+	});
+
+	it('updates request.url to match the forwarded URL', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/page', {
+				headers: {
+					'x-forwarded-proto': 'https',
+					'x-forwarded-host': 'example.com',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.protocol, 'https:');
+		assert.equal(state.url.hostname, 'example.com');
+
+		const requestUrl = new URL(state.request.url);
+		assert.equal(requestUrl.protocol, 'https:');
+		assert.equal(requestUrl.hostname, 'example.com');
+		assert.equal(requestUrl.pathname, '/page');
+	});
+
+	it('does not reconstruct request when no forwarded headers are validated', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'trusted.com' }],
+		});
+		const original = new Request('http://localhost:4321/', {
+			headers: {
+				'x-forwarded-host': 'evil.com',
+			},
+		});
+		const request = stampApp(original, app);
+		const state = new FetchState(request);
+
+		// Rejected forwarded host — request should stay unchanged
+		assert.equal(state.url.hostname, 'localhost');
+		assert.equal(new URL(state.request.url).hostname, 'localhost');
+	});
+
+	it('carries appSymbol onto the reconstructed request so the app still resolves', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const original = new Request('http://localhost:4321/', {
+			headers: {
+				'x-forwarded-proto': 'https',
+				'x-forwarded-host': 'example.com',
+			},
+		});
+		const request = stampApp(original, app);
+		const state = new FetchState(request);
+
+		assert.notEqual(state.request, original);
+		assert.equal(Reflect.get(state.request, appSymbol), app);
+		const response = await astro(state);
+		assert.equal(response.status, 200);
+	});
+
+	it('preserves method, headers and body when reconstructing for forwarded headers', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/api' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/api', {
+				method: 'POST',
+				headers: {
+					'content-type': 'application/x-www-form-urlencoded',
+					'x-forwarded-proto': 'https',
+					'x-forwarded-host': 'example.com',
+				},
+				body: 'token=abc123',
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(new URL(state.request.url).protocol, 'https:');
+		assert.equal(new URL(state.request.url).hostname, 'example.com');
+		assert.equal(state.request.method, 'POST');
+		assert.equal(state.request.headers.get('content-type'), 'application/x-www-form-urlencoded');
+		assert.equal(await state.request.text(), 'token=abc123');
+	});
+
+	it('preserves a streaming request body (duplex) when reconstructing', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/api' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const body = new ReadableStream({
+			start(controller) {
+				controller.enqueue(new TextEncoder().encode('chunked-payload'));
+				controller.close();
+			},
+		});
+		const init: any = {
+			method: 'POST',
+			headers: {
+				'x-forwarded-proto': 'https',
+				'x-forwarded-host': 'example.com',
+			},
+			body,
+			duplex: 'half',
+		};
+		const request = stampApp(new Request('http://localhost:4321/api', init), app);
+		const state = new FetchState(request);
+
+		assert.equal(new URL(state.request.url).hostname, 'example.com');
+		assert.equal(await state.request.text(), 'chunked-payload');
 	});
 });
 
