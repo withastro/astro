@@ -1,4 +1,5 @@
 import { existsSync, promises as fs } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
 import type { MarkdownRenderer } from '@astrojs/internal-helpers/markdown';
 import PQueue from 'p-queue';
@@ -358,7 +359,41 @@ export class ContentLayer {
 		logger.info('Synced content');
 		if (this.#settings.config.experimental.contentIntellisense) {
 			await this.regenerateCollectionFileManifest();
+			// On a full sync the watcher listeners were cleared above and re-added by the
+			// loaders, so re-register the manifest watcher here too. On a selective sync the
+			// listeners are left intact, so we skip to avoid stacking duplicate listeners.
+			if (!options?.loaders?.length) {
+				this.#watchCollectionFileManifest();
+			}
 		}
+	}
+
+	/**
+	 * Watches for content files being added or removed and regenerates the collection
+	 * file manifest, so content intellisense stays in sync during `astro dev` without a
+	 * restart. Debounced to batch the burst of events chokidar emits for a single change.
+	 */
+	#watchCollectionFileManifest() {
+		if (!this.#watcher) {
+			return;
+		}
+		const dotAstroPath = fileURLToPath(this.#settings.dotAstroDir);
+		let debounceTimeout: NodeJS.Timeout | undefined;
+		const regenerate = (changedPath: string) => {
+			// Ignore writes inside `.astro` (including the manifest itself) to avoid an
+			// infinite regenerate -> write -> watch -> regenerate loop.
+			if (changedPath.startsWith(dotAstroPath)) {
+				return;
+			}
+			debounceTimeout && clearTimeout(debounceTimeout);
+			debounceTimeout = setTimeout(() => {
+				this.regenerateCollectionFileManifest().catch(() => {
+					// Errors are already logged inside regenerateCollectionFileManifest.
+				});
+			}, 50 /* debounce to batch chokidar events */);
+		};
+		this.#watcher.on('add', regenerate);
+		this.#watcher.on('unlink', regenerate);
 	}
 
 	async regenerateCollectionFileManifest() {
@@ -368,7 +403,10 @@ export class ContentLayer {
 			try {
 				const collections = await fs.readFile(collectionsManifest, 'utf-8');
 				const collectionsJson = JSON.parse(collections);
-				collectionsJson.entries ??= {};
+				// Rebuild the entries map from the current store rather than merging into the
+				// previous one, so files that were deleted since the last run are dropped
+				// instead of lingering in the manifest forever.
+				collectionsJson.entries = {};
 
 				for (const { hasSchema, name } of collectionsJson.collections) {
 					if (!hasSchema) {
