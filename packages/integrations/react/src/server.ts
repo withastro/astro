@@ -131,9 +131,12 @@ async function renderToStaticMarkup(
 	}
 	// Strip React 19 auto-injected resource hints (preloads, etc.) from island output.
 	// These should be in <head>, not inside the island.
+	// `stylesheet` is intentionally excluded: React 19 does not auto-inject
+	// `<link rel="stylesheet">`, so matching it here would silently drop
+	// user-authored stylesheet links from the rendered component.
 	// See: https://github.com/facebook/react/issues/27910
 	html = html.replace(
-		/<link\s[^>]*rel="(?:preload|modulepreload|stylesheet|preconnect|dns-prefetch)"[^>]*>/g,
+		/<link\s[^>]*rel="(?:preload|modulepreload|preconnect|dns-prefetch)"[^>]*>/g,
 		'',
 	);
 	return { html, attrs };

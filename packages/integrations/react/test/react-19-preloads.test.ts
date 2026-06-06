@@ -17,4 +17,21 @@ test.describe('React 19 SSR integration', () => {
 		assert.ok(!island.includes('rel="preload"'), 'React 19: preloads should be stripped');
 		assert.ok(island.includes('<img'), 'Component content should be preserved');
 	});
+
+	test('should preserve user-authored stylesheet links inside astro-islands', async () => {
+		const fixture = await loadFixture({
+			root: new URL('./fixtures/react-19-preloads/', import.meta.url),
+		});
+		await fixture.build();
+
+		const html = await fixture.readFile('/index.html');
+		const islandPattern = /<astro-island[^>]*>([\s\S]*?)<\/astro-island>/;
+		const match = islandPattern.exec(html);
+		const island = match ? match[1] : '';
+
+		assert.ok(
+			island.includes('rel="stylesheet"') && island.includes('/css/style.css'),
+			'React 19: user-authored stylesheet links should be preserved',
+		);
+	});
 });
