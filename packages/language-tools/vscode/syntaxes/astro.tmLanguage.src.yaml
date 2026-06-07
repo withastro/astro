@@ -465,6 +465,15 @@ repository:
     name: meta.tag.start.astro
     patterns: [include: '#attributes']
 
+  # Fallback attributes for script/style tags that do not declare a language
+  # before the opening tag closes.
+  tags-lang-fallback-start-attributes:
+    begin: \G(?=[^\n>]*(?:/>|>))
+    end: (?=/>)|>
+    endCaptures: { 0: { name: punctuation.definition.tag.end.astro } }
+    name: meta.tag.start.astro
+    patterns: [include: '#attributes']
+
   # Matches the beginning (`<name`) section of a tag start node.
   tags-start-node:
     match: (<)([^/\s>/]*)
@@ -505,22 +514,22 @@ repository:
     name: meta.scope.tag.$1.astro meta.$1.astro
     patterns:
       # Injecting into `meta.lang.ld+json` doesn't seem possible, so we set it to `meta.lang.json`
-      - begin: \G(?=\s*[^>]*?(type|lang)\s*=\s*(['"]|)(?:text\/)?(application\/ld\+json)\2)
+      - begin: (?:\G|\s+)(?=[^>]*?(type|lang)\s*=\s*(['"]|)(?:text\/)?(application\/ld\+json)\2)
         end: (?=</|/>)
         name: meta.lang.json.astro
         patterns: [include: '#tags-lang-start-attributes']
       # Treat 'module' as JavaScript
-      - begin: \G(?=\s*[^>]*?(type|lang)\s*=\s*(['"]|)(module)\2)
+      - begin: (?:\G|\s+)(?=[^>]*?(type|lang)\s*=\s*(['"]|)(module)\2)
         end: (?=</|/>)
         name: meta.lang.javascript.astro
         patterns: [include: '#tags-lang-start-attributes']
       # Tags with a language specified.
-      - begin: \G(?=\s*[^>]*?(type|lang)\s*=\s*(['"]|)(?:text/|application/)?([\w\/+]+)\2)
+      - begin: (?:\G|\s+)(?=[^>]*?(type|lang)\s*=\s*(['"]|)(?:text/|application/)?([\w\/+]+)\2)
         end: (?=</|/>)
         name: meta.lang.$3.astro
         patterns: [include: '#tags-lang-start-attributes']
       # Fallback to default language.
-      - include: '#tags-lang-start-attributes'
+      - include: '#tags-lang-fallback-start-attributes'
 
   # Void element tags. They must be treated separately due to their lack of end nodes.
   # A void element cannot be differentiated from other tags, unless you look at their name.
