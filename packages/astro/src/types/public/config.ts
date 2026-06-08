@@ -3050,33 +3050,6 @@ export interface AstroUserConfig<
 		routeRules?: RouteRules;
 
 		/**
-		 * @name experimental.queuedRendering
-		 * @type {{ enabled: boolean }}
-		 * @default `false`
-		 * @version 6.0.0
-		 * @description
-		 * Enable the streaming render engine instead of the default recursive rendering.
-		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 *     queuedRendering: {
-		 *       enabled: true
-		 *     }
-		 *   }
-		 * }
-		 * ```
-		 */
-		queuedRendering?: {
-			/**
-			 * @default `false`
-			 * @version 6.0.0
-			 * @description
-			 * Enables the streaming render engine.
-			 */
-			enabled: boolean;
-		};
-		/**
 		 * @name experimental.logger
 		 * @type {{ entrypoint: string; config?: Record<string, unknown> }}
 		 * @default `undefined`

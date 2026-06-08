@@ -252,13 +252,6 @@ export interface SSRResult {
 	directives: SSRManifestCSP['directives'];
 	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
 	internalFetchHeaders?: Record<string, string>;
-
-	/**
-	 * Experimental: enables the streaming render engine instead of recursive rendering.
-	 */
-	_experimentalQueuedRendering?: {
-		enabled?: boolean;
-	};
 }
 
 /**

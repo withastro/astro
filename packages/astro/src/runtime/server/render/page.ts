@@ -26,15 +26,19 @@ export async function renderPage(
 
 		let str: string;
 
-		// Check if queue (streaming) rendering is enabled
-		if (result._experimentalQueuedRendering && result._experimentalQueuedRendering.enabled) {
-			// Streaming rendering: call the component to get the vnode tree,
-			// then process it through the streaming engine.
+		// MDX and `.html` page components are designed to be invoked directly: MDX
+		// returns an `astro:jsx` vnode tree and `.html` returns a ready HTML string,
+		// both of which the streaming engine renders. Detect them via their markers
+		// (set at compile time) so we never call anything else directly.
+		const isHtmlComponent = (componentFactory as any)['astro:html'] === true;
+		const isMdxComponent = (componentFactory as any)[Symbol.for('mdx-component')] === true;
+
+		if (isHtmlComponent || isMdxComponent) {
 			let vnode = await (componentFactory as any)(pageProps);
 
 			// .html pages return plain strings that are already valid HTML.
 			// Mark them as safe HTML so the engine doesn't escape the content.
-			if ((componentFactory as any)['astro:html'] && typeof vnode === 'string') {
+			if (isHtmlComponent && typeof vnode === 'string') {
 				vnode = markHTMLString(vnode);
 			}
 
@@ -60,10 +64,13 @@ export async function renderPage(
 			await renderStreaming(vnode, result, destination);
 			str = html;
 		} else {
-			// Standard rendering path (non-MDX or queue rendering disabled)
+			// Any other component reaching here — e.g. a framework component rendered
+			// through the Container API — must go through `renderComponent`, which
+			// dispatches to the right framework SSR renderer. Calling such a component
+			// directly would be incorrect (and would throw for hooks-based renderers).
 			str = await renderComponentToString(
 				result,
-				componentFactory.name,
+				(componentFactory as NonAstroPageComponent).name,
 				componentFactory,
 				pageProps,
 				{},

@@ -300,14 +300,17 @@ export async function renderStreaming(
 			continue;
 		}
 		// Dynamic node: component instance, render instance, promise, JSX vnode,
-		// render instruction, iterable, etc. Render via renderChild into a buffer.
+		// render instruction, iterable, etc. Rendered via renderChild — streamed
+		// directly while sync, buffered once the tail goes async.
 		if (!buffered) {
 			if (batch) {
 				destination.write(markHTMLString(batch));
 				batch = '';
 			}
-			const flusher = createBufferedRenderer(destination, renderDynamic(node));
-			const r = flusher.flush();
+			// Stream the node straight to `destination`. Its synchronous output
+			// lands in order; buffering here would only buffer-then-immediately-flush
+			// (a no-op detour), so we skip the per-node buffer. Mirrors `renderArray`.
+			const r = renderDynamic(node)(destination);
 			if (isPromise(r)) {
 				// First async node: stream stops here. Buffer the remaining tail.
 				buffered = true;

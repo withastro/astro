@@ -12,11 +12,6 @@ describe('JSX Queue Rendering', () => {
 			fixtureQueue = await loadFixture({
 				root: './fixtures/jsx-queue-rendering/',
 				outDir: './dist/queue',
-				experimental: {
-					queuedRendering: {
-						enabled: true,
-					},
-				},
 			});
 			await fixtureQueue.build();
 
@@ -24,11 +19,6 @@ describe('JSX Queue Rendering', () => {
 			fixtureString = await loadFixture({
 				root: './fixtures/jsx-queue-rendering/',
 				outDir: './dist/string',
-				experimental: {
-					queuedRendering: {
-						enabled: false,
-					},
-				},
 			});
 			await fixtureString.build();
 		});
