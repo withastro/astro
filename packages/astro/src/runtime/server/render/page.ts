@@ -2,13 +2,10 @@ import type { RouteData, SSRResult } from '../../../types/public/internal.js';
 import { renderToAsyncIterable, renderToReadableStream, renderToString } from './astro/render.js';
 import { encoder } from './common.js';
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
-import { markHTMLString } from '../escape.js';
 import { renderCspContent } from './csp.js';
 import type { AstroComponentFactory } from './index.js';
 import { isDeno, isNode } from './util.js';
 import { isAstroComponentFactory } from './astro/factory.js';
-import { renderStreaming } from './streaming.js';
-import { chunkToString } from './common.js';
 
 export async function renderPage(
 	result: SSRResult,
@@ -24,60 +21,21 @@ export async function renderPage(
 
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
 
-		let str: string;
-
-		// MDX and `.html` page components are designed to be invoked directly: MDX
-		// returns an `astro:jsx` vnode tree and `.html` returns a ready HTML string,
-		// both of which the streaming engine renders. Detect them via their markers
-		// (set at compile time) so we never call anything else directly.
-		const isHtmlComponent = (componentFactory as any)['astro:html'] === true;
-		const isMdxComponent = (componentFactory as any)[Symbol.for('mdx-component')] === true;
-
-		if (isHtmlComponent || isMdxComponent) {
-			let vnode = await (componentFactory as any)(pageProps);
-
-			// .html pages return plain strings that are already valid HTML.
-			// Mark them as safe HTML so the engine doesn't escape the content.
-			if (isHtmlComponent && typeof vnode === 'string') {
-				vnode = markHTMLString(vnode);
-			}
-
-			let html = '';
-			let renderedFirst = false;
-			const destination = {
-				write(chunk: any) {
-					if (chunk instanceof Response) return;
-
-					// Add doctype if this is the first chunk and it doesn't already have one
-					if (!renderedFirst && !result.partial) {
-						renderedFirst = true;
-						const chunkStr = String(chunk);
-						if (!/<!doctype html/i.test(chunkStr)) {
-							const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
-							html += doctype;
-						}
-					}
-
-					html += chunkToString(result, chunk);
-				},
-			};
-			await renderStreaming(vnode, result, destination);
-			str = html;
-		} else {
-			// Any other component reaching here — e.g. a framework component rendered
-			// through the Container API — must go through `renderComponent`, which
-			// dispatches to the right framework SSR renderer. Calling such a component
-			// directly would be incorrect (and would throw for hooks-based renderers).
-			str = await renderComponentToString(
-				result,
-				(componentFactory as NonAstroPageComponent).name,
-				componentFactory,
-				pageProps,
-				{},
-				true,
-				route,
-			);
-		}
+		// Non-Astro page components (MDX, `.html`, and raw framework components
+		// rendered through the Container API) go through `renderComponentToString`,
+		// which dispatches to the correct renderer: the `astro:jsx` renderer for
+		// MDX (which also wraps runtime errors with a helpful hint and streams the
+		// content), the html renderer for `.html`, and framework renderers for
+		// components. It also injects the `<head>` for layout-less MDX pages.
+		const str = await renderComponentToString(
+			result,
+			(componentFactory as NonAstroPageComponent).name,
+			componentFactory,
+			pageProps,
+			{},
+			true,
+			route,
+		);
 
 		const bytes = encoder.encode(str);
 		const headers = new Headers([
