@@ -23,7 +23,7 @@ export default {
 			// vsce and ovsx are only used in CI for publishing, and due to how we have to publish the VS Code extension have
 			// to be installed in the vscode package, but knip is expecting them to be in the root node_modules
 			ignoreBinaries: ['docgen', 'docgen:errors', 'playwright', 'vsce', 'ovsx'],
-			entry: ['.flue/agents/*.ts', '.flue/workflows/*/WORKFLOW.ts'],
+			entry: ['.flue/workflows/*.ts', '.flue/workflows/*/WORKFLOW.ts'],
 		},
 		'packages/*': {
 			entry: [srcEntry, dtsEntry, testEntry],
