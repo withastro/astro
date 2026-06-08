@@ -25,25 +25,25 @@ export async function dev({ flags }: DevOptions) {
 			commandName: 'astro dev',
 			usage: '[command] [...flags]',
 			tables: {
-			Commands: [
-				['stop', 'Stop a running background dev server.'],
-				['status', 'Check if a dev server is running.'],
-				['logs [--follow]', 'View logs from a background dev server.'],
-			],
-			Flags: [
-				['--background', 'Start the dev server as a background process.'],
-				['--mode', `Specify the mode of the project. Defaults to "development".`],
-				['--port', `Specify which port to run on. Defaults to 4321.`],
-				['--host', `Listen on all addresses, including LAN and public addresses.`],
-				['--host <custom-address>', `Expose on a network IP address at <custom-address>`],
-				['--open', 'Automatically open the app in the browser on server start'],
-				['--force', 'Clear the content layer cache, forcing a full rebuild.'],
-				[
-					'--allowed-hosts',
-					'Specify a comma-separated list of allowed hosts or allow any hostname.',
+				Commands: [
+					['stop', 'Stop a running background dev server.'],
+					['status', 'Check if a dev server is running.'],
+					['logs [--follow]', 'View logs from a background dev server.'],
 				],
-				['--help (-h)', 'See all available flags.'],
-			],
+				Flags: [
+					['--background', 'Start the dev server as a background process.'],
+					['--mode', `Specify the mode of the project. Defaults to "development".`],
+					['--port', `Specify which port to run on. Defaults to 4321.`],
+					['--host', `Listen on all addresses, including LAN and public addresses.`],
+					['--host <custom-address>', `Expose on a network IP address at <custom-address>`],
+					['--open', 'Automatically open the app in the browser on server start'],
+					['--force', 'Clear the content layer cache, forcing a full rebuild.'],
+					[
+						'--allowed-hosts',
+						'Specify a comma-separated list of allowed hosts or allow any hostname.',
+					],
+					['--help (-h)', 'See all available flags.'],
+				],
 			},
 			description: `Check ${colors.cyan(
 				'https://docs.astro.build/en/reference/cli-reference/#astro-dev',
@@ -93,7 +93,10 @@ export async function dev({ flags }: DevOptions) {
 
 	// Unknown subcommand — exit with an error before starting the server.
 	if (subcommand) {
-		logger.error('SKIP_FORMAT', `Unknown command: astro dev ${subcommand}\n\nRun \`astro dev --help\` to see available commands.`);
+		logger.error(
+			'SKIP_FORMAT',
+			`Unknown command: astro dev ${subcommand}\n\nRun \`astro dev --help\` to see available commands.`,
+		);
 		process.exit(1);
 	}
 

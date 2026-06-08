@@ -5,7 +5,13 @@ import type { Flags } from '../flags.js';
 import { checkExistingServer, getLogFileURL, isProcessAlive } from '../../core/dev/lockfile.js';
 import { resolveRoot } from '../../core/config/config.js';
 
-export async function logs({ flags, logger }: { flags: Flags; logger: AstroLogger }): Promise<void> {
+export async function logs({
+	flags,
+	logger,
+}: {
+	flags: Flags;
+	logger: AstroLogger;
+}): Promise<void> {
 	const root = pathToFileURL(resolveRoot(flags.root) + '/');
 	const existing = checkExistingServer(root);
 
