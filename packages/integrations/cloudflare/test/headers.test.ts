@@ -1,6 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { buildAssetsHeadersContent, headersFileHasCacheControlForPath } from '../src/utils/headers.ts';
+import {
+	buildAssetsHeadersContent,
+	headersFileHasCacheControlForPath,
+} from '../src/utils/headers.ts';
 
 describe('headersFileHasCacheControlForPath', () => {
 	it('returns false for an empty file', () => {
@@ -103,7 +106,10 @@ const noFile = async (_path: URL): Promise<string> => {
 };
 
 /** readFile mock that returns a fixed string. */
-const fileWith = (content: string) => async (_path: URL): Promise<string> => content;
+const fileWith =
+	(content: string) =>
+	async (_path: URL): Promise<string> =>
+		content;
 
 describe('buildAssetsHeadersContent', () => {
 	it('creates _headers from scratch with the default assets dir', async () => {
@@ -112,7 +118,10 @@ describe('buildAssetsHeadersContent', () => {
 			noFile,
 		);
 		assert.ok(result !== null);
-		assert.equal(result.content, '/_astro/*\n  Cache-Control: public, max-age=31536000, immutable\n');
+		assert.equal(
+			result.content,
+			'/_astro/*\n  Cache-Control: public, max-age=31536000, immutable\n',
+		);
 		assert.equal(result.assetsPattern, '/_astro/*');
 	});
 
@@ -122,7 +131,10 @@ describe('buildAssetsHeadersContent', () => {
 			noFile,
 		);
 		assert.ok(result !== null);
-		assert.equal(result.content, '/_custom/*\n  Cache-Control: public, max-age=31536000, immutable\n');
+		assert.equal(
+			result.content,
+			'/_custom/*\n  Cache-Control: public, max-age=31536000, immutable\n',
+		);
 	});
 
 	it('prepends the cache block before existing _headers content', async () => {
@@ -175,6 +187,9 @@ describe('buildAssetsHeadersContent', () => {
 			fileWith(''),
 		);
 		assert.ok(result !== null);
-		assert.equal(result.content, '/_astro/*\n  Cache-Control: public, max-age=31536000, immutable\n');
+		assert.equal(
+			result.content,
+			'/_astro/*\n  Cache-Control: public, max-age=31536000, immutable\n',
+		);
 	});
 });

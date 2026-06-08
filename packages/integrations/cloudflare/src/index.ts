@@ -568,7 +568,9 @@ export default function createIntegration({
 							await unlink(tempPath).catch(() => {});
 							throw err;
 						}
-						logger.info(`Injected immutable Cache-Control for ${result.assetsPattern} into _headers.`);
+						logger.info(
+							`Injected immutable Cache-Control for ${result.assetsPattern} into _headers.`,
+						);
 					}
 				}
 
