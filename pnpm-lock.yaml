@@ -55,9 +55,6 @@ importers:
       knip:
         specifier: 5.82.1
         version: 5.82.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@22.19.19)(typescript@6.0.3)
-      only-allow:
-        specifier: ^1.2.2
-        version: 1.2.2
       pkg-pr-new:
         specifier: ^0.0.71
         version: 0.0.71
@@ -13984,10 +13981,6 @@ packages:
   oniguruma-to-es@4.3.4:
     resolution: {integrity: sha512-3VhUGN3w2eYxnTzHn+ikMI+fp/96KoRSVK9/kMTcFqj1NRDh2IhQCKvYxDnWePKRXY/AqH+Fuiyb7VHSzBjHfA==}
 
-  only-allow@1.2.2:
-    resolution: {integrity: sha512-uxyNYDsCh5YIJ780G7hC5OHjVUr9reHsbZNMM80L9tZlTpb3hUzb36KXgW4ZUGtJKQnGA3xegmWg1BxhWV0jJA==}
-    hasBin: true
-
   open@10.2.0:
     resolution: {integrity: sha512-YgBpdJHPyQ2UE5x+hlSXcnejzAvD0b22U2OuAP+8OnlJT+PjWPxtgmGqKKc+RgTM63U9gN0YzrYc71R2WT/hTA==}
     engines: {node: '>=18'}
@@ -24601,10 +24594,6 @@ snapshots:
       oniguruma-parser: 0.12.1
       regex: 6.1.0
       regex-recursion: 6.0.2
-
-  only-allow@1.2.2:
-    dependencies:
-      which-pm-runs: 1.1.0
 
   open@10.2.0:
     dependencies:
