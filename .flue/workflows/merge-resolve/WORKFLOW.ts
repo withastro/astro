@@ -31,8 +31,13 @@ export async function run({ init, payload }: FlueContext) {
 	// conflicts, the working tree has conflict markers in all affected files.
 	// This skill resolves them intelligently — keeping next-side versions but
 	// preserving important changes from main (new deps, bug fixes, etc.)
-	const { data: resolveResult } = await session.skill('merge/resolve-conflicts.md', {
-		args: { branch, hasConflicts },
+	const { data: resolveResult } = await session.skill('merge', {
+		args: {
+			branch,
+			hasConflicts,
+			step: 'resolve-conflicts',
+			instructions: 'Run only the "resolve-conflicts" sub-skill from resolve-conflicts.md.',
+		},
 		result: v.object({
 			resolvedFiles: v.pipe(
 				v.array(v.string()),
@@ -42,8 +47,11 @@ export async function run({ init, payload }: FlueContext) {
 	});
 
 	// Step 2: Remove stale changesets that were already released on main
-	const { data: changesetResult } = await session.skill('merge/clean-changesets.md', {
-		args: {},
+	const { data: changesetResult } = await session.skill('merge', {
+		args: {
+			step: 'clean-changesets',
+			instructions: 'Run only the "clean-changesets" sub-skill from clean-changesets.md.',
+		},
 		result: v.object({
 			removedChangesets: v.pipe(
 				v.array(v.string()),

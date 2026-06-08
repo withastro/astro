@@ -178,8 +178,14 @@ async function runTriagePipeline(
 	fixed: boolean;
 	commitMessage: string | null;
 }> {
-	const { data: reproduceResult } = await session.skill('triage/reproduce.md', {
-		args: { issueNumber, issueDetails },
+	const { data: reproduceResult } = await session.skill('triage', {
+		args: {
+			issueNumber,
+			issueDetails,
+			step: 'reproduce',
+			instructions:
+				'Run only the "reproduce" sub-skill from reproduce.md. Do not continue to diagnose, verify, or fix steps.',
+		},
 		result: v.object({
 			reproducible: v.pipe(
 				v.boolean(),
@@ -206,8 +212,13 @@ async function runTriagePipeline(
 		};
 	}
 
-	const { data: diagnoseResult } = await session.skill('triage/diagnose.md', {
-		args: { issueDetails },
+	const { data: diagnoseResult } = await session.skill('triage', {
+		args: {
+			issueDetails,
+			step: 'diagnose',
+			instructions:
+				'Run only the "diagnose" sub-skill from diagnose.md. Do not continue to verify or fix steps.',
+		},
 		result: v.object({
 			confidence: v.pipe(
 				v.nullable(v.picklist(['high', 'medium', 'low'])),
@@ -215,8 +226,12 @@ async function runTriagePipeline(
 			),
 		}),
 	});
-	const { data: verifyResult } = await session.skill('triage/verify.md', {
-		args: { issueDetails },
+	const { data: verifyResult } = await session.skill('triage', {
+		args: {
+			issueDetails,
+			step: 'verify',
+			instructions: 'Run only the "verify" sub-skill from verify.md. Do not continue to fix step.',
+		},
 		result: v.object({
 			verdict: v.pipe(
 				v.picklist(['bug', 'intended-behavior', 'unclear']),
@@ -241,8 +256,8 @@ async function runTriagePipeline(
 		};
 	}
 
-	const { data: fixResult } = await session.skill('triage/fix.md', {
-		args: { issueDetails },
+	const { data: fixResult } = await session.skill('triage', {
+		args: { issueDetails, step: 'fix', instructions: 'Run only the "fix" sub-skill from fix.md.' },
 		result: v.object({
 			fixed: v.pipe(
 				v.boolean(),
@@ -334,8 +349,16 @@ export async function run({ init, payload }: FlueContext) {
 	assert(packageLabels.length > 0, 'no package labels found');
 
 	const branchName = isPushed ? branch : null;
-	const { data: comment } = await session.skill('triage/comment.md', {
-		args: { branchName, priorityLabels, issueDetails, previewRelease },
+	const { data: comment } = await session.skill('triage', {
+		args: {
+			branchName,
+			priorityLabels,
+			issueDetails,
+			previewRelease,
+			step: 'comment',
+			instructions:
+				'Run only the "comment" sub-skill from comment.md. Generate the GitHub comment from triage findings.',
+		},
 		result: v.pipe(
 			v.string(),
 			v.description(
