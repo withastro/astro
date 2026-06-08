@@ -31,18 +31,9 @@ import {
 	getClientAddress,
 } from './utils/cf.js';
 
-// Lazy initialization — `createApp` and `setGetEnv` are deferred to the
-// first `cf()` call so that this module can be statically imported from a
-// custom `fetchFile` without triggering a circular-dependency crash.
-// (The cycle: fetch.ts → astro/app/entrypoint → virtual:astro:fetchable → user worker → fetch.ts)
-let app: ReturnType<typeof createApp> | undefined;
+setGetEnv(createGetEnv(globalEnv));
 
-function ensureInitialized() {
-	if (!app) {
-		setGetEnv(createGetEnv(globalEnv));
-		app = createApp();
-	}
-}
+const app = createApp();
 
 /**
  * Applies Cloudflare-specific setup to a `FetchState`:
@@ -59,10 +50,9 @@ export async function cf(
 	env: Env,
 	ctx: ExecutionContext,
 ): Promise<Response | undefined> {
-	ensureInitialized();
-	injectSessionBinding(app!.manifest, env);
+	injectSessionBinding(app.manifest, env);
 
-	const staticAsset = matchStaticAsset(app!.manifest, state.request.url, env);
+	const staticAsset = matchStaticAsset(app.manifest, state.request.url, env);
 	if (staticAsset) return staticAsset;
 
 	if (!state.routeData) {
