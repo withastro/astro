@@ -38,6 +38,86 @@ interface NodeRequest extends IncomingMessage {
  * })
  * ```
  */
+/**
+ * Internal version of `createRequest` that skips X-Forwarded-* header
+ * validation. Forwarded headers are resolved later inside `FetchState`,
+ * so doing it here too would duplicate work on every request.
+ *
+ * Use this for all internal call sites that go through `app.render()`
+ * (which creates a `FetchState`). The public `createRequest` keeps the
+ * forwarded header logic for external adapters that may not use
+ * `FetchState`.
+ */
+export function createRequestFromNodeRequest(
+	req: NodeRequest,
+	{
+		skipBody = false,
+		allowedDomains = [],
+		bodySizeLimit,
+		port: serverPort,
+	}: {
+		skipBody?: boolean;
+		allowedDomains?: Partial<RemotePattern>[];
+		bodySizeLimit?: number;
+		port?: number;
+	} = {},
+): Request {
+	const controller = new AbortController();
+
+	const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
+	const protocol = isEncrypted ? 'https' : 'http';
+	const hostname =
+		typeof req.headers.host === 'string'
+			? req.headers.host
+			: typeof req.headers[':authority'] === 'string'
+				? req.headers[':authority']
+				: serverPort
+					? `localhost:${serverPort}`
+					: 'localhost';
+
+	let url: URL;
+	try {
+		url = new URL(`${protocol}://${hostname}${req.url}`);
+	} catch {
+		url = new URL(`${protocol}://${hostname}`);
+	}
+
+	const options: RequestInit = {
+		method: req.method || 'GET',
+		headers: makeRequestHeaders(req),
+		signal: controller.signal,
+	};
+	const bodyAllowed = options.method !== 'HEAD' && options.method !== 'GET' && skipBody === false;
+	if (bodyAllowed) {
+		Object.assign(options, makeRequestBody(req, bodySizeLimit));
+	}
+
+	const request = new Request(url, options);
+
+	wireAbortController(req, controller);
+
+	// Resolve client address. Trust X-Forwarded-For only when the Host
+	// header is validated against allowedDomains (same rule as createRequest).
+	const untrustedHostname = req.headers.host ?? req.headers[':authority'];
+	const validatedHostname = validateHost(
+		typeof untrustedHostname === 'string' ? untrustedHostname : undefined,
+		protocol,
+		allowedDomains,
+	);
+	const forwardedHost = getFirstForwardedValue(req.headers['x-forwarded-host']);
+	const hostValidated =
+		validatedHostname !== undefined || (forwardedHost !== undefined && allowedDomains.length > 0);
+	const forwardedClientIp = hostValidated
+		? getFirstForwardedValue(req.headers['x-forwarded-for'])
+		: undefined;
+	const clientIp = forwardedClientIp || req.socket?.remoteAddress;
+	if (clientIp) {
+		Reflect.set(request, clientAddressSymbol, clientIp);
+	}
+
+	return request;
+}
+
 export function createRequest(
 	req: NodeRequest,
 	{
@@ -110,6 +190,31 @@ export function createRequest(
 
 	const request = new Request(url, options);
 
+	wireAbortController(req, controller);
+
+	// Get the IP of end client behind the proxy.
+	// Only trust X-Forwarded-For when the request's host was validated against allowedDomains,
+	// meaning it arrived through a trusted proxy. Without this check, any client can spoof
+	// their IP via this header.
+	// @example "1.1.1.1,8.8.8.8" => "1.1.1.1"
+	const hostValidated = validated.host !== undefined || validatedHostname !== undefined;
+	const forwardedClientIp = hostValidated
+		? getFirstForwardedValue(req.headers['x-forwarded-for'])
+		: undefined;
+	const clientIp = forwardedClientIp || req.socket?.remoteAddress;
+	if (clientIp) {
+		Reflect.set(request, clientAddressSymbol, clientIp);
+	}
+
+	return request;
+}
+
+/**
+ * Wires an AbortController to the underlying socket so the request
+ * signal is aborted when the connection closes. Shared by both
+ * `createRequest` and `createRequestFromNodeRequest`.
+ */
+function wireAbortController(req: NodeRequest, controller: AbortController): void {
 	const socket = getRequestSocket(req);
 	if (socket && typeof socket.on === 'function') {
 		const existingCleanup = getAbortControllerCleanup(req);
@@ -149,22 +254,6 @@ export function createRequest(
 			onSocketClose();
 		}
 	}
-
-	// Get the IP of end client behind the proxy.
-	// Only trust X-Forwarded-For when the request's host was validated against allowedDomains,
-	// meaning it arrived through a trusted proxy. Without this check, any client can spoof
-	// their IP via this header.
-	// @example "1.1.1.1,8.8.8.8" => "1.1.1.1"
-	const hostValidated = validated.host !== undefined || validatedHostname !== undefined;
-	const forwardedClientIp = hostValidated
-		? getFirstForwardedValue(req.headers['x-forwarded-for'])
-		: undefined;
-	const clientIp = forwardedClientIp || req.socket?.remoteAddress;
-	if (clientIp) {
-		Reflect.set(request, clientAddressSymbol, clientIp);
-	}
-
-	return request;
 }
 
 /**
@@ -252,9 +341,8 @@ export class NodeApp extends App {
 
 	match(req: NodeRequest | Request, allowPrerenderedRoutes = false) {
 		if (!(req instanceof Request)) {
-			req = createRequest(req, {
+			req = createRequestFromNodeRequest(req, {
 				skipBody: true,
-				allowedDomains: this.manifest.allowedDomains,
 			});
 		}
 		return super.match(req, allowPrerenderedRoutes);
@@ -262,9 +350,7 @@ export class NodeApp extends App {
 
 	render(request: NodeRequest | Request, options?: RenderOptions): Promise<Response> {
 		if (!(request instanceof Request)) {
-			request = createRequest(request, {
-				allowedDomains: this.manifest.allowedDomains,
-			});
+			request = createRequestFromNodeRequest(request);
 		}
 		return super.render(request, options);
 	}

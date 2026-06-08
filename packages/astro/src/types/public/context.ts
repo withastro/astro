@@ -138,7 +138,7 @@ export interface AstroGlobal<
 export interface APIContext<
 	Props extends Record<string, any> = Record<string, any>,
 	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
-> extends App.Providers {
+> {
 	/**
 	 * The site provided in the astro config, parsed as an instance of `URL`, without base.
 	 * `undefined` if the site is not provided in the config.

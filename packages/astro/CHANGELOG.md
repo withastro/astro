@@ -1,5 +1,185 @@
 # astro
 
+## 7.0.0-alpha.1
+
+### Patch Changes
+
+- [#16603](https://github.com/withastro/astro/pull/16603) [`deaaf3f`](https://github.com/withastro/astro/commit/deaaf3f734bb2f2c8df20559ac83634f418bea18) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Removes the warning that Astro does not support vite v8, since Astro v7 does support vite v8
+
+## 7.0.0-alpha.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+- [#16462](https://github.com/withastro/astro/pull/16462) [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Replaces the Go compiler with a Rust-based version.
+
+  The Rust-based Astro compiler (`@astrojs/compiler-rs`) is now the default compiler. This new compiler is faster and more reliable, leading to faster build times and iteration cycles during development.
+
+  This new compiler is more strict regarding invalid syntax. For example, unclosed HTML tags will now throw an error instead of being ignored. It also does not attempt to correct semantically invalid HTML anymore, instead leaving it to the browser to handle, similar to other tools or `document.write()` in JavaScript.
+
+  The previous Go-based compiler has been removed, along with the `experimental.rustCompiler` flag used to opt into the Rust compiler. If you were setting `experimental.rustCompiler` in your `astro.config.mjs`, you can now remove it. No other action is required.
+
+### Patch Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Fixes `--port` flag being ignored after a Vite-triggered server restart (e.g. when a `.env` file changes)
+
+- [#16434](https://github.com/withastro/astro/pull/16434) [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where i18n domains would return 404 when `trailingSlash` is set to `never`.
+## 6.4.4
+
+### Patch Changes
+
+- [#16926](https://github.com/withastro/astro/pull/16926) [`1b39ae8`](https://github.com/withastro/astro/commit/1b39ae8485406937501d8a734afe2a464d671064) Thanks [@narendraio](https://github.com/narendraio)! - Prevents `App.match()` from throwing on request paths that contain an invalid percent-sequence.
+
+- [#16924](https://github.com/withastro/astro/pull/16924) [`2c0bc94`](https://github.com/withastro/astro/commit/2c0bc943d96d602b429ce3ecbb379d01a46903b5) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes an issue where editing a client-side component (e.g. with `client:idle`, `client:load`, etc.) caused an unnecessary full program reload of the backend during development.
+
+- [#16958](https://github.com/withastro/astro/pull/16958) [`2c1d50f`](https://github.com/withastro/astro/commit/2c1d50f5f9d557d7cdc17fd75f3a10fd203699c9) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes a bug where static file endpoints using `getStaticPaths` with `.html` in dynamic param values (e.g. `{ path: 'file.html' }`) would fail with a `NoMatchingStaticPathFound` error during build. The `.html` suffix is no longer incorrectly stripped from endpoint route pathnames.
+
+- [#16855](https://github.com/withastro/astro/pull/16855) [`c610cda`](https://github.com/withastro/astro/commit/c610cda44b273c15a6e7eaa4a84fa194002643e1) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes dynamic routes returning 500 "TypeError: Missing parameter" when using domain-based i18n routing in SSR.
+
+- [#16946](https://github.com/withastro/astro/pull/16946) [`606c37b`](https://github.com/withastro/astro/commit/606c37b886a9e25170ba82634cc81a8a775e8ac6) Thanks [@ematipico](https://github.com/ematipico)! - Fixes `Astro.routePattern` to preserve original casing of dynamic parameter names from filenames. Previously, a file at `src/pages/blog/[postId].astro` would return `/blog/[postid]` for `Astro.routePattern` due to an internal `.toLowerCase()` call. It now correctly returns `/blog/[postId]`.
+
+- [#16720](https://github.com/withastro/astro/pull/16720) [`16d49b6`](https://github.com/withastro/astro/commit/16d49b694071be212fb8c5a141ade72e8717a30e) Thanks [@thomas-callahan-collibra](https://github.com/thomas-callahan-collibra)! - Fix an issue where dynamic routes would return the string `[object Object]` instead of the expected content, in certain runtimes.
+
+- [#16703](https://github.com/withastro/astro/pull/16703) [`17390a6`](https://github.com/withastro/astro/commit/17390a6184d5cbd5ff85b7f652a92f5a6a7b0557) Thanks [@henrybrewer00-dotcom](https://github.com/henrybrewer00-dotcom)! - Fixes styles being stripped when the project root is started with a path whose case differs from the actual filesystem case (e.g. running `astro dev` from `d:\dev\app` while the folder on disk is `D:\dev\app`).
+
+- [#16855](https://github.com/withastro/astro/pull/16855) [`c610cda`](https://github.com/withastro/astro/commit/c610cda44b273c15a6e7eaa4a84fa194002643e1) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `Astro.currentLocale` returning the default locale instead of the domain's locale on dynamic routes served from a mapped domain.
+
+## 6.4.3
+
+### Patch Changes
+
+- [#16900](https://github.com/withastro/astro/pull/16900) [`17a0fbd`](https://github.com/withastro/astro/commit/17a0fbd34d11db765e79caf269bfd5f43ef51da8) Thanks [@ocavue](https://github.com/ocavue)! - Bumps `devalue` dependency to v5.8.1
+
+- [#16016](https://github.com/withastro/astro/pull/16016) [`0d85e1b`](https://github.com/withastro/astro/commit/0d85e1b7ea58a243bd1b61bdfb951c4fd87b9db5) Thanks [@felmonon](https://github.com/felmonon)! - Fix a false positive in the dev toolbar accessibility audit for anchors with text inside closed `<details>` elements.
+
+- [#16911](https://github.com/withastro/astro/pull/16911) [`79c6c46`](https://github.com/withastro/astro/commit/79c6c469a735bece8a80200f7b188e15f1abff24) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a bug where `experimental.advancedRouting` with `astro/hono` handlers threw `TypeError: Cannot read properties of undefined (reading 'route')` for unmatched routes instead of rendering the custom 404 page.
+
+- [#16899](https://github.com/withastro/astro/pull/16899) [`239c469`](https://github.com/withastro/astro/commit/239c469cd2cd66d147a302a2ca14e07a0891f9b8) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a false "does not call the middleware() handler" warning when using `astro()` in a custom `src/app.ts` and the first request is a redirect route.
+
+- [#16887](https://github.com/withastro/astro/pull/16887) [`493acdb`](https://github.com/withastro/astro/commit/493acdb4abc56534e9efa68af16e3ef273d7d88b) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `redirectToDefaultLocale` not working after the Advanced Routing refactoring.
+
+- [#16908](https://github.com/withastro/astro/pull/16908) [`ef53ab9`](https://github.com/withastro/astro/commit/ef53ab91e8362b50bb1a3ab73d9350b93ea41de4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves optimized fallbacks generation when using the Fonts API by using better metrics for bold variants
+
+## 6.4.2
+
+### Patch Changes
+
+- [#16889](https://github.com/withastro/astro/pull/16889) [`b94bcfd`](https://github.com/withastro/astro/commit/b94bcfd8da64a3f2862a20572e7a9847aebdbc70) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes a `plugins is not iterable` crash when using a pre-6.0 `@astrojs/mdx` alongside integrations (e.g. Starlight) that set `markdown.remarkPlugins`, `markdown.rehypePlugins`, or `markdown.remarkRehype`.
+
+- [#16878](https://github.com/withastro/astro/pull/16878) [`b9f6bb9`](https://github.com/withastro/astro/commit/b9f6bb9a238b909d491ca4a7a99620908faf58a8) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes an issue where on-demand (SSR) dynamic routes would return 404 when a prerendered dynamic route with the same URL pattern was sorted first alphabetically. In production builds with `@astrojs/node` adapter, if `[a_prebuild].astro` (prerender=true) came before `[b_ssr].astro` alphabetically, requests to URLs not in the prerendered route's static paths would 404 instead of falling through to the SSR route. The fix adds fallthrough logic so that when a prerendered dynamic route matches but can't serve the request, Astro tries subsequent matching routes.
+
+## 6.4.1
+
+### Patch Changes
+
+- [#16883](https://github.com/withastro/astro/pull/16883) [`eeb064c`](https://github.com/withastro/astro/commit/eeb064ca9452fd9d0ad9b7557059a646a90a3e57) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Restores the `astro/jsx/rehype.js` entry point so that older versions of `@astrojs/mdx` continue to work when used with Astro 6.x. This entry point will be removed in Astro 7.0.
+
+## 6.4.0
+
+### Minor Changes
+
+- [#16468](https://github.com/withastro/astro/pull/16468) [`4cff3a1`](https://github.com/withastro/astro/commit/4cff3a107c3750ab5f0878a6b41836705282b771) Thanks [@matthewp](https://github.com/matthewp)! - Adds a new `preserveBuildServerDir` adapter feature
+
+  Adapters can now set `preserveBuildServerDir: true` in their adapter features to keep the `dist/server/` directory structure for static builds, mirroring the existing `preserveBuildClientDir` option. This is useful for adapters that require a consistent `dist/client/` and `dist/server/` layout regardless of build output type.
+
+  ```js
+  setAdapter({
+    name: 'my-adapter',
+    adapterFeatures: {
+      buildOutput,
+      preserveBuildClientDir: true,
+      preserveBuildServerDir: true,
+    },
+  });
+  ```
+
+- [#16848](https://github.com/withastro/astro/pull/16848) [`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a new `markdown.processor` configuration option, allowing you to choose an alternative Markdown processor.
+
+  Websites with many Markdown/MDX files tend to be slow to build because the unified ecosystem (e.g., remark, rehype) is slow to process. This feature introduces the ability to replace this part of the build pipeline with another processor.
+
+  The default processor is `unified()`. This means that existing configurations remain unchanged and your remark/rehype plugins continue to work.
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import { unified } from '@astrojs/markdown-remark';
+  import remarkToc from 'remark-toc';
+
+  export default defineConfig({
+    markdown: {
+      processor: unified({
+        remarkPlugins: [remarkToc],
+      }),
+    },
+  });
+  ```
+
+  In addition to this new configuration option, Astro provides a new alternative processor based on Rust: [Sätteri](https://satteri.bruits.org/). You can choose to use it now by installing `@astrojs/markdown-satteri`, importing the `satteri()` processor, and adapting your existing configuration:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import { satteri } from '@astrojs/markdown-satteri';
+
+  export default defineConfig({
+    markdown: {
+      processor: satteri({
+        features: { directive: true },
+      }),
+    },
+  });
+  ```
+
+  This processor does not support the remark and rehype plugins. This means you may need to convert them to [MDAST or HAST plugins](https://satteri.bruits.org/docs/plugins/) to retain your current functionality.
+
+  The existing top-level `markdown.remarkPlugins`, `markdown.rehypePlugins`, `markdown.remarkRehype`, `markdown.gfm`, and `markdown.smartypants` options still work, but are now deprecated and will be removed in a future major update. The matching `remarkPlugins`, `rehypePlugins`, and `remarkRehype` options on the MDX integration are also deprecated for the same reason. To anticipate their removal, move them onto `unified({...})` (or your preferred plugin processor) :
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import remarkToc from 'remark-toc';
+  import rehypeSlug from 'rehype-slug';
+  + import { unified } from '@astrojs/markdown-remark';
+
+  export default defineConfig({
+    markdown: {
+  +    processor: unified({
+  +      remarkPlugins: [remarkToc],
+  +      rehypePlugins: [rehypeSlug],
+  +      remarkRehype: true,
+  +      gfm: true,
+  +      smartypants: true,
+  +    }),
+  -    remarkPlugins: [remarkToc],
+  -    rehypePlugins: [rehypeSlug],
+  -    remarkRehype: true,
+  -    gfm: true,
+  -    smartypants: true,
+    },
+  });
+  ```
+
+  For more information on enabling and using this feature in your project, see our [Markdown guide](https://docs.astro.build/en/guides/markdown-content/). To give feedback on this new Rust processor, see the [Native Markdown / MDX parsing and processing RFC](https://github.com/withastro/roadmap/pull/1364).
+
+### Patch Changes
+
+- [#16468](https://github.com/withastro/astro/pull/16468) [`4cff3a1`](https://github.com/withastro/astro/commit/4cff3a107c3750ab5f0878a6b41836705282b771) Thanks [@matthewp](https://github.com/matthewp)! - Skips the static preview server when an adapter provides its own `previewEntrypoint`, allowing the adapter to handle both static and dynamic routes
+
+- [#16811](https://github.com/withastro/astro/pull/16811) [`e0e26db`](https://github.com/withastro/astro/commit/e0e26dbfe95f9d42f51ad414dbe877e60cbc637d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `X-Forwarded-Host` and `X-Forwarded-Proto` headers being ignored when set in a custom `src/app.ts` fetch handler before creating `FetchState`
+
+- [#16468](https://github.com/withastro/astro/pull/16468) [`4cff3a1`](https://github.com/withastro/astro/commit/4cff3a107c3750ab5f0878a6b41836705282b771) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the static preview server to respect `preserveBuildClientDir`, serving files from `build.client` instead of `outDir` when the adapter requires it
+
+- [#16770](https://github.com/withastro/astro/pull/16770) [`1e2aa11`](https://github.com/withastro/astro/commit/1e2aa11caf8e7a48f37dd614fd2d4c15cc7a8439) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a race condition where the Vite dep optimizer could lose React dependencies in dev mode when using Astro Actions
+
+- [#16468](https://github.com/withastro/astro/pull/16468) [`4cff3a1`](https://github.com/withastro/astro/commit/4cff3a107c3750ab5f0878a6b41836705282b771) Thanks [@matthewp](https://github.com/matthewp)! - Exempts internal routes (e.g. server islands) from `getStaticPaths()` validation, fixing server island rendering on static sites
+
+- [#16468](https://github.com/withastro/astro/pull/16468) [`4cff3a1`](https://github.com/withastro/astro/commit/4cff3a107c3750ab5f0878a6b41836705282b771) Thanks [@matthewp](https://github.com/matthewp)! - Fixes preview for static sites that contain non-prerendered routes. Previously, the preview command ignored SSR routes discovered during route scanning and always used the static preview server.
+
+- Updated dependencies [[`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc), [`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc)]:
+  - @astrojs/internal-helpers@0.10.0
+  - @astrojs/markdown-remark@7.2.0
+
 ## 6.3.8
 
 ### Patch Changes

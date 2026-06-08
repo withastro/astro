@@ -11,8 +11,10 @@ import {
 	pages,
 	i18n,
 } from '../../../dist/core/fetch/index.js';
+import { ALL_PIPELINE_FEATURES } from '../../../dist/core/base-pipeline.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createEndpoint, createPage, createRedirect, createTestApp } from '../mocks.ts';
+import { dynamicPart, spreadPart } from '../routing/test-helpers.ts';
 
 /** A simple page component that renders `<h1>Hello</h1>`. */
 const simplePage = createComponent((_result: any, _props: any, _slots: any) => {
@@ -51,6 +53,64 @@ describe('FetchState (astro/fetch)', () => {
 		const state = new FetchState(request);
 		assert.ok(state.routeData, 'routeData should be set by the constructor');
 		assert.equal(state.routeData!.route, '/');
+	});
+
+	it('falls through to SSR route when prerendered dynamic route matches first', () => {
+		// Regression test for #16834: when a prerendered dynamic route like
+		// [a_prebuild].astro matches before an SSR dynamic route like [b_ssr].astro,
+		// the SSR route should be used instead of returning 404.
+		const prerenderPage = createPage(simplePage, {
+			route: '/[a_prebuild]',
+			prerender: true,
+			pathname: undefined,
+			segments: [[dynamicPart('a_prebuild')]],
+		});
+		const ssrPage = createPage(simplePage, {
+			route: '/[b_ssr]',
+			prerender: false,
+			pathname: undefined,
+			segments: [[dynamicPart('b_ssr')]],
+		});
+
+		const app = createTestApp([prerenderPage, ssrPage], { serverLike: true });
+		const request = stampApp(new Request('http://example.com/foobar'), app);
+		const state = new FetchState(request);
+
+		assert.ok(state.routeData, 'routeData should be set to the SSR route');
+		assert.equal(state.routeData!.route, '/[b_ssr]');
+		assert.equal(state.routeData!.prerender, false);
+	});
+
+	it('falls back to the 404 route when no route matches', () => {
+		const notFoundPage = createPage(simplePage, { route: '/404' });
+		const app = createTestApp([createPage(simplePage, { route: '/' }), notFoundPage]);
+		const request = stampApp(new Request('http://example.com/does-not-exist'), app);
+		const state = new FetchState(request);
+
+		assert.ok(state.routeData, 'routeData should fall back to the 404 route');
+		assert.equal(state.routeData!.route, '/404');
+	});
+
+	it('preserves .html in pathname for endpoint routes with dynamic params', () => {
+		// Regression test for #16941: when a dynamic endpoint returns a param
+		// value like `file.html`, the `.html` suffix must not be stripped from
+		// the pathname. Only page routes should have `.html` stripped (it is
+		// framework-injected there), but for endpoints the suffix is user-provided.
+		const endpoint = createEndpoint(
+			{ GET: () => new Response('ok') },
+			{
+				route: '/[...path]',
+				pathname: undefined,
+				segments: [[spreadPart('path')]],
+			},
+		);
+		const app = createTestApp([endpoint]);
+		const request = stampApp(new Request('http://example.com/file.html'), app);
+		const state = new FetchState(request);
+
+		assert.ok(state.routeData, 'routeData should be set');
+		assert.equal(state.routeData!.type, 'endpoint');
+		assert.equal(state.pathname, '/file.html', '.html should be preserved for endpoint routes');
 	});
 });
 
@@ -209,6 +269,24 @@ describe('pages()', () => {
 		assert.equal(response.status, 200);
 		const text = await response.text();
 		assert.match(text, /<h1>Hello<\/h1>/);
+	});
+
+	it('renders the 404 page for unmatched routes instead of throwing', async () => {
+		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Not Found</h1>`;
+		});
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(notFoundPage, { route: '/404' }),
+		]);
+		const request = stampApp(new Request('http://example.com/does-not-exist'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 404);
+		const text = await response.text();
+		assert.match(text, /<h1>Not Found<\/h1>/);
 	});
 
 	it('renders an endpoint', async () => {
@@ -405,6 +483,34 @@ describe('astro() combined handler', () => {
 		assert.equal(response.status, 200);
 		assert.match(await response.text(), /middleware/);
 	});
+
+	it('marks all pipeline features as used even when first request is a redirect', async () => {
+		const app = createTestApp(
+			[
+				createRedirect({ route: '/old', redirect: '/new' }),
+				createPage(simplePage, { route: '/new' }),
+			],
+			{
+				middleware: async () => ({
+					onRequest: async (_ctx: any, next: any) => next(),
+				}),
+			},
+		);
+		const request = stampApp(new Request('http://example.com/old'), app);
+		const state = new FetchState(request);
+
+		const response = await astro(state);
+		assert.equal(response.status, 301);
+
+		// astro() is the "batteries-included" handler — it should mark
+		// every feature as used so the one-shot warnMissingFeatures check
+		// in BaseApp never fires a false positive.
+		assert.equal(
+			state.pipeline.usedFeatures & ALL_PIPELINE_FEATURES,
+			ALL_PIPELINE_FEATURES,
+			'astro() should mark all pipeline features as used',
+		);
+	});
 });
 
 // #endregion
@@ -544,6 +650,227 @@ describe('Context providers', () => {
 		await state.finalizeAll();
 
 		assert.equal(finalized, false, 'finalize should not run for unresolved providers');
+	});
+});
+
+// #endregion
+
+// #region X-Forwarded-* header resolution
+
+describe('FetchState X-Forwarded-* header resolution', () => {
+	it('ignores forwarded headers when allowedDomains is not configured', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })]);
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-proto': 'https',
+					'x-forwarded-host': 'example.com',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.protocol, 'http:');
+		assert.equal(state.url.hostname, 'localhost');
+	});
+
+	it('applies X-Forwarded-Proto when allowedDomains is configured', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: '**' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-proto': 'https',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.protocol, 'https:');
+	});
+
+	it('applies X-Forwarded-Host when allowedDomains matches', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-host': 'example.com',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.hostname, 'example.com');
+		assert.equal(state.url.port, '');
+	});
+
+	it('applies both X-Forwarded-Proto and X-Forwarded-Host together', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-proto': 'https',
+					'x-forwarded-host': 'example.com',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.protocol, 'https:');
+		assert.equal(state.url.hostname, 'example.com');
+	});
+
+	it('applies X-Forwarded-Port when allowedDomains has port patterns', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com', port: '8080' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-host': 'example.com',
+					'x-forwarded-port': '8080',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.hostname, 'example.com');
+		assert.equal(state.url.port, '8080');
+	});
+
+	it('rejects X-Forwarded-Host when it does not match allowedDomains', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'trusted.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-host': 'evil.com',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.hostname, 'localhost');
+	});
+
+	it('resolves clientAddress from X-Forwarded-For when host is trusted', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-host': 'example.com',
+					'x-forwarded-for': '203.0.113.50, 70.41.3.18',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.clientAddress, '203.0.113.50');
+	});
+
+	it('does not resolve clientAddress from X-Forwarded-For when host is not trusted', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'trusted.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-host': 'evil.com',
+					'x-forwarded-for': '203.0.113.50',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.clientAddress, undefined);
+	});
+
+	it('does not override clientAddress when already provided via options', async () => {
+		// This simulates the case where the adapter already resolved the
+		// client address (e.g. from the Node socket) and passed it through
+		// render options.
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = new Request('http://localhost:4321/', {
+			headers: {
+				'x-forwarded-host': 'example.com',
+				'x-forwarded-for': '203.0.113.50',
+			},
+		});
+		// Use BaseFetchState directly to pass clientAddress via options
+		const { FetchState: BaseFetchState } = await import('../../../dist/core/fetch/fetch-state.js');
+		const { appSymbol: sym } = await import('../../../dist/core/constants.js');
+		Reflect.set(request, sym, app);
+		const state = new BaseFetchState(app.pipeline, request, {
+			clientAddress: '10.0.0.1',
+			addCookieHeader: false,
+			locals: undefined,
+			prerenderedErrorPageFetch: fetch,
+			routeData: undefined,
+			waitUntil: undefined,
+		});
+
+		assert.equal(state.clientAddress, '10.0.0.1');
+	});
+
+	it('handles headers set by user fetch handler before FetchState creation', () => {
+		// This is the core use case from the issue: user sets forwarded
+		// headers in their src/app.ts fetch() before creating FetchState.
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = stampApp(new Request('http://localhost:4321/'), app);
+
+		// Simulate what a user would do in src/app.ts:
+		request.headers.set('x-forwarded-host', 'example.com');
+		request.headers.set('x-forwarded-proto', 'https');
+
+		const state = new FetchState(request);
+
+		assert.equal(state.url.protocol, 'https:');
+		assert.equal(state.url.hostname, 'example.com');
+	});
+
+	it('renders through the full pipeline with forwarded headers applied', async () => {
+		// End-to-end: forwarded headers should be visible in Astro.url
+		// when rendering through the astro() combined handler.
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/', {
+				headers: {
+					'x-forwarded-proto': 'https',
+					'x-forwarded-host': 'example.com',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		// Verify URL was updated before the handler runs
+		assert.equal(state.url.protocol, 'https:');
+		assert.equal(state.url.hostname, 'example.com');
+
+		const response = await astro(state);
+		assert.equal(response.status, 200);
 	});
 });
 

@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import memoryProvider from '../../../dist/core/cache/memory-provider.js';
-import { createEndpoint, createTestApp } from '../mocks.ts';
+import { createComponent, render, renderHead } from '../../../dist/runtime/server/index.js';
+import { createEndpoint, createPage, createTestApp } from '../mocks.ts';
 import type { APIContext } from '../../../dist/types/public/context.js';
 
 function createCacheManifestOverrides() {
@@ -329,3 +330,189 @@ describe('context.cache through App pipeline', () => {
 		assert.equal(frSecond.headers.get('X-Astro-Cache'), 'HIT');
 	});
 });
+
+// #region CDN-style provider (no onRequest, headers only)
+
+describe('context.cache with CDN-style provider', () => {
+	function createCdnProvider() {
+		return {
+			name: 'mock-cdn-cache',
+			async invalidate() {},
+		};
+	}
+
+	function createCdnApp(
+		pages: Parameters<typeof createTestApp>[0],
+		extraOverrides: Record<string, unknown> = {},
+	) {
+		return createTestApp(pages, {
+			cacheProvider: async () => ({ default: () => createCdnProvider() }),
+			cacheConfig: { provider: 'mock-cdn' },
+			...extraOverrides,
+		});
+	}
+
+	it('sets CDN-Cache-Control and Cache-Tag headers from context.cache.set()', async () => {
+		const app = createCdnApp([
+			createEndpoint(
+				{
+					GET: (ctx: APIContext) => {
+						ctx.cache.set({ maxAge: 300, swr: 60, tags: ['api', 'data'] });
+						return Response.json({ ok: true });
+					},
+				},
+				{ route: '/api' },
+			),
+		]);
+		const response = await app.render(new Request('http://example.com/api'));
+		assert.equal(response.status, 200);
+		const cc = response.headers.get('CDN-Cache-Control')!;
+		assert.ok(cc, 'CDN-Cache-Control header should be present');
+		assert.ok(cc.includes('max-age=300'));
+		assert.ok(cc.includes('stale-while-revalidate=60'));
+		const ct = response.headers.get('Cache-Tag')!;
+		assert.ok(ct);
+		assert.ok(ct.includes('api'));
+		assert.ok(ct.includes('data'));
+	});
+
+	it('produces no cache headers when cache.set(false)', async () => {
+		const app = createCdnApp([
+			createEndpoint(
+				{
+					GET: (ctx: APIContext) => {
+						ctx.cache.set(false);
+						return Response.json({ cached: false });
+					},
+				},
+				{ route: '/no-cache' },
+			),
+		]);
+		const response = await app.render(new Request('http://example.com/no-cache'));
+		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('CDN-Cache-Control'), null);
+		assert.equal(response.headers.get('Cache-Tag'), null);
+	});
+
+	it('produces Cache-Tag but no CDN-Cache-Control for tags-only', async () => {
+		const app = createCdnApp([
+			createEndpoint(
+				{
+					GET: (ctx: APIContext) => {
+						ctx.cache.set({ tags: ['product', 'sku-123'] });
+						return Response.json({ tagged: true });
+					},
+				},
+				{ route: '/tags-only' },
+			),
+		]);
+		const response = await app.render(new Request('http://example.com/tags-only'));
+		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('CDN-Cache-Control'), null);
+		const ct = response.headers.get('Cache-Tag')!;
+		assert.ok(ct);
+		assert.ok(ct.includes('product'));
+		assert.ok(ct.includes('sku-123'));
+	});
+
+	it('applies config-level route cache options automatically', async () => {
+		const app = createCdnApp(
+			[
+				createEndpoint(
+					{ GET: () => Response.json({ fromConfig: true }) },
+					{ route: '/config-route' },
+				),
+			],
+			{
+				cacheConfig: {
+					provider: 'mock-cdn',
+					routes: { '/config-route': { maxAge: 600, tags: ['config'] } },
+				},
+			},
+		);
+		const response = await app.render(new Request('http://example.com/config-route'));
+		assert.equal(response.status, 200);
+		const cc = response.headers.get('CDN-Cache-Control')!;
+		assert.ok(cc);
+		assert.ok(cc.includes('max-age=600'));
+		const ct = response.headers.get('Cache-Tag')!;
+		assert.ok(ct);
+		assert.ok(ct.includes('config'));
+	});
+
+	it('sets cache headers on pages via Astro.cache', async () => {
+		const cachePage = createComponent((result, props, slots) => {
+			const Astro = result.createAstro(props, slots);
+			Astro.cache.set({ maxAge: 120, tags: ['home'] });
+			return render`<html><head>${renderHead()}</head><body><h1>Cache Test</h1></body></html>`;
+		});
+		const app = createCdnApp([createPage(cachePage, { route: '/' })]);
+		const response = await app.render(new Request('http://example.com/'));
+		assert.equal(response.status, 200);
+		const cc = response.headers.get('CDN-Cache-Control')!;
+		assert.ok(cc);
+		assert.ok(cc.includes('max-age=120'));
+		const ct = response.headers.get('Cache-Tag')!;
+		assert.ok(ct);
+		assert.ok(ct.includes('home'));
+	});
+
+	it('response body is correct JSON from API route', async () => {
+		const app = createCdnApp([
+			createEndpoint(
+				{
+					GET: (ctx: APIContext) => {
+						ctx.cache.set({ maxAge: 300, tags: ['api'] });
+						return Response.json({ ok: true });
+					},
+				},
+				{ route: '/api' },
+			),
+		]);
+		const response = await app.render(new Request('http://example.com/api'));
+		const body = await response.json();
+		assert.deepEqual(body, { ok: true });
+	});
+});
+
+// #endregion
+
+// #region Disabled mode (no cache provider)
+
+describe('context.cache disabled (no provider configured)', () => {
+	it('Astro.cache.set() is a no-op on pages', async () => {
+		const cachePage = createComponent((result, props, slots) => {
+			const Astro = result.createAstro(props, slots);
+			Astro.cache.set({ maxAge: 120, tags: ['home'] });
+			return render`<html><head>${renderHead()}</head><body><h1>Cache Test</h1></body></html>`;
+		});
+		// No cacheProvider or cacheConfig
+		const app = createTestApp([createPage(cachePage, { route: '/' })]);
+		const response = await app.render(new Request('http://example.com/'));
+		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('CDN-Cache-Control'), null);
+		assert.equal(response.headers.get('Cache-Tag'), null);
+	});
+
+	it('context.cache.set() is a no-op in API routes', async () => {
+		const app = createTestApp([
+			createEndpoint(
+				{
+					GET: (ctx: APIContext) => {
+						ctx.cache.set({ maxAge: 300, tags: ['api'] });
+						return Response.json({ ok: true });
+					},
+				},
+				{ route: '/api' },
+			),
+		]);
+		const response = await app.render(new Request('http://example.com/api'));
+		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('CDN-Cache-Control'), null);
+		assert.equal(response.headers.get('Cache-Tag'), null);
+		const body = await response.json();
+		assert.deepEqual(body, { ok: true });
+	});
+});
+
+// #endregion

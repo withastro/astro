@@ -70,11 +70,7 @@ export function renderAllHeadContent(result: SSRResult) {
 	// In the future, it may be better to have only an array of head elements to avoid these assumptions.
 	content += styles.join('\n') + links.join('\n') + scripts.join('\n');
 
-	if (result._metadata.extraHead.length > 0) {
-		for (const part of result._metadata.extraHead) {
-			content += part;
-		}
-	}
+	content += result._metadata.extraHead.join('');
 
 	return markHTMLString(content);
 }

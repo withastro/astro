@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { type Locator, type Page, expect, test as testBase } from '@playwright/test';
+import { type Locator, type Page, expect, test as testBase, type Browser } from '@playwright/test';
 import type { AstroLogger } from '../dist/core/logger/core.js';
 import {
 	type AstroInlineConfig,
@@ -164,4 +164,30 @@ export function createLoggerSpy(options: LoggerSpyOptions = {}): AstroLogger {
 
 	// @ts-expect-error: TODO: use a real AstroLogger instance instead of this mock
 	return logger as AstroLogger;
+}
+
+/**
+ * Warm up the dev server by loading a page and waiting for islands to hydrate.
+ * This ensures Vite's dep optimizer has finished and avoids reload flakiness.
+ */
+export async function warmupDevServer(browser: Browser, url: string) {
+	const page = await browser.newPage();
+	await page.goto(url, { waitUntil: 'load' });
+	await page.waitForLoadState('networkidle').catch(() => {});
+	const islands = page.locator('astro-island');
+	const count = await islands.count();
+	for (let i = 0; i < count; i++) {
+		const island = islands.nth(i);
+		const uid = await island.getAttribute('uid').catch(() => null);
+		if (uid) {
+			await page
+				.waitForFunction(
+					(selector) => document.querySelector(selector)?.hasAttribute('ssr') === false,
+					`astro-island[uid="${uid}"]`,
+					{ timeout: 5_000 },
+				)
+				.catch(() => {});
+		}
+	}
+	await page.close();
 }

@@ -1,5 +1,25 @@
 # @astrojs/markdoc
 
+## 2.0.0-alpha.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Patch Changes
+
+- Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
+  - astro@7.0.0-alpha.0
+
+## 1.0.6
+
+### Patch Changes
+
+- [#16848](https://github.com/withastro/astro/pull/16848) [`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Removes `@astrojs/markdown-remark` from `@astrojs/markdoc`'s dependencies in favour of Astro's internal markdown utilities now that Astro's Markdown support is processor agnostic.
+
+- Updated dependencies [[`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc)]:
+  - @astrojs/internal-helpers@0.10.0
+
 ## 1.0.5
 
 ### Patch Changes

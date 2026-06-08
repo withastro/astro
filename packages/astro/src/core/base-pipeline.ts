@@ -48,6 +48,16 @@ export const PipelineFeatures = {
 	cache: 1 << 5,
 } as const;
 
+/** All feature bits ORed together. Keep next to `PipelineFeatures` so
+ *  new flags are hard to forget. */
+export const ALL_PIPELINE_FEATURES =
+	PipelineFeatures.redirects |
+	PipelineFeatures.sessions |
+	PipelineFeatures.actions |
+	PipelineFeatures.middleware |
+	PipelineFeatures.i18n |
+	PipelineFeatures.cache;
+
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
  * These are mostly known when the server first starts up and do not change.
@@ -205,6 +215,16 @@ export abstract class Pipeline {
 		const match = this.#router.match(pathname, { allowWithoutBase: true });
 		if (match.type !== 'match') return undefined;
 		return match.route;
+	}
+
+	/**
+	 * Returns all routes matching the given pathname, in priority order.
+	 * Used when the first match cannot serve the request (e.g. a
+	 * prerendered dynamic route that doesn't cover this specific path)
+	 * and the caller needs to try subsequent matches.
+	 */
+	matchAllRoutes(pathname: string): RouteData[] {
+		return this.#router.matchAll(pathname, { allowWithoutBase: true });
 	}
 
 	/**

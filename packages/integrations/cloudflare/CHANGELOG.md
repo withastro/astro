@@ -1,5 +1,82 @@
 # @astrojs/cloudflare
 
+## 14.0.0-alpha.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Patch Changes
+
+- Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
+  - astro@7.0.0-alpha.0
+## 13.6.1
+
+### Patch Changes
+
+- [#16914](https://github.com/withastro/astro/pull/16914) [`4bdd240`](https://github.com/withastro/astro/commit/4bdd240a6174b12ee9344d9b97456079aa5975ce) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro/fetch` and `astro/hono` being discovered at runtime during dev instead of pre-bundled
+
+- [#16693](https://github.com/withastro/astro/pull/16693) [`9e6edc2`](https://github.com/withastro/astro/commit/9e6edc2da5ccf06243588a7f519dea5fbcc126cd) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes a link in the documentation specifying where to open an issue for the adapter.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.6.0
+
+### Minor Changes
+
+- [#16729](https://github.com/withastro/astro/pull/16729) [`01aa164`](https://github.com/withastro/astro/commit/01aa1648ef436037b9204c8a297a09e66870cf86) Thanks [@matthewp](https://github.com/matthewp)! - Adds `@astrojs/cloudflare/fetch` and `@astrojs/cloudflare/hono` exports for composing Cloudflare-specific setup with Astro's advanced routing handlers.
+
+  #### `@astrojs/cloudflare/fetch`
+
+  For use with `astro/fetch` in a custom fetch handler:
+
+  ```ts
+  import { astro, FetchState } from 'astro/fetch';
+  import { cf } from '@astrojs/cloudflare/fetch';
+
+  export default {
+    async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+      const state = new FetchState(request);
+      const asset = await cf(state, env, ctx);
+      if (asset) return asset;
+      return astro(state);
+    },
+  };
+  ```
+
+  #### `@astrojs/cloudflare/hono`
+
+  For use with `astro/hono` as Hono middleware:
+
+  ```ts
+  import { Hono } from 'hono';
+  import { actions, middleware, pages, i18n } from 'astro/hono';
+  import { cf } from '@astrojs/cloudflare/hono';
+
+  const app = new Hono<{ Bindings: Env }>();
+
+  app.use(cf());
+  app.use(actions());
+  app.use(middleware());
+  app.use(pages());
+  app.use(i18n());
+
+  export default app;
+  ```
+
+  Both handlers configure SESSION KV bindings, static asset serving via the ASSETS binding, `locals.cfContext`, client address, `waitUntil`, and prerendered error page fetch.
+
+### Patch Changes
+
+- [#16868](https://github.com/withastro/astro/pull/16868) [`f9bae95`](https://github.com/withastro/astro/commit/f9bae95a37c791cbb39a2402f3b969c853462010) Thanks [@helio-cf](https://github.com/helio-cf)! - Fixes user options passed to `cloudflare({...})` (`remoteBindings`, `inspectorPort`, `persistState`, `configPath`, `auxiliaryWorkers`) being silently ignored during `astro preview`. The adapter now resolves the full `@cloudflare/vite-plugin` config once at integration setup time and reuses that single resolved value across the dev/build plugin, the prerenderer's preview server, and the `astro preview` entrypoint, so user options can no longer be dropped at one of the call sites.
+
+- [#16468](https://github.com/withastro/astro/pull/16468) [`4cff3a1`](https://github.com/withastro/astro/commit/4cff3a107c3750ab5f0878a6b41836705282b771) Thanks [@matthewp](https://github.com/matthewp)! - Fixes static Cloudflare builds with server islands or image endpoints that failed at preview time due to mismatched output directories.
+
+- Updated dependencies [[`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc)]:
+  - @astrojs/internal-helpers@0.10.0
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 13.5.5
 
 ### Patch Changes

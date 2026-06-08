@@ -296,6 +296,8 @@ export default function createIntegration({
 													'astro > picomatch',
 													'astro/app',
 													'astro/app/fetch/default-handler',
+													'astro/fetch',
+													'astro/hono',
 													'astro/assets',
 													'astro/assets/runtime',
 													'astro/assets/utils/inferRemoteSize.js',
@@ -474,12 +476,12 @@ export default function createIntegration({
 					vite.ssr.noExternal = true;
 
 					vite.build ||= {};
-					vite.build.rollupOptions ||= {};
-					vite.build.rollupOptions.output ||= {};
-					vite.build.rollupOptions.external = ['sharp'];
+					vite.build.rolldownOptions ||= {};
+					vite.build.rolldownOptions.output ||= {};
+					vite.build.rolldownOptions.external = ['sharp'];
 
 					// @ts-expect-error
-					vite.build.rollupOptions.output.banner ||=
+					vite.build.rolldownOptions.output.banner ||=
 						'globalThis.process ??= {}; globalThis.process.env ??= {};';
 
 					// Cloudflare env is only available per request. This isn't feasible for code that access env vars

@@ -1002,7 +1002,7 @@ function joinSegments(segments: RoutePart[][]): string {
 		return segment.map((rp) => (rp.dynamic ? `[${rp.content}]` : rp.content)).join('');
 	});
 
-	return `/${arr.join('/')}`.toLowerCase();
+	return `/${arr.join('/')}`;
 }
 
 function replaceOrKeep(original: string, from: string, to: string): string {

@@ -6,11 +6,12 @@ import type { AstroIntegration, HookParameters } from 'astro';
 import colors from 'piccolore';
 import {
 	createServer,
+	type Environment,
 	type HotPayload,
+	isRunnableDevEnvironment,
 	loadEnv,
 	mergeConfig,
 	type RunnableDevEnvironment,
-	type UserConfig,
 	type ViteDevServer,
 } from 'vite';
 import parseArgs from 'yargs-parser';
@@ -151,7 +152,10 @@ function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
 				});
 			},
 			'astro:server:setup': async ({ server, logger }) => {
-				const environment = server.environments.ssr as RunnableDevEnvironment;
+				let environment = server.environments['ssr'] as unknown as Environment;
+				if (!isRunnableDevEnvironment(environment)) {
+					return;
+				}
 				seedHandler.execute = async (fileUrl) => {
 					await executeSeedFile({ fileUrl, environment });
 				};
@@ -195,7 +199,7 @@ function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
 				);
 			},
 			'astro:build:setup': async ({ vite }) => {
-				tempViteServer = await getTempViteServer({ viteConfig: vite });
+				tempViteServer = await getTempViteServer(vite);
 				const environment = tempViteServer.environments.ssr as RunnableDevEnvironment;
 				seedHandler.execute = async (fileUrl) => {
 					await executeSeedFile({ fileUrl, environment });
@@ -245,7 +249,7 @@ async function executeSeedFile({
 /**
  * Inspired by Astro content collection config loader.
  */
-async function getTempViteServer({ viteConfig }: { viteConfig: UserConfig }) {
+async function getTempViteServer(viteConfig: HookParameters<'astro:build:setup'>['vite']) {
 	const tempViteServer = await createServer(
 		mergeConfig(viteConfig, {
 			server: { middlewareMode: true, hmr: false, watch: null, ws: false },

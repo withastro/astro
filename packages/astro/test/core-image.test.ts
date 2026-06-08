@@ -1231,7 +1231,7 @@ describe('build ssg', () => {
 		let $script = $('script');
 
 		// Find image
-		const regex = /src:"([^"]*)/;
+		const regex = /src:["`]([^"`]*)/;
 		const imageSrc = regex.exec($script.html()!)![1];
 		const data = await fixture.readBuffer(imageSrc);
 		assert.equal(data instanceof Buffer, true);
