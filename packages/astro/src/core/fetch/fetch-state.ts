@@ -14,6 +14,7 @@ import type { RouteData, SSRResult } from '../../types/public/internal.js';
 import { AstroCookies } from '../cookies/index.js';
 import { type Pipeline, Slots } from '../render/index.js';
 import {
+	appSymbol,
 	ASTRO_GENERATOR,
 	fetchStateSymbol,
 	originPathnameSymbol,
@@ -292,10 +293,12 @@ export class FetchState implements AstroFetchState {
 			this.#applyForwardedHeaders();
 		}
 
-		// Set origin pathname for rewrite tracking.
-		if (!Reflect.get(request, originPathnameSymbol)) {
+		// Set origin pathname for rewrite tracking. Use this.request
+		// (not the local parameter) because #applyForwardedHeaders()
+		// may have reconstructed it with a forwarded URL.
+		if (!Reflect.get(this.request, originPathnameSymbol)) {
 			setOriginPathname(
-				request,
+				this.request,
 				this.pathname,
 				pipeline.manifest.trailingSlash,
 				pipeline.manifest.buildFormat,
@@ -967,6 +970,23 @@ export class FetchState implements AstroFetchState {
 			if (forwardedFor) {
 				this.clientAddress = forwardedFor;
 			}
+		}
+
+		// Reconstruct the Request with the resolved URL so that
+		// request.url stays in sync with this.url. Request.url is a
+		// readonly string, so we must create a new Request object. The
+		// constructor carries over method, headers, body (incl. stream +
+		// duplex) and signal from the old request.
+		const oldRequest = this.request;
+		this.request = new Request(this.url, oldRequest);
+		// Re-attach `appSymbol`: the rest of the pipeline resolves the app
+		// via `getApp(state.request)` (see core/fetch/index.ts), so the new
+		// Request must carry it. We copy only this known Astro symbol.
+		// Other request-bound state is either already captured on
+		// `this` (clientAddress) or set after this point (originPathname).
+		const app = Reflect.get(oldRequest, appSymbol);
+		if (app !== undefined) {
+			Reflect.set(this.request, appSymbol, app);
 		}
 	}
 
