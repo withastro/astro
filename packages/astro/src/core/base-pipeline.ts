@@ -305,6 +305,10 @@ export abstract class Pipeline {
 	 * Called via HMR when action files change during development.
 	 */
 	clearActions() {
+		// This is a dev-only operation called via HMR.
+		if(this.runtimeMode !== 'development') {
+			throw new Error('clearActions must not be called in production');
+		}
 		this.resolvedActions = undefined;
 	}
 
