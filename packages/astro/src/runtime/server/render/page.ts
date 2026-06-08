@@ -25,7 +25,7 @@ export async function renderPage(
 		// rendered through the Container API) go through `renderComponentToString`,
 		// which dispatches to the correct renderer: the `astro:jsx` renderer for
 		// MDX (which also wraps runtime errors with a helpful hint and streams the
-		// content), the html renderer for `.html`, and framework renderers for
+		// content), the HTML renderer for `.html`, and framework renderers for
 		// components. It also injects the `<head>` for layout-less MDX pages.
 		const str = await renderComponentToString(
 			result,

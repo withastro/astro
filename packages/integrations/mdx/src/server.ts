@@ -42,10 +42,10 @@ export async function renderToStaticMarkup(
 
 	const { result } = this;
 	try {
-		// Render the MDX vnode tree through Astro's streaming engine. Chunks are
-		// collected into a string because this renderer must return ready HTML to
-		// its caller (`renderComponent`), but using the streaming engine keeps the
-		// MDX content on the same fast path as `.astro` pages.
+		// Render the MDX vnode tree through Astro's streaming engine, the same
+		// fast path used by `.astro` pages. The chunks are collected into a
+		// string because this renderer must return ready HTML to its caller
+		// (`renderComponent`).
 		let html = '';
 		const destination = {
 			write(chunk: any) {

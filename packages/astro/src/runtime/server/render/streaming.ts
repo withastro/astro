@@ -16,7 +16,7 @@ import { containsServerDirective, ServerIslandComponent } from './server-islands
 const ClientOnlyPlaceholder = 'astro-client-only';
 
 /**
- * Cursor over a RenderTemplateResult. Lets us interleave static html parts and
+ * Cursor over a RenderTemplateResult. Lets us interleave static HTML parts and
  * dynamic expressions without pushing each part onto the stack or wrapping it
  * in an HTMLString — static parts are appended straight to the batch buffer.
  */
@@ -36,17 +36,17 @@ class TemplateFrame {
 }
 
 /**
- * Hybrid streaming render engine.
+ * Streaming render engine.
  *
  * Walks the component tree in a single forward pass (explicit stack), batching
  * consecutive static fragments into one write. The static structure
- * (RenderTemplateResult html parts, arrays, primitives) never allocates a node
- * object and never wraps html parts in `markHTMLString`, so static-heavy pages
+ * (RenderTemplateResult HTML parts, arrays, primitives) never allocates a node
+ * object and never wraps HTML parts in `markHTMLString`, so static-heavy pages
  * render with minimal overhead.
  *
  * Dynamic subtrees (components, render instances, promises, JSX) are rendered
- * via `renderChild` into buffers. While output stays synchronous, the engine
- * streams directly to `destination`. As soon as a dynamic node renders
+ * via `renderChild`. While their output stays synchronous, the engine streams
+ * it straight to `destination`. As soon as a dynamic node renders
  * asynchronously, the engine switches to a buffered tail: every remaining
  * dynamic node is started eagerly (so async work runs in parallel) and the
  * buffers are flushed in order. This mirrors `RenderTemplateResult.render`, so
@@ -62,12 +62,12 @@ export async function renderStreaming(
 ): Promise<void> {
 	const stack: unknown[] = [root];
 
-	// Per-render content cache for HTML element tags in the MDX/.md (astro:jsx)
-	// path, where open/close tags are constructed per element. A tag string
-	// depends only on the tag name (close tags always; open tags when attr-less),
-	// so repeated elements (thousands of <p>/<li>/…) share one cached string
-	// instead of re-building and re-wrapping it each time. The keys are tag names,
-	// so the cache stays tiny (~one entry per distinct tag).
+	// Per-render cache of HTML element tags for the MDX/.md (astro:jsx) path,
+	// where open/close tags are built one element at a time. A tag string
+	// depends only on the tag name (always for close tags; for open tags only
+	// when the element has no attributes), so repeated elements (thousands of
+	// <p>/<li>/…) can share one cached string instead of rebuilding it each
+	// time. The keys are tag names, so the cache stays tiny (~one entry per tag).
 	const openTagCache = new Map<string, string>();
 	const closeTagCache = new Map<string, HTMLString>();
 	const closeTagFor = (type: string): HTMLString => {
@@ -85,6 +85,7 @@ export async function renderStreaming(
 	let buffered = false;
 	let firstAsync: Promise<void> | null = null;
 	const tail: Array<string | RendererFlusher> = [];
+	// Static text collected while in buffered-tail mode.
 	let tailStatic = '';
 
 	const emitStatic = (s: string) => {
@@ -111,7 +112,7 @@ export async function renderStreaming(
 
 	// Handle an astro:jsx VNode (JSX in .astro files and MDX/.md pages). Emits
 	// HTML elements as static, pushes children, and routes components through
-	// the dynamic path. Mirrors the queue jsx-builder but streams in place.
+	// the dynamic path.
 	const handleVNode = (vnode: AstroVNode) => {
 		const type = vnode.type as unknown;
 		if (!type) {
@@ -154,9 +155,9 @@ export async function renderStreaming(
 		// HTML element (e.g. 'div', 'span').
 		if (typeof type === 'string' && type !== ClientOnlyPlaceholder) {
 			const props = vnode.props;
-			// Detect attributes without the rest-spread allocation. Markdown/MDX is
-			// dominated by attr-less elements (<p>, <li>, <strong>…), for which we
-			// skip both the rest-spread and `spreadAttributes`.
+			// Check for attributes without copying props into a new object.
+			// Markdown/MDX is mostly elements with no attributes (<p>, <li>,
+			// <strong>…), for which we skip both that copy and `spreadAttributes`.
 			let hasAttrs = false;
 			if (props) {
 				for (const key in props) {
@@ -170,8 +171,8 @@ export async function renderStreaming(
 			const isVoid = (children == null || children === '') && voidElementNames.test(type);
 
 			if (!hasAttrs) {
-				// Attr-less: skip the rest-spread + spreadAttributes entirely, and
-				// reuse the cached (constant) open/close tag strings for this tag.
+				// No attributes: skip the props copy and `spreadAttributes` entirely,
+				// and reuse the cached (constant) open/close tag strings for this tag.
 				const key = isVoid ? `${type}/` : type;
 				let openTag = openTagCache.get(key);
 				if (openTag === undefined) {
@@ -212,8 +213,10 @@ export async function renderStreaming(
 		}
 
 		// Framework components, client-only placeholders, and astro:jsx function
-		// components: delegate to renderJSX (dispatches framework renderers and
-		// handles the astro:jsx trampoline). Push the promise to render buffered.
+		// components: hand off to renderJSX, which selects the matching framework
+		// renderer (and re-enters itself for astro:jsx components that produce more
+		// JSX). The promise is pushed onto the stack so it renders through the
+		// dynamic (buffered) path.
 		stack.push(renderJSX(result, vnode));
 	};
 
@@ -224,8 +227,8 @@ export async function renderStreaming(
 		if (node == null || node === false) continue;
 
 		// Template cursor: append static parts and simple expressions inline,
-		// only pushing to the stack for complex (nested) expressions. This keeps
-		// stack churn proportional to nested structure, not to attribute count.
+		// only pushing to the stack for complex (nested) expressions. That way we
+		// push to the stack as often as the content nests, not once per expression.
 		if (node instanceof TemplateFrame) {
 			const htmlParts = node.templateResult.htmlParts;
 			const expressions = node.templateResult.expressions;
@@ -234,7 +237,7 @@ export async function renderStreaming(
 				if (htmlParts[i]) {
 					emitStatic(htmlParts[i]);
 				}
-				// `htmlParts.length === expressions.length + 1`, so the final html
+				// `htmlParts.length === expressions.length + 1`, so the final HTML
 				// part has no expression after it. This break must come *after*
 				// emitting `htmlParts[i]` — moving it earlier would drop the
 				// trailing static (e.g. the closing `</li>` of `<li>${x}</li>`).
@@ -301,24 +304,25 @@ export async function renderStreaming(
 		}
 		// Dynamic node: component instance, render instance, promise, JSX vnode,
 		// render instruction, iterable, etc. Rendered via renderChild — streamed
-		// directly while sync, buffered once the tail goes async.
+		// directly while synchronous, buffered once a node renders asynchronously.
 		if (!buffered) {
 			if (batch) {
 				destination.write(markHTMLString(batch));
 				batch = '';
 			}
-			// Stream the node straight to `destination`. Its synchronous output
-			// lands in order; buffering here would only buffer-then-immediately-flush
-			// (a no-op detour), so we skip the per-node buffer. Mirrors `renderArray`.
-			const r = renderDynamic(node)(destination);
-			if (isPromise(r)) {
+			// Write the node's output straight to `destination`. It renders
+			// synchronously and in order, so putting it in a temporary buffer
+			// first and flushing right after would add work without changing the
+			// result. Mirrors `renderArray`.
+			const rendered = renderDynamic(node)(destination);
+			if (isPromise(rendered)) {
 				// First async node: stream stops here. Buffer the remaining tail.
 				buffered = true;
-				firstAsync = r;
+				firstAsync = rendered;
 			}
 		} else {
 			flushTailStatic();
-			// Started eagerly inside createBufferedRenderer => async work runs in parallel.
+			// createBufferedRenderer starts the work right away, so async nodes run in parallel.
 			tail.push(createBufferedRenderer(destination, renderDynamic(node)));
 		}
 	}

@@ -18,10 +18,9 @@ import { isRenderTemplateResult } from './render-template.js';
 const DOCTYPE_EXP = /<!doctype html/i;
 
 /**
- * Queue-based rendering implementation. Builds a flat render queue from the
- * component tree, then renders it to a string.
+ * Renders a component tree to a string using the streaming engine.
  */
-async function renderWithQueue(
+async function renderStreamToString(
 	result: SSRResult,
 	templateResult: any,
 	isPage: boolean,
@@ -60,9 +59,9 @@ async function renderWithQueue(
 }
 
 /**
- * Queue-based rendering to a ReadableStream.
+ * Renders a component tree to a `ReadableStream` using the streaming engine.
  */
-async function renderWithQueueToStream(
+async function renderStreamToStream(
 	result: SSRResult,
 	templateResult: any,
 	isPage: boolean,
@@ -117,7 +116,7 @@ async function renderWithQueueToStream(
 						});
 					}
 
-					// Queue error on next microtask to flush the remaining chunks written synchronously
+					// Report the error on the next microtask, so the chunks already written synchronously flush first
 					setTimeout(() => controller.error(e), 0);
 				}
 			})();
@@ -131,9 +130,9 @@ async function renderWithQueueToStream(
 }
 
 /**
- * Queue-based rendering to an AsyncIterable.
+ * Renders a component tree to an `AsyncIterable` using the streaming engine.
  */
-async function renderWithQueueToAsyncIterable(
+async function renderStreamToAsyncIterable(
 	result: SSRResult,
 	templateResult: any,
 	isPage: boolean,
@@ -279,7 +278,7 @@ export async function renderToString(
 	// If the Astro component returns a Response on init, return that response
 	if (templateResult instanceof Response) return templateResult;
 
-	return await renderWithQueue(result, templateResult, isPage);
+	return await renderStreamToString(result, templateResult, isPage);
 }
 
 // Calls a component and renders it into a readable stream
@@ -302,7 +301,7 @@ export async function renderToReadableStream(
 	// If the Astro component returns a Response on init, return that response
 	if (templateResult instanceof Response) return templateResult;
 
-	return await renderWithQueueToStream(result, templateResult, isPage, route);
+	return await renderStreamToStream(result, templateResult, isPage, route);
 }
 
 async function callComponentAsTemplateResultOrResponse(
@@ -371,7 +370,7 @@ export async function renderToAsyncIterable(
 	);
 	if (templateResult instanceof Response) return templateResult;
 
-	return await renderWithQueueToAsyncIterable(result, templateResult, isPage, route);
+	return await renderStreamToAsyncIterable(result, templateResult, isPage, route);
 }
 
 function toPromise<T>(fn: () => T | Promise<T>): Promise<T> {
