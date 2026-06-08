@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "7.0.9",
+  "version": "7.0.12",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -57,8 +57,8 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
-    "devalue": "^5.6.3",
-    "typescript": "^5.9.3"
+    "devalue": "^5.8.1",
+    "typescript": "^6.0.3"
   },
   "astro": {
     "external": true

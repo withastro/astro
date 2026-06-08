@@ -96,4 +96,14 @@ describe('base', () => {
 		assert.ok(cacheIdx >= 0 && userIdx >= 0, 'both blocks should exist');
 		assert.ok(cacheIdx < userIdx, 'cache block should appear before user headers');
 	});
+
+	it('sets assets.directory to the un-prefixed client root in wrangler.json', async () => {
+		const raw = await fixture.readFile('server/wrangler.json');
+		const config = JSON.parse(raw);
+		assert.equal(
+			config.assets.directory,
+			'../client',
+			'assets.directory should be "../client", not "../client/blog"',
+		);
+	});
 });

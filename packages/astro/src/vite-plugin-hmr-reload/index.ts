@@ -1,4 +1,4 @@
-import type { EnvironmentModuleNode, Plugin } from 'vite';
+import { isRunnableDevEnvironment, type EnvironmentModuleNode, type Plugin } from 'vite';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
 import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css/util.js';
 import { isAstroServerEnvironment } from '../environments.js';
@@ -26,7 +26,7 @@ export default function hmrReload(): Plugin {
 		enforce: 'post',
 		hotUpdate: {
 			order: 'post',
-			handler({ modules, server, timestamp }) {
+			handler({ modules, server, timestamp, file }) {
 				if (!isAstroServerEnvironment(this.environment)) return;
 
 				let hasSsrOnlyModules = false;
@@ -60,7 +60,33 @@ export default function hmrReload(): Plugin {
 				}
 
 				if (hasSsrOnlyModules) {
+					// Invalidate all recursively-invalidated modules (importers) in the
+					// runner cache, not just the directly changed files. Without this,
+					// barrel files like index.ts stay cached and dynamic import() calls
+					// return stale exports.
+					if (isRunnableDevEnvironment(this.environment)) {
+						for (const invalidated of invalidatedModules) {
+							if (invalidated.id == null) continue;
+							const runnerModule = this.environment.runner.evaluatedModules.getModuleById(
+								invalidated.id,
+							);
+							if (runnerModule) {
+								this.environment.runner.evaluatedModules.invalidateModule(runnerModule);
+							}
+						}
+					}
+					// Tell the browser to reload the page.
 					server.ws.send({ type: 'full-reload' });
+					// For non-runnable environments (e.g. Cloudflare's workerd), we can't
+					// directly access the module runner. Send a full-reload through the
+					// environment's hot channel so the remote runner clears its cache.
+					if (!isRunnableDevEnvironment(this.environment)) {
+						this.environment.hot.send({
+							type: 'full-reload',
+							triggeredBy: file,
+							path: '*',
+						});
+					}
 					return [];
 				}
 
@@ -71,6 +97,16 @@ export default function hmrReload(): Plugin {
 				// Vite's built-in style update mechanism, which works for all pages
 				// (with or without framework components).
 				if (hasSkippedStyleModules) {
+					return [];
+				}
+
+				// If we processed modules but none were SSR-only (all were found in the
+				// client module graph), return an empty array to prevent Vite's default
+				// HMR propagation. Without this, Vite would propagate through the SSR
+				// module graph, find no HMR boundary (e.g. .astro files), and trigger
+				// a full-reload that causes unnecessary program reloads for the module
+				// runner. The client environment handles HMR for these modules natively.
+				if (modules.length > 0) {
 					return [];
 				}
 			},

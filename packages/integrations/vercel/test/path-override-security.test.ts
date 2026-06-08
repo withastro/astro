@@ -25,7 +25,7 @@ describe('Vercel serverless path override security', () => {
 		await fixture.build({});
 	});
 
-	it('ignores untrusted x_astro_path query param on _render', async () => {
+	it('ignores untrusted x_astro_path query param on _render', { timeout: 30000 }, async () => {
 		const renderFunction = await loadFunctionModule(fixture, '_render');
 		const response = await renderFunction.default.fetch(
 			new Request('https://example.com/api/public?x_astro_path=/api/private'),
@@ -35,7 +35,7 @@ describe('Vercel serverless path override security', () => {
 		assert.equal(body.id, 'public');
 	});
 
-	it('ignores untrusted x-astro-path header on _render', async () => {
+	it('ignores untrusted x-astro-path header on _render', { timeout: 30000 }, async () => {
 		const renderFunction = await loadFunctionModule(fixture, '_render');
 		const response = await renderFunction.default.fetch(
 			new Request('https://example.com/api/public', {

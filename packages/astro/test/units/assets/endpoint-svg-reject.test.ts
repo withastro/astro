@@ -23,6 +23,18 @@ describe('inferSourceFormat', () => {
 		assert.equal(inferSourceFormat('data:image/svg+xml;base64,PHN2Zz4='), 'svg');
 	});
 
+	it('detects svg from data: URI without media-type parameter', () => {
+		assert.equal(inferSourceFormat('data:image/svg+xml,%3Csvg/%3E'), 'svg');
+	});
+
+	it('uses the earlier of `;` or `,` as the MIME terminator', () => {
+		assert.equal(inferSourceFormat('data:image/png,foo;bar'), 'png');
+	});
+
+	it('returns undefined for malformed data: URI without `;` or `,`', () => {
+		assert.equal(inferSourceFormat('data:image/png'), undefined);
+	});
+
 	it('detects png from file extension', () => {
 		assert.equal(inferSourceFormat('/images/photo.png'), 'png');
 	});

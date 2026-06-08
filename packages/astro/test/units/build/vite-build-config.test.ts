@@ -147,6 +147,75 @@ describe('createViteBuildConfig', () => {
 			const result = output.assetFileNames({ names: ['style.css'] });
 			assert.match(result, /^custom_dir_1\//);
 		});
+
+		it('defaults minify to true when not set', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({ settings });
+			const clientEnv = config.environments?.client as Record<string, any>;
+			assert.equal(clientEnv.build.minify, true);
+		});
+
+		it('respects top-level vite.build.minify override', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({ settings, viteConfig: { build: { minify: false } } });
+			const clientEnv = config.environments?.client as Record<string, any>;
+			assert.equal(clientEnv.build.minify, false);
+		});
+
+		it('environment-specific minify takes priority over top-level', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					build: { minify: false },
+					environments: { client: { build: { minify: 'esbuild' } } },
+				},
+			});
+			const clientEnv = config.environments?.client as Record<string, any>;
+			assert.equal(clientEnv.build.minify, 'esbuild');
+		});
+
+		it('defaults sourcemap to false when not set', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({ settings });
+			const clientEnv = config.environments?.client as Record<string, any>;
+			assert.equal(clientEnv.build.sourcemap, false);
+		});
+
+		it('respects top-level vite.build.sourcemap override', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: { build: { sourcemap: 'inline' } },
+			});
+			const clientEnv = config.environments?.client as Record<string, any>;
+			assert.equal(clientEnv.build.sourcemap, 'inline');
+		});
+
+		it('environment-specific sourcemap takes priority over top-level', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					build: { sourcemap: 'inline' },
+					environments: { client: { build: { sourcemap: true } } },
+				},
+			});
+			const clientEnv = config.environments?.client as Record<string, any>;
+			assert.equal(clientEnv.build.sourcemap, true);
+		});
+
+		it('inherits top-level rollup output options like compact', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					build: { rollupOptions: { output: { compact: false } } },
+				},
+			});
+			const clientEnv = config.environments?.client as Record<string, any>;
+			assert.equal(clientEnv.build.rollupOptions.output.compact, false);
+		});
 	});
 
 	describe('prerender environment', () => {

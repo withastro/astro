@@ -857,6 +857,85 @@ describe('node', () => {
 		});
 	});
 
+	describe('request body handling', () => {
+		it('passes through Buffer body without mangling', async () => {
+			const payload = JSON.stringify({ message: 'hello' });
+			const request = createRequest(
+				{
+					...mockNodeRequest,
+					method: 'POST',
+					headers: { ...mockNodeRequest.headers, 'content-type': 'application/json' },
+					body: Buffer.from(payload),
+				},
+				{ port: 4321 },
+			);
+			const text = await request.text();
+			assert.equal(text, payload);
+		});
+
+		it('passes through Uint8Array body without mangling', async () => {
+			const payload = JSON.stringify({ message: 'hello' });
+			const request = createRequest(
+				{
+					...mockNodeRequest,
+					method: 'POST',
+					headers: { ...mockNodeRequest.headers, 'content-type': 'application/json' },
+					body: new Uint8Array(Buffer.from(payload)),
+				},
+				{ port: 4321 },
+			);
+			const text = await request.text();
+			assert.equal(text, payload);
+		});
+
+		it('passes through ArrayBuffer body without mangling', async () => {
+			const payload = JSON.stringify({ message: 'hello' });
+			const buf = Buffer.from(payload);
+			const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+			const request = createRequest(
+				{
+					...mockNodeRequest,
+					method: 'POST',
+					headers: { ...mockNodeRequest.headers, 'content-type': 'application/json' },
+					body: ab,
+				},
+				{ port: 4321 },
+			);
+			const text = await request.text();
+			assert.equal(text, payload);
+		});
+
+		it('re-serializes plain object body from middleware like express.json()', async () => {
+			const obj = { message: 'hello' };
+			const request = createRequest(
+				{
+					...mockNodeRequest,
+					method: 'POST',
+					headers: { ...mockNodeRequest.headers, 'content-type': 'application/json' },
+					body: obj,
+				},
+				{ port: 4321 },
+			);
+			const text = await request.text();
+			assert.equal(text, JSON.stringify(obj));
+		});
+
+		it('converts string body to a buffer', async () => {
+			const payload = JSON.stringify({ message: 'hello' });
+			const request = createRequest(
+				{
+					...mockNodeRequest,
+					method: 'POST',
+					headers: { ...mockNodeRequest.headers, 'content-type': 'application/json' },
+					body: payload,
+				},
+				{ port: 4321 },
+			);
+			const text = await request.text();
+			assert.equal(text, payload);
+		});
+	});
+
 	describe('body size limit', () => {
 		it('rejects request body that exceeds the configured bodySizeLimit', async () => {
 			const { Readable } = await import('node:stream');

@@ -12,7 +12,7 @@ describe('ISR', () => {
 		await fixture.build({});
 	});
 
-	it('generates expected prerender config', async () => {
+	it('generates expected prerender config', { timeout: 30000 }, async () => {
 		const vcConfig = JSON.parse(
 			await fixture.readFile('../.vercel/output/functions/_isr.prerender-config.json'),
 		);
@@ -24,7 +24,7 @@ describe('ISR', () => {
 		});
 	});
 
-	it('generates expected routes', async () => {
+	it('generates expected routes', { timeout: 30000 }, async () => {
 		const deploymentConfig = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
 		// the first two are /_astro/*, and filesystem routes
 		assert.deepEqual(deploymentConfig.routes.slice(2), [

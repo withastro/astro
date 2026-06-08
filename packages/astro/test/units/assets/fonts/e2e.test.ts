@@ -119,6 +119,7 @@ describe('Fonts E2E', () => {
 					name: 'Roboto',
 					cssVariable: '--font-roboto',
 					provider: fontProviders.fontsource(),
+					weights: ['700'],
 				},
 				{
 					name: 'Test',
@@ -137,17 +138,17 @@ describe('Fonts E2E', () => {
 		assert.deepStrictEqual(result, {
 			fontFileById: new Map([
 				[
-					'font-roboto-400-italic-latin-e473890ddd4ee723.woff2',
+					'font-roboto-700-italic-latin-f291476ed7fdb908.woff2',
 					{
 						init: undefined,
-						url: 'https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-400-italic.woff2',
+						url: 'https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-700-italic.woff2',
 					},
 				],
 				[
-					'font-roboto-400-normal-latin-4be39bb0bc16cc61.woff2',
+					'font-roboto-700-normal-latin-62f255dcb8a4f627.woff2',
 					{
 						init: undefined,
-						url: 'https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-400-normal.woff2',
+						url: 'https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-700-normal.woff2',
 					},
 				],
 				[
@@ -165,22 +166,22 @@ describe('Fonts E2E', () => {
 							{
 								format: 'woff2',
 								tech: undefined,
-								url: '/font-roboto-400-normal-latin-4be39bb0bc16cc61.woff2',
+								url: '/font-roboto-700-normal-latin-62f255dcb8a4f627.woff2',
 							},
 						],
 						style: 'normal',
-						weight: '400',
+						weight: '700',
 					},
 					{
 						src: [
 							{
 								format: 'woff2',
 								tech: undefined,
-								url: '/font-roboto-400-italic-latin-e473890ddd4ee723.woff2',
+								url: '/font-roboto-700-italic-latin-f291476ed7fdb908.woff2',
 							},
 						],
 						style: 'italic',
-						weight: '400',
+						weight: '700',
 					},
 				],
 				'--font-test': [
@@ -201,21 +202,21 @@ describe('Fonts E2E', () => {
 				[
 					'--font-roboto',
 					{
-						css: '@font-face{font-family:Roboto-3dec13cc6120e65b;src:url("/font-roboto-400-normal-latin-4be39bb0bc16cc61.woff2") format("woff2");font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-weight:400;font-style:normal;}@font-face{font-family:Roboto-3dec13cc6120e65b;src:url("/font-roboto-400-italic-latin-e473890ddd4ee723.woff2") format("woff2");font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-weight:400;font-style:italic;}@font-face{font-family:"Roboto-3dec13cc6120e65b fallback: Arial";src:local("Arial");font-display:swap;font-weight:400;font-style:normal;size-adjust:99.7809%;ascent-override:92.9771%;descent-override:24.4677%;line-gap-override:0%;}@font-face{font-family:"Roboto-3dec13cc6120e65b fallback: Arial";src:local("Arial");font-display:swap;font-weight:400;font-style:italic;size-adjust:99.7809%;ascent-override:92.9771%;descent-override:24.4677%;line-gap-override:0%;}:root{--font-roboto:Roboto-3dec13cc6120e65b,"Roboto-3dec13cc6120e65b fallback: Arial",sans-serif;}',
+						css: '@font-face{font-family:Roboto-5aa148eb18e50555;src:url("/font-roboto-700-normal-latin-62f255dcb8a4f627.woff2") format("woff2");font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-weight:700;font-style:normal;}@font-face{font-family:Roboto-5aa148eb18e50555;src:url("/font-roboto-700-italic-latin-f291476ed7fdb908.woff2") format("woff2");font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-weight:700;font-style:italic;}@font-face{font-family:"Roboto-5aa148eb18e50555 fallback: Arial Bold";src:local("Arial Bold");font-display:swap;font-weight:700;font-style:normal;size-adjust:94.2014%;ascent-override:98.4841%;descent-override:25.9169%;line-gap-override:0%;}@font-face{font-family:"Roboto-5aa148eb18e50555 fallback: Arial Bold";src:local("Arial Bold");font-display:swap;font-weight:700;font-style:italic;size-adjust:94.2014%;ascent-override:98.4841%;descent-override:25.9169%;line-gap-override:0%;}:root{--font-roboto:Roboto-5aa148eb18e50555,"Roboto-5aa148eb18e50555 fallback: Arial Bold",sans-serif;}',
 						preloads: [
 							{
 								style: 'normal',
 								subset: 'latin',
 								type: 'woff2',
-								url: '/font-roboto-400-normal-latin-4be39bb0bc16cc61.woff2',
-								weight: '400',
+								url: '/font-roboto-700-normal-latin-62f255dcb8a4f627.woff2',
+								weight: '700',
 							},
 							{
 								style: 'italic',
 								subset: 'latin',
 								type: 'woff2',
-								url: '/font-roboto-400-italic-latin-e473890ddd4ee723.woff2',
-								weight: '400',
+								url: '/font-roboto-700-italic-latin-f291476ed7fdb908.woff2',
+								weight: '700',
 							},
 						],
 					},
@@ -337,7 +338,7 @@ describe('Fonts E2E', () => {
 				[
 					'--font-roboto',
 					{
-						css: '@font-face{font-family:Roboto-b114abed7fe44c2b;src:url("/font-roboto-500-normal-latin-0f94d1c6c8982360.woff2") format("woff2");font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-weight:500;font-style:normal;}@font-face{font-family:Roboto-b114abed7fe44c2b;src:url("/font-roboto-700-italic-latin-f291476ed7fdb908.woff2") format("woff2");font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-weight:700;font-style:italic;}@font-face{font-family:"Roboto-b114abed7fe44c2b fallback: Arial";src:local("Arial");font-display:swap;font-weight:500;font-style:normal;size-adjust:100.6572%;ascent-override:92.1677%;descent-override:24.2547%;line-gap-override:0%;}@font-face{font-family:"Roboto-b114abed7fe44c2b fallback: Arial";src:local("Arial");font-display:swap;font-weight:700;font-style:italic;size-adjust:100.6572%;ascent-override:92.1677%;descent-override:24.2547%;line-gap-override:0%;}:root{--font-roboto:Roboto-b114abed7fe44c2b,"Roboto-b114abed7fe44c2b fallback: Arial",sans-serif;}',
+						css: '@font-face{font-family:Roboto-b114abed7fe44c2b;src:url("/font-roboto-500-normal-latin-0f94d1c6c8982360.woff2") format("woff2");font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-weight:500;font-style:normal;}@font-face{font-family:Roboto-b114abed7fe44c2b;src:url("/font-roboto-700-italic-latin-f291476ed7fdb908.woff2") format("woff2");font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-weight:700;font-style:italic;}@font-face{font-family:"Roboto-b114abed7fe44c2b fallback: Arial";src:local("Arial");font-display:swap;font-weight:500;font-style:normal;size-adjust:100.6572%;ascent-override:92.1677%;descent-override:24.2547%;line-gap-override:0%;}@font-face{font-family:"Roboto-b114abed7fe44c2b fallback: Arial Bold";src:local("Arial Bold");font-display:swap;font-weight:700;font-style:italic;size-adjust:93.4893%;ascent-override:99.2343%;descent-override:26.1143%;line-gap-override:0%;}:root{--font-roboto:Roboto-b114abed7fe44c2b,"Roboto-b114abed7fe44c2b fallback: Arial","Roboto-b114abed7fe44c2b fallback: Arial Bold",sans-serif;}',
 						preloads: [
 							{
 								style: 'normal',

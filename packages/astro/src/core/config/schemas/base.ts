@@ -4,8 +4,13 @@ import type {
 	RemarkRehype as _RemarkRehype,
 	Smartypants as _Smartypants,
 	ShikiConfig,
-} from '@astrojs/markdown-remark';
-import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
+} from '@astrojs/internal-helpers/markdown';
+import {
+	markdownConfigDefaults,
+	syntaxHighlightDefaults,
+} from '@astrojs/internal-helpers/markdown';
+import { unified } from '@astrojs/markdown-remark';
+import type { MarkdownProcessor } from '../../../markdown/index.js';
 import type { OutgoingHttpHeaders } from 'node:http';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
 import * as z from 'zod/v4';
@@ -418,14 +423,39 @@ export const AstroConfigSchema = z.object({
 			remarkRehype: z
 				.custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
-			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
+			// Deprecated: left undefined unless the user explicitly sets them, so the
+			// deprecation warning only fires when actually used. The active processor
+			// (`unified()`) supplies the real default (`gfm`/smart punctuation on) when
+			// these are absent.
+			gfm: z.boolean().optional(),
 			smartypants: z
 				.union([z.boolean(), smartypantsOptionsSchema])
 				.transform((val): false | Smartypants => {
 					if (val === true) return smartypantsOptionsSchema.parse({});
 					return val;
 				})
-				.prefault(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
+				.optional(),
+			processor: z
+				.object({
+					name: z.string(),
+					// `z.custom` preserves reference identity; `z.record` would clone, breaking
+					// the closure inside `createRenderer` that reads `processor.options.*`.
+					options: z
+						.custom<object>((v) => typeof v === 'object' && v !== null && !Array.isArray(v))
+						.default(() => ({})),
+					createRenderer: z.custom<MarkdownProcessor['createRenderer']>(
+						(v) => typeof v === 'function',
+					),
+					createMdxRenderer: z
+						.custom<MarkdownProcessor['createMdxRenderer']>(
+							(v) => v === undefined || typeof v === 'function',
+						)
+						.optional(),
+				})
+				// A factory (not a shared value) so every config gets its own processor —
+				// integrations extend the pipeline by mutating `processor.options`, which
+				// would otherwise leak across configs built in the same process.
+				.default(() => unified()),
 		})
 		.prefault({}),
 	vite: z
@@ -533,7 +563,12 @@ export const AstroConfigSchema = z.object({
 	experimental: z
 		.strictObject({
 			advancedRouting: z
-				.boolean()
+				.union([
+					z.boolean(),
+					z.strictObject({
+						fetchFile: z.string().nullable().optional().default('app'),
+					}),
+				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.advancedRouting),
 			clientPrerender: z
