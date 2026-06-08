@@ -32,16 +32,22 @@ export function formatBackgroundOutput(result: BackgroundResult | BackgroundErro
 export async function background({
 	flags,
 	logger,
-}: { flags: Flags; logger: AstroLogger }): Promise<void> {
+}: {
+	flags: Flags;
+	logger: AstroLogger;
+}): Promise<void> {
 	const root = pathToFileURL(resolveRoot(flags.root) + '/');
 
 	// Check for existing server
 	const existing = checkExistingServer(root);
 	if (existing && !flags.force) {
-		logger.info('SKIP_FORMAT', `Dev server already running at ${existing.url} (pid ${existing.pid})\n` +
-			'  Stop:   astro dev stop\n' +
-			'  Status: astro dev status\n' +
-			'  Logs:   astro dev logs');
+		logger.info(
+			'SKIP_FORMAT',
+			`Dev server already running at ${existing.url} (pid ${existing.pid})\n` +
+				'  Stop:   astro dev stop\n' +
+				'  Status: astro dev status\n' +
+				'  Logs:   astro dev logs',
+		);
 		return;
 	}
 
@@ -127,10 +133,13 @@ export async function background({
 		// Check for the lock file (written by the child's dev server)
 		const lockData = readLockFile(root);
 		if (lockData && lockData.pid === childPid) {
-			logger.info('SKIP_FORMAT', `Dev server running at ${lockData.url} (pid ${lockData.pid})\n` +
-				'  Stop:   astro dev stop\n' +
-				'  Status: astro dev status\n' +
-				'  Logs:   astro dev logs');
+			logger.info(
+				'SKIP_FORMAT',
+				`Dev server running at ${lockData.url} (pid ${lockData.pid})\n` +
+					'  Stop:   astro dev stop\n' +
+					'  Status: astro dev status\n' +
+					'  Logs:   astro dev logs',
+			);
 			return;
 		}
 

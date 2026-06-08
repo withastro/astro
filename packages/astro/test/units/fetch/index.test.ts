@@ -13,7 +13,13 @@ import {
 } from '../../../dist/core/fetch/index.js';
 import { ALL_PIPELINE_FEATURES } from '../../../dist/core/base-pipeline.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createEndpoint, createPage, createRedirect, createTestApp, createMockFetchState } from '../mocks.ts';
+import {
+	createEndpoint,
+	createPage,
+	createRedirect,
+	createTestApp,
+	createMockFetchState,
+} from '../mocks.ts';
 import { dynamicPart, spreadPart } from '../routing/test-helpers.ts';
 import { SpyLogger } from '../test-utils.ts';
 

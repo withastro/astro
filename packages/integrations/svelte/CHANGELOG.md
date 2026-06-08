@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 9.0.0-alpha.2
+
+### Minor Changes
+
+- [#16549](https://github.com/withastro/astro/pull/16549) [`9d9d516`](https://github.com/withastro/astro/commit/9d9d516ba95fb888d5e8c62892269cf047b523e9) Thanks [@ocavue](https://github.com/ocavue)! - Updates `@sveltejs/vite-plugin-svelte` to v7. No user action is necessary.
+
 ## 9.0.0-alpha.0
 
 ### Major Changes
