@@ -1,7 +1,12 @@
 import assert from 'node:assert';
 import path from 'node:path';
 import { before, describe, it } from 'node:test';
-import type { CodeAction, Diagnostic, FullDocumentDiagnosticReport } from '@volar/language-server';
+import type {
+	CodeAction,
+	Command,
+	Diagnostic,
+	FullDocumentDiagnosticReport,
+} from '@volar/language-server';
 import { getLanguageServer, type LanguageServer } from '../server.ts';
 import { fixtureDir } from '../test-utils.ts';
 
@@ -79,7 +84,7 @@ describe('TypeScript - Code Actions', async () => {
 			},
 		);
 		const action = codeActions?.find((item) => item.title === `Add import from "${source}"`);
-		assert.ok(
+		assertCodeAction(
 			action,
 			`Expected Add import action from ${source}; got ${codeActions?.map((item) => item.title).join(', ')}`,
 		);
@@ -118,4 +123,12 @@ function assertAttachedDiagnostic(action: CodeAction, diagnostic: Diagnostic) {
 
 function assertEditsDocument(action: CodeAction, documentUri: string) {
 	assert.ok(action.edit?.changes?.[documentUri]?.length);
+}
+
+function assertCodeAction(
+	action: CodeAction | Command | undefined,
+	message: string,
+): asserts action is CodeAction {
+	assert.ok(action, message);
+	assert.notStrictEqual(typeof action.command, 'string');
 }
