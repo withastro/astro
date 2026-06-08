@@ -38,6 +38,8 @@ publicHoistPattern:
 # Wait until three days after release to install new versions of packages
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
+  # 'fake-data-pkg' is a local package used for testing
+  - 'fake-data-pkg@1.0.0'
   # TODO: remove once more stable
   - '@flue/*'
   - '@astrojs/*'
@@ -71,6 +73,8 @@ trustPolicyExclude:
   # Old dependency of @types/node@22
   # TODO: Remove when dropping support for Node 22
   - undici-types@6.21.0
+  # 'fake-data-pkg' is a local package used for testing
+  - 'fake-data-pkg@1.0.0'
   # Dependencies in the docs repo that gets cloned for smoke tests
   - 'undici@5.29.0'
   - 'algoliasearch@4.27.0'

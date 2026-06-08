@@ -177,14 +177,14 @@ export function createImageMarkerPlugin(
 	};
 }
 
-export function createShikiPlugin(
+export function createHighlightPlugin(
 	highlight: HighlightFn,
 	excludeLangs: string[] | undefined,
 	options?: { mdx?: boolean },
 ): HastPluginDefinition {
 	const wrapResult = options?.mdx ? makeFragmentNode : makeRawNode;
 	return {
-		name: 'shiki-highlight',
+		name: 'highlight',
 		element: {
 			filter: ['pre'],
 			async visit(node, ctx) {
@@ -217,6 +217,49 @@ export interface SatteriMarkdownProcessorOptions extends AstroMarkdownOptions {
 	features?: Features;
 }
 
+/**
+ * Build the highlighter for the Sätteri pipeline, or `undefined` when syntax
+ * highlighting is disabled. Shiki and Prism both resolve to a `HighlightFn`
+ * that turns a code block into a complete `<pre>` HTML string.
+ */
+export async function createHighlightFn(
+	syntaxHighlight: AstroMarkdownOptions['syntaxHighlight'],
+	shikiConfig: AstroMarkdownOptions['shikiConfig'] | undefined,
+): Promise<HighlightFn | undefined> {
+	const syntaxHighlightType =
+		typeof syntaxHighlight === 'string'
+			? syntaxHighlight
+			: syntaxHighlight
+				? syntaxHighlight.type
+				: undefined;
+
+	if (syntaxHighlightType === 'shiki') {
+		const hl = await createShikiHighlighter({
+			langs: shikiConfig?.langs,
+			theme: shikiConfig?.theme,
+			themes: shikiConfig?.themes,
+			langAlias: shikiConfig?.langAlias,
+		});
+		return (code, lang, meta) =>
+			hl.codeToHtml(code, lang, {
+				meta,
+				wrap: shikiConfig?.wrap,
+				defaultColor: shikiConfig?.defaultColor,
+				transformers: shikiConfig?.transformers,
+			});
+	}
+
+	if (syntaxHighlightType === 'prism') {
+		const { runHighlighterWithAstro } = await import('@astrojs/prism/dist/highlighter');
+		return async (code, lang) => {
+			const { html, classLanguage } = await runHighlighterWithAstro(lang, code);
+			return `<pre class="${classLanguage}" data-language="${lang}"><code class="${classLanguage}">${html}</code></pre>`;
+		};
+	}
+
+	return undefined;
+}
+
 export async function createSatteriMarkdownProcessor(
 	opts?: SatteriMarkdownProcessorOptions,
 ): Promise<MarkdownRenderer> {
@@ -232,35 +275,7 @@ export async function createSatteriMarkdownProcessor(
 		features: userFeatures,
 	} = opts ?? {};
 
-	const syntaxHighlightType =
-		typeof syntaxHighlight === 'string'
-			? syntaxHighlight
-			: syntaxHighlight
-				? syntaxHighlight.type
-				: undefined;
-
-	if (syntaxHighlightType === 'prism') {
-		throw new Error(
-			'Prism syntax highlighting is not supported by the `satteri()` markdown processor. Use shiki instead, or switch to `markdown.processor: unified({...})`.',
-		);
-	}
-
-	let highlightFn: HighlightFn | undefined;
-	if (syntaxHighlightType === 'shiki') {
-		const hl = await createShikiHighlighter({
-			langs: shikiConfig.langs,
-			theme: shikiConfig.theme,
-			themes: shikiConfig.themes,
-			langAlias: shikiConfig.langAlias,
-		});
-		highlightFn = (code, lang, meta) =>
-			hl.codeToHtml(code, lang, {
-				meta,
-				wrap: shikiConfig.wrap,
-				defaultColor: shikiConfig.defaultColor,
-				transformers: shikiConfig.transformers,
-			});
-	}
+	const highlightFn = await createHighlightFn(syntaxHighlight, shikiConfig);
 
 	const syntaxHighlightExcludeLangs =
 		typeof syntaxHighlight === 'object' ? syntaxHighlight.excludeLangs : undefined;
@@ -279,7 +294,7 @@ export async function createSatteriMarkdownProcessor(
 
 			const hastPlugins: HastPluginDefinition[] = [];
 			if (highlightFn) {
-				hastPlugins.push(createShikiPlugin(highlightFn, syntaxHighlightExcludeLangs));
+				hastPlugins.push(createHighlightPlugin(highlightFn, syntaxHighlightExcludeLangs));
 			}
 			hastPlugins.push(...userHastPlugins);
 			hastPlugins.push(createImageMarkerPlugin(localImagePaths, remoteImagePaths));
@@ -293,7 +308,7 @@ export async function createSatteriMarkdownProcessor(
 					smartPunctuation: smartypants !== false,
 					...userFeatures,
 				},
-				filename: renderOpts?.fileURL?.pathname,
+				fileURL: renderOpts?.fileURL,
 			});
 
 			return {

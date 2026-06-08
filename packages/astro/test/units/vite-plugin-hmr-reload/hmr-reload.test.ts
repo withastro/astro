@@ -168,6 +168,7 @@ describe('astro:hmr-reload', () => {
 		const result = ctx.call();
 		assert.ok(Array.isArray(result), 'should return an array');
 		assert.equal(result.length, 0, 'should return empty array for styles');
+		assert.equal(ctx.wsSent.length, 0, 'should NOT send full-reload for style modules');
 	});
 
 	it('invalidates importers in the module graph for dynamic import chains', () => {
@@ -208,5 +209,41 @@ describe('astro:hmr-reload', () => {
 		// Only the SSR-only module should be invalidated in the module graph
 		assert.equal(ctx.invalidated.length, 1, 'should only invalidate SSR-only module');
 		assert.equal(ctx.invalidated[0], ssrMod);
+	});
+
+	it('returns [] for modules that exist in the client module graph (prevents unnecessary program reload)', () => {
+		const mod = createMockModule('/src/components/Foo.tsx');
+		const ctx = createMockContext({
+			environmentName: 'ssr',
+			modules: [mod],
+			clientModuleIds: ['/src/components/Foo.tsx'], // module IS in client graph
+		});
+
+		const result = ctx.call();
+
+		assert.deepEqual(
+			result,
+			[],
+			'Should return empty array to prevent Vite default HMR propagation',
+		);
+		assert.equal(ctx.wsSent.length, 0, 'Should NOT send full-reload via WebSocket');
+		assert.equal(ctx.hotSent.length, 0, 'Should NOT send full-reload via hot channel');
+		assert.equal(ctx.invalidated.length, 0, 'Should NOT invalidate client-graph modules');
+	});
+
+	it('sends full-reload when mix of client and SSR-only modules', () => {
+		const clientMod = createMockModule('/src/components/Foo.tsx');
+		const ssrOnlyMod = createMockModule('/src/backend/db.ts');
+		const ctx = createMockContext({
+			environmentName: 'ssr',
+			modules: [clientMod, ssrOnlyMod],
+			clientModuleIds: ['/src/components/Foo.tsx'], // only Foo.tsx in client graph
+		});
+
+		const result = ctx.call();
+
+		assert.deepEqual(result, [], 'Should return empty array');
+		assert.equal(ctx.wsSent.length, 1, 'Should send full-reload because of SSR-only module');
+		assert.equal(ctx.wsSent[0].type, 'full-reload');
 	});
 });

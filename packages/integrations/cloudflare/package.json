@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers",
-  "version": "13.6.0",
+  "version": "13.6.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -61,7 +61,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
-    "devalue": "^5.6.3",
+    "devalue": "^5.8.1",
     "prismjs": "^1.30.0"
   },
   "publishConfig": {
