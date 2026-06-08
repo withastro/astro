@@ -18,6 +18,18 @@ preferWorkspacePackages: true
 linkWorkspacePackages: true
 saveWorkspaceProtocol: false # This prevents the examples to have the `workspace:` prefix
 autoInstallPeers: false
+dedupePeers: true
+
+overrides:
+  # If a dependency has a peer dependency on `@types/node` and the version range accepts `22`,
+  # we force it to resolve to `^22.19.0`. This helps reduce the number of duplicate packages
+  # in `node_modules/`.
+  #
+  # For example, `vite@7.3.2` has a peer dependency `"@types/node": "^20.19.0 || >=22.12.0"`.
+  # pnpm could install the same `vite@7.3.2` multiple times, one with `@types/node@20`, one
+  # with `@types/node@22`, one with `@types/node@25`, etc.. By adding this override, we force
+  # pnpm to only keep one installation of `vite@7.3.2` with `@types/node@22`.
+  '@types/node@22': '^22.19.0'
 
 publicHoistPattern:
   # `astro sync` could try to import `@astrojs/db` but could fail due to linked dependencies in the monorepo.
@@ -26,21 +38,21 @@ publicHoistPattern:
 # Wait until three days after release to install new versions of packages
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
+  # 'fake-data-pkg' is a local package used for testing
+  - 'fake-data-pkg@1.0.0'
   # TODO: remove once more stable
   - '@flue/*'
   - '@astrojs/*'
+  - '@cloudflare/*'
+  - workerd
+  - miniflare
+  - wrangler
+  - 'satteri'
+  - '@bruits/*'
 peerDependencyRules:
   allowAny:
     - 'astro'
     - 'vite'
-onlyBuiltDependencies:
-  - 'esbuild'
-  - 'workerd'
-  - '@biomejs/biome'
-  - 'sharp'
-  - '@parcel/watcher'
-  - 'keytar'
-  - '@vscode/vsce-sign'
 
 patchedDependencies:
   '@changesets/get-github-info@0.7.0': patches/@changesets__get-github-info@0.7.0.patch
@@ -61,6 +73,8 @@ trustPolicyExclude:
   # Old dependency of @types/node@22
   # TODO: Remove when dropping support for Node 22
   - undici-types@6.21.0
+  # 'fake-data-pkg' is a local package used for testing
+  - 'fake-data-pkg@1.0.0'
   # Dependencies in the docs repo that gets cloned for smoke tests
   - 'undici@5.29.0'
   - 'algoliasearch@4.27.0'

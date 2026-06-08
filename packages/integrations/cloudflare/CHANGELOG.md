@@ -1,5 +1,17 @@
 # @astrojs/cloudflare
 
+## 14.0.0-alpha.1
+
+### Patch Changes
+
+- [#16990](https://github.com/withastro/astro/pull/16990) [`ebeb830`](https://github.com/withastro/astro/commit/ebeb83075ba7825a822fdcf4228b475cae38c9c5) Thanks [@ocavue](https://github.com/ocavue)! - Fixes a build crash when using `experimental.advancedRouting` with a custom `fetchFile` that statically imports `cf` from `@astrojs/cloudflare/fetch`. The circular dependency between `@astrojs/cloudflare/fetch` and `astro/app/entrypoint` caused `createApp` or `createGetEnv` to be `undefined` at module evaluation time. Initialization is now deferred to the first `cf()` call, breaking the cycle.
+
+- [#16671](https://github.com/withastro/astro/pull/16671) [`fd926fd`](https://github.com/withastro/astro/commit/fd926fdafd4a5e94dd156105dacb214741f4b7ac) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Removes deprecations warnings added in Astro v6 for Cloudflare specific Astro.locals properties.
+
+- Updated dependencies [[`1f07343`](https://github.com/withastro/astro/commit/1f07343ffc69b9c982f43cd0369069fe8d1a07fa), [`1e000e2`](https://github.com/withastro/astro/commit/1e000e2454fbbade0a5ed978a9dccf8307780305), [`c63e7e4`](https://github.com/withastro/astro/commit/c63e7e4411db8fc652c84ce82b45f53e951eb6fa), [`ebeb830`](https://github.com/withastro/astro/commit/ebeb83075ba7825a822fdcf4228b475cae38c9c5), [`10229f7`](https://github.com/withastro/astro/commit/10229f73dbf0f19b9936e9a23f0abc774a4c579e)]:
+  - astro@7.0.0-alpha.2
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 14.0.0-alpha.0
 
 ### Major Changes
@@ -10,6 +22,100 @@
 
 - Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
   - astro@7.0.0-alpha.0
+
+## 13.6.1
+
+### Patch Changes
+
+- [#16914](https://github.com/withastro/astro/pull/16914) [`4bdd240`](https://github.com/withastro/astro/commit/4bdd240a6174b12ee9344d9b97456079aa5975ce) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro/fetch` and `astro/hono` being discovered at runtime during dev instead of pre-bundled
+
+- [#16693](https://github.com/withastro/astro/pull/16693) [`9e6edc2`](https://github.com/withastro/astro/commit/9e6edc2da5ccf06243588a7f519dea5fbcc126cd) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes a link in the documentation specifying where to open an issue for the adapter.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.6.0
+
+### Minor Changes
+
+- [#16729](https://github.com/withastro/astro/pull/16729) [`01aa164`](https://github.com/withastro/astro/commit/01aa1648ef436037b9204c8a297a09e66870cf86) Thanks [@matthewp](https://github.com/matthewp)! - Adds `@astrojs/cloudflare/fetch` and `@astrojs/cloudflare/hono` exports for composing Cloudflare-specific setup with Astro's advanced routing handlers.
+
+  #### `@astrojs/cloudflare/fetch`
+
+  For use with `astro/fetch` in a custom fetch handler:
+
+  ```ts
+  import { astro, FetchState } from 'astro/fetch';
+  import { cf } from '@astrojs/cloudflare/fetch';
+
+  export default {
+    async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+      const state = new FetchState(request);
+      const asset = await cf(state, env, ctx);
+      if (asset) return asset;
+      return astro(state);
+    },
+  };
+  ```
+
+  #### `@astrojs/cloudflare/hono`
+
+  For use with `astro/hono` as Hono middleware:
+
+  ```ts
+  import { Hono } from 'hono';
+  import { actions, middleware, pages, i18n } from 'astro/hono';
+  import { cf } from '@astrojs/cloudflare/hono';
+
+  const app = new Hono<{ Bindings: Env }>();
+
+  app.use(cf());
+  app.use(actions());
+  app.use(middleware());
+  app.use(pages());
+  app.use(i18n());
+
+  export default app;
+  ```
+
+  Both handlers configure SESSION KV bindings, static asset serving via the ASSETS binding, `locals.cfContext`, client address, `waitUntil`, and prerendered error page fetch.
+
+### Patch Changes
+
+- [#16868](https://github.com/withastro/astro/pull/16868) [`f9bae95`](https://github.com/withastro/astro/commit/f9bae95a37c791cbb39a2402f3b969c853462010) Thanks [@helio-cf](https://github.com/helio-cf)! - Fixes user options passed to `cloudflare({...})` (`remoteBindings`, `inspectorPort`, `persistState`, `configPath`, `auxiliaryWorkers`) being silently ignored during `astro preview`. The adapter now resolves the full `@cloudflare/vite-plugin` config once at integration setup time and reuses that single resolved value across the dev/build plugin, the prerenderer's preview server, and the `astro preview` entrypoint, so user options can no longer be dropped at one of the call sites.
+
+- [#16468](https://github.com/withastro/astro/pull/16468) [`4cff3a1`](https://github.com/withastro/astro/commit/4cff3a107c3750ab5f0878a6b41836705282b771) Thanks [@matthewp](https://github.com/matthewp)! - Fixes static Cloudflare builds with server islands or image endpoints that failed at preview time due to mismatched output directories.
+
+- Updated dependencies [[`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc)]:
+  - @astrojs/internal-helpers@0.10.0
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.5.5
+
+### Patch Changes
+
+- [#16607](https://github.com/withastro/astro/pull/16607) [`98297af`](https://github.com/withastro/astro/commit/98297afb4fad0b61a69ff84b842cf65e5d71f5a4) Thanks [@alexanderflodin](https://github.com/alexanderflodin)! - Fixes incorrect `assets.directory` in the generated `wrangler.json` when a `base` path is configured
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.5.4
+
+### Patch Changes
+
+- [#16769](https://github.com/withastro/astro/pull/16769) [`428cb1b`](https://github.com/withastro/astro/commit/428cb1bb80f9c5672ed68bfc219fa700b7a569fa) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Forwards user-provided `optimizeDeps` settings (exclude, include, esbuildOptions.loader) to SSR/prerender environments. Previously, top-level `vite.optimizeDeps` in the Astro config was silently ignored for server environments because Vite 6 scopes it to client-only and the adapter's `configEnvironment` hook did not forward it. This caused packages with non-standard file types (e.g. `.data` files) to fail during dev-mode dependency optimization with errors like "No loader is configured for '.data' files".
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.5.3
+
+### Patch Changes
+
+- [#16801](https://github.com/withastro/astro/pull/16801) [`d619277`](https://github.com/withastro/astro/commit/d6192772a424b12bdf5f5991c3c882c3ae5cd707) Thanks [@ematipico](https://github.com/ematipico)! - Reverts a change to the esbuild dep-scan plugin that caused `astro check` and `astro build` to fail by making esbuild incorrectly bundle `virtual:` modules (e.g. from expressive-code)
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
 
 ## 13.5.2
 

@@ -30,7 +30,7 @@ type HonoMiddlewareHandler = (
 	next: () => Promise<void>,
 ) => Promise<Response | void>;
 
-function getFetchState(context: HonoContextLike): FetchState {
+export function getFetchState(context: HonoContextLike): FetchState {
 	const state = context.get?.(FETCH_STATE_KEY) as FetchState | undefined;
 	if (state) {
 		return state;

@@ -1,9 +1,5 @@
 import { env as globalEnv } from 'cloudflare:workers';
-import {
-	sessionKVBindingName,
-	compileImageConfig,
-	isPrerender,
-} from 'virtual:astro-cloudflare:config';
+import { compileImageConfig, isPrerender } from 'virtual:astro-cloudflare:config';
 import type { RenderOptions } from 'astro/app';
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
@@ -17,13 +13,19 @@ import {
 	isStaticImagesRequest,
 	handleStaticImagesRequest,
 } from './prerender.js';
-import { getValidatedIpFromHeader } from '@astrojs/internal-helpers/request';
+import {
+	type Runtime,
+	injectSessionBinding,
+	matchStaticAsset,
+	fallbackToAssets,
+	createErrorPageFetch,
+	createLocals,
+	getClientAddress,
+} from './cf.js';
+
+export type { Runtime };
 
 setGetEnv(createGetEnv(globalEnv));
-
-export interface Runtime {
-	cfContext: ExecutionContext;
-}
 
 declare global {
 	// This is not a real global, but is injected using Vite define to allow us to specify the Images binding name in the config.
@@ -57,19 +59,11 @@ export async function handle(
 		}
 	}
 
-	const { pathname: requestPathname } = new URL(request.url);
-
-	if (env[sessionKVBindingName]) {
-		const sessionConfigOptions = app.manifest.sessionConfig?.options ?? {};
-		Object.assign(sessionConfigOptions, {
-			binding: env[sessionKVBindingName],
-		});
-	}
+	injectSessionBinding(app.manifest, env);
 
 	// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
-	if (app.manifest.assets.has(requestPathname)) {
-		return env.ASSETS.fetch(request.url.replace(/\.html$/, ''));
-	}
+	const staticAsset = matchStaticAsset(app.manifest, request.url, env);
+	if (staticAsset) return staticAsset as CfResponse;
 
 	let routeData: RouteData | undefined = undefined;
 	if (app.isDev()) {
@@ -83,29 +77,19 @@ export async function handle(
 
 	if (!routeData) {
 		// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
-		const asset = await env.ASSETS.fetch(
-			request.url.replace(/index.html$/, '').replace(/\.html$/, ''),
-		);
-		if (asset.status !== 404) {
-			return asset;
-		}
+		const asset = await fallbackToAssets(request.url, env);
+		if (asset) return asset as CfResponse;
 	}
 
-	const locals: Runtime = {
-		cfContext: context,
-	};
-
+	const locals = createLocals(context);
 	const waitUntil: RenderOptions['waitUntil'] = context.waitUntil.bind(context);
 
 	const response = await app.render(request, {
 		routeData,
 		locals,
 		waitUntil,
-		prerenderedErrorPageFetch: async (url: string) => {
-			// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
-			return env.ASSETS.fetch(url.replace(/\.html$/, ''));
-		},
-		clientAddress: getValidatedIpFromHeader(request.headers.get('cf-connecting-ip')),
+		prerenderedErrorPageFetch: createErrorPageFetch(env),
+		clientAddress: getClientAddress(request),
 	});
 
 	if (app.setCookieHeaders) {

@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 9.0.0-alpha.2
+
+### Minor Changes
+
+- [#16549](https://github.com/withastro/astro/pull/16549) [`9d9d516`](https://github.com/withastro/astro/commit/9d9d516ba95fb888d5e8c62892269cf047b523e9) Thanks [@ocavue](https://github.com/ocavue)! - Updates `@sveltejs/vite-plugin-svelte` to v7. No user action is necessary.
+
 ## 9.0.0-alpha.0
 
 ### Major Changes
@@ -10,6 +16,12 @@
 
 - Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
   - astro@7.0.0-alpha.0
+
+## 8.1.2
+
+### Patch Changes
+
+- [#16496](https://github.com/withastro/astro/pull/16496) [`4d79750`](https://github.com/withastro/astro/commit/4d79750c3535d35bbec521e8d93546bf73e2ea6a) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixed an issue where type errors occurred during testing library type checks because Astro overrides Svelte 5 component types.
 
 ## 8.1.1
 

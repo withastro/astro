@@ -34,8 +34,6 @@ const configs = [
 		'triage/',
 		'.github/',
 		'.changeset/',
-		// We can remove this once https://github.com/withastro/astro/pull/16643 is merged
-		'packages/astro/e2e/astro-island-hydration-error.test.js',
 	]),
 
 	...tseslint.configs.recommendedTypeChecked,

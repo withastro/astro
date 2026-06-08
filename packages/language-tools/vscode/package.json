@@ -249,7 +249,7 @@
     "@astrojs/ts-plugin": "^1.10.9",
     "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^20.9.0",
+    "@types/node": "^22.10.6",
     "@types/vscode": "^1.101.0",
     "@volar/language-server": "~2.4.28",
     "@volar/vscode": "~2.4.28",

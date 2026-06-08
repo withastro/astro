@@ -13,11 +13,11 @@ describe('Image', () => {
 		await fixture.build({});
 	});
 
-	it('build successful', async () => {
+	it('build successful', { timeout: 30000 }, async () => {
 		assert.ok(await fixture.readFile('../.vercel/output/static/index.html'));
 	});
 
-	it('has link to vercel in build with proper attributes', async () => {
+	it('has link to vercel in build with proper attributes', { timeout: 30000 }, async () => {
 		const html = await fixture.readFile('../.vercel/output/static/index.html');
 		const $ = cheerio.load(html);
 		const img = $('#basic-image img');
@@ -27,7 +27,9 @@ describe('Image', () => {
 		assert.equal(img.attr('width'), '225');
 	});
 
-	it('generates valid image sizes when requested width is larger than source image', async () => {
+	it('generates valid image sizes when requested width is larger than source image', {
+		timeout: 30000,
+	}, async () => {
 		const html = await fixture.readFile('../.vercel/output/static/index.html');
 		const $ = cheerio.load(html);
 		const img = $('#small-source img');
@@ -43,7 +45,9 @@ describe('Image', () => {
 		assert.equal(img.attr('width'), '225', 'uses requested width in img attribute');
 	});
 
-	it('generates valid densities-based srcset using only configured sizes', async () => {
+	it('generates valid densities-based srcset using only configured sizes', {
+		timeout: 30000,
+	}, async () => {
 		const html = await fixture.readFile('../.vercel/output/static/index.html');
 		const $ = cheerio.load(html);
 		const img = $('#densities-test img');
@@ -84,7 +88,7 @@ describe('Image', () => {
 		);
 	});
 
-	it('has proper vercel config', async () => {
+	it('has proper vercel config', { timeout: 30000 }, async () => {
 		const vercelConfig = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
 
 		assert.deepEqual(vercelConfig.images, {
@@ -110,7 +114,7 @@ describe('Image', () => {
 			await devServer.stop();
 		});
 
-		it('has link to local image in dev with proper attributes', async () => {
+		it('has link to local image in dev with proper attributes', { timeout: 30000 }, async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerio.load(html);
 			const img = $('#basic-image img');
@@ -120,7 +124,7 @@ describe('Image', () => {
 			assert.equal(img.attr('width'), '225');
 		});
 
-		it('supports SVGs', async () => {
+		it('supports SVGs', { timeout: 30000 }, async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerio.load(html);
 			const img = $('#svg img');
@@ -131,7 +135,7 @@ describe('Image', () => {
 			assert.equal(res.headers.get('content-type'), 'image/svg+xml');
 		});
 
-		it('generates valid srcset for responsive images', async () => {
+		it('generates valid srcset for responsive images', { timeout: 30000 }, async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerio.load(html);
 			const img = $('#responsive img');

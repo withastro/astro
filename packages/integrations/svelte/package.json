@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/svelte",
-  "version": "9.0.0-alpha.1",
+  "version": "9.0.0-alpha.2",
   "description": "Use Svelte components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -44,6 +44,7 @@
     "vitefu": "^1.1.2"
   },
   "devDependencies": {
+    "@testing-library/svelte": "^5.3.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
