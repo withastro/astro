@@ -46,6 +46,8 @@ import { getFirstForwardedValue, validateForwardedHeaders } from '../app/validat
  * Describes a lazily-created value that handlers can contribute to the
  * request context. `create` is called at most once (on first `resolve`);
  * `finalize` runs during `finalizeAll` to clean up / persist.
+ *
+ * @internal Not for use by 3rd-party code. May change without notice.
  */
 export interface ContextProvider<T> {
 	/** Factory called lazily on the first `resolve(key)`. */
@@ -92,24 +94,6 @@ export interface AstroFetchState {
 	 * [Astro reference](https://docs.astro.build/en/guides/routing/#rewrites)
 	 */
 	rewrite(payload: RewritePayload): Promise<Response>;
-
-	/**
-	 * Registers a context provider under the given key. The `create`
-	 * factory is called lazily on the first `resolve(key)`.
-	 */
-	provide<T>(key: string, provider: ContextProvider<T>): void;
-
-	/**
-	 * Lazily resolves a provider registered under `key`. Returns
-	 * `undefined` if no provider was registered for the key.
-	 */
-	resolve<T>(key: string): T | undefined;
-
-	/**
-	 * Runs all registered provider `finalize` callbacks. Call this after
-	 * the response is produced, typically in a `finally` block.
-	 */
-	finalizeAll(): Promise<void> | void;
 }
 
 /**

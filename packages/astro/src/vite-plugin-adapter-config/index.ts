@@ -18,7 +18,7 @@ export function vitePluginAdapterConfig(settings: AstroSettings): VitePlugin {
 					environments: {
 						[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]: {
 							build: {
-								rollupOptions: {
+								rolldownOptions: {
 									input: {
 										index:
 											typeof adapter.serverEntrypoint === 'string'

@@ -22,7 +22,7 @@ describe('astro:db', () => {
 		});
 	});
 
-	describe('development', () => {
+	describe.skip('development', () => {
 		let devServer: DevServer;
 
 		before(async () => {

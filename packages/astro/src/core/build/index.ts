@@ -39,16 +39,6 @@ interface BuildOptions {
 	 * @default false
 	 */
 	devOutput?: boolean;
-	/**
-	 * Teardown the compiler WASM instance after build. This can improve performance when
-	 * building once, but may cause a performance hit if building multiple times in a row.
-	 *
-	 * When building multiple projects in the same execution (e.g. during tests), disabling
-	 * this option can greatly improve performance at the cost of some extra memory usage.
-	 *
-	 * @default true
-	 */
-	teardownCompiler?: boolean;
 }
 
 /**
@@ -112,7 +102,6 @@ export class AstroBuilder {
 	private origin: string;
 	private routesList: RoutesList;
 	private timer: Record<string, number>;
-	private teardownCompiler: boolean;
 	private sync: boolean;
 
 	constructor(settings: AstroSettings, options: AstroBuilderOptions) {
@@ -120,7 +109,6 @@ export class AstroBuilder {
 		this.runtimeMode = options.runtimeMode;
 		this.settings = settings;
 		this.logger = options.logger;
-		this.teardownCompiler = options.teardownCompiler ?? true;
 		this.sync = options.sync ?? true;
 		this.origin = settings.config.site
 			? new URL(settings.config.site).origin
@@ -294,15 +282,6 @@ export class AstroBuilder {
 			this.settings.timer.end('Total build');
 			// Benchmark results
 			this.settings.timer.writeStats();
-
-			if (this.teardownCompiler) {
-				try {
-					const { teardown } = await import('@astrojs/compiler');
-					teardown();
-				} catch {
-					// Compiler teardown is best-effort — don't fail the build if it errors
-				}
-			}
 		}
 	}
 
