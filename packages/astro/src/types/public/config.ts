@@ -1405,7 +1405,7 @@ export interface AstroUserConfig<
 	 * @name Fetch File
 	 * @type {string | null}
 	 * @default `'fetch'`
-	 * @version 6.x.0
+	 * @version 7.0.0
 	 * @description
 	 *
 	 * Customizes the file used as the fetch entrypoint inside `srcDir`.
