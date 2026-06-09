@@ -116,9 +116,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
-		queuedRendering: {
-			enabled: false,
-		},
 		logger: {
 			entrypoint: 'astro/logger/node',
 		},
@@ -585,14 +582,6 @@ export const AstroConfigSchema = z.object({
 			svgOptimizer: SvgOptimizerSchema.optional(),
 			cache: CacheSchema.optional(),
 			routeRules: RouteRulesSchema.optional(),
-			queuedRendering: z
-				.object({
-					enabled: z.boolean().optional().prefault(false),
-					poolSize: z.number().int().nonnegative().optional(),
-					contentCache: z.boolean().optional(),
-				})
-				.optional()
-				.prefault(ASTRO_CONFIG_DEFAULTS.experimental.queuedRendering),
 			logger: z
 				.object({
 					entrypoint: z.string(),
