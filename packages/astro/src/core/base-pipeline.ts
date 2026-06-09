@@ -301,18 +301,6 @@ export abstract class Pipeline {
 	}
 
 	/**
-	 * Clears the cached actions so they are re-resolved on the next request.
-	 * Called via HMR when action files change during development.
-	 */
-	clearActions() {
-		// This is a dev-only operation called via HMR.
-		if(this.runtimeMode !== 'development') {
-			throw new Error('clearActions must not be called in production');
-		}
-		this.resolvedActions = undefined;
-	}
-
-	/**
 	 * Resolves the logger destination from the manifest and updates the pipeline logger.
 	 * If the user configured `experimental.logger`, the bundled logger factory is loaded
 	 * and replaces the default console destination. This is lazy and only resolves once.

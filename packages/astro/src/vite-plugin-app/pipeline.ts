@@ -103,6 +103,11 @@ export class RunnablePipeline extends Pipeline {
 		return pipeline;
 	}
 
+	// Called via HMR when action files change. Not available on production.
+	clearActions(): void {
+		this.resolvedActions = undefined;
+	}
+
 	async headElements(routeData: RouteData): Promise<HeadElements> {
 		const { manifest, runtimeMode, settings } = this;
 		const filePath = new URL(`${routeData.component}`, manifest.rootDir);
