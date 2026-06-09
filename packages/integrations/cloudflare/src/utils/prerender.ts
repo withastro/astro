@@ -78,7 +78,12 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 		method: 'GET',
 		headers,
 	});
-	return app.render(prerenderRequest, { routeData });
+	try {
+		return await app.render(prerenderRequest, { routeData });
+	} catch (err) {
+		const message = err instanceof Error ? err.message : String(err);
+		return new Response(message, { status: 500 });
+	}
 }
 
 export function isStaticImagesRequest(request: Request): boolean {

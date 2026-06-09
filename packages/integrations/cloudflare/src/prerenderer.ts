@@ -134,7 +134,7 @@ export function createCloudflarePrerenderer({
 				redirect: 'manual',
 			});
 
-			if (!response.ok) {
+			if (response.status >= 400) {
 				const responseBody = await response.text();
 				const details = responseBody ? `\n${responseBody}` : '';
 				throw new Error(
