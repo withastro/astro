@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Add support for MDX pages in your Astro site",
-  "version": "6.0.0-alpha.0",
+  "version": "7.0.0-alpha.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -50,9 +50,9 @@
     "vfile": "^6.0.3"
   },
   "peerDependencies": {
-    "@astrojs/markdown-satteri": "workspace:*",
-    "astro": "^7.0.0-alpha.0"
-  },
+    "@astrojs/markdown-satteri": "0.3.0",
+	"astro": "^7.0.0-alpha.0"
+	},
   "peerDependenciesMeta": {
     "@astrojs/markdown-satteri": {
       "optional": true

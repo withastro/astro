@@ -1,6 +1,6 @@
 {
   "mode": "pre",
-  "tag": "alpha",
+  "tag": "beta",
   "initialVersions": {
     "astro": "6.0.8",
     "@astrojs/prism": "4.0.1",
@@ -30,13 +30,23 @@
     "@astrojs/markdown-remark": "7.0.1",
     "@astrojs/telemetry": "3.3.0",
     "@astrojs/underscore-redirects": "1.0.2",
-    "@astrojs/upgrade": "0.7.1"
+    "@astrojs/upgrade": "0.7.1",
+    "@astrojs/markdown-satteri": "0.2.2"
   },
   "changesets": [
+    "beige-doodles-bow",
     "common-pears-drive",
+    "cozy-knives-buy",
+    "experimental-background-dev",
+    "fix-cloudflare-fetch-circular-import",
     "fix-dev-port-vite-restart",
     "goofy-tigers-like",
+    "kind-snails-wash",
     "rusty-compilers-only",
-    "two-eels-live"
+    "satteri-prism",
+    "silly-spoons-write",
+    "two-eels-live",
+    "update-vite-plugin-svelte-v7",
+    "wacky-bugs-act"
   ]
 }

@@ -44,7 +44,10 @@ function getViteConfiguration(
 	{ include, exclude }: Options,
 	devtoolsPlugin: DevtoolsPlugin | null,
 ) {
-	const plugins: PluginOption[] = [solid({ include, exclude, ssr: true }), configEnvironmentPlugin()];
+	const plugins: PluginOption[] = [
+		solid({ include, exclude, ssr: true }),
+		configEnvironmentPlugin(),
+	];
 
 	if (devtoolsPlugin) {
 		plugins.push(devtoolsPlugin({ autoname: true }));

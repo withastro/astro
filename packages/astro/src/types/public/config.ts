@@ -1402,6 +1402,37 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @kind heading
+	 * @name fetchFile
+	 * @type {string | null}
+	 * @default `'fetch'`
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * Customizes the file used as the fetch entrypoint inside `srcDir`.
+	 * Defaults to `'fetch'`, meaning Astro looks for `src/fetch.ts` (or `.js` / `.mjs` / `.mts`).
+	 *
+	 * The fetch file allows you to compose Astro's request pipeline with the
+	 * Web Fetch standard or your own Hono middleware.
+	 *
+	 * If you already have a `src/fetch.ts` file in use for other purposes, define a
+	 * different filename or set the value to `null` to disable the entrypoint:
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   fetchFile: 'handler',
+	 * });
+	 * ```
+	 *
+	 * Learn more about customizing the request pipeline in the [advanced routing guide](https://docs.astro.build/en/guides/routing/#advanced-routing).
+	 */
+	fetchFile?: string | null;
+
+	/**
+	 * @docs
+	 * @kind heading
 	 * @name Logger Options
 	 * @type {LoggerHandlerConfig}
 	 * @default `undefined`
@@ -2853,43 +2884,6 @@ export interface AstroUserConfig<
 	 */
 	experimental?: {
 		/**
-		 * @name experimental.advancedRouting
-		 * @type {boolean | object}
-		 * @default `false`
-		 * @description
-		 * Enables `src/app.ts` as an advanced routing entrypoint, allowing you to
-		 * compose Astro's request pipeline with the Web Fetch standard or your own Hono middleware.
-		 *
-		 * Pass `true` to enable with default settings, or an object to customize:
-		 *
-		 * ```js
-		 * export default defineConfig({
-		 *   experimental: {
-		 *     advancedRouting: {
-		 *       fetchFile: 'fetch.ts',
-		 *     },
-		 *   },
-		 * });
-		 * ```
-		 */
-		advancedRouting?:
-			| boolean
-			| {
-					/**
-					 * @name experimental.advancedRouting.fetchFile
-					 * @type {string | null}
-					 * @default 'app'
-					 * @description
-					 *
-					 * Customizes the file used as the advanced routing entrypoint inside `srcDir`.
-					 * Defaults to `'app'`, meaning Astro looks for `src/app.ts`.
-					 *
-					 * If you already have a `src/app.ts` file in use for other purposes, define a different filename or set the value to `null` to disable the entrypoint.
-					 */
-					fetchFile?: string | null;
-			  };
-
-		/**
 		 *
 		 * @name experimental.clientPrerender
 		 * @type {boolean}
@@ -3078,67 +3072,7 @@ export interface AstroUserConfig<
 		 */
 		routeRules?: RouteRules;
 
-		/**
-		 * @name experimental.queuedRendering
-		 * @type {boolean | { poolSize?: number; cache?: boolean }}
-		 * @default `false`
-		 * @version 6.0.0
-		 * @description
-		 * Enable queue-based rendering engine instead of the default recursive rendering.
-		 *
-		 * This new rendering engine comes with a different set of features that you can tweak based on your needs.
-		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 *     queuedRendering: {
-		 *       enabled: true
-		 *     }
-		 *   }
-		 * }
-		 * ```
-		 *
-		 * You can optionally configure the object pool size and HTMLString caching:
-		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 *     queuedRendering: {
-		 *       enabled: true,
-		 *       poolSize: 1000,  // default: 1000 for static builds, 0 for SSR
-		 *       cache: false     // default: false (caching can hurt performance)
-		 *     }
-		 *   }
-		 * }
-		 * ```
-		 */
-		queuedRendering?: {
-			/**
-			 * @default `false`
-			 * @version 6.0.0
-			 * @description
-			 * Enables the queue-based rendering.
-			 */
-			enabled: boolean;
-			/**
-			 * @default 1000
-			 * @version 6.0.0
-			 * @description
-			 * Allows to change how many nodes should be saved in the pool. If 0 is provided, the pool is disabled.
-			 * The pool is disabled for dynamic pages, because server requests don't share the same memory.
-			 */
-			poolSize?: number;
-			/**
-			 * @default `false`
-			 * @version 6.0.0
-			 * @description
-			 * Enables HTMLString caching to deduplicate repeated HTML fragments during rendering.
-			 * When enabled, identical HTML strings (e.g., repeated `<li>` tags) share a single
-			 * `HTMLString` object instead of creating a new wrapper per occurrence.
-			 * This caching is disabled for dynamic pages.
-			 */
-			contentCache?: boolean;
-		};
+	
 	};
 }
 

@@ -1,7 +1,12 @@
 import type { AstroLogger } from '../../core/logger/core.js';
 import type { Flags } from '../flags.js';
 import { pathToFileURL } from 'node:url';
-import { checkExistingServer, removeLockFile, isProcessAlive, GRACEFUL_SHUTDOWN_TIMEOUT } from '../../core/dev/lockfile.js';
+import {
+	checkExistingServer,
+	removeLockFile,
+	isProcessAlive,
+	GRACEFUL_SHUTDOWN_TIMEOUT,
+} from '../../core/dev/lockfile.js';
 import { resolveRoot } from '../../core/config/config.js';
 
 export interface StopResult {
@@ -14,7 +19,13 @@ export function formatStopOutput(result: StopResult): string {
 	return JSON.stringify(result);
 }
 
-export async function stop({ flags, logger }: { flags: Flags; logger: AstroLogger }): Promise<void> {
+export async function stop({
+	flags,
+	logger,
+}: {
+	flags: Flags;
+	logger: AstroLogger;
+}): Promise<void> {
 	const root = pathToFileURL(resolveRoot(flags.root) + '/');
 	const existing = checkExistingServer(root);
 

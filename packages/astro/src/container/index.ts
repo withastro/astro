@@ -180,10 +180,6 @@ function createManifest(
 			placement: undefined,
 		},
 		logLevel: 'silent',
-		experimentalQueuedRendering: manifest?.experimentalQueuedRendering ?? {
-			enabled: false,
-		},
-		loggerConfig: manifest?.loggerConfig ?? undefined,
 	};
 }
 
@@ -275,8 +271,6 @@ type AstroContainerManifest = Pick<
 	| 'middlewareMode'
 	| 'assetsDir'
 	| 'image'
-	| 'experimentalQueuedRendering'
-	| 'loggerConfig'
 >;
 
 type AstroContainerConstructor = {

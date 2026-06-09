@@ -20,7 +20,10 @@ export function formatStatusOutput(result: StatusResult): string {
 export async function status({
 	flags,
 	logger,
-}: { flags: Flags; logger: AstroLogger }): Promise<void> {
+}: {
+	flags: Flags;
+	logger: AstroLogger;
+}): Promise<void> {
 	const root = pathToFileURL(resolveRoot(flags.root) + '/');
 	const existing = checkExistingServer(root);
 

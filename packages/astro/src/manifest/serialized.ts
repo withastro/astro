@@ -237,7 +237,5 @@ async function createSerializedManifest(
 		},
 		logLevel: settings.logLevel,
 		shouldInjectCspMetaTags: false,
-		experimentalQueuedRendering: settings.config.experimental?.queuedRendering,
-		loggerConfig,
 	};
 }

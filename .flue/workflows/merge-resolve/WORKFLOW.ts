@@ -1,40 +1,38 @@
-import type { FlueContext } from '@flue/sdk/client';
-import { defineCommand } from '@flue/sdk/node';
+import { createAgent, type FlueContext } from '@flue/runtime';
+import { local } from '@flue/runtime/node';
 import * as v from 'valibot';
-
-// CLI-only agent: no HTTP trigger. Invoked from GitHub Actions via `flue run merge-resolve`.
-export const triggers = {};
-
-const GITHUB_TOKEN = process.env.FREDKBOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN || '';
-const gh = defineCommand('gh', { env: { GH_TOKEN: GITHUB_TOKEN } });
-const git = defineCommand('git');
-const gitWithAuth = defineCommand('git', { env: { GH_TOKEN: GITHUB_TOKEN } });
-const pnpm = defineCommand('pnpm');
-const node = defineCommand('node');
+import { GITHUB_TOKEN_BASE, gitPush } from '../../lib/github.ts';
 
 export const args = v.object({
 	branch: v.string(),
 	hasConflicts: v.boolean(),
 });
 
-export default async function mergeResolve({ init, payload }: FlueContext) {
+const agent = createAgent(() => ({
+	sandbox: local({
+		env: {
+			// Read-only token for gh CLI reads inside the sandbox.
+			// Write operations (git push) go through the orchestrator.
+			GH_TOKEN: GITHUB_TOKEN_BASE,
+		},
+	}),
+	model: 'anthropic/claude-opus-4-6',
+}));
+
+export async function run({ init, payload }: FlueContext) {
 	const branch = payload.branch as string;
 	const hasConflicts = payload.hasConflicts as boolean;
 
-	const agent = await init({
-		sandbox: 'local',
-		model: 'anthropic/claude-opus-4-6',
-	});
-	const session = await agent.session();
+	const harness = await init(agent);
+	const session = await harness.session();
 
 	// Step 1: Resolve all merge conflicts (source code, JSON, YAML, etc.)
 	// The GitHub Action has already done `git merge origin/main`. If there were
 	// conflicts, the working tree has conflict markers in all affected files.
 	// This skill resolves them intelligently — keeping next-side versions but
 	// preserving important changes from main (new deps, bug fixes, etc.)
-	const resolveResult = await session.skill('merge/resolve-conflicts.md', {
+	const { data: resolveResult } = await session.skill('merge/resolve-conflicts.md', {
 		args: { branch, hasConflicts },
-		commands: [gh, git, pnpm, node],
 		result: v.object({
 			resolvedFiles: v.pipe(
 				v.array(v.string()),
@@ -44,9 +42,8 @@ export default async function mergeResolve({ init, payload }: FlueContext) {
 	});
 
 	// Step 2: Remove stale changesets that were already released on main
-	const changesetResult = await session.skill('merge/clean-changesets.md', {
+	const { data: changesetResult } = await session.skill('merge/clean-changesets.md', {
 		args: {},
-		commands: [gh, git, pnpm, node],
 		result: v.object({
 			removedChangesets: v.pipe(
 				v.array(v.string()),
@@ -60,9 +57,7 @@ export default async function mergeResolve({ init, payload }: FlueContext) {
 	// correct package.json files (not ones with conflict markers).
 	// We do NOT build here — the merge-fix workflow handles build/type/lint
 	// errors if CI fails after this push.
-	const installResult = await session.shell('CI=true pnpm install --no-frozen-lockfile', {
-		commands: [pnpm],
-	});
+	const installResult = await session.shell('CI=true pnpm install --no-frozen-lockfile');
 	if (installResult.exitCode !== 0) {
 		return {
 			success: false,
@@ -74,7 +69,7 @@ export default async function mergeResolve({ init, payload }: FlueContext) {
 
 	// Step 4: Commit and push
 	// Include the lockfile and any build artifacts in the commit
-	await session.shell('git add -A', { commands: [git] });
+	await session.shell('git add -A');
 
 	const commitParts = [];
 	if (resolveResult.resolvedFiles.length > 0) commitParts.push('resolve merge conflicts');
@@ -84,12 +79,8 @@ export default async function mergeResolve({ init, payload }: FlueContext) {
 			? `chore: ${commitParts.join(' and ')} for main-to-next merge`
 			: 'chore: merge main into next';
 
-	await session.shell(`git commit -m ${JSON.stringify(commitMsg)} --allow-empty`, {
-		commands: [git],
-	});
-	const pushResult = await session.shell(`git push -f origin ${branch}`, {
-		commands: [gitWithAuth],
-	});
+	await session.shell(`git commit -m ${JSON.stringify(commitMsg)} --allow-empty`);
+	const pushResult = await gitPush(branch, { force: true });
 
 	if (pushResult.exitCode !== 0) {
 		return {

@@ -223,8 +223,8 @@ export const NoClientOnlyHint = {
  * ---
  * export async function getStaticPaths() {
  *	return [
- *		{ params: { slug: "blog" } },
- * 		{ params: { slug: "about" } }
+ *		{ params: { id: "blog" } },
+ * 		{ params: { id: "about" } }
  * 	];
  *}
  *---
@@ -247,8 +247,8 @@ export const InvalidGetStaticPathParam = {
  * ```ts title="pages/blog/[id].astro"
  * export async function getStaticPaths() {
  *	return [ // <-- Array
- *		{ params: { slug: "blog" } }, // <-- Object
- * 		{ params: { slug: "about" } }
+ *		{ params: { id: "blog" } }, // <-- Object
+ * 		{ params: { id: "about" } }
  * 	];
  *}
  * ```
@@ -271,8 +271,8 @@ export const InvalidGetStaticPathsEntry = {
  * ```ts title="pages/blog/[id].astro"
  * export async function getStaticPaths() {
  *	return [ // <-- Array
- *		{ params: { slug: "blog" } },
- * 		{ params: { slug: "about" } }
+ *		{ params: { id: "blog" } },
+ * 		{ params: { id: "about" } }
  * 	];
  *}
  * ```

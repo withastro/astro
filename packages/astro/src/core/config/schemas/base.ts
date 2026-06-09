@@ -111,14 +111,11 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		validateSecrets: false,
 	},
 	prerenderConflictBehavior: 'warn',
+	fetchFile: 'fetch',
 	experimental: {
-		advancedRouting: false,
 		clientPrerender: false,
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
-		queuedRendering: {
-			enabled: false,
-		},
 	},
 } satisfies AstroUserConfig & {
 	server: { open: boolean };
@@ -555,6 +552,7 @@ export const AstroConfigSchema = z.object({
 		.enum(['error', 'warn', 'ignore'])
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.prerenderConflictBehavior),
+	fetchFile: z.string().nullable().optional().default(ASTRO_CONFIG_DEFAULTS.fetchFile),
 	logger: z
 		.object({
 			entrypoint: z.string(),
@@ -564,15 +562,6 @@ export const AstroConfigSchema = z.object({
 	fonts: z.array(FontFamilySchema).optional(),
 	experimental: z
 		.strictObject({
-			advancedRouting: z
-				.union([
-					z.boolean(),
-					z.strictObject({
-						fetchFile: z.string().nullable().optional().default('app'),
-					}),
-				])
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.advancedRouting),
 			clientPrerender: z
 				.boolean()
 				.optional()
@@ -588,14 +577,6 @@ export const AstroConfigSchema = z.object({
 			svgOptimizer: SvgOptimizerSchema.optional(),
 			cache: CacheSchema.optional(),
 			routeRules: RouteRulesSchema.optional(),
-			queuedRendering: z
-				.object({
-					enabled: z.boolean().optional().prefault(false),
-					poolSize: z.number().int().nonnegative().optional(),
-					contentCache: z.boolean().optional(),
-				})
-				.optional()
-				.prefault(ASTRO_CONFIG_DEFAULTS.experimental.queuedRendering),
 		})
 		.prefault({}),
 	legacy: z

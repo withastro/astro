@@ -30,6 +30,22 @@ const NestedComponent = createComponent((_result, props) => {
 	return render`<div class="nested"${addAttribute(level, 'data-level')}><span>Level ${level}</span></div>`;
 });
 
+const SlowComponent = createComponent(async (_result, props) => {
+	await new Promise((resolve) => setTimeout(resolve, props.delay ?? 20));
+	return render`<div class="slow"${addAttribute(props.id, 'data-id')}>slow ${props.id}</div>`;
+});
+
+const AsyncPage = createComponent((result) => {
+	const ids = [0, 1, 2, 3, 4];
+	return render`<html><body>${ids.map((id) =>
+		renderComponent(result, 'Slow', SlowComponent, { id, delay: 25 }),
+	)}</body></html>`;
+});
+
+const FalsyPage = createComponent((_result) => {
+	return render`<html><body><p id="vals">${null}${undefined}${false}${0}${true}${''}</p></body></html>`;
+});
+
 const WithSlotComponent = createComponent(async (result, props, slots) => {
 	const Astro = result.createAstro(props, slots);
 	const slotContent = await Astro.slots.render('default');
@@ -101,7 +117,7 @@ const HeadContentPage = createComponent((_result) => {
 
 // #region Tests
 
-describe('Queue-based rendering', () => {
+describe('Streaming rendering', () => {
 	describe('Basic rendering', () => {
 		const app = createQueueApp([{ component: IndexPage, route: '/' }]);
 
@@ -214,15 +230,36 @@ describe('Queue-based rendering', () => {
 		});
 	});
 
-	describe('Configuration', () => {
-		it('should support custom pool size configuration', async () => {
-			const app = createTestApp([createPage(IndexPage, { route: '/' })], {
-				experimentalQueuedRendering: { enabled: true, poolSize: 500 },
-			});
+	describe('Streaming behavior', () => {
+		it('renders async components in parallel, preserving order', async () => {
+			const app = createQueueApp([{ component: AsyncPage, route: '/' }]);
+			const start = performance.now();
 			const response = await app.render(new Request('http://example.com/'));
 			const html = await response.text();
-			assert.ok(html.includes('<h1>Queue Rendering Test</h1>'));
-			assert.ok(html.includes('<p>Simple text rendering</p>'));
+			const elapsed = performance.now() - start;
+
+			// All five components rendered, in source order.
+			for (let i = 0; i < 5; i++) {
+				assert.ok(html.includes(`data-id="${i}">slow ${i}</div>`), `missing component ${i}`);
+			}
+			const positions = [0, 1, 2, 3, 4].map((i) => html.indexOf(`data-id="${i}"`));
+			for (let i = 1; i < positions.length; i++) {
+				assert.ok(positions[i - 1] < positions[i], 'components out of order');
+			}
+
+			// Parallel: ~max delay (25ms), not the serial sum (~125ms). Generous bound for CI.
+			assert.ok(
+				elapsed < 90,
+				`expected parallel render (<90ms) but took ${elapsed.toFixed(1)}ms (serial would be ~125ms)`,
+			);
+		});
+
+		it('skips null/undefined/false/empty but renders 0 and true', async () => {
+			const app = createQueueApp([{ component: FalsyPage, route: '/' }]);
+			const response = await app.render(new Request('http://example.com/'));
+			const html = await response.text();
+			// null/undefined/false/'' produce nothing; 0 and true render as text.
+			assert.ok(html.includes('<p id="vals">0true</p>'));
 		});
 	});
 });
