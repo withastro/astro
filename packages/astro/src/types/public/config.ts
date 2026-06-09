@@ -1436,7 +1436,7 @@ export interface AstroUserConfig<
 	 * @name Logger Options
 	 * @type {LoggerHandlerConfig}
 	 * @default `undefined`
-	 * @version 6.4.0
+	 * @version 7.0.0
 	 * @description
 	 *
 	 * Configures a custom logger by defining its entrypoint and, optionally, providing a serializable configuration:
