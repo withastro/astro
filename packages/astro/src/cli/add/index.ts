@@ -64,22 +64,6 @@ export default {
 # Lit libraries are required to be hoisted due to dependency issues.
 public-hoist-pattern[]=*lit*
 `,
-	DB_CONFIG: `\
-import { defineDb } from 'astro:db';
-
-// https://astro.build/db/config
-export default defineDb({
-  tables: {}
-});
-`,
-	DB_SEED: `\
-import { db } from 'astro:db';
-
-// https://astro.build/db/seed
-export default async function seed() {
-	// TODO
-}
-`,
 	CLOUDFLARE_WRANGLER_CONFIG: (name: string, compatibilityDate: string) => `\
 {
 	"compatibility_date": ${JSON.stringify(compatibilityDate)},
@@ -135,7 +119,6 @@ export async function add(names: string[], { flags }: AddOptions) {
 					['node', 'astro add node'],
 				],
 				Others: [
-					['db', 'astro add db'],
 					['tailwind', 'astro add tailwind'],
 					['mdx', 'astro add mdx'],
 					['markdoc', 'astro add markdoc'],
@@ -269,33 +252,6 @@ export async function add(names: string[], { flags }: AddOptions) {
 					defaultConfigFile: './svelte.config.js',
 					defaultConfigContent: STUBS.SVELTE_CONFIG,
 				});
-			}
-			if (integrations.find((integration) => integration.id === 'db')) {
-				if (!existsSync(new URL('./db/', root))) {
-					logger.info(
-						'SKIP_FORMAT',
-						`\n  ${magenta(
-							`Astro will scaffold ${green('./db/config.ts')}${magenta(' and ')}${green(
-								'./db/seed.ts',
-							)}${magenta(' files.')}`,
-						)}\n`,
-					);
-
-					if (await askToContinue({ flags, logger })) {
-						await fs.mkdir(new URL('./db', root));
-						await Promise.all([
-							fs.writeFile(new URL('./db/config.ts', root), STUBS.DB_CONFIG, { encoding: 'utf-8' }),
-							fs.writeFile(new URL('./db/seed.ts', root), STUBS.DB_SEED, { encoding: 'utf-8' }),
-						]);
-					} else {
-						logger.info(
-							'SKIP_FORMAT',
-							`\n  Astro DB requires additional configuration. Please refer to https://astro.build/db/config`,
-						);
-					}
-				} else {
-					logger.debug('add', `Using existing db configuration`);
-				}
 			}
 			// Some lit dependencies needs to be hoisted, so for strict package managers like pnpm,
 			// we add an .npmrc to hoist them

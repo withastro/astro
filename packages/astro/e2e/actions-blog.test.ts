@@ -14,8 +14,8 @@ test.afterAll(async () => {
 });
 
 test.afterEach(async ({ astro }) => {
-	// Force database reset between tests
-	await astro.editFile('./db/seed.ts', (original) => original, false);
+	// Force the in-memory store to re-seed between tests by touching its module
+	await astro.editFile('./src/lib/store.ts', (original) => original, false);
 });
 
 test.describe('Astro Actions - Blog', () => {
