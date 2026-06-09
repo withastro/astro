@@ -1,5 +1,152 @@
 # astro
 
+## 7.0.0-beta.3
+
+### Major Changes
+
+- [#17010](https://github.com/withastro/astro/pull/17010) [`0606073`](https://github.com/withastro/astro/commit/0606073794ddda42cac1f3e1ca56bbfc7cb178eb) Thanks [@ocavue](https://github.com/ocavue)! - Removes the `astro db`, `astro login`, `astro logout`, `astro link`, and `astro init` CLI commands.
+
+  The `@astrojs/db` package is now deprecated. We recommend using a database client (Drizzle, Kysely, etc.) directly instead.
+
+- [#16877](https://github.com/withastro/astro/pull/16877) [`3b7d76e`](https://github.com/withastro/astro/commit/3b7d76e6decff6b236d1b30d901b4fa339edb960) Thanks [@matthewp](https://github.com/matthewp)! - Enables advanced routing by default.
+
+  The advanced routing feature introduced behind a flag in [v6.3.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#630) is no longer experimental and is now enabled by default.
+
+  This gives full control over how requests flow through your application, with first-class support for frameworks like Hono.
+
+  Advanced routing now uses `src/fetch.ts` as default entrypoint instead of `src/app.ts`.
+
+  If you were previously using this feature without a custom entrypoint, please configure `fetchFile` or rename your entrypoint to `src/fetch.ts`, and then remove the experimental flag from your Astro config:
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental {
+  -    advancedRouting: true,
+    },
+  +  fetchFile: 'app.ts' // optional, you only need this if you cannot rename your entrypoint.
+  });
+  ```
+
+  `fetchFile` is now a top-level config option instead of being nested under `experimental.advancedRouting`. If you were using a custom entrypoint, please update your Astro config to move its configuration:
+
+  ```diff
+  // astro.config.mjs
+  export default defineConfig({
+  -  experimental: {
+  -    advancedRouting: {
+  -      fetchFile: 'my-custom-entrypoint.ts',
+  -    },
+  -  },
+  +  fetchFile: 'my-custom-entrypoint.ts',
+  })
+  ```
+
+  You can also set `fetchFile: null` to disable the entrypoint if you are using `src/fetch.ts` for another purpose, or don’t need advanced routing features.
+
+  If you have been waiting for stabilization before using advanced routing, you can now do so.
+
+  Please see [the advanced routing guide in docs](https://docs.astro.build/en/guides/routing/#advanced-routing) for more about this feature.
+
+### Minor Changes
+
+- [#16998](https://github.com/withastro/astro/pull/16998) [`57dcc31`](https://github.com/withastro/astro/commit/57dcc31bb78575a89304ab5310f2f5911a83f3af) Thanks [@matthewp](https://github.com/matthewp)! - Exposes `getFetchState()` from `astro/hono` as a public API
+
+  The `getFetchState()` function retrieves or lazily creates a `FetchState` from a Hono context object. This allows third-party packages to build Hono middleware that interacts with Astro's per-request state, giving the `astro/hono` API the same extensibility as `astro/fetch`.
+
+  ```ts
+  import { Hono } from 'hono';
+  import { getFetchState, pages } from 'astro/hono';
+
+  const app = new Hono();
+
+  app.use(async (context, next) => {
+    const state = getFetchState(context);
+    state.locals.message = 'Hello from custom middleware';
+    await next();
+  });
+
+  app.use(pages());
+
+  export default app;
+  ```
+
+- [#16996](https://github.com/withastro/astro/pull/16996) [`300641e`](https://github.com/withastro/astro/commit/300641e588ac74968197bd87e0a97f71d132946e) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a `subset` field to the `FontData` type exposed via `fontData` from `astro:assets`. When using multiple font subsets (e.g., `subsets: ["latin", "korean"]`), each font data entry now includes the subset name, making it possible to distinguish between font entries for different subsets that share the same weight and style.
+
+- [#16745](https://github.com/withastro/astro/pull/16745) [`f864a80`](https://github.com/withastro/astro/commit/f864a808c5dd83e19be66bb5227edffbe506a697) Thanks [@ematipico](https://github.com/ematipico)! - The custom logger feature introduced behind a flag in [v6.2.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#620) is no longer experimental and is available for general use.
+
+  This feature provides better control over Astro's logging infrastructure by allowing you to replace the default console output with custom logging implementations (e.g., structured JSON). This is particularly useful for on-demand rendering when connecting to log aggregation services such as Kibana, Logstash, CloudWatch, Grafana, or Loki.
+
+  Astro provides three built-in log handlers (`json`, `node`, and `console`), and you can also create your own.
+
+  #### JSON logging
+
+  ```js
+  import { defineConfig, logHandlers } from 'astro/config';
+
+  export default defineConfig({
+    logger: logHandlers.json({
+      pretty: true,
+      level: 'warn',
+    }),
+  });
+  ```
+
+  #### Custom logger
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    logger: {
+      entrypoint: '@org/custom-logger',
+    },
+  });
+  ```
+
+  Additionally, `context.logger` is now always available in API routes and middleware, even without a custom logger configured.
+
+  If you were previously using this feature, please remove the experimental flag from your Astro config:
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+  -  experimental: {
+  -    logger: {
+  -      entrypoint: '@org/custom-logger',
+  -    },
+  -  },
+  +  logger: {
+  +    entrypoint: '@org/custom-logger',
+  +  },
+  });
+  ```
+
+  If you have been waiting for stabilization before using custom loggers, you can now do so.
+
+  Please see the [Logger docs](https://docs.astro.build/en/reference/configuration-reference/#logger) for more about this feature.
+
+- [#16981](https://github.com/withastro/astro/pull/16981) [`0d6d644`](https://github.com/withastro/astro/commit/0d6d64433fa31762b6fd593da902f63f3204e02a) Thanks [@ematipico](https://github.com/ematipico)! - Removes the setting `experimental.queuedRendering`. The new rendering engine is now stable and replaces the old one.
+
+  As part of the stabilization, the queued rendering has been improved, and some features have been removed:
+  - The construction of the queue has been removed, instead now Astro uses a streaming approach where components are rendered and flushed as they are encountered.
+  - The node polling feature has been removed because it doesn't yield concrete savings.
+  - The content cache has been descoped, and how only tag names are cached.
+    If you were previously using this experimental feature, you must remove this experimental flag from your configuration as it no longer exists:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from "astro/config";
+
+  export default defineConfig({
+    experimental: {
+  -    queuedRendering: {}
+    }
+  });
+  ```
+
 ## 7.0.0-alpha.2
 
 ### Major Changes
