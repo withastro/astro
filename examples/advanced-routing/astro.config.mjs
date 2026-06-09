@@ -6,9 +6,6 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	output: 'server',
 	adapter: node({ mode: 'standalone' }),
-	experimental: {
-		advancedRouting: true,
-	},
 	i18n: {
 		defaultLocale: 'en',
 		locales: ['en', 'es'],
