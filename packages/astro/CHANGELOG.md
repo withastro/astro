@@ -97,6 +97,16 @@
 
 - [#16434](https://github.com/withastro/astro/pull/16434) [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where i18n domains would return 404 when `trailingSlash` is set to `never`.
 
+## 6.4.5
+
+### Patch Changes
+
+- [#16985](https://github.com/withastro/astro/pull/16985) [`4ecff32`](https://github.com/withastro/astro/commit/4ecff3268acb6ee3db719c4b38bbaead703ff4de) Thanks [@maximslo](https://github.com/maximslo)! - Fixes the `experimental.logger` destination not being used for the "Server listening on..." startup message. The logger is now resolved before the server starts listening, and `adapterLogger` re-creates itself when the underlying logger changes so the startup message uses the correct destination.
+
+- [#16947](https://github.com/withastro/astro/pull/16947) [`e0703a6`](https://github.com/withastro/astro/commit/e0703a6e815be829759ab7912f7024ee8424c3ac) Thanks [@ematipico](https://github.com/ematipico)! - Fixes `Astro.request.url` not reflecting validated `X-Forwarded-Proto`/`X-Forwarded-Host` headers when `security.allowedDomains` is configured. Previously, only `Astro.url` was updated with the forwarded origin while `Astro.request.url` retained the socket-derived URL, causing the two to diverge behind TLS-terminating proxies.
+
+- [#16997](https://github.com/withastro/astro/pull/16997) [`dc45246`](https://github.com/withastro/astro/commit/dc45246812afcaab60393e5236d27e95f98f5efa) Thanks [@matthewp](https://github.com/matthewp)! - Reverts a change to `isNode` runtime detection that caused a significant build time regression for Cloudflare adapter users with large prerendered sites
+
 ## 6.4.4
 
 ### Patch Changes
