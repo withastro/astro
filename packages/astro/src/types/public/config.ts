@@ -1425,6 +1425,8 @@ export interface AstroUserConfig<
 	 *   fetchFile: 'handler',
 	 * });
 	 * ```
+	 *
+	 * Learn more about customizing the request pipeline in the [advanced routing guide](https://docs.astro.build/en/guides/routing/#advanced-routing).
 	 */
 	fetchFile?: string | null;
 
