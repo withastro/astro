@@ -1402,7 +1402,7 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name Fetch File
+	 * @name fetchFile
 	 * @type {string | null}
 	 * @default `'fetch'`
 	 * @version 7.0.0
