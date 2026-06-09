@@ -1426,7 +1426,7 @@ export interface AstroUserConfig<
 	 * });
 	 * ```
 	 *
-	 * Learn more about customizing the request pipeline in the [advanced routing guide](https://docs.astro.build/en/guides/routing/#advanced-routing).
+	 * Learn more about customizing the request pipeline in the [advanced routing guide](https://v7.docs.astro.build/en/guides/routing/#advanced-routing).
 	 */
 	fetchFile?: string | null;
 
@@ -1439,10 +1439,54 @@ export interface AstroUserConfig<
 	 * @version 7.0.0
 	 * @description
 	 *
-	 * Configures a custom logger by defining its entrypoint and, optionally, providing a serializable configuration:
+	 * Configures how Astro logs messages during development and production.
+	 *
+	 * By default, Astro uses a built-in logger that outputs human-friendly logs to the console. You can customize this behavior by providing [your own logger handler](https://v7.docs.astro.build/en/reference/logger-reference/#custom-loggers) or by using one of the [built-in log handlers](https://v7.docs.astro.build/en/reference/logger-reference/#built-in-loggers):
 	 *
 	 * ```js
 	 * // astro.config.mjs
+	 * import { defineConfig, logHandlers } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   logger: logHandlers.json({ level: 'info' })
+	 * });
+	 * ```
+	 *
+	 * See [the logger API reference](https://v7.docs.astro.build/en/reference/logger-reference/) for more information.
+	 */
+	logger?: LoggerHandlerConfig;
+
+	/**
+	 * @docs
+	 * @name logger.entrypoint
+	 * @type {string}
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * The entrypoint of the log handler. This can be a path to a file in your project or an npm package:
+	 *
+	 * ```js title="astro.config.mjs"
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   logger: {
+	 *     entrypoint: "@org/astro-logger",
+	 *   }
+	 * });
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name logger.config
+	 * @type {Record<string, unknown> | undefined}
+	 * @version 7.0.0
+	 * @default `{}`
+	 * @description
+	 *
+	 * The configuration object for the log handler. The options depend on the configured logger.
+	 *
+	 * ```js title="astro.config.mjs"
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -1454,10 +1498,7 @@ export interface AstroUserConfig<
 	 *   }
 	 * });
 	 * ```
-	 *
-	 * See [the logger API reference](https://docs.astro.build/en/reference/logger-reference/) for more information.
 	 */
-	logger?: LoggerHandlerConfig;
 
 	/**
 	 * @docs
