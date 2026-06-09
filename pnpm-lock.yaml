@@ -212,7 +212,7 @@ importers:
   examples/blog:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^6.0.0-alpha.1
+        specifier: ^7.0.0-alpha.1
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
         specifier: ^4.0.18
@@ -465,7 +465,7 @@ importers:
   examples/with-mdx:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^6.0.0-alpha.1
+        specifier: ^7.0.0-alpha.1
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
         specifier: ^6.0.0-alpha.0
@@ -498,7 +498,7 @@ importers:
   examples/with-tailwindcss:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^6.0.0-alpha.1
+        specifier: ^7.0.0-alpha.1
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.2.1
