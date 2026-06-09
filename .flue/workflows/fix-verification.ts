@@ -117,7 +117,7 @@ Return your classification.`,
 	}
 
 	// Use the astro-pr-writer skill to generate a good PR title and body.
-	const { data: prContent } = await session.skill('astro-pr-writer/SKILL.md', {
+	const { data: prContent } = await session.skill('astro-pr-writer', {
 		args: {
 			issueNumber,
 			issueDetails,
