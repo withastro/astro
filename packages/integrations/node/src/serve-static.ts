@@ -58,7 +58,16 @@ export function createStaticHandler(
 			}
 
 			const [urlPath, urlQuery] = fullUrl.split('?');
-			const { isDirectory } = resolveStaticPath(client, app.removeBase(urlPath));
+			// Decode the path before filesystem lookup so non-ASCII slugs
+			// (e.g. Thai, Korean, Chinese) match the on-disk directory names.
+			// Guard against malformed percent-encoding (cf. #16916).
+			let fsPath: string;
+			try {
+				fsPath = decodeURI(app.removeBase(urlPath));
+			} catch {
+				fsPath = app.removeBase(urlPath);
+			}
+			const { isDirectory } = resolveStaticPath(client, fsPath);
 
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;
