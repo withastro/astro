@@ -1,7 +1,7 @@
 import { ActionError, defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
 import { getCollection } from 'astro:content';
-import { addComment, incrementLikes } from '../lib/store';
+import { addComment, incrementLikes } from '../db/store';
 
 export const server = {
 	logout: defineAction({

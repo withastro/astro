@@ -1,7 +1,7 @@
 ---
 import { type CollectionEntry, getCollection, getEntry, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
-import { getLikes } from '../../lib/store';
+import { getLikes } from '../../db/store';
 import { Like, LikeWithActionState } from '../../components/Like';
 
 export const prerender = false;

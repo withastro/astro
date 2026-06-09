@@ -11,7 +11,7 @@ test.beforeAll(async ({ astro }) => {
 
 test.afterEach(async ({ astro }) => {
 	// Force the in-memory store to re-seed between tests by touching its module
-	await astro.editFile('./src/lib/store.ts', (original) => original, false);
+	await astro.editFile('./src/db/store.ts', (original) => original, false);
 });
 
 test.afterAll(async () => {

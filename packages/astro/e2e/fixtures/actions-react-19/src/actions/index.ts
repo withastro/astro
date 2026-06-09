@@ -1,7 +1,7 @@
 import { defineAction, type SafeResult } from 'astro:actions';
 import { z } from 'astro/zod';
 import { getActionState } from '@astrojs/react/actions';
-import { incrementLikes, setLikes } from '../lib/store';
+import { incrementLikes, setLikes } from '../db/store';
 
 export const server = {
 	blog: {
