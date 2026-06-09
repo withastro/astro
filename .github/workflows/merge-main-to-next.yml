@@ -149,9 +149,8 @@ jobs:
         run: |
           ../runtime/node_modules/.bin/flue run merge-resolve \
             --target node \
-            --id "merge-${GITHUB_RUN_ID}" \
             --payload "{\"branch\": \"$BRANCH\", \"hasConflicts\": true}" \
-            --workspace ../runtime/.flue \
+            --root ../runtime \
             --output .
 
       # Open or update PR (runs for both clean and conflict merges)

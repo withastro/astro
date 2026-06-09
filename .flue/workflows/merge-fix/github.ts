@@ -1,8 +1,20 @@
 const REPO = 'withastro/astro';
+const GITHUB_TOKEN_BASE = process.env.GITHUB_TOKEN;
+const GITHUB_TOKEN_PRIVILEGED = process.env.FREDKBOT_GITHUB_TOKEN;
 
-function headers(): Record<string, string> {
-	const token = process.env.FREDKBOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN;
-	if (!token) throw new Error('token is not set');
+function readHeaders(): Record<string, string> {
+	const token = GITHUB_TOKEN_BASE;
+	if (!token) throw new Error('GITHUB_TOKEN is not set');
+	return {
+		Authorization: `token ${token}`,
+		'Content-Type': 'application/json',
+		Accept: 'application/vnd.github+json',
+	};
+}
+
+function writeHeaders(): Record<string, string> {
+	const token = GITHUB_TOKEN_PRIVILEGED;
+	if (!token) throw new Error('FREDKBOT_GITHUB_TOKEN is not set');
 	return {
 		Authorization: `token ${token}`,
 		'Content-Type': 'application/json',
@@ -23,7 +35,7 @@ interface WorkflowRun {
 async function getFailedCIRun(branch: string): Promise<WorkflowRun | null> {
 	const res = await fetch(
 		`https://api.github.com/repos/${REPO}/actions/runs?branch=${encodeURIComponent(branch)}&status=failure&per_page=5`,
-		{ headers: headers() },
+		{ headers: readHeaders() },
 	);
 	if (!res.ok) {
 		console.error(`Failed to fetch workflow runs (HTTP ${res.status}): ${await res.text()}`);
@@ -47,7 +59,7 @@ export async function fetchCIFailureLogs(branch: string): Promise<string> {
 	// Get jobs for this run
 	const jobsRes = await fetch(
 		`https://api.github.com/repos/${REPO}/actions/runs/${run.id}/jobs?filter=failed`,
-		{ headers: headers() },
+		{ headers: readHeaders() },
 	);
 	if (!jobsRes.ok) {
 		return `Failed to fetch jobs (HTTP ${jobsRes.status}). Run ID: ${run.id}`;
@@ -74,7 +86,7 @@ export async function fetchCIFailureLogs(branch: string): Promise<string> {
 
 	for (const job of failedJobs) {
 		const logRes = await fetch(`https://api.github.com/repos/${REPO}/actions/jobs/${job.id}/logs`, {
-			headers: headers(),
+			headers: readHeaders(),
 			redirect: 'follow',
 		});
 		if (!logRes.ok) {
@@ -98,7 +110,7 @@ export async function fetchCIFailureLogs(branch: string): Promise<string> {
 export async function postPRComment(prNumber: number, body: string): Promise<void> {
 	const res = await fetch(`https://api.github.com/repos/${REPO}/issues/${prNumber}/comments`, {
 		method: 'POST',
-		headers: headers(),
+		headers: writeHeaders(),
 		body: JSON.stringify({ body }),
 	});
 	if (!res.ok) {
