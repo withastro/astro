@@ -154,11 +154,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	}
 
 	get adapterLogger(): AstroIntegrationLogger {
-		if (!this.#adapterLogger) {
-			this.#adapterLogger = new AstroIntegrationLogger(
-				this.logger.options,
-				this.manifest.adapterName,
-			);
+		const currentOptions = this.logger.options;
+		if (!this.#adapterLogger || this.#adapterLogger.options !== currentOptions) {
+			this.#adapterLogger = new AstroIntegrationLogger(currentOptions, this.manifest.adapterName);
 		}
 		return this.#adapterLogger;
 	}
