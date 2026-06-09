@@ -1,39 +1,42 @@
-// In-memory store backing the demo actions. It lives on `globalThis` so the value is
-// shared across every module instance the dev server evaluates: the page render and the
-// action handler run in separate module graphs, so a plain module-level value would not
-// be shared between them. This mirrors how the previous SQLite-backed store behaved.
-// Re-evaluating this module re-seeds the data, which the e2e tests trigger between runs
-// by touching this file (see the `afterEach` in actions-react-19.test.ts).
+// Tiny file-backed store for the demo actions. State is read from and written to a
+// JSON file on disk, so it is shared across every module instance the dev server
+// evaluates (the page render and the action handler run in separate module graphs),
+// the same way the previous SQLite-backed store was. The e2e tests reset it between
+// runs by deleting `./temp/` (see the `afterEach` in actions-react-19.test.ts).
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
-interface Store {
-	likes: Map<string, number>;
+interface Data {
+	likes: Record<string, number>;
 }
 
-declare global {
-	// eslint-disable-next-line no-var
-	var __actionsReact19Store: Store | undefined;
+const file = new URL('./temp/store.json', import.meta.url);
+
+function read(): Data {
+	if (!existsSync(file)) {
+		return { likes: { 'first-post': 10 } };
+	}
+	return JSON.parse(readFileSync(file, 'utf-8'));
 }
 
-// Re-seed on every evaluation so touching this file resets state between tests.
-globalThis.__actionsReact19Store = {
-	likes: new Map([['first-post', 10]]),
-};
-
-function store(): Store {
-	return globalThis.__actionsReact19Store!;
+function write(data: Data): void {
+	mkdirSync(new URL('./temp/', import.meta.url), { recursive: true });
+	writeFileSync(file, JSON.stringify(data));
 }
 
 export function getLikes(postId: string): number {
-	return store().likes.get(postId) ?? 0;
+	return read().likes[postId] ?? 0;
 }
 
 export function incrementLikes(postId: string): number {
-	const next = getLikes(postId) + 1;
-	store().likes.set(postId, next);
-	return next;
+	const data = read();
+	data.likes[postId] = (data.likes[postId] ?? 0) + 1;
+	write(data);
+	return data.likes[postId];
 }
 
 export function setLikes(postId: string, value: number): number {
-	store().likes.set(postId, value);
+	const data = read();
+	data.likes[postId] = value;
+	write(data);
 	return value;
 }
