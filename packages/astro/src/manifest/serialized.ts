@@ -237,5 +237,6 @@ async function createSerializedManifest(
 		},
 		logLevel: settings.logLevel,
 		shouldInjectCspMetaTags: false,
+		loggerConfig,
 	};
 }

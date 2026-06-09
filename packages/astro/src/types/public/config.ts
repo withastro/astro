@@ -3071,8 +3071,6 @@ export interface AstroUserConfig<
 		 * ```
 		 */
 		routeRules?: RouteRules;
-
-	
 	};
 }
 

@@ -1194,7 +1194,7 @@ describe('build ssg', () => {
 		});
 		await fixture.build({
 			// @ts-expect-error: `_logger` is an internal API
-				_logger: logger,
+			_logger: logger,
 		});
 		const generatingImageIndex = logs.findIndex((logLine) =>
 			logLine.message?.includes('generating optimized images'),
