@@ -1,3 +1,4 @@
+import { rmSync } from 'node:fs';
 import { expect } from '@playwright/test';
 import { type DevServer, testFactory, waitForHydrate } from './test-utils.ts';
 
@@ -13,9 +14,9 @@ test.afterAll(async () => {
 	await devServer.stop();
 });
 
-test.afterEach(async ({ astro }) => {
-	// Force database reset between tests
-	await astro.editFile('./db/seed.ts', (original) => original, false);
+test.afterEach(({ astro }) => {
+	// Reset the store between tests by deleting its data file
+	rmSync(new URL('src/db/temp', astro.config.root), { recursive: true, force: true });
 });
 
 test.describe('Astro Actions - Blog', () => {

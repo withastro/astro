@@ -1,7 +1,7 @@
-import { db, Comment, Likes, eq, sql } from 'astro:db';
 import { ActionError, defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
 import { getCollection } from 'astro:content';
+import { addComment, incrementLikes } from '../db/store';
 
 export const server = {
 	logout: defineAction({
@@ -15,16 +15,7 @@ export const server = {
 			handler: async ({ postId }) => {
 				await new Promise((r) => setTimeout(r, 500));
 
-				const result  = await db
-					.update(Likes)
-					.set({
-						likes: sql`${Likes.likes} + 1`,
-					})
-					.where(eq(Likes.postId, postId))
-					.returning()
-					.get();
-
-				return result?.likes;
+				return incrementLikes(postId);
 			},
 		}),
 
@@ -43,16 +34,7 @@ export const server = {
 					});
 				}
 
-				const comment = await db
-					.insert(Comment)
-					.values({
-						postId,
-						body,
-						author,
-					})
-					.returning()
-					.get();
-				return comment;
+				return addComment({ postId, author, body });
 			},
 		}),
 
