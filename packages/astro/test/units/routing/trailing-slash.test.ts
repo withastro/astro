@@ -115,6 +115,25 @@ describe('trailingSlash', () => {
 			assert.equal(match.type, 'match');
 			assert.equal(match.route.route, '/dot.json');
 		});
+
+		it('should match a page with file extension without trailing slash', () => {
+			const pageRouter = new Router(
+				[
+					...makeRoutes(trailingSlash),
+					makeRoute({
+						segments: [[staticPart('api'), staticPart('data.json')]],
+						trailingSlash: 'never',
+						route: '/api/data.json',
+						pathname: '/api/data.json',
+						type: 'page',
+					}),
+				],
+				{ base: '/', trailingSlash, buildFormat: 'directory' },
+			);
+			const match = pageRouter.match('/api/data.json');
+			assert.equal(match.type, 'match');
+			assert.equal(match.route.route, '/api/data.json');
+		});
 	});
 
 	// --- trailingSlash: 'never' with base path ---

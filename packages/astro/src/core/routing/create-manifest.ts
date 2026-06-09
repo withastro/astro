@@ -436,14 +436,16 @@ function groupEntriesByDir(entries: RouteEntry[]): Map<string, RouteEntry[]> {
 }
 
 // Get trailing slash rule for a path, based on the config and whether the path has an extension.
-// Only endpoints with file extensions (like /feed.xml) should force 'never' for trailing slashes.
-// Pages with dots in their names (like /hello.world) should respect the user's trailingSlash config.
+// Routes with file extensions (like /feed.xml or /api/data.json) should force 'never' for
+// trailing slashes so they are accessible without a trailing slash, regardless of the global
+// trailingSlash config. This matches the production build behavior in generate.ts which also
+// skips trailing-slash appending for file-extension paths.
 const trailingSlashForPath = (
 	pathname: string | null,
 	config: AstroConfig,
-	type: 'page' | 'endpoint',
+	_type: 'page' | 'endpoint',
 ): AstroConfig['trailingSlash'] =>
-	type === 'endpoint' && pathname && hasFileExtension(pathname) ? 'never' : config.trailingSlash;
+	pathname && hasFileExtension(pathname) ? 'never' : config.trailingSlash;
 
 function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): RouteData[] {
 	const { config } = settings;
