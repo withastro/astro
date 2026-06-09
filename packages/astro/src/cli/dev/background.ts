@@ -88,7 +88,7 @@ export async function background({
 	if (flags.config) args.push('--config', String(flags.config));
 	if (flags.root) args.push('--root', String(flags.root));
 	if (flags.allowedHosts) args.push('--allowed-hosts', String(flags.allowedHosts));
-	if (flags.experimentalJson) args.push('--experimental-json');
+	if (flags.json) args.push('--json');
 
 	// Open the log file for writing, ensuring the .astro directory exists
 	const logFileURL = getLogFileURL(root);
