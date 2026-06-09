@@ -141,24 +141,6 @@ const configs = [
 	},
 
 	{
-		files: ['packages/db/src/runtime/**/*.ts'],
-		rules: {
-			'no-restricted-imports': 'off',
-			'@typescript-eslint/no-restricted-imports': [
-				'error',
-				{
-					patterns: [
-						{
-							group: ['../core/*'],
-							allowTypeImports: true,
-						},
-					],
-				},
-			],
-		},
-	},
-
-	{
 		files: [
 			'packages/language-tools/ts-plugin/**/*',
 			'packages/language-tools/vscode/**/*',

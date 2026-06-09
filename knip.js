@@ -63,9 +63,6 @@ export default {
 			entry: [srcEntry, dtsEntry, testEntry],
 			ignoreUnresolved: ['#prism-loadLanguages'],
 		},
-		'packages/db': {
-			entry: [srcEntry, dtsEntry, testEntry, 'test/types/**/*'],
-		},
 		'packages/integrations/*': {
 			entry: [srcEntry, dtsEntry, testEntry],
 		},
