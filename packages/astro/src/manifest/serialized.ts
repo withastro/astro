@@ -172,9 +172,9 @@ async function createSerializedManifest(
 		};
 	}
 
-	let experimentalLogger = undefined;
-	if (settings.config.experimental.logger) {
-		experimentalLogger = settings.config.experimental.logger;
+	let loggerConfig = undefined;
+	if (settings.config.logger) {
+		loggerConfig = settings.config.logger;
 	}
 
 	return {
@@ -237,6 +237,6 @@ async function createSerializedManifest(
 		},
 		logLevel: settings.logLevel,
 		shouldInjectCspMetaTags: false,
-		experimentalLogger,
+		loggerConfig,
 	};
 }

@@ -152,8 +152,8 @@ export type SSRManifest = {
 	};
 	internalFetchHeaders?: Record<string, string>;
 	logLevel: AstroLoggerLevel;
-	// Configure that tells us how to load the logger
-	experimentalLogger: LoggerHandlerConfig | undefined;
+	// Configuration that tells us how to load the logger
+	loggerConfig: LoggerHandlerConfig | undefined;
 };
 
 export type SSRActions = {

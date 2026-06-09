@@ -271,8 +271,8 @@ describe('astro sync', () => {
 			});
 			fs.rmSync(new URL('./.astro/', astroFixture.config.root), { force: true, recursive: true });
 
-			// @ts-ignore
-			await astroFixture.sync({ root: fileURLToPath(astroFixture.config.root), logger });
+			// @ts-expect-error: `_logger` is an internal API
+			await astroFixture.sync({ root: fileURLToPath(astroFixture.config.root), _logger: logger });
 
 			const errorLogs = logs.filter((log) => log.level === 'error');
 			assert.equal(

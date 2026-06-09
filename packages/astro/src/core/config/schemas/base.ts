@@ -116,9 +116,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
-		logger: {
-			entrypoint: 'astro/logger/node',
-		},
 	},
 } satisfies AstroUserConfig & {
 	server: { open: boolean };
@@ -556,6 +553,12 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.prerenderConflictBehavior),
 	fetchFile: z.string().nullable().optional().default(ASTRO_CONFIG_DEFAULTS.fetchFile),
+	logger: z
+		.object({
+			entrypoint: z.string(),
+			config: z.record(z.string(), z.any()).optional(),
+		})
+		.optional(),
 	fonts: z.array(FontFamilySchema).optional(),
 	experimental: z
 		.strictObject({
@@ -574,12 +577,6 @@ export const AstroConfigSchema = z.object({
 			svgOptimizer: SvgOptimizerSchema.optional(),
 			cache: CacheSchema.optional(),
 			routeRules: RouteRulesSchema.optional(),
-			logger: z
-				.object({
-					entrypoint: z.string(),
-					config: z.record(z.string(), z.any()).optional(),
-				})
-				.optional(),
 		})
 		.prefault({}),
 	legacy: z

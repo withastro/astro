@@ -512,8 +512,8 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		for (const feature of missing) {
 			this.logger.warn(
 				'router',
-			`Your project uses ${feature}, but your custom src/fetch.ts does not call the ${feature}() handler. ` +
-				`This feature will not work unless you add it to your fetch.ts pipeline.`,
+				`Your project uses ${feature}, but your custom src/fetch.ts does not call the ${feature}() handler. ` +
+					`This feature will not work unless you add it to your fetch.ts pipeline.`,
 			);
 		}
 	}

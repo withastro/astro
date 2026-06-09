@@ -30,8 +30,8 @@ describe('astro:assets - SVG Components', () => {
 				}),
 			});
 			devServer = await fixture.startDevServer({
-				// @ts-expect-error: `logger` is @internal in AstroInlineConfig so it's stripped from dist types
-				logger,
+				// @ts-expect-error: `_logger` is an internal API
+				_logger: logger,
 			});
 		});
 

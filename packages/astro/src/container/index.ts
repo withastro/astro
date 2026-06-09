@@ -180,7 +180,7 @@ function createManifest(
 			placement: undefined,
 		},
 		logLevel: 'silent',
-		experimentalLogger: manifest?.experimentalLogger ?? undefined,
+		loggerConfig: manifest?.loggerConfig ?? undefined,
 	};
 }
 
@@ -272,7 +272,7 @@ type AstroContainerManifest = Pick<
 	| 'middlewareMode'
 	| 'assetsDir'
 	| 'image'
-	| 'experimentalLogger'
+	| 'loggerConfig'
 >;
 
 type AstroContainerConstructor = {
