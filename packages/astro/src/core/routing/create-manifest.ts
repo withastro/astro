@@ -241,7 +241,11 @@ function createFileBasedRoutes(
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
-				const trailingSlash = trailingSlashForPath(pathname, settings.config);
+				const trailingSlash = trailingSlashForPath(
+					pathname,
+					settings.config,
+					item.isPage ? 'page' : 'endpoint',
+				);
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
 				const route = joinSegments(segments);
 				routes.push({
@@ -382,7 +386,11 @@ function createRoutesFromEntriesByDir(
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
-				const trailingSlash = trailingSlashForPath(pathname, settings.config);
+				const trailingSlash = trailingSlashForPath(
+					pathname,
+					settings.config,
+					item.isPage ? 'page' : 'endpoint',
+				);
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
 				const route = joinSegments(segments);
 				routes.push({
@@ -427,13 +435,14 @@ function groupEntriesByDir(entries: RouteEntry[]): Map<string, RouteEntry[]> {
 	return entriesByDir;
 }
 
-// File-extension routes (e.g. /feed.xml, /api/data.json) always use trailingSlash: 'never',
-// matching the production build behavior in generate.ts.
+// Only endpoints with file extensions (like /feed.xml) should force 'never' for trailing slashes.
+// Pages with dots in their names (like /hello.world) should respect the user's trailingSlash config.
 const trailingSlashForPath = (
 	pathname: string | null,
 	config: AstroConfig,
+	type: 'page' | 'endpoint',
 ): AstroConfig['trailingSlash'] =>
-	pathname && hasFileExtension(pathname) ? 'never' : config.trailingSlash;
+	type === 'endpoint' && pathname && hasFileExtension(pathname) ? 'never' : config.trailingSlash;
 
 function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): RouteData[] {
 	const { config } = settings;
@@ -458,7 +467,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
 			: null;
 
-		const trailingSlash = trailingSlashForPath(pathname, config);
+		const trailingSlash = trailingSlashForPath(pathname, config, type);
 		const pattern = getPattern(segments, settings.config.base, trailingSlash);
 		const params = segments
 			.flat()

@@ -116,21 +116,21 @@ describe('trailingSlash', () => {
 			assert.equal(match.route.route, '/dot.json');
 		});
 
-		it('should match a page with file extension without trailing slash', () => {
-			const pageRouter = new Router(
+		it('should match an endpoint with file extension without trailing slash', () => {
+			const endpointRouter = new Router(
 				[
 					...makeRoutes(trailingSlash),
 					makeRoute({
-						segments: [[staticPart('api'), staticPart('data.json')]],
+						segments: [[staticPart('api')], [staticPart('data.json')]],
 						trailingSlash: 'never',
 						route: '/api/data.json',
 						pathname: '/api/data.json',
-						type: 'page',
+						type: 'endpoint',
 					}),
 				],
 				{ base: '/', trailingSlash, buildFormat: 'directory' },
 			);
-			const match = pageRouter.match('/api/data.json');
+			const match = endpointRouter.match('/api/data.json');
 			assert.equal(match.type, 'match');
 			assert.equal(match.route.route, '/api/data.json');
 		});
