@@ -1,31 +1,30 @@
-import type { FlueContext } from '@flue/sdk/client';
-import { defineCommand } from '@flue/sdk/node';
+import { createAgent, type FlueContext } from '@flue/runtime';
+import { local } from '@flue/runtime/node';
 import * as v from 'valibot';
+import { GITHUB_TOKEN_BASE, gitPush } from '../../lib/github.ts';
 import { fetchCIFailureLogs, postPRComment } from './github.ts';
-
-// CLI-only agent: no HTTP trigger. Invoked from GitHub Actions via `flue run merge-fix`.
-export const triggers = {};
-
-const GITHUB_TOKEN = process.env.FREDKBOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN || '';
-const gh = defineCommand('gh', { env: { GH_TOKEN: GITHUB_TOKEN } });
-const git = defineCommand('git');
-const gitWithAuth = defineCommand('git', { env: { GH_TOKEN: GITHUB_TOKEN } });
-const pnpm = defineCommand('pnpm');
-const node = defineCommand('node');
 
 export const args = v.object({
 	prNumber: v.number(),
 });
 
-export default async function mergeFix({ init, payload }: FlueContext) {
+const agent = createAgent(() => ({
+	sandbox: local({
+		env: {
+			// Read-only token for gh CLI reads inside the sandbox.
+			// Write operations (git push, post comment) go through the orchestrator.
+			GH_TOKEN: GITHUB_TOKEN_BASE,
+		},
+	}),
+	model: 'anthropic/claude-opus-4-6',
+}));
+
+export async function run({ init, payload }: FlueContext) {
 	const prNumber = payload.prNumber as number;
 	const branch = 'ci/merge-main-to-next';
 
-	const agent = await init({
-		sandbox: 'local',
-		model: 'anthropic/claude-opus-4-6',
-	});
-	const session = await agent.session();
+	const harness = await init(agent);
+	const session = await harness.session();
 
 	// Fetch CI failure logs before entering the sandbox.
 	// The gh CLI doesn't work inside the Flue sandbox (auth goes through a proxy),
@@ -36,9 +35,13 @@ export default async function mergeFix({ init, payload }: FlueContext) {
 	// Conflicts have already been resolved by the merge-resolve workflow.
 	// Dependencies are installed but packages may NOT be built yet — the skill
 	// handles building and fixing any errors that come up.
-	const fixResult = await session.skill('merge/fix-ci.md', {
-		args: { prNumber, ciLogs },
-		commands: [gh, git, pnpm, node],
+	const { data: fixResult } = await session.skill('merge', {
+		args: {
+			prNumber,
+			ciLogs,
+			step: 'fix-ci',
+			instructions: 'Run only the "fix-ci" sub-skill from fix-ci.md.',
+		},
 		result: v.object({
 			ciPass: v.pipe(v.boolean(), v.description('true if build + tests pass after fixes')),
 			fixedFiles: v.pipe(
@@ -55,15 +58,11 @@ export default async function mergeFix({ init, payload }: FlueContext) {
 	});
 
 	// Commit and push if there are changes
-	const status = await session.shell('git status --porcelain', { commands: [git] });
+	const status = await session.shell('git status --porcelain');
 	if (status.stdout.trim()) {
-		await session.shell('git add -A', { commands: [git] });
-		await session.shell('git commit -m "chore: fix CI failures for main-to-next merge"', {
-			commands: [git],
-		});
-		const pushResult = await session.shell(`git push origin ${branch}`, {
-			commands: [gitWithAuth],
-		});
+		await session.shell('git add -A');
+		await session.shell('git commit -m "chore: fix CI failures for main-to-next merge"');
+		const pushResult = await gitPush(branch);
 		console.info('push result:', pushResult);
 
 		if (pushResult.exitCode !== 0) {

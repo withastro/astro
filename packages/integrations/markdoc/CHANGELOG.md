@@ -1,5 +1,14 @@
 # @astrojs/markdoc
 
+## 1.0.6
+
+### Patch Changes
+
+- [#16848](https://github.com/withastro/astro/pull/16848) [`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Removes `@astrojs/markdown-remark` from `@astrojs/markdoc`'s dependencies in favour of Astro's internal markdown utilities now that Astro's Markdown support is processor agnostic.
+
+- Updated dependencies [[`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc)]:
+  - @astrojs/internal-helpers@0.10.0
+
 ## 1.0.5
 
 ### Patch Changes

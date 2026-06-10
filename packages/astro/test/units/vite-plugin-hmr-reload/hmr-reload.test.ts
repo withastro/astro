@@ -47,7 +47,15 @@ describe('astro:hmr-reload', () => {
 			moduleGraph: {
 				invalidateModule(mod: any, seen?: Set<any>, _ts?: number, _hmr?: boolean) {
 					invalidated.push(mod);
-					if (seen) seen.add(mod);
+					if (seen) {
+						seen.add(mod);
+						// Simulate Vite's recursive importer walk: add importers to seen
+						for (const importer of mod.importers) {
+							if (!seen.has(importer)) {
+								seen.add(importer);
+							}
+						}
+					}
 				},
 				getModuleById(_id: string) {
 					return null;
@@ -160,6 +168,28 @@ describe('astro:hmr-reload', () => {
 		const result = ctx.call();
 		assert.ok(Array.isArray(result), 'should return an array');
 		assert.equal(result.length, 0, 'should return empty array for styles');
+		assert.equal(ctx.wsSent.length, 0, 'should NOT send full-reload for style modules');
+	});
+
+	it('invalidates importers in the module graph for dynamic import chains', () => {
+		const component = createMockModule('/src/components/MyComponent.astro');
+		const barrel = createMockModule('/src/components/index.ts');
+		// MyComponent is imported by the barrel file
+		component.importers.add(barrel as any);
+
+		const ctx = createMockContext({
+			environmentName: 'ssr',
+			modules: [component],
+			clientModuleIds: [],
+		});
+
+		ctx.call();
+
+		// Both the component and its importer (barrel) should be in the invalidated set
+		assert.equal(ctx.invalidated.length, 1, 'direct invalidateModule call');
+		// The barrel file should appear in wsSent (full-reload triggered)
+		assert.equal(ctx.wsSent.length, 1);
+		assert.deepEqual(ctx.wsSent[0], { type: 'full-reload' });
 	});
 
 	it('only invalidates SSR-only modules, not client-side modules', () => {
@@ -179,5 +209,41 @@ describe('astro:hmr-reload', () => {
 		// Only the SSR-only module should be invalidated in the module graph
 		assert.equal(ctx.invalidated.length, 1, 'should only invalidate SSR-only module');
 		assert.equal(ctx.invalidated[0], ssrMod);
+	});
+
+	it('returns [] for modules that exist in the client module graph (prevents unnecessary program reload)', () => {
+		const mod = createMockModule('/src/components/Foo.tsx');
+		const ctx = createMockContext({
+			environmentName: 'ssr',
+			modules: [mod],
+			clientModuleIds: ['/src/components/Foo.tsx'], // module IS in client graph
+		});
+
+		const result = ctx.call();
+
+		assert.deepEqual(
+			result,
+			[],
+			'Should return empty array to prevent Vite default HMR propagation',
+		);
+		assert.equal(ctx.wsSent.length, 0, 'Should NOT send full-reload via WebSocket');
+		assert.equal(ctx.hotSent.length, 0, 'Should NOT send full-reload via hot channel');
+		assert.equal(ctx.invalidated.length, 0, 'Should NOT invalidate client-graph modules');
+	});
+
+	it('sends full-reload when mix of client and SSR-only modules', () => {
+		const clientMod = createMockModule('/src/components/Foo.tsx');
+		const ssrOnlyMod = createMockModule('/src/backend/db.ts');
+		const ctx = createMockContext({
+			environmentName: 'ssr',
+			modules: [clientMod, ssrOnlyMod],
+			clientModuleIds: ['/src/components/Foo.tsx'], // only Foo.tsx in client graph
+		});
+
+		const result = ctx.call();
+
+		assert.deepEqual(result, [], 'Should return empty array');
+		assert.equal(ctx.wsSent.length, 1, 'Should send full-reload because of SSR-only module');
+		assert.equal(ctx.wsSent[0].type, 'full-reload');
 	});
 });

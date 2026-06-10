@@ -1,10 +1,14 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { stripVTControlCharacters } from 'node:util';
+import { isUnifiedProcessor, type RehypePlugin, type RemarkPlugin } from '@astrojs/markdown-remark';
 import * as z from 'zod/v4';
 import { fontProviders } from '../../../dist/assets/fonts/providers/index.js';
 import { LocalFontProvider } from '../../../dist/assets/fonts/providers/local.js';
-import { validateConfig as _validateConfig } from '../../../dist/core/config/validate.js';
+import {
+	validateConfig as _validateConfig,
+	validateConfigRefined,
+} from '../../../dist/core/config/validate.js';
 import { formatConfigErrorMessage } from '../../../dist/core/messages/runtime.js';
 import { envField } from '../../../dist/env/config.js';
 
@@ -620,6 +624,51 @@ describe('Config Validation', () => {
 		});
 	});
 
+	describe('markdown legacy plugins', () => {
+		it('preserves legacy markdown.rehypePlugins on the validated config (pre-6.0 mdx compat)', async () => {
+			const plugin: RehypePlugin = () => (tree) => tree;
+			const result = await validateConfig({
+				markdown: { rehypePlugins: [plugin] },
+			});
+			// Pre-6.0 `@astrojs/mdx` reads `config.markdown.rehypePlugins` directly to feed
+			// its own MDX-side processor, so the legacy key must survive validation.
+			assert.deepEqual(result.markdown.rehypePlugins, [plugin]);
+			const { processor } = result.markdown;
+			assert.ok(isUnifiedProcessor(processor));
+			assert.deepEqual(processor.options.rehypePlugins, [plugin]);
+		});
+
+		it('does not duplicate legacy plugins across repeated validateConfigRefined passes', async () => {
+			const remark: RemarkPlugin = () => (tree) => tree;
+			const rehype: RehypePlugin = () => (tree) => tree;
+			const validated = await validateConfig({
+				markdown: { remarkPlugins: [remark], rehypePlugins: [rehype] },
+			});
+			// The second pass runs after `astro:config:setup`; without the WeakMap guard
+			// it would re-fold the same plugins and double them up.
+			const again = await validateConfigRefined(validated);
+			const { processor } = again.markdown;
+			assert.ok(isUnifiedProcessor(processor));
+			assert.deepEqual(processor.options.remarkPlugins, [remark]);
+			assert.deepEqual(processor.options.rehypePlugins, [rehype]);
+		});
+
+		it('folds integration-appended legacy plugins without re-folding the originals', async () => {
+			const userPlugin: RehypePlugin = () => (tree) => tree;
+			const integrationPlugin: RehypePlugin = () => (tree) => tree;
+			const validated = await validateConfig({
+				markdown: { rehypePlugins: [userPlugin] },
+			});
+			// Simulate `mergeConfig` appending an integration-added plugin to the legacy key
+			// (Starlight-style `updateConfig({ markdown: { rehypePlugins: [...] } })`).
+			validated.markdown.rehypePlugins.push(integrationPlugin);
+			const refined = await validateConfigRefined(validated);
+			const { processor } = refined.markdown;
+			assert.ok(isUnifiedProcessor(processor));
+			assert.deepEqual(processor.options.rehypePlugins, [userPlugin, integrationPlugin]);
+		});
+	});
+
 	describe('devToolbar', () => {
 		it('should allow valid placement values', async () => {
 			for (const placement of ['bottom-left', 'bottom-center', 'bottom-right']) {
@@ -642,6 +691,19 @@ describe('Config Validation', () => {
 				devToolbar: { placement: 'top-left' },
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
+		});
+	});
+
+	describe('experimental.routeRules', () => {
+		it('rejects negative maxAge', async () => {
+			const configError = await validateConfig({
+				experimental: { routeRules: { '/api': { maxAge: -1 } } },
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+			assert.ok(
+				JSON.stringify(configError.issues).includes('maxAge'),
+				'Error should reference maxAge',
+			);
 		});
 	});
 });

@@ -1,5 +1,31 @@
 # @astrojs/netlify
 
+## 7.0.13
+
+### Patch Changes
+
+- [#17018](https://github.com/withastro/astro/pull/17018) [`1310277`](https://github.com/withastro/astro/commit/1310277db33cd93aa99e87492650c633af0fe257) Thanks [@matthewp](https://github.com/matthewp)! - Hardens `remotePatterns` regex generation to match canonical wildcard semantics more strictly
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.12
+
+### Patch Changes
+
+- [#16693](https://github.com/withastro/astro/pull/16693) [`9e6edc2`](https://github.com/withastro/astro/commit/9e6edc2da5ccf06243588a7f519dea5fbcc126cd) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes a link in the documentation specifying where to open an issue for the adapter.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.11
+
+### Patch Changes
+
+- Updated dependencies [[`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc)]:
+  - @astrojs/internal-helpers@0.10.0
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 7.0.10
 
 ### Patch Changes
