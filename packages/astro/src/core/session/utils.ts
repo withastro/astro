@@ -48,6 +48,9 @@ export function normalizeSessionDriverConfig(
 export function sessionConfigToManifest(
 	config: AstroConfig['session'],
 ): SSRManifestSession | undefined {
+	if (config === false) {
+		return undefined;
+	}
 	const sessionDriver = config?.driver;
 	if (!config || !sessionDriver) {
 		return undefined;
@@ -61,4 +64,8 @@ export function sessionConfigToManifest(
 		cookie: config.cookie,
 		ttl: config.ttl,
 	};
+}
+
+export function sessionsDisabled(config: AstroConfig['session']): boolean {
+	return config === false;
 }

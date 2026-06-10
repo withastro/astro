@@ -42,7 +42,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 			'astro:config:setup': async ({ updateConfig, config, logger, command }) => {
 				let session = config.session;
 				_config = config;
-				if (!session?.driver) {
+				if (session !== false && !session?.driver) {
 					logger.info('Enabling sessions with filesystem storage');
 					session = {
 						driver: sessionDrivers.fsLite({

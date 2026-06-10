@@ -11,7 +11,7 @@ import { I18n } from '../i18n/handler.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { renderRedirect } from '../redirects/render.js';
-import { provideSession } from '../session/handler.js';
+import { provideSession } from '../session/provider.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import type { BaseApp } from '../app/base.js';
@@ -32,7 +32,11 @@ export class AstroHandler {
 	 * `astro:i18n.middleware(...)` into their own `onRequest`.
 	 */
 	#i18n: I18n | undefined;
-	/** Whether sessions are configured on the manifest. */
+	/**
+	 * Whether `provideSession` should run for this request. True when
+	 * sessions are configured (real provider) OR explicitly disabled
+	 * via `session: false` (throw-on-access stub).
+	 */
 	#hasSession: boolean;
 
 	constructor(app: BaseApp<Pipeline>) {
@@ -43,7 +47,7 @@ export class AstroHandler {
 		this.#pagesHandler = new PagesHandler(app.pipeline);
 		this.#cacheHandler = new CacheHandler(app);
 		this.#renderRouteCallback = this.#actionsAndPages.bind(this);
-		this.#hasSession = !!app.manifest.sessionConfig;
+		this.#hasSession = !!app.manifest.sessionConfig || !!app.manifest.sessionsDisabled;
 		const i18n = app.manifest.i18n;
 		if (i18n && i18n.strategy !== 'manual') {
 			this.#i18n = new I18n(
@@ -113,8 +117,10 @@ export class AstroHandler {
 		try {
 			// `provideCache` always runs so `Astro.cache` is defined even
 			// when caching is disabled — it registers a no-op shim that
-			// warns once on use. `provideSession` is gated because there
-			// is no equivalent disabled-shim contract for sessions.
+			// warns once on use. `provideSession` is gated: it runs when
+			// sessions are configured (real provider) or when `session:
+			// false` is set (throw-on-access shim swapped in by the
+			// `astro:session-provider` Vite plugin).
 			const sessionP = this.#hasSession ? provideSession(state) : undefined;
 			const cacheP = provideCache(state);
 			if (sessionP || cacheP) await Promise.all([sessionP, cacheP]);

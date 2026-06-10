@@ -3719,6 +3719,12 @@ importers:
         specifier: ^5.54.0
         version: 5.55.3
 
+  packages/astro/test/fixtures/session-false:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/sessions:
     dependencies:
       astro:

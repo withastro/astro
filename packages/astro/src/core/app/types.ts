@@ -127,6 +127,13 @@ export type SSRManifest = {
 	actionBodySizeLimit: number;
 	serverIslandBodySizeLimit: number;
 	sessionConfig?: SSRManifestSession;
+	/**
+	 * `true` when the project set `session: false` in `astro.config`.
+	 * The session runtime is not bundled in this mode; the routing
+	 * handler registers a throw-on-access shim so `Astro.session`
+	 * surfaces a clear error instead of being `undefined`.
+	 */
+	sessionsDisabled?: boolean;
 	cacheConfig?: SSRManifestCache;
 	cacheDir: URL;
 	srcDir: URL;

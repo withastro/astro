@@ -5,7 +5,7 @@ export const SessionDriverConfigSchema = z.object({
 	entrypoint: z.union([z.string(), z.instanceof(URL)]),
 });
 
-export const SessionSchema = z.object({
+const SessionObjectSchema = z.object({
 	driver: z
 		.union([
 			z.string().superRefine(() => {
@@ -32,3 +32,9 @@ export const SessionSchema = z.object({
 		.optional(),
 	ttl: z.number().optional(),
 });
+
+// `session: false` opts out of session support entirely so the session
+// runtime and any adapter-provided driver can be tree-shaken from the
+// SSR bundle.
+// See packages/astro/src/core/session/provider-disabled.ts.
+export const SessionSchema = z.union([z.literal(false), SessionObjectSchema]);

@@ -50,7 +50,7 @@ import { joinPaths } from './path.js';
 import { ServerIslandsState } from './server-islands/shared-state.js';
 import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
 import { vitePluginCacheProvider } from './cache/vite-plugin.js';
-import { vitePluginSessionDriver } from './session/vite-plugin.js';
+import { vitePluginSessionDriver, vitePluginSessionProvider } from './session/vite-plugin.js';
 import { isObject } from './util-runtime.js';
 import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
@@ -224,6 +224,7 @@ export async function createVite(
 			vitePluginActions({ fs, settings }),
 			vitePluginServerIslands({ settings, logger, serverIslandsState }),
 			vitePluginSessionDriver({ settings }),
+			vitePluginSessionProvider({ settings }),
 			vitePluginCacheProvider({ settings }),
 			astroContainer(),
 			astroHmrReloadPlugin(),

@@ -1425,9 +1425,19 @@ export interface AstroUserConfig<
 	 *
 	 * Session drivers are configured at build time. This means environment variables used in the driver configuration are inlined. You must create your own driver entrypoint to [override the configuration at runtime](https://docs.astro.build/en/guides/sessions/#overriding-the-configuration-at-runtime).
 	 *
+	 * Set to `false` to opt out of session support entirely. With `session: false`, the session runtime is excluded from the SSR bundle, adapters skip wiring their default session driver, and reading `Astro.session` throws a clear error. Useful for serverless and edge runtimes where bundle parse time is sensitive.
+	 *
+	 * ```js title="astro.config.mjs"
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   session: false,
+	 * });
+	 * ```
+	 *
 	 * See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.
 	 */
-	session?: SessionConfig<TDriver>;
+	session?: SessionConfig<TDriver> | false;
 
 	/**
 	 * @docs
