@@ -164,12 +164,29 @@ describe('astro:hmr-reload', () => {
 		const ctx = createMockContext({
 			environmentName: 'ssr',
 			modules: [mod],
+			clientModuleIds: ['/src/styles/main.css'], // Normal CSS exists in client graph
 		});
 
 		const result = ctx.call();
 		assert.ok(Array.isArray(result), 'should return an array');
 		assert.equal(result.length, 0, 'should return empty array for styles');
 		assert.equal(ctx.wsSent.length, 0, 'should NOT send full-reload for style modules');
+	});
+
+	it('sends full-reload for ?raw CSS imports (SSR-only style modules)', () => {
+		const rawMod = createMockModule('/src/styles/button.css?raw', '/src/styles/button.css');
+		const cssMod = createMockModule('/src/styles/button.css', '/src/styles/button.css');
+		const ctx = createMockContext({
+			environmentName: 'ssr',
+			modules: [rawMod, cssMod],
+			clientModuleIds: [], // ?raw imports don't exist in client graph
+		});
+
+		const result = ctx.call();
+		assert.ok(Array.isArray(result), 'should return an array');
+		assert.equal(result.length, 0, 'should return empty array');
+		assert.equal(ctx.wsSent.length, 1, 'should send full-reload for SSR-only style modules');
+		assert.deepEqual(ctx.wsSent[0], { type: 'full-reload' });
 	});
 
 	it('invalidates raw CSS imports as SSR-only modules', () => {

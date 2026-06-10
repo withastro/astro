@@ -41,12 +41,20 @@ export default function hmrReload(): Plugin {
 				const invalidatedModules = new Set<EnvironmentModuleNode>();
 				for (const mod of modules) {
 					if (mod.id == null) continue;
-					if (isStyleModule(mod)) {
-						hasSkippedStyleModules = true;
-						continue;
-					}
 
 					const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
+
+					if (isStyleModule(mod)) {
+						// Only skip style modules that the client environment can handle via
+						// Vite's built-in CSS HMR. SSR-only style modules (e.g. ?raw imports)
+						// have no client counterpart and need a full page reload instead.
+						if (clientModule != null) {
+							hasSkippedStyleModules = true;
+							continue;
+						}
+						// Fall through to SSR-only handling below
+					}
+
 					if (clientModule != null) continue;
 
 					this.environment.moduleGraph.invalidateModule(mod, invalidatedModules, timestamp, true);
