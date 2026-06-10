@@ -1,5 +1,15 @@
 # astro
 
+## 6.4.6
+
+### Patch Changes
+
+- [#16765](https://github.com/withastro/astro/pull/16765) [`b10e86e`](https://github.com/withastro/astro/commit/b10e86e6dbaf04678127c86366befc0b78a164f6) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes an issue where renaming an image file while the dev server is running triggers a build error. Now Astro correctly hot-reloads the image without crashing.
+
+- [#17026](https://github.com/withastro/astro/pull/17026) [`add3df1`](https://github.com/withastro/astro/commit/add3df10fdaff469ae0228f09d99290de170029a) Thanks [@matthewp](https://github.com/matthewp)! - Hardens `addAttribute` to drop attribute names containing characters that are invalid per the HTML spec (`"`, `'`, `>`, `/`, `=`, whitespace)
+
+- [#17033](https://github.com/withastro/astro/pull/17033) [`ffda27b`](https://github.com/withastro/astro/commit/ffda27b7c8697d4b7ed530e93385a420e1fc4acd) Thanks [@matthewp](https://github.com/matthewp)! - Validates the request origin against `allowedDomains` before fetching prerendered error pages. When `allowedDomains` is configured and the Host header matches, the original origin is used. Otherwise, the fetch falls back to `localhost`.
+
 ## 6.4.5
 
 ### Patch Changes
