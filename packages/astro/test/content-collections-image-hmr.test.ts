@@ -35,9 +35,9 @@ describe('HMR: Content Collections image url rename test', () => {
 		await devServer.stop();
 	});
 
-	it( 'should recover after renaming the primary image and updating the markdown reference', {
-		skip: isWindows
-	},async () => {
+	it('should recover after renaming the primary image and updating the markdown reference', {
+		skip: isWindows,
+	}, async () => {
 		await fixture.fetch('/');
 
 		const originalImagePath = path.join(assetsDir, 'shuttle.jpg');
