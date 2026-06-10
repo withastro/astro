@@ -61,7 +61,10 @@ export class DefaultErrorHandler implements ErrorHandler {
 				const allowedDomains = app.manifest.allowedDomains;
 				const validatedHost = validateHost(url.host, url.protocol.replace(':', ''), allowedDomains);
 				const safeOrigin = validatedHost ? url.origin : `${url.protocol}//localhost`;
-				const statusURL = new URL(`${app.baseWithoutTrailingSlash}/${status}${maybeDotHtml}`, safeOrigin);
+				const statusURL = new URL(
+					`${app.baseWithoutTrailingSlash}/${status}${maybeDotHtml}`,
+					safeOrigin,
+				);
 				if (
 					statusURL.toString() !== request.url &&
 					resolvedRenderOptions.prerenderedErrorPageFetch
