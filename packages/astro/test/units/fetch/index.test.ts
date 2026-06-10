@@ -296,6 +296,44 @@ describe('pages()', () => {
 		assert.match(text, /<h1>Not Found<\/h1>/);
 	});
 
+	it('renders the custom 500 page when a page throws during render', async () => {
+		const throwingPage = createComponent((_result: any, _props: any, _slots: any) => {
+			throw new Error('boom');
+		});
+		const errorPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>my custom 500</h1>`;
+		});
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(throwingPage, { route: '/boom' }),
+			createPage(errorPage, { route: '/500' }),
+		]);
+		const request = stampApp(new Request('http://example.com/boom'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 500);
+		const text = await response.text();
+		assert.match(text, /<h1>my custom 500<\/h1>/);
+	});
+
+	it('serves a 404 via the error handler when the custom 404 route is prerendered', async () => {
+		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Not Found</h1>`;
+		});
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(notFoundPage, { route: '/404', prerender: true }),
+		]);
+		const request = stampApp(new Request('http://example.com/does-not-exist'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 404);
+	});
+
 	it('renders an endpoint', async () => {
 		const app = createTestApp([
 			createEndpoint(
