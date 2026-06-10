@@ -209,6 +209,60 @@ describe('renderElement', () => {
 // createComponent/createTestApp — no Vite build needed.
 // ---------------------------------------------------------------------------
 
+describe('addAttribute rejects invalid attribute keys', () => {
+	it('drops keys containing double quotes', () => {
+		const result = String(addAttribute('val', 'x" onmousemove="alert(1)" y'));
+		assert.equal(result, '');
+	});
+
+	it('drops keys containing spaces', () => {
+		const result = String(addAttribute('val', ' onerror=alert(1) '));
+		assert.equal(result, '');
+	});
+
+	it('drops keys containing >', () => {
+		const result = String(addAttribute('val', 'x><script>alert(1)</script'));
+		assert.equal(result, '');
+	});
+
+	it('drops keys containing single quotes', () => {
+		const result = String(addAttribute('val', "x' onclick='alert(1)"));
+		assert.equal(result, '');
+	});
+
+	it('drops keys containing =', () => {
+		const result = String(addAttribute('val', 'x=y'));
+		assert.equal(result, '');
+	});
+
+	it('allows normal attribute names', () => {
+		assert.equal(String(addAttribute('v', 'id')), ' id="v"');
+		assert.equal(String(addAttribute('v', 'data-foo')), ' data-foo="v"');
+		assert.equal(String(addAttribute('v', 'aria-label')), ' aria-label="v"');
+	});
+
+	it('allows namespaced attributes', () => {
+		assert.equal(String(addAttribute('v', 'on:click')), ' on:click="v"');
+		assert.equal(String(addAttribute('v', 'xmlns:happy')), ' xmlns:happy="v"');
+	});
+});
+
+describe('spreadAttributes rejects invalid attribute keys', () => {
+	it('drops malicious keys while keeping valid ones', () => {
+		const result = String(
+			internalSpreadAttributes(
+				{ 'class': 'safe', 'x" onclick="alert(1)" y': 'bad', 'id': 'ok' },
+				true,
+				'div',
+			),
+		);
+		assert.ok(result.includes('class="safe"'));
+		assert.ok(result.includes('id="ok"'));
+		assert.ok(!result.includes('onclick'));
+		assert.ok(!result.includes('alert'));
+	});
+});
+
 describe('Correctly serializes boolean attributes (#astro-basic)', async () => {
 	// h1 data-something and h2 not-data-ok are both empty-string boolean-ish attrs
 	it('renders empty-value attribute for data-* attr with no value', () => {
