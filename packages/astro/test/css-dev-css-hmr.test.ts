@@ -51,22 +51,20 @@ describe('CSS - dev CSS HMR', () => {
 		return styles;
 	}
 
-	it(
-		'updates server-rendered inline CSS after a style-only change',
-		{ timeout: 30000 },
-		async () => {
-			const beforeStyles = await getInlineStyles('/posts/test');
+	it('updates server-rendered inline CSS after a style-only change', {
+		timeout: 30000,
+	}, async () => {
+		const beforeStyles = await getInlineStyles('/posts/test');
 
-			assert.match(beforeStyles, /rgb\(255,\s*0,\s*0\)/);
-			assert.doesNotMatch(beforeStyles, /rgb\(0,\s*0,\s*255\)/);
+		assert.match(beforeStyles, /rgb\(255,\s*0,\s*0\)/);
+		assert.doesNotMatch(beforeStyles, /rgb\(0,\s*0,\s*255\)/);
 
-			await fixture.editFile('src/styles/global.css', (contents) =>
-				contents.replace('rgb(255, 0, 0)', 'rgb(0, 0, 255)'),
-			);
+		await fixture.editFile('src/styles/global.css', (contents) =>
+			contents.replace('rgb(255, 0, 0)', 'rgb(0, 0, 255)'),
+		);
 
-			const afterStyles = await waitForInlineStyles('/posts/test', /rgb\(0,\s*0,\s*255\)/);
+		const afterStyles = await waitForInlineStyles('/posts/test', /rgb\(0,\s*0,\s*255\)/);
 
-			assert.doesNotMatch(afterStyles, /rgb\(255,\s*0,\s*0\)/);
-		},
-	);
+		assert.doesNotMatch(afterStyles, /rgb\(255,\s*0,\s*0\)/);
+	});
 });

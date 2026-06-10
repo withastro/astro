@@ -46,9 +46,7 @@ describe('astro:hmr-reload CSS invalidation', () => {
 	}) {
 		const invalidatedModuleGraphIds: string[] = [];
 
-		const moduleGraphEntries = new Map<string, { id: string }>(
-			options.moduleGraphEntries ?? [],
-		);
+		const moduleGraphEntries = new Map<string, { id: string }>(options.moduleGraphEntries ?? []);
 
 		const environment = {
 			name: 'ssr',
