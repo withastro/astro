@@ -8,6 +8,7 @@ import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { matchRoute } from '../routing/match.js';
 import { provideSession } from '../session/handler.js';
+import { validateHost } from '../app/validate-headers.js';
 import type { ErrorHandler } from './handler.js';
 
 type ErrorPagePath =
@@ -54,7 +55,13 @@ export class DefaultErrorHandler implements ErrorHandler {
 		if (errorRouteData) {
 			if (errorRouteData.prerender) {
 				const maybeDotHtml = errorRouteData.route.endsWith(`/${status}`) ? '.html' : '';
-				const statusURL = new URL(`${app.baseWithoutTrailingSlash}/${status}${maybeDotHtml}`, url);
+				// Validate the request URL origin before using it for the error page fetch.
+				// Without this, an attacker-controlled Host header flows into statusURL,
+				// causing the server to fetch from an arbitrary origin (SSRF).
+				const allowedDomains = app.manifest.allowedDomains;
+				const validatedHost = validateHost(url.host, url.protocol.replace(':', ''), allowedDomains);
+				const safeOrigin = validatedHost ? url.origin : `${url.protocol}//localhost`;
+				const statusURL = new URL(`${app.baseWithoutTrailingSlash}/${status}${maybeDotHtml}`, safeOrigin);
 				if (
 					statusURL.toString() !== request.url &&
 					resolvedRenderOptions.prerenderedErrorPageFetch
