@@ -4,6 +4,7 @@ import {
 	isInternalPath,
 	isParentDirectory,
 	isRemotePath,
+	joinPaths,
 	normalizePathname,
 } from '../dist/path.js';
 
@@ -876,5 +877,36 @@ describe('isInternalPath', () => {
 	it('does not flag paths that are only slashes', () => {
 		assert.equal(isInternalPath('//'), false);
 		assert.equal(isInternalPath('///'), false);
+	});
+});
+
+describe('joinPaths', () => {
+	it('should join simple segments', () => {
+		assert.equal(joinPaths('a', 'b', 'c'), 'a/b/c');
+		assert.equal(joinPaths('/foo', 'bar'), '/foo/bar');
+	});
+
+	it('should trim inner slashes but keep the first leading and last trailing slash', () => {
+		assert.equal(joinPaths('/foo/', '/bar/', '/baz/'), '/foo/bar/baz/');
+	});
+
+	it('should ignore non-string arguments without affecting slash handling of the last segment', () => {
+		// A skipped (undefined) argument must produce the same result as omitting it.
+		assert.equal(
+			joinPaths('/foo', undefined, '/bar/'),
+			joinPaths('/foo', '/bar/'),
+			'undefined in the middle should not change the result',
+		);
+		// Regression: the trailing slash of the real last segment must be preserved
+		// even when an earlier argument is skipped (previously stripped because the
+		// last-element check compared against the unfiltered argument count).
+		assert.equal(joinPaths('/foo', undefined, '/bar/'), '/foo/bar/');
+		assert.equal(joinPaths('/base', undefined, 'pl', 'docs/setup/'), '/base/pl/docs/setup/');
+		assert.equal(joinPaths(undefined, 'pl', 'docs/setup/'), 'pl/docs/setup/');
+	});
+
+	it('should ignore a trailing non-string argument', () => {
+		assert.equal(joinPaths('/foo', 'bar/', undefined), joinPaths('/foo', 'bar/'));
+		assert.equal(joinPaths('/foo', 'bar/', undefined), '/foo/bar/');
 	});
 });
