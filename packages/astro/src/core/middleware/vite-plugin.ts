@@ -44,7 +44,12 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				if (!normalizedPath.startsWith(normalizedSrcDir)) return;
 				const relativePath = normalizedPath.slice(normalizedSrcDir.length);
 				// Dot ensures we match "middleware.ts" but not e.g. "middleware-utils.ts"
-				if (!relativePath.startsWith(`${MIDDLEWARE_PATH_SEGMENT_NAME}.`)) return;
+				// Slash matches files inside the "middleware/" directory
+				if (
+					!relativePath.startsWith(`${MIDDLEWARE_PATH_SEGMENT_NAME}.`) &&
+					!relativePath.startsWith(`${MIDDLEWARE_PATH_SEGMENT_NAME}/`)
+				)
+					return;
 
 				for (const name of [
 					ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
