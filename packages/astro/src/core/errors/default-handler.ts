@@ -8,6 +8,7 @@ import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { matchRoute } from '../routing/match.js';
 import { provideSession } from '../session/handler.js';
+import { validateHost } from '../app/validate-headers.js';
 import type { ErrorHandler } from './handler.js';
 
 type ErrorPagePath =
@@ -54,30 +55,44 @@ export class DefaultErrorHandler implements ErrorHandler {
 		if (errorRouteData) {
 			if (errorRouteData.prerender) {
 				const maybeDotHtml = errorRouteData.route.endsWith(`/${status}`) ? '.html' : '';
-				const statusURL = new URL(`${app.baseWithoutTrailingSlash}/${status}${maybeDotHtml}`, url);
+				// Validate the request URL origin before using it for the error page fetch.
+				// Without this, an attacker-controlled Host header flows into statusURL,
+				// causing the server to fetch from an arbitrary origin (SSRF).
+				const allowedDomains = app.manifest.allowedDomains;
+				const validatedHost = validateHost(url.host, url.protocol.replace(':', ''), allowedDomains);
+				const safeOrigin = validatedHost ? url.origin : `${url.protocol}//localhost`;
+				const statusURL = new URL(`${app.baseWithoutTrailingSlash}/${status}${maybeDotHtml}`, safeOrigin);
 				if (
 					statusURL.toString() !== request.url &&
 					resolvedRenderOptions.prerenderedErrorPageFetch
 				) {
-					const response = await resolvedRenderOptions.prerenderedErrorPageFetch(
-						statusURL.toString() as ErrorPagePath,
-					);
+					try {
+						const response = await resolvedRenderOptions.prerenderedErrorPageFetch(
+							statusURL.toString() as ErrorPagePath,
+						);
 
-					// In order for the response of the remote to be usable as a response
-					// for this request, it needs to have our status code in the response
-					// instead of the likely successful 200 code it returned when fetching
-					// the error page.
-					//
-					// Furthermore, remote may have returned a compressed page
-					// (the Content-Encoding header was set to e.g. `gzip`). The fetch
-					// implementation in the `mergeResponses` method will make a decoded
-					// response available, so Content-Length and Content-Encoding will
-					// not match the body we provide and need to be removed.
-					const override = { status, removeContentEncodingHeaders: true };
+						// In order for the response of the remote to be usable as a response
+						// for this request, it needs to have our status code in the response
+						// instead of the likely successful 200 code it returned when fetching
+						// the error page.
+						//
+						// Furthermore, remote may have returned a compressed page
+						// (the Content-Encoding header was set to e.g. `gzip`). The fetch
+						// implementation in the `mergeResponses` method will make a decoded
+						// response available, so Content-Length and Content-Encoding will
+						// not match the body we provide and need to be removed.
+						const override = { status, removeContentEncodingHeaders: true };
 
-					const newResponse = mergeResponses(response, originalResponse, override);
-					prepareResponse(newResponse, resolvedRenderOptions);
-					return newResponse;
+						const newResponse = mergeResponses(response, originalResponse, override);
+						prepareResponse(newResponse, resolvedRenderOptions);
+						return newResponse;
+					} catch {
+						// If the error page fetch fails (e.g. connection refused), fall
+						// through to the plain error response below.
+						const response = mergeResponses(new Response(null, { status }), originalResponse);
+						prepareResponse(response, resolvedRenderOptions);
+						return response;
+					}
 				}
 			}
 			const mod = await app.pipeline.getComponentByRoute(errorRouteData);
