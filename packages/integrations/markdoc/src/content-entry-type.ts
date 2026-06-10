@@ -381,7 +381,7 @@ function getStringifiedImports(
 
 function toImportName(unsafeName: string) {
 	// TODO: more checks that name is a safe JS variable name
-	return unsafeName.replace('-', '_');
+	return unsafeName.replaceAll('-', '_');
 }
 
 /**
