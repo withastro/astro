@@ -251,7 +251,7 @@ describe('spreadAttributes rejects invalid attribute keys', () => {
 	it('drops malicious keys while keeping valid ones', () => {
 		const result = String(
 			internalSpreadAttributes(
-				{ 'class': 'safe', 'x" onclick="alert(1)" y': 'bad', 'id': 'ok' },
+				{ class: 'safe', 'x" onclick="alert(1)" y': 'bad', id: 'ok' },
 				true,
 				'div',
 			),
