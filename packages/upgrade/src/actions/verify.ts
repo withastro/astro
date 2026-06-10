@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { color } from '@astrojs/cli-kit';
 import semverCoerce from 'semver/functions/coerce.js';
 import semverDiff from 'semver/functions/diff.js';
+import semverGt from 'semver/functions/gt.js';
 import semverParse from 'semver/functions/parse.js';
 import { bannerAbort, error, getRegistry, info, newline } from '../messages.js';
 import type { Context, PackageInfo } from './context.js';
@@ -90,6 +91,10 @@ function isSupportedPackage(name: string, version: string): boolean {
 	return true;
 }
 
+function parseCurrentVersion(version: string) {
+	return semverParse(version.replace(/^\D+/, '')) ?? semverCoerce(version);
+}
+
 export function collectPackageInfo(
 	ctx: Pick<Context, 'version' | 'packages'>,
 	dependencies: Record<string, string> = {},
@@ -145,6 +150,12 @@ async function resolveTargetVersion(packageInfo: PackageInfo, registry: string):
 	const { 'dist-tags': distTags } = await packageMetadata.json();
 	let version = distTags[packageInfo.targetVersion];
 	if (version) {
+		const currentVersion = parseCurrentVersion(packageInfo.currentVersion);
+		if (currentVersion && semverGt(currentVersion, version)) {
+			version = semverGt(distTags.latest, currentVersion)
+				? distTags.latest
+				: currentVersion.version;
+		}
 		packageInfo.tag = packageInfo.targetVersion;
 		packageInfo.targetVersion = version;
 	} else {
