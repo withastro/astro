@@ -1,6 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import mdx from '@astrojs/mdx';
+import { unified } from '@astrojs/markdown-remark';
 import { parseHTML } from 'linkedom';
 import remarkToc from 'remark-toc';
 import {
@@ -131,6 +132,30 @@ describe('MDX plugins - Astro config integration', () => {
 			});
 		});
 	}
+
+	it('does not inherit global processor when extendMarkdownConfig is false', async () => {
+		const fixture = await buildFixture({
+			outDir: './dist/mdx-plugins-no-inherit-processor/',
+			markdown: {
+				processor: unified({
+					rehypePlugins: [rehypeExamplePlugin],
+				}),
+			},
+			integrations: [
+				mdx({
+					extendMarkdownConfig: false,
+				}),
+			],
+		});
+		const html = await fixture.readFile(FILE);
+		const { document } = parseHTML(html);
+
+		assert.equal(
+			selectRehypeExample(document),
+			null,
+			'Global processor rehype plugin should not be applied to MDX when extendMarkdownConfig is false.',
+		);
+	});
 });
 
 async function buildFixture(config: AstroInlineConfig = {}): Promise<Fixture> {

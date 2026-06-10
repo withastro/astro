@@ -12,6 +12,7 @@ import type {
 	HookParameters,
 } from 'astro';
 import type { MarkdownProcessor } from 'astro/markdown';
+import { unified } from '@astrojs/markdown-remark';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
 import { isSatteriProcessor, isUnifiedProcessor } from './processor-guards.js';
@@ -137,7 +138,9 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					defaults: markdownConfigToMdxOptions(markdownConfig, logger),
 				});
 
-				const processor = partialMdxOptions.processor ?? config.markdown.processor;
+				const processor =
+					partialMdxOptions.processor ??
+					(extendMarkdownConfig ? config.markdown.processor : unified());
 
 				if (extendMarkdownConfig && isUnifiedProcessor(processor)) {
 					// MDX inherits from the processor only when the user did NOT pass that option
