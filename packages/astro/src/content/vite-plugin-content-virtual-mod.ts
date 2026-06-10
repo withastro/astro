@@ -31,6 +31,26 @@ interface AstroContentVirtualModPluginParams {
 	fs: typeof nodeFs;
 }
 
+function invalidateAssetImports(viteServer: ViteDevServer, filePath: string) {
+	const timestamp = Date.now();
+	for (const environment of Object.values(viteServer.environments)) {
+		const modules = environment.moduleGraph.getModulesByFile(filePath);
+		if (modules) {
+			for (const module of modules) {
+				environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
+			}
+		}
+		if (isRunnableDevEnvironment(environment)) {
+			const runnerModules = environment.runner.evaluatedModules.getModulesByFile(filePath);
+			if (runnerModules) {
+				for (const runnerModule of runnerModules) {
+					environment.runner.evaluatedModules.invalidateModule(runnerModule);
+				}
+			}
+		}
+	}
+}
+
 function invalidateDataStore(viteServer: ViteDevServer) {
 	const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
@@ -84,10 +104,13 @@ export function astroContentVirtualModPlugin({
 		},
 		buildStart() {
 			if (devServer) {
+				const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
 				// We defer adding the data store file to the watcher until the server is ready
 				devServer.watcher.add(fileURLToPath(dataStoreFile));
+				devServer.watcher.add(assetImportsPath);
 				// Manually invalidate the data store to avoid a race condition in file watching
 				invalidateDataStore(devServer);
+				invalidateAssetImports(devServer, assetImportsPath);
 			}
 		},
 		resolveId: {
@@ -209,17 +232,21 @@ export function astroContentVirtualModPlugin({
 		configureServer(server) {
 			devServer = server;
 			const dataStorePath = fileURLToPath(dataStoreFile);
-			// If the datastore file changes, invalidate the virtual module
+			const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
 
 			server.watcher.on('add', (addedPath) => {
 				if (addedPath === dataStorePath) {
 					invalidateDataStore(server);
+					invalidateAssetImports(server, assetImportsPath);
 				}
 			});
 
 			server.watcher.on('change', (changedPath) => {
 				if (changedPath === dataStorePath) {
 					invalidateDataStore(server);
+					invalidateAssetImports(server, assetImportsPath);
+				} else if (changedPath === assetImportsPath) {
+					invalidateAssetImports(server, assetImportsPath);
 				}
 			});
 		},
