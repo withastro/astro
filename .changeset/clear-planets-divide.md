@@ -65,3 +65,7 @@ await cache.invalidate({ path: '/products/123' });
 ```
 
 Both tag-based and path-based invalidation are supported.
+
+#### Conditional revalidation
+
+When the [`CF_VERSION_METADATA`](https://developers.cloudflare.com/workers/runtime-apis/bindings/version-metadata/) binding is configured, the provider folds the Worker version id into a weak `ETag` on cacheable responses (alongside `Last-Modified`, if present). This makes the validator change on a redeploy as well as on a content edit, so conditional revalidation returns a fresh `200` after a deploy that changes rendered output — for example new hashed asset URLs — even when the content's `lastModified` is unchanged. An explicitly provided `etag` is always respected.

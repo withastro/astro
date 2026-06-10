@@ -79,6 +79,52 @@ describe('Cloudflare cache provider', () => {
 		);
 	});
 
+	it('emits a deploy-aware weak ETag embedding the Worker version', async () => {
+		const res = await fixture.fetch('/api');
+
+		const etag = res.headers.get('ETag');
+		assert.ok(etag, 'ETag header should be present when CF_VERSION_METADATA is set');
+		assert.ok(etag.startsWith('W/"'), `expected a weak ETag, got: ${etag}`);
+
+		// The ETag must embed the same version id that tagged the response, so a
+		// redeploy changes the validator and conditional revalidation returns 200.
+		const cacheTag = res.headers.get('Cache-Tag') ?? '';
+		const versionTag = cacheTag.split(',').find((t) => t.startsWith('astro-version:'));
+		assert.ok(versionTag, `expected an 'astro-version:' tag, got: ${cacheTag}`);
+		const versionId = versionTag.slice('astro-version:'.length);
+		assert.ok(
+			etag.includes(versionId),
+			`expected ETag to embed version id '${versionId}', got: ${etag}`,
+		);
+	});
+
+	it('combines the Worker version and content lastModified in the ETag', async () => {
+		const res = await fixture.fetch('/lastmod');
+
+		const etag = res.headers.get('ETag');
+		assert.ok(etag, 'ETag header should be present');
+		assert.ok(etag.startsWith('W/"'), `expected a weak ETag, got: ${etag}`);
+
+		const lastModifiedMs = new Date('2024-01-01T00:00:00.000Z').getTime();
+		assert.ok(
+			etag.endsWith(`:${lastModifiedMs}"`),
+			`expected ETag to end with content time ':${lastModifiedMs}', got: ${etag}`,
+		);
+
+		// Last-Modified is still emitted; If-None-Match (ETag) takes precedence on
+		// revalidation per RFC 9110.
+		assert.ok(res.headers.get('Last-Modified'), 'Last-Modified should still be present');
+	});
+
+	it('respects an explicitly provided ETag', async () => {
+		const res = await fixture.fetch('/explicit-etag');
+		assert.equal(
+			res.headers.get('ETag'),
+			'"user-provided"',
+			'an explicit ETag must not be overridden by the deploy-aware default',
+		);
+	});
+
 	it('defaults to no-store for responses with no cache rules', async () => {
 		const res = await fixture.fetch('/uncached');
 		assert.equal(res.status, 200);
