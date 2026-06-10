@@ -14,6 +14,9 @@ const DOUBLE_QUOTE_REGEX = /"/g;
 
 const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
+// Per the HTML spec, attribute names must not contain ASCII whitespace, ", ', >, /, or =.
+const INVALID_ATTR_NAME_CHAR = /[\s"'>/=]/;
+
 // converts (most) arbitrary strings to valid JS identifiers
 const toIdent = (k: string) =>
 	k.trim().replace(/(?!^)\b\w|\s+|\W+/g, (match, index) => {
@@ -80,6 +83,11 @@ function handleBooleanAttribute(
 // on the compiler side because it is used only for custom elements
 export function addAttribute(value: any, key: string, shouldEscape = true, tagName = '') {
 	if (value == null) {
+		return '';
+	}
+
+	// Reject attribute names with characters that could break out of the attribute context.
+	if (INVALID_ATTR_NAME_CHAR.test(key)) {
 		return '';
 	}
 
