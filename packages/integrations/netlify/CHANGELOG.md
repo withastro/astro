@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 7.0.13
+
+### Patch Changes
+
+- [#17018](https://github.com/withastro/astro/pull/17018) [`1310277`](https://github.com/withastro/astro/commit/1310277db33cd93aa99e87492650c633af0fe257) Thanks [@matthewp](https://github.com/matthewp)! - Hardens `remotePatterns` regex generation to match canonical wildcard semantics more strictly
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 7.0.12
 
 ### Patch Changes
