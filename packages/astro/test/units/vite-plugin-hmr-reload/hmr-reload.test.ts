@@ -45,6 +45,7 @@ describe('astro:hmr-reload', () => {
 		const environment = {
 			name: options.environmentName,
 			moduleGraph: {
+				idToModuleMap: new Map(),
 				invalidateModule(mod: any, seen?: Set<any>, _ts?: number, _hmr?: boolean) {
 					invalidated.push(mod);
 					if (seen) {
@@ -169,6 +170,24 @@ describe('astro:hmr-reload', () => {
 		assert.ok(Array.isArray(result), 'should return an array');
 		assert.equal(result.length, 0, 'should return empty array for styles');
 		assert.equal(ctx.wsSent.length, 0, 'should NOT send full-reload for style modules');
+	});
+
+	it('invalidates raw CSS imports as SSR-only modules', () => {
+		const mod = createMockModule('/src/styles/main.css?raw', '/src/styles/main.css');
+		const ctx = createMockContext({
+			environmentName: 'ssr',
+			modules: [mod],
+			clientModuleIds: [],
+		});
+
+		const result = ctx.call();
+
+		assert.ok(Array.isArray(result), 'should return an array');
+		assert.equal(result.length, 0, 'should return empty array');
+		assert.equal(ctx.invalidated.length, 1, 'should invalidate raw CSS module');
+		assert.equal(ctx.invalidated[0], mod);
+		assert.equal(ctx.wsSent.length, 1);
+		assert.deepEqual(ctx.wsSent[0], { type: 'full-reload' });
 	});
 
 	it('invalidates importers in the module graph for dynamic import chains', () => {
