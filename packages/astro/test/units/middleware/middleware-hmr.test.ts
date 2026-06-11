@@ -1,18 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../../../dist/core/constants.js';
-
-/**
- * Mirrors the path-matching logic used by the middleware vite plugin's
- * file watcher to decide whether a changed file should trigger middleware
- * HMR invalidation. See: packages/astro/src/core/middleware/vite-plugin.ts
- */
-function isMiddlewarePath(relativePath: string) {
-	return (
-		relativePath.startsWith(`${MIDDLEWARE_PATH_SEGMENT_NAME}.`) ||
-		relativePath.startsWith(`${MIDDLEWARE_PATH_SEGMENT_NAME}/`)
-	);
-}
+import { isMiddlewarePath } from '../../../dist/core/middleware/vite-plugin.js';
 
 describe('middleware HMR path matching', () => {
 	it('matches middleware.ts (single-file pattern)', () => {
