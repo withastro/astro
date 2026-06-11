@@ -35,6 +35,7 @@ import { getParams, getProps } from '../render/index.js';
 import { Rewrites } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
 import { normalizeUrl } from '../util/normalized-url.js';
+import { validateAndDecodePathname } from '../util/pathname.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
 import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
@@ -839,9 +840,9 @@ export class FetchState implements AstroFetchState {
 			return;
 		}
 
-		// this.pathname is already decoded by #computePathname, so no
-		// additional decodeURI here — that would double-decode and allow
-		// double-encoded paths like /%2561dmin to bypass route checks.
+		// this.pathname is already fully decoded by #computePathname
+		// (which iteratively decodes all encoding levels), so no
+		// additional decoding is needed here.
 		const matched = pipeline.matchRoute(this.pathname);
 		// In production SSR, prerendered routes are served as static files
 		// by the hosting layer and should not be rendered by the app.
@@ -899,7 +900,7 @@ export class FetchState implements AstroFetchState {
 		}
 		pathname = prependForwardSlash(pathname);
 		try {
-			return decodeURI(pathname);
+			return validateAndDecodePathname(pathname);
 		} catch (e: any) {
 			this.pipeline.logger.error(null, e.toString());
 			return pathname;
