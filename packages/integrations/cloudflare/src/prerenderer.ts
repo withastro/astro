@@ -134,6 +134,20 @@ export function createCloudflarePrerenderer({
 				redirect: 'manual',
 			});
 
+			// Check for prerender errors surfaced by the workerd handler via header
+			// (the response body may be stripped by the Vite preview server).
+			const prerenderError = response.headers.get('x-astro-prerender-error');
+			if (prerenderError) {
+				throw new Error(`Failed to prerender ${request.url}: ${prerenderError}`);
+			}
+
+			if (!response.ok && response.status !== 301 && response.status !== 302 && response.status !== 307 && response.status !== 308) {
+				const details = await response.text().catch(() => '');
+				throw new Error(
+					`Failed to prerender ${request.url}: ${details || `${response.status} ${response.statusText}`}`,
+				);
+			}
+
 			return response;
 		},
 
