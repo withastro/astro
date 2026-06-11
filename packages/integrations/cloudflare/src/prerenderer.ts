@@ -18,6 +18,7 @@ import {
 	STATIC_PATHS_ENDPOINT,
 	PRERENDER_ENDPOINT,
 	STATIC_IMAGES_ENDPOINT,
+	PRERENDER_ERROR_HEADER,
 } from './utils/prerender-constants.js';
 
 interface CloudflarePrerendererOptions {
@@ -133,6 +134,13 @@ export function createCloudflarePrerenderer({
 				body: JSON.stringify(body),
 				redirect: 'manual',
 			});
+
+			if (response.headers.has(PRERENDER_ERROR_HEADER)) {
+				const detail = await response.text();
+				throw new Error(
+					`An error was thrown while prerendering ${request.url} in the Cloudflare workerd runtime.\n${detail}`,
+				);
+			}
 
 			return response;
 		},

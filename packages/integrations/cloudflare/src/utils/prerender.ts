@@ -27,6 +27,7 @@ import {
 	STATIC_PATHS_ENDPOINT,
 	PRERENDER_ENDPOINT,
 	STATIC_IMAGES_ENDPOINT,
+	PRERENDER_ERROR_HEADER,
 } from './prerender-constants.js';
 
 /**
@@ -78,7 +79,28 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 		method: 'GET',
 		headers,
 	});
-	return app.render(prerenderRequest, { routeData });
+	try {
+		const response = await app.render(prerenderRequest, { routeData });
+		// Pages stream by default, so an error thrown mid-render would otherwise
+		// surface only after the 200 status line has been sent, leaving the
+		// Node-side prerenderer with a silently truncated body. Buffering the
+		// body here turns that mid-stream error into a rejection we can report.
+		const buffered = await response.arrayBuffer();
+		return new Response(buffered, {
+			status: response.status,
+			statusText: response.statusText,
+			headers: response.headers,
+		});
+	} catch (err) {
+		const detail = err instanceof Error ? (err.stack ?? err.message) : String(err);
+		return new Response(detail, {
+			status: 500,
+			headers: {
+				[PRERENDER_ERROR_HEADER]: err instanceof Error ? err.name : 'Error',
+				'Content-Type': 'text/plain',
+			},
+		});
+	}
 }
 
 export function isStaticImagesRequest(request: Request): boolean {
