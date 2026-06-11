@@ -49,6 +49,7 @@ minimumReleaseAgeExclude:
   - wrangler
   - 'satteri'
   - '@bruits/*'
+  - '@napi-rs/wasm-runtime@1.1.5'
 peerDependencyRules:
   allowAny:
     - 'astro'

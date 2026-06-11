@@ -195,7 +195,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "workspace:*",
-    "@astrojs/compiler-rs": "^0.1.6",
+    "@astrojs/compiler-rs": "^0.2.2",
     "@playwright/test": "1.58.2",
     "@types/aria-query": "^5.0.4",
     "@types/hast": "^3.0.4",
