@@ -1,13 +1,13 @@
 import fs, { readFileSync } from 'node:fs';
 import { basename } from 'node:path/posix';
 import colors from 'piccolore';
-import { getOutDirWithinCwd } from '../../core/build/common.js';
 import type { StaticBuildOptions } from '../../core/build/types.js';
 import { getTimeStat } from '../../core/build/util.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { AstroErrorData } from '../../core/errors/index.js';
 import type { AstroLogger } from '../../core/logger/core.js';
 import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
+import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { MapValue } from '../../type-utils.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import { getConfiguredImageService } from '../internal.js';
@@ -76,8 +76,11 @@ export async function prepareAssetsGenerationEnv(
 		serverRoot = new URL('.prerender/', settings.config.build.server);
 		clientRoot = settings.config.build.client;
 	} else {
-		serverRoot = getOutDirWithinCwd(settings.config.outDir);
-		clientRoot = settings.config.outDir;
+		// For static builds, images have already been moved to the client output directory
+		// by ssrMoveAssets. Use getClientOutputDirectory to respect preserveBuildClientDir.
+		const clientOutputDir = getClientOutputDirectory(settings);
+		serverRoot = clientOutputDir;
+		clientRoot = clientOutputDir;
 	}
 
 	return {
