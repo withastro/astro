@@ -7,7 +7,7 @@ import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../../../dist/core/constants.js';
  * file watcher to decide whether a changed file should trigger middleware
  * HMR invalidation. See: packages/astro/src/core/middleware/vite-plugin.ts
  */
-function isMiddlewarePath(relativePath) {
+function isMiddlewarePath(relativePath: string) {
 	return (
 		relativePath.startsWith(`${MIDDLEWARE_PATH_SEGMENT_NAME}.`) ||
 		relativePath.startsWith(`${MIDDLEWARE_PATH_SEGMENT_NAME}/`)
