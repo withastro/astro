@@ -191,7 +191,7 @@ importers:
   examples/advanced-routing:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.0.0-alpha.0
+        specifier: ^11.0.0-beta.1
         version: link:../../packages/integrations/node
       astro:
         specifier: ^7.0.0-beta.3
@@ -209,7 +209,7 @@ importers:
   examples/blog:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^7.0.0-alpha.1
+        specifier: ^7.0.0-beta.2
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
         specifier: ^4.0.18
@@ -233,7 +233,7 @@ importers:
   examples/container-with-vitest:
     dependencies:
       '@astrojs/react':
-        specifier: ^6.0.0-alpha.0
+        specifier: ^6.0.0-beta.1
         version: link:../../packages/integrations/react
       astro:
         specifier: ^7.0.0-beta.3
@@ -258,7 +258,7 @@ importers:
   examples/framework-alpine:
     dependencies:
       '@astrojs/alpinejs':
-        specifier: ^1.0.0-alpha.0
+        specifier: ^1.0.0-beta.1
         version: link:../../packages/integrations/alpinejs
       '@types/alpinejs':
         specifier: ^3.13.11
@@ -273,19 +273,19 @@ importers:
   examples/framework-multiple:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.0.0-alpha.0
+        specifier: ^6.0.0-beta.1
         version: link:../../packages/integrations/preact
       '@astrojs/react':
-        specifier: ^6.0.0-alpha.0
+        specifier: ^6.0.0-beta.1
         version: link:../../packages/integrations/react
       '@astrojs/solid-js':
-        specifier: ^7.0.0-alpha.0
+        specifier: ^7.0.0-beta.1
         version: link:../../packages/integrations/solid
       '@astrojs/svelte':
-        specifier: ^9.0.0-alpha.2
+        specifier: ^9.0.0-beta.3
         version: link:../../packages/integrations/svelte
       '@astrojs/vue':
-        specifier: ^7.0.0-alpha.0
+        specifier: ^7.0.0-beta.1
         version: link:../../packages/integrations/vue
       '@types/react':
         specifier: ^18.3.28
@@ -318,7 +318,7 @@ importers:
   examples/framework-preact:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.0.0-alpha.0
+        specifier: ^6.0.0-beta.1
         version: link:../../packages/integrations/preact
       '@preact/signals':
         specifier: ^2.8.1
@@ -333,7 +333,7 @@ importers:
   examples/framework-react:
     dependencies:
       '@astrojs/react':
-        specifier: ^6.0.0-alpha.0
+        specifier: ^6.0.0-beta.1
         version: link:../../packages/integrations/react
       '@types/react':
         specifier: ^18.3.28
@@ -354,7 +354,7 @@ importers:
   examples/framework-solid:
     dependencies:
       '@astrojs/solid-js':
-        specifier: ^7.0.0-alpha.0
+        specifier: ^7.0.0-beta.1
         version: link:../../packages/integrations/solid
       astro:
         specifier: ^7.0.0-beta.3
@@ -366,7 +366,7 @@ importers:
   examples/framework-svelte:
     dependencies:
       '@astrojs/svelte':
-        specifier: ^9.0.0-alpha.2
+        specifier: ^9.0.0-beta.3
         version: link:../../packages/integrations/svelte
       astro:
         specifier: ^7.0.0-beta.3
@@ -378,7 +378,7 @@ importers:
   examples/framework-vue:
     dependencies:
       '@astrojs/vue':
-        specifier: ^7.0.0-alpha.0
+        specifier: ^7.0.0-beta.1
         version: link:../../packages/integrations/vue
       astro:
         specifier: ^7.0.0-beta.3
@@ -390,7 +390,7 @@ importers:
   examples/hackernews:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.0.0-alpha.0
+        specifier: ^11.0.0-beta.1
         version: link:../../packages/integrations/node
       astro:
         specifier: ^7.0.0-beta.3
@@ -417,10 +417,10 @@ importers:
   examples/ssr:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.0.0-alpha.0
+        specifier: ^11.0.0-beta.1
         version: link:../../packages/integrations/node
       '@astrojs/svelte':
-        specifier: ^9.0.0-alpha.2
+        specifier: ^9.0.0-beta.3
         version: link:../../packages/integrations/svelte
       astro:
         specifier: ^7.0.0-beta.3
@@ -453,7 +453,7 @@ importers:
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
-        specifier: ^2.0.0-alpha.0
+        specifier: ^2.0.0-beta.1
         version: link:../../packages/integrations/markdoc
       astro:
         specifier: ^7.0.0-beta.3
@@ -462,10 +462,10 @@ importers:
   examples/with-mdx:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^7.0.0-alpha.1
+        specifier: ^7.0.0-beta.2
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
-        specifier: ^6.0.0-alpha.0
+        specifier: ^6.0.0-beta.1
         version: link:../../packages/integrations/preact
       astro:
         specifier: ^7.0.0-beta.3
@@ -477,7 +477,7 @@ importers:
   examples/with-nanostores:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.0.0-alpha.0
+        specifier: ^6.0.0-beta.1
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
         specifier: ^1.0.0
@@ -495,7 +495,7 @@ importers:
   examples/with-tailwindcss:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^7.0.0-alpha.1
+        specifier: ^7.0.0-beta.2
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.2.1
