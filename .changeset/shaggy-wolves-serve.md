@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Adds wrangler schema to generated wrangler.jsonc file when running `astro add cloudflare` command
+Adds a JSON schema to the Wrangler configuration file generated when running `astro add cloudflare`
