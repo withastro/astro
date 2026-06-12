@@ -263,6 +263,88 @@ describe('getLocaleRelativeUrl', () => {
 		);
 	});
 
+	it('should not add trailing slash when trailingSlash is "never" and path is empty or "/" (#17034)', () => {
+		const config = {
+			i18n: {
+				defaultLocale: 'en',
+				locales: ['en', 'pl'],
+			},
+		};
+
+		// path omitted vs path='' should produce the same result
+		assert.equal(
+			relativeUrl({
+				locale: 'pl',
+				base: '/',
+				...config.i18n,
+				trailingSlash: 'never',
+				format: 'directory',
+			}),
+			'/pl',
+		);
+		assert.equal(
+			relativeUrl({
+				locale: 'pl',
+				base: '/',
+				...config.i18n,
+				trailingSlash: 'never',
+				format: 'directory',
+				path: '',
+			}),
+			'/pl',
+		);
+		assert.equal(
+			relativeUrl({
+				locale: 'pl',
+				base: '/',
+				...config.i18n,
+				trailingSlash: 'never',
+				format: 'directory',
+				path: '/',
+			}),
+			'/pl',
+		);
+
+		// prependWith + trailing slash in path
+		assert.equal(
+			relativeUrl({
+				locale: 'pl',
+				base: '/',
+				...config.i18n,
+				trailingSlash: 'never',
+				format: 'directory',
+				path: 'docs/setup/',
+				prependWith: 'blog',
+			}),
+			'/blog/pl/docs/setup',
+		);
+
+		// absolute URL should also strip trailing slash
+		assert.equal(
+			absoluteUrl({
+				locale: 'pl',
+				base: '/',
+				...config.i18n,
+				trailingSlash: 'never',
+				format: 'directory',
+				path: '',
+				site: 'https://example.com',
+			}),
+			'https://example.com/pl',
+		);
+
+		// absoluteUrlList should be consistent across all locales
+		const list = absoluteUrlList({
+			base: '/',
+			...config.i18n,
+			trailingSlash: 'never',
+			format: 'directory',
+			path: '',
+			site: 'https://example.com',
+		});
+		assert.deepEqual(list, ['https://example.com', 'https://example.com/pl']);
+	});
+
 	it('should normalize locales by default', () => {
 		const config = {
 			base: '/blog',

@@ -31,6 +31,17 @@ import type { AuditRuleWithSelector } from './index.js';
 
 const WHITESPACE_REGEX = /\s+/;
 
+function isHiddenByClosedDetails(element: HTMLElement): boolean {
+	for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+		if (parent.localName !== 'details' || (parent as HTMLDetailsElement).open) continue;
+
+		const summary = Array.from(parent.children).find((child) => child.localName === 'summary');
+		if (!summary?.contains(element)) return true;
+	}
+
+	return false;
+}
+
 const a11y_required_attributes = {
 	a: ['href'],
 	area: ['alt', 'aria-label', 'aria-labelledby'],
@@ -367,6 +378,8 @@ export const a11y: AuditRuleWithSelector[] = [
 			'Headings and anchors must have an accessible name, which can come from: inner text, aria-label, aria-labelledby, an img with alt property, or an svg with a tag <title></title>.',
 		selector: a11y_required_content.join(','),
 		match(element: HTMLElement) {
+			if (isHiddenByClosedDetails(element)) return false;
+
 			// innerText is used to ignore hidden text
 			const innerText = element.innerText?.trim();
 			if (innerText && innerText !== '') return false;

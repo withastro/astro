@@ -120,16 +120,27 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	describe('Path encoding in middleware', () => {
-		it('should reject double-encoded paths with 400', async () => {
+		it('middleware protects double-encoded /admin path', async () => {
+			// %2561dmin is decoded iteratively: %2561 → %61 → a → admin
+			// Middleware sees /admin and redirects (no auth token).
 			const request = new Request('http://example.com/%2561dmin');
 			const response = await app.render(request);
-			assert.equal(response.status, 400);
+			assert.equal(
+				response.status,
+				302,
+				'double-encoded /admin should trigger middleware redirect',
+			);
 		});
 
-		it('should reject triple-encoded paths with 400', async () => {
+		it('middleware protects triple-encoded /admin path', async () => {
+			// %252561dmin → %2561dmin → %61dmin → admin
 			const request = new Request('http://example.com/%252561dmin');
 			const response = await app.render(request);
-			assert.equal(response.status, 400);
+			assert.equal(
+				response.status,
+				302,
+				'triple-encoded /admin should trigger middleware redirect',
+			);
 		});
 	});
 

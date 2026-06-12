@@ -48,12 +48,12 @@ function createNonStreamingApp(page: AstroComponentFactory, route: string): App 
 
 // #region Async components
 
-const AsyncChild = createComponent(async (_result: any, props: any) => {
+const AsyncChild = createComponent(async (_result, props) => {
 	await wait(15);
 	return render`<li>Item ${props.id}</li>\n`;
 });
 
-const StreamingPage = createComponent((result: any) => {
+const StreamingPage = createComponent((result) => {
 	return render`<html><head><title>Testing</title></head><body>
 <header><h1>My Site</h1></header>
 <ul>
@@ -75,7 +75,7 @@ ${renderComponent(result, 'AsyncChild', AsyncChild, { id: '10' })}
 
 // #region Fragment streaming components
 
-const FragmentStreamingPage = createComponent((result: any) => {
+const FragmentStreamingPage = createComponent((result) => {
 	const promise = wait(50).then(() => 'resolved');
 	return render`<html><head><title>Fragment Streaming</title></head><body>
 ${renderComponent(

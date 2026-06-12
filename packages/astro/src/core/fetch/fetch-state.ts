@@ -14,8 +14,8 @@ import type { RouteData, SSRResult } from '../../types/public/internal.js';
 import { AstroCookies } from '../cookies/index.js';
 import { type Pipeline, Slots } from '../render/index.js';
 import {
+	appSymbol,
 	ASTRO_GENERATOR,
-	DEFAULT_404_COMPONENT,
 	fetchStateSymbol,
 	originPathnameSymbol,
 	pipelineSymbol,
@@ -35,8 +35,10 @@ import { getParams, getProps } from '../render/index.js';
 import { Rewrites } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
 import { normalizeUrl } from '../util/normalized-url.js';
+import { validateAndDecodePathname } from '../util/pathname.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
-import { routeHasHtmlExtension } from '../routing/helpers.js';
+import { computePathnameFromDomain } from '../i18n/domain.js';
+import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
 import type { ResolvedRenderOptions } from '../app/base.js';
 import { getRenderOptions } from '../app/render-options.js';
 import { getFirstForwardedValue, validateForwardedHeaders } from '../app/validate-headers.js';
@@ -237,6 +239,13 @@ export class FetchState implements AstroFetchState {
 	#rewrites: Rewrites | undefined;
 	/** Memoized Astro page partial. */
 	#astroPagePartial?: Omit<AstroGlobal, 'props' | 'self' | 'slots'>;
+	/**
+	 * Locale-prefixed pathname derived from the Host header for domain-based
+	 * i18n routing (e.g. `/en/boats/1/foo`), or `undefined` when the request
+	 * isn't served from a locale-mapped domain. When set, `this.pathname` is
+	 * derived from it so locale/param resolution match the route pattern.
+	 */
+	#domainPathname: string | undefined;
 	/** Memoized current locale. */
 	#currentLocale: APIContext['currentLocale'];
 	/** Memoized preferred locale. */
@@ -264,7 +273,29 @@ export class FetchState implements AstroFetchState {
 		this.slots = undefined;
 		// Parse the URL once and derive both pathname and url from it.
 		const url = new URL(request.url);
-		this.pathname = this.#computePathname(url);
+		// For domain-based i18n routing, the locale prefix is derived from the
+		// request's Host header rather than its URL. When a locale is detected,
+		// the resulting pathname includes the prefix (e.g. /en/boats/1/foo) that
+		// the matched route pattern expects — use it instead of the raw URL
+		// pathname so param and locale resolution produce correct values.
+		const domainPathname = computePathnameFromDomain(
+			request,
+			url,
+			pipeline.manifest.i18n,
+			pipeline.manifest.base,
+			pipeline.manifest.trailingSlash,
+			pipeline.logger,
+		);
+		if (domainPathname) {
+			this.#domainPathname = domainPathname;
+			try {
+				this.pathname = decodeURI(domainPathname);
+			} catch {
+				this.pathname = domainPathname;
+			}
+		} else {
+			this.pathname = this.#computePathname(url);
+		}
 		this.timeStart = performance.now();
 		this.clientAddress = options?.clientAddress;
 		this.locals = (options?.locals ?? {}) as App.Locals;
@@ -279,10 +310,12 @@ export class FetchState implements AstroFetchState {
 			this.#applyForwardedHeaders();
 		}
 
-		// Set origin pathname for rewrite tracking.
-		if (!Reflect.get(request, originPathnameSymbol)) {
+		// Set origin pathname for rewrite tracking. Use this.request
+		// (not the local parameter) because #applyForwardedHeaders()
+		// may have reconstructed it with a forwarded URL.
+		if (!Reflect.get(this.request, originPathnameSymbol)) {
 			setOriginPathname(
-				request,
+				this.request,
 				this.pathname,
 				pipeline.manifest.trailingSlash,
 				pipeline.manifest.buildFormat,
@@ -579,10 +612,8 @@ export class FetchState implements AstroFetchState {
 		}
 		return {
 			insertDirective(payload) {
-				if (state?.result?.directives) {
+				if (state.result) {
 					state.result.directives = pushDirective(state.result.directives, payload);
-				} else {
-					state?.result?.directives.push(payload);
 				}
 			},
 			insertScriptResource(resource) {
@@ -630,7 +661,14 @@ export class FetchState implements AstroFetchState {
 			}
 		} else {
 			let pathname = routeData.pathname;
-			if (url && !routeData.pattern.test(url.pathname)) {
+			// For domain-based i18n the locale prefix comes from the Host header,
+			// not the URL. `this.pathname` carries the locale-prefixed path the
+			// route matched against (e.g. `/en/boats/1/foo`), whereas `url.pathname`
+			// does not. This matters for dynamic routes, which have no static
+			// `routeData.pathname` to fall back to. See #16854.
+			if (this.#domainPathname) {
+				pathname = this.pathname;
+			} else if (url && !routeData.pattern.test(url.pathname)) {
 				for (const fallbackRoute of routeData.fallbackRoutes) {
 					if (fallbackRoute.pattern.test(url.pathname)) {
 						pathname = fallbackRoute.pathname;
@@ -776,11 +814,18 @@ export class FetchState implements AstroFetchState {
 	 */
 	/**
 	 * Strip `.html` / `/index.html` suffixes from the pathname so the
-	 * rendering pipeline sees the canonical route path. Skipped when the
-	 * matched route itself has an `.html` extension in its definition.
+	 * rendering pipeline sees the canonical route path. Only applies to
+	 * page routes where `.html` is framework-injected. Endpoint routes
+	 * preserve `.html` because any such suffix is user-provided (e.g.
+	 * from `getStaticPaths` params). Skipped when the matched route
+	 * itself has an `.html` extension in its definition.
 	 */
 	#stripHtmlExtension(): void {
-		if (this.routeData && !routeHasHtmlExtension(this.routeData)) {
+		if (
+			this.routeData &&
+			this.routeData.type === 'page' &&
+			!routeHasHtmlExtension(this.routeData)
+		) {
 			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 		}
 	}
@@ -795,9 +840,9 @@ export class FetchState implements AstroFetchState {
 			return;
 		}
 
-		// this.pathname is already decoded by #computePathname, so no
-		// additional decodeURI here — that would double-decode and allow
-		// double-encoded paths like /%2561dmin to bypass route checks.
+		// this.pathname is already fully decoded by #computePathname
+		// (which iteratively decodes all encoding levels), so no
+		// additional decoding is needed here.
 		const matched = pipeline.matchRoute(this.pathname);
 		// In production SSR, prerendered routes are served as static files
 		// by the hosting layer and should not be rendered by the app.
@@ -820,9 +865,14 @@ export class FetchState implements AstroFetchState {
 
 		// Fall back to a 404 route so middleware can still run.
 		if (!this.routeData) {
-			this.routeData = pipeline.manifestData.routes.find(
-				(route) => route.component === '404.astro' || route.component === DEFAULT_404_COMPONENT,
-			);
+			const custom404 = getCustom404Route(pipeline.manifestData);
+			// Only use SSR 404 routes here. Prerendered 404 pages are already
+			// built to static HTML, so the pipeline can't render them at
+			// runtime. Leaving routeData unset lets the error handler serve
+			// the pre-built page from disk instead.
+			if (custom404 && !custom404.prerender) {
+				this.routeData = custom404;
+			}
 		}
 		if (!this.routeData) {
 			pipeline.logger.debug('router', "Astro hasn't found routes that match " + this.request.url);
@@ -850,7 +900,7 @@ export class FetchState implements AstroFetchState {
 		}
 		pathname = prependForwardSlash(pathname);
 		try {
-			return decodeURI(pathname);
+			return validateAndDecodePathname(pathname);
 		} catch (e: any) {
 			this.pipeline.logger.error(null, e.toString());
 			return pathname;
@@ -909,6 +959,23 @@ export class FetchState implements AstroFetchState {
 			if (forwardedFor) {
 				this.clientAddress = forwardedFor;
 			}
+		}
+
+		// Reconstruct the Request with the resolved URL so that
+		// request.url stays in sync with this.url. Request.url is a
+		// readonly string, so we must create a new Request object. The
+		// constructor carries over method, headers, body (incl. stream +
+		// duplex) and signal from the old request.
+		const oldRequest = this.request;
+		this.request = new Request(this.url, oldRequest);
+		// Re-attach `appSymbol`: the rest of the pipeline resolves the app
+		// via `getApp(state.request)` (see core/fetch/index.ts), so the new
+		// Request must carry it. We copy only this known Astro symbol.
+		// Other request-bound state is either already captured on
+		// `this` (clientAddress) or set after this point (originPathname).
+		const app = Reflect.get(oldRequest, appSymbol);
+		if (app !== undefined) {
+			Reflect.set(this.request, appSymbol, app);
 		}
 	}
 

@@ -686,6 +686,7 @@ export function createReference() {
 	return function reference(collection: string) {
 		return z
 			.union([
+				z.number().transform((num) => num.toString(10)),
 				z.string(),
 				z.object({
 					id: z.string(),

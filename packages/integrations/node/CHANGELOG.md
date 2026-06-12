@@ -1,5 +1,19 @@
 # @astrojs/node
 
+## 10.1.4
+
+### Patch Changes
+
+- [#16985](https://github.com/withastro/astro/pull/16985) [`4ecff32`](https://github.com/withastro/astro/commit/4ecff3268acb6ee3db719c4b38bbaead703ff4de) Thanks [@maximslo](https://github.com/maximslo)! - Fixes the `experimental.logger` destination not being used for the "Server listening on..." startup message. The logger is now resolved before the server starts listening, and `adapterLogger` re-creates itself when the underlying logger changes so the startup message uses the correct destination.
+
+## 10.1.3
+
+### Patch Changes
+
+- [#16922](https://github.com/withastro/astro/pull/16922) [`7dce185`](https://github.com/withastro/astro/commit/7dce1852a4f185fb44f885030f48c1883e9b17ff) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes prerendered pages returning 404 when using `build.format: 'file'` or `build.format: 'preserve'` with the Node adapter in standalone mode.
+
+  Previously, clean URLs like `/about` would fail to resolve to `about.html` on disk, because the static file handler only supported the default `directory` format (`about/index.html`). Now the handler correctly resolves clean URLs to `.html` files when the build format produces them.
+
 ## 10.1.2
 
 ### Patch Changes

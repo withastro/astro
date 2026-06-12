@@ -33,8 +33,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
-      contents: write # Push fix commits
-      pull-requests: write # Update PR
+      contents: read # Read repo (push uses FREDKBOT_GITHUB_TOKEN)
+      pull-requests: read # Read PR state
       packages: read # Pull sandbox image from GHCR
     steps:
       - name: Lowercase image name
@@ -94,7 +94,7 @@ jobs:
 
       - name: Setup PNPM
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
-        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - name: Setup Node
         if: steps.pr.outputs.number != '' && steps.attempts.outputs.skip != 'true'
@@ -150,7 +150,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.CI_ANTHROPIC_API_KEY }}
           PR_NUMBER: ${{ steps.pr.outputs.number }}
         run: |
-          pnpm flue run .flue/workflows/merge-fix/WORKFLOW.ts \
-            --sandbox $IMAGE:latest \
-            --args "{\"prNumber\": $PR_NUMBER}" \
-            --model anthropic/claude-sonnet-4-20250514
+          pnpm exec flue run merge-fix \
+            --target node \
+            --payload "{\"prNumber\": $PR_NUMBER}"
