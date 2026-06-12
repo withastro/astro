@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Allowed coersion from numberic id references to strings.
+Fixes support for numeric IDs in YAML frontmatter when using content collection references
