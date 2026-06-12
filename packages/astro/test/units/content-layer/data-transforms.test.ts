@@ -570,5 +570,5 @@ describe('Content Layer - Data Transforms', () => {
 		assert.equal(result.data.id, 'beagle');
 		assert.equal(result.data.name, 'Beagle Dog');
 		assert.deepEqual(result.data.favoriteCat, { collection: 'cats', id: '1' });
-	})
+	});
 });
