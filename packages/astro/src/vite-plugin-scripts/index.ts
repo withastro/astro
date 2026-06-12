@@ -1,4 +1,4 @@
-import type { Plugin as VitePlugin } from 'vite';
+import type { Plugin as VitePlugin, ConfigEnv } from 'vite';
 import type { AstroSettings } from '../types/astro.js';
 import type { InjectedScriptStage } from '../types/public/integrations.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
@@ -14,8 +14,12 @@ export const PAGE_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'page' as InjectedScriptStag
 export const PAGE_SSR_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'page-ssr' as InjectedScriptStage}.js`;
 
 export default function astroScriptsPlugin({ settings }: { settings: AstroSettings }): VitePlugin {
+	let command: 'build' | 'serve';
 	return {
 		name: 'astro:scripts',
+		config(_: any, env: ConfigEnv) {
+			command = env.command;
+		},
 
 		resolveId: {
 			filter: {
@@ -58,6 +62,7 @@ export default function astroScriptsPlugin({ settings }: { settings: AstroSettin
 			},
 		},
 		buildStart() {
+			if (command === 'serve') return;
 			const hasHydrationScripts = settings.scripts.some((s) => s.stage === 'before-hydration');
 			if (
 				hasHydrationScripts &&

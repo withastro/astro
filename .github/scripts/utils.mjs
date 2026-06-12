@@ -51,3 +51,16 @@ function toCommandValue(input) {
 	}
 	return JSON.stringify(input);
 }
+
+/**
+ * Sets the summary for the current step in CI.
+ * Based on https://github.com/actions/toolkit/blob/main/packages/core/src/summary.ts
+ * @param {string} text
+ */
+export function setSummary(text) {
+	const filePath = process.env['GITHUB_STEP_SUMMARY'] || '';
+	if (filePath) {
+		return fs.writeFileSync(filePath, text);
+	}
+	process.stdout.write(os.EOL);
+}

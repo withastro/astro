@@ -1,5 +1,17 @@
 # @astrojs/underscore-redirects
 
+## 1.0.3
+
+### Patch Changes
+
+- [#16034](https://github.com/withastro/astro/pull/16034) [`814406d`](https://github.com/withastro/astro/commit/814406de7dc3ea014b47d2d886d55c45e4e1c034) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes generated redirect files to respect Astro’s `trailingSlash` configuration, so redirect routes work with the expected URL format in built output instead of returning a 404 when accessed with a trailing slash.
+
+## 1.0.2
+
+### Patch Changes
+
+- [#15979](https://github.com/withastro/astro/pull/15979) [`3b8d473`](https://github.com/withastro/astro/commit/3b8d473768bf7d356a21a0a432e6a33f90928a9e) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue where redirects in `_redirects` file where not correctly created with trailing slashes.
+
 ## 1.0.1
 
 ### Patch Changes

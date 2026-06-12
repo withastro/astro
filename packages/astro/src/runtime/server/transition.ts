@@ -57,7 +57,7 @@ const reEncodeInValidStart: string[] = '-0123456789_'
 	.split('')
 	.reduce((v, c) => ((v[c.charCodeAt(0)] = c), v), [] as string[]);
 
-function reEncode(s: string) {
+export function reEncode(s: string) {
 	let result = '';
 	let codepoint;
 	// we work on codepoints that might use more than 16bit, not character codes.
@@ -129,14 +129,16 @@ export function createAnimationScope(
 	return { scope, styles: sheet.toString().replaceAll('"', '') };
 }
 
-class ViewTransitionStyleSheet {
+export class ViewTransitionStyleSheet {
 	private modern: string[] = [];
 	private fallback: string[] = [];
+	private scope: string;
+	private name: string;
 
-	constructor(
-		private scope: string,
-		private name: string,
-	) {}
+	constructor(scope: string, name: string) {
+		this.scope = scope;
+		this.name = name;
+	}
 
 	toString() {
 		const { scope, name } = this;
@@ -227,7 +229,7 @@ function animationBuilder(): AnimationBuilder {
 	};
 }
 
-function stringifyAnimation(anim: TransitionAnimation | TransitionAnimation[]): string {
+export function stringifyAnimation(anim: TransitionAnimation | TransitionAnimation[]): string {
 	if (Array.isArray(anim)) {
 		return stringifyAnimations(anim);
 	} else {
@@ -235,7 +237,7 @@ function stringifyAnimation(anim: TransitionAnimation | TransitionAnimation[]): 
 	}
 }
 
-function stringifyAnimations(anims: TransitionAnimation[]): string {
+export function stringifyAnimations(anims: TransitionAnimation[]): string {
 	const builder = animationBuilder();
 
 	for (const anim of anims) {
@@ -260,6 +262,6 @@ function stringifyAnimations(anims: TransitionAnimation[]): string {
 	return builder.toString();
 }
 
-function toTimeValue(num: number | string) {
+export function toTimeValue(num: number | string) {
 	return typeof num === 'number' ? num + 'ms' : num;
 }

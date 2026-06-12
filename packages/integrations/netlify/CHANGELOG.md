@@ -1,5 +1,90 @@
 # @astrojs/netlify
 
+## 7.0.13
+
+### Patch Changes
+
+- [#17018](https://github.com/withastro/astro/pull/17018) [`1310277`](https://github.com/withastro/astro/commit/1310277db33cd93aa99e87492650c633af0fe257) Thanks [@matthewp](https://github.com/matthewp)! - Hardens `remotePatterns` regex generation to match canonical wildcard semantics more strictly
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.12
+
+### Patch Changes
+
+- [#16693](https://github.com/withastro/astro/pull/16693) [`9e6edc2`](https://github.com/withastro/astro/commit/9e6edc2da5ccf06243588a7f519dea5fbcc126cd) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes a link in the documentation specifying where to open an issue for the adapter.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.11
+
+### Patch Changes
+
+- Updated dependencies [[`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc)]:
+  - @astrojs/internal-helpers@0.10.0
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.10
+
+### Patch Changes
+
+- [#16661](https://github.com/withastro/astro/pull/16661) [`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0) Thanks [@ocavue](https://github.com/ocavue)! - Updates `typescript` to v6. No changes are needed from users.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.9
+
+### Patch Changes
+
+- [#16716](https://github.com/withastro/astro/pull/16716) [`04fdbb2`](https://github.com/withastro/astro/commit/04fdbb29978d5a00acfb956538e54256ae24b486) Thanks [@delucis](https://github.com/delucis)! - Updates internal dependencies
+
+- Updated dependencies [[`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce)]:
+  - @astrojs/internal-helpers@0.9.1
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.8
+
+### Patch Changes
+
+- Updated dependencies [[`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd), [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d)]:
+  - @astrojs/internal-helpers@0.9.0
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.7
+
+### Patch Changes
+
+- [#16027](https://github.com/withastro/astro/pull/16027) [`c62516b`](https://github.com/withastro/astro/commit/c62516bbbf8fdf95d38293440d28221c048c41f0) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes a bug where remote image dimensions were not validated during static builds on Netlify.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.6
+
+### Patch Changes
+
+- Updated dependencies [[`814406d`](https://github.com/withastro/astro/commit/814406de7dc3ea014b47d2d886d55c45e4e1c034)]:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.5
+
+### Patch Changes
+
+- [#16063](https://github.com/withastro/astro/pull/16063) [`ccb6a9c`](https://github.com/withastro/astro/commit/ccb6a9c918c1747ffab905af1492c45e5ca65f4b) Thanks [@matthewp](https://github.com/matthewp)! - Fixes server islands returning 404 in production when using `output: 'static'` (the default)
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.2
+
+## 7.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`3b8d473`](https://github.com/withastro/astro/commit/3b8d473768bf7d356a21a0a432e6a33f90928a9e)]:
+  - @astrojs/underscore-redirects@1.0.2
+
 ## 7.0.3
 
 ### Patch Changes

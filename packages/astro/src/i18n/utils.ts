@@ -91,7 +91,7 @@ export function computePreferredLocale(request: Request, locales: Locales): stri
 
 		const firstResult = browserLocaleList.at(0);
 		if (firstResult && firstResult.locale !== '*') {
-			for (const currentLocale of locales) {
+			outer: for (const currentLocale of locales) {
 				if (typeof currentLocale === 'string') {
 					if (normalizeTheLocale(currentLocale) === normalizeTheLocale(firstResult.locale)) {
 						result = currentLocale;
@@ -101,7 +101,7 @@ export function computePreferredLocale(request: Request, locales: Locales): stri
 					for (const currentCode of currentLocale.codes) {
 						if (normalizeTheLocale(currentCode) === normalizeTheLocale(firstResult.locale)) {
 							result = currentCode;
-							break;
+							break outer;
 						}
 					}
 				}
@@ -185,5 +185,40 @@ export function computeCurrentLocale(
 				return locale.codes.at(0);
 			}
 		}
+	}
+}
+
+/**
+ * Check if any of the route's resolved param values match a configured locale.
+ * This handles dynamic routes like `[locale]` or `[...path]` where the locale
+ * isn't in a static segment of the route pathname.
+ */
+export function computeCurrentLocaleFromParams(
+	params: Record<string, string | undefined>,
+	locales: Locales,
+): string | undefined {
+	// Precompute lookup maps for O(1) matching instead of nested loops.
+	// normalizedCode -> original locale string or first code for object locales
+	const byNormalizedCode = new Map<string, string>();
+	// path -> first code (for object locales)
+	const byPath = new Map<string, string>();
+
+	for (const locale of locales) {
+		if (typeof locale === 'string') {
+			byNormalizedCode.set(normalizeTheLocale(locale), locale);
+		} else {
+			byPath.set(locale.path, locale.codes[0]);
+			for (const code of locale.codes) {
+				byNormalizedCode.set(normalizeTheLocale(code), code);
+			}
+		}
+	}
+
+	for (const value of Object.values(params)) {
+		if (!value) continue;
+		const pathMatch = byPath.get(value);
+		if (pathMatch) return pathMatch;
+		const codeMatch = byNormalizedCode.get(normalizeTheLocale(value));
+		if (codeMatch) return codeMatch;
 	}
 }

@@ -1,7 +1,7 @@
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
-import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
+import { isRunnableDevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
@@ -31,6 +31,26 @@ interface AstroContentVirtualModPluginParams {
 	fs: typeof nodeFs;
 }
 
+function invalidateAssetImports(viteServer: ViteDevServer, filePath: string) {
+	const timestamp = Date.now();
+	for (const environment of Object.values(viteServer.environments)) {
+		const modules = environment.moduleGraph.getModulesByFile(filePath);
+		if (modules) {
+			for (const module of modules) {
+				environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
+			}
+		}
+		if (isRunnableDevEnvironment(environment)) {
+			const runnerModules = environment.runner.evaluatedModules.getModulesByFile(filePath);
+			if (runnerModules) {
+				for (const runnerModule of runnerModules) {
+					environment.runner.evaluatedModules.invalidateModule(runnerModule);
+				}
+			}
+		}
+	}
+}
+
 function invalidateDataStore(viteServer: ViteDevServer) {
 	const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
@@ -38,6 +58,19 @@ function invalidateDataStore(viteServer: ViteDevServer) {
 		const timestamp = Date.now();
 		// Pass `true` to mark this as HMR invalidation so Vite drops cached SSR results.
 		environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
+	}
+	// Also invalidate the module in the SSR module runner's evaluation cache.
+	// Server-side invalidation only clears `transformResult`, but the runner
+	// may still hold a stale evaluated result. When the runner's `fetchModule`
+	// call triggers a fresh server transform, the transform re-populates
+	// `transformResult` before the runner checks it, causing a false cache hit.
+	if (isRunnableDevEnvironment(environment)) {
+		const runnerModule = environment.runner.evaluatedModules.getModuleById(
+			RESOLVED_DATA_STORE_VIRTUAL_ID,
+		);
+		if (runnerModule) {
+			environment.runner.evaluatedModules.invalidateModule(runnerModule);
+		}
 	}
 	// Signal the SSR runner to clear its route cache so that getStaticPaths()
 	// is re-evaluated with the updated content collection data.
@@ -71,10 +104,13 @@ export function astroContentVirtualModPlugin({
 		},
 		buildStart() {
 			if (devServer) {
+				const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
 				// We defer adding the data store file to the watcher until the server is ready
 				devServer.watcher.add(fileURLToPath(dataStoreFile));
+				devServer.watcher.add(assetImportsPath);
 				// Manually invalidate the data store to avoid a race condition in file watching
 				invalidateDataStore(devServer);
+				invalidateAssetImports(devServer, assetImportsPath);
 			}
 		},
 		resolveId: {
@@ -196,17 +232,21 @@ export function astroContentVirtualModPlugin({
 		configureServer(server) {
 			devServer = server;
 			const dataStorePath = fileURLToPath(dataStoreFile);
-			// If the datastore file changes, invalidate the virtual module
+			const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
 
 			server.watcher.on('add', (addedPath) => {
 				if (addedPath === dataStorePath) {
 					invalidateDataStore(server);
+					invalidateAssetImports(server, assetImportsPath);
 				}
 			});
 
 			server.watcher.on('change', (changedPath) => {
 				if (changedPath === dataStorePath) {
 					invalidateDataStore(server);
+					invalidateAssetImports(server, assetImportsPath);
+				} else if (changedPath === assetImportsPath) {
+					invalidateAssetImports(server, assetImportsPath);
 				}
 			});
 		},

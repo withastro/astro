@@ -1,13 +1,13 @@
 import fs, { readFileSync } from 'node:fs';
 import { basename } from 'node:path/posix';
 import colors from 'piccolore';
-import { getOutDirWithinCwd } from '../../core/build/common.js';
 import type { StaticBuildOptions } from '../../core/build/types.js';
 import { getTimeStat } from '../../core/build/util.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { AstroErrorData } from '../../core/errors/index.js';
-import type { Logger } from '../../core/logger/core.js';
+import type { AstroLogger } from '../../core/logger/core.js';
 import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
+import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { MapValue } from '../../type-utils.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import { getConfiguredImageService } from '../internal.js';
@@ -31,7 +31,7 @@ interface GenerationDataCached {
 type GenerationData = GenerationDataUncached | GenerationDataCached;
 
 type AssetEnv = {
-	logger: Logger;
+	logger: AstroLogger;
 	isSSR: boolean;
 	count: { total: number; current: number };
 	useCache: boolean;
@@ -76,8 +76,11 @@ export async function prepareAssetsGenerationEnv(
 		serverRoot = new URL('.prerender/', settings.config.build.server);
 		clientRoot = settings.config.build.client;
 	} else {
-		serverRoot = getOutDirWithinCwd(settings.config.outDir);
-		clientRoot = settings.config.outDir;
+		// For static builds, images have already been moved to the client output directory
+		// by ssrMoveAssets. Use getClientOutputDirectory to respect preserveBuildClientDir.
+		const clientOutputDir = getClientOutputDirectory(settings);
+		serverRoot = clientOutputDir;
+		clientRoot = clientOutputDir;
 	}
 
 	return {
@@ -176,13 +179,11 @@ export async function generateImagesForPath(
 			} else {
 				const JSONData = JSON.parse(readFileSync(cachedMetaFileURL, 'utf-8')) as RemoteCacheEntry;
 
-				if (!JSONData.expires) {
-					try {
-						await fs.promises.unlink(cachedFileURL);
-					} catch {
-						/* Old caches may not have a separate image binary, no-op */
-					}
-					await fs.promises.unlink(cachedMetaFileURL);
+				if (typeof JSONData.expires !== 'number') {
+					await Promise.allSettled([
+						fs.promises.unlink(cachedFileURL),
+						fs.promises.unlink(cachedMetaFileURL),
+					]);
 
 					throw new Error(
 						`Malformed cache entry for ${filepath}, cache will be regenerated for this file.`,
@@ -203,9 +204,7 @@ export async function generateImagesForPath(
 				if (JSONData.expires > Date.now()) {
 					await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
 
-					return {
-						cached: 'hit',
-					};
+					return { cached: 'hit' };
 				}
 
 				// Try to revalidate the cache
@@ -216,18 +215,16 @@ export async function generateImagesForPath(
 							lastModified: JSONData.lastModified,
 						});
 
-						if (revalidatedData.data.length) {
+						if (revalidatedData.data !== null) {
 							// Image cache was stale, update original image to avoid redownload
-							originalImage = revalidatedData;
+							originalImage = revalidatedData as ImageData;
 						} else {
-							// Freshen cache on disk
-							await writeCacheMetaFile(cachedMetaFileURL, revalidatedData, env);
+							// Freshen cache on disk and output cached image
+							await Promise.all([
+								writeCacheMetaFile(cachedMetaFileURL, revalidatedData, env),
+								fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE),
+							]);
 
-							await fs.promises.copyFile(
-								cachedFileURL,
-								finalFileURL,
-								fs.constants.COPYFILE_FICLONE,
-							);
 							return { cached: 'revalidated' };
 						}
 					} catch (e) {
@@ -242,8 +239,10 @@ export async function generateImagesForPath(
 					}
 				}
 
-				await fs.promises.unlink(cachedFileURL);
-				await fs.promises.unlink(cachedMetaFileURL);
+				await Promise.allSettled([
+					fs.promises.unlink(cachedFileURL),
+					fs.promises.unlink(cachedMetaFileURL),
+				]);
 			}
 		} catch (e: any) {
 			if (e.code !== 'ENOENT') {
@@ -339,6 +338,7 @@ async function writeCacheMetaFile(
 				etag: resultData.etag,
 				lastModified: resultData.lastModified,
 			}),
+			'utf-8',
 		);
 	} catch (e) {
 		env.logger.warn(
@@ -358,7 +358,7 @@ export function getStaticImageList(): AssetsGlobalStaticImagesList {
 
 async function loadImage(path: string, env: AssetEnv): Promise<ImageData> {
 	if (isRemotePath(path)) {
-		return await loadRemoteImage(path);
+		return await loadRemoteImage(path, undefined, env.imageConfig);
 	}
 
 	return {

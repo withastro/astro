@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isFrontmatterValid } from '@astrojs/markdown-remark';
+import { isFrontmatterValid } from '@astrojs/internal-helpers/frontmatter';
 import type { Root, RootContent } from 'hast';
 import type { VFile } from 'vfile';
 import { jsToTreeNode } from './utils.js';

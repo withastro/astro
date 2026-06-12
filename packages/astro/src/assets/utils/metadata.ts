@@ -23,7 +23,7 @@ export async function imageMetadata(
 			message: AstroErrorData.NoImageMetadata.message(src),
 		});
 	}
-	if (!result.height || !result.width || !result.type) {
+	if (result.height == null || result.width == null || !result.type) {
 		throw new AstroError({
 			...AstroErrorData.NoImageMetadata,
 			message: AstroErrorData.NoImageMetadata.message(src),

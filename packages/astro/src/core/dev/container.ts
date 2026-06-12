@@ -11,7 +11,7 @@ import {
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createVite } from '../create-vite.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import { getPrerenderDefault } from '../../prerender/utils.js';
 import { syncInternal } from '../sync/index.js';
@@ -19,7 +19,7 @@ import { warnMissingAdapter } from './adapter-validation.js';
 
 export interface Container {
 	fs: typeof nodeFs;
-	logger: Logger;
+	logger: AstroLogger;
 	settings: AstroSettings;
 	viteServer: vite.ViteDevServer;
 	inlineConfig: AstroInlineConfig;
@@ -29,7 +29,7 @@ export interface Container {
 }
 
 interface CreateContainerParams {
-	logger: Logger;
+	logger: AstroLogger;
 	settings: AstroSettings;
 	inlineConfig?: AstroInlineConfig;
 	isRestart?: boolean;
@@ -53,7 +53,7 @@ export async function createContainer({
 
 	const {
 		base,
-		server: { host, headers, open: serverOpen, allowedHosts },
+		server: { host, headers, open: serverOpen, allowedHosts, port },
 	} = settings.config;
 
 	// serverOpen = true, isRestart = false
@@ -103,7 +103,7 @@ export async function createContainer({
 	);
 	const viteConfig = await createVite(
 		{
-			server: { host, headers, open, allowedHosts },
+			server: { host, headers, open, allowedHosts, port },
 			optimizeDeps: {
 				include: rendererClientEntries,
 			},

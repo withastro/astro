@@ -1,6 +1,20 @@
 import { matchPattern, type RemotePattern } from '@astrojs/internal-helpers/remote';
 
 /**
+ * Parses a potentially comma-separated multi-value header (as produced by
+ * proxy chains) and returns the first value, trimmed of whitespace.
+ * Returns `undefined` when the header is absent or empty.
+ */
+export function getFirstForwardedValue(
+	multiValueHeader: string | string[] | undefined,
+): string | undefined {
+	return multiValueHeader
+		?.toString()
+		.split(',')
+		.map((e) => e.trim())[0];
+}
+
+/**
  * Sanitize a hostname by rejecting any with path separators.
  * Prevents path injection attacks. Invalid hostnames return undefined.
  */

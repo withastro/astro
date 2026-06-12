@@ -72,6 +72,16 @@ export function serializedManifestPlugin({
 			server.watcher.on('change', (path) => reloadManifest(path, server));
 		},
 
+		// Restrict to server environments only since the generated code imports
+		// server-only virtual modules (virtual:astro:routes, virtual:astro:pages)
+		applyToEnvironment(environment) {
+			return (
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+			);
+		},
+
 		resolveId: {
 			filter: {
 				id: new RegExp(`^${SERIALIZED_MANIFEST_ID}$`),
@@ -162,6 +172,11 @@ async function createSerializedManifest(
 		};
 	}
 
+	let experimentalLogger = undefined;
+	if (settings.config.experimental.logger) {
+		experimentalLogger = settings.config.experimental.logger;
+	}
+
 	return {
 		rootDir: settings.config.root.toString(),
 		srcDir: settings.config.srcDir.toString(),
@@ -191,6 +206,7 @@ async function createSerializedManifest(
 		i18n: i18nManifest,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
+		allowedDomains: settings.config.security?.allowedDomains,
 		actionBodySizeLimit: settings.config.security?.actionBodySizeLimit
 			? settings.config.security.actionBodySizeLimit
 			: 1024 * 1024, // 1mb default
@@ -222,5 +238,6 @@ async function createSerializedManifest(
 		logLevel: settings.logLevel,
 		shouldInjectCspMetaTags: false,
 		experimentalQueuedRendering: settings.config.experimental?.queuedRendering,
+		experimentalLogger,
 	};
 }

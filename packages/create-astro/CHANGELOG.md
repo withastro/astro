@@ -1,5 +1,29 @@
 # create-astro
 
+## 5.0.6
+
+### Patch Changes
+
+- [#16419](https://github.com/withastro/astro/pull/16419) [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d) Thanks [@matthewp](https://github.com/matthewp)! - Hardens nested object and package metadata lookups to ignore prototype keys in content handling and project scaffolding
+
+## 5.0.5
+
+### Patch Changes
+
+- [#16122](https://github.com/withastro/astro/pull/16122) [`9a2113b`](https://github.com/withastro/astro/commit/9a2113bc8a7b9677831a968cec6ccda6b76eea7d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes dependency installation failing on Windows when using Bun as the package manager
+
+## 5.0.4
+
+### Patch Changes
+
+- [#16106](https://github.com/withastro/astro/pull/16106) [`d241012`](https://github.com/withastro/astro/commit/d241012107c7df55ac46192bcb7b1fbe650f3d93) Thanks [@matthewp](https://github.com/matthewp)! - Fixes dependency installation failing on Windows when running `npm create astro@latest`. The previous fix for DEP0190 warnings incorrectly assumed `.cmd` shims could be spawned directly without a shell — on Windows, `.cmd` files require `cmd.exe` to execute. Package manager commands are now invoked via `cmd.exe /d /s /c` on Windows. Also fixes the `[object Object]` error message that appeared when installation failed, replacing it with the actual error.
+
+## 5.0.3
+
+### Patch Changes
+
+- [#15967](https://github.com/withastro/astro/pull/15967) [`8db1f62`](https://github.com/withastro/astro/commit/8db1f629c364ab41413fa99b1d00e71484cb0112) Thanks [@matthewp](https://github.com/matthewp)! - Warn when `--yes` is used with a third-party template to clarify that dependency installation may run lifecycle scripts.
+
 ## 5.0.2
 
 ### Patch Changes

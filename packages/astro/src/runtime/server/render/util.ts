@@ -1,6 +1,6 @@
 import { clsx } from 'clsx';
 import type { SSRElement } from '../../../types/public/internal.js';
-import { HTMLString, markHTMLString } from '../escape.js';
+import { HTMLString, markHTMLString, stringifyForScript } from '../escape.js';
 import { isPromise } from '../util.js';
 import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
 
@@ -14,6 +14,9 @@ const DOUBLE_QUOTE_REGEX = /"/g;
 
 const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
+// Per the HTML spec, attribute names must not contain ASCII whitespace, ", ', >, /, or =.
+const INVALID_ATTR_NAME_CHAR = /[\s"'>/=]/;
+
 // converts (most) arbitrary strings to valid JS identifiers
 const toIdent = (k: string) =>
 	k.trim().replace(/(?!^)\b\w|\s+|\W+/g, (match, index) => {
@@ -23,7 +26,7 @@ const toIdent = (k: string) =>
 
 export const toAttributeString = (value: any, shouldEscape = true) =>
 	shouldEscape
-		? String(value).replace(AMPERSAND_REGEX, '&#38;').replace(DOUBLE_QUOTE_REGEX, '&#34;')
+		? String(value).replace(AMPERSAND_REGEX, '&amp;').replace(DOUBLE_QUOTE_REGEX, '&quot;')
 		: value;
 
 const kebab = (k: string) =>
@@ -44,10 +47,7 @@ export function defineScriptVars(vars: Record<any, any>) {
 	for (const [key, value] of Object.entries(vars)) {
 		// Use const instead of let as let global unsupported with Safari
 		// https://stackoverflow.com/questions/29194024/cant-use-let-keyword-in-safari-javascript
-		output += `const ${toIdent(key)} = ${JSON.stringify(value)?.replace(
-			/<\/script>/g,
-			'\\x3C/script>',
-		)};\n`;
+		output += `const ${toIdent(key)} = ${stringifyForScript(value)};\n`;
 	}
 	return markHTMLString(output);
 }
@@ -83,6 +83,11 @@ function handleBooleanAttribute(
 // on the compiler side because it is used only for custom elements
 export function addAttribute(value: any, key: string, shouldEscape = true, tagName = '') {
 	if (value == null) {
+		return '';
+	}
+
+	// Reject attribute names with characters that could break out of the attribute context.
+	if (INVALID_ATTR_NAME_CHAR.test(key)) {
 		return '';
 	}
 

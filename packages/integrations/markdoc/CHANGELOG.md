@@ -1,5 +1,40 @@
 # @astrojs/markdoc
 
+## 1.0.6
+
+### Patch Changes
+
+- [#16848](https://github.com/withastro/astro/pull/16848) [`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Removes `@astrojs/markdown-remark` from `@astrojs/markdoc`'s dependencies in favour of Astro's internal markdown utilities now that Astro's Markdown support is processor agnostic.
+
+- Updated dependencies [[`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc)]:
+  - @astrojs/internal-helpers@0.10.0
+
+## 1.0.5
+
+### Patch Changes
+
+- [#15723](https://github.com/withastro/astro/pull/15723) [`9256345`](https://github.com/withastro/astro/commit/92563452ce866d9f9b950ad4b2adc808d10e8014) Thanks [@rururux](https://github.com/rururux)! - Updates internal type usage from `@astrojs/prism`.
+
+- Updated dependencies [[`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce), [`9256345`](https://github.com/withastro/astro/commit/92563452ce866d9f9b950ad4b2adc808d10e8014), [`9256345`](https://github.com/withastro/astro/commit/92563452ce866d9f9b950ad4b2adc808d10e8014)]:
+  - @astrojs/internal-helpers@0.9.1
+  - @astrojs/markdown-remark@7.1.2
+  - @astrojs/prism@4.0.2
+
+## 1.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd), [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d)]:
+  - @astrojs/internal-helpers@0.9.0
+  - @astrojs/markdown-remark@7.1.1
+
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`10a1a5a`](https://github.com/withastro/astro/commit/10a1a5a5232fa401ca814b396cf79aeccdfdf8a9)]:
+  - @astrojs/markdown-remark@7.1.0
+
 ## 1.0.2
 
 ### Patch Changes

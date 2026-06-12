@@ -1,5 +1,23 @@
 # astro-vscode
 
+## 2.16.16
+
+### Patch Changes
+
+- [#16719](https://github.com/withastro/astro/pull/16719) [`2b1df12`](https://github.com/withastro/astro/commit/2b1df120f14ae44ade0cfcc8c6bf17071061cd28) Thanks [@alexisintech](https://github.com/alexisintech)! - fix MDX syntax highlighting for indented astro codeblocks
+
+## 2.16.15
+
+### Patch Changes
+
+- [#16716](https://github.com/withastro/astro/pull/16716) [`04fdbb2`](https://github.com/withastro/astro/commit/04fdbb29978d5a00acfb956538e54256ae24b486) Thanks [@delucis](https://github.com/delucis)! - Drops support for versions of VS Code below 1.101.0 [May 2025]
+
+## 2.16.14
+
+### Patch Changes
+
+- [#16069](https://github.com/withastro/astro/pull/16069) [`c9a5807`](https://github.com/withastro/astro/commit/c9a58073a340959f081b66d2ff50c1f2445b6b05) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates the minimum supported version of VS Code to 1.92.0 (July 2024)
+
 ## 2.16.13
 
 ### Patch Changes

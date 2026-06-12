@@ -1,4 +1,4 @@
-import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import { escape } from 'html-escaper';
 import { Traverse } from 'neotraverse/modern';
 import * as z from 'zod/v4';
@@ -206,9 +206,10 @@ export function createGetEntry({ liveCollections }: { liveCollections: LiveColle
 
 			// @ts-expect-error	virtual module
 			const { default: imageAssetMap } = await import('astro:asset-imports');
-			entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
+			const data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
 			const result = {
 				...entry,
+				data,
 				collection,
 			} as DataEntryResult | ContentEntryResult;
 			// TODO: remove in Astro 7
@@ -454,14 +455,18 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 
 	const imageObjects = new Map<string, GetImageResult>();
 
-	// @ts-expect-error Virtual module resolved at runtime
-	const { getImage } = await import('astro:assets');
+	const { getImage } = await import('virtual:astro:get-image');
 
 	// First load all the images. This is done outside of the replaceAll
 	// function because getImage is async.
 	for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
 		try {
-			const decodedImagePath = JSON.parse(imagePath.replaceAll('&#x22;', '"'));
+			// Markdown processors disagree on which character references to emit when
+			// serialising attribute values: remark uses the numeric forms (`&#x22;` / `&#x27;`),
+			// satteri uses the named forms (`&quot;` / `&apos;`). Decode both before JSON.parse.
+			const decodedImagePath = JSON.parse(
+				imagePath.replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'"),
+			);
 
 			let image: GetImageResult;
 			if (URL.canParse(decodedImagePath.src)) {
@@ -501,17 +506,19 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 			// This attribute is used by the toolbar audit
 			...(import.meta.env.DEV ? { 'data-image-component': 'true' } : {}),
 		})
-			.map(([key, value]) => (value ? `${key}="${escape(value)}"` : ''))
+			.filter(([, value]) => value != null)
+			.map(([key, value]) => (value === '' ? `${key}=""` : `${key}="${escape(String(value))}"`))
 			.join(' ');
 	});
 }
 
-function updateImageReferencesInData<T extends Record<string, unknown>>(
+export function updateImageReferencesInData<T extends Record<string, unknown>>(
 	data: T,
 	fileName?: string,
 	imageAssetMap?: Map<string, ImageMetadata>,
 ): T {
-	return new Traverse(data).map(function (ctx, val) {
+	const copy = structuredClone(data);
+	new Traverse(copy).forEach(function (ctx, val) {
 		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 			const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 
@@ -545,6 +552,7 @@ function updateImageReferencesInData<T extends Record<string, unknown>>(
 			}
 		}
 	});
+	return copy;
 }
 
 export async function renderEntry(entry: DataEntry) {

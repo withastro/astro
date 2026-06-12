@@ -4,7 +4,7 @@ export type {
 	RehypePlugins,
 	RemarkPlugins,
 	ShikiConfig,
-} from '@astrojs/markdown-remark';
+} from '@astrojs/internal-helpers/markdown';
 export type {
 	ExternalImageService,
 	ImageService,
@@ -37,6 +37,7 @@ export type { AstroIntegrationLogger } from '../../core/logger/core.js';
 export type { AstroSession } from '../../core/session/runtime.js';
 export type { ToolbarServerHelpers } from '../../runtime/client/dev-toolbar/helpers.js';
 export type { AstroEnvironmentNames } from '../../core/constants.js';
+export type { Fetchable } from '../../core/fetch/types.js';
 export type { SessionDriver, SessionDriverConfig } from '../../core/session/types.js';
 export type {
 	CacheProvider,
@@ -57,3 +58,8 @@ export type * from './manifest.js';
 export type * from './preview.js';
 export type * from './toolbar.js';
 export type * from './view-transitions.js';
+export type {
+	AstroLoggerDestination,
+	AstroLoggerMessage,
+	AstroLoggerLevel,
+} from '../../core/logger/core.js';

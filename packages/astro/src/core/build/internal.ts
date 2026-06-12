@@ -95,6 +95,7 @@ export interface BuildInternals {
 	prerenderEntryFileName?: string;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;
+	loggerEntryPoint: URL | undefined;
 	astroActionsEntryPoint: URL | undefined;
 
 	/**
@@ -114,6 +115,14 @@ export interface BuildInternals {
 		moduleIds: string[];
 		prerender: boolean;
 	}>;
+
+	/**
+	 * Component exports that were rendered during the SSR build.
+	 * Used by the client build's cssScopeTo recovery to distinguish between
+	 * CSS that was tree-shaken because the component wasn't rendered in SSR
+	 * vs CSS that was included in SSR.
+	 */
+	ssrRenderedExports?: Map<string, Set<string>>;
 }
 
 /**
@@ -139,6 +148,7 @@ export function createBuildInternals(): BuildInternals {
 		componentMetadata: new Map(),
 		astroActionsEntryPoint: undefined,
 		middlewareEntryPoint: undefined,
+		loggerEntryPoint: undefined,
 		clientChunksAndAssets: new Set(),
 		ssrAssetsPerEnvironment: new Map(),
 	};

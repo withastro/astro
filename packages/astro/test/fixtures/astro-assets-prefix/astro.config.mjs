@@ -1,7 +1,7 @@
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import { defineConfig } from 'astro/config';
-import { testImageService } from '../../test-image-service.js';
+import { testImageService } from '../../test-image-service.ts';
 
 // https://astro.build/config
 export default defineConfig({

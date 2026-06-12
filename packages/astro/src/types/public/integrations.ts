@@ -123,6 +123,15 @@ export interface AstroAdapterFeatures {
 	 * of the build output type.
 	 */
 	preserveBuildClientDir?: boolean;
+
+	/**
+	 * When true, static builds will preserve the server directory structure
+	 * instead of outputting to outDir. This ensures static builds use
+	 * build.server for server output, maintaining consistency with server builds.
+	 * Useful for adapters that require a specific directory structure regardless
+	 * of the build output type.
+	 */
+	preserveBuildServerDir?: boolean;
 }
 
 /**
@@ -257,8 +266,11 @@ export interface AstroPrerenderer {
 	getStaticPaths: () => Promise<PathWithRoute[]>;
 	/**
 	 * Renders a single page. Called by Astro for each path returned by getStaticPaths.
-	 * @param request - The request to render
-	 * @param options - Render options including routeData
+	 * @param request - The request to render. The URL reflects the build format
+	 *   (e.g. trailing slash for `directory` format). To get the canonical pathname,
+	 *   use the `pathname` from the `PathWithRoute` entry returned by `getStaticPaths`.
+	 * @param options - Render options
+	 * @param options.routeData - The matched route for this path
 	 */
 	render: (request: Request, options: { routeData: RouteData }) => Promise<Response>;
 	/**
@@ -452,6 +464,11 @@ export interface IntegrationResolvedRoute
 	 * {@link RouteData.redirectRoute}
 	 */
 	redirectRoute?: IntegrationResolvedRoute;
+
+	/**
+	 * {@link RouteData.fallbackRoutes}
+	 */
+	fallbackRoutes: IntegrationResolvedRoute[];
 
 	/**
 	 * @param {any} data The optional parameters of the route

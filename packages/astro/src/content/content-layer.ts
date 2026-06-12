@@ -1,15 +1,12 @@
 import { existsSync, promises as fs } from 'node:fs';
-import {
-	createMarkdownProcessor,
-	parseFrontmatter,
-	type MarkdownProcessor,
-} from '@astrojs/markdown-remark';
+import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
+import type { MarkdownRenderer } from '@astrojs/internal-helpers/markdown';
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
 import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType, RefreshContentOptions } from '../types/public/content.js';
 import {
@@ -35,7 +32,7 @@ import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
 export interface ContentLayerOptions {
 	store: MutableDataStore;
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	watcher?: FSWatcher;
 	contentConfigObserver?: ContentObservable;
 }
@@ -47,13 +44,13 @@ type CollectionLoader<TData> = () =>
 	| Promise<Record<string, Record<string, unknown>>>;
 
 export class ContentLayer {
-	#logger: Logger;
+	#logger: AstroLogger;
 	#store: MutableDataStore;
 	#settings: AstroSettings;
 	#watcher?: WrappedWatcher;
 	#lastConfigDigest?: string;
 	#unsubscribe?: () => void;
-	#markdownProcessor?: MarkdownProcessor;
+	#markdownRenderer?: MarkdownRenderer;
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 	#contentConfigObserver: ContentObservable;
 
@@ -66,9 +63,6 @@ export class ContentLayer {
 		watcher,
 		contentConfigObserver = globalContentConfigObserver,
 	}: ContentLayerOptions) {
-		// The default max listeners is 10, which can be exceeded when using a lot of loaders
-		watcher?.setMaxListeners(50);
-
 		this.#logger = logger;
 		this.#store = store;
 		this.#settings = settings;
@@ -157,15 +151,27 @@ export class ContentLayer {
 		content: string,
 		options?: RenderMarkdownOptions,
 	): Promise<RenderedContent> {
-		this.#markdownProcessor ??= await createMarkdownProcessor(this.#settings.config.markdown);
+		if (!this.#markdownRenderer) {
+			const { markdown, image } = this.#settings.config;
+			this.#markdownRenderer = await markdown.processor.createRenderer({
+				image,
+				syntaxHighlight: markdown.syntaxHighlight,
+				shikiConfig: markdown.shikiConfig,
+				gfm: markdown.gfm,
+				smartypants: markdown.smartypants,
+			});
+		}
 		const { frontmatter, content: body } = parseFrontmatter(content);
-		const { code, metadata } = await this.#markdownProcessor.render(body, {
+		const { code, metadata } = await this.#markdownRenderer.render(body, {
 			frontmatter,
 			fileURL: options?.fileURL,
 		});
 		return {
 			html: code,
-			metadata,
+			metadata: {
+				...metadata,
+				imagePaths: (metadata.localImagePaths ?? []).concat(metadata.remoteImagePaths ?? []),
+			},
 		};
 	}
 

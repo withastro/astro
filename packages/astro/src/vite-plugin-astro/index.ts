@@ -3,7 +3,7 @@ import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -20,7 +20,7 @@ export type { AstroPluginMetadata };
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 }
 
 const astroFileToCompileMetadataWeakMap = new WeakMap<AstroConfig, Map<string, CompileMetadata>>();

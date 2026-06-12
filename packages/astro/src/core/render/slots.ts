@@ -1,24 +1,31 @@
 import { type ComponentSlots, renderSlotToString } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
+import { isRenderTemplateResult } from '../../runtime/server/render/astro/index.js';
 import { chunkToString } from '../../runtime/server/render/index.js';
 import { isRenderInstruction } from '../../runtime/server/render/instruction.js';
 import type { SSRResult } from '../../types/public/internal.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import type { Logger } from '../logger/core.js';
+import type { AstroLogger } from '../logger/core.js';
 
 function getFunctionExpression(slot: any) {
 	if (!slot) return;
-	const expressions = slot?.expressions?.filter((e: unknown) => isRenderInstruction(e) === false);
+	const expressions = slot?.expressions?.filter(
+		(e: unknown) => isRenderInstruction(e) === false || isRenderTemplateResult(e),
+	);
 	if (expressions?.length !== 1) return;
-	return expressions[0] as (...args: any[]) => any;
+	const expression = expressions[0];
+	if (isRenderTemplateResult(expression)) {
+		return getFunctionExpression(expression);
+	}
+	return expression as (...args: any[]) => any;
 }
 
 export class Slots {
 	#result: SSRResult;
 	#slots: ComponentSlots | null;
-	#logger: Logger;
+	#logger: AstroLogger;
 
-	constructor(result: SSRResult, slots: ComponentSlots | null, logger: Logger) {
+	constructor(result: SSRResult, slots: ComponentSlots | null, logger: AstroLogger) {
 		this.#result = result;
 		this.#slots = slots;
 		this.#logger = logger;

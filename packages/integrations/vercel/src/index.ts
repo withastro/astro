@@ -651,16 +651,31 @@ type Runtime = `nodejs${string}.x`;
 
 class VercelBuilder {
 	readonly NTF_CACHE = {};
+	readonly config: AstroConfig;
+	readonly excludeFiles: URL[];
+	readonly includeFiles: URL[];
+	readonly logger: AstroIntegrationLogger;
+	readonly outDir: URL;
+	readonly maxDuration: number | undefined;
+	readonly runtime: string;
 
 	constructor(
-		readonly config: AstroConfig,
-		readonly excludeFiles: URL[],
-		readonly includeFiles: URL[],
-		readonly logger: AstroIntegrationLogger,
-		readonly outDir: URL,
-		readonly maxDuration?: number,
-		readonly runtime = getRuntime(process, logger),
-	) {}
+		config: AstroConfig,
+		excludeFiles: URL[],
+		includeFiles: URL[],
+		logger: AstroIntegrationLogger,
+		outDir: URL,
+		maxDuration?: number,
+		runtime = getRuntime(process, logger),
+	) {
+		this.config = config;
+		this.excludeFiles = excludeFiles;
+		this.includeFiles = includeFiles;
+		this.logger = logger;
+		this.outDir = outDir;
+		this.maxDuration = maxDuration;
+		this.runtime = runtime;
+	}
 
 	async buildServerlessFolder(entry: URL, functionName: string, root: URL) {
 		const { includeFiles, excludeFiles, logger, NTF_CACHE, runtime, maxDuration } = this;

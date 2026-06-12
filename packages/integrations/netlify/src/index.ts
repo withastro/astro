@@ -53,12 +53,12 @@ export function remotePatternToRegex(
 
 	if (hostname) {
 		if (hostname.startsWith('**.')) {
-			// match any number of subdomains
-			regexStr += '([a-z0-9-]+\\.)*';
+			// match one or more subdomains
+			regexStr += '([a-z0-9-]+\\.)+';
 			hostname = hostname.substring(3);
 		} else if (hostname.startsWith('*.')) {
-			// match one subdomain
-			regexStr += '([a-z0-9-]+\\.)?';
+			// match exactly one subdomain
+			regexStr += '([a-z0-9-]+\\.)';
 			hostname = hostname.substring(2); // Remove '*.' from the beginning
 		}
 		// Escape dots in the hostname
@@ -78,8 +78,7 @@ export function remotePatternToRegex(
 		if (pathname.endsWith('/**')) {
 			// Match any path.
 			regexStr += `(\\${pathname.replace('/**', '')}.*)`;
-		}
-		if (pathname.endsWith('/*')) {
+		} else if (pathname.endsWith('/*')) {
 			// Match one level of path
 			regexStr += `(\\${pathname.replace('/*', '')}\/[^/?#]+)\/?`;
 		} else {
@@ -94,7 +93,11 @@ export function remotePatternToRegex(
 		// Match query, but only if it's not already matched by the pathname
 		regexStr += '([?][^#]*)?';
 	}
+	// Anchor to end of string so .test() can't match a prefix
+	regexStr += '$';
 	try {
+		// nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+		// This only validates the generated pattern before handing it to Netlify.
 		new RegExp(regexStr);
 	} catch {
 		logger.warn(
@@ -687,11 +690,9 @@ export default function netlifyIntegration(
 			'astro:routes:resolved': (params) => {
 				routes = params.routes;
 			},
-			'astro:config:done': async ({ config, setAdapter, buildOutput }) => {
-				rootDir = config.root;
-				_config = config;
-
-				finalBuildOutput = buildOutput;
+			'astro:config:done': async (params) => {
+				rootDir = params.config.root;
+				_config = params.config;
 
 				// Resolve middleware mode with backward compatibility
 				const middlewareMode =
@@ -699,7 +700,7 @@ export default function netlifyIntegration(
 					(integrationConfig?.edgeMiddleware ? 'edge' : 'classic');
 				const useStaticHeaders = integrationConfig?.staticHeaders ?? false;
 
-				setAdapter({
+				params.setAdapter({
 					name: '@astrojs/netlify',
 					entrypointResolution: 'auto',
 					serverEntrypoint: '@astrojs/netlify/ssr-function.js',
@@ -727,6 +728,11 @@ export default function netlifyIntegration(
 							: undefined,
 					},
 				});
+
+				// Read buildOutput AFTER setAdapter() so we get the value that setAdapter()
+				// may have updated. Destructuring before setAdapter() would capture a stale
+				// 'static' snapshot even when setAdapter() upgrades it to 'server'.
+				finalBuildOutput = params.buildOutput;
 			},
 			'astro:build:generated': ({ routeToHeaders }) => {
 				staticHeadersMap = routeToHeaders;

@@ -236,7 +236,7 @@ function parseVaryHeader(response: Response): string[] | undefined {
  * Extract the values of Vary'd headers from a request.
  */
 function getVaryValues(request: Request, varyHeaders: string[]): Record<string, string> {
-	const values: Record<string, string> = {};
+	const values = Object.create(null) as Record<string, string>;
 	for (const header of varyHeaders) {
 		values[header] = request.headers.get(header) ?? '';
 	}

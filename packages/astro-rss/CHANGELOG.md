@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 4.0.18
+
+### Patch Changes
+
+- [#16037](https://github.com/withastro/astro/pull/16037) [`fdd2c5a`](https://github.com/withastro/astro/commit/fdd2c5a2f0eb63332b018df01b2c1eb0d5c8a102) Thanks [@blimmer](https://github.com/blimmer)! - Unpin `fast-xml-parser` to `^5.5.7` to resolve entity expansion CVEs
+
 ## 4.0.17
 
 ### Patch Changes

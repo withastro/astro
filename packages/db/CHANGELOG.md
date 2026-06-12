@@ -1,5 +1,62 @@
 # @astrojs/db
 
+## 0.21.3
+
+### Patch Changes
+
+- [#16964](https://github.com/withastro/astro/pull/16964) [`b048826`](https://github.com/withastro/astro/commit/b048826b7a0406c751073c1bd95686d9ffae8edc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Deprecates the `@astrojs/db` integration. We no longer have the bandwidth to maintain this package, and we recommend that users directly use the database client of their choice (Drizzle, Kysely, etc.) in their Astro projects instead.
+
+## 0.21.2
+
+### Patch Changes
+
+- [#16661](https://github.com/withastro/astro/pull/16661) [`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0) Thanks [@ocavue](https://github.com/ocavue)! - Updates `typescript` to v6. No changes are needed from users.
+
+## 0.21.1
+
+### Patch Changes
+
+- [#16534](https://github.com/withastro/astro/pull/16534) [`5cf6c51`](https://github.com/withastro/astro/commit/5cf6c51188b52d22f133ea9373da0080f74701f9) Thanks [@matthewp](https://github.com/matthewp)! - Fixes compatibility with Zod 4.4.0 for the `server` config property and error formatting
+
+## 0.21.0
+
+### Minor Changes
+
+- [#16289](https://github.com/withastro/astro/pull/16289) [`5d580c0`](https://github.com/withastro/astro/commit/5d580c0b743f9e87befd74e45721f1b5ac9fa166) Thanks [@maxmalkin](https://github.com/maxmalkin)! - Adds a new `getDbError()` helper exported from `astro:db`. It walks the error `.cause` chain and returns the underlying `LibsqlError`, or `undefined` if the error did not originate from libSQL. This is needed because `drizzle-orm` 0.44+ wraps query errors in a `DrizzleQueryError` whose `.cause` is the real `LibsqlError`.
+
+  #### Upgrading
+
+  Code that reads `.code` or `.message` after catching a database error should migrate from `isDbError()` to `getDbError()`:
+
+  ```ts
+  // Before
+  import { isDbError } from 'astro:db';
+  try {
+    await db.insert(MyTable).values({ ... });
+  } catch (e) {
+    if (isDbError(e)) {
+      console.error(e.code, e.message);
+    }
+  }
+
+  // After
+  import { getDbError } from 'astro:db';
+  try {
+    await db.insert(MyTable).values({ ... });
+  } catch (e) {
+    const dbError = getDbError(e);
+    if (dbError) {
+      console.error(dbError.code, dbError.message);
+    }
+  }
+  ```
+
+  `isDbError()` is still exported and still returns `true` for wrapped errors, but its return type is now `boolean` instead of the `err is LibsqlError` type predicate. Code that relied on the narrowing to access `.code` or `.message` directly will now produce a TypeScript error pointing you to `getDbError()`.
+
+### Patch Changes
+
+- [#16289](https://github.com/withastro/astro/pull/16289) [`5d580c0`](https://github.com/withastro/astro/commit/5d580c0b743f9e87befd74e45721f1b5ac9fa166) Thanks [@maxmalkin](https://github.com/maxmalkin)! - Fixes a SQL injection vulnerability by updating `drizzle-orm` to `^0.45.2`, patching GHSA-gpj5-g38j-94v9 (CVE-2026-39356).
+
 ## 0.20.1
 
 ### Patch Changes

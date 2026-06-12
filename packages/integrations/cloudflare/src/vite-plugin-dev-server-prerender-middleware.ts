@@ -18,14 +18,6 @@ export function createNodePrerenderPlugin(): vite.Plugin {
 			};
 		},
 
-		// Disable dep optimization for the `prerender` environment so dependencies
-		// are loaded via native import() with correct import.meta.url semantics.
-		configEnvironment(environmentName) {
-			if (environmentName === 'prerender') {
-				return { optimizeDeps: { noDiscovery: true, include: [] } };
-			}
-		},
-
 		configureServer(server) {
 			(server as any)[devPrerenderMiddlewareSymbol] = true;
 		},

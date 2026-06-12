@@ -11,6 +11,10 @@ export const STATIC_HEADERS_FILE = '_headers.json';
  *
  * At build time, we know the relative path between server and client directories.
  * At runtime, we need to find the actual location based on where the server entry is running.
+ *
+ * ## Error
+ *
+ * It throws an error if it can't find the directory while walking the parent directories.
  */
 export function resolveClientDir(options: Options) {
 	// options.client and options.server are file:// URLs set at build time
@@ -26,7 +30,20 @@ export function resolveClientDir(options: Options) {
 	// We need to find the actual runtime location, not the build-time paths
 	const serverFolder = path.basename(options.server);
 	let serverEntryFolderURL = path.dirname(import.meta.url);
+	let previous = '';
 	while (!serverEntryFolderURL.endsWith(serverFolder)) {
+		// Guard against infinite loop
+		if (serverEntryFolderURL === previous) {
+			throw new Error(
+				`[@astrojs/node] Could not find the server directory "${serverFolder}" ` +
+					`by walking up from "${import.meta.url}". This can happen when the server ` +
+					`entry point is bundled into a single file (e.g. with esbuild) so that ` +
+					`import.meta.url no longer contains the original "${serverFolder}" path segment. ` +
+					`When bundling the server entry, make sure the output path contains a ` +
+					`"${serverFolder}" directory segment, or avoid bundling the server entry entirely.`,
+			);
+		}
+		previous = serverEntryFolderURL;
 		serverEntryFolderURL = path.dirname(serverEntryFolderURL);
 	}
 

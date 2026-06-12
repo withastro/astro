@@ -1,4 +1,4 @@
-import type { Logger } from '../../../core/logger/core.js';
+import type { AstroLogger } from '../../../core/logger/core.js';
 import type { FontFamilyAssetsByUniqueKey, ResolvedFontFamily } from '../types.js';
 
 export function getOrCreateFontFamilyAssets({
@@ -8,7 +8,7 @@ export function getOrCreateFontFamilyAssets({
 	family,
 }: {
 	fontFamilyAssetsByUniqueKey: FontFamilyAssetsByUniqueKey;
-	logger: Logger;
+	logger: AstroLogger;
 	bold: (input: string) => string;
 	family: ResolvedFontFamily;
 }) {

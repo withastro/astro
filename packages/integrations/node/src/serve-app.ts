@@ -2,7 +2,11 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { createReadStream } from 'node:fs';
 import path from 'node:path';
 import { Readable } from 'node:stream';
-import { createRequest, writeResponse, getAbortControllerCleanup } from 'astro/app/node';
+import {
+	createRequestFromNodeRequest,
+	writeResponse,
+	getAbortControllerCleanup,
+} from 'astro/app/node';
 import type { BaseApp } from 'astro/app';
 import { resolveClientDir } from './shared.js';
 import type { Options, RequestHandler } from './types.js';
@@ -20,19 +24,24 @@ async function readErrorPageFromDisk(
 
 	for (const filePath of filePaths) {
 		const fullPath = path.join(client, filePath);
+		// Declare stream outside try so it's accessible in catch for cleanup.
+		let stream: ReturnType<typeof createReadStream> | undefined;
 		try {
-			const stream = createReadStream(fullPath);
+			stream = createReadStream(fullPath);
 			// Wait for the stream to open successfully or error
 			await new Promise<void>((resolve, reject) => {
-				stream.once('open', () => resolve());
-				stream.once('error', reject);
+				stream!.once('open', () => resolve());
+				stream!.once('error', reject);
 			});
 			const webStream = Readable.toWeb(stream) as ReadableStream;
 			return new Response(webStream, {
 				headers: { 'Content-Type': 'text/html; charset=utf-8' },
 			});
 		} catch {
-			// File doesn't exist or can't be read, try next pattern
+			// File doesn't exist or can't be read, try next pattern.
+			// Destroy the stream to release the file descriptor if it was
+			// partially opened before the error fired.
+			stream?.destroy();
 		}
 	}
 
@@ -50,7 +59,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 	 * Used to log unhandled rejections with a helpful message.
 	 */
 	const als = new AsyncLocalStorage<string>();
-	const logger = app.getAdapterLogger();
+	const logger = app.adapterLogger;
 	process.on('unhandledRejection', (reason) => {
 		const requestUrl = als.getStore();
 		logger.error(`Unhandled rejection while rendering ${requestUrl}`);
@@ -84,7 +93,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 	return async (req, res, next, locals) => {
 		let request: Request;
 		try {
-			request = createRequest(req, {
+			request = createRequestFromNodeRequest(req, {
 				allowedDomains: app.getAllowedDomains?.() ?? [],
 				bodySizeLimit: effectiveBodySizeLimit,
 				port: options.port,

@@ -1,5 +1,27 @@
 # @astrojs/internal-helpers
 
+## 0.10.0
+
+### Minor Changes
+
+- [#16848](https://github.com/withastro/astro/pull/16848) [`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds `markdown`, `frontmatter`, and `shiki` helper modules, shared by Astro's content pipeline.
+
+## 0.9.1
+
+### Patch Changes
+
+- [#16544](https://github.com/withastro/astro/pull/16544) [`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce) Thanks [@matthewp](https://github.com/matthewp)! - Tightens `isRemotePath()` to reject control characters after a leading slash and fixes the dev image endpoint origin check
+
+## 0.9.0
+
+### Minor Changes
+
+- [#16419](https://github.com/withastro/astro/pull/16419) [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d) Thanks [@matthewp](https://github.com/matthewp)! - Hardens nested object and package metadata lookups to ignore prototype keys in content handling and project scaffolding
+
+### Patch Changes
+
+- [#16448](https://github.com/withastro/astro/pull/16448) [`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd) Thanks [@matthewp](https://github.com/matthewp)! - Updates vite, picomatch, and unstorage to latest patch versions
+
 ## 0.8.0
 
 ### Minor Changes
