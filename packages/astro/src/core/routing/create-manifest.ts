@@ -440,6 +440,9 @@ function groupEntriesByDir(entries: RouteEntry[]): Map<string, RouteEntry[]> {
 // Get trailing slash rule for a path, based on the config and whether the path has an extension.
 // Only endpoints with file extensions (like /feed.xml) should force 'never' for trailing slashes.
 // Pages with dots in their names (like /hello.world) should respect the user's trailingSlash config.
+//
+// `pathname` is null for dynamic routes (e.g. /api/[name].json), so we fall back to `route`,
+// the segment-joined string that preserves file extensions even for dynamic segments.
 const trailingSlashForPath = (
 	pathname: string | null,
 	config: AstroConfig,

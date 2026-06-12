@@ -517,9 +517,10 @@ describe('routing - createRoutesList', () => {
 		);
 	});
 
-	it('dynamic file endpoints force trailingSlash never. issues#17001', async () => {
+	it('dynamic file endpoints force trailingSlash never regardless of config. issues#17001', async () => {
 		const fixture = await createFixture({
 			'/src/pages/api/[name].json.ts': `export const GET = () => new Response('{}')`,
+			'/src/pages/feed.xml.ts': `export const GET = () => new Response('<xml />')`,
 		});
 
 		const settings = await createBasicSettings({
@@ -533,14 +534,24 @@ describe('routing - createRoutesList', () => {
 			},
 			defaultLogger,
 		);
-		const route = manifest.routes.find((r) => r.route === '/api/[name].json');
-		assert.ok(route, 'dynamic file endpoint route should exist');
-		assert.equal(route.pattern.test('/api/bar.json'), true, 'should match without trailing slash');
+
+		const dynamicEndpoint = manifest.routes.find((r) => r.route === '/api/[name].json');
+		assert.ok(dynamicEndpoint, 'dynamic file endpoint route should exist');
 		assert.equal(
-			route.pattern.test('/api/bar.json/'),
-			false,
-			'should not match with trailing slash',
+			dynamicEndpoint.pattern.test('/api/bar.json'),
+			true,
+			'dynamic file endpoint should match without trailing slash',
 		);
+		assert.equal(
+			dynamicEndpoint.pattern.test('/api/bar.json/'),
+			false,
+			'dynamic file endpoint should not match with trailing slash',
+		);
+
+		const staticEndpoint = manifest.routes.find((r) => r.route === '/feed.xml');
+		assert.ok(staticEndpoint, 'static file endpoint route should exist');
+		assert.equal(staticEndpoint.pattern.test('/feed.xml'), true);
+		assert.equal(staticEndpoint.pattern.test('/feed.xml/'), false);
 	});
 
 	it('should concatenate each part of the segment. issues#10122', async () => {
