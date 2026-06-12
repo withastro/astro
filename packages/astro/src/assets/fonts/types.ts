@@ -220,6 +220,8 @@ export type FontFaceMetrics = Pick<
 
 export type GenericFallbackName = (typeof GENERIC_FALLBACK_NAMES)[number];
 
+export type FallbackVariant = 'normal' | 'bold';
+
 export type Defaults = Required<
 	Pick<
 		ResolvedFontFamily,

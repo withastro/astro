@@ -13,7 +13,7 @@ describe('Serverless with dynamic routes', () => {
 		await fixture.build({});
 	});
 
-	it('build successful', async () => {
+	it('build successful', { timeout: 30000 }, async () => {
 		assert.ok(await fixture.readFile('../.vercel/output/static/index.html'));
 		assert.ok(await fixture.readFile('../.vercel/output/functions/_render.func/.vc-config.json'));
 	});

@@ -1,4 +1,4 @@
-import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import { escape } from 'html-escaper';
 import { Traverse } from 'neotraverse/modern';
 import * as z from 'zod/v4';
@@ -461,7 +461,12 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	// function because getImage is async.
 	for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
 		try {
-			const decodedImagePath = JSON.parse(imagePath.replaceAll('&#x22;', '"'));
+			// Markdown processors disagree on which character references to emit when
+			// serialising attribute values: remark uses the numeric forms (`&#x22;` / `&#x27;`),
+			// satteri uses the named forms (`&quot;` / `&apos;`). Decode both before JSON.parse.
+			const decodedImagePath = JSON.parse(
+				imagePath.replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'"),
+			);
 
 			let image: GetImageResult;
 			if (URL.canParse(decodedImagePath.src)) {
@@ -501,7 +506,8 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 			// This attribute is used by the toolbar audit
 			...(import.meta.env.DEV ? { 'data-image-component': 'true' } : {}),
 		})
-			.map(([key, value]) => (value ? `${key}="${escape(value)}"` : ''))
+			.filter(([, value]) => value != null)
+			.map(([key, value]) => (value === '' ? `${key}=""` : `${key}="${escape(String(value))}"`))
 			.join(' ');
 	});
 }

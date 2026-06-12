@@ -35,6 +35,11 @@ const localePage = createComponent((result, props, slots) => {
 	return render`<h1 id="locale">${Astro.currentLocale}</h1><h2 id="path">${Astro.url.pathname}</h2>`;
 });
 
+const paramsPage = createComponent((result, props, slots) => {
+	const Astro = result.createAstro(props, slots);
+	return render`<h1 id="locale">${Astro.currentLocale}</h1><span id="id">${Astro.params.id}</span><span id="slug">${Astro.params.slug}</span>`;
+});
+
 const notFoundPage = createComponent(() => {
 	return render`<h1 id="not-found">404 Not Found</h1>`;
 });
@@ -412,6 +417,70 @@ describe('i18n via App - domains-prefix-other-locales', () => {
 	});
 });
 
+// #16854: Dynamic routes with non-spread params should work with domain-based i18n
+describe('i18n via App - domains-prefix-other-locales with dynamic params (#16854)', () => {
+	const i18n = makeI18nConfig({
+		strategy: 'domains-prefix-other-locales',
+		locales: ['fi', 'en'],
+		defaultLocale: 'fi',
+	});
+	i18n.domainLookupTable = { 'https://en.example.com': 'en' };
+	i18n.domains = { en: 'https://en.example.com' };
+
+	const middleware = createI18nMiddleware(i18n, '/', 'ignore', 'directory');
+
+	function createDomainApp() {
+		const fiPage = createPage(paramsPage, {
+			route: '/boats/[id]/[slug]',
+			segments: [[staticPart('boats')], [dynamicPart('id')], [dynamicPart('slug')]],
+		});
+		const enPage = createPage(paramsPage, {
+			route: '/en/boats/[id]/[slug]',
+			segments: [
+				[staticPart('en')],
+				[staticPart('boats')],
+				[dynamicPart('id')],
+				[dynamicPart('slug')],
+			],
+		});
+		// Real Astro leaves `pathname` undefined for dynamic routes, but the mock
+		// defaults it to the route string (which contains the `/en/` prefix). That
+		// would mask the `Astro.currentLocale` bug, since locale detection would
+		// find the prefix in routeData.pathname instead of relying on the
+		// domain-derived pathname. Null it out so the test reproduces #16854.
+		fiPage.routeData.pathname = undefined;
+		enPage.routeData.pathname = undefined;
+		return createTestApp([fiPage, enPage], {
+			i18n,
+			middleware: () => ({ onRequest: middleware }),
+		});
+	}
+
+	it('resolves params and currentLocale for dynamic route on non-default locale domain', async () => {
+		const app = createDomainApp();
+		const res = await app.render(
+			new Request('https://en.example.com/boats/1/sunset-cruiser', {
+				headers: { 'X-Forwarded-Host': 'en.example.com', 'X-Forwarded-Proto': 'https' },
+			}),
+		);
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#id').text(), '1');
+		assert.equal($('#slug').text(), 'sunset-cruiser');
+		assert.equal($('#locale').text(), 'en');
+	});
+
+	it('resolves params and currentLocale for dynamic route on default locale domain', async () => {
+		const app = createDomainApp();
+		const res = await app.render(new Request('http://example.com/boats/2/blue-wave'));
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#id').text(), '2');
+		assert.equal($('#slug').text(), 'blue-wave');
+		assert.equal($('#locale').text(), 'fi');
+	});
+});
+
 // #15098: Invalid locale in URL should render 404, not the [locale] page
 describe('i18n via App - invalid locale with dynamic [locale] route (#15098)', () => {
 	const i18n = makeI18nConfig({
@@ -535,5 +604,42 @@ describe('i18n via App - domain with localhost and ports (#12385)', () => {
 		assert.equal(res.status, 200);
 		const $ = cheerio.load(await res.text());
 		assert.equal($('#locale').text(), 'en');
+	});
+});
+
+describe('i18n via AstroHandler (no middleware) - prefix-always (#16800)', () => {
+	// This tests the handler-based i18n flow where I18n.finalize() runs
+	// as a post-processing step after AstroMiddleware, NOT as an internal
+	// middleware. This is the default code path for non-manual routing.
+	const i18n = makeI18nConfig({ strategy: 'pathname-prefix-always' });
+
+	function createHandlerApp() {
+		// Do NOT pass middleware — this forces i18n to be handled by
+		// AstroHandler's post-processing step (I18n.finalize), not by
+		// a middleware in the chain.
+		return createTestApp([localeCatchAll('en'), localeCatchAll('fr')], {
+			i18n,
+		});
+	}
+
+	it('redirects root / to /en/ via handler post-processing', async () => {
+		const app = createHandlerApp();
+		const res = await app.render(new Request('http://example.com/'));
+		assert.equal(res.status, 302);
+		assert.ok(res.headers.get('Location')?.includes('/en'));
+	});
+
+	it('renders locale-prefixed pages normally', async () => {
+		const app = createHandlerApp();
+		const res = await app.render(new Request('http://example.com/en/about'));
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#locale').text(), 'en');
+	});
+
+	it('returns 404 for paths without locale prefix', async () => {
+		const app = createHandlerApp();
+		const res = await app.render(new Request('http://example.com/about'));
+		assert.equal(res.status, 404);
 	});
 });

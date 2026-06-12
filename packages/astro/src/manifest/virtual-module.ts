@@ -28,7 +28,8 @@ export default function virtualModulePlugin({ settings }: { settings: AstroSetti
   defaultLocale: ${JSON.stringify(config.i18n.defaultLocale)},
   locales: ${JSON.stringify(config.i18n.locales)},
   routing: ${JSON.stringify(routing)},
-  fallback: ${JSON.stringify(config.i18n.fallback)}
+  fallback: ${JSON.stringify(config.i18n.fallback)},
+  domains: ${JSON.stringify(config.i18n.domains)}
 };`;
 	}
 

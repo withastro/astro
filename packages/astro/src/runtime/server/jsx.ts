@@ -93,7 +93,9 @@ Did you forget to import the component or is it possible there is a typo?`);
 			}
 			case !vnode.type && (vnode.type as any) !== 0:
 				return '';
-			case typeof vnode.type === 'string' && vnode.type !== ClientOnlyPlaceholder:
+			case typeof vnode.type === 'string' &&
+				vnode.type !== ClientOnlyPlaceholder &&
+				!(vnode.type as string).includes('-'):
 				return markHTMLString(await renderElement(result, vnode.type as string, vnode.props ?? {}));
 		}
 
@@ -121,6 +123,11 @@ Did you forget to import the component or is it possible there is a typo?`);
 			const _slots: Record<string, any> = {
 				default: [],
 			};
+			// For custom HTML elements (string type with hyphen), the `slot` attribute on children
+			// is a standard HTML attribute for web component Shadow DOM slot distribution, not an
+			// Astro slot assignment. Skip slot extraction to preserve it in the output.
+			const isCustomElement =
+				typeof vnode.type === 'string' && (vnode.type as string).includes('-');
 			function extractSlots(child: any): any {
 				if (Array.isArray(child)) {
 					return child.map((c) => extractSlots(c));
@@ -129,7 +136,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 					_slots.default.push(child);
 					return;
 				}
-				if ('slot' in child.props) {
+				if ('slot' in child.props && !isCustomElement) {
 					_slots[child.props.slot] = [...(_slots[child.props.slot] ?? []), child];
 					delete child.props.slot;
 					return;

@@ -12,7 +12,7 @@ describe('maxDuration', () => {
 		await fixture.build({});
 	});
 
-	it('makes it to vercel function configuration', async () => {
+	it('makes it to vercel function configuration', { timeout: 30000 }, async () => {
 		const vcConfig = JSON.parse(
 			await fixture.readFile('../.vercel/output/functions/_render.func/.vc-config.json'),
 		);

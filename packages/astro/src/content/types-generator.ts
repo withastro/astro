@@ -621,15 +621,20 @@ async function generateJSONSchema(
 
 	// The `file()` loader uses a schema which applies to every item in the file rather than a schema
 	// for the whole file. We special case this to provide the correct JSON schema to users.
-	// TODO: it would be nice if loaders could indicate this behavior so it wasn’t unique to the built-in loader.
+	// TODO: it would be nice if loaders could indicate this behavior so it wasn't unique to the built-in loader.
 	if (
 		collectionConfig.type === CONTENT_LAYER_TYPE &&
 		collectionConfig.loader.name === 'file-loader'
 	) {
-		// `file()` supports arrays of items, but you can’t set `$schema` when using a top-level array,
-		// so we’re only handling the object case.
-		// We use `z.object()` instead of `z.record()` for compatibility with the next `if` statement.
-		zodSchemaForJson = z.object({}).catchall(zodSchemaForJson);
+		// `file()` supports both top-level arrays and record objects. Generate an anyOf schema
+		// so VS Code validates correctly regardless of which shape the source file uses.
+		// `$schema` is injected into the object branch only — top-level array JSON files cannot
+		// reference a schema property per the JSON Schema spec.
+		const itemSchema = zodSchemaForJson;
+		zodSchemaForJson = z.union([
+			z.array(itemSchema),
+			z.object({ $schema: z.string().optional() }).catchall(itemSchema),
+		]);
 	}
 
 	if (zodSchemaForJson instanceof z.ZodObject) {

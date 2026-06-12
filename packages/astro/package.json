@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.3.3",
+  "version": "6.4.6",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -49,6 +49,7 @@
       "default": "./dist/jsx-runtime/index.js"
     },
     "./compiler-runtime": "./dist/runtime/compiler/index.js",
+    "./markdown": "./dist/markdown/index.js",
     "./runtime/*": "./dist/runtime/*",
     "./config": "./dist/config/entrypoint.js",
     "./container": "./dist/container/index.js",
@@ -147,7 +148,7 @@
     "clsx": "^2.1.1",
     "common-ancestor-path": "^2.0.0",
     "cookie": "^1.1.1",
-    "devalue": "^5.6.3",
+    "devalue": "^5.8.1",
     "diff": "^8.0.3",
     "dset": "^3.1.4",
     "es-module-lexer": "^2.0.0",
@@ -221,7 +222,7 @@
     "remark-code-titles": "^0.1.2",
     "rollup": "^4.58.0",
     "sass": "^1.98.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "undici": "^7.22.0",
     "unified": "^11.0.5",
     "vitest": "^4.1.0"
@@ -252,6 +253,7 @@
         "default": "./dist/jsx-runtime/index.js"
       },
       "./compiler-runtime": "./dist/runtime/compiler/index.js",
+      "./markdown": "./dist/markdown/index.js",
       "./runtime/*": "./dist/runtime/*",
       "./config": "./dist/config/entrypoint.js",
       "./container": "./dist/container/index.js",

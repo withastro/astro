@@ -179,7 +179,7 @@ describe('astro:image', () => {
 				await res.text();
 
 				assert.equal(logs.length, 1);
-				assert.equal(logs[0].message.includes('must be an imported image or an URL'), true);
+				assert.equal(logs[0].message.includes('must be an imported image or a URL'), true);
 			});
 
 			it('supports images from outside the project', async () => {
@@ -837,7 +837,7 @@ describe('astro:image', () => {
 			await res.text();
 
 			assert.equal(logs.length >= 1, true);
-			assert.equal(logs[0].message.includes('Expected getImage() parameter'), true);
+			assert.equal(logs[0].message.includes('Expected \`getImage()\` parameter'), true);
 		});
 
 		it('properly error when src is undefined', async () => {
@@ -1137,6 +1137,18 @@ describe('build ssg', () => {
 		const srcnested = $('#nested-image img').attr('src')!;
 		const datanested = await fixture.readBuffer(srcnested);
 		assert.equal(datanested instanceof Buffer, true);
+	});
+
+	it('content collection images with empty alt preserve the alt attribute', async () => {
+		const html = await fixture.readFile('/blog/empty-alt/index.html');
+
+		const $ = cheerio.load(html);
+		const $contentImg = $('img').filter(function () {
+			// Find the image rendered from markdown content (not the frontmatter images)
+			return !$(this).closest('#direct-image, #nested-image').length;
+		});
+		assert.equal($contentImg.length, 1, 'should have one content image');
+		assert.equal($contentImg.attr('alt'), '', 'alt attribute should be empty string, not missing');
 	});
 
 	it('quality attribute produces a different file', async () => {

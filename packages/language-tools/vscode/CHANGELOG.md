@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.16.16
+
+### Patch Changes
+
+- [#16719](https://github.com/withastro/astro/pull/16719) [`2b1df12`](https://github.com/withastro/astro/commit/2b1df120f14ae44ade0cfcc8c6bf17071061cd28) Thanks [@alexisintech](https://github.com/alexisintech)! - fix MDX syntax highlighting for indented astro codeblocks
+
 ## 2.16.15
 
 ### Patch Changes

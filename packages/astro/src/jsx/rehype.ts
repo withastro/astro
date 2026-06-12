@@ -1,4 +1,6 @@
-import type { RehypePlugin } from '@astrojs/markdown-remark';
+// TODO: Remove this file in Astro 7.0. It now lives directly in the MDX integration at packages/integrations/mdx/src/rehype-analyze-astro-metadata.ts
+
+import type { RehypePlugin } from '@astrojs/internal-helpers/markdown';
 import type { RootContent } from 'hast';
 import type {} from 'mdast-util-mdx';
 import type {

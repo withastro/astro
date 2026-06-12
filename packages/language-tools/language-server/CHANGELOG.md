@@ -1,5 +1,20 @@
 # @astrojs/language-server
 
+## 2.16.10
+
+### Patch Changes
+
+- [#16827](https://github.com/withastro/astro/pull/16827) [`90ee151`](https://github.com/withastro/astro/commit/90ee151f1a77b1e3d55d0f8db768e65c3f8c8948) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a crash in the language server and `astro check` when using TypeScript project references with `.vue` or `.svelte` files
+
+## 2.16.9
+
+### Patch Changes
+
+- [#16661](https://github.com/withastro/astro/pull/16661) [`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0) Thanks [@ocavue](https://github.com/ocavue)! - Updates `typescript` to v6. No changes are needed from users.
+
+- Updated dependencies [[`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0)]:
+  - @astrojs/yaml2ts@0.2.4
+
 ## 2.16.8
 
 ### Patch Changes
