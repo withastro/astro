@@ -3,4 +3,4 @@
 "@astrojs/ts-plugin": patch
 ---
 
-chore(language-tools): add package support metadata
+Improve npm package links for the Astro language tooling packages.
