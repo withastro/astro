@@ -1,7 +1,6 @@
 import type http from 'node:http';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import { BaseApp } from '../core/app/entrypoints/index.js';
-import { getFirstForwardedValue, validateForwardedHeaders } from '../core/app/validate-headers.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { clientLocalsSymbol } from '../core/constants.js';
 import { createSafeError } from '../core/errors/index.js';
@@ -139,31 +138,27 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		return pipeline;
 	}
 
+	/**
+	 * Handle a request.
+	 * @returns The return value indicates whether or not the request was handled
+	 * by this handler. If the result is not `true`, then the request has not
+	 * been handled yet and other handlers can be run.
+	 */
 	public async handleRequest({
 		controller,
 		incomingRequest,
 		incomingResponse,
 		isHttps,
-	}: HandleRequest): Promise<void> {
-		// When the dev server runs behind a TLS-terminating reverse proxy (e.g.
-		// Caddy, nginx, Traefik), the proxy connects to Vite over plain HTTP while
-		// the browser communicates over HTTPS. In that setup isHttps is false, but
-		// the proxy forwards the original scheme via X-Forwarded-Proto: https.
-		// We trust that header only when security.allowedDomains is configured —
-		// the same guard used in production (core/app/node.ts). Without it the
-		// header is untrusted and we fall back to isHttps.
-		const validated = validateForwardedHeaders(
-			getFirstForwardedValue(incomingRequest.headers['x-forwarded-proto']),
-			getFirstForwardedValue(incomingRequest.headers['x-forwarded-host']),
-			getFirstForwardedValue(incomingRequest.headers['x-forwarded-port']),
-			this.manifest.allowedDomains,
-		);
-
-		const protocol = validated.protocol ?? (isHttps ? 'https' : 'http');
+		prerenderOnly,
+	}: HandleRequest): Promise<boolean> {
+		// Build a basic origin from the socket protocol and Host header.
+		// X-Forwarded-* headers are resolved later inside FetchState, which
+		// validates them against allowedDomains and updates the URL. This
+		// lets user-provided fetch handlers (src/app.ts) set or modify
+		// forwarded headers before FetchState picks them up.
+		const protocol = isHttps ? 'https' : 'http';
 		const host =
-			validated.host ??
-			(incomingRequest.headers[':authority'] as string | undefined) ??
-			incomingRequest.headers.host;
+			(incomingRequest.headers[':authority'] as string | undefined) ?? incomingRequest.headers.host;
 
 		const origin = `${protocol}://${host}`;
 		const url = new URL(origin + incomingRequest.url);
@@ -185,28 +180,46 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 			url.pathname = url.pathname.slice(0, -1);
 		}
 
-		let body: BodyInit | undefined = undefined;
-		if (!(incomingRequest.method === 'GET' || incomingRequest.method === 'HEAD')) {
-			let bytes: Uint8Array[] = [];
-			await new Promise((resolve) => {
-				incomingRequest.on('data', (part) => {
-					bytes.push(part);
-				});
-				incomingRequest.on('end', resolve);
-			});
-			body = Buffer.concat(bytes);
-		}
-
 		const self = this;
 		await self.#loadFetchHandler();
+
+		let handled = true;
 		await runWithErrorHandling({
 			controller,
 			pathname,
 			async run() {
 				const matchedRoute = await self.devMatch(pathname);
 				if (!matchedRoute) {
+					if (prerenderOnly) {
+						// In prerender-only mode, signal that we didn't handle this
+						// so the caller can fall through to the SSR handler.
+						handled = false;
+						return;
+					}
 					// This should never happen, because ensure404Route will add a 404 route if none exists.
 					throw new Error('No route matched, and default 404 route was not found.');
+				}
+
+				// When running as the prerender handler, only handle prerendered routes.
+				// If the best-matching route is SSR, let the SSR handler handle it instead.
+				if (prerenderOnly && !matchedRoute.routeData.prerender) {
+					handled = false;
+					return;
+				}
+
+				// Delay reading the request body until prerenderOnly routing has decided
+				// this handler really owns the request. Otherwise a prerender pass that
+				// falls through to SSR would exhaust the body stream first.
+				let body: BodyInit | undefined = undefined;
+				if (!(incomingRequest.method === 'GET' || incomingRequest.method === 'HEAD')) {
+					let bytes: Uint8Array[] = [];
+					await new Promise((resolve) => {
+						incomingRequest.on('data', (part) => {
+							bytes.push(part);
+						});
+						incomingRequest.on('end', resolve);
+					});
+					body = Buffer.concat(bytes);
 				}
 
 				const request = createRequest({
@@ -250,6 +263,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 				return error;
 			},
 		});
+		return handled;
 	}
 
 	match(request: Request, _allowPrerenderedRoutes: boolean): RouteData | undefined {
@@ -282,4 +296,6 @@ type HandleRequest = {
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 	isHttps: boolean;
+	/** When true, only handle prerendered routes. Returns false for SSR routes. */
+	prerenderOnly?: boolean;
 };

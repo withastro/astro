@@ -49,7 +49,7 @@ const createPreviewServer: CreatePreviewServer = async ({
 				allowedHosts,
 			},
 			plugins: [
-				cfVitePlugin({ ...globalThis.astroCloudflareOptions, viteEnvironment: { name: 'ssr' } }),
+				cfVitePlugin({ ...globalThis.astroCloudflareConfig, viteEnvironment: { name: 'ssr' } }),
 			],
 		});
 	} catch (err) {

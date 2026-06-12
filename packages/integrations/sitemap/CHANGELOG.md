@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 3.7.3
+
+### Patch Changes
+
+- [#16837](https://github.com/withastro/astro/pull/16837) [`783c4a6`](https://github.com/withastro/astro/commit/783c4a6e7789999aac0259e4777c90178adb9a02) Thanks [@jdevalk](https://github.com/jdevalk)! - Improves `<lastmod>` accuracy in the sitemap index. Each `<sitemap>` entry in `sitemap-index.xml` is now stamped with the most recent `lastmod` of the URLs in the child sitemap it points to, instead of repeating a single global date on every entry. When a child sitemap has no per-URL `lastmod`, the entry falls back to the `lastmod` option as before. This gives search engines a per-file freshness signal, so they can tell which child sitemaps actually changed without refetching all of them.
+
 ## 3.7.2
 
 ### Patch Changes

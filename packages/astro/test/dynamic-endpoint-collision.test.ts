@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
-import { load as cheerioLoad } from 'cheerio';
-import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import { before, describe, it } from 'node:test';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Dynamic endpoint collision', () => {
 	describe('build', () => {
@@ -21,40 +20,6 @@ describe('Dynamic endpoint collision', () => {
 
 		it('throw error when dynamic endpoint has path collision', async () => {
 			assert.equal(errorMsg!.name, 'PrerenderDynamicEndpointPathCollide');
-		});
-	});
-
-	describe('dev', () => {
-		let fixture: Fixture;
-		let devServer: DevServer;
-
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/dynamic-endpoint-collision/',
-				outDir: './dist/dynamic-endpoint-collision-dev/',
-			});
-
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('throw error when dynamic endpoint has path collision', async () => {
-			const html = await fixture.fetch('/api/catch').then((res) => res.text());
-			const $ = cheerioLoad(html);
-			assert.equal($('title').text(), 'PrerenderDynamicEndpointPathCollide');
-		});
-
-		it("don't throw error when dynamic endpoint doesn't load the colliding path", async () => {
-			const res = await fixture.fetch('/api/catch/one').then((r) => r.text());
-			assert.equal(res, '{"slug":"one"}');
-		});
-
-		it('returns 404 when user visits dynamic endpoint that has collision but not specified in getStaticPaths', async () => {
-			const res = await fixture.fetch('/api/safe');
-			assert.equal(res.status, 404);
 		});
 	});
 });

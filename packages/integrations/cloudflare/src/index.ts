@@ -1,12 +1,19 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, readFile, rename, stat } from 'node:fs/promises';
+import { appendFile, readFile, rename, stat, unlink, writeFile } from 'node:fs/promises';
+import { relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { normalizePath } from 'vite';
 import { createInterface } from 'node:readline/promises';
-import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
+import {
+	removeLeadingForwardSlash,
+	removeTrailingForwardSlash,
+} from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute } from 'astro';
 import { astroFrontmatterScanPlugin } from './esbuild-plugin-astro-frontmatter.js';
 import { getParts } from './utils/generate-routes-json.js';
+import { buildAssetsHeadersContent } from './utils/headers.js';
 import {
 	type ImageServiceConfig,
 	normalizeImageServiceConfig,
@@ -119,10 +126,10 @@ export default function createIntegration({
 	...cloudflareOptions
 }: Options = {}): AstroIntegration {
 	let _config: AstroConfig;
+	let _buildOutput: 'server' | 'static';
 	let _originalClientDir: URL;
 
 	let _routes: IntegrationResolvedRoute[];
-	let _isFullyStatic = false;
 	let cfPluginConfig: PluginConfig;
 
 	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
@@ -172,7 +179,7 @@ export default function createIntegration({
 				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
 				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
 
-				cfPluginConfig = {
+				const adapterPluginConfig: Partial<PluginConfig> = {
 					config: cloudflareConfigCustomizer({
 						needsSessionKVBinding,
 						sessionKVBindingName,
@@ -200,11 +207,21 @@ export default function createIntegration({
 						},
 					}),
 				};
+				// Resolve the full `@cloudflare/vite-plugin` config exactly once by merging
+				// the user's `cloudflare({...})` options (e.g. `remoteBindings`,
+				// `inspectorPort`, `persistState`, `configPath`, `auxiliaryWorkers`) with
+				// the adapter's computed bindings/wrangler wiring. Downstream call sites
+				// (the dev/build plugin instance, the prerenderer's preview server, and
+				// the `astro preview` entrypoint) then just spread `cfPluginConfig` and
+				// cannot accidentally drop user options (see #16705 and related CHANGELOG
+				// entries).
+				cfPluginConfig = { ...cloudflareOptions, ...adapterPluginConfig };
 
-				// The preview entrypoint uses Cloudflare's vite plugin and so it needs access
-				// to the config. But there's no proper API for this so we use globalThis.
+				// The preview entrypoint uses Cloudflare's vite plugin and so it needs
+				// access to the resolved config. There's no proper API for this so we
+				// use globalThis.
 				if (command === 'preview') {
-					globalThis.astroCloudflareOptions = cfPluginConfig;
+					globalThis.astroCloudflareConfig = cfPluginConfig;
 				}
 
 				// Including prismjs files in `optimizeDeps.includes` when `@astrojs/prism` is not installed
@@ -222,6 +239,12 @@ export default function createIntegration({
 				] as const;
 				const isAstroPrismPackageInstalled = await getIsAstroPrismInstalled(config.root);
 
+				// Capture user's top-level optimizeDeps before Vite scopes it to the
+				// client environment only (Vite 6 Environment API design). We forward
+				// these settings into server environments so that user-provided exclude,
+				// include, and esbuildOptions (e.g. loader) entries are respected.
+				const userOptimizeDeps = config.vite?.optimizeDeps;
+
 				updateConfig({
 					build: {
 						redirects: false,
@@ -233,9 +256,9 @@ export default function createIntegration({
 								? [createNodePrerenderPlugin()]
 								: []),
 							cfVitePlugin({
-								...cloudflareOptions,
 								...cfPluginConfig,
 								viteEnvironment: { name: 'ssr' },
+								assetsOnly: () => _buildOutput === 'static',
 							}),
 							{
 								name: '@astrojs/cloudflare:cf-imports',
@@ -277,6 +300,8 @@ export default function createIntegration({
 													'astro > picomatch',
 													'astro/app',
 													'astro/app/fetch/default-handler',
+													'astro/fetch',
+													'astro/hono',
 													'astro/assets',
 													'astro/assets/runtime',
 													'astro/assets/utils/inferRemoteSize.js',
@@ -287,6 +312,9 @@ export default function createIntegration({
 													'astro/app/entrypoint/dev',
 													'astro/virtual-modules/middleware.js',
 													...(isAstroPrismPackageInstalled ? prismFiles : []),
+													...(Array.isArray(userOptimizeDeps?.include)
+														? userOptimizeDeps.include
+														: []),
 												],
 												exclude: [
 													'unstorage/drivers/cloudflare-kv-binding',
@@ -295,6 +323,9 @@ export default function createIntegration({
 													'virtual:astro-cloudflare:*',
 													'virtual:@astrojs/*',
 													'@astrojs/starlight',
+													...(Array.isArray(userOptimizeDeps?.exclude)
+														? userOptimizeDeps.exclude
+														: []),
 												],
 												esbuildOptions: {
 													// Suppress Vite's `createRequire(import.meta.url)` banner to work around
@@ -303,6 +334,9 @@ export default function createIntegration({
 													// binding shares the same name (e.g. zod v4 exports `meta`).
 													banner: { js: '' },
 													plugins: [astroFrontmatterScanPlugin()],
+													...(userOptimizeDeps?.esbuildOptions?.loader
+														? { loader: userOptimizeDeps.esbuildOptions.loader }
+														: {}),
 												},
 											},
 										};
@@ -363,13 +397,10 @@ export default function createIntegration({
 			},
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
-				// Check if all non-internal routes are prerendered (fully static site)
-				const nonInternalRoutes = routes.filter((route) => route.origin !== 'internal');
-				_isFullyStatic =
-					nonInternalRoutes.length > 0 && nonInternalRoutes.every((route) => route.isPrerendered);
 			},
-			'astro:config:done': ({ setAdapter, config, injectTypes, logger }) => {
+			'astro:config:done': ({ setAdapter, config, injectTypes, logger, buildOutput }) => {
 				_config = config;
+				_buildOutput = buildOutput;
 				_originalClientDir = new URL(config.build.client.href);
 
 				// When a base path is configured, nest the client output directory under
@@ -388,9 +419,10 @@ export default function createIntegration({
 				setAdapter({
 					name: '@astrojs/cloudflare',
 					adapterFeatures: {
-						buildOutput: 'server',
+						buildOutput,
 						middlewareMode: 'classic',
 						preserveBuildClientDir: true,
+						preserveBuildServerDir: true,
 					},
 					entrypointResolution: 'auto',
 					previewEntrypoint: '@astrojs/cloudflare/entrypoints/preview',
@@ -479,6 +511,67 @@ export default function createIntegration({
 							// File may not exist — that's fine
 						}
 					}
+					// The @cloudflare/vite-plugin computes assets.directory from the
+					// modified client outDir which includes the base prefix. However,
+					// Cloudflare's asset binding resolves the full request URL path
+					// (including the base) against the directory, so it must point to
+					// the original un-prefixed client root.
+					// Note: this patches the generated build-output wrangler.json (in
+					// dist/server/), not the project's source wrangler.json.
+					try {
+						const wranglerJsonUrl = new URL('./wrangler.json', _config.build.server);
+						const raw = await readFile(wranglerJsonUrl, 'utf-8');
+						const wranglerConfig = JSON.parse(raw);
+						if (wranglerConfig.assets?.directory) {
+							wranglerConfig.assets.directory = normalizePath(
+								relative(fileURLToPath(_config.build.server), fileURLToPath(_originalClientDir)),
+							);
+							await writeFile(wranglerJsonUrl, JSON.stringify(wranglerConfig));
+						}
+					} catch {
+						// wrangler.json may not exist or may contain invalid JSON
+					}
+				}
+
+				// Inject an immutable Cache-Control rule for hashed assets so browsers
+				// cache them across deploys. Skip when assets are served from another
+				// origin (build.assetsPrefix) or when the user's _headers already sets
+				// Cache-Control on a rule that would match the assets path — Cloudflare
+				// merges duplicate header values with a comma, which would otherwise
+				// produce a contradictory directive.
+				if (_config.build.assetsPrefix) {
+					logger.debug(
+						'Skipping Cache-Control injection for assets — `build.assetsPrefix` is set, so assets are served from a different origin.',
+					);
+				} else {
+					const headersPath = new URL('./_headers', _originalClientDir);
+					const result = await buildAssetsHeadersContent(
+						{
+							assetsDir: _config.build.assets,
+							basePrefix: removeTrailingForwardSlash(_config.base),
+							headersPath,
+						},
+						(path) => readFile(path, 'utf-8'),
+					);
+					if (result === null) {
+						logger.debug(
+							`Skipping Cache-Control injection — _headers already sets Cache-Control on a matching rule.`,
+						);
+					} else {
+						// Atomic write: stage to a temp file, then rename, so a crash
+						// mid-write can't leave the user's _headers truncated.
+						const tempPath = new URL('./_headers.tmp', _originalClientDir);
+						try {
+							await writeFile(tempPath, result.content);
+							await rename(tempPath, headersPath);
+						} catch (err) {
+							await unlink(tempPath).catch(() => {});
+							throw err;
+						}
+						logger.info(
+							`Injected immutable Cache-Control for ${result.assetsPattern} into _headers.`,
+						);
+					}
 				}
 
 				let redirectsExists = false;
@@ -526,7 +619,7 @@ export default function createIntegration({
 						),
 					),
 					dir,
-					buildOutput: _isFullyStatic ? 'static' : 'server',
+					buildOutput: _buildOutput,
 					assets,
 				});
 

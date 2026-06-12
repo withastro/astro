@@ -3,13 +3,13 @@ import { before, describe, it } from 'node:test';
 import { visit } from 'unist-util-visit';
 import {
 	createMarkdownProcessor,
-	type MarkdownProcessor,
+	type MarkdownRenderer,
 	type RehypePlugin,
 } from '../dist/index.js';
 
 describe('collect images', async () => {
-	let processor: MarkdownProcessor;
-	let processorWithHastProperties: MarkdownProcessor;
+	let processor: MarkdownRenderer;
+	let processorWithHastProperties: MarkdownRenderer;
 
 	before(async () => {
 		processor = await createMarkdownProcessor({ image: { domains: ['example.com'] } });

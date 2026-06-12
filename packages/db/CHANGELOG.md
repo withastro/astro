@@ -1,5 +1,17 @@
 # @astrojs/db
 
+## 0.21.3
+
+### Patch Changes
+
+- [#16964](https://github.com/withastro/astro/pull/16964) [`b048826`](https://github.com/withastro/astro/commit/b048826b7a0406c751073c1bd95686d9ffae8edc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Deprecates the `@astrojs/db` integration. We no longer have the bandwidth to maintain this package, and we recommend that users directly use the database client of their choice (Drizzle, Kysely, etc.) in their Astro projects instead.
+
+## 0.21.2
+
+### Patch Changes
+
+- [#16661](https://github.com/withastro/astro/pull/16661) [`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0) Thanks [@ocavue](https://github.com/ocavue)! - Updates `typescript` to v6. No changes are needed from users.
+
 ## 0.21.1
 
 ### Patch Changes

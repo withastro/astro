@@ -59,6 +59,7 @@ describe('Integration buildConfig hook', () => {
 				},
 			},
 			outDir: './dist/ssr-adapter-build-config/',
+			cacheDir: './node_modules/.astro-test/ssr-adapter-build-config/',
 		});
 		await fixture.build();
 	});

@@ -6,7 +6,7 @@ import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.ts';
 import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
-describe('Middleware in DEV mode', () => {
+describe('Middleware in DEV mode — integration hooks', () => {
 	let fixture: Fixture;
 	let devServer: DevServer;
 
@@ -14,6 +14,7 @@ describe('Middleware in DEV mode', () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware space/',
 			outDir: './dist/middleware-middleware-in-dev-mode/',
+			cacheDir: './node_modules/.astro-test/middleware-middleware-in-dev-mode/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -22,30 +23,16 @@ describe('Middleware in DEV mode', () => {
 		await devServer.stop();
 	});
 
-	describe('Path encoding in middleware', () => {
-		it('should reject double-encoded paths with 404', async () => {
-			const res = await fixture.fetch('/%2561dmin', { redirect: 'manual' });
-			assert.equal(res.status, 404);
-		});
-
-		it('should reject triple-encoded paths with 404', async () => {
-			const res = await fixture.fetch('/%252561dmin', { redirect: 'manual' });
-			assert.equal(res.status, 404);
-		});
+	it('Integration middleware marked as "pre" runs', async () => {
+		const res = await fixture.fetch('/integration-pre');
+		const json = await res.json();
+		assert.equal(json.pre, 'works');
 	});
 
-	describe('Integration hooks', () => {
-		it('Integration middleware marked as "pre" runs', async () => {
-			const res = await fixture.fetch('/integration-pre');
-			const json = await res.json();
-			assert.equal(json.pre, 'works');
-		});
-
-		it('Integration middleware marked as "post" runs', async () => {
-			const res = await fixture.fetch('/integration-post');
-			const json = await res.json();
-			assert.equal(json.post, 'works');
-		});
+	it('Integration middleware marked as "post" runs', async () => {
+		const res = await fixture.fetch('/integration-post');
+		const json = await res.json();
+		assert.equal(json.post, 'works');
 	});
 });
 
@@ -109,6 +96,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 			output: 'server',
 			adapter: testAdapter({}),
 			outDir: './dist/middleware-middleware-api-in-prod-mode-ssr/',
+			cacheDir: './node_modules/.astro-test/middleware-middleware-api-in-prod-mode-ssr/',
 		});
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
@@ -132,16 +120,27 @@ describe('Middleware API in PROD mode, SSR', () => {
 	});
 
 	describe('Path encoding in middleware', () => {
-		it('should reject double-encoded paths with 404', async () => {
+		it('middleware protects double-encoded /admin path', async () => {
+			// %2561dmin is decoded iteratively: %2561 → %61 → a → admin
+			// Middleware sees /admin and redirects (no auth token).
 			const request = new Request('http://example.com/%2561dmin');
 			const response = await app.render(request);
-			assert.equal(response.status, 404);
+			assert.equal(
+				response.status,
+				302,
+				'double-encoded /admin should trigger middleware redirect',
+			);
 		});
 
-		it('should reject triple-encoded paths with 404', async () => {
+		it('middleware protects triple-encoded /admin path', async () => {
+			// %252561dmin → %2561dmin → %61dmin → admin
 			const request = new Request('http://example.com/%252561dmin');
 			const response = await app.render(request);
-			assert.equal(response.status, 404);
+			assert.equal(
+				response.status,
+				302,
+				'triple-encoded /admin should trigger middleware redirect',
+			);
 		});
 	});
 
@@ -161,6 +160,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 				},
 			}),
 			outDir: './dist/middleware-path-encoding-in-middleware/',
+			cacheDir: './node_modules/.astro-test/middleware-path-encoding-in-middleware/',
 		});
 		await fixture.build();
 		assert.ok(middlewarePath);
@@ -194,31 +194,5 @@ describe('Middleware with tailwind', () => {
 			.replace(/\s/g, '')
 			.replace('/n', '');
 		assert.equal(bundledCSS.includes('--tw'), true);
-	});
-});
-
-describe('Middleware sequence rewrites', () => {
-	let fixture: Fixture;
-	let devServer: DevServer;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/middleware-sequence-rewrite/',
-			outDir: './dist/middleware-middleware-sequence-rewrites/',
-		});
-		devServer = await fixture.startDevServer();
-	});
-
-	after(async () => {
-		await devServer.stop();
-	});
-
-	it('should preserve cookies set in sequence', async () => {
-		const res = await fixture.fetch('/');
-		const html = await res.text();
-		assert.ok(html.includes('Hello Another'));
-		const setCookie = res.headers.get('set-cookie')!;
-		assert.ok(setCookie.includes('cookie1=Cookie%20from%20middleware%201'));
-		assert.ok(setCookie.includes('cookie2=Cookie%20from%20middleware%202'));
 	});
 });

@@ -22,9 +22,9 @@ describe('When a read-only file exists in /public (static)', () => {
 		await fixture.build();
 	});
 
-	after(() => {
+	after(async () => {
 		fs.chmodSync(testFilePath, 0o666);
-		fixture.clean();
+		await fixture.clean();
 	});
 });
 
@@ -47,8 +47,8 @@ describe('When a read-only file exists in /public (server)', () => {
 		await fixture.build();
 	});
 
-	after(() => {
+	after(async () => {
 		fs.chmodSync(testFilePath, 0o666);
-		fixture.clean();
+		await fixture.clean();
 	});
 });

@@ -82,6 +82,23 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							internals.cssModuleToChunkIdMap.set(moduleId, chunk.fileName);
 						}
 					}
+
+					// Track which component exports were rendered during SSR.
+					// This is used by the client build to determine if cssScopeTo CSS
+					// was tree-shaken (component not rendered in SSR) vs included.
+					for (const [moduleId, moduleInfo] of Object.entries(chunk.modules || {})) {
+						if (moduleInfo.renderedExports.length > 0) {
+							const existing = internals.ssrRenderedExports?.get(moduleId);
+							if (existing) {
+								for (const exp of moduleInfo.renderedExports) {
+									existing.add(exp);
+								}
+							} else {
+								internals.ssrRenderedExports ??= new Map();
+								internals.ssrRenderedExports.set(moduleId, new Set(moduleInfo.renderedExports));
+							}
+						}
+					}
 				}
 			}
 
@@ -91,6 +108,16 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			const renderedComponentExports = new Map<string, string[]>();
 			// Map from component module ID to the pages that include it (via facadeModuleId)
 			const componentToPages = new Map<string, Set<string>>();
+
+			// Track CSS assets deleted during client-build deduplication so they can
+			// be restored if the cssScopeTo recovery code below determines they contain
+			// styles for conditionally rendered components.
+			const deletedCssAssets = new Map<string, (typeof bundle)[string]>();
+			// CSS asset IDs that the cssScopeTo recovery code added to pagesToCss.
+			// Only these deleted assets should be restored — the normal parent walk
+			// also adds deleted CSS IDs to pagesToCss, but those represent CSS that
+			// is already on the page from the SSR build.
+			const cssScopeToAddedCss = new Set<string>();
 
 			// Remove CSS files from client bundle that were already bundled with pages during SSR
 			if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
@@ -126,8 +153,10 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						);
 
 						if (allCssInSSR && shouldDeleteCSSChunk(allModules, internals)) {
-							// Delete the CSS assets that were imported by this chunk
 							for (const cssId of meta.importedCss) {
+								if (bundle[cssId]) {
+									deletedCssAssets.set(cssId, bundle[cssId]);
+								}
 								delete bundle[cssId];
 							}
 						}
@@ -148,6 +177,11 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				// client:only component and if so, add its CSS to the page it belongs to.
 				if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 					for (const id of Object.keys(chunk.modules)) {
+						// Only walk from CSS modules to find client:only parents. When Rollup
+						// merges unrelated modules into the same chunk, walking from every module
+						// would incorrectly attribute the chunk's CSS to pages reached through
+						// modules that have no CSS dependency.
+						if (!isCSSRequest(id)) continue;
 						for (const pageData of getParentClientOnlys(id, this, internals)) {
 							for (const importedCssImport of meta.importedCss) {
 								const cssToInfoRecord = (pagesToCss[pageData.moduleSpecifier] ??= {});
@@ -231,6 +265,19 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 										}
 									}
 								}
+
+								// Only flag deleted CSS for restore when the component's
+								// export was NOT rendered during SSR. If it was rendered in
+								// SSR, the page already has these styles and the deleted
+								// client CSS is truly redundant.
+								const ssrExports = internals.ssrRenderedExports?.get(scopedToModule);
+								if (!ssrExports || !ssrExports.has(scopedToExport)) {
+									for (const cssId of meta.importedCss) {
+										if (deletedCssAssets.has(cssId)) {
+											cssScopeToAddedCss.add(cssId);
+										}
+									}
+								}
 							}
 						}
 					}
@@ -265,6 +312,18 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								}
 							}
 						}
+					}
+				}
+			}
+
+			// Restore deleted CSS assets that the cssScopeTo recovery code added to
+			// pages. Only assets explicitly flagged by cssScopeToAddedCss are restored
+			// — CSS added by the normal parent walk represents styles already present
+			// on the page from the SSR build and should stay deleted.
+			if (cssScopeToAddedCss.size > 0) {
+				for (const cssId of cssScopeToAddedCss) {
+					if (deletedCssAssets.has(cssId) && !bundle[cssId]) {
+						bundle[cssId] = deletedCssAssets.get(cssId)!;
 					}
 				}
 			}

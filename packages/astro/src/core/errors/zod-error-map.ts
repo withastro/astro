@@ -69,7 +69,13 @@ export const errorMap: $ZodErrorMap = (issue) => {
 					const relativePath = flattenErrorPath(_issue.path)
 						.replace(baseErrorPath, '')
 						.replace(leadingPeriod, '');
-					if ('expected' in _issue && typeof _issue.expected === 'string') {
+					if (
+						_issue.code === 'custom' &&
+						_issue.message &&
+						_issue.message.includes('security.csp')
+					) {
+						expectedShape.push(_issue.message);
+					} else if ('expected' in _issue && typeof _issue.expected === 'string') {
 						expectedShape.push(
 							relativePath ? `${relativePath}: ${_issue.expected}` : _issue.expected,
 						);

@@ -15,7 +15,7 @@ import { provideSession } from '../session/handler.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import type { BaseApp } from '../app/base.js';
-import { type Pipeline, PipelineFeatures } from '../base-pipeline.js';
+import { type Pipeline, ALL_PIPELINE_FEATURES, PipelineFeatures } from '../base-pipeline.js';
 
 export class AstroHandler {
 	#app: BaseApp<Pipeline>;
@@ -71,6 +71,12 @@ export class AstroHandler {
 	}
 
 	async handle(state: FetchState): Promise<Response> {
+		// AstroHandler is the "batteries-included" handler that wires up
+		// every pipeline feature internally. Mark them all as used so the
+		// missing-feature warning in BaseApp never fires — the user didn't
+		// forget to include anything.
+		state.pipeline.usedFeatures |= ALL_PIPELINE_FEATURES;
+
 		const trailingSlashRedirect = this.#trailingSlashHandler.handle(state);
 		if (trailingSlashRedirect) {
 			return trailingSlashRedirect;
@@ -105,14 +111,13 @@ export class AstroHandler {
 
 		let response;
 		try {
-			// Only call provider functions when the feature is configured.
-			// Each call does property lookups + state.provide() which
-			// allocates a Map on the hot path when nothing is configured.
-			if (this.#hasSession || this.#app.pipeline.cacheConfig) {
-				const sessionP = this.#hasSession ? provideSession(state) : undefined;
-				const cacheP = this.#app.pipeline.cacheConfig ? provideCache(state) : undefined;
-				if (sessionP || cacheP) await Promise.all([sessionP, cacheP]);
-			}
+			// `provideCache` always runs so `Astro.cache` is defined even
+			// when caching is disabled — it registers a no-op shim that
+			// warns once on use. `provideSession` is gated because there
+			// is no equivalent disabled-shim contract for sessions.
+			const sessionP = this.#hasSession ? provideSession(state) : undefined;
+			const cacheP = provideCache(state);
+			if (sessionP || cacheP) await Promise.all([sessionP, cacheP]);
 			// Track feature usage even when skipped.
 			state.pipeline.usedFeatures |= PipelineFeatures.sessions;
 

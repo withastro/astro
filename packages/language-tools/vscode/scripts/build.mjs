@@ -72,8 +72,8 @@ export default async function build() {
 	await builder.watch();
 
 	process.on('beforeExit', () => {
-		builder.dispose && builder.dispose();
+		void builder.dispose?.();
 	});
 }
 
-build();
+void build();

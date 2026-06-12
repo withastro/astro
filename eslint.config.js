@@ -34,8 +34,6 @@ const configs = [
 		'triage/',
 		'.github/',
 		'.changeset/',
-		// We can remove this once https://github.com/withastro/astro/pull/16643 is merged
-		'packages/astro/e2e/astro-island-hydration-error.test.js',
 	]),
 
 	...tseslint.configs.recommendedTypeChecked,
@@ -59,6 +57,22 @@ const configs = [
 			'@typescript-eslint/switch-exhaustiveness-check': 'error',
 			'@typescript-eslint/no-shadow': 'error',
 
+			'@typescript-eslint/no-floating-promises': [
+				'error',
+				{
+					ignoreIIFE: true,
+					allowForKnownSafeCalls: [
+						// `describe`, `it`, and `test` functions imported from `node:test` return a promise, but it's safe to ignore them in most cases.
+						// See https://github.com/nodejs/node/issues/51292
+						{
+							from: 'package',
+							name: ['suite', 'test', 'it', 'describe', 'skip'],
+							package: 'node:test',
+						},
+					],
+				},
+			],
+
 			// Disabled - now handled by Biome
 			'no-console': 'off', // Biome: suspicious.noConsole
 			'@typescript-eslint/no-unused-vars': 'off', // Biome: correctness.noUnusedVariables
@@ -74,7 +88,6 @@ const configs = [
 			'@typescript-eslint/no-inferrable-types': 'off',
 			'@typescript-eslint/no-base-to-string': 'off',
 			'@typescript-eslint/no-empty-function': 'off',
-			'@typescript-eslint/no-floating-promises': 'off',
 			'@typescript-eslint/no-misused-promises': 'off',
 			'@typescript-eslint/no-redundant-type-constituents': 'off',
 			'@typescript-eslint/no-this-alias': 'off',
@@ -109,6 +122,13 @@ const configs = [
 			globals: {
 				browser: true,
 			},
+		},
+	},
+	{
+		files: ['packages/**/src/**/*.ts'],
+		rules: {
+			// Disable "no-floating-promises" rule for all source files until we have the bandwidth to address all the errors.
+			'@typescript-eslint/no-floating-promises': 'off',
 		},
 	},
 	{

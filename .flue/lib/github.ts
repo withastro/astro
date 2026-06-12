@@ -1,4 +1,8 @@
+import { exec as execCb } from 'node:child_process';
+import { promisify } from 'node:util';
 import * as v from 'valibot';
+
+const execAsync = promisify(execCb);
 
 const REPO = process.env.GITHUB_REPOSITORY || 'withastro/astro';
 export const GITHUB_TOKEN_BASE = process.env.GITHUB_TOKEN;
@@ -142,6 +146,58 @@ export async function addGitHubLabels(issueNumber: number, labels: string[]): Pr
 	}
 }
 
+export interface PullRequest {
+	number: number;
+	html_url: string;
+}
+
+export async function createPullRequest(options: {
+	head: string;
+	base: string;
+	title: string;
+	body: string;
+}): Promise<PullRequest> {
+	assert(GITHUB_TOKEN_PRIVILEGED, `FREDKBOT_GITHUB_TOKEN token is required.`);
+	const res = await fetch(`https://api.github.com/repos/${REPO}/pulls`, {
+		method: 'POST',
+		headers: headers(GITHUB_TOKEN_PRIVILEGED),
+		body: JSON.stringify({
+			head: options.head,
+			base: options.base,
+			title: options.title,
+			body: options.body,
+		}),
+	});
+	if (!res.ok) {
+		throw new Error(`Failed to create pull request (HTTP ${res.status}): ${await res.text()}`);
+	}
+	return (await res.json()) as PullRequest;
+}
+
+/** Find an open pull request from the given head branch. */
+export async function findPullRequest(head: string): Promise<PullRequest | null> {
+	assert(GITHUB_TOKEN_BASE, `GITHUB_TOKEN env token is required.`);
+	try {
+		const res = await fetch(
+			`https://api.github.com/repos/${REPO}/pulls?head=withastro:${encodeURIComponent(head)}&state=open`,
+			{ headers: headers(GITHUB_TOKEN_BASE) },
+		);
+		if (!res.ok) {
+			throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+		}
+		const pulls = await res.json();
+		if (!Array.isArray(pulls)) return null;
+		return (pulls[0] as PullRequest) ?? null;
+	} catch (e) {
+		throw new Error(`Failed to check for existing PR on branch "${head}": ${e}`);
+	}
+}
+
+/** Add labels to a pull request (same endpoint as issues). */
+export async function addPullRequestLabels(prNumber: number, labels: string[]): Promise<void> {
+	return addGitHubLabels(prNumber, labels);
+}
+
 export async function removeGitHubLabel(issueNumber: number, label: string): Promise<void> {
 	assert(GITHUB_TOKEN_PRIVILEGED, `FREDKBOT_GITHUB_TOKEN  token is required.`);
 	const res = await fetch(
@@ -153,5 +209,24 @@ export async function removeGitHubLabel(issueNumber: number, label: string): Pro
 	);
 	if (!res.ok && res.status !== 404) {
 		throw new Error(`Failed to remove label (HTTP ${res.status}): ${await res.text()}`);
+	}
+}
+
+/**
+ * Push a branch to origin using the privileged token. Runs outside the sandbox
+ * so the agent never sees the write-capable token.
+ */
+export async function gitPush(
+	branch: string,
+	options?: { force?: boolean },
+): Promise<{ exitCode: number; stdout: string; stderr: string }> {
+	assert(GITHUB_TOKEN_PRIVILEGED, 'FREDKBOT_GITHUB_TOKEN token is required.');
+	const forceFlag = options?.force ? ' -f' : '';
+	const remoteUrl = `https://x-access-token:${GITHUB_TOKEN_PRIVILEGED}@github.com/${REPO}.git`;
+	try {
+		const { stdout, stderr } = await execAsync(`git push${forceFlag} ${remoteUrl} ${branch}`);
+		return { exitCode: 0, stdout, stderr };
+	} catch (err: any) {
+		return { exitCode: err.code ?? 1, stdout: err.stdout ?? '', stderr: err.stderr ?? '' };
 	}
 }

@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { createMarkdownProcessor, type MarkdownProcessor } from '../dist/index.js';
+import { createMarkdownProcessor, type MarkdownRenderer } from '../dist/index.js';
 
 describe('entities', async () => {
-	let processor: MarkdownProcessor;
+	let processor: MarkdownRenderer;
 
 	before(async () => {
 		processor = await createMarkdownProcessor();

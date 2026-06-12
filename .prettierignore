@@ -32,5 +32,6 @@ pnpm-lock.yaml
 **/*.mjs
 **/*.cjs
 **/*.css
+**/*.code-snippets
 
 CHANGELOG.md

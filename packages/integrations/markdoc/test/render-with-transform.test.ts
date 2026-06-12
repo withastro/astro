@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { loadFixture, type Fixture, type DevServer } from './test-utils.ts';
+import { loadFixture, type Fixture } from './test-utils.ts';
 
 const root = new URL('./fixtures/render-with-transform/', import.meta.url);
 
@@ -16,24 +16,6 @@ describe('Markdoc - render with transform override', () => {
 
 	before(async () => {
 		fixture = await loadFixture({ root });
-	});
-
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('uses custom render component instead of built-in transform', async () => {
-			const res = await fixture.fetch('/');
-			const html = await res.text();
-			assertCustomFenceRendered(html);
-		});
 	});
 
 	describe('build', () => {

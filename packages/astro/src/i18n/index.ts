@@ -1,4 +1,8 @@
-import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
+import {
+	appendForwardSlash,
+	joinPaths,
+	removeTrailingForwardSlash,
+} from '@astrojs/internal-helpers/path';
 import type { RoutingStrategies } from '../core/app/common.js';
 import type { SSRManifest } from '../core/app/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
@@ -106,7 +110,7 @@ export function getLocaleRelativeUrl({
 	if (shouldAppendForwardSlash(trailingSlash, format)) {
 		relativePath = appendForwardSlash(joinPaths(...pathsToJoin));
 	} else {
-		relativePath = joinPaths(...pathsToJoin);
+		relativePath = removeTrailingForwardSlash(joinPaths(...pathsToJoin));
 	}
 
 	if (relativePath === '') {

@@ -1,5 +1,139 @@
 # @astrojs/cloudflare
 
+## 13.7.0
+
+### Minor Changes
+
+- [#16571](https://github.com/withastro/astro/pull/16571) [`d4b0cd1`](https://github.com/withastro/astro/commit/d4b0cd111ca0958e5da8772e34dd4fdc3e3a89dc) Thanks [@MA2153](https://github.com/MA2153)! - Sets immutable cache headers for static assets
+
+  Static assets under `_astro` can be cached to improve performance. The adapter now automatically injects a `Cache-Control` header at build time when possible.
+
+### Patch Changes
+
+- [#16968](https://github.com/withastro/astro/pull/16968) [`7a5c001`](https://github.com/withastro/astro/commit/7a5c00169ecc3a1ceccf27f457818c04bcc5d12b) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a build crash when using `experimental.advancedRouting` with a custom `fetchFile` that statically imports `cf` from `@astrojs/cloudflare/fetch`. The circular dependency between `@astrojs/cloudflare/fetch` and `astro/app/entrypoint` caused `createApp` or `createGetEnv` to be `undefined` at module evaluation time. Initialization is now deferred to the first `cf()` call, breaking the cycle.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.6.1
+
+### Patch Changes
+
+- [#16914](https://github.com/withastro/astro/pull/16914) [`4bdd240`](https://github.com/withastro/astro/commit/4bdd240a6174b12ee9344d9b97456079aa5975ce) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro/fetch` and `astro/hono` being discovered at runtime during dev instead of pre-bundled
+
+- [#16693](https://github.com/withastro/astro/pull/16693) [`9e6edc2`](https://github.com/withastro/astro/commit/9e6edc2da5ccf06243588a7f519dea5fbcc126cd) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes a link in the documentation specifying where to open an issue for the adapter.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.6.0
+
+### Minor Changes
+
+- [#16729](https://github.com/withastro/astro/pull/16729) [`01aa164`](https://github.com/withastro/astro/commit/01aa1648ef436037b9204c8a297a09e66870cf86) Thanks [@matthewp](https://github.com/matthewp)! - Adds `@astrojs/cloudflare/fetch` and `@astrojs/cloudflare/hono` exports for composing Cloudflare-specific setup with Astro's advanced routing handlers.
+
+  #### `@astrojs/cloudflare/fetch`
+
+  For use with `astro/fetch` in a custom fetch handler:
+
+  ```ts
+  import { astro, FetchState } from 'astro/fetch';
+  import { cf } from '@astrojs/cloudflare/fetch';
+
+  export default {
+    async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+      const state = new FetchState(request);
+      const asset = await cf(state, env, ctx);
+      if (asset) return asset;
+      return astro(state);
+    },
+  };
+  ```
+
+  #### `@astrojs/cloudflare/hono`
+
+  For use with `astro/hono` as Hono middleware:
+
+  ```ts
+  import { Hono } from 'hono';
+  import { actions, middleware, pages, i18n } from 'astro/hono';
+  import { cf } from '@astrojs/cloudflare/hono';
+
+  const app = new Hono<{ Bindings: Env }>();
+
+  app.use(cf());
+  app.use(actions());
+  app.use(middleware());
+  app.use(pages());
+  app.use(i18n());
+
+  export default app;
+  ```
+
+  Both handlers configure SESSION KV bindings, static asset serving via the ASSETS binding, `locals.cfContext`, client address, `waitUntil`, and prerendered error page fetch.
+
+### Patch Changes
+
+- [#16868](https://github.com/withastro/astro/pull/16868) [`f9bae95`](https://github.com/withastro/astro/commit/f9bae95a37c791cbb39a2402f3b969c853462010) Thanks [@helio-cf](https://github.com/helio-cf)! - Fixes user options passed to `cloudflare({...})` (`remoteBindings`, `inspectorPort`, `persistState`, `configPath`, `auxiliaryWorkers`) being silently ignored during `astro preview`. The adapter now resolves the full `@cloudflare/vite-plugin` config once at integration setup time and reuses that single resolved value across the dev/build plugin, the prerenderer's preview server, and the `astro preview` entrypoint, so user options can no longer be dropped at one of the call sites.
+
+- [#16468](https://github.com/withastro/astro/pull/16468) [`4cff3a1`](https://github.com/withastro/astro/commit/4cff3a107c3750ab5f0878a6b41836705282b771) Thanks [@matthewp](https://github.com/matthewp)! - Fixes static Cloudflare builds with server islands or image endpoints that failed at preview time due to mismatched output directories.
+
+- Updated dependencies [[`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc)]:
+  - @astrojs/internal-helpers@0.10.0
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.5.5
+
+### Patch Changes
+
+- [#16607](https://github.com/withastro/astro/pull/16607) [`98297af`](https://github.com/withastro/astro/commit/98297afb4fad0b61a69ff84b842cf65e5d71f5a4) Thanks [@alexanderflodin](https://github.com/alexanderflodin)! - Fixes incorrect `assets.directory` in the generated `wrangler.json` when a `base` path is configured
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.5.4
+
+### Patch Changes
+
+- [#16769](https://github.com/withastro/astro/pull/16769) [`428cb1b`](https://github.com/withastro/astro/commit/428cb1bb80f9c5672ed68bfc219fa700b7a569fa) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Forwards user-provided `optimizeDeps` settings (exclude, include, esbuildOptions.loader) to SSR/prerender environments. Previously, top-level `vite.optimizeDeps` in the Astro config was silently ignored for server environments because Vite 6 scopes it to client-only and the adapter's `configEnvironment` hook did not forward it. This caused packages with non-standard file types (e.g. `.data` files) to fail during dev-mode dependency optimization with errors like "No loader is configured for '.data' files".
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.5.3
+
+### Patch Changes
+
+- [#16801](https://github.com/withastro/astro/pull/16801) [`d619277`](https://github.com/withastro/astro/commit/d6192772a424b12bdf5f5991c3c882c3ae5cd707) Thanks [@ematipico](https://github.com/ematipico)! - Reverts a change to the esbuild dep-scan plugin that caused `astro check` and `astro build` to fail by making esbuild incorrectly bundle `virtual:` modules (e.g. from expressive-code)
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.5.2
+
+### Patch Changes
+
+- [#16708](https://github.com/withastro/astro/pull/16708) [`bb709ff`](https://github.com/withastro/astro/commit/bb709ffdd45ab936eba6e2ce69dd0cb2ed75bfe4) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixed a bug where a cascade of reloads would cause the page to crash during the first visit when building or developing with Cloudflare SSR in Astro v6 due to dependency loading issues.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.5.1
+
+### Patch Changes
+
+- [#16707](https://github.com/withastro/astro/pull/16707) [`2ff3f8f`](https://github.com/withastro/astro/commit/2ff3f8f4e457fba8fd82b7b342edf13d6ce093de) Thanks [@helio-cf](https://github.com/helio-cf)! - Fixes `remoteBindings: false` being ignored during `astro build`. The Cloudflare prerenderer's internal Vite preview server now receives the user's adapter options, so remote-flagged bindings (e.g. a D1 database with `remote: true` in `wrangler.toml`) are emulated locally during build, matching the existing `astro dev` behavior.
+
+- [#16652](https://github.com/withastro/astro/pull/16652) [`98c32cc`](https://github.com/withastro/astro/commit/98c32ccdc7761bb1fad56533535866a10582c4e9) Thanks [@greatjourney589](https://github.com/greatjourney589)! - Fixes user-declared KV namespace bindings being duplicated in the generated `dist/server/wrangler.json`, which caused wrangler validation to fail with "<binding> assigned to multiple KV Namespace bindings." The Astro Cloudflare config customizer now returns only the auto-injected `SESSION` binding and lets `@cloudflare/vite-plugin` merge it with the user's wrangler config, instead of pre-merging the user's bindings into the output.
+
+- [#16272](https://github.com/withastro/astro/pull/16272) [`4f9521e`](https://github.com/withastro/astro/commit/4f9521eeb0e20865f3a74c41a4ec99758127b902) Thanks [@barry3406](https://github.com/barry3406)! - Fixes `.astro` files failing with `No matching export in "html:..." for import "default"` when default-imported from a `.ts` file
+
+- [#15723](https://github.com/withastro/astro/pull/15723) [`9256345`](https://github.com/withastro/astro/commit/92563452ce866d9f9b950ad4b2adc808d10e8014) Thanks [@rururux](https://github.com/rururux)! - Fixes an issue where the `<Prism />` component failed to work in Cloudflare Workers.
+
+- Updated dependencies [[`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce)]:
+  - @astrojs/internal-helpers@0.9.1
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 13.5.0
 
 ### Minor Changes

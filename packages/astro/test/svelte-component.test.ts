@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.ts';
+import { type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Svelte component', () => {
 	let fixture: Fixture;
@@ -30,33 +30,6 @@ describe('Svelte component', () => {
 			const $ = cheerio.load(html);
 
 			assert.equal($('#svelte-custom-ext').text(), 'Hello, Custom Extensions');
-		});
-	});
-
-	if (isWindows) return;
-
-	describe('dev', () => {
-		let devServer: DevServer;
-
-		before(async () => {
-			devServer = await fixture.startDevServer();
-		});
-
-		after(async () => {
-			await devServer.stop();
-		});
-
-		it('scripts proxy correctly', async () => {
-			const html = await fixture.fetch('/').then((res) => res.text());
-			const $ = cheerio.load(html);
-
-			for (const script of $('script').toArray()) {
-				const { src } = script.attribs;
-
-				if (!src) continue;
-
-				assert.equal((await fixture.fetch(src)).status, 200);
-			}
 		});
 	});
 });

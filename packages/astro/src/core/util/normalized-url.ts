@@ -17,6 +17,7 @@ export function normalizeUrl(url: URL): URL {
 	try {
 		url.pathname = validateAndDecodePathname(url.pathname);
 	} catch {
+		// For decoding failures (truly malformed URLs), fall back gracefully.
 		try {
 			url.pathname = decodeURI(url.pathname);
 		} catch {
