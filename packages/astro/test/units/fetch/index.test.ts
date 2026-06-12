@@ -318,7 +318,7 @@ describe('pages()', () => {
 		assert.match(text, /<h1>my custom 500<\/h1>/);
 	});
 
-	it('serves a 404 via the error handler when the custom 404 route is prerendered', async () => {
+	it('returns a marked 404 for the app post-check when the custom 404 route is prerendered', async () => {
 		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
 			return render`<h1>Not Found</h1>`;
 		});
@@ -332,6 +332,7 @@ describe('pages()', () => {
 		const response = await pages(state);
 
 		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('X-Astro-Error'), 'true');
 	});
 
 	it('renders an endpoint', async () => {

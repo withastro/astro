@@ -105,7 +105,8 @@ export class PagesHandler {
 	/**
 	 * Like `handle`, but mirrors the app-level error handling that
 	 * `AstroHandler` provides on the standard path: unmatched routes
-	 * render the app's 404 error page, and render-time errors are logged
+	 * return a 404 marked with `X-Astro-Error` for the app's post-check
+	 * to render the 404 error page, and render-time errors are logged
 	 * and render the 500 error page instead of propagating to the host
 	 * framework.
 	 *
@@ -115,18 +116,17 @@ export class PagesHandler {
 	async handleWithErrorFallback(app: BaseApp<Pipeline>, state: FetchState): Promise<Response> {
 		// `FetchState` falls back to an SSR 404 route when nothing matches,
 		// so routeData is only missing when the custom 404 page is
-		// prerendered (or absent) — let the error handler serve the
-		// pre-built page instead.
+		// prerendered (or absent). Return a marked 404 and let the app's
+		// `X-Astro-Error` post-check render the error page a level up,
+		// the same way the un-dispatched `redirect` case above does.
 		if (!state.routeData) {
-			return app.renderError(state.request, {
-				...state.renderOptions,
-				status: 404,
-				pathname: state.pathname,
-			});
+			return new Response(null, { status: 404, headers: { [ASTRO_ERROR_HEADER]: 'true' } });
 		}
 		try {
 			return await this.handle(state, state.getAPIContext());
 		} catch (err: any) {
+			// The header marker can't carry the error object, so render the
+			// 500 page directly to preserve `error` and the logged stack.
 			app.logger.error(null, err.stack || err.message || String(err));
 			return app.renderError(state.request, {
 				...state.renderOptions,
