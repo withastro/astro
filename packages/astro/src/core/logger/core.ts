@@ -248,7 +248,7 @@ export class AstroLogger {
 	}
 
 	/**
-	 * It calls the `flush` function of the provided destinatin, if it exists.
+	 * It calls the `flush` function of the provided destination, if it exists.
 	 */
 	flush() {
 		if (this.options.destination.flush) {

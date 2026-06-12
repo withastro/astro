@@ -12,11 +12,11 @@ describe('Serverless prerender', () => {
 		await fixture.build({});
 	});
 
-	it('build successful', async () => {
+	it('build successful', { timeout: 30000 }, async () => {
 		assert.ok(await fixture.readFile('../.vercel/output/static/index.html'));
 	});
 
-	it('outDir is tree-shaken if not needed', async () => {
+	it('outDir is tree-shaken if not needed', { timeout: 30000 }, async () => {
 		const [file] = await fixture.glob(
 			'../.vercel/output/functions/_render.func/packages/vercel/test/fixtures/serverless-prerender/.vercel/output/_functions/pages/_image.astro.mjs',
 		);
@@ -29,7 +29,7 @@ describe('Serverless prerender', () => {
 	});
 
 	// TODO: The path here seems to be inconsistent?
-	it.skip('includeFiles work', async () => {
+	it.skip('includeFiles work', { timeout: 30000 }, async () => {
 		assert.ok(
 			await fixture.readFile(
 				'../.vercel/output/functions/render.func/packages/vercel/test/fixtures/serverless-prerender/dist/middleware.mjs',
@@ -49,7 +49,7 @@ describe('Serverless hybrid rendering', () => {
 		await fixture.build({});
 	});
 
-	it('build successful', async () => {
+	it('build successful', { timeout: 30000 }, async () => {
 		assert.ok(await fixture.readFile('../.vercel/output/static/index.html'));
 	});
 });

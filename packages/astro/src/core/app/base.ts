@@ -1,12 +1,10 @@
 import {
-	appendForwardSlash,
 	collapseDuplicateLeadingSlashes,
-	joinPaths,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import { matchPattern } from '@astrojs/internal-helpers/remote';
-import { normalizeTheLocale } from '../../i18n/index.js';
+import { computePathnameFromDomain } from '../i18n/domain.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RemotePattern, RouteData } from '../../types/public/index.js';
 import { type Pipeline, PipelineFeatures } from '../base-pipeline.js';
@@ -22,7 +20,6 @@ import { appSymbol } from '../constants.js';
 import { DefaultErrorHandler } from '../errors/default-handler.js';
 import type { ErrorHandler } from '../errors/handler.js';
 import { setRenderOptions } from './render-options.js';
-import { MultiLevelEncodingError } from '../util/pathname.js';
 import type { WaitUntilHook } from '../wait-until.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
@@ -156,11 +153,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	}
 
 	get adapterLogger(): AstroIntegrationLogger {
-		if (!this.#adapterLogger) {
-			this.#adapterLogger = new AstroIntegrationLogger(
-				this.logger.options,
-				this.manifest.adapterName,
-			);
+		const currentOptions = this.logger.options;
+		if (!this.#adapterLogger || this.#adapterLogger.options !== currentOptions) {
+			this.#adapterLogger = new AstroIntegrationLogger(currentOptions, this.manifest.adapterName);
 		}
 		return this.#adapterLogger;
 	}
@@ -261,18 +256,33 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	}
 
 	/**
+	 * Decodes a pathname with `decodeURI`, falling back to the raw pathname when it
+	 * contains an invalid percent-sequence (e.g. `%C0%AF`, an overlong-UTF-8 encoding of
+	 * `/` commonly sent by path-traversal scanners). A raw `decodeURI()` would throw
+	 * `URIError: URI malformed`, and because `match()` runs before `render()` that error
+	 * escapes the adapter's request handler as an uncaught exception (HTTP 500) that user
+	 * middleware can't catch.
+	 */
+	private safeDecodeURI(pathname: string): string {
+		try {
+			return decodeURI(pathname);
+		} catch (e: any) {
+			// Malformed request paths are expected client input (commonly from automated
+			// scanners) rather than a server fault, and this runs per-request on the hot
+			// path. Log at `debug` so it stays diagnosable without flooding error logs.
+			this.adapterLogger.debug(e.toString());
+			return pathname;
+		}
+	}
+
+	/**
 	 * Extracts the base-stripped, decoded pathname from a request.
 	 * Used by adapters to compute the pathname for dev-mode route matching.
 	 */
 	public getPathnameFromRequest(request: Request): string {
 		const url = new URL(request.url);
 		const pathname = prependForwardSlash(this.removeBase(url.pathname));
-		try {
-			return decodeURI(pathname);
-		} catch (e: any) {
-			this.adapterLogger.error(e.toString());
-			return pathname;
-		}
+		return this.safeDecodeURI(pathname);
 	}
 
 	/**
@@ -291,7 +301,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		if (!pathname) {
 			pathname = prependForwardSlash(this.removeBase(url.pathname));
 		}
-		const routeData = this.pipeline.matchRoute(decodeURI(pathname));
+		const routeData = this.pipeline.matchRoute(this.safeDecodeURI(pathname));
 		if (!routeData) return undefined;
 		if (allowPrerenderedRoutes) {
 			return routeData;
@@ -303,7 +313,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		// the same pattern should handle all other URLs.
 		if (routeData.prerender) {
 			if (routeData.params.length > 0) {
-				const allMatches = this.pipeline.matchAllRoutes(decodeURI(pathname));
+				const allMatches = this.pipeline.matchAllRoutes(this.safeDecodeURI(pathname));
 				return allMatches.find((r) => !r.prerender);
 			}
 			return undefined;
@@ -324,76 +334,14 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	}
 
 	private computePathnameFromDomain(request: Request): string | undefined {
-		let pathname: string | undefined = undefined;
-		const url = new URL(request.url);
-
-		if (
-			this.manifest.i18n &&
-			(this.manifest.i18n.strategy === 'domains-prefix-always' ||
-				this.manifest.i18n.strategy === 'domains-prefix-other-locales' ||
-				this.manifest.i18n.strategy === 'domains-prefix-always-no-redirect')
-		) {
-			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
-			let host = request.headers.get('X-Forwarded-Host');
-			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto
-			let protocol = request.headers.get('X-Forwarded-Proto');
-			if (protocol) {
-				// this header doesn't have a colon at the end, so we add to be in line with URL#protocol, which does have it
-				protocol = protocol + ':';
-			} else {
-				// we fall back to the protocol of the request
-				protocol = url.protocol;
-			}
-			if (!host) {
-				// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Host
-				host = request.headers.get('Host');
-			}
-			// If we don't have a host and a protocol, it's impossible to proceed
-			if (host && protocol) {
-				// The header might have a port in their name, so we remove it
-				host = host.split(':')[0];
-				try {
-					let locale;
-					const hostAsUrl = new URL(`${protocol}//${host}`);
-					for (const [domainKey, localeValue] of Object.entries(
-						this.manifest.i18n.domainLookupTable,
-					)) {
-						// This operation should be safe because we force the protocol via zod inside the configuration
-						// If not, then it means that the manifest was tampered
-						const domainKeyAsUrl = new URL(domainKey);
-
-						if (
-							hostAsUrl.host === domainKeyAsUrl.host &&
-							hostAsUrl.protocol === domainKeyAsUrl.protocol
-						) {
-							locale = localeValue;
-							break;
-						}
-					}
-
-					if (locale) {
-						pathname = prependForwardSlash(
-							joinPaths(normalizeTheLocale(locale), this.removeBase(url.pathname)),
-						);
-						if (this.manifest.trailingSlash === 'always') {
-							pathname = appendForwardSlash(pathname);
-						} else if (this.manifest.trailingSlash === 'never') {
-							pathname = removeTrailingForwardSlash(pathname);
-						} else if (url.pathname.endsWith('/')) {
-							// trailingSlash === 'ignore': preserve the original trailing slash
-							pathname = appendForwardSlash(pathname);
-						}
-					}
-				} catch (e: any) {
-					this.logger.error(
-						'router',
-						`Astro tried to parse ${protocol}//${host} as an URL, but it threw a parsing error. Check the X-Forwarded-Host and X-Forwarded-Proto headers.`,
-					);
-					this.logger.error('router', `Error: ${e}`);
-				}
-			}
-		}
-		return pathname;
+		return computePathnameFromDomain(
+			request,
+			new URL(request.url),
+			this.manifest.i18n,
+			this.manifest.base,
+			this.manifest.trailingSlash,
+			this.logger,
+		);
 	}
 
 	public async render(
@@ -439,12 +387,13 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				});
 			}
 		}
-		// For domain-based i18n, compute the locale-prefixed pathname from
-		// the Host header and pass it so FetchState can match correctly.
+		// For domain-based i18n, match against the locale-prefixed pathname
+		// derived from the Host header. FetchState recomputes this pathname
+		// itself for param/locale resolution, so it isn't threaded through here.
 		if (!routeData) {
 			const domainPathname = this.computePathnameFromDomain(request);
 			if (domainPathname) {
-				routeData = this.pipeline.matchRoute(decodeURI(domainPathname));
+				routeData = this.pipeline.matchRoute(this.safeDecodeURI(domainPathname));
 			}
 		}
 		const resolvedOptions: ResolvedRenderOptions = {
@@ -457,24 +406,15 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		};
 
 		let response: Response;
-		try {
-			if (this.#fetchHandler instanceof DefaultFetchHandler) {
-				// Fast path: pass options directly, skip Reflect.set/get round-trip
-				Reflect.set(request, appSymbol, this);
-				response = await this.#fetchHandler.renderWithOptions(request, resolvedOptions);
-			} else {
-				// User-provided fetch handler: stamp options + app on the request
-				setRenderOptions(request, resolvedOptions);
-				Reflect.set(request, appSymbol, this);
-				response = await this.#fetchHandler.fetch(request);
-			}
-		} catch (err: any) {
-			// Multi-level encoding (e.g., %2561 → %61) is rejected during URL
-			// normalization in FetchState. Return 400 without rendering an error page.
-			if (err instanceof MultiLevelEncodingError) {
-				return new Response('Bad Request', { status: 400 });
-			}
-			throw err;
+		if (this.#fetchHandler instanceof DefaultFetchHandler) {
+			// Fast path: pass options directly, skip Reflect.set/get round-trip
+			Reflect.set(request, appSymbol, this);
+			response = await this.#fetchHandler.renderWithOptions(request, resolvedOptions);
+		} else {
+			// User-provided fetch handler: stamp options + app on the request
+			setRenderOptions(request, resolvedOptions);
+			Reflect.set(request, appSymbol, this);
+			response = await this.#fetchHandler.fetch(request);
 		}
 		this.#warnMissingFeatures();
 		if (response.headers.get(ASTRO_ERROR_HEADER)) {

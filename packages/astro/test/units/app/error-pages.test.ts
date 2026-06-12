@@ -464,6 +464,158 @@ describe('App render error pages', () => {
 		assert.match(await response.text(), /Something went horribly wrong!/);
 	});
 
+	it('does not use an untrusted Host header origin for prerendered error page fetch', async () => {
+		const errorRouteData = makeRouteData({
+			route: '/causes-error',
+			component: 'src/pages/causes-error.astro',
+			params: [],
+			pathname: '/causes-error',
+			distURL: [],
+			pattern: /^\/causes-error\/?$/,
+			segments: [[{ content: 'causes-error', dynamic: false, spread: false }]],
+			type: 'page',
+			prerender: false,
+			fallbackRoutes: [],
+			isIndex: false,
+			origin: 'project',
+		});
+
+		const prerenderedErrorRouteData = makeRouteData({
+			route: '/500',
+			component: 'src/pages/500.astro',
+			params: [],
+			pathname: '/500',
+			distURL: [],
+			pattern: /^\/500\/?$/,
+			segments: [[{ content: '500', dynamic: false, spread: false }]],
+			type: 'page',
+			prerender: true,
+			fallbackRoutes: [],
+			isIndex: false,
+			origin: 'project',
+		});
+
+		const pageMap = new Map<string, any>([
+			[
+				errorRouteData.component,
+				async () => ({
+					page: async () => ({
+						default: createComponent(() => {
+							throw new Error('boom');
+						}),
+					}),
+				}),
+			],
+		]);
+
+		const app = makeApp({
+			routes: [{ routeData: errorRouteData }, { routeData: prerenderedErrorRouteData }],
+			pageMap,
+		});
+
+		// Track what URL prerenderedErrorPageFetch is called with
+		const fetchedUrls: string[] = [];
+		const prerenderedErrorPageFetch = async (url: string) => {
+			fetchedUrls.push(url);
+			return new Response('<h1>Error</h1>', {
+				headers: { 'Content-Type': 'text/html' },
+			});
+		};
+
+		// Simulate an attacker-controlled Host header by using an evil origin in request.url
+		const request = new Request('http://evil.attacker:9999/causes-error');
+		const response = await app.render(request, {
+			routeData: errorRouteData,
+			prerenderedErrorPageFetch,
+		});
+
+		assert.equal(response.status, 500);
+		assert.equal(fetchedUrls.length, 1);
+		// The fetch URL must NOT contain the attacker-controlled host
+		assert.ok(
+			!fetchedUrls[0].includes('evil.attacker'),
+			`prerenderedErrorPageFetch was called with attacker origin: ${fetchedUrls[0]}`,
+		);
+		assert.ok(
+			fetchedUrls[0].includes('localhost'),
+			`prerenderedErrorPageFetch should use localhost, got: ${fetchedUrls[0]}`,
+		);
+	});
+
+	it('uses validated Host header origin for prerendered error page fetch when allowedDomains matches', async () => {
+		const errorRouteData = makeRouteData({
+			route: '/causes-error',
+			component: 'src/pages/causes-error.astro',
+			params: [],
+			pathname: '/causes-error',
+			distURL: [],
+			pattern: /^\/causes-error\/?$/,
+			segments: [[{ content: 'causes-error', dynamic: false, spread: false }]],
+			type: 'page',
+			prerender: false,
+			fallbackRoutes: [],
+			isIndex: false,
+			origin: 'project',
+		});
+
+		const prerenderedErrorRouteData = makeRouteData({
+			route: '/500',
+			component: 'src/pages/500.astro',
+			params: [],
+			pathname: '/500',
+			distURL: [],
+			pattern: /^\/500\/?$/,
+			segments: [[{ content: '500', dynamic: false, spread: false }]],
+			type: 'page',
+			prerender: true,
+			fallbackRoutes: [],
+			isIndex: false,
+			origin: 'project',
+		});
+
+		const pageMap = new Map<string, any>([
+			[
+				errorRouteData.component,
+				async () => ({
+					page: async () => ({
+						default: createComponent(() => {
+							throw new Error('boom');
+						}),
+					}),
+				}),
+			],
+		]);
+
+		const app = makeApp({
+			routes: [{ routeData: errorRouteData }, { routeData: prerenderedErrorRouteData }],
+			pageMap,
+			allowedDomains: [{ hostname: 'myapp.com' }],
+		});
+
+		const fetchedUrls: string[] = [];
+		const prerenderedErrorPageFetch = async (url: string) => {
+			fetchedUrls.push(url);
+			return new Response('<h1>Error</h1>', {
+				headers: { 'Content-Type': 'text/html' },
+			});
+		};
+
+		// Legitimate host that matches allowedDomains
+		const request = new Request('http://myapp.com/causes-error');
+		const response = await app.render(request, {
+			routeData: errorRouteData,
+			prerenderedErrorPageFetch,
+		});
+
+		assert.equal(response.status, 500);
+		assert.equal(fetchedUrls.length, 1);
+		// The fetch URL should use the validated host
+		assert.ok(
+			fetchedUrls[0].includes('myapp.com'),
+			`prerenderedErrorPageFetch should use validated host, got: ${fetchedUrls[0]}`,
+		);
+	});
+
 	it('renders the 404 page when a route does not match with trailingSlash always and routeData', async () => {
 		const notFoundRouteData = makeRouteData({
 			route: '/404',

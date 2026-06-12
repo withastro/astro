@@ -102,6 +102,18 @@ describe('renderJSX custom elements', () => {
 		assert.ok(output.includes('</unknown-element>'), 'should have closing tag');
 	});
 
+	it('preserves slot attribute on children of custom elements', async () => {
+		const result = createMockResult();
+		const childVNode = createVNode('svg', { slot: 'icon', xmlns: 'http://www.w3.org/2000/svg' });
+		const vnode = createVNode('my-element', { children: [childVNode, 'text content'] });
+		const output = String(await renderJSX(result, vnode));
+
+		assert.ok(output.includes('slot="icon"'), 'should preserve slot attribute on child element');
+		assert.ok(output.includes('<svg'), 'should render the child svg element');
+		assert.ok(output.includes('<my-element'), 'should render the custom element');
+		assert.ok(output.includes('text content'), 'should render text children');
+	});
+
 	it('does not route standard elements through the renderer pipeline', async () => {
 		let rendererCheckCalled = false;
 

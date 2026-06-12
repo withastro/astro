@@ -1,5 +1,31 @@
 # @astrojs/cloudflare
 
+## 13.7.0
+
+### Minor Changes
+
+- [#16571](https://github.com/withastro/astro/pull/16571) [`d4b0cd1`](https://github.com/withastro/astro/commit/d4b0cd111ca0958e5da8772e34dd4fdc3e3a89dc) Thanks [@MA2153](https://github.com/MA2153)! - Sets immutable cache headers for static assets
+
+  Static assets under `_astro` can be cached to improve performance. The adapter now automatically injects a `Cache-Control` header at build time when possible.
+
+### Patch Changes
+
+- [#16968](https://github.com/withastro/astro/pull/16968) [`7a5c001`](https://github.com/withastro/astro/commit/7a5c00169ecc3a1ceccf27f457818c04bcc5d12b) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a build crash when using `experimental.advancedRouting` with a custom `fetchFile` that statically imports `cf` from `@astrojs/cloudflare/fetch`. The circular dependency between `@astrojs/cloudflare/fetch` and `astro/app/entrypoint` caused `createApp` or `createGetEnv` to be `undefined` at module evaluation time. Initialization is now deferred to the first `cf()` call, breaking the cycle.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 13.6.1
+
+### Patch Changes
+
+- [#16914](https://github.com/withastro/astro/pull/16914) [`4bdd240`](https://github.com/withastro/astro/commit/4bdd240a6174b12ee9344d9b97456079aa5975ce) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro/fetch` and `astro/hono` being discovered at runtime during dev instead of pre-bundled
+
+- [#16693](https://github.com/withastro/astro/pull/16693) [`9e6edc2`](https://github.com/withastro/astro/commit/9e6edc2da5ccf06243588a7f519dea5fbcc126cd) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes a link in the documentation specifying where to open an issue for the adapter.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 13.6.0
 
 ### Minor Changes

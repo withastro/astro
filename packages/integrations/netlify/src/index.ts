@@ -53,12 +53,12 @@ export function remotePatternToRegex(
 
 	if (hostname) {
 		if (hostname.startsWith('**.')) {
-			// match any number of subdomains
-			regexStr += '([a-z0-9-]+\\.)*';
+			// match one or more subdomains
+			regexStr += '([a-z0-9-]+\\.)+';
 			hostname = hostname.substring(3);
 		} else if (hostname.startsWith('*.')) {
-			// match one subdomain
-			regexStr += '([a-z0-9-]+\\.)?';
+			// match exactly one subdomain
+			regexStr += '([a-z0-9-]+\\.)';
 			hostname = hostname.substring(2); // Remove '*.' from the beginning
 		}
 		// Escape dots in the hostname
@@ -78,8 +78,7 @@ export function remotePatternToRegex(
 		if (pathname.endsWith('/**')) {
 			// Match any path.
 			regexStr += `(\\${pathname.replace('/**', '')}.*)`;
-		}
-		if (pathname.endsWith('/*')) {
+		} else if (pathname.endsWith('/*')) {
 			// Match one level of path
 			regexStr += `(\\${pathname.replace('/*', '')}\/[^/?#]+)\/?`;
 		} else {
@@ -94,6 +93,8 @@ export function remotePatternToRegex(
 		// Match query, but only if it's not already matched by the pathname
 		regexStr += '([?][^#]*)?';
 	}
+	// Anchor to end of string so .test() can't match a prefix
+	regexStr += '$';
 	try {
 		// nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
 		// This only validates the generated pattern before handing it to Netlify.

@@ -177,6 +177,11 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				// client:only component and if so, add its CSS to the page it belongs to.
 				if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 					for (const id of Object.keys(chunk.modules)) {
+						// Only walk from CSS modules to find client:only parents. When Rollup
+						// merges unrelated modules into the same chunk, walking from every module
+						// would incorrectly attribute the chunk's CSS to pages reached through
+						// modules that have no CSS dependency.
+						if (!isCSSRequest(id)) continue;
 						for (const pageData of getParentClientOnlys(id, this, internals)) {
 							for (const importedCssImport of meta.importedCss) {
 								const cssToInfoRecord = (pagesToCss[pageData.moduleSpecifier] ??= {});

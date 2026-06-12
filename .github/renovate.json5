@@ -10,6 +10,9 @@
   "labels": ["dependencies"],
   "rangeStrategy": "bump",
   "postUpdateOptions": ["pnpmDedupe"],
+  "toolSettings": {
+    "nodeMaxMemory": 3072
+  },
   "lockFileMaintenance": {
     "enabled": true
   },
