@@ -380,8 +380,13 @@ function getStringifiedImports(
 }
 
 function toImportName(unsafeName: string) {
-	// TODO: more checks that name is a safe JS variable name
-	return unsafeName.replace('-', '_');
+	// TODO: more checks that name is a safe JS variable name.
+	// `String.prototype.replace` with a string pattern only replaces the first
+	// occurrence — a tag named `lead-capture-inline` would become
+	// `lead_capture-inline`, which is an invalid JS identifier and breaks the
+	// generated import statement with a confusing Rollup parse error. Use the
+	// global form so every hyphen is rewritten. See #17021.
+	return unsafeName.replaceAll('-', '_');
 }
 
 /**

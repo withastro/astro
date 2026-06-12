@@ -28,5 +28,12 @@ export default defineMarkdocConfig({
 		'deeply-nested': {
 			render: component('./src/components/DeeplyNested.astro'),
 		},
+		// Two-hyphen tag name — regression guard for #17021. `toImportName`
+		// must replace ALL hyphens, otherwise the generated import statement
+		// uses an invalid JS identifier and the build fails with a confusing
+		// Rollup parse error.
+		'my-cool-tag': {
+			render: component('./src/components/MultiHyphen.astro'),
+		},
 	},
 });

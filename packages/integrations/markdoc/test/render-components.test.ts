@@ -30,6 +30,21 @@ describe('Markdoc - render components', () => {
 
 			renderComponentsInsidePartialsChecks(html);
 		});
+
+		// Regression for #17021. `toImportName` previously used
+		// `String.prototype.replace('-', '_')`, which only swaps the first
+		// hyphen. A tag named `my-cool-tag` produced an invalid JS identifier
+		// in the generated import (`Tagmy_cool-tag`) and broke the build with
+		// a confusing Rollup parse error before render even started — so this
+		// test fails at `fixture.build()` time on the pre-fix code rather than
+		// at this assertion.
+		it('renders content - with multi-hyphen tag names', async () => {
+			const html = await fixture.readFile('/index.html');
+			const { document } = parseHTML(html);
+			const multiHyphen = document.querySelector('[data-multi-hyphen]');
+			assert.notEqual(multiHyphen, null);
+			assert.match(multiHyphen!.textContent ?? '', /multi-hyphen content/);
+		});
 	});
 });
 
