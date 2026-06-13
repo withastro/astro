@@ -43,6 +43,12 @@ export default function hmrReload(): Plugin {
 					if (mod.id == null) continue;
 
 					const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
+					const isRawCss = mod.id && RAW_QUERY_REGEX.test(mod.id) && hasStyleExtension(mod.id);
+					if (isRawCss) {
+						this.environment.moduleGraph.invalidateModule(mod, invalidatedModules, timestamp, true);
+						hasSsrOnlyModules = true;
+						continue;
+					}
 
 					if (isStyleModule(mod)) {
 						// Only skip style modules that the client environment can handle via
@@ -54,7 +60,6 @@ export default function hmrReload(): Plugin {
 						}
 						// Fall through to SSR-only handling below
 					}
-
 					if (clientModule != null) continue;
 
 					this.environment.moduleGraph.invalidateModule(mod, invalidatedModules, timestamp, true);

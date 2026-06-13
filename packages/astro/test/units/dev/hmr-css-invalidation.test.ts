@@ -68,7 +68,7 @@ describe('astro:hmr-reload CSS invalidation', () => {
 			environments: {
 				client: {
 					moduleGraph: {
-						getModuleById: (_id: string) => null as object | null,
+						getModuleById: (id: string) => ({ id }) as object | null,
 					},
 				},
 			},
