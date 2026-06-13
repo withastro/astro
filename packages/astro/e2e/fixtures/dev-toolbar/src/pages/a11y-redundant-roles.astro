@@ -1,0 +1,13 @@
+---
+---
+
+<!-- Each element explicitly sets the same role as its implicit ARIA role — all 6 should warn -->
+<!-- Wrapping text in <span> ensures createAuditProblem's offsetParent check passes -->
+<nav role="navigation"><span>Nav</span></nav>
+<main role="main"><span>Main</span></main>
+<button role="button"><span>Button</span></button>
+<h1 role="heading"><span>Heading</span></h1>
+<label><input type="checkbox" role="checkbox" /></label>
+<input type="submit" role="button" value="Submit" />
+<a href="/" role="link"><span>Link</span></a>
+<input role="textbox" />
