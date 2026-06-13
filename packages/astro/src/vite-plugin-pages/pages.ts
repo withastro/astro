@@ -23,7 +23,7 @@ interface PagesPluginOptions {
  * responses are generated from route metadata alone (no component is
  * loaded), so the target's component is never needed in the SSR page map.
  */
-function getRoutesForEnvironment(routes: RouteData[], isPrerender: boolean): Set<RouteData> {
+export function getRoutesForEnvironment(routes: RouteData[], isPrerender: boolean): Set<RouteData> {
 	const result = new Set<RouteData>();
 	for (const route of routes) {
 		if (route.prerender === isPrerender) {
