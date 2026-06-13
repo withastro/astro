@@ -39,6 +39,31 @@ describe('App Entrypoint', () => {
 
 		assert.notEqual(client, undefined);
 	});
+
+	it('points hydrated Vue component-url at manual chunk', async () => {
+		const data = await fixture.readFile('/index.html');
+		const { document } = parseHTML(data);
+		const island = document.querySelector('astro-island')!;
+		const componentUrl = island.getAttribute('component-url')!;
+		const jsFiles = await fixture.glob('_astro/*.js');
+		const referencedJs = [
+			...Array.from(document.querySelectorAll('script[src]')).map((el) => el.getAttribute('src')),
+			...Array.from(document.querySelectorAll('astro-island')).map((el) =>
+				el.getAttribute('component-url'),
+			),
+		].filter(Boolean);
+
+		assert.match(componentUrl, /\/_astro\/components\.[^/]+\.js$/);
+		assert.ok(
+			jsFiles.some((file) => /^_astro\/components\.[^/]+\.js$/.test(file)),
+			'Expected Rollup manual chunk components.*.js to be emitted',
+		);
+		assert.equal(
+			referencedJs.some((src) => /\/_astro\/Foo\.[^/]+\.js$/.test(src!)),
+			false,
+			'HTML should not reference the Foo component proxy chunk',
+		);
+	});
 });
 
 describe('App Entrypoint no export default (dev)', () => {

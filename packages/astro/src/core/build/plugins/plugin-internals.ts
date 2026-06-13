@@ -16,6 +16,31 @@ function getRollupInputAsSet(rollupInput: Rollup.InputOption | undefined): Set<s
 	}
 }
 
+function getResolvedComponentEntryChunk(
+	chunk: Rollup.OutputChunk,
+	bundle: Rollup.OutputBundle,
+): Rollup.OutputChunk {
+	if (!chunk.facadeModuleId) return chunk;
+
+	const normalizedEntryId = normalizeEntryId(chunk.facadeModuleId);
+	if (normalizedEntryId in chunk.modules) {
+		return chunk;
+	}
+
+	for (const output of Object.values(bundle)) {
+		if (
+			output.type === 'chunk' &&
+			output !== chunk &&
+			normalizedEntryId in output.modules &&
+			chunk.imports.includes(output.fileName)
+		) {
+			return output;
+		}
+	}
+
+	return chunk;
+}
+
 export function pluginInternals(
 	options: StaticBuildOptions,
 	internals: BuildInternals,
@@ -84,9 +109,10 @@ export function pluginInternals(
 				}
 
 				if (chunk.type === 'chunk' && chunk.facadeModuleId) {
-					const specifiers = mapping.get(chunk.facadeModuleId) || new Set([chunk.facadeModuleId]);
+					const entryChunk = getResolvedComponentEntryChunk(chunk, bundle);
+					const specifiers = mapping.get(chunk.facadeModuleId) ?? new Set([chunk.facadeModuleId]);
 					for (const specifier of specifiers) {
-						internals.entrySpecifierToBundleMap.set(normalizeEntryId(specifier), chunk.fileName);
+						internals.entrySpecifierToBundleMap.set(normalizeEntryId(specifier), entryChunk.fileName);
 					}
 				}
 			}
