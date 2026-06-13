@@ -16,15 +16,18 @@ interface PagesPluginOptions {
 
 /**
  * Filters routes for a specific build environment.
- * Redirects need their target route included so the redirect response can be generated at runtime.
+ * Redirects need their target route included so the redirect response can be generated at runtime,
+ * but only in the environment that matches the target's own prerender flag. A prerendered target
+ * never has its component loaded at runtime (the redirect Response is built from segments and
+ * pathname), so bundling it into the SSR page map only inflates the server function.
  */
-function getRoutesForEnvironment(routes: RouteData[], isPrerender: boolean): Set<RouteData> {
+export function getRoutesForEnvironment(routes: RouteData[], isPrerender: boolean): Set<RouteData> {
 	const result = new Set<RouteData>();
 	for (const route of routes) {
 		if (route.prerender === isPrerender) {
 			result.add(route);
 		}
-		if (route.redirectRoute) {
+		if (route.redirectRoute && route.redirectRoute.prerender === isPrerender) {
 			result.add(route.redirectRoute);
 		}
 	}
