@@ -4854,7 +4854,7 @@ importers:
         version: link:../../astro-prism
       '@markdoc/markdoc':
         specifier: ^0.5.4
-        version: 0.5.4(@types/react@19.2.17)(react@19.2.7)
+        version: 0.5.4(@types/react@18.3.28)(react@19.2.7)
       esbuild:
         specifier: ^0.27.3
         version: 0.27.3
@@ -6868,30 +6868,6 @@ importers:
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
-
-  triage/gh-17043:
-    dependencies:
-      '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../packages/integrations/node
-      '@astrojs/react':
-        specifier: workspace:*
-        version: link:../../packages/integrations/react
-      '@types/react':
-        specifier: ^19.2.14
-        version: 19.2.17
-      '@types/react-dom':
-        specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.17)
-      astro:
-        specifier: workspace:*
-        version: link:../../packages/astro
-      react:
-        specifier: ^19.2.5
-        version: 19.2.7
-      react-dom:
-        specifier: ^19.2.5
-        version: 19.2.7(react@19.2.7)
 
 packages:
 
@@ -10375,16 +10351,8 @@ packages:
     peerDependencies:
       '@types/react': ^18.0.0
 
-  '@types/react-dom@19.2.3':
-    resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
-    peerDependencies:
-      '@types/react': ^19.2.0
-
   '@types/react@18.3.28':
     resolution: {integrity: sha512-z9VXpC7MWrhfWipitjNdgCauoMLRdIILQsAEV+ZesIzBq/oUlxk0m3ApZuMFCXdnS4U7KrI+l3WRUEGQ8K1QKw==}
-
-  '@types/react@19.2.17':
-    resolution: {integrity: sha512-MXfmqaVPEVgkBT/aY0aGCkRWWtByiYQXo3xdQ8r5RzuFrPiRn8Gar2tQdXSUQ2GKV3bkXckek89V8wQBY2Q/Aw==}
 
   '@types/retry@0.12.0':
     resolution: {integrity: sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA==}
@@ -18548,11 +18516,11 @@ snapshots:
       - encoding
       - supports-color
 
-  '@markdoc/markdoc@0.5.4(@types/react@19.2.17)(react@19.2.7)':
+  '@markdoc/markdoc@0.5.4(@types/react@18.3.28)(react@19.2.7)':
     optionalDependencies:
       '@types/linkify-it': 3.0.5
       '@types/markdown-it': 12.2.3
-      '@types/react': 19.2.17
+      '@types/react': 18.3.28
       react: 19.2.7
 
   '@mdx-js/mdx@3.1.1':
@@ -20038,17 +20006,9 @@ snapshots:
     dependencies:
       '@types/react': 18.3.28
 
-  '@types/react-dom@19.2.3(@types/react@19.2.17)':
-    dependencies:
-      '@types/react': 19.2.17
-
   '@types/react@18.3.28':
     dependencies:
       '@types/prop-types': 15.7.15
-      csstype: 3.2.3
-
-  '@types/react@19.2.17':
-    dependencies:
       csstype: 3.2.3
 
   '@types/retry@0.12.0': {}

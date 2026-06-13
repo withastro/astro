@@ -54,7 +54,6 @@ export default function hmrReload(): Plugin {
 						}
 						// Fall through to SSR-only handling below
 					}
-
 					if (clientModule != null) continue;
 
 					this.environment.moduleGraph.invalidateModule(mod, invalidatedModules, timestamp, true);
