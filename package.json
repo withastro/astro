@@ -2,6 +2,9 @@
   "name": "root",
   "type": "module",
   "version": "0.0.0",
+  "bugs": {
+    "url": "https://github.com/withastro/astro/issues"
+  },
   "private": true,
   "repository": {
     "type": "git",
