@@ -1,19 +1,8 @@
 import { pathToFileURL } from 'node:url';
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import type { SatteriResolvedOptions } from '@astrojs/markdown-satteri';
-import {
-	satteriCollectImagesPlugin,
-	satteriCreateHighlightFn,
-	satteriHeadingIdsPlugin,
-	satteriHighlightPlugin,
-} from '@astrojs/markdown-satteri';
 import { createDefaultAstroMetadata } from 'astro/markdown';
-import {
-	mdxToJs,
-	type HastPluginDefinition,
-	type MdastPluginDefinition,
-	type MdxCompileOptions,
-} from 'satteri';
+import type { HastPluginDefinition, MdastPluginDefinition, MdxCompileOptions } from 'satteri';
 import { ASTRO_IMAGE_IMPORT, USES_ASTRO_IMAGE_FLAG } from '../image-constants.js';
 import type { ResolvedMdxOptions } from '../index.js';
 import { shouldAddCharset } from './charset.js';
@@ -40,6 +29,16 @@ interface CreateMdxProcessorContext {
 	srcDir: URL;
 }
 
+// Lazy-load `@astrojs/markdown-satteri` and `satteri` so Rolldown doesn't try to
+// resolve the optional peer deps when this module is merely discovered (but never executed).
+async function loadSatteriPlugins() {
+	return await import('@astrojs/markdown-satteri');
+}
+
+async function loadSatteri() {
+	return await import('satteri');
+}
+
 export function createMdxProcessor(
 	mdxOptions: ResolvedMdxOptions,
 	satteriOptions: SatteriResolvedOptions,
@@ -47,13 +46,21 @@ export function createMdxProcessor(
 ) {
 	let highlightFn: HighlightFn | undefined;
 	let initPromise: Promise<void> | undefined;
+	let satteriPluginsPromise: ReturnType<typeof loadSatteriPlugins> | undefined;
+
+	function getSatteriPlugins() {
+		satteriPluginsPromise ??= loadSatteriPlugins();
+		return satteriPluginsPromise;
+	}
 
 	function initHighlighter() {
-		initPromise = satteriCreateHighlightFn(mdxOptions.syntaxHighlight, mdxOptions.shikiConfig).then(
-			(fn) => {
+		initPromise = getSatteriPlugins()
+			.then(({ satteriCreateHighlightFn }) =>
+				satteriCreateHighlightFn(mdxOptions.syntaxHighlight, mdxOptions.shikiConfig),
+			)
+			.then((fn) => {
 				highlightFn = fn;
-			},
-		);
+			});
 	}
 
 	return {
@@ -66,6 +73,8 @@ export function createMdxProcessor(
 				initHighlighter();
 			}
 			if (initPromise) await initPromise;
+
+			const { satteriCollectImagesPlugin, satteriHeadingIdsPlugin } = await getSatteriPlugins();
 
 			const headings: MarkdownHeading[] = [];
 			const localImagePaths = new Set<string>();
@@ -96,6 +105,7 @@ export function createMdxProcessor(
 
 			const hastPlugins: HastPluginDefinition[] = [];
 			if (highlightFn) {
+				const { satteriHighlightPlugin } = await getSatteriPlugins();
 				// `mdx: true` wraps the highlighted HTML in a JSX `<Fragment set:html>` node
 				// rather than a raw HTML node, since the Sätteri pipeline is compiling to JSX.
 				hastPlugins.push(satteriHighlightPlugin(highlightFn, excludeLangs, { mdx: true }));
@@ -119,6 +129,7 @@ export function createMdxProcessor(
 				};
 			}
 
+			const { mdxToJs } = await loadSatteri();
 			const mdxResult = await mdxToJs(content, {
 				mdastPlugins: allMdastPlugins,
 				hastPlugins,

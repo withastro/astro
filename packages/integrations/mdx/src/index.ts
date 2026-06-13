@@ -17,8 +17,7 @@ import type { PluggableList } from 'unified';
 import { isSatteriProcessor, isUnifiedProcessor } from './processor-guards.js';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
 import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
-import { type VitePluginMdxOptions, vitePluginMdx } from './vite-plugin-mdx.js';
-import { vitePluginMdxPostprocess } from './vite-plugin-mdx-postprocess.js';
+import type { VitePluginMdxOptions } from './vite-plugin-mdx.js';
 
 // `gfm`/`smartypants` are deprecated and stay unset unless the user opts in; the
 // MDX pipelines treat an absent value as the default (on), like the `.md` processors.
@@ -116,9 +115,25 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					handlePropagation: true,
 				});
 
+				// Lazy-load the Vite plugins so that `@astrojs/mdx`'s main entry can be
+				// imported at the page level (e.g. for `getContainerRenderer`) without
+				// dragging in the satteri/markdown-satteri optional peer dep chain via
+				// Rolldown's aggressive dynamic-import following.
+				const { vitePluginMdx } = await import('./vite-plugin-mdx.js');
+				const { vitePluginMdxPostprocess } = await import('./vite-plugin-mdx-postprocess.js');
+
 				updateConfig({
 					vite: {
 						plugins: [vitePluginMdx(vitePluginMdxOptions), vitePluginMdxPostprocess(config)],
+						build: {
+							rollupOptions: {
+								// `@astrojs/markdown-satteri` and its `satteri` dep are optional peer deps.
+								// Rolldown (Vite 8) follows dynamic imports eagerly and errors on missing
+								// named exports from the optional-peer-dep stub. Externalizing them
+								// prevents Rolldown from trying to bundle modules that may not be installed.
+								external: ['@astrojs/markdown-satteri', 'satteri'],
+							},
+						},
 					},
 				});
 			},
