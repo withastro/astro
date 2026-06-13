@@ -68,6 +68,7 @@ describe('astro:hmr-reload CSS invalidation', () => {
 			environments: {
 				client: {
 					moduleGraph: {
+						//Returning `null` makes normal CSS bypass the style guards, leaking into the SSR-only path and causing unit test failures.
 						getModuleById: (id: string) => ({ id }) as object | null,
 					},
 				},
