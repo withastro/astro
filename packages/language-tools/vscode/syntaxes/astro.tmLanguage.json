@@ -1,7 +1,9 @@
 {
   "name": "Astro",
   "scopeName": "source.astro",
-  "fileTypes": ["astro"],
+  "fileTypes": [
+    "astro"
+  ],
   "injections": {
     "L:(meta.script.astro) (meta.lang.json) - (meta.embedded.block source)": {
       "patterns": [
@@ -689,6 +691,21 @@
         }
       ]
     },
+    "tags-lang-fallback-start-attributes": {
+      "begin": "\\G(?=[^\\n>]*(?:/>|>))",
+      "end": "(?=/>)|>",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.tag.end.astro"
+        }
+      },
+      "name": "meta.tag.start.astro",
+      "patterns": [
+        {
+          "include": "#attributes"
+        }
+      ]
+    },
     "tags-start-node": {
       "match": "(<)([^/\\s>/]*)",
       "captures": {
@@ -780,7 +797,7 @@
       "name": "meta.scope.tag.$1.astro meta.$1.astro",
       "patterns": [
         {
-          "begin": "\\G(?=\\s*[^>]*?(type|lang)\\s*=\\s*(['\"]|)(?:text\\/)?(application\\/ld\\+json)\\2)",
+          "begin": "(?:\\G|\\s+)(?=[^>]*?(type|lang)\\s*=\\s*(['\"]|)(?:text\\/)?(application\\/ld\\+json)\\2)",
           "end": "(?=</|/>)",
           "name": "meta.lang.json.astro",
           "patterns": [
@@ -790,7 +807,7 @@
           ]
         },
         {
-          "begin": "\\G(?=\\s*[^>]*?(type|lang)\\s*=\\s*(['\"]|)(module)\\2)",
+          "begin": "(?:\\G|\\s+)(?=[^>]*?(type|lang)\\s*=\\s*(['\"]|)(module)\\2)",
           "end": "(?=</|/>)",
           "name": "meta.lang.javascript.astro",
           "patterns": [
@@ -800,7 +817,7 @@
           ]
         },
         {
-          "begin": "\\G(?=\\s*[^>]*?(type|lang)\\s*=\\s*(['\"]|)(?:text/|application/)?([\\w\\/+]+)\\2)",
+          "begin": "(?:\\G|\\s+)(?=[^>]*?(type|lang)\\s*=\\s*(['\"]|)(?:text/|application/)?([\\w\\/+]+)\\2)",
           "end": "(?=</|/>)",
           "name": "meta.lang.$3.astro",
           "patterns": [
@@ -810,7 +827,7 @@
           ]
         },
         {
-          "include": "#tags-lang-start-attributes"
+          "include": "#tags-lang-fallback-start-attributes"
         }
       ]
     },
