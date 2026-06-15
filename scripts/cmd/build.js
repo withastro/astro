@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
 import esbuild from 'esbuild';
 import colors from 'piccolore';
 import { glob } from 'tinyglobby';
@@ -68,6 +69,20 @@ export default async function build(...args) {
 		await clean(outdir, cleanDts);
 	}
 
+	// Load optional per-package esbuild plugins from `build.plugins.mjs` in the cwd
+	let userPlugins = [];
+	const pluginsFileUrl = pathToFileURL(`${process.cwd()}/build.plugins.mjs`).href;
+	try {
+		const { default: plug } = await import(pluginsFileUrl);
+		if (Array.isArray(plug)) {
+			userPlugins = plug;
+		} else {
+			console.warn(`build.plugins.mjs default export must be an array; plugins skipped`);
+		}
+	} catch (err) {
+		if (err.code !== 'ERR_MODULE_NOT_FOUND' || err.url !== pluginsFileUrl) throw err;
+	}
+
 	if (!isDev) {
 		await esbuild.build({
 			...config,
@@ -77,6 +92,7 @@ export default async function build(...args) {
 			outdir,
 			outExtension: forceCJS ? { '.js': '.cjs' } : {},
 			format,
+			plugins: userPlugins,
 		});
 		return;
 	}
@@ -90,12 +106,12 @@ export default async function build(...args) {
 				}
 				const date = dt.format(new Date());
 				if (result && result.errors.length) {
-					console.error(colors.dim(`[${date}] `) + colors.red(error || result.errors.join('\n')));
+					console.error(colors.dim(`[${date}] `) + colors.red(result.errors.map((e) => e.text).join('\n')));
 				} else {
 					if (result.warnings.length) {
 						console.info(
 							colors.dim(`[${date}] `) +
-								colors.yellow('! updated with warnings:\n' + result.warnings.join('\n')),
+								colors.yellow('! updated with warnings:\n' + result.warnings.map((w) => w.text).join('\n')),
 						);
 					}
 					console.info(colors.dim(`[${date}] `) + colors.green('√ updated'));
@@ -106,11 +122,14 @@ export default async function build(...args) {
 
 	const builder = await esbuild.context({
 		...config,
+		bundle,
+		external: bundle ? Object.keys(dependencies) : undefined,
 		entryPoints,
 		outdir,
+		outExtension: forceCJS ? { '.js': '.cjs' } : {},
 		format,
 		sourcemap: 'linked',
-		plugins: [rebuildPlugin],
+		plugins: [...userPlugins, rebuildPlugin],
 	});
 
 	await builder.watch();

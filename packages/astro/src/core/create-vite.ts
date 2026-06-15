@@ -179,6 +179,11 @@ export async function createVite(
 					}
 				},
 			},
+			...(command === 'build'
+				? await import('zod-compiler/vite')
+						.then((m) => [m.default({ schemas: 'explicit' })].flat().filter(Boolean))
+						.catch(() => [])
+				: []),
 			serializedManifestPlugin({ settings, command, sync }),
 			vitePluginRenderers({
 				settings,
