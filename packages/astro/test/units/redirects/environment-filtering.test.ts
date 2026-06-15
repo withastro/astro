@@ -30,8 +30,14 @@ describe('getRoutesForEnvironment', () => {
 
 		const prerenderRoutes = getRoutesForEnvironment([staticTarget, staticRedirect], true);
 
-		assert.ok(prerenderRoutes.has(staticRedirect), 'prerendered redirect should be in prerender routes');
-		assert.ok(prerenderRoutes.has(staticTarget), 'prerendered target should be in prerender routes');
+		assert.ok(
+			prerenderRoutes.has(staticRedirect),
+			'prerendered redirect should be in prerender routes',
+		);
+		assert.ok(
+			prerenderRoutes.has(staticTarget),
+			'prerendered target should be in prerender routes',
+		);
 	});
 
 	it('includes SSR redirect targets in SSR routes', () => {
@@ -60,7 +66,10 @@ describe('getRoutesForEnvironment', () => {
 
 		const prerenderRoutes = getRoutesForEnvironment([ssrTarget, prerenderRedirect], true);
 
-		assert.ok(prerenderRoutes.has(prerenderRedirect), 'prerendered redirect should be in prerender routes');
+		assert.ok(
+			prerenderRoutes.has(prerenderRedirect),
+			'prerendered redirect should be in prerender routes',
+		);
 		assert.ok(!prerenderRoutes.has(ssrTarget), 'SSR target should NOT be in prerender routes');
 	});
 });
