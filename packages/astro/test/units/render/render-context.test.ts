@@ -129,29 +129,9 @@ describe('FetchState', () => {
 	describe('context.logger (APIContext)', () => {
 		const minimalRouteData = createRouteData({ route: '/' });
 
-		it('warns when context.logger is accessed without experimentalLogger enabled', async () => {
+		it('provides info/warn/error methods on context.logger', async () => {
 			const spyLogger = new SpyLogger();
 			const pipeline = createBasicPipeline({ logger: spyLogger });
-			const state = new FetchState(pipeline, new Request('http://localhost/'));
-			state.routeData = minimalRouteData;
-
-			state.getActionAPIContext().logger;
-
-			assert.equal(spyLogger.writeCount(), 1);
-			assert.equal(spyLogger.logs[0].level, 'warn');
-			assert.match(spyLogger.logs[0].message, /experimental\.logger/i);
-		});
-
-		it('provides info/warn/error methods when experimentalLogger is enabled', async () => {
-			const spyLogger = new SpyLogger();
-			const pipeline = createBasicPipeline({
-				logger: spyLogger,
-				manifest: {
-					experimentalLogger: {
-						entrypoint: 'astro/logger/node',
-					},
-				},
-			});
 			const state = new FetchState(pipeline, new Request('http://localhost/'));
 			state.routeData = minimalRouteData;
 
@@ -164,21 +144,14 @@ describe('FetchState', () => {
 
 		it('context.logger delegates to the pipeline logger', async () => {
 			const spyLogger = new SpyLogger();
-			const pipeline = createBasicPipeline({
-				logger: spyLogger,
-				manifest: {
-					experimentalLogger: {
-						entrypoint: 'astro/logger/node',
-					},
-				},
-			});
+			const pipeline = createBasicPipeline({ logger: spyLogger });
 			const state = new FetchState(pipeline, new Request('http://localhost/'));
 			state.routeData = minimalRouteData;
 
 			const ctx = state.getActionAPIContext();
-			ctx.logger!.info('info message');
-			ctx.logger!.warn('warn message');
-			ctx.logger!.error('error message');
+			ctx.logger.info('info message');
+			ctx.logger.warn('warn message');
+			ctx.logger.error('error message');
 
 			assert.equal(spyLogger.writeCount(), 3);
 			assert.deepStrictEqual(spyLogger.logs, [
@@ -220,14 +193,7 @@ describe('FetchState', () => {
 
 		it('Astro.logger delegates to the pipeline logger', async () => {
 			const spyLogger = new SpyLogger();
-			const pipeline = createBasicPipeline({
-				logger: spyLogger,
-				manifest: {
-					experimentalLogger: {
-						entrypoint: 'astro/logger/node',
-					},
-				},
-			});
+			const pipeline = createBasicPipeline({ logger: spyLogger });
 
 			const LoggingPage = createComponent((result: any, _props: any, _slots: any) => {
 				const Astro = result.createAstro({}, null);

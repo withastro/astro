@@ -1,5 +1,4 @@
-import type { PluginContext } from 'rollup';
-import type { Plugin as VitePlugin, ViteDevServer } from 'vite';
+import type { Plugin as VitePlugin, Rolldown, ViteDevServer } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroLogger } from '../core/logger/core.js';
 import { runHookServerSetup } from '../integrations/hooks.js';
@@ -34,7 +33,7 @@ export default function astroIntegrationsContainerPlugin({
 async function resolveEntryPoint(
 	route: InternalInjectedRoute,
 	server: ViteDevServer | undefined,
-	pluginContext: PluginContext,
+	pluginContext: Rolldown.PluginContext,
 ): Promise<ResolvedInjectedRoute> {
 	const entrypoint = route.entrypoint.toString();
 	// In dev, resolve through the SSR environment's plugin container to avoid

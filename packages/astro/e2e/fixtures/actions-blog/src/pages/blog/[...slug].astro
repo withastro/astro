@@ -2,7 +2,7 @@
 import { type CollectionEntry, getEntry, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
 import { Logout } from '../../components/Logout';
-import { db, eq, Comment, Likes } from 'astro:db';
+import { getComments, getLikes } from '../../db/store';
 import { Like } from '../../components/Like';
 import { PostComment } from '../../components/PostComment';
 import { actions } from 'astro:actions';
@@ -19,16 +19,16 @@ if (Astro.url.searchParams.has('like')) {
 
 const comment = Astro.getActionResult(actions.blog.comment);
 
-const comments = await db.select().from(Comment).where(eq(Comment.postId, post.id));
+const comments = getComments(post.id);
 
-const initialLikes = await db.select().from(Likes).where(eq(Likes.postId, post.id)).get();
+const initialLikes = getLikes(post.id);
 
 // Used to force validation errors for testing
 const commentPostIdOverride = Astro.url.searchParams.get('commentPostIdOverride');
 ---
 
 <BlogPost {...post.data}>
-	<Like postId={post.id} initial={initialLikes?.likes ?? 0} client:load />
+	<Like postId={post.id} initial={initialLikes} client:load />
 
 	<Logout client:load />
 

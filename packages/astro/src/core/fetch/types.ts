@@ -7,7 +7,7 @@ export type FetchHandler = (request: Request) => Promise<Response>;
 
 /**
  * An object with a `fetch` method that handles incoming requests.
- * This is the shape expected by `src/app.ts` and aligns with the
+ * This is the shape expected by `src/fetch.ts` and aligns with the
  * convention used by Cloudflare Workers, Bun, and Hono.
  *
  * @example

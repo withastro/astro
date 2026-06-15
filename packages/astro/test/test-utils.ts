@@ -170,7 +170,6 @@ export async function loadFixture(inlineConfig: AstroInlineConfig): Promise<Fixt
 			delete process.env.NODE_ENV;
 			const t0 = performance.now();
 			await build(mergeConfig(resolvedInlineConfig, extraInlineConfig), {
-				teardownCompiler: false,
 				...options,
 			});
 			CILogger.logBuild({ fixture: root as string, duration: performance.now() - t0 });

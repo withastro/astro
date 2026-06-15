@@ -1,5 +1,5 @@
 import type { AddressInfo } from 'node:net';
-import type { ViteDevServer, InlineConfig as ViteInlineConfig } from 'vite';
+import type { ViteDevServer, InlineConfig } from 'vite';
 import type { SerializedSSRManifest } from '../../core/app/types.js';
 import type { AssetsGlobalStaticImagesList } from '../../assets/types.js';
 import type { PageBuildData } from '../../core/build/types.js';
@@ -162,7 +162,7 @@ interface AdapterExplicitProperties {
 	 * or `"explicit"` (default, but deprecated):
 	 *
 	 * - **`"auto"` (recommended):** You are responsible for providing a valid module as an entrypoint
-	 * using either `serverEntrypoint` or, if you need further customization at the Vite level using `vite.build.rollupOptions.input`.
+	 * using either `serverEntrypoint` or, if you need further customization at the Vite level using `vite.build.rolldownOptions.input`.
 	 * - **`"explicit"` (deprecated)**: You must provide the exports required by the host in the server entrypoint
 	 * using a `createExports()` function before passing them to `setAdapter()` as an [`exports`](#exports) list. This supports
 	 * adapters built using the Astro 5 version of the Adapter API. By default, all adapters will receive this value to allow backwards
@@ -197,7 +197,7 @@ interface AdapterAutoProperties {
 	 * or `"explicit"` (default, but deprecated):
 	 *
 	 * - **`"auto"` (recommended):** You are responsible for providing a valid module as an entrypoint
-	 * using either `serverEntrypoint` or, if you need further customization at the Vite level using `vite.build.rollupOptions.input`.
+	 * using either `serverEntrypoint` or, if you need further customization at the Vite level using `vite.build.rolldownOptions.input`.
 	 * - **`"explicit"` (deprecated)**: You must provide the exports required by the host in the server entrypoint
 	 * using a `createExports()` function before passing them to `setAdapter()` as an [`exports`](#exports) list. This supports
 	 * adapters built using the Astro 5 version of the Adapter API. By default, all adapters will receive this value to allow backwards
@@ -395,10 +395,10 @@ export interface BaseIntegrationHooks {
 		) => void;
 	}) => void | Promise<void>;
 	'astro:build:setup': (options: {
-		vite: ViteInlineConfig;
+		vite: InlineConfig;
 		pages: Map<string, PageBuildData>;
 		target: 'client' | 'server';
-		updateConfig: (newConfig: ViteInlineConfig) => void;
+		updateConfig: (newConfig: InlineConfig) => void;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
 	'astro:build:generated': (options: {

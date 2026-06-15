@@ -32,6 +32,7 @@ test.describe('dev', () => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const suffix = page.locator('#suffix');
+		await waitForHydrate(page, suffix);
 		expect(await suffix.textContent()).toBe('suffix toggle false');
 		await suffix.click();
 		expect(await suffix.textContent()).toBe('suffix toggle true');

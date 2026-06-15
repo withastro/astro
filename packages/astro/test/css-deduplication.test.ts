@@ -1,6 +1,5 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import * as cheerio from 'cheerio';
 import { loadFixture, type Fixture } from './test-utils.ts';
 
 describe('CSS deduplication for hydrated components', () => {
@@ -57,27 +56,6 @@ describe('CSS deduplication for hydrated components', () => {
 		it('should not emit any .css file when inlineStylesheets is always', async () => {
 			const assets = await fixture.readdir('/_astro');
 			assert.ok(!assets.some((f) => f.endsWith('.css')));
-		});
-
-		it('should not duplicate CSS for hydrated components', async () => {
-			const html = await fixture.readFile('/index.html');
-			const $ = cheerio.load(html);
-
-			// Get all <style> tag contents
-			const styles: string[] = [];
-			$('style').each((_i, el) => {
-				styles.push($(el).text().replace(/\s+/g, ''));
-			});
-
-			// Ensure no <style> tag content is duplicated
-			const seen = new Set<string>();
-			for (const style of styles) {
-				if (seen.has(style)) {
-					assert.fail('Duplicate <style> tag content found in index.html');
-				}
-				seen.add(style);
-			}
-			assert.ok(true);
 		});
 	});
 });

@@ -176,7 +176,6 @@
     },
     {
       "includes": [
-        "**/packages/db/**/cli/**/*.ts",
         "**/benchmark/**/*.js",
         "**/packages/astro/src/cli/**/*.ts",
         "**/packages/astro/bin/**/*.mjs"

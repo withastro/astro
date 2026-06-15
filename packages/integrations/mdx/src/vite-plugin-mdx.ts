@@ -18,7 +18,7 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 	let sourcemapEnabled: boolean;
 
 	return {
-		name: '@mdx-js/rollup',
+		name: '@mdx-js/rolldown',
 		enforce: 'pre',
 		buildEnd() {
 			mdxRenderer = undefined;
