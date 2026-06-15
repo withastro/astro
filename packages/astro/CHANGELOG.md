@@ -1,5 +1,223 @@
 # astro
 
+## 7.0.0-beta.3
+
+### Major Changes
+
+- [#17010](https://github.com/withastro/astro/pull/17010) [`0606073`](https://github.com/withastro/astro/commit/0606073794ddda42cac1f3e1ca56bbfc7cb178eb) Thanks [@ocavue](https://github.com/ocavue)! - Removes the `astro db`, `astro login`, `astro logout`, `astro link`, and `astro init` CLI commands.
+
+  The `@astrojs/db` package is now deprecated. We recommend using a database client (Drizzle, Kysely, etc.) directly instead.
+
+- [#16877](https://github.com/withastro/astro/pull/16877) [`3b7d76e`](https://github.com/withastro/astro/commit/3b7d76e6decff6b236d1b30d901b4fa339edb960) Thanks [@matthewp](https://github.com/matthewp)! - Enables advanced routing by default.
+
+  The advanced routing feature introduced behind a flag in [v6.3.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#630) is no longer experimental and is now enabled by default.
+
+  This gives full control over how requests flow through your application, with first-class support for frameworks like Hono.
+
+  Advanced routing now uses `src/fetch.ts` as default entrypoint instead of `src/app.ts`.
+
+  If you were previously using this feature without a custom entrypoint, please configure `fetchFile` or rename your entrypoint to `src/fetch.ts`, and then remove the experimental flag from your Astro config:
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental {
+  -    advancedRouting: true,
+    },
+  +  fetchFile: 'app.ts' // optional, you only need this if you cannot rename your entrypoint.
+  });
+  ```
+
+  `fetchFile` is now a top-level config option instead of being nested under `experimental.advancedRouting`. If you were using a custom entrypoint, please update your Astro config to move its configuration:
+
+  ```diff
+  // astro.config.mjs
+  export default defineConfig({
+  -  experimental: {
+  -    advancedRouting: {
+  -      fetchFile: 'my-custom-entrypoint.ts',
+  -    },
+  -  },
+  +  fetchFile: 'my-custom-entrypoint.ts',
+  })
+  ```
+
+  You can also set `fetchFile: null` to disable the entrypoint if you are using `src/fetch.ts` for another purpose, or don’t need advanced routing features.
+
+  If you have been waiting for stabilization before using advanced routing, you can now do so.
+
+  Please see [the advanced routing guide in docs](https://docs.astro.build/en/guides/routing/#advanced-routing) for more about this feature.
+
+### Minor Changes
+
+- [#16998](https://github.com/withastro/astro/pull/16998) [`57dcc31`](https://github.com/withastro/astro/commit/57dcc31bb78575a89304ab5310f2f5911a83f3af) Thanks [@matthewp](https://github.com/matthewp)! - Exposes `getFetchState()` from `astro/hono` as a public API
+
+  The `getFetchState()` function retrieves or lazily creates a `FetchState` from a Hono context object. This allows third-party packages to build Hono middleware that interacts with Astro's per-request state, giving the `astro/hono` API the same extensibility as `astro/fetch`.
+
+  ```ts
+  import { Hono } from 'hono';
+  import { getFetchState, pages } from 'astro/hono';
+
+  const app = new Hono();
+
+  app.use(async (context, next) => {
+    const state = getFetchState(context);
+    state.locals.message = 'Hello from custom middleware';
+    await next();
+  });
+
+  app.use(pages());
+
+  export default app;
+  ```
+
+- [#16996](https://github.com/withastro/astro/pull/16996) [`300641e`](https://github.com/withastro/astro/commit/300641e588ac74968197bd87e0a97f71d132946e) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a `subset` field to the `FontData` type exposed via `fontData` from `astro:assets`. When using multiple font subsets (e.g., `subsets: ["latin", "korean"]`), each font data entry now includes the subset name, making it possible to distinguish between font entries for different subsets that share the same weight and style.
+
+- [#16745](https://github.com/withastro/astro/pull/16745) [`f864a80`](https://github.com/withastro/astro/commit/f864a808c5dd83e19be66bb5227edffbe506a697) Thanks [@ematipico](https://github.com/ematipico)! - The custom logger feature introduced behind a flag in [v6.2.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#620) is no longer experimental and is available for general use.
+
+  This feature provides better control over Astro's logging infrastructure by allowing you to replace the default console output with custom logging implementations (e.g., structured JSON). This is particularly useful for on-demand rendering when connecting to log aggregation services such as Kibana, Logstash, CloudWatch, Grafana, or Loki.
+
+  Astro provides three built-in log handlers (`json`, `node`, and `console`), and you can also create your own.
+
+  #### JSON logging
+
+  ```js
+  import { defineConfig, logHandlers } from 'astro/config';
+
+  export default defineConfig({
+    logger: logHandlers.json({
+      pretty: true,
+      level: 'warn',
+    }),
+  });
+  ```
+
+  #### Custom logger
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    logger: {
+      entrypoint: '@org/custom-logger',
+    },
+  });
+  ```
+
+  Additionally, `context.logger` is now always available in API routes and middleware, even without a custom logger configured.
+
+  If you were previously using this feature, please remove the experimental flag from your Astro config:
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+  -  experimental: {
+  -    logger: {
+  -      entrypoint: '@org/custom-logger',
+  -    },
+  -  },
+  +  logger: {
+  +    entrypoint: '@org/custom-logger',
+  +  },
+  });
+  ```
+
+  If you have been waiting for stabilization before using custom loggers, you can now do so.
+
+  Please see the [Logger docs](https://docs.astro.build/en/reference/configuration-reference/#logger) for more about this feature.
+
+- [#16981](https://github.com/withastro/astro/pull/16981) [`0d6d644`](https://github.com/withastro/astro/commit/0d6d64433fa31762b6fd593da902f63f3204e02a) Thanks [@ematipico](https://github.com/ematipico)! - Removes the setting `experimental.queuedRendering`. The new rendering engine is now stable and replaces the old one.
+
+  As part of the stabilization, the queued rendering has been improved, and some features have been removed:
+  - The construction of the queue has been removed, instead now Astro uses a streaming approach where components are rendered and flushed as they are encountered.
+  - The node polling feature has been removed because it doesn't yield concrete savings.
+  - The content cache has been descoped, and how only tag names are cached.
+    If you were previously using this experimental feature, you must remove this experimental flag from your configuration as it no longer exists:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from "astro/config";
+
+  export default defineConfig({
+    experimental: {
+  -    queuedRendering: {}
+    }
+  });
+  ```
+
+## 7.0.0-alpha.2
+
+### Major Changes
+
+- [#16610](https://github.com/withastro/astro/pull/16610) [`c63e7e4`](https://github.com/withastro/astro/commit/c63e7e4411db8fc652c84ce82b45f53e951eb6fa) Thanks [@matthewp](https://github.com/matthewp)! - Adds background dev server management for AI coding agents.
+
+  When an AI coding agent is detected, `astro dev` now automatically starts the dev server as a detached background process. This prevents the dev server from blocking the agent's terminal and allows it to continue working while the server runs.
+
+  A lock file (`.astro/dev.json`) is written when the dev server starts, recording the server's URL, port, and PID. This prevents duplicate servers from being started for the same project.
+
+  #### New flag and subcommands
+  - `astro dev --background` — Start the dev server as a background process (this is what runs automatically when an agent is detected).
+  - `astro dev stop` — Stop a running background dev server.
+  - `astro dev status` — Check if a dev server is running and display its URL, PID, and uptime.
+  - `astro dev logs` — View logs from a background dev server. Use `--follow` (`-f`) to stream new output as it's written.
+
+  These allow you to start and manage dev servers programmatically and were designed with AI coding agents in mind.
+
+  #### What should I do?
+
+  No action is required. If you are not using an AI coding agent, `astro dev` behaves exactly as before. If you are using an agent, background mode is enabled automatically — the agent will receive the server URL and PID, and can use `astro dev stop` to shut it down.
+
+  To opt out of automatic background mode when an agent is detected, set the environment variable `ASTRO_DEV_BACKGROUND=0` before running `astro dev`.
+
+- [#16725](https://github.com/withastro/astro/pull/16725) [`10229f7`](https://github.com/withastro/astro/commit/10229f73dbf0f19b9936e9a23f0abc774a4c579e) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Removes deprecated APIs exported from `astro:transitions`.
+
+  In Astro 6.x, some helpers available in `astro:transitions` and `astro:transitions/client` were deprecated.
+
+  In Astro 7.0, the following APIs can no longer be used in your project:
+  - `TRANSITION_BEFORE_PREPARATION`
+  - `TRANSITION_AFTER_PREPARATION`
+  - `TRANSITION_BEFORE_SWAP`
+  - `TRANSITION_AFTER_SWAP`
+  - `TRANSITION_PAGE_LOAD`
+  - `isTransitionBeforePreparationEvent()`
+  - `isTransitionBeforeSwapEvent()`
+  - `createAnimationScope()`
+
+  #### What should I do?
+
+  Remove any occurrence of `createAnimationScope()`:
+
+  ```diff
+  -import { createAnimationScope } from 'astro:transitions';
+  ```
+
+  Replace any occurrence of the other APIs using the lifecycle event names directly:
+
+  ```diff
+  -import {
+  -	TRANSITION_AFTER_SWAP,
+  -	isTransitionBeforePreparationEvent,
+  -} from 'astro:transitions/client';
+
+  -console.log(isTransitionBeforePreparationEvent(event));
+  +console.log(event.type === 'astro:before-preparation');
+
+  -console.log(TRANSITION_AFTER_SWAP);
+  +console.log('astro:after-swap');
+  ```
+
+  Learn more about all utilities available in the [View Transitions Router API Reference](https://v7.docs.astro.build/en/reference/modules/astro-transitions/).
+
+### Patch Changes
+
+- [#16980](https://github.com/withastro/astro/pull/16980) [`1f07343`](https://github.com/withastro/astro/commit/1f07343ffc69b9c982f43cd0369069fe8d1a07fa) Thanks [@matthewp](https://github.com/matthewp)! - Removes `state.provide()`, `state.resolve()`, `state.finalizeAll()`, and `App.Providers` from the public advanced routing API. These context provider extension points are now internal-only. If you were using them in an integration, use `locals` to share per-request state instead.
+
+- [#16982](https://github.com/withastro/astro/pull/16982) [`1e000e2`](https://github.com/withastro/astro/commit/1e000e2454fbbade0a5ed978a9dccf8307780305) Thanks [@matthewp](https://github.com/matthewp)! - Improves the warning when accessing `Astro.session` without session storage configured. The `session` property is now always defined on the context object, and accessing it without configuration logs a helpful message instead of silently returning `undefined`.
+
+- [#16990](https://github.com/withastro/astro/pull/16990) [`ebeb830`](https://github.com/withastro/astro/commit/ebeb83075ba7825a822fdcf4228b475cae38c9c5) Thanks [@ocavue](https://github.com/ocavue)! - Fixes `Astro.request.url` not reflecting validated `X-Forwarded-Proto`/`X-Forwarded-Host` headers when `security.allowedDomains` is configured. Previously, only `Astro.url` was updated with the forwarded origin while `Astro.request.url` retained the socket-derived URL, causing the two to diverge behind TLS-terminating proxies.
+
 ## 7.0.0-alpha.1
 
 ### Patch Changes
@@ -25,6 +243,52 @@
 - [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Fixes `--port` flag being ignored after a Vite-triggered server restart (e.g. when a `.env` file changes)
 
 - [#16434](https://github.com/withastro/astro/pull/16434) [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where i18n domains would return 404 when `trailingSlash` is set to `never`.
+
+## 6.4.5
+
+### Patch Changes
+
+- [#16985](https://github.com/withastro/astro/pull/16985) [`4ecff32`](https://github.com/withastro/astro/commit/4ecff3268acb6ee3db719c4b38bbaead703ff4de) Thanks [@maximslo](https://github.com/maximslo)! - Fixes the `experimental.logger` destination not being used for the "Server listening on..." startup message. The logger is now resolved before the server starts listening, and `adapterLogger` re-creates itself when the underlying logger changes so the startup message uses the correct destination.
+
+- [#16947](https://github.com/withastro/astro/pull/16947) [`e0703a6`](https://github.com/withastro/astro/commit/e0703a6e815be829759ab7912f7024ee8424c3ac) Thanks [@ematipico](https://github.com/ematipico)! - Fixes `Astro.request.url` not reflecting validated `X-Forwarded-Proto`/`X-Forwarded-Host` headers when `security.allowedDomains` is configured. Previously, only `Astro.url` was updated with the forwarded origin while `Astro.request.url` retained the socket-derived URL, causing the two to diverge behind TLS-terminating proxies.
+
+- [#16997](https://github.com/withastro/astro/pull/16997) [`dc45246`](https://github.com/withastro/astro/commit/dc45246812afcaab60393e5236d27e95f98f5efa) Thanks [@matthewp](https://github.com/matthewp)! - Reverts a change to `isNode` runtime detection that caused a significant build time regression for Cloudflare adapter users with large prerendered sites
+
+## 6.4.4
+
+### Patch Changes
+
+- [#16926](https://github.com/withastro/astro/pull/16926) [`1b39ae8`](https://github.com/withastro/astro/commit/1b39ae8485406937501d8a734afe2a464d671064) Thanks [@narendraio](https://github.com/narendraio)! - Prevents `App.match()` from throwing on request paths that contain an invalid percent-sequence.
+
+- [#16924](https://github.com/withastro/astro/pull/16924) [`2c0bc94`](https://github.com/withastro/astro/commit/2c0bc943d96d602b429ce3ecbb379d01a46903b5) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes an issue where editing a client-side component (e.g. with `client:idle`, `client:load`, etc.) caused an unnecessary full program reload of the backend during development.
+
+- [#16958](https://github.com/withastro/astro/pull/16958) [`2c1d50f`](https://github.com/withastro/astro/commit/2c1d50f5f9d557d7cdc17fd75f3a10fd203699c9) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes a bug where static file endpoints using `getStaticPaths` with `.html` in dynamic param values (e.g. `{ path: 'file.html' }`) would fail with a `NoMatchingStaticPathFound` error during build. The `.html` suffix is no longer incorrectly stripped from endpoint route pathnames.
+
+- [#16855](https://github.com/withastro/astro/pull/16855) [`c610cda`](https://github.com/withastro/astro/commit/c610cda44b273c15a6e7eaa4a84fa194002643e1) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes dynamic routes returning 500 "TypeError: Missing parameter" when using domain-based i18n routing in SSR.
+
+- [#16946](https://github.com/withastro/astro/pull/16946) [`606c37b`](https://github.com/withastro/astro/commit/606c37b886a9e25170ba82634cc81a8a775e8ac6) Thanks [@ematipico](https://github.com/ematipico)! - Fixes `Astro.routePattern` to preserve original casing of dynamic parameter names from filenames. Previously, a file at `src/pages/blog/[postId].astro` would return `/blog/[postid]` for `Astro.routePattern` due to an internal `.toLowerCase()` call. It now correctly returns `/blog/[postId]`.
+
+- [#16720](https://github.com/withastro/astro/pull/16720) [`16d49b6`](https://github.com/withastro/astro/commit/16d49b694071be212fb8c5a141ade72e8717a30e) Thanks [@thomas-callahan-collibra](https://github.com/thomas-callahan-collibra)! - Fix an issue where dynamic routes would return the string `[object Object]` instead of the expected content, in certain runtimes.
+
+- [#16703](https://github.com/withastro/astro/pull/16703) [`17390a6`](https://github.com/withastro/astro/commit/17390a6184d5cbd5ff85b7f652a92f5a6a7b0557) Thanks [@henrybrewer00-dotcom](https://github.com/henrybrewer00-dotcom)! - Fixes styles being stripped when the project root is started with a path whose case differs from the actual filesystem case (e.g. running `astro dev` from `d:\dev\app` while the folder on disk is `D:\dev\app`).
+
+- [#16855](https://github.com/withastro/astro/pull/16855) [`c610cda`](https://github.com/withastro/astro/commit/c610cda44b273c15a6e7eaa4a84fa194002643e1) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `Astro.currentLocale` returning the default locale instead of the domain's locale on dynamic routes served from a mapped domain.
+
+## 6.4.3
+
+### Patch Changes
+
+- [#16900](https://github.com/withastro/astro/pull/16900) [`17a0fbd`](https://github.com/withastro/astro/commit/17a0fbd34d11db765e79caf269bfd5f43ef51da8) Thanks [@ocavue](https://github.com/ocavue)! - Bumps `devalue` dependency to v5.8.1
+
+- [#16016](https://github.com/withastro/astro/pull/16016) [`0d85e1b`](https://github.com/withastro/astro/commit/0d85e1b7ea58a243bd1b61bdfb951c4fd87b9db5) Thanks [@felmonon](https://github.com/felmonon)! - Fix a false positive in the dev toolbar accessibility audit for anchors with text inside closed `<details>` elements.
+
+- [#16911](https://github.com/withastro/astro/pull/16911) [`79c6c46`](https://github.com/withastro/astro/commit/79c6c469a735bece8a80200f7b188e15f1abff24) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a bug where `experimental.advancedRouting` with `astro/hono` handlers threw `TypeError: Cannot read properties of undefined (reading 'route')` for unmatched routes instead of rendering the custom 404 page.
+
+- [#16899](https://github.com/withastro/astro/pull/16899) [`239c469`](https://github.com/withastro/astro/commit/239c469cd2cd66d147a302a2ca14e07a0891f9b8) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a false "does not call the middleware() handler" warning when using `astro()` in a custom `src/app.ts` and the first request is a redirect route.
+
+- [#16887](https://github.com/withastro/astro/pull/16887) [`493acdb`](https://github.com/withastro/astro/commit/493acdb4abc56534e9efa68af16e3ef273d7d88b) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `redirectToDefaultLocale` not working after the Advanced Routing refactoring.
+
+- [#16908](https://github.com/withastro/astro/pull/16908) [`ef53ab9`](https://github.com/withastro/astro/commit/ef53ab91e8362b50bb1a3ab73d9350b93ea41de4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves optimized fallbacks generation when using the Fonts API by using better metrics for bold variants
 
 ## 6.4.2
 

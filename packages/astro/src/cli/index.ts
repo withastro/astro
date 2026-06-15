@@ -9,7 +9,6 @@ type CLICommand =
 	| 'dev'
 	| 'build'
 	| 'preview'
-	| 'db'
 	| 'sync'
 	| 'check'
 	| 'info'
@@ -32,12 +31,7 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
 		'check',
 		'create-key',
 		'docs',
-		'db',
 		'info',
-		'login',
-		'logout',
-		'link',
-		'init',
 	]);
 	if (supportedCommands.has(cmd)) {
 		return cmd as CLICommand;
@@ -220,15 +214,6 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			const { add } = await import('./add/index.js');
 			const packages = flags._.slice(3) as string[];
 			await add(packages, { flags });
-			return;
-		}
-		case 'db':
-		case 'login':
-		case 'logout':
-		case 'link':
-		case 'init': {
-			const { db } = await import('./db/index.js');
-			await db({ flags });
 			return;
 		}
 		case 'dev': {

@@ -23,10 +23,20 @@ describe('satteri highlight', () => {
 		assert.ok(!code.includes('background-color:'));
 	});
 
-	it('rejects prism highlighting', async () => {
-		await assert.rejects(
-			createSatteriMarkdownProcessor({ syntaxHighlight: { type: 'prism' } }),
-			/Prism syntax highlighting is not supported/,
-		);
+	it('highlights using prism', async () => {
+		const processor = await createSatteriMarkdownProcessor({
+			syntaxHighlight: { type: 'prism' },
+		});
+		const { code } = await processor.render('```js\nconsole.log("Hello, world!");\n```');
+		assert.match(code, /<pre class="language-js" data-language="js">/);
+		assert.match(code, /class="token /);
+	});
+
+	it('supports prism excludeLangs', async () => {
+		const processor = await createSatteriMarkdownProcessor({
+			syntaxHighlight: { type: 'prism', excludeLangs: ['js'] },
+		});
+		const { code } = await processor.render('```js\nconsole.log("Hello, world!");\n```');
+		assert.ok(!code.includes('class="token '));
 	});
 });

@@ -32,8 +32,8 @@ describe('base', () => {
 		});
 		await fixture.build({
 			vite: { logLevel: 'info' },
-			// @ts-expect-error: logger is internal API
-			logger,
+			// @ts-expect-error: `_logger` is an internal API
+			_logger: logger,
 		});
 	});
 
@@ -73,6 +73,28 @@ describe('base', () => {
 			fixture.pathExists('client/_headers'),
 			'_headers should be at client/_headers (not under base)',
 		);
+	});
+
+	it('injects cache headers for assets with base prefix', async () => {
+		const content = await fixture.readFile('client/_headers');
+		assert.match(content, /\/blog\/_astro\/\*/);
+		assert.match(content, /Cache-Control: public, max-age=31536000, immutable/);
+	});
+
+	it('preserves existing user-defined headers', async () => {
+		const content = await fixture.readFile('client/_headers');
+		assert.match(content, /X-Custom-Header: 67/);
+	});
+
+	it('places the injected cache block before existing user-defined headers', async () => {
+		// Ordering matters when both rules match the same path: per Cloudflare
+		// docs, multiple matching rules' headers are merged, and we want the
+		// asset-specific rule to be readable first in the file.
+		const content = await fixture.readFile('client/_headers');
+		const cacheIdx = content.indexOf('/blog/_astro/*');
+		const userIdx = content.indexOf('X-Custom-Header: 67');
+		assert.ok(cacheIdx >= 0 && userIdx >= 0, 'both blocks should exist');
+		assert.ok(cacheIdx < userIdx, 'cache block should appear before user headers');
 	});
 
 	it('sets assets.directory to the un-prefixed client root in wrangler.json', async () => {

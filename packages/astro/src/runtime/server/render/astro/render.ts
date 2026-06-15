@@ -10,6 +10,7 @@ import {
 } from '../common.js';
 import { promiseWithResolvers } from '../util.js';
 import { bufferPropagatedHead } from '../head-propagation/runtime.js';
+import { renderStreaming } from '../streaming.js';
 import type { AstroComponentFactory } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
 import { isRenderTemplateResult } from './render-template.js';
@@ -17,42 +18,19 @@ import { isRenderTemplateResult } from './render-template.js';
 const DOCTYPE_EXP = /<!doctype html/i;
 
 /**
- * Queue-based rendering to AsyncIterable
- * NOTE: Currently disabled for .astro files. Kept for potential future use.
+ * Renders a component tree to a string using the streaming engine.
  */
-
-// Calls a component and renders it into a string of HTML
-export async function renderToString(
+async function renderStreamToString(
 	result: SSRResult,
-	componentFactory: AstroComponentFactory,
-	props: any,
-	children: any,
-	isPage = false,
-	route?: RouteData,
-): Promise<string | Response> {
-	const templateResult = await callComponentAsTemplateResultOrResponse(
-		result,
-		componentFactory,
-		props,
-		children,
-		route,
-	);
-
-	// If the Astro component returns a Response on init, return that response
-	if (templateResult instanceof Response) return templateResult;
-
-	// EXPERIMENTAL: Queue-based rendering
-	// NOTE: Queue rendering is disabled for .astro files due to 2x performance overhead.
-	// Queue rendering remains enabled for MDX pages (handled separately in page.ts).
-	// The queue architecture adds overhead for .astro files with JSX that outweighs benefits.
-	// if (result._experimentalQueuedRendering) {
-	// 	return await renderWithQueue(result, templateResult, isPage);
-	// }
-
-	// Recursive rendering (default for .astro files)
+	templateResult: any,
+	isPage: boolean,
+): Promise<string> {
 	let str = '';
 	let renderedFirstPageChunk = false;
 
+	// Buffer propagated head content (and run `propagation: 'self'` components,
+	// e.g. server islands) before rendering, so response headers set during
+	// their initialization are applied before the body is produced.
 	if (isPage) {
 		await bufferHeadContent(result);
 	}
@@ -75,40 +53,25 @@ export async function renderToString(
 		},
 	};
 
-	await templateResult.render(destination);
+	await renderStreaming(templateResult, result, destination);
 
 	return str;
 }
 
-// Calls a component and renders it into a readable stream
-export async function renderToReadableStream(
+/**
+ * Renders a component tree to a `ReadableStream` using the streaming engine.
+ */
+async function renderStreamToStream(
 	result: SSRResult,
-	componentFactory: AstroComponentFactory,
-	props: any,
-	children: any,
-	isPage = false,
+	templateResult: any,
+	isPage: boolean,
 	route?: RouteData,
-): Promise<ReadableStream | Response> {
-	const templateResult = await callComponentAsTemplateResultOrResponse(
-		result,
-		componentFactory,
-		props,
-		children,
-		route,
-	);
-
-	// If the Astro component returns a Response on init, return that response
-	if (templateResult instanceof Response) return templateResult;
-
-	// EXPERIMENTAL: Queue-based rendering
-	// NOTE: Queue rendering is disabled for .astro files (see renderToString for explanation)
-	// if (result._experimentalQueuedRendering) {
-	// 	return await renderWithQueueToStream(result, templateResult, isPage, route);
-	// }
-
-	// Recursive rendering (default for .astro files)
+): Promise<ReadableStream> {
 	let renderedFirstPageChunk = false;
 
+	// Buffer propagated head content (and run `propagation: 'self'` components,
+	// e.g. server islands) before constructing the stream, so response headers
+	// set during their initialization are applied before the response is sent.
 	if (isPage) {
 		await bufferHeadContent(result);
 	}
@@ -142,7 +105,7 @@ export async function renderToReadableStream(
 
 			(async () => {
 				try {
-					await templateResult.render(destination);
+					await renderStreaming(templateResult, result, destination);
 					controller.close();
 				} catch (e) {
 					// We don't have a lot of information downstream, and upstream we can't catch the error properly
@@ -153,7 +116,7 @@ export async function renderToReadableStream(
 						});
 					}
 
-					// Queue error on next microtask to flush the remaining chunks written synchronously
+					// Report the error on the next microtask, so the chunks already written synchronously flush first
 					setTimeout(() => controller.error(e), 0);
 				}
 			})();
@@ -164,6 +127,181 @@ export async function renderToReadableStream(
 			result.cancelled = true;
 		},
 	});
+}
+
+/**
+ * Renders a component tree to an `AsyncIterable` using the streaming engine.
+ */
+async function renderStreamToAsyncIterable(
+	result: SSRResult,
+	templateResult: any,
+	isPage: boolean,
+	_route?: RouteData,
+): Promise<AsyncIterable<Uint8Array>> {
+	let renderedFirstPageChunk = false;
+	let error: Error | null = null;
+	let next: ReturnType<typeof promiseWithResolvers<void>> | null = null;
+	const buffer: Array<Uint8Array | string> = [];
+	let renderingComplete = false;
+
+	// Buffer propagated head content (and run `propagation: 'self'` components,
+	// e.g. server islands) before producing the iterable, so response headers
+	// set during their initialization are applied before the response is sent.
+	if (isPage) {
+		await bufferHeadContent(result);
+	}
+
+	const iterator: AsyncIterator<Uint8Array> = {
+		async next() {
+			if (result.cancelled) return { done: true, value: undefined };
+
+			if (next !== null) {
+				await next.promise;
+			} else if (!renderingComplete && !buffer.length) {
+				next = promiseWithResolvers();
+				await next.promise;
+			}
+
+			if (!renderingComplete) {
+				next = promiseWithResolvers();
+			}
+
+			if (error) {
+				throw error;
+			}
+
+			// Merge buffer into single Uint8Array
+			let length = 0;
+			let stringToEncode = '';
+			for (let i = 0, len = buffer.length; i < len; i++) {
+				const bufferEntry = buffer[i];
+
+				if (typeof bufferEntry === 'string') {
+					const nextIsString = i + 1 < len && typeof buffer[i + 1] === 'string';
+					stringToEncode += bufferEntry;
+					if (!nextIsString) {
+						const encoded = encoder.encode(stringToEncode);
+						length += encoded.length;
+						stringToEncode = '';
+						buffer[i] = encoded;
+					} else {
+						buffer[i] = '';
+					}
+				} else {
+					length += bufferEntry.length;
+				}
+			}
+
+			const mergedArray = new Uint8Array(length);
+			let offset = 0;
+			for (let i = 0, len = buffer.length; i < len; i++) {
+				const item = buffer[i];
+				if (item === '') {
+					continue;
+				}
+				mergedArray.set(item as Uint8Array, offset);
+				offset += (item as Uint8Array).length;
+			}
+
+			buffer.length = 0;
+
+			const returnValue = {
+				done: length === 0 && renderingComplete,
+				value: mergedArray,
+			};
+
+			return returnValue;
+		},
+		async return() {
+			result.cancelled = true;
+			return { done: true, value: undefined };
+		},
+	};
+
+	const destination: RenderDestination = {
+		write(chunk) {
+			if (isPage && !renderedFirstPageChunk) {
+				renderedFirstPageChunk = true;
+				if (!result.partial && !DOCTYPE_EXP.test(String(chunk))) {
+					const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
+					buffer.push(encoder.encode(doctype));
+				}
+			}
+			if (chunk instanceof Response) {
+				throw new AstroError(AstroErrorData.ResponseSentError);
+			}
+			const bytes = chunkToByteArrayOrString(result, chunk);
+			if (bytes.length > 0) {
+				buffer.push(bytes);
+				next?.resolve();
+			} else if (buffer.length > 0) {
+				next?.resolve();
+			}
+		},
+	};
+
+	const renderResult = toPromise(() => renderStreaming(templateResult, result, destination));
+
+	renderResult
+		.catch((err) => {
+			error = err;
+		})
+		.finally(() => {
+			renderingComplete = true;
+			next?.resolve();
+		});
+
+	return {
+		[Symbol.asyncIterator]() {
+			return iterator;
+		},
+	};
+}
+
+// Calls a component and renders it into a string of HTML
+export async function renderToString(
+	result: SSRResult,
+	componentFactory: AstroComponentFactory,
+	props: any,
+	children: any,
+	isPage = false,
+	route?: RouteData,
+): Promise<string | Response> {
+	const templateResult = await callComponentAsTemplateResultOrResponse(
+		result,
+		componentFactory,
+		props,
+		children,
+		route,
+	);
+
+	// If the Astro component returns a Response on init, return that response
+	if (templateResult instanceof Response) return templateResult;
+
+	return await renderStreamToString(result, templateResult, isPage);
+}
+
+// Calls a component and renders it into a readable stream
+export async function renderToReadableStream(
+	result: SSRResult,
+	componentFactory: AstroComponentFactory,
+	props: any,
+	children: any,
+	isPage = false,
+	route?: RouteData,
+): Promise<ReadableStream | Response> {
+	const templateResult = await callComponentAsTemplateResultOrResponse(
+		result,
+		componentFactory,
+		props,
+		children,
+		route,
+	);
+
+	// If the Astro component returns a Response on init, return that response
+	if (templateResult instanceof Response) return templateResult;
+
+	return await renderStreamToStream(result, templateResult, isPage, route);
 }
 
 async function callComponentAsTemplateResultOrResponse(
@@ -232,164 +370,7 @@ export async function renderToAsyncIterable(
 	);
 	if (templateResult instanceof Response) return templateResult;
 
-	// EXPERIMENTAL: Queue-based rendering
-	// NOTE: Queue rendering is disabled for .astro files (see renderToString for explanation)
-	// if (result._experimentalQueuedRendering) {
-	// 	return await renderWithQueueToAsyncIterable(result, templateResult, isPage, route);
-	// }
-
-	// Recursive rendering (default for .astro files)
-	let renderedFirstPageChunk = false;
-	if (isPage) {
-		await bufferHeadContent(result);
-	}
-
-	// This implements the iterator protocol:
-	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_async_iterator_and_async_iterable_protocols
-	// The `iterator` is passed to the Response as a stream-like thing.
-	// The `buffer` array acts like a buffer. During render the `destination` pushes
-	// chunks of Uint8Arrays into the buffer. The response calls `next()` and we combine
-	// all of the chunks into one Uint8Array and then empty it.
-
-	let error: Error | null = null;
-	// The `next` is an object `{ promise, resolve, reject }` that we use to wait
-	// for chunks to be pushed into the buffer.
-	let next: ReturnType<typeof promiseWithResolvers<void>> | null = null;
-	const buffer: Array<Uint8Array | string> = []; // []Uint8Array
-	let renderingComplete = false;
-
-	const iterator: AsyncIterator<Uint8Array> = {
-		async next() {
-			if (result.cancelled) return { done: true, value: undefined };
-
-			if (next !== null) {
-				await next.promise;
-			}
-			// Buffer is empty so there's nothing to receive, wait for the next resolve.
-			else if (!renderingComplete && !buffer.length) {
-				next = promiseWithResolvers();
-				await next.promise;
-			}
-
-			// Only create a new promise if rendering is still ongoing. Otherwise,
-			// there will be a dangling promises that breaks tests (probably not an actual app)
-			if (!renderingComplete) {
-				next = promiseWithResolvers();
-			}
-
-			// If an error occurs during rendering, throw the error as we cannot proceed.
-			if (error) {
-				throw error;
-			}
-
-			// This calculates the length of the final merged array.
-			// While doing so, it also replaces consecutive strings with their
-			// concatenated Uint8Array equivalent.
-			// This is a performance optimization since `TextEncoder#encode` can be
-			// costly, so it is faster to encode one larger string than it is
-			// to encode many smaller strings.
-			let length = 0;
-			let stringToEncode = '';
-			for (let i = 0, len = buffer.length; i < len; i++) {
-				const bufferEntry = buffer[i];
-
-				if (typeof bufferEntry === 'string') {
-					const nextIsString = i + 1 < len && typeof buffer[i + 1] === 'string';
-					stringToEncode += bufferEntry;
-					if (!nextIsString) {
-						const encoded = encoder.encode(stringToEncode);
-						length += encoded.length;
-						stringToEncode = '';
-						buffer[i] = encoded;
-					} else {
-						buffer[i] = '';
-					}
-				} else {
-					length += bufferEntry.length;
-				}
-			}
-
-			// Create a new array with total length and merge all source arrays.
-			let mergedArray = new Uint8Array(length);
-			let offset = 0;
-			for (let i = 0, len = buffer.length; i < len; i++) {
-				const item = buffer[i];
-				// If an item is an empty string, it must've been cleared out earlier
-				// when we converted it into a larger Uint8Array. Thus, we can skip it.
-				if (item === '') {
-					continue;
-				}
-				// TypeScript will think this is `string | Uint8Array` but, because of
-				// the encoding earlier, we know the only remaining strings are empty
-				// and have been skipped above.
-				mergedArray.set(item as Uint8Array, offset);
-				offset += item.length;
-			}
-
-			// Empty the array. We do this so that we can reuse the same array.
-			buffer.length = 0;
-
-			const returnValue = {
-				// The iterator is done when rendering has finished
-				// and there are no more chunks to return.
-				done: length === 0 && renderingComplete,
-				value: mergedArray,
-			};
-
-			return returnValue;
-		},
-		async return() {
-			// If the client disconnects,
-			// we signal to the rest of the internals to ignore the results of existing renders and avoid kicking off more of them.
-			result.cancelled = true;
-			return { done: true, value: undefined };
-		},
-	};
-
-	const destination: RenderDestination = {
-		write(chunk) {
-			if (isPage && !renderedFirstPageChunk) {
-				renderedFirstPageChunk = true;
-				if (!result.partial && !DOCTYPE_EXP.test(String(chunk))) {
-					const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
-					buffer.push(encoder.encode(doctype));
-				}
-			}
-			if (chunk instanceof Response) {
-				throw new AstroError(AstroErrorData.ResponseSentError);
-			}
-			const bytes = chunkToByteArrayOrString(result, chunk);
-			// It might be possible that we rendered a chunk with no content, in which
-			// case we don't want to resolve the promise.
-			if (bytes.length > 0) {
-				// Push the chunks into the buffer and resolve the promise so that next()
-				// will run.
-				buffer.push(bytes);
-				next?.resolve();
-			} else if (buffer.length > 0) {
-				next?.resolve();
-			}
-		},
-	};
-
-	const renderResult = toPromise(() => templateResult.render(destination));
-
-	renderResult
-		.catch((err) => {
-			error = err;
-		})
-		.finally(() => {
-			renderingComplete = true;
-			next?.resolve();
-		});
-
-	// This is the Iterator protocol, an object with a `Symbol.asyncIterator`
-	// function that returns an object like `{ next(): Promise<{ done: boolean; value: any }> }`
-	return {
-		[Symbol.asyncIterator]() {
-			return iterator;
-		},
-	};
+	return await renderStreamToAsyncIterable(result, templateResult, isPage, route);
 }
 
 function toPromise<T>(fn: () => T | Promise<T>): Promise<T> {

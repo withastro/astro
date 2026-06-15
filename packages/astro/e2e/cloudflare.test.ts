@@ -151,8 +151,8 @@ test.describe('Cloudflare', () => {
 
 		test.beforeAll(async ({ astro, browser }) => {
 			const logger = createLoggerSpy({ info: infoLogs });
-			// @ts-expect-error `logger` is an @internal option stripped from the public type
-			devServer = await astro.startDevServer({ logger });
+			// @ts-expect-error: `_logger` is an internal API
+			devServer = await astro.startDevServer({ _logger: logger });
 			await warmupDevServer(browser, astro.resolveUrl('/'));
 		});
 

@@ -30,9 +30,8 @@ describe('astro:image', () => {
 				}),
 			});
 			devServer = await fixture.startDevServer({
-				// `logger` is @internal in AstroInlineConfig so it's stripped from dist types
-				// @ts-expect-error
-				logger,
+				// @ts-expect-error: `_logger` is an internal API
+				_logger: logger,
 			});
 		});
 

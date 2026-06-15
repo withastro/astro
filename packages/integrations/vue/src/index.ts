@@ -121,7 +121,11 @@ async function getViteConfiguration(
 	// The vue vite plugin may not manage to resolve it automatically
 	vueOptions.compiler ??= await import('vue/compiler-sfc');
 
-	const plugins: PluginOption[] = [vue(vueOptions), virtualAppEntrypoint(vueOptions), configEnvironmentPlugin()];
+	const plugins: PluginOption[] = [
+		vue(vueOptions),
+		virtualAppEntrypoint(vueOptions),
+		configEnvironmentPlugin(),
+	];
 
 	if (options?.jsx) {
 		const vueJsx = (await import('@vitejs/plugin-vue-jsx')).default;

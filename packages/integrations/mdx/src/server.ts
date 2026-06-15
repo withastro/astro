@@ -1,7 +1,7 @@
 import type { NamedSSRLoadedRendererValue } from 'astro';
 import { AstroError } from 'astro/errors';
 import { AstroJSX, jsx } from 'astro/jsx-runtime';
-import { renderJSX } from 'astro/runtime/server/index.js';
+import { chunkToString, renderStreaming } from 'astro/runtime/server/index.js';
 
 export const slotName = (str: string) =>
 	str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
@@ -42,11 +42,18 @@ export async function renderToStaticMarkup(
 
 	const { result } = this;
 	try {
-		// NOTE: Always use standard renderJSX for MDX, even when queue rendering is enabled.
-		// This is because MDX components are rendered during queue rendering (not queue building),
-		// so it's too late to add JSX vnodes to the queue at this point.
-		// TODO: Optimize this in the future by detecting MDX pages earlier in the pipeline.
-		const html = await renderJSX(result, jsx(Component, { ...props, ...slots, children }));
+		// Render the MDX vnode tree through Astro's streaming engine, the same
+		// fast path used by `.astro` pages. The chunks are collected into a
+		// string because this renderer must return ready HTML to its caller
+		// (`renderComponent`).
+		let html = '';
+		const destination = {
+			write(chunk: any) {
+				if (chunk instanceof Response) return;
+				html += chunkToString(result, chunk);
+			},
+		};
+		await renderStreaming(jsx(Component, { ...props, ...slots, children }), result, destination);
 		return { html };
 	} catch (e) {
 		throwEnhancedErrorIfMdxComponent(e as Error, Component);

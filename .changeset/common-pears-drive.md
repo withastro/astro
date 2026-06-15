@@ -11,7 +11,6 @@
 '@astrojs/mdx': major
 '@astrojs/vue': major
 'astro': major
-'@astrojs/db': major
 ---
 
 Upgrade to Vite v8
