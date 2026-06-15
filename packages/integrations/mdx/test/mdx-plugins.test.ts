@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import { unified } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import { parseHTML } from 'linkedom';
 import remarkToc from 'remark-toc';
@@ -25,7 +26,11 @@ describe('MDX plugins - Astro config integration', () => {
 						'astro:config:setup': ({ updateConfig }) => {
 							updateConfig({
 								markdown: {
-									rehypePlugins: [rehypeExamplePlugin],
+									// A rehype plugin added by an integration only runs on the
+									// remark/rehype pipeline, so opt into unified() explicitly.
+									processor: unified({
+										rehypePlugins: [rehypeExamplePlugin],
+									}),
 								},
 							});
 						},

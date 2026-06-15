@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import { unified } from '@astrojs/markdown-remark';
 import * as cheerio from 'cheerio';
 import { type Fixture, fixLineEndings, loadFixture } from './test-utils.ts';
 
@@ -68,6 +69,23 @@ describe('Astro Markdown', () => {
 					syntaxHighlight: 'prism',
 				},
 				outDir: './dist/astro-markdown-syntax-highlighting/',
+			});
+			await prismFixture.build();
+
+			const html = await prismFixture.readFile('/code-in-md/index.html');
+			const $ = cheerio.load(html);
+
+			assert.notEqual($('pre.language-html').length, 0);
+		});
+
+		it('handles Prism on the remark/rehype pipeline', async () => {
+			const prismFixture = await loadFixture({
+				root: FIXTURE_ROOT,
+				markdown: {
+					processor: unified(),
+					syntaxHighlight: 'prism',
+				},
+				outDir: './dist/astro-markdown-syntax-highlighting-unified/',
 			});
 			await prismFixture.build();
 

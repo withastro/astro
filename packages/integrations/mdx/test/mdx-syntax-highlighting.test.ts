@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { unified } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import rehypeShiki from '@shikijs/rehype';
 import { transformerTwoslash } from '@shikijs/twoslash';
@@ -75,6 +76,24 @@ describe('MDX syntax highlighting', () => {
 			assert.notEqual(prismCodeBlock, null);
 		});
 
+		it('works on the remark/rehype pipeline', async () => {
+			const fixture = await loadFixture({
+				root: FIXTURE_ROOT,
+				markdown: {
+					syntaxHighlight: 'prism',
+					processor: unified(),
+				},
+				integrations: [mdx()],
+			});
+			await fixture.build();
+
+			const html = await fixture.readFile('/index.html');
+			const { document } = parseHTML(html);
+
+			const prismCodeBlock = document.querySelector('pre.language-astro');
+			assert.notEqual(prismCodeBlock, null);
+		});
+
 		for (const extendMarkdownConfig of [true, false]) {
 			it(`respects syntaxHighlight when extendMarkdownConfig = ${extendMarkdownConfig}`, async () => {
 				const fixture = await loadFixture({
@@ -107,6 +126,8 @@ describe('MDX syntax highlighting', () => {
 			root: FIXTURE_ROOT,
 			markdown: {
 				syntaxHighlight: false,
+				// Custom rehype highlighters run on the remark/rehype pipeline.
+				processor: unified(),
 			},
 			integrations: [
 				mdx({
@@ -139,6 +160,8 @@ describe('MDX syntax highlighting', () => {
 			root: FIXTURE_ROOT,
 			markdown: {
 				syntaxHighlight: false,
+				// Custom rehype highlighters run on the remark/rehype pipeline.
+				processor: unified(),
 			},
 			integrations: [
 				mdx({

@@ -57,6 +57,9 @@ export default {
 				'rehype-toc',
 				'remark-code-titles',
 				'@types/http-cache-semantics',
+				// Optional peer dep: dynamically imported in config validation for the legacy
+				// remark/rehype pipeline. Knip flags it because it's referenced from source.
+				'@astrojs/markdown-remark',
 			],
 		},
 		'packages/astro-prism': {

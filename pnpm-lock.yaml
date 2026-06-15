@@ -533,9 +533,9 @@ importers:
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
-      '@astrojs/markdown-remark':
+      '@astrojs/markdown-satteri':
         specifier: workspace:*
-        version: link:../markdown/remark
+        version: link:../markdown/satteri
       '@astrojs/telemetry':
         specifier: workspace:*
         version: link:../telemetry
@@ -699,6 +699,9 @@ importers:
       '@astrojs/check':
         specifier: workspace:*
         version: link:../language-tools/astro-check
+      '@astrojs/markdown-remark':
+        specifier: workspace:*
+        version: link:../markdown/remark
       '@playwright/test':
         specifier: 1.58.2
         version: 1.58.2
@@ -747,12 +750,6 @@ importers:
       hono:
         specifier: ^4.12.14
         version: 4.12.18
-      mdast-util-mdx:
-        specifier: ^3.0.0
-        version: 3.0.0
-      mdast-util-mdx-jsx:
-        specifier: ^3.2.0
-        version: 3.2.0
       node-mocks-http:
         specifier: ^1.17.2
         version: 1.17.2(@types/express@5.0.6)(@types/node@22.19.19)
@@ -5051,6 +5048,9 @@ importers:
 
   packages/integrations/mdx/test/fixtures/image-remark-imgattr:
     dependencies:
+      '@astrojs/markdown-remark':
+        specifier: workspace:*
+        version: link:../../../../../markdown/remark
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../..
@@ -5069,6 +5069,9 @@ importers:
 
   packages/integrations/mdx/test/fixtures/mdx-frontmatter-injection:
     dependencies:
+      '@astrojs/markdown-remark':
+        specifier: workspace:*
+        version: link:../../../../../markdown/remark
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../..
@@ -5195,6 +5198,9 @@ importers:
 
   packages/integrations/mdx/test/fixtures/mdx-vite-env-vars:
     dependencies:
+      '@astrojs/markdown-satteri':
+        specifier: workspace:*
+        version: link:../../../../../markdown/satteri
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../..
