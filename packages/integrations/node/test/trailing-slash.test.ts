@@ -318,10 +318,9 @@ describe('Trailing slash', () => {
 			});
 
 			it('Can render prerendered non-ASCII route without trailing slash', async () => {
-				const res = await fetch(
-					`http://${server.host}:${server.port}/${encodeURI('สวัสดี')}`,
-					{ redirect: 'manual' },
-				);
+				const res = await fetch(`http://${server.host}:${server.port}/${encodeURI('สวัสดี')}`, {
+					redirect: 'manual',
+				});
 				const html = await res.text();
 				const $ = cheerio.load(html);
 
@@ -330,16 +329,12 @@ describe('Trailing slash', () => {
 			});
 
 			it('Redirects prerendered non-ASCII route with trailing slash', async () => {
-				const res = await fetch(
-					`http://${server.host}:${server.port}/${encodeURI('สวัสดี')}/`,
-					{ redirect: 'manual' },
-				);
+				const res = await fetch(`http://${server.host}:${server.port}/${encodeURI('สวัสดี')}/`, {
+					redirect: 'manual',
+				});
 
 				assert.equal(res.status, 301);
-				assert.equal(
-					res.headers.get('location'),
-					`/${encodeURI('สวัสดี')}`,
-				);
+				assert.equal(res.headers.get('location'), `/${encodeURI('สวัสดี')}`);
 			});
 		});
 	});
