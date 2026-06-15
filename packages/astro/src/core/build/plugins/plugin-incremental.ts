@@ -78,7 +78,7 @@ export function pluginIncremental(internals: BuildInternals): VitePlugin {
 
 function getReadableFilePath(id: string): string | undefined {
 	if (id[0] === '\0') return undefined;
-	const [pathWithoutQuery] = id.replace(/^\/\@fs/, '').split('?');
+	const [pathWithoutQuery] = id.replace(/^\/@fs/, '').split('?');
 	if (!pathWithoutQuery || !fs.existsSync(pathWithoutQuery)) return undefined;
 	return pathWithoutQuery;
 }
