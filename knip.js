@@ -77,6 +77,11 @@ export default {
 		'packages/integrations/netlify': {
 			entry: [srcEntry, dtsEntry, testEntry],
 		},
+		'packages/integrations/react': {
+			entry: [testEntry],
+			// It's an optional peer dep (triggers a warning) but it's fine in this case
+			ignoreDependencies: ['babel-plugin-react-compiler'],
+		},
 		'packages/integrations/solid': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			// It's an optional peer dep (triggers a warning) but it's fine in this case
