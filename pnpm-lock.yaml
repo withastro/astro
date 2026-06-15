@@ -793,8 +793,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.98.0)(tsx@4.21.0)(yaml@2.9.0)
       zod-compiler:
-        specifier: ^1.10.1
-        version: 1.10.1(zod@4.3.6)
+        specifier: ^1.10.2
+        version: 1.10.2(zod@4.3.6)
     optionalDependencies:
       sharp:
         specifier: ^0.34.0
@@ -835,8 +835,8 @@ importers:
         specifier: 0.6.2
         version: 0.6.2
       zod-compiler:
-        specifier: ^1.10.1
-        version: 1.10.1(zod@4.3.6)
+        specifier: ^1.10.2
+        version: 1.10.2(zod@4.3.6)
 
   packages/astro/e2e/fixtures/_deps/astro-linked-lib:
     dependencies:
@@ -16361,8 +16361,8 @@ packages:
     resolution: {integrity: sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA==}
     engines: {node: '>= 14'}
 
-  zod-compiler@1.10.1:
-    resolution: {integrity: sha512-549Mzmsy4VAZVl0kH7NljS//QniNkRR/ikZBH6eSg3N/ySUn0JAFJf22JIGj0TSguS+kc++BkLTIwglqIDpCpA==}
+  zod-compiler@1.10.2:
+    resolution: {integrity: sha512-zBTE7qZSWAd9Vxh1D7MeyUXH+zFpo6bND2PYqhH1uEXTshCbVAnUBTfd9qKszUJGbN3imt6554O9TMSEXuLbHA==}
     hasBin: true
     peerDependencies:
       zod: ^4.0.0
@@ -27037,7 +27037,7 @@ snapshots:
       compress-commons: 6.0.2
       readable-stream: 4.7.0
 
-  zod-compiler@1.10.1(zod@4.3.6):
+  zod-compiler@1.10.2(zod@4.3.6):
     dependencies:
       '@jridgewell/remapping': 2.3.5
       acorn: 8.16.0

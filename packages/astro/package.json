@@ -226,7 +226,7 @@
     "undici": "^7.22.0",
     "unified": "^11.0.5",
     "vitest": "^4.1.0",
-    "zod-compiler": "^1.10.1"
+    "zod-compiler": "^1.10.2"
   },
   "engines": {
     "node": ">=22.12.0",
