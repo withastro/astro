@@ -1,5 +1,5 @@
 import { collapseDuplicateSlashes } from '@astrojs/internal-helpers/path';
-import { MultiLevelEncodingError, validateAndDecodePathname } from './pathname.js';
+import { validateAndDecodePathname } from './pathname.js';
 
 /**
  * Creates a normalized URL from a request URL string.
@@ -16,13 +16,8 @@ export function createNormalizedUrl(requestUrl: string): URL {
 export function normalizeUrl(url: URL): URL {
 	try {
 		url.pathname = validateAndDecodePathname(url.pathname);
-	} catch (e) {
-		// Multi-level encoding (e.g., %2561 → %61) must be rejected, not silently decoded.
-		// Let this error propagate so the caller can return a 400 response.
-		if (e instanceof MultiLevelEncodingError) {
-			throw e;
-		}
-		// For other decoding failures (truly malformed URLs), fall back gracefully.
+	} catch {
+		// For decoding failures (truly malformed URLs), fall back gracefully.
 		try {
 			url.pathname = decodeURI(url.pathname);
 		} catch {
