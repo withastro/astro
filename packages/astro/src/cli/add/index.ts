@@ -241,6 +241,13 @@ export async function add(names: string[], { flags }: AddOptions) {
 					logger,
 					overrides: { vite: '^7' },
 				});
+
+				await addToGitignore({
+					root,
+					flags,
+					logger,
+					entries: ['.wrangler', 'worker-configuration.d.ts'],
+				});
 			}
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
 				const dir = new URL('./styles/', new URL(userConfig.srcDir ?? './src/', root));
@@ -322,40 +329,10 @@ export async function add(names: string[], { flags }: AddOptions) {
 			}
 			// The Vercel adapter outputs to .vercel/output which should be gitignored
 			if (integrations.find((integration) => integration.id === 'vercel')) {
-				const gitignorePath = new URL('./.gitignore', root);
-				const gitignoreEntry = '.vercel';
-
-				if (existsSync(gitignorePath)) {
-					const content = await fs.readFile(fileURLToPath(gitignorePath), { encoding: 'utf-8' });
-					if (!content.includes(gitignoreEntry)) {
-						logger.info(
-							'SKIP_FORMAT',
-							`\n  ${magenta(`Astro will add ${green('.vercel')} to ${green('.gitignore')}.`)}\n`,
-						);
-
-						if (await askToContinue({ flags, logger })) {
-							const newContent = content.endsWith('\n')
-								? `${content}${gitignoreEntry}\n`
-								: `${content}\n${gitignoreEntry}\n`;
-							await fs.writeFile(fileURLToPath(gitignorePath), newContent, { encoding: 'utf-8' });
-							logger.debug('add', 'Updated .gitignore with .vercel');
-						}
-					} else {
-						logger.debug('add', '.vercel already in .gitignore');
-					}
-				} else {
-					logger.info(
-						'SKIP_FORMAT',
-						`\n  ${magenta(`Astro will create ${green('.gitignore')} with ${green('.vercel')}.`)}\n`,
-					);
-
-					if (await askToContinue({ flags, logger })) {
-						await fs.writeFile(fileURLToPath(gitignorePath), `${gitignoreEntry}\n`, {
-							encoding: 'utf-8',
-						});
-						logger.debug('add', 'Created .gitignore with .vercel');
-					}
-				}
+				await addToGitignore({ root, flags, logger, entries: ['.vercel'] });
+			}
+			if (integrations.find((integration) => integration.id === 'netlify')) {
+				await addToGitignore({ root, flags, logger, entries: ['.netlify'] });
 			}
 			break;
 		}
@@ -1275,5 +1252,67 @@ async function setupIntegrationConfig(opts: {
 		}
 	} else {
 		logger.debug('add', `Using existing ${opts.integrationName} configuration`);
+	}
+}
+
+async function addToGitignore({
+	root,
+	entries,
+	flags,
+	logger,
+}: {
+	root: URL;
+	entries: string[];
+	flags: Flags;
+	logger: AstroLogger;
+}) {
+	const gitignorePath = new URL('./.gitignore', root);
+	const allEntries = new Intl.ListFormat('en', {
+		style: 'long',
+		type: 'conjunction',
+	}).format(entries);
+
+	if (!existsSync(gitignorePath)) {
+		logger.info(
+			'SKIP_FORMAT',
+			`\n  ${magenta(`Astro will create ${green('.gitignore')} with ${green(allEntries)}.`)}\n`,
+		);
+
+		if (await askToContinue({ flags, logger })) {
+			await fs.writeFile(fileURLToPath(gitignorePath), `${entries.join('\n')}\n`, {
+				encoding: 'utf-8',
+			});
+			logger.debug('add', `Created .gitignore with ${allEntries}`);
+		}
+		return;
+	}
+
+	const entriesToAdd = [];
+	const content = await fs.readFile(fileURLToPath(gitignorePath), { encoding: 'utf-8' });
+	for (const entry of entries) {
+		if (!content.includes(entry)) {
+			entriesToAdd.push(entry);
+		}
+	}
+
+	if (entriesToAdd.length === 0) {
+		logger.debug('add', `${allEntries} already in .gitignore`);
+		return;
+	}
+
+	const gitignoreLabel = new Intl.ListFormat('en', {
+		style: 'long',
+		type: 'conjunction',
+	}).format(entriesToAdd);
+
+	logger.info(
+		'SKIP_FORMAT',
+		`\n  ${magenta(`Astro will add ${green(gitignoreLabel)} to ${green('.gitignore')}.`)}\n`,
+	);
+
+	if (await askToContinue({ flags, logger })) {
+		const newContent = `${content.trimEnd()}\n\n${entriesToAdd.join('\n')}\n`;
+		await fs.writeFile(fileURLToPath(gitignorePath), newContent, { encoding: 'utf-8' });
+		logger.debug('add', `Updated .gitignore with ${gitignoreLabel}`);
 	}
 }
