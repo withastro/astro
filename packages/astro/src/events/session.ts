@@ -1,3 +1,4 @@
+import { detectAgenticEnvironment } from 'am-i-vibing';
 import { AstroConfigSchema } from '../core/config/schemas/index.js';
 import type { AstroUserConfig } from '../types/public/config.js';
 import type { AstroIntegration } from '../types/public/integrations.js';
@@ -10,6 +11,14 @@ interface EventPayload {
 	configKeys?: string[];
 	flags?: string[];
 	optionalIntegrations?: number;
+	/** Whether the CLI session was run by an AI coding agent. */
+	isAgentic?: boolean;
+	/** ID of the detected agent, e.g. "cursor-agent", "claude-code". */
+	agentId?: string;
+	/** Display name of the detected agent, e.g. "Cursor Agent", "Claude Code". */
+	agentName?: string;
+	/** Type of agentic environment: "agent", "interactive", or "hybrid". */
+	agentType?: string;
 }
 
 type ConfigInfoValue = string | boolean | string[] | undefined;
@@ -137,5 +146,19 @@ export function eventCliSession(
 		config: createAnonymousConfigInfo(userConfig),
 		flags: cliFlags,
 	};
+
+	// Detect AI coding agent environment
+	try {
+		const agentInfo = detectAgenticEnvironment();
+		if (agentInfo.isAgentic) {
+			payload.isAgentic = true;
+			if (agentInfo.id) payload.agentId = agentInfo.id;
+			if (agentInfo.name) payload.agentName = agentInfo.name;
+			if (agentInfo.type) payload.agentType = agentInfo.type;
+		}
+	} catch {
+		// Detection failure should never block telemetry
+	}
+
 	return [{ eventName: EVENT_SESSION, payload }];
 }

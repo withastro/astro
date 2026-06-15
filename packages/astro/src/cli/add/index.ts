@@ -64,24 +64,9 @@ export default {
 # Lit libraries are required to be hoisted due to dependency issues.
 public-hoist-pattern[]=*lit*
 `,
-	DB_CONFIG: `\
-import { defineDb } from 'astro:db';
-
-// https://astro.build/db/config
-export default defineDb({
-  tables: {}
-});
-`,
-	DB_SEED: `\
-import { db } from 'astro:db';
-
-// https://astro.build/db/seed
-export default async function seed() {
-	// TODO
-}
-`,
 	CLOUDFLARE_WRANGLER_CONFIG: (name: string, compatibilityDate: string) => `\
 {
+	"$schema": "./node_modules/wrangler/config-schema.json",
 	"compatibility_date": ${JSON.stringify(compatibilityDate)},
 	"compatibility_flags": ["global_fetch_strictly_public"],
 	"name": ${JSON.stringify(name)},
@@ -135,7 +120,6 @@ export async function add(names: string[], { flags }: AddOptions) {
 					['node', 'astro add node'],
 				],
 				Others: [
-					['db', 'astro add db'],
 					['tailwind', 'astro add tailwind'],
 					['mdx', 'astro add mdx'],
 					['markdoc', 'astro add markdoc'],
@@ -234,13 +218,6 @@ export async function add(names: string[], { flags }: AddOptions) {
 					logger,
 					scripts: { 'generate-types': 'wrangler types' },
 				});
-
-				await updatePackageJsonOverrides({
-					configURL,
-					flags,
-					logger,
-					overrides: { vite: '^7' },
-				});
 			}
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
 				const dir = new URL('./styles/', new URL(userConfig.srcDir ?? './src/', root));
@@ -276,33 +253,6 @@ export async function add(names: string[], { flags }: AddOptions) {
 					defaultConfigFile: './svelte.config.js',
 					defaultConfigContent: STUBS.SVELTE_CONFIG,
 				});
-			}
-			if (integrations.find((integration) => integration.id === 'db')) {
-				if (!existsSync(new URL('./db/', root))) {
-					logger.info(
-						'SKIP_FORMAT',
-						`\n  ${magenta(
-							`Astro will scaffold ${green('./db/config.ts')}${magenta(' and ')}${green(
-								'./db/seed.ts',
-							)}${magenta(' files.')}`,
-						)}\n`,
-					);
-
-					if (await askToContinue({ flags, logger })) {
-						await fs.mkdir(new URL('./db', root));
-						await Promise.all([
-							fs.writeFile(new URL('./db/config.ts', root), STUBS.DB_CONFIG, { encoding: 'utf-8' }),
-							fs.writeFile(new URL('./db/seed.ts', root), STUBS.DB_SEED, { encoding: 'utf-8' }),
-						]);
-					} else {
-						logger.info(
-							'SKIP_FORMAT',
-							`\n  Astro DB requires additional configuration. Please refer to https://astro.build/db/config`,
-						);
-					}
-				} else {
-					logger.debug('add', `Using existing db configuration`);
-				}
 			}
 			// Some lit dependencies needs to be hoisted, so for strict package managers like pnpm,
 			// we add an .npmrc to hoist them
@@ -699,67 +649,6 @@ async function updateAstroConfig({
 	if (await askToContinue({ flags, logger })) {
 		await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
 		logger.debug('add', `Updated astro config`);
-		return 'updated';
-	} else {
-		return 'cancelled';
-	}
-}
-
-async function updatePackageJsonOverrides({
-	configURL,
-	flags,
-	logger,
-	overrides,
-}: {
-	configURL: URL;
-	flags: Flags;
-	logger: AstroLogger;
-	overrides: Record<string, string>;
-}): Promise<UpdateResult> {
-	const pkgURL = new URL('./package.json', configURL);
-	if (!existsSync(pkgURL)) {
-		logger.debug('add', 'No package.json found, skipping overrides update');
-		return 'none';
-	}
-
-	const pkgPath = fileURLToPath(pkgURL);
-	const input = await fs.readFile(pkgPath, { encoding: 'utf-8' });
-	const pkgJson = JSON.parse(input);
-
-	pkgJson.overrides ??= {};
-	let hasChanges = false;
-	for (const [name, range] of Object.entries(overrides)) {
-		if (!(name in pkgJson.overrides)) {
-			pkgJson.overrides[name] = range;
-			hasChanges = true;
-		}
-	}
-
-	if (!hasChanges) {
-		return 'none';
-	}
-
-	const output = JSON.stringify(pkgJson, null, 2);
-	const diff = getDiffContent(input, output);
-
-	if (!diff) {
-		return 'none';
-	}
-
-	logger.info(
-		'SKIP_FORMAT',
-		`\n  ${magenta('Astro will add the following overrides to your package.json:')}`,
-	);
-
-	clack.box(diff, 'package.json', {
-		rounded: true,
-		withGuide: false,
-		width: 'auto',
-	});
-
-	if (await askToContinue({ flags, logger })) {
-		await fs.writeFile(pkgPath, output, { encoding: 'utf-8' });
-		logger.debug('add', 'Updated package.json overrides');
 		return 'updated';
 	} else {
 		return 'cancelled';

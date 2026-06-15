@@ -1,5 +1,5 @@
 import type { AstroIntegration, AstroIntegrationLogger, AstroRenderer } from 'astro';
-import type { PluginOption, UserConfig, Plugin } from 'vite';
+import type { PluginOption, Plugin } from 'vite';
 import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
 
 // TODO: keep in sync with https://github.com/thetarnav/solid-devtools/blob/main/packages/main/src/vite/index.ts#L7
@@ -44,15 +44,16 @@ function getViteConfiguration(
 	{ include, exclude }: Options,
 	devtoolsPlugin: DevtoolsPlugin | null,
 ) {
-	const config: UserConfig = {
-		plugins: [solid({ include, exclude, ssr: true }), configEnvironmentPlugin()],
-	};
+	const plugins: PluginOption[] = [
+		solid({ include, exclude, ssr: true }),
+		configEnvironmentPlugin(),
+	];
 
 	if (devtoolsPlugin) {
-		config.plugins?.push(devtoolsPlugin({ autoname: true }));
+		plugins.push(devtoolsPlugin({ autoname: true }));
 	}
 
-	return config;
+	return { plugins };
 }
 
 function getRenderer(): AstroRenderer {

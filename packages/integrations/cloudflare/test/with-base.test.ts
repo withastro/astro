@@ -32,8 +32,8 @@ describe('base', () => {
 		});
 		await fixture.build({
 			vite: { logLevel: 'info' },
-			// @ts-expect-error: logger is internal API
-			logger,
+			// @ts-expect-error: `_logger` is an internal API
+			_logger: logger,
 		});
 	});
 

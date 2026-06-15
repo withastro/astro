@@ -147,12 +147,6 @@
 
     //#region Standalone packages
     {
-      "groupName": "@astrojs/db",
-      "matchManagers": ["npm"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "matchFileNames": ["packages/db/**"]
-    },
-    {
       "groupName": "create-astro",
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["minor", "patch"],

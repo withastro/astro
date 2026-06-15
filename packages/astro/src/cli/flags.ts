@@ -36,11 +36,9 @@ export function flagsToAstroInlineConfig(flags: Flags): AstroInlineConfig {
 		},
 	};
 
-	if (flags.experimentalJson) {
-		inlineConfig.experimental = {
-			logger: {
-				entrypoint: 'astro/logger/json',
-			},
+	if (flags.json) {
+		inlineConfig.logger = {
+			entrypoint: 'astro/logger/json',
 		};
 	}
 
@@ -59,7 +57,7 @@ export function createLoggerFromFlags(flags: Flags): AstroLogger {
 	} else if (flags.silent) {
 		logLevel = 'silent';
 	}
-	if (flags.experimentalJson) {
+	if (flags.json) {
 		return createJsonLoggerFromFlags({ logLevel });
 	} else {
 		return createNodeLoggerFromFlags({ logLevel });

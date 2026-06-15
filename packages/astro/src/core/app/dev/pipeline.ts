@@ -10,9 +10,6 @@ import { type HeadElements, Pipeline, type TryRewriteResult } from '../../base-p
 import { ASTRO_VERSION } from '../../constants.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../../render/ssr-element.js';
 import { findRouteToRewrite } from '../../routing/rewrite.js';
-import { newNodePool } from '../../../runtime/server/render/queue/pool.js';
-import { HTMLStringCache } from '../../../runtime/server/html-string-cache.js';
-import { queueRenderingEnabled } from '../manifest.js';
 
 type DevPipelineCreate = Pick<NonRunnablePipeline, 'logger' | 'manifest' | 'streaming'>;
 
@@ -49,12 +46,6 @@ export class NonRunnablePipeline extends Pipeline {
 			undefined,
 			undefined,
 		);
-		if (queueRenderingEnabled(manifest.experimentalQueuedRendering)) {
-			pipeline.nodePool = newNodePool(manifest.experimentalQueuedRendering!);
-			if (manifest.experimentalQueuedRendering!.contentCache) {
-				pipeline.htmlStringCache = new HTMLStringCache(1000);
-			}
-		}
 		return pipeline;
 	}
 

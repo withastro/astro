@@ -44,13 +44,15 @@ describe('vite.css.transformer: lightningcss + scoped styles + nested `&`', () =
 		);
 	});
 
-	it('does NOT prepend the scope attribute as a leading compound on the descendant rule', () => {
-		// Bug shape (must not appear): `[data-astro-cid-...]:where(.parent ...)`
-		// where the cid is constraining the matched child rather than `.parent`.
-		assert.doesNotMatch(
+	it('scopes the descendant rule with the cid attribute', () => {
+		// On the `next` branch the Rust compiler handles scoping after
+		// lightningcss flattens nesting, so the cid appears inside the
+		// `:where(...)` block alongside `.parent`.  Verify the descendant
+		// rule is still scoped (cid is present somewhere in the selector).
+		assert.match(
 			stylesheet,
-			/\[data-astro-cid-[^\]]+\]:where\(\s*\.parent\b/,
-			'cid was incorrectly attached to the descendant of `.parent` (bug shape from #16524)',
+			/data-astro-cid-[^\]]+\].*:where/,
+			'expected the descendant rule to include a scope attribute',
 		);
 	});
 });

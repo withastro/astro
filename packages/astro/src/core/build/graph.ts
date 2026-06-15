@@ -1,9 +1,9 @@
-import type { GetModuleInfo, ModuleInfo } from 'rollup';
+import type { Rolldown } from 'vite';
 
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
 
 interface ExtendedModuleInfo {
-	info: ModuleInfo;
+	info: Rolldown.ModuleInfo;
 	depth: number;
 	order: number;
 }
@@ -11,7 +11,7 @@ interface ExtendedModuleInfo {
 // This walks up the dependency graph and yields out each ModuleInfo object.
 export function getParentExtendedModuleInfos(
 	id: string,
-	ctx: { getModuleInfo: GetModuleInfo },
+	ctx: { getModuleInfo: Rolldown.GetModuleInfo },
 	until?: (importer: string) => boolean,
 	depth = 0,
 	order = 0,
@@ -51,11 +51,11 @@ export function getParentExtendedModuleInfos(
 
 export function getParentModuleInfos(
 	id: string,
-	ctx: { getModuleInfo: GetModuleInfo },
+	ctx: { getModuleInfo: Rolldown.GetModuleInfo },
 	until?: (importer: string) => boolean,
 	seen = new Set<string>(),
-	accumulated: ModuleInfo[] = [],
-): ModuleInfo[] {
+	accumulated: Rolldown.ModuleInfo[] = [],
+): Rolldown.ModuleInfo[] {
 	seen.add(id);
 
 	const info = ctx.getModuleInfo(id);
@@ -77,7 +77,7 @@ export function getParentModuleInfos(
 
 // Returns true if a module is a top-level page. We determine this based on whether
 // it is imported by the top-level virtual module.
-export function moduleIsTopLevelPage(info: ModuleInfo): boolean {
+export function moduleIsTopLevelPage(info: Rolldown.ModuleInfo): boolean {
 	return (
 		info.importers[0]?.includes(VIRTUAL_PAGE_RESOLVED_MODULE_ID) ||
 		info.dynamicImporters[0]?.includes(VIRTUAL_PAGE_RESOLVED_MODULE_ID)
@@ -88,7 +88,7 @@ export function moduleIsTopLevelPage(info: ModuleInfo): boolean {
 // This could be a .astro page, a .markdown or a .md (or really any file extension for markdown files) page.
 export function getTopLevelPageModuleInfos(
 	id: string,
-	ctx: { getModuleInfo: GetModuleInfo },
-): ModuleInfo[] {
+	ctx: { getModuleInfo: Rolldown.GetModuleInfo },
+): Rolldown.ModuleInfo[] {
 	return getParentModuleInfos(id, ctx).filter(moduleIsTopLevelPage);
 }
