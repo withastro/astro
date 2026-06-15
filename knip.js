@@ -28,6 +28,9 @@ export default {
 		'packages/*': {
 			entry: [srcEntry, dtsEntry, testEntry],
 		},
+		'packages/astro-rss': {
+			entry: [srcEntry, dtsEntry, testEntry, 'build.plugins.mjs'],
+		},
 		'packages/astro': {
 			entry: [
 				// Can't be detected automatically since it's only in package.json#files
