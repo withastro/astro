@@ -43,7 +43,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	}
 
 	/**
-	 * Loads the user's `src/app.ts` (via `virtual:astro:fetchable`) and
+	 * Loads the user's `src/fetch.ts` (via `virtual:astro:fetchable`) and
 	 * sets it as the fetch handler. Called on every request so that HMR
 	 * invalidation of the virtual module is picked up automatically.
 	 * Vite caches the module internally so repeated calls are cheap.
@@ -55,7 +55,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 				this.setFetchHandler(mod.default);
 			}
 		} catch {
-			// If the virtual module fails to load (e.g. no src/app.ts),
+			// If the virtual module fails to load (e.g. no src/fetch.ts),
 			// the DefaultFetchHandler remains in place.
 		}
 	}

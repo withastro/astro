@@ -32,12 +32,12 @@ const pageMap = new Map([
 	],
 ]);
 
-function createAppWithLogger(experimentalLogger?: LoggerHandlerConfig) {
+function createAppWithLogger(loggerConfig?: LoggerHandlerConfig) {
 	return new App(
 		createManifest({
 			routes: [createRouteInfo(indexRoute)],
 			pageMap,
-			experimentalLogger,
+			loggerConfig,
 		}),
 	);
 }
@@ -112,10 +112,8 @@ describe('SSR Logger', () => {
 				output: 'server',
 				adapter: testAdapter(),
 				build: { inlineStylesheets: 'never' },
-				experimental: {
-					logger: {
-						entrypoint: 'astro/logger/json',
-					},
+				logger: {
+					entrypoint: 'astro/logger/json',
 				},
 			});
 			await fixture.build();

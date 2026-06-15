@@ -2,14 +2,10 @@ import type { RouteData, SSRResult } from '../../../types/public/internal.js';
 import { renderToAsyncIterable, renderToReadableStream, renderToString } from './astro/render.js';
 import { encoder } from './common.js';
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
-import { markHTMLString } from '../escape.js';
 import { renderCspContent } from './csp.js';
 import type { AstroComponentFactory } from './index.js';
 import { isDeno, isNode } from './util.js';
 import { isAstroComponentFactory } from './astro/factory.js';
-import { buildRenderQueue } from './queue/builder.js';
-import { renderQueue } from './queue/renderer.js';
-import { chunkToString } from './common.js';
 
 export async function renderPage(
 	result: SSRResult,
@@ -25,63 +21,21 @@ export async function renderPage(
 
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
 
-		let str: string;
-
-		// Check if queue rendering is enabled
-		if (result._experimentalQueuedRendering && result._experimentalQueuedRendering.enabled) {
-			// Queue rendering: Call the component to get the render result,
-			// then process it through the queue system
-
-			// Call the component function to get the vnode tree
-			let vnode = await (componentFactory as any)(pageProps);
-
-			// .html pages return plain strings that are already valid HTML.
-			// Mark them as safe HTML so the queue builder doesn't escape the content.
-			if ((componentFactory as any)['astro:html'] && typeof vnode === 'string') {
-				vnode = markHTMLString(vnode);
-			}
-
-			// Build a render queue from the vnode tree
-			const queue = await buildRenderQueue(
-				vnode,
-				result,
-				result._experimentalQueuedRendering.pool!,
-			);
-
-			// Render the queue to a string
-			let html = '';
-			let renderedFirst = false;
-			const destination = {
-				write(chunk: any) {
-					if (chunk instanceof Response) return;
-
-					// Add doctype if this is the first chunk and it doesn't already have one
-					if (!renderedFirst && !result.partial) {
-						renderedFirst = true;
-						const chunkStr = String(chunk);
-						if (!/<!doctype html/i.test(chunkStr)) {
-							const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
-							html += doctype;
-						}
-					}
-
-					html += chunkToString(result, chunk);
-				},
-			};
-			await renderQueue(queue, destination);
-			str = html;
-		} else {
-			// Standard rendering path (non-MDX or queue rendering disabled)
-			str = await renderComponentToString(
-				result,
-				componentFactory.name,
-				componentFactory,
-				pageProps,
-				{},
-				true,
-				route,
-			);
-		}
+		// Non-Astro page components (MDX, `.html`, and raw framework components
+		// rendered through the Container API) go through `renderComponentToString`,
+		// which dispatches to the correct renderer: the `astro:jsx` renderer for
+		// MDX (which also wraps runtime errors with a helpful hint and streams the
+		// content), the HTML renderer for `.html`, and framework renderers for
+		// components. It also injects the `<head>` for layout-less MDX pages.
+		const str = await renderComponentToString(
+			result,
+			(componentFactory as NonAstroPageComponent).name,
+			componentFactory,
+			pageProps,
+			{},
+			true,
+			route,
+		);
 
 		const bytes = encoder.encode(str);
 		const headers = new Headers([

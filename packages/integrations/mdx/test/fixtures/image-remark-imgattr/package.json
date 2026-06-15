@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/mdx": "workspace:*",
     "astro": "workspace:*"
   },

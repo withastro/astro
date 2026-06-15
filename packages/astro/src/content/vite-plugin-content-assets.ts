@@ -138,6 +138,7 @@ export function astroContentAssetPropagationPlugin({
 					}
 
 					const code = `
+					"use astro:head-inject";
 					async function getMod() {
 						return import(${JSON.stringify(basePath)});
 					}

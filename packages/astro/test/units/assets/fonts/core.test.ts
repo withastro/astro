@@ -1182,6 +1182,7 @@ describe('fonts core', () => {
 							},
 						],
 						style: 'normal',
+						subset: undefined,
 						weight: '400',
 					},
 					{
@@ -1193,6 +1194,7 @@ describe('fonts core', () => {
 							},
 						],
 						style: 'italic',
+						subset: undefined,
 						weight: '500',
 					},
 				],
@@ -1206,6 +1208,59 @@ describe('fonts core', () => {
 							},
 						],
 						style: 'normal',
+						subset: undefined,
+						weight: '400',
+					},
+				],
+			},
+		);
+	});
+
+	it('collectFontData() includes subset from meta', () => {
+		assert.deepStrictEqual(
+			collectFontData([
+				{
+					family: { cssVariable: '--font' },
+					fonts: [
+						{
+							weight: '400',
+							style: 'normal',
+							src: [{ url: 'latin-400.woff2', format: 'woff2' }],
+							meta: { subset: 'latin' },
+						},
+						{
+							weight: '400',
+							style: 'normal',
+							src: [{ url: 'korean-400.woff2', format: 'woff2' }],
+							meta: { subset: 'korean' },
+						},
+					],
+				},
+			]),
+			{
+				'--font': [
+					{
+						src: [
+							{
+								format: 'woff2',
+								tech: undefined,
+								url: 'latin-400.woff2',
+							},
+						],
+						style: 'normal',
+						subset: 'latin',
+						weight: '400',
+					},
+					{
+						src: [
+							{
+								format: 'woff2',
+								tech: undefined,
+								url: 'korean-400.woff2',
+							},
+						],
+						style: 'normal',
+						subset: 'korean',
 						weight: '400',
 					},
 				],

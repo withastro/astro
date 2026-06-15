@@ -1,7 +1,7 @@
-import { db, Likes, eq, sql } from 'astro:db';
 import { defineAction, type SafeResult } from 'astro:actions';
 import { z } from 'astro/zod';
 import { getActionState } from '@astrojs/react/actions';
+import { incrementLikes, setLikes } from '../db/store';
 
 export const server = {
 	blog: {
@@ -11,16 +11,7 @@ export const server = {
 			handler: async ({ postId }) => {
 				await new Promise((r) => setTimeout(r, 1000));
 
-				const { likes } = await db
-					.update(Likes)
-					.set({
-						likes: sql`likes + 1`,
-					})
-					.where(eq(Likes.postId, postId))
-					.returning()
-					.get();
-
-				return likes;
+				return incrementLikes(postId);
 			},
 		}),
 		likeWithActionState: defineAction({
@@ -32,16 +23,7 @@ export const server = {
 				const state = await getActionState<SafeResult<any, number>>(ctx);
 				const previousLikes = state.data ?? 0;
 
-				const { likes } = await db
-					.update(Likes)
-					.set({
-						likes: previousLikes + 1,
-					})
-					.where(eq(Likes.postId, postId))
-					.returning()
-					.get();
-
-				return likes;
+				return setLikes(postId, previousLikes + 1);
 			},
 		}),
 	},
