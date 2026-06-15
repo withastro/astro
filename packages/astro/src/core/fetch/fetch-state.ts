@@ -14,6 +14,7 @@ import type { RouteData, SSRResult } from '../../types/public/internal.js';
 import { AstroCookies } from '../cookies/index.js';
 import { type Pipeline, Slots } from '../render/index.js';
 import {
+	appSymbol,
 	ASTRO_GENERATOR,
 	fetchStateSymbol,
 	originPathnameSymbol,
@@ -34,6 +35,7 @@ import { getParams, getProps } from '../render/index.js';
 import { Rewrites } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
 import { normalizeUrl } from '../util/normalized-url.js';
+import { validateAndDecodePathname } from '../util/pathname.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
 import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
@@ -308,10 +310,12 @@ export class FetchState implements AstroFetchState {
 			this.#applyForwardedHeaders();
 		}
 
-		// Set origin pathname for rewrite tracking.
-		if (!Reflect.get(request, originPathnameSymbol)) {
+		// Set origin pathname for rewrite tracking. Use this.request
+		// (not the local parameter) because #applyForwardedHeaders()
+		// may have reconstructed it with a forwarded URL.
+		if (!Reflect.get(this.request, originPathnameSymbol)) {
 			setOriginPathname(
-				request,
+				this.request,
 				this.pathname,
 				pipeline.manifest.trailingSlash,
 				pipeline.manifest.buildFormat,
@@ -836,9 +840,9 @@ export class FetchState implements AstroFetchState {
 			return;
 		}
 
-		// this.pathname is already decoded by #computePathname, so no
-		// additional decodeURI here — that would double-decode and allow
-		// double-encoded paths like /%2561dmin to bypass route checks.
+		// this.pathname is already fully decoded by #computePathname
+		// (which iteratively decodes all encoding levels), so no
+		// additional decoding is needed here.
 		const matched = pipeline.matchRoute(this.pathname);
 		// In production SSR, prerendered routes are served as static files
 		// by the hosting layer and should not be rendered by the app.
@@ -896,7 +900,7 @@ export class FetchState implements AstroFetchState {
 		}
 		pathname = prependForwardSlash(pathname);
 		try {
-			return decodeURI(pathname);
+			return validateAndDecodePathname(pathname);
 		} catch (e: any) {
 			this.pipeline.logger.error(null, e.toString());
 			return pathname;
@@ -955,6 +959,23 @@ export class FetchState implements AstroFetchState {
 			if (forwardedFor) {
 				this.clientAddress = forwardedFor;
 			}
+		}
+
+		// Reconstruct the Request with the resolved URL so that
+		// request.url stays in sync with this.url. Request.url is a
+		// readonly string, so we must create a new Request object. The
+		// constructor carries over method, headers, body (incl. stream +
+		// duplex) and signal from the old request.
+		const oldRequest = this.request;
+		this.request = new Request(this.url, oldRequest);
+		// Re-attach `appSymbol`: the rest of the pipeline resolves the app
+		// via `getApp(state.request)` (see core/fetch/index.ts), so the new
+		// Request must carry it. We copy only this known Astro symbol.
+		// Other request-bound state is either already captured on
+		// `this` (clientAddress) or set after this point (originPathname).
+		const app = Reflect.get(oldRequest, appSymbol);
+		if (app !== undefined) {
+			Reflect.set(this.request, appSymbol, app);
 		}
 	}
 

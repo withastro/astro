@@ -9,11 +9,9 @@ import { createManifest, createRouteInfo } from './test-helpers.ts';
 /**
  * Tests that double-URL-encoded paths do not bypass middleware authorization.
  *
- * When a path like /api/%2561dmin/users is received, validateAndDecodePathname
- * detects the multi-level encoding and must reject the request rather than
- * silently falling back to a single decodeURI() that leaves middleware
- * seeing a half-decoded pathname (/api/%61dmin/users) that doesn't match
- * its authorization checks.
+ * Multi-level encoding is decoded iteratively so middleware always sees the
+ * canonical path. For example, /api/%2561dmin/users is decoded to
+ * /api/admin/users, which the auth middleware correctly blocks with 401.
  */
 
 const routeOptions: Parameters<typeof parseRoute>[1] = {
@@ -109,25 +107,27 @@ describe('URL normalization: double-encoding middleware bypass', () => {
 		);
 	});
 
-	it('rejects double-encoded /api/%2561dmin/users with 400', async () => {
+	it('middleware blocks double-encoded /api/%2561dmin/users (iteratively decoded)', async () => {
+		// Double-encoded: %2561 → %61 → a. Middleware sees /api/admin/users
+		// and correctly returns 401 Unauthorized.
 		const app = createApp(createAuthMiddleware());
 		const request = new Request('http://example.com/api/%2561dmin/users');
 		const response = await app.render(request);
 		assert.equal(
 			response.status,
-			400,
-			'/api/%2561dmin/users should be rejected as a bad request, not served',
+			401,
+			'/api/%2561dmin/users should be blocked by middleware (decoded to /api/admin/users)',
 		);
 	});
 
-	it('rejects double-encoded paths with multiple encoded segments', async () => {
+	it('middleware blocks double-encoded paths with multiple encoded segments', async () => {
 		const app = createApp(createAuthMiddleware());
 		const request = new Request('http://example.com/api/%2561dmin/%75sers');
 		const response = await app.render(request);
 		assert.equal(
 			response.status,
-			400,
-			'/api/%2561dmin/%75sers should be rejected as a bad request',
+			401,
+			'/api/%2561dmin/%75sers should be blocked by middleware (decoded to /api/admin/users)',
 		);
 	});
 
@@ -161,10 +161,6 @@ describe('URL normalization: double-encoding middleware bypass', () => {
 	// #region False-positive regression tests (issue #16781)
 
 	it('accepts encodeURIComponent output with a literal % next to a reserved char', async () => {
-		// encodeURIComponent('%?.pdf') → '%25%3F.pdf'. After decodeURI, %25 → %
-		// and %3F stays (reserved), yielding '%%3F.pdf'. The pre-decode pattern
-		// %25%3F is not multi-level encoding (the byte after %25 is `%`, not hex),
-		// so it must reach the handler instead of being rejected as a bad request.
 		const app = createApp(createAuthMiddleware());
 		const filename = encodeURIComponent('%?.pdf');
 		const request = new Request(`http://example.com/api/uploads/${filename}`);
@@ -193,30 +189,46 @@ describe('URL normalization: double-encoding middleware bypass', () => {
 	});
 
 	// #endregion
-	// #region Defense-in-depth: creative triple-encoding
+	// #region Double-encoded non-admin paths (issue #16960 — Sanity Studio)
+	// These should be decoded and served, not rejected.
 
-	it('rejects creative triple-encoding where hex digits in %25XX are themselves encoded', async () => {
-		// %25%32%3561dmin: %25 → %, %32 → 2, %35 → 5 → decoded = %2561dmin
-		// Post-decode regex catches the reassembled %2561 signature
+	it('serves double-encoded non-admin API routes', async () => {
+		const app = createApp(createAuthMiddleware());
+		// %255B → %5B → [, %255D → %5D → ]
+		const request = new Request('http://example.com/api/sections%255B_key%255D');
+		const response = await app.render(request);
+		assert.equal(response.status, 200, '/api/sections%255B_key%255D should be accessible');
+		const body = await response.json();
+		assert.equal(body.path, 'sections[_key]');
+	});
+
+	// #endregion
+	// #region Creative triple-encoding (decoded, middleware still catches attacks)
+
+	it('middleware blocks creative triple-encoding that decodes to /api/admin', async () => {
+		// %25%32%3561dmin: %25 → %, %32 → 2, %35 → 5 → pass 1 = %2561dmin
+		// → pass 2 = %61dmin → pass 3 = admin
+		// Middleware sees /api/admin and blocks it.
 		const app = createApp(createAuthMiddleware());
 		const request = new Request('http://example.com/api/%25%32%3561dmin/users');
 		const response = await app.render(request);
 		assert.equal(
 			response.status,
-			400,
-			'creative triple-encoding %25%32%3561dmin should be rejected',
+			401,
+			'creative triple-encoding %25%32%3561dmin should be blocked by middleware',
 		);
 	});
 
-	it('rejects creative encoding that reassembles %2525 after one decode', async () => {
-		// %25%32%35%32%35 → decodeURI → %2525 → post-decode regex catches %2525
+	it('serves creative encoding that decodes to a non-admin path', async () => {
+		// %25%32%35%32%35 → decodeURI → %2525 → %25 → %
+		// This decodes to just "%", which is a non-admin path.
 		const app = createApp(createAuthMiddleware());
 		const request = new Request('http://example.com/api/%25%32%35%32%35');
 		const response = await app.render(request);
 		assert.equal(
 			response.status,
-			400,
-			'creative encoding that reassembles %2525 should be rejected',
+			200,
+			'creative encoding that decodes to a non-admin path should be served',
 		);
 	});
 	// #endregion

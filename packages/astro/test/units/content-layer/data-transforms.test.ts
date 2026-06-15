@@ -514,4 +514,61 @@ describe('Content Layer - Data Transforms', () => {
 		// The default is applied as a string, not transformed to a reference object
 		assert.equal(result2.data.category, 'general');
 	});
+
+	it('transforms numeric ids to strings', async () => {
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root);
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		// Create a loader that returns data with reference strings
+		const dogsLoader = {
+			name: 'dogs-loader',
+			load: async (context: any) => {
+				const data = {
+					id: 'beagle',
+					name: 'Beagle Dog',
+					favoriteCat: 1,
+				};
+
+				const parsed = await context.parseData({
+					id: 'beagle',
+					data,
+				});
+
+				await context.store.set({
+					id: 'beagle',
+					data: parsed,
+				});
+			},
+		};
+
+		const collections = {
+			dogs: defineCollection({
+				loader: dogsLoader,
+				schema: z.object({
+					id: z.string(),
+					name: z.string(),
+					favoriteCat: reference('cats'),
+				}),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		const result: any = store.get('dogs', 'beagle');
+		assert.ok(result);
+		assert.equal(result.data.id, 'beagle');
+		assert.equal(result.data.name, 'Beagle Dog');
+		assert.deepEqual(result.data.favoriteCat, { collection: 'cats', id: '1' });
+	});
 });

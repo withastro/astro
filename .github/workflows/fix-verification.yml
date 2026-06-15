@@ -25,8 +25,8 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read # Read repo for flue agent
-      issues: write # Remove label, post comment
-      pull-requests: write # Create PR, add labels
+      issues: read # Read issue details
+      pull-requests: read # Read PR state
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -53,5 +53,4 @@ jobs:
         run: |
           pnpm exec flue run fix-verification \
             --target node \
-            --id "fix-verification-$ISSUE_NUMBER" \
             --payload "{\"issueNumber\": $ISSUE_NUMBER}"

@@ -1,0 +1,16 @@
+---
+import '../../styles/global.css';
+
+export function getStaticPaths() {
+	return [{ params: { slug: 'test' } }];
+}
+
+const { slug } = Astro.params;
+---
+
+<html>
+	<head></head>
+	<body>
+		<p class="hmr-target">Post: {slug}</p>
+	</body>
+</html>
