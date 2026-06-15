@@ -39,7 +39,11 @@ describe('FetchState with allowedDomains and prerendered routes', () => {
 			waitUntil: undefined,
 		});
 
-		assert.equal(headersAccessed, false, 'request.headers should not be accessed for prerendered routes');
+		assert.equal(
+			headersAccessed,
+			false,
+			'request.headers should not be accessed for prerendered routes',
+		);
 	});
 
 	it('accesses request.headers for non-prerendered routes when allowedDomains is set', () => {
@@ -75,6 +79,10 @@ describe('FetchState with allowedDomains and prerendered routes', () => {
 			waitUntil: undefined,
 		});
 
-		assert.equal(headersAccessed, true, 'request.headers should be accessed for non-prerendered routes');
+		assert.equal(
+			headersAccessed,
+			true,
+			'request.headers should be accessed for non-prerendered routes',
+		);
 	});
 });

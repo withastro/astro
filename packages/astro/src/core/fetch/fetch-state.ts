@@ -290,7 +290,11 @@ export class FetchState implements AstroFetchState {
 		// allowedDomains — without it, forwarded headers are never trusted
 		// and the validation is a no-op. This avoids header lookups on the
 		// hot path for the vast majority of apps.
-		if (pipeline.manifest.allowedDomains && pipeline.manifest.allowedDomains.length > 0 && !this.routeData?.prerender) {
+		if (
+			pipeline.manifest.allowedDomains &&
+			pipeline.manifest.allowedDomains.length > 0 &&
+			!this.routeData?.prerender
+		) {
 			this.#applyForwardedHeaders();
 		}
 
