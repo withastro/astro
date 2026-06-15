@@ -20,6 +20,13 @@ export const MIDDLEWARE_MODULE_ID = 'virtual:astro:middleware';
 const MIDDLEWARE_RESOLVED_MODULE_ID = '\0' + MIDDLEWARE_MODULE_ID;
 const NOOP_MIDDLEWARE = '\0noop-middleware';
 
+export function isMiddlewarePath(relativePath: string): boolean {
+	return (
+		relativePath.startsWith(`${MIDDLEWARE_PATH_SEGMENT_NAME}.`) ||
+		relativePath.startsWith(`${MIDDLEWARE_PATH_SEGMENT_NAME}/`)
+	);
+}
+
 export function vitePluginMiddleware({ settings }: { settings: AstroSettings }): VitePlugin {
 	let resolvedMiddlewareId: string | undefined = undefined;
 	const hasIntegrationMiddleware =
@@ -43,8 +50,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				// Check if the changed file is a middleware file under srcDir
 				if (!normalizedPath.startsWith(normalizedSrcDir)) return;
 				const relativePath = normalizedPath.slice(normalizedSrcDir.length);
-				// Dot ensures we match "middleware.ts" but not e.g. "middleware-utils.ts"
-				if (!relativePath.startsWith(`${MIDDLEWARE_PATH_SEGMENT_NAME}.`)) return;
+				if (!isMiddlewarePath(relativePath)) return;
 
 				for (const name of [
 					ASTRO_VITE_ENVIRONMENT_NAMES.ssr,

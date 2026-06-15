@@ -243,6 +243,51 @@
 - [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Fixes `--port` flag being ignored after a Vite-triggered server restart (e.g. when a `.env` file changes)
 
 - [#16434](https://github.com/withastro/astro/pull/16434) [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where i18n domains would return 404 when `trailingSlash` is set to `never`.
+## 6.4.7
+
+### Patch Changes
+
+- [#17035](https://github.com/withastro/astro/pull/17035) [`197e50e`](https://github.com/withastro/astro/commit/197e50e2e37168a9b9e8a014c13d1308b2220ca1) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `getRelativeLocaleUrl`, `getAbsoluteLocaleUrl`, and `getAbsoluteLocaleUrlList` to strip trailing slashes when `trailingSlash: 'never'` is configured
+
+- [#16967](https://github.com/withastro/astro/pull/16967) [`3719765`](https://github.com/withastro/astro/commit/37197652630ffbc11efaaec1865869410b8dfd70) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes double URL-encoded paths returning 400 Bad Request on on-demand routes
+
+  Previously, any URL containing a double-encoded character (like `%255B`, which is `[` encoded twice) was unconditionally rejected with a `400 Bad Request` before middleware or route handlers could run. This broke embedded tools like Sanity Studio whose client-side router legitimately produces double-encoded URLs.
+
+  The fix replaces the rejection approach with iterative decoding — multi-level percent-encoding is now fully resolved to its canonical form before being passed to middleware and route matching. This preserves the security fix for CVE-2025-66202 (middleware authorization bypass via double encoding) because middleware now always sees the fully decoded path, making bypass impossible. For example, `/api/%2561dmin` is decoded to `/api/admin`, which middleware can correctly block.
+
+- [#17066](https://github.com/withastro/astro/pull/17066) [`2f4d92a`](https://github.com/withastro/astro/commit/2f4d92a72b00354114359b5746d573fbfd3b334f) Thanks [@matthewp](https://github.com/matthewp)! - Fixes prerendered redirect targets being incorrectly bundled into the SSR function in hybrid mode, causing massive bundle size inflation
+
+- [#16882](https://github.com/withastro/astro/pull/16882) [`621beb7`](https://github.com/withastro/astro/commit/621beb70fe957ecc73c3407c240392507613e0fd) Thanks [@jettwayio](https://github.com/jettwayio)! - fix(render): honour compressHTML when joining head elements
+
+- [#16892](https://github.com/withastro/astro/pull/16892) [`8d753b0`](https://github.com/withastro/astro/commit/8d753b0b671971b78e7064fe38c2b0b518823627) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes custom elements in MDX having their children's `slot` attribute stripped by the JSX runtime
+
+  When custom elements (tags with hyphens like `<my-element>`) are used in MDX files, the `slot` HTML attribute on their children is now correctly preserved. Previously, the shared JSX runtime would treat `slot` as an Astro slot assignment and remove it from the output, breaking Shadow DOM named slot distribution for web components.
+
+- [#16957](https://github.com/withastro/astro/pull/16957) [`544ee76`](https://github.com/withastro/astro/commit/544ee763d7f7894e3b588daa14b09ef32a4d794a) Thanks [@thelazylamaGit](https://github.com/thelazylamaGit)! - Fixes stale inline CSS in server-rendered HTML after CSS file edits during dev
+
+  When editing a CSS file (`.css`, `.scss`, etc.) during development, the inline `<style>` tags in server-rendered HTML would retain old CSS content instead of updating. This caused a brief flash of old CSS (FOUC) on fresh page loads before Vite's client-side HMR corrected the styles.
+
+  The fix ensures that Astro's per-route dev CSS virtual modules are invalidated in both the SSR module graph and the module runner's evaluation cache when a style file changes, so the next page render picks up the fresh CSS.
+
+- [#17044](https://github.com/withastro/astro/pull/17044) [`2220d22`](https://github.com/withastro/astro/commit/2220d22f8c7278988560d0e4b4f378c9967e9bae) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes CSS from `client:only` islands leaking to unrelated pages when Rollup bundles non-CSS-importing modules into the same chunk as CSS-importing modules
+
+- [#17040](https://github.com/withastro/astro/pull/17040) [`7c4763d`](https://github.com/withastro/astro/commit/7c4763d31b94ccbdc2339992d73e087912e5b8e3) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes HMR not triggering for files inside the `src/middleware/` directory during dev
+
+- [#16672](https://github.com/withastro/astro/pull/16672) [`52fc862`](https://github.com/withastro/astro/commit/52fc86213e6412b6f9f3b70a2616d52b5fb783a9) Thanks [@martinheidegger](https://github.com/martinheidegger)! - Fixes support for numeric IDs in YAML frontmatter when using content collection references
+
+- [#16762](https://github.com/withastro/astro/pull/16762) [`9de80ae`](https://github.com/withastro/astro/commit/9de80ae486bc43c8680fda099a125d836e78b552) Thanks [@alexanderdombroski](https://github.com/alexanderdombroski)! - Adds a JSON schema to the Wrangler configuration file generated when running `astro add cloudflare`
+
+- [#17046](https://github.com/withastro/astro/pull/17046) [`ef771ec`](https://github.com/withastro/astro/commit/ef771ece349eedb6e0b3b240b020fb96df208a92) Thanks [@ematipico](https://github.com/ematipico)! - Improves the diagnostics emitted when Astro parses incorrect `.astro` files.
+
+## 6.4.6
+
+### Patch Changes
+
+- [#16765](https://github.com/withastro/astro/pull/16765) [`b10e86e`](https://github.com/withastro/astro/commit/b10e86e6dbaf04678127c86366befc0b78a164f6) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes an issue where renaming an image file while the dev server is running triggers a build error. Now Astro correctly hot-reloads the image without crashing.
+
+- [#17026](https://github.com/withastro/astro/pull/17026) [`add3df1`](https://github.com/withastro/astro/commit/add3df10fdaff469ae0228f09d99290de170029a) Thanks [@matthewp](https://github.com/matthewp)! - Hardens `addAttribute` to drop attribute names containing characters that are invalid per the HTML spec (`"`, `'`, `>`, `/`, `=`, whitespace)
+
+- [#17033](https://github.com/withastro/astro/pull/17033) [`ffda27b`](https://github.com/withastro/astro/commit/ffda27b7c8697d4b7ed530e93385a420e1fc4acd) Thanks [@matthewp](https://github.com/matthewp)! - Validates the request origin against `allowedDomains` before fetching prerendered error pages. When `allowedDomains` is configured and the Host header matches, the original origin is used. Otherwise, the fetch falls back to `localhost`.
 
 ## 6.4.5
 

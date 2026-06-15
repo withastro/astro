@@ -35,8 +35,13 @@ export async function run({ init, payload }: FlueContext) {
 	// Conflicts have already been resolved by the merge-resolve workflow.
 	// Dependencies are installed but packages may NOT be built yet — the skill
 	// handles building and fixing any errors that come up.
-	const { data: fixResult } = await session.skill('merge/fix-ci.md', {
-		args: { prNumber, ciLogs },
+	const { data: fixResult } = await session.skill('merge', {
+		args: {
+			prNumber,
+			ciLogs,
+			step: 'fix-ci',
+			instructions: 'Run only the "fix-ci" sub-skill from fix-ci.md.',
+		},
 		result: v.object({
 			ciPass: v.pipe(v.boolean(), v.description('true if build + tests pass after fixes')),
 			fixedFiles: v.pipe(

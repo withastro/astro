@@ -74,18 +74,17 @@ describe('Custom Fetch for Error Pages', () => {
 			assert.equal($('h1').text(), 'Custom Fetch Response');
 		});
 
-		it('falls back to global fetch when preRenderedFetch is not provided', async () => {
+		it('falls back to global fetch with localhost origin when preRenderedFetch is not provided', async () => {
 			const request = new Request('http://example.com/not-found');
 			const response = await app.render(request);
 
 			// Verify our custom fetch was NOT called
 			assert.equal(fetchCalls.length, 0);
 
-			// Response should be the default 404 page
+			// Without allowedDomains, the error page fetch origin is rewritten
+			// to localhost (not the request's Host header), so global fetch will
+			// fail to connect and the response falls back to a plain 404.
 			assert.equal(response.status, 404);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-			assert.equal($('h1').text(), 'Example Domain'); // actual fetch requesting example.com and gets that.
 		});
 	});
 });

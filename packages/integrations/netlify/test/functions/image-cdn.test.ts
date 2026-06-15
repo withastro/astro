@@ -89,7 +89,11 @@ describe('Image CDN', { timeout: 120000 }, () => {
 
 		it('generates correct config for remotePatterns', async () => {
 			const patterns = regexes[2]!;
-			assert.equal(patterns.test('https://example.org/images/1.jpg'), true, 'should match domain');
+			assert.equal(
+				patterns.test('https://example.org/images/1.jpg'),
+				false,
+				'apex hostname should not match for *.example.org',
+			);
 			assert.equal(
 				patterns.test('https://www.example.org/images/2.jpg'),
 				true,
@@ -104,6 +108,11 @@ describe('Image CDN', { timeout: 120000 }, () => {
 				patterns.test('https://example.org/not-images/2.jpg'),
 				false,
 				'wrong path should not match',
+			);
+			assert.equal(
+				patterns.test('https://www.example.org/images/a/b.jpg'),
+				false,
+				'deeper path should not match for /images/*',
 			);
 		});
 
