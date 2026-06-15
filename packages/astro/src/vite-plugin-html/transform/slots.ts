@@ -1,4 +1,4 @@
-import type { Root, RootContent } from 'hast';
+import type { Node as HastNode, Root, RootContent } from 'hast';
 import type MagicString from 'magic-string';
 import type { Plugin } from 'unified';
 import { visit } from 'unist-util-visit';
@@ -14,10 +14,11 @@ const rehypeSlots: Plugin<[{ s: MagicString }], Root> = ({ s }) => {
 				const end = node.position?.end.offset ?? 0;
 				const first = node.children.at(0) ?? node;
 				const last = node.children.at(-1) ?? node;
+				// HACK: Sätteri's `raw` hast node types out `position` due to a bug, so casting for now
 				const text = file.value
 					.slice(
-						(first as any).position?.start.offset ?? 0,
-						(last as any).position?.end.offset ?? 0,
+						(first as HastNode).position?.start.offset ?? 0,
+						(last as HastNode).position?.end.offset ?? 0,
 					)
 					.toString();
 				s.overwrite(

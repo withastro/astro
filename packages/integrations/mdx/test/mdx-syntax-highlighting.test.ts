@@ -64,7 +64,23 @@ describe('MDX syntax highlighting', () => {
 				root: FIXTURE_ROOT,
 				markdown: {
 					syntaxHighlight: 'prism',
-					// Prism is only available on the remark/rehype pipeline.
+				},
+				integrations: [mdx()],
+			});
+			await fixture.build();
+
+			const html = await fixture.readFile('/index.html');
+			const { document } = parseHTML(html);
+
+			const prismCodeBlock = document.querySelector('pre.language-astro');
+			assert.notEqual(prismCodeBlock, null);
+		});
+
+		it('works on the remark/rehype pipeline', async () => {
+			const fixture = await loadFixture({
+				root: FIXTURE_ROOT,
+				markdown: {
+					syntaxHighlight: 'prism',
 					processor: unified(),
 				},
 				integrations: [mdx()],
@@ -84,8 +100,6 @@ describe('MDX syntax highlighting', () => {
 					root: FIXTURE_ROOT,
 					markdown: {
 						syntaxHighlight: 'shiki',
-						// `mdx({ syntaxHighlight: 'prism' })` needs the remark/rehype pipeline.
-						processor: unified(),
 					},
 					integrations: [
 						mdx({

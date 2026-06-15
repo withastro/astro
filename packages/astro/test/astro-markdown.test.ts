@@ -63,15 +63,29 @@ describe('Astro Markdown', () => {
 		});
 
 		it('handles Prism', async () => {
-			// Prism is only supported by the remark/rehype pipeline, so opt into `unified()`
-			// explicitly — the default `satteri()` processor rejects `syntaxHighlight: 'prism'`.
+			const prismFixture = await loadFixture({
+				root: FIXTURE_ROOT,
+				markdown: {
+					syntaxHighlight: 'prism',
+				},
+				outDir: './dist/astro-markdown-syntax-highlighting/',
+			});
+			await prismFixture.build();
+
+			const html = await prismFixture.readFile('/code-in-md/index.html');
+			const $ = cheerio.load(html);
+
+			assert.notEqual($('pre.language-html').length, 0);
+		});
+
+		it('handles Prism on the remark/rehype pipeline', async () => {
 			const prismFixture = await loadFixture({
 				root: FIXTURE_ROOT,
 				markdown: {
 					processor: unified(),
 					syntaxHighlight: 'prism',
 				},
-				outDir: './dist/astro-markdown-syntax-highlighting/',
+				outDir: './dist/astro-markdown-syntax-highlighting-unified/',
 			});
 			await prismFixture.build();
 
