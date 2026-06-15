@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type * as vite from 'vite';
+import type { Rolldown } from 'vite';
 import { generateContentHash } from '../../core/encryption.js';
 import { prependForwardSlash, slash } from '../../core/path.js';
 import type { ImageMetadata } from '../types.js';
@@ -9,7 +9,7 @@ import { imageMetadata } from './metadata.js';
 
 export { hashTransform, propsToFilename } from './hash.js';
 
-type FileEmitter = vite.Rollup.EmitFile;
+type FileEmitter = (opts: Parameters<Rolldown.PluginContext['emitFile']>[0]) => string;
 type ImageMetadataWithContents = ImageMetadata & { contents?: Buffer };
 
 type SvgCacheKey = { hash: string };
@@ -42,7 +42,7 @@ async function handleSvgDeduplication(
 
 	if (existing) {
 		// Emit file again with the same filename to get a new handle
-		// This ensures Rollup knows about this handle while maintaining deduplication on disk
+		// This ensures Rolldown knows about this handle while maintaining deduplication on disk
 		const handle = fileEmitter({
 			name: existing.filename,
 			source: fileData,

@@ -70,7 +70,7 @@ describe('Markdown tests', () => {
 
 		it('Does not unescape entities', async () => {
 			const html = await fixture.readFile('/entities/index.html');
-			assert.match(html, /&#x3C;i>This should NOT be italic&#x3C;\/i>/);
+			assert.match(html, /&lt;i&gt;This should NOT be italic&lt;\/i&gt;/);
 		});
 
 		it('Resolves the image paths correctly', async () => {

@@ -15,25 +15,6 @@ declare global {
 		 * Optionally type the data stored in the session
 		 */
 		export interface SessionData {}
-
-		/**
-		 * Declare custom context providers to get typed access on `Astro` and `ctx`.
-		 * Libraries and users register providers via `state.provide(key, { create, finalize? })`,
-		 * and the corresponding types are declared here using module augmentation.
-		 *
-		 * Built-in providers like `session` are already typed by Astro and don't
-		 * need to be declared here.
-		 *
-		 * @example
-		 * ```ts
-		 * declare namespace App {
-		 *   interface Providers {
-		 *     oauth: import('./lib/oauth').OAuthSession;
-		 *   }
-		 * }
-		 * ```
-		 */
-		export interface Providers {}
 	}
 
 	namespace Astro {

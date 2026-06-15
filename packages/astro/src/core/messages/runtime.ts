@@ -179,12 +179,6 @@ export function fsStrictWarning() {
 	return `${title}\n${subtitle}\n`;
 }
 
-export function vite8Warning({ viteVersion }: { viteVersion: string }) {
-	const title = yellow('▶ ' + `Vite ${bold(viteVersion)} detected in your project.`);
-	const subtitle = `  Astro requires Vite 7. Add ${bold('"overrides": { "vite": "^7" }')} to your ${bold('package.json')} to avoid issues.`;
-	return `${title}\n${subtitle}\n`;
-}
-
 export function prerelease({ currentVersion }: { currentVersion: string }) {
 	const tag = currentVersion.split('-').slice(1).join('-').replace(/\..*$/, '') || 'unknown';
 	const badge = bgYellow(black(` ${tag} `));

@@ -43,7 +43,8 @@ describe('astro:env public variables', () => {
 		});
 
 		it('throws if server module is called on the client', async () => {
-			const error = await fixture.build().catch((err) => err);
+			let error = await fixture.build().catch((err) => err);
+			error = error.errors[0];
 			assert.equal(error instanceof AstroError, true);
 			assert.equal(error.name, ServerOnlyModule.name);
 		});

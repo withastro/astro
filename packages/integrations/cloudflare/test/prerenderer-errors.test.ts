@@ -19,7 +19,7 @@ describe('Cloudflare prerenderer errors', () => {
 	it('includes workerd error details when getStaticPaths fails', async () => {
 		await assert.rejects(
 			async () => {
-				await fixture.build({}, { teardownCompiler: true });
+				await fixture.build({});
 			},
 			(error) => {
 				assert.ok(error instanceof Error);

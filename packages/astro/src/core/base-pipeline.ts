@@ -27,14 +27,12 @@ import { Router } from './routing/router.js';
 import type { CacheProvider, CacheProviderFactory } from './cache/types.js';
 import type { CompiledCacheRoute } from './cache/runtime/route-matching.js';
 import type { SessionDriverFactory } from './session/types.js';
-import { NodePool } from '../runtime/server/render/queue/pool.js';
-import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
 import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
 import { loadLogger } from './logger/load.js';
 
 /**
  * Bit flags for pipeline features that handler classes register as
- * "used" when a custom `src/app.ts` fetch handler is in play. After the
+ * "used" when a custom `src/fetch.ts` fetch handler is in play. After the
  * first request (dev) or at runtime (prod SSR), we compare against the
  * manifest to warn about features the user configured but forgot to
  * include in their custom pipeline.
@@ -72,13 +70,11 @@ export abstract class Pipeline {
 	resolvedSessionDriver: SessionDriverFactory | null | undefined = undefined;
 	resolvedCacheProvider: CacheProvider | null | undefined = undefined;
 	compiledCacheRoutes: CompiledCacheRoute[] | undefined = undefined;
-	nodePool: NodePool | undefined;
-	htmlStringCache: HTMLStringCache | undefined;
 
 	/**
 	 * Bit mask of pipeline features activated by handler classes.
 	 * Each handler sets its bit via `|=`. Only meaningful when a
-	 * custom `src/app.ts` fetch handler is in use.
+	 * custom `src/fetch.ts` fetch handler is in use.
 	 */
 	usedFeatures = 0;
 
@@ -194,16 +190,6 @@ export abstract class Pipeline {
 		// the manual strategy still register their own middleware via
 		// `astro:i18n.middleware(...)`.
 		this.internalMiddleware = [];
-
-		if (manifest.experimentalQueuedRendering.enabled) {
-			this.nodePool = this.createNodePool(
-				manifest.experimentalQueuedRendering.poolSize ?? 1000,
-				false,
-			);
-			if (manifest.experimentalQueuedRendering.contentCache) {
-				this.htmlStringCache = this.createStringCache();
-			}
-		}
 	}
 
 	/**
@@ -302,7 +288,7 @@ export abstract class Pipeline {
 
 	/**
 	 * Resolves the logger destination from the manifest and updates the pipeline logger.
-	 * If the user configured `experimental.logger`, the bundled logger factory is loaded
+	 * If the user configured `logger`, the bundled logger factory is loaded
 	 * and replaces the default console destination. This is lazy and only resolves once.
 	 */
 	async getLogger(): Promise<AstroLogger> {
@@ -310,8 +296,8 @@ export abstract class Pipeline {
 			return this.logger;
 		}
 		this.resolvedLogger = true;
-		if (this.manifest.experimentalLogger) {
-			this.logger = await loadLogger(this.manifest.experimentalLogger);
+		if (this.manifest.loggerConfig) {
+			this.logger = await loadLogger(this.manifest.loggerConfig);
 		}
 		return this.logger;
 	}
@@ -435,14 +421,6 @@ export abstract class Pipeline {
 				"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue.",
 			);
 		}
-	}
-
-	public createNodePool(poolSize: number, stats: boolean): NodePool {
-		return new NodePool(poolSize, stats);
-	}
-
-	public createStringCache(): HTMLStringCache {
-		return new HTMLStringCache(1000);
 	}
 }
 

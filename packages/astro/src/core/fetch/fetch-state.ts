@@ -35,6 +35,7 @@ import { getParams, getProps } from '../render/index.js';
 import { Rewrites } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
 import { normalizeUrl } from '../util/normalized-url.js';
+import { validateAndDecodePathname } from '../util/pathname.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
 import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
@@ -46,6 +47,8 @@ import { getFirstForwardedValue, validateForwardedHeaders } from '../app/validat
  * Describes a lazily-created value that handlers can contribute to the
  * request context. `create` is called at most once (on first `resolve`);
  * `finalize` runs during `finalizeAll` to clean up / persist.
+ *
+ * @internal Not for use by 3rd-party code. May change without notice.
  */
 export interface ContextProvider<T> {
 	/** Factory called lazily on the first `resolve(key)`. */
@@ -92,24 +95,6 @@ export interface AstroFetchState {
 	 * [Astro reference](https://docs.astro.build/en/guides/routing/#rewrites)
 	 */
 	rewrite(payload: RewritePayload): Promise<Response>;
-
-	/**
-	 * Registers a context provider under the given key. The `create`
-	 * factory is called lazily on the first `resolve(key)`.
-	 */
-	provide<T>(key: string, provider: ContextProvider<T>): void;
-
-	/**
-	 * Lazily resolves a provider registered under `key`. Returns
-	 * `undefined` if no provider was registered for the key.
-	 */
-	resolve<T>(key: string): T | undefined;
-
-	/**
-	 * Runs all registered provider `finalize` callbacks. Call this after
-	 * the response is produced, typically in a `finally` block.
-	 */
-	finalizeAll(): Promise<void> | void;
 }
 
 /**
@@ -305,7 +290,11 @@ export class FetchState implements AstroFetchState {
 		// allowedDomains — without it, forwarded headers are never trusted
 		// and the validation is a no-op. This avoids header lookups on the
 		// hot path for the vast majority of apps.
-		if (pipeline.manifest.allowedDomains && pipeline.manifest.allowedDomains.length > 0) {
+		if (
+			pipeline.manifest.allowedDomains &&
+			pipeline.manifest.allowedDomains.length > 0 &&
+			!this.routeData?.prerender
+		) {
 			this.#applyForwardedHeaders();
 		}
 
@@ -408,13 +397,6 @@ export class FetchState implements AstroFetchState {
 			},
 			key: manifest.key,
 			trailingSlash: manifest.trailingSlash,
-			_experimentalQueuedRendering: {
-				pool: pipeline.nodePool,
-				htmlStringCache: pipeline.htmlStringCache,
-				enabled: manifest.experimentalQueuedRendering?.enabled,
-				poolSize: manifest.experimentalQueuedRendering?.poolSize,
-				contentCache: manifest.experimentalQueuedRendering?.contentCache,
-			},
 			_metadata: {
 				hasHydrationScript: false,
 				rendererSpecificHydrationScripts: new Set(),
@@ -783,13 +765,41 @@ export class FetchState implements AstroFetchState {
 	 * Used by context creation (APIContext, Astro global) so that
 	 * provider values like `session` and `cache` appear as properties
 	 * without hard-coding the keys.
+	 *
+	 * Always defines a `session` getter (returning `undefined` when no
+	 * provider is registered) so `ctx.session` / `Astro.session` is a
+	 * present property regardless of whether the sessions handler was
+	 * included in the pipeline.
 	 */
 	defineProviderGetters(target: Record<string, any>): void {
-		if (!this.#providers) return;
 		const state = this;
-		for (const key of this.#providers.keys()) {
-			Object.defineProperty(target, key, {
-				get: () => state.resolve(key),
+		if (this.#providers) {
+			for (const key of this.#providers.keys()) {
+				Object.defineProperty(target, key, {
+					get: () => state.resolve(key),
+					enumerable: true,
+					configurable: true,
+				});
+			}
+		}
+		// Ensure `session` is always a defined property even when the
+		// sessions handler is not part of the pipeline. Warns once on
+		// access so users know they need to configure session storage.
+		if (!this.#providers?.has('session')) {
+			let warned = false;
+			Object.defineProperty(target, 'session', {
+				get() {
+					if (!warned) {
+						warned = true;
+						state.pipeline.logger.warn(
+							'session',
+							'`Astro.session` was accessed but no session storage is configured. ' +
+								'Either configure the storage manually or use an adapter that provides session storage. ' +
+								'For more information, see https://docs.astro.build/en/guides/sessions/',
+						);
+					}
+					return undefined;
+				},
 				enumerable: true,
 				configurable: true,
 			});
@@ -839,9 +849,9 @@ export class FetchState implements AstroFetchState {
 			return;
 		}
 
-		// this.pathname is already decoded by #computePathname, so no
-		// additional decodeURI here — that would double-decode and allow
-		// double-encoded paths like /%2561dmin to bypass route checks.
+		// this.pathname is already fully decoded by #computePathname
+		// (which iteratively decodes all encoding levels), so no
+		// additional decoding is needed here.
 		const matched = pipeline.matchRoute(this.pathname);
 		// In production SSR, prerendered routes are served as static files
 		// by the hosting layer and should not be rendered by the app.
@@ -899,7 +909,7 @@ export class FetchState implements AstroFetchState {
 		}
 		pathname = prependForwardSlash(pathname);
 		try {
-			return decodeURI(pathname);
+			return validateAndDecodePathname(pathname);
 		} catch (e: any) {
 			this.pipeline.logger.error(null, e.toString());
 			return pathname;
@@ -1052,13 +1062,6 @@ export class FetchState implements AstroFetchState {
 				return state.getCsp();
 			},
 			get logger(): APIContext['logger'] {
-				if (!state.pipeline.manifest.experimentalLogger) {
-					state.pipeline.logger.warn(
-						null,
-						'The Astro.logger is available only when experimental.logger is defined.',
-					);
-					return undefined;
-				}
 				return {
 					info(msg: string) {
 						state.pipeline.logger.info(null, msg);

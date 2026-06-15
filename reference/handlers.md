@@ -2,7 +2,7 @@
 
 ## Overview
 
-When a project enables `experimental.advancedRouting` and provides a custom `src/app.ts`, the user composes Astro's request pipeline themselves. This means they can accidentally omit a handler for a feature they've configured (e.g. sessions, i18n, actions). To catch this, `BaseApp.#warnMissingFeatures()` runs a one-shot check after the first request and warns about any configured features the custom pipeline doesn't call.
+When a project provides a custom `src/fetch.ts`, the user composes Astro's request pipeline themselves. This means they can accidentally omit a handler for a feature they've configured (e.g. sessions, i18n, actions). To catch this, `BaseApp.#warnMissingFeatures()` runs a one-shot check after the first request and warns about any configured features the custom pipeline doesn't call.
 
 ## How it works
 
@@ -25,7 +25,7 @@ When a handler runs, it sets its flag on `pipeline.usedFeatures` using a bitwise
 pipeline.usedFeatures |= PipelineFeatures.sessions;
 ```
 
-After the first request completes, `#warnMissingFeatures()` in `BaseApp` (`packages/astro/src/core/app/base.ts`) compares the manifest config against the flags that were actually set. If a feature is configured in the manifest but its flag was never set, a warning is logged telling the user their `src/app.ts` is missing that handler.
+After the first request completes, `#warnMissingFeatures()` in `BaseApp` (`packages/astro/src/core/app/base.ts`) compares the manifest config against the flags that were actually set. If a feature is configured in the manifest but its flag was never set, a warning is logged telling the user their `src/fetch.ts` is missing that handler.
 
 ## When to add a new check
 
