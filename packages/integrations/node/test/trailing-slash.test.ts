@@ -316,6 +316,31 @@ describe('Trailing slash', () => {
 				assert.equal(res.status, 200);
 				assert.equal($('h1').text(), 'One');
 			});
+
+			it('Can render prerendered non-ASCII route without trailing slash', async () => {
+				const res = await fetch(
+					`http://${server.host}:${server.port}/${encodeURI('สวัสดี')}`,
+					{ redirect: 'manual' },
+				);
+				const html = await res.text();
+				const $ = cheerio.load(html);
+
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'สวัสดี');
+			});
+
+			it('Redirects prerendered non-ASCII route with trailing slash', async () => {
+				const res = await fetch(
+					`http://${server.host}:${server.port}/${encodeURI('สวัสดี')}/`,
+					{ redirect: 'manual' },
+				);
+
+				assert.equal(res.status, 301);
+				assert.equal(
+					res.headers.get('location'),
+					`/${encodeURI('สวัสดี')}`,
+				);
+			});
 		});
 	});
 	describe('Ignore', async () => {
