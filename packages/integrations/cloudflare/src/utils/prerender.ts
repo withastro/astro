@@ -14,7 +14,7 @@
  * available in production or development.
  */
 
-import type { BaseApp } from 'astro/app';
+import type { BaseApp, RenderErrorOptions } from 'astro/app';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import { StaticPaths } from 'astro:static-paths';
 import type {
@@ -28,6 +28,28 @@ import {
 	PRERENDER_ENDPOINT,
 	STATIC_IMAGES_ENDPOINT,
 } from './prerender-constants.js';
+
+/**
+ * Replicates core's `BuildErrorHandler` semantics on the worker app during
+ * the prerender phase. The production app converts render errors into a
+ * rendered 500 error page, which makes a crash indistinguishable from a page
+ * that intentionally returns an error status. During prerendering, a render
+ * error must instead propagate as a throw so `handlePrerenderRequest` can
+ * surface it to the build process, while intentional non-2xx responses
+ * (e.g. a custom 404 page) still render through the default error handler.
+ */
+export function installPrerenderErrorPropagation(app: BaseApp): void {
+	const originalRenderError = app.renderError.bind(app);
+	app.renderError = async (request: Request, options: RenderErrorOptions): Promise<Response> => {
+		if (options.status === 500) {
+			if (options.response) {
+				return options.response;
+			}
+			throw options.error;
+		}
+		return originalRenderError(request, options);
+	};
+}
 
 /**
  * Checks if the request is for the static paths prerender endpoint.
