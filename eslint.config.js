@@ -45,7 +45,7 @@ const configs = [
 			parserOptions: {
 				// See https://typescript-eslint.io/blog/project-service/
 				projectService: {
-					allowDefaultProject: ['packages/**/build.plugins.mjs'],
+					allowDefaultProject: ['packages/astro-rss/build.plugins.mjs'],
 				},
 				tsconfigRootDir: __dirname,
 			},
