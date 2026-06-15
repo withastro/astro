@@ -1,6 +1,7 @@
 import * as z from 'zod/v4';
+import { compile } from 'zod-compiler';
 
-export const rssSchema = z.object({
+export const rssSchema = compile(z.object({
 	title: z.string().optional(),
 	description: z.string().optional(),
 	pubDate: z
@@ -22,4 +23,4 @@ export const rssSchema = z.object({
 		.optional(),
 	link: z.string().optional(),
 	content: z.string().optional(),
-});
+}));

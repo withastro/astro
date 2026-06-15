@@ -39,6 +39,7 @@ minimumReleaseAgeExclude:
   - '@biomejs/*'
   # 'fake-data-pkg' is a local package used for testing
   - 'fake-data-pkg@1.0.0'
+  - 'zod-compiler'
   # TODO: remove once more stable
   - '@flue/*'
   - '@astrojs/*'
