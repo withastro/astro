@@ -44,7 +44,9 @@ const configs = [
 			parser: typescriptParser,
 			parserOptions: {
 				// See https://typescript-eslint.io/blog/project-service/
-				projectService: true,
+				projectService: {
+					allowDefaultProject: ['packages/**/build.plugins.mjs'],
+				},
 				tsconfigRootDir: __dirname,
 			},
 		},
