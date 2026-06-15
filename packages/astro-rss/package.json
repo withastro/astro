@@ -30,7 +30,7 @@
     "@types/xml2js": "^0.4.14",
     "astro-scripts": "workspace:*",
     "xml2js": "0.6.2",
-    "zod-compiler": "^1.10.2"
+    "zod-compiler": "^1.11.0"
   },
   "dependencies": {
     "fast-xml-parser": "^5.5.7",
