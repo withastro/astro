@@ -32,6 +32,15 @@ import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
+import {
+	canSkipPath,
+	createEmptyCache,
+	findOrphanedFiles,
+	readIncrementalCache,
+	recordPath,
+	writeIncrementalCache,
+	type IncrementalCache,
+} from './incremental.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -89,6 +98,11 @@ export async function generatePages(
 	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);
 	const routeToHeaders: RouteToHeaders = new Map();
 	let staticImageList = getStaticImageList();
+
+	// Incremental build support
+	const incrementalEnabled = options.settings.config.experimental.incrementalBuild;
+	const previousCache = incrementalEnabled ? readIncrementalCache(options.settings) : null;
+	const newCache = incrementalEnabled ? createEmptyCache() : null;
 
 	try {
 		// Get all static paths with their routes from the prerenderer
@@ -164,7 +178,7 @@ export async function generatePages(
 			for (let i = 0; i < filteredPaths.length; i += BATCH_SIZE) {
 				const batch = filteredPaths.slice(i, i + BATCH_SIZE);
 				const promises: Promise<void>[] = [];
-				for (const { pathname, route } of batch) {
+				for (const { pathname, route, cacheKey } of batch) {
 					promises.push(
 						limit(() =>
 							generatePathWithPrerenderer(
@@ -172,8 +186,12 @@ export async function generatePages(
 								pathname,
 								route,
 								options,
+								internals,
 								routeToHeaders,
 								logger,
+								previousCache,
+								newCache,
+								cacheKey,
 							),
 						),
 					);
@@ -181,14 +199,18 @@ export async function generatePages(
 				await Promise.all(promises);
 			}
 		} else {
-			for (const { pathname, route } of filteredPaths) {
+			for (const { pathname, route, cacheKey } of filteredPaths) {
 				await generatePathWithPrerenderer(
 					prerenderer,
 					pathname,
 					route,
 					options,
+					internals,
 					routeToHeaders,
 					logger,
+					previousCache,
+					newCache,
+					cacheKey,
 				);
 			}
 		}
@@ -209,6 +231,25 @@ export async function generatePages(
 					}
 				}
 			}
+		}
+
+		// Incremental build: clean up orphaned files and write the new cache
+		if (incrementalEnabled && newCache && previousCache) {
+			const orphans = findOrphanedFiles(previousCache, newCache);
+			for (const orphanFile of orphans) {
+				const outFile = new URL(orphanFile, options.settings.config.outDir);
+				try {
+					await nodeFs.promises.rm(outFile, { force: true });
+				} catch {
+					// File may already be gone
+				}
+			}
+			if (orphans.length > 0) {
+				logger.info('build', `Removed ${orphans.length} orphaned file(s) from previous build.`);
+			}
+		}
+		if (incrementalEnabled && newCache) {
+			writeIncrementalCache(options.settings, newCache);
 		}
 
 		// Must happen before teardown since collectStaticImages fetches from the prerender server
@@ -514,13 +555,55 @@ async function generatePathWithPrerenderer(
 	pathname: string,
 	route: RouteData,
 	options: StaticBuildOptions,
+	internals: BuildInternals,
 	routeToHeaders: RouteToHeaders,
 	logger: AstroLogger,
+	previousCache: IncrementalCache | null,
+	newCache: IncrementalCache | null,
+	cacheKey: string | undefined,
 ): Promise<void> {
 	const timeStart = performance.now();
 	const { config } = options.settings;
 
 	const filePath = getOutputFilename(config.build.format, pathname, route);
+
+	// Compute the output file path (needed for both skip check and recording)
+	const encodedPath = encodeURI(pathname);
+	const outFolder = getOutFolder(options.settings, encodedPath, route);
+	const outFile = getOutFile(config.build.format, outFolder, encodedPath, route);
+	// Relative path from outDir for cache storage
+	const relativeOutFile = outFile.href.slice(config.outDir.href.length);
+
+	// Look up the dependency hash for this route
+	const dependencyHash = internals.pageDependencyHashes?.get(route.component) ?? '';
+
+	// Incremental build: check if we can skip this path
+	if (
+		previousCache &&
+		newCache &&
+		canSkipPath(previousCache, route.component, pathname, dependencyHash, cacheKey) &&
+		nodeFs.existsSync(outFile)
+	) {
+		// Record in the new cache so orphan detection knows this path is still alive
+		recordPath(newCache, route.component, dependencyHash, pathname, cacheKey, relativeOutFile);
+
+		// Track page name for stats even when skipped
+		if (route.type === 'page') {
+			addPageName(pathname, options);
+		}
+
+		// Track distURL for the route even when skipped
+		if (route.distURL) {
+			route.distURL.push(outFile);
+		} else {
+			route.distURL = [outFile];
+		}
+
+		logger.info(null, `  ${colors.green('├─')} ${colors.dim(filePath)}`, false);
+		logger.info('SKIP_FORMAT', ` ${colors.green('(cached)')}`);
+		return;
+	}
+
 	logger.info(null, `  ${colors.blue('├─')} ${colors.dim(filePath)}`, false);
 
 	// Track page name for stats
@@ -538,12 +621,21 @@ async function generatePathWithPrerenderer(
 	});
 
 	if (!result) {
+		// Still record in cache even if no file was created (empty body, etc.)
+		if (newCache) {
+			recordPath(newCache, route.component, dependencyHash, pathname, cacheKey, relativeOutFile);
+		}
 		logRenderTime(logger, timeStart, true);
 		return;
 	}
 
 	await nodeFs.promises.mkdir(result.outFolder, { recursive: true });
 	await nodeFs.promises.writeFile(result.outFile, result.body);
+
+	// Record this path in the new cache
+	if (newCache) {
+		recordPath(newCache, route.component, dependencyHash, pathname, cacheKey, relativeOutFile);
+	}
 
 	logRenderTime(logger, timeStart, false);
 }

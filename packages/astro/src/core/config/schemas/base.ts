@@ -116,6 +116,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
+		incrementalBuild: false,
 	},
 } satisfies AstroUserConfig & {
 	server: { open: boolean };
@@ -574,6 +575,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.chromeDevtoolsWorkspace),
+			incrementalBuild: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.incrementalBuild),
 			svgOptimizer: SvgOptimizerSchema.optional(),
 			cache: CacheSchema.optional(),
 			routeRules: RouteRulesSchema.optional(),
