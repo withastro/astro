@@ -479,7 +479,7 @@ export interface AstroUserConfig<
 	 *
 	 * Controls how Astro handles whitespace in your HTML. This affects both development mode and the final build output.
 	 *
-	 * By default (`'jsx'`), Astro applies the JSX whitespace stripping rules used by frameworks like React. Leading and trailing whitespace is only preserved when explicitly included in the source code through constructs such as `{" "}`, and is otherwise removed entirely.
+	 * By default (`'jsx'`), Astro applies the JSX whitespace rules used by frameworks like React. Whitespace and line breaks around elements are removed and multi-line text is collapsed onto a single line, but whitespace within a single line — such as a space between two inline elements — is preserved. To keep a space that would otherwise be removed, include it explicitly in the source through constructs such as `{" "}`.
 	 *
 	 * Setting this option to `true` instead removes whitespace, including line breaks, in a lossless manner from `.astro` components. Some whitespace may be preserved as needed to maintain the visual rendering of your HTML.
 	 *
