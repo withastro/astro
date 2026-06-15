@@ -20,4 +20,4 @@ export default defineConfig({
 });
 ```
 
-The deprecated `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` options still work, but now require `@astrojs/markdown-remark` to be installed and switch the processor to `unified()` for you. `syntaxHighlight: 'prism'` is only available on the `unified()` processor; Sätteri highlights code with Shiki.
+The deprecated `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` options still work, but now require `@astrojs/markdown-remark` to be used.
