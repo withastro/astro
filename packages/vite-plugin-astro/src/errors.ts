@@ -91,10 +91,7 @@ export const ErrorData = {
 /**
  * Get the line and character based on the offset
  */
-export function positionAt(
-	offset: number,
-	text: string,
-): { line: number; column: number } {
+export function positionAt(offset: number, text: string): { line: number; column: number } {
 	const lineOffsets = getLineOffsets(text);
 	offset = Math.max(0, Math.min(text.length, offset));
 

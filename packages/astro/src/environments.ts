@@ -1,1 +1,4 @@
-export { isAstroServerEnvironment, isAstroClientEnvironment } from '@astrojs/internal-helpers/environments';
+export {
+	isAstroServerEnvironment,
+	isAstroClientEnvironment,
+} from '@astrojs/internal-helpers/environments';

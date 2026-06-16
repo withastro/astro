@@ -30,7 +30,10 @@ const astroFileToCompileMetadataWeakMap = new WeakMap<
 >();
 
 /** Transform .astro files for Vite */
-export default function astro({ config, annotateSourceFile = false }: AstroPluginOptions): vite.Plugin[] {
+export default function astro({
+	config,
+	annotateSourceFile = false,
+}: AstroPluginOptions): vite.Plugin[] {
 	let server: vite.ViteDevServer | undefined;
 	let compile: (code: string, filename: string) => Promise<CompileAstroResult>;
 	// NOTE: We need to initialize a map here and in `buildStart` because our unit tests don't

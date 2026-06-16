@@ -1,9 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {
-	normalizePath,
-	VALID_ID_PREFIX,
-} from '@astrojs/internal-helpers/vite';
+import { normalizePath, VALID_ID_PREFIX } from '@astrojs/internal-helpers/vite';
 import { prependForwardSlash } from './path.js';
 import type { ModuleLoader } from './module-loader/index.js';
 

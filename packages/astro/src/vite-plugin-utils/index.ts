@@ -1,7 +1,4 @@
-import {
-	appendExtension,
-	appendForwardSlash,
-} from '../core/path.js';
+import { appendExtension, appendForwardSlash } from '../core/path.js';
 import type { AstroConfig } from '../types/public/config.js';
 
 export {
