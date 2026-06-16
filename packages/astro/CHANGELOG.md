@@ -1,5 +1,33 @@
 # astro
 
+## 7.0.0-beta.4
+
+### Major Changes
+
+- [#16966](https://github.com/withastro/astro/pull/16966) [`6650ec2`](https://github.com/withastro/astro/commit/6650ec24e81bb9fdf2fcec3dc07154b94d41cb61) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Makes Sätteri the default Markdown processor
+
+  Astro now renders `.md` files with `satteri()` from `@astrojs/markdown-satteri`, its native Markdown pipeline, instead of the remark/rehype pipeline. `@astrojs/markdown-remark` is no longer installed by default.
+
+  To keep using the remark/rehype pipeline, install `@astrojs/markdown-remark` and set it as your processor:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import { unified } from '@astrojs/markdown-remark';
+
+  export default defineConfig({
+    markdown: {
+      processor: unified(),
+    },
+  });
+  ```
+
+  The deprecated `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` options still work, but now require `@astrojs/markdown-remark` to be used.
+
+### Patch Changes
+
+- [#17078](https://github.com/withastro/astro/pull/17078) [`04547ec`](https://github.com/withastro/astro/commit/04547eca5bc6b8c1b3b95398ccc49c870a68c34c) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a spurious `Astro.request.headers` warning on prerendered pages when `security.allowedDomains` is configured. The internal `allowedDomains` header validation now skips prerendered routes, since they use synthetic requests with no real headers.
+
 ## 7.0.0-beta.3
 
 ### Major Changes
@@ -243,6 +271,7 @@
 - [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Fixes `--port` flag being ignored after a Vite-triggered server restart (e.g. when a `.env` file changes)
 
 - [#16434](https://github.com/withastro/astro/pull/16434) [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where i18n domains would return 404 when `trailingSlash` is set to `never`.
+
 ## 6.4.7
 
 ### Patch Changes
