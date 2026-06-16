@@ -13,7 +13,6 @@ import type { AstroConfig, Locales, ValidRedirectStatus } from '../types/public/
 import type { APIContext } from '../types/public/context.js';
 import { createI18nMiddleware } from './middleware.js';
 import { normalizeTheLocale, pathHasLocale } from './path.js';
-export { normalizeTheLocale, normalizeThePath, pathHasLocale } from './path.js';
 
 export function requestHasLocale(locales: Locales) {
 	return function (context: APIContext): boolean {
