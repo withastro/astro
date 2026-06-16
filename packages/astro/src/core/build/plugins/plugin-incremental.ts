@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import type { Plugin as VitePlugin } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
+import { isContentDataIncrementalModule } from '../incremental-metadata.js';
 import { moduleIsTopLevelPage } from '../graph.js';
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID } from '../internal.js';
@@ -35,9 +36,11 @@ export function pluginIncremental(internals: BuildInternals): VitePlugin {
 				while (queue.length > 0) {
 					const current = queue.pop()!;
 					if (deps.has(current)) continue;
-					deps.add(current);
 
 					const modInfo = this.getModuleInfo(current);
+					if (isContentDataIncrementalModule(modInfo)) continue;
+
+					deps.add(current);
 					if (!modInfo) continue;
 
 					for (const dep of modInfo.importedIds) {

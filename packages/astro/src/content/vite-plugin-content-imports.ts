@@ -4,6 +4,8 @@ import { pathToFileURL } from 'node:url';
 import * as devalue from 'devalue';
 import type { Plugin, Rolldown, RunnableDevEnvironment } from 'vite';
 import { getProxyCode } from '../assets/utils/proxy.js';
+import { createContentDataIncrementalMetadata } from '../core/build/incremental-metadata.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
@@ -34,7 +36,6 @@ import {
 	reloadContentConfigObserver,
 	reverseSymlink,
 } from './utils.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 function getContentRendererByViteId(
 	viteId: string,
@@ -129,7 +130,11 @@ export const _internal = {
 	rawData: ${JSON.stringify(_internal.rawData)},
 };
 `;
-						return code;
+						return {
+							code,
+							map: { mappings: '' },
+							meta: createContentDataIncrementalMetadata(),
+						};
 					} else if (hasContentFlag(viteId, CONTENT_FLAG)) {
 						const fileId = reverseSymlink({ entry: viteId.split('?')[0], contentDir, symlinks });
 						const { id, slug, collection, body, data, _internal } = await getContentEntryModule({
@@ -154,7 +159,11 @@ export const _internal = {
 							rawData: ${JSON.stringify(_internal.rawData)},
 						};`;
 
-						return { code, map: { mappings: '' } };
+						return {
+							code,
+							map: { mappings: '' },
+							meta: createContentDataIncrementalMetadata(),
+						};
 					}
 				},
 			},

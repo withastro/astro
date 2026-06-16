@@ -87,7 +87,38 @@ describe('experimental.incrementalBuild', () => {
 		});
 	});
 
-	describe('fourth build (changed dependency)', () => {
+	describe('fourth build (changed content entry)', () => {
+		const docA = new URL('./fixtures/incremental-build/src/content/docs/a.md', import.meta.url);
+		let originalContent: string;
+
+		before(async () => {
+			originalContent = fs.readFileSync(docA, 'utf-8');
+			fs.writeFileSync(
+				new URL('dist/incremental-build/docs/b/index.html', root),
+				'cached doc b sentinel',
+			);
+			fs.writeFileSync(docA, originalContent.replace('title: Doc A', 'title: Doc A Updated'));
+
+			await fixture.build();
+		});
+
+		it('re-renders the content page with a changed cacheKey', async () => {
+			const docA = await fixture.readFile('/docs/a/index.html');
+			const $ = cheerio.load(docA);
+			assert.equal($('h1').text(), 'Doc A Updated');
+		});
+
+		it('keeps unrelated content pages cached', async () => {
+			const docB = await fixture.readFile('/docs/b/index.html');
+			assert.equal(docB, 'cached doc b sentinel');
+		});
+
+		after(() => {
+			fs.writeFileSync(docA, originalContent);
+		});
+	});
+
+	describe('fifth build (changed dependency)', () => {
 		const slugPage = new URL(
 			'./fixtures/incremental-build/src/pages/blog/[slug].astro',
 			import.meta.url,
