@@ -97,7 +97,7 @@ describe('experimental.incrementalBuild', () => {
 				new URL('dist/incremental-build/docs/b/index.html', root),
 				'cached doc b sentinel',
 			);
-			fs.writeFileSync(docA, originalContent.replace('title: Doc A', 'title: Doc A Updated'));
+			fs.writeFileSync(docA, originalContent.replace('Alpha content.', 'Alpha updated content.'));
 
 			await fixture.build();
 		});
@@ -105,7 +105,9 @@ describe('experimental.incrementalBuild', () => {
 		it('re-renders the content page with a changed cacheKey', async () => {
 			const docAHtml = await fixture.readFile('/docs/a/index.html');
 			const $ = cheerio.load(docAHtml);
-			assert.equal($('h1').text(), 'Doc A Updated');
+			assert.equal($('h1').text(), 'Doc A');
+			assert.equal($('p').last().text(), 'Alpha updated content.');
+			assert.notEqual($('#digest').text(), '');
 		});
 
 		it('keeps unrelated content pages cached', async () => {
