@@ -78,6 +78,26 @@ function createAuthMiddleware() {
 	})) as () => Promise<{ onRequest: MiddlewareHandler }>;
 }
 
+/**
+ * Like {@link createAuthMiddleware}, but every allowed request is sent back
+ * through routing again with `next(context.url)`. The route it lands on must
+ * match the same path the `/api/admin` check looked at; otherwise an encoded
+ * path can slip past the check and still be decoded into `/api/admin`.
+ */
+function createRewriteAuthMiddleware() {
+	return (async () => ({
+		onRequest: (async (context, next) => {
+			if (context.url.pathname.startsWith('/api/admin')) {
+				return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+					status: 401,
+					headers: { 'Content-Type': 'application/json' },
+				});
+			}
+			return next(context.url);
+		}) satisfies MiddlewareHandler,
+	})) as () => Promise<{ onRequest: MiddlewareHandler }>;
+}
+
 function createApp(middleware: ReturnType<typeof createAuthMiddleware>) {
 	return new App(
 		createManifest({
@@ -232,4 +252,47 @@ describe('URL normalization: double-encoding middleware bypass', () => {
 		);
 	});
 	// #endregion
+});
+
+describe('URL normalization: rewrite-based middleware bypass', () => {
+	it('blocks /api/admin even when middleware calls next(context.url)', async () => {
+		const app = createApp(createRewriteAuthMiddleware());
+		const response = await app.render(new Request('http://example.com/api/admin'));
+		assert.equal(response.status, 401, '/api/admin must be blocked by middleware');
+	});
+
+	it('blocks double-encoded /api/%2561dmin with a rewriting middleware', async () => {
+		// This decodes to /api/admin, so middleware must see /api/admin and
+		// block it, even though the request is then sent back through routing.
+		const app = createApp(createRewriteAuthMiddleware());
+		const response = await app.render(new Request('http://example.com/api/%2561dmin'));
+		assert.equal(
+			response.status,
+			401,
+			'double-encoded /api/admin must be blocked even with a rewriting middleware',
+		);
+	});
+
+	it('rejects an over-encoded path with 400 instead of bypassing to /api/admin', async () => {
+		// Encoded more times than we decode.
+		const app = createApp(createRewriteAuthMiddleware());
+		const response = await app.render(new Request('http://example.com/api/%2525252561dmin'));
+		assert.equal(response.status, 400, 'over-encoded path must be rejected, not served');
+	});
+
+	it('rejects a deeply over-encoded payload with 400', async () => {
+		const app = createApp(createRewriteAuthMiddleware());
+		const response = await app.render(
+			new Request('http://example.com/api/%252525252525252525252561dmin'),
+		);
+		assert.equal(response.status, 400);
+	});
+
+	it('still serves non-protected routes through the rewriting middleware', async () => {
+		const app = createApp(createRewriteAuthMiddleware());
+		const response = await app.render(new Request('http://example.com/api/public/data'));
+		assert.equal(response.status, 200, '/api/public/data should be accessible');
+		const body = await response.json();
+		assert.equal(body.path, 'public/data');
+	});
 });
