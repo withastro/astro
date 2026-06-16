@@ -92,7 +92,9 @@ const pagesHandlers = new WeakMap<BaseApp<Pipeline>, PagesHandler>();
 
 /**
  * Dispatches the request to the matched route (endpoint, page, redirect,
- * or fallback). Lazily creates the render context if needed.
+ * or fallback). Lazily creates the render context if needed. Unmatched
+ * routes render the 404 error page; render-time errors are logged and
+ * render the 500 error page.
  */
 export function pages(state: FetchState): Promise<Response> {
 	const app = getApp(state.request);
@@ -101,7 +103,7 @@ export function pages(state: FetchState): Promise<Response> {
 		handler = new PagesHandler(app.pipeline);
 		pagesHandlers.set(app, handler);
 	}
-	return handler.handle(state, state.getAPIContext());
+	return handler.handleWithErrorFallback(app, state);
 }
 
 /**
