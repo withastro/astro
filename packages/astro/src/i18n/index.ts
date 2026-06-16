@@ -6,7 +6,6 @@ import {
 import type { RoutingStrategies } from '../core/app/common.js';
 import type { SSRManifest } from '../core/app/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
-import { REROUTE_DIRECTIVE_HEADER } from '../core/constants.js';
 import { getFetchStateFromAPIContext } from '../core/fetch/fetch-state.js';
 import { i18nNoLocaleFoundInPath, MissingLocale } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
@@ -332,17 +331,9 @@ export function redirectToDefaultLocale({
 // NOTE: public function exported to the users via `astro:i18n` module
 export function notFound({ base, locales, fallback }: MiddlewarePayload) {
 	return function (context: APIContext, response?: Response): Response | undefined {
-		let fetchState;
-		try {
-			fetchState = getFetchStateFromAPIContext(context);
-		} catch {
-			// `notFound()` is public and may be called with mocked APIContext objects in tests.
-		}
+		const fetchState = getFetchStateFromAPIContext(context);
 
-		if (
-			(response?.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no' || fetchState?.skipErrorReroute) &&
-			typeof fallback === 'undefined'
-		) {
+		if (fetchState.skipErrorReroute && typeof fallback === 'undefined') {
 			return response;
 		}
 
@@ -352,13 +343,8 @@ export function notFound({ base, locales, fallback }: MiddlewarePayload) {
 		// - the URL doesn't contain a locale
 		const isRoot = url.pathname === base + '/' || url.pathname === base;
 		if (!(isRoot || pathHasLocale(url.pathname, locales))) {
-			if (fetchState) {
-				fetchState.skipErrorReroute = true;
-			}
+			fetchState.skipErrorReroute = true;
 			if (response) {
-				if (!fetchState) {
-					response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
-				}
 				return new Response(response.body, {
 					status: 404,
 					headers: response.headers,
@@ -366,7 +352,6 @@ export function notFound({ base, locales, fallback }: MiddlewarePayload) {
 			} else {
 				return new Response(null, {
 					status: 404,
-					headers: fetchState ? undefined : { [REROUTE_DIRECTIVE_HEADER]: 'no' },
 				});
 			}
 		}
