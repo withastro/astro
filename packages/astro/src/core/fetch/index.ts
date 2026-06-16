@@ -72,8 +72,11 @@ const middlewareInstances = new WeakMap<BaseApp<Pipeline>, AstroMiddleware>();
 
 /**
  * Runs Astro's middleware chain for the given state, calling `next` at
- * the bottom of the chain to produce the response. Lazily creates
- * the render context if needed.
+ * the bottom of the chain to produce the response. Lazily creates the
+ * render context if needed. Unmatched routes render the 404 error page;
+ * errors thrown by user middleware are logged and render the 500 error
+ * page; errors surfaced through `next` (the host framework's downstream
+ * chain) propagate to the host instead.
  */
 export function middleware(
 	state: FetchState,
@@ -85,7 +88,7 @@ export function middleware(
 		mw = new AstroMiddleware(app.pipeline);
 		middlewareInstances.set(app, mw);
 	}
-	return mw.handle(state, (s, _ctx) => next(s));
+	return mw.handleWithErrorFallback(app, state, (s, _ctx) => next(s));
 }
 
 const pagesHandlers = new WeakMap<BaseApp<Pipeline>, PagesHandler>();
