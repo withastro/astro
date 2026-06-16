@@ -74,13 +74,13 @@ describe('experimental.incrementalBuild', () => {
 		});
 	});
 
-	describe('third build (missing output file)', () => {
+	describe('third build (empty output directory)', () => {
 		before(async () => {
-			fs.rmSync(new URL('dist/incremental-build/blog/post-1/index.html', root), { force: true });
+			fs.rmSync(new URL('dist/incremental-build/', root), { recursive: true, force: true });
 			await fixture.build();
 		});
 
-		it('re-renders cached pages when their output file is missing', async () => {
+		it('restores cached pages when their output file is missing', async () => {
 			const post1 = await fixture.readFile('/blog/post-1/index.html');
 			const $ = cheerio.load(post1);
 			assert.equal($('h1').text(), 'Post 1');

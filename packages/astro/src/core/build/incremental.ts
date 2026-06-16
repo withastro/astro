@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import type { AstroSettings } from '../../types/astro.js';
 
 const INCREMENTAL_CACHE_FILE = 'incremental-build.json';
+const INCREMENTAL_OUTPUT_DIR = 'dist/';
 const CACHE_VERSION = 1;
 
 export interface IncrementalPathEntry {
@@ -23,6 +24,19 @@ function getCacheFile(settings: AstroSettings): URL {
 	return new URL(INCREMENTAL_CACHE_FILE, settings.config.cacheDir);
 }
 
+function getCachedOutputFile(settings: AstroSettings, outputFile: string): URL {
+	return new URL(outputFile, new URL(INCREMENTAL_OUTPUT_DIR, settings.config.cacheDir));
+}
+
+const createdDirs = new Set<string>();
+
+async function ensureDir(dir: URL): Promise<void> {
+	const key = dir.href;
+	if (createdDirs.has(key)) return;
+	await fs.promises.mkdir(dir, { recursive: true });
+	createdDirs.add(key);
+}
+
 export function readIncrementalCache(settings: AstroSettings): IncrementalCache | null {
 	const cacheFile = getCacheFile(settings);
 	try {
@@ -42,6 +56,36 @@ export function writeIncrementalCache(settings: AstroSettings, cache: Incrementa
 	const dir = new URL('./', cacheFile);
 	fs.mkdirSync(dir, { recursive: true });
 	fs.writeFileSync(cacheFile, JSON.stringify(cache, null, '\t'));
+}
+
+export async function restoreCachedOutputFile(
+	settings: AstroSettings,
+	outputFile: string,
+	destination: URL,
+): Promise<boolean> {
+	const cachedOutputFile = getCachedOutputFile(settings, outputFile);
+	if (!fs.existsSync(cachedOutputFile)) return false;
+
+	await ensureDir(new URL('./', destination));
+	await fs.promises.copyFile(cachedOutputFile, destination);
+	return true;
+}
+
+export async function writeCachedOutputFile(
+	settings: AstroSettings,
+	outputFile: string,
+	body: string | Uint8Array,
+): Promise<void> {
+	const cachedOutputFile = getCachedOutputFile(settings, outputFile);
+	await ensureDir(new URL('./', cachedOutputFile));
+	await fs.promises.writeFile(cachedOutputFile, body);
+}
+
+export async function deleteCachedOutputFile(
+	settings: AstroSettings,
+	outputFile: string,
+): Promise<void> {
+	await fs.promises.rm(getCachedOutputFile(settings, outputFile), { force: true });
 }
 
 export function createEmptyCache(): IncrementalCache {

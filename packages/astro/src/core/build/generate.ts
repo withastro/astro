@@ -35,9 +35,12 @@ import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-pre
 import {
 	canSkipPath,
 	createEmptyCache,
+	deleteCachedOutputFile,
 	findOrphanedFiles,
 	readIncrementalCache,
 	recordPath,
+	restoreCachedOutputFile,
+	writeCachedOutputFile,
 	writeIncrementalCache,
 	type IncrementalCache,
 } from './incremental.js';
@@ -240,6 +243,7 @@ export async function generatePages(
 				const outFile = new URL(orphanFile, options.settings.config.outDir);
 				try {
 					await nodeFs.promises.rm(outFile, { force: true });
+					await deleteCachedOutputFile(options.settings, orphanFile);
 				} catch {
 					// File may already be gone
 				}
@@ -581,27 +585,36 @@ async function generatePathWithPrerenderer(
 	if (
 		previousCache &&
 		newCache &&
-		canSkipPath(previousCache, route.component, pathname, dependencyHash, cacheKey) &&
-		nodeFs.existsSync(outFile)
+		canSkipPath(previousCache, route.component, pathname, dependencyHash, cacheKey)
 	) {
-		// Record in the new cache so orphan detection knows this path is still alive
-		recordPath(newCache, route.component, dependencyHash, pathname, cacheKey, relativeOutFile);
+		const existsInDist = nodeFs.existsSync(outFile);
+		const restored =
+			!existsInDist &&
+			(await restoreCachedOutputFile(options.settings, relativeOutFile, outFile));
 
-		// Track page name for stats even when skipped
-		if (route.type === 'page') {
-			addPageName(pathname, options);
+		if (existsInDist || restored) {
+			// Record in the new cache so orphan detection knows this path is still alive
+			recordPath(newCache, route.component, dependencyHash, pathname, cacheKey, relativeOutFile);
+
+			// Track page name for stats even when skipped
+			if (route.type === 'page') {
+				addPageName(pathname, options);
+			}
+
+			// Track distURL for the route even when skipped
+			if (route.distURL) {
+				route.distURL.push(outFile);
+			} else {
+				route.distURL = [outFile];
+			}
+
+			logger.info(null, `  ${colors.green('├─')} ${colors.dim(filePath)}`, false);
+			logger.info(
+				'SKIP_FORMAT',
+				restored ? ` ${colors.green('(restored)')}` : ` ${colors.green('(cached)')}`,
+			);
+			return;
 		}
-
-		// Track distURL for the route even when skipped
-		if (route.distURL) {
-			route.distURL.push(outFile);
-		} else {
-			route.distURL = [outFile];
-		}
-
-		logger.info(null, `  ${colors.green('├─')} ${colors.dim(filePath)}`, false);
-		logger.info('SKIP_FORMAT', ` ${colors.green('(cached)')}`);
-		return;
 	}
 
 	logger.info(null, `  ${colors.blue('├─')} ${colors.dim(filePath)}`, false);
@@ -634,6 +647,9 @@ async function generatePathWithPrerenderer(
 
 	// Record this path in the new cache
 	if (newCache) {
+		if (cacheKey !== undefined) {
+			await writeCachedOutputFile(options.settings, relativeOutFile, result.body);
+		}
 		recordPath(newCache, route.component, dependencyHash, pathname, cacheKey, relativeOutFile);
 	}
 
