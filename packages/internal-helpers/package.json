@@ -13,6 +13,8 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "exports": {
     "./path": "./dist/path.js",
+    "./vite": "./dist/vite.js",
+    "./environments": "./dist/environments.js",
     "./remote": "./dist/remote.js",
     "./fs": "./dist/fs.js",
     "./cli": "./dist/cli.js",
@@ -33,6 +35,12 @@
     "*": {
       "path": [
         "./dist/path.d.ts"
+      ],
+      "vite": [
+        "./dist/vite.d.ts"
+      ],
+      "environments": [
+        "./dist/environments.d.ts"
       ],
       "remote": [
         "./dist/remote.d.ts"
@@ -73,6 +81,7 @@
   "dependencies": {
     "@types/hast": "^3.0.4",
     "@types/mdast": "^4.0.4",
+    "common-ancestor-path": "^2.0.0",
     "js-yaml": "^4.1.1",
     "picomatch": "^4.0.4",
     "retext-smartypants": "^6.2.0",

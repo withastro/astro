@@ -1,6 +1,6 @@
 import type { Rolldown } from 'vite';
-import { type CompileProps, type CompileResult, compile } from '../core/compile/index.js';
-import { getFileInfo } from '../vite-plugin-utils/index.js';
+import { type CompileProps, type CompileResult, compile } from '../compile/index.js';
+import { getFileInfo } from '../utils/getFileInfo.js';
 import type { CompileMetadata } from './types.js';
 
 interface CompileAstroOption {
@@ -28,7 +28,6 @@ export async function compileAstro({
 		url,
 	)};export { $$file as file, $$url as url };\n`;
 
-	// Add HMR handling in dev mode.
 	if (!compileProps.viteConfig.isProduction) {
 		let i = 0;
 		while (i < transformResult.scripts.length) {
@@ -37,7 +36,6 @@ export async function compileAstro({
 		}
 	}
 
-	// Attach compile metadata to map for use by virtual modules
 	astroFileToCompileMetadata.set(compileProps.filename, {
 		originalCode: compileProps.source,
 		css: transformResult.css,

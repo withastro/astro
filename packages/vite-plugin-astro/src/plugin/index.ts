@@ -1,11 +1,11 @@
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
-import type { AstroLogger } from '../core/logger/core.js';
-import { isAstroServerEnvironment } from '../environments.js';
-import type { AstroSettings } from '../types/astro.js';
-import type { AstroConfig } from '../types/public/config.js';
-import { normalizeFilename, specialQueriesRE } from '../vite-plugin-utils/index.js';
+import {
+	ASTRO_VITE_ENVIRONMENT_NAMES,
+	isAstroServerEnvironment,
+} from '@astrojs/internal-helpers/environments';
+import { normalizeFilename, specialQueriesRE } from '@astrojs/internal-helpers/vite';
+import type { AstroConfigLike, AstroSettingsLike, LoggerLike } from '../types.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
@@ -20,24 +20,24 @@ export { getAstroMetadata } from './metadata.js';
 export type { AstroPluginMetadata };
 
 interface AstroPluginOptions {
-	settings: AstroSettings;
-	logger: AstroLogger;
+	settings: AstroSettingsLike;
+	logger: LoggerLike;
 }
 
-const astroFileToCompileMetadataWeakMap = new WeakMap<AstroConfig, Map<string, CompileMetadata>>();
+const astroFileToCompileMetadataWeakMap = new WeakMap<
+	AstroConfigLike,
+	Map<string, CompileMetadata>
+>();
 
 /** Transform .astro files for Vite */
 export default function astro({ settings, logger }: AstroPluginOptions): vite.Plugin[] {
 	const { config } = settings;
 	let server: vite.ViteDevServer | undefined;
 	let compile: (code: string, filename: string) => Promise<CompileAstroResult>;
-	// Each Astro file has its own compile metadata so that its scripts and styles virtual module
-	// can retrieve their code from here.
 	// NOTE: We need to initialize a map here and in `buildStart` because our unit tests don't
 	// call `buildStart` (test bug)
 	let astroFileToCompileMetadata = new Map<string, CompileMetadata>();
 
-	// Variables for determining if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb) && srcRootWeb !== '/';
 	const notAstroComponent = (component: AstroComponent) =>
@@ -54,7 +54,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				filter: {
 					id: {
 						include: [/(?:\?|&)astro(?:&|=|$)/],
-						// ignore astro file sub-requests, e.g. Foo.astro?astro&type=script&index=0&lang.ts
 						exclude: [specialQueriesRE],
 					},
 				},
@@ -67,7 +66,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					if (compileMetadata && parsedId.query.type === 'style' && parsedId.query.index != null) {
 						const result = compileMetadata.css[parsedId.query.index];
 
-						// Register dependencies from preprocessing this style
 						result.dependencies?.forEach((dep) => this.addWatchFile(dep));
 					}
 				},
@@ -75,10 +73,9 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 		},
 		{
 			name: 'astro:build',
-			enforce: 'pre', // run transforms before other plugins can
+			enforce: 'pre',
 			async configEnvironment(name, viteConfig, opts) {
 				viteConfig.resolve ??= {};
-				// Emulate Vite default fallback for `resolve.conditions` if not set
 				if (viteConfig.resolve.conditions == null) {
 					if (viteConfig.consumer === 'client' || name === 'client' || opts.isSsrTargetWebworker) {
 						viteConfig.resolve.conditions = [...defaultClientConditions];
@@ -90,13 +87,12 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			},
 			async configResolved(viteConfig) {
 				const toolbarEnabled = await settings.preferences.get('devToolbar.enabled');
-				// Initialize `compile` function to simplify usage later
 				compile = (code, filename) => {
 					return compileAstro({
 						compileProps: {
 							astroConfig: config,
 							viteConfig,
-							toolbarEnabled,
+							toolbarEnabled: toolbarEnabled as boolean,
 							filename,
 							source: code,
 						},
@@ -106,7 +102,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			},
 			configureServer(_server) {
 				server = _server;
-				// Make sure deleted files are removed from the compile metadata to save memory
 				server.watcher.on('unlink', (filename) => {
 					astroFileToCompileMetadata.delete(filename);
 				});
@@ -131,24 +126,16 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					const parsedId = parseAstroRequest(id);
 					const query = parsedId.query;
 
-					// Astro scripts and styles virtual module code comes from the main Astro compilation
-					// through the metadata from `astroFileToCompileMetadata`. It should always exist as Astro
-					// modules are compiled first, then its virtual modules.
 					const filename = normalizePath(normalizeFilename(parsedId.filename, config.root));
 					let compileMetadata = astroFileToCompileMetadata.get(filename);
 					if (!compileMetadata) {
-						// If `compileMetadata` doesn't exist in dev, that means the virtual module may have been invalidated.
-						// We try to re-compile the main Astro module (`filename`) first before retrieving the metadata again.
 						if (server) {
 							const code = await loadId(server.pluginContainer, filename);
-							// `compile` should re-set `filename` in `astroFileToCompileMetadata`
 							if (code != null) await compile(code, filename);
 						}
 
 						compileMetadata = astroFileToCompileMetadata.get(filename);
 					}
-					// If the metadata still doesn't exist, that means the virtual modules are somehow compiled first,
-					// throw an error and we should investigate it.
 					if (!compileMetadata) {
 						throw new Error(
 							`No cached compile metadata found for "${id}". The main Astro module "${filename}" should have ` +
@@ -167,13 +154,10 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 								throw new Error(`No Astro CSS at index ${query.index}`);
 							}
 
-							// Register dependencies from preprocessing this style
 							result.dependencies?.forEach((dep) => this.addWatchFile(dep));
 
 							return {
 								code: result.code,
-								// `vite.cssScopeTo` is a Vite feature that allows this CSS to be treeshaken
-								// if the Astro component's default export is not used
 								meta: result.isGlobal
 									? undefined
 									: {
@@ -187,7 +171,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 							if (typeof query.index === 'undefined') {
 								throw new Error(`Requests for scripts must include an index`);
 							}
-							// SSR script only exists to make them appear in the module graph.
 							if (isAstroServerEnvironment(this.environment)) {
 								return {
 									code: `/* client script, empty in SSR: ${id} */`,
@@ -246,7 +229,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				filter: {
 					id: {
 						include: [/\.astro$/, /\.astro\?/],
-						// ignore astro file sub-requests, e.g. Foo.astro?astro&type=script&index=0&lang.ts
 						exclude: [specialQueriesRE, /(?:\?|&)astro(?:&|=|$)/],
 					},
 				},
@@ -259,8 +241,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 					const filename = normalizePath(parsedId.filename);
 
-					// If an Astro component is imported in code used on the client, we return an empty
-					// module so that Vite doesn’t bundle the server-side Astro code for the client.
 					if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 						return {
 							code: `export default import.meta.env.DEV
@@ -278,8 +258,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					const transformResult = await compile(source, filename);
 
 					const astroMetadata: AstroPluginMetadata['astro'] = {
-						// Remove Astro components that have been mistakenly given client directives
-						// We'll warn the user about this later, but for now we'll prevent them from breaking the build
 						clientOnlyComponents: transformResult.clientOnlyComponents.filter(notAstroComponent),
 						hydratedComponents: transformResult.hydratedComponents.filter(notAstroComponent),
 						serverComponents: transformResult.serverComponents,
@@ -296,8 +274,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						meta: {
 							astro: astroMetadata,
 							vite: {
-								// Setting this vite metadata to `ts` causes Vite to resolve .js
-								// extensions to .ts files.
 								lang: 'ts',
 							},
 						},
@@ -310,7 +286,6 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 		},
 		{
 			name: 'astro:build:normal',
-			// If Vite resolver can't resolve the Astro request, it's likely a virtual Astro file, fallback here instead
 			resolveId: {
 				filter: {
 					id: /(?:\?|&)astro(?:&|=|$)/,

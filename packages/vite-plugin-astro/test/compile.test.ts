@@ -4,9 +4,9 @@ import { pathToFileURL } from 'node:url';
 import { init, parse } from 'es-module-lexer';
 import { resolveConfig } from 'vite';
 import type { InlineConfig } from 'vite';
-import { compileAstro } from '../../../dist/vite-plugin-astro/compile.js';
-import type { AstroConfig } from '../../../dist/types/public/config.js';
-import type { CompileProps } from '../../../dist/core/compile/compile.js';
+import { compileAstro } from '../dist/plugin/compile.js';
+import type { AstroConfigLike as AstroConfig } from '../dist/types.js';
+import type { CompileProps } from '../dist/compile/compile.js';
 
 // #region Helpers
 
@@ -15,15 +15,12 @@ function makeAstroConfig(overrides: Partial<AstroConfig> = {}): AstroConfig {
 	return {
 		root: pathToFileURL('/'),
 		base: '/',
-		experimental: {},
 		...overrides,
 	} as AstroConfig;
 }
 
 async function compile(source: string, id: string, inlineConfig: InlineConfig = {}) {
 	const viteConfig = await resolveConfig({ configFile: false, ...inlineConfig }, 'serve');
-	// compileAstro's CompileAstroOption traces back to src/AstroConfig via rewriteRelativeImportExtensions,
-	// but we import from dist/. The types are structurally identical at runtime; cast to bridge the gap.
 	const props: CompileProps = {
 		astroConfig: makeAstroConfig(),
 		viteConfig,

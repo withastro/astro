@@ -1,6 +1,6 @@
 import type { BuildEnvironment, ConfigEnv, DevEnvironment, Plugin as VitePlugin } from 'vite';
 import type { AstroPluginOptions } from '../../types/astro.js';
-import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
+import type { AstroPluginMetadata } from 'vite-plugin-astro';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { ServerIslandsState } from './shared-state.js';

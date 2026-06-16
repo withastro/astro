@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { isStyleOnlyChanged } from '../../../dist/vite-plugin-astro/hmr.js';
+import { isStyleOnlyChanged } from '../dist/plugin/hmr.js';
 
 describe('isStyleOnlyChanged', () => {
 	it('should return false if nothing change', () => {

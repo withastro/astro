@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import { preprocessCSS, type ResolvedConfig } from 'vite';
-import type { AstroConfig } from '../../types/public/config.js';
-import { AstroErrorData, CSSError, positionAt } from '../errors/index.js';
-import { normalizePath } from '../viteUtils.js';
+import type { AstroConfigLike } from '../types.js';
+import { CSSError, ErrorData, positionAt } from '../errors.js';
+import { normalizePath } from '@astrojs/internal-helpers/vite';
 import type { CompileCssResult } from './types.js';
 
 export type PartialCompileCssResult = Pick<CompileCssResult, 'isGlobal' | 'dependencies'>;
@@ -40,33 +40,24 @@ export type PreprocessStyleFn = (
  * @returns The CSS with rewritten URLs
  */
 function rewriteCssUrls(css: string, base: string): string {
-	// Only rewrite if base is not the default '/'
 	if (!base || base === '/') {
 		return css;
 	}
 
-	// Normalize base path (remove trailing slash for consistent joining)
 	const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
 
-	// Safety check: base should start with '/' (already normalized by Astro config)
 	if (!normalizedBase.startsWith('/')) {
 		return css;
 	}
 
-	// Vite's production-tested regex for matching url() in CSS
-	// Matches url(...) while handling quotes, unquoted URLs, and edge cases
-	// Excludes @import statements via negative lookbehind
-	// Matches Vite's cssUrlRE pattern exactly - capturing groups preserved for compatibility
 	const cssUrlRE =
 		// eslint-disable-next-line regexp/no-unused-capturing-group
 		/(?<!@import\s+)(?<=^|[^\w\-\u0080-\uffff])url\((\s*('[^']+'|"[^"]+")\s*|(?:\\.|[^'")\\])+)\)/g;
 
 	return css.replace(cssUrlRE, (match, rawUrl: string) => {
-		// Extract URL value, removing quotes if present
 		let url = rawUrl.trim();
 		let quote = '';
 
-		// Check if URL is quoted (single or double)
 		if ((url.startsWith("'") && url.endsWith("'")) || (url.startsWith('"') && url.endsWith('"'))) {
 			quote = url[0];
 			url = url.slice(1, -1);
@@ -74,14 +65,9 @@ function rewriteCssUrls(css: string, base: string): string {
 
 		url = url.trim();
 
-		// Only rewrite root-relative URLs (start with / but not //)
 		const isRootRelative = url.startsWith('/') && !url.startsWith('//');
-
-		// Skip external URLs and data URIs
 		const isExternal =
 			url.startsWith('data:') || url.startsWith('http:') || url.startsWith('https:');
-
-		// Skip if already has base path (makes function idempotent)
 		const alreadyHasBase = url.startsWith(normalizedBase + '/');
 
 		if (isRootRelative && !isExternal && !alreadyHasBase) {
@@ -117,8 +103,6 @@ function rewriteCssUrls(css: string, base: string): string {
 function withNestingExcluded(viteConfig: ResolvedConfig): ResolvedConfig | undefined {
 	let Features: { Nesting: number };
 	try {
-		// `lightningcss` is loaded by Vite as an optional peer dep, so we
-		// resolve it from the user's project root (where Vite resolves it).
 		const requireFromRoot = createRequire(viteConfig.root + '/');
 		Features = (requireFromRoot('lightningcss') as { Features: { Nesting: number } }).Features;
 	} catch {
@@ -141,7 +125,7 @@ export function createStylePreprocessor({
 }: {
 	filename: string;
 	viteConfig: ResolvedConfig;
-	astroConfig: AstroConfig;
+	astroConfig: AstroConfigLike;
 	cssPartialCompileResults: Partial<CompileCssResult>[];
 	cssTransformErrors: Error[];
 }): PreprocessStyleFn {
@@ -152,24 +136,15 @@ export function createStylePreprocessor({
 		const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
 		const id = `${filename}?astro&type=style&index=${index}&lang${lang}`;
 		try {
-			// Workaround for #16524: when lightningcss is the Vite CSS transformer,
-			// exclude its Nesting lowering pass so the Astro compiler's scope
-			// injector still sees `.parent` (and not `:where(.parent ...)`) as the
-			// leading compound. Vite's downstream pipeline still lowers nesting
-			// for the final bundle.
 			const effectiveViteConfig =
 				viteConfig.css?.transformer === 'lightningcss'
 					? (withNestingExcluded(viteConfig) ?? viteConfig)
 					: viteConfig;
 			const result = await preprocessCSS(content, id, effectiveViteConfig);
 
-			// Rewrite CSS URLs to include the base path
-			// This is necessary because preprocessCSS doesn't handle URL rewriting
 			const rewrittenCode = rewriteCssUrls(result.code, astroConfig.base);
 
 			cssPartialCompileResults[index] = {
-				// Use `in` operator to handle both Go compiler (boolean `true`) and
-				// Rust compiler (empty string `""`) representations of boolean attributes.
 				isGlobal: 'is:global' in attrs,
 				dependencies: result.deps ? [...result.deps].map((dep) => normalizePath(dep)) : [],
 			};
@@ -198,14 +173,11 @@ function enhanceCSSError(err: any, filename: string, cssContent: string) {
 	const fileContent = fs.readFileSync(filename).toString();
 	const styleTagBeginning = fileContent.indexOf(cssContent);
 
-	// PostCSS Syntax Error
 	if (err.name === 'CssSyntaxError') {
 		const errorLine = positionAt(styleTagBeginning, fileContent).line + (err.line ?? 0);
 
-		// Vite will handle creating the frame for us with proper line numbers, no need to create one
-
 		return new CSSError({
-			...AstroErrorData.CSSSyntaxError,
+			...ErrorData.CSSSyntaxError,
 			message: err.reason,
 			location: {
 				file: filename,
@@ -216,12 +188,11 @@ function enhanceCSSError(err: any, filename: string, cssContent: string) {
 		});
 	}
 
-	// Some CSS processor will return a line and a column, so let's try to show a pretty error
 	if (err.line && err.column) {
 		const errorLine = positionAt(styleTagBeginning, fileContent).line + (err.line ?? 0);
 
 		return new CSSError({
-			...AstroErrorData.UnknownCSSError,
+			...ErrorData.UnknownCSSError,
 			message: err.message,
 			location: {
 				file: filename,
@@ -233,7 +204,6 @@ function enhanceCSSError(err: any, filename: string, cssContent: string) {
 		});
 	}
 
-	// For other errors we'll just point to the beginning of the style tag
 	const errorPosition = positionAt(styleTagBeginning, fileContent);
 	errorPosition.line += 1;
 

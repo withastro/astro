@@ -26,7 +26,7 @@ import type { AstroSettings, RoutesList } from '../types/astro.js';
 import { vitePluginAdapterConfig } from '../vite-plugin-adapter-config/index.js';
 import { vitePluginApp } from '../vite-plugin-app/index.js';
 import { vitePluginFetchable } from './fetch/vite-plugin.js';
-import astroVitePlugin from '../vite-plugin-astro/index.js';
+import astroVitePlugin from 'vite-plugin-astro';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import { astroDevCssPlugin } from '../vite-plugin-css/index.js';

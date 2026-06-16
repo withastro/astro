@@ -1,17 +1,14 @@
-import {
-	appendExtension,
-	appendForwardSlash,
-} from '../core/path.js';
-import type { AstroConfig } from '../types/public/config.js';
+import type { AstroConfigLike } from '../types.js';
 
-export {
-	cleanUrl,
-	hasSpecialQueries,
-	normalizeFilename,
-	specialQueriesRE,
-} from '@astrojs/internal-helpers/vite';
+function appendForwardSlash(path: string) {
+	return path.endsWith('/') ? path : path + '/';
+}
 
-export function getFileInfo(id: string, config: AstroConfig) {
+function appendExtension(path: string, extension: string) {
+	return path + '.' + extension;
+}
+
+export function getFileInfo(id: string, config: AstroConfigLike) {
 	const sitePathname = appendForwardSlash(
 		config.site ? new URL(config.base, config.site).pathname : config.base,
 	);
@@ -25,7 +22,7 @@ export function getFileInfo(id: string, config: AstroConfig) {
 	if (fileUrl && config.trailingSlash === 'always') {
 		fileUrl = appendForwardSlash(fileUrl);
 	}
-	if (fileUrl && config.build.format === 'file') {
+	if (fileUrl && config.build?.format === 'file') {
 		fileUrl = appendExtension(fileUrl, 'html');
 	}
 	return { fileId, fileUrl };

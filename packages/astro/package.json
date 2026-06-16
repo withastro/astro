@@ -186,6 +186,7 @@
     "vfile": "^6.0.3",
     "vite": "^8.0.13",
     "vitefu": "^1.1.2",
+    "vite-plugin-astro": "workspace:*",
     "xxhash-wasm": "^1.1.0",
     "yargs-parser": "^22.0.0",
     "zod": "^4.3.6"

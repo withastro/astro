@@ -2,8 +2,8 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { resolveConfig } from 'vite';
-import { compile } from '../../../dist/core/compile/compile.js';
-import type { AstroConfig } from '../../../dist/types/public/config.js';
+import { compile } from '../../dist/compile/compile.js';
+import type { AstroConfigLike as AstroConfig } from '../../dist/types.js';
 
 async function compileWithRust(source: string, configOverrides: Partial<AstroConfig> = {}) {
 	const viteConfig = await resolveConfig({ configFile: false }, 'serve');
@@ -11,7 +11,6 @@ async function compileWithRust(source: string, configOverrides: Partial<AstroCon
 		astroConfig: {
 			root: pathToFileURL('/'),
 			base: '/',
-			experimental: { rustCompiler: true },
 			compressHTML: false,
 			scopedStyleStrategy: 'attribute',
 			devToolbar: { enabled: false },
@@ -25,7 +24,7 @@ async function compileWithRust(source: string, configOverrides: Partial<AstroCon
 	});
 }
 
-describe('experimental.rustCompiler - core compile', () => {
+describe('core compile', () => {
 	it('compiles a basic Astro component', async () => {
 		const result = await compileWithRust('<h1>Hello World</h1>');
 		assert.ok(result.code);

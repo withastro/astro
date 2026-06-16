@@ -1,16 +1,14 @@
 import { fileURLToPath } from 'node:url';
 import { preprocessStyles, transform, type TransformResult } from '@astrojs/compiler-rs';
 import type { ResolvedConfig } from 'vite';
-import type { AstroConfig } from '../../types/public/config.js';
-import type { AstroError } from '../errors/errors.js';
-import { AggregateError, CompilerError } from '../errors/errors.js';
-import { AstroErrorData } from '../errors/index.js';
-import { normalizePath, resolvePath } from '../viteUtils.js';
+import type { AstroConfigLike } from '../types.js';
+import { AggregateError, CompilerError, ErrorData } from '../errors.js';
+import { normalizePath, resolvePath } from '@astrojs/internal-helpers/vite';
 import { createStylePreprocessor, type PartialCompileCssResult } from './style.js';
 import type { CompileCssResult } from './types.js';
 
 export interface CompileProps {
-	astroConfig: AstroConfig;
+	astroConfig: AstroConfigLike;
 	viteConfig: ResolvedConfig;
 	toolbarEnabled: boolean;
 	filename: string;
@@ -29,7 +27,7 @@ export async function compile({
 	source,
 }: CompileProps): Promise<CompileResult> {
 	const cssPartialCompileResults: PartialCompileCssResult[] = [];
-	const cssTransformErrors: AstroError[] = [];
+	const cssTransformErrors: CompilerError[] = [];
 	let transformResult: TransformResult;
 
 	try {
@@ -66,10 +64,8 @@ export async function compile({
 			},
 		});
 	} catch (err: any) {
-		// The compiler should be able to handle errors by itself, however
-		// for the rare cases where it can't let's directly throw here with as much info as possible
 		throw new CompilerError({
-			...AstroErrorData.UnknownCompilerError,
+			...ErrorData.UnknownCompilerError,
 			message: err.message ?? 'Unknown compiler error',
 			stack: err.stack,
 			location: {
@@ -92,7 +88,7 @@ export async function compile({
 function handleCompileResultErrors(
 	filename: string,
 	result: TransformResult,
-	cssTransformErrors: AstroError[],
+	cssTransformErrors: CompilerError[],
 ) {
 	const compilerError = result.diagnostics.find((diag) => diag.severity === 'error');
 

@@ -1,12 +1,19 @@
-import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { RouteData } from '../types/public/internal.js';
 import { hasSpecialQueries } from '../vite-plugin-utils/index.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
-import { removeQueryString, removeTrailingForwardSlash, slash } from './path.js';
+import { removeQueryString, removeTrailingForwardSlash } from './path.js';
+
+export { viteID, VALID_ID_PREFIX, unwrapId } from '@astrojs/internal-helpers/vite';
+
+const NULL_BYTE_PLACEHOLDER = `__x00__`;
+const NULL_BYTE_REGEX = /^\0/;
+
+export function wrapId(id: string): string {
+	return id.replace(NULL_BYTE_REGEX, `/@id/${NULL_BYTE_PLACEHOLDER}`);
+}
 
 /** Check if a file is a markdown file based on its extension */
 export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
@@ -23,11 +30,6 @@ export function isMarkdownFile(fileId: string, option?: { suffix?: string }): bo
 
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 
-/**
- * Get the correct output filename for a route, based on your config.
- * Handles both "/foo" and "foo" `name` formats.
- * Handles `/404` and `/` correctly.
- */
 export function getOutputFilename(
 	buildFormat: NonNullable<AstroConfig['build']>['format'],
 	name: string,
@@ -52,7 +54,6 @@ export function getOutputFilename(
 export function parseNpmName(
 	spec: string,
 ): { scope?: string; name: string; subpath?: string } | undefined {
-	// not an npm package
 	if (!spec || spec[0] === '.' || spec[0] === '/') return undefined;
 
 	let scope: string | undefined;
@@ -72,33 +73,6 @@ export function parseNpmName(
 		name,
 		subpath,
 	};
-}
-
-/**
- * Convert file URL to ID for environment.moduleGraph.idToModuleMap.get(:viteID)
- * Format:
- *   Linux/Mac:  /Users/astro/code/my-project/src/pages/index.astro
- *   Windows:    C:/Users/astro/code/my-project/src/pages/index.astro
- */
-export function viteID(filePath: URL): string {
-	return slash(fileURLToPath(filePath) + filePath.search);
-}
-
-export const VALID_ID_PREFIX = `/@id/`;
-const NULL_BYTE_PLACEHOLDER = `__x00__`;
-const NULL_BYTE_REGEX = /^\0/;
-
-// Strip valid id prefix and replace null byte placeholder. Both are prepended to resolved ids
-// as they are not valid browser import specifiers (by the Vite's importAnalysis plugin)
-export function unwrapId(id: string): string {
-	return id.startsWith(VALID_ID_PREFIX)
-		? id.slice(VALID_ID_PREFIX.length).replace(NULL_BYTE_PLACEHOLDER, '\0')
-		: id;
-}
-
-// Reverses `unwrapId` function
-export function wrapId(id: string): string {
-	return id.replace(NULL_BYTE_REGEX, `${VALID_ID_PREFIX}${NULL_BYTE_PLACEHOLDER}`);
 }
 
 export function resolvePages(config: AstroConfig) {
@@ -127,8 +101,6 @@ function isPublicRoute(file: URL, config: AstroConfig): boolean {
 	const pagesDir = resolvePages(config).toString();
 	const fileDir = file.toString();
 
-	// Normalize the file directory path by removing the pagesDir prefix if it exists,
-	// otherwise remove the rootDir prefix.
 	const normalizedDir = fileDir.startsWith(pagesDir)
 		? fileDir.slice(pagesDir.length)
 		: fileDir.slice(rootDir.length);
@@ -161,19 +133,6 @@ export function isEndpoint(file: URL, settings: AstroSettings): boolean {
 	return !endsWithPageExt(file, settings) && !file.toString().includes('?astro');
 }
 
-export function resolveJsToTs(filePath: string) {
-	if (filePath.endsWith('.jsx') && !fs.existsSync(filePath)) {
-		const tryPath = filePath.slice(0, -4) + '.tsx';
-		if (fs.existsSync(tryPath)) {
-			return tryPath;
-		}
-	}
-	return filePath;
-}
-
-/**
- * Set a default NODE_ENV so Vite doesn't set an incorrect default when loading the Astro config
- */
 export function ensureProcessNodeEnv(defaultNodeEnv: string) {
 	if (!process.env.NODE_ENV) {
 		process.env.NODE_ENV = defaultNodeEnv;
