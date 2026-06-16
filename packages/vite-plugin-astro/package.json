@@ -30,8 +30,7 @@
   },
   "dependencies": {
     "@astrojs/compiler-rs": "^0.1.10",
-    "@astrojs/internal-helpers": "workspace:*",
-    "common-ancestor-path": "^2.0.0"
+    "@astrojs/internal-helpers": "workspace:*"
   },
   "peerDependencies": {
     "vite": "^8.0.0"
