@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes an issue where certain encoded URLs weren't incorrectly caught as per requirements.
+Harden the limits on the number of encodings on the URL.

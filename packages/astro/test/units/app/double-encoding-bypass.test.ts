@@ -276,7 +276,9 @@ describe('URL normalization: rewrite-based middleware bypass', () => {
 	it('rejects an over-encoded path with 400 instead of bypassing to /api/admin', async () => {
 		// Encoded more times than we decode.
 		const app = createApp(createRewriteAuthMiddleware());
-		const response = await app.render(new Request('http://example.com/api/%2525252561dmin'));
+		const response = await app.render(
+			new Request('http://example.com/api/%2525252525252525252561dmin'),
+		);
 		assert.equal(response.status, 400, 'over-encoded path must be rejected, not served');
 	});
 

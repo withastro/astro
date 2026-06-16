@@ -197,14 +197,14 @@ describe('validateAndDecodePathname', () => {
 	// middleware check one path while a later decode (during rewrite routing)
 	// turns it into a different, protected path. So we reject these instead.
 
-	it('decodes a path encoded right up to the limit', () => {
-		// Encoded 3 times; this still decodes fully within the limit.
-		assert.equal(validateAndDecodePathname('/api/%25252561dmin'), '/api/admin');
+	it('decodes a path encoded right up to the limit (10 times)', () => {
+		// Encoded 10 times — the most we allow — still decodes fully.
+		assert.equal(validateAndDecodePathname('/api/%25252525252525252561dmin'), '/api/admin');
 	});
 
-	it('throws MultiLevelEncodingError one step past the limit', () => {
+	it('throws MultiLevelEncodingError once a path is encoded past the limit (11 times)', () => {
 		assert.throws(
-			() => validateAndDecodePathname('/api/%2525252561dmin'),
+			() => validateAndDecodePathname('/api/%2525252525252525252561dmin'),
 			(err: any) => {
 				assert.equal(err instanceof MultiLevelEncodingError, true);
 				return true;

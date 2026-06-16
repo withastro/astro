@@ -19,7 +19,7 @@ export class MultiLevelEncodingError extends Error {
  * already encoded. A path that is still encoded after this many tries is
  * almost certainly an attack, so we reject it instead of decoding again.
  */
-const MAX_DECODE_ITERATIONS = 4;
+const MAX_DECODE_ITERATIONS = 10;
 
 /**
  * Decodes a URL path over and over until it stops changing, so a path that was
