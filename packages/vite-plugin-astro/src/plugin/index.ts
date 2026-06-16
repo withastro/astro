@@ -5,7 +5,7 @@ import {
 	isAstroServerEnvironment,
 } from '@astrojs/internal-helpers/environments';
 import { normalizeFilename, specialQueriesRE } from '@astrojs/internal-helpers/vite';
-import type { AstroConfigLike, Transform } from '../types.js';
+import type { Transform } from '../types.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
@@ -15,26 +15,31 @@ import type {
 	CompileMetadata,
 } from './types.js';
 import { loadId } from './utils.js';
+import type { TransformOptions } from '@astrojs/compiler-rs';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 
 export { getAstroMetadata } from './metadata.js';
 export type { AstroPluginMetadata };
 
-interface AstroPluginOptions {
-	config: AstroConfigLike;
+interface AstroPluginOptions
+	extends Pick<TransformOptions, 'compact' | 'astroGlobalArgs' | 'scopedStyleStrategy'> {
 	annotateSourceFile?: boolean;
 	transform?: Transform;
 }
 
-const astroFileToCompileMetadataWeakMap = new WeakMap<
-	AstroConfigLike,
-	Map<string, CompileMetadata>
->();
+// const astroFileToCompileMetadataWeakMap = new WeakMap<
+// 	AstroConfigLike,
+// 	Map<string, CompileMetadata>
+// >();
 
 /** Transform .astro files for Vite */
 export default function astro({
-	config,
 	annotateSourceFile = false,
 	transform,
+	compact,
+	astroGlobalArgs,
+	scopedStyleStrategy,
 }: AstroPluginOptions): vite.Plugin[] {
 	let server: vite.ViteDevServer | undefined;
 	let compile: (code: string, filename: string) => Promise<CompileAstroResult>;
@@ -42,8 +47,6 @@ export default function astro({
 	// call `buildStart` (test bug)
 	let astroFileToCompileMetadata = new Map<string, CompileMetadata>();
 
-	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
-	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb) && srcRootWeb !== '/';
 	const notAstroComponent = (component: AstroComponent) =>
 		!component.resolvedPath.endsWith('.astro');
 
@@ -65,7 +68,9 @@ export default function astro({
 					const parsedId = parseAstroRequest(id);
 					// Special edge case handling for Vite 6 beta, the style dependencies need to be registered here to take effect
 					// TODO: Remove this when Vite fixes it (https://github.com/vitejs/vite/pull/18103)
-					const astroFilename = normalizePath(normalizeFilename(parsedId.filename, config.root));
+					const astroFilename = normalizePath(
+						normalizeFilename(parsedId.filename, this.environment.config.root),
+					);
 					const compileMetadata = astroFileToCompileMetadata.get(astroFilename);
 					if (compileMetadata && parsedId.query.type === 'style' && parsedId.query.index != null) {
 						const result = compileMetadata.css[parsedId.query.index];
@@ -93,11 +98,13 @@ export default function astro({
 				compile = (code, filename) => {
 					return compileAstro({
 						compileProps: {
-							astroConfig: config,
 							viteConfig,
 							filename,
 							source: code,
 							annotateSourceFile,
+							compact,
+							astroGlobalArgs,
+							scopedStyleStrategy,
 						},
 						astroFileToCompileMetadata,
 						transform,
@@ -113,14 +120,15 @@ export default function astro({
 			buildStart() {
 				astroFileToCompileMetadata = new Map();
 
+				// TODO: check if still needed
 				// Share the `astroFileToCompileMetadata` across the same Astro config as Astro performs
 				// multiple builds and its hoisted scripts analyzer requires the compile metadata from
 				// previous builds. Ideally this should not be needed when we refactor hoisted scripts analysis.
-				if (astroFileToCompileMetadataWeakMap.has(config)) {
-					astroFileToCompileMetadata = astroFileToCompileMetadataWeakMap.get(config)!;
-				} else {
-					astroFileToCompileMetadataWeakMap.set(config, astroFileToCompileMetadata);
-				}
+				// if (astroFileToCompileMetadataWeakMap.has(config)) {
+				// 	astroFileToCompileMetadata = astroFileToCompileMetadataWeakMap.get(config)!;
+				// } else {
+				// 	astroFileToCompileMetadataWeakMap.set(config, astroFileToCompileMetadata);
+				// }
 			},
 			load: {
 				filter: {
@@ -130,7 +138,9 @@ export default function astro({
 					const parsedId = parseAstroRequest(id);
 					const query = parsedId.query;
 
-					const filename = normalizePath(normalizeFilename(parsedId.filename, config.root));
+					const filename = normalizePath(
+						normalizeFilename(parsedId.filename, this.environment.config.root),
+					);
 					let compileMetadata = astroFileToCompileMetadata.get(filename);
 					if (!compileMetadata) {
 						if (server) {
@@ -189,9 +199,12 @@ export default function astro({
 
 							if (script.type === 'external') {
 								const src = script.src!;
-								if (src.startsWith('/') && !isBrowserPath(src)) {
-									const publicDir =
-										config.publicDir.pathname.replace(/\/$/, '').split('/').pop() + '/';
+								const publicDir =
+									this.environment.config.publicDir.replace(/\/$/, '').split('/').pop() + '/';
+								if (
+									src.startsWith('/') &&
+									existsSync(path.join(this.environment.config.root, publicDir, src))
+								) {
 									throw new Error(
 										`\n\n<script src="${src}"> references an asset in the "${publicDir}" directory. Please add the "is:inline" directive to keep this asset from being bundled.\n\nFile: ${id}`,
 									);

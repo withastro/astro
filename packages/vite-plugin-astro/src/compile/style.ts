@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import { preprocessCSS, type ResolvedConfig } from 'vite';
-import type { AstroConfigLike } from '../types.js';
 import { CSSError, ErrorData, positionAt } from '../errors.js';
 import { normalizePath } from '@astrojs/internal-helpers/vite';
 import type { CompileCssResult } from './types.js';
@@ -119,13 +118,11 @@ function withNestingExcluded(viteConfig: ResolvedConfig): ResolvedConfig | undef
 export function createStylePreprocessor({
 	filename,
 	viteConfig,
-	astroConfig,
 	cssPartialCompileResults,
 	cssTransformErrors,
 }: {
 	filename: string;
 	viteConfig: ResolvedConfig;
-	astroConfig: AstroConfigLike;
 	cssPartialCompileResults: Partial<CompileCssResult>[];
 	cssTransformErrors: Error[];
 }): PreprocessStyleFn {
@@ -142,7 +139,7 @@ export function createStylePreprocessor({
 					: viteConfig;
 			const result = await preprocessCSS(content, id, effectiveViteConfig);
 
-			const rewrittenCode = rewriteCssUrls(result.code, astroConfig.base);
+			const rewrittenCode = rewriteCssUrls(result.code, viteConfig.base);
 
 			cssPartialCompileResults[index] = {
 				isGlobal: 'is:global' in attrs,

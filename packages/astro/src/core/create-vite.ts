@@ -197,7 +197,6 @@ export async function createVite(
 			configAliasVitePlugin({ settings }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
 			astroVitePlugin({
-				config: settings.config,
 				annotateSourceFile:
 					settings.config.devToolbar.enabled &&
 					(await settings.preferences.get('devToolbar.enabled')),
@@ -210,6 +209,9 @@ export async function createVite(
 
 					return code + SUFFIX;
 				},
+				compact: settings.config.compressHTML,
+				astroGlobalArgs: JSON.stringify(settings.config.site),
+				scopedStyleStrategy: settings.config.scopedStyleStrategy,
 			}),
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes

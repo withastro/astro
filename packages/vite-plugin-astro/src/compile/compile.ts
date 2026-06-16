@@ -1,14 +1,17 @@
-import { fileURLToPath } from 'node:url';
-import { preprocessStyles, transform, type TransformResult } from '@astrojs/compiler-rs';
+import {
+	preprocessStyles,
+	transform,
+	type TransformOptions,
+	type TransformResult,
+} from '@astrojs/compiler-rs';
 import type { ResolvedConfig } from 'vite';
-import type { AstroConfigLike } from '../types.js';
 import { AggregateError, CompilerError, ErrorData } from '../errors.js';
 import { normalizePath, resolvePath } from '@astrojs/internal-helpers/vite';
 import { createStylePreprocessor, type PartialCompileCssResult } from './style.js';
 import type { CompileCssResult } from './types.js';
 
-export interface CompileProps {
-	astroConfig: AstroConfigLike;
+export interface CompileProps
+	extends Pick<TransformOptions, 'compact' | 'astroGlobalArgs' | 'scopedStyleStrategy'> {
 	viteConfig: ResolvedConfig;
 	annotateSourceFile: boolean;
 	filename: string;
@@ -20,11 +23,13 @@ export interface CompileResult extends Omit<TransformResult, 'css'> {
 }
 
 export async function compile({
-	astroConfig,
 	viteConfig,
 	annotateSourceFile,
 	filename,
 	source,
+	compact,
+	astroGlobalArgs,
+	scopedStyleStrategy,
 }: CompileProps): Promise<CompileResult> {
 	const cssPartialCompileResults: PartialCompileCssResult[] = [];
 	const cssTransformErrors: CompilerError[] = [];
@@ -36,21 +41,20 @@ export async function compile({
 			createStylePreprocessor({
 				filename,
 				viteConfig,
-				astroConfig,
 				cssPartialCompileResults,
 				cssTransformErrors,
 			}),
 		);
 
 		transformResult = transform(source, {
-			compact: astroConfig.compressHTML,
+			compact,
 			filename,
-			normalizedFilename: normalizeFilename(filename, astroConfig.root),
+			normalizedFilename: normalizeFilename(filename, viteConfig.root),
 			sourcemap: 'both',
 			internalURL: 'astro/compiler-runtime',
 			// TODO: remove in Astro v7
-			astroGlobalArgs: JSON.stringify(astroConfig.site),
-			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
+			astroGlobalArgs,
+			scopedStyleStrategy,
 			resultScopedSlot: true,
 			transitionsAnimationURL: 'astro/components/viewtransitions.css',
 			annotateSourceFile: viteConfig.command === 'serve' && annotateSourceFile,
@@ -116,9 +120,9 @@ function handleCompileResultErrors(
 	}
 }
 
-function normalizeFilename(filename: string, root: URL) {
+function normalizeFilename(filename: string, root: string) {
 	const normalizedFilename = normalizePath(filename);
-	const normalizedRoot = normalizePath(fileURLToPath(root));
+	const normalizedRoot = normalizePath(root);
 	if (normalizedFilename.startsWith(normalizedRoot)) {
 		return normalizedFilename.slice(normalizedRoot.length - 1);
 	} else {

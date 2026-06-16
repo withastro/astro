@@ -1,10 +1,8 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { pathToFileURL } from 'node:url';
 import { resolveConfig } from 'vite';
 import { compile } from '../../dist/compile/index.js';
 import { AggregateError } from '../../dist/errors.js';
-import type { AstroConfigLike as AstroConfig } from '../../dist/types.js';
 
 describe('vite-plugin-astro/compile', () => {
 	describe('Invalid CSS', () => {
@@ -12,9 +10,6 @@ describe('vite-plugin-astro/compile', () => {
 			let error;
 			try {
 				await compile({
-					astroConfig: {
-						root: pathToFileURL('/'),
-					} as AstroConfig,
 					viteConfig: await resolveConfig({ configFile: false }, 'serve'),
 					annotateSourceFile: false,
 					filename: '/src/pages/index.astro',

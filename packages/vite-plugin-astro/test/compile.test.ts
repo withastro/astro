@@ -1,23 +1,13 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { pathToFileURL } from 'node:url';
 import { init, parse } from 'es-module-lexer';
 import { resolveConfig } from 'vite';
 import type { InlineConfig } from 'vite';
 import { compileAstro } from '../dist/plugin/compile.js';
-import type { AstroConfigLike as AstroConfig, Transform } from '../dist/types.js';
+import type { Transform } from '../dist/types.js';
 import type { CompileProps } from '../dist/compile/compile.js';
 
 // #region Helpers
-
-/** Minimal AstroConfig stub for compile tests. */
-function makeAstroConfig(overrides: Partial<AstroConfig> = {}): AstroConfig {
-	return {
-		root: pathToFileURL('/'),
-		base: '/',
-		...overrides,
-	} as AstroConfig;
-}
 
 async function compile(
 	source: string,
@@ -27,7 +17,6 @@ async function compile(
 ) {
 	const viteConfig = await resolveConfig({ configFile: false, ...inlineConfig }, 'serve');
 	const props: CompileProps = {
-		astroConfig: makeAstroConfig(),
 		viteConfig,
 		annotateSourceFile: false,
 		filename: id,

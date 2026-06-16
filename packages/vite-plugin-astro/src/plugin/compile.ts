@@ -16,14 +16,14 @@ export interface CompileAstroResult extends Omit<CompileResult, 'map'> {
 export async function compileAstro({
 	compileProps,
 	astroFileToCompileMetadata,
-	transform
+	transform,
 }: CompileAstroOption): Promise<CompileAstroResult> {
 	const transformResult = await compile(compileProps);
 
-	let code = transformResult.code
+	let code = transformResult.code;
 
 	if (transform) {
-		code = transform(compileProps.filename, code)
+		code = transform(compileProps.filename, code);
 	}
 
 	let SUFFIX = '';
@@ -36,7 +36,7 @@ export async function compileAstro({
 		}
 	}
 
-	code += SUFFIX
+	code += SUFFIX;
 
 	astroFileToCompileMetadata.set(compileProps.filename, {
 		originalCode: compileProps.source,

@@ -1,21 +1,13 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { pathToFileURL } from 'node:url';
 import { resolveConfig } from 'vite';
 import { compileAstro } from '../dist/plugin/compile.js';
-import type { AstroConfigLike as AstroConfig } from '../dist/types.js';
 import type { CompileProps } from '../dist/compile/compile.js';
 
 /** Compile Astro source with a given base path. */
 async function compileWithBase(source: string, base = '/') {
-	const viteConfig = await resolveConfig({ configFile: false }, 'serve');
+	const viteConfig = await resolveConfig({ configFile: false, root: '/', base }, 'serve');
 	const props: CompileProps = {
-		astroConfig: {
-			root: pathToFileURL('/'),
-			base,
-			build: { format: 'directory' },
-			trailingSlash: 'ignore',
-		} as AstroConfig,
 		viteConfig,
 		annotateSourceFile: false,
 		filename: '/src/pages/index.astro',

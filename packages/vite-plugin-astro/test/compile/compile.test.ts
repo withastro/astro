@@ -1,22 +1,13 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { pathToFileURL } from 'node:url';
 import { resolveConfig } from 'vite';
 import { compile } from '../../dist/compile/compile.js';
-import type { AstroConfigLike as AstroConfig } from '../../dist/types.js';
 
-async function compileWithRust(source: string, configOverrides: Partial<AstroConfig> = {}) {
+async function compileWithRust(source: string) {
 	const viteConfig = await resolveConfig({ configFile: false }, 'serve');
 	return compile({
-		astroConfig: {
-			root: pathToFileURL('/'),
-			base: '/',
-			compressHTML: false,
-			scopedStyleStrategy: 'attribute',
-			devToolbar: { enabled: false },
-			site: undefined,
-			...configOverrides,
-		} as AstroConfig,
+		compact: false,
+		scopedStyleStrategy: 'attribute',
 		viteConfig,
 		annotateSourceFile: false,
 		filename: '/src/components/index.astro',

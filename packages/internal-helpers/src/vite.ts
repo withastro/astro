@@ -91,14 +91,17 @@ function resolveJsToTs(filePath: string) {
 	return filePath;
 }
 
-export function normalizeFilename(filename: string, root: URL) {
+export function normalizeFilename(filename: string, root: string) {
+	// `new URL(..., base)` needs a valid URL base, and relative resolution only
+	// keeps the final path segment when the base ends with a slash.
+	const rootUrl = pathToFileURL(root.endsWith('/') || root.endsWith(path.sep) ? root : root + '/');
 	if (filename.startsWith('/@fs')) {
 		filename = filename.slice('/@fs'.length);
 	} else if (filename.startsWith('.')) {
-		const url = new URL(filename, root);
+		const url = new URL(filename, rootUrl);
 		filename = viteID(url);
-	} else if (filename.startsWith('/') && !isPathInRoot(filename, fileURLToPath(root))) {
-		const url = new URL('.' + filename, root);
+	} else if (filename.startsWith('/') && !isPathInRoot(filename, root)) {
+		const url = new URL('.' + filename, rootUrl);
 		filename = viteID(url);
 	}
 	return removeLeadingForwardSlashWindows(filename);
