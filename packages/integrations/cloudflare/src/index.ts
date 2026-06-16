@@ -16,6 +16,7 @@ import { getParts } from './utils/generate-routes-json.js';
 import { buildAssetsHeadersContent } from './utils/headers.js';
 import {
 	type ImageServiceConfig,
+	hasUserImageService,
 	normalizeImageServiceConfig,
 	setImageConfig,
 } from './utils/image-config.js';
@@ -72,6 +73,13 @@ function hasContentCollectionsConfig(srcDir: URL) {
 	];
 
 	return contentConfigPaths.some((configPath) => existsSync(new URL(`./${configPath}`, srcDir)));
+}
+
+function resolveImageServiceEntrypoint(entrypoint: string, root: URL): string {
+	if (entrypoint.startsWith('.')) {
+		return new URL(entrypoint, root).href;
+	}
+	return entrypoint;
 }
 
 export interface Options
@@ -131,6 +139,7 @@ export default function createIntegration({
 
 	let _routes: IntegrationResolvedRoute[];
 	let cfPluginConfig: PluginConfig;
+	let hasCustomCompileImageService = false;
 
 	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
 	const needsImagesBinding = runtimeService === 'cloudflare-binding';
@@ -145,6 +154,7 @@ export default function createIntegration({
 
 				let session = config.session;
 				const isCompile = buildService === 'compile';
+				hasCustomCompileImageService = isCompile && hasUserImageService(config.image);
 
 				if (needsImagesBinding) {
 					logger.info(
@@ -376,7 +386,9 @@ export default function createIntegration({
 													typeof config.build.assetsPrefix === 'string'
 														? config.build.assetsPrefix
 														: undefined,
-												imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
+												imageServiceEntrypoint: hasCustomCompileImageService
+													? config.image.service.entrypoint
+													: '@astrojs/cloudflare/image-service-workerd',
 												buildAssets: config.build.assets ?? '_astro',
 											}
 										: null,
@@ -468,6 +480,9 @@ export default function createIntegration({
 							trailingSlash: _config.trailingSlash,
 							cfPluginConfig,
 							hasCompileImageService: buildService === 'compile',
+							userImageServiceEntrypoint: hasCustomCompileImageService
+								? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
+								: undefined,
 						}),
 					);
 				}

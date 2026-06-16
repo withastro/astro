@@ -79,3 +79,34 @@ describe('CompileImageService', () => {
 		});
 	});
 });
+
+describe('CompileImageService custom service', () => {
+	let fixture: Fixture;
+	let html: string;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/compile-custom-image-service/',
+			outDir: './dist/compile-custom-image-service/',
+		});
+		await fixture.build();
+		html = await fixture.readFile('client/index.html');
+	});
+
+	it('uses the custom service for markup', () => {
+		const $ = cheerio.load(html);
+		const img = $('img');
+
+		assert.equal(img.attr('data-image-service'), 'custom');
+		assert.match(img.attr('src') ?? '', /^\/_astro\/.+\.webp$/);
+	});
+
+	it('uses the custom service for generated images', async () => {
+		const $ = cheerio.load(html);
+		const src = $('img').attr('src');
+		assert.ok(src);
+
+		const data = (await fixture.readFile(`client${src}`, null)) as unknown as Buffer;
+		assert.equal(Buffer.from(data.subarray(0, 20)).toString('utf8'), 'CUSTOM_TRANSFORM_RAN');
+	});
+});
