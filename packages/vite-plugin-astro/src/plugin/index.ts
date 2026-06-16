@@ -117,10 +117,8 @@ export default function astro({
 					astroFileToCompileMetadata.delete(filename);
 				});
 			},
-			buildStart() {
-				astroFileToCompileMetadata = new Map();
-
-				// TODO: check if still needed
+			// TODO: check if still needed
+			// buildStart() {
 				// Share the `astroFileToCompileMetadata` across the same Astro config as Astro performs
 				// multiple builds and its hoisted scripts analyzer requires the compile metadata from
 				// previous builds. Ideally this should not be needed when we refactor hoisted scripts analysis.
@@ -129,7 +127,7 @@ export default function astro({
 				// } else {
 				// 	astroFileToCompileMetadataWeakMap.set(config, astroFileToCompileMetadata);
 				// }
-			},
+			// },
 			load: {
 				filter: {
 					id: /(?:\?|&)astro(?:&|=|$)/,
