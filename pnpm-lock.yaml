@@ -6718,6 +6718,9 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
+      es-module-lexer:
+        specifier: ^1.7.0
+        version: 1.7.0
       vite:
         specifier: ^8.0.16
         version: 8.0.16(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
