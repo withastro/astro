@@ -111,8 +111,7 @@ Use `pnpm -C <dir> <command>` for project-local script commands when working in 
 - Use `astro check` to run type checking and diagnostics.
 - Use `astro sync` to generate and update TypeScript types.
 - Use `astro add` to install and configure an official integration.
-- Fetch **LLM-optimized** docs at https://docs.astro.build/llms.txt.
-- Fetch **Full docs** at https://docs.astro.build/ (primary source, use when llms.txt lacks info).
+- Fetch **Full docs** at https://docs.astro.build/ (primary source for the latest reference).
 
 # `bgproc`
 

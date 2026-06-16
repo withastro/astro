@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import { rehypeHeadingIds } from '@astrojs/markdown-remark';
+import { rehypeHeadingIds, unified } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import { parseHTML } from 'linkedom';
 import { visit } from 'unist-util-visit';
@@ -162,8 +162,10 @@ describe('MDX heading IDs can be injected before user plugins', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/mdx-get-headings/', import.meta.url),
-			integrations: [
-				mdx({
+			integrations: [mdx()],
+			markdown: {
+				// rehypeHeadingIds and the user plugin run on the remark/rehype pipeline.
+				processor: unified({
 					rehypePlugins: [
 						rehypeHeadingIds,
 						() => (tree) => {
@@ -176,7 +178,7 @@ describe('MDX heading IDs can be injected before user plugins', () => {
 						},
 					],
 				}),
-			],
+			},
 		});
 
 		await fixture.build();

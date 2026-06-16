@@ -126,8 +126,8 @@ describe('CSS production ordering', () => {
 		it('should compile styles in the same order as they are found', async () => {
 			const html = await fixture.readFile('/transparent/index.html');
 
-			// The component declares red background first, then yellow
-			assert.match(html, /body\{background:red\}body\{background:#ff0/);
+			// Red is removed, yellow stays
+			assert.match(html, /body\{background:#ff0/);
 		});
 	});
 });

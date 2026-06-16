@@ -12,7 +12,7 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
 export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 	return {
-		name: '@astro/rollup-plugin-astro-analyzer',
+		name: '@astro/rolldown-plugin-astro-analyzer',
 		applyToEnvironment(environment) {
 			return (
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||

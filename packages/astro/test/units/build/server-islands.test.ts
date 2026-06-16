@@ -114,7 +114,6 @@ describe('Build: Server islands in prerendered pages', () => {
 				logger: defaultLogger,
 				mode: 'production',
 				runtimeMode: 'production',
-				teardownCompiler: false,
 				routesList,
 				sync: false,
 			});
@@ -229,7 +228,6 @@ describe('Build: Server islands in prerendered pages', () => {
 				logger: defaultLogger,
 				mode: 'production',
 				runtimeMode: 'production',
-				teardownCompiler: false,
 				routesList,
 				sync: false,
 			});

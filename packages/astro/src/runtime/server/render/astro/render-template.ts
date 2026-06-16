@@ -10,7 +10,7 @@ const renderTemplateResultSym = Symbol.for('astro.renderTemplateResult');
 // This is the result of calling render(), should this be named to RenderResult or...?
 export class RenderTemplateResult {
 	public [renderTemplateResultSym] = true;
-	private htmlParts: TemplateStringsArray;
+	readonly htmlParts: TemplateStringsArray;
 	public expressions: any[];
 	private error: Error | undefined;
 	constructor(htmlParts: TemplateStringsArray, expressions: unknown[]) {

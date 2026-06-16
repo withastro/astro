@@ -74,8 +74,8 @@ describe('astro:image', () => {
 				}),
 			});
 			devServer = await fixture.startDevServer({
-				// @ts-expect-error: `logger` is an internal API
-				logger,
+				// @ts-expect-error: `_logger` is an internal API
+				_logger: logger,
 			});
 		});
 
@@ -822,8 +822,8 @@ describe('astro:image', () => {
 				}),
 			});
 			devServer = await fixture.startDevServer({
-				// @ts-expect-error: `logger` is an internal API
-				logger,
+				// @ts-expect-error: `_logger` is an internal API
+				_logger: logger,
 			});
 		});
 
@@ -1193,8 +1193,8 @@ describe('build ssg', () => {
 			level: 'info',
 		});
 		await fixture.build({
-			// @ts-expect-error: `logger` is an internal API
-			logger,
+			// @ts-expect-error: `_logger` is an internal API
+			_logger: logger,
 		});
 		const generatingImageIndex = logs.findIndex((logLine) =>
 			logLine.message?.includes('generating optimized images'),
@@ -1231,7 +1231,7 @@ describe('build ssg', () => {
 		let $script = $('script');
 
 		// Find image
-		const regex = /src:"([^"]*)/;
+		const regex = /src:["`]([^"`]*)/;
 		const imageSrc = regex.exec($script.html()!)![1];
 		const data = await fixture.readBuffer(imageSrc);
 		assert.equal(data instanceof Buffer, true);

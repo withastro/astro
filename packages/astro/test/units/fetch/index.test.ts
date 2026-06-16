@@ -13,8 +13,15 @@ import {
 } from '../../../dist/core/fetch/index.js';
 import { ALL_PIPELINE_FEATURES } from '../../../dist/core/base-pipeline.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createEndpoint, createPage, createRedirect, createTestApp } from '../mocks.ts';
+import {
+	createEndpoint,
+	createPage,
+	createRedirect,
+	createTestApp,
+	createMockFetchState,
+} from '../mocks.ts';
 import { dynamicPart, spreadPart } from '../routing/test-helpers.ts';
+import { SpyLogger } from '../test-utils.ts';
 
 /** A simple page component that renders `<h1>Hello</h1>`. */
 const simplePage = createComponent((_result: any, _props: any, _slots: any) => {
@@ -287,6 +294,45 @@ describe('pages()', () => {
 		assert.equal(response.status, 404);
 		const text = await response.text();
 		assert.match(text, /<h1>Not Found<\/h1>/);
+	});
+
+	it('renders the custom 500 page when a page throws during render', async () => {
+		const throwingPage = createComponent((_result: any, _props: any, _slots: any) => {
+			throw new Error('boom');
+		});
+		const errorPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>my custom 500</h1>`;
+		});
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(throwingPage, { route: '/boom' }),
+			createPage(errorPage, { route: '/500' }),
+		]);
+		const request = stampApp(new Request('http://example.com/boom'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 500);
+		const text = await response.text();
+		assert.match(text, /<h1>my custom 500<\/h1>/);
+	});
+
+	it('returns a marked 404 for the app post-check when the custom 404 route is prerendered', async () => {
+		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Not Found</h1>`;
+		});
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(notFoundPage, { route: '/404', prerender: true }),
+		]);
+		const request = stampApp(new Request('http://example.com/does-not-exist'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('X-Astro-Error'), 'true');
 	});
 
 	it('renders an endpoint', async () => {
@@ -977,6 +1023,41 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 
 		assert.equal(new URL(state.request.url).hostname, 'example.com');
 		assert.equal(await state.request.text(), 'chunked-payload');
+	});
+});
+
+// #endregion
+
+// #region session stub getter
+
+describe('session stub getter', () => {
+	it('session property is always defined on the context even without session config', () => {
+		const state = createMockFetchState();
+		const target: Record<string, any> = {};
+		state.defineProviderGetters(target);
+		assert.ok('session' in target, 'session should be a defined property');
+		assert.equal(target.session, undefined);
+	});
+
+	it('warns on first access when session is not configured', async () => {
+		const { createBasicPipeline } = await import('../test-utils.ts');
+		const logger = new SpyLogger();
+		const pipeline = createBasicPipeline({ logger });
+		const state = createMockFetchState({ pipeline });
+
+		const target: Record<string, any> = {};
+		state.defineProviderGetters(target);
+
+		// First access should warn
+		void target.session;
+		const warnings = logger.logs.filter((l) => l.level === 'warn' && l.label === 'session');
+		assert.equal(warnings.length, 1, 'should warn once on first access');
+		assert.ok(warnings[0].message.includes('no session storage is configured'));
+
+		// Second access should not warn again
+		void target.session;
+		const warningsAfter = logger.logs.filter((l) => l.level === 'warn' && l.label === 'session');
+		assert.equal(warningsAfter.length, 1, 'should not warn a second time');
 	});
 });
 
