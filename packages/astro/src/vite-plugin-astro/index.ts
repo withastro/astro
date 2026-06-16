@@ -1,7 +1,9 @@
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
+import type { ServerIslandsState } from '../core/server-islands/shared-state.js';
 import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -22,12 +24,13 @@ export type { AstroPluginMetadata };
 interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: AstroLogger;
+	serverIslandsState: ServerIslandsState;
 }
 
 const astroFileToCompileMetadataWeakMap = new WeakMap<AstroConfig, Map<string, CompileMetadata>>();
 
 /** Transform .astro files for Vite */
-export default function astro({ settings, logger }: AstroPluginOptions): vite.Plugin[] {
+export default function astro({ settings, logger, serverIslandsState }: AstroPluginOptions): vite.Plugin[] {
 	const { config } = settings;
 	let server: vite.ViteDevServer | undefined;
 	let compile: (code: string, filename: string) => Promise<CompileAstroResult>;
@@ -288,6 +291,14 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						propagation: transformResult.propagation ? 'self' : 'none',
 						pageOptions: {},
 					};
+
+					// Discover server island components from this file's metadata.
+					if (astroMetadata.serverComponents.length > 0) {
+						if (!settings.adapter) {
+							throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
+						}
+						serverIslandsState.discoverComponents(this, astroMetadata.serverComponents, id);
+					}
 
 					return {
 						code: transformResult.code,

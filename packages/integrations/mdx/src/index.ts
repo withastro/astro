@@ -12,6 +12,7 @@ import type {
 	HookParameters,
 } from 'astro';
 import type { MarkdownProcessor } from 'astro/markdown';
+import { getServerIslandsState } from 'astro/server-islands';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
 import { isSatteriProcessor, isUnifiedProcessor } from './processor-guards.js';
@@ -197,6 +198,7 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					mdxOptions: resolvedMdxOptions,
 					srcDir: config.srcDir,
 					processor,
+					serverIslandsState: getServerIslandsState(config),
 				});
 				// @ts-expect-error After we assign, we don't need to reference `mdxOptions` in this context anymore.
 				// Re-assign it so that the garbage can be collected later.

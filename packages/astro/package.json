@@ -26,6 +26,9 @@
       ],
       "middleware": [
         "./dist/virtual-modules/middleware.d.ts"
+      ],
+      "server-islands": [
+        "./dist/core/server-islands/index"
       ]
     }
   },
@@ -49,6 +52,7 @@
     },
     "./compiler-runtime": "./dist/runtime/compiler/index.js",
     "./markdown": "./dist/markdown/index.js",
+    "./server-islands": "./dist/core/server-islands/index.js",
     "./runtime/*": "./dist/runtime/*",
     "./config": "./dist/config/entrypoint.js",
     "./container": "./dist/container/index.js",
@@ -258,6 +262,7 @@
       },
       "./compiler-runtime": "./dist/runtime/compiler/index.js",
       "./markdown": "./dist/markdown/index.js",
+      "./server-islands": "./dist/core/server-islands/index.js",
       "./runtime/*": "./dist/runtime/*",
       "./config": "./dist/config/entrypoint.js",
       "./container": "./dist/container/index.js",

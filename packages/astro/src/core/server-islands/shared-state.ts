@@ -1,3 +1,9 @@
+import type { DevEnvironment } from 'vite';
+import type { AstroConfig } from '../../types/public/config.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
+
+const RESOLVED_SERVER_ISLAND_MANIFEST = '\0virtual:astro:server-island-manifest';
+
 type ServerIslandDiscovery = {
 	// Canonical component identity. Duplicate detection is based on this path.
 	resolvedPath: string;
@@ -13,6 +19,28 @@ type ServerIslandRecord = Omit<ServerIslandDiscovery, 'resolvedPath'> & {
 	islandName: string;
 };
 
+type ServerIslandComponent = {
+	resolvedPath: string;
+	localName: string;
+	specifier?: string;
+};
+
+type PluginContext = {
+	environment?: { name: string };
+	emitFile: (file: { type: 'chunk'; id: string; importer?: string; name?: string }) => string;
+};
+
+const stateByConfig = new WeakMap<AstroConfig, ServerIslandsState>();
+
+export function getServerIslandsState(config: AstroConfig): ServerIslandsState {
+	let state = stateByConfig.get(config);
+	if (!state) {
+		state = new ServerIslandsState();
+		stateByConfig.set(config, state);
+	}
+	return state;
+}
+
 export class ServerIslandsState {
 	// Canonical source of discovered islands keyed by resolved component path.
 	private islandsByResolvedPath = new Map<string, ServerIslandRecord>();
@@ -20,6 +48,16 @@ export class ServerIslandsState {
 	private resolvedPathByIslandName = new Map<string, string>();
 	// Rollup reference ids emitted for SSR chunks, keyed by resolved path.
 	private referenceIdByResolvedPath = new Map<string, string>();
+	private command: 'build' | 'serve' = 'serve';
+	private serverEnvironments: DevEnvironment[] = [];
+
+	setCommand(command: 'build' | 'serve'): void {
+		this.command = command;
+	}
+
+	setServerEnvironments(environments: DevEnvironment[]): void {
+		this.serverEnvironments = environments;
+	}
 
 	hasIslands(): boolean {
 		return this.islandsByResolvedPath.size > 0;
@@ -56,6 +94,47 @@ export class ServerIslandsState {
 		this.resolvedPathByIslandName.set(name, resolvedPath);
 
 		return record;
+	}
+
+	discoverComponents(
+		ctx: PluginContext,
+		components: ServerIslandComponent[],
+		moduleId: string,
+	): void {
+		for (const comp of components) {
+			const island = this.discover({
+				resolvedPath: comp.resolvedPath,
+				localName: comp.localName,
+				specifier: comp.specifier ?? comp.resolvedPath,
+				importer: moduleId,
+			});
+
+			const isBuildSsr =
+				this.command === 'build' && ctx.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
+
+			if (isBuildSsr && !this.hasReferenceId(comp.resolvedPath)) {
+				const referenceId = ctx.emitFile({
+					type: 'chunk',
+					id: island.specifier,
+					importer: island.importer,
+					name: island.islandName,
+				});
+				this.setReferenceId(comp.resolvedPath, referenceId);
+			}
+		}
+
+		this.invalidateManifest();
+	}
+
+	private invalidateManifest(): void {
+		if (!this.hasIslands()) return;
+
+		for (const env of this.serverEnvironments) {
+			const mod = env.moduleGraph.getModuleById(RESOLVED_SERVER_ISLAND_MANIFEST);
+			if (mod) {
+				env.moduleGraph.invalidateModule(mod);
+			}
+		}
 	}
 
 	getDiscoveredIslands(): Iterable<ServerIslandRecord> {

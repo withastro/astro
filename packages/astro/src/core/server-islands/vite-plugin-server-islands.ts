@@ -1,6 +1,5 @@
-import type { BuildEnvironment, ConfigEnv, DevEnvironment, Plugin as VitePlugin } from 'vite';
+import type { BuildEnvironment, ConfigEnv, Plugin as VitePlugin } from 'vite';
 import type { AstroPluginOptions } from '../../types/astro.js';
-import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { ServerIslandsState } from './shared-state.js';
@@ -19,7 +18,6 @@ export function vitePluginServerIslands({
 	serverIslandsState,
 }: AstroPluginOptions & { serverIslandsState: ServerIslandsState }): VitePlugin {
 	let command: ConfigEnv['command'] = 'serve';
-	let serverEnvironments: DevEnvironment[] = [];
 
 	function ensureServerIslandReferenceIds(ctx: {
 		emitFile: (file: { type: 'chunk'; id: string; importer?: string; name?: string }) => string;
@@ -46,6 +44,7 @@ export function vitePluginServerIslands({
 		},
 		config(_config, { command: _command }) {
 			command = _command;
+			serverIslandsState.setCommand(_command);
 		},
 		buildStart() {
 			if (command !== 'build' || this.environment?.name !== ASTRO_VITE_ENVIRONMENT_NAMES.ssr) {
@@ -55,10 +54,9 @@ export function vitePluginServerIslands({
 			ensureServerIslandReferenceIds(this);
 		},
 		configureServer(server) {
-			// Collect all server-side environments that might cache the manifest module.
-			// With adapters like Cloudflare that use a separate `prerender` environment,
-			// we need to invalidate the manifest in all of them, not just `ssr`.
-			serverEnvironments = [];
+			// Track all server-side environments that might cache the manifest module.
+			// The shared server islands state invalidates these when new islands are discovered.
+			const serverEnvironments = [];
 			for (const name of [
 				ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
 				ASTRO_VITE_ENVIRONMENT_NAMES.prerender,
@@ -69,6 +67,7 @@ export function vitePluginServerIslands({
 					serverEnvironments.push(env);
 				}
 			}
+			serverIslandsState.setServerEnvironments(serverEnvironments);
 		},
 		resolveId: {
 			filter: {
@@ -83,80 +82,25 @@ export function vitePluginServerIslands({
 				id: new RegExp(`^${RESOLVED_SERVER_ISLAND_MANIFEST}$`),
 			},
 			handler() {
+				// In dev, return the actual island map directly. The module is invalidated
+				// whenever new islands are discovered, so this always reflects current state.
+				if (command !== 'build' && serverIslandsState.hasIslands()) {
+					const mapSource = serverIslandsState.createImportMapSourceFromDiscovered(
+						(fileName) => fileName,
+					);
+					const nameMapSource = serverIslandsState.createNameMapSource();
+					return {
+						code: `export const serverIslandMap = ${mapSource};\n\nexport const serverIslandNameMap = ${nameMapSource};`,
+					};
+				}
+
+				// In build, return placeholders that renderChunk will replace with final paths.
+				if (command === 'build' && serverIslandsState.hasIslands() && !settings.adapter) {
+					throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
+				}
 				return {
 					code: `export const serverIslandMap = ${serverIslandPlaceholderMap};\n\nexport const serverIslandNameMap = ${serverIslandPlaceholderNameMap};`,
 				};
-			},
-		},
-
-		transform: {
-			filter: {
-				id: {
-					include: [/\.(astro|mdx)$/, new RegExp(`^${RESOLVED_SERVER_ISLAND_MANIFEST}$`)],
-				},
-			},
-			async handler(_code, id) {
-				const info = this.getModuleInfo(id);
-				const astro = info ? (info.meta.astro as AstroPluginMetadata['astro']) : undefined;
-				const isBuildSsr =
-					command === 'build' && this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
-
-				if (astro) {
-					for (const comp of astro.serverComponents) {
-						if (!settings.adapter) {
-							throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
-						}
-
-						const island = serverIslandsState.discover({
-							resolvedPath: comp.resolvedPath,
-							localName: comp.localName,
-							specifier: comp.specifier ?? comp.resolvedPath,
-							importer: id,
-						});
-
-						if (isBuildSsr && !serverIslandsState.hasReferenceId(comp.resolvedPath)) {
-							const referenceId = this.emitFile({
-								type: 'chunk',
-								id: island.specifier,
-								importer: island.importer,
-								name: island.islandName,
-							});
-							serverIslandsState.setReferenceId(comp.resolvedPath, referenceId);
-						}
-					}
-				}
-
-				if (serverIslandsState.hasIslands()) {
-					for (const env of serverEnvironments) {
-						const mod = env.moduleGraph.getModuleById(RESOLVED_SERVER_ISLAND_MANIFEST);
-						if (mod) {
-							env.moduleGraph.invalidateModule(mod);
-						}
-					}
-				}
-
-				if (id === RESOLVED_SERVER_ISLAND_MANIFEST) {
-					if (command === 'build') {
-						if (serverIslandsState.hasIslands() && !settings.adapter) {
-							throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
-						}
-					}
-
-					if (command !== 'build' && serverIslandsState.hasIslands()) {
-						const mapSource = serverIslandsState.createImportMapSourceFromDiscovered(
-							(fileName) => fileName,
-						);
-						const nameMapSource = serverIslandsState.createNameMapSource();
-
-						return {
-							code: `
-						export const serverIslandMap = ${mapSource};
-
-						export const serverIslandNameMap = ${nameMapSource};
-						`,
-						};
-					}
-				}
 			},
 		},
 

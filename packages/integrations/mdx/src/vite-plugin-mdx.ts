@@ -1,5 +1,6 @@
 import type { SSRError } from 'astro';
 import type { MarkdownProcessor, MdxRenderer } from 'astro/markdown';
+import type { ServerIslandsState } from 'astro/server-islands';
 import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
 import type { ResolvedMdxOptions } from './index.js';
@@ -10,6 +11,7 @@ export interface VitePluginMdxOptions {
 	mdxOptions: ResolvedMdxOptions;
 	srcDir: URL;
 	processor: MarkdownProcessor;
+	serverIslandsState: ServerIslandsState;
 }
 
 // NOTE: Do not destructure `opts` as we're assigning a reference that will be mutated later
@@ -58,6 +60,16 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 						mdxRenderer = await resolveMdxRenderer(opts, sourcemapEnabled);
 					}
 					const result = await mdxRenderer.process(content, id, frontmatter);
+
+					// Discover server island components from this file's metadata.
+					if (result.astroMetadata.serverComponents.length > 0) {
+						opts.serverIslandsState.discoverComponents(
+							this,
+							result.astroMetadata.serverComponents,
+							id,
+						);
+					}
+
 					return {
 						code: result.code,
 						map: result.map ?? null,
