@@ -16,7 +16,7 @@ describe('vite-plugin-astro/compile', () => {
 						root: pathToFileURL('/'),
 					} as AstroConfig,
 					viteConfig: await resolveConfig({ configFile: false }, 'serve'),
-					toolbarEnabled: false,
+					annotateSourceFile: false,
 					filename: '/src/pages/index.astro',
 					source: `
 ---

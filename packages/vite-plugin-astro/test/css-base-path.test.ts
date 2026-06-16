@@ -17,7 +17,7 @@ async function compileWithBase(source: string, base = '/') {
 			trailingSlash: 'ignore',
 		} as AstroConfig,
 		viteConfig,
-		toolbarEnabled: false,
+		annotateSourceFile: false,
 		filename: '/src/pages/index.astro',
 		source,
 	};

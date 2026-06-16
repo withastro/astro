@@ -10,7 +10,7 @@ import type { CompileCssResult } from './types.js';
 export interface CompileProps {
 	astroConfig: AstroConfigLike;
 	viteConfig: ResolvedConfig;
-	toolbarEnabled: boolean;
+	annotateSourceFile: boolean;
 	filename: string;
 	source: string;
 }
@@ -22,7 +22,7 @@ export interface CompileResult extends Omit<TransformResult, 'css'> {
 export async function compile({
 	astroConfig,
 	viteConfig,
-	toolbarEnabled,
+	annotateSourceFile,
 	filename,
 	source,
 }: CompileProps): Promise<CompileResult> {
@@ -53,11 +53,7 @@ export async function compile({
 			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
 			resultScopedSlot: true,
 			transitionsAnimationURL: 'astro/components/viewtransitions.css',
-			annotateSourceFile:
-				viteConfig.command === 'serve' &&
-				astroConfig.devToolbar &&
-				astroConfig.devToolbar.enabled &&
-				toolbarEnabled,
+			annotateSourceFile: viteConfig.command === 'serve' && annotateSourceFile,
 			preprocessedStyles,
 			resolvePath(specifier) {
 				return resolvePath(specifier, filename);

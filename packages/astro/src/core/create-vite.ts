@@ -195,7 +195,12 @@ export async function createVite(
 			pluginPages({ routesList }),
 			configAliasVitePlugin({ settings }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
-			astroVitePlugin({ settings }),
+			astroVitePlugin({
+				config: settings.config,
+				annotateSourceFile:
+					settings.config.devToolbar.enabled &&
+					(await settings.preferences.get('devToolbar.enabled')),
+			}),
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.

@@ -11,13 +11,6 @@ export interface AstroConfigLike {
 	build?: { format?: 'file' | 'directory' | 'preserve' };
 }
 
-export interface AstroSettingsLike {
-	config: AstroConfigLike;
-	preferences: {
-		get(key: string): Promise<unknown>;
-	};
-}
-
 export type PropagationHint = 'none' | 'self' | 'in-tree';
 
 export interface ModuleInfo {

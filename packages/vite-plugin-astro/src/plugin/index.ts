@@ -5,7 +5,7 @@ import {
 	isAstroServerEnvironment,
 } from '@astrojs/internal-helpers/environments';
 import { normalizeFilename, specialQueriesRE } from '@astrojs/internal-helpers/vite';
-import type { AstroConfigLike, AstroSettingsLike } from '../types.js';
+import type { AstroConfigLike } from '../types.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
@@ -20,7 +20,8 @@ export { getAstroMetadata } from './metadata.js';
 export type { AstroPluginMetadata };
 
 interface AstroPluginOptions {
-	settings: AstroSettingsLike;
+	config: AstroConfigLike;
+	annotateSourceFile?: boolean;
 }
 
 const astroFileToCompileMetadataWeakMap = new WeakMap<
@@ -29,8 +30,7 @@ const astroFileToCompileMetadataWeakMap = new WeakMap<
 >();
 
 /** Transform .astro files for Vite */
-export default function astro({ settings }: AstroPluginOptions): vite.Plugin[] {
-	const { config } = settings;
+export default function astro({ config, annotateSourceFile = false }: AstroPluginOptions): vite.Plugin[] {
 	let server: vite.ViteDevServer | undefined;
 	let compile: (code: string, filename: string) => Promise<CompileAstroResult>;
 	// NOTE: We need to initialize a map here and in `buildStart` because our unit tests don't
@@ -85,15 +85,14 @@ export default function astro({ settings }: AstroPluginOptions): vite.Plugin[] {
 				viteConfig.resolve.conditions.push('astro');
 			},
 			async configResolved(viteConfig) {
-				const toolbarEnabled = await settings.preferences.get('devToolbar.enabled');
 				compile = (code, filename) => {
 					return compileAstro({
 						compileProps: {
 							astroConfig: config,
 							viteConfig,
-							toolbarEnabled: toolbarEnabled as boolean,
 							filename,
 							source: code,
+							annotateSourceFile,
 						},
 						astroFileToCompileMetadata,
 					});

@@ -18,7 +18,7 @@ async function compileWithRust(source: string, configOverrides: Partial<AstroCon
 			...configOverrides,
 		} as AstroConfig,
 		viteConfig,
-		toolbarEnabled: false,
+		annotateSourceFile: false,
 		filename: '/src/components/index.astro',
 		source,
 	});

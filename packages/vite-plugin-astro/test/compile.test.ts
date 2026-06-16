@@ -24,7 +24,7 @@ async function compile(source: string, id: string, inlineConfig: InlineConfig = 
 	const props: CompileProps = {
 		astroConfig: makeAstroConfig(),
 		viteConfig,
-		toolbarEnabled: false,
+		annotateSourceFile: false,
 		filename: id,
 		source,
 	};
