@@ -1,19 +1,17 @@
 import type { HmrContext } from 'vite';
-import type { LoggerLike } from '../types.js';
 import type { CompileAstroResult } from './compile.js';
 import { parseAstroRequest } from './query.js';
 import type { CompileMetadata } from './types.js';
 import { frontmatterRE } from './utils.js';
 
 interface HandleHotUpdateOptions {
-	logger: LoggerLike;
 	compile: (code: string, filename: string) => Promise<CompileAstroResult>;
 	astroFileToCompileMetadata: Map<string, CompileMetadata>;
 }
 
 export async function handleHotUpdate(
 	ctx: HmrContext,
-	{ logger, compile, astroFileToCompileMetadata }: HandleHotUpdateOptions,
+	{ compile, astroFileToCompileMetadata }: HandleHotUpdateOptions,
 ) {
 	// HANDLING 1: Invalidate compile metadata if CSS dependency updated
 	for (const [astroFile, compileData] of astroFileToCompileMetadata) {
@@ -29,7 +27,6 @@ export async function handleHotUpdate(
 	const newCode = await ctx.read();
 
 	if (isStyleOnlyChanged(oldCode, newCode)) {
-		logger.debug('watch', 'style-only change');
 		// Eagerly re-compile to update the metadata with the new CSS.
 		try {
 			await compile(newCode, ctx.file);

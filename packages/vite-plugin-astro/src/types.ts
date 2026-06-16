@@ -18,13 +18,6 @@ export interface AstroSettingsLike {
 	};
 }
 
-export interface LoggerLike {
-	info(label: string | null, message: string, newLine?: boolean): void;
-	warn(label: string | null, message: string): void;
-	error(label: string | null, message: string): void;
-	debug(label: string | null, message: string): void;
-}
-
 export type PropagationHint = 'none' | 'self' | 'in-tree';
 
 export interface ModuleInfo {

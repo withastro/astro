@@ -5,13 +5,13 @@ import {
 	isAstroServerEnvironment,
 } from '@astrojs/internal-helpers/environments';
 import { normalizeFilename, specialQueriesRE } from '@astrojs/internal-helpers/vite';
-import type { AstroConfigLike, AstroSettingsLike, LoggerLike } from '../types.js';
+import type { AstroConfigLike, AstroSettingsLike } from '../types.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
 import type {
 	AstroComponent,
-	PluginMetadata as AstroPluginMetadata,
+	AstroPluginMetadata as AstroPluginMetadata,
 	CompileMetadata,
 } from './types.js';
 import { loadId } from './utils.js';
@@ -21,7 +21,6 @@ export type { AstroPluginMetadata };
 
 interface AstroPluginOptions {
 	settings: AstroSettingsLike;
-	logger: LoggerLike;
 }
 
 const astroFileToCompileMetadataWeakMap = new WeakMap<
@@ -30,7 +29,7 @@ const astroFileToCompileMetadataWeakMap = new WeakMap<
 >();
 
 /** Transform .astro files for Vite */
-export default function astro({ settings, logger }: AstroPluginOptions): vite.Plugin[] {
+export default function astro({ settings }: AstroPluginOptions): vite.Plugin[] {
 	const { config } = settings;
 	let server: vite.ViteDevServer | undefined;
 	let compile: (code: string, filename: string) => Promise<CompileAstroResult>;
@@ -281,7 +280,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				},
 			},
 			async handleHotUpdate(ctx) {
-				return handleHotUpdate(ctx, { logger, compile, astroFileToCompileMetadata });
+				return handleHotUpdate(ctx, { compile, astroFileToCompileMetadata });
 			},
 		},
 		{

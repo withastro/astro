@@ -8,7 +8,7 @@ interface PageOptions {
 
 export type AstroComponent = TransformResult['hydratedComponents'][number];
 
-export interface PluginMetadata {
+export interface AstroPluginMetadata {
 	astro: {
 		hydratedComponents: TransformResult['hydratedComponents'];
 		clientOnlyComponents: TransformResult['clientOnlyComponents'];
