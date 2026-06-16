@@ -103,8 +103,8 @@ describe('experimental.incrementalBuild', () => {
 		});
 
 		it('re-renders the content page with a changed cacheKey', async () => {
-			const docA = await fixture.readFile('/docs/a/index.html');
-			const $ = cheerio.load(docA);
+			const docAHtml = await fixture.readFile('/docs/a/index.html');
+			const $ = cheerio.load(docAHtml);
 			assert.equal($('h1').text(), 'Doc A Updated');
 		});
 
