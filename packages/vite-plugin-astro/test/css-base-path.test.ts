@@ -24,6 +24,7 @@ async function compileWithBase(source: string, base = '/') {
 	return compileAstro({
 		compileProps: props as any,
 		astroFileToCompileMetadata: new Map(),
+		transform: undefined,
 	});
 }
 

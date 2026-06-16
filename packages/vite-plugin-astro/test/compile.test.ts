@@ -5,7 +5,7 @@ import { init, parse } from 'es-module-lexer';
 import { resolveConfig } from 'vite';
 import type { InlineConfig } from 'vite';
 import { compileAstro } from '../dist/plugin/compile.js';
-import type { AstroConfigLike as AstroConfig } from '../dist/types.js';
+import type { AstroConfigLike as AstroConfig, Transform } from '../dist/types.js';
 import type { CompileProps } from '../dist/compile/compile.js';
 
 // #region Helpers
@@ -19,7 +19,12 @@ function makeAstroConfig(overrides: Partial<AstroConfig> = {}): AstroConfig {
 	} as AstroConfig;
 }
 
-async function compile(source: string, id: string, inlineConfig: InlineConfig = {}) {
+async function compile(
+	source: string,
+	id: string,
+	inlineConfig: InlineConfig = {},
+	transform?: Transform,
+) {
 	const viteConfig = await resolveConfig({ configFile: false, ...inlineConfig }, 'serve');
 	const props: CompileProps = {
 		astroConfig: makeAstroConfig(),
@@ -28,14 +33,10 @@ async function compile(source: string, id: string, inlineConfig: InlineConfig = 
 		filename: id,
 		source,
 	};
-	return (
-		compileAstro as (opts: {
-			compileProps: CompileProps;
-			astroFileToCompileMetadata: Map<unknown, unknown>;
-		}) => ReturnType<typeof compileAstro>
-	)({
+	return compileAstro({
 		compileProps: props,
 		astroFileToCompileMetadata: new Map(),
+		transform,
 	});
 }
 
@@ -81,7 +82,12 @@ const name = 'world
 	});
 
 	it('has file and url exports for markdown compat', async () => {
-		const result = await compile(`<h1>Hello World</h1>`, '/src/components/index.astro');
+		const result = await compile(
+			`<h1>Hello World</h1>`,
+			'/src/components/index.astro',
+			undefined,
+			(_, code) => code + `\nexport const file = ""; export const url = "";`,
+		);
 		await init;
 		const [, exports] = parse(result.code);
 		const names = exports.map((e) => e.n);

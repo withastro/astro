@@ -5,7 +5,7 @@ import {
 	isAstroServerEnvironment,
 } from '@astrojs/internal-helpers/environments';
 import { normalizeFilename, specialQueriesRE } from '@astrojs/internal-helpers/vite';
-import type { AstroConfigLike } from '../types.js';
+import type { AstroConfigLike, Transform } from '../types.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
@@ -22,6 +22,7 @@ export type { AstroPluginMetadata };
 interface AstroPluginOptions {
 	config: AstroConfigLike;
 	annotateSourceFile?: boolean;
+	transform?: Transform;
 }
 
 const astroFileToCompileMetadataWeakMap = new WeakMap<
@@ -33,6 +34,7 @@ const astroFileToCompileMetadataWeakMap = new WeakMap<
 export default function astro({
 	config,
 	annotateSourceFile = false,
+	transform,
 }: AstroPluginOptions): vite.Plugin[] {
 	let server: vite.ViteDevServer | undefined;
 	let compile: (code: string, filename: string) => Promise<CompileAstroResult>;
@@ -98,6 +100,7 @@ export default function astro({
 							annotateSourceFile,
 						},
 						astroFileToCompileMetadata,
+						transform,
 					});
 				};
 			},

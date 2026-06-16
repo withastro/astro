@@ -1,11 +1,12 @@
 import type { Rolldown } from 'vite';
 import { type CompileProps, type CompileResult, compile } from '../compile/index.js';
-import { getFileInfo } from '../utils/getFileInfo.js';
 import type { CompileMetadata } from './types.js';
+import type { Transform } from '../types.js';
 
 interface CompileAstroOption {
 	compileProps: CompileProps;
 	astroFileToCompileMetadata: Map<string, CompileMetadata>;
+	transform: Transform | undefined;
 }
 
 export interface CompileAstroResult extends Omit<CompileResult, 'map'> {
@@ -15,18 +16,17 @@ export interface CompileAstroResult extends Omit<CompileResult, 'map'> {
 export async function compileAstro({
 	compileProps,
 	astroFileToCompileMetadata,
+	transform
 }: CompileAstroOption): Promise<CompileAstroResult> {
 	const transformResult = await compile(compileProps);
 
-	const { fileId: file, fileUrl: url } = getFileInfo(
-		compileProps.filename,
-		compileProps.astroConfig,
-	);
+	let code = transformResult.code
+
+	if (transform) {
+		code = transform(compileProps.filename, code)
+	}
 
 	let SUFFIX = '';
-	SUFFIX += `\nconst $$file = ${JSON.stringify(file)};\nconst $$url = ${JSON.stringify(
-		url,
-	)};export { $$file as file, $$url as url };\n`;
 
 	if (!compileProps.viteConfig.isProduction) {
 		let i = 0;
@@ -36,6 +36,8 @@ export async function compileAstro({
 		}
 	}
 
+	code += SUFFIX
+
 	astroFileToCompileMetadata.set(compileProps.filename, {
 		originalCode: compileProps.source,
 		css: transformResult.css,
@@ -44,7 +46,7 @@ export async function compileAstro({
 
 	return {
 		...transformResult,
-		code: transformResult.code + SUFFIX,
+		code,
 		map: transformResult.map || null,
 	};
 }

@@ -57,6 +57,7 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
 import { vitePluginChromedevtools } from '../vite-plugin-chromedevtools/index.js';
 import { vitePluginDevStatus } from '../vite-plugin-dev-status/index.js';
 import { vitePluginAstroServerClient } from '../vite-plugin-overlay/index.js';
+import { getFileInfo } from '../vite-plugin-utils/index.js';
 
 type CreateViteOptions = {
 	settings: AstroSettings;
@@ -200,6 +201,15 @@ export async function createVite(
 				annotateSourceFile:
 					settings.config.devToolbar.enabled &&
 					(await settings.preferences.get('devToolbar.enabled')),
+				transform: (filename, code) => {
+					const { fileId: file, fileUrl: url } = getFileInfo(filename, settings.config);
+
+					const SUFFIX = `\nconst $$file = ${JSON.stringify(file)};\nconst $$url = ${JSON.stringify(
+						url,
+					)};export { $$file as file, $$url as url };\n`;
+
+					return code + SUFFIX;
+				},
 			}),
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
