@@ -34,11 +34,6 @@ export const REWRITE_DIRECTIVE_HEADER_KEY = 'X-Astro-Rewrite';
 export const REWRITE_DIRECTIVE_HEADER_VALUE = 'yes';
 
 /**
- * This header is set by the no-op Astro middleware.
- */
-export const NOOP_MIDDLEWARE_HEADER = 'X-Astro-Noop';
-
-/**
  * The name for the header used to help i18n middleware, which only needs to act on "page" and "fallback" route types.
  */
 export const ROUTE_TYPE_HEADER = 'X-Astro-Route-Type';
@@ -51,7 +46,6 @@ export const ROUTE_TYPE_HEADER = 'X-Astro-Route-Type';
 export const INTERNAL_RESPONSE_HEADERS = [
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
-	NOOP_MIDDLEWARE_HEADER,
 	ROUTE_TYPE_HEADER,
 ] as const;
 

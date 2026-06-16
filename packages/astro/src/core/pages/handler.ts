@@ -3,13 +3,7 @@ import { renderPage } from '../../runtime/server/index.js';
 import type { APIContext } from '../../types/public/context.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import type { Pipeline } from '../base-pipeline.js';
-import {
-	ASTRO_ERROR_HEADER,
-	REROUTE_DIRECTIVE_HEADER,
-	REWRITE_DIRECTIVE_HEADER_KEY,
-	REWRITE_DIRECTIVE_HEADER_VALUE,
-	ROUTE_TYPE_HEADER,
-} from '../constants.js';
+import { ASTRO_ERROR_HEADER, REROUTABLE_STATUS_CODES } from '../constants.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
 
 // Shared empty-slots object so we don't allocate `{}` on every render for
@@ -39,6 +33,7 @@ export class PagesHandler {
 	async handle(state: FetchState, ctx: APIContext): Promise<Response> {
 		const pipeline = this.#pipeline;
 		const { logger, streaming } = pipeline;
+		state.resetResponseMetadata();
 
 		let response: Response;
 
@@ -51,6 +46,9 @@ export class PagesHandler {
 					state.routeData!.prerender,
 					logger,
 				);
+				if (REROUTABLE_STATUS_CODES.includes(response.status)) {
+					state.skipErrorReroute = true;
+				}
 				break;
 			}
 			case 'page': {
@@ -74,13 +72,10 @@ export class PagesHandler {
 				}
 
 				// Signal to the i18n middleware to maybe act on this response
-				response.headers.set(ROUTE_TYPE_HEADER, 'page');
+				state.responseRouteType = 'page';
 				// Signal to the error-page-rerouting infra to let this response pass through to avoid loops
 				if (state.routeData!.route === '/404' || state.routeData!.route === '/500') {
-					response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
-				}
-				if (state.isRewriting) {
-					response.headers.set(REWRITE_DIRECTIVE_HEADER_KEY, REWRITE_DIRECTIVE_HEADER_VALUE);
+					state.skipErrorReroute = true;
 				}
 				break;
 			}
@@ -88,7 +83,8 @@ export class PagesHandler {
 				return new Response(null, { status: 404, headers: { [ASTRO_ERROR_HEADER]: 'true' } });
 			}
 			case 'fallback': {
-				return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
+				state.responseRouteType = 'fallback';
+				return new Response(null, { status: 500 });
 			}
 		}
 		// We need to merge the cookies from the response back into the cookies
