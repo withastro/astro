@@ -3,7 +3,7 @@ import { renderPage } from '../../runtime/server/index.js';
 import type { APIContext } from '../../types/public/context.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import type { Pipeline } from '../base-pipeline.js';
-import { ASTRO_ERROR_HEADER, REROUTABLE_STATUS_CODES } from '../constants.js';
+import { ASTRO_ERROR_HEADER } from '../constants.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
 
 // Shared empty-slots object so we don't allocate `{}` on every render for
@@ -45,10 +45,8 @@ export class PagesHandler {
 					ctx,
 					state.routeData!.prerender,
 					logger,
+					state,
 				);
-				if (REROUTABLE_STATUS_CODES.includes(response.status)) {
-					state.skipErrorReroute = true;
-				}
 				break;
 			}
 			case 'page': {
@@ -56,14 +54,14 @@ export class PagesHandler {
 				const actionApiContext = state.getActionAPIContext();
 				const result = await state.createResult(componentInstance!, actionApiContext);
 				try {
-					response = await renderPage(
+				response = await renderPage(
 						result,
 						componentInstance?.default as any,
 						props,
 						state.slots ?? EMPTY_SLOTS,
 						streaming,
 						state.routeData!,
-					);
+				);
 				} catch (e) {
 					// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
 					// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.

@@ -4,6 +4,7 @@ import { I18nRouter, type I18nRouterContext } from '../../i18n/router.js';
 import { PipelineFeatures } from '../base-pipeline.js';
 import type { SSRManifest } from '../app/types.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
+import { REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER } from '../constants.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 
 /**
@@ -58,14 +59,25 @@ export class I18n {
 	async finalize(state: FetchState, response: Response): Promise<Response> {
 		state.pipeline.usedFeatures |= PipelineFeatures.i18n;
 		const i18n = this.#i18n;
+		const headerRouteType = response.headers.get(ROUTE_TYPE_HEADER) as
+			| 'page'
+			| 'fallback'
+			| null;
+		if (headerRouteType) {
+			response.headers.delete(ROUTE_TYPE_HEADER);
+		}
+		const routeType = state.responseRouteType ?? headerRouteType ?? undefined;
+		const skipErrorReroute =
+			state.skipErrorReroute || response.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no';
+
 		// This is a case where we are internally rendering a 404/500, so we
 		// need to bypass checks that were done already.
-		if (state.skipErrorReroute && typeof i18n.fallback === 'undefined') {
+		if (skipErrorReroute && typeof i18n.fallback === 'undefined') {
 			return response;
 		}
 
 		// If the route we're processing is not a page, then we ignore it
-		if (state.responseRouteType !== 'page' && state.responseRouteType !== 'fallback') {
+		if (routeType !== 'page' && routeType !== 'fallback') {
 			return response;
 		}
 
@@ -73,11 +85,11 @@ export class I18n {
 		const currentLocale = state.computeCurrentLocale();
 		const isPrerendered = state.routeData!.prerender;
 
-		// Build context for router (typeHeader is guaranteed to be 'page' | 'fallback' here)
+		// Build context for router (routeType is guaranteed to be 'page' | 'fallback' here)
 		const routerContext: I18nRouterContext = {
 			currentLocale,
 			currentDomain: url.hostname,
-			routeType: state.responseRouteType,
+			routeType: routeType,
 			isReroute: false,
 		};
 
@@ -129,7 +141,7 @@ export class I18n {
 			// The fallback sentinel (X-Astro-Route-Type: fallback, status 500) signals
 			// that the render pipeline couldn't find this page in the current locale.
 			// Treat it as a 404 so computeFallbackRoute will apply fallback logic.
-			const effectiveStatus = state.responseRouteType === 'fallback' ? 404 : response.status;
+			const effectiveStatus = routeType === 'fallback' ? 404 : response.status;
 			const fallbackDecision = computeFallbackRoute({
 				pathname: url.pathname,
 				responseStatus: effectiveStatus,

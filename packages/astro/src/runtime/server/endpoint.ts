@@ -1,6 +1,8 @@
 import colors from 'piccolore';
+import { REROUTABLE_STATUS_CODES } from '../../core/constants.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { EndpointDidNotReturnAResponse } from '../../core/errors/errors-data.js';
+import type { FetchState } from '../../core/fetch/fetch-state.js';
 import type { AstroLogger } from '../../core/logger/core.js';
 import type { APIRoute } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
@@ -13,6 +15,7 @@ export async function renderEndpoint(
 	context: APIContext,
 	isPrerendered: boolean,
 	logger: AstroLogger,
+	state?: FetchState,
 ) {
 	const { request, url } = context;
 
@@ -57,9 +60,14 @@ export async function renderEndpoint(
 	}
 
 	let response = await handler.call(mod, context);
-
 	if (!response || response instanceof Response === false) {
 		throw new AstroError(EndpointDidNotReturnAResponse);
+	}
+
+	// Endpoints explicitly returning 404 or 500 response status should
+	// NOT be subject to rerouting to 404.astro or 500.astro.
+	if (state && REROUTABLE_STATUS_CODES.includes(response.status)) {
+		state.skipErrorReroute = true;
 	}
 
 	if (method === 'HEAD') {
