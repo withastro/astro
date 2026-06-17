@@ -2,4 +2,4 @@
 '@astrojs/cloudflare': patch
 ---
 
-Respect custom `image.service` configuration for Cloudflare compile-time image generation
+Fixes an issue where the custom `image.service` wasn't respected for compile-time image generation.
