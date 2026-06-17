@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Harden the limits on the number of encodings on the URL.
+Harden the limits on the number of decoding on the URL.
