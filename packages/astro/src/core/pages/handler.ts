@@ -55,14 +55,14 @@ export class PagesHandler {
 				const actionApiContext = state.getActionAPIContext();
 				const result = await state.createResult(componentInstance!, actionApiContext);
 				try {
-				response = await renderPage(
+					response = await renderPage(
 						result,
 						componentInstance?.default as any,
 						props,
 						state.slots ?? EMPTY_SLOTS,
 						streaming,
 						state.routeData!,
-				);
+					);
 				} catch (e) {
 					// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
 					// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
