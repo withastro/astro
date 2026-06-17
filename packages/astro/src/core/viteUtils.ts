@@ -22,6 +22,7 @@ export {
  * Simulate Vite's resolve and import analysis so we can import the id as an URL
  * through a script tag or a dynamic import as-is.
  */
+// NOTE: `/@id/` should only be used when the id is fully resolved
 export async function resolveIdToUrl(loader: ModuleLoader, id: string, root?: URL) {
 	let resultId = await loader.resolveId(id, undefined);
 	// Try resolve jsx to tsx
@@ -33,6 +34,7 @@ export async function resolveIdToUrl(loader: ModuleLoader, id: string, root?: UR
 	}
 	if (path.isAbsolute(resultId)) {
 		const normalizedRoot = root && normalizePath(fileURLToPath(root));
+		// Convert to root-relative path if path is inside root
 		if (normalizedRoot && resultId.startsWith(normalizedRoot)) {
 			return resultId.slice(normalizedRoot.length - 1);
 		} else {

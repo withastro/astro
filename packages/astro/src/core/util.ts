@@ -11,6 +11,7 @@ export { viteID, VALID_ID_PREFIX, unwrapId } from '@astrojs/internal-helpers/vit
 const NULL_BYTE_PLACEHOLDER = `__x00__`;
 const NULL_BYTE_REGEX = /^\0/;
 
+// Reverses `unwrapId` function
 export function wrapId(id: string): string {
 	return id.replace(NULL_BYTE_REGEX, `/@id/${NULL_BYTE_PLACEHOLDER}`);
 }
@@ -30,6 +31,11 @@ export function isMarkdownFile(fileId: string, option?: { suffix?: string }): bo
 
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 
+/**
+ * Get the correct output filename for a route, based on your config.
+ * Handles both "/foo" and "foo" `name` formats.
+ * Handles `/404` and `/` correctly.
+ */
 export function getOutputFilename(
 	buildFormat: NonNullable<AstroConfig['build']>['format'],
 	name: string,
@@ -54,6 +60,7 @@ export function getOutputFilename(
 export function parseNpmName(
 	spec: string,
 ): { scope?: string; name: string; subpath?: string } | undefined {
+	// not an npm package
 	if (!spec || spec[0] === '.' || spec[0] === '/') return undefined;
 
 	let scope: string | undefined;
@@ -101,6 +108,8 @@ function isPublicRoute(file: URL, config: AstroConfig): boolean {
 	const pagesDir = resolvePages(config).toString();
 	const fileDir = file.toString();
 
+	// Normalize the file directory path by removing the pagesDir prefix if it exists,
+	// otherwise remove the rootDir prefix.
 	const normalizedDir = fileDir.startsWith(pagesDir)
 		? fileDir.slice(pagesDir.length)
 		: fileDir.slice(rootDir.length);
@@ -133,6 +142,9 @@ export function isEndpoint(file: URL, settings: AstroSettings): boolean {
 	return !endsWithPageExt(file, settings) && !file.toString().includes('?astro');
 }
 
+/**
+ * Set a default NODE_ENV so Vite doesn't set an incorrect default when loading the Astro config
+ */
 export function ensureProcessNodeEnv(defaultNodeEnv: string) {
 	if (!process.env.NODE_ENV) {
 		process.env.NODE_ENV = defaultNodeEnv;

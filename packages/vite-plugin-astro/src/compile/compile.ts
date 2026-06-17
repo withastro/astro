@@ -46,6 +46,7 @@ export async function compile({
 			}),
 		);
 
+		// TODO: what to expose
 		transformResult = transform(source, {
 			compact,
 			filename,
@@ -64,6 +65,8 @@ export async function compile({
 			},
 		});
 	} catch (err: any) {
+		// The compiler should be able to handle errors by itself, however
+		// for the rare cases where it can't let's directly throw here with as much info as possible
 		throw new CompilerError({
 			...ErrorData.UnknownCompilerError,
 			message: err.message ?? 'Unknown compiler error',

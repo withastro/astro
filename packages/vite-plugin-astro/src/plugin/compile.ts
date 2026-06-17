@@ -28,6 +28,7 @@ export async function compileAstro({
 
 	let SUFFIX = '';
 
+	// Add HMR handling in dev mode.
 	if (!compileProps.viteConfig.isProduction) {
 		let i = 0;
 		while (i < transformResult.scripts.length) {
@@ -38,6 +39,7 @@ export async function compileAstro({
 
 	code += SUFFIX;
 
+	// Attach compile metadata to map for use by virtual modules
 	astroFileToCompileMetadata.set(compileProps.filename, {
 		originalCode: compileProps.source,
 		css: transformResult.css,
