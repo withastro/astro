@@ -18,4 +18,4 @@ jobs:
         run: |
           gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "Hello @${{ github.event.issue.user.login }}. Please provide a [minimal reproduction](https://stackoverflow.com/help/minimal-reproducible-example) using a GitHub repository or [StackBlitz](https://astro.new/repro). Issues marked with `needs repro` will be closed if they have no activity within 3 days."
 
-          gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --remove-label "needs triage"
+          gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --remove-label "triage: needs triage"
