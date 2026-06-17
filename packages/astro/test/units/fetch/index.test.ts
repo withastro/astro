@@ -284,6 +284,35 @@ describe('middleware()', () => {
 		assert.match(text, /<h1>my custom 500<\/h1>/);
 	});
 
+	it('passes the thrown error to the custom 500 page when user middleware throws', async () => {
+		// Rendering the 500 page re-runs the middleware chain, which throws again,
+		// so the error handler retries with middleware skipped. That retry must
+		// still carry the original error through to `Astro.props.error`.
+		const errorPage = createComponent((_result: any, props: any, _slots: any) => {
+			const err = props.error;
+			const message = err instanceof Error ? err.message : String(err ?? '');
+			return render`<h1>my custom 500</h1><pre>${message}</pre>`;
+		});
+		const app = createTestApp(
+			[createPage(simplePage, { route: '/' }), createPage(errorPage, { route: '/500' })],
+			{
+				middleware: async () => ({
+					onRequest: async () => {
+						throw new Error('boom from middleware');
+					},
+				}),
+			},
+		);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		const response = await middleware(state, async () => new Response('page'));
+
+		assert.equal(response.status, 500);
+		const text = await response.text();
+		assert.match(text, /boom from middleware/);
+	});
+
 	it('re-throws errors from the next callback instead of rendering the 500 page', async () => {
 		// A throw from `next` originates downstream of Astro's middleware (the
 		// host framework's chain), so it must propagate to the host's own error
