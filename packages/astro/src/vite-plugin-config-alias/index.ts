@@ -114,6 +114,7 @@ export default function configAliasVitePlugin({
 					},
 				},
 				handler(code) {
+					// Fast early-exit: skip the regex if there's no @import anywhere in the file.
 					if (!code.includes('@import')) return;
 
 					let hasReplacement = false;
