@@ -77,6 +77,14 @@ export class AstroHandler {
 		// forget to include anything.
 		state.pipeline.usedFeatures |= ALL_PIPELINE_FEATURES;
 
+		// Reject paths that were encoded too many times to fully decode, before
+		// any routing or middleware runs. If we let them through, middleware
+		// could check one path while a later decode turns it into a different
+		// route.
+		if (state.invalidEncoding) {
+			return new Response(null, { status: 400, statusText: 'Bad Request' });
+		}
+
 		const trailingSlashRedirect = this.#trailingSlashHandler.handle(state);
 		if (trailingSlashRedirect) {
 			return trailingSlashRedirect;
