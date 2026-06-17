@@ -13,6 +13,7 @@ import {
 	trimSlashes,
 } from '../path.js';
 import { createRequest } from '../request.js';
+import { validateAndDecodePathname } from '../util/pathname.js';
 import { DEFAULT_404_ROUTE } from './astro-designed-error-pages.js';
 
 type FindRouteToRewrite = {
@@ -98,7 +99,7 @@ export function findRouteToRewrite({
 		newUrl.pathname = joinPaths(...[base, pathname].filter(Boolean));
 	}
 
-	const decodedPathname = decodeURI(pathname);
+	const decodedPathname = validateAndDecodePathname(pathname);
 	let foundRoute;
 	for (const route of routes) {
 		if (route.pattern.test(decodedPathname)) {

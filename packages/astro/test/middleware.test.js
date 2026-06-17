@@ -113,18 +113,25 @@ describe('Middleware in DEV mode', () => {
 			assert.equal(res.headers.get('location'), '/');
 		});
 
-		it('should reject double-encoded paths with 404', async () => {
+		it('should NOT allow accessing /admin with double encoding', async () => {
 			const res = await fixture.fetch('/%2561dmin', { redirect: 'manual' });
-			assert.equal(res.status, 404);
+			assert.equal(res.status, 302);
+			assert.equal(res.headers.get('location'), '/');
 		});
 
-		it('should reject triple-encoded paths with 404', async () => {
+		it('should NOT allow accessing /admin with triple encoding', async () => {
 			const res = await fixture.fetch('/%252561dmin', { redirect: 'manual' });
-			assert.equal(res.status, 404);
+			assert.equal(res.status, 302);
+			assert.equal(res.headers.get('location'), '/');
 		});
 
 		it('should allow legitimate single-encoded paths like /path%20with%20spaces', async () => {
 			const res = await fixture.fetch('/path%20with%20spaces');
+			assert.equal(res.status, 200);
+		});
+
+		it('should allow encoded reserved characters after decoded path characters', async () => {
+			const res = await fixture.fetch('/encoded/foo%20%26bar');
 			assert.equal(res.status, 200);
 		});
 	});
@@ -399,16 +406,22 @@ describe('Middleware API in PROD mode, SSR', () => {
 			assert.equal(response.status, 302);
 		});
 
-		it('should reject double-encoded paths with 404', async () => {
+		it('should NOT allow accessing /admin with double encoding', async () => {
 			const request = new Request('http://example.com/%2561dmin');
 			const response = await app.render(request);
-			assert.equal(response.status, 404);
+			assert.equal(response.status, 302);
 		});
 
-		it('should reject triple-encoded paths with 404', async () => {
+		it('should NOT allow accessing /admin with triple encoding', async () => {
 			const request = new Request('http://example.com/%252561dmin');
 			const response = await app.render(request);
-			assert.equal(response.status, 404);
+			assert.equal(response.status, 302);
+		});
+
+		it('should allow encoded reserved characters after decoded path characters', async () => {
+			const request = new Request('http://example.com/encoded/foo%20%26bar');
+			const response = await app.render(request);
+			assert.equal(response.status, 200);
 		});
 	});
 
