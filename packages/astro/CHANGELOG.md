@@ -1,5 +1,11 @@
 # astro
 
+## 6.4.8
+
+### Patch Changes
+
+- [#17109](https://github.com/withastro/astro/pull/17109) [`27c80ea`](https://github.com/withastro/astro/commit/27c80ea92248993e5fce94b2c26d87d611ab6785) Thanks [@ematipico](https://github.com/ematipico)! - Harden the limits on the number of decoding on the URL.
+
 ## 6.4.7
 
 ### Patch Changes
