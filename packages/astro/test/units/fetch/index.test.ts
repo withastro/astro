@@ -285,9 +285,6 @@ describe('middleware()', () => {
 	});
 
 	it('passes the thrown error to the custom 500 page when user middleware throws', async () => {
-		// Rendering the 500 page re-runs the middleware chain, which throws again,
-		// so the error handler retries with middleware skipped. That retry must
-		// still carry the original error through to `Astro.props.error`.
 		const errorPage = createComponent((_result: any, props: any, _slots: any) => {
 			const err = props.error;
 			const message = err instanceof Error ? err.message : String(err ?? '');

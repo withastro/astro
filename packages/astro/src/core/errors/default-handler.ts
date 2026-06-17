@@ -123,10 +123,6 @@ export class DefaultErrorHandler implements ErrorHandler {
 					return this.renderError(request, {
 						...resolvedRenderOptions,
 						status,
-						// Preserve the original error across the skip-middleware retry so the
-						// custom 500 page still receives it via `Astro.props.error`. Without
-						// this it falls out of the spread and the error page renders blank
-						// whenever middleware is what threw.
 						error,
 						response: originalResponse,
 						skipMiddleware: true,
