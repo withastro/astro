@@ -7,15 +7,15 @@
 '@astrojs/mdx': minor
 ---
 
-Adds a new `container-renderer` entrypoint for use with the Container API
+Replaces the import entrypoint of `getContainerRenderer()`
 
-When rendering components with the Container API, import `getContainerRenderer` from this new entrypoint instead of from the package root:
+A new `container-renderer` entrypoint exporting `getContainerRenderer()` has been added to the following integrations: React, Preact, Svelte, SolidJS, Vue, and MDX. This prevents bundlers from trying to bundle unrelated exports from the package root when only the Container API is used.
+
+If you are using the Container API, update your import statements to use the new entrypoint. The following example updates the `getContainerRenderer()` import for React:
 
 ```diff
 - import { getContainerRenderer } from '@astrojs/react';
 + import { getContainerRenderer } from '@astrojs/react/container-renderer';
 ```
 
-This change was done in order to avoid bundlers trying to bundle unrelated exports from the package root when only the Container API is being used.
-
-Importing `getContainerRenderer` from the package root still works, but is now deprecated and logs a warning.
+Importing `getContainerRenderer()` from the package root still works, but is now deprecated and logs a warning.
