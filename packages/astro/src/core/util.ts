@@ -8,14 +8,6 @@ import { removeQueryString, removeTrailingForwardSlash } from './path.js';
 
 export { viteID, VALID_ID_PREFIX, unwrapId } from '@astrojs/internal-helpers/vite';
 
-const NULL_BYTE_PLACEHOLDER = `__x00__`;
-const NULL_BYTE_REGEX = /^\0/;
-
-// Reverses `unwrapId` function
-export function wrapId(id: string): string {
-	return id.replace(NULL_BYTE_REGEX, `/@id/${NULL_BYTE_PLACEHOLDER}`);
-}
-
 /** Check if a file is a markdown file based on its extension */
 export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
 	if (hasSpecialQueries(fileId)) {
@@ -80,6 +72,14 @@ export function parseNpmName(
 		name,
 		subpath,
 	};
+}
+
+const NULL_BYTE_PLACEHOLDER = `__x00__`;
+const NULL_BYTE_REGEX = /^\0/;
+
+// Reverses `unwrapId` function
+export function wrapId(id: string): string {
+	return id.replace(NULL_BYTE_REGEX, `/@id/${NULL_BYTE_PLACEHOLDER}`);
 }
 
 export function resolvePages(config: AstroConfig) {
