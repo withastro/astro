@@ -133,7 +133,7 @@
     "test:integration": "astro-scripts test \"test/*.test.ts\" --parallel --strip-types"
   },
   "dependencies": {
-    "@astrojs/compiler-rs": "^0.1.10",
+    "@astrojs/compiler-rs": "^0.2.2",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-satteri": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
