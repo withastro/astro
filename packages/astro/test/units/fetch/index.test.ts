@@ -259,6 +259,87 @@ describe('middleware()', () => {
 		assert.equal(response.headers.get('x-user-middleware'), 'true');
 		assert.equal(await response.text(), 'page');
 	});
+
+	it('renders the custom 500 page when user middleware throws', async () => {
+		const errorPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>my custom 500</h1>`;
+		});
+		const app = createTestApp(
+			[createPage(simplePage, { route: '/' }), createPage(errorPage, { route: '/500' })],
+			{
+				middleware: async () => ({
+					onRequest: async () => {
+						throw new Error('boom from middleware');
+					},
+				}),
+			},
+		);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		const response = await middleware(state, async () => new Response('page'));
+
+		assert.equal(response.status, 500);
+		const text = await response.text();
+		assert.match(text, /<h1>my custom 500<\/h1>/);
+	});
+
+	it('re-throws errors from the next callback instead of rendering the 500 page', async () => {
+		// A throw from `next` originates downstream of Astro's middleware (the
+		// host framework's chain), so it must propagate to the host's own error
+		// handling rather than be swallowed into Astro's 500 page.
+		const errorPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>my custom 500</h1>`;
+		});
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(errorPage, { route: '/500' }),
+		]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		const downstreamError = new Error('boom from next');
+		await assert.rejects(
+			middleware(state, async () => {
+				throw downstreamError;
+			}),
+			(err: unknown) => err === downstreamError,
+		);
+	});
+
+	it('returns a marked 404 without running middleware when the custom 404 route is prerendered', async () => {
+		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Not Found</h1>`;
+		});
+		const app = createTestApp(
+			[
+				createPage(simplePage, { route: '/' }),
+				createPage(notFoundPage, { route: '/404', prerender: true }),
+			],
+			{
+				middleware: async () => ({
+					onRequest: async (_ctx: any, next: any) => {
+						const response = await next();
+						response.headers.set('x-user-middleware', 'true');
+						return response;
+					},
+				}),
+			},
+		);
+		const request = stampApp(new Request('http://example.com/does-not-exist'), app);
+		const state = new FetchState(request);
+
+		let nextCalled = false;
+		const response = await middleware(state, async () => {
+			nextCalled = true;
+			return new Response('page');
+		});
+
+		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('X-Astro-Error'), 'true');
+		assert.equal(response.headers.get('x-user-middleware'), null, 'user middleware should not run');
+		assert.equal(nextCalled, false, 'next should not be called for an unmatched route');
+	});
 });
 
 // #endregion

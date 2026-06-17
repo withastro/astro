@@ -17,7 +17,7 @@ const agent = createAgent(() => ({
 			GH_TOKEN: GITHUB_TOKEN_BASE,
 		},
 	}),
-	model: 'anthropic/claude-sonnet-4-20250514',
+	model: 'anthropic/claude-sonnet-4-20250801',
 }));
 
 export async function run({ init, payload }: FlueContext) {

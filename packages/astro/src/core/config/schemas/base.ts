@@ -85,7 +85,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	devToolbar: {
 		enabled: true,
 	},
-	compressHTML: true,
+	compressHTML: 'jsx',
 	server: {
 		host: false,
 		port: 4321,

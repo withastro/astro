@@ -29,7 +29,7 @@
     "test:unit": "astro-scripts test \"test/**/*.test.ts\" --strip-types"
   },
   "dependencies": {
-    "@astrojs/compiler-rs": "^0.1.10",
+    "@astrojs/compiler-rs": "^0.2.2",
     "@astrojs/internal-helpers": "workspace:*"
   },
   "peerDependencies": {
