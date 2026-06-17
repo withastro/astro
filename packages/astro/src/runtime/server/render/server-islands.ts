@@ -239,10 +239,21 @@ const SERVER_ISLAND_REPLACER = markHTMLString(
 	if (!s || r.status !== 200 || r.headers.get('content-type')?.split(';')[0].trim() !== 'text/html') return;
 	// Load the HTML before modifying the DOM in case of errors
 	let html = await r.text();
+	// Check if the comment marker exists before removing siblings.
+	// During ClientRouter head swaps, comment nodes may not be transferred,
+	// so we must guard against removing unrelated elements.
+	let m = false;
+	let n = s.previousSibling;
+	while (n) {
+		if (n.nodeType === 8 && n.data === '[if astro]>server-island-start<![endif]') { m = true; break; }
+		n = n.previousSibling;
+	}
 	// Remove any placeholder content before the island script
-	while (s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '[if astro]>server-island-start<![endif]')
-		s.previousSibling.remove();
-	s.previousSibling?.remove();
+	if (m) {
+		while (s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '[if astro]>server-island-start<![endif]')
+			s.previousSibling.remove();
+		s.previousSibling?.remove();
+	}
 	// Insert the new HTML
 	s.before(document.createRange().createContextualFragment(html));
 	// Remove the script. Prior to v5.4.2, this was the trick to force rerun of scripts.  Keeping it to minimize change to the existing behavior.

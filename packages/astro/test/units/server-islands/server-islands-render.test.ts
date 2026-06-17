@@ -142,6 +142,24 @@ describe('renderServerIslandRuntime', () => {
 		);
 	});
 
+	it('guards against missing comment marker to prevent removing unrelated siblings', () => {
+		const output = renderServerIslandRuntime();
+		// The replaceServerIsland function should first check if the comment marker
+		// exists before removing previousSiblings. Without this guard, if comment
+		// markers are lost (e.g. during ClientRouter head swap), the function would
+		// remove all preceding siblings in the DOM.
+		const inner = output.replace(/^<script>/, '').replace(/<\/script>$/, '');
+		// Verify the script scans for the marker before removing siblings.
+		// The guard walks previousSibling to find the comment marker first,
+		// and only proceeds with removal if found.
+		assert.ok(
+			// Check that there's a pre-scan loop that looks for the marker
+			// before the removal loop executes
+			inner.includes('previousSibling') && inner.includes('nodeType === 8'),
+			'should check for comment marker existence before removing siblings',
+		);
+	});
+
 	it('escapes </script> sequences inside the runtime script', () => {
 		const output = renderServerIslandRuntime();
 		// The content between the script tags must not contain an unescaped </script

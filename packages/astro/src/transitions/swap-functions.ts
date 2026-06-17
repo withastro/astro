@@ -73,14 +73,26 @@ export function swapHeadElements(doc: Document) {
 		}
 	}
 
+	// Remove stale comment nodes from the current head (e.g. server island markers
+	// that may have been left behind from a previous navigation).
+	for (const node of Array.from(document.head.childNodes)) {
+		if (node.nodeType === 8) node.remove();
+	}
+
 	// Everything left in the new head is new, append it all.
+	// Use childNodes to also transfer comment nodes (e.g. server island markers
+	// needed by replaceServerIsland to know where fallback content boundaries are).
 	if (import.meta.env.DEV) {
 		// In DEV mode, replace known Vue scoped styles with the versions we remembered
-		[...doc.head.children].forEach((child) => {
-			document.head.append(knownVueScopedStyles.get((child as any).dataset?.viteDevId) || child);
+		[...doc.head.childNodes].forEach((child) => {
+			if (child instanceof HTMLStyleElement) {
+				document.head.append(knownVueScopedStyles.get((child as any).dataset?.viteDevId) || child);
+			} else {
+				document.head.append(child);
+			}
 		});
 	} else {
-		document.head.append(...doc.head.children);
+		document.head.append(...doc.head.childNodes);
 	}
 }
 
