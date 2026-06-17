@@ -1,9 +1,5 @@
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
-import {
-	ASTRO_VITE_ENVIRONMENT_NAMES,
-	isAstroServerEnvironment,
-} from '@astrojs/internal-helpers/environments';
 import { normalizeFilename, specialQueriesRE } from '@astrojs/internal-helpers/vite';
 import type { Transform } from '../types.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
@@ -50,7 +46,7 @@ export default function astro({
 			name: 'astro:build:css-hmr',
 			enforce: 'pre',
 			applyToEnvironment(environment) {
-				return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
+				return environment.name === 'client';
 			},
 			transform: {
 				filter: {
@@ -184,7 +180,7 @@ export default function astro({
 								throw new Error(`Requests for scripts must include an index`);
 							}
 							// SSR script only exists to make them appear in the module graph.
-							if (isAstroServerEnvironment(this.environment)) {
+							if (this.environment.name === 'ssr' || this.environment.name === 'prerender') {
 								return {
 									code: `/* client script, empty in SSR: ${id} */`,
 									moduleType: 'ts',
@@ -260,7 +256,7 @@ export default function astro({
 
 					// If an Astro component is imported in code used on the client, we return an empty
 					// module so that Vite doesn’t bundle the server-side Astro code for the client.
-					if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+					if (this.environment.name === 'client') {
 						return {
 							code: `export default import.meta.env.DEV
 									? () => {
