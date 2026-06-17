@@ -56,6 +56,11 @@ export async function generatePages(
 	// Exit early when no prerendered pages were discovered to avoid setting up
 	// and tearing down the prerenderer for an empty set of routes.
 	if (!hasPagesToGenerate) {
+		await runHookBuildGenerated({
+			settings: options.settings,
+			logger,
+			routeToHeaders: new Map(),
+		});
 		return;
 	}
 

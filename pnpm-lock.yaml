@@ -3881,6 +3881,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/ssr-build-generated:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/ssr-dynamic:
     dependencies:
       astro:
@@ -4296,15 +4302,6 @@ importers:
       wrangler:
         specifier: ^4.83.0
         version: 4.95.0(@cloudflare/workers-types@4.20260527.1)
-
-  packages/integrations/cloudflare/test/fixtures/base-redirects:
-    dependencies:
-      '@astrojs/cloudflare':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
 
   packages/integrations/cloudflare/test/fixtures/binding-image-service:
     dependencies:
