@@ -14,7 +14,6 @@
   "exports": {
     "./path": "./dist/path.js",
     "./vite": "./dist/vite.js",
-    "./environments": "./dist/environments.js",
     "./remote": "./dist/remote.js",
     "./fs": "./dist/fs.js",
     "./cli": "./dist/cli.js",
@@ -38,9 +37,6 @@
       ],
       "vite": [
         "./dist/vite.d.ts"
-      ],
-      "environments": [
-        "./dist/environments.d.ts"
       ],
       "remote": [
         "./dist/remote.d.ts"
