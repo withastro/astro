@@ -193,6 +193,10 @@ export class FetchState implements AstroFetchState {
 	clientAddress: string | undefined;
 	/** Whether this is a partial render (container API). */
 	partial: boolean | undefined;
+	/** Internal metadata about the current response route type. */
+	responseRouteType: 'page' | 'fallback' | undefined;
+	/** Internal flag to prevent rerouting this response to an error page. */
+	skipErrorReroute = false;
 	/** Whether to inject CSP meta tags. */
 	shouldInjectCspMetaTags: boolean | undefined;
 	/** Request-scoped locals object, shared with user middleware. */
@@ -1127,5 +1131,10 @@ export class FetchState implements AstroFetchState {
 		this.props = null;
 		this.actionApiContext = null;
 		this.apiContext = null;
+	}
+
+	resetResponseMetadata(): void {
+		this.responseRouteType = undefined;
+		this.skipErrorReroute = false;
 	}
 }

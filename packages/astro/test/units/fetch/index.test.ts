@@ -381,6 +381,8 @@ describe('pages()', () => {
 		const response = await pages(state);
 
 		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('x-astro-route-type'), null);
+		assert.equal(response.headers.get('x-astro-reroute'), null);
 		const text = await response.text();
 		assert.match(text, /<h1>Hello<\/h1>/);
 	});
@@ -399,6 +401,8 @@ describe('pages()', () => {
 		const response = await pages(state);
 
 		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('x-astro-route-type'), null);
+		assert.equal(response.headers.get('x-astro-reroute'), null);
 		const text = await response.text();
 		assert.match(text, /<h1>Not Found<\/h1>/);
 	});
@@ -460,6 +464,8 @@ describe('pages()', () => {
 		const response = await pages(state);
 
 		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('x-astro-route-type'), null);
+		assert.equal(response.headers.get('x-astro-reroute'), null);
 		assert.equal(response.headers.get('Content-Type'), 'application/json');
 		const body = await response.json();
 		assert.equal(body.ok, true);
@@ -475,6 +481,8 @@ describe('pages()', () => {
 		const response = await pages(state);
 
 		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('x-astro-route-type'), null);
+		assert.equal(response.headers.get('x-astro-reroute'), null);
 	});
 });
 
@@ -509,9 +517,8 @@ describe('i18n()', () => {
 		const request = stampApp(new Request('http://example.com/about'), app);
 		const state = new FetchState(request);
 
-		const pageResponse = new Response('page body', {
-			headers: { 'X-Astro-Route-Type': 'page' },
-		});
+		state.responseRouteType = 'page';
+		const pageResponse = new Response('page body');
 		const result = await i18n(state, pageResponse);
 
 		assert.equal(result.status, 404);
@@ -532,9 +539,8 @@ describe('i18n()', () => {
 		const request = stampApp(new Request('http://example.com/en/about'), app);
 		const state = new FetchState(request);
 
-		const pageResponse = new Response('page body', {
-			headers: { 'X-Astro-Route-Type': 'page' },
-		});
+		state.responseRouteType = 'page';
+		const pageResponse = new Response('page body');
 		const result = await i18n(state, pageResponse);
 
 		assert.equal(result.status, 200);
@@ -556,7 +562,7 @@ describe('i18n()', () => {
 		const request = stampApp(new Request('http://example.com/api/data'), app);
 		const state = new FetchState(request);
 
-		// No X-Astro-Route-Type header — simulates an endpoint response
+		// No responseRouteType — simulates an endpoint response
 		const apiResponse = new Response('{"ok":true}');
 		const result = await i18n(state, apiResponse);
 
