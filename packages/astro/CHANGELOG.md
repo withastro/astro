@@ -1,5 +1,29 @@
 # astro
 
+## 7.0.0-beta.5
+
+### Major Changes
+
+- [#16965](https://github.com/withastro/astro/pull/16965) [`57ead0d`](https://github.com/withastro/astro/commit/57ead0d5938e5988e3f896f3d6f8ef4516c4923f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Makes `'jsx'` the default value for `compressHTML`
+
+  Astro now strips whitespace from your HTML using JSX rules by default, the same way frameworks like React do. Whitespace and line breaks around elements are removed, but meaningful whitespace within a single line — like a space between two inline elements — is preserved. To keep a space that would otherwise be removed, write it explicitly in your source, for example with `{" "}`.
+
+  This can change rendered output where whitespace between inline elements was previously meaningful. To keep Astro's earlier behavior, set `compressHTML: true` for HTML-aware compression, or `compressHTML: false` to preserve all whitespace.
+
+### Patch Changes
+
+- [#17111](https://github.com/withastro/astro/pull/17111) [`c0f33ed`](https://github.com/withastro/astro/commit/c0f33eda8adf6f8f2588688f6205b76a96a42466) Thanks [@ematipico](https://github.com/ematipico)! - Harden the limits on the number of decoding on the URL.
+
+- [#17095](https://github.com/withastro/astro/pull/17095) [`e84ebc0`](https://github.com/withastro/astro/commit/e84ebc0af84a13a26ea412460cbc491f81135ae5) Thanks [@matthewp](https://github.com/matthewp)! - Improves build performance by removing an unfiltered transform hook from the `astro:head-metadata-build` plugin. Head propagation modules are now identified by their module ID (`?astroPropagatedAssets`) instead of scanning every module's source code.
+
+- [#17041](https://github.com/withastro/astro/pull/17041) [`4c4a91c`](https://github.com/withastro/astro/commit/4c4a91c3ef3e3316cb9faa32e37c69d69902b956) Thanks [@iseraph-dev](https://github.com/iseraph-dev)! - Fixes a bug where the advanced routing `astro/hono` / `astro/fetch` `pages()` handler returned the host framework's default `Internal Server Error` response instead of rendering the custom `500.astro` page when a page threw during render. Unmatched requests with a prerendered (or absent) custom 404 page now render the 404 error page instead of failing the same way.
+
+- [#17097](https://github.com/withastro/astro/pull/17097) [`5e340d7`](https://github.com/withastro/astro/commit/5e340d7d81aae72215d56b8c598d350b79ad94a3) Thanks [@iseraph-dev](https://github.com/iseraph-dev)! - Fixes a bug where the advanced routing `astro/hono` / `astro/fetch` `middleware()` handler returned the host framework's default `Internal Server Error` response instead of rendering the custom `500.astro` page when middleware threw. Unmatched requests with a prerendered (or absent) custom 404 page now render the 404 error page instead of failing the same way. Errors surfaced through `next` (the host framework's downstream chain) still propagate to the host's own error handler.
+
+- [#17104](https://github.com/withastro/astro/pull/17104) [`b074a37`](https://github.com/withastro/astro/commit/b074a37c5ab9364529080b3283cf9be8a6350e34) Thanks [@iseraph-dev](https://github.com/iseraph-dev)! - Fixes the custom `500.astro` page receiving an empty `error` prop when the error originated in middleware.
+
+- [#17098](https://github.com/withastro/astro/pull/17098) [`637a1b6`](https://github.com/withastro/astro/commit/637a1b6c6fe58fd271faf4ee7555787e4f4a0b9a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes internal Astro headers leaking from direct `pages()` handler responses
+
 ## 7.0.0-beta.4
 
 ### Major Changes
