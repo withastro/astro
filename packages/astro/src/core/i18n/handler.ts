@@ -70,7 +70,9 @@ export class I18n {
 			return response;
 		}
 
-		const url = new URL(state.request.url);
+		// Use Astro's already-decoded URL (`state.url`) instead of reading the
+		// raw request URL again, so locale checks use the same path as routing.
+		const url = state.url;
 		const currentLocale = state.computeCurrentLocale();
 		const isPrerendered = state.routeData!.prerender;
 
