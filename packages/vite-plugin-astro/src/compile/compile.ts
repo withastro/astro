@@ -5,10 +5,10 @@ import {
 	type TransformResult,
 } from '@astrojs/compiler-rs';
 import type { ResolvedConfig } from 'vite';
-import { AggregateError, CompilerError, ErrorData } from '../errors.js';
 import { normalizePath, resolvePath } from '@astrojs/internal-helpers/vite';
 import { createStylePreprocessor, type PartialCompileCssResult } from './style.js';
 import type { CompileCssResult } from './types.js';
+import type { CSSError, ErrorHandler } from '../types.js';
 
 export interface CompileProps
 	extends Pick<TransformOptions, 'compact' | 'astroGlobalArgs' | 'scopedStyleStrategy'> {
@@ -16,6 +16,7 @@ export interface CompileProps
 	annotateSourceFile: boolean;
 	filename: string;
 	source: string;
+	handleError: ErrorHandler;
 }
 
 export interface CompileResult extends Omit<TransformResult, 'css'> {
@@ -30,9 +31,10 @@ export async function compile({
 	compact,
 	astroGlobalArgs,
 	scopedStyleStrategy,
+	handleError,
 }: CompileProps): Promise<CompileResult> {
 	const cssPartialCompileResults: PartialCompileCssResult[] = [];
-	const cssTransformErrors: CompilerError[] = [];
+	const cssTransformErrors: CSSError[] = [];
 	let transformResult: TransformResult;
 
 	try {
@@ -43,6 +45,7 @@ export async function compile({
 				viteConfig,
 				cssPartialCompileResults,
 				cssTransformErrors,
+				handleError,
 			}),
 		);
 
@@ -67,17 +70,23 @@ export async function compile({
 	} catch (err: any) {
 		// The compiler should be able to handle errors by itself, however
 		// for the rare cases where it can't let's directly throw here with as much info as possible
-		throw new CompilerError({
-			...ErrorData.UnknownCompilerError,
+		throw handleError({
+			type: 'compiler',
 			message: err.message ?? 'Unknown compiler error',
 			stack: err.stack,
+			name: undefined,
+			hint: undefined,
+			frame: undefined,
+			title: undefined,
 			location: {
 				file: filename,
+				line: undefined,
+				column: undefined,
 			},
 		});
 	}
 
-	handleCompileResultErrors(filename, transformResult, cssTransformErrors);
+	handleCompileResultErrors(filename, transformResult, cssTransformErrors, handleError);
 
 	return {
 		...transformResult,
@@ -91,20 +100,25 @@ export async function compile({
 function handleCompileResultErrors(
 	filename: string,
 	result: TransformResult,
-	cssTransformErrors: CompilerError[],
+	cssTransformErrors: CSSError[],
+	handleError: ErrorHandler,
 ) {
 	const compilerError = result.diagnostics.find((diag) => diag.severity === 'error');
 
 	if (compilerError) {
-		throw new CompilerError({
+		throw handleError({
+			type: 'compiler',
 			name: 'CompilerError',
 			message: compilerError.text,
+			hint: compilerError.hint,
+			stack: undefined,
+			frame: undefined,
+			title: 'Compiler Error',
 			location: {
+				file: filename,
 				line: compilerError.labels[0].line,
 				column: compilerError.labels[0].column,
-				file: filename,
 			},
-			hint: compilerError.hint,
 		});
 	}
 
@@ -112,11 +126,11 @@ function handleCompileResultErrors(
 		case 0:
 			break;
 		case 1: {
-			throw cssTransformErrors[0];
+			throw handleError(cssTransformErrors[0]);
 		}
 		default: {
-			throw new AggregateError({
-				...cssTransformErrors[0],
+			throw handleError({
+				type: 'aggregate',
 				errors: cssTransformErrors,
 			});
 		}

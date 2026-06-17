@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 import { resolveConfig } from 'vite';
 import { compileAstro } from '../dist/plugin/compile.js';
 import type { CompileProps } from '../dist/compile/compile.js';
+import { defaultErrorHandler } from '../dist/errors.js';
 
 /** Compile Astro source with a given base path. */
 async function compileWithBase(source: string, base = '/') {
@@ -12,6 +13,7 @@ async function compileWithBase(source: string, base = '/') {
 		annotateSourceFile: false,
 		filename: '/src/pages/index.astro',
 		source,
+		handleError: defaultErrorHandler,
 	};
 	return compileAstro({
 		compileProps: props as any,

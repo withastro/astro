@@ -1,92 +1,20 @@
+import type { ErrorHandler } from './types.js';
+
 export interface ErrorLocation {
-	file?: string;
-	line?: number;
-	column?: number;
+	file: string | undefined;
+	line: number | undefined;
+	column: number | undefined;
 }
 
-interface ErrorProperties {
-	name: string;
-	title?: string;
-	message?: string;
-	location?: ErrorLocation;
-	hint?: string;
-	stack?: string;
-	frame?: string;
+export interface ErrorProperties {
+	name: string | undefined;
+	title: string | undefined;
+	message: string | undefined;
+	location: ErrorLocation | undefined;
+	hint: string | undefined;
+	stack: string | undefined;
+	frame: string | undefined;
 }
-
-export class CompilerError extends Error {
-	public loc: ErrorLocation | undefined;
-	public title: string | undefined;
-	public hint: string | undefined;
-	public frame: string | undefined;
-	readonly type: string = 'CompilerError';
-
-	constructor(props: ErrorProperties, options?: ErrorOptions) {
-		const { name, title, message, stack, location, hint, frame } = props;
-		super(message, options);
-		this.name = name;
-		this.title = title;
-		if (message) this.message = message;
-		this.stack = stack ?? this.stack;
-		this.loc = location;
-		this.hint = hint;
-		this.frame = frame;
-	}
-
-	static is(err: unknown): err is CompilerError {
-		return (err as CompilerError)?.type === 'CompilerError';
-	}
-}
-
-export class CSSError extends Error {
-	public loc: ErrorLocation | undefined;
-	public title: string | undefined;
-	public hint: string | undefined;
-	public frame: string | undefined;
-	readonly type: string = 'CSSError';
-
-	constructor(props: ErrorProperties, options?: ErrorOptions) {
-		const { name, title, message, stack, location, hint, frame } = props;
-		super(message, options);
-		this.name = name ?? 'CSSError';
-		this.title = title;
-		if (message) this.message = message;
-		this.stack = stack ?? this.stack;
-		this.loc = location;
-		this.hint = hint;
-		this.frame = frame;
-	}
-
-	static is(err: unknown): err is CSSError {
-		return (err as CSSError)?.type === 'CSSError';
-	}
-}
-
-export class AggregateError extends CompilerError {
-	readonly type = 'AggregateError' as const;
-	errors: CompilerError[];
-
-	constructor(props: ErrorProperties & { errors: CompilerError[] }, options?: ErrorOptions) {
-		super(props, options);
-		this.errors = props.errors;
-	}
-}
-
-export const ErrorData = {
-	UnknownCompilerError: {
-		name: 'UnknownCompilerError',
-		title: 'Unknown compiler error.',
-		hint: 'This is almost always a problem with the Astro compiler, not your code. Please open an issue at https://astro.build/issues/compiler.',
-	},
-	CSSSyntaxError: {
-		name: 'CSSSyntaxError',
-		title: 'CSS syntax error.',
-	},
-	UnknownCSSError: {
-		name: 'UnknownCSSError',
-		title: 'Unknown CSS error.',
-	},
-} as const;
 
 /**
  * Get the line and character based on the offset
@@ -136,3 +64,32 @@ function getLineOffsets(text: string) {
 	}
 	return lineOffsets;
 }
+
+function createError(
+	{ message, name, stack, ...cause }: ErrorProperties,
+	fallbackName: string,
+): Error {
+	const err = new Error(message, { cause });
+	err.name = name ?? fallbackName;
+	if (stack) err.stack = stack;
+	return err;
+}
+
+export const defaultErrorHandler: ErrorHandler = (error) => {
+	switch (error.type) {
+		case 'compiler': {
+			const { type, ...rest } = error;
+			return createError(rest, 'CompilerError');
+		}
+		case 'css': {
+			const { type, kind, ...rest } = error;
+			return createError(
+				rest,
+				kind === undefined ? 'CSSError' : kind === 'syntax' ? 'CSSSyntaxError' : 'CSSUnknownError',
+			);
+		}
+		case 'aggregate': {
+			return new AggregateError(error.errors.map((err) => createError(err, 'CSSError')));
+		}
+	}
+};

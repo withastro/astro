@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import { preprocessCSS, type ResolvedConfig } from 'vite';
-import { CSSError, ErrorData, positionAt } from '../errors.js';
+import { positionAt } from '../errors.js';
+import type { CSSError, ErrorHandler } from '../types.js';
 import { normalizePath } from '@astrojs/internal-helpers/vite';
 import type { CompileCssResult } from './types.js';
 
@@ -136,11 +137,13 @@ export function createStylePreprocessor({
 	viteConfig,
 	cssPartialCompileResults,
 	cssTransformErrors,
+	handleError,
 }: {
 	filename: string;
 	viteConfig: ResolvedConfig;
 	cssPartialCompileResults: Partial<CompileCssResult>[];
-	cssTransformErrors: Error[];
+	cssTransformErrors: CSSError[];
+	handleError: ErrorHandler;
 }): PreprocessStyleFn {
 	let processedStylesCount = 0;
 
@@ -183,7 +186,7 @@ export function createStylePreprocessor({
 			return { code: rewrittenCode, map };
 		} catch (err: any) {
 			try {
-				err = enhanceCSSError(err, filename, content);
+				err = enhanceCSSError(err, filename, content, handleError);
 			} catch {}
 			cssTransformErrors.push(err);
 			return { error: err + '' };
@@ -191,7 +194,12 @@ export function createStylePreprocessor({
 	};
 }
 
-function enhanceCSSError(err: any, filename: string, cssContent: string) {
+function enhanceCSSError(
+	err: any,
+	filename: string,
+	cssContent: string,
+	handleError: ErrorHandler,
+): Error {
 	const fileContent = fs.readFileSync(filename).toString();
 	const styleTagBeginning = fileContent.indexOf(cssContent);
 
@@ -200,8 +208,9 @@ function enhanceCSSError(err: any, filename: string, cssContent: string) {
 		const errorLine = positionAt(styleTagBeginning, fileContent).line + (err.line ?? 0);
 
 		// Vite will handle creating the frame for us with proper line numbers, no need to create one
-		return new CSSError({
-			...ErrorData.CSSSyntaxError,
+		return handleError({
+			type: 'css',
+			kind: 'syntax',
 			message: err.reason,
 			location: {
 				file: filename,
@@ -209,6 +218,10 @@ function enhanceCSSError(err: any, filename: string, cssContent: string) {
 				column: err.column,
 			},
 			stack: err.stack,
+			name: undefined,
+			hint: undefined,
+			title: undefined,
+			frame: undefined,
 		});
 	}
 
@@ -216,8 +229,9 @@ function enhanceCSSError(err: any, filename: string, cssContent: string) {
 	if (err.line && err.column) {
 		const errorLine = positionAt(styleTagBeginning, fileContent).line + (err.line ?? 0);
 
-		return new CSSError({
-			...ErrorData.UnknownCSSError,
+		return handleError({
+			type: 'css',
+			kind: 'unknown',
 			message: err.message,
 			location: {
 				file: filename,
@@ -226,6 +240,9 @@ function enhanceCSSError(err: any, filename: string, cssContent: string) {
 			},
 			frame: err.frame,
 			stack: err.stack,
+			name: undefined,
+			hint: undefined,
+			title: undefined,
 		});
 	}
 
@@ -233,8 +250,9 @@ function enhanceCSSError(err: any, filename: string, cssContent: string) {
 	const errorPosition = positionAt(styleTagBeginning, fileContent);
 	errorPosition.line += 1;
 
-	return new CSSError({
-		name: 'CSSError',
+	return handleError({
+		type: 'css',
+		kind: undefined,
 		message: err.message,
 		location: {
 			file: filename,
@@ -243,5 +261,8 @@ function enhanceCSSError(err: any, filename: string, cssContent: string) {
 		},
 		frame: err.frame,
 		stack: err.stack,
+		name: undefined,
+		hint: undefined,
+		title: undefined,
 	});
 }

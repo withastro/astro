@@ -27,6 +27,7 @@ import { vitePluginAdapterConfig } from '../vite-plugin-adapter-config/index.js'
 import { vitePluginApp } from '../vite-plugin-app/index.js';
 import { vitePluginFetchable } from './fetch/vite-plugin.js';
 import astroVitePlugin from 'vite-plugin-astro';
+import type * as astroVitePluginTypes from 'vite-plugin-astro';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import { astroDevCssPlugin } from '../vite-plugin-css/index.js';
@@ -58,6 +59,7 @@ import { vitePluginChromedevtools } from '../vite-plugin-chromedevtools/index.js
 import { vitePluginDevStatus } from '../vite-plugin-dev-status/index.js';
 import { vitePluginAstroServerClient } from '../vite-plugin-overlay/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
+import { AggregateError, AstroErrorData, CompilerError, CSSError } from './errors/index.js';
 
 type CreateViteOptions = {
 	settings: AstroSettings;
@@ -212,6 +214,45 @@ export async function createVite(
 				compact: settings.config.compressHTML,
 				astroGlobalArgs: JSON.stringify(settings.config.site),
 				scopedStyleStrategy: settings.config.scopedStyleStrategy,
+				handleError: (error) => {
+					function createCSSError(err: astroVitePluginTypes.CSSError): CSSError {
+						return new CSSError({
+							...(err.kind === undefined
+								? {
+										name: 'CSSError',
+									}
+								: err.kind === 'syntax'
+									? AstroErrorData.CSSSyntaxError
+									: AstroErrorData.UnknownCSSError),
+							hint: err.hint,
+							message: err.message,
+							stack: err.stack,
+							location: err.location,
+							frame: err.frame,
+						});
+					}
+
+					switch (error.type) {
+						case 'compiler':
+							return new CompilerError({
+								name: error.name ?? AstroErrorData.UnknownCompilerError.name,
+								title: error.title ?? AstroErrorData.UnknownCompilerError.title,
+								hint: error.hint ?? AstroErrorData.UnknownCompilerError.hint,
+								message: error.message,
+								stack: error.stack,
+								location: error.location,
+								frame: error.frame,
+							});
+						case 'css':
+							return createCSSError(error);
+						case 'aggregate':
+							const normalized = error.errors.map((err) => createCSSError(err));
+							return new AggregateError({
+								...normalized[0],
+								errors: normalized,
+							});
+					}
+				},
 			}),
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes

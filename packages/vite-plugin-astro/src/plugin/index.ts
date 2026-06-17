@@ -1,7 +1,7 @@
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import { normalizeFilename, specialQueriesRE } from '@astrojs/internal-helpers/vite';
-import type { Transform } from '../types.js';
+import type { ErrorHandler, Transform } from '../types.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
@@ -14,6 +14,7 @@ import { loadId } from './utils.js';
 import type { TransformOptions } from '@astrojs/compiler-rs';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
+import { defaultErrorHandler } from '../errors.js';
 
 export { getAstroMetadata } from './metadata.js';
 export type { AstroPluginMetadata };
@@ -22,6 +23,7 @@ interface AstroPluginOptions
 	extends Pick<TransformOptions, 'compact' | 'astroGlobalArgs' | 'scopedStyleStrategy'> {
 	annotateSourceFile?: boolean;
 	transform?: Transform;
+	handleError?: ErrorHandler;
 }
 
 /** Transform .astro files for Vite */
@@ -31,6 +33,7 @@ export default function astro({
 	compact,
 	astroGlobalArgs,
 	scopedStyleStrategy,
+	handleError = defaultErrorHandler,
 }: AstroPluginOptions): vite.Plugin[] {
 	let server: vite.ViteDevServer | undefined;
 	let compile: (code: string, filename: string) => Promise<CompileAstroResult>;
@@ -100,6 +103,7 @@ export default function astro({
 							compact,
 							astroGlobalArgs,
 							scopedStyleStrategy,
+							handleError,
 						},
 						astroFileToCompileMetadata,
 						transform,

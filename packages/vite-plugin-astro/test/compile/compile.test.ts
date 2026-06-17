@@ -2,6 +2,7 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { resolveConfig } from 'vite';
 import { compile } from '../../dist/compile/compile.js';
+import { defaultErrorHandler } from '../../dist/errors.js';
 
 async function compileWithRust(source: string) {
 	const viteConfig = await resolveConfig({ configFile: false }, 'serve');
@@ -12,6 +13,7 @@ async function compileWithRust(source: string) {
 		annotateSourceFile: false,
 		filename: '/src/components/index.astro',
 		source,
+		handleError: defaultErrorHandler,
 	});
 }
 

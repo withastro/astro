@@ -6,6 +6,7 @@ import type { InlineConfig } from 'vite';
 import { compileAstro } from '../dist/plugin/compile.js';
 import type { Transform } from '../dist/types.js';
 import type { CompileProps } from '../dist/compile/compile.js';
+import { defaultErrorHandler } from '../dist/errors.js';
 
 // #region Helpers
 
@@ -21,6 +22,7 @@ async function compile(
 		annotateSourceFile: false,
 		filename: id,
 		source,
+		handleError: defaultErrorHandler,
 	};
 	return compileAstro({
 		compileProps: props,

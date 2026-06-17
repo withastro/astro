@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { resolveConfig } from 'vite';
 import { compile } from '../../dist/compile/index.js';
-import { AggregateError } from '../../dist/errors.js';
+import { defaultErrorHandler } from '../../dist/errors.js';
 
 describe('vite-plugin-astro/compile', () => {
 	describe('Invalid CSS', () => {
@@ -13,6 +13,7 @@ describe('vite-plugin-astro/compile', () => {
 					viteConfig: await resolveConfig({ configFile: false }, 'serve'),
 					annotateSourceFile: false,
 					filename: '/src/pages/index.astro',
+					handleError: defaultErrorHandler,
 					source: `
 ---
 ---
