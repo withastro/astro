@@ -234,7 +234,22 @@ export interface AstroUserConfig<
 	 * @name serverIslandHostname
 	 * @type {string}
 	 * @description
-	 * TODO: update this
+	 * Sets a hostname or origin prefix to use when Astro fetches server island content.
+	 * This value is prepended to the server island request URL, which is useful when
+	 * you want those requests to go to a different origin (for example, a CDN or
+	 * dedicated API domain) than the page itself.
+	 *
+	 * The value should include the protocol and, if needed, a port. Astro will
+	 * normalize the URL so the server island route is appended correctly.
+	 *
+	 * ```js
+	 * {
+	 *   serverIslandHostname: 'https://cdn.example.com'
+	 * }
+	 * ```
+	 *
+	 * With a base path of `/docs`, a server island request will be fetched from:
+	 * `https://cdn.example.com/docs/_server-islands/...`
 	 */
 	serverIslandHostname?: string;
 

@@ -117,6 +117,16 @@ describe('serializedManifestPlugin - dev mode', () => {
 		});
 	});
 
+	describe('serverIslandHostname', () => {
+		it('preserves the configured hostname', async () => {
+			const settings = await createBasicSettings({
+				serverIslandHostname: 'https://example.com',
+			});
+			const manifest = await getManifest(settings);
+			assert.equal(manifest.serverIslandHostname, 'https://example.com');
+		});
+	});
+
 	describe('serverLike', () => {
 		it('is true when buildOutput is server', async () => {
 			const settings = await createBasicSettings({});

@@ -224,6 +224,50 @@ describe('ServerIslandComponent', () => {
 			);
 		});
 
+		it('uses the configured serverIslandHostname as a URL prefix', async () => {
+			const result = await createStubResult({
+				base: '/docs',
+				serverIslandHostname: 'https://cdn.example.com',
+			});
+			const component = new ServerIslandComponent(result, islandProps(), {}, 'Island');
+			const content = await component.getIslandContent();
+			assert.ok(
+				content.includes('https://cdn.example.com/docs/_server-islands/Island'),
+				`server island URL should be prefixed by serverIslandHostname, got: ${content}`,
+			);
+		});
+
+		it('normalizes a trailing slash in serverIslandHostname', async () => {
+			const result = await createStubResult({
+				base: '/docs',
+				serverIslandHostname: 'https://cdn.example.com/',
+			});
+			const component = new ServerIslandComponent(result, islandProps(), {}, 'Island');
+			const content = await component.getIslandContent();
+			assert.ok(
+				content.includes('https://cdn.example.com/docs/_server-islands/Island'),
+				`server island URL should not contain a double slash, got: ${content}`,
+			);
+			assert.ok(
+				!content.includes('https://cdn.example.com//docs/_server-islands/Island'),
+				'server island URL should not double-escape the base path',
+			);
+		});
+
+		it('keeps the relative URL when serverIslandHostname is unset', async () => {
+			const result = await createStubResult({ serverIslandHostname: undefined });
+			const component = new ServerIslandComponent(result, islandProps(), {}, 'Island');
+			const content = await component.getIslandContent();
+			assert.ok(
+				content.includes('/_server-islands/Island'),
+				`server island URL should remain relative when unset, got: ${content}`,
+			);
+			assert.ok(
+				!content.includes('https://') && !content.includes('http://'),
+				'server island URL should not add an absolute origin when unset',
+			);
+		});
+
 		it('appends a trailing slash when trailingSlash is "always"', async () => {
 			const result = await createStubResult({ trailingSlash: 'always' });
 			const component = new ServerIslandComponent(result, islandProps(), {}, 'Island');
