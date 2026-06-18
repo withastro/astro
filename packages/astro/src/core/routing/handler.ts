@@ -1,10 +1,6 @@
 import { ActionHandler } from '../../actions/handler.js';
 import type { APIContext } from '../../types/public/context.js';
-import {
-	REROUTABLE_STATUS_CODES,
-	REROUTE_DIRECTIVE_HEADER,
-	REWRITE_DIRECTIVE_HEADER_KEY,
-} from '../constants.js';
+import { REROUTABLE_STATUS_CODES } from '../constants.js';
 import { TrailingSlashHandler } from './trailing-slash-handler.js';
 import { CacheHandler, provideCache } from '../cache/handler.js';
 import { I18n } from '../i18n/handler.js';
@@ -76,6 +72,14 @@ export class AstroHandler {
 		// missing-feature warning in BaseApp never fires — the user didn't
 		// forget to include anything.
 		state.pipeline.usedFeatures |= ALL_PIPELINE_FEATURES;
+
+		// Reject paths that were encoded too many times to fully decode, before
+		// any routing or middleware runs. If we let them through, middleware
+		// could check one path while a later decode turns it into a different
+		// route.
+		if (state.invalidEncoding) {
+			return new Response(null, { status: 400, statusText: 'Bad Request' });
+		}
 
 		const trailingSlashRedirect = this.#trailingSlashHandler.handle(state);
 		if (trailingSlashRedirect) {
@@ -159,13 +163,11 @@ export class AstroHandler {
 				response = await this.#cacheHandler.handle(state, runPipeline);
 			}
 
-			const isRewrite = response.headers.has(REWRITE_DIRECTIVE_HEADER_KEY);
-
 			this.#app.logThisRequest({
 				pathname,
 				method: request.method,
 				statusCode: response.status,
-				isRewrite,
+				isRewrite: state.isRewriting,
 				timeStart: state.timeStart,
 			});
 		} catch (err: any) {
@@ -186,7 +188,7 @@ export class AstroHandler {
 			// If the body isn't null, that means the user sets the 404 status
 			// but uses the current route to handle the 404
 			response.body === null &&
-			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
+			!state.skipErrorReroute
 		) {
 			return this.#app.renderError(request, {
 				...state.renderOptions,

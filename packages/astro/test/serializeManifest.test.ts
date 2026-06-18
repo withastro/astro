@@ -39,7 +39,7 @@ describe('astro:config/client', () => {
 						format: 'directory',
 					},
 					trailingSlash: 'always',
-					compressHTML: true,
+					compressHTML: 'jsx',
 					site: 'https://example.com',
 				}),
 			);
@@ -80,7 +80,8 @@ describe('astro:config/server', () => {
 		});
 
 		it('should return an error when using inside a client script', async () => {
-			const error = await fixture.build().catch((err) => err);
+			let error = await fixture.build().catch((err) => err);
+			error = error.errors[0];
 			assert.equal(error instanceof AstroError, true);
 			assert.equal(error.name, ServerOnlyModule.name);
 		});

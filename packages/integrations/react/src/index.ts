@@ -2,6 +2,10 @@ import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-re
 import type { AstroIntegration, AstroRenderer } from 'astro';
 import type * as vite from 'vite';
 import {
+	getContainerRenderer as getContainerRendererImpl,
+	getRenderer,
+} from './container-renderer.js';
+import {
 	getReactMajorVersion,
 	isSupportedReactVersion,
 	type ReactVersionConfig,
@@ -23,14 +27,6 @@ export type ReactIntegrationOptions = Pick<
 };
 
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
-
-function getRenderer(reactConfig: ReactVersionConfig) {
-	return {
-		name: '@astrojs/react',
-		clientEntrypoint: reactConfig.client,
-		serverEntrypoint: reactConfig.server,
-	};
-}
 
 function optionsPlugin({
 	include,
@@ -84,9 +80,21 @@ function getViteConfiguration(
 	}: ReactIntegrationOptions = {},
 	reactConfig: ReactVersionConfig,
 ) {
+	// Always exclude .astro files from the React plugin. In Vite 8, @vitejs/plugin-react
+	// sets jsxRefreshInclude/jsxRefreshExclude which controls vite:oxc's JSX refresh filter.
+	// Without excluding .astro, the filter matches .astro virtual module scripts (e.g.
+	// Foo.astro?astro&type=script&index=0&lang.ts) and forces lang to 'js', causing OXC
+	// to fail parsing TypeScript syntax like `import type`.
+	const astroExclude = /\.astro$/;
+	const mergedExclude = exclude
+		? Array.isArray(exclude)
+			? [...exclude, astroExclude]
+			: [exclude, astroExclude]
+		: astroExclude;
+
 	return {
 		plugins: [
-			react({ include, exclude, babel }),
+			react({ include, exclude: mergedExclude, babel }),
 			optionsPlugin({
 				include,
 				exclude,
@@ -201,10 +209,12 @@ export default function ({
 	};
 }
 
+/**
+ * @deprecated Import `getContainerRenderer` from `@astrojs/react/container-renderer` instead.
+ */
 export function getContainerRenderer(): AstroRenderer {
-	const majorVersion = getReactMajorVersion();
-	if (!isSupportedReactVersion(majorVersion)) {
-		throw new Error(`Unsupported React version: ${majorVersion}.`);
-	}
-	return getRenderer(versionsConfig[majorVersion]);
+	console.warn(
+		'[@astrojs/react] Importing `getContainerRenderer` from `@astrojs/react` is deprecated. Import it from `@astrojs/react/container-renderer` instead.',
+	);
+	return getContainerRendererImpl();
 }

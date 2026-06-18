@@ -247,6 +247,7 @@ export interface FontData {
 	src: Array<{ url: string; format?: string; tech?: string }>;
 	weight?: string;
 	style?: string;
+	subset?: string;
 }
 
 /**

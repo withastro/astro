@@ -10,7 +10,6 @@ export const DEFAULT_HELP_PAYLOAD: HelpPayload = {
 			['build', 'Build your project and write it to disk.'],
 			['check', 'Check your project for errors.'],
 			['create-key', 'Create a cryptography key'],
-			['db', 'Manage your Astro database.'],
 			['dev', 'Start the development server.'],
 			['docs', 'Open documentation in your web browser.'],
 			['info', 'List info about your current Astro setup.'],
@@ -28,7 +27,7 @@ export const DEFAULT_HELP_PAYLOAD: HelpPayload = {
 			['--silent', 'Disable all logging.'],
 			['--version', 'Show the version number and exit.'],
 			['--help', 'Show this help message.'],
-			['--experimental-json', 'Enables JSON logging.'],
+			['--json', 'Enables JSON logging.'],
 		],
 	},
 };

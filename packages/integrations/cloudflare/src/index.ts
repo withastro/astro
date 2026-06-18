@@ -480,12 +480,12 @@ export default function createIntegration({
 					vite.ssr.noExternal = true;
 
 					vite.build ||= {};
-					vite.build.rollupOptions ||= {};
-					vite.build.rollupOptions.output ||= {};
-					vite.build.rollupOptions.external = ['sharp'];
+					vite.build.rolldownOptions ||= {};
+					vite.build.rolldownOptions.output ||= {};
+					vite.build.rolldownOptions.external = ['sharp'];
 
 					// @ts-expect-error
-					vite.build.rollupOptions.output.banner ||=
+					vite.build.rolldownOptions.output.banner ||=
 						'globalThis.process ??= {}; globalThis.process.env ??= {};';
 
 					// Cloudflare env is only available per request. This isn't feasible for code that access env vars
@@ -501,7 +501,7 @@ export default function createIntegration({
 				// Move platform files from the base-prefixed client dir to the
 				// original client root, since Cloudflare reads them from there.
 				if (_config.base !== '/') {
-					for (const file of ['.assetsignore', '_headers']) {
+					for (const file of ['.assetsignore', '_headers', '_redirects']) {
 						try {
 							await rename(
 								new URL(`./${file}`, _config.build.client),

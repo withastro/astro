@@ -1,4 +1,3 @@
-// astro-head-inject
 import {
 	createDeprecatedFunction,
 	createGetCollection,

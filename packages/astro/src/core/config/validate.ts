@@ -44,7 +44,7 @@ function warnDeprecatedMarkdownOptions(
 	const names = deprecated.map((key) => `\`markdown.${key}\``).join(' and ');
 	const isPlural = deprecated.length > 1;
 	console.warn(
-		`[astro] ${names} ${isPlural ? 'are' : 'is'} deprecated. Move ${isPlural ? 'them' : 'it'} onto your processor instead (e.g. \`unified({ gfm: false, smartypants: false })\`). Will be removed in a future major.`,
+		`[astro] ${names} ${isPlural ? 'are' : 'is'} deprecated. Move ${isPlural ? 'them' : 'it'} onto your processor instead (e.g. \`satteri({ features: { gfm: false, smartPunctuation: false } })\`, or \`unified({ gfm: false, smartypants: false })\` from \`@astrojs/markdown-remark\`). Will be removed in a future major.`,
 	);
 }
 
@@ -74,7 +74,15 @@ async function coerceLegacyMarkdownPlugins(
 		return;
 	}
 
-	const { unified, isUnifiedProcessor } = await import('@astrojs/markdown-remark');
+	let unified: typeof import('@astrojs/markdown-remark').unified;
+	let isUnifiedProcessor: typeof import('@astrojs/markdown-remark').isUnifiedProcessor;
+	try {
+		({ unified, isUnifiedProcessor } = await import('@astrojs/markdown-remark'));
+	} catch {
+		throw new Error(
+			'`markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` run on the `unified` processor from `@astrojs/markdown-remark`, which is no longer installed by default now that Sätteri is the default Markdown processor. Install it with:\n  npm install @astrojs/markdown-remark',
+		);
+	}
 
 	const current = md.processor;
 	if (!current || isUnifiedProcessor(current)) {

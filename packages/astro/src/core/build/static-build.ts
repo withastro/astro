@@ -22,10 +22,10 @@ import { manifestBuildPostHook } from './plugins/plugin-manifest.js';
 
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
-import { getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
+import { getTimeStat, viteBuildReturnToRolldownOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
-import type { InputOption } from 'rollup';
+import type { Rolldown } from 'vite';
 import { getSSRAssets } from './internal.js';
 import {
 	SERVER_ISLAND_MAP_MARKER,
@@ -36,8 +36,8 @@ import { createViteBuildConfig } from './vite-build-config.js';
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
 /**
- * Minimal chunk data extracted from RollupOutput for deferred manifest/content injection.
- * Allows releasing full RollupOutput objects early to reduce memory usage.
+ * Minimal chunk data extracted from RolldownOutput for deferred manifest/content injection.
+ * Allows releasing full RolldownOutput objects early to reduce memory usage.
  */
 export interface ExtractedChunk {
 	fileName: string;
@@ -52,11 +52,11 @@ type BuildPostHook = (params: {
 }) => void | Promise<void>;
 
 /**
- * Extracts only the chunks that need post-build injection from RollupOutput.
- * This allows releasing the full RollupOutput to reduce memory usage.
+ * Extracts only the chunks that need post-build injection from RolldownOutput.
+ * This allows releasing the full RolldownOutput to reduce memory usage.
  */
 function extractRelevantChunks(
-	outputs: vite.Rollup.RollupOutput[],
+	outputs: vite.Rolldown.RolldownOutput[],
 	prerender: boolean,
 ): ExtractedChunk[] {
 	const extracted: ExtractedChunk[] = [];
@@ -147,9 +147,9 @@ export async function viteBuild(opts: StaticBuildOptions) {
  *      - Components with hydration directives (client:*)
  *      - Client-only components
  *      - Page scripts
- *    - These discoveries populate `internals.clientInput` which becomes the rollup input
+ *    - These discoveries populate `internals.clientInput` which becomes the rolldown input
  *    - Config is mutated after builder creation to set dynamic inputs
- *    - If no client scripts exist, uses a "noop" entrypoint to satisfy Rollup's input requirement
+ *    - If no client scripts exist, uses a "noop" entrypoint to satisfy Rolldown's input requirement
  *    - public/ folder is copied during this build
  *
  * Returns outputs from each environment for post-build processing (manifest injection, etc).
@@ -161,25 +161,25 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	const buildPlugins = getAllBuildPlugins(internals, opts);
 	const flatPlugins = buildPlugins.flat().filter(Boolean);
 	const plugins = [...flatPlugins, ...(viteConfig.plugins || [])];
-	let currentRollupInput: InputOption | undefined = undefined;
+	let currentRolldownInput: Rolldown.InputOption | undefined = undefined;
 	let buildPostHooks: BuildPostHook[] = [];
 	plugins.push({
 		name: 'astro:resolve-input',
-		// When the rollup input is safe to update, we normalize it to always be an object
+		// When the rolldown input is safe to update, we normalize it to always be an object
 		// so we can reliably identify which entrypoint corresponds to the adapter
 		enforce: 'post',
 		config(config) {
-			if (typeof config.build?.rollupOptions?.input === 'string') {
-				config.build.rollupOptions.input = { index: config.build.rollupOptions.input };
-			} else if (Array.isArray(config.build?.rollupOptions?.input)) {
-				config.build.rollupOptions.input = Object.fromEntries(
-					config.build.rollupOptions.input.map((v, i) => [`index_${i}`, v]),
+			if (typeof config.build?.rolldownOptions?.input === 'string') {
+				config.build.rolldownOptions.input = { index: config.build.rolldownOptions.input };
+			} else if (Array.isArray(config.build?.rolldownOptions?.input)) {
+				config.build.rolldownOptions.input = Object.fromEntries(
+					config.build.rolldownOptions.input.map((v, i) => [`index_${i}`, v]),
 				);
 			}
 		},
-		// We save the rollup input to be able to check later on
+		// We save the rolldown input to be able to check later on
 		configResolved(config) {
-			currentRollupInput = config.build.rollupOptions.input;
+			currentRolldownInput = config.build.rolldownOptions.input;
 		},
 	});
 	// Post plugin for manifest injection, page generation, and cleanup
@@ -225,16 +225,16 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		},
 	});
 
-	function isRollupInput(moduleName: string | null): boolean {
-		if (!currentRollupInput || !moduleName) {
+	function isRolldownInput(moduleName: string | undefined): boolean {
+		if (!currentRolldownInput || !moduleName) {
 			return false;
 		}
-		if (typeof currentRollupInput === 'string') {
-			return currentRollupInput === moduleName;
-		} else if (Array.isArray(currentRollupInput)) {
-			return currentRollupInput.includes(moduleName);
+		if (typeof currentRolldownInput === 'string') {
+			return currentRolldownInput === moduleName;
+		} else if (Array.isArray(currentRolldownInput)) {
+			return currentRolldownInput.includes(moduleName);
 		} else {
-			return Object.keys(currentRollupInput).includes(moduleName);
+			return Object.keys(currentRolldownInput).includes(moduleName);
 		}
 	}
 
@@ -256,7 +256,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				extractPrerenderEntryFileName(internals, prerenderOutput);
 
 				// Extract chunks needing injection, then release output for GC
-				const prerenderOutputs = viteBuildReturnToRollupOutputs(prerenderOutput);
+				const prerenderOutputs = viteBuildReturnToRolldownOutputs(prerenderOutput);
 				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
 				prerenderOutput = undefined as any;
 
@@ -269,7 +269,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					);
 					settings.timer.end('SSR build');
 					// Extract chunks needing injection, then release output for GC
-					const ssrOutputs = viteBuildReturnToRollupOutputs(ssrOutput);
+					const ssrOutputs = viteBuildReturnToRolldownOutputs(ssrOutput);
 					ssrChunks = extractRelevantChunks(ssrOutputs, false);
 					ssrOutput = undefined as any;
 				}
@@ -298,7 +298,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				// timing during prerendering. Without sorting, consecutive builds of the same
 				// source code can produce different output filenames, breaking CDN caching.
 				const sortedClientInput = Array.from(internals.clientInput).sort();
-				builder.environments.client.config.build.rollupOptions.input = sortedClientInput;
+				builder.environments.client.config.build.rolldownOptions.input = sortedClientInput;
 				settings.timer.start('Client build');
 				await builder.build(builder.environments.client);
 				settings.timer.end('Client build');
@@ -307,7 +307,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				internals.extractedChunks = [...ssrChunks, ...prerenderChunks];
 			},
 		},
-		isRollupInput,
+		isRolldownInput,
 	});
 
 	const updatedViteBuildConfig = await runHookBuildSetup({
@@ -328,11 +328,11 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
  */
 function getPrerenderEntryFileName(
 	prerenderOutput:
-		| vite.Rollup.RollupOutput
-		| vite.Rollup.RollupOutput[]
-		| vite.Rollup.RollupWatcher,
+		| vite.Rolldown.RolldownOutput
+		| vite.Rolldown.RolldownOutput[]
+		| vite.Rolldown.RolldownWatcher,
 ): string {
-	const outputs = viteBuildReturnToRollupOutputs(prerenderOutput);
+	const outputs = viteBuildReturnToRolldownOutputs(prerenderOutput);
 
 	for (const output of outputs) {
 		for (const chunk of output.output) {
@@ -357,9 +357,9 @@ function getPrerenderEntryFileName(
 function extractPrerenderEntryFileName(
 	internals: BuildInternals,
 	prerenderOutput:
-		| vite.Rollup.RollupOutput
-		| vite.Rollup.RollupOutput[]
-		| vite.Rollup.RollupWatcher,
+		| vite.Rolldown.RolldownOutput
+		| vite.Rolldown.RolldownOutput[]
+		| vite.Rolldown.RolldownWatcher,
 ) {
 	internals.prerenderEntryFileName = getPrerenderEntryFileName(prerenderOutput);
 }
