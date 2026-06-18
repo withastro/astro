@@ -16,8 +16,8 @@ const CacheOptionsSchema = z.object({
 });
 
 /**
- * Cache provider configuration (experimental.cache).
- * Provider only - routes are configured via experimental.routeRules.
+ * Cache provider configuration (`cache`).
+ * Provider only - routes are configured via `routeRules`.
  */
 export const CacheSchema = z.object({
 	provider: CacheProviderConfigSchema.optional(),
@@ -26,7 +26,7 @@ export const CacheSchema = z.object({
 const RouteRuleSchema = CacheOptionsSchema;
 
 /**
- * Route rules configuration (experimental.routeRules).
+ * Route rules configuration (`routeRules`).
  * Maps glob patterns to route rules.
  *
  * Example:
