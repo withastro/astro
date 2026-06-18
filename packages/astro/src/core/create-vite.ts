@@ -26,8 +26,7 @@ import type { AstroSettings, RoutesList } from '../types/astro.js';
 import { vitePluginAdapterConfig } from '../vite-plugin-adapter-config/index.js';
 import { vitePluginApp } from '../vite-plugin-app/index.js';
 import { vitePluginFetchable } from './fetch/vite-plugin.js';
-import astroVitePlugin from 'vite-plugin-astro';
-import type * as astroVitePluginTypes from 'vite-plugin-astro';
+import { vitePluginAstro } from '../vite-plugin-astro/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import { astroDevCssPlugin } from '../vite-plugin-css/index.js';
@@ -58,8 +57,6 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
 import { vitePluginChromedevtools } from '../vite-plugin-chromedevtools/index.js';
 import { vitePluginDevStatus } from '../vite-plugin-dev-status/index.js';
 import { vitePluginAstroServerClient } from '../vite-plugin-overlay/index.js';
-import { getFileInfo } from '../vite-plugin-utils/index.js';
-import { AggregateError, AstroErrorData, CompilerError, CSSError } from './errors/index.js';
 
 type CreateViteOptions = {
 	settings: AstroSettings;
@@ -198,69 +195,7 @@ export async function createVite(
 			pluginPages({ routesList }),
 			configAliasVitePlugin({ settings }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
-			astroVitePlugin({
-				transformOptions: {
-					annotateSourceFile:
-						settings.config.devToolbar.enabled &&
-						(await settings.preferences.get('devToolbar.enabled')),
-					compact: settings.config.compressHTML,
-					// TODO: remove in Astro v7
-					astroGlobalArgs: JSON.stringify(settings.config.site),
-					scopedStyleStrategy: settings.config.scopedStyleStrategy,
-					sourcemap: 'both',
-					internalURL: 'astro/compiler-runtime',
-					resultScopedSlot: true,
-					transitionsAnimationURL: 'astro/components/viewtransitions.css',
-				},
-				transform: (filename, code) => {
-					const { fileId: file, fileUrl: url } = getFileInfo(filename, settings.config);
-
-					const SUFFIX = `\nconst $$file = ${JSON.stringify(file)};\nconst $$url = ${JSON.stringify(
-						url,
-					)};export { $$file as file, $$url as url };\n`;
-
-					return code + SUFFIX;
-				},
-				handleError: (error) => {
-					function createCSSError(err: astroVitePluginTypes.CSSError): CSSError {
-						return new CSSError({
-							...(err.kind === undefined
-								? {
-										name: 'CSSError',
-									}
-								: err.kind === 'syntax'
-									? AstroErrorData.CSSSyntaxError
-									: AstroErrorData.UnknownCSSError),
-							hint: err.hint,
-							message: err.message,
-							stack: err.stack,
-							location: err.location,
-							frame: err.frame,
-						});
-					}
-
-					switch (error.type) {
-						case 'compiler':
-							return new CompilerError({
-								name: error.name ?? AstroErrorData.UnknownCompilerError.name,
-								title: error.title ?? AstroErrorData.UnknownCompilerError.title,
-								hint: error.hint ?? AstroErrorData.UnknownCompilerError.hint,
-								message: error.message,
-								stack: error.stack,
-								location: error.location,
-								frame: error.frame,
-							});
-						case 'css':
-							return createCSSError(error);
-						case 'aggregate':
-							const normalized = error.errors.map((err) => createCSSError(err));
-							return new AggregateError({
-								...normalized[0],
-								errors: normalized,
-							});
-					}
-				},
-			}),
+			await vitePluginAstro({ settings }),
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
