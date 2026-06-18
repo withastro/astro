@@ -67,106 +67,109 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	return aliases;
 };
 
-/** Generate vite.resolve.alias entries from tsconfig paths */
-const getViteResolveAlias = (settings: AstroSettings) => {
-	const { tsConfig, tsConfigPath } = settings;
-	if (!tsConfig || !tsConfigPath || !tsConfig.compilerOptions) return [];
-
-	const { baseUrl, paths } = tsConfig.compilerOptions as CompilerOptions;
-	const effectiveBaseUrl = baseUrl ?? (paths ? '.' : undefined);
-	if (!effectiveBaseUrl) return [];
-
-	const resolvedBaseUrl = path.resolve(path.dirname(tsConfigPath), effectiveBaseUrl);
-	const aliases: Array<{ find: string | RegExp; replacement: string; customResolver?: any }> = [];
-
-	// Build aliases with custom resolver that tries multiple paths
-	if (paths) {
-		for (const [aliasPattern, values] of Object.entries(paths)) {
-			const resolvedValues = values.map((v) => path.resolve(resolvedBaseUrl, v));
-
-			const customResolver = (id: string) => {
-				// Try each path in order
-				// id is already the wildcard part (e.g., 'extra.css' for '@styles/*')
-				// resolvedValues still have the * in them, so replace * with id
-				for (const resolvedValue of resolvedValues) {
-					// nosemgrep: javascript.lang.security.audit.incomplete-sanitization.incomplete-sanitization
-					// `id` is the wildcard capture from the alias match and only substitutes the tsconfig `*`.
-					const resolved = resolvedValue.replace('*', id);
-					const stats = fs.statSync(resolved, { throwIfNoEntry: false });
-					if (stats && stats.isFile()) {
-						return normalizePath(resolved);
-					}
-				}
-				return null;
-			};
-
-			aliases.push({
-				// Build regex from alias pattern (e.g., '@styles/*' -> /^@styles\/(.+)$/)
-				// First, escape special regex chars. Then replace * with a capture group (.+)
-				find: new RegExp(
-					`^${aliasPattern.replace(/[\\^$+?.()|[\]{}]/g, '\\$&').replace(/\*/g, '(.+)')}$`,
-				),
-				replacement: aliasPattern.includes('*') ? '$1' : aliasPattern,
-				customResolver,
-			});
+/**
+ * Resolve an import id against tsconfig path aliases.
+ * Tries each alias replacement in order, returning the first that maps to an existing file.
+ */
+function resolveWithAlias(id: string, configAlias: Alias[]): string | null {
+	for (const alias of configAlias) {
+		if (alias.find.test(id)) {
+			const updatedId = id.replace(alias.find, alias.replacement);
+			const stats = fs.statSync(updatedId, { throwIfNoEntry: false });
+			if (stats && stats.isFile()) {
+				return normalizePath(updatedId);
+			}
 		}
 	}
+	return null;
+}
 
-	return aliases;
-};
+/** 
+ * Regex matching CSS @import statements with the specifier in capture group 1. 
+ * https://regex101.com/?regex=%40import%5Cs%2B%28%3F%3Aurl%5C%28%5Cs*%29%3F%5B%27%22%5D%28%5B%5E%27%22%5D%2B%29%5B%27%22%5D%5Cs*%5C%29%3F&testString=&flags=g&flavor=pcre2&delimiter=%2F
+ */
+const cssImportRE = /@import\s+(?:url\(\s*)?['"]([^'"]+)['"]\s*\)?/g;
 
-/** Returns a Vite plugin used to alias paths from tsconfig.json and jsconfig.json. */
+/** Returns Vite plugins used to alias paths from tsconfig.json and jsconfig.json. */
 export default function configAliasVitePlugin({
 	settings,
 }: {
 	settings: AstroSettings;
-}): VitePlugin | null {
+}): VitePlugin[] | null {
 	const configAlias = getConfigAlias(settings);
 	if (!configAlias) return null;
 
-	const plugin: VitePlugin = {
-		name: 'astro:tsconfig-alias',
-		// use post to only resolve ids that all other plugins before it can't
-		enforce: 'post',
-		config() {
-			// Return vite.resolve.alias config with custom resolvers
-			return {
-				resolve: {
-					alias: getViteResolveAlias(settings),
+	return [
+		// Pre-plugin: rewrite CSS @import aliases to absolute paths before Vite's CSS plugin.
+		// Vite's internal CSS @import resolver (postcss-import) uses a mini plugin container
+		// that doesn't include user resolveId hooks, so we must rewrite aliases in a transform
+		// hook that runs before Vite's CSS processing.
+		{
+			name: 'astro:tsconfig-alias-css',
+			enforce: 'pre',
+			transform: {
+				filter: {
+					id: {
+						include: /\.css$/,
+					},
 				},
-			};
-		},
-		resolveId: {
-			filter: {
-				id: {
-					include: configAlias.map((alias) => alias.find),
-					exclude: /(?:\0|^virtual:|^astro:)/,
-				},
-			},
-			async handler(id, importer, options) {
-				// Handle aliases found from `compilerOptions.paths`. Unlike Vite aliases, tsconfig aliases
-				// are best effort only, so we have to manually replace them here, instead of using `vite.resolve.alias`
-				for (const alias of configAlias) {
-					if (alias.find.test(id)) {
-						const updatedId = id.replace(alias.find, alias.replacement);
+				handler(code) {
+					// Fast early-exit: skip the regex if there's no @import anywhere in the file.
+					if (!code.includes('@import')) return;
 
-						// Vite may pass an id with "*" when resolving glob import paths
-						// Returning early allows Vite to handle the final resolution
-						// See https://github.com/withastro/astro/issues/9258#issuecomment-1838806157
-						if (updatedId.includes('*')) {
-							return updatedId;
+					let hasReplacement = false;
+					const result = code.replace(cssImportRE, (match, importId) => {
+						if (!importId) return match;
+
+						const resolved = resolveWithAlias(importId, configAlias);
+						if (resolved) {
+							hasReplacement = true;
+							return match.replace(importId, resolved);
 						}
+						return match;
+					});
 
-						const resolved = await this.resolve(updatedId, importer, {
-							skipSelf: true,
-							...options,
-						});
-						if (resolved) return resolved;
+					if (hasReplacement) {
+						return { code: result, map: null };
 					}
-				}
+				},
 			},
 		},
-	};
+		// Post-plugin: resolve JS/TS imports using tsconfig path aliases via resolveId.
+		{
+			name: 'astro:tsconfig-alias',
+			// use post to only resolve ids that all other plugins before it can't
+			enforce: 'post',
+			resolveId: {
+				filter: {
+					id: {
+						include: configAlias.map((alias) => alias.find),
+						exclude: /(?:\0|^virtual:|^astro:)/,
+					},
+				},
+				async handler(id, importer, options) {
+					// Handle aliases found from `compilerOptions.paths`. Unlike Vite aliases, tsconfig aliases
+					// are best effort only, so we have to manually replace them here, instead of using `vite.resolve.alias`
+					for (const alias of configAlias) {
+						if (alias.find.test(id)) {
+							const updatedId = id.replace(alias.find, alias.replacement);
 
-	return plugin;
+							// Vite may pass an id with "*" when resolving glob import paths
+							// Returning early allows Vite to handle the final resolution
+							// See https://github.com/withastro/astro/issues/9258#issuecomment-1838806157
+							if (updatedId.includes('*')) {
+								return updatedId;
+							}
+
+							const resolved = await this.resolve(updatedId, importer, {
+								skipSelf: true,
+								...options,
+							});
+							if (resolved) return resolved;
+						}
+					}
+				},
+			},
+		},
+	];
 }
