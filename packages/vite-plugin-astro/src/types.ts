@@ -1,3 +1,4 @@
+import type { TransformOptions } from '@astrojs/compiler-rs';
 import type { ErrorProperties } from './errors.js';
 
 export type PropagationHint = 'none' | 'self' | 'in-tree';
@@ -25,3 +26,14 @@ export interface AggregateError {
 }
 
 export type ErrorHandler = (error: CompilerError | AggregateError | CSSError) => Error;
+
+export type ExposedTransformOptions = Omit<
+	TransformOptions,
+	'filename' | 'normalizedFilename' | 'preprocessedStyles' | 'resolvePath'
+>;
+
+export interface AstroPluginOptions {
+	transformOptions: ExposedTransformOptions;
+	transform?: Transform;
+	handleError?: ErrorHandler;
+}

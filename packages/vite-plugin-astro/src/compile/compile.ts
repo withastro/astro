@@ -1,19 +1,9 @@
-import {
-	preprocessStyles,
-	transform,
-	type TransformOptions,
-	type TransformResult,
-} from '@astrojs/compiler-rs';
+import { preprocessStyles, transform, type TransformResult } from '@astrojs/compiler-rs';
 import type { ResolvedConfig } from 'vite';
 import { normalizePath, resolvePath } from '@astrojs/internal-helpers/vite';
 import { createStylePreprocessor, type PartialCompileCssResult } from './style.js';
 import type { CompileCssResult } from './types.js';
-import type { CSSError, ErrorHandler } from '../types.js';
-
-export type ExposedTransformOptions = Omit<
-	TransformOptions,
-	'filename' | 'normalizedFilename' | 'preprocessedStyles' | 'resolvePath'
->;
+import type { CSSError, ErrorHandler, ExposedTransformOptions } from '../types.js';
 
 export interface CompileProps {
 	viteConfig: ResolvedConfig;

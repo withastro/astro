@@ -1,7 +1,6 @@
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import { normalizeFilename, specialQueriesRE } from '@astrojs/internal-helpers/vite';
-import type { ErrorHandler, Transform } from '../types.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
@@ -14,16 +13,7 @@ import { loadId } from './utils.js';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { defaultErrorHandler } from '../errors.js';
-import type { ExposedTransformOptions } from '../compile/compile.js';
-
-export { getAstroMetadata } from './metadata.js';
-export type { AstroPluginMetadata };
-
-interface AstroPluginOptions {
-	transformOptions: ExposedTransformOptions;
-	transform?: Transform;
-	handleError?: ErrorHandler;
-}
+import type { AstroPluginOptions } from '../types.js';
 
 /** Transform .astro files for Vite */
 export default function astro({
