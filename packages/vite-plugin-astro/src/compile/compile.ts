@@ -126,7 +126,7 @@ function handleCompileResultErrors(
 		case 0:
 			break;
 		case 1: {
-			throw handleError(cssTransformErrors[0]);
+			throw cssTransformErrors[0];
 		}
 		default: {
 			throw handleError({
