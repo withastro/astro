@@ -113,7 +113,8 @@ export type SSRManifest = {
 	pageModule?: SinglePageBuiltModule;
 	pageMap?: Map<ComponentPath, ImportComponentInstance>;
 	serverIslandMappings?: () => Promise<ServerIslandMappings> | ServerIslandMappings;
-	key: Promise<CryptoKey>;
+	serverIslandHostname?: AstroConfig['serverIslandHostname'];
+  key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	logger?: () =>

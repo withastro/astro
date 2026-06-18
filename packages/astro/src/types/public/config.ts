@@ -229,6 +229,15 @@ export interface AstroUserConfig<
 	 */
 	base?: string;
 
+  /**
+	 * @docs
+	 * @name serverIslandHostname
+	 * @type {string}
+	 * @description
+	 * TODO: update this
+	 */
+	serverIslandHostname?: string;
+
 	/**
 	 * @docs
 	 * @name trailingSlash

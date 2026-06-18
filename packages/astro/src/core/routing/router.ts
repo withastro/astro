@@ -14,6 +14,7 @@ export interface RouterOptions {
 	base: AstroConfig['base'];
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: NonNullable<AstroConfig['build']>['format'];
+  serverIslandHostname?: AstroConfig['serverIslandHostname'];
 }
 
 interface RouterMatchRoute {
@@ -51,6 +52,7 @@ export class Router {
 	#baseWithoutTrailingSlash: string;
 	#buildFormat: RouterOptions['buildFormat'];
 	#trailingSlash: RouterOptions['trailingSlash'];
+  #serverIslandHostname: RouterOptions['serverIslandHostname'];
 
 	constructor(routes: RouteData[], options: RouterOptions) {
 		// Copy before sorting to avoid mutating the caller's route list.
@@ -60,6 +62,7 @@ export class Router {
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#base);
 		this.#buildFormat = options.buildFormat;
 		this.#trailingSlash = options.trailingSlash;
+    this.#serverIslandHostname = options.serverIslandHostname;
 	}
 
 	/**

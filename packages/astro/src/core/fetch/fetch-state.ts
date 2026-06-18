@@ -409,6 +409,7 @@ export class FetchState implements AstroFetchState {
 			},
 			key: manifest.key,
 			trailingSlash: manifest.trailingSlash,
+      serverIslandHostname: manifest.serverIslandHostname,
 			_experimentalQueuedRendering: {
 				pool: pipeline.nodePool,
 				htmlStringCache: pipeline.htmlStringCache,

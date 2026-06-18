@@ -65,6 +65,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	outDir: './dist',
 	cacheDir: './node_modules/.astro',
 	base: '/',
+  serverIslandHostname: '',
 	trailingSlash: 'ignore',
 	build: {
 		format: 'directory',
@@ -560,6 +561,7 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.prerenderConflictBehavior),
 	fonts: z.array(FontFamilySchema).optional(),
+  serverIslandHostname: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.serverIslandHostname),
 	experimental: z
 		.strictObject({
 			advancedRouting: z
@@ -600,7 +602,7 @@ export const AstroConfigSchema = z.object({
 					entrypoint: z.string(),
 					config: z.record(z.string(), z.any()).optional(),
 				})
-				.optional(),
+				.optional()
 		})
 		.prefault({}),
 	legacy: z
