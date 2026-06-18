@@ -56,6 +56,14 @@ export function swapRootAttributes(newDoc: Document) {
  * make the old head look like the new one
  */
 export function swapHeadElements(doc: Document) {
+
+	// Elements and special server island comments
+	const relevantNodes = (parent: Node, what: "commentsOnly" | "both" = "both") => [...[...parent.childNodes].filter(
+		(child) =>
+			child.nodeType === 8 && child.textContent === "[if astro]>server-island-start<![endif]"
+			|| what === "both" && child.nodeType === 1
+	)];
+
 	for (const el of Array.from(document.head.children)) {
 		const newEl = persistedHeadElement(el as HTMLElement, doc);
 		// If the element exists in the document already, remove it
@@ -73,14 +81,19 @@ export function swapHeadElements(doc: Document) {
 		}
 	}
 
+
+	// Remove stale server island markers
+	// that may have been left behind from a previous navigation.
+	relevantNodes(document.head, "commentsOnly").forEach((node) => node.remove());
+
 	// Everything left in the new head is new, append it all.
 	if (import.meta.env.DEV) {
 		// In DEV mode, replace known Vue scoped styles with the versions we remembered
-		[...doc.head.children].forEach((child) => {
+		relevantNodes(doc.head).forEach((child) => {
 			document.head.append(knownVueScopedStyles.get((child as any).dataset?.viteDevId) || child);
 		});
 	} else {
-		document.head.append(...doc.head.children);
+		document.head.append(...relevantNodes(doc.head));
 	}
 }
 
