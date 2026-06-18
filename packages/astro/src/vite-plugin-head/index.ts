@@ -1,12 +1,12 @@
 import type * as vite from 'vite';
 import type { DevEnvironment } from 'vite';
-import { hasHeadPropagationCall } from '../core/head-propagation/hint.js';
 import {
 	buildImporterGraphFromModuleInfo,
 	computeInTreeAncestors,
 } from '../core/head-propagation/graph.js';
 import { getTopLevelPageModuleInfos } from '../core/build/graph.js';
 import type { BuildInternals } from '../core/build/internal.js';
+import { PROPAGATED_ASSET_FLAG } from '../content/consts.js';
 import type { SSRComponentMetadata, SSRResult } from '../types/public/internal.js';
 import { getAstroMetadata, type AstroPluginMetadata } from 'vite-plugin-astro';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
@@ -181,15 +181,15 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				});
 			}
 		},
-		transform(source, id) {
+		transform(_source, id) {
 			let info = this.getModuleInfo(id);
 			if (info && getAstroMetadata(info)?.containsHead) {
 				// Keep bubbling `containsHead` when this module was already marked earlier.
 				propagateMetadata.call(this, id, 'containsHead', true);
 			}
 
-			if (hasHeadPropagationCall(source)) {
-				// `"use astro:head-inject"` directive opts a module into bubbling.
+			if (id.includes(PROPAGATED_ASSET_FLAG)) {
+				// Content render entries with ?astroPropagatedAssets need head propagation.
 				propagateMetadata.call(this, id, 'propagation', 'in-tree');
 			}
 
@@ -199,11 +199,6 @@ export default function configHeadVitePlugin(): vite.Plugin {
 }
 
 export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
-	// Collect module IDs that contain a head propagation marker in their raw source
-	// (before bundling). This is necessary because Rolldown may strip comments and
-	// directives when concatenating modules into chunks, so scanning `mod.code` in
-	// `generateBundle` alone is not reliable.
-	const headPropagationModuleIds = new Set<string>();
 	return {
 		name: 'astro:head-metadata-build',
 		applyToEnvironment(environment) {
@@ -211,11 +206,6 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
-		},
-		transform(source, id) {
-			if (hasHeadPropagationCall(source)) {
-				headPropagationModuleIds.add(id);
-			}
 		},
 		generateBundle(_opts, bundle) {
 			const map: SSRResult['componentMetadata'] = internals.componentMetadata;
@@ -236,7 +226,7 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 
 			for (const [, output] of Object.entries(bundle)) {
 				if (output.type !== 'chunk') continue;
-				for (const [id, mod] of Object.entries(output.modules)) {
+				for (const [id] of Object.entries(output.modules)) {
 					moduleIds.add(id);
 					const modinfo = this.getModuleInfo(id);
 
@@ -255,9 +245,11 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 					}
 
 					// Head propagation (aka bubbling)
-					// Check both post-bundle code and pre-bundle transform results,
-					// since Rolldown may strip markers (comments, directives) during bundling.
-					if ((mod.code && hasHeadPropagationCall(mod.code)) || headPropagationModuleIds.has(id)) {
+					// Modules with the ?astroPropagatedAssets query param are content render
+					// entries that need head propagation. We identify them by their module ID
+					// rather than scanning source code, which avoids an unfiltered transform
+					// hook that would run on every module in the build.
+					if (id.includes(PROPAGATED_ASSET_FLAG)) {
 						commentPropagationSeeds.add(id);
 					}
 				}

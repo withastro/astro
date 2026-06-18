@@ -501,7 +501,7 @@ export default function createIntegration({
 				// Move platform files from the base-prefixed client dir to the
 				// original client root, since Cloudflare reads them from there.
 				if (_config.base !== '/') {
-					for (const file of ['.assetsignore', '_headers']) {
+					for (const file of ['.assetsignore', '_headers', '_redirects']) {
 						try {
 							await rename(
 								new URL(`./${file}`, _config.build.client),
