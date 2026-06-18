@@ -141,17 +141,19 @@ function syncTagNodeAttributes(config: MergedConfig): void {
 }
 
 /**
- * Check if a transform function respects the `render` property.
- * Astro's built-in transforms (like for headings) check `config.nodes?.X?.render`
- * to allow custom render components. Markdoc's built-in transforms do not.
+ * Check if a transform is a built-in Markdoc transform (from `Markdoc.nodes` or `Markdoc.tags`).
+ * Built-in Markdoc transforms don't respect the `render` property, so they need to be removed
+ * when a custom `render` component is specified. Non-built-in transforms (user-written or Astro's
+ * own, like for headings) are preserved — they are assumed to handle `render` correctly.
  */
-function transformRespectsRender(transform: { toString(): string }, configKey: string): boolean {
-	const source = transform.toString();
-	// Astro's transforms check config.nodes?.X?.render or config.tags?.X?.render
-	return (
-		source.includes(`config.nodes?.${configKey}?.render`) ||
-		source.includes(`config.tags?.${configKey}?.render`)
-	);
+function isBuiltinMarkdocTransform(transform: Function, configKey: string): boolean {
+	const builtinNode = (Markdoc.nodes as Record<string, { transform?: Function } | undefined>)[
+		configKey
+	];
+	const builtinTag = (Markdoc.tags as Record<string, { transform?: Function } | undefined>)[
+		configKey
+	];
+	return transform === builtinNode?.transform || transform === builtinTag?.transform;
 }
 
 export function resolveComponentImports(
@@ -168,7 +170,7 @@ export function resolveComponentImports(
 			// This allows users to spread built-in Markdoc node/tag configs
 			// (e.g., `...Markdoc.nodes.fence`) and override rendering with a custom component.
 			// See https://github.com/withastro/astro/issues/9708
-			if (config.transform && !transformRespectsRender(config.transform, tag)) {
+			if (config.transform && isBuiltinMarkdocTransform(config.transform, tag)) {
 				delete config.transform;
 			}
 		}
@@ -182,7 +184,7 @@ export function resolveComponentImports(
 			// This allows users to spread built-in Markdoc node/tag configs
 			// (e.g., `...Markdoc.nodes.fence`) and override rendering with a custom component.
 			// See https://github.com/withastro/astro/issues/9708
-			if (config.transform && !transformRespectsRender(config.transform, node)) {
+			if (config.transform && isBuiltinMarkdocTransform(config.transform, node)) {
 				delete config.transform;
 			}
 		}
