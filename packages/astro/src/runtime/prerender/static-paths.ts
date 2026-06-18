@@ -112,6 +112,7 @@ export class StaticPaths {
 			ssr: manifest.serverLike,
 			base: manifest.base,
 			trailingSlash: manifest.trailingSlash,
+			buildFormat: manifest.buildFormat,
 		});
 
 		// Convert params to pathnames using stringifyParams

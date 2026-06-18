@@ -1028,6 +1028,7 @@ export class FetchState implements AstroFetchState {
 			serverLike: pipeline.manifest.serverLike,
 			base: pipeline.manifest.base,
 			trailingSlash: pipeline.manifest.trailingSlash,
+			buildFormat: pipeline.manifest.buildFormat,
 		});
 		return this.props;
 	}

@@ -18,6 +18,7 @@ interface GetParamsAndPropsOptions {
 	serverLike: boolean;
 	base: string;
 	trailingSlash: AstroConfig['trailingSlash'];
+	buildFormat?: AstroConfig['build']['format'];
 }
 
 export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
@@ -30,6 +31,7 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 		serverLike,
 		base,
 		trailingSlash,
+		buildFormat,
 	} = opts;
 
 	// If there's no route, or if there's a pathname (e.g. a static `src/pages/normal.astro` file),
@@ -55,6 +57,7 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 		ssr: serverLike,
 		base,
 		trailingSlash,
+		buildFormat,
 	});
 
 	// The pathname used here comes from the server, which already encoded.

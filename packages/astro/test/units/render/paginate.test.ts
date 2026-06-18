@@ -133,6 +133,121 @@ describe('Pagination — multiple params (color + page)', () => {
 	});
 });
 
+describe('Pagination — build.format: file — spread route appends .html', () => {
+	const route = createRouteData({
+		route: '/posts/[...page]',
+		segments: [
+			[{ content: 'posts', dynamic: false, spread: false }],
+			[{ content: '...page', dynamic: true, spread: true }],
+		],
+	});
+	const paginate = generatePaginateFunction(route, '/', 'ignore', 'file');
+	const pages = paginate(items, { pageSize: 10 });
+
+	it('page 1 current URL has .html', () => {
+		assert.equal(pages[0].props.page.url.current, '/posts.html');
+	});
+
+	it('page 1 next URL has .html', () => {
+		assert.equal(pages[0].props.page.url.next, '/posts/2.html');
+	});
+
+	it('page 2 current URL has .html', () => {
+		assert.equal(pages[1].props.page.url.current, '/posts/2.html');
+	});
+
+	it('page 2 prev URL has .html', () => {
+		assert.equal(pages[1].props.page.url.prev, '/posts.html');
+	});
+
+	it('page 2 next URL has .html', () => {
+		assert.equal(pages[1].props.page.url.next, '/posts/3.html');
+	});
+
+	it('page 3 prev URL has .html', () => {
+		assert.equal(pages[2].props.page.url.prev, '/posts/2.html');
+	});
+
+	it('page 3 has no next', () => {
+		assert.equal(pages[2].props.page.url.next, undefined);
+	});
+
+	it('first and last URLs have .html', () => {
+		assert.equal(pages[1].props.page.url.first, '/posts.html');
+		assert.equal(pages[1].props.page.url.last, '/posts/3.html');
+	});
+});
+
+describe('Pagination — build.format: file — root spread keeps / for root page', () => {
+	const route = createRouteData({
+		route: '/[...page]',
+		segments: [[{ content: '...page', dynamic: true, spread: true }]],
+	});
+	const paginate = generatePaginateFunction(route, '/', 'ignore', 'file');
+	const pages = paginate(items, { pageSize: 10 });
+
+	it('page 1 current URL is / (not /.html)', () => {
+		assert.equal(pages[0].props.page.url.current, '/');
+	});
+
+	it('page 1 next URL has .html', () => {
+		assert.equal(pages[0].props.page.url.next, '/2.html');
+	});
+
+	it('page 2 prev URL is / for root page', () => {
+		assert.equal(pages[1].props.page.url.prev, '/');
+	});
+
+	it('page 2 current URL has .html', () => {
+		assert.equal(pages[1].props.page.url.current, '/2.html');
+	});
+});
+
+describe('Pagination — build.format: file — with base', () => {
+	const route = createRouteData({
+		route: '/posts/[...page]',
+		segments: [
+			[{ content: 'posts', dynamic: false, spread: false }],
+			[{ content: '...page', dynamic: true, spread: true }],
+		],
+	});
+	const paginate = generatePaginateFunction(route, '/blog', 'ignore', 'file');
+	const pages = paginate(items, { pageSize: 10 });
+
+	it('page 1 current URL includes base and .html', () => {
+		assert.equal(pages[0].props.page.url.current, '/blog/posts.html');
+	});
+
+	it('page 2 current URL includes base and .html', () => {
+		assert.equal(pages[1].props.page.url.current, '/blog/posts/2.html');
+	});
+
+	it('page 2 prev URL includes base and .html', () => {
+		assert.equal(pages[1].props.page.url.prev, '/blog/posts.html');
+	});
+});
+
+describe('Pagination — build.format: directory — no .html (default behavior)', () => {
+	const route = createRouteData({
+		route: '/posts/[...page]',
+		segments: [
+			[{ content: 'posts', dynamic: false, spread: false }],
+			[{ content: '...page', dynamic: true, spread: true }],
+		],
+	});
+	// Omitting buildFormat defaults to 'directory'
+	const paginate = generatePaginateFunction(route, '/', 'ignore');
+	const pages = paginate(items, { pageSize: 10 });
+
+	it('page 1 current URL has no .html', () => {
+		assert.equal(pages[0].props.page.url.current, '/posts');
+	});
+
+	it('page 2 current URL has no .html', () => {
+		assert.equal(pages[1].props.page.url.current, '/posts/2');
+	});
+});
+
 describe('Pagination — root spread, correct prev URL — Migrated from astro-pagination-root-spread.test.js', () => {
 	// 4 items, pageSize 1 → 4 pages; root spread means page 1 has no number in URL.
 	const route = createRouteData({

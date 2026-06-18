@@ -21,6 +21,7 @@ interface CallGetStaticPathsOptions {
 	ssr: boolean;
 	base: AstroConfig['base'];
 	trailingSlash: AstroConfig['trailingSlash'];
+	buildFormat?: AstroConfig['build']['format'];
 }
 
 export async function callGetStaticPaths({
@@ -30,6 +31,7 @@ export async function callGetStaticPaths({
 	ssr,
 	base,
 	trailingSlash,
+	buildFormat,
 }: CallGetStaticPathsOptions): Promise<GetStaticPathsResultKeyed> {
 	const cached = routeCache.get(route);
 	if (!mod) {
@@ -66,7 +68,7 @@ export async function callGetStaticPaths({
 	staticPaths = await mod.getStaticPaths({
 		// Q: Why the cast?
 		// A: So users downstream can have nicer typings, we have to make some sacrifice in our internal typings, which necessitate a cast here
-		paginate: generatePaginateFunction(route, base, trailingSlash) as PaginateFunction,
+		paginate: generatePaginateFunction(route, base, trailingSlash, buildFormat) as PaginateFunction,
 		routePattern: route.route,
 	});
 

@@ -15,6 +15,7 @@ export function generatePaginateFunction(
 	routeMatch: RouteData,
 	base: AstroConfig['base'],
 	trailingSlash: AstroConfig['trailingSlash'],
+	buildFormat: AstroConfig['build']['format'] = 'directory',
 ): (...args: Parameters<PaginateFunction>) => ReturnType<PaginateFunction> {
 	return function paginateUtility(
 		data: readonly any[],
@@ -47,11 +48,11 @@ export function generatePaginateFunction(
 				...additionalParams,
 				[paramName]: includesFirstPageNumber || pageNum > 1 ? String(pageNum) : undefined,
 			};
-			const current = addRouteBase(generate({ ...params }), base);
+			const current = addRouteBase(generate({ ...params }), base, buildFormat);
 			const next =
 				pageNum === lastPage
 					? undefined
-					: addRouteBase(generate({ ...params, page: String(pageNum + 1) }), base);
+					: addRouteBase(generate({ ...params, page: String(pageNum + 1) }), base, buildFormat);
 			const prev =
 				pageNum === 1
 					? undefined
@@ -62,6 +63,7 @@ export function generatePaginateFunction(
 									!includesFirstPageNumber && pageNum - 1 === 1 ? undefined : String(pageNum - 1),
 							}),
 							base,
+							buildFormat,
 						);
 			const first =
 				pageNum === 1
@@ -72,11 +74,12 @@ export function generatePaginateFunction(
 								page: includesFirstPageNumber ? '1' : undefined,
 							}),
 							base,
+							buildFormat,
 						);
 			const last =
 				pageNum === lastPage
 					? undefined
-					: addRouteBase(generate({ ...params, page: String(lastPage) }), base);
+					: addRouteBase(generate({ ...params, page: String(lastPage) }), base, buildFormat);
 			return {
 				params,
 				props: {
@@ -98,11 +101,21 @@ export function generatePaginateFunction(
 	};
 }
 
-function addRouteBase(route: string, base: AstroConfig['base']) {
+function addRouteBase(
+	route: string,
+	base: AstroConfig['base'],
+	buildFormat: AstroConfig['build']['format'],
+) {
 	// `routeMatch.generate` avoids appending `/`
 	// unless `trailingSlash: 'always'` is configured.
 	// This means an empty string is possible for the index route.
 	let routeWithBase = joinPaths(base, route);
 	if (routeWithBase === '') routeWithBase = '/';
+	// When build.format is 'file', append .html to non-root paths
+	// so pagination URLs match the generated file names (e.g. /blog/2.html).
+	if (buildFormat === 'file' && routeWithBase !== '/') {
+		// Remove trailing slash before appending .html
+		routeWithBase = routeWithBase.replace(/\/$/, '') + '.html';
+	}
 	return routeWithBase;
 }

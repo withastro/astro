@@ -45,6 +45,7 @@ export async function matchRoute(
 				serverLike: pipeline.manifest.serverLike,
 				base: manifest.base,
 				trailingSlash: manifest.trailingSlash,
+				buildFormat: manifest.buildFormat,
 			});
 			return {
 				route: maybeRoute,
