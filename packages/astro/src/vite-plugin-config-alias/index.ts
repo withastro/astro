@@ -84,8 +84,8 @@ function resolveWithAlias(id: string, configAlias: Alias[]): string | null {
 	return null;
 }
 
-/** 
- * Regex matching CSS @import statements with the specifier in capture group 1. 
+/**
+ * Regex matching CSS @import statements with the specifier in capture group 1.
  * https://regex101.com/?regex=%40import%5Cs%2B%28%3F%3Aurl%5C%28%5Cs*%29%3F%5B%27%22%5D%28%5B%5E%27%22%5D%2B%29%5B%27%22%5D%5Cs*%5C%29%3F&testString=&flags=g&flavor=pcre2&delimiter=%2F
  */
 const cssImportRE = /@import\s+(?:url\(\s*)?['"]([^'"]+)['"]\s*\)?/g;
