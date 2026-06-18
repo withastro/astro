@@ -21,6 +21,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/react/",
   "exports": {
     ".": "./dist/index.js",
+    "./container-renderer": "./dist/container-renderer.js",
     "./actions": "./dist/actions.js",
     "./client.js": "./dist/client.js",
     "./client-v17.js": "./dist/client-v17.js",

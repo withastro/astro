@@ -3,19 +3,23 @@ import { preact, type PreactPluginOptions as VitePreactPluginOptions } from '@pr
 import type { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
 import * as devalue from 'devalue';
 import type { EnvironmentOptions, Plugin } from 'vite';
+import {
+	getContainerRenderer as getContainerRendererImpl,
+	getRenderer,
+} from './container-renderer.js';
 import type { VirtualModuleOptions } from './types.js';
 
 const babelCwd = new URL('../', import.meta.url);
 
-function getRenderer(development: boolean): AstroRenderer {
-	return {
-		name: '@astrojs/preact',
-		clientEntrypoint: development ? '@astrojs/preact/client-dev.js' : '@astrojs/preact/client.js',
-		serverEntrypoint: '@astrojs/preact/server.js',
-	};
+/**
+ * @deprecated Import `getContainerRenderer` from `@astrojs/preact/container-renderer` instead.
+ */
+export function getContainerRenderer(): AstroRenderer {
+	console.warn(
+		'[@astrojs/preact] Importing `getContainerRenderer` from `@astrojs/preact` is deprecated. Import it from `@astrojs/preact/container-renderer` instead.',
+	);
+	return getContainerRendererImpl();
 }
-
-export const getContainerRenderer = (): AstroRenderer => getRenderer(false);
 
 function optionsPlugin(include: Options['include'], exclude: Options['exclude']): Plugin {
 	const virtualModule = 'astro:preact:opts';

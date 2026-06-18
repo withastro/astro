@@ -39,7 +39,7 @@ describe('astro:config/client', () => {
 						format: 'directory',
 					},
 					trailingSlash: 'always',
-					compressHTML: true,
+					compressHTML: 'jsx',
 					site: 'https://example.com',
 				}),
 			);

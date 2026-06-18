@@ -14,6 +14,7 @@ import type {
 import type { MarkdownProcessor } from 'astro/markdown';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
+import { getContainerRenderer as getContainerRendererImpl } from './container-renderer.js';
 import { isSatteriProcessor, isUnifiedProcessor } from './processor-guards.js';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
 import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
@@ -72,11 +73,14 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
 
+/**
+ * @deprecated Import `getContainerRenderer` from `@astrojs/mdx/container-renderer` instead.
+ */
 export function getContainerRenderer(): AstroRenderer {
-	return {
-		name: 'astro:jsx',
-		serverEntrypoint: '@astrojs/mdx/server.js',
-	};
+	console.warn(
+		'[@astrojs/mdx] Importing `getContainerRenderer` from `@astrojs/mdx` is deprecated. Import it from `@astrojs/mdx/container-renderer` instead.',
+	);
+	return getContainerRendererImpl();
 }
 
 export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroIntegration {

@@ -474,22 +474,22 @@ export interface AstroUserConfig<
 	 * @docs
 	 * @name compressHTML
 	 * @type {boolean | "jsx"}
-	 * @default `true`
+	 * @default `'jsx'`
 	 * @description
 	 *
 	 * Controls how Astro handles whitespace in your HTML. This affects both development mode and the final build output.
 	 *
-	 * By default, Astro removes whitespace from your HTML, including line breaks, in a lossless manner from `.astro` components. Some whitespace may be preserved as needed to maintain the visual rendering of your HTML.
+	 * Since v7.0,  Astro applies by default the JSX whitespace rules used by frameworks like React. This removes whitespace and line breaks around elements, collapses multi-line text onto a single line, and preserves whitespace within a single line (e.g. a space between two inline elements). To keep a space that would otherwise be removed, include it explicitly in the source through constructs such as `{" "}`.
 	 *
-	 * Since 6.2.0, this option can also be set to `"jsx"`, Astro will apply the JSX whitespace stripping rules used by frameworks like React. Leading and trailing whitespace is only preserved when explicitly included in the source code through constructs such as `{" "}`, and is otherwise removed entirely.
+	 * Setting this option to `true` instead removes whitespace, including line breaks, in a lossless manner from `.astro` components. Some whitespace may be preserved as needed to maintain the visual rendering of your HTML.
 	 *
-	 * Setting this option to false disables HTML compression and preserves all whitespace.
+	 * Setting this option to `false` disables HTML compression and preserves all whitespace.
 	 *
 	 * ```js
 	 * {
-	 *   compressHTML: false
+	 *   compressHTML: true
 	 *   // or:
-	 *   // compressHTML: 'jsx'
+	 *   // compressHTML: false
 	 * }
 	 * ```
 	 */

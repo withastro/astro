@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 11.0.0-beta.2
+
+### Patch Changes
+
+- [#17054](https://github.com/withastro/astro/pull/17054) [`d426b67`](https://github.com/withastro/astro/commit/d426b67b1239a82bf001d23ac8e418fea6861be1) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes an issue where Astro files with non-ASCII characters in their name weren't correctly served after the build.
+
 ## 11.0.0-beta.1
 
 ### Patch Changes
