@@ -1,9 +1,8 @@
 import cloudflare from '@astrojs/cloudflare';
 import { defineConfig } from 'astro/config';
 
-// `imageService: 'compile'` with a user-defined `image.service`. The adapter
-// should preserve the custom service for getURL/getHTMLAttributes AND invoke its
-// transform() during the build-time generation pass (instead of hardcoding sharp).
+// Tests rewrite this baseline config to cover build-time image generation modes
+// with and without a user-defined `image.service`.
 export default defineConfig({
 	adapter: cloudflare({
 		imageService: 'compile',

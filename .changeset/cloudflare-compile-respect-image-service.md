@@ -2,4 +2,4 @@
 '@astrojs/cloudflare': patch
 ---
 
-Fixes an issue where the custom `image.service` wasn't respected for compile-time image generation.
+Fixes build-time image generation in the Cloudflare adapter so a custom `image.service` is respected in `imageService: 'compile'` mode, and extends `imageService: 'custom'` to also generate optimized image assets at build time.

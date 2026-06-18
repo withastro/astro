@@ -27,7 +27,7 @@ interface CloudflarePrerendererOptions {
 	base: AstroConfig['base'];
 	trailingSlash: AstroConfig['trailingSlash'];
 	cfPluginConfig: PluginConfig;
-	hasCompileImageService: boolean;
+	hasBuildImageService: boolean;
 	userImageServiceEntrypoint?: string;
 }
 
@@ -42,7 +42,7 @@ export function createCloudflarePrerenderer({
 	base,
 	trailingSlash,
 	cfPluginConfig,
-	hasCompileImageService,
+	hasBuildImageService,
 	userImageServiceEntrypoint,
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
@@ -139,7 +139,7 @@ export function createCloudflarePrerenderer({
 			return response;
 		},
 
-		collectStaticImages: hasCompileImageService
+		collectStaticImages: hasBuildImageService
 			? async (): Promise<AssetsGlobalStaticImagesList> => {
 					const response = await fetch(`${serverUrl}${STATIC_IMAGES_ENDPOINT}`, {
 						method: 'POST',

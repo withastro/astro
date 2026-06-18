@@ -139,10 +139,11 @@ export default function createIntegration({
 
 	let _routes: IntegrationResolvedRoute[];
 	let cfPluginConfig: PluginConfig;
-	let hasCustomCompileImageService = false;
+	let hasUserBuildImageService = false;
 
 	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
 	const needsImagesBinding = runtimeService === 'cloudflare-binding';
+	const hasBuildImageService = buildService === 'compile' || buildService === 'custom';
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -154,13 +155,13 @@ export default function createIntegration({
 
 				let session = config.session;
 				const isCompile = buildService === 'compile';
-				hasCustomCompileImageService = isCompile && hasUserImageService(config.image);
+				hasUserBuildImageService = hasBuildImageService && hasUserImageService(config.image);
 
 				if (needsImagesBinding) {
 					logger.info(
 						`Enabling image processing with Cloudflare Images for production with the "${imagesBindingName}" Images binding.`,
 					);
-				} else if (isCompile) {
+				} else if (hasBuildImageService) {
 					logger.info(
 						`Enabling compile-time image optimization. Images will be pre-optimized at build time.`,
 					);
@@ -379,14 +380,14 @@ export default function createIntegration({
 							createConfigPlugin({
 								sessionKVBindingName,
 								compileImageConfig:
-									isCompile && command !== 'dev'
+									hasBuildImageService && command !== 'dev'
 										? {
 												base: config.base,
 												assetsPrefix:
 													typeof config.build.assetsPrefix === 'string'
 														? config.build.assetsPrefix
 														: undefined,
-												imageServiceEntrypoint: hasCustomCompileImageService
+												imageServiceEntrypoint: hasUserBuildImageService
 													? config.image.service.entrypoint
 													: '@astrojs/cloudflare/image-service-workerd',
 												buildAssets: config.build.assets ?? '_astro',
@@ -479,8 +480,8 @@ export default function createIntegration({
 							base: _config.base,
 							trailingSlash: _config.trailingSlash,
 							cfPluginConfig,
-							hasCompileImageService: buildService === 'compile',
-							userImageServiceEntrypoint: hasCustomCompileImageService
+							hasBuildImageService,
+							userImageServiceEntrypoint: hasUserBuildImageService
 								? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
 								: undefined,
 						}),

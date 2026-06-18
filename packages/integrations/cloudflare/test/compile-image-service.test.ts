@@ -80,33 +80,169 @@ describe('CompileImageService', () => {
 	});
 });
 
-describe('CompileImageService custom service', () => {
-	let fixture: Fixture;
-	let html: string;
+// Both `imageService: 'compile'` and `imageService: 'custom'` opt in to build-time
+// asset generation.
+//
+// | imageService | user image.service   | build assets | worker bundle             |
+// | ------------ | -------------------- | ------------ | ------------------------- |
+// | 'compile'    | none (default Sharp) | real WEBP    | clean (no Sharp)          |
+// | 'compile'    | custom, Sharp-free   | CUSTOM_*     | user service, no Sharp    |
+// | 'compile'    | custom, Sharp-backed | real WEBP    | Sharp chain bundled       |
+// | 'custom'     | none (default Sharp) | real WEBP    | Sharp dragged in (beware) |
+// | 'custom'     | custom, Sharp-free   | CUSTOM_*     | user service, no Sharp    |
+// | 'custom'     | custom, Sharp-backed | real WEBP    | Sharp chain bundled       |
+describe('CompileImageService build-time image generation', () => {
+	async function readServerBundle(fixture: Fixture) {
+		const serverFiles = await fixture.glob('server/**/*.mjs');
+		const contents = await Promise.all(
+			serverFiles.map(async (file) => await fixture.readFile(file)),
+		);
 
-	before(async () => {
-		fixture = await loadFixture({
+		return contents.join('\n');
+	}
+
+	function assertSharpBundled(serverBundle: string) {
+		assert.match(serverBundle, /import\("sharp"\)/, 'expected the worker bundle to import "sharp"');
+		assert.match(
+			serverBundle,
+			/assets\/services\/sharp/,
+			"expected Astro's Sharp service in the worker bundle",
+		);
+	}
+
+	function assertSharpNotBundled(serverBundle: string) {
+		assert.doesNotMatch(
+			serverBundle,
+			/import\("sharp"\)/,
+			'expected the worker bundle to be free of "sharp"',
+		);
+		assert.doesNotMatch(
+			serverBundle,
+			/assets\/services\/sharp/,
+			'expected no Astro Sharp service in the worker bundle',
+		);
+	}
+
+	function assertRealWebp(data: Buffer) {
+		assert.equal(data.subarray(0, 4).toString('utf8'), 'RIFF');
+		assert.equal(data.subarray(8, 12).toString('utf8'), 'WEBP');
+	}
+
+	/**
+	 * Builds the `compile-custom-image-service` fixture, rewriting its config for
+	 * the requested build mode and image service before the build and restoring it
+	 * afterwards.
+	 *
+	 * @param mode    `'compile'` or `'custom'`.
+	 * @param service `'default'` removes the user `image.service` (Astro's default
+	 *                Sharp service applies), `'sharp'` swaps in a Sharp-backed user
+	 *                service, and `'user'` keeps the fixture's Sharp-free service.
+	 */
+	async function buildFixture(
+		mode: 'compile' | 'custom',
+		service: 'default' | 'user' | 'sharp',
+		outDirName: string,
+	) {
+		const fixture = await loadFixture({
 			root: './fixtures/compile-custom-image-service/',
-			outDir: './dist/compile-custom-image-service/',
+			outDir: `./dist/compile-custom-image-service-${outDirName}/`,
 		});
-		await fixture.build();
-		html = await fixture.readFile('client/index.html');
-	});
+		const resetConfig = await fixture.editFile(
+			'astro.config.mjs',
+			(contents) => {
+				let next = contents.replace("imageService: 'compile'", `imageService: '${mode}'`);
+				if (service === 'sharp') {
+					next = next.replace(
+						"entrypoint: './src/image-service.ts'",
+						"entrypoint: './src/sharp-image-service.ts'",
+					);
+				} else if (service === 'default') {
+					next = next.replace(
+						"\n\timage: {\n\t\tservice: {\n\t\t\tentrypoint: './src/image-service.ts',\n\t\t},\n\t},",
+						'',
+					);
+				}
+				return next;
+			},
+			false,
+		);
 
-	it('uses the custom service for markup', () => {
-		const $ = cheerio.load(html);
-		const img = $('img');
+		try {
+			await fixture.build();
+			return {
+				fixture,
+				html: await fixture.readFile('client/index.html'),
+			};
+		} finally {
+			resetConfig();
+		}
+	}
 
-		assert.equal(img.attr('data-image-service'), 'custom');
-		assert.match(img.attr('src') ?? '', /^\/_astro\/.+\.webp$/);
-	});
+	async function readGeneratedImage(fixture: Fixture, html: string) {
+		const src = cheerio.load(html)('img').attr('src');
+		assert.match(src ?? '', /^\/_astro\/.+\.webp$/, 'expected a hashed .webp asset in the markup');
+		return (await fixture.readFile(`client${src}`, null)) as unknown as Buffer;
+	}
 
-	it('uses the custom service for generated images', async () => {
-		const $ = cheerio.load(html);
-		const src = $('img').attr('src');
-		assert.ok(src);
+	for (const mode of ['compile', 'custom'] as const) {
+		describe(`imageService: '${mode}'`, () => {
+			it('with no user image.service: generates real WEBP assets at build time', async () => {
+				const { fixture, html } = await buildFixture(mode, 'default', `${mode}-default`);
 
-		const data = (await fixture.readFile(`client${src}`, null)) as unknown as Buffer;
-		assert.equal(Buffer.from(data.subarray(0, 20)).toString('utf8'), 'CUSTOM_TRANSFORM_RAN');
-	});
+				// Build-time generation runs Astro's default Sharp service on the Node side.
+				assertRealWebp(await readGeneratedImage(fixture, html));
+
+				const serverBundle = await readServerBundle(fixture);
+				if (mode === 'compile') {
+					// `compile` resolves to the workerd-safe service, so Sharp stays out of the
+					// worker bundle (it only runs on the Node side at build time).
+					assertSharpNotBundled(serverBundle);
+				} else {
+					// `custom` leaves Astro's default Sharp service as the runtime service, so it is
+					// dragged into the worker bundle (where it cannot run). This is the documented
+					// "beware" tradeoff of `custom` without a workerd-safe `image.service`.
+					assertSharpBundled(serverBundle);
+				}
+			});
+
+			it('with a Sharp-free user image.service: runs its transform() at build time and respects its markup, without bundling Sharp', async () => {
+				const { fixture, html } = await buildFixture(mode, 'user', `${mode}-user`);
+				const img = cheerio.load(html)('img');
+
+				assert.equal(img.attr('data-image-service'), 'custom');
+
+				// The user service's transform() ran during the build (prepends a marker).
+				const data = await readGeneratedImage(fixture, html);
+				assert.equal(Buffer.from(data.subarray(0, 20)).toString('utf8'), 'CUSTOM_TRANSFORM_RAN');
+
+				// The user service is bundled, but it is Sharp-free so Sharp stays out.
+				const serverBundle = await readServerBundle(fixture);
+				assert.match(serverBundle, /src\/image-service\.ts/);
+				assertSharpNotBundled(serverBundle);
+
+				if (mode === 'compile') {
+					// Runtime serves the prerendered assets through the passthrough endpoint.
+					assert.match(serverBundle, /image-passthrough-endpoint/);
+				} else {
+					// `custom` keeps the user service live at runtime via the generic endpoint.
+					assert.match(serverBundle, /astro\/dist\/assets\/endpoint\/generic\.js/);
+					assert.doesNotMatch(serverBundle, /image-passthrough-endpoint/);
+				}
+			});
+
+			it('with a Sharp-backed user image.service: generates assets, respects its markup, and bundles the Sharp chain', async () => {
+				const { fixture, html } = await buildFixture(mode, 'sharp', `${mode}-sharp`);
+				const img = cheerio.load(html)('img');
+
+				assert.equal(img.attr('data-image-service'), 'custom-sharp');
+				assertRealWebp(await readGeneratedImage(fixture, html));
+
+				// The user opted into a Sharp-backed runtime service, so the Sharp chain
+				// is expected in the worker bundle.
+				const serverBundle = await readServerBundle(fixture);
+				assert.match(serverBundle, /src\/sharp-image-service\.ts/);
+				assertSharpBundled(serverBundle);
+			});
+		});
+	}
 });
