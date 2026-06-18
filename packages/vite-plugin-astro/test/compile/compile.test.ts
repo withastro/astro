@@ -7,13 +7,15 @@ import { defaultErrorHandler } from '../../dist/errors.js';
 async function compileWithRust(source: string) {
 	const viteConfig = await resolveConfig({ configFile: false }, 'serve');
 	return compile({
-		compact: false,
-		scopedStyleStrategy: 'attribute',
 		viteConfig,
-		annotateSourceFile: false,
 		filename: '/src/components/index.astro',
 		source,
 		handleError: defaultErrorHandler,
+		transformOptions: {
+			compact: false,
+			scopedStyleStrategy: 'attribute',
+			sourcemap: 'both',
+		},
 	});
 }
 

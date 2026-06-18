@@ -19,10 +19,10 @@ async function compile(
 	const viteConfig = await resolveConfig({ configFile: false, ...inlineConfig }, 'serve');
 	const props: CompileProps = {
 		viteConfig,
-		annotateSourceFile: false,
 		filename: id,
 		source,
 		handleError: defaultErrorHandler,
+		transformOptions: {},
 	};
 	return compileAstro({
 		compileProps: props,

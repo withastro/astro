@@ -10,13 +10,17 @@ import { createStylePreprocessor, type PartialCompileCssResult } from './style.j
 import type { CompileCssResult } from './types.js';
 import type { CSSError, ErrorHandler } from '../types.js';
 
-export interface CompileProps
-	extends Pick<TransformOptions, 'compact' | 'astroGlobalArgs' | 'scopedStyleStrategy'> {
+export type ExposedTransformOptions = Omit<
+	TransformOptions,
+	'filename' | 'normalizedFilename' | 'preprocessedStyles' | 'resolvePath'
+>;
+
+export interface CompileProps {
 	viteConfig: ResolvedConfig;
-	annotateSourceFile: boolean;
 	filename: string;
 	source: string;
 	handleError: ErrorHandler;
+	transformOptions: ExposedTransformOptions;
 }
 
 export interface CompileResult extends Omit<TransformResult, 'css'> {
@@ -25,13 +29,10 @@ export interface CompileResult extends Omit<TransformResult, 'css'> {
 
 export async function compile({
 	viteConfig,
-	annotateSourceFile,
 	filename,
 	source,
-	compact,
-	astroGlobalArgs,
-	scopedStyleStrategy,
 	handleError,
+	transformOptions,
 }: CompileProps): Promise<CompileResult> {
 	const cssPartialCompileResults: PartialCompileCssResult[] = [];
 	const cssTransformErrors: CSSError[] = [];
@@ -49,19 +50,11 @@ export async function compile({
 			}),
 		);
 
-		// TODO: what to expose
 		transformResult = transform(source, {
-			compact,
+			...transformOptions,
 			filename,
 			normalizedFilename: normalizeFilename(filename, viteConfig.root),
-			sourcemap: 'both',
-			internalURL: 'astro/compiler-runtime',
-			// TODO: remove in Astro v7
-			astroGlobalArgs,
-			scopedStyleStrategy,
-			resultScopedSlot: true,
-			transitionsAnimationURL: 'astro/components/viewtransitions.css',
-			annotateSourceFile: viteConfig.command === 'serve' && annotateSourceFile,
+			annotateSourceFile: viteConfig.command === 'serve' && transformOptions.annotateSourceFile,
 			preprocessedStyles,
 			resolvePath(specifier) {
 				return resolvePath(specifier, filename);

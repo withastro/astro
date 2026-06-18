@@ -11,9 +11,11 @@ describe('vite-plugin-astro/compile', () => {
 			try {
 				await compile({
 					viteConfig: await resolveConfig({ configFile: false }, 'serve'),
-					annotateSourceFile: false,
 					filename: '/src/pages/index.astro',
 					handleError: defaultErrorHandler,
+					transformOptions: {
+						annotateSourceFile: false,
+					},
 					source: `
 ---
 ---

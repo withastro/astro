@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-astro",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Vite plugin for compiling .astro files",
   "type": "module",
   "author": "withastro",

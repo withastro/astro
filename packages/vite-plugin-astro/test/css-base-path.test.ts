@@ -10,10 +10,12 @@ async function compileWithBase(source: string, base = '/') {
 	const viteConfig = await resolveConfig({ configFile: false, root: '/', base }, 'serve');
 	const props: CompileProps = {
 		viteConfig,
-		annotateSourceFile: false,
 		filename: '/src/pages/index.astro',
 		source,
 		handleError: defaultErrorHandler,
+		transformOptions: {
+			annotateSourceFile: false,
+		},
 	};
 	return compileAstro({
 		compileProps: props as any,

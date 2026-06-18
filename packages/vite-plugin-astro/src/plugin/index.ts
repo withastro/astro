@@ -11,28 +11,24 @@ import type {
 	CompileMetadata,
 } from './types.js';
 import { loadId } from './utils.js';
-import type { TransformOptions } from '@astrojs/compiler-rs';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { defaultErrorHandler } from '../errors.js';
+import type { ExposedTransformOptions } from '../compile/compile.js';
 
 export { getAstroMetadata } from './metadata.js';
 export type { AstroPluginMetadata };
 
-interface AstroPluginOptions
-	extends Pick<TransformOptions, 'compact' | 'astroGlobalArgs' | 'scopedStyleStrategy'> {
-	annotateSourceFile?: boolean;
+interface AstroPluginOptions {
+	transformOptions: ExposedTransformOptions;
 	transform?: Transform;
 	handleError?: ErrorHandler;
 }
 
 /** Transform .astro files for Vite */
 export default function astro({
-	annotateSourceFile = false,
 	transform,
-	compact,
-	astroGlobalArgs,
-	scopedStyleStrategy,
+	transformOptions,
 	handleError = defaultErrorHandler,
 }: AstroPluginOptions): vite.Plugin[] {
 	let server: vite.ViteDevServer | undefined;
@@ -99,11 +95,8 @@ export default function astro({
 							viteConfig,
 							filename,
 							source: code,
-							annotateSourceFile,
-							compact,
-							astroGlobalArgs,
-							scopedStyleStrategy,
 							handleError,
+							transformOptions,
 						},
 						astroFileToCompileMetadata,
 						transform,

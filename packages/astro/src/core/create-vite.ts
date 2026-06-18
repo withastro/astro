@@ -199,9 +199,19 @@ export async function createVite(
 			configAliasVitePlugin({ settings }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
 			astroVitePlugin({
-				annotateSourceFile:
-					settings.config.devToolbar.enabled &&
-					(await settings.preferences.get('devToolbar.enabled')),
+				transformOptions: {
+					annotateSourceFile:
+						settings.config.devToolbar.enabled &&
+						(await settings.preferences.get('devToolbar.enabled')),
+					compact: settings.config.compressHTML,
+					// TODO: remove in Astro v7
+					astroGlobalArgs: JSON.stringify(settings.config.site),
+					scopedStyleStrategy: settings.config.scopedStyleStrategy,
+					sourcemap: 'both',
+					internalURL: 'astro/compiler-runtime',
+					resultScopedSlot: true,
+					transitionsAnimationURL: 'astro/components/viewtransitions.css',
+				},
 				transform: (filename, code) => {
 					const { fileId: file, fileUrl: url } = getFileInfo(filename, settings.config);
 
@@ -211,9 +221,6 @@ export async function createVite(
 
 					return code + SUFFIX;
 				},
-				compact: settings.config.compressHTML,
-				astroGlobalArgs: JSON.stringify(settings.config.site),
-				scopedStyleStrategy: settings.config.scopedStyleStrategy,
 				handleError: (error) => {
 					function createCSSError(err: astroVitePluginTypes.CSSError): CSSError {
 						return new CSSError({
