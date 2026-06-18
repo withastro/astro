@@ -14,7 +14,7 @@ export interface RouterOptions {
 	base: AstroConfig['base'];
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: NonNullable<AstroConfig['build']>['format'];
-  serverIslandHostname?: AstroConfig['serverIslandHostname'];
+  apiPrefix?: AstroConfig['build']['apiPrefix'];
 }
 
 interface RouterMatchRoute {

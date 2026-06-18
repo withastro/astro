@@ -224,23 +224,23 @@ describe('ServerIslandComponent', () => {
 			);
 		});
 
-		it('uses the configured serverIslandHostname as a URL prefix', async () => {
+		it('uses the configured apiPrefix as a URL prefix', async () => {
 			const result = await createStubResult({
 				base: '/docs',
-				serverIslandHostname: 'https://cdn.example.com',
+        apiPrefix: 'https://cdn.example.com',
 			});
 			const component = new ServerIslandComponent(result, islandProps(), {}, 'Island');
 			const content = await component.getIslandContent();
 			assert.ok(
 				content.includes('https://cdn.example.com/docs/_server-islands/Island'),
-				`server island URL should be prefixed by serverIslandHostname, got: ${content}`,
+				`server island URL should be prefixed by apiPrefix, got: ${content}`,
 			);
 		});
 
-		it('normalizes a trailing slash in serverIslandHostname', async () => {
+		it('normalizes a trailing slash in apiPrefix', async () => {
 			const result = await createStubResult({
 				base: '/docs',
-				serverIslandHostname: 'https://cdn.example.com/',
+				apiPrefix: 'https://cdn.example.com/',
 			});
 			const component = new ServerIslandComponent(result, islandProps(), {}, 'Island');
 			const content = await component.getIslandContent();
@@ -254,8 +254,8 @@ describe('ServerIslandComponent', () => {
 			);
 		});
 
-		it('keeps the relative URL when serverIslandHostname is unset', async () => {
-			const result = await createStubResult({ serverIslandHostname: undefined });
+		it('keeps the relative URL when apiPrefix is unset', async () => {
+			const result = await createStubResult({ apiPrefix: undefined });
 			const component = new ServerIslandComponent(result, islandProps(), {}, 'Island');
 			const content = await component.getIslandContent();
 			assert.ok(

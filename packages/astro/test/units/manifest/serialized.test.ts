@@ -117,13 +117,15 @@ describe('serializedManifestPlugin - dev mode', () => {
 		});
 	});
 
-	describe('serverIslandHostname', () => {
+	describe('apiPrefix', () => {
 		it('preserves the configured hostname', async () => {
 			const settings = await createBasicSettings({
-				serverIslandHostname: 'https://example.com',
+				build: {
+          apiPrefix: 'https://example.com'
+        },
 			});
 			const manifest = await getManifest(settings);
-			assert.equal(manifest.serverIslandHostname, 'https://example.com');
+			assert.equal(manifest.apiPrefix, 'https://example.com');
 		});
 	});
 

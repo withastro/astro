@@ -65,7 +65,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	outDir: './dist',
 	cacheDir: './node_modules/.astro',
 	base: '/',
-  serverIslandHostname: '',
 	trailingSlash: 'ignore',
 	build: {
 		format: 'directory',
@@ -76,6 +75,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		redirects: true,
 		inlineStylesheets: 'auto',
 		concurrency: 1,
+    apiPrefix: '',
 	},
 	image: {
 		endpoint: { entrypoint: undefined, route: '/_image' },
@@ -226,6 +226,7 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.or(z.object({ fallback: z.string() }).and(z.record(z.string(), z.string())))
 				.optional(),
+      apiPrefix: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.apiPrefix),
 			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 			inlineStylesheets: z
@@ -561,7 +562,6 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional(),
 	fonts: z.array(FontFamilySchema).optional(),
-  serverIslandHostname: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.serverIslandHostname),
 	experimental: z
 		.strictObject({
 			clientPrerender: z

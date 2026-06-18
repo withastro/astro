@@ -182,9 +182,9 @@ export class ServerIslandComponent {
 				: await encryptString(key, JSON.stringify(renderedSlots), `slots:${componentId}`);
 
 		const hostId = await this.getHostId();
-		const serverIslandHostname = this.result.serverIslandHostname?.replace(/\/$/, '') || '';
+		const apiPrefix = this.result.apiPrefix?.replace(/\/$/, '') || '';
 		const base = this.result.base === '/' ? '' : this.result.base.replace(/\/$/, '');
-		let serverIslandUrl = `${serverIslandHostname}${base}/_server-islands/${componentId}${this.result.trailingSlash === 'always' ? '/' : ''}`;
+		let serverIslandUrl = `${apiPrefix}${base}/_server-islands/${componentId}${this.result.trailingSlash === 'always' ? '/' : ''}`;
 
 		// Determine if its safe to use a GET request
 		const potentialSearchParams = createSearchParams(

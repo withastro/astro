@@ -198,7 +198,7 @@ async function createSerializedManifest(
 		clientDirectives: Array.from(settings.clientDirectives.entries()),
 		renderers: [],
 		base: settings.config.base,
-		serverIslandHostname: settings.config.serverIslandHostname,
+		apiPrefix: settings.config.build.apiPrefix,
 		userAssetsBase: settings.config?.vite?.base,
 		assetsPrefix: settings.config.build.assetsPrefix,
 		site: settings.config.site,
