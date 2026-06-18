@@ -8,6 +8,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	outDir: './dist',
 	cacheDir: './node_modules/.astro',
 	base: '/',
+	serverIslandHostname: '',
 	trailingSlash: 'ignore',
 	build: {
 		format: 'directory',

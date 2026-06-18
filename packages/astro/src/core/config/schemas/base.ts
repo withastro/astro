@@ -60,9 +60,6 @@ export type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
 /** @lintignore */
 export type Smartypants = ComplexifyWithOmit<_Smartypants>;
 
-// Re-export from the standalone defaults module so consumers that only need
-// ASTRO_CONFIG_DEFAULTS (e.g. the Container API) can import from defaults.js
-// directly without pulling in the full Zod schema and its heavy dependencies.
 import { ASTRO_CONFIG_DEFAULTS } from './defaults.js';
 export { ASTRO_CONFIG_DEFAULTS };
 
@@ -507,6 +504,7 @@ export const AstroConfigSchema = z.object({
 	fonts: z.array(FontFamilySchema).optional(),
 	cache: CacheSchema.optional(),
 	routeRules: RouteRulesSchema.optional(),
+	serverIslandHostname: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.serverIslandHostname),
 	experimental: z
 		.strictObject({
 			clientPrerender: z
