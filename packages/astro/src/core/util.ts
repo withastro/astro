@@ -2,15 +2,15 @@ import path from 'node:path';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { RouteData } from '../types/public/internal.js';
-import { hasSpecialQueries } from '../vite-plugin-utils/index.js';
+import { specialQueriesRE } from '../vite-plugin-utils/index.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import { removeQueryString, removeTrailingForwardSlash } from './path.js';
 
-export { viteID, VALID_ID_PREFIX, unwrapId } from '@astrojs/internal-helpers/vite';
+export { viteID } from '@astrojs/internal-helpers/vite';
 
 /** Check if a file is a markdown file based on its extension */
 export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
-	if (hasSpecialQueries(fileId)) {
+	if (specialQueriesRE.test(fileId)) {
 		return false;
 	}
 	const id = removeQueryString(fileId);
@@ -74,12 +74,21 @@ export function parseNpmName(
 	};
 }
 
+export const VALID_ID_PREFIX = `/@id/`;
 const NULL_BYTE_PLACEHOLDER = `__x00__`;
 const NULL_BYTE_REGEX = /^\0/;
 
+// Strip valid id prefix and replace null byte placeholder. Both are prepended to resolved ids
+// as they are not valid browser import specifiers (by the Vite's importAnalysis plugin)
+export function unwrapId(id: string): string {
+	return id.startsWith(VALID_ID_PREFIX)
+		? id.slice(VALID_ID_PREFIX.length).replace(NULL_BYTE_PLACEHOLDER, '\0')
+		: id;
+}
+
 // Reverses `unwrapId` function
 export function wrapId(id: string): string {
-	return id.replace(NULL_BYTE_REGEX, `/@id/${NULL_BYTE_PLACEHOLDER}`);
+	return id.replace(NULL_BYTE_REGEX, `${VALID_ID_PREFIX}${NULL_BYTE_PLACEHOLDER}`);
 }
 
 export function resolvePages(config: AstroConfig) {

@@ -1,22 +1,35 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { normalizePath, VALID_ID_PREFIX } from '@astrojs/internal-helpers/vite';
+import { normalizePath } from '@astrojs/internal-helpers/vite';
 import { prependForwardSlash } from './path.js';
 import type { ModuleLoader } from './module-loader/index.js';
+import { unwrapId, VALID_ID_PREFIX, viteID } from './util.js';
 
 export {
-	cleanUrl,
-	CSS_LANGS_RE,
-	hasSpecialQueries,
 	normalizePath,
 	normalizeFilename,
 	resolvePath,
-	rootRelativePath,
 	specialQueriesRE,
-	VALID_ID_PREFIX,
 	viteID,
-	unwrapId,
 } from '@astrojs/internal-helpers/vite';
+
+export function rootRelativePath(
+	root: URL,
+	idOrUrl: URL | string,
+	shouldPrependForwardSlash = true,
+) {
+	let id: string;
+	if (typeof idOrUrl !== 'string') {
+		id = unwrapId(viteID(idOrUrl));
+	} else {
+		id = idOrUrl;
+	}
+	const normalizedRoot = normalizePath(fileURLToPath(root));
+	if (id.startsWith(normalizedRoot)) {
+		id = id.slice(normalizedRoot.length);
+	}
+	return shouldPrependForwardSlash ? prependForwardSlash(id) : id;
+}
 
 /**
  * Simulate Vite's resolve and import analysis so we can import the id as an URL
@@ -43,3 +56,7 @@ export async function resolveIdToUrl(loader: ModuleLoader, id: string, root?: UR
 	}
 	return VALID_ID_PREFIX + resultId;
 }
+
+// https://github.com/vitejs/vite/blob/2f9428d1ffd988e30cb253d5bb84844fb1654e86/packages/vite/src/node/constants.ts#L108
+// Used by isCSSRequest() under the hood
+export const CSS_LANGS_RE = /\.(css|less|sass|scss|styl|stylus|pcss|postcss|sss)(?:$|\?)/;

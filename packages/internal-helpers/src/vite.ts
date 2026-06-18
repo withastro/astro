@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { commonAncestorPath } from 'common-ancestor-path';
-import { prependForwardSlash, removeLeadingForwardSlashWindows, slash } from './path.js';
+import { removeLeadingForwardSlashWindows, slash } from './path.js';
 
 const isWindows = typeof process !== 'undefined' && process.platform === 'win32';
 
@@ -57,40 +57,11 @@ export function resolvePath(specifier: string, importer: string) {
 	}
 }
 
-export function rootRelativePath(
-	root: URL,
-	idOrUrl: URL | string,
-	shouldPrependForwardSlash = true,
-) {
-	let id: string;
-	if (typeof idOrUrl !== 'string') {
-		id = unwrapId(viteID(idOrUrl));
-	} else {
-		id = idOrUrl;
-	}
-	const normalizedRoot = normalizePath(fileURLToPath(root));
-	if (id.startsWith(normalizedRoot)) {
-		id = id.slice(normalizedRoot.length);
-	}
-	return shouldPrependForwardSlash ? prependForwardSlash(id) : id;
-}
-
-// https://github.com/vitejs/vite/blob/2f9428d1ffd988e30cb253d5bb84844fb1654e86/packages/vite/src/node/constants.ts#L108
-export const CSS_LANGS_RE = /\.(css|less|sass|scss|styl|stylus|pcss|postcss|sss)(?:$|\?)/;
-
-const postfixRE = /[?#].*$/s;
-export function cleanUrl(url: string): string {
-	return url.replace(postfixRE, '');
-}
-
-export const specialQueriesRE = /(?:\?|&)(?:url|raw|direct)(?:&|$)/;
 /**
  * Detect `?url`, `?raw`, and `?direct`, in which case we usually want to skip
  * transforming any code with this queries as Vite will handle it directly.
  */
-export function hasSpecialQueries(id: string): boolean {
-	return specialQueriesRE.test(id);
-}
+export const specialQueriesRE = /(?:\?|&)(?:url|raw|direct)(?:&|$)/;
 
 /**
  * Convert file URL to ID for environment.moduleGraph.idToModuleMap.get(:viteID)
@@ -100,17 +71,6 @@ export function hasSpecialQueries(id: string): boolean {
  */
 export function viteID(filePath: URL): string {
 	return slash(fileURLToPath(filePath) + filePath.search);
-}
-
-export const VALID_ID_PREFIX = `/@id/`;
-const NULL_BYTE_PLACEHOLDER = `__x00__`;
-
-// Strip valid id prefix and replace null byte placeholder. Both are prepended to resolved ids
-// as they are not valid browser import specifiers (by the Vite's importAnalysis plugin)
-export function unwrapId(id: string): string {
-	return id.startsWith(VALID_ID_PREFIX)
-		? id.slice(VALID_ID_PREFIX.length).replace(NULL_BYTE_PLACEHOLDER, '\0')
-		: id;
 }
 
 function resolveJsToTs(filePath: string) {

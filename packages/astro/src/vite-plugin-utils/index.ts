@@ -2,8 +2,6 @@ import { appendExtension, appendForwardSlash } from '../core/path.js';
 import type { AstroConfig } from '../types/public/config.js';
 
 export {
-	cleanUrl,
-	hasSpecialQueries,
 	normalizeFilename,
 	specialQueriesRE,
 } from '@astrojs/internal-helpers/vite';
@@ -26,4 +24,9 @@ export function getFileInfo(id: string, config: AstroConfig) {
 		fileUrl = appendExtension(fileUrl, 'html');
 	}
 	return { fileId, fileUrl };
+}
+
+const postfixRE = /[?#].*$/s;
+export function cleanUrl(url: string): string {
+	return url.replace(postfixRE, '');
 }

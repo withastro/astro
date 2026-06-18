@@ -3,7 +3,7 @@ import { type EnvironmentModuleNode, isCSSRequest, type RunnableDevEnvironment }
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../core/constants.js';
 import { isPropagatedAssetBoundary } from '../core/head-propagation/boundary.js';
 import { unwrapId } from '../core/util.js';
-import { hasSpecialQueries } from '../vite-plugin-utils/index.js';
+import { specialQueriesRE } from '../vite-plugin-utils/index.js';
 
 /**
  * List of file extensions signalling we can (and should) SSR ahead-of-time
@@ -58,7 +58,7 @@ export async function* crawlGraph(
 			// and doesn't have any imports to crawl. However, since they would `this.addWatchFile` the
 			// underlying module, our logic would crawl into them anyways which is incorrect as they
 			// don't take part in the final rendering, so we skip it here.
-			if (hasSpecialQueries(id)) {
+			if (specialQueriesRE.test(id)) {
 				continue;
 			}
 
