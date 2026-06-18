@@ -21,6 +21,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/vue/",
   "exports": {
     ".": "./dist/index.js",
+    "./container-renderer": "./dist/container-renderer.js",
     "./editor": "./dist/editor.cjs",
     "./client.js": "./dist/client.js",
     "./server.js": "./dist/server.js",

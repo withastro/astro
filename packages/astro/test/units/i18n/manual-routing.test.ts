@@ -9,7 +9,7 @@ import {
 	notFound,
 	redirectToFallback,
 } from '../../../dist/i18n/index.js';
-import { REROUTE_DIRECTIVE_HEADER } from '../../../dist/core/constants.js';
+import { getFetchStateFromAPIContext } from '../../../dist/core/fetch/fetch-state.js';
 import type { Locales } from '../../../dist/types/public/config.js';
 import { createManualRoutingContext, createMiddlewarePayload } from './test-helpers.ts';
 
@@ -654,7 +654,7 @@ describe('notFound', () => {
 			assert.equal(response!.status, 404);
 		});
 
-		it('should set REROUTE_DIRECTIVE_HEADER to no', () => {
+		it('should set skipErrorReroute on FetchState', () => {
 			const payload = createMiddlewarePayload({
 				base: '',
 				locales: ['en', 'es'],
@@ -664,7 +664,8 @@ describe('notFound', () => {
 
 			const response = notFoundFn(context);
 
-			assert.equal(response!.headers.get(REROUTE_DIRECTIVE_HEADER), 'no');
+			assert.equal(response!.headers.get('x-astro-reroute'), null);
+			assert.equal(getFetchStateFromAPIContext(context).skipErrorReroute, true);
 		});
 	});
 
@@ -795,7 +796,7 @@ describe('notFound', () => {
 			assert.equal(response!.status, 404);
 		});
 
-		it('should set REROUTE_DIRECTIVE_HEADER on passed Response', () => {
+		it('should set skipErrorReroute on passed Response', () => {
 			const payload = createMiddlewarePayload({
 				base: '',
 				locales: ['en', 'es'],
@@ -806,10 +807,11 @@ describe('notFound', () => {
 
 			const response = notFoundFn(context, originalResponse);
 
-			assert.equal(response!.headers.get(REROUTE_DIRECTIVE_HEADER), 'no');
+			assert.equal(response!.headers.get('x-astro-reroute'), null);
+			assert.equal(getFetchStateFromAPIContext(context).skipErrorReroute, true);
 		});
 
-		it('should return original response when REROUTE_DIRECTIVE_HEADER is no and no fallback', () => {
+		it('should return original response when skipErrorReroute is true and no fallback', () => {
 			const payload = createMiddlewarePayload({
 				base: '',
 				locales: ['en', 'es'],
@@ -817,9 +819,8 @@ describe('notFound', () => {
 			});
 			const notFoundFn = notFound(payload);
 			const context = createManualRoutingContext({ pathname: '/blog' });
-			const originalResponse = new Response('body', {
-				headers: { [REROUTE_DIRECTIVE_HEADER]: 'no' },
-			});
+			getFetchStateFromAPIContext(context).skipErrorReroute = true;
+			const originalResponse = new Response('body');
 
 			const response = notFoundFn(context, originalResponse);
 
@@ -842,7 +843,7 @@ describe('notFound', () => {
 			assert.equal(response!.status, 404);
 		});
 
-		it('should not return original response with fallback when REROUTE_DIRECTIVE_HEADER is no', () => {
+		it('should not return original response with fallback when skipErrorReroute is true', () => {
 			const payload = createMiddlewarePayload({
 				base: '',
 				locales: ['en', 'es'],
@@ -850,9 +851,8 @@ describe('notFound', () => {
 			});
 			const notFoundFn = notFound(payload);
 			const context = createManualRoutingContext({ pathname: '/blog' });
-			const originalResponse = new Response('body', {
-				headers: { [REROUTE_DIRECTIVE_HEADER]: 'no' },
-			});
+			getFetchStateFromAPIContext(context).skipErrorReroute = true;
+			const originalResponse = new Response('body');
 
 			const response = notFoundFn(context, originalResponse);
 
