@@ -105,6 +105,30 @@ const FILES_TO_UPDATE = {
 		}),
 };
 
+export function generateAgentsMd(): string {
+	return `# Development
+
+Start the dev server in background mode:
+
+\`\`\`
+astro dev --background
+\`\`\`
+
+Manage the background server with \`astro dev stop\`, \`astro dev status\`, and \`astro dev logs\`.
+
+# Documentation
+
+Full documentation: https://docs.astro.build
+
+Commonly needed references:
+
+- [Routing](https://docs.astro.build/en/guides/routing/)
+- [Astro Components](https://docs.astro.build/en/basics/astro-components/)
+- [Content Collections](https://docs.astro.build/en/guides/content-collections/)
+- [Internationalization](https://docs.astro.build/en/guides/internationalization/)
+`;
+}
+
 export function getTemplateTarget(tmpl: string, ref = 'latest') {
 	// Handle Starlight templates
 	if (tmpl === 'starlight' || tmpl.startsWith('starlight/')) {
@@ -183,6 +207,20 @@ async function copyTemplate(tmpl: string, ctx: Context) {
 				}
 			} catch {}
 			throw new Error(`Unable to download template ${color.reset(tmpl)}`);
+		}
+
+		// Generate AGENTS.md for AI coding agents, with a CLAUDE.md link
+		const agentsPath = path.resolve(ctx.cwd, 'AGENTS.md');
+		const claudePath = path.resolve(ctx.cwd, 'CLAUDE.md');
+		fs.writeFileSync(agentsPath, generateAgentsMd());
+		try {
+			fs.symlinkSync('AGENTS.md', claudePath);
+		} catch {
+			try {
+				fs.linkSync(agentsPath, claudePath);
+			} catch {
+				// Link creation failed; AGENTS.md still exists
+			}
 		}
 
 		// Post-process in parallel
