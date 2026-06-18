@@ -174,7 +174,7 @@ export default function createIntegration({
 				const needsImagesBindingForDev = isCompile && command === 'dev';
 				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
 				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
-				const isTypeGenOnly = command === 'build' || command === 'sync';
+				const isTypeGenPhase = command === 'build' || command === 'sync';
 
 				const adapterPluginConfig: Partial<PluginConfig> = {
 					config: cloudflareConfigCustomizer({
@@ -247,8 +247,11 @@ export default function createIntegration({
 					viteEnvironment: { name: 'ssr' },
 					assetsOnly: () => _buildOutput === 'static',
 				});
-				// Avoid starting the Cloudflare dev runtime during type generation. See #16332.
-				if (isTypeGenOnly) {
+				// `sync` and `build` both run type generation (build via its internal sync
+				// pass), which creates a temporary Vite server and fires `configureServer`
+				// the hook that boots the Cloudflare/workerd runtime. Drop it in both so
+				// type generation doesn't pay that startup cost. See #16332.
+				if (isTypeGenPhase) {
 					for (const plugin of cloudflareVitePlugins) {
 						plugin.configureServer = undefined;
 					}
@@ -280,8 +283,8 @@ export default function createIntegration({
 							{
 								name: '@astrojs/cloudflare:environment',
 								configEnvironment(environmentName, _options) {
-									// Avoid dependency optimization during type generation. See #16332.
-									if (isTypeGenOnly) {
+									// Skip dependency pre-bundling during type generation (see `isTypeGenPhase` above).
+									if (isTypeGenPhase) {
 										return { optimizeDeps: { noDiscovery: true, include: [] } };
 									}
 									const isServerEnvironment = ['astro', 'ssr', 'prerender'].includes(
