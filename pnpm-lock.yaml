@@ -194,7 +194,7 @@ importers:
         specifier: ^11.0.0-beta.2
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
       hono:
         specifier: ^4.12.14
@@ -203,13 +203,13 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
 
   examples/blog:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^7.0.0-beta.2
+        specifier: ^7.0.0-beta.3
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
         specifier: ^4.0.18
@@ -218,7 +218,7 @@ importers:
         specifier: ^3.7.3
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
       sharp:
         specifier: ^0.34.3
@@ -227,16 +227,16 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
 
   examples/container-with-vitest:
     dependencies:
       '@astrojs/react':
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -267,25 +267,25 @@ importers:
         specifier: ^3.15.8
         version: 3.15.8
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
 
   examples/framework-multiple:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/integrations/preact
       '@astrojs/react':
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/integrations/react
       '@astrojs/solid-js':
-        specifier: ^7.0.0-beta.1
+        specifier: ^7.0.0-beta.2
         version: link:../../packages/integrations/solid
       '@astrojs/svelte':
-        specifier: ^9.0.0-beta.3
+        specifier: ^9.0.0-beta.4
         version: link:../../packages/integrations/svelte
       '@astrojs/vue':
-        specifier: ^7.0.0-beta.1
+        specifier: ^7.0.0-beta.2
         version: link:../../packages/integrations/vue
       '@types/react':
         specifier: ^18.3.28
@@ -294,7 +294,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -318,13 +318,13 @@ importers:
   examples/framework-preact:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/integrations/preact
       '@preact/signals':
         specifier: ^2.8.1
         version: 2.8.2(preact@10.29.0)
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -333,7 +333,7 @@ importers:
   examples/framework-react:
     dependencies:
       '@astrojs/react':
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/integrations/react
       '@types/react':
         specifier: ^18.3.28
@@ -342,7 +342,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -354,10 +354,10 @@ importers:
   examples/framework-solid:
     dependencies:
       '@astrojs/solid-js':
-        specifier: ^7.0.0-beta.1
+        specifier: ^7.0.0-beta.2
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.11
@@ -366,10 +366,10 @@ importers:
   examples/framework-svelte:
     dependencies:
       '@astrojs/svelte':
-        specifier: ^9.0.0-beta.3
+        specifier: ^9.0.0-beta.4
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -378,10 +378,10 @@ importers:
   examples/framework-vue:
     dependencies:
       '@astrojs/vue':
-        specifier: ^7.0.0-beta.1
+        specifier: ^7.0.0-beta.2
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.29
@@ -393,25 +393,25 @@ importers:
         specifier: ^11.0.0-beta.2
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
 
   examples/ssr:
@@ -420,10 +420,10 @@ importers:
         specifier: ^11.0.0-beta.2
         version: link:../../packages/integrations/node
       '@astrojs/svelte':
-        specifier: ^9.0.0-beta.3
+        specifier: ^9.0.0-beta.4
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -432,7 +432,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
       sass:
         specifier: ^1.97.3
@@ -447,7 +447,7 @@ importers:
         specifier: ^22.19.0
         version: 22.19.19
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -456,19 +456,19 @@ importers:
         specifier: ^2.0.0-beta.1
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
 
   examples/with-mdx:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^7.0.0-beta.2
+        specifier: ^7.0.0-beta.3
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -477,13 +477,13 @@ importers:
   examples/with-nanostores:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
         specifier: ^1.0.0
         version: 1.0.0(nanostores@1.1.1)(preact@10.29.0)
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
       nanostores:
         specifier: ^1.1.1
@@ -495,7 +495,7 @@ importers:
   examples/with-tailwindcss:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^7.0.0-beta.2
+        specifier: ^7.0.0-beta.3
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.2.1
@@ -504,7 +504,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -519,7 +519,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^7.0.0-beta.4
+        specifier: ^7.0.0-beta.5
         version: link:../../packages/astro
       vitest:
         specifier: ^5.0.0-beta.2
@@ -4294,15 +4294,6 @@ importers:
         specifier: ^4.83.0
         version: 4.95.0(@cloudflare/workers-types@4.20260527.1)
 
-  packages/integrations/cloudflare/test/fixtures/base-redirects:
-    dependencies:
-      '@astrojs/cloudflare':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-
   packages/integrations/cloudflare/test/fixtures/binding-image-service:
     dependencies:
       '@astrojs/cloudflare':
@@ -5025,8 +5016,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       satteri:
-        specifier: ^0.8.0
-        version: 0.8.0
+        specifier: ^0.9.0
+        version: 0.9.0
       shiki:
         specifier: ^4.0.2
         version: 4.0.2
@@ -6646,8 +6637,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       satteri:
-        specifier: ^0.8.0
-        version: 0.8.0
+        specifier: ^0.9.0
+        version: 0.9.0
     devDependencies:
       astro-scripts:
         specifier: workspace:*
@@ -7256,29 +7247,29 @@ packages:
   '@borewit/text-codec@0.2.2':
     resolution: {integrity: sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ==}
 
-  '@bruits/satteri-darwin-arm64@0.8.0':
-    resolution: {integrity: sha512-/ocDvu5Z0ndgPgprx6jGEhAwSxMUw7KUzwHcXqeZD3/mvLakHpAW/+VV6/vpJJ+0PXPbd2mfiPL0DWDgmFxiVQ==}
+  '@bruits/satteri-darwin-arm64@0.9.0':
+    resolution: {integrity: sha512-fJtb3K+D8OvtjeZO2CB58gS50F6wV2Ve/BHoyp8D4d7sUhaSVoKqn0ma5wWLlIFAjdWDfLr5wx/KTukT7lgpQA==}
     cpu: [arm64]
     os: [darwin]
 
-  '@bruits/satteri-darwin-x64@0.8.0':
-    resolution: {integrity: sha512-XtgdjitWXgogb9G5wy6C5wR/n+CSJ++FDeTtVLMnpT4NtAgQMXs+h/erZr6/yHbK0p+cNbT60jmtoHPvIYLwFw==}
+  '@bruits/satteri-darwin-x64@0.9.0':
+    resolution: {integrity: sha512-jj6Y9Hnwi1y276QqOK/aNUltDbKJqzuJw62yisRPkYSA4FHE6Di0LDsSAwK4n7S//jP0sn1Q2KsDNYhCQ9WNIw==}
     cpu: [x64]
     os: [darwin]
 
-  '@bruits/satteri-linux-x64-gnu@0.8.0':
-    resolution: {integrity: sha512-YijsSxIN1azfkOFRwPuci6wfmEy3qREO6PU1Beyf0EtQgMxlb2o/OHEGXygU7vs6pDrSSt7LZooCVNKjEvZWlQ==}
+  '@bruits/satteri-linux-x64-gnu@0.9.0':
+    resolution: {integrity: sha512-AwBHO06U1eFqS1UoqZM9qowFDdisnf355JuahAby9LN/p9R7swlQV9QqIRPPHeFEm5ECoDNlCI5TPNWqP34+6Q==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@bruits/satteri-wasm32-wasi@0.8.0':
-    resolution: {integrity: sha512-4t/1iW0HnWe8MCdlH+RAhgiw1vNQEvn2+nNn9z3nFtBjn1T3+XemPt15A08U9Rp4FeqtyZ/+NUyvOC4A8t/sGA==}
+  '@bruits/satteri-wasm32-wasi@0.9.0':
+    resolution: {integrity: sha512-/6ga1dnKqWEeZ387eBmlfhOqAn1BPx/93UQrp1dpHtFM9brvQCZT3RBe5Gazd4BcloRebvXZW6vvnePVhcaKGw==}
     engines: {node: '>=14.0.0'}
     cpu: [wasm32]
 
-  '@bruits/satteri-win32-x64-msvc@0.8.0':
-    resolution: {integrity: sha512-ouw20cuhG+dpamPrNuGviNI+wRdcbu2wGaMbxILKIqMveKo94mJMXEQe5uDXT3O1SgXQ738YwTmT0tMJsIvM7w==}
+  '@bruits/satteri-win32-x64-msvc@0.9.0':
+    resolution: {integrity: sha512-k3U1EHIr5sNCsBxmXvLUj1xZT3Pf3gLXabWUT4iH4W9CLIbzAMu1lYF3c4pKS6GRYPMsSNfz78/vNjEkRW396A==}
     cpu: [x64]
     os: [win32]
 
@@ -14286,8 +14277,8 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  satteri@0.8.0:
-    resolution: {integrity: sha512-+NcnzVfFmAoOG3UBDHSFNaZ68jjXilmK3aUW0pasVcS0LyqaWnsrXBUHPpLr3nv1t3UAFmprfZZBMtjFIUhtiw==}
+  satteri@0.9.0:
+    resolution: {integrity: sha512-+MA67ZhGYSrMvEFCciKKnyB6XeH1SJ7xeYJkTah4qzRjuo1ZehrCIn2ksysks/XA6Ez2gnH0SnKeMEAVVK+g+Q==}
 
   sax@1.6.0:
     resolution: {integrity: sha512-6R3J5M4AcbtLUdZmRv2SygeVaM7IhrLXu9BmnOGmmACak8fiUtOsYNWUS4uK7upbmHIBbLBeFeI//477BKLBzA==}
@@ -16427,23 +16418,23 @@ snapshots:
 
   '@borewit/text-codec@0.2.2': {}
 
-  '@bruits/satteri-darwin-arm64@0.8.0':
+  '@bruits/satteri-darwin-arm64@0.9.0':
     optional: true
 
-  '@bruits/satteri-darwin-x64@0.8.0':
+  '@bruits/satteri-darwin-x64@0.9.0':
     optional: true
 
-  '@bruits/satteri-linux-x64-gnu@0.8.0':
+  '@bruits/satteri-linux-x64-gnu@0.9.0':
     optional: true
 
-  '@bruits/satteri-wasm32-wasi@0.8.0':
+  '@bruits/satteri-wasm32-wasi@0.9.0':
     dependencies:
       '@emnapi/core': 1.9.1
       '@emnapi/runtime': 1.9.1
       '@napi-rs/wasm-runtime': 1.1.5(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
     optional: true
 
-  '@bruits/satteri-win32-x64-msvc@0.8.0':
+  '@bruits/satteri-win32-x64-msvc@0.9.0':
     optional: true
 
   '@capsizecss/unpack@4.0.0':
@@ -24500,18 +24491,18 @@ snapshots:
     optionalDependencies:
       '@parcel/watcher': 2.5.6
 
-  satteri@0.8.0:
+  satteri@0.9.0:
     dependencies:
       '@types/estree-jsx': 1.0.5
       '@types/hast': 3.0.4
       '@types/mdast': 4.0.4
       '@types/unist': 3.0.3
     optionalDependencies:
-      '@bruits/satteri-darwin-arm64': 0.8.0
-      '@bruits/satteri-darwin-x64': 0.8.0
-      '@bruits/satteri-linux-x64-gnu': 0.8.0
-      '@bruits/satteri-wasm32-wasi': 0.8.0
-      '@bruits/satteri-win32-x64-msvc': 0.8.0
+      '@bruits/satteri-darwin-arm64': 0.9.0
+      '@bruits/satteri-darwin-x64': 0.9.0
+      '@bruits/satteri-linux-x64-gnu': 0.9.0
+      '@bruits/satteri-wasm32-wasi': 0.9.0
+      '@bruits/satteri-win32-x64-msvc': 0.9.0
 
   sax@1.6.0: {}
 
