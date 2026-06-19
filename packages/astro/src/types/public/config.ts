@@ -2936,12 +2936,11 @@ export interface AstroUserConfig<
 		/**
 		 * @docs
 		 * @name cache.provider
-		 * @type {import('../../core/cache/types.js').CacheProviderConfig}
+		 * @type {CacheProviderConfig}
 		 * @version 7.0.0
 		 * @description
 		 *
-		 * The cache provider. Adapters typically set a default, but you can
-		 * override it with your own.
+		 * A provider that controls how responses are cached.
 		 *
 		 * Use the provider's config function to get type-safe configuration:
 		 *
