@@ -3128,6 +3128,47 @@ export interface AstroUserConfig<
 		 * ```
 		 */
 		routeRules?: RouteRules;
+
+		/**
+		 * @name experimental.incrementalBuild
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 7.x
+		 * @description
+		 *
+		 * Enables incremental static builds. When enabled, pages with a `cacheKey` returned
+		 * from `getStaticPaths()` can be skipped during subsequent builds if neither
+		 * their data nor their dependencies have changed.
+		 *
+		 * On the first build, all pages are rendered normally and a cache manifest is saved.
+		 * On subsequent builds, each page is checked against the manifest: if the page's
+		 * `cacheKey` and the hash of its module dependency graph both match, the page is
+		 * skipped and the previous output is preserved.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * {
+		 *   experimental: {
+		 *     incrementalBuild: true,
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * In your dynamic routes, return a `cacheKey` from `getStaticPaths()`:
+		 *
+		 * ```js
+		 * // src/pages/blog/[slug].astro
+		 * export async function getStaticPaths() {
+		 *   const posts = await fetchPosts();
+		 *   return posts.map(post => ({
+		 *     params: { slug: post.slug },
+		 *     props: { post },
+		 *     cacheKey: post.updatedAt,
+		 *   }));
+		 * }
+		 * ```
+		 */
+		incrementalBuild?: boolean;
 	};
 }
 

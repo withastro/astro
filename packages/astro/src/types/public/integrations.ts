@@ -247,6 +247,7 @@ export type AstroAdapter = {
 export interface PathWithRoute {
 	pathname: string;
 	route: RouteData;
+	cacheKey?: string;
 }
 
 /**

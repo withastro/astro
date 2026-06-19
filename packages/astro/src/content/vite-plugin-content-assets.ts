@@ -1,5 +1,6 @@
 import { extname } from 'node:path';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
+import { createContentDataIncrementalMetadata } from '../core/build/incremental-metadata.js';
 import type { AssetsPrefix } from '../core/app/types.js';
 import { fileExtension } from '../core/path.js';
 import { fileURLToPath } from 'node:url';
@@ -149,7 +150,11 @@ export function astroContentAssetPropagationPlugin({
 				`;
 					// ^ Use a default export for tools like Markdoc
 					// to catch the `__astroPropagation` identifier
-					return { code, map: { mappings: '' } };
+					return {
+						code,
+						map: { mappings: '' },
+						meta: createContentDataIncrementalMetadata(),
+					};
 				}
 			},
 		},

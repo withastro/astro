@@ -2,6 +2,7 @@ import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
 import { isRunnableDevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
+import { createContentDataIncrementalMetadata } from '../core/build/incremental-metadata.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
@@ -151,7 +152,10 @@ export function astroContentVirtualModPlugin({
 				if (id === MODULES_MJS_ID) {
 					const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
 					if (fs.existsSync(modules)) {
-						return fileURLToPath(modules);
+						return {
+							id: fileURLToPath(modules),
+							meta: createContentDataIncrementalMetadata(),
+						};
 					}
 					return MODULES_MJS_VIRTUAL_ID;
 				}
@@ -159,7 +163,10 @@ export function astroContentVirtualModPlugin({
 				if (id === ASSET_IMPORTS_VIRTUAL_ID) {
 					const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
 					if (fs.existsSync(assetImportsFile)) {
-						return fileURLToPath(assetImportsFile);
+						return {
+							id: fileURLToPath(assetImportsFile),
+							meta: createContentDataIncrementalMetadata(),
+						};
 					}
 					return ASSET_IMPORTS_RESOLVED_STUB_ID;
 				}
@@ -191,7 +198,10 @@ export function astroContentVirtualModPlugin({
 				}
 				if (id === RESOLVED_DATA_STORE_VIRTUAL_ID) {
 					if (!fs.existsSync(dataStoreFile)) {
-						return { code: 'export default new Map()' };
+						return {
+							code: 'export default new Map()',
+							meta: createContentDataIncrementalMetadata(),
+						};
 					}
 					const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
 
@@ -202,6 +212,7 @@ export function astroContentVirtualModPlugin({
 								compact: true,
 							}),
 							map: { mappings: '' },
+							meta: createContentDataIncrementalMetadata(),
 						};
 					} catch (err) {
 						const message = 'Could not parse JSON file';
@@ -215,6 +226,7 @@ export function astroContentVirtualModPlugin({
 						code: fs.existsSync(assetImportsFile)
 							? fs.readFileSync(assetImportsFile, 'utf-8')
 							: 'export default new Map()',
+						meta: createContentDataIncrementalMetadata(),
 					};
 				}
 
@@ -224,6 +236,7 @@ export function astroContentVirtualModPlugin({
 						code: fs.existsSync(modules)
 							? fs.readFileSync(modules, 'utf-8')
 							: 'export default new Map()',
+						meta: createContentDataIncrementalMetadata(),
 					};
 				}
 			},

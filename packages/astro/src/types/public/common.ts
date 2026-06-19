@@ -15,6 +15,7 @@ export interface GetStaticPathsOptions {
 export type GetStaticPathsItem = {
 	params: Params;
 	props?: Props;
+	cacheKey?: string;
 };
 export type GetStaticPathsResult = GetStaticPathsItem[];
 export type GetStaticPathsResultKeyed = GetStaticPathsResult & {

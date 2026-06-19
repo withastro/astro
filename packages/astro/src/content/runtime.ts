@@ -146,6 +146,7 @@ type ContentEntryResult = {
 	body: string;
 	collection: string;
 	data: Record<string, any>;
+	digest?: string | number;
 	render(): Promise<RenderResult>;
 };
 
@@ -153,6 +154,7 @@ type DataEntryResult = {
 	id: string;
 	collection: string;
 	data: Record<string, any>;
+	digest?: string | number;
 };
 
 type EntryLookupObject = { collection: string; id: string } | { collection: string; slug: string };

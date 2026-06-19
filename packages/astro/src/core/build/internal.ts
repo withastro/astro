@@ -123,6 +123,12 @@ export interface BuildInternals {
 	 * vs CSS that was included in SSR.
 	 */
 	ssrRenderedExports?: Map<string, Set<string>>;
+
+	/**
+	 * Map of page component path -> dependency hash for incremental builds.
+	 * Populated during the prerender Rolldown build by the incremental plugin.
+	 */
+	pageDependencyHashes?: Map<string, string>;
 }
 
 /**
