@@ -89,7 +89,10 @@ export function createMdxProcessor(
 				typeof syntaxHighlight === 'object' ? syntaxHighlight.excludeLangs : undefined;
 
 			// Collect last so image-URL rewrites by user plugins are captured.
-			const allMdastPlugins: MdastPluginDefinition[] = [...satteriOptions.mdastPlugins, collectImages];
+			const allMdastPlugins: MdastPluginDefinition[] = [
+				...satteriOptions.mdastPlugins,
+				collectImages,
+			];
 
 			const hastPlugins: HastPluginDefinition[] = [];
 			if (highlightFn) {
