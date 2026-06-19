@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 14.0.0-beta.3
+
+### Patch Changes
+
+- [#16961](https://github.com/withastro/astro/pull/16961) [`96398e8`](https://github.com/withastro/astro/commit/96398e8e81632e9c8b61cb8ee23ac359ea8120c0) Thanks [@adamchal](https://github.com/adamchal)! - Speeds up `astro sync` by no longer starting the Cloudflare runtime during type generation
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 14.0.0-beta.2
 
 ### Patch Changes

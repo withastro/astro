@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 7.0.0-beta.4
+
+### Patch Changes
+
+- [#17124](https://github.com/withastro/astro/pull/17124) [`7e7ab87`](https://github.com/withastro/astro/commit/7e7ab8775f1c70e00e30db9d3c4796246eaf1c5f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates `satteri` to `0.9.0`. See the [Sätteri changelog](https://github.com/bruits/satteri/blob/main/packages/satteri/CHANGELOG.md) for details.
+
 ## 7.0.0-beta.3
 
 ### Minor Changes

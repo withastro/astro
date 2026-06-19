@@ -694,10 +694,10 @@ describe('Config Validation', () => {
 		});
 	});
 
-	describe('experimental.routeRules', () => {
+	describe('routeRules', () => {
 		it('rejects negative maxAge', async () => {
 			const configError = await validateConfig({
-				experimental: { routeRules: { '/api': { maxAge: -1 } } },
+				routeRules: { '/api': { maxAge: -1 } },
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.ok(
