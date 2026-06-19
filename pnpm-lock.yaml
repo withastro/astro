@@ -5019,8 +5019,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       satteri:
-        specifier: ^0.8.0
-        version: 0.8.0
+        specifier: ^0.9.0
+        version: 0.9.0
       shiki:
         specifier: ^4.0.2
         version: 4.0.2
@@ -6637,8 +6637,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       satteri:
-        specifier: ^0.8.0
-        version: 0.8.0
+        specifier: ^0.9.0
+        version: 0.9.0
     devDependencies:
       astro-scripts:
         specifier: workspace:*
@@ -7228,29 +7228,29 @@ packages:
   '@borewit/text-codec@0.2.2':
     resolution: {integrity: sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ==}
 
-  '@bruits/satteri-darwin-arm64@0.8.0':
-    resolution: {integrity: sha512-/ocDvu5Z0ndgPgprx6jGEhAwSxMUw7KUzwHcXqeZD3/mvLakHpAW/+VV6/vpJJ+0PXPbd2mfiPL0DWDgmFxiVQ==}
+  '@bruits/satteri-darwin-arm64@0.9.0':
+    resolution: {integrity: sha512-fJtb3K+D8OvtjeZO2CB58gS50F6wV2Ve/BHoyp8D4d7sUhaSVoKqn0ma5wWLlIFAjdWDfLr5wx/KTukT7lgpQA==}
     cpu: [arm64]
     os: [darwin]
 
-  '@bruits/satteri-darwin-x64@0.8.0':
-    resolution: {integrity: sha512-XtgdjitWXgogb9G5wy6C5wR/n+CSJ++FDeTtVLMnpT4NtAgQMXs+h/erZr6/yHbK0p+cNbT60jmtoHPvIYLwFw==}
+  '@bruits/satteri-darwin-x64@0.9.0':
+    resolution: {integrity: sha512-jj6Y9Hnwi1y276QqOK/aNUltDbKJqzuJw62yisRPkYSA4FHE6Di0LDsSAwK4n7S//jP0sn1Q2KsDNYhCQ9WNIw==}
     cpu: [x64]
     os: [darwin]
 
-  '@bruits/satteri-linux-x64-gnu@0.8.0':
-    resolution: {integrity: sha512-YijsSxIN1azfkOFRwPuci6wfmEy3qREO6PU1Beyf0EtQgMxlb2o/OHEGXygU7vs6pDrSSt7LZooCVNKjEvZWlQ==}
+  '@bruits/satteri-linux-x64-gnu@0.9.0':
+    resolution: {integrity: sha512-AwBHO06U1eFqS1UoqZM9qowFDdisnf355JuahAby9LN/p9R7swlQV9QqIRPPHeFEm5ECoDNlCI5TPNWqP34+6Q==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@bruits/satteri-wasm32-wasi@0.8.0':
-    resolution: {integrity: sha512-4t/1iW0HnWe8MCdlH+RAhgiw1vNQEvn2+nNn9z3nFtBjn1T3+XemPt15A08U9Rp4FeqtyZ/+NUyvOC4A8t/sGA==}
+  '@bruits/satteri-wasm32-wasi@0.9.0':
+    resolution: {integrity: sha512-/6ga1dnKqWEeZ387eBmlfhOqAn1BPx/93UQrp1dpHtFM9brvQCZT3RBe5Gazd4BcloRebvXZW6vvnePVhcaKGw==}
     engines: {node: '>=14.0.0'}
     cpu: [wasm32]
 
-  '@bruits/satteri-win32-x64-msvc@0.8.0':
-    resolution: {integrity: sha512-ouw20cuhG+dpamPrNuGviNI+wRdcbu2wGaMbxILKIqMveKo94mJMXEQe5uDXT3O1SgXQ738YwTmT0tMJsIvM7w==}
+  '@bruits/satteri-win32-x64-msvc@0.9.0':
+    resolution: {integrity: sha512-k3U1EHIr5sNCsBxmXvLUj1xZT3Pf3gLXabWUT4iH4W9CLIbzAMu1lYF3c4pKS6GRYPMsSNfz78/vNjEkRW396A==}
     cpu: [x64]
     os: [win32]
 
@@ -14276,8 +14276,8 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  satteri@0.8.0:
-    resolution: {integrity: sha512-+NcnzVfFmAoOG3UBDHSFNaZ68jjXilmK3aUW0pasVcS0LyqaWnsrXBUHPpLr3nv1t3UAFmprfZZBMtjFIUhtiw==}
+  satteri@0.9.0:
+    resolution: {integrity: sha512-+MA67ZhGYSrMvEFCciKKnyB6XeH1SJ7xeYJkTah4qzRjuo1ZehrCIn2ksysks/XA6Ez2gnH0SnKeMEAVVK+g+Q==}
 
   sax@1.6.0:
     resolution: {integrity: sha512-6R3J5M4AcbtLUdZmRv2SygeVaM7IhrLXu9BmnOGmmACak8fiUtOsYNWUS4uK7upbmHIBbLBeFeI//477BKLBzA==}
@@ -16417,23 +16417,23 @@ snapshots:
 
   '@borewit/text-codec@0.2.2': {}
 
-  '@bruits/satteri-darwin-arm64@0.8.0':
+  '@bruits/satteri-darwin-arm64@0.9.0':
     optional: true
 
-  '@bruits/satteri-darwin-x64@0.8.0':
+  '@bruits/satteri-darwin-x64@0.9.0':
     optional: true
 
-  '@bruits/satteri-linux-x64-gnu@0.8.0':
+  '@bruits/satteri-linux-x64-gnu@0.9.0':
     optional: true
 
-  '@bruits/satteri-wasm32-wasi@0.8.0':
+  '@bruits/satteri-wasm32-wasi@0.9.0':
     dependencies:
       '@emnapi/core': 1.9.1
       '@emnapi/runtime': 1.9.1
-      '@napi-rs/wasm-runtime': 1.1.4(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
+      '@napi-rs/wasm-runtime': 1.1.5(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
     optional: true
 
-  '@bruits/satteri-win32-x64-msvc@0.8.0':
+  '@bruits/satteri-win32-x64-msvc@0.9.0':
     optional: true
 
   '@capsizecss/unpack@4.0.0':
@@ -17821,17 +17821,17 @@ snapshots:
       '@tybys/wasm-util': 0.10.1
     optional: true
 
-  '@napi-rs/wasm-runtime@1.1.4(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)':
-    dependencies:
-      '@emnapi/core': 1.9.1
-      '@emnapi/runtime': 1.9.1
-      '@tybys/wasm-util': 0.10.1
-    optional: true
-
   '@napi-rs/wasm-runtime@1.1.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
       '@emnapi/core': 1.10.0
       '@emnapi/runtime': 1.10.0
+      '@tybys/wasm-util': 0.10.2
+    optional: true
+
+  '@napi-rs/wasm-runtime@1.1.5(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)':
+    dependencies:
+      '@emnapi/core': 1.9.1
+      '@emnapi/runtime': 1.9.1
       '@tybys/wasm-util': 0.10.2
     optional: true
 
@@ -24509,18 +24509,18 @@ snapshots:
     optionalDependencies:
       '@parcel/watcher': 2.5.6
 
-  satteri@0.8.0:
+  satteri@0.9.0:
     dependencies:
       '@types/estree-jsx': 1.0.5
       '@types/hast': 3.0.4
       '@types/mdast': 4.0.4
       '@types/unist': 3.0.3
     optionalDependencies:
-      '@bruits/satteri-darwin-arm64': 0.8.0
-      '@bruits/satteri-darwin-x64': 0.8.0
-      '@bruits/satteri-linux-x64-gnu': 0.8.0
-      '@bruits/satteri-wasm32-wasi': 0.8.0
-      '@bruits/satteri-win32-x64-msvc': 0.8.0
+      '@bruits/satteri-darwin-arm64': 0.9.0
+      '@bruits/satteri-darwin-x64': 0.9.0
+      '@bruits/satteri-linux-x64-gnu': 0.9.0
+      '@bruits/satteri-wasm32-wasi': 0.9.0
+      '@bruits/satteri-win32-x64-msvc': 0.9.0
 
   sax@1.6.0: {}
 
