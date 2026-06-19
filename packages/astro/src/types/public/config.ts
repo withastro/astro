@@ -2965,8 +2965,8 @@ export interface AstroUserConfig<
 	 * @description
 	 *
 	 * Route patterns mapped to cache rules.
-	 * Uses the same `[param]` and `[...rest]` syntax as file-based routing.
-	 * Glob wildcards such as `*` are not supported; use a `[...rest]` parameter to match a group of routes.
+	 * Uses the same `[param]` and `[...rest]` syntax as [file-based routing](/en/guides/routing/#route-priority-order).
+	 * Use a `[...rest]` parameter to match a group of routes:
 	 *
 	 * ```js
 	 * // astro.config.mjs
