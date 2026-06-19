@@ -1,5 +1,5 @@
 ---
-'@astrojs/markdown-satteri': minor
+'@astrojs/markdown-satteri': patch
 '@astrojs/mdx': minor
 ---
 
