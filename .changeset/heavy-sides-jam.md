@@ -38,8 +38,8 @@ You can also set cache rules for groups of routes in your config:
 ```js
 cache: { provider: cacheNetlify() },
 routeRules: {
-  '/products/*': { maxAge: 3600, tags: ['products'] },
-  '/api/*': { maxAge: 60, swr: 600 },
+  '/products/[...slug]': { maxAge: 3600, tags: ['products'] },
+  '/api/[...path]': { maxAge: 60, swr: 600 },
 },
 ```
 
