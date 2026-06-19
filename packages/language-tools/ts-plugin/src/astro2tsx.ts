@@ -57,6 +57,11 @@ export function astro2tsx(input: string, fileName: string) {
 
 function getVirtualFileTSX(input: string, tsx: TSXResult, fileName: string): VirtualCode {
 	tsx.code = patchTSX(tsx.code, fileName);
+	tsx.code = patchFrontmatterReturns(
+		tsx.code,
+		tsx.metaRanges.frontmatter.start,
+		tsx.metaRanges.frontmatter.end,
+	);
 	const v3Mappings = decode(tsx.map.mappings);
 	const sourcedDoc = TextDocument.create(fileName, 'astro', 0, input);
 	const genDoc = TextDocument.create(fileName + '.tsx', 'typescriptreact', 0, tsx.code);
@@ -148,4 +153,267 @@ function patchTSX(code: string, fileName: string) {
 		}
 		return isDynamic ? `_${m1}_` : m1[0].toUpperCase() + m1.slice(1);
 	});
+}
+
+/**
+ * Replace top-level `return` keywords with `throw ` in the frontmatter portion of the TSX.
+ *
+ * Top-level returns are valid in Astro frontmatter (used for SSR early returns) but appear at
+ * module level in the generated TSX where `return` is syntactically invalid. This causes TypeScript
+ * to not track variable references inside the return expression, producing false TS6133 diagnostics.
+ * `throw ` is the same 6-char length as `return`, preserving sourcemap accuracy.
+ */
+function patchFrontmatterReturns(code: string, start: number, end: number): string {
+	const frontmatter = code.substring(start, end);
+	const positions = findTopLevelReturnPositions(frontmatter);
+	if (positions.length === 0) return code;
+
+	let result = code.substring(0, start);
+	let last = 0;
+	for (const pos of positions) {
+		result += frontmatter.substring(last, pos) + 'throw ';
+		last = pos + 6;
+	}
+	return result + frontmatter.substring(last) + code.substring(end);
+}
+
+const JS_KEYWORDS = new Set([
+	'break',
+	'case',
+	'catch',
+	'class',
+	'const',
+	'continue',
+	'debugger',
+	'default',
+	'delete',
+	'do',
+	'else',
+	'export',
+	'extends',
+	'false',
+	'finally',
+	'for',
+	'if',
+	'import',
+	'in',
+	'instanceof',
+	'let',
+	'new',
+	'null',
+	'of',
+	'static',
+	'super',
+	'switch',
+	'this',
+	'throw',
+	'true',
+	'try',
+	'typeof',
+	'var',
+	'void',
+	'while',
+	'with',
+	'yield',
+	'async',
+	'await',
+	'enum',
+]);
+
+/**
+ * Find byte positions of top-level `return` keywords (not inside any function/arrow/method body).
+ */
+function findTopLevelReturnPositions(source: string): number[] {
+	const returns: number[] = [];
+	const len = source.length;
+	let i = 0;
+
+	const functionScopeStack: number[] = [];
+	let braceDepth = 0;
+	let parenDepth = 0;
+	let expectingFunctionBody = false;
+	let parenDepthAtFunctionStart = -1;
+	let identParenDepth = -1;
+	let wentThroughParens = false;
+
+	while (i < len) {
+		const ch = source.charCodeAt(i);
+
+		// Skip whitespace
+		if (ch === 32 || ch === 9 || ch === 10 || ch === 13) {
+			i++;
+			continue;
+		}
+
+		// Skip string literals
+		if (ch === 34 || ch === 39 || ch === 96) {
+			i = skipStringLiteral(source, i);
+			expectingFunctionBody = false;
+			identParenDepth = -1;
+			wentThroughParens = false;
+			continue;
+		}
+
+		// Skip comments
+		if (ch === 47 && i + 1 < len) {
+			const next = source.charCodeAt(i + 1);
+			if (next === 47) {
+				while (i < len && source.charCodeAt(i) !== 10) i++;
+				continue;
+			}
+			if (next === 42) {
+				i += 2;
+				while (i < len - 1 && !(source.charCodeAt(i) === 42 && source.charCodeAt(i + 1) === 47))
+					i++;
+				i += 2;
+				continue;
+			}
+		}
+
+		if (ch === 40) {
+			parenDepth++;
+			i++;
+			continue;
+		} // (
+		if (ch === 41) {
+			// )
+			parenDepth--;
+			if (parenDepthAtFunctionStart >= 0 && parenDepth === parenDepthAtFunctionStart) {
+				expectingFunctionBody = true;
+				parenDepthAtFunctionStart = -1;
+			}
+			if (identParenDepth >= 0 && parenDepth === identParenDepth) {
+				wentThroughParens = true;
+			}
+			i++;
+			continue;
+		}
+
+		// =>
+		if (ch === 61 && i + 1 < len && source.charCodeAt(i + 1) === 62) {
+			expectingFunctionBody = true;
+			identParenDepth = -1;
+			wentThroughParens = false;
+			i += 2;
+			continue;
+		}
+
+		// ; resets arrow expectation for concise arrow bodies like `=> expr;`
+		if (ch === 59) {
+			expectingFunctionBody = false;
+			identParenDepth = -1;
+			wentThroughParens = false;
+			i++;
+			continue;
+		}
+
+		if (ch === 123) {
+			// {
+			if (expectingFunctionBody || wentThroughParens) {
+				functionScopeStack.push(braceDepth);
+				expectingFunctionBody = false;
+			}
+			braceDepth++;
+			identParenDepth = -1;
+			wentThroughParens = false;
+			i++;
+			continue;
+		}
+		if (ch === 125) {
+			// }
+			braceDepth--;
+			if (
+				functionScopeStack.length > 0 &&
+				braceDepth === functionScopeStack[functionScopeStack.length - 1]
+			) {
+				functionScopeStack.pop();
+			}
+			identParenDepth = -1;
+			wentThroughParens = false;
+			i++;
+			continue;
+		}
+
+		if (ch === 91 || ch === 93) {
+			i++;
+			continue;
+		} // [ ]
+
+		// Identifiers and keywords
+		if (isIdentStart(ch)) {
+			const start = i;
+			while (i < len && isIdentPart(source.charCodeAt(i))) i++;
+			const word = source.substring(start, i);
+
+			if (word === 'return') {
+				if (functionScopeStack.length === 0) returns.push(start);
+				expectingFunctionBody = false;
+			} else if (word === 'function') {
+				parenDepthAtFunctionStart = parenDepth;
+				identParenDepth = -1;
+				wentThroughParens = false;
+			} else if (!JS_KEYWORDS.has(word)) {
+				identParenDepth = parenDepth;
+				wentThroughParens = false;
+			} else {
+				identParenDepth = -1;
+				wentThroughParens = false;
+				expectingFunctionBody = false;
+			}
+			continue;
+		}
+
+		identParenDepth = -1;
+		i++;
+	}
+
+	return returns;
+}
+
+function skipStringLiteral(source: string, start: number): number {
+	const quote = source.charCodeAt(start);
+	let i = start + 1;
+	const len = source.length;
+	if (quote === 96) {
+		// template literal
+		let depth = 0;
+		while (i < len) {
+			const ch = source.charCodeAt(i);
+			if (ch === 92) {
+				i += 2;
+				continue;
+			} // backslash escape
+			if (ch === 36 && i + 1 < len && source.charCodeAt(i + 1) === 123) {
+				depth++;
+				i += 2;
+				continue;
+			} // ${
+			if (ch === 125 && depth > 0) {
+				depth--;
+				i++;
+				continue;
+			} // }
+			if (ch === 96 && depth === 0) return i + 1;
+			i++;
+		}
+	} else {
+		while (i < len) {
+			const ch = source.charCodeAt(i);
+			if (ch === 92) {
+				i += 2;
+				continue;
+			}
+			if (ch === quote) return i + 1;
+			i++;
+		}
+	}
+	return i;
+}
+
+function isIdentStart(ch: number): boolean {
+	return (ch >= 97 && ch <= 122) || (ch >= 65 && ch <= 90) || ch === 95 || ch === 36;
+}
+
+function isIdentPart(ch: number): boolean {
+	return isIdentStart(ch) || (ch >= 48 && ch <= 57);
 }
