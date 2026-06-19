@@ -108,7 +108,7 @@ const FILES_TO_UPDATE = {
 export function generateAgentsMd(): string {
 	return `## Development
 
-Start the dev server in background mode:
+When starting the dev server, use background mode:
 
 \`\`\`
 astro dev --background
