@@ -1,0 +1,12 @@
+---
+const params = Astro.params;
+if (params.page && params.page.includes('not-found')) {
+    return new Response(null, { status: 404 });
+}
+---
+
+<html>
+<body>
+    <h1>{new Date()}</h1>
+</body>
+</html> 

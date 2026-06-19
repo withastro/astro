@@ -1,0 +1,18 @@
+/**
+ * NOTE: this is a public module exposed to the user, so all functions exposed
+ * here must be documented via JsDoc and in the docs website.
+ *
+ * If some functions don't need to be exposed, just import the file that contains the functions.
+ */
+
+export {
+	isRemoteAllowed,
+	matchPattern,
+	type RemotePattern,
+} from '@astrojs/internal-helpers/remote';
+export { emitClientAsset } from './assets.js';
+export { isESMImportedImage, isRemoteImage, resolveSrc } from './imageKind.js';
+export { imageMetadata } from './metadata.js';
+export { getOrigQueryParams } from './queryParams.js';
+export { inferRemoteSize } from './remoteProbe.js';
+export { fetchWithRedirects } from './redirectValidation.js';

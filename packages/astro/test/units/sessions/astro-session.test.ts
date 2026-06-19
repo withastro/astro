@@ -1,0 +1,655 @@
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { stringify as devalueStringify } from 'devalue';
+import driverFactory from 'unstorage/drivers/memory';
+import type { Storage } from 'unstorage';
+import { AstroSession, PERSIST_SYMBOL } from '../../../dist/core/session/runtime.js';
+import type { SSRManifestSession } from '../../../dist/core/app/types.js';
+import type { RuntimeMode } from '../../../dist/types/public/config.js';
+import type {
+	AstroCookieSetOptions,
+	AstroCookieDeleteOptions,
+} from '../../../dist/core/cookies/cookies.js';
+import type { SessionDriverFactory } from '../../../dist/core/session/types.js';
+
+// #region Helpers
+
+/** Minimal cookie interface used by AstroSession. */
+interface MockCookies {
+	set(key: string, value: string, options?: AstroCookieSetOptions): void;
+	delete(key: string, options?: AstroCookieDeleteOptions): void;
+	get(key: string): { value: string } | undefined;
+}
+
+const defaultMockCookies: MockCookies = {
+	set: () => {},
+	delete: () => {},
+	get: () => ({ value: 'sessionid' }),
+};
+
+const stringify = (data: unknown) => JSON.parse(devalueStringify(data));
+
+const defaultConfig: SSRManifestSession = {
+	driver: 'memory',
+	cookie: 'test-session',
+	ttl: 60,
+};
+
+function createSession(
+	config: SSRManifestSession = defaultConfig,
+	cookies: MockCookies = defaultMockCookies,
+	mockStorage: Storage | null = null,
+	runtimeMode: RuntimeMode = 'production',
+) {
+	// driverFactory from unstorage/drivers/memory accepts no config; wrap it to satisfy SessionDriverFactory
+	const typedDriverFactory: SessionDriverFactory = () => driverFactory();
+	return new AstroSession({
+		cookies: cookies as any, // MockCookies satisfies the methods AstroSession uses; AstroCookies has private fields
+		config,
+		runtimeMode,
+		driverFactory: typedDriverFactory,
+		mockStorage,
+	});
+}
+
+// #endregion
+
+// #region Basic Operations
+describe('AstroSession - Basic Operations', () => {
+	it('should set and get a value', async () => {
+		const session = createSession();
+
+		session.set('user', { id: 1, name: 'Test User' });
+		const user = await session.get('user');
+
+		assert.deepEqual(user, { id: 1, name: 'Test User' });
+	});
+
+	it('should check if value exists', async () => {
+		const session = createSession();
+
+		session.set('key', 'value');
+		const exists = await session.has('key');
+		const notExists = await session.has('nonexistent');
+
+		assert.equal(exists, true);
+		assert.equal(notExists, false);
+	});
+
+	it('should delete a value', async () => {
+		const session = createSession();
+
+		session.set('key', 'value');
+		session.delete('key');
+		const value = await session.get('key');
+
+		assert.equal(value, undefined);
+	});
+
+	it('should list all keys', async () => {
+		const session = createSession();
+
+		session.set('key1', 'value1');
+		session.set('key2', 'value2');
+		const keys = await session.keys();
+
+		assert.deepEqual([...keys], ['key1', 'key2']);
+	});
+});
+
+// #endregion
+
+// #region Cookie Management
+describe('AstroSession - Cookie Management', () => {
+	it('should set cookie on first value set', async () => {
+		let cookieSet = false;
+		const mockCookies: MockCookies = {
+			...defaultMockCookies,
+			set: () => {
+				cookieSet = true;
+			},
+		};
+
+		const session = createSession(defaultConfig, mockCookies);
+		session.set('key', 'value');
+
+		assert.equal(cookieSet, true);
+	});
+
+	it('should delete cookie on destroy', async () => {
+		let cookieDeletedArgs: AstroCookieDeleteOptions | undefined;
+		let cookieDeletedName: string | undefined;
+		const mockCookies: MockCookies = {
+			...defaultMockCookies,
+			delete: (name: string, args?: AstroCookieDeleteOptions) => {
+				cookieDeletedName = name;
+				cookieDeletedArgs = args;
+			},
+		};
+
+		const session = createSession(defaultConfig, mockCookies);
+		session.destroy();
+		assert.equal(cookieDeletedName, 'test-session');
+		assert.equal(cookieDeletedArgs?.path, '/');
+	});
+});
+
+// #endregion
+
+// #region Session Regeneration
+describe('AstroSession - Session Regeneration', () => {
+	it('should preserve data when regenerating session', async () => {
+		const session = createSession();
+
+		session.set('key', 'value');
+		await session.regenerate();
+		const value = await session.get('key');
+
+		assert.equal(value, 'value');
+	});
+
+	it('should generate new session ID on regeneration', async () => {
+		const session = createSession();
+		const initialId = await session.sessionID;
+
+		await session.regenerate();
+		const newId = await session.sessionID;
+
+		assert.notEqual(initialId, newId);
+	});
+
+	it('should persist data after regeneration without a subsequent set()', async () => {
+		const store = new Map<string, string>();
+		const mockStorage = {
+			get: async (key: string) => {
+				const raw = store.get(key);
+				return raw ? JSON.parse(raw) : null;
+			},
+			setItem: async (key: string, value: string) => {
+				store.set(key, value);
+			},
+			removeItem: async (key: string) => {
+				store.delete(key);
+			},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+
+		session.set('user', 'alice');
+		await session[PERSIST_SYMBOL]();
+
+		await session.regenerate();
+		await session[PERSIST_SYMBOL]();
+
+		// Create a new session that reads from the same storage
+		const newSession = createSession(
+			defaultConfig,
+			{
+				...defaultMockCookies,
+				get: () => ({ value: String(session.sessionID) }),
+			},
+			mockStorage,
+		);
+
+		const value = await newSession.get('user');
+		assert.equal(value, 'alice');
+	});
+});
+
+// #endregion
+
+// #region Data Persistence
+describe('AstroSession - Data Persistence', () => {
+	it('should persist data to storage', async () => {
+		let storedData: string | undefined;
+		const mockStorage = {
+			get: async () => null,
+			setItem: async (_key: string, value: string) => {
+				storedData = value;
+			},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+
+		session.set('key', 'value');
+		await session[PERSIST_SYMBOL]();
+
+		assert.ok(storedData?.includes('value'));
+	});
+
+	it('should load data from storage', async () => {
+		const mockStorage = {
+			get: async () => stringify(new Map([['key', { data: 'value' }]])),
+			setItem: async () => {},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+
+		const value = await session.get('key');
+		assert.equal(value, 'value');
+	});
+
+	it('should remove expired session data', async () => {
+		const mockStorage = {
+			get: async () => stringify(new Map([['key', { data: 'value', expires: -1 }]])),
+			setItem: async () => {},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+
+		const value = await session.get('key');
+
+		assert.equal(value, undefined);
+	});
+});
+
+// #endregion
+
+// #region Error Handling
+describe('AstroSession - Error Handling', () => {
+	it('should throw error when setting invalid data', async () => {
+		const session = createSession();
+
+		assert.throws(() => session.set('key', { fun: function () {} }), /could not be serialized/);
+	});
+
+	it('should throw error when setting empty key', async () => {
+		const session = createSession();
+
+		assert.throws(() => session.set('', 'value'), /key was not provided/);
+	});
+
+	it('should handle corrupted storage data', async () => {
+		const mockStorage = {
+			get: async () => 'invalid-json',
+			setItem: async () => {},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+
+		await assert.rejects(async () => await session.get('key'), /could not be parsed/);
+	});
+});
+
+// #endregion
+
+// #region Configuration
+describe('AstroSession - Configuration', () => {
+	it('should use custom cookie name from config', async () => {
+		let cookieName: string | undefined;
+		const mockCookies: MockCookies = {
+			...defaultMockCookies,
+			set: (name: string) => {
+				cookieName = name;
+			},
+		};
+
+		const session = createSession(
+			{
+				...defaultConfig,
+				cookie: 'custom-session',
+			},
+			mockCookies,
+		);
+
+		session.set('key', 'value');
+		assert.equal(cookieName, 'custom-session');
+	});
+
+	it('should use default cookie name if not specified', async () => {
+		let cookieName: string | undefined;
+		const mockCookies: MockCookies = {
+			...defaultMockCookies,
+			set: (name: string) => {
+				cookieName = name;
+			},
+		};
+
+		const session = createSession(
+			{
+				...defaultConfig,
+				// @ts-ignore — intentionally testing undefined cookie name fallback
+				cookie: undefined,
+			},
+			mockCookies,
+		);
+
+		session.set('key', 'value');
+		assert.equal(cookieName, 'astro-session');
+	});
+});
+
+// #endregion
+
+// #region Sparse Data Operations
+describe('AstroSession - Sparse Data Operations', () => {
+	it('should handle multiple operations in sparse mode', async () => {
+		const existingData = stringify(
+			new Map([
+				['keep', { data: 'original' }],
+				['delete', { data: 'remove' }],
+				['update', { data: 'old' }],
+			]),
+		);
+
+		const mockStorage = {
+			get: async () => existingData,
+			setItem: async () => {},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+
+		// Mixed operations
+		session.delete('delete');
+		session.set('update', 'new');
+		session.set('new', 'value');
+
+		// Verify each operation type
+		assert.equal(await session.get('keep'), 'original');
+		assert.equal(await session.get('delete'), undefined);
+		assert.equal(await session.get('update'), 'new');
+		assert.equal(await session.get('new'), 'value');
+	});
+
+	it('should persist deleted state across multiple operations', async () => {
+		const existingData = stringify(new Map([['key', 'value']]));
+		const mockStorage = {
+			get: async () => existingData,
+			setItem: async () => {},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+
+		session.delete('key');
+
+		// Multiple gets should all return undefined
+		assert.equal(await session.get('key'), undefined);
+		assert.equal(await session.has('key'), false);
+
+		// Setting a different key shouldn't affect the deleted state
+		session.set('other', 'value');
+		assert.equal(await session.get('key'), undefined);
+	});
+
+	it('should maintain deletion after persistence', async () => {
+		let storedData: string | undefined;
+		const mockStorage = {
+			get: async () => storedData ?? stringify(new Map([['key', 'value']])),
+			setItem: async (_key: string, value: string) => {
+				storedData = value;
+			},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+
+		session.delete('key');
+		await session[PERSIST_SYMBOL]();
+
+		// Create a new session using the stored data (get must return parsed JSON like unstorage)
+		const newSession = createSession(defaultConfig, defaultMockCookies, {
+			get: async () => (storedData != null ? JSON.parse(storedData) : null),
+			setItem: async () => {},
+		} as unknown as Storage);
+
+		assert.equal(await newSession.get('key'), undefined);
+	});
+
+	it('should persist delete as the first mutation (no prior get/set)', async () => {
+		const store = new Map<string, string>();
+		const sessionId = 'sessionid';
+		store.set(sessionId, devalueStringify(new Map([['token', { data: 'secret' }]])));
+
+		const mockStorage = {
+			get: async (key: string) => {
+				const raw = store.get(key);
+				return raw ? JSON.parse(raw) : null;
+			},
+			setItem: async (key: string, value: string) => {
+				store.set(key, value);
+			},
+			removeItem: async (key: string) => {
+				store.delete(key);
+			},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+		session.delete('token');
+		await session[PERSIST_SYMBOL]();
+
+		const newSession = createSession(defaultConfig, defaultMockCookies, mockStorage);
+		assert.equal(await newSession.get('token'), undefined);
+	});
+
+	it('should update existing values in sparse mode', async () => {
+		const existingData = stringify(new Map([['key', 'old']]));
+		const mockStorage = {
+			get: async () => existingData,
+			setItem: async () => {},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+
+		session.set('key', 'new');
+		assert.equal(await session.get('key'), 'new');
+
+		// Verify through keys() as well
+		const keys = await session.keys();
+		assert.deepEqual([...keys], ['key']);
+	});
+});
+
+// #endregion
+
+// #region Cleanup Operations
+describe('AstroSession - Cleanup Operations', () => {
+	it('should clean up destroyed sessions on persist', async () => {
+		const removedKeys = new Set<string>();
+		const mockStorage = {
+			get: async () => stringify(new Map([['key', 'value']])),
+			setItem: async () => {},
+			removeItem: async (key: string) => {
+				removedKeys.add(key);
+			},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+
+		// Set up session
+		session.set('key', 'value');
+		const oldId = session.sessionID;
+
+		// Destroy it
+		session.destroy();
+
+		// Simulate end of request
+		await session[PERSIST_SYMBOL]();
+
+		assert.ok(removedKeys.has(String(oldId)), `Session ${oldId} should be removed`);
+	});
+
+	it("should destroy sessions that haven't been loaded", async () => {
+		const removedKeys = new Set<string>();
+		const mockStorage = {
+			get: async () => stringify(new Map([['key', 'value']])),
+			setItem: async () => {},
+			removeItem: async (key: string) => {
+				removedKeys.add(key);
+			},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+		session.destroy();
+
+		// Simulate end of request
+		await session[PERSIST_SYMBOL]();
+		assert.equal(removedKeys.size, 1, `Session should be removed`);
+	});
+});
+
+// #endregion
+
+// #region Cookie Security
+describe('AstroSession - Cookie Security', () => {
+	it('should enforce httpOnly cookie setting', async () => {
+		let cookieOptions: AstroCookieSetOptions | undefined;
+		const mockCookies: MockCookies = {
+			...defaultMockCookies,
+			set: (_name: string, _value: string, options?: AstroCookieSetOptions) => {
+				cookieOptions = options;
+			},
+		};
+
+		const session = createSession(
+			{
+				...defaultConfig,
+				// @ts-expect-error — intentionally testing that AstroSession ignores httpOnly: false
+				// and always enforces httpOnly: true regardless of user config
+				cookie: { httpOnly: false },
+			},
+			mockCookies,
+		);
+
+		session.set('key', 'value');
+		assert.equal(cookieOptions?.httpOnly, true);
+	});
+
+	it('should set secure and sameSite by default in production', async () => {
+		let cookieOptions: AstroCookieSetOptions | undefined;
+		const mockCookies: MockCookies = {
+			...defaultMockCookies,
+			set: (_name: string, _value: string, options?: AstroCookieSetOptions) => {
+				cookieOptions = options;
+			},
+		};
+
+		const session = createSession(defaultConfig, mockCookies);
+
+		session.set('key', 'value');
+		assert.equal(cookieOptions?.secure, true);
+		assert.equal(cookieOptions?.sameSite, 'lax');
+	});
+
+	it('should set secure to false in development', async () => {
+		let cookieOptions: AstroCookieSetOptions | undefined;
+		const mockCookies: MockCookies = {
+			...defaultMockCookies,
+			set: (_name: string, _value: string, options?: AstroCookieSetOptions) => {
+				cookieOptions = options;
+			},
+		};
+
+		const session = createSession(defaultConfig, mockCookies, null, 'development');
+
+		session.set('key', 'value');
+		assert.equal(cookieOptions?.secure, false);
+		assert.equal(cookieOptions?.sameSite, 'lax');
+	});
+});
+
+// #endregion
+
+// #region Storage Errors
+describe('AstroSession - Storage Errors', () => {
+	it('should handle storage setItem failures', async () => {
+		const mockStorage = {
+			get: async () => stringify(new Map()),
+			setItem: async () => {
+				throw new Error('Storage full');
+			},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+		session.set('key', 'value');
+
+		await assert.rejects(async () => await session[PERSIST_SYMBOL](), /Storage full/);
+	});
+
+	it('should handle invalid Map data', async () => {
+		const mockStorage = {
+			get: async () => stringify({ notAMap: true }),
+			setItem: async () => {},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+
+		await assert.rejects(
+			async () => await session.get('key'),
+			/The session data was an invalid type/,
+		);
+	});
+});
+
+// #endregion Storage Errors
+
+// #region No-Cookie Short Circuit
+describe('AstroSession - No-Cookie Short Circuit', () => {
+	it('should not initialize the storage driver or read when no session cookie is present', async () => {
+		let driverInitCount = 0;
+		const countingDriverFactory: SessionDriverFactory = () => {
+			driverInitCount++;
+			return driverFactory();
+		};
+
+		const noCookieMock: MockCookies = {
+			set: () => {},
+			delete: () => {},
+			get: () => undefined,
+		};
+
+		// Use a unique driver name so the static #sharedStorage cache from
+		// earlier tests can't mask a regression.
+		const session = new AstroSession({
+			cookies: noCookieMock as any,
+			config: { ...defaultConfig, driver: 'no-cookie-test' },
+			runtimeMode: 'production',
+			driverFactory: countingDriverFactory,
+			mockStorage: null,
+		});
+
+		const value = await session.get('nonexistent');
+		assert.equal(value, undefined);
+		assert.equal(driverInitCount, 0, 'Driver factory should never have been called');
+	});
+
+	it('should read from storage when session cookie is present', async () => {
+		let storageReadCount = 0;
+		const mockStorage = {
+			get: async () => {
+				storageReadCount++;
+				return stringify(new Map([['user', { data: 'alice' }]]));
+			},
+			setItem: async () => {},
+		} as unknown as Storage;
+
+		const withCookieMock: MockCookies = {
+			set: () => {},
+			delete: () => {},
+			get: (name: string) => {
+				if (name === 'test-session') return { value: 'existing-session-id' };
+				return undefined;
+			},
+		};
+
+		const session = createSession(defaultConfig, withCookieMock, mockStorage);
+
+		const value = await session.get('user');
+		assert.equal(value, 'alice');
+		assert.equal(storageReadCount, 1, 'Storage should have been read once');
+	});
+
+	it('should allow set() then get() without a cookie (new session)', async () => {
+		const noCookieMock: MockCookies = {
+			set: () => {},
+			delete: () => {},
+			get: () => undefined,
+		};
+
+		const session = createSession(defaultConfig, noCookieMock);
+
+		session.set('key', 'expected');
+		const value = await session.get('key');
+		assert.equal(value, 'expected');
+	});
+});
+
+// #endregion No-Cookie Short Circuit

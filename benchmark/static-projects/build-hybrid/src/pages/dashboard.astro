@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+export const prerender = false;
+
+const timestamp = new Date().toISOString();
+const randomValue = Math.random();
+---
+
+<BaseLayout title="Dashboard - Hybrid Site">
+	<h1>Dashboard (Server-Rendered)</h1>
+	<p>This page is rendered on-demand for each request.</p>
+	<dl>
+		<dt>Server Time:</dt>
+		<dd>{timestamp}</dd>
+		<dt>Random Value:</dt>
+		<dd>{randomValue}</dd>
+	</dl>
+	<section>
+		<h2>Stats</h2>
+		<ul>
+			{
+				Array.from({ length: 20 }, (_, i) => (
+					<li>
+						Stat {i + 1}: {Math.floor(Math.random() * 1000)}
+					</li>
+				))
+			}
+		</ul>
+	</section>
+</BaseLayout>

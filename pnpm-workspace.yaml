@@ -1,0 +1,99 @@
+packages:
+  - 'packages/**/*'
+  - 'packages/astro/test/units/_temp-fixtures'
+  - 'examples/**/*'
+  - 'triage/*'
+  - 'smoke/**/*'
+  - 'temp/*'
+  - 'scripts'
+  - 'benchmark'
+  - 'benchmark/packages/*'
+  - 'benchmark/static-projects/*'
+  # Below excludes are only for Turbo because it doesn't respect gitignore like pnpm does
+  - '!packages/astro/test/units/_temp-fixtures/*'
+  - '!**/.vercel/**'
+
+# Important! Never install `astro` even when new version is in registry
+preferWorkspacePackages: true
+linkWorkspacePackages: true
+saveWorkspaceProtocol: false # This prevents the examples to have the `workspace:` prefix
+autoInstallPeers: false
+dedupePeers: true
+
+overrides:
+  # If a dependency has a peer dependency on `@types/node` and the version range accepts `22`,
+  # we force it to resolve to `^22.19.0`. This helps reduce the number of duplicate packages
+  # in `node_modules/`.
+  #
+  # For example, `vite@7.3.2` has a peer dependency `"@types/node": "^20.19.0 || >=22.12.0"`.
+  # pnpm could install the same `vite@7.3.2` multiple times, one with `@types/node@20`, one
+  # with `@types/node@22`, one with `@types/node@25`, etc.. By adding this override, we force
+  # pnpm to only keep one installation of `vite@7.3.2` with `@types/node@22`.
+  '@types/node@22': '^22.19.0'
+
+# Wait until three days after release to install new versions of packages
+minimumReleaseAge: 4320
+minimumReleaseAgeExclude:
+  # 'fake-data-pkg' is a local package used for testing
+  - 'fake-data-pkg@1.0.0'
+  # TODO: remove once more stable
+  - '@flue/*'
+  - '@astrojs/*'
+  - '@cloudflare/*'
+  - workerd
+  - miniflare
+  - wrangler
+  - 'satteri'
+  - '@bruits/*'
+  - '@napi-rs/wasm-runtime@1.1.5'
+peerDependencyRules:
+  allowAny:
+    - 'astro'
+    - 'vite'
+
+patchedDependencies:
+  '@changesets/get-github-info@0.7.0': patches/@changesets__get-github-info@0.7.0.patch
+
+# Prevent installation of packages where trust level decreases
+trustPolicy: 'no-downgrade'
+trustPolicyExclude:
+  # Netlify dependency they need to update: https://github.com/netlify/primitives/pull/585
+  - 'chokidar@4.0.3'
+  # Netlify packages that do not have trusted publishing enabled on npm
+  # TODO: Remove once trusted publishing is enabled. Netlify are working on it.
+  - '@netlify/edge-bundler@14.10.2||14.10.1'
+  - '@netlify/zip-it-and-ship-it@14.5.6'
+  - '@netlify/serverless-functions-api@2.15.1'
+  # Outdated dependencies of @vitejs/plugin-react@^5 and @vscode/vsce
+  # TODO: Update the Vite plugin to ^6 in Astro v7 and remove this
+  - 'semver@6.3.1 || 5.7.2'
+  # Old dependency of @types/node@22
+  # TODO: Remove when dropping support for Node 22
+  - undici-types@6.21.0
+  # 'fake-data-pkg' is a local package used for testing
+  - 'fake-data-pkg@1.0.0'
+  # Dependencies in the docs repo that gets cloned for smoke tests
+  - 'undici@5.29.0'
+  - 'algoliasearch@4.27.0'
+  - '@algolia/client-analytics@4.27.0'
+  - '@algolia/recommend@4.27.0'
+  - '@algolia/client-search@4.27.0'
+  - '@algolia/requester-browser-xhr@4.27.0'
+  - '@algolia/requester-node-http@4.27.0'
+  - '@algolia/client-common@4.27.0'
+  - '@algolia/logger-console@4.27.0'
+  - '@algolia/client-personalization@4.27.0'
+
+# Control whether packages can run postinstall scripts. We disallow this to avoid the security risk
+# of running third-party code on install.
+allowBuilds:
+  '@google/genai': false
+  '@mongodb-js/zstd': false
+  '@parcel/watcher': false
+  '@vscode/vsce-sign': false
+  esbuild: false
+  keytar: false
+  node-liblzma: false
+  protobufjs: false
+  sharp: false
+  workerd: false

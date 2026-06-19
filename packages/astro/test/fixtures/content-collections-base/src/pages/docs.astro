@@ -1,0 +1,17 @@
+---
+import { getEntry, render } from 'astro:content';
+const entry = await getEntry('docs', 'one');
+const { Content } = await render(entry);
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>It's content time!</title>
+  </head>
+  <body>
+    <main>
+			<Content />
+    </main>
+  </body>
+</html>

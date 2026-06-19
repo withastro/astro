@@ -1,0 +1,6 @@
+{
+  "extends": "../../../../configs/tsconfig.test.json",
+  "include": ["."],
+  "exclude": ["node_modules/", "fixture/", "check/fixture/"],
+  "references": [{ "path": "../../../astro/tsconfig.test.json" }]
+}

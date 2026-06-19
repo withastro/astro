@@ -1,0 +1,6 @@
+// Separate tsconfig needed: verifies the Astro-wrapped Svelte component type
+// is assignable to svelte.Component, as required by @testing-library/svelte render().
+{
+  "extends": "./tsconfig.json",
+  "include": ["types/testing-library"]
+}

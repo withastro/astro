@@ -1,0 +1,95 @@
+{
+  "name": "@astrojs/internal-helpers",
+  "description": "Internal helpers used by core Astro packages.",
+  "version": "0.10.0",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/internal-helpers"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "exports": {
+    "./path": "./dist/path.js",
+    "./remote": "./dist/remote.js",
+    "./fs": "./dist/fs.js",
+    "./cli": "./dist/cli.js",
+    "./create-filter": "./dist/create-filter.js",
+    "./request": "./dist/request.js",
+    "./object": "./dist/object.js",
+    "./markdown": "./dist/markdown.js",
+    "./frontmatter": "./dist/frontmatter.js",
+    "./shiki": "./dist/shiki.js"
+  },
+  "imports": {
+    "#shiki-engine": {
+      "workerd": "./dist/shiki-engine-workerd.js",
+      "default": "./dist/shiki-engine-default.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "path": [
+        "./dist/path.d.ts"
+      ],
+      "remote": [
+        "./dist/remote.d.ts"
+      ],
+      "markdown": [
+        "./dist/markdown.d.ts"
+      ],
+      "frontmatter": [
+        "./dist/frontmatter.d.ts"
+      ],
+      "shiki": [
+        "./dist/shiki.d.ts"
+      ],
+      "fs": [
+        "./dist/fs.d.ts"
+      ],
+      "cli": [
+        "./dist/cli.d.ts"
+      ],
+      "create-filter": [
+        "./dist/create-filter.d.ts"
+      ],
+      "object": [
+        "./dist/object.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepublish": "pnpm build",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@types/hast": "^3.0.4",
+    "@types/mdast": "^4.0.4",
+    "js-yaml": "^4.1.1",
+    "picomatch": "^4.0.4",
+    "retext-smartypants": "^6.2.0",
+    "shiki": "^4.0.2",
+    "smol-toml": "^1.6.0",
+    "unified": "^11.0.5"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/picomatch": "^4.0.2",
+    "astro-scripts": "workspace:*"
+  },
+  "keywords": [
+    "astro",
+    "astro-component"
+  ],
+  "publishConfig": {
+    "provenance": true
+  }
+}

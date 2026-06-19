@@ -1,0 +1,51 @@
+---
+export const prerender = false; // Not needed with 'server' output
+const cart = await Astro.session?.get('cart');
+let user = await Astro.session?.get('user');
+
+if(Astro.request.method === 'POST') {
+	const data = await Astro.request.formData();
+	const newId = data.get('id');
+	const newName = data.get('name');
+
+	if(newId && newName) {
+		user = {
+			id: newId,
+			name: newName
+		};
+		Astro.session?.set('user', user);
+	}
+}
+---
+
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Sessions</title>
+	</head>
+	<body>
+		<h1>Sessions</h1>
+		<h2>Cart</h2>
+		<p>
+			<a href="/checkout">🛒 {cart?.length ?? 0} items</a>
+		</p>
+
+		<h2>User</h2>
+		<p>Id: {user?.id}</p>
+		<p>Name: {user?.name}</p>
+
+		<form method="post">
+			<h3>Change</h3>
+			<input type="text" name="id" value={user?.id} />
+			<input type="text" name="name" value={user?.name} />
+			<input type="submit" value="Submit" />
+		</form>
+	</body>
+</html>
+
+<style>
+	body {
+		background: peru;
+	}
+</style>
+
