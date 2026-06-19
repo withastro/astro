@@ -1,6 +1,6 @@
 import type { HoistedScript, TransformResult } from '@astrojs/compiler-rs';
-import type { CompileCssResult } from '../core/compile/types.js';
-import type { PropagationHint } from '../types/public/internal.js';
+import type { CompileCssResult } from '../compile/types.js';
+import type { PropagationHint } from '../types.js';
 
 interface PageOptions {
 	prerender?: boolean;
@@ -8,7 +8,7 @@ interface PageOptions {
 
 export type AstroComponent = TransformResult['hydratedComponents'][number];
 
-export interface PluginMetadata {
+export interface AstroPluginMetadata {
 	astro: {
 		hydratedComponents: TransformResult['hydratedComponents'];
 		clientOnlyComponents: TransformResult['clientOnlyComponents'];

@@ -8,8 +8,7 @@ import { getTopLevelPageModuleInfos } from '../core/build/graph.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import { PROPAGATED_ASSET_FLAG } from '../content/consts.js';
 import type { SSRComponentMetadata, SSRResult } from '../types/public/internal.js';
-import { getAstroMetadata } from '../vite-plugin-astro/index.js';
-import type { PluginMetadata } from '../vite-plugin-astro/types.js';
+import { getAstroMetadata, type AstroPluginMetadata } from 'vite-plugin-astro';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 /**
@@ -83,8 +82,8 @@ export default function configHeadVitePlugin(): vite.Plugin {
 	}
 
 	function propagateMetadata<
-		P extends keyof PluginMetadata['astro'],
-		V extends PluginMetadata['astro'][P],
+		P extends keyof AstroPluginMetadata['astro'],
+		V extends AstroPluginMetadata['astro'][P],
 	>(
 		this: { getModuleInfo(id: string): vite.Rolldown.ModuleInfo | null },
 		seed: string,

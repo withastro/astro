@@ -10,7 +10,7 @@ import { isMarkdownFile, isPage } from '../core/util.js';
 import { normalizePath } from '../core/viteUtils.js';
 import { shorthash } from '../runtime/server/shorthash.js';
 import type { AstroSettings } from '../types/astro.js';
-import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
+import { createDefaultAstroMetadata } from 'vite-plugin-astro';
 import { getFileInfo, specialQueriesRE } from '../vite-plugin-utils/index.js';
 import { getMarkdownCodeForImages, type MarkdownImagePath } from './images.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../core/constants.js';

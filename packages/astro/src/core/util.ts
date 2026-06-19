@@ -1,16 +1,16 @@
-import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { RouteData } from '../types/public/internal.js';
-import { hasSpecialQueries } from '../vite-plugin-utils/index.js';
+import { specialQueriesRE } from '../vite-plugin-utils/index.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
-import { removeQueryString, removeTrailingForwardSlash, slash } from './path.js';
+import { removeQueryString, removeTrailingForwardSlash } from './path.js';
+
+export { viteID } from '@astrojs/internal-helpers/vite';
 
 /** Check if a file is a markdown file based on its extension */
 export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
-	if (hasSpecialQueries(fileId)) {
+	if (specialQueriesRE.test(fileId)) {
 		return false;
 	}
 	const id = removeQueryString(fileId);
@@ -72,16 +72,6 @@ export function parseNpmName(
 		name,
 		subpath,
 	};
-}
-
-/**
- * Convert file URL to ID for environment.moduleGraph.idToModuleMap.get(:viteID)
- * Format:
- *   Linux/Mac:  /Users/astro/code/my-project/src/pages/index.astro
- *   Windows:    C:/Users/astro/code/my-project/src/pages/index.astro
- */
-export function viteID(filePath: URL): string {
-	return slash(fileURLToPath(filePath) + filePath.search);
 }
 
 export const VALID_ID_PREFIX = `/@id/`;
@@ -159,16 +149,6 @@ export function isEndpoint(file: URL, settings: AstroSettings): boolean {
 	if (!isInPagesDir(file, settings.config) && !isInjectedRoute(file, settings)) return false;
 	if (!isPublicRoute(file, settings.config)) return false;
 	return !endsWithPageExt(file, settings) && !file.toString().includes('?astro');
-}
-
-export function resolveJsToTs(filePath: string) {
-	if (filePath.endsWith('.jsx') && !fs.existsSync(filePath)) {
-		const tryPath = filePath.slice(0, -4) + '.tsx';
-		if (fs.existsSync(tryPath)) {
-			return tryPath;
-		}
-	}
-	return filePath;
 }
 
 /**

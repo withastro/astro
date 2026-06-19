@@ -7,8 +7,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import { isAstroClientEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
-import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
-import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
+import { createDefaultAstroMetadata, type AstroPluginMetadata } from 'vite-plugin-astro';
 import {
 	ASSET_IMPORTS_FILE,
 	ASSET_IMPORTS_RESOLVED_STUB_ID,

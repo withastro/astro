@@ -1,20 +1,16 @@
-import { fileURLToPath } from 'node:url';
 import { preprocessStyles, transform, type TransformResult } from '@astrojs/compiler-rs';
 import type { ResolvedConfig } from 'vite';
-import type { AstroConfig } from '../../types/public/config.js';
-import type { AstroError } from '../errors/errors.js';
-import { AggregateError, CompilerError } from '../errors/errors.js';
-import { AstroErrorData } from '../errors/index.js';
-import { normalizePath, resolvePath } from '../viteUtils.js';
+import { normalizePath, resolvePath } from '@astrojs/internal-helpers/vite';
 import { createStylePreprocessor, type PartialCompileCssResult } from './style.js';
 import type { CompileCssResult } from './types.js';
+import type { CSSError, ErrorHandler, ExposedTransformOptions } from '../types.js';
 
 export interface CompileProps {
-	astroConfig: AstroConfig;
 	viteConfig: ResolvedConfig;
-	toolbarEnabled: boolean;
 	filename: string;
 	source: string;
+	handleError: ErrorHandler;
+	transformOptions: ExposedTransformOptions;
 }
 
 export interface CompileResult extends Omit<TransformResult, 'css'> {
@@ -22,14 +18,14 @@ export interface CompileResult extends Omit<TransformResult, 'css'> {
 }
 
 export async function compile({
-	astroConfig,
 	viteConfig,
-	toolbarEnabled,
 	filename,
 	source,
+	handleError,
+	transformOptions,
 }: CompileProps): Promise<CompileResult> {
 	const cssPartialCompileResults: PartialCompileCssResult[] = [];
-	const cssTransformErrors: AstroError[] = [];
+	const cssTransformErrors: CSSError[] = [];
 	let transformResult: TransformResult;
 
 	try {
@@ -38,28 +34,17 @@ export async function compile({
 			createStylePreprocessor({
 				filename,
 				viteConfig,
-				astroConfig,
 				cssPartialCompileResults,
 				cssTransformErrors,
+				handleError,
 			}),
 		);
 
 		transformResult = transform(source, {
-			compact: astroConfig.compressHTML,
+			...transformOptions,
 			filename,
-			normalizedFilename: normalizeFilename(filename, astroConfig.root),
-			sourcemap: 'both',
-			internalURL: 'astro/compiler-runtime',
-			// TODO: remove in Astro v7
-			astroGlobalArgs: JSON.stringify(astroConfig.site),
-			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
-			resultScopedSlot: true,
-			transitionsAnimationURL: 'astro/components/viewtransitions.css',
-			annotateSourceFile:
-				viteConfig.command === 'serve' &&
-				astroConfig.devToolbar &&
-				astroConfig.devToolbar.enabled &&
-				toolbarEnabled,
+			normalizedFilename: normalizeFilename(filename, viteConfig.root),
+			annotateSourceFile: viteConfig.command === 'serve' && transformOptions.annotateSourceFile,
 			preprocessedStyles,
 			resolvePath(specifier) {
 				return resolvePath(specifier, filename);
@@ -68,17 +53,23 @@ export async function compile({
 	} catch (err: any) {
 		// The compiler should be able to handle errors by itself, however
 		// for the rare cases where it can't let's directly throw here with as much info as possible
-		throw new CompilerError({
-			...AstroErrorData.UnknownCompilerError,
+		throw handleError({
+			type: 'compiler',
 			message: err.message ?? 'Unknown compiler error',
 			stack: err.stack,
+			name: undefined,
+			hint: undefined,
+			frame: undefined,
+			title: undefined,
 			location: {
 				file: filename,
+				line: undefined,
+				column: undefined,
 			},
 		});
 	}
 
-	handleCompileResultErrors(filename, transformResult, cssTransformErrors);
+	handleCompileResultErrors(filename, transformResult, cssTransformErrors, handleError);
 
 	return {
 		...transformResult,
@@ -92,20 +83,25 @@ export async function compile({
 function handleCompileResultErrors(
 	filename: string,
 	result: TransformResult,
-	cssTransformErrors: AstroError[],
+	cssTransformErrors: CSSError[],
+	handleError: ErrorHandler,
 ) {
 	const compilerError = result.diagnostics.find((diag) => diag.severity === 'error');
 
 	if (compilerError) {
-		throw new CompilerError({
+		throw handleError({
+			type: 'compiler',
 			name: 'CompilerError',
 			message: compilerError.text,
+			hint: compilerError.hint,
+			stack: undefined,
+			frame: undefined,
+			title: 'Compiler Error',
 			location: {
+				file: filename,
 				line: compilerError.labels[0].line,
 				column: compilerError.labels[0].column,
-				file: filename,
 			},
-			hint: compilerError.hint,
 		});
 	}
 
@@ -116,17 +112,17 @@ function handleCompileResultErrors(
 			throw cssTransformErrors[0];
 		}
 		default: {
-			throw new AggregateError({
-				...cssTransformErrors[0],
+			throw handleError({
+				type: 'aggregate',
 				errors: cssTransformErrors,
 			});
 		}
 	}
 }
 
-function normalizeFilename(filename: string, root: URL) {
+function normalizeFilename(filename: string, root: string) {
 	const normalizedFilename = normalizePath(filename);
-	const normalizedRoot = normalizePath(fileURLToPath(root));
+	const normalizedRoot = normalizePath(root);
 	if (normalizedFilename.startsWith(normalizedRoot)) {
 		return normalizedFilename.slice(normalizedRoot.length - 1);
 	} else {

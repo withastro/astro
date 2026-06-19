@@ -1,0 +1,51 @@
+{
+  "name": "vite-plugin-astro",
+  "version": "0.0.0",
+  "description": "Vite plugin for compiling .astro files",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/vite-plugin-astro"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "prepublish": "pnpm build",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test:unit": "astro-scripts test \"test/**/*.test.ts\" --strip-types"
+  },
+  "dependencies": {
+    "@astrojs/compiler-rs": "^0.2.2",
+    "@astrojs/internal-helpers": "workspace:*"
+  },
+  "peerDependencies": {
+    "vite": "^8.0.0"
+  },
+  "devDependencies": {
+    "astro-scripts": "workspace:*",
+    "es-module-lexer": "^1.7.0",
+    "vite": "^8.0.16"
+  },
+  "keywords": [
+    "astro",
+    "vite",
+    "vite-plugin"
+  ],
+  "publishConfig": {
+    "provenance": true
+  }
+}

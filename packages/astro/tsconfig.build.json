@@ -6,6 +6,7 @@
   "include": ["./src", "./dev-only.d.ts"],
   "references": [
     { "path": "../internal-helpers/tsconfig.json" },
+    { "path": "../vite-plugin-astro/tsconfig.json" },
     { "path": "../telemetry/tsconfig.json" },
     { "path": "../markdown/remark/tsconfig.json" }
   ]

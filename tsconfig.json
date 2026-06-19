@@ -11,6 +11,7 @@
   "references": [
     { "path": "./benchmark/tsconfig.json" },
     { "path": "./packages/internal-helpers/tsconfig.json" },
+    { "path": "./packages/vite-plugin-astro/tsconfig.json" },
     { "path": "./packages/telemetry/tsconfig.json" },
     { "path": "./packages/astro-prism/tsconfig.json" },
     { "path": "./packages/astro-rss/tsconfig.json" },
