@@ -2966,6 +2966,7 @@ export interface AstroUserConfig<
 	 *
 	 * Route patterns mapped to cache rules.
 	 * Uses the same `[param]` and `[...rest]` syntax as file-based routing.
+	 * Glob wildcards such as `*` are not supported; use a `[...rest]` parameter to match a group of routes.
 	 *
 	 * ```js
 	 * // astro.config.mjs
@@ -2974,8 +2975,8 @@ export interface AstroUserConfig<
 	 * {
 	 *   cache: { provider: memoryCache() },
 	 *   routeRules: {
-	 *     '/api/*': { swr: 600 },
-	 *     '/products/*': { maxAge: 3600, tags: ['products'] },
+	 *     '/api/[...path]': { swr: 600 },
+	 *     '/products/[...slug]': { maxAge: 3600, tags: ['products'] },
 	 *   },
 	 * }
 	 * ```
