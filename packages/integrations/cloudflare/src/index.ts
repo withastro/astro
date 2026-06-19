@@ -178,6 +178,7 @@ export default function createIntegration({
 				const needsImagesBindingForDev = isCompile && command === 'dev';
 				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
 				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
+				const isTypeGenPhase = command === 'build' || command === 'sync';
 
 				const adapterPluginConfig: Partial<PluginConfig> = {
 					config: cloudflareConfigCustomizer({
@@ -245,6 +246,21 @@ export default function createIntegration({
 				// include, and esbuildOptions (e.g. loader) entries are respected.
 				const userOptimizeDeps = config.vite?.optimizeDeps;
 
+				const cloudflareVitePlugins = cfVitePlugin({
+					...cfPluginConfig,
+					viteEnvironment: { name: 'ssr' },
+					assetsOnly: () => _buildOutput === 'static',
+				});
+				// `sync` and `build` both run type generation (build via its internal sync
+				// pass), which creates a temporary Vite server and fires `configureServer`
+				// the hook that boots the Cloudflare/workerd runtime. Drop it in both so
+				// type generation doesn't pay that startup cost. See #16332.
+				if (isTypeGenPhase) {
+					for (const plugin of cloudflareVitePlugins) {
+						plugin.configureServer = undefined;
+					}
+				}
+
 				updateConfig({
 					build: {
 						redirects: false,
@@ -255,11 +271,7 @@ export default function createIntegration({
 							...(prerenderEnvironment === 'node' && command === 'dev'
 								? [createNodePrerenderPlugin()]
 								: []),
-							cfVitePlugin({
-								...cfPluginConfig,
-								viteEnvironment: { name: 'ssr' },
-								assetsOnly: () => _buildOutput === 'static',
-							}),
+							cloudflareVitePlugins,
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
@@ -275,6 +287,10 @@ export default function createIntegration({
 							{
 								name: '@astrojs/cloudflare:environment',
 								configEnvironment(environmentName, _options) {
+									// Skip dependency pre-bundling during type generation (see `isTypeGenPhase` above).
+									if (isTypeGenPhase) {
+										return { optimizeDeps: { noDiscovery: true, include: [] } };
+									}
 									const isServerEnvironment = ['astro', 'ssr', 'prerender'].includes(
 										environmentName,
 									);
