@@ -1869,7 +1869,10 @@ test.describe('View Transitions', () => {
 		).toHaveCount(1);
 	});
 
-	test('no children get lost if there is a `server:defer` component in the head', async ({ page, astro }) => {
+	test('no children get lost if there is a `server:defer` component in the head', async ({
+		page,
+		astro,
+	}) => {
 		await page.goto(astro.resolveUrl('/deferred'));
 		await expect(page.locator('head link[rel="stylesheet"][href="."]')).toHaveCount(1);
 		await expect(page.locator('head link[rel="stylesheet"][href="after"]')).toHaveCount(1);
