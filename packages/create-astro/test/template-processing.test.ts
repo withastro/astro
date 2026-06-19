@@ -16,7 +16,9 @@ describe('generateAgentsMd', async () => {
 		const result = generateAgentsMd();
 		assert.ok(result.includes('https://docs.astro.build/en/guides/routing/'));
 		assert.ok(result.includes('https://docs.astro.build/en/basics/astro-components/'));
+		assert.ok(result.includes('https://docs.astro.build/en/guides/framework-components/'));
 		assert.ok(result.includes('https://docs.astro.build/en/guides/content-collections/'));
+		assert.ok(result.includes('https://docs.astro.build/en/guides/styling/'));
 		assert.ok(result.includes('https://docs.astro.build/en/guides/internationalization/'));
 	});
 });
