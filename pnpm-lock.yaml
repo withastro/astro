@@ -127,7 +127,7 @@ importers:
         version: 5.2.0(tinybench@2.9.0)(vite@8.0.14)(vitest@4.1.0)
       vitest:
         specifier: ^4.1.0
-        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.0.14)
 
   benchmark/packages/adapter:
     dependencies:
@@ -246,7 +246,7 @@ importers:
         version: 18.3.1(react@18.3.1)
       vitest:
         specifier: ^4.1.0
-        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.0.14)
     devDependencies:
       '@types/react':
         specifier: ^18.3.28
@@ -782,7 +782,7 @@ importers:
         version: 11.0.5
       vitest:
         specifier: ^4.1.0
-        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.0.14)
     optionalDependencies:
       sharp:
         specifier: ^0.34.0
@@ -4100,7 +4100,7 @@ importers:
         version: link:../../..
       vitest:
         specifier: ^4.1.0
-        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.0.14)
 
   packages/astro/test/fixtures/vue-component:
     dependencies:
@@ -5019,8 +5019,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       satteri:
-        specifier: ^0.9.0
-        version: 0.9.0
+        specifier: ^0.9.1
+        version: 0.9.1
       shiki:
         specifier: ^4.0.2
         version: 4.0.2
@@ -6637,8 +6637,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       satteri:
-        specifier: ^0.9.0
-        version: 0.9.0
+        specifier: ^0.9.1
+        version: 0.9.1
     devDependencies:
       astro-scripts:
         specifier: workspace:*
@@ -7228,29 +7228,29 @@ packages:
   '@borewit/text-codec@0.2.2':
     resolution: {integrity: sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ==}
 
-  '@bruits/satteri-darwin-arm64@0.9.0':
-    resolution: {integrity: sha512-fJtb3K+D8OvtjeZO2CB58gS50F6wV2Ve/BHoyp8D4d7sUhaSVoKqn0ma5wWLlIFAjdWDfLr5wx/KTukT7lgpQA==}
+  '@bruits/satteri-darwin-arm64@0.9.1':
+    resolution: {integrity: sha512-NE4qC2sRd0+R+oPMsKcUikIvWTGpAV16fSXNBoMSW7nK7Pd9e/ZGB7M8knep83pFmGmOb/5NbGKiVIh3oLbljw==}
     cpu: [arm64]
     os: [darwin]
 
-  '@bruits/satteri-darwin-x64@0.9.0':
-    resolution: {integrity: sha512-jj6Y9Hnwi1y276QqOK/aNUltDbKJqzuJw62yisRPkYSA4FHE6Di0LDsSAwK4n7S//jP0sn1Q2KsDNYhCQ9WNIw==}
+  '@bruits/satteri-darwin-x64@0.9.1':
+    resolution: {integrity: sha512-Am8z5nX0L/sJR/n7np+5rMVP434MOBe3zlU+IO8fXbv2UaPNRCrEQPMS6lyxCj7dZHQI2AynSJw3v4fgQE8xSQ==}
     cpu: [x64]
     os: [darwin]
 
-  '@bruits/satteri-linux-x64-gnu@0.9.0':
-    resolution: {integrity: sha512-AwBHO06U1eFqS1UoqZM9qowFDdisnf355JuahAby9LN/p9R7swlQV9QqIRPPHeFEm5ECoDNlCI5TPNWqP34+6Q==}
+  '@bruits/satteri-linux-x64-gnu@0.9.1':
+    resolution: {integrity: sha512-Bivw60+SIfmlaU9wEZ39HAcyPh1xU9TvOrz4KJgc+ziRStQs4EzYoWW4Eh9aSdiol+xV0vjEWYuA79aF3dr7kg==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@bruits/satteri-wasm32-wasi@0.9.0':
-    resolution: {integrity: sha512-/6ga1dnKqWEeZ387eBmlfhOqAn1BPx/93UQrp1dpHtFM9brvQCZT3RBe5Gazd4BcloRebvXZW6vvnePVhcaKGw==}
+  '@bruits/satteri-wasm32-wasi@0.9.1':
+    resolution: {integrity: sha512-lEFk5ebh5SxRquA5RJisEoMoDmOiSnS10PGgXgXeVlWgF8KWKI9D3hSzVqNjEg/qKOjHcNdjIfyx/03Wrl6J3g==}
     engines: {node: '>=14.0.0'}
     cpu: [wasm32]
 
-  '@bruits/satteri-win32-x64-msvc@0.9.0':
-    resolution: {integrity: sha512-k3U1EHIr5sNCsBxmXvLUj1xZT3Pf3gLXabWUT4iH4W9CLIbzAMu1lYF3c4pKS6GRYPMsSNfz78/vNjEkRW396A==}
+  '@bruits/satteri-win32-x64-msvc@0.9.1':
+    resolution: {integrity: sha512-YBhm8yARopswAPeTih11BzMxWVQFD5CI9Yryp6HWepi6F/CeMycqxv18DXrj9U2fDDlbVGwT2IiEM2UPBjIPDQ==}
     cpu: [x64]
     os: [win32]
 
@@ -14276,8 +14276,8 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  satteri@0.9.0:
-    resolution: {integrity: sha512-+MA67ZhGYSrMvEFCciKKnyB6XeH1SJ7xeYJkTah4qzRjuo1ZehrCIn2ksysks/XA6Ez2gnH0SnKeMEAVVK+g+Q==}
+  satteri@0.9.1:
+    resolution: {integrity: sha512-0oIBjwDxWvz8ePRSBxv8vEdZ0GI25/UcSq11y4651tJztUAmZlIdPjFx8luqBAM22g8YKVr5R17KaaZ2kIfLrw==}
 
   sax@1.6.0:
     resolution: {integrity: sha512-6R3J5M4AcbtLUdZmRv2SygeVaM7IhrLXu9BmnOGmmACak8fiUtOsYNWUS4uK7upbmHIBbLBeFeI//477BKLBzA==}
@@ -15309,6 +15309,7 @@ packages:
       '@vitest/ui': 4.1.0
       happy-dom: '*'
       jsdom: '*'
+      vite: ^6.0.0 || ^7.0.0 || ^8.0.0-0
     peerDependenciesMeta:
       '@edge-runtime/vm':
         optional: true
@@ -16417,23 +16418,23 @@ snapshots:
 
   '@borewit/text-codec@0.2.2': {}
 
-  '@bruits/satteri-darwin-arm64@0.9.0':
+  '@bruits/satteri-darwin-arm64@0.9.1':
     optional: true
 
-  '@bruits/satteri-darwin-x64@0.9.0':
+  '@bruits/satteri-darwin-x64@0.9.1':
     optional: true
 
-  '@bruits/satteri-linux-x64-gnu@0.9.0':
+  '@bruits/satteri-linux-x64-gnu@0.9.1':
     optional: true
 
-  '@bruits/satteri-wasm32-wasi@0.9.0':
+  '@bruits/satteri-wasm32-wasi@0.9.1':
     dependencies:
       '@emnapi/core': 1.9.1
       '@emnapi/runtime': 1.9.1
       '@napi-rs/wasm-runtime': 1.1.5(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
     optional: true
 
-  '@bruits/satteri-win32-x64-msvc@0.9.0':
+  '@bruits/satteri-win32-x64-msvc@0.9.1':
     optional: true
 
   '@capsizecss/unpack@4.0.0':
@@ -16661,7 +16662,7 @@ snapshots:
       '@codspeed/core': 5.2.0
       tinybench: 2.9.0
       vite: 8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
-      vitest: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vitest: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.0.14)
     transitivePeerDependencies:
       - debug
 
@@ -17811,7 +17812,7 @@ snapshots:
     dependencies:
       '@emnapi/core': 1.10.0
       '@emnapi/runtime': 1.10.0
-      '@tybys/wasm-util': 0.10.1
+      '@tybys/wasm-util': 0.10.2
     optional: true
 
   '@napi-rs/wasm-runtime@1.1.4(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
@@ -18926,7 +18927,7 @@ snapshots:
       svelte: 5.55.3
     optionalDependencies:
       vite: 8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
-      vitest: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vitest: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.0.14)
 
   '@textlint/ast-node-types@15.5.1': {}
 
@@ -24509,18 +24510,18 @@ snapshots:
     optionalDependencies:
       '@parcel/watcher': 2.5.6
 
-  satteri@0.9.0:
+  satteri@0.9.1:
     dependencies:
       '@types/estree-jsx': 1.0.5
       '@types/hast': 3.0.4
       '@types/mdast': 4.0.4
       '@types/unist': 3.0.3
     optionalDependencies:
-      '@bruits/satteri-darwin-arm64': 0.9.0
-      '@bruits/satteri-darwin-x64': 0.9.0
-      '@bruits/satteri-linux-x64-gnu': 0.9.0
-      '@bruits/satteri-wasm32-wasi': 0.9.0
-      '@bruits/satteri-win32-x64-msvc': 0.9.0
+      '@bruits/satteri-darwin-arm64': 0.9.1
+      '@bruits/satteri-darwin-x64': 0.9.1
+      '@bruits/satteri-linux-x64-gnu': 0.9.1
+      '@bruits/satteri-wasm32-wasi': 0.9.1
+      '@bruits/satteri-win32-x64-msvc': 0.9.1
 
   sax@1.6.0: {}
 
@@ -25563,7 +25564,7 @@ snapshots:
     optionalDependencies:
       vite: 8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
-  vitest@4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0):
+  vitest@4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.0.14):
     dependencies:
       '@vitest/expect': 4.1.0
       '@vitest/mocker': 4.1.0(vite@8.0.14)
@@ -25589,18 +25590,7 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@types/node': 22.19.19
     transitivePeerDependencies:
-      - '@vitejs/devtools'
-      - esbuild
-      - jiti
-      - less
       - msw
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - terser
-      - tsx
-      - yaml
 
   vitest@5.0.0-beta.3(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.0.14):
     dependencies:
