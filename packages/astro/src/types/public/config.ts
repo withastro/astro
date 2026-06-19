@@ -2945,7 +2945,7 @@ export interface AstroUserConfig<
 		 * Use the provider's config function to get type-safe configuration:
 		 *
 		 * ```js
-		 * import { memoryCache } from 'astro/config';
+		 * import { defineConfig, memoryCache } from 'astro/config';
 		 *
 		 * export default defineConfig({
 		 *   cache: { provider: memoryCache() },
