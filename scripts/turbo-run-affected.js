@@ -17,6 +17,12 @@ const hasRange = (value) => /\[[^\]]+\]/.test(value);
 const formatFilter = (value) => {
 	if (!range || hasRange(value)) return value;
 
+	// Exclusion filters must stay absolute. Scoping them to the changed range
+	// (e.g. `!./packages/language-tools/**/*[base...HEAD]`) only excludes packages
+	// that themselves changed, so an excluded package still gets selected when it is
+	// affected by an upstream change. Pass exclusions through unchanged.
+	if (value.startsWith('!')) return value;
+
 	// Turbo needs directory filters wrapped in braces before appending [range].
 	// Example: ./packages/astro -> {./packages/astro}[origin/main...HEAD]
 	const isDirectoryFilter = value.startsWith('.') || value.startsWith('/');

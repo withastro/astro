@@ -35,7 +35,7 @@ import { getParams, getProps } from '../render/index.js';
 import { Rewrites } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
 import { normalizeUrl } from '../util/normalized-url.js';
-import { validateAndDecodePathname } from '../util/pathname.js';
+import { MultiLevelEncodingError, validateAndDecodePathname } from '../util/pathname.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
 import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
@@ -170,6 +170,12 @@ export class FetchState implements AstroFetchState {
 	status = 200;
 	/** Whether user middleware should be skipped for this request. */
 	skipMiddleware = false;
+	/**
+	 * Set to `true` when the request path was encoded too many times to fully
+	 * decode (see {@link validateAndDecodePathname}). These requests are
+	 * rejected with a `400` before middleware or routing run.
+	 */
+	invalidEncoding = false;
 	/** A flag that tells the render content if the rewriting was triggered. */
 	isRewriting = false;
 	/** A safety net in case of loops (rewrite counter). */
@@ -915,6 +921,13 @@ export class FetchState implements AstroFetchState {
 		try {
 			return validateAndDecodePathname(pathname);
 		} catch (e: any) {
+			// The path was encoded too many times to fully decode. Mark it so
+			// the handler can reject the request with a 400 before middleware
+			// or routing run, instead of working with a half-decoded path.
+			if (e instanceof MultiLevelEncodingError) {
+				this.invalidEncoding = true;
+				return pathname;
+			}
 			this.pipeline.logger.error(null, e.toString());
 			return pathname;
 		}

@@ -1,5 +1,11 @@
 # create-astro
 
+## 5.1.0-beta.0
+
+### Minor Changes
+
+- [#17122](https://github.com/withastro/astro/pull/17122) [`cbd6123`](https://github.com/withastro/astro/commit/cbd6123f072190df9c6bd49f5baf0e248e521d20) Thanks [@matthewp](https://github.com/matthewp)! - Adds a default `AGENTS.md` file to new projects with dev server instructions and documentation links. Also creates a `CLAUDE.md` symlink (with hard link fallback) pointing to `AGENTS.md`.
+
 ## 5.0.6
 
 ### Patch Changes
