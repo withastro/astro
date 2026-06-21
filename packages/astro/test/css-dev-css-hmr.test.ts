@@ -75,8 +75,8 @@ describe('CSS - dev HMR full reload bug', () => {
 	// This test reproduces a bug where a nested CSS dependency change would delete the compile metadata
 	// for the parent .astro file, forcing Vite to do a full page reload instead of a CSS hot update.
 	it('should not delete compile metadata for parent .astro file when a nested CSS dependency changes', async () => {
-		const cssFilePath = fileURLToPath(new URL('./fixtures/css-dev-hmr-nested-imports/src/styles/components/hero.css', import.meta.url));
-		const astroFilePath = fileURLToPath(new URL('./fixtures/css-dev-hmr-nested-imports/src/layouts/Layout.astro', import.meta.url));
+		const cssFilePath = fileURLToPath(new URL('./fixtures/css-dev-hmr-css-dep/src/styles/components/hero.css', import.meta.url));
+		const astroFilePath = fileURLToPath(new URL('./fixtures/css-dev-hmr-css-dep/src/layouts/Layout.astro', import.meta.url));
 
 		const astroFileToCompileMetadata = new Map([
 			[astroFilePath, {
