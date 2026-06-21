@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import type { HmrContext } from 'vite';
 import type { AstroLogger } from '../core/logger/core.js';
 import type { CompileAstroResult } from './compile.js';
@@ -15,14 +16,21 @@ export async function handleHotUpdate(
 	ctx: HmrContext,
 	{ logger, compile, astroFileToCompileMetadata }: HandleHotUpdateOptions,
 ) {
-	// HANDLING 1: Invalidate compile metadata if CSS dependency updated
-	//
-	// If any `ctx.file` is part of a CSS dependency of any Astro file, invalidate its `astroFileToCompileMetadata`
-	// so the next transform of the Astro file or Astro script/style virtual module will re-generate it
+	// HANDLING 1: Recompile if CSS preprocessor dependency updated
+	// If any `ctx.file` is a CSS preprocessor dependency (e.g. SCSS @import) of an Astro file,
 	for (const [astroFile, compileData] of astroFileToCompileMetadata) {
 		const isUpdatedFileCssDep = compileData.css.some((css) => css.dependencies?.includes(ctx.file));
 		if (isUpdatedFileCssDep) {
-			astroFileToCompileMetadata.delete(astroFile);
+			try {
+				// Do NOT delete the metadata that removes the CSS virtual modules from the module graph
+				// and forces Vite to do a full page reload instead of a CSS only hot update.
+				const code = await readFile(astroFile, 'utf-8');
+				await compile(code, astroFile);
+			} catch {
+				// If re-compilation fails, fall back to deleting the metadata so the
+				// load hook will re-compile lazily on the next request.
+				astroFileToCompileMetadata.delete(astroFile);
+			}
 		}
 	}
 
