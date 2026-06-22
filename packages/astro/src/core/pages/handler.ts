@@ -117,7 +117,9 @@ export class PagesHandler {
 			return new Response(null, { status: 404 });
 		}
 		// Honor a status set by middleware (e.g. an auth check returning 403);
-		// otherwise use the status of the prebuilt response.
+		// otherwise use the status of the prebuilt response. `state.status` defaults
+		// to 200, so we treat 200 as "unset" — middleware cannot force a 200 over a
+		// prebuilt non-200 response, which in practice is the desired behavior.
 		const status = state.status === 200 ? staticAssetResponse.status : state.status;
 		// Reuse the static response object when the status matches so middleware
 		// keeps working with a single response instance to merge headers onto.

@@ -266,7 +266,6 @@ describe('Prerendered pages and middleware mode', () => {
 
 	describe('Classic mode', () => {
 		before(async () => {
-			process.env.PRERENDER = 'true';
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
 				output: 'server',
@@ -283,8 +282,6 @@ describe('Prerendered pages and middleware mode', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-
-			delete process.env.PRERENDER;
 		});
 
 		it('does not execute middleware for prerendered pages at request time', async () => {
@@ -303,7 +300,6 @@ describe('Prerendered pages and middleware mode', () => {
 
 	describe('On-request mode', () => {
 		before(async () => {
-			process.env.PRERENDER = 'true';
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
 				output: 'server',
@@ -320,8 +316,6 @@ describe('Prerendered pages and middleware mode', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-
-			delete process.env.PRERENDER;
 		});
 
 		it('executes middleware for prerendered pages at request time', async () => {
@@ -341,7 +335,6 @@ describe('Prerendered pages and middleware mode', () => {
 
 	describe('Always mode', () => {
 		before(async () => {
-			process.env.PRERENDER = 'true';
 			fixture = await loadFixture({
 				root: './fixtures/prerender/',
 				output: 'server',
@@ -358,8 +351,6 @@ describe('Prerendered pages and middleware mode', () => {
 		after(async () => {
 			await server.stop();
 			await fixture.clean();
-
-			delete process.env.PRERENDER;
 		});
 
 		it('reports buildPhase as "request" for SSR routes at request time', async () => {

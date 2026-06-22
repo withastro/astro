@@ -101,7 +101,7 @@ export interface ResolvedRenderOptions {
 	addCookieHeader: RequiredRenderOptions['addCookieHeader'];
 	clientAddress: RequiredRenderOptions['clientAddress'] | undefined;
 	prerenderedErrorPageFetch: RequiredRenderOptions['prerenderedErrorPageFetch'] | undefined;
-	getStaticAsset: RequiredRenderOptions['getStaticAsset'] | undefined;
+	getStaticAsset?: RequiredRenderOptions['getStaticAsset'];
 	locals: RequiredRenderOptions['locals'] | undefined;
 	routeData: RequiredRenderOptions['routeData'] | undefined;
 	waitUntil: RequiredRenderOptions['waitUntil'] | undefined;
