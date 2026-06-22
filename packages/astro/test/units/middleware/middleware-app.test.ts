@@ -942,7 +942,7 @@ describe('Middleware via App.render()', () => {
 			assert.match(html, /<p>from-middleware<\/p>/);
 		});
 
-		it('does not run middleware during build-time prerendering (on-request mode)', async () => {
+		it('runs middleware at request time for prerendered pages (on-request mode)', async () => {
 			let middlewareWasCalled = false;
 			const onRequest: MiddlewareHandler = async (_ctx, next) => {
 				middlewareWasCalled = true;
@@ -963,11 +963,13 @@ describe('Middleware via App.render()', () => {
 			manifest.middlewareMode = /** @type {'on-request'} */ ('on-request');
 			const app = new App(manifest);
 
-			// During build, prerendered routes are rendered without `getStaticAsset`.
-			// on-request mode treats that as the build phase and skips middleware.
+			// `App` uses a request-time pipeline (`isBuildTime === false`). In
+			// on-request mode the build phase is detected by the pipeline type, so
+			// rendering a prerendered route here (e.g. `astro dev`/`preview` or a
+			// production request) must still run middleware.
 			await app.render(new Request('http://localhost/'), { routeData: prerenderRouteData });
 
-			assert.equal(middlewareWasCalled, false);
+			assert.equal(middlewareWasCalled, true);
 		});
 
 		it('allows rewriting from SSR to prerendered routes when getStaticAsset is provided', async () => {

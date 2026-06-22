@@ -331,6 +331,14 @@ describe('Prerendered pages and middleware mode', () => {
 			assert.equal(authRes.status, 200);
 			assert.equal(authRes.headers.get('x-prerender-private'), 'true');
 		});
+
+		it('does not execute middleware for prerendered pages at build time', async () => {
+			// During build, on-request middleware is skipped. If it had run, the
+			// unauthenticated `/private` route would have redirected instead of
+			// prerendering its HTML, so the built page proves middleware was skipped.
+			const html = await fixture.readFile('/client/private/index.html');
+			assert.match(html, /<h1>Private<\/h1>/);
+		});
 	});
 
 	describe('Always mode', () => {

@@ -521,7 +521,7 @@ export class FetchState implements AstroFetchState {
 			generator: ASTRO_GENERATOR,
 			routePattern: this.routeData!.route,
 			isPrerendered: this.routeData!.prerender,
-			buildPhase: this.routeData!.prerender && !this.getStaticAsset ? 'build' : 'request',
+			buildPhase: this.pipeline.isBuildTime ? 'build' : 'request',
 			cookies,
 			get clientAddress() {
 				return state.getClientAddress();
@@ -1067,7 +1067,7 @@ export class FetchState implements AstroFetchState {
 			},
 			routePattern: this.routeData!.route,
 			isPrerendered: this.routeData!.prerender,
-			buildPhase: this.routeData!.prerender && !this.getStaticAsset ? 'build' : 'request',
+			buildPhase: this.pipeline.isBuildTime ? 'build' : 'request',
 			get clientAddress() {
 				return state.getClientAddress();
 			},

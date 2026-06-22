@@ -70,13 +70,13 @@ export class AstroMiddleware {
 		// - 'on-request': skip during build-time prerendering, run at request time
 		// - 'edge': never run here (deployed as a separate edge function)
 		const middlewareMode = pipeline.manifest.middlewareMode;
-		// During build, prerendered routes have no `getStaticAsset`; at request
-		// time the adapter supplies one to read the prebuilt HTML.
-		const isBuildPhase = !!state.routeData?.prerender && !state.getStaticAsset;
+		// Only true static generation during `astro build` is the build phase
+		// (`pipeline.isBuildTime`). At dev/request time the page may still be
+		// prerendered (rendered live or read from disk), but middleware must run.
 		const runMiddleware =
 			!state.skipMiddleware &&
 			middlewareMode !== 'edge' &&
-			!(middlewareMode === 'on-request' && isBuildPhase);
+			!(middlewareMode === 'on-request' && pipeline.isBuildTime);
 
 		let response: Response;
 		if (!runMiddleware) {
