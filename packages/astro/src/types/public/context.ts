@@ -593,22 +593,20 @@ export interface APIContext<
 	/**
 	 * It exposes utilities for logging messages.
 	 */
-	logger:
-		| {
-				/**
-				 * Logs a message with `info` level.
-				 */
-				info: (msg: string) => void;
-				/**
-				 * Logs a message with `warn` level.
-				 */
-				warn: (msg: string) => void;
-				/**
-				 * Logs a message with `error` level.
-				 */
-				error: (msg: string) => void;
-		  }
-		| undefined;
+	logger: {
+		/**
+		 * Logs a message with `info` level.
+		 */
+		info: (msg: string) => void;
+		/**
+		 * Logs a message with `warn` level.
+		 */
+		warn: (msg: string) => void;
+		/**
+		 * Logs a message with `error` level.
+		 */
+		error: (msg: string) => void;
+	};
 
 	/**
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.

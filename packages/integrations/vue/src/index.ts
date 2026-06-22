@@ -4,7 +4,7 @@ import vue from '@vitejs/plugin-vue';
 import type { Options as VueJsxOptions } from '@vitejs/plugin-vue-jsx';
 import { MagicString } from '@vue/compiler-sfc';
 import type { AstroIntegration, AstroRenderer, HookParameters } from 'astro';
-import type { EnvironmentOptions, Plugin, UserConfig } from 'vite';
+import type { EnvironmentOptions, Plugin, PluginOption } from 'vite';
 import type { VitePluginVueDevToolsOptions } from 'vite-plugin-vue-devtools';
 
 const VIRTUAL_MODULE_ID = 'virtual:astro:vue-app';
@@ -109,7 +109,7 @@ export const setup = async (app) => {
 async function getViteConfiguration(
 	command: HookParameters<'astro:config:setup'>['command'],
 	options?: Options,
-): Promise<UserConfig> {
+) {
 	const vueOptions = {
 		...options,
 		template: {
@@ -121,20 +121,22 @@ async function getViteConfiguration(
 	// The vue vite plugin may not manage to resolve it automatically
 	vueOptions.compiler ??= await import('vue/compiler-sfc');
 
-	const config: UserConfig = {
-		plugins: [vue(vueOptions), virtualAppEntrypoint(vueOptions), configEnvironmentPlugin()],
-	};
+	const plugins: PluginOption[] = [
+		vue(vueOptions),
+		virtualAppEntrypoint(vueOptions),
+		configEnvironmentPlugin(),
+	];
 
 	if (options?.jsx) {
 		const vueJsx = (await import('@vitejs/plugin-vue-jsx')).default;
 		const jsxOptions = typeof options.jsx === 'object' ? options.jsx : undefined;
-		config.plugins?.push(vueJsx(jsxOptions));
+		plugins.push(vueJsx(jsxOptions));
 	}
 
 	if (command === 'dev' && options?.devtools) {
 		const vueDevTools = (await import('vite-plugin-vue-devtools')).default;
 		const devToolsOptions = typeof options.devtools === 'object' ? options.devtools : {};
-		config.plugins?.push(
+		plugins.push(
 			configEnvironmentPlugin(),
 			vueDevTools({
 				...devToolsOptions,
@@ -143,7 +145,7 @@ async function getViteConfiguration(
 		);
 	}
 
-	return config;
+	return { plugins };
 }
 
 function configEnvironmentPlugin(): Plugin {

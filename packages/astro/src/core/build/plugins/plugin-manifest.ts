@@ -95,7 +95,12 @@ export async function manifestBuildPostHook(
 				? internals.middlewareEntryPoint
 				: undefined,
 		});
-		const code = injectManifest(manifest, ssrManifestChunk.code);
+		// Prerendered routes' styles are dead weight in the SSR manifest: the static
+		// HTML on disk already has them inlined, and the SSR worker never renders
+		// these routes. Stripping keeps the entry chunk small on platforms like
+		// Cloudflare Workers that re-parse it on every cold isolate start.
+		const ssrManifest = stripPrerenderedRouteStyles(manifest);
+		const code = injectManifest(ssrManifest, ssrManifestChunk.code);
 		mutate(ssrManifestChunk.fileName, code, false);
 	}
 
@@ -148,6 +153,22 @@ function injectManifest(manifest: SerializedSSRManifest, code: string) {
 	return code.replace(replaceExp, () => {
 		return JSON.stringify(manifest);
 	});
+}
+
+/**
+ * Returns a copy of the manifest with `styles` cleared on every prerendered
+ * route. Inline CSS for prerendered routes is dead weight in the SSR manifest:
+ * the prerendered HTML on disk already contains the `<style>` tags, and the
+ * SSR worker never renders these routes.
+ */
+function stripPrerenderedRouteStyles(manifest: SerializedSSRManifest): SerializedSSRManifest {
+	let stripped = false;
+	const routes = manifest.routes.map((route) => {
+		if (!route.routeData.prerender || route.styles.length === 0) return route;
+		stripped = true;
+		return { ...route, styles: [] };
+	});
+	return stripped ? { ...manifest, routes } : manifest;
 }
 
 async function buildManifest(
@@ -324,9 +345,9 @@ async function buildManifest(
 
 	const middlewareMode = resolveMiddlewareMode(opts.settings.adapter?.adapterFeatures);
 
-	let experimentalLogger = undefined;
-	if (settings.config.experimental.logger) {
-		experimentalLogger = settings.config.experimental.logger;
+	let loggerConfig = undefined;
+	if (settings.config.logger) {
+		loggerConfig = settings.config.logger;
 	}
 
 	return {
@@ -348,11 +369,6 @@ async function buildManifest(
 		trailingSlash: settings.config.trailingSlash,
 		compressHTML: settings.config.compressHTML,
 		assetsPrefix: settings.config.build.assetsPrefix,
-		experimentalQueuedRendering: {
-			enabled: settings.config.experimental.queuedRendering?.enabled ?? false,
-			poolSize: 0,
-			contentCache: false,
-		},
 		componentMetadata: Array.from(internals.componentMetadata),
 		renderers: [],
 		clientDirectives: Array.from(settings.clientDirectives),
@@ -393,6 +409,6 @@ async function buildManifest(
 		internalFetchHeaders,
 		logLevel: settings.logLevel,
 		shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config.security.csp),
-		experimentalLogger,
+		loggerConfig,
 	};
 }

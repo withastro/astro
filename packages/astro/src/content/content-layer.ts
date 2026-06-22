@@ -1,9 +1,6 @@
 import { existsSync, promises as fs } from 'node:fs';
-import {
-	createMarkdownProcessor,
-	parseFrontmatter,
-	type MarkdownProcessor,
-} from '@astrojs/markdown-remark';
+import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
+import type { MarkdownRenderer } from '@astrojs/internal-helpers/markdown';
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
@@ -53,7 +50,7 @@ export class ContentLayer {
 	#watcher?: WrappedWatcher;
 	#lastConfigDigest?: string;
 	#unsubscribe?: () => void;
-	#markdownProcessor?: MarkdownProcessor;
+	#markdownRenderer?: MarkdownRenderer;
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 	#contentConfigObserver: ContentObservable;
 
@@ -66,9 +63,6 @@ export class ContentLayer {
 		watcher,
 		contentConfigObserver = globalContentConfigObserver,
 	}: ContentLayerOptions) {
-		// The default max listeners is 10, which can be exceeded when using a lot of loaders
-		watcher?.setMaxListeners(50);
-
 		this.#logger = logger;
 		this.#store = store;
 		this.#settings = settings;
@@ -157,9 +151,18 @@ export class ContentLayer {
 		content: string,
 		options?: RenderMarkdownOptions,
 	): Promise<RenderedContent> {
-		this.#markdownProcessor ??= await createMarkdownProcessor(this.#settings.config.markdown);
+		if (!this.#markdownRenderer) {
+			const { markdown, image } = this.#settings.config;
+			this.#markdownRenderer = await markdown.processor.createRenderer({
+				image,
+				syntaxHighlight: markdown.syntaxHighlight,
+				shikiConfig: markdown.shikiConfig,
+				gfm: markdown.gfm,
+				smartypants: markdown.smartypants,
+			});
+		}
 		const { frontmatter, content: body } = parseFrontmatter(content);
-		const { code, metadata } = await this.#markdownProcessor.render(body, {
+		const { code, metadata } = await this.#markdownRenderer.render(body, {
 			frontmatter,
 			fileURL: options?.fileURL,
 		});

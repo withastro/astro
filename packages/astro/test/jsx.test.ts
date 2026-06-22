@@ -9,6 +9,7 @@ describe('jsx-runtime', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/jsx/',
+			outDir: './dist/jsx/',
 		});
 		await fixture.build();
 	});

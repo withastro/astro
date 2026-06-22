@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Add support for MDX pages in your Astro site",
-  "version": "5.0.4",
+  "version": "7.0.0-beta.2",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -28,13 +28,13 @@
     "template"
   ],
   "scripts": {
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test --timeout 70000 \"test/**/*.test.ts\"",
-    "typecheck:tests": "tsc --build tsconfig.test.json"
+    "test": "astro-scripts test --timeout 70000 \"test/**/*.test.ts\""
   },
   "dependencies": {
+    "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@mdx-js/mdx": "^3.1.1",
     "acorn": "^8.16.0",
@@ -50,9 +50,16 @@
     "vfile": "^6.0.3"
   },
   "peerDependencies": {
-    "astro": "^6.0.0"
+    "@astrojs/markdown-satteri": "^0.3.1-alpha.0",
+    "astro": "^7.0.0-alpha.0"
+  },
+  "peerDependenciesMeta": {
+    "@astrojs/markdown-satteri": {
+      "optional": true
+    }
   },
   "devDependencies": {
+    "@astrojs/markdown-satteri": "workspace:*",
     "@shikijs/rehype": "^4.0.2",
     "@shikijs/twoslash": "^4.0.2",
     "@types/estree": "^1.0.8",
@@ -69,9 +76,10 @@
     "remark-math": "^6.0.0",
     "remark-rehype": "^11.1.2",
     "remark-toc": "^9.0.0",
+    "satteri": "^0.8.0",
     "shiki": "^4.0.2",
     "unified": "^11.0.5",
-    "vite": "^7.3.2"
+    "vite": "^8.0.13"
   },
   "engines": {
     "node": ">=22.12.0"

@@ -2,13 +2,10 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { Element } from 'hast';
 import type { LanguageRegistration, ThemeRegistration } from 'shiki';
-import {
-	createMarkdownProcessor,
-	createShikiHighlighter,
-	type ShikiHighlighter,
-} from '../dist/index.js';
+import { type ShikiHighlighter, createShikiHighlighter } from '@astrojs/internal-helpers/shiki';
 // @ts-expect-error: `clearShikiHighlighterCache` is marked `@internal` and stripped from the `.d.ts`, but still exists at runtime.
-import { clearShikiHighlighterCache } from '../dist/shiki.js';
+import { clearShikiHighlighterCache } from '@astrojs/internal-helpers/shiki';
+import { createMarkdownProcessor } from '../dist/index.js';
 
 describe('shiki syntax highlighting', () => {
 	it('does not add is:raw to the output', async () => {

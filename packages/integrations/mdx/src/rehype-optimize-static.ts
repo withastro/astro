@@ -1,5 +1,5 @@
-import type { RehypePlugin } from '@astrojs/markdown-remark';
-import type { Expression } from 'estree';
+import type { RehypePlugin } from '@astrojs/internal-helpers/markdown';
+import type { Expression, Program } from 'estree';
 import { SKIP, visit } from 'estree-util-visit';
 import type { Element, RootContent, RootContentMap } from 'hast';
 import { toHtml } from 'hast-util-to-html';
@@ -28,7 +28,7 @@ const exportConstComponentsRe = /export\s+const\s+components\s*=/;
  * do not include any MDX elements.
  *
  * This optimization reduces the JS output as more content are represented as a
- * string instead, which also reduces the AST size that Rollup holds in memory.
+ * string instead, which also reduces the AST size that Rolldown holds in memory.
  */
 export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) => {
 	return (tree) => {
@@ -254,8 +254,11 @@ function getExportConstComponentObjectKeys(node: RootContentMap['mdxjsEsm']) {
 	/** AST for the initial value of the exported  `components` variable in the MDX document. */
 	let variableInit: Expression | undefined | null;
 
-	// Find the initial value of `components` in the AST.
-	for (const part of node.data?.estree?.body || []) {
+	// Find the initial value of `components` in the AST. Cast `data` since `mdast-util-mdx`'s
+	// augmentation of `MdxjsEsmHastData` to add `estree` isn't visible after adding
+	// `@astrojs/internal-helpers` as a direct dep (a `unified` dedup quirk).
+	const estree = (node.data as { estree?: Program } | undefined)?.estree;
+	for (const part of estree?.body || []) {
 		if (
 			part.type !== 'ExportNamedDeclaration' ||
 			part.declaration?.type !== 'VariableDeclaration'

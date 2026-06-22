@@ -1,5 +1,40 @@
 # @astrojs/svelte
 
+## 9.0.0-beta.3
+
+### Patch Changes
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+## 9.0.0-alpha.2
+
+### Minor Changes
+
+- [#16549](https://github.com/withastro/astro/pull/16549) [`9d9d516`](https://github.com/withastro/astro/commit/9d9d516ba95fb888d5e8c62892269cf047b523e9) Thanks [@ocavue](https://github.com/ocavue)! - Updates `@sveltejs/vite-plugin-svelte` to v7. No user action is necessary.
+
+## 9.0.0-alpha.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Patch Changes
+
+- Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
+  - astro@7.0.0-alpha.0
+
+## 8.1.2
+
+### Patch Changes
+
+- [#16496](https://github.com/withastro/astro/pull/16496) [`4d79750`](https://github.com/withastro/astro/commit/4d79750c3535d35bbec521e8d93546bf73e2ea6a) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixed an issue where type errors occurred during testing library type checks because Astro overrides Svelte 5 component types.
+
+## 8.1.1
+
+### Patch Changes
+
+- [#16642](https://github.com/withastro/astro/pull/16642) [`53059be`](https://github.com/withastro/astro/commit/53059bec978a5124fc61a23035cefbfc93754a01) Thanks [@ocavue](https://github.com/ocavue)! - Adds support for TypeScript v6 to peer dependencies range.
+
 ## 8.1.0
 
 ### Minor Changes

@@ -3,6 +3,7 @@ import { Writable } from 'node:stream';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { AstroLogger } from '../dist/core/logger/core.js';
+import { svgoOptimizer } from '../dist/config/entrypoint.js';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:assets - SVG Components', () => {
@@ -15,6 +16,7 @@ describe('astro:assets - SVG Components', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-svg/',
+				outDir: './dist/core-image-svg-dev/',
 			});
 
 			const logger = new AstroLogger({
@@ -28,8 +30,8 @@ describe('astro:assets - SVG Components', () => {
 				}),
 			});
 			devServer = await fixture.startDevServer({
-				// @ts-expect-error: `logger` is @internal in AstroInlineConfig so it's stripped from dist types
-				logger,
+				// @ts-expect-error: `_logger` is an internal API
+				_logger: logger,
 			});
 		});
 
@@ -148,6 +150,37 @@ describe('astro:assets - SVG Components', () => {
 				assert.ok(json.image.src.startsWith('/'));
 			});
 		});
+
+		// test for the components has no dimensions and the metadata is correct
+		describe('Metadata with zero dimensions svg image', () => {
+			it('successfully processes SVG with width="0" and height="0"', async () => {
+				const res = await fixture.fetch('/zero-dimensions');
+				assert.equal(res.status, 200);
+
+				const html = await res.text();
+				const $ = cheerio.load(html, { xml: true });
+
+				const $svg = $('#zero-svg svg');
+				// svg should be rendered with the width and height of 0 as specified in the source file, not overridden by default dimensions
+				assert.equal($svg.length, 1);
+				assert.equal($svg.attr('width'), '0');
+				assert.equal($svg.attr('height'), '0');
+			});
+
+			it('successfully returns metadata for an SVG image with zero dimensions', async () => {
+				const res = await fixture.fetch('/metadata-zero-dimensions.json');
+				const json = await res.json();
+
+				assert.equal(json.image.width, 0);
+				assert.equal(json.image.height, 0);
+				assert.equal(json.image.format, 'svg');
+			});
+
+			it('should not log NoImageMetadata errors for zero dimension svgs', () => {
+				const hasMetadataErrors = logs.some((log) => log.message.includes('NoImageMetadata'));
+				assert.equal(hasMetadataErrors, false);
+			});
+		});
 	});
 
 	describe('SVGO optimization', () => {
@@ -158,15 +191,16 @@ describe('astro:assets - SVG Components', () => {
 			optimizedFixture = await loadFixture({
 				root: './fixtures/core-image-svg/',
 				experimental: {
-					svgo: {
+					svgOptimizer: svgoOptimizer({
 						plugins: [
 							'preset-default',
 							{
 								name: 'removeViewBox',
 							},
 						],
-					},
+					}),
 				},
+				outDir: './dist/core-image-svg-svgo-optimization/',
 			});
 
 			optimizedDevServer = await optimizedFixture.startDevServer();

@@ -14,7 +14,10 @@ describe('Prerender conflicts', () => {
 		let fixture: Fixture;
 
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/prerender-conflict-dynamic-dynamic/' });
+			fixture = await loadFixture({
+				root: './fixtures/prerender-conflict-dynamic-dynamic/',
+				outDir: './dist/prerender-conflict-dynamic-vs-dynamic/',
+			});
 		});
 
 		it('warns by default and succeeds', async () => {
@@ -29,8 +32,8 @@ describe('Prerender conflicts', () => {
 				},
 			});
 			await fixture.build({
-				// @ts-expect-error: logger is an internal API
-				logger,
+				// @ts-expect-error: `_logger` is an internal API
+				_logger: logger,
 			});
 
 			const relevantLogs = logs
@@ -65,7 +68,10 @@ describe('Prerender conflicts', () => {
 		let fixture: Fixture;
 
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/prerender-conflict-static-dynamic/' });
+			fixture = await loadFixture({
+				root: './fixtures/prerender-conflict-static-dynamic/',
+				outDir: './dist/prerender-conflict-static-vs-dynamic/',
+			});
 		});
 
 		it('warns by default and succeeds', async () => {
@@ -80,8 +86,8 @@ describe('Prerender conflicts', () => {
 				},
 			});
 			await fixture.build({
-				// @ts-expect-error: logger is an internal API
-				logger,
+				// @ts-expect-error: `_logger` is an internal API
+				_logger: logger,
 			});
 
 			const relevantLogs = logs

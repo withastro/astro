@@ -1,10 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { RenderContext } from '../../../dist/core/render-context.js';
+import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import {
 	createComponent,
 	createHeadAndContent,
+	Fragment,
 	maybeRenderHead,
 	render,
 	renderComponent,
@@ -16,7 +17,7 @@ import {
 } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
 import type { Pipeline } from '../../../dist/core/render/index.js';
-import { createBasicPipeline } from '../test-utils.ts';
+import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
 
 const createAstroModule = (AstroComponent: AstroComponentFactory) => ({ default: AstroComponent });
 
@@ -40,8 +41,10 @@ describe('head injection app-level rendering', () => {
 			component: 'src/pages/index.astro',
 			params: {},
 		};
-		const renderContext = await RenderContext.create({ pipeline, request, routeData } as any);
-		const response = await renderContext.render(createAstroModule(Component));
+		const state = new FetchState(pipeline, request);
+		state.routeData = routeData as any;
+		state.pathname = '/index';
+		const response = await renderThroughMiddleware(state, createAstroModule(Component));
 		return cheerio.load(await response.text());
 	}
 
@@ -175,5 +178,57 @@ describe('head injection app-level rendering', () => {
 		assert.equal($('head link[href="/styles/from-slot.css"]').length, 1);
 		assert.equal($('body link[rel="stylesheet"]').length, 0);
 		assert.equal($('p').text(), 'Paragraph.');
+	});
+
+	it('propagates head from Content inside Fragment named slot (#16181)', async () => {
+		// Simulates: MDX Content component (propagation: 'self') rendered through
+		// <Wrapper><Fragment slot="content"><Content /></Fragment></Wrapper>
+		// This is the pattern from the johnnydecimal reproduction.
+		const ContentInner = createComponent(() => render`<div class="box">styled content</div>`);
+		const ContentEntry = createComponent({
+			factory(result: any) {
+				const style = '<style>.box{color:hotpink}</style>';
+				return createHeadAndContent(
+					unescapeHTML(style) as unknown as string,
+					render`${renderComponent(result, 'ContentInner', ContentInner, {})}`,
+				);
+			},
+			propagation: 'self',
+		});
+
+		const Wrapper = createComponent(
+			(result: any, _props: any, slots: any) =>
+				render`<div>${renderSlot(result, slots['content'])}</div>`,
+		);
+
+		// This mirrors what the Astro compiler generates for:
+		// <Wrapper><Fragment slot="content"><Content /></Fragment></Wrapper>
+		const Page = createComponent(
+			(result: any) =>
+				render`<html><head>${renderHead()}</head><body>${renderComponent(
+					result,
+					'Wrapper',
+					Wrapper,
+					{},
+					{
+						content: (result2: any) =>
+							render`${renderComponent(
+								result2,
+								'Fragment',
+								Fragment,
+								{ slot: 'content' },
+								{
+									default: (result3: any) =>
+										render` ${renderComponent(result3, 'ContentEntry', ContentEntry, {})} `,
+								},
+							)}`,
+					},
+				)}</body></html>`,
+		);
+
+		const $ = await renderPage(Page);
+		assert.equal($('head style').length, 1);
+		assert.equal($('head style').text(), '.box{color:hotpink}');
+		assert.equal($('.box').length, 1);
 	});
 });

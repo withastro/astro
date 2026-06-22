@@ -7,7 +7,10 @@ describe('Solid app with some React components', () => {
 	let fixture: Fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/react-and-solid/' });
+		fixture = await loadFixture({
+			root: './fixtures/react-and-solid/',
+			outDir: './dist/react-and-solid/',
+		});
 		await fixture.build();
 	});
 

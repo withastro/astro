@@ -37,10 +37,11 @@ describe('react-jsx-export', () => {
 		});
 		fixture = await loadFixture({
 			root: './fixtures/react-jsx-export/',
+			outDir: './dist/react-jsx-export/',
 		});
 		await fixture.build({
-			// @ts-expect-error: `logger` is @internal in AstroInlineConfig so it's stripped from dist types
-			logger,
+			// @ts-expect-error: `_logger` is an internal API
+			_logger: logger,
 		});
 	});
 

@@ -10,7 +10,10 @@ describe('Public', () => {
 	const buildLogs: AstroLoggerMessage[] = [];
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-public/' });
+		fixture = await loadFixture({
+			root: './fixtures/astro-public/',
+			outDir: './dist/astro-public-public/',
+		});
 		const logger = new AstroLogger({
 			level: 'info',
 			destination: new Writable({
@@ -25,8 +28,8 @@ describe('Public', () => {
 			vite: {
 				logLevel: 'info',
 			},
-			// @ts-expect-error - logger is @internal API
-			logger,
+			// @ts-expect-error: `_logger` is an internal API
+			_logger: logger,
 		});
 	});
 
@@ -70,7 +73,10 @@ describe('Public (dev)', () => {
 	let devServer: DevServer;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-public/' });
+		fixture = await loadFixture({
+			root: './fixtures/astro-public/',
+			outDir: './dist/astro-public-public-dev/',
+		});
 		devServer = await fixture.startDevServer();
 	});
 

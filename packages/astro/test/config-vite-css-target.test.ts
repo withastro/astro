@@ -15,6 +15,7 @@ describe('CSS', function () {
 			root: './fixtures/config-vite-css-target/',
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
+			outDir: './dist/config-vite-css-target/',
 		});
 	});
 
@@ -36,7 +37,7 @@ describe('CSS', function () {
 		});
 
 		it('vite.build.cssTarget is respected', async () => {
-			assert.match(bundledCSS, /\.class\[data-astro-[^{]*\{top:0;right:0;bottom:0;left:0\}/);
+			assert.match(bundledCSS, /class\[data-astro-cid-[^\]]+\]\{top:0;bottom:0;left:0;right:0\}/);
 		});
 	});
 });

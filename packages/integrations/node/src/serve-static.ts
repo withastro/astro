@@ -6,7 +6,7 @@ import type { BaseApp } from 'astro/app';
 import send from 'send';
 import { resolveClientDir } from './shared.js';
 import type { NodeAppHeadersJson, Options } from './types.js';
-import { createRequest } from 'astro/app/node';
+import { createRequestFromNodeRequest } from 'astro/app/node';
 
 /**
  * Resolves a URL path to a filesystem path within the client directory,
@@ -58,41 +58,34 @@ export function createStaticHandler(
 			}
 
 			const [urlPath, urlQuery] = fullUrl.split('?');
-			const { isDirectory } = resolveStaticPath(client, app.removeBase(urlPath));
+			let fsPath = app.removeBase(urlPath);
+			try {
+				fsPath = decodeURI(fsPath);
+			} catch {}
+			const { isDirectory } = resolveStaticPath(client, fsPath);
 
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;
 
-			// Match the route once, reused for both prerender detection and headers.
-			const request = createRequest(req, {
-				allowedDomains: app.getAllowedDomains?.() ?? [],
-				port: options.port,
-			});
-			const routeData = app.match(request, true);
-			const servePrerenderedViaSSR =
-				routeData?.prerender &&
-				routeData.type === 'page' &&
-				(app.manifest.middlewareMode === 'always' || app.manifest.middlewareMode === 'on-request');
+			// In 'always' and 'on-request' middleware modes, prerendered page routes must go
+			// through the app handler so that user middleware can run before the page HTML is
+			// served from disk. Match the route to detect this; the match is reused for header
+			// application below. We only match when needed (header rewriting or SSR routing).
+			const middlewareHandlesPrerendered =
+				app.manifest.middlewareMode === 'always' || app.manifest.middlewareMode === 'on-request';
+			const routeData =
+				middlewareHandlesPrerendered || (headersMap && headersMap.length > 0)
+					? app.match(
+							createRequestFromNodeRequest(req, {
+								allowedDomains: app.getAllowedDomains?.() ?? [],
+								port: options.port,
+							}),
+							true,
+						)
+					: undefined;
 
-			// Prerendered page routes must go through the app handler so that user
-			// middleware can run before the page HTML is served from disk.
-			// Apply any custom static headers (e.g. CSP) onto the response before handing
-			// off — writeResponse merges pre-set headers with those from writeHead.
-			if (servePrerenderedViaSSR) {
-				if (headersMap && headersMap.length > 0) {
-					const baselessPathname = prependForwardSlash(app.removeBase(urlPath));
-					const matchedRoute = headersMap.find((header) =>
-						header.pathname.includes(baselessPathname),
-					);
-					if (matchedRoute) {
-						for (const header of matchedRoute.headers) {
-							res.setHeader(header.key, header.value);
-						}
-					}
-				}
-				return ssr();
-			}
-
+			// Apply any custom static headers (e.g. CSP) onto the response. writeResponse
+			// (for the SSR path) and `send` (for the static path) merge these pre-set headers.
 			if (headersMap && headersMap.length > 0 && routeData?.prerender) {
 				// Headers are stored keyed by base-less route paths (e.g. "/one"), so we
 				// must strip config.base from the incoming URL before matching, just as
@@ -106,6 +99,11 @@ export function createStaticHandler(
 						res.setHeader(header.key, header.value);
 					}
 				}
+			}
+
+			// Hand prerendered page routes off to the app handler so middleware can run.
+			if (middlewareHandlesPrerendered && routeData?.prerender && routeData.type === 'page') {
+				return ssr();
 			}
 
 			switch (app.manifest.trailingSlash) {
@@ -147,6 +145,14 @@ export function createStaticHandler(
 			const stream = send(req, normalizedPathname, {
 				root: client,
 				dotfiles: normalizedPathname.startsWith('/.well-known/') ? 'allow' : 'deny',
+				// When build.format is 'file' or 'preserve', pages are output as
+				// `page.html` instead of `page/index.html`. Tell `send` to try
+				// appending `.html` so that clean URLs like `/about` resolve to
+				// `/about.html` on disk.
+				extensions:
+					app.manifest.buildFormat === 'file' || app.manifest.buildFormat === 'preserve'
+						? ['html']
+						: [],
 			});
 
 			let forwardError = false;

@@ -16,6 +16,7 @@ describe('astro:image', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-remark-imgattr/',
+				outDir: './dist/core-image-remark-imgattr/',
 			});
 
 			const logger = new AstroLogger({
@@ -29,9 +30,8 @@ describe('astro:image', () => {
 				}),
 			});
 			devServer = await fixture.startDevServer({
-				// `logger` is @internal in AstroInlineConfig so it's stripped from dist types
-				// @ts-expect-error
-				logger,
+				// @ts-expect-error: `_logger` is an internal API
+				_logger: logger,
 			});
 		});
 

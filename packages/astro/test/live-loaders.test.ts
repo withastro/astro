@@ -12,6 +12,7 @@ describe('Live content collections', () => {
 		fixture = await loadFixture({
 			root: './fixtures/live-loaders/',
 			adapter: testAdapter(),
+			outDir: './dist/live-loaders/',
 		});
 	});
 	describe('Dev', () => {
@@ -29,13 +30,13 @@ describe('Live content collections', () => {
 				}),
 			});
 			devServer = await fixture.startDevServer({
-				// @ts-expect-error: `logger` is an internal API
-				logger,
+				// @ts-expect-error: `_logger` is an internal API
+				_logger: logger,
 			});
 		});
 
 		after(async () => {
-			devServer?.stop();
+			await devServer?.stop();
 		});
 
 		it('can load live data', async () => {

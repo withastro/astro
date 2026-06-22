@@ -25,6 +25,7 @@ import astroTransitions from '../transitions/vite-plugin-transitions.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 import { vitePluginAdapterConfig } from '../vite-plugin-adapter-config/index.js';
 import { vitePluginApp } from '../vite-plugin-app/index.js';
+import { vitePluginFetchable } from './fetch/vite-plugin.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
@@ -54,6 +55,7 @@ import { isObject } from './util-runtime.js';
 import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
 import { vitePluginChromedevtools } from '../vite-plugin-chromedevtools/index.js';
+import { vitePluginDevStatus } from '../vite-plugin-dev-status/index.js';
 import { vitePluginAstroServerClient } from '../vite-plugin-overlay/index.js';
 
 type CreateViteOptions = {
@@ -165,6 +167,19 @@ export async function createVite(
 		customLogger: createViteLogger(logger, settings.config.vite.logLevel),
 		appType: 'custom',
 		plugins: [
+			// Raise the watcher's maxListeners limit before any other plugin's
+			// configureServer hook can add listeners. Astro registers 12+ change
+			// listeners across its built-in Vite plugins, easily exceeding
+			// Node's default limit of 10.
+			{
+				name: 'astro:watcher-max-listeners',
+				configureServer(server) {
+					const current = server.watcher.getMaxListeners();
+					if (current !== 0 && current < 50) {
+						server.watcher.setMaxListeners(50);
+					}
+				},
+			},
 			serializedManifestPlugin({ settings, command, sync }),
 			vitePluginRenderers({
 				settings,
@@ -185,6 +200,7 @@ export async function createVite(
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
 			vitePluginApp(),
+			vitePluginFetchable({ settings }),
 			command === 'dev' && vitePluginAstroServer({ settings, logger }),
 			command === 'dev' && vitePluginAstroServerClient(),
 			astroDevCssPlugin({ routesList, command }),
@@ -213,6 +229,7 @@ export async function createVite(
 			astroContainer(),
 			astroHmrReloadPlugin(),
 			vitePluginChromedevtools({ settings }),
+			command === 'dev' && vitePluginDevStatus(),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
@@ -353,6 +370,7 @@ const COMMON_PREFIXES_NOT_ASTRO = [
 	'@webcomponents/',
 	'@fontsource/',
 	'@postcss-plugins/',
+	'@rolldown/',
 	'@rollup/',
 	'@astrojs/renderer-',
 	'@types/',
@@ -363,6 +381,7 @@ const COMMON_PREFIXES_NOT_ASTRO = [
 	'prettier-plugin-',
 	'remark-',
 	'rehype-',
+	'rolldown-plugin-',
 	'rollup-plugin-',
 	'vite-plugin-',
 ];

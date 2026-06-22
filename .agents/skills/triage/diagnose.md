@@ -55,6 +55,8 @@ After adding logs:
 2. Re-run the reproduction (Example: `pnpm -C <triageDir> build|dev|preview`)
 3. Observe the debug output.
 
+**Server management:** If re-running requires a dev/preview server, always stop existing servers first (`bgproc stop --all`). If the server fails to start twice, bail out — write your diagnosis with the data you have rather than looping on server restarts. Prefer `astro build` over dev/preview when possible. Never background servers with `&` — always use `bgproc`.
+
 Iterate until you understand:
 
 - What code path is executing

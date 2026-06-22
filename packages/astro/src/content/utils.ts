@@ -1,11 +1,10 @@
 import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { parseFrontmatter } from '@astrojs/markdown-remark';
+import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
 import { slug as githubSlug } from 'github-slugger';
 import colors from 'piccolore';
-import type { PluginContext } from 'rollup';
-import type { RunnableDevEnvironment } from 'vite';
+import type { RunnableDevEnvironment, Rolldown } from 'vite';
 import xxhash from 'xxhash-wasm';
 import * as z from 'zod/v4';
 import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
@@ -162,7 +161,7 @@ export async function getEntryData<
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
-	pluginContext?: PluginContext,
+	pluginContext?: Rolldown.PluginContext,
 ): Promise<TOutputData> {
 	let data = entry.unvalidatedData as TOutputData;
 

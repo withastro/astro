@@ -7,12 +7,10 @@ export const rehypePrism: Plugin<[string[]?], Root> = (excludeLangs) => {
 	return async (tree) => {
 		await highlightCodeBlocks(
 			tree,
-			(code, language) => {
-				let { html, classLanguage } = runHighlighterWithAstro(language, code);
+			async (code, language) => {
+				let { html, classLanguage } = await runHighlighterWithAstro(language, code);
 
-				return Promise.resolve(
-					`<pre class="${classLanguage}" data-language="${language}"><code class="${classLanguage}">${html}</code></pre>`,
-				);
+				return `<pre class="${classLanguage}" data-language="${language}"><code class="${classLanguage}">${html}</code></pre>`;
 			},
 			excludeLangs,
 		);

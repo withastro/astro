@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/svelte",
-  "version": "8.1.0",
+  "version": "9.0.0-beta.3",
   "description": "Use Svelte components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -32,28 +32,28 @@
     "svelte-shims.d.ts"
   ],
   "scripts": {
-    "build": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
+    "build": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.ts\"",
-    "typecheck:tests": "tsc --build tsconfig.test.json"
+    "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
-    "@sveltejs/vite-plugin-svelte": "^6.2.4",
-    "svelte2tsx": "^0.7.52",
-    "vite": "^7.3.2",
+    "@sveltejs/vite-plugin-svelte": "^7.1.0",
+    "svelte2tsx": "^0.7.55",
+    "vite": "^8.0.13",
     "vitefu": "^1.1.2"
   },
   "devDependencies": {
+    "@testing-library/svelte": "^5.3.1",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
     "svelte": "^5.54.1"
   },
   "peerDependencies": {
-    "astro": "^6.0.0",
+    "astro": "^7.0.0-alpha.0",
     "svelte": "^5.43.6",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3 || ^6.0.0"
   },
   "engines": {
     "node": ">=22.12.0"

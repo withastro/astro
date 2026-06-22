@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { AstroLoggerMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
-import { AstroLogger } from '../../../dist/core/logger/core.js';
+import { AstroIntegrationLogger, AstroLogger } from '../../../dist/core/logger/core.js';
 
 describe('AstroLogger', () => {
 	function createSpyDestination() {
@@ -82,6 +82,79 @@ describe('AstroLogger', () => {
 			assert.equal(writes.length, 2);
 			assert.match(writes[0], /^original:/);
 			assert.match(writes[1], /^new:/);
+		});
+	});
+});
+
+describe('AstroIntegrationLogger', () => {
+	function createSpyDestination() {
+		const calls: { method: string }[] = [];
+		const destination: AstroLoggerDestination<AstroLoggerMessage> = {
+			write: () => {},
+			flush: () => {
+				calls.push({ method: 'flush' });
+			},
+			close: () => {
+				calls.push({ method: 'close' });
+			},
+		};
+		return { destination, calls };
+	}
+
+	describe('flush', () => {
+		it('calls destination.flush when present', () => {
+			const { destination, calls } = createSpyDestination();
+			const logger = new AstroIntegrationLogger({ destination, level: 'info' }, 'test');
+
+			logger.flush();
+
+			assert.equal(calls.length, 1);
+			assert.equal(calls[0].method, 'flush');
+		});
+
+		it('does not throw when destination has no flush', () => {
+			const destination: AstroLoggerDestination<AstroLoggerMessage> = {
+				write: () => {},
+			};
+			const logger = new AstroIntegrationLogger({ destination, level: 'info' }, 'test');
+
+			assert.doesNotThrow(() => logger.flush());
+		});
+	});
+
+	describe('close', () => {
+		it('calls destination.close when present', () => {
+			const { destination, calls } = createSpyDestination();
+			const logger = new AstroIntegrationLogger({ destination, level: 'info' }, 'test');
+
+			logger.close();
+
+			assert.equal(calls.length, 1);
+			assert.equal(calls[0].method, 'close');
+		});
+
+		it('does not throw when destination has no close', () => {
+			const destination: AstroLoggerDestination<AstroLoggerMessage> = {
+				write: () => {},
+			};
+			const logger = new AstroIntegrationLogger({ destination, level: 'info' }, 'test');
+
+			assert.doesNotThrow(() => logger.close());
+		});
+	});
+
+	describe('fork', () => {
+		it('shares the destination so flush/close still delegate after forking', () => {
+			const { destination, calls } = createSpyDestination();
+			const parent = new AstroIntegrationLogger({ destination, level: 'info' }, 'parent');
+			const child = parent.fork('child');
+
+			child.flush();
+			child.close();
+
+			assert.equal(calls.length, 2);
+			assert.equal(calls[0].method, 'flush');
+			assert.equal(calls[1].method, 'close');
 		});
 	});
 });

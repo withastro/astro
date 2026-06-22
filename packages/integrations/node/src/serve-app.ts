@@ -3,7 +3,7 @@ import { createReadStream } from 'node:fs';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 import {
-	createRequest,
+	createRequestFromNodeRequest,
 	writeResponse,
 	getAbortControllerCleanup,
 	getStaticAssetPath,
@@ -49,7 +49,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 	 * Used to log unhandled rejections with a helpful message.
 	 */
 	const als = new AsyncLocalStorage<string>();
-	const logger = app.getAdapterLogger();
+	const logger = app.adapterLogger;
 	process.on('unhandledRejection', (reason) => {
 		const requestUrl = als.getStore();
 		logger.error(`Unhandled rejection while rendering ${requestUrl}`);
@@ -109,7 +109,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 	return async (req, res, next, locals) => {
 		let request: Request;
 		try {
-			request = createRequest(req, {
+			request = createRequestFromNodeRequest(req, {
 				allowedDomains: app.getAllowedDomains?.() ?? [],
 				bodySizeLimit: effectiveBodySizeLimit,
 				port: options.port,

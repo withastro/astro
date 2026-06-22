@@ -29,6 +29,7 @@ describe('HTML minification', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/minification-html/',
+				outDir: './dist/minification-html-in-dev-environment/',
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -52,6 +53,7 @@ describe('HTML minification', () => {
 				root: './fixtures/minification-html/',
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
+				outDir: './dist/minification-html-build-ssg/',
 			});
 			await fixture.build();
 		});
@@ -71,6 +73,7 @@ describe('HTML minification', () => {
 				adapter: testAdapter(),
 				// test suite was authored when inlineStylesheets defaulted to never
 				build: { inlineStylesheets: 'never' },
+				outDir: './dist/minification-html-build-ssr/',
 			});
 			await fixture.build();
 		});
@@ -81,6 +84,41 @@ describe('HTML minification', () => {
 			const response = await app.render(request);
 			const html = await response.text();
 			assert.equal(NEW_LINES.test(removeDoctypeLine(html)), false);
+		});
+	});
+});
+
+describe('HTML minification (JSX mode)', () => {
+	describe('Build SSG', () => {
+		let fixture: Fixture;
+		let html: string;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/minification-html-jsx/',
+				build: { inlineStylesheets: 'never' },
+			});
+			await fixture.build();
+			html = await fixture.readFile('/index.html');
+		});
+
+		it('should strip indentation from multi-line text', () => {
+			// JSX whitespace stripping should collapse multi-line indented children
+			// into a single line with spaces between words
+			assert.ok(html.includes('Hello world'), 'multi-line text should be joined with a space');
+			assert.ok(!html.includes('\n        Hello'), 'leading indentation should be stripped');
+		});
+
+		it('should preserve whitespace inside <pre> tags', () => {
+			assert.ok(html.includes('<pre id="preserved">'), '<pre> tag should be present');
+			// The <pre> content should retain its internal whitespace
+			assert.match(html, /keep\n\s+this\n\s+whitespace/);
+		});
+
+		it('should preserve inline text and elements on the same line', () => {
+			assert.ok(
+				html.includes('<span>hello</span><em>world</em>'),
+				'inline elements should preserve spacing',
+			);
 		});
 	});
 });

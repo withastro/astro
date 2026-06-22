@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.1.10",
+  "version": "7.0.0-beta.4",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -21,6 +21,9 @@
       "app/*": [
         "./dist/core/app/*"
       ],
+      "hono": [
+        "./dist/core/hono/index"
+      ],
       "middleware": [
         "./dist/virtual-modules/middleware.d.ts"
       ]
@@ -36,7 +39,6 @@
     "./astro-jsx": "./astro-jsx.d.ts",
     "./tsconfigs/*.json": "./tsconfigs/*",
     "./tsconfigs/*": "./tsconfigs/*.json",
-    "./jsx/rehype.js": "./dist/jsx/rehype.js",
     "./jsx-runtime": {
       "types": "./jsx-runtime.d.ts",
       "default": "./dist/jsx-runtime/index.js"
@@ -46,6 +48,7 @@
       "default": "./dist/jsx-runtime/index.js"
     },
     "./compiler-runtime": "./dist/runtime/compiler/index.js",
+    "./markdown": "./dist/markdown/index.js",
     "./runtime/*": "./dist/runtime/*",
     "./config": "./dist/config/entrypoint.js",
     "./container": "./dist/container/index.js",
@@ -55,6 +58,7 @@
     "./app/entrypoint/dev": "./dist/core/app/entrypoints/virtual/dev.js",
     "./app/entrypoint/prod": "./dist/core/app/entrypoints/virtual/prod.js",
     "./app/manifest": "./dist/core/app/entrypoints/manifest.js",
+    "./app/fetch/default-handler": "./dist/core/fetch/default-handler.js",
     "./entrypoints/prerender": "./dist/entrypoints/prerender.js",
     "./entrypoints/legacy": "./dist/entrypoints/legacy.js",
     "./client/*": "./dist/runtime/client/*",
@@ -71,6 +75,8 @@
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/noop": "./dist/assets/services/noop.js",
     "./cache/memory": "./dist/core/cache/memory-provider.js",
+    "./fetch": "./dist/core/fetch/index.js",
+    "./hono": "./dist/core/hono/index.js",
     "./assets/fonts/runtime.js": "./dist/assets/fonts/runtime.js",
     "./loaders": "./dist/content/loaders/index.js",
     "./content/config": "./dist/content/config.js",
@@ -112,48 +118,48 @@
   ],
   "scripts": {
     "prebuild": "astro-scripts prebuild --to-string \"src/runtime/server/astro-island.ts\" \"src/runtime/client/{idle,load,media,only,visible}.ts\"",
-    "build": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm && tsc && astro-check -- -- --root ./components",
+    "build": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm && tsc -b && astro-check -- -- --root ./components",
     "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm",
     "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
     "test": "pnpm run test:unit && pnpm run test:integration && pnpm run test:types",
-    "test:match": "astro-scripts test \"test/**/*.test.js\" --match",
-    "test:cli": "astro-scripts test \"test/**/cli.test.js\"",
+    "test:match": "astro-scripts test \"test/**/*.test.ts\" --match",
+    "test:cli": "astro-scripts test \"test/**/cli.test.ts\"",
     "test:e2e": "pnpm test:e2e:chrome && pnpm test:e2e:firefox",
     "test:e2e:match": "playwright test -g",
     "test:e2e:chrome": "playwright test",
     "test:e2e:firefox": "playwright test --config playwright.firefox.config.js",
     "test:types": "tsc --build test/types/tsconfig.json",
-    "typecheck:tests": "tsc --build tsconfig.test.json",
     "test:unit": "astro-scripts test \"test/units/**/*.test.ts\" --strip-types --teardown ./test/units/teardown.ts",
-    "test:integration": "pnpm run test:integration:js && pnpm run test:integration:ts",
-    "test:integration:js": "astro-scripts test \"test/*.test.js\"",
-    "test:integration:ts": "astro-scripts test \"test/*.test.ts\" --strip-types"
+    "test:integration": "astro-scripts test \"test/*.test.ts\" --parallel --strip-types"
   },
   "dependencies": {
-    "@astrojs/compiler": "^4.0.0",
+    "@astrojs/compiler-rs": "^0.1.10",
     "@astrojs/internal-helpers": "workspace:*",
-    "@astrojs/markdown-remark": "workspace:*",
+    "@astrojs/markdown-satteri": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
     "@capsizecss/unpack": "^4.0.0",
     "@clack/prompts": "^1.1.0",
     "@oslojs/encoding": "^1.1.0",
     "@rollup/pluginutils": "^5.3.0",
+    "am-i-vibing": "^0.3.0",
     "aria-query": "^5.3.2",
     "axobject-query": "^4.1.0",
     "ci-info": "^4.4.0",
     "clsx": "^2.1.1",
     "common-ancestor-path": "^2.0.0",
     "cookie": "^1.1.1",
-    "devalue": "^5.6.3",
+    "devalue": "^5.8.1",
     "diff": "^8.0.3",
     "dset": "^3.1.4",
     "es-module-lexer": "^2.0.0",
-    "esbuild": "^0.27.3",
+    "esbuild": "^0.28.0",
     "flattie": "^1.1.1",
     "fontace": "~0.4.1",
+    "get-tsconfig": "5.0.0-beta.4",
     "github-slugger": "^2.0.0",
     "html-escaper": "3.0.3",
     "http-cache-semantics": "^4.2.0",
+    "jsonc-parser": "^3.3.1",
     "js-yaml": "^4.1.1",
     "magic-string": "^0.30.21",
     "magicast": "^0.5.2",
@@ -173,13 +179,12 @@
     "tinyclip": "^0.1.12",
     "tinyexec": "^1.0.4",
     "tinyglobby": "^0.2.15",
-    "tsconfck": "^3.1.6",
     "ultrahtml": "^1.6.0",
     "unifont": "~0.7.4",
     "unist-util-visit": "^5.1.0",
     "unstorage": "^1.17.5",
     "vfile": "^6.0.3",
-    "vite": "^7.3.2",
+    "vite": "^8.0.13",
     "vitefu": "^1.1.2",
     "xxhash-wasm": "^1.1.0",
     "yargs-parser": "^22.0.0",
@@ -188,9 +193,17 @@
   "optionalDependencies": {
     "sharp": "^0.34.0"
   },
+  "peerDependencies": {
+    "@astrojs/markdown-remark": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@astrojs/markdown-remark": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@astrojs/check": "workspace:*",
-    "@astrojs/compiler-rs": "^0.1.6",
+    "@astrojs/markdown-remark": "workspace:*",
     "@playwright/test": "1.58.2",
     "@types/aria-query": "^5.0.4",
     "@types/hast": "^3.0.4",
@@ -206,17 +219,15 @@
     "eol": "^0.10.0",
     "expect-type": "^1.3.0",
     "fs-fixture": "^2.13.0",
-    "mdast-util-mdx": "^3.0.0",
-    "mdast-util-mdx-jsx": "^3.2.0",
+    "hono": "^4.12.14",
     "node-mocks-http": "^1.17.2",
     "parse-srcset": "^1.0.2",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-slug": "^6.0.0",
     "rehype-toc": "^3.0.2",
     "remark-code-titles": "^0.1.2",
-    "rollup": "^4.58.0",
     "sass": "^1.98.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "undici": "^7.22.0",
     "unified": "^11.0.5",
     "vitest": "^4.1.0"
@@ -237,7 +248,6 @@
       "./astro-jsx": "./astro-jsx.d.ts",
       "./tsconfigs/*.json": "./tsconfigs/*",
       "./tsconfigs/*": "./tsconfigs/*.json",
-      "./jsx/rehype.js": "./dist/jsx/rehype.js",
       "./jsx-runtime": {
         "types": "./jsx-runtime.d.ts",
         "default": "./dist/jsx-runtime/index.js"
@@ -247,6 +257,7 @@
         "default": "./dist/jsx-runtime/index.js"
       },
       "./compiler-runtime": "./dist/runtime/compiler/index.js",
+      "./markdown": "./dist/markdown/index.js",
       "./runtime/*": "./dist/runtime/*",
       "./config": "./dist/config/entrypoint.js",
       "./container": "./dist/container/index.js",
@@ -256,6 +267,7 @@
       "./app/entrypoint/dev": "./dist/core/app/entrypoints/virtual/dev.js",
       "./app/entrypoint/prod": "./dist/core/app/entrypoints/virtual/prod.js",
       "./app/manifest": "./dist/core/app/entrypoints/manifest.js",
+      "./app/fetch/default-handler": "./dist/core/fetch/default-handler.js",
       "./entrypoints/prerender": "./dist/entrypoints/prerender.js",
       "./entrypoints/legacy": "./dist/entrypoints/legacy.js",
       "./client/*": "./dist/runtime/client/*",
@@ -272,6 +284,8 @@
       "./assets/services/sharp": "./dist/assets/services/sharp.js",
       "./assets/services/noop": "./dist/assets/services/noop.js",
       "./cache/memory": "./dist/core/cache/memory-provider.js",
+      "./fetch": "./dist/core/fetch/index.js",
+      "./hono": "./dist/core/hono/index.js",
       "./assets/fonts/runtime.js": "./dist/assets/fonts/runtime.js",
       "./loaders": "./dist/content/loaders/index.js",
       "./content/config": "./dist/content/config.js",

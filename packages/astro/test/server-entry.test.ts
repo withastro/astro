@@ -8,7 +8,7 @@ import type { AstroIntegration } from 'astro';
 
 type FakeAdapter = (
 	options:
-		| { type: 'rollupInput'; shape: 'string' | 'object' | 'array' }
+		| { type: 'rolldownInput'; shape: 'string' | 'object' | 'array' }
 		| { type: 'serverEntrypoint' },
 ) => AstroIntegration;
 
@@ -30,6 +30,7 @@ describe('Server entry', () => {
 			build: {
 				serverEntry: 'custom.mjs',
 			},
+			outDir: './dist/server-entry-server-entry-1/',
 		});
 
 		await fixture.build();
@@ -48,6 +49,7 @@ describe('Server entry', () => {
 			build: {
 				serverEntry: 'custom.mjs',
 			},
+			outDir: './dist/erver-entry-server-entry-2/',
 		});
 
 		await fixture.build();
@@ -62,10 +64,11 @@ describe('Server entry', () => {
 		fixture = await loadFixture({
 			root: './fixtures/server-entry',
 			output: 'server',
-			adapter: fakeAdapter({ type: 'rollupInput', shape: 'string' }),
+			adapter: fakeAdapter({ type: 'rolldownInput', shape: 'string' }),
 			build: {
 				serverEntry: 'custom.mjs',
 			},
+			outDir: './dist/server-entry-server-entry-3/',
 		});
 
 		await fixture.build();
@@ -77,10 +80,11 @@ describe('Server entry', () => {
 		fixture = await loadFixture({
 			root: './fixtures/server-entry',
 			output: 'server',
-			adapter: fakeAdapter({ type: 'rollupInput', shape: 'object' }),
+			adapter: fakeAdapter({ type: 'rolldownInput', shape: 'object' }),
 			build: {
 				serverEntry: 'custom.mjs',
 			},
+			outDir: './dist/server-entry-server-entry-4/',
 		});
 
 		await fixture.build();
@@ -92,10 +96,11 @@ describe('Server entry', () => {
 		fixture = await loadFixture({
 			root: './fixtures/server-entry',
 			output: 'server',
-			adapter: fakeAdapter({ type: 'rollupInput', shape: 'array' }),
+			adapter: fakeAdapter({ type: 'rolldownInput', shape: 'array' }),
 			build: {
 				serverEntry: 'custom.mjs',
 			},
+			outDir: './dist/server-entry-server-entry-5/',
 		});
 
 		await fixture.build();
@@ -111,6 +116,7 @@ describe('Server entry', () => {
 			build: {
 				serverEntry: 'custom.mjs',
 			},
+			outDir: './dist/server-entry-server-entry-6/',
 		});
 
 		await fixture.build();

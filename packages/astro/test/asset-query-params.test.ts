@@ -26,6 +26,9 @@ describe('Asset Query Parameters (Adapter Client Config)', () => {
 					},
 				},
 			}),
+			outDir: './dist/asset-query-params-asset-query-parameters-adapter-client-co/',
+			cacheDir:
+				'./node_modules/.astro-test/asset-query-params-asset-query-parameters-adapter-client-co/',
 		});
 		await fixture.build();
 	});
@@ -77,6 +80,8 @@ describe('Asset Query Parameters with Fonts', () => {
 					},
 				},
 			}),
+			outDir: './dist/asset-query-params-asset-query-parameters-with-fonts/',
+			cacheDir: './node_modules/.astro-test/asset-query-params-asset-query-parameters-with-fonts/',
 		});
 		await fixture.build();
 	});
@@ -116,6 +121,9 @@ describe('Asset Query Parameters with Islands', () => {
 					},
 				},
 			}),
+			outDir: './dist/asset-query-params-asset-query-parameters-with-islands/',
+			cacheDir:
+				'./node_modules/.astro-test/asset-query-params-asset-query-parameters-with-islands/',
 		});
 		await fixture.build();
 	});
@@ -158,6 +166,7 @@ describe('Asset Query Parameters in Inter-Chunk JS Imports', () => {
 					},
 				},
 			}),
+			outDir: './dist/asset-query-params-asset-query-parameters-in-inter-chunk-js/',
 		});
 		await fixture.build();
 	});
@@ -179,11 +188,84 @@ describe('Asset Query Parameters in Inter-Chunk JS Imports', () => {
 			const code = await fixture.readFile(`/${file}`);
 			// Match static imports: from "./chunk.js", from "./chunk.js"
 			const staticImports = [
-				...code.matchAll(/from\s*["'](\.\.?\/[^"']+\.(?:js|mjs)(?:\?[^"']*)?)["']/g),
+				...code.matchAll(/from\s*["'`](\.\.?\/[^"'`]+\.(?:js|mjs)(?:\?[^"'`]*)?)["'`]/g),
 			];
-			// Match dynamic imports: import("./chunk.js")
+			// Match dynamic imports: import("./chunk.js") or import(`./chunk.js`)
+			// Note: Rolldown (Vite 8) emits backtick template literals instead of quotes
 			const dynamicImports = [
-				...code.matchAll(/import\s*\(\s*["'](\.\.?\/[^"']+\.(?:js|mjs)(?:\?[^"']*)?)["']/g),
+				...code.matchAll(/import\s*\(\s*["'`](\.\.?\/[^"'`]+\.(?:js|mjs)(?:\?[^"'`]*)?)["'`]/g),
+			];
+			for (const match of staticImports) {
+				foundStaticImport = true;
+				const importPath = match[1];
+				assert.match(
+					importPath,
+					/\?dpl=test-deploy-id/,
+					`Static inter-chunk import should include assetQueryParams: ${match[0]}`,
+				);
+			}
+			for (const match of dynamicImports) {
+				foundDynamicImport = true;
+				const importPath = match[1];
+				assert.match(
+					importPath,
+					/\?dpl=test-deploy-id/,
+					`Dynamic inter-chunk import should include assetQueryParams: ${match[0]}`,
+				);
+			}
+		}
+		assert.ok(
+			foundStaticImport,
+			'Expected at least one static relative inter-chunk import in client JS files',
+		);
+		assert.ok(
+			foundDynamicImport,
+			'Expected at least one dynamic relative inter-chunk import in client JS files',
+		);
+	});
+});
+
+describe('Asset Query Parameters in Inter-Chunk JS Imports', () => {
+	let fixture: Fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/asset-query-params-chunks/',
+			output: 'server',
+			adapter: testAdapter({
+				extendAdapter: {
+					client: {
+						assetQueryParams: new URLSearchParams({ dpl: 'test-deploy-id' }),
+					},
+				},
+			}),
+		});
+		await fixture.build();
+	});
+
+	it('appends assetQueryParams to relative imports inside client JS chunks', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const response = await app.render(new Request('http://example.com/'));
+		assert.equal(response.status, 200);
+		const html = await response.text();
+		const $ = cheerio.load(html);
+		const scripts = $('script[src]');
+		assert.ok(scripts.length > 0, 'Should have at least one external script');
+
+		let foundStaticImport = false;
+		let foundDynamicImport = false;
+		// Read all client JS files and check inter-chunk imports have query params
+		const jsFiles = await fixture.glob('client/**/*.js');
+		for (const file of jsFiles) {
+			const code = await fixture.readFile(`/${file}`);
+			// Match static imports: from "./chunk.js", from "./chunk.js"
+			const staticImports = [
+				...code.matchAll(/from\s*["'`](\.\.?\/[^"'`]+\.(?:js|mjs)(?:\?[^"'`]*)?)["'`]/g),
+			];
+			// Match dynamic imports: import("./chunk.js") or import(`./chunk.js`)
+			// Note: Rolldown (Vite 8) emits backtick template literals instead of quotes
+			const dynamicImports = [
+				...code.matchAll(/import\s*\(\s*["'`](\.\.?\/[^"'`]+\.(?:js|mjs)(?:\?[^"'`]*)?)["'`]/g),
 			];
 			for (const match of staticImports) {
 				foundStaticImport = true;
@@ -232,6 +314,9 @@ describe('Asset Query Parameters with Islands and assetsPrefix map', () => {
 			build: {
 				assetsPrefix: multiCdnAssetsPrefix,
 			},
+			outDir: './dist/asset-query-params-asset-query-parameters-with-islands-and-/',
+			cacheDir:
+				'./node_modules/.astro-test/asset-query-params-asset-query-parameters-with-islands-and-/',
 		});
 		await fixture.build();
 	});

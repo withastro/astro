@@ -36,7 +36,7 @@ export function pluginInternals(
 			if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
 				return {
 					build: {
-						rollupOptions: {
+						rolldownOptions: {
 							// These packages as they're not bundle-friendly. Users with strict package installations
 							// need to manually install these themselves if they use the related features.
 							external: [
@@ -46,7 +46,7 @@ export function pluginInternals(
 					},
 					resolve: {
 						// Always bundle Astro runtime when building for SSR
-						noExternal: ['astro'],
+						noExternal: ['astro', '@astrojs/internal-helpers'],
 					},
 				};
 			}

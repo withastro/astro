@@ -1182,6 +1182,7 @@ describe('fonts core', () => {
 							},
 						],
 						style: 'normal',
+						subset: undefined,
 						weight: '400',
 					},
 					{
@@ -1193,6 +1194,7 @@ describe('fonts core', () => {
 							},
 						],
 						style: 'italic',
+						subset: undefined,
 						weight: '500',
 					},
 				],
@@ -1206,6 +1208,59 @@ describe('fonts core', () => {
 							},
 						],
 						style: 'normal',
+						subset: undefined,
+						weight: '400',
+					},
+				],
+			},
+		);
+	});
+
+	it('collectFontData() includes subset from meta', () => {
+		assert.deepStrictEqual(
+			collectFontData([
+				{
+					family: { cssVariable: '--font' },
+					fonts: [
+						{
+							weight: '400',
+							style: 'normal',
+							src: [{ url: 'latin-400.woff2', format: 'woff2' }],
+							meta: { subset: 'latin' },
+						},
+						{
+							weight: '400',
+							style: 'normal',
+							src: [{ url: 'korean-400.woff2', format: 'woff2' }],
+							meta: { subset: 'korean' },
+						},
+					],
+				},
+			]),
+			{
+				'--font': [
+					{
+						src: [
+							{
+								format: 'woff2',
+								tech: undefined,
+								url: 'latin-400.woff2',
+							},
+						],
+						style: 'normal',
+						subset: 'latin',
+						weight: '400',
+					},
+					{
+						src: [
+							{
+								format: 'woff2',
+								tech: undefined,
+								url: 'korean-400.woff2',
+							},
+						],
+						style: 'normal',
+						subset: 'korean',
 						weight: '400',
 					},
 				],
@@ -1587,6 +1642,109 @@ describe('fonts core', () => {
 				},
 			]);
 		});
+
+		describe('variant-aware fallbacks', () => {
+			const variantProvider: SystemFallbacksProvider = {
+				getLocalFonts: (_fallback, variant) => {
+					if (variant === 'bold') return ['Arial Bold'];
+					return ['Arial'];
+				},
+				getMetricsForLocalFont: systemFallbacksProvider.getMetricsForLocalFont,
+			};
+
+			it('selects the bold list for numeric weight >= 700', async () => {
+				const result = await optimizeFallbacks({
+					family,
+					fallbacks: ['sans-serif'],
+					collectedFonts: [
+						{ url: '', id: '', data: { weight: 700, style: 'normal' }, init: undefined },
+					],
+					systemFallbacksProvider: variantProvider,
+					fontMetricsResolver,
+				});
+				assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial Bold', 'sans-serif']);
+			});
+
+			it('selects the bold list for string weight "bold"', async () => {
+				const result = await optimizeFallbacks({
+					family,
+					fallbacks: ['sans-serif'],
+					collectedFonts: [
+						{ url: '', id: '', data: { weight: 'bold', style: 'normal' }, init: undefined },
+					],
+					systemFallbacksProvider: variantProvider,
+					fontMetricsResolver,
+				});
+				assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial Bold', 'sans-serif']);
+			});
+
+			it('treats variable weight ranges as normal', async () => {
+				const result = await optimizeFallbacks({
+					family,
+					fallbacks: ['sans-serif'],
+					collectedFonts: [
+						{ url: '', id: '', data: { weight: '100 900', style: 'normal' }, init: undefined },
+					],
+					systemFallbacksProvider: variantProvider,
+					fontMetricsResolver,
+				});
+				assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial', 'sans-serif']);
+			});
+
+			it('unions per-variant local fonts in the prepended stack and dedupes across variants', async () => {
+				const result = await optimizeFallbacks({
+					family,
+					fallbacks: ['sans-serif'],
+					collectedFonts: [
+						{ url: '', id: '', data: { weight: '400', style: 'normal' }, init: undefined },
+						{ url: '', id: '', data: { weight: '400', style: 'italic' }, init: undefined },
+						{ url: '', id: '', data: { weight: 700, style: 'normal' }, init: undefined },
+						{ url: '', id: '', data: { weight: 700, style: 'italic' }, init: undefined },
+					],
+					systemFallbacksProvider: variantProvider,
+					fontMetricsResolver,
+				});
+				assert.deepStrictEqual(result?.fallbacks, [
+					'Test-xxx fallback: Arial',
+					'Test-xxx fallback: Arial Bold',
+					'sans-serif',
+				]);
+				const faces = JSON.parse(`[${result?.css.slice(0, -1)}]`);
+				// One @font-face per collected font (each variant has one local font in this provider)
+				assert.equal(faces.length, 4);
+				assert.equal(faces[0].font, 'Arial');
+				assert.equal(faces[1].font, 'Arial');
+				assert.equal(faces[2].font, 'Arial Bold');
+				assert.equal(faces[3].font, 'Arial Bold');
+			});
+
+			it('aborts when no variant yields any local font', async () => {
+				const result = await optimizeFallbacks({
+					family,
+					fallbacks: ['sans-serif'],
+					collectedFonts: [{ url: '', id: '', data: { weight: '400' }, init: undefined }],
+					systemFallbacksProvider: {
+						getLocalFonts: () => null,
+						getMetricsForLocalFont: systemFallbacksProvider.getMetricsForLocalFont,
+					},
+					fontMetricsResolver,
+				});
+				assert.equal(result, null);
+			});
+
+			it('skips when the family is already one of the union local fonts', async () => {
+				const result = await optimizeFallbacks({
+					family: { name: 'Arial Bold', uniqueName: 'Arial-Bold-xxx' },
+					fallbacks: ['sans-serif'],
+					collectedFonts: [
+						{ url: '', id: '', data: { weight: '700', style: 'italic' }, init: undefined },
+					],
+					systemFallbacksProvider: variantProvider,
+					fontMetricsResolver,
+				});
+				assert.equal(result, null);
+			});
+		});
 	});
 
 	describe('filterPreloads()', () => {
@@ -1795,13 +1953,7 @@ describe('fonts core', () => {
 			});
 
 			assert.ok(called);
-			assert.deepStrictEqual(logger.logs, [
-				{
-					type: 'debug',
-					label: 'assets',
-					message: 'Fonts dependencies should be initialized by now, skipping middleware.',
-				},
-			]);
+			assert.deepStrictEqual(logger.logs, []);
 		});
 
 		it('skips if url is missing', async () => {
@@ -2016,7 +2168,7 @@ describe('fonts core', () => {
 				{
 					label: 'assets',
 					message: 'Cannot download font file',
-					type: 'error',
+					level: 'error',
 				},
 			]);
 			assert.equal(buffer, undefined);

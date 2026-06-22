@@ -32,17 +32,34 @@ const pageMap = new Map([
 	],
 ]);
 
-function createAppWithLogger(experimentalLogger?: LoggerHandlerConfig) {
+function createAppWithLogger(loggerConfig?: LoggerHandlerConfig) {
 	return new App(
 		createManifest({
 			routes: [createRouteInfo(indexRoute)],
 			pageMap,
-			experimentalLogger,
+			loggerConfig,
 		}),
 	);
 }
 
 describe('SSR Logger', () => {
+	it('adapterLogger re-creates itself after the pipeline logger is replaced', async () => {
+		const app = createAppWithLogger({ entrypoint: 'astro/logger/json' });
+
+		// Access adapterLogger before getLogger(), caches it with the default options
+		const beforeOptions = app.adapterLogger.options;
+
+		await app.pipeline.getLogger();
+
+		// After getLogger() replaces pipeline.logger, adapterLogger should re-create
+		const afterOptions = app.adapterLogger.options;
+		assert.notEqual(
+			beforeOptions,
+			afterOptions,
+			'adapterLogger should re-create when the pipeline logger is replaced',
+		);
+	});
+
 	it('resolves a custom logger destination from the manifest on first request', async () => {
 		const app = createAppWithLogger({ entrypoint: 'astro/logger/json' });
 
@@ -91,13 +108,12 @@ describe('SSR Logger', () => {
 			fixture = await loadFixture({
 				root: './fixtures/ssr-assets/',
 				outDir: './dist/ssr-logger/',
+				cacheDir: './node_modules/.astro-test/ssr-logger/',
 				output: 'server',
 				adapter: testAdapter(),
 				build: { inlineStylesheets: 'never' },
-				experimental: {
-					logger: {
-						entrypoint: 'astro/logger/json',
-					},
+				logger: {
+					entrypoint: 'astro/logger/json',
 				},
 			});
 			await fixture.build();

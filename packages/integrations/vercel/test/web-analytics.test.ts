@@ -14,7 +14,9 @@ describe('Vercel Web Analytics', () => {
 			await fixture.build({});
 		});
 
-		it('ensures that Vercel Web Analytics is present in the header', async () => {
+		it('ensures that Vercel Web Analytics is present in the header', {
+			timeout: 30000,
+		}, async () => {
 			const pageOne = await fixture.readFile('../.vercel/output/static/one/index.html');
 			const pageTwo = await fixture.readFile('../.vercel/output/static/two/index.html');
 

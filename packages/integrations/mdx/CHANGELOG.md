@@ -1,5 +1,214 @@
 # @astrojs/mdx
 
+## 7.0.0-beta.2
+
+### Patch Changes
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+## 6.0.0-alpha.1
+
+### Patch Changes
+
+- [#16969](https://github.com/withastro/astro/pull/16969) [`4a31f90`](https://github.com/withastro/astro/commit/4a31f90c765bcd1c4af8b85160b74a0da338cfe7) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds support for Prism syntax highlighting to the Sätteri Markdown and MDX processors. Setting `markdown.syntaxHighlight` to `'prism'` now highlights your code blocks with Prism.
+
+  ```js
+  // astro.config.mjs
+  import { satteri } from '@astrojs/markdown-satteri';
+
+  export default defineConfig({
+    markdown: {
+      processor: satteri(),
+      syntaxHighlight: 'prism',
+    },
+  });
+  ```
+
+- Updated dependencies [[`4a31f90`](https://github.com/withastro/astro/commit/4a31f90c765bcd1c4af8b85160b74a0da338cfe7)]:
+  - @astrojs/markdown-satteri@0.3.0-alpha.0
+
+## 6.0.0-alpha.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Patch Changes
+
+- Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
+  - astro@7.0.0-alpha.0
+
+## 6.0.3
+
+### Patch Changes
+
+- [#16969](https://github.com/withastro/astro/pull/16969) [`4a31f90`](https://github.com/withastro/astro/commit/4a31f90c765bcd1c4af8b85160b74a0da338cfe7) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds support for Prism syntax highlighting to the Sätteri Markdown and MDX processors. Setting `markdown.syntaxHighlight` to `'prism'` now highlights your code blocks with Prism.
+
+  ```js
+  // astro.config.mjs
+  import { satteri } from '@astrojs/markdown-satteri';
+
+  export default defineConfig({
+    markdown: {
+      processor: satteri(),
+      syntaxHighlight: 'prism',
+    },
+  });
+  ```
+
+## 6.0.2
+
+### Patch Changes
+
+- [#16955](https://github.com/withastro/astro/pull/16955) [`9a93d68`](https://github.com/withastro/astro/commit/9a93d68429aa15e76f07268863badfbda7b59d23) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates Sätteri processor to v0.8.0. See [its changelog](https://github.com/bruits/satteri/blob/main/packages/satteri/CHANGELOG.md#080--2026-06-03) for details on bugs fixed and features added.
+
+- Updated dependencies [[`9a93d68`](https://github.com/withastro/astro/commit/9a93d68429aa15e76f07268863badfbda7b59d23)]:
+  - @astrojs/markdown-satteri@0.2.2
+
+## 6.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`eeb064c`](https://github.com/withastro/astro/commit/eeb064ca9452fd9d0ad9b7557059a646a90a3e57)]:
+  - @astrojs/markdown-satteri@0.2.1
+
+## 6.0.0
+
+### Major Changes
+
+- [#16848](https://github.com/withastro/astro/pull/16848) [`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a new `markdown.processor` configuration option, allowing you to choose an alternative Markdown processor.
+
+  Websites with many Markdown/MDX files tend to be slow to build because the unified ecosystem (e.g., remark, rehype) is slow to process. This feature introduces the ability to replace this part of the build pipeline with another processor.
+
+  The default processor is `unified()`. This means that existing configurations remain unchanged and your remark/rehype plugins continue to work.
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import { unified } from '@astrojs/markdown-remark';
+  import remarkToc from 'remark-toc';
+
+  export default defineConfig({
+    markdown: {
+      processor: unified({
+        remarkPlugins: [remarkToc],
+      }),
+    },
+  });
+  ```
+
+  In addition to this new configuration option, Astro provides a new alternative processor based on Rust: [Sätteri](https://satteri.bruits.org/). You can choose to use it now by installing `@astrojs/markdown-satteri`, importing the `satteri()` processor, and adapting your existing configuration:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import { satteri } from '@astrojs/markdown-satteri';
+
+  export default defineConfig({
+    markdown: {
+      processor: satteri({
+        features: { directive: true },
+      }),
+    },
+  });
+  ```
+
+  This processor does not support the remark and rehype plugins. This means you may need to convert them to [MDAST or HAST plugins](https://satteri.bruits.org/docs/plugins/) to retain your current functionality.
+
+  The existing top-level `markdown.remarkPlugins`, `markdown.rehypePlugins`, `markdown.remarkRehype`, `markdown.gfm`, and `markdown.smartypants` options still work, but are now deprecated and will be removed in a future major update. The matching `remarkPlugins`, `rehypePlugins`, and `remarkRehype` options on the MDX integration are also deprecated for the same reason. To anticipate their removal, move them onto `unified({...})` (or your preferred plugin processor) :
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import remarkToc from 'remark-toc';
+  import rehypeSlug from 'rehype-slug';
+  + import { unified } from '@astrojs/markdown-remark';
+
+  export default defineConfig({
+    markdown: {
+  +    processor: unified({
+  +      remarkPlugins: [remarkToc],
+  +      rehypePlugins: [rehypeSlug],
+  +      remarkRehype: true,
+  +      gfm: true,
+  +      smartypants: true,
+  +    }),
+  -    remarkPlugins: [remarkToc],
+  -    rehypePlugins: [rehypeSlug],
+  -    remarkRehype: true,
+  -    gfm: true,
+  -    smartypants: true,
+    },
+  });
+  ```
+
+  For more information on enabling and using this feature in your project, see our [Markdown guide](https://docs.astro.build/en/guides/markdown-content/). To give feedback on this new Rust processor, see the [Native Markdown / MDX parsing and processing RFC](https://github.com/withastro/roadmap/pull/1364).
+
+### Minor Changes
+
+- [#16848](https://github.com/withastro/astro/pull/16848) [`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds support for using [`@astrojs/markdown-satteri`](https://www.npmjs.com/package/@astrojs/markdown-satteri) to parse `.mdx` files.
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import mdx from '@astrojs/mdx';
+  import { satteri } from '@astrojs/markdown-satteri';
+
+  export default defineConfig({
+    markdown: {
+      processor: satteri({
+        features: { directive: true },
+      }),
+    },
+    integrations: [mdx()],
+  });
+  ```
+
+  Note that the [`recmaPlugins` option](https://docs.astro.build/en/guides/integrations-guide/mdx/#recmaplugins) is not supported when using Sätteri as your MDX processor. If you would like to use Sätteri for Markdown files, but still use Unified for MDX, you can pass a different Markdown processor to the MDX integration:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import mdx from '@astrojs/mdx';
+  import { satteri } from '@astrojs/markdown-satteri';
+  import { unified } from '@astrojs/markdown-remark';
+  import myPlugin from './my-recma-plugin.js';
+
+  export default defineConfig({
+    markdown: {
+      processor: satteri({
+        features: { directive: true },
+      }),
+    },
+    integrations: [
+      mdx({
+        recmaPlugins: [myPlugin],
+        processor: unified(),
+      }),
+    ],
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc), [`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc), [`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc)]:
+  - @astrojs/internal-helpers@0.10.0
+  - @astrojs/markdown-remark@7.2.0
+  - @astrojs/markdown-satteri@0.2.0
+
+## 5.0.6
+
+### Patch Changes
+
+- [#16579](https://github.com/withastro/astro/pull/16579) [`49e10e3`](https://github.com/withastro/astro/commit/49e10e3b97a49d805802b8972a2f848ea7847b91) Thanks [@igor-koop](https://github.com/igor-koop)! - Fixes an issue where the `smartypants` option was ignored.
+
+## 5.0.5
+
+### Patch Changes
+
+- Updated dependencies [[`9256345`](https://github.com/withastro/astro/commit/92563452ce866d9f9b950ad4b2adc808d10e8014)]:
+  - @astrojs/markdown-remark@7.1.2
+
 ## 5.0.4
 
 ### Patch Changes

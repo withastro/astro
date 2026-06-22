@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { Router } from '../../../dist/core/routing/router.js';
+import type { RouteData } from '../../../dist/types/public/internal.js';
 import { dynamicPart, makeRoute, spreadPart, staticPart } from './test-helpers.ts';
 
 describe('Router.match', () => {
@@ -270,6 +271,28 @@ describe('Router.match', () => {
 		assert.equal(aboutMatch.route.route, '/about');
 	});
 
+	it('matches dynamic routes that contain .html in their params', () => {
+		const trailingSlash = 'ignore';
+		const routes = [
+			makeRoute({
+				segments: [[dynamicPart('path')]],
+				trailingSlash,
+				route: '/[path]',
+				pathname: undefined,
+				type: 'endpoint',
+			}),
+		];
+		const router = new Router(routes, {
+			base: '/',
+			trailingSlash,
+			buildFormat: 'directory',
+		});
+
+		const match = router.match('/file.html');
+		assert.equal(match.type, 'match');
+		assert.deepEqual(match.params, { path: 'file.html' });
+	});
+
 	it('matches [slug].html routes and extracts slug without .html', () => {
 		// Routes like `[slug].html.astro` have `.html` as a static segment part.
 		// The router must not strip `.html` before matching, or params extraction fails.
@@ -403,5 +426,86 @@ describe('Router.match', () => {
 			assert.equal(match.location, '/foo/bar');
 			assert.equal(match.status, 301);
 		}
+	});
+});
+
+describe('Router.matchAll', () => {
+	it('returns all matching routes in priority order', () => {
+		const trailingSlash = 'ignore' as const;
+		const prerenderRoute = makeRoute({
+			segments: [[dynamicPart('a_prebuild')]],
+			trailingSlash,
+			route: '/[a_prebuild]',
+			pathname: undefined,
+			prerender: true,
+		});
+		const ssrRoute = makeRoute({
+			segments: [[dynamicPart('b_ssr')]],
+			trailingSlash,
+			route: '/[b_ssr]',
+			pathname: undefined,
+			prerender: false,
+		});
+
+		const router = new Router([prerenderRoute, ssrRoute], {
+			base: '/',
+			trailingSlash,
+			buildFormat: 'directory',
+		});
+
+		const allMatches = router.matchAll('/foobar');
+		assert.equal(allMatches.length, 2, 'should return both matching routes');
+		// Both have the same pattern, order determined by routeComparator
+		const routeNames = allMatches.map((r: RouteData) => r.route);
+		assert.ok(routeNames.includes('/[a_prebuild]'));
+		assert.ok(routeNames.includes('/[b_ssr]'));
+	});
+
+	it('returns empty array when no routes match', () => {
+		const trailingSlash = 'ignore' as const;
+		const route = makeRoute({
+			segments: [[staticPart('about')]],
+			trailingSlash,
+			route: '/about',
+			pathname: '/about',
+		});
+
+		const router = new Router([route], {
+			base: '/',
+			trailingSlash,
+			buildFormat: 'directory',
+		});
+
+		const allMatches = router.matchAll('/nonexistent');
+		assert.equal(allMatches.length, 0);
+	});
+
+	it('allows finding non-prerendered fallback when prerendered route matches first', () => {
+		const trailingSlash = 'ignore' as const;
+		const prerenderRoute = makeRoute({
+			segments: [[dynamicPart('a_prebuild')]],
+			trailingSlash,
+			route: '/[a_prebuild]',
+			pathname: undefined,
+			prerender: true,
+		});
+		const ssrRoute = makeRoute({
+			segments: [[dynamicPart('b_ssr')]],
+			trailingSlash,
+			route: '/[b_ssr]',
+			pathname: undefined,
+			prerender: false,
+		});
+
+		const router = new Router([prerenderRoute, ssrRoute], {
+			base: '/',
+			trailingSlash,
+			buildFormat: 'directory',
+		});
+
+		const allMatches = router.matchAll('/foobar');
+		const ssrMatch = allMatches.find((r: RouteData) => !r.prerender);
+		assert.ok(ssrMatch, 'should find a non-prerendered route');
+		assert.equal(ssrMatch!.route, '/[b_ssr]');
 	});
 });

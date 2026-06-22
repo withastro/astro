@@ -1,9 +1,11 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import { Range } from '@volar/language-server';
+import ts from 'typescript';
 import type { Node } from 'vscode-html-languageservice';
 import * as html from 'vscode-html-languageservice';
 import { getTSXRangesAsLSPRanges, safeConvertToTSX } from '../../dist/core/astro2tsx.js';
+import { addAstroTypes } from '../../dist/core/index.js';
 import { getAstroMetadata } from '../../dist/core/parseAstro.js';
 import { patchTSX } from '../../dist/core/utils.js';
 import {
@@ -161,6 +163,7 @@ describe('Utilities', async () => {
 		assert.deepStrictEqual(
 			Array.from(
 				getAlreadyImportedAstroComponentSources(
+					ts,
 					`import Image from "../components/Image.astro";\nimport { default as Card } from "../components/Card.astro";\n`,
 				),
 			),
@@ -172,6 +175,7 @@ describe('Utilities', async () => {
 		assert.deepStrictEqual(
 			Array.from(
 				getAlreadyImportedAstroComponentSources(
+					ts,
 					`import type { Props } from "../components/Image.astro";\n`,
 				),
 			),
@@ -183,6 +187,7 @@ describe('Utilities', async () => {
 		assert.deepStrictEqual(
 			Array.from(
 				getAlreadyImportedAstroComponentSources(
+					ts,
 					`---
 import Image from "../components/Image.astro";
 ---
@@ -230,5 +235,28 @@ export default function Image__AstroComponent_(_props: Record<string, any>): any
 			patchTSX(input, 'file:///src/pages/[slug].astro'),
 			/export default function _slug_AstroComponent\(/,
 		);
+	});
+
+	it('addAstroTypes - adds getParsedCommandLine that filters non-TS files', () => {
+		const mockHost = {
+			getScriptFileNames: () => [],
+			getCompilationSettings: () => ({}),
+			getProjectReferences: () => [{ path: './tsconfig.app.json' }],
+		} as any;
+
+		addAstroTypes(undefined, ts, mockHost);
+
+		assert.ok(mockHost.getParsedCommandLine, 'getParsedCommandLine should be added to host');
+	});
+
+	it('addAstroTypes - does not add getParsedCommandLine without project references', () => {
+		const mockHost = {
+			getScriptFileNames: () => [],
+			getCompilationSettings: () => ({}),
+		} as any;
+
+		addAstroTypes(undefined, ts, mockHost);
+
+		assert.strictEqual(mockHost.getParsedCommandLine, undefined);
 	});
 });

@@ -26,8 +26,8 @@
     "dist/**/*.d.ts"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "tsc -b",
+    "dev": "tsc -b --watch",
     "test": "astro-scripts test \"**/*.test.ts\"  --tsx true"
   },
   "dependencies": {
@@ -37,11 +37,11 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@types/node": "^20.9.0",
+    "@types/node": "^22.10.6",
     "@types/yargs": "^17.0.35",
     "astro-scripts": "workspace:*",
     "tinyglobby": "^0.2.16",
-    "tsx": "^4.21.0"
+    "tsx": "^4.22.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0 || ^6.0.0"

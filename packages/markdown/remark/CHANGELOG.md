@@ -1,5 +1,92 @@
 # @astrojs/markdown-remark
 
+## 7.2.0
+
+### Minor Changes
+
+- [#16848](https://github.com/withastro/astro/pull/16848) [`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a new `markdown.processor` configuration option, allowing you to choose an alternative Markdown processor.
+
+  Websites with many Markdown/MDX files tend to be slow to build because the unified ecosystem (e.g., remark, rehype) is slow to process. This feature introduces the ability to replace this part of the build pipeline with another processor.
+
+  The default processor is `unified()`. This means that existing configurations remain unchanged and your remark/rehype plugins continue to work.
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import { unified } from '@astrojs/markdown-remark';
+  import remarkToc from 'remark-toc';
+
+  export default defineConfig({
+    markdown: {
+      processor: unified({
+        remarkPlugins: [remarkToc],
+      }),
+    },
+  });
+  ```
+
+  In addition to this new configuration option, Astro provides a new alternative processor based on Rust: [Sätteri](https://satteri.bruits.org/). You can choose to use it now by installing `@astrojs/markdown-satteri`, importing the `satteri()` processor, and adapting your existing configuration:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import { satteri } from '@astrojs/markdown-satteri';
+
+  export default defineConfig({
+    markdown: {
+      processor: satteri({
+        features: { directive: true },
+      }),
+    },
+  });
+  ```
+
+  This processor does not support the remark and rehype plugins. This means you may need to convert them to [MDAST or HAST plugins](https://satteri.bruits.org/docs/plugins/) to retain your current functionality.
+
+  The existing top-level `markdown.remarkPlugins`, `markdown.rehypePlugins`, `markdown.remarkRehype`, `markdown.gfm`, and `markdown.smartypants` options still work, but are now deprecated and will be removed in a future major update. The matching `remarkPlugins`, `rehypePlugins`, and `remarkRehype` options on the MDX integration are also deprecated for the same reason. To anticipate their removal, move them onto `unified({...})` (or your preferred plugin processor) :
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import remarkToc from 'remark-toc';
+  import rehypeSlug from 'rehype-slug';
+  + import { unified } from '@astrojs/markdown-remark';
+
+  export default defineConfig({
+    markdown: {
+  +    processor: unified({
+  +      remarkPlugins: [remarkToc],
+  +      rehypePlugins: [rehypeSlug],
+  +      remarkRehype: true,
+  +      gfm: true,
+  +      smartypants: true,
+  +    }),
+  -    remarkPlugins: [remarkToc],
+  -    rehypePlugins: [rehypeSlug],
+  -    remarkRehype: true,
+  -    gfm: true,
+  -    smartypants: true,
+    },
+  });
+  ```
+
+  For more information on enabling and using this feature in your project, see our [Markdown guide](https://docs.astro.build/en/guides/markdown-content/). To give feedback on this new Rust processor, see the [Native Markdown / MDX parsing and processing RFC](https://github.com/withastro/roadmap/pull/1364).
+
+### Patch Changes
+
+- Updated dependencies [[`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc)]:
+  - @astrojs/internal-helpers@0.10.0
+
+## 7.1.2
+
+### Patch Changes
+
+- [#15723](https://github.com/withastro/astro/pull/15723) [`9256345`](https://github.com/withastro/astro/commit/92563452ce866d9f9b950ad4b2adc808d10e8014) Thanks [@rururux](https://github.com/rururux)! - Updates internal type usage from `@astrojs/prism`.
+
+- Updated dependencies [[`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce), [`9256345`](https://github.com/withastro/astro/commit/92563452ce866d9f9b950ad4b2adc808d10e8014)]:
+  - @astrojs/internal-helpers@0.9.1
+  - @astrojs/prism@4.0.2
+
 ## 7.1.1
 
 ### Patch Changes

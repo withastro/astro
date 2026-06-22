@@ -12,6 +12,7 @@ export { validateConfig } from '../core/config/validate.js';
 export { envField } from '../env/config.js';
 export { defineConfig, getViteConfig } from './index.js';
 export { sessionDrivers } from '../core/session/drivers.js';
+export { svgoOptimizer } from '../assets/svg/svgo.js';
 export { logHandlers } from '../core/logger/handlers.js';
 
 /**

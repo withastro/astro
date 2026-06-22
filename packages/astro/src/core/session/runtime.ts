@@ -154,7 +154,8 @@ export class AstroSession {
 	 * Deletes a session value.
 	 */
 	delete(key: string) {
-		this.#data?.delete(key);
+		this.#data ??= new Map();
+		this.#data.delete(key);
 		if (this.#partial) {
 			this.#toDelete.add(key);
 		}
@@ -343,11 +344,21 @@ export class AstroSession {
 	 */
 
 	async #ensureData() {
-		const storage = await this.#ensureStorage();
 		if (this.#data && !this.#partial) {
 			return this.#data;
 		}
 		this.#data ??= new Map();
+
+		// If no session ID has been set yet (no prior set() call) and there is no
+		// session cookie, there is nothing to load from storage. Returning early
+		// avoids initialising the storage driver and making a guaranteed-miss read
+		// on every anonymous request.
+		if (!this.#sessionID && !this.#cookies.get(this.#cookieName)?.value) {
+			this.#partial = false;
+			return this.#data;
+		}
+
+		const storage = await this.#ensureStorage();
 
 		// We stored this as a devalue string, but unstorage will have parsed it as JSON
 		const raw = await storage.get<any[]>(this.#ensureSessionID());

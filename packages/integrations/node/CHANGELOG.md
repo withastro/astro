@@ -1,5 +1,58 @@
 # @astrojs/node
 
+## 11.0.0-beta.2
+
+### Patch Changes
+
+- [#17054](https://github.com/withastro/astro/pull/17054) [`d426b67`](https://github.com/withastro/astro/commit/d426b67b1239a82bf001d23ac8e418fea6861be1) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes an issue where Astro files with non-ASCII characters in their name weren't correctly served after the build.
+
+## 11.0.0-beta.1
+
+### Patch Changes
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+## 11.0.0-alpha.0
+
+### Patch Changes
+
+- Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
+  - astro@7.0.0-alpha.0
+
+## 10.1.4
+
+### Patch Changes
+
+- [#16985](https://github.com/withastro/astro/pull/16985) [`4ecff32`](https://github.com/withastro/astro/commit/4ecff3268acb6ee3db719c4b38bbaead703ff4de) Thanks [@maximslo](https://github.com/maximslo)! - Fixes the `experimental.logger` destination not being used for the "Server listening on..." startup message. The logger is now resolved before the server starts listening, and `adapterLogger` re-creates itself when the underlying logger changes so the startup message uses the correct destination.
+
+## 10.1.3
+
+### Patch Changes
+
+- [#16922](https://github.com/withastro/astro/pull/16922) [`7dce185`](https://github.com/withastro/astro/commit/7dce1852a4f185fb44f885030f48c1883e9b17ff) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes prerendered pages returning 404 when using `build.format: 'file'` or `build.format: 'preserve'` with the Node adapter in standalone mode.
+
+  Previously, clean URLs like `/about` would fail to resolve to `about.html` on disk, because the static file handler only supported the default `directory` format (`about/index.html`). Now the handler correctly resolves clean URLs to `.html` files when the build format produces them.
+
+## 10.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc)]:
+  - @astrojs/internal-helpers@0.10.0
+
+## 10.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce)]:
+  - @astrojs/internal-helpers@0.9.1
+
+## 10.1.0
+
+### Minor Changes
+
+- [#16639](https://github.com/withastro/astro/pull/16639) [`4d72482`](https://github.com/withastro/astro/commit/4d7248223b919bfd3557fba6f56b4474b4bd58c7) Thanks [@ematipico](https://github.com/ematipico)! - The adapter now depends on Astro 6.3.0.
+
 ## 10.0.6
 
 ### Patch Changes

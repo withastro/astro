@@ -47,6 +47,8 @@ describe('Server islands', () => {
 				security: {
 					csp: true,
 				},
+				outDir: './dist/csp-server-islands-ssr/',
+				cacheDir: './node_modules/.astro-test/csp-server-islands-ssr/',
 			});
 			process.env.ASTRO_KEY = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=';
 			await fixture.build();
@@ -98,6 +100,8 @@ describe('Server islands', () => {
 				security: {
 					csp: true,
 				},
+				outDir: './dist/csp-server-islands-hybrid/',
+				cacheDir: './node_modules/.astro-test/csp-server-islands-hybrid/',
 			});
 		});
 
@@ -142,9 +146,10 @@ describe('Server islands', () => {
 					});
 					assert.equal(true, false, 'should not have succeeded');
 				} catch (err) {
-					assert.equal(
-						(err as { title: string }).title,
-						'Cannot use Server Islands without an adapter.',
+					const message = (err as Error).message;
+					assert.ok(
+						message.includes('NoAdapterInstalledServerIslands'),
+						`Expected error about missing adapter, got: ${message}`,
 					);
 				}
 			});

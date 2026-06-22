@@ -7,8 +7,8 @@ import type {
 	ShikiConfig,
 	Smartypants,
 	SyntaxHighlightConfigType,
-} from '@astrojs/markdown-remark';
-import type { Config as SvgoConfig } from 'svgo';
+} from '@astrojs/internal-helpers/markdown';
+import type { MarkdownProcessor } from '../../markdown/index.js';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
@@ -25,6 +25,7 @@ import type {
 } from '../../core/session/types.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { SvgOptimizer } from '../../assets/svg/types.js';
 import type { LoggerHandlerConfig } from '../../core/logger/config.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
@@ -34,6 +35,8 @@ export type { FontProvider };
 export type { CspAlgorithm, CspHash };
 
 export type { RemotePattern };
+
+export type { SvgOptimizer };
 
 export type CspStyleDirective = { hashes?: CspHash[]; resources?: string[] };
 export type CspScriptDirective = {
@@ -470,24 +473,27 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @name compressHTML
-	 * @type {boolean}
+	 * @type {boolean | "jsx"}
 	 * @default `true`
 	 * @description
 	 *
-	 * This is an option to minify your HTML output and reduce the size of your HTML files.
+	 * Controls how Astro handles whitespace in your HTML. This affects both development mode and the final build output.
 	 *
-	 * By default, Astro removes whitespace from your HTML, including line breaks, from `.astro` components in a lossless manner.
-	 * Some whitespace may be kept as needed to preserve the visual rendering of your HTML. This occurs both in development mode and in the final build.
+	 * By default, Astro removes whitespace from your HTML, including line breaks, in a lossless manner from `.astro` components. Some whitespace may be preserved as needed to maintain the visual rendering of your HTML.
 	 *
-	 * To disable HTML compression, set `compressHTML` to false.
+	 * Since 6.2.0, this option can also be set to `"jsx"`, Astro will apply the JSX whitespace stripping rules used by frameworks like React. Leading and trailing whitespace is only preserved when explicitly included in the source code through constructs such as `{" "}`, and is otherwise removed entirely.
+	 *
+	 * Setting this option to false disables HTML compression and preserves all whitespace.
 	 *
 	 * ```js
 	 * {
 	 *   compressHTML: false
+	 *   // or:
+	 *   // compressHTML: 'jsx'
 	 * }
 	 * ```
 	 */
-	compressHTML?: boolean;
+	compressHTML?: boolean | 'jsx';
 
 	/**
 	 * @docs
@@ -1396,28 +1402,131 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @kind heading
+	 * @name fetchFile
+	 * @type {string | null}
+	 * @default `'fetch'`
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * Customizes the file used as the fetch entrypoint inside `srcDir`.
+	 * Defaults to `'fetch'`, meaning Astro looks for `src/fetch.ts` (or `.js` / `.mjs` / `.mts`).
+	 *
+	 * The fetch file allows you to compose Astro's request pipeline with the
+	 * Web Fetch standard or your own Hono middleware.
+	 *
+	 * If you already have a `src/fetch.ts` file in use for other purposes, define a
+	 * different filename or set the value to `null` to disable the entrypoint:
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   fetchFile: 'handler',
+	 * });
+	 * ```
+	 *
+	 * Learn more about customizing the request pipeline in the [advanced routing guide](https://v7.docs.astro.build/en/guides/routing/#advanced-routing).
+	 */
+	fetchFile?: string | null;
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Logger Options
+	 * @type {LoggerHandlerConfig}
+	 * @default `undefined`
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * Configures how Astro logs messages during development and production.
+	 *
+	 * By default, Astro uses a built-in logger that outputs human-friendly logs to the console. You can customize this behavior by providing [your own logger handler](https://v7.docs.astro.build/en/reference/logger-reference/#custom-loggers) or by using one of the [built-in log handlers](https://v7.docs.astro.build/en/reference/logger-reference/#built-in-loggers):
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * import { defineConfig, logHandlers } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   logger: logHandlers.json({ level: 'info' })
+	 * });
+	 * ```
+	 *
+	 * See [the logger API reference](https://v7.docs.astro.build/en/reference/logger-reference/) for more information.
+	 */
+	logger?: LoggerHandlerConfig;
+
+	/**
+	 * @docs
+	 * @name logger.entrypoint
+	 * @type {string}
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * The entrypoint of the log handler. This can be a path to a file in your project or an npm package:
+	 *
+	 * ```js title="astro.config.mjs"
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   logger: {
+	 *     entrypoint: "@org/astro-logger",
+	 *   }
+	 * });
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name logger.config
+	 * @type {Record<string, unknown> | undefined}
+	 * @version 7.0.0
+	 * @default `{}`
+	 * @description
+	 *
+	 * The configuration object for the log handler. The options depend on the configured logger.
+	 *
+	 * ```js title="astro.config.mjs"
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   logger: {
+	 *     entrypoint: "@org/astro-logger",
+	 *     config: {
+	 *      level: "error"
+	 *     }
+	 *   }
+	 * });
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @kind heading
 	 * @version 5.7.0
 	 * @name Session Options
 	 * @description
 	 *
 	 * Configures session storage for your Astro project. This is used to store session data in a persistent way, so that it can be accessed across different requests.
-	 * Some adapters may provide a default session driver, but you can override it with your own configuration.
 	 *
-	 * See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.
+	 * Some adapters may provide a default session driver, but you can override it with your own configuration:
 	 *
 	 * ```js title="astro.config.mjs"
-	 *   {
-	 *     session: {
-	 *       // The name of the Unstorage driver
-	 *       driver: 'redis',
-	 *       // The required options depend on the driver
-	 *       options: {
-	 *         url: process.env.REDIS_URL,
-	 *       },
-	 *       ttl: 3600, // 1 hour
-	 *     }
+	 * import { defineConfig, sessionDrivers } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   session: {
+	 *     driver: sessionDrivers.redis({
+	 *       // The options are driver-dependent and some may be required.
+	 *       url: process.env.REDIS_URL
+	 *     }),
 	 *   }
+	 * });
 	 * ```
+	 *
+	 * Session drivers are configured at build time. This means environment variables used in the driver configuration are inlined. You must create your own driver entrypoint to [override the configuration at runtime](https://docs.astro.build/en/guides/sessions/#overriding-the-configuration-at-runtime).
+	 *
+	 * See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.
 	 */
 	session?: SessionConfig<TDriver>;
 
@@ -1801,6 +1910,20 @@ export interface AstroUserConfig<
 
 		/**
 		 * @docs
+		 * @name image.dangerouslyProcessSVG
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 6.3.0
+		 * @description
+		 *
+		 * Allows SVG source images to be processed by the image optimization pipeline.
+		 *
+		 * This is disabled by default as specifically formed SVGs can be prohibitively expensive to process and used by malicious actors to execute denial of service attacks. Only enable this option if you trust the source of your SVG images and understand the risks of processing them.
+		 */
+		dangerouslyProcessSVG?: boolean;
+
+		/**
+		 * @docs
 		 * @name image.domains
 		 * @type {string[]}
 		 * @default `[]`
@@ -1849,14 +1972,17 @@ export interface AstroUserConfig<
 		 * }
 		 * ```
 		 *
-		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured:
-		 * `hostname`:
-		 *   - Start with '**.' to allow all subdomains ('endsWith').
-		 *   - Start with '*.' to allow only one level of subdomain.
+		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured.
 		 *
-		 * `pathname`:
-		 *   - End with '/**' to allow all sub-routes ('startsWith').
-		 *   - End with '/*' to allow only one level of sub-route.
+		 * `hostname` patterns:
+		 *   - Start with `**.` to allow all subdomains (like `endsWith`).
+		 *   - Start with `*.` to allow only one level of subdomain.
+		 *
+		 * `pathname` patterns:
+		 *   - End with `/**` to allow all sub-routes (like `startsWith`).
+		 *   - End with `/*` to allow only one level of sub-route.
+		 *
+		 * HTTP redirects are also followed when an image URL matches a remote pattern. The final destination URL must be among the allowed remote patterns to be loaded.
 
 		 */
 		remotePatterns?: Partial<RemotePattern>[];
@@ -2061,6 +2187,7 @@ export interface AstroUserConfig<
 		 * @docs
 		 * @name markdown.remarkPlugins
 		 * @type {RemarkPlugins}
+		 * @deprecated Pass `remarkPlugins` to `unified({ remarkPlugins })` from `@astrojs/markdown-remark` and set it as `markdown.processor` instead. Will be removed in a future major.
 		 * @description
 		 * Pass [remark plugins](https://github.com/remarkjs/remark) to customize how your Markdown is built. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
@@ -2078,6 +2205,7 @@ export interface AstroUserConfig<
 		 * @docs
 		 * @name markdown.rehypePlugins
 		 * @type {RehypePlugins}
+		 * @deprecated Pass `rehypePlugins` to `unified({ rehypePlugins })` from `@astrojs/markdown-remark` and set it as `markdown.processor` instead. Will be removed in a future major.
 		 * @description
 		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
@@ -2097,6 +2225,7 @@ export interface AstroUserConfig<
 		 * @type {boolean}
 		 * @default `true`
 		 * @version 2.0.0
+		 * @deprecated Pass `gfm` to your processor instead (e.g. `unified({ gfm: false })`). Will be removed in a future major.
 		 * @description
 		 * Astro uses [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) by default. To disable this, set the `gfm` flag to `false`:
 		 *
@@ -2116,6 +2245,7 @@ export interface AstroUserConfig<
 		 * @type {boolean | Smartypants}
 		 * @default `true`
 		 * @version 2.0.0
+		 * @deprecated Pass `smartypants` to your processor instead (e.g. `unified({ smartypants: false })`). Will be removed in a future major.
 		 * @description
 		 * Whether to use the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) to transform straight quotes into smart quotes, dashes into en/em dashes, and triple dots into ellipses.
 		 *
@@ -2129,6 +2259,7 @@ export interface AstroUserConfig<
 		 * @docs
 		 * @name markdown.remarkRehype
 		 * @type {RemarkRehype}
+		 * @deprecated Pass `remarkRehype` to `unified({ remarkRehype })` from `@astrojs/markdown-remark` and set it as `markdown.processor` instead. Will be removed in a future major.
 		 * @description
 		 * Pass options to [remark-rehype](https://github.com/remarkjs/remark-rehype#api).
 		 *
@@ -2142,6 +2273,48 @@ export interface AstroUserConfig<
 		 * ```
 		 */
 		remarkRehype?: RemarkRehype;
+
+		/**
+		 * @docs
+		 * @name markdown.processor
+		 * @type {MarkdownProcessor}
+		 * @version 6.4.0
+		 * @description
+		 * Configures the Markdown processor used to render `.md` files. Defaults to `satteri()` from
+		 * `@astrojs/markdown-satteri`, Astro's native Markdown pipeline.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 * import { satteri } from '@astrojs/markdown-satteri';
+		 *
+		 * export default defineConfig({
+		 *   markdown: {
+		 *     processor: satteri({
+		 *       features: { gfm: false },
+		 *     }),
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * To keep the remark/rehype pipeline, install `@astrojs/markdown-remark` and pass `unified()`:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 * import { unified } from '@astrojs/markdown-remark';
+		 * import remarkToc from 'remark-toc';
+		 *
+		 * export default defineConfig({
+		 *   markdown: {
+		 *     processor: unified({
+		 *       remarkPlugins: [remarkToc],
+		 *     }),
+		 *   },
+		 * });
+		 * ```
+		 */
+		processor?: MarkdownProcessor;
 	};
 
 	/**
@@ -2854,14 +3027,12 @@ export interface AstroUserConfig<
 		chromeDevtoolsWorkspace?: boolean;
 
 		/**
-		 * @name experimental.svgo
-		 * @type {boolean | SvgoConfig}
-		 * @default `false`
+		 * @name experimental.svgOptimizer
+		 * @type {SvgOptimizer}
+		 * @default `undefined`
+		 * @version 6.2.0
 		 * @description
-		 * Enable SVG optimization using SVGO during build time.
-		 *
-		 * Set to `true` to enable optimization with default settings, or pass a configuration
-		 * object to customize SVGO behavior.
+		 * Enable SVG optimization at build time.
 		 *
 		 * When enabled, all imported SVG files will be optimized for smaller file sizes
 		 * and better performance while maintaining visual quality.
@@ -2870,32 +3041,14 @@ export interface AstroUserConfig<
 		 * {
 		 *   experimental: {
 		 *     // Enable with defaults
-		 *     svgo: true
+		 *     svgOptimizer: svgoOptimizer()
 		 *   }
 		 * }
 		 * ```
 		 *
-		 * To customize optimization, pass a [SVGO configuration object](https://svgo.dev/):
-		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 *     svgo: {
-		 *       plugins: [
-		 *         'preset-default',
-		 *         {
-		 *           name: 'removeViewBox',
-		 *           active: false
-		 *         }
-		 *       ]
-		 *     }
-		 *   }
-		 * }
-		 * ```
-		 *
-		 * See the [experimental SVGO optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
+		 * See the [experimental SVG optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
 		 */
-		svgo?: boolean | SvgoConfig;
+		svgOptimizer?: SvgOptimizer;
 
 		/**
 		 * @name experimental.cache
@@ -2975,117 +3128,6 @@ export interface AstroUserConfig<
 		 * ```
 		 */
 		routeRules?: RouteRules;
-		/*
-		 * @name experimental.rustCompiler
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 6.0.0
-		 * @description
-		 *
-		 * Enables the experimental Rust-based Astro compiler (`@astrojs/compiler-rs`) as a replacement to the current Go compiler.
-		 *
-		 * This option requires installing the `@astrojs/compiler-rs` package manually in your project. This compiler is a work in progress and may not yet support all features of the current Go compiler, but it should offer improved performance and better error messages. This compiler is more strict than the previous Go compiler regarding invalid syntax. For instance, unclosed HTML tags or missing closing brackets will throw an error instead of being ignored.
-		 *
-		 * ```js
-		 * // astro.config.mjs
-		 * import { defineConfig } from 'astro/config';
-		 *
-		 * export default defineConfig({
-		 *   experimental: {
-		 *     rustCompiler: true,
-		 *   },
-		 * });
-		 * ```
-		 */
-		rustCompiler?: boolean;
-
-		/**
-		 * @name experimental.queuedRendering
-		 * @type {boolean | { poolSize?: number; cache?: boolean }}
-		 * @default `false`
-		 * @version 6.0.0
-		 * @description
-		 * Enable queue-based rendering engine instead of the default recursive rendering.
-		 *
-		 * This new rendering engine comes with a different set of features that you can tweak based on your needs.
-		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 *     queuedRendering: {
-		 *       enabled: true
-		 *     }
-		 *   }
-		 * }
-		 * ```
-		 *
-		 * You can optionally configure the object pool size and HTMLString caching:
-		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 *     queuedRendering: {
-		 *       enabled: true,
-		 *       poolSize: 1000,  // default: 1000 for static builds, 0 for SSR
-		 *       cache: false     // default: false (caching can hurt performance)
-		 *     }
-		 *   }
-		 * }
-		 * ```
-		 */
-		queuedRendering?: {
-			/**
-			 * @default `false`
-			 * @version 6.0.0
-			 * @description
-			 * Enables the queue-based rendering.
-			 */
-			enabled: boolean;
-			/**
-			 * @default 1000
-			 * @version 6.0.0
-			 * @description
-			 * Allows to change how many nodes should be saved in the pool. If 0 is provided, the pool is disabled.
-			 * The pool is disabled for dynamic pages, because server requests don't share the same memory.
-			 */
-			poolSize?: number;
-			/**
-			 * @default `false`
-			 * @version 6.0.0
-			 * @description
-			 * Enables HTMLString caching to deduplicate repeated HTML fragments during rendering.
-			 * When enabled, identical HTML strings (e.g., repeated `<li>` tags) share a single
-			 * `HTMLString` object instead of creating a new wrapper per occurrence.
-			 * This caching is disabled for dynamic pages.
-			 */
-			contentCache?: boolean;
-		};
-		/**
-		 * @name experimental.logger
-		 * @type {{ entrypoint: string; config?: Record<string, unknown> }}
-		 * @default `undefined`
-		 * @version 6.2.0
-		 * @description
-		 *
-		 * Configure a custom logger by defining its entrypoint and, optionally, providing a serializable configuration:
-		 *
-		 * ```js
-		 * // astro.config.mjs
-		 * import { defineConfig } from 'astro/config';
-		 *
-		 * export default defineConfig({
-		 *   experimental: {
-		 *     logger: {
-		 *       entrypoint: "@org/astro-logger",
-		 *       config: {
-		 *        level: "error"
-		 *       }
-		 *     }
-		 *   }
-		 * });
-		 * ```
-		 */
-		logger?: LoggerHandlerConfig;
 	};
 }
 
@@ -3144,5 +3186,5 @@ export interface AstroInlineOnlyConfig {
 	/**
 	 * @internal for testing only, use `logLevel` instead.
 	 */
-	logger?: AstroLogger;
+	_logger?: AstroLogger;
 }

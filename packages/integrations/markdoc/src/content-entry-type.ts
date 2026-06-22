@@ -1,13 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { parseFrontmatter } from '@astrojs/markdown-remark';
+import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
 import { emitClientAsset } from 'astro/assets/utils';
 import { emitImageMetadata } from 'astro/assets/utils/node';
-import type { Rollup, ErrorPayload as ViteErrorPayload } from 'vite';
+import type { Rolldown, ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
 import type { MarkdocConfigResult } from './load-config.js';
@@ -166,7 +166,7 @@ async function resolvePartials({
 	tokenizer: any;
 	allowHTML?: boolean;
 	markdocConfig: MarkdocConfig;
-	pluginContext: Rollup.PluginContext;
+	pluginContext: Rolldown.PluginContext;
 	raisePartialValidationErrors: (ast: Node, filePath: string) => void;
 }) {
 	const relativePartialPath = path.relative(fileURLToPath(root), fileURLToPath(fileUrl));
@@ -294,7 +294,7 @@ async function emitOptimizedImages(
 	nodeChildren: Node[],
 	ctx: {
 		hasDefaultImage: boolean;
-		pluginContext: Rollup.PluginContext;
+		pluginContext: Rolldown.PluginContext;
 		filePath: string;
 		astroConfig: AstroConfig;
 	},

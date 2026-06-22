@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { mergeConfig, preview, type PreviewServer as VitePreviewServer } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
+import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { AstroLogger } from '../logger/core.js';
 import * as msg from '../messages/runtime.js';
 import { getResolvedHostForHttpServer } from './util.js';
@@ -33,7 +34,7 @@ export default async function createStaticPreviewServer(
 			base: settings.config.base,
 			appType: 'mpa',
 			build: {
-				outDir: fileURLToPath(settings.config.outDir),
+				outDir: fileURLToPath(getClientOutputDirectory(settings)),
 			},
 			root: fileURLToPath(settings.config.root),
 			preview: {
@@ -108,9 +109,15 @@ export default async function createStaticPreviewServer(
 		});
 	}
 
+	// Read the actual bound port from the HTTP server, not the configured port.
+	// This is important when port 0 is used (OS-assigned port).
+	const address = previewServer.httpServer.address();
+	const actualPort =
+		address && typeof address === 'object' ? address.port : settings.config.server.port;
+
 	return {
 		host: getResolvedHostForHttpServer(settings.config.server.host),
-		port: settings.config.server.port,
+		port: actualPort,
 		closed,
 		server: previewServer.httpServer as http.Server,
 		stop: previewServer.close.bind(previewServer),

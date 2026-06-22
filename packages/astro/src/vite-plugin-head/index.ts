@@ -1,7 +1,6 @@
-import type { ModuleInfo } from 'rollup';
 import type * as vite from 'vite';
 import type { DevEnvironment } from 'vite';
-import { hasHeadInjectComment } from '../core/head-propagation/comment.js';
+import { hasHeadPropagationCall } from '../core/head-propagation/hint.js';
 import {
 	buildImporterGraphFromModuleInfo,
 	computeInTreeAncestors,
@@ -33,12 +32,24 @@ const VIRTUAL_COMPONENT_METADATA = 'virtual:astro:component-metadata';
 const RESOLVED_VIRTUAL_COMPONENT_METADATA = `\0${VIRTUAL_COMPONENT_METADATA}`;
 
 export default function configHeadVitePlugin(): vite.Plugin {
-	let environment: DevEnvironment;
+	// Adapters like `@astrojs/cloudflare` load page modules in the `prerender`
+	// environment; default dev uses `ssr`. Track both so propagation covers either.
+	let environments: DevEnvironment[] = [];
+
+	function findModule(id: string) {
+		for (const env of environments) {
+			const mod = env.moduleGraph.getModuleById(id);
+			if (mod) return mod;
+		}
+		return undefined;
+	}
 
 	function invalidateComponentMetadataModule() {
-		const virtualMod = environment.moduleGraph.getModuleById(RESOLVED_VIRTUAL_COMPONENT_METADATA);
-		if (virtualMod) {
-			environment.moduleGraph.invalidateModule(virtualMod);
+		for (const env of environments) {
+			const virtualMod = env.moduleGraph.getModuleById(RESOLVED_VIRTUAL_COMPONENT_METADATA);
+			if (virtualMod) {
+				env.moduleGraph.invalidateModule(virtualMod);
+			}
 		}
 	}
 
@@ -50,7 +61,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 			const current = queue.pop()!;
 			if (collected.has(current)) continue;
 			collected.add(current);
-			const mod = environment.moduleGraph.getModuleById(current);
+			const mod = findModule(current);
 			for (const importer of mod?.importers ?? []) {
 				if (importer.id) {
 					queue.push(importer.id);
@@ -60,7 +71,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 
 		// Convert Vite's module graph shape into our plain importer adjacency map.
 		return buildImporterGraphFromModuleInfo(collected, (id) => {
-			const mod = environment.moduleGraph.getModuleById(id);
+			const mod = findModule(id);
 			if (!mod) return null;
 			return {
 				importers: Array.from(mod.importers)
@@ -74,7 +85,12 @@ export default function configHeadVitePlugin(): vite.Plugin {
 	function propagateMetadata<
 		P extends keyof PluginMetadata['astro'],
 		V extends PluginMetadata['astro'][P],
-	>(this: { getModuleInfo(id: string): ModuleInfo | null }, seed: string, prop: P, value: V) {
+	>(
+		this: { getModuleInfo(id: string): vite.Rolldown.ModuleInfo | null },
+		seed: string,
+		prop: P,
+		value: V,
+	) {
 		// Example: `HeadEntry -> Layout -> /src/pages/blog.astro` marks both ancestors.
 		const importerGraph = buildImporterGraphFromEnvironment(seed);
 		const allAncestors = computeInTreeAncestors({
@@ -100,7 +116,10 @@ export default function configHeadVitePlugin(): vite.Plugin {
 		enforce: 'pre',
 		apply: 'serve',
 		configureServer(devServer) {
-			environment = devServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+			environments = [
+				devServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr],
+				devServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.prerender],
+			].filter((e): e is DevEnvironment => !!e);
 			devServer.watcher.on('add', invalidateComponentMetadataModule);
 			devServer.watcher.on('unlink', invalidateComponentMetadataModule);
 			devServer.watcher.on('change', invalidateComponentMetadataModule);
@@ -110,21 +129,26 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				return;
 			}
 
+			const seen = new Set<string>();
 			const componentMetadataEntries: [string, SSRComponentMetadata][] = [];
-			for (const [moduleId, mod] of environment.moduleGraph.idToModuleMap) {
-				const info = this.getModuleInfo(moduleId) ?? (mod.id ? this.getModuleInfo(mod.id) : null);
-				if (!info) continue;
+			for (const env of environments) {
+				for (const [moduleId, mod] of env.moduleGraph.idToModuleMap) {
+					if (seen.has(moduleId)) continue;
+					const info = this.getModuleInfo(moduleId) ?? (mod.id ? this.getModuleInfo(mod.id) : null);
+					if (!info) continue;
 
-				const astro = getAstroMetadata(info);
-				if (!astro) continue;
+					const astro = getAstroMetadata(info);
+					if (!astro) continue;
 
-				componentMetadataEntries.push([
-					moduleId,
-					{
-						containsHead: astro.containsHead,
-						propagation: astro.propagation,
-					},
-				]);
+					seen.add(moduleId);
+					componentMetadataEntries.push([
+						moduleId,
+						{
+							containsHead: astro.containsHead,
+							propagation: astro.propagation,
+						},
+					]);
+				}
 			}
 
 			return {
@@ -165,8 +189,8 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				propagateMetadata.call(this, id, 'containsHead', true);
 			}
 
-			if (hasHeadInjectComment(source)) {
-				// `// astro-head-inject` and `//! astro-head-inject` opt a module into bubbling.
+			if (hasHeadPropagationCall(source)) {
+				// `"use astro:head-inject"` directive opts a module into bubbling.
 				propagateMetadata.call(this, id, 'propagation', 'in-tree');
 			}
 
@@ -176,6 +200,11 @@ export default function configHeadVitePlugin(): vite.Plugin {
 }
 
 export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
+	// Collect module IDs that contain a head propagation marker in their raw source
+	// (before bundling). This is necessary because Rolldown may strip comments and
+	// directives when concatenating modules into chunks, so scanning `mod.code` in
+	// `generateBundle` alone is not reliable.
+	const headPropagationModuleIds = new Set<string>();
 	return {
 		name: 'astro:head-metadata-build',
 		applyToEnvironment(environment) {
@@ -184,12 +213,17 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},
+		transform(source, id) {
+			if (hasHeadPropagationCall(source)) {
+				headPropagationModuleIds.add(id);
+			}
+		},
 		generateBundle(_opts, bundle) {
 			const map: SSRResult['componentMetadata'] = internals.componentMetadata;
 			const moduleIds = new Set<string>();
 			// Explicit runtime entries (`createComponent({ propagation: 'self' })`).
 			const selfPropagationSeeds = new Set<string>();
-			// Comment-driven seeds (`astro-head-inject` marker in source).
+			// Head propagation hint seeds (`"use astro:head-inject"` directive in source).
 			const commentPropagationSeeds = new Set<string>();
 			function getOrCreateMetadata(id: string): SSRComponentMetadata {
 				if (map.has(id)) return map.get(id)!;
@@ -222,7 +256,9 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 					}
 
 					// Head propagation (aka bubbling)
-					if (mod.code && hasHeadInjectComment(mod.code)) {
+					// Check both post-bundle code and pre-bundle transform results,
+					// since Rolldown may strip markers (comments, directives) during bundling.
+					if ((mod.code && hasHeadPropagationCall(mod.code)) || headPropagationModuleIds.has(id)) {
 						commentPropagationSeeds.add(id);
 					}
 				}

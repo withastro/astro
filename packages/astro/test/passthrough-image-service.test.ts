@@ -9,6 +9,7 @@ describe('passthroughImageService', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/passthrough-image-service/',
+			outDir: './dist/passthrough-image-service/',
 		});
 	});
 

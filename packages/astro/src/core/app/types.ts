@@ -79,14 +79,7 @@ export type SSRManifest = {
 	userAssetsBase: string | undefined;
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: NonNullable<AstroConfig['build']>['format'];
-	compressHTML: boolean;
-	experimentalQueuedRendering: {
-		enabled: boolean;
-		/** Node pool size for memory reuse (default: 1000, set to 0 to disable pooling) */
-		poolSize?: number;
-		/** Whether to enable HTMLString caching for deduplicating repeated HTML fragments (default: true) */
-		contentCache?: boolean;
-	};
+	compressHTML: boolean | 'jsx';
 	assetsPrefix?: AssetsPrefix;
 	renderers: SSRLoadedRenderer[];
 	/**
@@ -161,8 +154,8 @@ export type SSRManifest = {
 	};
 	internalFetchHeaders?: Record<string, string>;
 	logLevel: AstroLoggerLevel;
-	// Configure that tells us how to load the logger
-	experimentalLogger: LoggerHandlerConfig | undefined;
+	// Configuration that tells us how to load the logger
+	loggerConfig: LoggerHandlerConfig | undefined;
 };
 
 export type SSRActions = {

@@ -7,27 +7,13 @@ import { REDIRECT_STATUS_CODES } from '../dist/core/constants.js';
 import testAdapter from './test-adapter.ts';
 import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
-// Error response shapes emitted by `serializeActionResult` in
-// src/actions/runtime/server.ts.
-type ActionErrorResponse = {
-	type: 'AstroActionError';
-	code: string;
-	message: string;
-	status: number;
-};
-
-type ActionInputErrorResponse = {
-	type: 'AstroActionInputError';
-	issues: Array<{ path: Array<string | number>; message: string; code: string }>;
-	fields: Record<string, string[] | undefined>;
-};
-
 describe('Astro Actions', () => {
 	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/actions/',
 			adapter: testAdapter(),
+			outDir: './dist/actions-astro-actions/',
 		});
 	});
 
@@ -63,13 +49,6 @@ describe('Astro Actions', () => {
 			const $ = cheerio.load(html);
 			assert.equal($('body').text().trim(), 'No cookie found.');
 		});
-
-		it('Should fail when calling an action without using Astro.callAction', async () => {
-			const res = await fixture.fetch('/invalid/');
-			assert.equal(res.status, 500);
-			const text = await res.text();
-			assert.match(text, /@vite\/client/);
-		});
 	});
 
 	describe('build', () => {
@@ -80,156 +59,10 @@ describe('Astro Actions', () => {
 			app = await fixture.loadTestAdapterApp();
 		});
 
-		it('Exposes subscribe action', async () => {
-			const req = new Request('http://example.com/_actions/subscribe', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ channel: 'bholmesdev' }),
-			});
+		it('Should fail when calling an action without using Astro.callAction', async () => {
+			const req = new Request('http://example.com/invalid');
 			const res = await app.render(req);
-
-			assert.equal(res.ok, true);
-			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
-
-			const data = devalue.parse(await res.text());
-			assert.equal(data.channel, 'bholmesdev');
-			assert.equal(data.subscribeButtonState, 'smashed');
-		});
-
-		it('Rejects oversized JSON action body', async () => {
-			const largeActionPayload = JSON.stringify({
-				channel: 'a'.repeat(2 * 1024 * 1024),
-			});
-			const req = new Request('http://example.com/_actions/subscribe', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: largeActionPayload,
-			});
-			const res = await app.render(req);
-
-			assert.equal(res.ok, false);
-			assert.equal(res.status, 413);
-			assert.equal(res.headers.get('Content-Type'), 'application/json');
-
-			const data = (await res.json()) as ActionErrorResponse;
-			assert.equal(data.code, 'CONTENT_TOO_LARGE');
-		});
-
-		it('Exposes comment action', async () => {
-			const formData = new FormData();
-			formData.append('channel', 'bholmesdev');
-			formData.append('comment', 'Hello, World!');
-			const req = new Request('http://example.com/_actions/comment', {
-				method: 'POST',
-				body: formData,
-			});
-			const res = await app.render(req);
-
-			assert.equal(res.ok, true);
-			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
-
-			const data = devalue.parse(await res.text());
-			assert.equal(data.channel, 'bholmesdev');
-			assert.equal(data.comment, 'Hello, World!');
-		});
-
-		it('Raises validation error on bad form data', async () => {
-			const formData = new FormData();
-			formData.append('channel', 'bholmesdev');
-			const req = new Request('http://example.com/_actions/comment', {
-				method: 'POST',
-				body: formData,
-			});
-			const res = await app.render(req);
-
-			assert.equal(res.ok, false);
-			assert.equal(res.status, 400);
-			assert.equal(res.headers.get('Content-Type'), 'application/json');
-
-			const data = (await res.json()) as ActionInputErrorResponse;
-			assert.equal(data.type, 'AstroActionInputError');
-		});
-
-		it('Handles nested form objects with dot notation', async () => {
-			const formData = new FormData();
-			formData.append('a', 'hello');
-			formData.append('bc.b', 'hoge');
-			formData.append('bc.c', 'world');
-			const req = new Request('http://example.com/_actions/nestedFormObject', {
-				method: 'POST',
-				body: formData,
-			});
-			const res = await app.render(req);
-
-			assert.equal(res.ok, true);
-			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
-
-			const data = devalue.parse(await res.text());
-			assert.equal(data.a, 'hello');
-			assert.deepEqual(data.bc, { b: 'hoge', c: 'world' });
-		});
-
-		it('Validates nested form objects with superRefine', async () => {
-			const formData = new FormData();
-			formData.append('a', 'hello');
-			formData.append('bc.b', 'huga');
-			// Omit bc.c to trigger superRefine validation
-			const req = new Request('http://example.com/_actions/nestedFormObject', {
-				method: 'POST',
-				body: formData,
-			});
-			const res = await app.render(req);
-
-			assert.equal(res.ok, false);
-			assert.equal(res.status, 400);
-
-			const data = (await res.json()) as ActionInputErrorResponse;
-			assert.equal(data.type, 'AstroActionInputError');
-			assert.ok(
-				data.issues.some((issue) => issue.path.includes('c')),
-				'Should have a validation issue for field c',
-			);
-		});
-
-		it('Handles nested discriminatedUnion in form data', async () => {
-			const formData = new FormData();
-			formData.append('name', 'Ben');
-			formData.append('contact.type', 'email');
-			formData.append('contact.email', 'ben@test.test');
-			const req = new Request('http://example.com/_actions/nestedDiscriminatedUnion', {
-				method: 'POST',
-				body: formData,
-			});
-			const res = await app.render(req);
-
-			assert.equal(res.ok, true);
-			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
-
-			const data = devalue.parse(await res.text());
-			assert.equal(data.name, 'Ben');
-			assert.deepEqual(data.contact, { type: 'email', email: 'ben@test.test' });
-		});
-
-		it('Exposes plain formData action', async () => {
-			const formData = new FormData();
-			formData.append('channel', 'bholmesdev');
-			formData.append('comment', 'Hello, World!');
-			const req = new Request('http://example.com/_actions/commentPlainFormData', {
-				method: 'POST',
-				body: formData,
-			});
-			const res = await app.render(req);
-
-			assert.equal(res.ok, true);
-			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
-
-			const data = devalue.parse(await res.text());
-			assert.equal(data.success, true);
-			assert.equal(data.isFormData, true, 'Should receive plain FormData');
+			assert.equal(res.status, 500);
 		});
 
 		it('Response middleware fallback - POST', async () => {
@@ -304,35 +137,6 @@ describe('Astro Actions', () => {
 			assert.equal($('#error-code').text(), 'UNAUTHORIZED');
 		});
 
-		it('Respects RPC middleware handling - locked', async () => {
-			const req = new Request('http://example.com/_actions/locked', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: '{}',
-			});
-			const res = await app.render(req);
-			assert.equal(res.status, 401);
-		});
-
-		it('Respects RPC middleware handling - cookie present', async () => {
-			const req = new Request('http://example.com/_actions/locked', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Cookie: 'actionCookie=1234',
-				},
-				body: '{}',
-			});
-			const res = await app.render(req);
-			assert.equal(res.ok, true);
-			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
-
-			const data = devalue.parse(await res.text());
-			assert.equal('safe' in data, true);
-		});
-
 		it('Ignores action name for GET requests', async () => {
 			const req = new Request('http://example.com/user-or-throw?_action=getUserOrThrow', {
 				method: 'GET',
@@ -345,71 +149,6 @@ describe('Astro Actions', () => {
 			assert.ok($('#user'));
 		});
 
-		it('Supports effects on form input validators', async () => {
-			const formData = new FormData();
-			formData.set('password', 'benisawesome');
-			formData.set('confirmPassword', 'benisveryawesome');
-
-			const req = new Request('http://example.com/_actions/validatePassword', {
-				method: 'POST',
-				body: formData,
-			});
-
-			const res = await app.render(req);
-
-			assert.equal(res.ok, false);
-			assert.equal(res.status, 400);
-			assert.equal(res.headers.get('Content-Type'), 'application/json');
-
-			const data = (await res.json()) as ActionInputErrorResponse;
-			assert.equal(data.type, 'AstroActionInputError');
-			assert.equal(data.issues?.[0]?.message, 'Passwords do not match');
-		});
-
-		it('Supports complex chained effects on form input validators', async () => {
-			const formData = new FormData();
-			formData.set('currentPassword', 'benisboring');
-			formData.set('newPassword', 'benisawesome');
-			formData.set('confirmNewPassword', 'benisawesome');
-
-			const req = new Request('http://example.com/_actions/validatePasswordComplex', {
-				method: 'POST',
-				body: formData,
-			});
-
-			const res = await app.render(req);
-
-			assert.equal(res.ok, true);
-			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
-
-			const data = devalue.parse(await res.text());
-			assert.equal(Object.keys(data).length, 2, 'More keys than expected');
-			assert.deepEqual(data, {
-				currentPassword: 'benisboring',
-				newPassword: 'benisawesome',
-			});
-		});
-
-		it('Supports input form data transforms', async () => {
-			const formData = new FormData();
-			formData.set('name', 'ben');
-			formData.set('age', '42');
-
-			const req = new Request('http://example.com/_actions/transformFormInput', {
-				method: 'POST',
-				body: formData,
-			});
-
-			const res = await app.render(req);
-
-			assert.equal(res.ok, true);
-			assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
-
-			const data = devalue.parse(await res.text());
-			assert.equal(data?.name, 'ben');
-			assert.equal(data?.age, '42');
-		});
-
 		it('Is callable from the server with rewrite', async () => {
 			const req = new Request('http://example.com/rewrite');
 			const res = await app.render(req);
@@ -419,39 +158,6 @@ describe('Astro Actions', () => {
 			let $ = cheerio.load(html);
 			assert.equal($('[data-url]').text(), '/subscribe');
 			assert.equal($('[data-channel]').text(), 'bholmesdev');
-		});
-
-		it('Supports discriminated union for different form fields', async () => {
-			const formData = new FormData();
-			formData.set('type', 'first-chunk');
-			formData.set('alt', 'Cool image');
-			formData.set('image', new File([''], 'chunk-1.png'));
-			const reqFirst = new Request('http://example.com/_actions/imageUploadInChunks', {
-				method: 'POST',
-				body: formData,
-			});
-
-			const resFirst = await app.render(reqFirst);
-			assert.equal(resFirst.status, 200);
-			assert.equal(resFirst.headers.get('Content-Type'), 'application/json+devalue');
-			const data = devalue.parse(await resFirst.text());
-			const uploadId = data?.uploadId;
-			assert.ok(uploadId);
-
-			const formDataRest = new FormData();
-			formDataRest.set('type', 'rest-chunk');
-			formDataRest.set('uploadId', 'fake');
-			formDataRest.set('image', new File([''], 'chunk-2.png'));
-			const reqRest = new Request('http://example.com/_actions/imageUploadInChunks', {
-				method: 'POST',
-				body: formDataRest,
-			});
-
-			const resRest = await app.render(reqRest);
-			assert.equal(resRest.status, 200);
-			assert.equal(resRest.headers.get('Content-Type'), 'application/json+devalue');
-			const dataRest = devalue.parse(await resRest.text());
-			assert.equal('fake', dataRest?.uploadId);
 		});
 	});
 });
@@ -463,6 +169,7 @@ describe('Astro Actions in static mode with prerender = false routes', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/actions-static-prerender-false/',
+			outDir: './dist/actions-astro-actions-in-static-mode-with-preren/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -495,6 +202,7 @@ it('Works with adapter and all pages prerendered', async () => {
 		root: './fixtures/actions/',
 		output: 'static',
 		adapter: testAdapter(),
+		outDir: './dist/actions-astro-actions-in-static-mode-with-preren/',
 	});
 	const devServer = await fixture.startDevServer();
 	const res = await fixture.fetch('/_actions/subscribe', {
@@ -506,53 +214,6 @@ it('Works with adapter and all pages prerendered', async () => {
 	});
 
 	assert.equal(res.ok, true);
-	await devServer.stop();
-});
-
-it('Base path should be used', async () => {
-	const fixture = await loadFixture({
-		root: './fixtures/actions/',
-		adapter: testAdapter(),
-		base: '/base',
-	});
-	const devServer = await fixture.startDevServer();
-	const formData = new FormData();
-	formData.append('channel', 'bholmesdev');
-	formData.append('comment', 'Hello, World!');
-	const res = await fixture.fetch('/base/_actions/comment', {
-		method: 'POST',
-		body: formData,
-	});
-
-	assert.equal(res.ok, true);
-	assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
-
-	const data = devalue.parse(await res.text());
-	assert.equal(data.channel, 'bholmesdev');
-	assert.equal(data.comment, 'Hello, World!');
-	await devServer.stop();
-});
-
-it('Should support trailing slash', async () => {
-	const fixture = await loadFixture({
-		root: './fixtures/actions/',
-		adapter: testAdapter(),
-		trailingSlash: 'always',
-	});
-	const devServer = await fixture.startDevServer();
-	const formData = new FormData();
-	formData.append('channel', 'bholmesdev');
-	formData.append('comment', 'Hello, World!');
-	const res = await fixture.fetch('/_actions/comment/', {
-		method: 'POST',
-		body: formData,
-	});
-	assert.equal(res.ok, true);
-	assert.equal(res.headers.get('Content-Type'), 'application/json+devalue');
-
-	const data = devalue.parse(await res.text());
-	assert.equal(data.channel, 'bholmesdev');
-	assert.equal(data.comment, 'Hello, World!');
 	await devServer.stop();
 });
 

@@ -61,8 +61,8 @@ describe('routing - createRoutesList', () => {
 			defaultLogger,
 		);
 		const [{ pattern }] = manifest.routes;
-		assert.equal(pattern.test(''), true);
-		assert.equal(pattern.test('/'), false);
+		assert.equal(pattern.test('/'), true);
+		assert.equal(pattern.test(''), false);
 	});
 
 	it('endpoint routes are sorted before page routes', async () => {

@@ -229,31 +229,6 @@ export async function generatePages(
 		colors.green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
 	);
 
-	// Log pool statistics if queue rendering is enabled
-	if (
-		options.settings.logLevel === 'debug' &&
-		options.settings.config.experimental?.queuedRendering &&
-		prerenderer.app
-	) {
-		try {
-			const stats = prerenderer.app.getQueueStats();
-			// Dynamic import to avoid loading pool module when not using queue rendering
-			// Only log if there was actual pool activity
-			if (stats && (stats.acquireFromPool > 0 || stats.acquireNew > 0)) {
-				logger.info(
-					null,
-					colors.dim(
-						`[Queue Pool] ${stats.acquireFromPool.toLocaleString()} reused / ${stats.acquireNew.toLocaleString()} new nodes | ` +
-							`Hit rate: ${stats.hitRate.toFixed(1)}% | ` +
-							`Pool: ${stats.poolSize}/${stats.maxSize}`,
-					),
-				);
-			}
-		} catch {
-			// Silently ignore if pool module is not available
-		}
-	}
-
 	// Default pipeline always runs
 	if (staticImageList.size) {
 		logger.info('SKIP_FORMAT', `${colors.bgGreen(colors.black(` generating optimized images `))}`);
@@ -264,6 +239,7 @@ export async function generatePages(
 		const cpuCount = os.cpus().length;
 		const assetsCreationPipeline = await prepareAssetsGenerationEnv(options, totalCount);
 		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
+		const errors: Error[] = [];
 
 		const assetsTimer = performance.now();
 		for (const [originalPath, transforms] of staticImageList) {
@@ -332,11 +308,18 @@ export async function generatePages(
 			queue
 				.add(() => generateImagesForPath(originalPath, transforms, assetsCreationPipeline))
 				.catch((e) => {
-					throw e;
+					logger.warn('build', `Unable to generate optimized image for ${originalPath}: ${e}`);
+					errors.push(new Error(`Error generating image for ${originalPath}: ${e}`, { cause: e }));
 				});
 		}
 
 		await queue.onIdle();
+		if (errors.length === 1) {
+			throw errors[0];
+		} else if (errors.length > 1) {
+			throw new AggregateError(errors, `${errors.length} errors occurred during asset generation`);
+		}
+
 		const assetsTimeEnd = performance.now();
 		logger.info(null, colors.green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
 

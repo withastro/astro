@@ -1,5 +1,67 @@
 # @astrojs/netlify
 
+## 8.0.0-beta.1
+
+### Patch Changes
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+## 8.0.0-alpha.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Patch Changes
+
+- Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
+  - astro@7.0.0-alpha.0
+
+## 7.0.13
+
+### Patch Changes
+
+- [#17018](https://github.com/withastro/astro/pull/17018) [`1310277`](https://github.com/withastro/astro/commit/1310277db33cd93aa99e87492650c633af0fe257) Thanks [@matthewp](https://github.com/matthewp)! - Hardens `remotePatterns` regex generation to match canonical wildcard semantics more strictly
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.12
+
+### Patch Changes
+
+- [#16693](https://github.com/withastro/astro/pull/16693) [`9e6edc2`](https://github.com/withastro/astro/commit/9e6edc2da5ccf06243588a7f519dea5fbcc126cd) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes a link in the documentation specifying where to open an issue for the adapter.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.11
+
+### Patch Changes
+
+- Updated dependencies [[`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc)]:
+  - @astrojs/internal-helpers@0.10.0
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.10
+
+### Patch Changes
+
+- [#16661](https://github.com/withastro/astro/pull/16661) [`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0) Thanks [@ocavue](https://github.com/ocavue)! - Updates `typescript` to v6. No changes are needed from users.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.9
+
+### Patch Changes
+
+- [#16716](https://github.com/withastro/astro/pull/16716) [`04fdbb2`](https://github.com/withastro/astro/commit/04fdbb29978d5a00acfb956538e54256ae24b486) Thanks [@delucis](https://github.com/delucis)! - Updates internal dependencies
+
+- Updated dependencies [[`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce)]:
+  - @astrojs/internal-helpers@0.9.1
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 7.0.8
 
 ### Patch Changes
