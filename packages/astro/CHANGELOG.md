@@ -303,7 +303,7 @@
   +console.log('astro:after-swap');
   ```
 
-  Learn more about all utilities available in the [View Transitions Router API Reference](https://v7.docs.astro.build/en/reference/modules/astro-transitions/).
+  Learn more about all utilities available in the [View Transitions Router API Reference](https://docs.astro.build/en/reference/modules/astro-transitions/).
 
 ### Patch Changes
 

@@ -1426,7 +1426,7 @@ export interface AstroUserConfig<
 	 * });
 	 * ```
 	 *
-	 * Learn more about customizing the request pipeline in the [advanced routing guide](https://v7.docs.astro.build/en/guides/routing/#advanced-routing).
+	 * Learn more about customizing the request pipeline in the [advanced routing guide](https://docs.astro.build/en/guides/routing/#advanced-routing).
 	 */
 	fetchFile?: string | null;
 
@@ -1441,7 +1441,7 @@ export interface AstroUserConfig<
 	 *
 	 * Configures how Astro logs messages during development and production.
 	 *
-	 * By default, Astro uses a built-in logger that outputs human-friendly logs to the console. You can customize this behavior by providing [your own logger handler](https://v7.docs.astro.build/en/reference/logger-reference/#custom-loggers) or by using one of the [built-in log handlers](https://v7.docs.astro.build/en/reference/logger-reference/#built-in-loggers):
+	 * By default, Astro uses a built-in logger that outputs human-friendly logs to the console. You can customize this behavior by providing [your own logger handler](https://docs.astro.build/en/reference/logger-reference/#custom-loggers) or by using one of the [built-in log handlers](https://docs.astro.build/en/reference/logger-reference/#built-in-loggers):
 	 *
 	 * ```js
 	 * // astro.config.mjs
@@ -1452,7 +1452,7 @@ export interface AstroUserConfig<
 	 * });
 	 * ```
 	 *
-	 * See [the logger API reference](https://v7.docs.astro.build/en/reference/logger-reference/) for more information.
+	 * See [the logger API reference](https://docs.astro.build/en/reference/logger-reference/) for more information.
 	 */
 	logger?: LoggerHandlerConfig;
 
