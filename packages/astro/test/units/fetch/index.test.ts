@@ -980,6 +980,7 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 		const state = new BaseFetchState(app.pipeline, request, {
 			clientAddress: '10.0.0.1',
 			addCookieHeader: false,
+			getStaticAsset: undefined,
 			locals: undefined,
 			prerenderedErrorPageFetch: fetch,
 			routeData: undefined,

@@ -942,29 +942,30 @@ describe('Middleware via App.render()', () => {
 			assert.match(html, /<p>from-middleware<\/p>/);
 		});
 
-		it('does not run middleware when skipMiddleware is set (build-time prerendering)', async () => {
+		it('does not run middleware during build-time prerendering (on-request mode)', async () => {
 			let middlewareWasCalled = false;
 			const onRequest: MiddlewareHandler = async (_ctx, next) => {
 				middlewareWasCalled = true;
 				return next();
 			};
+			const prerenderRouteData = createRouteData({ route: '/', prerender: true });
 			const pageMap = new Map([
-				[indexRouteData.component, async () => ({ page: async () => ({ default: simplePage() }) })],
+				[
+					prerenderRouteData.component,
+					async () => ({ page: async () => ({ default: simplePage() }) }),
+				],
 			]);
 			const manifest = createManifest({
-				routes: [createRouteInfo(indexRouteData)],
+				routes: [createRouteInfo(prerenderRouteData)],
 				pageMap,
 			});
 			manifest.middleware = () => ({ onRequest });
 			manifest.middlewareMode = /** @type {'on-request'} */ ('on-request');
 			const app = new App(manifest);
 
-			// Simulate what BuildApp.createRenderContext does: set skipMiddleware for on-request mode
-			const origCreateRenderContext = app.createRenderContext.bind(app);
-			app.createRenderContext = (payload) =>
-				origCreateRenderContext({ ...payload, skipMiddleware: true });
-
-			await app.render(new Request('http://localhost/'));
+			// During build, prerendered routes are rendered without `getStaticAsset`.
+			// on-request mode treats that as the build phase and skips middleware.
+			await app.render(new Request('http://localhost/'), { routeData: prerenderRouteData });
 
 			assert.equal(middlewareWasCalled, false);
 		});
@@ -992,10 +993,7 @@ describe('Middleware via App.render()', () => {
 			]);
 
 			const manifest = createManifest({
-				routes: [
-					createRouteInfo(rewriteSsrRouteData),
-					createRouteInfo(targetPrerenderRouteData),
-				],
+				routes: [createRouteInfo(rewriteSsrRouteData), createRouteInfo(targetPrerenderRouteData)],
 				pageMap,
 			});
 			manifest.middleware = () => ({ onRequest });
