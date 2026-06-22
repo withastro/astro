@@ -1,5 +1,88 @@
 # @astrojs/cloudflare
 
+## 14.0.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Minor Changes
+
+- [#16335](https://github.com/withastro/astro/pull/16335) [`9a53f77`](https://github.com/withastro/astro/commit/9a53f77d35e76bcb0165b44cbd2b7e48d48c9f59) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds an opt-in CDN cache provider for Astro [route caching](https://docs.astro.build/en/guides/caching/) on Cloudflare Workers
+
+  > [!WARNING]
+  > This provider requires the Cloudflare Workers Cache feature, which is currently in private beta. It is opt-in: nothing changes unless you import `cacheCloudflare()` and set it as your provider. But without beta access it does not work and should not be used. Cloudflare Workers run in front of the cache, so cached responses are never served, and calling `cache.invalidate()` throws an error.
+
+  #### Setup
+
+  Import `cacheCloudflare()` from `@astrojs/cloudflare/cache` and set it as your cache provider:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import cloudflare from '@astrojs/cloudflare';
+  import { cacheCloudflare } from '@astrojs/cloudflare/cache';
+
+  export default defineConfig({
+    adapter: cloudflare(),
+    cache: {
+      provider: cacheCloudflare(),
+    },
+  });
+  ```
+
+  The adapter automatically enables the Worker caching layer when a Cloudflare cache provider is configured. No manual wrangler.jsonc changes are needed.
+
+  #### Caching responses
+
+  Use `Astro.cache.set()` in your pages and API routes to cache responses. The provider sets `Cloudflare-CDN-Cache-Control` and `Cache-Tag` headers, which are read by Cloudflare's built-in caching layer. Cache hits bypass Worker execution entirely, meaning your Worker is not invoked for cached responses.
+
+  ```astro
+  ---
+  Astro.cache.set({ maxAge: 300, tags: ['products'] });
+  const data = await fetchProducts();
+  ---
+
+  <ProductList items={data} />
+  ```
+
+  You can also set cache rules for groups of routes in your config:
+
+  ```js
+  cache: { provider: cacheCloudflare() },
+  routeRules: {
+    '/products/[...slug]': { maxAge: 3600, tags: ['products'] },
+    '/api/[...path]': { maxAge: 60, swr: 600 },
+  },
+  ```
+
+  #### Invalidation
+
+  Purge cached responses by tag or path from any API route or server endpoint:
+
+  ```ts
+  // src/pages/api/purge.ts
+  export async function POST({ request, cache }) {
+    await cache.invalidate({ tags: ['products'] });
+    return new Response('Purged');
+  }
+
+  // Path-based invalidation (implemented via an auto-generated path tag)
+  await cache.invalidate({ path: '/products/123' });
+  ```
+
+  Both tag-based and path-based invalidation are supported.
+
+### Patch Changes
+
+- [#16961](https://github.com/withastro/astro/pull/16961) [`96398e8`](https://github.com/withastro/astro/commit/96398e8e81632e9c8b61cb8ee23ac359ea8120c0) Thanks [@adamchal](https://github.com/adamchal)! - Speeds up `astro sync` by no longer starting the Cloudflare runtime during type generation
+
+- [#16671](https://github.com/withastro/astro/pull/16671) [`fd926fd`](https://github.com/withastro/astro/commit/fd926fdafd4a5e94dd156105dacb214741f4b7ac) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Removes deprecations warnings added in Astro v6 for Cloudflare specific Astro.locals properties.
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 14.0.0-beta.3
 
 ### Patch Changes
