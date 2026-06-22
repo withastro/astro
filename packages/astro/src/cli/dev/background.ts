@@ -99,12 +99,14 @@ export async function background({
 	}
 	const logFd = openSync(logFilePath, 'w');
 
-	// Find the astro binary
+	// Spawn node directly with astro's entry point, bypassing the .bin shim.
+	// On Windows, .bin shims are .cmd batch files that cannot be spawned without
+	// a shell, so we avoid the shim entirely for cross-platform compatibility.
 	const rootPath = fileURLToPath(root);
-	const astroBin = resolve(rootPath, 'node_modules', '.bin', 'astro');
+	const astroBin = resolve(rootPath, 'node_modules', 'astro', 'bin', 'astro.mjs');
 
 	// Spawn the dev server as a detached child process
-	const child = spawn(astroBin, args, {
+	const child = spawn(process.execPath, [astroBin, ...args], {
 		detached: true,
 		stdio: ['ignore', logFd, logFd],
 		cwd: rootPath,
