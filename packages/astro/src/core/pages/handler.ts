@@ -1,15 +1,10 @@
 import { renderEndpoint } from '../../runtime/server/endpoint.js';
 import { renderPage } from '../../runtime/server/index.js';
 import type { APIContext } from '../../types/public/context.js';
+import type { BaseApp } from '../app/base.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import type { Pipeline } from '../base-pipeline.js';
-import {
-	ASTRO_ERROR_HEADER,
-	REROUTE_DIRECTIVE_HEADER,
-	REWRITE_DIRECTIVE_HEADER_KEY,
-	REWRITE_DIRECTIVE_HEADER_VALUE,
-	ROUTE_TYPE_HEADER,
-} from '../constants.js';
+import { ASTRO_ERROR_HEADER } from '../constants.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
 
 // Shared empty-slots object so we don't allocate `{}` on every render for
@@ -39,6 +34,7 @@ export class PagesHandler {
 	async handle(state: FetchState, ctx: APIContext): Promise<Response> {
 		const pipeline = this.#pipeline;
 		const { logger, streaming } = pipeline;
+		state.resetResponseMetadata();
 
 		let response: Response;
 
@@ -54,6 +50,7 @@ export class PagesHandler {
 					ctx,
 					state.routeData!.prerender,
 					logger,
+					state,
 				);
 				break;
 			}
@@ -82,13 +79,10 @@ export class PagesHandler {
 				}
 
 				// Signal to the i18n middleware to maybe act on this response
-				response.headers.set(ROUTE_TYPE_HEADER, 'page');
+				state.responseRouteType = 'page';
 				// Signal to the error-page-rerouting infra to let this response pass through to avoid loops
 				if (state.routeData!.route === '/404' || state.routeData!.route === '/500') {
-					response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
-				}
-				if (state.isRewriting) {
-					response.headers.set(REWRITE_DIRECTIVE_HEADER_KEY, REWRITE_DIRECTIVE_HEADER_VALUE);
+					state.skipErrorReroute = true;
 				}
 				break;
 			}
@@ -96,24 +90,8 @@ export class PagesHandler {
 				return new Response(null, { status: 404, headers: { [ASTRO_ERROR_HEADER]: 'true' } });
 			}
 			case 'fallback': {
-				if (usesStaticAsset) {
-					const staticAssetResponse = await state.getStaticAsset!(state.routeData!, state.pathname);
-					if (!staticAssetResponse) {
-						return new Response(null, {
-							status: 404,
-							headers: { [ROUTE_TYPE_HEADER]: 'fallback' },
-						});
-					}
-					return new Response(staticAssetResponse.body, {
-						status: 404,
-						statusText: staticAssetResponse.statusText,
-						headers: new Headers([
-							...staticAssetResponse.headers,
-							[ROUTE_TYPE_HEADER, 'fallback'],
-						]),
-					});
-				}
-				return new Response(null, { status: 500, headers: { [ROUTE_TYPE_HEADER]: 'fallback' } });
+				state.responseRouteType = 'fallback';
+				return new Response(null, { status: 500 });
 			}
 		}
 		// We need to merge the cookies from the response back into the cookies
@@ -151,5 +129,40 @@ export class PagesHandler {
 			statusText: staticAssetResponse.statusText,
 			headers: staticAssetResponse.headers,
 		});
+	}
+
+	/**
+	 * Like `handle`, but mirrors the app-level error handling that
+	 * `AstroHandler` provides on the standard path: unmatched routes
+	 * return a 404 marked with `X-Astro-Error` for the app's post-check
+	 * to render the 404 error page, and render-time errors are logged
+	 * and render the 500 error page instead of propagating to the host
+	 * framework.
+	 *
+	 * Used by the composable `astro/fetch` `pages()` entry point, where
+	 * there is no surrounding `AstroHandler` to supply this fallback.
+	 */
+	async handleWithErrorFallback(app: BaseApp<Pipeline>, state: FetchState): Promise<Response> {
+		// `FetchState` falls back to an SSR 404 route when nothing matches,
+		// so routeData is only missing when the custom 404 page is
+		// prerendered (or absent). Return a marked 404 and let the app's
+		// `X-Astro-Error` post-check render the error page a level up,
+		// the same way the un-dispatched `redirect` case above does.
+		if (!state.routeData) {
+			return new Response(null, { status: 404, headers: { [ASTRO_ERROR_HEADER]: 'true' } });
+		}
+		try {
+			return await this.handle(state, state.getAPIContext());
+		} catch (err: any) {
+			// The header marker can't carry the error object, so render the
+			// 500 page directly to preserve `error` and the logged stack.
+			app.logger.error(null, err.stack || err.message || String(err));
+			return app.renderError(state.request, {
+				...state.renderOptions,
+				status: 500,
+				error: err,
+				pathname: state.pathname,
+			});
+		}
 	}
 }

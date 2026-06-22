@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { HastPluginDefinition } from 'satteri';
+import type { HastPluginDefinition, MdastPluginDefinition } from 'satteri';
 import { createSatteriMarkdownProcessor, satteriHeadingIdsPlugin } from '../dist/index.js';
 
 describe('satteri markdown', () => {
@@ -90,5 +90,39 @@ describe('satteri markdown', () => {
 		const { code, metadata } = await processor.render('# Title');
 		assert.match(code, /<h1 id="custom-id">Title<\/h1>/);
 		assert.deepEqual(metadata.headings, [{ depth: 1, slug: 'custom-id', text: 'Title' }]);
+	});
+
+	it('collects image paths after user mdast plugins resolve them', async () => {
+		const resolveImage: MdastPluginDefinition = {
+			name: 'resolve-image',
+			image(node, ctx) {
+				if (node.url === './unresolved.png') {
+					ctx.setProperty(node, 'url', './resolved.png');
+				}
+			},
+		};
+		const processor = await createSatteriMarkdownProcessor({
+			mdastPlugins: [resolveImage],
+		});
+		const { metadata } = await processor.render('![alt](./unresolved.png)');
+		assert.deepEqual(metadata.localImagePaths, ['./resolved.png']);
+	});
+
+	it('lets a plugin read seeded frontmatter and modify it through ctx.data', async () => {
+		const injectPlugin: MdastPluginDefinition = {
+			name: 'inject-frontmatter',
+			heading(_node, ctx) {
+				const astro = ctx.data.astro!;
+				astro.frontmatter.injected = String(astro.frontmatter.title).toUpperCase();
+			},
+		};
+		const processor = await createSatteriMarkdownProcessor({
+			mdastPlugins: [injectPlugin],
+		});
+		const { metadata } = await processor.render('# Heading', {
+			frontmatter: { title: 'hello' },
+		});
+		assert.equal(metadata.frontmatter.title, 'hello');
+		assert.equal(metadata.frontmatter.injected, 'HELLO');
 	});
 });

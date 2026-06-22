@@ -178,6 +178,9 @@ export default function createIntegration({
 				const needsImagesBindingForDev = isCompile && command === 'dev';
 				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
 				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
+				const isTypeGenPhase = command === 'build' || command === 'sync';
+
+				const needsWorkerCache = config.cache?.provider?.name === 'cloudflare';
 
 				const adapterPluginConfig: Partial<PluginConfig> = {
 					config: cloudflareConfigCustomizer({
@@ -185,6 +188,7 @@ export default function createIntegration({
 						sessionKVBindingName,
 						imagesBindingName:
 							needsImagesBinding || needsImagesBindingForDev ? imagesBindingName : false,
+						needsWorkerCache,
 					}),
 					...(prerenderEnvironment === 'workerd' && {
 						experimental: {
@@ -245,6 +249,21 @@ export default function createIntegration({
 				// include, and esbuildOptions (e.g. loader) entries are respected.
 				const userOptimizeDeps = config.vite?.optimizeDeps;
 
+				const cloudflareVitePlugins = cfVitePlugin({
+					...cfPluginConfig,
+					viteEnvironment: { name: 'ssr' },
+					assetsOnly: () => _buildOutput === 'static',
+				});
+				// `sync` and `build` both run type generation (build via its internal sync
+				// pass), which creates a temporary Vite server and fires `configureServer`
+				// the hook that boots the Cloudflare/workerd runtime. Drop it in both so
+				// type generation doesn't pay that startup cost. See #16332.
+				if (isTypeGenPhase) {
+					for (const plugin of cloudflareVitePlugins) {
+						plugin.configureServer = undefined;
+					}
+				}
+
 				updateConfig({
 					build: {
 						redirects: false,
@@ -255,11 +274,7 @@ export default function createIntegration({
 							...(prerenderEnvironment === 'node' && command === 'dev'
 								? [createNodePrerenderPlugin()]
 								: []),
-							cfVitePlugin({
-								...cfPluginConfig,
-								viteEnvironment: { name: 'ssr' },
-								assetsOnly: () => _buildOutput === 'static',
-							}),
+							cloudflareVitePlugins,
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
@@ -275,6 +290,10 @@ export default function createIntegration({
 							{
 								name: '@astrojs/cloudflare:environment',
 								configEnvironment(environmentName, _options) {
+									// Skip dependency pre-bundling during type generation (see `isTypeGenPhase` above).
+									if (isTypeGenPhase) {
+										return { optimizeDeps: { noDiscovery: true, include: [] } };
+									}
 									const isServerEnvironment = ['astro', 'ssr', 'prerender'].includes(
 										environmentName,
 									);
@@ -380,6 +399,7 @@ export default function createIntegration({
 												buildAssets: config.build.assets ?? '_astro',
 											}
 										: null,
+								cacheProviderEnabled: needsWorkerCache,
 							}),
 							cfPrismPlugin(),
 						],
@@ -501,7 +521,7 @@ export default function createIntegration({
 				// Move platform files from the base-prefixed client dir to the
 				// original client root, since Cloudflare reads them from there.
 				if (_config.base !== '/') {
-					for (const file of ['.assetsignore', '_headers']) {
+					for (const file of ['.assetsignore', '_headers', '_redirects']) {
 						try {
 							await rename(
 								new URL(`./${file}`, _config.build.client),

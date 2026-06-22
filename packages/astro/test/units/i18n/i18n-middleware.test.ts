@@ -3,13 +3,13 @@ import { beforeEach, describe, it } from 'node:test';
 import type { MiddlewareHandler } from 'astro';
 import type { RoutingStrategies } from '../../../dist/core/app/common.js';
 import type { Locales } from '../../../dist/types/public/config.js';
+import { getFetchStateFromAPIContext } from '../../../dist/core/fetch/fetch-state.js';
 import { createI18nMiddleware } from '../../../dist/i18n/middleware.js';
 import { createMockAPIContext } from '../mocks.ts';
 
 /**
  * Creates a "page" response that mimics what the render pipeline returns.
- * The `X-Astro-Route-Type: page` header is what the i18n middleware reads
- * to decide whether to apply routing logic.
+ * Route type metadata is stored on FetchState by the render pipeline.
  */
 function makePageResponse(
 	body: string,
@@ -18,14 +18,13 @@ function makePageResponse(
 ): Response {
 	return new Response(body, {
 		status,
-		headers: { 'X-Astro-Route-Type': 'page', ...extraHeaders },
+		headers: extraHeaders,
 	});
 }
 
 function makeFallbackSentinelResponse(): Response {
 	return new Response(null, {
 		status: 500,
-		headers: { 'X-Astro-Route-Type': 'fallback' },
 	});
 }
 
@@ -57,9 +56,14 @@ function makeI18nManifest(overrides: I18nManifestOverrides = {}) {
 /** Calls the handler and asserts the result is a Response (not void). */
 async function callHandler(
 	handler: MiddlewareHandler,
-	...args: Parameters<MiddlewareHandler>
+	context: Parameters<MiddlewareHandler>[0],
+	next: Parameters<MiddlewareHandler>[1],
+	routeType: 'page' | 'fallback' | null = 'page',
 ): Promise<Response> {
-	const result = await handler(...args);
+	if (routeType) {
+		getFetchStateFromAPIContext(context).responseRouteType = routeType;
+	}
+	const result = await handler(context, next);
 	assert.ok(result instanceof Response, 'expected handler to return a Response');
 	return result;
 }
@@ -213,7 +217,7 @@ describe('createI18nMiddleware', () => {
 			} as any);
 			const next = async () => makeFallbackSentinelResponse();
 
-			const result = await callHandler(handler, ctx, next);
+			const result = await callHandler(handler, ctx, next, 'fallback');
 
 			assert.equal(result.status, 200);
 			assert.match(await result.text(), /about page/);
@@ -221,7 +225,7 @@ describe('createI18nMiddleware', () => {
 	});
 
 	describe('early-return guards', () => {
-		it('passes through when X-Astro-Reroute is no and no fallback is configured', async () => {
+		it('passes through when skipErrorReroute is true and no fallback is configured', async () => {
 			const handler = createI18nMiddleware(
 				makeI18nManifest({ fallback: undefined }),
 				'/',
@@ -229,10 +233,8 @@ describe('createI18nMiddleware', () => {
 				'directory',
 			);
 			const ctx = createMockAPIContext({ url: 'http://localhost/404' });
-			const pageResponse = new Response('not found', {
-				status: 404,
-				headers: { 'X-Astro-Route-Type': 'page', 'X-Astro-Reroute': 'no' },
-			});
+			const pageResponse = new Response('not found', { status: 404 });
+			getFetchStateFromAPIContext(ctx).skipErrorReroute = true;
 
 			const result = await callHandler(handler, ctx, async () => pageResponse);
 
@@ -242,11 +244,9 @@ describe('createI18nMiddleware', () => {
 		it('passes through when route type is not page or fallback', async () => {
 			const handler = createI18nMiddleware(makeI18nManifest(), '/', 'ignore', 'directory');
 			const ctx = createMockAPIContext({ url: 'http://localhost/api/data' });
-			const endpointResponse = new Response('{"ok":true}', {
-				headers: { 'X-Astro-Route-Type': 'endpoint' },
-			});
+			const endpointResponse = new Response('{"ok":true}');
 
-			const result = await callHandler(handler, ctx, async () => endpointResponse);
+			const result = await callHandler(handler, ctx, async () => endpointResponse, null);
 
 			assert.equal(result, endpointResponse, 'should return the exact same response');
 		});

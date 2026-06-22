@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "7.0.0-beta.4",
+  "version": "7.0.0",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -75,6 +75,7 @@
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/noop": "./dist/assets/services/noop.js",
     "./cache/memory": "./dist/core/cache/memory-provider.js",
+    "./cache/provider-utils": "./dist/core/cache/provider-utils.js",
     "./fetch": "./dist/core/fetch/index.js",
     "./hono": "./dist/core/hono/index.js",
     "./assets/fonts/runtime.js": "./dist/assets/fonts/runtime.js",
@@ -133,7 +134,7 @@
     "test:integration": "astro-scripts test \"test/*.test.ts\" --parallel --strip-types"
   },
   "dependencies": {
-    "@astrojs/compiler-rs": "^0.1.10",
+    "@astrojs/compiler-rs": "^0.2.2",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-satteri": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
@@ -284,6 +285,7 @@
       "./assets/services/sharp": "./dist/assets/services/sharp.js",
       "./assets/services/noop": "./dist/assets/services/noop.js",
       "./cache/memory": "./dist/core/cache/memory-provider.js",
+      "./cache/provider-utils": "./dist/core/cache/provider-utils.js",
       "./fetch": "./dist/core/fetch/index.js",
       "./hono": "./dist/core/hono/index.js",
       "./assets/fonts/runtime.js": "./dist/assets/fonts/runtime.js",
