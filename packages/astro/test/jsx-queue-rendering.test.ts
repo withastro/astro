@@ -8,27 +8,18 @@ describe('JSX Queue Rendering', () => {
 		let fixtureString: Fixture;
 
 		before(async () => {
-			// Build with queue rendering enabled (includes JSX queue rendering)
+			// Build the fixture to its own output directory.
 			fixtureQueue = await loadFixture({
 				root: './fixtures/jsx-queue-rendering/',
 				outDir: './dist/queue',
-				experimental: {
-					queuedRendering: {
-						enabled: true,
-					},
-				},
 			});
 			await fixtureQueue.build();
 
-			// Build with queue rendering disabled (uses traditional string-based rendering)
+			// Build the same fixture again to a separate output directory, so the
+			// two outputs can be compared below.
 			fixtureString = await loadFixture({
 				root: './fixtures/jsx-queue-rendering/',
 				outDir: './dist/string',
-				experimental: {
-					queuedRendering: {
-						enabled: false,
-					},
-				},
 			});
 			await fixtureString.build();
 		});

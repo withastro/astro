@@ -1,94 +1,75 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { getRoutesForEnvironment } from '../../../dist/vite-plugin-pages/pages.js';
-import { createRouteData } from '../mocks.ts';
+import type { RouteData } from '../../../dist/types/public/internal.js';
 
-describe('vite-plugin-pages / getRoutesForEnvironment — redirect targets', () => {
-	// Bug #17060: prerendered redirect target pages were being bundled into the SSR
-	// build environment, inflating the server function. Each scenario below asserts
-	// that the redirect's target only lands in the page map for the environment that
-	// matches its own prerender flag.
-
-	it('SSR redirect → SSR target: target is included in SSR env, omitted from prerender env', () => {
-		const target = createRouteData({ route: '/target', prerender: false });
-		const redirect = createRouteData({
-			route: '/old',
-			type: 'redirect',
-			redirect: { destination: '/target', status: 301 },
-			redirectRoute: target,
+describe('getRoutesForEnvironment', () => {
+	it('does not include prerendered redirect targets in SSR routes', () => {
+		const staticTarget = { component: 'src/pages/target.astro', prerender: true } as RouteData;
+		const ssrRedirect = {
+			component: '/old',
 			prerender: false,
-		});
+			type: 'redirect',
+			redirectRoute: staticTarget,
+		} as RouteData;
 
-		const ssrResult = getRoutesForEnvironment([redirect], false);
-		assert.equal(ssrResult.size, 2, 'SSR env includes the redirect and its target');
-		assert.ok(ssrResult.has(target), 'target is in SSR env');
-		assert.ok(ssrResult.has(redirect), 'redirect itself is in SSR env');
+		const ssrRoutes = getRoutesForEnvironment([staticTarget, ssrRedirect], false);
 
-		const prerenderResult = getRoutesForEnvironment([redirect], true);
-		assert.equal(prerenderResult.size, 0, 'prerender env includes neither');
+		assert.ok(ssrRoutes.has(ssrRedirect), 'SSR redirect should be in SSR routes');
+		assert.ok(!ssrRoutes.has(staticTarget), 'prerendered target should NOT be in SSR routes');
 	});
 
-	it('SSR redirect → prerendered target: target is OMITTED from SSR env (regression for #17060)', () => {
-		const target = createRouteData({ route: '/target', prerender: true });
-		const redirect = createRouteData({
-			route: '/old',
+	it('includes prerendered redirect targets in prerender routes', () => {
+		const staticTarget = { component: 'src/pages/target.astro', prerender: true } as RouteData;
+		const staticRedirect = {
+			component: '/old',
+			prerender: true,
 			type: 'redirect',
-			redirect: { destination: '/target', status: 301 },
-			redirectRoute: target,
-			prerender: false,
-		});
+			redirectRoute: staticTarget,
+		} as RouteData;
 
-		const ssrResult = getRoutesForEnvironment([redirect], false);
-		assert.equal(
-			ssrResult.size,
-			1,
-			'SSR env includes only the redirect, not the prerendered target',
+		const prerenderRoutes = getRoutesForEnvironment([staticTarget, staticRedirect], true);
+
+		assert.ok(
+			prerenderRoutes.has(staticRedirect),
+			'prerendered redirect should be in prerender routes',
 		);
-		assert.ok(ssrResult.has(redirect), 'redirect is in SSR env');
-		assert.ok(!ssrResult.has(target), 'prerendered target must not be bundled into SSR');
-
-		const prerenderResult = getRoutesForEnvironment([redirect], true);
-		assert.equal(prerenderResult.size, 1, 'prerender env includes only the target');
-		assert.ok(prerenderResult.has(target), 'target is in prerender env');
+		assert.ok(
+			prerenderRoutes.has(staticTarget),
+			'prerendered target should be in prerender routes',
+		);
 	});
 
-	it('prerendered redirect → prerendered target: target is in prerender env, omitted from SSR env', () => {
-		const target = createRouteData({ route: '/target', prerender: true });
-		const redirect = createRouteData({
-			route: '/old',
+	it('includes SSR redirect targets in SSR routes', () => {
+		const ssrTarget = { component: 'src/pages/target.astro', prerender: false } as RouteData;
+		const ssrRedirect = {
+			component: '/old',
+			prerender: false,
 			type: 'redirect',
-			redirect: { destination: '/target', status: 301 },
-			redirectRoute: target,
-			prerender: true,
-		});
+			redirectRoute: ssrTarget,
+		} as RouteData;
 
-		const ssrResult = getRoutesForEnvironment([redirect], false);
-		assert.equal(ssrResult.size, 0, 'SSR env includes neither');
+		const ssrRoutes = getRoutesForEnvironment([ssrTarget, ssrRedirect], false);
 
-		const prerenderResult = getRoutesForEnvironment([redirect], true);
-		assert.equal(prerenderResult.size, 2, 'prerender env includes the redirect and its target');
-		assert.ok(prerenderResult.has(target), 'target is in prerender env');
-		assert.ok(prerenderResult.has(redirect), 'redirect is in prerender env');
+		assert.ok(ssrRoutes.has(ssrRedirect), 'SSR redirect should be in SSR routes');
+		assert.ok(ssrRoutes.has(ssrTarget), 'SSR target should be in SSR routes');
 	});
 
-	it('prerendered redirect → SSR target: target is in SSR env, omitted from prerender env', () => {
-		const target = createRouteData({ route: '/target', prerender: false });
-		const redirect = createRouteData({
-			route: '/old',
-			type: 'redirect',
-			redirect: { destination: '/target', status: 301 },
-			redirectRoute: target,
+	it('does not include SSR redirect targets in prerender routes', () => {
+		const ssrTarget = { component: 'src/pages/target.astro', prerender: false } as RouteData;
+		const prerenderRedirect = {
+			component: '/old',
 			prerender: true,
-		});
+			type: 'redirect',
+			redirectRoute: ssrTarget,
+		} as RouteData;
 
-		const ssrResult = getRoutesForEnvironment([redirect], false);
-		assert.equal(ssrResult.size, 1, 'SSR env includes only the SSR target');
-		assert.ok(ssrResult.has(target), 'SSR target is in SSR env');
-		assert.ok(!ssrResult.has(redirect), 'prerendered redirect is not in SSR env');
+		const prerenderRoutes = getRoutesForEnvironment([ssrTarget, prerenderRedirect], true);
 
-		const prerenderResult = getRoutesForEnvironment([redirect], true);
-		assert.equal(prerenderResult.size, 1, 'prerender env includes only the redirect');
-		assert.ok(prerenderResult.has(redirect), 'redirect is in prerender env');
-		assert.ok(!prerenderResult.has(target), 'SSR target must not be in prerender env');
+		assert.ok(
+			prerenderRoutes.has(prerenderRedirect),
+			'prerendered redirect should be in prerender routes',
+		);
+		assert.ok(!prerenderRoutes.has(ssrTarget), 'SSR target should NOT be in prerender routes');
 	});
 });

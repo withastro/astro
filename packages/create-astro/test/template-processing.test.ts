@@ -1,6 +1,27 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { processTemplateReadme, removeTemplateMarkerSections } from '../dist/index.js';
+import {
+	generateAgentsMd,
+	processTemplateReadme,
+	removeTemplateMarkerSections,
+} from '../dist/index.js';
+
+describe('generateAgentsMd', async () => {
+	it('includes background dev command', async () => {
+		const result = generateAgentsMd();
+		assert.ok(result.includes('astro dev --background'));
+	});
+
+	it('includes documentation links', async () => {
+		const result = generateAgentsMd();
+		assert.ok(result.includes('https://docs.astro.build/en/guides/routing/'));
+		assert.ok(result.includes('https://docs.astro.build/en/basics/astro-components/'));
+		assert.ok(result.includes('https://docs.astro.build/en/guides/framework-components/'));
+		assert.ok(result.includes('https://docs.astro.build/en/guides/content-collections/'));
+		assert.ok(result.includes('https://docs.astro.build/en/guides/styling/'));
+		assert.ok(result.includes('https://docs.astro.build/en/guides/internationalization/'));
+	});
+});
 
 describe('removeTemplateMarkerSections', async () => {
 	it('removes HTML template marker sections', async () => {

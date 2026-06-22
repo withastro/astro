@@ -32,7 +32,6 @@
     { "path": "./packages/integrations/vercel/tsconfig.json" },
     { "path": "./packages/integrations/vue/tsconfig.json" },
     { "path": "./packages/create-astro/tsconfig.json" },
-    { "path": "./packages/db/tsconfig.json" },
     { "path": "./packages/upgrade/tsconfig.json" },
     { "path": "./packages/language-tools/astro-check/tsconfig.json" },
     { "path": "./packages/language-tools/language-server/tsconfig.json" },

@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "7.0.13",
+  "version": "8.0.0-beta.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -23,6 +23,8 @@
     "./functions": "./dist/functions.js",
     "./ssr-function.js": "./dist/ssr-function.js",
     "./image-service.js": "./dist/image-service.js",
+    "./cache": "./dist/cache/index.js",
+    "./cache/provider": "./dist/cache/provider.js",
     "./package.json": "./package.json"
   },
   "files": [
@@ -45,12 +47,12 @@
     "@netlify/functions": "^5.2.0",
     "@netlify/vite-plugin": "^2.12.3",
     "@vercel/nft": "^1.3.2",
-    "esbuild": "^0.27.3",
+    "esbuild": "^0.28.0",
     "tinyglobby": "^0.2.15",
-    "vite": "^7.3.2"
+    "vite": "^8.0.13"
   },
   "peerDependencies": {
-    "astro": "^6.0.0"
+    "astro": "^7.0.0-alpha.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.6",

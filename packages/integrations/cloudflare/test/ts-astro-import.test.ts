@@ -22,8 +22,8 @@ describe('ts file default-importing an .astro component', () => {
 
 		await fixture.build({
 			vite: { logLevel: 'error' },
-			// @ts-expect-error: logger is internal API
-			logger: new AstroLogger({
+			// @ts-expect-error: `_logger` is an internal API
+			_logger: new AstroLogger({
 				level: 'error',
 				destination: new Writable({
 					objectMode: true,

@@ -2237,8 +2237,8 @@ export const CacheNotEnabled = {
 	name: 'CacheNotEnabled',
 	title: 'Cache is not enabled.',
 	message:
-		'`Astro.cache` is not available because the cache feature is not enabled. To use caching, configure a cache provider in your Astro config under `experimental.cache`.',
-	hint: 'Use an adapter that provides a default cache provider, or set one explicitly: `experimental: { cache: { provider: "..." } }`. See https://docs.astro.build/en/reference/experimental-flags/route-caching/.',
+		'`Astro.cache` is not available because the cache feature is not enabled. To use caching, configure a cache provider in your Astro config under `cache`.',
+	hint: 'Use an adapter that provides a default cache provider, or set one explicitly: `cache: { provider: "..." }`. See https://docs.astro.build/en/guides/caching/.',
 } satisfies ErrorData;
 
 /**

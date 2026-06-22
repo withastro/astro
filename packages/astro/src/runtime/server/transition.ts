@@ -115,20 +115,6 @@ export function renderTransition(
 	return scope;
 }
 
-/** @deprecated This will be removed in Astro 7 */
-export function createAnimationScope(
-	transitionName: string,
-	animations: Record<string, TransitionAnimationPair>,
-) {
-	const hash = Math.random().toString(36).slice(2, 8);
-	const scope = `astro-${hash}`;
-	const sheet = new ViewTransitionStyleSheet(scope, transitionName);
-
-	addPairs(animations, sheet);
-
-	return { scope, styles: sheet.toString().replaceAll('"', '') };
-}
-
 export class ViewTransitionStyleSheet {
 	private modern: string[] = [];
 	private fallback: string[] = [];

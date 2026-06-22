@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/preact",
   "description": "Use Preact components within Astro",
-  "version": "5.1.5",
+  "version": "6.0.0-beta.2",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -21,6 +21,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/preact/",
   "exports": {
     ".": "./dist/index.js",
+    "./container-renderer": "./dist/container-renderer.js",
     "./client.js": "./dist/client.js",
     "./client-dev.js": "./dist/client-dev.js",
     "./server.js": "./dist/server.js",
@@ -40,7 +41,7 @@
     "@preact/signals": "^2.8.2",
     "devalue": "^5.8.1",
     "preact-render-to-string": "^6.6.6",
-    "vite": "^7.3.2"
+    "vite": "^8.0.13"
   },
   "devDependencies": {
     "astro": "workspace:*",

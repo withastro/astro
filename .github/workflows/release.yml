@@ -10,6 +10,7 @@ on:
       - "3-legacy"
       - "4-legacy"
       - "5-legacy"
+      - "6-legacy"
 
 defaults:
   run:

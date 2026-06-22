@@ -367,12 +367,17 @@ export async function run({ init, payload }: FlueContext) {
 		),
 	});
 
-	await postGitHubComment(issueNumber, comment);
+	// The LLM sometimes returns literal "\n" (two characters) instead of actual
+	// newlines when producing a string via a tool-call result. Unescape them so
+	// the GitHub comment renders with real line breaks.
+	const normalizedComment = comment.replace(/\\n/g, '\n');
+
+	await postGitHubComment(issueNumber, normalizedComment);
 
 	if (triageResult.reproducible) {
 		await removeGitHubLabel(issueNumber, 'needs triage');
 		const selectedLabels = await selectTriageLabels(session, {
-			comment,
+			comment: normalizedComment,
 			priorityLabels,
 			packageLabels,
 		});

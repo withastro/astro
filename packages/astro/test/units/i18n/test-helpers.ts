@@ -1,6 +1,9 @@
 import type { RoutingStrategies } from '../../../dist/core/app/common.js';
 import type { Locales } from '../../../dist/types/public/config.js';
 import type { MiddlewarePayload } from '../../../dist/i18n/index.js';
+import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
+import { fetchStateSymbol } from '../../../dist/core/constants.js';
+import { createBasicPipeline } from '../test-utils.ts';
 
 export function makeI18nRouterConfig({
 	strategy = 'pathname-prefix-other-locales',
@@ -81,7 +84,7 @@ export function createManualRoutingContext({
 	const request = new Request(url.toString(), { method });
 
 	// Cast to any — this is a partial mock of APIContext for unit tests
-	return {
+	const context = {
 		url,
 		request,
 		currentLocale,
@@ -92,6 +95,8 @@ export function createManualRoutingContext({
 			});
 		},
 	} as any;
+	Reflect.set(context, fetchStateSymbol, new FetchState(createBasicPipeline(), request));
+	return context;
 }
 
 export function createMiddlewarePayload({

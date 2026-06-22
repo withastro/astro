@@ -32,8 +32,8 @@ describe('base', () => {
 		});
 		await fixture.build({
 			vite: { logLevel: 'info' },
-			// @ts-expect-error: logger is internal API
-			logger,
+			// @ts-expect-error: `_logger` is an internal API
+			_logger: logger,
 		});
 	});
 
@@ -73,6 +73,18 @@ describe('base', () => {
 			fixture.pathExists('client/_headers'),
 			'_headers should be at client/_headers (not under base)',
 		);
+	});
+
+	it('keeps _redirects at the client root', async () => {
+		assert.ok(
+			fixture.pathExists('client/_redirects'),
+			'_redirects should be at client/_redirects (not under base)',
+		);
+	});
+
+	it('preserves user-defined redirects from public/_redirects', async () => {
+		const content = await fixture.readFile('client/_redirects');
+		assert.match(content, /\/external\/old\s+\/external\/new\s+301/);
 	});
 
 	it('injects cache headers for assets with base prefix', async () => {

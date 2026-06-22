@@ -1,5 +1,43 @@
 # @astrojs/cloudflare
 
+## 14.0.0-beta.3
+
+### Patch Changes
+
+- [#16961](https://github.com/withastro/astro/pull/16961) [`96398e8`](https://github.com/withastro/astro/commit/96398e8e81632e9c8b61cb8ee23ac359ea8120c0) Thanks [@adamchal](https://github.com/adamchal)! - Speeds up `astro sync` by no longer starting the Cloudflare runtime during type generation
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 14.0.0-beta.2
+
+### Patch Changes
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+## 14.0.0-alpha.1
+
+### Patch Changes
+
+- [#16990](https://github.com/withastro/astro/pull/16990) [`ebeb830`](https://github.com/withastro/astro/commit/ebeb83075ba7825a822fdcf4228b475cae38c9c5) Thanks [@ocavue](https://github.com/ocavue)! - Fixes a build crash when using `experimental.advancedRouting` with a custom `fetchFile` that statically imports `cf` from `@astrojs/cloudflare/fetch`. The circular dependency between `@astrojs/cloudflare/fetch` and `astro/app/entrypoint` caused `createApp` or `createGetEnv` to be `undefined` at module evaluation time. Initialization is now deferred to the first `cf()` call, breaking the cycle.
+
+- [#16671](https://github.com/withastro/astro/pull/16671) [`fd926fd`](https://github.com/withastro/astro/commit/fd926fdafd4a5e94dd156105dacb214741f4b7ac) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Removes deprecations warnings added in Astro v6 for Cloudflare specific Astro.locals properties.
+
+- Updated dependencies [[`1f07343`](https://github.com/withastro/astro/commit/1f07343ffc69b9c982f43cd0369069fe8d1a07fa), [`1e000e2`](https://github.com/withastro/astro/commit/1e000e2454fbbade0a5ed978a9dccf8307780305), [`c63e7e4`](https://github.com/withastro/astro/commit/c63e7e4411db8fc652c84ce82b45f53e951eb6fa), [`ebeb830`](https://github.com/withastro/astro/commit/ebeb83075ba7825a822fdcf4228b475cae38c9c5), [`10229f7`](https://github.com/withastro/astro/commit/10229f73dbf0f19b9936e9a23f0abc774a4c579e)]:
+  - astro@7.0.0-alpha.2
+  - @astrojs/underscore-redirects@1.0.3
+
+## 14.0.0-alpha.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Patch Changes
+
+- Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
+  - astro@7.0.0-alpha.0
+
 ## 13.7.0
 
 ### Minor Changes

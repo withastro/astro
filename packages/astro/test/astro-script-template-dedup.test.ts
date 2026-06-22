@@ -29,7 +29,7 @@ describe('Scripts inside template elements', () => {
 		const $ = cheerio.load(html);
 
 		// One script inside the <template> (inert), one outside (executes)
-		assert.equal($('body > script').length, 1);
+		assert.equal($('script').length, 2);
 		assert.equal(countSubstring(html, '<script type="module">'), 2);
 	});
 
@@ -38,7 +38,7 @@ describe('Scripts inside template elements', () => {
 		const $ = cheerio.load(html);
 
 		// One script outside (executes, deduplicated normally), one inside the template
-		assert.equal($('body > script').length, 1);
+		assert.equal($('script').length, 2);
 		assert.equal(countSubstring(html, '<script type="module">'), 2);
 	});
 
@@ -47,7 +47,7 @@ describe('Scripts inside template elements', () => {
 		const $ = cheerio.load(html);
 
 		// One script outside (executes), one inside the nested templates
-		assert.equal($('body > script').length, 1);
+		assert.equal($('script').length, 2);
 		assert.equal(countSubstring(html, '<script type="module">'), 2);
 	});
 
@@ -57,7 +57,7 @@ describe('Scripts inside template elements', () => {
 
 		// Two components outside the template should still deduplicate to one script.
 		// The template gets its own (inert) copy. Total: 2 scripts.
-		assert.equal($('body > script').length, 1);
+		assert.equal($('script').length, 2);
 		assert.equal(countSubstring(html, '<script type="module">'), 2);
 	});
 });

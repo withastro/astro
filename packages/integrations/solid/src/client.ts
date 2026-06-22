@@ -8,7 +8,6 @@ export default (element: HTMLElement) =>
 	(Component: any, props: any, slotted: any, { client }: { client: string }) => {
 		if (!element.hasAttribute('ssr')) return;
 		const isHydrate = client !== 'only';
-		const bootstrap = isHydrate ? hydrate : render;
 
 		let slot: HTMLElement | null;
 		let _slots: Record<string, any> = {};
@@ -53,25 +52,31 @@ export default (element: HTMLElement) =>
 			// store the function to update the current mounted component
 			alreadyInitializedElements.set(element, setStore);
 
-			const dispose = bootstrap(
-				() => {
-					const inner = () => createComponent(Component, store);
+			const fn = () => {
+				const inner = () => createComponent(Component, store);
 
-					if (isHydrate) {
-						return createComponent(Suspense, {
-							get children() {
-								return inner();
-							},
-						});
-					} else {
-						return inner();
-					}
-				},
-				element,
-				{
-					renderId,
-				},
-			);
+				if (isHydrate) {
+					return createComponent(Suspense, {
+						get children() {
+							return inner();
+						},
+					});
+				} else {
+					return inner();
+				}
+			};
+
+			// hydrate and render have different signatures for their third argument,
+			// so we call them separately instead of unifying into a single `bootstrap` call.
+			let dispose: () => void;
+			if (isHydrate) {
+				dispose = hydrate(fn, element, { renderId });
+			} else {
+				// For client:only, clear the fallback content before rendering.
+				// Solid's render() appends rather than replaces when existing children are present.
+				element.innerHTML = '';
+				dispose = render(fn, element);
+			}
 			element.addEventListener('astro:unmount', () => dispose(), { once: true });
 		}
 	};

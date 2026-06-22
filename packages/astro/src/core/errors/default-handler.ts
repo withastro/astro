@@ -123,6 +123,7 @@ export class DefaultErrorHandler implements ErrorHandler {
 					return this.renderError(request, {
 						...resolvedRenderOptions,
 						status,
+						error,
 						response: originalResponse,
 						skipMiddleware: true,
 						pathname: resolvedPathname,
