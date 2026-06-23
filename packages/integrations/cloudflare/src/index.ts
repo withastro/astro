@@ -11,7 +11,7 @@ import {
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute } from 'astro';
-import { astroFrontmatterScanPlugin } from './esbuild-plugin-astro-frontmatter.js';
+import { rolldownAstroFrontmatterScanPlugin } from './rolldown-plugin-astro-frontmatter.js';
 import { getParts } from './utils/generate-routes-json.js';
 import { buildAssetsHeadersContent } from './utils/headers.js';
 import {
@@ -346,16 +346,8 @@ export default function createIntegration({
 														? userOptimizeDeps.exclude
 														: []),
 												],
-												esbuildOptions: {
-													// Suppress Vite's `createRequire(import.meta.url)` banner to work around
-													// https://github.com/vitejs/vite/issues/22004 — Vite's SSR transform
-													// incorrectly rewrites identifiers inside `import.meta` when an imported
-													// binding shares the same name (e.g. zod v4 exports `meta`).
-													banner: { js: '' },
-													plugins: [astroFrontmatterScanPlugin()],
-													...(userOptimizeDeps?.esbuildOptions?.loader
-														? { loader: userOptimizeDeps.esbuildOptions.loader }
-														: {}),
+												rolldownOptions: {
+													plugins: [rolldownAstroFrontmatterScanPlugin()],
 												},
 											},
 										};
