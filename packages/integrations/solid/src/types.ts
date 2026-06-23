@@ -4,7 +4,7 @@ export type RendererContext = {
 };
 
 // A branded island signal accessor or setter
-export type IslandSignalLike = Function;
+export type IslandSignalLike = (...args: any[]) => any;
 
 export type ArrayObjectMapping = [string, number | string][];
 export type Signals = Record<string, string | ArrayObjectMapping>;
