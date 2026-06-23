@@ -1,5 +1,17 @@
 # astro
 
+## 7.0.1
+
+### Patch Changes
+
+- [#17151](https://github.com/withastro/astro/pull/17151) [`ccceda3`](https://github.com/withastro/astro/commit/ccceda31550668dc8422e027475a3d0729c18d33) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro dev` incorrectly starting in background mode for Warp terminal users. Hybrid environments like Warp are no longer treated as AI agents for auto-background detection.
+
+- [#17158](https://github.com/withastro/astro/pull/17158) [`164df87`](https://github.com/withastro/astro/commit/164df87aee81c1ca5cd38514301673a40e9975c7) Thanks [@ematipico](https://github.com/ematipico)! - Fixes `astro dev --background --host` not listing the network addresses. The background server start output and `astro dev status` now show every exposed network URL, matching the foreground dev server.
+
+- [#17141](https://github.com/withastro/astro/pull/17141) [`d785b9d`](https://github.com/withastro/astro/commit/d785b9d6d2f014995ec8cb09ed5b50c49d9054d3) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes responsive image CSS overriding user styles defined inside CSS `@layer` blocks. The generated image styles are now wrapped in `@layer astro.images`, ensuring they have lower cascade priority than user-defined layers.
+
+- [#17150](https://github.com/withastro/astro/pull/17150) [`1a61386`](https://github.com/withastro/astro/commit/1a613868c2dca8d8dd8cef99fd8e4b5cde0ba1e7) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro dev --background` failing on Windows with "Failed to spawn background dev server process"
+
 ## 7.0.0
 
 ### Major Changes

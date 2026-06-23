@@ -194,7 +194,7 @@ importers:
         specifier: ^11.0.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
       hono:
         specifier: ^4.12.14
@@ -203,7 +203,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
 
   examples/blog:
@@ -218,7 +218,7 @@ importers:
         specifier: ^3.7.3
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
       sharp:
         specifier: ^0.34.3
@@ -227,7 +227,7 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
 
   examples/container-with-vitest:
@@ -236,7 +236,7 @@ importers:
         specifier: ^6.0.0
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -267,7 +267,7 @@ importers:
         specifier: ^3.15.8
         version: 3.15.8
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
 
   examples/framework-multiple:
@@ -294,7 +294,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -324,7 +324,7 @@ importers:
         specifier: ^2.8.1
         version: 2.8.2(preact@10.29.0)
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -342,7 +342,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -357,7 +357,7 @@ importers:
         specifier: ^7.0.0
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.11
@@ -369,7 +369,7 @@ importers:
         specifier: ^9.0.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -381,7 +381,7 @@ importers:
         specifier: ^7.0.0
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.29
@@ -393,25 +393,25 @@ importers:
         specifier: ^11.0.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
 
   examples/ssr:
@@ -423,7 +423,7 @@ importers:
         specifier: ^9.0.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -432,7 +432,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
       sass:
         specifier: ^1.97.3
@@ -447,7 +447,7 @@ importers:
         specifier: ^22.19.0
         version: 22.19.19
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -456,7 +456,7 @@ importers:
         specifier: ^2.0.0
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -468,7 +468,7 @@ importers:
         specifier: ^6.0.0
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -483,7 +483,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(nanostores@1.1.1)(preact@10.29.0)
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
       nanostores:
         specifier: ^1.1.1
@@ -504,7 +504,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -519,7 +519,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/astro
       vitest:
         specifier: ^5.0.0-beta.2
