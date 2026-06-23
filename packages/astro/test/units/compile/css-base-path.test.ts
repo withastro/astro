@@ -19,6 +19,7 @@ async function compileWithBase(source: string, base = '/') {
 		} as AstroConfig,
 		viteConfig,
 		toolbarEnabled: false,
+		configAlias: null,
 		filename: '/src/pages/index.astro',
 		source,
 	};

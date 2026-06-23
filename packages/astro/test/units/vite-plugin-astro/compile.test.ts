@@ -28,6 +28,7 @@ async function compile(source: string, id: string, inlineConfig: InlineConfig = 
 		astroConfig: makeAstroConfig(),
 		viteConfig,
 		toolbarEnabled: false,
+		configAlias: null,
 		filename: id,
 		source,
 	};

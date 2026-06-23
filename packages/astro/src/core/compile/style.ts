@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import { preprocessCSS, type ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../types/public/config.js';
+import type { Alias } from '../../vite-plugin-config-alias/index.js';
+import { resolveCssAliases } from '../../vite-plugin-config-alias/index.js';
 import { AstroErrorData, CSSError, positionAt } from '../errors/index.js';
 import { normalizePath } from '../viteUtils.js';
 import type { CompileCssResult } from './types.js';
@@ -136,12 +138,14 @@ export function createStylePreprocessor({
 	filename,
 	viteConfig,
 	astroConfig,
+	configAlias,
 	cssPartialCompileResults,
 	cssTransformErrors,
 }: {
 	filename: string;
 	viteConfig: ResolvedConfig;
 	astroConfig: AstroConfig;
+	configAlias: Alias[] | null;
 	cssPartialCompileResults: Partial<CompileCssResult>[];
 	cssTransformErrors: Error[];
 }): PreprocessStyleFn {
@@ -152,6 +156,13 @@ export function createStylePreprocessor({
 		const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
 		const id = `${filename}?astro&type=style&index=${index}&lang${lang}`;
 		try {
+			// Resolve tsconfig path aliases in CSS before Vite's preprocessCSS processes it.
+			// preprocessCSS uses Vite's internal postcss-import resolver which doesn't know
+			// about tsconfig aliases, so we must rewrite them to absolute paths first.
+			const resolvedContent = configAlias
+				? (resolveCssAliases(content, configAlias) ?? content)
+				: content;
+
 			// Workaround for #16524: when lightningcss is the Vite CSS transformer,
 			// exclude its Nesting lowering pass so the Astro compiler's scope
 			// injector still sees `.parent` (and not `:where(.parent ...)`) as the
@@ -161,7 +172,7 @@ export function createStylePreprocessor({
 				viteConfig.css?.transformer === 'lightningcss'
 					? (withNestingExcluded(viteConfig) ?? viteConfig)
 					: viteConfig;
-			const result = await preprocessCSS(content, id, effectiveViteConfig);
+			const result = await preprocessCSS(resolvedContent, id, effectiveViteConfig);
 
 			// Rewrite CSS URLs to include the base path
 			// This is necessary because preprocessCSS doesn't handle URL rewriting

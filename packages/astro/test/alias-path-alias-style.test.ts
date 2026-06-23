@@ -37,4 +37,27 @@ describe('Style compilation with tsconfig path aliases', () => {
 			'Scoped .styled CSS should be present in emitted stylesheet',
 		);
 	});
+
+	// Regression test for https://github.com/withastro/astro/issues/17163
+	// @import url("@/...") in <style> blocks should resolve tsconfig aliases
+	it('resolves @import url() with tsconfig alias in style block', async () => {
+		const html = await fixture.readFile('/test-import-url/index.html');
+		const $ = cheerio.load(html);
+
+		// The component should be rendered
+		assert.ok($('.from-import').length > 0, 'ImportUrlComponent should be present in output');
+
+		// CSS from the @import should be included
+		const links = $('link[rel=stylesheet]')
+			.map((_i, el) => $(el).attr('href'))
+			.get();
+		assert.ok(links.length > 0, 'Should have at least one linked stylesheet');
+
+		const cssContents = await Promise.all(links.map((href) => fixture.readFile(href)));
+		const allCss = cssContents.join('\n');
+		assert.ok(
+			allCss.includes('color'),
+			'CSS from @import url() with alias should be present in emitted stylesheet',
+		);
+	});
 });
