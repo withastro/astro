@@ -11,6 +11,7 @@ import {
 	removeLockFile,
 	isProcessAlive,
 	GRACEFUL_SHUTDOWN_TIMEOUT,
+	type LockFileData,
 } from '../../core/dev/lockfile.js';
 import { resolveRoot } from '../../core/config/config.js';
 
@@ -29,6 +30,28 @@ export function formatBackgroundOutput(result: BackgroundResult | BackgroundErro
 	return JSON.stringify(result);
 }
 
+/**
+ * Build the human-readable message shown when a background dev server is running.
+ * Lists every network address (when `--host` exposed any) so the output matches
+ * the foreground dev server, then appends the management command hints.
+ */
+export function formatServerRunningMessage(
+	data: LockFileData,
+	{ existing = false }: { existing?: boolean } = {},
+): string {
+	const lines = [
+		`Dev server ${existing ? 'already running' : 'running'} at ${data.url} (pid ${data.pid})`,
+	];
+	if (data.urls && data.urls.network.length > 0) {
+		lines.push('  Network:');
+		for (const url of data.urls.network) {
+			lines.push(`    ${url}`);
+		}
+	}
+	lines.push('  Stop:   astro dev stop', '  Status: astro dev status', '  Logs:   astro dev logs');
+	return lines.join('\n');
+}
+
 export async function background({
 	flags,
 	logger,
@@ -41,13 +64,7 @@ export async function background({
 	// Check for existing server
 	const existing = checkExistingServer(root);
 	if (existing && !flags.force) {
-		logger.info(
-			'SKIP_FORMAT',
-			`Dev server already running at ${existing.url} (pid ${existing.pid})\n` +
-				'  Stop:   astro dev stop\n' +
-				'  Status: astro dev status\n' +
-				'  Logs:   astro dev logs',
-		);
+		logger.info('SKIP_FORMAT', formatServerRunningMessage(existing, { existing: true }));
 		return;
 	}
 
@@ -135,13 +152,7 @@ export async function background({
 		// Check for the lock file (written by the child's dev server)
 		const lockData = readLockFile(root);
 		if (lockData && lockData.pid === childPid) {
-			logger.info(
-				'SKIP_FORMAT',
-				`Dev server running at ${lockData.url} (pid ${lockData.pid})\n` +
-					'  Stop:   astro dev stop\n' +
-					'  Status: astro dev status\n' +
-					'  Logs:   astro dev logs',
-			);
+			logger.info('SKIP_FORMAT', formatServerRunningMessage(lockData));
 			return;
 		}
 
