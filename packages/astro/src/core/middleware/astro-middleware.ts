@@ -1,7 +1,9 @@
 import type { FetchState } from '../fetch/fetch-state.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
+import type { BaseApp } from '../app/base.js';
 import { type Pipeline, PipelineFeatures } from '../base-pipeline.js';
+import { ASTRO_ERROR_HEADER } from '../constants.js';
 import { attachCookiesToResponse } from '../cookies/index.js';
 import { applyRewriteToState } from '../rewrites/handler.js';
 import { callMiddleware } from './callMiddleware.js';
@@ -73,6 +75,61 @@ export class AstroMiddleware {
 		response = this.#finalize(state, response);
 		state.response = response;
 		return response;
+	}
+
+	/**
+	 * Like `handle`, but mirrors the app-level error handling that
+	 * `AstroHandler` provides on the standard path, the same way
+	 * `PagesHandler.handleWithErrorFallback` does for `pages()`. When no
+	 * route matched it returns a 404 marked with `X-Astro-Error` for the
+	 * app's post-check; when Astro's own middleware chain throws it logs the
+	 * error and renders the custom `500.astro`.
+	 *
+	 * Errors surfaced through `renderRouteCallback` (the host framework's
+	 * `next`, e.g. host middleware mounted below `middleware()`) are
+	 * re-thrown instead, so the host's own error handling still runs rather
+	 * than being swallowed into Astro's 500 page. A sentinel tells the two
+	 * apart.
+	 *
+	 * Used by the composable `astro/fetch` `middleware()` entry point, where
+	 * there is no surrounding `AstroHandler` to supply this fallback.
+	 */
+	async handleWithErrorFallback(
+		app: BaseApp<Pipeline>,
+		state: FetchState,
+		renderRouteCallback: RenderRouteCallback,
+	): Promise<Response> {
+		// `FetchState` falls back to an SSR 404 route when nothing matches, so
+		// routeData is only missing when the custom 404 page is prerendered (or
+		// absent). Returning a marked 404 lets the app's `X-Astro-Error`
+		// post-check render the 404 page a level up, mirroring
+		// `PagesHandler.handleWithErrorFallback`; running user middleware here
+		// would throw on the missing route (no component to load).
+		if (!state.routeData) {
+			return new Response(null, { status: 404, headers: { [ASTRO_ERROR_HEADER]: 'true' } });
+		}
+		let nextError: unknown;
+		try {
+			return await this.handle(state, async (s, ctx) => {
+				try {
+					return await renderRouteCallback(s, ctx);
+				} catch (err) {
+					nextError = err;
+					throw err;
+				}
+			});
+		} catch (err: any) {
+			if (err === nextError) throw err;
+			// User middleware threw: log the stack and render the custom 500
+			// page, the same way `AstroHandler` does on the standard path.
+			app.logger.error(null, err.stack || err.message || String(err));
+			return app.renderError(state.request, {
+				...state.renderOptions,
+				status: 500,
+				error: err,
+				pathname: state.pathname,
+			});
+		}
 	}
 
 	#finalize(state: FetchState, response: Response): Response {

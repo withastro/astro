@@ -6,7 +6,7 @@ import {
 } from 'vite';
 import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
-import { addRollupInput } from '../build/add-rollup-input.js';
+import { addRolldownInput } from '../build/add-rolldown-input.js';
 import type { BuildInternals } from '../build/internal.js';
 import type { StaticBuildOptions } from '../build/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES, MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
@@ -19,6 +19,13 @@ import { normalizePath } from '../viteUtils.js';
 export const MIDDLEWARE_MODULE_ID = 'virtual:astro:middleware';
 const MIDDLEWARE_RESOLVED_MODULE_ID = '\0' + MIDDLEWARE_MODULE_ID;
 const NOOP_MIDDLEWARE = '\0noop-middleware';
+
+export function isMiddlewarePath(relativePath: string): boolean {
+	return (
+		relativePath.startsWith(`${MIDDLEWARE_PATH_SEGMENT_NAME}.`) ||
+		relativePath.startsWith(`${MIDDLEWARE_PATH_SEGMENT_NAME}/`)
+	);
+}
 
 export function vitePluginMiddleware({ settings }: { settings: AstroSettings }): VitePlugin {
 	let resolvedMiddlewareId: string | undefined = undefined;
@@ -43,8 +50,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				// Check if the changed file is a middleware file under srcDir
 				if (!normalizedPath.startsWith(normalizedSrcDir)) return;
 				const relativePath = normalizedPath.slice(normalizedSrcDir.length);
-				// Dot ensures we match "middleware.ts" but not e.g. "middleware-utils.ts"
-				if (!relativePath.startsWith(`${MIDDLEWARE_PATH_SEGMENT_NAME}.`)) return;
+				if (!isMiddlewarePath(relativePath)) return;
 
 				for (const name of [
 					ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
@@ -162,9 +168,9 @@ export function vitePluginMiddlewareBuild(
 
 		options(options) {
 			if (canSplitMiddleware) {
-				// Add middleware as a separate rollup input for environments that support multiple entrypoints.
+				// Add middleware as a separate rolldown input for environments that support multiple entrypoints.
 				// This allows the middleware to be bundled independently.
-				return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
+				return addRolldownInput(options, [MIDDLEWARE_MODULE_ID]);
 			} else {
 				// TODO warn if edge middleware is enabled
 			}

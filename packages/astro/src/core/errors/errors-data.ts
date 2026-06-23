@@ -223,8 +223,8 @@ export const NoClientOnlyHint = {
  * ---
  * export async function getStaticPaths() {
  *	return [
- *		{ params: { slug: "blog" } },
- * 		{ params: { slug: "about" } }
+ *		{ params: { id: "blog" } },
+ * 		{ params: { id: "about" } }
  * 	];
  *}
  *---
@@ -247,8 +247,8 @@ export const InvalidGetStaticPathParam = {
  * ```ts title="pages/blog/[id].astro"
  * export async function getStaticPaths() {
  *	return [ // <-- Array
- *		{ params: { slug: "blog" } }, // <-- Object
- * 		{ params: { slug: "about" } }
+ *		{ params: { id: "blog" } }, // <-- Object
+ * 		{ params: { id: "about" } }
  * 	];
  *}
  * ```
@@ -271,8 +271,8 @@ export const InvalidGetStaticPathsEntry = {
  * ```ts title="pages/blog/[id].astro"
  * export async function getStaticPaths() {
  *	return [ // <-- Array
- *		{ params: { slug: "blog" } },
- * 		{ params: { slug: "about" } }
+ *		{ params: { id: "blog" } },
+ * 		{ params: { id: "about" } }
  * 	];
  *}
  * ```
@@ -2237,8 +2237,8 @@ export const CacheNotEnabled = {
 	name: 'CacheNotEnabled',
 	title: 'Cache is not enabled.',
 	message:
-		'`Astro.cache` is not available because the cache feature is not enabled. To use caching, configure a cache provider in your Astro config under `experimental.cache`.',
-	hint: 'Use an adapter that provides a default cache provider, or set one explicitly: `experimental: { cache: { provider: "..." } }`. See https://docs.astro.build/en/reference/experimental-flags/route-caching/.',
+		'`Astro.cache` is not available because the cache feature is not enabled. To use caching, configure a cache provider in your Astro config under `cache`.',
+	hint: 'Use an adapter that provides a default cache provider, or set one explicitly: `cache: { provider: "..." }`. See https://docs.astro.build/en/guides/caching/.',
 } satisfies ErrorData;
 
 /**

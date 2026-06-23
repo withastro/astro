@@ -3,7 +3,7 @@
 const ENTRYPOINT = '@test/server-entry-fake-adapter/server.js'
 
 /**
- * @param {{ type: 'rollupInput'; shape: 'string' | 'object' | 'array' } | { type: 'serverEntrypoint' }} options
+ * @param {{ type: 'rolldownInput'; shape: 'string' | 'object' | 'array' } | { type: 'serverEntrypoint' }} options
  * @returns {import('astro').AstroIntegration}
  */
 export default function fakeAdapter(options) {
@@ -11,11 +11,11 @@ export default function fakeAdapter(options) {
         name: '@test/server-entry-fake-adapter',
         hooks: {
             'astro:config:setup': (params) => {
-                if (options.type === 'rollupInput') {
+                if (options.type === 'rolldownInput') {
                 params.updateConfig({
                     vite: {
                         build: {
-                            rollupOptions: {
+                            rolldownOptions: {
                                 input: {
                                     string: ENTRYPOINT,
                                     object: { foo: ENTRYPOINT },

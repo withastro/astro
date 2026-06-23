@@ -13,8 +13,15 @@ import {
 } from '../../../dist/core/fetch/index.js';
 import { ALL_PIPELINE_FEATURES } from '../../../dist/core/base-pipeline.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createEndpoint, createPage, createRedirect, createTestApp } from '../mocks.ts';
+import {
+	createEndpoint,
+	createPage,
+	createRedirect,
+	createTestApp,
+	createMockFetchState,
+} from '../mocks.ts';
 import { dynamicPart, spreadPart } from '../routing/test-helpers.ts';
+import { SpyLogger } from '../test-utils.ts';
 
 /** A simple page component that renders `<h1>Hello</h1>`. */
 const simplePage = createComponent((_result: any, _props: any, _slots: any) => {
@@ -252,6 +259,113 @@ describe('middleware()', () => {
 		assert.equal(response.headers.get('x-user-middleware'), 'true');
 		assert.equal(await response.text(), 'page');
 	});
+
+	it('renders the custom 500 page when user middleware throws', async () => {
+		const errorPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>my custom 500</h1>`;
+		});
+		const app = createTestApp(
+			[createPage(simplePage, { route: '/' }), createPage(errorPage, { route: '/500' })],
+			{
+				middleware: async () => ({
+					onRequest: async () => {
+						throw new Error('boom from middleware');
+					},
+				}),
+			},
+		);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		const response = await middleware(state, async () => new Response('page'));
+
+		assert.equal(response.status, 500);
+		const text = await response.text();
+		assert.match(text, /<h1>my custom 500<\/h1>/);
+	});
+
+	it('passes the thrown error to the custom 500 page when user middleware throws', async () => {
+		const errorPage = createComponent((_result: any, props: any, _slots: any) => {
+			const err = props.error;
+			const message = err instanceof Error ? err.message : String(err ?? '');
+			return render`<h1>my custom 500</h1><pre>${message}</pre>`;
+		});
+		const app = createTestApp(
+			[createPage(simplePage, { route: '/' }), createPage(errorPage, { route: '/500' })],
+			{
+				middleware: async () => ({
+					onRequest: async () => {
+						throw new Error('boom from middleware');
+					},
+				}),
+			},
+		);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		const response = await middleware(state, async () => new Response('page'));
+
+		assert.equal(response.status, 500);
+		const text = await response.text();
+		assert.match(text, /boom from middleware/);
+	});
+
+	it('re-throws errors from the next callback instead of rendering the 500 page', async () => {
+		// A throw from `next` originates downstream of Astro's middleware (the
+		// host framework's chain), so it must propagate to the host's own error
+		// handling rather than be swallowed into Astro's 500 page.
+		const errorPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>my custom 500</h1>`;
+		});
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(errorPage, { route: '/500' }),
+		]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		const downstreamError = new Error('boom from next');
+		await assert.rejects(
+			middleware(state, async () => {
+				throw downstreamError;
+			}),
+			(err: unknown) => err === downstreamError,
+		);
+	});
+
+	it('returns a marked 404 without running middleware when the custom 404 route is prerendered', async () => {
+		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Not Found</h1>`;
+		});
+		const app = createTestApp(
+			[
+				createPage(simplePage, { route: '/' }),
+				createPage(notFoundPage, { route: '/404', prerender: true }),
+			],
+			{
+				middleware: async () => ({
+					onRequest: async (_ctx: any, next: any) => {
+						const response = await next();
+						response.headers.set('x-user-middleware', 'true');
+						return response;
+					},
+				}),
+			},
+		);
+		const request = stampApp(new Request('http://example.com/does-not-exist'), app);
+		const state = new FetchState(request);
+
+		let nextCalled = false;
+		const response = await middleware(state, async () => {
+			nextCalled = true;
+			return new Response('page');
+		});
+
+		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('X-Astro-Error'), 'true');
+		assert.equal(response.headers.get('x-user-middleware'), null, 'user middleware should not run');
+		assert.equal(nextCalled, false, 'next should not be called for an unmatched route');
+	});
 });
 
 // #endregion
@@ -267,6 +381,8 @@ describe('pages()', () => {
 		const response = await pages(state);
 
 		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('x-astro-route-type'), null);
+		assert.equal(response.headers.get('x-astro-reroute'), null);
 		const text = await response.text();
 		assert.match(text, /<h1>Hello<\/h1>/);
 	});
@@ -285,8 +401,49 @@ describe('pages()', () => {
 		const response = await pages(state);
 
 		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('x-astro-route-type'), null);
+		assert.equal(response.headers.get('x-astro-reroute'), null);
 		const text = await response.text();
 		assert.match(text, /<h1>Not Found<\/h1>/);
+	});
+
+	it('renders the custom 500 page when a page throws during render', async () => {
+		const throwingPage = createComponent((_result: any, _props: any, _slots: any) => {
+			throw new Error('boom');
+		});
+		const errorPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>my custom 500</h1>`;
+		});
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(throwingPage, { route: '/boom' }),
+			createPage(errorPage, { route: '/500' }),
+		]);
+		const request = stampApp(new Request('http://example.com/boom'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 500);
+		const text = await response.text();
+		assert.match(text, /<h1>my custom 500<\/h1>/);
+	});
+
+	it('returns a marked 404 for the app post-check when the custom 404 route is prerendered', async () => {
+		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Not Found</h1>`;
+		});
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(notFoundPage, { route: '/404', prerender: true }),
+		]);
+		const request = stampApp(new Request('http://example.com/does-not-exist'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('X-Astro-Error'), 'true');
 	});
 
 	it('renders an endpoint', async () => {
@@ -307,6 +464,8 @@ describe('pages()', () => {
 		const response = await pages(state);
 
 		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('x-astro-route-type'), null);
+		assert.equal(response.headers.get('x-astro-reroute'), null);
 		assert.equal(response.headers.get('Content-Type'), 'application/json');
 		const body = await response.json();
 		assert.equal(body.ok, true);
@@ -322,6 +481,8 @@ describe('pages()', () => {
 		const response = await pages(state);
 
 		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('x-astro-route-type'), null);
+		assert.equal(response.headers.get('x-astro-reroute'), null);
 	});
 });
 
@@ -356,9 +517,8 @@ describe('i18n()', () => {
 		const request = stampApp(new Request('http://example.com/about'), app);
 		const state = new FetchState(request);
 
-		const pageResponse = new Response('page body', {
-			headers: { 'X-Astro-Route-Type': 'page' },
-		});
+		state.responseRouteType = 'page';
+		const pageResponse = new Response('page body');
 		const result = await i18n(state, pageResponse);
 
 		assert.equal(result.status, 404);
@@ -379,9 +539,8 @@ describe('i18n()', () => {
 		const request = stampApp(new Request('http://example.com/en/about'), app);
 		const state = new FetchState(request);
 
-		const pageResponse = new Response('page body', {
-			headers: { 'X-Astro-Route-Type': 'page' },
-		});
+		state.responseRouteType = 'page';
+		const pageResponse = new Response('page body');
 		const result = await i18n(state, pageResponse);
 
 		assert.equal(result.status, 200);
@@ -403,7 +562,7 @@ describe('i18n()', () => {
 		const request = stampApp(new Request('http://example.com/api/data'), app);
 		const state = new FetchState(request);
 
-		// No X-Astro-Route-Type header — simulates an endpoint response
+		// No responseRouteType — simulates an endpoint response
 		const apiResponse = new Response('{"ok":true}');
 		const result = await i18n(state, apiResponse);
 
@@ -831,8 +990,6 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 	});
 
 	it('handles headers set by user fetch handler before FetchState creation', () => {
-		// This is the core use case from the issue: user sets forwarded
-		// headers in their src/app.ts fetch() before creating FetchState.
 		const app = createTestApp([createPage(simplePage, { route: '/' })], {
 			allowedDomains: [{ hostname: 'example.com' }],
 		});
@@ -849,8 +1006,6 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 	});
 
 	it('renders through the full pipeline with forwarded headers applied', async () => {
-		// End-to-end: forwarded headers should be visible in Astro.url
-		// when rendering through the astro() combined handler.
 		const app = createTestApp([createPage(simplePage, { route: '/' })], {
 			allowedDomains: [{ hostname: 'example.com' }],
 		});
@@ -865,12 +1020,157 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 		);
 		const state = new FetchState(request);
 
-		// Verify URL was updated before the handler runs
 		assert.equal(state.url.protocol, 'https:');
 		assert.equal(state.url.hostname, 'example.com');
 
 		const response = await astro(state);
 		assert.equal(response.status, 200);
+	});
+
+	it('updates request.url to match the forwarded URL', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/page', {
+				headers: {
+					'x-forwarded-proto': 'https',
+					'x-forwarded-host': 'example.com',
+				},
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(state.url.protocol, 'https:');
+		assert.equal(state.url.hostname, 'example.com');
+
+		const requestUrl = new URL(state.request.url);
+		assert.equal(requestUrl.protocol, 'https:');
+		assert.equal(requestUrl.hostname, 'example.com');
+		assert.equal(requestUrl.pathname, '/page');
+	});
+
+	it('does not reconstruct request when no forwarded headers are validated', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'trusted.com' }],
+		});
+		const original = new Request('http://localhost:4321/', {
+			headers: {
+				'x-forwarded-host': 'evil.com',
+			},
+		});
+		const request = stampApp(original, app);
+		const state = new FetchState(request);
+
+		// Rejected forwarded host — request should stay unchanged
+		assert.equal(state.url.hostname, 'localhost');
+		assert.equal(new URL(state.request.url).hostname, 'localhost');
+	});
+
+	it('carries appSymbol onto the reconstructed request so the app still resolves', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const original = new Request('http://localhost:4321/', {
+			headers: {
+				'x-forwarded-proto': 'https',
+				'x-forwarded-host': 'example.com',
+			},
+		});
+		const request = stampApp(original, app);
+		const state = new FetchState(request);
+
+		assert.notEqual(state.request, original);
+		assert.equal(Reflect.get(state.request, appSymbol), app);
+		const response = await astro(state);
+		assert.equal(response.status, 200);
+	});
+
+	it('preserves method, headers and body when reconstructing for forwarded headers', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/api' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const request = stampApp(
+			new Request('http://localhost:4321/api', {
+				method: 'POST',
+				headers: {
+					'content-type': 'application/x-www-form-urlencoded',
+					'x-forwarded-proto': 'https',
+					'x-forwarded-host': 'example.com',
+				},
+				body: 'token=abc123',
+			}),
+			app,
+		);
+		const state = new FetchState(request);
+
+		assert.equal(new URL(state.request.url).protocol, 'https:');
+		assert.equal(new URL(state.request.url).hostname, 'example.com');
+		assert.equal(state.request.method, 'POST');
+		assert.equal(state.request.headers.get('content-type'), 'application/x-www-form-urlencoded');
+		assert.equal(await state.request.text(), 'token=abc123');
+	});
+
+	it('preserves a streaming request body (duplex) when reconstructing', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/api' })], {
+			allowedDomains: [{ hostname: 'example.com' }],
+		});
+		const body = new ReadableStream({
+			start(controller) {
+				controller.enqueue(new TextEncoder().encode('chunked-payload'));
+				controller.close();
+			},
+		});
+		const init: any = {
+			method: 'POST',
+			headers: {
+				'x-forwarded-proto': 'https',
+				'x-forwarded-host': 'example.com',
+			},
+			body,
+			duplex: 'half',
+		};
+		const request = stampApp(new Request('http://localhost:4321/api', init), app);
+		const state = new FetchState(request);
+
+		assert.equal(new URL(state.request.url).hostname, 'example.com');
+		assert.equal(await state.request.text(), 'chunked-payload');
+	});
+});
+
+// #endregion
+
+// #region session stub getter
+
+describe('session stub getter', () => {
+	it('session property is always defined on the context even without session config', () => {
+		const state = createMockFetchState();
+		const target: Record<string, any> = {};
+		state.defineProviderGetters(target);
+		assert.ok('session' in target, 'session should be a defined property');
+		assert.equal(target.session, undefined);
+	});
+
+	it('warns on first access when session is not configured', async () => {
+		const { createBasicPipeline } = await import('../test-utils.ts');
+		const logger = new SpyLogger();
+		const pipeline = createBasicPipeline({ logger });
+		const state = createMockFetchState({ pipeline });
+
+		const target: Record<string, any> = {};
+		state.defineProviderGetters(target);
+
+		// First access should warn
+		void target.session;
+		const warnings = logger.logs.filter((l) => l.level === 'warn' && l.label === 'session');
+		assert.equal(warnings.length, 1, 'should warn once on first access');
+		assert.ok(warnings[0].message.includes('no session storage is configured'));
+
+		// Second access should not warn again
+		void target.session;
+		const warningsAfter = logger.logs.filter((l) => l.level === 'warn' && l.label === 'session');
+		assert.equal(warningsAfter.length, 1, 'should not warn a second time');
 	});
 });
 

@@ -1,5 +1,4 @@
-import type { GetModuleInfo } from 'rollup';
-import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin } from 'vite';
+import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin, Rolldown } from 'vite';
 import { isCSSRequest } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 import { isPropagatedAssetBoundary } from '../../head-propagation/boundary.js';
@@ -31,7 +30,7 @@ interface PluginOptions {
 	buildOptions: StaticBuildOptions;
 }
 
-function isBuildCssBoundary(id: string, ctx: { getModuleInfo: GetModuleInfo }): boolean {
+function isBuildCssBoundary(id: string, ctx: { getModuleInfo: Rolldown.GetModuleInfo }): boolean {
 	if (isPropagatedAssetBoundary(id)) return true;
 	const info = ctx.getModuleInfo(id);
 	if (!info || !moduleIsTopLevelPage(info)) return false;
@@ -177,6 +176,11 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				// client:only component and if so, add its CSS to the page it belongs to.
 				if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 					for (const id of Object.keys(chunk.modules)) {
+						// Only walk from CSS modules to find client:only parents. When Rollup
+						// merges unrelated modules into the same chunk, walking from every module
+						// would incorrectly attribute the chunk's CSS to pages reached through
+						// modules that have no CSS dependency.
+						if (!isCSSRequest(id)) continue;
 						for (const pageData of getParentClientOnlys(id, this, internals)) {
 							for (const importedCssImport of meta.importedCss) {
 								const cssToInfoRecord = (pagesToCss[pageData.moduleSpecifier] ??= {});
@@ -511,7 +515,7 @@ function shouldDeleteCSSChunk(allModules: string[], internals: BuildInternals): 
 
 function* getParentClientOnlys(
 	id: string,
-	ctx: { getModuleInfo: GetModuleInfo },
+	ctx: { getModuleInfo: Rolldown.GetModuleInfo },
 	internals: BuildInternals,
 ): Generator<PageBuildData, void, unknown> {
 	for (const info of getParentModuleInfos(id, ctx)) {

@@ -1,5 +1,124 @@
 # @astrojs/mdx
 
+## 7.0.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Minor Changes
+
+- [#17093](https://github.com/withastro/astro/pull/17093) [`4585fe5`](https://github.com/withastro/astro/commit/4585fe57dda06226058118f90a809f9e33d4b2af) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Replaces the import entrypoint of `getContainerRenderer()`
+
+  A new `container-renderer` entrypoint exporting `getContainerRenderer()` has been added to the following integrations: React, Preact, Svelte, SolidJS, Vue, and MDX. This prevents bundlers from trying to bundle unrelated exports from the package root when only the Container API is used.
+
+  If you are using the Container API, update your import statements to use the new entrypoint. The following example updates the `getContainerRenderer()` import for React:
+
+  ```diff
+  - import { getContainerRenderer } from '@astrojs/react';
+  + import { getContainerRenderer } from '@astrojs/react/container-renderer';
+  ```
+
+  Importing `getContainerRenderer()` from the package root still works, but is now deprecated and logs a warning.
+
+- [#17129](https://github.com/withastro/astro/pull/17129) [`ff7b718`](https://github.com/withastro/astro/commit/ff7b718a301b8edc7d7db6626f65e69ce35823a7) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds support for [modifying frontmatter programmatically](https://docs.astro.build/en/guides/markdown-content/#modifying-frontmatter-programmatically) with the default Markdown processor.
+
+  A Sätteri plugin can now read and mutate `ctx.data.astro.frontmatter`, and Astro uses the result as the page's frontmatter, in both Markdown and MDX.
+
+### Patch Changes
+
+- [#17124](https://github.com/withastro/astro/pull/17124) [`7e7ab87`](https://github.com/withastro/astro/commit/7e7ab8775f1c70e00e30db9d3c4796246eaf1c5f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates `satteri` to `0.9.0`. See the [Sätteri changelog](https://github.com/bruits/satteri/blob/main/packages/satteri/CHANGELOG.md) for details.
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+## 7.0.0-beta.4
+
+### Patch Changes
+
+- [#17124](https://github.com/withastro/astro/pull/17124) [`7e7ab87`](https://github.com/withastro/astro/commit/7e7ab8775f1c70e00e30db9d3c4796246eaf1c5f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates `satteri` to `0.9.0`. See the [Sätteri changelog](https://github.com/bruits/satteri/blob/main/packages/satteri/CHANGELOG.md) for details.
+
+## 7.0.0-beta.3
+
+### Minor Changes
+
+- [#17093](https://github.com/withastro/astro/pull/17093) [`4585fe5`](https://github.com/withastro/astro/commit/4585fe57dda06226058118f90a809f9e33d4b2af) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Replaces the import entrypoint of `getContainerRenderer()`
+
+  A new `container-renderer` entrypoint exporting `getContainerRenderer()` has been added to the following integrations: React, Preact, Svelte, SolidJS, Vue, and MDX. This prevents bundlers from trying to bundle unrelated exports from the package root when only the Container API is used.
+
+  If you are using the Container API, update your import statements to use the new entrypoint. The following example updates the `getContainerRenderer()` import for React:
+
+  ```diff
+  - import { getContainerRenderer } from '@astrojs/react';
+  + import { getContainerRenderer } from '@astrojs/react/container-renderer';
+  ```
+
+  Importing `getContainerRenderer()` from the package root still works, but is now deprecated and logs a warning.
+
+## 7.0.0-beta.2
+
+### Patch Changes
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+## 6.0.0-alpha.1
+
+### Patch Changes
+
+- [#16969](https://github.com/withastro/astro/pull/16969) [`4a31f90`](https://github.com/withastro/astro/commit/4a31f90c765bcd1c4af8b85160b74a0da338cfe7) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds support for Prism syntax highlighting to the Sätteri Markdown and MDX processors. Setting `markdown.syntaxHighlight` to `'prism'` now highlights your code blocks with Prism.
+
+  ```js
+  // astro.config.mjs
+  import { satteri } from '@astrojs/markdown-satteri';
+
+  export default defineConfig({
+    markdown: {
+      processor: satteri(),
+      syntaxHighlight: 'prism',
+    },
+  });
+  ```
+
+- Updated dependencies [[`4a31f90`](https://github.com/withastro/astro/commit/4a31f90c765bcd1c4af8b85160b74a0da338cfe7)]:
+  - @astrojs/markdown-satteri@0.3.0-alpha.0
+
+## 6.0.0-alpha.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Patch Changes
+
+- Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
+  - astro@7.0.0-alpha.0
+
+## 6.0.3
+
+### Patch Changes
+
+- [#16969](https://github.com/withastro/astro/pull/16969) [`4a31f90`](https://github.com/withastro/astro/commit/4a31f90c765bcd1c4af8b85160b74a0da338cfe7) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds support for Prism syntax highlighting to the Sätteri Markdown and MDX processors. Setting `markdown.syntaxHighlight` to `'prism'` now highlights your code blocks with Prism.
+
+  ```js
+  // astro.config.mjs
+  import { satteri } from '@astrojs/markdown-satteri';
+
+  export default defineConfig({
+    markdown: {
+      processor: satteri(),
+      syntaxHighlight: 'prism',
+    },
+  });
+  ```
+
+## 6.0.2
+
+### Patch Changes
+
+- [#16955](https://github.com/withastro/astro/pull/16955) [`9a93d68`](https://github.com/withastro/astro/commit/9a93d68429aa15e76f07268863badfbda7b59d23) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates Sätteri processor to v0.8.0. See [its changelog](https://github.com/bruits/satteri/blob/main/packages/satteri/CHANGELOG.md#080--2026-06-03) for details on bugs fixed and features added.
+
+- Updated dependencies [[`9a93d68`](https://github.com/withastro/astro/commit/9a93d68429aa15e76f07268863badfbda7b59d23)]:
+  - @astrojs/markdown-satteri@0.2.2
+
 ## 6.0.1
 
 ### Patch Changes

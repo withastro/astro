@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Add support for MDX pages in your Astro site",
-  "version": "6.0.1",
+  "version": "7.0.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -20,6 +20,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/mdx/",
   "exports": {
     ".": "./dist/index.js",
+    "./container-renderer": "./dist/container-renderer.js",
     "./server.js": "./dist/server.js",
     "./package.json": "./package.json"
   },
@@ -50,8 +51,8 @@
     "vfile": "^6.0.3"
   },
   "peerDependencies": {
-    "@astrojs/markdown-satteri": "workspace:*",
-    "astro": "^6.4.0"
+    "@astrojs/markdown-satteri": "^0.3.1-alpha.0",
+    "astro": "^7.0.0-alpha.0"
   },
   "peerDependenciesMeta": {
     "@astrojs/markdown-satteri": {
@@ -76,10 +77,10 @@
     "remark-math": "^6.0.0",
     "remark-rehype": "^11.1.2",
     "remark-toc": "^9.0.0",
-    "satteri": "^0.8.0",
+    "satteri": "^0.9.1",
     "shiki": "^4.0.2",
     "unified": "^11.0.5",
-    "vite": "^7.3.2"
+    "vite": "^8.0.13"
   },
   "engines": {
     "node": ">=22.12.0"

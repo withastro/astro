@@ -15,6 +15,19 @@ import type {
 
 type HighlightFn = (code: string, lang: string, meta?: string) => Promise<string>;
 
+declare module 'satteri' {
+	interface DataMap {
+		astro: SatteriAstroData;
+	}
+}
+
+export interface SatteriAstroData {
+	frontmatter: Record<string, any>;
+	headings: MarkdownHeading[];
+	localImagePaths: Set<string>;
+	remoteImagePaths: Set<string>;
+}
+
 let satteri: typeof import('satteri') | undefined;
 
 // Loaded lazily so the Sätteri Rust/WASM binary isn't pulled in unless the
@@ -25,24 +38,23 @@ async function loadSatteri(): Promise<typeof import('satteri')> {
 }
 
 export function createCollectImagesPlugin(
-	localImagePaths: Set<string>,
-	remoteImagePaths: Set<string>,
 	image: AstroMarkdownOptions['image'] = {},
 ): MdastPluginDefinition {
 	const domains = image?.domains ?? [];
 	const remotePatterns = image?.remotePatterns ?? [];
 	return {
 		name: 'collect-images',
-		image(node) {
+		image(node, ctx) {
 			const url = node.url ? decodeURI(node.url) : undefined;
 			if (!url) return;
 
+			const astro = ctx.data.astro;
 			if (URL.canParse(url)) {
 				if (isRemoteAllowed(url, { domains, remotePatterns })) {
-					remoteImagePaths.add(url);
+					astro?.remoteImagePaths.add(url);
 				}
 			} else if (!url.startsWith('/')) {
-				localImagePaths.add(url);
+				astro?.localImagePaths.add(url);
 			}
 		},
 	};
@@ -103,25 +115,22 @@ export function makeFragmentNode(html: string): HastNode {
 	} as unknown as HastNode;
 }
 
-export function createHeadingIdsPlugin(
-	headings?: MarkdownHeading[],
-	frontmatter?: Record<string, any>,
-): HastPluginDefinition {
+export function createHeadingIdsPlugin(): HastPluginDefinition {
 	const slugger = new Slugger();
 	return {
 		name: 'heading-ids',
 		element: {
 			filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
 			visit(node, ctx) {
+				const astro = ctx.data.astro;
 				const rawText = ctx.textContent(node);
-				const text =
-					frontmatter && rawText.includes('frontmatter')
-						? collectHastText(node, frontmatter)
-						: rawText;
+				const text = rawText.includes('frontmatter')
+					? collectHastText(node, astro?.frontmatter ?? {})
+					: rawText;
 				const existingId = node.properties?.id;
 				const slug = typeof existingId === 'string' ? existingId : slugger.slug(text);
 				const depth = Number.parseInt(node.tagName[1], 10);
-				headings?.push({ depth, slug, text });
+				astro?.headings.push({ depth, slug, text });
 				if (typeof existingId !== 'string') {
 					ctx.setProperty(node, 'id', slug);
 				}
@@ -137,10 +146,7 @@ function makeRawNode(html: string): HastNode {
 const HAST_PRESERVED_PROPERTIES = new Set(['className', 'htmlFor']);
 
 /** Tags <img> with `__ASTRO_IMAGE_` for astro's vite-plugin-markdown to replace with the processed image's attributes. */
-export function createImageMarkerPlugin(
-	localImagePaths: Set<string>,
-	remoteImagePaths: Set<string>,
-): HastPluginDefinition {
+export function createImageMarkerPlugin(): HastPluginDefinition {
 	const indexBySrc = new Map<string, number>();
 	return {
 		name: 'image-marker',
@@ -152,8 +158,9 @@ export function createImageMarkerPlugin(
 				if (!rawSrc) return;
 				const src = decodeURI(rawSrc);
 
-				const isLocal = localImagePaths.has(src);
-				const isRemote = !isLocal && remoteImagePaths.has(src);
+				const astro = ctx.data.astro;
+				const isLocal = astro?.localImagePaths.has(src) ?? false;
+				const isRemote = !isLocal && (astro?.remoteImagePaths.has(src) ?? false);
 				if (!isLocal && !isRemote) return;
 
 				const { src: _src, ...rest } = props;
@@ -177,14 +184,14 @@ export function createImageMarkerPlugin(
 	};
 }
 
-export function createShikiPlugin(
+export function createHighlightPlugin(
 	highlight: HighlightFn,
 	excludeLangs: string[] | undefined,
 	options?: { mdx?: boolean },
 ): HastPluginDefinition {
 	const wrapResult = options?.mdx ? makeFragmentNode : makeRawNode;
 	return {
-		name: 'shiki-highlight',
+		name: 'highlight',
 		element: {
 			filter: ['pre'],
 			async visit(node, ctx) {
@@ -217,6 +224,49 @@ export interface SatteriMarkdownProcessorOptions extends AstroMarkdownOptions {
 	features?: Features;
 }
 
+/**
+ * Build the highlighter for the Sätteri pipeline, or `undefined` when syntax
+ * highlighting is disabled. Shiki and Prism both resolve to a `HighlightFn`
+ * that turns a code block into a complete `<pre>` HTML string.
+ */
+export async function createHighlightFn(
+	syntaxHighlight: AstroMarkdownOptions['syntaxHighlight'],
+	shikiConfig: AstroMarkdownOptions['shikiConfig'] | undefined,
+): Promise<HighlightFn | undefined> {
+	const syntaxHighlightType =
+		typeof syntaxHighlight === 'string'
+			? syntaxHighlight
+			: syntaxHighlight
+				? syntaxHighlight.type
+				: undefined;
+
+	if (syntaxHighlightType === 'shiki') {
+		const hl = await createShikiHighlighter({
+			langs: shikiConfig?.langs,
+			theme: shikiConfig?.theme,
+			themes: shikiConfig?.themes,
+			langAlias: shikiConfig?.langAlias,
+		});
+		return (code, lang, meta) =>
+			hl.codeToHtml(code, lang, {
+				meta,
+				wrap: shikiConfig?.wrap,
+				defaultColor: shikiConfig?.defaultColor,
+				transformers: shikiConfig?.transformers,
+			});
+	}
+
+	if (syntaxHighlightType === 'prism') {
+		const { runHighlighterWithAstro } = await import('@astrojs/prism/dist/highlighter');
+		return async (code, lang) => {
+			const { html, classLanguage } = await runHighlighterWithAstro(lang, code);
+			return `<pre class="${classLanguage}" data-language="${lang}"><code class="${classLanguage}">${html}</code></pre>`;
+		};
+	}
+
+	return undefined;
+}
+
 export async function createSatteriMarkdownProcessor(
 	opts?: SatteriMarkdownProcessorOptions,
 ): Promise<MarkdownRenderer> {
@@ -232,60 +282,35 @@ export async function createSatteriMarkdownProcessor(
 		features: userFeatures,
 	} = opts ?? {};
 
-	const syntaxHighlightType =
-		typeof syntaxHighlight === 'string'
-			? syntaxHighlight
-			: syntaxHighlight
-				? syntaxHighlight.type
-				: undefined;
-
-	if (syntaxHighlightType === 'prism') {
-		throw new Error(
-			'Prism syntax highlighting is not supported by the `satteri()` markdown processor. Use shiki instead, or switch to `markdown.processor: unified({...})`.',
-		);
-	}
-
-	let highlightFn: HighlightFn | undefined;
-	if (syntaxHighlightType === 'shiki') {
-		const hl = await createShikiHighlighter({
-			langs: shikiConfig.langs,
-			theme: shikiConfig.theme,
-			themes: shikiConfig.themes,
-			langAlias: shikiConfig.langAlias,
-		});
-		highlightFn = (code, lang, meta) =>
-			hl.codeToHtml(code, lang, {
-				meta,
-				wrap: shikiConfig.wrap,
-				defaultColor: shikiConfig.defaultColor,
-				transformers: shikiConfig.transformers,
-			});
-	}
+	const highlightFn = await createHighlightFn(syntaxHighlight, shikiConfig);
 
 	const syntaxHighlightExcludeLangs =
 		typeof syntaxHighlight === 'object' ? syntaxHighlight.excludeLangs : undefined;
 
 	return {
 		async render(content, renderOpts) {
-			const headings: MarkdownHeading[] = [];
-			const localImagePaths = new Set<string>();
-			const remoteImagePaths = new Set<string>();
-			const frontmatter = renderOpts?.frontmatter ?? {};
+			const astro: SatteriAstroData = {
+				frontmatter: renderOpts?.frontmatter ?? {},
+				headings: [],
+				localImagePaths: new Set(),
+				remoteImagePaths: new Set(),
+			};
 
+			// Collect last so image-URL rewrites by user plugins are captured.
 			const allMdastPlugins: MdastPluginDefinition[] = [
-				createCollectImagesPlugin(localImagePaths, remoteImagePaths, opts?.image),
 				...userMdastPlugins,
+				createCollectImagesPlugin(opts?.image),
 			];
 
 			const hastPlugins: HastPluginDefinition[] = [];
 			if (highlightFn) {
-				hastPlugins.push(createShikiPlugin(highlightFn, syntaxHighlightExcludeLangs));
+				hastPlugins.push(createHighlightPlugin(highlightFn, syntaxHighlightExcludeLangs));
 			}
 			hastPlugins.push(...userHastPlugins);
-			hastPlugins.push(createImageMarkerPlugin(localImagePaths, remoteImagePaths));
-			hastPlugins.push(createHeadingIdsPlugin(headings, frontmatter));
+			hastPlugins.push(createImageMarkerPlugin());
+			hastPlugins.push(createHeadingIdsPlugin());
 
-			const { html } = await s.markdownToHtml(content, {
+			const { html, data } = await s.markdownToHtml(content, {
 				mdastPlugins: allMdastPlugins,
 				hastPlugins,
 				features: {
@@ -294,15 +319,19 @@ export async function createSatteriMarkdownProcessor(
 					...userFeatures,
 				},
 				fileURL: renderOpts?.fileURL,
+				data: { astro },
 			});
 
+			// Read the returned bag, not the seeded reference, so a plugin that replaces
+			// `ctx.data.astro` wholesale is honored.
+			const result = data.astro;
 			return {
 				code: html,
 				metadata: {
-					headings,
-					localImagePaths: Array.from(localImagePaths),
-					remoteImagePaths: Array.from(remoteImagePaths),
-					frontmatter,
+					headings: result?.headings ?? [],
+					localImagePaths: result ? Array.from(result.localImagePaths) : [],
+					remoteImagePaths: result ? Array.from(result.remoteImagePaths) : [],
+					frontmatter: result?.frontmatter ?? {},
 				},
 			};
 		},

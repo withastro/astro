@@ -12,9 +12,6 @@ benchmark/results/
 **/.vercel
 **/.vscode-test
 
-# Short-term need to format
-!packages/db/test/fixtures
-
 # Directories
 .github
 .changeset

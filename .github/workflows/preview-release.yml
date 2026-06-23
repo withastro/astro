@@ -2,7 +2,7 @@ name: Preview release
 
 on:
   pull_request:
-    branches: [main, next, 5-legacy]
+    branches: [main, next, 5-legacy, 6-legacy]
     types: [labeled]
 
 concurrency:

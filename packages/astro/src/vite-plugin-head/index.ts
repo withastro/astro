@@ -1,13 +1,12 @@
-import type { ModuleInfo } from 'rollup';
 import type * as vite from 'vite';
 import type { DevEnvironment } from 'vite';
-import { hasHeadInjectComment } from '../core/head-propagation/comment.js';
 import {
 	buildImporterGraphFromModuleInfo,
 	computeInTreeAncestors,
 } from '../core/head-propagation/graph.js';
 import { getTopLevelPageModuleInfos } from '../core/build/graph.js';
 import type { BuildInternals } from '../core/build/internal.js';
+import { PROPAGATED_ASSET_FLAG } from '../content/consts.js';
 import type { SSRComponentMetadata, SSRResult } from '../types/public/internal.js';
 import { getAstroMetadata } from '../vite-plugin-astro/index.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
@@ -86,7 +85,12 @@ export default function configHeadVitePlugin(): vite.Plugin {
 	function propagateMetadata<
 		P extends keyof PluginMetadata['astro'],
 		V extends PluginMetadata['astro'][P],
-	>(this: { getModuleInfo(id: string): ModuleInfo | null }, seed: string, prop: P, value: V) {
+	>(
+		this: { getModuleInfo(id: string): vite.Rolldown.ModuleInfo | null },
+		seed: string,
+		prop: P,
+		value: V,
+	) {
 		// Example: `HeadEntry -> Layout -> /src/pages/blog.astro` marks both ancestors.
 		const importerGraph = buildImporterGraphFromEnvironment(seed);
 		const allAncestors = computeInTreeAncestors({
@@ -178,15 +182,15 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				});
 			}
 		},
-		transform(source, id) {
+		transform(_source, id) {
 			let info = this.getModuleInfo(id);
 			if (info && getAstroMetadata(info)?.containsHead) {
 				// Keep bubbling `containsHead` when this module was already marked earlier.
 				propagateMetadata.call(this, id, 'containsHead', true);
 			}
 
-			if (hasHeadInjectComment(source)) {
-				// `// astro-head-inject` and `//! astro-head-inject` opt a module into bubbling.
+			if (id.includes(PROPAGATED_ASSET_FLAG)) {
+				// Content render entries with ?astroPropagatedAssets need head propagation.
 				propagateMetadata.call(this, id, 'propagation', 'in-tree');
 			}
 
@@ -209,7 +213,7 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 			const moduleIds = new Set<string>();
 			// Explicit runtime entries (`createComponent({ propagation: 'self' })`).
 			const selfPropagationSeeds = new Set<string>();
-			// Comment-driven seeds (`astro-head-inject` marker in source).
+			// Head propagation hint seeds (`"use astro:head-inject"` directive in source).
 			const commentPropagationSeeds = new Set<string>();
 			function getOrCreateMetadata(id: string): SSRComponentMetadata {
 				if (map.has(id)) return map.get(id)!;
@@ -223,7 +227,7 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 
 			for (const [, output] of Object.entries(bundle)) {
 				if (output.type !== 'chunk') continue;
-				for (const [id, mod] of Object.entries(output.modules)) {
+				for (const [id] of Object.entries(output.modules)) {
 					moduleIds.add(id);
 					const modinfo = this.getModuleInfo(id);
 
@@ -242,7 +246,11 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 					}
 
 					// Head propagation (aka bubbling)
-					if (mod.code && hasHeadInjectComment(mod.code)) {
+					// Modules with the ?astroPropagatedAssets query param are content render
+					// entries that need head propagation. We identify them by their module ID
+					// rather than scanning source code, which avoids an unfiltered transform
+					// hook that would run on every module in the build.
+					if (id.includes(PROPAGATED_ASSET_FLAG)) {
 						commentPropagationSeeds.add(id);
 					}
 				}

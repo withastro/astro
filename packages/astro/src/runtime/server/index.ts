@@ -21,6 +21,7 @@ export type {
 } from './render/index.js';
 export {
 	addAttribute,
+	chunkToString,
 	createHeadAndContent,
 	defineScriptVars,
 	Fragment,
@@ -34,6 +35,7 @@ export {
 	renderScriptElement,
 	renderSlot,
 	renderSlotToString,
+	renderStreaming,
 	renderTemplate as render,
 	renderTemplate,
 	renderToString,

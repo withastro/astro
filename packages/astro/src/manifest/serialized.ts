@@ -105,7 +105,7 @@ export function serializedManifestPlugin({
 					const serialized = await createSerializedManifest(settings, await getEncodedKey());
 					manifestData = JSON.stringify(serialized);
 				}
-				const hasCacheConfig = !!settings.config.experimental?.cache?.provider;
+				const hasCacheConfig = !!settings.config.cache?.provider;
 				const cacheProviderLine = hasCacheConfig
 					? `cacheProvider: () => import('${VIRTUAL_CACHE_PROVIDER_ID}'),`
 					: '';
@@ -172,9 +172,9 @@ async function createSerializedManifest(
 		};
 	}
 
-	let experimentalLogger = undefined;
-	if (settings.config.experimental.logger) {
-		experimentalLogger = settings.config.experimental.logger;
+	let loggerConfig = undefined;
+	if (settings.config.logger) {
+		loggerConfig = settings.config.logger;
 	}
 
 	return {
@@ -217,10 +217,7 @@ async function createSerializedManifest(
 			encodedKey ??
 			(await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey())),
 		sessionConfig: sessionConfigToManifest(settings.config.session),
-		cacheConfig: cacheConfigToManifest(
-			settings.config.experimental?.cache,
-			settings.config.experimental?.routeRules,
-		),
+		cacheConfig: cacheConfigToManifest(settings.config.cache, settings.config.routeRules),
 		csp,
 		image: {
 			objectFit: settings.config.image.objectFit,
@@ -237,7 +234,6 @@ async function createSerializedManifest(
 		},
 		logLevel: settings.logLevel,
 		shouldInjectCspMetaTags: false,
-		experimentalQueuedRendering: settings.config.experimental?.queuedRendering,
-		experimentalLogger,
+		loggerConfig,
 	};
 }

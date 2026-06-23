@@ -32,129 +32,96 @@ describe('validateAndDecodePathname', () => {
 	});
 
 	// #endregion
-	// #region Standard double-encoding (attack vectors, must reject)
+	// #region Double encoding (iteratively decoded, not rejected)
+	//
+	// Multi-level encoding is decoded iteratively until stable. This
+	// ensures middleware always sees the canonical path and can make
+	// correct authorization decisions.
 
-	it('rejects double-encoded unreserved chars: %2561 (a)', () => {
-		assert.throws(
-			() => validateAndDecodePathname('/api/%2561dmin'),
-			MultiLevelEncodingError,
-			'%2561 is double-encoded %61 (a)',
-		);
+	it('fully decodes double-encoded unreserved chars: %2561 (a)', () => {
+		// %2561 → decodeURI → %61 → decodeURI → a
+		assert.equal(validateAndDecodePathname('/api/%2561dmin'), '/api/admin');
 	});
 
-	it('rejects double-encoded uppercase hex: %2541 (A)', () => {
-		assert.throws(
-			() => validateAndDecodePathname('/api/%2541dmin'),
-			MultiLevelEncodingError,
-			'%2541 is double-encoded %41 (A)',
-		);
+	it('fully decodes double-encoded uppercase hex: %2541 (A)', () => {
+		// %2541 → %41 → A
+		assert.equal(validateAndDecodePathname('/api/%2541dmin'), '/api/Admin');
 	});
 
-	it('rejects double-encoded slash: %252F', () => {
-		assert.throws(
-			() => validateAndDecodePathname('/api/%252F'),
-			MultiLevelEncodingError,
-			'%252F is double-encoded %2F (/)',
-		);
+	it('fully decodes double-encoded slash: %252F', () => {
+		// %252F → %2F (decodeURI preserves reserved %2F)
+		assert.equal(validateAndDecodePathname('/api/%252F'), '/api/%2F');
 	});
 
-	it('rejects double-encoded null byte: %2500', () => {
-		assert.throws(
-			() => validateAndDecodePathname('/api/%2500'),
-			MultiLevelEncodingError,
-			'%2500 is double-encoded %00 (null)',
-		);
+	it('fully decodes double-encoded null byte: %2500', () => {
+		// %2500 → %00 → \x00
+		assert.equal(validateAndDecodePathname('/api/%2500'), '/api/\x00');
 	});
 
-	it('rejects double-encoded percent: %2525', () => {
-		assert.throws(
-			() => validateAndDecodePathname('/api/%2525'),
-			MultiLevelEncodingError,
-			'%2525 is double-encoded %25 (%)',
-		);
+	it('fully decodes double-encoded percent: %2525', () => {
+		// %2525 → %25 → %
+		assert.equal(validateAndDecodePathname('/api/%2525'), '/api/%');
 	});
 
-	it('rejects triple-encoded paths: %252561', () => {
-		assert.throws(
-			() => validateAndDecodePathname('/api/%252561dmin'),
-			MultiLevelEncodingError,
-			'%2525 triggers the pre-decode check (triple encoding)',
-		);
+	it('fully decodes triple-encoded paths: %252561', () => {
+		// %252561 → %2561 → %61 → but wait: decodeURI('%252561') → '%2561'
+		// then decodeURI('%2561') → '%61' (because %25→%, 61 stays)
+		// Hmm, let's check: %25 decodes to %, so %2561 → %61,
+		// which is NOT decoded by decodeURI in one pass...
+		// Actually: decodeURI('%252561') → first decode: %25→%, 25→stays, 61→stays → %2561
+		// Wait no. The URL is: %252561. decodeURI processes %25 → %, giving us "2561".
+		// So the result is: "%2561" → which is "%25" + "61" decoded one more level → "a"
+		// But we have "%2561" not "%25" + "61". Let me trace carefully:
+		// Input: /api/%252561dmin
+		// Pass 1: decodeURI → /api/%2561dmin (%25→%, "25" stays as chars, "61dmin" stays)
+		// Wait: %252561 — decodeURI scans left-to-right for %XX patterns.
+		// %25 matches → decodes to '%'. Next chars are '2561dmin'.
+		// So after pass 1: /api/%2561dmin
+		// Pass 2: decodeURI('/api/%2561dmin') → /api/%61dmin (%25→%, "61" stays)
+		// Wait: %2561 — %25 matches → decodes to '%'. Next chars are '61dmin'.
+		// So after pass 2: /api/%61dmin
+		// Pass 3: decodeURI('/api/%61dmin') → /api/admin (%61→a)
+		// So: /api/%252561dmin → /api/admin
+		assert.equal(validateAndDecodePathname('/api/%252561dmin'), '/api/admin');
 	});
 
-	it('rejects when double-encoding appears mid-path', () => {
-		assert.throws(
-			() => validateAndDecodePathname('/some/path/%2561dmin/rest'),
-			MultiLevelEncodingError,
-		);
+	it('fully decodes when double-encoding appears mid-path', () => {
+		assert.equal(validateAndDecodePathname('/some/path/%2561dmin/rest'), '/some/path/admin/rest');
 	});
 
-	it('rejects when multiple double-encoded segments exist', () => {
-		assert.throws(
-			() => validateAndDecodePathname('/api/%2561dmin/%2575sers'),
-			MultiLevelEncodingError,
-		);
+	it('fully decodes when multiple double-encoded segments exist', () => {
+		assert.equal(validateAndDecodePathname('/api/%2561dmin/%2575sers'), '/api/admin/users');
 	});
 
-	it('rejects %25 followed by literal hex chars (%25AB) as ambiguous double-encoding', () => {
-		// %25AB could be double-encoded %AB (U+00AB «) or a literal "%" + "AB".
-		// These are indistinguishable at the URL level. Rejecting is the secure
-		// default — it prevents middleware bypass when %AB would decode to a
-		// meaningful character downstream.
-		assert.throws(() => validateAndDecodePathname('/path/%25AB'), MultiLevelEncodingError);
+	it('decodes %25 followed by literal hex chars (%25AB) to single-encoded form', () => {
+		// %25AB → %AB (decodeURI does not decode %AB since 0xAB is not valid
+		// standalone UTF-8, so iteration stops at %AB)
+		assert.equal(validateAndDecodePathname('/path/%25AB'), '/path/%AB');
 	});
 
 	// #endregion
-	// #region Creative triple-encoding (defense-in-depth, must reject)
-	//
-	// An attacker encodes the hex digits within %25XX itself, e.g.:
-	//   %25%32%35 → decodeURI → %25  (reassembles the %25 signature)
-	//   %25%36%31 → decodeURI → %61  (but preceded by a reassembled %25)
-	//
-	// Full payload: %25%32%3561dmin → decodeURI → %2561dmin
-	// The post-decode check catches this because the decoded output
-	// contains %25[hex][hex].
+	// #region Creative triple-encoding (iteratively decoded)
 
-	it('rejects creative triple-encoding: %25%32%3561dmin', () => {
-		// %25 → %, %32 → 2, %35 → 5; decoded = %2561dmin
-		// Post-decode regex catches %2561 in the output
-		assert.throws(
-			() => validateAndDecodePathname('/api/%25%32%3561dmin'),
-			MultiLevelEncodingError,
-			'creative triple-encoding reassembles into %2561 after one decode',
-		);
+	it('fully decodes creative triple-encoding: %25%32%3561dmin', () => {
+		// %25 → %, %32 → 2, %35 → 5; pass 1 decoded = %2561dmin
+		// pass 2: %25 → %, 61 stays; decoded = %61dmin
+		// pass 3: %61 → a; decoded = admin
+		assert.equal(validateAndDecodePathname('/api/%25%32%3561dmin'), '/api/admin');
 	});
 
-	it('rejects creative encoding of %252F via hex-encoded digits', () => {
-		// %25%32%46 → decodeURI → %2F (but via %25 + "2F" reassembled)
-		// Actually: %25 → %, %32 → 2, %46 → F; decoded = %2F
-		// Post-decode check sees %2F which is %25[hex][hex]? No — %2F is not %25HH.
-		// But wait: the decoded output is "%2F". The regex /%25[0-9a-fA-F]{2}/ does NOT
-		// match "%2F" because it requires the literal string "%25", not "%2".
-		// This specific input decodes to a single %HH sequence, not a %25HH sequence,
-		// so it is NOT multi-level encoding — it's just a creative way to spell %2F.
-		//
-		// Let's verify: input %25%32%46 → decodeURI → %2F (a reserved-char encoding)
-		// This is equivalent to just writing %2F directly. Not a bypass.
+	it('decodes creative encoding of %252F via hex-encoded digits', () => {
+		// %25%32%46 → decodeURI → %2F (reserved, stays)
 		const decoded = validateAndDecodePathname('/api/%25%32%46');
-		// decodeURI: %25 → %, %32 → 2, %46 → F → result is /api/%2F
 		assert.equal(decoded, '/api/%2F');
 	});
 
-	it('rejects creative triple-encoding of %2525 via hex-encoded digits', () => {
-		// %25%32%35 → decodeURI → %25 (reassembled)
-		// Followed by another hex pair, e.g. %25%32%3525 → decodeURI → %2525
-		// But simpler: %25%32%35%36%31 → decodeURI → %2561
-		// Post-decode regex catches %2561
-		assert.throws(
-			() => validateAndDecodePathname('/api/%25%32%35%36%31dmin'),
-			MultiLevelEncodingError,
-			'creative encoding reassembles %25 + 61 → %2561 after decode',
-		);
+	it('fully decodes creative triple-encoding of %2525 via hex-encoded digits', () => {
+		// %25%32%35%36%31dmin → pass 1 → %2561dmin → pass 2 → %61dmin → pass 3 → admin
+		assert.equal(validateAndDecodePathname('/api/%25%32%35%36%31dmin'), '/api/admin');
 	});
 
 	// #endregion
-	// #region False-positive fix: %25 followed by another %XX (must pass)
+	// #region %25 followed by another %XX (must pass — not double-encoding)
 	//
 	// encodeURIComponent('%?.pdf') → %25%3F.pdf
 	// This is a literal encoded % next to an encoded ?, NOT double-encoding.
@@ -181,19 +148,21 @@ describe('validateAndDecodePathname', () => {
 	});
 
 	it('allows %25 followed by a single hex digit then non-hex', () => {
-		// %25Fx — only one hex digit after %25, then 'x' (non-hex)
-		// The regex requires exactly two hex digits after %25
-		// %25 → %, F stays as literal 'F', x stays
 		const decoded = validateAndDecodePathname('/path/%25Fx');
 		assert.equal(decoded, '/path/%Fx');
 	});
 
 	it('allows encodeURIComponent output for filenames with special chars', () => {
-		// Real-world: user uploads a file named "100% done?.txt"
-		// encodeURIComponent('100% done?.txt') → '100%25%20done%3F.txt'
-		// but in a path segment via encodeURIComponent: '100%25%20done%3F.txt'
 		const decoded = validateAndDecodePathname('/files/100%25%20done%3F.txt');
 		assert.equal(decoded, '/files/100% done%3F.txt');
+	});
+
+	// #endregion
+	// #region Double-encoded brackets (Sanity Studio use case, issue #16960)
+
+	it('fully decodes double-encoded brackets: %255B and %255D', () => {
+		// %255B → %5B → [, %255D → %5D → ]
+		assert.equal(validateAndDecodePathname('/sections%255B_key%255D'), '/sections[_key]');
 	});
 
 	// #endregion
@@ -203,11 +172,10 @@ describe('validateAndDecodePathname', () => {
 		assert.throws(
 			() => validateAndDecodePathname('/api/%GG'),
 			(err: any) => {
-				assert.equal(err instanceof MultiLevelEncodingError, false);
 				assert.equal(err instanceof Error, true);
 				return true;
 			},
-			'%GG is malformed encoding, not multi-level',
+			'%GG is malformed encoding',
 		);
 	});
 
@@ -215,11 +183,45 @@ describe('validateAndDecodePathname', () => {
 		assert.throws(
 			() => validateAndDecodePathname('/api/%6'),
 			(err: any) => {
-				assert.equal(err instanceof MultiLevelEncodingError, false);
 				assert.equal(err instanceof Error, true);
 				return true;
 			},
-			'%6 is truncated, not multi-level',
+			'%6 is truncated',
+		);
+	});
+	// #endregion
+	// #region Encoded too many times (rejected, must throw)
+	//
+	// If a path is still encoded after the maximum number of decode tries, we
+	// can't fully decode it. Returning the half-decoded path would let
+	// middleware check one path while a later decode (during rewrite routing)
+	// turns it into a different, protected path. So we reject these instead.
+
+	it('decodes a path encoded right up to the limit (10 times)', () => {
+		// Encoded 10 times — the most we allow — still decodes fully.
+		assert.equal(validateAndDecodePathname('/api/%25252525252525252561dmin'), '/api/admin');
+	});
+
+	it('throws MultiLevelEncodingError once a path is encoded past the limit (11 times)', () => {
+		assert.throws(
+			() => validateAndDecodePathname('/api/%2525252525252525252561dmin'),
+			(err: any) => {
+				assert.equal(err instanceof MultiLevelEncodingError, true);
+				return true;
+			},
+			'a path encoded past the limit must be rejected',
+		);
+	});
+
+	it('throws MultiLevelEncodingError for a path encoded many times', () => {
+		// Before the fix, this decoded only part way to `/%61dmin` and slipped
+		// past middleware.
+		assert.throws(
+			() => validateAndDecodePathname('/%252525252525252525252561dmin'),
+			(err: any) => {
+				assert.equal(err instanceof MultiLevelEncodingError, true);
+				return true;
+			},
 		);
 	});
 	// #endregion

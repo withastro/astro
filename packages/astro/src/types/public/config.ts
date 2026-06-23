@@ -474,22 +474,22 @@ export interface AstroUserConfig<
 	 * @docs
 	 * @name compressHTML
 	 * @type {boolean | "jsx"}
-	 * @default `true`
+	 * @default `'jsx'`
 	 * @description
 	 *
 	 * Controls how Astro handles whitespace in your HTML. This affects both development mode and the final build output.
 	 *
-	 * By default, Astro removes whitespace from your HTML, including line breaks, in a lossless manner from `.astro` components. Some whitespace may be preserved as needed to maintain the visual rendering of your HTML.
+	 * Since v7.0,  Astro applies by default the JSX whitespace rules used by frameworks like React. This removes whitespace and line breaks around elements, collapses multi-line text onto a single line, and preserves whitespace within a single line (e.g. a space between two inline elements). To keep a space that would otherwise be removed, include it explicitly in the source through constructs such as `{" "}`.
 	 *
-	 * Since 6.2.0, this option can also be set to `"jsx"`, Astro will apply the JSX whitespace stripping rules used by frameworks like React. Leading and trailing whitespace is only preserved when explicitly included in the source code through constructs such as `{" "}`, and is otherwise removed entirely.
+	 * Setting this option to `true` instead removes whitespace, including line breaks, in a lossless manner from `.astro` components. Some whitespace may be preserved as needed to maintain the visual rendering of your HTML.
 	 *
-	 * Setting this option to false disables HTML compression and preserves all whitespace.
+	 * Setting this option to `false` disables HTML compression and preserves all whitespace.
 	 *
 	 * ```js
 	 * {
-	 *   compressHTML: false
+	 *   compressHTML: true
 	 *   // or:
-	 *   // compressHTML: 'jsx'
+	 *   // compressHTML: false
 	 * }
 	 * ```
 	 */
@@ -1402,6 +1402,107 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @kind heading
+	 * @name fetchFile
+	 * @type {string | null}
+	 * @default `'fetch'`
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * Customizes the file used as the fetch entrypoint inside `srcDir`.
+	 * Defaults to `'fetch'`, meaning Astro looks for `src/fetch.ts` (or `.js` / `.mjs` / `.mts`).
+	 *
+	 * The fetch file allows you to compose Astro's request pipeline with the
+	 * Web Fetch standard or your own Hono middleware.
+	 *
+	 * If you already have a `src/fetch.ts` file in use for other purposes, define a
+	 * different filename or set the value to `null` to disable the entrypoint:
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   fetchFile: 'handler',
+	 * });
+	 * ```
+	 *
+	 * Learn more about customizing the request pipeline in the [advanced routing guide](https://docs.astro.build/en/guides/routing/#advanced-routing).
+	 */
+	fetchFile?: string | null;
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Logger Options
+	 * @type {LoggerHandlerConfig}
+	 * @default `undefined`
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * Configures how Astro logs messages during development and production.
+	 *
+	 * By default, Astro uses a built-in logger that outputs human-friendly logs to the console. You can customize this behavior by providing [your own logger handler](https://docs.astro.build/en/reference/logger-reference/#custom-loggers) or by using one of the [built-in log handlers](https://docs.astro.build/en/reference/logger-reference/#built-in-loggers):
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * import { defineConfig, logHandlers } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   logger: logHandlers.json({ level: 'info' })
+	 * });
+	 * ```
+	 *
+	 * See [the logger API reference](https://docs.astro.build/en/reference/logger-reference/) for more information.
+	 */
+	logger?: LoggerHandlerConfig;
+
+	/**
+	 * @docs
+	 * @name logger.entrypoint
+	 * @type {string}
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * The entrypoint of the log handler. This can be a path to a file in your project or an npm package:
+	 *
+	 * ```js title="astro.config.mjs"
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   logger: {
+	 *     entrypoint: "@org/astro-logger",
+	 *   }
+	 * });
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name logger.config
+	 * @type {Record<string, unknown> | undefined}
+	 * @version 7.0.0
+	 * @default `{}`
+	 * @description
+	 *
+	 * The configuration object for the log handler. The options depend on the configured logger.
+	 *
+	 * ```js title="astro.config.mjs"
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   logger: {
+	 *     entrypoint: "@org/astro-logger",
+	 *     config: {
+	 *      level: "error"
+	 *     }
+	 *   }
+	 * });
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @kind heading
 	 * @version 5.7.0
 	 * @name Session Options
 	 * @description
@@ -2179,8 +2280,24 @@ export interface AstroUserConfig<
 		 * @type {MarkdownProcessor}
 		 * @version 6.4.0
 		 * @description
-		 * Configures the Markdown processor used to render `.md` files. Defaults to `unified()` from
-		 * `@astrojs/markdown-remark` (the remark/rehype pipeline).
+		 * Configures the Markdown processor used to render `.md` files. Defaults to `satteri()` from
+		 * `@astrojs/markdown-satteri`, Astro's native Markdown pipeline.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 * import { satteri } from '@astrojs/markdown-satteri';
+		 *
+		 * export default defineConfig({
+		 *   markdown: {
+		 *     processor: satteri({
+		 *       features: { gfm: false },
+		 *     }),
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * To keep the remark/rehype pipeline, install `@astrojs/markdown-remark` and pass `unified()`:
 		 *
 		 * ```js
 		 * // astro.config.mjs
@@ -2786,6 +2903,87 @@ export interface AstroUserConfig<
 			};
 
 	/**
+	 * @docs
+	 * @kind heading
+	 * @name cache
+	 * @type {object}
+	 * @default `undefined`
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * Enables route caching for SSR responses. Provides a platform-agnostic API
+	 * for caching rendered pages and API responses, with pluggable providers
+	 * that adapters can configure automatically.
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * import { memoryCache } from 'astro/config';
+	 *
+	 * {
+	 *   cache: {
+	 *     provider: memoryCache(),
+	 *   },
+	 *   routeRules: {
+	 *     '/blog/[...path]': { maxAge: 300, swr: 60 },
+	 *   },
+	 * }
+	 * ```
+	 *
+	 * Use `Astro.cache.set()` in routes and `context.cache.set()` in middleware
+	 * or API routes to control caching per-request.
+	 */
+	cache?: {
+		/**
+		 * @docs
+		 * @name cache.provider
+		 * @type {CacheProviderConfig}
+		 * @version 7.0.0
+		 * @description
+		 *
+		 * A provider that controls how responses are cached.
+		 *
+		 * Use the provider's config function to get type-safe configuration:
+		 *
+		 * ```js
+		 * import { defineConfig, memoryCache } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   cache: { provider: memoryCache() },
+		 * });
+		 * ```
+		 */
+		provider?: CacheProviderConfig;
+	};
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name routeRules
+	 * @type {Record<string, RouteRule>}
+	 * @default `undefined`
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * Route patterns mapped to cache rules.
+	 * Uses the same `[param]` and `[...rest]` syntax as [file-based routing](/en/guides/routing/#route-priority-order).
+	 * Use a `[...rest]` parameter to match a group of routes:
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * import { memoryCache } from 'astro/config';
+	 *
+	 * {
+	 *   cache: { provider: memoryCache() },
+	 *   routeRules: {
+	 *     '/api/[...path]': { swr: 600 },
+	 *     '/products/[...slug]': { maxAge: 3600, tags: ['products'] },
+	 *   },
+	 * }
+	 * ```
+	 */
+	routeRules?: RouteRules;
+
+	/**
 	 *
 	 * @kind heading
 	 * @name Legacy Flags
@@ -2823,43 +3021,6 @@ export interface AstroUserConfig<
 	 * These flags are not guaranteed to be stable.
 	 */
 	experimental?: {
-		/**
-		 * @name experimental.advancedRouting
-		 * @type {boolean | object}
-		 * @default `false`
-		 * @description
-		 * Enables `src/app.ts` as an advanced routing entrypoint, allowing you to
-		 * compose Astro's request pipeline with the Web Fetch standard or your own Hono middleware.
-		 *
-		 * Pass `true` to enable with default settings, or an object to customize:
-		 *
-		 * ```js
-		 * export default defineConfig({
-		 *   experimental: {
-		 *     advancedRouting: {
-		 *       fetchFile: 'fetch.ts',
-		 *     },
-		 *   },
-		 * });
-		 * ```
-		 */
-		advancedRouting?:
-			| boolean
-			| {
-					/**
-					 * @name experimental.advancedRouting.fetchFile
-					 * @type {string | null}
-					 * @default 'app'
-					 * @description
-					 *
-					 * Customizes the file used as the advanced routing entrypoint inside `srcDir`.
-					 * Defaults to `'app'`, meaning Astro looks for `src/app.ts`.
-					 *
-					 * If you already have a `src/app.ts` file in use for other purposes, define a different filename or set the value to `null` to disable the entrypoint.
-					 */
-					fetchFile?: string | null;
-			  };
-
 		/**
 		 *
 		 * @name experimental.clientPrerender
@@ -2969,196 +3130,6 @@ export interface AstroUserConfig<
 		 * See the [experimental SVG optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
 		 */
 		svgOptimizer?: SvgOptimizer;
-
-		/**
-		 * @name experimental.cache
-		 * @type {object}
-		 * @default `undefined`
-		 * @description
-		 *
-		 * Enables route caching for SSR responses. Provides a platform-agnostic API
-		 * for caching rendered pages and API responses, with pluggable providers
-		 * that adapters can configure automatically.
-		 *
-		 * ```js
-		 * // astro.config.mjs
-		 * import { memoryCache } from 'astro/config';
-		 *
-		 * {
-		 *   experimental: {
-		 *     cache: {
-		 *       provider: memoryCache(),
-		 *     },
-		 *     routeRules: {
-		 *       '/blog/[...path]': { maxAge: 300, swr: 60 },
-		 *     },
-		 *   },
-		 * }
-		 * ```
-		 *
-		 * Use `Astro.cache.set()` in routes and `context.cache.set()` in middleware
-		 * or API routes to control caching per-request.
-		 */
-		cache?: {
-			/**
-			 * @name experimental.cache.provider
-			 * @type {import('../../core/cache/types.js').CacheProviderConfig}
-			 * @description
-			 *
-			 * The cache provider. Adapters typically set a default, but you can
-			 * override it with your own.
-			 *
-			 * Use the provider's config function to get type-safe configuration:
-			 *
-			 * ```js
-			 * import { memoryCache } from 'astro/config';
-			 *
-			 * export default defineConfig({
-			 *   experimental: {
-			 *     cache: { provider: memoryCache() },
-			 *   },
-			 * });
-			 * ```
-			 */
-			provider?: CacheProviderConfig;
-		};
-
-		/**
-		 * @name experimental.routeRules
-		 * @type {Record<string, RouteRule>}
-		 * @default `undefined`
-		 * @description
-		 *
-		 * Route patterns mapped to cache rules.
-		 * Uses the same `[param]` and `[...rest]` syntax as file-based routing.
-		 *
-		 * ```js
-		 * // astro.config.mjs
-		 * import { memoryCache } from 'astro/config';
-		 *
-		 * {
-		 *   experimental: {
-		 *     cache: { provider: memoryCache() },
-		 *     routeRules: {
-		 *       '/api/*': { swr: 600 },
-		 *       '/products/*': { maxAge: 3600, tags: ['products'] },
-		 *     },
-		 *   },
-		 * }
-		 * ```
-		 */
-		routeRules?: RouteRules;
-		/*
-		 * @name experimental.rustCompiler
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 6.0.0
-		 * @description
-		 *
-		 * Enables the experimental Rust-based Astro compiler (`@astrojs/compiler-rs`) as a replacement to the current Go compiler.
-		 *
-		 * This option requires installing the `@astrojs/compiler-rs` package manually in your project. This compiler is a work in progress and may not yet support all features of the current Go compiler, but it should offer improved performance and better error messages. This compiler is more strict than the previous Go compiler regarding invalid syntax. For instance, unclosed HTML tags or missing closing brackets will throw an error instead of being ignored.
-		 *
-		 * ```js
-		 * // astro.config.mjs
-		 * import { defineConfig } from 'astro/config';
-		 *
-		 * export default defineConfig({
-		 *   experimental: {
-		 *     rustCompiler: true,
-		 *   },
-		 * });
-		 * ```
-		 */
-		rustCompiler?: boolean;
-
-		/**
-		 * @name experimental.queuedRendering
-		 * @type {boolean | { poolSize?: number; cache?: boolean }}
-		 * @default `false`
-		 * @version 6.0.0
-		 * @description
-		 * Enable queue-based rendering engine instead of the default recursive rendering.
-		 *
-		 * This new rendering engine comes with a different set of features that you can tweak based on your needs.
-		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 *     queuedRendering: {
-		 *       enabled: true
-		 *     }
-		 *   }
-		 * }
-		 * ```
-		 *
-		 * You can optionally configure the object pool size and HTMLString caching:
-		 *
-		 * ```js
-		 * {
-		 *   experimental: {
-		 *     queuedRendering: {
-		 *       enabled: true,
-		 *       poolSize: 1000,  // default: 1000 for static builds, 0 for SSR
-		 *       cache: false     // default: false (caching can hurt performance)
-		 *     }
-		 *   }
-		 * }
-		 * ```
-		 */
-		queuedRendering?: {
-			/**
-			 * @default `false`
-			 * @version 6.0.0
-			 * @description
-			 * Enables the queue-based rendering.
-			 */
-			enabled: boolean;
-			/**
-			 * @default 1000
-			 * @version 6.0.0
-			 * @description
-			 * Allows to change how many nodes should be saved in the pool. If 0 is provided, the pool is disabled.
-			 * The pool is disabled for dynamic pages, because server requests don't share the same memory.
-			 */
-			poolSize?: number;
-			/**
-			 * @default `false`
-			 * @version 6.0.0
-			 * @description
-			 * Enables HTMLString caching to deduplicate repeated HTML fragments during rendering.
-			 * When enabled, identical HTML strings (e.g., repeated `<li>` tags) share a single
-			 * `HTMLString` object instead of creating a new wrapper per occurrence.
-			 * This caching is disabled for dynamic pages.
-			 */
-			contentCache?: boolean;
-		};
-		/**
-		 * @name experimental.logger
-		 * @type {{ entrypoint: string; config?: Record<string, unknown> }}
-		 * @default `undefined`
-		 * @version 6.2.0
-		 * @description
-		 *
-		 * Configure a custom logger by defining its entrypoint and, optionally, providing a serializable configuration:
-		 *
-		 * ```js
-		 * // astro.config.mjs
-		 * import { defineConfig } from 'astro/config';
-		 *
-		 * export default defineConfig({
-		 *   experimental: {
-		 *     logger: {
-		 *       entrypoint: "@org/astro-logger",
-		 *       config: {
-		 *        level: "error"
-		 *       }
-		 *     }
-		 *   }
-		 * });
-		 * ```
-		 */
-		logger?: LoggerHandlerConfig;
 	};
 }
 
@@ -3217,5 +3188,5 @@ export interface AstroInlineOnlyConfig {
 	/**
 	 * @internal for testing only, use `logLevel` instead.
 	 */
-	logger?: AstroLogger;
+	_logger?: AstroLogger;
 }

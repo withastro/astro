@@ -1,5 +1,3 @@
-import type { HydratedComponent } from '@astrojs/compiler/types';
-import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
@@ -9,10 +7,13 @@ import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import { normalizeFilename, specialQueriesRE } from '../vite-plugin-utils/index.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
-import { compileAstro as compileAstroRs } from './compile-rs.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
-import type { PluginMetadata as AstroPluginMetadata, CompileMetadata } from './types.js';
+import type {
+	AstroComponent,
+	PluginMetadata as AstroPluginMetadata,
+	CompileMetadata,
+} from './types.js';
 import { loadId } from './utils.js';
 
 export { getAstroMetadata } from './metadata.js';
@@ -39,7 +40,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 	// Variables for determining if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb) && srcRootWeb !== '/';
-	const notAstroComponent = (component: HydratedComponent) =>
+	const notAstroComponent = (component: AstroComponent) =>
 		!component.resolvedPath.endsWith('.astro');
 
 	return [
@@ -91,23 +92,15 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				const toolbarEnabled = await settings.preferences.get('devToolbar.enabled');
 				// Initialize `compile` function to simplify usage later
 				compile = (code, filename) => {
-					const compileProps = {
-						astroConfig: config,
-						viteConfig,
-						toolbarEnabled,
-						filename,
-						source: code,
-					};
-					if (config.experimental.rustCompiler) {
-						return compileAstroRs({
-							compileProps,
-							astroFileToCompileMetadata,
-						});
-					}
 					return compileAstro({
-						compileProps,
+						compileProps: {
+							astroConfig: config,
+							viteConfig,
+							toolbarEnabled,
+							filename,
+							source: code,
+						},
 						astroFileToCompileMetadata,
-						logger,
 					});
 				};
 			},
@@ -198,6 +191,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 							if (isAstroServerEnvironment(this.environment)) {
 								return {
 									code: `/* client script, empty in SSR: ${id} */`,
+									moduleType: 'ts',
 								};
 							}
 
@@ -207,7 +201,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 							}
 
 							if (script.type === 'external') {
-								const src = script.src;
+								const src = script.src!;
 								if (src.startsWith('/') && !isBrowserPath(src)) {
 									const publicDir =
 										config.publicDir.pathname.replace(/\/$/, '').split('/').pop() + '/';
@@ -217,8 +211,9 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 								}
 							}
 
-							const result: SourceDescription = {
+							const result: vite.Rolldown.SourceDescription = {
 								code: '',
+								moduleType: 'ts',
 								meta: {
 									vite: {
 										lang: 'ts',
@@ -228,13 +223,11 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 							switch (script.type) {
 								case 'inline': {
-									const { code, map } = script;
-									result.code = appendSourceMap(code, map);
+									result.code = script.code ?? '';
 									break;
 								}
 								case 'external': {
-									const { src } = script;
-									result.code = `import "${src}"`;
+									result.code = `import "${script.src}"`;
 									break;
 								}
 							}
@@ -277,6 +270,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 											);
 										}
 									: {};`,
+							moduleType: 'ts',
 							meta: { vite: { lang: 'ts' } },
 						};
 					}
@@ -298,6 +292,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					return {
 						code: transformResult.code,
 						map: transformResult.map,
+						moduleType: 'ts',
 						meta: {
 							astro: astroMetadata,
 							vite: {
@@ -326,13 +321,4 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			},
 		},
 	];
-}
-
-function appendSourceMap(content: string, map?: string) {
-	if (!map) return content;
-	// The \n here is on purpose inside a template literal because otherwise, in the final built version of this file, the comment would
-	// start on its own line, and some tools will think it's actually the sourcemap of this file, not of generated code.
-	return `${content}${'\n//#'} sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
-		map,
-	).toString('base64')}`;
 }

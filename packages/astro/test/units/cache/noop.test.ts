@@ -4,6 +4,8 @@ import { NoopAstroCache, DisabledAstroCache } from '../../../dist/core/cache/run
 import { applyCacheHeaders, isCacheActive } from '../../../dist/core/cache/runtime/cache.js';
 import { defaultLogger } from '../test-utils.ts';
 
+const dummyRequest = new Request('http://localhost/');
+
 describe('NoopAstroCache', () => {
 	it('enabled is false', () => {
 		const cache = new NoopAstroCache();
@@ -38,7 +40,7 @@ describe('NoopAstroCache', () => {
 	it('applyCacheHeaders() no-ops for noop cache', () => {
 		const cache = new NoopAstroCache();
 		const response = new Response('test');
-		applyCacheHeaders(cache, response);
+		applyCacheHeaders(cache, response, dummyRequest);
 		assert.equal(response.headers.get('CDN-Cache-Control'), null);
 		assert.equal(response.headers.get('Cache-Tag'), null);
 	});
@@ -85,7 +87,7 @@ describe('DisabledAstroCache', () => {
 	it('applyCacheHeaders() no-ops for disabled cache', () => {
 		const cache = new DisabledAstroCache(defaultLogger);
 		const response = new Response('test');
-		applyCacheHeaders(cache, response);
+		applyCacheHeaders(cache, response, dummyRequest);
 		assert.equal(response.headers.get('CDN-Cache-Control'), null);
 	});
 

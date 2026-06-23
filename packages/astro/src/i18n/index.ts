@@ -1,8 +1,12 @@
-import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
+import {
+	appendForwardSlash,
+	joinPaths,
+	removeTrailingForwardSlash,
+} from '@astrojs/internal-helpers/path';
 import type { RoutingStrategies } from '../core/app/common.js';
 import type { SSRManifest } from '../core/app/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
-import { REROUTE_DIRECTIVE_HEADER } from '../core/constants.js';
+import { getFetchStateFromAPIContext } from '../core/fetch/fetch-state.js';
 import { i18nNoLocaleFoundInPath, MissingLocale } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
 import type { AstroConfig, Locales, ValidRedirectStatus } from '../types/public/config.js';
@@ -106,7 +110,7 @@ export function getLocaleRelativeUrl({
 	if (shouldAppendForwardSlash(trailingSlash, format)) {
 		relativePath = appendForwardSlash(joinPaths(...pathsToJoin));
 	} else {
-		relativePath = joinPaths(...pathsToJoin);
+		relativePath = removeTrailingForwardSlash(joinPaths(...pathsToJoin));
 	}
 
 	if (relativePath === '') {
@@ -327,10 +331,9 @@ export function redirectToDefaultLocale({
 // NOTE: public function exported to the users via `astro:i18n` module
 export function notFound({ base, locales, fallback }: MiddlewarePayload) {
 	return function (context: APIContext, response?: Response): Response | undefined {
-		if (
-			response?.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no' &&
-			typeof fallback === 'undefined'
-		) {
+		const fetchState = getFetchStateFromAPIContext(context);
+
+		if (fetchState.skipErrorReroute && typeof fallback === 'undefined') {
 			return response;
 		}
 
@@ -340,8 +343,8 @@ export function notFound({ base, locales, fallback }: MiddlewarePayload) {
 		// - the URL doesn't contain a locale
 		const isRoot = url.pathname === base + '/' || url.pathname === base;
 		if (!(isRoot || pathHasLocale(url.pathname, locales))) {
+			fetchState.skipErrorReroute = true;
 			if (response) {
-				response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 				return new Response(response.body, {
 					status: 404,
 					headers: response.headers,
@@ -349,9 +352,6 @@ export function notFound({ base, locales, fallback }: MiddlewarePayload) {
 			} else {
 				return new Response(null, {
 					status: 404,
-					headers: {
-						[REROUTE_DIRECTIVE_HEADER]: 'no',
-					},
 				});
 			}
 		}

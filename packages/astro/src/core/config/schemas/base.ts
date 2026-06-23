@@ -9,7 +9,7 @@ import {
 	markdownConfigDefaults,
 	syntaxHighlightDefaults,
 } from '@astrojs/internal-helpers/markdown';
-import { unified } from '@astrojs/markdown-remark';
+import { satteri } from '@astrojs/markdown-satteri';
 import type { MarkdownProcessor } from '../../../markdown/index.js';
 import type { OutgoingHttpHeaders } from 'node:http';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
@@ -85,7 +85,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	devToolbar: {
 		enabled: true,
 	},
-	compressHTML: true,
+	compressHTML: 'jsx',
 	server: {
 		host: false,
 		port: 4321,
@@ -111,18 +111,11 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		validateSecrets: false,
 	},
 	prerenderConflictBehavior: 'warn',
+	fetchFile: 'fetch',
 	experimental: {
-		advancedRouting: false,
 		clientPrerender: false,
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
-		rustCompiler: false,
-		queuedRendering: {
-			enabled: false,
-		},
-		logger: {
-			entrypoint: 'astro/logger/node',
-		},
 	},
 } satisfies AstroUserConfig & {
 	server: { open: boolean };
@@ -425,7 +418,7 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
 			// Deprecated: left undefined unless the user explicitly sets them, so the
 			// deprecation warning only fires when actually used. The active processor
-			// (`unified()`) supplies the real default (`gfm`/smart punctuation on) when
+			// (`satteri()`) supplies the real default (`gfm`/smart punctuation on) when
 			// these are absent.
 			gfm: z.boolean().optional(),
 			smartypants: z
@@ -455,7 +448,7 @@ export const AstroConfigSchema = z.object({
 				// A factory (not a shared value) so every config gets its own processor —
 				// integrations extend the pipeline by mutating `processor.options`, which
 				// would otherwise leak across configs built in the same process.
-				.default(() => unified()),
+				.default(() => satteri()),
 		})
 		.prefault({}),
 	vite: z
@@ -559,18 +552,18 @@ export const AstroConfigSchema = z.object({
 		.enum(['error', 'warn', 'ignore'])
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.prerenderConflictBehavior),
+	fetchFile: z.string().nullable().optional().default(ASTRO_CONFIG_DEFAULTS.fetchFile),
+	logger: z
+		.object({
+			entrypoint: z.string(),
+			config: z.record(z.string(), z.any()).optional(),
+		})
+		.optional(),
 	fonts: z.array(FontFamilySchema).optional(),
+	cache: CacheSchema.optional(),
+	routeRules: RouteRulesSchema.optional(),
 	experimental: z
 		.strictObject({
-			advancedRouting: z
-				.union([
-					z.boolean(),
-					z.strictObject({
-						fetchFile: z.string().nullable().optional().default('app'),
-					}),
-				])
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.advancedRouting),
 			clientPrerender: z
 				.boolean()
 				.optional()
@@ -584,23 +577,6 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.chromeDevtoolsWorkspace),
 			svgOptimizer: SvgOptimizerSchema.optional(),
-			cache: CacheSchema.optional(),
-			routeRules: RouteRulesSchema.optional(),
-			rustCompiler: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rustCompiler),
-			queuedRendering: z
-				.object({
-					enabled: z.boolean().optional().prefault(false),
-					poolSize: z.number().int().nonnegative().optional(),
-					contentCache: z.boolean().optional(),
-				})
-				.optional()
-				.prefault(ASTRO_CONFIG_DEFAULTS.experimental.queuedRendering),
-			logger: z
-				.object({
-					entrypoint: z.string(),
-					config: z.record(z.string(), z.any()).optional(),
-				})
-				.optional(),
 		})
 		.prefault({}),
 	legacy: z

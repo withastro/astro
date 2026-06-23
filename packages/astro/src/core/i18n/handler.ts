@@ -4,7 +4,6 @@ import { I18nRouter, type I18nRouterContext } from '../../i18n/router.js';
 import { PipelineFeatures } from '../base-pipeline.js';
 import type { SSRManifest } from '../app/types.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
-import { REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER } from '../constants.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 
 /**
@@ -59,34 +58,30 @@ export class I18n {
 	async finalize(state: FetchState, response: Response): Promise<Response> {
 		state.pipeline.usedFeatures |= PipelineFeatures.i18n;
 		const i18n = this.#i18n;
-		const typeHeader = response.headers.get(ROUTE_TYPE_HEADER);
-		// We don't need this header anymore, and we shouldn't pass downstream to users.
-		if (typeHeader) {
-			response.headers.delete(ROUTE_TYPE_HEADER);
-		}
 
 		// This is a case where we are internally rendering a 404/500, so we
 		// need to bypass checks that were done already.
-		const isReroute = response.headers.get(REROUTE_DIRECTIVE_HEADER);
-		if (isReroute === 'no' && typeof i18n.fallback === 'undefined') {
+		if (state.skipErrorReroute && typeof i18n.fallback === 'undefined') {
 			return response;
 		}
 
 		// If the route we're processing is not a page, then we ignore it
-		if (typeHeader !== 'page' && typeHeader !== 'fallback') {
+		if (state.responseRouteType !== 'page' && state.responseRouteType !== 'fallback') {
 			return response;
 		}
 
-		const url = new URL(state.request.url);
+		// Use Astro's already-decoded URL (`state.url`) instead of reading the
+		// raw request URL again, so locale checks use the same path as routing.
+		const url = state.url;
 		const currentLocale = state.computeCurrentLocale();
 		const isPrerendered = state.routeData!.prerender;
 
-		// Build context for router (typeHeader is guaranteed to be 'page' | 'fallback' here)
+		// Build context for router (responseRouteType is guaranteed to be 'page' | 'fallback' here)
 		const routerContext: I18nRouterContext = {
 			currentLocale,
 			currentDomain: url.hostname,
-			routeType: typeHeader as 'page' | 'fallback',
-			isReroute: isReroute === 'yes',
+			routeType: state.responseRouteType,
+			isReroute: false,
 		};
 
 		// Step 1: Apply routing strategy
@@ -113,7 +108,7 @@ export class I18n {
 						status: 404,
 						headers: response.headers,
 					});
-					prerenderedRes.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
+					state.skipErrorReroute = true;
 					if (routeDecision.location) {
 						prerenderedRes.headers.set('Location', routeDecision.location);
 					}
@@ -137,7 +132,7 @@ export class I18n {
 			// The fallback sentinel (X-Astro-Route-Type: fallback, status 500) signals
 			// that the render pipeline couldn't find this page in the current locale.
 			// Treat it as a 404 so computeFallbackRoute will apply fallback logic.
-			const effectiveStatus = typeHeader === 'fallback' ? 404 : response.status;
+			const effectiveStatus = state.responseRouteType === 'fallback' ? 404 : response.status;
 			const fallbackDecision = computeFallbackRoute({
 				pathname: url.pathname,
 				responseStatus: effectiveStatus,

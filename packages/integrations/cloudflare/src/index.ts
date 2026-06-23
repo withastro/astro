@@ -1,15 +1,19 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, readFile, rename, stat, writeFile } from 'node:fs/promises';
+import { appendFile, readFile, rename, stat, unlink, writeFile } from 'node:fs/promises';
 import { relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizePath } from 'vite';
 import { createInterface } from 'node:readline/promises';
-import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
+import {
+	removeLeadingForwardSlash,
+	removeTrailingForwardSlash,
+} from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute } from 'astro';
 import { astroFrontmatterScanPlugin } from './esbuild-plugin-astro-frontmatter.js';
 import { getParts } from './utils/generate-routes-json.js';
+import { buildAssetsHeadersContent } from './utils/headers.js';
 import {
 	type ImageServiceConfig,
 	normalizeImageServiceConfig,
@@ -174,6 +178,9 @@ export default function createIntegration({
 				const needsImagesBindingForDev = isCompile && command === 'dev';
 				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
 				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
+				const isTypeGenPhase = command === 'build' || command === 'sync';
+
+				const needsWorkerCache = config.cache?.provider?.name === 'cloudflare';
 
 				const adapterPluginConfig: Partial<PluginConfig> = {
 					config: cloudflareConfigCustomizer({
@@ -181,6 +188,7 @@ export default function createIntegration({
 						sessionKVBindingName,
 						imagesBindingName:
 							needsImagesBinding || needsImagesBindingForDev ? imagesBindingName : false,
+						needsWorkerCache,
 					}),
 					...(prerenderEnvironment === 'workerd' && {
 						experimental: {
@@ -241,6 +249,21 @@ export default function createIntegration({
 				// include, and esbuildOptions (e.g. loader) entries are respected.
 				const userOptimizeDeps = config.vite?.optimizeDeps;
 
+				const cloudflareVitePlugins = cfVitePlugin({
+					...cfPluginConfig,
+					viteEnvironment: { name: 'ssr' },
+					assetsOnly: () => _buildOutput === 'static',
+				});
+				// `sync` and `build` both run type generation (build via its internal sync
+				// pass), which creates a temporary Vite server and fires `configureServer`
+				// the hook that boots the Cloudflare/workerd runtime. Drop it in both so
+				// type generation doesn't pay that startup cost. See #16332.
+				if (isTypeGenPhase) {
+					for (const plugin of cloudflareVitePlugins) {
+						plugin.configureServer = undefined;
+					}
+				}
+
 				updateConfig({
 					build: {
 						redirects: false,
@@ -251,11 +274,7 @@ export default function createIntegration({
 							...(prerenderEnvironment === 'node' && command === 'dev'
 								? [createNodePrerenderPlugin()]
 								: []),
-							cfVitePlugin({
-								...cfPluginConfig,
-								viteEnvironment: { name: 'ssr' },
-								assetsOnly: () => _buildOutput === 'static',
-							}),
+							cloudflareVitePlugins,
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
@@ -271,6 +290,10 @@ export default function createIntegration({
 							{
 								name: '@astrojs/cloudflare:environment',
 								configEnvironment(environmentName, _options) {
+									// Skip dependency pre-bundling during type generation (see `isTypeGenPhase` above).
+									if (isTypeGenPhase) {
+										return { optimizeDeps: { noDiscovery: true, include: [] } };
+									}
 									const isServerEnvironment = ['astro', 'ssr', 'prerender'].includes(
 										environmentName,
 									);
@@ -376,6 +399,7 @@ export default function createIntegration({
 												buildAssets: config.build.assets ?? '_astro',
 											}
 										: null,
+								cacheProviderEnabled: needsWorkerCache,
 							}),
 							cfPrismPlugin(),
 						],
@@ -476,12 +500,12 @@ export default function createIntegration({
 					vite.ssr.noExternal = true;
 
 					vite.build ||= {};
-					vite.build.rollupOptions ||= {};
-					vite.build.rollupOptions.output ||= {};
-					vite.build.rollupOptions.external = ['sharp'];
+					vite.build.rolldownOptions ||= {};
+					vite.build.rolldownOptions.output ||= {};
+					vite.build.rolldownOptions.external = ['sharp'];
 
 					// @ts-expect-error
-					vite.build.rollupOptions.output.banner ||=
+					vite.build.rolldownOptions.output.banner ||=
 						'globalThis.process ??= {}; globalThis.process.env ??= {};';
 
 					// Cloudflare env is only available per request. This isn't feasible for code that access env vars
@@ -497,7 +521,7 @@ export default function createIntegration({
 				// Move platform files from the base-prefixed client dir to the
 				// original client root, since Cloudflare reads them from there.
 				if (_config.base !== '/') {
-					for (const file of ['.assetsignore', '_headers']) {
+					for (const file of ['.assetsignore', '_headers', '_redirects']) {
 						try {
 							await rename(
 								new URL(`./${file}`, _config.build.client),
@@ -526,6 +550,47 @@ export default function createIntegration({
 						}
 					} catch {
 						// wrangler.json may not exist or may contain invalid JSON
+					}
+				}
+
+				// Inject an immutable Cache-Control rule for hashed assets so browsers
+				// cache them across deploys. Skip when assets are served from another
+				// origin (build.assetsPrefix) or when the user's _headers already sets
+				// Cache-Control on a rule that would match the assets path — Cloudflare
+				// merges duplicate header values with a comma, which would otherwise
+				// produce a contradictory directive.
+				if (_config.build.assetsPrefix) {
+					logger.debug(
+						'Skipping Cache-Control injection for assets — `build.assetsPrefix` is set, so assets are served from a different origin.',
+					);
+				} else {
+					const headersPath = new URL('./_headers', _originalClientDir);
+					const result = await buildAssetsHeadersContent(
+						{
+							assetsDir: _config.build.assets,
+							basePrefix: removeTrailingForwardSlash(_config.base),
+							headersPath,
+						},
+						(path) => readFile(path, 'utf-8'),
+					);
+					if (result === null) {
+						logger.debug(
+							`Skipping Cache-Control injection — _headers already sets Cache-Control on a matching rule.`,
+						);
+					} else {
+						// Atomic write: stage to a temp file, then rename, so a crash
+						// mid-write can't leave the user's _headers truncated.
+						const tempPath = new URL('./_headers.tmp', _originalClientDir);
+						try {
+							await writeFile(tempPath, result.content);
+							await rename(tempPath, headersPath);
+						} catch (err) {
+							await unlink(tempPath).catch(() => {});
+							throw err;
+						}
+						logger.info(
+							`Injected immutable Cache-Control for ${result.assetsPattern} into _headers.`,
+						);
 					}
 				}
 
