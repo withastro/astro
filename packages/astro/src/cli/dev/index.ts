@@ -1,4 +1,3 @@
-import { detectAgenticEnvironment } from 'am-i-vibing';
 import colors from 'piccolore';
 import devServer from '../../core/dev/index.js';
 import { pathToFileURL } from 'node:url';
@@ -10,36 +9,17 @@ import {
 } from '../../core/dev/lockfile.js';
 import { resolveRoot } from '../../core/config/config.js';
 import { printHelp } from '../../core/messages/runtime.js';
+import { isRunByAgent } from '../agent.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface DevOptions {
 	flags: Flags;
 }
 
-function isRunByAgent(): boolean {
-	try {
-		// Only treat direct "agent" types as auto-background-worthy.
-		// "hybrid" environments (e.g. Warp terminal) may not actually be running
-		// an AI agent, so we avoid false positives by excluding them.
-		return detectAgenticEnvironment().type === 'agent';
-	} catch {
-		return false;
-	}
-}
-
-/**
- * `yargs-parser` camel-cases `--ignore-lock` to `flags.ignoreLock`.
- */
 export function isIgnoreLock(flags: Flags): boolean {
 	return flags.ignoreLock === true;
 }
 
-/**
- * `--ignore-lock` skips the lock file entirely, so a background dev server started with it
- * could never be found by `astro dev stop`/`status`/`logs`. Returns an error message if
- * background mode (explicit `--background`, or implied by AI agent detection) is combined
- * with `--ignore-lock`, or `null` if there's no conflict.
- */
 export function getBackgroundIgnoreLockConflict(
 	flags: Flags,
 	wantsBackground: boolean,
@@ -58,11 +38,6 @@ export function getBackgroundIgnoreLockConflict(
 	].join('\n');
 }
 
-/**
- * `--force` (replace the existing server) and `--ignore-lock` (start alongside it,
- * untracked) express contradictory intent. Returns an error message if both are set,
- * or `null` otherwise.
- */
 export function getForceIgnoreLockConflict(flags: Flags): string | null {
 	if (!flags.force) {
 		return null;
