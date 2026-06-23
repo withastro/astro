@@ -513,7 +513,7 @@ importers:
         specifier: ^4.2.1
         version: 4.2.2
       vite:
-        specifier: ^8.1.0
+        specifier: ^8.0.13
         version: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
   examples/with-vitest:
@@ -681,7 +681,7 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       vite:
-        specifier: ^8.1.0
+        specifier: ^8.0.13
         version: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       vitefu:
         specifier: ^1.1.2
@@ -4171,7 +4171,7 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       vite:
-        specifier: ^8.1.0
+        specifier: ^8.0.13
         version: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
   packages/integrations/alpinejs/test/fixtures/basics:
@@ -4237,7 +4237,7 @@ importers:
         specifier: ^0.2.15
         version: 0.2.17
       vite:
-        specifier: ^8.1.0
+        specifier: ^8.0.13
         version: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
     devDependencies:
       '@cloudflare/workers-types':
@@ -4742,7 +4742,7 @@ importers:
         specifier: ^0.18.12
         version: 0.18.12
       vite:
-        specifier: ^8.1.0
+        specifier: ^8.0.13
         version: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
   packages/integrations/markdoc/test/fixtures/content-collections:
@@ -5043,7 +5043,7 @@ importers:
         specifier: ^11.0.5
         version: 11.0.5
       vite:
-        specifier: ^8.1.0
+        specifier: ^8.0.13
         version: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
   packages/integrations/mdx/test/fixtures/content-layer:
@@ -5256,7 +5256,7 @@ importers:
         specifier: ^0.2.15
         version: 0.2.17
       vite:
-        specifier: ^8.1.0
+        specifier: ^8.0.13
         version: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
     devDependencies:
       '@types/node':
@@ -5629,7 +5629,7 @@ importers:
         specifier: ^6.6.6
         version: 6.6.6(preact@10.29.0)
       vite:
-        specifier: ^8.1.0
+        specifier: ^8.0.13
         version: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
     devDependencies:
       astro:
@@ -5657,7 +5657,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0
       vite:
-        specifier: ^8.1.0
+        specifier: ^8.0.13
         version: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
     devDependencies:
       '@types/react':
@@ -5803,7 +5803,7 @@ importers:
   packages/integrations/solid:
     dependencies:
       vite:
-        specifier: ^8.1.0
+        specifier: ^8.0.13
         version: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       vite-plugin-solid:
         specifier: ^2.11.12
@@ -5828,7 +5828,7 @@ importers:
         specifier: ^0.7.55
         version: 0.7.55(svelte@5.55.3)(typescript@6.0.3)
       vite:
-        specifier: ^8.1.0
+        specifier: ^8.0.13
         version: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       vitefu:
         specifier: ^1.1.2
@@ -5932,7 +5932,7 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       vite:
-        specifier: ^8.1.0
+        specifier: ^8.0.13
         version: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
   packages/integrations/vercel/test/fixtures/basic:
@@ -6130,7 +6130,7 @@ importers:
         specifier: ^3.5.30
         version: 3.5.30
       vite:
-        specifier: ^8.1.0
+        specifier: ^8.0.13
         version: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       vite-plugin-vue-devtools:
         specifier: ^8.1.0
