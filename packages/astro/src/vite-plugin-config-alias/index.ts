@@ -90,6 +90,12 @@ function resolveWithAlias(id: string, configAlias: Alias[]): string | null {
  */
 const cssImportRE = /@import\s+(?:url\(\s*)?['"]([^'"]+)['"]\s*\)?/g;
 
+/**
+ * Regex matching CSS url() references with the specifier in capture group 1.
+ * Matches url('...') and url("...") but not @import url() (handled by cssImportRE).
+ */
+const cssUrlRE = /(?<!@import\s+)url\(\s*['"]([^'"]+)['"]\s*\)/g;
+
 /** Returns Vite plugins used to alias paths from tsconfig.json and jsconfig.json. */
 export default function configAliasVitePlugin({
 	settings,
@@ -114,11 +120,9 @@ export default function configAliasVitePlugin({
 					},
 				},
 				handler(code) {
-					// Fast early-exit: skip the regex if there's no @import anywhere in the file.
-					if (!code.includes('@import')) return;
-
 					let hasReplacement = false;
-					const result = code.replace(cssImportRE, (match, importId) => {
+
+					const replaceAliases = (match: string, importId: string) => {
 						if (!importId) return match;
 
 						const resolved = resolveWithAlias(importId, configAlias);
@@ -127,7 +131,19 @@ export default function configAliasVitePlugin({
 							return match.replace(importId, resolved);
 						}
 						return match;
-					});
+					};
+
+					let result = code;
+
+					// Rewrite @import aliases
+					if (result.includes('@import')) {
+						result = result.replace(cssImportRE, replaceAliases);
+					}
+
+					// Rewrite url() aliases
+					if (result.includes('url(')) {
+						result = result.replace(cssUrlRE, replaceAliases);
+					}
 
 					if (hasReplacement) {
 						return { code: result, map: null };
