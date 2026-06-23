@@ -64,7 +64,7 @@ jobs:
         run: pnpm build
 
       - name: Run triagebot
-        uses: withastro/triagebot-action@46d262f0744b05e8a5a23e0e3b4e2c671f8b8ad9 # v0.2.0
+        uses: withastro/triagebot-action@c803c9e72bf22da3f70fc1ec239cae15967fe4a3 # v0.3.0
         with:
           read-token: ${{ secrets.GITHUB_TOKEN }}
           write-token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
