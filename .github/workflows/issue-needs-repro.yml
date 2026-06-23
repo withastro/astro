@@ -10,7 +10,9 @@ jobs:
     runs-on: depot-ubuntu-24.04-arm-small
     steps:
       - name: Remove triaging label
-        if: github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'triage: needs reproduction')
+        if: >-
+          github.event_name == 'issues' &&
+          contains(github.event.issue.labels.*.name, 'triage: needs reproduction')
         env:
           GH_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
