@@ -2,7 +2,10 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { formatStopOutput } from '../../../dist/cli/dev/stop.js';
 import { formatStatusOutput } from '../../../dist/cli/dev/status.js';
-import { formatBackgroundOutput } from '../../../dist/cli/dev/background.js';
+import {
+	formatBackgroundOutput,
+	formatServerRunningMessage,
+} from '../../../dist/cli/dev/background.js';
 
 // #region formatStopOutput
 describe('formatStopOutput', () => {
@@ -96,6 +99,62 @@ describe('formatBackgroundOutput', () => {
 	it('produces valid JSON', () => {
 		const output = formatBackgroundOutput({ pid: 1, url: 'http://localhost:4321' });
 		assert.doesNotThrow(() => JSON.parse(output));
+	});
+});
+// #endregion
+
+// #region formatServerRunningMessage
+describe('formatServerRunningMessage', () => {
+	const base = {
+		pid: 54576,
+		port: 4321,
+		url: 'http://localhost:4321',
+		background: true,
+		startedAt: '2026-05-05T10:00:00.000Z',
+	};
+
+	it('omits the Network section when there are no network urls', () => {
+		const output = formatServerRunningMessage(base);
+		assert.equal(
+			output,
+			'Dev server running at http://localhost:4321 (pid 54576)\n' +
+				'  Stop:   astro dev stop\n' +
+				'  Status: astro dev status\n' +
+				'  Logs:   astro dev logs',
+		);
+	});
+
+	it('omits the Network section when network is an empty array', () => {
+		const output = formatServerRunningMessage({
+			...base,
+			urls: { local: ['http://localhost:4321/'], network: [] },
+		});
+		assert.ok(!output.includes('Network'));
+	});
+
+	it('lists every network address when --host exposed them', () => {
+		const output = formatServerRunningMessage({
+			...base,
+			urls: {
+				local: ['http://localhost:4321/'],
+				network: ['http://192.168.1.30:4321/', 'http://100.96.45.51:4321/'],
+			},
+		});
+		assert.equal(
+			output,
+			'Dev server running at http://localhost:4321 (pid 54576)\n' +
+				'  Network:\n' +
+				'    http://192.168.1.30:4321/\n' +
+				'    http://100.96.45.51:4321/\n' +
+				'  Stop:   astro dev stop\n' +
+				'  Status: astro dev status\n' +
+				'  Logs:   astro dev logs',
+		);
+	});
+
+	it('uses "already running" wording for an existing server', () => {
+		const output = formatServerRunningMessage(base, { existing: true });
+		assert.ok(output.startsWith('Dev server already running at http://localhost:4321 (pid 54576)'));
 	});
 });
 // #endregion
