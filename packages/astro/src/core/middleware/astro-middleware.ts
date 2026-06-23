@@ -79,12 +79,12 @@ export class AstroMiddleware {
 			!(middlewareMode === 'on-request' && pipeline.isBuildTime);
 
 		let response: Response;
-		if (!runMiddleware) {
-			response = await next(apiContext);
-		} else {
+		if (runMiddleware) {
 			const pipelineMiddleware = await pipeline.getMiddleware();
 			const composed = sequence(...pipeline.internalMiddleware, pipelineMiddleware);
 			response = await callMiddleware(composed, apiContext, next);
+		} else {
+			response = await next(apiContext);
 		}
 		response = this.#finalize(state, response);
 		state.response = response;
