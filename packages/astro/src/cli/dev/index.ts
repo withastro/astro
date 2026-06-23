@@ -1,4 +1,4 @@
-import { isAgent } from 'am-i-vibing';
+import { detectAgenticEnvironment } from 'am-i-vibing';
 import colors from 'piccolore';
 import devServer from '../../core/dev/index.js';
 import { pathToFileURL } from 'node:url';
@@ -13,7 +13,10 @@ interface DevOptions {
 
 function isRunByAgent(): boolean {
 	try {
-		return isAgent();
+		// Only treat direct "agent" types as auto-background-worthy.
+		// "hybrid" environments (e.g. Warp terminal) may not actually be running
+		// an AI agent, so we avoid false positives by excluding them.
+		return detectAgenticEnvironment().type === 'agent';
 	} catch {
 		return false;
 	}
