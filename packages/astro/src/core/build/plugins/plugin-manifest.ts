@@ -391,10 +391,7 @@ async function buildManifest(
 		allowedDomains: settings.config.security?.allowedDomains,
 		key: encodedKey,
 		sessionConfig: sessionConfigToManifest(settings.config.session),
-		cacheConfig: cacheConfigToManifest(
-			settings.config.experimental?.cache,
-			settings.config.experimental?.routeRules,
-		),
+		cacheConfig: cacheConfigToManifest(settings.config.cache, settings.config.routeRules),
 		csp,
 		image: {
 			objectFit: settings.config.image.objectFit,

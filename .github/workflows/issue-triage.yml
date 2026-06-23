@@ -2,14 +2,11 @@ name: Issue Triage
 
 on:
   issues:
-    types: [opened, reopened]
+    types: [opened, reopened, closed]
   issue_comment:
     types: [created]
 
 permissions: {}
-
-env:
-  PNPM_STORE_DIR: .pnpm-store
 
 concurrency:
   # Only one triage run per issue at a time. New runs queue (not cancel)
@@ -18,35 +15,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  label:
-    if: >-
-      !github.event.issue.pull_request &&
-      (github.event.action == 'opened' || github.event.action == 'reopened')
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write # Add "needs triage" label
-    steps:
-      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
-        with:
-          script: |
-            github.rest.issues.addLabels({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: ["needs triage"]
-            })
-
   triage:
-    # 1. Skip issues with "auto triage skipped" label
-    # 2. Skip pull requests (issues only)
-    # 3. One of these conditions must be met:
-    #   3a. Issue was just created
-    #   3b. Issue comment was just created, and "needs triage" label exists
+    # Skip pull requests and bot comments
     if: >-
-      !contains(github.event.issue.labels.*.name, 'auto triage skipped') &&
       !github.event.issue.pull_request &&
-      ((github.event.action == 'opened') ||
-       (github.event.action == 'created' && contains(github.event.issue.labels.*.name, 'needs triage')))
+      (github.event.action != 'created' ||
+       (github.event.comment.user.login != 'astrobot-houston' &&
+        github.event.comment.user.login != 'github-actions[bot]'))
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
@@ -58,12 +33,6 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
-          # Do not persist the default GITHUB_TOKEN as a git credential.
-          # checkout sets an http.extraheader that overrides any credentials
-          # embedded in push URLs, including the FREDKBOT_GITHUB_TOKEN used
-          # by gitPush(). With persist-credentials enabled, git always
-          # authenticates as github-actions[bot] (read-only), causing pushes
-          # to fail with 403.
           persist-credentials: false
 
       - name: Configure Git identity
@@ -94,17 +63,13 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Checkout fix branch
-        run: git checkout -B "flue/fix-${{ github.event.issue.number }}"
-
-      - name: Run triage agent
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FREDKBOT_GITHUB_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
-          ANTHROPIC_API_KEY: ${{ secrets.CI_ANTHROPIC_API_KEY }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-        run: |
-          pnpm exec flue run issue-triage \
-            --target node \
-            --payload "{\"issueNumber\": $ISSUE_NUMBER}"
+      - name: Run triagebot
+        uses: withastro/triagebot-action@f78a3fa311d266e3eec4562a77f906650a0263bb # v0.3.3
+        with:
+          read-token: ${{ secrets.GITHUB_TOKEN }}
+          write-token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
+          anthropic-api-key: ${{ secrets.CI_ANTHROPIC_API_KEY }}
+          triage-skill: .agents/skills/triage
+          pr-skill: .agents/skills/astro-pr-writer
+          pr-skill-name: astro-pr-writer
+          bot-logins: astrobot-houston

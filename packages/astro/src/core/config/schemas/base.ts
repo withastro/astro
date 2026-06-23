@@ -562,6 +562,8 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional(),
 	fonts: z.array(FontFamilySchema).optional(),
+	cache: CacheSchema.optional(),
+	routeRules: RouteRulesSchema.optional(),
 	experimental: z
 		.strictObject({
 			clientPrerender: z
@@ -577,8 +579,6 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.chromeDevtoolsWorkspace),
 			svgOptimizer: SvgOptimizerSchema.optional(),
-			cache: CacheSchema.optional(),
-			routeRules: RouteRulesSchema.optional(),
 		})
 		.prefault({}),
 	legacy: z

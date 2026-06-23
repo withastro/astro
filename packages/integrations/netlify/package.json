@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "8.0.0-beta.1",
+  "version": "8.0.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -23,6 +23,8 @@
     "./functions": "./dist/functions.js",
     "./ssr-function.js": "./dist/ssr-function.js",
     "./image-service.js": "./dist/image-service.js",
+    "./cache": "./dist/cache/index.js",
+    "./cache/provider": "./dist/cache/provider.js",
     "./package.json": "./package.json"
   },
   "files": [
