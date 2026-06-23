@@ -21,6 +21,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/solid-js/",
   "exports": {
     ".": "./dist/index.js",
+    "./signals": "./dist/island-signal.js",
     "./container-renderer": "./dist/container-renderer.js",
     "./client.js": "./dist/client.js",
     "./server.js": "./dist/server.js",
@@ -32,7 +33,8 @@
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\""
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
     "vite": "^8.0.13",
@@ -41,6 +43,7 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
+    "cheerio": "1.2.0",
     "solid-js": "^1.9.13"
   },
   "peerDependencies": {
