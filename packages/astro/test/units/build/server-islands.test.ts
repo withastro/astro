@@ -129,7 +129,7 @@ describe('Build: Server islands in prerendered pages', () => {
 
 		assert.ok(manifestContent, 'Server island manifest chunk should be emitted');
 
-		// Remove the @__PURE__ comment notation
+		// Remove the @__PURE__ comment notation before `new Map(...)` so the regex below can be simpler
 		manifestContent = manifestContent.replaceAll('/* @__PURE__ */', '');
 
 		assert.ok(
@@ -242,9 +242,13 @@ describe('Build: Server islands in prerendered pages', () => {
 		const serverOutputDir = fileURLToPath(settings.config.build.server);
 		const outputFiles = await readFilesRecursive(serverOutputDir);
 		const manifestFilePath = outputFiles.find((file) => file.includes('server-island-manifest'));
-		const manifestContent = manifestFilePath ? await fs.readFile(manifestFilePath, 'utf-8') : null;
+		let manifestContent = manifestFilePath ? await fs.readFile(manifestFilePath, 'utf-8') : null;
 
 		assert.ok(manifestContent, 'Server island manifest chunk should be emitted');
+
+		// Remove the @__PURE__ comment notation before `new Map(...)` so the regex below can be simpler
+		manifestContent = manifestContent.replaceAll('/* @__PURE__ */', '');
+
 		assert.ok(
 			/['"]Island['"]/.test(manifestContent),
 			`Server island manifest should contain Island component but got:\n${manifestContent}`,
