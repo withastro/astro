@@ -1,9 +1,11 @@
 import type { OutgoingHttpHeaders } from 'node:http';
+import type { ResolvedServerUrls } from 'vite';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 
 export interface PreviewServer {
 	host?: string;
 	port: number;
+	urls?: ResolvedServerUrls;
 	closed(): Promise<void>;
 	stop(): Promise<void>;
 }
