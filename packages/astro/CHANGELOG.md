@@ -1,5 +1,12 @@
 # astro
 
+## 7.0.2
+
+### Patch Changes
+
+- Updated dependencies [[`3b5e994`](https://github.com/withastro/astro/commit/3b5e994738cf58c9eed0774ce779b685c31a3a5c)]:
+  - @astrojs/markdown-satteri@0.3.2
+
 ## 7.0.1
 
 ### Patch Changes
