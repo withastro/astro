@@ -1929,6 +1929,12 @@ importers:
         specifier: ^5.54.0
         version: 5.55.3
 
+  packages/astro/test/fixtures/alias-css-url:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/alias-path-alias-style:
     dependencies:
       astro:
@@ -6732,24 +6738,6 @@ importers:
       tsx:
         specifier: ^4.22.0
         version: 4.22.3
-
-  triage/gh-16181:
-    dependencies:
-      '@astrojs/mdx':
-        specifier: workspace:*
-        version: link:../../packages/integrations/mdx
-      '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../packages/integrations/node
-      astro:
-        specifier: workspace:*
-        version: link:../../packages/astro
-
-  triage/gh-16522:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../packages/astro
 
 packages:
 
