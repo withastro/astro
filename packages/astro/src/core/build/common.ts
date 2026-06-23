@@ -5,8 +5,12 @@ import type { AstroSettings } from '../../types/astro.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { RouteData } from '../../types/public/internal.js';
 
-const STATUS_CODE_PAGES = new Set(['/404', '/500']);
+const STATUS_CODE_BASENAMES = new Set(['404', '500']);
 const FALLBACK_OUT_DIR_NAME = './.astro/';
+
+function isStatusCodePage(pathname: string): boolean {
+	return STATUS_CODE_BASENAMES.has(npath.basename(pathname));
+}
 
 function getOutRoot(astroSettings: AstroSettings): URL {
 	const preserveStructure = astroSettings.adapter?.adapterFeatures?.preserveBuildClientDir;
@@ -35,7 +39,7 @@ export function getOutFolder(
 		case 'redirect':
 			switch (astroSettings.config.build.format) {
 				case 'directory': {
-					if (STATUS_CODE_PAGES.has(pathname)) {
+					if (isStatusCodePage(pathname)) {
 						return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
 					}
 					return new URL('.' + appendForwardSlash(pathname), outRoot);
@@ -74,7 +78,7 @@ export function getOutFile(
 		case 'redirect':
 			switch (buildFormat) {
 				case 'directory': {
-					if (STATUS_CODE_PAGES.has(pathname)) {
+					if (isStatusCodePage(pathname)) {
 						const baseName = npath.basename(pathname);
 						return new URL('./' + (baseName || 'index') + '.html', outFolder);
 					}

@@ -21,7 +21,7 @@ export function isMarkdownFile(fileId: string, option?: { suffix?: string }): bo
 	return false;
 }
 
-const STATUS_CODE_PAGES = new Set(['/404', '/500']);
+const STATUS_CODE_BASENAMES = new Set(['404', '500']);
 
 /**
  * Get the correct output filename for a route, based on your config.
@@ -39,7 +39,7 @@ export function getOutputFilename(
 	if (name === '/' || name === '') {
 		return path.posix.join(name, 'index.html');
 	}
-	if (buildFormat === 'file' || STATUS_CODE_PAGES.has(name)) {
+	if (buildFormat === 'file' || STATUS_CODE_BASENAMES.has(path.posix.basename(name))) {
 		return `${removeTrailingForwardSlash(name || 'index')}.html`;
 	}
 	if (buildFormat === 'preserve' && !routeData.isIndex) {
