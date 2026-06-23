@@ -41,7 +41,7 @@
     "@preact/signals": "^2.8.2",
     "devalue": "^5.8.1",
     "preact-render-to-string": "^6.6.6",
-    "vite": "^8.1.0"
+    "vite": "^8.0.13"
   },
   "devDependencies": {
     "astro": "workspace:*",

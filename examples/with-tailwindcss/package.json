@@ -19,6 +19,6 @@
     "astro": "^7.0.1",
     "canvas-confetti": "^1.9.4",
     "tailwindcss": "^4.2.1",
-    "vite": "^8.1.0"
+    "vite": "^8.0.13"
   }
 }
