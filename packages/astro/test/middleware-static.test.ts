@@ -17,7 +17,7 @@ describe('Middleware for prerendered pages at request time', () => {
 				extendAdapter: {
 					adapterFeatures: {
 						buildOutput: 'server',
-						middlewareMode: 'always',
+						middlewareMode: 'on-request',
 					},
 				},
 			}),
@@ -171,7 +171,7 @@ describe('Middleware for prerendered pages with base path', () => {
 				extendAdapter: {
 					adapterFeatures: {
 						buildOutput: 'server',
-						middlewareMode: 'always',
+						middlewareMode: 'on-request',
 					},
 				},
 			}),
@@ -280,33 +280,6 @@ describe('Classic mode without getStaticAsset callback', () => {
 	});
 });
 
-describe('Build-time middleware mode behavior', () => {
-	it('on-request mode skips middleware effects during build prerendering', async () => {
-		const fixture = await loadFixture({
-			root: './fixtures/middleware-static/',
-			output: 'server',
-			outDir: './dist/middleware-static-build-on-request',
-			adapter: testAdapter({
-				extendAdapter: {
-					adapterFeatures: {
-						buildOutput: 'server',
-						middlewareMode: 'on-request',
-					},
-				},
-			}),
-		});
-		await fixture.build();
-		const app = await fixture.loadTestAdapterApp();
-
-		const staticAssetPath = getStaticAssetPath('/build-phase', {
-			base: app.manifest.base,
-			buildFormat: app.manifest.buildFormat,
-		});
-		const html = await fixture.readFile(`/client/${staticAssetPath}`);
-		assert.match(html, /build-phase:no-middleware/);
-	});
-});
-
 describe('Middleware static serving with directory format', () => {
 	let fixture: Fixture;
 	let app: App;
@@ -323,7 +296,7 @@ describe('Middleware static serving with directory format', () => {
 				extendAdapter: {
 					adapterFeatures: {
 						buildOutput: 'server',
-						middlewareMode: 'always',
+						middlewareMode: 'on-request',
 					},
 				},
 			}),

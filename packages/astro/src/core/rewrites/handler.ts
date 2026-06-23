@@ -74,10 +74,7 @@ export function applyRewriteToState(
 			routePattern: state.routeData!.route,
 			// Prerendered routes normally drop request headers; keep them when
 			// middleware runs at request time so it can read them.
-			includeHeaders:
-				pipeline.manifest.middlewareMode === 'always' ||
-				pipeline.manifest.middlewareMode === 'on-request' ||
-				!routeData.prerender,
+			includeHeaders: pipeline.manifest.middlewareMode === 'on-request' || !routeData.prerender,
 		});
 	}
 	state.url = createNormalizedUrl(state.request.url);

@@ -66,7 +66,7 @@ export class AstroMiddleware {
 
 		// Decide whether the middleware chain runs for this request based on the
 		// configured middleware mode:
-		// - 'classic' / 'always': run middleware whenever this point is reached
+		// - 'classic': run middleware whenever this point is reached
 		// - 'on-request': skip during build-time prerendering, run at request time
 		// - 'edge': never run here (deployed as a separate edge function)
 		const middlewareMode = pipeline.manifest.middlewareMode;

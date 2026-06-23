@@ -1,6 +1,5 @@
 ---
 export const prerender = true;
-const buildPhase = Astro.locals.buildPhase ?? 'unknown';
 ---
 <html>
 	<head>
@@ -8,6 +7,5 @@ const buildPhase = Astro.locals.buildPhase ?? 'unknown';
 	</head>
 	<body>
 		<h1>Two</h1>
-		<span id="build-phase">{buildPhase}</span>
 	</body>
 </html>

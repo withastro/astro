@@ -67,12 +67,11 @@ export function createStaticHandler(
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;
 
-			// In 'always' and 'on-request' middleware modes, prerendered page routes must go
+			// In 'on-request' middleware mode, prerendered page routes must go
 			// through the app handler so that user middleware can run before the page HTML is
 			// served from disk. Match the route to detect this; the match is reused for header
 			// application below. We only match when needed (header rewriting or SSR routing).
-			const middlewareHandlesPrerendered =
-				app.manifest.middlewareMode === 'always' || app.manifest.middlewareMode === 'on-request';
+			const middlewareHandlesPrerendered = app.manifest.middlewareMode === 'on-request';
 			const routeData =
 				middlewareHandlesPrerendered || (headersMap && headersMap.length > 0)
 					? app.match(

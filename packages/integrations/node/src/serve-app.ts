@@ -97,8 +97,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		return readPageFromDisk(client, staticAssetPath);
 	};
 
-	const shouldServePrerenderedThroughMiddleware =
-		app.manifest.middlewareMode === 'always' || app.manifest.middlewareMode === 'on-request';
+	const shouldServePrerenderedThroughMiddleware = app.manifest.middlewareMode === 'on-request';
 
 	// Use the configured body size limit. A value of 0 or Infinity disables the limit.
 	const effectiveBodySizeLimit =
@@ -129,7 +128,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		// static handler. Skip them here so requests for unknown prerendered paths (e.g.
 		// /dogs/unknown when only /dogs/clifford was prerendered) fall through to the 404
 		// handler instead of producing a 500.
-		// In 'always' and 'on-request' modes, prerendered pages are served through the
+		// In 'on-request' mode, prerendered pages are served through the
 		// middleware at request time using getStaticAsset.
 		const isPrerenderedPage = routeData?.type === 'page' && routeData.prerender;
 		if (routeData && (!isPrerenderedPage || shouldServePrerenderedThroughMiddleware)) {
