@@ -1,2 +1,9 @@
 <p id="style-blue">i am blue</p>
 <p id="style-red">i am red</p>
+<p id="style-scss">i am scss</p>
+
+<style lang="scss">
+  /* `@styles/*` is a tsconfig path alias; it must resolve inside an
+     .astro `<style lang="scss">` block (virtual id `…&lang.scss`). */
+  @import "@styles/extra.scss";
+</style>
