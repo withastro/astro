@@ -6736,11 +6736,23 @@ importers:
         specifier: ^4.22.0
         version: 4.22.3
 
-  triage/17120:
+  triage/gh-15101:
     dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../packages/integrations/node
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../packages/integrations/react
       astro:
         specifier: workspace:*
         version: link:../../packages/astro
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
 packages:
 
