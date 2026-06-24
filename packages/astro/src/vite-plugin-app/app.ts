@@ -222,6 +222,21 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 					body = Buffer.concat(bytes);
 				}
 
+				// Wire an AbortController to the socket so request.signal
+				// reflects client disconnection, matching production behaviour.
+				const abortController = new AbortController();
+				const socket = incomingRequest.socket;
+				const onSocketClose = () => {
+					if (!abortController.signal.aborted) {
+						abortController.abort();
+					}
+				};
+				if (socket.destroyed) {
+					onSocketClose();
+				} else {
+					socket.on('close', onSocketClose);
+				}
+
 				const request = createRequest({
 					url,
 					headers: incomingRequest.headers,
@@ -230,6 +245,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 					logger: self.logger,
 					isPrerendered: matchedRoute.routeData.prerender,
 					routePattern: matchedRoute.routeData.component,
+					init: { signal: abortController.signal },
 				});
 
 				// This is required for adapters to set locals in dev mode. They use a dev server middleware to inject locals to the `http.IncomingRequest` object.
