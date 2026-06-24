@@ -51,9 +51,6 @@ peerDependencyRules:
     - 'astro'
     - 'vite'
 
-patchedDependencies:
-  '@changesets/get-github-info@0.7.0': patches/@changesets__get-github-info@0.7.0.patch
-
 # Prevent installation of packages where trust level decreases
 trustPolicy: 'no-downgrade'
 trustPolicyExclude:

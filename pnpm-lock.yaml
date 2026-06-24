@@ -8,9 +8,6 @@ settings:
 overrides:
   '@types/node@22': ^22.19.0
 
-patchedDependencies:
-  '@changesets/get-github-info@0.7.0': e13aea52ca8f5010e08f8d7709fd26f7bc5c5d8b11aeb004bf6b040c9858185c
-
 importers:
 
   .:
@@ -16468,7 +16465,7 @@ snapshots:
 
   '@changesets/changelog-github@0.5.2':
     dependencies:
-      '@changesets/get-github-info': 0.7.0(patch_hash=e13aea52ca8f5010e08f8d7709fd26f7bc5c5d8b11aeb004bf6b040c9858185c)
+      '@changesets/get-github-info': 0.7.0
       '@changesets/types': 6.1.0
       dotenv: 8.6.0
     transitivePeerDependencies:
@@ -16528,7 +16525,7 @@ snapshots:
       picocolors: 1.1.1
       semver: 7.7.4
 
-  '@changesets/get-github-info@0.7.0(patch_hash=e13aea52ca8f5010e08f8d7709fd26f7bc5c5d8b11aeb004bf6b040c9858185c)':
+  '@changesets/get-github-info@0.7.0':
     dependencies:
       dataloader: 1.4.0
       node-fetch: 2.7.0
