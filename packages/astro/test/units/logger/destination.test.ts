@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import type { AstroLoggerMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
 import jsonFactory, { SGR_REGEX } from '../../../dist/core/logger/impls/json.js';
+import nodeFactory from '../../../dist/core/logger/impls/node.js';
 
 let logs: AstroLoggerMessage[] = [];
 
@@ -238,5 +239,100 @@ describe('json handler', () => {
 			assert.equal(stdoutWrites.length, 0);
 			assert.equal(stderrWrites.length, 1);
 		});
+	});
+});
+
+describe('json handler console fallback', () => {
+	let originalStdout: typeof process.stdout;
+	let originalStderr: typeof process.stderr;
+	let consoleInfoArgs: unknown[][];
+	let consoleErrorArgs: unknown[][];
+	let originalConsoleInfo: typeof console.info;
+	let originalConsoleError: typeof console.error;
+
+	beforeEach(() => {
+		originalStdout = process.stdout;
+		originalStderr = process.stderr;
+		originalConsoleInfo = console.info;
+		originalConsoleError = console.error;
+		consoleInfoArgs = [];
+		consoleErrorArgs = [];
+		console.info = (...args: unknown[]) => consoleInfoArgs.push(args);
+		console.error = (...args: unknown[]) => consoleErrorArgs.push(args);
+		// Simulate a non-Node runtime where process.stderr/stdout don't exist
+		Object.defineProperty(process, 'stdout', { value: undefined, configurable: true });
+		Object.defineProperty(process, 'stderr', { value: undefined, configurable: true });
+	});
+
+	afterEach(() => {
+		Object.defineProperty(process, 'stdout', { value: originalStdout, configurable: true });
+		Object.defineProperty(process, 'stderr', { value: originalStderr, configurable: true });
+		console.info = originalConsoleInfo;
+		console.error = originalConsoleError;
+	});
+
+	it('falls back to console.info for info messages', () => {
+		const destination = jsonFactory({ pretty: false });
+		const logger = new AstroLogger({ destination, level: 'info' });
+		logger.info('build', 'test message');
+		assert.equal(consoleInfoArgs.length, 1);
+		const parsed = JSON.parse(consoleInfoArgs[0][0] as string);
+		assert.equal(parsed.message, 'test message');
+		assert.equal(parsed.level, 'info');
+	});
+
+	it('falls back to console.error for error messages', () => {
+		const destination = jsonFactory({ pretty: false });
+		const logger = new AstroLogger({ destination, level: 'info' });
+		logger.error('build', 'error message');
+		assert.equal(consoleErrorArgs.length, 1);
+		const parsed = JSON.parse(consoleErrorArgs[0][0] as string);
+		assert.equal(parsed.message, 'error message');
+		assert.equal(parsed.level, 'error');
+	});
+});
+
+describe('node handler console fallback', () => {
+	let originalStdout: typeof process.stdout;
+	let originalStderr: typeof process.stderr;
+	let consoleInfoArgs: unknown[][];
+	let consoleErrorArgs: unknown[][];
+	let originalConsoleInfo: typeof console.info;
+	let originalConsoleError: typeof console.error;
+
+	beforeEach(() => {
+		originalStdout = process.stdout;
+		originalStderr = process.stderr;
+		originalConsoleInfo = console.info;
+		originalConsoleError = console.error;
+		consoleInfoArgs = [];
+		consoleErrorArgs = [];
+		console.info = (...args: unknown[]) => consoleInfoArgs.push(args);
+		console.error = (...args: unknown[]) => consoleErrorArgs.push(args);
+		Object.defineProperty(process, 'stdout', { value: undefined, configurable: true });
+		Object.defineProperty(process, 'stderr', { value: undefined, configurable: true });
+	});
+
+	afterEach(() => {
+		Object.defineProperty(process, 'stdout', { value: originalStdout, configurable: true });
+		Object.defineProperty(process, 'stderr', { value: originalStderr, configurable: true });
+		console.info = originalConsoleInfo;
+		console.error = originalConsoleError;
+	});
+
+	it('falls back to console.info for info messages', () => {
+		const destination = nodeFactory();
+		const logger = new AstroLogger({ destination, level: 'info' });
+		logger.info('build', 'test message');
+		assert.equal(consoleInfoArgs.length, 1);
+		assert.ok((consoleInfoArgs[0][0] as string).includes('test message'));
+	});
+
+	it('falls back to console.error for error messages', () => {
+		const destination = nodeFactory();
+		const logger = new AstroLogger({ destination, level: 'info' });
+		logger.error('build', 'error message');
+		assert.equal(consoleErrorArgs.length, 1);
+		assert.ok((consoleErrorArgs[0][0] as string).includes('error message'));
 	});
 });

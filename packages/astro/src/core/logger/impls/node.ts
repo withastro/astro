@@ -24,20 +24,25 @@ function nodeLogDestination(
 	const { level = 'info' } = config;
 	return {
 		write(event: AstroLoggerMessage) {
-			let dest: ConsoleStream = process.stderr;
-			if (levels[event.level] < levels['error']) {
-				dest = process.stdout;
-			}
-
 			if (!matchesLevel(event.level, level)) {
 				return;
 			}
 
 			let trailingLine = event.newLine ? '\n' : '';
-			if (event.label === 'SKIP_FORMAT') {
-				dest.write(event.message + trailingLine);
+			const payload =
+				event.label === 'SKIP_FORMAT'
+					? event.message + trailingLine
+					: getEventPrefix(event) + ' ' + event.message + trailingLine;
+
+			if (typeof process !== 'undefined' && process.stderr && process.stdout) {
+				let dest: ConsoleStream = process.stderr;
+				if (levels[event.level] < levels['error']) {
+					dest = process.stdout;
+				}
+				dest.write(payload);
 			} else {
-				dest.write(getEventPrefix(event) + ' ' + event.message + trailingLine);
+				const dest = levels[event.level] >= levels['error'] ? console.error : console.info;
+				dest(payload);
 			}
 		},
 	};
