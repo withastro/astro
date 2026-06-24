@@ -10,6 +10,7 @@ import {
 } from '../common.js';
 import { promiseWithResolvers } from '../util.js';
 import { bufferPropagatedHead } from '../head-propagation/runtime.js';
+import { renderAllHeadContent } from '../head.js';
 import { renderStreaming } from '../streaming.js';
 import type { AstroComponentFactory } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
@@ -54,6 +55,13 @@ async function renderStreamToString(
 	};
 
 	await renderStreaming(templateResult, result, destination);
+
+	// If this is a page and head content was never flushed (e.g. the page has no
+	// component imports, so the compiler never emitted maybeRenderHead), flush it
+	// now so scripts like /@vite/client and styles are still included.
+	if (isPage && !result._metadata.hasRenderedHead && !result.partial) {
+		str += renderAllHeadContent(result);
+	}
 
 	return str;
 }
@@ -106,6 +114,13 @@ async function renderStreamToStream(
 			(async () => {
 				try {
 					await renderStreaming(templateResult, result, destination);
+					// Flush unflushed head content (see renderStreamToString comment).
+					if (isPage && !result._metadata.hasRenderedHead && !result.partial) {
+						const headContent = renderAllHeadContent(result);
+						if (headContent) {
+							controller.enqueue(encoder.encode(headContent.toString()));
+						}
+					}
 					controller.close();
 				} catch (e) {
 					// We don't have a lot of information downstream, and upstream we can't catch the error properly
@@ -243,6 +258,15 @@ async function renderStreamToAsyncIterable(
 	const renderResult = toPromise(() => renderStreaming(templateResult, result, destination));
 
 	renderResult
+		.then(() => {
+			// Flush unflushed head content (see renderStreamToString comment).
+			if (isPage && !result._metadata.hasRenderedHead && !result.partial) {
+				const headContent = renderAllHeadContent(result);
+				if (headContent) {
+					buffer.push(encoder.encode(headContent.toString()));
+				}
+			}
+		})
 		.catch((err) => {
 			error = err;
 		})
