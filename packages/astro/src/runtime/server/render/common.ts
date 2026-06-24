@@ -154,7 +154,13 @@ function stringifyChunk(
 				out += stringifyChunk(result, instr);
 			}
 		}
-		out += chunk.toString();
+		let content = chunk.toString();
+		if (c.scriptInstructions) {
+			for (const [placeholder, instr] of c.scriptInstructions) {
+				content = content.replace(placeholder, stringifyChunk(result, instr));
+			}
+		}
+		out += content;
 		return out;
 	}
 

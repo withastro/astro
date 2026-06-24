@@ -157,6 +157,14 @@ export class ServerIslandComponent {
 						}
 					}
 				}
+				// Script instructions are now stored with positional placeholders
+				// in the content string. Replace placeholders with actual script HTML
+				// so island responses include the scripts.
+				if (slotContent.scriptInstructions) {
+					for (const [placeholder, instruction] of slotContent.scriptInstructions) {
+						slotHtml = slotHtml.replace(placeholder, instruction.content);
+					}
+				}
 				renderedSlots[name] = slotHtml;
 			}
 		}
