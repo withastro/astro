@@ -51,6 +51,13 @@ export function getStyleResources(csp: EnabledCsp): string[] {
 	return csp.styleDirective?.resources ?? [];
 }
 
+export function getStyleUnsafeInline(csp: EnabledCsp): boolean {
+	if (csp === true) {
+		return false;
+	}
+	return csp.styleDirective?.unsafeInline ?? false;
+}
+
 // Unlike other helpers like getStyleResources, getDirectives has more logic
 // because it has to collect and deduplicate font resources from both the user
 // config and the vite plugin for fonts

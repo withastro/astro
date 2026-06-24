@@ -74,6 +74,7 @@ async function createStubResult(overrides: Partial<SSRResult> = {}): Promise<SSR
 		scriptResources: [],
 		styleHashes: [],
 		styleResources: [],
+		styleUnsafeInline: false,
 		directives: [],
 		isStrictDynamic: false,
 		internalFetchHeaders: {},

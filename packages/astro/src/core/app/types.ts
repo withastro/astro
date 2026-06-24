@@ -178,6 +178,7 @@ export type SSRManifestCSP = {
 	isStrictDynamic: boolean;
 	styleHashes: string[];
 	styleResources: string[];
+	styleUnsafeInline: boolean;
 	directives: CspDirective[];
 };
 

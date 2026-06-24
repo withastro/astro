@@ -927,6 +927,35 @@ export interface AstroUserConfig<
 						 * When resources are inserted multiple times or from multiple sources (e.g. defined in your `csp` config and added using [the CSP runtime API](/en/reference/api-reference/#csp)), Astro will merge and deduplicate all resources to create your `<meta>` element.
 						 */
 						resources?: string[];
+
+						/**
+						 * @docs
+						 * @name security.csp.styleDirective.unsafeInline
+						 * @kind h6
+						 * @type {boolean}
+						 * @default `false`
+						 * @version 6.0.0
+						 * @description
+						 *
+						 * When set to `true`, Astro will add `'unsafe-inline'` to the `style-src` directive and skip emitting style hashes. This is useful when you need to allow inline styles (e.g. from third-party libraries or dynamic style attributes) while still benefiting from Astro's script hash generation.
+						 *
+						 * Per the CSP specification, browsers ignore `'unsafe-inline'` when a hash or nonce is present in the same directive. This option ensures they are not combined.
+						 *
+						 * ```js title="astro.config.mjs"
+						 * import { defineConfig } from 'astro/config';
+						 *
+						 * export default defineConfig({
+						 *   security: {
+						 *     csp: {
+						 *       styleDirective: {
+						 *         unsafeInline: true,
+						 *       }
+						 *     }
+						 *   }
+						 * });
+						 * ```
+						 */
+						unsafeInline?: boolean;
 					};
 
 					/**
