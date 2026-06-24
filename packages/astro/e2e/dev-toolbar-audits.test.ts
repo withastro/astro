@@ -92,6 +92,13 @@ test.describe('Dev Toolbar - Audits', () => {
 	}) => {
 		await page.goto(astro.resolveUrl('/audits-perf-absolute'));
 
+		// The audit gates highlight creation on the image's `load` event, so run it
+		// only after the image has finished loading. Otherwise a slow image load on CI
+		// can outlast the assertion timeout and intermittently report 0 highlights.
+		await expect(page.locator('img[alt="A walrus"]')).toHaveJSProperty('complete', true, {
+			timeout: 15_000,
+		});
+
 		const toolbar = page.locator('astro-dev-toolbar');
 		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
 		await appButton.click();
