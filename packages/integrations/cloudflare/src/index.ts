@@ -330,6 +330,7 @@ export default function createIntegration({
 													'astro/jsx-runtime',
 													'astro/app/entrypoint/dev',
 													'astro/virtual-modules/middleware.js',
+													'astro/virtual-modules/transitions.js',
 													...(isAstroPrismPackageInstalled ? prismFiles : []),
 													...(Array.isArray(userOptimizeDeps?.include)
 														? userOptimizeDeps.include
