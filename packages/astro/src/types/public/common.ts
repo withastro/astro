@@ -42,6 +42,19 @@ export interface PaginateOptions<PaginateProps extends Props, PaginateParams ext
 	params?: PaginateParams;
 	/** object of props to forward to `page` result */
 	props?: PaginateProps;
+	/**
+	 * Transform each pagination URL before it is set on the page result.
+	 * Useful for adding a file extension (e.g. `.html`) when deploying to a
+	 * static file server that does not support clean URLs.
+	 *
+	 * @example
+	 * ```ts
+	 * paginate(items, {
+	 *   format: (url) => `${url}.html`,
+	 * })
+	 * ```
+	 */
+	format?: (url: string) => string;
 }
 
 /**
