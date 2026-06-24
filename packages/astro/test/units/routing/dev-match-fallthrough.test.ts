@@ -5,11 +5,15 @@ import { makeRoute, dynamicPart } from './test-helpers.ts';
 import { defaultLogger } from '../test-utils.ts';
 import { RouteCache } from '../../../dist/core/render/route-cache.js';
 
+import type { RunnablePipeline } from '../../../dist/vite-plugin-app/pipeline.js';
+import type { RouteData } from '../../../dist/types/public/index.js';
+import type { SSRManifest } from '../../../dist/core/app/types.js';
+
 /**
  * Creates a minimal mock pipeline and manifest for testing matchRoute.
  * `componentModules` maps route component paths to their module exports.
  */
-function createMockPipelineAndManifest(componentModules) {
+function createMockPipelineAndManifest(componentModules: Record<string, any>) {
 	const routeCache = new RouteCache(defaultLogger);
 	const manifest = {
 		serverLike: false,
@@ -19,15 +23,15 @@ function createMockPipelineAndManifest(componentModules) {
 		routes: [],
 		buildClientDir: new URL('file:///fake/client/'),
 		outDir: new URL('file:///fake/'),
-	};
+	} as unknown as SSRManifest;
 	const pipeline = {
 		logger: defaultLogger,
 		routeCache,
 		manifest,
-		getComponentByRoute(route) {
+		getComponentByRoute(route: RouteData) {
 			return componentModules[route.component];
 		},
-	};
+	} as unknown as RunnablePipeline;
 	return { pipeline, manifest };
 }
 
