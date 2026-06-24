@@ -178,6 +178,20 @@ export async function createVite(
 					if (current !== 0 && current < 50) {
 						server.watcher.setMaxListeners(50);
 					}
+					// Handle file watcher errors gracefully instead of crashing the process.
+					// Chokidar follows symlinks by default and can encounter ELOOP errors
+					// from circular symlinks (common in Nix environments) or fail to watch
+					// paths outside the project. Without this handler, these errors become
+					// uncaught exceptions that crash the dev server.
+					server.watcher.on('error', (error: NodeJS.ErrnoException) => {
+						if (error.code === 'ELOOP') {
+							logger.warn('watch', `Circular symlink detected and skipped: ${error.path}`);
+						} else if (error.code === 'EACCES' || error.code === 'EPERM') {
+							logger.warn('watch', `Permission denied watching path: ${error.path}`);
+						} else {
+							logger.error('watch', `File watcher error: ${error.message}`);
+						}
+					});
 				},
 			},
 			serializedManifestPlugin({ settings, command, sync }),
