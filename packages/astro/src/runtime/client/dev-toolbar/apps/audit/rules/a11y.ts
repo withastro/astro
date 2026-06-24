@@ -226,6 +226,41 @@ function isInteractive(element: Element): boolean {
 	return true;
 }
 
+function hasAccessibleName(element: Element): boolean {
+	return element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby');
+}
+
+// Returns the effective implicit role, or null if no implicit role applies.
+const conditional_implicit_roles = new Map<string, (el: Element) => string | null>([
+	['a', (el) => (el.hasAttribute('href') ? 'link' : null)],
+	[
+		'aside',
+		(el) => {
+			// <aside> downgrades to 'generic' when nested inside sectioning content/main without an accessible name.
+			// Reference: https://www.w3.org/TR/html-aria/#:~:text=the%20allowed%20roles.-,aside,-role%3Dcomplementary
+			const isNested = !!el.parentElement?.closest('article, aside, nav, section');
+			return !isNested || hasAccessibleName(el) ? 'complementary' : null;
+		},
+	],
+	[
+		'img',
+		(el) => {
+			// alt="" marks the image as decorative (role="presentation"), losing its implicit "image" role.
+			// Reference: https://www.w3.org/TR/html-aria/#:~:text=the%20allowed%20roles.-,img,-If%20the%20img
+			if (el.getAttribute('alt') === '') return null;
+			return 'image';
+		},
+	],
+	[
+		'section',
+		(el) => {
+			// <section> downgrades to 'generic' when it lacks an accessible name (aria-label/aria-labelledby).
+			// Reference: https://www.w3.org/TR/html-aria/#:~:text=the%20allowed%20roles.-,section,-role%3Dregion
+			return hasAccessibleName(el) ? 'region' : null;
+		},
+	],
+]);
+
 export const a11y: AuditRuleWithSelector[] = [
 	{
 		code: 'a11y-accesskey',
@@ -456,7 +491,7 @@ export const a11y: AuditRuleWithSelector[] = [
 
 			const localName = element.localName;
 
-			if(
+			if (
 				// <ul>, <ol>, and <li> are legitimate workarounds to restore list semantics
 				// that some browsers (e.g., Safari) strip when CSS `list-style: none` is applied.
 				// Reference: https://bugs.webkit.org/show_bug.cgi?id=170179
@@ -467,10 +502,9 @@ export const a11y: AuditRuleWithSelector[] = [
 				return false;
 			}
 
-			if (element.localName === 'input') {
+			if (localName === 'input') {
 				const type = element.getAttribute('type') || 'text';
 				const implicitRoleForType = input_type_to_implicit_role.get(type);
-				
 				// If the input type doesn't have an implicit role, then it can take any role without being redundant
 				// Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#:~:text=phrasing%20content.-,Implicit%20ARIA%20role,-type%3Dbutton%3A
 				return role === implicitRoleForType;
@@ -478,7 +512,13 @@ export const a11y: AuditRuleWithSelector[] = [
 
 			// TODO: Handle menuitem and elements that inherit their role from their parent
 
-			const implicitRole = a11y_implicit_semantics.get(element.localName);
+			const getConditionalRole = conditional_implicit_roles.get(localName);
+			if (getConditionalRole) {
+				const effectiveRole = getConditionalRole(element);
+				return effectiveRole ? role === effectiveRole : false;
+			}
+
+			const implicitRole = a11y_implicit_semantics.get(localName);
 			if (!implicitRole) return false;
 
 			return role === implicitRole;
