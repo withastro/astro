@@ -18,4 +18,21 @@ describe('Vue Check', () => {
 		}
 		assert.equal(exitCode, 0, 'Expected check to pass (exit code 0)');
 	});
+
+	it('should pass check for Vue library components with __VLS_WithTemplateSlots types', async () => {
+		const root = fileURLToPath(
+			new URL('./fixtures/prop-types/types/library-component', import.meta.url),
+		);
+		const tsConfigPath = fileURLToPath(
+			new URL('./fixtures/prop-types/tsconfig.library-component.json', import.meta.url),
+		);
+		const { getResult } = cli('check', '--tsconfig', tsConfigPath, '--root', root);
+		const { exitCode, stdout, stderr } = await getResult();
+
+		if (exitCode !== 0) {
+			console.error(stdout);
+			console.error(stderr);
+		}
+		assert.equal(exitCode, 0, 'Expected check to pass (exit code 0)');
+	});
 });

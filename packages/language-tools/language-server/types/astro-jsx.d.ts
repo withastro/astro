@@ -23,6 +23,15 @@ declare namespace astroHTML.JSX {
 		children?: Children;
 	}
 
+	// Tells TypeScript to extract component props from the `$props` property on the instance type,
+	// rather than from construct signature parameters. This is needed for Vue's DefineComponent types
+	// (and similar framework component types) where multiple construct signatures can confuse
+	// TypeScript's default JSX prop resolution.
+	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+	interface ElementAttributesProperty {
+		$props: {};
+	}
+
 	interface AstroBuiltinProps {
 		'client:load'?: boolean;
 		'client:idle'?: boolean;
