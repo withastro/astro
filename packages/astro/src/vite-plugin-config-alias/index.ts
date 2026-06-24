@@ -105,6 +105,14 @@ export default function configAliasVitePlugin({
 	const configAlias = getConfigAlias(settings);
 	if (!configAlias) return null;
 
+	// Compute the resolved baseUrl for Sass/SCSS loadPaths
+	const { tsConfig, tsConfigPath } = settings;
+	const baseUrl = (tsConfig?.compilerOptions as CompilerOptions | undefined)?.baseUrl;
+	const resolvedBaseUrl =
+		baseUrl && tsConfigPath
+			? normalizePath(path.resolve(path.dirname(tsConfigPath), baseUrl))
+			: undefined;
+
 	return [
 		// Pre-plugin: rewrite CSS @import aliases to absolute paths before Vite's CSS plugin.
 		// Vite's internal CSS @import resolver (postcss-import) uses a mini plugin container
@@ -113,6 +121,20 @@ export default function configAliasVitePlugin({
 		{
 			name: 'astro:tsconfig-alias-css',
 			enforce: 'pre',
+			config() {
+				// Add baseUrl as a Sass/SCSS loadPath so that bare specifiers in @use/@import
+				// resolve against baseUrl using Sass's native resolution algorithm (which handles
+				// extensionless imports and underscore-prefixed partials).
+				if (!resolvedBaseUrl) return;
+				return {
+					css: {
+						preprocessorOptions: {
+							scss: { loadPaths: [resolvedBaseUrl] },
+							sass: { loadPaths: [resolvedBaseUrl] },
+						},
+					},
+				};
+			},
 			transform: {
 				filter: {
 					id: {

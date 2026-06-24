@@ -1959,6 +1959,15 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/alias-tsconfig-sass:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      sass:
+        specifier: ^1.98.0
+        version: 1.98.0
+
   packages/astro/test/fixtures/alias-tsconfig/deps/namespace-package: {}
 
   packages/astro/test/fixtures/api-routes:
@@ -6736,11 +6745,14 @@ importers:
         specifier: ^4.22.0
         version: 4.22.3
 
-  triage/17120:
+  triage/gh-15897:
     dependencies:
       astro:
         specifier: workspace:*
         version: link:../../packages/astro
+      sass:
+        specifier: ^1.98.0
+        version: 1.98.0
 
 packages:
 
