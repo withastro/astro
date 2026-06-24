@@ -11,7 +11,6 @@ type SEOMetadata = {
 	title: string;
 	description: string;
 	image?: Image | undefined;
-	canonicalURL?: URL | string | undefined;
 	locale?: string;
 };
 
@@ -42,7 +41,6 @@ const og = {
 	name,
 	title,
 	description,
-	canonicalURL,
 	image,
 	locale,
 	type: 'website',
@@ -51,11 +49,6 @@ const og = {
 
 const twitter = {
 	name,
-	title,
-	description,
-	canonicalURL,
-	image,
-	locale,
 	card: 'summary_large_image',
 	...Astro.props.twitter,
 };
@@ -82,7 +75,3 @@ function normalizeImageUrl(image: string | ImageMetadata) {
 <!-- Twitter Tags -->
 <meta name="twitter:card" content={twitter.card} />
 <meta name="twitter:site" content={twitter.handle} />
-<meta name="twitter:title" content={twitter.title} />
-<meta name="twitter:description" content={twitter.description} />
-{twitter.image && <meta name="twitter:image" content={normalizeImageUrl(twitter.image.src)} />}
-{twitter.image && <meta name="twitter:image:alt" content={twitter.image.alt} />}
