@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
 import * as clack from '@clack/prompts';
 import ci from 'ci-info';
 import { detect, resolveCommand } from 'package-manager-detector';
@@ -15,18 +16,24 @@ type GetPackageOptions = {
 	cwd?: string;
 };
 
+// Resolve and import the package from the user's project (`cwd`) rather than from
+// Astro's own location, so dependencies are found even when Astro lives outside the
+// project (e.g. a pnpm global or virtual store). Resolving first with `require.resolve`
+// also avoids caching a failed ESM import before the package gets installed.
+async function importPackageFromCwd<T>(packageName: string, cwd: string): Promise<T> {
+	const resolved = require.resolve(packageName, { paths: [cwd] });
+	return (await import(pathToFileURL(resolved).href)) as T;
+}
+
 export async function getPackage<T>(
 	packageName: string,
 	logger: AstroLogger,
 	options: GetPackageOptions,
 	otherDeps: string[] = [],
 ): Promise<T | undefined> {
+	const cwd = options.cwd ?? process.cwd();
 	try {
-		// Try to resolve with `createRequire` first to prevent ESM caching of the package
-		// if it errors and fails here
-		require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
-		const packageImport = await import(packageName);
-		return packageImport as T;
+		return await importPackageFromCwd<T>(packageName, cwd);
 	} catch {
 		if (options.optional) return undefined;
 		let message = `To continue, Astro requires the following dependency to be installed: ${bold(
@@ -46,8 +53,7 @@ export async function getPackage<T>(
 		const result = await installPackage([packageName, ...otherDeps], options, logger);
 
 		if (result) {
-			const packageImport = await import(packageName);
-			return packageImport;
+			return await importPackageFromCwd<T>(packageName, cwd);
 		} else {
 			return undefined;
 		}
