@@ -157,6 +157,90 @@ describe('Pagination — param value of 0 (e.g. an "uncategorized" id)', () => {
 	});
 });
 
+describe('Pagination — format option transforms URLs', () => {
+	const route = createRouteData({
+		route: '/blog/[...page]',
+		segments: [
+			[{ content: 'blog', dynamic: false, spread: false }],
+			[{ content: '...page', dynamic: true, spread: true }],
+		],
+	});
+	const paginate = generatePaginateFunction(route, '/', 'ignore');
+	const pages = paginate(items, {
+		pageSize: 10,
+		format: (url) => `${url}.html`,
+	});
+
+	it('applies format to current URL', () => {
+		assert.equal(pages[0].props.page.url.current, '/blog.html');
+		assert.equal(pages[1].props.page.url.current, '/blog/2.html');
+	});
+
+	it('applies format to next URL', () => {
+		assert.equal(pages[0].props.page.url.next, '/blog/2.html');
+	});
+
+	it('applies format to prev URL', () => {
+		assert.equal(pages[1].props.page.url.prev, '/blog.html');
+	});
+
+	it('applies format to first URL', () => {
+		assert.equal(pages[2].props.page.url.first, '/blog.html');
+	});
+
+	it('applies format to last URL', () => {
+		assert.equal(pages[0].props.page.url.last, '/blog/3.html');
+	});
+
+	it('does not apply format to undefined URLs', () => {
+		assert.equal(pages[0].props.page.url.prev, undefined);
+		assert.equal(pages[2].props.page.url.next, undefined);
+		assert.equal(pages[0].props.page.url.first, undefined);
+		assert.equal(pages[2].props.page.url.last, undefined);
+	});
+});
+
+describe('Pagination — format option with base path', () => {
+	const route = createRouteData({
+		route: '/posts/[...page]',
+		segments: [
+			[{ content: 'posts', dynamic: false, spread: false }],
+			[{ content: '...page', dynamic: true, spread: true }],
+		],
+	});
+	const paginate = generatePaginateFunction(route, '/site', 'ignore');
+	const pages = paginate(items, {
+		pageSize: 10,
+		format: (url) => `${url}.html`,
+	});
+
+	it('applies format after base is prepended', () => {
+		assert.equal(pages[0].props.page.url.current, '/site/posts.html');
+		assert.equal(pages[1].props.page.url.current, '/site/posts/2.html');
+		assert.equal(pages[0].props.page.url.next, '/site/posts/2.html');
+		assert.equal(pages[1].props.page.url.prev, '/site/posts.html');
+	});
+});
+
+describe('Pagination — without format option (default behavior unchanged)', () => {
+	const route = createRouteData({
+		route: '/blog/[...page]',
+		segments: [
+			[{ content: 'blog', dynamic: false, spread: false }],
+			[{ content: '...page', dynamic: true, spread: true }],
+		],
+	});
+	const paginate = generatePaginateFunction(route, '/', 'ignore');
+	const pages = paginate(items, { pageSize: 10 });
+
+	it('URLs have no file extension by default', () => {
+		assert.equal(pages[0].props.page.url.current, '/blog');
+		assert.equal(pages[1].props.page.url.current, '/blog/2');
+		assert.equal(pages[0].props.page.url.next, '/blog/2');
+		assert.equal(pages[1].props.page.url.prev, '/blog');
+	});
+});
+
 describe('Pagination — root spread, correct prev URL — Migrated from astro-pagination-root-spread.test.js', () => {
 	// 4 items, pageSize 1 → 4 pages; root spread means page 1 has no number in URL.
 	const route = createRouteData({
