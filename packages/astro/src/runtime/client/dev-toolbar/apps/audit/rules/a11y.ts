@@ -452,7 +452,6 @@ export const a11y: AuditRuleWithSelector[] = [
 		selector: `[role]:is(${[...a11y_implicit_semantics.keys()].join(',')},input)`,
 		match(element) {
 			const role = element.getAttribute('role');
-			// No need to check if the role is valid, as that is covered by another rule
 			if (!role) return false;
 
 			const localName = element.localName;
@@ -460,6 +459,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			if(
 				// <ul>, <ol>, and <li> are legitimate workarounds to restore list semantics
 				// that some browsers (e.g., Safari) strip when CSS `list-style: none` is applied.
+				// Reference: https://bugs.webkit.org/show_bug.cgi?id=170179
 				(localName === 'ul' && role === 'list') ||
 				(localName === 'ol' && role === 'list') ||
 				(localName === 'li' && role === 'listitem')
@@ -472,6 +472,7 @@ export const a11y: AuditRuleWithSelector[] = [
 				const implicitRoleForType = input_type_to_implicit_role.get(type);
 				
 				// If the input type doesn't have an implicit role, then it can take any role without being redundant
+				// Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#:~:text=phrasing%20content.-,Implicit%20ARIA%20role,-type%3Dbutton%3A
 				return role === implicitRoleForType;
 			}
 
