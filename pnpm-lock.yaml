@@ -6736,11 +6736,14 @@ importers:
         specifier: ^4.22.0
         version: 4.22.3
 
-  triage/17120:
+  triage/gh-13385:
     dependencies:
       astro:
         specifier: workspace:*
         version: link:../../packages/astro
+      sass:
+        specifier: ^1.77.0
+        version: 1.98.0
 
 packages:
 
