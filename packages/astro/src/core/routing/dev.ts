@@ -33,6 +33,7 @@ export async function matchRoute(
 		manifest,
 	});
 
+	let firstError: unknown = null;
 	for await (const { route: maybeRoute, filePath } of preloadedMatches) {
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
@@ -57,8 +58,18 @@ export async function matchRoute(
 			if (isAstroError(e) && e.title === NoMatchingStaticPathFound.title) {
 				continue;
 			}
-			throw e;
+			// Store the first error but keep trying other candidate routes.
+			// A user error in one route's getStaticPaths() should not prevent
+			// other matching routes from being attempted.
+			firstError ??= e;
+			continue;
 		}
+	}
+
+	// If we exhausted all candidates and one threw a non-routing error,
+	// re-throw it so the dev server can surface it.
+	if (firstError) {
+		throw firstError;
 	}
 
 	// Try without `.html` extensions or `index.html` in request URLs to mimic
