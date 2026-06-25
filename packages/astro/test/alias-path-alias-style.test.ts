@@ -37,4 +37,23 @@ describe('Style compilation with tsconfig path aliases', () => {
 			'Scoped .styled CSS should be present in emitted stylesheet',
 		);
 	});
+
+	// Regression test for https://github.com/withastro/astro/issues/17163
+	it('resolves style block at-rule aliases before CSS preprocessing', async () => {
+		const html = await fixture.readFile('/style-at-rules/index.html');
+		const $ = cheerio.load(html);
+
+		assert.ok($('.from-import').length > 0, 'StyleAtRules component should be present');
+
+		const links = $('link[rel=stylesheet]')
+			.map((_i, el) => $(el).attr('href'))
+			.get();
+		assert.ok(links.length > 0, 'Should have at least one linked stylesheet');
+
+		const cssContents = await Promise.all(links.map((href) => fixture.readFile(href)));
+		const allCss = cssContents.join('\n');
+
+		assert.ok(allCss.includes('.from-base'), 'CSS from @import url() should be bundled');
+		assert.ok(!allCss.includes('@/'), 'CSS should not contain unresolved tsconfig aliases');
+	});
 });

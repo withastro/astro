@@ -5,13 +5,13 @@ import { normalizePath, type Plugin as VitePlugin } from 'vite';
 
 import type { AstroSettings } from '../types/astro.js';
 
-type Alias = {
+export type Alias = {
 	find: RegExp;
 	replacement: string;
 };
 
 /** Returns a list of compiled aliases. */
-const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
+export const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	const { tsConfig, tsConfigPath } = settings;
 	if (!tsConfig || !tsConfigPath || !tsConfig.compilerOptions) return null;
 
@@ -71,7 +71,7 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
  * Resolve an import id against tsconfig path aliases.
  * Tries each alias replacement in order, returning the first that maps to an existing file.
  */
-function resolveWithAlias(id: string, configAlias: Alias[]): string | null {
+export function resolveWithAlias(id: string, configAlias: Alias[]): string | null {
 	for (const alias of configAlias) {
 		if (alias.find.test(id)) {
 			const updatedId = id.replace(alias.find, alias.replacement);
@@ -85,16 +85,49 @@ function resolveWithAlias(id: string, configAlias: Alias[]): string | null {
 }
 
 /**
- * Regex matching CSS @import statements with the specifier in capture group 1.
- * https://regex101.com/?regex=%40import%5Cs%2B%28%3F%3Aurl%5C%28%5Cs*%29%3F%5B%27%22%5D%28%5B%5E%27%22%5D%2B%29%5B%27%22%5D%5Cs*%5C%29%3F&testString=&flags=g&flavor=pcre2&delimiter=%2F
+ * Regex matching CSS @import, @reference, and @config statements.
+ * The path specifier is in capture group 2.
  */
-const cssImportRE = /@import\s+(?:url\(\s*)?['"]([^'"]+)['"]\s*\)?/g;
+const cssDirectiveRE = /@(import|reference|config)\s+(?:url\(\s*)?['"]([^'"]+)['"]\s*\)?/g;
 
 /**
  * Regex matching CSS url() references with the specifier in capture group 1.
- * Matches url('...') and url("...") but not @import url() (handled by cssImportRE).
+ * Matches url('...') and url("...") but not @import url() (handled by cssDirectiveRE).
  */
 const cssUrlRE = /(?<!@import\s+)url\(\s*['"]([^'"]+)['"]\s*\)/g;
+
+/**
+ * Rewrite tsconfig path aliases in CSS source text.
+ * Returns the rewritten code if any aliases were resolved, or null if unchanged.
+ */
+export function resolveCssAliases(code: string, configAlias: Alias[]): string | null {
+	let hasReplacement = false;
+
+	const replaceAliases = (match: string, importId: string) => {
+		if (!importId) return match;
+
+		const resolved = resolveWithAlias(importId, configAlias);
+		if (resolved) {
+			hasReplacement = true;
+			return match.replace(importId, resolved);
+		}
+		return match;
+	};
+
+	let result = code;
+
+	if (result.includes('@import') || result.includes('@reference') || result.includes('@config')) {
+		result = result.replace(cssDirectiveRE, (match, _directive, importId: string) => {
+			return replaceAliases(match, importId);
+		});
+	}
+
+	if (result.includes('url(')) {
+		result = result.replace(cssUrlRE, replaceAliases);
+	}
+
+	return hasReplacement ? result : null;
+}
 
 /** Returns Vite plugins used to alias paths from tsconfig.json and jsconfig.json. */
 export default function configAliasVitePlugin({
@@ -120,32 +153,8 @@ export default function configAliasVitePlugin({
 					},
 				},
 				handler(code) {
-					let hasReplacement = false;
-
-					const replaceAliases = (match: string, importId: string) => {
-						if (!importId) return match;
-
-						const resolved = resolveWithAlias(importId, configAlias);
-						if (resolved) {
-							hasReplacement = true;
-							return match.replace(importId, resolved);
-						}
-						return match;
-					};
-
-					let result = code;
-
-					// Rewrite @import aliases
-					if (result.includes('@import')) {
-						result = result.replace(cssImportRE, replaceAliases);
-					}
-
-					// Rewrite url() aliases
-					if (result.includes('url(')) {
-						result = result.replace(cssUrlRE, replaceAliases);
-					}
-
-					if (hasReplacement) {
+					const result = resolveCssAliases(code, configAlias);
+					if (result !== null) {
 						return { code: result, map: null };
 					}
 				},
