@@ -5,13 +5,13 @@ import { normalizePath, type Plugin as VitePlugin } from 'vite';
 
 import type { AstroSettings } from '../types/astro.js';
 
-export type Alias = {
+type Alias = {
 	find: RegExp;
 	replacement: string;
 };
 
 /** Returns a list of compiled aliases. */
-export const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
+const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	const { tsConfig, tsConfigPath } = settings;
 	if (!tsConfig || !tsConfigPath || !tsConfig.compilerOptions) return null;
 
@@ -71,7 +71,7 @@ export const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
  * Resolve an import id against tsconfig path aliases.
  * Tries each alias replacement in order, returning the first that maps to an existing file.
  */
-export function resolveWithAlias(id: string, configAlias: Alias[]): string | null {
+function resolveWithAlias(id: string, configAlias: Alias[]): string | null {
 	for (const alias of configAlias) {
 		if (alias.find.test(id)) {
 			const updatedId = id.replace(alias.find, alias.replacement);
@@ -85,54 +85,15 @@ export function resolveWithAlias(id: string, configAlias: Alias[]): string | nul
 }
 
 /**
- * Regex matching CSS @import, @reference, and @config statements.
- * The path specifier is in capture group 2.
+ * Regex matching CSS @import statements with the specifier in capture group 1.
  */
-const cssDirectiveRE = /@(import|reference|config)\s+(?:url\(\s*)?['"]([^'"]+)['"]\s*\)?/g;
+const cssImportRE = /@import\s+(?:url\(\s*)?['"]([^'"]+)['"]\s*\)?/g;
 
 /**
  * Regex matching CSS url() references with the specifier in capture group 1.
- * Matches url('...') and url("...") but not @import url() (handled by cssDirectiveRE).
+ * Matches url('...') and url("...") but not @import url() (handled by cssImportRE).
  */
 const cssUrlRE = /(?<!@import\s+)url\(\s*['"]([^'"]+)['"]\s*\)/g;
-
-/**
- * Rewrite tsconfig path aliases in CSS source text.
- * Supports only these quoted CSS references:
- * - `@import "..."` and `@import url("...")`
- * - `@reference "..."`
- * - `@config "..."`
- * - `url("...")`
- * Returns the rewritten code if any aliases were resolved, or null if unchanged.
- */
-export function resolveCssAliases(code: string, configAlias: Alias[]): string | null {
-	let hasReplacement = false;
-
-	const replaceAliases = (match: string, importId: string) => {
-		if (!importId) return match;
-
-		const resolved = resolveWithAlias(importId, configAlias);
-		if (resolved) {
-			hasReplacement = true;
-			return match.replace(importId, resolved);
-		}
-		return match;
-	};
-
-	let result = code;
-
-	if (result.includes('@import') || result.includes('@reference') || result.includes('@config')) {
-		result = result.replace(cssDirectiveRE, (match, _directive, importId: string) => {
-			return replaceAliases(match, importId);
-		});
-	}
-
-	if (result.includes('url(')) {
-		result = result.replace(cssUrlRE, replaceAliases);
-	}
-
-	return hasReplacement ? result : null;
-}
 
 /**
  * Deprecated fallback for tsconfig path aliases that Vite's `resolve.tsconfigPaths`
@@ -148,9 +109,10 @@ export default function configAliasVitePlugin({
 	if (!configAlias) return null;
 
 	return [
-		// Deprecated fallback for standalone `.css` files. Supports tsconfig aliases
-		// in `@import`, `@reference`, `@config`, and quoted `url()` references by
-		// rewriting them to absolute paths before Vite's CSS plugin runs.
+		// Deprecated fallback for CSS processed by Vite's transform pipeline.
+		// Supports tsconfig aliases in `@import "..."`, `@import url("...")`,
+		// and quoted `url("...")` references by rewriting them to absolute paths
+		// before Vite's CSS plugin runs. This does not support every CSS at-rule.
 		{
 			name: 'astro:tsconfig-alias-css',
 			enforce: 'pre',
@@ -161,8 +123,30 @@ export default function configAliasVitePlugin({
 					},
 				},
 				handler(code) {
-					const result = resolveCssAliases(code, configAlias);
-					if (result !== null) {
+					let hasReplacement = false;
+
+					const replaceAliases = (match: string, importId: string) => {
+						if (!importId) return match;
+
+						const resolved = resolveWithAlias(importId, configAlias);
+						if (resolved) {
+							hasReplacement = true;
+							return match.replace(importId, resolved);
+						}
+						return match;
+					};
+
+					let result = code;
+
+					if (result.includes('@import')) {
+						result = result.replace(cssImportRE, replaceAliases);
+					}
+
+					if (result.includes('url(')) {
+						result = result.replace(cssUrlRE, replaceAliases);
+					}
+
+					if (hasReplacement) {
 						return { code: result, map: null };
 					}
 				},

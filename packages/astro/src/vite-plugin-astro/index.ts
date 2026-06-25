@@ -5,7 +5,6 @@ import type { AstroLogger } from '../core/logger/core.js';
 import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
-import { getConfigAlias } from '../vite-plugin-config-alias/index.js';
 import { normalizeFilename, specialQueriesRE } from '../vite-plugin-utils/index.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
@@ -91,14 +90,12 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			},
 			async configResolved(viteConfig) {
 				const toolbarEnabled = await settings.preferences.get('devToolbar.enabled');
-				const configAlias = getConfigAlias(settings);
 				// Initialize `compile` function to simplify usage later
 				compile = (code, filename) => {
 					return compileAstro({
 						compileProps: {
 							astroConfig: config,
 							viteConfig,
-							configAlias,
 							toolbarEnabled,
 							filename,
 							source: code,
