@@ -57,6 +57,68 @@ describe('Custom 404 via App — basic', () => {
 	});
 });
 
+describe('Routes ending in 404 via App', () => {
+	const docs404Page = createComponent(() => {
+		return render`<html><body><h1>Docs 404 Reference</h1></body></html>`;
+	});
+
+	const app = createTestApp([
+		createPage(indexPage, { route: '/', isIndex: true }),
+		createPage(docs404Page, { route: '/docs/404' }),
+		createPage(custom404Page, { route: '/404' }),
+	]);
+
+	it('renders a route ending in 404 as a normal page', async () => {
+		const res = await app.render(new Request('http://example.com/docs/404'));
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('h1').text(), 'Docs 404 Reference');
+	});
+});
+
+describe('Localized error routes via App', () => {
+	const localized404Page = createComponent(() => {
+		return render`<html><body><h1>Página não encontrada</h1></body></html>`;
+	});
+	const localizedAboutPage = createComponent(() => {
+		return render`<html><body><h1>Sobre</h1></body></html>`;
+	});
+
+	const app = createTestApp(
+		[
+			createPage(indexPage, { route: '/', isIndex: true }),
+			createPage(custom404Page, { route: '/404' }),
+			createPage(localized404Page, { route: '/pt/404' }),
+			createPage(localizedAboutPage, { route: '/pt/about' }),
+		],
+		{
+			i18n: {
+				locales: ['en', 'pt'],
+				defaultLocale: 'en',
+				strategy: 'pathname-prefix-other-locales',
+				fallback: undefined,
+				fallbackType: 'rewrite',
+				domainLookupTable: {},
+				domains: undefined,
+			},
+		},
+	);
+
+	it('returns 404 for a locale-prefixed error route', async () => {
+		const res = await app.render(new Request('http://example.com/pt/404'));
+		assert.equal(res.status, 404);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('h1').text(), 'Página não encontrada');
+	});
+
+	it('returns 200 for a normal locale-prefixed page', async () => {
+		const res = await app.render(new Request('http://example.com/pt/about'));
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('h1').text(), 'Sobre');
+	});
+});
+
 describe('Custom 404 via App — with middleware and locals', () => {
 	const localsMiddleware = async (ctx: APIContext, next: MiddlewareNext) => {
 		(ctx.locals as any).message = 'from middleware';

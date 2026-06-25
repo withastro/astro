@@ -5,7 +5,7 @@ import {
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
-import { normalizeTheLocale } from '../../i18n/index.js';
+import { normalizeTheLocale } from '../../i18n/path.js';
 import type { SSRManifest } from '../app/types.js';
 import type { AstroLogger } from '../logger/core.js';
 
