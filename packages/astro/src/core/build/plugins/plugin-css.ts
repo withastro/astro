@@ -185,6 +185,30 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							for (const importedCssImport of meta.importedCss) {
 								const cssToInfoRecord = (pagesToCss[pageData.moduleSpecifier] ??= {});
 								cssToInfoRecord[importedCssImport] = { depth: -1, order: -1 };
+
+								// When a CSS asset was marked for deletion (because it was already
+								// bundled in SSR for another page), it may not survive to the
+								// inlineStylesheetsPlugin. Directly add the CSS to pageData.styles
+								// so client:only component child styles are not lost.
+								if (deletedCssAssets.has(importedCssImport)) {
+									const cssAsset = deletedCssAssets.get(importedCssImport)!;
+									if (
+										cssAsset.type === 'asset' &&
+										typeof cssAsset.source === 'string' &&
+										cssAsset.source.length > 0
+									) {
+										const sheet: StylesheetAsset = {
+											type: 'inline',
+											content: cssAsset.source,
+										};
+										const alreadyAdded = pageData.styles.some(
+											(s) => s.sheet.type === 'inline' && s.sheet.content === sheet.content,
+										);
+										if (!alreadyAdded) {
+											pageData.styles.push({ depth: -1, order: -1, sheet });
+										}
+									}
+								}
 							}
 						}
 					}
