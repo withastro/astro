@@ -28,10 +28,12 @@ describe('getErrorRoutePath', () => {
 
 	it('supports locale path objects', () => {
 		assert.equal(
-			getErrorRoutePath('/brasil/missing', 404, [{ route: '/brasil/404' }], [
-				'en',
-				{ path: 'brasil', codes: ['pt-BR'] },
-			]),
+			getErrorRoutePath(
+				'/brasil/missing',
+				404,
+				[{ route: '/brasil/404' }],
+				['en', { path: 'brasil', codes: ['pt-BR'] }],
+			),
 			'/brasil/404',
 		);
 	});

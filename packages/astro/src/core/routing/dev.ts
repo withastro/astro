@@ -89,7 +89,8 @@ export async function matchRoute(
 		manifest.trailingSlash === 'always',
 	);
 	const custom404 =
-		routesList.routes.find((route) => route.route === errorRoutePath) ?? getCustom404Route(routesList);
+		routesList.routes.find((route) => route.route === errorRoutePath) ??
+		getCustom404Route(routesList);
 
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, manifest.rootDir);

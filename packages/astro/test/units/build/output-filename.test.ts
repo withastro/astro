@@ -9,7 +9,10 @@ function route(overrides: Partial<RouteData>): RouteData {
 
 describe('getOutputFilename', () => {
 	it('returns the route name for endpoints', () => {
-		assert.equal(getOutputFilename('directory', '/api/data.json', route({ type: 'endpoint' })), '/api/data.json');
+		assert.equal(
+			getOutputFilename('directory', '/api/data.json', route({ type: 'endpoint' })),
+			'/api/data.json',
+		);
 	});
 
 	it('returns index.html for the root page', () => {
@@ -18,7 +21,10 @@ describe('getOutputFilename', () => {
 	});
 
 	it('uses html files when build format is file', () => {
-		assert.equal(getOutputFilename('file', '/blog/post', route({ type: 'page' })), '/blog/post.html');
+		assert.equal(
+			getOutputFilename('file', '/blog/post', route({ type: 'page' })),
+			'/blog/post.html',
+		);
 	});
 
 	it('uses html files for status code pages', () => {
