@@ -41,6 +41,14 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 	}
 
 	/**
+	 * Clears the cached actions so they are re-resolved on the next request.
+	 * Called via HMR when action files change.
+	 */
+	clearActions(): void {
+		this.pipeline.clearActions();
+	}
+
+	/**
 	 * Updates the routes list when files change during development.
 	 * Called via HMR when new pages are added/removed.
 	 */
