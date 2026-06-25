@@ -98,6 +98,11 @@ const cssUrlRE = /(?<!@import\s+)url\(\s*['"]([^'"]+)['"]\s*\)/g;
 
 /**
  * Rewrite tsconfig path aliases in CSS source text.
+ * Supports only these quoted CSS references:
+ * - `@import "..."` and `@import url("...")`
+ * - `@reference "..."`
+ * - `@config "..."`
+ * - `url("...")`
  * Returns the rewritten code if any aliases were resolved, or null if unchanged.
  */
 export function resolveCssAliases(code: string, configAlias: Alias[]): string | null {
@@ -129,7 +134,11 @@ export function resolveCssAliases(code: string, configAlias: Alias[]): string | 
 	return hasReplacement ? result : null;
 }
 
-/** Returns Vite plugins used to alias paths from tsconfig.json and jsconfig.json. */
+/**
+ * Deprecated fallback for tsconfig path aliases that Vite's `resolve.tsconfigPaths`
+ * does not currently handle in Astro's pipeline. This plugin will be removed in a
+ * future Astro version.
+ */
 export default function configAliasVitePlugin({
 	settings,
 }: {
@@ -139,10 +148,9 @@ export default function configAliasVitePlugin({
 	if (!configAlias) return null;
 
 	return [
-		// Pre-plugin: rewrite CSS @import aliases to absolute paths before Vite's CSS plugin.
-		// Vite's internal CSS @import resolver (postcss-import) uses a mini plugin container
-		// that doesn't include user resolveId hooks, so we must rewrite aliases in a transform
-		// hook that runs before Vite's CSS processing.
+		// Deprecated fallback for standalone `.css` files. Supports tsconfig aliases
+		// in `@import`, `@reference`, `@config`, and quoted `url()` references by
+		// rewriting them to absolute paths before Vite's CSS plugin runs.
 		{
 			name: 'astro:tsconfig-alias-css',
 			enforce: 'pre',
@@ -160,7 +168,9 @@ export default function configAliasVitePlugin({
 				},
 			},
 		},
-		// Post-plugin: resolve JS/TS imports using tsconfig path aliases via resolveId.
+		// Deprecated fallback for module imports that Vite's native tsconfig path
+		// resolution does not currently resolve in Astro. Supports aliases in
+		// JS/TS/Astro module specifiers through a Vite `resolveId` hook.
 		{
 			name: 'astro:tsconfig-alias',
 			// use post to only resolve ids that all other plugins before it can't

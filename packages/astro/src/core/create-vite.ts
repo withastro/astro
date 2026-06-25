@@ -250,6 +250,11 @@ export async function createVite(
 			},
 		},
 		resolve: {
+			// Use Vite's native tsconfig path resolution first. Astro's custom
+			// configAliasVitePlugin above is a deprecated fallback for cases Vite does
+			// not currently support in Astro's pipeline, and will be removed in a
+			// future Astro version.
+			tsconfigPaths: true,
 			alias: [
 				{
 					// This is needed for Deno compatibility, as the non-browser version

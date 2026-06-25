@@ -155,6 +155,10 @@ export function createStylePreprocessor({
 		const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
 		const id = `${filename}?astro&type=style&index=${index}&lang${lang}`;
 		try {
+			// Deprecated fallback for `<style>` blocks: Vite's `resolve.tsconfigPaths`
+			// does not currently resolve aliases before `preprocessCSS()`, so we
+			// rewrite supported CSS references before preprocessing. This should be
+			// removed with configAliasVitePlugin in a future Astro version.
 			const resolvedContent = configAlias
 				? (resolveCssAliases(content, configAlias) ?? content)
 				: content;
