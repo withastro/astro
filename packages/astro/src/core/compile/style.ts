@@ -167,6 +167,12 @@ export function createStylePreprocessor({
 			// This is necessary because preprocessCSS doesn't handle URL rewriting
 			const rewrittenCode = rewriteCssUrls(result.code, astroConfig.base);
 
+			// Workaround for https://github.com/withastro/astro/issues/17201
+			// The Rust compiler silently drops rules when :global() contains a
+			// leading combinator (e.g. `:global(> *)`). Rewrite to move the
+			// combinator outside: `> :global(*)`.
+			const fixedCode = rewriteGlobalCombinators(rewrittenCode);
+
 			cssPartialCompileResults[index] = {
 				// Use `in` operator to handle both Go compiler (boolean `true`) and
 				// Rust compiler (empty string `""`) representations of boolean attributes.
@@ -183,7 +189,7 @@ export function createStylePreprocessor({
 				}
 			}
 
-			return { code: rewrittenCode, map };
+			return { code: fixedCode, map };
 		} catch (err: any) {
 			try {
 				err = enhanceCSSError(err, filename, content);
@@ -192,6 +198,20 @@ export function createStylePreprocessor({
 			return { error: err + '' };
 		}
 	};
+}
+
+/**
+ * Workaround for https://github.com/withastro/astro/issues/17201
+ *
+ * The Rust compiler (`@astrojs/compiler-rs`) silently drops CSS rules when
+ * `:global()` contains a leading combinator, e.g. `:global(> *)`.
+ * This rewrites such patterns to move the combinator outside:
+ *   `:global(> *)` → `> :global(*)`
+ *   `:global(+ div)` → `+ :global(div)`
+ *   `:global(~ span)` → `~ :global(span)`
+ */
+function rewriteGlobalCombinators(css: string): string {
+	return css.replace(/:global\(\s*([>+~])\s*/g, '$1 :global(');
 }
 
 function enhanceCSSError(err: any, filename: string, cssContent: string) {

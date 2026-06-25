@@ -140,4 +140,40 @@ console.log('hello');
 		const result = await compileWithRust('');
 		assert.ok(result.code !== undefined);
 	});
+
+	it('handles :global() with leading combinator (> * syntax)', async () => {
+		const result = await compileWithRust(`\
+<style>
+  article :global(> *) { flex-shrink: 0; }
+</style>
+<article><div>hi</div></article>`);
+		assert.equal(result.css.length, 1);
+		assert.ok(result.css[0].code.trim().length > 0, 'CSS should not be empty');
+		assert.ok(
+			result.css[0].code.includes('flex-shrink'),
+			'CSS should contain the flex-shrink declaration',
+		);
+	});
+
+	it('handles :global() with leading + combinator', async () => {
+		const result = await compileWithRust(`\
+<style>
+  .parent :global(+ div) { color: blue; }
+</style>
+<div class="parent">hi</div>`);
+		assert.equal(result.css.length, 1);
+		assert.ok(result.css[0].code.trim().length > 0, 'CSS should not be empty');
+		assert.ok(result.css[0].code.includes('color'), 'CSS should contain the color declaration');
+	});
+
+	it('handles :global() with leading ~ combinator', async () => {
+		const result = await compileWithRust(`\
+<style>
+  .parent :global(~ span) { color: green; }
+</style>
+<div class="parent">hi</div>`);
+		assert.equal(result.css.length, 1);
+		assert.ok(result.css[0].code.trim().length > 0, 'CSS should not be empty');
+		assert.ok(result.css[0].code.includes('color'), 'CSS should contain the color declaration');
+	});
 });

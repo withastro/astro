@@ -411,6 +411,15 @@ importers:
         specifier: ^7.0.3
         version: link:../../packages/astro
 
+  examples/repro-17201:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
+      sass:
+        specifier: ^1.89.0
+        version: 1.98.0
+
   examples/ssr:
     dependencies:
       '@astrojs/node':
