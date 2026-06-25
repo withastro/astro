@@ -1,5 +1,11 @@
 # create-astro
 
+## 5.2.0
+
+### Minor Changes
+
+- [#17185](https://github.com/withastro/astro/pull/17185) [`d64b09b`](https://github.com/withastro/astro/commit/d64b09bd007d919c15ea3405a52ae550b55400b5) Thanks [@delucis](https://github.com/delucis)! - Adds a `--no-ai` flag to allow users to opt out of creating `AGENTS.md` and `CLAUDE.md` files when running create astro
+
 ## 5.1.0
 
 ### Minor Changes
