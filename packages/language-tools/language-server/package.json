@@ -8,6 +8,8 @@
     "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/language-tools/language-server"
   },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://github.com/withastro/astro/tree/main/packages/language-tools/language-server",
   "type": "commonjs",
   "main": "dist/index.js",
   "files": [
