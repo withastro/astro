@@ -96,9 +96,23 @@ const cssImportRE = /@import\s+(?:url\(\s*)?['"]([^'"]+)['"]\s*\)?/g;
 const cssUrlRE = /(?<!@import\s+)url\(\s*['"]([^'"]+)['"]\s*\)/g;
 
 /**
- * Deprecated fallback for tsconfig path aliases that Vite's `resolve.tsconfigPaths`
- * does not currently handle in Astro's pipeline. This plugin will be removed in a
- * future Astro version.
+ * Fallback for tsconfig path aliases that Vite's `resolve.tsconfigPaths` does
+ * not currently handle in Astro's pipeline.
+ *
+ * This plugin is intentionally limited to the syntax Astro already supported
+ * before enabling `resolve.tsconfigPaths`:
+ * - CSS: `@import "..."`
+ * - CSS: `@import url("...")`
+ * - CSS: quoted `url("...")` references
+ * - Modules: JS, TS, and Astro import specifiers handled by `resolveId`
+ *
+ * Do not expand this fallback to new CSS at-rules or preprocessor syntax. It
+ * does not support `@use`, `@forward`, `@reference`, `@config`, unquoted
+ * `url(...)`, or every place a CSS tool might accept a file path. Those should
+ * be handled by Vite's native resolver instead.
+ *
+ * @deprecated This fallback will be removed in a future Astro version once Vite
+ * handles these remaining alias paths.
  */
 export default function configAliasVitePlugin({
 	settings,
@@ -109,10 +123,10 @@ export default function configAliasVitePlugin({
 	if (!configAlias) return null;
 
 	return [
-		// Deprecated fallback for CSS processed by Vite's transform pipeline.
-		// Supports tsconfig aliases in `@import "..."`, `@import url("...")`,
-		// and quoted `url("...")` references by rewriting them to absolute paths
-		// before Vite's CSS plugin runs. This does not support every CSS at-rule.
+		// Deprecated CSS fallback for Vite's transform pipeline. Only supports
+		// `@import "..."`, `@import url("...")`, and quoted `url("...")`.
+		// Do not add support here for `@use`, `@forward`, `@reference`, `@config`,
+		// or other CSS/preprocessor file-reference syntax.
 		{
 			name: 'astro:tsconfig-alias-css',
 			enforce: 'pre',
@@ -152,9 +166,8 @@ export default function configAliasVitePlugin({
 				},
 			},
 		},
-		// Deprecated fallback for module imports that Vite's native tsconfig path
-		// resolution does not currently resolve in Astro. Supports aliases in
-		// JS/TS/Astro module specifiers through a Vite `resolveId` hook.
+		// Deprecated module fallback for JS, TS, and Astro import specifiers that
+		// Vite's native tsconfig path resolution does not currently resolve.
 		{
 			name: 'astro:tsconfig-alias',
 			// use post to only resolve ids that all other plugins before it can't
