@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it, mock } from 'node:test';
+import type { PackageInfo } from '../src/actions/context.ts';
 import { collectPackageInfo, resolveTargetVersion } from '../dist/index.js';
 
 describe('collectPackageInfo', () => {
@@ -83,16 +84,16 @@ describe('resolveTargetVersion', () => {
 		globalThis.fetch = originalFetch;
 	});
 
-	function mockFetch(distTags) {
+	function mockFetch(distTags: Record<string, string>) {
 		globalThis.fetch = mock.fn(async () => ({
 			status: 200,
 			json: async () => ({ 'dist-tags': distTags }),
-		}));
+		} as unknown as Response));
 	}
 
 	it('does not downgrade when beta dist-tag is older than installed version', async () => {
 		mockFetch({ latest: '3.7.3', beta: '3.6.1-beta.3' });
-		const packageInfo = {
+		const packageInfo: PackageInfo = {
 			name: '@astrojs/sitemap',
 			currentVersion: '^3.7.3',
 			targetVersion: 'beta',
@@ -108,7 +109,7 @@ describe('resolveTargetVersion', () => {
 
 	it('uses beta dist-tag when it is newer than installed version', async () => {
 		mockFetch({ latest: '6.4.5', beta: '7.0.0-beta.3' });
-		const packageInfo = {
+		const packageInfo: PackageInfo = {
 			name: 'astro',
 			currentVersion: '^6.4.5',
 			targetVersion: 'beta',
