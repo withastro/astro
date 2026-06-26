@@ -1,13 +1,6 @@
 import colors from 'piccolore';
 import type { ResolvedServerUrls } from 'vite';
 import type { $ZodError } from 'zod/v4/core';
-import {
-	getScriptHashes,
-	getScriptResources,
-	getStyleHashes,
-	getStyleResources,
-	shouldTrackCspHashes,
-} from '../csp/common.js';
 import { partitionByKind } from '../csp/runtime.js';
 import { getDocsForError, renderErrorMarkdown } from '../errors/dev/runtime.js';
 import {
@@ -432,23 +425,21 @@ export function warnIfCspWithShiki(config: AstroConfig, logger: AstroLogger): vo
  */
 export function warnIfCspResourceFallbackShadowing(config: AstroConfig, logger: AstroLogger): void {
 	const csp = config.security.csp;
-	if (!shouldTrackCspHashes(csp)) return;
+	// Only the object form has `scriptDirective`/`styleDirective` to inspect. (Reading the config
+	// directly here keeps this module free of the Node-only `csp/common.js`, which must not leak
+	// into the SSR runtime.)
+	if (typeof csp !== 'object') return;
 
 	const families = [
-		{
-			name: 'script',
-			sources: partitionByKind({
-				resources: getScriptResources(csp),
-				hashes: getScriptHashes(csp),
-			}),
-		},
-		{
-			name: 'style',
-			sources: partitionByKind({ resources: getStyleResources(csp), hashes: getStyleHashes(csp) }),
-		},
+		{ name: 'script', directive: csp.scriptDirective },
+		{ name: 'style', directive: csp.styleDirective },
 	] as const;
 
-	for (const { name, sources } of families) {
+	for (const { name, directive } of families) {
+		const sources = partitionByKind({
+			resources: directive?.resources ?? [],
+			hashes: directive?.hashes ?? [],
+		});
 		if (sources.default.resources.length === 0) continue;
 		const shadowed: string[] = [];
 		if (sources.element.resources.length > 0 || sources.element.hashes.length > 0) {
