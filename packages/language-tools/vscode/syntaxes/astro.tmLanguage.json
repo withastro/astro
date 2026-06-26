@@ -1,7 +1,9 @@
 {
   "name": "Astro",
   "scopeName": "source.astro",
-  "fileTypes": ["astro"],
+  "fileTypes": [
+    "astro"
+  ],
   "injections": {
     "L:(meta.script.astro) (meta.lang.json) - (meta.embedded.block source)": {
       "patterns": [
@@ -806,6 +808,49 @@
           "patterns": [
             {
               "include": "#tags-lang-start-attributes"
+            }
+          ]
+        },
+        {
+          "begin": "\\G",
+          "end": "(?=</|/>)",
+          "patterns": [
+            {
+              "begin": "(?=\\s*(type|lang)\\s*=\\s*(['\"]|)(?:text\\/)?(application\\/ld\\+json)\\2)",
+              "end": "(?=</|/>)",
+              "name": "meta.lang.json.astro",
+              "patterns": [
+                {
+                  "include": "#tags-lang-start-attributes"
+                }
+              ]
+            },
+            {
+              "begin": "(?=\\s*(type|lang)\\s*=\\s*(['\"]|)(module)\\2)",
+              "end": "(?=</|/>)",
+              "name": "meta.lang.javascript.astro",
+              "patterns": [
+                {
+                  "include": "#tags-lang-start-attributes"
+                }
+              ]
+            },
+            {
+              "begin": "(?=\\s*(type|lang)\\s*=\\s*(['\"]|)(?:text/|application/)?([\\w\\/+]+)\\2)",
+              "end": "(?=</|/>)",
+              "name": "meta.lang.$3.astro",
+              "patterns": [
+                {
+                  "include": "#tags-lang-start-attributes"
+                }
+              ]
+            },
+            {
+              "include": "#attributes"
+            },
+            {
+              "match": ">",
+              "name": "meta.tag.start.astro punctuation.definition.tag.end.astro"
             }
           ]
         },

@@ -504,6 +504,8 @@ repository:
     endCaptures: { 0: { patterns: [include: '#tags-end-node'] } }
     name: meta.scope.tag.$1.astro meta.$1.astro
     patterns:
+      # --- Single-line detection (fast path) ---
+      # These \G patterns detect lang/type on the same line as the tag name.
       # Injecting into `meta.lang.ld+json` doesn't seem possible, so we set it to `meta.lang.json`
       - begin: \G(?=\s*[^>]*?(type|lang)\s*=\s*(['"]|)(?:text\/)?(application\/ld\+json)\2)
         end: (?=</|/>)
@@ -519,6 +521,28 @@ repository:
         end: (?=</|/>)
         name: meta.lang.$3.astro
         patterns: [include: '#tags-lang-start-attributes']
+      # --- Multi-line detection ---
+      # When lang/type is on a different line from the tag name, this catch-all
+      # wrapper detects it on subsequent lines. On each line, lang-detection
+      # patterns are tried first; attributes are parsed as fallback.
+      - begin: \G
+        end: (?=</|/>)
+        patterns:
+          - begin: (?=\s*(type|lang)\s*=\s*(['"]|)(?:text\/)?(application\/ld\+json)\2)
+            end: (?=</|/>)
+            name: meta.lang.json.astro
+            patterns: [include: '#tags-lang-start-attributes']
+          - begin: (?=\s*(type|lang)\s*=\s*(['"]|)(module)\2)
+            end: (?=</|/>)
+            name: meta.lang.javascript.astro
+            patterns: [include: '#tags-lang-start-attributes']
+          - begin: (?=\s*(type|lang)\s*=\s*(['"]|)(?:text/|application/)?([\w\/+]+)\2)
+            end: (?=</|/>)
+            name: meta.lang.$3.astro
+            patterns: [include: '#tags-lang-start-attributes']
+          - include: '#attributes'
+          - match: '>'
+            name: meta.tag.start.astro punctuation.definition.tag.end.astro
       # Fallback to default language.
       - include: '#tags-lang-start-attributes'
 
