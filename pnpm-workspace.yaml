@@ -46,6 +46,8 @@ minimumReleaseAgeExclude:
   - 'satteri'
   - '@bruits/*'
   - vite@8.1.0
+  - '@napi-rs/wasm-runtime@1.1.6'
+  - '@tybys/wasm-util@0.10.3'
 peerDependencyRules:
   allowAny:
     - 'astro'
