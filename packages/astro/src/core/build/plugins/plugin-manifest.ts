@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { glob } from 'tinyglobby';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
-import { normalizeTheLocale } from '../../../i18n/index.js';
+import { normalizeTheLocale } from '../../../i18n/path.js';
 import { resolveMiddlewareMode } from '../../../integrations/adapter-utils.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../../manifest/serialized.js';
@@ -390,10 +390,7 @@ async function buildManifest(
 		allowedDomains: settings.config.security?.allowedDomains,
 		key: encodedKey,
 		sessionConfig: sessionConfigToManifest(settings.config.session),
-		cacheConfig: cacheConfigToManifest(
-			settings.config.experimental?.cache,
-			settings.config.experimental?.routeRules,
-		),
+		cacheConfig: cacheConfigToManifest(settings.config.cache, settings.config.routeRules),
 		csp,
 		image: {
 			objectFit: settings.config.image.objectFit,

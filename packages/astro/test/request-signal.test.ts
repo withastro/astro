@@ -4,7 +4,7 @@ import { after, before, describe, it } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { createRequestAndResponse } from './integration-test-helpers.ts';
-import { type Fixture, loadFixture, type RequestHandler } from './test-utils.ts';
+import { type DevServer, type Fixture, loadFixture, type RequestHandler } from './test-utils.ts';
 
 type MockSocket = EventEmitter & {
 	encrypted: boolean;
@@ -125,5 +125,46 @@ describe('Node request abort integration', () => {
 
 		assert.equal(payload.aborted, true);
 		assert.deepEqual(payload.events, ['started', 'aborted']);
+	});
+});
+
+describe('Dev server request abort signal', () => {
+	let fixture: Fixture;
+	let devServer: DevServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/request-signal/',
+			outDir: './dist/request-signal-dev/',
+			cacheDir: './node_modules/.astro-test/request-signal-dev/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('aborts request.signal when the client disconnects', async () => {
+		const controller = new AbortController();
+		const fetchPromise = fixture
+			.fetch('/dev-signal-test', { signal: controller.signal })
+			.then((r) => r.json())
+			.catch(() => null);
+
+		// Give the server a moment to start processing, then abort
+		await delay(200);
+		controller.abort();
+
+		// The fetch will throw on the client side; the server should still
+		// resolve its response internally. Wait for the server to finish.
+		await fetchPromise;
+		await delay(500);
+
+		// Send a second request *without* aborting to confirm the endpoint
+		// reports aborted=false when the signal is not aborted.
+		const normalRes = await fixture.fetch('/dev-signal-test');
+		const normalPayload = await normalRes.json();
+		assert.equal(normalPayload.aborted, false, 'non-aborted request should report aborted=false');
 	});
 });

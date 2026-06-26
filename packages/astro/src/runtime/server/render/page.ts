@@ -1,4 +1,5 @@
 import type { RouteData, SSRResult } from '../../../types/public/internal.js';
+import { isRoute404, isRoute500 } from '../../../core/routing/internal/route-errors.js';
 import { renderToAsyncIterable, renderToReadableStream, renderToString } from './astro/render.js';
 import { encoder } from './common.js';
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
@@ -103,13 +104,13 @@ export async function renderPage(
 	}
 	let status = init.status;
 	let statusText = init.statusText;
-	// Custom 404.astro and 500.astro are particular routes that must return a fixed status code
-	if (route?.route === '/404') {
+	// Custom root 404.astro and 500.astro routes must return fixed status codes.
+	if (route?.route && isRoute404(route.route)) {
 		status = 404;
 		if (statusText === 'OK') {
 			statusText = 'Not Found';
 		}
-	} else if (route?.route === '/500') {
+	} else if (route?.route && isRoute500(route.route)) {
 		status = 500;
 		if (statusText === 'OK') {
 			statusText = 'Internal Server Error';

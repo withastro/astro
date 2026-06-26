@@ -1,5 +1,23 @@
 # create-astro
 
+## 5.2.0
+
+### Minor Changes
+
+- [#17185](https://github.com/withastro/astro/pull/17185) [`d64b09b`](https://github.com/withastro/astro/commit/d64b09bd007d919c15ea3405a52ae550b55400b5) Thanks [@delucis](https://github.com/delucis)! - Adds a `--no-ai` flag to allow users to opt out of creating `AGENTS.md` and `CLAUDE.md` files when running create astro
+
+## 5.1.0
+
+### Minor Changes
+
+- [#17122](https://github.com/withastro/astro/pull/17122) [`cbd6123`](https://github.com/withastro/astro/commit/cbd6123f072190df9c6bd49f5baf0e248e521d20) Thanks [@matthewp](https://github.com/matthewp)! - Adds a default `AGENTS.md` file to new projects with dev server instructions and documentation links. Also creates a `CLAUDE.md` symlink (with hard link fallback) pointing to `AGENTS.md`.
+
+## 5.1.0-beta.0
+
+### Minor Changes
+
+- [#17122](https://github.com/withastro/astro/pull/17122) [`cbd6123`](https://github.com/withastro/astro/commit/cbd6123f072190df9c6bd49f5baf0e248e521d20) Thanks [@matthewp](https://github.com/matthewp)! - Adds a default `AGENTS.md` file to new projects with dev server instructions and documentation links. Also creates a `CLAUDE.md` symlink (with hard link fallback) pointing to `AGENTS.md`.
+
 ## 5.0.6
 
 ### Patch Changes

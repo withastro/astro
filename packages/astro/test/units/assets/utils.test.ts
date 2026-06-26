@@ -351,6 +351,12 @@ describe('generateImageStylesCSS', () => {
 		const css = generateImageStylesCSS();
 		assert.ok(!css.includes(':where([data-astro-image]:not([data-astro-image-pos]))'));
 	});
+
+	it('wraps output in @layer so user layer styles can override', () => {
+		const css = generateImageStylesCSS();
+		assert.ok(css.startsWith('@layer astro.images {'), 'should start with @layer astro.images');
+		assert.ok(css.endsWith('}'), 'should end with closing brace');
+	});
 });
 // #endregion
 

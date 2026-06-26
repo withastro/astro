@@ -1,5 +1,6 @@
 import type { Locales } from '../types/public/config.js';
-import { getAllCodes, normalizeTheLocale, normalizeThePath } from './index.js';
+import { getAllCodes } from './index.js';
+import { normalizeTheLocale, normalizeThePath } from './path.js';
 
 type BrowserLocale = {
 	locale: string;

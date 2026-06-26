@@ -111,21 +111,20 @@ Use `pnpm -C <dir> <command>` for project-local script commands when working in 
 - Use `astro check` to run type checking and diagnostics.
 - Use `astro sync` to generate and update TypeScript types.
 - Use `astro add` to install and configure an official integration.
-- Fetch **LLM-optimized** docs at https://docs.astro.build/llms.txt.
-- Fetch **Full docs** at https://docs.astro.build/ (primary source, use when llms.txt lacks info).
+- Fetch **Full docs** at https://docs.astro.build/ (primary source for the latest reference).
 
-# `bgproc`
+# Background Dev Servers
 
-Use `pnpm exec bgproc` to start, stop, and manage long-running `astro dev` & `astro preview` servers in the background. Do not manually start detached servers with `&` if you can use `bgproc` instead.
-
-Use `pnpm exec bgproc --help` to see all available commands.
+Use `astro dev --background` to start and manage long-running dev servers in the background. Do not manually start detached servers with `&`.
 
 Workflow:
 
-1. `pnpm exec bgproc start -n devserver --wait-for-port 10 --force -- pnpm -C examples/minimal dev` - Start the dev server
-2. `pnpm exec bgproc logs -n devserver` - View logs from the dev server. Useful for debugging server logs.
-3. `pnpm exec bgproc stop -n devserver` - Stop the dev server when your work is complete
-4. `pnpm exec bgproc list` - List all running servers, background processes. Useful for cleanup.
+1. `pnpm -C examples/minimal dev --background` - Start the dev server in the background
+2. `pnpm -C examples/minimal dev logs` - View logs from the dev server. Useful for debugging server logs.
+3. `pnpm -C examples/minimal dev status` - Check whether a dev server is running
+4. `pnpm -C examples/minimal dev stop` - Stop the dev server when your work is complete
+
+Use `pnpm -C examples/minimal dev logs --follow` to stream logs. If a stale dev server is blocking startup, stop it first or use `pnpm -C examples/minimal dev --background --force` to replace it.
 
 # `agent-browser`
 

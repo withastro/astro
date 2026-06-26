@@ -45,14 +45,13 @@ minimumReleaseAgeExclude:
   - wrangler
   - 'satteri'
   - '@bruits/*'
-  - '@napi-rs/wasm-runtime@1.1.5'
+  - vite@8.1.0
+  - '@napi-rs/wasm-runtime@1.1.6'
+  - '@tybys/wasm-util@0.10.3'
 peerDependencyRules:
   allowAny:
     - 'astro'
     - 'vite'
-
-patchedDependencies:
-  '@changesets/get-github-info@0.7.0': patches/@changesets__get-github-info@0.7.0.patch
 
 # Prevent installation of packages where trust level decreases
 trustPolicy: 'no-downgrade'
