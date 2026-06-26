@@ -85,10 +85,13 @@ describe('resolveTargetVersion', () => {
 	});
 
 	function mockFetch(distTags: Record<string, string>) {
-		globalThis.fetch = mock.fn(async () => ({
-			status: 200,
-			json: async () => ({ 'dist-tags': distTags }),
-		} as unknown as Response));
+		globalThis.fetch = mock.fn(
+			async () =>
+				({
+					status: 200,
+					json: async () => ({ 'dist-tags': distTags }),
+				}) as unknown as Response,
+		);
 	}
 
 	it('does not downgrade when beta dist-tag is older than installed version', async () => {
