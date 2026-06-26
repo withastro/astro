@@ -1,5 +1,11 @@
 # @astrojs/upgrade
 
+## 0.7.3
+
+### Patch Changes
+
+- [#17188](https://github.com/withastro/astro/pull/17188) [`675d11d`](https://github.com/withastro/astro/commit/675d11d0859478f0a31132e2ca1371b1afe5651d) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `@astrojs/upgrade` showing a generic error when pnpm's `minimumReleaseAge` policy blocks installation. The error message now explains that pnpm's policy blocked the update and suggests running the install command manually.
+
 ## 0.7.2
 
 ### Patch Changes
