@@ -29,6 +29,11 @@ import type {
 import { ContainerPipeline } from './pipeline.js';
 import { createConsoleLogger } from '../core/logger/impls/console.js';
 
+// Strip deprecated `gfm` and `smartypants` from the defaults so the container
+// doesn't trigger the deprecation warning added for user-specified config.
+const { gfm: _, smartypants: __, ...containerMarkdownDefaults } = ASTRO_CONFIG_DEFAULTS.markdown;
+const CONTAINER_CONFIG_DEFAULTS = { ...ASTRO_CONFIG_DEFAULTS, markdown: containerMarkdownDefaults };
+
 /**
  * Public type, used for integrations to define a renderer for the container API
  * @deprecated Use `AstroRenderer` instead.
@@ -336,7 +341,7 @@ export class experimental_AstroContainer {
 		containerOptions: AstroContainerOptions = {},
 	): Promise<experimental_AstroContainer> {
 		const { streaming = false, manifest, renderers = [], resolve } = containerOptions;
-		const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
+		const astroConfig = await validateConfig(CONTAINER_CONFIG_DEFAULTS, process.cwd(), 'container');
 		return new experimental_AstroContainer({
 			streaming,
 			manifest,
@@ -439,7 +444,7 @@ export class experimental_AstroContainer {
 	private static async createFromManifest(
 		manifest: SSRManifest,
 	): Promise<experimental_AstroContainer> {
-		const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
+		const astroConfig = await validateConfig(CONTAINER_CONFIG_DEFAULTS, process.cwd(), 'container');
 		const container = new experimental_AstroContainer({
 			manifest,
 			astroConfig,
