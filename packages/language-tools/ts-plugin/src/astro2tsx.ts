@@ -7,7 +7,11 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 
 function safeConvertToTSX(content: string, options: ConvertToTSXOptions) {
 	try {
-		const tsx = convertToTSX(content, { filename: options.filename });
+		const tsx = convertToTSX(content, {
+			filename: options.filename,
+			includeScripts: false,
+			includeStyles: false,
+		});
 		return tsx;
 	} catch (e) {
 		console.error(
