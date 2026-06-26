@@ -15,7 +15,11 @@ import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
 import { loadOrCreateNodeLogger } from '../logger/load.js';
-import { formatErrorMessage, warnIfCspWithShiki } from '../messages/runtime.js';
+import {
+	formatErrorMessage,
+	warnIfCspResourceFallbackShadowing,
+	warnIfCspWithShiki,
+} from '../messages/runtime.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import type { Container } from './container.js';
 import { createContainer } from './container.js';
@@ -74,6 +78,7 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 	try {
 		const { astroConfig } = await resolveConfig(inlineConfig, 'dev', fs);
 		warnIfCspWithShiki(astroConfig, logger);
+		warnIfCspResourceFallbackShadowing(astroConfig, logger);
 		let settings = await createSettings(
 			astroConfig,
 			inlineConfig.logLevel,
@@ -151,6 +156,7 @@ export async function createContainerWithAutomaticRestart({
 	const logger = await loadOrCreateNodeLogger(astroConfig, inlineConfig ?? {});
 
 	warnIfCspWithShiki(astroConfig, logger);
+	warnIfCspResourceFallbackShadowing(astroConfig, logger);
 	telemetry.record(eventCliSession('dev', userConfig));
 
 	const settings = await createSettings(

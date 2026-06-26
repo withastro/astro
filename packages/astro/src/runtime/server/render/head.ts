@@ -33,7 +33,7 @@ function deduplicateElements(elements: any[]): any[] {
 export function renderAllHeadContent(result: SSRResult) {
 	result._metadata.hasRenderedHead = true;
 	let content = '';
-	if (result.shouldInjectCspMetaTags && result.cspDestination === 'meta') {
+	if (result.shouldInjectCspMetaTags && result.csp.cspDestination === 'meta') {
 		content += renderElement(
 			'meta',
 			{
