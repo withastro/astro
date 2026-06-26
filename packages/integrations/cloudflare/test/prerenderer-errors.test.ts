@@ -50,7 +50,7 @@ describe('Cloudflare prerenderer render errors', () => {
 	it('fails the build when a page throws during prerendering', async () => {
 		await assert.rejects(
 			async () => {
-				await fixture.build({}, { teardownCompiler: true });
+				await fixture.build({});
 			},
 			(error) => {
 				assert.ok(error instanceof Error);
