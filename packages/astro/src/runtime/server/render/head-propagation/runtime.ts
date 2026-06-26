@@ -52,6 +52,12 @@ export function registerIfPropagating(
 }
 
 export async function bufferPropagatedHead(result: SSRResult): Promise<void> {
+	// Wait for any async slot pre-renders to finish so that propagating
+	// components inside those slots are registered before we collect head parts.
+	if (result._metadata.pendingSlotEvaluations.length > 0) {
+		await Promise.all(result._metadata.pendingSlotEvaluations);
+		result._metadata.pendingSlotEvaluations.length = 0;
+	}
 	// Initialize potential propagators, then append all emitted head parts.
 	const collected = await collectPropagatedHeadParts({
 		propagators: result._metadata.propagators,

@@ -305,6 +305,12 @@ export interface SSRMetadata {
 	extraScriptHashes: string[];
 	propagators: Set<AstroComponentInstance | ServerIslandComponent>;
 	/**
+	 * Promises from async slot pre-rendering that must resolve before
+	 * head content is buffered, so that propagating components inside
+	 * async slots are registered in time.
+	 */
+	pendingSlotEvaluations: Promise<unknown>[];
+	/**
 	 * Tracks nesting depth of HTML `<template>` elements during rendering.
 	 * Scripts rendered inside `<template>` tags should not be deduplicated,
 	 * because template content is inert and scripts inside don't execute.

@@ -15,6 +15,7 @@ function createResult() {
 			hasRenderedHead: false,
 			headInTree: false,
 			propagators: new Set(),
+			pendingSlotEvaluations: [] as Promise<unknown>[],
 			extraHead: [] as string[],
 		},
 	};
