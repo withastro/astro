@@ -2,7 +2,6 @@ import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
 import { isRunnableDevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import { isAstroClientEnvironment } from '../environments.js';
@@ -52,29 +51,32 @@ function invalidateAssetImports(viteServer: ViteDevServer, filePath: string) {
 }
 
 function invalidateDataStore(viteServer: ViteDevServer) {
-	const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
-	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
-	if (module) {
-		const timestamp = Date.now();
-		// Pass `true` to mark this as HMR invalidation so Vite drops cached SSR results.
-		environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
-	}
-	// Also invalidate the module in the SSR module runner's evaluation cache.
-	// Server-side invalidation only clears `transformResult`, but the runner
-	// may still hold a stale evaluated result. When the runner's `fetchModule`
-	// call triggers a fresh server transform, the transform re-populates
-	// `transformResult` before the runner checks it, causing a false cache hit.
-	if (isRunnableDevEnvironment(environment)) {
-		const runnerModule = environment.runner.evaluatedModules.getModuleById(
-			RESOLVED_DATA_STORE_VIRTUAL_ID,
-		);
-		if (runnerModule) {
-			environment.runner.evaluatedModules.invalidateModule(runnerModule);
+	const timestamp = Date.now();
+	for (const environment of Object.values(viteServer.environments)) {
+		if (isAstroClientEnvironment(environment)) continue;
+
+		const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
+		if (module) {
+			// Pass `true` to mark this as HMR invalidation so Vite drops cached SSR results.
+			environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
 		}
+		// Also invalidate the module in the module runner's evaluation cache.
+		// Server-side invalidation only clears `transformResult`, but the runner
+		// may still hold a stale evaluated result. When the runner's `fetchModule`
+		// call triggers a fresh server transform, the transform re-populates
+		// `transformResult` before the runner checks it, causing a false cache hit.
+		if (isRunnableDevEnvironment(environment)) {
+			const runnerModule = environment.runner.evaluatedModules.getModuleById(
+				RESOLVED_DATA_STORE_VIRTUAL_ID,
+			);
+			if (runnerModule) {
+				environment.runner.evaluatedModules.invalidateModule(runnerModule);
+			}
+		}
+		// Signal the runner to clear its route cache so that getStaticPaths()
+		// is re-evaluated with the updated content collection data.
+		environment.hot.send('astro:content-changed', {});
 	}
-	// Signal the SSR runner to clear its route cache so that getStaticPaths()
-	// is re-evaluated with the updated content collection data.
-	environment.hot.send('astro:content-changed', {});
 	viteServer.environments.client.hot.send({
 		type: 'full-reload',
 		path: '*',

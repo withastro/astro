@@ -31,4 +31,17 @@ test.describe('Astro page', () => {
 
 		await expect(h, 'text changed').toHaveText('Updated content');
 	});
+
+	test('content collection slug page refreshes on markdown edit', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/posts/hello/'));
+
+		const h = page.locator('h1');
+		await expect(h, 'original content set').toHaveText('Original content');
+
+		await astro.editFile('./src/content/posts/hello.md', (original) =>
+			original.replaceAll('Original', 'Updated'),
+		);
+
+		await expect(h, 'content updated').toHaveText('Updated content');
+	});
 });
