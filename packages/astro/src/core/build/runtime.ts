@@ -59,6 +59,11 @@ export function cssOrder(a: OrderInfo, b: OrderInfo) {
 /**
  * Merges inline CSS into as few stylesheets as possible,
  * preserving ordering when there are non-inlined in between.
+ *
+ * CSS chunks containing `@import` are never merged with other chunks.
+ * Per CSS spec, `@import` rules must appear at the top of a stylesheet
+ * or browsers silently ignore them. Keeping these chunks as separate
+ * `<style>` tags ensures the `@import` stays at the top of its own stylesheet.
  */
 export function mergeInlineCss(
 	acc: Array<StylesheetAsset>,
@@ -68,9 +73,15 @@ export function mergeInlineCss(
 	const lastWasInline = lastAdded?.type === 'inline';
 	const currentIsInline = current?.type === 'inline';
 	if (lastWasInline && currentIsInline) {
-		const merged = { type: 'inline' as const, content: lastAdded.content + current.content };
-		acc[acc.length - 1] = merged;
-		return acc;
+		// Don't merge chunks that contain @import rules — they must be at the
+		// top of their stylesheet to be valid CSS.
+		const currentHasImport = current.content.includes('@import');
+		const lastHasImport = lastAdded.content.includes('@import');
+		if (!currentHasImport && !lastHasImport) {
+			const merged = { type: 'inline' as const, content: lastAdded.content + current.content };
+			acc[acc.length - 1] = merged;
+			return acc;
+		}
 	}
 	acc.push(current);
 	return acc;
