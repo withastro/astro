@@ -1,6 +1,5 @@
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dataToEsm } from '@rollup/pluginutils';
 import { isRunnableDevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -196,11 +195,13 @@ export function astroContentVirtualModPlugin({
 					const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
 
 					try {
-						const parsed = JSON.parse(jsonData);
+						// Validate that the JSON is parseable
+						JSON.parse(jsonData);
+						// Use JSON.parse() at runtime instead of dataToEsm() to avoid
+						// generating a huge JS object literal. Large data stores produce
+						// ASTs too big for the NAPI bridge in dev mode (rolldown/oxc-parser).
 						return {
-							code: dataToEsm(parsed, {
-								compact: true,
-							}),
+							code: `export default JSON.parse(${JSON.stringify(jsonData)})`,
 							map: { mappings: '' },
 						};
 					} catch (err) {
