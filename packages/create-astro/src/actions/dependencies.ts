@@ -122,7 +122,34 @@ async function astroAdd({
 
 async function install({ packageManager, cwd }: { packageManager: string; cwd: string }) {
 	if (packageManager === 'yarn') await ensureYarnLock({ cwd });
+	if (packageManager === 'pnpm') await ensurePnpmBuildsAllowed({ cwd });
 	return shell(packageManager, ['install'], { cwd, timeout: 90_000, stdio: 'ignore' });
+}
+
+/**
+ * pnpm v11+ enables `strictDepBuilds` by default, which causes `pnpm install` to fail
+ * with a non-zero exit code if any dependencies have unapproved build scripts (postinstall).
+ * Astro depends on `esbuild` and `sharp` which both have build scripts.
+ *
+ * This function ensures those packages are pre-approved in `pnpm-workspace.yaml`
+ * so that `pnpm install` succeeds without user intervention.
+ * See https://pnpm.io/settings#allowbuilds
+ */
+async function ensurePnpmBuildsAllowed({ cwd }: { cwd: string }) {
+	const workspaceFile = path.join(cwd, 'pnpm-workspace.yaml');
+	const packagesToAllow = ['esbuild', 'sharp'];
+
+	let content = '';
+	if (fs.existsSync(workspaceFile)) {
+		content = await fs.promises.readFile(workspaceFile, 'utf-8');
+	}
+
+	// If allowBuilds is already configured, don't touch it
+	if (content.includes('allowBuilds')) return;
+
+	const separator = content.length > 0 ? '\n' : '';
+	const allowBuildsBlock = `${separator}allowBuilds:\n${packagesToAllow.map((pkg) => `  ${pkg}: true`).join('\n')}\n`;
+	return fs.promises.writeFile(workspaceFile, content + allowBuildsBlock, 'utf-8');
 }
 
 /**
