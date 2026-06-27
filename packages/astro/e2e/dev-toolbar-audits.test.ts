@@ -293,12 +293,15 @@ test.describe('Dev Toolbar - Audits', () => {
 			'astro-dev-toolbar-highlight[data-audit-code="a11y-no-redundant-roles"]',
 		);
 
-		// nav[role=navigation], main[role=main], button[role=button],
-		// h1[role=heading], input[type=checkbox][role=checkbox], input[type=submit][role=button]
-		await expect(highlights).toHaveCount(8);
+		// nav[role=navigation], main[role=main], button[role=button], h1[role=heading],
+		// input[type=checkbox][role=checkbox], input[type=submit][role=button],
+		// a[href][role=link], input[role=textbox],
+		// img[alt="photo"][role=image], aside[role=complementary],
+		// article > aside[aria-label][role=complementary], section[aria-label][role=region]
+		await expect(highlights).toHaveCount(12);
 	});
 
-	test('does not warn about ul/ol/li list-role exceptions or non-redundant roles', async ({
+	test('does not warn about ul/ol/li exceptions, conditional implicit roles, or non-redundant roles', async ({
 		page,
 		astro,
 	}) => {
@@ -313,8 +316,12 @@ test.describe('Dev Toolbar - Audits', () => {
 			'astro-dev-toolbar-highlight[data-audit-code="a11y-no-redundant-roles"]',
 		);
 
-		// ul[role=list], ol[role=list], li[role=listitem] are exempt (CSS workaround),
-		// nav[role=banner], button[role=link], input[type=text][role=combobox] have non-implicit roles
+		// ul/ol[role=list], li[role=listitem]: exempt (CSS list-style:none workaround)
+		// nav[role=banner], button[role=link], input[type=text][role=combobox]: non-implicit roles
+		// a (no href)[role=link]: no implicit role without href
+		// img[alt=""][role=img]: decorative image has no implicit role
+		// article > aside (no name)[role=complementary]: nested aside without accessible name has no implicit role
+		// section (no name)[role=region]: section without accessible name has no implicit role
 		await expect(highlights).toHaveCount(0);
 	});
 });
