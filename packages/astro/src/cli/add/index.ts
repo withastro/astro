@@ -1144,7 +1144,7 @@ async function setupIntegrationConfig(opts: {
 	}
 }
 
-async function addToGitignore({
+export async function addToGitignore({
 	root,
 	entries,
 	flags,
@@ -1176,13 +1176,14 @@ async function addToGitignore({
 		return;
 	}
 
-	const entriesToAdd = [];
 	const content = await fs.readFile(fileURLToPath(gitignorePath), { encoding: 'utf-8' });
-	for (const entry of entries) {
-		if (!content.includes(entry)) {
-			entriesToAdd.push(entry);
-		}
-	}
+	const existingEntries = new Set(
+		content
+			.split(/\r?\n/)
+			.map((line) => line.trim())
+			.filter(Boolean),
+	);
+	const entriesToAdd = entries.filter((entry) => !existingEntries.has(entry));
 
 	if (entriesToAdd.length === 0) {
 		logger.debug('add', `${allEntries} already in .gitignore`);
