@@ -27,7 +27,7 @@ export interface InvalidateOptions {
 
 export interface CacheProvider {
 	name: string;
-	setHeaders?(options: CacheOptions): Headers;
+	setHeaders?(options: CacheOptions, request: Request): Headers;
 	onRequest?(
 		context: {
 			request: Request;

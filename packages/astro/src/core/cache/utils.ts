@@ -42,10 +42,10 @@ export function normalizeRouteRuleCacheOptions(
 }
 
 /**
- * Extract cache routes from experimental.routeRules config.
+ * Extract cache routes from the `routeRules` config.
  */
 export function extractCacheRoutesFromRouteRules(
-	routeRules: AstroConfig['experimental']['routeRules'],
+	routeRules: AstroConfig['routeRules'],
 ): Record<string, CacheOptions> | undefined {
 	if (!routeRules) return undefined;
 
@@ -62,8 +62,8 @@ export function extractCacheRoutesFromRouteRules(
 }
 
 export function cacheConfigToManifest(
-	cacheConfig: AstroConfig['experimental']['cache'],
-	routeRulesConfig: AstroConfig['experimental']['routeRules'],
+	cacheConfig: AstroConfig['cache'],
+	routeRulesConfig: AstroConfig['routeRules'],
 ): SSRManifestCache | undefined {
 	if (!cacheConfig?.provider) {
 		return undefined;

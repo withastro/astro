@@ -16,8 +16,8 @@ const CacheOptionsSchema = z.object({
 });
 
 /**
- * Cache provider configuration (experimental.cache).
- * Provider only - routes are configured via experimental.routeRules.
+ * Cache provider configuration (`cache`).
+ * Provider only - routes are configured via `routeRules`.
  */
 export const CacheSchema = z.object({
 	provider: CacheProviderConfigSchema.optional(),
@@ -26,14 +26,15 @@ export const CacheSchema = z.object({
 const RouteRuleSchema = CacheOptionsSchema;
 
 /**
- * Route rules configuration (experimental.routeRules).
- * Maps glob patterns to route rules.
+ * Route rules configuration (`routeRules`).
+ * Maps route patterns to route rules. Patterns use the same `[param]` and
+ * `[...rest]` syntax as file-based routing; glob wildcards (`*`) are not supported.
  *
  * Example:
  * ```ts
  * routeRules: {
- *   '/api/*': { swr: 600 },
- *   '/products/*': { maxAge: 3600, tags: ['products'] },
+ *   '/api/[...path]': { swr: 600 },
+ *   '/products/[...slug]': { maxAge: 3600, tags: ['products'] },
  * }
  * ```
  */

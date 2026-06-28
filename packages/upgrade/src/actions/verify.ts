@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { color } from '@astrojs/cli-kit';
 import semverCoerce from 'semver/functions/coerce.js';
 import semverDiff from 'semver/functions/diff.js';
+import semverGt from 'semver/functions/gt.js';
 import semverParse from 'semver/functions/parse.js';
 import { bannerAbort, error, getRegistry, info, newline } from '../messages.js';
 import type { Context, PackageInfo } from './context.js';
@@ -135,7 +136,10 @@ async function verifyVersions(
 	return true;
 }
 
-async function resolveTargetVersion(packageInfo: PackageInfo, registry: string): Promise<void> {
+export async function resolveTargetVersion(
+	packageInfo: PackageInfo,
+	registry: string,
+): Promise<void> {
 	const packageMetadata = await fetch(`${registry}/${packageInfo.name}`, {
 		headers: { accept: 'application/vnd.npm.install-v1+json' },
 	});
@@ -145,8 +149,16 @@ async function resolveTargetVersion(packageInfo: PackageInfo, registry: string):
 	const { 'dist-tags': distTags } = await packageMetadata.json();
 	let version = distTags[packageInfo.targetVersion];
 	if (version) {
-		packageInfo.tag = packageInfo.targetVersion;
-		packageInfo.targetVersion = version;
+		const currentCoerced = semverCoerce(packageInfo.currentVersion);
+		const targetParsed = semverParse(version);
+		// If the dist-tag points to a version older than the installed one, fall back to latest.
+		if (currentCoerced && targetParsed && semverGt(currentCoerced, targetParsed)) {
+			packageInfo.targetVersion = 'latest';
+			version = distTags.latest;
+		} else {
+			packageInfo.tag = packageInfo.targetVersion;
+			packageInfo.targetVersion = version;
+		}
 	} else {
 		packageInfo.targetVersion = 'latest';
 		version = distTags.latest;

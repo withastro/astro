@@ -121,7 +121,7 @@ function buffersToString(buffers: Buffer[]): string {
  * methods with minimal stubs so Pipeline can be instantiated without
  * a real build or dev server.
  */
-class TestPipeline extends Pipeline {
+export class TestPipeline extends Pipeline {
 	headElements(): HeadElements {
 		return { scripts: new Set(), styles: new Set(), links: new Set() } as HeadElements;
 	}
@@ -145,6 +145,10 @@ class TestPipeline extends Pipeline {
 	override async getMiddleware(): Promise<MiddlewareHandler> {
 		return NOOP_MIDDLEWARE_FN;
 	}
+
+	clearActions(): void {
+		this.resolvedActions = undefined;
+	}
 }
 
 /**
@@ -162,14 +166,14 @@ export function createBasicPipeline(
 		adapterName?: string;
 		clientDirectives?: Map<string, string>;
 		inlinedScripts?: Map<string, string>;
-		compressHTML?: boolean;
+		compressHTML?: boolean | 'jsx';
 		i18n?: SSRManifest['i18n'];
 		middleware?: SSRManifest['middleware'];
 		routeCache?: RouteCache;
 		site?: string;
 		logging?: AstroLogger;
 	} = {},
-): Pipeline {
+): TestPipeline {
 	const mode = options.mode ?? 'development';
 	return new TestPipeline(
 		options.logger ?? defaultLogger,

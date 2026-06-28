@@ -251,17 +251,20 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 				: createCanonicalURL(result.commentsUrl, rssOptions.trailingSlash, site);
 		}
 		if (result.source) {
-			item.source = parser.parse(
-				`<source url="${result.source.url}">${result.source.title}</source>`,
-			).source;
+			item.source = {
+				'#text': result.source.title,
+				'@_url': result.source.url,
+			};
 		}
 		if (result.enclosure) {
 			const enclosureURL = isValidURL(result.enclosure.url)
 				? result.enclosure.url
 				: createCanonicalURL(result.enclosure.url, rssOptions.trailingSlash, site);
-			item.enclosure = parser.parse(
-				`<enclosure url="${enclosureURL}" length="${result.enclosure.length}" type="${result.enclosure.type}"/>`,
-			).enclosure;
+			item.enclosure = {
+				'@_url': enclosureURL,
+				'@_length': result.enclosure.length,
+				'@_type': result.enclosure.type,
+			};
 		}
 		return item;
 	});
