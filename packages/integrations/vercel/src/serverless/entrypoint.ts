@@ -26,14 +26,14 @@ export default {
 		}
 		if (typeof realPath === 'string') {
 			url.pathname = realPath;
-			request = new Request(url.toString(), {
+			request = new Request(url, {
 				method: request.method,
 				headers: request.headers,
 				...(request.body ? { body: request.body, duplex: 'half' } : {}),
 			});
 		}
 
-		const routeData = app.match(request);
+		const routeData = app.match(request, false, url);
 
 		let locals: Record<string, unknown> = {};
 
@@ -59,6 +59,7 @@ export default {
 			routeData,
 			clientAddress: getClientIpAddress(request),
 			locals,
+			url,
 		});
 
 		if (app.setCookieHeaders) {

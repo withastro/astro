@@ -68,10 +68,10 @@ export function createStaticHandler(
 			let pathname = urlPath;
 
 			if (headersMap && headersMap.length > 0) {
-				const request = createRequestFromNodeRequest(req, {
+				const { request, url } = createRequestFromNodeRequest(req, {
 					port: options.port,
 				});
-				const routeData = app.match(request, true);
+				const routeData = app.match(request, true, url);
 				if (routeData && routeData.prerender) {
 					// Headers are stored keyed by base-less route paths (e.g. "/one"), so we
 					// must strip config.base from the incoming URL before matching, just as

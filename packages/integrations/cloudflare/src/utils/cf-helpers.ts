@@ -21,12 +21,11 @@ export interface ManifestLike {
  */
 export function matchStaticAsset(
 	manifest: ManifestLike,
-	requestUrl: string,
+	url: URL,
 	env: Env,
 ): Response | undefined {
-	const { pathname } = new URL(requestUrl);
-	if (manifest.assets.has(pathname)) {
-		return env.ASSETS.fetch(requestUrl.replace(/\.html$/, '')) as unknown as Response;
+	if (manifest.assets.has(url.pathname)) {
+		return env.ASSETS.fetch(url.href.replace(/\.html$/, '')) as unknown as Response;
 	}
 	return undefined;
 }

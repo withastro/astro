@@ -195,6 +195,15 @@ export class FetchState implements AstroFetchState {
 	}
 	/** Normalized URL for this request. */
 	url: URL;
+	/**
+	 * The request URL's pathname and search as originally parsed, before
+	 * `normalizeUrl` collapses duplicate slashes and decodes `pathname` in
+	 * place. `TrailingSlashHandler` matches against these so it sees the raw
+	 * path a redirect would correct (e.g. duplicate or missing trailing
+	 * slashes). `#applyForwardedHeaders` keeps them in sync with `request`.
+	 */
+	rawPathname: string;
+	rawSearch: string;
 	/** Client address for this request. */
 	clientAddress: string | undefined;
 	/** Whether this is a partial render (container API). */
@@ -265,8 +274,15 @@ export class FetchState implements AstroFetchState {
 
 		this.componentInstance = undefined;
 		this.slots = undefined;
-		// Parse the URL once and derive both pathname and url from it.
-		const url = new URL(request.url);
+		// Parse the URL once and derive both pathname and url from it. Reuse a
+		// pre-parsed URL from render options when the caller (e.g. an adapter)
+		// already parsed `request.url`; it is normalized in place below.
+		const url = options?.url ?? new URL(request.url);
+		// Record the raw pathname/search now, while `url` still holds the
+		// original path. `normalizeUrl` (below) rewrites `url.pathname` in
+		// place. TrailingSlashHandler matches redirects against this raw path.
+		this.rawPathname = url.pathname;
+		this.rawSearch = url.search;
 		// For domain-based i18n routing, the locale prefix is derived from the
 		// request's Host header rather than its URL. When a locale is detected,
 		// the resulting pathname includes the prefix (e.g. /en/boats/1/foo) that
@@ -1003,6 +1019,12 @@ export class FetchState implements AstroFetchState {
 		if (app !== undefined) {
 			Reflect.set(this.request, appSymbol, app);
 		}
+
+		// `this.request` now carries the rebuilt URL (`this.url`, including the
+		// forwarded host/proto/port), so re-sync the raw pathname/search to it;
+		// TrailingSlashHandler then matches against the request actually served.
+		this.rawPathname = this.url.pathname;
+		this.rawSearch = this.url.search;
 	}
 
 	/**

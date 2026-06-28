@@ -98,16 +98,28 @@ export function getParams(route: RouteData, pathname: string): Params {
 			? pathname.slice(0, -5)
 			: pathname;
 
-	const allPatterns = [route, ...route.fallbackRoutes].map((r) => r.pattern);
-	const paramsMatch = allPatterns.map((pattern) => pattern.exec(path)).find((x) => x);
+	// Match the path against the route's own pattern, then each fallback route,
+	// taking the first that matches. `route.params` indexes into the capture
+	// groups of this match below.
+	let paramsMatch = route.pattern.exec(path);
+	if (!paramsMatch) {
+		for (const fallbackRoute of route.fallbackRoutes) {
+			paramsMatch = fallbackRoute.pattern.exec(path);
+			if (paramsMatch) break;
+		}
+	}
 
 	if (!paramsMatch) return {};
+	// Inside `forEach`'s callback TypeScript treats `paramsMatch` as possibly
+	// null again (it doesn't narrow `let` across a closure), so read the match
+	// through a `const`, which stays typed as non-null.
+	const matched = paramsMatch;
 	const params: Params = {};
 	route.params.forEach((key, i) => {
 		if (key.startsWith('...')) {
-			params[key.slice(3)] = paramsMatch[i + 1] ? paramsMatch[i + 1] : undefined;
+			params[key.slice(3)] = matched[i + 1] ? matched[i + 1] : undefined;
 		} else {
-			params[key] = paramsMatch[i + 1];
+			params[key] = matched[i + 1];
 		}
 	});
 	return params;

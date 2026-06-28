@@ -92,12 +92,15 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 
 	return async (req, res, next, locals) => {
 		let request: Request;
+		// Parse the request URL once (inside `createRequestFromNodeRequest`) and
+		// reuse it for `app.match()` and `app.render()` instead of re-parsing.
+		let url: URL;
 		try {
-			request = createRequestFromNodeRequest(req, {
+			({ request, url } = createRequestFromNodeRequest(req, {
 				allowedDomains: app.getAllowedDomains?.() ?? [],
 				bodySizeLimit: effectiveBodySizeLimit,
 				port: options.port,
-			});
+			}));
 		} catch (err) {
 			logger.error(`Could not render ${req.url}`);
 			console.error(err);
@@ -108,7 +111,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 
 		// Redirects are considered prerendered routes in static mode, but we want to
 		// handle them dynamically, so prerendered routes are included here.
-		const routeData = app.match(request, true);
+		const routeData = app.match(request, true, url);
 		// But we still want to skip prerendered pages.
 		if (routeData && !(routeData.type === 'page' && routeData.prerender)) {
 			const response = await als.run(request.url, () =>
@@ -117,6 +120,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 					locals,
 					routeData,
 					prerenderedErrorPageFetch,
+					url,
 				}),
 			);
 			await writeResponse(response, res);
@@ -129,6 +133,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 			const response = await app.render(request, {
 				addCookieHeader: true,
 				prerenderedErrorPageFetch,
+				url,
 			});
 			await writeResponse(response, res);
 		}

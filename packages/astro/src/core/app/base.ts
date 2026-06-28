@@ -4,7 +4,7 @@ import {
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import { matchPattern } from '@astrojs/internal-helpers/remote';
-import { computePathnameFromDomain } from '../i18n/domain.js';
+import { computePathnameFromDomain, isDomainI18nStrategy } from '../i18n/domain.js';
 import { isLocalizedErrorRoute } from '../../i18n/error-routes.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RemotePattern, RouteData } from '../../types/public/index.js';
@@ -83,6 +83,16 @@ export interface RenderOptions {
 	 * Default: `app.match(request)`
 	 */
 	routeData?: RouteData;
+
+	/**
+	 * **Advanced API**: you probably do not need to use this.
+	 *
+	 * A pre-parsed `URL` for this request, so adapters that already parsed
+	 * `request.url` can avoid a second parse. It **must** equal
+	 * `new URL(request.url)`, and it is normalized in place during rendering, so
+	 * the object must not be reused after calling `render`.
+	 */
+	url?: URL;
 }
 
 type RequiredRenderOptions = Required<RenderOptions>;
@@ -94,6 +104,7 @@ export interface ResolvedRenderOptions {
 	locals: RequiredRenderOptions['locals'] | undefined;
 	routeData: RequiredRenderOptions['routeData'] | undefined;
 	waitUntil: RequiredRenderOptions['waitUntil'] | undefined;
+	url?: URL;
 }
 
 export interface RenderErrorOptions extends ResolvedRenderOptions {
@@ -152,6 +163,14 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 */
 	#featureCheckDone = false;
 
+	/**
+	 * True when the configured i18n strategy resolves the locale from the
+	 * request's domain (`domains-*`). `render()` reads this to decide whether
+	 * a request needs the Host-header-based pathname lookup; routing for every
+	 * other app is driven by the URL pathname alone.
+	 */
+	#hasDomainI18nRouting: boolean;
+
 	get logger(): AstroLogger {
 		return this.pipeline.logger;
 	}
@@ -166,6 +185,10 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
+		// The `domains-*` strategies are the ones that derive the locale from
+		// the request's domain. `isDomainI18nStrategy` is the single source of
+		// truth, shared with `computePathnameFromDomain`.
+		this.#hasDomainI18nRouting = isDomainI18nStrategy(manifest.i18n?.strategy);
 		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base);
 		this.pipeline = this.createPipeline(streaming, manifest, ...args);
 		// Share the pipeline's manifestData so both BaseApp and the pipeline
@@ -297,11 +320,20 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 * @param request
 	 * @param allowPrerenderedRoutes
 	 */
-	public match(request: Request, allowPrerenderedRoutes = false): RouteData | undefined {
-		const url = new URL(request.url);
+	public match(
+		request: Request,
+		allowPrerenderedRoutes = false,
+		url = new URL(request.url),
+	): RouteData | undefined {
 		// ignore requests matching public assets
 		if (this.manifest.assets.has(url.pathname)) return undefined;
-		let pathname = this.computePathnameFromDomain(request);
+		// Only the `domains-*` i18n strategies derive the pathname from the
+		// request's Host header; every other app routes on the URL pathname, so
+		// the probe is skipped. When it does run, it reuses the URL parsed above.
+		let pathname: string | undefined;
+		if (this.#hasDomainI18nRouting) {
+			pathname = this.computePathnameFromDomain(request, url);
+		}
 		if (!pathname) {
 			pathname = prependForwardSlash(this.removeBase(url.pathname));
 		}
@@ -337,10 +369,10 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		return undefined;
 	}
 
-	private computePathnameFromDomain(request: Request): string | undefined {
+	private computePathnameFromDomain(request: Request, url = new URL(request.url)): string | undefined {
 		return computePathnameFromDomain(
 			request,
-			new URL(request.url),
+			url,
 			this.manifest.i18n,
 			this.manifest.base,
 			this.manifest.trailingSlash,
@@ -357,6 +389,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			prerenderedErrorPageFetch = fetch,
 			routeData,
 			waitUntil,
+			url,
 		}: RenderOptions = {},
 	): Promise<Response> {
 		// Lazily resolve the logger destination from the manifest on the first request.
@@ -394,8 +427,8 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		// For domain-based i18n, match against the locale-prefixed pathname
 		// derived from the Host header. FetchState recomputes this pathname
 		// itself for param/locale resolution, so it isn't threaded through here.
-		if (!routeData) {
-			const domainPathname = this.computePathnameFromDomain(request);
+		if (!routeData && this.#hasDomainI18nRouting) {
+			const domainPathname = this.computePathnameFromDomain(request, url);
 			if (domainPathname) {
 				routeData = this.pipeline.matchRoute(this.safeDecodeURI(domainPathname));
 			}
@@ -407,6 +440,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			locals,
 			routeData,
 			waitUntil,
+			url,
 		};
 
 		let response: Response;

@@ -864,7 +864,7 @@ describe('node', () => {
 	describe('createRequestFromNodeRequest', () => {
 		describe('x-forwarded-for', () => {
 			it('trusts x-forwarded-for when host matches allowedDomains', () => {
-				const result = createRequestFromNodeRequest(
+				const { request: result } = createRequestFromNodeRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -878,7 +878,7 @@ describe('node', () => {
 			});
 
 			it('trusts x-forwarded-for when x-forwarded-host matches allowedDomains', () => {
-				const result = createRequestFromNodeRequest(
+				const { request: result } = createRequestFromNodeRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -893,7 +893,7 @@ describe('node', () => {
 			});
 
 			it('ignores x-forwarded-for when x-forwarded-host does not match allowedDomains', () => {
-				const result = createRequestFromNodeRequest(
+				const { request: result } = createRequestFromNodeRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -910,7 +910,7 @@ describe('node', () => {
 			});
 
 			it('ignores x-forwarded-for when no allowedDomains is configured', () => {
-				const result = createRequestFromNodeRequest({
+				const { request: result } = createRequestFromNodeRequest({
 					...mockNodeRequest,
 					headers: {
 						host: 'example.com',

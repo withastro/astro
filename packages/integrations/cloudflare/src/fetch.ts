@@ -62,7 +62,7 @@ export async function cf(
 	ensureInitialized();
 	injectSessionBinding(app!.manifest, env);
 
-	const staticAsset = matchStaticAsset(app!.manifest, state.request.url, env);
+	const staticAsset = matchStaticAsset(app!.manifest, new URL(state.request.url), env);
 	if (staticAsset) return staticAsset;
 
 	if (!state.routeData) {

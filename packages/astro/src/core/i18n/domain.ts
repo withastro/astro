@@ -10,6 +10,48 @@ import type { SSRManifest } from '../app/types.js';
 import type { AstroLogger } from '../logger/core.js';
 
 /**
+ * The i18n strategies that derive the request's locale from its domain (the
+ * `Host` header) rather than the URL pathname. `BaseApp` gates its
+ * Host-header pathname probe on this predicate, and `computePathnameFromDomain`
+ * only acts for these strategies. Keeping both driven by this one function
+ * stops the two lists from drifting apart.
+ */
+export function isDomainI18nStrategy(strategy: string | undefined): boolean {
+	return (
+		strategy === 'domains-prefix-always' ||
+		strategy === 'domains-prefix-other-locales' ||
+		strategy === 'domains-prefix-always-no-redirect'
+	);
+}
+
+/**
+ * Per-config cache of parsed `domainLookupTable` entries. The table comes from
+ * the (immutable) manifest, so its domain keys are parsed once and reused on
+ * every request instead of being re-parsed per request. Keyed by the table
+ * object itself so distinct apps don't share entries.
+ */
+const domainEntriesCache = new WeakMap<
+	object,
+	Array<{ host: string; protocol: string; locale: string }>
+>();
+
+function getDomainEntries(
+	domainLookupTable: Record<string, string>,
+): Array<{ host: string; protocol: string; locale: string }> {
+	let entries = domainEntriesCache.get(domainLookupTable);
+	if (!entries) {
+		entries = Object.entries(domainLookupTable).map(([domainKey, locale]) => {
+			// Safe because the protocol is forced via zod in the config; a throw
+			// here would mean a tampered manifest (caught by the caller).
+			const url = new URL(domainKey);
+			return { host: url.host, protocol: url.protocol, locale };
+		});
+		domainEntriesCache.set(domainLookupTable, entries);
+	}
+	return entries;
+}
+
+/**
  * For domain-based i18n routing strategies, derives the locale-prefixed
  * pathname from the request's `Host` header rather than its URL. For example,
  * a request for `/foo` served from `https://example.fr` resolves to `/fr/foo`.
@@ -28,12 +70,7 @@ export function computePathnameFromDomain(
 ): string | undefined {
 	let pathname: string | undefined = undefined;
 
-	if (
-		i18n &&
-		(i18n.strategy === 'domains-prefix-always' ||
-			i18n.strategy === 'domains-prefix-other-locales' ||
-			i18n.strategy === 'domains-prefix-always-no-redirect')
-	) {
+	if (i18n && isDomainI18nStrategy(i18n.strategy)) {
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
 		let host = request.headers.get('X-Forwarded-Host');
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto
@@ -56,16 +93,9 @@ export function computePathnameFromDomain(
 			try {
 				let locale;
 				const hostAsUrl = new URL(`${protocol}//${host}`);
-				for (const [domainKey, localeValue] of Object.entries(i18n.domainLookupTable)) {
-					// This operation should be safe because we force the protocol via zod inside the configuration
-					// If not, then it means that the manifest was tampered
-					const domainKeyAsUrl = new URL(domainKey);
-
-					if (
-						hostAsUrl.host === domainKeyAsUrl.host &&
-						hostAsUrl.protocol === domainKeyAsUrl.protocol
-					) {
-						locale = localeValue;
+				for (const entry of getDomainEntries(i18n.domainLookupTable)) {
+					if (hostAsUrl.host === entry.host && hostAsUrl.protocol === entry.protocol) {
+						locale = entry.locale;
 						break;
 					}
 				}
