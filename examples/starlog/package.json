@@ -11,7 +11,7 @@
   "dependencies": {
     "astro": "^7.0.3",
     "sass": "^1.97.3",
-    "sharp": "^0.34.3"
+    "sharp": "^0.35.0"
   },
   "engines": {
     "node": ">=22.12.0"
