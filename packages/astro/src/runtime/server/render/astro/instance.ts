@@ -33,6 +33,13 @@ export class AstroComponentInstance {
 			// prerender the slots eagerly to make collection entries propagate styles and scripts
 			let didRender = false;
 			let value = slots[name](result);
+			// When a slot function is async (e.g. it contains `await` in the template),
+			// the returned Promise must resolve before head content is buffered, otherwise
+			// propagating components (like Content with styles) inside the slot won't be
+			// registered in time and their styles will be lost.
+			if (isPromise(value)) {
+				result._metadata.pendingSlotEvaluations.push(value);
+			}
 			this.slotValues[name] = () => {
 				// use prerendered value only once
 				if (!didRender) {

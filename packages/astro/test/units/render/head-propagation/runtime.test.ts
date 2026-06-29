@@ -18,6 +18,7 @@ function createResult() {
 			hasRenderedHead: false,
 			headInTree: false,
 			propagators: new Set(),
+			pendingSlotEvaluations: [] as Promise<unknown>[],
 			extraHead: [] as string[],
 		},
 	};
@@ -54,6 +55,36 @@ describe('head propagation runtime facade', () => {
 
 		await bufferPropagatedHead(result as unknown as SSRResult);
 		assert.deepEqual(result._metadata.extraHead, ['<link rel="stylesheet" href="/one.css">']);
+	});
+
+	it('awaits pending async slot evaluations before collecting head parts', async () => {
+		const result = createResult();
+
+		// Simulate an async slot that registers a propagator after a delay,
+		// mimicking what happens when `await` appears in a template expression
+		// before a component with head content (e.g. styles).
+		result._metadata.pendingSlotEvaluations.push(
+			new Promise<void>((resolve) => {
+				setTimeout(() => {
+					result._metadata.propagators.add({
+						init() {
+							return {
+								[headAndContentSym]: true,
+								head: '<style>.my-red{background:red}</style>',
+							};
+						},
+					});
+					resolve();
+				}, 10);
+			}),
+		);
+
+		// Without the fix, bufferPropagatedHead would find 0 propagators
+		// because the async slot hasn't resolved yet.
+		await bufferPropagatedHead(result as unknown as SSRResult);
+		assert.deepEqual(result._metadata.extraHead, ['<style>.my-red{background:red}</style>']);
+		// Pending evaluations should be cleared after processing
+		assert.equal(result._metadata.pendingSlotEvaluations.length, 0);
 	});
 
 	it('exposes render state and evaluates instruction policy', () => {
