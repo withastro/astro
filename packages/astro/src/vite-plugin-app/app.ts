@@ -190,6 +190,9 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 
 		const self = this;
 		await self.#loadFetchHandler();
+		// Clear the route cache on every dev request so that getStaticPaths()
+		// re-runs when external data (e.g. a headless CMS) changes between requests.
+		self.pipeline.clearRouteCache();
 
 		let handled = true;
 		await runWithErrorHandling({
