@@ -58,6 +58,22 @@ describe('Custom Fetch for Error Pages', () => {
 			assert.equal($('h1').text(), 'Custom Fetch Response');
 		});
 
+		it('uses custom fetch implementation with the localized prerendered 404 output path', async () => {
+			const request = new Request('http://example.com/pt/not-found');
+			const response = await app.render(request, { prerenderedErrorPageFetch: customFetch });
+
+			// Verify the response comes from our custom fetch
+			assert.equal(response.status, 404);
+
+			// Verify our custom fetch was called with the right URL
+			assert.equal(fetchCalls.length, 1);
+			assert.ok(fetchCalls[0].includes('/pt/404/index.html'));
+
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			assert.equal($('h1').text(), 'Custom Fetch Response');
+		});
+
 		it('uses custom fetch implementation for 500 errors', async () => {
 			const request = new Request('http://example.com/causes-error');
 			const response = await app.render(request, { prerenderedErrorPageFetch: customFetch });

@@ -90,6 +90,14 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		this.pipeline.clearMiddleware();
 	}
 
+	/**
+	 * Clears the cached actions so they are re-resolved on the next request.
+	 * Called via HMR when action files change.
+	 */
+	clearActions(): void {
+		this.pipeline.clearActions();
+	}
+
 	async devMatch(pathname: string): Promise<DevMatch | undefined> {
 		const matchedRoute = await matchRoute(
 			pathname,
@@ -182,6 +190,10 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 
 		const self = this;
 		await self.#loadFetchHandler();
+		// RouteCache is intentionally not cleared per request. devMatch() can use
+		// getStaticPaths() to test dynamic route candidates before the later render
+		// resolves props from the same static-path table. HMR/content invalidation
+		// clears stale entries through module identity checks or content-change events.
 
 		let handled = true;
 		await runWithErrorHandling({
@@ -222,6 +234,21 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 					body = Buffer.concat(bytes);
 				}
 
+				// Wire an AbortController to the socket so request.signal
+				// reflects client disconnection, matching production behaviour.
+				const abortController = new AbortController();
+				const socket = incomingRequest.socket;
+				const onSocketClose = () => {
+					if (!abortController.signal.aborted) {
+						abortController.abort();
+					}
+				};
+				if (socket.destroyed) {
+					onSocketClose();
+				} else {
+					socket.on('close', onSocketClose);
+				}
+
 				const request = createRequest({
 					url,
 					headers: incomingRequest.headers,
@@ -230,6 +257,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 					logger: self.logger,
 					isPrerendered: matchedRoute.routeData.prerender,
 					routePattern: matchedRoute.routeData.component,
+					init: { signal: abortController.signal },
 				});
 
 				// This is required for adapters to set locals in dev mode. They use a dev server middleware to inject locals to the `http.IncomingRequest` object.

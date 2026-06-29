@@ -16,6 +16,7 @@ import {
 	handlePrerenderRequest,
 	isStaticImagesRequest,
 	handleStaticImagesRequest,
+	installPrerenderErrorPropagation,
 } from './prerender.js';
 import {
 	type Runtime,
@@ -39,6 +40,10 @@ declare global {
 type CfResponse = Awaited<ReturnType<Required<ExportedHandler<Env>>['fetch']>>;
 
 const app = createApp();
+
+if (isPrerender) {
+	installPrerenderErrorPropagation(app);
+}
 
 export async function handle(
 	request: Request,

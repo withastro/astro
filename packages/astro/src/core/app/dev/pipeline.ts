@@ -134,6 +134,11 @@ export class NonRunnablePipeline extends Pipeline {
 		return { scripts, styles, links };
 	}
 
+	// Called via HMR when action files change. Not available on production　environment.
+	clearActions(): void {
+		this.resolvedActions = undefined;
+	}
+
 	componentMetadata() {}
 
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {

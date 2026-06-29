@@ -349,6 +349,40 @@ describe('install', () => {
 		assert.equal(fixture.hasMessage('Dependencies failed to install'), true);
 	});
 
+	it('pnpm minimumReleaseAge error shows specific message', async () => {
+		const mockShell = mock.fn<ShellFunction>(async () => {
+			throw new Error(
+				'[ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION] 5 lockfile entries failed verification',
+			);
+		});
+
+		let exitCode: number | undefined;
+		const context: Context = {
+			...ctx,
+			dryRun: false,
+			cwd: tmpUrl,
+			packageManager: { name: 'pnpm', agent: 'pnpm' },
+			exit: (code: number): never => {
+				exitCode = code;
+				return undefined as never;
+			},
+			packages: [
+				{
+					name: 'astro',
+					currentVersion: '1.0.0',
+					targetVersion: '1.1.0',
+				},
+			],
+		};
+
+		await install(context, mockShell);
+
+		assert.equal(mockShell.mock.callCount(), 1);
+		assert.equal(exitCode, 1);
+		assert.equal(fixture.hasMessage('minimumReleaseAge'), true);
+		assert.equal(fixture.hasMessage('Dependencies failed to install'), false);
+	});
+
 	it('pnpm peer dependency error does not retry', async () => {
 		const mockShell = mock.fn<ShellFunction>(async () => {
 			throw new Error('pnpm ERR! peer dependencies conflict');

@@ -9,6 +9,8 @@ import { PagesHandler } from '../pages/handler.js';
 import { matchRoute } from '../routing/match.js';
 import { provideSession } from '../session/handler.js';
 import { validateHost } from '../app/validate-headers.js';
+import { getErrorRoutePath } from '../../i18n/error-routes.js';
+import { getOutputFilename } from '../output-filename.js';
 import type { ErrorHandler } from './handler.js';
 
 type ErrorPagePath =
@@ -16,6 +18,8 @@ type ErrorPagePath =
 	| `${string}/500`
 	| `${string}/404/`
 	| `${string}/500/`
+	| `${string}/404/index.html`
+	| `${string}/500/index.html`
 	| `${string}404.html`
 	| `${string}500.html`;
 
@@ -49,12 +53,17 @@ export class DefaultErrorHandler implements ErrorHandler {
 	): Promise<Response> {
 		const app = this.#app;
 		const resolvedPathname = pathname ?? new FetchState(app.pipeline, request).pathname;
-		const errorRoutePath = `/${status}${app.manifest.trailingSlash === 'always' ? '/' : ''}`;
+		const errorRoutePath = getErrorRoutePath(
+			resolvedPathname,
+			status,
+			app.manifestData.routes,
+			app.manifest.i18n?.locales,
+			app.manifest.trailingSlash === 'always',
+		);
 		const errorRouteData = matchRoute(errorRoutePath, app.manifestData);
 		const url = new URL(request.url);
 		if (errorRouteData) {
 			if (errorRouteData.prerender) {
-				const maybeDotHtml = errorRouteData.route.endsWith(`/${status}`) ? '.html' : '';
 				// Validate the request URL origin before using it for the error page fetch.
 				// Without this, an attacker-controlled Host header flows into statusURL,
 				// causing the server to fetch from an arbitrary origin (SSRF).
@@ -62,7 +71,11 @@ export class DefaultErrorHandler implements ErrorHandler {
 				const validatedHost = validateHost(url.host, url.protocol.replace(':', ''), allowedDomains);
 				const safeOrigin = validatedHost ? url.origin : `${url.protocol}//localhost`;
 				const statusURL = new URL(
-					`${app.baseWithoutTrailingSlash}/${status}${maybeDotHtml}`,
+					`${app.baseWithoutTrailingSlash}${getOutputFilename(
+						app.manifest.buildFormat,
+						errorRouteData.route,
+						errorRouteData,
+					)}`,
 					safeOrigin,
 				);
 				if (

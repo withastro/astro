@@ -1,5 +1,15 @@
 # astro
 
+## 7.0.3
+
+### Patch Changes
+
+- [#17189](https://github.com/withastro/astro/pull/17189) [`24d2c9e`](https://github.com/withastro/astro/commit/24d2c9ec71ffcceb853762bb1295e1d893bdd4d6) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a bug where an error thrown inside one route's `getStaticPaths()` would prevent other valid routes from being matched in dev mode
+
+- [#16932](https://github.com/withastro/astro/pull/16932) [`8f4a3db`](https://github.com/withastro/astro/commit/8f4a3db415f227b5c742c16ad18f764e952f91bd) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes HMR for action files during development. Editing files in `src/actions/` now takes effect on the next request without requiring a dev server restart.
+
+- [#17087](https://github.com/withastro/astro/pull/17087) [`fb0ab02`](https://github.com/withastro/astro/commit/fb0ab02f019efd222e6976d72bcd618fd915bc1d) Thanks [@jp-knj](https://github.com/jp-knj)! - Fixes localized custom error pages in i18n projects so routes like `/pt/404` are used for missing localized pages and return the correct status code
+
 ## 7.0.2
 
 ### Patch Changes

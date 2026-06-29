@@ -2,7 +2,7 @@ import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
 import type { Locales, ValidRedirectStatus } from '../types/public/config.js';
 import type { APIContext } from '../types/public/context.js';
-import { normalizeTheLocale, pathHasLocale } from './index.js';
+import { normalizeTheLocale, pathHasLocale } from './path.js';
 import type { RoutingStrategies } from '../core/app/common.js';
 
 /**
