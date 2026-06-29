@@ -141,7 +141,6 @@
     "@capsizecss/unpack": "^4.0.0",
     "@clack/prompts": "^1.1.0",
     "@oslojs/encoding": "^1.1.0",
-    "@rollup/pluginutils": "^5.3.0",
     "am-i-vibing": "^0.4.0",
     "aria-query": "^5.3.2",
     "axobject-query": "^4.1.0",
