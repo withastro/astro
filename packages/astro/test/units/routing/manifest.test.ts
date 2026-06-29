@@ -535,11 +535,7 @@ describe('routing - createRoutesList', () => {
 		);
 		const route = manifest.routes.find((r) => r.route === '/api/[name].json');
 		assert.ok(route, 'dynamic file endpoint route should exist');
-		assert.equal(
-			route.pattern.test('/api/bar.json'),
-			true,
-			'should match without trailing slash',
-		);
+		assert.equal(route.pattern.test('/api/bar.json'), true, 'should match without trailing slash');
 		assert.equal(
 			route.pattern.test('/api/bar.json/'),
 			false,
