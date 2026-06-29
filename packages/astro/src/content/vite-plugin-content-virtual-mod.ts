@@ -1,5 +1,6 @@
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { dataToEsm } from '@rollup/pluginutils';
 import { isRunnableDevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -24,6 +25,22 @@ import {
 } from './consts.js';
 import { getDataStoreFile } from './content-layer.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
+
+/**
+ * Above this serialized data store size (in bytes), the dev server emits the
+ * store as a JSON string parsed at runtime instead of a JS object literal.
+ *
+ * In dev, Vite's `ssrTransformScript` parses the module via rolldown/oxc-parser
+ * across the NAPI bridge, which fails for very large object literals (the AST is
+ * too big to convert), silently yielding an empty store (#17220). A string literal
+ * keeps the AST tiny regardless of collection size. Normal-sized stores stay on the
+ * object-literal path so dev matches production for the common case.
+ *
+ * Measured in UTF-8 bytes (not `String.length`, which counts UTF-16 code units and
+ * undercounts multi-byte content like CJK), so the trigger tracks the actual data
+ * volume oxc has to parse regardless of the alphabet used.
+ */
+const LARGE_DATA_STORE_THRESHOLD = 5 * 1024 * 1024; // 5 MB
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -87,10 +104,12 @@ export function astroContentVirtualModPlugin({
 	let dataStoreFile: URL;
 	let devServer: ViteDevServer;
 	let liveConfig: string;
+	let isDev = false;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
 		config(_, env) {
+			isDev = env.command === 'serve';
 			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
 			const contentPaths = getContentPaths(
 				settings.config,
@@ -195,13 +214,18 @@ export function astroContentVirtualModPlugin({
 					const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
 
 					try {
-						// Validate that the JSON is parseable
-						JSON.parse(jsonData);
-						// Use JSON.parse() at runtime instead of dataToEsm() to avoid
-						// generating a huge JS object literal. Large data stores produce
-						// ASTs too big for the NAPI bridge in dev mode (rolldown/oxc-parser).
+						const parsed = JSON.parse(jsonData);
+						// For large stores in dev, emit a JSON string parsed at runtime to
+						// avoid a huge object-literal AST that the NAPI bridge can't convert
+						// (#17220). Otherwise keep dataToEsm() so dev matches production.
+						const useRuntimeJsonParse =
+							isDev && Buffer.byteLength(jsonData) > LARGE_DATA_STORE_THRESHOLD;
 						return {
-							code: `export default JSON.parse(${JSON.stringify(jsonData)})`,
+							code: useRuntimeJsonParse
+								? `export default JSON.parse(${JSON.stringify(jsonData)})`
+								: dataToEsm(parsed, {
+										compact: true,
+									}),
 							map: { mappings: '' },
 						};
 					} catch (err) {
