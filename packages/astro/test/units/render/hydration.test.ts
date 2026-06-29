@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { extractDirectives } from '../../../dist/runtime/server/hydration.js';
+import {
+	extractDirectives,
+	generateHydrateScript,
+} from '../../../dist/runtime/server/hydration.js';
+import { renderElement } from '../../../dist/runtime/server/render/util.js';
 
 // Minimal clientDirectives map matching what Astro registers by default
 const clientDirectives = new Map([
@@ -143,5 +147,38 @@ describe('extractDirectives', () => {
 				return true;
 			},
 		);
+	});
+});
+
+describe('generateHydrateScript', () => {
+	it('escapes transition directive values before rendering island attributes', async () => {
+		const payload = '"><img src=x onerror=alert(1)>';
+		const island = await generateHydrateScript(
+			{
+				renderer: {
+					clientEntrypoint: 'renderer.js',
+				} as any,
+				result: {
+					resolve: async (path: string) => path,
+				} as any,
+				astroId: 'abc123',
+				props: {
+					'data-astro-transition-persist': payload,
+				},
+				attrs: undefined,
+			},
+			{
+				hydrate: 'load',
+				componentUrl: 'component.jsx',
+				componentExport: { value: 'default' },
+				displayName: 'Island',
+			} as any,
+		);
+		const html = renderElement('astro-island', island, false);
+
+		assert.ok(
+			html.includes('data-astro-transition-persist="&quot;&gt;&lt;img src=x onerror=alert(1)&gt;"'),
+		);
+		assert.ok(!html.includes(`data-astro-transition-persist="${payload}"`));
 	});
 });
