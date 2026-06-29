@@ -1,5 +1,6 @@
 import type { RouteData, SSRResult } from '../../../types/public/internal.js';
 import { isRoute404, isRoute500 } from '../../../core/routing/internal/route-errors.js';
+import { isPropagatingHint } from '../../../core/head-propagation/resolver.js';
 import { renderToAsyncIterable, renderToReadableStream, renderToString } from './astro/render.js';
 import { encoder } from './common.js';
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
@@ -17,8 +18,9 @@ export async function renderPage(
 	route?: RouteData,
 ): Promise<Response> {
 	if (!isAstroComponentFactory(componentFactory)) {
-		result._metadata.headInTree =
-			result.componentMetadata.get((componentFactory as any).moduleId)?.containsHead ?? false;
+		const nonAstroMeta = result.componentMetadata.get((componentFactory as any).moduleId);
+		result._metadata.headInTree = nonAstroMeta?.containsHead ?? false;
+		result._metadata.routeHasPropagation = isPropagatingHint(nonAstroMeta?.propagation ?? 'none');
 
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
 
@@ -58,8 +60,12 @@ export async function renderPage(
 
 	// Mark if this page component contains a <head> within its tree. If it does
 	// We avoid implicit head injection entirely.
-	result._metadata.headInTree =
-		result.componentMetadata.get(componentFactory.moduleId!)?.containsHead ?? false;
+	const pageMeta = result.componentMetadata.get(componentFactory.moduleId!);
+	result._metadata.headInTree = pageMeta?.containsHead ?? false;
+	// Only routes on a propagation path need to await async slot pre-renders
+	// before flushing the head (see `collectPropagatedHeadParts`). Other routes
+	// keep streaming without blocking the head on unrelated markup `await`s.
+	result._metadata.routeHasPropagation = isPropagatingHint(pageMeta?.propagation ?? 'none');
 
 	let body: BodyInit | Response;
 	if (streaming) {
