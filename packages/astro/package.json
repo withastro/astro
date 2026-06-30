@@ -12,23 +12,6 @@
   },
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
-  "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "app": [
-        "./dist/core/app/index"
-      ],
-      "app/*": [
-        "./dist/core/app/*"
-      ],
-      "hono": [
-        "./dist/core/hono/index"
-      ],
-      "middleware": [
-        "./dist/virtual-modules/middleware.d.ts"
-      ]
-    }
-  },
   "exports": {
     ".": "./dist/index.js",
     "./env": "./env.d.ts",
