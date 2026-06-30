@@ -1,3 +1,5 @@
+import { SERVER_ISLAND_START } from "../runtime/server/render/server-islands-shared.js";
+
 export type SavedFocus = {
 	activeElement: HTMLElement | null;
 	start?: number | null;
@@ -60,7 +62,7 @@ export function swapHeadElements(doc: Document) {
 	const relevantNodes = (parent: Node, what: 'commentsOnly' | 'both' = 'both') => [
 		...[...parent.childNodes].filter(
 			(child) =>
-				(child.nodeType === 8 && child.textContent === '[if astro]>server-island-start<![endif]') ||
+				(child.nodeType === 8 && child.textContent === SERVER_ISLAND_START) ||
 				(what === 'both' && child.nodeType === 1),
 		),
 	];
