@@ -27,4 +27,5 @@ const stale = issues
 	.filter((issue) => new Date(issue.updatedAt) < cutoff)
 	.map((issue) => issue.number);
 
+// biome-ignore lint/suspicious/noConsole: valid for CI
 console.log(JSON.stringify(stale));
