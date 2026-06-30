@@ -6,6 +6,7 @@ import type { StaticBuildOptions } from '../types.js';
 import { pluginAnalyzer } from './plugin-analyzer.js';
 import { pluginComponentEntry } from './plugin-component-entry.js';
 import { pluginCSS } from './plugin-css.js';
+import { pluginCssTargetLowering } from './plugin-css-target-lowering.js';
 import { pluginInternals } from './plugin-internals.js';
 import { pluginMiddleware } from './plugin-middleware.js';
 import { pluginPrerender } from './plugin-prerender.js';
@@ -25,6 +26,7 @@ export function getAllBuildPlugins(
 		pluginInternals(options, internals),
 		pluginMiddleware(options, internals),
 		vitePluginActionsBuild(options, internals),
+		pluginCssTargetLowering(),
 		...pluginCSS(options, internals),
 		astroHeadBuildPlugin(internals),
 		pluginPrerender(options, internals),
