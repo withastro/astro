@@ -179,6 +179,7 @@ export default function createIntegration({
 				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
 				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
 				const isTypeGenPhase = command === 'build' || command === 'sync';
+				const isVitest = !!process.env.VITEST;
 
 				const needsWorkerCache = config.cache?.provider?.name === 'cloudflare';
 
@@ -249,11 +250,21 @@ export default function createIntegration({
 				// include, and esbuildOptions (e.g. loader) entries are respected.
 				const userOptimizeDeps = config.vite?.optimizeDeps;
 
-				const cloudflareVitePlugins = cfVitePlugin({
-					...cfPluginConfig,
-					viteEnvironment: { name: 'ssr' },
-					assetsOnly: () => _buildOutput === 'static',
-				});
+				// Skip `@cloudflare/vite-plugin` entirely when running under Vitest.
+				// The workerd-based SSR environment is fundamentally incompatible with
+				// Vitest's module runner: Vitest injects Node.js builtins into
+				// `resolve.external` (which the CF plugin rejects), disables the dep
+				// optimizer (breaking CJS packages in workerd), and its mocker plugin
+				// transforms dynamic imports in ways workerd doesn't support. Skipping
+				// the plugin lets the SSR environment fall back to Vite's default
+				// Node.js-based DevEnvironment, which is compatible with Vitest.
+				const cloudflareVitePlugins = isVitest
+					? []
+					: cfVitePlugin({
+							...cfPluginConfig,
+							viteEnvironment: { name: 'ssr' },
+							assetsOnly: () => _buildOutput === 'static',
+						});
 				// `sync` and `build` both run type generation (build via its internal sync
 				// pass), which creates a temporary Vite server and fires `configureServer`
 				// the hook that boots the Cloudflare/workerd runtime. Drop it in both so
@@ -290,8 +301,9 @@ export default function createIntegration({
 							{
 								name: '@astrojs/cloudflare:environment',
 								configEnvironment(environmentName, _options) {
-									// Skip dependency pre-bundling during type generation (see `isTypeGenPhase` above).
-									if (isTypeGenPhase) {
+									// Skip dependency pre-bundling during type generation and Vitest runs
+									// (see `isTypeGenPhase` and `isVitest` above).
+									if (isTypeGenPhase || isVitest) {
 										return { optimizeDeps: { noDiscovery: true, include: [] } };
 									}
 									const isServerEnvironment = ['astro', 'ssr', 'prerender'].includes(
