@@ -2564,6 +2564,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/config-vite-css-target-no-minify:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/container-custom-renderers:
     dependencies:
       '@astrojs/react':
