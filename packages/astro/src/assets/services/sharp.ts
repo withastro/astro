@@ -115,7 +115,7 @@ export function resolveSharpEncoderOptions(
 }
 
 async function loadSharp() {
-	let sharpImport: typeof import('sharp');
+	let sharpImport: (typeof import('sharp'))['default'];
 	try {
 		sharpImport = (await import('sharp')).default;
 	} catch {
