@@ -52,7 +52,7 @@ export interface SharpImageServiceConfig {
 	avif?: AvifOptions;
 }
 
-let sharp: SharpConstructor
+let sharp: SharpConstructor;
 
 const qualityTable: Record<ImageQualityPreset, number> = {
 	low: 25,
