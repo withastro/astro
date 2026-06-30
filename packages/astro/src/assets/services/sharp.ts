@@ -182,7 +182,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		}
 
 		const result = sharp(inputBuffer, {
-			failOnError: false,
+			failOn: 'none',
 			pages: -1,
 			limitInputPixels: config.service.config.limitInputPixels,
 		});
