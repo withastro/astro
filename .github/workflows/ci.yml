@@ -35,6 +35,7 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     permissions:
+      contents: read # Required by actions/checkout
       pull-requests: read # Required by dorny/paths-filter to read changed files
     outputs:
       language-tools: ${{ steps.filter.outputs.language-tools }}

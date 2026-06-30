@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "7.0.2",
+  "version": "7.0.4",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -12,23 +12,6 @@
   },
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
-  "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "app": [
-        "./dist/core/app/index"
-      ],
-      "app/*": [
-        "./dist/core/app/*"
-      ],
-      "hono": [
-        "./dist/core/hono/index"
-      ],
-      "middleware": [
-        "./dist/virtual-modules/middleware.d.ts"
-      ]
-    }
-  },
   "exports": {
     ".": "./dist/index.js",
     "./env": "./env.d.ts",
@@ -134,7 +117,7 @@
     "test:integration": "astro-scripts test \"test/*.test.ts\" --parallel --strip-types"
   },
   "dependencies": {
-    "@astrojs/compiler-rs": "^0.2.2",
+    "@astrojs/compiler-rs": "^0.3.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-satteri": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
@@ -172,7 +155,6 @@
     "package-manager-detector": "^1.6.0",
     "piccolore": "^0.1.3",
     "picomatch": "^4.0.4",
-    "rehype": "^13.0.2",
     "semver": "^7.7.4",
     "shiki": "^4.0.2",
     "smol-toml": "^1.6.0",
@@ -182,9 +164,7 @@
     "tinyglobby": "^0.2.15",
     "ultrahtml": "^1.6.0",
     "unifont": "~0.7.4",
-    "unist-util-visit": "^5.1.0",
     "unstorage": "^1.17.5",
-    "vfile": "^6.0.3",
     "vite": "^8.0.13",
     "vitefu": "^1.1.2",
     "xxhash-wasm": "^1.1.0",
@@ -192,7 +172,7 @@
     "zod": "^4.3.6"
   },
   "optionalDependencies": {
-    "sharp": "^0.34.0"
+    "sharp": "^0.34.0 || ^0.35.0"
   },
   "peerDependencies": {
     "@astrojs/markdown-remark": "workspace:*"
@@ -207,7 +187,6 @@
     "@astrojs/markdown-remark": "workspace:*",
     "@playwright/test": "1.58.2",
     "@types/aria-query": "^5.0.4",
-    "@types/hast": "^3.0.4",
     "@types/html-escaper": "3.0.4",
     "@types/http-cache-semantics": "^4.2.0",
     "@types/js-yaml": "^4.0.9",
@@ -230,7 +209,6 @@
     "sass": "^1.98.0",
     "typescript": "^6.0.3",
     "undici": "^7.22.0",
-    "unified": "^11.0.5",
     "vitest": "^4.1.0"
   },
   "engines": {

@@ -1,28 +1,3 @@
-import type { Element } from 'hast';
-import type MagicString from 'magic-string';
-
-const splitAttrsTokenizer = /([${}@\w:\-]*)\s*=\s*?(['"]?)(.*?)\2\s+/g;
-
-export function replaceAttribute(s: MagicString, node: Element, key: string, newValue: string) {
-	splitAttrsTokenizer.lastIndex = 0;
-	const text = s.original
-		.slice(node.position?.start.offset ?? 0, node.position?.end.offset ?? 0)
-		.toString();
-	const offset = text.indexOf(key);
-	if (offset === -1) return;
-	const start = node.position!.start.offset! + offset;
-	const tokens = text.slice(offset).split(splitAttrsTokenizer);
-	const token = tokens[0].replace(/([^>])>[\s\S]*$/gm, '$1');
-	if (token.trim() === key) {
-		const end = start + key.length;
-		return s.overwrite(start, end, newValue, { contentOnly: true });
-	} else {
-		const length = token.length;
-		const end = start + length;
-		return s.overwrite(start, end, newValue, { contentOnly: true });
-	}
-}
-
 // Embedding in our own template literal expression requires escaping
 // any meaningful template literal characters in the user's code!
 const NEEDS_ESCAPE_RE = /[`\\]|\$\{/g;

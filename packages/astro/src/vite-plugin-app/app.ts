@@ -90,6 +90,14 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		this.pipeline.clearMiddleware();
 	}
 
+	/**
+	 * Clears the cached actions so they are re-resolved on the next request.
+	 * Called via HMR when action files change.
+	 */
+	clearActions(): void {
+		this.pipeline.clearActions();
+	}
+
 	async devMatch(pathname: string): Promise<DevMatch | undefined> {
 		const matchedRoute = await matchRoute(
 			pathname,
@@ -182,6 +190,10 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 
 		const self = this;
 		await self.#loadFetchHandler();
+		// RouteCache is intentionally not cleared per request. devMatch() can use
+		// getStaticPaths() to test dynamic route candidates before the later render
+		// resolves props from the same static-path table. HMR/content invalidation
+		// clears stale entries through module identity checks or content-change events.
 
 		let handled = true;
 		await runWithErrorHandling({

@@ -1,5 +1,25 @@
 # @astrojs/cloudflare
 
+## 14.0.2
+
+### Patch Changes
+
+- [#17049](https://github.com/withastro/astro/pull/17049) [`ffceaa2`](https://github.com/withastro/astro/commit/ffceaa240dd07568ad473568efe79f996f34d863) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes prerender errors being silently swallowed when pages throw during rendering in workerd, causing `astro build` to exit 0 and emit truncated HTML. The response body is now fully buffered inside workerd before being sent back to the build process, so streaming errors are caught and surfaced as build failures with clear error messages.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 14.0.1
+
+### Patch Changes
+
+- [#17175](https://github.com/withastro/astro/pull/17175) [`7a7d879`](https://github.com/withastro/astro/commit/7a7d8791503cf460e0fb5ad1e9f52b84ec19928f) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `astro dev` OOM crashes for `@astrojs/cloudflare` users on Vite 8 by migrating the frontmatter scan plugin to Rolldown-compatible options.
+
+- [#17187](https://github.com/withastro/astro/pull/17187) [`0db4b57`](https://github.com/withastro/astro/commit/0db4b57b6425af8c0174c6b478f56a097f1060ff) Thanks [@matthewp](https://github.com/matthewp)! - Fixes React invalid hook warning during cold SSR optimizer reload when using ClientRouter
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 14.0.0
 
 ### Major Changes

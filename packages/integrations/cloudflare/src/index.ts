@@ -302,6 +302,7 @@ export default function createIntegration({
 											optimizeDeps: {
 												include: [
 													'@astrojs/cloudflare/image-service-workerd',
+													'@astrojs/cloudflare/entrypoints/server',
 													'astro',
 													'astro/runtime/**',
 													'astro > html-escaper',
@@ -330,6 +331,7 @@ export default function createIntegration({
 													'astro/jsx-runtime',
 													'astro/app/entrypoint/dev',
 													'astro/virtual-modules/middleware.js',
+													'astro/virtual-modules/transitions.js',
 													...(isAstroPrismPackageInstalled ? prismFiles : []),
 													...(Array.isArray(userOptimizeDeps?.include)
 														? userOptimizeDeps.include
