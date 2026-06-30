@@ -1,0 +1,15 @@
+---
+import { getEntry, render } from 'astro:content';
+import SlotLayout from '../components/SlotLayout.astro';
+const entry = await getEntry('docs', 'one');
+const { Content } = await render(entry);
+---
+<SlotLayout>
+  <!--
+    Regression for #17218: an `await` in the slot markup before <Content />
+    used to defer the propagating component's registration past head buffering,
+    silently dropping its styles.
+  -->
+  <p>{await new Promise((resolve) => setTimeout(() => resolve('ready'), 50))}</p>
+  <Content />
+</SlotLayout>
