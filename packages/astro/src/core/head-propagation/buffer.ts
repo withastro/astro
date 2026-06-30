@@ -5,17 +5,21 @@ export interface HeadPropagator {
 }
 
 /**
- * Runs all registered propagators and collects emitted head HTML strings.
+ * Runs all registered propagators and collects the head HTML they emit.
  *
- * Discovery is a fixpoint: initializing one propagator can register more (the
- * `in-tree` -> `self` chain), and resolving a pending async slot pre-render can
- * register propagators that live behind an `await` in slot markup. We keep
- * draining both until neither produces new work — i.e. "wait until there are no
- * more propagators".
+ * Components with head content are discovered as we go. Initializing one
+ * propagator can register more of them: a component marked `in-tree` renders
+ * its children, and one of those children may be a `self` component that emits
+ * styles. Slots add a second way to find them — a slot whose markup contains an
+ * `await` only reaches the components after that `await` once it resolves, so
+ * we also wait for those pending slot pre-renders. We keep initializing
+ * propagators and waiting on slots until no new ones appear.
  *
- * A `seen` set is used instead of a single live `Set` iterator because a
- * propagator can be registered *after* an `await` boundary, at which point a
- * `Set` iterator that has already reported `done` would never observe it.
+ * Propagators are tracked in a `seen` set rather than read through a single
+ * live `Set` iterator. A propagator can be registered after we have already
+ * iterated to the end of the set (e.g. once a slot's `await` resolves), and a
+ * `Set` iterator that has reported `done` would never report those late
+ * additions.
  *
  * @example
  * If a layout initializes and discovers a nested component that also emits
@@ -53,8 +57,11 @@ export async function collectPropagatedHeadParts(input: {
 			if (input.isHeadAndContent(returnValue) && returnValue.head) {
 				collectedHeadParts.push(returnValue.head);
 			}
-			// Restart the loop so any work queued during `init()` is drained
-			// before advancing.
+			// Only initialize one propagator per `for` pass, then break back to
+			// the `while`. This is not the same as letting the `for` run to its
+			// end: `init()` above may have queued new slot pre-renders, and
+			// breaking returns to step 1 so those are drained before the next
+			// propagator is initialized.
 			break;
 		}
 
