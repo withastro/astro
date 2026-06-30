@@ -3,7 +3,6 @@
   "description": "Use React components within Astro",
   "version": "6.0.0",
   "type": "module",
-  "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {

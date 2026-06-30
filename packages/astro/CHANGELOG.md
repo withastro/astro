@@ -1,5 +1,23 @@
 # astro
 
+## 7.0.4
+
+### Patch Changes
+
+- [#17212](https://github.com/withastro/astro/pull/17212) [`7ba0bb1`](https://github.com/withastro/astro/commit/7ba0bb1dc7516e88caff9abd7767322af44b0294) Thanks [@matthewp](https://github.com/matthewp)! - Ensures transition directive values are HTML-escaped when rendered on hydrated islands
+
+- [#17224](https://github.com/withastro/astro/pull/17224) [`dc5e52f`](https://github.com/withastro/astro/commit/dc5e52f96c44a0dbf59edaf0503b53524e4e2da0) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes trailing slash handling for dynamic file endpoints in dev mode. Dynamic file endpoints (e.g., `src/pages/api/[name].json.ts`) with `trailingSlash: "always"` incorrectly required a trailing slash in dev mode, returning 404 for `/api/bar.json` and 200 for `/api/bar.json/`.
+
+- [#17067](https://github.com/withastro/astro/pull/17067) [`23f9446`](https://github.com/withastro/astro/commit/23f9446a5666f249066c18cb9f6a7a4e261eb090) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixed a bug where the development toolbar did not output a warning even though the implicit ARIA role and the manually specified role were duplicated.
+
+- [#17234](https://github.com/withastro/astro/pull/17234) [`d5fbee8`](https://github.com/withastro/astro/commit/d5fbee8ec341049dc5ddc7b6c251b7a859abf437) Thanks [@ocavue](https://github.com/ocavue)! - Adds support for [`sharp` v0.35](https://github.com/lovell/sharp/releases/tag/v0.35.0). pnpm users no longer need to approve `sharp`'s build script (see [`allowBuilds`](https://pnpm.io/settings#allowbuilds)) when on v0.35.
+
+- [#17223](https://github.com/withastro/astro/pull/17223) [`5970ef4`](https://github.com/withastro/astro/commit/5970ef4f7d99b692a54df019e7b3c161ce2f842c) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `getCollection()` returning empty in dev mode for large content collections (500k+ entries)
+
+- [#17184](https://github.com/withastro/astro/pull/17184) [`799e5cd`](https://github.com/withastro/astro/commit/799e5cd860f85a0d2eb5f77951f7593f474f3ad8) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Upgrades the Rust compiler to the latest, which fixes some bugs. Refer to its [changelog](https://github.com/withastro/compiler-rs/releases/tag/%40astrojs%2Fcompiler-rs%400.3.0) for more information.
+
+- [#17208](https://github.com/withastro/astro/pull/17208) [`da8b573`](https://github.com/withastro/astro/commit/da8b57354b25e2776324848f7e08530ae828e62f) Thanks [@matthewp](https://github.com/matthewp)! - Hardens forwarded header handling so the internal request helper validates `X-Forwarded-Host` against `security.allowedDomains` before trusting `X-Forwarded-For` for `clientAddress`. Previously it only checked that the header was present, which was inconsistent with the public `createRequest` helper. This aligns both code paths; behavior is unchanged for correctly configured proxies.
+
 ## 7.0.3
 
 ### Patch Changes
