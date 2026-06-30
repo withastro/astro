@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 14.0.2
+
+### Patch Changes
+
+- [#17049](https://github.com/withastro/astro/pull/17049) [`ffceaa2`](https://github.com/withastro/astro/commit/ffceaa240dd07568ad473568efe79f996f34d863) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes prerender errors being silently swallowed when pages throw during rendering in workerd, causing `astro build` to exit 0 and emit truncated HTML. The response body is now fully buffered inside workerd before being sent back to the build process, so streaming errors are caught and surfaced as build failures with clear error messages.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 14.0.1
 
 ### Patch Changes

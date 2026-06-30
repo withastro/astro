@@ -1,5 +1,11 @@
 # create-astro
 
+## 5.2.1
+
+### Patch Changes
+
+- [#17205](https://github.com/withastro/astro/pull/17205) [`e37dfe2`](https://github.com/withastro/astro/commit/e37dfe2a7623acd364d7e3556ecc9b31e3e45520) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes dependency installation when creating Astro projects with pnpm 11+
+
 ## 5.2.0
 
 ### Minor Changes
