@@ -1868,4 +1868,21 @@ test.describe('View Transitions', () => {
 			page.locator('[data-vite-dev-id*="VueCounter.vue?vue&type=style"][data-marker="this"]'),
 		).toHaveCount(1);
 	});
+
+	test('no children get lost if there is a `server:defer` component in the head', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/deferred'));
+		await expect(page.locator('head link[rel="stylesheet"][href="."]')).toHaveCount(1);
+		await expect(page.locator('head link[rel="stylesheet"][href="after"]')).toHaveCount(1);
+		await expect(page.locator('head link[rel="stylesheet"][href="before"]')).toHaveCount(1);
+
+		await page.click('#deferred');
+		await page.waitForLoadState('networkidle');
+
+		await expect(page.locator('head link[rel="stylesheet"][href="."]')).toHaveCount(1);
+		await expect(page.locator('head link[rel="stylesheet"][href="after"]')).toHaveCount(1);
+		await expect(page.locator('head link[rel="stylesheet"][href="before"]')).toHaveCount(1);
+	});
 });
