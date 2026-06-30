@@ -638,9 +638,6 @@ importers:
       picomatch:
         specifier: ^4.0.4
         version: 4.0.4
-      rehype:
-        specifier: ^13.0.2
-        version: 13.0.2
       semver:
         specifier: ^7.7.4
         version: 7.8.5
@@ -668,15 +665,9 @@ importers:
       unifont:
         specifier: ~0.7.4
         version: 0.7.4
-      unist-util-visit:
-        specifier: ^5.1.0
-        version: 5.1.0
       unstorage:
         specifier: ^1.17.5
         version: 1.17.5(@azure/identity@4.13.0)(@netlify/blobs@10.7.5)(@vercel/functions@3.4.3)
-      vfile:
-        specifier: ^6.0.3
-        version: 6.0.3
       vite:
         specifier: ^8.0.13
         version: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
@@ -705,9 +696,6 @@ importers:
       '@types/aria-query':
         specifier: ^5.0.4
         version: 5.0.4
-      '@types/hast':
-        specifier: ^3.0.4
-        version: 3.0.4
       '@types/html-escaper':
         specifier: 3.0.4
         version: 3.0.4
@@ -774,9 +762,6 @@ importers:
       undici:
         specifier: ^7.22.0
         version: 7.24.8
-      unified:
-        specifier: ^11.0.5
-        version: 11.0.5
       vitest:
         specifier: ^4.1.0
         version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
@@ -14269,9 +14254,6 @@ packages:
     resolution: {integrity: sha512-DMt376+4i1KJGgHJL7Ezd65qKkJ7Eqp6JSB47BJ90ReBrohI9ufrornArM6f4oJjP2E2DVZZHufWucv/9t7GUQ==}
     engines: {node: '>=10'}
 
-  rehype@13.0.2:
-    resolution: {integrity: sha512-j31mdaRFrwFRUIlxGeuPXXKWQxet52RBQRvCmzl5eCefn/KGbomK5GMHNMsOJf55fgo3qw5tST5neDuarDYR2A==}
-
   reinterval@1.1.0:
     resolution: {integrity: sha512-QIRet3SYrGp0HUHO88jVskiG6seqUGC5iAG7AwI/BV4ypGcuqk9Du6YQBUOUqm9c8pw1eyLoIaONifRua1lsEQ==}
 
@@ -24547,13 +24529,6 @@ snapshots:
   rehype-toc@3.0.2:
     dependencies:
       '@jsdevtools/rehype-toc': 3.0.2
-
-  rehype@13.0.2:
-    dependencies:
-      '@types/hast': 3.0.4
-      rehype-parse: 9.0.1
-      rehype-stringify: 10.0.1
-      unified: 11.0.5
 
   reinterval@1.1.0: {}
 
