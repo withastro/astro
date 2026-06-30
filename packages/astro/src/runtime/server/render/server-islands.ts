@@ -241,7 +241,7 @@ const SERVER_ISLAND_REPLACER = markHTMLString(
 	// Load the HTML before modifying the DOM in case of errors
 	let html = await r.text();
 	// Remove any placeholder content before the island script
-	while (s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '${SERVER_ISLAND_START}') {
+	while (s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '${SERVER_ISLAND_START}')
 		s.previousSibling.remove();
 	s.previousSibling?.remove();
 	// Insert the new HTML
