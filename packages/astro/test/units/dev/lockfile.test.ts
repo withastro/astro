@@ -102,6 +102,40 @@ describe('parseLockFile', () => {
 		assert.notEqual(result, null);
 		assert.equal(result!.background, true);
 	});
+
+	it('parses a valid urls field', () => {
+		const data = {
+			...validData,
+			urls: {
+				local: ['http://localhost:4321/'],
+				network: ['http://192.168.1.30:4321/', 'http://100.96.45.51:4321/'],
+			},
+		};
+		const result = parseLockFile(JSON.stringify(data));
+		assert.notEqual(result, null);
+		assert.deepEqual(result!.urls, data.urls);
+	});
+
+	it('parses successfully when urls is absent (backward compatible)', () => {
+		const result = parseLockFile(JSON.stringify(validData));
+		assert.notEqual(result, null);
+		assert.equal(result!.urls, undefined);
+	});
+
+	it('returns null when urls is malformed', () => {
+		const data = { ...validData, urls: { local: 'not-an-array', network: [] } };
+		assert.equal(parseLockFile(JSON.stringify(data)), null);
+	});
+
+	it('returns null when urls is missing the network array', () => {
+		const data = { ...validData, urls: { local: ['http://localhost:4321/'] } };
+		assert.equal(parseLockFile(JSON.stringify(data)), null);
+	});
+
+	it('returns null when urls.network contains non-strings', () => {
+		const data = { ...validData, urls: { local: [], network: [123] } };
+		assert.equal(parseLockFile(JSON.stringify(data)), null);
+	});
 });
 // #endregion
 

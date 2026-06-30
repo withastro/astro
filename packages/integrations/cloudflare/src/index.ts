@@ -11,7 +11,7 @@ import {
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute } from 'astro';
-import { astroFrontmatterScanPlugin } from './esbuild-plugin-astro-frontmatter.js';
+import { rolldownAstroFrontmatterScanPlugin } from './rolldown-plugin-astro-frontmatter.js';
 import { getParts } from './utils/generate-routes-json.js';
 import { buildAssetsHeadersContent } from './utils/headers.js';
 import {
@@ -180,12 +180,15 @@ export default function createIntegration({
 				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
 				const isTypeGenPhase = command === 'build' || command === 'sync';
 
+				const needsWorkerCache = config.cache?.provider?.name === 'cloudflare';
+
 				const adapterPluginConfig: Partial<PluginConfig> = {
 					config: cloudflareConfigCustomizer({
 						needsSessionKVBinding,
 						sessionKVBindingName,
 						imagesBindingName:
 							needsImagesBinding || needsImagesBindingForDev ? imagesBindingName : false,
+						needsWorkerCache,
 					}),
 					...(prerenderEnvironment === 'workerd' && {
 						experimental: {
@@ -327,6 +330,7 @@ export default function createIntegration({
 													'astro/jsx-runtime',
 													'astro/app/entrypoint/dev',
 													'astro/virtual-modules/middleware.js',
+													'astro/virtual-modules/transitions.js',
 													...(isAstroPrismPackageInstalled ? prismFiles : []),
 													...(Array.isArray(userOptimizeDeps?.include)
 														? userOptimizeDeps.include
@@ -343,16 +347,8 @@ export default function createIntegration({
 														? userOptimizeDeps.exclude
 														: []),
 												],
-												esbuildOptions: {
-													// Suppress Vite's `createRequire(import.meta.url)` banner to work around
-													// https://github.com/vitejs/vite/issues/22004 — Vite's SSR transform
-													// incorrectly rewrites identifiers inside `import.meta` when an imported
-													// binding shares the same name (e.g. zod v4 exports `meta`).
-													banner: { js: '' },
-													plugins: [astroFrontmatterScanPlugin()],
-													...(userOptimizeDeps?.esbuildOptions?.loader
-														? { loader: userOptimizeDeps.esbuildOptions.loader }
-														: {}),
+												rolldownOptions: {
+													plugins: [rolldownAstroFrontmatterScanPlugin()],
 												},
 											},
 										};
@@ -396,6 +392,7 @@ export default function createIntegration({
 												buildAssets: config.build.assets ?? '_astro',
 											}
 										: null,
+								cacheProviderEnabled: needsWorkerCache,
 							}),
 							cfPrismPlugin(),
 						],

@@ -1426,7 +1426,7 @@ export interface AstroUserConfig<
 	 * });
 	 * ```
 	 *
-	 * Learn more about customizing the request pipeline in the [advanced routing guide](https://v7.docs.astro.build/en/guides/routing/#advanced-routing).
+	 * Learn more about customizing the request pipeline in the [advanced routing guide](https://docs.astro.build/en/guides/routing/#advanced-routing).
 	 */
 	fetchFile?: string | null;
 
@@ -1441,7 +1441,7 @@ export interface AstroUserConfig<
 	 *
 	 * Configures how Astro logs messages during development and production.
 	 *
-	 * By default, Astro uses a built-in logger that outputs human-friendly logs to the console. You can customize this behavior by providing [your own logger handler](https://v7.docs.astro.build/en/reference/logger-reference/#custom-loggers) or by using one of the [built-in log handlers](https://v7.docs.astro.build/en/reference/logger-reference/#built-in-loggers):
+	 * By default, Astro uses a built-in logger that outputs human-friendly logs to the console. You can customize this behavior by providing [your own logger handler](https://docs.astro.build/en/reference/logger-reference/#custom-loggers) or by using one of the [built-in log handlers](https://docs.astro.build/en/reference/logger-reference/#built-in-loggers):
 	 *
 	 * ```js
 	 * // astro.config.mjs
@@ -1452,7 +1452,7 @@ export interface AstroUserConfig<
 	 * });
 	 * ```
 	 *
-	 * See [the logger API reference](https://v7.docs.astro.build/en/reference/logger-reference/) for more information.
+	 * See [the logger API reference](https://docs.astro.build/en/reference/logger-reference/) for more information.
 	 */
 	logger?: LoggerHandlerConfig;
 
@@ -2903,6 +2903,87 @@ export interface AstroUserConfig<
 			};
 
 	/**
+	 * @docs
+	 * @kind heading
+	 * @name cache
+	 * @type {object}
+	 * @default `undefined`
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * Enables route caching for SSR responses. Provides a platform-agnostic API
+	 * for caching rendered pages and API responses, with pluggable providers
+	 * that adapters can configure automatically.
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * import { memoryCache } from 'astro/config';
+	 *
+	 * {
+	 *   cache: {
+	 *     provider: memoryCache(),
+	 *   },
+	 *   routeRules: {
+	 *     '/blog/[...path]': { maxAge: 300, swr: 60 },
+	 *   },
+	 * }
+	 * ```
+	 *
+	 * Use `Astro.cache.set()` in routes and `context.cache.set()` in middleware
+	 * or API routes to control caching per-request.
+	 */
+	cache?: {
+		/**
+		 * @docs
+		 * @name cache.provider
+		 * @type {CacheProviderConfig}
+		 * @version 7.0.0
+		 * @description
+		 *
+		 * A provider that controls how responses are cached.
+		 *
+		 * Use the provider's config function to get type-safe configuration:
+		 *
+		 * ```js
+		 * import { defineConfig, memoryCache } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   cache: { provider: memoryCache() },
+		 * });
+		 * ```
+		 */
+		provider?: CacheProviderConfig;
+	};
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name routeRules
+	 * @type {Record<string, RouteRule>}
+	 * @default `undefined`
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * Route patterns mapped to cache rules.
+	 * Uses the same `[param]` and `[...rest]` syntax as [file-based routing](/en/guides/routing/#route-priority-order).
+	 * Use a `[...rest]` parameter to match a group of routes:
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * import { memoryCache } from 'astro/config';
+	 *
+	 * {
+	 *   cache: { provider: memoryCache() },
+	 *   routeRules: {
+	 *     '/api/[...path]': { swr: 600 },
+	 *     '/products/[...slug]': { maxAge: 3600, tags: ['products'] },
+	 *   },
+	 * }
+	 * ```
+	 */
+	routeRules?: RouteRules;
+
+	/**
 	 *
 	 * @kind heading
 	 * @name Legacy Flags
@@ -3049,85 +3130,6 @@ export interface AstroUserConfig<
 		 * See the [experimental SVG optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
 		 */
 		svgOptimizer?: SvgOptimizer;
-
-		/**
-		 * @name experimental.cache
-		 * @type {object}
-		 * @default `undefined`
-		 * @description
-		 *
-		 * Enables route caching for SSR responses. Provides a platform-agnostic API
-		 * for caching rendered pages and API responses, with pluggable providers
-		 * that adapters can configure automatically.
-		 *
-		 * ```js
-		 * // astro.config.mjs
-		 * import { memoryCache } from 'astro/config';
-		 *
-		 * {
-		 *   experimental: {
-		 *     cache: {
-		 *       provider: memoryCache(),
-		 *     },
-		 *     routeRules: {
-		 *       '/blog/[...path]': { maxAge: 300, swr: 60 },
-		 *     },
-		 *   },
-		 * }
-		 * ```
-		 *
-		 * Use `Astro.cache.set()` in routes and `context.cache.set()` in middleware
-		 * or API routes to control caching per-request.
-		 */
-		cache?: {
-			/**
-			 * @name experimental.cache.provider
-			 * @type {import('../../core/cache/types.js').CacheProviderConfig}
-			 * @description
-			 *
-			 * The cache provider. Adapters typically set a default, but you can
-			 * override it with your own.
-			 *
-			 * Use the provider's config function to get type-safe configuration:
-			 *
-			 * ```js
-			 * import { memoryCache } from 'astro/config';
-			 *
-			 * export default defineConfig({
-			 *   experimental: {
-			 *     cache: { provider: memoryCache() },
-			 *   },
-			 * });
-			 * ```
-			 */
-			provider?: CacheProviderConfig;
-		};
-
-		/**
-		 * @name experimental.routeRules
-		 * @type {Record<string, RouteRule>}
-		 * @default `undefined`
-		 * @description
-		 *
-		 * Route patterns mapped to cache rules.
-		 * Uses the same `[param]` and `[...rest]` syntax as file-based routing.
-		 *
-		 * ```js
-		 * // astro.config.mjs
-		 * import { memoryCache } from 'astro/config';
-		 *
-		 * {
-		 *   experimental: {
-		 *     cache: { provider: memoryCache() },
-		 *     routeRules: {
-		 *       '/api/*': { swr: 600 },
-		 *       '/products/*': { maxAge: 3600, tags: ['products'] },
-		 *     },
-		 *   },
-		 * }
-		 * ```
-		 */
-		routeRules?: RouteRules;
 	};
 }
 

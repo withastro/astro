@@ -1,9 +1,8 @@
 {
   "name": "@astrojs/vue",
-  "version": "7.0.0-beta.2",
+  "version": "7.0.0",
   "description": "Use Vue components within Astro",
   "type": "module",
-  "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {

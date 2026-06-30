@@ -104,9 +104,16 @@ export function createRequestFromNodeRequest(
 		protocol,
 		allowedDomains,
 	);
-	const forwardedHost = getFirstForwardedValue(req.headers['x-forwarded-host']);
-	const hostValidated =
-		validatedHostname !== undefined || (forwardedHost !== undefined && allowedDomains.length > 0);
+	// Only treat X-Forwarded-Host as trusted when it actually matches
+	// allowedDomains, mirroring `createRequest`. Checking that the header
+	// is merely present would accept any value.
+	const validatedForwardedHost = validateForwardedHeaders(
+		undefined,
+		getFirstForwardedValue(req.headers['x-forwarded-host']),
+		undefined,
+		allowedDomains,
+	).host;
+	const hostValidated = validatedHostname !== undefined || validatedForwardedHost !== undefined;
 	const forwardedClientIp = hostValidated
 		? getFirstForwardedValue(req.headers['x-forwarded-for'])
 		: undefined;

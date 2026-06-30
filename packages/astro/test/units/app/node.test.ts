@@ -1,7 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import { describe, it } from 'node:test';
-import { createRequest, writeResponse } from '../../../dist/core/app/node.js';
+import {
+	createRequest,
+	createRequestFromNodeRequest,
+	writeResponse,
+} from '../../../dist/core/app/node.js';
 
 // Minimal mock satisfying the subset of IncomingMessage used by createRequest.
 // We intentionally omit the full IncomingMessage interface members not exercised here.
@@ -853,6 +857,68 @@ describe('node', () => {
 					{ allowedDomains: [{ hostname: 'example.com' }] },
 				);
 				assert.equal(result.url, 'https://example.com:3000/');
+			});
+		});
+	});
+
+	describe('createRequestFromNodeRequest', () => {
+		describe('x-forwarded-for', () => {
+			it('trusts x-forwarded-for when host matches allowedDomains', () => {
+				const result = createRequestFromNodeRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-for': '1.1.1.1',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '1.1.1.1');
+			});
+
+			it('trusts x-forwarded-for when x-forwarded-host matches allowedDomains', () => {
+				const result = createRequestFromNodeRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'evil.com',
+							'x-forwarded-host': 'example.com',
+							'x-forwarded-for': '1.1.1.1',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '1.1.1.1');
+			});
+
+			it('ignores x-forwarded-for when x-forwarded-host does not match allowedDomains', () => {
+				const result = createRequestFromNodeRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'evil.com',
+							'x-forwarded-host': 'bad.net',
+							'x-forwarded-for': '1.1.1.1',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				// Neither the Host nor the X-Forwarded-Host matches allowedDomains,
+				// so x-forwarded-for must not be trusted.
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '2.2.2.2');
+			});
+
+			it('ignores x-forwarded-for when no allowedDomains is configured', () => {
+				const result = createRequestFromNodeRequest({
+					...mockNodeRequest,
+					headers: {
+						host: 'example.com',
+						'x-forwarded-host': 'example.com',
+						'x-forwarded-for': '1.1.1.1',
+					},
+				});
+				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '2.2.2.2');
 			});
 		});
 	});

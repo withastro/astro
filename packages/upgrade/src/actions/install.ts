@@ -179,10 +179,18 @@ async function runInstallCommand(
 				),
 			].join(' ');
 			newline();
-			error(
-				'error',
-				`Dependencies failed to install, please run the following command manually:\n${color.bold(manualInstallCommand)}`,
-			);
+			// pnpm's minimumReleaseAge policy can block installs when run non-interactively
+			if (errorMessage.includes('MINIMUM_RELEASE_AGE')) {
+				error(
+					'error',
+					`pnpm's ${color.bold('minimumReleaseAge')} policy blocked the installation. Run the following command manually to confirm the update:\n${color.bold(manualInstallCommand)}`,
+				);
+			} else {
+				error(
+					'error',
+					`Dependencies failed to install, please run the following command manually:\n${color.bold(manualInstallCommand)}`,
+				);
+			}
 			return ctx.exit(1);
 		}
 	};
