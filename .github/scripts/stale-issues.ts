@@ -18,7 +18,7 @@ const cutoff = new Date(Date.now() - DAYS_INACTIVE * 24 * 60 * 60 * 1000);
 
 const issues: { number: number; updatedAt: string }[] = JSON.parse(
 	execSync(
-		`gh issue list --label "triage: needs reproduction" --state open --json number,updatedAt --limit 500 --repo biomejs/biome`,
+		`gh issue list --label "triage: needs reproduction" --state open --json number,updatedAt --limit 500 --repo withastro/astro`,
 		{ encoding: 'utf-8', env: { ...process.env, GH_TOKEN: values.token } },
 	),
 );
