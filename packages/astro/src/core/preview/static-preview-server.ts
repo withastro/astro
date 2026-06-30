@@ -15,6 +15,7 @@ import { piccoloreTextStyler } from '../../cli/infra/piccolore-text-styler.js';
 interface PreviewServer {
 	host?: string;
 	port: number;
+	urls?: vite.ResolvedServerUrls;
 	server: http.Server;
 	closed(): Promise<void>;
 	stop(): Promise<void>;
@@ -118,6 +119,7 @@ export default async function createStaticPreviewServer(
 	return {
 		host: getResolvedHostForHttpServer(settings.config.server.host),
 		port: actualPort,
+		urls: previewServer.resolvedUrls ?? { local: [], network: [] },
 		closed,
 		server: previewServer.httpServer as http.Server,
 		stop: previewServer.close.bind(previewServer),
