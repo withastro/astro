@@ -419,6 +419,7 @@ export class FetchState implements AstroFetchState {
 				extraStyleHashes,
 				extraScriptHashes,
 				propagators: new Set(),
+				routeHasPropagation: false,
 				pendingSlotEvaluations: [],
 				templateDepth: 0,
 			},

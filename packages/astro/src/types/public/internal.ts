@@ -305,9 +305,17 @@ export interface SSRMetadata {
 	extraScriptHashes: string[];
 	propagators: Set<AstroComponentInstance | ServerIslandComponent>;
 	/**
-	 * Promises from async slot pre-rendering that must resolve before
-	 * head content is buffered, so that propagating components inside
-	 * async slots are registered in time.
+	 * `true` when the page being rendered is on a head-propagation path (its
+	 * component metadata hint is `in-tree`/`self`). Only then do we await async
+	 * slot pre-renders before collecting head content, so that propagating
+	 * components hidden behind an `await` in slot markup are discovered in time.
+	 * Pages with no propagation keep streaming without paying that cost.
+	 */
+	routeHasPropagation: boolean;
+	/**
+	 * Promises from async slot pre-renders that may still need to register
+	 * propagating components. Drained by `collectPropagatedHeadParts` before
+	 * head content is flushed. Only populated when `routeHasPropagation` is true.
 	 */
 	pendingSlotEvaluations: Promise<unknown>[];
 	/**

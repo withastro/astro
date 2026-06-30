@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 4.0.19
+
+### Patch Changes
+
+- [#17209](https://github.com/withastro/astro/pull/17209) [`fbcfa03`](https://github.com/withastro/astro/commit/fbcfa039dfe3d700b239f595a6c55ee35e45bd06) Thanks [@matthewp](https://github.com/matthewp)! - Hardens RSS feed generation by escaping the `source` and `enclosure` item fields. These fields are now serialized as structured XML values, ensuring that special characters in values like `source.title` and `enclosure.type` are always treated as text rather than markup, consistent with how other feed fields are handled.
+
 ## 4.0.18
 
 ### Patch Changes

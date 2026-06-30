@@ -46,6 +46,7 @@ minimumReleaseAgeExclude:
   - 'satteri'
   - '@bruits/*'
   - vite@8.1.0
+  # compiler-rs 0.2.3's wasm binding needs freshly-published napi runtime
   - '@napi-rs/wasm-runtime@1.1.6'
   - '@tybys/wasm-util@0.10.3'
 peerDependencyRules:

@@ -26,16 +26,6 @@
     "./cache/provider": "./dist/cache/provider.js",
     "./package.json": "./package.json"
   },
-  "typesVersions": {
-    "*": {
-      "serverless": [
-        "dist/serverless/adapter.d.ts"
-      ],
-      "static": [
-        "dist/static/adapter.d.ts"
-      ]
-    }
-  },
   "files": [
     "dist",
     "types.d.ts"
