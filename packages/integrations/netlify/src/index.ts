@@ -281,10 +281,11 @@ export interface NetlifyIntegrationConfig {
 	 *
 	 * - `images`: Enables the Netlify Image CDN in local development. Default: true
 	 * - `environmentVariables`: If your site is linked to a Netlify site, this will automatically load the environment variables from the Netlify site or team. Default: false
+	 * - `edgeFunctions`: Enables emulation of Netlify Edge Functions defined in your project's `netlify/edge-functions` directory. Some npm packages that access the filesystem may not work in the edge function sandbox. If you encounter errors, disable this and use `netlify dev` instead. Default: true
 	 *
-	 * @default {{ environmentVariables: false, images: true }}
+	 * @default {{ environmentVariables: false, images: true, edgeFunctions: true }}
 	 */
-	devFeatures?: { environmentVariables: boolean; images: boolean } | boolean;
+	devFeatures?: { environmentVariables: boolean; images: boolean; edgeFunctions: boolean } | boolean;
 }
 
 export default function netlifyIntegration(
@@ -631,10 +632,12 @@ export default function netlifyIntegration(
 						? {
 								images: integrationConfig.devFeatures,
 								environmentVariables: integrationConfig.devFeatures,
+								edgeFunctions: integrationConfig.devFeatures,
 							}
 						: {
 								images: integrationConfig?.devFeatures?.images ?? true,
 								environmentVariables: integrationConfig?.devFeatures?.environmentVariables ?? false,
+								edgeFunctions: integrationConfig?.devFeatures?.edgeFunctions ?? true,
 							};
 
 				const vitePluginOptions: NetlifyPluginOptions = {
@@ -648,6 +651,9 @@ export default function netlifyIntegration(
 						// If features is an object, use the `environmentVariables` property
 						// Otherwise, use the boolean value of `features`, defaulting to false
 						enabled: features.environmentVariables,
+					},
+					edgeFunctions: {
+						enabled: features.edgeFunctions,
 					},
 				};
 
