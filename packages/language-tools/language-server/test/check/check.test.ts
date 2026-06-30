@@ -11,6 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const require = createRequire(import.meta.url);
 const checkFixtureDir = path.resolve(__dirname, 'fixture');
+const minifiedFixtureDir = path.resolve(__dirname, 'fixture-minified');
 
 describe('AstroCheck', async () => {
 	let checker: AstroCheck;
@@ -55,5 +56,35 @@ describe('AstroCheck', async () => {
 
 	it('Can return the status of the check', async () => {
 		assert.strictEqual(result.status, 'completed');
+	});
+});
+
+describe('AstroCheck - minified files', async () => {
+	let checker: AstroCheck;
+	let result: CheckResult;
+
+	before(async () => {
+		checker = new AstroCheck(
+			minifiedFixtureDir,
+			require.resolve('typescript/lib/typescript.js'),
+			undefined,
+		);
+		result = await checker.lint({ logErrors: { level: 'hint' } });
+	});
+
+	it('Completes without OOM when checking files with very long lines', async () => {
+		assert.strictEqual(result.status, 'completed');
+	});
+
+	it('Skips detailed formatting for minified files', async () => {
+		const minifiedResult = result.fileResult.find((r) =>
+			r.fileUrl.pathname.endsWith('minified.mjs'),
+		);
+		if (minifiedResult) {
+			assert.ok(
+				minifiedResult.text.includes('detailed output skipped'),
+				'Should indicate that detailed output was skipped for minified file',
+			);
+		}
 	});
 });

@@ -16,6 +16,16 @@ import { getAstroInstall } from './utils.js';
 // Export those for downstream consumers
 export { Diagnostic, DiagnosticSeverity };
 
+// Maximum number of diagnostics to format per file. Formatting diagnostics is expensive
+// because the upstream formatter creates a full TypeScript SourceFile AST for each diagnostic.
+// For large files (e.g. minified bundles) with many diagnostics, this can exhaust the heap.
+const MAX_DIAGNOSTICS_TO_PRINT = 50;
+
+// Maximum average line length before we skip detailed formatting. Minified files often have
+// lines that are tens or hundreds of KB long, and ts.formatDiagnosticsWithColorAndContext
+// includes the full line context for each diagnostic, causing extreme memory usage.
+const MAX_AVG_LINE_LENGTH = 1000;
+
 export interface CheckResult {
 	status: 'completed' | 'cancelled' | undefined;
 	fileChecked: number;
@@ -104,18 +114,44 @@ export class AstroCheck {
 			});
 
 			if (fileDiagnostics.length > 0) {
-				const errorText = this.linter.printErrors(file, fileDiagnosticsToPrint);
-
-				if (logErrors !== undefined && errorText) {
-					console.info(errorText);
-				}
-
 				const fileSnapshot = this.linter.language.scripts.get(URI.file(file))?.snapshot;
-				const fileContent = fileSnapshot?.getText(0, fileSnapshot.getLength());
+				const fileContent = fileSnapshot?.getText(0, fileSnapshot.getLength()) ?? '';
+
+				// Check if this file has very long lines (e.g. minified bundles).
+				// Formatting diagnostics for such files is extremely expensive because
+				// ts.formatDiagnosticsWithColorAndContext includes the full source line
+				// as context for each diagnostic, and creates a SourceFile AST per diagnostic.
+				const lineCount = fileContent.split('\n').length;
+				const avgLineLength = lineCount > 0 ? fileContent.length / lineCount : 0;
+				const isLargeMinified = avgLineLength > MAX_AVG_LINE_LENGTH;
+
+				let errorText: string;
+				if (isLargeMinified) {
+					// Skip expensive formatting for files with very long lines
+					errorText = `${file}: ${fileDiagnosticsToPrint.length} diagnostic(s) — detailed output skipped (file appears to be minified)\n`;
+					if (logErrors !== undefined) {
+						console.info(errorText);
+					}
+				} else {
+					const diagnosticsToFormat = fileDiagnosticsToPrint.slice(
+						0,
+						MAX_DIAGNOSTICS_TO_PRINT,
+					);
+					errorText = this.linter.printErrors(file, diagnosticsToFormat);
+
+					if (logErrors !== undefined && errorText) {
+						console.info(errorText);
+						if (fileDiagnosticsToPrint.length > MAX_DIAGNOSTICS_TO_PRINT) {
+							console.info(
+								`... and ${fileDiagnosticsToPrint.length - MAX_DIAGNOSTICS_TO_PRINT} more diagnostics not shown for this file\n`,
+							);
+						}
+					}
+				}
 
 				result.fileResult.push({
 					errors: fileDiagnostics,
-					fileContent: fileContent ?? '',
+					fileContent: fileContent,
 					fileUrl: pathToFileURL(file),
 					text: errorText,
 				});
