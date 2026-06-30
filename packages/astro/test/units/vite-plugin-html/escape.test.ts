@@ -108,10 +108,7 @@ describe('vite-plugin-html: escape transformer', () => {
 
 	it('escapes multiple escapes in single element', async () => {
 		const result = await testEscapeTransform('<div data-a="${a}" data-b="`${b}`">${text}</div>');
-		assert.match(
-			result,
-			/<div data-a="\\\$\{a\}" data-b="\\`\\\$\{b\}\\`">\\\$\{text\}<\/div>/,
-		);
+		assert.match(result, /<div data-a="\\\$\{a\}" data-b="\\`\\\$\{b\}\\`">\\\$\{text\}<\/div>/);
 	});
 
 	it('escapes complex nested structures', async () => {
