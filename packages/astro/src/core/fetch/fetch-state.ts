@@ -274,10 +274,8 @@ export class FetchState implements AstroFetchState {
 
 		this.componentInstance = undefined;
 		this.slots = undefined;
-		// Parse the URL once and derive both pathname and url from it. Reuse a
-		// pre-parsed URL from render options when the caller (e.g. an adapter)
-		// already parsed `request.url`; it is normalized in place below.
-		const url = options?.url ?? new URL(request.url);
+		// Parse the URL once and derive both pathname and url from it.
+		const url = new URL(request.url);
 		// Record the raw pathname/search now, while `url` still holds the
 		// original path. `normalizeUrl` (below) rewrites `url.pathname` in
 		// place. TrailingSlashHandler matches redirects against this raw path.

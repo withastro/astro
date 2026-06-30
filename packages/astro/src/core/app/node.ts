@@ -47,10 +47,6 @@ interface NodeRequest extends IncomingMessage {
  * (which creates a `FetchState`). The public `createRequest` keeps the
  * forwarded header logic for external adapters that may not use
  * `FetchState`.
- *
- * Returns both the `Request` and the `URL` parsed to build it, so callers can
- * thread the already-parsed URL into `app.match()` / `app.render()` instead of
- * re-parsing `request.url`.
  */
 export function createRequestFromNodeRequest(
 	req: NodeRequest,
@@ -65,7 +61,7 @@ export function createRequestFromNodeRequest(
 		bodySizeLimit?: number;
 		port?: number;
 	} = {},
-): { request: Request; url: URL } {
+): Request {
 	const controller = new AbortController();
 
 	const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
@@ -126,7 +122,7 @@ export function createRequestFromNodeRequest(
 		Reflect.set(request, clientAddressSymbol, clientIp);
 	}
 
-	return { request, url };
+	return request;
 }
 
 export function createRequest(
@@ -351,21 +347,19 @@ export class NodeApp extends App {
 	}
 
 	match(req: NodeRequest | Request, allowPrerenderedRoutes = false) {
-		if (req instanceof Request) {
-			return super.match(req, allowPrerenderedRoutes);
+		if (!(req instanceof Request)) {
+			req = createRequestFromNodeRequest(req, {
+				skipBody: true,
+			});
 		}
-		const { request, url } = createRequestFromNodeRequest(req, {
-			skipBody: true,
-		});
-		return super.match(request, allowPrerenderedRoutes, url);
+		return super.match(req, allowPrerenderedRoutes);
 	}
 
 	render(request: NodeRequest | Request, options?: RenderOptions): Promise<Response> {
-		if (request instanceof Request) {
-			return super.render(request, options);
+		if (!(request instanceof Request)) {
+			request = createRequestFromNodeRequest(request);
 		}
-		const { request: webRequest, url } = createRequestFromNodeRequest(request);
-		return super.render(webRequest, { ...options, url });
+		return super.render(request, options);
 	}
 
 	/**

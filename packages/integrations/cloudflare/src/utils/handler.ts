@@ -70,12 +70,8 @@ export async function handle(
 
 	injectSessionBinding(app.manifest, env);
 
-	// Parse the request URL once and reuse it for the static-asset check, route
-	// matching, and rendering.
-	const url = new URL(request.url);
-
 	// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
-	const staticAsset = matchStaticAsset(app.manifest, url, env);
+	const staticAsset = matchStaticAsset(app.manifest, request.url, env);
 	if (staticAsset) return staticAsset as CfResponse;
 
 	let routeData: RouteData | undefined = undefined;
@@ -85,7 +81,7 @@ export async function handle(
 			routeData = result.routeData;
 		}
 	} else {
-		routeData = app.match(request, false, url);
+		routeData = app.match(request);
 	}
 
 	if (!routeData) {
@@ -104,7 +100,6 @@ export async function handle(
 		waitUntil,
 		prerenderedErrorPageFetch: createErrorPageFetch(env),
 		clientAddress: getClientAddress(request),
-		url,
 	});
 
 	if (app.setCookieHeaders) {

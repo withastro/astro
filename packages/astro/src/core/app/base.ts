@@ -83,16 +83,6 @@ export interface RenderOptions {
 	 * Default: `app.match(request)`
 	 */
 	routeData?: RouteData;
-
-	/**
-	 * **Advanced API**: you probably do not need to use this.
-	 *
-	 * A pre-parsed `URL` for this request, so adapters that already parsed
-	 * `request.url` can avoid a second parse. It **must** equal
-	 * `new URL(request.url)`, and it is normalized in place during rendering, so
-	 * the object must not be reused after calling `render`.
-	 */
-	url?: URL;
 }
 
 type RequiredRenderOptions = Required<RenderOptions>;
@@ -104,7 +94,6 @@ export interface ResolvedRenderOptions {
 	locals: RequiredRenderOptions['locals'] | undefined;
 	routeData: RequiredRenderOptions['routeData'] | undefined;
 	waitUntil: RequiredRenderOptions['waitUntil'] | undefined;
-	url?: URL;
 }
 
 export interface RenderErrorOptions extends ResolvedRenderOptions {
@@ -320,19 +309,16 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 * @param request
 	 * @param allowPrerenderedRoutes
 	 */
-	public match(
-		request: Request,
-		allowPrerenderedRoutes = false,
-		url = new URL(request.url),
-	): RouteData | undefined {
+	public match(request: Request, allowPrerenderedRoutes = false): RouteData | undefined {
+		const url = new URL(request.url);
 		// ignore requests matching public assets
 		if (this.manifest.assets.has(url.pathname)) return undefined;
 		// Only the `domains-*` i18n strategies derive the pathname from the
 		// request's Host header; every other app routes on the URL pathname, so
-		// the probe is skipped. When it does run, it reuses the URL parsed above.
+		// the probe is skipped.
 		let pathname: string | undefined;
 		if (this.#hasDomainI18nRouting) {
-			pathname = this.computePathnameFromDomain(request, url);
+			pathname = this.computePathnameFromDomain(request);
 		}
 		if (!pathname) {
 			pathname = prependForwardSlash(this.removeBase(url.pathname));
@@ -369,10 +355,10 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		return undefined;
 	}
 
-	private computePathnameFromDomain(request: Request, url = new URL(request.url)): string | undefined {
+	private computePathnameFromDomain(request: Request): string | undefined {
 		return computePathnameFromDomain(
 			request,
-			url,
+			new URL(request.url),
 			this.manifest.i18n,
 			this.manifest.base,
 			this.manifest.trailingSlash,
@@ -389,7 +375,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			prerenderedErrorPageFetch = fetch,
 			routeData,
 			waitUntil,
-			url,
 		}: RenderOptions = {},
 	): Promise<Response> {
 		// Lazily resolve the logger destination from the manifest on the first request.
@@ -428,7 +413,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		// derived from the Host header. FetchState recomputes this pathname
 		// itself for param/locale resolution, so it isn't threaded through here.
 		if (!routeData && this.#hasDomainI18nRouting) {
-			const domainPathname = this.computePathnameFromDomain(request, url);
+			const domainPathname = this.computePathnameFromDomain(request);
 			if (domainPathname) {
 				routeData = this.pipeline.matchRoute(this.safeDecodeURI(domainPathname));
 			}
@@ -440,7 +425,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			locals,
 			routeData,
 			waitUntil,
-			url,
 		};
 
 		let response: Response;

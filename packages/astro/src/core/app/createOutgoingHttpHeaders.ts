@@ -14,19 +14,10 @@ export const createOutgoingHttpHeaders = (
 		return undefined;
 	}
 
-	// Copy the Web Headers into a plain object for Node. Iterating `headers`
-	// yields lowercased names with any multi-value header already comma-joined;
-	// `isEmpty` records whether anything was copied so a header-less response
-	// returns `undefined`. A comma-joined `set-cookie` is invalid, so it is
-	// rebuilt as an array below.
-	const nodeHeaders: OutgoingHttpHeaders = {};
-	let isEmpty = true;
-	for (const [key, value] of headers) {
-		nodeHeaders[key] = value;
-		isEmpty = false;
-	}
+	// at this point, a multi-value'd set-cookie header is invalid (it was concatenated as a single CSV, which is not valid for set-cookie)
+	const nodeHeaders: OutgoingHttpHeaders = Object.fromEntries(headers.entries());
 
-	if (isEmpty) {
+	if (Object.keys(nodeHeaders).length === 0) {
 		return undefined;
 	}
 
@@ -34,7 +25,7 @@ export const createOutgoingHttpHeaders = (
 	if (headers.has('set-cookie')) {
 		const cookieHeaders = headers.getSetCookie();
 		if (cookieHeaders.length > 1) {
-			// the Headers API already normalized all header names to lowercase so we can safely index this as 'set-cookie'
+			// the Headers.entries() API already normalized all header names to lowercase so we can safely index this as 'set-cookie'
 			nodeHeaders['set-cookie'] = cookieHeaders;
 		}
 	}

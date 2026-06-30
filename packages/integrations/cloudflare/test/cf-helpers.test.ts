@@ -119,7 +119,7 @@ describe('matchStaticAsset', () => {
 	it('returns a response when the pathname matches a known asset', async () => {
 		const manifest = { assets: new Set(['/style.css']) };
 		const env = createMockEnv();
-		const result = matchStaticAsset(manifest as any, new URL('http://example.com/style.css'), env as any);
+		const result = matchStaticAsset(manifest as any, 'http://example.com/style.css', env as any);
 		assert.ok(result != null);
 		const response = await result;
 		assert.equal(response.status, 200);
@@ -128,7 +128,7 @@ describe('matchStaticAsset', () => {
 	it('strips .html extension when fetching from ASSETS', async () => {
 		const manifest = { assets: new Set(['/page.html']) };
 		const env = createMockEnv();
-		const result = matchStaticAsset(manifest as any, new URL('http://example.com/page.html'), env as any);
+		const result = matchStaticAsset(manifest as any, 'http://example.com/page.html', env as any);
 		const response = await result!;
 		assert.equal(response.headers.get('x-fetched-url'), 'http://example.com/page');
 	});
@@ -136,7 +136,7 @@ describe('matchStaticAsset', () => {
 	it('returns undefined when the pathname is not a known asset', () => {
 		const manifest = { assets: new Set(['/style.css']) };
 		const env = createMockEnv();
-		const result = matchStaticAsset(manifest as any, new URL('http://example.com/other.js'), env as any);
+		const result = matchStaticAsset(manifest as any, 'http://example.com/other.js', env as any);
 		assert.equal(result, undefined);
 	});
 });

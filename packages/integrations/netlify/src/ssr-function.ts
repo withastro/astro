@@ -9,8 +9,7 @@ const app = createApp();
 
 export function createHandler({ notFoundContent }: { notFoundContent: string | undefined }) {
 	return async function handler(request: Request, context: Context): Promise<Response> {
-		const url = new URL(request.url);
-		const routeData = app.match(request, false, url);
+		const routeData = app.match(request);
 
 		if (!routeData && typeof notFoundContent !== 'undefined') {
 			return new Response(notFoundContent, {
@@ -38,7 +37,6 @@ export function createHandler({ notFoundContent }: { notFoundContent: string | u
 			routeData,
 			locals,
 			clientAddress: context.ip,
-			url,
 		});
 
 		if (app.setCookieHeaders) {
@@ -51,10 +49,11 @@ export function createHandler({ notFoundContent }: { notFoundContent: string | u
 			const isCacheableMethod = ['GET', 'HEAD'].includes(request.method);
 
 			// any user-provided Cache-Control headers take precedence
-			const hasCacheControl =
-				response.headers.has('Cache-Control') ||
-				response.headers.has('CDN-Cache-Control') ||
-				response.headers.has('Netlify-CDN-Cache-Control');
+			const hasCacheControl = [
+				'Cache-Control',
+				'CDN-Cache-Control',
+				'Netlify-CDN-Cache-Control',
+			].some((header) => response.headers.has(header));
 
 			if (isCacheableMethod && !hasCacheControl) {
 				// caches this page for up to a year
