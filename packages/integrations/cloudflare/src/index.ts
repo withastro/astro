@@ -302,6 +302,7 @@ export default function createIntegration({
 											optimizeDeps: {
 												include: [
 													'@astrojs/cloudflare/image-service-workerd',
+													'@astrojs/cloudflare/entrypoints/server',
 													'astro',
 													'astro/runtime/**',
 													'astro > html-escaper',
