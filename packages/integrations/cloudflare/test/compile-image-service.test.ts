@@ -91,6 +91,14 @@ describe('CompileImageService', () => {
 // | 'custom'     | none (default Sharp) | real WEBP    | Sharp dragged in (beware) |
 // | 'custom'     | custom, Sharp-free   | CUSTOM_*     | user service, no Sharp    |
 // | 'custom'     | custom, Sharp-backed | real WEBP    | Sharp chain bundled       |
+//
+// The `default` and Sharp-backed `sharp` cases generate assets with Astro's real
+// Sharp native binary at build time, which cannot load on every CI runner (notably
+// the Windows runner: `ERR_DLOPEN_FAILED`). Those two tests are skipped on Windows;
+// the Sharp-free `user` service runs its stub transform() on the Node side and is
+// exercised on all platforms.
+const skipRealSharp =
+	process.platform === 'win32' && 'Sharp native binary cannot load on Windows CI';
 describe('CompileImageService build-time image generation', () => {
 	async function readServerBundle(fixture: Fixture) {
 		const serverFiles = await fixture.glob('server/**/*.mjs');
@@ -186,7 +194,7 @@ describe('CompileImageService build-time image generation', () => {
 
 	for (const mode of ['compile', 'custom'] as const) {
 		describe(`imageService: '${mode}'`, () => {
-			it('with no user image.service: generates real WEBP assets at build time', async () => {
+			it('with no user image.service: generates real WEBP assets at build time', { skip: skipRealSharp }, async () => {
 				const { fixture, html } = await buildFixture(mode, 'default', `${mode}-default`);
 
 				// Build-time generation runs Astro's default Sharp service on the Node side.
@@ -230,7 +238,7 @@ describe('CompileImageService build-time image generation', () => {
 				}
 			});
 
-			it('with a Sharp-backed user image.service: generates assets, respects its markup, and bundles the Sharp chain', async () => {
+			it('with a Sharp-backed user image.service: generates assets, respects its markup, and bundles the Sharp chain', { skip: skipRealSharp }, async () => {
 				const { fixture, html } = await buildFixture(mode, 'sharp', `${mode}-sharp`);
 				const img = cheerio.load(html)('img');
 
