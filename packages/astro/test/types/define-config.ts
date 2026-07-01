@@ -78,6 +78,18 @@ describe('defineConfig()', () => {
 		});
 	});
 
+	it('Validates CSP styleDirective.unsafeInline', () => {
+		defineConfig({
+			security: {
+				csp: {
+					styleDirective: {
+						unsafeInline: true,
+					},
+				},
+			},
+		});
+	});
+
 	it('Allows session config without a driver', () => {
 		// Adapters like Cloudflare, Netlify, and Node provide default session drivers,
 		// so users should be able to configure session options without specifying a driver

@@ -23,6 +23,7 @@ import {
 	getStrictDynamic,
 	getStyleHashes,
 	getStyleResources,
+	getStyleUnsafeInline,
 	shouldTrackCspHashes,
 	trackScriptHashes,
 	trackStyleHashes,
@@ -328,6 +329,7 @@ async function buildManifest(
 			algorithm,
 			directives: getDirectives(settings),
 			isStrictDynamic: getStrictDynamic(settings.config.security.csp),
+			isStyleUnsafeInline: getStyleUnsafeInline(settings.config.security.csp),
 		};
 	}
 

@@ -37,6 +37,13 @@ export function renderCspContent(result: SSRResult): string {
 
 	const strictDynamic = result.isStrictDynamic ? ` 'strict-dynamic'` : '';
 	const scriptSrc = `script-src ${scriptResources} ${Array.from(finalScriptHashes).join(' ')}${strictDynamic};`;
-	const styleSrc = `style-src ${styleResources} ${Array.from(finalStyleHashes).join(' ')};`;
+
+	// When unsafeInline is enabled for styles, skip emitting style hashes (per the CSP spec,
+	// browsers ignore 'unsafe-inline' when hashes or nonces are present in the same directive).
+	// Instead, emit 'unsafe-inline' explicitly so it remains effective.
+	const styleSrc = result.isStyleUnsafeInline
+		? `style-src ${styleResources} 'unsafe-inline';`
+		: `style-src ${styleResources} ${Array.from(finalStyleHashes).join(' ')};`;
+		
 	return [directives, scriptSrc, styleSrc].filter(Boolean).join(' ');
 }

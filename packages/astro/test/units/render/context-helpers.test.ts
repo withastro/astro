@@ -63,6 +63,7 @@ describe('Astro.csp getter', () => {
 				styleResources: [],
 				directives: [],
 				isStrictDynamic: false,
+				isStyleUnsafeInline: false,
 			},
 		});
 

@@ -13,6 +13,7 @@ import {
 	getStrictDynamic,
 	getStyleHashes,
 	getStyleResources,
+	getStyleUnsafeInline,
 	shouldTrackCspHashes,
 } from '../core/csp/common.js';
 import { createKey, encodeKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
@@ -169,6 +170,7 @@ async function createSerializedManifest(
 			algorithm: getAlgorithm(settings.config.security.csp),
 			directives: getDirectives(settings),
 			isStrictDynamic: getStrictDynamic(settings.config.security.csp),
+			isStyleUnsafeInline: getStyleUnsafeInline(settings.config.security.csp),
 		};
 	}
 
