@@ -4253,6 +4253,15 @@ importers:
         specifier: ^0.2.15
         version: 0.2.17
 
+  packages/integrations/cloudflare/test/fixtures/actions-build:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/cloudflare/test/fixtures/allowed-hosts:
     dependencies:
       '@astrojs/cloudflare':
