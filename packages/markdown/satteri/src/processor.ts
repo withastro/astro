@@ -52,6 +52,11 @@ export function satteri(
 				features: processor.options.features,
 			});
 		},
+		async createMdxRenderer(shared, mdx) {
+			// Lazy import so the MDX/JSX compile path isn't pulled in for `.md`-only projects.
+			const { createSatteriMdxProcessor } = await import('./mdx/create-processor.js');
+			return createSatteriMdxProcessor(shared, mdx, processor.options);
+		},
 	};
 	return processor;
 }
