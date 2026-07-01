@@ -1,5 +1,5 @@
 ---
-'@astrojs/netlify': patch
+'@astrojs/netlify': minor
 ---
 
 Adds `edgeFunctions` to the `devFeatures` adapter option, allowing users to disable Netlify Edge Function emulation during `astro dev`
