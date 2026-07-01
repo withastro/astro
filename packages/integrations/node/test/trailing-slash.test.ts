@@ -235,7 +235,7 @@ describe('Trailing slash', () => {
 				// (like `curl --path-as-is`) because URL parsers fold the
 				// backslash to a forward slash. It must not produce a 301 that
 				// echoes the backslash path back in the `Location` header.
-				const raw = await rawRequest(server.host, server.port, '/\\example.com/press');
+				const raw = await rawRequest(server.host ?? 'localhost', server.port, '/\\example.com/press');
 				assert.match(raw.statusLine, /404/);
 				assert.equal(/^location:/im.test(raw.head), false);
 			});
