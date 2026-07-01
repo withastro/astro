@@ -15,6 +15,7 @@ import type { MarkdownProcessor } from 'astro/markdown';
 import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 import type { PluggableList } from 'unified';
 import { getContainerRenderer as getContainerRendererImpl } from './container-renderer.js';
+import { unified } from '@astrojs/markdown-remark';
 import { isSatteriProcessor, isUnifiedProcessor } from './processor-guards.js';
 import type { OptimizeOptions } from './rehype-optimize-static.js';
 import { ignoreStringPlugins, safeParseFrontmatter } from './utils.js';
@@ -33,7 +34,9 @@ export type MdxOptions = SharedMarkdownOptions & {
 	recmaPlugins: PluggableList;
 	optimize: boolean | OptimizeOptions;
 	/**
-	 * Override the markdown processor for `.mdx` files. Defaults to `config.markdown.processor`.
+	 * Override the markdown processor for `.mdx` files. When `extendMarkdownConfig` is `true`
+	 * (the default), this defaults to `config.markdown.processor`. When `extendMarkdownConfig`
+	 * is `false`, a fresh `unified()` processor with no plugins is used instead.
 	 * Use this to run `.mdx` files through a different processor (or the same processor with
 	 * different options) than your `.md` files.
 	 */
@@ -141,7 +144,9 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					defaults: markdownConfigToMdxOptions(markdownConfig, logger),
 				});
 
-				const processor = partialMdxOptions.processor ?? config.markdown.processor;
+				const processor =
+					partialMdxOptions.processor ??
+					(extendMarkdownConfig ? config.markdown.processor : unified());
 
 				if (extendMarkdownConfig && isUnifiedProcessor(processor)) {
 					// MDX inherits from the processor only when the user did NOT pass that option
