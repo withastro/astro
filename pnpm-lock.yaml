@@ -4348,6 +4348,15 @@ importers:
         specifier: ^4.83.0
         version: 4.95.0(@cloudflare/workers-types@4.20260527.1)
 
+  packages/integrations/cloudflare/test/fixtures/dev-custom-image-endpoint:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/cloudflare/test/fixtures/dev-image-endpoint:
     dependencies:
       '@astrojs/cloudflare':

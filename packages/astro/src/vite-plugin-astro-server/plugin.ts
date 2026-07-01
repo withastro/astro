@@ -157,8 +157,12 @@ export default function createVitePluginAstroServer({
 								// checks getStaticPaths() and prerender tie-breaks that matchRoute()
 								// cannot express here.
 								const matches = matchAllRoutes(pathname, routesList);
+								const imageEndpointRoute = settings.config.image.endpoint.route;
+								const matchesInternalImageEndpoint = matches.some(
+									(route) => route.origin === 'internal' && route.route === imageEndpointRoute,
+								);
 
-								if (!matches.some((route) => route.prerender)) {
+								if (!matchesInternalImageEndpoint && !matches.some((route) => route.prerender)) {
 									return next();
 								}
 
