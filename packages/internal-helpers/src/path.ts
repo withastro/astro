@@ -87,12 +87,12 @@ export function isInternalPath(path: string) {
 }
 
 export function joinPaths(...paths: (string | undefined)[]) {
-	return paths
-		.filter(isString)
+	const segments = paths.filter(isString);
+	return segments
 		.map((path, i) => {
 			if (i === 0) {
 				return removeTrailingForwardSlash(path);
-			} else if (i === paths.length - 1) {
+			} else if (i === segments.length - 1) {
 				return removeLeadingForwardSlash(path);
 			} else {
 				return trimSlashes(path);
