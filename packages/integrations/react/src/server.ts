@@ -55,7 +55,19 @@ async function check(
 		return React.createElement('div');
 	}
 
-	await renderToStaticMarkup.call(this, Tester, props, children);
+	// React 19 dev mode emits "Invalid hook call" when Tester calls Component during
+	// the probe render because hooks run in Tester's context instead of Component's.
+	// Suppress only that specific warning — it is expected and harmless here.
+	const prevError = console.error;
+	console.error = (...args: Array<unknown>) => {
+		if (typeof args[0] === 'string' && args[0].includes('Invalid hook call')) return;
+		prevError.apply(console, args);
+	};
+	try {
+		await renderToStaticMarkup.call(this, Tester, props, children);
+	} finally {
+		console.error = prevError;
+	}
 
 	return isReactComponent;
 }
