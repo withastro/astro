@@ -126,7 +126,7 @@ injections:
           end: '(?=</)',
           name: meta.embedded.block.astro,
           contentName: source.css,
-          patterns: [{ include: source.css }],
+          patterns: [{ include: '#css-property-at-rule' }, { include: source.css }],
         },
       ]
 
@@ -178,7 +178,7 @@ injections:
           end: '(?=</)',
           name: meta.embedded.block.astro,
           contentName: source.css,
-          patterns: [{ include: source.css }],
+          patterns: [{ include: '#css-property-at-rule' }, { include: source.css }],
         },
       ]
 
@@ -198,6 +198,34 @@ patterns:
 
 # Contains all of our patterns.
 repository:
+  # VS Code's CSS TextMate grammar does not have a dedicated @property rule yet.
+  # Its generic at-rule body parses descriptors as selectors, which keeps the
+  # CSS scope open past Astro's closing </style> tag.
+  css-property-at-rule:
+    begin: (?i)(?=@property([\s'"{;]|/\*|$))
+    end: (?<=})(?!\G)
+    patterns:
+      - begin: (?i)\G(@)property
+        beginCaptures:
+          0: { name: keyword.control.at-rule.property.css }
+          1: { name: punctuation.definition.keyword.css }
+        end: (?=\s*{)
+        name: meta.at-rule.property.header.css
+        patterns:
+          - include: source.css#comment-block
+          - include: source.css#escapes
+          - match: --(?:[-a-zA-Z_]|[^\x00-\x7F])(?:[-a-zA-Z0-9_]|[^\x00-\x7F]|\\(?:[0-9a-fA-F]{1,6}|.))*
+            name: variable.css
+      - begin: \{
+        beginCaptures:
+          0: { name: punctuation.section.property-list.begin.bracket.curly.css }
+        end: \}
+        endCaptures:
+          0: { name: punctuation.section.property-list.end.bracket.curly.css }
+        name: meta.at-rule.property.body.css
+        patterns:
+          - include: source.css#rule-list-innards
+
   # ------------
   # FRONTMATTER
 
