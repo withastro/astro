@@ -1,0 +1,27 @@
+<style
+  lang="scss"
+>
+  $primary: red;
+  .bar {
+    color: $primary;
+  }
+</style>
+
+<style
+  lang="less"
+>
+  @base: #f938ab;
+  .bar {
+    color: @base;
+  }
+</style>
+
+<style
+  lang="sass"
+  define:vars={{
+    foo: '#fff',
+  }}
+>
+  .bar
+    color: var(--foo)
+</style>
