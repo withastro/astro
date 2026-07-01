@@ -149,12 +149,21 @@ function stringifyChunk(
 	} else if (isSlotString(chunk as string)) {
 		let out = '';
 		const c = chunk as SlotString;
+		// Position-independent instructions (head, hydration, etc.) are emitted first.
 		if (c.instructions) {
 			for (const instr of c.instructions) {
 				out += stringifyChunk(result, instr);
 			}
 		}
-		out += chunk.toString();
+		// Walk the ordered content stream so scripts render at their original
+		// position (and are deduplicated) instead of being hoisted to the front.
+		if (c.chunks.length) {
+			for (const part of c.chunks) {
+				out += typeof part === 'string' ? part : stringifyChunk(result, part);
+			}
+		} else {
+			out += chunk.toString();
+		}
 		return out;
 	}
 
