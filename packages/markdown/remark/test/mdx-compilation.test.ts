@@ -1,19 +1,22 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { rehypeHeadingIds } from '@astrojs/markdown-remark';
 import { compile as _compile, type CompileOptions, nodeTypes } from '@mdx-js/mdx';
+import type * as estree from 'estree';
 import { visit as estreeVisit } from 'estree-util-visit';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
+import type * as unified from 'unified';
 import { visit } from 'unist-util-visit';
-import { ignoreStringPlugins } from '../../dist/utils.js';
 import {
-	SpyLogger,
-	type RecmaPlugin,
+	rehypeHeadingIds,
 	type RehypePlugin,
 	type RemarkPlugin,
-} from '../test-utils.ts';
+	type RemarkPlugins,
+} from '../dist/index.js';
+import { filterStringPlugins } from '../dist/mdx/utils.js';
+
+type RecmaPlugin = unified.Plugin<any[], estree.Program>;
 
 /**
  * Compile MDX to JSX string output for inspection.
@@ -88,16 +91,16 @@ describe('MDX SmartyPants plugin', () => {
 		});
 		// SmartyPants converts straight quotes to curly and -- to em dash
 		assert.ok(
-			code.includes('\u201C') || code.includes('\u201D') || code.includes('\u2014'),
+			code.includes('“') || code.includes('”') || code.includes('—'),
 			'SmartyPants should convert quotes or dashes to typographic equivalents',
 		);
 	});
 
 	it('does not convert quotes without SmartyPants', async () => {
 		const code = await compile('> "Smartypants" is -- awesome');
-		// Without SmartyPants, double dashes stay as -- (not converted to em dash \u2014)
+		// Without SmartyPants, double dashes stay as -- (not converted to em dash —)
 		assert.ok(code.includes('--'), 'Double dashes should remain unconverted');
-		assert.ok(!code.includes('\u2014'), 'Em dash should not appear without SmartyPants');
+		assert.ok(!code.includes('—'), 'Em dash should not appear without SmartyPants');
 	});
 });
 
@@ -259,15 +262,11 @@ describe('MDX heading IDs', () => {
 });
 
 describe('MDX string-based plugin filtering', () => {
-	it('does not apply string-based remark plugins', async () => {
-		// When a string-based plugin is provided, the ignoreStringPlugins
-		// function filters it out. We test the filter function directly in utils.test.js.
-		// Here we verify that only function plugins affect output.
-		const spyLogger = new SpyLogger();
-		const logger = spyLogger.forkIntegrationLogger('test-spy');
-
-		const plugins = ['remark-toc', () => (tree: unknown) => tree];
-		const filtered = ignoreStringPlugins(plugins, logger);
+	it('does not apply string-based plugins', () => {
+		// The MDX compiler cannot resolve string-form plugins, so `filterStringPlugins`
+		// drops them (with a warning) and keeps only function plugins.
+		const fnPlugin = () => (tree: unknown) => tree;
+		const filtered = filterStringPlugins(['remark-toc', fnPlugin] as RemarkPlugins);
 
 		assert.equal(filtered.length, 1, 'Should filter out string plugin');
 		assert.equal(typeof filtered[0], 'function', 'Should keep function plugin');

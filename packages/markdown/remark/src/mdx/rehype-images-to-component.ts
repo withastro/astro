@@ -7,10 +7,8 @@ import {
 	ASTRO_IMAGE_ELEMENT,
 	ASTRO_IMAGE_IMPORT,
 	USES_ASTRO_IMAGE_FLAG,
-} from './image-constants.js';
+} from '@astrojs/internal-helpers/mdx';
 import { jsToTreeNode } from './utils.js';
-
-export { ASTRO_IMAGE_ELEMENT, ASTRO_IMAGE_IMPORT, USES_ASTRO_IMAGE_FLAG };
 
 function createArrayAttribute(name: string, values: (string | number)[]): MdxJsxAttribute {
 	return {
