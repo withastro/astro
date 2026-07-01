@@ -1,5 +1,15 @@
 # astro
 
+## 7.0.6
+
+### Patch Changes
+
+- [#17261](https://github.com/withastro/astro/pull/17261) [`79aa99c`](https://github.com/withastro/astro/commit/79aa99c648b4b40b95a31d4a961b77074cf7963c) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a false deprecation warning for `markdown.gfm` and `markdown.smartypants` when using the Container API
+
+- [#17257](https://github.com/withastro/astro/pull/17257) [`4208297`](https://github.com/withastro/astro/commit/4208297b37d1781bfe54254c0b981eb146e08691) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `astro check` failing to find `@astrojs/check` and `typescript` when astro is installed in a directory outside the project tree (e.g. pnpm virtual store)
+
+- [#17248](https://github.com/withastro/astro/pull/17248) [`429bd62`](https://github.com/withastro/astro/commit/429bd6287a24770461321696f87edf34758b90fd) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a crash when using Astro's `getViteConfig` with Vitest browser mode (e.g., Storybook vitest runner). Astro now skips dev server setup inside Vitest, preventing errors.
+
 ## 7.0.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.16.11
+
+### Patch Changes
+
+- [#17059](https://github.com/withastro/astro/pull/17059) [`60cb289`](https://github.com/withastro/astro/commit/60cb289faa8f9e0056a4de7ecca6ec420abd147f) Thanks [@dupontcyborg](https://github.com/dupontcyborg)! - Update volar-service-* dependencies from 0.0.70 to 0.0.71 to pull in yaml-language-server 1.23.0 and yaml 2.8.3, resolving CVE-2026-33532 (GHSA-48c2-rrv3-qjmp), a denial-of-service vulnerability in yaml <2.8.3.
+
 ## 2.16.10
 
 ### Patch Changes
