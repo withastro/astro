@@ -3,6 +3,8 @@ import { describe, it } from 'node:test';
 import type { AstroConfig } from '../../../dist/types/public/config.js';
 import type { RoutePart } from '../../../dist/types/public/internal.js';
 import { getRouteGenerator } from '../../../dist/core/routing/generator.js';
+import { stringifyParams } from '../../../dist/core/routing/params.js';
+import { dynamicPart, makeRoute, staticPart } from './test-helpers.ts';
 
 interface TestCase {
 	routeData: RoutePart[][];
@@ -158,5 +160,46 @@ describe('routing - generator', () => {
 			'never',
 		);
 		assert.throws(() => generator({}), TypeError);
+	});
+});
+
+describe('stringifyParams - file endpoint trailing slash', () => {
+	it('does not append trailing slash to dynamic file endpoints with trailingSlash always (issue #17241)', () => {
+		const route = makeRoute({
+			segments: [[staticPart('api')], [dynamicPart('name'), staticPart('.json')]],
+			trailingSlash: 'never',
+			route: '/api/[name].json',
+			pathname: undefined,
+			type: 'endpoint',
+		});
+
+		const result = stringifyParams({ name: 'foo' }, route, 'always');
+		assert.equal(result, '/api/foo.json', 'should not have trailing slash');
+	});
+
+	it('still appends trailing slash to dynamic page routes with trailingSlash always', () => {
+		const route = makeRoute({
+			segments: [[staticPart('blog')], [dynamicPart('slug')]],
+			trailingSlash: 'always',
+			route: '/blog/[slug]',
+			pathname: undefined,
+			type: 'page',
+		});
+
+		const result = stringifyParams({ slug: 'hello' }, route, 'always');
+		assert.equal(result, '/blog/hello/', 'should have trailing slash');
+	});
+
+	it('does not append trailing slash to dynamic endpoints without file extensions with trailingSlash never', () => {
+		const route = makeRoute({
+			segments: [[staticPart('api')], [dynamicPart('name')]],
+			trailingSlash: 'never',
+			route: '/api/[name]',
+			pathname: undefined,
+			type: 'endpoint',
+		});
+
+		const result = stringifyParams({ name: 'foo' }, route, 'never');
+		assert.equal(result, '/api/foo', 'should not have trailing slash');
 	});
 });
