@@ -16,6 +16,7 @@ import { getParts } from './utils/generate-routes-json.js';
 import { buildAssetsHeadersContent } from './utils/headers.js';
 import {
 	type ImageServiceConfig,
+	type ImageServiceMode,
 	normalizeImageServiceConfig,
 	setImageConfig,
 } from './utils/image-config.js';
@@ -132,8 +133,9 @@ export default function createIntegration({
 	let _routes: IntegrationResolvedRoute[];
 	let cfPluginConfig: PluginConfig;
 
-	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
-	const needsImagesBinding = runtimeService === 'cloudflare-binding';
+	let buildService: ImageServiceMode;
+	let runtimeService: ImageServiceMode;
+	let needsImagesBinding: boolean;
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -142,6 +144,15 @@ export default function createIntegration({
 				if (!!process.versions.webcontainer) {
 					throw new Error('`workerd` does not run on Stackblitz.');
 				}
+
+				// Resolve image service config with output mode awareness.
+				// For static output, defaults to `compile` since there is no server
+				// runtime to handle `/_image` requests at deploy time.
+				({ buildService, runtimeService } = normalizeImageServiceConfig(
+					imageService,
+					config.output,
+				));
+				needsImagesBinding = runtimeService === 'cloudflare-binding';
 
 				let session = config.session;
 				const isCompile = buildService === 'compile';
@@ -398,7 +409,7 @@ export default function createIntegration({
 							cfPrismPlugin(),
 						],
 					},
-					image: setImageConfig(imageService, config.image, command, logger),
+					image: setImageConfig(imageService, config.image, command, logger, config.output),
 				});
 
 				if (cloudflareOptions.configPath) {

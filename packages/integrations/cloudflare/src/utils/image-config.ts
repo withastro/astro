@@ -16,12 +16,18 @@ export type ImageServiceConfig =
 	  };
 
 /** Normalize string | compound config into separate build/runtime modes. */
-export function normalizeImageServiceConfig(config: ImageServiceConfig | undefined): {
+export function normalizeImageServiceConfig(
+	config: ImageServiceConfig | undefined,
+	output?: 'static' | 'server',
+): {
 	buildService: ImageServiceMode;
 	runtimeService: ImageServiceMode;
 } {
 	if (!config || typeof config === 'string') {
-		const mode = config ?? 'cloudflare-binding';
+		// For static output, default to `compile` since there is no server runtime
+		// to handle `/_image` requests. For server output, default to `cloudflare-binding`
+		// which uses the Cloudflare Images binding for runtime transforms.
+		const mode = config ?? (output === 'static' ? 'compile' : 'cloudflare-binding');
 		// `compile` is build-only; at runtime, serve pre-compiled static assets
 		return {
 			buildService: mode,
@@ -53,8 +59,9 @@ export function setImageConfig(
 	config: AstroConfig['image'],
 	command: HookParameters<'astro:config:setup'>['command'],
 	logger: AstroIntegrationLogger,
+	output?: 'static' | 'server',
 ) {
-	const { buildService, runtimeService } = normalizeImageServiceConfig(service);
+	const { buildService, runtimeService } = normalizeImageServiceConfig(service, output);
 
 	switch (buildService) {
 		case 'passthrough':
