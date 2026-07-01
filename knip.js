@@ -126,9 +126,6 @@ export default {
 		'packages/integrations/mdx': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			project,
-			// Optional peer dep: type-only imports for narrowing the `satteri()` processor.
-			// Knip flags it because the peer is referenced from source; the runtime stays gated by name-check.
-			ignoreDependencies: ['@astrojs/markdown-satteri'],
 		},
 		'packages/markdown/remark': {
 			entry: [srcEntry, dtsEntry, testEntry],
@@ -137,6 +134,8 @@ export default {
 		'packages/markdown/satteri': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			project,
+			// Only referenced by a `declare module 'hast'` augmentation, which knip doesn't count.
+			ignoreDependencies: ['@types/hast'],
 		},
 		'packages/upgrade': {
 			entry: ['src/index.ts!', testEntry],
