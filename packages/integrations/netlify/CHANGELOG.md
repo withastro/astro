@@ -1,5 +1,35 @@
 # @astrojs/netlify
 
+## 8.1.0
+
+### Minor Changes
+
+- [#17245](https://github.com/withastro/astro/pull/17245) [`f56d9e7`](https://github.com/withastro/astro/commit/f56d9e7eb46ca59e70f636cb8cd281bdf41971c4) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Adds `edgeFunctions` to the `devFeatures` adapter option, allowing users to disable Netlify Edge Function emulation during `astro dev`
+
+  Some npm packages that access the filesystem at initialization (e.g. `node-html-parser`) fail inside the edge function sandbox with "Reading or writing files with Edge Functions is not supported yet." You can now disable edge function emulation to avoid this error:
+
+  ```js
+  import netlify from '@astrojs/netlify';
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    adapter: netlify({
+      devFeatures: {
+        edgeFunctions: false,
+      },
+    }),
+  });
+  ```
+
+  Edge functions will still work in production builds and via `netlify dev`.
+
+### Patch Changes
+
+- [#17249](https://github.com/withastro/astro/pull/17249) [`02b73b0`](https://github.com/withastro/astro/commit/02b73b0fc2e32102e788fd9031ce061337490a73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `peerDependencies` field used incorrect dependencies.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 8.0.0
 
 ### Major Changes
