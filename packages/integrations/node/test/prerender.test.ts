@@ -260,6 +260,88 @@ describe('Prerendering', () => {
 	});
 });
 
+describe('Prerendered pages and middleware mode', () => {
+	let fixture: Fixture;
+	let server: AdapterServer;
+
+	describe('Classic mode', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/prerender-classic-mode',
+				adapter: nodejs({ mode: 'standalone', middlewareMode: 'classic' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+		});
+
+		it('does not execute middleware for prerendered pages at request time', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/private`, {
+				redirect: 'manual',
+			});
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.equal($('h1').text(), 'Private');
+			assert.equal(res.headers.get('location'), null);
+			assert.equal(res.headers.get('x-prerender-private'), null);
+		});
+	});
+
+	describe('On-request mode', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/prerender/',
+				output: 'server',
+				outDir: './dist/prerender-on-request-mode',
+				adapter: nodejs({ mode: 'standalone', middlewareMode: 'on-request' }),
+			});
+			await fixture.build();
+			const { startServer } = await fixture.loadAdapterEntryModule();
+			const res = startServer();
+			server = res.server;
+			await waitServerListen(server.server);
+		});
+
+		after(async () => {
+			await server.stop();
+			await fixture.clean();
+		});
+
+		it('executes middleware for prerendered pages at request time', async () => {
+			const redirectRes = await fetch(`http://${server.host}:${server.port}/private`, {
+				redirect: 'manual',
+			});
+			assert.equal(redirectRes.status, 302);
+			assert.equal(redirectRes.headers.get('location'), '/login');
+
+			const authRes = await fetch(`http://${server.host}:${server.port}/private`, {
+				headers: { Cookie: 'auth=1' },
+			});
+			assert.equal(authRes.status, 200);
+			assert.equal(authRes.headers.get('x-prerender-private'), 'true');
+		});
+
+		it('does not execute middleware for prerendered pages at build time', async () => {
+			// During build, on-request middleware is skipped. If it had run, the
+			// unauthenticated `/private` route would have redirected instead of
+			// prerendering its HTML, so the built page proves middleware was skipped.
+			const html = await fixture.readFile('/client/private/index.html');
+			assert.match(html, /<h1>Private<\/h1>/);
+		});
+	});
+});
+
 describe('Hybrid rendering', () => {
 	let fixture: Fixture;
 	let server: AdapterServer;

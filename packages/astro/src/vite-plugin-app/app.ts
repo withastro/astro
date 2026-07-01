@@ -219,6 +219,10 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 					return;
 				}
 
+				// In 'on-request' middleware mode, middleware runs at request time
+				// even for prerendered pages and needs access to headers, body, and search params.
+				const middlewareHandlesPrerendered = self.manifest.middlewareMode === 'on-request';
+
 				// Delay reading the request body until prerenderOnly routing has decided
 				// this handler really owns the request. Otherwise a prerender pass that
 				// falls through to SSR would exhaust the body stream first.
@@ -255,7 +259,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 					method: incomingRequest.method,
 					body,
 					logger: self.logger,
-					isPrerendered: matchedRoute.routeData.prerender,
+					isPrerendered: matchedRoute.routeData.prerender && !middlewareHandlesPrerendered,
 					routePattern: matchedRoute.routeData.component,
 					init: { signal: abortController.signal },
 				});

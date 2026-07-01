@@ -197,6 +197,15 @@ importers:
         specifier: ^4.12.14
         version: 4.12.18
 
+  examples/auth:
+    dependencies:
+      '@astrojs/node':
+        specifier: ^11.0.0-beta.2
+        version: link:../../packages/integrations/node
+      astro:
+        specifier: ^7.0.0-beta.4
+        version: link:../../packages/astro
+
   examples/basics:
     dependencies:
       astro:

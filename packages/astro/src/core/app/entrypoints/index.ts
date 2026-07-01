@@ -16,3 +16,4 @@ export {
 	serializeRouteInfo,
 } from '../manifest.js';
 export { AppPipeline } from '../pipeline.js';
+export { getStaticAssetPath, stripBasePathname } from '../../util/static-paths.js';

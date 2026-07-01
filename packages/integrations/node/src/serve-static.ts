@@ -67,25 +67,42 @@ export function createStaticHandler(
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;
 
-			if (headersMap && headersMap.length > 0) {
-				const request = createRequestFromNodeRequest(req, {
-					port: options.port,
-				});
-				const routeData = app.match(request, true);
-				if (routeData && routeData.prerender) {
-					// Headers are stored keyed by base-less route paths (e.g. "/one"), so we
-					// must strip config.base from the incoming URL before matching, just as
-					// we do for filesystem access above.
-					const baselessPathname = prependForwardSlash(app.removeBase(urlPath));
-					const matchedRoute = headersMap.find((header) =>
-						header.pathname.includes(baselessPathname),
-					);
-					if (matchedRoute) {
-						for (const header of matchedRoute.headers) {
-							res.setHeader(header.key, header.value);
-						}
+			// In 'on-request' middleware mode, prerendered page routes must go
+			// through the app handler so that user middleware can run before the page HTML is
+			// served from disk. Match the route to detect this; the match is reused for header
+			// application below. We only match when needed (header rewriting or SSR routing).
+			const middlewareHandlesPrerendered = app.manifest.middlewareMode === 'on-request';
+			const routeData =
+				middlewareHandlesPrerendered || (headersMap && headersMap.length > 0)
+					? app.match(
+							createRequestFromNodeRequest(req, {
+								allowedDomains: app.getAllowedDomains?.() ?? [],
+								port: options.port,
+							}),
+							true,
+						)
+					: undefined;
+
+			// Apply any custom static headers (e.g. CSP) onto the response. writeResponse
+			// (for the SSR path) and `send` (for the static path) merge these pre-set headers.
+			if (headersMap && headersMap.length > 0 && routeData?.prerender) {
+				// Headers are stored keyed by base-less route paths (e.g. "/one"), so we
+				// must strip config.base from the incoming URL before matching, just as
+				// we do for filesystem access above.
+				const baselessPathname = prependForwardSlash(app.removeBase(urlPath));
+				const matchedRoute = headersMap.find((header) =>
+					header.pathname.includes(baselessPathname),
+				);
+				if (matchedRoute) {
+					for (const header of matchedRoute.headers) {
+						res.setHeader(header.key, header.value);
 					}
 				}
+			}
+
+			// Hand prerendered page routes off to the app handler so middleware can run.
+			if (middlewareHandlesPrerendered && routeData?.prerender && routeData.type === 'page') {
+				return ssr();
 			}
 
 			switch (app.manifest.trailingSlash) {

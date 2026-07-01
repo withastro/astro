@@ -38,7 +38,11 @@ export class PagesHandler {
 
 		let response: Response;
 
-		const componentInstance = await state.loadComponentInstance();
+		// For prerendered pages served via `getStaticAsset`, the component module
+		// is not available in the server bundle — skip loading it and read the
+		// prebuilt HTML from disk instead (after middleware has run).
+		const usesStaticAsset = !!(state.routeData!.prerender && state.getStaticAsset);
+		const componentInstance = usesStaticAsset ? undefined : await state.loadComponentInstance();
 		switch (state.routeData!.type) {
 			case 'endpoint': {
 				response = await renderEndpoint(
@@ -51,23 +55,27 @@ export class PagesHandler {
 				break;
 			}
 			case 'page': {
-				const props = await state.getProps();
-				const actionApiContext = state.getActionAPIContext();
-				const result = await state.createResult(componentInstance!, actionApiContext);
-				try {
-					response = await renderPage(
-						result,
-						componentInstance?.default as any,
-						props,
-						state.slots ?? EMPTY_SLOTS,
-						streaming,
-						state.routeData!,
-					);
-				} catch (e) {
-					// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
-					// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
-					result.cancelled = true;
-					throw e;
+				if (usesStaticAsset) {
+					response = await this.#renderStaticAsset(state);
+				} else {
+					const props = await state.getProps();
+					const actionApiContext = state.getActionAPIContext();
+					const result = await state.createResult(componentInstance!, actionApiContext);
+					try {
+						response = await renderPage(
+							result,
+							componentInstance?.default as any,
+							props,
+							state.slots ?? EMPTY_SLOTS,
+							streaming,
+							state.routeData!,
+						);
+					} catch (e) {
+						// If there is an error in the page's frontmatter or instantiation of the RenderTemplate fails midway,
+						// we signal to the rest of the internals that we can ignore the results of existing renders and avoid kicking off more of them.
+						result.cancelled = true;
+						throw e;
+					}
 				}
 
 				// Signal to the i18n middleware to maybe act on this response
@@ -94,6 +102,35 @@ export class PagesHandler {
 		}
 		state.response = response;
 		return response;
+	}
+
+	/**
+	 * Reads the prebuilt HTML for a prerendered page via the adapter-provided
+	 * `getStaticAsset` function. Used when middleware runs at request time for
+	 * prerendered pages (`always` / `on-request` middleware modes): the page
+	 * component is not in the server bundle, so we serve the static HTML while
+	 * still letting middleware mutate the response.
+	 */
+	async #renderStaticAsset(state: FetchState): Promise<Response> {
+		const staticAssetResponse = await state.getStaticAsset!(state.routeData!, state.pathname);
+		if (!staticAssetResponse) {
+			return new Response(null, { status: 404 });
+		}
+		// Honor a status set by middleware (e.g. an auth check returning 403);
+		// otherwise use the status of the prebuilt response. `state.status` defaults
+		// to 200, so we treat 200 as "unset" — middleware cannot force a 200 over a
+		// prebuilt non-200 response, which in practice is the desired behavior.
+		const status = state.status === 200 ? staticAssetResponse.status : state.status;
+		// Reuse the static response object when the status matches so middleware
+		// keeps working with a single response instance to merge headers onto.
+		if (status === staticAssetResponse.status) {
+			return staticAssetResponse;
+		}
+		return new Response(staticAssetResponse.body, {
+			status,
+			statusText: staticAssetResponse.statusText,
+			headers: staticAssetResponse.headers,
+		});
 	}
 
 	/**

@@ -7,7 +7,7 @@ import type { AstroAdapterFeatures, MiddlewareMode } from '../types/public/integ
  * @example
  * ```ts
  * // New way
- * resolveMiddlewareMode({ middlewareMode: 'always' }) // 'always'
+ * resolveMiddlewareMode({ middlewareMode: 'on-request' }) // 'on-request'
  *
  * // Backward compatibility
  * resolveMiddlewareMode({ edgeMiddleware: true }) // 'edge'

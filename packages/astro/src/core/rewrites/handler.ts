@@ -48,7 +48,11 @@ export function applyRewriteToState(
 		pipeline.manifest.serverLike &&
 		!state.routeData!.prerender &&
 		routeData.prerender &&
-		!isI18nFallback
+		!isI18nFallback &&
+		// When the adapter serves prerendered HTML at request time (always /
+		// on-request middleware modes), the prerendered route is reachable, so
+		// rewriting to it is allowed.
+		!state.getStaticAsset
 	) {
 		throw new AstroError({
 			...ForbiddenRewrite,
@@ -62,13 +66,16 @@ export function applyRewriteToState(
 	if (payload instanceof Request) {
 		state.request = payload;
 	} else {
-		state.request = copyRequest(
+		state.request = copyRequest({
 			newUrl,
-			state.request,
-			routeData.prerender,
-			pipeline.logger,
-			state.routeData!.route,
-		);
+			oldRequest: state.request,
+			isPrerendered: routeData.prerender,
+			logger: pipeline.logger,
+			routePattern: state.routeData!.route,
+			// Prerendered routes normally drop request headers; keep them when
+			// middleware runs at request time so it can read them.
+			includeHeaders: pipeline.manifest.middlewareMode === 'on-request' || !routeData.prerender,
+		});
 	}
 	state.url = createNormalizedUrl(state.request.url);
 	if (mergeCookies) {

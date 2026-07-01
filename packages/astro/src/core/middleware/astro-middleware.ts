@@ -64,13 +64,27 @@ export class AstroMiddleware {
 			return renderRouteCallback(state, ctx);
 		};
 
+		// Decide whether the middleware chain runs for this request based on the
+		// configured middleware mode:
+		// - 'classic': run middleware whenever this point is reached
+		// - 'on-request': skip during build-time prerendering, run at request time
+		// - 'edge': never run here (deployed as a separate edge function)
+		const middlewareMode = pipeline.manifest.middlewareMode;
+		// Only true static generation during `astro build` is the build phase
+		// (`pipeline.isBuildTime`). At dev/request time the page may still be
+		// prerendered (rendered live or read from disk), but middleware must run.
+		const runMiddleware =
+			!state.skipMiddleware &&
+			middlewareMode !== 'edge' &&
+			!(middlewareMode === 'on-request' && pipeline.isBuildTime);
+
 		let response: Response;
-		if (state.skipMiddleware) {
-			response = await next(apiContext);
-		} else {
+		if (runMiddleware) {
 			const pipelineMiddleware = await pipeline.getMiddleware();
 			const composed = sequence(...pipeline.internalMiddleware, pipelineMiddleware);
 			response = await callMiddleware(composed, apiContext, next);
+		} else {
+			response = await next(apiContext);
 		}
 		response = this.#finalize(state, response);
 		state.response = response;

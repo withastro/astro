@@ -193,6 +193,17 @@ export class FetchState implements AstroFetchState {
 	set params(value: Params | undefined) {
 		this.#params = value;
 	}
+
+	/**
+	 * Adapter-provided function that reads the prebuilt HTML for a
+	 * prerendered route at request time. When set (and the route is
+	 * prerendered), middleware runs and this is used to produce the page
+	 * HTML instead of rendering the component module — which is not present
+	 * in the server bundle for prerendered routes.
+	 */
+	get getStaticAsset(): ResolvedRenderOptions['getStaticAsset'] {
+		return this.renderOptions.getStaticAsset;
+	}
 	/** Normalized URL for this request. */
 	url: URL;
 	/** Client address for this request. */
@@ -257,6 +268,7 @@ export class FetchState implements AstroFetchState {
 		this.renderOptions = options ?? {
 			addCookieHeader: false,
 			clientAddress: undefined,
+			getStaticAsset: undefined,
 			locals: undefined,
 			prerenderedErrorPageFetch: fetch,
 			routeData: undefined,
@@ -1016,6 +1028,13 @@ export class FetchState implements AstroFetchState {
 	async getProps(): Promise<APIContext['props']> {
 		if (this.props !== null) return this.props;
 		if (Object.keys(this.initialProps).length > 0) {
+			this.props = this.initialProps;
+			return this.props;
+		}
+		// For prerendered pages served via getStaticAsset, skip props resolution:
+		// the component module is not available in the server bundle, and the
+		// prebuilt HTML already contains the rendered output.
+		if (this.routeData!.prerender && this.getStaticAsset) {
 			this.props = this.initialProps;
 			return this.props;
 		}
