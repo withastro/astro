@@ -47,7 +47,7 @@
     "tinyglobby": "^0.2.15"
   },
   "peerDependencies": {
-    "astro": "^7.0.0-alpha.0"
+    "astro": "^7.0.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
