@@ -285,7 +285,9 @@ export interface NetlifyIntegrationConfig {
 	 *
 	 * @default {{ environmentVariables: false, images: true, edgeFunctions: true }}
 	 */
-	devFeatures?: { environmentVariables: boolean; images: boolean; edgeFunctions: boolean } | boolean;
+	devFeatures?:
+		| { environmentVariables: boolean; images: boolean; edgeFunctions: boolean }
+		| boolean;
 }
 
 export default function netlifyIntegration(
