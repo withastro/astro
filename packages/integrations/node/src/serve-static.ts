@@ -77,8 +77,8 @@ export function createStaticHandler(
 					// must strip config.base from the incoming URL before matching, just as
 					// we do for filesystem access above.
 					const baselessPathname = prependForwardSlash(app.removeBase(urlPath));
-					const matchedRoute = headersMap.find((header) =>
-						header.pathname.includes(baselessPathname),
+					const matchedRoute = headersMap.find(
+						(header) => header.pathname === baselessPathname,
 					);
 					if (matchedRoute) {
 						for (const header of matchedRoute.headers) {
