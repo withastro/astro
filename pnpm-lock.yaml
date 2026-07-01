@@ -6472,6 +6472,14 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0
 
+  packages/language-tools/ts-plugin/test/fixtures:
+    devDependencies:
+      astro:
+        specifier: link:./test-astro
+        version: link:test-astro
+
+  packages/language-tools/ts-plugin/test/fixtures/test-astro: {}
+
   packages/language-tools/vscode:
     dependencies:
       '@astrojs/compiler':

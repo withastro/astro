@@ -5,6 +5,7 @@ export default defineConfig([
 		label: 'unitTests',
 		files: 'test/**/*.test.mts',
 		extensionDevelopmentPath: '../vscode',
+		workspaceFolder: './test/fixtures',
 		version: 'stable',
 		mocha: {
 			ui: 'tdd',
