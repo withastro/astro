@@ -16,6 +16,7 @@ import { getParts } from './utils/generate-routes-json.js';
 import { buildAssetsHeadersContent } from './utils/headers.js';
 import {
 	type ImageServiceConfig,
+	hasUserImageService,
 	normalizeImageServiceConfig,
 	setImageConfig,
 } from './utils/image-config.js';
@@ -72,6 +73,13 @@ function hasContentCollectionsConfig(srcDir: URL) {
 	];
 
 	return contentConfigPaths.some((configPath) => existsSync(new URL(`./${configPath}`, srcDir)));
+}
+
+function resolveImageServiceEntrypoint(entrypoint: string, root: URL): string {
+	if (entrypoint.startsWith('.')) {
+		return new URL(entrypoint, root).href;
+	}
+	return entrypoint;
 }
 
 export interface Options
@@ -131,9 +139,11 @@ export default function createIntegration({
 
 	let _routes: IntegrationResolvedRoute[];
 	let cfPluginConfig: PluginConfig;
+	let hasUserBuildImageService = false;
 
 	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
 	const needsImagesBinding = runtimeService === 'cloudflare-binding';
+	const hasBuildImageService = buildService === 'compile' || buildService === 'custom';
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -145,12 +155,13 @@ export default function createIntegration({
 
 				let session = config.session;
 				const isCompile = buildService === 'compile';
+				hasUserBuildImageService = hasBuildImageService && hasUserImageService(config.image);
 
 				if (needsImagesBinding) {
 					logger.info(
 						`Enabling image processing with Cloudflare Images for production with the "${imagesBindingName}" Images binding.`,
 					);
-				} else if (isCompile) {
+				} else if (hasBuildImageService) {
 					logger.info(
 						`Enabling compile-time image optimization. Images will be pre-optimized at build time.`,
 					);
@@ -382,14 +393,16 @@ export default function createIntegration({
 							createConfigPlugin({
 								sessionKVBindingName,
 								compileImageConfig:
-									isCompile && command !== 'dev'
+									hasBuildImageService && command !== 'dev'
 										? {
 												base: config.base,
 												assetsPrefix:
 													typeof config.build.assetsPrefix === 'string'
 														? config.build.assetsPrefix
 														: undefined,
-												imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
+												imageServiceEntrypoint: hasUserBuildImageService
+													? config.image.service.entrypoint
+													: '@astrojs/cloudflare/image-service-workerd',
 												buildAssets: config.build.assets ?? '_astro',
 											}
 										: null,
@@ -481,7 +494,10 @@ export default function createIntegration({
 							base: _config.base,
 							trailingSlash: _config.trailingSlash,
 							cfPluginConfig,
-							hasCompileImageService: buildService === 'compile',
+							hasBuildImageService,
+							userImageServiceEntrypoint: hasUserBuildImageService
+								? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
+								: undefined,
 						}),
 					);
 				}
