@@ -1,5 +1,27 @@
 # @astrojs/cloudflare
 
+## 14.1.0
+
+### Minor Changes
+
+- [#17099](https://github.com/withastro/astro/pull/17099) [`fdab7ce`](https://github.com/withastro/astro/commit/fdab7ceb09066e792632d530799758c5eb5828dc) Thanks [@adamchal](https://github.com/adamchal)! - Adds configured image service support with the `compile` and `custom` options.
+
+  The Cloudflare adapter supports various options that affect how images are processed for both pre-rendered and on-demand routes:
+  - Setting `imageService: 'compile'` now ensures it is used for pre-rendered routes. When no custom image service is defined, the behavior remains unchanged.
+  - With `imageService: 'custom'`, assets are now processed at build time for pre-rendered routes. If you have configured an image service, it will be bundled to handle images at runtime; otherwise, the behavior remains unchanged.
+  - The other `imageService` options remain unchanged.
+
+  Learn more about the [image service options](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#imageservice) available in the Cloudflare adapter guide.
+
+### Patch Changes
+
+- [#17236](https://github.com/withastro/astro/pull/17236) [`c411200`](https://github.com/withastro/astro/commit/c411200d0b6f45c3fa6f5ce626f3538e981db653) Thanks [@matthewp](https://github.com/matthewp)! - Prevents warnings in the Cloudflare adapter about optimizing the `@astrojs/cloudflare/entrypoints/server` module in dev.
+
+- [#17249](https://github.com/withastro/astro/pull/17249) [`02b73b0`](https://github.com/withastro/astro/commit/02b73b0fc2e32102e788fd9031ce061337490a73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `peerDependencies` field used incorrect dependencies.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 14.0.2
 
 ### Patch Changes

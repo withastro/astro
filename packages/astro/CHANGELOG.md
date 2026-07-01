@@ -1,5 +1,27 @@
 # astro
 
+## 7.0.5
+
+### Patch Changes
+
+- [#17242](https://github.com/withastro/astro/pull/17242) [`9c05ba4`](https://github.com/withastro/astro/commit/9c05ba474cee5e3ef5142d88e7e08d53acfbe431) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an error that could occur after the dev server restarts when using an adapter such as `@astrojs/cloudflare`, where a request would fail with a `500` referencing a missing pre-bundled dependency:
+
+  ```
+  The file does not exist at "node_modules/.vite/deps_ssr/astro_compiler-runtime.js?v=6419660d" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+  ```
+
+- [#17202](https://github.com/withastro/astro/pull/17202) [`c6d254d`](https://github.com/withastro/astro/commit/c6d254dab889f9b15ec79eab84d8dbf7f7cd0007) Thanks [@matthewp](https://github.com/matthewp)! - Refactors path alias resolution to use Vite's native `tsconfigPaths` option
+
+  This is an internal change with no expected impact on user projects. Astro now defers tsconfig and jsconfig `paths` alias resolution to Vite, keeping a small fallback for a few CSS cases Vite does not yet handle.
+
+- [#17123](https://github.com/withastro/astro/pull/17123) [`72e29bd`](https://github.com/withastro/astro/commit/72e29bd7f9d6c9f86febf5c9b97417bc90de5bb1) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue where the ClientRouter wipes head elements after page transitions if the `<head>` contains a `server:defer` component.
+
+- [#17232](https://github.com/withastro/astro/pull/17232) [`257505e`](https://github.com/withastro/astro/commit/257505ebfd8be87e6b11fd369340245edd0c937a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a bug where `<style>` tags from components such as a content collection's `Content` could be silently dropped from the output when an `await` appeared before the component in an `.astro` file's markup.
+
+- [#17193](https://github.com/withastro/astro/pull/17193) [`a7352fd`](https://github.com/withastro/astro/commit/a7352fda1218bf48d8483a9893c6f7ed9bdf2060) Thanks [@jan-kubica](https://github.com/jan-kubica)! - Fixes the background dev server failing to start when `astro` is hoisted outside the project's `node_modules` (for example bun workspaces). The background process is now spawned from Astro's own resolved location instead of a path assumed under the project root.
+
+- [#17255](https://github.com/withastro/astro/pull/17255) [`581d171`](https://github.com/withastro/astro/commit/581d17113cb192e8b34aa3ad9965fe733e3ca210) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes prefetch not working for links inside `server:defer` components
+
 ## 7.0.4
 
 ### Patch Changes
