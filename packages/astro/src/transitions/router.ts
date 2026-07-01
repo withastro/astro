@@ -346,6 +346,8 @@ async function transition(
 	// e.g. by calling navigate() from a transition event.
 	// Invariant: all but the most recent navigation are already aborted.
 
+	if (historyState && from.href === to.href) return;
+
 	const currentNavigation = abortAndRecreateMostRecentNavigation();
 
 	// not ours
