@@ -194,7 +194,9 @@ describe('CompileImageService build-time image generation', () => {
 
 	for (const mode of ['compile', 'custom'] as const) {
 		describe(`imageService: '${mode}'`, () => {
-			it('with no user image.service: generates real WEBP assets at build time', { skip: skipRealSharp }, async () => {
+			it('with no user image.service: generates real WEBP assets at build time', {
+				skip: skipRealSharp,
+			}, async () => {
 				const { fixture, html } = await buildFixture(mode, 'default', `${mode}-default`);
 
 				// Build-time generation runs Astro's default Sharp service on the Node side.
@@ -238,7 +240,9 @@ describe('CompileImageService build-time image generation', () => {
 				}
 			});
 
-			it('with a Sharp-backed user image.service: generates assets, respects its markup, and bundles the Sharp chain', { skip: skipRealSharp }, async () => {
+			it('with a Sharp-backed user image.service: generates assets, respects its markup, and bundles the Sharp chain', {
+				skip: skipRealSharp,
+			}, async () => {
 				const { fixture, html } = await buildFixture(mode, 'sharp', `${mode}-sharp`);
 				const img = cheerio.load(html)('img');
 

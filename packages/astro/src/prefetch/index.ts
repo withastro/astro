@@ -326,10 +326,7 @@ function onPageLoad(cb: () => void) {
 	new MutationObserver((mutations) => {
 		for (const mutation of mutations) {
 			for (const node of mutation.addedNodes) {
-				if (
-					node instanceof Element &&
-					(node.tagName === 'A' || node.querySelector?.('a'))
-				) {
+				if (node instanceof Element && (node.tagName === 'A' || node.querySelector?.('a'))) {
 					cb();
 					return;
 				}
