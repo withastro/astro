@@ -1,0 +1,5 @@
+{
+  "extends": "../../../configs/tsconfig.test.json",
+  "exclude": ["./test/**/fixtures/**"],
+  "references": [{ "path": "./tsconfig.build.json" }]
+}

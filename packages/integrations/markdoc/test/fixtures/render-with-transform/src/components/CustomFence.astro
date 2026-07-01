@@ -1,0 +1,9 @@
+---
+// Custom fence component that wraps code in a div with a data attribute
+// so we can verify it's being used instead of the default transform
+const { content, language } = Astro.props;
+---
+
+<div data-custom-fence data-language={language}>
+  <pre><code>{content}</code></pre>
+</div>

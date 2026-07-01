@@ -1,0 +1,28 @@
+---
+import "../styles/global.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>CSS Target No Minify</title>
+  </head>
+  <body>
+    <h1>CSS Target No Minify Test</h1>
+  </body>
+</html>
+
+<style>
+  @media screen and (min-width: 555px) {
+    body {
+      background: yellow;
+    }
+  }
+
+  @media screen and (width >= 1111px) {
+    body {
+      background: red;
+    }
+  }
+</style>

@@ -1,0 +1,9 @@
+{
+  "extends": "../../configs/tsconfig.base.json",
+  "files": ["./bin/astro.mjs", "./playwright.config.js", "./playwright.firefox.config.js"],
+  "references": [
+    { "path": "./tsconfig.build.json" },
+    { "path": "./tsconfig.test.json" },
+    { "path": "./components/tsconfig.json" }
+  ]
+}
