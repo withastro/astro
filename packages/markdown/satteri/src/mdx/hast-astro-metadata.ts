@@ -1,5 +1,5 @@
 import type { AstroMetadata } from '@astrojs/internal-helpers/markdown';
-import { createDefaultAstroMetadata, resolvePath } from 'astro/markdown';
+import { createDefaultAstroMetadata, resolvePath } from '@astrojs/internal-helpers/mdx';
 import type { Identifier, Literal } from 'estree';
 import {
 	defineHastPlugin,

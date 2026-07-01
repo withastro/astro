@@ -1,32 +1,107 @@
-import {
-	rehypeHeadingIds,
-	rehypePrism,
-	rehypeShiki,
-	remarkCollectImages,
-} from '@astrojs/markdown-remark';
+import type {
+	AstroMarkdownOptions,
+	MdxRenderer,
+	MdxRendererOptions,
+	RemarkRehype,
+	ShikiConfig,
+	Smartypants,
+	SyntaxHighlightConfig,
+	SyntaxHighlightConfigType,
+} from '@astrojs/internal-helpers/markdown';
 import { createProcessor, nodeTypes } from '@mdx-js/mdx';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
 import { SourceMapGenerator } from 'source-map';
 import type { PluggableList } from 'unified';
-import type { ResolvedMdxOptions } from './index.js';
-import { rehypeAnalyzeAstroMetadata } from './rehype-analyze-astro-metadata.js';
+import { VFile } from 'vfile';
+import { rehypeHeadingIds } from '../rehype-collect-headings.js';
+import { rehypePrism } from '../rehype-prism.js';
+import { rehypeShiki } from '../rehype-shiki.js';
+import { remarkCollectImages } from '../remark-collect-images.js';
+import type { UnifiedResolvedOptions } from '../processor.js';
+import { getAstroMetadata, rehypeAnalyzeAstroMetadata } from './rehype-analyze-astro-metadata.js';
 import { rehypeApplyFrontmatterExport } from './rehype-apply-frontmatter-export.js';
-import { rehypeInjectHeadingsExport } from './rehype-collect-headings.js';
+import { rehypeInjectHeadingsExport } from './rehype-inject-headings-export.js';
 import { rehypeImageToComponent } from './rehype-images-to-component.js';
 import rehypeMetaString from './rehype-meta-string.js';
-import { rehypeOptimizeStatic } from './rehype-optimize-static.js';
+import { type OptimizeOptions, rehypeOptimizeStatic } from './rehype-optimize-static.js';
+import { filterStringPlugins } from './utils.js';
 
 // Skip nonessential plugins during performance benchmark runs
 const isPerformanceBenchmark = Boolean(process.env.ASTRO_PERFORMANCE_BENCHMARK);
+
+/** Fully-resolved inputs the unified MDX pipeline needs to build its processor. */
+interface UnifiedMdxOptions {
+	syntaxHighlight: SyntaxHighlightConfig | SyntaxHighlightConfigType | false | undefined;
+	shikiConfig: ShikiConfig;
+	gfm: boolean;
+	smartypants: boolean | Smartypants;
+	remarkPlugins: PluggableList;
+	rehypePlugins: PluggableList;
+	remarkRehype: RemarkRehype;
+	recmaPlugins: PluggableList;
+	optimize: boolean | OptimizeOptions;
+}
 
 interface MdxProcessorExtraOptions {
 	sourcemap: boolean;
 }
 
+/**
+ * Build the `MdxRenderer` for the `unified` processor. Called via
+ * `unified().createMdxRenderer` — `options` are the processor's own remark/rehype
+ * plugins, `shared` the cross-cutting markdown options, `mdx` the MDX-only inputs.
+ */
+export function createUnifiedMdxProcessor(
+	shared: AstroMarkdownOptions,
+	mdx: MdxRendererOptions,
+	options: UnifiedResolvedOptions,
+): MdxRenderer {
+	const mdxOptions: UnifiedMdxOptions = {
+		syntaxHighlight: shared.syntaxHighlight,
+		shikiConfig: shared.shikiConfig ?? {},
+		// `shared.gfm`/`smartypants` already encode the resolved precedence
+		// (`mdx({...})` > `unified({...})` > deprecated `markdown.*`), applied by `@astrojs/mdx`.
+		gfm: shared.gfm ?? true,
+		smartypants: shared.smartypants ?? true,
+		remarkPlugins: filterStringPlugins(options.remarkPlugins),
+		rehypePlugins: filterStringPlugins(options.rehypePlugins),
+		remarkRehype: options.remarkRehype,
+		recmaPlugins: options.recmaPlugins,
+		optimize: mdx.optimize,
+	};
+
+	const processor = createMdxProcessor(mdxOptions, { sourcemap: mdx.sourcemap ?? false });
+
+	return {
+		async process(content, filePath, frontmatter) {
+			const vfile = new VFile({
+				value: content,
+				path: filePath,
+				data: {
+					astro: { frontmatter },
+					applyFrontmatterExport: { srcDir: mdx.srcDir },
+				},
+			});
+			const compiled = await processor.process(vfile);
+			const astroMetadata = getAstroMetadata(vfile);
+			if (!astroMetadata) {
+				throw new Error(
+					'Internal MDX error: Astro metadata is not set by rehype-analyze-astro-metadata',
+				);
+			}
+			return {
+				code: String(compiled.value),
+				map: compiled.map ? JSON.stringify(compiled.map) : null,
+				astroMetadata,
+			};
+		},
+	};
+}
+
 export function createMdxProcessor(
-	mdxOptions: ResolvedMdxOptions,
+	mdxOptions: UnifiedMdxOptions,
 	extraOptions: MdxProcessorExtraOptions,
 ) {
 	return createProcessor({
@@ -43,7 +118,7 @@ export function createMdxProcessor(
 	});
 }
 
-function getRemarkPlugins(mdxOptions: ResolvedMdxOptions): PluggableList {
+function getRemarkPlugins(mdxOptions: UnifiedMdxOptions): PluggableList {
 	let remarkPlugins: PluggableList = [];
 
 	if (!isPerformanceBenchmark) {
@@ -62,7 +137,7 @@ function getRemarkPlugins(mdxOptions: ResolvedMdxOptions): PluggableList {
 	return remarkPlugins;
 }
 
-function getRehypePlugins(mdxOptions: ResolvedMdxOptions): PluggableList {
+function getRehypePlugins(mdxOptions: UnifiedMdxOptions): PluggableList {
 	let rehypePlugins: PluggableList = [
 		// ensure `data.meta` is preserved in `properties.metastring` for rehype syntax highlighters
 		rehypeMetaString,

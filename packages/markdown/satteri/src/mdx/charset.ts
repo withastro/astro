@@ -12,6 +12,7 @@ const leadingComponentRe = /^\s*<\s*([A-Za-z][A-Za-z0-9]*)\b/;
 // Skips imports/exports/blank lines and bails when the first content line is a
 // capitalized JSX element (treated as a wrapping layout).
 export function shouldAddCharset(content: string, filePath: string, srcDir: URL): boolean {
+	if (!srcDir) return false;
 	const srcDirPath = fileURLToPath(srcDir).replace(/\\/g, '/');
 	const pagesDir = path.posix.join(srcDirPath, 'pages');
 	const normalizedFilePath = filePath.replace(/\\/g, '/');

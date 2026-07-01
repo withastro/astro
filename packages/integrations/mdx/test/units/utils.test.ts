@@ -1,13 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { AstroConfig } from 'astro';
-import {
-	appendForwardSlash,
-	getFileInfo,
-	ignoreStringPlugins,
-	jsToTreeNode,
-} from '../../dist/utils.js';
-import { SpyLogger } from '../test-utils.ts';
+import { appendForwardSlash, getFileInfo } from '../../dist/utils.js';
 
 describe('utils', () => {
 	describe('appendForwardSlash', () => {
@@ -91,92 +85,6 @@ describe('utils', () => {
 			const result = getFileInfo('/other/path/file.mdx', config);
 			assert.equal(result.fileId, '/other/path/file.mdx');
 			assert.equal(result.fileUrl, '/other/path/file.mdx');
-		});
-	});
-
-	describe('jsToTreeNode', () => {
-		it('parses a simple export statement', () => {
-			const node = jsToTreeNode('export const x = 1;');
-			const estree = node.data!.estree!;
-			assert.equal(node.type, 'mdxjsEsm');
-			assert.equal(estree.type, 'Program');
-			assert.equal(estree.sourceType, 'module');
-			assert.ok(estree.body.length > 0);
-		});
-
-		it('parses an import statement', () => {
-			const node = jsToTreeNode("import foo from 'bar';");
-			assert.equal(node.type, 'mdxjsEsm');
-			assert.equal(node.data!.estree!.body[0].type, 'ImportDeclaration');
-		});
-
-		it('parses a function export', () => {
-			const node = jsToTreeNode('export function getHeadings() { return []; }');
-			assert.equal(node.type, 'mdxjsEsm');
-			const decl = node.data!.estree!.body[0];
-			assert.equal(decl.type, 'ExportNamedDeclaration');
-		});
-
-		it('throws on invalid JS', () => {
-			assert.throws(() => jsToTreeNode('this is not valid javascript {{{'), {
-				name: 'SyntaxError',
-			});
-		});
-	});
-
-	describe('ignoreStringPlugins', () => {
-		it('returns function plugins unchanged', () => {
-			const plugin1 = () => {};
-			const plugin2 = () => {};
-			const spyLogger = new SpyLogger();
-			const logger = spyLogger.forkIntegrationLogger('test-spy');
-			const result = ignoreStringPlugins([plugin1, plugin2], logger);
-			assert.equal(result.length, 2);
-			assert.equal(result[0], plugin1);
-			assert.equal(result[1], plugin2);
-			assert.equal(spyLogger.logs.filter((m) => m.level === 'warn').length, 0);
-		});
-
-		it('filters out string-based plugins', () => {
-			const fnPlugin = () => {};
-			const spyLogger = new SpyLogger();
-			const logger = spyLogger.forkIntegrationLogger('test-spy');
-			const result = ignoreStringPlugins(['remark-toc', fnPlugin], logger);
-			assert.equal(result.length, 1);
-			assert.equal(result[0], fnPlugin);
-		});
-
-		it('filters out array-based string plugins [string, options]', () => {
-			const fnPlugin = () => {};
-			const spyLogger = new SpyLogger();
-			const logger = spyLogger.forkIntegrationLogger('test-spy');
-			const result = ignoreStringPlugins([['remark-toc', {}], fnPlugin], logger);
-			assert.equal(result.length, 1);
-			assert.equal(result[0], fnPlugin);
-		});
-
-		it('logs warnings for string plugins', () => {
-			const spyLogger = new SpyLogger();
-			const logger = spyLogger.forkIntegrationLogger('test-spy');
-			ignoreStringPlugins(['remark-toc', ['rehype-highlight', {}]], logger);
-			// One warning per string plugin + one summary warning
-			assert.equal(spyLogger.logs.filter((m) => m.level === 'warn').length, 3);
-		});
-
-		it('returns empty array for all string plugins', () => {
-			const spyLogger = new SpyLogger();
-			const logger = spyLogger.forkIntegrationLogger('test-spy');
-			const result = ignoreStringPlugins(['remark-toc'], logger);
-			assert.equal(result.length, 0);
-		});
-
-		it('handles array-based function plugins [function, options]', () => {
-			const fnPlugin = () => {};
-			const spyLogger = new SpyLogger();
-			const logger = spyLogger.forkIntegrationLogger('test-spy');
-			const result = ignoreStringPlugins([[fnPlugin, { option: true }]], logger);
-			assert.equal(result.length, 1);
-			assert.equal(spyLogger.logs.filter((m) => m.level === 'warn').length, 0);
 		});
 	});
 });
