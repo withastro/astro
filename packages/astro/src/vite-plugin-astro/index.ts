@@ -86,7 +86,12 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						viteConfig.resolve.conditions = [...defaultServerConditions];
 					}
 				}
-				viteConfig.resolve.conditions.push('astro');
+				// `configEnvironment` can run again on dev server restart with the
+				// resolved `conditions` carried over, so only add `astro` if missing to
+				// avoid a duplicate that changes the optimizeDeps config hash.
+				if (!viteConfig.resolve.conditions.includes('astro')) {
+					viteConfig.resolve.conditions.push('astro');
+				}
 			},
 			async configResolved(viteConfig) {
 				const toolbarEnabled = await settings.preferences.get('devToolbar.enabled');

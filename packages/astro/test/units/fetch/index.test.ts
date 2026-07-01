@@ -259,6 +259,113 @@ describe('middleware()', () => {
 		assert.equal(response.headers.get('x-user-middleware'), 'true');
 		assert.equal(await response.text(), 'page');
 	});
+
+	it('renders the custom 500 page when user middleware throws', async () => {
+		const errorPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>my custom 500</h1>`;
+		});
+		const app = createTestApp(
+			[createPage(simplePage, { route: '/' }), createPage(errorPage, { route: '/500' })],
+			{
+				middleware: async () => ({
+					onRequest: async () => {
+						throw new Error('boom from middleware');
+					},
+				}),
+			},
+		);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		const response = await middleware(state, async () => new Response('page'));
+
+		assert.equal(response.status, 500);
+		const text = await response.text();
+		assert.match(text, /<h1>my custom 500<\/h1>/);
+	});
+
+	it('passes the thrown error to the custom 500 page when user middleware throws', async () => {
+		const errorPage = createComponent((_result: any, props: any, _slots: any) => {
+			const err = props.error;
+			const message = err instanceof Error ? err.message : String(err ?? '');
+			return render`<h1>my custom 500</h1><pre>${message}</pre>`;
+		});
+		const app = createTestApp(
+			[createPage(simplePage, { route: '/' }), createPage(errorPage, { route: '/500' })],
+			{
+				middleware: async () => ({
+					onRequest: async () => {
+						throw new Error('boom from middleware');
+					},
+				}),
+			},
+		);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		const response = await middleware(state, async () => new Response('page'));
+
+		assert.equal(response.status, 500);
+		const text = await response.text();
+		assert.match(text, /boom from middleware/);
+	});
+
+	it('re-throws errors from the next callback instead of rendering the 500 page', async () => {
+		// A throw from `next` originates downstream of Astro's middleware (the
+		// host framework's chain), so it must propagate to the host's own error
+		// handling rather than be swallowed into Astro's 500 page.
+		const errorPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>my custom 500</h1>`;
+		});
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(errorPage, { route: '/500' }),
+		]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		const downstreamError = new Error('boom from next');
+		await assert.rejects(
+			middleware(state, async () => {
+				throw downstreamError;
+			}),
+			(err: unknown) => err === downstreamError,
+		);
+	});
+
+	it('returns a marked 404 without running middleware when the custom 404 route is prerendered', async () => {
+		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Not Found</h1>`;
+		});
+		const app = createTestApp(
+			[
+				createPage(simplePage, { route: '/' }),
+				createPage(notFoundPage, { route: '/404', prerender: true }),
+			],
+			{
+				middleware: async () => ({
+					onRequest: async (_ctx: any, next: any) => {
+						const response = await next();
+						response.headers.set('x-user-middleware', 'true');
+						return response;
+					},
+				}),
+			},
+		);
+		const request = stampApp(new Request('http://example.com/does-not-exist'), app);
+		const state = new FetchState(request);
+
+		let nextCalled = false;
+		const response = await middleware(state, async () => {
+			nextCalled = true;
+			return new Response('page');
+		});
+
+		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('X-Astro-Error'), 'true');
+		assert.equal(response.headers.get('x-user-middleware'), null, 'user middleware should not run');
+		assert.equal(nextCalled, false, 'next should not be called for an unmatched route');
+	});
 });
 
 // #endregion
@@ -274,6 +381,8 @@ describe('pages()', () => {
 		const response = await pages(state);
 
 		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('x-astro-route-type'), null);
+		assert.equal(response.headers.get('x-astro-reroute'), null);
 		const text = await response.text();
 		assert.match(text, /<h1>Hello<\/h1>/);
 	});
@@ -292,6 +401,8 @@ describe('pages()', () => {
 		const response = await pages(state);
 
 		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('x-astro-route-type'), null);
+		assert.equal(response.headers.get('x-astro-reroute'), null);
 		const text = await response.text();
 		assert.match(text, /<h1>Not Found<\/h1>/);
 	});
@@ -353,6 +464,8 @@ describe('pages()', () => {
 		const response = await pages(state);
 
 		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('x-astro-route-type'), null);
+		assert.equal(response.headers.get('x-astro-reroute'), null);
 		assert.equal(response.headers.get('Content-Type'), 'application/json');
 		const body = await response.json();
 		assert.equal(body.ok, true);
@@ -368,6 +481,8 @@ describe('pages()', () => {
 		const response = await pages(state);
 
 		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('x-astro-route-type'), null);
+		assert.equal(response.headers.get('x-astro-reroute'), null);
 	});
 });
 
@@ -402,9 +517,8 @@ describe('i18n()', () => {
 		const request = stampApp(new Request('http://example.com/about'), app);
 		const state = new FetchState(request);
 
-		const pageResponse = new Response('page body', {
-			headers: { 'X-Astro-Route-Type': 'page' },
-		});
+		state.responseRouteType = 'page';
+		const pageResponse = new Response('page body');
 		const result = await i18n(state, pageResponse);
 
 		assert.equal(result.status, 404);
@@ -425,9 +539,8 @@ describe('i18n()', () => {
 		const request = stampApp(new Request('http://example.com/en/about'), app);
 		const state = new FetchState(request);
 
-		const pageResponse = new Response('page body', {
-			headers: { 'X-Astro-Route-Type': 'page' },
-		});
+		state.responseRouteType = 'page';
+		const pageResponse = new Response('page body');
 		const result = await i18n(state, pageResponse);
 
 		assert.equal(result.status, 200);
@@ -449,7 +562,7 @@ describe('i18n()', () => {
 		const request = stampApp(new Request('http://example.com/api/data'), app);
 		const state = new FetchState(request);
 
-		// No X-Astro-Route-Type header — simulates an endpoint response
+		// No responseRouteType — simulates an endpoint response
 		const apiResponse = new Response('{"ok":true}');
 		const result = await i18n(state, apiResponse);
 

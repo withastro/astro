@@ -5,6 +5,7 @@ import { renderChild } from './any.js';
 import { createThinHead, type ThinHead } from './astro/head-and-content.js';
 import type { RenderDestination } from './common.js';
 import { createRenderInstruction } from './instruction.js';
+import { SERVER_ISLAND_START } from './server-islands-shared.js';
 import { type ComponentSlots, type SlotString, renderSlotToString } from './slot.js';
 
 const internalProps = new Set([
@@ -76,7 +77,7 @@ export class ServerIslandComponent {
 		const hostId = await this.getHostId();
 		const islandContent = await this.getIslandContent();
 		destination.write(createRenderInstruction({ type: 'server-island-runtime' }));
-		destination.write('<!--[if astro]>server-island-start<![endif]-->');
+		destination.write(`<!--${SERVER_ISLAND_START}-->`);
 		// Render the slots
 		for (const name in this.slots) {
 			if (name === 'fallback') {
@@ -240,7 +241,7 @@ const SERVER_ISLAND_REPLACER = markHTMLString(
 	// Load the HTML before modifying the DOM in case of errors
 	let html = await r.text();
 	// Remove any placeholder content before the island script
-	while (s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '[if astro]>server-island-start<![endif]')
+	while (s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '${SERVER_ISLAND_START}')
 		s.previousSibling.remove();
 	s.previousSibling?.remove();
 	// Insert the new HTML

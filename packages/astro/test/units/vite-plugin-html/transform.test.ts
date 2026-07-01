@@ -59,9 +59,7 @@ describe('vite-plugin-html: transform integration', () => {
 		assert.doesNotMatch(result.code, /\$\{___SLOTS___\["default"\]/);
 	});
 
-	it('handles complex escaping in attributes', {
-		skip: 'There is a bug in replaceAttribute with multiple attributes',
-	}, async () => {
+	it('handles complex escaping in attributes', async () => {
 		const code = '<div data-value="${foo}" data-template="`${bar}`"></div>';
 		const result = await transform(code, 'test.html');
 
@@ -96,8 +94,7 @@ describe('vite-plugin-html: transform integration', () => {
 		const code = '<!-- Comment with ${variable} -->';
 		const result = await transform(code, 'test.html');
 
-		// Comments are parsed as text nodes, so only content is preserved
-		assert.match(result.code, / Comment with \\\$\{variable\} /);
+		assert.match(result.code, /<!-- Comment with \\\$\{variable\} -->/);
 	});
 
 	it('produces valid source maps', async () => {

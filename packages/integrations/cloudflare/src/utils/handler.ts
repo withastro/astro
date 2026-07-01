@@ -1,5 +1,9 @@
 import { env as globalEnv } from 'cloudflare:workers';
-import { compileImageConfig, isPrerender } from 'virtual:astro-cloudflare:config';
+import {
+	compileImageConfig,
+	isPrerender,
+	cacheProviderEnabled,
+} from 'virtual:astro-cloudflare:config';
 import type { RenderOptions } from 'astro/app';
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
@@ -12,6 +16,7 @@ import {
 	handlePrerenderRequest,
 	isStaticImagesRequest,
 	handleStaticImagesRequest,
+	installPrerenderErrorPropagation,
 } from './prerender.js';
 import {
 	type Runtime,
@@ -35,6 +40,10 @@ declare global {
 type CfResponse = Awaited<ReturnType<Required<ExportedHandler<Env>>['fetch']>>;
 
 const app = createApp();
+
+if (isPrerender) {
+	installPrerenderErrorPropagation(app);
+}
 
 export async function handle(
 	request: Request,
@@ -82,6 +91,7 @@ export async function handle(
 	}
 
 	const locals = createLocals(context);
+
 	const waitUntil: RenderOptions['waitUntil'] = context.waitUntil.bind(context);
 
 	const response = await app.render(request, {
@@ -96,6 +106,15 @@ export async function handle(
 		for (const setCookieHeader of app.setCookieHeaders(response)) {
 			response.headers.append('Set-Cookie', setCookieHeader);
 		}
+	}
+
+	// When the Cloudflare cache provider is configured, default uncached
+	// responses to `no-store` so opting in to route caching never
+	// accidentally caches a route that didn't set any cache intent.
+	// Cloudflare's Worker cache otherwise caches all GET responses for
+	// up to 2 hours by default.
+	if (cacheProviderEnabled && !response.headers.has('Cloudflare-CDN-Cache-Control')) {
+		response.headers.set('Cloudflare-CDN-Cache-Control', 'no-store');
 	}
 
 	return response;

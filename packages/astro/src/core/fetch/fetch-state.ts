@@ -35,7 +35,7 @@ import { getParams, getProps } from '../render/index.js';
 import { Rewrites } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
 import { normalizeUrl } from '../util/normalized-url.js';
-import { validateAndDecodePathname } from '../util/pathname.js';
+import { MultiLevelEncodingError, validateAndDecodePathname } from '../util/pathname.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
 import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
@@ -170,6 +170,12 @@ export class FetchState implements AstroFetchState {
 	status = 200;
 	/** Whether user middleware should be skipped for this request. */
 	skipMiddleware = false;
+	/**
+	 * Set to `true` when the request path was encoded too many times to fully
+	 * decode (see {@link validateAndDecodePathname}). These requests are
+	 * rejected with a `400` before middleware or routing run.
+	 */
+	invalidEncoding = false;
 	/** A flag that tells the render content if the rewriting was triggered. */
 	isRewriting = false;
 	/** A safety net in case of loops (rewrite counter). */
@@ -193,6 +199,10 @@ export class FetchState implements AstroFetchState {
 	clientAddress: string | undefined;
 	/** Whether this is a partial render (container API). */
 	partial: boolean | undefined;
+	/** Internal metadata about the current response route type. */
+	responseRouteType: 'page' | 'fallback' | undefined;
+	/** Internal flag to prevent rerouting this response to an error page. */
+	skipErrorReroute = false;
 	/** Whether to inject CSP meta tags. */
 	shouldInjectCspMetaTags: boolean | undefined;
 	/** Request-scoped locals object, shared with user middleware. */
@@ -409,6 +419,8 @@ export class FetchState implements AstroFetchState {
 				extraStyleHashes,
 				extraScriptHashes,
 				propagators: new Set(),
+				routeHasPropagation: false,
+				pendingSlotEvaluations: [],
 				templateDepth: 0,
 			},
 			cspDestination: manifest.csp?.cspDestination ?? (routeData.prerender ? 'meta' : 'header'),
@@ -911,6 +923,13 @@ export class FetchState implements AstroFetchState {
 		try {
 			return validateAndDecodePathname(pathname);
 		} catch (e: any) {
+			// The path was encoded too many times to fully decode. Mark it so
+			// the handler can reject the request with a 400 before middleware
+			// or routing run, instead of working with a half-decoded path.
+			if (e instanceof MultiLevelEncodingError) {
+				this.invalidEncoding = true;
+				return pathname;
+			}
 			this.pipeline.logger.error(null, e.toString());
 			return pathname;
 		}
@@ -1127,5 +1146,10 @@ export class FetchState implements AstroFetchState {
 		this.props = null;
 		this.actionApiContext = null;
 		this.apiContext = null;
+	}
+
+	resetResponseMetadata(): void {
+		this.responseRouteType = undefined;
+		this.skipErrorReroute = false;
 	}
 }

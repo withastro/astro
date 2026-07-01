@@ -165,10 +165,10 @@ describe('serializedManifestPlugin - dev mode', () => {
 	});
 
 	describe('compressHTML', () => {
-		it('is true by default', async () => {
+		it("is 'jsx' by default", async () => {
 			const settings = await createBasicSettings({});
 			const manifest = await getManifest(settings);
-			assert.equal(manifest.compressHTML, true);
+			assert.equal(manifest.compressHTML, 'jsx');
 		});
 
 		it('is false when explicitly disabled', async () => {

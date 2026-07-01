@@ -250,6 +250,8 @@ export async function createVite(
 			},
 		},
 		resolve: {
+			// Vite's native tsconfig path resolution; see configAliasVitePlugin for the deprecated fallback.
+			tsconfigPaths: true,
 			alias: [
 				{
 					// This is needed for Deno compatibility, as the non-browser version

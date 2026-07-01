@@ -1,7 +1,8 @@
 import colors from 'piccolore';
-import { REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../../core/constants.js';
+import { REROUTABLE_STATUS_CODES } from '../../core/constants.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { EndpointDidNotReturnAResponse } from '../../core/errors/errors-data.js';
+import type { FetchState } from '../../core/fetch/fetch-state.js';
 import type { AstroLogger } from '../../core/logger/core.js';
 import type { APIRoute } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
@@ -14,6 +15,7 @@ export async function renderEndpoint(
 	context: APIContext,
 	isPrerendered: boolean,
 	logger: AstroLogger,
+	state?: FetchState,
 ) {
 	const { request, url } = context;
 
@@ -58,28 +60,14 @@ export async function renderEndpoint(
 	}
 
 	let response = await handler.call(mod, context);
-
 	if (!response || response instanceof Response === false) {
 		throw new AstroError(EndpointDidNotReturnAResponse);
 	}
 
 	// Endpoints explicitly returning 404 or 500 response status should
 	// NOT be subject to rerouting to 404.astro or 500.astro.
-	if (REROUTABLE_STATUS_CODES.includes(response.status)) {
-		try {
-			response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
-		} catch (err) {
-			// In some cases the response may have immutable headers
-			// This is the case if, for example, the user directly returns a `fetch` response
-			// There's no clean way to check if the headers are immutable, so we just catch the error
-			// Note that response.clone() still has immutable headers!
-			if ((err as Error).message?.includes('immutable')) {
-				response = new Response(response.body, response);
-				response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
-			} else {
-				throw err;
-			}
-		}
+	if (state && REROUTABLE_STATUS_CODES.includes(response.status)) {
+		state.skipErrorReroute = true;
 	}
 
 	if (method === 'HEAD') {

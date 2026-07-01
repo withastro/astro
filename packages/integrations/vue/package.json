@@ -1,9 +1,8 @@
 {
   "name": "@astrojs/vue",
-  "version": "7.0.0-beta.1",
+  "version": "7.0.0",
   "description": "Use Vue components within Astro",
   "type": "module",
-  "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -21,6 +20,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/vue/",
   "exports": {
     ".": "./dist/index.js",
+    "./container-renderer": "./dist/container-renderer.js",
     "./editor": "./dist/editor.cjs",
     "./client.js": "./dist/client.js",
     "./server.js": "./dist/server.js",

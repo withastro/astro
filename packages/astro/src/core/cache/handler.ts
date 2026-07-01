@@ -101,7 +101,7 @@ export class CacheHandler {
 				},
 				async () => {
 					const res = await next();
-					applyCacheHeaders(cache!, res);
+					applyCacheHeaders(cache!, res, state.request);
 					return res;
 				},
 			);
@@ -113,7 +113,7 @@ export class CacheHandler {
 
 		const response = await next();
 		// Apply cache headers for CDN-based providers (no onRequest)
-		applyCacheHeaders(cache!, response);
+		applyCacheHeaders(cache!, response, state.request);
 		return response;
 	}
 }

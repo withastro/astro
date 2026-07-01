@@ -7,6 +7,7 @@ import type {
 	ResizeOptions,
 	SharpOptions,
 	WebpOptions,
+	SharpConstructor,
 } from 'sharp';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
@@ -51,7 +52,7 @@ export interface SharpImageServiceConfig {
 	avif?: AvifOptions;
 }
 
-let sharp: typeof import('sharp');
+let sharp: SharpConstructor;
 
 const qualityTable: Record<ImageQualityPreset, number> = {
 	low: 25,
@@ -114,8 +115,8 @@ export function resolveSharpEncoderOptions(
 	}
 }
 
-async function loadSharp() {
-	let sharpImport: typeof import('sharp');
+async function loadSharp(): Promise<SharpConstructor> {
+	let sharpImport: SharpConstructor;
 	try {
 		sharpImport = (await import('sharp')).default;
 	} catch {
@@ -181,7 +182,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		}
 
 		const result = sharp(inputBuffer, {
-			failOnError: false,
+			failOn: 'none',
 			pages: -1,
 			limitInputPixels: config.service.config.limitInputPixels,
 		});
