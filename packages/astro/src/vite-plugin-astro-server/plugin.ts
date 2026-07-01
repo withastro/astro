@@ -35,6 +35,16 @@ export default function createVitePluginAstroServer({
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
 		async configureServer(viteServer) {
+			// Skip the dev server setup when running under Vitest. Vitest creates
+			// its own Vite server(s) using the Astro config (via `getViteConfig()`),
+			// but the Astro dev server handler is not needed for running tests.
+			// Additionally, Vitest's mocker plugin (`@vitest/mocker`) transforms
+			// dynamic `import()` calls in code loaded through the module runner,
+			// which can cause `wrapDynamicImport` errors when the mocker runtime
+			// is not initialized in the SSR environment context.
+			if (process.env.VITEST) {
+				return;
+			}
 			const ssrEnvironment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 			const prerenderEnvironment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.prerender];
 
