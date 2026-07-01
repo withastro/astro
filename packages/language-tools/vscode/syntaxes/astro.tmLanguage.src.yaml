@@ -93,7 +93,8 @@ injections:
   # Style Languages
   # Stylus | 'stylus' | 'source.stylus'
   'L:meta.style.astro meta.lang.stylus - (meta.embedded.block source)':
-    patterns: [
+    patterns:
+      [
         {
           begin: '(?<=>)(?=[^\n]+</style[\s>])',
           end: '(?=</style[\s>])',
@@ -112,7 +113,8 @@ injections:
 
   # Sass | 'sass' | 'source.sass'
   'L:meta.style.astro meta.lang.sass - (meta.embedded.block source)':
-    patterns: [
+    patterns:
+      [
         {
           begin: '(?<=>)(?=[^\n]+</style[\s>])',
           end: '(?=</style[\s>])',
@@ -131,7 +133,8 @@ injections:
 
   # CSS | 'css' | 'source.css'
   'L:meta.style.astro meta.lang.css - (meta.embedded.block source)':
-    patterns: [
+    patterns:
+      [
         {
           begin: '(?<=>)(?=[^\n]+</style[\s>])',
           end: '(?=</style[\s>])',
@@ -150,7 +153,8 @@ injections:
 
   # SCSS | 'scss' | 'source.css.scss'
   'L:meta.style.astro meta.lang.scss - (meta.embedded.block source)':
-    patterns: [
+    patterns:
+      [
         {
           begin: '(?<=>)(?=[^\n]+</style[\s>])',
           end: '(?=</style[\s>])',
@@ -169,7 +173,8 @@ injections:
 
   # Less | 'less' | 'source.css.less'
   'L:meta.style.astro meta.lang.less - (meta.embedded.block source)':
-    patterns: [
+    patterns:
+      [
         {
           begin: '(?<=>)(?=[^\n]+</style[\s>])',
           end: '(?=</style[\s>])',
@@ -188,7 +193,8 @@ injections:
 
   # PostCSS | 'postcss' | 'source.css.postcss'
   'L:meta.style.astro meta.lang.postcss - (meta.embedded.block source)':
-    patterns: [
+    patterns:
+      [
         {
           begin: '(?<=>)(?=[^\n]+</style[\s>])',
           end: '(?=</style[\s>])',
@@ -207,7 +213,8 @@ injections:
 
   # Default (CSS)
   'L:meta.style.astro - meta.lang - (meta.embedded.block source)':
-    patterns: [
+    patterns:
+      [
         {
           begin: '(?<=>)(?=[^\n]+</style[\s>])',
           end: '(?=</style[\s>])',
