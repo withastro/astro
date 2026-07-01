@@ -26,7 +26,7 @@ describe('getPackage', () => {
 			await writeFile(join(pkgDir, 'index.js'), 'export const loaded = true;\n');
 
 			// getPackage should resolve from the project cwd, finding the fake package
-			const result = await getPackage('fake-test-pkg', defaultLogger, {
+			const result = await getPackage<{ loaded: boolean }>('fake-test-pkg', defaultLogger, {
 				cwd: projectDir,
 				optional: true,
 			});
