@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import {
 	addAttribute,
@@ -15,6 +15,7 @@ import {
 	Fragment,
 	render as renderTemplate,
 	renderComponent,
+	renderHTMLElement,
 	renderSlot,
 	unescapeHTML,
 } from '../../../dist/runtime/server/index.js';
@@ -260,6 +261,54 @@ describe('spreadAttributes rejects invalid attribute keys', () => {
 		assert.ok(result.includes('id="ok"'));
 		assert.ok(!result.includes('onclick'));
 		assert.ok(!result.includes('alert'));
+	});
+});
+
+describe('renderHTMLElement rejects invalid attribute keys', () => {
+	// renderHTMLElement resolves the tag name through customElements.getName().
+	// In a Node test environment this global doesn't exist, so we stub it.
+	const originalCustomElements = globalThis.customElements;
+	const result = {} as any;
+
+	before(() => {
+		globalThis.customElements = {
+			getName: () => 'my-el',
+		} as any;
+	});
+
+	after(() => {
+		globalThis.customElements = originalCustomElements;
+	});
+
+	it('drops malicious keys while keeping valid ones', async () => {
+		const html = await renderHTMLElement(
+			result,
+			class {} as any,
+			{
+				'onmouseover=alert(document.domain) x': 'y',
+				'x><script>alert(1)</script>': 'z',
+				'data-safe': 'ok',
+			},
+			{},
+		);
+		const output = String(html);
+		assert.ok(output.includes('data-safe="ok"'));
+		assert.ok(!output.includes('onmouseover'));
+		assert.ok(!output.includes('<script>'));
+		assert.ok(!output.includes('alert'));
+	});
+
+	it('preserves namespaced and normal attribute names', async () => {
+		const html = await renderHTMLElement(
+			result,
+			class {} as any,
+			{ 'id': 'a', 'data-foo': 'b', 'on:click': 'c' },
+			{},
+		);
+		const output = String(html);
+		assert.ok(output.includes('id="a"'));
+		assert.ok(output.includes('data-foo="b"'));
+		assert.ok(output.includes('on:click="c"'));
 	});
 });
 
