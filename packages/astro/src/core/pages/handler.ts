@@ -5,6 +5,10 @@ import type { BaseApp } from '../app/base.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import type { Pipeline } from '../base-pipeline.js';
 import { ASTRO_ERROR_HEADER } from '../constants.js';
+import {
+	createCrossOriginForbiddenResponse,
+	isForbiddenCrossOriginRequest,
+} from '../app/origin-check.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
 
 // Shared empty-slots object so we don't allocate `{}` on every render for
@@ -116,8 +120,19 @@ export class PagesHandler {
 		if (!state.routeData) {
 			return new Response(null, { status: 404, headers: { [ASTRO_ERROR_HEADER]: 'true' } });
 		}
+		const ctx = state.getAPIContext();
+		// The origin check normally runs in the origin-check middleware, but a
+		// composable pipeline can dispatch here without running `middleware()`
+		// first (or at all). Apply the same check so it holds regardless of how
+		// the pipeline is composed.
+		if (
+			this.#pipeline.manifest.checkOrigin &&
+			isForbiddenCrossOriginRequest(ctx.request, ctx.url, ctx.isPrerendered)
+		) {
+			return createCrossOriginForbiddenResponse(ctx.request);
+		}
 		try {
-			return await this.handle(state, state.getAPIContext());
+			return await this.handle(state, ctx);
 		} catch (err: any) {
 			// The header marker can't carry the error object, so render the
 			// 500 page directly to preserve `error` and the logged stack.
