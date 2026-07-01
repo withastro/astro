@@ -128,7 +128,7 @@ describe('MDX plugins - Astro config integration', () => {
 				} else {
 					// smartypants defaults to ON — converts quotes to curly and -- to em dash
 					assert.equal(
-						quote.textContent.includes('\u2014'),
+						quote.textContent.includes('—'),
 						true,
 						'Smartypants should be ON when not extending markdown config: -- should become em dash.',
 					);

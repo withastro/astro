@@ -9,7 +9,7 @@ import type {
 	ThemeRegistration,
 	ThemeRegistrationRaw,
 } from 'shiki';
-import type { PluggableList, Plugin } from 'unified';
+import type { Plugin } from 'unified';
 import type { RemotePattern } from './remote.js';
 
 // Processor-agnostic markdown contract types, shared between `astro` and the
@@ -51,6 +51,7 @@ export type RehypePlugin<PluginParameters extends any[] = any[]> = Plugin<
 >;
 export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
 export type RemarkRehype = Record<string, unknown>;
+export type { PluggableList } from 'unified';
 
 export interface MarkdownHeading {
 	depth: number;
@@ -119,8 +120,8 @@ export interface MarkdownProcessor<TOptions extends object = object> {
 	createRenderer(shared: AstroMarkdownOptions): Promise<MarkdownRenderer>;
 	/**
 	 * Create the runtime renderer for `.mdx` files. Optional — when absent, `@astrojs/mdx`
-	 * falls back to its built-in handling for the known `unified` / `satteri` processor names.
-	 * Third-party processors should provide this to enable MDX support.
+	 * throws, since the processor cannot render `.mdx`. The built-in `unified` / `satteri`
+	 * processors implement this; third-party processors should too to enable MDX support.
 	 */
 	createMdxRenderer?(shared: AstroMarkdownOptions, mdx: MdxRendererOptions): Promise<MdxRenderer>;
 }
@@ -128,7 +129,10 @@ export interface MarkdownProcessor<TOptions extends object = object> {
 /** Cross-cutting MDX options passed to `createMdxRenderer` regardless of processor. */
 export interface MdxRendererOptions {
 	optimize: boolean | { ignoreElementNames?: string[] };
-	recmaPlugins: PluggableList;
+	/** Astro's `srcDir`. Pipelines use it to default layout-less MDX pages to UTF-8. */
+	srcDir: URL;
+	/** Whether Vite has sourcemaps enabled; a pipeline may emit a source map when true. */
+	sourcemap?: boolean;
 }
 
 /** Runtime renderer for `.mdx` files returned by `createMdxRenderer`. */

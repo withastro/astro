@@ -1,6 +1,5 @@
 import type { AstroMetadata, RehypePlugin } from '@astrojs/internal-helpers/markdown';
-import { AstroError, AstroErrorData } from 'astro/errors';
-import { resolvePath } from 'astro/markdown';
+import { resolvePath } from '@astrojs/internal-helpers/mdx';
 import type { Program } from 'estree';
 import type { RootContent } from 'hast';
 import type {} from 'mdast-util-mdx';
@@ -46,9 +45,9 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 			// Match this component with its import source
 			const matchedImport = findMatchingImport(tagName, imports);
 			if (!matchedImport) {
-				throw new AstroError(
-					AstroErrorData.NoMatchingImport.message(node.name!),
-					AstroErrorData.NoMatchingImport.hint,
+				throw new Error(
+					`Could not render \`${node.name}\`. No matching import has been found for \`${node.name}\`.\n` +
+						'Please make sure the component is properly imported.',
 				);
 			}
 
