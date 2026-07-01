@@ -83,7 +83,13 @@ const INTERNAL_PREFIXES = new Set(['/_', '/@', '/.', '//']);
 const JUST_SLASHES = /^\/{2,}$/;
 
 export function isInternalPath(path: string) {
-	return INTERNAL_PREFIXES.has(path.slice(0, 2)) && !JUST_SLASHES.test(path);
+	// Browsers follow the WHATWG URL spec and treat backslashes as forward
+	// slashes when resolving a path, so `/\host` behaves like `//host`. Fold
+	// backslashes to forward slashes before comparing the prefix so those
+	// paths are recognized as internal too, instead of being appended with a
+	// trailing slash and echoed back into a `Location` header.
+	const prefix = path.slice(0, 2).replace(/\\/g, '/');
+	return INTERNAL_PREFIXES.has(prefix) && !JUST_SLASHES.test(path);
 }
 
 export function joinPaths(...paths: (string | undefined)[]) {
