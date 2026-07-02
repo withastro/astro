@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { compile as _compile, type CompileOptions } from '@mdx-js/mdx';
-import { rehypeOptimizeStatic } from '../../dist/rehype-optimize-static.js';
+import { rehypeOptimizeStatic } from '../dist/mdx/rehype-optimize-static.js';
 
 async function compile(mdxCode: string, options?: Readonly<CompileOptions>) {
 	const result = await _compile(mdxCode, {

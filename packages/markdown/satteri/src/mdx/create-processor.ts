@@ -1,24 +1,32 @@
 import { pathToFileURL } from 'node:url';
 import { isFrontmatterValid } from '@astrojs/internal-helpers/frontmatter';
-import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
-import type { SatteriAstroData, SatteriResolvedOptions } from '@astrojs/markdown-satteri';
+import type {
+	AstroMarkdownOptions,
+	MarkdownHeading,
+	MdxRendererOptions,
+	MdxRenderResult,
+} from '@astrojs/internal-helpers/markdown';
 import {
-	satteriCollectImagesPlugin,
-	satteriCreateHighlightFn,
-	satteriHeadingIdsPlugin,
-	satteriHighlightPlugin,
-} from '@astrojs/markdown-satteri';
-import { createDefaultAstroMetadata } from 'astro/markdown';
+	ASTRO_IMAGE_IMPORT,
+	createDefaultAstroMetadata,
+	USES_ASTRO_IMAGE_FLAG,
+} from '@astrojs/internal-helpers/mdx';
 import {
 	mdxToJs,
 	type HastPluginDefinition,
 	type MdastPluginDefinition,
 	type MdxCompileOptions,
 } from 'satteri';
-import { ASTRO_IMAGE_IMPORT, USES_ASTRO_IMAGE_FLAG } from '../image-constants.js';
-import type { ResolvedMdxOptions } from '../index.js';
+import type { SatteriResolvedOptions } from '../processor.js';
+import {
+	createCollectImagesPlugin,
+	createHeadingIdsPlugin,
+	createHighlightFn,
+	createHighlightPlugin,
+	type SatteriAstroData,
+} from '../satteri-processor.js';
 import { shouldAddCharset } from './charset.js';
-import { type AstroMetadata, createAstroMetadataPlugin } from './hast-astro-metadata.js';
+import { createAstroMetadataPlugin } from './hast-astro-metadata.js';
 import { createImageToComponentPlugin, type ImageImportInfo } from './hast-images-to-component.js';
 
 type HighlightFn = (code: string, lang: string, meta?: string) => Promise<string>;
@@ -32,29 +40,18 @@ declare module 'hast' {
 	}
 }
 
-export interface CompileMdxResult {
-	code: string;
-	astroMetadata: AstroMetadata;
-}
-
-interface CreateMdxProcessorContext {
-	srcDir: URL;
-}
-
-export function createMdxProcessor(
-	mdxOptions: ResolvedMdxOptions,
+export function createSatteriMdxProcessor(
+	shared: AstroMarkdownOptions,
+	mdx: MdxRendererOptions,
 	satteriOptions: SatteriResolvedOptions,
-	ctx: CreateMdxProcessorContext,
 ) {
 	let highlightFn: HighlightFn | undefined;
 	let initPromise: Promise<void> | undefined;
 
 	function initHighlighter() {
-		initPromise = satteriCreateHighlightFn(mdxOptions.syntaxHighlight, mdxOptions.shikiConfig).then(
-			(fn) => {
-				highlightFn = fn;
-			},
-		);
+		initPromise = createHighlightFn(shared.syntaxHighlight, shared.shikiConfig).then((fn) => {
+			highlightFn = fn;
+		});
 	}
 
 	return {
@@ -62,7 +59,7 @@ export function createMdxProcessor(
 			content: string,
 			filePath: string,
 			frontmatter: Record<string, any>,
-		): Promise<CompileMdxResult> {
+		): Promise<MdxRenderResult> {
 			if (!highlightFn && !initPromise) {
 				initHighlighter();
 			}
@@ -75,8 +72,8 @@ export function createMdxProcessor(
 				remoteImagePaths: new Set(),
 			};
 
-			const collectImages = satteriCollectImagesPlugin();
-			const headingIds = satteriHeadingIdsPlugin();
+			const collectImages = createCollectImagesPlugin();
+			const headingIds = createHeadingIdsPlugin();
 			const astroMeta = createAstroMetadataPlugin(filePath);
 			const imageImportInfo: ImageImportInfo = {
 				importedImages: new Map(),
@@ -84,7 +81,7 @@ export function createMdxProcessor(
 			};
 			const imageToComponent = createImageToComponentPlugin(imageImportInfo);
 
-			const syntaxHighlight = mdxOptions.syntaxHighlight;
+			const syntaxHighlight = shared.syntaxHighlight;
 			const excludeLangs =
 				typeof syntaxHighlight === 'object' ? syntaxHighlight.excludeLangs : undefined;
 
@@ -98,7 +95,7 @@ export function createMdxProcessor(
 			if (highlightFn) {
 				// `mdx: true` wraps the highlighted HTML in a JSX `<Fragment set:html>` node
 				// rather than a raw HTML node, since the Sätteri pipeline is compiling to JSX.
-				hastPlugins.push(satteriHighlightPlugin(highlightFn, excludeLangs, { mdx: true }));
+				hastPlugins.push(createHighlightPlugin(highlightFn, excludeLangs, { mdx: true }));
 			}
 			if (satteriOptions.hastPlugins.length) {
 				hastPlugins.push(...satteriOptions.hastPlugins);
@@ -106,11 +103,9 @@ export function createMdxProcessor(
 			hastPlugins.push(imageToComponent, headingIds, astroMeta);
 
 			let optimizeStatic: MdxCompileOptions['optimizeStatic'];
-			if (mdxOptions.optimize) {
+			if (mdx.optimize) {
 				const ignoreElements =
-					typeof mdxOptions.optimize === 'object'
-						? mdxOptions.optimize.ignoreElementNames
-						: undefined;
+					typeof mdx.optimize === 'object' ? mdx.optimize.ignoreElementNames : undefined;
 
 				optimizeStatic = {
 					component: 'Fragment',
@@ -123,16 +118,12 @@ export function createMdxProcessor(
 				mdastPlugins: allMdastPlugins,
 				hastPlugins,
 				optimizeStatic,
+				// The processor's own `features` win; the deprecated top-level `markdown.gfm` /
+				// `markdown.smartypants` act as fallback defaults, mirroring the `.md` pipeline.
 				features: {
+					gfm: (shared.gfm ?? true) !== false,
+					smartPunctuation: (shared.smartypants ?? true) !== false,
 					...satteriOptions.features,
-					// `mdxOptions.gfm`/`smartypants` are always boolean-shaped; skip the override when
-					// satteri's feature is an object so granular config isn't clobbered.
-					...(typeof satteriOptions.features.gfm === 'object'
-						? {}
-						: { gfm: mdxOptions.gfm !== false }),
-					...(typeof satteriOptions.features.smartPunctuation === 'object'
-						? {}
-						: { smartPunctuation: mdxOptions.smartypants !== false }),
 				},
 				fileURL: pathToFileURL(filePath),
 				jsxImportSource: 'astro',
@@ -189,7 +180,7 @@ export default function MDXContent(props) {
 		children: content,
 	});
 }`;
-			} else if (shouldAddCharset(content, filePath, ctx.srcDir)) {
+			} else if (shouldAddCharset(content, filePath, mdx.srcDir)) {
 				// Default MDX pages without a layout to UTF-8 so users don't have to think about it.
 				compiled = compiled.replace(/^function MDXContent\(/m, 'function __OriginalMDXContent__(');
 				compiled += `
@@ -206,6 +197,7 @@ export default function MDXContent(props) {
 
 			return {
 				code: compiled,
+				map: null,
 				astroMetadata,
 			};
 		},
