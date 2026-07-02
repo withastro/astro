@@ -20,7 +20,7 @@ import {
 	normalizeImageServiceConfig,
 	setImageConfig,
 } from './utils/image-config.js';
-import { createConfigPlugin } from './vite-plugin-config.js';
+import { createConfigPlugin, type CompileImageConfig } from './vite-plugin-config.js';
 import { createNodePrerenderPlugin } from './vite-plugin-dev-server-prerender-middleware.js';
 import {
 	cloudflareConfigCustomizer,
@@ -140,6 +140,7 @@ export default function createIntegration({
 	let _routes: IntegrationResolvedRoute[];
 	let cfPluginConfig: PluginConfig;
 	let hasUserBuildImageService = false;
+	let compileImageConfig: CompileImageConfig | null = null;
 
 	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
 	const needsImagesBinding = runtimeService === 'cloudflare-binding';
@@ -155,7 +156,6 @@ export default function createIntegration({
 
 				let session = config.session;
 				const isCompile = buildService === 'compile';
-				hasUserBuildImageService = hasBuildImageService && hasUserImageService(config.image);
 
 				if (needsImagesBinding) {
 					logger.info(
@@ -392,19 +392,22 @@ export default function createIntegration({
 							},
 							createConfigPlugin({
 								sessionKVBindingName,
+								// `imageServiceEntrypoint` is finalized in `astro:config:done`:
+								// integrations may set `image.service` via `updateConfig()` after
+								// this hook runs (the adapter always runs first), so the service
+								// cannot be resolved yet. The plugin serializes this object lazily
+								// at load time, after the mutation below has happened.
 								compileImageConfig:
 									hasBuildImageService && command !== 'dev'
-										? {
+										? (compileImageConfig = {
 												base: config.base,
 												assetsPrefix:
 													typeof config.build.assetsPrefix === 'string'
 														? config.build.assetsPrefix
 														: undefined,
-												imageServiceEntrypoint: hasUserBuildImageService
-													? config.image.service.entrypoint
-													: '@astrojs/cloudflare/image-service-workerd',
+												imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
 												buildAssets: config.build.assets ?? '_astro',
-											}
+											})
 										: null,
 								cacheProviderEnabled: needsWorkerCache,
 							}),
@@ -429,6 +432,15 @@ export default function createIntegration({
 				_config = config;
 				_buildOutput = buildOutput;
 				_originalClientDir = new URL(config.build.client.href);
+
+				// Resolve the custom image service against the FINAL config: the adapter's
+				// `astro:config:setup` runs before every user integration (Astro unshifts
+				// the adapter onto the integrations list), so a service registered by an
+				// integration via `updateConfig()` is only visible here.
+				hasUserBuildImageService = hasBuildImageService && hasUserImageService(config.image);
+				if (compileImageConfig && hasUserBuildImageService) {
+					compileImageConfig.imageServiceEntrypoint = config.image.service.entrypoint;
+				}
 
 				// When a base path is configured, nest the client output directory under
 				// the base so that on-disk paths match the URLs Astro writes into HTML.
