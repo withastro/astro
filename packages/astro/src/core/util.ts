@@ -142,6 +142,41 @@ export function resolveJsToTs(filePath: string) {
 	return filePath;
 }
 
+// Match Vite's default `resolve.extensions` order so that when multiple
+// candidate files exist, we pick the same module Vite will load.
+// https://vite.dev/config/shared-options.html#resolve-extensions
+const VITE_DEFAULT_RESOLVE_EXTENSIONS = ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json'];
+
+/**
+ * Resolve a path that doesn't name a file on disk (e.g. produced by an
+ * extensionless import like `import { Counter } from './Counter'`) to the file
+ * Vite would load, by probing Vite's default extension order and directory
+ * `index` files. Returns the path unchanged when it already exists as a file
+ * or when no candidate is found.
+ */
+export function resolveExtensionlessPath(filePath: string): string {
+	const stat = fs.statSync(filePath, { throwIfNoEntry: false });
+	if (stat?.isFile()) {
+		return filePath;
+	}
+	for (const ext of VITE_DEFAULT_RESOLVE_EXTENSIONS) {
+		const tryPath = filePath + ext;
+		if (fs.existsSync(tryPath)) {
+			return tryPath;
+		}
+	}
+	// Directory import: resolve to its `index` module, like Vite does.
+	if (stat?.isDirectory()) {
+		for (const ext of VITE_DEFAULT_RESOLVE_EXTENSIONS) {
+			const tryPath = `${filePath}/index${ext}`;
+			if (fs.existsSync(tryPath)) {
+				return tryPath;
+			}
+		}
+	}
+	return filePath;
+}
+
 /**
  * Set a default NODE_ENV so Vite doesn't set an incorrect default when loading the Astro config
  */
