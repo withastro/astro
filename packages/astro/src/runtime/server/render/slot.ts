@@ -3,7 +3,11 @@ import { HTMLString, markHTMLString, unescapeHTML } from '../escape.js';
 import { renderChild } from './any.js';
 import { renderTemplate } from './astro/render-template.js';
 import { chunkToString, type RenderDestination, type RenderInstance } from './common.js';
-import type { RenderInstruction, RenderScriptInstruction } from './instruction.js';
+import {
+	isScriptInstruction,
+	type RenderInstruction,
+	type RenderScriptInstruction,
+} from './instruction.js';
 
 type RenderTemplateResult = ReturnType<typeof renderTemplate>;
 export type ComponentSlots = Record<string, ComponentSlotValue>;
@@ -99,8 +103,8 @@ export async function renderSlotToString(
 				// Scripts are position-sensitive, so keep them inline in the content
 				// stream at their original location. Other instructions (head,
 				// hydration, etc.) are position-independent and bubble up separately.
-				if (chunk.type === 'script') {
-					chunks.push(chunk as RenderScriptInstruction);
+				if (isScriptInstruction(chunk)) {
+					chunks.push(chunk);
 				} else {
 					if (instructions === null) {
 						instructions = [];
