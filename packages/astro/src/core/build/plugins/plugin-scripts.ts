@@ -42,6 +42,10 @@ export function pluginScripts(internals: BuildInternals): VitePlugin {
 					!importedIds.has(output.fileName) &&
 					output.imports.length === 0 &&
 					output.dynamicImports.length === 0 &&
+					// Don't inline if the chunk contains unresolved preload markers from Vite's
+					// import analysis. In Rolldown, external dynamic imports are excluded from
+					// chunk.dynamicImports, so we must also check the code directly.
+					!output.code.includes('__VITE_PRELOAD__') &&
 					shouldInlineAsset(output.code, output.fileName, assetInlineLimit)
 				) {
 					internals.inlinedScripts.set(output.facadeModuleId, output.code.trim());

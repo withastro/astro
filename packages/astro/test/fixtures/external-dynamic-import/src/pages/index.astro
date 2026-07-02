@@ -1,0 +1,16 @@
+---
+
+---
+
+<html lang="en">
+	<head>
+		<title>External Dynamic Import</title>
+	</head>
+	<body>
+		<h1>Test</h1>
+		<script>
+			const test = await import("/test.js");
+			console.log(test);
+		</script>
+	</body>
+</html>
