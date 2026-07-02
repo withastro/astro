@@ -28,7 +28,19 @@ export async function getPackage<T>(
 		const resolved = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
 		const packageImport = await import(pathToFileURL(resolved).href);
 		return packageImport as T;
-	} catch {
+	} catch (e) {
+		// Package is installed but has no default export entry point (e.g. TypeScript 7).
+		// Verify it's actually installed by resolving its package.json.
+		if ((e as NodeJS.ErrnoException)?.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
+			try {
+				require.resolve(`${packageName}/package.json`, {
+					paths: [options.cwd ?? process.cwd()],
+				});
+				return {} as T;
+			} catch {
+				// Fall through to install prompt
+			}
+		}
 		if (options.optional) return undefined;
 		let message = `To continue, Astro requires the following dependency to be installed: ${bold(
 			packageName,

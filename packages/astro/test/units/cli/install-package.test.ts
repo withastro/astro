@@ -7,6 +7,39 @@ import { getPackage } from '../../../dist/cli/install-package.js';
 import { defaultLogger } from '../test-utils.ts';
 
 describe('getPackage', () => {
+	it('detects packages with no default export entry point (e.g. TypeScript 7)', async () => {
+		// TypeScript 7 removed its default CJS export, so require.resolve('typescript')
+		// throws ERR_PACKAGE_PATH_NOT_EXPORTED. getPackage should still detect it as installed.
+		const projectDir = join(tmpdir(), `astro-test-getpackage-noexport-${Date.now()}`);
+		const pkgDir = join(projectDir, 'node_modules', 'no-default-export-pkg');
+
+		try {
+			await mkdir(pkgDir, { recursive: true });
+			await writeFile(
+				join(pkgDir, 'package.json'),
+				JSON.stringify({
+					name: 'no-default-export-pkg',
+					version: '1.0.0',
+					type: 'module',
+					exports: {
+						'./package.json': './package.json',
+						'./sub': './sub.js',
+					},
+				}),
+			);
+			await writeFile(join(pkgDir, 'sub.js'), 'export const sub = true;\n');
+
+			const result = await getPackage('no-default-export-pkg', defaultLogger, {
+				cwd: projectDir,
+				optional: true,
+			});
+
+			assert.ok(result, 'Expected getPackage to detect the package as installed');
+		} finally {
+			await rm(projectDir, { recursive: true, force: true });
+		}
+	});
+
 	it('resolves packages from the project cwd, not from astro install location', async () => {
 		// Create a temporary directory simulating a project with a fake package
 		const projectDir = join(tmpdir(), `astro-test-getpackage-${Date.now()}`);
