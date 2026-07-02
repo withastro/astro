@@ -1,7 +1,7 @@
 import type { SSRResult } from '../../../types/public/internal.js';
 import { markHTMLString } from '../escape.js';
 import { renderSlotToString } from './slot.js';
-import { toAttributeString } from './util.js';
+import { INVALID_ATTR_NAME_CHAR, toAttributeString } from './util.js';
 
 export function componentIsHTMLElement(Component: unknown) {
 	return typeof HTMLElement !== 'undefined' && HTMLElement.isPrototypeOf(Component as object);
@@ -18,6 +18,12 @@ export async function renderHTMLElement(
 	let attrHTML = '';
 
 	for (const attr in props) {
+		// Reject attribute names with characters that could break out of the attribute context.
+		// Without this guard, untrusted prop keys spread onto the element could inject arbitrary
+		// markup or event-handler attributes (XSS). Mirrors the guard in `addAttribute`.
+		if (INVALID_ATTR_NAME_CHAR.test(attr)) {
+			continue;
+		}
 		attrHTML += ` ${attr}="${toAttributeString(await props[attr])}"`;
 	}
 

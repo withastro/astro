@@ -29,37 +29,6 @@
       "default": "./dist/shiki-engine-default.js"
     }
   },
-  "typesVersions": {
-    "*": {
-      "path": [
-        "./dist/path.d.ts"
-      ],
-      "remote": [
-        "./dist/remote.d.ts"
-      ],
-      "markdown": [
-        "./dist/markdown.d.ts"
-      ],
-      "frontmatter": [
-        "./dist/frontmatter.d.ts"
-      ],
-      "shiki": [
-        "./dist/shiki.d.ts"
-      ],
-      "fs": [
-        "./dist/fs.d.ts"
-      ],
-      "cli": [
-        "./dist/cli.d.ts"
-      ],
-      "create-filter": [
-        "./dist/create-filter.d.ts"
-      ],
-      "object": [
-        "./dist/object.d.ts"
-      ]
-    }
-  },
   "files": [
     "dist"
   ],

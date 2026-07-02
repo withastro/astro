@@ -11,11 +11,12 @@ import {
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute } from 'astro';
-import { astroFrontmatterScanPlugin } from './esbuild-plugin-astro-frontmatter.js';
+import { rolldownAstroFrontmatterScanPlugin } from './rolldown-plugin-astro-frontmatter.js';
 import { getParts } from './utils/generate-routes-json.js';
 import { buildAssetsHeadersContent } from './utils/headers.js';
 import {
 	type ImageServiceConfig,
+	hasUserImageService,
 	normalizeImageServiceConfig,
 	setImageConfig,
 } from './utils/image-config.js';
@@ -72,6 +73,13 @@ function hasContentCollectionsConfig(srcDir: URL) {
 	];
 
 	return contentConfigPaths.some((configPath) => existsSync(new URL(`./${configPath}`, srcDir)));
+}
+
+function resolveImageServiceEntrypoint(entrypoint: string, root: URL): string {
+	if (entrypoint.startsWith('.')) {
+		return new URL(entrypoint, root).href;
+	}
+	return entrypoint;
 }
 
 export interface Options
@@ -131,9 +139,11 @@ export default function createIntegration({
 
 	let _routes: IntegrationResolvedRoute[];
 	let cfPluginConfig: PluginConfig;
+	let hasUserBuildImageService = false;
 
 	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
 	const needsImagesBinding = runtimeService === 'cloudflare-binding';
+	const hasBuildImageService = buildService === 'compile' || buildService === 'custom';
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -145,12 +155,13 @@ export default function createIntegration({
 
 				let session = config.session;
 				const isCompile = buildService === 'compile';
+				hasUserBuildImageService = hasBuildImageService && hasUserImageService(config.image);
 
 				if (needsImagesBinding) {
 					logger.info(
 						`Enabling image processing with Cloudflare Images for production with the "${imagesBindingName}" Images binding.`,
 					);
-				} else if (isCompile) {
+				} else if (hasBuildImageService) {
 					logger.info(
 						`Enabling compile-time image optimization. Images will be pre-optimized at build time.`,
 					);
@@ -302,6 +313,7 @@ export default function createIntegration({
 											optimizeDeps: {
 												include: [
 													'@astrojs/cloudflare/image-service-workerd',
+													'@astrojs/cloudflare/entrypoints/server',
 													'astro',
 													'astro/runtime/**',
 													'astro > html-escaper',
@@ -330,6 +342,7 @@ export default function createIntegration({
 													'astro/jsx-runtime',
 													'astro/app/entrypoint/dev',
 													'astro/virtual-modules/middleware.js',
+													'astro/virtual-modules/transitions.js',
 													...(isAstroPrismPackageInstalled ? prismFiles : []),
 													...(Array.isArray(userOptimizeDeps?.include)
 														? userOptimizeDeps.include
@@ -346,16 +359,8 @@ export default function createIntegration({
 														? userOptimizeDeps.exclude
 														: []),
 												],
-												esbuildOptions: {
-													// Suppress Vite's `createRequire(import.meta.url)` banner to work around
-													// https://github.com/vitejs/vite/issues/22004 — Vite's SSR transform
-													// incorrectly rewrites identifiers inside `import.meta` when an imported
-													// binding shares the same name (e.g. zod v4 exports `meta`).
-													banner: { js: '' },
-													plugins: [astroFrontmatterScanPlugin()],
-													...(userOptimizeDeps?.esbuildOptions?.loader
-														? { loader: userOptimizeDeps.esbuildOptions.loader }
-														: {}),
+												rolldownOptions: {
+													plugins: [rolldownAstroFrontmatterScanPlugin()],
 												},
 											},
 										};
@@ -388,14 +393,16 @@ export default function createIntegration({
 							createConfigPlugin({
 								sessionKVBindingName,
 								compileImageConfig:
-									isCompile && command !== 'dev'
+									hasBuildImageService && command !== 'dev'
 										? {
 												base: config.base,
 												assetsPrefix:
 													typeof config.build.assetsPrefix === 'string'
 														? config.build.assetsPrefix
 														: undefined,
-												imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
+												imageServiceEntrypoint: hasUserBuildImageService
+													? config.image.service.entrypoint
+													: '@astrojs/cloudflare/image-service-workerd',
 												buildAssets: config.build.assets ?? '_astro',
 											}
 										: null,
@@ -487,7 +494,10 @@ export default function createIntegration({
 							base: _config.base,
 							trailingSlash: _config.trailingSlash,
 							cfPluginConfig,
-							hasCompileImageService: buildService === 'compile',
+							hasBuildImageService,
+							userImageServiceEntrypoint: hasUserBuildImageService
+								? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
+								: undefined,
 						}),
 					);
 				}

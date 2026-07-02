@@ -35,8 +35,15 @@ export async function status({
 	const startedAt = new Date(existing.startedAt).getTime();
 	const uptime = Math.floor((Date.now() - startedAt) / 1000);
 
-	logger.info(
-		'SKIP_FORMAT',
+	const lines = [
 		`Dev server running at ${existing.url} (pid ${existing.pid}, uptime ${uptime}s${existing.background ? ', background' : ''})`,
-	);
+	];
+	if (existing.urls && existing.urls.network.length > 0) {
+		lines.push('  Network:');
+		for (const url of existing.urls.network) {
+			lines.push(`    ${url}`);
+		}
+	}
+
+	logger.info('SKIP_FORMAT', lines.join('\n'));
 }

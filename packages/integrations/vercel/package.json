@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "11.0.0",
+  "version": "11.0.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -26,16 +26,6 @@
     "./cache/provider": "./dist/cache/provider.js",
     "./package.json": "./package.json"
   },
-  "typesVersions": {
-    "*": {
-      "serverless": [
-        "dist/serverless/adapter.d.ts"
-      ],
-      "static": [
-        "dist/static/adapter.d.ts"
-      ]
-    }
-  },
   "files": [
     "dist",
     "types.d.ts"
@@ -57,7 +47,7 @@
     "tinyglobby": "^0.2.15"
   },
   "peerDependencies": {
-    "astro": "^7.0.0-alpha.0"
+    "astro": "^7.0.0"
   },
   "devDependencies": {
     "astro": "workspace:*",

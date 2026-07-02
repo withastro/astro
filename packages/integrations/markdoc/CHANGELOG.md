@@ -1,5 +1,17 @@
 # @astrojs/markdoc
 
+## 2.0.2
+
+### Patch Changes
+
+- [#17249](https://github.com/withastro/astro/pull/17249) [`02b73b0`](https://github.com/withastro/astro/commit/02b73b0fc2e32102e788fd9031ce061337490a73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `peerDependencies` field used incorrect dependencies.
+
+## 2.0.1
+
+### Patch Changes
+
+- [#17142](https://github.com/withastro/astro/pull/17142) [`973ea49`](https://github.com/withastro/astro/commit/973ea495bf27699648406f8404913c0dbf6c6bc3) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a crash when rendering shiki-highlighted code blocks inside list items
+
 ## 2.0.0
 
 ### Major Changes
@@ -1079,11 +1091,7 @@
   import shiki from '@astrojs/markdoc/shiki';
 
   export default defineMarkdocConfig({
-    extends: [
-      shiki({
-        /** Shiki config options */
-      }),
-    ],
+    extends: [shiki({/** Shiki config options */})],
   });
   ```
 

@@ -74,6 +74,17 @@ describe('satteri markdown', () => {
 		assert.equal(seenId, 'hello-world');
 	});
 
+	it('does not duplicate headings when `satteriHeadingIdsPlugin()` runs as a user plugin too', async () => {
+		const processor = await createSatteriMarkdownProcessor({
+			hastPlugins: [satteriHeadingIdsPlugin()],
+		});
+		const { metadata } = await processor.render('## Some text\n\n## Some text');
+		assert.deepEqual(metadata.headings, [
+			{ depth: 2, slug: 'some-text', text: 'Some text' },
+			{ depth: 2, slug: 'some-text-1', text: 'Some text' },
+		]);
+	});
+
 	it('respects heading IDs set by a user hast plugin in both DOM and `headings`', async () => {
 		const setIdPlugin: HastPluginDefinition = {
 			name: 'set-heading-id',

@@ -1,5 +1,10 @@
+import { fileURLToPath } from 'node:url';
 import type fsMod from 'node:fs';
-import type { Plugin as VitePlugin } from 'vite';
+import {
+	normalizePath as viteNormalizePath,
+	type ViteDevServer,
+	type Plugin as VitePlugin,
+} from 'vite';
 import type { BuildInternals } from '../core/build/internal.js';
 import type { StaticBuildOptions } from '../core/build/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
@@ -51,6 +56,8 @@ export function vitePluginActionsBuild(
 	};
 }
 
+const ACTIONS_DIR_NAME = 'actions';
+
 export function vitePluginActions({
 	fs,
 	settings,
@@ -59,6 +66,7 @@ export function vitePluginActions({
 	settings: AstroSettings;
 }): VitePlugin {
 	let resolvedActionsId: string;
+	const normalizedSrcDir = viteNormalizePath(fileURLToPath(settings.config.srcDir));
 
 	return {
 		name: VIRTUAL_MODULE_ID,
@@ -88,9 +96,9 @@ export function vitePluginActions({
 				}
 			},
 		},
-		async configureServer(server) {
+		async configureServer(server: ViteDevServer) {
 			const filePresentOnStartup = await isActionsFilePresent(fs, settings.config.srcDir);
-			// Watch for the actions file to be created.
+			// Watch for the actions file to be created or deleted.
 			async function watcherCallback() {
 				const filePresent = await isActionsFilePresent(fs, settings.config.srcDir);
 				if (filePresentOnStartup !== filePresent) {
@@ -98,7 +106,33 @@ export function vitePluginActions({
 				}
 			}
 			server.watcher.on('add', watcherCallback);
-			server.watcher.on('change', watcherCallback);
+
+			server.watcher.on('change', (path) => {
+				watcherCallback();
+
+				const normalizedPath = viteNormalizePath(path);
+				// Check if the changed file is under the actions directory
+				if (!normalizedPath.startsWith(normalizedSrcDir)) return;
+				const relativePath = normalizedPath.slice(normalizedSrcDir.length);
+				if (!relativePath.startsWith(`${ACTIONS_DIR_NAME}/`)) return;
+
+				for (const name of [
+					ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
+					ASTRO_VITE_ENVIRONMENT_NAMES.astro,
+				] as const) {
+					const environment = server.environments[name];
+					if (!environment) continue;
+
+					const virtualMod = environment.moduleGraph.getModuleById(
+						ACTIONS_RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID,
+					);
+					if (virtualMod) {
+						environment.moduleGraph.invalidateModule(virtualMod);
+					}
+
+					environment.hot.send('astro:actions-updated', {});
+				}
+			});
 		},
 		load: {
 			filter: {

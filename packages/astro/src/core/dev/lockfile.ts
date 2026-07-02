@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, unlinkSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import type { ResolvedServerUrls } from 'vite';
 
 /** Maximum time (ms) to wait for a process to exit after SIGTERM before escalating to SIGKILL. */
 export const GRACEFUL_SHUTDOWN_TIMEOUT = 5000;
@@ -8,6 +9,7 @@ export interface LockFileData {
 	pid: number;
 	port: number;
 	url: string;
+	urls?: ResolvedServerUrls;
 	background: boolean;
 	startedAt: string;
 }
@@ -31,6 +33,18 @@ export function getLogFileURL(root: URL): URL {
 	return new URL('.astro/dev.log', root);
 }
 
+function isStringArray(value: unknown): value is string[] {
+	return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
+function isResolvedServerUrls(value: unknown): value is ResolvedServerUrls {
+	if (typeof value !== 'object' || value === null) {
+		return false;
+	}
+	const { local, network } = value as Record<string, unknown>;
+	return isStringArray(local) && isStringArray(network);
+}
+
 /**
  * Parse a lock file JSON string into a LockFileData object.
  * Returns null if the content is invalid.
@@ -45,6 +59,10 @@ export function parseLockFile(content: string): LockFileData | null {
 			typeof data.background !== 'boolean' ||
 			typeof data.startedAt !== 'string'
 		) {
+			return null;
+		}
+		// `urls` is optional, but if present it must have the expected shape.
+		if (data.urls !== undefined && !isResolvedServerUrls(data.urls)) {
 			return null;
 		}
 		return data as LockFileData;

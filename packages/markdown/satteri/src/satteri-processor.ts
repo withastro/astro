@@ -117,6 +117,8 @@ export function makeFragmentNode(html: string): HastNode {
 
 export function createHeadingIdsPlugin(): HastPluginDefinition {
 	const slugger = new Slugger();
+	// Collect headings in a separate array so we can make this idempotent
+	const headings: MarkdownHeading[] = [];
 	return {
 		name: 'heading-ids',
 		element: {
@@ -130,7 +132,8 @@ export function createHeadingIdsPlugin(): HastPluginDefinition {
 				const existingId = node.properties?.id;
 				const slug = typeof existingId === 'string' ? existingId : slugger.slug(text);
 				const depth = Number.parseInt(node.tagName[1], 10);
-				astro?.headings.push({ depth, slug, text });
+				headings.push({ depth, slug, text });
+				if (astro) astro.headings = headings;
 				if (typeof existingId !== 'string') {
 					ctx.setProperty(node, 'id', slug);
 				}

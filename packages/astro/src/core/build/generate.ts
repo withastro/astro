@@ -29,7 +29,7 @@ import { createRequest } from '../request.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { routeIsRedirect } from '../routing/helpers.js';
 import { matchRoute } from '../routing/match.js';
-import { getOutputFilename } from '../util.js';
+import { getOutputFilename } from '../output-filename.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';

@@ -65,6 +65,8 @@ async function createStubResult(overrides: Partial<SSRResult> = {}): Promise<SSR
 			extraStyleHashes: [],
 			extraScriptHashes: [],
 			propagators: new Set(),
+			routeHasPropagation: false,
+			pendingSlotEvaluations: [],
 			templateDepth: 0,
 		},
 		cspDestination: 'header',

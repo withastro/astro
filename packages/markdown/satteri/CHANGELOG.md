@@ -1,5 +1,11 @@
 # @astrojs/markdown-satteri
 
+## 0.3.2
+
+### Patch Changes
+
+- [#17165](https://github.com/withastro/astro/pull/17165) [`3b5e994`](https://github.com/withastro/astro/commit/3b5e994738cf58c9eed0774ce779b685c31a3a5c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes headings being listed twice in a page's `headings` metadata when an integration (such as Starlight) assigns heading IDs with its own heading pass before adding anchor links
+
 ## 0.3.1
 
 ### Patch Changes

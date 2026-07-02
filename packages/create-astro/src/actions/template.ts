@@ -211,17 +211,19 @@ async function copyTemplate(tmpl: string, ctx: Context) {
 			throw new Error(`Unable to download template ${color.reset(tmpl)}`);
 		}
 
-		// Generate AGENTS.md for AI coding agents, with a CLAUDE.md link
-		const agentsPath = path.resolve(ctx.cwd, 'AGENTS.md');
-		const claudePath = path.resolve(ctx.cwd, 'CLAUDE.md');
-		fs.writeFileSync(agentsPath, generateAgentsMd());
-		try {
-			fs.symlinkSync('AGENTS.md', claudePath);
-		} catch {
+		if (ctx.ai) {
+			// Generate AGENTS.md for AI coding agents, with a CLAUDE.md link
+			const agentsPath = path.resolve(ctx.cwd, 'AGENTS.md');
+			const claudePath = path.resolve(ctx.cwd, 'CLAUDE.md');
+			fs.writeFileSync(agentsPath, generateAgentsMd());
 			try {
-				fs.linkSync(agentsPath, claudePath);
+				fs.symlinkSync('AGENTS.md', claudePath);
 			} catch {
-				// Link creation failed; AGENTS.md still exists
+				try {
+					fs.linkSync(agentsPath, claudePath);
+				} catch {
+					// Link creation failed; AGENTS.md still exists
+				}
 			}
 		}
 

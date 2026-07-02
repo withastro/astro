@@ -90,7 +90,31 @@ function resolveWithAlias(id: string, configAlias: Alias[]): string | null {
  */
 const cssImportRE = /@import\s+(?:url\(\s*)?['"]([^'"]+)['"]\s*\)?/g;
 
-/** Returns Vite plugins used to alias paths from tsconfig.json and jsconfig.json. */
+/**
+ * Regex matching CSS url() references with the specifier in capture group 1.
+ * Matches url('...') and url("...") but not @import url() (handled by cssImportRE).
+ */
+const cssUrlRE = /(?<!@import\s+)url\(\s*['"]([^'"]+)['"]\s*\)/g;
+
+/**
+ * Fallback for tsconfig path aliases that Vite's `resolve.tsconfigPaths` does
+ * not currently handle in Astro's pipeline.
+ *
+ * This plugin is intentionally limited to the syntax Astro already supported
+ * before enabling `resolve.tsconfigPaths`:
+ * - CSS: `@import "..."`
+ * - CSS: `@import url("...")`
+ * - CSS: quoted `url("...")` references
+ * - Modules: JS, TS, and Astro import specifiers handled by `resolveId`
+ *
+ * Do not expand this fallback to new CSS at-rules or preprocessor syntax. It
+ * does not support `@use`, `@forward`, `@reference`, `@config`, unquoted
+ * `url(...)`, or every place a CSS tool might accept a file path. Those should
+ * be handled by Vite's native resolver instead.
+ *
+ * @deprecated This fallback will be removed in a future Astro version once Vite
+ * handles these remaining alias paths.
+ */
 export default function configAliasVitePlugin({
 	settings,
 }: {
@@ -100,10 +124,10 @@ export default function configAliasVitePlugin({
 	if (!configAlias) return null;
 
 	return [
-		// Pre-plugin: rewrite CSS @import aliases to absolute paths before Vite's CSS plugin.
-		// Vite's internal CSS @import resolver (postcss-import) uses a mini plugin container
-		// that doesn't include user resolveId hooks, so we must rewrite aliases in a transform
-		// hook that runs before Vite's CSS processing.
+		// Deprecated CSS fallback for Vite's transform pipeline. Only supports
+		// `@import "..."`, `@import url("...")`, and quoted `url("...")`.
+		// Do not add support here for `@use`, `@forward`, `@reference`, `@config`,
+		// or other CSS/preprocessor file-reference syntax.
 		{
 			name: 'astro:tsconfig-alias-css',
 			enforce: 'pre',
@@ -114,11 +138,9 @@ export default function configAliasVitePlugin({
 					},
 				},
 				handler(code) {
-					// Fast early-exit: skip the regex if there's no @import anywhere in the file.
-					if (!code.includes('@import')) return;
-
 					let hasReplacement = false;
-					const result = code.replace(cssImportRE, (match, importId) => {
+
+					const replaceAliases = (match: string, importId: string) => {
 						if (!importId) return match;
 
 						const resolved = resolveWithAlias(importId, configAlias);
@@ -127,7 +149,17 @@ export default function configAliasVitePlugin({
 							return match.replace(importId, resolved);
 						}
 						return match;
-					});
+					};
+
+					let result = code;
+
+					if (result.includes('@import')) {
+						result = result.replace(cssImportRE, replaceAliases);
+					}
+
+					if (result.includes('url(')) {
+						result = result.replace(cssUrlRE, replaceAliases);
+					}
 
 					if (hasReplacement) {
 						return { code: result, map: null };
@@ -135,7 +167,8 @@ export default function configAliasVitePlugin({
 				},
 			},
 		},
-		// Post-plugin: resolve JS/TS imports using tsconfig path aliases via resolveId.
+		// Deprecated module fallback for JS, TS, and Astro import specifiers that
+		// Vite's native tsconfig path resolution does not currently resolve.
 		{
 			name: 'astro:tsconfig-alias',
 			// use post to only resolve ids that all other plugins before it can't

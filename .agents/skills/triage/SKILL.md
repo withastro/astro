@@ -56,4 +56,4 @@ Whether the fix succeeds or fails, continue to Output.
 
 ## Output
 
-After completing the triage (or exiting early), you may suggest generating a GitHub comment using [comment.md](comment.md) if the user would find it useful.
+After completing the triage (or exiting early), return your structured results so the orchestrator can post a comment and manage labels.
