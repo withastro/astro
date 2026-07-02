@@ -407,6 +407,7 @@ export class FetchState implements AstroFetchState {
 			},
 			key: manifest.key,
 			trailingSlash: manifest.trailingSlash,
+      apiPrefix: manifest.apiPrefix,
 			_metadata: {
 				hasHydrationScript: false,
 				rendererSpecificHydrationScripts: new Set(),

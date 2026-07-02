@@ -117,6 +117,18 @@ describe('serializedManifestPlugin - dev mode', () => {
 		});
 	});
 
+	describe('apiPrefix', () => {
+		it('preserves the configured hostname', async () => {
+			const settings = await createBasicSettings({
+				build: {
+          apiPrefix: 'https://example.com'
+        },
+			});
+			const manifest = await getManifest(settings);
+			assert.equal(manifest.apiPrefix, 'https://example.com');
+		});
+	});
+
 	describe('serverLike', () => {
 		it('is true when buildOutput is server', async () => {
 			const settings = await createBasicSettings({});
