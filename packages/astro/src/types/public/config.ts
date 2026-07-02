@@ -16,7 +16,14 @@ import type { AssetsPrefix } from '../../core/app/types.js';
 import type { CacheProviderConfig, RouteRules } from '../../core/cache/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
-import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
+import type {
+	CspAlgorithm,
+	CspDirective,
+	CspHash,
+	CspHashEntry,
+	CspKind,
+	CspResourceEntry,
+} from '../../core/csp/config.js';
 import type { AstroLogger, AstroLoggerLevel } from '../../core/logger/core.js';
 import type {
 	SessionConfig,
@@ -32,16 +39,16 @@ export type Locales = (string | { codes: [string, ...string[]]; path: string })[
 
 export type { FontProvider };
 
-export type { CspAlgorithm, CspHash };
+export type { CspAlgorithm, CspHash, CspKind, CspResourceEntry, CspHashEntry };
 
 export type { RemotePattern };
 
 export type { SvgOptimizer };
 
-export type CspStyleDirective = { hashes?: CspHash[]; resources?: string[] };
+export type CspStyleDirective = { hashes?: CspHashEntry[]; resources?: CspResourceEntry[] };
 export type CspScriptDirective = {
-	hashes?: CspHash[];
-	resources?: string[];
+	hashes?: CspHashEntry[];
+	resources?: CspResourceEntry[];
 	strictDynamic?: boolean;
 };
 
@@ -843,7 +850,7 @@ export interface AstroUserConfig<
 						 * @docs
 						 * @name security.csp.styleDirective.hashes
 						 * @kind h6
-						 * @type {CspHash[]}
+						 * @type {CspHashEntry[]}
 						 * @default `[]`
 						 * @version 6.0.0
 						 * @description
@@ -851,6 +858,13 @@ export interface AstroUserConfig<
 						 * A list of additional hashes to be rendered.
 						 *
 						 * You must provide hashes that start with `sha384-`, `sha512-` or `sha256-`. Other values will cause a validation error. These hashes are added to all pages.
+						 *
+						 * Each entry can be a string or an object. The object allows changing the scope of the hash via the `kind` field. The `kind` field accepts:
+						 * - `"element"`: it will store the hash in the `style-src-elem` directive
+						 * - `"attribute"`: it will store the hash in the `style-src-attr` directive
+						 * - `"default"`: it will store the hash in the `style-src` directive
+						 *
+						 * A `"default"` hash goes on `style-src`, or on `style-src-elem` instead once you use `kind: "element"`. It is never added to `style-src-attr`. Astro's generated hashes follow the same rule.
 						 *
 						 * ```js title="astro.config.mjs"
 						 * import { defineConfig } from 'astro/config';
@@ -880,19 +894,56 @@ export interface AstroUserConfig<
 						 *   "
 						 * >
 						 * ```
+						 *
+						 * Scoping a hash to `"element"` stores it in `style-src-elem` instead. Astro's generated hashes move there too:
+						 *
+						 * ```js title="astro.config.mjs"
+						 * import { defineConfig } from 'astro/config';
+						 *
+						 * export default defineConfig({
+						 *   security: {
+						 *     csp: {
+						 *       styleDirective: {
+						 *         hashes: [{ hash: "sha256-styleHash", kind: "element" }]
+						 *       }
+						 *     }
+						 *   }
+						 * });
+						 * ```
+						 *
+						 * After the build, the `<meta>` element will include the hash in the `style-src-elem` directive instead of `style-src`:
+						 *
+						 * ```html
+						 * <meta
+						 *   http-equiv="content-security-policy"
+						 *   content="
+						 *     style-src 'self';
+						 *     style-src-elem 'self' 'sha256-styleHash' 'sha256-generatedByAstro';
+						 *   "
+						 * >
+						 * ```
 						 */
-						hashes?: CspHash[];
+						hashes?: CspHashEntry[];
 
 						/**
 						 * @docs
 						 * @name security.csp.styleDirective.resources
 						 * @kind h6
-						 * @type {string[]}
+						 * @type {CspResourceEntry[]}
 						 * @default `[]`
 						 * @version 6.0.0
 						 * @description
 						 *
 						 * A list of valid sources for `style-src` directives to override Astro's default sources. This will not include `'self'` by default, and must be included in this list if you wish to keep it. These resources are added to all pages.
+						 *
+						 * Each entry can be a string or an object. The object allows changing the scope of the source via the `kind` field. The `kind` field accepts:
+						 * - `"element"`: it will store the source in the `style-src-elem` directive
+						 * - `"attribute"`: it will store the source in the `style-src-attr` directive
+						 * - `"default"`: it will store the source in the `style-src` directive
+						 *
+						 * `"attribute"` sources must be one of `'none'`, `'unsafe-hashes'`, `'unsafe-inline'`, or `'report-sample'`, and `'unsafe-hashes'` cannot be used with `"element"`. A common use is allowing inline `style` attributes (for example, from `define:vars` or Shiki) with `{ resource: "'unsafe-inline'", kind: "attribute" }`.
+						 *
+						 * Unlike a hash, a `"default"` source is never moved: it stays on `style-src` only. Where are a mix of "default" and specific resources - `"element"` or `"attribute"` - Astro emits a warning.
 						 *
 						 * ```js title="astro.config.mjs"
 						 * import { defineConfig } from 'astro/config';
@@ -924,9 +975,40 @@ export interface AstroUserConfig<
 						 * </head>
 						 * ```
 						 *
+						 * A `"default"` source is not copied into the more specific directives. Here, a `"default"` source and an `"element"` source render in different directives:
+						 *
+						 * ```js title="astro.config.mjs"
+						 * import { defineConfig } from 'astro/config';
+						 *
+						 * export default defineConfig({
+						 *   security: {
+						 *     csp: {
+						 *       styleDirective: {
+						 *         resources: [
+						 *           "https://styles.cdn.example.com",
+						 *           { resource: "https://elements.cdn.example.com", kind: "element" }
+						 *         ]
+						 *       }
+						 *     }
+						 *   }
+						 * });
+						 * ```
+						 *
+						 * After the build, the `<meta>` element keeps `https://styles.cdn.example.com` on `style-src` only — it is not added to `style-src-elem`, so it does not apply to `<style>` and `<link>` elements (the generated hash, by contrast, does move there):
+						 *
+						 * ```html
+						 * <meta
+						 *   http-equiv="content-security-policy"
+						 *   content="
+						 *     style-src https://styles.cdn.example.com;
+						 *     style-src-elem https://elements.cdn.example.com 'sha256-generatedByAstro';
+						 *   "
+						 * >
+						 * ```
+						 *
 						 * When resources are inserted multiple times or from multiple sources (e.g. defined in your `csp` config and added using [the CSP runtime API](/en/reference/api-reference/#csp)), Astro will merge and deduplicate all resources to create your `<meta>` element.
 						 */
-						resources?: string[];
+						resources?: CspResourceEntry[];
 					};
 
 					/**
@@ -945,7 +1027,7 @@ export interface AstroUserConfig<
 						 * @docs
 						 * @name security.csp.scriptDirective.hashes
 						 * @kind h6
-						 * @type {CspHash[]}
+						 * @type {CspHashEntry[]}
 						 * @default `[]`
 						 * @version 6.0.0
 						 * @description
@@ -953,6 +1035,13 @@ export interface AstroUserConfig<
 						 * A list of additional hashes to be rendered.
 						 *
 						 * You must provide hashes that start with `sha384-`, `sha512-` or `sha256-`. Other values will cause a validation error. These hashes are added to all pages.
+						 *
+						 * Each entry can be a string or an object. The object allows changing the scope of the hash via the `kind` field. The `kind` field accepts:
+						 * - `"element"`: it will store the hash in the `script-src-elem` directive
+						 * - `"attribute"`: it will store the hash in the `script-src-attr` directive
+						 * - `"default"`: it will store the hash in the `script-src` directive
+						 *
+						 * A `"default"` hash goes on `script-src`, or on `script-src-elem` instead once you use `kind: "element"`. It is never added to `script-src-attr`. Astro's generated hashes follow the same rule.
 						 *
 						 * ```js title="astro.config.mjs"
 						 * import { defineConfig } from 'astro/config';
@@ -982,19 +1071,56 @@ export interface AstroUserConfig<
 						 *   "
 						 * >
 						 * ```
+						 *
+						 * Scoping a hash to `"element"` stores it in `script-src-elem` instead. Astro's generated hashes move there too:
+						 *
+						 * ```js title="astro.config.mjs"
+						 * import { defineConfig } from 'astro/config';
+						 *
+						 * export default defineConfig({
+						 *   security: {
+						 *     csp: {
+						 *       scriptDirective: {
+						 *         hashes: [{ hash: "sha256-scriptHash", kind: "element" }]
+						 *       }
+						 *     }
+						 *   }
+						 * });
+						 * ```
+						 *
+						 * After the build, the `<meta>` element will include the hash in the `script-src-elem` directive instead of `script-src`:
+						 *
+						 * ```html
+						 * <meta
+						 *   http-equiv="content-security-policy"
+						 *   content="
+						 *     script-src 'self';
+						 *     script-src-elem 'self' 'sha256-scriptHash' 'sha256-generatedByAstro';
+						 *   "
+						 * >
+						 * ```
 						 */
-						hashes?: CspHash[];
+						hashes?: CspHashEntry[];
 
 						/**
 						 * @docs
 						 * @name security.csp.scriptDirective.resources
 						 * @kind h6
-						 * @type {string[]}
+						 * @type {CspResourceEntry[]}
 						 * @default `[]`
 						 * @version 6.0.0
 						 * @description
 						 *
 						 * A list of valid sources for the `script-src` directives to override Astro's default sources. This will not include `'self'` by default, and must be included in this list if you wish to keep it. These resources are added to all pages.
+						 *
+						 * Each entry can be a string or an object. The object allows changing the scope of the source via the `kind` field. The `kind` field accepts:
+						 * - `"element"`: it will store the source in the `script-src-elem` directive
+						 * - `"attribute"`: it will store the source in the `script-src-attr` directive
+						 * - `"default"`: it will store the source in the `script-src` directive
+						 *
+						 * `"attribute"` sources must be one of `'none'`, `'unsafe-hashes'`, `'unsafe-inline'`, or `'report-sample'`, and `'unsafe-hashes'` cannot be used with `"element"`.
+						 *
+						 * Unlike a hash, a `"default"` source is never moved: it stays on `script-src` only. It does not apply where you also scope `"element"` or `"attribute"` sources, since browsers do not fall back. Astro warns when this happens; add it to the more specific directive too if you need it there.
 						 *
 						 * ```js title="astro.config.mjs"
 						 * import { defineConfig } from 'astro/config';
@@ -1025,9 +1151,40 @@ export interface AstroUserConfig<
 						 * </head>
 						 * ```
 						 *
+						 * A `"default"` source is not copied into the more specific directives. Here, a `"default"` source and an `"element"` source render in different directives:
+						 *
+						 * ```js title="astro.config.mjs"
+						 * import { defineConfig } from 'astro/config';
+						 *
+						 * export default defineConfig({
+						 *   security: {
+						 *     csp: {
+						 *       scriptDirective: {
+						 *         resources: [
+						 *           "https://cdn.example.com",
+						 *           { resource: "https://elements.cdn.example.com", kind: "element" }
+						 *         ]
+						 *       }
+						 *     }
+						 *   }
+						 * });
+						 * ```
+						 *
+						 * After the build, the `<meta>` element keeps `https://cdn.example.com` on `script-src` only — it is not added to `script-src-elem`, so it does not apply to `<script>` elements (the generated hash, by contrast, does move there):
+						 *
+						 * ```html
+						 * <meta
+						 *   http-equiv="content-security-policy"
+						 *   content="
+						 *     script-src https://cdn.example.com;
+						 *     script-src-elem https://elements.cdn.example.com 'sha256-generatedByAstro';
+						 *   "
+						 * >
+						 * ```
+						 *
 						 * When resources are inserted multiple times or from multiple sources (e.g. defined in your `csp` config and added using [the CSP runtime API](/en/reference/api-reference/#csp)), Astro will merge and deduplicate all resources to create your `<meta>` element.
 						 */
-						resources?: string[];
+						resources?: CspResourceEntry[];
 
 						/**
 						 * @docs
@@ -1053,6 +1210,8 @@ export interface AstroUserConfig<
 						 *   }
 						 * });
 						 * ```
+						 *
+						 * This applies to `script-src`. When you also scope `script` resources or hashes to `script-src-elem` (using `kind: "element"`), `strict-dynamic` is inherited by `script-src-elem` so that dynamically injected `<script>` elements continue to work.
 						 */
 						strictDynamic?: boolean;
 					};

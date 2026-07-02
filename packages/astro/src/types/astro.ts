@@ -1,4 +1,5 @@
 import type { Server } from 'node:http';
+import type { CspHash } from '../core/csp/config.js';
 import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroLogger, AstroLoggerLevel } from '../core/logger/core.js';
@@ -28,8 +29,6 @@ export type SerializedRouteData = Omit<
 		trailingSlash: AstroConfig['trailingSlash'];
 	};
 };
-
-type CspObject = Required<Exclude<AstroConfig['security']['csp'], boolean>>;
 
 export interface AstroSettings {
 	config: AstroConfig;
@@ -77,7 +76,7 @@ export interface AstroSettings {
 	buildOutput: undefined | 'static' | 'server';
 	injectedCsp: {
 		fontResources: Set<string>;
-		styleHashes: Required<CspObject['styleDirective']>['hashes'];
+		styleHashes: CspHash[];
 	};
 	logLevel: AstroLoggerLevel;
 	fontsHttpServer: Server | null;

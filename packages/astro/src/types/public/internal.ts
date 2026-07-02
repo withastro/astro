@@ -228,29 +228,25 @@ export interface SSRResult {
 	trailingSlash: AstroConfig['trailingSlash'];
 	key: Promise<CryptoKey>;
 	_metadata: SSRMetadata;
-	/**
-	 * `header`:
-	 * - <meta> for static pages
-	 * - Response header for dynamic pages
-	 *
-	 * `meta`:
-	 * - <meta> for all pages
-	 *
-	 * `adapter`:
-	 * - nothing for static pages (the adapter does this)
-	 * - Response header for dynamic pages
-	 */
-	// NOTE: we use a different type here because at runtime we must provide a value, which is
-	// eventually computed from RouteData.prerender
-	cspDestination: NonNullable<SSRManifestCSP['cspDestination']>;
 	shouldInjectCspMetaTags: boolean;
-	cspAlgorithm: SSRManifestCSP['algorithm'];
-	scriptHashes: SSRManifestCSP['scriptHashes'];
-	scriptResources: SSRManifestCSP['scriptResources'];
-	styleHashes: SSRManifestCSP['styleHashes'];
-	styleResources: SSRManifestCSP['styleResources'];
-	directives: SSRManifestCSP['directives'];
-	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
+	/**
+	 * The per-request CSP state. Mirrors `manifest.csp` (and therefore the `security.csp` config):
+	 * `resources`/`hashes` entries carry their `kind` and are grouped into directives only at render.
+	 *
+	 * `cspDestination`:
+	 * - `header`: `<meta>` for static pages, response header for dynamic pages
+	 * - `meta`: `<meta>` for all pages
+	 * - `adapter`: nothing for static pages (the adapter does this), response header for dynamic pages
+	 */
+	// NOTE: cspDestination uses a non-nullable type because at runtime we must provide a value, which
+	// is eventually computed from RouteData.prerender
+	csp: {
+		cspDestination: NonNullable<SSRManifestCSP['cspDestination']>;
+		algorithm: SSRManifestCSP['algorithm'];
+		directives: SSRManifestCSP['directives'];
+		scriptDirective: SSRManifestCSP['scriptDirective'];
+		styleDirective: SSRManifestCSP['styleDirective'];
+	};
 	internalFetchHeaders?: Record<string, string>;
 }
 

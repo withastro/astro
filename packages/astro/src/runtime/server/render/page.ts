@@ -47,7 +47,7 @@ export async function renderPage(
 		]);
 		if (
 			result.shouldInjectCspMetaTags &&
-			(result.cspDestination === 'header' || result.cspDestination === 'adapter')
+			(result.csp.cspDestination === 'header' || result.csp.cspDestination === 'adapter')
 		) {
 			headers.set('content-security-policy', renderCspContent(result));
 		}
@@ -97,8 +97,8 @@ export async function renderPage(
 	const init = result.response;
 	const headers = new Headers(init.headers);
 	if (
-		(result.shouldInjectCspMetaTags && result.cspDestination === 'header') ||
-		result.cspDestination === 'adapter'
+		(result.shouldInjectCspMetaTags && result.csp.cspDestination === 'header') ||
+		result.csp.cspDestination === 'adapter'
 	) {
 		headers.set('content-security-policy', renderCspContent(result));
 	}

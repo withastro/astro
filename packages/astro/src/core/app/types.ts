@@ -14,7 +14,7 @@ import type {
 	SSRResult,
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
-import type { CspDirective } from '../csp/config.js';
+import type { CspDirective, CspHashEntry, CspResourceEntry } from '../csp/config.js';
 import type {
 	AstroLoggerDestination,
 	AstroLoggerLevel,
@@ -170,15 +170,25 @@ export type SSRManifestI18n = {
 	domains: Record<string, string> | undefined;
 };
 
+/**
+ * The CSP section of the manifest. It mirrors the `security.csp` config: `directives` plus a
+ * `scriptDirective`/`styleDirective`, each holding `resources`/`hashes` entries that carry their
+ * `kind` (`default`/`element`/`attribute`). The `kind` is only interpreted at render time. Astro's
+ * generated hashes are appended to the relevant `hashes` array as `default`-kind entries.
+ */
 export type SSRManifestCSP = {
 	cspDestination: 'adapter' | 'meta' | 'header' | undefined;
 	algorithm: CspAlgorithm;
-	scriptHashes: string[];
-	scriptResources: string[];
-	isStrictDynamic: boolean;
-	styleHashes: string[];
-	styleResources: string[];
 	directives: CspDirective[];
+	scriptDirective: {
+		resources: CspResourceEntry[];
+		hashes: CspHashEntry[];
+		strictDynamic: boolean;
+	};
+	styleDirective: {
+		resources: CspResourceEntry[];
+		hashes: CspHashEntry[];
+	};
 };
 
 export interface SSRManifestSession extends BaseSessionConfig {

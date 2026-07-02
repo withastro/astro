@@ -160,15 +160,20 @@ async function createSerializedManifest(
 	}
 
 	if (shouldTrackCspHashes(settings.config.security.csp)) {
+		const cspConfig = settings.config.security.csp;
 		csp = {
 			cspDestination: settings.adapter?.adapterFeatures?.staticHeaders ? 'adapter' : undefined,
-			scriptHashes: getScriptHashes(settings.config.security.csp),
-			scriptResources: getScriptResources(settings.config.security.csp),
-			styleHashes: getStyleHashes(settings.config.security.csp),
-			styleResources: getStyleResources(settings.config.security.csp),
-			algorithm: getAlgorithm(settings.config.security.csp),
+			algorithm: getAlgorithm(cspConfig),
 			directives: getDirectives(settings),
-			isStrictDynamic: getStrictDynamic(settings.config.security.csp),
+			scriptDirective: {
+				resources: getScriptResources(cspConfig),
+				hashes: getScriptHashes(cspConfig),
+				strictDynamic: getStrictDynamic(cspConfig),
+			},
+			styleDirective: {
+				resources: getStyleResources(cspConfig),
+				hashes: getStyleHashes(cspConfig),
+			},
 		};
 	}
 

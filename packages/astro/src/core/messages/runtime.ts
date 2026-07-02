@@ -1,6 +1,7 @@
 import colors from 'piccolore';
 import type { ResolvedServerUrls } from 'vite';
 import type { $ZodError } from 'zod/v4/core';
+import { partitionByKind } from '../csp/runtime.js';
 import { getDocsForError, renderErrorMarkdown } from '../errors/dev/runtime.js';
 import {
 	AstroError,
@@ -411,6 +412,51 @@ export function warnIfCspWithShiki(config: AstroConfig, logger: AstroLogger): vo
 			'config',
 			'Shiki syntax highlighting uses inline styles that are not compatible with Content Security Policy (CSP). ' +
 				'Consider using Prism syntax highlighting instead, or disable CSP if Shiki is required.',
+		);
+	}
+}
+
+/**
+ * Warns when a `scriptDirective`/`styleDirective` defines `default`-kind resources alongside
+ * `element`/`attribute`-kind entries. Because the more specific directive (`*-src-elem`/`*-src-attr`)
+ * overrides the generic one for its scope and browsers do not fall back, the generic resources will
+ * not apply there. Astro's generated hashes are folded automatically, so this only concerns
+ * user-provided resources.
+ */
+export function warnIfCspResourceFallbackShadowing(config: AstroConfig, logger: AstroLogger): void {
+	const csp = config.security.csp;
+	// Only the object form has `scriptDirective`/`styleDirective` to inspect. (Reading the config
+	// directly here keeps this module free of the Node-only `csp/common.js`, which must not leak
+	// into the SSR runtime.)
+	if (typeof csp !== 'object') return;
+
+	const families = [
+		{ name: 'script', directive: csp.scriptDirective },
+		{ name: 'style', directive: csp.styleDirective },
+	] as const;
+
+	for (const { name, directive } of families) {
+		const sources = partitionByKind({
+			resources: directive?.resources ?? [],
+			hashes: directive?.hashes ?? [],
+		});
+		if (sources.default.resources.length === 0) continue;
+		const shadowed: string[] = [];
+		if (sources.element.resources.length > 0 || sources.element.hashes.length > 0) {
+			shadowed.push(`\`${name}-src-elem\``);
+		}
+		if (sources.attribute.resources.length > 0 || sources.attribute.hashes.length > 0) {
+			shadowed.push(`\`${name}-src-attr\``);
+		}
+		if (shadowed.length === 0) continue;
+
+		logger.warn(
+			'csp',
+			`\`security.csp.${name}Directive\` defines \`${name}-src\` resources (${sources.default.resources.join(
+				' ',
+			)}) as well as ${shadowed.join(' and ')} resources or hashes. Because ${shadowed.join(
+				' and ',
+			)} override \`${name}-src\` for their scope (browsers do not fall back), those \`${name}-src\` resources will not apply there. Add them to the corresponding \`kind\` if needed.`,
 		);
 	}
 }
