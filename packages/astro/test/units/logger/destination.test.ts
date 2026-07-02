@@ -141,29 +141,27 @@ describe('SGR_REGEX', () => {
 });
 
 describe('json handler', () => {
-	let stdoutWrites: string[];
-	let stderrWrites: string[];
-	let originalStdoutWrite: typeof process.stdout.write;
-	let originalStderrWrite: typeof process.stderr.write;
+	let logWrites: string[];
+	let errorWrites: string[];
+	let originalLog: typeof console.log;
+	let originalError: typeof console.error;
 
 	beforeEach(() => {
-		stdoutWrites = [];
-		stderrWrites = [];
-		originalStdoutWrite = process.stdout.write;
-		originalStderrWrite = process.stderr.write;
-		process.stdout.write = ((chunk: string) => {
-			stdoutWrites.push(chunk);
-			return true;
-		}) as typeof process.stdout.write;
-		process.stderr.write = ((chunk: string) => {
-			stderrWrites.push(chunk);
-			return true;
-		}) as typeof process.stderr.write;
+		logWrites = [];
+		errorWrites = [];
+		originalLog = console.log;
+		originalError = console.error;
+		console.log = (...args: any[]) => {
+			logWrites.push(args.join(' '));
+		};
+		console.error = (...args: any[]) => {
+			errorWrites.push(args.join(' '));
+		};
 	});
 
 	afterEach(() => {
-		process.stdout.write = originalStdoutWrite;
-		process.stderr.write = originalStderrWrite;
+		console.log = originalLog;
+		console.error = originalError;
 	});
 
 	describe('output format', () => {
@@ -175,26 +173,26 @@ describe('json handler', () => {
 
 		it('writes JSON with message and label', () => {
 			logger.info('build', 'compiled successfully');
-			assert.equal(stdoutWrites.length, 1);
+			assert.equal(logWrites.length, 1);
 			assert.equal(
-				stdoutWrites[0],
-				'{"message":"compiled successfully","label":"build","level":"info"}\n',
+				logWrites[0],
+				'{"message":"compiled successfully","label":"build","level":"info"}',
 			);
 		});
 
 		it('writes JSON with null label', () => {
 			logger.info(null, 'no label message');
-			assert.equal(stdoutWrites[0], '{"message":"no label message","label":null,"level":"info"}\n');
+			assert.equal(logWrites[0], '{"message":"no label message","label":null,"level":"info"}');
 		});
 
 		it('includes message, label and level in output', () => {
 			logger.warn('build', 'a warning');
-			assert.equal(stdoutWrites[0], '{"message":"a warning","label":"build","level":"warn"}\n');
+			assert.equal(logWrites[0], '{"message":"a warning","label":"build","level":"warn"}');
 		});
 
 		it('strips ANSI codes from messages', () => {
 			logger.info('build', '\x1b[32mgreen text\x1b[39m');
-			assert.equal(stdoutWrites[0], '{"message":"green text","label":"build","level":"info"}\n');
+			assert.equal(logWrites[0], '{"message":"green text","label":"build","level":"info"}');
 		});
 	});
 
@@ -207,10 +205,10 @@ describe('json handler', () => {
 
 		it('writes indented JSON when pretty is true', () => {
 			logger.info('build', 'test');
-			const parsed = JSON.parse(stdoutWrites[0]);
+			const parsed = JSON.parse(logWrites[0]);
 			assert.equal(parsed.message, 'test');
 			assert.equal(parsed.label, 'build');
-			assert.ok(stdoutWrites[0].includes('\n  '), 'output should be indented');
+			assert.ok(logWrites[0].includes('\n  '), 'output should be indented');
 		});
 	});
 
@@ -221,22 +219,44 @@ describe('json handler', () => {
 			level: 'info',
 		});
 
-		it('routes info to stdout', () => {
+		it('routes info to console.log', () => {
 			logger.info('build', 'test');
-			assert.equal(stdoutWrites.length, 1);
-			assert.equal(stderrWrites.length, 0);
+			assert.equal(logWrites.length, 1);
+			assert.equal(errorWrites.length, 0);
 		});
 
-		it('routes warn to stdout', () => {
+		it('routes warn to console.log', () => {
 			logger.warn('build', 'test');
-			assert.equal(stdoutWrites.length, 1);
-			assert.equal(stderrWrites.length, 0);
+			assert.equal(logWrites.length, 1);
+			assert.equal(errorWrites.length, 0);
 		});
 
-		it('routes error to stderr', () => {
+		it('routes error to console.error', () => {
 			logger.error('build', 'test');
-			assert.equal(stdoutWrites.length, 0);
-			assert.equal(stderrWrites.length, 1);
+			assert.equal(logWrites.length, 0);
+			assert.equal(errorWrites.length, 1);
+		});
+	});
+
+	describe('runtime compatibility', () => {
+		it('does not reference process global directly', () => {
+			// The json logger must use console.log/console.error instead of
+			// process.stdout/process.stderr so it works in non-Node runtimes
+			// like Cloudflare's workerd (see issue #17280).
+			const destination = jsonFactory({ pretty: false });
+			const logger = new AstroLogger({
+				destination,
+				level: 'info',
+			});
+
+			// This should not throw even if process were unavailable,
+			// since we use console methods instead.
+			assert.doesNotThrow(() => {
+				logger.info('build', 'test message');
+			});
+			assert.equal(logWrites.length, 1);
+			const parsed = JSON.parse(logWrites[0]);
+			assert.equal(parsed.message, 'test message');
 		});
 	});
 });

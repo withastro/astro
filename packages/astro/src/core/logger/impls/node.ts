@@ -6,13 +6,8 @@ import {
 	getEventPrefix,
 	levels,
 } from '../core.js';
-import type { Writable } from 'node:stream';
 import type { AstroInlineConfig } from '../../../types/public/index.js';
 import { matchesLevel } from '../public.js';
-
-type ConsoleStream = Writable & {
-	fd: 1 | 2;
-};
 
 export type NodeHandlerConfig = {
 	level?: AstroLoggerLevel;
@@ -24,20 +19,19 @@ function nodeLogDestination(
 	const { level = 'info' } = config;
 	return {
 		write(event: AstroLoggerMessage) {
-			let dest: ConsoleStream = process.stderr;
-			if (levels[event.level] < levels['error']) {
-				dest = process.stdout;
-			}
-
 			if (!matchesLevel(event.level, level)) {
 				return;
 			}
 
-			let trailingLine = event.newLine ? '\n' : '';
+			let dest = console.error;
+			if (levels[event.level] < levels['error']) {
+				dest = console.log;
+			}
+
 			if (event.label === 'SKIP_FORMAT') {
-				dest.write(event.message + trailingLine);
+				dest(event.message);
 			} else {
-				dest.write(getEventPrefix(event) + ' ' + event.message + trailingLine);
+				dest(getEventPrefix(event) + ' ' + event.message);
 			}
 		},
 	};
