@@ -1,14 +1,25 @@
+import path from 'node:path';
 import type { LanguagePlugin } from '@volar/language-core';
 import { createLanguageServicePlugin } from '@volar/typescript/lib/quickstart/createLanguageServicePlugin.js';
+import { addAstroProjectFiles, addAstroTypes } from './astro-types.js';
 import type { CollectionConfig } from './frontmatter.js';
 import { getFrontmatterLanguagePlugin } from './frontmatter.js';
 import { getLanguagePlugin } from './language.js';
 
 export = createLanguageServicePlugin((ts, info) => {
 	let collectionConfig = undefined;
+	const currentDir = info.project.getCurrentDirectory();
+
+	// Make "Go To References" from `.ts` files aware of usages inside `.astro` files:
+	// include tsconfig-matched `.astro` files in the program, and inject the Astro
+	// ambient types so type chains like `Astro.locals.*` resolve.
+	addAstroProjectFiles(ts, info.project, info.languageServiceHost);
+	addAstroTypes(ts, info.languageServiceHost, [
+		currentDir,
+		...info.languageServiceHost.getScriptFileNames().map((fileName) => path.dirname(fileName)),
+	]);
 
 	try {
-		const currentDir = info.project.getCurrentDirectory();
 		const fileContent = ts.sys.readFile(currentDir + '/.astro/collections/collections.json');
 		if (fileContent) {
 			collectionConfig = {

@@ -7,7 +7,14 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 
 function safeConvertToTSX(content: string, options: ConvertToTSXOptions) {
 	try {
-		const tsx = convertToTSX(content, { filename: options.filename });
+		// Match the language server: strip `<script>`/`<style>` content from the TSX.
+		// The compiler otherwise wraps script bodies in `{() => { ... }}`, where
+		// `import` declarations are syntactically invalid and pollute the virtual file.
+		const tsx = convertToTSX(content, {
+			filename: options.filename,
+			includeScripts: false,
+			includeStyles: false,
+		});
 		return tsx;
 	} catch (e) {
 		console.error(
