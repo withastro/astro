@@ -20,11 +20,11 @@ function sanitizeParams(params: Record<string, string | number>): Record<string,
 
 function getParameter(part: RoutePart, params: Record<string, string | number>): string | number {
 	if (part.spread) {
-		return params[part.content.slice(3)] || '';
+		return params[part.content.slice(3)] ?? '';
 	}
 
 	if (part.dynamic) {
-		if (!params[part.content]) {
+		if (params[part.content] === undefined) {
 			throw new TypeError(`Missing parameter: ${part.content}`);
 		}
 
