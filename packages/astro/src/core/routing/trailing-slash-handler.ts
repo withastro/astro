@@ -29,15 +29,16 @@ export class TrailingSlashHandler {
 	 * normalization, or `undefined` if no redirect is required.
 	 */
 	handle(state: FetchState): Response | undefined {
-		// Use a fresh URL parse from the raw request so we see the
-		// un-normalized pathname (e.g. duplicate slashes like `///`).
-		// state.url has already been normalized by the FetchState
-		// constructor, which would hide the redirect targets.
-		const url = new URL(state.request.url);
-		const redirect = this.#redirectTrailingSlash(url.pathname);
+		// Use the raw pathname/search captured by the FetchState constructor
+		// (before normalization) so we see the un-normalized pathname (e.g.
+		// duplicate slashes like `///`). state.url has already been normalized,
+		// which would hide the redirect targets. Reusing the captured values
+		// avoids re-parsing the request URL on every request.
+		const pathname = state.rawPathname;
+		const redirect = this.#redirectTrailingSlash(pathname);
 
 		// Not a redirect.
-		if (redirect === url.pathname) {
+		if (redirect === pathname) {
 			return undefined;
 		}
 
@@ -46,14 +47,14 @@ export class TrailingSlashHandler {
 		const response = new Response(
 			redirectTemplate({
 				status,
-				relativeLocation: url.pathname,
+				relativeLocation: pathname,
 				absoluteLocation: redirect,
 				from: state.request.url,
 			}),
 			{
 				status,
 				headers: {
-					location: redirect + url.search,
+					location: redirect + state.rawSearch,
 				},
 			},
 		);
