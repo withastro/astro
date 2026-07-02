@@ -6,6 +6,7 @@ import type { AstroError } from '../errors/errors.js';
 import { AggregateError, CompilerError } from '../errors/errors.js';
 import { AstroErrorData } from '../errors/index.js';
 import { normalizePath, resolvePath } from '../viteUtils.js';
+import { fixDuplicateSlotKeys } from './fix-duplicate-slots.js';
 import { createStylePreprocessor, type PartialCompileCssResult } from './style.js';
 import type { CompileCssResult } from './types.js';
 
@@ -82,6 +83,7 @@ export async function compile({
 
 	return {
 		...transformResult,
+		code: fixDuplicateSlotKeys(transformResult.code),
 		css: transformResult.css.map((code, i) => ({
 			...cssPartialCompileResults[i],
 			code,

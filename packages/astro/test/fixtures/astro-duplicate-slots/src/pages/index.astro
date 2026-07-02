@@ -1,0 +1,37 @@
+---
+import Slotted from '../components/Slotted.astro';
+const show = true;
+---
+<html>
+<head><title>Duplicate Slots</title></head>
+<body>
+	<div id="plain">
+		<Slotted>
+			<div slot="a">foo</div>
+			<div slot="a">bar</div>
+		</Slotted>
+	</div>
+
+	<div id="expression">
+		<Slotted>
+			{ true && <div slot="a">foo</div> }
+			{ true && <div slot="a">bar</div> }
+		</Slotted>
+	</div>
+
+	<div id="three">
+		<Slotted>
+			{ true && <div slot="a">one</div> }
+			{ true && <div slot="a">two</div> }
+			{ true && <div slot="a">three</div> }
+		</Slotted>
+	</div>
+
+	<div id="conditional">
+		<Slotted>
+			{ false && <div slot="a">hidden</div> }
+			{ true && <div slot="a">visible</div> }
+		</Slotted>
+	</div>
+</body>
+</html>

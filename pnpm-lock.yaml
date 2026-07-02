@@ -2134,6 +2134,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/astro-duplicate-slots:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/astro-dynamic:
     dependencies:
       '@astrojs/react':
