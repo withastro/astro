@@ -7,6 +7,12 @@ import { fetchWithRedirects } from './redirectValidation.js';
 
 type RemoteImageConfig = Pick<AstroConfig['image'], 'domains' | 'remotePatterns'>;
 
+// Cache probe results by URL to avoid redundant fetches.
+// The Picture component calls getImage() multiple times (once per format),
+// each triggering inferRemoteSize(). Without caching, servers may rate-limit
+// the repeated requests (e.g. HTTP 429).
+const probeCache = new Map<string, Promise<Omit<ImageMetadata, 'src' | 'fsPath'>>>();
+
 /**
  * Infers the dimensions of a remote image by streaming its data and analyzing it progressively until sufficient metadata is available.
  *
@@ -16,6 +22,24 @@ type RemoteImageConfig = Pick<AstroConfig['image'], 'domains' | 'remotePatterns'
  * @throws {AstroError} Thrown when the fetching fails or metadata cannot be extracted.
  */
 export async function inferRemoteSize(
+	url: string,
+	imageConfig?: RemoteImageConfig,
+): Promise<Omit<ImageMetadata, 'src' | 'fsPath'>> {
+	const cached = probeCache.get(url);
+	if (cached) return cached;
+
+	const promise = inferRemoteSizeUncached(url, imageConfig);
+	probeCache.set(url, promise);
+
+	// Remove from cache on failure so retries can try again
+	promise.catch(() => {
+		probeCache.delete(url);
+	});
+
+	return promise;
+}
+
+async function inferRemoteSizeUncached(
 	url: string,
 	imageConfig?: RemoteImageConfig,
 ): Promise<Omit<ImageMetadata, 'src' | 'fsPath'>> {
