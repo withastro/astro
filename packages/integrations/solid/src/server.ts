@@ -9,7 +9,8 @@ import {
 	ssr,
 } from 'solid-js/web';
 import { getContext, incrementId } from './context.js';
-import type { RendererContext } from './types.js';
+import { replaceSignalsWithValues, restoreSignalsOnProps, serializeSignals } from './signals.js';
+import type { AstroSolidAttrs, RendererContext } from './types.js';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 
@@ -60,6 +61,12 @@ async function renderToStaticMarkup(
 	const tagName = needsHydrate ? 'astro-slot' : 'astro-static-slot';
 
 	const renderStrategy = (metadata?.renderStrategy ?? 'async') as RenderStrategy;
+
+	// Restore signals back onto props so that they will be passed as-is to components
+	let propsMap = restoreSignalsOnProps(ctx, props);
+
+	const attrs: AstroSolidAttrs = {};
+	serializeSignals(ctx, props, attrs, propsMap);
 
 	const renderFn = () => {
 		const slots: Record<string, any> = {};
@@ -124,8 +131,13 @@ async function renderToStaticMarkup(
 				})
 			: renderToString(renderFn, { renderId });
 
+	// Replace signal getters/setters with scalar values so that Astro's serializeProps
+	// serializes plain values (functions would be dropped by JSON.stringify).
+	replaceSignalsWithValues(props);
+
 	return {
 		attrs: {
+			...attrs,
 			'data-solid-render-id': renderId,
 		},
 		html: componentHtml,

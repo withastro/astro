@@ -1,0 +1,19 @@
+---
+import { createIslandSignal } from '@astrojs/solid-js/signals';
+import SignalCounter from '../components/SignalCounter';
+import SignalsInArray from '../components/SignalsInArray';
+import SignalsInObject from '../components/SignalsInObject';
+const [count] = createIslandSignal(1);
+const [secondCount] = createIslandSignal(2);
+---
+<html>
+	<head>
+		<title>Testing</title>
+	</head>
+	<body>
+		<SignalCounter client:load count={count} />
+		<SignalCounter client:load count={count} />
+		<SignalsInArray client:load signalsArray={["I'm not a signal", count, count, 12345, secondCount]} />
+		<SignalsInObject client:load signalsObject={{title:'I am a title', counter: count}} />
+	</body>
+</html>

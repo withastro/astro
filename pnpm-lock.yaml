@@ -1671,6 +1671,18 @@ importers:
         specifier: ^1.9.11
         version: 1.9.13
 
+  packages/astro/e2e/fixtures/solid-signals:
+    dependencies:
+      '@astrojs/solid-js':
+        specifier: workspace:*
+        version: link:../../../../integrations/solid
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      solid-js:
+        specifier: ^1.9.13
+        version: 1.9.13
+
   packages/astro/e2e/fixtures/svelte-component:
     dependencies:
       '@astrojs/mdx':
@@ -5821,6 +5833,21 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
+      cheerio:
+        specifier: 1.2.0
+        version: 1.2.0
+      solid-js:
+        specifier: ^1.9.13
+        version: 1.9.13
+
+  packages/integrations/solid/test/fixtures/signals:
+    dependencies:
+      '@astrojs/solid-js':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
       solid-js:
         specifier: ^1.9.13
         version: 1.9.13

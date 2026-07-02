@@ -1,8 +1,57 @@
-import { Suspense } from 'solid-js';
+import { createSignal, Suspense } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { createComponent, hydrate, render } from 'solid-js/web';
 
+type SignalTuple = [() => any, (v: any) => any];
+const sharedSignalMap = new Map<string, SignalTuple>();
 const alreadyInitializedElements = new WeakMap<Element, any>();
+
+// Signal IDs ending with "!" indicate a setter prop, e.g. "sg0!" = setter, "sg0" = getter.
+function decodeSignalRef(ref: string): { id: string; isSetter: boolean } {
+	if (ref.endsWith('!')) {
+		return { id: ref.slice(0, -1), isSetter: true };
+	}
+	return { id: ref, isSetter: false };
+}
+
+function getSignalPart(tuple: SignalTuple, isSetter: boolean): any {
+	return isSetter ? tuple[1] : tuple[0];
+}
+
+function restoreSignals(element: HTMLElement, props: Record<string, any>) {
+	const signalsRaw = element.dataset.solidSignals;
+	if (!signalsRaw) return;
+
+	const signals: Record<string, string | [string, number | string][]> = JSON.parse(signalsRaw);
+	for (const [propName, signalId] of Object.entries(signals)) {
+		if (Array.isArray(signalId)) {
+			// Array or object case: signalId is [ref, indexOrKey][]
+			signalId.forEach(([ref, indexOrKeyInProps]) => {
+				const { id, isSetter } = decodeSignalRef(ref);
+				const mapValue = props[propName][indexOrKeyInProps];
+				let valueOfSignal = mapValue;
+
+				// For arrays, the serialized form is [value, originalIndex]
+				if (typeof indexOrKeyInProps !== 'string') {
+					valueOfSignal = mapValue[0];
+					indexOrKeyInProps = mapValue[1];
+				}
+
+				if (!sharedSignalMap.has(id)) {
+					sharedSignalMap.set(id, createSignal(valueOfSignal));
+				}
+				props[propName][indexOrKeyInProps] = getSignalPart(sharedSignalMap.get(id)!, isSetter);
+			});
+		} else {
+			// Direct signal prop
+			const { id, isSetter } = decodeSignalRef(signalId);
+			if (!sharedSignalMap.has(id)) {
+				sharedSignalMap.set(id, createSignal(props[propName]));
+			}
+			props[propName] = getSignalPart(sharedSignalMap.get(id)!, isSetter);
+		}
+	}
+}
 
 export default (element: HTMLElement) =>
 	(Component: any, props: any, slotted: any, { client }: { client: string }) => {
@@ -33,6 +82,10 @@ export default (element: HTMLElement) =>
 
 		const { default: children, ...slots } = _slots;
 		const renderId = element.dataset.solidRenderId;
+
+		// Restore shared island signals onto props before creating the store
+		restoreSignals(element, props);
+
 		if (alreadyInitializedElements.has(element)) {
 			// update the mounted component
 			alreadyInitializedElements.get(element)!(
