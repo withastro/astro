@@ -23,7 +23,7 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
-import { getDataStoreFile } from './content-layer.js';
+import { getDataStoreFile } from './paths.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
 
 /**

@@ -1,5 +1,6 @@
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import * as devalue from 'devalue';
+import { type DataStoreSource, InMemorySource } from './data-store-source.js';
 
 export interface RenderedContent {
 	/** Rendered HTML string. If present then `render(entry)` will return a component that renders this HTML. */
@@ -108,16 +109,17 @@ export class ImmutableDataStore {
 }
 
 function dataStoreSingleton() {
-	let instance: Promise<ImmutableDataStore> | ImmutableDataStore | undefined = undefined;
+	let instance: Promise<DataStoreSource> | DataStoreSource | undefined = undefined;
 	return {
-		get: async () => {
+		get: async (): Promise<DataStoreSource> => {
 			if (!instance) {
-				instance = ImmutableDataStore.fromModule();
+				instance = ImmutableDataStore.fromModule().then((store) => new InMemorySource(store));
 			}
 			return instance;
 		},
+		// Note: currently unused, but kept for API stability.
 		set: (store: ImmutableDataStore) => {
-			instance = store;
+			instance = new InMemorySource(store);
 		},
 	};
 }
