@@ -91,15 +91,31 @@ export function getParams(route: RouteData, pathname: string): Params {
 	// route definition itself (e.g. `[slug].html.astro`). Dynamic params like `[id]` would
 	// otherwise greedily capture the `.html` suffix that is either implied or injected
 	// for page routes (e.g. `id = '42.html'` instead of `id = '42'`).
-	// Other route types do not enforce HTML generation nor modify the path, so any suffix
-	// was added by user code and their pattern matching should apply on the complete pathname.
-	const path =
-		pathname.endsWith('.html') && route.type === 'page' && !routeHasHtmlExtension(route)
-			? pathname.slice(0, -5)
-			: pathname;
+	// For non-page routes (endpoints), first try matching the original pathname. If that
+	// fails, fall back to stripping `.html` / `/index.html` to stay consistent with the
+	// dev route matcher which also strips these suffixes when retrying (see `dev.ts`).
+	// Without this fallback, requests like `/api/items/123/status.html` would match a
+	// dynamic endpoint route but fail to extract params, causing a "Missing parameter" error.
+	let path = pathname;
+	if (pathname.endsWith('.html') && !routeHasHtmlExtension(route)) {
+		if (route.type === 'page') {
+			path = pathname.slice(0, -5);
+		}
+	}
 
 	const allPatterns = [route, ...route.fallbackRoutes].map((r) => r.pattern);
-	const paramsMatch = allPatterns.map((pattern) => pattern.exec(path)).find((x) => x);
+	let paramsMatch = allPatterns.map((pattern) => pattern.exec(path)).find((x) => x);
+
+	// For non-page routes, if the original pathname didn't match, try stripping
+	// `.html` or `/index.html` as the dev router does when retrying.
+	if (!paramsMatch && route.type !== 'page' && !routeHasHtmlExtension(route)) {
+		if (pathname.endsWith('/index.html')) {
+			path = pathname.slice(0, -'/index.html'.length) || '/';
+		} else if (pathname.endsWith('.html')) {
+			path = pathname.slice(0, -'.html'.length);
+		}
+		paramsMatch = allPatterns.map((pattern) => pattern.exec(path)).find((x) => x);
+	}
 
 	if (!paramsMatch) return {};
 	const params: Params = {};
