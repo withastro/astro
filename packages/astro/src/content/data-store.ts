@@ -85,6 +85,37 @@ export class ImmutableDataStore {
 	}
 
 	/**
+	 * Rebuilds a collections map from a chunked-store manifest whose part file
+	 * names have already been swapped for their contents.
+	 *
+	 * Each collection maps to a list of chunks, and each chunk to a list of
+	 * parts. A part is either a raw string (when read from disk by the producer)
+	 * or an ESM namespace from a `?raw` import (`{ default: string }`, when
+	 * emitted into the virtual module at runtime). The parts of a chunk are
+	 * concatenated back into the exact serialized string, then parsed with
+	 * devalue. This is the inverse of {@link import('./data-store-writer.js').ChunkedWriter}
+	 * and stays free of Node built-ins so it can run at runtime.
+	 */
+	static manifestToMap(manifest: Record<string, Array<Array<string | { default: string }>>>) {
+		const collections = new Map<string, Map<string, any>>();
+		for (const [collectionName, chunks] of Object.entries(manifest)) {
+			const collection = new Map<string, any>();
+			for (const parts of chunks) {
+				let stringified = '';
+				for (const part of parts) {
+					stringified += typeof part === 'string' ? part : part.default;
+				}
+				const entries: Map<string, any> = devalue.parse(stringified);
+				for (const [id, entry] of entries) {
+					collection.set(id, entry);
+				}
+			}
+			collections.set(collectionName, collection);
+		}
+		return collections;
+	}
+
+	/**
 	 * Attempts to load a DataStore from the virtual module.
 	 * This only works in Vite.
 	 */
@@ -95,7 +126,14 @@ export class ImmutableDataStore {
 			if (data.default instanceof Map) {
 				return ImmutableDataStore.fromMap(data.default);
 			}
-			const map = devalue.unflatten(data.default);
+			// A single-file store is emitted as a devalue-flattened array.
+			if (Array.isArray(data.default)) {
+				const map = devalue.unflatten(data.default);
+				return ImmutableDataStore.fromMap(map);
+			}
+			// A chunked store is emitted as a manifest object of collections to
+			// their (lazily imported) serialized parts.
+			const map = ImmutableDataStore.manifestToMap(data.default);
 			return ImmutableDataStore.fromMap(map);
 		} catch {}
 		return new ImmutableDataStore();

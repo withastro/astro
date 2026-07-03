@@ -15,6 +15,7 @@ import {
 	ASSET_IMPORTS_VIRTUAL_ID,
 	CONTENT_MODULE_FLAG,
 	CONTENT_RENDER_FLAG,
+	DATA_STORE_MANIFEST_FILE,
 	DATA_STORE_VIRTUAL_ID,
 	MODULES_IMPORTS_FILE,
 	MODULES_MJS_ID,
@@ -23,7 +24,7 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
-import { getDataStoreFile } from './paths.js';
+import { getDataStoreDir, getDataStoreFile } from './paths.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
 
 /**
@@ -101,6 +102,7 @@ export function astroContentVirtualModPlugin({
 	settings,
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
+	let dataStoreDir: URL;
 	let dataStoreFile: URL;
 	let devServer: ViteDevServer;
 	let liveConfig: string;
@@ -110,7 +112,15 @@ export function astroContentVirtualModPlugin({
 		enforce: 'pre',
 		config(_, env) {
 			isDev = env.command === 'serve';
-			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
+			// In chunked mode the store is a directory; its manifest file stands in
+			// for the single data-store.json everywhere else in this plugin (watched,
+			// existence-checked, and read as the entry point).
+			if (settings.config.experimental.dataStore === 'chunked') {
+				dataStoreDir = getDataStoreDir(settings, env.command === 'serve');
+				dataStoreFile = new URL(DATA_STORE_MANIFEST_FILE, dataStoreDir);
+			} else {
+				dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
+			}
 			const contentPaths = getContentPaths(
 				settings.config,
 				undefined,
@@ -212,6 +222,32 @@ export function astroContentVirtualModPlugin({
 						return { code: 'export default new Map()' };
 					}
 					const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
+
+					if (settings.config.experimental.dataStore === 'chunked') {
+						try {
+							const manifest: Record<string, string[][]> = JSON.parse(jsonData);
+							// Swap each part file name for a lazy `?raw` import of its
+							// contents, so the parts stay separate chunks instead of being
+							// inlined into one huge module (the very thing chunking avoids).
+							const parsed: Record<string, string[][]> = {};
+							for (const collection in manifest) {
+								parsed[collection] = manifest[collection].map((parts) =>
+									parts.map(
+										(fileName) =>
+											`@@IMPORT@@${rootRelativePath(settings.config.root, new URL(`./${fileName}`, dataStoreDir))}@@/IMPORT@@`,
+									),
+								);
+							}
+							const code = dataToEsm(parsed, { compact: true }).replace(
+								/"@@IMPORT@@(.+?)@@\/IMPORT@@"/g,
+								'(await import("$1?raw"))',
+							);
+							return { code, map: { mappings: '' } };
+						} catch (err) {
+							const message = 'Could not parse data store manifest JSON file';
+							this.error({ message, id, cause: err });
+						}
+					}
 
 					try {
 						const parsed = JSON.parse(jsonData);

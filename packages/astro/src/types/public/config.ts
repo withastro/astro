@@ -3130,6 +3130,39 @@ export interface AstroUserConfig<
 		 * See the [experimental SVG optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
 		 */
 		svgOptimizer?: SvgOptimizer;
+
+		/**
+		 * @name experimental.dataStore
+		 * @type {'file' | 'chunked'}
+		 * @default `'file'`
+		 * @version 7.1.0
+		 * @description
+		 *
+		 * Controls how Astro persists the content layer data store.
+		 *
+		 * By default (`'file'`), the entire store is written to a single `data-store.json`
+		 * file. For very large content collections, this single file — and the single
+		 * serialized string it is built from — can hit JavaScript string-length or
+		 * platform file-size limits.
+		 *
+		 * Set this to `'chunked'` to split the store across many smaller files in a
+		 * `data-store/` directory described by a manifest. Each collection is serialized
+		 * in chunks, keeping individual strings and files small enough to avoid those
+		 * limits, at the cost of more files on disk.
+		 *
+		 * ```js
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     dataStore: 'chunked',
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * See the [experimental data store chunking documentation](https://docs.astro.build/en/reference/experimental-flags/data-store/) for more information.
+		 */
+		dataStore?: 'file' | 'chunked';
 	};
 }
 

@@ -1,5 +1,20 @@
 import { promises as fs, type PathLike } from 'node:fs';
 import * as devalue from 'devalue';
+import xxhash, { type XXHashAPI } from 'xxhash-wasm';
+import { emptyDir } from '../core/fs/index.js';
+import { DATA_STORE_MANIFEST_FILE } from './consts.js';
+
+/** Maximum number of entries serialized into a single chunk. */
+const CHUNK_ENTRY_LIMIT = 1000;
+/** Maximum size, in UTF-8 bytes, of a single part file. */
+const CHUNK_SIZE_LIMIT = 20 * 1024 * 1024; // 20 MB
+
+/**
+ * A chunked store manifest: each collection maps to a list of chunks, and each
+ * chunk to the list of part file names whose contents concatenate back into the
+ * chunk's serialized string.
+ */
+export type DataStoreManifest = Record<string, string[][]>;
 
 /**
  * Persists the content collection data produced by the content layer. This is
@@ -13,15 +28,17 @@ export interface DataStoreWriter {
 }
 
 /**
- * Serialize collections to a deterministic devalue string.
+ * Sort collections and their entries by key.
  *
- * Collections and their entries are sorted by key so the output is stable
- * regardless of the order entries were processed in. Entry insertion order can
- * vary between builds due to concurrent file processing (pLimit), so sorting
- * here guarantees stable output hashes regardless of processing order.
+ * Entry insertion order can vary between builds due to concurrent file
+ * processing (pLimit), so sorting here guarantees stable output regardless of
+ * processing order. Stable output keeps serialized strings (and the content
+ * hashes derived from them) deterministic across builds.
  */
-export function serializeDataStore(collections: Map<string, Map<string, any>>): string {
-	const sorted = new Map(
+function sortCollections(
+	collections: Map<string, Map<string, any>>,
+): Map<string, Map<string, any>> {
+	return new Map(
 		[...collections.entries()]
 			.sort(([a], [b]) => a.localeCompare(b))
 			.map(([key, collection]) => [
@@ -29,7 +46,69 @@ export function serializeDataStore(collections: Map<string, Map<string, any>>): 
 				new Map([...collection.entries()].sort(([a], [b]) => a.localeCompare(b))),
 			]),
 	);
-	return devalue.stringify(sorted);
+}
+
+/**
+ * Serialize collections to a deterministic devalue string.
+ */
+export function serializeDataStore(collections: Map<string, Map<string, any>>): string {
+	return devalue.stringify(sortCollections(collections));
+}
+
+/**
+ * Split a string into parts each at most `maxBytes` UTF-8 bytes, never splitting
+ * a Unicode code point across parts.
+ *
+ * The store is serialized with devalue and written to disk as UTF-8. Splitting
+ * on UTF-16 code-unit boundaries (e.g. `String.prototype.slice`) can cut a
+ * surrogate pair in half; encoding a lone surrogate to UTF-8 substitutes U+FFFD,
+ * so concatenating the re-read parts would corrupt any astral-plane character
+ * (emoji, some CJK, etc.). Iterating with `for...of` yields whole code points,
+ * so `str.slice` is only ever called on code-point boundaries and the parts
+ * always rejoin to the exact original string.
+ */
+export function chunkString(str: string, maxBytes: number): string[] {
+	const chunks: string[] = [];
+	let startIndex = 0; // UTF-16 index where the current part starts
+	let index = 0; // current UTF-16 index (always on a code-point boundary)
+	let currentBytes = 0;
+	for (const char of str) {
+		const codePoint = char.codePointAt(0)!;
+		const charBytes = codePoint <= 0x7f ? 1 : codePoint <= 0x7ff ? 2 : codePoint <= 0xffff ? 3 : 4;
+		// Close the current part before it would exceed the byte limit, but never
+		// emit an empty part (guards against a single code point over the limit).
+		if (currentBytes + charBytes > maxBytes && index > startIndex) {
+			chunks.push(str.slice(startIndex, index));
+			startIndex = index;
+			currentBytes = 0;
+		}
+		index += char.length; // 1 for BMP, 2 for a surrogate pair
+		currentBytes += charBytes;
+	}
+	if (startIndex < str.length) {
+		chunks.push(str.slice(startIndex));
+	}
+	return chunks;
+}
+
+/**
+ * Split a Map into consecutive sub-maps of at most `chunkSize` entries each,
+ * preserving iteration order.
+ */
+export function chunkMap<T>(map: Map<string, T>, chunkSize: number): Array<Map<string, T>> {
+	const chunks: Array<Map<string, T>> = [];
+	let currentChunk = new Map<string, T>();
+	for (const [key, value] of map) {
+		currentChunk.set(key, value);
+		if (currentChunk.size >= chunkSize) {
+			chunks.push(currentChunk);
+			currentChunk = new Map<string, T>();
+		}
+	}
+	if (currentChunk.size > 0) {
+		chunks.push(currentChunk);
+	}
+	return chunks;
 }
 
 /**
@@ -64,5 +143,66 @@ export class FileWriter implements DataStoreWriter {
 
 	async write(collections: Map<string, Map<string, any>>): Promise<void> {
 		await writeFileAtomic(this.#file, serializeDataStore(collections));
+	}
+}
+
+/**
+ * A {@link DataStoreWriter} that splits the store across many content-addressed
+ * files inside a directory, described by a manifest.
+ *
+ * Splitting avoids emitting one enormous serialized string (bounded by the JS
+ * string length limit) or one enormous file (bounded by platform file-size
+ * limits). Each part file is named by the xxhash of its contents, so unchanged
+ * parts keep the same name across builds and their writes are skipped, and two
+ * identical parts are naturally deduplicated. The manifest is written last as
+ * the commit point, and stale files are pruned afterwards. This is the inverse
+ * of {@link import('./data-store.js').ImmutableDataStore.manifestToMap}.
+ */
+export class ChunkedWriter implements DataStoreWriter {
+	#dir: URL;
+	#manifestFile: URL;
+	#hasher?: XXHashAPI;
+
+	constructor(dir: URL) {
+		this.#dir = dir;
+		this.#manifestFile = new URL(`./${DATA_STORE_MANIFEST_FILE}`, dir);
+	}
+
+	async write(collections: Map<string, Map<string, any>>): Promise<void> {
+		if (!this.#hasher) {
+			this.#hasher = await xxhash();
+		}
+		const { h64ToString } = this.#hasher;
+
+		// Track every file this snapshot references so the rest can be pruned.
+		const writtenFiles = new Set<string>();
+		const manifest: DataStoreManifest = {};
+
+		// Sorted iteration keeps file names deterministic across builds.
+		for (const [collectionName, entries] of sortCollections(collections)) {
+			const chunks: string[][] = [];
+			// Bound the size of any single serialized string.
+			for (const chunkedEntries of chunkMap(entries, CHUNK_ENTRY_LIMIT)) {
+				const stringified = devalue.stringify(chunkedEntries);
+				// Bound the size of any single file.
+				const parts: string[] = [];
+				for (const part of chunkString(stringified, CHUNK_SIZE_LIMIT)) {
+					const fileName = `${h64ToString(part)}.txt`;
+					await writeFileAtomic(new URL(`./${fileName}`, this.#dir), part);
+					parts.push(fileName);
+					writtenFiles.add(fileName);
+				}
+				chunks.push(parts);
+			}
+			manifest[collectionName] = chunks;
+		}
+
+		// The manifest is the commit point: every part it references already
+		// exists on disk, so a reader never sees a dangling reference.
+		await writeFileAtomic(this.#manifestFile, JSON.stringify(manifest));
+		writtenFiles.add(DATA_STORE_MANIFEST_FILE);
+
+		// Prune files left behind by previous snapshots.
+		emptyDir(this.#dir, writtenFiles);
 	}
 }
