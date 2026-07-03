@@ -943,7 +943,7 @@ export interface AstroUserConfig<
 						 *
 						 * `"attribute"` sources must be one of `'none'`, `'unsafe-hashes'`, `'unsafe-inline'`, or `'report-sample'`, and `'unsafe-hashes'` cannot be used with `"element"`. A common use is allowing inline `style` attributes (for example, from `define:vars` or Shiki) with `{ resource: "'unsafe-inline'", kind: "attribute" }`.
 						 *
-						 * Unlike a hash, a `"default"` source is never moved: it stays on `style-src` only. Where are a mix of "default" and specific resources - `"element"` or `"attribute"` - Astro emits a warning.
+						 * Unlike a hash, a `"default"` source is never moved: it stays on `style-src` only. Where there is a mix of "default" and specific resources (e.g. `"element"` or `"attribute"`), Astro emits a warning.
 						 *
 						 * ```js title="astro.config.mjs"
 						 * import { defineConfig } from 'astro/config';
@@ -994,7 +994,7 @@ export interface AstroUserConfig<
 						 * });
 						 * ```
 						 *
-						 * After the build, the `<meta>` element keeps `https://styles.cdn.example.com` on `style-src` only — it is not added to `style-src-elem`, so it does not apply to `<style>` and `<link>` elements (the generated hash, by contrast, does move there):
+						 * After the build, the `<meta>` element keeps `https://styles.cdn.example.com` on `style-src` only. This means that this value is not added to `style-src-elem` and does not apply to `<style>` and `<link>` elements (the generated hash, by contrast, does move there):
 						 *
 						 * ```html
 						 * <meta
@@ -1036,7 +1036,7 @@ export interface AstroUserConfig<
 						 *
 						 * You must provide hashes that start with `sha384-`, `sha512-` or `sha256-`. Other values will cause a validation error. These hashes are added to all pages.
 						 *
-						 * Each entry can be a string or an object. The object allows changing the scope of the hash via the `kind` field. The `kind` field accepts:
+						 * Since Astro v7.1, each entry can be a string or an object. The object allows changing the scope of the hash via the `kind` field. The `kind` field accepts:
 						 * - `"element"`: it will store the hash in the `script-src-elem` directive
 						 * - `"attribute"`: it will store the hash in the `script-src-attr` directive
 						 * - `"default"`: it will store the hash in the `script-src` directive
@@ -1113,14 +1113,14 @@ export interface AstroUserConfig<
 						 *
 						 * A list of valid sources for the `script-src` directives to override Astro's default sources. This will not include `'self'` by default, and must be included in this list if you wish to keep it. These resources are added to all pages.
 						 *
-						 * Each entry can be a string or an object. The object allows changing the scope of the source via the `kind` field. The `kind` field accepts:
+						 * Since Astro v7.1, each entry can be a string or an object. The object allows changing the scope of the source via the `kind` field. The `kind` field accepts:
 						 * - `"element"`: it will store the source in the `script-src-elem` directive
 						 * - `"attribute"`: it will store the source in the `script-src-attr` directive
 						 * - `"default"`: it will store the source in the `script-src` directive
 						 *
 						 * `"attribute"` sources must be one of `'none'`, `'unsafe-hashes'`, `'unsafe-inline'`, or `'report-sample'`, and `'unsafe-hashes'` cannot be used with `"element"`.
 						 *
-						 * Unlike a hash, a `"default"` source is never moved: it stays on `script-src` only. It does not apply where you also scope `"element"` or `"attribute"` sources, since browsers do not fall back. Astro warns when this happens; add it to the more specific directive too if you need it there.
+						 * Unlike a hash, a `"default"` source is never moved and stays on `script-src` only. This does not apply where you also scope `"element"` or `"attribute"` sources, since browsers do not fall back. Astro warns when this happens. Add it to the more specific directive as well, if necessary.
 						 *
 						 * ```js title="astro.config.mjs"
 						 * import { defineConfig } from 'astro/config';
@@ -1170,7 +1170,7 @@ export interface AstroUserConfig<
 						 * });
 						 * ```
 						 *
-						 * After the build, the `<meta>` element keeps `https://cdn.example.com` on `script-src` only — it is not added to `script-src-elem`, so it does not apply to `<script>` elements (the generated hash, by contrast, does move there):
+						 * After the build, the `<meta>` element keeps `https://cdn.example.com` on `script-src` only. This means that this value is not added to `script-src-elem` and does not apply to `<script>` elements (the generated hash, by contrast, does move there):
 						 *
 						 * ```html
 						 * <meta

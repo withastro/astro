@@ -8,7 +8,7 @@ Previously, [`CSP`](https://docs.astro.build/en/reference/configuration-referenc
 
 #### Scoping sources and hashes in your config
 
-Each entry in `resources` and `hashes` can be an object with a `kind`: `"element"` targets `script-src-elem`/`style-src-elem`, `"attribute"` targets `script-src-attr`/`style-src-attr`, and `"default"` (the same as a bare string or hash) targets `script-src`/`style-src`.
+Each entry in `resources` and `hashes` can be an object with a `kind` property. Depending on whether you use `scriptDirective` or `styleDirective`, `"element"` targets `script-src-elem` or `style-src-elem`, `"attribute"` targets `script-src-attr` or `style-src-attr`, and `"default"` (the same as a bare string or hash) targets `script-src` or `style-src`.
 
 ```js
 // astro.config.mjs
