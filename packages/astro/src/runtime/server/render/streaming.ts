@@ -198,7 +198,7 @@ export async function renderStreaming(
 			if (!isVoid && children != null && children !== '') {
 				// `<script>`/`<style>` string content is raw HTML, not escaped.
 				if (typeof children === 'string' && (type === 'style' || type === 'script')) {
-					stack.push(markHTMLString(children));
+					stack.push(markHTMLString(children.replaceAll('</script', '<\\/script').replaceAll('</style', '<\\/style')));
 				} else {
 					stack.push(children);
 				}
