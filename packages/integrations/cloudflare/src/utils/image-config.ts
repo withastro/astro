@@ -50,8 +50,14 @@ const WORKERD_IMAGE_SERVICE = { entrypoint: '@astrojs/cloudflare/image-service-w
 
 const SHARP_IMAGE_SERVICE = 'astro/assets/services/sharp';
 
+// Whether `image.service` was configured by the user or an integration, rather than being
+// Astro's default Sharp service or the workerd stub this adapter writes for `compile` mode.
 export function hasUserImageService(config: AstroConfig['image']): boolean {
-	return !!config.service?.entrypoint && config.service.entrypoint !== SHARP_IMAGE_SERVICE;
+	return (
+		!!config.service?.entrypoint &&
+		config.service.entrypoint !== SHARP_IMAGE_SERVICE &&
+		config.service.entrypoint !== WORKERD_IMAGE_SERVICE.entrypoint
+	);
 }
 
 export function setImageConfig(

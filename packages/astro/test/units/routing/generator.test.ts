@@ -143,6 +143,24 @@ describe('routing - generator', () => {
 			params: { page: 1 },
 			path: '/fix/1',
 		},
+		{
+			routeData: [
+				[{ spread: false, content: 'products', dynamic: false }],
+				[{ spread: false, content: 'id', dynamic: true }],
+			],
+			trailingSlash: 'never',
+			params: { id: 0 },
+			path: '/products/0',
+		},
+		{
+			routeData: [
+				[{ spread: false, content: 'fix', dynamic: false }],
+				[{ spread: true, content: '...foo', dynamic: true }],
+			],
+			trailingSlash: 'never',
+			params: { foo: 0 },
+			path: '/fix/0',
+		},
 	];
 
 	cases.forEach(({ routeData, trailingSlash, params, path }) => {
@@ -158,5 +176,13 @@ describe('routing - generator', () => {
 			'never',
 		);
 		assert.throws(() => generator({}), TypeError);
+	});
+
+	it('should not throw when a dynamic parameter is 0', () => {
+		const generator = getRouteGenerator(
+			[[{ spread: false, content: 'foo', dynamic: true }]],
+			'never',
+		);
+		assert.equal(generator({ foo: 0 }), '/0');
 	});
 });

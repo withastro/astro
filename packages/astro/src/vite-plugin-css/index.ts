@@ -233,8 +233,11 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 						for (const collected of collectCSSWithOrder(componentPageId, mod)) {
 							// Use the CSS file ID as the key to deduplicate while keeping best ordering
 							if (!cssWithOrder.has(collected.idKey)) {
-								// Look up actual content from cache if available
-								const content = cssContentCache.get(collected.id) || collected.content;
+								// Look up actual content from cache if available.
+								// Use `idKey` (the raw module ID) for cache lookup because that matches the key
+								// used by the transform hook. `collected.id` is wrapped via `wrapId()` which
+								// transforms the `\0` prefix of virtual modules, causing a cache miss.
+								const content = cssContentCache.get(collected.idKey) || collected.content;
 								cssWithOrder.set(collected.idKey, { ...collected, content });
 							}
 						}
