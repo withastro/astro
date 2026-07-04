@@ -220,7 +220,10 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 						rendered,
 						assetImports: rendered?.metadata?.imagePaths,
 					});
-				} else if (globOptions.deferRender || 'contentModuleTypes' in entryType) {
+				} else if (
+					(entryType.getRenderFunction && globOptions.deferRender) ||
+					'contentModuleTypes' in entryType
+				) {
 					store.set({
 						id,
 						data: parsedData,
