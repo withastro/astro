@@ -87,34 +87,30 @@ export function getParams(route: RouteData, pathname: string): Params {
 	if (!route.params.length) return {};
 	// The RegExp pattern expects a decoded string, but the pathname is encoded
 	// when the URL contains non-English characters.
-	// Strip `.html` from the pathname of page routes unless `.html` is a static part of the
-	// route definition itself (e.g. `[slug].html.astro`). Dynamic params like `[id]` would
-	// otherwise greedily capture the `.html` suffix that is either implied or injected
-	// for page routes (e.g. `id = '42.html'` instead of `id = '42'`).
-	// For non-page routes (endpoints), first try matching the original pathname. If that
-	// fails, fall back to stripping `.html` / `/index.html` to stay consistent with the
-	// dev route matcher which also strips these suffixes when retrying (see `dev.ts`).
-	// Without this fallback, requests like `/api/items/123/status.html` would match a
-	// dynamic endpoint route but fail to extract params, causing a "Missing parameter" error.
-	let path = pathname;
-	if (pathname.endsWith('.html') && !routeHasHtmlExtension(route)) {
-		if (route.type === 'page') {
-			path = pathname.slice(0, -5);
-		}
-	}
+	// A `.html` suffix is only meaningful to strip when it isn't a static part of the route
+	// definition itself (e.g. `[slug].html.astro`), otherwise dynamic params like `[id]` would
+	// greedily capture the `.html` that is implied or injected for page routes.
+	const hasHtmlSuffix = pathname.endsWith('.html') && !routeHasHtmlExtension(route);
+
+	// Page routes always strip `.html` up front (e.g. `id = '42'` instead of `id = '42.html'`).
+	// Non-page routes (endpoints) match the original pathname first — see the fallback below.
+	const path =
+		hasHtmlSuffix && route.type === 'page' ? pathname.slice(0, -'.html'.length) : pathname;
 
 	const allPatterns = [route, ...route.fallbackRoutes].map((r) => r.pattern);
 	let paramsMatch = allPatterns.map((pattern) => pattern.exec(path)).find((x) => x);
 
-	// For non-page routes, if the original pathname didn't match, try stripping
-	// `.html` or `/index.html` as the dev router does when retrying.
-	if (!paramsMatch && route.type !== 'page' && !routeHasHtmlExtension(route)) {
-		if (pathname.endsWith('/index.html')) {
-			path = pathname.slice(0, -'/index.html'.length) || '/';
-		} else if (pathname.endsWith('.html')) {
-			path = pathname.slice(0, -'.html'.length);
-		}
-		paramsMatch = allPatterns.map((pattern) => pattern.exec(path)).find((x) => x);
+	// For non-page routes, if the original pathname didn't match, fall back to stripping
+	// `.html` / `/index.html` to stay consistent with the dev route matcher, which also strips
+	// these suffixes when retrying (see `dev.ts`). Without this, requests like
+	// `/api/items/123/status.html` would match a dynamic endpoint route but fail to extract
+	// params, causing a "Missing parameter" error. Endpoints that genuinely capture `.html` in
+	// a param (e.g. `[path]` matching `/file.html`) already matched above, so never reach here.
+	if (!paramsMatch && hasHtmlSuffix && route.type !== 'page') {
+		const strippedPath = pathname.endsWith('/index.html')
+			? pathname.slice(0, -'/index.html'.length) || '/'
+			: pathname.slice(0, -'.html'.length);
+		paramsMatch = allPatterns.map((pattern) => pattern.exec(strippedPath)).find((x) => x);
 	}
 
 	if (!paramsMatch) return {};
