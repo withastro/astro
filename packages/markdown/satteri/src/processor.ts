@@ -1,11 +1,34 @@
 import type { MarkdownProcessor } from '@astrojs/internal-helpers/markdown';
-import type { Features, HastPluginDefinition, MdastPluginDefinition } from 'satteri';
+import type {
+	Features,
+	HastPluginDefinition,
+	MdastPluginDefinition,
+	SmartPunctuationOptions,
+} from 'satteri';
 import { createSatteriMarkdownProcessor } from './satteri-processor.js';
+
+/**
+ * Feature toggles accepted by `satteri()`.
+ *
+ * Identical to the upstream `Features` type from `satteri`, but with corrected
+ * default documentation for properties whose defaults Astro overrides.
+ */
+export interface SatteriFeatures extends Omit<Features, 'smartPunctuation'> {
+	/**
+	 * Smart punctuation à la SmartyPants. Default: **true** (Astro enables this by default).
+	 *
+	 * Pass `true` to enable all categories, or an options object for granular control:
+	 * ```ts
+	 * smartPunctuation: { dashes: false } // quotes + ellipses only
+	 * ```
+	 */
+	smartPunctuation?: boolean | SmartPunctuationOptions;
+}
 
 export interface SatteriProcessorOptions {
 	mdastPlugins?: MdastPluginDefinition[];
 	hastPlugins?: HastPluginDefinition[];
-	features?: Features;
+	features?: SatteriFeatures;
 }
 
 /**
@@ -15,7 +38,7 @@ export interface SatteriProcessorOptions {
 export interface SatteriResolvedOptions {
 	mdastPlugins: MdastPluginDefinition[];
 	hastPlugins: HastPluginDefinition[];
-	features: Features;
+	features: SatteriFeatures;
 }
 
 /**
