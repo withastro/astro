@@ -130,6 +130,26 @@ export interface AstroGlobal<
 }
 
 /**
+ * The `AstroComponentLogger` exposes the logging functions available to Astro components, endpoints, and middleware.
+ *
+ * [Astro reference](https://docs.astro.build/en/reference/api-reference/#logger)
+ */
+export interface AstroComponentLogger {
+	/**
+	 * Logs a message with `info` level.
+	 */
+	info: (msg: string) => void;
+	/**
+	 * Logs a message with `warn` level.
+	 */
+	warn: (msg: string) => void;
+	/**
+	 * Logs a message with `error` level.
+	 */
+	error: (msg: string) => void;
+}
+
+/**
  * The `APIContext` is the object made available to endpoints and middleware.
  * It is a subset of the `Astro` global object available in pages.
  *
@@ -579,20 +599,7 @@ export interface APIContext<
 	/**
 	 * It exposes utilities for logging messages.
 	 */
-	logger: {
-		/**
-		 * Logs a message with `info` level.
-		 */
-		info: (msg: string) => void;
-		/**
-		 * Logs a message with `warn` level.
-		 */
-		warn: (msg: string) => void;
-		/**
-		 * Logs a message with `error` level.
-		 */
-		error: (msg: string) => void;
-	};
+	logger: AstroComponentLogger;
 
 	/**
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
