@@ -243,39 +243,50 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 						abortController.abort();
 					}
 				};
+				let removeSocketCloseListener = () => {};
 				if (socket.destroyed) {
 					onSocketClose();
 				} else {
 					socket.on('close', onSocketClose);
+					removeSocketCloseListener = () => {
+						socket.removeListener('close', onSocketClose);
+					};
+					abortController.signal.addEventListener('abort', removeSocketCloseListener, {
+						once: true,
+					});
 				}
 
-				const request = createRequest({
-					url,
-					headers: incomingRequest.headers,
-					method: incomingRequest.method,
-					body,
-					logger: self.logger,
-					isPrerendered: matchedRoute.routeData.prerender,
-					routePattern: matchedRoute.routeData.component,
-					init: { signal: abortController.signal },
-				});
+				try {
+					const request = createRequest({
+						url,
+						headers: incomingRequest.headers,
+						method: incomingRequest.method,
+						body,
+						logger: self.logger,
+						isPrerendered: matchedRoute.routeData.prerender,
+						routePattern: matchedRoute.routeData.component,
+						init: { signal: abortController.signal },
+					});
 
-				// This is required for adapters to set locals in dev mode. They use a dev server middleware to inject locals to the `http.IncomingRequest` object.
-				const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
+					// This is required for adapters to set locals in dev mode. They use a dev server middleware to inject locals to the `http.IncomingRequest` object.
+					const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
 
-				// Set user specified headers to response object.
-				for (const [name, value] of Object.entries(self.settings.config.server.headers ?? {})) {
-					if (value) incomingResponse.setHeader(name, value);
+					// Set user specified headers to response object.
+					for (const [name, value] of Object.entries(self.settings.config.server.headers ?? {})) {
+						if (value) incomingResponse.setHeader(name, value);
+					}
+					const clientAddress = incomingRequest.socket.remoteAddress;
+
+					const response = await self.render(request, {
+						locals,
+						routeData: matchedRoute.routeData,
+						clientAddress,
+					});
+
+					await writeSSRResult(request, response, incomingResponse);
+				} finally {
+					removeSocketCloseListener();
 				}
-				const clientAddress = incomingRequest.socket.remoteAddress;
-
-				const response = await self.render(request, {
-					locals,
-					routeData: matchedRoute.routeData,
-					clientAddress,
-				});
-
-				await writeSSRResult(request, response, incomingResponse);
 			},
 			onError(_err) {
 				const error = createSafeError(_err);

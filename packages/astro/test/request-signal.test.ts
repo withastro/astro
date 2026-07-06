@@ -3,6 +3,7 @@ import { EventEmitter } from 'node:events';
 import { after, before, describe, it } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { Agent } from 'undici';
 import { createRequestAndResponse } from './integration-test-helpers.ts';
 import { type DevServer, type Fixture, loadFixture, type RequestHandler } from './test-utils.ts';
 
@@ -166,5 +167,39 @@ describe('Dev server request abort signal', () => {
 		const normalRes = await fixture.fetch('/dev-signal-test');
 		const normalPayload = await normalRes.json();
 		assert.equal(normalPayload.aborted, false, 'non-aborted request should report aborted=false');
+	});
+
+	it('does not retain socket close listeners after successful requests', async () => {
+		const warnings: Error[] = [];
+		const onWarning = (warning: Error) => {
+			if (
+				warning.name === 'MaxListenersExceededWarning' &&
+				warning.message.includes('close listeners')
+			) {
+				warnings.push(warning);
+			}
+		};
+
+		process.on('warning', onWarning);
+		const dispatcher = new Agent({ connections: 1 });
+
+		try {
+			for (let i = 0; i < 12; i++) {
+				const response = await fixture.fetch('/dev-signal-test?timeout=1', {
+					dispatcher,
+				} as RequestInit);
+				assert.equal(response.status, 200);
+				await response.arrayBuffer();
+			}
+			await delay(50);
+		} finally {
+			process.off('warning', onWarning);
+			await dispatcher.close();
+		}
+
+		assert.deepEqual(
+			warnings.map((warning) => warning.message),
+			[],
+		);
 	});
 });
