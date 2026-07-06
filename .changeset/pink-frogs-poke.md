@@ -2,9 +2,9 @@
 'astro': minor
 ---
 
-Adds a new `format` option to the [`paginate`](https://docs.astro.build/en/reference/routing-reference/#paginate) utility. The option `format` is a function that accepts the current URL of the page, and returns a new URL. 
+Adds a new `format()` option to the [`paginate`](https://docs.astro.build/en/reference/routing-reference/#paginate) utility. The `format()` option is a function that accepts the current URL of the page, and returns a new URL. 
 
-For example, you can use `format` to append `.html`; useful for those websites where the URLs contain the `.html` extension.
+For example, when your host only supports URLs using the `.html` extension, you can use `format()` to add it to the generated URLs:
 
 
 ```astro
