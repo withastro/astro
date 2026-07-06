@@ -3561,6 +3561,27 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/lightningcss-css-modules-content:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      lightningcss:
+        specifier: ^1.32.0
+        version: 1.32.0
+      react:
+        specifier: ^18.0.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.0.0
+        version: 18.3.1(react@18.3.1)
+
   packages/astro/test/fixtures/lightningcss-scoped-nesting:
     dependencies:
       astro:
@@ -6940,6 +6961,34 @@ importers:
       tsx:
         specifier: ^4.22.0
         version: 4.22.3
+
+  triage/gh-17312:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../packages/integrations/mdx
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../packages/integrations/react
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
+      lightningcss:
+        specifier: ^1.32.0
+        version: 1.32.0
+      react:
+        specifier: ^18
+        version: 18.3.1
+      react-dom:
+        specifier: ^18
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@types/react':
+        specifier: ^18
+        version: 18.3.28
+      '@types/react-dom':
+        specifier: ^18
+        version: 18.3.7(@types/react@18.3.28)
 
 packages:
 
