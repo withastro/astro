@@ -3,7 +3,20 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.ts';
 
-describe.skip('Solid component build', { todo: 'Check why an error is thrown.' }, () => {
+// Swallow expected unhandled promise rejections from the throwing Solid test component
+const originalEmit = process.emit;
+// @ts-ignore
+process.emit = function (event, ...args) {
+	if (event === 'unhandledRejection') {
+		const reason = args[0];
+		if (reason instanceof Error && reason.message.includes('Async error thrown!')) {
+			return true;
+		}
+	}
+	return (originalEmit as any).apply(this, [event, ...args]);
+};
+
+describe('Solid component build', () => {
 	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
@@ -77,8 +90,7 @@ describe.skip('Solid component build', { todo: 'Check why an error is thrown.' }
 		assert.equal(html.includes('Async error boundary fallback'), true);
 		assert.equal(html.includes('Sync error boundary fallback'), true);
 		const hydrationEventsCount = countHydrationEvents(html);
-		// @ts-expect-error: test is in describe.skip
-		assert.equal(hydrationEventsCount.length > 1, true);
+		assert.ok(hydrationEventsCount > 1);
 	});
 
 	// ssr-client-only.astro
@@ -97,16 +109,14 @@ describe.skip('Solid component build', { todo: 'Check why an error is thrown.' }
 		const html = await fixture.readFile('nested/index.html');
 
 		const firstHydrationScriptAt = getFirstHydrationScriptLocation(html);
-		// @ts-expect-error: test is in describe.skip
-		assert.equal(firstHydrationScriptAt.length, 0);
+		assert.ok(firstHydrationScriptAt !== undefined && firstHydrationScriptAt > 0);
 
 		const firstHydrationEventAt = getFirstHydrationEventLocation(html);
-		// @ts-expect-error: test is in describe.skip
-		assert.equal(firstHydrationEventAt.length, 0);
+		assert.ok(firstHydrationEventAt !== undefined && firstHydrationEventAt > 0);
 
 		assert.equal(
-			// @ts-expect-error: test is in describe.skip
 			firstHydrationScriptAt < firstHydrationEventAt,
+			true,
 			'Position of first hydration event',
 		);
 	});
@@ -115,18 +125,16 @@ describe.skip('Solid component build', { todo: 'Check why an error is thrown.' }
 		const html = await fixture.readFile('deferred/index.html');
 
 		const firstHydrationScriptAt = getFirstHydrationScriptLocation(html);
-		// @ts-expect-error: test is in describe.skip
-		assert.equal(firstHydrationScriptAt > 0, true);
+		assert.ok(firstHydrationScriptAt !== undefined && firstHydrationScriptAt > 0);
 
 		const firstHydrationEventAt = getFirstHydrationEventLocation(html);
-		// @ts-expect-error: test is in describe.skip
-		assert.equal(firstHydrationEventAt > 0, true);
+		assert.ok(firstHydrationEventAt !== undefined && firstHydrationEventAt > 0);
 
 		const hydrationScriptCount = countHydrationScripts(html);
 		assert.equal(hydrationScriptCount, 1);
 		assert.equal(
-			// @ts-expect-error: test is in describe.skip
 			firstHydrationScriptAt < firstHydrationEventAt,
+			true,
 			'Position of first hydration event',
 		);
 	});

@@ -1,6 +1,7 @@
 import type { AstroIntegration, AstroIntegrationLogger, AstroRenderer } from 'astro';
-import type { PluginOption, Plugin } from 'vite';
+import type { PluginOption, Plugin, EnvironmentOptions } from 'vite';
 import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
+import { crawlFrameworkPkgs } from 'vitefu';
 import { getContainerRenderer as getContainerRendererImpl } from './container-renderer.js';
 
 // TODO: keep in sync with https://github.com/thetarnav/solid-devtools/blob/main/packages/main/src/vite/index.ts#L7
@@ -112,16 +113,59 @@ export default function (options: Options = {}): AstroIntegration {
 	};
 }
 
+function containsSolidField(fields: any): boolean {
+	const keys = Object.keys(fields);
+	for (let i = 0; i < keys.length; i++) {
+		const key = keys[i];
+		if (key === 'solid') return true;
+		if (typeof fields[key] === 'object' && fields[key] != null && containsSolidField(fields[key]))
+			return true;
+	}
+	return false;
+}
+
 function configEnvironmentPlugin(): Plugin {
+	let solidPkgsConfig: any;
 	return {
 		name: '@astrojs/solid:config-environment',
-		configEnvironment(environmentName) {
-			return {
+		async config(userConfig, { command }) {
+			solidPkgsConfig = await crawlFrameworkPkgs({
+				viteUserConfig: userConfig,
+				root: userConfig.root || process.cwd(),
+				isBuild: command === 'build',
+				isFrameworkPkgByJson(pkgJson) {
+					return containsSolidField(pkgJson.exports || {});
+				},
+			});
+		},
+		configEnvironment(environmentName, options) {
+			const finalOptions: EnvironmentOptions = {
 				optimizeDeps: {
 					include: environmentName === 'client' ? ['@astrojs/solid-js/client.js'] : [],
 					exclude: ['@astrojs/solid-js/server.js'],
 				},
 			};
+
+			if (
+				environmentName === 'ssr' ||
+				environmentName === 'prerender' ||
+				environmentName === 'astro'
+			) {
+				if (options.resolve?.noExternal !== true && solidPkgsConfig) {
+					finalOptions.resolve = {
+						noExternal: [
+							...(Array.isArray(options.resolve?.noExternal) ? options.resolve.noExternal : []),
+							...solidPkgsConfig.ssr.noExternal,
+						],
+						external: [
+							...(Array.isArray(options.resolve?.external) ? options.resolve.external : []),
+							...solidPkgsConfig.ssr.external,
+						],
+					};
+				}
+			}
+
+			return finalOptions;
 		},
 	};
 }

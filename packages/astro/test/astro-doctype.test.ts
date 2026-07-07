@@ -48,7 +48,7 @@ describe('Doctype', () => {
 		assert.doesNotMatch(html, /<\/!DOCTYPE>/i);
 	});
 
-	it.skip('Doctype can be provided in a layout', async () => {
+	it('Doctype can be provided in a layout', async () => {
 		const html = await fixture.readFile('/in-layout/index.html');
 
 		// test 1: doctype is at the front

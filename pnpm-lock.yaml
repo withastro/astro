@@ -6010,6 +6010,9 @@ importers:
       vite-plugin-solid:
         specifier: ^2.11.12
         version: 2.11.12(solid-js@1.9.13)(vite@8.1.0)
+      vitefu:
+        specifier: ^1.1.2
+        version: 1.1.2(vite@8.1.0)
     devDependencies:
       astro:
         specifier: workspace:*

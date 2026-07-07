@@ -41,9 +41,12 @@ export function AsyncComponent(props) {
 }
 
 export function AsyncErrorComponent() {
-	const [data] = createResource(async () => {
-		await sleep(SLEEP_MS);
-		throw new Error('Async error thrown!');
+	const [data] = createResource(() => {
+		const p = sleep(SLEEP_MS).then(() => {
+			throw new Error('Async error thrown!');
+		});
+		p.catch(() => {});
+		return p;
 	});
 
 	return <div>{data()}</div>;

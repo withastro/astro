@@ -7,9 +7,14 @@ const BaseComponent = ({ tag } = {}) => {
 // Motion uses a Proxy to support syntax like `<Motion.div />` and `<Motion.button />` etc
 // https://cdn.jsdelivr.net/npm/@motionone/solid@10.14.2/dist/source/motion.jsx
 const ProxyComponent = new Proxy(BaseComponent, {
-  get: (_, tag) => (props) => {
-    delete props.tag
-    return <BaseComponent {...props} tag={tag} />;
+  get: (target, tag) => {
+    if (typeof tag === 'symbol' || tag in target) {
+      return target[tag];
+    }
+    return (props) => {
+      delete props.tag
+      return <BaseComponent {...props} tag={tag} />;
+    }
   }
 })
 
