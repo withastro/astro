@@ -1,5 +1,6 @@
 ---
-"astro": minor
+"astro": patch
 ---
 
-Export `AstroComponentLogger` public type for the runtime logger
+Fixes a bug where users couldn't properly type the logger functions at runtime. Now users can import `AstroRuntimeLogger`.
+

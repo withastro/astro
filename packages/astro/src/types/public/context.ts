@@ -130,11 +130,11 @@ export interface AstroGlobal<
 }
 
 /**
- * The `AstroComponentLogger` exposes the logging functions available to Astro components, endpoints, and middleware.
+ * A type containing functions for logging messages.
  *
  * [Astro reference](https://docs.astro.build/en/reference/api-reference/#logger)
  */
-export interface AstroComponentLogger {
+export interface AstroRuntimeLogger {
 	/**
 	 * Logs a message with `info` level.
 	 */
