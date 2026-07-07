@@ -2,4 +2,4 @@
 "@astrojs/telemetry": patch
 ---
 
-Removed `is-wsl` dependency
+Refactors internal WSL detection by removing the `is-wsl` dependency.
