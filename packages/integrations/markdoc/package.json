@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/markdoc",
   "description": "Add support for Markdoc in your Astro site",
-  "version": "2.0.1",
+  "version": "2.0.3",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -47,7 +47,7 @@
     "htmlparser2": "^10.1.0"
   },
   "peerDependencies": {
-    "astro": "^7.0.0-alpha.0"
+    "astro": "^7.0.0"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",

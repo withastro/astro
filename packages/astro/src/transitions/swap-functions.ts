@@ -1,4 +1,4 @@
-import { SERVER_ISLAND_START } from "../runtime/server/render/server-islands-shared.js";
+import { SERVER_ISLAND_START } from '../runtime/server/render/server-islands-shared.js';
 
 export type SavedFocus = {
 	activeElement: HTMLElement | null;

@@ -1,5 +1,58 @@
 # astro
 
+## 7.0.6
+
+### Patch Changes
+
+- [#17261](https://github.com/withastro/astro/pull/17261) [`79aa99c`](https://github.com/withastro/astro/commit/79aa99c648b4b40b95a31d4a961b77074cf7963c) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a false deprecation warning for `markdown.gfm` and `markdown.smartypants` when using the Container API
+
+- [#17247](https://github.com/withastro/astro/pull/17247) [`f94280d`](https://github.com/withastro/astro/commit/f94280d61496de38f97a818975bd38529569f3e8) Thanks [@chatman-media](https://github.com/chatman-media)! - Fixes route generation throwing "Missing parameter" (or silently dropping the segment) when a dynamic param's value is `0`. The generator used truthy checks instead of checking for `undefined`, so `paginate(posts, { params: { categoryId: 0 } })` would crash even though `0` is a perfectly valid param value.
+
+- [#17278](https://github.com/withastro/astro/pull/17278) [`6f11739`](https://github.com/withastro/astro/commit/6f11739f2c7b28b108c2d8d0a2012f0711775a8c) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes missing CSS for virtual style modules (e.g., responsive image layout styles) in dev mode when JavaScript is disabled
+
+- [#17250](https://github.com/withastro/astro/pull/17250) [`0b30b35`](https://github.com/withastro/astro/commit/0b30b35f864310bee8485c952d1877e82e2b9b1a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the `security.checkOrigin` check so it is applied consistently to Astro Actions and on-demand endpoints, regardless of how the request pipeline is composed. Previously, the origin check could be skipped in the composable `astro/hono` pipeline depending on the order of the `middleware()` primitive (or when it was omitted).
+
+- [#17274](https://github.com/withastro/astro/pull/17274) [`8c3579b`](https://github.com/withastro/astro/commit/8c3579b2707703037bd439992a9a4e5efceeda3b) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes missing `render()` type overload for live collection entries. Previously, calling `render()` on a `LiveDataEntry` produced a TypeScript error when using only `live.config.ts` without a `content.config.ts`.
+
+- [#17257](https://github.com/withastro/astro/pull/17257) [`4208297`](https://github.com/withastro/astro/commit/4208297b37d1781bfe54254c0b981eb146e08691) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `astro check` failing to find `@astrojs/check` and `typescript` when astro is installed in a directory outside the project tree (e.g. pnpm virtual store)
+
+- [#17272](https://github.com/withastro/astro/pull/17272) [`b428648`](https://github.com/withastro/astro/commit/b428648a3ce0efe7367933096949d1d18bea0168) Thanks [@matthewp](https://github.com/matthewp)! - Fixes island component paths so that extensionless imports (e.g. `import { Counter } from '../components/Counter'`) resolve to the real file on disk, matching Vite's extension order and directory `index` resolution. This makes the `include`/`exclude` options of JSX renderer integrations (React, Preact, Solid) match components imported without a file extension, and removes the spurious React 19 "Invalid hook call" warning logged on every request in dev when `include` was set alongside another JSX renderer
+
+- [#17279](https://github.com/withastro/astro/pull/17279) [`2aeaa44`](https://github.com/withastro/astro/commit/2aeaa44a23e42426619e680c37bea5b79fb9bc9d) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a bug where `<Picture inferSize>` with a remote image could fail with `FailedToFetchRemoteImageDimensions` when the image server rate-limits requests (e.g. HTTP 429). Remote dimensions are now resolved once per render instead of once per output format.
+
+- [#17251](https://github.com/withastro/astro/pull/17251) [`5240e26`](https://github.com/withastro/astro/commit/5240e26c9dd91f9bc7140dcfacdb48d5a132830d) Thanks [@matthewp](https://github.com/matthewp)! - Hardens the handling of attribute rendering when using with custom elements.
+
+- [#17248](https://github.com/withastro/astro/pull/17248) [`429bd62`](https://github.com/withastro/astro/commit/429bd6287a24770461321696f87edf34758b90fd) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a crash when using Astro's `getViteConfig` with Vitest browser mode (e.g., Storybook vitest runner). Astro now skips dev server setup inside Vitest, preventing errors.
+
+- [#17260](https://github.com/withastro/astro/pull/17260) [`14524c0`](https://github.com/withastro/astro/commit/14524c03f3d7ea84224d4e708488f30902a9f275) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a regression where a `<script>` inside a component rendered through `Astro.slots.render()` was hoisted out of its original position instead of staying next to its component content
+
+- Updated dependencies [[`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c)]:
+  - @astrojs/internal-helpers@0.10.1
+  - @astrojs/markdown-remark@7.2.1
+  - @astrojs/markdown-satteri@0.3.3
+
+## 7.0.5
+
+### Patch Changes
+
+- [#17242](https://github.com/withastro/astro/pull/17242) [`9c05ba4`](https://github.com/withastro/astro/commit/9c05ba474cee5e3ef5142d88e7e08d53acfbe431) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an error that could occur after the dev server restarts when using an adapter such as `@astrojs/cloudflare`, where a request would fail with a `500` referencing a missing pre-bundled dependency:
+
+  ```
+  The file does not exist at "node_modules/.vite/deps_ssr/astro_compiler-runtime.js?v=6419660d" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+  ```
+
+- [#17202](https://github.com/withastro/astro/pull/17202) [`c6d254d`](https://github.com/withastro/astro/commit/c6d254dab889f9b15ec79eab84d8dbf7f7cd0007) Thanks [@matthewp](https://github.com/matthewp)! - Refactors path alias resolution to use Vite's native `tsconfigPaths` option
+
+  This is an internal change with no expected impact on user projects. Astro now defers tsconfig and jsconfig `paths` alias resolution to Vite, keeping a small fallback for a few CSS cases Vite does not yet handle.
+
+- [#17123](https://github.com/withastro/astro/pull/17123) [`72e29bd`](https://github.com/withastro/astro/commit/72e29bd7f9d6c9f86febf5c9b97417bc90de5bb1) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue where the ClientRouter wipes head elements after page transitions if the `<head>` contains a `server:defer` component.
+
+- [#17232](https://github.com/withastro/astro/pull/17232) [`257505e`](https://github.com/withastro/astro/commit/257505ebfd8be87e6b11fd369340245edd0c937a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a bug where `<style>` tags from components such as a content collection's `Content` could be silently dropped from the output when an `await` appeared before the component in an `.astro` file's markup.
+
+- [#17193](https://github.com/withastro/astro/pull/17193) [`a7352fd`](https://github.com/withastro/astro/commit/a7352fda1218bf48d8483a9893c6f7ed9bdf2060) Thanks [@jan-kubica](https://github.com/jan-kubica)! - Fixes the background dev server failing to start when `astro` is hoisted outside the project's `node_modules` (for example bun workspaces). The background process is now spawned from Astro's own resolved location instead of a path assumed under the project root.
+
+- [#17255](https://github.com/withastro/astro/pull/17255) [`581d171`](https://github.com/withastro/astro/commit/581d17113cb192e8b34aa3ad9965fe733e3ca210) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes prefetch not working for links inside `server:defer` components
+
 ## 7.0.4
 
 ### Patch Changes

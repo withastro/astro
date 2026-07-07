@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
 import * as clack from '@clack/prompts';
 import ci from 'ci-info';
 import { detect, resolveCommand } from 'package-manager-detector';
@@ -24,8 +25,8 @@ export async function getPackage<T>(
 	try {
 		// Try to resolve with `createRequire` first to prevent ESM caching of the package
 		// if it errors and fails here
-		require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
-		const packageImport = await import(packageName);
+		const resolved = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
+		const packageImport = await import(pathToFileURL(resolved).href);
 		return packageImport as T;
 	} catch {
 		if (options.optional) return undefined;
@@ -46,7 +47,8 @@ export async function getPackage<T>(
 		const result = await installPackage([packageName, ...otherDeps], options, logger);
 
 		if (result) {
-			const packageImport = await import(packageName);
+			const resolved = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
+			const packageImport = await import(pathToFileURL(resolved).href);
 			return packageImport;
 		} else {
 			return undefined;

@@ -11,7 +11,7 @@ import type {
 	SSRManifest,
 	SSRResult,
 } from '../types/public/internal.js';
-import { createOriginCheckMiddleware } from './app/middlewares.js';
+import { createOriginCheckMiddleware } from './app/origin-check.js';
 import type { ServerIslandMappings } from './app/types.js';
 import type { SinglePageBuiltModule } from './build/types.js';
 import { ActionNotFoundError } from './errors/errors-data.js';

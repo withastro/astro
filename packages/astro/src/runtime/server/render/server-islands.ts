@@ -145,18 +145,18 @@ export class ServerIslandComponent {
 		for (const name in this.slots) {
 			if (name !== 'fallback') {
 				const content = await renderSlotToString(this.result, this.slots[name]);
-				let slotHtml = content.toString();
-				// Append script instructions so that components passed as slots
-				// to server:defer components retain their scripts in the island response.
-				// renderSlotToString returns a SlotString (typed as string) that carries
-				// render instructions stripped from the HTML content.
+				// renderSlotToString returns a SlotString (typed as string) whose
+				// `chunks` hold the ordered content stream. Scripts live inline there,
+				// so walking it keeps them at their original position in the island
+				// response instead of being appended at the end.
 				const slotContent = content as unknown as SlotString;
-				if (Array.isArray(slotContent.instructions)) {
-					for (const instruction of slotContent.instructions) {
-						if (instruction.type === 'script') {
-							slotHtml += instruction.content;
-						}
+				let slotHtml = '';
+				if (slotContent.chunks?.length) {
+					for (const part of slotContent.chunks) {
+						slotHtml += typeof part === 'string' ? part : part.content;
 					}
+				} else {
+					slotHtml = content.toString();
 				}
 				renderedSlots[name] = slotHtml;
 			}
