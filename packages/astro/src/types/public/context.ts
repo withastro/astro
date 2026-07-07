@@ -599,7 +599,7 @@ export interface APIContext<
 	/**
 	 * It exposes utilities for logging messages.
 	 */
-	logger: AstroComponentLogger;
+	logger: AstroRuntimeLogger;
 
 	/**
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
