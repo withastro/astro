@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { AstroIntegrationLogger } from 'astro';
-import { unstable_readConfig } from 'wrangler';
+import { unstable_getVarsForDev, unstable_readConfig } from 'wrangler';
 
 const DEFAULT_WRANGLER_CONFIG_FILES = ['wrangler.toml', 'wrangler.json', 'wrangler.jsonc'];
 
@@ -19,17 +19,18 @@ function resolveWranglerConfigPath(root: URL, configPath: string | undefined): s
 }
 
 /**
- * Reads the `vars` defined in the project's wrangler config (`wrangler.toml`,
- * `wrangler.json`, or `wrangler.jsonc`) and assigns them to `process.env`.
+ * Resolves the effective environment variables for the project's Wrangler config
+ * — `vars` merged with any `.dev.vars`/`.env` overrides, exactly as `wrangler dev`
+ * resolves them — and assigns them to `process.env`.
  *
  * Astro's `astro:env` inlines public variables at build time using Vite's
  * `loadEnv()`, which only reads from `process.env` and `.env` files. Cloudflare
- * makes wrangler `vars` available at runtime (through `cloudflare:workers`), but
- * they are invisible to the build-time step, so direct imports of public
- * variables resolve to `undefined`. Surfacing them on `process.env` here lets
- * `astro:env` pick them up during the build.
+ * makes these variables available at runtime (through `cloudflare:workers`), but
+ * they are invisible to the build-time step, so direct imports resolve to
+ * `undefined`. Surfacing them on `process.env` here lets `astro:env` pick them up
+ * during the build.
  */
-export function loadWranglerVars(
+export function loadWranglerEnv(
 	root: URL,
 	configPath: string | undefined,
 	logger: AstroIntegrationLogger,
@@ -40,21 +41,24 @@ export function loadWranglerVars(
 	}
 
 	try {
-		const config = unstable_readConfig(
-			{
-				config: resolvedConfigPath,
-				env: process.env.CLOUDFLARE_ENV,
-			},
-			{ hideWarnings: true },
+		const env = process.env.CLOUDFLARE_ENV;
+		const config = unstable_readConfig({ config: resolvedConfigPath, env }, { hideWarnings: true });
+
+		// Merges config `vars` with `.dev.vars`/`.dev.vars.<env>`/`.env` overrides,
+		// matching wrangler's own precedence (local files override config `vars`).
+		const vars = unstable_getVarsForDev(
+			config.configPath,
+			undefined,
+			config.vars,
+			env,
+			true,
+			config.secrets,
 		);
 
-		if (!config.vars) {
-			return;
-		}
-
-		for (const [key, value] of Object.entries(config.vars)) {
+		for (const [key, binding] of Object.entries(vars)) {
 			// `vars` can hold non-string JSON values (numbers, booleans, objects).
-			// `process.env` only stores strings, matching how `.dev.vars` is handled.
+			// `process.env` only stores strings.
+			const value = binding.value;
 			if (value === undefined || value === null) {
 				continue;
 			}

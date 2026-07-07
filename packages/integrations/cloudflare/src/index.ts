@@ -1,4 +1,4 @@
-import { createReadStream, existsSync, readFileSync } from 'node:fs';
+import { createReadStream, existsSync } from 'node:fs';
 import { appendFile, readFile, rename, stat, unlink, writeFile } from 'node:fs/promises';
 import { relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,11 +27,10 @@ import {
 	DEFAULT_SESSION_KV_BINDING_NAME,
 	DEFAULT_IMAGES_BINDING_NAME,
 } from './wrangler.js';
-import { parseEnv } from 'node:util';
 import { sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
 import cfPrismPlugin from './vite-plugin-prism.js';
-import { loadWranglerVars } from './utils/wrangler-config.js';
+import { loadWranglerEnv } from './utils/wrangler-config.js';
 
 const CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT = sessionDrivers.cloudflareKVBinding().entrypoint;
 
@@ -470,25 +469,10 @@ export default function createIntegration({
 					},
 				});
 
-				// Assign wrangler config `vars` to process.env so astro:env can find these
-				// vars at build time. `.dev.vars` is loaded afterwards so it can override
-				// them, matching wrangler's own precedence.
-				loadWranglerVars(config.root, cloudflareOptions.configPath, logger);
-
-				// QUESTION could be removed based on https://developers.cloudflare.com/workers/configuration/compatibility-flags/#enable-auto-populating-processenv
-				// Assign .dev.vars to process.env so astro:env can find these vars
-				const devVarsPath = new URL('.dev.vars', config.root);
-				if (existsSync(devVarsPath)) {
-					try {
-						const data = readFileSync(devVarsPath, 'utf-8');
-						const parsed = parseEnv(data);
-						Object.assign(process.env, parsed);
-					} catch {
-						logger.error(
-							`Unable to parse .dev.vars, variables will not be available to your application.`,
-						);
-					}
-				}
+				// Assign the Wrangler config's effective env (`vars` merged with
+				// `.dev.vars`/`.env` overrides) to process.env so astro:env can find
+				// these variables at build time.
+				loadWranglerEnv(config.root, cloudflareOptions.configPath, logger);
 			},
 			'astro:build:start': ({ setPrerenderer }) => {
 				if (prerenderEnvironment === 'workerd') {
