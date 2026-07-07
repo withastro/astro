@@ -343,6 +343,11 @@ export default function createIntegration({
 													'astro/app/entrypoint/dev',
 													'astro/virtual-modules/middleware.js',
 													'astro/virtual-modules/transitions.js',
+													'astro/virtual-modules/transitions-events.js',
+													'astro/virtual-modules/transitions-router.js',
+													'astro/virtual-modules/transitions-swap-functions.js',
+													'astro/virtual-modules/transitions-types.js',
+													'astro/components',
 													...(isAstroPrismPackageInstalled ? prismFiles : []),
 													...(Array.isArray(userOptimizeDeps?.include)
 														? userOptimizeDeps.include
