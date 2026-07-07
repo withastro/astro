@@ -115,8 +115,7 @@ export default function (options: Options = {}): AstroIntegration {
 
 function containsSolidField(fields: any): boolean {
 	const keys = Object.keys(fields);
-	for (let i = 0; i < keys.length; i++) {
-		const key = keys[i];
+	for (const key of keys) {
 		if (key === 'solid') return true;
 		if (typeof fields[key] === 'object' && fields[key] != null && containsSolidField(fields[key]))
 			return true;
