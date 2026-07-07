@@ -8,10 +8,19 @@ import type {
 } from 'satteri';
 import { createSatteriMarkdownProcessor } from './satteri-processor.js';
 
+export interface SatteriFeatures extends Omit<Features, 'smartPunctuation'> {
+	/**
+	 * Smart punctuation à la SmartyPants.
+	 *
+	 * Default: `true` in Astro.
+	 */
+	smartPunctuation?: boolean;
+}
+
 export interface SatteriProcessorOptions {
 	mdastPlugins?: MdastPluginList;
 	hastPlugins?: HastPluginList;
-	features?: Features;
+	features?: SatteriFeatures;
 }
 
 /**
@@ -21,7 +30,7 @@ export interface SatteriProcessorOptions {
 export interface SatteriResolvedOptions {
 	mdastPlugins: MdastPluginEntry[];
 	hastPlugins: HastPluginEntry[];
-	features: Features;
+	features: SatteriFeatures;
 }
 
 /**
