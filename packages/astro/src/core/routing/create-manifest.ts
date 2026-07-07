@@ -254,6 +254,7 @@ function createFileBasedRoutes(
 					isIndex: item.isIndex,
 					type: item.isPage ? 'page' : 'endpoint',
 					pattern,
+					trailingSlash,
 					segments,
 					params,
 					component,
@@ -400,6 +401,7 @@ function createRoutesFromEntriesByDir(
 					isIndex: item.isIndex,
 					type: item.isPage ? 'page' : 'endpoint',
 					pattern,
+					trailingSlash,
 					segments,
 					params,
 					component,
@@ -485,6 +487,7 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			isIndex: false,
 			route,
 			pattern,
+			trailingSlash,
 			segments,
 			params,
 			component,
@@ -587,6 +590,7 @@ function createRedirectRoutes(
 			isIndex: false,
 			route,
 			pattern,
+			trailingSlash,
 			segments,
 			params,
 			component: from,
@@ -896,6 +900,7 @@ export function createI18nFallbackRoutes(
 					route,
 					segments,
 					pattern: getPattern(segments, config.base, config.trailingSlash),
+					trailingSlash: config.trailingSlash,
 					type: 'fallback',
 				});
 			}
@@ -970,6 +975,7 @@ export function createI18nFallbackRoutes(
 								route,
 								segments,
 								pattern: getPattern(segments, config.base, config.trailingSlash),
+								trailingSlash: config.trailingSlash,
 								type: 'fallback',
 								fallbackRoutes: [],
 							};

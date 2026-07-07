@@ -20,7 +20,10 @@ export function generatePaginateFunction(
 		data: readonly any[],
 		args: PaginateOptions<Props, Params> = {},
 	): ReturnType<PaginateFunction> {
-		const generate = getRouteGenerator(routeMatch.segments, trailingSlash);
+		const generate = getRouteGenerator(
+			routeMatch.segments,
+			routeMatch.trailingSlash ?? trailingSlash,
+		);
 		let { pageSize: _pageSize, params: _params, props: _props } = args;
 		const pageSize = _pageSize || 10;
 		const paramName = 'page';

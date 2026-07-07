@@ -96,6 +96,7 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 		component: rawRouteData.component,
 		pathname: rawRouteData.pathname || undefined,
 		segments: rawRouteData.segments,
+		trailingSlash: rawRouteData.trailingSlash ?? rawRouteData._meta.trailingSlash,
 		prerender: rawRouteData.prerender,
 		redirect: rawRouteData.redirect,
 		redirectRoute: rawRouteData.redirectRoute

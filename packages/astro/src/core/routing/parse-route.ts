@@ -86,6 +86,7 @@ export function parseRoute(
 		params,
 		pathname: pathname || undefined,
 		pattern: getPattern(segments, options.config.base, options.config.trailingSlash),
+		trailingSlash: options.config.trailingSlash,
 		segments,
 		type: parseOptions.type ?? 'page',
 		prerender: parseOptions.prerender ?? false,

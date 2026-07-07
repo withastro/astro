@@ -49,7 +49,10 @@ export function resolveRedirectTarget(
 	trailingSlash: 'always' | 'never' | 'ignore',
 ): string {
 	if (typeof redirectRoute !== 'undefined') {
-		const generate = getRouteGenerator(redirectRoute.segments, trailingSlash);
+		const generate = getRouteGenerator(
+			redirectRoute.segments,
+			redirectRoute.trailingSlash ?? trailingSlash,
+		);
 		return generate(params) || redirectRoute?.pathname || '/';
 	} else if (typeof redirect === 'string') {
 		if (redirectIsExternal(redirect)) {

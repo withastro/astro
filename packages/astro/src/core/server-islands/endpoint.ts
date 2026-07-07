@@ -28,6 +28,7 @@ function getServerIslandRouteData(config: ConfigFields) {
 		params: ['name'],
 		segments,
 		pattern: getPattern(segments, config.base, config.trailingSlash),
+		trailingSlash: config.trailingSlash,
 		prerender: false,
 		isIndex: false,
 		fallbackRoutes: [],

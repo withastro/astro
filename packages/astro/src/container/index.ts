@@ -607,6 +607,7 @@ export class experimental_AstroContainer {
 				ASTRO_CONFIG_DEFAULTS.base,
 				ASTRO_CONFIG_DEFAULTS.trailingSlash,
 			),
+			trailingSlash: ASTRO_CONFIG_DEFAULTS.trailingSlash,
 			prerender: false,
 			segments,
 			type,

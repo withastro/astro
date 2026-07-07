@@ -694,7 +694,7 @@ export function toIntegrationResolvedRoute(
 		pattern: route.route,
 		params: route.params,
 		origin: route.origin,
-		generate: getRouteGenerator(route.segments, trailingSlash),
+		generate: getRouteGenerator(route.segments, route.trailingSlash ?? trailingSlash),
 		patternRegex: route.pattern,
 		segments: route.segments,
 		type: route.type,

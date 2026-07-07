@@ -480,6 +480,7 @@ describe('routing - createRoutesList', () => {
 		// Endpoint with file extension should still force 'never'
 		const endpointRoute = ignoreManifest.routes.find((r) => r.route === '/feed.xml');
 		assert.ok(endpointRoute, 'endpoint route should exist');
+		assert.equal(endpointRoute.trailingSlash, 'never');
 		assert.equal(
 			endpointRoute.pattern.test('/feed.xml'),
 			true,
@@ -505,6 +506,7 @@ describe('routing - createRoutesList', () => {
 		);
 		const alwaysPageRoute = alwaysManifest.routes.find((r) => r.route === '/hello.world');
 		assert.ok(alwaysPageRoute, 'page route should exist with trailingSlash always');
+		assert.equal(alwaysPageRoute.trailingSlash, 'always');
 		assert.equal(
 			alwaysPageRoute.pattern.test('/hello.world/'),
 			true,
@@ -535,6 +537,7 @@ describe('routing - createRoutesList', () => {
 		);
 		const route = manifest.routes.find((r) => r.route === '/api/[name].json');
 		assert.ok(route, 'dynamic file endpoint route should exist');
+		assert.equal(route.trailingSlash, 'never');
 		assert.equal(route.pattern.test('/api/bar.json'), true, 'should match without trailing slash');
 		assert.equal(
 			route.pattern.test('/api/bar.json/'),

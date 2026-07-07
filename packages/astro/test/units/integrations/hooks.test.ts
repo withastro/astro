@@ -173,23 +173,44 @@ describe('toIntegrationResolvedRoute', () => {
 		assert.equal(result.fallbackRoutes[0].origin, 'internal');
 	});
 
-	it('applies trailingSlash "always" to generate function', () => {
-		const route = createRouteData({ route: '/about' });
-		const result = toIntegrationResolvedRoute(route, 'always');
+	it('applies route trailingSlash "always" to generate function', () => {
+		const route = createRouteData({ route: '/about', trailingSlash: 'always' });
+		const result = toIntegrationResolvedRoute(route, 'never');
 		assert.equal(result.generate({}), '/about/');
 	});
 
-	it('applies trailingSlash "never" to generate function', () => {
-		const route = createRouteData({ route: '/about' });
-		const result = toIntegrationResolvedRoute(route, 'never');
+	it('applies route trailingSlash "never" to generate function', () => {
+		const route = createRouteData({ route: '/about', trailingSlash: 'never' });
+		const result = toIntegrationResolvedRoute(route, 'always');
 		const generated = result.generate({});
 		assert.ok(!generated.endsWith('/') || generated === '/');
+	});
+
+	it('falls back to provided trailingSlash when route metadata is missing', () => {
+		const route = createRouteData({ route: '/about' });
+		delete route.trailingSlash;
+		const result = toIntegrationResolvedRoute(route, 'always');
+
+		assert.equal(result.generate({}), '/about/');
 	});
 
 	it('handles endpoint route type', () => {
 		const route = createRouteData({ route: '/api/data', type: 'endpoint' });
 		const result = toIntegrationResolvedRoute(route, 'ignore');
 		assert.equal(result.type, 'endpoint');
+	});
+
+	it('uses route-specific trailingSlash in generate function', () => {
+		const route = makeRoute({
+			route: '/api/[name].json',
+			segments: [[staticPart('api')], [dynamicPart('name'), staticPart('.json')]],
+			trailingSlash: 'never',
+			pathname: undefined,
+			type: 'endpoint',
+		});
+		const result = toIntegrationResolvedRoute(route, 'always');
+
+		assert.equal(result.generate({ name: 'foo' }), '/api/foo.json');
 	});
 
 	it('handles spread params in generate', () => {

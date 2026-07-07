@@ -82,6 +82,10 @@ export interface RouteData {
 	 */
 	pattern: RegExp;
 	/**
+	 * The trailing slash behavior used to generate and match this route.
+	 */
+	trailingSlash?: AstroConfig['trailingSlash'];
+	/**
 	 * Similar to the "params" field, but with more associated metadata. For example, for `/site/[blog]/[...slug].astro`, the segments are:
 	 *
 	 * 1. `{ content: 'site', dynamic: false, spread: false }`
