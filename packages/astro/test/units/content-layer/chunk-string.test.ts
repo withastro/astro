@@ -2,13 +2,7 @@ import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 import { chunkString } from '../../../dist/content/data-store-writer.js';
 
-/**
- * Encode to UTF-8 bytes and decode back, simulating what happens when a part is
- * written to disk and read back. If a part contained half of a surrogate pair,
- * the encode step would substitute U+FFFD and this round-trip would no longer
- * equal the original part.
- */
-function utf8RoundTrip(str: string): string {
+function decodeAndEncode(str: string): string {
 	return new TextDecoder().decode(new TextEncoder().encode(str));
 }
 
@@ -25,6 +19,11 @@ describe('Content Layer - chunkString', () => {
 
 	it('returns no parts for an empty string', () => {
 		assert.deepEqual(chunkString('', 10), []);
+	});
+
+	it('returns a single part when the whole string fits', () => {
+		const parts = chunkString('café', 100);
+		assert.deepEqual(parts, ['café']);
 	});
 
 	it('keeps every part within the byte limit', () => {
@@ -50,15 +49,48 @@ describe('Content Layer - chunkString', () => {
 			assert.ok(utf8ByteLength(part) <= maxBytes);
 			// The part survives a UTF-8 write/read round-trip unchanged, which is
 			// only true if it contains whole code points (no lone surrogate).
-			assert.equal(utf8RoundTrip(part), part);
+			assert.equal(decodeAndEncode(part), part);
 		}
 		// Rejoining the round-tripped parts reproduces the original exactly.
-		assert.equal(parts.map(utf8RoundTrip).join(''), str);
+		assert.equal(parts.map(decodeAndEncode).join(''), str);
+	});
+
+	it('splits exactly at a surrogate-pair boundary', () => {
+		const parts = chunkString('😀😀', 4);
+		assert.deepEqual(parts, ['😀', '😀']);
+	});
+
+	it('budgets multi-byte BMP characters by their byte length', () => {
+		const parts = chunkString('ñ€ñ€', 5);
+		assert.deepEqual(parts, ['ñ€', 'ñ€']);
+		for (const part of parts) {
+			assert.equal(utf8ByteLength(part), 5);
+		}
+	});
+
+	it('preserves interleaved BMP and astral characters across splits', () => {
+		const str = 'a😀b好c𝕏d';
+		const parts = chunkString(str, 5);
+		for (const part of parts) {
+			assert.ok(utf8ByteLength(part) <= 5);
+			// No part holds a lone surrogate, so each survives a UTF-8 round-trip.
+			assert.equal(decodeAndEncode(part), part);
+		}
+		assert.equal(parts.join(''), str);
+	});
+
+	it('rejoins a ZWJ emoji sequence split across parts', () => {
+		const family = '👨‍👩‍👧‍👦';
+		const parts = chunkString(family, 10);
+		assert.ok(parts.length > 1, 'expected the sequence to be split across parts');
+		for (const part of parts) {
+			assert.ok(utf8ByteLength(part) <= 10);
+			assert.equal(decodeAndEncode(part), part);
+		}
+		assert.equal(parts.map(decodeAndEncode).join(''), family);
 	});
 
 	it('emits a single code point that exceeds the limit as its own part', () => {
-		// A 4-byte code point with a 1-byte budget must still be emitted whole,
-		// rather than dropped or split into an empty part.
 		const parts = chunkString('😀', 1);
 		assert.deepEqual(parts, ['😀']);
 	});

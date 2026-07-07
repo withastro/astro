@@ -315,6 +315,30 @@ describe('Content Layer - Store Persistence (chunked)', () => {
 		const updatedPost: any = store3.get('posts', 'post1');
 		assert.equal(updatedPost.data.cat.id, 'siamese-cat');
 	});
+
+	it('round-trips rich Unicode entry data through the chunk split', async () => {
+		const tempDir = createTempDir();
+		const dataStoreDir = new URL('./data-store/', tempDir);
+
+		// Data with astral emoji, a ZWJ sequence, CJK, and accented text. This
+		// exercises the whole serialize, split, write, read, rejoin, and parse
+		// path, which must not corrupt any surrogate pair along the way.
+		const richData = {
+			emoji: '😀🎉',
+			family: '👨‍👩‍👧‍👦',
+			cjk: '好きな本',
+			accented: 'café déjà vu',
+		};
+
+		const store1 = await MutableDataStore.fromDir(dataStoreDir);
+		store1.set('notes', 'unicode', { id: 'unicode', data: richData });
+		await store1.waitUntilSaveComplete();
+
+		const store2 = await MutableDataStore.fromDir(dataStoreDir);
+		const entry: any = store2.get('notes', 'unicode');
+		assert.ok(entry);
+		assert.deepEqual(entry.data, richData);
+	});
 });
 
 describe('Content Layer - Store Persistence (chunked atomicity)', () => {

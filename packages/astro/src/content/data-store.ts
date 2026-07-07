@@ -89,7 +89,7 @@ export class ImmutableDataStore {
 	 * names have already been swapped for their contents.
 	 *
 	 * Each collection maps to a list of chunks, and each chunk to a list of
-	 * parts. A part is either a raw string (when read from disk by the producer)
+	 * parts. A part is either a raw string (when the store is loaded from disk)
 	 * or an ESM namespace from a `?raw` import (`{ default: string }`, when
 	 * emitted into the virtual module at runtime). The parts of a chunk are
 	 * concatenated back into the exact serialized string, then parsed with

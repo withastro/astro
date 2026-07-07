@@ -18,9 +18,9 @@ export type DataStoreManifest = Record<string, string[][]>;
 
 /**
  * Persists the content collection data produced by the content layer. This is
- * the producer-side seam that mirrors {@link import('./data-store-source.js').DataStoreSource}
- * on the consumer side. Implementations run in Node.js (build/dev) and are
- * never imported at runtime.
+ * the write side that saves the data; {@link import('./data-store-source.js').DataStoreSource}
+ * is the read side that loads it back. Implementations run in Node.js
+ * (build/dev) and are never imported at runtime.
  */
 export interface DataStoreWriter {
 	/** Serialize and persist the given collections. */
@@ -55,6 +55,8 @@ export function serializeDataStore(collections: Map<string, Map<string, any>>): 
 	return devalue.stringify(sortCollections(collections));
 }
 
+const ENCODER = new TextEncoder();
+
 /**
  * Split a string into parts each at most `maxBytes` UTF-8 bytes, never splitting
  * a Unicode code point across parts.
@@ -73,8 +75,7 @@ export function chunkString(str: string, maxBytes: number): string[] {
 	let index = 0; // current UTF-16 index (always on a code-point boundary)
 	let currentBytes = 0;
 	for (const char of str) {
-		const codePoint = char.codePointAt(0)!;
-		const charBytes = codePoint <= 0x7f ? 1 : codePoint <= 0x7ff ? 2 : codePoint <= 0xffff ? 3 : 4;
+		const charBytes = ENCODER.encode(char).length;
 		// Close the current part before it would exceed the byte limit, but never
 		// emit an empty part (guards against a single code point over the limit).
 		if (currentBytes + charBytes > maxBytes && index > startIndex) {
