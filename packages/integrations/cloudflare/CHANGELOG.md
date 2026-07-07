@@ -1,5 +1,20 @@
 # @astrojs/cloudflare
 
+## 14.1.2
+
+### Patch Changes
+
+- [#17285](https://github.com/withastro/astro/pull/17285) [`6929e40`](https://github.com/withastro/astro/commit/6929e4034fcc7e11d96d0327b5d8ca126ae826ef) Thanks [@adamchal](https://github.com/adamchal)! - Fixes build-time image optimization ignoring a custom image service registered by an integration
+
+  Previously, when using `imageService: 'compile'` or `imageService: 'custom'`, a custom image service was only respected if it was set directly in the `image.service` option of `astro.config`. If an integration registered the service instead, images were silently optimized with the default Sharp service at build time. A custom image service now transforms your images at build time no matter how it was configured.
+
+- [#17303](https://github.com/withastro/astro/pull/17303) [`464c46e`](https://github.com/withastro/astro/commit/464c46e0aa8a5e5d45e0b3695501833dbe94886f) Thanks [@jkomyno](https://github.com/jkomyno)! - Prebundles `astro/components` and the `<ClientRouter />` transition runtime modules in the dev server environment so pages using them no longer trigger a mid-session dep optimizer reload, which caused React "Invalid hook call" errors in islands on the first request after a cold cache
+
+- [#17275](https://github.com/withastro/astro/pull/17275) [`6a99600`](https://github.com/withastro/astro/commit/6a99600be1ffb1f6c1292bfeb92781182c45e850) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an issue where `vars` weren't available at build time. Now the adapter loads `vars` from the Wrangler config so `astro:env` public variables resolve at build time
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 14.1.1
 
 ### Patch Changes
