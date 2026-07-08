@@ -16,11 +16,11 @@ describe('lightningcss + CSS modules via content collection render path', () => 
 	let devServer: DevServer;
 	let $: cheerio.CheerioAPI;
 
-	function getClassAndStyles($: cheerio.CheerioAPI) {
-		const el = $('div[class]').first();
+	function getClassAndStyles(doc: cheerio.CheerioAPI) {
+		const el = doc('div[class]').first();
 		const className = el.attr('class')!;
-		const styles = $('style')
-			.map((_, s) => $(s).html())
+		const styles = doc('style')
+			.map((_, s) => doc(s).html())
 			.get()
 			.join('\n');
 
