@@ -736,7 +736,7 @@ class VercelBuilder {
 		await writeJson(prerenderConfig, {
 			expiration: isr.expiration ?? false,
 			bypassToken: isr.bypassToken,
-			allowQuery: [ASTRO_PATH_PARAM],
+			allowQuery: [ASTRO_PATH_PARAM, ASTRO_PATH_TOKEN_PARAM],
 			passQuery: true,
 		});
 	}

@@ -19,7 +19,7 @@ describe('ISR', () => {
 		assert.deepEqual(vcConfig, {
 			expiration: 120,
 			bypassToken: '1c9e601d-9943-4e7c-9575-005556d774a8',
-			allowQuery: ['x_astro_path'],
+			allowQuery: ['x_astro_path', 'x_astro_path_token'],
 			passQuery: true,
 		});
 	});
@@ -81,6 +81,26 @@ describe('ISR', () => {
 				status: 404,
 			},
 		]);
+	});
+
+	it('allow-lists every query param used in the ISR rewrite', { timeout: 30000 }, async () => {
+		// Vercel strips any query param not present in `allowQuery` before invoking
+		// the ISR function. If the rewrite `dest` references a param that isn't
+		// allow-listed (e.g. the path token), that param never reaches the
+		// entrypoint and every ISR route 404s. Assert the two stay in sync.
+		const prerenderConfig = JSON.parse(
+			await fixture.readFile('../.vercel/output/functions/_isr.prerender-config.json'),
+		);
+		const token = await readPathToken();
+		const isrRoute = new URL(
+			`https://example.com/_isr?x_astro_path=/one&x_astro_path_token=${token}`,
+		);
+		for (const param of isrRoute.searchParams.keys()) {
+			assert.ok(
+				prerenderConfig.allowQuery.includes(param),
+				`ISR rewrite param "${param}" must be present in allowQuery`,
+			);
+		}
 	});
 
 	async function loadIsrFunction() {
