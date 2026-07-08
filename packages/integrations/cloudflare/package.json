@@ -63,7 +63,8 @@
     "cheerio": "1.2.0",
     "devalue": "^5.8.1",
     "prismjs": "^1.30.0",
-    "tinyglobby": "^0.2.15"
+    "tinyglobby": "^0.2.15",
+    "wrangler": "^4.83.0"
   },
   "publishConfig": {
     "provenance": true

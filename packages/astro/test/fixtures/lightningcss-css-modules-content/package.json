@@ -1,0 +1,13 @@
+{
+  "name": "@test/lightningcss-css-modules-content",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/mdx": "workspace:*",
+    "@astrojs/react": "workspace:*",
+    "lightningcss": "^1.32.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  }
+}

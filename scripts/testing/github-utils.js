@@ -2,7 +2,6 @@
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { setSummary } from '../../.github/scripts/utils.mjs';
 
 const reportingConfig = {
 	/** The threshold in milliseconds for considering a test as slow. */
@@ -13,6 +12,18 @@ const reportingConfig = {
 	 */
 	knownSlowTests: [],
 };
+
+/**
+ * Sets the summary for the current step in CI.
+ * @param {string} text
+ */
+function setSummary(text) {
+	const filePath = process.env['GITHUB_STEP_SUMMARY'] || '';
+	if (filePath) {
+		return fs.writeFileSync(filePath, text);
+	}
+	process.stdout.write('\n');
+}
 
 /**
  * @typedef {{ type: 'build', fixture: string; duration: number }} BuildLogEntry
