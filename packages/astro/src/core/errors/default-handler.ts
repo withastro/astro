@@ -219,9 +219,11 @@ function mergeResponses(
 		seen.add(name.toLowerCase());
 	}
 	// Add new response headers that weren't already set by the original response,
-	// but skip content-type since the error page must return text/html
+	// but skip content-type since the error page must return text/html.
+	// set-cookie is special: it's a multi-value header, so we always append.
 	for (const [name, value] of newResponseHeaders) {
-		if (!seen.has(name.toLowerCase())) {
+		const lower = name.toLowerCase();
+		if (!seen.has(lower) || lower === 'set-cookie') {
 			newHeaders.append(name, value);
 		}
 	}
@@ -243,9 +245,7 @@ function mergeResponses(
 	if (originalCookies) {
 		// If both responses have cookies, merge new response cookies into original
 		if (newCookies) {
-			for (const cookieValue of newCookies.consume()) {
-				originalResponse.headers.append('set-cookie', cookieValue);
-			}
+			originalCookies.merge(newCookies);
 		}
 		attachCookiesToResponse(mergedResponse, originalCookies);
 	} else if (newCookies) {
