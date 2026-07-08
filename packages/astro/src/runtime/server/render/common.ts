@@ -154,7 +154,10 @@ function stringifyChunk(
 				out += stringifyChunk(result, instr);
 			}
 		}
-		out += chunk.toString();
+		// Use String.prototype.toString to get the raw content without the script
+		// additions from SlotString.toString(), since scripts are already processed
+		// through instructions above with proper deduplication.
+		out += String.prototype.toString.call(chunk);
 		return out;
 	}
 

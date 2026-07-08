@@ -21,6 +21,31 @@ export class SlotString extends HTMLString {
 		this.instructions = instructions;
 		this[slotString] = true;
 	}
+
+	/**
+	 * Returns the slot content including any script instruction content.
+	 * This ensures that string coercion (e.g. `+=`, template literals) doesn't
+	 * silently drop script tags like `<ClientRouter />`.
+	 */
+	override toString() {
+		return this.#withScripts();
+	}
+
+	override valueOf() {
+		return this.#withScripts();
+	}
+
+	#withScripts() {
+		let result = String.prototype.toString.call(this);
+		if (this.instructions) {
+			for (const instr of this.instructions) {
+				if (instr.type === 'script') {
+					result += instr.content;
+				}
+			}
+		}
+		return result;
+	}
 }
 
 export function isSlotString(str: string): str is any {
@@ -68,7 +93,9 @@ export async function renderSlotToString(
 		write(chunk) {
 			// if the chunk is already a SlotString, we concatenate
 			if (chunk instanceof SlotString) {
-				content += chunk;
+				// Use the raw string content (without script additions from valueOf/toString)
+				// since we separately extract instructions via mergeSlotInstructions below.
+				content += String.prototype.toString.call(chunk);
 				instructions = mergeSlotInstructions(instructions, chunk);
 			} else if (chunk instanceof Response) return;
 			else if (typeof chunk === 'object' && 'type' in chunk && typeof chunk.type === 'string') {
@@ -106,6 +133,10 @@ export async function renderSlots(
 							slotInstructions = [];
 						}
 						slotInstructions.push(...output.instructions);
+						// Clear instructions from the SlotString since they've been hoisted
+						// to slotInstructions. This prevents double-rendering when children
+						// values are later used as strings (e.g. via toString() or join()).
+						output.instructions = null;
 					}
 					children[key] = output;
 				}),
