@@ -508,7 +508,7 @@ export default new Map([\n${lines.join(',\n')}]);
 
 	/**
 	 * Loads a MutableDataStore from a chunked store directory (experimental
-	 * `dataStore: 'chunked'`), reading the manifest and its referenced parts.
+	 * `collectionStorage: 'chunked'`), reading the manifest and its referenced parts.
 	 * If the directory has no manifest yet (fresh build) it starts empty. If the
 	 * manifest exists but can't be read (corrupt cache), it warns and starts
 	 * empty so loaders rebuild it, rather than failing the sync.

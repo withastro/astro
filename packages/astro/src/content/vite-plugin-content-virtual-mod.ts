@@ -112,7 +112,7 @@ export function astroContentVirtualModPlugin({
 		enforce: 'pre',
 		config(_, env) {
 			isDev = env.command === 'serve';
-			if (settings.config.experimental.dataStore === 'chunked') {
+			if (settings.config.experimental.collectionStorage === 'chunked') {
 				dataStoreDir = getDataStoreDir(settings, env.command === 'serve');
 				dataStoreFile = new URL(DATA_STORE_MANIFEST_FILE, dataStoreDir);
 			} else {
@@ -220,7 +220,7 @@ export function astroContentVirtualModPlugin({
 					}
 					const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
 
-					if (settings.config.experimental.dataStore === 'chunked') {
+					if (settings.config.experimental.collectionStorage === 'chunked') {
 						try {
 							const manifest: Record<string, string[][]> = JSON.parse(jsonData);
 							// Emit each part as a lazy `?raw` import so the parts stay separate

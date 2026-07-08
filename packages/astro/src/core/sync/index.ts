@@ -96,7 +96,7 @@ export async function clearContentLayerCache({
 	fs?: typeof fsMod;
 	isDev: boolean;
 }) {
-	if (settings.config.experimental.dataStore === 'chunked') {
+	if (settings.config.experimental.collectionStorage === 'chunked') {
 		const dataStore = getDataStoreDir(settings, isDev);
 		if (fs.existsSync(dataStore)) {
 			logger.debug('content', 'clearing data store');
@@ -149,7 +149,7 @@ export async function syncInternal({
 
 			let store: MutableDataStore | undefined;
 			try {
-				if (settings.config.experimental.dataStore === 'chunked') {
+				if (settings.config.experimental.collectionStorage === 'chunked') {
 					const dataStoreDir = getDataStoreDir(settings, isDev);
 					store = await MutableDataStore.fromDir(dataStoreDir);
 				} else {

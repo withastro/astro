@@ -14,7 +14,7 @@ describe('Content Collections (chunked data store)', () => {
 		fixture = await loadFixture({
 			root: './fixtures/content-collections/',
 			outDir: './dist/content-collections-chunked/',
-			experimental: { dataStore: 'chunked' },
+			experimental: { collectionStorage: 'chunked' },
 		});
 		await fixture.build({ force: true });
 	});

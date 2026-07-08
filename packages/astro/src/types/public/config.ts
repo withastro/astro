@@ -3132,7 +3132,7 @@ export interface AstroUserConfig<
 		svgOptimizer?: SvgOptimizer;
 
 		/**
-		 * @name experimental.dataStore
+		 * @name experimental.collectionStorage
 		 * @type {'file' | 'chunked'}
 		 * @default `'file'`
 		 * @version 7.1.0
@@ -3151,14 +3151,14 @@ export interface AstroUserConfig<
 		 *
 		 * export default defineConfig({
 		 *   experimental: {
-		 *     dataStore: 'chunked',
+		 *     collectionStorage: 'chunked',
 		 *   },
 		 * });
 		 * ```
 		 *
 		 * See the [experimental data store chunking documentation](https://docs.astro.build/en/reference/experimental-flags/data-store/) for more information.
 		 */
-		dataStore?: 'file' | 'chunked';
+		collectionStorage?: 'single-file' | 'chunked';
 	};
 }
 

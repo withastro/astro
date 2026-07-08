@@ -6,7 +6,7 @@ Adds a new experimental `dataStore` option for controlling how the content layer
 
 By default, Astro serializes the entire content layer data store to a single file (`.astro/data-store.json`). For very large content collections, this single serialized string and file can grow large enough to hit JavaScript string-length or file-size limits.
 
-Set `experimental.dataStore: 'chunked'` to instead split the data store across many smaller, content-addressed files inside a `.astro/data-store/` directory, described by a manifest:
+Set `experimental.collectionStorage: 'chunked'` to instead split the data store across many smaller, content-addressed files inside a `.astro/data-store/` directory, described by a manifest:
 
 ```js
 // astro.config.mjs
@@ -14,7 +14,7 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
   experimental: {
-    dataStore: 'chunked',
+    collectionStorage: 'chunked',
   },
 });
 ```

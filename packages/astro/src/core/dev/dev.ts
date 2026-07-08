@@ -91,7 +91,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	let store: MutableDataStore | undefined;
 	try {
-		if (restart.container.settings.config.experimental.dataStore === 'chunked') {
+		if (restart.container.settings.config.experimental.collectionStorage === 'chunked') {
 			const dataStoreDir = getDataStoreDir(restart.container.settings, true);
 			store = await MutableDataStore.fromDir(dataStoreDir);
 		} else {
