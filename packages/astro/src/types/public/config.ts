@@ -3140,15 +3140,11 @@ export interface AstroUserConfig<
 		 *
 		 * Controls how Astro persists the content layer data store.
 		 *
-		 * By default (`'file'`), the entire store is written to a single `data-store.json`
-		 * file. For very large content collections, this single file — and the single
-		 * serialized string it is built from — can hit JavaScript string-length or
+		 * By default, the entire store is written to a single `data-store.json`
+		 * file. For very large content collections, it can hit JavaScript string-length or
 		 * platform file-size limits.
 		 *
-		 * Set this to `'chunked'` to split the store across many smaller files in a
-		 * `data-store/` directory described by a manifest. Each collection is serialized
-		 * in chunks, keeping individual strings and files small enough to avoid those
-		 * limits, at the cost of more files on disk.
+		 * When set to `'chunked'`, the data is split into multiple files.
 		 *
 		 * ```js
 		 * import { defineConfig } from 'astro/config';

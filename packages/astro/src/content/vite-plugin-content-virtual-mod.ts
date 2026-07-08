@@ -112,9 +112,6 @@ export function astroContentVirtualModPlugin({
 		enforce: 'pre',
 		config(_, env) {
 			isDev = env.command === 'serve';
-			// In chunked mode the store is a directory; its manifest file stands in
-			// for the single data-store.json everywhere else in this plugin (watched,
-			// existence-checked, and read as the entry point).
 			if (settings.config.experimental.dataStore === 'chunked') {
 				dataStoreDir = getDataStoreDir(settings, env.command === 'serve');
 				dataStoreFile = new URL(DATA_STORE_MANIFEST_FILE, dataStoreDir);
@@ -226,22 +223,24 @@ export function astroContentVirtualModPlugin({
 					if (settings.config.experimental.dataStore === 'chunked') {
 						try {
 							const manifest: Record<string, string[][]> = JSON.parse(jsonData);
-							// Swap each part file name for a lazy `?raw` import of its
-							// contents, so the parts stay separate chunks instead of being
-							// inlined into one huge module (the very thing chunking avoids).
-							const parsed: Record<string, string[][]> = {};
-							for (const collection in manifest) {
-								parsed[collection] = manifest[collection].map((parts) =>
-									parts.map(
-										(fileName) =>
-											`@@IMPORT@@${rootRelativePath(settings.config.root, new URL(`./${fileName}`, dataStoreDir))}@@/IMPORT@@`,
-									),
+							// Emit each part as a lazy `?raw` import so the parts stay separate
+							// chunks instead of being inlined into one huge module (the very
+							// thing chunking avoids). manifestToMap reads the resolved
+							// namespace's `default` export back into the concatenated string.
+							const rawImport = (fileName: string) => {
+								const path = rootRelativePath(
+									settings.config.root,
+									new URL(`./${fileName}`, dataStoreDir),
 								);
-							}
-							const code = dataToEsm(parsed, { compact: true }).replace(
-								/"@@IMPORT@@(.+?)@@\/IMPORT@@"/g,
-								'(await import("$1?raw"))',
+								return `(await import(${JSON.stringify(`${path}?raw`)}))`;
+							};
+							const entries = Object.entries(manifest).map(
+								([collection, chunks]) =>
+									`${JSON.stringify(collection)}:[${chunks
+										.map((parts) => `[${parts.map(rawImport).join(',')}]`)
+										.join(',')}]`,
 							);
+							const code = `export default{${entries.join(',')}}`;
 							return { code, map: { mappings: '' } };
 						} catch (err) {
 							const message = 'Could not parse data store manifest JSON file';
