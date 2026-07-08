@@ -7,6 +7,40 @@ import { getPackage } from '../../../dist/cli/install-package.js';
 import { defaultLogger } from '../test-utils.ts';
 
 describe('getPackage', () => {
+	it('detects packages with no default CJS export (e.g. TypeScript 7)', async () => {
+		// Simulate a package like TypeScript 7 that has exports but no "." entry
+		const projectDir = join(tmpdir(), `astro-test-no-cjs-${Date.now()}`);
+		const pkgDir = join(projectDir, 'node_modules', 'fake-esm-only');
+
+		try {
+			await mkdir(pkgDir, { recursive: true });
+			await writeFile(
+				join(pkgDir, 'package.json'),
+				JSON.stringify({
+					name: 'fake-esm-only',
+					version: '1.0.0',
+					type: 'module',
+					exports: {
+						'./package.json': './package.json',
+						'./subpath': './subpath.js',
+					},
+				}),
+			);
+			await writeFile(join(pkgDir, 'subpath.js'), 'export const ok = true;\n');
+
+			// getPackage should detect the package as installed (return truthy)
+			// even though require.resolve('fake-esm-only') throws ERR_PACKAGE_PATH_NOT_EXPORTED
+			const result = await getPackage('fake-esm-only', defaultLogger, {
+				cwd: projectDir,
+				optional: true,
+			});
+
+			assert.ok(result, 'Expected getPackage to detect package with no CJS export as installed');
+		} finally {
+			await rm(projectDir, { recursive: true, force: true });
+		}
+	});
+
 	it('resolves packages from the project cwd, not from astro install location', async () => {
 		// Create a temporary directory simulating a project with a fake package
 		const projectDir = join(tmpdir(), `astro-test-getpackage-${Date.now()}`);

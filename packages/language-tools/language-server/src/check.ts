@@ -139,7 +139,7 @@ export class AstroCheck {
 	}
 
 	private initialize() {
-		this.ts = this.typescriptPath ? require(this.typescriptPath) : require('typescript');
+		this.ts = this.loadTypeScript();
 		const tsconfigPath = this.getTsconfig();
 
 		const languagePlugins = [
@@ -191,6 +191,24 @@ export class AstroCheck {
 						languageServiceHost,
 					);
 				},
+			);
+		}
+	}
+
+	private loadTypeScript(): typeof import('typescript') {
+		try {
+			return this.typescriptPath ? require(this.typescriptPath) : require('typescript');
+		} catch {
+			// TypeScript 7+ removed its CJS entry point, so require() may fail with
+			// ERR_PACKAGE_PATH_NOT_EXPORTED or the typescriptPath may be a directory.
+			// Try resolving 'typescript' directly (may find a compatible version via module resolution).
+			try {
+				return require('typescript');
+			} catch {
+				// fall through
+			}
+			throw new Error(
+				'Could not load TypeScript. The installed version may not be compatible with `astro check`.',
 			);
 		}
 	}

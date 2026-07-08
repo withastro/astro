@@ -25,7 +25,19 @@ export async function check(flags: Partial<Flags>): Promise<boolean | void>;
 export async function check(flags: Partial<Flags>): Promise<boolean | void> {
 	const workspaceRoot = path.resolve(flags.root ?? process.cwd());
 	const require = createRequire(import.meta.url);
-	const checker = new AstroCheck(workspaceRoot, require.resolve('typescript'), flags.tsconfig);
+	let typescriptPath: string;
+	try {
+		typescriptPath = require.resolve('typescript');
+	} catch (e) {
+		if ((e as NodeJS.ErrnoException)?.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
+			// TypeScript 7+ removed its default CJS entry point.
+			// Resolve via package.json to find the package directory.
+			typescriptPath = path.dirname(require.resolve('typescript/package.json'));
+		} else {
+			throw e;
+		}
+	}
+	const checker = new AstroCheck(workspaceRoot, typescriptPath, flags.tsconfig);
 
 	let req = 0;
 
