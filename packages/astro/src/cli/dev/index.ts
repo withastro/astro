@@ -26,7 +26,7 @@ function isRunByAgent(): boolean {
  * `yargs-parser` treats `--no-lock` as negating a boolean `lock` flag (defaulting to
  * true), so it's read back as `flags.lock === false` rather than `flags.noLock`.
  */
-export function isNoLock(flags: Pick<Flags, 'lock'>): boolean {
+export function isNoLock(flags: Flags): boolean {
 	return flags.lock === false;
 }
 
@@ -36,10 +36,7 @@ export function isNoLock(flags: Pick<Flags, 'lock'>): boolean {
  * background mode (explicit `--background`, or implied by AI agent detection) is combined
  * with `--no-lock`, or `null` if there's no conflict.
  */
-export function getBackgroundNoLockConflict(
-	flags: Pick<Flags, 'background'>,
-	wantsBackground: boolean,
-): string | null {
+export function getBackgroundNoLockConflict(flags: Flags, wantsBackground: boolean): string | null {
 	if (!wantsBackground) {
 		return null;
 	}
@@ -59,7 +56,7 @@ export function getBackgroundNoLockConflict(
  * untracked) express contradictory intent. Returns an error message if both are set,
  * or `null` otherwise.
  */
-export function getForceNoLockConflict(flags: Pick<Flags, 'force'>): string | null {
+export function getForceNoLockConflict(flags: Flags): string | null {
 	if (!flags.force) {
 		return null;
 	}
