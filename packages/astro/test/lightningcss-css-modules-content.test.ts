@@ -16,6 +16,17 @@ describe('lightningcss + CSS modules via content collection render path', () => 
 	let devServer: DevServer;
 	let $: cheerio.CheerioAPI;
 
+	function getClassAndStyles($: cheerio.CheerioAPI) {
+		const el = $('div[class]').first();
+		const className = el.attr('class')!;
+		const styles = $('style')
+			.map((_, s) => $(s).html())
+			.get()
+			.join('\n');
+
+		return { className, styles };
+	}
+
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/lightningcss-css-modules-content/',
@@ -30,19 +41,27 @@ describe('lightningcss + CSS modules via content collection render path', () => 
 	});
 
 	it('CSS module class name in element matches the selector in the injected style', () => {
-		// The element rendered by the React component should have a scoped class
-		const el = $('div[class]').first();
-		const className = el.attr('class')!;
+		const { className, styles } = getClassAndStyles($);
 		assert.ok(className, 'expected element to have a class attribute');
 
-		// The injected <style> should contain a selector matching that class
-		const styles = $('style')
-			.map((_, s) => $(s).html())
-			.get()
-			.join('\n');
 		assert.ok(
 			styles.includes(`.${className}`),
 			`expected injected <style> to contain selector ".${className}" but got:\n${styles}`,
 		);
+	});
+
+	it('updates injected CSS when the CSS module changes', async () => {
+		await fixture.editFile('/src/components/styles.module.css', (content) =>
+			content.replace('display: grid;', 'display: block;'),
+		);
+
+		const html = await fixture.fetch('/test').then((res) => res.text());
+		const { className, styles } = getClassAndStyles(cheerio.load(html));
+
+		assert.ok(
+			styles.includes(`.${className}`),
+			`expected injected <style> to contain selector ".${className}" but got:\n${styles}`,
+		);
+		assert.match(styles, /display:\s*block/);
 	});
 });
