@@ -11,7 +11,7 @@ import {
 	readLockFile,
 	removeLockFile,
 	isProcessAlive,
-	GRACEFUL_SHUTDOWN_TIMEOUT,
+	killDevServer,
 	type LockFileData,
 } from '../../core/dev/lockfile.js';
 import { resolveRoot } from '../../core/config/config.js';
@@ -73,26 +73,7 @@ export async function background({
 
 	// If --force, kill the existing server first
 	if (existing && flags.force) {
-		try {
-			process.kill(existing.pid, 'SIGTERM');
-		} catch {
-			// Already dead
-		}
-		// Wait for graceful shutdown before escalating to SIGKILL
-		const deadline = Date.now() + GRACEFUL_SHUTDOWN_TIMEOUT;
-		while (Date.now() < deadline) {
-			if (!isProcessAlive(existing.pid)) break;
-			await new Promise((r) => setTimeout(r, 100));
-		}
-		// If still alive after timeout, force kill
-		if (isProcessAlive(existing.pid)) {
-			try {
-				process.kill(existing.pid, 'SIGKILL');
-			} catch {
-				// Already dead
-			}
-		}
-		removeLockFile(root);
+		await killDevServer(root, existing);
 	}
 
 	// Build the args for the child process: plain `astro dev` (no --background)
