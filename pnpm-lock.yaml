@@ -6962,6 +6962,12 @@ importers:
         specifier: ^4.22.0
         version: 4.22.3
 
+  triage/gh-17335:
+    dependencies:
+      astro:
+        specifier: ^7.0.7
+        version: link:../../packages/astro
+
 packages:
 
   '@anthropic-ai/sdk@0.91.1':
