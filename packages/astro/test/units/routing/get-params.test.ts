@@ -151,6 +151,55 @@ describe('getParams', () => {
 			const params = getParams(route, '/food.html');
 			assert.equal(params.category, 'food');
 		});
+
+		it('strips .html for endpoint routes when the pattern does not match otherwise', () => {
+			// Regression test for #17297: `.html`-suffixed requests to a dynamic endpoint
+			// (e.g. from `netlify dev` probing pretty-URL fallbacks) matched the route but
+			// failed to extract params, throwing "Missing parameter: id".
+			const route = makeRoute({
+				route: '/api/items/[id]/status',
+				segments: [
+					[staticPart('api')],
+					[staticPart('items')],
+					[dynamicPart('id')],
+					[staticPart('status')],
+				],
+				trailingSlash: 'ignore',
+				pathname: undefined,
+				type: 'endpoint',
+			});
+			assert.deepEqual(getParams(route, '/api/items/123/status'), { id: '123' });
+			assert.deepEqual(getParams(route, '/api/items/123/status.html'), { id: '123' });
+		});
+
+		it('strips /index.html for endpoint routes when the pattern does not match otherwise', () => {
+			const route = makeRoute({
+				route: '/api/items/[id]/status',
+				segments: [
+					[staticPart('api')],
+					[staticPart('items')],
+					[dynamicPart('id')],
+					[staticPart('status')],
+				],
+				trailingSlash: 'ignore',
+				pathname: undefined,
+				type: 'endpoint',
+			});
+			assert.deepEqual(getParams(route, '/api/items/123/status/index.html'), { id: '123' });
+		});
+
+		it('preserves .html captured by an endpoint param', () => {
+			// An endpoint whose param genuinely matches the `.html` pathname must keep the
+			// suffix — the fallback stripping only kicks in when the original pattern fails.
+			const route = makeRoute({
+				route: '/[path]',
+				segments: [[dynamicPart('path')]],
+				trailingSlash: 'ignore',
+				pathname: undefined,
+				type: 'endpoint',
+			});
+			assert.deepEqual(getParams(route, '/file.html'), { path: 'file.html' });
+		});
 	});
 
 	describe('no match', () => {

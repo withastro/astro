@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 7.0.1
+
+### Patch Changes
+
+- [#17270](https://github.com/withastro/astro/pull/17270) [`0142964`](https://github.com/withastro/astro/commit/014296439e084384432e13f2e5b192b0f595045d) Thanks [@FrancoKaddour](https://github.com/FrancoKaddour)! - Fix `@astrojs/solid-js` incorrectly claiming Svelte 5 components compiled with the newer `$$renderer` prop (instead of the legacy `$$payload`). Projects mixing Solid and Svelte could see Svelte components silently rendered as empty strings by the Solid renderer.
+
 ## 7.0.0
 
 ### Major Changes

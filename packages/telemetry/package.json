@@ -28,7 +28,6 @@
     "ci-info": "^4.4.0",
     "dset": "^3.1.4",
     "is-docker": "^4.0.0",
-    "is-wsl": "^3.1.1",
     "package-manager-detector": "^1.6.0"
   },
   "devDependencies": {
