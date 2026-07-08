@@ -1,18 +1,5 @@
 # astro
 
-## 7.0.7
-
-### Patch Changes
-
-- [#17317](https://github.com/withastro/astro/pull/17317) [`437401e`](https://github.com/withastro/astro/commit/437401ecc5b4dbf405425e079ecf532c365c339d) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a dev server memory leak which caused Node.js to emit warnings in the console.
-
-- [#17299](https://github.com/withastro/astro/pull/17299) [`1170b6d`](https://github.com/withastro/astro/commit/1170b6dbd5e7bfbb262ee847180e1e887436ad88) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a dev server crash when a `.html` or `/index.html` suffixed request (such as those `netlify dev` probes as pretty-URL fallbacks) matched a dynamic endpoint route, causing a `TypeError: Missing parameter` error
-
-- [#17316](https://github.com/withastro/astro/pull/17316) [`ed92e31`](https://github.com/withastro/astro/commit/ed92e316bdeefb855ce4242062a244da9161a2dc) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a build regression that could leave unresolved preload markers in inlined scripts with external dynamic imports
-
-- Updated dependencies [[`a77af9d`](https://github.com/withastro/astro/commit/a77af9deb64e81d2b09c818ae8394d33c916c42a), [`4aa78d8`](https://github.com/withastro/astro/commit/4aa78d840e4d7cfb4c69c40749703ec55a6e9789)]:
-  - @astrojs/telemetry@3.3.3
-
 ## 7.0.6
 
 ### Patch Changes
