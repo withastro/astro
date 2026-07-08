@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type { CompilerOptions } from 'typescript';
 import { normalizePath, type Plugin as VitePlugin } from 'vite';
 
@@ -9,6 +10,11 @@ type Alias = {
 	find: RegExp;
 	replacement: string;
 };
+
+/** Escape a single character for use inside a regex character class or pattern. */
+function escapeRegExpChar(char: string): string {
+	return /[\\^$*+?.()|[\]{}]/.test(char) ? '\\' + char : char;
+}
 
 /** Returns a list of compiled aliases. */
 const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
@@ -32,9 +38,7 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 			/** Regular Expression used to match a given path. */
 			const find = new RegExp(
 				`^${[...alias]
-					.map((segment) =>
-						segment === '*' ? '(.+)' : segment.replace(/[\\^$*+?.()|[\]{}]/, '\\$&'),
-					)
+					.map((segment) => (segment === '*' ? '(.+)' : escapeRegExpChar(segment)))
 					.join('')}$`,
 			);
 
@@ -85,6 +89,106 @@ function resolveWithAlias(id: string, configAlias: Alias[]): string | null {
 }
 
 /**
+ * Build a Sass importer that resolves tsconfig path aliases.
+ * Returns a findFileUrl importer compatible with Sass's modern API.
+ * Sass natively handles extensionless imports and _ prefix partials from the
+ * returned URL, so we only need to resolve the alias to a file path.
+ */
+function buildSassPathsImporter(
+	paths: Record<string, string[]>,
+	resolvedBaseUrl: string,
+): { findFileUrl(url: string): URL | null } {
+	// Pre-compile alias patterns
+	const compiledAliases: Array<{ find: RegExp; values: string[] }> = [];
+	for (const [aliasPattern, values] of Object.entries(paths)) {
+		const find = new RegExp(
+			`^${[...aliasPattern]
+				.map((segment) => (segment === '*' ? '(.+)' : escapeRegExpChar(segment)))
+				.join('')}$`,
+		);
+		compiledAliases.push({ find, values });
+	}
+
+	return {
+		findFileUrl(url: string): URL | null {
+			for (const alias of compiledAliases) {
+				const match = alias.find.exec(url);
+				if (!match) continue;
+
+				for (const value of alias.values) {
+					// Replace wildcard with captured group
+					const replaced = value.includes('*') ? value.replace('*', match[1] || '') : value;
+					const resolved = path.resolve(resolvedBaseUrl, replaced);
+
+					// Check if the exact file exists
+					const stats = fs.statSync(resolved, { throwIfNoEntry: false });
+					if (stats?.isFile()) {
+						return pathToFileURL(resolved);
+					}
+
+					// Check if it's a directory (Sass will look for index files)
+					if (stats?.isDirectory()) {
+						return pathToFileURL(resolved + path.sep);
+					}
+
+					// For extensionless imports, return the path if the parent directory exists.
+					// Sass's findFileUrl contract: Sass will try adding extensions (.scss, .sass, .css)
+					// and underscore prefix (_) to resolve the actual file.
+					const dir = path.dirname(resolved);
+					const dirStats = fs.statSync(dir, { throwIfNoEntry: false });
+					if (dirStats?.isDirectory()) {
+						return pathToFileURL(resolved);
+					}
+				}
+			}
+			return null;
+		},
+	};
+}
+
+/**
+ * Generate Vite config for CSS preprocessor tsconfig alias support.
+ * Injects loadPaths/paths for baseUrl and custom importers for tsconfig paths
+ * so that Sass @use/@import and Less @import can resolve tsconfig aliases.
+ */
+function getCssPreprocessorConfig(settings: AstroSettings): Record<string, unknown> | null {
+	const { tsConfig, tsConfigPath } = settings;
+	if (!tsConfig || !tsConfigPath || !tsConfig.compilerOptions) return null;
+
+	const { baseUrl, paths } = tsConfig.compilerOptions as CompilerOptions;
+	const effectiveBaseUrl = baseUrl ?? (paths ? '.' : undefined);
+	if (!effectiveBaseUrl) return null;
+
+	const resolvedBaseUrl = path.resolve(path.dirname(tsConfigPath), effectiveBaseUrl);
+
+	const preprocessorOptions: Record<string, unknown> = {};
+
+	// For Sass/SCSS: loadPaths for baseUrl, importers for paths aliases
+	const sassConfig: Record<string, unknown> = {};
+	if (baseUrl) {
+		sassConfig.loadPaths = [resolvedBaseUrl];
+	}
+	if (paths && Object.keys(paths).length > 0) {
+		sassConfig.importers = [buildSassPathsImporter(paths, resolvedBaseUrl)];
+	}
+	if (Object.keys(sassConfig).length > 0) {
+		preprocessorOptions.scss = { ...sassConfig };
+		preprocessorOptions.sass = { ...sassConfig };
+	}
+
+	// For Less: paths for baseUrl
+	if (baseUrl) {
+		preprocessorOptions.less = { paths: [resolvedBaseUrl] };
+	}
+
+	if (Object.keys(preprocessorOptions).length > 0) {
+		return { css: { preprocessorOptions } };
+	}
+
+	return null;
+}
+
+/**
  * Regex matching CSS @import statements with the specifier in capture group 1.
  * https://regex101.com/?regex=%40import%5Cs%2B%28%3F%3Aurl%5C%28%5Cs*%29%3F%5B%27%22%5D%28%5B%5E%27%22%5D%2B%29%5B%27%22%5D%5Cs*%5C%29%3F&testString=&flags=g&flavor=pcre2&delimiter=%2F
  */
@@ -123,6 +227,8 @@ export default function configAliasVitePlugin({
 	const configAlias = getConfigAlias(settings);
 	if (!configAlias) return null;
 
+	const cssPreprocessorConfig = getCssPreprocessorConfig(settings);
+
 	return [
 		// Deprecated CSS fallback for Vite's transform pipeline. Only supports
 		// `@import "..."`, `@import url("...")`, and quoted `url("...")`.
@@ -131,6 +237,10 @@ export default function configAliasVitePlugin({
 		{
 			name: 'astro:tsconfig-alias-css',
 			enforce: 'pre',
+			config() {
+				if (!cssPreprocessorConfig) return;
+				return cssPreprocessorConfig;
+			},
 			transform: {
 				filter: {
 					id: {
