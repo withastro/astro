@@ -1,5 +1,13 @@
 # @astrojs/telemetry
 
+## 3.3.3
+
+### Patch Changes
+
+- [#17323](https://github.com/withastro/astro/pull/17323) [`4298883`](https://github.com/withastro/astro/commit/4298883399550cae5d5e089d73cb9adadbc2d69b) Thanks [@ematipico](https://github.com/ematipico)! - Refactors internal WSL detection by removing the `is-wsl` dependency.
+
+- [#17323](https://github.com/withastro/astro/pull/17323) [`4298883`](https://github.com/withastro/astro/commit/4298883399550cae5d5e089d73cb9adadbc2d69b) Thanks [@ematipico](https://github.com/ematipico)! - Replaced `which-pm-runs` dependency with `package-manager-detector`
+
 ## 3.3.2
 
 ### Patch Changes

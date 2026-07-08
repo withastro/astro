@@ -1,5 +1,22 @@
 # astro
 
+## 7.0.7
+
+### Patch Changes
+
+- [#17318](https://github.com/withastro/astro/pull/17318) [`23a4120`](https://github.com/withastro/astro/commit/23a4120b1ba546521ed66c09cb39e346aee6b75a) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes CSS module scoped-name hash mismatch in `astro dev` when using `vite.css.transformer: 'lightningcss'` with content collections. Previously, a component importing a CSS module and rendered via content collection `render()` would get different class name hashes in the element and the injected `<style>` tag, causing styles not to apply.
+
+- [#17323](https://github.com/withastro/astro/pull/17323) [`4298883`](https://github.com/withastro/astro/commit/4298883399550cae5d5e089d73cb9adadbc2d69b) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a dev server memory leak which caused Node.js to emit warnings in the console.
+
+- [#17323](https://github.com/withastro/astro/pull/17323) [`4298883`](https://github.com/withastro/astro/commit/4298883399550cae5d5e089d73cb9adadbc2d69b) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a dev server crash when a `.html` or `/index.html` suffixed request (such as those `netlify dev` probes as pretty-URL fallbacks) matched a dynamic endpoint route, causing a `TypeError: Missing parameter` error
+
+- [#17325](https://github.com/withastro/astro/pull/17325) [`cebc404`](https://github.com/withastro/astro/commit/cebc40495cd09e8036af34c2f668fc2965e089b0) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a bug where CSS `@import` rules could end up mid-stylesheet after inline CSS chunks were merged during build, causing browsers to silently ignore them
+
+- [#17323](https://github.com/withastro/astro/pull/17323) [`4298883`](https://github.com/withastro/astro/commit/4298883399550cae5d5e089d73cb9adadbc2d69b) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a build regression that could leave unresolved preload markers in inlined scripts with external dynamic imports
+
+- Updated dependencies [[`4298883`](https://github.com/withastro/astro/commit/4298883399550cae5d5e089d73cb9adadbc2d69b), [`4298883`](https://github.com/withastro/astro/commit/4298883399550cae5d5e089d73cb9adadbc2d69b)]:
+  - @astrojs/telemetry@3.3.3
+
 ## 7.0.6
 
 ### Patch Changes
