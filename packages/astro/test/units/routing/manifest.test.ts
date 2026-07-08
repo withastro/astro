@@ -517,6 +517,32 @@ describe('routing - createRoutesList', () => {
 		);
 	});
 
+	it('dynamic file endpoints force trailingSlash never. issues#17001', async () => {
+		const fixture = await createFixture({
+			'/src/pages/api/[name].json.ts': `export const GET = () => new Response('{}')`,
+		});
+
+		const settings = await createBasicSettings({
+			root: fixture.path,
+			trailingSlash: 'always',
+		});
+		const manifest = await createRoutesList(
+			{
+				cwd: fixture.path,
+				settings,
+			},
+			defaultLogger,
+		);
+		const route = manifest.routes.find((r) => r.route === '/api/[name].json');
+		assert.ok(route, 'dynamic file endpoint route should exist');
+		assert.equal(route.pattern.test('/api/bar.json'), true, 'should match without trailing slash');
+		assert.equal(
+			route.pattern.test('/api/bar.json/'),
+			false,
+			'should not match with trailing slash',
+		);
+	});
+
 	it('should concatenate each part of the segment. issues#10122', async () => {
 		const fixture = await createFixture({
 			'/src/pages/a-[b].astro': `<h1>test</h1>`,

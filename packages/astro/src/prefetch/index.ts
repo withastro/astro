@@ -306,7 +306,8 @@ function isSlowConnection() {
 }
 
 /**
- * Listen to page loads and handle Astro's View Transition specific events
+ * Listen to page loads and handle Astro's View Transition specific events.
+ * Also observes DOM mutations for dynamically added anchors (e.g. from server islands).
  */
 function onPageLoad(cb: () => void) {
 	cb();
@@ -320,6 +321,18 @@ function onPageLoad(cb: () => void) {
 		}
 		cb();
 	});
+
+	// Watch for dynamically added anchors (e.g. from server islands)
+	new MutationObserver((mutations) => {
+		for (const mutation of mutations) {
+			for (const node of mutation.addedNodes) {
+				if (node instanceof Element && (node.tagName === 'A' || node.querySelector?.('a'))) {
+					cb();
+					return;
+				}
+			}
+		}
+	}).observe(document.body, { childList: true, subtree: true });
 }
 
 /**

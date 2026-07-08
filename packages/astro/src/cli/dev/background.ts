@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, openSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { createRequire } from 'node:module';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroLogger } from '../../core/logger/core.js';
 import type { Flags } from '../flags.js';
@@ -14,6 +15,8 @@ import {
 	type LockFileData,
 } from '../../core/dev/lockfile.js';
 import { resolveRoot } from '../../core/config/config.js';
+
+const require = createRequire(import.meta.url);
 
 export interface BackgroundResult {
 	pid: number;
@@ -120,7 +123,11 @@ export async function background({
 	// On Windows, .bin shims are .cmd batch files that cannot be spawned without
 	// a shell, so we avoid the shim entirely for cross-platform compatibility.
 	const rootPath = fileURLToPath(root);
-	const astroBin = resolve(rootPath, 'node_modules', 'astro', 'bin', 'astro.mjs');
+	// Resolve astro's entry from its own package location rather than the project
+	// root: in a hoisted monorepo (e.g. bun workspaces) `astro` is deduped to the
+	// workspace-root node_modules, so a project-relative path does not exist.
+	// `astro/bin/astro.mjs` is not exported, so resolve via the package manifest.
+	const astroBin = resolve(dirname(require.resolve('astro/package.json')), 'bin', 'astro.mjs');
 
 	// Spawn the dev server as a detached child process
 	const child = spawn(process.execPath, [astroBin, ...args], {

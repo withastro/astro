@@ -91,8 +91,13 @@ interface RouteCacheEntry {
 
 /**
  * Manage the route cache, responsible for caching data related to each route,
- * including the result of calling getStaticPath() so that it can be reused across
- * responses during dev and only ever called once during build.
+ * including the result of calling getStaticPaths(). This gives route matching,
+ * params/props resolution, and prerender generation a shared static-path table.
+ *
+ * In dev, this cache intentionally survives requests. It is invalidated by route
+ * module identity changes after HMR or by explicit cache clears from content data
+ * changes, not by each request. Dev route matching can call getStaticPaths()
+ * before rendering, and render-time props resolution may ask for it again.
  */
 export class RouteCache {
 	private logger: AstroLogger;

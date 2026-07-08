@@ -1,5 +1,18 @@
 # @astrojs/markdoc
 
+## 2.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c)]:
+  - @astrojs/internal-helpers@0.10.1
+
+## 2.0.2
+
+### Patch Changes
+
+- [#17249](https://github.com/withastro/astro/pull/17249) [`02b73b0`](https://github.com/withastro/astro/commit/02b73b0fc2e32102e788fd9031ce061337490a73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `peerDependencies` field used incorrect dependencies.
+
 ## 2.0.1
 
 ### Patch Changes
@@ -1085,11 +1098,7 @@
   import shiki from '@astrojs/markdoc/shiki';
 
   export default defineMarkdocConfig({
-    extends: [
-      shiki({
-        /** Shiki config options */
-      }),
-    ],
+    extends: [shiki({/** Shiki config options */})],
   });
   ```
 

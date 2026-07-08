@@ -179,7 +179,7 @@ export async function generateHydrateScript(
 
 	transitionDirectivesToCopyOnIsland.forEach((name) => {
 		if (typeof props[name] !== 'undefined') {
-			island.props[name] = props[name];
+			island.props[name] = escapeHTML(String(props[name]));
 		}
 	});
 

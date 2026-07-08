@@ -47,8 +47,7 @@
     "eslint:ci": "NODE_OPTIONS=\"--max-old-space-size=8192\" eslint --cache --concurrency=auto",
     "lint:fix": "biome lint --write --unsafe",
     "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail exec publint",
-    "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",
-    "preinstall": "npx only-allow pnpm"
+    "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format"
   },
   "workspaces": [
     "packages/markdown/*",
@@ -59,7 +58,12 @@
   "engines": {
     "node": ">=22.12.0"
   },
-  "packageManager": "pnpm@11.5.0",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.10.0"
+    }
+  },
   "dependencies": {
     "astro-benchmark": "workspace:*"
   },
@@ -75,13 +79,12 @@
     "eslint": "^10.4.0",
     "eslint-plugin-regexp": "^3.1.0",
     "knip": "5.82.1",
-    "only-allow": "^1.2.2",
     "pkg-pr-new": "^0.0.71",
-    "prettier": "^3.8.1",
+    "prettier": "^3.9.0",
     "prettier-plugin-astro": "^0.14.1",
     "publint": "^0.3.17",
     "tinyglobby": "^0.2.16",
-    "turbo": "^2.8.15",
+    "turbo": "^2.10.2",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.59.1",
     "valibot": "^1.2.0"

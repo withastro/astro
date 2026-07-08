@@ -1,4 +1,8 @@
 import type { APIContext } from '../types/public/context.js';
+import {
+	createCrossOriginForbiddenResponse,
+	isForbiddenCrossOriginRequest,
+} from '../core/app/origin-check.js';
 import { PipelineFeatures } from '../core/base-pipeline.js';
 import type { FetchState } from '../core/fetch/fetch-state.js';
 import { getActionContext, serializeActionResult } from './runtime/server.js';
@@ -39,6 +43,17 @@ export class ActionHandler {
 		const { action, setActionResult } = getActionContext(apiContext);
 		if (!action) {
 			return undefined;
+		}
+
+		// The origin check normally runs in the origin-check middleware, but the
+		// action dispatch can run before that middleware depending on how the
+		// pipeline is composed. Apply the same check here so it holds regardless
+		// of ordering.
+		if (
+			state.pipeline.manifest.checkOrigin &&
+			isForbiddenCrossOriginRequest(apiContext.request, apiContext.url, apiContext.isPrerendered)
+		) {
+			return Promise.resolve(createCrossOriginForbiddenResponse(apiContext.request));
 		}
 
 		return this.#executeAction(action, setActionResult);

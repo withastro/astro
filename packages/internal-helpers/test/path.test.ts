@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { isParentDirectory, isRemotePath, normalizePathname } from '../dist/path.js';
+import {
+	isInternalPath,
+	isParentDirectory,
+	isRemotePath,
+	normalizePathname,
+} from '../dist/path.js';
 
 describe('isRemotePath', () => {
 	const remotePaths = [
@@ -846,5 +851,30 @@ describe('normalizePathname', () => {
 			assert.equal(normalizePathname('/about/', 'preserve', 'always'), '/about/');
 			assert.equal(normalizePathname('/', 'preserve', 'ignore'), '/');
 		});
+	});
+});
+
+describe('isInternalPath', () => {
+	it('recognizes known internal prefixes', () => {
+		assert.equal(isInternalPath('/_astro/index.js'), true);
+		assert.equal(isInternalPath('/@vite/client'), true);
+		assert.equal(isInternalPath('/.well-known/foo'), true);
+		assert.equal(isInternalPath('//example.com/press'), true);
+	});
+
+	it('treats backslash-prefixed paths like their forward-slash equivalent', () => {
+		// Browsers fold `\` to `/`, so `/\host` resolves like `//host`.
+		assert.equal(isInternalPath('/\\example.com/press'), true);
+		assert.equal(isInternalPath('/\\'), true);
+	});
+
+	it('does not flag regular paths', () => {
+		assert.equal(isInternalPath('/about'), false);
+		assert.equal(isInternalPath('/one/two'), false);
+	});
+
+	it('does not flag paths that are only slashes', () => {
+		assert.equal(isInternalPath('//'), false);
+		assert.equal(isInternalPath('///'), false);
 	});
 });

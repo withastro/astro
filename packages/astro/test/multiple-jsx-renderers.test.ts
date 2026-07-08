@@ -81,6 +81,33 @@ describe('With include option', () => {
 			assert.ok(island.attr('renderer-url')?.includes('meow-client'));
 		});
 	});
+
+	describe('client:load with extensionless imports', () => {
+		// Extensionless imports (`../components/WoofCounter.woof`) must still
+		// produce a componentUrl with the real on-disk extension so that
+		// include globs written against the filename (`**/*.woof.jsx`) match.
+		it('WoofCounter matched by include filter and rendered by woof', async () => {
+			const html = await fixture.readFile('/client-load-extensionless/index.html');
+			const $ = cheerio.load(html);
+			const woofRoot = $('#woof-root');
+			const island = woofRoot.find('astro-island');
+			assert.equal(woofRoot.find('[data-renderer="woof"]').length, 1);
+			assert.ok(woofRoot.text().includes('Woof Counter'));
+			assert.ok(island.attr('component-url')?.includes('WoofCounter.woof'));
+			assert.ok(island.attr('renderer-url')?.includes('woof-client'));
+		});
+
+		it('MeowCounter matched by include filter and rendered by meow', async () => {
+			const html = await fixture.readFile('/client-load-extensionless/index.html');
+			const $ = cheerio.load(html);
+			const meowRoot = $('#meow-root');
+			const island = meowRoot.find('astro-island');
+			assert.equal(meowRoot.find('[data-renderer="meow"]').length, 1);
+			assert.ok(meowRoot.text().includes('Meow Counter'));
+			assert.ok(island.attr('component-url')?.includes('MeowCounter.meow'));
+			assert.ok(island.attr('renderer-url')?.includes('meow-client'));
+		});
+	});
 });
 
 describe('Without include option', () => {

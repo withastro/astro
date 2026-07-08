@@ -17,8 +17,12 @@ function isHeadAndContent(value: unknown): value is { head: string } {
 	return typeof value === 'object' && value !== null && headAndContentSym in value;
 }
 
-function createResult(): SSRResult {
-	return {} as SSRResult;
+function createResult(pendingSlotEvaluations: Promise<unknown>[] = []): SSRResult {
+	return { _metadata: { pendingSlotEvaluations } } as unknown as SSRResult;
+}
+
+function tick(): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, 0));
 }
 
 describe('head propagation buffer', () => {
@@ -88,5 +92,48 @@ describe('head propagation buffer', () => {
 			'<link rel="stylesheet" href="/early.css">',
 			'<link rel="stylesheet" href="/late.css">',
 		]);
+	});
+
+	it('drains async slot pre-renders that register propagators after an await', async () => {
+		const propagators = new Set<HeadPropagator>();
+		// Mimics an async slot whose markup registers a propagating component
+		// (e.g. content `Content` with styles) only after an `await` resolves.
+		const slotEvaluation = tick().then(() => {
+			propagators.add({
+				init: () => createHeadAndContentLike('<style>.from-async-slot{color:red}</style>'),
+			});
+		});
+
+		const result = createResult([slotEvaluation]);
+		const collected = await collectPropagatedHeadParts({ propagators, result, isHeadAndContent });
+
+		assert.deepEqual(collected, ['<style>.from-async-slot{color:red}</style>']);
+		// The queue is fully drained.
+		assert.equal(result._metadata.pendingSlotEvaluations.length, 0);
+	});
+
+	it('drains nested async slot pre-renders queued while collecting', async () => {
+		const propagators = new Set<HeadPropagator>();
+		const result = createResult();
+
+		// Outer async slot resolves, registers a propagator AND queues a deeper
+		// async slot pre-render — the case a one-shot `Promise.all` would miss.
+		const outer = tick().then(() => {
+			propagators.add({
+				init: () => createHeadAndContentLike('<style>.outer{}</style>'),
+			});
+			const inner = tick().then(() => {
+				propagators.add({
+					init: () => createHeadAndContentLike('<style>.inner{}</style>'),
+				});
+			});
+			result._metadata.pendingSlotEvaluations.push(inner);
+		});
+		result._metadata.pendingSlotEvaluations.push(outer);
+
+		const collected = await collectPropagatedHeadParts({ propagators, result, isHeadAndContent });
+
+		assert.deepEqual(collected, ['<style>.outer{}</style>', '<style>.inner{}</style>']);
+		assert.equal(result._metadata.pendingSlotEvaluations.length, 0);
 	});
 });

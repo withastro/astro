@@ -33,6 +33,15 @@ export class AstroComponentInstance {
 			// prerender the slots eagerly to make collection entries propagate styles and scripts
 			let didRender = false;
 			let value = slots[name](result);
+			// When a slot is async (contains `await` in its markup), the eager
+			// pre-render above only runs up to the first `await`, so any propagating
+			// component sequenced after it (e.g. a content collection `Content` with
+			// styles) is not registered yet. On propagation routes, track the pending
+			// pre-render so head buffering can await it and discover those propagators
+			// before flushing the head. See `collectPropagatedHeadParts`.
+			if (result._metadata.routeHasPropagation && isPromise(value)) {
+				result._metadata.pendingSlotEvaluations.push(value);
+			}
 			this.slotValues[name] = () => {
 				// use prerendered value only once
 				if (!didRender) {
