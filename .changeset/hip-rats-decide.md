@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds a new experimental `dataStore` option for controlling how the content layer persists its data store
+Adds a new experimental `collectionStorage` option for controlling how the content layer persists its data store
 
 By default, Astro serializes the entire content layer data store to a single file (`.astro/data-store.json`). For very large content collections, this single serialized string and file can grow large enough to hit JavaScript string-length or file-size limits.
 
