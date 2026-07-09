@@ -12,6 +12,12 @@ import { beforeAll, bench, describe } from 'vitest';
  * - many-slots:         #9 eager slot prerendering
  * - large-array:        #8 BufferedRenderer per array child
  * - static-heavy:       #1 markHTMLString baseline, #11/#12 future comparison
+ * - head-propagation-*: propagator collection in collectPropagatedHeadParts
+ *
+ * The head-propagation pages run at two sizes (1000 and 2000 propagating
+ * <Content /> instances) so complexity-class regressions are visible: with
+ * linear collection the 2000-page costs ~2x the 1000-page, while a quadratic
+ * scan over the propagator set pushes that ratio toward 4x.
  *
  * Requires: pnpm run build:bench
  */
@@ -67,6 +73,16 @@ describe('Rendering perf (non-streaming)', () => {
 		const request = new Request(new URL('http://example.com/static-heavy'));
 		await nonStreamingApp.render(request);
 	});
+
+	bench('head-propagation-1000 (propagator collection)', async () => {
+		const request = new Request(new URL('http://example.com/head-propagation-1000'));
+		await nonStreamingApp.render(request);
+	});
+
+	bench('head-propagation-2000 (propagator collection, 2x scale)', async () => {
+		const request = new Request(new URL('http://example.com/head-propagation-2000'));
+		await nonStreamingApp.render(request);
+	});
 });
 
 // Streaming path — included for comparison. Optimizations to the sync path
@@ -85,6 +101,11 @@ describe('Rendering perf (streaming)', () => {
 
 	bench('large-array [streaming]', async () => {
 		const request = new Request(new URL('http://example.com/large-array'));
+		await streamingApp.render(request);
+	});
+
+	bench('head-propagation-2000 [streaming]', async () => {
+		const request = new Request(new URL('http://example.com/head-propagation-2000'));
 		await streamingApp.render(request);
 	});
 });
