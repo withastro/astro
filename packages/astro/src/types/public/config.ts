@@ -3133,8 +3133,8 @@ export interface AstroUserConfig<
 
 		/**
 		 * @name experimental.collectionStorage
-		 * @type {'file' | 'chunked'}
-		 * @default `'file'`
+		 * @type {'single-file' | 'chunked'}
+		 * @default `'single-file'`
 		 * @version 7.1.0
 		 * @description
 		 *
@@ -3156,7 +3156,7 @@ export interface AstroUserConfig<
 		 * });
 		 * ```
 		 *
-		 * See the [experimental data store chunking documentation](https://docs.astro.build/en/reference/experimental-flags/data-store/) for more information.
+		 * See the [experimental data store chunking documentation](https://docs.astro.build/en/reference/experimental-flags/collection-storage/) for more information.
 		 */
 		collectionStorage?: 'single-file' | 'chunked';
 	};
