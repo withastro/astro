@@ -136,4 +136,68 @@ describe('head propagation buffer', () => {
 		assert.deepEqual(collected, ['<style>.outer{}</style>', '<style>.inner{}</style>']);
 		assert.equal(result._metadata.pendingSlotEvaluations.length, 0);
 	});
+
+	it('drains async slot pre-renders queued by a propagator before advancing', async () => {
+		const propagators = new Set<HeadPropagator>();
+		const result = createResult();
+		propagators.add({
+			init() {
+				result._metadata.pendingSlotEvaluations.push(
+					tick().then(() => {
+						propagators.add({
+							init: () => createHeadAndContentLike('<style>.from-async-slot{}</style>'),
+						});
+					}),
+				);
+				return createHeadAndContentLike('<style>.initial{}</style>');
+			},
+		});
+
+		const collected = await collectPropagatedHeadParts({ propagators, result, isHeadAndContent });
+
+		assert.deepEqual(collected, ['<style>.initial{}</style>', '<style>.from-async-slot{}</style>']);
+		assert.equal(result._metadata.pendingSlotEvaluations.length, 0);
+	});
+
+	it('iterates the propagator set linearly, not quadratically', async () => {
+		// Pages can render thousands of propagating component instances (e.g.
+		// MDX `<Content />` repeated in a loop). A collection strategy that
+		// restarts its scan of the set per propagator is O(N²) in iteration
+		// steps and dominates render time at that scale.
+		let steps = 0;
+		class CountingSet<T> extends Set<T> {
+			[Symbol.iterator](): SetIterator<T> {
+				const iterator = super[Symbol.iterator]();
+				const counting = {
+					[Symbol.iterator]() {
+						return counting;
+					},
+					next() {
+						steps++;
+						return iterator.next();
+					},
+				};
+				return counting as SetIterator<T>;
+			}
+		}
+
+		const count = 100;
+		const propagators = new CountingSet<HeadPropagator>();
+		for (let i = 0; i < count; i++) {
+			propagators.add({ init: () => createHeadAndContentLike(`<style>.s${i}{}</style>`) });
+		}
+
+		const collected = await collectPropagatedHeadParts({
+			propagators,
+			result: createResult(),
+			isHeadAndContent,
+		});
+
+		assert.equal(collected.length, count);
+		// A restart-per-propagator scan takes ~N²/2 steps (~5,000 for N=100).
+		assert.ok(
+			steps <= count * 3,
+			`expected linear iteration over ${count} propagators, took ${steps} steps`,
+		);
+	});
 });
