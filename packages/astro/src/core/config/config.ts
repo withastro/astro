@@ -21,7 +21,15 @@ export function resolveRoot(cwd?: string | URL): string {
 	if (cwd instanceof URL) {
 		cwd = fileURLToPath(cwd);
 	}
-	return cwd ? path.resolve(cwd) : process.cwd();
+	const resolved = cwd ? path.resolve(cwd) : process.cwd();
+	// Resolve symlinks so that the root path matches Vite's resolved module IDs.
+	// Building from a symlinked directory otherwise causes path mismatches in the
+	// CSS pipeline, where `pagesByViteID` keys no longer match Rollup module graph IDs.
+	try {
+		return fs.realpathSync(resolved);
+	} catch {
+		return resolved;
+	}
 }
 
 // Config paths to search for.
