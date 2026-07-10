@@ -64,7 +64,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Not defined here. For now, follow the same conventions and patterns that you detect in the surrounding code.
 - Keep formatting consistent. Our rules are defined in our [biome.jsonc](./biome.jsonc) file, enforced by Biome.
 - Run `pnpm format` to auto-format the entire repo.
-- Run `pnpm lint` to lint the entire repo.
+- Run `pnpm lint:ai` to lint the entire repo.
 
 # Environment Guide
 
@@ -86,7 +86,7 @@ In error stack traces, built files from workspace packages in `node_modules/` ma
 
 Edits to source files take effect after rebuilding the package via `pnpm build`.
 
-Use `pnpm -C <dir> <command>` for project-local script commands when working in packages/examples/triage directories (Example: `pnpm -C packages/astro build`, `pnpm -C examples/blog dev`). Only omit `-C` flag when intentionally working in the monorepo root (Example: `pnpm format`, `pnpm lint`, `pnpm test:types`).
+Use `pnpm -C <dir> <command>` for project-local script commands when working in packages/examples/triage directories (Example: `pnpm -C packages/astro build`, `pnpm -C examples/blog dev`). Only omit `-C` flag when intentionally working in the monorepo root (Example: `pnpm format`, `pnpm lint:ai`, `pnpm test:types`).
 
 # Running Tests
 
