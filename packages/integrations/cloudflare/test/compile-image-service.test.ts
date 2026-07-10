@@ -3,6 +3,9 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { type DevServer, type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
+const skipRealSharp =
+	process.platform === 'win32' && 'Sharp native binary cannot load on Windows CI';
+
 describe('CompileImageService', () => {
 	let fixture: Fixture;
 	before(async () => {
@@ -97,8 +100,6 @@ describe('CompileImageService', () => {
 // the Windows runner: `ERR_DLOPEN_FAILED`). Those two tests are skipped on Windows;
 // the Sharp-free `user` service runs its stub transform() on the Node side and is
 // exercised on all platforms.
-const skipRealSharp =
-	process.platform === 'win32' && 'Sharp native binary cannot load on Windows CI';
 describe('CompileImageService build-time image generation', () => {
 	async function readServerBundle(fixture: Fixture) {
 		const serverFiles = await fixture.glob('server/**/*.mjs');
@@ -260,9 +261,6 @@ describe('CompileImageService build-time image generation', () => {
 });
 
 describe('CompileImageService with prerenderEnvironment: node', () => {
-	const skipRealSharp =
-		process.platform === 'win32' && 'Sharp native binary cannot load on Windows CI';
-
 	function assertRealWebp(data: Buffer) {
 		assert.equal(data.subarray(0, 4).toString('utf8'), 'RIFF');
 		assert.equal(data.subarray(8, 12).toString('utf8'), 'WEBP');
