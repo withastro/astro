@@ -507,10 +507,50 @@ export default function createIntegration({
 								: undefined,
 						}),
 					);
+				} else if (hasBuildImageService) {
+					// When prerenderEnvironment is 'node', prerendering runs in the same
+					// Node process using the workerd-safe image service stub (which is a
+					// passthrough). We need to install the real image service (sharp or
+					// the user's custom service) before the image generation pipeline runs.
+					// This mirrors what collectStaticImages does in the workerd prerenderer.
+					const entrypoint = hasUserBuildImageService
+						? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
+						: undefined;
+					setPrerenderer((defaultPrerenderer) => ({
+						...defaultPrerenderer,
+						async collectStaticImages() {
+							globalThis.astroAsset ??= {};
+							if (entrypoint) {
+								const mod = await import(entrypoint);
+								globalThis.astroAsset.imageService = mod.default ?? mod;
+							} else {
+								const { default: sharpService } = await import('astro/assets/services/sharp');
+								globalThis.astroAsset.imageService = sharpService;
+							}
+							// Static images are already in globalThis.astroAsset.staticImages
+							// from the Node-side prerendering. Return an empty map since
+							// there are no additional images to merge from a separate runtime.
+							return new Map();
+						},
+					}));
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
+					// When prerenderEnvironment is 'node' and we used setPrerenderer
+					// to add collectStaticImages for compile-time image optimization,
+					// the prerender entrypoint gets skipped (because settings.prerenderer
+					// is truthy). Restore the default entrypoint since we're still using
+					// the default Node-based prerenderer — we only wrapped it.
+					if (prerenderEnvironment === 'node' && hasBuildImageService) {
+						vite.environments ??= {};
+						vite.environments.prerender ??= {};
+						(vite.environments.prerender as Record<string, any>).build ??= {};
+						(vite.environments.prerender as Record<string, any>).build.rolldownOptions ??= {};
+						(vite.environments.prerender as Record<string, any>).build.rolldownOptions.input =
+							'astro/entrypoints/prerender';
+					}
+
 					vite.resolve ||= {};
 					vite.resolve.alias ||= {};
 					vite.ssr ||= {};
