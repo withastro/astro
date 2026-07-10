@@ -10,8 +10,9 @@ import { ActionHandler } from '../../actions/handler.js';
 import type { BaseApp } from '../app/base.js';
 import type { Pipeline } from '../base-pipeline.js';
 import { FetchState as BaseFetchState } from './fetch-state.js';
-import type { AstroFetchState } from './fetch-state.js';
-export type { AstroFetchState };
+import type { AstroFetchState, FetchStateOptions } from './fetch-state.js';
+export type { AstroFetchState, FetchStateOptions };
+export { type NormalizePathname, normalizePathname } from '../util/pathname.js';
 import { CacheHandler } from '../cache/handler.js';
 import { appSymbol } from '../constants.js';
 import { I18n } from '../i18n/handler.js';
@@ -34,8 +35,8 @@ function getApp(request: Request): BaseApp<Pipeline> {
 }
 
 export class FetchState extends BaseFetchState {
-	constructor(request: Request) {
-		super(getApp(request).pipeline, request);
+	constructor(request: Request, options?: FetchStateOptions) {
+		super(getApp(request).pipeline, request, undefined, options);
 	}
 }
 

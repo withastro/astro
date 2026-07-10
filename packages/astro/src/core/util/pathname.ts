@@ -1,3 +1,5 @@
+import { collapseDuplicateSlashes } from '@astrojs/internal-helpers/path';
+
 /**
  * Thrown when a URL path is encoded so many times that we give up decoding it
  * (see {@link validateAndDecodePathname}). When this happens we reject the
@@ -71,3 +73,55 @@ export function validateAndDecodePathname(pathname: string): string {
 	}
 	return decoded;
 }
+
+/**
+ * A function that turns a base-stripped, leading-slash-prefixed request
+ * pathname into the final, canonical pathname Astro uses for routing, param
+ * extraction, and the user-facing `Astro.url` / `context.url`.
+ *
+ * The return value is used **verbatim** — Astro applies no further decoding or
+ * slash normalization on top of it. This means a custom implementation has
+ * full control over the canonical pathname, but also takes on responsibility
+ * for any canonicalization the default performs for security (see
+ * {@link normalizePathname}).
+ *
+ * The default is Astro's security-hardened {@link normalizePathname}. Advanced
+ * users can supply their own via `new FetchState(request, { normalizePathname })`
+ * — for example a no-op `(pathname) => pathname` to keep percent-encoded
+ * sequences like `%25` intact so `Astro.url.pathname` matches
+ * `new URL(Astro.request.url).pathname`.
+ */
+export type NormalizePathname = (pathname: string) => string;
+
+/**
+ * The default {@link NormalizePathname} used by `FetchState`, and Astro's
+ * built-in, security-hardened pathname canonicalizer. It performs three steps,
+ * in this order:
+ *
+ * 1. Iteratively decodes the path until it stops changing so middleware and
+ *    routing always agree on one canonical path, rejecting paths encoded too
+ *    many times (see {@link validateAndDecodePathname}).
+ * 2. Rewrites backslashes to forward slashes. The WHATWG URL parser does this
+ *    for http(s) URLs when a string is assigned to `url.pathname`, so doing it
+ *    here at the string level keeps the plain-string `this.pathname` and the
+ *    parsed `this.url.pathname` in agreement — and, crucially, lets step 3
+ *    catch the slashes it introduces.
+ * 3. Collapses runs of duplicate slashes (`//` → `/`). This runs *after* the
+ *    two steps above so it also catches slashes introduced by decoding an
+ *    encoded backslash (`%5C` → `\` → `/`), preventing bypasses like `//admin`
+ *    slipping past a `pathname.startsWith('/admin')` middleware check. Added as
+ *    a security fix in astro#15757.
+ *
+ * The result is fully canonical, so callers can use it verbatim without any
+ * further decoding or slash normalization. Exported so custom implementations
+ * can delegate to it (fully or partially), and so security tests can assert
+ * against the exact default.
+ */
+export const normalizePathname: NormalizePathname = (pathname) => {
+	const decoded = validateAndDecodePathname(pathname);
+	// Match the WHATWG URL parser's backslash handling for http(s) URLs, then
+	// collapse so an encoded backslash (e.g. `%5Cadmin` → `\admin` → `/admin`)
+	// can't reintroduce a `//admin`-style middleware bypass.
+	const withForwardSlashes = decoded.replace(/\\/g, '/');
+	return collapseDuplicateSlashes(withForwardSlashes);
+};

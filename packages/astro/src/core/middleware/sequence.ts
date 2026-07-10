@@ -5,6 +5,7 @@ import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
 import { getParams, type Pipeline } from '../render/index.js';
 import { setOriginPathname } from '../routing/rewrite.js';
+import { createNormalizedUrl } from '../util/normalized-url.js';
 import { defineMiddleware } from './defineMiddleware.js';
 
 // From SvelteKit: https://github.com/sveltejs/kit/blob/master/packages/kit/src/exports/hooks/sequence.js
@@ -50,7 +51,7 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 						}
 						const oldPathname = handleContext.url.pathname;
 						const pipeline: Pipeline = Reflect.get(handleContext, pipelineSymbol);
-						const { routeData, pathname } = await pipeline.tryRewrite(
+						const { routeData, pathname, newUrl } = await pipeline.tryRewrite(
 							payload,
 							handleContext.request,
 						);
@@ -76,7 +77,14 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 
 						carriedPayload = payload;
 						handleContext.request = newRequest;
-						handleContext.url = new URL(newRequest.url);
+						// Normalize the URL the same way `FetchState#applyRewrite`
+						// does (decode + collapse slashes) using the resolved
+						// rewrite target, so intermediate middleware in the chain
+						// see the exact `context.url` the rendered route will use.
+						// Previously this was `new URL(newRequest.url)`, which left
+						// the pathname percent-encoded and could diverge from the
+						// pathname used for routing/params.
+						handleContext.url = createNormalizedUrl(newUrl.href);
 						handleContext.params = getParams(routeData, pathname);
 						handleContext.routePattern = routeData.route;
 						setOriginPathname(

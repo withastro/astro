@@ -30,6 +30,11 @@ interface TryRewriteResult {
  *
  * Called by both `Rewrites.execute()` (user-triggered `Astro.rewrite`)
  * and `AstroMiddleware` (middleware `next(payload)`).
+ *
+ * Note: rewrite targets are developer-supplied, so the URL is normalized
+ * with the default normalizer (`createNormalizedUrl`), not
+ * `state.normalizePathname`. A custom `normalizePathname` is scoped to the
+ * untrusted incoming request only.
  */
 export function applyRewriteToState(
 	state: FetchState,
