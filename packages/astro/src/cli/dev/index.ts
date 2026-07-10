@@ -2,7 +2,12 @@ import { detectAgenticEnvironment } from 'am-i-vibing';
 import colors from 'piccolore';
 import devServer from '../../core/dev/index.js';
 import { pathToFileURL } from 'node:url';
-import { checkExistingServer, removeLockFile, writeLockFile } from '../../core/dev/lockfile.js';
+import {
+	checkExistingServer,
+	killDevServer,
+	removeLockFile,
+	writeLockFile,
+} from '../../core/dev/lockfile.js';
 import { resolveRoot } from '../../core/config/config.js';
 import { printHelp } from '../../core/messages/runtime.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
@@ -107,15 +112,20 @@ export async function dev({ flags }: DevOptions) {
 	const root = pathToFileURL(resolveRoot(flags.root) + '/');
 	const existingServer = checkExistingServer(root);
 	if (existingServer) {
-		const message = [
-			'Another astro dev server is already running.',
-			'',
-			`  URL:  ${existingServer.url}`,
-			`  PID:  ${existingServer.pid}`,
-			'',
-			`Run \`astro dev stop\` to stop it, or use \`astro dev --force\` to replace it.`,
-		].join('\n');
-		throw new Error(message);
+		if (flags.force) {
+			// --force: kill the existing server and replace it
+			await killDevServer(root, existingServer);
+		} else {
+			const message = [
+				'Another astro dev server is already running.',
+				'',
+				`  URL:  ${existingServer.url}`,
+				`  PID:  ${existingServer.pid}`,
+				'',
+				`Run \`astro dev stop\` to stop it, or use \`astro dev --force\` to replace it.`,
+			].join('\n');
+			throw new Error(message);
+		}
 	}
 
 	const inlineConfig = flagsToAstroInlineConfig(flags);

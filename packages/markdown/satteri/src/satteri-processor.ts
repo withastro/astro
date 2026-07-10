@@ -13,7 +13,7 @@ import type {
 	MarkdownRenderer,
 } from '@astrojs/internal-helpers/markdown';
 
-type HighlightFn = (code: string, lang: string, meta?: string) => Promise<string>;
+type HighlightFn = (code: string, lang: string, meta?: string) => Promise<HastNode>;
 
 declare module 'satteri' {
 	interface DataMap {
@@ -106,15 +106,6 @@ export function collectHastText(
 	return text;
 }
 
-export function makeFragmentNode(html: string): HastNode {
-	return {
-		type: 'mdxJsxFlowElement',
-		name: 'Fragment',
-		attributes: [{ type: 'mdxJsxAttribute', name: 'set:html', value: html }],
-		children: [],
-	} as unknown as HastNode;
-}
-
 export function createHeadingIdsPlugin(): HastPluginDefinition {
 	const slugger = new Slugger();
 	// Collect headings in a separate array so we can make this idempotent
@@ -140,10 +131,6 @@ export function createHeadingIdsPlugin(): HastPluginDefinition {
 			},
 		},
 	};
-}
-
-function makeRawNode(html: string): HastNode {
-	return { type: 'raw', value: html } as unknown as HastNode;
 }
 
 const HAST_PRESERVED_PROPERTIES = new Set(['className', 'htmlFor']);
@@ -190,14 +177,12 @@ export function createImageMarkerPlugin(): HastPluginDefinition {
 export function createHighlightPlugin(
 	highlight: HighlightFn,
 	excludeLangs: string[] | undefined,
-	options?: { mdx?: boolean },
 ): HastPluginDefinition {
-	const wrapResult = options?.mdx ? makeFragmentNode : makeRawNode;
 	return {
 		name: 'highlight',
 		element: {
 			filter: ['pre'],
-			async visit(node, ctx) {
+			visit(node, ctx) {
 				const codeChild = node.children?.find(
 					(c: HastNode) => c.type === 'element' && c.tagName === 'code',
 				) as HastNode | undefined;
@@ -214,8 +199,7 @@ export function createHighlightPlugin(
 				}
 
 				const code = ctx.textContent(codeChild).replace(/\n$/, '');
-				const html = await highlight(code, lang, meta);
-				return wrapResult(html);
+				return highlight(code, lang, meta);
 			},
 		},
 	};
@@ -230,7 +214,9 @@ export interface SatteriMarkdownProcessorOptions extends AstroMarkdownOptions {
 /**
  * Build the highlighter for the Sätteri pipeline, or `undefined` when syntax
  * highlighting is disabled. Shiki and Prism both resolve to a `HighlightFn`
- * that turns a code block into a complete `<pre>` HTML string.
+ * that turns a code block into a `<pre>` hast element. Returning real hast
+ * (rather than a raw HTML string) keeps the `<pre>` addressable by the MDX
+ * pipeline, so `components.pre` overrides still apply to highlighted blocks.
  */
 export async function createHighlightFn(
 	syntaxHighlight: AstroMarkdownOptions['syntaxHighlight'],
@@ -251,19 +237,23 @@ export async function createHighlightFn(
 			langAlias: shikiConfig?.langAlias,
 		});
 		return (code, lang, meta) =>
-			hl.codeToHtml(code, lang, {
-				meta,
-				wrap: shikiConfig?.wrap,
-				defaultColor: shikiConfig?.defaultColor,
-				transformers: shikiConfig?.transformers,
-			});
+			hl
+				.codeToHast(code, lang, {
+					meta,
+					wrap: shikiConfig?.wrap,
+					defaultColor: shikiConfig?.defaultColor,
+					transformers: shikiConfig?.transformers,
+				})
+				.then((root) => root.children[0] as HastNode);
 	}
 
 	if (syntaxHighlightType === 'prism') {
 		const { runHighlighterWithAstro } = await import('@astrojs/prism/dist/highlighter');
+		const { fromHtml } = await import('hast-util-from-html');
 		return async (code, lang) => {
 			const { html, classLanguage } = await runHighlighterWithAstro(lang, code);
-			return `<pre class="${classLanguage}" data-language="${lang}"><code class="${classLanguage}">${html}</code></pre>`;
+			const pre = `<pre class="${classLanguage}" data-language="${lang}"><code class="${classLanguage}">${html}</code></pre>`;
+			return fromHtml(pre, { fragment: true }).children[0] as HastNode;
 		};
 	}
 

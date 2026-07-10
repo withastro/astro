@@ -1,8 +1,8 @@
 import type { MdxJsxAttributeNode, MdxJsxFlowElementHast, MdxJsxTextElementHast } from 'satteri';
 
 // JSX-specific helpers used by the MDX pipeline. Non-MDX equivalents (e.g.
-// `makeFragmentNode`, `collectHastText`) live in `@astrojs/markdown-satteri`
-// because they're shared with the markdown render pipeline.
+// `collectHastText`) live in `@astrojs/markdown-satteri` because they're shared
+// with the markdown render pipeline.
 
 // Sätteri hands plugin visitors readonly nodes; these helpers only read them.
 export type MdxJsxHastNode = Readonly<MdxJsxFlowElementHast | MdxJsxTextElementHast>;

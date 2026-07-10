@@ -53,3 +53,53 @@ describe('MDX with the Sätteri processor', () => {
 		assert.equal(frontmatterByPage['./test-with-frontmatter.mdx'].title, 'The Frontmatter Title');
 	});
 });
+
+describe('MDX Sätteri highlighting routes through components.pre', () => {
+	let fixture: Fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: new URL('./fixtures/mdx-satteri-highlight-pre/', import.meta.url),
+			integrations: [mdx()],
+			markdown: {
+				processor: satteri(),
+			},
+		});
+
+		await fixture.build();
+	});
+
+	it('renders highlighted code blocks through a custom `pre` component', async () => {
+		const html = await fixture.readFile('/index.html');
+		const { document } = parseHTML(html);
+
+		const pre = document.querySelector('pre');
+		assert.equal(pre?.getAttribute('data-custom-pre'), 'rendered');
+		assert.match(pre?.innerHTML ?? '', /style="color:/);
+	});
+});
+
+describe('MDX Sätteri highlighting routes through components.pre with optimize', () => {
+	let fixture: Fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: new URL('./fixtures/mdx-satteri-highlight-pre-optimize/', import.meta.url),
+			integrations: [mdx({ optimize: true })],
+			markdown: {
+				processor: satteri(),
+			},
+		});
+
+		await fixture.build();
+	});
+
+	it('keeps highlighted blocks addressable by `components.pre` when optimized', async () => {
+		const html = await fixture.readFile('/index.html');
+		const { document } = parseHTML(html);
+
+		const pre = document.querySelector('pre');
+		assert.equal(pre?.getAttribute('data-custom-pre'), 'rendered');
+		assert.match(pre?.innerHTML ?? '', /style="color:/);
+	});
+});
