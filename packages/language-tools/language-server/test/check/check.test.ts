@@ -27,7 +27,9 @@ describe('AstroCheck', async () => {
 
 	it('Can check files and return errors', async () => {
 		assert.notStrictEqual(result, undefined);
-		assert.strictEqual(result.fileResult.length, 4);
+		// fileWithHints.astro only contains an unused variable, which is not reported
+		// since noUnusedLocals is not enabled in the fixture's tsconfig
+		assert.strictEqual(result.fileResult.length, 3);
 	});
 
 	it("Returns the file's URL", async () => {
@@ -46,7 +48,9 @@ describe('AstroCheck', async () => {
 	it('Can return the total amount of errors, warnings and hints', async () => {
 		assert.strictEqual(result.errors, 2);
 		assert.strictEqual(result.warnings, 1);
-		assert.strictEqual(result.hints, 1);
+		// Unused variable hints are filtered out when noUnusedLocals/noUnusedParameters
+		// are not enabled, to match tsc's behavior
+		assert.strictEqual(result.hints, 0);
 	});
 
 	it('Can return the total amount of files checked', async () => {
@@ -55,5 +59,28 @@ describe('AstroCheck', async () => {
 
 	it('Can return the status of the check', async () => {
 		assert.strictEqual(result.status, 'completed');
+	});
+});
+
+describe('AstroCheck with noUnusedLocals and noUnusedParameters enabled', async () => {
+	let checker: AstroCheck;
+	let result: CheckResult;
+
+	before(async () => {
+		checker = new AstroCheck(
+			path.resolve(__dirname, 'unusedFixture'),
+			require.resolve('typescript/lib/typescript.js'),
+			undefined,
+		);
+		result = await checker.lint({});
+	});
+
+	it('Reports unused declarations as errors', async () => {
+		assert.strictEqual(result.errors, 3);
+		assert.strictEqual(result.warnings, 0);
+	});
+
+	it('Does not report duplicate hints for unused declarations', async () => {
+		assert.strictEqual(result.hints, 0);
 	});
 });

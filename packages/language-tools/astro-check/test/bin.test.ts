@@ -18,6 +18,8 @@ describe('astro-check - binary', async () => {
 		assert.ok(childProcess.stdout.toString().includes('Getting diagnostics for Astro files in'));
 		assert.ok(childProcess.stdout.toString().includes('1 error'));
 		assert.ok(childProcess.stdout.toString().includes('1 warning'));
-		assert.ok(childProcess.stdout.toString().includes('1 hint'));
+		// The unused variable hint in fileWithHints.astro is not reported since
+		// noUnusedLocals is not enabled in the fixture's tsconfig
+		assert.ok(childProcess.stdout.toString().includes('0 hints'));
 	});
 });

@@ -1,0 +1,13 @@
+---
+interface UnusedInterface {
+	name: string;
+}
+
+const unusedVar = 'never read';
+
+function greet(unusedParam: string) {
+	return 'hello';
+}
+
+greet('hi');
+---

@@ -16,6 +16,23 @@ import { getAstroInstall } from './utils.js';
 // Export those for downstream consumers
 export { Diagnostic, DiagnosticSeverity };
 
+// TypeScript's language service always reports unused declarations as hint-level suggestion
+// diagnostics, no matter if `noUnusedLocals` / `noUnusedParameters` are enabled or not. When
+// they are enabled, the same diagnostics are reported as errors through semantic diagnostics
+// instead, so hint-level ones only ever show up when the user did not enable those options.
+// `tsc` never reports them in that case, so we filter them out to match its behavior. Editors
+// are unaffected by this and still use these hints to show unused code as faded.
+// https://github.com/withastro/astro/issues/17330
+const unusedDiagnosticCodes = new Set([
+	6133, // '{0}' is declared but its value is never read.
+	6138, // Property '{0}' is declared but its value is never read.
+	6192, // All imports in import declaration are unused.
+	6196, // '{0}' is declared but never used.
+	6198, // All destructured elements are unused.
+	6199, // All variables are unused.
+	6205, // All type parameters are unused.
+]);
+
 export interface CheckResult {
 	status: 'completed' | 'cancelled' | undefined;
 	fileChecked: number;
@@ -88,7 +105,14 @@ export class AstroCheck {
 				result.status = 'cancelled';
 				return result;
 			}
-			const fileDiagnostics = await this.linter.check(file);
+			const fileDiagnostics = (await this.linter.check(file)).filter(
+				(diag) =>
+					!(
+						diag.severity === DiagnosticSeverity.Hint &&
+						typeof diag.code === 'number' &&
+						unusedDiagnosticCodes.has(diag.code)
+					),
+			);
 
 			// Filter diagnostics based on the logErrors level
 			const fileDiagnosticsToPrint = fileDiagnostics.filter((diag) => {
