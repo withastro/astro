@@ -24,6 +24,7 @@ export async function matchRoute(
 	routesList: RoutesList,
 	pipeline: RunnablePipeline,
 	manifest: SSRManifest,
+	{ prerenderOnly }: { prerenderOnly?: boolean } = {},
 ): Promise<MatchedRoute | undefined> {
 	const { logger, routeCache } = pipeline;
 	const matches = matchAllRoutes(pathname, routesList);
@@ -35,6 +36,13 @@ export async function matchRoute(
 
 	let firstError: unknown = null;
 	for await (const { route: maybeRoute, filePath } of preloadedMatches) {
+		// When running as the prerender handler, skip non-prerendered routes
+		// before importing their components. Their modules may use runtime-
+		// specific APIs (e.g. cloudflare:workers) unavailable in the prerender
+		// environment.
+		if (prerenderOnly && !maybeRoute.prerender) {
+			continue;
+		}
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
 		try {
