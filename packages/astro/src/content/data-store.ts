@@ -88,29 +88,23 @@ export class ImmutableDataStore {
 	 * Rebuilds a collections map from a chunked-store manifest whose part file
 	 * names have already been swapped for their contents.
 	 *
-	 * Each collection maps to a list of chunks, and each chunk to a list of
-	 * parts. A part is either a raw string (when the store is loaded from disk)
-	 * or an ESM namespace from a `?raw` import (`{ default: string }`, when
-	 * emitted into the virtual module at runtime). The parts of a chunk are
-	 * concatenated back into the exact serialized string, then parsed with
-	 * devalue. This is the inverse of {@link import('./data-store-writer.js').ChunkedWriter}
-	 * and stays free of Node built-ins so it can run at runtime.
+	 * Each collection maps to a list of parts. A part is either a raw string
+	 * (when the store is loaded from disk) or an ESM namespace from a `?raw`
+	 * import (`{ default: string }`, when emitted into the virtual module at
+	 * runtime). A collection's parts are concatenated back into the exact
+	 * serialized string, then parsed with devalue. This is the inverse of
+	 * {@link import('./data-store-writer.js').ChunkedWriter} and stays free of
+	 * Node built-ins so it can run at runtime.
 	 */
-	static manifestToMap(manifest: Record<string, Array<Array<string | { default: string }>>>) {
+	static manifestToMap(manifest: Record<string, Array<string | { default: string }>>) {
 		const collections = new Map<string, Map<string, any>>();
-		for (const [collectionName, chunks] of Object.entries(manifest)) {
-			const collection = new Map<string, any>();
-			for (const parts of chunks) {
-				let stringified = '';
-				for (const part of parts) {
-					stringified += typeof part === 'string' ? part : part.default;
-				}
-				const entries: Map<string, any> = devalue.parse(stringified);
-				for (const [id, entry] of entries) {
-					collection.set(id, entry);
-				}
+		for (const [collectionName, parts] of Object.entries(manifest)) {
+			let stringified = '';
+			for (const part of parts) {
+				stringified += typeof part === 'string' ? part : part.default;
 			}
-			collections.set(collectionName, collection);
+			const entries: Map<string, any> = devalue.parse(stringified);
+			collections.set(collectionName, entries);
 		}
 		return collections;
 	}

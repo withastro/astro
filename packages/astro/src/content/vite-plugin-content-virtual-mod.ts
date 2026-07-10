@@ -222,7 +222,7 @@ export function astroContentVirtualModPlugin({
 
 					if (settings.config.experimental.collectionStorage === 'chunked') {
 						try {
-							const manifest: Record<string, string[][]> = JSON.parse(jsonData);
+							const manifest: Record<string, string[]> = JSON.parse(jsonData);
 							// Emit each part as a lazy `?raw` import so the parts stay separate
 							// chunks instead of being inlined into one huge module (the very
 							// thing chunking avoids). manifestToMap reads the resolved
@@ -235,10 +235,8 @@ export function astroContentVirtualModPlugin({
 								return `(await import(${JSON.stringify(`${path}?raw`)}))`;
 							};
 							const entries = Object.entries(manifest).map(
-								([collection, chunks]) =>
-									`${JSON.stringify(collection)}:[${chunks
-										.map((parts) => `[${parts.map(rawImport).join(',')}]`)
-										.join(',')}]`,
+								([collection, parts]) =>
+									`${JSON.stringify(collection)}:[${parts.map(rawImport).join(',')}]`,
 							);
 							const code = `export default{${entries.join(',')}}`;
 							return { code, map: { mappings: '' } };

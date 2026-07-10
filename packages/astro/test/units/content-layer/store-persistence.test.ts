@@ -348,8 +348,8 @@ describe('Content Layer - Store Persistence (chunked atomicity)', () => {
 		const manifest = JSON.parse(
 			await fs.readFile(new URL(`./${DATA_STORE_MANIFEST_FILE}`, dataStoreDir), 'utf-8'),
 		);
-		// manifest: collection -> chunks -> parts, so flatten two levels deep.
-		return Object.values(manifest as Record<string, string[][]>).flat(2);
+		// manifest: collection -> parts, so flatten one level deep.
+		return Object.values(manifest as Record<string, string[]>).flat();
 	}
 
 	async function readPartFilesOnDisk(dataStoreDir: URL): Promise<string[]> {
@@ -463,12 +463,12 @@ describe('Content Layer - Store Persistence (chunked atomicity)', () => {
 		// Both collections reference the same single part file.
 		const manifest = JSON.parse(
 			await fs.readFile(new URL(`./${DATA_STORE_MANIFEST_FILE}`, dataStoreDir), 'utf-8'),
-		) as Record<string, string[][]>;
-		assert.equal(manifest.alpha[0][0], manifest.beta[0][0]);
+		) as Record<string, string[]>;
+		assert.equal(manifest.alpha[0], manifest.beta[0]);
 
 		// And that part exists exactly once on disk.
 		const partsOnDisk = await readPartFilesOnDisk(dataStoreDir);
 		assert.equal(partsOnDisk.length, 1);
-		assert.equal(partsOnDisk[0], manifest.alpha[0][0]);
+		assert.equal(partsOnDisk[0], manifest.alpha[0]);
 	});
 });

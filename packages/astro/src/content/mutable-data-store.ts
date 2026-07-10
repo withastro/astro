@@ -520,13 +520,11 @@ export default new Map([\n${lines.join(',\n')}]);
 				const manifestData = await fs.readFile(manifestFile, 'utf-8');
 				const manifest: DataStoreManifest = JSON.parse(manifestData);
 				// Swap each referenced part file name for its contents.
-				const expanded: Record<string, string[][]> = {};
+				const expanded: Record<string, string[]> = {};
 				for (const collectionName in manifest) {
 					expanded[collectionName] = await Promise.all(
-						manifest[collectionName].map((parts) =>
-							Promise.all(
-								parts.map((fileName) => fs.readFile(new URL(`./${fileName}`, dirPath), 'utf-8')),
-							),
+						manifest[collectionName].map((fileName) =>
+							fs.readFile(new URL(`./${fileName}`, dirPath), 'utf-8'),
 						),
 					);
 				}

@@ -4,17 +4,14 @@ import xxhash, { type XXHashAPI } from 'xxhash-wasm';
 import { emptyDir } from '../core/fs/index.js';
 import { DATA_STORE_MANIFEST_FILE } from './consts.js';
 
-/** Maximum number of entries serialized into a single chunk. */
-const CHUNK_ENTRY_LIMIT = 1000;
 /** Maximum size, in UTF-8 bytes, of a single part file. */
 const CHUNK_SIZE_LIMIT = 20 * 1024 * 1024; // 20 MB
 
 /**
- * A chunked store manifest: each collection maps to a list of chunks, and each
- * chunk to the list of part file names whose contents concatenate back into the
- * chunk's serialized string.
+ * A chunked store manifest: each collection maps to the list of part file names
+ * whose contents concatenate back into that collection's serialized string.
  */
-export type DataStoreManifest = Record<string, string[][]>;
+export type DataStoreManifest = Record<string, string[]>;
 
 /**
  * Persists the content collection data produced by the content layer. This is
@@ -93,26 +90,6 @@ export function chunkString(str: string, maxBytes: number): string[] {
 }
 
 /**
- * Split a Map into consecutive sub-maps of at most `chunkSize` entries each,
- * preserving iteration order.
- */
-export function chunkMap<T>(map: Map<string, T>, chunkSize: number): Array<Map<string, T>> {
-	const chunks: Array<Map<string, T>> = [];
-	let currentChunk = new Map<string, T>();
-	for (const [key, value] of map) {
-		currentChunk.set(key, value);
-		if (currentChunk.size >= chunkSize) {
-			chunks.push(currentChunk);
-			currentChunk = new Map<string, T>();
-		}
-	}
-	if (currentChunk.size > 0) {
-		chunks.push(currentChunk);
-	}
-	return chunks;
-}
-
-/**
  * Atomically write `data` to `file`.
  *
  * The data is written to a temporary file and then renamed into place to avoid
@@ -151,8 +128,8 @@ export class FileWriter implements DataStoreWriter {
  * A {@link DataStoreWriter} that splits the store across many content-addressed
  * files inside a directory, described by a manifest.
  *
- * Splitting avoids emitting one enormous serialized string (bounded by the JS
- * string length limit) or one enormous file (bounded by platform file-size
+ * Each collection is serialized to a string and split into parts no larger than
+ * a fixed byte size, so no single file grows unbounded (platform file-size
  * limits). Each part file is named by the xxhash of its contents, so unchanged
  * parts keep the same name across builds and their writes are skipped, and two
  * identical parts are naturally deduplicated. The manifest is written last as
@@ -181,21 +158,16 @@ export class ChunkedWriter implements DataStoreWriter {
 
 		// Sorted iteration keeps file names deterministic across builds.
 		for (const [collectionName, entries] of sortCollections(collections)) {
-			const chunks: string[][] = [];
-			// Bound the size of any single serialized string.
-			for (const chunkedEntries of chunkMap(entries, CHUNK_ENTRY_LIMIT)) {
-				const stringified = devalue.stringify(chunkedEntries);
-				// Bound the size of any single file.
-				const parts: string[] = [];
-				for (const part of chunkString(stringified, CHUNK_SIZE_LIMIT)) {
-					const fileName = `${h64ToString(part)}.txt`;
-					await writeFileAtomic(new URL(`./${fileName}`, this.#dir), part);
-					parts.push(fileName);
-					writtenFiles.add(fileName);
-				}
-				chunks.push(parts);
+			const stringified = devalue.stringify(entries);
+			// Split the serialized collection so no single file grows unbounded.
+			const parts: string[] = [];
+			for (const part of chunkString(stringified, CHUNK_SIZE_LIMIT)) {
+				const fileName = `${h64ToString(part)}.txt`;
+				await writeFileAtomic(new URL(`./${fileName}`, this.#dir), part);
+				parts.push(fileName);
+				writtenFiles.add(fileName);
 			}
-			manifest[collectionName] = chunks;
+			manifest[collectionName] = parts;
 		}
 
 		// The manifest is the commit point: every part it references already
