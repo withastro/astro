@@ -57,7 +57,6 @@ export function viteID(filePath: URL): string {
 
 export const VALID_ID_PREFIX = `/@id/`;
 const NULL_BYTE_PLACEHOLDER = `__x00__`;
-// here is the reproduce solving
 const NULL_BYTE_REGEX = /^\0/;
 
 // Strip valid id prefix and replace null byte placeholder. Both are prepended to resolved ids

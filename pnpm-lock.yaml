@@ -1945,12 +1945,6 @@ importers:
         specifier: ^3.5.30
         version: 3.5.30(typescript@6.0.3)
 
-  packages/astro/e2e/fixtures/vite-virtual-modules:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/e2e/fixtures/vue-component:
     dependencies:
       '@astrojs/mdx':
