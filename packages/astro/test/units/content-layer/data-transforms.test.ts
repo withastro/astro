@@ -571,4 +571,137 @@ describe('Content Layer - Data Transforms', () => {
 		assert.equal(result.data.name, 'Beagle Dog');
 		assert.deepEqual(result.data.favoriteCat, { collection: 'cats', id: '1' });
 	});
+
+	it('warns when a reference points to a non-existent entry', async () => {
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root);
+		const logs: string[] = [];
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					logs.push(msg.message);
+					return true;
+				},
+			},
+			level: 'info',
+		});
+
+		// `authors` exposes the slugified id `john-doe`
+		const authorsLoader = {
+			name: 'authors-loader',
+			load: async (context: any) => {
+				const parsed = await context.parseData({
+					id: 'john-doe',
+					data: { id: 'john-doe', name: 'John Doe' },
+				});
+				await context.store.set({ id: 'john-doe', data: parsed });
+			},
+		};
+
+		// `posts` references the author using the original (un-slugified) casing
+		const postsLoader = {
+			name: 'posts-loader',
+			load: async (context: any) => {
+				const parsed = await context.parseData({
+					id: 'post-1',
+					data: { id: 'post-1', title: 'Hello', author: 'John-Doe' },
+				});
+				await context.store.set({ id: 'post-1', data: parsed });
+			},
+		};
+
+		const collections = {
+			authors: defineCollection({
+				loader: authorsLoader,
+				schema: z.object({ id: z.string(), name: z.string() }),
+			}),
+			posts: defineCollection({
+				loader: postsLoader,
+				schema: z.object({ id: z.string(), title: z.string(), author: reference('authors') }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		// The invalid reference is still transformed into an object with the bad id...
+		const post: any = store.get('posts', 'post-1');
+		assert.deepEqual(post.data.author, { collection: 'authors', id: 'John-Doe' });
+
+		// ...but it is now surfaced as a warning instead of failing silently.
+		assert.ok(
+			logs.some((m) => m.includes('Invalid content reference') && m.includes('John-Doe')),
+			`expected an invalid-reference warning, got: ${JSON.stringify(logs)}`,
+		);
+	});
+
+	it('does not warn when a reference resolves correctly', async () => {
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root);
+		const logs: string[] = [];
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					logs.push(msg.message);
+					return true;
+				},
+			},
+			level: 'info',
+		});
+
+		const authorsLoader = {
+			name: 'authors-loader',
+			load: async (context: any) => {
+				const parsed = await context.parseData({
+					id: 'john-doe',
+					data: { id: 'john-doe', name: 'John Doe' },
+				});
+				await context.store.set({ id: 'john-doe', data: parsed });
+			},
+		};
+
+		const postsLoader = {
+			name: 'posts-loader',
+			load: async (context: any) => {
+				const parsed = await context.parseData({
+					id: 'post-1',
+					data: { id: 'post-1', title: 'Hello', author: 'john-doe' },
+				});
+				await context.store.set({ id: 'post-1', data: parsed });
+			},
+		};
+
+		const collections = {
+			authors: defineCollection({
+				loader: authorsLoader,
+				schema: z.object({ id: z.string(), name: z.string() }),
+			}),
+			posts: defineCollection({
+				loader: postsLoader,
+				schema: z.object({ id: z.string(), title: z.string(), author: reference('authors') }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		const post: any = store.get('posts', 'post-1');
+		assert.deepEqual(post.data.author, { collection: 'authors', id: 'john-doe' });
+		assert.ok(
+			!logs.some((m) => m.includes('Invalid content reference')),
+			`expected no invalid-reference warning, got: ${JSON.stringify(logs)}`,
+		);
+	});
 });

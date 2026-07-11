@@ -6,7 +6,7 @@ import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
 import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import type { AstroLogger } from '../core/logger/core.js';
+import type { AstroIntegrationLogger, AstroLogger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType, RefreshContentOptions } from '../types/public/content.js';
 import {
@@ -348,6 +348,9 @@ export class ContentLayer {
 				}
 			}),
 		);
+		// Collections load in parallel above, so references can only be validated
+		// reliably here, once every collection has finished loading.
+		this.#validateReferences(logger);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
 		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
@@ -358,6 +361,51 @@ export class ContentLayer {
 		logger.info('Synced content');
 		if (this.#settings.config.experimental.contentIntellisense) {
 			await this.regenerateCollectionFileManifest();
+		}
+	}
+
+	/**
+	 * Warns when a `reference()` value points to an entry that does not exist in an
+	 * otherwise-loaded collection. Without this, invalid references silently pass
+	 * validation and only fail (or resolve to `undefined`) later at render time.
+	 */
+	#validateReferences(logger: AstroIntegrationLogger) {
+		const isReference = (
+			value: unknown,
+		): value is { collection: string; id?: string; slug?: string } =>
+			typeof value === 'object' &&
+			value !== null &&
+			typeof (value as any).collection === 'string' &&
+			(typeof (value as any).id === 'string' || typeof (value as any).slug === 'string');
+
+		const validate = (value: unknown, collection: string, entryId: string) => {
+			if (Array.isArray(value)) {
+				for (const item of value) validate(item, collection, entryId);
+				return;
+			}
+			if (isReference(value)) {
+				const referencedId = value.id ?? value.slug!;
+				// Only validate against collections that were actually loaded, so that
+				// references into skipped/selective-sync collections are not flagged.
+				if (
+					this.#store.hasCollection(value.collection) &&
+					!this.#store.has(value.collection, referencedId)
+				) {
+					logger.warn(
+						`Invalid content reference: entry "${collection}" → "${entryId}" references "${referencedId}" in collection "${value.collection}", but no such entry exists.`,
+					);
+				}
+				return;
+			}
+			if (value && typeof value === 'object' && !(value instanceof Date)) {
+				for (const item of Object.values(value)) validate(item, collection, entryId);
+			}
+		};
+
+		for (const [collection, entries] of this.#store.collections()) {
+			for (const entry of entries.values()) {
+				validate((entry as { data?: unknown })?.data, collection, (entry as any)?.id ?? '');
+			}
 		}
 	}
 
