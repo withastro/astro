@@ -57,3 +57,22 @@ describe('AstroCheck', async () => {
 		assert.strictEqual(result.status, 'completed');
 	});
 });
+
+describe('AstroCheck with an incompatible TypeScript', () => {
+	it('Fails with an actionable error when the TypeScript module lacks the programmatic API', () => {
+		// The TypeScript 7 native compiler only exposes `version`/`versionMajorMinor`,
+		// not `ts.sys` / `ts.findConfigFile`. Without the guard this crashes later with
+		// an opaque `Cannot read properties of undefined (reading 'fileExists')`.
+		const ts7StubPath = require.resolve('./ts7-native-stub.cjs');
+
+		assert.throws(
+			() => new AstroCheck(checkFixtureDir, ts7StubPath, undefined),
+			(error: unknown) => {
+				assert.ok(error instanceof Error);
+				assert.match(error.message, /does not expose the programmatic API/);
+				assert.match(error.message, /found 7\.0\.2/);
+				return true;
+			},
+		);
+	});
+});
