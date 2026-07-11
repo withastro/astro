@@ -34,6 +34,10 @@ Looking for help? Start with our [Getting Started](https://docs.astro.build/en/g
 
 Looking for quick examples? [Open a starter project](https://astro.new/) right in your browser.
 
+## Deployment
+
+Deploy your Astro site to production with [Astro's deployment guides](https://docs.astro.build/en/guides/deploy/).
+
 ## Documentation
 
 Visit our [official documentation](https://docs.astro.build/).
