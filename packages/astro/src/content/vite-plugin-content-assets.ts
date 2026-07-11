@@ -7,6 +7,7 @@ import { isRunnableDevEnvironment, type Plugin, type RunnableDevEnvironment } fr
 import type { BuildInternals } from '../core/build/internal.js';
 import type { ExtractedChunk } from '../core/build/static-build.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+// here is the reproduce solvimg
 import { wrapId } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import { isBuildableCSSRequest } from '../vite-plugin-astro-server/util.js';
@@ -220,6 +221,8 @@ async function getStylesForURL(
 			}
 
 			importedStylesMap.set(importedModule.url, {
+				/*id: importedModule.id ?? importedModule.url,
+				url: importedModule.url,*/
 				id: wrapId(importedModule.id ?? importedModule.url),
 				url: wrapId(importedModule.url),
 				content: css,
