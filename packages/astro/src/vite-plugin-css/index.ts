@@ -2,7 +2,6 @@ import { prependForwardSlash } from '@astrojs/internal-helpers/path';
 import type * as vite from 'vite';
 import type { DevEnvironment, Plugin } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
-// here is the list of all the virtual modules that are used in the dev server for CSS collection and injection
 import { wrapId } from '../core/util.js';
 import type { ImportedDevStyle, RoutesList } from '../types/astro.js';
 import { inlineRE, isBuildableCSSRequest, rawRE } from '../vite-plugin-astro-server/util.js';
@@ -115,12 +114,9 @@ function* collectCSSWithOrder(
 	// Check if this module is CSS and should be collected
 	if (isBuildableCSSRequest(id)) {
 		yield {
-			// here is the reproduce solving
-			// id: mod.id ?? mod.url,
 			id: wrapId(mod.id ?? mod.url),
 			idKey: id,
 			content: '',
-			//url: prependForwardSlash(mod.url),
 			url: prependForwardSlash(wrapId(mod.url)),
 		};
 		return;

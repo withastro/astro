@@ -69,7 +69,6 @@ export function unwrapId(id: string): string {
 }
 
 // Reverses `unwrapId` function
-// here is the reproduce solving
 export function wrapId(id: string): string {
 	return id.replace(NULL_BYTE_REGEX, `${VALID_ID_PREFIX}${NULL_BYTE_PLACEHOLDER}`);
 }
