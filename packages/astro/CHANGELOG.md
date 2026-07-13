@@ -1,5 +1,13 @@
 # astro
 
+## 7.0.9
+
+### Patch Changes
+
+- [#17286](https://github.com/withastro/astro/pull/17286) [`a249317`](https://github.com/withastro/astro/commit/a249317e4d03ead215838a5f6f0e6fe70444d5d4) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes the first browser visit after `astro dev` starts triggering an immediate full page reload
+
+- [#17369](https://github.com/withastro/astro/pull/17369) [`a94d4a5`](https://github.com/withastro/astro/commit/a94d4a5afde1fd6de76cb2904703df7eb984b3f0) Thanks [@adamchal](https://github.com/adamchal)! - Fixes an issue where a client island could permanently fail to hydrate if the first attempt to load its component failed. Islands now reliably recover from transient import failures, which previously did not work for React components during `astro dev`.
+
 ## 7.0.8
 
 ### Patch Changes
