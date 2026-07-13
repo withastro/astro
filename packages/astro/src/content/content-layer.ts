@@ -349,9 +349,6 @@ export class ContentLayer {
 				}
 			}),
 		);
-		// Collections load in parallel above, so references can only be validated
-		// reliably here, once every collection has finished loading.
-		this.#validateReferences(logger);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
 		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
@@ -359,6 +356,10 @@ export class ContentLayer {
 		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
 		await this.#store.writeModuleImports(modulesImportsFile);
 		await this.#store.waitUntilSaveComplete();
+		// Collections load in parallel above, so references can only be validated once
+		// every collection has finished loading. Run after the store has flushed to
+		// disk so this pass stays off the save/debounce critical path.
+		this.#validateReferences(logger);
 		logger.info('Synced content');
 		if (this.#settings.config.experimental.contentIntellisense) {
 			await this.regenerateCollectionFileManifest();
