@@ -1,5 +1,22 @@
 # astro
 
+## 7.0.8
+
+### Patch Changes
+
+- [#17363](https://github.com/withastro/astro/pull/17363) [`3f4efc5`](https://github.com/withastro/astro/commit/3f4efc5d2f4cf2e38f983bf5842bbd953b5bf923) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `astro preview --open` not opening a browser when using an adapter with a custom preview entrypoint, such as `@astrojs/cloudflare`
+
+- [#17313](https://github.com/withastro/astro/pull/17313) [`e2e319d`](https://github.com/withastro/astro/commit/e2e319d4a61bf6b9eff5224c51d8433dfeb9153b) Thanks [@ronits2407](https://github.com/ronits2407)! - Exposes the `AstroRuntimeLogger` interface to allow users to properly type the logger functions at runtime.
+
+- [#17328](https://github.com/withastro/astro/pull/17328) [`025cc74`](https://github.com/withastro/astro/commit/025cc747d3eac4241cb4015a8789963970b0480a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro dev --force` not replacing an already-running dev server
+
+- [#17353](https://github.com/withastro/astro/pull/17353) [`2bba277`](https://github.com/withastro/astro/commit/2bba2775e12285b5d7ed0710c6579d808817704d) Thanks [@ematipico](https://github.com/ematipico)! - Updates the Astro compiler to the latest version, which fixes many regressions. Refer to the [changelog](https://github.com/withastro/compiler-rs/releases/tag/%40astrojs/compiler-rs%400.3.1) for more details.
+
+- [#17344](https://github.com/withastro/astro/pull/17344) [`79a41e0`](https://github.com/withastro/astro/commit/79a41e06add3cbb144809f88a0b5ac88d2f8e7d1) Thanks [@adamchal](https://github.com/adamchal)! - Improves rendering performance for pages with many component instances, such as repeated MDX `<Content />` components.
+
+- Updated dependencies [[`64b0d66`](https://github.com/withastro/astro/commit/64b0d6667eabd8fe51643dfdab7004670e319810)]:
+  - @astrojs/markdown-satteri@0.3.4
+
 ## 7.0.7
 
 ### Patch Changes
