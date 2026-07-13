@@ -19,7 +19,7 @@ import {
 import type { RenderedContent } from './data-store.js';
 import type { LoaderContext, RenderMarkdownOptions } from './loaders/types.js';
 import type { MutableDataStore } from './mutable-data-store.js';
-import { isContentReference } from './runtime.js';
+import { isContentReference } from './reference-marker.js';
 import {
 	type ContentObservable,
 	getEntryConfigByExtMap,
