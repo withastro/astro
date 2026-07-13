@@ -704,4 +704,81 @@ describe('Content Layer - Data Transforms', () => {
 			`expected no invalid-reference warning, got: ${JSON.stringify(logs)}`,
 		);
 	});
+
+	it('does not warn on ordinary data that merely looks like a reference', async () => {
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root);
+		const logs: string[] = [];
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					logs.push(msg.message);
+					return true;
+				},
+			},
+			level: 'info',
+		});
+
+		const authorsLoader = {
+			name: 'authors-loader',
+			load: async (context: any) => {
+				const parsed = await context.parseData({
+					id: 'john-doe',
+					data: { id: 'john-doe', name: 'John Doe' },
+				});
+				await context.store.set({ id: 'john-doe', data: parsed });
+			},
+		};
+
+		// `posts` has a plain object field that happens to share the `{ collection, id }`
+		// shape of a reference but never went through `reference()`. Even though the
+		// `authors` collection is loaded and has no `external-id` entry, this must NOT warn.
+		const postsLoader = {
+			name: 'posts-loader',
+			load: async (context: any) => {
+				const parsed = await context.parseData({
+					id: 'post-1',
+					data: {
+						id: 'post-1',
+						title: 'Hello',
+						metadata: { collection: 'authors', id: 'external-id' },
+					},
+				});
+				await context.store.set({ id: 'post-1', data: parsed });
+			},
+		};
+
+		const collections = {
+			authors: defineCollection({
+				loader: authorsLoader,
+				schema: z.object({ id: z.string(), name: z.string() }),
+			}),
+			posts: defineCollection({
+				loader: postsLoader,
+				schema: z.object({
+					id: z.string(),
+					title: z.string(),
+					metadata: z.object({ collection: z.string(), id: z.string() }),
+				}),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		// The lookalike value is stored untouched...
+		const post: any = store.get('posts', 'post-1');
+		assert.deepEqual(post.data.metadata, { collection: 'authors', id: 'external-id' });
+		// ...and no false-positive warning is emitted for it.
+		assert.ok(
+			!logs.some((m) => m.includes('Invalid content reference')),
+			`expected no invalid-reference warning for lookalike data, got: ${JSON.stringify(logs)}`,
+		);
+	});
 });

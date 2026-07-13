@@ -19,6 +19,7 @@ import {
 import type { RenderedContent } from './data-store.js';
 import type { LoaderContext, RenderMarkdownOptions } from './loaders/types.js';
 import type { MutableDataStore } from './mutable-data-store.js';
+import { isContentReference } from './runtime.js';
 import {
 	type ContentObservable,
 	getEntryConfigByExtMap,
@@ -370,20 +371,12 @@ export class ContentLayer {
 	 * validation and only fail (or resolve to `undefined`) later at render time.
 	 */
 	#validateReferences(logger: AstroIntegrationLogger) {
-		const isReference = (
-			value: unknown,
-		): value is { collection: string; id?: string; slug?: string } =>
-			typeof value === 'object' &&
-			value !== null &&
-			typeof (value as any).collection === 'string' &&
-			(typeof (value as any).id === 'string' || typeof (value as any).slug === 'string');
-
 		const validate = (value: unknown, collection: string, entryId: string) => {
 			if (Array.isArray(value)) {
 				for (const item of value) validate(item, collection, entryId);
 				return;
 			}
-			if (isReference(value)) {
+			if (isContentReference(value)) {
 				const referencedId = value.id ?? value.slug!;
 				// Only validate against collections that were actually loaded, so that
 				// references into skipped/selective-sync collections are not flagged.
