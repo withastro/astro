@@ -859,7 +859,7 @@ export interface AstroUserConfig<
 						 *
 						 * You must provide hashes that start with `sha384-`, `sha512-` or `sha256-`. Other values will cause a validation error. These hashes are added to all pages.
 						 *
-						 * Each entry can be a string or an object. The object allows changing the scope of the hash via the `kind` field. The `kind` field accepts:
+						 * Since Astro v7.1, each entry can be a string or an object. The object allows changing the scope of the hash via the `kind` field. The `kind` field accepts:
 						 * - `"element"`: it will store the hash in the `style-src-elem` directive
 						 * - `"attribute"`: it will store the hash in the `style-src-attr` directive
 						 * - `"default"`: it will store the hash in the `style-src` directive
@@ -936,7 +936,7 @@ export interface AstroUserConfig<
 						 *
 						 * A list of valid sources for `style-src` directives to override Astro's default sources. This will not include `'self'` by default, and must be included in this list if you wish to keep it. These resources are added to all pages.
 						 *
-						 * Each entry can be a string or an object. The object allows changing the scope of the source via the `kind` field. The `kind` field accepts:
+						 * Since Astro v7.1, each entry can be a string or an object. The object allows changing the scope of the source via the `kind` field. The `kind` field accepts:
 						 * - `"element"`: it will store the source in the `style-src-elem` directive
 						 * - `"attribute"`: it will store the source in the `style-src-attr` directive
 						 * - `"default"`: it will store the source in the `style-src` directive
