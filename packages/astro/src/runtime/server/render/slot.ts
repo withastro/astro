@@ -105,6 +105,15 @@ export async function renderSlotToString(
 				// hydration, etc.) are position-independent and bubble up separately.
 				if (isScriptInstruction(chunk)) {
 					chunks.push(chunk);
+					// Also fold the script HTML into `content` so that `toString()`
+					// yields complete output. Astro's own pipeline renders from
+					// `chunks` whenever they are present (see `stringifyChunk` in
+					// `common.ts`) and never reads `content` in that case, so this
+					// does not double-render internally. It does, however, let
+					// third-party code that consumes the slot result as a plain
+					// string (e.g. head-management packages like `astro-capo`)
+					// keep scripts that would otherwise be silently dropped.
+					content += chunk.content;
 				} else {
 					if (instructions === null) {
 						instructions = [];
@@ -145,18 +154,9 @@ export async function renderSlots(
 						slotInstructions.push(...output.instructions);
 					}
 					// Framework/`.html` components inline slot content as an opaque
-					// string, so the inline scripts kept in `chunks` would be lost.
-					// Surface them here so they still render (deduplicated at output).
-					if (output.chunks) {
-						for (const part of output.chunks as SlotStringChunk[]) {
-							if (typeof part !== 'string') {
-								if (slotInstructions === null) {
-									slotInstructions = [];
-								}
-								slotInstructions.push(part);
-							}
-						}
-					}
+					// string. `renderSlotToString` now folds inline scripts into that
+					// string (see above), so they survive without also being surfaced
+					// as separate instructions here — doing both would render them twice.
 					children[key] = output;
 				}),
 			),
