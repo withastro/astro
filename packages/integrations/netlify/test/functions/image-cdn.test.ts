@@ -116,6 +116,65 @@ describe('Image CDN', { timeout: 120000 }, () => {
 			);
 		});
 
+		it('treats metacharacters in a literal pathname as literals', async () => {
+			const spyLogger = new SpyLogger();
+			const logger = spyLogger.forkIntegrationLogger('test-spy');
+			const regexStr = remotePatternToRegex(
+				{
+					protocol: 'https',
+					hostname: 'cdn.example.com',
+					pathname: '/img/v1.0/file',
+				},
+				logger,
+			);
+			const regex = new RegExp(regexStr!);
+			assert.equal(
+				regex.test('https://cdn.example.com/img/v1.0/file'),
+				true,
+				'literal pathname should match',
+			);
+			assert.equal(
+				regex.test('https://cdn.example.com/img/v1X0/file'),
+				false,
+				'dot in pathname should not act as a wildcard',
+			);
+			assert.equal(
+				regex.test('https://cdn.example.com/img/v1/0/file'),
+				false,
+				'dot in pathname should not match a path separator',
+			);
+		});
+
+		it('treats metacharacters in a wildcard pathname prefix as literals', async () => {
+			const spyLogger = new SpyLogger();
+			const logger = spyLogger.forkIntegrationLogger('test-spy');
+			const oneLevel = new RegExp(
+				remotePatternToRegex(
+					{ protocol: 'https', hostname: 'cdn.example.com', pathname: '/v1.0/*' },
+					logger,
+				)!,
+			);
+			assert.equal(oneLevel.test('https://cdn.example.com/v1.0/file'), true);
+			assert.equal(
+				oneLevel.test('https://cdn.example.com/v1X0/file'),
+				false,
+				'dot in wildcard prefix should not act as a wildcard',
+			);
+
+			const anyPath = new RegExp(
+				remotePatternToRegex(
+					{ protocol: 'https', hostname: 'cdn.example.com', pathname: '/v1.0/**' },
+					logger,
+				)!,
+			);
+			assert.equal(anyPath.test('https://cdn.example.com/v1.0/a/b'), true);
+			assert.equal(
+				anyPath.test('https://cdn.example.com/v1X0/a/b'),
+				false,
+				'dot in wildcard prefix should not act as a wildcard',
+			);
+		});
+
 		it('warns when remotepatterns generates an invalid regex', async () => {
 			const spyLogger = new SpyLogger();
 			const logger = spyLogger.forkIntegrationLogger('test-spy');

@@ -34,6 +34,13 @@ export interface NetlifyLocals {
 type RemotePattern = AstroConfig['image']['remotePatterns'][number];
 
 /**
+ * Escape regex metacharacters in a literal string so it matches verbatim.
+ */
+function escapeRegex(literal: string): string {
+	return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
  * Convert a remote pattern object to a regex string
  */
 export function remotePatternToRegex(
@@ -76,14 +83,15 @@ export function remotePatternToRegex(
 
 	if (pathname) {
 		if (pathname.endsWith('/**')) {
-			// Match any path.
-			regexStr += `(\\${pathname.replace('/**', '')}.*)`;
+			// Match any path. Escape the literal prefix so metacharacters
+			// (e.g. `.`) match verbatim instead of acting as wildcards.
+			regexStr += `(${escapeRegex(pathname.replace('/**', ''))}.*)`;
 		} else if (pathname.endsWith('/*')) {
 			// Match one level of path
-			regexStr += `(\\${pathname.replace('/*', '')}\/[^/?#]+)\/?`;
+			regexStr += `(${escapeRegex(pathname.replace('/*', ''))}\/[^/?#]+)\/?`;
 		} else {
 			// Exact match
-			regexStr += `(\\${pathname})`;
+			regexStr += `(${escapeRegex(pathname)})`;
 		}
 	} else {
 		// Default to matching any path
