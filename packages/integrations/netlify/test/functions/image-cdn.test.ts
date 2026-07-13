@@ -175,23 +175,24 @@ describe('Image CDN', { timeout: 120000 }, () => {
 			);
 		});
 
-		it('warns when remotepatterns generates an invalid regex', async () => {
+		it('treats metacharacters in the hostname as literals', async () => {
 			const spyLogger = new SpyLogger();
 			const logger = spyLogger.forkIntegrationLogger('test-spy');
-			const regex = remotePatternToRegex(
-				{
-					hostname: '*.examp[le.org',
-					pathname: '/images/*',
-				},
-				logger,
+			const regex = new RegExp(
+				remotePatternToRegex(
+					{ protocol: 'https', hostname: 'a+b.example.com', pathname: '/img.png' },
+					logger,
+				)!,
 			);
-			assert.strictEqual(regex, undefined);
-			assert.strictEqual(spyLogger.logs.length, 1);
-			const entry = spyLogger.logs[0];
-			assert.equal(entry.level, 'warn');
 			assert.equal(
-				entry.message,
-				'Could not generate a valid regex from the remotePattern "{"hostname":"*.examp[le.org","pathname":"/images/*"}". Please check the syntax.',
+				regex.test('https://a+b.example.com/img.png'),
+				true,
+				'literal hostname should match',
+			);
+			assert.equal(
+				regex.test('https://aaab.example.com/img.png'),
+				false,
+				'a metacharacter in the hostname should not act as a quantifier',
 			);
 		});
 	});

@@ -68,8 +68,8 @@ export function remotePatternToRegex(
 			regexStr += '([a-z0-9-]+\\.)';
 			hostname = hostname.substring(2); // Remove '*.' from the beginning
 		}
-		// Escape dots in the hostname
-		regexStr += hostname.replace(/\./g, '\\.');
+		// Escape metacharacters in the literal hostname so they match verbatim.
+		regexStr += escapeRegex(hostname);
 	} else {
 		regexStr += '[a-z0-9.-]+';
 	}
@@ -125,7 +125,7 @@ function remoteImagesFromAstroConfig(
 	const remoteImages: string[] = [];
 	// Domains get a simple regex match
 	remoteImages.push(
-		...config.image.domains.map((domain) => `https?:\/\/${domain.replaceAll('.', '\\.')}\/.*`),
+		...config.image.domains.map((domain) => `https?:\/\/${escapeRegex(domain)}\/.*`),
 	);
 	// Remote patterns need to be converted to regexes
 	remoteImages.push(
