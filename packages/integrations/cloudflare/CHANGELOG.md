@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 14.1.3
+
+### Patch Changes
+
+- [#17363](https://github.com/withastro/astro/pull/17363) [`3f4efc5`](https://github.com/withastro/astro/commit/3f4efc5d2f4cf2e38f983bf5842bbd953b5bf923) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `astro preview --open` not opening a browser when using an adapter with a custom preview entrypoint, such as `@astrojs/cloudflare`
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 14.1.2
 
 ### Patch Changes
