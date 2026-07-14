@@ -25,8 +25,13 @@ import { isAstroServerEnvironment } from '../environments.js';
 
 export function astroContentAssetPropagationPlugin({
 	settings,
+	cssContentCache,
 }: {
 	settings: AstroSettings;
+	/** Shared cache of CSS content populated by the dev-css plugin's transform hook.
+	 *  Used to retrieve already-processed CSS for CSS modules without re-importing
+	 *  via `?inline`, which would produce different scoped-name hashes with Lightning CSS. */
+	cssContentCache?: Map<string, string>;
 }): Plugin {
 	let environment: RunnableDevEnvironment | undefined = undefined;
 	return {
@@ -115,7 +120,7 @@ export function astroContentAssetPropagationPlugin({
 							styles,
 							urls,
 							crawledFiles: styleCrawledFiles,
-						} = await getStylesForURL(basePath, environment);
+						} = await getStylesForURL(basePath, environment, cssContentCache);
 
 						// Register files we crawled to be able to retrieve the rendered styles and scripts,
 						// as when they get updated, we need to re-transform ourselves.
@@ -167,6 +172,7 @@ const INLINE_QUERY_REGEX = /(?:\?|&)inline(?:$|&)/;
 async function getStylesForURL(
 	filePath: string,
 	environment: RunnableDevEnvironment,
+	cssContentCache?: Map<string, string>,
 ): Promise<{ urls: Set<string>; styles: ImportedDevStyle[]; crawledFiles: Set<string> }> {
 	const importedCssUrls = new Set<string>();
 	// Map of url to injected style object. Use a `url` key to deduplicate styles
@@ -183,6 +189,13 @@ async function getStylesForURL(
 			// If this is a plain CSS module, the default export should be a string
 			if (typeof importedModule.ssrModule?.default === 'string') {
 				css = importedModule.ssrModule.default;
+			}
+			// Check the shared CSS content cache (populated by the dev-css plugin's
+			// transform hook). This avoids re-importing with `?inline`, which causes
+			// Lightning CSS to compute a different scoped-name hash because the
+			// `?inline` suffix changes the filename passed to the hasher.
+			else if (importedModule.id && cssContentCache?.has(importedModule.id)) {
+				css = cssContentCache.get(importedModule.id)!;
 			}
 			// Else try to load it
 			else {

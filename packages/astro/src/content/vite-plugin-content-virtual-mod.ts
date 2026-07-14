@@ -67,7 +67,7 @@ function invalidateAssetImports(viteServer: ViteDevServer, filePath: string) {
 	}
 }
 
-function invalidateDataStore(viteServer: ViteDevServer) {
+function invalidateDataStore(viteServer: ViteDevServer, { notifyClient = true } = {}) {
 	const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
 	if (module) {
@@ -91,10 +91,16 @@ function invalidateDataStore(viteServer: ViteDevServer) {
 	// Signal the SSR runner to clear its route cache so that getStaticPaths()
 	// is re-evaluated with the updated content collection data.
 	environment.hot.send('astro:content-changed', {});
-	viteServer.environments.client.hot.send({
-		type: 'full-reload',
-		path: '*',
-	});
+	// Only notify the client to reload when data has actually changed at runtime.
+	// During initial startup (buildStart), no client has loaded content yet, so
+	// sending a full-reload would just cause a spurious page reload for the first
+	// browser that connects.
+	if (notifyClient) {
+		viteServer.environments.client.hot.send({
+			type: 'full-reload',
+			path: '*',
+		});
+	}
 }
 
 export function astroContentVirtualModPlugin({
@@ -126,8 +132,9 @@ export function astroContentVirtualModPlugin({
 				// We defer adding the data store file to the watcher until the server is ready
 				devServer.watcher.add(fileURLToPath(dataStoreFile));
 				devServer.watcher.add(assetImportsPath);
-				// Manually invalidate the data store to avoid a race condition in file watching
-				invalidateDataStore(devServer);
+				// Manually invalidate the data store to avoid a race condition in file watching.
+				// Skip client reload since no browser has loaded content yet at startup.
+				invalidateDataStore(devServer, { notifyClient: false });
 				invalidateAssetImports(devServer, assetImportsPath);
 			}
 		},

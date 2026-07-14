@@ -1,5 +1,11 @@
 # create-astro
 
+## 5.2.2
+
+### Patch Changes
+
+- [#17259](https://github.com/withastro/astro/pull/17259) [`ed6bea5`](https://github.com/withastro/astro/commit/ed6bea5ad9ff6036f7bc26cfbcb6f999142d16ef) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes proxy support by respecting `HTTP_PROXY` and `HTTPS_PROXY` environment variables when downloading templates. On Node.js v22.21.0+ and v24.5.0+, `create-astro` now automatically enables the `--use-env-proxy` flag so that native `fetch()` routes requests through the configured proxy.
+
 ## 5.2.1
 
 ### Patch Changes

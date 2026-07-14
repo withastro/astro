@@ -133,6 +133,30 @@ describe('Pagination — multiple params (color + page)', () => {
 	});
 });
 
+describe('Pagination — param value of 0 (e.g. an "uncategorized" id)', () => {
+	const route = createRouteData({
+		route: '/posts/[categoryId]/[page]',
+		segments: [
+			[{ content: 'posts', dynamic: false, spread: false }],
+			[{ content: 'categoryId', dynamic: true, spread: false }],
+			[{ content: 'page', dynamic: true, spread: false }],
+		],
+	});
+	const paginate = generatePaginateFunction(route, '/blog', 'never');
+
+	it('does not throw when categoryId is 0', () => {
+		assert.doesNotThrow(() => paginate(items, { pageSize: 10, params: { categoryId: 0 } as any }));
+	});
+
+	it('generates a path containing /0/', () => {
+		const pages = paginate(items, { pageSize: 10, params: { categoryId: 0 } as any });
+		assert.ok(
+			pages[0].props.page.url.current.includes('/posts/0/'),
+			`expected /posts/0/, got ${pages[0].props.page.url.current}`,
+		);
+	});
+});
+
 describe('Pagination — root spread, correct prev URL — Migrated from astro-pagination-root-spread.test.js', () => {
 	// 4 items, pageSize 1 → 4 pages; root spread means page 1 has no number in URL.
 	const route = createRouteData({

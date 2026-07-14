@@ -1,5 +1,17 @@
 # @astrojs/language-server
 
+## 2.16.12
+
+### Patch Changes
+
+- [#17345](https://github.com/withastro/astro/pull/17345) [`5196fb4`](https://github.com/withastro/astro/commit/5196fb45aec8b63ba43f86d558bd98b302abd0a9) Thanks [@kkhys](https://github.com/kkhys)! - Fixes an opaque `Cannot read properties of undefined (reading 'fileExists')` crash when `astro check` runs against the TypeScript 7 native compiler. The native compiler does not ship the programmatic API the checker relies on yet, so `astro check` now fails early with a clear message pointing to the tracking issue instead.
+
+## 2.16.11
+
+### Patch Changes
+
+- [#17059](https://github.com/withastro/astro/pull/17059) [`60cb289`](https://github.com/withastro/astro/commit/60cb289faa8f9e0056a4de7ecca6ec420abd147f) Thanks [@dupontcyborg](https://github.com/dupontcyborg)! - Update volar-service-* dependencies from 0.0.70 to 0.0.71 to pull in yaml-language-server 1.23.0 and yaml 2.8.3, resolving CVE-2026-33532 (GHSA-48c2-rrv3-qjmp), a denial-of-service vulnerability in yaml <2.8.3.
+
 ## 2.16.10
 
 ### Patch Changes

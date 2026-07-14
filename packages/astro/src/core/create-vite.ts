@@ -153,6 +153,11 @@ export async function createVite(
 		config: settings.config,
 	});
 	const serverIslandsState = new ServerIslandsState();
+	// Shared cache of CSS content by module ID. Populated by the dev-css plugin's
+	// transform hook and consumed by the content asset propagation plugin to avoid
+	// re-processing CSS modules with `?inline` (which produces different
+	// scoped-name hashes with Lightning CSS).
+	const cssContentCache = new Map<string, string>();
 
 	// Validate that envPrefix doesn't conflict with secret env schema variables
 	validateEnvPrefixAgainstSchema(settings.config);
@@ -203,7 +208,7 @@ export async function createVite(
 			vitePluginFetchable({ settings }),
 			command === 'dev' && vitePluginAstroServer({ settings, logger }),
 			command === 'dev' && vitePluginAstroServerClient(),
-			astroDevCssPlugin({ routesList, command }),
+			astroDevCssPlugin({ routesList, command, cssContentCache }),
 			importMetaEnv({ envLoader }),
 			astroEnv({ settings, sync, envLoader }),
 			vitePluginAdapterConfig(settings),
@@ -214,7 +219,7 @@ export async function createVite(
 			astroHeadPlugin(),
 			astroContentVirtualModPlugin({ fs, settings }),
 			astroContentImportPlugin({ fs, settings, logger }),
-			astroContentAssetPropagationPlugin({ settings }),
+			astroContentAssetPropagationPlugin({ settings, cssContentCache }),
 			vitePluginMiddleware({ settings }),
 			astroAssetsPlugin({ fs, settings, sync, logger }),
 			astroPrefetch({ settings }),
