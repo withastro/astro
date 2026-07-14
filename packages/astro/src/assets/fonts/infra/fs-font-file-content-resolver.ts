@@ -17,10 +17,10 @@ export class FsFontFileContentResolver implements FontFileContentResolver {
 			return url;
 		}
 		try {
-			// We use the url and the file content for the id generation because:
-			// - The URL is not hashed unlike remote providers
-			// - A font file can renamed and swapped so we would incorrectly cache it
-			return url + this.#readFileSync(url);
+			// We only hash the file content, not the url, so the generated id is
+			// deterministic across different absolute paths (eg. CI vs local checkouts).
+			// A swapped font file will have different content and thus a different id.
+			return this.#readFileSync(url);
 		} catch (cause) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 		}
