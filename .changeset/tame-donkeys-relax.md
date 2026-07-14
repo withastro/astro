@@ -7,5 +7,5 @@ Adds a `--ignore-lock` flag to `astro dev` for starting a dev server without che
 The new instance is not tracked by `astro dev stop`, `astro dev status`, or `astro dev logs`. `--ignore-lock` cannot be combined with `--background` (or an auto-detected AI agent environment, which runs dev servers in the background automatically) or `--force`, since those rely on the lock file.
 
 ```shell
-astro dev --ignore-lock --port 4322
+astro dev --ignore-lock
 ```
