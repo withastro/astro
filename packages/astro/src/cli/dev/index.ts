@@ -23,20 +23,22 @@ function isRunByAgent(): boolean {
 }
 
 /**
- * `yargs-parser` treats `--no-lock` as negating a boolean `lock` flag (defaulting to
- * true), so it's read back as `flags.lock === false` rather than `flags.noLock`.
+ * `yargs-parser` camel-cases `--ignore-lock` to `flags.ignoreLock`.
  */
-export function isNoLock(flags: Flags): boolean {
-	return flags.lock === false;
+export function isIgnoreLock(flags: Flags): boolean {
+	return flags.ignoreLock === true;
 }
 
 /**
- * `--no-lock` skips the lock file entirely, so a background dev server started with it
+ * `--ignore-lock` skips the lock file entirely, so a background dev server started with it
  * could never be found by `astro dev stop`/`status`/`logs`. Returns an error message if
  * background mode (explicit `--background`, or implied by AI agent detection) is combined
- * with `--no-lock`, or `null` if there's no conflict.
+ * with `--ignore-lock`, or `null` if there's no conflict.
  */
-export function getBackgroundNoLockConflict(flags: Flags, wantsBackground: boolean): string | null {
+export function getBackgroundIgnoreLockConflict(
+	flags: Flags,
+	wantsBackground: boolean,
+): string | null {
 	if (!wantsBackground) {
 		return null;
 	}
@@ -44,26 +46,26 @@ export function getBackgroundNoLockConflict(flags: Flags, wantsBackground: boole
 		? '`--background`'
 		: 'an auto-detected AI agent environment, which runs the dev server in the background automatically';
 	return [
-		`\`--no-lock\` cannot be used together with ${reason}.`,
+		`\`--ignore-lock\` cannot be used together with ${reason}.`,
 		'',
 		'Background dev servers rely on the lock file so `astro dev stop`, `astro dev status`, and `astro dev logs` can find them.',
-		'Run the dev server in the foreground to use --no-lock.',
+		'Run the dev server in the foreground to use --ignore-lock.',
 	].join('\n');
 }
 
 /**
- * `--force` (replace the existing server) and `--no-lock` (start alongside it,
+ * `--force` (replace the existing server) and `--ignore-lock` (start alongside it,
  * untracked) express contradictory intent. Returns an error message if both are set,
  * or `null` otherwise.
  */
-export function getForceNoLockConflict(flags: Flags): string | null {
+export function getForceIgnoreLockConflict(flags: Flags): string | null {
 	if (!flags.force) {
 		return null;
 	}
 	return [
-		'`--force` and `--no-lock` cannot be used together.',
+		'`--force` and `--ignore-lock` cannot be used together.',
 		'',
-		'`--force` replaces the existing dev server; `--no-lock` starts a new one alongside it without touching the lock file. Choose one.',
+		'`--force` replaces the existing dev server; `--ignore-lock` starts a new one alongside it without touching the lock file. Choose one.',
 	].join('\n');
 }
 
@@ -87,7 +89,7 @@ export async function dev({ flags }: DevOptions) {
 					['--open', 'Automatically open the app in the browser on server start'],
 					['--force', 'Clear the content layer cache, forcing a full rebuild.'],
 					[
-						'--no-lock',
+						'--ignore-lock',
 						'Start the dev server even if another one is already running, without checking or writing the lock file.',
 					],
 					[
@@ -110,7 +112,7 @@ export async function dev({ flags }: DevOptions) {
 		flags.json = true;
 	}
 
-	const noLock = isNoLock(flags);
+	const ignoreLock = isIgnoreLock(flags);
 	const wantsBackground = !!flags.background || agentDetected;
 
 	const logger = createLoggerFromFlags(flags);
@@ -138,9 +140,9 @@ export async function dev({ flags }: DevOptions) {
 	}
 
 	// Reject conflicting flag combinations up front, before starting anything.
-	if (noLock) {
+	if (ignoreLock) {
 		const conflict =
-			getBackgroundNoLockConflict(flags, wantsBackground) ?? getForceNoLockConflict(flags);
+			getBackgroundIgnoreLockConflict(flags, wantsBackground) ?? getForceIgnoreLockConflict(flags);
 		if (conflict) {
 			throw new Error(conflict);
 		}
@@ -167,10 +169,10 @@ export async function dev({ flags }: DevOptions) {
 	// Foreground dev server: check lock file, start server, write lock file
 	const root = pathToFileURL(resolveRoot(flags.root) + '/');
 
-	// `--no-lock` opts this instance out of the lock file entirely: it doesn't block on
+	// `--ignore-lock` opts this instance out of the lock file entirely: it doesn't block on
 	// an existing server, and it won't be tracked by `astro dev stop`/`status`/`logs`.
 	// We still do a read-only check purely to give the user a heads-up.
-	if (noLock) {
+	if (ignoreLock) {
 		const existingServer = checkExistingServer(root);
 		if (existingServer) {
 			logger.info(
