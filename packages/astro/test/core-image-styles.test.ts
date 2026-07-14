@@ -24,7 +24,7 @@ describe('Image styles injection', () => {
 		await devServer.stop();
 	});
 
-	it('injects a style tag with [data-astro-image] CSS', async () => {
+	it('includes [data-astro-image] CSS in the initial HTML style tag', async () => {
 		const res = await fixture.fetch('/');
 		const html = await res.text();
 		const $ = cheerio.load(html);
