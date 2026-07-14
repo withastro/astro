@@ -43,10 +43,13 @@ describe('astro:hmr-reload CSS invalidation', () => {
 	function createMockContext(options: {
 		modules: Array<{ id: string | null; file?: string }>;
 		moduleGraphEntries?: Array<[string, { id: string }]>;
+		clientModuleIds?: string[];
 	}) {
 		const invalidatedModuleGraphIds: string[] = [];
+		const wsMessages: unknown[] = [];
 
 		const moduleGraphEntries = new Map<string, { id: string }>(options.moduleGraphEntries ?? []);
+		const clientModuleIds = new Set(options.clientModuleIds ?? []);
 
 		const environment = {
 			name: 'ssr',
@@ -69,17 +72,18 @@ describe('astro:hmr-reload CSS invalidation', () => {
 			environments: {
 				client: {
 					moduleGraph: {
-						getModuleById: (_id: string) => null as object | null,
+						getModuleById: (id: string) => (clientModuleIds.has(id) ? { id } : null),
 					},
 				},
 			},
-			ws: { send: () => {} },
+			ws: { send: (message: unknown) => wsMessages.push(message) },
 		};
 
 		return {
 			environment,
 			server,
 			invalidatedModuleGraphIds,
+			wsMessages,
 		};
 	}
 
@@ -167,6 +171,7 @@ describe('astro:hmr-reload CSS invalidation', () => {
 			const { environment, server, invalidatedModuleGraphIds } = createMockContext({
 				modules: [{ id, file: '/src/Component.astro' }],
 				moduleGraphEntries: [[devCssId, { id: devCssId }]],
+				clientModuleIds: [id],
 			});
 
 			const hotUpdate = getHotUpdateHandler();
@@ -187,6 +192,38 @@ describe('astro:hmr-reload CSS invalidation', () => {
 				`dev-css module should be invalidated for ${id}`,
 			);
 		}
+	});
+
+	it('uses SSR invalidation for Astro style virtual modules missing from the client graph', () => {
+		const id = '/src/Component.astro?astro&type=style&index=0&lang.css';
+		const devCssId = '\0virtual:astro:dev-css:src/pages/index@_@astro';
+		const { environment, server, invalidatedModuleGraphIds, wsMessages } = createMockContext({
+			modules: [{ id, file: '/src/Component.astro' }],
+			moduleGraphEntries: [[devCssId, { id: devCssId }]],
+		});
+
+		const hotUpdate = getHotUpdateHandler();
+
+		const result = hotUpdate.call(
+			{ environment },
+			{
+				modules: [{ id, file: '/src/Component.astro' }],
+				server,
+				timestamp: Date.now(),
+				file: '/src/Component.astro',
+			},
+		);
+
+		assert.deepEqual(result, []);
+		assert.ok(
+			invalidatedModuleGraphIds.includes(id),
+			'Astro style module should be invalidated through the SSR path',
+		);
+		assert.ok(
+			!invalidatedModuleGraphIds.includes(devCssId),
+			'SSR-only Astro style modules should not use the client CSS skip path',
+		);
+		assert.deepEqual(wsMessages, [{ type: 'full-reload' }]);
 	});
 
 	it('does not treat non-style Astro queries, raw CSS, or type=style alone as style modules', () => {

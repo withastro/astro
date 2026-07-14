@@ -49,6 +49,17 @@ export default function hmrReload(): Plugin {
 				for (const mod of modules) {
 					if (mod.id == null) continue;
 					if (isStyleModule(mod)) {
+						const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
+						if (isAstroStyleModule(mod.id) && clientModule == null) {
+							this.environment.moduleGraph.invalidateModule(
+								mod,
+								invalidatedModules,
+								timestamp,
+								true,
+							);
+							hasSsrOnlyModules = true;
+							continue;
+						}
 						hasSkippedStyleModules = true;
 						continue;
 					}
