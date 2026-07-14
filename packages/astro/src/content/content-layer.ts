@@ -19,13 +19,14 @@ import {
 import type { RenderedContent } from './data-store.js';
 import type { LoaderContext, RenderMarkdownOptions } from './loaders/types.js';
 import type { MutableDataStore } from './mutable-data-store.js';
-import { isContentReference } from './reference-marker.js';
+import { getReferenceCollection } from './reference-schema.js';
 import {
 	type ContentObservable,
 	getEntryConfigByExtMap,
 	getEntryData,
 	globalContentConfigObserver,
 	loaderReturnSchema,
+	resolveCollectionSchema,
 	safeStringify,
 } from './utils.js';
 import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
@@ -285,6 +286,11 @@ export class ContentLayer {
 		const backwardsCompatEnabled =
 			this.#settings.config.legacy?.collectionsBackwardsCompat ?? false;
 
+		// Resolved collection schemas, captured so references can be validated against the
+		// schema (which survives the persisted-store round-trip) rather than the parsed
+		// value, once every collection has finished loading below.
+		const resolvedSchemas = new Map<string, z.ZodType>();
+
 		await Promise.all(
 			Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
 				// Skip non-content_layer collections unless backwards compat is enabled
@@ -314,6 +320,11 @@ export class ContentLayer {
 						!options.loaders.includes((collection as any).loader.name))
 				) {
 					return;
+				}
+
+				if (schema) {
+					const resolved = resolveCollectionSchema({ ...collection, schema });
+					if (resolved) resolvedSchemas.set(name, resolved);
 				}
 
 				const context = await this.#getLoaderContext({
@@ -359,7 +370,7 @@ export class ContentLayer {
 		// Collections load in parallel above, so references can only be validated once
 		// every collection has finished loading. Run after the store has flushed to
 		// disk so this pass stays off the save/debounce critical path.
-		this.#validateReferences(logger);
+		this.#validateReferences(resolvedSchemas, logger);
 		logger.info('Synced content');
 		if (this.#settings.config.experimental.contentIntellisense) {
 			await this.regenerateCollectionFileManifest();
@@ -367,38 +378,131 @@ export class ContentLayer {
 	}
 
 	/**
-	 * Warns when a `reference()` value points to an entry that does not exist in an
+	 * Warns when a `reference()` field points to an entry that does not exist in an
 	 * otherwise-loaded collection. Without this, invalid references silently pass
 	 * validation and only fail (or resolve to `undefined`) later at render time.
+	 *
+	 * Reference fields are located by walking each collection's schema (tagged by
+	 * `reference()` — see reference-schema.ts) alongside the entry data, rather than by
+	 * sniffing the value shape. Driving off the schema keeps ordinary `{ collection, id }`
+	 * lookalike data from being flagged, and — because the schema is rebuilt every sync
+	 * while the parsed value is restored from the persisted store — lets validation reach
+	 * references on cached entries that were not re-parsed this sync.
 	 */
-	#validateReferences(logger: AstroIntegrationLogger) {
-		const validate = (value: unknown, collection: string, entryId: string) => {
-			if (Array.isArray(value)) {
-				for (const item of value) validate(item, collection, entryId);
+	#validateReferences(schemas: Map<string, z.ZodType>, logger: AstroIntegrationLogger) {
+		// The same reference can be reached more than once when the schema walk descends
+		// both sides of a `union`/`intersection` with the same data; only warn once per
+		// distinct dangling reference.
+		const warned = new Set<string>();
+		const validateReference = (value: unknown, collection: string, entryId: string) => {
+			if (
+				!value ||
+				typeof value !== 'object' ||
+				typeof (value as { collection?: unknown }).collection !== 'string'
+			) {
+				// e.g. an untransformed `reference().default('...')` string, or a nullish
+				// optional reference — nothing to resolve.
 				return;
 			}
-			if (isContentReference(value)) {
-				const referencedId = value.id ?? value.slug!;
-				// Only validate against collections that were actually loaded, so that
-				// references into skipped/selective-sync collections are not flagged.
-				if (
-					this.#store.hasCollection(value.collection) &&
-					!this.#store.has(value.collection, referencedId)
-				) {
-					logger.warn(
-						`Invalid content reference: entry "${collection}" → "${entryId}" references "${referencedId}" in collection "${value.collection}", but no such entry exists.`,
-					);
+			const ref = value as { collection: string; id?: string; slug?: string };
+			const referencedId = ref.id ?? ref.slug;
+			if (referencedId == null) return;
+			// Only validate against collections that were actually loaded, so that
+			// references into skipped/selective-sync collections are not flagged.
+			if (
+				this.#store.hasCollection(ref.collection) &&
+				!this.#store.has(ref.collection, String(referencedId))
+			) {
+				const key = `${collection}\0${entryId}\0${ref.collection}\0${referencedId}`;
+				if (warned.has(key)) return;
+				warned.add(key);
+				logger.warn(
+					`Invalid content reference: entry "${collection}" → "${entryId}" references "${referencedId}" in collection "${ref.collection}", but no such entry exists.`,
+				);
+			}
+		};
+
+		// Walk the schema and the parsed data in lock-step, validating wherever the schema
+		// says a `reference()` lives. Unrecognized schema wrappers stop the walk on that
+		// branch, so at worst a nested reference is not validated — never a false positive.
+		const walk = (schema: unknown, data: unknown, collection: string, entryId: string) => {
+			if (data == null || schema == null) return;
+
+			if (getReferenceCollection(schema) !== undefined) {
+				validateReference(data, collection, entryId);
+				return;
+			}
+
+			const def = (schema as { _zod?: { def?: any } })._zod?.def;
+			if (!def) return;
+
+			switch (def.type) {
+				case 'object': {
+					if (typeof data !== 'object') return;
+					for (const [key, child] of Object.entries(def.shape as Record<string, unknown>)) {
+						walk(child, (data as Record<string, unknown>)[key], collection, entryId);
+					}
+					return;
 				}
-				return;
-			}
-			if (value && typeof value === 'object' && !(value instanceof Date)) {
-				for (const item of Object.values(value)) validate(item, collection, entryId);
+				case 'array': {
+					if (!Array.isArray(data)) return;
+					for (const item of data) walk(def.element, item, collection, entryId);
+					return;
+				}
+				case 'tuple': {
+					if (!Array.isArray(data)) return;
+					(def.items as unknown[]).forEach((item, i) => walk(item, data[i], collection, entryId));
+					if (def.rest) {
+						for (const extra of data.slice((def.items as unknown[]).length)) {
+							walk(def.rest, extra, collection, entryId);
+						}
+					}
+					return;
+				}
+				case 'record': {
+					if (typeof data !== 'object') return;
+					for (const value of Object.values(data as Record<string, unknown>)) {
+						walk(def.valueType, value, collection, entryId);
+					}
+					return;
+				}
+				case 'union': {
+					for (const option of def.options as unknown[]) {
+						walk(option, data, collection, entryId);
+					}
+					return;
+				}
+				case 'intersection': {
+					walk(def.left, data, collection, entryId);
+					walk(def.right, data, collection, entryId);
+					return;
+				}
+				case 'optional':
+				case 'nullable':
+				case 'default':
+				case 'prefault':
+				case 'catch':
+				case 'nonoptional':
+				case 'readonly':
+					walk(def.innerType, data, collection, entryId);
+					return;
+				case 'pipe':
+					// A non-reference transform/refinement; the stored value matches its input.
+					walk(def.in, data, collection, entryId);
+					return;
+				case 'lazy':
+					walk(def.getter(), data, collection, entryId);
+					return;
+				default:
+					return;
 			}
 		};
 
 		for (const [collection, entries] of this.#store.collections()) {
+			const schema = schemas.get(collection);
+			if (!schema) continue;
 			for (const entry of entries.values()) {
-				validate((entry as { data?: unknown })?.data, collection, (entry as any)?.id ?? '');
+				walk(schema, (entry as { data?: unknown })?.data, collection, (entry as any)?.id ?? '');
 			}
 		}
 	}

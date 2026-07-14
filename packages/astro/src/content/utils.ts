@@ -242,6 +242,22 @@ export async function getEntryData<
 	return data;
 }
 
+/**
+ * Resolves a collection's `schema` to a concrete Zod schema for structural inspection
+ * (e.g. locating `reference()` fields). Function schemas are invoked with a lightweight
+ * `image` stub: the reference validation that consumes this only needs the schema tree,
+ * not the resolved image paths.
+ */
+export function resolveCollectionSchema(
+	collectionConfig: Pick<CollectionConfig, 'schema'>,
+): z.ZodType | undefined {
+	let { schema } = collectionConfig;
+	if (typeof schema === 'function') {
+		schema = schema({ image: () => z.string() });
+	}
+	return schema as z.ZodType | undefined;
+}
+
 export function getContentEntryExts(settings: Pick<AstroSettings, 'contentEntryTypes'>) {
 	return settings.contentEntryTypes.flatMap((t) => t.extensions);
 }

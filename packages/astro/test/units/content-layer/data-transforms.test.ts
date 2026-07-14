@@ -705,6 +705,175 @@ describe('Content Layer - Data Transforms', () => {
 		);
 	});
 
+	it('warns on a dangling reference in a cached entry after the store is persisted', async () => {
+		const settings = createMinimalSettings(root);
+		const silentLogger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const authorsLoaderWithJane = {
+			name: 'authors-loader',
+			load: async (context: any) => {
+				const parsed = await context.parseData({
+					id: 'jane',
+					data: { id: 'jane', name: 'Jane' },
+				});
+				await context.store.set({ id: 'jane', data: parsed });
+			},
+		};
+
+		const makePostsLoader = (loadPost: boolean) => ({
+			name: 'posts-loader',
+			load: async (context: any) => {
+				if (!loadPost) return; // second sync: leave the cached post untouched
+				const parsed = await context.parseData({
+					id: 'post-1',
+					data: { id: 'post-1', title: 'Hello', author: 'jane' },
+				});
+				await context.store.set({ id: 'post-1', data: parsed });
+			},
+		});
+
+		const makeCollections = (authorsLoader: any, loadPost: boolean) => ({
+			authors: defineCollection({
+				loader: authorsLoader,
+				schema: z.object({ id: z.string(), name: z.string() }),
+			}),
+			posts: defineCollection({
+				loader: makePostsLoader(loadPost),
+				schema: z.object({ id: z.string(), title: z.string(), author: reference('authors') }),
+			}),
+		});
+
+		// -- First sync: a valid posts -> authors reference, then persist the store.
+		let store = new MutableDataStore();
+		let contentLayer = new ContentLayer({
+			settings,
+			logger: silentLogger,
+			store,
+			contentConfigObserver: createTestConfigObserver(makeCollections(authorsLoaderWithJane, true)),
+		});
+		await contentLayer.sync();
+		assert.ok(store.get('posts', 'post-1'));
+
+		// -- Persist + restore: the devalue round-trip the data store performs when it
+		// writes to disk and reloads drops the non-enumerable runtime reference marker.
+		store = await MutableDataStore.fromString(store.toString());
+
+		// -- Second sync: `jane` was removed while the post is unchanged (cached, not
+		// re-parsed), exactly as glob() would leave it when a referenced entry is deleted.
+		const logs: string[] = [];
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					logs.push(msg.message);
+					return true;
+				},
+			},
+			level: 'info',
+		});
+		const authorsLoaderWithoutJane = {
+			name: 'authors-loader',
+			load: async (context: any) => {
+				context.store.delete('jane');
+				const parsed = await context.parseData({
+					id: 'bob',
+					data: { id: 'bob', name: 'Bob' },
+				});
+				await context.store.set({ id: 'bob', data: parsed });
+			},
+		};
+		contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(
+				makeCollections(authorsLoaderWithoutJane, false),
+			),
+		});
+		await contentLayer.sync();
+
+		// The cached post still references the now-missing author...
+		const post: any = store.get('posts', 'post-1');
+		assert.deepEqual(post.data.author, { collection: 'authors', id: 'jane' });
+		// ...and validation must still warn even though the runtime marker is gone.
+		assert.ok(
+			logs.some((m) => m.includes('Invalid content reference') && m.includes('jane')),
+			`expected a dangling-reference warning for the cached entry, got: ${JSON.stringify(logs)}`,
+		);
+	});
+
+	it('warns once for a dangling reference nested in a union', async () => {
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root);
+		const logs: string[] = [];
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					logs.push(msg.message);
+					return true;
+				},
+			},
+			level: 'info',
+		});
+
+		const authorsLoader = {
+			name: 'authors-loader',
+			load: async (context: any) => {
+				const parsed = await context.parseData({
+					id: 'jane',
+					data: { id: 'jane', name: 'Jane' },
+				});
+				await context.store.set({ id: 'jane', data: parsed });
+			},
+		};
+
+		const postsLoader = {
+			name: 'posts-loader',
+			load: async (context: any) => {
+				const parsed = await context.parseData({
+					id: 'post-1',
+					data: { id: 'post-1', title: 'Hello', author: 'ghost' },
+				});
+				await context.store.set({ id: 'post-1', data: parsed });
+			},
+		};
+
+		const collections = {
+			authors: defineCollection({
+				loader: authorsLoader,
+				schema: z.object({ id: z.string(), name: z.string() }),
+			}),
+			posts: defineCollection({
+				loader: postsLoader,
+				schema: z.object({
+					id: z.string(),
+					title: z.string(),
+					author: z.union([reference('authors'), reference('authors')]),
+				}),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		const matches = logs.filter(
+			(m) => m.includes('Invalid content reference') && m.includes('ghost'),
+		);
+		assert.equal(
+			matches.length,
+			1,
+			`expected exactly one dangling-reference warning, got: ${JSON.stringify(logs)}`,
+		);
+	});
+
 	it('does not warn on ordinary data that merely looks like a reference', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);

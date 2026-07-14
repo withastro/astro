@@ -35,7 +35,7 @@ import {
 	LiveEntryNotFoundError,
 } from './loaders/errors.js';
 import type { LiveLoader } from './loaders/types.js';
-import { markReference } from './reference-marker.js';
+import { markReferenceSchema } from './reference-schema.js';
 export {
 	LiveCollectionError,
 	LiveCollectionCacheHintError,
@@ -685,7 +685,7 @@ async function render({
 
 export function createReference() {
 	return function reference(collection: string) {
-		return z
+		const schema = z
 			.union([
 				z.number().transform((num) => num.toString(10)),
 				z.string(),
@@ -711,11 +711,14 @@ export function createReference() {
 						return;
 					}
 					// If it is an object then we're validating later in the build, so we can check the collection at that point.
-					return markReference(lookup);
+					return lookup;
 				}
 
-				return markReference({ id: lookup, collection });
+				return { id: lookup, collection };
 			});
+		// Record the target collection on the schema so the content layer can validate
+		// references against it after every collection has loaded. See reference-schema.ts.
+		return markReferenceSchema(schema, collection);
 	};
 }
 
