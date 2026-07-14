@@ -51,8 +51,8 @@ export default function hmrReload(): Plugin {
 					const styleModuleType = getStyleModuleType(mod);
 					if (styleModuleType) {
 						const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
+						// If there is no client module, nothing will apply the CSS update client-side.
 						if (styleModuleType === 'astro' && clientModule == null) {
-							// If there is no client module, nothing will apply the CSS update client-side.
 							this.environment.moduleGraph.invalidateModule(
 								mod,
 								invalidatedModules,
