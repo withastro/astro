@@ -35,6 +35,9 @@ import { loadWranglerEnv } from './utils/wrangler-config.js';
 const CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT = sessionDrivers.cloudflareKVBinding().entrypoint;
 
 function usesCloudflareKVSessionDriver(session: AstroConfig['session']): boolean {
+	if (session === false) {
+		return false;
+	}
 	const driver = session?.driver;
 
 	if (!driver) {
@@ -167,7 +170,7 @@ export default function createIntegration({
 					);
 				}
 
-				if (!session?.driver) {
+				if (session !== false && !session?.driver) {
 					logger.info(
 						`Enabling sessions with Cloudflare KV with the "${sessionKVBindingName}" KV binding.`,
 					);

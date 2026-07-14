@@ -19,7 +19,7 @@ import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { renderRedirect } from '../redirects/render.js';
 import { AstroHandler } from '../routing/handler.js';
-import { provideSession } from '../session/handler.js';
+import { provideSession } from '../session/provider.js';
 import { TrailingSlashHandler } from '../routing/trailing-slash-handler.js';
 
 function getApp(request: Request): BaseApp<Pipeline> {
