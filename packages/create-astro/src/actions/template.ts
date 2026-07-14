@@ -160,6 +160,46 @@ export function isThirdPartyTemplate(tmpl: string) {
 	return tmpl.includes('/');
 }
 
+/**
+ * Workaround for modern-tar normalizing paths to NFD (decomposed Unicode).
+ * On Linux (ext4 and most filesystems), NFC and NFD are distinct byte sequences,
+ * so files extracted by modern-tar end up in a separate NFD-encoded directory
+ * instead of the user's original NFC-encoded directory.
+ * See: https://github.com/withastro/astro/issues/17381
+ */
+export async function relocateNFDFiles(cwd: string) {
+	const resolvedCwd = path.resolve(cwd);
+	const nfdCwd = resolvedCwd.normalize('NFD');
+	if (nfdCwd === resolvedCwd) return;
+	if (!fs.existsSync(nfdCwd)) return;
+
+	// Verify NFC and NFD paths point to different directories (same inode = same dir, e.g. on macOS)
+	try {
+		const nfcStat = fs.statSync(resolvedCwd);
+		const nfdStat = fs.statSync(nfdCwd);
+		if (nfcStat.ino === nfdStat.ino) return;
+	} catch {
+		return;
+	}
+
+	// Move all entries from NFD directory to NFC directory
+	const entries = fs.readdirSync(nfdCwd);
+	for (const entry of entries) {
+		fs.renameSync(path.join(nfdCwd, entry), path.join(resolvedCwd, entry));
+	}
+
+	// Remove the now-empty NFD directory and any empty NFD parent directories
+	let dirToRemove = nfdCwd;
+	while (dirToRemove !== path.dirname(dirToRemove)) {
+		try {
+			fs.rmdirSync(dirToRemove);
+			dirToRemove = path.dirname(dirToRemove);
+		} catch {
+			break;
+		}
+	}
+}
+
 async function copyTemplate(tmpl: string, ctx: Context) {
 	const templateTarget = getTemplateTarget(tmpl, ctx.ref);
 	// Copy
@@ -170,6 +210,8 @@ async function copyTemplate(tmpl: string, ctx: Context) {
 				cwd: ctx.cwd,
 				dir: '.',
 			});
+
+			await relocateNFDFiles(ctx.cwd);
 
 			// Process the README file to remove marked sections and update package manager
 			const readmePath = path.resolve(ctx.cwd, 'README.md');

@@ -12,6 +12,7 @@ import { verify } from './actions/verify.js';
 export {
 	generateAgentsMd,
 	processTemplateReadme,
+	relocateNFDFiles,
 	removeTemplateMarkerSections,
 } from './actions/template.js';
 export { setStdout } from './messages.js';
