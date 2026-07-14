@@ -18,14 +18,14 @@ function isAstroStyleModule(id: string): boolean {
 	return query.astro === true && query.type === 'style';
 }
 
-function isStyleModule(mod: EnvironmentModuleNode): boolean {
+function getStyleModuleType(mod: EnvironmentModuleNode): 'astro' | 'style' | undefined {
 	// CSS imported with ?raw is a JS string export, so SSR importers need to be invalidated
 	// instead of relying on Vite's client-side CSS HMR handling.
-	if (mod.id && RAW_QUERY_REGEX.test(mod.id) && hasStyleExtension(mod.id)) return false;
-	if (mod.id && isAstroStyleModule(mod.id)) return true;
-	if (mod.file && hasStyleExtension(mod.file)) return true;
+	if (mod.id && RAW_QUERY_REGEX.test(mod.id) && hasStyleExtension(mod.id)) return;
+	if (mod.id && isAstroStyleModule(mod.id)) return 'astro';
+	if (mod.file && hasStyleExtension(mod.file)) return 'style';
 	// CSS modules and other style files may have query params in their id (e.g. ?used, ?direct)
-	return mod.id ? hasStyleExtension(mod.id) : false;
+	return mod.id && hasStyleExtension(mod.id) ? 'style' : undefined;
 }
 
 /**
@@ -48,9 +48,11 @@ export default function hmrReload(): Plugin {
 				const invalidatedModules = new Set<EnvironmentModuleNode>();
 				for (const mod of modules) {
 					if (mod.id == null) continue;
-					if (isStyleModule(mod)) {
+					const styleModuleType = getStyleModuleType(mod);
+					if (styleModuleType) {
 						const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
-						if (isAstroStyleModule(mod.id) && clientModule == null) {
+						if (styleModuleType === 'astro' && clientModule == null) {
+							// If there is no client module, nothing will apply the CSS update client-side.
 							this.environment.moduleGraph.invalidateModule(
 								mod,
 								invalidatedModules,
