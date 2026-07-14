@@ -1,5 +1,6 @@
 import { isRunnableDevEnvironment, type EnvironmentModuleNode, type Plugin } from 'vite';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
+import { parseAstroRequest } from '../vite-plugin-astro/query.js';
 import { RESOLVED_MODULE_DEV_CSS_PREFIX } from '../vite-plugin-css/const.js';
 import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css/util.js';
 import { isAstroServerEnvironment } from '../environments.js';
@@ -12,10 +13,16 @@ function hasStyleExtension(id: string): boolean {
 	return STYLE_EXT_REGEX.test(id.split('?')[0]);
 }
 
+function isAstroStyleModule(id: string): boolean {
+	const { query } = parseAstroRequest(id);
+	return query.astro === true && query.type === 'style';
+}
+
 function isStyleModule(mod: EnvironmentModuleNode): boolean {
 	// CSS imported with ?raw is a JS string export, so SSR importers need to be invalidated
 	// instead of relying on Vite's client-side CSS HMR handling.
 	if (mod.id && RAW_QUERY_REGEX.test(mod.id) && hasStyleExtension(mod.id)) return false;
+	if (mod.id && isAstroStyleModule(mod.id)) return true;
 	if (mod.file && hasStyleExtension(mod.file)) return true;
 	// CSS modules and other style files may have query params in their id (e.g. ?used, ?direct)
 	return mod.id ? hasStyleExtension(mod.id) : false;

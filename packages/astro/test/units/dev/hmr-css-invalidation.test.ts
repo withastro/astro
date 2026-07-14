@@ -62,6 +62,7 @@ describe('astro:hmr-reload CSS invalidation', () => {
 					invalidatedModuleGraphIds.push(mod.id);
 				},
 			},
+			hot: { send: () => {} },
 		};
 
 		const server = {
@@ -152,6 +153,74 @@ describe('astro:hmr-reload CSS invalidation', () => {
 			invalidatedModuleGraphIds.includes(devCssId),
 			'dev-css module should be invalidated for SCSS changes',
 		);
+	});
+
+	it('invalidates dev-css modules for Astro style virtual modules regardless of query order', () => {
+		const astroStyleIds = [
+			'/src/Component.astro?astro&type=style&index=0&lang.css',
+			'/src/Component.astro?type=style&astro&index=0&lang.scss',
+			'/src/Component.astro?index=1&lang.less&type=style&astro',
+		];
+
+		for (const id of astroStyleIds) {
+			const devCssId = '\0virtual:astro:dev-css:src/pages/index@_@astro';
+			const { environment, server, invalidatedModuleGraphIds } = createMockContext({
+				modules: [{ id, file: '/src/Component.astro' }],
+				moduleGraphEntries: [[devCssId, { id: devCssId }]],
+			});
+
+			const hotUpdate = getHotUpdateHandler();
+
+			const result = hotUpdate.call(
+				{ environment },
+				{
+					modules: [{ id, file: '/src/Component.astro' }],
+					server,
+					timestamp: Date.now(),
+					file: '/src/Component.astro',
+				},
+			);
+
+			assert.deepEqual(result, []);
+			assert.ok(
+				invalidatedModuleGraphIds.includes(devCssId),
+				`dev-css module should be invalidated for ${id}`,
+			);
+		}
+	});
+
+	it('does not treat non-style Astro queries, raw CSS, or type=style alone as style modules', () => {
+		const nonStyleIds = [
+			{ id: '/src/Component.astro?astro&type=script&index=0', file: '/src/Component.astro' },
+			{ id: '/src/file.css?raw', file: '/src/file.css' },
+			{ id: '/src/module.ts?type=style', file: '/src/module.ts' },
+		];
+
+		for (const mod of nonStyleIds) {
+			const devCssId = '\0virtual:astro:dev-css:src/pages/index@_@astro';
+			const { environment, server, invalidatedModuleGraphIds } = createMockContext({
+				modules: [mod],
+				moduleGraphEntries: [[devCssId, { id: devCssId }]],
+			});
+
+			const hotUpdate = getHotUpdateHandler();
+
+			const result = hotUpdate.call(
+				{ environment },
+				{
+					modules: [mod],
+					server,
+					timestamp: Date.now(),
+					file: mod.file,
+				},
+			);
+
+			assert.deepEqual(result, []);
+			assert.ok(
+				!invalidatedModuleGraphIds.includes(devCssId),
+				`dev-css module should not be invalidated for ${mod.id}`,
+			);
+		}
 	});
 
 	it('does not invalidate dev-css modules when no style modules are present', () => {
