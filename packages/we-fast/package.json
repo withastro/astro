@@ -1,0 +1,39 @@
+{
+  "name": "we-fast",
+  "version": "1.0.0",
+  "description": "WE-FAST — Perfect and easy to use (with lots of options!) multi-framework website creator combining Astro, Nuxt/Vue, Bootstrap, Svelte, and GFX.",
+  "type": "module",
+  "bin": {
+    "we-fast": "./bin/we-fast.mjs"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./gfx": {
+      "types": "./dist/gfx-engine.d.ts",
+      "import": "./dist/gfx-engine.js"
+    },
+    "./bootstrap": {
+      "types": "./dist/bootstrap-system.d.ts",
+      "import": "./dist/bootstrap-system.js"
+    },
+    "./generators": {
+      "types": "./dist/code-generators.d.ts",
+      "import": "./dist/code-generators.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b || true",
+    "dev": "node ./bin/we-fast.mjs studio"
+  },
+  "dependencies": {
+    "valibot": "^1.2.0"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3"
+  }
+}

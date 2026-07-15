@@ -1,0 +1,22 @@
+{
+  "name": "@example/we-fast",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev --port 4321",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/vue": "workspace:*",
+    "@astrojs/svelte": "workspace:*",
+    "vue": "^3.5.0",
+    "svelte": "^5.0.0",
+    "we-fast": "workspace:*"
+  }
+}
