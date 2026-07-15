@@ -19,7 +19,12 @@ import { SvgOptimizerSchema } from '../../../assets/svg/config.js';
 import { EnvSchema } from '../../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
 import { CacheSchema, RouteRulesSchema } from '../../cache/config.js';
-import { allowedDirectivesSchema, cspAlgorithmSchema, cspHashSchema } from '../../csp/config.js';
+import {
+	allowedDirectivesSchema,
+	cspAlgorithmSchema,
+	cspHashEntrySchema,
+	cspResourceEntrySchema,
+} from '../../csp/config.js';
 import { SessionSchema } from '../../session/config.js';
 
 // The below types are required boilerplate to work around a Zod issue since v3.21.2. Since that version,
@@ -116,6 +121,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
+		collectionStorage: 'single-file',
 	},
 } satisfies AstroUserConfig & {
 	server: { open: boolean };
@@ -521,14 +527,14 @@ export const AstroConfigSchema = z.object({
 						directives: z.array(allowedDirectivesSchema).optional(),
 						styleDirective: z
 							.object({
-								resources: z.array(z.string()).optional(),
-								hashes: z.array(cspHashSchema).optional(),
+								resources: z.array(cspResourceEntrySchema).optional(),
+								hashes: z.array(cspHashEntrySchema).optional(),
 							})
 							.optional(),
 						scriptDirective: z
 							.object({
-								resources: z.array(z.string()).optional(),
-								hashes: z.array(cspHashSchema).optional(),
+								resources: z.array(cspResourceEntrySchema).optional(),
+								hashes: z.array(cspHashEntrySchema).optional(),
 								strictDynamic: z.boolean().optional(),
 							})
 							.optional(),
@@ -555,7 +561,7 @@ export const AstroConfigSchema = z.object({
 	fetchFile: z.string().nullable().optional().default(ASTRO_CONFIG_DEFAULTS.fetchFile),
 	logger: z
 		.object({
-			entrypoint: z.string(),
+			entrypoint: z.union([z.string(), z.instanceof(URL)]),
 			config: z.record(z.string(), z.any()).optional(),
 		})
 		.optional(),
@@ -577,6 +583,10 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.chromeDevtoolsWorkspace),
 			svgOptimizer: SvgOptimizerSchema.optional(),
+			collectionStorage: z
+				.enum(['single-file', 'chunked'])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.collectionStorage),
 		})
 		.prefault({}),
 	legacy: z

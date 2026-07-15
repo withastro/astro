@@ -1,9 +1,17 @@
 import { existsSync, promises as fs, type PathLike } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import * as devalue from 'devalue';
 import { Traverse } from 'neotraverse/modern';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { IMAGE_IMPORT_PREFIX } from './consts.js';
+import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
+import {
+	ChunkedWriter,
+	type DataStoreManifest,
+	type DataStoreWriter,
+	FileWriter,
+	serializeDataStore,
+} from './data-store-writer.js';
 import { type DataEntry, ImmutableDataStore } from './data-store.js';
 import { contentModuleToId } from './utils.js';
 
@@ -16,7 +24,7 @@ const MAX_DEPTH = 10;
  * This is kept as a separate class to avoid needing node builtins at runtime, when read-only access is all that is needed.
  */
 export class MutableDataStore extends ImmutableDataStore {
-	#file?: PathLike;
+	#writer?: DataStoreWriter;
 
 	#assetsFile?: PathLike;
 	#modulesFile?: PathLike;
@@ -254,7 +262,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			clearTimeout(this.#saveTimeout);
 		}
 		this.#saveTimeout = undefined;
-		if (this.#file) {
+		if (this.#writer) {
 			await this.writeToDisk();
 		}
 		this.#maybeResolveSavePromise();
@@ -274,7 +282,7 @@ export default new Map([\n${lines.join(',\n')}]);
 
 		this.#saveTimeout = setTimeout(async () => {
 			this.#saveTimeout = undefined;
-			if (this.#file) {
+			if (this.#writer) {
 				await this.writeToDisk();
 			}
 			this.#maybeResolveSavePromise();
@@ -422,29 +430,18 @@ export default new Map([\n${lines.join(',\n')}]);
 	}
 
 	toString() {
-		// Sort collections and their entries by key to ensure deterministic serialization.
-		// Entry insertion order can vary between builds due to concurrent file processing (pLimit),
-		// so we sort here to guarantee stable output hashes regardless of processing order.
-		const sorted = new Map(
-			[...this._collections.entries()]
-				.sort(([a], [b]) => a.localeCompare(b))
-				.map(([key, collection]) => [
-					key,
-					new Map([...collection.entries()].sort(([a], [b]) => a.localeCompare(b))),
-				]),
-		);
-		return devalue.stringify(sorted);
+		return serializeDataStore(this._collections);
 	}
 
 	async writeToDisk() {
 		if (!this.#dirty) {
 			return;
 		}
-		if (!this.#file) {
+		if (!this.#writer) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError);
 		}
 		// If a write is already in progress, queue this write and return.
-		// This ensures we don't pass stale data to #writeFileAtomic nor race
+		// This ensures we don't pass stale data to the writer nor race
 		// with the ongoing execution.
 		if (this.#writeInProgress) {
 			this.#writeQueued = true;
@@ -454,7 +451,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			// Mark as clean before writing to disk so that it catches any changes that happen during the write
 			this.#dirty = false;
 			this.#writeInProgress = true;
-			await this.#writeFileAtomic(this.#file, this.toString());
+			await this.#writer.write(this._collections);
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		} finally {
@@ -498,14 +495,57 @@ export default new Map([\n${lines.join(',\n')}]);
 			if (existsSync(filePath)) {
 				const data = await fs.readFile(filePath, 'utf-8');
 				const store = await MutableDataStore.fromString(data);
-				store.#file = filePath;
+				store.#writer = new FileWriter(filePath);
 				return store;
 			} else {
 				await fs.mkdir(new URL('./', filePath), { recursive: true });
 			}
 		} catch {}
 		const store = new MutableDataStore();
-		store.#file = filePath;
+		store.#writer = new FileWriter(filePath);
+		return store;
+	}
+
+	/**
+	 * Loads a MutableDataStore from a chunked store directory (experimental
+	 * `collectionStorage: 'chunked'`), reading the manifest and its referenced parts.
+	 * If the directory has no manifest yet (fresh build) it starts empty. If the
+	 * manifest exists but can't be read (corrupt cache), it warns and starts
+	 * empty so loaders rebuild it, rather than failing the sync.
+	 */
+	static async fromDir(dirPath: URL) {
+		const manifestFile = new URL(`./${DATA_STORE_MANIFEST_FILE}`, dirPath);
+		if (existsSync(manifestFile)) {
+			try {
+				const manifestData = await fs.readFile(manifestFile, 'utf-8');
+				const manifest: DataStoreManifest = JSON.parse(manifestData);
+				// Swap each referenced part file name for its contents.
+				const expanded: Record<string, string[]> = {};
+				for (const collectionName in manifest) {
+					expanded[collectionName] = await Promise.all(
+						manifest[collectionName].map((fileName) =>
+							fs.readFile(new URL(`./${fileName}`, dirPath), 'utf-8'),
+						),
+					);
+				}
+				const map = ImmutableDataStore.manifestToMap(expanded);
+				const store = await MutableDataStore.fromMap(map);
+				store.#writer = new ChunkedWriter(dirPath);
+				return store;
+			} catch (err) {
+				// The manifest exists but couldn't be read/parsed, or a referenced
+				// part is missing: the chunked cache is corrupt. Warn loudly and fall
+				// through to a fresh store so loaders rebuild it.
+				console.warn(
+					`[content] Could not read the chunked data store at ${fileURLToPath(dirPath)}, rebuilding from scratch.`,
+					err,
+				);
+			}
+		}
+		// Fresh build, or recovering from a corrupt cache: start empty.
+		await fs.mkdir(dirPath, { recursive: true });
+		const store = new MutableDataStore();
+		store.#writer = new ChunkedWriter(dirPath);
 		return store;
 	}
 }

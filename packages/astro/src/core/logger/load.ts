@@ -8,10 +8,15 @@ import { default as consoleLoggerCreator } from './impls/console.js';
 import { default as jsonLoggerCreator } from './impls/json.js';
 import { default as composeLoggerCreator } from './impls/compose.js';
 
+function normalizeEntrypoint(entrypoint: LoggerHandlerConfig['entrypoint']): string {
+	return entrypoint instanceof URL ? entrypoint.href : entrypoint;
+}
+
 export async function loadLoggerDestination(
 	config: LoggerHandlerConfig,
-): Promise<AstroLoggerDestination<any>> {
+): Promise<AstroLoggerDestination> {
 	let cause: Error | undefined = undefined;
+	const entrypoint = normalizeEntrypoint(config.entrypoint);
 
 	try {
 		switch (config.entrypoint) {
@@ -30,7 +35,9 @@ export async function loadLoggerDestination(
 					const loggers: LoggerHandlerConfig[] = config.config?.loggers;
 					destinations = await Promise.all(
 						loggers.map(async (loggerConfig) => {
-							const logger = await import(/* @vite-ignore */ loggerConfig.entrypoint);
+							const logger = await import(
+								/* @vite-ignore */ normalizeEntrypoint(loggerConfig.entrypoint)
+							);
 							return logger.default(loggerConfig.config) as AstroLoggerDestination;
 						}),
 					);
@@ -39,7 +46,7 @@ export async function loadLoggerDestination(
 				return composeLoggerCreator(destinations);
 			}
 			default: {
-				const logger = await import(/* @vite-ignore */ config.entrypoint);
+				const logger = await import(/* @vite-ignore */ entrypoint);
 				return logger.default(config.config);
 			}
 		}
@@ -51,7 +58,7 @@ export async function loadLoggerDestination(
 
 	const error = new AstroError({
 		...UnableToLoadLogger,
-		message: UnableToLoadLogger.message(config.entrypoint),
+		message: UnableToLoadLogger.message(entrypoint),
 	});
 	if (cause) {
 		error.cause = cause;

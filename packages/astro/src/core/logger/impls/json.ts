@@ -2,7 +2,6 @@ import {
 	AstroLogger,
 	type AstroLoggerDestination,
 	type AstroLoggerLevel,
-	type AstroLoggerMessage,
 	levels,
 } from '../core.js';
 import type { Writable } from 'node:stream';
@@ -28,7 +27,7 @@ export const SGR_REGEX = new RegExp(`${String.fromCharCode(0x1b)}\\[[0-9;]*m`, '
 
 export default function jsonLoggerDestination(
 	config: JsonHandlerConfig = {},
-): AstroLoggerDestination<AstroLoggerMessage> {
+): AstroLoggerDestination {
 	const { pretty = false, level = 'info' } = config;
 	return {
 		write(event) {

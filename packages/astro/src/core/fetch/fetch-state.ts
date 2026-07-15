@@ -21,7 +21,8 @@ import {
 	pipelineSymbol,
 	responseSentSymbol,
 } from '../constants.js';
-import { pushDirective } from '../csp/runtime.js';
+import type { CspKind } from '../csp/config.js';
+import { normalizeCspResourceEntry, pushDirective } from '../csp/runtime.js';
 import { generateCspDigest } from '../encryption.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import {
@@ -426,12 +427,26 @@ export class FetchState implements AstroFetchState {
 			cspDestination: manifest.csp?.cspDestination ?? (routeData.prerender ? 'meta' : 'header'),
 			shouldInjectCspMetaTags,
 			cspAlgorithm,
+			directives: manifest.csp?.directives ? [...manifest.csp.directives] : [],
+			// Deprecated flat fields, kept for back-compat. Seeded from the manifest; the runtime CSP
+			// API updates the structured `scriptDirective`/`styleDirective` below (which the renderer
+			// reads), not these.
 			scriptHashes: manifest.csp?.scriptHashes ? [...manifest.csp.scriptHashes] : [],
 			scriptResources: manifest.csp?.scriptResources ? [...manifest.csp.scriptResources] : [],
 			styleHashes: manifest.csp?.styleHashes ? [...manifest.csp.styleHashes] : [],
 			styleResources: manifest.csp?.styleResources ? [...manifest.csp.styleResources] : [],
-			directives: manifest.csp?.directives ? [...manifest.csp.directives] : [],
 			isStrictDynamic: manifest.csp?.isStrictDynamic ?? false,
+			// Structured fields (source of truth). Arrays are cloned so per-request runtime inserts
+			// don't mutate the shared manifest.
+			scriptDirective: {
+				resources: manifest.csp?.scriptDirective ? [...manifest.csp.scriptDirective.resources] : [],
+				hashes: manifest.csp?.scriptDirective ? [...manifest.csp.scriptDirective.hashes] : [],
+				strictDynamic: manifest.csp?.scriptDirective?.strictDynamic ?? false,
+			},
+			styleDirective: {
+				resources: manifest.csp?.styleDirective ? [...manifest.csp.styleDirective.resources] : [],
+				hashes: manifest.csp?.styleDirective ? [...manifest.csp.styleDirective.hashes] : [],
+			},
 			internalFetchHeaders: manifest.internalFetchHeaders,
 		};
 
@@ -603,23 +618,59 @@ export class FetchState implements AstroFetchState {
 			}
 			return undefined;
 		}
+		// Dedupe fallback warnings to once per family+kind for the lifetime of this request.
+		const warnedFallback = new Set<string>();
+		const warnFallback = (family: 'script' | 'style', kind: CspKind) => {
+			if (kind === 'default' || !state.result) {
+				return;
+			}
+			const directive =
+				family === 'script' ? state.result.scriptDirective : state.result.styleDirective;
+			// Astro's element hashes are folded into the `-elem` directive automatically, so the
+			// footgun is specifically user-provided `default`-kind resources on the general directive,
+			// which do NOT carry over to the more specific directive.
+			const defaultResources = directive.resources
+				.map(normalizeCspResourceEntry)
+				.filter((entry) => entry.kind === 'default')
+				.map((entry) => entry.resource);
+			if (defaultResources.length === 0) {
+				return;
+			}
+			const key = `${family}:${kind}`;
+			if (warnedFallback.has(key)) {
+				return;
+			}
+			warnedFallback.add(key);
+			const general = `${family}-src`;
+			const specific = `${general}-${kind === 'element' ? 'elem' : 'attr'}`;
+			pipeline.logger.warn(
+				'csp',
+				`A resource was added to \`${specific}\`, but \`${general}\` also defines custom resources (${defaultResources.join(
+					' ',
+				)}). Because \`${specific}\` overrides \`${general}\` for its scope (browsers do not fall back), those resources will not apply there. Add them to \`${specific}\` as well if needed.`,
+			);
+		};
 		return {
 			insertDirective(payload) {
 				if (state.result) {
 					state.result.directives = pushDirective(state.result.directives, payload);
 				}
 			},
-			insertScriptResource(resource) {
-				state.result?.scriptResources.push(resource);
+			insertScriptResource(payload) {
+				if (!state.result) return;
+				warnFallback('script', normalizeCspResourceEntry(payload).kind);
+				state.result.scriptDirective.resources.push(payload);
 			},
-			insertStyleResource(resource) {
-				state.result?.styleResources.push(resource);
+			insertStyleResource(payload) {
+				if (!state.result) return;
+				warnFallback('style', normalizeCspResourceEntry(payload).kind);
+				state.result.styleDirective.resources.push(payload);
 			},
-			insertStyleHash(hash) {
-				state.result?.styleHashes.push(hash);
+			insertStyleHash(payload) {
+				state.result?.styleDirective.hashes.push(payload);
 			},
-			insertScriptHash(hash) {
-				state.result?.scriptHashes.push(hash);
+			insertScriptHash(payload) {
+				state.result?.scriptDirective.hashes.push(payload);
 			},
 		};
 	}

@@ -6,8 +6,8 @@ import jsonFactory, { SGR_REGEX } from '../../../dist/core/logger/impls/json.js'
 
 let logs: AstroLoggerMessage[] = [];
 
-const testDestination: AstroLoggerDestination<AstroLoggerMessage> = {
-	write(event: AstroLoggerMessage) {
+const testDestination: AstroLoggerDestination = {
+	write(event) {
 		logs.push(event);
 	},
 };
