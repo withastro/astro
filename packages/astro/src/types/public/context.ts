@@ -1,6 +1,6 @@
 import type { ActionClient, ActionReturnType } from '../../actions/runtime/types.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
-import type { CspDirective, CspHash } from '../../core/csp/config.js';
+import type { CspDirective, CspHashEntry, CspResourceEntry } from '../../core/csp/config.js';
 import type { CacheLike } from '../../core/cache/runtime/cache.js';
 import type { AstroSession } from '../../core/session/runtime.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
@@ -535,64 +535,80 @@ export interface APIContext<
 				insertDirective: (directive: CspDirective) => void;
 
 				/**
-				 * It set the resource for the directive `style-src` in the route being rendered. It overrides Astro's default.
+				 * It sets the resource for the `style-src` family of directives in the route being rendered. It overrides Astro's default.
 				 *
-				 * @param {string} payload - The source to insert in the `style-src` directive.
+				 * Pass a bare string to add the source to `style-src`, or an object with a `kind` to scope it:
+				 * `"element"` → `style-src-elem`, `"attribute"` → `style-src-attr`, `"default"` → `style-src`.
+				 *
+				 * @param {string | { resource: string; kind?: "element" | "attribute" | "default" }} payload - The source to insert.
 				 *
 				 * ## Example
 				 *
 				 * ```js
 				 * ctx.insertStyleResource("https://styles.cdn.example.com/")
+				 * ctx.insertStyleResource({ resource: "'unsafe-inline'", kind: "attribute" })
 				 * ```
 				 *
 				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstyleresource)
 				 */
-				insertStyleResource: (payload: string) => void;
+				insertStyleResource: (payload: CspResourceEntry) => void;
 
 				/**
 				 * Insert a single style hash to the route being rendered.
 				 *
-				 * @param {CspHash} hash - The hash to insert in the `style-src` directive.
+				 * Pass a bare hash to add it to `style-src`, or an object with a `kind` to scope it:
+				 * `"element"` → `style-src-elem`, `"attribute"` → `style-src-attr`, `"default"` → `style-src`.
+				 *
+				 * @param {CspHash | { hash: CspHash; kind?: "element" | "attribute" | "default" }} payload - The hash to insert.
 				 *
 				 * ## Example
 				 *
 				 * ```js
 				 * ctx.insertStyleHash("sha256-1234567890abcdef1234567890")
+				 * ctx.insertStyleHash({ hash: "sha256-1234567890abcdef1234567890", kind: "element" })
 				 * ```
 				 *
 				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstylehash)
 				 */
-				insertStyleHash: (hash: CspHash) => void;
+				insertStyleHash: (payload: CspHashEntry) => void;
 
 				/**
-				 * It set the resource for the directive `script-src` in the route being rendered.
+				 * It sets the resource for the `script-src` family of directives in the route being rendered.
 				 *
-				 * @param {string} resource - The source to insert in the `script-src` directive.
+				 * Pass a bare string to add the source to `script-src`, or an object with a `kind` to scope it:
+				 * `"element"` → `script-src-elem`, `"attribute"` → `script-src-attr`, `"default"` → `script-src`.
+				 *
+				 * @param {string | { resource: string; kind?: "element" | "attribute" | "default" }} payload - The source to insert.
 				 *
 				 * ## Example
 				 *
 				 * ```js
 				 * ctx.insertScriptResource("https://scripts.cdn.example.com/")
+				 * ctx.insertScriptResource({ resource: "https://scripts.cdn.example.com/", kind: "element" })
 				 * ```
 				 *
 				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscriptresource)
 				 */
-				insertScriptResource: (resource: string) => void;
+				insertScriptResource: (payload: CspResourceEntry) => void;
 
 				/**
 				 * Insert a single script hash to the route being rendered.
 				 *
-				 * @param {CspHash} hash - The hash to insert in the `script-src` directive.
+				 * Pass a bare hash to add it to `script-src`, or an object with a `kind` to scope it:
+				 * `"element"` → `script-src-elem`, `"attribute"` → `script-src-attr`, `"default"` → `script-src`.
+				 *
+				 * @param {CspHash | { hash: CspHash; kind?: "element" | "attribute" | "default" }} payload - The hash to insert.
 				 *
 				 * ## Example
 				 *
 				 * ```js
 				 * ctx.insertScriptHash("sha256-1234567890abcdef1234567890")
+				 * ctx.insertScriptHash({ hash: "sha256-1234567890abcdef1234567890", kind: "element" })
 				 * ```
 				 *
 				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscripthash)
 				 */
-				insertScriptHash: (hash: CspHash) => void;
+				insertScriptHash: (payload: CspHashEntry) => void;
 		  }
 		| undefined;
 
