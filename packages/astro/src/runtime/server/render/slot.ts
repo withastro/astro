@@ -113,6 +113,12 @@ export async function renderSlotToString(
 					// third-party code that consumes the slot result as a plain
 					// string (e.g. head-management packages like `astro-capo`)
 					// keep scripts that would otherwise be silently dropped.
+					// The fold is intentionally occurrence-preserving: scripts are not
+					// deduplicated by id here. An inert copy inside a <template> and the
+					// live copy outside must both survive (matching the `templateDepth`
+					// exemption in `stringifyChunk`), and template context is invisible
+					// at this layer — template-enter/exit land in the `instructions`
+					// bucket. The pipeline still dedupes via `renderedScripts`.
 					content += chunk.content;
 				} else {
 					if (instructions === null) {
