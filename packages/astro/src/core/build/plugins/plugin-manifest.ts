@@ -27,6 +27,7 @@ import {
 	trackScriptHashes,
 	trackStyleHashes,
 } from '../../csp/common.js';
+import { partitionByKind } from '../../csp/runtime.js';
 import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
@@ -308,26 +309,45 @@ async function buildManifest(
 	let csp: SSRManifestCSP | undefined = undefined;
 
 	if (shouldTrackCspHashes(settings.config.security.csp)) {
-		const algorithm = getAlgorithm(settings.config.security.csp);
+		const cspConfig = settings.config.security.csp;
+		const algorithm = getAlgorithm(cspConfig);
+		// Astro's generated hashes are element hashes. They are appended to the directive's `hashes`
+		// as `default`-kind entries (bare strings), so they land on `script-src`/`style-src` and are
+		// folded into the `-elem` directives at render time.
 		const scriptHashes = [
-			...getScriptHashes(settings.config.security.csp),
+			...getScriptHashes(cspConfig),
 			...(await trackScriptHashes(internals, settings, algorithm)),
 		];
 		const styleHashes = [
-			...getStyleHashes(settings.config.security.csp),
+			...getStyleHashes(cspConfig),
 			...settings.injectedCsp.styleHashes,
 			...(await trackStyleHashes(internals, settings, algorithm)),
 		];
 
+		const scriptDirective = {
+			resources: getScriptResources(cspConfig),
+			hashes: scriptHashes,
+			strictDynamic: getStrictDynamic(cspConfig),
+		};
+		const styleDirective = {
+			resources: getStyleResources(cspConfig),
+			hashes: styleHashes,
+		};
+		// Derive the deprecated flat fields from the `default`-kind entries for back-compat.
+		const scriptDefault = partitionByKind(scriptDirective).default;
+		const styleDefault = partitionByKind(styleDirective).default;
+
 		csp = {
 			cspDestination: settings.adapter?.adapterFeatures?.staticHeaders ? 'adapter' : undefined,
-			scriptHashes,
-			scriptResources: getScriptResources(settings.config.security.csp),
-			styleHashes,
-			styleResources: getStyleResources(settings.config.security.csp),
 			algorithm,
 			directives: getDirectives(settings),
-			isStrictDynamic: getStrictDynamic(settings.config.security.csp),
+			scriptHashes: scriptDefault.hashes,
+			scriptResources: scriptDefault.resources,
+			isStrictDynamic: scriptDirective.strictDynamic,
+			styleHashes: styleDefault.hashes,
+			styleResources: styleDefault.resources,
+			scriptDirective,
+			styleDirective,
 		};
 	}
 

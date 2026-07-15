@@ -25,7 +25,7 @@ describe('Prerender conflicts', () => {
 			const logger = new AstroLogger({
 				level: 'warn',
 				destination: {
-					write(chunk: AstroLoggerMessage) {
+					write(chunk) {
 						logs.push(chunk);
 						return true;
 					},
@@ -79,7 +79,7 @@ describe('Prerender conflicts', () => {
 			const logger = new AstroLogger({
 				level: 'warn',
 				destination: {
-					write(chunk: AstroLoggerMessage) {
+					write(chunk) {
 						logs.push(chunk);
 						return true;
 					},

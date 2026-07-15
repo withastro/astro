@@ -15,6 +15,7 @@ import {
 	getStyleResources,
 	shouldTrackCspHashes,
 } from '../core/csp/common.js';
+import { partitionByKind } from '../core/csp/runtime.js';
 import { createKey, encodeKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
 import { MIDDLEWARE_MODULE_ID } from '../core/middleware/vite-plugin.js';
 import { SERVER_ISLAND_MANIFEST } from '../core/server-islands/vite-plugin-server-islands.js';
@@ -160,15 +161,30 @@ async function createSerializedManifest(
 	}
 
 	if (shouldTrackCspHashes(settings.config.security.csp)) {
+		const cspConfig = settings.config.security.csp;
+		const scriptDirective = {
+			resources: getScriptResources(cspConfig),
+			hashes: getScriptHashes(cspConfig),
+			strictDynamic: getStrictDynamic(cspConfig),
+		};
+		const styleDirective = {
+			resources: getStyleResources(cspConfig),
+			hashes: getStyleHashes(cspConfig),
+		};
+		// Derive the deprecated flat fields from the `default`-kind entries for back-compat.
+		const scriptDefault = partitionByKind(scriptDirective).default;
+		const styleDefault = partitionByKind(styleDirective).default;
 		csp = {
 			cspDestination: settings.adapter?.adapterFeatures?.staticHeaders ? 'adapter' : undefined,
-			scriptHashes: getScriptHashes(settings.config.security.csp),
-			scriptResources: getScriptResources(settings.config.security.csp),
-			styleHashes: getStyleHashes(settings.config.security.csp),
-			styleResources: getStyleResources(settings.config.security.csp),
-			algorithm: getAlgorithm(settings.config.security.csp),
+			algorithm: getAlgorithm(cspConfig),
 			directives: getDirectives(settings),
-			isStrictDynamic: getStrictDynamic(settings.config.security.csp),
+			scriptHashes: scriptDefault.hashes,
+			scriptResources: scriptDefault.resources,
+			isStrictDynamic: scriptDirective.strictDynamic,
+			styleHashes: styleDefault.hashes,
+			styleResources: styleDefault.resources,
+			scriptDirective,
+			styleDirective,
 		};
 	}
 
