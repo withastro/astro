@@ -192,17 +192,16 @@ describe('Integration API', () => {
 		// The destination should have been replaced by the JSON logger destination.
 		assert.notEqual(logger.options.destination, initialDestination);
 
-		// And logging should now emit structured JSON.
-		const originalWrite = process.stdout.write;
+		// And logging should now emit structured JSON via the console API.
+		const originalInfo = console.info;
 		let captured = '';
-		process.stdout.write = ((chunk: string | Uint8Array) => {
-			captured += chunk.toString();
-			return true;
-		}) as typeof process.stdout.write;
+		console.info = (...args: unknown[]) => {
+			captured += args.map(String).join(' ');
+		};
 		try {
 			logger.info('config', 'hello from integration');
 		} finally {
-			process.stdout.write = originalWrite;
+			console.info = originalInfo;
 		}
 
 		const parsed = JSON.parse(captured);
