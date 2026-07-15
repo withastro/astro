@@ -31,7 +31,7 @@ export default function jsonLoggerDestination(
 				return;
 			}
 
-			const dest = levels[event.level] >= levels['error'] ? console.error : console.log;
+			const dest = levels[event.level] >= levels['error'] ? console.error : console.info;
 			const message = event.message.replace(SGR_REGEX, '');
 			const payload = pretty
 				? JSON.stringify({ message, label: event.label, level: event.level }, null, 2)

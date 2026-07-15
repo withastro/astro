@@ -149,7 +149,7 @@ describe('json handler', () => {
 	beforeEach(() => {
 		consoleLogCalls = [];
 		consoleErrorCalls = [];
-		originalLog = console.log;
+		originalLog = console.info;
 		originalError = console.error;
 		console.log = (...args: unknown[]) => {
 			consoleLogCalls.push(args.map(String).join(' '));
