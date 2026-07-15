@@ -93,7 +93,7 @@ describe('Server islands', () => {
 				const res = await fixture.fetch('/fragment');
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				const fetchMatch = /fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/.exec(html)!;
+				const fetchMatch = /fetch\(["']\/_server-islands\/Island\?[^"']*p=([^&"']*)/.exec(html)!;
 				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
@@ -102,7 +102,7 @@ describe('Server islands', () => {
 				const res = await fixture.fetch('/fragment');
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				const fetchMatch = /fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/.exec(html)!;
+				const fetchMatch = /fetch\(["']\/_server-islands\/Island\?[^"']*p=([^&"']*)/.exec(html)!;
 				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
@@ -111,7 +111,7 @@ describe('Server islands', () => {
 				const res = await fixture.fetch('/slot-with-script');
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				const urlMatch = /fetch\('(\/_server-islands\/Wrapper\?[^']+)'/.exec(html)!;
+				const urlMatch = /fetch\(["'](\/_server-islands\/Wrapper\?[^"']+)["']/.exec(html)!;
 				assert.ok(urlMatch, 'should have a server island fetch URL');
 				const islandRes = await fixture.fetch(urlMatch[1]);
 				assert.equal(islandRes.status, 200);
@@ -273,7 +273,7 @@ describe('Server islands', () => {
 				const res = await app.render(request);
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				const fetchMatch = /fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/.exec(html)!;
+				const fetchMatch = /fetch\(["']\/_server-islands\/Island\?[^"']*p=([^&"']*)/.exec(html)!;
 				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
@@ -342,7 +342,7 @@ describe('Server islands', () => {
 				const res = await devFixture.fetch('/');
 				assert.equal(res.status, 200);
 				const html = await res.text();
-				const fetchMatch = /fetch\('(\/_server-islands\/Island[^']*)/.exec(html)!;
+				const fetchMatch = /fetch\(["'](\/_server-islands\/Island[^"']*)/.exec(html)!;
 				assert.ok(fetchMatch, 'should have a server island fetch URL');
 				const islandRes = await devFixture.fetch(fetchMatch[1]);
 				assert.equal(

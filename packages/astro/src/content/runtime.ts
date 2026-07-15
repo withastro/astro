@@ -109,12 +109,12 @@ export function createGetCollection({
 
 		const hasFilter = typeof filter === 'function';
 		const store = await globalDataStore.get();
-		if (store.hasCollection(collection)) {
+		if (await store.hasCollection(collection)) {
 			// @ts-expect-error	virtual module
 			const { default: imageAssetMap } = await import('astro:asset-imports');
 
 			const result = [];
-			for (const rawEntry of store.values<DataEntry>(collection)) {
+			for (const rawEntry of await store.values<DataEntry>(collection)) {
 				const data = updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap);
 
 				let entry = {
@@ -197,8 +197,8 @@ export function createGetEntry({ liveCollections }: { liveCollections: LiveColle
 		}
 		const store = await globalDataStore.get();
 
-		if (store.hasCollection(collection)) {
-			const entry = store.get<DataEntry>(collection, lookupId);
+		if (await store.hasCollection(collection)) {
+			const entry = await store.get<DataEntry>(collection, lookupId);
 			if (!entry) {
 				console.warn(`Entry ${collection} → ${lookupId} was not found.`);
 				return;
