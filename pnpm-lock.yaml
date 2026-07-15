@@ -643,6 +643,27 @@ importers:
         specifier: ^7.0.9
         version: link:../../packages/astro
 
+  examples/we-fast:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../packages/integrations/svelte
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../packages/integrations/vue
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
+      svelte:
+        specifier: ^5.0.0
+        version: 5.55.3
+      vue:
+        specifier: ^3.5.0
+        version: 3.5.30(typescript@6.0.3)
+      we-fast:
+        specifier: workspace:*
+        version: link:../../packages/we-fast
+
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
@@ -6943,6 +6964,16 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../scripts
+
+  packages/we-fast:
+    dependencies:
+      valibot:
+        specifier: ^1.2.0
+        version: 1.2.0(typescript@6.0.3)
+    devDependencies:
+      typescript:
+        specifier: ~6.0.3
+        version: 6.0.3
 
   scripts:
     dependencies:
