@@ -1459,7 +1459,7 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @name logger.entrypoint
-	 * @type {string}
+	 * @type {string | URL}
 	 * @version 7.0.0
 	 * @description
 	 *

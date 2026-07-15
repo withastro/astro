@@ -555,7 +555,7 @@ export const AstroConfigSchema = z.object({
 	fetchFile: z.string().nullable().optional().default(ASTRO_CONFIG_DEFAULTS.fetchFile),
 	logger: z
 		.object({
-			entrypoint: z.string(),
+			entrypoint: z.union([z.string(), z.instanceof(URL)]),
 			config: z.record(z.string(), z.any()).optional(),
 		})
 		.optional(),
