@@ -143,7 +143,7 @@ describe('SGR_REGEX', () => {
 describe('json handler', () => {
 	let consoleLogCalls: string[];
 	let consoleErrorCalls: string[];
-	let originalLog: typeof console.log;
+	let originalLog: typeof console.info;
 	let originalError: typeof console.error;
 
 	beforeEach(() => {
@@ -151,7 +151,7 @@ describe('json handler', () => {
 		consoleErrorCalls = [];
 		originalLog = console.info;
 		originalError = console.error;
-		console.log = (...args: unknown[]) => {
+		console.info = (...args: unknown[]) => {
 			consoleLogCalls.push(args.map(String).join(' '));
 		};
 		console.error = (...args: unknown[]) => {
@@ -160,7 +160,7 @@ describe('json handler', () => {
 	});
 
 	afterEach(() => {
-		console.log = originalLog;
+		console.info = originalLog;
 		console.error = originalError;
 	});
 
