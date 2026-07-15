@@ -80,6 +80,25 @@ describe('renderCspContent', () => {
 		);
 	});
 
+	it('does not add self to element directives when default resources are configured', () => {
+		assert.equal(
+			renderCspContent(
+				createCspResult({
+					scriptDirective: {
+						hashes: [{ hash: 'sha256-script', kind: 'element' }],
+						resources: ["'none'"],
+					},
+					styleDirective: {
+						hashes: [{ hash: 'sha256-style', kind: 'element' }],
+						resources: ['https://styles.example.com'],
+					},
+				}),
+			),
+			"script-src 'none' ; script-src-elem 'sha256-script'; " +
+				"style-src https://styles.example.com ; style-src-elem 'sha256-style';",
+		);
+	});
+
 	it('does not share default hashes into the -attr directives', () => {
 		assert.equal(
 			renderCspContent(
