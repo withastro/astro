@@ -141,29 +141,27 @@ describe('SGR_REGEX', () => {
 });
 
 describe('json handler', () => {
-	let stdoutWrites: string[];
-	let stderrWrites: string[];
-	let originalStdoutWrite: typeof process.stdout.write;
-	let originalStderrWrite: typeof process.stderr.write;
+	let consoleLogCalls: string[];
+	let consoleErrorCalls: string[];
+	let originalLog: typeof console.info;
+	let originalError: typeof console.error;
 
 	beforeEach(() => {
-		stdoutWrites = [];
-		stderrWrites = [];
-		originalStdoutWrite = process.stdout.write;
-		originalStderrWrite = process.stderr.write;
-		process.stdout.write = ((chunk: string) => {
-			stdoutWrites.push(chunk);
-			return true;
-		}) as typeof process.stdout.write;
-		process.stderr.write = ((chunk: string) => {
-			stderrWrites.push(chunk);
-			return true;
-		}) as typeof process.stderr.write;
+		consoleLogCalls = [];
+		consoleErrorCalls = [];
+		originalLog = console.info;
+		originalError = console.error;
+		console.info = (...args: unknown[]) => {
+			consoleLogCalls.push(args.map(String).join(' '));
+		};
+		console.error = (...args: unknown[]) => {
+			consoleErrorCalls.push(args.map(String).join(' '));
+		};
 	});
 
 	afterEach(() => {
-		process.stdout.write = originalStdoutWrite;
-		process.stderr.write = originalStderrWrite;
+		console.info = originalLog;
+		console.error = originalError;
 	});
 
 	describe('output format', () => {
@@ -175,26 +173,29 @@ describe('json handler', () => {
 
 		it('writes JSON with message and label', () => {
 			logger.info('build', 'compiled successfully');
-			assert.equal(stdoutWrites.length, 1);
+			assert.equal(consoleLogCalls.length, 1);
 			assert.equal(
-				stdoutWrites[0],
-				'{"message":"compiled successfully","label":"build","level":"info"}\n',
+				consoleLogCalls[0],
+				'{"message":"compiled successfully","label":"build","level":"info"}',
 			);
 		});
 
 		it('writes JSON with null label', () => {
 			logger.info(null, 'no label message');
-			assert.equal(stdoutWrites[0], '{"message":"no label message","label":null,"level":"info"}\n');
+			assert.equal(
+				consoleLogCalls[0],
+				'{"message":"no label message","label":null,"level":"info"}',
+			);
 		});
 
 		it('includes message, label and level in output', () => {
 			logger.warn('build', 'a warning');
-			assert.equal(stdoutWrites[0], '{"message":"a warning","label":"build","level":"warn"}\n');
+			assert.equal(consoleLogCalls[0], '{"message":"a warning","label":"build","level":"warn"}');
 		});
 
 		it('strips ANSI codes from messages', () => {
 			logger.info('build', '\x1b[32mgreen text\x1b[39m');
-			assert.equal(stdoutWrites[0], '{"message":"green text","label":"build","level":"info"}\n');
+			assert.equal(consoleLogCalls[0], '{"message":"green text","label":"build","level":"info"}');
 		});
 	});
 
@@ -207,10 +208,10 @@ describe('json handler', () => {
 
 		it('writes indented JSON when pretty is true', () => {
 			logger.info('build', 'test');
-			const parsed = JSON.parse(stdoutWrites[0]);
+			const parsed = JSON.parse(consoleLogCalls[0]);
 			assert.equal(parsed.message, 'test');
 			assert.equal(parsed.label, 'build');
-			assert.ok(stdoutWrites[0].includes('\n  '), 'output should be indented');
+			assert.ok(consoleLogCalls[0].includes('\n  '), 'output should be indented');
 		});
 	});
 
@@ -221,22 +222,35 @@ describe('json handler', () => {
 			level: 'info',
 		});
 
-		it('routes info to stdout', () => {
+		it('routes info to console.log', () => {
 			logger.info('build', 'test');
-			assert.equal(stdoutWrites.length, 1);
-			assert.equal(stderrWrites.length, 0);
+			assert.equal(consoleLogCalls.length, 1);
+			assert.equal(consoleErrorCalls.length, 0);
 		});
 
-		it('routes warn to stdout', () => {
+		it('routes warn to console.log', () => {
 			logger.warn('build', 'test');
-			assert.equal(stdoutWrites.length, 1);
-			assert.equal(stderrWrites.length, 0);
+			assert.equal(consoleLogCalls.length, 1);
+			assert.equal(consoleErrorCalls.length, 0);
 		});
 
-		it('routes error to stderr', () => {
+		it('routes error to console.error', () => {
 			logger.error('build', 'test');
-			assert.equal(stdoutWrites.length, 0);
-			assert.equal(stderrWrites.length, 1);
+			assert.equal(consoleLogCalls.length, 0);
+			assert.equal(consoleErrorCalls.length, 1);
+		});
+	});
+
+	describe('cross-runtime compatibility', () => {
+		it('does not reference process global', () => {
+			// The JSON logger must work in runtimes without process (e.g. workerd).
+			// Verify the write function body does not contain 'process'.
+			const destination = jsonFactory({ pretty: false });
+			const writeSource = destination.write.toString();
+			assert.ok(
+				!writeSource.includes('process.'),
+				'write() must not reference process for cross-runtime compatibility',
+			);
 		});
 	});
 });
