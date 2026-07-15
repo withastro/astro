@@ -226,6 +226,7 @@ export interface SSRResult {
 	cookies: AstroCookies | undefined;
 	getServerIslandNameMap: () => Promise<Map<string, string>>;
 	trailingSlash: AstroConfig['trailingSlash'];
+  apiPrefix?: AstroConfig['build']['apiPrefix'];
 	key: Promise<CryptoKey>;
 	_metadata: SSRMetadata;
 	/**

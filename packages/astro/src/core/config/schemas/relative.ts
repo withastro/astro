@@ -79,6 +79,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.string()
 					.optional()
 					.or(z.object({ fallback: z.string() }).and(z.record(z.string(), z.string())).optional()),
+        apiPrefix: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.apiPrefix),
 				serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 				redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 				inlineStylesheets: z
