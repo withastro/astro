@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import path from 'node:path';
-import { appendForwardSlash, prependForwardSlash } from '@astrojs/internal-helpers/path';
+import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import colors from 'piccolore';
 import type * as vite from 'vite';
 import type { AstroLogger } from '../core/logger/core.js';
@@ -11,9 +11,8 @@ import { writeHtmlResponse } from './response.js';
 /**
  * Outcome of the base-URL evaluation for a dev-server request.
  *
- * - **`rewrite`** — The request URL starts with the configured `base` path.
- *   Strip the base prefix so downstream handlers see a root-relative URL
- *   (e.g. `/docs/about` → `/about` when `base: '/docs'`).
+ * - **`next`** — The request URL starts with the configured `base` path.
+ *   Vite's base middleware will strip the prefix for downstream handlers.
  * - **`not-found-subpath`** — The user navigated to `/` or `/index.html` but
  *   the project has a non-root `base`. Respond with a 404 explaining that the
  *   site lives under the base path, so the developer knows to update the URL.
@@ -25,8 +24,8 @@ import { writeHtmlResponse } from './response.js';
  *   `publicDir` (and show a helpful base-path hint) or just pass through.
  *   This variant cannot be resolved purely.
  */
-export type BaseRewriteDecision =
-	| { action: 'rewrite'; newUrl: string }
+export type BaseDecision =
+	| { action: 'next' }
 	| { action: 'not-found-subpath'; pathname: string; devRoot: string }
 	| { action: 'not-found'; pathname: string }
 	| { action: 'check-public' };
@@ -45,29 +44,25 @@ export function resolveDevRoot(base: string, site?: string) {
 	const siteUrl = site ? new URL(effectiveBase, site) : undefined;
 	const devRootURL = new URL(effectiveBase, 'http://localhost');
 	const devRoot = siteUrl ? siteUrl.pathname : devRootURL.pathname;
-	const devRootReplacement = devRoot.endsWith('/') ? '/' : '';
-	return { devRoot, devRootReplacement };
+	return { devRoot };
 }
 
 /**
- * Pure decision function for base-URL dev-server rewriting.
+ * Pure decision function for base-URL dev-server handling.
  *
  * Evaluates whether the incoming `url` starts with the project's `base` path
  * and returns the action the middleware should take. The async `fs.stat` branch
  * (checking `publicDir`) is represented as `check-public` and must be handled
  * by the caller.
  */
-export function evaluateBaseRewrite(
-	url: string,
+export function evaluateBase(
+	_url: string,
 	pathname: string,
 	acceptHeader: string | undefined,
 	devRoot: string,
-	devRootReplacement: string,
-): BaseRewriteDecision {
+): BaseDecision {
 	if (pathname.startsWith(devRoot)) {
-		let newUrl = url.replace(devRoot, devRootReplacement);
-		if (!newUrl.startsWith('/')) newUrl = prependForwardSlash(newUrl);
-		return { action: 'rewrite', newUrl };
+		return { action: 'next' };
 	}
 
 	if (pathname === '/' || pathname === '/index.html') {
@@ -86,7 +81,7 @@ export function baseMiddleware(
 	logger: AstroLogger,
 ): vite.Connect.NextHandleFunction {
 	const { config } = settings;
-	const { devRoot, devRootReplacement } = resolveDevRoot(config.base, config.site);
+	const { devRoot } = resolveDevRoot(config.base, config.site);
 
 	return function devBaseMiddleware(req, res, next) {
 		const url = req.url!;
@@ -98,17 +93,10 @@ export function baseMiddleware(
 			return next(e);
 		}
 
-		const decision = evaluateBaseRewrite(
-			url,
-			pathname,
-			req.headers.accept,
-			devRoot,
-			devRootReplacement,
-		);
+		const decision = evaluateBase(url, pathname, req.headers.accept, devRoot);
 
 		switch (decision.action) {
-			case 'rewrite':
-				req.url = decision.newUrl;
+			case 'next':
 				return next();
 			case 'not-found-subpath': {
 				const html = subpathNotUsedTemplate(decision.devRoot, decision.pathname);

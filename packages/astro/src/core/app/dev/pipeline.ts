@@ -11,6 +11,7 @@ import { ASTRO_VERSION } from '../../constants.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../../render/ssr-element.js';
 import { findRouteToRewrite } from '../../routing/rewrite.js';
 import { stringifyForScript } from '../../../runtime/server/escape.js';
+import { getDevServerBase, prependDevServerBase } from '../dev-base.js';
 
 type DevPipelineCreate = Pick<NonRunnablePipeline, 'logger' | 'manifest' | 'streaming'>;
 
@@ -23,11 +24,12 @@ export class NonRunnablePipeline extends Pipeline {
 	}
 
 	static create({ logger, manifest, streaming }: DevPipelineCreate) {
+		const devBase = getDevServerBase(manifest.base, manifest.userAssetsBase);
 		async function resolve(specifier: string): Promise<string> {
 			if (specifier.startsWith('/')) {
-				return specifier;
+				return prependDevServerBase(devBase, specifier);
 			} else {
-				return '/@id/' + specifier;
+				return prependDevServerBase(devBase, '/@id/' + specifier);
 			}
 		}
 
@@ -62,7 +64,8 @@ export class NonRunnablePipeline extends Pipeline {
 			this.manifest.componentMetadata.set(id, entry);
 		}
 
-		const { assetsPrefix, base } = this.manifest;
+		const { assetsPrefix, base, userAssetsBase } = this.manifest;
+		const devBase = getDevServerBase(base, userAssetsBase);
 		const routeInfo = this.manifest.routes.find((route) => route.routeData === routeData);
 		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 		const links = new Set<never>();
@@ -78,12 +81,12 @@ export class NonRunnablePipeline extends Pipeline {
 					});
 				}
 			} else {
-				scripts.add(createModuleScriptElement(script));
+				scripts.add(createModuleScriptElement(script, devBase));
 			}
 		}
 
 		scripts.add({
-			props: { type: 'module', src: '/@vite/client' },
+			props: { type: 'module', src: prependDevServerBase(devBase, '/@vite/client') },
 			children: '',
 		});
 
@@ -91,7 +94,7 @@ export class NonRunnablePipeline extends Pipeline {
 			scripts.add({
 				props: {
 					type: 'module',
-					src: '/@id/astro/runtime/client/dev-toolbar/entrypoint.js',
+					src: prependDevServerBase(devBase, '/@id/astro/runtime/client/dev-toolbar/entrypoint.js'),
 				},
 				children: '',
 			});

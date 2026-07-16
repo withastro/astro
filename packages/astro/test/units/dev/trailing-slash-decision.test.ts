@@ -18,6 +18,11 @@ describe('evaluateTrailingSlash — internal paths', () => {
 		const result = evaluateTrailingSlash('/@id/module', '', 'never');
 		assert.deepEqual(result, { action: 'next' });
 	});
+
+	it('passes through base-prefixed Vite paths', () => {
+		const result = evaluateTrailingSlash('/admin/@vite/client', '', 'always', '/admin/');
+		assert.deepEqual(result, { action: 'next' });
+	});
 });
 // #endregion
 

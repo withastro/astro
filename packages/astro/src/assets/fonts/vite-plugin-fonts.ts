@@ -272,17 +272,19 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				}
 			});
 
-			server.middlewares.use(assetsDir, (req, res, next) =>
-				fontFileMiddleware({
-					url: req.url,
-					response: resToMinimalResponse(res),
-					next,
-					fontFetcher,
-					fontFileById,
-					fontTypeExtractor,
-					logger,
-				}),
-			);
+			return () => {
+				server.middlewares.use(assetsDir, (req, res, next) =>
+					fontFileMiddleware({
+						url: req.url,
+						response: resToMinimalResponse(res),
+						next,
+						fontFetcher,
+						fontFileById,
+						fontTypeExtractor,
+						logger,
+					}),
+				);
+			};
 		},
 		resolveId: {
 			filter: {

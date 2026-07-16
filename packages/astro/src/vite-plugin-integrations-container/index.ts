@@ -16,10 +16,12 @@ export default function astroIntegrationsContainerPlugin({
 	let server: ViteDevServer | undefined;
 	return {
 		name: 'astro:integration-container',
-		async configureServer(_server) {
+		configureServer(_server) {
 			server = _server;
 			if (_server.config.isProduction) return;
-			await runHookServerSetup({ config: settings.config, server: _server, logger });
+			return async () => {
+				await runHookServerSetup({ config: settings.config, server: _server, logger });
+			};
 		},
 		async buildStart() {
 			if (settings.injectedRoutes.length === settings.resolvedInjectedRoutes.length) return;

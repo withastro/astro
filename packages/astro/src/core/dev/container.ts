@@ -16,6 +16,7 @@ import { createRoutesList } from '../routing/create-manifest.js';
 import { getPrerenderDefault } from '../../prerender/utils.js';
 import { syncInternal } from '../sync/index.js';
 import { warnMissingAdapter } from './adapter-validation.js';
+import { getDevServerBase } from '../app/dev-base.js';
 
 export interface Container {
 	fs: typeof nodeFs;
@@ -55,6 +56,7 @@ export async function createContainer({
 		base,
 		server: { host, headers, open: serverOpen, allowedHosts, port },
 	} = settings.config;
+	const devBase = getDevServerBase(base, settings.config.vite?.base);
 
 	// serverOpen = true, isRestart = false
 	// when astro dev --open command is run the first time
@@ -68,9 +70,7 @@ export async function createContainer({
 	const isServerOpenURL = typeof serverOpen === 'string' && !isRestart;
 	const isServerOpenBoolean = serverOpen && !isRestart;
 
-	// Open server to the correct path. We pass the `base` here as we didn't pass the
-	// base to the initial Vite config
-	const open = isServerOpenURL ? serverOpen : isServerOpenBoolean ? base : false;
+	const open = isServerOpenURL ? serverOpen : isServerOpenBoolean ? devBase : false;
 
 	// The client entrypoint for renderers. Since these are imported dynamically
 	// we need to tell Vite to preoptimize them.
@@ -103,6 +103,7 @@ export async function createContainer({
 	);
 	const viteConfig = await createVite(
 		{
+			base: devBase,
 			server: { host, headers, open, allowedHosts, port },
 			optimizeDeps: {
 				include: rendererClientEntries,

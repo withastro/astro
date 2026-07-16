@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Rolldown } from 'vite';
 import { generateContentHash } from '../../core/encryption.js';
-import { prependForwardSlash, slash } from '../../core/path.js';
+import { joinPaths, prependForwardSlash, slash } from '../../core/path.js';
 import type { ImageMetadata } from '../types.js';
 import { imageMetadata } from './metadata.js';
 
@@ -71,6 +71,7 @@ async function handleSvgDeduplication(
 export async function emitImageMetadata(
 	id: string | undefined,
 	fileEmitter?: FileEmitter,
+	base = '/',
 ): Promise<ImageMetadataWithContents | undefined> {
 	if (!id) {
 		return undefined;
@@ -131,7 +132,7 @@ export async function emitImageMetadata(
 		url.searchParams.append('origHeight', fileMetadata.height.toString());
 		url.searchParams.append('origFormat', fileMetadata.format);
 
-		emittedImage.src = `/@fs` + prependForwardSlash(fileURLToNormalizedPath(url));
+		emittedImage.src = joinPaths(base, `/@fs${prependForwardSlash(fileURLToNormalizedPath(url))}`);
 	}
 
 	return emittedImage as ImageMetadataWithContents;
