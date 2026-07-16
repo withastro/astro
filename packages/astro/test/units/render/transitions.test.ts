@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
 import {
 	ViewTransitionStyleSheet,
 	reEncode,
+	renderTransition,
 	stringifyAnimation,
 	stringifyAnimations,
 	toTimeValue,
 } from '../../../dist/runtime/server/transition.js';
+import type { SSRResult } from '../../../dist/types/public/internal.js';
 
 describe('reEncode', () => {
 	it('passes through simple alphanumeric strings unchanged', () => {
@@ -194,5 +197,31 @@ describe('ViewTransitionStyleSheet', () => {
 		sheet.addFallback('old', 'animation: none;');
 		const css = sheet.toString();
 		assert.ok(!css.includes('@layer'), 'should not include @layer when no modern rules');
+	});
+});
+
+describe('renderTransition', () => {
+	it('keeps animation values inside the generated style element', () => {
+		const result = {
+			_metadata: { extraHead: [] },
+		} as unknown as SSRResult;
+		const animation = {
+			forwards: {
+				old: { name: 'fade', duration: '</style><script>test</script>' },
+				new: { name: 'fade' },
+			},
+			backwards: {
+				old: { name: 'fade' },
+				new: { name: 'fade' },
+			},
+		};
+
+		renderTransition(result, 'hash', animation, 'name');
+
+		const style = String(result._metadata.extraHead[0]);
+		const $ = cheerio.load(`<head>${style}</head>`);
+		assert.equal($('head style').length, 1);
+		assert.equal($('head script').length, 0);
+		assert.ok(style.includes('\\3C /style>\\3C script>test\\3C /script>'));
 	});
 });

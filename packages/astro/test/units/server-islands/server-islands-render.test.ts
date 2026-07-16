@@ -205,7 +205,7 @@ describe('ServerIslandComponent', () => {
 			const content = await component.getIslandContent();
 			// A small payload should use a plain fetch() GET call (no method: 'POST')
 			assert.ok(!content.includes("method: 'POST'"), 'small payloads should use GET, not POST');
-			assert.ok(content.includes("fetch('"), 'should use fetch()');
+			assert.ok(content.includes('fetch("'), 'should use fetch()');
 		});
 
 		it('uses a POST request for large payloads (over 2048 chars)', async () => {
@@ -226,6 +226,18 @@ describe('ServerIslandComponent', () => {
 				content.includes('/app/_server-islands/Island'),
 				`island URL should include base + componentId, got: ${content}`,
 			);
+		});
+
+		it('escapes the island URL for script and attribute contexts', async () => {
+			const result = await createStubResult({ base: '/"</script><script>test</script>' });
+			const component = new ServerIslandComponent(result, islandProps(), {}, 'Island');
+			const content = await component.getIslandContent();
+			const preload = String(result._metadata.extraHead[0]);
+
+			assert.ok(!content.includes('</script>'));
+			assert.ok(content.includes('\\u003c/script>'));
+			assert.ok(preload.includes('&quot;'));
+			assert.ok(!preload.includes('href="/"'));
 		});
 
 		it('appends a trailing slash when trailingSlash is "always"', async () => {

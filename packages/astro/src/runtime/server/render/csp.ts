@@ -43,6 +43,8 @@ export function renderCspContent(result: SSRResult): string {
 		script.default.resources.length > 0 ? script.default.resources.join(' ') : "'self'";
 	const styleResources =
 		style.default.resources.length > 0 ? style.default.resources.join(' ') : "'self'";
+	const scriptElementDefaultResource = script.default.resources.length > 0 ? '' : "'self'";
+	const styleElementDefaultResource = style.default.resources.length > 0 ? '' : "'self'";
 
 	// `script-src`/`style-src` cover everything; the `-elem`/`-attr` variants are narrower:
 	//   - `*-src-elem` → tags (`<script>`, `<style>`, `<link rel="stylesheet">`)
@@ -76,7 +78,7 @@ export function renderCspContent(result: SSRResult): string {
 		? renderSpecificDirective(
 				'script-src-elem',
 				script.element.resources,
-				"'self'",
+				scriptElementDefaultResource,
 				finalScriptHashes,
 				script.element.hashes,
 				strictDynamicSuffix,
@@ -95,7 +97,7 @@ export function renderCspContent(result: SSRResult): string {
 		? renderSpecificDirective(
 				'style-src-elem',
 				style.element.resources,
-				"'self'",
+				styleElementDefaultResource,
 				finalStyleHashes,
 				style.element.hashes,
 			)
@@ -134,7 +136,7 @@ function isEnabled(sources: CspDirectiveSources): boolean {
  *
  * @param name The directive name, e.g. `"script-src-elem"`.
  * @param resources The sources the user scoped to this directive (e.g. `'self'` or a URL).
- * @param defaultResource The source to use when `resources` is empty (`'self'` for `-elem`, `'none'` for `-attr`).
+ * @param defaultResource The source to use when `resources` is empty. This is `'self'` for `-elem` without configured default resources and `'none'` for `-attr`.
  * @param sharedHashes Already-quoted hashes to also include here — Astro's tag hashes for `-elem`, or `undefined` for `-attr` (which never receives them).
  * @param ownHashes Unquoted hashes the user scoped to this directive.
  * @param suffix Optional text added at the end, e.g. ` 'strict-dynamic'`.

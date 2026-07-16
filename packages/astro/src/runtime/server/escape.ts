@@ -15,6 +15,11 @@ export function stringifyForScript(value: any): string {
 	return JSON.stringify(value)?.replace(/</g, '\\u003c');
 }
 
+/** Escapes CSS text so it can be embedded inside a `<style>` tag. */
+export function escapeStyleText(value: string): string {
+	return value.replaceAll('<', '\\3C ');
+}
+
 export class HTMLBytes extends Uint8Array {}
 
 // TypeScript won't let us define this in the class body so have to do it
