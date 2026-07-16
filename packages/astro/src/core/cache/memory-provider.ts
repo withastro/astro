@@ -404,12 +404,13 @@ const memoryProvider = ((config): CacheProvider => {
 		name: 'memory',
 
 		async onRequest(context, next) {
-			const requestUrl = new URL(context.request.url);
-
 			// Only cache GET requests.
 			if (context.request.method !== 'GET') {
 				return next();
 			}
+
+			// Reuse the URL the cache handler already parsed instead of re-parsing.
+			const requestUrl = context.url;
 
 			const primaryKey = getCacheKey(requestUrl, queryConfig);
 

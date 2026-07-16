@@ -196,6 +196,15 @@ export class FetchState implements AstroFetchState {
 	}
 	/** Normalized URL for this request. */
 	url: URL;
+	/**
+	 * The request URL's pathname and search as originally parsed, before the
+	 * constructor decodes `pathname` and collapses its duplicate slashes in
+	 * place. `TrailingSlashHandler` matches against these so it sees the raw
+	 * path a redirect would correct (e.g. duplicate or missing trailing
+	 * slashes). `#applyForwardedHeaders` keeps them in sync with `request`.
+	 */
+	rawPathname: string;
+	rawSearch: string;
 	/** Client address for this request. */
 	clientAddress: string | undefined;
 	/** Whether this is a partial render (container API). */
@@ -273,6 +282,11 @@ export class FetchState implements AstroFetchState {
 		this.slots = undefined;
 		// Parse the URL once and derive both pathname and url from it.
 		const url = new URL(request.url);
+		// Record the raw pathname/search now, while `url` still holds the
+		// original path — the normalization below rewrites `url.pathname` in
+		// place. TrailingSlashHandler matches redirects against this raw path.
+		this.rawPathname = url.pathname;
+		this.rawSearch = url.search;
 		const publicPathname = this.#normalizePathname(url.pathname);
 		const pathname = this.#computePathname(publicPathname);
 		url.pathname = publicPathname;
@@ -1068,6 +1082,12 @@ export class FetchState implements AstroFetchState {
 		if (app !== undefined) {
 			Reflect.set(this.request, appSymbol, app);
 		}
+
+		// `this.request` now carries the rebuilt URL (`this.url`, including the
+		// forwarded host/proto/port), so re-sync the raw pathname/search to it;
+		// TrailingSlashHandler then matches against the request actually served.
+		this.rawPathname = this.url.pathname;
+		this.rawSearch = this.url.search;
 	}
 
 	/**

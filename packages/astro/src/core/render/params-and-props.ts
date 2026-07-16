@@ -80,6 +80,22 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 }
 
 /**
+ * Returns the first of the route's own pattern or its fallback routes' patterns
+ * that matches `path`, or `null`. Uses a direct `exec` plus loop so no throwaway
+ * arrays are built per request — this runs on every param'd render.
+ */
+function matchRoutePattern(route: RouteData, path: string): RegExpExecArray | null {
+	let match = route.pattern.exec(path);
+	if (!match) {
+		for (const fallbackRoute of route.fallbackRoutes) {
+			match = fallbackRoute.pattern.exec(path);
+			if (match) break;
+		}
+	}
+	return match;
+}
+
+/**
  * When given a route with the pattern `/[x]/[y]/[z]/svelte`, and a pathname `/a/b/c/svelte`,
  * returns the params object: { x: "a", y: "b", z: "c" }.
  */
@@ -97,8 +113,10 @@ export function getParams(route: RouteData, pathname: string): Params {
 	const path =
 		hasHtmlSuffix && route.type === 'page' ? pathname.slice(0, -'.html'.length) : pathname;
 
-	const allPatterns = [route, ...route.fallbackRoutes].map((r) => r.pattern);
-	let paramsMatch = allPatterns.map((pattern) => pattern.exec(path)).find((x) => x);
+	// Match `path` against the route's own pattern, then each fallback route,
+	// taking the first that matches. `route.params` indexes into the capture
+	// groups of this match below.
+	let paramsMatch = matchRoutePattern(route, path);
 
 	// For non-page routes, if the original pathname didn't match, fall back to stripping
 	// `.html` / `/index.html` to stay consistent with the dev route matcher, which also strips
@@ -110,16 +128,20 @@ export function getParams(route: RouteData, pathname: string): Params {
 		const strippedPath = pathname.endsWith('/index.html')
 			? pathname.slice(0, -'/index.html'.length) || '/'
 			: pathname.slice(0, -'.html'.length);
-		paramsMatch = allPatterns.map((pattern) => pattern.exec(strippedPath)).find((x) => x);
+		paramsMatch = matchRoutePattern(route, strippedPath);
 	}
 
 	if (!paramsMatch) return {};
+	// Inside `forEach`'s callback TypeScript treats `paramsMatch` as possibly
+	// null again (it doesn't narrow `let` across a closure), so read the match
+	// through a `const`, which stays typed as non-null.
+	const matched = paramsMatch;
 	const params: Params = {};
 	route.params.forEach((key, i) => {
 		if (key.startsWith('...')) {
-			params[key.slice(3)] = paramsMatch[i + 1] ? paramsMatch[i + 1] : undefined;
+			params[key.slice(3)] = matched[i + 1] ? matched[i + 1] : undefined;
 		} else {
-			params[key] = paramsMatch[i + 1];
+			params[key] = matched[i + 1];
 		}
 	});
 	return params;
