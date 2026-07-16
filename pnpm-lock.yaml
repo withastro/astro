@@ -5392,6 +5392,18 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/mdx/test/fixtures/mdx-optimize-satteri-whitespace:
+    dependencies:
+      '@astrojs/markdown-satteri':
+        specifier: workspace:*
+        version: link:../../../../../markdown/satteri
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/mdx/test/fixtures/mdx-page:
     dependencies:
       '@astrojs/mdx':

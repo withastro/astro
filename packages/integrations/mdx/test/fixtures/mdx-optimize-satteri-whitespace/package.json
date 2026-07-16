@@ -1,0 +1,10 @@
+{
+  "name": "@test/mdx-optimize-satteri-whitespace",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/mdx": "workspace:*",
+    "@astrojs/markdown-satteri": "workspace:*"
+  }
+}

@@ -27,9 +27,6 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 	// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
 	switch (true) {
 		case vnode instanceof HTMLString:
-			if (vnode.toString().trim() === '') {
-				return '';
-			}
 			return vnode;
 		case typeof vnode === 'string':
 			return markHTMLString(escapeHTML(vnode));
