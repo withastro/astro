@@ -1,5 +1,140 @@
 # astro
 
+## 7.1.0
+
+### Minor Changes
+
+- [#17302](https://github.com/withastro/astro/pull/17302) [`5f4dc03`](https://github.com/withastro/astro/commit/5f4dc0356f2c2ecf98fa88a257908c9226fac9f1) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Adds a new `deferRender` option to the `glob()` content loader
+
+  When set to `true`, renderable entries (such as Markdown) are not rendered during content sync. Instead, rendering is deferred until the entry is actually rendered in a page, using the same on-demand path that `.mdx` files already use.
+
+  This reduces memory usage during `astro build` for large collections whose rendered output is much larger than the source — for example, Markdown that uses heavy rehype plugins like `rehype-katex`. Such builds could previously run out of memory while storing the eagerly-rendered HTML for every entry.
+
+  ```js
+  // src/content.config.ts
+  import { defineCollection } from 'astro:content';
+  import { glob } from 'astro/loaders';
+
+  const docs = defineCollection({
+    loader: glob({ pattern: '**/*.md', base: 'src/content/docs', deferRender: true }),
+  });
+  ```
+
+  By default `deferRender` is `false`, preserving the existing behavior of rendering entries eagerly during sync so their rendered HTML can be cached across builds.
+
+- [#17296](https://github.com/withastro/astro/pull/17296) [`30698a2`](https://github.com/withastro/astro/commit/30698a2ed525497cdc0fce16d25d1cde0c21473c) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new experimental `collectionStorage` option for controlling how the content layer persists its data store
+
+  By default, Astro serializes the entire content layer data store to a single file (`.astro/data-store.json`). For very large content collections, this file can grow large enough to hit platform file-size limits.
+
+  Set `experimental.collectionStorage: 'chunked'` to instead split the data store across many smaller, content-addressed files inside a `.astro/data-store/` directory, described by a manifest:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      collectionStorage: 'chunked',
+    },
+  });
+  ```
+
+  Because each part file is named by a hash of its contents, unchanged parts keep the same name across builds and are not rewritten, and identical parts are deduplicated. The default value is `'single-file'`, which preserves the current behavior.
+
+- [#17214](https://github.com/withastro/astro/pull/17214) [`44c4989`](https://github.com/withastro/astro/commit/44c4989139e84951c6579db9975a659765cf2b6c) Thanks [@ematipico](https://github.com/ematipico)! - Adds support for the more specific CSP directives `script-src-elem`, `script-src-attr`, `style-src-elem`, and `style-src-attr` through a new `kind` option.
+
+  Previously, [`CSP`](https://docs.astro.build/en/reference/configuration-reference/#securitycsp) was only scoped to generic `script-src`/`style-src` directives. Now each source or hash can be scoped to a narrower directive — for example, to allow inline `style` attributes (such as those from `define:vars` or Shiki) without loosening the policy for your `<style>` and `<link>` elements.
+
+  #### Scoping sources and hashes in your config
+
+  Each entry in `resources` and `hashes` can be an object with a `kind` property. Depending on whether you use `scriptDirective` or `styleDirective`, `"element"` targets `script-src-elem` or `style-src-elem`, `"attribute"` targets `script-src-attr` or `style-src-attr`, and `"default"` (the same as a bare string or hash) targets `script-src` or `style-src`.
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    security: {
+      csp: {
+        scriptDirective: {
+          resources: [{ resource: 'https://cdn.example.com', kind: 'element' }],
+        },
+        styleDirective: {
+          resources: [{ resource: "'unsafe-inline'", kind: 'attribute' }],
+        },
+      },
+    },
+  });
+  ```
+
+  #### Scoping at runtime
+
+  The same `kind` option is available on the runtime CSP API, where the existing methods now also accept an object:
+
+  ```js
+  ctx.csp.insertScriptResource({ resource: 'https://cdn.example.com', kind: 'element' });
+  ctx.csp.insertStyleResource({ resource: "'unsafe-inline'", kind: 'attribute' });
+  ```
+
+- [#17258](https://github.com/withastro/astro/pull/17258) [`84814d4`](https://github.com/withastro/astro/commit/84814d40bc43eb5827148305656050f26338df5a) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Adds a new `format()` option to the [`paginate`](https://docs.astro.build/en/reference/routing-reference/#paginate) utility. The `format()` option is a function that accepts the current URL of the page, and returns a new URL.
+
+  For example, when your host only supports URLs using the `.html` extension, you can use `format()` to add it to the generated URLs:
+
+  ```astro
+  ---
+  export async function getStaticPaths({ paginate }) {
+    // Load your data with fetch(), getCollection(), etc.
+    const response = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=150`);
+    const result = await response.json();
+    const allPokemon = result.results;
+
+    // Return a paginated collection of paths for all items
+    return paginate(allPokemon, {
+      pageSize: 10,
+      format: (url) => `${url}.html`,
+    });
+  }
+
+  const { page } = Astro.props;
+  ---
+  ```
+
+- [#17331](https://github.com/withastro/astro/pull/17331) [`7db6420`](https://github.com/withastro/astro/commit/7db6420d482fc649886148acaf13e5fbf809db87) Thanks [@matthewp](https://github.com/matthewp)! - Adds a `--ignore-lock` flag to `astro dev` for starting a dev server without checking or writing the lock file, so it can run alongside an already-running dev server for the same project.
+
+  The new instance is not tracked by `astro dev stop`, `astro dev status`, or `astro dev logs`. `--ignore-lock` cannot be combined with `--background` (or an auto-detected AI agent environment, which runs dev servers in the background automatically) or `--force`, since those rely on the lock file.
+
+  ```shell
+  astro dev --ignore-lock
+  ```
+
+- [#17389](https://github.com/withastro/astro/pull/17389) [`16de021`](https://github.com/withastro/astro/commit/16de02130575c61eb294b382e09bc863cf935ec3) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Allows passing URL entrypoints when configuring the logger
+
+  Matching other APIs like session drivers or font providers, the logger entrypoint can now be a URL:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    logger: {
+      entrypoint: new URL('./logger.js', import.meta.url),
+    },
+  });
+  ```
+
+### Patch Changes
+
+- [#17332](https://github.com/withastro/astro/pull/17332) [`4407483`](https://github.com/withastro/astro/commit/4407483e6f9e159164fec83c36d66259baa87e1f) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes the JSON logger crashing with `process is not defined` in non-Node runtimes like Cloudflare's workerd. The JSON logger now uses `console.log`/`console.error` instead of `process.stdout`/`process.stderr`, matching the pattern already used by the console logger.
+
+- [#17391](https://github.com/withastro/astro/pull/17391) [`186a1e7`](https://github.com/withastro/astro/commit/186a1e74c2eb342ea35a73fc2c0b1930b3c08921) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where an integration could not update the logger with `updateConfig()`
+
+- [#17394](https://github.com/withastro/astro/pull/17394) [`d9f99e1`](https://github.com/withastro/astro/commit/d9f99e19e4045da75c7f38650a0f2eeb5c79892b) Thanks [@matthewp](https://github.com/matthewp)! - Fixes element-specific CSP directives to preserve the existing behavior of configured script and style resources
+
+- [#17374](https://github.com/withastro/astro/pull/17374) [`b2d1b3e`](https://github.com/withastro/astro/commit/b2d1b3e485c37fd9e1825310a71acb1e3d011094) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes dev server returning 404 for `?url` imported assets when accessed via browser navigation
+
+- [#17390](https://github.com/withastro/astro/pull/17390) [`ed71eaf`](https://github.com/withastro/astro/commit/ed71eaf2b5eaa837de438eb252e8651a2aa086f6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes an unused and undocumented generic from the `AstroLoggerDestination` type
+
+- [#17393](https://github.com/withastro/astro/pull/17393) [`092da56`](https://github.com/withastro/astro/commit/092da560eea77ee63a3e2c583c80d8238544e42b) Thanks [@matthewp](https://github.com/matthewp)! - Hardens generated transition styles, development metadata, and server island URLs when embedding dynamic values
+
 ## 7.0.9
 
 ### Patch Changes
