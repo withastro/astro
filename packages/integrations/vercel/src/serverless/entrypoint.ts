@@ -8,6 +8,7 @@ import {
 } from '../index.js';
 import { middlewareSecret, skewProtection } from 'virtual:astro-vercel:config';
 import { createApp } from 'astro/app/entrypoint';
+import { getRequestURL } from 'astro/app';
 import { getClientIpAddress } from '@astrojs/internal-helpers/request';
 
 setGetEnv((key) => process.env[key]);
@@ -16,7 +17,7 @@ const app = createApp();
 
 export default {
 	async fetch(request: Request): Promise<Response> {
-		const url = new URL(request.url);
+		const url = getRequestURL(request);
 		const middlewareSecretHeader = request.headers.get(ASTRO_MIDDLEWARE_SECRET_HEADER);
 		const hasValidMiddlewareSecret = middlewareSecretHeader === middlewareSecret;
 		let realPath = undefined;
@@ -30,11 +31,13 @@ export default {
 			realPath = url.searchParams.get(ASTRO_PATH_PARAM);
 		}
 		if (typeof realPath === 'string') {
-			url.pathname = realPath;
+			// `url` is shared with the rest of the request, so rewrite a copy of it.
+			const rewritten = new URL(request.url);
+			rewritten.pathname = realPath;
 			// Remove the internal routing params so they never reach user code.
-			url.searchParams.delete(ASTRO_PATH_PARAM);
-			url.searchParams.delete(ASTRO_PATH_TOKEN_PARAM);
-			request = new Request(url.toString(), {
+			rewritten.searchParams.delete(ASTRO_PATH_PARAM);
+			rewritten.searchParams.delete(ASTRO_PATH_TOKEN_PARAM);
+			request = new Request(rewritten.toString(), {
 				method: request.method,
 				headers: request.headers,
 				...(request.body ? { body: request.body, duplex: 'half' } : {}),

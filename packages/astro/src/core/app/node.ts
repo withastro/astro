@@ -4,6 +4,7 @@ import { Http2ServerResponse } from 'node:http2';
 import type { Socket } from 'node:net';
 import type { RemotePattern } from '../../types/public/config.js';
 import { clientAddressSymbol, nodeRequestAbortControllerCleanupSymbol } from '../constants.js';
+import { setRequestURL } from './request-url.js';
 import { deserializeManifest } from './manifest.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import type { RenderOptions } from './base.js';
@@ -93,6 +94,13 @@ export function createRequestFromNodeRequest(
 	}
 
 	const request = new Request(url, options);
+
+	// The URL had to be parsed to build the request, so keep it rather than
+	// leaving route matching to parse the same string over again. `Request`
+	// re-serializes the URL it is given, so only keep it if it survived intact.
+	if (request.url === url.href) {
+		setRequestURL(request, url);
+	}
 
 	wireAbortController(req, controller);
 
@@ -196,6 +204,13 @@ export function createRequest(
 	}
 
 	const request = new Request(url, options);
+
+	// The URL had to be parsed to build the request, so keep it rather than
+	// leaving route matching to parse the same string over again. `Request`
+	// re-serializes the URL it is given, so only keep it if it survived intact.
+	if (request.url === url.href) {
+		setRequestURL(request, url);
+	}
 
 	wireAbortController(req, controller);
 

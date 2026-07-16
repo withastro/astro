@@ -1,4 +1,5 @@
 import type { CacheProviderFactory } from 'astro';
+import { getRequestURL } from 'astro/app';
 import {
 	buildCacheControlDirectives,
 	collectInvalidationTags,
@@ -24,7 +25,7 @@ const factory: CacheProviderFactory = () => {
 
 			// Auto-tag with the request path for path-based invalidation via tag purge.
 			const tags = [...(options.tags ?? [])];
-			const { pathname } = new URL(request.url);
+			const { pathname } = getRequestURL(request);
 			tags.push(pathTag(pathname));
 
 			headers.set('Cache-Tag', tags.join(','));

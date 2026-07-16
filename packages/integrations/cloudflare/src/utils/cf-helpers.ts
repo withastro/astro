@@ -4,6 +4,7 @@
  * Testable without a Vite build context.
  */
 import { getValidatedIpFromHeader } from '@astrojs/internal-helpers/request';
+import { getRequestURL } from 'astro/app';
 
 export interface Runtime {
 	cfContext: ExecutionContext;
@@ -21,12 +22,12 @@ export interface ManifestLike {
  */
 export function matchStaticAsset(
 	manifest: ManifestLike,
-	requestUrl: string,
+	request: Request,
 	env: Env,
 ): Response | undefined {
-	const { pathname } = new URL(requestUrl);
+	const { pathname } = getRequestURL(request);
 	if (manifest.assets.has(pathname)) {
-		return env.ASSETS.fetch(requestUrl.replace(/\.html$/, '')) as unknown as Response;
+		return env.ASSETS.fetch(request.url.replace(/\.html$/, '')) as unknown as Response;
 	}
 	return undefined;
 }
