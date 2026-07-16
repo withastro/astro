@@ -10,20 +10,40 @@ export function createNormalizedUrl(requestUrl: string): URL {
 }
 
 /**
+ * Assigns `url.pathname` only when it would actually change it.
+ *
+ * Writing `url.pathname` re-parses and re-serializes the whole URL, which costs
+ * more than parsing a URL from scratch. An ordinary request path (`/about`) is
+ * already decoded and free of duplicate slashes, so every assignment in
+ * `normalizeUrl` is a no-op that still pays that cost. Skipping the write when
+ * the value is unchanged is what makes normalization cheap on the hot path.
+ */
+function setPathname(url: URL, pathname: string): void {
+	if (url.pathname !== pathname) {
+		url.pathname = pathname;
+	}
+}
+
+/**
  * Normalizes an already-parsed URL in place: decodes and validates the
  * pathname, collapses duplicate slashes. Returns the same URL object.
+ *
+ * The collapse must stay *after* the decode is written back, not folded into
+ * it: the pathname setter rewrites `\` to `/`, so a decoded backslash only
+ * becomes a duplicate slash once it has been assigned (`/a%5C/b` -> `/a\/b` ->
+ * `/a//b` -> `/a/b`). Collapsing the decoded string instead would leave `//`.
  */
 export function normalizeUrl(url: URL): URL {
 	try {
-		url.pathname = validateAndDecodePathname(url.pathname);
+		setPathname(url, validateAndDecodePathname(url.pathname));
 	} catch {
 		// For decoding failures (truly malformed URLs), fall back gracefully.
 		try {
-			url.pathname = decodeURI(url.pathname);
+			setPathname(url, decodeURI(url.pathname));
 		} catch {
 			// If even basic decoding fails, return URL as-is
 		}
 	}
-	url.pathname = collapseDuplicateSlashes(url.pathname);
+	setPathname(url, collapseDuplicateSlashes(url.pathname));
 	return url;
 }
