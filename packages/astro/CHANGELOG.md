@@ -1,5 +1,11 @@
 # astro
 
+## 7.1.1
+
+### Patch Changes
+
+- [#17399](https://github.com/withastro/astro/pull/17399) [`4b03702`](https://github.com/withastro/astro/commit/4b0370262ce94a1f426944e659ef7a9c8773f451) Thanks [@matthewp](https://github.com/matthewp)! - Fixes encoded request paths being routed incorrectly when using domain-based i18n
+
 ## 7.1.0
 
 ### Minor Changes
