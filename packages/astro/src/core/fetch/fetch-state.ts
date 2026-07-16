@@ -255,13 +255,18 @@ export class FetchState implements AstroFetchState {
 		// back to reading them from the request symbol (user fetch handlers).
 		options ??= getRenderOptions(request);
 		this.routeData = options?.routeData;
-		this.renderOptions = options ?? {
-			addCookieHeader: false,
-			clientAddress: undefined,
-			locals: undefined,
-			prerenderedErrorPageFetch: fetch,
-			routeData: undefined,
-			waitUntil: undefined,
+		const self = this;
+		this.renderOptions = {
+			...(options ?? {
+				addCookieHeader: false,
+				clientAddress: undefined,
+				prerenderedErrorPageFetch: fetch,
+				routeData: undefined,
+				waitUntil: undefined,
+			}),
+			get locals() {
+				return self.locals;
+			},
 		};
 
 		this.componentInstance = undefined;
