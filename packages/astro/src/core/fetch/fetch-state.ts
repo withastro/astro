@@ -268,8 +268,10 @@ export class FetchState implements AstroFetchState {
 		this.slots = undefined;
 		// Parse the URL once and derive both pathname and url from it.
 		const url = new URL(request.url);
-		const publicPathname = this.#normalizePathname(url);
+		const publicPathname = this.#normalizePathname(url.pathname);
 		const pathname = this.#computePathname(publicPathname);
+		url.pathname = publicPathname;
+		url.pathname = collapseDuplicateSlashes(url.pathname);
 		// For domain-based i18n routing, the locale prefix is derived from the
 		// request's Host header rather than its URL. When a locale is detected,
 		// the resulting pathname includes the prefix (e.g. /en/boats/1/foo) that
@@ -975,8 +977,7 @@ export class FetchState implements AstroFetchState {
 	 * Decodes and normalizes the public request pathname before deriving the
 	 * separate pathname used for route matching.
 	 */
-	#normalizePathname(url: URL): string {
-		let pathname = url.pathname;
+	#normalizePathname(pathname: string): string {
 		try {
 			pathname = validateAndDecodePathname(pathname);
 		} catch (e: any) {
@@ -989,15 +990,7 @@ export class FetchState implements AstroFetchState {
 				this.pipeline.logger.error(null, e.toString());
 			}
 		}
-		url.pathname = collapseDuplicateSlashes(pathname);
-		try {
-			// URL.pathname re-encodes Unicode after applying WHATWG path
-			// canonicalization. Escape bare percent signs so we can recover the
-			// decoded string without treating them as malformed sequences.
-			return decodeURI(url.pathname.replace(/%(?![0-9a-f]{2})/gi, '%25'));
-		} catch {
-			return url.pathname;
-		}
+		return collapseDuplicateSlashes(pathname);
 	}
 
 	/**
