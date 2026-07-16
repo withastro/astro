@@ -20,7 +20,7 @@ import {
 	createTestApp,
 	createMockFetchState,
 } from '../mocks.ts';
-import { dynamicPart, spreadPart } from '../routing/test-helpers.ts';
+import { dynamicPart, spreadPart, staticPart } from '../routing/test-helpers.ts';
 import { SpyLogger } from '../test-utils.ts';
 
 /** A simple page component that renders `<h1>Hello</h1>`. */
@@ -118,6 +118,121 @@ describe('FetchState (astro/fetch)', () => {
 		assert.ok(state.routeData, 'routeData should be set');
 		assert.equal(state.routeData!.type, 'endpoint');
 		assert.equal(state.pathname, '/file.html', '.html should be preserved for endpoint routes');
+	});
+});
+
+// #endregion
+
+// #region normalizePathname option
+
+describe('FetchState normalizePathname option', () => {
+	const dynamicPage = createComponent((_result: any, _props: any, _slots: any) => {
+		return render`<h1>Dynamic</h1>`;
+	});
+
+	/** App with a single dynamic route `/test/[slug]`. */
+	function createDynamicApp() {
+		return createTestApp([
+			createPage(dynamicPage, {
+				route: '/test/[slug]',
+				pathname: undefined,
+				segments: [[staticPart('test')], [dynamicPart('slug')]],
+			}),
+		]);
+	}
+
+	it('default normalizer collapses %25 to % (issue #16313 default behavior)', () => {
+		const app = createDynamicApp();
+		const request = stampApp(new Request('http://example.com/test/%25encoded'), app);
+		const state = new FetchState(request);
+
+		// Astro intentionally decodes the pathname, so %25 becomes a bare %.
+		assert.equal(state.pathname, '/test/%encoded');
+		assert.equal(state.url.pathname, '/test/%encoded');
+	});
+
+	it('custom no-op normalizer preserves %25 in pathname and url', () => {
+		const app = createDynamicApp();
+		const request = stampApp(new Request('http://example.com/test/%25encoded'), app);
+		const state = new FetchState(request, { normalizePathname: (pathname: string) => pathname });
+
+		// With a no-op normalizer, Astro.url.pathname matches new URL(request.url).pathname.
+		assert.equal(state.pathname, '/test/%25encoded');
+		assert.equal(state.url.pathname, '/test/%25encoded');
+		assert.equal(state.url.pathname, new URL(request.url).pathname);
+	});
+
+	it('custom normalizer result is used verbatim — no slash collapse afterward', () => {
+		const app = createDynamicApp();
+		const request = stampApp(new Request('http://example.com/test//x'), app);
+		// A no-op normalizer opts out of the default duplicate-slash collapse,
+		// so the duplicate slash survives in both pathname and url.
+		const state = new FetchState(request, { normalizePathname: (pathname: string) => pathname });
+
+		assert.equal(state.pathname, '/test//x');
+		assert.equal(state.url.pathname, '/test//x');
+	});
+
+	it('default normalizer collapses duplicate slashes', () => {
+		const app = createDynamicApp();
+		const request = stampApp(new Request('http://example.com/test//x'), app);
+		const state = new FetchState(request);
+
+		assert.equal(state.pathname, '/test/x');
+		assert.equal(state.url.pathname, '/test/x');
+	});
+
+	it('derives route params from the custom-normalized pathname', () => {
+		const app = createDynamicApp();
+		const request = stampApp(new Request('http://example.com/test/%25encoded'), app);
+		const state = new FetchState(request, { normalizePathname: (pathname: string) => pathname });
+
+		assert.equal(state.routeData!.route, '/test/[slug]');
+		assert.equal(state.params!.slug, '%25encoded');
+	});
+
+	it('exposes the normalizer on the state', () => {
+		const app = createDynamicApp();
+		const request = stampApp(new Request('http://example.com/test/x'), app);
+		const noop = (pathname: string) => pathname;
+		const state = new FetchState(request, { normalizePathname: noop });
+		assert.equal(state.normalizePathname, noop);
+	});
+
+	it('exports the built-in normalizePathname from astro/fetch', async () => {
+		const { normalizePathname } = await import('../../../dist/core/fetch/index.js');
+		assert.equal(typeof normalizePathname, 'function');
+		// It is the security-hardened iterative decoder + slash collapse.
+		assert.equal(normalizePathname('/%2561dmin'), '/admin');
+		assert.equal(normalizePathname('/test/%25encoded'), '/test/%encoded');
+		assert.equal(normalizePathname('/test//x'), '/test/x');
+	});
+
+	it('rewrite targets are not run through the custom normalizer', async () => {
+		// The custom normalizer is scoped to the incoming request only. A
+		// rewrite target is developer-supplied and is normalized with the
+		// default normalizer, so an encoded rewrite string decodes normally.
+		const targetPage = createComponent((result: any) => {
+			const Astro = result.createAstro({}, null);
+			return render`<p>${Astro.params.slug}</p>`;
+		});
+		const app = createTestApp([
+			createPage(dynamicPage, { route: '/', isIndex: true }),
+			createPage(targetPage, {
+				route: '/test/[slug]',
+				pathname: undefined,
+				segments: [[staticPart('test')], [dynamicPart('slug')]],
+			}),
+		]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request, { normalizePathname: (pathname: string) => pathname });
+
+		const response = await state.rewrite('/test/caf%C3%A9');
+		assert.equal(response.status, 200);
+		// Default rewrite normalization decodes %C3%A9 → é despite the no-op
+		// incoming-request normalizer.
+		assert.equal(state.pathname, '/test/café');
+		assert.equal(state.params!.slug, 'café');
 	});
 });
 

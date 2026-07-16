@@ -35,8 +35,13 @@ import {
 import { getParams, getProps } from '../render/index.js';
 import { Rewrites } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
-import { normalizeUrl } from '../util/normalized-url.js';
-import { MultiLevelEncodingError, validateAndDecodePathname } from '../util/pathname.js';
+import {
+	type NormalizePathname,
+	// Aliased locally so the class member `normalizePathname` and this built-in
+	// default aren't easy to confuse. Exported publicly as `normalizePathname`.
+	normalizePathname as defaultNormalizePathname,
+	MultiLevelEncodingError,
+} from '../util/pathname.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
 import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
@@ -56,6 +61,39 @@ export interface ContextProvider<T> {
 	create: () => T;
 	/** Optional cleanup / persist callback. Receives the created value. */
 	finalize?: (value: T) => Promise<void> | void;
+}
+
+/**
+ * Advanced options for constructing a {@link FetchState}. Part of the public
+ * `astro/fetch` API surface (re-exported from that entry point).
+ */
+export interface FetchStateOptions {
+	/**
+	 * **Advanced API.** Overrides how the incoming request's pathname is
+	 * normalized into the canonical pathname used for routing, param
+	 * extraction, and building the user-facing `Astro.url` / `context.url`.
+	 *
+	 * Defaults to {@link defaultNormalizePathname}, Astro's security-hardened
+	 * canonicalizer (iterative decode + duplicate-slash collapse). The return
+	 * value is used **verbatim** — supplying your own function gives you full
+	 * control over the canonical pathname, e.g. a no-op `(pathname) => pathname`
+	 * keeps percent-encoded sequences such as `%25` intact so
+	 * `Astro.url.pathname` matches `new URL(Astro.request.url).pathname`.
+	 *
+	 * This only affects the **incoming request**. Rewrite targets
+	 * (`Astro.rewrite()`, middleware `next(payload)`) are developer-supplied
+	 * and are not run through this function.
+	 *
+	 * @remarks Replacing the default is potentially unsafe: because the result
+	 * is used verbatim, your function takes over the security-relevant
+	 * canonicalization the default performs — iteratively decoding
+	 * multi-encoded paths (e.g. `/%2561dmin`) and collapsing duplicate slashes
+	 * (e.g. `//admin`). Getting this wrong can let requests slip past
+	 * middleware authorization checks. Only override it if you understand the
+	 * routing/security implications, and consider delegating to
+	 * {@link defaultNormalizePathname} for the parts you don't need to change.
+	 */
+	normalizePathname?: NormalizePathname;
 }
 
 /**
@@ -144,6 +182,15 @@ export class FetchState implements AstroFetchState {
 	pathname: string;
 	/** Resolved render options (addCookieHeader, clientAddress, locals, etc.). */
 	readonly renderOptions: ResolvedRenderOptions;
+	/**
+	 * Normalizes the incoming request pathname into the canonical pathname used
+	 * for routing, params, and the user-facing URL. Its result is used
+	 * verbatim (no extra decode/slash-collapse afterward). Defaults to
+	 * {@link defaultNormalizePathname}; overridable via {@link FetchStateOptions}.
+	 * Only applied to the incoming request — rewrite targets are not run
+	 * through this hook.
+	 */
+	readonly normalizePathname: NormalizePathname;
 	/** When the request started, used to log duration. */
 	readonly timeStart: number;
 
@@ -248,9 +295,16 @@ export class FetchState implements AstroFetchState {
 	/** Memoized preferred locale list. */
 	#preferredLocaleList: APIContext['preferredLocaleList'];
 
-	constructor(pipeline: Pipeline, request: Request, options?: ResolvedRenderOptions) {
+	constructor(
+		pipeline: Pipeline,
+		request: Request,
+		options?: ResolvedRenderOptions,
+		fetchStateOptions?: FetchStateOptions,
+	) {
 		this.pipeline = pipeline;
 		this.request = request;
+		// Resolve the pathname normalizer before deriving pathname/url below.
+		this.normalizePathname = fetchStateOptions?.normalizePathname ?? defaultNormalizePathname;
 		// Accept options directly (fast path from BaseApp.render) or fall
 		// back to reading them from the request symbol (user fetch handlers).
 		options ??= getRenderOptions(request);
@@ -284,7 +338,7 @@ export class FetchState implements AstroFetchState {
 		if (domainPathname) {
 			this.#domainPathname = domainPathname;
 			try {
-				this.pathname = decodeURI(domainPathname);
+				this.pathname = this.normalizePathname(domainPathname);
 			} catch {
 				this.pathname = domainPathname;
 			}
@@ -294,7 +348,7 @@ export class FetchState implements AstroFetchState {
 		this.timeStart = performance.now();
 		this.clientAddress = options?.clientAddress;
 		this.locals = (options?.locals ?? {}) as App.Locals;
-		this.url = normalizeUrl(url);
+		this.url = this.#normalizeUrl(url);
 		this.cookies = new AstroCookies(request);
 
 		// Apply X-Forwarded-* headers only when the user has configured
@@ -956,12 +1010,14 @@ export class FetchState implements AstroFetchState {
 
 	/**
 	 * Strips the pipeline's base from the request URL, prepends a forward
-	 * slash, and decodes the pathname. Falls back to the raw (not decoded)
-	 * pathname if `decodeURI` throws.
+	 * slash, and normalizes the pathname via {@link normalizePathname}. Falls
+	 * back to the raw (not normalized) pathname if the normalizer throws.
 	 *
-	 * Mirrors `BaseApp.removeBase`, including the
-	 * `collapseDuplicateLeadingSlashes` fix that prevents middleware
-	 * authorization bypass when the URL starts with `//`.
+	 * `collapseDuplicateLeadingSlashes` is applied to the raw URL pathname
+	 * *before* base stripping so a URL that starts with `//` still has its
+	 * base removed correctly (mirrors `BaseApp.removeBase`). Any further
+	 * canonicalization — including collapsing the remaining duplicate slashes —
+	 * is the responsibility of `normalizePathname` (the default does it).
 	 */
 	#computePathname(url: URL): string {
 		let pathname = collapseDuplicateLeadingSlashes(url.pathname);
@@ -972,11 +1028,13 @@ export class FetchState implements AstroFetchState {
 		}
 		pathname = prependForwardSlash(pathname);
 		try {
-			return validateAndDecodePathname(pathname);
+			return this.normalizePathname(pathname);
 		} catch (e: any) {
 			// The path was encoded too many times to fully decode. Mark it so
 			// the handler can reject the request with a 400 before middleware
 			// or routing run, instead of working with a half-decoded path.
+			// (Only the default normalizer throws this; a custom one opts out
+			// of this protection by not throwing.)
 			if (e instanceof MultiLevelEncodingError) {
 				this.invalidEncoding = true;
 				return pathname;
@@ -984,6 +1042,38 @@ export class FetchState implements AstroFetchState {
 			this.pipeline.logger.error(null, e.toString());
 			return pathname;
 		}
+	}
+
+	/**
+	 * Normalizes a parsed URL in place using this state's
+	 * {@link normalizePathname}. Returns the same URL object.
+	 *
+	 * `this.url` is normalized with the *same* function as `this.pathname`, and
+	 * — this matters for security — handles a failure the *same way* as
+	 * {@link #computePathname}: it leaves the pathname raw (not normalized)
+	 * rather than falling back to a second, different decode.
+	 *
+	 * User middleware reads `context.url.pathname` (i.e. `this.url`) for
+	 * authorization checks, while routing uses `this.pathname`. If a failure
+	 * caused `this.url` to fall back to a different normalization than
+	 * `this.pathname`, the two could disagree — letting an attacker who can
+	 * force the normalizer to throw slip a path past a middleware check that a
+	 * later route match would resolve differently. Failing identically keeps
+	 * them consistent.
+	 */
+	#normalizeUrl(url: URL): URL {
+		try {
+			url.pathname = this.normalizePathname(url.pathname);
+		} catch (e: any) {
+			// Leave url.pathname as the raw, un-normalized value (no secondary
+			// normalization). Mark over-encoding so the request is rejected
+			// with a 400 before middleware/routing run, matching
+			// #computePathname.
+			if (e instanceof MultiLevelEncodingError) {
+				this.invalidEncoding = true;
+			}
+		}
+		return url;
 	}
 
 	/**
