@@ -1,8 +1,9 @@
 import * as fs from 'node:fs';
 import path from 'node:path';
-import { appendForwardSlash } from '@astrojs/internal-helpers/path';
+import { appendForwardSlash, isInternalPath } from '@astrojs/internal-helpers/path';
 import colors from 'piccolore';
 import type * as vite from 'vite';
+import { getDevServerBase, prependDevServerBase } from '../core/app/dev-base.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { notFoundTemplate, subpathNotUsedTemplate } from '../template/4xx.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -82,6 +83,7 @@ export function baseMiddleware(
 ): vite.Connect.NextHandleFunction {
 	const { config } = settings;
 	const { devRoot } = resolveDevRoot(config.base, config.site);
+	const devBase = getDevServerBase(config.base, config.vite.base);
 
 	return function devBaseMiddleware(req, res, next) {
 		const url = req.url!;
@@ -125,6 +127,10 @@ export function baseMiddleware(
 						const html = subpathNotUsedTemplate(devRoot, pathname);
 						return writeHtmlResponse(res, 404, html);
 					} else {
+						if (!isInternalPath(pathname)) {
+							// Preserve non-HTML pass-through requests while still letting Vite strip the base.
+							req.url = prependDevServerBase(devBase, url);
+						}
 						next();
 					}
 				});
