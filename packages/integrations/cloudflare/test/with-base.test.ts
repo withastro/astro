@@ -118,4 +118,11 @@ describe('base', () => {
 			'assets.directory should be "../client", not "../client/blog"',
 		);
 	});
+
+	it('does not emit the removed legacy_env field in wrangler.json', async () => {
+		const raw = await fixture.readFile('server/wrangler.json');
+		const config = JSON.parse(raw);
+
+		assert.equal('legacy_env' in config, false);
+	});
 });
