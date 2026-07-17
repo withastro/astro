@@ -152,7 +152,7 @@ export class ContentLayer {
 	): Promise<RenderedContent> {
 		if (!this.#markdownRenderer) {
 			const { markdown, image } = this.#settings.config;
-			this.#markdownRenderer = await markdown.processor.createRenderer({
+			this.#markdownRenderer = await markdown.processor!.createRenderer({
 				image,
 				syntaxHighlight: markdown.syntaxHighlight,
 				shikiConfig: markdown.shikiConfig,

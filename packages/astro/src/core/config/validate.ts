@@ -14,7 +14,7 @@ export async function validateConfig(
 	warnDeprecatedMarkdownOptions(userConfig);
 
 	// First-Pass Validation
-	return await validateConfigRefined(
+	const config = await validateConfigRefined(
 		await AstroConfigRelativeSchema.parseAsync(userConfig, {
 			error(issue) {
 				// If an experimental feature, give a more specific error message.
@@ -27,6 +27,16 @@ export async function validateConfig(
 			},
 		}),
 	);
+
+	// Apply the default satteri markdown processor lazily so the static import
+	// doesn't get pulled into bundles that import ASTRO_CONFIG_DEFAULTS
+	// (e.g. the Container API running in a workerd prerender environment).
+	if (!config.markdown.processor) {
+		const { satteri } = await import('@astrojs/markdown-satteri');
+		config.markdown.processor = satteri();
+	}
+
+	return config;
 }
 
 let didWarnAboutDeprecatedMarkdownOptions = false;
