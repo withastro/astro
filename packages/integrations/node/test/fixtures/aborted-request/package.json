@@ -1,0 +1,5 @@
+{
+	"name": "@test/aborted-request",
+	"private": true,
+	"type": "module"
+}
