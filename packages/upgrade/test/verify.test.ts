@@ -110,6 +110,24 @@ describe('resolveTargetVersion', () => {
 		assert.equal(packageInfo.tag, undefined);
 	});
 
+	it('does not downgrade to latest when current version is a newer prerelease than the dist-tag', async () => {
+		mockFetch({ latest: '6.4.5', beta: '7.0.0-beta.2' });
+		const packageInfo: PackageInfo = {
+			name: 'astro',
+			currentVersion: '7.0.0-beta.3',
+			targetVersion: 'beta',
+		};
+		await resolveTargetVersion(packageInfo, 'https://registry.npmjs.org');
+		assert.ok(
+			!packageInfo.targetVersion.includes('7.0.0-beta.2'),
+			`Expected no downgrade to beta, got targetVersion=${packageInfo.targetVersion}`,
+		);
+		assert.ok(
+			!packageInfo.targetVersion.includes('6.4.5'),
+			`Expected no downgrade to latest, got targetVersion=${packageInfo.targetVersion}`,
+		);
+	});
+
 	it('uses beta dist-tag when it is newer than installed version', async () => {
 		mockFetch({ latest: '6.4.5', beta: '7.0.0-beta.3' });
 		const packageInfo: PackageInfo = {

@@ -149,12 +149,20 @@ export async function resolveTargetVersion(
 	const { 'dist-tags': distTags } = await packageMetadata.json();
 	let version = distTags[packageInfo.targetVersion];
 	if (version) {
-		const currentCoerced = semverCoerce(packageInfo.currentVersion);
+		const currentParsed =
+			semverParse(packageInfo.currentVersion.replace(/^\D+/, '')) ??
+			semverCoerce(packageInfo.currentVersion);
 		const targetParsed = semverParse(version);
-		// If the dist-tag points to a version older than the installed one, fall back to latest.
-		if (currentCoerced && targetParsed && semverGt(currentCoerced, targetParsed)) {
-			packageInfo.targetVersion = 'latest';
-			version = distTags.latest;
+		// If the dist-tag points to a version older than the installed one, verify if latest is newer or keep current version
+		if (currentParsed && targetParsed && semverGt(currentParsed, targetParsed)) {
+			const latestParsed = semverParse(distTags.latest);
+			if (latestParsed && semverGt(latestParsed, currentParsed)) {
+				packageInfo.targetVersion = 'latest';
+				version = distTags.latest;
+			} else {
+				packageInfo.targetVersion = packageInfo.currentVersion.replace(/^\D+/, '');
+				version = packageInfo.targetVersion;
+			}
 		} else {
 			packageInfo.tag = packageInfo.targetVersion;
 			packageInfo.targetVersion = version;
