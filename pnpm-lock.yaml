@@ -607,6 +607,12 @@ importers:
         specifier: ^7.1.1
         version: link:../../packages/astro
 
+  examples/repro-17409:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
+
   examples/ssr:
     dependencies:
       '@astrojs/node':

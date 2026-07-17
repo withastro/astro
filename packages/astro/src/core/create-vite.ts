@@ -55,6 +55,7 @@ import { isObject } from './util-runtime.js';
 import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
 import { vitePluginChromedevtools } from '../vite-plugin-chromedevtools/index.js';
+import { vitePluginDecorators } from '../vite-plugin-decorators/index.js';
 import { vitePluginDevStatus } from '../vite-plugin-dev-status/index.js';
 import { vitePluginAstroServerClient } from '../vite-plugin-overlay/index.js';
 
@@ -185,6 +186,7 @@ export async function createVite(
 					}
 				},
 			},
+			vitePluginDecorators(),
 			serializedManifestPlugin({ settings, command, sync }),
 			vitePluginRenderers({
 				settings,
