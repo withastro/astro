@@ -1,6 +1,7 @@
 import colors from 'piccolore';
 import {
 	collapseDuplicateLeadingSlashes,
+	collapseDuplicateSlashes,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
@@ -35,7 +36,6 @@ import {
 import { getParams, getProps } from '../render/index.js';
 import { Rewrites } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
-import { normalizeUrl } from '../util/normalized-url.js';
 import { MultiLevelEncodingError, validateAndDecodePathname } from '../util/pathname.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
@@ -268,6 +268,10 @@ export class FetchState implements AstroFetchState {
 		this.slots = undefined;
 		// Parse the URL once and derive both pathname and url from it.
 		const url = new URL(request.url);
+		const publicPathname = this.#normalizePathname(url.pathname);
+		const pathname = this.#computePathname(publicPathname);
+		url.pathname = publicPathname;
+		url.pathname = collapseDuplicateSlashes(url.pathname);
 		// For domain-based i18n routing, the locale prefix is derived from the
 		// request's Host header rather than its URL. When a locale is detected,
 		// the resulting pathname includes the prefix (e.g. /en/boats/1/foo) that
@@ -280,21 +284,18 @@ export class FetchState implements AstroFetchState {
 			pipeline.manifest.base,
 			pipeline.manifest.trailingSlash,
 			pipeline.logger,
+			pathname,
 		);
 		if (domainPathname) {
 			this.#domainPathname = domainPathname;
-			try {
-				this.pathname = decodeURI(domainPathname);
-			} catch {
-				this.pathname = domainPathname;
-			}
+			this.pathname = domainPathname;
 		} else {
-			this.pathname = this.#computePathname(url);
+			this.pathname = pathname;
 		}
 		this.timeStart = performance.now();
 		this.clientAddress = options?.clientAddress;
 		this.locals = (options?.locals ?? {}) as App.Locals;
-		this.url = normalizeUrl(url);
+		this.url = url;
 		this.cookies = new AstroCookies(request);
 
 		// Apply X-Forwarded-* headers only when the user has configured
@@ -955,35 +956,41 @@ export class FetchState implements AstroFetchState {
 	}
 
 	/**
-	 * Strips the pipeline's base from the request URL, prepends a forward
-	 * slash, and decodes the pathname. Falls back to the raw (not decoded)
-	 * pathname if `decodeURI` throws.
+	 * Strips the pipeline's base from a normalized request pathname and prepends
+	 * a forward slash.
 	 *
 	 * Mirrors `BaseApp.removeBase`, including the
 	 * `collapseDuplicateLeadingSlashes` fix that prevents middleware
 	 * authorization bypass when the URL starts with `//`.
 	 */
-	#computePathname(url: URL): string {
-		let pathname = collapseDuplicateLeadingSlashes(url.pathname);
+	#computePathname(normalizedPathname: string): string {
+		let pathname = collapseDuplicateLeadingSlashes(normalizedPathname);
 		const base = this.pipeline.manifest.base;
 		if (pathname.startsWith(base)) {
 			const baseWithoutTrailingSlash = removeTrailingForwardSlash(base);
 			pathname = pathname.slice(baseWithoutTrailingSlash.length + 1);
 		}
-		pathname = prependForwardSlash(pathname);
+		return prependForwardSlash(pathname);
+	}
+
+	/**
+	 * Decodes and normalizes the public request pathname before deriving the
+	 * separate pathname used for route matching.
+	 */
+	#normalizePathname(pathname: string): string {
 		try {
-			return validateAndDecodePathname(pathname);
+			pathname = validateAndDecodePathname(pathname);
 		} catch (e: any) {
 			// The path was encoded too many times to fully decode. Mark it so
 			// the handler can reject the request with a 400 before middleware
 			// or routing run, instead of working with a half-decoded path.
 			if (e instanceof MultiLevelEncodingError) {
 				this.invalidEncoding = true;
-				return pathname;
+			} else {
+				this.pipeline.logger.error(null, e.toString());
 			}
-			this.pipeline.logger.error(null, e.toString());
-			return pathname;
 		}
+		return collapseDuplicateSlashes(pathname);
 	}
 
 	/**
