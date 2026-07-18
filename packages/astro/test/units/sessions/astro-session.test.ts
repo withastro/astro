@@ -678,22 +678,6 @@ describe('AstroSession - regenerate() error path', () => {
 			async hasItem() { return false; },
 			async setItemRaw() {},
 			async getItemRaw() { return null; },
-			async getMeta() { return {}; },
-			async watch() {},
-			async unwatch() {},
-		};
-
-		let errorCalled = false;
-		const mockLogger: any = {
-			error: () => {
-				errorCalled = true;
-			}
-		};
-
-		const cookies: any = {
-			get: () => ({ value: 'old-session' }),
-			set: () => {},
-			delete: () => {},
 		};
 
 		const session = createSession(

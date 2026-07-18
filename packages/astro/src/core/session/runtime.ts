@@ -32,6 +32,15 @@ const stringify: typeof rawStringify = (data, _) => {
 	});
 };
 
+export interface AstroSessionOptions {
+	cookies: AstroCookies;
+	config: SSRManifestSession | undefined;
+	runtimeMode: RuntimeMode;
+	driverFactory: SessionDriverFactory | null;
+	mockStorage: Storage | null;
+	logger: AstroLogger;
+}
+
 export class AstroSession {
 	// The cookies object.
 	#cookies: AstroCookies;
@@ -254,7 +263,7 @@ export class AstroSession {
 
 		if (oldSessionId && this.#storage) {
 			this.#storage.removeItem(oldSessionId).catch((err) => {
-				this.#logger?.warn('session', `Failed to remove old session ${oldSessionId}: ${err}`);
+				this.#logger.error('session', `Failed to remove old session ${oldSessionId}: ${err}`);
 			});
 		}
 	}
@@ -297,7 +306,7 @@ export class AstroSession {
 		if (this.#toDestroy.size > 0) {
 			const cleanupPromises = [...this.#toDestroy].map((sessionId) =>
 				storage.removeItem(sessionId).catch((err) => {
-					this.#logger?.warn('session', `Failed to remove session ${sessionId}: ${err}`);
+					this.#logger.error('session', `Failed to remove session ${sessionId}: ${err}`);
 				}),
 			);
 			await Promise.all(cleanupPromises);
