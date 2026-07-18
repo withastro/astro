@@ -62,7 +62,7 @@ export class AstroSession {
 	// When we load the data from storage, we need to merge it with the local partial data,
 	// preserving in-memory changes and deletions.
 	#partial = true;
-	#logger: AstroLogger | undefined;
+	#logger: AstroLogger;
 	#driverFactory: SessionDriverFactory | null;
 
 	static #sharedStorage = new Map<string, Storage>();
@@ -74,14 +74,7 @@ export class AstroSession {
 		driverFactory,
 		mockStorage,
 		logger,
-	}: {
-		cookies: AstroCookies;
-		config: SSRManifestSession | undefined;
-		runtimeMode: RuntimeMode;
-		driverFactory: SessionDriverFactory | null;
-		mockStorage: Storage | null;
-		logger?: AstroLogger;
-	}) {
+	}: AstroSessionOptions) {
 		this.#logger = logger;
 		if (!config) {
 			throw new AstroError({
@@ -230,7 +223,7 @@ export class AstroSession {
 			// Remove from storage immediately when available; PERSIST_SYMBOL may not run on error paths.
 			if (this.#storage) {
 				await this.#storage.removeItem(sessionId).catch((err) => {
-					this.#logger?.warn('session', `Failed to remove session ${sessionId}: ${err}`);
+					this.#logger.error('session', `Failed to remove session ${sessionId}: ${err}`);
 				});
 			} else {
 				this.#toDestroy.add(sessionId);
@@ -247,7 +240,7 @@ export class AstroSession {
 		try {
 			data = await this.#ensureData();
 		} catch (err) {
-			this.#logger?.warn('session', `Failed to load session data during regeneration: ${err}`);
+			this.#logger.error('session', `Failed to load session data during regeneration: ${err}`);
 			this.#partial = false;
 		}
 

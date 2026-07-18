@@ -40,6 +40,7 @@ function createSession(
 	cookies: MockCookies = defaultMockCookies,
 	mockStorage: Storage | null = null,
 	runtimeMode: RuntimeMode = 'production',
+	logger: any = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
 ) {
 	// driverFactory from unstorage/drivers/memory accepts no config; wrap it to satisfy SessionDriverFactory
 	const typedDriverFactory: SessionDriverFactory = () => driverFactory();
@@ -49,6 +50,7 @@ function createSession(
 		runtimeMode,
 		driverFactory: typedDriverFactory,
 		mockStorage,
+		logger,
 	});
 }
 
@@ -653,3 +655,72 @@ describe('AstroSession - No-Cookie Short Circuit', () => {
 });
 
 // #endregion No-Cookie Short Circuit
+
+// #region Error Recovery
+describe('AstroSession - regenerate() error path', () => {
+	it('should route errors to logger and reset #partial flag', async () => {
+		let storageGetCount = 0;
+		const mockStorage = {
+			async get(key: string) {
+				storageGetCount++;
+				if (key === 'old-session') {
+					// Return a string that unflatten() will parse into an Array, not a Map
+					// This causes unflatten(raw) instanceof Map to be false, throwing an AstroError
+					return '[1,2,3]';
+				}
+				return null;
+			},
+			async setItem() {},
+			async removeItem() {},
+			async getKeys() { return []; },
+			async clear() {},
+			async dispose() {},
+			async hasItem() { return false; },
+			async setItemRaw() {},
+			async getItemRaw() { return null; },
+			async getMeta() { return {}; },
+			async watch() {},
+			async unwatch() {},
+		};
+
+		let errorCalled = false;
+		const mockLogger: any = {
+			error: () => {
+				errorCalled = true;
+			}
+		};
+
+		const cookies: any = {
+			get: () => ({ value: 'old-session' }),
+			set: () => {},
+			delete: () => {},
+		};
+
+		const session = createSession(
+			defaultConfig,
+			cookies,
+			mockStorage as any,
+			'production',
+			mockLogger
+		);
+
+		// This will trigger ensureData() under the hood.
+		// It fetches 'old-session' which returns invalid data, throwing an error.
+		// regenerate() catches this, should log an error, and reset #partial.
+		await session.regenerate();
+
+		// 1. Verify logging behavior
+		assert.equal(errorCalled, true, 'Should use logger.error');
+
+		// Reset storage count before checking get()
+		storageGetCount = 0;
+
+		// 2. Verify #partial state
+		// If #partial is true, this will call storage.get() for the new session ID.
+		// If #partial is correctly reset to false, this will use the in-memory Map.
+		await session.get('foo');
+		
+		assert.equal(storageGetCount, 0, 'Should not round-trip to storage; #partial should be false after regeneration');
+	});
+});
+// #endregion
