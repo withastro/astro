@@ -3,6 +3,7 @@ import type { RuntimeMode } from '../../types/public/config.js';
 import type { AstroCookieSetOptions, AstroCookies } from '../cookies/cookies.js';
 import { SessionStorageInitError, SessionStorageSaveError } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
+import type { AstroLogger } from '../logger/core.js';
 import type { SessionDriverFactory } from './types.js';
 import type { SSRManifestSession } from '../app/types.js';
 import { createStorage, type Storage } from 'unstorage';
@@ -61,7 +62,7 @@ export class AstroSession {
 	// When we load the data from storage, we need to merge it with the local partial data,
 	// preserving in-memory changes and deletions.
 	#partial = true;
-	// The driver factory function provided by the pipeline
+	#logger: AstroLogger | undefined;
 	#driverFactory: SessionDriverFactory | null;
 
 	static #sharedStorage = new Map<string, Storage>();
@@ -72,13 +73,16 @@ export class AstroSession {
 		runtimeMode,
 		driverFactory,
 		mockStorage,
+		logger,
 	}: {
 		cookies: AstroCookies;
 		config: SSRManifestSession | undefined;
 		runtimeMode: RuntimeMode;
 		driverFactory: SessionDriverFactory | null;
 		mockStorage: Storage | null;
+		logger?: AstroLogger;
 	}) {
+		this.#logger = logger;
 		if (!config) {
 			throw new AstroError({
 				...SessionStorageInitError,
@@ -213,18 +217,25 @@ export class AstroSession {
 	}
 
 	/**
-	 * Destroys the session, clearing the cookie and storage if it exists.
+	 * Destroys the session, clearing the cookie and eagerly removing the storage entry.
 	 */
-	destroy() {
-		// We don't use #ensureSessionID here because we don't want to create a new session ID if it doesn't exist.
+	async destroy(): Promise<void> {
 		const sessionId = this.#sessionID ?? this.#cookies.get(this.#cookieName)?.value;
-		if (sessionId) {
-			this.#toDestroy.add(sessionId);
-		}
 		this.#cookies.delete(this.#cookieName, this.#cookieConfig);
 		this.#sessionID = undefined;
 		this.#data = undefined;
-		this.#dirty = true;
+		this.#partial = true;
+		this.#dirty = false;
+		if (sessionId) {
+			// Remove from storage immediately when available; PERSIST_SYMBOL may not run on error paths.
+			if (this.#storage) {
+				await this.#storage.removeItem(sessionId).catch((err) => {
+					this.#logger?.warn('session', `Failed to remove session ${sessionId}: ${err}`);
+				});
+			} else {
+				this.#toDestroy.add(sessionId);
+			}
+		}
 	}
 
 	/**
@@ -236,24 +247,21 @@ export class AstroSession {
 		try {
 			data = await this.#ensureData();
 		} catch (err) {
-			// Log the error but continue with empty data
-			console.error('Failed to load session data during regeneration:', err);
+			this.#logger?.warn('session', `Failed to load session data during regeneration: ${err}`);
+			this.#partial = false;
 		}
 
-		// Store the old session ID for cleanup
 		const oldSessionId = this.#sessionID;
 
-		// Create new session
 		this.#sessionID = crypto.randomUUID();
 		this.#sessionIDFromCookie = false;
 		this.#data = data;
 		this.#dirty = true;
 		await this.#setCookie();
 
-		// Clean up old session asynchronously
 		if (oldSessionId && this.#storage) {
 			this.#storage.removeItem(oldSessionId).catch((err) => {
-				console.error('Failed to remove old session data:', err);
+				this.#logger?.warn('session', `Failed to remove old session ${oldSessionId}: ${err}`);
 			});
 		}
 	}
@@ -293,11 +301,10 @@ export class AstroSession {
 			this.#dirty = false;
 		}
 
-		// Handle destroyed session cleanup
 		if (this.#toDestroy.size > 0) {
 			const cleanupPromises = [...this.#toDestroy].map((sessionId) =>
 				storage.removeItem(sessionId).catch((err) => {
-					console.error('Failed to clean up session %s:', sessionId, err);
+					this.#logger?.warn('session', `Failed to remove session ${sessionId}: ${err}`);
 				}),
 			);
 			await Promise.all(cleanupPromises);
