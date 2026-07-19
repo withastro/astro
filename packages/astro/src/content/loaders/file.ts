@@ -1,6 +1,6 @@
 import { existsSync, promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import yaml from 'js-yaml';
+import { yamlLoad } from '@astrojs/internal-helpers/yaml';
 import toml from 'smol-toml';
 import { FileGlobNotSupported, FileParserNotFound } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/index.js';
@@ -34,7 +34,7 @@ export function file(fileName: string, options?: FileOptions): Loader {
 		parse = JSON.parse;
 	} else if (ext === 'yml' || ext === 'yaml') {
 		parse = (text) =>
-			yaml.load(text, {
+			yamlLoad(text, {
 				filename: fileName,
 			});
 	} else if (ext === 'toml') {

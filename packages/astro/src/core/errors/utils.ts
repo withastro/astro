@@ -1,4 +1,4 @@
-import type { YAMLException } from 'js-yaml';
+import type { YAMLException } from '@astrojs/internal-helpers/yaml';
 import type { TomlError } from 'smol-toml';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 import type { SSRError } from '../../types/public/internal.js';
@@ -78,10 +78,18 @@ export function isYAMLException(err: unknown): err is YAMLException {
 
 /** Format YAML exceptions as Vite errors */
 export function formatYAMLException(e: YAMLException): ViteErrorPayload['err'] {
+	const mark = e.mark;
+	const loc = mark
+		? {
+				file: mark.name ?? undefined,
+				line: mark.line + 1,
+				column: mark.column,
+			}
+		: undefined;
 	return {
 		name: e.name,
-		id: e.mark.name,
-		loc: { file: e.mark.name, line: e.mark.line + 1, column: e.mark.column },
+		id: loc?.file,
+		loc: loc,
 		message: e.reason,
 		stack: e.stack ?? '',
 	};

@@ -798,9 +798,6 @@ importers:
       http-cache-semantics:
         specifier: ^4.2.0
         version: 4.2.0
-      js-yaml:
-        specifier: ^4.1.1
-        version: 4.1.1
       jsonc-parser:
         specifier: ^3.3.1
         version: 3.3.1
@@ -898,9 +895,6 @@ importers:
       '@types/http-cache-semantics':
         specifier: ^4.2.0
         version: 4.2.0
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
       '@types/parse-srcset':
         specifier: ^1.0.0
         version: 1.0.0
@@ -6480,8 +6474,8 @@ importers:
         specifier: ^4.0.4
         version: 4.0.4
       js-yaml:
-        specifier: ^4.1.1
-        version: 4.1.1
+        specifier: ^5.2.1
+        version: 5.2.1
       picomatch:
         specifier: ^4.0.4
         version: 4.0.4
@@ -6498,9 +6492,6 @@ importers:
         specifier: ^11.0.5
         version: 11.0.5
     devDependencies:
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
       '@types/picomatch':
         specifier: ^4.0.2
         version: 4.0.2
@@ -6719,9 +6710,6 @@ importers:
       '@astrojs/ts-plugin':
         specifier: ^1.10.9
         version: link:../ts-plugin
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
       '@types/mocha':
         specifier: ^10.0.10
         version: 10.0.10
@@ -6753,8 +6741,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1(esbuild@0.17.19)
       js-yaml:
-        specifier: ^4.1.1
-        version: 4.1.1
+        specifier: ^5.2.1
+        version: 5.2.1
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
@@ -10190,9 +10178,6 @@ packages:
   '@types/istanbul-lib-coverage@2.0.6':
     resolution: {integrity: sha512-2QF/t/auWm0lsy8XtKVPG19v3sSOQlJe/YHZgfjb/KBBHOGSV+J2q/S671rcq9uTBrLAXmZpqJiaQbMT+zNU1w==}
 
-  '@types/js-yaml@4.0.9':
-    resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
-
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
@@ -12827,6 +12812,10 @@ packages:
 
   js-yaml@4.1.1:
     resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
+    hasBin: true
+
+  js-yaml@5.2.1:
+    resolution: {integrity: sha512-zfLtNfQqxVqq3uaTqSkh4x4hZw3KHobGUA0fJUj4wawW8bsQLTVqpHdXSIzidh7o+4lEW36tANuAGdaFx6Zgnw==}
     hasBin: true
 
   jsdoc-type-pratt-parser@7.1.1:
@@ -19548,8 +19537,6 @@ snapshots:
 
   '@types/istanbul-lib-coverage@2.0.6': {}
 
-  '@types/js-yaml@4.0.9': {}
-
   '@types/json-schema@7.0.15': {}
 
   '@types/katex@0.16.8': {}
@@ -22618,6 +22605,10 @@ snapshots:
       esprima: 4.0.1
 
   js-yaml@4.1.1:
+    dependencies:
+      argparse: 2.0.1
+
+  js-yaml@5.2.1:
     dependencies:
       argparse: 2.0.1
 
