@@ -193,7 +193,7 @@ class AstroCookies implements AstroCookiesInterface {
 
 		this.#ensureOutgoingMap().set(key, [
 			serializedValue,
-			stringifySetCookie({ name: key, value: serializedValue, ...attributes }, { encode }),
+			stringifySetCookie({ ...attributes, name: key, value: serializedValue }, { encode }),
 			true,
 		]);
 
