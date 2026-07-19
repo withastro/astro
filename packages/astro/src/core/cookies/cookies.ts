@@ -86,14 +86,12 @@ class AstroCookies implements AstroCookiesInterface {
 	 */
 	delete(key: string, options?: AstroCookieDeleteOptions): void {
 		/**
-		 * The `@ts-expect-error` is necessary because `maxAge` and `expires` properties
+		 * The `@ts-expect-error` is necessary because `maxAge` property
 		 * must not appear in the AstroCookieDeleteOptions type.
 		 */
 		const {
 			// @ts-expect-error
 			maxAge: _ignoredMaxAge,
-			// @ts-expect-error
-			expires: _ignoredExpires,
 			...sanitizedOptions
 		} = options || {};
 
@@ -101,10 +99,10 @@ class AstroCookies implements AstroCookiesInterface {
 		this.#ensureOutgoingMap().set(key, [
 			DELETED_VALUE,
 			stringifySetCookie({
+				...sanitizedOptions,
 				name: key,
 				value: DELETED_VALUE,
 				expires: DELETED_EXPIRATION,
-				...sanitizedOptions,
 			}),
 			false,
 		]);
