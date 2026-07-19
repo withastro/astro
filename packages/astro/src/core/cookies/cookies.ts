@@ -1,5 +1,5 @@
 import type { SerializeOptions } from 'cookie';
-import { parse, serialize } from 'cookie';
+import { parseCookie, stringifySetCookie } from 'cookie';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
 export type AstroCookieSetOptions = Pick<
@@ -96,15 +96,16 @@ class AstroCookies implements AstroCookiesInterface {
 			expires: _ignoredExpires,
 			...sanitizedOptions
 		} = options || {};
-		const serializeOptions: SerializeOptions = {
-			expires: DELETED_EXPIRATION,
-			...sanitizedOptions,
-		};
 
 		// Set-Cookie: token=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT
 		this.#ensureOutgoingMap().set(key, [
 			DELETED_VALUE,
-			serialize(key, DELETED_VALUE, serializeOptions),
+			stringifySetCookie({
+				name: key,
+				value: DELETED_VALUE,
+				expires: DELETED_EXPIRATION,
+				...sanitizedOptions,
+			}),
 			false,
 		]);
 	}
@@ -198,14 +199,11 @@ class AstroCookies implements AstroCookiesInterface {
 			}
 		}
 
-		const serializeOptions: SerializeOptions = {};
-		if (options) {
-			Object.assign(serializeOptions, options);
-		}
+		const { encode, ...attributes } = options ?? {};
 
 		this.#ensureOutgoingMap().set(key, [
 			serializedValue,
-			serialize(key, serializedValue, serializeOptions),
+			stringifySetCookie({ name: key, value: serializedValue, ...attributes }, { encode }),
 			true,
 		]);
 
@@ -283,7 +281,7 @@ class AstroCookies implements AstroCookiesInterface {
 		}
 		// Pass identity function for decoding so it doesn't use the default.
 		// We'll do the actual decoding when we read the value.
-		this.#requestValues = parse(raw, { decode: identity });
+		this.#requestValues = parseCookie(raw, { decode: identity });
 	}
 }
 
