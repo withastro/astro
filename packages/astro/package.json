@@ -148,7 +148,7 @@
     "magic-string": "^0.30.21",
     "magicast": "^0.5.2",
     "mrmime": "^2.0.1",
-    "neotraverse": "^0.6.18",
+    "neotraverse": "^1.0.1",
     "obug": "^2.1.1",
     "p-limit": "^7.3.0",
     "p-queue": "^9.1.0",

@@ -814,8 +814,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1
       neotraverse:
-        specifier: ^0.6.18
-        version: 0.6.18
+        specifier: ^1.0.1
+        version: 1.0.1
       obug:
         specifier: ^2.1.1
         version: 2.1.1
@@ -13576,8 +13576,8 @@ packages:
     resolution: {integrity: sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==}
     engines: {node: '>= 0.6'}
 
-  neotraverse@0.6.18:
-    resolution: {integrity: sha512-Z4SmBUweYa09+o6pG+eASabEpP6QkQ70yHj351pQoEXIs8uHbaU2DWVmzBANKgflPa47A50PtB2+NgRpQvr7vA==}
+  neotraverse@1.0.1:
+    resolution: {integrity: sha512-WmmLty1YWwJl9yZi77v2dVIV6X2kuYV8YYBI/G3LWGKdGHmHUvL1z7FW0iDvEvGAwNEoc5x1tOOOyDnf5jJw/w==}
     engines: {node: '>= 10'}
 
   netlify-redirector@0.5.0:
@@ -23660,7 +23660,7 @@ snapshots:
 
   negotiator@1.0.0: {}
 
-  neotraverse@0.6.18: {}
+  neotraverse@1.0.1: {}
 
   netlify-redirector@0.5.0: {}
 
