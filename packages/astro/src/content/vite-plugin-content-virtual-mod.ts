@@ -239,18 +239,25 @@ export function astroContentVirtualModPlugin({
 						// instead of being swallowed by the runtime's fallback to an
 						// empty store.
 						JSON.parse(jsonData);
-						// A JSON string parsed at runtime keeps the module's AST tiny; an
-						// object literal grows with the store and can exceed what the
-						// NAPI bridge can convert during dev SSR transforms (#17220),
-						// and is slower for V8 to parse than JSON.parse.
-						return {
-							code: `export default JSON.parse(${JSON.stringify(jsonData)})`,
-							map: { mappings: '' },
-						};
 					} catch (err) {
 						const message = 'Could not parse JSON file';
 						this.error({ message, id, cause: err });
 					}
+					
+						// A JSON string parsed at runtime keeps the module's AST tiny; an
+						// object literal grows with the store and can exceed what the
+						// NAPI bridge can convert during dev SSR transforms (#17220),
+						// and is slower for V8 to parse than JSON.parse.
+						// 
+						// > Quoted from https://v8.dev/blog/cost-of-javascript-2019
+						// > 
+						// > JSON.parse('…') is much faster to parse, compile, and execute 
+						// compared to an equivalent JavaScript literal — not just in V8 
+						// (1.7× as fast), but in all major JavaScript engines.
+						return {
+							code: `export default JSON.parse(${JSON.stringify(jsonData)})`,
+							map: { mappings: '' },
+						};
 				}
 
 				if (id === ASSET_IMPORTS_RESOLVED_STUB_ID) {
