@@ -1,10 +1,10 @@
 import colors from 'piccolore';
 
-export interface AstroLoggerDestination<T = unknown> {
+export interface AstroLoggerDestination {
 	/**
 	 * It receives a message and writes it into a destination
 	 */
-	write: (chunk: T) => void;
+	write: (chunk: AstroLoggerMessage) => void;
 	/**
 	 * It dumps logs without closing the connection to the destination.
 	 * Method that can be used by specialized loggers.
@@ -66,7 +66,7 @@ const AstroLoggerLabels = [
 type AstroLoggerLabel = (typeof AstroLoggerLabels)[number];
 
 export interface AstroLogOptions {
-	destination: AstroLoggerDestination<AstroLoggerMessage>;
+	destination: AstroLoggerDestination;
 	level: AstroLoggerLevel;
 
 	/**
@@ -234,7 +234,7 @@ export class AstroLogger {
 		return new AstroIntegrationLogger(this.options, label);
 	}
 
-	setDestination(destination: AstroLoggerDestination<AstroLoggerMessage>) {
+	setDestination(destination: AstroLoggerDestination) {
 		this.options.destination = destination;
 	}
 

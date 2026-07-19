@@ -27,6 +27,53 @@ function isRunByAgent(): boolean {
 	}
 }
 
+/**
+ * `yargs-parser` camel-cases `--ignore-lock` to `flags.ignoreLock`.
+ */
+export function isIgnoreLock(flags: Flags): boolean {
+	return flags.ignoreLock === true;
+}
+
+/**
+ * `--ignore-lock` skips the lock file entirely, so a background dev server started with it
+ * could never be found by `astro dev stop`/`status`/`logs`. Returns an error message if
+ * background mode (explicit `--background`, or implied by AI agent detection) is combined
+ * with `--ignore-lock`, or `null` if there's no conflict.
+ */
+export function getBackgroundIgnoreLockConflict(
+	flags: Flags,
+	wantsBackground: boolean,
+): string | null {
+	if (!wantsBackground) {
+		return null;
+	}
+	const reason = flags.background
+		? '`--background`'
+		: 'an auto-detected AI agent environment, which runs the dev server in the background automatically';
+	return [
+		`\`--ignore-lock\` cannot be used together with ${reason}.`,
+		'',
+		'Background dev servers rely on the lock file so `astro dev stop`, `astro dev status`, and `astro dev logs` can find them.',
+		'Run the dev server in the foreground to use --ignore-lock.',
+	].join('\n');
+}
+
+/**
+ * `--force` (replace the existing server) and `--ignore-lock` (start alongside it,
+ * untracked) express contradictory intent. Returns an error message if both are set,
+ * or `null` otherwise.
+ */
+export function getForceIgnoreLockConflict(flags: Flags): string | null {
+	if (!flags.force) {
+		return null;
+	}
+	return [
+		'`--force` and `--ignore-lock` cannot be used together.',
+		'',
+		'`--force` replaces the existing dev server; `--ignore-lock` starts a new one alongside it without touching the lock file. Choose one.',
+	].join('\n');
+}
+
 export async function dev({ flags }: DevOptions) {
 	if (flags.help || flags.h) {
 		printHelp({
@@ -47,6 +94,10 @@ export async function dev({ flags }: DevOptions) {
 					['--open', 'Automatically open the app in the browser on server start'],
 					['--force', 'Clear the content layer cache, forcing a full rebuild.'],
 					[
+						'--ignore-lock',
+						'Start the dev server even if another one is already running, without checking or writing the lock file.',
+					],
+					[
 						'--allowed-hosts',
 						'Specify a comma-separated list of allowed hosts or allow any hostname.',
 					],
@@ -65,6 +116,9 @@ export async function dev({ flags }: DevOptions) {
 	if (agentDetected) {
 		flags.json = true;
 	}
+
+	const ignoreLock = isIgnoreLock(flags);
+	const wantsBackground = !!flags.background || agentDetected;
 
 	const logger = createLoggerFromFlags(flags);
 	const subcommand = flags._[3]?.toString();
@@ -90,10 +144,19 @@ export async function dev({ flags }: DevOptions) {
 		return;
 	}
 
+	// Reject conflicting flag combinations up front, before starting anything.
+	if (ignoreLock) {
+		const conflict =
+			getBackgroundIgnoreLockConflict(flags, wantsBackground) ?? getForceIgnoreLockConflict(flags);
+		if (conflict) {
+			throw new Error(conflict);
+		}
+	}
+
 	// Handle `astro dev --background` or auto-enable when an AI coding agent is detected.
 	// Skip if ASTRO_DEV_BACKGROUND is set — this means we're the spawned child process
 	// and should run the foreground dev server, not recurse into background mode.
-	if (flags.background || agentDetected) {
+	if (wantsBackground) {
 		const { background } = await import('./background.js');
 		await background({ flags, logger });
 		return;
@@ -110,6 +173,25 @@ export async function dev({ flags }: DevOptions) {
 
 	// Foreground dev server: check lock file, start server, write lock file
 	const root = pathToFileURL(resolveRoot(flags.root) + '/');
+
+	// `--ignore-lock` opts this instance out of the lock file entirely: it doesn't block on
+	// an existing server, and it won't be tracked by `astro dev stop`/`status`/`logs`.
+	// We still do a read-only check purely to give the user a heads-up.
+	if (ignoreLock) {
+		const existingServer = checkExistingServer(root);
+		if (existingServer) {
+			logger.info(
+				'SKIP_FORMAT',
+				[
+					`Starting a new dev server alongside the one already running at ${existingServer.url} (pid ${existingServer.pid}).`,
+					'This instance is not tracked by `astro dev stop`, `astro dev status`, or `astro dev logs`.',
+				].join('\n'),
+			);
+		}
+		const inlineConfig = flagsToAstroInlineConfig(flags);
+		return await devServer(inlineConfig);
+	}
+
 	const existingServer = checkExistingServer(root);
 	if (existingServer) {
 		if (flags.force) {

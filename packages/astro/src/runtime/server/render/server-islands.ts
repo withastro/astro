@@ -7,6 +7,7 @@ import type { RenderDestination } from './common.js';
 import { createRenderInstruction } from './instruction.js';
 import { SERVER_ISLAND_START } from './server-islands-shared.js';
 import { type ComponentSlots, type SlotString, renderSlotToString } from './slot.js';
+import { toAttributeString } from './util.js';
 
 const internalProps = new Set([
 	'server:component-path',
@@ -198,7 +199,7 @@ export class ServerIslandComponent {
 			serverIslandUrl += '?' + potentialSearchParams.toString();
 			this.result._metadata.extraHead.push(
 				markHTMLString(
-					`<link rel="preload" as="fetch" href="${serverIslandUrl}" crossorigin="anonymous">`,
+					`<link rel="preload" as="fetch" href="${toAttributeString(serverIslandUrl)}" crossorigin="anonymous">`,
 				),
 			);
 		}
@@ -206,11 +207,12 @@ export class ServerIslandComponent {
 		// Get adapter headers for inline script
 		const adapterHeaders = this.result.internalFetchHeaders || {};
 		const headersJson = stringifyForScript(adapterHeaders);
+		const serverIslandUrlJson = stringifyForScript(serverIslandUrl);
 
 		const method = useGETRequest
 			? // GET request
 				`const headers = new Headers(${headersJson});
-let response = await fetch('${serverIslandUrl}', { headers });`
+let response = await fetch(${serverIslandUrlJson}, { headers });`
 			: // POST request
 				`let data = {
 	encryptedComponentExport: ${stringifyForScript(componentExportEncrypted)},
@@ -218,13 +220,13 @@ let response = await fetch('${serverIslandUrl}', { headers });`
 	encryptedSlots: ${stringifyForScript(slotsEncrypted)},
 };
 const headers = new Headers({ 'Content-Type': 'application/json', ...${headersJson} });
-let response = await fetch('${serverIslandUrl}', {
+let response = await fetch(${serverIslandUrlJson}, {
 	method: 'POST',
 	body: JSON.stringify(data),
 	headers,
 });`;
 
-		this.islandContent = `${method}replaceServerIsland('${hostId}', response);`;
+		this.islandContent = `${method}replaceServerIsland(${stringifyForScript(hostId)}, response);`;
 		return this.islandContent;
 	}
 }

@@ -2,8 +2,10 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
 	escapeHTML,
+	escapeStyleText,
 	isHTMLString,
 	markHTMLString,
+	stringifyForScript,
 	unescapeHTML,
 } from '../../../dist/runtime/server/escape.js';
 
@@ -64,6 +66,24 @@ describe('escapeHTML', () => {
 		const result = escapeHTML('<b>test</b>');
 		assert.equal(typeof result, 'string');
 		assert.equal(result, '&lt;b&gt;test&lt;/b&gt;');
+	});
+});
+
+describe('raw text escaping', () => {
+	it('escapes less-than signs in inline style text as CSS', () => {
+		assert.equal(
+			escapeStyleText('animation-name: </STYLE><script>test</script>'),
+			'animation-name: \\3C /STYLE>\\3C script>test\\3C /script>',
+		);
+	});
+
+	it('preserves ordinary inline style text', () => {
+		assert.equal(escapeStyleText('animation-duration: 300ms'), 'animation-duration: 300ms');
+	});
+
+	it('serializes values without literal less-than signs for inline scripts', () => {
+		const result = stringifyForScript({ value: '</SCRIPT><script>test</script>' });
+		assert.equal(result, '{"value":"\\u003c/SCRIPT>\\u003cscript>test\\u003c/script>"}');
 	});
 });
 

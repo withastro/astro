@@ -36,6 +36,7 @@ import type {
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
 import { validateSupportedFeatures } from './features-validation.js';
+import { loadLoggerDestination } from '../core/logger/load.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -212,6 +213,8 @@ export async function runHookConfigSetup({
 		 * ```
 		 */
 
+		let isLoggerUpdated = false;
+
 		const { integrationLogger } = await runHookInternal({
 			integration,
 			hookName: 'astro:config:setup',
@@ -244,6 +247,10 @@ export async function runHookConfigSetup({
 						updatedSettings.scripts.push({ stage, content });
 					},
 					updateConfig: (newConfig) => {
+						// Logger destination is updated later because it's async
+						if (newConfig.logger?.entrypoint) {
+							isLoggerUpdated = true;
+						}
 						updatedConfig = mergeConfig(updatedConfig, newConfig);
 						return { ...updatedConfig };
 					},
@@ -344,6 +351,9 @@ export async function runHookConfigSetup({
 
 		try {
 			updatedConfig = await validateConfigRefined(updatedConfig);
+			if (isLoggerUpdated) {
+				logger.setDestination(await loadLoggerDestination(updatedConfig.logger!));
+			}
 		} catch (error) {
 			integrationLogger.error('An error occurred while updating the config');
 			throw error;
