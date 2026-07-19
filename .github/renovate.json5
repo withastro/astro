@@ -182,9 +182,6 @@
     "@types/node",
     "@types/vscode",
 
-    // TODO: investigate upgrade (zod import issues with atproto)
-    "astro-embed",
-
     // TODO: investigate upgrade (has type issues)
     "drizzle-orm",
     "sharp",
