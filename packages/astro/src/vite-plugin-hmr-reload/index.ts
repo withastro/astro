@@ -1,11 +1,11 @@
 import { isRunnableDevEnvironment, type EnvironmentModuleNode, type Plugin } from 'vite';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
-import { parseAstroRequest } from '../vite-plugin-astro/query.js';
 import { RESOLVED_MODULE_DEV_CSS_PREFIX } from '../vite-plugin-css/const.js';
 import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css/util.js';
 import { isAstroServerEnvironment } from '../environments.js';
 
-const STYLE_EXT_REGEX = /\.(?:css|scss|sass|less|styl|pcss)$/i;
+const STYLE_EXT_REGEX = /\.(?:css|less|sass|scss|styl|stylus|pcss|postcss|sss)$/i;
+const STYLE_BLOCK_FILE_EXT_REGEX = /\.(astro|svelte|vue)$/i;
 const RAW_QUERY_REGEX = /(?:\?|&)raw(?:&|$)/;
 
 function hasStyleExtension(id: string): boolean {
@@ -13,16 +13,19 @@ function hasStyleExtension(id: string): boolean {
 	return STYLE_EXT_REGEX.test(id.split('?')[0]);
 }
 
-function isAstroStyleModule(id: string): boolean {
-	const { query } = parseAstroRequest(id);
-	return query.astro === true && query.type === 'style';
+function isStyleBlockModule(id: string): boolean {
+	const [filename, rawQuery] = id.split('?', 2);
+	const extensionMatch = STYLE_BLOCK_FILE_EXT_REGEX.exec(filename);
+	if (!rawQuery || !extensionMatch) return false;
+	const query = new URLSearchParams(rawQuery);
+	return query.get('type') === 'style' && query.has(extensionMatch[1].toLowerCase());
 }
 
-function getStyleModuleType(mod: EnvironmentModuleNode): 'astro' | 'style' | undefined {
+function getStyleModuleType(mod: EnvironmentModuleNode): 'style' | 'style-block' | undefined {
 	// CSS imported with ?raw is a JS string export, so SSR importers need to be invalidated
 	// instead of relying on Vite's client-side CSS HMR handling.
 	if (mod.id && RAW_QUERY_REGEX.test(mod.id) && hasStyleExtension(mod.id)) return;
-	if (mod.id && isAstroStyleModule(mod.id)) return 'astro';
+	if (mod.id && isStyleBlockModule(mod.id)) return 'style-block';
 	if (mod.file && hasStyleExtension(mod.file)) return 'style';
 	// CSS modules and other style files may have query params in their id (e.g. ?used, ?direct)
 	return mod.id && hasStyleExtension(mod.id) ? 'style' : undefined;
@@ -52,7 +55,7 @@ export default function hmrReload(): Plugin {
 					if (styleModuleType) {
 						const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
 						// No client module means nothing will apply the CSS update client-side, so force a reload.
-						if (styleModuleType === 'astro' && clientModule == null) {
+						if (styleModuleType === 'style-block' && clientModule == null) {
 							this.environment.moduleGraph.invalidateModule(
 								mod,
 								invalidatedModules,

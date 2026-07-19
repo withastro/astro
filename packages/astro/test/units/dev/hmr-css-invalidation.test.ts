@@ -159,14 +159,16 @@ describe('astro:hmr-reload CSS invalidation', () => {
 		);
 	});
 
-	it('invalidates dev-css modules for Astro style virtual modules regardless of query order', () => {
-		const astroStyleIds = [
+	it('invalidates dev-css modules for component style block virtual modules', () => {
+		const styleBlockIds = [
 			'/src/Component.astro?astro&type=style&index=0&lang.css',
 			'/src/Component.astro?type=style&astro&index=0&lang.scss',
 			'/src/Component.astro?index=1&lang.less&type=style&astro',
+			'/src/MotionOneNav.svelte?svelte&type=style&lang.css',
+			'/src/VueCounter.vue?vue&type=style&index=0&lang.css',
 		];
 
-		for (const id of astroStyleIds) {
+		for (const id of styleBlockIds) {
 			const devCssId = '\0virtual:astro:dev-css:src/pages/index@_@astro';
 			const { environment, server, invalidatedModuleGraphIds } = createMockContext({
 				modules: [{ id, file: '/src/Component.astro' }],
@@ -194,43 +196,50 @@ describe('astro:hmr-reload CSS invalidation', () => {
 		}
 	});
 
-	it('uses SSR invalidation for Astro style virtual modules missing from the client graph', () => {
-		const id = '/src/Component.astro?astro&type=style&index=0&lang.css';
-		const devCssId = '\0virtual:astro:dev-css:src/pages/index@_@astro';
-		const { environment, server, invalidatedModuleGraphIds, wsMessages } = createMockContext({
-			modules: [{ id, file: '/src/Component.astro' }],
-			moduleGraphEntries: [[devCssId, { id: devCssId }]],
-		});
-
-		const hotUpdate = getHotUpdateHandler();
-
-		const result = hotUpdate.call(
-			{ environment },
-			{
+	it('uses SSR invalidation for component style block virtual modules missing from the client graph', () => {
+		for (const id of [
+			'/src/Component.astro?astro&type=style&index=0&lang.css',
+			'/src/MotionOneNav.svelte?svelte&type=style&lang.css',
+		]) {
+			const devCssId = '\0virtual:astro:dev-css:src/pages/index@_@astro';
+			const { environment, server, invalidatedModuleGraphIds, wsMessages } = createMockContext({
 				modules: [{ id, file: '/src/Component.astro' }],
-				server,
-				timestamp: Date.now(),
-				file: '/src/Component.astro',
-			},
-		);
+				moduleGraphEntries: [[devCssId, { id: devCssId }]],
+			});
 
-		assert.deepEqual(result, []);
-		assert.ok(
-			invalidatedModuleGraphIds.includes(id),
-			'Astro style module should be invalidated through the SSR path',
-		);
-		assert.ok(
-			!invalidatedModuleGraphIds.includes(devCssId),
-			'SSR-only Astro style modules should not use the client CSS skip path',
-		);
-		assert.deepEqual(wsMessages, [{ type: 'full-reload' }]);
+			const hotUpdate = getHotUpdateHandler();
+
+			const result = hotUpdate.call(
+				{ environment },
+				{
+					modules: [{ id, file: '/src/Component.astro' }],
+					server,
+					timestamp: Date.now(),
+					file: '/src/Component.astro',
+				},
+			);
+
+			assert.deepEqual(result, []);
+			assert.ok(
+				invalidatedModuleGraphIds.includes(id),
+				`${id} should be invalidated through the SSR path`,
+			);
+			assert.ok(
+				!invalidatedModuleGraphIds.includes(devCssId),
+				'SSR-only style block modules should not use the client CSS skip path',
+			);
+			assert.deepEqual(wsMessages, [{ type: 'full-reload' }]);
+		}
 	});
 
-	it('does not treat non-style Astro queries, raw CSS, or type=style alone as style modules', () => {
+	it('does not treat non-style component queries, raw CSS, or type=style alone as style modules', () => {
 		const nonStyleIds = [
 			{ id: '/src/Component.astro?astro&type=script&index=0', file: '/src/Component.astro' },
+			{ id: '/src/Component.svelte?svelte&type=script&lang.ts', file: '/src/Component.svelte' },
+			{ id: '/src/Component.svelte?type=style&lang.css', file: '/src/Component.svelte' },
 			{ id: '/src/file.css?raw', file: '/src/file.css' },
 			{ id: '/src/module.ts?type=style', file: '/src/module.ts' },
+			{ id: '/src/module.ts?type=style&lang.css', file: '/src/module.ts' },
 		];
 
 		for (const mod of nonStyleIds) {
