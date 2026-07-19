@@ -1,6 +1,5 @@
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dataToEsm } from '@rollup/pluginutils';
 import { isRunnableDevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -26,22 +25,6 @@ import {
 } from './consts.js';
 import { getDataStoreDir, getDataStoreFile } from './paths.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
-
-/**
- * Above this serialized data store size (in bytes), the dev server emits the
- * store as a JSON string parsed at runtime instead of a JS object literal.
- *
- * In dev, Vite's `ssrTransformScript` parses the module via rolldown/oxc-parser
- * across the NAPI bridge, which fails for very large object literals (the AST is
- * too big to convert), silently yielding an empty store (#17220). A string literal
- * keeps the AST tiny regardless of collection size. Normal-sized stores stay on the
- * object-literal path so dev matches production for the common case.
- *
- * Measured in UTF-8 bytes (not `String.length`, which counts UTF-16 code units and
- * undercounts multi-byte content like CJK), so the trigger tracks the actual data
- * volume oxc has to parse regardless of the alphabet used.
- */
-const LARGE_DATA_STORE_THRESHOLD = 5 * 1024 * 1024; // 5 MB
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -112,12 +95,10 @@ export function astroContentVirtualModPlugin({
 	let dataStoreFile: URL;
 	let devServer: ViteDevServer;
 	let liveConfig: string;
-	let isDev = false;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
 		config(_, env) {
-			isDev = env.command === 'serve';
 			if (settings.config.experimental.collectionStorage === 'chunked') {
 				dataStoreDir = getDataStoreDir(settings, env.command === 'serve');
 				dataStoreFile = new URL(DATA_STORE_MANIFEST_FILE, dataStoreDir);
@@ -254,18 +235,16 @@ export function astroContentVirtualModPlugin({
 					}
 
 					try {
-						const parsed = JSON.parse(jsonData);
-						// For large stores in dev, emit a JSON string parsed at runtime to
-						// avoid a huge object-literal AST that the NAPI bridge can't convert
-						// (#17220). Otherwise keep dataToEsm() so dev matches production.
-						const useRuntimeJsonParse =
-							isDev && Buffer.byteLength(jsonData) > LARGE_DATA_STORE_THRESHOLD;
+						// Validate here so a corrupt store fails loudly with this error
+						// instead of being swallowed by the runtime's fallback to an
+						// empty store.
+						JSON.parse(jsonData);
+						// A JSON string parsed at runtime keeps the module's AST tiny; an
+						// object literal grows with the store and can exceed what the
+						// NAPI bridge can convert during dev SSR transforms (#17220),
+						// and is slower for V8 to parse than JSON.parse.
 						return {
-							code: useRuntimeJsonParse
-								? `export default JSON.parse(${JSON.stringify(jsonData)})`
-								: dataToEsm(parsed, {
-										compact: true,
-									}),
+							code: `export default JSON.parse(${JSON.stringify(jsonData)})`,
 							map: { mappings: '' },
 						};
 					} catch (err) {
