@@ -85,24 +85,16 @@ class AstroCookies implements AstroCookiesInterface {
 	 * @param options Options related to this deletion, such as the path of the cookie.
 	 */
 	delete(key: string, options?: AstroCookieDeleteOptions): void {
-		/**
-		 * The `@ts-expect-error` is necessary because `maxAge` property
-		 * must not appear in the AstroCookieDeleteOptions type.
-		 */
-		const {
-			// @ts-expect-error
-			maxAge: _ignoredMaxAge,
-			...sanitizedOptions
-		} = options || {};
-
 		// Set-Cookie: token=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT
 		this.#ensureOutgoingMap().set(key, [
 			DELETED_VALUE,
 			stringifySetCookie({
-				...sanitizedOptions,
+				...options,
 				name: key,
 				value: DELETED_VALUE,
 				expires: DELETED_EXPIRATION,
+				// Unset `expires` to to ensure that `expires` takes precedence.
+				maxAge: undefined
 			}),
 			false,
 		]);
