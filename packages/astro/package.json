@@ -131,7 +131,7 @@
     "ci-info": "^4.4.0",
     "clsx": "^2.1.1",
     "common-ancestor-path": "^2.0.0",
-    "cookie": "^1.1.1",
+    "cookie": "^2.0.1",
     "devalue": "^5.8.1",
     "diff": "^8.0.3",
     "dset": "^3.1.4",
