@@ -1,5 +1,15 @@
 # astro
 
+## 7.1.2
+
+### Patch Changes
+
+- [#17445](https://github.com/withastro/astro/pull/17445) [`a5f7230`](https://github.com/withastro/astro/commit/a5f7230d1caf41ef1e94f9a6b9f6ee01d332455c) Thanks [@ocavue](https://github.com/ocavue)! - Updates dependency `cookie` to v2. Cookie values made entirely of URL-safe characters are no longer percent-encoded in `Set-Cookie` headers; encoded values round-trip exactly as before.
+
+- [#17402](https://github.com/withastro/astro/pull/17402) [`a89c137`](https://github.com/withastro/astro/commit/a89c137a424b4d7bf97df067bba023eccc2317eb) Thanks [@farrosfr](https://github.com/farrosfr)! - Fixes a bug where mutated `Astro.locals` during the request lifecycle are lost and not passed to custom error pages (`404.astro`/`500.astro`)
+
+- [#17405](https://github.com/withastro/astro/pull/17405) [`91992ef`](https://github.com/withastro/astro/commit/91992ef2ccd9a90fa4270633eb4f5d3b811bf315) Thanks [@Araluma](https://github.com/Araluma)! - Prevents an unhandled promise rejection from the prefetch `fetch` fallback. In WebKit (Safari), `<link rel="prefetch">` is unsupported, so prefetch uses the `fetch()` fallback; on a flaky connection that fetch rejects with `TypeError: Load failed`, and because the promise was not awaited or caught, it surfaced as an unhandled rejection to the page's global error handlers. The best-effort prefetch now swallows the failure with `.catch()`.
+
 ## 7.1.1
 
 ### Patch Changes
