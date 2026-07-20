@@ -66,6 +66,17 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Run `pnpm format` to auto-format the entire repo.
 - Run `pnpm lint` to lint the entire repo.
 
+# Writing Comments
+
+These rules apply to **every** comment you write, including ones added incidentally while fixing a bug. Full guidance with examples: [`.agents/skills/writing-comments/SKILL.md`](./.agents/skills/writing-comments/SKILL.md).
+
+- Write for a contributor reading the code at HEAD, months later, with no access to this conversation, the PR, or the diff.
+- Never narrate change history ("now", "previously", "no longer") and never address the reviewer ("this correctly handles..."). State how the code works, not how it came to be or why the change is right.
+- Deletion test: a comment must state something the reader cannot recover from the code. If names or types already carry it, don't write it.
+- `/** */` docs state the contract (behavior, params, returns, throws); `//` comments carry rationale only. Anchor a workaround to the GitHub issue or PR that motivates it.
+- When your change alters documented behavior, extend or correct the existing prose — never replace specific docs with generic text.
+- Exception: `@docs`-tagged JSDoc in `types/public/config.ts` and `core/errors/errors-data.ts` is end-user documentation generated to the website; these rules don't apply there.
+
 # Environment Guide
 
 - Use `node -e` for scripting tasks, not `python` or `python3`.

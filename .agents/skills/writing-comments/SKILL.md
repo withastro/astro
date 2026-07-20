@@ -51,11 +51,11 @@ Two consequences follow directly:
 
 ## Three Kinds of Comments, Three Different Jobs
 
-| Kind                     | Syntax                                    | Job         | Contains                                                                                            |
-| ------------------------ | ----------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------- |
-| File / module overview   | `/** */` at the top of the file           | Explanation | Why the module exists, the concepts and terms it defines, how the pieces relate, design rationale   |
-| Item docs                | `/** */` directly above a declaration      | Reference   | The contract: behavior, parameters, return value, thrown errors, invariants. Neutral and factual    |
-| Inline comments          | `//` inside a body                        | Rationale   | Only what the code cannot say: constraints, workarounds (with issue links), non-obvious coupling     |
+| Kind                   | Syntax                                | Job         | Contains                                                                                          |
+| ---------------------- | ------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------- |
+| File / module overview | `/** */` at the top of the file       | Explanation | Why the module exists, the concepts and terms it defines, how the pieces relate, design rationale |
+| Item docs              | `/** */` directly above a declaration | Reference   | The contract: behavior, parameters, return value, thrown errors, invariants. Neutral and factual  |
+| Inline comments        | `//` inside a body                    | Rationale   | Only what the code cannot say: constraints, workarounds (with issue links), non-obvious coupling  |
 
 Do not mix the jobs. Implementation details do not belong in the `/** */`
 contract — put them as `//` comments inside the body. The contract does not
