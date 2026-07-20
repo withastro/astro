@@ -333,6 +333,14 @@ export default function createIntegration({
 													'astro/app/fetch/default-handler',
 													'astro/fetch',
 													'astro/hono',
+													// Actions: the user's actions file imports `astro/zod`, and the
+													// `astro:actions` server virtual module + injected RPC route pull
+													// in these entrypoints. Pre-bundle them so they aren't discovered
+													// mid-request, which would trigger an SSR re-optimization that
+													// invalidates in-flight deps_ssr chunks and crashes the dev server.
+													'astro/zod',
+													'astro/actions/runtime/entrypoints/server.js',
+													'astro/actions/runtime/entrypoints/route.js',
 													'astro/assets',
 													'astro/assets/runtime',
 													'astro/assets/utils/inferRemoteSize.js',
