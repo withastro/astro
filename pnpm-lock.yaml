@@ -206,6 +206,7 @@ settings:
 
 overrides:
   '@types/node@22': ^22.19.0
+  modern-tar: '>=0.7.7'
 
 importers:
 
@@ -4349,8 +4350,8 @@ importers:
         specifier: ^0.4.1
         version: 0.4.1
       '@bluwy/giget-core':
-        specifier: ^0.1.6
-        version: 0.1.6
+        specifier: ^0.1.7
+        version: 0.1.7
     devDependencies:
       '@astrojs/internal-helpers':
         specifier: workspace:*
@@ -7493,8 +7494,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@bluwy/giget-core@0.1.6':
-    resolution: {integrity: sha512-5BwSIzqhpzXKUnSSheB0M+Qb4iGskepb35FiPA1/7AciPArTqt9H5yc53NmV21gNkDFrgbDBuzSWwrlo2aAKxg==}
+  '@bluwy/giget-core@0.1.7':
+    resolution: {integrity: sha512-6XG8TZt8DVYLuGDVSpFJaSMlNowOg5RGecvWbKvlgMoqVbztUAQ3AcWq6oZ5DoCnTzNAPcO7rhkwt8ZVgrS7CQ==}
     engines: {node: '>=18'}
 
   '@borewit/text-codec@0.2.2':
@@ -13560,12 +13561,8 @@ packages:
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     hasBin: true
 
-  modern-tar@0.3.5:
-    resolution: {integrity: sha512-TIALaZ8AjtEHFOZj1wRreDfaobCybvzPkvevpup/XtKOha3TmJWSwrh0ghc/QwAdAtt6oqIN6z6eIlo+HbDnzg==}
-    engines: {node: '>=18.0.0'}
-
-  modern-tar@0.7.6:
-    resolution: {integrity: sha512-sweCIVXzx1aIGTCdzcMlSZt1h8k5Tmk08VNAuRk3IU28XamGiOH5ypi11g6De2CH7PhYqSSnGy2A/EFhbWnVKg==}
+  modern-tar@0.7.7:
+    resolution: {integrity: sha512-t9VmxaqrmANnEOBhpSDI6HD192Ge48k8vmWqQQL7hSFEqHEYwZbbsu49+aKLWZeRvFs3j1pMhXOqqF4kPlvjkQ==}
     engines: {node: '>=18.0.0'}
 
   module-definition@6.0.1:
@@ -16888,9 +16885,9 @@ snapshots:
   '@biomejs/cli-win32-x64@2.5.3':
     optional: true
 
-  '@bluwy/giget-core@0.1.6':
+  '@bluwy/giget-core@0.1.7':
     dependencies:
-      modern-tar: 0.3.5
+      modern-tar: 0.7.7
 
   '@borewit/text-codec@0.2.2': {}
 
@@ -22794,7 +22791,7 @@ snapshots:
       file-type: 21.3.4
       ini: 6.0.0
       minimatch: 10.2.4
-      modern-tar: 0.7.6
+      modern-tar: 0.7.7
       papaparse: 5.5.3
       quickjs-emscripten: 0.32.0
       re2js: 1.3.3
@@ -23731,9 +23728,7 @@ snapshots:
       yargs-parser: 21.1.1
       yargs-unparser: 2.0.0
 
-  modern-tar@0.3.5: {}
-
-  modern-tar@0.7.6: {}
+  modern-tar@0.7.7: {}
 
   module-definition@6.0.1:
     dependencies:

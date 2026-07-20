@@ -30,6 +30,8 @@ overrides:
   # with `@types/node@22`, one with `@types/node@25`, etc.. By adding this override, we force
   # pnpm to only keep one installation of `vite@7.3.2` with `@types/node@22`.
   '@types/node@22': '^22.19.0'
+  # Force modern-tar to 0.7.7 which fixes Unicode NFC/NFD path normalization on Linux (issue #17381)
+  'modern-tar': '>=0.7.7'
 
 # Wait until three days after release to install new versions of packages
 minimumReleaseAge: 4320
@@ -50,6 +52,8 @@ minimumReleaseAgeExclude:
   # compiler-rs 0.2.3's wasm binding needs freshly-published napi runtime
   - '@napi-rs/wasm-runtime@1.1.6'
   - '@tybys/wasm-util@0.10.3'
+  # modern-tar 0.7.7 fixes Unicode NFC/NFD path normalization on Linux (issue #17381)
+  - 'modern-tar@0.7.7'
 peerDependencyRules:
   allowAny:
     - 'astro'
