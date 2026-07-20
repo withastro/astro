@@ -13,7 +13,6 @@ import {
 	ASSET_IMPORTS_FILE,
 	COLLECTIONS_MANIFEST_FILE,
 	CONTENT_LAYER_TYPE,
-	DATA_STORE_FILE,
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
 import type { RenderedContent } from './data-store.js';
@@ -465,12 +464,4 @@ async function simpleLoader<TData extends { id: string }>(
 			`Invalid data type: ${typeof data}`,
 		),
 	});
-}
-/**
- * Get the path to the data store file.
- * During development, this is in the `.astro` directory so that the Vite watcher can see it.
- * In production, it's in the cache directory so that it's preserved between builds.
- */
-export function getDataStoreFile(settings: AstroSettings, isDev: boolean) {
-	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
 }

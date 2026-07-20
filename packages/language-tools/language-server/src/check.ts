@@ -140,6 +140,7 @@ export class AstroCheck {
 
 	private initialize() {
 		this.ts = this.typescriptPath ? require(this.typescriptPath) : require('typescript');
+		this.assertCompatibleTypeScript();
 		const tsconfigPath = this.getTsconfig();
 
 		const languagePlugins = [
@@ -191,6 +192,25 @@ export class AstroCheck {
 						languageServiceHost,
 					);
 				},
+			);
+		}
+	}
+
+	/**
+	 * The checker is built on Volar and TypeScript's programmatic Language Service API
+	 * (`ts.sys`, `ts.findConfigFile`, `LanguageServiceHost`, etc.). TypeScript's native
+	 * compiler does not ship that API yet — `require('typescript')` only exposes `version`
+	 * and `versionMajorMinor` — so continuing would crash later with an opaque
+	 * `Cannot read properties of undefined` error. Fail early with an actionable message.
+	 */
+	private assertCompatibleTypeScript() {
+		if (typeof this.ts.findConfigFile !== 'function' || this.ts.sys === undefined) {
+			const version = this.ts.version ? ` (found ${this.ts.version})` : '';
+			throw new Error(
+				`The TypeScript module loaded${version} does not expose the programmatic API that \`astro check\` relies on. ` +
+					`TypeScript's native compiler (7.0 and later) does not ship this API yet. ` +
+					`Until it does, run \`astro check\` with a TypeScript version that still provides it (6.x). ` +
+					`See https://github.com/withastro/roadmap/discussions/1321 to track support.`,
 			);
 		}
 	}

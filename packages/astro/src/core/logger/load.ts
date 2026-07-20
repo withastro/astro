@@ -1,4 +1,4 @@
-import { AstroLogger, type AstroLoggerDestination, type AstroLoggerLevel } from './core.js';
+import { AstroLogger, type AstroLoggerDestination } from './core.js';
 import { AstroError } from '../errors/index.js';
 import { UnableToLoadLogger } from '../errors/errors-data.js';
 import type { LoggerHandlerConfig } from './config.js';
@@ -8,31 +8,26 @@ import { default as consoleLoggerCreator } from './impls/console.js';
 import { default as jsonLoggerCreator } from './impls/json.js';
 import { default as composeLoggerCreator } from './impls/compose.js';
 
-export async function loadLogger(
+function normalizeEntrypoint(entrypoint: LoggerHandlerConfig['entrypoint']): string {
+	return entrypoint instanceof URL ? entrypoint.href : entrypoint;
+}
+
+export async function loadLoggerDestination(
 	config: LoggerHandlerConfig,
-	level: AstroLoggerLevel = 'info',
-): Promise<AstroLogger> {
+): Promise<AstroLoggerDestination> {
 	let cause: Error | undefined = undefined;
+	const entrypoint = normalizeEntrypoint(config.entrypoint);
 
 	try {
 		switch (config.entrypoint) {
 			case 'astro/logger/node': {
-				return new AstroLogger({
-					destination: nodeLoggerCreator(config.config),
-					level,
-				});
+				return nodeLoggerCreator(config.config);
 			}
 			case 'astro/logger/console': {
-				return new AstroLogger({
-					destination: consoleLoggerCreator(config.config),
-					level,
-				});
+				return consoleLoggerCreator(config.config);
 			}
 			case 'astro/logger/json': {
-				return new AstroLogger({
-					destination: jsonLoggerCreator(config.config),
-					level,
-				});
+				return jsonLoggerCreator(config.config);
 			}
 			case 'astro/logger/compose': {
 				let destinations: AstroLoggerDestination[] = [];
@@ -40,23 +35,19 @@ export async function loadLogger(
 					const loggers: LoggerHandlerConfig[] = config.config?.loggers;
 					destinations = await Promise.all(
 						loggers.map(async (loggerConfig) => {
-							const logger = await import(/* @vite-ignore */ loggerConfig.entrypoint);
+							const logger = await import(
+								/* @vite-ignore */ normalizeEntrypoint(loggerConfig.entrypoint)
+							);
 							return logger.default(loggerConfig.config) as AstroLoggerDestination;
 						}),
 					);
 				}
 
-				return new AstroLogger({
-					destination: composeLoggerCreator(destinations),
-					level,
-				});
+				return composeLoggerCreator(destinations);
 			}
 			default: {
-				const nodeLogger = await import(/* @vite-ignore */ config.entrypoint);
-				return new AstroLogger({
-					destination: nodeLogger.default(config.config),
-					level,
-				});
+				const logger = await import(/* @vite-ignore */ entrypoint);
+				return logger.default(config.config);
 			}
 		}
 	} catch (e: unknown) {
@@ -67,7 +58,7 @@ export async function loadLogger(
 
 	const error = new AstroError({
 		...UnableToLoadLogger,
-		message: UnableToLoadLogger.message(config.entrypoint),
+		message: UnableToLoadLogger.message(entrypoint),
 	});
 	if (cause) {
 		error.cause = cause;
@@ -84,14 +75,17 @@ export async function loadLogger(
 export async function loadOrCreateNodeLogger(
 	astroConfig: AstroConfig,
 	inlineAstroConfig: AstroInlineConfig,
-) {
+): Promise<AstroLogger> {
 	// Internal testing shortcut: if a pre-built AstroLogger instance was
 	// passed via the internal `_logger` property, use it directly.
 	if (inlineAstroConfig._logger) return inlineAstroConfig._logger;
 
 	try {
 		if (astroConfig.logger) {
-			return await loadLogger(astroConfig.logger, inlineAstroConfig.logLevel);
+			return new AstroLogger({
+				destination: await loadLoggerDestination(astroConfig.logger),
+				level: inlineAstroConfig.logLevel ?? 'info',
+			});
 		} else {
 			return createNodeLoggerFromFlags(inlineAstroConfig);
 		}

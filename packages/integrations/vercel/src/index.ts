@@ -45,6 +45,15 @@ export const ASTRO_PATH_HEADER = 'x-astro-path';
 export const ASTRO_PATH_PARAM = 'x_astro_path';
 
 /**
+ * ISR functions receive the target path through the `x_astro_path` query
+ * parameter instead of a header. Because that parameter travels on the URL, it
+ * is accompanied by this token so the entrypoint can confirm the path override
+ * came from Astro's own build-time route rewrite rather than from an arbitrary
+ * caller. The value is the per-build `middlewareSecret`.
+ */
+export const ASTRO_PATH_TOKEN_PARAM = 'x_astro_path_token';
+
+/**
  * The edge function calls the node server at /_render,
  * with the locals serialized into this header.
  */
@@ -60,7 +69,10 @@ const MIDDLEWARE_PATH = '_middleware';
 // This isn't documented by vercel anywhere, but unlike serverless
 // and edge functions, isr functions are not passed the original path.
 // Instead, we have to use $0 to refer to the regex match from "src".
-const ISR_PATH = `/_isr?${ASTRO_PATH_PARAM}=$0`;
+// The path token is appended so the entrypoint can verify the rewrite
+// originated from this build's route table and not from an external caller.
+const getIsrPath = (pathToken: string) =>
+	`/_isr?${ASTRO_PATH_PARAM}=$0&${ASTRO_PATH_TOKEN_PARAM}=${pathToken}`;
 
 // https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/node-js#node.js-version
 const SUPPORTED_NODE_VERSIONS: Record<
@@ -487,7 +499,7 @@ export default function vercelAdapter({
 								const dest =
 									src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands')
 										? NODE_PATH
-										: ISR_PATH;
+										: getIsrPath(middlewareSecret);
 								if (!route.isPrerendered)
 									routeDefinitions.push({
 										src,
@@ -724,7 +736,7 @@ class VercelBuilder {
 		await writeJson(prerenderConfig, {
 			expiration: isr.expiration ?? false,
 			bypassToken: isr.bypassToken,
-			allowQuery: [ASTRO_PATH_PARAM],
+			allowQuery: [ASTRO_PATH_PARAM, ASTRO_PATH_TOKEN_PARAM],
 			passQuery: true,
 		});
 	}

@@ -102,9 +102,7 @@ declare const Astro: {
 
 		private getRetryImportUrl(url: string) {
 			const parsed = new URL(url, document.baseURI);
-			const retryToken = `astro-retry=${Date.now()}`;
-			const currentHash = parsed.hash.replace(/^#/, '');
-			parsed.hash = currentHash ? `${currentHash}&${retryToken}` : retryToken;
+			parsed.searchParams.set('astro-retry', Date.now().toString());
 			return parsed.toString();
 		}
 
@@ -112,8 +110,10 @@ declare const Astro: {
 			try {
 				return await import(url);
 			} catch {
-				// Use a hash-based retry URL so we bypass failed module-cache state in the browser
-				// while keeping the same network request URL (hash is not sent to the server).
+				// Use a query-based retry URL rather than a hash: the browser caches the failed
+				// fetch in its module map keyed by URL, and in dev the module graph can reference
+				// the original URL again (e.g. @vitejs/plugin-react emits a self-import), so only
+				// a cache buster that the server sees propagates to every affected module key.
 				await new Promise((resolve) => setTimeout(resolve, 1000));
 				return import(this.getRetryImportUrl(url));
 			}

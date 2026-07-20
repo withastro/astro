@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { AstroLoggerMessage, AstroLoggerDestination } from '../../../dist/core/logger/core.js';
+import type { AstroLoggerDestination } from '../../../dist/core/logger/core.js';
 import { AstroIntegrationLogger, AstroLogger } from '../../../dist/core/logger/core.js';
 
 describe('AstroLogger', () => {
 	function createSpyDestination() {
 		const calls: { method: string }[] = [];
-		const destination: AstroLoggerDestination<AstroLoggerMessage> = {
+		const destination: AstroLoggerDestination = {
 			write: () => {},
 			flush: () => {
 				calls.push({ method: 'flush' });
@@ -30,7 +30,7 @@ describe('AstroLogger', () => {
 		});
 
 		it('does not throw when destination has no flush', () => {
-			const destination: AstroLoggerDestination<AstroLoggerMessage> = {
+			const destination: AstroLoggerDestination = {
 				write: () => {},
 			};
 			const logger = new AstroLogger({ destination, level: 'info' });
@@ -51,7 +51,7 @@ describe('AstroLogger', () => {
 		});
 
 		it('does not throw when destination has no close', () => {
-			const destination: AstroLoggerDestination<AstroLoggerMessage> = {
+			const destination: AstroLoggerDestination = {
 				write: () => {},
 			};
 			const logger = new AstroLogger({ destination, level: 'info' });
@@ -63,12 +63,12 @@ describe('AstroLogger', () => {
 	describe('setDestination', () => {
 		it('replaces the destination', () => {
 			const writes: string[] = [];
-			const originalDestination: AstroLoggerDestination<AstroLoggerMessage> = {
+			const originalDestination: AstroLoggerDestination = {
 				write: (msg) => {
 					writes.push('original:' + msg.message);
 				},
 			};
-			const newDestination: AstroLoggerDestination<AstroLoggerMessage> = {
+			const newDestination: AstroLoggerDestination = {
 				write: (msg) => {
 					writes.push('new:' + msg.message);
 				},
@@ -89,7 +89,7 @@ describe('AstroLogger', () => {
 describe('AstroIntegrationLogger', () => {
 	function createSpyDestination() {
 		const calls: { method: string }[] = [];
-		const destination: AstroLoggerDestination<AstroLoggerMessage> = {
+		const destination: AstroLoggerDestination = {
 			write: () => {},
 			flush: () => {
 				calls.push({ method: 'flush' });
@@ -113,7 +113,7 @@ describe('AstroIntegrationLogger', () => {
 		});
 
 		it('does not throw when destination has no flush', () => {
-			const destination: AstroLoggerDestination<AstroLoggerMessage> = {
+			const destination: AstroLoggerDestination = {
 				write: () => {},
 			};
 			const logger = new AstroIntegrationLogger({ destination, level: 'info' }, 'test');
@@ -134,7 +134,7 @@ describe('AstroIntegrationLogger', () => {
 		});
 
 		it('does not throw when destination has no close', () => {
-			const destination: AstroLoggerDestination<AstroLoggerMessage> = {
+			const destination: AstroLoggerDestination = {
 				write: () => {},
 			};
 			const logger = new AstroIntegrationLogger({ destination, level: 'info' }, 'test');
