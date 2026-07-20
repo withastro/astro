@@ -23,6 +23,7 @@ function createSession() {
 		runtimeMode: 'production',
 		driverFactory: null,
 		mockStorage: null,
+		logger: { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} } as any,
 	});
 }
 
