@@ -606,6 +606,7 @@ describe('AstroSession - No-Cookie Short Circuit', () => {
 			runtimeMode: 'production',
 			driverFactory: countingDriverFactory,
 			mockStorage: null,
+			logger: { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} } as any,
 		});
 
 		const value = await session.get('nonexistent');
@@ -660,12 +661,26 @@ describe('AstroSession - No-Cookie Short Circuit', () => {
 describe('AstroSession - regenerate() error path', () => {
 	it('should route errors to logger and reset #partial flag', async () => {
 		let storageGetCount = 0;
+		// The cookie mock returns 'old-session' so that ensureData() will try to
+		// load from storage using that key and hit the corrupt data path.
+		const cookies: MockCookies = {
+			set: () => {},
+			delete: () => {},
+			get: (name: string) => (name === 'test-session' ? { value: 'old-session' } : undefined),
+		};
+		let errorCalled = false;
+		const mockLogger = {
+			info: () => {},
+			warn: () => {},
+			error: () => { errorCalled = true; },
+			debug: () => {},
+		};
 		const mockStorage = {
 			async get(key: string) {
 				storageGetCount++;
 				if (key === 'old-session') {
-					// Return a string that unflatten() will parse into an Array, not a Map
-					// This causes unflatten(raw) instanceof Map to be false, throwing an AstroError
+					// Return a string that unflatten() will parse into an Array, not a Map.
+					// This causes unflatten(raw) instanceof Map to be false, throwing an AstroError.
 					return '[1,2,3]';
 				}
 				return null;
@@ -685,7 +700,7 @@ describe('AstroSession - regenerate() error path', () => {
 			cookies,
 			mockStorage as any,
 			'production',
-			mockLogger
+			mockLogger,
 		);
 
 		// This will trigger ensureData() under the hood.
@@ -703,7 +718,7 @@ describe('AstroSession - regenerate() error path', () => {
 		// If #partial is true, this will call storage.get() for the new session ID.
 		// If #partial is correctly reset to false, this will use the in-memory Map.
 		await session.get('foo');
-		
+
 		assert.equal(storageGetCount, 0, 'Should not round-trip to storage; #partial should be false after regeneration');
 	});
 });
