@@ -1,7 +1,7 @@
 ---
 import { experimental_AstroContainer } from "astro/container";
 import { loadRenderers } from "astro:container";
-import { getContainerRenderer } from "@astrojs/mdx";
+import { getContainerRenderer } from "@astrojs/mdx/container-renderer";
 import { Content } from '../posts/post.mdx'
 
 const renderers = await loadRenderers([getContainerRenderer()]);

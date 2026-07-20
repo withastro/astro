@@ -16,6 +16,7 @@ import {
 	ASSET_IMPORTS_VIRTUAL_ID,
 	CONTENT_MODULE_FLAG,
 	CONTENT_RENDER_FLAG,
+	DATA_STORE_MANIFEST_FILE,
 	DATA_STORE_VIRTUAL_ID,
 	MODULES_IMPORTS_FILE,
 	MODULES_MJS_ID,
@@ -24,8 +25,24 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
-import { getDataStoreFile } from './content-layer.js';
+import { getDataStoreDir, getDataStoreFile } from './paths.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
+
+/**
+ * Above this serialized data store size (in bytes), the dev server emits the
+ * store as a JSON string parsed at runtime instead of a JS object literal.
+ *
+ * In dev, Vite's `ssrTransformScript` parses the module via rolldown/oxc-parser
+ * across the NAPI bridge, which fails for very large object literals (the AST is
+ * too big to convert), silently yielding an empty store (#17220). A string literal
+ * keeps the AST tiny regardless of collection size. Normal-sized stores stay on the
+ * object-literal path so dev matches production for the common case.
+ *
+ * Measured in UTF-8 bytes (not `String.length`, which counts UTF-16 code units and
+ * undercounts multi-byte content like CJK), so the trigger tracks the actual data
+ * volume oxc has to parse regardless of the alphabet used.
+ */
+const LARGE_DATA_STORE_THRESHOLD = 5 * 1024 * 1024; // 5 MB
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -52,7 +69,7 @@ function invalidateAssetImports(viteServer: ViteDevServer, filePath: string) {
 	}
 }
 
-function invalidateDataStore(viteServer: ViteDevServer) {
+function invalidateDataStore(viteServer: ViteDevServer, { notifyClient = true } = {}) {
 	const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
 	if (module) {
@@ -76,24 +93,38 @@ function invalidateDataStore(viteServer: ViteDevServer) {
 	// Signal the SSR runner to clear its route cache so that getStaticPaths()
 	// is re-evaluated with the updated content collection data.
 	environment.hot.send('astro:content-changed', {});
-	viteServer.environments.client.hot.send({
-		type: 'full-reload',
-		path: '*',
-	});
+	// Only notify the client to reload when data has actually changed at runtime.
+	// During initial startup (buildStart), no client has loaded content yet, so
+	// sending a full-reload would just cause a spurious page reload for the first
+	// browser that connects.
+	if (notifyClient) {
+		viteServer.environments.client.hot.send({
+			type: 'full-reload',
+			path: '*',
+		});
+	}
 }
 
 export function astroContentVirtualModPlugin({
 	settings,
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
+	let dataStoreDir: URL;
 	let dataStoreFile: URL;
 	let devServer: ViteDevServer;
 	let liveConfig: string;
+	let isDev = false;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
 		config(_, env) {
-			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
+			isDev = env.command === 'serve';
+			if (settings.config.experimental.collectionStorage === 'chunked') {
+				dataStoreDir = getDataStoreDir(settings, env.command === 'serve');
+				dataStoreFile = new URL(DATA_STORE_MANIFEST_FILE, dataStoreDir);
+			} else {
+				dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
+			}
 			const contentPaths = getContentPaths(
 				settings.config,
 				undefined,
@@ -109,8 +140,9 @@ export function astroContentVirtualModPlugin({
 				// We defer adding the data store file to the watcher until the server is ready
 				devServer.watcher.add(fileURLToPath(dataStoreFile));
 				devServer.watcher.add(assetImportsPath);
-				// Manually invalidate the data store to avoid a race condition in file watching
-				invalidateDataStore(devServer);
+				// Manually invalidate the data store to avoid a race condition in file watching.
+				// Skip client reload since no browser has loaded content yet at startup.
+				invalidateDataStore(devServer, { notifyClient: false });
 				invalidateAssetImports(devServer, assetImportsPath);
 			}
 		},
@@ -205,12 +237,45 @@ export function astroContentVirtualModPlugin({
 					}
 					const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
 
+					if (settings.config.experimental.collectionStorage === 'chunked') {
+						try {
+							const manifest: Record<string, string[]> = JSON.parse(jsonData);
+							// Emit each part as a lazy `?raw` import so the parts stay separate
+							// chunks instead of being inlined into one huge module (the very
+							// thing chunking avoids). manifestToMap reads the resolved
+							// namespace's `default` export back into the concatenated string.
+							const rawImport = (fileName: string) => {
+								const path = rootRelativePath(
+									settings.config.root,
+									new URL(`./${fileName}`, dataStoreDir),
+								);
+								return `(await import(${JSON.stringify(`${path}?raw`)}))`;
+							};
+							const entries = Object.entries(manifest).map(
+								([collection, parts]) =>
+									`${JSON.stringify(collection)}:[${parts.map(rawImport).join(',')}]`,
+							);
+							const code = `export default{${entries.join(',')}}`;
+							return { code, map: { mappings: '' } };
+						} catch (err) {
+							const message = 'Could not parse data store manifest JSON file';
+							this.error({ message, id, cause: err });
+						}
+					}
+
 					try {
 						const parsed = JSON.parse(jsonData);
+						// For large stores in dev, emit a JSON string parsed at runtime to
+						// avoid a huge object-literal AST that the NAPI bridge can't convert
+						// (#17220). Otherwise keep dataToEsm() so dev matches production.
+						const useRuntimeJsonParse =
+							isDev && Buffer.byteLength(jsonData) > LARGE_DATA_STORE_THRESHOLD;
 						return {
-							code: dataToEsm(parsed, {
-								compact: true,
-							}),
+							code: useRuntimeJsonParse
+								? `export default JSON.parse(${JSON.stringify(jsonData)})`
+								: dataToEsm(parsed, {
+										compact: true,
+									}),
 							map: { mappings: '' },
 							meta: createContentDataIncrementalMetadata(),
 						};

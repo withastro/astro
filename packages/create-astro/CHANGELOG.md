@@ -1,5 +1,35 @@
 # create-astro
 
+## 5.2.2
+
+### Patch Changes
+
+- [#17259](https://github.com/withastro/astro/pull/17259) [`ed6bea5`](https://github.com/withastro/astro/commit/ed6bea5ad9ff6036f7bc26cfbcb6f999142d16ef) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes proxy support by respecting `HTTP_PROXY` and `HTTPS_PROXY` environment variables when downloading templates. On Node.js v22.21.0+ and v24.5.0+, `create-astro` now automatically enables the `--use-env-proxy` flag so that native `fetch()` routes requests through the configured proxy.
+
+## 5.2.1
+
+### Patch Changes
+
+- [#17205](https://github.com/withastro/astro/pull/17205) [`e37dfe2`](https://github.com/withastro/astro/commit/e37dfe2a7623acd364d7e3556ecc9b31e3e45520) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes dependency installation when creating Astro projects with pnpm 11+
+
+## 5.2.0
+
+### Minor Changes
+
+- [#17185](https://github.com/withastro/astro/pull/17185) [`d64b09b`](https://github.com/withastro/astro/commit/d64b09bd007d919c15ea3405a52ae550b55400b5) Thanks [@delucis](https://github.com/delucis)! - Adds a `--no-ai` flag to allow users to opt out of creating `AGENTS.md` and `CLAUDE.md` files when running create astro
+
+## 5.1.0
+
+### Minor Changes
+
+- [#17122](https://github.com/withastro/astro/pull/17122) [`cbd6123`](https://github.com/withastro/astro/commit/cbd6123f072190df9c6bd49f5baf0e248e521d20) Thanks [@matthewp](https://github.com/matthewp)! - Adds a default `AGENTS.md` file to new projects with dev server instructions and documentation links. Also creates a `CLAUDE.md` symlink (with hard link fallback) pointing to `AGENTS.md`.
+
+## 5.1.0-beta.0
+
+### Minor Changes
+
+- [#17122](https://github.com/withastro/astro/pull/17122) [`cbd6123`](https://github.com/withastro/astro/commit/cbd6123f072190df9c6bd49f5baf0e248e521d20) Thanks [@matthewp](https://github.com/matthewp)! - Adds a default `AGENTS.md` file to new projects with dev server instructions and documentation links. Also creates a `CLAUDE.md` symlink (with hard link fallback) pointing to `AGENTS.md`.
+
 ## 5.0.6
 
 ### Patch Changes

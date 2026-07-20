@@ -1,3 +1,4 @@
+import { hasFileExtension } from '@astrojs/internal-helpers/path';
 import type { GetStaticPathsItem } from '../../types/public/common.js';
 import type { AstroConfig } from '../../types/public/index.js';
 import type { RouteData } from '../../types/public/internal.js';
@@ -15,6 +16,14 @@ export function stringifyParams(
 	route: RouteData,
 	trailingSlash: AstroConfig['trailingSlash'],
 ) {
+	// Endpoint routes with file extensions (e.g. [slug].png.ts) should never
+	// append a trailing slash, matching the pattern generated in create-manifest.ts
+	// by trailingSlashForPath(). Without this, the generated path (e.g. /og/foo.png/)
+	// won't match the route pattern (e.g. /^\/og\/(.*?)\.png$/) and getParams() fails.
+	if (route.type === 'endpoint' && hasFileExtension(route.route)) {
+		trailingSlash = 'never';
+	}
+
 	// validate parameter values then stringify each value
 	const validatedParams: Record<string, string> = {};
 	for (const [key, value] of Object.entries(params)) {

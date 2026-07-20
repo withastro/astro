@@ -336,7 +336,7 @@ HMR testing requires a browser. **Do not use `curl`** for HMR issues.
 
 ```bash
 # Start dev server in background
-pnpm exec bgproc start -n devserver --wait-for-port 10 -- pnpm -C examples/minimal dev
+pnpm -C examples/minimal dev --background
 
 # Open browser
 agent-browser open http://localhost:4321
@@ -348,10 +348,10 @@ agent-browser snapshot -i
 # Verify HMR updates the page
 
 # View logs
-pnpm exec bgproc logs -n devserver
+pnpm -C examples/minimal dev logs
 
 # Cleanup
-pnpm exec bgproc stop -n devserver
+pnpm -C examples/minimal dev stop
 ```
 
 ### Check HMR Boundaries
@@ -471,11 +471,11 @@ See [testing.md](testing.md) for comprehensive test debugging.
 **Fix:**
 
 ```bash
-# List running processes
-pnpm exec bgproc list
+# Check dev server status
+pnpm -C examples/minimal dev status
 
-# Stop specific server
-pnpm exec bgproc stop -n devserver
+# Stop dev server
+pnpm -C examples/minimal dev stop
 
 # Kill all node processes (nuclear option)
 killall node

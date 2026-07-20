@@ -36,6 +36,13 @@ interface GlobOptions {
 	 * Defaults to `true`.
 	 */
 	retainBody?: boolean;
+	/**
+	 * When `true`, renderable content entries (e.g. Markdown) will not be eagerly rendered
+	 * during content sync. Instead, rendering is deferred until the entry is actually rendered
+	 * in a page. This reduces memory usage for large collections with heavy rendered output.
+	 * Defaults to `false`.
+	 */
+	deferRender?: boolean;
 }
 
 function generateIdDefault({ entry, base, data }: GenerateIdOptions, isLegacy?: boolean): string {
@@ -182,7 +189,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					}
 				}
 
-				if (entryType.getRenderFunction) {
+				if (entryType.getRenderFunction && !globOptions.deferRender) {
 					let render = renderFunctionByContentType.get(entryType);
 
 					if (!render) {
@@ -213,9 +220,10 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 						rendered,
 						assetImports: rendered?.metadata?.imagePaths,
 					});
-
-					// todo: add an explicit way to opt in to deferred rendering
-				} else if ('contentModuleTypes' in entryType) {
+				} else if (
+					(entryType.getRenderFunction && globOptions.deferRender) ||
+					'contentModuleTypes' in entryType
+				) {
 					store.set({
 						id,
 						data: parsedData,

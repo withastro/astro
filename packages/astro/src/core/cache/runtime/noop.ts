@@ -49,7 +49,7 @@ export class DisabledAstroCache implements CacheLike {
 			hasWarned = true;
 			this.#logger?.warn(
 				'cache',
-				'`cache.set()` was called but caching is not enabled. Configure a cache provider in your Astro config under `experimental.cache` to enable caching.',
+				'`cache.set()` was called but caching is not enabled. Configure a cache provider in your Astro config under `cache` to enable caching.',
 			);
 		}
 	}

@@ -66,6 +66,12 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 				...viteConfig.build?.rolldownOptions,
 				// Setting as `exports-only` allows us to safely delete inputs that are only used during prerendering
 				preserveEntrySignatures: 'exports-only',
+				checks: {
+					...viteConfig.build?.rolldownOptions?.checks,
+					// Disable Rolldown's built-in plugin timing warnings. These fire by default
+					// and produce noisy warnings about slow plugins during normal builds.
+					pluginTimings: false,
+				},
 				...(legacyAdapter && settings.buildOutput === 'server'
 					? { input: LEGACY_SSR_ENTRY_VIRTUAL_MODULE }
 					: {}),

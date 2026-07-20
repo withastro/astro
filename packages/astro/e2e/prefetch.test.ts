@@ -1,5 +1,5 @@
 import { type Page, expect } from '@playwright/test';
-import { type DevServer, testFactory } from './test-utils.ts';
+import { type DevServer, testFactory, warmupDevServer } from './test-utils.ts';
 
 const test = testFactory(import.meta.url, {
 	root: './fixtures/prefetch/',
@@ -372,7 +372,7 @@ test.describe('Prefetch (default), Experimental ({ clientPrerender: true })', ()
 
 	let devServer: DevServer;
 
-	test.beforeAll(async ({ astro, browserName }) => {
+	test.beforeAll(async ({ astro, browser, browserName }) => {
 		test.skip(browserName !== 'chromium', 'Only Chromium supports clientPrerender');
 
 		devServer = await astro.startDevServer({
@@ -380,6 +380,7 @@ test.describe('Prefetch (default), Experimental ({ clientPrerender: true })', ()
 				clientPrerender: true,
 			},
 		});
+		await warmupDevServer(browser, astro.resolveUrl('/'));
 	});
 
 	test.afterAll(async () => {

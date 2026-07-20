@@ -15,7 +15,7 @@ const DOUBLE_QUOTE_REGEX = /"/g;
 const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
 // Per the HTML spec, attribute names must not contain ASCII whitespace, ", ', >, /, or =.
-const INVALID_ATTR_NAME_CHAR = /[\s"'>/=]/;
+export const INVALID_ATTR_NAME_CHAR = /[\s"'>/=]/;
 
 // converts (most) arbitrary strings to valid JS identifiers
 const toIdent = (k: string) =>

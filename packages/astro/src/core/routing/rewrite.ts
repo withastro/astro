@@ -14,6 +14,7 @@ import {
 	trimSlashes,
 } from '../path.js';
 import { createRequest } from '../request.js';
+import { validateAndDecodePathname } from '../util/pathname.js';
 import { DEFAULT_404_ROUTE } from './internal/astro-designed-error-pages.js';
 import { isRoute404, isRoute500 } from './internal/route-errors.js';
 
@@ -64,7 +65,13 @@ export function findRouteToRewrite({
 	);
 	newUrl.pathname = resolvedUrlPathname;
 
-	const decodedPathname = decodeURI(pathname);
+	// Decode the path the same way the first route match did (see
+	// `validateAndDecodePathname`) instead of calling `decodeURI` once here.
+	// Routing has to use the exact same path that middleware checked; decoding
+	// one extra time here is what let an encoded path slip past middleware and
+	// still reach a protected route. For an already-decoded path this changes
+	// nothing.
+	const decodedPathname = validateAndDecodePathname(pathname);
 
 	// Error pages (404/500) take precedence over dynamic routes that might
 	// capture the same path (e.g. [locale] matching /404). See #15098.

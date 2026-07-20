@@ -140,3 +140,34 @@ describe('matchCacheRoute', () => {
 		assert.equal(matchCacheRoute('/api/v1/users/123/extra', compiled), null);
 	});
 });
+
+describe('route pattern combinations', () => {
+	it('matches a [param] followed by a [...rest]', () => {
+		const compiled = compile({ '/api/[version]/[...path]': { maxAge: 30 } });
+		assert.deepEqual(matchCacheRoute('/api/v1/users', compiled), { maxAge: 30 });
+		assert.deepEqual(matchCacheRoute('/api/v1/users/123', compiled), { maxAge: 30 });
+		// Requires at least the [version] segment.
+		assert.equal(matchCacheRoute('/api', compiled), null);
+	});
+
+	it('uses a [...rest] parameter to match a whole group of routes', () => {
+		// This is the supported replacement for a glob like `/products/*`.
+		const compiled = compile({ '/products/[...slug]': { maxAge: 3600 } });
+		assert.deepEqual(matchCacheRoute('/products/123', compiled), { maxAge: 3600 });
+		assert.deepEqual(matchCacheRoute('/products/shoes/running', compiled), { maxAge: 3600 });
+	});
+
+	it('treats `*` as a literal character, not a glob wildcard', () => {
+		// Glob wildcards are not supported. A `*` is matched literally, so
+		// `/products/[id]/*` only matches a path whose last segment is `*`.
+		const compiled = compile({ '/products/[id]/*': { maxAge: 60 } });
+		assert.deepEqual(matchCacheRoute('/products/123/*', compiled), { maxAge: 60 });
+		assert.equal(matchCacheRoute('/products/123/reviews', compiled), null);
+	});
+
+	it('matches sub-paths with [...rest] where a glob would be expected', () => {
+		const compiled = compile({ '/products/[id]/[...rest]': { maxAge: 60 } });
+		assert.deepEqual(matchCacheRoute('/products/123/reviews', compiled), { maxAge: 60 });
+		assert.deepEqual(matchCacheRoute('/products/123/reviews/5', compiled), { maxAge: 60 });
+	});
+});

@@ -4,23 +4,24 @@ import type { AstroIntegration, AstroRenderer } from 'astro';
 import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
+import { getContainerRenderer as getContainerRendererImpl } from './container-renderer.js';
 
-function getRenderer(): AstroRenderer {
-	return {
-		name: '@astrojs/svelte',
-		clientEntrypoint: '@astrojs/svelte/client.js',
-		serverEntrypoint: '@astrojs/svelte/server.js',
-	};
+/**
+ * @deprecated Import `getContainerRenderer` from `@astrojs/svelte/container-renderer` instead.
+ */
+export function getContainerRenderer(): AstroRenderer {
+	console.warn(
+		'[@astrojs/svelte] Importing `getContainerRenderer` from `@astrojs/svelte` is deprecated. Import it from `@astrojs/svelte/container-renderer` instead.',
+	);
+	return getContainerRendererImpl();
 }
-
-export { getRenderer as getContainerRenderer };
 
 export default function svelteIntegration(options?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/svelte',
 		hooks: {
 			'astro:config:setup': async ({ config, updateConfig, addRenderer }) => {
-				addRenderer(getRenderer());
+				addRenderer(getContainerRendererImpl());
 
 				// Svelte component libraries from `node_modules` must go through
 				// Vite's transform pipeline because Node can't import `.svelte`

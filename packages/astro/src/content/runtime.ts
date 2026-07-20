@@ -1,6 +1,6 @@
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import { escape } from 'html-escaper';
-import { Traverse } from 'neotraverse/modern';
+import { forEach } from 'neotraverse';
 import * as z from 'zod/v4';
 import type * as zCore from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
@@ -109,12 +109,12 @@ export function createGetCollection({
 
 		const hasFilter = typeof filter === 'function';
 		const store = await globalDataStore.get();
-		if (store.hasCollection(collection)) {
+		if (await store.hasCollection(collection)) {
 			// @ts-expect-error	virtual module
 			const { default: imageAssetMap } = await import('astro:asset-imports');
 
 			const result = [];
-			for (const rawEntry of store.values<DataEntry>(collection)) {
+			for (const rawEntry of await store.values<DataEntry>(collection)) {
 				const data = updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap);
 
 				let entry = {
@@ -199,8 +199,8 @@ export function createGetEntry({ liveCollections }: { liveCollections: LiveColle
 		}
 		const store = await globalDataStore.get();
 
-		if (store.hasCollection(collection)) {
-			const entry = store.get<DataEntry>(collection, lookupId);
+		if (await store.hasCollection(collection)) {
+			const entry = await store.get<DataEntry>(collection, lookupId);
 			if (!entry) {
 				console.warn(`Entry ${collection} → ${lookupId} was not found.`);
 				return;
@@ -520,7 +520,7 @@ export function updateImageReferencesInData<T extends Record<string, unknown>>(
 	imageAssetMap?: Map<string, ImageMetadata>,
 ): T {
 	const copy = structuredClone(data);
-	new Traverse(copy).forEach(function (ctx, val) {
+	forEach(copy, function (ctx, val) {
 		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 			const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 

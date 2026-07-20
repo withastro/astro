@@ -13,7 +13,7 @@ export function vitePluginCacheProvider({
 }: {
 	settings: AstroSettings;
 }): VitePlugin | undefined {
-	const providerConfig = settings.config.experimental?.cache?.provider;
+	const providerConfig = settings.config.cache?.provider;
 	if (!providerConfig) {
 		return;
 	}

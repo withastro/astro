@@ -58,7 +58,11 @@ export function createStaticHandler(
 			}
 
 			const [urlPath, urlQuery] = fullUrl.split('?');
-			const { isDirectory } = resolveStaticPath(client, app.removeBase(urlPath));
+			let fsPath = app.removeBase(urlPath);
+			try {
+				fsPath = decodeURI(fsPath);
+			} catch {}
+			const { isDirectory } = resolveStaticPath(client, fsPath);
 
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;

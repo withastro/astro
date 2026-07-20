@@ -9,9 +9,7 @@ export const logHandlers = {
 	 * @example
 	 * ```js
 	 * export default defineConfig({
-	 *   experimental: {
-	 *     logger: logHandlers.json({ pretty: true })
-	 *   }
+	 *   logger: logHandlers.json({ pretty: true })
 	 * })
 	 * ```
 	 */
@@ -27,9 +25,7 @@ export const logHandlers = {
 	 * @example
 	 * ```js
 	 * export default defineConfig({
-	 *   experimental: {
-	 *     logger: logHandlers.node({ pretty: true })
-	 *   }
+	 *   logger: logHandlers.node({ pretty: true })
 	 * })
 	 * ```
 	 */
@@ -45,9 +41,7 @@ export const logHandlers = {
 	 * @example
 	 * ```js
 	 * export default defineConfig({
-	 *   experimental: {
-	 *     logger: logHandlers.console({ pretty: true })
-	 *   }
+	 *   logger: logHandlers.console({ pretty: true })
 	 * })
 	 * ```
 	 */
@@ -64,12 +58,10 @@ export const logHandlers = {
 	 * @example
 	 * ```js
 	 * export default defineConfig({
-	 *   experimental: {
-	 *     logger: logHandlers.compose(
-	 *       logHandlers.console(),
-	 *       logHandlers.json(),
-	 *     )
-	 *   }
+	 *   logger: logHandlers.compose(
+	 *     logHandlers.console(),
+	 *     logHandlers.json(),
+	 *   )
 	 * })
 	 * ```
 	 */

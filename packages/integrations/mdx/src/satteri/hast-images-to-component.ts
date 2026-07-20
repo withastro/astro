@@ -13,21 +13,20 @@ export interface ImageImportInfo {
 }
 
 export function createImageToComponentPlugin(
-	localImagePaths: Set<string>,
-	remoteImagePaths: Set<string>,
 	imageImportInfo: ImageImportInfo,
 ): HastPluginDefinition {
 	return defineHastPlugin({
 		name: 'image-to-component',
 		element: {
 			filter: ['img'],
-			visit(node) {
+			visit(node, ctx) {
 				const src = node.properties?.src;
 				if (typeof src !== 'string') return;
 
 				const decodedSrc = decodeURI(src);
-				const isLocal = localImagePaths.has(decodedSrc);
-				const isRemote = remoteImagePaths.has(decodedSrc);
+				const astro = ctx.data.astro;
+				const isLocal = astro?.localImagePaths.has(decodedSrc) ?? false;
+				const isRemote = astro?.remoteImagePaths.has(decodedSrc) ?? false;
 				if (!isLocal && !isRemote) return;
 
 				const attrs: MdxJsxAttributeNode[] = [];

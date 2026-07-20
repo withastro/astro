@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, unlinkSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import type { ResolvedServerUrls } from 'vite';
 
 /** Maximum time (ms) to wait for a process to exit after SIGTERM before escalating to SIGKILL. */
 export const GRACEFUL_SHUTDOWN_TIMEOUT = 5000;
@@ -8,6 +9,7 @@ export interface LockFileData {
 	pid: number;
 	port: number;
 	url: string;
+	urls?: ResolvedServerUrls;
 	background: boolean;
 	startedAt: string;
 }
@@ -31,6 +33,18 @@ export function getLogFileURL(root: URL): URL {
 	return new URL('.astro/dev.log', root);
 }
 
+function isStringArray(value: unknown): value is string[] {
+	return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
+function isResolvedServerUrls(value: unknown): value is ResolvedServerUrls {
+	if (typeof value !== 'object' || value === null) {
+		return false;
+	}
+	const { local, network } = value as Record<string, unknown>;
+	return isStringArray(local) && isStringArray(network);
+}
+
 /**
  * Parse a lock file JSON string into a LockFileData object.
  * Returns null if the content is invalid.
@@ -45,6 +59,10 @@ export function parseLockFile(content: string): LockFileData | null {
 			typeof data.background !== 'boolean' ||
 			typeof data.startedAt !== 'string'
 		) {
+			return null;
+		}
+		// `urls` is optional, but if present it must have the expected shape.
+		if (data.urls !== undefined && !isResolvedServerUrls(data.urls)) {
 			return null;
 		}
 		return data as LockFileData;
@@ -131,6 +149,40 @@ export function evaluateExistingServer(
 		return null;
 	}
 	return { data, stale: !alive };
+}
+
+/**
+ * Kill the dev server identified by `data` and clean up its lock file.
+ *
+ * Sends SIGTERM and waits up to {@link GRACEFUL_SHUTDOWN_TIMEOUT} for the
+ * process to exit, escalating to SIGKILL if it is still alive. The lock file
+ * is always removed afterwards so a new server can start.
+ */
+export async function killDevServer(root: URL, data: LockFileData): Promise<void> {
+	try {
+		process.kill(data.pid, 'SIGTERM');
+	} catch {
+		// Process may have already exited between check and kill
+	}
+
+	// Wait for graceful shutdown before escalating to SIGKILL
+	const deadline = Date.now() + GRACEFUL_SHUTDOWN_TIMEOUT;
+	while (Date.now() < deadline) {
+		if (!isProcessAlive(data.pid)) break;
+		await new Promise((r) => setTimeout(r, 100));
+	}
+
+	// If still alive after timeout, force kill
+	if (isProcessAlive(data.pid)) {
+		try {
+			process.kill(data.pid, 'SIGKILL');
+		} catch {
+			// Already dead
+		}
+	}
+
+	// Clean up the lock file in case the process didn't remove it
+	removeLockFile(root);
 }
 
 /**

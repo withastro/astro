@@ -22,6 +22,11 @@ import {
 interface AstroVitePluginOptions {
 	routesList: RoutesList;
 	command: 'dev' | 'build';
+	/** Shared cache of CSS content by module ID. Populated by the transform hook and
+	 *  consumed by the content asset propagation plugin to avoid re-processing CSS
+	 *  modules with `?inline` (which can produce different scoped-name hashes with
+	 *  Lightning CSS). */
+	cssContentCache: Map<string, string>;
 }
 
 /**
@@ -139,10 +144,12 @@ function* collectCSSWithOrder(
  *
  * @param routesList
  */
-export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOptions): Plugin[] {
+export function astroDevCssPlugin({
+	routesList,
+	command,
+	cssContentCache,
+}: AstroVitePluginOptions): Plugin[] {
 	let server: vite.ViteDevServer | undefined;
-	// Cache CSS content by module ID to avoid re-reading
-	const cssContentCache = new Map<string, string>();
 
 	function getCurrentEnvironment(pluginEnv?: DevEnvironment): DevEnvironment | undefined {
 		return (
@@ -233,8 +240,11 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 						for (const collected of collectCSSWithOrder(componentPageId, mod)) {
 							// Use the CSS file ID as the key to deduplicate while keeping best ordering
 							if (!cssWithOrder.has(collected.idKey)) {
-								// Look up actual content from cache if available
-								const content = cssContentCache.get(collected.id) || collected.content;
+								// Look up actual content from cache if available.
+								// Use `idKey` (the raw module ID) for cache lookup because that matches the key
+								// used by the transform hook. `collected.id` is wrapped via `wrapId()` which
+								// transforms the `\0` prefix of virtual modules, causing a cache miss.
+								const content = cssContentCache.get(collected.idKey) || collected.content;
 								cssWithOrder.set(collected.idKey, { ...collected, content });
 							}
 						}

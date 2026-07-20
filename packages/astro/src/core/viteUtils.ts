@@ -3,7 +3,13 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { prependForwardSlash, slash } from '../core/path.js';
 import type { ModuleLoader } from './module-loader/index.js';
-import { resolveJsToTs, unwrapId, VALID_ID_PREFIX, viteID } from './util.js';
+import {
+	resolveExtensionlessPath,
+	resolveJsToTs,
+	unwrapId,
+	VALID_ID_PREFIX,
+	viteID,
+} from './util.js';
 
 const isWindows = typeof process !== 'undefined' && process.platform === 'win32';
 
@@ -20,13 +26,16 @@ export function normalizePath(id: string) {
  * Examples:
  * - `./components/Button.jsx` from `/app/src/pages/index.astro`
  *   -> `/app/src/pages/components/Button.tsx` (when `.tsx` exists)
+ * - `../components/Counter` from `/app/src/pages/index.astro`
+ *   -> `/app/src/components/Counter.tsx` (extensionless imports probe Vite's
+ *   default extension order, then directory `index` files)
  * - `#components/react/Counter.tsx`
  *   -> `/app/src/components/react/Counter.tsx` via package `imports`
  */
 export function resolvePath(specifier: string, importer: string) {
 	if (specifier.startsWith('.')) {
 		const absoluteSpecifier = path.resolve(path.dirname(importer), specifier);
-		return resolveJsToTs(normalizePath(absoluteSpecifier));
+		return resolveExtensionlessPath(resolveJsToTs(normalizePath(absoluteSpecifier)));
 	} else if (specifier.startsWith('#')) {
 		// Support Node subpath imports (package.json#imports), so this resolves
 		// before we hand off to non-runnable dev pipelines.

@@ -1,8 +1,39 @@
 import * as assert from 'node:assert/strict';
+import net from 'node:net';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
 import { type Fixture, loadFixture, waitServerListen, type AdapterServer } from './test-utils.ts';
+
+/**
+ * Sends a raw HTTP/1.1 request so the exact request-target (including
+ * characters like `\` that URL parsers would otherwise normalize) reaches
+ * the server unchanged, mirroring `curl --path-as-is`.
+ */
+function rawRequest(
+	host: string,
+	port: number,
+	requestTarget: string,
+): Promise<{ statusLine: string; head: string }> {
+	return new Promise((resolve, reject) => {
+		const socket = net.connect(port, host, () => {
+			socket.write(
+				`GET ${requestTarget} HTTP/1.1\r\nHost: ${host}:${port}\r\nConnection: close\r\n\r\n`,
+			);
+		});
+		let data = '';
+		socket.setEncoding('utf8');
+		socket.on('data', (chunk) => {
+			data += chunk;
+		});
+		socket.on('error', reject);
+		socket.on('end', () => {
+			const head = data.split('\r\n\r\n')[0] ?? '';
+			const statusLine = head.split('\r\n')[0] ?? '';
+			resolve({ statusLine, head });
+		});
+	});
+}
 
 describe('Trailing slash', () => {
 	let fixture: Fixture;
@@ -197,6 +228,21 @@ describe('Trailing slash', () => {
 				);
 				assert.equal(res.status, 404);
 			});
+
+			it('Does not append a trailing slash to a backslash-prefixed path', async () => {
+				// A path like `/\example.com/press` is treated by browsers as
+				// `//example.com/press`. It has to be sent as a raw request line
+				// (like `curl --path-as-is`) because URL parsers fold the
+				// backslash to a forward slash. It must not produce a 301 that
+				// echoes the backslash path back in the `Location` header.
+				const raw = await rawRequest(
+					server.host ?? 'localhost',
+					server.port,
+					'/\\example.com/press',
+				);
+				assert.match(raw.statusLine, /404/);
+				assert.equal(/^location:/im.test(raw.head), false);
+			});
 		});
 	});
 	describe('Never', async () => {
@@ -315,6 +361,26 @@ describe('Trailing slash', () => {
 
 				assert.equal(res.status, 200);
 				assert.equal($('h1').text(), 'One');
+			});
+
+			it('Can render prerendered non-ASCII route without trailing slash', async () => {
+				const res = await fetch(`http://${server.host}:${server.port}/${encodeURI('สวัสดี')}`, {
+					redirect: 'manual',
+				});
+				const html = await res.text();
+				const $ = cheerio.load(html);
+
+				assert.equal(res.status, 200);
+				assert.equal($('h1').text(), 'สวัสดี');
+			});
+
+			it('Redirects prerendered non-ASCII route with trailing slash', async () => {
+				const res = await fetch(`http://${server.host}:${server.port}/${encodeURI('สวัสดี')}/`, {
+					redirect: 'manual',
+				});
+
+				assert.equal(res.status, 301);
+				assert.equal(res.headers.get('location'), `/${encodeURI('สวัสดี')}`);
 			});
 		});
 	});

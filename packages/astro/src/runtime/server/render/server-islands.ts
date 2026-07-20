@@ -5,7 +5,9 @@ import { renderChild } from './any.js';
 import { createThinHead, type ThinHead } from './astro/head-and-content.js';
 import type { RenderDestination } from './common.js';
 import { createRenderInstruction } from './instruction.js';
+import { SERVER_ISLAND_START } from './server-islands-shared.js';
 import { type ComponentSlots, type SlotString, renderSlotToString } from './slot.js';
+import { toAttributeString } from './util.js';
 
 const internalProps = new Set([
 	'server:component-path',
@@ -76,7 +78,7 @@ export class ServerIslandComponent {
 		const hostId = await this.getHostId();
 		const islandContent = await this.getIslandContent();
 		destination.write(createRenderInstruction({ type: 'server-island-runtime' }));
-		destination.write('<!--[if astro]>server-island-start<![endif]-->');
+		destination.write(`<!--${SERVER_ISLAND_START}-->`);
 		// Render the slots
 		for (const name in this.slots) {
 			if (name === 'fallback') {
@@ -144,18 +146,18 @@ export class ServerIslandComponent {
 		for (const name in this.slots) {
 			if (name !== 'fallback') {
 				const content = await renderSlotToString(this.result, this.slots[name]);
-				let slotHtml = content.toString();
-				// Append script instructions so that components passed as slots
-				// to server:defer components retain their scripts in the island response.
-				// renderSlotToString returns a SlotString (typed as string) that carries
-				// render instructions stripped from the HTML content.
+				// renderSlotToString returns a SlotString (typed as string) whose
+				// `chunks` hold the ordered content stream. Scripts live inline there,
+				// so walking it keeps them at their original position in the island
+				// response instead of being appended at the end.
 				const slotContent = content as unknown as SlotString;
-				if (Array.isArray(slotContent.instructions)) {
-					for (const instruction of slotContent.instructions) {
-						if (instruction.type === 'script') {
-							slotHtml += instruction.content;
-						}
+				let slotHtml = '';
+				if (slotContent.chunks?.length) {
+					for (const part of slotContent.chunks) {
+						slotHtml += typeof part === 'string' ? part : part.content;
 					}
+				} else {
+					slotHtml = content.toString();
 				}
 				renderedSlots[name] = slotHtml;
 			}
@@ -197,7 +199,7 @@ export class ServerIslandComponent {
 			serverIslandUrl += '?' + potentialSearchParams.toString();
 			this.result._metadata.extraHead.push(
 				markHTMLString(
-					`<link rel="preload" as="fetch" href="${serverIslandUrl}" crossorigin="anonymous">`,
+					`<link rel="preload" as="fetch" href="${toAttributeString(serverIslandUrl)}" crossorigin="anonymous">`,
 				),
 			);
 		}
@@ -205,11 +207,12 @@ export class ServerIslandComponent {
 		// Get adapter headers for inline script
 		const adapterHeaders = this.result.internalFetchHeaders || {};
 		const headersJson = stringifyForScript(adapterHeaders);
+		const serverIslandUrlJson = stringifyForScript(serverIslandUrl);
 
 		const method = useGETRequest
 			? // GET request
 				`const headers = new Headers(${headersJson});
-let response = await fetch('${serverIslandUrl}', { headers });`
+let response = await fetch(${serverIslandUrlJson}, { headers });`
 			: // POST request
 				`let data = {
 	encryptedComponentExport: ${stringifyForScript(componentExportEncrypted)},
@@ -217,13 +220,13 @@ let response = await fetch('${serverIslandUrl}', { headers });`
 	encryptedSlots: ${stringifyForScript(slotsEncrypted)},
 };
 const headers = new Headers({ 'Content-Type': 'application/json', ...${headersJson} });
-let response = await fetch('${serverIslandUrl}', {
+let response = await fetch(${serverIslandUrlJson}, {
 	method: 'POST',
 	body: JSON.stringify(data),
 	headers,
 });`;
 
-		this.islandContent = `${method}replaceServerIsland('${hostId}', response);`;
+		this.islandContent = `${method}replaceServerIsland(${stringifyForScript(hostId)}, response);`;
 		return this.islandContent;
 	}
 }
@@ -240,7 +243,7 @@ const SERVER_ISLAND_REPLACER = markHTMLString(
 	// Load the HTML before modifying the DOM in case of errors
 	let html = await r.text();
 	// Remove any placeholder content before the island script
-	while (s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '[if astro]>server-island-start<![endif]')
+	while (s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '${SERVER_ISLAND_START}')
 		s.previousSibling.remove();
 	s.previousSibling?.remove();
 	// Insert the new HTML

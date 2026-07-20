@@ -1,6 +1,7 @@
 import { pathToFileURL } from 'node:url';
+import { isFrontmatterValid } from '@astrojs/internal-helpers/frontmatter';
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
-import type { SatteriResolvedOptions } from '@astrojs/markdown-satteri';
+import type { SatteriAstroData, SatteriResolvedOptions } from '@astrojs/markdown-satteri';
 import {
 	satteriCollectImagesPlugin,
 	satteriCreateHighlightFn,
@@ -10,6 +11,7 @@ import {
 import { createDefaultAstroMetadata } from 'astro/markdown';
 import {
 	mdxToJs,
+	type HastNode,
 	type HastPluginDefinition,
 	type MdastPluginDefinition,
 	type MdxCompileOptions,
@@ -20,7 +22,7 @@ import { shouldAddCharset } from './charset.js';
 import { type AstroMetadata, createAstroMetadataPlugin } from './hast-astro-metadata.js';
 import { createImageToComponentPlugin, type ImageImportInfo } from './hast-images-to-component.js';
 
-type HighlightFn = (code: string, lang: string, meta?: string) => Promise<string>;
+type HighlightFn = (code: string, lang: string, meta?: string) => Promise<HastNode>;
 
 export type { MdastPluginDefinition, HastPluginDefinition, MarkdownHeading };
 export type { AstroMetadata } from './hast-astro-metadata.js';
@@ -67,38 +69,35 @@ export function createMdxProcessor(
 			}
 			if (initPromise) await initPromise;
 
-			const headings: MarkdownHeading[] = [];
-			const localImagePaths = new Set<string>();
-			const remoteImagePaths = new Set<string>();
+			const astroData: SatteriAstroData = {
+				frontmatter,
+				headings: [],
+				localImagePaths: new Set(),
+				remoteImagePaths: new Set(),
+			};
 
-			const astroMetadata = createDefaultAstroMetadata();
-
-			const collectImages = satteriCollectImagesPlugin(localImagePaths, remoteImagePaths);
-			const headingIds = satteriHeadingIdsPlugin(headings, frontmatter);
-			const astroMeta = createAstroMetadataPlugin(astroMetadata, filePath);
+			const collectImages = satteriCollectImagesPlugin();
+			const headingIds = satteriHeadingIdsPlugin();
+			const astroMeta = createAstroMetadataPlugin(filePath);
 			const imageImportInfo: ImageImportInfo = {
 				importedImages: new Map(),
 				hasImages: false,
 			};
-			const imageToComponent = createImageToComponentPlugin(
-				localImagePaths,
-				remoteImagePaths,
-				imageImportInfo,
-			);
+			const imageToComponent = createImageToComponentPlugin(imageImportInfo);
 
 			const syntaxHighlight = mdxOptions.syntaxHighlight;
 			const excludeLangs =
 				typeof syntaxHighlight === 'object' ? syntaxHighlight.excludeLangs : undefined;
 
-			const allMdastPlugins: MdastPluginDefinition[] = satteriOptions.mdastPlugins.length
-				? [collectImages, ...satteriOptions.mdastPlugins]
-				: [collectImages];
+			// Collect last so image-URL rewrites by user plugins are captured.
+			const allMdastPlugins: MdastPluginDefinition[] = [
+				...satteriOptions.mdastPlugins,
+				collectImages,
+			];
 
 			const hastPlugins: HastPluginDefinition[] = [];
 			if (highlightFn) {
-				// `mdx: true` wraps the highlighted HTML in a JSX `<Fragment set:html>` node
-				// rather than a raw HTML node, since the Sätteri pipeline is compiling to JSX.
-				hastPlugins.push(satteriHighlightPlugin(highlightFn, excludeLangs, { mdx: true }));
+				hastPlugins.push(satteriHighlightPlugin(highlightFn, excludeLangs));
 			}
 			if (satteriOptions.hastPlugins.length) {
 				hastPlugins.push(...satteriOptions.hastPlugins);
@@ -136,8 +135,22 @@ export function createMdxProcessor(
 				},
 				fileURL: pathToFileURL(filePath),
 				jsxImportSource: 'astro',
+				data: { astro: astroData },
 			});
 			let compiled = mdxResult.code;
+
+			// Read the returned bag, not the seeded reference, so a plugin that replaces it is honored.
+			const astro = mdxResult.data.astro;
+			const headings = astro?.headings ?? [];
+			const astroMetadata = mdxResult.data.__astroMetadata ?? createDefaultAstroMetadata();
+
+			// Plugins may have mutated frontmatter; emit the final value.
+			const resolvedFrontmatter = astro?.frontmatter;
+			if (!resolvedFrontmatter || !isFrontmatterValid(resolvedFrontmatter)) {
+				throw new Error(
+					'[MDX] A Sätteri plugin attempted to inject invalid frontmatter. Ensure `ctx.data.astro.frontmatter` is a valid object that is not `null` or `undefined`.',
+				);
+			}
 
 			compiled = compiled.replace(/^export default MDXContent;\s*$/m, '');
 
@@ -152,14 +165,14 @@ export function createMdxProcessor(
 				compiled += `\nexport const ${USES_ASTRO_IMAGE_FLAG} = true;`;
 			}
 
-			compiled += `\nexport const frontmatter = ${JSON.stringify(frontmatter)};`;
+			compiled += `\nexport const frontmatter = ${JSON.stringify(resolvedFrontmatter)};`;
 			compiled += `\nexport function getHeadings() { return ${JSON.stringify(headings)}; }`;
 
-			if (frontmatter.layout) {
+			if (resolvedFrontmatter.layout) {
 				compiled = compiled.replace(/^function MDXContent\(/m, 'function __OriginalMDXContent__(');
 				compiled += `
 import { jsx as __astro_layout_jsx__ } from 'astro/jsx-runtime';
-import __astro_layout_component__ from ${JSON.stringify(frontmatter.layout)};
+import __astro_layout_component__ from ${JSON.stringify(resolvedFrontmatter.layout)};
 export default function MDXContent(props) {
 	const content = __OriginalMDXContent__(props);
 	const { layout, ...frontmatterContent } = frontmatter;

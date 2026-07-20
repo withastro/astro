@@ -16,6 +16,8 @@ function createMockProvider(overrides: Partial<CacheProvider> = {}): CacheProvid
 	};
 }
 
+const dummyRequest = new Request('http://localhost/');
+
 describe('AstroCache - set() with CacheOptions', () => {
 	it('sets maxAge, swr, tags, lastModified, etag', () => {
 		const cache = new AstroCache(null);
@@ -86,7 +88,7 @@ describe('AstroCache - multiple set() calls', () => {
 		cache.set({ maxAge: 200, swr: 20 });
 
 		const response = new Response('test');
-		applyCacheHeaders(cache, response);
+		applyCacheHeaders(cache, response, dummyRequest);
 		assert.equal(
 			response.headers.get('CDN-Cache-Control'),
 			'max-age=200, stale-while-revalidate=20',
@@ -102,7 +104,7 @@ describe('AstroCache - multiple set() calls', () => {
 		cache.set({ maxAge: 60, lastModified: older }); // older date written last — should NOT win
 
 		const response = new Response('test');
-		applyCacheHeaders(cache, response);
+		applyCacheHeaders(cache, response, dummyRequest);
 		assert.equal(response.headers.get('Last-Modified'), newer.toUTCString());
 	});
 
@@ -121,7 +123,7 @@ describe('AstroCache - multiple set() calls', () => {
 		assert.deepEqual(cache.tags, []);
 
 		const response = new Response('test');
-		applyCacheHeaders(cache, response);
+		applyCacheHeaders(cache, response, dummyRequest);
 		assert.equal(response.headers.get('CDN-Cache-Control'), null);
 	});
 
@@ -133,7 +135,7 @@ describe('AstroCache - multiple set() calls', () => {
 		assert.equal(isCacheActive(cache), true);
 
 		const response = new Response('test');
-		applyCacheHeaders(cache, response);
+		applyCacheHeaders(cache, response, dummyRequest);
 		assert.equal(response.headers.get('CDN-Cache-Control'), 'max-age=600');
 	});
 });
@@ -226,7 +228,7 @@ describe('applyCacheHeaders()', () => {
 		cache.set({ maxAge: 300 });
 
 		const response = new Response('test');
-		applyCacheHeaders(cache, response);
+		applyCacheHeaders(cache, response, dummyRequest);
 		assert.equal(response.headers.get('CDN-Cache-Control'), 'max-age=300');
 	});
 
@@ -235,7 +237,7 @@ describe('applyCacheHeaders()', () => {
 		cache.set({ maxAge: 300, swr: 60 });
 
 		const response = new Response('test');
-		applyCacheHeaders(cache, response);
+		applyCacheHeaders(cache, response, dummyRequest);
 		assert.equal(
 			response.headers.get('CDN-Cache-Control'),
 			'max-age=300, stale-while-revalidate=60',
@@ -247,7 +249,7 @@ describe('applyCacheHeaders()', () => {
 		cache.set({ maxAge: 60, tags: ['product', 'featured'] });
 
 		const response = new Response('test');
-		applyCacheHeaders(cache, response);
+		applyCacheHeaders(cache, response, dummyRequest);
 		assert.equal(response.headers.get('Cache-Tag'), 'product, featured');
 	});
 
@@ -257,7 +259,7 @@ describe('applyCacheHeaders()', () => {
 		cache.set({ maxAge: 60, lastModified: date, etag: '"v1"' });
 
 		const response = new Response('test');
-		applyCacheHeaders(cache, response);
+		applyCacheHeaders(cache, response, dummyRequest);
 		assert.equal(response.headers.get('Last-Modified'), date.toUTCString());
 		assert.equal(response.headers.get('ETag'), '"v1"');
 	});
@@ -271,7 +273,7 @@ describe('applyCacheHeaders()', () => {
 		cache.set({ maxAge: 60 });
 
 		const response = new Response('test');
-		applyCacheHeaders(cache, response);
+		applyCacheHeaders(cache, response, dummyRequest);
 		assert.equal(response.headers.get('X-Custom-Cache'), 'hit');
 	});
 
@@ -281,7 +283,7 @@ describe('applyCacheHeaders()', () => {
 		cache.set(false);
 
 		const response = new Response('test');
-		applyCacheHeaders(cache, response);
+		applyCacheHeaders(cache, response, dummyRequest);
 		assert.equal(response.headers.get('CDN-Cache-Control'), null);
 		assert.equal(response.headers.get('Cache-Tag'), null);
 	});
@@ -290,7 +292,7 @@ describe('applyCacheHeaders()', () => {
 		const cache = new AstroCache(null);
 
 		const response = new Response('test');
-		applyCacheHeaders(cache, response);
+		applyCacheHeaders(cache, response, dummyRequest);
 		assert.equal(response.headers.get('CDN-Cache-Control'), null);
 	});
 });

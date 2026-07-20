@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { validateAndDecodePathname } from '../../../dist/core/util/pathname.js';
+import {
+	MultiLevelEncodingError,
+	validateAndDecodePathname,
+} from '../../../dist/core/util/pathname.js';
 
 describe('validateAndDecodePathname', () => {
 	// #region Plain paths (no encoding)
@@ -33,7 +36,7 @@ describe('validateAndDecodePathname', () => {
 	//
 	// Multi-level encoding is decoded iteratively until stable. This
 	// ensures middleware always sees the canonical path and can make
-	// correct authorization decisions (CVE-2025-66202 mitigation).
+	// correct authorization decisions.
 
 	it('fully decodes double-encoded unreserved chars: %2561 (a)', () => {
 		// %2561 → decodeURI → %61 → decodeURI → a
@@ -184,6 +187,41 @@ describe('validateAndDecodePathname', () => {
 				return true;
 			},
 			'%6 is truncated',
+		);
+	});
+	// #endregion
+	// #region Encoded too many times (rejected, must throw)
+	//
+	// If a path is still encoded after the maximum number of decode tries, we
+	// can't fully decode it. Returning the half-decoded path would let
+	// middleware check one path while a later decode (during rewrite routing)
+	// turns it into a different, protected path. So we reject these instead.
+
+	it('decodes a path encoded right up to the limit (10 times)', () => {
+		// Encoded 10 times — the most we allow — still decodes fully.
+		assert.equal(validateAndDecodePathname('/api/%25252525252525252561dmin'), '/api/admin');
+	});
+
+	it('throws MultiLevelEncodingError once a path is encoded past the limit (11 times)', () => {
+		assert.throws(
+			() => validateAndDecodePathname('/api/%2525252525252525252561dmin'),
+			(err: any) => {
+				assert.equal(err instanceof MultiLevelEncodingError, true);
+				return true;
+			},
+			'a path encoded past the limit must be rejected',
+		);
+	});
+
+	it('throws MultiLevelEncodingError for a path encoded many times', () => {
+		// Before the fix, this decoded only part way to `/%61dmin` and slipped
+		// past middleware.
+		assert.throws(
+			() => validateAndDecodePathname('/%252525252525252525252561dmin'),
+			(err: any) => {
+				assert.equal(err instanceof MultiLevelEncodingError, true);
+				return true;
+			},
 		);
 	});
 	// #endregion

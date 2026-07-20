@@ -64,6 +64,36 @@ describe('Markdoc - syntax highlighting', () => {
 				assert.equal(pre.getAttribute('style')!.includes('word-wrap: break-word'), true);
 			}
 		});
+		it('transforms code fence inside list item', async () => {
+			const ast = Markdoc.parse(`
+- Item one
+
+- Item with code:
+
+  \`\`\`js
+  console.log("hello");
+  \`\`\`
+
+- Item three`);
+			// @ts-expect-error AstroMarkdocConfig is incompatible with Markdoc.Config
+			const config: Markdoc.Config = await getConfigExtendingShiki();
+			const content = (await Markdoc.transform(ast, config)) as Tag;
+
+			// The list Tag's children may be a Promise due to the async shiki fence transform.
+			// createTreeNode should handle this without crashing.
+			const { createTreeNode } = await import('../components/TreeNode.ts');
+			const treeNode = await createTreeNode(content);
+			assert.ok(treeNode, 'createTreeNode should not crash on async list children');
+			// Verify the tree contains the expected structure
+			assert.equal(Array.isArray(treeNode), false);
+			if (!Array.isArray(treeNode) && treeNode.type === 'element') {
+				// Find the ul element
+				const ul = treeNode.children.find(
+					(c) => !Array.isArray(c) && c.type === 'element' && c.tag === 'ul',
+				);
+				assert.ok(ul, 'Expected a <ul> element in the tree');
+			}
+		});
 		it('transform within if tags', async () => {
 			const ast = Markdoc.parse(`
 {% if equals("true", "true") %}

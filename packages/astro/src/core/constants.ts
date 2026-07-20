@@ -4,58 +4,6 @@ export const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
 export const ASTRO_GENERATOR = `Astro v${ASTRO_VERSION}`;
 
 /**
- * The name for the header used to help rerouting behavior.
- * When set to "no", astro will NOT try to reroute an error response to the corresponding error page, which is the default behavior that can sometimes lead to loops.
- *
- * ```ts
- * const response = new Response("keep this content as-is", {
- *     status: 404,
- *     headers: {
- *         // note that using a variable name as the key of an object needs to be wrapped in square brackets in javascript
- *         // without them, the header name will be interpreted as "REROUTE_DIRECTIVE_HEADER" instead of "X-Astro-Reroute"
- *         [REROUTE_DIRECTIVE_HEADER]: 'no',
- *     }
- * })
- * ```
- * Alternatively...
- * ```ts
- * response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
- * ```
- */
-export const REROUTE_DIRECTIVE_HEADER = 'X-Astro-Reroute';
-
-/**
- * Header and value that are attached to a Response object when a **user rewrite** occurs.
- *
- * This metadata is used to determine the origin of a Response. If a rewrite has occurred, it should be prioritised over other logic.
- */
-export const REWRITE_DIRECTIVE_HEADER_KEY = 'X-Astro-Rewrite';
-
-export const REWRITE_DIRECTIVE_HEADER_VALUE = 'yes';
-
-/**
- * This header is set by the no-op Astro middleware.
- */
-export const NOOP_MIDDLEWARE_HEADER = 'X-Astro-Noop';
-
-/**
- * The name for the header used to help i18n middleware, which only needs to act on "page" and "fallback" route types.
- */
-export const ROUTE_TYPE_HEADER = 'X-Astro-Route-Type';
-
-/**
- * Internal headers that should be stripped from the response before
- * sending it to the user agent. Add new internal headers here so
- * `prepareResponse` removes them automatically.
- */
-export const INTERNAL_RESPONSE_HEADERS = [
-	REROUTE_DIRECTIVE_HEADER,
-	REWRITE_DIRECTIVE_HEADER_KEY,
-	NOOP_MIDDLEWARE_HEADER,
-	ROUTE_TYPE_HEADER,
-] as const;
-
-/**
  * Set by internal handlers (e.g. PagesHandler) to signal that a
  * response should be replaced with the corresponding error page.
  */

@@ -1,5 +1,126 @@
 # @astrojs/netlify
 
+## 8.1.2
+
+### Patch Changes
+
+- [#17368](https://github.com/withastro/astro/pull/17368) [`ee74c28`](https://github.com/withastro/astro/commit/ee74c289bfe32fb6a7f59ed97c5c22db16394b72) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the generated Netlify Image CDN `remote_images` patterns so that regex metacharacters (such as `.`) in `image.remotePatterns` (`hostname`, `pathname`) and `image.domains` are matched literally instead of behaving like wildcards. This makes the generated patterns consistent with how Astro matches these values elsewhere.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c)]:
+  - @astrojs/internal-helpers@0.10.1
+  - @astrojs/underscore-redirects@1.0.3
+
+## 8.1.0
+
+### Minor Changes
+
+- [#17245](https://github.com/withastro/astro/pull/17245) [`f56d9e7`](https://github.com/withastro/astro/commit/f56d9e7eb46ca59e70f636cb8cd281bdf41971c4) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Adds `edgeFunctions` to the `devFeatures` adapter option, allowing users to disable Netlify Edge Function emulation during `astro dev`
+
+  Some npm packages that access the filesystem at initialization (e.g. `node-html-parser`) fail inside the edge function sandbox with "Reading or writing files with Edge Functions is not supported yet." You can now disable edge function emulation to avoid this error:
+
+  ```js
+  import netlify from '@astrojs/netlify';
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    adapter: netlify({
+      devFeatures: {
+        edgeFunctions: false,
+      },
+    }),
+  });
+  ```
+
+  Edge functions will still work in production builds and via `netlify dev`.
+
+### Patch Changes
+
+- [#17249](https://github.com/withastro/astro/pull/17249) [`02b73b0`](https://github.com/withastro/astro/commit/02b73b0fc2e32102e788fd9031ce061337490a73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `peerDependencies` field used incorrect dependencies.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 8.0.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Minor Changes
+
+- [#16335](https://github.com/withastro/astro/pull/16335) [`9a53f77`](https://github.com/withastro/astro/commit/9a53f77d35e76bcb0165b44cbd2b7e48d48c9f59) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds a CDN cache provider for Astro [route caching](https://docs.astro.build/en/guides/caching/) on Netlify
+
+  #### Setup
+
+  Import `cacheNetlify()` from `@astrojs/netlify/cache` and set it as your cache provider:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify';
+  import { cacheNetlify } from '@astrojs/netlify/cache';
+
+  export default defineConfig({
+    adapter: netlify(),
+    cache: {
+      provider: cacheNetlify(),
+    },
+  });
+  ```
+
+  #### Caching responses
+
+  Use `Astro.cache.set()` in your pages and API routes to cache responses on Netlify's edge network. The provider uses [Netlify's durable cache](https://docs.netlify.com/platform/caching/#durable-directive) so cached responses are shared across all edge nodes, reducing function invocations.
+
+  ```astro
+  ---
+  Astro.cache.set({ maxAge: 300, tags: ['products'] });
+  const data = await fetchProducts();
+  ---
+
+  <ProductList items={data} />
+  ```
+
+  You can also set cache rules for groups of routes in your config:
+
+  ```js
+  cache: { provider: cacheNetlify() },
+  routeRules: {
+    '/products/[...slug]': { maxAge: 3600, tags: ['products'] },
+    '/api/[...path]': { maxAge: 60, swr: 600 },
+  },
+  ```
+
+  #### Invalidation
+
+  Purge cached responses by tag or path from any API route or server endpoint:
+
+  ```ts
+  // src/pages/api/purge.ts
+  export async function POST({ request, cache }) {
+    await cache.invalidate({ tags: ['products'] });
+    return new Response('Purged');
+  }
+
+  // Path-based invalidation
+  await cache.invalidate({ path: '/products/123' });
+  ```
+
+  Both tag-based and path-based invalidation are supported.
+
+### Patch Changes
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 8.0.0-beta.1
 
 ### Patch Changes

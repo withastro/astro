@@ -1,5 +1,5 @@
 import type { AstroMetadata } from '@astrojs/internal-helpers/markdown';
-import { resolvePath } from 'astro/markdown';
+import { createDefaultAstroMetadata, resolvePath } from 'astro/markdown';
 import type { Identifier, Literal } from 'estree';
 import {
 	defineHastPlugin,
@@ -10,6 +10,12 @@ import {
 import { findAttrValue, hasDirective, isComponent, type MdxJsxHastNode } from './jsx-utils.js';
 
 export type { AstroMetadata };
+
+declare module 'satteri' {
+	interface DataMap {
+		__astroMetadata: AstroMetadata;
+	}
+}
 
 type ImportSpecifier = { local: string; imported: string };
 type MatchedImport = { name: string; path: string };
@@ -83,7 +89,6 @@ function findMatchingImport(
 function processJsxNode(
 	node: MdxJsxHastNode,
 	ctx: HastVisitorContext,
-	metadata: AstroMetadata,
 	imports: Map<string, Set<ImportSpecifier>>,
 	filePath: string,
 ) {
@@ -118,6 +123,7 @@ function processJsxNode(
 	const exportName =
 		matchedImport.name === '*' ? tagName.split('.').slice(1).join('.') : matchedImport.name;
 
+	const metadata = (ctx.data.__astroMetadata ??= createDefaultAstroMetadata());
 	if (hasClient && findAttrValue(node, 'client:only') !== null) {
 		metadata.clientOnlyComponents.push({
 			exportName: matchedImport.name,
@@ -152,10 +158,7 @@ function processJsxNode(
 	}
 }
 
-export function createAstroMetadataPlugin(
-	metadata: AstroMetadata,
-	filePath: string,
-): HastPluginDefinition {
+export function createAstroMetadataPlugin(filePath: string): HastPluginDefinition {
 	const imports = new Map<string, Set<ImportSpecifier>>();
 	return defineHastPlugin({
 		name: 'astro-metadata',
@@ -169,14 +172,14 @@ export function createAstroMetadataPlugin(
 		mdxJsxFlowElement: {
 			filter: [],
 			visit(node, ctx) {
-				processJsxNode(node, ctx, metadata, imports, filePath);
+				processJsxNode(node, ctx, imports, filePath);
 			},
 		},
 
 		mdxJsxTextElement: {
 			filter: [],
 			visit(node, ctx) {
-				processJsxNode(node, ctx, metadata, imports, filePath);
+				processJsxNode(node, ctx, imports, filePath);
 			},
 		},
 	});

@@ -2,6 +2,10 @@ import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-re
 import type { AstroIntegration, AstroRenderer } from 'astro';
 import type * as vite from 'vite';
 import {
+	getContainerRenderer as getContainerRendererImpl,
+	getRenderer,
+} from './container-renderer.js';
+import {
 	getReactMajorVersion,
 	isSupportedReactVersion,
 	type ReactVersionConfig,
@@ -23,14 +27,6 @@ export type ReactIntegrationOptions = Pick<
 };
 
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
-
-function getRenderer(reactConfig: ReactVersionConfig) {
-	return {
-		name: '@astrojs/react',
-		clientEntrypoint: reactConfig.client,
-		serverEntrypoint: reactConfig.server,
-	};
-}
 
 function optionsPlugin({
 	include,
@@ -213,10 +209,12 @@ export default function ({
 	};
 }
 
+/**
+ * @deprecated Import `getContainerRenderer` from `@astrojs/react/container-renderer` instead.
+ */
 export function getContainerRenderer(): AstroRenderer {
-	const majorVersion = getReactMajorVersion();
-	if (!isSupportedReactVersion(majorVersion)) {
-		throw new Error(`Unsupported React version: ${majorVersion}.`);
-	}
-	return getRenderer(versionsConfig[majorVersion]);
+	console.warn(
+		'[@astrojs/react] Importing `getContainerRenderer` from `@astrojs/react` is deprecated. Import it from `@astrojs/react/container-renderer` instead.',
+	);
+	return getContainerRendererImpl();
 }
