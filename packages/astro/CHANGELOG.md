@@ -1,5 +1,13 @@
 # astro
 
+## 7.1.3
+
+### Patch Changes
+
+- [#17427](https://github.com/withastro/astro/pull/17427) [`630b382`](https://github.com/withastro/astro/commit/630b382ce3303c350154338e59cb5444c5316764) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes image optimization during `astro build` using too many parallel processes in CPU-limited containers. Builds now respect the container's CPU limit, reducing peak memory usage and avoiding out-of-memory crashes.
+  </content>
+  </invoke>
+
 ## 7.1.2
 
 ### Patch Changes
