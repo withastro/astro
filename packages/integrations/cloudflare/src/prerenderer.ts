@@ -116,9 +116,10 @@ export function createCloudflarePrerenderer({
 			const data: StaticPathsResponse = await response.json();
 
 			// Deserialize the routes
-			return data.paths.map(({ pathname, route }) => ({
+			return data.paths.map(({ pathname, route, cacheKey }) => ({
 				pathname,
 				route: deserializeRouteData(route),
+				cacheKey,
 			}));
 		},
 

@@ -3354,7 +3354,7 @@ export interface AstroUserConfig<
 		 *   return posts.map(post => ({
 		 *     params: { slug: post.slug },
 		 *     props: { post },
-		 *     cacheKey: post.updatedAt,
+		 *     cacheKey: post.digest,
 		 *   }));
 		 * }
 		 * ```

@@ -6,6 +6,7 @@ import type { SerializedRouteData } from 'astro/app/manifest';
 interface SerializedPathWithRoute {
 	pathname: string;
 	route: SerializedRouteData;
+	cacheKey?: string;
 }
 
 /**

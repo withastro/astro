@@ -76,9 +76,10 @@ export async function handleStaticPathsRequest(app: BaseApp): Promise<Response> 
 	const staticPaths = new StaticPaths(app);
 	const paths = await staticPaths.getAll();
 	const response: StaticPathsResponse = {
-		paths: paths.map(({ pathname, route }) => ({
+		paths: paths.map(({ pathname, route, cacheKey }) => ({
 			pathname,
 			route: serializeRouteData(route, app.manifest.trailingSlash),
+			cacheKey,
 		})),
 	};
 	return new Response(JSON.stringify(response), {
