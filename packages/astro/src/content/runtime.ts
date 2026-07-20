@@ -1,6 +1,6 @@
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import { escape } from 'html-escaper';
-import { Traverse } from 'neotraverse/modern';
+import { forEach } from 'neotraverse';
 import * as z from 'zod/v4';
 import type * as zCore from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
@@ -518,7 +518,7 @@ export function updateImageReferencesInData<T extends Record<string, unknown>>(
 	imageAssetMap?: Map<string, ImageMetadata>,
 ): T {
 	const copy = structuredClone(data);
-	new Traverse(copy).forEach(function (ctx, val) {
+	forEach(copy, function (ctx, val) {
 		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 			const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 

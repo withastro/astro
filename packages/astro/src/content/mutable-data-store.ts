@@ -1,7 +1,7 @@
 import { existsSync, promises as fs, type PathLike } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as devalue from 'devalue';
-import { Traverse } from 'neotraverse/modern';
+import { forEach } from 'neotraverse';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
@@ -350,7 +350,7 @@ export default new Map([\n${lines.join(',\n')}]);
 				}
 				const foundAssets = new Set<string>(assetImports);
 				// Check for image imports in the data. These will have been prefixed during schema parsing
-				new Traverse(data).forEach((_, val) => {
+				forEach(data, (_, val) => {
 					if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 						const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 						foundAssets.add(src);
