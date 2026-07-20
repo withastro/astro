@@ -265,6 +265,7 @@ describe('AstroSession - Error Handling', () => {
 		const mockStorage = {
 			get: async () => 'invalid-json',
 			setItem: async () => {},
+			removeItem: async () => {},
 		} as unknown as Storage;
 
 		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
@@ -570,6 +571,7 @@ describe('AstroSession - Storage Errors', () => {
 		const mockStorage = {
 			get: async () => stringify({ notAMap: true }),
 			setItem: async () => {},
+			removeItem: async () => {},
 		} as unknown as Storage;
 
 		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
