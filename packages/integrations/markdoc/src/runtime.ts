@@ -146,13 +146,16 @@ function syncTagNodeAttributes(config: MergedConfig): void {
  * when a custom `render` component is specified. Non-built-in transforms (user-written or Astro's
  * own, like for headings) are preserved — they are assumed to handle `render` correctly.
  */
-function isBuiltinMarkdocTransform(transform: Function, configKey: string): boolean {
-	const builtinNode = (Markdoc.nodes as Record<string, { transform?: Function } | undefined>)[
-		configKey
-	];
-	const builtinTag = (Markdoc.tags as Record<string, { transform?: Function } | undefined>)[
-		configKey
-	];
+function isBuiltinMarkdocTransform(
+	transform: (...args: any[]) => unknown,
+	configKey: string,
+): boolean {
+	const builtinNode = (
+		Markdoc.nodes as Record<string, { transform?: (...args: any[]) => unknown } | undefined>
+	)[configKey];
+	const builtinTag = (
+		Markdoc.tags as Record<string, { transform?: (...args: any[]) => unknown } | undefined>
+	)[configKey];
 	return transform === builtinNode?.transform || transform === builtinTag?.transform;
 }
 
