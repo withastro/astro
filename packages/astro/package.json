@@ -145,7 +145,7 @@
     "http-cache-semantics": "^4.2.0",
     "js-yaml": "^4.1.1",
     "jsonc-parser": "^3.3.1",
-    "magic-string": "^0.30.21",
+    "magic-string": "^1.0.0",
     "magicast": "^0.5.2",
     "mrmime": "^2.0.1",
     "neotraverse": "^1.0.1",
