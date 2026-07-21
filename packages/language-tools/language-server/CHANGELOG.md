@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.16.13
+
+### Patch Changes
+
+- [#17465](https://github.com/withastro/astro/pull/17465) [`6a1c1d8`](https://github.com/withastro/astro/commit/6a1c1d8571bda501d6ac64b726b4250f67c6bb0b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where errors in files included in tsconfig project references would never be caught
+
 ## 2.16.12
 
 ### Patch Changes
