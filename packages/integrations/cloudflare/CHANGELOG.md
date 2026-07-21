@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 14.1.4
+
+### Patch Changes
+
+- [#17457](https://github.com/withastro/astro/pull/17457) [`d46ecd8`](https://github.com/withastro/astro/commit/d46ecd82c3869d758ed955e2567f908903053475) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a dev server crash when using Astro Actions with the Cloudflare adapter
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 14.1.3
 
 ### Patch Changes
