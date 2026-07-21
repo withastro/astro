@@ -243,9 +243,7 @@ function mergeResponses(
 	if (originalCookies) {
 		// If both responses have cookies, merge new response cookies into original
 		if (newCookies) {
-			for (const cookieValue of newCookies.consume()) {
-				originalResponse.headers.append('set-cookie', cookieValue);
-			}
+			originalCookies.merge(newCookies);
 		}
 		attachCookiesToResponse(mergedResponse, originalCookies);
 	} else if (newCookies) {
