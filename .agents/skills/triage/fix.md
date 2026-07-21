@@ -25,7 +25,7 @@ These variables are referenced throughout this skill. They may be passed as args
 6. Write a unit test
 7. Ensure no regressions
 8. Generate git diff
-9. Create a changeset
+9. Create a changeset (required for any fix that modifies a package)
 10. Append fix details to `report.md`
 11. Clean up the working directory
 
@@ -141,9 +141,22 @@ This captures all your changes for the report.
 
 ## Step 9: Create a Changeset
 
-**Only do this if the fix was successful** (i.e., you are on the high-confidence path and the fix resolves the issue). If the fix failed or was skipped, skip this step entirely.
+A changeset is **required** for every successful fix that modifies a package under `packages/`. This is not optional and does not scale with the size of the fix: one-line fixes, type-only fixes, and comment-only behavior changes all need a changeset. The only fixes that skip this step are ones that failed, were skipped, or touch nothing under `packages/` (e.g. `examples/*`-only changes).
 
-Load the `changeset` skill and follow its instructions to create a changeset for the fix. Since this is a bug fix, the bump type will almost always be `patch`.
+Create the changeset now:
+
+1. Run `pnpm changeset --empty` from the repo root. This writes a randomly-named `.md` file to `.changeset/`.
+2. Edit that file to add the package bump and a user-facing message. The bump type for a bug fix is almost always `patch`:
+
+   ```md
+   ---
+   '<package-name>': patch
+   ---
+
+   <one-line, user-facing description of the fix>
+   ```
+
+Load the `changeset` skill for the message conventions (present-tense verb, name the affected API, write for Astro users not reviewers) and the exact package name to use.
 
 ## Step 10: Write Output
 
@@ -158,7 +171,7 @@ The report must include all information needed for a final GitHub comment to be 
 - Whether the fix was successful or not
 - Verification results (did the fix resolve the original error?)
 - Unit test details: what test was added, where it lives, and what it verifies. If no test was added, explain why.
-- Changeset details: what changeset file was created and which packages it covers. If no changeset was created, explain why.
+- Changeset details: the name of the changeset file created in `.changeset/` and which packages it covers. A successful fix that modified a package must have a changeset — there is no "skipped because trivial" outcome. The only valid reason to have no changeset is that the fix failed/was skipped or touched nothing under `packages/`; state which.
 - Any alternative approaches considered and their tradeoffs
 - If the fix failed: what was tried and why it didn't work
 
@@ -170,7 +183,7 @@ The report must include all information needed for a final GitHub comment to be 
    - Changes outside `packages/` that were only needed for diagnosis/reproduction
    - Build artifacts that shouldn't be committed
 3. Use `git checkout -- <file>` to discard unwanted changes
-4. Confirm with a final `git status` that only the intended fix files remain
+4. Confirm with a final `git status` that only the intended fix files remain, and that they include exactly one new `.changeset/*.md` file. If the fix modified a package but no changeset is present, you missed Step 9 — go back and create it before finishing.
 5. DO NOT commit or push anything yet! The user will handle that at a later step.
 
 The `triage/` directory is already gitignored, so it won't appear in `git status`.
