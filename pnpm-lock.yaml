@@ -608,6 +608,12 @@ importers:
         specifier: ^7.1.3
         version: link:../../packages/astro
 
+  examples/repro-17471:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
+
   examples/ssr:
     dependencies:
       '@astrojs/node':
