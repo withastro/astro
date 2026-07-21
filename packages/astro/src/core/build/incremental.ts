@@ -17,6 +17,12 @@ export interface IncrementalRouteEntry {
 
 export interface IncrementalCache {
 	version: number;
+	/**
+	 * Hash of the project's lockfiles. A mismatch invalidates the whole cache,
+	 * since a dependency change can affect output that the per-route dependency
+	 * hash cannot see (e.g. `client:only` islands or build-time-only tooling).
+	 */
+	lockfileHash: string;
 	routes: Record<string, IncrementalRouteEntry>;
 }
 
@@ -37,12 +43,19 @@ async function ensureDir(dir: URL): Promise<void> {
 	createdDirs.add(key);
 }
 
-export function readIncrementalCache(settings: AstroSettings): IncrementalCache | null {
+export function readIncrementalCache(
+	settings: AstroSettings,
+	expectedLockfileHash: string,
+): IncrementalCache | null {
 	const cacheFile = getCacheFile(settings);
 	try {
 		const raw = fs.readFileSync(cacheFile, 'utf-8');
 		const data = JSON.parse(raw) as IncrementalCache;
 		if (data.version !== CACHE_VERSION) {
+			return null;
+		}
+		// Dependencies changed since the cache was written — discard it entirely.
+		if (data.lockfileHash !== expectedLockfileHash) {
 			return null;
 		}
 		return data;
@@ -88,8 +101,8 @@ export async function deleteCachedOutputFile(
 	await fs.promises.rm(getCachedOutputFile(settings, outputFile), { force: true });
 }
 
-export function createEmptyCache(): IncrementalCache {
-	return { version: CACHE_VERSION, routes: {} };
+export function createEmptyCache(lockfileHash: string): IncrementalCache {
+	return { version: CACHE_VERSION, lockfileHash, routes: {} };
 }
 
 /**

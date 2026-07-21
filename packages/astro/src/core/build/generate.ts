@@ -1,5 +1,6 @@
 import nodeFs from 'node:fs';
 import os from 'node:os';
+import { fileURLToPath } from 'node:url';
 
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
@@ -44,6 +45,7 @@ import {
 	writeIncrementalCache,
 	type IncrementalCache,
 } from './incremental.js';
+import { computeLockfileHash } from './lockfile/index.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -104,8 +106,13 @@ export async function generatePages(
 
 	// Incremental build support
 	const incrementalEnabled = options.settings.config.experimental.incrementalBuild;
-	const previousCache = incrementalEnabled ? readIncrementalCache(options.settings) : null;
-	const newCache = incrementalEnabled ? createEmptyCache() : null;
+	const lockfileHash = incrementalEnabled
+		? computeLockfileHash(fileURLToPath(options.settings.config.root))
+		: '';
+	const previousCache = incrementalEnabled
+		? readIncrementalCache(options.settings, lockfileHash)
+		: null;
+	const newCache = incrementalEnabled ? createEmptyCache(lockfileHash) : null;
 
 	try {
 		// Get all static paths with their routes from the prerenderer
@@ -589,8 +596,7 @@ async function generatePathWithPrerenderer(
 	) {
 		const existsInDist = nodeFs.existsSync(outFile);
 		const restored =
-			!existsInDist &&
-			(await restoreCachedOutputFile(options.settings, relativeOutFile, outFile));
+			!existsInDist && (await restoreCachedOutputFile(options.settings, relativeOutFile, outFile));
 
 		if (existsInDist || restored) {
 			// Record in the new cache so orphan detection knows this path is still alive
