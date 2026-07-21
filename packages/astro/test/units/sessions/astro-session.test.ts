@@ -40,6 +40,7 @@ function createSession(
 	cookies: MockCookies = defaultMockCookies,
 	mockStorage: Storage | null = null,
 	runtimeMode: RuntimeMode = 'production',
+	logger: any = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} },
 ) {
 	// driverFactory from unstorage/drivers/memory accepts no config; wrap it to satisfy SessionDriverFactory
 	const typedDriverFactory: SessionDriverFactory = () => driverFactory();
@@ -49,6 +50,7 @@ function createSession(
 		runtimeMode,
 		driverFactory: typedDriverFactory,
 		mockStorage,
+		logger,
 	});
 }
 
@@ -263,11 +265,45 @@ describe('AstroSession - Error Handling', () => {
 		const mockStorage = {
 			get: async () => 'invalid-json',
 			setItem: async () => {},
+			removeItem: async () => {},
 		} as unknown as Storage;
 
 		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
 
 		await assert.rejects(async () => await session.get('key'), /could not be parsed/);
+	});
+
+	it('should log error via logger and reset partial flag on regenerate storage failure', async () => {
+		const errors: string[] = [];
+		const mockLogger = {
+			info: () => {},
+			warn: () => {},
+			error: (label: string | null, message: string) => { errors.push(message); },
+			debug: () => {},
+		};
+
+		let getAttempts = 0;
+		const failingStorage = {
+			get: async () => {
+				getAttempts++;
+				if (getAttempts === 1) throw new Error('storage temporarily unavailable');
+				return null;
+			},
+			setItem: async () => {},
+			removeItem: async () => {},
+		} as unknown as Storage;
+
+		const session = createSession(defaultConfig, defaultMockCookies, failingStorage, 'production', mockLogger);
+
+		session.set('key', 'value');
+		await session.regenerate();
+
+		assert.equal(errors.length, 1);
+		assert.match(errors[0], /Failed to load session data/);
+
+		session.set('new-key', 'new-value');
+		const value = await session.get('new-key');
+		assert.equal(value, 'new-value');
 	});
 });
 
@@ -604,6 +640,7 @@ describe('AstroSession - No-Cookie Short Circuit', () => {
 			runtimeMode: 'production',
 			driverFactory: countingDriverFactory,
 			mockStorage: null,
+			logger: { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} } as any,
 		});
 
 		const value = await session.get('nonexistent');
