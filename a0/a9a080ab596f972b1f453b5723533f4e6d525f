@@ -1,0 +1,41 @@
+packages/integrations/cloudflare/src/index.ts
+  s_c598dbd3067592::t_c7f5e76dd2c1a2 314-321
+packages/integrations/cloudflare/test/fixtures/lazy-dep-discovery/astro.config.mjs
+  s_0da6743eb2233d::t_317fbd798faaee 1-9
+packages/integrations/cloudflare/test/fixtures/lazy-dep-discovery/package.json
+  s_0da6743eb2233d::t_e41a4cbaa5c9c7 1-13
+packages/integrations/cloudflare/test/fixtures/lazy-dep-discovery/src/components/Component.tsx
+  s_0da6743eb2233d::t_a667e5c8e5f7f8 1-8
+packages/integrations/cloudflare/test/fixtures/lazy-dep-discovery/src/pages/index.astro
+  s_0da6743eb2233d::t_c940ae1c33e5ba 1-13
+pnpm-lock.yaml
+  s_c598dbd3067592::t_5cdf0caa210c14 4616-4636,7622,7626,7635,7641,7647,7653,7659,7665,7671,15593-15597,26041-26044
+packages/integrations/cloudflare/test/lazy-dep-discovery.test.ts
+  s_c598dbd3067592::t_78cc29c3e655b7 1-140
+.changeset/cloudflare-stale-optimized-deps.md
+  s_c598dbd3067592::t_1cbc65935fede8 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "a0a9a080ab596f972b1f453b5723533f4e6d525f",
+  "prompts": {},
+  "sessions": {
+    "s_0da6743eb2233d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8b49e6ed-48b5-43c0-b63a-5093b551b89b",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Fred K. Schott <622227+FredKSchott@users.noreply.github.com>"
+    },
+    "s_c598dbd3067592": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b5af1904-b67b-4ab6-a66f-6c222aa7e0fa",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Fred K. Schott <622227+FredKSchott@users.noreply.github.com>"
+    }
+  }
+}
