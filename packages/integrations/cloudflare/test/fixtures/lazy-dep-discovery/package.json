@@ -1,0 +1,13 @@
+{
+	"name": "@test/astro-cloudflare-lazy-dep-discovery",
+	"version": "0.0.0",
+	"private": true,
+	"dependencies": {
+		"@astrojs/cloudflare": "workspace:*",
+		"@astrojs/react": "workspace:*",
+		"astro": "workspace:*",
+		"react": "^19.2.4",
+		"react-dom": "^19.2.4",
+		"use-sync-external-store": "^1.4.0"
+	}
+}

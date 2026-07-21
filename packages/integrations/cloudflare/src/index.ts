@@ -311,6 +311,14 @@ export default function createIntegration({
 									if (isServerEnvironment && !_options.optimizeDeps?.noDiscovery) {
 										return {
 											optimizeDeps: {
+												// `@cloudflare/vite-plugin` defaults this to `true` in the workerd
+												// environment. That suppresses `ERR_OUTDATED_OPTIMIZED_DEP` when a
+												// mid-session re-optimization renames optimized dep URLs (`?v=` hash),
+												// so the workerd module runner silently evaluates a second copy of
+												// already-loaded deps. With React this means two React instances and
+												// "Invalid hook call" errors in islands (#17364). Throwing instead lets
+												// the request fail fast and re-render cleanly against the new bundle.
+												ignoreOutdatedRequests: false,
 												include: [
 													'@astrojs/cloudflare/image-service-workerd',
 													'@astrojs/cloudflare/entrypoints/server',
