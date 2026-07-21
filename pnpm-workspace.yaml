@@ -34,6 +34,7 @@ overrides:
 # Wait until three days after release to install new versions of packages
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
+  - '@biomejs/*'
   # 'fake-data-pkg' is a local package used for testing
   - 'fake-data-pkg@1.0.0'
   # TODO: remove once more stable
