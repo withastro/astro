@@ -147,11 +147,15 @@ function syncTagNodeAttributes(config: MergedConfig): void {
  */
 function transformRespectsRender(transform: { toString(): string }, configKey: string): boolean {
 	const source = transform.toString();
-	// Astro's transforms check config.nodes?.X?.render or config.tags?.X?.render
-	return (
-		source.includes(`config.nodes?.${configKey}?.render`) ||
-		source.includes(`config.tags?.${configKey}?.render`)
+	// `configKey` may not be a valid identifier (e.g. `side-note`), so a render-respecting
+	// transform can read `render` via dot or bracket access. Escape the key and match either.
+	const key = configKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	const member = (prop: string) =>
+		`(?:\\??\\.\\s*${prop}|\\??\\.?\\s*\\[\\s*['"\`]${prop}['"\`]\\s*\\])`;
+	const pattern = new RegExp(
+		`config\\s*\\??\\.\\s*(?:nodes|tags)\\s*${member(key)}\\s*${member('render')}`,
 	);
+	return pattern.test(source);
 }
 
 export function resolveComponentImports(
