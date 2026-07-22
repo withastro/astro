@@ -208,6 +208,9 @@ overrides:
   '@types/node@22': ^22.19.0
   modern-tar: '>=0.7.7'
 
+patchedDependencies:
+  '@volar/kit@2.4.28': e8ffdabfd1c0008660ea6bf8e837c789d8135cfb110bdef3ce90028be98b622b
+
 importers:
 
   .:
@@ -6562,7 +6565,7 @@ importers:
         version: 1.5.5
       '@volar/kit':
         specifier: ~2.4.28
-        version: 2.4.28(typescript@6.0.3)
+        version: 2.4.28(patch_hash=e8ffdabfd1c0008660ea6bf8e837c789d8135cfb110bdef3ce90028be98b622b)(typescript@6.0.3)
       '@volar/language-core':
         specifier: ~2.4.28
         version: 2.4.28
@@ -20095,7 +20098,7 @@ snapshots:
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
 
-  '@volar/kit@2.4.28(typescript@6.0.3)':
+  '@volar/kit@2.4.28(patch_hash=e8ffdabfd1c0008660ea6bf8e837c789d8135cfb110bdef3ce90028be98b622b)(typescript@6.0.3)':
     dependencies:
       '@volar/language-service': 2.4.28
       '@volar/typescript': 2.4.28
