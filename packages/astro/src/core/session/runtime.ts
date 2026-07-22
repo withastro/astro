@@ -383,7 +383,7 @@ export class AstroSession {
 		try {
 			const storedMap = unflatten(raw);
 			if (!(storedMap instanceof Map)) {
-				await this.destroy();
+				this.destroy();
 				throw new AstroError({
 					...SessionStorageInitError,
 					message: SessionStorageInitError.message(
@@ -409,7 +409,7 @@ export class AstroSession {
 			this.#partial = false;
 			return this.#data;
 		} catch (err) {
-			await this.destroy();
+			this.destroy();
 			if (err instanceof AstroError) {
 				throw err;
 			}

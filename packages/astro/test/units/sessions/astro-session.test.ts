@@ -41,7 +41,7 @@ function createSession(
 	cookies: MockCookies = defaultMockCookies,
 	mockStorage: Storage | null = null,
 	runtimeMode: RuntimeMode = 'production',
-	logger: any = new SpyLogger()
+	logger: SpyLogger = new SpyLogger()
 ) {
 	// driverFactory from unstorage/drivers/memory accepts no config; wrap it to satisfy SessionDriverFactory
 	const typedDriverFactory: SessionDriverFactory = () => driverFactory();
@@ -609,7 +609,7 @@ describe('AstroSession - No-Cookie Short Circuit', () => {
 			runtimeMode: 'production',
 			driverFactory: countingDriverFactory,
 			mockStorage: null,
-			logger: new SpyLogger() as any,
+			logger: new SpyLogger(),
 		});
 
 		const value = await session.get('nonexistent');
