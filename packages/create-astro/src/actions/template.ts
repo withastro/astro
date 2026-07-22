@@ -36,8 +36,11 @@ export function processTemplateReadme(content: string, packageManager: string): 
 
 	// Replace package manager references if not npm
 	if (packageManager !== 'npm') {
+		// nub requires an explicit `run` for scripts, so `npm run <script>` maps to
+		// `nub run <script>` rather than dropping the `run` like pnpm/yarn/bun.
+		const runCommand = packageManager === 'nub' ? 'nub run' : packageManager;
 		processed = processed
-			.replace(/\bnpm run\b/g, packageManager)
+			.replace(/\bnpm run\b/g, runCommand)
 			.replace(/\bnpm\b/g, packageManager);
 	}
 
