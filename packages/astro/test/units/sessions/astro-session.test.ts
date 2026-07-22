@@ -131,7 +131,7 @@ describe('AstroSession - Cookie Management', () => {
 		};
 
 		const session = createSession(defaultConfig, mockCookies);
-		await session.destroy();
+		session.destroy();
 		assert.equal(cookieDeletedName, 'test-session');
 		assert.equal(cookieDeletedArgs?.path, '/');
 	});
@@ -463,7 +463,7 @@ describe('AstroSession - Cleanup Operations', () => {
 		const oldId = session.sessionID;
 
 		// Destroy it
-		await session.destroy();
+		session.destroy();
 
 		// Simulate end of request
 		await session[PERSIST_SYMBOL]();
@@ -482,7 +482,7 @@ describe('AstroSession - Cleanup Operations', () => {
 		} as unknown as Storage;
 
 		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
-		await session.destroy();
+		session.destroy();
 
 		// Simulate end of request
 		await session[PERSIST_SYMBOL]();

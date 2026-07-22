@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Routes session runtime diagnostics through `AstroLogger` instead of `console.error`/`logger.warn` to respect user logging configuration. Also resets the internal `#partial` flag after a storage failure during `regenerate()` to prevent unnecessary storage round-trips on subsequent reads.
+Session runtime warnings are now routed through Astro's structured logger instead of `console.error`, so they respect your configured log level and appear in custom log sinks. Additionally, a session that fails to load during `regenerate()` is no longer left in a partial state, preventing unnecessary storage reads on subsequent operations.

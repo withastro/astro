@@ -219,26 +219,18 @@ export class AstroSession {
 	}
 
 	/**
-	 * Destroys the session, clearing the cookie and eagerly removing the storage entry.
+	 * Destroys the session, clearing the cookie and storage if it exists.
 	 */
-	async destroy(): Promise<void> {
+	destroy() {
 		// We don't use #ensureSessionID here because we don't want to create a new session ID if it doesn't exist.
 		const sessionId = this.#sessionID ?? this.#cookies.get(this.#cookieName)?.value;
+		if (sessionId) {
+			this.#toDestroy.add(sessionId);
+		}
 		this.#cookies.delete(this.#cookieName, this.#cookieConfig);
 		this.#sessionID = undefined;
 		this.#data = undefined;
-		this.#partial = true;
-		this.#dirty = false;
-		if (sessionId) {
-			// Remove from storage immediately when available; PERSIST_SYMBOL may not run on error paths.
-			if (this.#storage) {
-				await this.#storage.removeItem(sessionId).catch((err) => {
-					this.#logger.error('session', `Failed to remove session ${sessionId}: ${err}`);
-				});
-			} else {
-				this.#toDestroy.add(sessionId);
-			}
-		}
+		this.#dirty = true;
 	}
 
 	/**
