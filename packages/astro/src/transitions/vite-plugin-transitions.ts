@@ -39,7 +39,7 @@ export default function astroTransitions({ settings }: { settings: AstroSettings
 				if (id === RESOLVED_VIRTUAL_CLIENT_MODULE_ID) {
 					return {
 						code: `
-						export { navigate, supportsViewTransitions, transitionEnabledOnThisPage } from "astro/virtual-modules/transitions-router.js";
+						export { getFallback, navigate, supportsViewTransitions, transitionEnabledOnThisPage } from "astro/virtual-modules/transitions-router.js";
 						export * from "astro/virtual-modules/transitions-types.js";
 						export {
 							TransitionBeforePreparationEvent,

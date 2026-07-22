@@ -5,6 +5,7 @@ declare module 'astro:transitions' {
 
 declare module 'astro:transitions/client' {
 	export {
+		getFallback,
 		navigate,
 		supportsViewTransitions,
 		transitionEnabledOnThisPage,
