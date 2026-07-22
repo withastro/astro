@@ -94,7 +94,7 @@ export async function handle(
 
 	const waitUntil: RenderOptions['waitUntil'] = context.waitUntil.bind(context);
 
-	const response = await app.render(request, {
+	let response = await app.render(request, {
 		routeData,
 		locals,
 		waitUntil,
@@ -102,19 +102,37 @@ export async function handle(
 		clientAddress: getClientAddress(request),
 	});
 
-	if (app.setCookieHeaders) {
-		for (const setCookieHeader of app.setCookieHeaders(response)) {
-			response.headers.append('Set-Cookie', setCookieHeader);
-		}
-	}
+	// Collect cookies before any rebuild: `setCookieHeaders` looks the
+	// response up by identity, so it must see the original object.
+	const setCookieHeaders = app.setCookieHeaders ? [...app.setCookieHeaders(response)] : [];
 
 	// When the Cloudflare cache provider is configured, default uncached
 	// responses to `no-store` so opting in to route caching never
 	// accidentally caches a route that didn't set any cache intent.
 	// Cloudflare's Worker cache otherwise caches all GET responses for
 	// up to 2 hours by default.
-	if (cacheProviderEnabled && !response.headers.has('Cloudflare-CDN-Cache-Control')) {
-		response.headers.set('Cloudflare-CDN-Cache-Control', 'no-store');
+	const needsNoStoreDefault =
+		cacheProviderEnabled && !response.headers.has('Cloudflare-CDN-Cache-Control');
+
+	if (setCookieHeaders.length > 0 || needsNoStoreDefault) {
+		const applyHeaders = (res: Response) => {
+			for (const setCookieHeader of setCookieHeaders) {
+				res.headers.append('Set-Cookie', setCookieHeader);
+			}
+			if (needsNoStoreDefault) {
+				res.headers.set('Cloudflare-CDN-Cache-Control', 'no-store');
+			}
+		};
+		try {
+			applyHeaders(response);
+		} catch {
+			// Responses served from the Workers Cache API (e.g. `/_image`
+			// cache hits) have immutable headers. The first mutation throws
+			// before changing anything, so rebuilding into a mutable
+			// Response and re-applying cannot duplicate headers.
+			response = new Response(response.body, response);
+			applyHeaders(response);
+		}
 	}
 
 	return response;
