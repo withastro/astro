@@ -222,6 +222,7 @@ export class AstroSession {
 	 * Destroys the session, clearing the cookie and eagerly removing the storage entry.
 	 */
 	async destroy(): Promise<void> {
+		// We don't use #ensureSessionID here because we don't want to create a new session ID if it doesn't exist.
 		const sessionId = this.#sessionID ?? this.#cookies.get(this.#cookieName)?.value;
 		this.#cookies.delete(this.#cookieName, this.#cookieConfig);
 		this.#sessionID = undefined;

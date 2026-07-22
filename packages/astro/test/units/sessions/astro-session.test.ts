@@ -11,6 +11,7 @@ import type {
 	AstroCookieDeleteOptions,
 } from '../../../dist/core/cookies/cookies.js';
 import type { SessionDriverFactory } from '../../../dist/core/session/types.js';
+import { SpyLogger } from '../test-utils.ts';
 
 // #region Helpers
 
@@ -40,7 +41,7 @@ function createSession(
 	cookies: MockCookies = defaultMockCookies,
 	mockStorage: Storage | null = null,
 	runtimeMode: RuntimeMode = 'production',
-	logger: any = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+	logger: any = new SpyLogger()
 ) {
 	// driverFactory from unstorage/drivers/memory accepts no config; wrap it to satisfy SessionDriverFactory
 	const typedDriverFactory: SessionDriverFactory = () => driverFactory();
@@ -608,7 +609,7 @@ describe('AstroSession - No-Cookie Short Circuit', () => {
 			runtimeMode: 'production',
 			driverFactory: countingDriverFactory,
 			mockStorage: null,
-			logger: { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} } as any,
+			logger: new SpyLogger() as any,
 		});
 
 		const value = await session.get('nonexistent');
@@ -670,13 +671,7 @@ describe('AstroSession - regenerate() error path', () => {
 			delete: () => {},
 			get: (name: string) => (name === 'test-session' ? { value: 'old-session' } : undefined),
 		};
-		let errorCalled = false;
-		const mockLogger = {
-			info: () => {},
-			warn: () => {},
-			error: () => { errorCalled = true; },
-			debug: () => {},
-		};
+		const spyLogger = new SpyLogger();
 		const mockStorage = {
 			async get(key: string) {
 				storageGetCount++;
@@ -702,7 +697,7 @@ describe('AstroSession - regenerate() error path', () => {
 			cookies,
 			mockStorage as any,
 			'production',
-			mockLogger,
+			spyLogger,
 		);
 
 		// This will trigger ensureData() under the hood.
@@ -711,7 +706,11 @@ describe('AstroSession - regenerate() error path', () => {
 		await session.regenerate();
 
 		// 1. Verify logging behavior
-		assert.equal(errorCalled, true, 'Should use logger.error');
+		assert.equal(
+			spyLogger.logs.some((e) => e.level === 'error'),
+			true,
+			'Should route errors through logger.error',
+		);
 
 		// Reset storage count before checking get()
 		storageGetCount = 0;
