@@ -3204,6 +3204,12 @@ importers:
         specifier: ^3.5.30
         version: 3.5.30(typescript@6.0.3)
 
+  packages/astro/test/fixtures/css-server-output-dedup:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/custom-404-injected-from-dep:
     dependencies:
       '@test/custom-404-pkg':
