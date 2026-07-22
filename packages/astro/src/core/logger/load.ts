@@ -1,69 +1,56 @@
+import { isAbsolute } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { AstroLogger, type AstroLoggerDestination } from './core.js';
 import { AstroError } from '../errors/index.js';
 import { UnableToLoadLogger } from '../errors/errors-data.js';
 import type { LoggerHandlerConfig } from './config.js';
 import type { AstroConfig, AstroInlineConfig } from '../../types/public/index.js';
-import { default as nodeLoggerCreator, createNodeLoggerFromFlags } from './impls/node.js';
-import { default as consoleLoggerCreator } from './impls/console.js';
-import { default as jsonLoggerCreator } from './impls/json.js';
-import { default as composeLoggerCreator } from './impls/compose.js';
+import { createNodeLoggerFromFlags } from './impls/node.js';
+import {
+	COMPOSE_LOGGER_ENTRYPOINT,
+	normalizeLoggerConfig,
+	type NormalizedLoggerConfig,
+} from './utils.js';
 
-function normalizeEntrypoint(entrypoint: LoggerHandlerConfig['entrypoint']): string {
-	return entrypoint instanceof URL ? entrypoint.href : entrypoint;
+async function createDestination(config: NormalizedLoggerConfig): Promise<AstroLoggerDestination> {
+	// `normalizeLoggerConfig()` turns file entrypoints into absolute paths, which
+	// `import()` only accepts as file URLs on Windows. Built-in handlers keep their
+	// `astro/logger/*` specifier and resolve through Astro's own exports.
+	const specifier = isAbsolute(config.entrypoint)
+		? pathToFileURL(config.entrypoint).href
+		: config.entrypoint;
+	const logger = await import(/* @vite-ignore */ specifier);
+
+	// `astro/logger/compose` takes the composed destinations rather than a serializable config.
+	if (config.entrypoint === COMPOSE_LOGGER_ENTRYPOINT) {
+		return logger.default(await Promise.all((config.loggers ?? []).map(createDestination)));
+	}
+
+	return logger.default(config.config);
 }
 
+/**
+ * Loads a logger destination in a Node context, i.e. outside of a built server bundle.
+ * Inside the bundle, the destination comes from the `virtual:astro:logger` module instead.
+ */
 export async function loadLoggerDestination(
 	config: LoggerHandlerConfig,
+	root: URL,
 ): Promise<AstroLoggerDestination> {
-	let cause: Error | undefined = undefined;
-	const entrypoint = normalizeEntrypoint(config.entrypoint);
+	const normalized = normalizeLoggerConfig(config, root);
 
 	try {
-		switch (config.entrypoint) {
-			case 'astro/logger/node': {
-				return nodeLoggerCreator(config.config);
-			}
-			case 'astro/logger/console': {
-				return consoleLoggerCreator(config.config);
-			}
-			case 'astro/logger/json': {
-				return jsonLoggerCreator(config.config);
-			}
-			case 'astro/logger/compose': {
-				let destinations: AstroLoggerDestination[] = [];
-				if (config.config?.loggers) {
-					const loggers: LoggerHandlerConfig[] = config.config?.loggers;
-					destinations = await Promise.all(
-						loggers.map(async (loggerConfig) => {
-							const logger = await import(
-								/* @vite-ignore */ normalizeEntrypoint(loggerConfig.entrypoint)
-							);
-							return logger.default(loggerConfig.config) as AstroLoggerDestination;
-						}),
-					);
-				}
-
-				return composeLoggerCreator(destinations);
-			}
-			default: {
-				const logger = await import(/* @vite-ignore */ entrypoint);
-				return logger.default(config.config);
-			}
-		}
+		return await createDestination(normalized);
 	} catch (e: unknown) {
+		const error = new AstroError({
+			...UnableToLoadLogger,
+			message: UnableToLoadLogger.message(normalized.entrypoint),
+		});
 		if (e instanceof Error) {
-			cause = e;
+			error.cause = e;
 		}
+		throw error;
 	}
-
-	const error = new AstroError({
-		...UnableToLoadLogger,
-		message: UnableToLoadLogger.message(entrypoint),
-	});
-	if (cause) {
-		error.cause = cause;
-	}
-	throw error;
 }
 
 /**
@@ -83,7 +70,7 @@ export async function loadOrCreateNodeLogger(
 	try {
 		if (astroConfig.logger) {
 			return new AstroLogger({
-				destination: await loadLoggerDestination(astroConfig.logger),
+				destination: await loadLoggerDestination(astroConfig.logger, astroConfig.root),
 				level: inlineAstroConfig.logLevel ?? 'info',
 			});
 		} else {

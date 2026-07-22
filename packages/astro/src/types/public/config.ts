@@ -1622,7 +1622,8 @@ export interface AstroUserConfig<
 	 * @version 7.0.0
 	 * @description
 	 *
-	 * The entrypoint of the log handler. This can be a path to a file in your project or an npm package:
+	 * The entrypoint of the log handler. This can be an npm package, a `URL`, or a path
+	 * relative to your project root:
 	 *
 	 * ```js title="astro.config.mjs"
 	 * import { defineConfig } from 'astro/config';
@@ -1630,6 +1631,16 @@ export interface AstroUserConfig<
 	 * export default defineConfig({
 	 *   logger: {
 	 *     entrypoint: "@org/astro-logger",
+	 *   }
+	 * });
+	 * ```
+	 *
+	 * ```js title="astro.config.mjs"
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   logger: {
+	 *     entrypoint: "./src/logger.js",
 	 *   }
 	 * });
 	 * ```
