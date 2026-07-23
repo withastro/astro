@@ -23,6 +23,12 @@ export interface IncrementalCache {
 	 * hash cannot see (e.g. `client:only` islands or build-time-only tooling).
 	 */
 	lockfileHash: string;
+	/**
+	 * Hash of the output-affecting subset of the resolved config. A mismatch
+	 * invalidates the whole cache, since config baked into compiled output or
+	 * inlined via Vite cannot be seen by the per-route dependency hash.
+	 */
+	configHash: string;
 	routes: Record<string, IncrementalRouteEntry>;
 }
 
@@ -46,6 +52,7 @@ async function ensureDir(dir: URL): Promise<void> {
 export function readIncrementalCache(
 	settings: AstroSettings,
 	expectedLockfileHash: string,
+	expectedConfigHash: string,
 ): IncrementalCache | null {
 	const cacheFile = getCacheFile(settings);
 	try {
@@ -56,6 +63,10 @@ export function readIncrementalCache(
 		}
 		// Dependencies changed since the cache was written — discard it entirely.
 		if (data.lockfileHash !== expectedLockfileHash) {
+			return null;
+		}
+		// Output-affecting config changed since the cache was written — discard it.
+		if (data.configHash !== expectedConfigHash) {
 			return null;
 		}
 		return data;
@@ -101,8 +112,8 @@ export async function deleteCachedOutputFile(
 	await fs.promises.rm(getCachedOutputFile(settings, outputFile), { force: true });
 }
 
-export function createEmptyCache(lockfileHash: string): IncrementalCache {
-	return { version: CACHE_VERSION, lockfileHash, routes: {} };
+export function createEmptyCache(lockfileHash: string, configHash: string): IncrementalCache {
+	return { version: CACHE_VERSION, lockfileHash, configHash, routes: {} };
 }
 
 /**

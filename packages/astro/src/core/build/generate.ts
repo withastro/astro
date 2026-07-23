@@ -45,6 +45,7 @@ import {
 	writeIncrementalCache,
 	type IncrementalCache,
 } from './incremental.js';
+import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
@@ -109,10 +110,11 @@ export async function generatePages(
 	const lockfileHash = incrementalEnabled
 		? computeLockfileHash(fileURLToPath(options.settings.config.root))
 		: '';
+	const configHash = incrementalEnabled ? computeConfigHash(options.settings.config) : '';
 	const previousCache = incrementalEnabled
-		? readIncrementalCache(options.settings, lockfileHash)
+		? readIncrementalCache(options.settings, lockfileHash, configHash)
 		: null;
-	const newCache = incrementalEnabled ? createEmptyCache(lockfileHash) : null;
+	const newCache = incrementalEnabled ? createEmptyCache(lockfileHash, configHash) : null;
 
 	try {
 		// Get all static paths with their routes from the prerenderer
