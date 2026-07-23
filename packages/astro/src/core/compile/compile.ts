@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { preprocessStyles, transform, type TransformResult } from '@astrojs/compiler-rs';
+import { parse, preprocessStyles, transform, type TransformResult } from '@astrojs/compiler-rs';
 import type { ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroError } from '../errors/errors.js';
@@ -44,7 +44,16 @@ export async function compile({
 			}),
 		);
 
-		transformResult = transform(source, {
+		// When using JSX whitespace rules, protect text content with newlines
+		// inside component children from being collapsed. The compiler's JSX
+		// algorithm strips newlines from all text nodes, but component slot
+		// content may be rendered inside <pre> or other whitespace-sensitive
+		// contexts that aren't visible at the call site.
+		// See https://github.com/withastro/astro/issues/17490
+		const transformSource =
+			astroConfig.compressHTML === 'jsx' ? preserveComponentSlotNewlines(source) : source;
+
+		transformResult = transform(transformSource, {
 			compact: astroConfig.compressHTML,
 			filename,
 			normalizedFilename: normalizeFilename(filename, astroConfig.root),
@@ -122,6 +131,77 @@ function handleCompileResultErrors(
 			});
 		}
 	}
+}
+
+/**
+ * Wraps text nodes inside component children in template literal expressions
+ * so the compiler's JSX whitespace algorithm does not collapse their newlines.
+ *
+ * The JSX whitespace algorithm strips all newlines from text content and joins
+ * lines with a single space. This is correct for regular HTML elements (where
+ * whitespace is insignificant) but wrong for component slot content that may be
+ * rendered inside `<pre>` or other whitespace-sensitive contexts.
+ *
+ * By wrapping `text` → `{\`text\`}`, the text becomes a JS expression that the
+ * compiler passes through without whitespace manipulation.
+ */
+function preserveComponentSlotNewlines(source: string): string {
+	let ast: Record<string, any>;
+	try {
+		({ ast } = parse(source));
+	} catch {
+		// If parsing fails, return the source unchanged and let the
+		// transform step report the error with full diagnostics.
+		return source;
+	}
+
+	interface TextNode {
+		start: number;
+		end: number;
+		raw: string;
+	}
+	const textNodes: TextNode[] = [];
+
+	function visit(nodes: any[] | undefined): void {
+		if (!nodes) return;
+		for (const node of nodes) {
+			if (node.type === 'JSXElement') {
+				const name: string = node.openingElement?.name?.name ?? '';
+				// Components start with an uppercase letter or contain a dot (e.g. Foo.Bar)
+				const isComponent =
+					(name.length > 0 && name[0] >= 'A' && name[0] <= 'Z') || name.includes('.');
+				if (isComponent && node.children) {
+					for (const child of node.children) {
+						if (
+							child.type === 'JSXText' &&
+							child.raw.includes('\n') &&
+							child.raw.trim().length > 0
+						) {
+							textNodes.push({ start: child.start, end: child.end, raw: child.raw });
+						}
+					}
+				}
+			}
+			// Recurse into children and expression bodies
+			visit(node.children);
+			if (node.expression?.type === 'JSXElement') {
+				visit([node.expression]);
+			}
+		}
+	}
+	visit(ast.body);
+
+	if (textNodes.length === 0) return source;
+
+	// Apply replacements from end to start to preserve earlier positions
+	let result = source;
+	for (let i = textNodes.length - 1; i >= 0; i--) {
+		const { start, end, raw } = textNodes[i];
+		// Escape characters that are special inside template literals
+		const escaped = raw.replaceAll('\\', '\\\\').replaceAll('`', '\\`').replaceAll('${', '\\${');
+		result = result.slice(0, start) + '{`' + escaped + '`}' + result.slice(end);
+	}
+	return result;
 }
 
 function normalizeFilename(filename: string, root: URL) {

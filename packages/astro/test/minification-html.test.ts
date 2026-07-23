@@ -153,6 +153,10 @@ describe('HTML minification (default)', () => {
 		assert.match(html, /<pre id="preserved">\n\s+keep\n\s+this\n\s+whitespace/);
 	});
 
+	it('preserves newlines in slot content rendered inside <pre> in a component', () => {
+		assert.match(html, /<pre id="slot-pre">\nFirst line\nSecond line/);
+	});
+
 	it('removes every newline outside of <pre>', () => {
 		const withoutPre = html.replace(/<pre[\s\S]*?<\/pre>/g, '');
 		assert.equal(NEW_LINES.test(withoutPre), false);
