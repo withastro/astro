@@ -1633,16 +1633,6 @@ export interface AstroUserConfig<
 	 *   }
 	 * });
 	 * ```
-	 *
-	 * ```js title="astro.config.mjs"
-	 * import { defineConfig } from 'astro/config';
-	 *
-	 * export default defineConfig({
-	 *   logger: {
-	 *     entrypoint: "./src/logger.js",
-	 *   }
-	 * });
-	 * ```
 	 */
 
 	/**
