@@ -6,7 +6,8 @@ import type {
 } from 'astro';
 import { preview, createLogger, type PreviewServer as VitePreviewServer } from 'vite';
 import { fileURLToPath } from 'node:url';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { join, dirname } from 'node:path';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import type {
@@ -28,6 +29,8 @@ interface CloudflarePrerendererOptions {
 	trailingSlash: AstroConfig['trailingSlash'];
 	cfPluginConfig: PluginConfig;
 	hasBuildImageService: boolean;
+	/** When true, images were pre-optimized by the IMAGES binding in workerd and can be written directly. */
+	hasBindingImageService: boolean;
 	userImageServiceEntrypoint?: string;
 }
 
@@ -43,6 +46,7 @@ export function createCloudflarePrerenderer({
 	trailingSlash,
 	cfPluginConfig,
 	hasBuildImageService,
+	hasBindingImageService,
 	userImageServiceEntrypoint,
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
@@ -148,46 +152,70 @@ export function createCloudflarePrerenderer({
 			return response;
 		},
 
-		collectStaticImages: hasBuildImageService
-			? async (): Promise<AssetsGlobalStaticImagesList> => {
-					const response = await fetch(`${serverUrl}${STATIC_IMAGES_ENDPOINT}`, {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-					});
-
-					if (!response.ok) {
-						const body = await response.text();
-						const details = body ? `\n${body}` : '';
-						throw new Error(
-							`Failed to get static images from the Cloudflare prerender server (${response.status}: ${response.statusText}).${details}`,
-						);
-					}
-
-					const entries: StaticImagesResponse = await response.json();
-
-					globalThis.astroAsset ??= {};
-					if (userImageServiceEntrypoint) {
-						const mod = await import(userImageServiceEntrypoint);
-						globalThis.astroAsset.imageService = mod.default ?? mod;
-					} else {
-						const { default: sharpService } = await import('astro/assets/services/sharp');
-						globalThis.astroAsset.imageService = sharpService;
-					}
-
-					const staticImages: AssetsGlobalStaticImagesList = new Map();
-					for (const entry of entries) {
-						const transforms = new Map();
-						for (const t of entry.transforms) {
-							transforms.set(t.hash, { finalPath: t.finalPath, transform: t.transform });
-						}
-						staticImages.set(entry.originalPath, {
-							originalSrcPath: entry.originalSrcPath,
-							transforms,
+		collectStaticImages:
+			hasBuildImageService || hasBindingImageService
+				? async (): Promise<AssetsGlobalStaticImagesList> => {
+						const response = await fetch(`${serverUrl}${STATIC_IMAGES_ENDPOINT}`, {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
 						});
+
+						if (!response.ok) {
+							const body = await response.text();
+							const details = body ? `\n${body}` : '';
+							throw new Error(
+								`Failed to get static images from the Cloudflare prerender server (${response.status}: ${response.statusText}).${details}`,
+							);
+						}
+
+						const entries: StaticImagesResponse = await response.json();
+
+						// For transforms that already have imageData (optimized by the IMAGES binding
+						// in workerd), write the bytes directly to the client output directory.
+						// Remaining transforms without imageData fall through to the Node-side
+						// image service (the user-configured service or Sharp).
+						const staticImages: AssetsGlobalStaticImagesList = new Map();
+						let needsNodeImageService = false;
+
+						for (const entry of entries) {
+							const transforms = new Map();
+							for (const t of entry.transforms) {
+								if (t.imageData) {
+									// Image was already transformed by the Cloudflare IMAGES binding;
+									// write it directly to the output directory.
+									const outputPath = join(fileURLToPath(clientDir), t.finalPath);
+									await mkdir(dirname(outputPath), { recursive: true });
+									await writeFile(outputPath, Buffer.from(t.imageData, 'base64'));
+								} else {
+									// No pre-transformed data; collect for Node-side processing.
+									transforms.set(t.hash, { finalPath: t.finalPath, transform: t.transform });
+									needsNodeImageService = true;
+								}
+							}
+							if (transforms.size > 0) {
+								staticImages.set(entry.originalPath, {
+									originalSrcPath: entry.originalSrcPath,
+									transforms,
+								});
+							}
+						}
+
+						// Only load the Node-side image service if some transforms weren't
+						// handled by the binding.
+						if (needsNodeImageService) {
+							globalThis.astroAsset ??= {};
+							if (userImageServiceEntrypoint) {
+								const mod = await import(userImageServiceEntrypoint);
+								globalThis.astroAsset.imageService = mod.default ?? mod;
+							} else {
+								const { default: sharpService } = await import('astro/assets/services/sharp');
+								globalThis.astroAsset.imageService = sharpService;
+							}
+						}
+
+						return staticImages;
 					}
-					return staticImages;
-				}
-			: undefined,
+				: undefined,
 
 		async teardown() {
 			if (previewServer) {
