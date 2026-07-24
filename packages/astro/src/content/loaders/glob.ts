@@ -343,8 +343,14 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 
 			watcher.add(filePath);
 
-			const matchesGlob = (entry: string) =>
-				!entry.startsWith('../') && picomatch.isMatch(entry, globOptions.pattern);
+			const rawPatterns = Array.isArray(globOptions.pattern)
+				? globOptions.pattern
+				: [globOptions.pattern];
+			const positivePatterns = rawPatterns.filter((p) => !p.startsWith('!'));
+			const negationPatterns = rawPatterns.filter((p) => p.startsWith('!')).map((p) => p.slice(1));
+			const matcher = picomatch(positivePatterns, { ignore: negationPatterns });
+
+			const matchesGlob = (entry: string) => !entry.startsWith('../') && matcher(entry);
 
 			const basePath = fileURLToPath(baseDir);
 
