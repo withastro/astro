@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes a case where specyfing a relative `logger.entrypoint` string path would not work
+Fixes a case where specifying a relative `logger.entrypoint` string path prevented it from being resolved.
