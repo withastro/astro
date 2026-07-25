@@ -16,6 +16,8 @@ import {
 	handlePrerenderRequest,
 	isStaticImagesRequest,
 	handleStaticImagesRequest,
+	isImageTransformRequest,
+	handleImageTransformRequest,
 	installPrerenderErrorPropagation,
 } from './prerender.js';
 import {
@@ -64,8 +66,11 @@ export async function handle(
 			return handlePrerenderRequest(app, request) as unknown as CfResponse;
 		}
 		if (isStaticImagesRequest(request)) {
+			return handleStaticImagesRequest() as unknown as CfResponse;
+		}
+		if (isImageTransformRequest(request)) {
 			const imagesBindingName = globalThis.__ASTRO_IMAGES_BINDING_NAME;
-			return handleStaticImagesRequest({
+			return handleImageTransformRequest(request, {
 				images:
 					compileImageConfig?.transformWithBinding && imagesBindingName
 						? (env as Record<string, any>)[imagesBindingName]

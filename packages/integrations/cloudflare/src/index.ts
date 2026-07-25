@@ -504,7 +504,7 @@ export default function createIntegration({
 				// these variables at build time.
 				loadWranglerEnv(config.root, cloudflareOptions.configPath, logger);
 			},
-			'astro:build:start': ({ setPrerenderer }) => {
+			'astro:build:start': ({ setPrerenderer, logger }) => {
 				if (prerenderEnvironment === 'workerd') {
 					setPrerenderer(
 						createCloudflarePrerenderer({
@@ -519,6 +519,7 @@ export default function createIntegration({
 							userImageServiceEntrypoint: hasUserBuildImageService
 								? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
 								: undefined,
+							logger,
 						}),
 					);
 				}

@@ -1,25 +1,52 @@
 import type {
 	AstroConfig,
+	AstroIntegrationLogger,
 	AstroPrerenderer,
 	AssetsGlobalStaticImagesList,
+	ImageTransform,
 	PathWithRoute,
 } from 'astro';
 import { preview, createLogger, type PreviewServer as VitePreviewServer } from 'vite';
 import { fileURLToPath } from 'node:url';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { createReadStream, createWriteStream, existsSync } from 'node:fs';
+import { mkdir } from 'node:fs/promises';
+import { Readable } from 'node:stream';
+import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
+import { pipeline } from 'node:stream/promises';
 import { join, dirname } from 'node:path';
+import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import type {
 	StaticPathsResponse,
 	PrerenderRequest,
+	SerializedStaticImageEntry,
 	StaticImagesResponse,
 } from './prerender-types.js';
 import {
 	STATIC_PATHS_ENDPOINT,
 	PRERENDER_ENDPOINT,
 	STATIC_IMAGES_ENDPOINT,
+	IMAGE_TRANSFORM_ENDPOINT,
 } from './utils/prerender-constants.js';
+
+/**
+ * How many images to request from the prerender worker at once. Each response streams
+ * straight to disk, so peak memory stays proportional to this many images rather than
+ * to the whole image set.
+ */
+const IMAGE_TRANSFORM_CONCURRENCY = 8;
+
+/** Maps Astro's transform options onto the query parameters `/_image` expects. */
+const IMAGE_TRANSFORM_PARAMS: Record<string, string> = {
+	w: 'width',
+	h: 'height',
+	q: 'quality',
+	f: 'format',
+	fit: 'fit',
+	position: 'position',
+	background: 'background',
+};
 
 interface CloudflarePrerendererOptions {
 	root: AstroConfig['root'];
@@ -29,9 +56,105 @@ interface CloudflarePrerendererOptions {
 	trailingSlash: AstroConfig['trailingSlash'];
 	cfPluginConfig: PluginConfig;
 	hasBuildImageService: boolean;
-	/** When true, images were pre-optimized by the IMAGES binding in workerd and can be written directly. */
+	/** When true, images are optimized by the IMAGES binding in workerd during the build. */
 	hasBindingImageService: boolean;
 	userImageServiceEntrypoint?: string;
+	logger: AstroIntegrationLogger;
+}
+
+/** Runs `fn` over `items`, keeping at most `limit` calls in flight. */
+async function forEachWithConcurrency<T>(
+	items: T[],
+	limit: number,
+	fn: (item: T) => Promise<void>,
+): Promise<void> {
+	let next = 0;
+	const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+		while (next < items.length) {
+			await fn(items[next++]);
+		}
+	});
+	await Promise.all(workers);
+}
+
+function createImageTransformUrl(
+	serverUrl: string,
+	originalPath: string,
+	transform: Record<string, any>,
+): string {
+	const url = new URL(IMAGE_TRANSFORM_ENDPOINT, serverUrl);
+	url.searchParams.set('href', originalPath);
+
+	for (const [param, key] of Object.entries(IMAGE_TRANSFORM_PARAMS)) {
+		const value = transform[key];
+		if (value) {
+			url.searchParams.set(param, value.toString());
+		}
+	}
+
+	return url.toString();
+}
+
+/**
+ * Locates the unoptimized original on disk. Astro emits it into the prerender output
+ * (and deletes it once the transforms are generated), so it is not in the client
+ * directory the worker's ASSETS binding serves. Falls back to the source file, which
+ * Astro records for images imported from `src`.
+ */
+function findOriginalImage(
+	serverDir: URL,
+	clientDir: URL,
+	originalPath: string,
+	originalSrcPath: string | undefined,
+): string | undefined {
+	const candidates = [
+		join(fileURLToPath(new URL('.prerender/', serverDir)), originalPath),
+		join(fileURLToPath(clientDir), originalPath),
+		...(originalSrcPath ? [originalSrcPath] : []),
+	];
+	return candidates.find((candidate) => existsSync(candidate));
+}
+
+/**
+ * Requests one optimized image from the prerender worker and streams the response body
+ * directly into the client output directory. The original is streamed up as the request
+ * body, so neither side ever holds a whole image in memory.
+ */
+async function writeTransformedImage(
+	serverUrl: string,
+	clientDir: URL,
+	originalPath: string,
+	finalPath: string,
+	transform: Record<string, any>,
+	sourcePath: string | undefined,
+): Promise<void> {
+	const response = await fetch(createImageTransformUrl(serverUrl, originalPath, transform), {
+		method: 'POST',
+		// Remote images have no local original; the worker fetches those itself.
+		...(sourcePath
+			? {
+					body: Readable.toWeb(createReadStream(sourcePath)) as unknown as BodyInit,
+					// Required by Node's fetch whenever the body is a stream.
+					duplex: 'half',
+				}
+			: {}),
+	} as RequestInit);
+
+	if (!response.ok || !response.body) {
+		// The body can be a full error page, so keep only enough of it to be useful.
+		const body = (await response.text().catch(() => '')).replace(/\s+/g, ' ').trim();
+		const details = body ? `: ${body.slice(0, 200)}` : '';
+		throw new Error(
+			`the prerender server responded ${response.status} ${response.statusText}${details}`,
+		);
+	}
+
+	const outputPath = join(fileURLToPath(clientDir), finalPath);
+	await mkdir(dirname(outputPath), { recursive: true });
+	// `fetch` types the body as the DOM `ReadableStream`, which is structurally
+	// identical to but nominally distinct from the `node:stream/web` one.
+	const body = response.body as unknown as NodeReadableStream<Uint8Array>;
+	await pipeline(Readable.fromWeb(body), createWriteStream(outputPath));
 }
 
 /**
@@ -48,6 +171,7 @@ export function createCloudflarePrerenderer({
 	hasBuildImageService,
 	hasBindingImageService,
 	userImageServiceEntrypoint,
+	logger,
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
 	let serverUrl: string;
@@ -170,39 +294,71 @@ export function createCloudflarePrerenderer({
 
 						const entries: StaticImagesResponse = await response.json();
 
-						// For transforms that already have imageData (optimized by the IMAGES binding
-						// in workerd), write the bytes directly to the client output directory.
-						// Remaining transforms without imageData fall through to the Node-side
-						// image service (the user-configured service or Sharp).
+						// Transforms left in this map fall through to the Node-side image
+						// service (the user-configured service, or Sharp).
 						const staticImages: AssetsGlobalStaticImagesList = new Map();
-						let needsNodeImageService = false;
-
-						for (const entry of entries) {
-							const transforms = new Map();
-							for (const t of entry.transforms) {
-								if (t.imageData) {
-									// Image was already transformed by the Cloudflare IMAGES binding;
-									// write it directly to the output directory.
-									const outputPath = join(fileURLToPath(clientDir), t.finalPath);
-									await mkdir(dirname(outputPath), { recursive: true });
-									await writeFile(outputPath, Buffer.from(t.imageData, 'base64'));
-								} else {
-									// No pre-transformed data; collect for Node-side processing.
-									transforms.set(t.hash, { finalPath: t.finalPath, transform: t.transform });
-									needsNodeImageService = true;
-								}
+						const deferToNodeImageService = (
+							entry: SerializedStaticImageEntry,
+							t: SerializedStaticImageEntry['transforms'][number],
+						) => {
+							let existing = staticImages.get(entry.originalPath);
+							if (!existing) {
+								existing = { originalSrcPath: entry.originalSrcPath, transforms: new Map() };
+								staticImages.set(entry.originalPath, existing);
 							}
-							if (transforms.size > 0) {
-								staticImages.set(entry.originalPath, {
-									originalSrcPath: entry.originalSrcPath,
-									transforms,
-								});
+							existing.transforms.set(t.hash, {
+								finalPath: t.finalPath,
+								// Serialized over HTTP, so it arrives as a plain object.
+								transform: t.transform as ImageTransform,
+							});
+						};
+
+						if (hasBindingImageService) {
+							// Pull each optimized image out of workerd on its own request so the
+							// bytes stream to disk instead of being buffered into one response.
+							const jobs = entries.flatMap((entry) => {
+								const sourcePath = isRemotePath(entry.originalPath)
+									? undefined
+									: findOriginalImage(
+											serverDir,
+											clientDir,
+											entry.originalPath,
+											entry.originalSrcPath,
+										);
+								return entry.transforms.map((t) => ({ entry, t, sourcePath }));
+							});
+							await forEachWithConcurrency(
+								jobs,
+								IMAGE_TRANSFORM_CONCURRENCY,
+								async ({ entry, t, sourcePath }) => {
+									try {
+										await writeTransformedImage(
+											serverUrl,
+											clientDir,
+											entry.originalPath,
+											t.finalPath,
+											t.transform,
+											sourcePath,
+										);
+									} catch (err) {
+										const message = err instanceof Error ? err.message : String(err);
+										logger.warn(
+											`Could not optimize "${entry.originalPath}" with the Cloudflare IMAGES binding (${message}). Falling back to the local image service.`,
+										);
+										deferToNodeImageService(entry, t);
+									}
+								},
+							);
+						} else {
+							for (const entry of entries) {
+								for (const t of entry.transforms) {
+									deferToNodeImageService(entry, t);
+								}
 							}
 						}
 
-						// Only load the Node-side image service if some transforms weren't
-						// handled by the binding.
-						if (needsNodeImageService) {
+						// Only load the Node-side image service if some transforms still need it.
+						if (staticImages.size > 0) {
 							globalThis.astroAsset ??= {};
 							if (userImageServiceEntrypoint) {
 								const mod = await import(userImageServiceEntrypoint);

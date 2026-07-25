@@ -30,8 +30,6 @@ export interface SerializedStaticImageEntry {
 		hash: string;
 		finalPath: string;
 		transform: Record<string, any>;
-		/** Base64-encoded transformed image data, present when the IMAGES binding was used at build time. */
-		imageData?: string;
 	}>;
 }
 

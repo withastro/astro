@@ -27,8 +27,12 @@ import {
 	STATIC_PATHS_ENDPOINT,
 	PRERENDER_ENDPOINT,
 	STATIC_IMAGES_ENDPOINT,
+	IMAGE_TRANSFORM_ENDPOINT,
 } from './prerender-constants.js';
-import { transform as transformWithImagesBinding } from './image-binding-transform.js';
+import {
+	transform as transformWithImagesBinding,
+	transformStream as transformStreamWithImagesBinding,
+} from './image-binding-transform.js';
 
 /**
  * Replicates core's `BuildErrorHandler` semantics on the worker app during
@@ -134,17 +138,13 @@ export function isStaticImagesRequest(request: Request): boolean {
 	return pathname === STATIC_IMAGES_ENDPOINT && request.method === 'POST';
 }
 
-interface StaticImagesOptions {
-	/** The Cloudflare IMAGES binding for image transformation. */
-	images?: ImagesBinding;
-	/** The Cloudflare ASSETS fetcher for loading local images. */
-	assets?: Fetcher;
+export function isImageTransformRequest(request: Request): boolean {
+	const { pathname } = new URL(request.url);
+	return pathname === IMAGE_TRANSFORM_ENDPOINT && request.method === 'POST';
 }
 
-/** Serializes the global staticImages map collected in workerd back to the Node-side build.
- *  When IMAGES and ASSETS bindings are provided, transforms images using the Cloudflare
- *  binding and includes the optimized bytes in the response. */
-export async function handleStaticImagesRequest(options?: StaticImagesOptions): Promise<Response> {
+/** Serializes the global staticImages map collected in workerd back to the Node-side build. */
+export function handleStaticImagesRequest(): Response {
 	const staticImages = globalThis.astroAsset?.staticImages;
 	if (!staticImages || staticImages.size === 0) {
 		return new Response('[]', {
@@ -152,29 +152,14 @@ export async function handleStaticImagesRequest(options?: StaticImagesOptions): 
 		});
 	}
 
-	const { images, assets } = options ?? {};
-	const canTransform = !!images && !!assets;
-
 	const entries: StaticImagesResponse = [];
 	for (const [originalPath, { originalSrcPath, transforms }] of staticImages) {
 		const serializedTransforms: SerializedStaticImageEntry['transforms'] = [];
 		for (const [hash, { finalPath, transform }] of transforms) {
-			let imageData: string | undefined;
-
-			if (canTransform) {
-				try {
-					imageData = await transformWithBinding(originalPath, transform, images, assets);
-				} catch {
-					// If the IMAGES binding fails, fall back to metadata-only
-					// so the Node side can use Sharp as a fallback.
-				}
-			}
-
 			serializedTransforms.push({
 				hash,
 				finalPath,
 				transform: transform as Record<string, any>,
-				imageData,
 			});
 		}
 		entries.push({ originalPath, originalSrcPath, transforms: serializedTransforms });
@@ -185,53 +170,49 @@ export async function handleStaticImagesRequest(options?: StaticImagesOptions): 
 	});
 }
 
-/** Transforms a single image using the Cloudflare IMAGES binding and returns base64-encoded data. */
-async function transformWithBinding(
-	originalPath: string,
-	transform: Record<string, any>,
-	images: ImagesBinding,
-	assets: Fetcher,
-): Promise<string> {
-	const response = await transformWithImagesBinding(
-		createImageTransformUrl(originalPath, transform),
-		images,
-		assets,
-	);
-	if (!response.ok) {
-		throw new Error(`Failed to transform image: ${originalPath}`);
-	}
-
-	const buffer = await response.arrayBuffer();
-
-	// Encode as base64 for JSON transport
-	const bytes = new Uint8Array(buffer);
-	let binary = '';
-	for (const byte of bytes) {
-		binary += String.fromCharCode(byte);
-	}
-	return btoa(binary);
+interface ImageTransformOptions {
+	/** The Cloudflare IMAGES binding for image transformation. */
+	images?: ImagesBinding;
+	/** The Cloudflare ASSETS fetcher for loading local images. */
+	assets?: Fetcher;
 }
 
-function createImageTransformUrl(originalPath: string, transform: Record<string, any>): string {
-	const url = new URL('/_image', 'https://placeholder.host');
-	url.searchParams.set('href', originalPath);
-
-	const params: Record<string, string> = {
-		w: 'width',
-		h: 'height',
-		q: 'quality',
-		f: 'format',
-		fit: 'fit',
-		position: 'position',
-		background: 'background',
-	};
-
-	for (const [param, key] of Object.entries(params)) {
-		const value = transform[key];
-		if (value) {
-			url.searchParams.set(param, value.toString());
-		}
+/**
+ * Transforms a single image with the Cloudflare IMAGES binding and streams the raw
+ * bytes back to the Node-side build.
+ *
+ * The transform parameters arrive as query parameters on the request URL, in the same
+ * shape `/_image` uses. Handling one image per request keeps peak memory proportional to
+ * a single variant rather than to the whole image set, since neither the request body
+ * nor the response body is ever buffered in the isolate.
+ *
+ * Local originals are uploaded as the request body: at this point in the build they live
+ * in Astro's intermediate output, not in the client directory the ASSETS binding serves,
+ * so the worker cannot fetch them itself. Remote images have no body and are resolved
+ * here, exactly as the runtime `image-transform-endpoint` does.
+ */
+export async function handleImageTransformRequest(
+	request: Request,
+	{ images, assets }: ImageTransformOptions,
+): Promise<Response> {
+	if (!images) {
+		return new Response('The Cloudflare IMAGES binding is not available in the prerender worker.', {
+			status: 503,
+		});
 	}
 
-	return url.toString();
+	if (request.body) {
+		return transformStreamWithImagesBinding(
+			request.body,
+			new URL(request.url).searchParams,
+			images,
+		);
+	}
+
+	if (!assets) {
+		return new Response('The Cloudflare ASSETS binding is not available in the prerender worker.', {
+			status: 503,
+		});
+	}
+	return transformWithImagesBinding(request.url, images, assets);
 }
