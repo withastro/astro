@@ -135,6 +135,10 @@ export function createMdxProcessor(
 				},
 				fileURL: pathToFileURL(filePath),
 				jsxImportSource: 'astro',
+				// Plugin-added elements carry hast property names (`strokeWidth`, `clipPath`).
+				// Satteri defaults to React casing, which would emit those verbatim as invalid
+				// HTML/SVG attributes; `'html'` resolves them the way `.md` rendering does.
+				elementAttributeNameCase: 'html',
 				data: { astro: astroData },
 			});
 			let compiled = mdxResult.code;
