@@ -70,7 +70,7 @@ export function cloudflareConfigCustomizer(
 						binding: DEFAULT_ASSETS_BINDING_NAME,
 					},
 			// Enable the Worker caching layer when a Cloudflare cache provider is configured
-			cache: needsWorkerCache && !config.cache?.enabled ? { enabled: true } : undefined,
+			cache: needsWorkerCache && config.cache?.enabled === undefined ? { enabled: true } : undefined,
 			previews: getNonInheritableBindings(config.previews),
 		};
 	};
