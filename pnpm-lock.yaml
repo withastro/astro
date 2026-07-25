@@ -2679,6 +2679,18 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/client-only-child-styles:
+    dependencies:
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../../../integrations/vue
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      vue:
+        specifier: ^3.5.0
+        version: 3.5.30(typescript@6.0.3)
+
   packages/astro/test/fixtures/client-only-css-chunk-leak:
     dependencies:
       '@astrojs/react':
