@@ -26,6 +26,8 @@ const ALWAYS_NOEXTERNAL = [
 	'@nanostores/preact',
 	// fontsource packages are CSS that need to be processed
 	'@fontsource/*',
+	// Bundle so a hoisted older version from another dependency isn't used instead
+	'neotraverse',
 ];
 
 interface Payload {
