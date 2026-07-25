@@ -1,7 +1,5 @@
-import { posix } from 'node:path';
-import { getDefaultClientDirectives } from '../core/client-directive/index.js';
-import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schemas/index.js';
-import { validateConfig } from '../core/config/validate.js';
+import { getDefaultClientDirectives } from '../core/client-directive/default.js';
+import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schemas/defaults.js';
 import { createKey } from '../core/encryption.js';
 import { FetchState } from '../core/fetch/fetch-state.js';
 import { AstroMiddleware } from '../core/middleware/astro-middleware.js';
@@ -16,7 +14,7 @@ import type { AstroComponentFactory } from '../runtime/server/index.js';
 import { SlotString } from '../runtime/server/render/slot.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { AstroMiddlewareInstance, MiddlewareHandler, Props } from '../types/public/common.js';
-import type { AstroConfig, AstroUserConfig } from '../types/public/config.js';
+import type { AstroUserConfig } from '../types/public/config.js';
 import type {
 	NamedSSRLoadedRendererValue,
 	RouteData,
@@ -28,11 +26,6 @@ import type {
 } from '../types/public/internal.js';
 import { ContainerPipeline } from './pipeline.js';
 import { createConsoleLogger } from '../core/logger/impls/console.js';
-
-// Strip deprecated `gfm` and `smartypants` from the defaults so the container
-// doesn't trigger the deprecation warning added for user-specified config.
-const { gfm: _, smartypants: __, ...containerMarkdownDefaults } = ASTRO_CONFIG_DEFAULTS.markdown;
-const CONTAINER_CONFIG_DEFAULTS = { ...ASTRO_CONFIG_DEFAULTS, markdown: containerMarkdownDefaults };
 
 /**
  * Public type, used for integrations to define a renderer for the container API
@@ -142,7 +135,14 @@ function createManifest(
 			onRequest: middleware ?? NOOP_MIDDLEWARE_FN,
 		};
 	}
-	const root = new URL(import.meta.url);
+	// Use import.meta.url as root when available (Node.js), otherwise fall back
+	// to a synthetic URL so the container works in non-Node environments (e.g. workerd).
+	let root: URL;
+	try {
+		root = new URL(import.meta.url);
+	} catch {
+		root = new URL('file:///container/');
+	}
 	return {
 		rootDir: root,
 		srcDir: manifest?.srcDir ?? new URL(ASTRO_CONFIG_DEFAULTS.srcDir, root),
@@ -285,7 +285,6 @@ type AstroContainerConstructor = {
 	renderers?: SSRLoadedRenderer[];
 	manifest?: AstroContainerManifest;
 	resolve?: SSRResult['resolve'];
-	astroConfig?: AstroConfig;
 };
 
 export class experimental_AstroContainer {
@@ -304,16 +303,16 @@ export class experimental_AstroContainer {
 		manifest,
 		renderers,
 		resolve,
-		astroConfig,
 	}: AstroContainerConstructor) {
+		const ssrManifest = createManifest(manifest, renderers);
 		this.#pipeline = ContainerPipeline.create({
 			logger: createConsoleLogger({ level: 'error' }),
-			manifest: createManifest(manifest, renderers),
+			manifest: ssrManifest,
 			streaming,
 			renderers: renderers ?? manifest?.renderers ?? [],
 			resolve: async (specifier: string) => {
 				if (this.#withManifest) {
-					return this.#containerResolve(specifier, astroConfig);
+					return this.#containerResolve(specifier, ssrManifest);
 				} else if (resolve) {
 					return resolve(specifier);
 				}
@@ -324,10 +323,10 @@ export class experimental_AstroContainer {
 		this.#pagesHandler = new PagesHandler(this.#pipeline);
 	}
 
-	async #containerResolve(specifier: string, astroConfig?: AstroConfig): Promise<string> {
-		const found = this.#pipeline.manifest.entryModules[specifier];
+	async #containerResolve(specifier: string, manifest: SSRManifest): Promise<string> {
+		const found = manifest.entryModules[specifier];
 		if (found) {
-			return new URL(found, astroConfig?.build.client).toString();
+			return new URL(found, manifest.buildClientDir).toString();
 		}
 		return found;
 	}
@@ -341,12 +340,10 @@ export class experimental_AstroContainer {
 		containerOptions: AstroContainerOptions = {},
 	): Promise<experimental_AstroContainer> {
 		const { streaming = false, manifest, renderers = [], resolve } = containerOptions;
-		const astroConfig = await validateConfig(CONTAINER_CONFIG_DEFAULTS, process.cwd(), 'container');
 		return new experimental_AstroContainer({
 			streaming,
 			manifest,
 			renderers,
-			astroConfig,
 			resolve,
 		});
 	}
@@ -444,10 +441,8 @@ export class experimental_AstroContainer {
 	private static async createFromManifest(
 		manifest: SSRManifest,
 	): Promise<experimental_AstroContainer> {
-		const astroConfig = await validateConfig(CONTAINER_CONFIG_DEFAULTS, process.cwd(), 'container');
 		const container = new experimental_AstroContainer({
 			manifest,
-			astroConfig,
 		});
 		container.#withManifest = true;
 		return container;
@@ -592,7 +587,7 @@ export class experimental_AstroContainer {
 
 	#createRoute(url: URL, params: Record<string, string | undefined>, type: RouteType): RouteData {
 		const segments = removeLeadingForwardSlash(url.pathname)
-			.split(posix.sep)
+			.split('/')
 			.filter(Boolean)
 			.map((s: string) => {
 				validateSegment(s);
