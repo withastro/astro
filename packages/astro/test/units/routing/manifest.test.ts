@@ -19,7 +19,7 @@ function getLogger() {
 	return {
 		logger: new AstroLogger({
 			destination: {
-				write(msg: AstroLoggerMessage) {
+				write(msg) {
 					logs.push(msg);
 					return true;
 				},

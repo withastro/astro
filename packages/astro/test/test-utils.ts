@@ -200,10 +200,19 @@ export async function loadFixture(inlineConfig: AstroInlineConfig): Promise<Fixt
 			}
 
 			const dataStoreFile = path.join(root as string, '.astro', 'data-store.json');
+			// In chunked mode (experimental `collectionStorage: 'chunked'`) the store is a
+			// directory whose manifest is written last, so a manifest change marks a
+			// completed store update.
+			const dataStoreManifestFile = path.join(
+				root as string,
+				'.astro',
+				'data-store',
+				'__manifest.json',
+			);
 
 			return new Promise<void>((resolve, reject) => {
 				const changeHandler = (fileName: string) => {
-					if (fileName === dataStoreFile) {
+					if (fileName === dataStoreFile || fileName === dataStoreManifestFile) {
 						devServer!.watcher.removeListener('change', changeHandler);
 						resolve();
 					}

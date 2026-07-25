@@ -16,7 +16,7 @@ import type { ServerIslandMappings } from './app/types.js';
 import type { SinglePageBuiltModule } from './build/types.js';
 import { ActionNotFoundError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
-import type { AstroLogger } from './logger/core.js';
+import { AstroLogger } from './logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 import { sequence } from './middleware/sequence.js';
 import { RedirectSinglePageBuiltModule } from './redirects/index.js';
@@ -28,7 +28,7 @@ import type { CacheProvider, CacheProviderFactory } from './cache/types.js';
 import type { CompiledCacheRoute } from './cache/runtime/route-matching.js';
 import type { SessionDriverFactory } from './session/types.js';
 import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
-import { loadLogger } from './logger/load.js';
+import { loadLoggerDestination } from './logger/load.js';
 
 /**
  * Bit flags for pipeline features that handler classes register as
@@ -297,7 +297,10 @@ export abstract class Pipeline {
 		}
 		this.resolvedLogger = true;
 		if (this.manifest.loggerConfig) {
-			this.logger = await loadLogger(this.manifest.loggerConfig);
+			this.logger = new AstroLogger({
+				destination: await loadLoggerDestination(this.manifest.loggerConfig),
+				level: this.manifest.logLevel,
+			});
 		}
 		return this.logger;
 	}

@@ -11,6 +11,7 @@ import {
 import { createDefaultAstroMetadata } from 'astro/markdown';
 import {
 	mdxToJs,
+	type HastNode,
 	type HastPluginDefinition,
 	type MdastPluginDefinition,
 	type MdxCompileOptions,
@@ -21,7 +22,7 @@ import { shouldAddCharset } from './charset.js';
 import { type AstroMetadata, createAstroMetadataPlugin } from './hast-astro-metadata.js';
 import { createImageToComponentPlugin, type ImageImportInfo } from './hast-images-to-component.js';
 
-type HighlightFn = (code: string, lang: string, meta?: string) => Promise<string>;
+type HighlightFn = (code: string, lang: string, meta?: string) => Promise<HastNode>;
 
 export type { MdastPluginDefinition, HastPluginDefinition, MarkdownHeading };
 export type { AstroMetadata } from './hast-astro-metadata.js';
@@ -96,9 +97,7 @@ export function createMdxProcessor(
 
 			const hastPlugins: HastPluginDefinition[] = [];
 			if (highlightFn) {
-				// `mdx: true` wraps the highlighted HTML in a JSX `<Fragment set:html>` node
-				// rather than a raw HTML node, since the Sätteri pipeline is compiling to JSX.
-				hastPlugins.push(satteriHighlightPlugin(highlightFn, excludeLangs, { mdx: true }));
+				hastPlugins.push(satteriHighlightPlugin(highlightFn, excludeLangs));
 			}
 			if (satteriOptions.hastPlugins.length) {
 				hastPlugins.push(...satteriOptions.hastPlugins);

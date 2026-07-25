@@ -13,15 +13,26 @@ describe('astro/src/core/cookies', () => {
 			assert.equal(headers[0], 'foo=bar');
 		});
 
-		it('Sets a cookie value that can be serialized w/ defaultencodeURIComponent behavior', () => {
+		it('Sets a cookie value without encoding when it only contains cookie-safe characters', () => {
 			let req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);
 			const url = 'http://localhost/path';
 			cookies.set('url', url);
 			let headers = Array.from(cookies.headers());
 			assert.equal(headers.length, 1);
-			// by default cookie value is URI encoded
-			assert.equal(headers[0], `url=${encodeURIComponent(url)}`);
+			// cookie-safe values are emitted as-is by default
+			assert.equal(headers[0], `url=${url}`);
+		});
+
+		it('Sets a cookie value that is URI encoded when it contains unsafe characters', () => {
+			let req = new Request('http://example.com/');
+			let cookies = new AstroCookies(req);
+			const value = 'hello world';
+			cookies.set('greeting', value);
+			let headers = Array.from(cookies.headers());
+			assert.equal(headers.length, 1);
+			// values with unsafe characters are URI encoded by default
+			assert.equal(headers[0], `greeting=${encodeURIComponent(value)}`);
 		});
 
 		it('Sets a cookie value that can be serialized w/ custom encode behavior', () => {
