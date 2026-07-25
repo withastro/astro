@@ -1,5 +1,6 @@
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import * as devalue from 'devalue';
+import { type DataStoreSource, InMemorySource } from './data-store-source.js';
 
 export interface RenderedContent {
 	/** Rendered HTML string. If present then `render(entry)` will return a component that renders this HTML. */
@@ -84,6 +85,31 @@ export class ImmutableDataStore {
 	}
 
 	/**
+	 * Rebuilds a collections map from a chunked-store manifest whose part file
+	 * names have already been swapped for their contents.
+	 *
+	 * Each collection maps to a list of parts. A part is either a raw string
+	 * (when the store is loaded from disk) or an ESM namespace from a `?raw`
+	 * import (`{ default: string }`, when emitted into the virtual module at
+	 * runtime). A collection's parts are concatenated back into the exact
+	 * serialized string, then parsed with devalue. This is the inverse of
+	 * {@link import('./data-store-writer.js').ChunkedWriter} and stays free of
+	 * Node built-ins so it can run at runtime.
+	 */
+	static manifestToMap(manifest: Record<string, Array<string | { default: string }>>) {
+		const collections = new Map<string, Map<string, any>>();
+		for (const [collectionName, parts] of Object.entries(manifest)) {
+			let stringified = '';
+			for (const part of parts) {
+				stringified += typeof part === 'string' ? part : part.default;
+			}
+			const entries: Map<string, any> = devalue.parse(stringified);
+			collections.set(collectionName, entries);
+		}
+		return collections;
+	}
+
+	/**
 	 * Attempts to load a DataStore from the virtual module.
 	 * This only works in Vite.
 	 */
@@ -94,7 +120,14 @@ export class ImmutableDataStore {
 			if (data.default instanceof Map) {
 				return ImmutableDataStore.fromMap(data.default);
 			}
-			const map = devalue.unflatten(data.default);
+			// A single-file store is emitted as a devalue-flattened array.
+			if (Array.isArray(data.default)) {
+				const map = devalue.unflatten(data.default);
+				return ImmutableDataStore.fromMap(map);
+			}
+			// A chunked store is emitted as a manifest object of collections to
+			// their (lazily imported) serialized parts.
+			const map = ImmutableDataStore.manifestToMap(data.default);
 			return ImmutableDataStore.fromMap(map);
 		} catch {}
 		return new ImmutableDataStore();
@@ -108,16 +141,17 @@ export class ImmutableDataStore {
 }
 
 function dataStoreSingleton() {
-	let instance: Promise<ImmutableDataStore> | ImmutableDataStore | undefined = undefined;
+	let instance: Promise<DataStoreSource> | DataStoreSource | undefined = undefined;
 	return {
-		get: async () => {
+		get: async (): Promise<DataStoreSource> => {
 			if (!instance) {
-				instance = ImmutableDataStore.fromModule();
+				instance = ImmutableDataStore.fromModule().then((store) => new InMemorySource(store));
 			}
 			return instance;
 		},
+		// Note: currently unused, but kept for API stability.
 		set: (store: ImmutableDataStore) => {
-			instance = store;
+			instance = new InMemorySource(store);
 		},
 	};
 }

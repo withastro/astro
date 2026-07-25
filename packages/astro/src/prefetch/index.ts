@@ -247,7 +247,12 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 		for (const [key, value] of Object.entries(internalFetchHeaders) as [string, string][]) {
 			headers.set(key, value);
 		}
-		fetch(url, { priority: 'low', headers });
+		// The `<link rel="prefetch">` branch above is unsupported in WebKit
+		// (Safari), so this fetch fallback is the path there. A prefetch is a
+		// best-effort hint, so swallow network failures — otherwise a flaky
+		// connection surfaces an unhandled `TypeError: Load failed` rejection
+		// to the page's global error handlers (and trips no-floating-promises).
+		fetch(url, { priority: 'low', headers }).catch(() => {});
 	}
 }
 
@@ -306,7 +311,8 @@ function isSlowConnection() {
 }
 
 /**
- * Listen to page loads and handle Astro's View Transition specific events
+ * Listen to page loads and handle Astro's View Transition specific events.
+ * Also observes DOM mutations for dynamically added anchors (e.g. from server islands).
  */
 function onPageLoad(cb: () => void) {
 	cb();
@@ -320,6 +326,18 @@ function onPageLoad(cb: () => void) {
 		}
 		cb();
 	});
+
+	// Watch for dynamically added anchors (e.g. from server islands)
+	new MutationObserver((mutations) => {
+		for (const mutation of mutations) {
+			for (const node of mutation.addedNodes) {
+				if (node instanceof Element && (node.tagName === 'A' || node.querySelector?.('a'))) {
+					cb();
+					return;
+				}
+			}
+		}
+	}).observe(document.body, { childList: true, subtree: true });
 }
 
 /**

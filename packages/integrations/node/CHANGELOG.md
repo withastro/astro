@@ -1,5 +1,24 @@
 # @astrojs/node
 
+## 11.0.2
+
+### Patch Changes
+
+- [#17252](https://github.com/withastro/astro/pull/17252) [`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes trailing-slash handling for request paths that begin with a backslash
+
+  With `trailingSlash: 'always'`, the standalone Node server could append a trailing slash to a request path that begins with a backslash (for example `/\example.com/foo`) and echo that path back in the `Location` header of a `301` response. Because browsers resolve a leading `\` the same way as `/`, the resulting `Location` could point off-site.
+
+  Such paths are now recognized as internal paths, matching the existing handling for paths that begin with `//`, so they are no longer rewritten with a trailing slash.
+
+- Updated dependencies [[`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c)]:
+  - @astrojs/internal-helpers@0.10.1
+
+## 11.0.1
+
+### Patch Changes
+
+- [#17249](https://github.com/withastro/astro/pull/17249) [`02b73b0`](https://github.com/withastro/astro/commit/02b73b0fc2e32102e788fd9031ce061337490a73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `peerDependencies` field used incorrect dependencies.
+
 ## 11.0.0
 
 ### Patch Changes

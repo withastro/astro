@@ -1,17 +1,14 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import MagicString from 'magic-string';
-import { rehype } from 'rehype';
-import { VFile } from 'vfile';
-import rehypeSlots, { SLOT_PREFIX } from '../../../dist/vite-plugin-html/transform/slots.js';
+import { collectSlots, SLOT_PREFIX } from '../../../dist/vite-plugin-html/transform/slots.js';
 
 describe('vite-plugin-html: slot transformer', () => {
-	async function testSlotTransform(html: string) {
+	function testSlotTransform(html: string) {
 		const s = new MagicString(html);
-		const processor = rehype().data('settings', { fragment: true }).use(rehypeSlots, { s });
-
-		const vfile = new VFile({ value: html, path: 'test.html' });
-		await processor.process(vfile);
+		for (const slot of collectSlots(html)) {
+			s.overwrite(slot.start, slot.end, slot.value);
+		}
 		return s.toString();
 	}
 

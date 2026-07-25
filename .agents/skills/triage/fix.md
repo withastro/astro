@@ -127,7 +127,7 @@ If the test fails, fix either the test or the implementation until it passes. If
 
 ## Step 7: Check for Regressions
 
-Test that you didn't break anything new, and that normal cases still work. If you find regressions, refine the fix to handle all cases.
+Test that you didn't break anything new, and that normal cases still work. If you find regressions, refine the fix to handle all cases. Run `pnpm run lint` and `pnpm run typecheck` to make sure the code follows the projects standards and there aren't errors. Address the errors until everything passes.
 
 ## Step 8: Generate Git Diff
 

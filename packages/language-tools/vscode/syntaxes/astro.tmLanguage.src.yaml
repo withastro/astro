@@ -96,8 +96,15 @@ injections:
     patterns:
       [
         {
+          begin: '(?<=>)(?=[^\n]+</style[\s>])',
+          end: '(?=</style[\s>])',
+          name: meta.embedded.block.astro,
+          contentName: source.stylus,
+          patterns: [{ include: source.stylus }],
+        },
+        {
           begin: '(?<=>)(?!</)',
-          end: '(?=</)',
+          while: '^(?!\s*</style[\s>])',
           name: meta.embedded.block.astro,
           contentName: source.stylus,
           patterns: [{ include: source.stylus }],
@@ -109,8 +116,15 @@ injections:
     patterns:
       [
         {
+          begin: '(?<=>)(?=[^\n]+</style[\s>])',
+          end: '(?=</style[\s>])',
+          name: meta.embedded.block.astro,
+          contentName: source.sass,
+          patterns: [{ include: source.sass }],
+        },
+        {
           begin: '(?<=>)(?!</)',
-          end: '(?=</)',
+          while: '^(?!\s*</style[\s>])',
           name: meta.embedded.block.astro,
           contentName: source.sass,
           patterns: [{ include: source.sass }],
@@ -122,8 +136,15 @@ injections:
     patterns:
       [
         {
+          begin: '(?<=>)(?=[^\n]+</style[\s>])',
+          end: '(?=</style[\s>])',
+          name: meta.embedded.block.astro,
+          contentName: source.css,
+          patterns: [{ include: source.css }],
+        },
+        {
           begin: '(?<=>)(?!</)',
-          end: '(?=</)',
+          while: '^(?!\s*</style[\s>])',
           name: meta.embedded.block.astro,
           contentName: source.css,
           patterns: [{ include: source.css }],
@@ -135,8 +156,15 @@ injections:
     patterns:
       [
         {
+          begin: '(?<=>)(?=[^\n]+</style[\s>])',
+          end: '(?=</style[\s>])',
+          name: meta.embedded.block.astro,
+          contentName: source.css.scss,
+          patterns: [{ include: source.css.scss }],
+        },
+        {
           begin: '(?<=>)(?!</)',
-          end: '(?=</)',
+          while: '^(?!\s*</style[\s>])',
           name: meta.embedded.block.astro,
           contentName: source.css.scss,
           patterns: [{ include: source.css.scss }],
@@ -148,8 +176,15 @@ injections:
     patterns:
       [
         {
+          begin: '(?<=>)(?=[^\n]+</style[\s>])',
+          end: '(?=</style[\s>])',
+          name: meta.embedded.block.astro,
+          contentName: source.css.less,
+          patterns: [{ include: source.css.less }],
+        },
+        {
           begin: '(?<=>)(?!</)',
-          end: '(?=</)',
+          while: '^(?!\s*</style[\s>])',
           name: meta.embedded.block.astro,
           contentName: source.css.less,
           patterns: [{ include: source.css.less }],
@@ -161,8 +196,15 @@ injections:
     patterns:
       [
         {
+          begin: '(?<=>)(?=[^\n]+</style[\s>])',
+          end: '(?=</style[\s>])',
+          name: meta.embedded.block.astro,
+          contentName: source.css.postcss,
+          patterns: [{ include: source.css.postcss }],
+        },
+        {
           begin: '(?<=>)(?!</)',
-          end: '(?=</)',
+          while: '^(?!\s*</style[\s>])',
           name: meta.embedded.block.astro,
           contentName: source.css.postcss,
           patterns: [{ include: source.css.postcss }],
@@ -174,8 +216,15 @@ injections:
     patterns:
       [
         {
+          begin: '(?<=>)(?=[^\n]+</style[\s>])',
+          end: '(?=</style[\s>])',
+          name: meta.embedded.block.astro,
+          contentName: source.css,
+          patterns: [{ include: source.css }],
+        },
+        {
           begin: '(?<=>)(?!</)',
-          end: '(?=</)',
+          while: '^(?!\s*</style[\s>])',
           name: meta.embedded.block.astro,
           contentName: source.css,
           patterns: [{ include: source.css }],

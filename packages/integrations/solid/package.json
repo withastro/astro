@@ -1,9 +1,8 @@
 {
   "name": "@astrojs/solid-js",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "description": "Use Solid components within Astro",
   "type": "module",
-  "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {

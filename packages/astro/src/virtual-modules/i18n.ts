@@ -10,6 +10,10 @@ import {
 import { AstroError } from '../core/errors/index.js';
 import type { RedirectToFallback } from '../i18n/index.js';
 import * as I18nInternals from '../i18n/index.js';
+import {
+	normalizeTheLocale as normalizeTheLocaleInternal,
+	pathHasLocale as pathHasLocaleInternal,
+} from '../i18n/path.js';
 import type { MiddlewareHandler } from '../types/public/common.js';
 import type { AstroConfig, ValidRedirectStatus } from '../types/public/config.js';
 import type { APIContext } from '../types/public/context.js';
@@ -245,7 +249,7 @@ export const getLocaleByPath = (path: string) => I18nInternals.getLocaleByPath(p
  * pathHasLocale("it-VT"); // returns `false`
  * ```
  */
-export const pathHasLocale = (path: string) => I18nInternals.pathHasLocale(path, locales);
+export const pathHasLocale = (path: string) => pathHasLocaleInternal(path, locales);
 
 /**
  *
@@ -427,7 +431,7 @@ if (i18n?.routing === 'manual') {
  * normalizeTheLocale("it_VT") // returns `it-vt`
  * ```
  */
-export const normalizeTheLocale = I18nInternals.normalizeTheLocale;
+export const normalizeTheLocale = normalizeTheLocaleInternal;
 
 /**
  * Retrieves the configured locale codes for each locale defined in your

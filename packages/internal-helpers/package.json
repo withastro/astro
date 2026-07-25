@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/internal-helpers",
   "description": "Internal helpers used by core Astro packages.",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -27,37 +27,6 @@
     "#shiki-engine": {
       "workerd": "./dist/shiki-engine-workerd.js",
       "default": "./dist/shiki-engine-default.js"
-    }
-  },
-  "typesVersions": {
-    "*": {
-      "path": [
-        "./dist/path.d.ts"
-      ],
-      "remote": [
-        "./dist/remote.d.ts"
-      ],
-      "markdown": [
-        "./dist/markdown.d.ts"
-      ],
-      "frontmatter": [
-        "./dist/frontmatter.d.ts"
-      ],
-      "shiki": [
-        "./dist/shiki.d.ts"
-      ],
-      "fs": [
-        "./dist/fs.d.ts"
-      ],
-      "cli": [
-        "./dist/cli.d.ts"
-      ],
-      "create-filter": [
-        "./dist/create-filter.d.ts"
-      ],
-      "object": [
-        "./dist/object.d.ts"
-      ]
     }
   },
   "files": [

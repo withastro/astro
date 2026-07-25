@@ -229,28 +229,29 @@ export interface SSRResult {
 	key: Promise<CryptoKey>;
 	_metadata: SSRMetadata;
 	/**
-	 * `header`:
-	 * - <meta> for static pages
-	 * - Response header for dynamic pages
-	 *
-	 * `meta`:
-	 * - <meta> for all pages
-	 *
-	 * `adapter`:
-	 * - nothing for static pages (the adapter does this)
-	 * - Response header for dynamic pages
+	 * `cspDestination`:
+	 * - `header`: `<meta>` for static pages, response header for dynamic pages
+	 * - `meta`: `<meta>` for all pages
+	 * - `adapter`: nothing for static pages (the adapter does this), response header for dynamic pages
 	 */
 	// NOTE: we use a different type here because at runtime we must provide a value, which is
 	// eventually computed from RouteData.prerender
 	cspDestination: NonNullable<SSRManifestCSP['cspDestination']>;
 	shouldInjectCspMetaTags: boolean;
 	cspAlgorithm: SSRManifestCSP['algorithm'];
-	scriptHashes: SSRManifestCSP['scriptHashes'];
-	scriptResources: SSRManifestCSP['scriptResources'];
-	styleHashes: SSRManifestCSP['styleHashes'];
-	styleResources: SSRManifestCSP['styleResources'];
 	directives: SSRManifestCSP['directives'];
+	/** @deprecated Use {@linkcode scriptDirective} instead. Holds the `default`-kind `script-src` hashes. */
+	scriptHashes: SSRManifestCSP['scriptHashes'];
+	/** @deprecated Use {@linkcode scriptDirective} instead. Holds the `default`-kind `script-src` resources. */
+	scriptResources: SSRManifestCSP['scriptResources'];
+	/** @deprecated Use {@linkcode styleDirective} instead. Holds the `default`-kind `style-src` hashes. */
+	styleHashes: SSRManifestCSP['styleHashes'];
+	/** @deprecated Use {@linkcode styleDirective} instead. Holds the `default`-kind `style-src` resources. */
+	styleResources: SSRManifestCSP['styleResources'];
+	/** @deprecated Use {@linkcode scriptDirective}'s `strictDynamic` instead. */
 	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
+	scriptDirective: SSRManifestCSP['scriptDirective'];
+	styleDirective: SSRManifestCSP['styleDirective'];
 	internalFetchHeaders?: Record<string, string>;
 }
 
@@ -304,6 +305,20 @@ export interface SSRMetadata {
 	extraStyleHashes: string[];
 	extraScriptHashes: string[];
 	propagators: Set<AstroComponentInstance | ServerIslandComponent>;
+	/**
+	 * `true` when the page being rendered is on a head-propagation path (its
+	 * component metadata hint is `in-tree`/`self`). Only then do we await async
+	 * slot pre-renders before collecting head content, so that propagating
+	 * components hidden behind an `await` in slot markup are discovered in time.
+	 * Pages with no propagation keep streaming without paying that cost.
+	 */
+	routeHasPropagation: boolean;
+	/**
+	 * Promises from async slot pre-renders that may still need to register
+	 * propagating components. Drained by `collectPropagatedHeadParts` before
+	 * head content is flushed. Only populated when `routeHasPropagation` is true.
+	 */
+	pendingSlotEvaluations: Promise<unknown>[];
 	/**
 	 * Tracks nesting depth of HTML `<template>` elements during rendering.
 	 * Scripts rendered inside `<template>` tags should not be deduplicated,

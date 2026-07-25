@@ -5,7 +5,7 @@ import {
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
-import { normalizeTheLocale } from '../../i18n/index.js';
+import { normalizeTheLocale } from '../../i18n/path.js';
 import type { SSRManifest } from '../app/types.js';
 import type { AstroLogger } from '../logger/core.js';
 
@@ -25,6 +25,7 @@ export function computePathnameFromDomain(
 	base: SSRManifest['base'],
 	trailingSlash: SSRManifest['trailingSlash'],
 	logger: AstroLogger,
+	pathnameFromRequest?: string,
 ): string | undefined {
 	let pathname: string | undefined = undefined;
 
@@ -71,14 +72,13 @@ export function computePathnameFromDomain(
 				}
 
 				if (locale) {
-					pathname = prependForwardSlash(
-						joinPaths(normalizeTheLocale(locale), removeBase(url.pathname, base)),
-					);
+					const requestPathname = pathnameFromRequest ?? removeBase(url.pathname, base);
+					pathname = prependForwardSlash(joinPaths(normalizeTheLocale(locale), requestPathname));
 					if (trailingSlash === 'always') {
 						pathname = appendForwardSlash(pathname);
 					} else if (trailingSlash === 'never') {
 						pathname = removeTrailingForwardSlash(pathname);
-					} else if (url.pathname.endsWith('/')) {
+					} else if (requestPathname.endsWith('/')) {
 						// trailingSlash === 'ignore': preserve the original trailing slash
 						pathname = appendForwardSlash(pathname);
 					}

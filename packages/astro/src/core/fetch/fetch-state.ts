@@ -1,6 +1,7 @@
 import colors from 'piccolore';
 import {
 	collapseDuplicateLeadingSlashes,
+	collapseDuplicateSlashes,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
@@ -21,7 +22,8 @@ import {
 	pipelineSymbol,
 	responseSentSymbol,
 } from '../constants.js';
-import { pushDirective } from '../csp/runtime.js';
+import type { CspKind } from '../csp/config.js';
+import { normalizeCspResourceEntry, pushDirective } from '../csp/runtime.js';
 import { generateCspDigest } from '../encryption.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import {
@@ -34,7 +36,6 @@ import {
 import { getParams, getProps } from '../render/index.js';
 import { Rewrites } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
-import { normalizeUrl } from '../util/normalized-url.js';
 import { MultiLevelEncodingError, validateAndDecodePathname } from '../util/pathname.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
@@ -254,19 +255,28 @@ export class FetchState implements AstroFetchState {
 		// back to reading them from the request symbol (user fetch handlers).
 		options ??= getRenderOptions(request);
 		this.routeData = options?.routeData;
-		this.renderOptions = options ?? {
-			addCookieHeader: false,
-			clientAddress: undefined,
-			locals: undefined,
-			prerenderedErrorPageFetch: fetch,
-			routeData: undefined,
-			waitUntil: undefined,
+		const self = this;
+		this.renderOptions = {
+			...(options ?? {
+				addCookieHeader: false,
+				clientAddress: undefined,
+				prerenderedErrorPageFetch: fetch,
+				routeData: undefined,
+				waitUntil: undefined,
+			}),
+			get locals() {
+				return self.locals;
+			},
 		};
 
 		this.componentInstance = undefined;
 		this.slots = undefined;
 		// Parse the URL once and derive both pathname and url from it.
 		const url = new URL(request.url);
+		const publicPathname = this.#normalizePathname(url.pathname);
+		const pathname = this.#computePathname(publicPathname);
+		url.pathname = publicPathname;
+		url.pathname = collapseDuplicateSlashes(url.pathname);
 		// For domain-based i18n routing, the locale prefix is derived from the
 		// request's Host header rather than its URL. When a locale is detected,
 		// the resulting pathname includes the prefix (e.g. /en/boats/1/foo) that
@@ -279,21 +289,18 @@ export class FetchState implements AstroFetchState {
 			pipeline.manifest.base,
 			pipeline.manifest.trailingSlash,
 			pipeline.logger,
+			pathname,
 		);
 		if (domainPathname) {
 			this.#domainPathname = domainPathname;
-			try {
-				this.pathname = decodeURI(domainPathname);
-			} catch {
-				this.pathname = domainPathname;
-			}
+			this.pathname = domainPathname;
 		} else {
-			this.pathname = this.#computePathname(url);
+			this.pathname = pathname;
 		}
 		this.timeStart = performance.now();
 		this.clientAddress = options?.clientAddress;
 		this.locals = (options?.locals ?? {}) as App.Locals;
-		this.url = normalizeUrl(url);
+		this.url = url;
 		this.cookies = new AstroCookies(request);
 
 		// Apply X-Forwarded-* headers only when the user has configured
@@ -419,17 +426,33 @@ export class FetchState implements AstroFetchState {
 				extraStyleHashes,
 				extraScriptHashes,
 				propagators: new Set(),
+				routeHasPropagation: false,
+				pendingSlotEvaluations: [],
 				templateDepth: 0,
 			},
 			cspDestination: manifest.csp?.cspDestination ?? (routeData.prerender ? 'meta' : 'header'),
 			shouldInjectCspMetaTags,
 			cspAlgorithm,
+			directives: manifest.csp?.directives ? [...manifest.csp.directives] : [],
+			// Deprecated flat fields, kept for back-compat. Seeded from the manifest; the runtime CSP
+			// API updates the structured `scriptDirective`/`styleDirective` below (which the renderer
+			// reads), not these.
 			scriptHashes: manifest.csp?.scriptHashes ? [...manifest.csp.scriptHashes] : [],
 			scriptResources: manifest.csp?.scriptResources ? [...manifest.csp.scriptResources] : [],
 			styleHashes: manifest.csp?.styleHashes ? [...manifest.csp.styleHashes] : [],
 			styleResources: manifest.csp?.styleResources ? [...manifest.csp.styleResources] : [],
-			directives: manifest.csp?.directives ? [...manifest.csp.directives] : [],
 			isStrictDynamic: manifest.csp?.isStrictDynamic ?? false,
+			// Structured fields (source of truth). Arrays are cloned so per-request runtime inserts
+			// don't mutate the shared manifest.
+			scriptDirective: {
+				resources: manifest.csp?.scriptDirective ? [...manifest.csp.scriptDirective.resources] : [],
+				hashes: manifest.csp?.scriptDirective ? [...manifest.csp.scriptDirective.hashes] : [],
+				strictDynamic: manifest.csp?.scriptDirective?.strictDynamic ?? false,
+			},
+			styleDirective: {
+				resources: manifest.csp?.styleDirective ? [...manifest.csp.styleDirective.resources] : [],
+				hashes: manifest.csp?.styleDirective ? [...manifest.csp.styleDirective.hashes] : [],
+			},
 			internalFetchHeaders: manifest.internalFetchHeaders,
 		};
 
@@ -601,23 +624,59 @@ export class FetchState implements AstroFetchState {
 			}
 			return undefined;
 		}
+		// Dedupe fallback warnings to once per family+kind for the lifetime of this request.
+		const warnedFallback = new Set<string>();
+		const warnFallback = (family: 'script' | 'style', kind: CspKind) => {
+			if (kind === 'default' || !state.result) {
+				return;
+			}
+			const directive =
+				family === 'script' ? state.result.scriptDirective : state.result.styleDirective;
+			// Astro's element hashes are folded into the `-elem` directive automatically, so the
+			// footgun is specifically user-provided `default`-kind resources on the general directive,
+			// which do NOT carry over to the more specific directive.
+			const defaultResources = directive.resources
+				.map(normalizeCspResourceEntry)
+				.filter((entry) => entry.kind === 'default')
+				.map((entry) => entry.resource);
+			if (defaultResources.length === 0) {
+				return;
+			}
+			const key = `${family}:${kind}`;
+			if (warnedFallback.has(key)) {
+				return;
+			}
+			warnedFallback.add(key);
+			const general = `${family}-src`;
+			const specific = `${general}-${kind === 'element' ? 'elem' : 'attr'}`;
+			pipeline.logger.warn(
+				'csp',
+				`A resource was added to \`${specific}\`, but \`${general}\` also defines custom resources (${defaultResources.join(
+					' ',
+				)}). Because \`${specific}\` overrides \`${general}\` for its scope (browsers do not fall back), those resources will not apply there. Add them to \`${specific}\` as well if needed.`,
+			);
+		};
 		return {
 			insertDirective(payload) {
 				if (state.result) {
 					state.result.directives = pushDirective(state.result.directives, payload);
 				}
 			},
-			insertScriptResource(resource) {
-				state.result?.scriptResources.push(resource);
+			insertScriptResource(payload) {
+				if (!state.result) return;
+				warnFallback('script', normalizeCspResourceEntry(payload).kind);
+				state.result.scriptDirective.resources.push(payload);
 			},
-			insertStyleResource(resource) {
-				state.result?.styleResources.push(resource);
+			insertStyleResource(payload) {
+				if (!state.result) return;
+				warnFallback('style', normalizeCspResourceEntry(payload).kind);
+				state.result.styleDirective.resources.push(payload);
 			},
-			insertStyleHash(hash) {
-				state.result?.styleHashes.push(hash);
+			insertStyleHash(payload) {
+				state.result?.styleDirective.hashes.push(payload);
 			},
-			insertScriptHash(hash) {
-				state.result?.scriptHashes.push(hash);
+			insertScriptHash(payload) {
+				state.result?.scriptDirective.hashes.push(payload);
 			},
 		};
 	}
@@ -902,35 +961,41 @@ export class FetchState implements AstroFetchState {
 	}
 
 	/**
-	 * Strips the pipeline's base from the request URL, prepends a forward
-	 * slash, and decodes the pathname. Falls back to the raw (not decoded)
-	 * pathname if `decodeURI` throws.
+	 * Strips the pipeline's base from a normalized request pathname and prepends
+	 * a forward slash.
 	 *
 	 * Mirrors `BaseApp.removeBase`, including the
 	 * `collapseDuplicateLeadingSlashes` fix that prevents middleware
 	 * authorization bypass when the URL starts with `//`.
 	 */
-	#computePathname(url: URL): string {
-		let pathname = collapseDuplicateLeadingSlashes(url.pathname);
+	#computePathname(normalizedPathname: string): string {
+		let pathname = collapseDuplicateLeadingSlashes(normalizedPathname);
 		const base = this.pipeline.manifest.base;
 		if (pathname.startsWith(base)) {
 			const baseWithoutTrailingSlash = removeTrailingForwardSlash(base);
 			pathname = pathname.slice(baseWithoutTrailingSlash.length + 1);
 		}
-		pathname = prependForwardSlash(pathname);
+		return prependForwardSlash(pathname);
+	}
+
+	/**
+	 * Decodes and normalizes the public request pathname before deriving the
+	 * separate pathname used for route matching.
+	 */
+	#normalizePathname(pathname: string): string {
 		try {
-			return validateAndDecodePathname(pathname);
+			pathname = validateAndDecodePathname(pathname);
 		} catch (e: any) {
 			// The path was encoded too many times to fully decode. Mark it so
 			// the handler can reject the request with a 400 before middleware
 			// or routing run, instead of working with a half-decoded path.
 			if (e instanceof MultiLevelEncodingError) {
 				this.invalidEncoding = true;
-				return pathname;
+			} else {
+				this.pipeline.logger.error(null, e.toString());
 			}
-			this.pipeline.logger.error(null, e.toString());
-			return pathname;
 		}
+		return collapseDuplicateSlashes(pathname);
 	}
 
 	/**

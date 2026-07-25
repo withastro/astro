@@ -48,6 +48,18 @@ const CLOUDFLARE_PASSTHROUGH_ENDPOINT = {
 // Used by both `compile` and `cloudflare-binding` for URL generation in workerd.
 const WORKERD_IMAGE_SERVICE = { entrypoint: '@astrojs/cloudflare/image-service-workerd' };
 
+const SHARP_IMAGE_SERVICE = 'astro/assets/services/sharp';
+
+// Whether `image.service` was configured by the user or an integration, rather than being
+// Astro's default Sharp service or the workerd stub this adapter writes for `compile` mode.
+export function hasUserImageService(config: AstroConfig['image']): boolean {
+	return (
+		!!config.service?.entrypoint &&
+		config.service.entrypoint !== SHARP_IMAGE_SERVICE &&
+		config.service.entrypoint !== WORKERD_IMAGE_SERVICE.entrypoint
+	);
+}
+
 export function setImageConfig(
 	service: ImageServiceConfig | undefined,
 	config: AstroConfig['image'],
@@ -89,17 +101,19 @@ export function setImageConfig(
 				},
 			};
 
-		case 'compile':
+		case 'compile': {
+			// Dev: IMAGES binding (via Cloudflare Vite plugin) for real transforms.
+			// Build: endpoint depends on runtime - `cloudflare-binding` uses IMAGES, `passthrough` uses generic.
+			const endpoint =
+				command === 'dev' || runtimeService === 'cloudflare-binding'
+					? { entrypoint: '@astrojs/cloudflare/image-transform-endpoint' }
+					: CLOUDFLARE_PASSTHROUGH_ENDPOINT;
 			return {
 				...config,
-				service: WORKERD_IMAGE_SERVICE,
-				// Dev: IMAGES binding (via Cloudflare Vite plugin) for real transforms.
-				// Build: endpoint depends on runtime - `cloudflare-binding` uses IMAGES, `passthrough` uses generic.
-				endpoint:
-					command === 'dev' || runtimeService === 'cloudflare-binding'
-						? { entrypoint: '@astrojs/cloudflare/image-transform-endpoint' }
-						: CLOUDFLARE_PASSTHROUGH_ENDPOINT,
+				service: hasUserImageService(config) ? config.service : WORKERD_IMAGE_SERVICE,
+				endpoint,
 			};
+		}
 
 		case 'custom':
 			return { ...config };
