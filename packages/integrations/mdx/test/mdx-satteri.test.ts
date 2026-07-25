@@ -3,7 +3,7 @@ import { before, describe, it } from 'node:test';
 import mdx from '@astrojs/mdx';
 import { satteri } from '@astrojs/markdown-satteri';
 import { parseHTML } from 'linkedom';
-import { defineHastPlugin, type HastPluginDefinition, type MdastPluginDefinition } from 'satteri';
+import { defineHastPlugin, type MdastPluginDefinition } from 'satteri';
 import { loadFixture, type Fixture } from './test-utils.ts';
 
 const injectFrontmatter: MdastPluginDefinition = {
@@ -107,14 +107,13 @@ describe('MDX Sätteri highlighting routes through components.pre with optimize'
 describe('MDX Sätteri attribute name casing', () => {
 	let fixture: Fixture;
 
-	// Appends an `<svg>` carrying hast property names — the camelCased spellings
-	// `property-information` uses — so the emitted attribute names show which
-	// casing the compiler applied.
-	const appendSvg: HastPluginDefinition = defineHastPlugin({
+	// Properties use hast's camelCase names, so the emitted attribute names reveal
+	// the casing the compiler applied.
+	const appendSvg = defineHastPlugin({
 		name: 'append-svg',
 		element: {
 			filter: ['a'],
-			visit: (node, ctx) =>
+			visit(node, ctx) {
 				ctx.appendChild(node, {
 					type: 'element',
 					tagName: 'svg',
@@ -140,7 +139,8 @@ describe('MDX Sätteri attribute name casing', () => {
 							children: [],
 						},
 					],
-				}),
+				});
+			},
 		},
 	});
 
@@ -168,6 +168,13 @@ describe('MDX Sätteri attribute name casing', () => {
 	it('emits HTML attribute names for plugin-added elements', async () => {
 		const html = await fixture.readFile('/from-mdx/index.html');
 
+		// `viewBox` stays camelCase: it is the real SVG attribute name, not a hast spelling.
+		assert.deepEqual(attributesOf(html, 'svg'), {
+			class: 'glyph',
+			viewBox: '0 0 12 12',
+			'aria-hidden': 'true',
+		});
+
 		assert.deepEqual(attributesOf(html, 'path'), {
 			d: 'M7 1.5h3.5V5M10.5 1.5 5.5 6.5',
 			fill: 'none',
@@ -181,6 +188,18 @@ describe('MDX Sätteri attribute name casing', () => {
 			'text-anchor': 'middle',
 			'vector-effect': 'non-scaling-stroke',
 			'paint-order': 'stroke',
+		});
+	});
+
+	it('leaves attributes on author-written JSX alone', async () => {
+		const html = await fixture.readFile('/from-mdx/index.html');
+
+		// The casing option covers rehype-produced elements only. `className` still
+		// reaches the HTML as `class` because the JSX runtime maps that one prop.
+		assert.deepEqual(attributesOf(html, '#author-jsx'), {
+			id: 'author-jsx',
+			class: 'kept',
+			strokeWidth: '9',
 		});
 	});
 

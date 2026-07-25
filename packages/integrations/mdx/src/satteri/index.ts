@@ -135,9 +135,10 @@ export function createMdxProcessor(
 				},
 				fileURL: pathToFileURL(filePath),
 				jsxImportSource: 'astro',
-				// Plugin-added elements carry hast property names (`strokeWidth`, `clipPath`).
-				// Satteri defaults to React casing, which would emit those verbatim as invalid
-				// HTML/SVG attributes; `'html'` resolves them the way `.md` rendering does.
+				// Rehype-produced elements carry hast property names (`strokeWidth`, `clipPath`),
+				// and Astro's JSX runtime emits prop names verbatim, so satteri's default React
+				// casing would put them in the HTML unchanged. `'html'` maps them to their
+				// HTML/SVG spellings, matching what the `.md` pipeline serializes.
 				elementAttributeNameCase: 'html',
 				data: { astro: astroData },
 			});
