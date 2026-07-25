@@ -343,8 +343,19 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 
 			watcher.add(filePath);
 
+			// Split negation patterns out and pass them as picomatch's `ignore` option
+			// so watcher filtering matches tinyglobby's semantics (set subtraction),
+			// not picomatch's default (any-match union). See #17484.
+			const patterns = Array.isArray(globOptions.pattern)
+				? globOptions.pattern
+				: [globOptions.pattern];
+			const positivePatterns = patterns.filter((p) => !p.startsWith('!'));
+			const negationPatterns = patterns.filter((p) => p.startsWith('!')).map((p) => p.slice(1));
 			const matchesGlob = (entry: string) =>
-				!entry.startsWith('../') && picomatch.isMatch(entry, globOptions.pattern);
+				!entry.startsWith('../') &&
+				picomatch.isMatch(entry, positivePatterns, {
+					ignore: negationPatterns.length > 0 ? negationPatterns : undefined,
+				});
 
 			const basePath = fileURLToPath(baseDir);
 
