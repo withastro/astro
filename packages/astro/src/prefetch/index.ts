@@ -247,7 +247,12 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 		for (const [key, value] of Object.entries(internalFetchHeaders) as [string, string][]) {
 			headers.set(key, value);
 		}
-		fetch(url, { priority: 'low', headers });
+		// The `<link rel="prefetch">` branch above is unsupported in WebKit
+		// (Safari), so this fetch fallback is the path there. A prefetch is a
+		// best-effort hint, so swallow network failures — otherwise a flaky
+		// connection surfaces an unhandled `TypeError: Load failed` rejection
+		// to the page's global error handlers (and trips no-floating-promises).
+		fetch(url, { priority: 'low', headers }).catch(() => {});
 	}
 }
 

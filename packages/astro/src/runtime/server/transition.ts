@@ -7,7 +7,7 @@ import type {
 	TransitionAnimationValue,
 	TransitionDirectionalAnimations,
 } from '../../types/public/view-transitions.js';
-import { markHTMLString } from './escape.js';
+import { escapeStyleText, markHTMLString } from './escape.js';
 
 const transitionNameMap = new WeakMap<SSRResult, number>();
 function incrementTransitionNumber(result: SSRResult) {
@@ -110,7 +110,7 @@ export function renderTransition(
 		sheet.addModern('group', 'animation: none');
 	}
 
-	const css = sheet.toString();
+	const css = escapeStyleText(sheet.toString());
 	result._metadata.extraHead.push(markHTMLString(`<style>${css}</style>`));
 	return scope;
 }

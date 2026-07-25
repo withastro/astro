@@ -37,7 +37,7 @@ const localePage = createComponent((result, props, slots) => {
 
 const paramsPage = createComponent((result, props, slots) => {
 	const Astro = result.createAstro(props, slots);
-	return render`<h1 id="locale">${Astro.currentLocale}</h1><span id="id">${Astro.params.id}</span><span id="slug">${Astro.params.slug}</span>`;
+	return render`<h1 id="locale">${Astro.currentLocale}</h1><span id="id">${Astro.params.id}</span><span id="slug">${Astro.params.slug}</span><span id="path">${Astro.url.pathname}</span>`;
 });
 
 const notFoundPage = createComponent(() => {
@@ -478,6 +478,29 @@ describe('i18n via App - domains-prefix-other-locales with dynamic params (#1685
 		assert.equal($('#id').text(), '2');
 		assert.equal($('#slug').text(), 'blue-wave');
 		assert.equal($('#locale').text(), 'fi');
+	});
+
+	it('normalizes the public pathname before deriving the domain pathname', async () => {
+		const app = createDomainApp();
+		const res = await app.render(
+			new Request('https://en.example.com/boats/3/caf%25C3%25A9', {
+				headers: { 'X-Forwarded-Host': 'en.example.com', 'X-Forwarded-Proto': 'https' },
+			}),
+		);
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#slug').text(), 'café');
+		assert.equal($('#path').text(), '/boats/3/caf%C3%A9');
+	});
+
+	it('rejects over-encoded paths on a mapped domain', async () => {
+		const app = createDomainApp();
+		const res = await app.render(
+			new Request('https://en.example.com/%2525252525252525252561dmin', {
+				headers: { 'X-Forwarded-Host': 'en.example.com', 'X-Forwarded-Proto': 'https' },
+			}),
+		);
+		assert.equal(res.status, 400);
 	});
 });
 

@@ -236,7 +236,7 @@ export async function generatePages(
 		const totalCount = Array.from(staticImageList.values())
 			.map((x) => x.transforms.size)
 			.reduce((a, b) => a + b, 0);
-		const cpuCount = os.cpus().length;
+		const cpuCount = os.availableParallelism();
 		const assetsCreationPipeline = await prepareAssetsGenerationEnv(options, totalCount);
 		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
 		const errors: Error[] = [];
@@ -302,7 +302,7 @@ export async function generatePages(
 			//   where tasks are added to the queue after the queue.onIdle() resolves.
 			//   This can break tests and create annoying race conditions.
 			// * Exposing a concurrency property in `astro.config.mjs` to allow users
-			//   to override Node’s os.cpus().length default.
+			//   to override Node’s os.availableParallelism() default.
 			// * Create a proper performance benchmark for asset transformations of
 			//   projects in varying sizes of source images and transforms.
 			queue

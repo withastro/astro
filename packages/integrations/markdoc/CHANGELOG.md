@@ -1,5 +1,11 @@
 # @astrojs/markdoc
 
+## 2.0.4
+
+### Patch Changes
+
+- [#17441](https://github.com/withastro/astro/pull/17441) [`6180c8e`](https://github.com/withastro/astro/commit/6180c8e03b93942c4bdd8c3c45a0ae94906eff69) Thanks [@renovate](https://github.com/apps/renovate)! - Updates dependency htmlparser2 to v12
+
 ## 2.0.3
 
 ### Patch Changes

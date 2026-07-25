@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { getParams } from '../../../dist/core/render/params-and-props.js';
+import { stringifyParams } from '../../../dist/core/routing/params.js';
 import { dynamicPart, makeRoute, spreadPart, staticPart } from './test-helpers.ts';
 import { createTestApp, createPage } from '../mocks.ts';
 
@@ -213,6 +214,50 @@ describe('getParams', () => {
 			const params = getParams(route, '/other/something');
 			assert.deepEqual(params, {});
 		});
+	});
+});
+
+describe('stringifyParams', () => {
+	it('should not append trailing slash for file extension endpoint routes with trailingSlash always (issue #17306)', () => {
+		const route = makeRoute({
+			route: '/og/[...slug].png',
+			segments: [[staticPart('og')], [spreadPart('...slug'), staticPart('.png')]],
+			trailingSlash: 'never',
+			pathname: undefined,
+			type: 'endpoint',
+		});
+
+		const result = stringifyParams({ slug: '概率论/参数估计' }, route, 'always');
+		assert.equal(result, '/og/概率论/参数估计.png');
+		// Verify the generated path matches the route pattern
+		assert.ok(route.pattern.test(result), 'generated path should match route pattern');
+	});
+
+	it('should not append trailing slash for single dynamic file extension endpoint', () => {
+		const route = makeRoute({
+			route: '/api/[name].json',
+			segments: [[staticPart('api')], [dynamicPart('name'), staticPart('.json')]],
+			trailingSlash: 'never',
+			pathname: undefined,
+			type: 'endpoint',
+		});
+
+		const result = stringifyParams({ name: 'bar' }, route, 'always');
+		assert.equal(result, '/api/bar.json');
+		assert.ok(route.pattern.test(result), 'generated path should match route pattern');
+	});
+
+	it('should still append trailing slash for endpoints without file extensions', () => {
+		const route = makeRoute({
+			route: '/api/[name]',
+			segments: [[staticPart('api')], [dynamicPart('name')]],
+			trailingSlash: 'always',
+			pathname: undefined,
+			type: 'endpoint',
+		});
+
+		const result = stringifyParams({ name: 'bar' }, route, 'always');
+		assert.equal(result, '/api/bar/');
 	});
 });
 

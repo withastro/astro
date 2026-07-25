@@ -619,7 +619,7 @@ describe('Config Validation', () => {
 			const formattedError = stripVTControlCharacters(formatConfigErrorMessage(configError));
 			assert.equal(
 				formattedError,
-				`[config] Astro found issue(s) with your configuration:\n\n! security.csp: Did not match union.\n  > Expected type boolean | Directives script-src and style-src are not allowed in security.csp.directives. Please use security.csp.scriptDirective and security.csp.styleDirective instead.\n  > Received { "directives": [ "script-src 'self'" ] }`,
+				`[config] Astro found issue(s) with your configuration:\n\n! security.csp: Did not match union.\n  > Expected type boolean | Directives script-src and style-src (including their -elem/-attr variants) are not allowed in security.csp.directives. Please use security.csp.scriptDirective and security.csp.styleDirective instead, scoping resources/hashes to the more specific directives with the kind option ("element" or "attribute").\n  > Received { "directives": [ "script-src 'self'" ] }`,
 			);
 		});
 	});
