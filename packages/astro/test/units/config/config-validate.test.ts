@@ -634,7 +634,7 @@ describe('Config Validation', () => {
 			// its own MDX-side processor, so the legacy key must survive validation.
 			assert.deepEqual(result.markdown.rehypePlugins, [plugin]);
 			const { processor } = result.markdown;
-			assert.ok(isUnifiedProcessor(processor!));
+			assert.ok(isUnifiedProcessor(processor));
 			assert.deepEqual(processor.options.rehypePlugins, [plugin]);
 		});
 
@@ -648,7 +648,7 @@ describe('Config Validation', () => {
 			// it would re-fold the same plugins and double them up.
 			const again = await validateConfigRefined(validated);
 			const { processor } = again.markdown;
-			assert.ok(isUnifiedProcessor(processor!));
+			assert.ok(isUnifiedProcessor(processor));
 			assert.deepEqual(processor.options.remarkPlugins, [remark]);
 			assert.deepEqual(processor.options.rehypePlugins, [rehype]);
 		});
@@ -664,7 +664,7 @@ describe('Config Validation', () => {
 			validated.markdown.rehypePlugins.push(integrationPlugin);
 			const refined = await validateConfigRefined(validated);
 			const { processor } = refined.markdown;
-			assert.ok(isUnifiedProcessor(processor!));
+			assert.ok(isUnifiedProcessor(processor));
 			assert.deepEqual(processor.options.rehypePlugins, [userPlugin, integrationPlugin]);
 		});
 	});

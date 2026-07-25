@@ -79,7 +79,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				// Lazily initialize the Markdown renderer
 				if (!renderer) {
 					const { markdown: md, image } = settings.config;
-					renderer = md.processor!.createRenderer({
+					renderer = md.processor.createRenderer({
 						image,
 						syntaxHighlight: md.syntaxHighlight,
 						shikiConfig: md.shikiConfig,

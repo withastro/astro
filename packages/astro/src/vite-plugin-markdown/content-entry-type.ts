@@ -18,7 +18,7 @@ export const markdownContentEntryType: ContentEntryType = {
 
 	async getRenderFunction(config) {
 		const { markdown, image } = config;
-		const processor = await markdown.processor!.createRenderer({
+		const processor = await markdown.processor.createRenderer({
 			image,
 			syntaxHighlight: markdown.syntaxHighlight,
 			shikiConfig: markdown.shikiConfig,

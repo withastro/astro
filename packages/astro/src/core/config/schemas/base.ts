@@ -6,6 +6,7 @@ import type {
 	ShikiConfig,
 } from '@astrojs/internal-helpers/markdown';
 import { syntaxHighlightDefaults } from '@astrojs/internal-helpers/markdown';
+import { satteri } from '@astrojs/markdown-satteri';
 import type { MarkdownProcessor } from '../../../markdown/index.js';
 import type { OutgoingHttpHeaders } from 'node:http';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
@@ -389,10 +390,10 @@ export const AstroConfigSchema = z.object({
 						)
 						.optional(),
 				})
-				// The default satteri processor is applied lazily during config resolution
-				// (in validate.ts) to avoid pulling native binary dependencies into bundles
-				// that don't need markdown processing (e.g. Container API in workerd).
-				.optional(),
+				// A factory (not a shared value) so every config gets its own processor —
+				// integrations extend the pipeline by mutating `processor.options`, which
+				// would otherwise leak across configs built in the same process.
+				.default(() => satteri()),
 		})
 		.prefault({}),
 	vite: z
