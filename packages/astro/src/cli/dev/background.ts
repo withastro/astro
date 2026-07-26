@@ -110,9 +110,14 @@ export async function background({
 	// `astro/bin/astro.mjs` is not exported, so resolve via the package manifest.
 	const astroBin = resolve(dirname(require.resolve('astro/package.json')), 'bin', 'astro.mjs');
 
-	// Spawn the dev server as a detached child process
+	// Spawn the dev server as a detached child process.
+	// `windowsHide: true` prevents a console window from popping up: on Windows
+	// `detached: true` maps to DETACHED_PROCESS, so the child has no console and
+	// any console-subsystem grandchild it spawns (e.g. workerd.exe) gets a brand
+	// new, visible, focus-stealing window allocated by Windows Terminal.
 	const child = spawn(process.execPath, [astroBin, ...args], {
 		detached: true,
+		windowsHide: true,
 		stdio: ['ignore', logFd, logFd],
 		cwd: rootPath,
 		env: { ...process.env, ASTRO_DEV_BACKGROUND: '1' },
