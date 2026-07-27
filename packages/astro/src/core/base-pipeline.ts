@@ -374,6 +374,14 @@ export abstract class Pipeline {
 		}
 
 		for (const key of pathKeys) {
+			// An action is a leaf: once resolved to a function, its own properties
+			// are not part of the action namespace and cannot be traversed further.
+			if (typeof server === 'function') {
+				throw new AstroError({
+					...ActionNotFoundError,
+					message: ActionNotFoundError.message(pathKeys.join('.')),
+				});
+			}
 			if (FORBIDDEN_PATH_KEYS.has(key)) {
 				throw new AstroError({
 					...ActionNotFoundError,
