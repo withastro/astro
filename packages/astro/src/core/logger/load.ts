@@ -13,9 +13,9 @@ import {
 } from './utils.js';
 
 async function createDestination(config: NormalizedLoggerConfig): Promise<AstroLoggerDestination> {
-	// `normalizeLoggerConfig()` turns file entrypoints into absolute paths, which
-	// `import()` only accepts as file URLs on Windows. Built-in handlers keep their
-	// `astro/logger/*` specifier and resolve through Astro's own exports.
+	// `normalizeLoggerConfig()` turns `URL` entrypoints into absolute paths, which
+	// `import()` only accepts as file URLs on Windows. Package entrypoints keep their
+	// specifier and resolve through the regular module resolution.
 	const specifier = isAbsolute(config.entrypoint)
 		? pathToFileURL(config.entrypoint).href
 		: config.entrypoint;
@@ -35,9 +35,8 @@ async function createDestination(config: NormalizedLoggerConfig): Promise<AstroL
  */
 export async function loadLoggerDestination(
 	config: LoggerHandlerConfig,
-	root: URL,
 ): Promise<AstroLoggerDestination> {
-	const normalized = normalizeLoggerConfig(config, root);
+	const normalized = normalizeLoggerConfig(config);
 
 	try {
 		return await createDestination(normalized);
@@ -70,7 +69,7 @@ export async function loadOrCreateNodeLogger(
 	try {
 		if (astroConfig.logger) {
 			return new AstroLogger({
-				destination: await loadLoggerDestination(astroConfig.logger, astroConfig.root),
+				destination: await loadLoggerDestination(astroConfig.logger),
 				level: inlineAstroConfig.logLevel ?? 'info',
 			});
 		} else {

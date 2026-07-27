@@ -71,9 +71,7 @@ export function vitePluginLogger({
 					return `${name}(${JSON.stringify(config.config) ?? 'undefined'})`;
 				};
 
-				const destination = await createDestination(
-					normalizeLoggerConfig(loggerConfig, settings.config.root),
-				);
+				const destination = await createDestination(normalizeLoggerConfig(loggerConfig));
 
 				return {
 					code: `${imports.join('\n')}\nexport default ${destination};\n`,

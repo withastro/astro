@@ -16,33 +16,23 @@ export interface NormalizedLoggerConfig {
  * Normalizes a user-provided logger config into something that can be resolved,
  * either by Vite (see `vitePluginLogger`) or by Node (see `loadLoggerDestination`).
  *
- * Mirrors what session drivers and cache providers do: `URL`s become file paths
- * and relative specifiers are resolved against the project root, so that
- * `./logger.js` refers to the user's project rather than to Astro's own location.
+ * Mirrors what session drivers do: `URL`s become file paths, which both Vite and
+ * `import()` can handle.
  */
-export function normalizeLoggerConfig(
-	logger: LoggerHandlerConfig,
-	root: URL,
-): NormalizedLoggerConfig {
-	const entrypoint = normalizeEntrypoint(logger.entrypoint, root);
+export function normalizeLoggerConfig(logger: LoggerHandlerConfig): NormalizedLoggerConfig {
+	const entrypoint = normalizeEntrypoint(logger.entrypoint);
 
 	if (entrypoint === COMPOSE_LOGGER_ENTRYPOINT) {
 		const loggers: LoggerHandlerConfig[] = logger.config?.loggers ?? [];
 		return {
 			entrypoint,
-			loggers: loggers.map((nested) => normalizeLoggerConfig(nested, root)),
+			loggers: loggers.map((nested) => normalizeLoggerConfig(nested)),
 		};
 	}
 
 	return { entrypoint, config: logger.config };
 }
 
-function normalizeEntrypoint(entrypoint: LoggerHandlerConfig['entrypoint'], root: URL): string {
-	if (entrypoint instanceof URL) {
-		return fileURLToPath(entrypoint);
-	}
-	if (entrypoint.startsWith('./') || entrypoint.startsWith('../')) {
-		return fileURLToPath(new URL(entrypoint, root));
-	}
-	return entrypoint;
+function normalizeEntrypoint(entrypoint: LoggerHandlerConfig['entrypoint']): string {
+	return entrypoint instanceof URL ? fileURLToPath(entrypoint) : entrypoint;
 }
