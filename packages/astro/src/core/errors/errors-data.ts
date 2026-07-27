@@ -1550,20 +1550,6 @@ export const LoggerConfigurationNotSerializable = {
 	name: 'LoggerConfigurationNotSerializable',
 	title: 'The configuration of the logger is not serializable.',
 } satisfies ErrorData;
-
-/**
- * @docs
- * @description
- * A composed logger contains itself.
- * @message
- * A composed logger contains itself.
- */
-export const CyclicLoggerConfig = {
-	name: 'CyclicLoggerConfig',
-	title: 'A composed logger contains itself.',
-	message:
-		"A logger created with `logger.compose()` contains itself, so it can't be resolved. Make sure a composed logger is never nested inside itself.",
-} satisfies ErrorData;
 /**
  * @docs
  * @kind heading

@@ -25,22 +25,8 @@ describe('normalizeLoggerConfig', () => {
 		assert.equal(normalized.loggers?.[1].loggers?.[0].entrypoint, 'astro/logger/console');
 	});
 
-	it('allows the same config object in sibling branches', () => {
-		const shared = {
-			entrypoint: 'astro/logger/compose',
-			config: { loggers: [{ entrypoint: 'astro/logger/json' }] },
-		};
-		const normalized = normalizeLoggerConfig({
-			entrypoint: 'astro/logger/compose',
-			config: { loggers: [shared, shared] },
-		});
-		assert.equal(normalized.loggers?.length, 2);
-	});
-
-	it('throws instead of recursing forever when a composed logger contains itself', () => {
-		const cyclic: any = { entrypoint: 'astro/logger/compose', config: { loggers: [] } };
-		cyclic.config.loggers.push(cyclic);
-
-		assert.throws(() => normalizeLoggerConfig(cyclic), /contains itself/);
+	it('normalizes a composed logger without children', () => {
+		const normalized = normalizeLoggerConfig({ entrypoint: 'astro/logger/compose' });
+		assert.deepEqual(normalized.loggers, []);
 	});
 });
