@@ -12,6 +12,13 @@ import {
 	type NormalizedLoggerConfig,
 } from './utils.js';
 
+/**
+ * Instantiates a logger destination in a Node context.
+ *
+ * This is the runtime counterpart of `emitDestination()` in `./vite-plugin.ts`: both walk
+ * the same normalized config, but this one imports and instantiates the handler directly,
+ * while the Vite one *generates code* doing so, to bundle the handler into the build output.
+ */
 async function createDestination(config: NormalizedLoggerConfig): Promise<AstroLoggerDestination> {
 	// `normalizeLoggerConfig()` turns `URL` entrypoints into absolute paths, which
 	// `import()` only accepts as file URLs on Windows. Package entrypoints keep their
