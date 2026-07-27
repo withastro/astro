@@ -22,7 +22,7 @@ function isComponentStyleModule(id: string): boolean {
 }
 
 // Whether a style module comes from a file (e.g. global.css, styles.scss)
-// or from a component request (e.g. ?astro&type=style, ?svelte&type=style).
+// or from a component request (e.g. *.astro?astro&type=style, *.svelte?svelte&type=style).
 type StyleModuleType = 'file' | 'component';
 
 function getStyleModuleType(mod: EnvironmentModuleNode): StyleModuleType | undefined {
