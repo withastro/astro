@@ -1,6 +1,6 @@
 ---
 name: astro-code-review
-description: Perform a static, read-only code review of an Astro feature, bug fix, branch, commit, diff, or local working tree. Use this skill whenever the user asks to review local changes, review their current branch, self-review work before a pull request, or check a feature or fix for correctness, tests, simplicity, runtime portability, error handling, and changeset coverage. This skill reports findings only: it never edits code or runs project code, tests, builds, checks, or scripts.
+description: Perform a static, read-only code review of an Astro feature, bug fix, branch, commit, diff, or local working tree. Use this skill whenever the user asks to review local changes, review their current branch, self-review work before a pull request, or check a feature or fix for correctness, tests, simplicity, runtime portability, error handling, comments, behavior documentation, and changeset coverage. This skill reports findings only: it never edits code or runs project code, tests, builds, checks, or scripts.
 ---
 
 # Astro Code Review
@@ -55,6 +55,7 @@ Read enough surrounding code to understand the change rather than reviewing the 
 - Inspect callers, importers, exports, and data flow affected by the change.
 - Inspect existing tests and nearby test conventions.
 - Search for equivalent logic, existing helpers, and analogous implementations before suggesting a new abstraction or reuse opportunity.
+- Inspect comments changed by the diff and existing comments whose claims may have been invalidated by the new behavior.
 - Read the root and nearest applicable `AGENTS.md` and `CONTRIBUTING.md` guidance.
 - Consult package-specific documentation only when it governs the changed code.
 
@@ -82,7 +83,8 @@ Review in this order so correctness and compatibility are not displaced by style
 5. Error handling and failure behavior
 6. Test coverage and test quality
 7. Simplicity, duplication, and function boundaries
-8. Changeset coverage
+8. Comments and behavior documentation
+9. Changeset coverage
 
 ### Design and Layer Placement
 
@@ -281,6 +283,30 @@ Evaluate extracted functions by the boundary they create, not only by call count
 - Reuse alone does not justify a function, and one call site alone does not justify inlining it.
 
 For performance-oriented code, look for evidence that the optimization is needed and verify that its complexity, invalidation, and fallback behavior remain correct. Flag premature optimization only when the simpler implementation meets the known requirement.
+
+### Comments and Behavior Documentation
+
+Apply the [`writing-comments` skill](../writing-comments/SKILL.md) to comments added or changed by the diff and to existing comments made false or incomplete by the changed behavior. Do not audit unrelated comments in the surrounding file.
+
+Comments should be sparse and durable:
+
+- Do not request a comment when names, types, and structure already explain the code.
+- Inline comments should explain rationale, invariants, non-obvious coupling, or constraints rather than narrate the next statement.
+- Workarounds, hacks, regression guards, and surprising dependency behavior should link to the issue or pull request that explains why they exist.
+- Comments must describe the code at HEAD, not the change history, review discussion, or why the patch is correct.
+- A changed behavior must not leave an existing comment stale. A false comment is worse than a missing one.
+
+When a function or public API needs behavior documentation, check that it is written for its human caller rather than as a translation of the implementation:
+
+- Start with what the function accomplishes or returns.
+- Document surprising caller-visible behavior such as fallbacks, limits, overload selection, side effects, ambiguous results, and conditions that return `undefined`, `null`, an empty value, or another indeterminate result.
+- Describe implementation details only when callers need them to use the API safely.
+- Add a minimal example only when a relationship cannot be understood from the signature, such as overload selection, optional or rest argument mapping, a public re-export, or ambiguous fallback behavior. Introduce what the example demonstrates and its expected result.
+- Module documentation should explain a durable concept or architectural reason, not maintain a list of exports that will become stale.
+
+For `@docs` entries and public types, preserve the audience rules in the `writing-comments` skill: generated config and error references are end-user documentation, and other public JSDoc is surfaced through editor IntelliSense.
+
+Keep comment findings non-invasive. Report inaccurate or misleading documentation as a finding when it can lead callers or maintainers to incorrect behavior. Put a missing explanation under suggestions unless an undocumented contract, invariant, or public caveat creates a concrete correctness or compatibility risk.
 
 ### Changeset Coverage
 
