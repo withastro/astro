@@ -666,6 +666,33 @@ describe('Rewrites via App - middleware rewrite to a route returning an empty 40
 	});
 });
 
+describe('Rewrites via App - middleware rewrite to an empty 404 without a custom 404 page (#17281)', () => {
+	const empty404Page = createComponent(() => new Response(null, { status: 404 }));
+
+	const middleware = async (context: APIContext, next: MiddlewareNext) => {
+		if (context.url.pathname === '/rewrite') {
+			return context.rewrite('/unexisting-page');
+		}
+		return next();
+	};
+
+	const app = createTestApp(
+		[
+			createPage(empty404Page, {
+				route: '/[...slug]',
+				segments: [[spreadPart('...slug')]],
+				pathname: undefined,
+			}),
+		],
+		{ middleware: () => ({ onRequest: middleware }) },
+	);
+
+	it('returns the default 404 when middleware rewrites to a route that returns an empty 404', async () => {
+		const res = await app.render(new Request('http://example.com/rewrite'));
+		assert.equal(res.status, 404);
+	});
+});
+
 describe('Rewrites via App - middleware rewrites to a real page after next() returns 404', () => {
 	const empty404Page = createComponent(() => new Response(null, { status: 404 }));
 

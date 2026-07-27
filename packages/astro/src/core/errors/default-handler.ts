@@ -11,8 +11,7 @@ import { provideSession } from '../session/handler.js';
 import { validateHost } from '../app/validate-headers.js';
 import { getErrorRoutePath } from '../../i18n/error-routes.js';
 import { getOutputFilename } from '../output-filename.js';
-import { REROUTABLE_STATUS_CODES } from '../constants.js';
-import type { ErrorHandler } from './handler.js';
+import { type ErrorHandler, rewroteToEmptyErrorResponse } from './handler.js';
 
 type ErrorPagePath =
 	| `${string}/404`
@@ -137,10 +136,12 @@ export class DefaultErrorHandler implements ErrorHandler {
 				// A rewrite that produced a real body is left untouched, so middleware
 				// that intentionally rewrites error renders keeps working.
 				if (
-					skipMiddleware === false &&
-					errorState.routeData !== errorRouteData &&
-					response.body === null &&
-					REROUTABLE_STATUS_CODES.includes(response.status)
+					rewroteToEmptyErrorResponse(
+						skipMiddleware,
+						errorRouteData,
+						errorState.routeData,
+						response,
+					)
 				) {
 					return this.renderError(request, {
 						...resolvedRenderOptions,

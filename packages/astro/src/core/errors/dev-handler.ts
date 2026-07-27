@@ -5,10 +5,9 @@ import type { RouteData } from '../../types/public/index.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { getCustom404Route, getCustom500Route } from '../routing/helpers.js';
-import { REROUTABLE_STATUS_CODES } from '../constants.js';
 import { type AstroError, isAstroError } from './index.js';
 import { MiddlewareNoDataOrNextCalled, MiddlewareNotAResponse } from './errors-data.js';
-import type { ErrorHandler } from './handler.js';
+import { type ErrorHandler, rewroteToEmptyErrorResponse } from './handler.js';
 
 export interface DevErrorHandlerOptions {
 	/**
@@ -83,10 +82,7 @@ export class DevErrorHandler implements ErrorHandler {
 				// produced another empty reroutable error response, retry rendering the
 				// error page without middleware (same fallback used when middleware throws).
 				if (
-					skipMiddleware === false &&
-					errorState.routeData !== routeData &&
-					response.body === null &&
-					REROUTABLE_STATUS_CODES.includes(response.status)
+					rewroteToEmptyErrorResponse(skipMiddleware, routeData, errorState.routeData, response)
 				) {
 					return this.renderError(request, {
 						...resolvedRenderOptions,
