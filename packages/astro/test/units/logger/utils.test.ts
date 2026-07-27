@@ -1,12 +1,18 @@
 import * as assert from 'node:assert/strict';
+import { isAbsolute } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, it } from 'node:test';
 import { normalizeLoggerConfig } from '../../../dist/core/logger/utils.js';
 
 describe('normalizeLoggerConfig', () => {
+	// A platform path, not a `file://` href: Vite resolves paths, and `load.ts` turns
+	// them back into URLs for `import()`. `pathname` would keep the leading slash of
+	// `/D:/…` on Windows.
 	it('normalizes URL entrypoints into file paths', () => {
 		const entrypoint = new URL('./logger.mjs', import.meta.url);
 		const normalized = normalizeLoggerConfig({ entrypoint });
-		assert.equal(normalized.entrypoint, entrypoint.pathname);
+		assert.equal(normalized.entrypoint, fileURLToPath(entrypoint));
+		assert.ok(isAbsolute(normalized.entrypoint));
 	});
 
 	it('normalizes nested composed loggers', () => {
