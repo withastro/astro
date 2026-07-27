@@ -5,7 +5,7 @@ import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css
 import { isAstroServerEnvironment } from '../environments.js';
 
 const STYLE_EXT_REGEX = /\.(?:css|less|sass|scss|styl|stylus|pcss|postcss|sss)$/i;
-const STYLE_BLOCK_FILE_EXT_REGEX = /\.(astro|svelte|vue)$/i;
+const STYLE_COMPONENT_EXT_REGEX = /\.(astro|svelte|vue)$/i;
 const RAW_QUERY_REGEX = /(?:\?|&)raw(?:&|$)/;
 
 function hasStyleExtension(id: string): boolean {
@@ -13,22 +13,47 @@ function hasStyleExtension(id: string): boolean {
 	return STYLE_EXT_REGEX.test(id.split('?')[0]);
 }
 
-function isStyleBlockModule(id: string): boolean {
+function isComponentStyleModule(id: string): boolean {
 	const [filename, rawQuery] = id.split('?', 2);
-	const extensionMatch = STYLE_BLOCK_FILE_EXT_REGEX.exec(filename);
+	const extensionMatch = STYLE_COMPONENT_EXT_REGEX.exec(filename);
 	if (!rawQuery || !extensionMatch) return false;
 	const query = new URLSearchParams(rawQuery);
 	return query.get('type') === 'style' && query.has(extensionMatch[1].toLowerCase());
 }
 
-function getStyleModuleType(mod: EnvironmentModuleNode): 'style' | 'style-block' | undefined {
+// Whether a style module comes from a file (e.g. global.css, styles.scss)
+// or from a component request (e.g. ?astro&type=style, ?svelte&type=style).
+type StyleModuleType = 'file' | 'component';
+
+function getStyleModuleType(mod: EnvironmentModuleNode): StyleModuleType | undefined {
 	// CSS imported with ?raw is a JS string export, so SSR importers need to be invalidated
 	// instead of relying on Vite's client-side CSS HMR handling.
 	if (mod.id && RAW_QUERY_REGEX.test(mod.id) && hasStyleExtension(mod.id)) return;
-	if (mod.id && isStyleBlockModule(mod.id)) return 'style-block';
-	if (mod.file && hasStyleExtension(mod.file)) return 'style';
+	if (mod.id && isComponentStyleModule(mod.id)) return 'component';
+	if (mod.file && hasStyleExtension(mod.file)) return 'file';
 	// CSS modules and other style files may have query params in their id (e.g. ?used, ?direct)
-	return mod.id && hasStyleExtension(mod.id) ? 'style' : undefined;
+	return mod.id && hasStyleExtension(mod.id) ? 'file' : undefined;
+}
+
+function hasClientStyleModuleByFile(
+	moduleGraph: { getModulesByFile?(file: string): Set<EnvironmentModuleNode> | undefined },
+	mod: EnvironmentModuleNode,
+	styleType: StyleModuleType,
+): boolean {
+	if (mod.file == null || moduleGraph.getModulesByFile == null) return false;
+
+	const fileModules = moduleGraph.getModulesByFile(mod.file);
+	if (fileModules == null) return false;
+
+	for (const fileMod of fileModules) {
+		if (fileMod.id == null) continue;
+		if (styleType === 'component') {
+			if (isComponentStyleModule(fileMod.id)) return true;
+		} else if (!RAW_QUERY_REGEX.test(fileMod.id) && hasStyleExtension(fileMod.id)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /**
@@ -46,16 +71,21 @@ export default function hmrReload(): Plugin {
 				if (!isAstroServerEnvironment(this.environment)) return;
 
 				let hasSsrOnlyModules = false;
+				let hasStyleModules = false;
 				let hasSkippedStyleModules = false;
 
 				const invalidatedModules = new Set<EnvironmentModuleNode>();
 				for (const mod of modules) {
 					if (mod.id == null) continue;
-					const styleModuleType = getStyleModuleType(mod);
-					if (styleModuleType) {
-						const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
+					const styleType = getStyleModuleType(mod);
+					const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
+					if (styleType) {
+						hasStyleModules = true;
 						// No client module means nothing will apply the CSS update client-side, so force a reload.
-						if (styleModuleType === 'style-block' && clientModule == null) {
+						if (
+							clientModule == null &&
+							!hasClientStyleModuleByFile(server.environments.client.moduleGraph, mod, styleType)
+						) {
 							this.environment.moduleGraph.invalidateModule(
 								mod,
 								invalidatedModules,
@@ -69,12 +99,25 @@ export default function hmrReload(): Plugin {
 						continue;
 					}
 
-					const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
 					if (clientModule != null) continue;
 
 					this.environment.moduleGraph.invalidateModule(mod, invalidatedModules, timestamp, true);
 					hasSsrOnlyModules = true;
 				}
+
+				const invalidateDevCssModules = () => {
+					for (const [id, mod] of this.environment.moduleGraph.idToModuleMap) {
+						if (id.startsWith(RESOLVED_MODULE_DEV_CSS_PREFIX)) {
+							this.environment.moduleGraph.invalidateModule(mod, undefined, timestamp, true);
+							if (isRunnableDevEnvironment(this.environment)) {
+								const runnerMod = this.environment.runner.evaluatedModules.getModuleById(id);
+								if (runnerMod) {
+									this.environment.runner.evaluatedModules.invalidateModule(runnerMod);
+								}
+							}
+						}
+					}
+				};
 
 				// If any invalidated modules are virtual modules for pages, also invalidate their
 				// associated dev CSS modules, if any.
@@ -89,6 +132,9 @@ export default function hmrReload(): Plugin {
 				}
 
 				if (hasSsrOnlyModules) {
+					if (hasStyleModules) {
+						invalidateDevCssModules();
+					}
 					// Invalidate all recursively-invalidated modules (importers) in the
 					// runner cache, not just the directly changed files. Without this,
 					// barrel files like index.ts stay cached and dynamic import() calls
@@ -129,17 +175,7 @@ export default function hmrReload(): Plugin {
 					// Invalidate all per-route dev CSS virtual modules so the next SSR request
 					// re-collects CSS with updated content. Without this, the inline <style>
 					// tags injected for anti-FOUC would serve stale CSS after HMR updates.
-					for (const [id, mod] of this.environment.moduleGraph.idToModuleMap) {
-						if (id.startsWith(RESOLVED_MODULE_DEV_CSS_PREFIX)) {
-							this.environment.moduleGraph.invalidateModule(mod, undefined, timestamp, true);
-							if (isRunnableDevEnvironment(this.environment)) {
-								const runnerMod = this.environment.runner.evaluatedModules.getModuleById(id);
-								if (runnerMod) {
-									this.environment.runner.evaluatedModules.invalidateModule(runnerMod);
-								}
-							}
-						}
-					}
+					invalidateDevCssModules();
 					return [];
 				}
 

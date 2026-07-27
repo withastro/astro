@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes stale dev CSS after editing style blocks in Astro, Svelte, and Vue components
+Fixes stale dev CSS after editing component style blocks and CSS files in dev
