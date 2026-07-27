@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import colors from 'piccolore';
 import * as vite from 'vite';
-import { LINKS_PLACEHOLDER } from '../../content/consts.js';
+import { STYLES_PLACEHOLDER } from '../../content/consts.js';
 import { contentAssetsBuildPostHook } from '../../content/vite-plugin-content-assets.js';
 import { type BuildInternals, createBuildInternals } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
@@ -65,7 +65,7 @@ function extractRelevantChunks(
 		for (const chunk of output.output) {
 			if (chunk.type === 'asset') continue;
 
-			const needsContentInjection = chunk.code.includes(LINKS_PLACEHOLDER);
+			const needsContentInjection = chunk.code.includes(STYLES_PLACEHOLDER);
 			const needsManifestInjection = chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID);
 			const needsServerIslandInjection = chunk.code.includes(SERVER_ISLAND_MAP_MARKER);
 

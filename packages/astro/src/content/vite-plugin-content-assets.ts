@@ -1,6 +1,6 @@
 import { extname } from 'node:path';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
-import type { AssetsPrefix } from '../core/app/types.js';
+import type { AssetsPrefix, StylesheetAsset } from '../core/app/types.js';
 import { fileExtension } from '../core/path.js';
 import { fileURLToPath } from 'node:url';
 import { isRunnableDevEnvironment, type Plugin, type RunnableDevEnvironment } from 'vite';
@@ -14,7 +14,6 @@ import { crawlGraph } from '../vite-plugin-astro-server/vite.js';
 import {
 	CONTENT_IMAGE_FLAG,
 	CONTENT_RENDER_FLAG,
-	LINKS_PLACEHOLDER,
 	PROPAGATED_ASSET_FLAG,
 	STYLES_PLACEHOLDER,
 } from './consts.js';
@@ -104,7 +103,7 @@ export function astroContentAssetPropagationPlugin({
 			async handler(_, id) {
 				if (hasContentFlag(id, PROPAGATED_ASSET_FLAG)) {
 					const basePath = id.split('?')[0];
-					let stringifiedLinks: string, stringifiedStyles: string;
+					let stringifiedStylesheets: string;
 
 					// We can access the server in dev,
 					// so resolve collected styles and scripts here.
@@ -132,14 +131,18 @@ export function astroContentAssetPropagationPlugin({
 							}
 						}
 
-						stringifiedLinks = JSON.stringify([...urls]);
-						stringifiedStyles = JSON.stringify(styles.map((s) => s.content));
+						// Keep both kinds in a single ordered list so the relative cascade order
+						// between external stylesheets and inlined styles isn't lost.
+						const stylesheets: StylesheetAsset[] = [
+							...[...urls].map((src): StylesheetAsset => ({ type: 'external', src })),
+							...styles.map((s): StylesheetAsset => ({ type: 'inline', content: s.content })),
+						];
+						stringifiedStylesheets = JSON.stringify(stylesheets);
 					} else {
-						// Otherwise, use placeholders to inject styles and scripts
+						// Otherwise, use a placeholder to inject stylesheets
 						// during the production bundle step.
 						// @see the `astro:content-build-plugin` below.
-						stringifiedLinks = JSON.stringify(LINKS_PLACEHOLDER);
-						stringifiedStyles = JSON.stringify(STYLES_PLACEHOLDER);
+						stringifiedStylesheets = JSON.stringify(STYLES_PLACEHOLDER);
 					}
 
 					const code = `
@@ -147,9 +150,8 @@ export function astroContentAssetPropagationPlugin({
 					async function getMod() {
 						return import(${JSON.stringify(basePath)});
 					}
-					const collectedLinks = ${stringifiedLinks};
-					const collectedStyles = ${stringifiedStyles};
-					const defaultMod = { __astroPropagation: true, getMod, collectedLinks, collectedStyles, collectedScripts: [] };
+					const collectedStylesheets = ${stringifiedStylesheets};
+					const defaultMod = { __astroPropagation: true, getMod, collectedStylesheets, collectedScripts: [] };
 					export default defaultMod;
 				`;
 					// ^ Use a default export for tools like Markdoc
@@ -235,9 +237,9 @@ async function getStylesForURL(
 }
 
 /**
- * Post-build hook that injects propagated styles into content collection chunks.
- * Finds chunks with LINKS_PLACEHOLDER and STYLES_PLACEHOLDER, and replaces them
- * with actual styles from propagatedStylesMap.
+ * Post-build hook that injects propagated stylesheets into content collection chunks.
+ * Finds chunks with STYLES_PLACEHOLDER, and replaces it with the actual
+ * ordered list of stylesheets from propagatedStylesMap.
  */
 export async function contentAssetsBuildPostHook(
 	base: string,
@@ -251,25 +253,29 @@ export async function contentAssetsBuildPostHook(
 		mutate: (fileName: string, code: string, prerender: boolean) => void;
 	},
 ) {
-	// Process each chunk that contains placeholder placeholders for styles/links
+	// Process each chunk that contains a placeholder for stylesheets
 	for (const chunk of chunks) {
-		// Skip chunks that don't have content placeholders to inject
-		if (!chunk.code.includes(LINKS_PLACEHOLDER)) continue;
+		// Skip chunks that don't have a content placeholder to inject
+		if (!chunk.code.includes(STYLES_PLACEHOLDER)) continue;
 
-		const entryStyles = new Set<string>();
-		const entryLinks = new Set<string>();
+		const seen = new Set<string>();
+		const stylesheets: StylesheetAsset[] = [];
 
 		// For each module in this chunk, look up propagated styles from the map
 		for (const id of chunk.moduleIds) {
 			const entryCss = internals.propagatedStylesMap.get(id);
 			if (entryCss) {
-				// Collect both inline content and external links
-				// TODO: Separating styles and links this way is not ideal. The `entryCss` list is order-sensitive
-				// and splitting them into two sets causes the order to be lost, because styles are rendered after
-				// links. Refactor this away in the future.
+				// `entryCss` mixes inline styles and external links in the order they were
+				// encountered. Keep them in a single ordered list (deduping by content/href)
+				// so the original cascade order between the two is preserved.
 				for (const value of entryCss) {
-					if (value.type === 'inline') entryStyles.add(value.content);
-					if (value.type === 'external') {
+					if (value.type === 'inline') {
+						const key = `inline:${value.content}`;
+						if (!seen.has(key)) {
+							seen.add(key);
+							stylesheets.push({ type: 'inline', content: value.content });
+						}
+					} else if (value.type === 'external') {
 						let href: string;
 						if (assetsPrefix) {
 							const pf = getAssetsPrefix(fileExtension(value.src), assetsPrefix);
@@ -277,32 +283,21 @@ export async function contentAssetsBuildPostHook(
 						} else {
 							href = prependForwardSlash(joinPaths(base, slash(value.src)));
 						}
-						entryLinks.add(href);
+						const key = `external:${href}`;
+						if (!seen.has(key)) {
+							seen.add(key);
+							stylesheets.push({ type: 'external', src: href });
+						}
 					}
 				}
 			}
 		}
 
-		// Replace placeholders with actual styles and links
-		let newCode = chunk.code;
-		if (entryStyles.size) {
-			newCode = newCode.replace(
-				JSON.stringify(STYLES_PLACEHOLDER),
-				JSON.stringify(Array.from(entryStyles)),
-			);
-		} else {
-			// Replace with empty array if no styles found
-			newCode = newCode.replace(JSON.stringify(STYLES_PLACEHOLDER), '[]');
-		}
-		if (entryLinks.size) {
-			newCode = newCode.replace(
-				JSON.stringify(LINKS_PLACEHOLDER),
-				JSON.stringify(Array.from(entryLinks)),
-			);
-		} else {
-			// Replace with empty array if no links found
-			newCode = newCode.replace(JSON.stringify(LINKS_PLACEHOLDER), '[]');
-		}
+		// Replace the placeholder with the actual ordered stylesheet list
+		const newCode = chunk.code.replace(
+			JSON.stringify(STYLES_PLACEHOLDER),
+			JSON.stringify(stylesheets),
+		);
 		// Persist the mutation for writing to disk
 		mutate(chunk.fileName, newCode, chunk.prerender);
 	}

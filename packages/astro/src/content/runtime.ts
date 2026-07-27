@@ -6,6 +6,7 @@ import type * as zCore from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { createSvgComponent } from '../assets/runtime.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
+import type { StylesheetAsset } from '../core/app/types.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isRemotePath, prependForwardSlash } from '../core/path.js';
 import {
@@ -609,7 +610,7 @@ async function render({
 	const { default: defaultMod } = baseMod;
 
 	if (isPropagatedAssetsModule(defaultMod)) {
-		const { collectedStyles, collectedLinks, collectedScripts, getMod } = defaultMod;
+		const { collectedStylesheets, collectedScripts, getMod } = defaultMod;
 		if (typeof getMod !== 'function') throw UnexpectedRenderError;
 		const propagationMod = await getMod();
 		if (propagationMod == null || typeof propagationMod !== 'object') throw UnexpectedRenderError;
@@ -617,25 +618,19 @@ async function render({
 		const Content = createComponent({
 			factory(result, baseProps, slots) {
 				let styles = '',
-					links = '',
 					scripts = '';
-				if (Array.isArray(collectedStyles)) {
-					styles = collectedStyles
-						.map((style: any) => {
-							return renderUniqueStylesheet(result, {
-								type: 'inline',
-								content: style,
-							});
-						})
-						.join('');
-				}
-				if (Array.isArray(collectedLinks)) {
-					links = collectedLinks
-						.map((link: any) => {
-							return renderUniqueStylesheet(result, {
-								type: 'external',
-								src: isRemotePath(link) ? link : prependForwardSlash(link),
-							});
+				if (Array.isArray(collectedStylesheets)) {
+					// Keep inline styles and external links in their original relative order,
+					// since CSS cascade is order-sensitive.
+					styles = collectedStylesheets
+						.map((sheet: StylesheetAsset) => {
+							if (sheet.type === 'external') {
+								return renderUniqueStylesheet(result, {
+									type: 'external',
+									src: isRemotePath(sheet.src) ? sheet.src : prependForwardSlash(sheet.src),
+								});
+							}
+							return renderUniqueStylesheet(result, sheet);
 						})
 						.join('');
 				}
@@ -653,7 +648,7 @@ async function render({
 				}
 
 				return createHeadAndContent(
-					unescapeHTML(styles + links + scripts) as any,
+					unescapeHTML(styles + scripts) as any,
 					renderTemplate`${renderComponent(
 						result,
 						'Content',
@@ -721,8 +716,7 @@ export function createReference() {
 type PropagatedAssetsModule = {
 	__astroPropagation: true;
 	getMod: () => Promise<any>;
-	collectedStyles: string[];
-	collectedLinks: string[];
+	collectedStylesheets: StylesheetAsset[];
 	collectedScripts: string[];
 };
 
