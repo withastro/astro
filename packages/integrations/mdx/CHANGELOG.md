@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 7.0.4
+
+### Patch Changes
+
+- [#17514](https://github.com/withastro/astro/pull/17514) [`41a00dd`](https://github.com/withastro/astro/commit/41a00dd86fc848763fa9dc6e501d6e85188c1306) Thanks [@gtritchie](https://github.com/gtritchie)! - Fixes a bug where the integration was emitting React-cased attribute names.
+
 ## 7.0.3
 
 ### Patch Changes
