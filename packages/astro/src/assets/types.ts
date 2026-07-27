@@ -191,6 +191,18 @@ type ImageSharedProps<T> = T & {
 	 * ```
 	 */
 	position?: string;
+
+	/**
+	 * The background color to use when converting images with transparency to a format that does not support it (e.g. PNG to JPEG).
+	 *
+	 * The value is a string that specifies a CSS color value, e.g. `#fff`, `white`, `rgb(255, 255, 255)`.
+	 *
+	 * **Example**:
+	 * ```astro
+	 * <Image src={...} format="jpeg" background="#fff" alt="..." />
+	 * ```
+	 */
+	background?: string;
 } & (
 		| {
 				/**

@@ -1,5 +1,43 @@
 # astro
 
+## 7.1.4
+
+### Patch Changes
+
+- [#17488](https://github.com/withastro/astro/pull/17488) [`d4f266d`](https://github.com/withastro/astro/commit/d4f266de4af009876baa554708705e5ac36572bb) Thanks [@emerson-d-lopes](https://github.com/emerson-d-lopes)! - Fixes duplicate CSS files being emitted in server output when a prerendered page and a server-rendered page share the same styles (e.g. a shared layout importing Tailwind). The prerender and SSR environments each emitted their own copy of the same stylesheet (`index.X.css` and `_..Y.css`); the SSR build now reuses the CSS asset filename from the prerender build when the stylesheet is backed by the same CSS source modules, so only a single file is emitted.
+
+- [#17472](https://github.com/withastro/astro/pull/17472) [`4dc590c`](https://github.com/withastro/astro/commit/4dc590c8fcdd9207492914dddb8e861c532ed904) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Adds the missing `background` prop to the `<Image />` and `<Picture />` component types. The prop already worked at runtime, but was absent from the types, causing `astro check` to report that `background` does not exist on the component props
+
+- [#17292](https://github.com/withastro/astro/pull/17292) [`0fc519d`](https://github.com/withastro/astro/commit/0fc519de12d69088052b76e096a4adfdc789c30c) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes missing scoped styles for child components inside `client:only` islands in production builds
+
+- [#17421](https://github.com/withastro/astro/pull/17421) [`f1448de`](https://github.com/withastro/astro/commit/f1448de83726a7ab21c89d45e2e26ed8f6ef6531) Thanks [@iamkaleemsajjad-hue](https://github.com/iamkaleemsajjad-hue)! - Fixes session runtime errors being silently swallowed by `console.error` instead of routing through Astro's logger
+
+- [#17421](https://github.com/withastro/astro/pull/17421) [`f1448de`](https://github.com/withastro/astro/commit/f1448de83726a7ab21c89d45e2e26ed8f6ef6531) Thanks [@iamkaleemsajjad-hue](https://github.com/iamkaleemsajjad-hue)! - Fixes a session being left in a partial state after a storage failure during `session.regenerate()`, preventing unnecessary storage reads on subsequent operations
+
+- [#17517](https://github.com/withastro/astro/pull/17517) [`82bf7e2`](https://github.com/withastro/astro/commit/82bf7e2008e3062cb8b32e9500804e71e4bfd30a) Thanks [@Hashim1999164](https://github.com/Hashim1999164)! - Prevents a visible terminal window from popping up on Windows when the dev server runs in background mode. The detached child process is now spawned with `windowsHide: true`, so console-subsystem grandchildren (such as `workerd.exe`) no longer get a new focus-stealing window allocated by Windows Terminal.
+
+- [#17510](https://github.com/withastro/astro/pull/17510) [`eaa1fb0`](https://github.com/withastro/astro/commit/eaa1fb0067406a58490d55686f9f617e4c834905) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes the `glob()` loader watcher so negation patterns like `!docs/drafts/**` correctly exclude files during development, matching the behavior of the initial scan. Previously, negations were treated as independent matchers, causing unrelated files (including `.astro/data-store.json`) to be ingested as collection entries
+
+- [#17511](https://github.com/withastro/astro/pull/17511) [`704e570`](https://github.com/withastro/astro/commit/704e570a43de11450372eb68ec467c154acc2e2e) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes TypeScript path aliases from `tsconfig.json` not resolving in `astro.config.ts`
+
+## 7.1.3
+
+### Patch Changes
+
+- [#17427](https://github.com/withastro/astro/pull/17427) [`630b382`](https://github.com/withastro/astro/commit/630b382ce3303c350154338e59cb5444c5316764) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes image optimization during `astro build` using too many parallel processes in CPU-limited containers. Builds now respect the container's CPU limit, reducing peak memory usage and avoiding out-of-memory crashes.
+  </content>
+  </invoke>
+
+## 7.1.2
+
+### Patch Changes
+
+- [#17445](https://github.com/withastro/astro/pull/17445) [`a5f7230`](https://github.com/withastro/astro/commit/a5f7230d1caf41ef1e94f9a6b9f6ee01d332455c) Thanks [@ocavue](https://github.com/ocavue)! - Updates dependency `cookie` to v2. Cookie values made entirely of URL-safe characters are no longer percent-encoded in `Set-Cookie` headers; encoded values round-trip exactly as before.
+
+- [#17402](https://github.com/withastro/astro/pull/17402) [`a89c137`](https://github.com/withastro/astro/commit/a89c137a424b4d7bf97df067bba023eccc2317eb) Thanks [@farrosfr](https://github.com/farrosfr)! - Fixes a bug where mutated `Astro.locals` during the request lifecycle are lost and not passed to custom error pages (`404.astro`/`500.astro`)
+
+- [#17405](https://github.com/withastro/astro/pull/17405) [`91992ef`](https://github.com/withastro/astro/commit/91992ef2ccd9a90fa4270633eb4f5d3b811bf315) Thanks [@Araluma](https://github.com/Araluma)! - Prevents an unhandled promise rejection from the prefetch `fetch` fallback. In WebKit (Safari), `<link rel="prefetch">` is unsupported, so prefetch uses the `fetch()` fallback; on a flaky connection that fetch rejects with `TypeError: Load failed`, and because the promise was not awaited or caught, it surfaced as an unhandled rejection to the page's global error handlers. The best-effort prefetch now swallows the failure with `.catch()`.
+
 ## 7.1.1
 
 ### Patch Changes
