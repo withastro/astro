@@ -1,6 +1,5 @@
 import nodeFs from 'node:fs';
 import os from 'node:os';
-import { fileURLToPath } from 'node:url';
 
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
@@ -46,7 +45,6 @@ import {
 	type IncrementalCache,
 } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
-import { computeLockfileHash } from './lockfile/index.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -107,14 +105,11 @@ export async function generatePages(
 
 	// Incremental build support
 	const incrementalEnabled = options.settings.config.experimental.incrementalBuild;
-	const lockfileHash = incrementalEnabled
-		? computeLockfileHash(fileURLToPath(options.settings.config.root))
-		: '';
 	const configHash = incrementalEnabled ? computeConfigHash(options.settings.config) : '';
 	const previousCache = incrementalEnabled
-		? readIncrementalCache(options.settings, lockfileHash, configHash)
+		? readIncrementalCache(options.settings, configHash)
 		: null;
-	const newCache = incrementalEnabled ? createEmptyCache(lockfileHash, configHash) : null;
+	const newCache = incrementalEnabled ? createEmptyCache(configHash) : null;
 
 	try {
 		// Get all static paths with their routes from the prerenderer
