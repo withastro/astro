@@ -93,7 +93,7 @@ class AstroCookies implements AstroCookiesInterface {
 				name: key,
 				value: DELETED_VALUE,
 				expires: DELETED_EXPIRATION,
-				// Unset `expires` to to ensure that `expires` takes precedence.
+				// Unset `maxAge` to ensure that `expires` takes precedence.
 				maxAge: undefined,
 			}),
 			false,

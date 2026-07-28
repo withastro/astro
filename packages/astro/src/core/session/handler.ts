@@ -39,6 +39,7 @@ async function provideSessionAsync(
 				runtimeMode: pipeline.runtimeMode,
 				driverFactory,
 				mockStorage: null,
+				logger: pipeline.logger,
 			});
 		},
 		finalize(session) {

@@ -11,6 +11,7 @@ import type {
 	AstroCookieDeleteOptions,
 } from '../../../dist/core/cookies/cookies.js';
 import type { SessionDriverFactory } from '../../../dist/core/session/types.js';
+import { SpyLogger } from '../test-utils.ts';
 
 // #region Helpers
 
@@ -40,6 +41,7 @@ function createSession(
 	cookies: MockCookies = defaultMockCookies,
 	mockStorage: Storage | null = null,
 	runtimeMode: RuntimeMode = 'production',
+	logger: SpyLogger = new SpyLogger(),
 ) {
 	// driverFactory from unstorage/drivers/memory accepts no config; wrap it to satisfy SessionDriverFactory
 	const typedDriverFactory: SessionDriverFactory = () => driverFactory();
@@ -49,6 +51,7 @@ function createSession(
 		runtimeMode,
 		driverFactory: typedDriverFactory,
 		mockStorage,
+		logger,
 	});
 }
 
@@ -263,6 +266,7 @@ describe('AstroSession - Error Handling', () => {
 		const mockStorage = {
 			get: async () => 'invalid-json',
 			setItem: async () => {},
+			removeItem: async () => {},
 		} as unknown as Storage;
 
 		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
@@ -568,6 +572,7 @@ describe('AstroSession - Storage Errors', () => {
 		const mockStorage = {
 			get: async () => stringify({ notAMap: true }),
 			setItem: async () => {},
+			removeItem: async () => {},
 		} as unknown as Storage;
 
 		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
@@ -604,6 +609,7 @@ describe('AstroSession - No-Cookie Short Circuit', () => {
 			runtimeMode: 'production',
 			driverFactory: countingDriverFactory,
 			mockStorage: null,
+			logger: new SpyLogger(),
 		});
 
 		const value = await session.get('nonexistent');
@@ -653,3 +659,78 @@ describe('AstroSession - No-Cookie Short Circuit', () => {
 });
 
 // #endregion No-Cookie Short Circuit
+
+// #region Error Recovery
+describe('AstroSession - regenerate() error path', () => {
+	it('should route errors to logger and reset #partial flag', async () => {
+		let storageGetCount = 0;
+		// The cookie mock returns 'old-session' so that ensureData() will try to
+		// load from storage using that key and hit the corrupt data path.
+		const cookies: MockCookies = {
+			set: () => {},
+			delete: () => {},
+			get: (name: string) => (name === 'test-session' ? { value: 'old-session' } : undefined),
+		};
+		const spyLogger = new SpyLogger();
+		const mockStorage = {
+			async get(key: string) {
+				storageGetCount++;
+				if (key === 'old-session') {
+					// Return a string that unflatten() will parse into an Array, not a Map.
+					// This causes unflatten(raw) instanceof Map to be false, throwing an AstroError.
+					return '[1,2,3]';
+				}
+				return null;
+			},
+			async setItem() {},
+			async removeItem() {},
+			async getKeys() {
+				return [];
+			},
+			async clear() {},
+			async dispose() {},
+			async hasItem() {
+				return false;
+			},
+			async setItemRaw() {},
+			async getItemRaw() {
+				return null;
+			},
+		};
+
+		const session = createSession(
+			defaultConfig,
+			cookies,
+			mockStorage as any,
+			'production',
+			spyLogger,
+		);
+
+		// This will trigger ensureData() under the hood.
+		// It fetches 'old-session' which returns invalid data, throwing an error.
+		// regenerate() catches this, should log an error, and reset #partial.
+		await session.regenerate();
+
+		// 1. Verify logging behavior
+		assert.equal(
+			spyLogger.logs.some((e) => e.level === 'error'),
+			true,
+			'Should route errors through logger.error',
+		);
+
+		// Reset storage count before checking get()
+		storageGetCount = 0;
+
+		// 2. Verify #partial state
+		// If #partial is true, this will call storage.get() for the new session ID.
+		// If #partial is correctly reset to false, this will use the in-memory Map.
+		await session.get('foo');
+
+		assert.equal(
+			storageGetCount,
+			0,
+			'Should not round-trip to storage; #partial should be false after regeneration',
+		);
+	});
+});
+// #endregion
