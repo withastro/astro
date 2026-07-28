@@ -628,6 +628,98 @@ describe('Rewrites via App - body-used rewrite returns 500', () => {
 	});
 });
 
+describe('Rewrites via App - middleware rewrite to a route returning an empty 404 (#17281)', () => {
+	const custom404 = createComponent(() => render`<h1>Custom 404</h1>`);
+	const empty404Page = createComponent(() => new Response(null, { status: 404 }));
+
+	const middleware = async (context: APIContext, next: MiddlewareNext) => {
+		if (context.url.pathname === '/rewrite') {
+			return context.rewrite('/unexisting-page');
+		}
+		return next();
+	};
+
+	const app = createTestApp(
+		[
+			createPage(custom404, { route: '/404', component: '404.astro' }),
+			createPage(empty404Page, {
+				route: '/[...slug]',
+				segments: [[spreadPart('...slug')]],
+				pathname: undefined,
+			}),
+		],
+		{ middleware: () => ({ onRequest: middleware }) },
+	);
+
+	it('renders the custom 404 page when middleware rewrites to a route that returns an empty 404', async () => {
+		const res = await app.render(new Request('http://example.com/rewrite'));
+		assert.equal(res.status, 404);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('h1').text(), 'Custom 404');
+	});
+
+	it('renders the custom 404 page when the 404-returning route is hit directly', async () => {
+		const res = await app.render(new Request('http://example.com/unexisting-page'));
+		assert.equal(res.status, 404);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('h1').text(), 'Custom 404');
+	});
+});
+
+describe('Rewrites via App - middleware rewrite to an empty 404 without a custom 404 page (#17281)', () => {
+	const empty404Page = createComponent(() => new Response(null, { status: 404 }));
+
+	const middleware = async (context: APIContext, next: MiddlewareNext) => {
+		if (context.url.pathname === '/rewrite') {
+			return context.rewrite('/unexisting-page');
+		}
+		return next();
+	};
+
+	const app = createTestApp(
+		[
+			createPage(empty404Page, {
+				route: '/[...slug]',
+				segments: [[spreadPart('...slug')]],
+				pathname: undefined,
+			}),
+		],
+		{ middleware: () => ({ onRequest: middleware }) },
+	);
+
+	it('returns the default 404 when middleware rewrites to a route that returns an empty 404', async () => {
+		const res = await app.render(new Request('http://example.com/rewrite'));
+		assert.equal(res.status, 404);
+	});
+});
+
+describe('Rewrites via App - middleware rewrites to a real page after next() returns 404', () => {
+	const empty404Page = createComponent(() => new Response(null, { status: 404 }));
+
+	const middleware = async (context: APIContext, next: MiddlewareNext) => {
+		const response = await next();
+		if (response.status === 404 && context.url.pathname === '/soft-404') {
+			return context.rewrite('/');
+		}
+		return response;
+	};
+
+	const app = createTestApp(
+		[
+			createPage(indexPage, { route: '/', isIndex: true }),
+			createPage(empty404Page, { route: '/soft-404' }),
+		],
+		{ middleware: () => ({ onRequest: middleware }) },
+	);
+
+	it('renders the rewrite target when middleware rewrites on a 404 response', async () => {
+		const res = await app.render(new Request('http://example.com/soft-404'));
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('h1').text(), 'Index');
+	});
+});
+
 describe('Rewrites via App - routePattern updated after sequence rewrite', () => {
 	const patternPage = createComponent((result: any, props: any, slots: any) => {
 		const Astro = result.createAstro(props, slots);

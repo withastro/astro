@@ -11,7 +11,7 @@ import {
 	readLockFile,
 	removeLockFile,
 	isProcessAlive,
-	GRACEFUL_SHUTDOWN_TIMEOUT,
+	killDevServer,
 	type LockFileData,
 } from '../../core/dev/lockfile.js';
 import { resolveRoot } from '../../core/config/config.js';
@@ -73,26 +73,7 @@ export async function background({
 
 	// If --force, kill the existing server first
 	if (existing && flags.force) {
-		try {
-			process.kill(existing.pid, 'SIGTERM');
-		} catch {
-			// Already dead
-		}
-		// Wait for graceful shutdown before escalating to SIGKILL
-		const deadline = Date.now() + GRACEFUL_SHUTDOWN_TIMEOUT;
-		while (Date.now() < deadline) {
-			if (!isProcessAlive(existing.pid)) break;
-			await new Promise((r) => setTimeout(r, 100));
-		}
-		// If still alive after timeout, force kill
-		if (isProcessAlive(existing.pid)) {
-			try {
-				process.kill(existing.pid, 'SIGKILL');
-			} catch {
-				// Already dead
-			}
-		}
-		removeLockFile(root);
+		await killDevServer(root, existing);
 	}
 
 	// Build the args for the child process: plain `astro dev` (no --background)
@@ -129,9 +110,14 @@ export async function background({
 	// `astro/bin/astro.mjs` is not exported, so resolve via the package manifest.
 	const astroBin = resolve(dirname(require.resolve('astro/package.json')), 'bin', 'astro.mjs');
 
-	// Spawn the dev server as a detached child process
+	// Spawn the dev server as a detached child process.
+	// `windowsHide: true` prevents a console window from popping up: on Windows
+	// `detached: true` maps to DETACHED_PROCESS, so the child has no console and
+	// any console-subsystem grandchild it spawns (e.g. workerd.exe) gets a brand
+	// new, visible, focus-stealing window allocated by Windows Terminal.
 	const child = spawn(process.execPath, [astroBin, ...args], {
 		detached: true,
+		windowsHide: true,
 		stdio: ['ignore', logFd, logFd],
 		cwd: rootPath,
 		env: { ...process.env, ASTRO_DEV_BACKGROUND: '1' },

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.3/schema.json",
   "files": {
     "includes": [
       "**",
@@ -40,7 +40,7 @@
       "test": "recommended"
     },
     "rules": {
-      "recommended": false,
+      "preset": "none",
       "style": {
         "useNodejsImportProtocol": "error",
         // Enforce separate type imports for type-only imports to avoid bundling unneeded code

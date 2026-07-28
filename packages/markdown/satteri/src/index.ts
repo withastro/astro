@@ -7,7 +7,6 @@ export {
 	createHighlightPlugin as satteriShikiPlugin,
 	createHighlightFn as satteriCreateHighlightFn,
 	collectHastText as satteriCollectHastText,
-	makeFragmentNode as satteriMakeFragmentNode,
 	type SatteriAstroData,
 	createSatteriMarkdownProcessor,
 	type SatteriMarkdownProcessorOptions,

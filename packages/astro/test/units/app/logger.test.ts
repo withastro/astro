@@ -6,7 +6,8 @@ import { createManifest, createRouteInfo } from './test-helpers.ts';
 import { makeRoute, staticPart } from '../routing/test-helpers.ts';
 import { loadFixture, type Fixture } from '../../test-utils.ts';
 import testAdapter from '../../test-adapter.ts';
-import type { LoggerHandlerConfig } from '../../../dist/core/logger/config.js';
+import type { SSRManifest } from '../../../dist/core/app/types.js';
+import jsonLoggerCreator from '../../../dist/core/logger/impls/json.js';
 
 const okPage = createComponent(() => {
 	return render`<h1>Ok</h1>`;
@@ -32,19 +33,22 @@ const pageMap = new Map([
 	],
 ]);
 
-function createAppWithLogger(loggerConfig?: LoggerHandlerConfig) {
+// Mirrors what the `virtual:astro:logger` module exports in a real build.
+const jsonLogger: SSRManifest['logger'] = () => ({ default: jsonLoggerCreator() });
+
+function createAppWithLogger(logger?: SSRManifest['logger']) {
 	return new App(
 		createManifest({
 			routes: [createRouteInfo(indexRoute)],
 			pageMap,
-			loggerConfig,
+			logger,
 		}),
 	);
 }
 
 describe('SSR Logger', () => {
 	it('adapterLogger re-creates itself after the pipeline logger is replaced', async () => {
-		const app = createAppWithLogger({ entrypoint: 'astro/logger/json' });
+		const app = createAppWithLogger(jsonLogger);
 
 		// Access adapterLogger before getLogger(), caches it with the default options
 		const beforeOptions = app.adapterLogger.options;
@@ -61,7 +65,7 @@ describe('SSR Logger', () => {
 	});
 
 	it('resolves a custom logger destination from the manifest on first request', async () => {
-		const app = createAppWithLogger({ entrypoint: 'astro/logger/json' });
+		const app = createAppWithLogger(jsonLogger);
 
 		await app.render(new Request('http://example.com/'));
 
@@ -81,7 +85,7 @@ describe('SSR Logger', () => {
 	});
 
 	it('flush does not throw when destination has no flush method', async () => {
-		const app = createAppWithLogger({ entrypoint: 'astro/logger/json' });
+		const app = createAppWithLogger(jsonLogger);
 
 		// The json logger destination does not define flush/close.
 		// Verify that rendering (which calls flush internally) completes without error.
@@ -93,7 +97,7 @@ describe('SSR Logger', () => {
 	});
 
 	it('close does not throw when destination has no close method', async () => {
-		const app = createAppWithLogger({ entrypoint: 'astro/logger/json' });
+		const app = createAppWithLogger(jsonLogger);
 
 		await app.render(new Request('http://example.com/'));
 

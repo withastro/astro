@@ -10,32 +10,90 @@ import {
 } from '../../../dist/runtime/server/index.js';
 import type { SSRManifestCSP } from '../../../dist/types/public/internal.js';
 import type { Pipeline } from '../../../dist/core/render/index.js';
-import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
+import type { AstroLogger } from '../../../dist/core/logger/core.js';
+import { createBasicPipeline, renderThroughMiddleware, SpyLogger } from '../test-utils.ts';
 
 // #region Test Utilities
 
-function createCspPipeline(cspConfig: Partial<SSRManifestCSP> = {}): Pipeline {
-	const pipeline = createBasicPipeline();
+/**
+ * Flat test DSL mapped to the config-shaped manifest. `*Elem`/`*Attr` options are turned into
+ * `kind`-scoped entries; a `-elem`/`-attr` directive is emitted only when it has such entries.
+ */
+type CspTestConfig = {
+	cspDestination?: SSRManifestCSP['cspDestination'];
+	algorithm?: SSRManifestCSP['algorithm'];
+	directives?: SSRManifestCSP['directives'];
+	scriptHashes?: string[];
+	scriptResources?: string[];
+	styleHashes?: string[];
+	styleResources?: string[];
+	isStrictDynamic?: boolean;
+	scriptElemResources?: string[];
+	scriptElemHashes?: string[];
+	scriptAttrResources?: string[];
+	scriptAttrHashes?: string[];
+	styleElemResources?: string[];
+	styleElemHashes?: string[];
+	styleAttrResources?: string[];
+	styleAttrHashes?: string[];
+};
+
+function createCspPipeline(config: CspTestConfig = {}, logger?: AstroLogger): Pipeline {
+	const pipeline = createBasicPipeline(logger ? { logger } : undefined);
+	const resources = (defaults?: string[], element?: string[], attribute?: string[]) => [
+		...(defaults ?? []),
+		...(element ?? []).map((resource) => ({ resource, kind: 'element' as const })),
+		...(attribute ?? []).map((resource) => ({ resource, kind: 'attribute' as const })),
+	];
+	const hashes = (defaults?: string[], element?: string[], attribute?: string[]) => [
+		...(defaults ?? []),
+		...(element ?? []).map((hash) => ({ hash, kind: 'element' as const })),
+		...(attribute ?? []).map((hash) => ({ hash, kind: 'attribute' as const })),
+	];
 	// manifest is readonly, so we use Object.defineProperty to override it for testing
 	Object.defineProperty(pipeline, 'manifest', {
 		value: {
 			...pipeline.manifest,
 			shouldInjectCspMetaTags: true,
 			csp: {
-				cspDestination: cspConfig.cspDestination,
-				algorithm: cspConfig.algorithm || 'SHA-256',
-				scriptHashes: cspConfig.scriptHashes || [],
-				scriptResources: cspConfig.scriptResources || [],
-				styleHashes: cspConfig.styleHashes || [],
-				styleResources: cspConfig.styleResources || [],
-				directives: cspConfig.directives || [],
-				isStrictDynamic: cspConfig.isStrictDynamic || false,
+				cspDestination: config.cspDestination,
+				algorithm: config.algorithm || 'SHA-256',
+				directives: config.directives || [],
+				scriptDirective: {
+					resources: resources(
+						config.scriptResources,
+						config.scriptElemResources,
+						config.scriptAttrResources,
+					),
+					hashes: hashes(config.scriptHashes, config.scriptElemHashes, config.scriptAttrHashes),
+					strictDynamic: config.isStrictDynamic || false,
+				},
+				styleDirective: {
+					resources: resources(
+						config.styleResources,
+						config.styleElemResources,
+						config.styleAttrResources,
+					),
+					hashes: hashes(config.styleHashes, config.styleElemHashes, config.styleAttrHashes),
+				},
 			},
 		},
 		writable: false,
 		configurable: true,
 	});
 	return pipeline;
+}
+
+/** Parse a CSP string into a map of directive name -> source tokens. */
+function parseCsp(content: string): Map<string, string[]> {
+	const map = new Map<string, string[]>();
+	for (const part of content.split(';')) {
+		const trimmed = part.trim();
+		if (!trimmed) continue;
+		const [directive, ...resources] = trimmed.split(/\s+/);
+		map.set(directive, resources);
+	}
+	return map;
 }
 
 async function renderPage(
@@ -415,6 +473,204 @@ describe('CSP Rendering', () => {
 			const content = meta.attr('content')!;
 
 			assert.equal(content.includes('font-src'), false, 'Should not include font-src directive');
+		});
+	});
+
+	describe('Granular directives (kind)', () => {
+		it('moves Astro element hashes into script-src-elem instead of duplicating them on script-src', async () => {
+			const pipeline = createCspPipeline({
+				scriptHashes: ['sha256-island'],
+				scriptElemResources: ['https://cdn.example.com'],
+				scriptElemHashes: ['sha256-userElem'],
+			});
+
+			const { html } = await renderPage(SimplePage, pipeline);
+			const parsed = parseCsp(
+				cheerio.load(html)('meta[http-equiv="Content-Security-Policy"]').attr('content')!,
+			);
+
+			// The generated hash moves to `script-src-elem` (which governs `<script>` elements); the
+			// baseline only keeps `'self'`, since the browser won't fall back to it.
+			assert.deepEqual(parsed.get('script-src'), ["'self'"]);
+			assert.deepEqual(parsed.get('script-src-elem'), [
+				'https://cdn.example.com',
+				"'sha256-island'",
+				"'sha256-userElem'",
+			]);
+		});
+
+		it('moves Astro element hashes into style-src-elem instead of duplicating them on style-src', async () => {
+			const pipeline = createCspPipeline({
+				styleHashes: ['sha256-css'],
+				styleElemResources: ["'self'"],
+			});
+
+			const { html } = await renderPage(SimplePage, pipeline);
+			const parsed = parseCsp(
+				cheerio.load(html)('meta[http-equiv="Content-Security-Policy"]').attr('content')!,
+			);
+
+			assert.deepEqual(parsed.get('style-src'), ["'self'"]);
+			assert.deepEqual(parsed.get('style-src-elem'), ["'self'", "'sha256-css'"]);
+		});
+
+		it('does not fold Astro element hashes into script-src-attr', async () => {
+			const pipeline = createCspPipeline({
+				scriptHashes: ['sha256-island'],
+				scriptAttrResources: ["'unsafe-inline'"],
+			});
+
+			const { html } = await renderPage(SimplePage, pipeline);
+			const parsed = parseCsp(
+				cheerio.load(html)('meta[http-equiv="Content-Security-Policy"]').attr('content')!,
+			);
+
+			// Only the user-provided attribute source — Astro's element hashes are NOT folded in.
+			assert.deepEqual(parsed.get('script-src-attr'), ["'unsafe-inline'"]);
+		});
+
+		it('allows inline style attributes via style-src-attr', async () => {
+			const pipeline = createCspPipeline({
+				styleAttrResources: ["'unsafe-inline'"],
+			});
+
+			const { html } = await renderPage(SimplePage, pipeline);
+			const parsed = parseCsp(
+				cheerio.load(html)('meta[http-equiv="Content-Security-Policy"]').attr('content')!,
+			);
+
+			assert.deepEqual(parsed.get('style-src-attr'), ["'unsafe-inline'"]);
+		});
+
+		it("does not emit a contradictory 'none' when an attribute hash is provided without resources", async () => {
+			const pipeline = createCspPipeline({
+				styleAttrHashes: ['sha256-attrHash'],
+			});
+
+			const { html } = await renderPage(SimplePage, pipeline);
+			const parsed = parseCsp(
+				cheerio.load(html)('meta[http-equiv="Content-Security-Policy"]').attr('content')!,
+			);
+
+			assert.deepEqual(parsed.get('style-src-attr'), ["'sha256-attrHash'"]);
+		});
+
+		it("inherits 'strict-dynamic' onto script-src-elem", async () => {
+			const pipeline = createCspPipeline({
+				isStrictDynamic: true,
+				scriptHashes: ['sha256-island'],
+				scriptElemResources: ["'self'"],
+			});
+
+			const { html } = await renderPage(SimplePage, pipeline);
+			const parsed = parseCsp(
+				cheerio.load(html)('meta[http-equiv="Content-Security-Policy"]').attr('content')!,
+			);
+
+			assert.ok(
+				parsed.get('script-src')?.includes("'strict-dynamic'"),
+				'script-src has strict-dynamic',
+			);
+			assert.ok(
+				parsed.get('script-src-elem')?.includes("'strict-dynamic'"),
+				'script-src-elem inherits strict-dynamic',
+			);
+		});
+
+		it('omits more-specific directives when not enabled', async () => {
+			const pipeline = createCspPipeline({ scriptHashes: ['sha256-island'] });
+
+			const { html } = await renderPage(SimplePage, pipeline);
+			const content = cheerio
+				.load(html)('meta[http-equiv="Content-Security-Policy"]')
+				.attr('content')!;
+
+			assert.ok(!content.includes('script-src-elem'), 'no script-src-elem');
+			assert.ok(!content.includes('script-src-attr'), 'no script-src-attr');
+			assert.ok(!content.includes('style-src-elem'), 'no style-src-elem');
+			assert.ok(!content.includes('style-src-attr'), 'no style-src-attr');
+		});
+	});
+
+	describe('Runtime CSP API - kind', () => {
+		it('routes element and attribute inserts to the right directives', async () => {
+			const pipeline = createCspPipeline({ scriptHashes: ['sha256-island'] });
+
+			const PageWithKindApi = createComponent((result: any) => {
+				const Astro = result.createAstro({}, {});
+				Astro.csp.insertScriptResource({ resource: 'https://cdn.example.com', kind: 'element' });
+				Astro.csp.insertScriptHash({ hash: 'sha256-elemHash', kind: 'element' });
+				Astro.csp.insertStyleResource({ resource: "'unsafe-inline'", kind: 'attribute' });
+				return render`<html><head>${renderHead()}</head><body>${maybeRenderHead()}<h1>Kind</h1></body></html>`;
+			});
+
+			const { html } = await renderPage(PageWithKindApi, pipeline);
+			const parsed = parseCsp(
+				cheerio.load(html)('meta[http-equiv="Content-Security-Policy"]').attr('content')!,
+			);
+
+			assert.ok(parsed.get('script-src-elem')?.includes('https://cdn.example.com'));
+			// element insert folds the auto hash + the runtime element hash.
+			assert.ok(parsed.get('script-src-elem')?.includes("'sha256-island'"));
+			assert.ok(parsed.get('script-src-elem')?.includes("'sha256-elemHash'"));
+			assert.deepEqual(parsed.get('style-src-attr'), ["'unsafe-inline'"]);
+		});
+
+		it('a bare string still targets the default directive (back-compat)', async () => {
+			const pipeline = createCspPipeline();
+
+			const PageWithDefaultApi = createComponent((result: any) => {
+				const Astro = result.createAstro({}, {});
+				Astro.csp.insertScriptResource('https://scripts.cdn.example.com');
+				return render`<html><head>${renderHead()}</head><body>${maybeRenderHead()}<h1>Default</h1></body></html>`;
+			});
+
+			const { html } = await renderPage(PageWithDefaultApi, pipeline);
+			const parsed = parseCsp(
+				cheerio.load(html)('meta[http-equiv="Content-Security-Policy"]').attr('content')!,
+			);
+
+			assert.ok(parsed.get('script-src')?.includes('https://scripts.cdn.example.com'));
+			assert.ok(!parsed.has('script-src-elem'), 'should not create script-src-elem');
+		});
+
+		it('warns about the fallback when general resources coexist with an element insert', async () => {
+			const logger = new SpyLogger();
+			const pipeline = createCspPipeline(
+				{ scriptResources: ['https://global.cdn.example.com'] },
+				logger,
+			);
+
+			const PageWithElemInsert = createComponent((result: any) => {
+				const Astro = result.createAstro({}, {});
+				Astro.csp.insertScriptResource({ resource: 'https://cdn.example.com', kind: 'element' });
+				return render`<html><head>${renderHead()}</head><body>${maybeRenderHead()}<h1>Warn</h1></body></html>`;
+			});
+
+			await renderPage(PageWithElemInsert, pipeline);
+
+			const cspWarnings = logger.logs.filter(
+				(l) => l.label === 'csp' && l.level === 'warn' && l.message.includes('script-src-elem'),
+			);
+			assert.equal(cspWarnings.length, 1, 'should warn exactly once about the fallback');
+		});
+
+		it('does not warn when only Astro defaults exist on the general directive', async () => {
+			const logger = new SpyLogger();
+			const pipeline = createCspPipeline({ scriptHashes: ['sha256-island'] }, logger);
+
+			const PageWithElemInsert = createComponent((result: any) => {
+				const Astro = result.createAstro({}, {});
+				Astro.csp.insertScriptResource({ resource: 'https://cdn.example.com', kind: 'element' });
+				return render`<html><head>${renderHead()}</head><body>${maybeRenderHead()}<h1>NoWarn</h1></body></html>`;
+			});
+
+			await renderPage(PageWithElemInsert, pipeline);
+
+			const cspWarnings = logger.logs.filter(
+				(l) => l.label === 'csp' && l.message.includes('fall back'),
+			);
+			assert.equal(cspWarnings.length, 0, 'should not warn when no custom general resources exist');
 		});
 	});
 
