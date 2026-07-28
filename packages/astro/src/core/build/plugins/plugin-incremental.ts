@@ -5,6 +5,7 @@ import { moduleIsTopLevelPage } from '../graph.js';
 import { isContentDataIncrementalModule } from '../incremental-metadata.js';
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID } from '../internal.js';
+import type { PageBuildData } from '../types.js';
 
 interface HashableModuleInfo {
 	code?: string | null;
@@ -62,37 +63,62 @@ function hashModules(graph: ModuleGraph, sortedIds: string[]): string {
 }
 
 /**
- * A `client:only` component is never part of the prerender module graph, so the
- * per-route hash cannot see it. Its client bundle, and everything it imports, is
- * emitted with a content-hashed URL into the page's `<astro-island>` markup, so a
- * change to the component or any of its dependencies must re-render the page.
- * During the client build we hash each client-only component's transitive graph
- * and fold it into the dependency hash of every route that uses it.
+ * Hash the transitive graph of each client entrypoint and accumulate the result
+ * against every page that uses it, keyed by page component.
  */
-function foldClientOnlyDependencies(graph: ModuleGraph, internals: BuildInternals): void {
-	const baseHashes = internals.pageDependencyHashes;
-	if (!baseHashes) return;
-
-	const clientOnlyHashesByComponent = new Map<string, string[]>();
-	for (const clientOnlyId of internals.discoveredClientOnlyComponents.keys()) {
-		const pages = internals.pagesByClientOnly.get(clientOnlyId);
+function collectClientEntrypointHashes(
+	graph: ModuleGraph,
+	entrypointIds: Iterable<string>,
+	pagesByEntrypoint: Map<string, Set<PageBuildData>>,
+	hashesByComponent: Map<string, string[]>,
+): void {
+	for (const entrypointId of entrypointIds) {
+		const pages = pagesByEntrypoint.get(entrypointId);
 		if (!pages?.size) continue;
 
-		const hash = hashModules(graph, collectTransitiveDeps(graph, clientOnlyId));
+		const hash = hashModules(graph, collectTransitiveDeps(graph, entrypointId));
 		for (const pageData of pages) {
-			let list = clientOnlyHashesByComponent.get(pageData.component);
+			let list = hashesByComponent.get(pageData.component);
 			if (!list) {
 				list = [];
-				clientOnlyHashesByComponent.set(pageData.component, list);
+				hashesByComponent.set(pageData.component, list);
 			}
 			list.push(hash);
 		}
 	}
+}
 
-	for (const [component, clientOnlyHashes] of clientOnlyHashesByComponent) {
+/**
+ * `client:only` components and hoisted `<script>` tags are not part of the
+ * prerender module graph, so the per-route hash cannot see their transitive
+ * dependencies. Each is a client-build entrypoint whose bundle, and everything it
+ * imports, is emitted with a content-hashed URL (or inlined) into the page markup,
+ * so a change anywhere in that graph must re-render the page. During the client
+ * build we hash each entrypoint's transitive graph and fold it into the dependency
+ * hash of every route that uses it.
+ */
+function foldClientDependencies(graph: ModuleGraph, internals: BuildInternals): void {
+	const baseHashes = internals.pageDependencyHashes;
+	if (!baseHashes) return;
+
+	const hashesByComponent = new Map<string, string[]>();
+	collectClientEntrypointHashes(
+		graph,
+		internals.discoveredClientOnlyComponents.keys(),
+		internals.pagesByClientOnly,
+		hashesByComponent,
+	);
+	collectClientEntrypointHashes(
+		graph,
+		internals.discoveredScripts,
+		internals.pagesByScriptId,
+		hashesByComponent,
+	);
+
+	for (const [component, clientHashes] of hashesByComponent) {
 		const hasher = crypto.createHash('sha256');
 		hasher.update(baseHashes.get(component) ?? '');
-		for (const hash of clientOnlyHashes.sort()) {
+		for (const hash of clientHashes.sort()) {
 			hasher.update('\n');
 			hasher.update(hash);
 		}
@@ -106,8 +132,9 @@ function foldClientOnlyDependencies(graph: ModuleGraph, internals: BuildInternal
  * The base hash is derived during the prerender build from the sorted set of all
  * transitive module dependencies of the page, so any change to the page's
  * template, layouts, components, or utilities produces a different hash. During
- * the client build, the hash of each `client:only` component's own module graph
- * is folded in, since those components never enter the prerender graph.
+ * the client build, the hash of each `client:only` component's and hoisted
+ * `<script>`'s own module graph is folded in, since those never enter the
+ * prerender graph.
  */
 export function pluginIncremental(internals: BuildInternals): VitePlugin {
 	return {
@@ -120,7 +147,7 @@ export function pluginIncremental(internals: BuildInternals): VitePlugin {
 		},
 		generateBundle() {
 			if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
-				foldClientOnlyDependencies(this, internals);
+				foldClientDependencies(this, internals);
 				return;
 			}
 
