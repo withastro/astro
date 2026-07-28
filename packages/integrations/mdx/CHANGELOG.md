@@ -1,5 +1,25 @@
 # @astrojs/mdx
 
+## 7.0.5
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+  - @astrojs/markdown-remark@7.2.2
+
+## 7.0.4
+
+### Patch Changes
+
+- [#17514](https://github.com/withastro/astro/pull/17514) [`41a00dd`](https://github.com/withastro/astro/commit/41a00dd86fc848763fa9dc6e501d6e85188c1306) Thanks [@gtritchie](https://github.com/gtritchie)! - Fixes a bug where the integration was emitting React-cased attribute names.
+
+## 7.0.3
+
+### Patch Changes
+
+- [#17341](https://github.com/withastro/astro/pull/17341) [`64b0d66`](https://github.com/withastro/astro/commit/64b0d6667eabd8fe51643dfdab7004670e319810) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes custom `pre` components not applying to syntax-highlighted code blocks when using the Sätteri Markdown processor with MDX.
+
 ## 7.0.2
 
 ### Patch Changes

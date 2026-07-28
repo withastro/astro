@@ -152,6 +152,40 @@ export function evaluateExistingServer(
 }
 
 /**
+ * Kill the dev server identified by `data` and clean up its lock file.
+ *
+ * Sends SIGTERM and waits up to {@link GRACEFUL_SHUTDOWN_TIMEOUT} for the
+ * process to exit, escalating to SIGKILL if it is still alive. The lock file
+ * is always removed afterwards so a new server can start.
+ */
+export async function killDevServer(root: URL, data: LockFileData): Promise<void> {
+	try {
+		process.kill(data.pid, 'SIGTERM');
+	} catch {
+		// Process may have already exited between check and kill
+	}
+
+	// Wait for graceful shutdown before escalating to SIGKILL
+	const deadline = Date.now() + GRACEFUL_SHUTDOWN_TIMEOUT;
+	while (Date.now() < deadline) {
+		if (!isProcessAlive(data.pid)) break;
+		await new Promise((r) => setTimeout(r, 100));
+	}
+
+	// If still alive after timeout, force kill
+	if (isProcessAlive(data.pid)) {
+		try {
+			process.kill(data.pid, 'SIGKILL');
+		} catch {
+			// Already dead
+		}
+	}
+
+	// Clean up the lock file in case the process didn't remove it
+	removeLockFile(root);
+}
+
+/**
  * Check for an existing dev server by reading the lock file and checking process liveness.
  * Automatically cleans up stale lock files.
  * Returns the server info if a live server is found, null otherwise.

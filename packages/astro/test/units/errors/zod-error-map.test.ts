@@ -141,6 +141,42 @@ describe('errorMap — invalid_union', () => {
 		assert.match(msg, /Expected type/);
 	});
 
+	it('does not throw when the union input is undefined (e.g. nested union issues)', () => {
+		// Regression: `stringify(issue.input)` previously crashed because `JSON.stringify(undefined)`
+		// returns `undefined`. This happens for nested union issues (e.g. a `string | { ... }` entry
+		// inside an array) where `input` is not populated on the recursed union issue.
+		const msg = getMessage(
+			errorMap({
+				code: 'invalid_union',
+				input: undefined,
+				path: ['security', 'csp', 'styleDirective', 'hashes', 0],
+				message: '',
+				errors: [
+					[
+						{
+							code: 'invalid_type',
+							expected: 'string',
+							input: undefined,
+							path: ['security', 'csp', 'styleDirective', 'hashes', 0, 'a'],
+							message: '',
+						},
+					],
+					[
+						{
+							code: 'invalid_type',
+							expected: 'object',
+							input: undefined,
+							path: ['security', 'csp', 'styleDirective', 'hashes', 0, 'b'],
+							message: '',
+						},
+					],
+				],
+			} as any),
+		);
+		assert.match(msg, /Did not match union/);
+		assert.match(msg, /Received `undefined`/);
+	});
+
 	it('handles nested path for union error', () => {
 		const msg = getMessage(
 			errorMap({
