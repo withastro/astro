@@ -1,4 +1,6 @@
+import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isRelativePath } from '../path.js';
 import type { LoggerHandlerConfig } from './config.js';
 
 export const COMPOSE_LOGGER_ENTRYPOINT = 'astro/logger/compose';
@@ -18,24 +20,39 @@ export interface NormalizedLoggerConfig {
  * (see `loadLoggerDestination`), and by applying the same treatment to the handlers
  * composed through `astro/logger/compose`.
  *
- * Concretely, a `URL` entrypoint becomes an absolute file path — mirroring what session
- * drivers do, since both Vite and `import()` can handle those — while a string entrypoint,
- * e.g. a package specifier, is left untouched.
+ * Concretely, `URL` and relative entrypoints become absolute file paths — mirroring what
+ * session drivers do, since both Vite and `import()` can handle those — while any other
+ * string entrypoint, e.g. a package specifier, is left untouched.
  */
-export function normalizeLoggerConfig(logger: LoggerHandlerConfig): NormalizedLoggerConfig {
-	const entrypoint = normalizeEntrypoint(logger.entrypoint);
+export function normalizeLoggerConfig(
+	logger: LoggerHandlerConfig,
+	/** The project root, which relative entrypoints are resolved against */
+	root: URL,
+): NormalizedLoggerConfig {
+	const entrypoint = normalizeEntrypoint(logger.entrypoint, root);
 
 	if (entrypoint === COMPOSE_LOGGER_ENTRYPOINT) {
 		const loggers: LoggerHandlerConfig[] = logger.config?.loggers ?? [];
 		return {
 			entrypoint,
-			loggers: loggers.map((nested) => normalizeLoggerConfig(nested)),
+			loggers: loggers.map((nested) => normalizeLoggerConfig(nested, root)),
 		};
 	}
 
 	return { entrypoint, config: logger.config };
 }
 
-function normalizeEntrypoint(entrypoint: LoggerHandlerConfig['entrypoint']): string {
-	return entrypoint instanceof URL ? fileURLToPath(entrypoint) : entrypoint;
+function normalizeEntrypoint(entrypoint: LoggerHandlerConfig['entrypoint'], root: URL): string {
+	if (entrypoint instanceof URL) {
+		return fileURLToPath(entrypoint);
+	}
+
+	// A relative specifier would otherwise be resolved against whichever module happens to
+	// import it — astro core for `import()`, the importer passed to Vite's resolver — so it
+	// is anchored to the project root instead, like every other path in the Astro config.
+	if (isRelativePath(entrypoint)) {
+		return resolve(fileURLToPath(root), entrypoint);
+	}
+
+	return entrypoint;
 }
