@@ -10,10 +10,9 @@ import type { AstroConfig } from '../../../types/public/config.js';
  * `env.schema`, `i18n`).
  *
  * Only serializable values are included. Function-valued config (integrations,
- * vite/remark/rehype plugins, image services) is omitted: it cannot be
- * serialized, and package-level changes to it are already caught by the lockfile
- * hash. `outDir`/`publicDir` are omitted too — they move where files are written
- * without changing a page's bytes.
+ * vite/remark/rehype plugins, image services) is omitted because it cannot be
+ * serialized. `outDir`/`publicDir` are omitted too, since they move where files
+ * are written without changing a page's bytes.
  *
  * The set of fields is asserted against the full config schema in
  * `test/units/build/config-hash.test.ts`, which fails when a new top-level
