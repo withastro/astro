@@ -331,13 +331,12 @@ Use exactly one severity and one primary category per finding. Required findings
 
 Use one of these categories: `design`, `correctness`, `security`, `runtime`, `completeness`, `error-handling`, `tests`, `maintainability`, `documentation`, or `changeset`. Choose the category that describes the root cause rather than a downstream symptom. `completeness` covers missing API, configuration, export, dependency, generated-file, or registry wiring.
 
-```md
 ## Findings
 
-- [high][security] `path/to/file.ts:42` - Short title. Explain the triggering scenario, impact, and minimal remediation direction.
-- [medium][correctness] `path/to/file.ts:87` - Short title. Explain the triggering scenario, impact, and minimal remediation direction.
-- [low][documentation] `path/to/file.ts:110` - Short title. Explain the concrete problem and why it should be addressed.
-- [optional][maintainability] `path/to/file.ts:125` - Explain the non-blocking improvement and its concrete benefit.
+- `[high][security]` `path/to/file.ts:42` - Short title. Explain the triggering scenario, impact, and minimal remediation direction.
+- `[medium][correctness]` `path/to/file.ts:87` - Short title. Explain the triggering scenario, impact, and minimal remediation direction.
+- `[low][documentation]` `path/to/file.ts:110` - Short title. Explain the concrete problem and why it should be addressed.
+- `[optional][maintainability]` `path/to/file.ts:125` - Explain the non-blocking improvement and its concrete benefit.
 
 ## Questions
 
