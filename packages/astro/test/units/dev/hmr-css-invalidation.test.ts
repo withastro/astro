@@ -43,10 +43,20 @@ describe('astro:hmr-reload CSS invalidation', () => {
 	function createMockContext(options: {
 		modules: Array<{ id: string | null; file?: string }>;
 		moduleGraphEntries?: Array<[string, { id: string }]>;
+		clientModuleIds?: string[];
+		clientModuleFileEntries?: Array<[string, Array<{ id: string; file?: string }>]>;
 	}) {
 		const invalidatedModuleGraphIds: string[] = [];
+		const wsMessages: unknown[] = [];
 
 		const moduleGraphEntries = new Map<string, { id: string }>(options.moduleGraphEntries ?? []);
+		const clientModuleIds = new Set(options.clientModuleIds ?? []);
+		const clientModuleFileEntries = new Map(
+			(options.clientModuleFileEntries ?? []).map(([file, modules]) => [
+				file,
+				new Set(modules.map((mod) => ({ file, ...mod }))),
+			]),
+		);
 
 		const environment = {
 			name: 'ssr',
@@ -62,23 +72,26 @@ describe('astro:hmr-reload CSS invalidation', () => {
 					invalidatedModuleGraphIds.push(mod.id);
 				},
 			},
+			hot: { send: () => {} },
 		};
 
 		const server = {
 			environments: {
 				client: {
 					moduleGraph: {
-						getModuleById: (_id: string) => null as object | null,
+						getModuleById: (id: string) => (clientModuleIds.has(id) ? { id } : null),
+						getModulesByFile: (file: string) => clientModuleFileEntries.get(file),
 					},
 				},
 			},
-			ws: { send: () => {} },
+			ws: { send: (message: unknown) => wsMessages.push(message) },
 		};
 
 		return {
 			environment,
 			server,
 			invalidatedModuleGraphIds,
+			wsMessages,
 		};
 	}
 
@@ -93,6 +106,7 @@ describe('astro:hmr-reload CSS invalidation', () => {
 				[devCssId2, { id: devCssId2 }],
 				['some-other-module', { id: 'some-other-module' }],
 			],
+			clientModuleIds: ['/path/to/global.css'],
 		});
 
 		const hotUpdate = getHotUpdateHandler();
@@ -133,6 +147,7 @@ describe('astro:hmr-reload CSS invalidation', () => {
 		const { environment, server, invalidatedModuleGraphIds } = createMockContext({
 			modules: [{ id: '/path/to/styles.scss', file: '/path/to/styles.scss' }],
 			moduleGraphEntries: [[devCssId, { id: devCssId }]],
+			clientModuleIds: ['/path/to/styles.scss'],
 		});
 
 		const hotUpdate = getHotUpdateHandler();
@@ -152,6 +167,209 @@ describe('astro:hmr-reload CSS invalidation', () => {
 			invalidatedModuleGraphIds.includes(devCssId),
 			'dev-css module should be invalidated for SCSS changes',
 		);
+	});
+
+	it('invalidates dev-css modules for component style block virtual modules', () => {
+		const styleBlockIds = [
+			'/src/Component.astro?astro&type=style&index=0&lang.css',
+			'/src/Component.astro?type=style&astro&index=0&lang.scss',
+			'/src/Component.astro?index=1&lang.less&type=style&astro',
+			'/src/MotionOneNav.svelte?svelte&type=style&lang.css',
+			'/src/VueCounter.vue?vue&type=style&index=0&lang.css',
+		];
+
+		for (const id of styleBlockIds) {
+			const devCssId = '\0virtual:astro:dev-css:src/pages/index@_@astro';
+			const { environment, server, invalidatedModuleGraphIds } = createMockContext({
+				modules: [{ id, file: '/src/Component.astro' }],
+				moduleGraphEntries: [[devCssId, { id: devCssId }]],
+				clientModuleIds: [id],
+			});
+
+			const hotUpdate = getHotUpdateHandler();
+
+			const result = hotUpdate.call(
+				{ environment },
+				{
+					modules: [{ id, file: '/src/Component.astro' }],
+					server,
+					timestamp: Date.now(),
+					file: '/src/Component.astro',
+				},
+			);
+
+			assert.deepEqual(result, []);
+			assert.ok(
+				invalidatedModuleGraphIds.includes(devCssId),
+				`dev-css module should be invalidated for ${id}`,
+			);
+		}
+	});
+
+	it('uses SSR invalidation for component style block virtual modules missing from the client graph', () => {
+		for (const id of [
+			'/src/Component.astro?astro&type=style&index=0&lang.css',
+			'/src/MotionOneNav.svelte?svelte&type=style&lang.css',
+		]) {
+			const devCssId = '\0virtual:astro:dev-css:src/pages/index@_@astro';
+			const { environment, server, invalidatedModuleGraphIds, wsMessages } = createMockContext({
+				modules: [{ id, file: '/src/Component.astro' }],
+				moduleGraphEntries: [[devCssId, { id: devCssId }]],
+			});
+
+			const hotUpdate = getHotUpdateHandler();
+
+			const result = hotUpdate.call(
+				{ environment },
+				{
+					modules: [{ id, file: '/src/Component.astro' }],
+					server,
+					timestamp: Date.now(),
+					file: '/src/Component.astro',
+				},
+			);
+
+			assert.deepEqual(result, []);
+			assert.ok(
+				invalidatedModuleGraphIds.includes(id),
+				`${id} should be invalidated through the SSR path`,
+			);
+			assert.ok(
+				invalidatedModuleGraphIds.includes(devCssId),
+				'SSR-only style block modules should also invalidate dev-css before reloading',
+			);
+			assert.deepEqual(wsMessages, [{ type: 'full-reload' }]);
+		}
+	});
+
+	it('uses client CSS HMR when a component style block has a query-varied client module', () => {
+		const serverStyleId = '/src/MotionOneNav.svelte?svelte&type=style&lang.css';
+		const clientStyleId = '/src/MotionOneNav.svelte?svelte&type=style&lang.css&used';
+		const devCssId = '\0virtual:astro:dev-css:src/pages/index@_@astro';
+		const { environment, server, invalidatedModuleGraphIds, wsMessages } = createMockContext({
+			modules: [{ id: serverStyleId, file: '/src/MotionOneNav.svelte' }],
+			moduleGraphEntries: [[devCssId, { id: devCssId }]],
+			clientModuleFileEntries: [
+				['/src/MotionOneNav.svelte', [{ id: clientStyleId, file: '/src/MotionOneNav.svelte' }]],
+			],
+		});
+
+		const hotUpdate = getHotUpdateHandler();
+
+		const result = hotUpdate.call(
+			{ environment },
+			{
+				modules: [{ id: serverStyleId, file: '/src/MotionOneNav.svelte' }],
+				server,
+				timestamp: Date.now(),
+				file: '/src/MotionOneNav.svelte',
+			},
+		);
+
+		assert.deepEqual(result, []);
+		assert.ok(
+			invalidatedModuleGraphIds.includes(devCssId),
+			'dev-css module should be invalidated when client style-block HMR can apply the update',
+		);
+		assert.deepEqual(wsMessages, []);
+	});
+
+	it('uses SSR invalidation for CSS files missing from the client graph', () => {
+		const devCssId = '\0virtual:astro:dev-css:src/pages/index@_@astro';
+		const { environment, server, invalidatedModuleGraphIds, wsMessages } = createMockContext({
+			modules: [{ id: '/path/to/global.css', file: '/path/to/global.css' }],
+			moduleGraphEntries: [[devCssId, { id: devCssId }]],
+		});
+
+		const hotUpdate = getHotUpdateHandler();
+
+		const result = hotUpdate.call(
+			{ environment },
+			{
+				modules: [{ id: '/path/to/global.css', file: '/path/to/global.css' }],
+				server,
+				timestamp: Date.now(),
+				file: '/path/to/global.css',
+			},
+		);
+
+		assert.deepEqual(result, []);
+		assert.ok(
+			invalidatedModuleGraphIds.includes('/path/to/global.css'),
+			'CSS files missing from the client graph should be invalidated through the SSR path',
+		);
+		assert.ok(
+			invalidatedModuleGraphIds.includes(devCssId),
+			'CSS files missing from the client graph should also invalidate dev-css before reloading',
+		);
+		assert.deepEqual(wsMessages, [{ type: 'full-reload' }]);
+	});
+
+	it('uses client CSS HMR when a CSS file has a query-varied client module', () => {
+		const devCssId = '\0virtual:astro:dev-css:src/pages/index@_@astro';
+		const { environment, server, invalidatedModuleGraphIds, wsMessages } = createMockContext({
+			modules: [{ id: '/path/to/global.css', file: '/path/to/global.css' }],
+			moduleGraphEntries: [[devCssId, { id: devCssId }]],
+			clientModuleFileEntries: [
+				['/path/to/global.css', [{ id: '/path/to/global.css?used', file: '/path/to/global.css' }]],
+			],
+		});
+
+		const hotUpdate = getHotUpdateHandler();
+
+		const result = hotUpdate.call(
+			{ environment },
+			{
+				modules: [{ id: '/path/to/global.css', file: '/path/to/global.css' }],
+				server,
+				timestamp: Date.now(),
+				file: '/path/to/global.css',
+			},
+		);
+
+		assert.deepEqual(result, []);
+		assert.ok(
+			invalidatedModuleGraphIds.includes(devCssId),
+			'dev-css module should be invalidated when client CSS HMR can apply the update',
+		);
+		assert.deepEqual(wsMessages, []);
+	});
+
+	it('does not treat non-style component queries, raw CSS, or type=style alone as style modules', () => {
+		const nonStyleIds = [
+			{ id: '/src/Component.astro?astro&type=script&index=0', file: '/src/Component.astro' },
+			{ id: '/src/Component.svelte?svelte&type=script&lang.ts', file: '/src/Component.svelte' },
+			{ id: '/src/Component.svelte?type=style&lang.css', file: '/src/Component.svelte' },
+			{ id: '/src/file.css?raw', file: '/src/file.css' },
+			{ id: '/src/module.ts?type=style', file: '/src/module.ts' },
+			{ id: '/src/module.ts?type=style&lang.css', file: '/src/module.ts' },
+		];
+
+		for (const mod of nonStyleIds) {
+			const devCssId = '\0virtual:astro:dev-css:src/pages/index@_@astro';
+			const { environment, server, invalidatedModuleGraphIds } = createMockContext({
+				modules: [mod],
+				moduleGraphEntries: [[devCssId, { id: devCssId }]],
+			});
+
+			const hotUpdate = getHotUpdateHandler();
+
+			const result = hotUpdate.call(
+				{ environment },
+				{
+					modules: [mod],
+					server,
+					timestamp: Date.now(),
+					file: mod.file,
+				},
+			);
+
+			assert.deepEqual(result, []);
+			assert.ok(
+				!invalidatedModuleGraphIds.includes(devCssId),
+				`dev-css module should not be invalidated for ${mod.id}`,
+			);
+		}
 	});
 
 	it('does not invalidate dev-css modules when no style modules are present', () => {
@@ -188,6 +406,7 @@ describe('astro:hmr-reload CSS invalidation', () => {
 	it('returns empty array for CSS changes to prevent full page reload', () => {
 		const { environment, server } = createMockContext({
 			modules: [{ id: '/path/to/styles.css', file: '/path/to/styles.css' }],
+			clientModuleIds: ['/path/to/styles.css'],
 		});
 
 		const hotUpdate = getHotUpdateHandler();
@@ -210,6 +429,7 @@ describe('astro:hmr-reload CSS invalidation', () => {
 		const { environment, server, invalidatedModuleGraphIds } = createMockContext({
 			modules: [{ id: '/path/to/styles.css', file: '/path/to/styles.css' }],
 			moduleGraphEntries: [],
+			clientModuleIds: ['/path/to/styles.css'],
 		});
 
 		const hotUpdate = getHotUpdateHandler();
