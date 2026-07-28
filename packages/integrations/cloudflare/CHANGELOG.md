@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 14.1.5
+
+### Patch Changes
+
+- [#17376](https://github.com/withastro/astro/pull/17376) [`0216368`](https://github.com/withastro/astro/commit/0216368c621dd033223ca91d670801fe423d631d) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a bug where an explicit `cache: { enabled: false }` in your wrangler config was overridden and forced to `true` when a Workers cache provider was configured
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 14.1.4
 
 ### Patch Changes

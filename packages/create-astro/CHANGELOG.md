@@ -1,5 +1,11 @@
 # create-astro
 
+## 5.2.3
+
+### Patch Changes
+
+- [#17423](https://github.com/withastro/astro/pull/17423) [`08e8adb`](https://github.com/withastro/astro/commit/08e8adb697a54c728735ae8c89acc4b87ee0b7f0) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `create-astro` silently writing template files to the wrong directory on Linux when the path contains non-ASCII characters.
+
 ## 5.2.2
 
 ### Patch Changes
