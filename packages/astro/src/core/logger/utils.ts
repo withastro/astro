@@ -13,11 +13,14 @@ export interface NormalizedLoggerConfig {
 }
 
 /**
- * Normalizes a user-provided logger config into something that can be resolved,
- * either by Vite (see `vitePluginLogger`) or by Node (see `loadLoggerDestination`).
+ * Normalizes a user-provided logger config by turning its `entrypoint` into a string that
+ * can be resolved as-is, either by Vite (see `vitePluginLogger`) or by Node
+ * (see `loadLoggerDestination`), and by applying the same treatment to the handlers
+ * composed through `astro/logger/compose`.
  *
- * Mirrors what session drivers do: `URL`s become file paths, which both Vite and
- * `import()` can handle.
+ * Concretely, a `URL` entrypoint becomes an absolute file path — mirroring what session
+ * drivers do, since both Vite and `import()` can handle those — while a string entrypoint,
+ * e.g. a package specifier, is left untouched.
  */
 export function normalizeLoggerConfig(logger: LoggerHandlerConfig): NormalizedLoggerConfig {
 	const entrypoint = normalizeEntrypoint(logger.entrypoint);
