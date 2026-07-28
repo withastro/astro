@@ -164,6 +164,7 @@ describe('astro:hmr-reload', () => {
 		const ctx = createMockContext({
 			environmentName: 'ssr',
 			modules: [mod],
+			clientModuleIds: ['/src/styles/main.css'],
 		});
 
 		const result = ctx.call();
