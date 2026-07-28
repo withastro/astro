@@ -264,6 +264,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 					init: { signal: abortController.signal },
 				});
 
+				try {
 					// This is required for adapters to set locals in dev mode. They use a dev server middleware to inject locals to the `http.IncomingRequest` object.
 					const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
 
