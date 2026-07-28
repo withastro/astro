@@ -1634,8 +1634,8 @@ export interface AstroUserConfig<
 	 * });
 	 * ```
 	 *
-	 * The entrypoint must be a JavaScript file. The CLI imports it directly with Node.js rather than through Vite,
-	 * so TypeScript entrypoints are not supported. Astro falls back to its default logger for the logs it cannot load the implementation for.
+	 * The CLI imports the entrypoint using Node.js rather than Vite. This means that TypeScript is not supported
+	 * and you must use a JavaScript file. If Astro fails to load the implementation, it falls back to its default logger.
 	 */
 
 	/**
