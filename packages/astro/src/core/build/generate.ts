@@ -241,15 +241,23 @@ export async function generatePages(
 		// persistent cache copies of paths that are no longer keyed are pruned.
 		if (cache) {
 			const orphans = cache.findOrphanedFiles();
+			// `deleteOutputFile` uses `rm({ force: true })`, so a missing file never
+			// throws. A throw here is a real failure (permissions, locked file), so
+			// surface it and count only the copies actually removed.
+			let pruned = 0;
 			for (const orphanFile of orphans) {
 				try {
 					await cache.deleteOutputFile(options.settings, orphanFile);
-				} catch {
-					// File may already be gone
+					pruned++;
+				} catch (err) {
+					logger.warn(
+						'build',
+						`Could not prune stale incremental cache file ${orphanFile}: ${err}`,
+					);
 				}
 			}
-			if (orphans.length > 0) {
-				logger.info('build', `Pruned ${orphans.length} stale file(s) from the incremental cache.`);
+			if (pruned > 0) {
+				logger.info('build', `Pruned ${pruned} stale file(s) from the incremental cache.`);
 			}
 			cache.writeManifest(options.settings);
 		}
