@@ -242,7 +242,7 @@ importers:
         version: 0.2.0
       eslint:
         specifier: ^10.4.0
-        version: 10.4.0(jiti@2.6.1)
+        version: 10.4.0(jiti@2.6.1)(supports-color@8.1.1)
       eslint-plugin-regexp:
         specifier: ^3.1.0
         version: 3.1.0(eslint@10.4.0)
@@ -272,7 +272,7 @@ importers:
         version: 6.0.3
       typescript-eslint:
         specifier: ^8.59.1
-        version: 8.59.2(eslint@10.4.0)(typescript@6.0.3)
+        version: 8.59.2(eslint@10.4.0)(supports-color@8.1.1)(typescript@6.0.3)
       valibot:
         specifier: ^1.2.0
         version: 1.4.2(typescript@6.0.3)
@@ -385,10 +385,10 @@ importers:
   examples/advanced-routing:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.0.2
+        specifier: ^11.0.3
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
       hono:
         specifier: ^4.12.14
@@ -397,13 +397,13 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
 
   examples/blog:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^7.0.4
+        specifier: ^7.0.5
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
         specifier: ^4.0.19
@@ -412,7 +412,7 @@ importers:
         specifier: ^3.7.3
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
       sharp:
         specifier: ^0.35.0
@@ -421,16 +421,16 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
 
   examples/container-with-vitest:
     dependencies:
       '@astrojs/react':
-        specifier: ^6.0.1
+        specifier: ^6.0.2
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -461,16 +461,16 @@ importers:
         specifier: ^3.15.8
         version: 3.15.8
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
 
   examples/framework-multiple:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.0.1
+        specifier: ^6.0.2
         version: link:../../packages/integrations/preact
       '@astrojs/react':
-        specifier: ^6.0.1
+        specifier: ^6.0.2
         version: link:../../packages/integrations/react
       '@astrojs/solid-js':
         specifier: ^7.0.1
@@ -488,7 +488,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -512,13 +512,13 @@ importers:
   examples/framework-preact:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.0.1
+        specifier: ^6.0.2
         version: link:../../packages/integrations/preact
       '@preact/signals':
         specifier: ^2.8.1
         version: 2.8.2(preact@10.29.0)
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -527,7 +527,7 @@ importers:
   examples/framework-react:
     dependencies:
       '@astrojs/react':
-        specifier: ^6.0.1
+        specifier: ^6.0.2
         version: link:../../packages/integrations/react
       '@types/react':
         specifier: ^18.3.28
@@ -536,7 +536,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -551,7 +551,7 @@ importers:
         specifier: ^7.0.1
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.11
@@ -563,7 +563,7 @@ importers:
         specifier: ^9.0.1
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -575,7 +575,7 @@ importers:
         specifier: ^7.0.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.29
@@ -584,40 +584,40 @@ importers:
   examples/hackernews:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.0.2
+        specifier: ^11.0.3
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
 
   examples/ssr:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.0.2
+        specifier: ^11.0.3
         version: link:../../packages/integrations/node
       '@astrojs/svelte':
         specifier: ^9.0.1
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -626,7 +626,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
       sass:
         specifier: ^1.97.3
@@ -641,28 +641,28 @@ importers:
         specifier: ^22.19.0
         version: 22.19.19
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
 
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
-        specifier: ^2.0.5
+        specifier: ^2.0.6
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
 
   examples/with-mdx:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^7.0.4
+        specifier: ^7.0.5
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
-        specifier: ^6.0.1
+        specifier: ^6.0.2
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -671,13 +671,13 @@ importers:
   examples/with-nanostores:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.0.1
+        specifier: ^6.0.2
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
         specifier: ^1.0.0
         version: 1.0.0(nanostores@1.1.1)(preact@10.29.0)
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
       nanostores:
         specifier: ^1.1.1
@@ -689,7 +689,7 @@ importers:
   examples/with-tailwindcss:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^7.0.4
+        specifier: ^7.0.5
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.2.1
@@ -698,7 +698,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -713,7 +713,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^7.1.4
+        specifier: ^7.1.5
         version: link:../../packages/astro
       vitest:
         specifier: ^5.0.0-beta.2
@@ -5244,7 +5244,7 @@ importers:
         version: 4.0.2
       '@shikijs/twoslash':
         specifier: ^4.0.2
-        version: 4.0.2(typescript@6.0.3)
+        version: 4.0.2(supports-color@8.1.1)(typescript@6.0.3)
       '@types/estree':
         specifier: ^1.0.8
         version: 1.0.8
@@ -5499,7 +5499,7 @@ importers:
         version: 5.2.0
       '@netlify/vite-plugin':
         specifier: ^2.12.3
-        version: 2.12.3(@azure/identity@4.13.0)(@vercel/functions@3.4.3)(vite@8.1.0)
+        version: 2.12.3(@azure/identity@4.13.0)(@vercel/functions@3.4.3)(supports-color@8.1.1)(vite@8.1.0)
       '@vercel/nft':
         specifier: ^1.3.2
         version: 1.3.2
@@ -5872,7 +5872,7 @@ importers:
         version: link:../../internal-helpers
       '@preact/preset-vite':
         specifier: ^2.10.5
-        version: 2.10.5(@babel/core@7.29.0)(preact@10.29.0)(vite@8.1.0)
+        version: 2.10.5(@babel/core@7.29.0)(preact@10.29.0)(supports-color@8.1.1)(vite@8.1.0)
       '@preact/signals':
         specifier: ^2.8.2
         version: 2.8.2(preact@10.29.0)
@@ -6388,7 +6388,7 @@ importers:
         version: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       vite-plugin-vue-devtools:
         specifier: ^8.1.0
-        version: 8.1.0(vite@8.1.0)(vue@3.5.30)
+        version: 8.1.0(supports-color@8.1.1)(vite@8.1.0)(vue@3.5.30)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -6416,7 +6416,7 @@ importers:
         version: link:../../../../../astro
       vite-svg-loader:
         specifier: 5.1.1
-        version: 5.1.1(vue@3.5.30)
+        version: 5.1.1(supports-color@8.1.1)(vue@3.5.30)
       vue:
         specifier: ^3.5.30
         version: 3.5.30(typescript@6.0.3)
@@ -6431,7 +6431,7 @@ importers:
         version: link:../../../../../astro
       vite-svg-loader:
         specifier: 5.1.1
-        version: 5.1.1(vue@3.5.30)
+        version: 5.1.1(supports-color@8.1.1)(vue@3.5.30)
       vue:
         specifier: ^3.5.30
         version: 3.5.30(typescript@6.0.3)
@@ -6455,7 +6455,7 @@ importers:
         version: link:../../../../../astro
       vite-svg-loader:
         specifier: 5.1.1
-        version: 5.1.1(vue@3.5.30)
+        version: 5.1.1(supports-color@8.1.1)(vue@3.5.30)
       vue:
         specifier: ^3.5.30
         version: 3.5.30(typescript@6.0.3)
@@ -6791,7 +6791,7 @@ importers:
         version: 11.7.5
       ovsx:
         specifier: ^0.10.10
-        version: 0.10.10
+        version: 0.10.10(supports-color@8.1.1)
       tsx:
         specifier: ^4.22.0
         version: 4.22.3
@@ -17859,12 +17859,12 @@ snapshots:
 
   '@eslint-community/eslint-utils@4.9.1(eslint@10.4.0)':
     dependencies:
-      eslint: 10.4.0(jiti@2.6.1)
+      eslint: 10.4.0(jiti@2.6.1)(supports-color@8.1.1)
       eslint-visitor-keys: 3.4.3
 
   '@eslint-community/regexpp@4.12.2': {}
 
-  '@eslint/config-array@0.23.5':
+  '@eslint/config-array@0.23.5(supports-color@8.1.1)':
     dependencies:
       '@eslint/object-schema': 3.0.5
       debug: 4.4.3(supports-color@8.1.1)
@@ -18541,7 +18541,7 @@ snapshots:
       uuid: 13.0.0
       write-file-atomic: 5.0.1
 
-  '@netlify/dev@4.18.3(@azure/identity@4.13.0)(@vercel/functions@3.4.3)':
+  '@netlify/dev@4.18.3(@azure/identity@4.13.0)(@vercel/functions@3.4.3)(supports-color@8.1.1)':
     dependencies:
       '@netlify/ai': 0.4.1
       '@netlify/blobs': 10.7.5
@@ -18549,7 +18549,7 @@ snapshots:
       '@netlify/database-dev': 0.10.1
       '@netlify/dev-utils': 4.4.3
       '@netlify/edge-functions-dev': 1.0.17
-      '@netlify/functions-dev': 1.2.8
+      '@netlify/functions-dev': 1.2.8(supports-color@8.1.1)
       '@netlify/headers': 2.1.8
       '@netlify/images': 1.3.7(@azure/identity@4.13.0)(@netlify/blobs@10.7.5)(@vercel/functions@3.4.3)
       '@netlify/redirects': 3.1.10
@@ -18621,7 +18621,7 @@ snapshots:
     dependencies:
       '@netlify/types': 2.6.0
 
-  '@netlify/functions-dev@1.2.8':
+  '@netlify/functions-dev@1.2.8(supports-color@8.1.1)':
     dependencies:
       '@netlify/blobs': 10.7.5
       '@netlify/dev-utils': 4.4.3
@@ -18629,7 +18629,7 @@ snapshots:
       '@netlify/zip-it-and-ship-it': 14.5.6
       cron-parser: 4.9.0
       decache: 4.6.2
-      extract-zip: 2.0.1
+      extract-zip: 2.0.1(supports-color@8.1.1)
       is-stream: 4.0.1
       jwt-decode: 4.0.0
       lambda-local: 2.2.0
@@ -18732,9 +18732,9 @@ snapshots:
 
   '@netlify/types@2.6.0': {}
 
-  '@netlify/vite-plugin@2.12.3(@azure/identity@4.13.0)(@vercel/functions@3.4.3)(vite@8.1.0)':
+  '@netlify/vite-plugin@2.12.3(@azure/identity@4.13.0)(@vercel/functions@3.4.3)(supports-color@8.1.1)(vite@8.1.0)':
     dependencies:
-      '@netlify/dev': 4.18.3(@azure/identity@4.13.0)(@vercel/functions@3.4.3)
+      '@netlify/dev': 4.18.3(@azure/identity@4.13.0)(@vercel/functions@3.4.3)(supports-color@8.1.1)
       '@netlify/dev-utils': 4.4.3
       dedent: 1.7.1
       vite: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
@@ -19087,7 +19087,7 @@ snapshots:
 
   '@poppinss/exception@1.2.3': {}
 
-  '@preact/preset-vite@2.10.5(@babel/core@7.29.0)(preact@10.29.0)(vite@8.1.0)':
+  '@preact/preset-vite@2.10.5(@babel/core@7.29.0)(preact@10.29.0)(supports-color@8.1.1)(vite@8.1.0)':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-transform-react-jsx': 7.28.6(@babel/core@7.29.0)
@@ -19344,11 +19344,11 @@ snapshots:
     dependencies:
       '@shikijs/types': 4.0.2
 
-  '@shikijs/twoslash@4.0.2(typescript@6.0.3)':
+  '@shikijs/twoslash@4.0.2(supports-color@8.1.1)(typescript@6.0.3)':
     dependencies:
       '@shikijs/core': 4.0.2
       '@shikijs/types': 4.0.2
-      twoslash: 0.3.8(typescript@6.0.3)
+      twoslash: 0.3.8(supports-color@8.1.1)(typescript@6.0.3)
       typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
@@ -19828,15 +19828,15 @@ snapshots:
       '@types/node': 22.19.19
     optional: true
 
-  '@typescript-eslint/eslint-plugin@8.59.2(@typescript-eslint/parser@8.59.2)(eslint@10.4.0)(typescript@6.0.3)':
+  '@typescript-eslint/eslint-plugin@8.59.2(@typescript-eslint/parser@8.59.2)(eslint@10.4.0)(supports-color@8.1.1)(typescript@6.0.3)':
     dependencies:
       '@eslint-community/regexpp': 4.12.2
-      '@typescript-eslint/parser': 8.59.2(eslint@10.4.0)(typescript@6.0.3)
+      '@typescript-eslint/parser': 8.59.2(eslint@10.4.0)(supports-color@8.1.1)(typescript@6.0.3)
       '@typescript-eslint/scope-manager': 8.59.2
-      '@typescript-eslint/type-utils': 8.59.2(eslint@10.4.0)(typescript@6.0.3)
+      '@typescript-eslint/type-utils': 8.59.2(eslint@10.4.0)(supports-color@8.1.1)(typescript@6.0.3)
       '@typescript-eslint/utils': 8.59.2(eslint@10.4.0)(typescript@6.0.3)
       '@typescript-eslint/visitor-keys': 8.59.2
-      eslint: 10.4.0(jiti@2.6.1)
+      eslint: 10.4.0(jiti@2.6.1)(supports-color@8.1.1)
       ignore: 7.0.5
       natural-compare: 1.4.0
       ts-api-utils: 2.5.0(typescript@6.0.3)
@@ -19844,14 +19844,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/parser@8.59.2(eslint@10.4.0)(typescript@6.0.3)':
+  '@typescript-eslint/parser@8.59.2(eslint@10.4.0)(supports-color@8.1.1)(typescript@6.0.3)':
     dependencies:
       '@typescript-eslint/scope-manager': 8.59.2
       '@typescript-eslint/types': 8.59.2
       '@typescript-eslint/typescript-estree': 8.59.2(typescript@6.0.3)
       '@typescript-eslint/visitor-keys': 8.59.2
       debug: 4.4.3(supports-color@8.1.1)
-      eslint: 10.4.0(jiti@2.6.1)
+      eslint: 10.4.0(jiti@2.6.1)(supports-color@8.1.1)
       typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
@@ -19887,13 +19887,13 @@ snapshots:
     dependencies:
       typescript: 6.0.3
 
-  '@typescript-eslint/type-utils@8.59.2(eslint@10.4.0)(typescript@6.0.3)':
+  '@typescript-eslint/type-utils@8.59.2(eslint@10.4.0)(supports-color@8.1.1)(typescript@6.0.3)':
     dependencies:
       '@typescript-eslint/types': 8.59.2
       '@typescript-eslint/typescript-estree': 8.59.2(typescript@6.0.3)
       '@typescript-eslint/utils': 8.59.2(eslint@10.4.0)(typescript@6.0.3)
       debug: 4.4.3(supports-color@8.1.1)
-      eslint: 10.4.0(jiti@2.6.1)
+      eslint: 10.4.0(jiti@2.6.1)(supports-color@8.1.1)
       ts-api-utils: 2.5.0(typescript@6.0.3)
       typescript: 6.0.3
     transitivePeerDependencies:
@@ -19937,7 +19937,7 @@ snapshots:
       '@typescript-eslint/scope-manager': 8.59.2
       '@typescript-eslint/types': 8.59.2
       '@typescript-eslint/typescript-estree': 8.59.2(typescript@6.0.3)
-      eslint: 10.4.0(jiti@2.6.1)
+      eslint: 10.4.0(jiti@2.6.1)(supports-color@8.1.1)
       typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
@@ -19947,7 +19947,7 @@ snapshots:
       '@typescript-eslint/types': 8.59.2
       eslint-visitor-keys: 5.0.1
 
-  '@typescript/vfs@1.6.4(typescript@6.0.3)':
+  '@typescript/vfs@1.6.4(supports-color@8.1.1)(typescript@6.0.3)':
     dependencies:
       debug: 4.4.3(supports-color@8.1.1)
       typescript: 6.0.3
@@ -20282,7 +20282,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vscode/vsce@3.7.1':
+  '@vscode/vsce@3.7.1(supports-color@8.1.1)':
     dependencies:
       '@azure/identity': 4.13.0
       '@secretlint/node': 10.2.2
@@ -20305,7 +20305,7 @@ snapshots:
       minimatch: 3.1.2
       parse-semver: 1.1.1
       read: 1.0.7
-      secretlint: 10.2.2
+      secretlint: 10.2.2(supports-color@8.1.1)
       semver: 7.8.5
       tmp: 0.2.5
       typed-rest-client: 1.8.11
@@ -21659,7 +21659,7 @@ snapshots:
       '@eslint-community/eslint-utils': 4.9.1(eslint@10.4.0)
       '@eslint-community/regexpp': 4.12.2
       comment-parser: 1.4.5
-      eslint: 10.4.0(jiti@2.6.1)
+      eslint: 10.4.0(jiti@2.6.1)(supports-color@8.1.1)
       jsdoc-type-pratt-parser: 7.1.1
       refa: 0.12.1
       regexp-ast-analysis: 0.7.1
@@ -21676,11 +21676,11 @@ snapshots:
 
   eslint-visitor-keys@5.0.1: {}
 
-  eslint@10.4.0(jiti@2.6.1):
+  eslint@10.4.0(jiti@2.6.1)(supports-color@8.1.1):
     dependencies:
       '@eslint-community/eslint-utils': 4.9.1(eslint@10.4.0)
       '@eslint-community/regexpp': 4.12.2
-      '@eslint/config-array': 0.23.5
+      '@eslint/config-array': 0.23.5(supports-color@8.1.1)
       '@eslint/config-helpers': 0.6.0
       '@eslint/core': 1.2.1
       '@eslint/plugin-kit': 0.7.1
@@ -21856,7 +21856,7 @@ snapshots:
 
   extendable-error@0.1.7: {}
 
-  extract-zip@2.0.1:
+  extract-zip@2.0.1(supports-color@8.1.1):
     dependencies:
       debug: 4.4.3(supports-color@8.1.1)
       get-stream: 5.2.0
@@ -24053,9 +24053,9 @@ snapshots:
 
   outdent@0.5.0: {}
 
-  ovsx@0.10.10:
+  ovsx@0.10.10(supports-color@8.1.1):
     dependencies:
-      '@vscode/vsce': 3.7.1
+      '@vscode/vsce': 3.7.1(supports-color@8.1.1)
       commander: 6.2.1
       follow-redirects: 1.15.11
       is-ci: 2.0.0
@@ -25213,7 +25213,7 @@ snapshots:
 
   scule@1.3.0: {}
 
-  secretlint@10.2.2:
+  secretlint@10.2.2(supports-color@8.1.1):
     dependencies:
       '@secretlint/config-creator': 10.2.2
       '@secretlint/formatter': 10.2.2
@@ -25868,9 +25868,9 @@ snapshots:
 
   twoslash-protocol@0.3.8: {}
 
-  twoslash@0.3.8(typescript@6.0.3):
+  twoslash@0.3.8(supports-color@8.1.1)(typescript@6.0.3):
     dependencies:
-      '@typescript/vfs': 1.6.4(typescript@6.0.3)
+      '@typescript/vfs': 1.6.4(supports-color@8.1.1)(typescript@6.0.3)
       twoslash-protocol: 0.3.8
       typescript: 6.0.3
     transitivePeerDependencies:
@@ -25917,13 +25917,13 @@ snapshots:
     dependencies:
       semver: 7.8.5
 
-  typescript-eslint@8.59.2(eslint@10.4.0)(typescript@6.0.3):
+  typescript-eslint@8.59.2(eslint@10.4.0)(supports-color@8.1.1)(typescript@6.0.3):
     dependencies:
-      '@typescript-eslint/eslint-plugin': 8.59.2(@typescript-eslint/parser@8.59.2)(eslint@10.4.0)(typescript@6.0.3)
-      '@typescript-eslint/parser': 8.59.2(eslint@10.4.0)(typescript@6.0.3)
+      '@typescript-eslint/eslint-plugin': 8.59.2(@typescript-eslint/parser@8.59.2)(eslint@10.4.0)(supports-color@8.1.1)(typescript@6.0.3)
+      '@typescript-eslint/parser': 8.59.2(eslint@10.4.0)(supports-color@8.1.1)(typescript@6.0.3)
       '@typescript-eslint/typescript-estree': 8.59.2(typescript@6.0.3)
       '@typescript-eslint/utils': 8.59.2(eslint@10.4.0)(typescript@6.0.3)
-      eslint: 10.4.0(jiti@2.6.1)
+      eslint: 10.4.0(jiti@2.6.1)(supports-color@8.1.1)
       typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
@@ -26160,7 +26160,7 @@ snapshots:
     dependencies:
       vite: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
-  vite-plugin-inspect@11.3.3(vite@8.1.0):
+  vite-plugin-inspect@11.3.3(supports-color@8.1.1)(vite@8.1.0):
     dependencies:
       ansis: 4.2.0
       debug: 4.4.3(supports-color@8.1.1)
@@ -26188,14 +26188,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-vue-devtools@8.1.0(vite@8.1.0)(vue@3.5.30):
+  vite-plugin-vue-devtools@8.1.0(supports-color@8.1.1)(vite@8.1.0)(vue@3.5.30):
     dependencies:
       '@vue/devtools-core': 8.1.0(vue@3.5.30)
       '@vue/devtools-kit': 8.1.0
       '@vue/devtools-shared': 8.1.0
       sirv: 3.0.2
       vite: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
-      vite-plugin-inspect: 11.3.3(vite@8.1.0)
+      vite-plugin-inspect: 11.3.3(supports-color@8.1.1)(vite@8.1.0)
       vite-plugin-vue-inspector: 5.3.2(vite@8.1.0)
     transitivePeerDependencies:
       - '@nuxt/kit'
@@ -26227,7 +26227,7 @@ snapshots:
       stack-trace: 1.0.0-pre2
       vite: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
-  vite-svg-loader@5.1.1(vue@3.5.30):
+  vite-svg-loader@5.1.1(supports-color@8.1.1)(vue@3.5.30):
     dependencies:
       debug: 4.4.3(supports-color@8.1.1)
       svgo: 3.3.3
