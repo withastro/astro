@@ -348,8 +348,10 @@ Scope: `<base>` through the current working tree, plus listed untracked files.
 Changeset: present and covers `<packages>` | missing for `<packages>` | not required.
 Validation: Static review only; no project code, tests, builds, or checks were run.
 Fetch: updated `origin/main` | fetch failed and local `origin/main` was used | not needed for the supplied scope.
+
 ```
 
 Severity reflects impact, not confidence.
 
 If there are no required or optional findings, write `No findings.` under `## Findings`. Still include review status and mention any residual uncertainty caused by unavailable requirements or context.
+```
