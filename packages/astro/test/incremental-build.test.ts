@@ -93,8 +93,10 @@ describe('experimental.incrementalBuild', () => {
 
 		before(async () => {
 			originalContent = fs.readFileSync(docA, 'utf-8');
+			// Plant a sentinel in the cached copy. A skipped page is restored from the
+			// cache, so it keeps the sentinel; a re-rendered page would overwrite it.
 			fs.writeFileSync(
-				new URL('dist/incremental-build/docs/b/index.html', root),
+				new URL('node_modules/.astro/dist/docs/b/index.html', root),
 				'cached doc b sentinel',
 			);
 			fs.writeFileSync(docA, originalContent.replace('Alpha content.', 'Alpha updated content.'));

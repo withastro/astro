@@ -108,12 +108,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	// Empty out the dist folder, if needed. Vite has a config for doing this
 	// but because we are running 2 vite builds in parallel, that would cause a race
 	// condition, so we are doing it ourselves.
-	// When incremental builds are enabled, we preserve the previous output so that
-	// skipped pages keep their files in place.
-	if (
-		settings.config?.vite?.build?.emptyOutDir !== false &&
-		!settings.config.experimental.incrementalBuild
-	) {
+	if (settings.config?.vite?.build?.emptyOutDir !== false) {
 		emptyDir(settings.config.outDir, new Set('.git'));
 	}
 
