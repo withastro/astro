@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "astro": "workspace:*",
+    "less": "^4.0.0",
     "sass": "^1.98.0"
   }
 }

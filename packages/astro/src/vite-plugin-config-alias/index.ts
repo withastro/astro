@@ -146,10 +146,100 @@ function buildSassPathsImporter(
 	};
 }
 
+/** Extensions Less appends when an `@import` specifier lacks one, in resolution order. */
+const LESS_EXTENSIONS = ['.less', '.css'];
+
+/** Resolve an aliased Less specifier to an on-disk file, mirroring Less's extension handling. */
+function resolveLessAliasFile(
+	compiledAliases: Array<{ find: RegExp; values: string[] }>,
+	specifier: string,
+	resolvedBaseUrl: string,
+): string | null {
+	for (const alias of compiledAliases) {
+		const match = alias.find.exec(specifier);
+		if (!match) continue;
+
+		for (const value of alias.values) {
+			const replaced = value.includes('*') ? value.replace('*', match[1] || '') : value;
+			const base = path.resolve(resolvedBaseUrl, replaced);
+			// Less imports may omit the extension, in which case `.less`/`.css` is appended.
+			const candidates = path.extname(base)
+				? [base]
+				: [base, ...LESS_EXTENSIONS.map((ext) => base + ext)];
+			for (const candidate of candidates) {
+				if (fs.statSync(candidate, { throwIfNoEntry: false })?.isFile()) {
+					return candidate;
+				}
+			}
+		}
+	}
+	return null;
+}
+
+/** Minimal subset of Less's plugin/file-manager API that this plugin depends on. */
+interface LessFileManager {
+	supports(filename: string): boolean;
+	supportsSync(): boolean;
+	loadFile(filename: string): Promise<{ filename: string; contents: string }>;
+}
+interface LessStatic {
+	FileManager: new () => LessFileManager;
+}
+interface LessPluginManager {
+	addFileManager(fileManager: LessFileManager): void;
+}
+interface LessPlugin {
+	install(less: LessStatic, pluginManager: LessPluginManager): void;
+	minVersion?: [number, number, number];
+}
+
+/**
+ * Build a Less plugin that resolves tsconfig `paths` aliases in `@import`.
+ * Less's `paths` option only adds directories to search and cannot map an alias
+ * prefix, so a custom FileManager intercepts alias-prefixed imports and returns
+ * the resolved file directly. Non-alias imports fall through to Less's defaults.
+ */
+function buildLessPathsPlugin(
+	paths: Record<string, string[]>,
+	resolvedBaseUrl: string,
+): LessPlugin {
+	const compiledAliases: Array<{ find: RegExp; values: string[] }> = [];
+	for (const [aliasPattern, values] of Object.entries(paths)) {
+		const find = new RegExp(
+			`^${[...aliasPattern]
+				.map((segment) => (segment === '*' ? '(.+)' : escapeRegExpChar(segment)))
+				.join('')}$`,
+		);
+		compiledAliases.push({ find, values });
+	}
+
+	return {
+		install(less, pluginManager) {
+			class AliasFileManager extends less.FileManager {
+				supports(filename: string): boolean {
+					// Claim an import only when it maps to an existing aliased file so
+					// that everything else keeps using Less's default resolution.
+					return resolveLessAliasFile(compiledAliases, filename, resolvedBaseUrl) !== null;
+				}
+				supportsSync(): boolean {
+					return false;
+				}
+				async loadFile(filename: string) {
+					const resolved = resolveLessAliasFile(compiledAliases, filename, resolvedBaseUrl)!;
+					return { filename: resolved, contents: await fs.promises.readFile(resolved, 'utf-8') };
+				}
+			}
+			pluginManager.addFileManager(new AliasFileManager());
+		},
+		minVersion: [3, 0, 0],
+	};
+}
+
 /**
  * Generate Vite config for CSS preprocessor tsconfig alias support.
- * Injects loadPaths/paths for baseUrl and custom importers for tsconfig paths
- * so that Sass @use/@import and Less @import can resolve tsconfig aliases.
+ * Injects loadPaths/paths for baseUrl, plus custom importers (Sass) and a file
+ * manager plugin (Less) for tsconfig paths, so that Sass @use/@import and Less
+ * @import can resolve tsconfig aliases.
  */
 function getCssPreprocessorConfig(settings: AstroSettings): Record<string, unknown> | null {
 	const { tsConfig, tsConfigPath } = settings;
@@ -176,9 +266,16 @@ function getCssPreprocessorConfig(settings: AstroSettings): Record<string, unkno
 		preprocessorOptions.sass = { ...sassConfig };
 	}
 
-	// For Less: paths for baseUrl
+	// For Less: paths for baseUrl, a custom file manager plugin for paths aliases
+	const lessConfig: Record<string, unknown> = {};
 	if (baseUrl) {
-		preprocessorOptions.less = { paths: [resolvedBaseUrl] };
+		lessConfig.paths = [resolvedBaseUrl];
+	}
+	if (paths && Object.keys(paths).length > 0) {
+		lessConfig.plugins = [buildLessPathsPlugin(paths, resolvedBaseUrl)];
+	}
+	if (Object.keys(lessConfig).length > 0) {
+		preprocessorOptions.less = lessConfig;
 	}
 
 	if (Object.keys(preprocessorOptions).length > 0) {
