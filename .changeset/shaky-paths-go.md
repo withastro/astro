@@ -17,4 +17,4 @@ const url = getRequestURL(request);
 
 The returned `URL` is shared with everything else that asks for this request's URL, so treat it as read-only. Code that needs to rewrite a URL should build its own with `new URL(request.url)`.
 
-Astro's own adapters now use it, which takes a typical SSR request down from three or four `request.url` parses to two.
+Astro's own adapters now use it. On a request that reaches `app.match()`, the adapter's own lookup and the two parses inside `match()` become a single shared parse.
