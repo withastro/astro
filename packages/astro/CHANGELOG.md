@@ -1,5 +1,24 @@
 # astro
 
+## 7.1.5
+
+### Patch Changes
+
+- [#17524](https://github.com/withastro/astro/pull/17524) [`7613030`](https://github.com/withastro/astro/commit/761303051021764c5b8bc43ae4e32629c15b61a8) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a bug where an error while finalizing a request could prevent a response from being sent
+
+- [#17480](https://github.com/withastro/astro/pull/17480) [`f61ba9c`](https://github.com/withastro/astro/commit/f61ba9cfb028d9f7448eda3fea2726e179d66391) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where a custom `logger.entrypoint` failed to load at runtime in a built server bundle.
+
+- [#17525](https://github.com/withastro/astro/pull/17525) [`e614b7b`](https://github.com/withastro/astro/commit/e614b7bd8a0dae403b1f9c219250847d326cbff2) Thanks [@matthewp](https://github.com/matthewp)! - Fixes action path resolution so that properties of a resolved action function are not treated as routable path segments
+
+- [#17284](https://github.com/withastro/astro/pull/17284) [`c775c1f`](https://github.com/withastro/astro/commit/c775c1f984d1c176bf26a0f9c435bf6c0d585443) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a bug where the custom 404 (or 500) page was not rendered when a middleware rewrite targeted a route that returned an empty 404/500 response, and a blank page was returned instead
+
+- [#17474](https://github.com/withastro/astro/pull/17474) [`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18) Thanks [@nicksnyder](https://github.com/nicksnyder)! - Updates dependency `js-yaml` to v4.3.0
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+  - @astrojs/markdown-remark@7.2.2
+  - @astrojs/markdown-satteri@0.3.5
+
 ## 7.1.4
 
 ### Patch Changes

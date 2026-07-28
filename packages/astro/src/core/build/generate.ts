@@ -121,7 +121,10 @@ export async function generatePages(
 		// Filter paths for conflicts (same path from multiple routes)
 		const { config } = options.settings;
 		const builtPaths = new Set<string>();
-		const filteredPaths = pathsWithRoutes.filter(({ pathname, route }) => {
+		const filteredPaths: typeof pathsWithRoutes = [];
+		const fallbackPaths: typeof pathsWithRoutes = [];
+		for (const pathWithRoute of pathsWithRoutes) {
+			const { pathname, route } = pathWithRoute;
 			// i18n domains won't work with prerendered routes
 			if (hasI18nDomains && route.prerender) {
 				throw new AstroError({
@@ -135,42 +138,41 @@ export async function generatePages(
 			// Path hasn't been built yet, include it
 			if (!builtPaths.has(normalized)) {
 				builtPaths.add(normalized);
-				return true;
+			} else {
+				// Path was already built. Check if this route has higher priority.
+				const matchedRoute = matchRoute(decodeURI(pathname), options.routesList);
+				if (!matchedRoute) {
+					continue;
+				}
+
+				if (matchedRoute !== route) {
+					// Current route is lower-priority. Warn or error based on config.
+					if (config.prerenderConflictBehavior === 'error') {
+						throw new AstroError({
+							...AstroErrorData.PrerenderRouteConflict,
+							message: AstroErrorData.PrerenderRouteConflict.message(
+								matchedRoute.route,
+								route.route,
+								normalized,
+							),
+							hint: AstroErrorData.PrerenderRouteConflict.hint(matchedRoute.route, route.route),
+						});
+					} else if (config.prerenderConflictBehavior === 'warn') {
+						const msg = AstroErrorData.PrerenderRouteConflict.message(
+							matchedRoute.route,
+							route.route,
+							normalized,
+						);
+						logger.warn('build', msg);
+					}
+					continue;
+				}
 			}
 
-			// Path was already built. Check if this route has higher priority.
-			const matchedRoute = matchRoute(decodeURI(pathname), options.routesList);
-			if (!matchedRoute) {
-				return false;
-			}
-
-			if (matchedRoute === route) {
-				// Current route is higher-priority. Include it for building.
-				return true;
-			}
-
-			// Current route is lower-priority. Warn or error based on config.
-			if (config.prerenderConflictBehavior === 'error') {
-				throw new AstroError({
-					...AstroErrorData.PrerenderRouteConflict,
-					message: AstroErrorData.PrerenderRouteConflict.message(
-						matchedRoute.route,
-						route.route,
-						normalized,
-					),
-					hint: AstroErrorData.PrerenderRouteConflict.hint(matchedRoute.route, route.route),
-				});
-			} else if (config.prerenderConflictBehavior === 'warn') {
-				const msg = AstroErrorData.PrerenderRouteConflict.message(
-					matchedRoute.route,
-					route.route,
-					normalized,
-				);
-				logger.warn('build', msg);
-			}
-
-			return false;
-		});
+			const paths = route.type === 'fallback' ? fallbackPaths : filteredPaths;
+			paths.push(pathWithRoute);
+		}
+		const generationPhases = [filteredPaths, fallbackPaths];
 
 		// Generate each path
 		if (config.build.concurrency > 1) {
@@ -179,41 +181,43 @@ export async function generatePages(
 			//
 			// NOTE: ideally we could consider an iterator to avoid the batching limitation
 			const BATCH_SIZE = 100_000;
-			for (let i = 0; i < filteredPaths.length; i += BATCH_SIZE) {
-				const batch = filteredPaths.slice(i, i + BATCH_SIZE);
-				const promises: Promise<void>[] = [];
-				for (const { pathname, route, cacheKey } of batch) {
-					promises.push(
-						limit(() =>
-							generatePathWithPrerenderer(
-								prerenderer,
-								pathname,
-								route,
-								options,
-								internals,
-								routeToHeaders,
-								logger,
-								cache,
-								cacheKey,
+			for (const paths of generationPhases) {
+				for (let i = 0; i < paths.length; i += BATCH_SIZE) {
+					const promises = paths
+						.slice(i, i + BATCH_SIZE)
+						.map(({ pathname, route, cacheKey }) =>
+							limit(() =>
+								generatePathWithPrerenderer(
+									prerenderer,
+									pathname,
+									route,
+									options,
+									internals,
+									routeToHeaders,
+									logger,
+									cache,
+									cacheKey,
+								),
 							),
-						),
-					);
+						);
+					await Promise.all(promises);
 				}
-				await Promise.all(promises);
 			}
 		} else {
-			for (const { pathname, route, cacheKey } of filteredPaths) {
-				await generatePathWithPrerenderer(
-					prerenderer,
-					pathname,
-					route,
-					options,
-					internals,
-					routeToHeaders,
-					logger,
-					cache,
-					cacheKey,
-				);
+			for (const paths of generationPhases) {
+				for (const { pathname, route, cacheKey } of paths) {
+					await generatePathWithPrerenderer(
+						prerenderer,
+						pathname,
+						route,
+						options,
+						internals,
+						routeToHeaders,
+						logger,
+						cache,
+						cacheKey,
+					);
+				}
 			}
 		}
 
@@ -221,15 +225,17 @@ export async function generatePages(
 		// back to the original routes in allPages. The prerenderer operates on deserialized route
 		// objects (reconstructed from the serialized manifest), so distURL mutations during generation
 		// don't affect the original route objects that are later passed to the astro:build:done hook.
-		for (const { route: generatedRoute } of filteredPaths) {
-			if (generatedRoute.distURL && generatedRoute.distURL.length > 0) {
-				for (const pageData of Object.values(options.allPages)) {
-					if (
-						pageData.route.route === generatedRoute.route &&
-						pageData.route.component === generatedRoute.component
-					) {
-						pageData.route.distURL = generatedRoute.distURL;
-						break;
+		for (const paths of generationPhases) {
+			for (const { route: generatedRoute } of paths) {
+				if (generatedRoute.distURL && generatedRoute.distURL.length > 0) {
+					for (const pageData of Object.values(options.allPages)) {
+						if (
+							pageData.route.route === generatedRoute.route &&
+							pageData.route.component === generatedRoute.component
+						) {
+							pageData.route.distURL = generatedRoute.distURL;
+							break;
+						}
 					}
 				}
 			}
