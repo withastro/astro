@@ -154,6 +154,22 @@ export async function generatePages(
 			return false;
 		});
 
+		// Pre-populate distURL for every path so that concurrent i18n fallback
+		// rewrites can look up whether a dynamic route generates a given pathname.
+		// Without this, a slow page's distURL entry is missing when a concurrent
+		// fallback tries to rewrite to it, causing the rewrite to fall through to
+		// the wrong catch-all route. See https://github.com/withastro/astro/issues/17533
+		for (const { pathname, route } of filteredPaths) {
+			const encodedPath = encodeURI(pathname);
+			const outFolder = getOutFolder(options.settings, encodedPath, route);
+			const outFile = getOutFile(config.build.format, outFolder, encodedPath, route);
+			if (route.distURL) {
+				route.distURL.push(outFile);
+			} else {
+				route.distURL = [outFile];
+			}
+		}
+
 		// Generate each path
 		if (config.build.concurrency > 1) {
 			const limit = PLimit(config.build.concurrency);

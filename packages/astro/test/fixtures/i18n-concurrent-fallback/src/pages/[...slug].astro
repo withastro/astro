@@ -1,0 +1,14 @@
+---
+export function getStaticPaths() {
+  return [
+    { params: { slug: undefined }, props: { title: 'Home' } },
+    { params: { slug: 'about' }, props: { title: 'About' } },
+  ];
+}
+
+const { title } = Astro.props;
+---
+<html>
+<head><title>{title}</title></head>
+<body><h1>{title}</h1></body>
+</html>

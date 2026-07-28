@@ -1,0 +1,27 @@
+---
+export async function getStaticPaths() {
+  const articles = [
+    { slug: 'fast-page-1', title: 'Fast Page 1', delay: 0 },
+    { slug: 'fast-page-2', title: 'Fast Page 2', delay: 0 },
+    { slug: 'fast-page-3', title: 'Fast Page 3', delay: 0 },
+    { slug: 'fast-page-4', title: 'Fast Page 4', delay: 0 },
+    { slug: 'fast-page-5', title: 'Fast Page 5', delay: 0 },
+    { slug: 'slow-page', title: 'Slow Page', delay: 1000 },
+  ];
+
+  return articles.map((article) => ({
+    params: { slug: article.slug },
+    props: { title: article.title, delay: article.delay },
+  }));
+}
+
+const { title, delay } = Astro.props;
+
+if (delay > 0) {
+  await new Promise((resolve) => setTimeout(resolve, delay));
+}
+---
+<html>
+<head><title>{title}</title></head>
+<body><h1>{title}</h1></body>
+</html>
