@@ -1,6 +1,6 @@
 ---
 name: astro-code-review
-description: Perform a static, read-only code review of an Astro feature, bug fix, branch, commit, diff, or local working tree. Use this skill whenever the user asks to review local changes, review their current branch, self-review work before a pull request, or check a feature or fix for correctness, tests, simplicity, runtime portability, error handling, comments, behavior documentation, and changeset coverage. This skill reports findings only: it never edits code or runs project code, tests, builds, checks, or scripts.
+description: Perform a static, read-only code review of an Astro feature, bug fix, branch, commit, diff, or local working tree. Use this skill whenever the user asks to review local changes, review their current branch, self-review work before a pull request, or check a feature or fix for correctness, security, tests, simplicity, runtime portability, error handling, comments, behavior documentation, and changeset coverage. This skill reports findings only: it never edits code or runs project code, tests, builds, checks, or scripts.
 ---
 
 # Astro Code Review
@@ -13,12 +13,13 @@ This is a static review. Preserve the developer's working tree exactly as found.
 
 - Do not create, edit, move, or delete files.
 - Do not apply patches or create a changeset.
-- Do not run project code, package-manager commands, scripts, tests, type checks, linters, formatters, builds, benchmarks, dev servers, or browsers.
+- Do not run project code, package-manager commands, scripts, tests, type checks, linters, formatters, builds, benchmarks, dev servers, or browser automation.
 - Do not delegate the review to another agent because these restrictions may not carry into the delegated task.
-- Do not use GitHub APIs, `gh`, `curl`, or other network tools.
+- Do not use GitHub APIs, `gh`, `curl`, or arbitrary network tools to gather review context.
+- Read-only documentation search and fetch tools are allowed when a security-sensitive change requires current Astro or web-platform guidance.
 - Do not run mutating Git operations such as pull, merge, rebase, checkout, switch, reset, restore, clean, stash, commit, or push.
 
-The only permitted network operation is one `git fetch origin main` before reviewing the default scope. Fetching updates Git metadata but not source files. If it fails, continue with the existing local `origin/main` and disclose that the comparison may be stale. Do not troubleshoot or retry the fetch.
+The permitted network operations are the targeted documentation lookups above and one `git fetch origin main` before reviewing the default scope. Fetching updates Git metadata but not source files. If it fails, continue with the existing local `origin/main` and disclose that the comparison may be stale. Do not troubleshoot or retry the fetch.
 
 Shell commands are limited to these read-only Git operations and the fetch exception:
 
@@ -78,13 +79,14 @@ Review in this order so correctness and compatibility are not displaced by style
 
 1. Design and architectural layer placement
 2. Functional correctness and regressions
-3. Runtime portability, state ownership, and generated output
-4. Astro feature, API, and monorepo completeness
-5. Error handling and failure behavior
-6. Test coverage and test quality
-7. Simplicity, duplication, and function boundaries
-8. Comments and behavior documentation
-9. Changeset coverage
+3. Security and trust boundaries
+4. Runtime portability, state ownership, and generated output
+5. Astro feature, API, and monorepo completeness
+6. Error handling and failure behavior
+7. Test coverage and test quality
+8. Simplicity, duplication, and function boundaries
+9. Comments and behavior documentation
+10. Changeset coverage
 
 ### Design and Layer Placement
 
@@ -112,6 +114,22 @@ Look for concrete problems involving:
 - operating-system and runtime differences
 
 Do not report a theoretical edge case without explaining how the changed code can encounter it and what fails.
+
+### Security and Trust Boundaries
+
+Apply security review when changed code accepts less-trusted input, emits executable or interpreted output, handles credentials or secrets, changes a public request endpoint, or modifies an existing defense. Trace a reachable input to its sink or protection boundary and explain the attacker capability and impact. Do not report a vulnerability from a dangerous-looking name or API alone.
+
+Before reviewing a security-sensitive change, use read-only documentation search or fetch tools rather than model memory. Consult MDN's [XSS guidance](https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/XSS) for rendering or DOM-insertion changes and its [CSRF guidance](https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/CSRF) for state-changing request paths. Use the applicable Astro [security configuration](https://docs.astro.build/en/reference/configuration-reference/#security), [Actions](https://docs.astro.build/en/guides/actions/#security-when-using-actions), or [server-island](https://docs.astro.build/en/guides/server-islands/#reusing-the-encryption-key) guidance for the public contract, and the checked-out source for the implementation under review.
+
+When a change reaches an Astro-owned security mechanism, establish its contract from the current implementation, neighboring tests, and public documentation rather than a fixed checklist in this skill. Verify that the change preserves that contract and its trust boundary. Framework-generated raw HTML, ciphertext, or other security-sensitive values are not findings by themselves; demonstrate a reachable bypass and impact.
+
+Use these source areas as starting points, then follow their callers and tests:
+
+- Rendering and escaping: [`runtime/server/escape.ts`](../../../packages/astro/src/runtime/server/escape.ts) and [`runtime/server/render/util.ts`](../../../packages/astro/src/runtime/server/render/util.ts)
+- Request security: [`core/app/`](../../../packages/astro/src/core/app/), [`core/csp/`](../../../packages/astro/src/core/csp/), [`actions/`](../../../packages/astro/src/actions/), and the [`security` configuration types](../../../packages/astro/src/types/public/config.ts)
+- Server-island data protection: [`core/encryption.ts`](../../../packages/astro/src/core/encryption.ts), [`core/server-islands/`](../../../packages/astro/src/core/server-islands/), and [`runtime/server/render/server-islands.ts`](../../../packages/astro/src/runtime/server/render/server-islands.ts)
+
+For generated output, trace whether less-trusted or server-only values cross into client bundles or interpreted output, then apply the owning subsystem's validation, escaping, and serialization contract.
 
 ### Runtime, State, and Generated Output
 
@@ -142,23 +160,10 @@ Astro separates request state from state shared by the application or build:
 
 - `RenderContext` and `FetchState` contain per-request data such as the request, URL, route, params, cookies, locals, and response state.
 - `Environment` and `Pipeline` are created outside an individual request and may be reused across requests. Do not place request-specific mutable data on them.
-- Shared caches need bounded ownership, correct invalidation, and concurrency-safe behavior. Consider repeated requests, rewrites, HMR, and multiple build environments.
 
 When pipeline behavior changes, trace every applicable implementation: runnable development, non-runnable development, build/prerender, production SSR, and the Container API. Do not require irrelevant variants, but do not assume behavior exercised by one pipeline automatically reaches the others.
 
 Use [`core/render/README.md`](../../../packages/astro/src/core/render/README.md) and [`astro-developer/architecture.md`](../astro-developer/architecture.md) to establish these boundaries.
-
-#### Generated Output and Trust Boundaries
-
-Treat values crossing into generated JavaScript, HTML, CSS, headers, manifests, and client bundles as trust-boundary crossings:
-
-- Private environment variables and other server-only data must not enter client output.
-- Values embedded in HTML, script, style, attribute, URL, or header contexts need context-appropriate validation, encoding, escaping, or serialization.
-- Generated modules must preserve server/client separation and must not expose internal data through their exports.
-- Serialized runtime data must contain only values that can be reconstructed correctly by the corresponding deserializer.
-- User-controlled filesystem paths, remote URLs, redirects, headers, and log values must not enable traversal, unintended network access, injection, or secret disclosure.
-
-Trace the origin and destination of changed values. Report an injection or data-leak risk only when a reachable input reaches an unsafe output context. Relevant sources include [`env/README.md`](../../../packages/astro/src/env/README.md), [`runtime/server/escape.ts`](../../../packages/astro/src/runtime/server/escape.ts), and the manifest serialization code.
 
 Use these repository sources as the authoritative starting points:
 
@@ -286,25 +291,7 @@ For performance-oriented code, look for evidence that the optimization is needed
 
 ### Comments and Behavior Documentation
 
-Apply the [`writing-comments` skill](../writing-comments/SKILL.md) to comments added or changed by the diff and to existing comments made false or incomplete by the changed behavior. Do not audit unrelated comments in the surrounding file.
-
-Comments should be sparse and durable:
-
-- Do not request a comment when names, types, and structure already explain the code.
-- Inline comments should explain rationale, invariants, non-obvious coupling, or constraints rather than narrate the next statement.
-- Workarounds, hacks, regression guards, and surprising dependency behavior should link to the issue or pull request that explains why they exist.
-- Comments must describe the code at HEAD, not the change history, review discussion, or why the patch is correct.
-- A changed behavior must not leave an existing comment stale. A false comment is worse than a missing one.
-
-When a function or public API needs behavior documentation, check that it is written for its human caller rather than as a translation of the implementation:
-
-- Start with what the function accomplishes or returns.
-- Document surprising caller-visible behavior such as fallbacks, limits, overload selection, side effects, ambiguous results, and conditions that return `undefined`, `null`, an empty value, or another indeterminate result.
-- Describe implementation details only when callers need them to use the API safely.
-- Add a minimal example only when a relationship cannot be understood from the signature, such as overload selection, optional or rest argument mapping, a public re-export, or ambiguous fallback behavior. Introduce what the example demonstrates and its expected result.
-- Module documentation should explain a durable concept or architectural reason, not maintain a list of exports that will become stale.
-
-For `@docs` entries and public types, preserve the audience rules in the `writing-comments` skill: generated config and error references are end-user documentation, and other public JSDoc is surfaced through editor IntelliSense.
+Load and apply the [`writing-comments` skill](../writing-comments/SKILL.md) as the canonical guidance. Review comments and behavior documentation added or changed by the diff, plus existing documentation made false or incomplete by the changed behavior. Do not audit unrelated comments in the surrounding file.
 
 Keep comment findings non-invasive. Report inaccurate or misleading documentation as a finding when it can lead callers or maintainers to incorrect behavior. Put a missing explanation under suggestions unless an undocumented contract, invariant, or public caveat creates a concrete correctness or compatibility risk.
 
@@ -325,28 +312,36 @@ Report only issues that are actionable and supported by the inspected code.
 - Explain the resulting incorrect behavior or concrete long-term cost.
 - Point to the smallest relevant changed line or range.
 - Give a minimal remediation direction without writing the patch.
+- For a security finding, identify the attacker-controlled input or weakened boundary, the reachable sink or bypassed defense, and the concrete impact.
 - Put uncertain requirements or design choices under questions, not findings.
 - Avoid formatter, naming, and stylistic comments unless they violate an explicit repository standard and materially reduce correctness or maintainability.
 - Consolidate repeated symptoms with the same root cause into one finding and list the affected locations instead of repeating the comment.
-- Keep optional improvements separate from required findings. Do not use severity to make a personal preference appear mandatory.
+- List optional improvements after required findings. Do not use severity to make a personal preference appear mandatory.
 
 ## Report Format
 
-Put findings first and order them by severity. Do not lead with a summary or praise.
+Put findings first, order required findings by severity, and list optional improvements last. Do not lead with a summary or praise.
+
+Use exactly one severity and one primary category per finding. Required findings use `high`, `medium`, or `low`; non-blocking improvements use `optional`.
+
+- `high`: credible exploitation, data loss, broad regression, incompatible behavior, or likely runtime breakage
+- `medium`: credible edge-case failure, weakened security defense, missing required failure handling, or material test gap
+- `low`: localized correctness, maintainability, documentation, or process issue with limited impact that should still be addressed
+- `optional`: non-blocking improvement with a concrete benefit
+
+Use one of these categories: `design`, `correctness`, `security`, `runtime`, `completeness`, `error-handling`, `tests`, `maintainability`, `documentation`, or `changeset`. Choose the category that describes the root cause rather than a downstream symptom. `completeness` covers missing API, configuration, export, dependency, generated-file, or registry wiring.
 
 ```md
 ## Findings
 
-- [high] `path/to/file.ts:42` - Short title. Explain the triggering scenario, impact, and minimal remediation direction.
-- [medium] `path/to/file.ts:87` - Short title. Explain the triggering scenario, impact, and minimal remediation direction.
+- [high][security] `path/to/file.ts:42` - Short title. Explain the triggering scenario, impact, and minimal remediation direction.
+- [medium][correctness] `path/to/file.ts:87` - Short title. Explain the triggering scenario, impact, and minimal remediation direction.
+- [low][documentation] `path/to/file.ts:110` - Short title. Explain the concrete problem and why it should be addressed.
+- [optional][maintainability] `path/to/file.ts:125` - Explain the non-blocking improvement and its concrete benefit.
 
 ## Questions
 
 - Include only unresolved assumptions that affect correctness. Omit this section when there are none.
-
-## Suggestions
-
-- [optional] `path/to/file.ts:110` - Include only non-blocking improvements with a concrete benefit. Omit this section when there are none.
 
 ## Review Status
 
@@ -356,6 +351,6 @@ Validation: Static review only; no project code, tests, builds, or checks were r
 Fetch: updated `origin/main` | fetch failed and local `origin/main` was used | not needed for the supplied scope.
 ```
 
-Use `high` for likely runtime breakage, data loss, broad regressions, or incompatible behavior; `medium` for credible edge-case failures, missing required failure handling, and material test gaps; and `low` for concrete maintainability or process issues that should be addressed. Use `optional` only for improvements that are not required for correctness or code health. Severity reflects impact, not confidence.
+Severity reflects impact, not confidence.
 
-If there are no findings, write `No findings.` under `## Findings`. Still include review status and mention any residual uncertainty caused by unavailable requirements or context.
+If there are no required or optional findings, write `No findings.` under `## Findings`. Still include review status and mention any residual uncertainty caused by unavailable requirements or context.
