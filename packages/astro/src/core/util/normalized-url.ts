@@ -14,11 +14,14 @@ export function createNormalizedUrl(requestUrl: string): URL {
  *
  * Writing `url.pathname` re-parses and re-serializes the whole URL, which costs
  * more than parsing a URL from scratch. An ordinary request path (`/about`) is
- * already decoded and free of duplicate slashes, so every assignment in
- * `normalizeUrl` is a no-op that still pays that cost. Skipping the write when
- * the value is unchanged is what makes normalization cheap on the hot path.
+ * already decoded and free of duplicate slashes, so normalizing it assigns the
+ * value it already has, twice, and pays that cost both times. Skipping the write
+ * when the value is unchanged is what makes normalization cheap on the hot path.
+ *
+ * Used by `normalizeUrl` here and by the `FetchState` constructor, which runs
+ * the same decode-then-collapse sequence inline on every SSR request.
  */
-function setPathname(url: URL, pathname: string): void {
+export function setPathname(url: URL, pathname: string): void {
 	if (url.pathname !== pathname) {
 		url.pathname = pathname;
 	}
