@@ -1602,8 +1602,7 @@ export interface AstroUserConfig<
 	 *
 	 * By default, Astro uses a built-in logger that outputs human-friendly logs to the console. You can customize this behavior by providing [your own logger handler](https://docs.astro.build/en/reference/logger-reference/#custom-loggers) or by using one of the [built-in log handlers](https://docs.astro.build/en/reference/logger-reference/#built-in-loggers):
 	 *
-	 * ```js
-	 * // astro.config.mjs
+	 * ```js title="astro.config.mjs"
 	 * import { defineConfig, logHandlers } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -1622,7 +1621,8 @@ export interface AstroUserConfig<
 	 * @version 7.0.0
 	 * @description
 	 *
-	 * The entrypoint of the log handler. This can be a path to a file in your project or an npm package:
+	 * The entrypoint for the [logger implementation](https://docs.astro.build/en/reference/logger-reference/#the-logger-implementation).
+	 * This can be an npm package, or a `URL` pointing to a file in your project:
 	 *
 	 * ```js title="astro.config.mjs"
 	 * import { defineConfig } from 'astro/config';

@@ -1,5 +1,11 @@
 # @astrojs/check
 
+## 0.9.10
+
+### Patch Changes
+
+- [#17447](https://github.com/withastro/astro/pull/17447) [`b01a692`](https://github.com/withastro/astro/commit/b01a6921cd8be574db2d82a6d2bbde7c7d319295) Thanks [@ocavue](https://github.com/ocavue)! - Update dependency `yargs` to version 18. See the [yargs changelog](https://github.com/yargs/yargs/releases/tag/v18.0.0) for details.
+
 ## 0.9.9
 
 ### Patch Changes

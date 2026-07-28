@@ -28,7 +28,6 @@ import type { CacheProvider, CacheProviderFactory } from './cache/types.js';
 import type { CompiledCacheRoute } from './cache/runtime/route-matching.js';
 import type { SessionDriverFactory } from './session/types.js';
 import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
-import { loadLoggerDestination } from './logger/load.js';
 
 /**
  * Bit flags for pipeline features that handler classes register as
@@ -296,9 +295,10 @@ export abstract class Pipeline {
 			return this.logger;
 		}
 		this.resolvedLogger = true;
-		if (this.manifest.loggerConfig) {
+		const destination = (await this.manifest.logger?.())?.default;
+		if (destination) {
 			this.logger = new AstroLogger({
-				destination: await loadLoggerDestination(this.manifest.loggerConfig),
+				destination,
 				level: this.manifest.logLevel,
 			});
 		}
@@ -374,6 +374,14 @@ export abstract class Pipeline {
 		}
 
 		for (const key of pathKeys) {
+			// An action is a leaf: once resolved to a function, its own properties
+			// are not part of the action namespace and cannot be traversed further.
+			if (typeof server === 'function') {
+				throw new AstroError({
+					...ActionNotFoundError,
+					message: ActionNotFoundError.message(pathKeys.join('.')),
+				});
+			}
 			if (FORBIDDEN_PATH_KEYS.has(key)) {
 				throw new AstroError({
 					...ActionNotFoundError,
