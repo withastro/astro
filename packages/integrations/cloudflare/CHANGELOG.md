@@ -1,5 +1,13 @@
 # @astrojs/cloudflare
 
+## 14.1.6
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 14.1.5
 
 ### Patch Changes
