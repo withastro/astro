@@ -8,6 +8,13 @@ const CACHE_VERSION = 1;
 export interface IncrementalPathEntry {
 	cacheKey: string;
 	outputFile: string;
+	/**
+	 * Render-graph hashes of the content entries this path rendered, keyed by the
+	 * entry's root-relative `filePath`. A change to any of these invalidates the
+	 * path even when its template and data are unchanged, since content entries
+	 * render behind `content-data` bridges the per-route hash cannot cross.
+	 */
+	contentHashes?: Record<string, string>;
 }
 
 export interface IncrementalRouteEntry {
@@ -79,14 +86,17 @@ function readManifest(
 export class IncrementalBuildCache {
 	readonly #previous: IncrementalManifest | null;
 	readonly #next: IncrementalManifest;
+	readonly #contentEntryHashes: Map<string, string>;
 	readonly #createdDirs = new Set<string>();
 
 	constructor(
 		configHash: string,
 		lockfileHash: string,
+		contentEntryHashes: Map<string, string> = new Map(),
 		previous: IncrementalManifest | null = null,
 	) {
 		this.#previous = previous;
+		this.#contentEntryHashes = contentEntryHashes;
 		this.#next = { version: CACHE_VERSION, configHash, lockfileHash, routes: {} };
 	}
 
@@ -94,15 +104,20 @@ export class IncrementalBuildCache {
 	 * Load the cache from disk. When no valid manifest exists (missing, wrong
 	 * version, or a config or lockfile hash mismatch) the returned cache has no
 	 * previous build, so every path is rendered as a full build.
+	 *
+	 * `contentEntryHashes` is this build's map of content-entry render hashes,
+	 * used to detect when the content a path renders has changed.
 	 */
 	static load(
 		settings: AstroSettings,
 		configHash: string,
 		lockfileHash: string,
+		contentEntryHashes: Map<string, string> = new Map(),
 	): IncrementalBuildCache {
 		return new IncrementalBuildCache(
 			configHash,
 			lockfileHash,
+			contentEntryHashes,
 			readManifest(settings, configHash, lockfileHash),
 		);
 	}
@@ -115,6 +130,8 @@ export class IncrementalBuildCache {
 	 * 3. The route's dependency hash matches the previous build (template code is identical).
 	 * 4. The previous cache has an entry for this exact path.
 	 * 5. The path's cacheKey matches the previous build (user data is identical).
+	 * 6. Every content entry the path rendered last build still has a matching
+	 *    render hash (imported components inside that content are unchanged).
 	 */
 	canSkip(
 		routeComponent: string,
@@ -132,7 +149,24 @@ export class IncrementalBuildCache {
 		const pathEntry = routeEntry.paths[pathname];
 		if (!pathEntry) return false;
 
-		return pathEntry.cacheKey === cacheKey;
+		if (pathEntry.cacheKey !== cacheKey) return false;
+
+		if (pathEntry.contentHashes) {
+			for (const [entryPath, previousHash] of Object.entries(pathEntry.contentHashes)) {
+				if (this.#contentEntryHashes.get(entryPath) !== previousHash) return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * The content entries a path rendered in the previous build, so a skipped path
+	 * can carry its content-entry tracking forward without re-rendering.
+	 */
+	previousContentEntryKeys(routeComponent: string, pathname: string): string[] | undefined {
+		const pathEntry = this.#previous?.routes[routeComponent]?.paths[pathname];
+		return pathEntry?.contentHashes ? Object.keys(pathEntry.contentHashes) : undefined;
 	}
 
 	/**
@@ -145,6 +179,7 @@ export class IncrementalBuildCache {
 		pathname: string,
 		cacheKey: string | undefined,
 		outputFile: string,
+		contentEntryKeys?: string[],
 	): void {
 		if (cacheKey === undefined) return;
 
@@ -154,7 +189,17 @@ export class IncrementalBuildCache {
 			this.#next.routes[routeComponent] = routeEntry;
 		}
 		routeEntry.dependencyHash = dependencyHash;
-		routeEntry.paths[pathname] = { cacheKey, outputFile };
+
+		const pathEntry: IncrementalPathEntry = { cacheKey, outputFile };
+		if (contentEntryKeys && contentEntryKeys.length > 0) {
+			const contentHashes: Record<string, string> = {};
+			for (const key of contentEntryKeys) {
+				const hash = this.#contentEntryHashes.get(key);
+				if (hash !== undefined) contentHashes[key] = hash;
+			}
+			if (Object.keys(contentHashes).length > 0) pathEntry.contentHashes = contentHashes;
+		}
+		routeEntry.paths[pathname] = pathEntry;
 	}
 
 	/**

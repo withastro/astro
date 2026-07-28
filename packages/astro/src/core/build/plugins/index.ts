@@ -37,7 +37,7 @@ export function getAllBuildPlugins(
 		vitePluginSSRAssets(internals),
 		pluginChunkImports(options),
 		options.settings.config.experimental.incrementalBuild
-			? pluginIncremental(internals)
+			? pluginIncremental(internals, options.settings.config.root)
 			: undefined,
 	].filter(Boolean);
 }

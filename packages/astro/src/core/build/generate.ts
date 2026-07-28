@@ -33,6 +33,10 @@ import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../output-filename.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
+import {
+	beginContentEntryCollection,
+	endContentEntryCollection,
+} from './incremental-content-collector.js';
 import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
@@ -100,6 +104,7 @@ export async function generatePages(
 				options.settings,
 				computeConfigHash(options.settings.config),
 				computeLockfileHash(fileURLToPath(options.settings.config.root)),
+				internals.contentEntryRenderHashes ?? new Map(),
 			)
 		: null;
 
@@ -580,8 +585,16 @@ async function generatePathWithPrerenderer(
 			!existsInDist && (await cache.restoreOutputFile(options.settings, relativeOutFile, outFile));
 
 		if (existsInDist || restored) {
-			// Record in the new cache so orphan detection knows this path is still alive
-			cache.record(route.component, dependencyHash, pathname, cacheKey, relativeOutFile);
+			// Record in the new cache so orphan detection knows this path is still alive,
+			// carrying forward the content entries the path rendered last build.
+			cache.record(
+				route.component,
+				dependencyHash,
+				pathname,
+				cacheKey,
+				relativeOutFile,
+				cache.previousContentEntryKeys(route.component, pathname),
+			);
 
 			// Track page name for stats even when skipped
 			if (route.type === 'page') {
@@ -611,6 +624,9 @@ async function generatePathWithPrerenderer(
 		addPageName(pathname, options);
 	}
 
+	// Collect the content entries rendered while generating this path, so their
+	// render-graph hashes can be folded into the path's cache entry.
+	if (cache) beginContentEntryCollection();
 	const result = await renderPath({
 		prerenderer,
 		pathname,
@@ -619,10 +635,18 @@ async function generatePathWithPrerenderer(
 		routeToHeaders,
 		logger,
 	});
+	const contentEntryKeys = cache ? endContentEntryCollection() : undefined;
 
 	if (!result) {
 		// Still record in cache even if no file was created (empty body, etc.)
-		cache?.record(route.component, dependencyHash, pathname, cacheKey, relativeOutFile);
+		cache?.record(
+			route.component,
+			dependencyHash,
+			pathname,
+			cacheKey,
+			relativeOutFile,
+			contentEntryKeys,
+		);
 		logRenderTime(logger, timeStart, true);
 		return;
 	}
@@ -635,7 +659,14 @@ async function generatePathWithPrerenderer(
 		if (cacheKey !== undefined) {
 			await cache.writeOutputFile(options.settings, relativeOutFile, result.body);
 		}
-		cache.record(route.component, dependencyHash, pathname, cacheKey, relativeOutFile);
+		cache.record(
+			route.component,
+			dependencyHash,
+			pathname,
+			cacheKey,
+			relativeOutFile,
+			contentEntryKeys,
+		);
 	}
 
 	logRenderTime(logger, timeStart, false);

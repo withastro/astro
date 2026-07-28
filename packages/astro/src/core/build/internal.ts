@@ -138,6 +138,14 @@ export interface BuildInternals {
 	 * Populated during the prerender Rolldown build by the incremental plugin.
 	 */
 	pageDependencyHashes?: Map<string, string>;
+
+	/**
+	 * Map of content entry root-relative `filePath` -> render-graph hash for
+	 * incremental builds. Keyed to match what the content runtime reports when it
+	 * renders an entry, so a path's cache entry can be invalidated when a component
+	 * imported by the content it renders changes.
+	 */
+	contentEntryRenderHashes?: Map<string, string>;
 }
 
 /**

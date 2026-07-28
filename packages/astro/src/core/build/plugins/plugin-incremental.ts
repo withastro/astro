@@ -1,6 +1,10 @@
 import crypto from 'node:crypto';
 import type { Plugin as VitePlugin } from 'vite';
+import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
+import { hasContentFlag } from '../../../content/utils.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
+import { removeQueryString } from '../../path.js';
+import { rootRelativePath } from '../../viteUtils.js';
 import { moduleIsTopLevelPage } from '../graph.js';
 import { isContentDataIncrementalModule } from '../incremental-metadata.js';
 import type { BuildInternals } from '../internal.js';
@@ -127,6 +131,31 @@ function foldClientDependencies(graph: ModuleGraph, internals: BuildInternals): 
 }
 
 /**
+ * Hash the render graph of every content entry, keyed by the entry's
+ * root-relative `filePath` (matching what the content runtime reports at render
+ * time). A content entry's render module (compiled MD/MDX) and the components it
+ * imports are reachable only through the `content-data`-pruned bridges, so the
+ * per-route hash never sees them. Seeding the traversal at each render module
+ * captures them per entry, giving precise invalidation without pulling one
+ * entry's graph into another route's hash.
+ */
+function collectContentEntryHashes(
+	graph: ModuleGraph & { getModuleIds(): IterableIterator<string> },
+	root: URL,
+): Map<string, string> {
+	const entryHashes = new Map<string, string>();
+	for (const id of graph.getModuleIds()) {
+		if (!hasContentFlag(id, PROPAGATED_ASSET_FLAG)) continue;
+		// e.g. "/abs/src/content/docs/one.mdx?astroPropagatedAssets" -> render module id.
+		const renderModuleId = removeQueryString(id);
+		const key = rootRelativePath(root, renderModuleId, false);
+		const deps = collectTransitiveDeps(graph, renderModuleId);
+		entryHashes.set(key, hashModules(graph, deps));
+	}
+	return entryHashes;
+}
+
+/**
  * Captures a dependency hash for each prerendered page route during the build.
  *
  * The base hash is derived during the prerender build from the sorted set of all
@@ -134,9 +163,10 @@ function foldClientDependencies(graph: ModuleGraph, internals: BuildInternals): 
  * template, layouts, components, or utilities produces a different hash. During
  * the client build, the hash of each `client:only` component's and hoisted
  * `<script>`'s own module graph is folded in, since those never enter the
- * prerender graph.
+ * prerender graph. Content entries are hashed separately per entry, since their
+ * render modules sit behind `content-data`-pruned bridges.
  */
-export function pluginIncremental(internals: BuildInternals): VitePlugin {
+export function pluginIncremental(internals: BuildInternals, root: URL): VitePlugin {
 	return {
 		name: '@astro/plugin-incremental',
 		applyToEnvironment(environment) {
@@ -166,6 +196,7 @@ export function pluginIncremental(internals: BuildInternals): VitePlugin {
 			}
 
 			internals.pageDependencyHashes = hashes;
+			internals.contentEntryRenderHashes = collectContentEntryHashes(this, root);
 		},
 	};
 }
