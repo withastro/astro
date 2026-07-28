@@ -256,7 +256,14 @@ export function astroContentVirtualModPlugin({
 									`${JSON.stringify(collection)}:[${parts.map(rawImport).join(',')}]`,
 							);
 							const code = `export default{${entries.join(',')}}`;
-							return { code, map: { mappings: '' } };
+							// Tag as content-data so the incremental route hash prunes this
+							// module and its `?raw` chunk imports; content edits are tracked
+							// through each page's `cacheKey`, not the dependency hash.
+							return {
+								code,
+								map: { mappings: '' },
+								meta: createContentDataIncrementalMetadata(),
+							};
 						} catch (err) {
 							const message = 'Could not parse data store manifest JSON file';
 							this.error({ message, id, cause: err });
