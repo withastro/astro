@@ -26,6 +26,13 @@ export interface IncrementalManifest {
 	 * inlined via Vite cannot be seen by the per-route dependency hash.
 	 */
 	configHash: string;
+	/**
+	 * Hash of the project's lockfiles. Externalized dependencies are leaf nodes
+	 * in the bundle graph with no code and a versionless id, so the per-route
+	 * dependency hash cannot see when a (possibly transitive) dependency changes.
+	 * A mismatch invalidates the whole cache.
+	 */
+	lockfileHash: string;
 	routes: Record<string, IncrementalRouteEntry>;
 }
 
@@ -40,6 +47,7 @@ function getCachedOutputFile(settings: AstroSettings, outputFile: string): URL {
 function readManifest(
 	settings: AstroSettings,
 	expectedConfigHash: string,
+	expectedLockfileHash: string,
 ): IncrementalManifest | null {
 	try {
 		const raw = fs.readFileSync(getManifestFile(settings), 'utf-8');
@@ -49,6 +57,10 @@ function readManifest(
 		}
 		// Output-affecting config changed since the cache was written, discard it.
 		if (data.configHash !== expectedConfigHash) {
+			return null;
+		}
+		// Dependencies changed since the cache was written, discard it.
+		if (data.lockfileHash !== expectedLockfileHash) {
 			return null;
 		}
 		return data;
@@ -69,18 +81,30 @@ export class IncrementalBuildCache {
 	readonly #next: IncrementalManifest;
 	readonly #createdDirs = new Set<string>();
 
-	constructor(configHash: string, previous: IncrementalManifest | null = null) {
+	constructor(
+		configHash: string,
+		lockfileHash: string,
+		previous: IncrementalManifest | null = null,
+	) {
 		this.#previous = previous;
-		this.#next = { version: CACHE_VERSION, configHash, routes: {} };
+		this.#next = { version: CACHE_VERSION, configHash, lockfileHash, routes: {} };
 	}
 
 	/**
 	 * Load the cache from disk. When no valid manifest exists (missing, wrong
-	 * version, or a config hash mismatch) the returned cache has no previous
-	 * build, so every path is rendered as a full build.
+	 * version, or a config or lockfile hash mismatch) the returned cache has no
+	 * previous build, so every path is rendered as a full build.
 	 */
-	static load(settings: AstroSettings, configHash: string): IncrementalBuildCache {
-		return new IncrementalBuildCache(configHash, readManifest(settings, configHash));
+	static load(
+		settings: AstroSettings,
+		configHash: string,
+		lockfileHash: string,
+	): IncrementalBuildCache {
+		return new IncrementalBuildCache(
+			configHash,
+			lockfileHash,
+			readManifest(settings, configHash, lockfileHash),
+		);
 	}
 
 	/**

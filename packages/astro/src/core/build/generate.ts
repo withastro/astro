@@ -1,5 +1,6 @@
 import nodeFs from 'node:fs';
 import os from 'node:os';
+import { fileURLToPath } from 'node:url';
 
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
@@ -34,6 +35,7 @@ import { getOutFile, getOutFolder } from './common.js';
 import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
 import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
+import { computeLockfileHash } from './lockfile/index.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -94,7 +96,11 @@ export async function generatePages(
 
 	// Incremental build support
 	const cache = options.settings.config.experimental.incrementalBuild
-		? IncrementalBuildCache.load(options.settings, computeConfigHash(options.settings.config))
+		? IncrementalBuildCache.load(
+				options.settings,
+				computeConfigHash(options.settings.config),
+				computeLockfileHash(fileURLToPath(options.settings.config.root)),
+			)
 		: null;
 
 	try {
