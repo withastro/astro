@@ -154,8 +154,7 @@ export async function generatePages(
 			const paths = route.type === 'fallback' ? fallbackPaths : filteredPaths;
 			paths.push(pathWithRoute);
 		}
-		const fallbackStart = filteredPaths.length;
-		const orderedPaths = filteredPaths.concat(fallbackPaths);
+		const generationPhases = [filteredPaths, fallbackPaths];
 
 		// Generate each path
 		if (config.build.concurrency > 1) {
@@ -164,36 +163,37 @@ export async function generatePages(
 			//
 			// NOTE: ideally we could consider an iterator to avoid the batching limitation
 			const BATCH_SIZE = 100_000;
-			for (let i = 0; i < orderedPaths.length; ) {
-				const phaseEnd = i < fallbackStart ? fallbackStart : orderedPaths.length;
-				const batchEnd = Math.min(i + BATCH_SIZE, phaseEnd);
-				const promises = orderedPaths
-					.slice(i, batchEnd)
-					.map(({ pathname, route }) =>
-						limit(() =>
-							generatePathWithPrerenderer(
-								prerenderer,
-								pathname,
-								route,
-								options,
-								routeToHeaders,
-								logger,
+			for (const paths of generationPhases) {
+				for (let i = 0; i < paths.length; i += BATCH_SIZE) {
+					const promises = paths
+						.slice(i, i + BATCH_SIZE)
+						.map(({ pathname, route }) =>
+							limit(() =>
+								generatePathWithPrerenderer(
+									prerenderer,
+									pathname,
+									route,
+									options,
+									routeToHeaders,
+									logger,
+								),
 							),
-						),
-					);
-				await Promise.all(promises);
-				i = batchEnd;
+						);
+					await Promise.all(promises);
+				}
 			}
 		} else {
-			for (const { pathname, route } of orderedPaths) {
-				await generatePathWithPrerenderer(
-					prerenderer,
-					pathname,
-					route,
-					options,
-					routeToHeaders,
-					logger,
-				);
+			for (const paths of generationPhases) {
+				for (const { pathname, route } of paths) {
+					await generatePathWithPrerenderer(
+						prerenderer,
+						pathname,
+						route,
+						options,
+						routeToHeaders,
+						logger,
+					);
+				}
 			}
 		}
 
@@ -201,15 +201,17 @@ export async function generatePages(
 		// back to the original routes in allPages. The prerenderer operates on deserialized route
 		// objects (reconstructed from the serialized manifest), so distURL mutations during generation
 		// don't affect the original route objects that are later passed to the astro:build:done hook.
-		for (const { route: generatedRoute } of orderedPaths) {
-			if (generatedRoute.distURL && generatedRoute.distURL.length > 0) {
-				for (const pageData of Object.values(options.allPages)) {
-					if (
-						pageData.route.route === generatedRoute.route &&
-						pageData.route.component === generatedRoute.component
-					) {
-						pageData.route.distURL = generatedRoute.distURL;
-						break;
+		for (const paths of generationPhases) {
+			for (const { route: generatedRoute } of paths) {
+				if (generatedRoute.distURL && generatedRoute.distURL.length > 0) {
+					for (const pageData of Object.values(options.allPages)) {
+						if (
+							pageData.route.route === generatedRoute.route &&
+							pageData.route.component === generatedRoute.component
+						) {
+							pageData.route.distURL = generatedRoute.distURL;
+							break;
+						}
 					}
 				}
 			}
