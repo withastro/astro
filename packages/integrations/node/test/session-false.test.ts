@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
+import { resolve, sep } from 'node:path';
 import { describe, it } from 'node:test';
+import { pathToFileURL } from 'node:url';
 import nodejs from '../dist/index.js';
 
 async function runConfigSetup(session: unknown) {
-	const root = new URL('file:///project/');
+	const root = pathToFileURL(resolve('/project') + sep);
 	const logs: string[] = [];
 	let updated: any;
 
