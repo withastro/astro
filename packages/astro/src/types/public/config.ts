@@ -1634,27 +1634,8 @@ export interface AstroUserConfig<
 	 * });
 	 * ```
 	 *
-	 * ```js title="astro.config.mjs"
-	 * import { defineConfig } from 'astro/config';
-	 *
-	 * export default defineConfig({
-	 *   logger: {
-	 *     entrypoint: new URL("./src/logger.js", import.meta.url),
-	 *   }
-	 * });
-	 * ```
-	 *
-	 * :::caution[TypeScript entrypoints]
-	 * JavaScript entrypoints always work, TypeScript entrypoints do not always.
-	 * At runtime, the entrypoint is loaded through Vite which handles TypeScript for you.
-	 * But Astro also imports it directly with Node.js for the logs emitted by the CLI, and there support
-	 * depends on [Node.js' native TypeScript support](https://nodejs.org/learn/typescript/run-natively):
-	 * Node.js 22.18 or later, and only [erasable syntax](https://nodejs.org/api/typescript.html#type-stripping).
-	 *
-	 * If Node.js cannot load the entrypoint, Astro falls back to its default logger for those
-	 * CLI logs. Update the implementation to make it compatible with Node.js' native TypeScript support or
-	 * convert it to JavaScript to avoid this.
-	 * :::
+	 * The entrypoint must be a JavaScript file. The CLI imports it directly with Node.js rather than through Vite,
+	 * so TypeScript entrypoints are not supported. Astro falls back to its default logger for the logs it cannot load the implementation for.
 	 */
 
 	/**
