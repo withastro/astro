@@ -78,6 +78,25 @@ describe('defineConfig()', () => {
 		});
 	});
 
+	it('Validates CSP resources and hashes with the `kind` option', () => {
+		defineConfig({
+			security: {
+				csp: {
+					scriptDirective: {
+						// bare strings (back-compat) and kind-scoped objects can be mixed
+						resources: ["'self'", { resource: 'https://cdn.example.com', kind: 'element' }],
+						hashes: ['sha256-xx', { hash: 'sha384-xx', kind: 'element' }],
+						strictDynamic: true,
+					},
+					styleDirective: {
+						resources: [{ resource: "'unsafe-inline'", kind: 'attribute' }],
+						hashes: [{ hash: 'sha512-xx', kind: 'default' }],
+					},
+				},
+			},
+		});
+	});
+
 	it('Allows session config without a driver', () => {
 		// Adapters like Cloudflare, Netlify, and Node provide default session drivers,
 		// so users should be able to configure session options without specifying a driver

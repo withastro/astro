@@ -92,6 +92,7 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 		logger: new AstroIntegrationLogger(logger.options, settings.adapter.name),
 		headers: settings.config.server.headers,
 		allowedHosts: settings.config.server.allowedHosts,
+		open: settings.config.server.open,
 		root: settings.config.root,
 	});
 

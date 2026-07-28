@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 8.1.2
+
+### Patch Changes
+
+- [#17368](https://github.com/withastro/astro/pull/17368) [`ee74c28`](https://github.com/withastro/astro/commit/ee74c289bfe32fb6a7f59ed97c5c22db16394b72) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the generated Netlify Image CDN `remote_images` patterns so that regex metacharacters (such as `.`) in `image.remotePatterns` (`hostname`, `pathname`) and `image.domains` are matched literally instead of behaving like wildcards. This makes the generated patterns consistent with how Astro matches these values elsewhere.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 8.1.1
 
 ### Patch Changes

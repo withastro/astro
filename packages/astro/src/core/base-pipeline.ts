@@ -16,7 +16,7 @@ import type { ServerIslandMappings } from './app/types.js';
 import type { SinglePageBuiltModule } from './build/types.js';
 import { ActionNotFoundError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
-import type { AstroLogger } from './logger/core.js';
+import { AstroLogger } from './logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 import { sequence } from './middleware/sequence.js';
 import { RedirectSinglePageBuiltModule } from './redirects/index.js';
@@ -28,7 +28,6 @@ import type { CacheProvider, CacheProviderFactory } from './cache/types.js';
 import type { CompiledCacheRoute } from './cache/runtime/route-matching.js';
 import type { SessionDriverFactory } from './session/types.js';
 import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
-import { loadLogger } from './logger/load.js';
 
 /**
  * Bit flags for pipeline features that handler classes register as
@@ -304,8 +303,12 @@ export abstract class Pipeline {
 			return this.logger;
 		}
 		this.resolvedLogger = true;
-		if (this.manifest.loggerConfig) {
-			this.logger = await loadLogger(this.manifest.loggerConfig);
+		const destination = (await this.manifest.logger?.())?.default;
+		if (destination) {
+			this.logger = new AstroLogger({
+				destination,
+				level: this.manifest.logLevel,
+			});
 		}
 		return this.logger;
 	}
@@ -379,6 +382,14 @@ export abstract class Pipeline {
 		}
 
 		for (const key of pathKeys) {
+			// An action is a leaf: once resolved to a function, its own properties
+			// are not part of the action namespace and cannot be traversed further.
+			if (typeof server === 'function') {
+				throw new AstroError({
+					...ActionNotFoundError,
+					message: ActionNotFoundError.message(pathKeys.join('.')),
+				});
+			}
 			if (FORBIDDEN_PATH_KEYS.has(key)) {
 				throw new AstroError({
 					...ActionNotFoundError,

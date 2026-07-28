@@ -14,19 +14,14 @@ import type {
 	SSRResult,
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
-import type { CspDirective } from '../csp/config.js';
-import type {
-	AstroLoggerDestination,
-	AstroLoggerLevel,
-	AstroLoggerMessage,
-} from '../logger/core.js';
+import type { AstroLoggerDestination, AstroLoggerLevel } from '../logger/core.js';
+import type { CspDirective, CspHashEntry, CspResourceEntry } from '../csp/config.js';
 import type { RoutingStrategies } from './common.js';
 import type { CacheProviderFactory, SSRManifestCache } from '../cache/types.js';
 import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.js';
 import type { DevToolbarPlacement } from '../../types/public/toolbar.js';
 import type { MiddlewareMode } from '../../types/public/integrations.js';
 import type { BaseApp } from './base.js';
-import type { LoggerHandlerConfig } from '../logger/config.js';
 
 type ComponentPath = string;
 
@@ -110,9 +105,7 @@ export type SSRManifest = {
 	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
-	logger?: () =>
-		| Promise<{ default: AstroLoggerDestination<AstroLoggerMessage> }>
-		| { default: AstroLoggerDestination<AstroLoggerMessage> };
+	logger?: () => Promise<{ default: AstroLoggerDestination }> | { default: AstroLoggerDestination };
 	actions?: () => Promise<SSRActions> | SSRActions;
 	sessionDriver?: () => Promise<{ default: SessionDriverFactory | null }>;
 	cacheProvider?: () => Promise<{ default: CacheProviderFactory | null }>;
@@ -153,8 +146,6 @@ export type SSRManifest = {
 	};
 	internalFetchHeaders?: Record<string, string>;
 	logLevel: AstroLoggerLevel;
-	// Configuration that tells us how to load the logger
-	loggerConfig: LoggerHandlerConfig | undefined;
 };
 
 export type SSRActions = {
@@ -171,15 +162,49 @@ export type SSRManifestI18n = {
 	domains: Record<string, string> | undefined;
 };
 
+/**
+ * The CSP section of the manifest. It mirrors the `security.csp` config: `directives` plus a
+ * `scriptDirective`/`styleDirective`, each holding `resources`/`hashes` entries that carry their
+ * `kind` (`default`/`element`/`attribute`). The `kind` is only interpreted at render time. Astro's
+ * generated hashes are appended to the relevant `hashes` array as `default`-kind entries.
+ */
 export type SSRManifestCSP = {
 	cspDestination: 'adapter' | 'meta' | 'header' | undefined;
 	algorithm: CspAlgorithm;
-	scriptHashes: string[];
-	scriptResources: string[];
-	isStrictDynamic: boolean;
-	styleHashes: string[];
-	styleResources: string[];
 	directives: CspDirective[];
+	/**
+	 * @deprecated Use {@linkcode scriptDirective} instead. Holds the `default`-kind `script-src`
+	 * hashes (the same values `scriptDirective.hashes` carries with `kind: "default"`).
+	 */
+	scriptHashes: string[];
+	/**
+	 * @deprecated Use {@linkcode scriptDirective} instead. Holds the `default`-kind `script-src`
+	 * resources.
+	 */
+	scriptResources: string[];
+	/**
+	 * @deprecated Use {@linkcode scriptDirective}'s `strictDynamic` instead.
+	 */
+	isStrictDynamic: boolean;
+	/**
+	 * @deprecated Use {@linkcode styleDirective} instead. Holds the `default`-kind `style-src`
+	 * hashes.
+	 */
+	styleHashes: string[];
+	/**
+	 * @deprecated Use {@linkcode styleDirective} instead. Holds the `default`-kind `style-src`
+	 * resources.
+	 */
+	styleResources: string[];
+	scriptDirective: {
+		resources: CspResourceEntry[];
+		hashes: CspHashEntry[];
+		strictDynamic: boolean;
+	};
+	styleDirective: {
+		resources: CspResourceEntry[];
+		hashes: CspHashEntry[];
+	};
 };
 
 export interface SSRManifestSession extends BaseSessionConfig {

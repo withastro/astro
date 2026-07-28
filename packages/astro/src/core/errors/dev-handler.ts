@@ -7,7 +7,7 @@ import { PagesHandler } from '../pages/handler.js';
 import { getCustom404Route, getCustom500Route } from '../routing/helpers.js';
 import { type AstroError, isAstroError } from './index.js';
 import { MiddlewareNoDataOrNextCalled, MiddlewareNotAResponse } from './errors-data.js';
-import type { ErrorHandler } from './handler.js';
+import { type ErrorHandler, rewroteToEmptyErrorResponse } from './handler.js';
 
 export interface DevErrorHandlerOptions {
 	/**
@@ -76,6 +76,22 @@ export class DevErrorHandler implements ErrorHandler {
 					errorState,
 					this.#pagesHandler.handle.bind(this.#pagesHandler),
 				);
+
+				// A middleware rewrite issued while rendering the error page swaps the
+				// state's routeData away from the error route. If that hijacked render
+				// produced another empty reroutable error response, retry rendering the
+				// error page without middleware (same fallback used when middleware throws).
+				if (
+					rewroteToEmptyErrorResponse(skipMiddleware, routeData, errorState.routeData, response)
+				) {
+					return this.renderError(request, {
+						...resolvedRenderOptions,
+						status,
+						error,
+						skipMiddleware: true,
+						pathname: resolvedPathname,
+					});
+				}
 
 				if (error) {
 					// Log useful information that the custom 500 page may not display unlike the default error overlay
