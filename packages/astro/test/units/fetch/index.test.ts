@@ -982,6 +982,7 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 			addCookieHeader: false,
 			locals: undefined,
 			prerenderedErrorPageFetch: fetch,
+			getStaticAsset: undefined,
 			routeData: undefined,
 			waitUntil: undefined,
 		});

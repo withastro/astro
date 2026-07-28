@@ -75,9 +75,14 @@ export interface RenderOptions {
 	 * When provided and a prerendered route is matched, Astro will run middleware at request time
 	 * and then call this function (instead of rendering the page component) to obtain the HTML.
 	 *
+	 * Return `undefined` when no prerendered asset exists for the given pathname (for example, the
+	 * file is not on disk). Astro then falls back to its 404 handling — rendering the custom 404
+	 * page if one is available, or an empty 404 response otherwise.
+	 *
 	 * @param {RouteData} route - The matched route data.
 	 * @param {string} pathname - The current request pathname (base-stripped).
-	 * @returns {Promise<Response | undefined>} A prerendered response, or undefined if not found.
+	 * @returns {Promise<Response | undefined>} A prerendered response, or `undefined` when the asset
+	 *   is not found.
 	 */
 	getStaticAsset?: (route: RouteData, pathname: string) => Promise<Response | undefined>;
 
@@ -103,7 +108,7 @@ export interface ResolvedRenderOptions {
 	addCookieHeader: RequiredRenderOptions['addCookieHeader'];
 	clientAddress: RequiredRenderOptions['clientAddress'] | undefined;
 	prerenderedErrorPageFetch: RequiredRenderOptions['prerenderedErrorPageFetch'] | undefined;
-	getStaticAsset?: RequiredRenderOptions['getStaticAsset'];
+	getStaticAsset: RequiredRenderOptions['getStaticAsset'] | undefined;
 	locals: RequiredRenderOptions['locals'] | undefined;
 	routeData: RequiredRenderOptions['routeData'] | undefined;
 	waitUntil: RequiredRenderOptions['waitUntil'] | undefined;

@@ -25,10 +25,13 @@ export class BuildPipeline extends Pipeline {
 	options: StaticBuildOptions | undefined;
 	readonly manifest: SSRManifest;
 	readonly defaultRoutes: Array<DefaultRouteParams>;
-	readonly isBuildTime = true;
 
 	getName(): string {
 		return 'BuildPipeline';
+	}
+
+	override isBuildTime(): boolean {
+		return true;
 	}
 
 	/**

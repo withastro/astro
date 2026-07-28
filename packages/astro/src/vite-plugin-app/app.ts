@@ -259,7 +259,10 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 					method: incomingRequest.method,
 					body,
 					logger: self.logger,
-					isPrerendered: matchedRoute.routeData.prerender && !middlewareHandlesPrerendered,
+					isPrerendered: matchedRoute.routeData.prerender,
+					// In 'on-request' mode a prerendered page is served live through middleware,
+					// which needs the real request headers, body, and search params.
+					preserveRequestData: middlewareHandlesPrerendered,
 					routePattern: matchedRoute.routeData.component,
 					init: { signal: abortController.signal },
 				});

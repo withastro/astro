@@ -39,6 +39,22 @@ async function readPageFromDisk(
 }
 
 /**
+ * Read a prerendered error page (404 or 500) from disk. Tries both the
+ * `${status}.html` and `${status}/index.html` layouts, since either may be
+ * emitted depending on the build format, and returns the first one found.
+ */
+async function readErrorPageFromDisk(
+	client: string,
+	status: 404 | 500,
+): Promise<Response | undefined> {
+	for (const filePath of [`${status}.html`, `${status}/index.html`]) {
+		const response = await readPageFromDisk(client, filePath);
+		if (response) return response;
+	}
+	return undefined;
+}
+
+/**
  * Creates a Node.js http listener for on-demand rendered pages, compatible with http.createServer and Connect middleware.
  * If the next callback is provided, it will be called if the request does not have a matching route.
  * Intended to be used in both standalone and middleware mode.
@@ -63,23 +79,11 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 	const prerenderedErrorPageFetch = async (url: string): Promise<Response> => {
 		const { pathname } = new URL(url);
 		if (pathname.endsWith('/404.html') || pathname.endsWith('/404/index.html')) {
-			const response = await readPageFromDisk(
-				client,
-				getStaticAssetPath('/404', {
-					base: app.manifest.base,
-					buildFormat: app.manifest.buildFormat,
-				}),
-			);
+			const response = await readErrorPageFromDisk(client, 404);
 			if (response) return response;
 		}
 		if (pathname.endsWith('/500.html') || pathname.endsWith('/500/index.html')) {
-			const response = await readPageFromDisk(
-				client,
-				getStaticAssetPath('/500', {
-					base: app.manifest.base,
-					buildFormat: app.manifest.buildFormat,
-				}),
-			);
+			const response = await readErrorPageFromDisk(client, 500);
 			if (response) return response;
 		}
 		// No file found and no fallback configured - return empty response

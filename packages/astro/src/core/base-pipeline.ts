@@ -80,14 +80,6 @@ export abstract class Pipeline {
 	logger: AstroLogger;
 	readonly manifest: SSRManifest;
 	/**
-	 * Whether this pipeline runs during `astro build` static generation
-	 * (i.e. real prerendering). `false` for dev and request-time pipelines.
-	 * Overridden to `true` by `BuildPipeline`. Used to decide whether
-	 * `on-request` middleware should be skipped (skipped at build, run at
-	 * request time).
-	 */
-	readonly isBuildTime: boolean = false;
-	/**
 	 * "development" or "production" only
 	 */
 	readonly runtimeMode: RuntimeMode;
@@ -258,6 +250,17 @@ export abstract class Pipeline {
 	 * The current name of the pipeline. Useful for debugging
 	 */
 	abstract getName(): string;
+
+	/**
+	 * Whether this pipeline runs during `astro build` static generation
+	 * (i.e. real prerendering). `false` for dev and request-time pipelines.
+	 * Overridden to return `true` by `BuildPipeline`. Used to decide whether
+	 * `on-request` middleware should be skipped (skipped at build, run at
+	 * request time).
+	 */
+	isBuildTime(): boolean {
+		return false;
+	}
 
 	/**
 	 * Resolves the middleware from the manifest, and returns the `onRequest` function. If `onRequest` isn't there,

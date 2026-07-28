@@ -71,12 +71,12 @@ export class AstroMiddleware {
 		// - 'edge': never run here (deployed as a separate edge function)
 		const middlewareMode = pipeline.manifest.middlewareMode;
 		// Only true static generation during `astro build` is the build phase
-		// (`pipeline.isBuildTime`). At dev/request time the page may still be
+		// (`pipeline.isBuildTime()`). At dev/request time the page may still be
 		// prerendered (rendered live or read from disk), but middleware must run.
 		const runMiddleware =
 			!state.skipMiddleware &&
 			middlewareMode !== 'edge' &&
-			!(middlewareMode === 'on-request' && pipeline.isBuildTime);
+			!(middlewareMode === 'on-request' && pipeline.isBuildTime());
 
 		let response: Response;
 		if (runMiddleware) {
