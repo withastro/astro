@@ -14,6 +14,14 @@ import type { AstroConfig } from '../../../types/public/config.js';
  * serialized. `outDir`/`publicDir` are omitted too, since they move where files
  * are written without changing a page's bytes.
  *
+ * The whole `vite` config cannot be hashed: it carries plugins and other
+ * function-valued, per-run state that churns between builds and would sink the
+ * cache hit rate. Instead a curated allowlist of serializable Vite options that
+ * change emitted bytes or asset paths is included (e.g. `build.assetsInlineLimit`
+ * flips an asset between an inlined data URI and a separate hashed file). This
+ * allowlist is best-effort, so an obscure output-affecting Vite option outside
+ * it will not invalidate the cache; `--force` is the escape hatch.
+ *
  * The set of fields is asserted against the full config schema in
  * `test/units/build/config-hash.test.ts`, which fails when a new top-level
  * config key appears so it gets classified here or explicitly excluded.
@@ -40,6 +48,19 @@ export function getConfigHashInput(config: AstroConfig) {
 		env: { schema: config.env?.schema },
 		security: { csp: config.security?.csp },
 		prefetch: config.prefetch,
+		vite: {
+			build: {
+				assetsInlineLimit: config.vite.build?.assetsInlineLimit,
+				minify: config.vite.build?.minify,
+				cssMinify: config.vite.build?.cssMinify,
+				cssTarget: config.vite.build?.cssTarget,
+				target: config.vite.build?.target,
+			},
+			css: config.vite.css,
+			json: config.vite.json,
+			define: config.vite.define,
+			esbuild: config.vite.esbuild,
+		},
 		experimental: {
 			clientPrerender: config.experimental.clientPrerender,
 		},

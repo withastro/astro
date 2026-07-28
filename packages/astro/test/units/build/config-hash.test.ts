@@ -58,14 +58,26 @@ describe('getConfigHashInput', () => {
 			'security',
 			'site',
 			'trailingSlash',
+			'vite',
 		]);
 	});
 
-	it('omits location-only and non-serializable top-level fields', () => {
+	it('omits location-only top-level fields', () => {
 		const input = getConfigHashInput(fakeConfig());
 		assert.ok(!('outDir' in input));
 		assert.ok(!('publicDir' in input));
-		assert.ok(!('vite' in input));
+	});
+
+	it('includes only the allowlisted vite fields', () => {
+		const input = getConfigHashInput(fakeConfig());
+		assert.deepEqual(Object.keys(input.vite).sort(), ['build', 'css', 'define', 'esbuild', 'json']);
+		assert.deepEqual(Object.keys(input.vite.build).sort(), [
+			'assetsInlineLimit',
+			'cssMinify',
+			'cssTarget',
+			'minify',
+			'target',
+		]);
 	});
 });
 
@@ -106,6 +118,20 @@ describe('computeConfigHash', () => {
 		const b = fakeConfig({ markdown: { syntaxHighlight: 'shiki', remarkPlugins: [() => 42] } });
 		assert.equal(computeConfigHash(a), computeConfigHash(b));
 	});
+
+	it('changes when an output-affecting vite option changes', () => {
+		assert.notEqual(
+			computeConfigHash(fakeConfig({ vite: { build: { assetsInlineLimit: 4096 } } })),
+			computeConfigHash(fakeConfig({ vite: { build: { assetsInlineLimit: 0 } } })),
+		);
+	});
+
+	it('ignores vite fields outside the allowlist', () => {
+		assert.equal(
+			computeConfigHash(fakeConfig({ vite: { server: { port: 3000 }, plugins: [() => {}] } })),
+			computeConfigHash(fakeConfig({ vite: { server: { port: 4000 }, plugins: [() => 42] } })),
+		);
+	});
 });
 
 describe('config schema coverage guard', () => {
@@ -126,6 +152,7 @@ describe('config schema coverage guard', () => {
 		'i18n',
 		'security',
 		'env',
+		'vite',
 		'experimental',
 	];
 	// Keys that do not affect prerendered output (dev/SSR-runtime/tooling/location).
@@ -139,7 +166,6 @@ describe('config schema coverage guard', () => {
 		'integrations',
 		'server',
 		'devToolbar',
-		'vite',
 		'session',
 		'prerenderConflictBehavior',
 		'fetchFile',
