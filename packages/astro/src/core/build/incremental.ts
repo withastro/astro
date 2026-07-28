@@ -134,8 +134,10 @@ export class IncrementalBuildCache {
 	}
 
 	/**
-	 * Output files present in the previous build but no longer produced by this
-	 * one (for example a path removed from `getStaticPaths()`).
+	 * Cache copies recorded in the previous build that are no longer keyed in this
+	 * one, either because the path was removed from `getStaticPaths()` or dropped
+	 * its `cacheKey`. Their stored copies are stale and should be pruned. Paths
+	 * that are still keyed keep their copies, even when the `cacheKey` changed.
 	 */
 	findOrphanedFiles(): string[] {
 		if (!this.#previous) return [];

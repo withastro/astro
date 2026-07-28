@@ -224,20 +224,21 @@ export async function generatePages(
 			}
 		}
 
-		// Incremental build: clean up orphaned files and write the new cache
+		// Incremental build: prune stale cache copies and write the new manifest.
+		// dist/ is regenerated in full each build, so a file in the output directory
+		// was always produced by this build and must never be deleted here. Only the
+		// persistent cache copies of paths that are no longer keyed are pruned.
 		if (cache) {
 			const orphans = cache.findOrphanedFiles();
 			for (const orphanFile of orphans) {
-				const outFile = new URL(orphanFile, options.settings.config.outDir);
 				try {
-					await nodeFs.promises.rm(outFile, { force: true });
 					await cache.deleteOutputFile(options.settings, orphanFile);
 				} catch {
 					// File may already be gone
 				}
 			}
 			if (orphans.length > 0) {
-				logger.info('build', `Removed ${orphans.length} orphaned file(s) from previous build.`);
+				logger.info('build', `Pruned ${orphans.length} stale file(s) from the incremental cache.`);
 			}
 			cache.writeManifest(options.settings);
 		}
