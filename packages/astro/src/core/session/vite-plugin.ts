@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
@@ -73,15 +74,24 @@ export function vitePluginSessionDriver({ settings }: { settings: AstroSettings 
 const PROVIDER_FILENAME = 'provider.js';
 const DISABLED_PROVIDER_FILENAME = 'provider-disabled.js';
 
-export function vitePluginSessionProvider({
-	settings,
-}: { settings: AstroSettings }): VitePlugin {
-	// Paths are normalized to forward slashes: Vite/Rollup resolved ids are
-	// posix-style even on Windows, while fileURLToPath returns backslashes.
-	const providerPath = normalizePath(
+function canonicalizePath(filePath: string): string {
+	try {
+		// Resolve symlinks, which Node does for `import.meta.url` but Vite only
+		// does when `resolve.preserveSymlinks` is false, and normalize to forward
+		// slashes so the two sides compare equal on Windows.
+		return normalizePath(realpathSync(filePath));
+	} catch {
+		// Not a file on disk (bare specifier, virtual module), so there is no
+		// symlink to resolve.
+		return normalizePath(filePath);
+	}
+}
+
+export function vitePluginSessionProvider({ settings }: { settings: AstroSettings }): VitePlugin {
+	const providerPath = canonicalizePath(
 		fileURLToPath(new URL(`./${PROVIDER_FILENAME}`, import.meta.url)),
 	);
-	const disabledProviderPath = normalizePath(
+	const disabledProviderPath = canonicalizePath(
 		fileURLToPath(new URL(`./${DISABLED_PROVIDER_FILENAME}`, import.meta.url)),
 	);
 	return {
@@ -92,15 +102,15 @@ export function vitePluginSessionProvider({
 			const session = settings.config.session;
 			const hasSessionDriver = session !== false && !!session?.driver;
 			if (hasSessionDriver) return null;
-			const normalizedId = normalizePath(id);
-			// Fast path: caller already passed Astro's absolute provider path.
-			if (normalizedId === providerPath) return disabledProviderPath;
 			// Cheap prefilter to avoid resolving every import in the graph.
 			// Only specifiers that *could* point at Astro's provider file
 			// proceed to the (expensive) full resolution + identity check.
-			if (!importer || !normalizedId.endsWith(`/session/${PROVIDER_FILENAME}`)) return null;
+			if (!normalizePath(id).endsWith(`/session/${PROVIDER_FILENAME}`)) return null;
+			// Fast path: caller already passed Astro's absolute provider path.
+			if (canonicalizePath(id) === providerPath) return disabledProviderPath;
+			if (!importer) return null;
 			const resolved = await this.resolve(id, importer, { skipSelf: true });
-			if (resolved && normalizePath(resolved.id) === providerPath) {
+			if (resolved && canonicalizePath(resolved.id) === providerPath) {
 				return disabledProviderPath;
 			}
 			return null;
