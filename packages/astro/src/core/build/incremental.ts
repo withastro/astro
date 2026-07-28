@@ -92,7 +92,7 @@ export class IncrementalBuildCache {
 	constructor(
 		configHash: string,
 		lockfileHash: string,
-		contentEntryHashes: Map<string, string> = new Map(),
+		contentEntryHashes = new Map<string, string>(),
 		previous: IncrementalManifest | null = null,
 	) {
 		this.#previous = previous;
@@ -112,7 +112,7 @@ export class IncrementalBuildCache {
 		settings: AstroSettings,
 		configHash: string,
 		lockfileHash: string,
-		contentEntryHashes: Map<string, string> = new Map(),
+		contentEntryHashes = new Map<string, string>(),
 	): IncrementalBuildCache {
 		return new IncrementalBuildCache(
 			configHash,
