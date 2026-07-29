@@ -1,6 +1,6 @@
 ---
 name: astro-code-review
-description: "Perform a static, read-only code review of an Astro pull request or of a local branch, commit range, diff, patch, or working tree being prepared as a pull request. Use this skill only when the user asks to review PR changes, review their current branch before opening or updating a PR, or self-review a PR for correctness, security, tests, simplicity, runtime portability, error handling, comments, behavior documentation, and changeset coverage. Do not use it for issue review, bug-report investigation, reproduction, diagnosis, or triage. This skill reports findings only: it never edits code or runs project code, tests, builds, checks, or scripts"
+description: 'Perform a static, read-only code review of an Astro pull request or of a local branch, commit range, diff, patch, or working tree being prepared as a pull request. Use this skill only when the user asks to review PR changes, review their current branch before opening or updating a PR, or self-review a PR for correctness, security, tests, simplicity, runtime portability, error handling, comments, behavior documentation, and changeset coverage. Do not use it for issue review, bug-report investigation, reproduction, diagnosis, or triage. This skill reports findings only: it never edits code or runs project code, tests, builds, checks, or scripts'
 ---
 
 # Astro Code Review
