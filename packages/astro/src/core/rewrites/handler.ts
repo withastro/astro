@@ -49,8 +49,8 @@ export function applyRewriteToState(
 		!state.routeData!.prerender &&
 		routeData.prerender &&
 		!isI18nFallback &&
-		// When the adapter serves prerendered HTML at request time (always /
-		// on-request middleware modes), the prerendered route is reachable, so
+		// When the adapter serves prerendered HTML at request time (`on-request`
+		// middleware mode), the prerendered route is reachable, so
 		// rewriting to it is allowed.
 		!state.getStaticAsset
 	) {

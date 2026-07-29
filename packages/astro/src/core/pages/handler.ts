@@ -111,7 +111,7 @@ export class PagesHandler {
 	/**
 	 * Reads the prebuilt HTML for a prerendered page via the adapter-provided
 	 * `getStaticAsset` function. Used when middleware runs at request time for
-	 * prerendered pages (`always` / `on-request` middleware modes): the page
+	 * prerendered pages (`on-request` middleware mode): the page
 	 * component is not in the server bundle, so we serve the static HTML while
 	 * still letting middleware mutate the response.
 	 */
