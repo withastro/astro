@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
 import nodeFs from 'node:fs';
+import { describe, it } from 'node:test';
 import { astroContentVirtualModPlugin } from '../../../dist/content/vite-plugin-content-virtual-mod.js';
 import { createMinimalSettings, createTempDir } from './test-helpers.ts';
 
@@ -49,6 +49,89 @@ function createMockViteDevServer() {
 }
 
 describe('astroContentVirtualModPlugin', () => {
+	it('loads chunk files through validated virtual modules', async () => {
+		const root = createTempDir('content-virtual-mod-chunks-test-');
+		const dataStoreDir = new URL('./.astro/data-store/', root);
+		const fileName = '0123456789abcdef.txt';
+		const contents = 'serialized data\nwith "quotes"';
+		await nodeFs.promises.mkdir(dataStoreDir, { recursive: true });
+		await nodeFs.promises.writeFile(new URL(fileName, dataStoreDir), contents);
+		await nodeFs.promises.writeFile(
+			new URL('manifest.json', dataStoreDir),
+			JSON.stringify({ entries: [fileName] }),
+		);
+
+		const settings = createMinimalSettings(root, {
+			config: {
+				experimental: {
+					collectionStorage: { type: 'chunked', chunkSize: 1024 },
+				},
+				legacy: {},
+			},
+		});
+		const plugin = astroContentVirtualModPlugin({ settings, fs: nodeFs });
+		// @ts-expect-error - mock args are sufficient for this test
+		plugin.config?.({}, { command: 'serve' });
+		assert.ok(plugin.resolveId && typeof plugin.resolveId === 'object');
+		assert.ok(plugin.load && typeof plugin.load === 'object');
+
+		const context = {
+			error(message: string) {
+				throw new Error(message);
+			},
+		};
+		const chunkId = `astro:data-layer-content-chunk:${fileName}`;
+		// @ts-expect-error - mock context supplies the hook behavior this path uses
+		const resolvedChunkId = await plugin.resolveId.handler.call(context, chunkId);
+		assert.equal(resolvedChunkId, `\0${chunkId}.mjs`);
+
+		// @ts-expect-error - mock context supplies the hook behavior this path uses
+		const chunkModule = await plugin.load.handler.call(context, resolvedChunkId);
+		assert.deepEqual(chunkModule, {
+			code: `export default ${JSON.stringify(contents)}`,
+			map: { mappings: '' },
+		});
+
+		// @ts-expect-error - mock context supplies the hook behavior this path uses
+		const storeModule = await plugin.load.handler.call(context, '\0astro:data-layer-content');
+		assert.ok(storeModule && typeof storeModule === 'object' && 'code' in storeModule);
+		assert.match(storeModule.code, /astro:data-layer-content-chunk:0123456789abcdef\.txt/);
+		assert.doesNotMatch(storeModule.code, /\?raw/);
+	});
+
+	it('rejects invalid chunk virtual module IDs', async () => {
+		const root = createTempDir('content-virtual-mod-invalid-chunk-test-');
+		const settings = createMinimalSettings(root, {
+			config: {
+				experimental: {
+					collectionStorage: { type: 'chunked', chunkSize: 1024 },
+				},
+				legacy: {},
+			},
+		});
+		const plugin = astroContentVirtualModPlugin({ settings, fs: nodeFs });
+		// @ts-expect-error - mock args are sufficient for this test
+		plugin.config?.({}, { command: 'serve' });
+		assert.ok(plugin.resolveId && typeof plugin.resolveId === 'object');
+		assert.ok(plugin.load && typeof plugin.load === 'object');
+		const context = {
+			error(message: string) {
+				throw new Error(message);
+			},
+		};
+
+		await assert.rejects(
+			// @ts-expect-error - mock context supplies the hook behavior this path uses
+			plugin.resolveId.handler.call(context, 'astro:data-layer-content-chunk:../../secret.txt'),
+			/Invalid data-store chunk/,
+		);
+		await assert.rejects(
+			// @ts-expect-error - mock context supplies the hook behavior this path uses
+			plugin.load.handler.call(context, '\0astro:data-layer-content-chunk:../../secret.txt.mjs'),
+			/Invalid data-store chunk/,
+		);
+	});
+
 	it('does not send full-reload to client during buildStart', () => {
 		const root = createTempDir('content-virtual-mod-test-');
 		const settings = createMinimalSettings(root, {

@@ -45,3 +45,8 @@ export const COLLECTIONS_DIR = 'collections/';
 
 export const CONTENT_LAYER_TYPE = 'content_layer';
 export const LIVE_CONTENT_TYPE = 'live';
+
+export const DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX = `${DATA_STORE_VIRTUAL_ID}-chunk:`;
+export const RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX = `\0${DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}`;
+export const RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_SUFFIX = '.mjs';
+export const DATA_STORE_CHUNK_FILE_NAME_PATTERN = /^[a-f0-9]{16}\.txt$/;
