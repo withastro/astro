@@ -4,15 +4,15 @@ import { classNameFromFilename } from '../../core/utils.js';
 import { editShouldBeInFrontmatter, ensureProperEditForFrontmatter } from '../utils.js';
 
 const ASTRO_COMPONENT_SUFFIX = 'AstroComponent';
-const ASTRO_IMPORT_FROM_PATTERN = /\bfrom\s+['"][^'"]+\.astro['"]/;
+const COMPONENT_IMPORT_FROM_PATTERN = /\bfrom\s+['"][^'"]+\.(?:astro|svelte|vue)['"]/;
 const ASTRO_DEFAULT_IMPORT_PATTERN =
 	/^(\s*import(?:\s+type)?\s+)([A-Za-z_$][\w$]*)AstroComponent(?=\s*,|\s+from\b)/;
 const ASTRO_DEFAULT_ALIAS_PATTERN = /(default\s+as\s+)([A-Za-z_$][\w$]*)AstroComponent(?=\s*\})/;
 const ASTRO_NAMED_IMPORT_PATTERN =
 	/^(\s*import\s+)\{\s*([A-Za-z_$][\w$]*)\s*\}(\s+from\s+['"]([^'"]+\.astro)['"])/;
 
-export function isAstroComponentImportSource(source: string | undefined): source is string {
-	return !!source && source.endsWith('.astro');
+export function isComponentImportSource(source: string | undefined): source is string {
+	return !!source && (source?.endsWith('.astro'));
 }
 
 export function stripAstroComponentSuffix(name: string) {
@@ -23,11 +23,11 @@ export function stripAstroComponentSuffix(name: string) {
 	return name.slice(0, -ASTRO_COMPONENT_SUFFIX.length);
 }
 
-export function rewriteAstroImportText(text: string) {
+export function rewriteComponentImportText(text: string) {
 	return text
 		.split('\n')
 		.map((line) => {
-			if (!ASTRO_IMPORT_FROM_PATTERN.test(line)) {
+			if (!COMPONENT_IMPORT_FROM_PATTERN.test(line)) {
 				return line;
 			}
 
@@ -47,7 +47,7 @@ function rewriteComponentNamedImport(line: string) {
 	return line.replace(ASTRO_NAMED_IMPORT_PATTERN, '$1$2$3');
 }
 
-export function getAlreadyImportedAstroComponentSources(
+export function getAlreadyImportedComponentSources(
 	ts: typeof import('typescript'),
 	documentText: string,
 ) {
@@ -67,7 +67,7 @@ export function getAlreadyImportedAstroComponentSources(
 
 		const source = statement.moduleSpecifier.text;
 		const importClause = statement.importClause;
-		if (!importClause || importClause.isTypeOnly || !isAstroComponentImportSource(source)) {
+		if (!importClause || importClause.isTypeOnly || !isComponentImportSource(source)) {
 			continue;
 		}
 
@@ -120,7 +120,7 @@ export function mapEdit(edit: TextEdit, code: AstroVirtualCode, languageId: stri
 		}
 	}
 
-	edit.newText = rewriteAstroImportText(edit.newText);
+	edit.newText = rewriteComponentImportText(edit.newText);
 
 	return edit;
 }
