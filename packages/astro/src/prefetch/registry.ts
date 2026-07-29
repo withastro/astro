@@ -41,8 +41,20 @@ export function hasBeenPrefetched(url: string): boolean {
 /**
  * Whether a URL was prefetched recently enough that the response the prefetch downloaded
  * can be reused without revalidation, mirroring how browsers treat their own prefetches.
+ *
+ * Consuming: reuse is valid for a single navigation. The entry's timestamp is zeroed (not
+ * deleted) so `hasBeenPrefetched()` keeps deduplicating, but later navigations to the same
+ * URL revalidate normally instead of freezing on-demand pages on the first prefetched body
+ * for the whole window. A navigation aborted mid-fetch loses its reuse, which is a missed
+ * optimization rather than a correctness problem. Whether `hasBeenPrefetched()` itself
+ * should expire (allowing re-prefetch) was considered and deliberately left out here.
  */
-export function wasPrefetchedRecently(url: string): boolean {
-	const prefetchedAt = prefetchedUrls.get(normalizePrefetchUrl(url));
-	return prefetchedAt !== undefined && Date.now() - prefetchedAt < PREFETCH_REUSE_WINDOW;
+export function consumePrefetchReuse(url: string): boolean {
+	const key = normalizePrefetchUrl(url);
+	const prefetchedAt = prefetchedUrls.get(key);
+	if (prefetchedAt === undefined || prefetchedAt === 0) return false;
+	if (Date.now() - prefetchedAt >= PREFETCH_REUSE_WINDOW) return false;
+	// Still deduped by hasBeenPrefetched(), no longer reusable.
+	prefetchedUrls.set(key, 0);
+	return true;
 }

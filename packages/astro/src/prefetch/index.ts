@@ -3,7 +3,7 @@
 */
 
 import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
-import { hasBeenPrefetched, recordPrefetch } from './registry.js';
+import { hasBeenPrefetched, normalizePrefetchUrl, recordPrefetch } from './registry.js';
 
 const debug = import.meta.env.DEV ? console.debug : undefined;
 const inBrowser = import.meta.env.SSR === false;
@@ -218,7 +218,9 @@ export interface PrefetchOptions {
  */
 export function prefetch(url: string, opts?: PrefetchOptions) {
 	// Remove url hash to avoid prefetching the same URL multiple times
-	url = url.replace(/#.*/, '');
+	// One normalization for the link href, the speculation rules, and the registry key
+	// (also resolves against location.href rather than a potentially divergent <base href>).
+	url = normalizePrefetchUrl(url);
 
 	const ignoreSlowConnection = opts?.ignoreSlowConnection ?? false;
 	if (!canPrefetchUrl(url, ignoreSlowConnection)) return;
