@@ -49,9 +49,12 @@ export function applyRewriteToState(
 		!state.routeData!.prerender &&
 		routeData.prerender &&
 		!isI18nFallback &&
-		// When the adapter serves prerendered HTML at request time (`on-request`
-		// middleware mode), the prerendered route is reachable, so
-		// rewriting to it is allowed.
+		// In `on-request` middleware mode the prerendered route is always reachable
+		// at request time — served from disk via `getStaticAsset` in production, or
+		// rendered live in dev — so rewriting to it is allowed. Keying off the mode
+		// (rather than only `getStaticAsset`, which dev never provides) keeps dev and
+		// production consistent.
+		pipeline.manifest.middlewareMode !== 'on-request' &&
 		!state.getStaticAsset
 	) {
 		throw new AstroError({

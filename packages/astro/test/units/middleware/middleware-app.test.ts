@@ -1074,5 +1074,48 @@ describe('Middleware via App.render()', () => {
 			// would be stripped as static generation and read back as `null`.
 			assert.equal(seenHeaderOnTarget, 'original');
 		});
+
+		it('allows SSR→prerender rewrites without getStaticAsset (dev parity)', async () => {
+			// Dev renders prerendered components live and never provides
+			// `getStaticAsset`. In on-request mode the SSR→prerender rewrite must
+			// still be allowed there — the guard keys off the middleware mode, not
+			// the presence of `getStaticAsset` — otherwise it would throw
+			// `ForbiddenRewrite` in dev while working in production.
+			const rewriteSsrRouteData = createRouteData({ route: '/rewrite-ssr', prerender: false });
+			const targetPrerenderRouteData = createRouteData({ route: '/target', prerender: true });
+
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
+				if (ctx.url.pathname === '/rewrite-ssr') {
+					return ctx.rewrite('/target');
+				}
+				return next();
+			};
+
+			const targetPage = createComponent(() => render`<p>live prerendered target</p>`);
+			const pageMap = new Map([
+				[
+					rewriteSsrRouteData.component,
+					async () => ({ page: async () => ({ default: simplePage() }) }),
+				],
+				[
+					targetPrerenderRouteData.component,
+					async () => ({ page: async () => ({ default: targetPage }) }),
+				],
+			]);
+
+			const manifest = createManifest({
+				routes: [createRouteInfo(rewriteSsrRouteData), createRouteInfo(targetPrerenderRouteData)],
+				pageMap,
+			});
+			manifest.middleware = () => ({ onRequest });
+			manifest.middlewareMode = /** @type {'on-request'} */ ('on-request');
+			const app = new App(manifest);
+
+			// No `getStaticAsset` passed — the component renders live, as in dev.
+			const response = await app.render(new Request('http://localhost/rewrite-ssr'));
+
+			assert.equal(response.status, 200);
+			assert.match(await response.text(), /<p>live prerendered target<\/p>/);
+		});
 	});
 });
