@@ -23,11 +23,6 @@ export interface UserOptions {
 	staticHeaders?: boolean;
 
 	/**
-	 * Host used when resolving prerendered error pages.
-	 */
-	experimentalErrorPageHost?: string | URL;
-
-	/**
 	 * Maximum allowed request body size in bytes. Requests with bodies larger than
 	 * this limit will throw an error when the body is consumed.
 	 *
