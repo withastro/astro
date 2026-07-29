@@ -1016,5 +1016,63 @@ describe('Middleware via App.render()', () => {
 			assert.equal(response.status, 200);
 			assert.match(await response.text(), /<p>prerendered target<\/p>/);
 		});
+
+		it('preserves request headers when rewriting to a prerendered route via a path', async () => {
+			// A string/path rewrite target goes through `copyRequest`, unlike a
+			// `Request` payload. In on-request mode the rewritten prerendered route
+			// must keep the original request data so middleware can read it.
+			const rewriteSsrRouteData = createRouteData({ route: '/rewrite-ssr', prerender: false });
+			const targetPrerenderRouteData = createRouteData({ route: '/target', prerender: true });
+
+			let seenHeaderOnTarget: string | null = null;
+			const onRequest: MiddlewareHandler = async (ctx, next) => {
+				if (ctx.url.pathname === '/rewrite-ssr') {
+					return ctx.rewrite('/target');
+				}
+				if (ctx.url.pathname === '/target') {
+					seenHeaderOnTarget = ctx.request.headers.get('x-test');
+				}
+				return next();
+			};
+
+			const pageMap = new Map([
+				[
+					rewriteSsrRouteData.component,
+					async () => ({ page: async () => ({ default: simplePage() }) }),
+				],
+				[
+					targetPrerenderRouteData.component,
+					async () => ({ page: async () => ({ default: simplePage() }) }),
+				],
+			]);
+
+			const manifest = createManifest({
+				routes: [createRouteInfo(rewriteSsrRouteData), createRouteInfo(targetPrerenderRouteData)],
+				pageMap,
+			});
+			manifest.middleware = () => ({ onRequest });
+			manifest.middlewareMode = /** @type {'on-request'} */ ('on-request');
+			const app = new App(manifest);
+
+			const response = await app.render(
+				new Request('http://localhost/rewrite-ssr', { headers: { 'x-test': 'original' } }),
+				{
+					getStaticAsset: async (_route, pathname) => {
+						if (pathname === '/target') {
+							return new Response('<p>prerendered target</p>', {
+								headers: { 'content-type': 'text/html; charset=utf-8' },
+							});
+						}
+						return undefined;
+					},
+				},
+			);
+
+			assert.equal(response.status, 200);
+			assert.match(await response.text(), /<p>prerendered target<\/p>/);
+			// Without preserving request data through `copyRequest`, this header
+			// would be stripped as static generation and read back as `null`.
+			assert.equal(seenHeaderOnTarget, 'original');
+		});
 	});
 });

@@ -4,7 +4,7 @@ import path from 'node:path';
 import { hasFileExtension, isInternalPath } from '@astrojs/internal-helpers/path';
 import type { BaseApp } from 'astro/app';
 import send from 'send';
-import { resolveClientDir } from './shared.js';
+import { resolveClientDir, resolvePathWithinDir } from './shared.js';
 import type { NodeAppHeadersJson, Options } from './types.js';
 import { createRequestFromNodeRequest } from 'astro/app/node';
 
@@ -16,13 +16,11 @@ import { createRequestFromNodeRequest } from 'astro/app/node';
  * (e.g. via `..` path traversal segments).
  */
 export function resolveStaticPath(client: string, urlPath: string) {
-	const filePath = path.join(client, urlPath);
-	const resolved = path.resolve(filePath);
-	const resolvedClient = path.resolve(client);
+	const { filePath, resolved, isContained } = resolvePathWithinDir(client, urlPath);
 
 	// Prevent path traversal: if the resolved path is outside the client
 	// directory, treat it as non-existent rather than probing the filesystem.
-	if (resolved !== resolvedClient && !resolved.startsWith(resolvedClient + path.sep)) {
+	if (!isContained) {
 		return { filePath: resolved, isDirectory: false };
 	}
 

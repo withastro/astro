@@ -319,4 +319,23 @@ describe('getStaticAssetPath', () => {
 			'blog/index/index.html',
 		);
 	});
+
+	it('uses `isIndex` to disambiguate preserve index vs leaf routes', () => {
+		// `/blog` alone can't tell an index route (`src/pages/blog/index.astro`)
+		// from a leaf route (`src/pages/blog.astro`); the string heuristic maps it
+		// to `blog.html`, which 404s for an index route in `preserve` format.
+		assert.equal(
+			getStaticAssetPath('/blog', { base: '/', buildFormat: 'preserve', isIndex: true }),
+			'blog/index.html',
+		);
+		assert.equal(
+			getStaticAssetPath('/blog', { base: '/', buildFormat: 'preserve', isIndex: false }),
+			'blog.html',
+		);
+		// Without `isIndex`, falls back to the path heuristic (leaf).
+		assert.equal(
+			getStaticAssetPath('/blog', { base: '/', buildFormat: 'preserve' }),
+			'blog.html',
+		);
+	});
 });

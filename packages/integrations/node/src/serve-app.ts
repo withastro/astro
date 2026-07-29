@@ -1,6 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { createReadStream } from 'node:fs';
-import path from 'node:path';
 import { Readable } from 'node:stream';
 import {
 	createRequestFromNodeRequest,
@@ -10,7 +9,7 @@ import {
 } from 'astro/app/node';
 import type { BaseApp } from 'astro/app';
 import type { RouteData } from 'astro';
-import { resolveClientDir } from './shared.js';
+import { resolveClientDir, resolvePathWithinDir } from './shared.js';
 import type { Options, RequestHandler } from './types.js';
 
 /**
@@ -21,9 +20,16 @@ async function readPageFromDisk(
 	client: string,
 	staticAssetPath: string,
 ): Promise<Response | undefined> {
+	// `staticAssetPath` is derived from the request pathname (via
+	// `getStaticAssetPath`), which is fully decoded and may still contain `..`
+	// segments, so guard against path traversal before touching the filesystem.
+	const { filePath, isContained } = resolvePathWithinDir(client, staticAssetPath);
+	if (!isContained) {
+		return undefined;
+	}
 	let stream: ReturnType<typeof createReadStream> | undefined;
 	try {
-		stream = createReadStream(path.join(client, staticAssetPath));
+		stream = createReadStream(filePath);
 		await new Promise<void>((resolve, reject) => {
 			stream!.once('open', () => resolve());
 			stream!.once('error', reject);
@@ -91,12 +97,13 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 	};
 
 	const getStaticAsset = async (
-		_routeData: RouteData,
+		routeData: RouteData,
 		pathname: string,
 	): Promise<Response | undefined> => {
 		const staticAssetPath = getStaticAssetPath(pathname, {
 			base: app.manifest.base,
 			buildFormat: app.manifest.buildFormat,
+			isIndex: routeData.isIndex,
 		});
 		return readPageFromDisk(client, staticAssetPath);
 	};
@@ -142,10 +149,11 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 					locals,
 					routeData,
 					prerenderedErrorPageFetch,
-					getStaticAsset:
-						routeData.prerender && shouldServePrerenderedThroughMiddleware
-							? getStaticAsset
-							: undefined,
+					// Supply `getStaticAsset` for every request in `on-request` mode, not
+					// just when the initial route is prerendered: an SSR route may rewrite
+					// to a prerendered target, and the rewrite is only allowed (and the
+					// target only serveable) when this callback is available.
+					getStaticAsset: shouldServePrerenderedThroughMiddleware ? getStaticAsset : undefined,
 				}),
 			);
 			await writeResponse(response, res);

@@ -159,13 +159,19 @@ export function copyRequest({
 	if (oldRequest.bodyUsed) {
 		throw new AstroError(AstroErrorData.RewriteWithBodyUsed);
 	}
+	const keepRequestData = includeHeaders ?? !isPrerendered;
 	return createRequest({
 		url: newUrl,
 		method: oldRequest.method,
 		body: oldRequest.body,
 		isPrerendered,
+		// When headers are carried into a prerendered rewrite target (on-request
+		// middleware mode), preserve the rest of the request data (body, search
+		// params) too — otherwise `createRequest` strips it as static generation
+		// and the `includeHeaders` intent would only partially apply.
+		preserveRequestData: keepRequestData,
 		logger,
-		headers: (includeHeaders ?? !isPrerendered) ? oldRequest.headers : {},
+		headers: keepRequestData ? oldRequest.headers : {},
 		routePattern,
 		init: {
 			referrer: oldRequest.referrer,

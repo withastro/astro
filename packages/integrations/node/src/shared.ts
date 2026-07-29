@@ -7,6 +7,24 @@ import type { NodeAppHeadersJson, Options } from './types.js';
 export const STATIC_HEADERS_FILE = '_headers.json';
 
 /**
+ * Joins `relativePath` onto `root` and reports whether the result stays inside
+ * `root`. `relativePath` is derived from the request URL and may contain `..`
+ * segments, so callers must treat a non-contained result as "not found" instead
+ * of touching the filesystem — otherwise a crafted URL could escape `root` and
+ * read arbitrary files (path traversal).
+ */
+export function resolvePathWithinDir(
+	root: string,
+	relativePath: string,
+): { filePath: string; resolved: string; isContained: boolean } {
+	const filePath = path.join(root, relativePath);
+	const resolved = path.resolve(filePath);
+	const resolvedRoot = path.resolve(root);
+	const isContained = resolved === resolvedRoot || resolved.startsWith(resolvedRoot + path.sep);
+	return { filePath, resolved, isContained };
+}
+
+/**
  * Resolves the client directory path at runtime.
  *
  * At build time, we know the relative path between server and client directories.
