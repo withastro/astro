@@ -115,7 +115,7 @@ export function createGetCollection({
 
 			const result = [];
 			for (const rawEntry of await store.values<DataEntry>(collection)) {
-				const data = updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap);
+				const data = resolveEntryData(rawEntry, imageAssetMap);
 
 				let entry = {
 					...rawEntry,
@@ -206,7 +206,7 @@ export function createGetEntry({ liveCollections }: { liveCollections: LiveColle
 
 			// @ts-expect-error	virtual module
 			const { default: imageAssetMap } = await import('astro:asset-imports');
-			const data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
+			const data = resolveEntryData(entry, imageAssetMap);
 			const result = {
 				...entry,
 				data,
@@ -553,6 +553,15 @@ export function updateImageReferencesInData<T extends Record<string, unknown>>(
 		}
 	});
 	return copy;
+}
+
+export function resolveEntryData<T extends Record<string, unknown>>(
+	entry: DataEntry<T>,
+	imageAssetMap?: Map<string, ImageMetadata>,
+): T {
+	return entry.assetImports?.length
+		? updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap)
+		: structuredClone(entry.data);
 }
 
 export async function renderEntry(entry: DataEntry) {
