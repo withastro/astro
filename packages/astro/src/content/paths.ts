@@ -12,11 +12,16 @@ export function getDataStoreFile(settings: AstroSettings, isDev: boolean) {
 
 export function getDataStoreChunkSize(settings: AstroSettings) {
 	const storage = settings.config.experimental.collectionStorage;
-	if (storage === undefined || storage === 'single-file') return undefined;
+	// Single file doesn't have a chunk size
+	if (storage === undefined || storage === 'single-file') {
+		return undefined;
+	}
+	// Here we handle the case where users specified only 'chunked' in their config. By default, it's 20MB
 	if (storage === 'chunked') {
 		// Defaults to 20MB
 		return 20 * 1024 * 1024;
 	}
+	// This is the object variant. `chunkSize` is mandatory.
 	return storage.chunkSize;
 }
 
