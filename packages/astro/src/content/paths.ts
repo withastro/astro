@@ -10,9 +10,19 @@ export function getDataStoreFile(settings: AstroSettings, isDev: boolean) {
 	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
 }
 
+export function getDataStoreChunkSize(settings: AstroSettings) {
+	const storage = settings.config.experimental.collectionStorage;
+	if (storage === undefined || storage === 'single-file') return undefined;
+	if (storage === 'chunked') {
+		// Defaults to 20MB
+		return 20 * 1024 * 1024;
+	}
+	return storage.chunkSize;
+}
+
 /**
  * Get the path to the data store directory, used when the store is split across
- * multiple files (experimental `collectionStorage: 'chunked'`).
+ * multiple files.
  * During development, this is in the `.astro` directory so that the Vite watcher can see it.
  * In production, it's in the cache directory so that it's preserved between builds.
  */
