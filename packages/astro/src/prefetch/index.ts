@@ -3,11 +3,10 @@
 */
 
 import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
+import { hasBeenPrefetched, recordPrefetch } from './registry.js';
 
 const debug = import.meta.env.DEV ? console.debug : undefined;
 const inBrowser = import.meta.env.SSR === false;
-// Track prefetched URLs so we don't prefetch twice
-const prefetchedUrls = new Set<string>();
 // Track listened anchors so we don't attach duplicated listeners
 const listenedAnchors = new WeakSet<HTMLAnchorElement>();
 
@@ -223,7 +222,7 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 
 	const ignoreSlowConnection = opts?.ignoreSlowConnection ?? false;
 	if (!canPrefetchUrl(url, ignoreSlowConnection)) return;
-	prefetchedUrls.add(url);
+	recordPrefetch(url);
 
 	// Prefetch with speculationrules if `clientPrerender` is enabled and supported
 	// NOTE: This condition is tree-shaken if `clientPrerender` is false as its a static value
@@ -267,7 +266,7 @@ function canPrefetchUrl(url: string, ignoreSlowConnection: boolean) {
 		return (
 			location.origin === urlObj.origin &&
 			(location.pathname !== urlObj.pathname || location.search !== urlObj.search) &&
-			!prefetchedUrls.has(url)
+			!hasBeenPrefetched(url)
 		);
 	} catch {}
 	return false;

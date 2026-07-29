@@ -1,4 +1,5 @@
 import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
+import { wasPrefetchedRecently } from '../prefetch/registry.js';
 import type { TransitionBeforePreparationEvent } from './events.js';
 
 import { doPreparation, doSwap, onPageLoad, triggerEvent, updateScrollPosition } from './events.js';
@@ -94,7 +95,15 @@ async function fetchHTML(
 		for (const [key, value] of Object.entries(internalFetchHeaders) as [string, string][]) {
 			headers.set(key, value);
 		}
-		const res = await fetch(href, { ...init, headers });
+		const fetchInit: RequestInit = { ...init, headers };
+		// If our own prefetch downloaded this URL only moments ago, reuse the response it
+		// downloaded. On-demand rendered pages typically carry no cache headers, so with the
+		// default cache mode the browser would download the page a second time (#17549).
+		// Form submissions must always reach the server, so they never reuse the cache.
+		if (!init?.method && wasPrefetchedRecently(href)) {
+			fetchInit.cache = 'force-cache';
+		}
+		const res = await fetch(href, fetchInit);
 		const contentType = res.headers.get('content-type') ?? '';
 		// drop potential charset (+ other name/value pairs) as parser needs the mediaType
 		const mediaType = contentType.split(';', 1)[0].trim();
