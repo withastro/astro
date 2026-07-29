@@ -1,6 +1,6 @@
 ---
 name: astro-code-review
-description: Perform a static, read-only code review of an Astro feature, bug fix, branch, commit, diff, or local working tree. Use this skill whenever the user asks to review local changes, review their current branch, self-review work before a pull request, or check a feature or fix for correctness, security, tests, simplicity, runtime portability, error handling, comments, behavior documentation, and changeset coverage. This skill reports findings only: it never edits code or runs project code, tests, builds, checks, or scripts.
+description: "Perform a static, read-only code review of an Astro feature, bug fix, branch, commit, diff, or local working tree. Use this skill whenever the user asks to review local changes, review their current branch, self-review work before a pull request, or check a feature or fix for correctness, security, tests, simplicity, runtime portability, error handling, comments, behavior documentation, and changeset coverage. This skill reports findings only: it never edits code or runs project code, tests, builds, checks, or scripts"
 ---
 
 # Astro Code Review
@@ -210,6 +210,8 @@ When package dependencies change:
 - A package's TypeScript build references should mirror its workspace dependencies.
 - A new package needs the standard build/test solution files and a reference from the root `tsconfig.json`.
 
+Do not inspect or report missing dependent-package version bumps or internal dependency-range updates that arise solely because another workspace package is being released. Changesets computes these propagation updates from [`.changeset/config.json`](../../../.changeset/config.json) when release versions are applied, so feature pull requests should not make them manually. Continue to check dependency declarations, workspace protocols, runtime compatibility, TypeScript references, and directly modified packages against the changeset criteria below.
+
 Use the "TypeScript project references" section in [`CONTRIBUTING.md`](../../../CONTRIBUTING.md) and the package-boundary guidance in [`astro-developer/constraints.md`](../astro-developer/constraints.md).
 
 #### Generated Files and Feature Registries
@@ -297,10 +299,11 @@ Keep comment findings non-invasive. Report inaccurate or misleading documentatio
 
 ### Changeset Coverage
 
-Follow the current repository policy in [`CONTRIBUTING.md`](../../../CONTRIBUTING.md) and the [`changeset` skill](../changeset/SKILL.md): every pull request that modifies a package under `packages/` requires a pending changeset. Changes outside packages, including `examples/`, do not require one by themselves.
+Require a pending changeset for each package whose non-test source is directly modified when the change affects its user-facing API, including observable API behavior. Test-only changes and changes outside packages, including `examples/`, do not require one by themselves. Follow the current repository policy in [`CONTRIBUTING.md`](../../../CONTRIBUTING.md) and use the [`changeset` skill](../changeset/SKILL.md) as the format reference.
 
 - Check for a newly added `.changeset/*.md` file in the review scope. Configuration, README, and prerelease metadata files are not pending changesets.
-- If packages changed, confirm the changeset frontmatter covers the affected package names.
+- For each qualifying source change, confirm the changeset frontmatter names the package containing that source.
+- Do not require a package in changeset frontmatter solely because it depends on another package receiving a bump; Changesets handles that dependent bump during release versioning.
 - Report a missing or ineffective changeset as a finding.
 - Do not invoke the changeset skill or create or edit a changeset.
 
@@ -320,6 +323,8 @@ Report only issues that are actionable and supported by the inspected code.
 
 ## Report Format
 
+Return the complete review as raw, unrendered Markdown inside a single fenced code block. Put no text before or after the code block, and do not escape Markdown syntax inside it. The code block's contents must be directly pasteable into a GitHub comment.
+
 Put findings first, order required findings by severity, and list optional improvements last. Do not lead with a summary or praise.
 
 Use exactly one severity and one primary category per finding. Required findings use `high`, `medium`, or `low`; non-blocking improvements use `optional`.
@@ -331,6 +336,10 @@ Use exactly one severity and one primary category per finding. Required findings
 
 Use one of these categories: `design`, `correctness`, `security`, `runtime`, `completeness`, `error-handling`, `tests`, `maintainability`, `documentation`, or `changeset`. Choose the category that describes the root cause rather than a downstream symptom. `completeness` covers missing API, configuration, export, dependency, generated-file, or registry wiring.
 
+Use this structure:
+
+````md
+```
 ## Findings
 
 - `[high][security]` `path/to/file.ts:42` - Short title. Explain the triggering scenario, impact, and minimal remediation direction.
@@ -348,10 +357,9 @@ Scope: `<base>` through the current working tree, plus listed untracked files.
 Changeset: present and covers `<packages>` | missing for `<packages>` | not required.
 Validation: Static review only; no project code, tests, builds, or checks were run.
 Fetch: updated `origin/main` | fetch failed and local `origin/main` was used | not needed for the supplied scope.
-
 ```
+````
 
 Severity reflects impact, not confidence.
 
 If there are no required or optional findings, write `No findings.` under `## Findings`. Still include review status and mention any residual uncertainty caused by unavailable requirements or context.
-```
