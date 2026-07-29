@@ -110,6 +110,12 @@ function getRootURL(flags: Flags): URL {
 	return pathToFileURL(resolveRoot(flags.root) + '/');
 }
 
+/**
+ * Build the argv for the spawned foreground child process (no `--background`),
+ * forwarding every flag that `flagsToAstroInlineConfig` consumes so the
+ * background server behaves the same as a foreground one started with the
+ * same flags.
+ */
 export function buildBackgroundArgs(command: ServerCommand, flags: Flags): string[] {
 	const args: string[] = [command];
 	if (flags.port) args.push('--port', String(flags.port));
@@ -123,6 +129,12 @@ export function buildBackgroundArgs(command: ServerCommand, flags: Flags): strin
 	if (flags.config) args.push('--config', String(flags.config));
 	if (flags.root) args.push('--root', String(flags.root));
 	if (flags.allowedHosts) args.push('--allowed-hosts', String(flags.allowedHosts));
+	if (flags.mode) args.push('--mode', String(flags.mode));
+	if (flags.site) args.push('--site', String(flags.site));
+	if (flags.base) args.push('--base', String(flags.base));
+	if (flags.outDir) args.push('--outDir', String(flags.outDir));
+	if (flags.verbose) args.push('--verbose');
+	if (flags.silent) args.push('--silent');
 	if (flags.json) args.push('--json');
 	return args;
 }
