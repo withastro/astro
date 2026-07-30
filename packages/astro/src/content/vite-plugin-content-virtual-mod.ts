@@ -99,7 +99,7 @@ export function astroContentVirtualModPlugin({
 	let dataStoreFile: URL;
 	let devServer: ViteDevServer;
 	let liveConfig: string;
-	let isDev: boolean;
+	let isDev = false;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
