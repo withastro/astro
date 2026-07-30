@@ -147,6 +147,27 @@ describe('Actions via App', () => {
 		assert.equal(res.status, 404);
 	});
 
+	it('does not resolve properties of an action function as a path', async () => {
+		let calls = 0;
+		const counterApp = createActionsApp({
+			increment: defineAction({
+				handler: async () => {
+					calls += 1;
+					return { calls };
+				},
+			}),
+		});
+
+		const req = new Request('http://example.com/_actions/increment.orThrow', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({}),
+		});
+		const res = await counterApp.render(req);
+		assert.equal(res.status, 404);
+		assert.equal(calls, 0);
+	});
+
 	it('returns 404 for GET requests', async () => {
 		const req = new Request('http://example.com/_actions/subscribe', {
 			method: 'GET',

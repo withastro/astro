@@ -58,6 +58,30 @@ describe('AstroCheck', async () => {
 	});
 });
 
+describe('AstroCheck with project references', async () => {
+	let checker: AstroCheck;
+	let result: CheckResult;
+
+	const referencesFixtureDir = path.resolve(__dirname, 'fixture-references');
+
+	before(async () => {
+		checker = new AstroCheck(
+			referencesFixtureDir,
+			require.resolve('typescript/lib/typescript.js'),
+			undefined,
+		);
+		result = await checker.lint({});
+	});
+
+	it('Finds files from referenced projects', async () => {
+		assert.ok(result.fileChecked > 0, 'Expected at least one file to be checked');
+	});
+
+	it('Reports errors from referenced projects', async () => {
+		assert.strictEqual(result.errors, 1);
+	});
+});
+
 describe('AstroCheck with an incompatible TypeScript', () => {
 	it('Fails with an actionable error when the TypeScript module lacks the programmatic API', () => {
 		// The TypeScript 7 native compiler only exposes `version`/`versionMajorMinor`,

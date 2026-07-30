@@ -5,10 +5,7 @@ import type {
 	Smartypants as _Smartypants,
 	ShikiConfig,
 } from '@astrojs/internal-helpers/markdown';
-import {
-	markdownConfigDefaults,
-	syntaxHighlightDefaults,
-} from '@astrojs/internal-helpers/markdown';
+import { syntaxHighlightDefaults } from '@astrojs/internal-helpers/markdown';
 import { satteri } from '@astrojs/markdown-satteri';
 import type { MarkdownProcessor } from '../../../markdown/index.js';
 import type { OutgoingHttpHeaders } from 'node:http';
@@ -17,7 +14,7 @@ import * as z from 'zod/v4';
 import { FontFamilySchema } from '../../../assets/fonts/config.js';
 import { SvgOptimizerSchema } from '../../../assets/svg/config.js';
 import { EnvSchema } from '../../../env/schema.js';
-import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
+import type { ViteUserConfig } from '../../../types/public/config.js';
 import { CacheSchema, RouteRulesSchema } from '../../cache/config.js';
 import {
 	allowedDirectivesSchema,
@@ -63,69 +60,11 @@ export type RemarkRehype = ComplexifyWithOmit<_RemarkRehype>;
 /** @lintignore */
 export type Smartypants = ComplexifyWithOmit<_Smartypants>;
 
-export const ASTRO_CONFIG_DEFAULTS = {
-	root: '.',
-	srcDir: './src',
-	publicDir: './public',
-	outDir: './dist',
-	cacheDir: './node_modules/.astro',
-	base: '/',
-	trailingSlash: 'ignore',
-	build: {
-		format: 'directory',
-		client: './client/',
-		server: './server/',
-		assets: '_astro',
-		serverEntry: 'entry.mjs',
-		redirects: true,
-		inlineStylesheets: 'auto',
-		concurrency: 1,
-	},
-	image: {
-		endpoint: { entrypoint: undefined, route: '/_image' },
-		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
-		dangerouslyProcessSVG: false,
-		responsiveStyles: false,
-	},
-	devToolbar: {
-		enabled: true,
-	},
-	compressHTML: 'jsx',
-	server: {
-		host: false,
-		port: 4321,
-		open: false,
-		allowedHosts: [],
-	},
-	integrations: [],
-	markdown: markdownConfigDefaults,
-	vite: {},
-	legacy: {
-		collectionsBackwardsCompat: false,
-	},
-	redirects: {},
-	security: {
-		checkOrigin: true,
-		allowedDomains: [],
-		csp: false,
-		actionBodySizeLimit: 1024 * 1024,
-		serverIslandBodySizeLimit: 1024 * 1024,
-	},
-	env: {
-		schema: {},
-		validateSecrets: false,
-	},
-	prerenderConflictBehavior: 'warn',
-	fetchFile: 'fetch',
-	experimental: {
-		clientPrerender: false,
-		contentIntellisense: false,
-		chromeDevtoolsWorkspace: false,
-		collectionStorage: 'single-file',
-	},
-} satisfies AstroUserConfig & {
-	server: { open: boolean };
-};
+// Re-export from the standalone defaults module so consumers that only need
+// ASTRO_CONFIG_DEFAULTS (e.g. the Container API) can import from defaults.js
+// directly without pulling in the full Zod schema and its heavy dependencies.
+import { ASTRO_CONFIG_DEFAULTS } from './defaults.js';
+export { ASTRO_CONFIG_DEFAULTS };
 
 const highlighterTypesSchema = z
 	.union([z.literal('shiki'), z.literal('prism')])
@@ -584,7 +523,14 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.chromeDevtoolsWorkspace),
 			svgOptimizer: SvgOptimizerSchema.optional(),
 			collectionStorage: z
-				.enum(['single-file', 'chunked'])
+				.union([
+					z.literal('single-file'),
+					z.literal('chunked'),
+					z.strictObject({
+						type: z.literal('chunked'),
+						chunkSize: z.number().int().positive(),
+					}),
+				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.collectionStorage),
 		})

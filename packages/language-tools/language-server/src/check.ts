@@ -151,7 +151,7 @@ export class AstroCheck {
 		const services = [...createTypeScriptServices(this.ts), createAstroService()];
 
 		if (tsconfigPath) {
-			const includeProjectReference = false; // #920
+			const includeProjectReference = true;
 			this.linter = kit.createTypeScriptChecker(
 				languagePlugins,
 				services,
