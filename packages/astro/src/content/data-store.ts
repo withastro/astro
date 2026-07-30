@@ -89,9 +89,9 @@ export class ImmutableDataStore {
 	 * names have already been swapped for their contents.
 	 *
 	 * Each collection maps to a list of parts. A part is either a raw string
-	 * (when the store is loaded from disk) or an ESM namespace from a `?raw`
-	 * import (`{ default: string }`, when emitted into the virtual module at
-	 * runtime). A collection's parts are concatenated back into the exact
+	 * (when the store is loaded from disk) or an ESM namespace from a virtual
+	 * chunk import (`{ default: string }`, when emitted at runtime). A collection's
+	 * parts are concatenated back into the exact
 	 * serialized string, then parsed with devalue. This is the inverse of
 	 * {@link import('./data-store-writer.js').ChunkedWriter} and stays free of
 	 * Node built-ins so it can run at runtime.

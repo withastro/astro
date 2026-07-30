@@ -1,5 +1,52 @@
 # astro
 
+## 7.1.6
+
+### Patch Changes
+
+- [#17536](https://github.com/withastro/astro/pull/17536) [`ff97b86`](https://github.com/withastro/astro/commit/ff97b86ab02d199af5fe0f6e9984e9919c8276bf) Thanks [@dmgawel](https://github.com/dmgawel)! - Fixes concurrent static builds failing to generate i18n rewrite fallbacks for dynamic routes
+
+- [#17383](https://github.com/withastro/astro/pull/17383) [`296e1b0`](https://github.com/withastro/astro/commit/296e1b03770e55fe969130300c3c55674ae59b1a) Thanks [@thelazylamaGit](https://github.com/thelazylamaGit)! - Fixes stale dev CSS after editing component style blocks and CSS files in dev
+
+- [#17543](https://github.com/withastro/astro/pull/17543) [`bbc1ec9`](https://github.com/withastro/astro/commit/bbc1ec9715160e25eb6a6fee2e133386414c0c00) Thanks [@ematipico](https://github.com/ematipico)! - Adds a feature to `experimental.collectionStorage` that allows to change the size of chunks.
+
+  For example, you can reduce the size of chunks to 1MB:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      collectionStorage: {
+        type: 'chunked',
+        chunkSize: 1024 * 1024,
+      },
+    },
+  });
+  ```
+
+- [#17545](https://github.com/withastro/astro/pull/17545) [`5214663`](https://github.com/withastro/astro/commit/5214663aa5aca47e6cd0e049cfa40844b87bbb6f) Thanks [@ematipico](https://github.com/ematipico)! - Bumps the Astro compiler to the latest version. [Changelog](https://github.com/withastro/compiler-rs/releases/tag/%40astrojs%2Fcompiler-rs%400.3.2).
+
+## 7.1.5
+
+### Patch Changes
+
+- [#17524](https://github.com/withastro/astro/pull/17524) [`7613030`](https://github.com/withastro/astro/commit/761303051021764c5b8bc43ae4e32629c15b61a8) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a bug where an error while finalizing a request could prevent a response from being sent
+
+- [#17480](https://github.com/withastro/astro/pull/17480) [`f61ba9c`](https://github.com/withastro/astro/commit/f61ba9cfb028d9f7448eda3fea2726e179d66391) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where a custom `logger.entrypoint` failed to load at runtime in a built server bundle.
+
+- [#17525](https://github.com/withastro/astro/pull/17525) [`e614b7b`](https://github.com/withastro/astro/commit/e614b7bd8a0dae403b1f9c219250847d326cbff2) Thanks [@matthewp](https://github.com/matthewp)! - Fixes action path resolution so that properties of a resolved action function are not treated as routable path segments
+
+- [#17284](https://github.com/withastro/astro/pull/17284) [`c775c1f`](https://github.com/withastro/astro/commit/c775c1f984d1c176bf26a0f9c435bf6c0d585443) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a bug where the custom 404 (or 500) page was not rendered when a middleware rewrite targeted a route that returned an empty 404/500 response, and a blank page was returned instead
+
+- [#17474](https://github.com/withastro/astro/pull/17474) [`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18) Thanks [@nicksnyder](https://github.com/nicksnyder)! - Updates dependency `js-yaml` to v4.3.0
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+  - @astrojs/markdown-remark@7.2.2
+  - @astrojs/markdown-satteri@0.3.5
+
 ## 7.1.4
 
 ### Patch Changes
