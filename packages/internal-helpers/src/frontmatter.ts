@@ -1,4 +1,4 @@
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import * as toml from 'smol-toml';
 
 export function isFrontmatterValid(frontmatter: Record<string, any>) {
