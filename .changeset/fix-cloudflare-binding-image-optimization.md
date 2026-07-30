@@ -2,7 +2,9 @@
 '@astrojs/cloudflare': minor
 ---
 
-Adds opt-in build-time image optimization for the `cloudflare-binding` image service. When enabled, the Cloudflare IMAGES binding transforms static images in the workerd prerender environment, and the optimized bytes are written directly to the output directory (falling back to the Node-side image service, e.g. Sharp, if the binding fails).
+Adds opt-in build-time image optimization for the `cloudflare-binding` image service.
+
+When enabled, the Cloudflare IMAGES binding transforms static images in the workerd prerender environment, and the optimized bytes are written directly to the output directory. If the binding fails, it falls back to Sharp.
 
 To opt in, use the compound configuration form:
 
