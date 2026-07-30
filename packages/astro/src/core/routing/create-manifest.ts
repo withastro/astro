@@ -157,7 +157,7 @@ function createFileBasedRoutes(
 		for (const basename of files) {
 			const resolved = path.join(dir, basename);
 			const file = slash(path.relative(cwd || rootPath, resolved));
-			const isDir = fs.statSync(resolved).isDirectory();
+			const isDir = fs.existsSync(resolved) && fs.statSync(resolved).isDirectory();
 
 			const ext = path.extname(basename);
 			const name = ext ? basename.slice(0, -ext.length) : basename;
