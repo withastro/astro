@@ -706,4 +706,39 @@ describe('Config Validation', () => {
 			);
 		});
 	});
+
+	describe('experimental.collectionStorage', () => {
+		it('accepts the chunked shorthand', async () => {
+			const result = await validateConfig({
+				experimental: { collectionStorage: 'chunked' },
+			});
+
+			assert.equal(result.experimental.collectionStorage, 'chunked');
+		});
+
+		it('accepts a positive integer chunk size', async () => {
+			const result = await validateConfig({
+				experimental: {
+					collectionStorage: { type: 'chunked', chunkSize: 1024 * 1024 },
+				},
+			});
+
+			assert.deepEqual(result.experimental.collectionStorage, {
+				type: 'chunked',
+				chunkSize: 1024 * 1024,
+			});
+		});
+
+		it('rejects invalid chunk sizes', async () => {
+			for (const chunkSize of [0, -1, 1.5]) {
+				const configError = await validateConfig({
+					experimental: {
+						collectionStorage: { type: 'chunked', chunkSize },
+					},
+				}).catch((error) => error);
+
+				assert.equal(configError instanceof z.ZodError, true);
+			}
+		});
+	});
 });

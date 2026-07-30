@@ -5,7 +5,7 @@ import { type Fixture, loadFixture } from './test-utils.ts';
 
 // End-to-end coverage for the experimental chunked data store. Building the
 // fixture exercises the full pipeline: the ChunkedWriter serializes the store to
-// content-addressed parts, the content virtual module emits them as lazy `?raw`
+// content-addressed parts, the content virtual module emits them as lazy virtual
 // imports, and `getCollection` reassembles them at runtime via `manifestToMap`.
 describe('Content Collections (chunked data store)', () => {
 	let fixture: Fixture;

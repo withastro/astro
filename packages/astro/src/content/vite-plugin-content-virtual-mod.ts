@@ -15,16 +15,20 @@ import {
 	ASSET_IMPORTS_VIRTUAL_ID,
 	CONTENT_MODULE_FLAG,
 	CONTENT_RENDER_FLAG,
+	DATA_STORE_CHUNK_FILE_NAME_PATTERN,
+	DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX,
 	DATA_STORE_MANIFEST_FILE,
 	DATA_STORE_VIRTUAL_ID,
 	MODULES_IMPORTS_FILE,
 	MODULES_MJS_ID,
 	MODULES_MJS_VIRTUAL_ID,
+	RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX,
+	RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_SUFFIX,
 	RESOLVED_DATA_STORE_VIRTUAL_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
-import { getDataStoreDir, getDataStoreFile } from './paths.js';
+import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from './paths.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
 
 /**
@@ -118,11 +122,11 @@ export function astroContentVirtualModPlugin({
 		enforce: 'pre',
 		config(_, env) {
 			isDev = env.command === 'serve';
-			if (settings.config.experimental.collectionStorage === 'chunked') {
-				dataStoreDir = getDataStoreDir(settings, env.command === 'serve');
+			dataStoreDir = getDataStoreDir(settings, isDev);
+			if (getDataStoreChunkSize(settings) !== undefined) {
 				dataStoreFile = new URL(DATA_STORE_MANIFEST_FILE, dataStoreDir);
 			} else {
-				dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
+				dataStoreFile = getDataStoreFile(settings, isDev);
 			}
 			const contentPaths = getContentPaths(
 				settings.config,
@@ -148,7 +152,7 @@ export function astroContentVirtualModPlugin({
 		resolveId: {
 			filter: {
 				id: new RegExp(
-					`^(${VIRTUAL_MODULE_ID}|${DATA_STORE_VIRTUAL_ID}|${MODULES_MJS_ID}|${ASSET_IMPORTS_VIRTUAL_ID})$|(?:\\?|&)${CONTENT_MODULE_FLAG}(?:&|=|$)`,
+					`^(${VIRTUAL_MODULE_ID}|${DATA_STORE_VIRTUAL_ID}|${MODULES_MJS_ID}|${ASSET_IMPORTS_VIRTUAL_ID})$|^${DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}|(?:\\?|&)${CONTENT_MODULE_FLAG}(?:&|=|$)`,
 				),
 			},
 			async handler(id, importer) {
@@ -165,6 +169,13 @@ export function astroContentVirtualModPlugin({
 				}
 				if (id === DATA_STORE_VIRTUAL_ID) {
 					return RESOLVED_DATA_STORE_VIRTUAL_ID;
+				}
+				if (id.startsWith(DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX)) {
+					const fileName = id.slice(DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX.length);
+					if (!DATA_STORE_CHUNK_FILE_NAME_PATTERN.test(fileName)) {
+						this.error(`Invalid data-store chunk: ${fileName}`);
+					}
+					return `${RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}${fileName}${RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_SUFFIX}`;
 				}
 
 				if (isDeferredModule(id)) {
@@ -200,10 +211,31 @@ export function astroContentVirtualModPlugin({
 		load: {
 			filter: {
 				id: new RegExp(
-					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_DATA_STORE_VIRTUAL_ID}|${ASSET_IMPORTS_RESOLVED_STUB_ID}|${MODULES_MJS_VIRTUAL_ID})$`,
+					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_DATA_STORE_VIRTUAL_ID}|${ASSET_IMPORTS_RESOLVED_STUB_ID}|${MODULES_MJS_VIRTUAL_ID})$|^${RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}`,
 				),
 			},
 			async handler(id) {
+				if (id.startsWith(RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX)) {
+					const resolvedFileName = id.slice(RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX.length);
+					if (!resolvedFileName.endsWith(RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_SUFFIX)) {
+						this.error(`Invalid data-store chunk: ${resolvedFileName}`);
+					}
+					const fileName = resolvedFileName.slice(
+						0,
+						-RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_SUFFIX.length,
+					);
+					if (!DATA_STORE_CHUNK_FILE_NAME_PATTERN.test(fileName)) {
+						this.error(`Invalid data-store chunk: ${fileName}`);
+					}
+					const contents = await fs.promises.readFile(
+						new URL(`./${fileName}`, dataStoreDir),
+						'utf-8',
+					);
+					return {
+						code: `export default ${JSON.stringify(contents)}`,
+						map: { mappings: '' },
+					};
+				}
 				if (id === RESOLVED_VIRTUAL_MODULE_ID) {
 					const isClient = isAstroClientEnvironment(this.environment);
 					const code = await generateContentEntryFile({
@@ -227,23 +259,18 @@ export function astroContentVirtualModPlugin({
 					}
 					const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
 
-					if (settings.config.experimental.collectionStorage === 'chunked') {
+					if (getDataStoreChunkSize(settings) !== undefined) {
 						try {
 							const manifest: Record<string, string[]> = JSON.parse(jsonData);
-							// Emit each part as a lazy `?raw` import so the parts stay separate
+							// Emit each part as a lazy virtual import so the parts stay separate
 							// chunks instead of being inlined into one huge module (the very
 							// thing chunking avoids). manifestToMap reads the resolved
 							// namespace's `default` export back into the concatenated string.
-							const rawImport = (fileName: string) => {
-								const path = rootRelativePath(
-									settings.config.root,
-									new URL(`./${fileName}`, dataStoreDir),
-								);
-								return `(await import(${JSON.stringify(`${path}?raw`)}))`;
-							};
+							const chunkImport = (fileName: string) =>
+								`(await import(${JSON.stringify(`${DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}${fileName}`)}))`;
 							const entries = Object.entries(manifest).map(
 								([collection, parts]) =>
-									`${JSON.stringify(collection)}:[${parts.map(rawImport).join(',')}]`,
+									`${JSON.stringify(collection)}:[${parts.map(chunkImport).join(',')}]`,
 							);
 							const code = `export default{${entries.join(',')}}`;
 							return { code, map: { mappings: '' } };
