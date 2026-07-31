@@ -252,7 +252,7 @@ export interface NetlifyIntegrationConfig {
 	 * - 'classic' (default): Middleware runs for prerendered pages at build time, and for SSR pages at request time.
 	 * - 'edge': Middleware is deployed as a separate edge function. Recommended if you want to implement authentication, redirects, or similar things.
 	 */
-	middlewareMode?: MiddlewareMode;
+	middlewareMode?: Exclude<MiddlewareMode, 'on-request'>;
 
 	/**
 	 * @deprecated Use `middlewareMode: 'edge'` instead.
