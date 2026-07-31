@@ -1633,6 +1633,9 @@ export interface AstroUserConfig<
 	 *   }
 	 * });
 	 * ```
+	 *
+	 * The logger entrypoint must be a JavaScript file. TypeScript is not supported. If Astro fails to load
+	 *  the implementation, it falls back to its default logger.
 	 */
 
 	/**
@@ -3292,7 +3295,7 @@ export interface AstroUserConfig<
 
 		/**
 		 * @name experimental.collectionStorage
-		 * @type {'single-file' | 'chunked'}
+		 * @type {'single-file' | 'chunked' | { type: 'chunked', chunkSize: number }}
 		 * @default `'single-file'`
 		 * @version 7.1.0
 		 * @description
@@ -3303,22 +3306,34 @@ export interface AstroUserConfig<
 		 * file. For very large content collections, this file can grow large
 		 * enough to hit platform file-size limits.
 		 *
-		 * When set to `'chunked'`, the store is split across many smaller,
-		 * content-addressed files so that no single file grows unbounded.
+		 * When set to `'chunked'`, the store is split into files
+		 * with a maximum size of 20 MiB each. To customize the maximum size,
+		 * pass an object with `type: 'chunked'` and `chunkSize`. A 1 MiB limit
+		 * is recommended for broad adapter compatibility.
 		 *
 		 * ```js
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
 		 *   experimental: {
-		 *     collectionStorage: 'chunked',
+		 *     collectionStorage: {
+		 *       type: 'chunked',
+		 *       chunkSize: 1024 * 1024,
+		 *     },
 		 *   },
 		 * });
 		 * ```
 		 *
 		 * See the [experimental data store chunking documentation](https://docs.astro.build/en/reference/experimental-flags/collection-storage/) for more information.
 		 */
-		collectionStorage?: 'single-file' | 'chunked';
+		collectionStorage?:
+			| 'single-file'
+			| 'chunked'
+			| {
+					type: 'chunked';
+					/** Maximum UTF-8 byte size of each data store chunk. */
+					chunkSize: number;
+			  };
 	};
 }
 

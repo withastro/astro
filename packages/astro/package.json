@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "7.1.5",
+  "version": "7.1.6",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -117,14 +117,13 @@
     "test:integration": "astro-scripts test \"test/*.test.ts\" --parallel --strip-types"
   },
   "dependencies": {
-    "@astrojs/compiler-rs": "^0.3.1",
+    "@astrojs/compiler-rs": "^0.3.2",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-satteri": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
     "@capsizecss/unpack": "^4.0.0",
     "@clack/prompts": "^1.1.0",
     "@oslojs/encoding": "^1.1.0",
-    "@rollup/pluginutils": "^5.3.0",
     "am-i-vibing": "^0.4.0",
     "aria-query": "^5.3.2",
     "axobject-query": "^4.1.0",
