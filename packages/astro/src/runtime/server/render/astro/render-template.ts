@@ -2,9 +2,37 @@ import { markHTMLString } from '../../escape.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
 import type { RenderDestination } from '../common.js';
+import { isScriptInstruction } from '../instruction.js';
 import { createBufferedRenderer } from '../util.js';
 
 const renderTemplateResultSym = Symbol.for('astro.renderTemplateResult');
+
+/**
+ * Returns the HTML template part at `index`, trimming whitespace that sits
+ * adjacent to a script render instruction. The compiler's compact mode
+ * compresses whitespace between visible elements and hoisted `<script>`
+ * blocks into a space (e.g. `</a> ${renderScript(...)}`). Script
+ * instructions may resolve to empty when deduplicated, leaving an orphaned
+ * space in the output (e.g. `</a> .` instead of `</a>.`). Stripping that
+ * whitespace avoids the visual artifact.
+ */
+function getHtmlPartForScripts(
+	htmlParts: TemplateStringsArray,
+	expressions: any[],
+	index: number,
+): string {
+	let html = htmlParts[index];
+	if (!html) return html;
+
+	if (index > 0 && isScriptInstruction(expressions[index - 1])) {
+		html = html.replace(/^\s+/, '');
+	}
+	if (index < expressions.length && isScriptInstruction(expressions[index])) {
+		html = html.replace(/\s+$/, '');
+	}
+
+	return html;
+}
 
 // The return value when rendering a component.
 // This is the result of calling render(), should this be named to RenderResult or...?
@@ -44,7 +72,7 @@ export class RenderTemplateResult {
 		const { htmlParts, expressions } = this;
 
 		for (let i = 0; i < htmlParts.length; i++) {
-			const html = htmlParts[i];
+			const html = getHtmlPartForScripts(htmlParts, expressions, i);
 			if (html) {
 				destination.write(markHTMLString(html));
 			}
@@ -78,7 +106,7 @@ export class RenderTemplateResult {
 					const iterate = (): void | Promise<void> => {
 						while (k < flushers.length) {
 							// Write the HTML part that precedes this expression
-							const rHtml = htmlParts[startIdx + k];
+							const rHtml = getHtmlPartForScripts(htmlParts, expressions, startIdx + k);
 							if (rHtml) {
 								destination.write(markHTMLString(rHtml));
 							}
@@ -89,7 +117,8 @@ export class RenderTemplateResult {
 							}
 						}
 						// Write the final trailing HTML part
-						const lastHtml = htmlParts[htmlParts.length - 1];
+						const lastIdx = htmlParts.length - 1;
+						const lastHtml = getHtmlPartForScripts(htmlParts, expressions, lastIdx);
 						if (lastHtml) {
 							destination.write(markHTMLString(lastHtml));
 						}
