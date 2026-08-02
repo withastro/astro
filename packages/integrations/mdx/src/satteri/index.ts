@@ -135,6 +135,7 @@ export function createMdxProcessor(
 				},
 				fileURL: pathToFileURL(filePath),
 				jsxImportSource: 'astro',
+				elementAttributeNameCase: 'html',
 				data: { astro: astroData },
 			});
 			let compiled = mdxResult.code;

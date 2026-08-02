@@ -3,6 +3,14 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { type DevServer, type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
+// Tests that generate assets with Astro's real Sharp native binary at build time
+// (the `default` and Sharp-backed `sharp` cases below) cannot run on every CI
+// runner (notably the Windows runner: `ERR_DLOPEN_FAILED`) and are skipped on
+// Windows. The Sharp-free `user` service runs its stub transform() on the Node
+// side and is exercised on all platforms.
+const skipRealSharp =
+	process.platform === 'win32' && 'Sharp native binary cannot load on Windows CI';
+
 describe('CompileImageService', () => {
 	let fixture: Fixture;
 	before(async () => {
@@ -92,13 +100,8 @@ describe('CompileImageService', () => {
 // | 'custom'     | custom, Sharp-free   | CUSTOM_*     | user service, no Sharp    |
 // | 'custom'     | custom, Sharp-backed | real WEBP    | Sharp chain bundled       |
 //
-// The `default` and Sharp-backed `sharp` cases generate assets with Astro's real
-// Sharp native binary at build time, which cannot load on every CI runner (notably
-// the Windows runner: `ERR_DLOPEN_FAILED`). Those two tests are skipped on Windows;
-// the Sharp-free `user` service runs its stub transform() on the Node side and is
-// exercised on all platforms.
-const skipRealSharp =
-	process.platform === 'win32' && 'Sharp native binary cannot load on Windows CI';
+// The `default` and Sharp-backed `sharp` cases run Astro's real Sharp native
+// binary at build time and are skipped on Windows (see `skipRealSharp`).
 describe('CompileImageService build-time image generation', () => {
 	async function readServerBundle(fixture: Fixture) {
 		const serverFiles = await fixture.glob('server/**/*.mjs');
@@ -257,4 +260,86 @@ describe('CompileImageService build-time image generation', () => {
 			});
 		});
 	}
+});
+
+describe('CompileImageService with prerenderEnvironment: node', () => {
+	function assertRealWebp(data: Buffer) {
+		assert.equal(data.subarray(0, 4).toString('utf8'), 'RIFF');
+		assert.equal(data.subarray(8, 12).toString('utf8'), 'WEBP');
+	}
+
+	async function readGeneratedImage(fixture: Fixture, html: string) {
+		const src = cheerio.load(html)('img').attr('src');
+		assert.match(src ?? '', /^\/_astro\/.+\.webp$/, 'expected a hashed .webp asset in the markup');
+		return (await fixture.readFile(`client${src}`, null)) as unknown as Buffer;
+	}
+
+	it('generates real WEBP assets at build time with prerenderEnvironment: node', {
+		skip: skipRealSharp,
+	}, async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/compile-custom-image-service/',
+			outDir: './dist/compile-node-prerender-default/',
+			// A dedicated cache is required for this test to be able to fail: the
+			// earlier suites generate the exact same transforms through the workerd
+			// path, so with the shared node_modules/.astro assets cache this test
+			// would pass on cache hits alone even with the fix reverted.
+			cacheDir: './node_modules/.astro-node-prerender-default/',
+		});
+		const resetConfig = await fixture.editFile(
+			'astro.config.mjs',
+			(contents) => {
+				// Remove the user image.service and add prerenderEnvironment: 'node'
+				let next = contents.replace(
+					"\n\timage: {\n\t\tservice: {\n\t\t\tentrypoint: './src/image-service.ts',\n\t\t},\n\t},",
+					'',
+				);
+				next = next.replace(
+					"imageService: 'compile',",
+					"imageService: 'compile',\n\t\tprerenderEnvironment: 'node',",
+				);
+				return next;
+			},
+			false,
+		);
+
+		try {
+			await fixture.build();
+			const html = await fixture.readFile('client/index.html');
+			assertRealWebp(await readGeneratedImage(fixture, html));
+		} finally {
+			resetConfig();
+		}
+	});
+
+	// Scenario coverage, not a regression test for #17346: with a user-configured
+	// image.service, the Node prerender bundle already loads the user service via
+	// virtual:image-service, so this scenario worked even before the fix.
+	it('runs custom Sharp-free image service transform() with prerenderEnvironment: node', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/compile-custom-image-service/',
+			outDir: './dist/compile-node-prerender-user/',
+			cacheDir: './node_modules/.astro-node-prerender-user/',
+		});
+		const resetConfig = await fixture.editFile(
+			'astro.config.mjs',
+			(contents) => {
+				return contents.replace(
+					"imageService: 'compile',",
+					"imageService: 'compile',\n\t\tprerenderEnvironment: 'node',",
+				);
+			},
+			false,
+		);
+
+		try {
+			await fixture.build();
+			const html = await fixture.readFile('client/index.html');
+			const data = await readGeneratedImage(fixture, html);
+			// The user service's transform() ran during the build (prepends a marker).
+			assert.equal(Buffer.from(data.subarray(0, 20)).toString('utf8'), 'CUSTOM_TRANSFORM_RAN');
+		} finally {
+			resetConfig();
+		}
+	});
 });

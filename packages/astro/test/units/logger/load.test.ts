@@ -16,20 +16,25 @@ describe('loadLoggerDestination', () => {
 		assert.equal(typeof destination.write, 'function');
 	});
 
-	it('loads composed logger destinations from URL entrypoints', async () => {
+	it('loads a built-in logger destination from a package entrypoint', async () => {
+		const destination = await loadLoggerDestination({ entrypoint: 'astro/logger/json' });
+		assert.equal(typeof destination.write, 'function');
+	});
+
+	it('loads composed logger destinations', async () => {
 		const destination = await loadLoggerDestination({
 			entrypoint: 'astro/logger/compose',
 			config: {
-				loggers: [{ entrypoint: CONSOLE_IMPL_URL }, { entrypoint: CONSOLE_IMPL_URL }],
+				loggers: [{ entrypoint: CONSOLE_IMPL_URL }, { entrypoint: 'astro/logger/json' }],
 			},
 		});
 		assert.equal(typeof destination.write, 'function');
 	});
 
-	it('throws with the resolved href when a URL entrypoint cannot be loaded', async () => {
+	it('throws with the resolved path when a URL entrypoint cannot be loaded', async () => {
 		const missing = new URL('../../../dist/core/logger/impls/does-not-exist.js', import.meta.url);
 		await assert.rejects(loadLoggerDestination({ entrypoint: missing }), (error: Error) => {
-			// The error message should surface the normalized href, not "[object URL]".
+			// The error message should surface the normalized path, not "[object URL]".
 			assert.match(error.message, /does-not-exist\.js/);
 			return true;
 		});

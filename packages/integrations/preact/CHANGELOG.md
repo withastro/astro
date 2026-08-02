@@ -1,5 +1,12 @@
 # @astrojs/preact
 
+## 6.0.2
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+
 ## 6.0.1
 
 ### Patch Changes
