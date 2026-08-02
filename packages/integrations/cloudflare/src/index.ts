@@ -542,6 +542,13 @@ export default function createIntegration({
 					// the prerender entrypoint gets skipped (because settings.prerenderer
 					// is truthy). Restore the default entrypoint since we're still using
 					// the default Node-based prerenderer — we only wrapped it.
+					//
+					// NOTE: the entrypoint specifier and config shape below mirror the
+					// skip logic in packages/astro/src/core/build/vite-build-config.ts
+					// (the `rolldownOptions.input` handling for the prerender
+					// environment). If core renames 'astro/entrypoints/prerender' or
+					// reshapes that config, this must be updated in lockstep — otherwise
+					// builds silently degrade back to unoptimized image output.
 					if (prerenderEnvironment === 'node' && hasBuildImageService) {
 						vite.environments ??= {};
 						vite.environments.prerender ??= {};
