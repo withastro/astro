@@ -278,6 +278,11 @@ describe('CompileImageService with prerenderEnvironment: node', () => {
 		const fixture = await loadFixture({
 			root: './fixtures/compile-custom-image-service/',
 			outDir: './dist/compile-node-prerender-default/',
+			// A dedicated cache is required for this test to be able to fail: the
+			// earlier suites generate the exact same transforms through the workerd
+			// path, so with the shared node_modules/.astro assets cache this test
+			// would pass on cache hits alone even with the fix reverted.
+			cacheDir: './node_modules/.astro-node-prerender-default/',
 		});
 		const resetConfig = await fixture.editFile(
 			'astro.config.mjs',
@@ -309,6 +314,7 @@ describe('CompileImageService with prerenderEnvironment: node', () => {
 		const fixture = await loadFixture({
 			root: './fixtures/compile-custom-image-service/',
 			outDir: './dist/compile-node-prerender-user/',
+			cacheDir: './node_modules/.astro-node-prerender-user/',
 		});
 		const resetConfig = await fixture.editFile(
 			'astro.config.mjs',
