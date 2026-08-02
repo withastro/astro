@@ -3,6 +3,11 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { type DevServer, type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
+// Tests that generate assets with Astro's real Sharp native binary at build time
+// (the `default` and Sharp-backed `sharp` cases below) cannot run on every CI
+// runner (notably the Windows runner: `ERR_DLOPEN_FAILED`) and are skipped on
+// Windows. The Sharp-free `user` service runs its stub transform() on the Node
+// side and is exercised on all platforms.
 const skipRealSharp =
 	process.platform === 'win32' && 'Sharp native binary cannot load on Windows CI';
 
@@ -95,11 +100,8 @@ describe('CompileImageService', () => {
 // | 'custom'     | custom, Sharp-free   | CUSTOM_*     | user service, no Sharp    |
 // | 'custom'     | custom, Sharp-backed | real WEBP    | Sharp chain bundled       |
 //
-// The `default` and Sharp-backed `sharp` cases generate assets with Astro's real
-// Sharp native binary at build time, which cannot load on every CI runner (notably
-// the Windows runner: `ERR_DLOPEN_FAILED`). Those two tests are skipped on Windows;
-// the Sharp-free `user` service runs its stub transform() on the Node side and is
-// exercised on all platforms.
+// The `default` and Sharp-backed `sharp` cases run Astro's real Sharp native
+// binary at build time and are skipped on Windows (see `skipRealSharp`).
 describe('CompileImageService build-time image generation', () => {
 	async function readServerBundle(fixture: Fixture) {
 		const serverFiles = await fixture.glob('server/**/*.mjs');
