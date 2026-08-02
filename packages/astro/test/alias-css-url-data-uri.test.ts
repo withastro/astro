@@ -20,9 +20,6 @@ describe('CSS url() with data URIs and tsconfig baseUrl', () => {
 		const $ = cheerio.load(html);
 
 		const styleTag = $('style').html() || '';
-		assert.ok(
-			styleTag.includes('data:image/svg+xml;base64,'),
-			'CSS should preserve the data URI',
-		);
+		assert.ok(styleTag.includes('data:image/svg+xml;base64,'), 'CSS should preserve the data URI');
 	});
 });

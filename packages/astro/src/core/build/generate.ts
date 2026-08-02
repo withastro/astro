@@ -592,8 +592,7 @@ function getUrlForPath(
 	let ending: string;
 	// For `preserve`, non-index routes output as flat `.html` files (like `file`),
 	// while index routes output as `dir/index.html` (like `directory`).
-	const effectiveFormat =
-		format === 'preserve' ? (isIndex ? 'directory' : 'file') : format;
+	const effectiveFormat = format === 'preserve' ? (isIndex ? 'directory' : 'file') : format;
 	switch (effectiveFormat) {
 		case 'directory': {
 			ending = trailingSlash === 'never' ? '' : '/';
