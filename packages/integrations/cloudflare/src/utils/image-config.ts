@@ -131,6 +131,14 @@ export function setImageConfig(
 		}
 
 		case 'custom':
+			// Sharp's native binding cannot load inside workerd, in dev or in production.
+			// This also catches `imageService: 'custom'` without a configured `image.service`,
+			// which silently inherits Astro's default Sharp service.
+			if (command === 'dev' && config.service.entrypoint === SHARP_IMAGE_SERVICE) {
+				logger.warn(
+					`The Sharp image service cannot run inside the workerd runtime, so '/_image' requests will fail in dev and production. Configure a workerd-compatible 'image.service', or set 'imageService' to 'compile' for build-time optimization. See https://docs.astro.build/en/guides/integrations-guide/cloudflare/#imageservice`,
+				);
+			}
 			return {
 				...config,
 				// Astro's default dev endpoint imports `vite` and `node:fs`, which are
