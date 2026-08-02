@@ -535,10 +535,21 @@ export default function createIntegration({
 							if (entrypoint) {
 								// Belt-and-braces rather than load-bearing: with a user-configured
 								// image.service, the Node prerender bundle already loads the user
-								// service via virtual:image-service, so this re-import only exists
-								// for symmetry with the workerd prerenderer's collectStaticImages.
-								const mod = await import(entrypoint);
-								globalThis.astroAsset.imageService = mod.default ?? mod;
+								// service via virtual:image-service and caches it here whenever a
+								// page renders an image, so this re-import only exists for symmetry
+								// with the workerd prerenderer's collectStaticImages. Guard it: the
+								// raw entrypoint import can fail where the bundled service works
+								// (e.g. TypeScript entrypoints on Node versions without type
+								// stripping), and an empty cache means no image was rendered, so
+								// the service is never used by the generation pipeline anyway.
+								if (!globalThis.astroAsset.imageService) {
+									try {
+										const mod = await import(entrypoint);
+										globalThis.astroAsset.imageService = mod.default ?? mod;
+									} catch {
+										// Unused when no images were rendered — never fail the build.
+									}
+								}
 							} else {
 								const { default: sharpService } = await import('astro/assets/services/sharp');
 								globalThis.astroAsset.imageService = sharpService;
