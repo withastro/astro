@@ -1,0 +1,5 @@
+{
+  "name": "@test/custom-image-service",
+  "private": true,
+  "type": "module"
+}

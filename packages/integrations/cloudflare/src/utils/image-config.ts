@@ -116,15 +116,27 @@ export function setImageConfig(
 		}
 
 		case 'custom':
-			return { ...config };
+			return {
+				...config,
+				// Astro's default dev endpoint imports `vite` and `node:fs`, which are
+				// unavailable in workerd. Use the generic (fetch-based) endpoint instead.
+				...(command === 'dev' && !config.endpoint?.entrypoint && { endpoint: GENERIC_ENDPOINT }),
+			};
 
 		default:
 			if (config.service.entrypoint === 'astro/assets/services/sharp') {
 				logger.warn(
 					`The current configuration does not support image optimization. To allow your project to build with the original, unoptimized images, the image service has been automatically switched to the 'passthrough' option. See https://docs.astro.build/en/reference/configuration-reference/#imageservice`,
 				);
-				return { ...config, service: passthroughImageService() };
+				return {
+					...config,
+					service: passthroughImageService(),
+					...(command === 'dev' && !config.endpoint?.entrypoint && { endpoint: GENERIC_ENDPOINT }),
+				};
 			}
-			return { ...config };
+			return {
+				...config,
+				...(command === 'dev' && !config.endpoint?.entrypoint && { endpoint: GENERIC_ENDPOINT }),
+			};
 	}
 }
