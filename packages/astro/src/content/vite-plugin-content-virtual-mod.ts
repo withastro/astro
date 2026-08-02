@@ -1,6 +1,5 @@
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dataToEsm } from '@rollup/pluginutils';
 import { isRunnableDevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -15,32 +14,21 @@ import {
 	ASSET_IMPORTS_VIRTUAL_ID,
 	CONTENT_MODULE_FLAG,
 	CONTENT_RENDER_FLAG,
+	DATA_STORE_CHUNK_FILE_NAME_PATTERN,
+	DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX,
+	DATA_STORE_MANIFEST_FILE,
 	DATA_STORE_VIRTUAL_ID,
 	MODULES_IMPORTS_FILE,
 	MODULES_MJS_ID,
 	MODULES_MJS_VIRTUAL_ID,
+	RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX,
+	RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_SUFFIX,
 	RESOLVED_DATA_STORE_VIRTUAL_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
-import { getDataStoreFile } from './content-layer.js';
+import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from './paths.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
-
-/**
- * Above this serialized data store size (in bytes), the dev server emits the
- * store as a JSON string parsed at runtime instead of a JS object literal.
- *
- * In dev, Vite's `ssrTransformScript` parses the module via rolldown/oxc-parser
- * across the NAPI bridge, which fails for very large object literals (the AST is
- * too big to convert), silently yielding an empty store (#17220). A string literal
- * keeps the AST tiny regardless of collection size. Normal-sized stores stay on the
- * object-literal path so dev matches production for the common case.
- *
- * Measured in UTF-8 bytes (not `String.length`, which counts UTF-16 code units and
- * undercounts multi-byte content like CJK), so the trigger tracks the actual data
- * volume oxc has to parse regardless of the alphabet used.
- */
-const LARGE_DATA_STORE_THRESHOLD = 5 * 1024 * 1024; // 5 MB
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -67,7 +55,7 @@ function invalidateAssetImports(viteServer: ViteDevServer, filePath: string) {
 	}
 }
 
-function invalidateDataStore(viteServer: ViteDevServer) {
+function invalidateDataStore(viteServer: ViteDevServer, { notifyClient = true } = {}) {
 	const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
 	if (module) {
@@ -91,16 +79,23 @@ function invalidateDataStore(viteServer: ViteDevServer) {
 	// Signal the SSR runner to clear its route cache so that getStaticPaths()
 	// is re-evaluated with the updated content collection data.
 	environment.hot.send('astro:content-changed', {});
-	viteServer.environments.client.hot.send({
-		type: 'full-reload',
-		path: '*',
-	});
+	// Only notify the client to reload when data has actually changed at runtime.
+	// During initial startup (buildStart), no client has loaded content yet, so
+	// sending a full-reload would just cause a spurious page reload for the first
+	// browser that connects.
+	if (notifyClient) {
+		viteServer.environments.client.hot.send({
+			type: 'full-reload',
+			path: '*',
+		});
+	}
 }
 
 export function astroContentVirtualModPlugin({
 	settings,
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
+	let dataStoreDir: URL;
 	let dataStoreFile: URL;
 	let devServer: ViteDevServer;
 	let liveConfig: string;
@@ -110,7 +105,12 @@ export function astroContentVirtualModPlugin({
 		enforce: 'pre',
 		config(_, env) {
 			isDev = env.command === 'serve';
-			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
+			dataStoreDir = getDataStoreDir(settings, isDev);
+			if (getDataStoreChunkSize(settings) !== undefined) {
+				dataStoreFile = new URL(DATA_STORE_MANIFEST_FILE, dataStoreDir);
+			} else {
+				dataStoreFile = getDataStoreFile(settings, isDev);
+			}
 			const contentPaths = getContentPaths(
 				settings.config,
 				undefined,
@@ -126,15 +126,16 @@ export function astroContentVirtualModPlugin({
 				// We defer adding the data store file to the watcher until the server is ready
 				devServer.watcher.add(fileURLToPath(dataStoreFile));
 				devServer.watcher.add(assetImportsPath);
-				// Manually invalidate the data store to avoid a race condition in file watching
-				invalidateDataStore(devServer);
+				// Manually invalidate the data store to avoid a race condition in file watching.
+				// Skip client reload since no browser has loaded content yet at startup.
+				invalidateDataStore(devServer, { notifyClient: false });
 				invalidateAssetImports(devServer, assetImportsPath);
 			}
 		},
 		resolveId: {
 			filter: {
 				id: new RegExp(
-					`^(${VIRTUAL_MODULE_ID}|${DATA_STORE_VIRTUAL_ID}|${MODULES_MJS_ID}|${ASSET_IMPORTS_VIRTUAL_ID})$|(?:\\?|&)${CONTENT_MODULE_FLAG}(?:&|=|$)`,
+					`^(${VIRTUAL_MODULE_ID}|${DATA_STORE_VIRTUAL_ID}|${MODULES_MJS_ID}|${ASSET_IMPORTS_VIRTUAL_ID})$|^${DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}|(?:\\?|&)${CONTENT_MODULE_FLAG}(?:&|=|$)`,
 				),
 			},
 			async handler(id, importer) {
@@ -151,6 +152,13 @@ export function astroContentVirtualModPlugin({
 				}
 				if (id === DATA_STORE_VIRTUAL_ID) {
 					return RESOLVED_DATA_STORE_VIRTUAL_ID;
+				}
+				if (id.startsWith(DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX)) {
+					const fileName = id.slice(DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX.length);
+					if (!DATA_STORE_CHUNK_FILE_NAME_PATTERN.test(fileName)) {
+						this.error(`Invalid data-store chunk: ${fileName}`);
+					}
+					return `${RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}${fileName}${RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_SUFFIX}`;
 				}
 
 				if (isDeferredModule(id)) {
@@ -186,10 +194,31 @@ export function astroContentVirtualModPlugin({
 		load: {
 			filter: {
 				id: new RegExp(
-					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_DATA_STORE_VIRTUAL_ID}|${ASSET_IMPORTS_RESOLVED_STUB_ID}|${MODULES_MJS_VIRTUAL_ID})$`,
+					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_DATA_STORE_VIRTUAL_ID}|${ASSET_IMPORTS_RESOLVED_STUB_ID}|${MODULES_MJS_VIRTUAL_ID})$|^${RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}`,
 				),
 			},
 			async handler(id) {
+				if (id.startsWith(RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX)) {
+					const resolvedFileName = id.slice(RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX.length);
+					if (!resolvedFileName.endsWith(RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_SUFFIX)) {
+						this.error(`Invalid data-store chunk: ${resolvedFileName}`);
+					}
+					const fileName = resolvedFileName.slice(
+						0,
+						-RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_SUFFIX.length,
+					);
+					if (!DATA_STORE_CHUNK_FILE_NAME_PATTERN.test(fileName)) {
+						this.error(`Invalid data-store chunk: ${fileName}`);
+					}
+					const contents = await fs.promises.readFile(
+						new URL(`./${fileName}`, dataStoreDir),
+						'utf-8',
+					);
+					return {
+						code: `export default ${JSON.stringify(contents)}`,
+						map: { mappings: '' },
+					};
+				}
 				if (id === RESOLVED_VIRTUAL_MODULE_ID) {
 					const isClient = isAstroClientEnvironment(this.environment);
 					const code = await generateContentEntryFile({
@@ -213,25 +242,51 @@ export function astroContentVirtualModPlugin({
 					}
 					const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
 
+					if (getDataStoreChunkSize(settings) !== undefined) {
+						try {
+							const manifest: Record<string, string[]> = JSON.parse(jsonData);
+							// Emit each part as a lazy virtual import so the parts stay separate
+							// chunks instead of being inlined into one huge module (the very
+							// thing chunking avoids). manifestToMap reads the resolved
+							// namespace's `default` export back into the concatenated string.
+							const chunkImport = (fileName: string) =>
+								`(await import(${JSON.stringify(`${DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}${fileName}`)}))`;
+							const entries = Object.entries(manifest).map(
+								([collection, parts]) =>
+									`${JSON.stringify(collection)}:[${parts.map(chunkImport).join(',')}]`,
+							);
+							const code = `export default{${entries.join(',')}}`;
+							return { code, map: { mappings: '' } };
+						} catch (err) {
+							const message = 'Could not parse data store manifest JSON file';
+							this.error({ message, id, cause: err });
+						}
+					}
+
 					try {
-						const parsed = JSON.parse(jsonData);
-						// For large stores in dev, emit a JSON string parsed at runtime to
-						// avoid a huge object-literal AST that the NAPI bridge can't convert
-						// (#17220). Otherwise keep dataToEsm() so dev matches production.
-						const useRuntimeJsonParse =
-							isDev && Buffer.byteLength(jsonData) > LARGE_DATA_STORE_THRESHOLD;
-						return {
-							code: useRuntimeJsonParse
-								? `export default JSON.parse(${JSON.stringify(jsonData)})`
-								: dataToEsm(parsed, {
-										compact: true,
-									}),
-							map: { mappings: '' },
-						};
+						// Validate here so a corrupt store fails loudly with this error
+						// instead of being swallowed by the runtime's fallback to an
+						// empty store.
+						JSON.parse(jsonData);
 					} catch (err) {
 						const message = 'Could not parse JSON file';
 						this.error({ message, id, cause: err });
 					}
+
+					// A JSON string parsed at runtime keeps the module's AST tiny; an
+					// object literal grows with the store and can exceed what the
+					// NAPI bridge can convert during dev SSR transforms (#17220),
+					// and is slower for V8 to parse than JSON.parse.
+					//
+					// > Quoted from https://v8.dev/blog/cost-of-javascript-2019
+					// >
+					// > JSON.parse('…') is much faster to parse, compile, and execute
+					// compared to an equivalent JavaScript literal — not just in V8
+					// (1.7× as fast), but in all major JavaScript engines.
+					return {
+						code: `export default JSON.parse(${JSON.stringify(jsonData)})`,
+						map: { mappings: '' },
+					};
 				}
 
 				if (id === ASSET_IMPORTS_RESOLVED_STUB_ID) {

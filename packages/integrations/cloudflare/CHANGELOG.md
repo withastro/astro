@@ -1,5 +1,49 @@
 # @astrojs/cloudflare
 
+## 14.1.7
+
+### Patch Changes
+
+- [#17543](https://github.com/withastro/astro/pull/17543) [`bbc1ec9`](https://github.com/withastro/astro/commit/bbc1ec9715160e25eb6a6fee2e133386414c0c00) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where Cloudflare couldn't load chunked collections via `experimental.collectionStorage: 'chunked'`.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 14.1.6
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+  - @astrojs/underscore-redirects@1.0.3
+
+## 14.1.5
+
+### Patch Changes
+
+- [#17376](https://github.com/withastro/astro/pull/17376) [`0216368`](https://github.com/withastro/astro/commit/0216368c621dd033223ca91d670801fe423d631d) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a bug where an explicit `cache: { enabled: false }` in your wrangler config was overridden and forced to `true` when a Workers cache provider was configured
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 14.1.4
+
+### Patch Changes
+
+- [#17457](https://github.com/withastro/astro/pull/17457) [`d46ecd8`](https://github.com/withastro/astro/commit/d46ecd82c3869d758ed955e2567f908903053475) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a dev server crash when using Astro Actions with the Cloudflare adapter
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 14.1.3
+
+### Patch Changes
+
+- [#17363](https://github.com/withastro/astro/pull/17363) [`3f4efc5`](https://github.com/withastro/astro/commit/3f4efc5d2f4cf2e38f983bf5842bbd953b5bf923) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `astro preview --open` not opening a browser when using an adapter with a custom preview entrypoint, such as `@astrojs/cloudflare`
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 14.1.2
 
 ### Patch Changes

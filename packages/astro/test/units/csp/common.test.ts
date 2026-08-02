@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getDirectives } from '../../../dist/core/csp/common.js';
+import {
+	getDirectives,
+	getScriptHashes,
+	getScriptResources,
+	getStyleHashes,
+	getStyleResources,
+} from '../../../dist/core/csp/common.js';
 
 function buildSettings({ csp, injected }: { csp: any; injected: string[] }): any {
 	const settings = {
@@ -70,5 +76,38 @@ describe('CSP common', () => {
 			),
 			["font-src 'self' foo", 'img-src test'],
 		);
+	});
+
+	it('directive getters return the config entries as-authored (kind kept inline)', () => {
+		const csp = {
+			algorithm: 'SHA-256',
+			scriptDirective: {
+				resources: ["'self'", { resource: 'https://cdn', kind: 'element' }],
+				hashes: ['sha256-AAA', { hash: 'sha256-BBB', kind: 'attribute' }],
+			},
+			styleDirective: {
+				resources: [{ resource: "'unsafe-inline'", kind: 'attribute' }],
+			},
+		} as any;
+
+		assert.deepStrictEqual(getScriptResources(csp), [
+			"'self'",
+			{ resource: 'https://cdn', kind: 'element' },
+		]);
+		assert.deepStrictEqual(getScriptHashes(csp), [
+			'sha256-AAA',
+			{ hash: 'sha256-BBB', kind: 'attribute' },
+		]);
+		assert.deepStrictEqual(getStyleResources(csp), [
+			{ resource: "'unsafe-inline'", kind: 'attribute' },
+		]);
+		assert.deepStrictEqual(getStyleHashes(csp), []);
+	});
+
+	it('directive getters return empty arrays for csp: true', () => {
+		assert.deepStrictEqual(getScriptResources(true as any), []);
+		assert.deepStrictEqual(getScriptHashes(true as any), []);
+		assert.deepStrictEqual(getStyleResources(true as any), []);
+		assert.deepStrictEqual(getStyleHashes(true as any), []);
 	});
 });

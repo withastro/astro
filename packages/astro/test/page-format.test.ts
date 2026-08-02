@@ -63,6 +63,37 @@ describe('build.format', () => {
 		});
 	});
 
+	describe('preserve', () => {
+		let fixture: Fixture;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/page-format/',
+				build: {
+					format: 'preserve',
+				},
+				outDir: './dist/page-format-preserve/',
+			});
+		});
+
+		describe('Build', () => {
+			before(async () => {
+				await fixture.build();
+			});
+
+			it('Astro.url pathname is .html for non-index pages', async () => {
+				let html = await fixture.readFile('/nested/page.html');
+				let $ = cheerio.load(html);
+				assert.equal($('#url').text(), '/nested/page.html');
+			});
+
+			it('Astro.url pathname has trailing slash for index pages', async () => {
+				let html = await fixture.readFile('/nested/index.html');
+				let $ = cheerio.load(html);
+				assert.equal($('h2').text(), '/nested/');
+			});
+		});
+	});
+
 	describe('preserve - i18n', () => {
 		let fixture: Fixture;
 		before(async () => {
@@ -120,7 +151,7 @@ describe('build.format', () => {
 			it('relative urls created point to sibling folders', async () => {
 				let html = await fixture.readFile('/en/nested/page.html');
 				let $ = cheerio.load(html);
-				assert.equal($('#another').attr('href'), '/test/en/nested/page/another/');
+				assert.equal($('#another').attr('href'), '/test/en/nested/another/');
 			});
 
 			it('index files are written as index.html', async () => {

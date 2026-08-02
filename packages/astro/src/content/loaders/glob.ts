@@ -36,6 +36,13 @@ interface GlobOptions {
 	 * Defaults to `true`.
 	 */
 	retainBody?: boolean;
+	/**
+	 * When `true`, renderable content entries (e.g. Markdown) will not be eagerly rendered
+	 * during content sync. Instead, rendering is deferred until the entry is actually rendered
+	 * in a page. This reduces memory usage for large collections with heavy rendered output.
+	 * Defaults to `false`.
+	 */
+	deferRender?: boolean;
 }
 
 function generateIdDefault({ entry, base, data }: GenerateIdOptions, isLegacy?: boolean): string {
@@ -182,7 +189,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					}
 				}
 
-				if (entryType.getRenderFunction) {
+				if (entryType.getRenderFunction && !globOptions.deferRender) {
 					let render = renderFunctionByContentType.get(entryType);
 
 					if (!render) {
@@ -213,9 +220,10 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 						rendered,
 						assetImports: rendered?.metadata?.imagePaths,
 					});
-
-					// todo: add an explicit way to opt in to deferred rendering
-				} else if ('contentModuleTypes' in entryType) {
+				} else if (
+					(entryType.getRenderFunction && globOptions.deferRender) ||
+					'contentModuleTypes' in entryType
+				) {
 					store.set({
 						id,
 						data: parsedData,
@@ -335,8 +343,19 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 
 			watcher.add(filePath);
 
+			// Split negation patterns out and pass them as picomatch's `ignore` option
+			// so watcher filtering matches tinyglobby's semantics (set subtraction),
+			// not picomatch's default (any-match union). See #17484.
+			const patterns = Array.isArray(globOptions.pattern)
+				? globOptions.pattern
+				: [globOptions.pattern];
+			const positivePatterns = patterns.filter((p) => !p.startsWith('!'));
+			const negationPatterns = patterns.filter((p) => p.startsWith('!')).map((p) => p.slice(1));
 			const matchesGlob = (entry: string) =>
-				!entry.startsWith('../') && picomatch.isMatch(entry, globOptions.pattern);
+				!entry.startsWith('../') &&
+				picomatch.isMatch(entry, positivePatterns, {
+					ignore: negationPatterns.length > 0 ? negationPatterns : undefined,
+				});
 
 			const basePath = fileURLToPath(baseDir);
 

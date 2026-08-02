@@ -34,6 +34,13 @@ export interface NetlifyLocals {
 type RemotePattern = AstroConfig['image']['remotePatterns'][number];
 
 /**
+ * Escape regex metacharacters in a literal string so it matches verbatim.
+ */
+function escapeRegex(literal: string): string {
+	return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
  * Convert a remote pattern object to a regex string
  */
 export function remotePatternToRegex(
@@ -61,8 +68,8 @@ export function remotePatternToRegex(
 			regexStr += '([a-z0-9-]+\\.)';
 			hostname = hostname.substring(2); // Remove '*.' from the beginning
 		}
-		// Escape dots in the hostname
-		regexStr += hostname.replace(/\./g, '\\.');
+		// Escape metacharacters in the literal hostname so they match verbatim.
+		regexStr += escapeRegex(hostname);
 	} else {
 		regexStr += '[a-z0-9.-]+';
 	}
@@ -76,14 +83,15 @@ export function remotePatternToRegex(
 
 	if (pathname) {
 		if (pathname.endsWith('/**')) {
-			// Match any path.
-			regexStr += `(\\${pathname.replace('/**', '')}.*)`;
+			// Match any path. Escape the literal prefix so metacharacters
+			// (e.g. `.`) match verbatim instead of acting as wildcards.
+			regexStr += `(${escapeRegex(pathname.replace('/**', ''))}.*)`;
 		} else if (pathname.endsWith('/*')) {
 			// Match one level of path
-			regexStr += `(\\${pathname.replace('/*', '')}\/[^/?#]+)\/?`;
+			regexStr += `(${escapeRegex(pathname.replace('/*', ''))}\/[^/?#]+)\/?`;
 		} else {
 			// Exact match
-			regexStr += `(\\${pathname})`;
+			regexStr += `(${escapeRegex(pathname)})`;
 		}
 	} else {
 		// Default to matching any path
@@ -117,7 +125,7 @@ function remoteImagesFromAstroConfig(
 	const remoteImages: string[] = [];
 	// Domains get a simple regex match
 	remoteImages.push(
-		...config.image.domains.map((domain) => `https?:\/\/${domain.replaceAll('.', '\\.')}\/.*`),
+		...config.image.domains.map((domain) => `https?:\/\/${escapeRegex(domain)}\/.*`),
 	);
 	// Remote patterns need to be converted to regexes
 	remoteImages.push(

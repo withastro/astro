@@ -33,6 +33,7 @@ import cfPrismPlugin from './vite-plugin-prism.js';
 import { loadWranglerEnv } from './utils/wrangler-config.js';
 
 const CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT = sessionDrivers.cloudflareKVBinding().entrypoint;
+const CONTENT_CHUNK_SIZE = 1024 * 1024;
 
 function usesCloudflareKVSessionDriver(session: AstroConfig['session']): boolean {
 	const driver = session?.driver;
@@ -276,6 +277,11 @@ export default function createIntegration({
 				}
 
 				updateConfig({
+					...(config.experimental.collectionStorage === 'chunked' && {
+						experimental: {
+							collectionStorage: { type: 'chunked', chunkSize: CONTENT_CHUNK_SIZE },
+						},
+					}),
 					build: {
 						redirects: false,
 					},
@@ -333,6 +339,10 @@ export default function createIntegration({
 													'astro/app/fetch/default-handler',
 													'astro/fetch',
 													'astro/hono',
+													'astro/env/runtime',
+													'astro/zod',
+													'astro/actions/runtime/entrypoints/server.js',
+													'astro/actions/runtime/entrypoints/route.js',
 													'astro/assets',
 													'astro/assets/runtime',
 													'astro/assets/utils/inferRemoteSize.js',
@@ -341,7 +351,9 @@ export default function createIntegration({
 													'astro/compiler-runtime',
 													'astro/jsx-runtime',
 													'astro/app/entrypoint/dev',
+													'astro/middleware',
 													'astro/virtual-modules/middleware.js',
+													'astro/virtual-modules/live-config',
 													'astro/virtual-modules/transitions.js',
 													'astro/virtual-modules/transitions-events.js',
 													'astro/virtual-modules/transitions-router.js',

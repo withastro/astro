@@ -237,6 +237,36 @@ describe('cloudflareConfigCustomizer', () => {
 		});
 	});
 
+	describe('worker cache', () => {
+		it('enables cache when needsWorkerCache is true and cache is not configured', () => {
+			const customizer = cloudflareConfigCustomizer({ needsWorkerCache: true });
+			const result = customizer({});
+
+			assert.deepEqual(result.cache, { enabled: true });
+		});
+
+		it('does not enable cache when needsWorkerCache is false', () => {
+			const customizer = cloudflareConfigCustomizer({ needsWorkerCache: false });
+			const result = customizer({});
+
+			assert.equal(result.cache, undefined);
+		});
+
+		it('does not override cache when already enabled', () => {
+			const customizer = cloudflareConfigCustomizer({ needsWorkerCache: true });
+			const result = customizer({ cache: { enabled: true } });
+
+			assert.equal(result.cache, undefined);
+		});
+
+		it('does not override explicit cache.enabled: false (#17375)', () => {
+			const customizer = cloudflareConfigCustomizer({ needsWorkerCache: true });
+			const result = customizer({ cache: { enabled: false } });
+
+			assert.equal(result.cache, undefined);
+		});
+	});
+
 	describe('default binding names', () => {
 		it('exports DEFAULT_SESSION_KV_BINDING_NAME as SESSION', () => {
 			assert.equal(DEFAULT_SESSION_KV_BINDING_NAME, 'SESSION');

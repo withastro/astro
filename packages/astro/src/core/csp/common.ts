@@ -7,7 +7,7 @@ import type { AstroSettings } from '../../types/astro.js';
 import type { AstroConfig, CspAlgorithm } from '../../types/public/index.js';
 import type { BuildInternals } from '../build/internal.js';
 import { generateCspDigest } from '../encryption.js';
-import type { CspDirective } from './config.js';
+import type { CspDirective, CspHash, CspHashEntry, CspResourceEntry } from './config.js';
 
 type EnabledCsp = Exclude<AstroConfig['security']['csp'], false>;
 
@@ -22,33 +22,32 @@ export function getAlgorithm(csp: EnabledCsp): CspAlgorithm {
 	return csp.algorithm;
 }
 
-export function getScriptHashes(csp: EnabledCsp): string[] {
-	if (csp === true) {
-		return [];
-	} else {
-		return csp.scriptDirective?.hashes ?? [];
-	}
-}
-
-export function getScriptResources(csp: EnabledCsp): string[] {
+export function getScriptResources(csp: EnabledCsp): CspResourceEntry[] {
 	if (csp === true) {
 		return [];
 	}
 	return csp.scriptDirective?.resources ?? [];
 }
 
-export function getStyleHashes(csp: EnabledCsp): string[] {
+export function getScriptHashes(csp: EnabledCsp): CspHashEntry[] {
 	if (csp === true) {
 		return [];
 	}
-	return csp.styleDirective?.hashes ?? [];
+	return csp.scriptDirective?.hashes ?? [];
 }
 
-export function getStyleResources(csp: EnabledCsp): string[] {
+export function getStyleResources(csp: EnabledCsp): CspResourceEntry[] {
 	if (csp === true) {
 		return [];
 	}
 	return csp.styleDirective?.resources ?? [];
+}
+
+export function getStyleHashes(csp: EnabledCsp): CspHashEntry[] {
+	if (csp === true) {
+		return [];
+	}
+	return csp.styleDirective?.hashes ?? [];
 }
 
 // Unlike other helpers like getStyleResources, getDirectives has more logic
@@ -97,8 +96,8 @@ export async function trackStyleHashes(
 	internals: BuildInternals,
 	settings: AstroSettings,
 	algorithm: CspAlgorithm,
-): Promise<string[]> {
-	const clientStyleHashes: string[] = [];
+): Promise<CspHash[]> {
+	const clientStyleHashes: CspHash[] = [];
 	for (const [_, page] of internals.pagesByViteID.entries()) {
 		for (const style of page.styles) {
 			if (style.sheet.type === 'inline') {
@@ -128,8 +127,8 @@ export async function trackScriptHashes(
 	internals: BuildInternals,
 	settings: AstroSettings,
 	algorithm: CspAlgorithm,
-): Promise<string[]> {
-	const clientScriptHashes: string[] = [];
+): Promise<CspHash[]> {
+	const clientScriptHashes: CspHash[] = [];
 
 	for (const script of internals.inlinedScripts.values()) {
 		clientScriptHashes.push(await generateCspDigest(script, algorithm));

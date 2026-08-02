@@ -1,5 +1,26 @@
 # @astrojs/markdoc
 
+## 2.0.6
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+
+## 2.0.5
+
+### Patch Changes
+
+- [#17460](https://github.com/withastro/astro/pull/17460) [`3b93a1a`](https://github.com/withastro/astro/commit/3b93a1a1cce669b71729d2b946fa2d41dae79ad6) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes custom `transform` functions being dropped when a tag or node also specifies a custom `render` component. User-written transforms are now always preserved; only Markdoc's built-in transforms are removed so the custom component wins.
+
+- [#17191](https://github.com/withastro/astro/pull/17191) [`fc3fb2b`](https://github.com/withastro/astro/commit/fc3fb2bcfdd3223a6a9acfcb3b09efaa9d4a28e8) Thanks [@eldardada](https://github.com/eldardada)! - Fixes custom `transform` functions being incorrectly dropped for tags and nodes whose names require bracket access (e.g. `side-note`). The check that detects whether a transform respects a custom `render` component now recognizes bracket notation, optional chaining and whitespace, not only dot notation.
+
+## 2.0.4
+
+### Patch Changes
+
+- [#17441](https://github.com/withastro/astro/pull/17441) [`6180c8e`](https://github.com/withastro/astro/commit/6180c8e03b93942c4bdd8c3c45a0ae94906eff69) Thanks [@renovate](https://github.com/apps/renovate)! - Updates dependency htmlparser2 to v12
+
 ## 2.0.3
 
 ### Patch Changes
