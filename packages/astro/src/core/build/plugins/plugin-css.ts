@@ -82,6 +82,31 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						}
 					}
 
+					// Deduplicate CSS assets between the prerender and SSR environments.
+					// Both environments bundle shared layouts separately, which emits one CSS
+					// asset per environment for the same CSS source modules (e.g. `index.X.css`
+					// and `_..Y.css`). The prerender build runs first and records its CSS asset
+					// filenames keyed by the chunk's CSS module set; the SSR build then renames
+					// its matching assets to the prerender filenames, so both end up as a single
+					// file once assets are moved to the client directory.
+					// Keyed by module identity rather than content hash because plugins that
+					// scan the environment's module graph (e.g. Tailwind) can produce slightly
+					// different content for the same CSS source in each environment.
+					const cssModuleIds = Object.keys(chunk.modules || {}).filter(isCSSRequest);
+					const importedCss = (chunk.viteMetadata as ViteMetadata | undefined)?.importedCss;
+					if (cssModuleIds.length > 0 && importedCss?.size === 1) {
+						const moduleKey = cssModuleIds.sort().join('\n');
+						const [assetFileName] = importedCss;
+						if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
+							internals.prerenderCssAssetByModuleKey.set(moduleKey, assetFileName);
+						} else {
+							const prerenderFileName = internals.prerenderCssAssetByModuleKey.get(moduleKey);
+							if (prerenderFileName && prerenderFileName !== assetFileName) {
+								renameBundleAsset(bundle, assetFileName, prerenderFileName);
+							}
+						}
+					}
+
 					// Track which component exports were rendered during SSR.
 					// This is used by the client build to determine if cssScopeTo CSS
 					// was tree-shaken (component not rendered in SSR) vs included.
@@ -185,6 +210,30 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							for (const importedCssImport of meta.importedCss) {
 								const cssToInfoRecord = (pagesToCss[pageData.moduleSpecifier] ??= {});
 								cssToInfoRecord[importedCssImport] = { depth: -1, order: -1 };
+
+								// When a CSS asset was marked for deletion (because it was already
+								// bundled in SSR for another page), it may not survive to the
+								// inlineStylesheetsPlugin. Directly add the CSS to pageData.styles
+								// so client:only component child styles are not lost.
+								if (deletedCssAssets.has(importedCssImport)) {
+									const cssAsset = deletedCssAssets.get(importedCssImport)!;
+									if (
+										cssAsset.type === 'asset' &&
+										typeof cssAsset.source === 'string' &&
+										cssAsset.source.length > 0
+									) {
+										const sheet: StylesheetAsset = {
+											type: 'inline',
+											content: cssAsset.source,
+										};
+										const alreadyAdded = pageData.styles.some(
+											(s) => s.sheet.type === 'inline' && s.sheet.content === sheet.content,
+										);
+										if (!alreadyAdded) {
+											pageData.styles.push({ depth: -1, order: -1, sheet });
+										}
+									}
+								}
 							}
 						}
 					}
@@ -472,6 +521,37 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 }
 
 /***** UTILITY FUNCTIONS *****/
+
+/**
+ * Renames an emitted asset in the bundle and updates every chunk's Vite metadata
+ * that references the old filename. Used to give an SSR CSS asset the filename of
+ * the equivalent prerender CSS asset so the two builds don't emit duplicate files.
+ */
+function renameBundleAsset(
+	bundle: Rolldown.OutputBundle,
+	fromFileName: string,
+	toFileName: string,
+) {
+	const asset = bundle[fromFileName];
+	// Never clobber an asset that already exists under the target name in this bundle.
+	if (!asset || asset.type !== 'asset' || bundle[toFileName]) return;
+
+	// Mutate `fileName` in place instead of re-keying the bundle object: the bundle
+	// is a Rolldown proxy that ignores direct key assignment, and the writer emits
+	// files based on `fileName`, not the bundle key.
+	asset.fileName = toFileName;
+
+	for (const chunk of Object.values(bundle)) {
+		if (chunk.type !== 'chunk') continue;
+		const meta = chunk.viteMetadata as ViteMetadata | undefined;
+		if (meta?.importedCss?.delete(fromFileName)) {
+			meta.importedCss.add(toFileName);
+		}
+		if (meta?.importedAssets?.delete(fromFileName)) {
+			meta.importedAssets.add(toFileName);
+		}
+	}
+}
 
 /**
  * Check if a CSS chunk should be deleted. Only delete if it contains client-only or hydrated

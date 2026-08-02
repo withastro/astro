@@ -11,7 +11,7 @@ import { provideSession } from '../session/handler.js';
 import { validateHost } from '../app/validate-headers.js';
 import { getErrorRoutePath } from '../../i18n/error-routes.js';
 import { getOutputFilename } from '../output-filename.js';
-import type { ErrorHandler } from './handler.js';
+import { type ErrorHandler, rewroteToEmptyErrorResponse } from './handler.js';
 
 type ErrorPagePath =
 	| `${string}/404`
@@ -127,6 +127,31 @@ export class DefaultErrorHandler implements ErrorHandler {
 					errorState,
 					this.#pagesHandler.handle.bind(this.#pagesHandler),
 				);
+				// A middleware rewrite (`ctx.rewrite()` / `next(payload)`) issued while
+				// rendering the error page swaps the state's routeData away from the
+				// error route, so the rewrite target renders instead of 404/500.astro.
+				// If that hijacked render produced another empty reroutable error
+				// response, we'd return a blank page — retry rendering the error page
+				// without middleware instead (same fallback used when middleware throws).
+				// A rewrite that produced a real body is left untouched, so middleware
+				// that intentionally rewrites error renders keeps working.
+				if (
+					rewroteToEmptyErrorResponse(
+						skipMiddleware,
+						errorRouteData,
+						errorState.routeData,
+						response,
+					)
+				) {
+					return this.renderError(request, {
+						...resolvedRenderOptions,
+						status,
+						error,
+						response: originalResponse,
+						skipMiddleware: true,
+						pathname: resolvedPathname,
+					});
+				}
 				const newResponse = mergeResponses(response, originalResponse);
 				prepareResponse(newResponse, resolvedRenderOptions);
 				return newResponse;
@@ -219,9 +244,11 @@ function mergeResponses(
 		seen.add(name.toLowerCase());
 	}
 	// Add new response headers that weren't already set by the original response,
-	// but skip content-type since the error page must return text/html
+	// but skip content-type since the error page must return text/html.
+	// set-cookie is special: it's a multi-value header, so we always append.
 	for (const [name, value] of newResponseHeaders) {
-		if (!seen.has(name.toLowerCase())) {
+		const lower = name.toLowerCase();
+		if (!seen.has(lower) || lower === 'set-cookie') {
 			newHeaders.append(name, value);
 		}
 	}
@@ -243,9 +270,7 @@ function mergeResponses(
 	if (originalCookies) {
 		// If both responses have cookies, merge new response cookies into original
 		if (newCookies) {
-			for (const cookieValue of newCookies.consume()) {
-				originalResponse.headers.append('set-cookie', cookieValue);
-			}
+			originalCookies.merge(newCookies);
 		}
 		attachCookiesToResponse(mergedResponse, originalCookies);
 	} else if (newCookies) {

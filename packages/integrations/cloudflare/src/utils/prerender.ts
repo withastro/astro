@@ -123,11 +123,14 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 		});
 	} catch (err: unknown) {
 		const message = err instanceof Error ? err.message : String(err);
+		// Sanitize newlines and other control characters from the error message
+		// before putting it in a header, as HTTP headers cannot contain them.
+		const headerSafe = message.replace(/[\r\n]+/g, ' ');
 		return new Response(message, {
 			status: 500,
 			headers: {
 				'Content-Type': 'text/plain',
-				'x-astro-prerender-error': message,
+				'x-astro-prerender-error': headerSafe,
 			},
 		});
 	}
