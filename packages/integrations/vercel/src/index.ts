@@ -407,13 +407,13 @@ export default function vercelAdapter({
 				const outDir = new URL('./.vercel/output/', _config.root);
 				if (staticDir) {
 					if (existsSync(staticDir)) {
-						emptyDir(staticDir);
+						await emptyDir(staticDir);
 					}
 					mkdirSync(new URL('./.vercel/output/static/', _config.root), {
 						recursive: true,
 					});
 
-					mkdirSync(new URL('./.vercel/output/server/', _config.root));
+					mkdirSync(new URL('./.vercel/output/server/', _config.root), { recursive: true });
 
 					if (_buildOutput !== 'static') {
 						cpSync(_config.build.server, new URL('./.vercel/output/_functions/', _config.root), {
