@@ -1,5 +1,6 @@
 import { detectAgenticEnvironment } from 'am-i-vibing';
 import colors from 'piccolore';
+import type { ResolvedServerUrls } from 'vite';
 import devServer from '../../core/dev/index.js';
 import { pathToFileURL } from 'node:url';
 import {
@@ -56,6 +57,28 @@ export function getBackgroundIgnoreLockConflict(
 		'Background dev servers rely on the lock file so `astro dev stop`, `astro dev status`, and `astro dev logs` can find them.',
 		'Run the dev server in the foreground to use --ignore-lock.',
 	].join('\n');
+}
+
+/**
+ * Pick the URL to record in the lock file.
+ *
+ * Vite only reports a `local` URL for loopback hosts. With `--host <custom-address>` set to a
+ * specific non-loopback address the URL lands in `network` instead and `local` is empty, so
+ * prefer `local` but fall back to `network` rather than reading `undefined`.
+ *
+ * Returns `null` when the server exposed no usable URL, which leaves the (purely bookkeeping)
+ * lock file unwritten instead of taking down an otherwise healthy dev server.
+ */
+export function resolveLockFileUrl(resolvedUrls: ResolvedServerUrls): string | null {
+	const resolved = resolvedUrls.local[0] ?? resolvedUrls.network[0];
+	if (!resolved) {
+		return null;
+	}
+	try {
+		return new URL(resolved).origin;
+	} catch {
+		return null;
+	}
 }
 
 /**
@@ -213,23 +236,25 @@ export async function dev({ flags }: DevOptions) {
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const server = await devServer(inlineConfig);
 
-	// Use Vite's resolved local URL which accounts for host and protocol (http/https).
-	const serverUrl = new URL(server.resolvedUrls.local[0]).origin;
-	writeLockFile(root, {
-		pid: process.pid,
-		port: server.address.port,
-		url: serverUrl,
-		urls: server.resolvedUrls,
-		background: !!process.env.ASTRO_DEV_BACKGROUND,
-		startedAt: new Date().toISOString(),
-	});
+	// Use Vite's resolved URL which accounts for host and protocol (http/https).
+	const serverUrl = resolveLockFileUrl(server.resolvedUrls);
+	if (serverUrl) {
+		writeLockFile(root, {
+			pid: process.pid,
+			port: server.address.port,
+			url: serverUrl,
+			urls: server.resolvedUrls,
+			background: !!process.env.ASTRO_DEV_BACKGROUND,
+			startedAt: new Date().toISOString(),
+		});
 
-	// Wrap the original stop to also clean up the lock file
-	const originalStop = server.stop.bind(server);
-	server.stop = async () => {
-		removeLockFile(root);
-		await originalStop();
-	};
+		// Wrap the original stop to also clean up the lock file
+		const originalStop = server.stop.bind(server);
+		server.stop = async () => {
+			removeLockFile(root);
+			await originalStop();
+		};
+	}
 
 	return server;
 }
