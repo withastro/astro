@@ -1250,6 +1250,7 @@ export interface AstroUserConfig<
 		 * Setting `build.format` controls what `Astro.url` is set to during the build. When it is:
 		 * - `directory` - The `Astro.url.pathname` will include a trailing slash to mimic folder behavior. (e.g. `/foo/`)
 		 * - `file` - The `Astro.url.pathname` will include `.html`. (e.g. `/foo.html`)
+		 * - `preserve` - The `Astro.url.pathname` matches the generated file for each page: index pages include a trailing slash (e.g. `/foo/`), while non-index pages include `.html` (e.g. `/foo.html`).
 		 *
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
 		 *
