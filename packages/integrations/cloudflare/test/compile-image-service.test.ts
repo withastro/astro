@@ -310,6 +310,9 @@ describe('CompileImageService with prerenderEnvironment: node', () => {
 		}
 	});
 
+	// Scenario coverage, not a regression test for #17346: with a user-configured
+	// image.service, the Node prerender bundle already loads the user service via
+	// virtual:image-service, so this scenario worked even before the fix.
 	it('runs custom Sharp-free image service transform() with prerenderEnvironment: node', async () => {
 		const fixture = await loadFixture({
 			root: './fixtures/compile-custom-image-service/',
