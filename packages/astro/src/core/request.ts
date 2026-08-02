@@ -57,7 +57,7 @@ export function createRequest({
 
 	if (typeof url === 'string') url = new URL(url);
 
-	// Remove search parameters if the request is for a page that will be on-demand rendered
+	// Remove search parameters if the request is for a prerendered route.
 	if (isPrerendered) {
 		url.search = '';
 	}

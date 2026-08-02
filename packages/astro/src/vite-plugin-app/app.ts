@@ -214,7 +214,10 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 
 				// When running as the prerender handler, only handle prerendered routes.
 				// If the best-matching route is SSR, let the SSR handler handle it instead.
-				if (prerenderOnly && !matchedRoute.routeData.prerender) {
+				const isInternalImageEndpoint =
+					matchedRoute.routeData.origin === 'internal' &&
+					matchedRoute.routeData.route === self.settings.config.image.endpoint.route;
+				if (prerenderOnly && !matchedRoute.routeData.prerender && !isInternalImageEndpoint) {
 					handled = false;
 					return;
 				}
