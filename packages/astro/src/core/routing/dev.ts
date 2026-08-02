@@ -86,7 +86,7 @@ export async function matchRoute(
 	const altPathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 
 	if (altPathname !== pathname) {
-		return await matchRoute(altPathname, routesList, pipeline, manifest);
+		return await matchRoute(altPathname, routesList, pipeline, manifest, { prerenderOnly });
 	}
 
 	if (matches.length) {
