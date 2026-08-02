@@ -521,6 +521,10 @@ export default function createIntegration({
 						async collectStaticImages() {
 							globalThis.astroAsset ??= {};
 							if (entrypoint) {
+								// Belt-and-braces rather than load-bearing: with a user-configured
+								// image.service, the Node prerender bundle already loads the user
+								// service via virtual:image-service, so this re-import only exists
+								// for symmetry with the workerd prerenderer's collectStaticImages.
 								const mod = await import(entrypoint);
 								globalThis.astroAsset.imageService = mod.default ?? mod;
 							} else {
