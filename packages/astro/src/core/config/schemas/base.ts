@@ -527,7 +527,14 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.incrementalBuild),
 			svgOptimizer: SvgOptimizerSchema.optional(),
 			collectionStorage: z
-				.enum(['single-file', 'chunked'])
+				.union([
+					z.literal('single-file'),
+					z.literal('chunked'),
+					z.strictObject({
+						type: z.literal('chunked'),
+						chunkSize: z.number().int().positive(),
+					}),
+				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.collectionStorage),
 		})

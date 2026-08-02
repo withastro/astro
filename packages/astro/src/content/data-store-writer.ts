@@ -4,9 +4,6 @@ import xxhash, { type XXHashAPI } from 'xxhash-wasm';
 import { emptyDir } from '../core/fs/index.js';
 import { DATA_STORE_MANIFEST_FILE } from './consts.js';
 
-/** Maximum size, in UTF-8 bytes, of a single part file. */
-const CHUNK_SIZE_LIMIT = 20 * 1024 * 1024; // 20 MB
-
 /**
  * A chunked store manifest: each collection maps to the list of part file names
  * whose contents concatenate back into that collection's serialized string.
@@ -139,11 +136,13 @@ export class FileWriter implements DataStoreWriter {
 export class ChunkedWriter implements DataStoreWriter {
 	#dir: URL;
 	#manifestFile: URL;
+	#chunkSize: number;
 	#hasher?: XXHashAPI;
 
-	constructor(dir: URL) {
+	constructor(dir: URL, chunkSize: number) {
 		this.#dir = dir;
 		this.#manifestFile = new URL(`./${DATA_STORE_MANIFEST_FILE}`, dir);
+		this.#chunkSize = chunkSize;
 	}
 
 	async write(collections: Map<string, Map<string, any>>): Promise<void> {
@@ -161,7 +160,7 @@ export class ChunkedWriter implements DataStoreWriter {
 			const stringified = devalue.stringify(entries);
 			// Split the serialized collection so no single file grows unbounded.
 			const parts: string[] = [];
-			for (const part of chunkString(stringified, CHUNK_SIZE_LIMIT)) {
+			for (const part of chunkString(stringified, this.#chunkSize)) {
 				const fileName = `${h64ToString(part)}.txt`;
 				await writeFileAtomic(new URL(`./${fileName}`, this.#dir), part);
 				parts.push(fileName);

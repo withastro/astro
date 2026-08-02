@@ -6,7 +6,7 @@ import colors from 'piccolore';
 import { createServer, type FSWatcher, type HotPayload, type ViteDevServer } from 'vite';
 import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
-import { getDataStoreDir, getDataStoreFile } from '../../content/paths.js';
+import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from '../../content/paths.js';
 import { globalContentLayer } from '../../content/instance.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
@@ -96,7 +96,7 @@ export async function clearContentLayerCache({
 	fs?: typeof fsMod;
 	isDev: boolean;
 }) {
-	if (settings.config.experimental.collectionStorage === 'chunked') {
+	if (getDataStoreChunkSize(settings) !== undefined) {
 		const dataStore = getDataStoreDir(settings, isDev);
 		if (fs.existsSync(dataStore)) {
 			logger.debug('content', 'clearing data store');
@@ -149,9 +149,10 @@ export async function syncInternal({
 
 			let store: MutableDataStore | undefined;
 			try {
-				if (settings.config.experimental.collectionStorage === 'chunked') {
+				const chunkSize = getDataStoreChunkSize(settings);
+				if (chunkSize !== undefined) {
 					const dataStoreDir = getDataStoreDir(settings, isDev);
-					store = await MutableDataStore.fromDir(dataStoreDir);
+					store = await MutableDataStore.fromDir(dataStoreDir, chunkSize);
 				} else {
 					const dataStoreFile = getDataStoreFile(settings, isDev);
 					store = await MutableDataStore.fromFile(dataStoreFile);
