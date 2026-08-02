@@ -1,9 +1,18 @@
 import * as assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { spawn } from 'node:child_process';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { after, before, describe, it } from 'node:test';
 import {
 	parseLockFile,
 	serializeLockFile,
 	evaluateExistingServer,
+	killDevServer,
+	writeLockFile,
+	readLockFile,
+	isProcessAlive,
 	type LockFileData,
 } from '../../../dist/core/dev/lockfile.js';
 
@@ -176,6 +185,57 @@ describe('evaluateExistingServer', () => {
 		assert.notEqual(result, null);
 		assert.equal(result!.stale, true);
 		assert.deepEqual(result!.data, validData);
+	});
+});
+// #endregion
+
+// #region killDevServer
+describe('killDevServer', () => {
+	let tempDir: string;
+	let root: URL;
+
+	before(() => {
+		tempDir = mkdtempSync(join(tmpdir(), 'astro-lockfile-'));
+		root = pathToFileURL(tempDir + '/');
+	});
+
+	after(() => {
+		rmSync(tempDir, { recursive: true, force: true });
+	});
+
+	it('removes the lock file when the process is already dead', async () => {
+		// Use a PID that is very unlikely to be alive.
+		const data: LockFileData = {
+			...validData,
+			pid: 999_999,
+		};
+		writeLockFile(root, data);
+		assert.notEqual(readLockFile(root), null);
+
+		await killDevServer(root, data);
+
+		assert.equal(readLockFile(root), null);
+	});
+
+	it('kills a live process and removes the lock file', async () => {
+		// Spawn a long-running child process.
+		const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {
+			stdio: 'ignore',
+		});
+		const pid = child.pid!;
+		// Wait until the child is confirmed alive.
+		assert.equal(isProcessAlive(pid), true);
+
+		const data: LockFileData = {
+			...validData,
+			pid,
+		};
+		writeLockFile(root, data);
+
+		await killDevServer(root, data);
+
+		assert.equal(isProcessAlive(pid), false);
+		assert.equal(readLockFile(root), null);
 	});
 });
 // #endregion

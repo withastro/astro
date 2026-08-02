@@ -1,5 +1,18 @@
 # @astrojs/vercel
 
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+
+## 11.0.3
+
+### Patch Changes
+
+- [#17370](https://github.com/withastro/astro/pull/17370) [`3a43cf0`](https://github.com/withastro/astro/commit/3a43cf0f3690a8e33cb30109bc5165611cf38fcd) Thanks [@matthewp](https://github.com/matthewp)! - Improves internal ISR route handling
+
 ## 11.0.2
 
 ### Patch Changes

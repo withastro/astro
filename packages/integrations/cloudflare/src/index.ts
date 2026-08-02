@@ -1,4 +1,4 @@
-import { createReadStream, existsSync, readFileSync } from 'node:fs';
+import { createReadStream, existsSync } from 'node:fs';
 import { appendFile, readFile, rename, stat, unlink, writeFile } from 'node:fs/promises';
 import { relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,12 +27,13 @@ import {
 	DEFAULT_SESSION_KV_BINDING_NAME,
 	DEFAULT_IMAGES_BINDING_NAME,
 } from './wrangler.js';
-import { parseEnv } from 'node:util';
 import { sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
 import cfPrismPlugin from './vite-plugin-prism.js';
+import { loadWranglerEnv } from './utils/wrangler-config.js';
 
 const CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT = sessionDrivers.cloudflareKVBinding().entrypoint;
+const CONTENT_CHUNK_SIZE = 1024 * 1024;
 
 function usesCloudflareKVSessionDriver(session: AstroConfig['session']): boolean {
 	const driver = session?.driver;
@@ -276,6 +277,11 @@ export default function createIntegration({
 				}
 
 				updateConfig({
+					...(config.experimental.collectionStorage === 'chunked' && {
+						experimental: {
+							collectionStorage: { type: 'chunked', chunkSize: CONTENT_CHUNK_SIZE },
+						},
+					}),
 					build: {
 						redirects: false,
 					},
@@ -333,6 +339,10 @@ export default function createIntegration({
 													'astro/app/fetch/default-handler',
 													'astro/fetch',
 													'astro/hono',
+													'astro/env/runtime',
+													'astro/zod',
+													'astro/actions/runtime/entrypoints/server.js',
+													'astro/actions/runtime/entrypoints/route.js',
 													'astro/assets',
 													'astro/assets/runtime',
 													'astro/assets/utils/inferRemoteSize.js',
@@ -341,7 +351,9 @@ export default function createIntegration({
 													'astro/compiler-runtime',
 													'astro/jsx-runtime',
 													'astro/app/entrypoint/dev',
+													'astro/middleware',
 													'astro/virtual-modules/middleware.js',
+													'astro/virtual-modules/live-config',
 													'astro/virtual-modules/transitions.js',
 													'astro/virtual-modules/transitions-events.js',
 													'astro/virtual-modules/transitions-router.js',
@@ -486,20 +498,10 @@ export default function createIntegration({
 					},
 				});
 
-				// QUESTION could be removed based on https://developers.cloudflare.com/workers/configuration/compatibility-flags/#enable-auto-populating-processenv
-				// Assign .dev.vars to process.env so astro:env can find these vars
-				const devVarsPath = new URL('.dev.vars', config.root);
-				if (existsSync(devVarsPath)) {
-					try {
-						const data = readFileSync(devVarsPath, 'utf-8');
-						const parsed = parseEnv(data);
-						Object.assign(process.env, parsed);
-					} catch {
-						logger.error(
-							`Unable to parse .dev.vars, variables will not be available to your application.`,
-						);
-					}
-				}
+				// Assign the Wrangler config's effective env (`vars` merged with
+				// `.dev.vars`/`.env` overrides) to process.env so astro:env can find
+				// these variables at build time.
+				loadWranglerEnv(config.root, cloudflareOptions.configPath, logger);
 			},
 			'astro:build:start': ({ setPrerenderer }) => {
 				if (prerenderEnvironment === 'workerd') {
