@@ -2108,7 +2108,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/alias-css-url-data-uri: {}
+  packages/astro/test/fixtures/alias-css-url-data-uri:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
 
   packages/astro/test/fixtures/alias-path-alias-style:
     dependencies:
