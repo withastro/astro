@@ -12,6 +12,50 @@ const qualityTable: Record<ImageQualityPreset, number> = {
 	max: 100,
 };
 
+/**
+ * Transforms an already-resolved image stream. Split out from `transform` so the build
+ * can hand over source bytes it read itself: during the build the original image lives
+ * in Astro's intermediate output rather than behind the ASSETS binding, so the worker
+ * has no way to fetch it.
+ */
+export async function transformStream(
+	body: ReadableStream,
+	params: URLSearchParams,
+	images: ImagesBinding,
+): Promise<Response> {
+	const supportedFormats: Record<string, ImageOutputOptions['format']> = {
+		jpeg: 'image/jpeg',
+		jpg: 'image/jpeg',
+		png: 'image/png',
+		gif: 'image/gif',
+		webp: 'image/webp',
+		avif: 'image/avif',
+	};
+
+	const outputFormat = supportedFormats[params.get('f') ?? ''];
+
+	if (!outputFormat) {
+		return new Response(`Unsupported format: ${params.get('f')}`, { status: 400 });
+	}
+
+	return (
+		await images
+			.input(body)
+			.transform({
+				width: params.has('w') ? Number.parseInt(params.get('w')!) : undefined,
+				height: params.has('h') ? Number.parseInt(params.get('h')!) : undefined,
+				fit: params.get('fit') as ImageTransform['fit'],
+			})
+			.output({
+				quality: params.get('q')
+					? (qualityTable[params.get('q') as ImageQualityPreset] ??
+						Number.parseInt(params.get('q')!))
+					: undefined,
+				format: outputFormat,
+			})
+	).response();
+}
+
 export async function transform(
 	rawUrl: string,
 	images: ImagesBinding,
@@ -49,36 +93,6 @@ export async function transform(
 	if (!content.body) {
 		return new Response(null, { status: 404 });
 	}
-	const input = images.input(content.body);
 
-	const supportedFormats: Record<string, ImageOutputOptions['format']> = {
-		jpeg: 'image/jpeg',
-		jpg: 'image/jpeg',
-		png: 'image/png',
-		gif: 'image/gif',
-		webp: 'image/webp',
-		avif: 'image/avif',
-	};
-
-	const outputFormat = supportedFormats[url.searchParams.get('f') ?? ''];
-
-	if (!outputFormat) {
-		return new Response(`Unsupported format: ${url.searchParams.get('f')}`, { status: 400 });
-	}
-
-	return (
-		await input
-			.transform({
-				width: url.searchParams.has('w') ? Number.parseInt(url.searchParams.get('w')!) : undefined,
-				height: url.searchParams.has('h') ? Number.parseInt(url.searchParams.get('h')!) : undefined,
-				fit: url.searchParams.get('fit') as ImageTransform['fit'],
-			})
-			.output({
-				quality: url.searchParams.get('q')
-					? (qualityTable[url.searchParams.get('q') as ImageQualityPreset] ??
-						Number.parseInt(url.searchParams.get('q')!))
-					: undefined,
-				format: outputFormat,
-			})
-	).response();
+	return transformStream(content.body, url.searchParams, images);
 }

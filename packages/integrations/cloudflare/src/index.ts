@@ -143,9 +143,13 @@ export default function createIntegration({
 	let hasUserBuildImageService = false;
 	let compileImageConfig: CompileImageConfig | null = null;
 
-	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
+	const { buildService, runtimeService, transformAtBuild } =
+		normalizeImageServiceConfig(imageService);
 	const needsImagesBinding = runtimeService === 'cloudflare-binding';
 	const hasBuildImageService = buildService === 'compile' || buildService === 'custom';
+	// Opt-in: user explicitly requested build-time image transformation via the compound config.
+	// The string shorthand `'cloudflare-binding'` keeps the historical runtime-only behavior.
+	const isBindingBuild = transformAtBuild && buildService === 'cloudflare-binding';
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -184,10 +188,10 @@ export default function createIntegration({
 
 				const needsSessionKVBinding = usesCloudflareKVSessionDriver(session);
 
-				// In dev, `compile` needs the IMAGES binding for real transforms
-				// (the image-transform-endpoint uses it). At build time,
+				// In dev, `compile` and binding builds need the IMAGES binding for real
+				// transforms (the image-transform-endpoint uses it). At build time,
 				// `compile` uses Sharp on the Node side instead.
-				const needsImagesBindingForDev = isCompile && command === 'dev';
+				const needsImagesBindingForDev = (isCompile || isBindingBuild) && command === 'dev';
 				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
 				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
 				const isTypeGenPhase = command === 'build' || command === 'sync';
@@ -213,7 +217,9 @@ export default function createIntegration({
 										...(queues?.producers?.length && {
 											queues: { producers: queues.producers },
 										}),
-										...(needsImagesBinding &&
+										// `isBindingBuild` needs the IMAGES binding in the prerender
+										// worker even when the runtime service is `passthrough`.
+										...((needsImagesBinding || isBindingBuild) &&
 											!restWorkerConfig.images && {
 												images: { binding: imagesBindingName },
 											}),
@@ -415,7 +421,7 @@ export default function createIntegration({
 								// cannot be resolved yet. The plugin serializes this object lazily
 								// at load time, after the mutation below has happened.
 								compileImageConfig:
-									hasBuildImageService && command !== 'dev'
+									(hasBuildImageService || isBindingBuild) && command !== 'dev'
 										? (compileImageConfig = {
 												base: config.base,
 												assetsPrefix:
@@ -424,6 +430,7 @@ export default function createIntegration({
 														: undefined,
 												imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
 												buildAssets: config.build.assets ?? '_astro',
+												transformWithBinding: isBindingBuild,
 											})
 										: null,
 								cacheProviderEnabled: needsWorkerCache,
@@ -503,7 +510,7 @@ export default function createIntegration({
 				// these variables at build time.
 				loadWranglerEnv(config.root, cloudflareOptions.configPath, logger);
 			},
-			'astro:build:start': ({ setPrerenderer }) => {
+			'astro:build:start': ({ setPrerenderer, logger }) => {
 				if (prerenderEnvironment === 'workerd') {
 					setPrerenderer(
 						createCloudflarePrerenderer({
@@ -514,9 +521,11 @@ export default function createIntegration({
 							trailingSlash: _config.trailingSlash,
 							cfPluginConfig,
 							hasBuildImageService,
+							hasBindingImageService: isBindingBuild,
 							userImageServiceEntrypoint: hasUserBuildImageService
 								? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
 								: undefined,
+							logger,
 						}),
 					);
 				} else if (hasBuildImageService) {
