@@ -11,6 +11,22 @@ import type { BaseApp } from 'astro/app';
 import { resolveClientDir } from './shared.js';
 import type { Options, RequestHandler } from './types.js';
 
+// Share one process listener across handlers while keeping request context isolated.
+// The WeakSet matches only the exact errors emitted by aborted requests.
+const requestContext = new AsyncLocalStorage<{ app: BaseApp; url: string }>();
+const abortedRequestErrors = new WeakSet<Error>();
+
+process.on('unhandledRejection', (reason) => {
+	if (reason instanceof Error && abortedRequestErrors.has(reason)) return;
+	const context = requestContext.getStore();
+	if (!context) {
+		console.error(reason);
+		return;
+	}
+	const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
+	context.app.adapterLogger.error(`Unhandled rejection while rendering ${context.url}\n${error}`);
+});
+
 /**
  * Read a prerendered error page from disk and return it as a Response.
  * Returns undefined if the file doesn't exist or can't be read.
@@ -54,17 +70,7 @@ async function readErrorPageFromDisk(
  * Intended to be used in both standalone and middleware mode.
  */
 export function createAppHandler(app: BaseApp, options: Options): RequestHandler {
-	/**
-	 * Keep track of the current request path using AsyncLocalStorage.
-	 * Used to log unhandled rejections with a helpful message.
-	 */
-	const als = new AsyncLocalStorage<string>();
 	const logger = app.adapterLogger;
-	process.on('unhandledRejection', (reason) => {
-		const requestUrl = als.getStore();
-		logger.error(`Unhandled rejection while rendering ${requestUrl}`);
-		console.error(reason);
-	});
 
 	const client = resolveClientDir(options);
 
@@ -91,6 +97,9 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 			: options.bodySizeLimit;
 
 	return async (req, res, next, locals) => {
+		req.once('error', (error: NodeJS.ErrnoException) => {
+			if (error.code === 'ECONNRESET') abortedRequestErrors.add(error);
+		});
 		let request: Request;
 		try {
 			request = createRequestFromNodeRequest(req, {
@@ -105,32 +114,35 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 			res.end('Internal Server Error');
 			return;
 		}
+		const context = { app, url: request.url };
 
 		// Redirects are considered prerendered routes in static mode, but we want to
 		// handle them dynamically, so prerendered routes are included here.
 		const routeData = app.match(request, true);
 		// But we still want to skip prerendered pages.
 		if (routeData && !(routeData.type === 'page' && routeData.prerender)) {
-			const response = await als.run(request.url, () =>
-				app.render(request, {
+			await requestContext.run(context, async () => {
+				const response = await app.render(request, {
 					addCookieHeader: true,
 					locals,
 					routeData,
 					prerenderedErrorPageFetch,
-				}),
-			);
-			await writeResponse(response, res);
+				});
+				await writeResponse(response, res);
+			});
 		} else if (next) {
 			// Since we're not calling `writeResponse()`, clean up the AbortController and socket listeners
 			const cleanup = getAbortControllerCleanup(req);
 			if (cleanup) cleanup();
 			return next();
 		} else {
-			const response = await app.render(request, {
-				addCookieHeader: true,
-				prerenderedErrorPageFetch,
+			await requestContext.run(context, async () => {
+				const response = await app.render(request, {
+					addCookieHeader: true,
+					prerenderedErrorPageFetch,
+				});
+				await writeResponse(response, res);
 			});
-			await writeResponse(response, res);
 		}
 	};
 }
