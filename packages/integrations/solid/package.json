@@ -35,7 +35,8 @@
   },
   "dependencies": {
     "vite": "^8.0.13",
-    "vite-plugin-solid": "^2.11.12"
+    "vite-plugin-solid": "^2.11.12",
+    "vitefu": "^1.1.2"
   },
   "devDependencies": {
     "astro": "workspace:*",
