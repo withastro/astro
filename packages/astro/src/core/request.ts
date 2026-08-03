@@ -12,13 +12,26 @@ interface CreateRequestOptions {
 	logger: AstroLogger;
 	locals?: object | undefined;
 	/**
-	 * Whether the request is being created for a static build or for a prerendered page within a hybrid/SSR build, or for emulating one of those in dev mode.
+	 * Whether the matched route is prerendered.
 	 *
-	 * When `true`, the request will not include search parameters or body, and warn when headers are accessed.
+	 * On its own this only describes the route. Whether request data (headers, body, search
+	 * params) is stripped is controlled by `preserveRequestData`: a prerendered route is treated
+	 * as static generation (data stripped) unless `preserveRequestData` is `true`.
 	 *
 	 * @default false
 	 */
 	isPrerendered?: boolean;
+
+	/**
+	 * Whether to keep request data (headers, body, search params) available even for a prerendered
+	 * route. Set this when a prerendered page is served live at request time — for example, in
+	 * `"on-request"` middleware mode — so middleware can read the real request.
+	 *
+	 * Ignored when `isPrerendered` is `false` (request data is always available for SSR routes).
+	 *
+	 * @default false
+	 */
+	preserveRequestData?: boolean;
 
 	routePattern: string;
 
@@ -39,11 +52,17 @@ export function createRequest({
 	body = undefined,
 	logger,
 	isPrerendered = false,
+	preserveRequestData = false,
 	routePattern,
 	init,
 }: CreateRequestOptions): Request {
+	// A prerendered route is treated as static generation — with no request data — unless the
+	// caller asks to preserve it (e.g. a prerendered page served live through `"on-request"`
+	// middleware). SSR routes always have request data available.
+	const treatAsStatic = isPrerendered && !preserveRequestData;
+
 	// headers are made available on the created request only if the request is for a page that will be on-demand rendered
-	const headersObj = isPrerendered
+	const headersObj = treatAsStatic
 		? undefined
 		: headers instanceof Headers
 			? headers
@@ -58,7 +77,7 @@ export function createRequest({
 	if (typeof url === 'string') url = new URL(url);
 
 	// Remove search parameters if the request is for a page that will be on-demand rendered
-	if (isPrerendered) {
+	if (treatAsStatic) {
 		url.search = '';
 	}
 
@@ -66,11 +85,11 @@ export function createRequest({
 		method: method,
 		headers: headersObj,
 		// body is made available only if the request is for a page that will be on-demand rendered
-		body: isPrerendered ? null : body,
+		body: treatAsStatic ? null : body,
 		...init,
 	});
 
-	if (isPrerendered) {
+	if (treatAsStatic) {
 		// Warn when accessing headers in SSG mode
 		let _headers = request.headers;
 

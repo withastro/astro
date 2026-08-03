@@ -1,0 +1,25 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout>
+	<h1>Login</h1>
+	<p>You must be logged in to access this page.</p>
+	<p>
+		Note: this is a dummy login, any username/password combination will work. The login API just
+		sets a cookie to simulate authentication.
+	</p>
+	<form method="POST" action="/api/login">
+		<label>
+			Username:
+			<input type="text" name="username" required />
+		</label>
+		<br />
+		<label>
+			Password:
+			<input type="password" name="password" required />
+		</label>
+		<br />
+		<button type="submit">Login</button>
+	</form>
+</Layout>

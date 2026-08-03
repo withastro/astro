@@ -1,50 +1,62 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { createReadStream } from 'node:fs';
-import path from 'node:path';
 import { Readable } from 'node:stream';
 import {
 	createRequestFromNodeRequest,
 	writeResponse,
 	getAbortControllerCleanup,
+	getStaticAssetPath,
 } from 'astro/app/node';
 import type { BaseApp } from 'astro/app';
-import { resolveClientDir } from './shared.js';
+import type { RouteData } from 'astro';
+import { resolveClientDir, resolvePathWithinDir } from './shared.js';
 import type { Options, RequestHandler } from './types.js';
 
 /**
- * Read a prerendered error page from disk and return it as a Response.
+ * Read a prerendered page from disk by output path and return it as a Response.
  * Returns undefined if the file doesn't exist or can't be read.
+ */
+async function readPageFromDisk(
+	client: string,
+	staticAssetPath: string,
+): Promise<Response | undefined> {
+	// `staticAssetPath` is derived from the request pathname (via
+	// `getStaticAssetPath`), which is fully decoded and may still contain `..`
+	// segments, so guard against path traversal before touching the filesystem.
+	const { filePath, isContained } = resolvePathWithinDir(client, staticAssetPath);
+	if (!isContained) {
+		return undefined;
+	}
+	let stream: ReturnType<typeof createReadStream> | undefined;
+	try {
+		stream = createReadStream(filePath);
+		await new Promise<void>((resolve, reject) => {
+			stream!.once('open', () => resolve());
+			stream!.once('error', reject);
+		});
+		const webStream = Readable.toWeb(stream) as ReadableStream;
+		return new Response(webStream, {
+			headers: { 'Content-Type': 'text/html; charset=utf-8' },
+		});
+	} catch {
+		stream?.destroy();
+		return undefined;
+	}
+}
+
+/**
+ * Read a prerendered error page (404 or 500) from disk. Tries both the
+ * `${status}.html` and `${status}/index.html` layouts, since either may be
+ * emitted depending on the build format, and returns the first one found.
  */
 async function readErrorPageFromDisk(
 	client: string,
-	status: number,
+	status: 404 | 500,
 ): Promise<Response | undefined> {
-	// Try both /404.html and /404/index.html patterns
-	const filePaths = [`${status}.html`, `${status}/index.html`];
-
-	for (const filePath of filePaths) {
-		const fullPath = path.join(client, filePath);
-		// Declare stream outside try so it's accessible in catch for cleanup.
-		let stream: ReturnType<typeof createReadStream> | undefined;
-		try {
-			stream = createReadStream(fullPath);
-			// Wait for the stream to open successfully or error
-			await new Promise<void>((resolve, reject) => {
-				stream!.once('open', () => resolve());
-				stream!.once('error', reject);
-			});
-			const webStream = Readable.toWeb(stream) as ReadableStream;
-			return new Response(webStream, {
-				headers: { 'Content-Type': 'text/html; charset=utf-8' },
-			});
-		} catch {
-			// File doesn't exist or can't be read, try next pattern.
-			// Destroy the stream to release the file descriptor if it was
-			// partially opened before the error fired.
-			stream?.destroy();
-		}
+	for (const filePath of [`${status}.html`, `${status}/index.html`]) {
+		const response = await readPageFromDisk(client, filePath);
+		if (response) return response;
 	}
-
 	return undefined;
 }
 
@@ -84,6 +96,20 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		return new Response(null, { status: 404 });
 	};
 
+	const getStaticAsset = async (
+		routeData: RouteData,
+		pathname: string,
+	): Promise<Response | undefined> => {
+		const staticAssetPath = getStaticAssetPath(pathname, {
+			base: app.manifest.base,
+			buildFormat: app.manifest.buildFormat,
+			isIndex: routeData.isIndex,
+		});
+		return readPageFromDisk(client, staticAssetPath);
+	};
+
+	const shouldServePrerenderedThroughMiddleware = app.manifest.middlewareMode === 'on-request';
+
 	// Use the configured body size limit. A value of 0 or Infinity disables the limit.
 	const effectiveBodySizeLimit =
 		options.bodySizeLimit === 0 || options.bodySizeLimit === Number.POSITIVE_INFINITY
@@ -109,14 +135,25 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 		// Redirects are considered prerendered routes in static mode, but we want to
 		// handle them dynamically, so prerendered routes are included here.
 		const routeData = app.match(request, true);
-		// But we still want to skip prerendered pages.
-		if (routeData && !(routeData.type === 'page' && routeData.prerender)) {
+		// In classic middleware mode, prerendered pages are served as static files by the
+		// static handler. Skip them here so requests for unknown prerendered paths (e.g.
+		// /dogs/unknown when only /dogs/clifford was prerendered) fall through to the 404
+		// handler instead of producing a 500.
+		// In 'on-request' mode, prerendered pages are served through the
+		// middleware at request time using getStaticAsset.
+		const isPrerenderedPage = routeData?.type === 'page' && routeData.prerender;
+		if (routeData && (!isPrerenderedPage || shouldServePrerenderedThroughMiddleware)) {
 			const response = await als.run(request.url, () =>
 				app.render(request, {
 					addCookieHeader: true,
 					locals,
 					routeData,
 					prerenderedErrorPageFetch,
+					// Supply `getStaticAsset` for every request in `on-request` mode, not
+					// just when the initial route is prerendered: an SSR route may rewrite
+					// to a prerendered target, and the rewrite is only allowed (and the
+					// target only serveable) when this callback is available.
+					getStaticAsset: shouldServePrerenderedThroughMiddleware ? getStaticAsset : undefined,
 				}),
 			);
 			await writeResponse(response, res);

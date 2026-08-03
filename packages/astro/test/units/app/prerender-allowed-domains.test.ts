@@ -36,6 +36,7 @@ describe('FetchState with allowedDomains and prerendered routes', () => {
 			clientAddress: undefined,
 			locals: undefined,
 			prerenderedErrorPageFetch: fetch,
+			getStaticAsset: undefined,
 			waitUntil: undefined,
 		});
 
@@ -76,6 +77,7 @@ describe('FetchState with allowedDomains and prerendered routes', () => {
 			clientAddress: undefined,
 			locals: undefined,
 			prerenderedErrorPageFetch: fetch,
+			getStaticAsset: undefined,
 			waitUntil: undefined,
 		});
 

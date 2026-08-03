@@ -21,6 +21,7 @@ function createState(
 		clientAddress: undefined,
 		locals: undefined,
 		prerenderedErrorPageFetch: fetch,
+		getStaticAsset: undefined,
 		waitUntil: undefined,
 	});
 	state.params = {};
@@ -174,6 +175,7 @@ describe('Rewrites.execute()', () => {
 			clientAddress: undefined,
 			locals: undefined,
 			prerenderedErrorPageFetch: fetch,
+			getStaticAsset: undefined,
 			waitUntil: undefined,
 		});
 	}

@@ -48,7 +48,14 @@ export function applyRewriteToState(
 		pipeline.manifest.serverLike &&
 		!state.routeData!.prerender &&
 		routeData.prerender &&
-		!isI18nFallback
+		!isI18nFallback &&
+		// In `on-request` middleware mode the prerendered route is always reachable
+		// at request time — served from disk via `getStaticAsset` in production, or
+		// rendered live in dev — so rewriting to it is allowed. Keying off the mode
+		// (rather than only `getStaticAsset`, which dev never provides) keeps dev and
+		// production consistent.
+		pipeline.manifest.middlewareMode !== 'on-request' &&
+		!state.getStaticAsset
 	) {
 		throw new AstroError({
 			...ForbiddenRewrite,
@@ -62,13 +69,16 @@ export function applyRewriteToState(
 	if (payload instanceof Request) {
 		state.request = payload;
 	} else {
-		state.request = copyRequest(
+		state.request = copyRequest({
 			newUrl,
-			state.request,
-			routeData.prerender,
-			pipeline.logger,
-			state.routeData!.route,
-		);
+			oldRequest: state.request,
+			isPrerendered: routeData.prerender,
+			logger: pipeline.logger,
+			routePattern: state.routeData!.route,
+			// Prerendered routes normally drop request headers; keep them when
+			// middleware runs at request time so it can read them.
+			includeHeaders: pipeline.manifest.middlewareMode === 'on-request' || !routeData.prerender,
+		});
 	}
 	state.url = createNormalizedUrl(state.request.url);
 	if (mergeCookies) {

@@ -30,6 +30,10 @@ export class BuildPipeline extends Pipeline {
 		return 'BuildPipeline';
 	}
 
+	override isBuildTime(): boolean {
+		return true;
+	}
+
 	/**
 	 * This cache is needed to map a single `RouteData` to its file path.
 	 * @private

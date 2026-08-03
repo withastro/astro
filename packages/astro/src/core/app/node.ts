@@ -9,6 +9,7 @@ import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import type { RenderOptions } from './base.js';
 import { App } from './app.js';
 import type { NodeAppHeadersJson, SerializedSSRManifest, SSRManifest } from './types.js';
+export { getStaticAssetPath, stripBasePathname } from '../util/static-paths.js';
 import {
 	getFirstForwardedValue,
 	validateForwardedHeaders,

@@ -6,4 +6,6 @@ export {
 	createRequestFromNodeRequest,
 	writeResponse,
 	getAbortControllerCleanup,
+	getStaticAssetPath,
+	stripBasePathname,
 } from '../node.js';

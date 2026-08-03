@@ -70,6 +70,23 @@ export interface RenderOptions {
 	prerenderedErrorPageFetch?: (url: ErrorPagePath) => Promise<Response>;
 
 	/**
+	 * A custom function for retrieving a prerendered static asset by route and pathname.
+	 *
+	 * When provided and a prerendered route is matched, Astro will run middleware at request time
+	 * and then call this function (instead of rendering the page component) to obtain the HTML.
+	 *
+	 * Return `undefined` when no prerendered asset exists for the given pathname (for example, the
+	 * file is not on disk). Astro then falls back to its 404 handling — rendering the custom 404
+	 * page if one is available, or an empty 404 response otherwise.
+	 *
+	 * @param {RouteData} route - The matched route data.
+	 * @param {string} pathname - The current request pathname (base-stripped).
+	 * @returns {Promise<Response | undefined>} A prerendered response, or `undefined` when the asset
+	 *   is not found.
+	 */
+	getStaticAsset?: (route: RouteData, pathname: string) => Promise<Response | undefined>;
+
+	/**
 	 * Optional platform hook to keep background work alive after the response is sent.
 	 *
 	 * Adapters can pass this through so runtime cache providers can schedule cache writes
@@ -91,6 +108,7 @@ export interface ResolvedRenderOptions {
 	addCookieHeader: RequiredRenderOptions['addCookieHeader'];
 	clientAddress: RequiredRenderOptions['clientAddress'] | undefined;
 	prerenderedErrorPageFetch: RequiredRenderOptions['prerenderedErrorPageFetch'] | undefined;
+	getStaticAsset: RequiredRenderOptions['getStaticAsset'] | undefined;
 	locals: RequiredRenderOptions['locals'] | undefined;
 	routeData: RequiredRenderOptions['routeData'] | undefined;
 	waitUntil: RequiredRenderOptions['waitUntil'] | undefined;
@@ -355,6 +373,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			clientAddress = Reflect.get(request, clientAddressSymbol),
 			locals,
 			prerenderedErrorPageFetch = fetch,
+			getStaticAsset,
 			routeData,
 			waitUntil,
 		}: RenderOptions = {},
@@ -381,6 +400,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 					addCookieHeader,
 					clientAddress,
 					prerenderedErrorPageFetch,
+					getStaticAsset,
 					// If locals are invalid, we don't want to include them when
 					// rendering the error page
 					locals: undefined,
@@ -404,6 +424,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			addCookieHeader,
 			clientAddress,
 			prerenderedErrorPageFetch,
+			getStaticAsset,
 			locals,
 			routeData,
 			waitUntil,
@@ -427,6 +448,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				addCookieHeader,
 				clientAddress,
 				prerenderedErrorPageFetch,
+				getStaticAsset,
 				locals,
 				routeData,
 				waitUntil,

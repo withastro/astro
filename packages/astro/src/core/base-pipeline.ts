@@ -252,6 +252,17 @@ export abstract class Pipeline {
 	abstract getName(): string;
 
 	/**
+	 * Whether this pipeline runs during `astro build` static generation
+	 * (i.e. real prerendering). `false` for dev and request-time pipelines.
+	 * Overridden to return `true` by `BuildPipeline`. Used to decide whether
+	 * `on-request` middleware should be skipped (skipped at build, run at
+	 * request time).
+	 */
+	isBuildTime(): boolean {
+		return false;
+	}
+
+	/**
 	 * Resolves the middleware from the manifest, and returns the `onRequest` function. If `onRequest` isn't there,
 	 * it returns a no-op function
 	 */

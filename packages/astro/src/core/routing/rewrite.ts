@@ -133,32 +133,45 @@ export function findRouteToRewrite({
 	}
 }
 
+interface CopyRequest {
+	newUrl: URL;
+	oldRequest: Request;
+	isPrerendered: boolean;
+	logger: AstroLogger;
+	routePattern: string;
+	/**
+	 * Whether the request should inherit the headers. Defaults to `true` for non-prerendered requests, and `false` for prerendered requests.
+	 */
+	includeHeaders: boolean;
+}
 /**
  * Utility function that creates a new `Request` with a new URL from an old `Request`.
- *
- * @param newUrl The new `URL`
- * @param oldRequest The old `Request`
- * @param isPrerendered It needs to be the flag of the previous routeData, before the rewrite
- * @param logger
- * @param routePattern
+
  */
-export function copyRequest(
-	newUrl: URL,
-	oldRequest: Request,
-	isPrerendered: boolean,
-	logger: AstroLogger,
-	routePattern: string,
-): Request {
+export function copyRequest({
+	newUrl,
+	oldRequest,
+	isPrerendered,
+	logger,
+	routePattern,
+	includeHeaders,
+}: CopyRequest): Request {
 	if (oldRequest.bodyUsed) {
 		throw new AstroError(AstroErrorData.RewriteWithBodyUsed);
 	}
+	const keepRequestData = includeHeaders ?? !isPrerendered;
 	return createRequest({
 		url: newUrl,
 		method: oldRequest.method,
 		body: oldRequest.body,
 		isPrerendered,
+		// When headers are carried into a prerendered rewrite target (on-request
+		// middleware mode), preserve the rest of the request data (body, search
+		// params) too — otherwise `createRequest` strips it as static generation
+		// and the `includeHeaders` intent would only partially apply.
+		preserveRequestData: keepRequestData,
 		logger,
-		headers: isPrerendered ? {} : oldRequest.headers,
+		headers: keepRequestData ? oldRequest.headers : {},
 		routePattern,
 		init: {
 			referrer: oldRequest.referrer,
