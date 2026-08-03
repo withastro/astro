@@ -435,6 +435,7 @@ export async function renderPath({
 		config.build.format,
 		config.trailingSlash,
 		route.type,
+		route.isIndex,
 	);
 
 	const request = createRequest({
@@ -580,6 +581,7 @@ function getUrlForPath(
 	format: AstroConfig['build']['format'],
 	trailingSlash: AstroConfig['trailingSlash'],
 	routeType: RouteType,
+	isIndex: boolean,
 ): URL {
 	/**
 	 * Examples:
@@ -588,9 +590,11 @@ function getUrlForPath(
 	 */
 
 	let ending: string;
-	switch (format) {
-		case 'directory':
-		case 'preserve': {
+	// For `preserve`, non-index routes output as flat `.html` files (like `file`),
+	// while index routes output as `dir/index.html` (like `directory`).
+	const effectiveFormat = format === 'preserve' ? (isIndex ? 'directory' : 'file') : format;
+	switch (effectiveFormat) {
+		case 'directory': {
 			ending = trailingSlash === 'never' ? '' : '/';
 			break;
 		}
@@ -602,7 +606,7 @@ function getUrlForPath(
 	}
 	let buildPathname: string;
 	if (pathname === '/' || pathname === '') {
-		if (format === 'file') {
+		if (effectiveFormat === 'file') {
 			buildPathname = joinPaths(base, 'index.html');
 		} else {
 			buildPathname = collapseDuplicateTrailingSlashes(base + ending, trailingSlash !== 'never');
