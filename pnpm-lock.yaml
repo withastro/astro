@@ -2105,6 +2105,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/alias-css-url-data-uri:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/alias-path-alias-style:
     dependencies:
       astro:
@@ -4602,6 +4608,15 @@ importers:
         specifier: ^4.83.0
         version: 4.95.0(@cloudflare/workers-types@4.20260527.1)
 
+  packages/integrations/cloudflare/test/fixtures/binding-image-cache:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/cloudflare/test/fixtures/binding-image-service:
     dependencies:
       '@astrojs/cloudflare':
@@ -4667,6 +4682,15 @@ importers:
       wrangler:
         specifier: ^4.83.0
         version: 4.95.0(@cloudflare/workers-types@4.20260527.1)
+
+  packages/integrations/cloudflare/test/fixtures/custom-image-service:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
 
   packages/integrations/cloudflare/test/fixtures/dev-image-endpoint:
     dependencies:
@@ -6143,6 +6167,9 @@ importers:
       vite-plugin-solid:
         specifier: ^2.11.12
         version: 2.11.12(solid-js@1.9.13)(vite@8.1.0)
+      vitefu:
+        specifier: ^1.1.2
+        version: 1.1.2(vite@8.1.0)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -11581,6 +11608,7 @@ packages:
   cron-parser@4.9.0:
     resolution: {integrity: sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q==}
     engines: {node: '>=12.0.0'}
+    deprecated: v4 is no longer maintained, upgrade to v5
 
   cross-argv@2.0.0:
     resolution: {integrity: sha512-YIaY9TR5Nxeb8SMdtrU8asWVM4jqJDNDYlKV21LxtYcfNJhp1kEsgSa6qXwXgzN0WQWGODps0+TlGp2xQSHwOg==}

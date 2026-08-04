@@ -1,6 +1,8 @@
 import type { AstroIntegration, AstroIntegrationLogger, AstroRenderer } from 'astro';
+import { fileURLToPath } from 'node:url';
 import type { PluginOption, Plugin } from 'vite';
 import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
+import { crawlFrameworkPkgs } from 'vitefu';
 import { getContainerRenderer as getContainerRendererImpl } from './container-renderer.js';
 
 // TODO: keep in sync with https://github.com/thetarnav/solid-devtools/blob/main/packages/main/src/vite/index.ts#L7
@@ -44,10 +46,11 @@ async function getDevtoolsPlugin(logger: AstroIntegrationLogger, retrieve: boole
 function getViteConfiguration(
 	{ include, exclude }: Options,
 	devtoolsPlugin: DevtoolsPlugin | null,
+	solidNoExternal: string[],
 ) {
 	const plugins: PluginOption[] = [
 		solid({ include, exclude, ssr: true }),
-		configEnvironmentPlugin(),
+		configEnvironmentPlugin(solidNoExternal),
 	];
 
 	if (devtoolsPlugin) {
@@ -77,6 +80,7 @@ export default function (options: Options = {}): AstroIntegration {
 		hooks: {
 			'astro:config:setup': async ({
 				command,
+				config,
 				addRenderer,
 				updateConfig,
 				injectScript,
@@ -87,9 +91,23 @@ export default function (options: Options = {}): AstroIntegration {
 					!!options.devtools && command === 'dev',
 				);
 
+				// Solid component libraries that ship pre-compiled browser
+				// artifacts via the `exports.solid` condition must go through
+				// Vite's transform pipeline in non-client environments.
+				// Without this, Node resolves those packages via the `default`
+				// condition, which picks up browser-only code that crashes
+				// during prerendering.
+				const solidPackages = await crawlFrameworkPkgs({
+					root: fileURLToPath(config.root),
+					isBuild: false,
+					isFrameworkPkgByJson(pkgJson) {
+						return !!pkgJson.peerDependencies?.['solid-js'];
+					},
+				});
+
 				addRenderer(getContainerRendererImpl());
 				updateConfig({
-					vite: getViteConfiguration(options, devtoolsPlugin),
+					vite: getViteConfiguration(options, devtoolsPlugin, solidPackages.ssr.noExternal),
 				});
 
 				if (devtoolsPlugin) {
@@ -112,13 +130,21 @@ export default function (options: Options = {}): AstroIntegration {
 	};
 }
 
-function configEnvironmentPlugin(): Plugin {
+function configEnvironmentPlugin(solidNoExternal: string[]): Plugin {
 	return {
 		name: '@astrojs/solid:config-environment',
 		configEnvironment(environmentName) {
+			if (environmentName === 'client') {
+				return {
+					optimizeDeps: {
+						include: ['@astrojs/solid-js/client.js'],
+						exclude: ['@astrojs/solid-js/server.js'],
+					},
+				};
+			}
 			return {
+				resolve: { noExternal: solidNoExternal },
 				optimizeDeps: {
-					include: environmentName === 'client' ? ['@astrojs/solid-js/client.js'] : [],
 					exclude: ['@astrojs/solid-js/server.js'],
 				},
 			};
