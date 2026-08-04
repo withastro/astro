@@ -699,8 +699,15 @@ async function generatePathWithPrerenderer(
 		routeToHeaders,
 		logger,
 	});
-	const contentEntryKeys = cache ? endContentEntryCollection() : undefined;
-	const staticImages = cache ? endImageCollection() : undefined;
+	// In-process prerenderers populate these collectors while rendering; always
+	// end them to clear the buckets for the next path. An out-of-process
+	// prerenderer (e.g. workerd) collects in its own runtime and reports the
+	// result through `takeRenderMetadata`, which takes precedence when present.
+	const collectedContentEntryKeys = cache ? endContentEntryCollection() : undefined;
+	const collectedStaticImages = cache ? endImageCollection() : undefined;
+	const renderMetadata = cache ? prerenderer.takeRenderMetadata?.() : undefined;
+	const contentEntryKeys = renderMetadata?.contentEntryKeys ?? collectedContentEntryKeys;
+	const staticImages = renderMetadata?.staticImages ?? collectedStaticImages;
 	// Headers are collected only for `staticHeaders` adapters (see `renderPath`).
 	// Persist them so a skipped path can replay its route into the headers file.
 	const headers = cache ? [...(routeToHeaders.get(pathname)?.headers ?? [])] : undefined;

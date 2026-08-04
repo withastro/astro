@@ -3,6 +3,7 @@ import type {
 	AstroPrerenderer,
 	AssetsGlobalStaticImagesList,
 	PathWithRoute,
+	PrerenderRenderMetadata,
 } from 'astro';
 import { preview, createLogger, type PreviewServer as VitePreviewServer } from 'vite';
 import { fileURLToPath } from 'node:url';
@@ -12,6 +13,7 @@ import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import type {
 	StaticPathsResponse,
 	PrerenderRequest,
+	PrerenderEnvelope,
 	StaticImagesResponse,
 } from './prerender-types.js';
 import {
@@ -29,6 +31,7 @@ interface CloudflarePrerendererOptions {
 	cfPluginConfig: PluginConfig;
 	hasBuildImageService: boolean;
 	userImageServiceEntrypoint?: string;
+	incremental: boolean;
 }
 
 /**
@@ -44,9 +47,14 @@ export function createCloudflarePrerenderer({
 	cfPluginConfig,
 	hasBuildImageService,
 	userImageServiceEntrypoint,
+	incremental,
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
 	let serverUrl: string;
+	// Metadata reported by the worker for the most recent `render()`, consumed by
+	// the build via `takeRenderMetadata`. Rendering is sequential, so a single
+	// slot is sufficient.
+	let lastRenderMetadata: PrerenderRenderMetadata | undefined;
 
 	return {
 		name: '@astrojs/cloudflare:prerenderer',
@@ -128,6 +136,7 @@ export function createCloudflarePrerenderer({
 			const body: PrerenderRequest = {
 				url: request.url,
 				routeData: serializeRouteData(routeData, trailingSlash),
+				incremental,
 			};
 
 			const response = await fetch(`${serverUrl}${PRERENDER_ENDPOINT}`, {
@@ -146,7 +155,26 @@ export function createCloudflarePrerenderer({
 				throw new Error(`Failed to prerender ${request.url}: ${prerenderError}`);
 			}
 
+			// Incremental builds receive a `PrerenderEnvelope` wrapping the response
+			// alongside the metadata collected in workerd, since a raw response
+			// cannot carry it. Reconstruct the response for the build to write.
+			if (incremental) {
+				const envelope: PrerenderEnvelope = await response.json();
+				lastRenderMetadata = envelope.metadata;
+				return new Response(Buffer.from(envelope.body, 'base64'), {
+					status: envelope.status,
+					statusText: envelope.statusText,
+					headers: envelope.headers,
+				});
+			}
+
 			return response;
+		},
+
+		takeRenderMetadata(): PrerenderRenderMetadata | undefined {
+			const metadata = lastRenderMetadata;
+			lastRenderMetadata = undefined;
+			return metadata;
 		},
 
 		collectStaticImages: hasBuildImageService

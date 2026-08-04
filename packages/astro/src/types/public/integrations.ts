@@ -1,7 +1,7 @@
 import type { AddressInfo } from 'node:net';
 import type { ViteDevServer, InlineConfig } from 'vite';
 import type { SerializedSSRManifest } from '../../core/app/types.js';
-import type { AssetsGlobalStaticImagesList } from '../../assets/types.js';
+import type { AssetsGlobalStaticImagesList, SerializedStaticImage } from '../../assets/types.js';
 import type { PageBuildData } from '../../core/build/types.js';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { AdapterFeatureStability } from '../../integrations/features-validation.js';
@@ -254,6 +254,18 @@ export interface PathWithRoute {
  * Custom prerenderer that adapters can provide to control how pages are prerendered.
  * Allows non-Node runtimes (e.g., workerd) to handle prerendering.
  */
+/**
+ * Incremental-build data an out-of-process prerenderer collects while rendering
+ * a page, reported back to the build process so skipped pages can be tracked and
+ * replayed without a re-render.
+ */
+export interface PrerenderRenderMetadata {
+	/** Root-relative `filePath`s of the content entries the page rendered. */
+	contentEntryKeys?: string[];
+	/** Optimized-image transforms the page resolved. */
+	staticImages?: SerializedStaticImage[];
+}
+
 export interface AstroPrerenderer {
 	name: string;
 	/**
@@ -279,6 +291,15 @@ export interface AstroPrerenderer {
 	 * into the Node-side static image list. The default Sharp pipeline runs after.
 	 */
 	collectStaticImages?: () => Promise<AssetsGlobalStaticImagesList>;
+	/**
+	 * Returns the incremental-build metadata collected during the most recent
+	 * `render()` call, then clears it. Out-of-process prerenderers implement this
+	 * to report the content entries and image transforms a page resolved, since
+	 * those are recorded in the adapter's runtime rather than the build process.
+	 * In-process prerenderers populate the build's collectors directly and leave
+	 * this undefined.
+	 */
+	takeRenderMetadata?: () => PrerenderRenderMetadata | undefined;
 	/**
 	 * Called after all pages are prerendered. Use for cleanup like stopping a preview server.
 	 */
