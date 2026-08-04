@@ -3373,6 +3373,7 @@ export interface AstroUserConfig<
 		 *   }));
 		 * }
 		 * ```
+		 * See the [experimental incremental static builds](https://docs.astro.build/en/reference/experimental-flags/incremental-build/) for more information.
 		 */
 		incrementalBuild?: boolean;
 	};
