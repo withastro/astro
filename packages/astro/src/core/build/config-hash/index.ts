@@ -1,16 +1,16 @@
 import crypto from 'node:crypto';
 import type { AstroConfig } from '../../../types/public/config.js';
-import { getConfigHashInput } from './projection.js';
+import { getConfigHashInput } from './input.js';
 
-export { getConfigHashInput } from './projection.js';
+export { getConfigHashInput } from './input.js';
 
 /**
  * Serialize a value with object keys sorted recursively, so that a change in key
  * order does not change the result. Array order is preserved because it is
  * meaningful (e.g. `i18n.locales`, `redirects`). Function and `undefined` values
  * are dropped by `JSON.stringify`, which is what lets us hand whole config
- * objects (like `markdown` or `image`) to the projection and let their
- * non-serializable pockets fall away.
+ * objects (like `markdown` or `image`) to {@link getConfigHashInput} and let
+ * their non-serializable pockets fall away.
  */
 function stableStringify(value: unknown): string {
 	return JSON.stringify(value, (_key, val) => {

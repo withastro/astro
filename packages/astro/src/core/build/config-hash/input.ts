@@ -59,7 +59,7 @@ export function getConfigHashInput(config: AstroConfig) {
 			css: config.vite.css,
 			json: config.vite.json,
 			define: config.vite.define,
-			esbuild: config.vite.esbuild,
+			oxc: config.vite.oxc,
 		},
 		experimental: {
 			clientPrerender: config.experimental.clientPrerender,

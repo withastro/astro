@@ -70,7 +70,7 @@ describe('getConfigHashInput', () => {
 
 	it('includes only the allowlisted vite fields', () => {
 		const input = getConfigHashInput(fakeConfig());
-		assert.deepEqual(Object.keys(input.vite).sort(), ['build', 'css', 'define', 'esbuild', 'json']);
+		assert.deepEqual(Object.keys(input.vite).sort(), ['build', 'css', 'define', 'json', 'oxc']);
 		assert.deepEqual(Object.keys(input.vite.build).sort(), [
 			'assetsInlineLimit',
 			'cssMinify',
