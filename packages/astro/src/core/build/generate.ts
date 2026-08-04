@@ -598,7 +598,10 @@ async function generatePathWithPrerenderer(
 	const dependencyHash = internals.pageDependencyHashes?.get(route.component) ?? '';
 
 	// Incremental build: check if we can skip this path
-	if (cache?.canSkip(route.component, pathname, dependencyHash, cacheKey)) {
+	if (
+		cacheKey !== undefined &&
+		cache?.canSkip(route.component, pathname, dependencyHash, cacheKey)
+	) {
 		const existsInDist = nodeFs.existsSync(outFile);
 		const restored =
 			!existsInDist && (await cache.restoreOutputFile(options.settings, relativeOutFile, outFile));
@@ -657,15 +660,18 @@ async function generatePathWithPrerenderer(
 	const contentEntryKeys = cache ? endContentEntryCollection() : undefined;
 
 	if (!result) {
-		// Still record in cache even if no file was created (empty body, etc.)
-		cache?.record(
-			route.component,
-			dependencyHash,
-			pathname,
-			cacheKey,
-			relativeOutFile,
-			contentEntryKeys,
-		);
+		// A path without a cacheKey is never recorded: it can never be skipped on a
+		// later build. Otherwise record it even when no file was created (empty body).
+		if (cache && cacheKey !== undefined) {
+			cache.record(
+				route.component,
+				dependencyHash,
+				pathname,
+				cacheKey,
+				relativeOutFile,
+				contentEntryKeys,
+			);
+		}
 		logRenderTime(logger, timeStart, true);
 		return;
 	}
@@ -673,11 +679,10 @@ async function generatePathWithPrerenderer(
 	await nodeFs.promises.mkdir(result.outFolder, { recursive: true });
 	await nodeFs.promises.writeFile(result.outFile, result.body);
 
-	// Record this path in the new cache
-	if (cache) {
-		if (cacheKey !== undefined) {
-			await cache.writeOutputFile(options.settings, relativeOutFile, result.body);
-		}
+	// Record this path in the new cache. A path without a cacheKey is never
+	// recorded, since it can never be skipped on a later build.
+	if (cache && cacheKey !== undefined) {
+		await cache.writeOutputFile(options.settings, relativeOutFile, result.body);
 		cache.record(
 			route.component,
 			dependencyHash,

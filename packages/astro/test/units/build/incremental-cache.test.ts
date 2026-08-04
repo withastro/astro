@@ -24,11 +24,6 @@ describe('IncrementalBuildCache', () => {
 	describe('canSkip', () => {
 		const previous = previousManifest({ '/a': { cacheKey: 'k1', outputFile: 'a/index.html' } });
 
-		it('does not skip a path without a cacheKey', () => {
-			const cache = new IncrementalBuildCache('cfg', 'lock', new Map(), previous);
-			assert.equal(cache.canSkip(ROUTE, '/a', HASH, undefined), false);
-		});
-
 		it('does not skip when there is no previous build', () => {
 			const cache = new IncrementalBuildCache('cfg', 'lock', new Map(), null);
 			assert.equal(cache.canSkip(ROUTE, '/a', HASH, 'k1'), false);
@@ -116,13 +111,6 @@ describe('IncrementalBuildCache', () => {
 			const cache = new IncrementalBuildCache('cfg', 'lock', new Map(), previous);
 			cache.record(ROUTE, HASH, '/a', 'k1', 'a/index.html');
 			assert.deepEqual(cache.findOrphanedFiles(), ['b/index.html']);
-		});
-
-		it('does not carry over a path recorded without a cacheKey', () => {
-			const previous = previousManifest({ '/a': { cacheKey: 'k1', outputFile: 'a/index.html' } });
-			const cache = new IncrementalBuildCache('cfg', 'lock', new Map(), previous);
-			cache.record(ROUTE, HASH, '/a', undefined, 'a/index.html');
-			assert.deepEqual(cache.findOrphanedFiles(), ['a/index.html']);
 		});
 	});
 });

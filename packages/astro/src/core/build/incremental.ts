@@ -137,10 +137,8 @@ export class IncrementalBuildCache {
 		routeComponent: string,
 		pathname: string,
 		dependencyHash: string,
-		cacheKey: string | undefined,
+		cacheKey: string,
 	): boolean {
-		if (cacheKey === undefined) return false;
-
 		const routeEntry = this.#previous?.routes[routeComponent];
 		if (!routeEntry) return false;
 
@@ -169,20 +167,15 @@ export class IncrementalBuildCache {
 		return pathEntry?.contentHashes ? Object.keys(pathEntry.contentHashes) : undefined;
 	}
 
-	/**
-	 * Record a path in the next manifest. Paths without a cacheKey are never
-	 * recorded, since they can never be skipped on a later build.
-	 */
+	/** Record a path in the next manifest so a later build can skip or prune it. */
 	record(
 		routeComponent: string,
 		dependencyHash: string,
 		pathname: string,
-		cacheKey: string | undefined,
+		cacheKey: string,
 		outputFile: string,
 		contentEntryKeys?: string[],
 	): void {
-		if (cacheKey === undefined) return;
-
 		let routeEntry = this.#next.routes[routeComponent];
 		if (!routeEntry) {
 			routeEntry = { dependencyHash, paths: {} };
