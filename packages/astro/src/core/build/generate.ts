@@ -9,6 +9,7 @@ import {
 	generateImagesForPath,
 	getStaticImageList,
 	prepareAssetsGenerationEnv,
+	restoreStaticImages,
 } from '../../assets/build/generate.js';
 import {
 	appendForwardSlash,
@@ -38,6 +39,7 @@ import {
 	beginContentEntryCollection,
 	endContentEntryCollection,
 } from './incremental-content-collector.js';
+import { beginImageCollection, endImageCollection } from './incremental-image-collector.js';
 import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
@@ -612,8 +614,15 @@ async function generatePathWithPrerenderer(
 			!existsInDist && (await cache.restoreOutputFile(options.settings, relativeOutFile, outFile));
 
 		if (existsInDist || restored) {
+			// The page is not rendered, so its optimized-image transforms are never
+			// re-registered. Replay them into the global list so the asset pipeline
+			// still emits the images its restored HTML references.
+			const restoredImages = cache.previousStaticImages(route.component, pathname);
+			if (restoredImages) restoreStaticImages(restoredImages);
+
 			// Record in the new cache so orphan detection knows this path is still alive,
-			// carrying forward the content entries the path rendered last build.
+			// carrying forward the content entries and image transforms the path
+			// resolved last build.
 			cache.record(
 				route.component,
 				dependencyHash,
@@ -621,6 +630,7 @@ async function generatePathWithPrerenderer(
 				cacheKey,
 				relativeOutFile,
 				cache.previousContentEntryKeys(route.component, pathname),
+				restoredImages,
 			);
 
 			// Track page name for stats even when skipped
@@ -651,9 +661,13 @@ async function generatePathWithPrerenderer(
 		addPageName(pathname, options);
 	}
 
-	// Collect the content entries rendered while generating this path, so their
-	// render-graph hashes can be folded into the path's cache entry.
-	if (cache) beginContentEntryCollection();
+	// Collect the content entries and image transforms resolved while generating
+	// this path, so they can be folded into the path's cache entry and replayed
+	// when the path is skipped on a later build.
+	if (cache) {
+		beginContentEntryCollection();
+		beginImageCollection();
+	}
 	const result = await renderPath({
 		prerenderer,
 		pathname,
@@ -663,6 +677,7 @@ async function generatePathWithPrerenderer(
 		logger,
 	});
 	const contentEntryKeys = cache ? endContentEntryCollection() : undefined;
+	const staticImages = cache ? endImageCollection() : undefined;
 
 	if (!result) {
 		// A path without a cacheKey is never recorded: it can never be skipped on a
@@ -675,6 +690,7 @@ async function generatePathWithPrerenderer(
 				cacheKey,
 				relativeOutFile,
 				contentEntryKeys,
+				staticImages,
 			);
 		}
 		logRenderTime(logger, timeStart, true);
@@ -695,6 +711,7 @@ async function generatePathWithPrerenderer(
 			cacheKey,
 			relativeOutFile,
 			contentEntryKeys,
+			staticImages,
 		);
 	}
 

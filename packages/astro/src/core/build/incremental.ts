@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import type { SerializedStaticImage } from '../../assets/types.js';
 import type { AstroSettings } from '../../types/astro.js';
 
 const INCREMENTAL_CACHE_FILE = 'incremental-build.json';
@@ -15,6 +16,13 @@ export interface IncrementalPathEntry {
 	 * render behind `content-data` bridges the per-route hash cannot cross.
 	 */
 	contentHashes?: Record<string, string>;
+	/**
+	 * Optimized-image transforms this path resolved while rendering. Registered
+	 * transforms are drained into the output after generation, but `dist/` is
+	 * emptied each build, so a skipped path replays these into the global list to
+	 * keep the images its restored HTML references from 404ing.
+	 */
+	staticImages?: SerializedStaticImage[];
 }
 
 export interface IncrementalRouteEntry {
@@ -186,6 +194,17 @@ export class IncrementalBuildCache {
 		return pathEntry?.contentHashes ? Object.keys(pathEntry.contentHashes) : undefined;
 	}
 
+	/**
+	 * The image transforms a path resolved in the previous build, so a skipped
+	 * path can replay them and carry them forward without re-rendering.
+	 */
+	previousStaticImages(
+		routeComponent: string,
+		pathname: string,
+	): SerializedStaticImage[] | undefined {
+		return this.#previous?.routes[routeComponent]?.paths[pathname]?.staticImages;
+	}
+
 	/** Record a path in the next manifest so a later build can skip or prune it. */
 	record(
 		routeComponent: string,
@@ -194,6 +213,7 @@ export class IncrementalBuildCache {
 		cacheKey: string,
 		outputFile: string,
 		contentEntryKeys?: string[],
+		staticImages?: SerializedStaticImage[],
 	): void {
 		let routeEntry = this.#next.routes[routeComponent];
 		if (!routeEntry) {
@@ -211,6 +231,7 @@ export class IncrementalBuildCache {
 			}
 			if (Object.keys(contentHashes).length > 0) pathEntry.contentHashes = contentHashes;
 		}
+		if (staticImages && staticImages.length > 0) pathEntry.staticImages = staticImages;
 		routeEntry.paths[pathname] = pathEntry;
 	}
 
