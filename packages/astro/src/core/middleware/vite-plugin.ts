@@ -1,9 +1,11 @@
 import { fileURLToPath } from 'node:url';
 import {
 	normalizePath as viteNormalizePath,
+	type EnvironmentModuleNode,
 	type ViteDevServer,
 	type Plugin as VitePlugin,
 } from 'vite';
+import { isAstroServerEnvironment } from '../../environments.js';
 import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import { addRolldownInput } from '../build/add-rolldown-input.js';
@@ -68,6 +70,23 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				}
 			});
 		},
+		hotUpdate: {
+			handler({ modules }) {
+				if (!isAstroServerEnvironment(this.environment)) return;
+
+				const middlewareVirtualMod =
+					this.environment.moduleGraph.getModuleById(MIDDLEWARE_RESOLVED_MODULE_ID);
+				if (!middlewareVirtualMod) return;
+
+				for (const mod of modules) {
+					if (isTransitiveImporterOf(mod, MIDDLEWARE_RESOLVED_MODULE_ID)) {
+						this.environment.moduleGraph.invalidateModule(middlewareVirtualMod);
+						this.environment.hot.send('astro:middleware-updated', {});
+						return;
+					}
+				}
+			},
+		},
 		resolveId: {
 			filter: {
 				id: new RegExp(`^${MIDDLEWARE_MODULE_ID}$`),
@@ -127,6 +146,24 @@ export const onRequest = sequence(
 			},
 		},
 	};
+}
+
+/**
+ * Walks up the `importers` chain from `mod` to check whether the module
+ * with the given `targetId` transitively imports it.
+ */
+export function isTransitiveImporterOf(
+	mod: EnvironmentModuleNode,
+	targetId: string,
+	seen = new Set<EnvironmentModuleNode>(),
+): boolean {
+	if (seen.has(mod)) return false;
+	seen.add(mod);
+	for (const importer of mod.importers) {
+		if (importer.id === targetId) return true;
+		if (isTransitiveImporterOf(importer, targetId, seen)) return true;
+	}
+	return false;
 }
 
 function createMiddlewareImports(
