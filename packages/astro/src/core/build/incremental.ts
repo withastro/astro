@@ -23,6 +23,13 @@ export interface IncrementalPathEntry {
 	 * keep the images its restored HTML references from 404ing.
 	 */
 	staticImages?: SerializedStaticImage[];
+	/**
+	 * Response header name/value pairs a `staticHeaders` adapter collected for this
+	 * path (chiefly the CSP header when delivered as a header rather than a `<meta>`
+	 * tag). The `astro:build:generated` hook writes these to a static headers file,
+	 * so a skipped path replays them to keep its route in that file.
+	 */
+	headers?: [string, string][];
 }
 
 export interface IncrementalRouteEntry {
@@ -205,6 +212,14 @@ export class IncrementalBuildCache {
 		return this.#previous?.routes[routeComponent]?.paths[pathname]?.staticImages;
 	}
 
+	/**
+	 * The response headers a path collected in the previous build, so a skipped
+	 * path can replay them into a `staticHeaders` adapter's headers file.
+	 */
+	previousHeaders(routeComponent: string, pathname: string): [string, string][] | undefined {
+		return this.#previous?.routes[routeComponent]?.paths[pathname]?.headers;
+	}
+
 	/** Record a path in the next manifest so a later build can skip or prune it. */
 	record(
 		routeComponent: string,
@@ -214,6 +229,7 @@ export class IncrementalBuildCache {
 		outputFile: string,
 		contentEntryKeys?: string[],
 		staticImages?: SerializedStaticImage[],
+		headers?: [string, string][],
 	): void {
 		let routeEntry = this.#next.routes[routeComponent];
 		if (!routeEntry) {
@@ -232,6 +248,7 @@ export class IncrementalBuildCache {
 			if (Object.keys(contentHashes).length > 0) pathEntry.contentHashes = contentHashes;
 		}
 		if (staticImages && staticImages.length > 0) pathEntry.staticImages = staticImages;
+		if (headers && headers.length > 0) pathEntry.headers = headers;
 		routeEntry.paths[pathname] = pathEntry;
 	}
 

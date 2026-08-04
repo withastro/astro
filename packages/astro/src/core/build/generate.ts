@@ -620,9 +620,20 @@ async function generatePathWithPrerenderer(
 			const restoredImages = cache.previousStaticImages(route.component, pathname);
 			if (restoredImages) restoreStaticImages(restoredImages);
 
+			// Likewise, the route contributes no response headers when it is not
+			// rendered. Replay them so a `staticHeaders` adapter still writes this
+			// route into its headers file.
+			const restoredHeaders = cache.previousHeaders(route.component, pathname);
+			if (restoredHeaders && options.settings.adapter?.adapterFeatures?.staticHeaders) {
+				routeToHeaders.set(pathname, {
+					headers: new Headers(restoredHeaders),
+					route: toIntegrationResolvedRoute(route, config.trailingSlash),
+				});
+			}
+
 			// Record in the new cache so orphan detection knows this path is still alive,
-			// carrying forward the content entries and image transforms the path
-			// resolved last build.
+			// carrying forward the content entries, image transforms, and headers the
+			// path resolved last build.
 			cache.record(
 				route.component,
 				dependencyHash,
@@ -631,6 +642,7 @@ async function generatePathWithPrerenderer(
 				relativeOutFile,
 				cache.previousContentEntryKeys(route.component, pathname),
 				restoredImages,
+				restoredHeaders,
 			);
 
 			// Track page name for stats even when skipped
@@ -678,6 +690,9 @@ async function generatePathWithPrerenderer(
 	});
 	const contentEntryKeys = cache ? endContentEntryCollection() : undefined;
 	const staticImages = cache ? endImageCollection() : undefined;
+	// Headers are collected only for `staticHeaders` adapters (see `renderPath`).
+	// Persist them so a skipped path can replay its route into the headers file.
+	const headers = cache ? [...(routeToHeaders.get(pathname)?.headers ?? [])] : undefined;
 
 	if (!result) {
 		// A path without a cacheKey is never recorded: it can never be skipped on a
@@ -691,6 +706,7 @@ async function generatePathWithPrerenderer(
 				relativeOutFile,
 				contentEntryKeys,
 				staticImages,
+				headers,
 			);
 		}
 		logRenderTime(logger, timeStart, true);
@@ -712,6 +728,7 @@ async function generatePathWithPrerenderer(
 			relativeOutFile,
 			contentEntryKeys,
 			staticImages,
+			headers,
 		);
 	}
 
