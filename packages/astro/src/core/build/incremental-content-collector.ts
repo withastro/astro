@@ -12,23 +12,45 @@
  */
 const COLLECTOR_KEY = Symbol.for('astro:incremental-content-entries');
 
-interface CollectorGlobal {
-	[COLLECTOR_KEY]?: Set<string>;
+interface Collector {
+	current: Set<string> | undefined;
 }
 
-function collectorHost(): CollectorGlobal {
-	return globalThis as unknown as CollectorGlobal;
+interface CollectorGlobal {
+	[COLLECTOR_KEY]?: Collector;
+}
+
+/**
+ * Returns the process-wide collector, installing it on first access. The
+ * binding is sealed (`configurable: false`, `writable: false`) so neither our
+ * own modules nor user code sharing `globalThis` during the build can replace
+ * or delete the side-channel. Only its `current` field is mutated, by the
+ * begin/end pair below.
+ */
+function collector(): Collector {
+	const host = globalThis as unknown as CollectorGlobal;
+	let value = host[COLLECTOR_KEY];
+	if (!value) {
+		value = { current: undefined };
+		Object.defineProperty(host, COLLECTOR_KEY, {
+			value,
+			configurable: false,
+			writable: false,
+			enumerable: false,
+		});
+	}
+	return value;
 }
 
 /** Start collecting the content entries rendered on the current path. */
 export function beginContentEntryCollection(): void {
-	collectorHost()[COLLECTOR_KEY] = new Set();
+	collector().current = new Set();
 }
 
 /** Record that a content entry was rendered, keyed by its root-relative `filePath`. */
 export function recordContentEntryRender(filePath: string | undefined): void {
 	if (!filePath) return;
-	collectorHost()[COLLECTOR_KEY]?.add(filePath);
+	collector().current?.add(filePath);
 }
 
 /**
@@ -37,8 +59,8 @@ export function recordContentEntryRender(filePath: string | undefined): void {
  * "not tracked").
  */
 export function endContentEntryCollection(): string[] | undefined {
-	const host = collectorHost();
-	const entries = host[COLLECTOR_KEY];
-	host[COLLECTOR_KEY] = undefined;
+	const c = collector();
+	const entries = c.current;
+	c.current = undefined;
 	return entries ? [...entries] : undefined;
 }

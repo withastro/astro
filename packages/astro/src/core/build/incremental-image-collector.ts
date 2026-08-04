@@ -16,22 +16,44 @@ import type { SerializedStaticImage } from '../../assets/types.js';
  */
 const COLLECTOR_KEY = Symbol.for('astro:incremental-static-images');
 
-interface CollectorGlobal {
-	[COLLECTOR_KEY]?: SerializedStaticImage[];
+interface Collector {
+	current: SerializedStaticImage[] | undefined;
 }
 
-function collectorHost(): CollectorGlobal {
-	return globalThis as unknown as CollectorGlobal;
+interface CollectorGlobal {
+	[COLLECTOR_KEY]?: Collector;
+}
+
+/**
+ * Returns the process-wide collector, installing it on first access. The
+ * binding is sealed (`configurable: false`, `writable: false`) so neither our
+ * own modules nor user code sharing `globalThis` during the build can replace
+ * or delete the side-channel. Only its `current` field is mutated, by the
+ * begin/end pair below.
+ */
+function collector(): Collector {
+	const host = globalThis as unknown as CollectorGlobal;
+	let value = host[COLLECTOR_KEY];
+	if (!value) {
+		value = { current: undefined };
+		Object.defineProperty(host, COLLECTOR_KEY, {
+			value,
+			configurable: false,
+			writable: false,
+			enumerable: false,
+		});
+	}
+	return value;
 }
 
 /** Start collecting the image transforms resolved on the current path. */
 export function beginImageCollection(): void {
-	collectorHost()[COLLECTOR_KEY] = [];
+	collector().current = [];
 }
 
 /** Record an image transform resolved while rendering the current path. */
 export function recordStaticImage(image: SerializedStaticImage): void {
-	collectorHost()[COLLECTOR_KEY]?.push(image);
+	collector().current?.push(image);
 }
 
 /**
@@ -40,8 +62,8 @@ export function recordStaticImage(image: SerializedStaticImage): void {
  * "not tracked").
  */
 export function endImageCollection(): SerializedStaticImage[] | undefined {
-	const host = collectorHost();
-	const images = host[COLLECTOR_KEY];
-	host[COLLECTOR_KEY] = undefined;
+	const c = collector();
+	const images = c.current;
+	c.current = undefined;
 	return images;
 }
