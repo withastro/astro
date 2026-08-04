@@ -5,7 +5,6 @@ import type {
 	AssetsGlobalStaticImagesList,
 	ImageTransform,
 	PathWithRoute,
-	PrerenderRenderMetadata,
 } from 'astro';
 import { preview, createLogger, type PreviewServer as VitePreviewServer } from 'vite';
 import { fileURLToPath } from 'node:url';
@@ -179,10 +178,6 @@ export function createCloudflarePrerenderer({
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
 	let serverUrl: string;
-	// Metadata reported by the worker for the most recent `render()`, consumed by
-	// the build via `takeRenderMetadata`. Rendering is sequential, so a single
-	// slot is sufficient.
-	let lastRenderMetadata: PrerenderRenderMetadata | undefined;
 
 	return {
 		name: '@astrojs/cloudflare:prerenderer',
@@ -285,24 +280,19 @@ export function createCloudflarePrerenderer({
 
 			// Incremental builds receive a `PrerenderEnvelope` wrapping the response
 			// alongside the metadata collected in workerd, since a raw response
-			// cannot carry it. Reconstruct the response for the build to write.
+			// cannot carry it. Reconstruct the response and return it paired with
+			// the metadata for the build to record.
 			if (incremental) {
 				const envelope: PrerenderEnvelope = await response.json();
-				lastRenderMetadata = envelope.metadata;
-				return new Response(Buffer.from(envelope.body, 'base64'), {
+				const reconstructed = new Response(Buffer.from(envelope.body, 'base64'), {
 					status: envelope.status,
 					statusText: envelope.statusText,
 					headers: envelope.headers,
 				});
+				return { response: reconstructed, metadata: envelope.metadata };
 			}
 
 			return response;
-		},
-
-		takeRenderMetadata(): PrerenderRenderMetadata | undefined {
-			const metadata = lastRenderMetadata;
-			lastRenderMetadata = undefined;
-			return metadata;
 		},
 
 		collectStaticImages:

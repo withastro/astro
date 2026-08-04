@@ -251,10 +251,6 @@ export interface PathWithRoute {
 }
 
 /**
- * Custom prerenderer that adapters can provide to control how pages are prerendered.
- * Allows non-Node runtimes (e.g., workerd) to handle prerendering.
- */
-/**
  * Incremental-build data an out-of-process prerenderer collects while rendering
  * a page, reported back to the build process so skipped pages can be tracked and
  * replayed without a re-render.
@@ -266,6 +262,21 @@ export interface PrerenderRenderMetadata {
 	staticImages?: SerializedStaticImage[];
 }
 
+/**
+ * The richer result a prerenderer's `render()` may return instead of a bare
+ * `Response`, pairing the rendered response with the incremental-build metadata
+ * collected for that page. Used by out-of-process prerenderers, which collect
+ * the metadata in their own runtime rather than in the build's collectors.
+ */
+export interface PrerenderResult {
+	response: Response;
+	metadata?: PrerenderRenderMetadata;
+}
+
+/**
+ * Custom prerenderer that adapters can provide to control how pages are prerendered.
+ * Allows non-Node runtimes (e.g., workerd) to handle prerendering.
+ */
 export interface AstroPrerenderer {
 	name: string;
 	/**
@@ -284,22 +295,21 @@ export interface AstroPrerenderer {
 	 *   use the `pathname` from the `PathWithRoute` entry returned by `getStaticPaths`.
 	 * @param options - Render options
 	 * @param options.routeData - The matched route for this path
+	 * @returns A `Response`, or a {@link PrerenderResult} pairing the response with
+	 *   the incremental-build metadata the page resolved. Out-of-process
+	 *   prerenderers return the latter to report metadata they collect in their own
+	 *   runtime; in-process prerenderers populate the build's collectors directly
+	 *   and return a bare `Response`.
 	 */
-	render: (request: Request, options: { routeData: RouteData }) => Promise<Response>;
+	render: (
+		request: Request,
+		options: { routeData: RouteData },
+	) => Promise<Response | PrerenderResult>;
 	/**
 	 * Returns images collected in the adapter's runtime (e.g. workerd) to be merged
 	 * into the Node-side static image list. The default Sharp pipeline runs after.
 	 */
 	collectStaticImages?: () => Promise<AssetsGlobalStaticImagesList>;
-	/**
-	 * Returns the incremental-build metadata collected during the most recent
-	 * `render()` call, then clears it. Out-of-process prerenderers implement this
-	 * to report the content entries and image transforms a page resolved, since
-	 * those are recorded in the adapter's runtime rather than the build process.
-	 * In-process prerenderers populate the build's collectors directly and leave
-	 * this undefined.
-	 */
-	takeRenderMetadata?: () => PrerenderRenderMetadata | undefined;
 	/**
 	 * Called after all pages are prerendered. Use for cleanup like stopping a preview server.
 	 */

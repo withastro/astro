@@ -23,7 +23,11 @@ import {
 import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroLogger } from '../logger/core.js';
-import type { AstroPrerenderer, RouteToHeaders } from '../../types/public/index.js';
+import type {
+	AstroPrerenderer,
+	PrerenderResult,
+	RouteToHeaders,
+} from '../../types/public/index.js';
 import type { RouteData, RouteType, SSRError } from '../../types/public/internal.js';
 import { hashCryptoKey } from '../encryption.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -423,6 +427,17 @@ export interface RenderPathResult {
 	body: string | Uint8Array;
 	outFile: URL;
 	outFolder: URL;
+	/** Incremental-build metadata the prerenderer reported for this page, if any. */
+	metadata?: PrerenderResult['metadata'];
+}
+
+/**
+ * Resolves a prerenderer's `render()` return value into its widened form. A
+ * prerenderer may return a bare `Response` or a {@link PrerenderResult}; this
+ * yields a `PrerenderResult` either way so callers handle a single shape.
+ */
+function normalizePrerenderResult(result: Response | PrerenderResult): PrerenderResult {
+	return result instanceof Response ? { response: result } : result;
 }
 
 interface RenderToPathPayload {
@@ -521,8 +536,13 @@ export async function renderPath({
 
 	// Render using the prerenderer
 	let response: Response;
+	let metadata: PrerenderResult['metadata'];
 	try {
-		response = await prerenderer.render(request, { routeData: route });
+		const rendered = normalizePrerenderResult(
+			await prerenderer.render(request, { routeData: route }),
+		);
+		response = rendered.response;
+		metadata = rendered.metadata;
 	} catch (err) {
 		logger.error('build', `Caught error rendering ${pathname}: ${err}`);
 		if (err && !AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
@@ -582,7 +602,7 @@ export async function renderPath({
 	// Public files take priority over generated routes
 	if (checkPublicConflict(outFile, route, options.settings, logger)) return null;
 
-	return { body, outFile, outFolder };
+	return { body, outFile, outFolder, metadata };
 }
 
 /**
@@ -703,12 +723,11 @@ async function generatePathWithPrerenderer(
 	// In-process prerenderers populate these collectors while rendering; always
 	// end them to clear the buckets for the next path. An out-of-process
 	// prerenderer (e.g. workerd) collects in its own runtime and reports the
-	// result through `takeRenderMetadata`, which takes precedence when present.
+	// result on the render's metadata, which takes precedence when present.
 	const collectedContentEntryKeys = cache ? endContentEntryCollection() : undefined;
 	const collectedStaticImages = cache ? endImageCollection() : undefined;
-	const renderMetadata = cache ? prerenderer.takeRenderMetadata?.() : undefined;
-	const contentEntryKeys = renderMetadata?.contentEntryKeys ?? collectedContentEntryKeys;
-	const staticImages = renderMetadata?.staticImages ?? collectedStaticImages;
+	const contentEntryKeys = result?.metadata?.contentEntryKeys ?? collectedContentEntryKeys;
+	const staticImages = result?.metadata?.staticImages ?? collectedStaticImages;
 	// Headers are collected only for `staticHeaders` adapters (see `renderPath`).
 	// Persist them so a skipped path can replay its route into the headers file.
 	const headers = cache ? [...(routeToHeaders.get(pathname)?.headers ?? [])] : undefined;
