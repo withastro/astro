@@ -117,7 +117,11 @@ export class StaticPaths {
 		// Convert params to pathnames using stringifyParams
 		for (const staticPath of staticPaths) {
 			const pathname = stringifyParams(staticPath.params, route, manifest.trailingSlash);
-			paths.push({ pathname, route, cacheKey: staticPath.cacheKey });
+			paths.push({
+				pathname,
+				route,
+				cacheKey: staticPath.cacheKey === undefined ? undefined : String(staticPath.cacheKey),
+			});
 		}
 
 		return paths;
