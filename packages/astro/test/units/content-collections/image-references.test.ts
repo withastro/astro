@@ -122,4 +122,23 @@ describe('updateImageReferencesInData', () => {
 		assert.equal(result.flags.has('showCover'), false);
 		assert.equal(result.flags.size, 2);
 	});
+
+	it('preserves non-structuredClone-compatible objects', () => {
+		// Custom class instances (like Temporal.PlainDate) are not cloneable
+		// via structuredClone. They should be preserved by reference. (#17589)
+		class CustomValue {
+			value: string;
+			constructor(value: string) {
+				this.value = value;
+			}
+			toString() {
+				return this.value;
+			}
+		}
+		const custom = new CustomValue('2026-08-04');
+		const data = { title: 'Hello', publishedOn: custom };
+		const result = updateImageReferencesInData(data, FILE_NAME, new Map());
+		assert.equal(result.publishedOn, custom);
+		assert.equal(result.publishedOn.toString(), '2026-08-04');
+	});
 });

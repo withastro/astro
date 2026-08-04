@@ -512,12 +512,36 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	});
 }
 
+/**
+ * Recursively copies plain objects and arrays so that in-place mutations
+ * (image-reference replacement) do not reach the original store data.
+ * Non-plain values (Map, Set, class instances, Temporal objects, etc.) are
+ * kept by reference because they are never mutation targets.
+ */
+function shallowStructureClone<T>(value: T): T {
+	if (Array.isArray(value)) {
+		return value.map(shallowStructureClone) as T;
+	}
+	if (
+		value !== null &&
+		typeof value === 'object' &&
+		Object.getPrototypeOf(value) === Object.prototype
+	) {
+		const out: Record<string, unknown> = {};
+		for (const key of Object.keys(value)) {
+			out[key] = shallowStructureClone((value as Record<string, unknown>)[key]);
+		}
+		return out as T;
+	}
+	return value;
+}
+
 export function updateImageReferencesInData<T extends Record<string, unknown>>(
 	data: T,
 	fileName?: string,
 	imageAssetMap?: Map<string, ImageMetadata>,
 ): T {
-	const copy = structuredClone(data);
+	const copy = shallowStructureClone(data);
 	forEach(copy, function (ctx, val) {
 		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 			const src = val.replace(IMAGE_IMPORT_PREFIX, '');
