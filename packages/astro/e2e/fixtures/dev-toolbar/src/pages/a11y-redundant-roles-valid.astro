@@ -1,0 +1,21 @@
+---
+---
+
+<!-- ul/ol/li with list/listitem roles: exempt as a CSS list-style:none workaround -->
+<ul role="list">
+	<li role="listitem">Item</li>
+</ul>
+<ol role="list">
+	<li role="listitem">Item</li>
+</ol>
+
+<!-- Role differs from each element's implicit role — none should warn -->
+<nav role="banner">Nav</nav>
+<button role="link">Button</button>
+<input type="text" role="combobox" />
+
+<!-- testing conditional implicit roles -->
+<a role="link"><span>Placeholder Link</span></a>
+<img alt="" role="img" />
+<article><aside role="complementary"><span>Nested aside without name</span></aside></article>
+<section role="region"><span>Section without name</span></section>

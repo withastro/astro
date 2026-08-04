@@ -1,7 +1,13 @@
 ---
-import { getImage, imageConfig, type LocalImageProps, type RemoteImageProps } from 'astro:assets';
+import {
+	getImage,
+	imageConfig,
+	inferRemoteSize,
+	type LocalImageProps,
+	type RemoteImageProps,
+} from 'astro:assets';
 import * as mime from 'mrmime';
-import { isESMImportedImage, resolveSrc } from '../dist/assets/utils/imageKind.js';
+import { isESMImportedImage, isRemoteImage, resolveSrc } from '../dist/assets/utils/imageKind.js';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 import type {
 	GetImageResult,
@@ -62,6 +68,17 @@ for (const key in props) {
 }
 
 const originalSrc = await resolveSrc(props.src);
+
+// When inferSize is set for a remote image, resolve dimensions once and thread them through
+// to all getImage() calls. This avoids multiple redundant HTTP requests to the same URL,
+// which can trigger rate-limiting (HTTP 429) on servers like Wikimedia.
+if (props.inferSize && isRemoteImage(originalSrc)) {
+	const remoteSize = await inferRemoteSize(originalSrc);
+	delete props.inferSize;
+	props.width ??= remoteSize.width;
+	props.height ??= remoteSize.height;
+}
+
 const optimizedImages: GetImageResult[] = await Promise.all(
 	formats.map(
 		async (format) =>

@@ -51,6 +51,7 @@ import { ServerIslandsState } from './server-islands/shared-state.js';
 import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
 import { vitePluginCacheProvider } from './cache/vite-plugin.js';
 import { vitePluginSessionDriver } from './session/vite-plugin.js';
+import { vitePluginLogger } from './logger/vite-plugin.js';
 import { isObject } from './util-runtime.js';
 import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
@@ -153,6 +154,11 @@ export async function createVite(
 		config: settings.config,
 	});
 	const serverIslandsState = new ServerIslandsState();
+	// Shared cache of CSS content by module ID. Populated by the dev-css plugin's
+	// transform hook and consumed by the content asset propagation plugin to avoid
+	// re-processing CSS modules with `?inline` (which produces different
+	// scoped-name hashes with Lightning CSS).
+	const cssContentCache = new Map<string, string>();
 
 	// Validate that envPrefix doesn't conflict with secret env schema variables
 	validateEnvPrefixAgainstSchema(settings.config);
@@ -203,7 +209,7 @@ export async function createVite(
 			vitePluginFetchable({ settings }),
 			command === 'dev' && vitePluginAstroServer({ settings, logger }),
 			command === 'dev' && vitePluginAstroServerClient(),
-			astroDevCssPlugin({ routesList, command }),
+			astroDevCssPlugin({ routesList, command, cssContentCache }),
 			importMetaEnv({ envLoader }),
 			astroEnv({ settings, sync, envLoader }),
 			vitePluginAdapterConfig(settings),
@@ -214,7 +220,7 @@ export async function createVite(
 			astroHeadPlugin(),
 			astroContentVirtualModPlugin({ fs, settings }),
 			astroContentImportPlugin({ fs, settings, logger }),
-			astroContentAssetPropagationPlugin({ settings }),
+			astroContentAssetPropagationPlugin({ settings, cssContentCache }),
 			vitePluginMiddleware({ settings }),
 			astroAssetsPlugin({ fs, settings, sync, logger }),
 			astroPrefetch({ settings }),
@@ -226,6 +232,7 @@ export async function createVite(
 			vitePluginServerIslands({ settings, logger, serverIslandsState }),
 			vitePluginSessionDriver({ settings }),
 			vitePluginCacheProvider({ settings }),
+			vitePluginLogger({ settings }),
 			astroContainer(),
 			astroHmrReloadPlugin(),
 			vitePluginChromedevtools({ settings }),
@@ -250,6 +257,8 @@ export async function createVite(
 			},
 		},
 		resolve: {
+			// Vite's native tsconfig path resolution; see configAliasVitePlugin for the deprecated fallback.
+			tsconfigPaths: true,
 			alias: [
 				{
 					// This is needed for Deno compatibility, as the non-browser version

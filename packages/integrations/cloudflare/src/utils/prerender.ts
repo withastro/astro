@@ -14,7 +14,7 @@
  * available in production or development.
  */
 
-import type { BaseApp } from 'astro/app';
+import type { BaseApp, RenderErrorOptions } from 'astro/app';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import { StaticPaths } from 'astro:static-paths';
 import type {
@@ -27,7 +27,34 @@ import {
 	STATIC_PATHS_ENDPOINT,
 	PRERENDER_ENDPOINT,
 	STATIC_IMAGES_ENDPOINT,
+	IMAGE_TRANSFORM_ENDPOINT,
 } from './prerender-constants.js';
+import {
+	transform as transformWithImagesBinding,
+	transformStream as transformStreamWithImagesBinding,
+} from './image-binding-transform.js';
+
+/**
+ * Replicates core's `BuildErrorHandler` semantics on the worker app during
+ * the prerender phase. The production app converts render errors into a
+ * rendered 500 error page, which makes a crash indistinguishable from a page
+ * that intentionally returns an error status. During prerendering, a render
+ * error must instead propagate as a throw so `handlePrerenderRequest` can
+ * surface it to the build process, while intentional non-2xx responses
+ * (e.g. a custom 404 page) still render through the default error handler.
+ */
+export function installPrerenderErrorPropagation(app: BaseApp): void {
+	const originalRenderError = app.renderError.bind(app);
+	app.renderError = async (request: Request, options: RenderErrorOptions): Promise<Response> => {
+		if (options.status === 500) {
+			if (options.response) {
+				return options.response;
+			}
+			throw options.error;
+		}
+		return originalRenderError(request, options);
+	};
+}
 
 /**
  * Checks if the request is for the static paths prerender endpoint.
@@ -66,6 +93,12 @@ export async function handleStaticPathsRequest(app: BaseApp): Promise<Response> 
 
 /**
  * Handles a prerender request, rendering the specified page.
+ *
+ * The response body is fully buffered before being returned so that streaming
+ * errors (e.g. a component throwing mid-render) are caught inside workerd and
+ * surfaced as a 500 response.  Without buffering, the HTTP layer commits
+ * status 200 before the stream completes, and a mid-stream error silently
+ * truncates the HTML output.
  */
 export async function handlePrerenderRequest(app: BaseApp, request: Request): Promise<Response> {
 	const headers = new Headers();
@@ -78,12 +111,39 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 		method: 'GET',
 		headers,
 	});
-	return app.render(prerenderRequest, { routeData });
+	// Buffer the full body to catch streaming errors before the HTTP layer
+	// commits a 200 status.
+	try {
+		const response = await app.render(prerenderRequest, { routeData });
+		const bufferedBody = await response.arrayBuffer();
+		return new Response(bufferedBody, {
+			status: response.status,
+			statusText: response.statusText,
+			headers: response.headers,
+		});
+	} catch (err: unknown) {
+		const message = err instanceof Error ? err.message : String(err);
+		// Sanitize newlines and other control characters from the error message
+		// before putting it in a header, as HTTP headers cannot contain them.
+		const headerSafe = message.replace(/[\r\n]+/g, ' ');
+		return new Response(message, {
+			status: 500,
+			headers: {
+				'Content-Type': 'text/plain',
+				'x-astro-prerender-error': headerSafe,
+			},
+		});
+	}
 }
 
 export function isStaticImagesRequest(request: Request): boolean {
 	const { pathname } = new URL(request.url);
 	return pathname === STATIC_IMAGES_ENDPOINT && request.method === 'POST';
+}
+
+export function isImageTransformRequest(request: Request): boolean {
+	const { pathname } = new URL(request.url);
+	return pathname === IMAGE_TRANSFORM_ENDPOINT && request.method === 'POST';
 }
 
 /** Serializes the global staticImages map collected in workerd back to the Node-side build. */
@@ -111,4 +171,51 @@ export function handleStaticImagesRequest(): Response {
 	return new Response(JSON.stringify(entries), {
 		headers: { 'Content-Type': 'application/json' },
 	});
+}
+
+interface ImageTransformOptions {
+	/** The Cloudflare IMAGES binding for image transformation. */
+	images?: ImagesBinding;
+	/** The Cloudflare ASSETS fetcher for loading local images. */
+	assets?: Fetcher;
+}
+
+/**
+ * Transforms a single image with the Cloudflare IMAGES binding and streams the raw
+ * bytes back to the Node-side build.
+ *
+ * The transform parameters arrive as query parameters on the request URL, in the same
+ * shape `/_image` uses. Handling one image per request keeps peak memory proportional to
+ * a single variant rather than to the whole image set, since neither the request body
+ * nor the response body is ever buffered in the isolate.
+ *
+ * Local originals are uploaded as the request body: at this point in the build they live
+ * in Astro's intermediate output, not in the client directory the ASSETS binding serves,
+ * so the worker cannot fetch them itself. Remote images have no body and are resolved
+ * here, exactly as the runtime `image-transform-endpoint` does.
+ */
+export async function handleImageTransformRequest(
+	request: Request,
+	{ images, assets }: ImageTransformOptions,
+): Promise<Response> {
+	if (!images) {
+		return new Response('The Cloudflare IMAGES binding is not available in the prerender worker.', {
+			status: 503,
+		});
+	}
+
+	if (request.body) {
+		return transformStreamWithImagesBinding(
+			request.body,
+			new URL(request.url).searchParams,
+			images,
+		);
+	}
+
+	if (!assets) {
+		return new Response('The Cloudflare ASSETS binding is not available in the prerender worker.', {
+			status: 503,
+		});
+	}
+	return transformWithImagesBinding(request.url, images, assets);
 }

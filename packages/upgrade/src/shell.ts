@@ -72,7 +72,7 @@ export async function shell(
 		throw new Error('Timeout');
 	}
 	if (exitCode !== 0) {
-		throw new Error(stderr || `Process exited with code ${exitCode}`);
+		throw new Error(stderr || stdout || `Process exited with code ${exitCode}`);
 	}
 	return { stdout, stderr, exitCode };
 }

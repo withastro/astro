@@ -10,6 +10,7 @@ import { type HeadElements, Pipeline, type TryRewriteResult } from '../../base-p
 import { ASTRO_VERSION } from '../../constants.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../../render/ssr-element.js';
 import { findRouteToRewrite } from '../../routing/rewrite.js';
+import { stringifyForScript } from '../../../runtime/server/escape.js';
 
 type DevPipelineCreate = Pick<NonRunnablePipeline, 'logger' | 'manifest' | 'streaming'>;
 
@@ -104,7 +105,7 @@ export class NonRunnablePipeline extends Pipeline {
 			};
 
 			// Additional data for the dev overlay
-			const children = `window.__astro_dev_toolbar__ = ${JSON.stringify(additionalMetadata)}`;
+			const children = `window.__astro_dev_toolbar__ = ${stringifyForScript(additionalMetadata)}`;
 			scripts.add({ props: {}, children });
 		}
 
@@ -132,6 +133,11 @@ export class NonRunnablePipeline extends Pipeline {
 		}
 
 		return { scripts, styles, links };
+	}
+
+	// Called via HMR when action files change. Not available on production　environment.
+	clearActions(): void {
+		this.resolvedActions = undefined;
 	}
 
 	componentMetadata() {}

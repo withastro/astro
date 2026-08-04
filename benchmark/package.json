@@ -21,7 +21,7 @@
     "mri": "^1.2.0",
     "port-authority": "^2.0.1",
     "pretty-bytes": "^7.1.0",
-    "sharp": "^0.34.3",
+    "sharp": "^0.35.0",
     "tinyexec": "^1.0.2"
   },
   "devDependencies": {

@@ -1,5 +1,60 @@
 # @astrojs/netlify
 
+## 8.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+  - @astrojs/underscore-redirects@1.0.3
+
+## 8.1.2
+
+### Patch Changes
+
+- [#17368](https://github.com/withastro/astro/pull/17368) [`ee74c28`](https://github.com/withastro/astro/commit/ee74c289bfe32fb6a7f59ed97c5c22db16394b72) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the generated Netlify Image CDN `remote_images` patterns so that regex metacharacters (such as `.`) in `image.remotePatterns` (`hostname`, `pathname`) and `image.domains` are matched literally instead of behaving like wildcards. This makes the generated patterns consistent with how Astro matches these values elsewhere.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c)]:
+  - @astrojs/internal-helpers@0.10.1
+  - @astrojs/underscore-redirects@1.0.3
+
+## 8.1.0
+
+### Minor Changes
+
+- [#17245](https://github.com/withastro/astro/pull/17245) [`f56d9e7`](https://github.com/withastro/astro/commit/f56d9e7eb46ca59e70f636cb8cd281bdf41971c4) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Adds `edgeFunctions` to the `devFeatures` adapter option, allowing users to disable Netlify Edge Function emulation during `astro dev`
+
+  Some npm packages that access the filesystem at initialization (e.g. `node-html-parser`) fail inside the edge function sandbox with "Reading or writing files with Edge Functions is not supported yet." You can now disable edge function emulation to avoid this error:
+
+  ```js
+  import netlify from '@astrojs/netlify';
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    adapter: netlify({
+      devFeatures: {
+        edgeFunctions: false,
+      },
+    }),
+  });
+  ```
+
+  Edge functions will still work in production builds and via `netlify dev`.
+
+### Patch Changes
+
+- [#17249](https://github.com/withastro/astro/pull/17249) [`02b73b0`](https://github.com/withastro/astro/commit/02b73b0fc2e32102e788fd9031ce061337490a73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `peerDependencies` field used incorrect dependencies.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
 ## 8.0.0
 
 ### Major Changes

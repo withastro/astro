@@ -271,6 +271,72 @@ describe('getRssString', () => {
 		assert.equal(error, null);
 	});
 
+	it('should escape XML special characters in source fields', async () => {
+		const sourceTitle = 'Real Title</source><source url="https://evil.example.com">Fake';
+		const str = await getRssString({
+			title,
+			description,
+			items: [
+				{
+					title: 'Title',
+					pubDate: new Date(),
+					description: 'Description',
+					link: '/link',
+					source: {
+						url: 'https://example.com/source',
+						title: sourceTitle,
+					},
+				},
+			],
+			site,
+		});
+
+		// The crafted value must not produce additional <source> elements.
+		assert.equal(str.match(/<source/g)?.length, 1);
+
+		const { err, result } = parseXmlString(str);
+		assert.equal(err, null);
+		const item = (result as any).rss.channel[0].item[0];
+		assert.equal(item.source.length, 1);
+		// The raw value is preserved verbatim as text, not interpreted as markup.
+		assert.equal(item.source[0]._, sourceTitle);
+		assert.equal(item.source[0].$.url, 'https://example.com/source');
+	});
+
+	it('should escape XML special characters in enclosure fields', async () => {
+		const enclosureType = 'audio/mpeg"><injected>x</injected><enclosure fake="';
+		const str = await getRssString({
+			title,
+			description,
+			items: [
+				{
+					title: 'Title',
+					pubDate: new Date(),
+					description: 'Description',
+					link: '/link',
+					enclosure: {
+						url: '/podcast.mp3',
+						length: 256,
+						type: enclosureType,
+					},
+				},
+			],
+			site,
+		});
+
+		// The crafted value must not produce additional <enclosure> elements.
+		assert.equal(str.match(/<enclosure/g)?.length, 1);
+		assert.equal(str.includes('<injected>'), false);
+
+		const { err, result } = parseXmlString(str);
+		assert.equal(err, null);
+		const item = (result as any).rss.channel[0].item[0];
+		assert.equal(item.enclosure.length, 1);
+		// The raw value is preserved verbatim as an attribute, not interpreted as markup.
+		assert.equal(item.enclosure[0].$.type, enclosureType);
+		assert.equal(item.enclosure[0].$.url, `${site}/podcast.mp3`);
+	});
+
 	it('should not fail when an enclosure has a length of 0', async () => {
 		let error = null;
 		try {

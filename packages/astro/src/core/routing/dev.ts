@@ -11,6 +11,7 @@ import { NoMatchingStaticPathFound } from '../errors/errors-data.js';
 import { isAstroError } from '../errors/errors.js';
 import type { RouteData } from '../../types/public/index.js';
 import type { RunnablePipeline } from '../../vite-plugin-app/pipeline.js';
+import { getErrorRoutePath } from '../../i18n/error-routes.js';
 
 interface MatchedRoute {
 	route: RouteData;
@@ -32,6 +33,7 @@ export async function matchRoute(
 		manifest,
 	});
 
+	let firstError: unknown = null;
 	for await (const { route: maybeRoute, filePath } of preloadedMatches) {
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
@@ -56,8 +58,18 @@ export async function matchRoute(
 			if (isAstroError(e) && e.title === NoMatchingStaticPathFound.title) {
 				continue;
 			}
-			throw e;
+			// Store the first error but keep trying other candidate routes.
+			// A user error in one route's getStaticPaths() should not prevent
+			// other matching routes from being attempted.
+			firstError ??= e;
+			continue;
 		}
+	}
+
+	// If we exhausted all candidates and one threw a non-routing error,
+	// re-throw it so the dev server can surface it.
+	if (firstError) {
+		throw firstError;
 	}
 
 	// Try without `.html` extensions or `index.html` in request URLs to mimic
@@ -80,7 +92,16 @@ export async function matchRoute(
 		);
 	}
 
-	const custom404 = getCustom404Route(routesList);
+	const errorRoutePath = getErrorRoutePath(
+		pathname,
+		404,
+		routesList.routes,
+		manifest.i18n?.locales,
+		manifest.trailingSlash === 'always',
+	);
+	const custom404 =
+		routesList.routes.find((route) => route.route === errorRoutePath) ??
+		getCustom404Route(routesList);
 
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, manifest.rootDir);

@@ -8,7 +8,8 @@ import {
 	statSync,
 	watch,
 } from 'node:fs';
-import { resolve } from 'node:path';
+import { createRequire } from 'node:module';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolveRoot } from '../core/config/config.js';
 import {
@@ -23,6 +24,8 @@ import {
 } from '../core/dev/lockfile.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import type { Flags } from './flags.js';
+
+const require = createRequire(import.meta.url);
 
 export interface BackgroundCommandConfig {
 	command: ServerCommand;
@@ -183,10 +186,19 @@ export async function background({
 	const logFd = openSync(logFilePath, 'w');
 
 	const rootPath = fileURLToPath(root);
-	const astroBin = resolve(rootPath, 'node_modules', 'astro', 'bin', 'astro.mjs');
+	// Resolve astro's entry from its own package location rather than the project
+	// root: in a hoisted monorepo (e.g. bun workspaces) `astro` is deduped to the
+	// workspace-root node_modules, so a project-relative path does not exist.
+	// `astro/bin/astro.mjs` is not exported, so resolve via the package manifest.
+	const astroBin = resolve(dirname(require.resolve('astro/package.json')), 'bin', 'astro.mjs');
 
+	// `windowsHide: true` prevents a console window from popping up: on Windows
+	// `detached: true` maps to DETACHED_PROCESS, so the child has no console and
+	// any console-subsystem grandchild it spawns (e.g. workerd.exe) gets a brand
+	// new, visible, focus-stealing window allocated by Windows Terminal.
 	const child = spawn(process.execPath, [astroBin, ...args], {
 		detached: true,
+		windowsHide: true,
 		stdio: ['ignore', logFd, logFd],
 		cwd: rootPath,
 		env: { ...process.env, [config.envVar]: '1' },
