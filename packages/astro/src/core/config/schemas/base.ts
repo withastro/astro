@@ -6,7 +6,6 @@ import type {
 	ShikiConfig,
 } from '@astrojs/internal-helpers/markdown';
 import { syntaxHighlightDefaults } from '@astrojs/internal-helpers/markdown';
-import { satteri } from '@astrojs/markdown-satteri';
 import type { MarkdownProcessor } from '../../../markdown/index.js';
 import type { OutgoingHttpHeaders } from 'node:http';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
@@ -89,6 +88,20 @@ const smartypantsOptionsSchema: z.ZodType<Smartypants> = z.object({
 	}),
 	quotes: z.boolean().default(true),
 });
+
+// Dynamic import so Sätteri's optional native binaries aren't pulled into
+// the graph for projects with no Markdown.
+function createDefaultMarkdownProcessor(): MarkdownProcessor {
+	const processor: MarkdownProcessor = {
+		name: 'satteri',
+		options: { mdastPlugins: [], hastPlugins: [], features: {} },
+		async createRenderer(shared) {
+			const { satteri } = await import('@astrojs/markdown-satteri');
+			return satteri(processor.options).createRenderer(shared);
+		},
+	};
+	return processor;
+}
 
 export const AstroConfigSchema = z.object({
 	root: z
@@ -393,7 +406,7 @@ export const AstroConfigSchema = z.object({
 				// A factory (not a shared value) so every config gets its own processor —
 				// integrations extend the pipeline by mutating `processor.options`, which
 				// would otherwise leak across configs built in the same process.
-				.default(() => satteri()),
+				.default(() => createDefaultMarkdownProcessor()),
 		})
 		.prefault({}),
 	vite: z

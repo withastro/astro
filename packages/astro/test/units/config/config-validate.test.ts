@@ -669,6 +669,16 @@ describe('Config Validation', () => {
 		});
 	});
 
+	describe('markdown default processor', () => {
+		it('defaults to the Sätteri processor without eagerly importing it', async () => {
+			const result = await validateConfig({});
+			// `@astrojs/markdown-satteri` is loaded on demand from `createRenderer`, so the
+			// default has to resolve to the Sätteri processor for Markdown to render.
+			assert.equal(result.markdown.processor.name, 'satteri');
+			assert.equal(typeof result.markdown.processor.createRenderer, 'function');
+		});
+	});
+
 	describe('devToolbar', () => {
 		it('should allow valid placement values', async () => {
 			for (const placement of ['bottom-left', 'bottom-center', 'bottom-right']) {
