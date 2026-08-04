@@ -1,5 +1,5 @@
 ---
-'@astrojs/cloudflare': patch
+'@astrojs/cloudflare': minor
 ---
 
-Forwards the `cacheKey` from `getStaticPaths()` through the prerenderer so that Astro's experimental incremental static builds can skip unchanged pages when deploying to Cloudflare
+Supports Astro's experimental [incremental static builds](https://docs.astro.build/en/reference/experimental-flags/incremental-build/). When `experimental.incrementalBuild` is enabled, the adapter skips unchanged pages between builds.

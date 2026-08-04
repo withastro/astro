@@ -34,3 +34,5 @@ export async function getStaticPaths() {
 ```
 
 For incremental builds to skip rendering in CI, both Astro's cache directory and the previous build output must be preserved between builds. For the default config, cache `node_modules/.astro/` and restore/cache `dist/` before running `astro build`.
+
+See the [experimental incremental static builds](https://docs.astro.build/en/reference/experimental-flags/incremental-build/) documentation for more information.

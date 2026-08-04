@@ -18,4 +18,4 @@ for (const post of posts) {
 ---
 ```
 
-The property is optional because not every loader provides a digest.
+The property is optional because not every loader provides a digest. See [incremental static builds](https://docs.astro.build/en/reference/experimental-flags/incremental-build/) for how `digest` can be used as a `cacheKey`.
