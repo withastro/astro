@@ -3501,6 +3501,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/incremental-build-concurrency:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/incremental-build-content:
     dependencies:
       '@astrojs/mdx':

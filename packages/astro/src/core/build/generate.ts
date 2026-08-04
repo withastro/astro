@@ -104,19 +104,30 @@ export async function generatePages(
 	// Incremental build support
 	let cache: IncrementalBuildCache | null = null;
 	if (options.settings.config.experimental.incrementalBuild) {
-		const [configHash, lockfileHash, keyDigest] = await Promise.all([
-			computeConfigHash(options.settings.config),
-			computeLockfileHash(fileURLToPath(options.settings.config.root)),
-			options.key.then(hashCryptoKey),
-		]);
-		cache = IncrementalBuildCache.load(
-			options.settings,
-			configHash,
-			lockfileHash,
-			keyDigest,
-			internals.contentEntryRenderHashes ?? new Map(),
-			options.force,
-		);
+		// Per-path content-entry and image tracking is collected through a single
+		// process-global side channel, which cannot attribute records to the right
+		// path once renders interleave. Rather than risk skipping a stale page, the
+		// cache is disabled when the build renders paths concurrently.
+		if (options.settings.config.build.concurrency > 1) {
+			logger.warn(
+				'build',
+				'The incremental build cache is disabled because `build.concurrency` is greater than 1.',
+			);
+		} else {
+			const [configHash, lockfileHash, keyDigest] = await Promise.all([
+				computeConfigHash(options.settings.config),
+				computeLockfileHash(fileURLToPath(options.settings.config.root)),
+				options.key.then(hashCryptoKey),
+			]);
+			cache = IncrementalBuildCache.load(
+				options.settings,
+				configHash,
+				lockfileHash,
+				keyDigest,
+				internals.contentEntryRenderHashes ?? new Map(),
+				options.force,
+			);
+		}
 	}
 
 	try {
