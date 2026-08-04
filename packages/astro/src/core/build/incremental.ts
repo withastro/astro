@@ -40,6 +40,13 @@ export interface IncrementalManifest {
 	 * A mismatch invalidates the whole cache.
 	 */
 	lockfileHash: string;
+	/**
+	 * Hash of the server-island encryption key. A page's island props are baked
+	 * into its HTML as ciphertext bound to this key, so a restored page whose key
+	 * has changed would be undecryptable at runtime. Server-island pages are only
+	 * reused when this matches; it does not affect pages without islands.
+	 */
+	keyDigest: string;
 	routes: Record<string, IncrementalRouteEntry>;
 }
 
@@ -92,12 +99,13 @@ export class IncrementalBuildCache {
 	constructor(
 		configHash: string,
 		lockfileHash: string,
+		keyDigest: string,
 		contentEntryHashes = new Map<string, string>(),
 		previous: IncrementalManifest | null = null,
 	) {
 		this.#previous = previous;
 		this.#contentEntryHashes = contentEntryHashes;
-		this.#next = { version: CACHE_VERSION, configHash, lockfileHash, routes: {} };
+		this.#next = { version: CACHE_VERSION, configHash, lockfileHash, keyDigest, routes: {} };
 	}
 
 	/**
@@ -115,12 +123,14 @@ export class IncrementalBuildCache {
 		settings: AstroSettings,
 		configHash: string,
 		lockfileHash: string,
+		keyDigest: string,
 		contentEntryHashes = new Map<string, string>(),
 		force = false,
 	): IncrementalBuildCache {
 		return new IncrementalBuildCache(
 			configHash,
 			lockfileHash,
+			keyDigest,
 			contentEntryHashes,
 			force ? null : readManifest(settings, configHash, lockfileHash),
 		);
@@ -136,15 +146,20 @@ export class IncrementalBuildCache {
 	 * 5. The path's cacheKey matches the previous build (user data is identical).
 	 * 6. Every content entry the path rendered last build still has a matching
 	 *    render hash (imported components inside that content are unchanged).
+	 * 7. If the path renders a server island, the encryption key is unchanged, so
+	 *    the ciphertext baked into the restored HTML is still decryptable.
 	 */
 	canSkip(
 		routeComponent: string,
 		pathname: string,
 		dependencyHash: string,
 		cacheKey: string,
+		hasServerIsland = false,
 	): boolean {
 		const routeEntry = this.#previous?.routes[routeComponent];
 		if (!routeEntry) return false;
+
+		if (hasServerIsland && this.#previous?.keyDigest !== this.#next.keyDigest) return false;
 
 		if (routeEntry.dependencyHash !== dependencyHash) return false;
 

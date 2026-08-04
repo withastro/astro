@@ -24,6 +24,7 @@ import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroLogger } from '../logger/core.js';
 import type { AstroPrerenderer, RouteToHeaders } from '../../types/public/index.js';
 import type { RouteData, RouteType, SSRError } from '../../types/public/internal.js';
+import { hashCryptoKey } from '../encryption.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getRedirectLocationOrThrow } from '../redirects/index.js';
 import { createRequest } from '../request.js';
@@ -101,14 +102,16 @@ export async function generatePages(
 	// Incremental build support
 	let cache: IncrementalBuildCache | null = null;
 	if (options.settings.config.experimental.incrementalBuild) {
-		const [configHash, lockfileHash] = await Promise.all([
+		const [configHash, lockfileHash, keyDigest] = await Promise.all([
 			computeConfigHash(options.settings.config),
 			computeLockfileHash(fileURLToPath(options.settings.config.root)),
+			options.key.then(hashCryptoKey),
 		]);
 		cache = IncrementalBuildCache.load(
 			options.settings,
 			configHash,
 			lockfileHash,
+			keyDigest,
 			internals.contentEntryRenderHashes ?? new Map(),
 			options.force,
 		);
@@ -597,11 +600,12 @@ async function generatePathWithPrerenderer(
 
 	// Look up the dependency hash for this route
 	const dependencyHash = internals.pageDependencyHashes?.get(route.component) ?? '';
+	const hasServerIsland = internals.serverIslandPageComponents?.has(route.component) ?? false;
 
 	// Incremental build: check if we can skip this path
 	if (
 		cacheKey !== undefined &&
-		cache?.canSkip(route.component, pathname, dependencyHash, cacheKey)
+		cache?.canSkip(route.component, pathname, dependencyHash, cacheKey, hasServerIsland)
 	) {
 		const existsInDist = nodeFs.existsSync(outFile);
 		const restored =

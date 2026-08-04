@@ -146,6 +146,14 @@ export interface BuildInternals {
 	 * imported by the content it renders changes.
 	 */
 	contentEntryRenderHashes?: Map<string, string>;
+
+	/**
+	 * Set of page component paths whose render graph contains a server island.
+	 * Populated during the prerender Rolldown build by the incremental plugin.
+	 * Such pages bake key-bound ciphertext into their HTML, so the incremental
+	 * cache only reuses them while the encryption key is unchanged.
+	 */
+	serverIslandPageComponents?: Set<string>;
 }
 
 /**

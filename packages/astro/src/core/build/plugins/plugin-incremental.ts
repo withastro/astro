@@ -156,6 +156,20 @@ function collectContentEntryHashes(
 }
 
 /**
+ * Whether any module in a page's render graph uses a server island. The Astro
+ * compiler records `server:defer` usage as `serverComponents` metadata on the
+ * module that hosts it, so a page (or one of its layouts/components) that renders
+ * an island is detectable from the graph it already walks for hashing.
+ */
+function pageContainsServerIsland(graph: ModuleGraph, ids: string[]): boolean {
+	for (const id of ids) {
+		const serverComponents = graph.getModuleInfo(id)?.meta?.astro?.serverComponents;
+		if (serverComponents?.length) return true;
+	}
+	return false;
+}
+
+/**
  * Captures a dependency hash for each prerendered page route during the build.
  *
  * The base hash is derived during the prerender build from the sorted set of all
@@ -182,6 +196,7 @@ export function pluginIncremental(internals: BuildInternals, root: URL): VitePlu
 			}
 
 			const hashes = new Map<string, string>();
+			const serverIslandComponents = new Set<string>();
 			for (const id of this.getModuleIds()) {
 				const info = this.getModuleInfo(id);
 				if (!info) continue;
@@ -193,10 +208,14 @@ export function pluginIncremental(internals: BuildInternals, root: URL): VitePlu
 				const deps = collectTransitiveDeps(this, info.id);
 				// Key by component path (e.g. "src/pages/blog/[slug].astro")
 				hashes.set(pageData.component, hashModules(this, deps));
+				if (pageContainsServerIsland(this, deps)) {
+					serverIslandComponents.add(pageData.component);
+				}
 			}
 
 			internals.pageDependencyHashes = hashes;
 			internals.contentEntryRenderHashes = collectContentEntryHashes(this, root);
+			internals.serverIslandPageComponents = serverIslandComponents;
 		},
 	};
 }
