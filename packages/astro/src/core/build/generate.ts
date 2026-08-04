@@ -695,20 +695,11 @@ async function generatePathWithPrerenderer(
 	const headers = cache ? [...(routeToHeaders.get(pathname)?.headers ?? [])] : undefined;
 
 	if (!result) {
-		// A path without a cacheKey is never recorded: it can never be skipped on a
-		// later build. Otherwise record it even when no file was created (empty body).
-		if (cache && cacheKey !== undefined) {
-			cache.record(
-				route.component,
-				dependencyHash,
-				pathname,
-				cacheKey,
-				relativeOutFile,
-				contentEntryKeys,
-				staticImages,
-				headers,
-			);
-		}
+		// A path that produced no output this build is deliberately not recorded.
+		// A stale cache copy from a build where it did produce output would
+		// otherwise be kept (the path is still keyed) and restored on a later skip,
+		// resurrecting output the path no longer emits. Leaving it unrecorded makes
+		// `findOrphanedFiles` prune that copy and forces a re-render next build.
 		logRenderTime(logger, timeStart, true);
 		return;
 	}
