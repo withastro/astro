@@ -37,6 +37,12 @@ describe('experimental.incrementalBuild optimized images (workerd)', () => {
 		const pathEntry = cache.routes['src/pages/pic/[slug].astro'].paths['/pic/a'];
 		assert.ok(pathEntry.staticImages?.length > 0, 'the path should record its image transforms');
 
+		// Drop the optimized-image cache so the rebuild must regenerate the image
+		// through the Node image service rather than copying a cached result. This
+		// is the path that fails if the adapter skips installing the service when
+		// the worker renders nothing (every page skipped).
+		fs.rmSync(new URL('node_modules/.astro/assets/', root), { recursive: true, force: true });
+
 		// Astro empties dist/ each build; the optimized image is regenerated only
 		// from the transform queue. Rebuild with no changes so the page is skipped
 		// and restored from cache rather than re-rendered.

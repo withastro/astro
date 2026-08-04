@@ -376,8 +376,12 @@ export function createCloudflarePrerenderer({
 							}
 						}
 
-						// Only load the Node-side image service if some transforms still need it.
-						if (staticImages.size > 0) {
+						// Load the Node-side image service if any transforms need it: the
+						// ones deferred above, or transforms an incremental skip restored
+						// into the global list, which the asset pipeline regenerates when
+						// its cached output is absent.
+						const restoredCount = globalThis.astroAsset?.staticImages?.size ?? 0;
+						if (staticImages.size > 0 || restoredCount > 0) {
 							globalThis.astroAsset ??= {};
 							if (userImageServiceEntrypoint) {
 								const mod = await import(userImageServiceEntrypoint);
