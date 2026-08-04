@@ -82,54 +82,62 @@ describe('getConfigHashInput', () => {
 });
 
 describe('computeConfigHash', () => {
-	it('is stable across runs for equal config', () => {
-		assert.equal(computeConfigHash(fakeConfig()), computeConfigHash(fakeConfig()));
+	it('is stable across runs for equal config', async () => {
+		assert.equal(await computeConfigHash(fakeConfig()), await computeConfigHash(fakeConfig()));
 	});
 
-	it('is stable when object key order differs', () => {
-		const a = computeConfigHash(fakeConfig({ build: { format: 'directory', assets: '_astro' } }));
-		const b = computeConfigHash(fakeConfig({ build: { assets: '_astro', format: 'directory' } }));
+	it('is stable when object key order differs', async () => {
+		const a = await computeConfigHash(
+			fakeConfig({ build: { format: 'directory', assets: '_astro' } }),
+		);
+		const b = await computeConfigHash(
+			fakeConfig({ build: { assets: '_astro', format: 'directory' } }),
+		);
 		assert.equal(a, b);
 	});
 
-	it('changes when an output-affecting value changes', () => {
+	it('changes when an output-affecting value changes', async () => {
 		assert.notEqual(
-			computeConfigHash(fakeConfig({ site: 'https://example.com' })),
-			computeConfigHash(fakeConfig({ site: 'https://other.example' })),
+			await computeConfigHash(fakeConfig({ site: 'https://example.com' })),
+			await computeConfigHash(fakeConfig({ site: 'https://other.example' })),
 		);
 	});
 
-	it('changes when a compiler-baked value changes', () => {
+	it('changes when a compiler-baked value changes', async () => {
 		assert.notEqual(
-			computeConfigHash(fakeConfig({ compressHTML: true })),
-			computeConfigHash(fakeConfig({ compressHTML: false })),
+			await computeConfigHash(fakeConfig({ compressHTML: true })),
+			await computeConfigHash(fakeConfig({ compressHTML: false })),
 		);
 	});
 
-	it('ignores changes to excluded fields', () => {
+	it('ignores changes to excluded fields', async () => {
 		assert.equal(
-			computeConfigHash(fakeConfig({ outDir: new URL('file:///a/') })),
-			computeConfigHash(fakeConfig({ outDir: new URL('file:///b/') })),
+			await computeConfigHash(fakeConfig({ outDir: new URL('file:///a/') })),
+			await computeConfigHash(fakeConfig({ outDir: new URL('file:///b/') })),
 		);
 	});
 
-	it('does not track function identity inside included fields', () => {
+	it('does not track function identity inside included fields', async () => {
 		const a = fakeConfig({ markdown: { syntaxHighlight: 'shiki', remarkPlugins: [() => {}] } });
 		const b = fakeConfig({ markdown: { syntaxHighlight: 'shiki', remarkPlugins: [() => 42] } });
-		assert.equal(computeConfigHash(a), computeConfigHash(b));
+		assert.equal(await computeConfigHash(a), await computeConfigHash(b));
 	});
 
-	it('changes when an output-affecting vite option changes', () => {
+	it('changes when an output-affecting vite option changes', async () => {
 		assert.notEqual(
-			computeConfigHash(fakeConfig({ vite: { build: { assetsInlineLimit: 4096 } } })),
-			computeConfigHash(fakeConfig({ vite: { build: { assetsInlineLimit: 0 } } })),
+			await computeConfigHash(fakeConfig({ vite: { build: { assetsInlineLimit: 4096 } } })),
+			await computeConfigHash(fakeConfig({ vite: { build: { assetsInlineLimit: 0 } } })),
 		);
 	});
 
-	it('ignores vite fields outside the allowlist', () => {
+	it('ignores vite fields outside the allowlist', async () => {
 		assert.equal(
-			computeConfigHash(fakeConfig({ vite: { server: { port: 3000 }, plugins: [() => {}] } })),
-			computeConfigHash(fakeConfig({ vite: { server: { port: 4000 }, plugins: [() => 42] } })),
+			await computeConfigHash(
+				fakeConfig({ vite: { server: { port: 3000 }, plugins: [() => {}] } }),
+			),
+			await computeConfigHash(
+				fakeConfig({ vite: { server: { port: 4000 }, plugins: [() => 42] } }),
+			),
 		);
 	});
 });

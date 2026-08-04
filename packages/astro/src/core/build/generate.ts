@@ -99,14 +99,19 @@ export async function generatePages(
 	let staticImageList = getStaticImageList();
 
 	// Incremental build support
-	const cache = options.settings.config.experimental.incrementalBuild
-		? IncrementalBuildCache.load(
-				options.settings,
-				computeConfigHash(options.settings.config),
-				computeLockfileHash(fileURLToPath(options.settings.config.root)),
-				internals.contentEntryRenderHashes ?? new Map(),
-			)
-		: null;
+	let cache: IncrementalBuildCache | null = null;
+	if (options.settings.config.experimental.incrementalBuild) {
+		const [configHash, lockfileHash] = await Promise.all([
+			computeConfigHash(options.settings.config),
+			computeLockfileHash(fileURLToPath(options.settings.config.root)),
+		]);
+		cache = IncrementalBuildCache.load(
+			options.settings,
+			configHash,
+			lockfileHash,
+			internals.contentEntryRenderHashes ?? new Map(),
+		);
+	}
 
 	try {
 		// Get all static paths with their routes from the prerenderer

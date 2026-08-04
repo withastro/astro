@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+import { encodeHexLowerCase } from '@oslojs/encoding';
 import type { AstroConfig } from '../../../types/public/config.js';
 import { getConfigHashInput } from './input.js';
 
@@ -31,7 +31,8 @@ function stableStringify(value: unknown): string {
  * {@link getConfigHashInput}). A mismatch invalidates the whole incremental
  * build cache.
  */
-export function computeConfigHash(config: AstroConfig): string {
+export async function computeConfigHash(config: AstroConfig): Promise<string> {
 	const input = stableStringify(getConfigHashInput(config));
-	return crypto.createHash('sha256').update(input).digest('hex');
+	const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+	return encodeHexLowerCase(new Uint8Array(digest));
 }

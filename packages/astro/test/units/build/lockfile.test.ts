@@ -66,34 +66,34 @@ describe('LockfileFinder', () => {
 });
 
 describe('LockfileHasher', () => {
-	it('returns an empty string when there are no lockfiles', () => {
+	it('returns an empty string when there are no lockfiles', async () => {
 		const hasher = new LockfileHasher(fakeFs({}));
-		assert.equal(hasher.hash([]), '');
+		assert.equal(await hasher.hash([]), '');
 	});
 
-	it('produces a stable hash regardless of input order', () => {
+	it('produces a stable hash regardless of input order', async () => {
 		const files = {
 			[path.resolve('/project/pnpm-lock.yaml')]: 'a',
 			[path.resolve('/project/package-lock.json')]: 'b',
 		};
 		const hasher = new LockfileHasher(fakeFs(files));
-		const first = hasher.hash([
+		const first = await hasher.hash([
 			path.resolve('/project/pnpm-lock.yaml'),
 			path.resolve('/project/package-lock.json'),
 		]);
-		const second = hasher.hash([
+		const second = await hasher.hash([
 			path.resolve('/project/package-lock.json'),
 			path.resolve('/project/pnpm-lock.yaml'),
 		]);
 		assert.equal(first, second);
 	});
 
-	it('changes when lockfile contents change', () => {
+	it('changes when lockfile contents change', async () => {
 		const before = new LockfileHasher(fakeFs({ [path.resolve('/p/pnpm-lock.yaml')]: 'v1' }));
 		const after = new LockfileHasher(fakeFs({ [path.resolve('/p/pnpm-lock.yaml')]: 'v2' }));
 		assert.notEqual(
-			before.hash([path.resolve('/p/pnpm-lock.yaml')]),
-			after.hash([path.resolve('/p/pnpm-lock.yaml')]),
+			await before.hash([path.resolve('/p/pnpm-lock.yaml')]),
+			await after.hash([path.resolve('/p/pnpm-lock.yaml')]),
 		);
 	});
 });

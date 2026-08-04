@@ -10,7 +10,7 @@ export { LockfileHasher, type LockfileHasherFs } from './hasher.js';
  * digest used to globally invalidate the incremental build cache when
  * dependencies change. Returns an empty string when no lockfile is found.
  */
-export function computeLockfileHash(startDir: string, fs: typeof nodeFs = nodeFs): string {
+export function computeLockfileHash(startDir: string, fs: typeof nodeFs = nodeFs): Promise<string> {
 	const finder = new LockfileFinder(fs);
 	const hasher = new LockfileHasher(fs);
 	return hasher.hash(finder.find(startDir));
