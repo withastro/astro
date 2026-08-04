@@ -107,18 +107,22 @@ export class IncrementalBuildCache {
 	 *
 	 * `contentEntryHashes` is this build's map of content-entry render hashes,
 	 * used to detect when the content a path renders has changed.
+	 *
+	 * `force` ignores any existing manifest so every path is rebuilt, while still
+	 * recording a fresh cache for the next build.
 	 */
 	static load(
 		settings: AstroSettings,
 		configHash: string,
 		lockfileHash: string,
 		contentEntryHashes = new Map<string, string>(),
+		force = false,
 	): IncrementalBuildCache {
 		return new IncrementalBuildCache(
 			configHash,
 			lockfileHash,
 			contentEntryHashes,
-			readManifest(settings, configHash, lockfileHash),
+			force ? null : readManifest(settings, configHash, lockfileHash),
 		);
 	}
 

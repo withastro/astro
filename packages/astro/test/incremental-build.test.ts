@@ -193,6 +193,46 @@ describe('experimental.incrementalBuild', () => {
 		});
 	});
 
+	describe('force build', () => {
+		const forceCachedPost1 = new URL('node_modules/.astro-force/dist/blog/post-1/index.html', root);
+		let forceFixture: Fixture;
+
+		before(async () => {
+			fs.rmSync(new URL('dist/incremental-build-force/', root), { recursive: true, force: true });
+			fs.rmSync(new URL('node_modules/.astro-force/', root), { recursive: true, force: true });
+			forceFixture = await loadFixture({
+				root,
+				outDir: './dist/incremental-build-force/',
+				cacheDir: './node_modules/.astro-force/',
+				experimental: {
+					incrementalBuild: true,
+				},
+			});
+			// Warm the cache so a rebuild has something to skip.
+			await forceFixture.build();
+		});
+
+		it('re-renders every page instead of restoring from the cache', async () => {
+			// Astro empties the output dir each build, so a skipped page is restored
+			// from its cached copy. Plant a sentinel there: a restore keeps it, a
+			// re-render overwrites it.
+			fs.writeFileSync(forceCachedPost1, 'cached post-1 sentinel');
+
+			// A normal rebuild skips the unchanged page and restores the sentinel.
+			await forceFixture.build();
+			assert.equal(
+				await forceFixture.readFile('/blog/post-1/index.html'),
+				'cached post-1 sentinel',
+			);
+
+			// `--force` ignores the cache and re-renders the page.
+			fs.writeFileSync(forceCachedPost1, 'cached post-1 sentinel');
+			await forceFixture.build({ force: true });
+			const $ = cheerio.load(await forceFixture.readFile('/blog/post-1/index.html'));
+			assert.equal($('h1').text(), 'Post 1');
+		});
+	});
+
 	describe('default build behavior', () => {
 		const disabledCacheFile = new URL('node_modules/.astro-disabled/incremental-build.json', root);
 		let disabledFixture: Fixture;

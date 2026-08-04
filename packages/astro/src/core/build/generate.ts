@@ -110,6 +110,7 @@ export async function generatePages(
 			configHash,
 			lockfileHash,
 			internals.contentEntryRenderHashes ?? new Map(),
+			options.force,
 		);
 	}
 
