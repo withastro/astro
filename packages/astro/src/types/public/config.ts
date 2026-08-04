@@ -3339,7 +3339,7 @@ export interface AstroUserConfig<
 		 * @name experimental.incrementalBuild
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 7.x
+		 * @version 7.2
 		 * @description
 		 *
 		 * Enables incremental static builds. When enabled, pages with a `cacheKey` returned
