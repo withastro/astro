@@ -65,4 +65,26 @@ describe('@astrojs/cloudflare/fetch lazy initialization', () => {
 			'Module should export the cf function',
 		);
 	});
+
+	it('exports createFetchState', () => {
+		assert.ok(
+			source.includes('createFetchState'),
+			'Module should export createFetchState for custom worker entrypoints',
+		);
+	});
+
+	it('createFetchState calls ensureInitialized and stamps appSymbol', () => {
+		// createFetchState must initialize the app and attach it to the
+		// request before constructing FetchState, so that custom worker
+		// entrypoints can use `createFetchState(request)` instead of
+		// `new FetchState(request)` (which throws without the app symbol).
+		assert.ok(
+			source.includes('ensureInitialized'),
+			'createFetchState should call ensureInitialized()',
+		);
+		assert.ok(
+			source.includes('Symbol.for("astro.app")') || source.includes("Symbol.for('astro.app')"),
+			'createFetchState should use the well-known astro.app symbol',
+		);
+	});
 });

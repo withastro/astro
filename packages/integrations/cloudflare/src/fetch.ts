@@ -4,12 +4,12 @@
  * Usage in `src/app.ts`:
  *
  * ```ts
- * import { astro, FetchState } from 'astro/fetch';
- * import { cf } from '@astrojs/cloudflare/fetch';
+ * import { astro } from 'astro/fetch';
+ * import { cf, createFetchState } from '@astrojs/cloudflare/fetch';
  *
  * export default {
- *   async fetch(request: Request) {
- *     const state = new FetchState(request);
+ *   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+ *     const state = createFetchState(request);
  *     const asset = await cf(state, env, ctx);
  *     if (asset) return asset;
  *     return astro(state);
@@ -18,7 +18,7 @@
  * ```
  */
 import { env as globalEnv } from 'cloudflare:workers';
-import type { FetchState } from 'astro/fetch';
+import { FetchState } from 'astro/fetch';
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from './utils/env.js';
@@ -31,8 +31,12 @@ import {
 	getClientAddress,
 } from './utils/cf.js';
 
+// Well-known symbol used by `FetchState` to resolve the Astro app from
+// a request. Matches the definition in `astro/src/core/constants.ts`.
+const appSymbol = Symbol.for('astro.app');
+
 // Lazy initialization — `createApp` and `setGetEnv` are deferred to the
-// first `cf()` call so that this module can be statically imported from a
+// first call so that this module can be statically imported from a
 // custom `fetchFile` without triggering a circular-dependency crash.
 // (The cycle: fetch.ts → astro/app/entrypoint → virtual:astro:fetchable → user worker → fetch.ts)
 let app: ReturnType<typeof createApp> | undefined;
@@ -42,6 +46,20 @@ function ensureInitialized() {
 		setGetEnv(createGetEnv(globalEnv));
 		app = createApp();
 	}
+}
+
+/**
+ * Creates a `FetchState` for use in a custom Cloudflare worker entrypoint.
+ *
+ * Lazily initializes the Astro app and attaches it to the request so that
+ * `FetchState`, `astro()`, and the other `astro/fetch` helpers can resolve
+ * the pipeline. Use this instead of `new FetchState(request)` in custom
+ * worker entrypoints; the adapter's default entrypoint does not need it.
+ */
+export function createFetchState(request: Request): FetchState {
+	ensureInitialized();
+	Reflect.set(request, appSymbol, app);
+	return new FetchState(request);
 }
 
 /**

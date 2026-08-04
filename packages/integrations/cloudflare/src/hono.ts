@@ -19,8 +19,8 @@
  * export default app;
  * ```
  */
-import { FetchState } from 'astro/fetch';
-import { cf as cfFetch } from './fetch.js';
+import type { FetchState } from 'astro/fetch';
+import { cf as cfFetch, createFetchState } from './fetch.js';
 
 const FETCH_STATE_KEY = 'fetchState';
 
@@ -47,7 +47,7 @@ function getFetchState(context: HonoCloudflareContextLike): FetchState {
 	const state = context.get?.(FETCH_STATE_KEY) as FetchState | undefined;
 	if (state) return state;
 
-	const nextState = new FetchState(context.req.raw);
+	const nextState = createFetchState(context.req.raw);
 	context.set?.(FETCH_STATE_KEY, nextState);
 	return nextState;
 }
