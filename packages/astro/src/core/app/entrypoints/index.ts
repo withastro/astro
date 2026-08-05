@@ -16,3 +16,4 @@ export {
 	serializeRouteInfo,
 } from '../manifest.js';
 export { AppPipeline } from '../pipeline.js';
+export { getRequestURL } from '../request-url.js';

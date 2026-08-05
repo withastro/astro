@@ -83,7 +83,7 @@ export async function handle(
 	injectSessionBinding(app.manifest, env);
 
 	// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
-	const staticAsset = matchStaticAsset(app.manifest, request.url, env);
+	const staticAsset = matchStaticAsset(app.manifest, request, env);
 	if (staticAsset) return staticAsset as CfResponse;
 
 	let routeData: RouteData | undefined = undefined;

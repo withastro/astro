@@ -22,6 +22,7 @@ import { DefaultErrorHandler } from '../errors/default-handler.js';
 import type { ErrorHandler } from '../errors/handler.js';
 import { isRoute404, isRoute500 } from '../routing/internal/route-errors.js';
 import { setRenderOptions } from './render-options.js';
+import { getRequestURL } from './request-url.js';
 import type { WaitUntilHook } from '../wait-until.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
@@ -284,7 +285,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 * Used by adapters to compute the pathname for dev-mode route matching.
 	 */
 	public getPathnameFromRequest(request: Request): string {
-		const url = new URL(request.url);
+		const url = getRequestURL(request);
 		const pathname = prependForwardSlash(this.removeBase(url.pathname));
 		return this.safeDecodeURI(pathname);
 	}
@@ -298,7 +299,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 * @param allowPrerenderedRoutes
 	 */
 	public match(request: Request, allowPrerenderedRoutes = false): RouteData | undefined {
-		const url = new URL(request.url);
+		const url = getRequestURL(request);
 		// ignore requests matching public assets
 		if (this.manifest.assets.has(url.pathname)) return undefined;
 		let pathname = this.computePathnameFromDomain(request);
@@ -340,7 +341,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	private computePathnameFromDomain(request: Request): string | undefined {
 		return computePathnameFromDomain(
 			request,
-			new URL(request.url),
+			getRequestURL(request),
 			this.manifest.i18n,
 			this.manifest.base,
 			this.manifest.trailingSlash,
