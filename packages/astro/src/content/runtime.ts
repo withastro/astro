@@ -530,21 +530,21 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
  */
 function cloneContainers<T>(value: T, seen = new WeakMap<object, unknown>()): T {
 	if (Array.isArray(value)) {
-		const existing = seen.get(value);
-		if (existing) {
-			return existing as T;
+		const cached = seen.get(value);
+		if (cached !== undefined) {
+			return cached as T;
 		}
-		const copy: unknown[] = [];
+		const copy = new Array(value.length);
 		seen.set(value, copy);
-		for (const item of value) {
-			copy.push(cloneContainers(item, seen));
+		for (let index = 0; index < value.length; index++) {
+			copy[index] = cloneContainers(value[index], seen);
 		}
 		return copy as T;
 	}
 	if (isPlainObject(value)) {
-		const existing = seen.get(value);
-		if (existing) {
-			return existing as T;
+		const cached = seen.get(value);
+		if (cached !== undefined) {
+			return cached as T;
 		}
 		const copy: Record<string, unknown> = {};
 		seen.set(value, copy);
