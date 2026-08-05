@@ -57,6 +57,10 @@ describe('session: false', () => {
 			if (/class AstroSession\b/.test(body)) hasSessionRuntime = true;
 		}
 		assert.equal(hasUnstorage, false, 'unstorage should not appear in the SSR bundle');
-		assert.equal(hasSessionRuntime, false, 'AstroSession class should not appear in the SSR bundle');
+		assert.equal(
+			hasSessionRuntime,
+			false,
+			'AstroSession class should not appear in the SSR bundle',
+		);
 	});
 });

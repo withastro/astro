@@ -50,7 +50,11 @@ describe('session tree-shaking when no driver is wired', () => {
 	it('excludes the session runtime and unstorage from the SSR bundle', async () => {
 		const { hasUnstorage, hasSessionRuntime } = await bundleHasSessionRuntime(fixture);
 		assert.equal(hasUnstorage, false, 'unstorage should not appear in the SSR bundle');
-		assert.equal(hasSessionRuntime, false, 'AstroSession class should not appear in the SSR bundle');
+		assert.equal(
+			hasSessionRuntime,
+			false,
+			'AstroSession class should not appear in the SSR bundle',
+		);
 	});
 });
 
