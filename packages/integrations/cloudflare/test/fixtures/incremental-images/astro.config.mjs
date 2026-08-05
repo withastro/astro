@@ -6,6 +6,11 @@ export default defineConfig({
 		imageService: 'compile',
 	}),
 	output: 'static',
+	image: {
+		service: {
+			entrypoint: './src/image-service.ts',
+		},
+	},
 	experimental: {
 		incrementalBuild: true,
 	},
