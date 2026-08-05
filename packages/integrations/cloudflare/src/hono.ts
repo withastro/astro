@@ -20,7 +20,7 @@
  * ```
  */
 import { FetchState } from 'astro/fetch';
-import { cf as cfFetch } from './fetch.js';
+import { cf as cfFetch, cfResponse } from './fetch.js';
 
 const FETCH_STATE_KEY = 'fetchState';
 
@@ -40,6 +40,7 @@ type HonoCloudflareContextLike = {
 	};
 	get?: (key: string) => unknown;
 	set?: (key: string, value: unknown) => void;
+	res: Response;
 };
 
 type HonoMiddlewareHandler = (
@@ -62,7 +63,11 @@ function getFetchState(context: HonoCloudflareContextLike): FetchState {
  * Reads `env` and `executionCtx` from the Hono context (provided
  * automatically by Hono on Cloudflare Workers). Handles static assets
  * via the ASSETS binding, injects the SESSION KV binding, and sets
- * `locals.cfContext`, client address, `waitUntil`, and error page fetch.
+ * `locals.cfContext`, client address, `waitUntil`, error page fetch,
+ * and `addCookieHeader`.
+ *
+ * After the downstream middleware chain runs, applies the CDN cache
+ * `no-store` default when the Cloudflare cache provider is enabled.
  *
  * If the request matches a static asset, returns the asset response
  * directly. Otherwise calls `next()` to continue the middleware chain.
@@ -73,5 +78,6 @@ export function cf(): HonoMiddlewareHandler {
 		const asset = await cfFetch(state, context.env, context.executionCtx);
 		if (asset) return asset;
 		await next();
+		context.res = cfResponse(context.res);
 	};
 }
