@@ -528,6 +528,7 @@ export default function createIntegration({
 							userImageServiceEntrypoint: hasUserBuildImageService
 								? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
 								: undefined,
+							incremental: _config.experimental?.incrementalBuild ?? false,
 							logger,
 						}),
 					);
