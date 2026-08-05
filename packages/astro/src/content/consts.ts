@@ -21,7 +21,10 @@ export const DEFERRED_MODULE = 'astro:content-layer-deferred-module';
 // Used by the content layer to create a virtual module that loads the `assets.mjs`
 export const ASSET_IMPORTS_VIRTUAL_ID = 'astro:asset-imports';
 export const ASSET_IMPORTS_RESOLVED_STUB_ID = '\0' + ASSET_IMPORTS_VIRTUAL_ID;
-export const LINKS_PLACEHOLDER = '@@ASTRO-LINKS@@';
+// A single placeholder for the ordered list of stylesheets (inline + external).
+// Kept as one list (rather than separate style/link placeholders) so that the
+// original cascade order between inline styles and external stylesheets survives
+// the build's post-hook injection step.
 export const STYLES_PLACEHOLDER = '@@ASTRO-STYLES@@';
 export const IMAGE_IMPORT_PREFIX = '__ASTRO_IMAGE_';
 
