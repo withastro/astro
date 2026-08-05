@@ -1,4 +1,3 @@
-import { detectAgenticEnvironment } from 'am-i-vibing';
 import colors from 'piccolore';
 import type { ResolvedServerUrls } from 'vite';
 import devServer from '../../core/dev/index.js';
@@ -11,21 +10,11 @@ import {
 } from '../../core/dev/lockfile.js';
 import { resolveRoot } from '../../core/config/config.js';
 import { printHelp } from '../../core/messages/runtime.js';
+import { isRunByAgent } from '../agent.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface DevOptions {
 	flags: Flags;
-}
-
-function isRunByAgent(): boolean {
-	try {
-		// Only treat direct "agent" types as auto-background-worthy.
-		// "hybrid" environments (e.g. Warp terminal) may not actually be running
-		// an AI agent, so we avoid false positives by excluding them.
-		return detectAgenticEnvironment().type === 'agent';
-	} catch {
-		return false;
-	}
 }
 
 /**
