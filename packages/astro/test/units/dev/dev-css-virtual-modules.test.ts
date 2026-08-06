@@ -1,6 +1,19 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { wrapId } from '../../../dist/core/util.js';
+import { astroDevCssPlugin } from '../../../dist/vite-plugin-css/index.js';
+
+describe('dev CSS plugin environments', () => {
+	it('applies to the fallback Astro environment', () => {
+		const [plugin] = astroDevCssPlugin({
+			routesList: {} as never,
+			command: 'dev',
+			cssContentCache: new Map(),
+		});
+
+		assert.equal(plugin.applyToEnvironment?.({ name: 'astro' } as never), true);
+	});
+});
 
 /**
  * Tests for the cache key alignment in the dev CSS collection pipeline.
