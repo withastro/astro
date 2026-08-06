@@ -1,0 +1,107 @@
+name: Preview release
+
+on:
+  pull_request:
+    branches: [main, next, 5-legacy, 6-legacy]
+    types: [labeled]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: write
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+  FORCE_COLOR: true
+  ASTRO_TELEMETRY_DISABLED: true
+  # 7 GiB by default on GitHub, setting to 6 GiB
+  # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+  NODE_OPTIONS: --max-old-space-size=6144
+
+jobs:
+  preview:
+    # Only allow preview releases from branches in the same repo (not forks)
+    if: >-
+      github.repository_owner == 'withastro' &&
+      github.event.label.name == 'pr preview' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      id-token: write
+    name: Build & publish preview
+    timeout-minutes: 5
+    steps:
+      - name: Disable git crlf
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          # Changeset needs access to the main branch to find pending changesets
+          fetch-depth: 0
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+
+      - name: Setup Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24.15.0
+          # Explicitly disable cache — a fresh install on every run avoids
+          # the risk of a poisoned cache being used during the publish step
+          # which has access to the OIDC id-token.
+          package-manager-cache: false
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Packages
+        run: pnpm run build
+
+      - name: Get changeset status
+        id: changeset-status
+        run: |
+          pnpm changeset status --output changes.json
+          echo "changes-output=$(cat changes.json | jq -c .)" >> $GITHUB_OUTPUT
+
+      - name: Get pnpm packages
+        id: pnpm-packages
+        run: |
+          pnpm list --recursive --depth -1 --json >> pnpm.json
+          echo "packages-output=$(cat pnpm.json | jq -c .)" >> $GITHUB_OUTPUT
+
+      - name: Compute affected packages
+        id: compute-affected-packages
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          CHANGES: ${{ steps.changeset-status.outputs.changes-output }}
+          PACKAGES: ${{ steps.pnpm-packages.outputs.packages-output }}
+        with:
+          script: |
+              const { relative } = require('node:path');
+              const changes = JSON.parse(process.env.CHANGES);
+              const packages = JSON.parse(process.env.PACKAGES);
+              const packagesMap = Object.fromEntries(packages.map(p => [p.name, relative(process.cwd(), p.path)]));
+              const affectedPackages = [...new Set(changes.changesets.map(c => c.releases.map(r=> packagesMap[r.name])).flat())]
+              core.setOutput('affected-packages', JSON.stringify(affectedPackages));
+
+      # This step doesn't work for forks
+      - name: Remove Preview Label
+        run: gh pr edit ${{ github.event.number }} --remove-label "pr preview"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+      - name: Publish packages
+        run: |
+          packages=$(echo '${{ steps.compute-affected-packages.outputs.affected-packages }}' | jq -r '.[]' | tr '\n' ' ')
+          if [ -n "$packages" ]; then
+            pnpm exec pkg-pr-new publish --pnpm --compact --no-template $packages
+          else
+            echo "No affected packages to publish"
+          fi

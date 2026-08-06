@@ -1,0 +1,9 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+const docsHref = getRelativeLocaleUrl('en', 'docs');
+---
+
+<header>
+  <a href={docsHref}>Docs</a>
+</header>

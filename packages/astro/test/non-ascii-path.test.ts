@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
+import { type Fixture, loadFixture } from './test-utils.ts';
+
+describe('Non-ASCII Path Test', () => {
+	let fixture: Fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/non-ascii-path/测试/',
+			outDir: './dist/non-ascii-path/',
+		});
+		await fixture.build();
+	});
+
+	describe('build', () => {
+		it('Can load page', async () => {
+			const html = await fixture.readFile(`/index.html`);
+			const $ = cheerio.load(html);
+
+			assert.equal($('h1').text(), '测试 OK');
+		});
+	});
+});

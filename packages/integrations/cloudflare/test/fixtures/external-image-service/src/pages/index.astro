@@ -1,0 +1,14 @@
+---
+import { Image } from 'astro:assets';
+import placeholder from '../assets/placeholder.jpg';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>External Image Service Test</title>
+	</head>
+	<body>
+		<Image src={placeholder} width={100} height={100} alt="test" />
+	</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "@test/minification-html-jsx",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+		"@astrojs/react": "workspace:*"
+  }
+}

@@ -1,0 +1,6 @@
+<div id="dynamic-loader">Dynamic Loader</div>
+<script>
+	const { greet, MESSAGES } = await import('./shared.js');
+	const el = document.getElementById('dynamic-loader');
+	if (el) el.textContent = greet('Dynamic') + ' ' + MESSAGES.loading;
+</script>

@@ -1,0 +1,9 @@
+{
+	"extends": "../../../tsconfigs/strictest.json",
+	"compilerOptions": {
+		"paths": {
+			"~/*": ["./src/*"]
+		}
+	},
+	"include": ["src/**/*"]
+}

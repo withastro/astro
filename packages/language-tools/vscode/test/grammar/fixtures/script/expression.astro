@@ -1,0 +1,13 @@
+---
+const view = 'Gallery';
+---
+
+{view === 'Gallery' ? (
+  <script>
+    for (let index = 0; index < 10; index++) {
+      console.log(index);
+    }
+  </script>
+) : null}
+
+{view === 'Gallery' && <script>console.log("inline")</script>}

@@ -1,0 +1,6 @@
+---
+import { inferRemoteSize } from 'astro:assets';
+
+await inferRemoteSize('https://example.com/not-allowlisted.png');
+---
+<div>Should not render</div>

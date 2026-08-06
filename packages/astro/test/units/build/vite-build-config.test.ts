@@ -1,0 +1,278 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { createViteBuildConfig } from '../../../dist/core/build/vite-build-config.js';
+import { createBasicSettings } from '../test-utils.ts';
+
+const noopIsRolldownInput = () => false;
+
+/** Shorthand to call createViteBuildConfig with minimal defaults. */
+function buildConfig(overrides: Partial<Parameters<typeof createViteBuildConfig>[0]> = {}) {
+	return createViteBuildConfig({
+		settings: overrides.settings!,
+		viteConfig: overrides.viteConfig ?? {},
+		routes: overrides.routes ?? [],
+		plugins: overrides.plugins ?? [],
+		builder: overrides.builder ?? {},
+		isRolldownInput: overrides.isRolldownInput ?? noopIsRolldownInput,
+	});
+}
+
+describe('createViteBuildConfig', () => {
+	describe('top-level rollup output', () => {
+		it('preserves user assetFileNames override', async () => {
+			const settings = await createBasicSettings();
+			const customAssetFn = () => 'assets/css/a.css';
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					build: {
+						rolldownOptions: {
+							output: { assetFileNames: customAssetFn },
+						},
+					},
+				},
+			});
+
+			const output = config.build?.rolldownOptions?.output as Record<string, unknown>;
+			assert.equal(output.assetFileNames, customAssetFn);
+		});
+
+		it('preserves user chunkFileNames override', async () => {
+			const settings = await createBasicSettings();
+			const customChunkFn = () => 'chunks/[name].js';
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					build: {
+						rolldownOptions: {
+							output: { chunkFileNames: customChunkFn },
+						},
+					},
+				},
+			});
+
+			const output = config.build?.rolldownOptions?.output as Record<string, unknown>;
+			assert.equal(output.chunkFileNames, customChunkFn);
+		});
+
+		it('uses Astro default assetFileNames when no user override provided', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({ settings });
+
+			const output = config.build?.rolldownOptions?.output as Record<string, any>;
+			assert.equal(typeof output.assetFileNames, 'function');
+			const result = output.assetFileNames({ names: ['style.css'] });
+			assert.match(result, /\[name\]\.\[hash\]\[extname\]/);
+		});
+
+		it('entryFileNames is always a function (not overridable by user output spread)', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					build: {
+						rolldownOptions: {
+							output: { entryFileNames: 'custom/[name].js' },
+						},
+					},
+				},
+			});
+
+			const output = config.build?.rolldownOptions?.output as Record<string, any>;
+			assert.equal(typeof output.entryFileNames, 'function');
+		});
+
+		it('default assetFileNames uses settings.config.build.assets as prefix', async () => {
+			const settings = await createBasicSettings({ build: { assets: 'custom_dir_1' } });
+			const config = buildConfig({ settings });
+
+			const output = config.build?.rolldownOptions?.output as Record<string, any>;
+			const result = output.assetFileNames({ names: ['style.css'] });
+			assert.match(result, /^custom_dir_1\//);
+		});
+	});
+
+	describe('client environment', () => {
+		it('preserves user assetFileNames override', async () => {
+			const settings = await createBasicSettings();
+			const customAssetFn = () => 'custom/[name].[ext]';
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					environments: {
+						client: {
+							build: {
+								rolldownOptions: {
+									output: { assetFileNames: customAssetFn },
+								},
+							},
+						},
+					},
+				},
+			});
+
+			const clientEnv = config.environments?.client as Record<string, any>;
+			const output = clientEnv.build.rolldownOptions.output;
+			assert.equal(output.assetFileNames, customAssetFn);
+		});
+
+		it('preserves user entryFileNames override', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					environments: {
+						client: {
+							build: {
+								rolldownOptions: {
+									output: { entryFileNames: 'assets/js/[name].js' },
+								},
+							},
+						},
+					},
+				},
+			});
+
+			const clientEnv = config.environments?.client as Record<string, any>;
+			const output = clientEnv.build.rolldownOptions.output;
+			assert.equal(output.entryFileNames, 'assets/js/[name].js');
+		});
+
+		it('default assetFileNames uses settings.config.build.assets as prefix', async () => {
+			const settings = await createBasicSettings({ build: { assets: 'custom_dir_1' } });
+			const config = buildConfig({ settings });
+
+			const clientEnv = config.environments?.client as Record<string, any>;
+			const output = clientEnv.build.rolldownOptions.output;
+			const result = output.assetFileNames({ names: ['style.css'] });
+			assert.match(result, /^custom_dir_1\//);
+		});
+
+		it('defaults minify to true when not set', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({ settings });
+			const clientEnv = config.environments?.client as Record<string, any>;
+			assert.equal(clientEnv.build.minify, true);
+		});
+
+		it('respects top-level vite.build.minify override', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({ settings, viteConfig: { build: { minify: false } } });
+			const clientEnv = config.environments?.client as Record<string, any>;
+			assert.equal(clientEnv.build.minify, false);
+		});
+
+		it('environment-specific minify takes priority over top-level', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					build: { minify: false },
+					environments: { client: { build: { minify: 'esbuild' } } },
+				},
+			});
+			const clientEnv = config.environments?.client as Record<string, any>;
+			assert.equal(clientEnv.build.minify, 'esbuild');
+		});
+
+		it('defaults sourcemap to false when not set', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({ settings });
+			const clientEnv = config.environments?.client as Record<string, any>;
+			assert.equal(clientEnv.build.sourcemap, false);
+		});
+
+		it('respects top-level vite.build.sourcemap override', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: { build: { sourcemap: 'inline' } },
+			});
+			const clientEnv = config.environments?.client as Record<string, any>;
+			assert.equal(clientEnv.build.sourcemap, 'inline');
+		});
+
+		it('environment-specific sourcemap takes priority over top-level', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					build: { sourcemap: 'inline' },
+					environments: { client: { build: { sourcemap: true } } },
+				},
+			});
+			const clientEnv = config.environments?.client as Record<string, any>;
+			assert.equal(clientEnv.build.sourcemap, true);
+		});
+
+		it('inherits top-level rolldown output options like hashCharacters', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					build: { rolldownOptions: { output: { hashCharacters: 'hex' } } },
+				},
+			});
+			const clientEnv = config.environments?.client as Record<string, any>;
+			assert.equal(clientEnv.build.rolldownOptions.output.hashCharacters, 'hex');
+		});
+	});
+
+	describe('prerender environment', () => {
+		it('preserves user rollup output overrides', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					environments: {
+						prerender: {
+							build: {
+								rolldownOptions: {
+									output: {
+										chunkFileNames: 'assets/testing-[name].mjs',
+										assetFileNames: 'assets/testing-[name].[ext]',
+									},
+								},
+							},
+						},
+					},
+				},
+			});
+
+			const prerenderEnv = config.environments?.prerender as Record<string, any>;
+			const output = prerenderEnv.build.rolldownOptions.output;
+			assert.equal(output.chunkFileNames, 'assets/testing-[name].mjs');
+			assert.equal(output.assetFileNames, 'assets/testing-[name].[ext]');
+		});
+	});
+
+	describe('general config', () => {
+		it('sets base from settings config', async () => {
+			const settings = await createBasicSettings({ base: '/blog' });
+			const config = buildConfig({ settings });
+			assert.equal(config.base, '/blog');
+		});
+
+		it('sets envPrefix from viteConfig or defaults to PUBLIC_', async () => {
+			const settings = await createBasicSettings();
+
+			const config1 = buildConfig({ settings });
+			assert.equal(config1.envPrefix, 'PUBLIC_');
+
+			const config2 = buildConfig({ settings, viteConfig: { envPrefix: 'CUSTOM_' } });
+			assert.equal(config2.envPrefix, 'CUSTOM_');
+		});
+
+		it('sets cssMinify based on vite build.minify', async () => {
+			const settings = await createBasicSettings();
+
+			// Default (no minify set) -> true
+			const config1 = buildConfig({ settings });
+			assert.equal(config1.build?.cssMinify, true);
+
+			// minify explicitly false -> false
+			const config2 = buildConfig({ settings, viteConfig: { build: { minify: false } } });
+			assert.equal(config2.build?.cssMinify, false);
+		});
+	});
+});
