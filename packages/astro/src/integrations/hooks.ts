@@ -352,7 +352,9 @@ export async function runHookConfigSetup({
 		try {
 			updatedConfig = await validateConfigRefined(updatedConfig);
 			if (isLoggerUpdated) {
-				logger.setDestination(await loadLoggerDestination(updatedConfig.logger!));
+				logger.setDestination(
+					await loadLoggerDestination(updatedConfig.logger!, updatedConfig.root),
+				);
 			}
 		} catch (error) {
 			integrationLogger.error('An error occurred while updating the config');

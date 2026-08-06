@@ -7,7 +7,7 @@ import { getCookiesFromResponse } from '../cookies/response.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { matchRoute } from '../routing/match.js';
-import { provideSession } from '../session/handler.js';
+import { provideSession } from '../session/provider.js';
 import { validateHost } from '../app/validate-headers.js';
 import { getErrorRoutePath } from '../../i18n/error-routes.js';
 import { getOutputFilename } from '../output-filename.js';
@@ -244,9 +244,11 @@ function mergeResponses(
 		seen.add(name.toLowerCase());
 	}
 	// Add new response headers that weren't already set by the original response,
-	// but skip content-type since the error page must return text/html
+	// but skip content-type since the error page must return text/html.
+	// set-cookie is special: it's a multi-value header, so we always append.
 	for (const [name, value] of newResponseHeaders) {
-		if (!seen.has(name.toLowerCase())) {
+		const lower = name.toLowerCase();
+		if (!seen.has(lower) || lower === 'set-cookie') {
 			newHeaders.append(name, value);
 		}
 	}
@@ -268,9 +270,7 @@ function mergeResponses(
 	if (originalCookies) {
 		// If both responses have cookies, merge new response cookies into original
 		if (newCookies) {
-			for (const cookieValue of newCookies.consume()) {
-				originalResponse.headers.append('set-cookie', cookieValue);
-			}
+			originalCookies.merge(newCookies);
 		}
 		attachCookiesToResponse(mergedResponse, originalCookies);
 	} else if (newCookies) {

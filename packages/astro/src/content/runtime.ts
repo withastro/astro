@@ -6,6 +6,7 @@ import type * as zCore from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { createSvgComponent } from '../assets/runtime.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
+import { recordContentEntryRender } from '../core/build/incremental-content-collector.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isRemotePath, prependForwardSlash } from '../core/path.js';
 import {
@@ -146,6 +147,7 @@ type ContentEntryResult = {
 	body: string;
 	collection: string;
 	data: Record<string, any>;
+	digest?: string | number;
 	render(): Promise<RenderResult>;
 };
 
@@ -153,6 +155,7 @@ type DataEntryResult = {
 	id: string;
 	collection: string;
 	data: Record<string, any>;
+	digest?: string | number;
 };
 
 type EntryLookupObject = { collection: string; id: string } | { collection: string; slug: string };
@@ -568,6 +571,7 @@ export async function renderEntry(entry: DataEntry) {
 	if (!entry) {
 		throw new AstroError(AstroErrorData.RenderUndefinedEntryError);
 	}
+	recordContentEntryRender(entry.filePath);
 
 	if (entry.deferredRender) {
 		try {

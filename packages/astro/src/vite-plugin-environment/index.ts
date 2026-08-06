@@ -26,6 +26,9 @@ const ALWAYS_NOEXTERNAL = [
 	'@nanostores/preact',
 	// fontsource packages are CSS that need to be processed
 	'@fontsource/*',
+	// Must be bundled so the prerender output resolves Astro's own copy, not an
+	// older hoisted version from another dependency. See https://github.com/withastro/astro/issues/17508
+	'neotraverse',
 ];
 
 interface Payload {

@@ -1,7 +1,7 @@
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dataToEsm } from '@rollup/pluginutils';
 import { isRunnableDevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
+import { createContentDataIncrementalMetadata } from '../core/build/incremental-metadata.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
@@ -30,22 +30,6 @@ import {
 } from './consts.js';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from './paths.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
-
-/**
- * Above this serialized data store size (in bytes), the dev server emits the
- * store as a JSON string parsed at runtime instead of a JS object literal.
- *
- * In dev, Vite's `ssrTransformScript` parses the module via rolldown/oxc-parser
- * across the NAPI bridge, which fails for very large object literals (the AST is
- * too big to convert), silently yielding an empty store (#17220). A string literal
- * keeps the AST tiny regardless of collection size. Normal-sized stores stay on the
- * object-literal path so dev matches production for the common case.
- *
- * Measured in UTF-8 bytes (not `String.length`, which counts UTF-16 code units and
- * undercounts multi-byte content like CJK), so the trigger tracks the actual data
- * volume oxc has to parse regardless of the alphabet used.
- */
-const LARGE_DATA_STORE_THRESHOLD = 5 * 1024 * 1024; // 5 MB
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -194,7 +178,10 @@ export function astroContentVirtualModPlugin({
 				if (id === MODULES_MJS_ID) {
 					const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
 					if (fs.existsSync(modules)) {
-						return fileURLToPath(modules);
+						return {
+							id: fileURLToPath(modules),
+							meta: createContentDataIncrementalMetadata(),
+						};
 					}
 					return MODULES_MJS_VIRTUAL_ID;
 				}
@@ -202,7 +189,10 @@ export function astroContentVirtualModPlugin({
 				if (id === ASSET_IMPORTS_VIRTUAL_ID) {
 					const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
 					if (fs.existsSync(assetImportsFile)) {
-						return fileURLToPath(assetImportsFile);
+						return {
+							id: fileURLToPath(assetImportsFile),
+							meta: createContentDataIncrementalMetadata(),
+						};
 					}
 					return ASSET_IMPORTS_RESOLVED_STUB_ID;
 				}
@@ -255,7 +245,10 @@ export function astroContentVirtualModPlugin({
 				}
 				if (id === RESOLVED_DATA_STORE_VIRTUAL_ID) {
 					if (!fs.existsSync(dataStoreFile)) {
-						return { code: 'export default new Map()' };
+						return {
+							code: 'export default new Map()',
+							meta: createContentDataIncrementalMetadata(),
+						};
 					}
 					const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
 
@@ -273,7 +266,14 @@ export function astroContentVirtualModPlugin({
 									`${JSON.stringify(collection)}:[${parts.map(chunkImport).join(',')}]`,
 							);
 							const code = `export default{${entries.join(',')}}`;
-							return { code, map: { mappings: '' } };
+							// Tag as content-data so the incremental route hash prunes this
+							// module and the chunk modules it lazily imports; content edits are
+							// tracked through each page's `cacheKey`, not the dependency hash.
+							return {
+								code,
+								map: { mappings: '' },
+								meta: createContentDataIncrementalMetadata(),
+							};
 						} catch (err) {
 							const message = 'Could not parse data store manifest JSON file';
 							this.error({ message, id, cause: err });
@@ -281,24 +281,30 @@ export function astroContentVirtualModPlugin({
 					}
 
 					try {
-						const parsed = JSON.parse(jsonData);
-						// For large stores in dev, emit a JSON string parsed at runtime to
-						// avoid a huge object-literal AST that the NAPI bridge can't convert
-						// (#17220). Otherwise keep dataToEsm() so dev matches production.
-						const useRuntimeJsonParse =
-							isDev && Buffer.byteLength(jsonData) > LARGE_DATA_STORE_THRESHOLD;
-						return {
-							code: useRuntimeJsonParse
-								? `export default JSON.parse(${JSON.stringify(jsonData)})`
-								: dataToEsm(parsed, {
-										compact: true,
-									}),
-							map: { mappings: '' },
-						};
+						// Validate here so a corrupt store fails loudly with this error
+						// instead of being swallowed by the runtime's fallback to an
+						// empty store.
+						JSON.parse(jsonData);
 					} catch (err) {
 						const message = 'Could not parse JSON file';
 						this.error({ message, id, cause: err });
 					}
+
+					// A JSON string parsed at runtime keeps the module's AST tiny; an
+					// object literal grows with the store and can exceed what the
+					// NAPI bridge can convert during dev SSR transforms (#17220),
+					// and is slower for V8 to parse than JSON.parse.
+					//
+					// > Quoted from https://v8.dev/blog/cost-of-javascript-2019
+					// >
+					// > JSON.parse('…') is much faster to parse, compile, and execute
+					// compared to an equivalent JavaScript literal — not just in V8
+					// (1.7× as fast), but in all major JavaScript engines.
+					return {
+						code: `export default JSON.parse(${JSON.stringify(jsonData)})`,
+						map: { mappings: '' },
+						meta: createContentDataIncrementalMetadata(),
+					};
 				}
 
 				if (id === ASSET_IMPORTS_RESOLVED_STUB_ID) {
@@ -307,6 +313,7 @@ export function astroContentVirtualModPlugin({
 						code: fs.existsSync(assetImportsFile)
 							? fs.readFileSync(assetImportsFile, 'utf-8')
 							: 'export default new Map()',
+						meta: createContentDataIncrementalMetadata(),
 					};
 				}
 
@@ -316,6 +323,7 @@ export function astroContentVirtualModPlugin({
 						code: fs.existsSync(modules)
 							? fs.readFileSync(modules, 'utf-8')
 							: 'export default new Map()',
+						meta: createContentDataIncrementalMetadata(),
 					};
 				}
 			},

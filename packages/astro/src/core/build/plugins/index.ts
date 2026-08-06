@@ -13,6 +13,7 @@ import { pluginPrerender } from './plugin-prerender.js';
 import { pluginScripts } from './plugin-scripts.js';
 import { pluginSSR } from './plugin-ssr.js';
 import { pluginChunkImports } from './plugin-chunk-imports.js';
+import { pluginIncremental } from './plugin-incremental.js';
 import { pluginNoop } from './plugin-noop.js';
 import { vitePluginSSRAssets } from '../vite-plugin-ssr-assets.js';
 
@@ -35,5 +36,8 @@ export function getAllBuildPlugins(
 		pluginNoop(),
 		vitePluginSSRAssets(internals),
 		pluginChunkImports(options),
+		options.settings.config.experimental.incrementalBuild
+			? pluginIncremental(internals, options.settings.config.root)
+			: undefined,
 	].filter(Boolean);
 }

@@ -66,7 +66,7 @@ async function installPackage(
 		cwd,
 		// Include the `install-metadata` strategy to have the package manager that's
 		// used for installation take precedence
-		strategies: ['install-metadata', 'lockfile', 'packageManager-field'],
+		strategies: ['install-metadata', 'lockfile', 'packageManager-field', 'devEngines-field'],
 	});
 	const installCommand = resolveCommand(packageManager?.agent ?? 'npm', 'add', []);
 	if (!installCommand) return false;

@@ -20,8 +20,8 @@ import {
  * while the Vite one *generates code* doing so, to bundle the handler into the build output.
  */
 async function createDestination(config: NormalizedLoggerConfig): Promise<AstroLoggerDestination> {
-	// `normalizeLoggerConfig()` turns `URL` entrypoints into absolute paths, which
-	// `import()` only accepts as file URLs on Windows. Package entrypoints keep their
+	// `normalizeLoggerConfig()` turns `URL` and relative entrypoints into absolute paths,
+	// which `import()` only accepts as file URLs on Windows. Package entrypoints keep their
 	// specifier and resolve through the regular module resolution.
 	const specifier = isAbsolute(config.entrypoint)
 		? pathToFileURL(config.entrypoint).href
@@ -42,8 +42,10 @@ async function createDestination(config: NormalizedLoggerConfig): Promise<AstroL
  */
 export async function loadLoggerDestination(
 	config: LoggerHandlerConfig,
+	/** The project root, which relative entrypoints are resolved against */
+	root: URL,
 ): Promise<AstroLoggerDestination> {
-	const normalized = normalizeLoggerConfig(config);
+	const normalized = normalizeLoggerConfig(config, root);
 
 	try {
 		return await createDestination(normalized);
@@ -76,7 +78,7 @@ export async function loadOrCreateNodeLogger(
 	try {
 		if (astroConfig.logger) {
 			return new AstroLogger({
-				destination: await loadLoggerDestination(astroConfig.logger),
+				destination: await loadLoggerDestination(astroConfig.logger, astroConfig.root),
 				level: inlineAstroConfig.logLevel ?? 'info',
 			});
 		} else {

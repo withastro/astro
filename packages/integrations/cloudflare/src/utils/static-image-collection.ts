@@ -1,4 +1,5 @@
 import { joinPaths, prependForwardSlash, removeBase } from '@astrojs/internal-helpers/path';
+import { recordStaticImage } from 'astro/app';
 import { hashTransform, propsToFilename } from 'astro/assets';
 import { isESMImportedImage } from 'astro/assets/utils';
 import type { CompileImageConfig } from '../vite-plugin-config.js';
@@ -56,6 +57,16 @@ export function installAddStaticImage(config: CompileImageConfig): void {
 				transform: options,
 			});
 		}
+
+		// Report the transform to the incremental-build collector (dedup hits
+		// included, matching astro's Vite plugin) so a skipped page can replay it.
+		recordStaticImage({
+			originalPath: finalOriginalPath,
+			hash,
+			finalPath: finalFilePath,
+			originalSrcPath: _originalFSPath,
+			transform: options,
+		});
 
 		// Build the final URL the same way the Vite plugin does
 		if (config.assetsPrefix) {

@@ -57,4 +57,33 @@ describe('Logger', () => {
 			assert.equal(destination.__custom, true, 'Should use the custom logger');
 		});
 	});
+
+	// A path relative to the project root, resolved the same way whether the destination is
+	// instantiated by Node at build time or bundled into the server output by Vite.
+	describe('relative entrypoint', () => {
+		let fixture: Fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/ssr-assets/',
+				outDir: './dist/logger-relative-entrypoint/',
+				cacheDir: './node_modules/.astro-test/logger-relative-entrypoint/',
+				output: 'server',
+				adapter: testAdapter(),
+				logger: { entrypoint: './src/logger.mjs' },
+			});
+			await fixture.build();
+		});
+
+		it('bundles and uses the custom logger at runtime (SSR)', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const response = await app.render(new Request('http://example.com/'));
+			assert.equal(response.status, 200);
+
+			const destination = app.logger.options.destination;
+			assert.ok(destination, 'Logger destination should exist');
+			// @ts-expect-error __relative is not part of the destination type
+			assert.equal(destination.__relative, true, 'Should use the custom logger');
+		});
+	});
 });

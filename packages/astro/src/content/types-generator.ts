@@ -506,7 +506,7 @@ async function writeContentFiles({
 			}
 		}
 
-		dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  body?: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent;\n  filePath?: string;\n}>;\n`;
+		dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  body?: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent;\n  filePath?: string;\n  digest?: string | number;\n}>;\n`;
 
 		if (
 			collectionConfig &&
