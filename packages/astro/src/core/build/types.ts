@@ -35,6 +35,8 @@ export interface StaticBuildOptions {
 	pageNames: string[];
 	viteConfig: InlineConfig;
 	key: Promise<CryptoKey>;
+	/** Set by `astro build --force` to rebuild every page and ignore the incremental cache. */
+	force: boolean;
 }
 
 type ImportComponentInstance = () => Promise<ComponentInstance>;
