@@ -634,6 +634,63 @@ test.describe('View Transitions', () => {
 		await expect(cnt).toHaveText('B1');
 	});
 
+	test('Vite styles keep HMR after returning to a route', async ({ page, astro }) => {
+		const expectLoads = collectLoads(page);
+		await page.goto(astro.resolveUrl('/one'));
+		await page.click('#click-svelte-styles');
+
+		const nestedMessage = page.locator('.nested-message');
+		const pageTitle = page.locator('#island-one');
+		await expect(nestedMessage).toHaveCSS('background-color', 'rgb(128, 0, 0)');
+		await expect(pageTitle).toHaveCSS('color', 'rgb(0, 0, 255)');
+
+		const nestedSvelteStyles = page.locator('style[data-vite-dev-id*="SvelteMessage.svelte"]');
+		const cssStyles = page.locator('style[data-vite-dev-id*="client-router-hmr.css"]');
+		await expect(nestedSvelteStyles).toHaveCount(1);
+		await expect(cssStyles).toHaveCount(1);
+		const nestedSvelteStyle = nestedSvelteStyles.first();
+		const cssStyle = cssStyles.first();
+		await nestedSvelteStyle.evaluate((element) => (element.dataset.hmrStyle = 'nested-svelte'));
+		await cssStyle.evaluate((element) => (element.dataset.hmrStyle = 'css'));
+
+		await page.click('#click-away');
+		await expect(page.locator('#one')).toHaveText('Page 1');
+		await page.goBack();
+		await expect(pageTitle).toBeVisible();
+
+		await expect(page.locator('style[data-hmr-style="nested-svelte"]')).toHaveCount(1);
+		await expect(page.locator('style[data-hmr-style="css"]')).toHaveCount(1);
+
+		await astro.editFile('./src/components/SvelteMessage.svelte', (contents) =>
+			contents.replace('background-color: maroon', 'background-color: navy'),
+		);
+		await expect(nestedMessage).toHaveCSS('background-color', 'rgb(0, 0, 128)');
+
+		await astro.editFile('./src/components/client-router-hmr.css', (contents) =>
+			contents.replace('color: blue', 'color: red'),
+		);
+		await expect(pageTitle).toHaveCSS('color', 'rgb(255, 0, 0)');
+		await expectLoads(1);
+	});
+
+	test('Vite style nodes refresh generated CSS through head swaps', async ({ page, astro }) => {
+		const expectLoads = collectLoads(page);
+		await page.goto(astro.resolveUrl('/island-svelte-one'));
+
+		const generatedStyle = page.locator('#generated-style');
+		await expect(generatedStyle).toHaveCSS('color', 'rgb(255, 0, 0)');
+		await page
+			.locator('style[data-vite-dev-id="/__uno.css"]')
+			.evaluate((element) => (element.dataset.marker = 'this'));
+
+		await page.click('#click-two');
+		await expect(generatedStyle).toHaveCSS('color', 'rgb(0, 0, 255)');
+		await expect(
+			page.locator('style[data-vite-dev-id="/__uno.css"][data-marker="this"]'),
+		).toHaveCount(1);
+		await expectLoads(1);
+	});
+
 	test('Vue Islands can persist using transition:persist', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/island-vue-one'));

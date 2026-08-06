@@ -1,11 +1,16 @@
 ---
 import Counter from '../components/SvelteCounter.svelte';
+import StyleParent from '../components/SvelteStyleParent.svelte';
 import Layout from '../components/Layout.astro';
+import '../components/client-router-hmr.css';
 export const prerender = false;
 
 ---
-<Layout>
+<Layout viteStyle="#generated-style { color: red; }">
 	<p id="island-one">Page 1</p>
+	<p id="generated-style">Generated style</p>
 	<a id="click-two" href="/island-svelte-two">go to 2</a>
+	<a id="click-away" href="/one">leave route</a>
 	<Counter prefix="A" client:load transition:persist transition:name="counter"/>
+	<StyleParent client:load />
 </Layout>

@@ -134,7 +134,7 @@ export function astroContentAssetPropagationPlugin({
 						}
 
 						stringifiedLinks = JSON.stringify([...urls]);
-						stringifiedStyles = JSON.stringify(styles.map((s) => s.content));
+						stringifiedStyles = JSON.stringify(styles.map(({ id, content }) => ({ id, content })));
 					} else {
 						// Otherwise, use placeholders to inject styles and scripts
 						// during the production bundle step.

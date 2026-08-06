@@ -4,15 +4,17 @@ import DarkMode from './DarkMode.astro';
 
 interface Props {
 	link?: string;
+	viteStyle?: string;
 }
 
-const { link } = Astro.props as Props;
+const { link, viteStyle } = Astro.props as Props;
 ---
 
 <html>
 	<head>
 		<title>Testing</title>
 		{link ? <link rel="stylesheet" href={link} /> : ''}
+		{viteStyle && <style is:inline data-vite-dev-id="/__uno.css" set:html={viteStyle} />}
 		<style>
 			main {
 				max-width: 900px;
