@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes unreliable CSS updates when a matching client-side style module is unavailable
+Fixes CSS updates incorrectly relying on unrelated client style modules during development
