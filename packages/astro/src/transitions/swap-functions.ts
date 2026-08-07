@@ -121,9 +121,8 @@ export function swapHeadElements(doc: Document) {
 			const viteDevId = child instanceof HTMLStyleElement && child.dataset.viteDevId;
 			const knownStyle = viteDevId && viteStyleState?.styles.get(viteDevId);
 			if (knownStyle) {
-				// Vite retains style node references for HMR. Reuse the node and refresh generated
-				// CSS with a stable ID.
-				// https://github.com/withastro/astro/pull/16379
+				// Reuse Vite's node for HMR, but refresh generated CSS that can change under a stable ID.
+				// https://github.com/withastro/astro/pull/16242
 				if (!vueScopedStyleId(knownStyle)) knownStyle.textContent = child.textContent;
 				document.head.append(knownStyle);
 			} else {
