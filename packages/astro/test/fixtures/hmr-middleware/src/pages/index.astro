@@ -1,5 +1,7 @@
 ---
+import { getCount } from "../utils/notImportedByMiddleware";
 const title = Astro.locals.utils.arrayToString(["Hello", "Astro"]);
+Astro.response.headers.set("x-index-count", getCount());
 ---
 
 <html lang="en">
