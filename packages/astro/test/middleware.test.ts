@@ -276,4 +276,21 @@ describe('Middleware HMR', () => {
 		assert.equal(response.headers.get('x-test-executed'), '1');
 		assert.equal(response.headers.get('x-test-other-count'), '1');
 	});
+
+	it("shouldn't reload middleware.js when an unrelated module is reloaded", async () => {
+		let response = await fetchAndAssertTwice();
+		assert.equal(response.headers.get('x-index-count'), '2');
+
+		await fixture.editFile('./src/utils/notImportedByMiddleware.js', (original) =>
+			original.replace('let count = 0;', 'let count = 0;\n//foo\n'),
+		);
+		await new Promise((resolve) => setTimeout(resolve, 2000));
+
+		// src/utils/notImportedByMiddleware.js should reload
+		// src/middleware.js shouldn't reload, and neither should src/utils/other.js
+		response = await fixture.fetch('/');
+		assert.equal(response.headers.get('x-test-executed'), '3');
+		assert.equal(response.headers.get('x-test-other-count'), '3');
+		assert.equal(response.headers.get('x-index-count'), '1');
+	});
 });
