@@ -1,4 +1,5 @@
 import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
+import { consumePrefetchReuse } from '../prefetch/registry.js';
 import type { TransitionBeforePreparationEvent } from './events.js';
 
 import { doPreparation, doSwap, onPageLoad, triggerEvent, updateScrollPosition } from './events.js';
@@ -88,13 +89,23 @@ async function fetchHTML(
 	href: string,
 	init?: RequestInit,
 ): Promise<null | { html: string; redirected?: string; mediaType: DOMParserSupportedType }> {
+	// If our own prefetch downloaded this URL only moments ago, reuse the response it
+	// downloaded (once). On-demand rendered pages typically carry no cache headers, so with
+	// the default cache mode the browser would download the page a second time (#17549).
+	// Form submissions must always reach the server, so they never reuse the cache. Kept
+	// outside the try so a registry error can never turn into a full page load below.
+	const reusePrefetched = !init?.method && consumePrefetchReuse(href);
 	try {
 		// Apply adapter-specific headers for internal fetches
 		const headers = new Headers(init?.headers);
 		for (const [key, value] of Object.entries(internalFetchHeaders) as [string, string][]) {
 			headers.set(key, value);
 		}
-		const res = await fetch(href, { ...init, headers });
+		const fetchInit: RequestInit = { ...init, headers };
+		if (reusePrefetched) {
+			fetchInit.cache = 'force-cache';
+		}
+		const res = await fetch(href, fetchInit);
 		const contentType = res.headers.get('content-type') ?? '';
 		// drop potential charset (+ other name/value pairs) as parser needs the mediaType
 		const mediaType = contentType.split(';', 1)[0].trim();
