@@ -96,6 +96,27 @@ function contentEntryHashes(
 	return internals.contentEntryRenderHashes as Map<string, string>;
 }
 
+function pageDependencyHashes(
+	modules: Map<string, ReturnType<typeof moduleInfo>>,
+	pagesByViteID: Map<string, { component: string }>,
+	onGetModuleInfo?: () => void,
+) {
+	const internals = { pagesByViteID } as any;
+	const plugin = pluginIncremental(internals, ROOT) as any;
+	plugin.generateBundle.call({
+		environment: { name: 'prerender' },
+		getModuleIds: () => modules.keys(),
+		getModuleInfo: (id: string) => {
+			onGetModuleInfo?.();
+			return modules.get(id) ?? null;
+		},
+		getFileName: () => {
+			throw new Error('Unexpected asset reference');
+		},
+	});
+	return internals.pageDependencyHashes as Map<string, string>;
+}
+
 describe('pluginIncremental', () => {
 	describe('dependency hash', () => {
 		it('is stable when the same images are emitted with different handles', () => {
@@ -142,16 +163,57 @@ describe('pluginIncremental', () => {
 			assert.equal(first, second);
 			assert.match(first, /^[0-9a-f]{64}$/);
 		});
+
+		it('hashes a shared graph once for many pages', () => {
+			const modules = new Map<string, ReturnType<typeof moduleInfo>>();
+			const pagesByViteID = new Map<string, { component: string }>();
+			const sharedCount = 100;
+			const pageCount = 100;
+			for (let index = 0; index < sharedCount; index++) {
+				const id = `/project/src/components/shared-${index}.ts`;
+				const importedIds =
+					index + 1 < sharedCount ? [`/project/src/components/shared-${index + 1}.ts`] : [];
+				modules.set(id, moduleInfo(id, { code: String(index), importedIds }));
+			}
+			for (let index = 0; index < pageCount; index++) {
+				const id = `/project/src/pages/page-${index}.astro`;
+				modules.set(
+					id,
+					moduleInfo(id, {
+						importedIds: ['/project/src/components/shared-0.ts'],
+						importers: [VIRTUAL_PAGE_RESOLVED_MODULE_ID],
+					}),
+				);
+				pagesByViteID.set(id, { component: `src/pages/page-${index}.astro` });
+			}
+
+			let getModuleInfoCalls = 0;
+			const hashes = pageDependencyHashes(modules, pagesByViteID, () => getModuleInfoCalls++);
+			assert.equal(hashes.size, pageCount);
+			assert.ok(getModuleInfoCalls <= modules.size * 4, `made ${getModuleInfoCalls} graph lookups`);
+		});
 	});
 
 	describe('content entry hash', () => {
 		it('invalidates every entry that imports a changed shared dependency', () => {
 			const shared = '/project/src/components/shared.astro';
 			const firstModules = new Map([
-				['/project/src/content/one.mdx', moduleInfo('/project/src/content/one.mdx', { importedIds: [shared] })],
-				['/project/src/content/one.mdx?astroPropagatedAssets', moduleInfo('/project/src/content/one.mdx?astroPropagatedAssets')],
-				['/project/src/content/two.mdx', moduleInfo('/project/src/content/two.mdx', { importedIds: [shared] })],
-				['/project/src/content/two.mdx?astroPropagatedAssets', moduleInfo('/project/src/content/two.mdx?astroPropagatedAssets')],
+				[
+					'/project/src/content/one.mdx',
+					moduleInfo('/project/src/content/one.mdx', { importedIds: [shared] }),
+				],
+				[
+					'/project/src/content/one.mdx?astroPropagatedAssets',
+					moduleInfo('/project/src/content/one.mdx?astroPropagatedAssets'),
+				],
+				[
+					'/project/src/content/two.mdx',
+					moduleInfo('/project/src/content/two.mdx', { importedIds: [shared] }),
+				],
+				[
+					'/project/src/content/two.mdx?astroPropagatedAssets',
+					moduleInfo('/project/src/content/two.mdx?astroPropagatedAssets'),
+				],
 				[shared, moduleInfo(shared, { code: 'first' })],
 			]);
 			const secondModules = new Map(firstModules);
@@ -185,7 +247,8 @@ describe('pluginIncremental', () => {
 			const entryCount = 100;
 			for (let index = 0; index < sharedCount; index++) {
 				const id = `/project/src/components/shared-${index}.ts`;
-				const importedIds = index + 1 < sharedCount ? [`/project/src/components/shared-${index + 1}.ts`] : [];
+				const importedIds =
+					index + 1 < sharedCount ? [`/project/src/components/shared-${index + 1}.ts`] : [];
 				modules.set(id, moduleInfo(id, { code: String(index), importedIds }));
 			}
 			for (let index = 0; index < entryCount; index++) {
