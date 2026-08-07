@@ -35,6 +35,15 @@ export interface DataEntry<TData extends Record<string, unknown> = Record<string
 	 */
 	deferredRender?: boolean;
 	assetImports?: Array<string>;
+	/**
+	 * Locations of image fields within `data`, recorded when the entry is stored.
+	 * Each path is the sequence of keys from `data` to a field that holds an image
+	 * src string. At read time these fields are resolved to `ImageMetadata` without
+	 * traversing or cloning the rest of `data`, so sibling values that devalue can
+	 * serialize but `structuredClone` cannot (e.g. class instances) are left
+	 * untouched.
+	 */
+	imageImports?: (string | number)[][];
 }
 
 /**

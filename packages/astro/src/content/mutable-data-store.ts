@@ -349,11 +349,17 @@ export default new Map([\n${lines.join(',\n')}]);
 					}
 				}
 				const foundAssets = new Set<string>(assetImports);
-				// Check for image imports in the data. These will have been prefixed during schema parsing
-				forEach(data, (_, val) => {
+				const imageImports: (string | number)[][] = [];
+				// Image fields are prefixed during schema parsing. Record their locations and
+				// strip the prefix so the stored data holds a plain, devalue-serializable src
+				// string. The recorded paths let read-time resolution rewrite only these fields
+				// without traversing or cloning the rest of the data.
+				forEach(data, function (ctx, val) {
 					if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 						const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 						foundAssets.add(src);
+						imageImports.push(ctx.path.map((key) => key as string | number));
+						ctx.update(src);
 					}
 				});
 
@@ -376,6 +382,10 @@ export default new Map([\n${lines.join(',\n')}]);
 				if (foundAssets.size) {
 					entry.assetImports = Array.from(foundAssets);
 					this.addAssetImports(entry.assetImports, filePath);
+				}
+
+				if (imageImports.length) {
+					entry.imageImports = imageImports;
 				}
 
 				if (digest) {
