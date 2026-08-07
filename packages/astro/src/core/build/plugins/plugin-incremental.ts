@@ -23,6 +23,10 @@ interface ModuleGraph {
 	getFileName(referenceId: string): string;
 }
 
+interface HashableModuleGraph extends ModuleGraph {
+	getModuleIds(): IterableIterator<string>;
+}
+
 /** Collect the sorted, transitive dependency ids of a module, following static and dynamic imports. */
 function collectTransitiveDeps(graph: ModuleGraph, rootId: string): string[] {
 	const deps = new Set<string>();
@@ -99,6 +103,125 @@ function hashModules(graph: ModuleGraph, sortedIds: string[]): string {
 }
 
 /**
+ * Build a transitive hash for every module with one pass over the dependency graph.
+ * Strongly connected components collapse cycles into a DAG, whose hashes can be
+ * folded into every importer without walking shared dependencies again for each root.
+ */
+function createTransitiveHashCache(graph: HashableModuleGraph): Map<string, string> {
+	const modules = new Map<string, HashableModuleInfo | null>();
+	const dependencies = new Map<string, string[]>();
+	const excludedModules = new Set<string>();
+	const pending = [...graph.getModuleIds()];
+	for (const id of pending) {
+		if (modules.has(id)) continue;
+
+		const info = graph.getModuleInfo(id);
+		modules.set(id, info);
+		if (isContentDataIncrementalModule(info)) {
+			excludedModules.add(id);
+			continue;
+		}
+
+		const importedIds = [...(info?.importedIds ?? []), ...(info?.dynamicallyImportedIds ?? [])];
+		dependencies.set(id, importedIds);
+		pending.push(...importedIds);
+	}
+	for (const id of excludedModules) modules.delete(id);
+	for (const [id, importedIds] of dependencies) {
+		dependencies.set(
+			id,
+			importedIds.filter((importedId) => !excludedModules.has(importedId)),
+		);
+	}
+
+	const reverseDependencies = new Map<string, string[]>();
+	for (const id of modules.keys()) reverseDependencies.set(id, []);
+	for (const [id, importedIds] of dependencies) {
+		for (const importedId of importedIds) reverseDependencies.get(importedId)?.push(id);
+	}
+
+	const visited = new Set<string>();
+	const finishOrder: string[] = [];
+	for (const rootId of modules.keys()) {
+		if (visited.has(rootId)) continue;
+		visited.add(rootId);
+		const stack: Array<[string, number]> = [[rootId, 0]];
+		while (stack.length > 0) {
+			const frame = stack[stack.length - 1];
+			const importedIds = dependencies.get(frame[0]) ?? [];
+			if (frame[1] < importedIds.length) {
+				const importedId = importedIds[frame[1]++];
+				if (!visited.has(importedId)) {
+					visited.add(importedId);
+					stack.push([importedId, 0]);
+				}
+			} else {
+				finishOrder.push(frame[0]);
+				stack.pop();
+			}
+		}
+	}
+
+	const componentByModule = new Map<string, number>();
+	const components: string[][] = [];
+	for (const rootId of finishOrder.toReversed()) {
+		if (componentByModule.has(rootId)) continue;
+		const componentIndex = components.length;
+		const component: string[] = [];
+		const stack = [rootId];
+		componentByModule.set(rootId, componentIndex);
+		while (stack.length > 0) {
+			const id = stack.pop()!;
+			component.push(id);
+			for (const importerId of reverseDependencies.get(id) ?? []) {
+				if (!componentByModule.has(importerId)) {
+					componentByModule.set(importerId, componentIndex);
+					stack.push(importerId);
+				}
+			}
+		}
+		components.push(component.sort());
+	}
+
+	const componentDependencies = components.map(() => new Set<number>());
+	const componentImporters = components.map(() => new Set<number>());
+	for (const [id, importedIds] of dependencies) {
+		const componentIndex = componentByModule.get(id)!;
+		for (const importedId of importedIds) {
+			const dependencyIndex = componentByModule.get(importedId)!;
+			if (dependencyIndex === componentIndex) continue;
+			componentDependencies[componentIndex].add(dependencyIndex);
+			componentImporters[dependencyIndex].add(componentIndex);
+		}
+	}
+
+	const componentHashes = new Map<number, string>();
+	const unresolvedDependencies = componentDependencies.map((items) => items.size);
+	const ready = unresolvedDependencies.flatMap((count, index) => (count === 0 ? [index] : []));
+	for (const componentIndex of ready) {
+		const hasher = crypto.createHash('sha256');
+		hasher.update(hashModules(graph, components[componentIndex]));
+		const dependencyHashes = [...componentDependencies[componentIndex]]
+			.map((dependencyIndex) => componentHashes.get(dependencyIndex)!)
+			.sort();
+		for (const dependencyHash of dependencyHashes) {
+			hasher.update('\n');
+			hasher.update(dependencyHash);
+		}
+		componentHashes.set(componentIndex, hasher.digest('hex'));
+
+		for (const importerIndex of componentImporters[componentIndex]) {
+			unresolvedDependencies[importerIndex]--;
+			if (unresolvedDependencies[importerIndex] === 0) ready.push(importerIndex);
+		}
+	}
+
+	return new Map(
+		[...componentByModule].map(([id, componentIndex]) => [id, componentHashes.get(componentIndex)!]),
+	);
+}
+
+/**
  * Hash the transitive graph of each client entrypoint and accumulate the result
  * against every page that uses it, keyed by page component.
  */
@@ -133,7 +256,7 @@ function collectClientEntrypointHashes(
  * build we hash each entrypoint's transitive graph and fold it into the dependency
  * hash of every route that uses it.
  */
-function foldClientDependencies(graph: ModuleGraph, internals: BuildInternals): void {
+function foldClientDependencies(graph: HashableModuleGraph, internals: BuildInternals): void {
 	const baseHashes = internals.pageDependencyHashes;
 	if (!baseHashes) return;
 
@@ -172,8 +295,9 @@ function foldClientDependencies(graph: ModuleGraph, internals: BuildInternals): 
  * entry's graph into another route's hash.
  */
 function collectContentEntryHashes(
-	graph: ModuleGraph & { getModuleIds(): IterableIterator<string> },
+	graph: HashableModuleGraph,
 	root: URL,
+	transitiveHashes: Map<string, string>,
 ): Map<string, string> {
 	const entryHashes = new Map<string, string>();
 	for (const id of graph.getModuleIds()) {
@@ -181,8 +305,8 @@ function collectContentEntryHashes(
 		// e.g. "/abs/src/content/docs/one.mdx?astroPropagatedAssets" -> render module id.
 		const renderModuleId = removeQueryString(id);
 		const key = rootRelativePath(root, renderModuleId, false);
-		const deps = collectTransitiveDeps(graph, renderModuleId);
-		entryHashes.set(key, hashModules(graph, deps));
+		const hash = transitiveHashes.get(renderModuleId);
+		if (hash) entryHashes.set(key, hash);
 	}
 	return entryHashes;
 }
@@ -246,7 +370,11 @@ export function pluginIncremental(internals: BuildInternals, root: URL): VitePlu
 			}
 
 			internals.pageDependencyHashes = hashes;
-			internals.contentEntryRenderHashes = collectContentEntryHashes(this, root);
+			internals.contentEntryRenderHashes = collectContentEntryHashes(
+				this,
+				root,
+				createTransitiveHashCache(this),
+			);
 			internals.serverIslandPageComponents = serverIslandComponents;
 		},
 	};

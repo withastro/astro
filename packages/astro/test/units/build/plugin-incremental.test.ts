@@ -76,6 +76,26 @@ function dependencyHash(
 	return internals.pageDependencyHashes.get(COMPONENT);
 }
 
+function contentEntryHashes(
+	modules: Map<string, ReturnType<typeof moduleInfo>>,
+	onGetModuleInfo?: () => void,
+) {
+	const internals = { pagesByViteID: new Map() } as any;
+	const plugin = pluginIncremental(internals, ROOT) as any;
+	plugin.generateBundle.call({
+		environment: { name: 'prerender' },
+		getModuleIds: () => modules.keys(),
+		getModuleInfo: (id: string) => {
+			onGetModuleInfo?.();
+			return modules.get(id) ?? null;
+		},
+		getFileName: () => {
+			throw new Error('Unexpected asset reference');
+		},
+	});
+	return internals.contentEntryRenderHashes as Map<string, string>;
+}
+
 describe('pluginIncremental', () => {
 	describe('dependency hash', () => {
 		it('is stable when the same images are emitted with different handles', () => {
@@ -121,6 +141,63 @@ describe('pluginIncremental', () => {
 			const second = dependencyHash(code, {});
 			assert.equal(first, second);
 			assert.match(first, /^[0-9a-f]{64}$/);
+		});
+	});
+
+	describe('content entry hash', () => {
+		it('invalidates every entry that imports a changed shared dependency', () => {
+			const shared = '/project/src/components/shared.astro';
+			const firstModules = new Map([
+				['/project/src/content/one.mdx', moduleInfo('/project/src/content/one.mdx', { importedIds: [shared] })],
+				['/project/src/content/one.mdx?astroPropagatedAssets', moduleInfo('/project/src/content/one.mdx?astroPropagatedAssets')],
+				['/project/src/content/two.mdx', moduleInfo('/project/src/content/two.mdx', { importedIds: [shared] })],
+				['/project/src/content/two.mdx?astroPropagatedAssets', moduleInfo('/project/src/content/two.mdx?astroPropagatedAssets')],
+				[shared, moduleInfo(shared, { code: 'first' })],
+			]);
+			const secondModules = new Map(firstModules);
+			secondModules.set(shared, moduleInfo(shared, { code: 'second' }));
+
+			const first = contentEntryHashes(firstModules);
+			const second = contentEntryHashes(secondModules);
+			assert.notEqual(first.get('src/content/one.mdx'), second.get('src/content/one.mdx'));
+			assert.notEqual(first.get('src/content/two.mdx'), second.get('src/content/two.mdx'));
+		});
+
+		it('handles cycles deterministically', () => {
+			const entry = '/project/src/content/one.mdx';
+			const a = '/project/src/components/a.ts';
+			const b = '/project/src/components/b.ts';
+			const modules = new Map([
+				[entry, moduleInfo(entry, { importedIds: [a] })],
+				[`${entry}?astroPropagatedAssets`, moduleInfo(`${entry}?astroPropagatedAssets`)],
+				[a, moduleInfo(a, { code: 'a', importedIds: [b] })],
+				[b, moduleInfo(b, { code: 'b', importedIds: [a] })],
+			]);
+
+			const first = contentEntryHashes(modules).get('src/content/one.mdx');
+			const second = contentEntryHashes(new Map([...modules].reverse())).get('src/content/one.mdx');
+			assert.equal(first, second);
+		});
+
+		it('hashes a shared graph once for many content entries', () => {
+			const modules = new Map<string, ReturnType<typeof moduleInfo>>();
+			const sharedCount = 100;
+			const entryCount = 100;
+			for (let index = 0; index < sharedCount; index++) {
+				const id = `/project/src/components/shared-${index}.ts`;
+				const importedIds = index + 1 < sharedCount ? [`/project/src/components/shared-${index + 1}.ts`] : [];
+				modules.set(id, moduleInfo(id, { code: String(index), importedIds }));
+			}
+			for (let index = 0; index < entryCount; index++) {
+				const id = `/project/src/content/entry-${index}.mdx`;
+				modules.set(id, moduleInfo(id, { importedIds: ['/project/src/components/shared-0.ts'] }));
+				modules.set(`${id}?astroPropagatedAssets`, moduleInfo(`${id}?astroPropagatedAssets`));
+			}
+
+			let getModuleInfoCalls = 0;
+			const hashes = contentEntryHashes(modules, () => getModuleInfoCalls++);
+			assert.equal(hashes.size, entryCount);
+			assert.ok(getModuleInfoCalls <= modules.size * 3, `made ${getModuleInfoCalls} graph lookups`);
 		});
 	});
 });
