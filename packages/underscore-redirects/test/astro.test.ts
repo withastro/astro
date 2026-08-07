@@ -48,6 +48,77 @@ describe('Astro', () => {
 		assert.deepEqual(getTrailingSlashPaths('/path', 'never'), ['/path']);
 		assert.deepEqual(getTrailingSlashPaths('/path/', 'never'), ['/path']);
 	});
+	it('Dynamic redirect honours configured status', () => {
+		const route = {
+			pattern: '/old/[id]',
+			pathname: undefined,
+			segments: [
+				[{ content: 'old', dynamic: false, spread: false }],
+				[{ content: 'id', dynamic: true, spread: false }],
+			],
+			type: 'redirect',
+			redirect: { destination: '/new/:id', status: 302 },
+			redirectRoute: {
+				pattern: '/new/[id]',
+				segments: [
+					[{ content: 'new', dynamic: false, spread: false }],
+					[{ content: 'id', dynamic: true, spread: false }],
+				],
+			},
+			entrypoint: '/old/[id]',
+			isPrerendered: true,
+			origin: 'internal',
+		} as unknown as IntegrationResolvedRoute;
+
+		const redirects = createRedirectsFromAstroRoutes({
+			config: {
+				build: { format: 'directory' },
+				trailingSlash: 'never',
+			} as AstroConfig,
+			routeToDynamicTargetMap: new Map([[route, '']]),
+			dir: new URL(import.meta.url),
+			buildOutput: 'server',
+			assets: new Map([['/old/[id]', [new URL('./old/index.html', import.meta.url)]]]),
+		});
+
+		assert.equal(redirects.definitions[0].status, 302);
+	});
+
+	it('Dynamic redirect defaults to 301 when redirect is a string', () => {
+		const route = {
+			pattern: '/old/[id]',
+			pathname: undefined,
+			segments: [
+				[{ content: 'old', dynamic: false, spread: false }],
+				[{ content: 'id', dynamic: true, spread: false }],
+			],
+			type: 'redirect',
+			redirect: '/new/:id',
+			redirectRoute: {
+				pattern: '/new/[id]',
+				segments: [
+					[{ content: 'new', dynamic: false, spread: false }],
+					[{ content: 'id', dynamic: true, spread: false }],
+				],
+			},
+			entrypoint: '/old/[id]',
+			isPrerendered: true,
+			origin: 'internal',
+		} as unknown as IntegrationResolvedRoute;
+
+		const redirects = createRedirectsFromAstroRoutes({
+			config: {
+				build: { format: 'directory' },
+				trailingSlash: 'never',
+			} as AstroConfig,
+			routeToDynamicTargetMap: new Map([[route, '']]),
+			dir: new URL(import.meta.url),
+			buildOutput: 'server',
+			assets: new Map([['/old/[id]', [new URL('./old/index.html', import.meta.url)]]]),
+		});
+
+		assert.equal(redirects.definitions[0].status, 301);
+	});
 });
 
 function createIntegrationRoute(pattern: string, pathname = pattern): IntegrationResolvedRoute {
