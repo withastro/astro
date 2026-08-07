@@ -1,0 +1,23 @@
+packages/astro/test/units/cli/add.test.ts
+  d7e5ffa8492e052f 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "2e4443226ff2f337a8b32037ebe98c68df70f1ef",
+  "prompts": {
+    "d7e5ffa8492e052f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b8f1c1b2ffeSayMQFQ0agtoVf",
+        "model": "openai/gpt-5.5"
+      },
+      "human_author": "Eric Clemmons",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}

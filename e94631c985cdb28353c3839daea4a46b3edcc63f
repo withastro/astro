@@ -1,0 +1,23 @@
+packages/astro/src/cli/add/index.ts
+  d7e5ffa8492e052f 224-229
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "e94631c985cdb28353c3839daea4a46b3edcc63f",
+  "prompts": {
+    "d7e5ffa8492e052f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b8f1c1b2ffeSayMQFQ0agtoVf",
+        "model": "openai/gpt-5.5"
+      },
+      "human_author": null,
+      "messages": [],
+      "total_additions": 7,
+      "total_deletions": 24,
+      "accepted_lines": 6,
+      "overriden_lines": 0
+    }
+  }
+}
