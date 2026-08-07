@@ -22,7 +22,6 @@ import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.j
 import type { DevToolbarPlacement } from '../../types/public/toolbar.js';
 import type { MiddlewareMode } from '../../types/public/integrations.js';
 import type { BaseApp } from './base.js';
-import type { LoggerHandlerConfig } from '../logger/config.js';
 
 type ComponentPath = string;
 
@@ -146,8 +145,6 @@ export type SSRManifest = {
 	};
 	internalFetchHeaders?: Record<string, string>;
 	logLevel: AstroLoggerLevel;
-	// Configuration that tells us how to load the logger
-	loggerConfig: LoggerHandlerConfig | undefined;
 };
 
 export type SSRActions = {
@@ -207,6 +204,8 @@ export type SSRManifestCSP = {
 		resources: CspResourceEntry[];
 		hashes: CspHashEntry[];
 	};
+	/** Static speculation rules JSON to inject in the head when CSP + clientPrerender are both enabled. */
+	speculationRulesContent?: string;
 };
 
 export interface SSRManifestSession extends BaseSessionConfig {

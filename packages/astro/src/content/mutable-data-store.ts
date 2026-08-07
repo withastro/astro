@@ -2,7 +2,7 @@ import { existsSync, promises as fs, type PathLike } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as devalue from 'devalue';
 import { forEach } from 'neotraverse';
-import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
+import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
 import {
@@ -145,8 +145,8 @@ export class MutableDataStore extends ImmutableDataStore {
 		const exports: Array<string> = [];
 		// Sort asset imports to ensure deterministic output across builds
 		const sortedAssetImports = [...this.#assetImports].sort();
-		sortedAssetImports.forEach((id) => {
-			const symbol = importIdToSymbolName(id);
+		sortedAssetImports.forEach((id, index) => {
+			const symbol = `__ASTRO_IMAGE_IMPORT_${index}`;
 			imports.push(`import ${symbol} from ${JSON.stringify(id)};`);
 			exports.push(`[${JSON.stringify(id)}, ${symbol}]`);
 		});
@@ -507,13 +507,13 @@ export default new Map([\n${lines.join(',\n')}]);
 	}
 
 	/**
-	 * Loads a MutableDataStore from a chunked store directory (experimental
-	 * `collectionStorage: 'chunked'`), reading the manifest and its referenced parts.
+	 * Loads a MutableDataStore from a chunked store directory, reading the manifest
+	 * and its referenced parts.
 	 * If the directory has no manifest yet (fresh build) it starts empty. If the
 	 * manifest exists but can't be read (corrupt cache), it warns and starts
 	 * empty so loaders rebuild it, rather than failing the sync.
 	 */
-	static async fromDir(dirPath: URL) {
+	static async fromDir(dirPath: URL, chunkSize: number) {
 		const manifestFile = new URL(`./${DATA_STORE_MANIFEST_FILE}`, dirPath);
 		if (existsSync(manifestFile)) {
 			try {
@@ -530,7 +530,7 @@ export default new Map([\n${lines.join(',\n')}]);
 				}
 				const map = ImmutableDataStore.manifestToMap(expanded);
 				const store = await MutableDataStore.fromMap(map);
-				store.#writer = new ChunkedWriter(dirPath);
+				store.#writer = new ChunkedWriter(dirPath, chunkSize);
 				return store;
 			} catch (err) {
 				// The manifest exists but couldn't be read/parsed, or a referenced
@@ -545,7 +545,7 @@ export default new Map([\n${lines.join(',\n')}]);
 		// Fresh build, or recovering from a corrupt cache: start empty.
 		await fs.mkdir(dirPath, { recursive: true });
 		const store = new MutableDataStore();
-		store.#writer = new ChunkedWriter(dirPath);
+		store.#writer = new ChunkedWriter(dirPath, chunkSize);
 		return store;
 	}
 }

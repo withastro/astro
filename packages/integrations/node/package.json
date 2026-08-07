@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/node",
   "description": "Deploy your site to a Node.js server",
-  "version": "11.0.2",
+  "version": "11.1.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",

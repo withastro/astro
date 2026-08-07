@@ -69,6 +69,10 @@ const attributesPage = createComponent(() => {
     <dialog id="popover-false"${addAttribute(false, 'popover')} />
     <dialog id="popover-string-empty"${addAttribute('', 'popover')} />
 
+    <custom-el id="popover-custom-el-true"${addAttribute(true, 'popover', true, 'custom-el')} />
+    <custom-el id="popover-custom-el-false"${addAttribute(false, 'popover', true, 'custom-el')} />
+    <custom-el id="popover-custom-el-auto"${addAttribute('auto', 'popover', true, 'custom-el')} />
+
     <div id="hidden-until-found"${addAttribute('until-found', 'hidden')} />
     <div id="hidden-true"${addAttribute(true, 'hidden')} />
     <div id="hidden-false"${addAttribute(false, 'hidden')} />
@@ -196,6 +200,9 @@ describe('Attributes', async () => {
 			'popover-true': { attribute: 'popover', value: '' },
 			'popover-false': { attribute: 'popover', value: undefined },
 			'popover-string-empty': { attribute: 'popover', value: '' },
+			'popover-custom-el-true': { attribute: 'popover', value: '' },
+			'popover-custom-el-false': { attribute: 'popover', value: undefined },
+			'popover-custom-el-auto': { attribute: 'popover', value: 'auto' },
 			// Note: cheerio normalizes boolean `hidden` to the string "hidden",
 			// so we use "hidden" as the expected value instead of ""
 			'hidden-true': { attribute: 'hidden', value: 'hidden' },

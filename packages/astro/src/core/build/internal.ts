@@ -132,6 +132,28 @@ export interface BuildInternals {
 	 * vs CSS that was included in SSR.
 	 */
 	ssrRenderedExports?: Map<string, Set<string>>;
+
+	/**
+	 * Map of page component path -> dependency hash for incremental builds.
+	 * Populated during the prerender Rolldown build by the incremental plugin.
+	 */
+	pageDependencyHashes?: Map<string, string>;
+
+	/**
+	 * Map of content entry root-relative `filePath` -> render-graph hash for
+	 * incremental builds. Keyed to match what the content runtime reports when it
+	 * renders an entry, so a path's cache entry can be invalidated when a component
+	 * imported by the content it renders changes.
+	 */
+	contentEntryRenderHashes?: Map<string, string>;
+
+	/**
+	 * Set of page component paths whose render graph contains a server island.
+	 * Populated during the prerender Rolldown build by the incremental plugin.
+	 * Such pages bake key-bound ciphertext into their HTML, so the incremental
+	 * cache only reuses them while the encryption key is unchanged.
+	 */
+	serverIslandPageComponents?: Set<string>;
 }
 
 /**

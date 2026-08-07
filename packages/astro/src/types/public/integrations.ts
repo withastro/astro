@@ -1,7 +1,7 @@
 import type { AddressInfo } from 'node:net';
 import type { ViteDevServer, InlineConfig } from 'vite';
 import type { SerializedSSRManifest } from '../../core/app/types.js';
-import type { AssetsGlobalStaticImagesList } from '../../assets/types.js';
+import type { AssetsGlobalStaticImagesList, SerializedStaticImage } from '../../assets/types.js';
 import type { PageBuildData } from '../../core/build/types.js';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { AdapterFeatureStability } from '../../integrations/features-validation.js';
@@ -247,6 +247,30 @@ export type AstroAdapter = {
 export interface PathWithRoute {
 	pathname: string;
 	route: RouteData;
+	cacheKey?: string;
+}
+
+/**
+ * Incremental-build data an out-of-process prerenderer collects while rendering
+ * a page, reported back to the build process so skipped pages can be tracked and
+ * replayed without a re-render.
+ */
+export interface PrerenderRenderMetadata {
+	/** Root-relative `filePath`s of the content entries the page rendered. */
+	contentEntryKeys?: string[];
+	/** Optimized-image transforms the page resolved. */
+	staticImages?: SerializedStaticImage[];
+}
+
+/**
+ * The richer result a prerenderer's `render()` may return instead of a bare
+ * `Response`, pairing the rendered response with the incremental-build metadata
+ * collected for that page. Used by out-of-process prerenderers, which collect
+ * the metadata in their own runtime rather than in the build's collectors.
+ */
+export interface PrerenderResult {
+	response: Response;
+	metadata?: PrerenderRenderMetadata;
 }
 
 /**
@@ -271,8 +295,16 @@ export interface AstroPrerenderer {
 	 *   use the `pathname` from the `PathWithRoute` entry returned by `getStaticPaths`.
 	 * @param options - Render options
 	 * @param options.routeData - The matched route for this path
+	 * @returns A `Response`, or a {@link PrerenderResult} pairing the response with
+	 *   the incremental-build metadata the page resolved. Out-of-process
+	 *   prerenderers return the latter to report metadata they collect in their own
+	 *   runtime; in-process prerenderers populate the build's collectors directly
+	 *   and return a bare `Response`.
 	 */
-	render: (request: Request, options: { routeData: RouteData }) => Promise<Response>;
+	render: (
+		request: Request,
+		options: { routeData: RouteData },
+	) => Promise<Response | PrerenderResult>;
 	/**
 	 * Returns images collected in the adapter's runtime (e.g. workerd) to be merged
 	 * into the Node-side static image list. The default Sharp pipeline runs after.
