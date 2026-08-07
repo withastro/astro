@@ -17,6 +17,7 @@ import {
 	ASSETS_DIR,
 	CACHE_DIR,
 	DEFAULTS,
+	FONTS_PRERENDER_ADDRESS_KEY,
 	RESOLVED_RUNTIME_FONT_FILE_URL_RESOLVER_VIRTUAL_MODULE_ID,
 	RESOLVED_RUNTIME_VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
@@ -88,6 +89,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		fontFetcher = null;
 		serverAddress = null;
 		urls = null;
+		// The globalThis key for the prerender server address is intentionally NOT
+		// cleaned up here: cleanup() runs in buildEnd, before the prerender
+		// execution phase reads the address. It is cleaned up in build/index.ts
+		// when the font HTTP server is closed, after prerendering completes.
 	}
 
 	return {
@@ -237,6 +242,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					});
 				});
 				serverAddress = settings.fontsHttpServer.address() as AddressInfo;
+				(globalThis as any)[FONTS_PRERENDER_ADDRESS_KEY] = serverAddress;
 			}
 		},
 		async configureServer(server) {
@@ -333,6 +339,23 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 								import { SsrRuntimeFontFileUrlResolver } from ${JSON.stringify(new URL('./infra/ssr-runtime-font-file-url-resolver.js', import.meta.url))};
 								export const runtimeFontFileUrlResolver = new SsrRuntimeFontFileUrlResolver({
 									urls: new Set(${JSON.stringify(urls)}),
+								});
+							`,
+						};
+					}
+
+					if (isPrerender) {
+						// Read the address from globalThis at runtime so the compiled
+						// module text is deterministic across builds. The ephemeral
+						// port would otherwise change on every build and invalidate
+						// the incremental-build dependency hash for every route that
+						// uses <Font />. See https://github.com/withastro/astro/issues/17626
+						return {
+							code: `
+								import { RemoteRuntimeFontFileUrlResolver } from ${JSON.stringify(new URL('./infra/remote-runtime-font-file-url-resolver.js', import.meta.url))};
+								export const runtimeFontFileUrlResolver = new RemoteRuntimeFontFileUrlResolver({
+									urls: new Set(${JSON.stringify(urls)}),
+									address: globalThis[${JSON.stringify(FONTS_PRERENDER_ADDRESS_KEY)}],
 								});
 							`,
 						};

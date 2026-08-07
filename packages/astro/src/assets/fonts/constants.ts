@@ -51,3 +51,8 @@ export const GENERIC_FALLBACK_NAMES = [
 ] as const;
 
 export const FONTS_TYPES_FILE = 'fonts.d.ts';
+
+/** globalThis key used to pass the prerender font server address at runtime
+ * without embedding it in the virtual module's source text, which would make
+ * the incremental-build dependency hash non-deterministic (the port is ephemeral). */
+export const FONTS_PRERENDER_ADDRESS_KEY = '__astro_fonts_prerender_server_address__';

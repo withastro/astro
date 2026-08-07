@@ -30,6 +30,7 @@ import { viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 import { warnIfCspResourceFallbackShadowing, warnIfCspWithShiki } from '../messages/runtime.js';
+import { FONTS_PRERENDER_ADDRESS_KEY } from '../../assets/fonts/constants.js';
 
 interface BuildOptions {
 	/**
@@ -254,6 +255,7 @@ export class AstroBuilder {
 				this.logger.debug('assets', 'Failed to close fonts HTTP server:', err);
 			});
 			this.settings.fontsHttpServer = null;
+			delete (globalThis as any)[FONTS_PRERENDER_ADDRESS_KEY];
 		}
 
 		// You're done! Time to clean up.
