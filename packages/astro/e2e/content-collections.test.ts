@@ -17,7 +17,6 @@ test.afterAll(async ({ astro }) => {
 test.describe('Content Collections', () => {
 	test('HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-		await expect(page.locator('style[data-vite-dev-id*="MyComponent.astro"]')).toHaveCount(1);
 
 		await astro.editFile('./src/components/MyComponent.astro', (original) =>
 			original.replace('red', 'green'),

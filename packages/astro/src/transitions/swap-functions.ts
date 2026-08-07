@@ -10,29 +10,35 @@ const PERSIST_ATTR = 'data-astro-transition-persist';
 
 const NON_OVERRIDABLE_ASTRO_ATTRS = ['data-astro-transition', 'data-astro-transition-fallback'];
 
-const knownViteStyles = new Map<string, HTMLStyleElement>();
-let viteStyleObserver: MutationObserver | undefined;
+const viteStyleState = import.meta.env.DEV
+	? (() => {
+			const styles = new Map<string, HTMLStyleElement>();
+			let observer: MutationObserver | undefined;
+			return {
+				styles,
+				observe() {
+					if (observer) return;
+					observer = new MutationObserver((records) => {
+						for (const record of records) {
+							for (const node of record.addedNodes) {
+								if (!(node instanceof HTMLStyleElement)) continue;
+								const viteDevId = node.dataset.viteDevId;
+								if (!viteDevId) continue;
+								const knownStyle = styles.get(viteDevId);
+								if (node === knownStyle) continue;
 
-function observeViteStyles() {
-	if (viteStyleObserver) return;
-	viteStyleObserver = new MutationObserver((records) => {
-		for (const record of records) {
-			for (const node of record.addedNodes) {
-				if (!(node instanceof HTMLStyleElement)) continue;
-				const viteDevId = node.dataset.viteDevId;
-				if (!viteDevId) continue;
-				const knownStyle = knownViteStyles.get(viteDevId);
-				if (node === knownStyle) continue;
-
-				// Vite registers a separate node when a style first appears after a soft navigation.
-				// Keep that node for later HMR updates. https://github.com/withastro/astro/pull/16089
-				knownStyle?.remove();
-				knownViteStyles.set(viteDevId, node);
-			}
-		}
-	});
-	viteStyleObserver.observe(document.head, { childList: true });
-}
+								// Vite registers a separate node when a style first appears after a soft navigation.
+								// Keep that node for later HMR updates. https://github.com/withastro/astro/pull/16089
+								knownStyle?.remove();
+								styles.set(viteDevId, node);
+							}
+						}
+					});
+					observer.observe(document.head, { childList: true });
+				},
+			};
+		})()
+	: undefined;
 
 const scriptsAlreadyRan = new Set<string>();
 export function detectScriptExecuted(script: HTMLScriptElement) {
@@ -98,7 +104,7 @@ export function swapHeadElements(doc: Document) {
 		} else {
 			if (import.meta.env.DEV && el instanceof HTMLStyleElement) {
 				const viteDevId = el.dataset.viteDevId;
-				viteDevId && knownViteStyles.set(viteDevId, el);
+				viteDevId && viteStyleState?.styles.set(viteDevId, el);
 			}
 			// If the element does not exist in the new document, remove the element from current the head.
 			el.remove();
@@ -113,7 +119,7 @@ export function swapHeadElements(doc: Document) {
 	if (import.meta.env.DEV) {
 		relevantNodes(doc.head).forEach((child) => {
 			const viteDevId = child instanceof HTMLStyleElement && child.dataset.viteDevId;
-			const knownStyle = viteDevId && knownViteStyles.get(viteDevId);
+			const knownStyle = viteDevId && viteStyleState?.styles.get(viteDevId);
 			if (knownStyle) {
 				// Vite retains style node references for HMR. Reuse the node and refresh generated
 				// CSS with a stable ID.
@@ -122,8 +128,8 @@ export function swapHeadElements(doc: Document) {
 				document.head.append(knownStyle);
 			} else {
 				if (viteDevId) {
-					knownViteStyles.set(viteDevId, child);
-					observeViteStyles();
+					viteStyleState?.styles.set(viteDevId, child);
+					viteStyleState?.observe();
 				}
 				document.head.append(child);
 			}
