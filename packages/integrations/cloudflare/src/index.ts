@@ -344,6 +344,7 @@ export default function createIntegration({
 													'astro > neotraverse/modern',
 													'astro > piccolore',
 													'astro > picomatch',
+													'astro > @astrojs/internal-helpers > picomatch',
 													'astro/app',
 													'astro/app/fetch/default-handler',
 													'astro/fetch',
