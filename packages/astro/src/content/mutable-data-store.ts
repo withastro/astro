@@ -358,7 +358,7 @@ export default new Map([\n${lines.join(',\n')}]);
 					if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 						const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 						foundAssets.add(src);
-						imageImports.push(ctx.path.map((key) => key as string | number));
+						imageImports.push(ctx.path.map((segment) => segment as string | number));
 						ctx.update(src);
 					}
 				});
