@@ -241,13 +241,14 @@ function createFileBasedRoutes(
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
+				const route = joinSegments(segments);
 				const trailingSlash = trailingSlashForPath(
 					pathname,
 					settings.config,
 					item.isPage ? 'page' : 'endpoint',
+					route,
 				);
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
-				const route = joinSegments(segments);
 				routes.push({
 					route,
 					isIndex: item.isIndex,
@@ -386,13 +387,14 @@ function createRoutesFromEntriesByDir(
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
+				const route = joinSegments(segments);
 				const trailingSlash = trailingSlashForPath(
 					pathname,
 					settings.config,
 					item.isPage ? 'page' : 'endpoint',
+					route,
 				);
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
-				const route = joinSegments(segments);
 				routes.push({
 					route,
 					isIndex: item.isIndex,
@@ -442,8 +444,9 @@ const trailingSlashForPath = (
 	pathname: string | null,
 	config: AstroConfig,
 	type: 'page' | 'endpoint',
+	route?: string,
 ): AstroConfig['trailingSlash'] =>
-	type === 'endpoint' && pathname && hasFileExtension(pathname) ? 'never' : config.trailingSlash;
+	type === 'endpoint' && hasFileExtension(pathname ?? route ?? '') ? 'never' : config.trailingSlash;
 
 function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): RouteData[] {
 	const { config } = settings;
@@ -468,13 +471,13 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
 			: null;
 
-		const trailingSlash = trailingSlashForPath(pathname, config, type);
+		const route = joinSegments(segments);
+		const trailingSlash = trailingSlashForPath(pathname, config, type, route);
 		const pattern = getPattern(segments, settings.config.base, trailingSlash);
 		const params = segments
 			.flat()
 			.filter((p) => p.dynamic)
 			.map((p) => p.content);
-		const route = joinSegments(segments);
 
 		routes.push({
 			type,

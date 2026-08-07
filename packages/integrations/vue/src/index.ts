@@ -136,13 +136,22 @@ async function getViteConfiguration(
 
 	if (command === 'dev' && options?.devtools) {
 		const vueDevTools = (await import('vite-plugin-vue-devtools')).default;
-		const devToolsOptions = typeof options.devtools === 'object' ? options.devtools : {};
-		plugins.push(
-			configEnvironmentPlugin(),
+		const devToolsOptions =
+			typeof options.devtools === 'object' && options.devtools ? options.devtools : {};
+		const devToolsPlugins = (
 			vueDevTools({
 				...devToolsOptions,
 				appendTo: VIRTUAL_MODULE_ID,
-			}),
+			}) as Plugin[] | Plugin[][]
+		).flat();
+		plugins.push(
+			configEnvironmentPlugin(),
+			...devToolsPlugins.map((plugin) => ({
+				...plugin,
+				applyToEnvironment: (
+					environment: Parameters<NonNullable<Plugin['applyToEnvironment']>>[0],
+				) => environment.name === 'client',
+			})),
 		);
 	}
 

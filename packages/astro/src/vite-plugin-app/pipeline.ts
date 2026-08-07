@@ -11,6 +11,7 @@ import type { DefaultRouteParams } from '../core/routing/default.js';
 import { routeIsRedirect } from '../core/routing/helpers.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import { isPage } from '../core/util.js';
+import { stringifyForScript } from '../runtime/server/escape.js';
 import type {
 	AstroSettings,
 	ComponentInstance,
@@ -94,6 +95,11 @@ export class RunnablePipeline extends Pipeline {
 		return pipeline;
 	}
 
+	// Called via HMR when action files change. Not available on production.
+	clearActions(): void {
+		this.resolvedActions = undefined;
+	}
+
 	async headElements(routeData: RouteData): Promise<HeadElements> {
 		const { manifest, runtimeMode, settings } = this;
 		const filePath = new URL(`${routeData.component}`, manifest.rootDir);
@@ -129,7 +135,7 @@ export class RunnablePipeline extends Pipeline {
 					};
 
 					// Additional data for the dev overlay
-					const children = `window.__astro_dev_toolbar__ = ${JSON.stringify(additionalMetadata)}`;
+					const children = `window.__astro_dev_toolbar__ = ${stringifyForScript(additionalMetadata)}`;
 					scripts.add({ props: {}, children });
 				}
 			}

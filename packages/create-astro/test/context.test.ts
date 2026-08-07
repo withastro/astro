@@ -72,6 +72,16 @@ describe('context', () => {
 		assert.deepEqual(ctx.git, false);
 	});
 
+	it('with ai (default)', async () => {
+		const ctx = await getContext([]);
+		assert.deepEqual(ctx.ai, true);
+	});
+
+	it('no ai', async () => {
+		const ctx = await getContext(['--no-ai']);
+		assert.deepEqual(ctx.ai, false);
+	});
+
 	it('--add with --no-install conflicts', async () => {
 		const originalExit = process.exit;
 		let exitCode: number | string | null | undefined;

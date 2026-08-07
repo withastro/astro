@@ -29,7 +29,7 @@ import { collectPagesData } from './page-data.js';
 import { viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
-import { warnIfCspWithShiki } from '../messages/runtime.js';
+import { warnIfCspResourceFallbackShadowing, warnIfCspWithShiki } from '../messages/runtime.js';
 
 interface BuildOptions {
 	/**
@@ -57,6 +57,7 @@ export default async function build(
 	telemetry.record(eventCliSession('build', userConfig));
 
 	warnIfCspWithShiki(astroConfig, logger);
+	warnIfCspResourceFallbackShadowing(astroConfig, logger);
 
 	const settings = await createSettings(
 		astroConfig,
@@ -74,6 +75,7 @@ export default async function build(
 		logger,
 		mode: inlineConfig.mode ?? 'production',
 		runtimeMode: options.devOutput ? 'development' : 'production',
+		force: inlineConfig.force ?? false,
 	});
 	await builder.run();
 }
@@ -92,6 +94,8 @@ interface AstroBuilderOptions extends BuildOptions {
 	 * Set to false for in-memory builds that don't need type generation.
 	 */
 	sync?: boolean;
+	/** Set by `astro build --force` to rebuild every page and ignore the incremental cache. */
+	force?: boolean;
 }
 
 export class AstroBuilder {
@@ -103,6 +107,7 @@ export class AstroBuilder {
 	private routesList: RoutesList;
 	private timer: Record<string, number>;
 	private sync: boolean;
+	private force: boolean;
 
 	constructor(settings: AstroSettings, options: AstroBuilderOptions) {
 		this.mode = options.mode;
@@ -110,6 +115,7 @@ export class AstroBuilder {
 		this.settings = settings;
 		this.logger = options.logger;
 		this.sync = options.sync ?? true;
+		this.force = options.force ?? false;
 		this.origin = settings.config.site
 			? new URL(settings.config.site).origin
 			: `http://localhost:${settings.config.server.port}`;
@@ -221,6 +227,7 @@ export class AstroBuilder {
 			pageNames,
 			viteConfig,
 			key: keyPromise,
+			force: this.force,
 		};
 
 		await viteBuild(opts);

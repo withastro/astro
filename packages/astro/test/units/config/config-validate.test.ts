@@ -549,8 +549,10 @@ describe('Config Validation', () => {
 					ttl: 60 * 60, // 1 hour
 				},
 			});
-			assert.equal(result.session?.ttl, 60 * 60);
-			assert.equal(result.session?.driver, undefined);
+			assert.notEqual(result.session, false);
+			const session = result.session as Exclude<typeof result.session, false>;
+			assert.equal(session?.ttl, 60 * 60);
+			assert.equal(session?.driver, undefined);
 		});
 	});
 
@@ -619,7 +621,7 @@ describe('Config Validation', () => {
 			const formattedError = stripVTControlCharacters(formatConfigErrorMessage(configError));
 			assert.equal(
 				formattedError,
-				`[config] Astro found issue(s) with your configuration:\n\n! security.csp: Did not match union.\n  > Expected type boolean | Directives script-src and style-src are not allowed in security.csp.directives. Please use security.csp.scriptDirective and security.csp.styleDirective instead.\n  > Received { "directives": [ "script-src 'self'" ] }`,
+				`[config] Astro found issue(s) with your configuration:\n\n! security.csp: Did not match union.\n  > Expected type boolean | Directives script-src and style-src (including their -elem/-attr variants) are not allowed in security.csp.directives. Please use security.csp.scriptDirective and security.csp.styleDirective instead, scoping resources/hashes to the more specific directives with the kind option ("element" or "attribute").\n  > Received { "directives": [ "script-src 'self'" ] }`,
 			);
 		});
 	});
@@ -704,6 +706,41 @@ describe('Config Validation', () => {
 				JSON.stringify(configError.issues).includes('maxAge'),
 				'Error should reference maxAge',
 			);
+		});
+	});
+
+	describe('experimental.collectionStorage', () => {
+		it('accepts the chunked shorthand', async () => {
+			const result = await validateConfig({
+				experimental: { collectionStorage: 'chunked' },
+			});
+
+			assert.equal(result.experimental.collectionStorage, 'chunked');
+		});
+
+		it('accepts a positive integer chunk size', async () => {
+			const result = await validateConfig({
+				experimental: {
+					collectionStorage: { type: 'chunked', chunkSize: 1024 * 1024 },
+				},
+			});
+
+			assert.deepEqual(result.experimental.collectionStorage, {
+				type: 'chunked',
+				chunkSize: 1024 * 1024,
+			});
+		});
+
+		it('rejects invalid chunk sizes', async () => {
+			for (const chunkSize of [0, -1, 1.5]) {
+				const configError = await validateConfig({
+					experimental: {
+						collectionStorage: { type: 'chunked', chunkSize },
+					},
+				}).catch((error) => error);
+
+				assert.equal(configError instanceof z.ZodError, true);
+			}
 		});
 	});
 });

@@ -2,7 +2,16 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { formatStopOutput } from '../../../dist/cli/dev/stop.js';
 import { formatStatusOutput } from '../../../dist/cli/dev/status.js';
-import { formatBackgroundOutput } from '../../../dist/cli/dev/background.js';
+import {
+	formatBackgroundOutput,
+	formatServerRunningMessage,
+} from '../../../dist/cli/dev/background.js';
+import {
+	buildBackgroundArgs,
+	formatServerRunningMessage as formatGenericServerRunningMessage,
+	previewServerCommand,
+} from '../../../dist/cli/server.js';
+import { getLogFileURL } from '../../../dist/core/dev/lockfile.js';
 
 // #region formatStopOutput
 describe('formatStopOutput', () => {
@@ -96,6 +105,118 @@ describe('formatBackgroundOutput', () => {
 	it('produces valid JSON', () => {
 		const output = formatBackgroundOutput({ pid: 1, url: 'http://localhost:4321' });
 		assert.doesNotThrow(() => JSON.parse(output));
+	});
+});
+// #endregion
+
+// #region formatServerRunningMessage
+describe('formatServerRunningMessage', () => {
+	const base = {
+		pid: 54576,
+		port: 4321,
+		url: 'http://localhost:4321',
+		background: true,
+		startedAt: '2026-05-05T10:00:00.000Z',
+	};
+
+	it('omits the Network section when there are no network urls', () => {
+		const output = formatServerRunningMessage(base);
+		assert.equal(
+			output,
+			'Dev server running at http://localhost:4321 (pid 54576)\n' +
+				'  Stop:   astro dev stop\n' +
+				'  Status: astro dev status\n' +
+				'  Logs:   astro dev logs',
+		);
+	});
+
+	it('omits the Network section when network is an empty array', () => {
+		const output = formatServerRunningMessage({
+			...base,
+			urls: { local: ['http://localhost:4321/'], network: [] },
+		});
+		assert.ok(!output.includes('Network'));
+	});
+
+	it('lists every network address when --host exposed them', () => {
+		const output = formatServerRunningMessage({
+			...base,
+			urls: {
+				local: ['http://localhost:4321/'],
+				network: ['http://192.168.1.30:4321/', 'http://100.96.45.51:4321/'],
+			},
+		});
+		assert.equal(
+			output,
+			'Dev server running at http://localhost:4321 (pid 54576)\n' +
+				'  Network:\n' +
+				'    http://192.168.1.30:4321/\n' +
+				'    http://100.96.45.51:4321/\n' +
+				'  Stop:   astro dev stop\n' +
+				'  Status: astro dev status\n' +
+				'  Logs:   astro dev logs',
+		);
+	});
+
+	it('uses "already running" wording for an existing server', () => {
+		const output = formatServerRunningMessage(base, { existing: true });
+		assert.ok(output.startsWith('Dev server already running at http://localhost:4321 (pid 54576)'));
+	});
+});
+// #endregion
+
+// #region shared server utilities
+describe('shared server utilities', () => {
+	const base = {
+		pid: 54576,
+		port: 4321,
+		url: 'http://localhost:4321',
+		background: true,
+		startedAt: '2026-05-05T10:00:00.000Z',
+	};
+
+	it('formats preview server management commands', () => {
+		const output = formatGenericServerRunningMessage(base, previewServerCommand);
+		assert.equal(
+			output,
+			'Preview server running at http://localhost:4321 (pid 54576)\n' +
+				'  Stop:   astro preview stop\n' +
+				'  Status: astro preview status\n' +
+				'  Logs:   astro preview logs',
+		);
+	});
+
+	it('builds preview child process args without --background', () => {
+		assert.deepEqual(
+			buildBackgroundArgs('preview', {
+				_: [],
+				port: 3000,
+				host: true,
+				config: 'astro.config.mjs',
+				root: '.',
+				allowedHosts: 'example.com',
+				json: true,
+			}),
+			[
+				'preview',
+				'--port',
+				'3000',
+				'--host',
+				'--config',
+				'astro.config.mjs',
+				'--root',
+				'.',
+				'--allowed-hosts',
+				'example.com',
+				'--json',
+			],
+		);
+	});
+
+	it('uses separate dev and preview log files', () => {
+		const root = new URL('file:///project/');
+		assert.equal(getLogFileURL(root).href, 'file:///project/.astro/dev.log');
+		assert.equal(getLogFileURL(root, 'preview').href, 'file:///project/.astro/preview.log');
 	});
 });
 // #endregion

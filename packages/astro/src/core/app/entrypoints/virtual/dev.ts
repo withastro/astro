@@ -42,6 +42,13 @@ export const createApp: CreateApp = ({ streaming } = {}) => {
 			if (!currentDevApp) return;
 			currentDevApp.clearMiddleware();
 		});
+
+		// Listen for action file changes via HMR.
+		// Clear the cached actions so they are re-resolved on the next request.
+		import.meta.hot.on('astro:actions-updated', () => {
+			if (!currentDevApp) return;
+			currentDevApp.clearActions();
+		});
 	}
 
 	return currentDevApp;

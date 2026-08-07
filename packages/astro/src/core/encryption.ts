@@ -1,4 +1,10 @@
-import { decodeBase64, decodeHex, encodeBase64, encodeHexUpperCase } from '@oslojs/encoding';
+import {
+	decodeBase64,
+	decodeHex,
+	encodeBase64,
+	encodeHexLowerCase,
+	encodeHexUpperCase,
+} from '@oslojs/encoding';
 import type { CspAlgorithm } from '../types/public/index.js';
 import { ALGORITHMS, type CspHash } from './csp/config.js';
 
@@ -51,6 +57,17 @@ export async function getEnvironmentKey(): Promise<CryptoKey> {
 	}
 	const encodedKey = getEncodedEnvironmentKey();
 	return decodeKey(encodedKey);
+}
+
+/**
+ * Hash a CryptoKey into a one-way hex digest safe to persist. Server-island
+ * ciphertext is bound to the key, so the incremental build cache uses this to
+ * detect when the key changed between builds.
+ */
+export async function hashCryptoKey(key: CryptoKey): Promise<string> {
+	const exported = await crypto.subtle.exportKey('raw', key);
+	const digest = await crypto.subtle.digest('SHA-256', exported);
+	return encodeHexLowerCase(new Uint8Array(digest));
 }
 
 /**

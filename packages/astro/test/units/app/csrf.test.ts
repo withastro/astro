@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import {
 	hasFormLikeHeader,
 	createOriginCheckMiddleware,
-} from '../../../dist/core/app/middlewares.js';
+} from '../../../dist/core/app/origin-check.js';
 import { callMiddleware } from '../../../dist/core/middleware/callMiddleware.js';
 import { createMockAPIContext, createResponseFunction } from '../mocks.ts';
 

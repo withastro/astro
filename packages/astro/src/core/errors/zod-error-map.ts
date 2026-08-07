@@ -164,7 +164,14 @@ const unionExpectedVals = (expectedVals: Set<unknown>) =>
 const flattenErrorPath = (errorPath: (string | number | symbol)[]) => errorPath.join('.');
 
 /** `JSON.stringify()` a value with spaces around object/array entries. */
-const stringify = (val: unknown) =>
-	JSON.stringify(val, null, 1).split(newlinePlusWhitespace).join(' ');
+const stringify = (val: unknown) => {
+	// `JSON.stringify` returns `undefined` for `undefined`/functions/symbols. This can happen for
+	// nested union issues where `issue.input` is not populated, so fall back to `String()`.
+	const json = JSON.stringify(val, null, 1);
+	if (json === undefined) {
+		return String(val);
+	}
+	return json.split(newlinePlusWhitespace).join(' ');
+};
 const newlinePlusWhitespace = /\n\s*/;
 const leadingPeriod = /^\./;

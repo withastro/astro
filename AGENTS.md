@@ -64,7 +64,18 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Not defined here. For now, follow the same conventions and patterns that you detect in the surrounding code.
 - Keep formatting consistent. Our rules are defined in our [biome.jsonc](./biome.jsonc) file, enforced by Biome.
 - Run `pnpm format` to auto-format the entire repo.
-- Run `pnpm lint` to lint the entire repo.
+- Run `pnpm lint:ai` to lint the entire repo.
+
+# Writing Comments
+
+These rules apply to **every** comment you write, including ones added incidentally while fixing a bug. Full guidance with examples: [`.agents/skills/writing-comments/SKILL.md`](./.agents/skills/writing-comments/SKILL.md).
+
+- Write for a contributor reading the code at HEAD, months later, with no access to this conversation, the PR, or the diff.
+- Never narrate change history ("now", "previously", "no longer") and never address the reviewer ("this correctly handles..."). State how the code works, not how it came to be or why the change is right.
+- Deletion test: a comment must state something the reader cannot recover from the code. If names or types already carry it, don't write it.
+- `/** */` docs state the contract (behavior, params, returns, throws); `//` comments carry rationale only. Anchor a workaround to the GitHub issue or PR that motivates it.
+- When your change alters documented behavior, extend or correct the existing prose — never replace specific docs with generic text.
+- Exception: `@docs`-tagged JSDoc in `types/public/config.ts` and `core/errors/errors-data.ts` is end-user documentation generated to the website; these rules don't apply there.
 
 # Environment Guide
 
@@ -86,7 +97,7 @@ In error stack traces, built files from workspace packages in `node_modules/` ma
 
 Edits to source files take effect after rebuilding the package via `pnpm build`.
 
-Use `pnpm -C <dir> <command>` for project-local script commands when working in packages/examples/triage directories (Example: `pnpm -C packages/astro build`, `pnpm -C examples/blog dev`). Only omit `-C` flag when intentionally working in the monorepo root (Example: `pnpm format`, `pnpm lint`, `pnpm test:types`).
+Use `pnpm -C <dir> <command>` for project-local script commands when working in packages/examples/triage directories (Example: `pnpm -C packages/astro build`, `pnpm -C examples/blog dev`). Only omit `-C` flag when intentionally working in the monorepo root (Example: `pnpm format`, `pnpm lint:ai`, `pnpm test:types`).
 
 # Running Tests
 
@@ -113,18 +124,18 @@ Use `pnpm -C <dir> <command>` for project-local script commands when working in 
 - Use `astro add` to install and configure an official integration.
 - Fetch **Full docs** at https://docs.astro.build/ (primary source for the latest reference).
 
-# `bgproc`
+# Background Dev Servers
 
-Use `pnpm exec bgproc` to start, stop, and manage long-running `astro dev` & `astro preview` servers in the background. Do not manually start detached servers with `&` if you can use `bgproc` instead.
-
-Use `pnpm exec bgproc --help` to see all available commands.
+Use `astro dev --background` to start and manage long-running dev servers in the background. Do not manually start detached servers with `&`.
 
 Workflow:
 
-1. `pnpm exec bgproc start -n devserver --wait-for-port 10 --force -- pnpm -C examples/minimal dev` - Start the dev server
-2. `pnpm exec bgproc logs -n devserver` - View logs from the dev server. Useful for debugging server logs.
-3. `pnpm exec bgproc stop -n devserver` - Stop the dev server when your work is complete
-4. `pnpm exec bgproc list` - List all running servers, background processes. Useful for cleanup.
+1. `pnpm -C examples/minimal dev --background` - Start the dev server in the background
+2. `pnpm -C examples/minimal dev logs` - View logs from the dev server. Useful for debugging server logs.
+3. `pnpm -C examples/minimal dev status` - Check whether a dev server is running
+4. `pnpm -C examples/minimal dev stop` - Stop the dev server when your work is complete
+
+Use `pnpm -C examples/minimal dev logs --follow` to stream logs. If a stale dev server is blocking startup, stop it first or use `pnpm -C examples/minimal dev --background --force` to replace it.
 
 # `agent-browser`
 

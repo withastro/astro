@@ -11,6 +11,20 @@ import {
 	createMarkdownEntryType,
 } from './test-helpers.ts';
 
+/**
+ * A markdown entry type that also exposes a `getRenderFunction`, so it exercises
+ * the eager/deferred render branches of the glob loader (the base helper omits it).
+ */
+function createRenderableMarkdownEntryType() {
+	return {
+		...createMarkdownEntryType(),
+		getRenderFunction: async () => async (entry: any) => ({
+			html: `rendered: ${entry.body ?? ''}`,
+			metadata: {},
+		}),
+	};
+}
+
 describe('Glob Loader', () => {
 	const root = new URL('../../fixtures/content-layer/', import.meta.url);
 
@@ -48,6 +62,44 @@ describe('Glob Loader', () => {
 		assert.ok(columbia.body);
 		assert.ok(columbia.body.includes('Space Shuttle Columbia'));
 		assert.equal(columbia.filePath!.replace(/\\/g, '/'), 'src/content/space/columbia.md');
+	});
+
+	it('retains entries with numeric slug across multiple syncs', async () => {
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			spacecraft: defineCollection({
+				loader: glob({ pattern: '*.md', base: 'src/content/space' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		// First sync
+		await contentLayer.sync();
+		const numericEntry1 = store.values('spacecraft').find((e) => e.id === '20260624');
+		assert.ok(numericEntry1, 'Numeric slug entry should exist after first sync');
+		const count1 = store.values('spacecraft').length;
+
+		// Second sync — the bug caused entries with numeric slugs to be dropped here
+		await contentLayer.sync();
+		const numericEntry2 = store.values('spacecraft').find((e) => e.id === '20260624');
+		assert.ok(numericEntry2, 'Numeric slug entry should persist after second sync');
+		const count2 = store.values('spacecraft').length;
+
+		assert.equal(count1, count2, 'Entry count should be stable across syncs');
 	});
 
 	it('handles negative matches in glob pattern', async () => {
@@ -149,6 +201,114 @@ describe('Glob Loader', () => {
 
 		const entry = entries[0];
 		assert.equal(entry.body, undefined);
+	});
+
+	it('eagerly renders renderable entries during sync by default', async () => {
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root, {
+			contentEntryTypes: [createRenderableMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			spacecraft: defineCollection({
+				loader: glob({ pattern: '*.md', base: 'src/content/space' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		const columbia = store.values('spacecraft').find((e) => e.id === 'columbia');
+		assert.ok(columbia);
+		// Rendered HTML is stored eagerly, and the entry is not deferred
+		assert.ok(columbia.rendered);
+		assert.ok(columbia.rendered.html.includes('rendered:'));
+		assert.equal(columbia.deferredRender, undefined);
+	});
+
+	it('defers rendering of renderable entries when deferRender is true', async () => {
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root, {
+			contentEntryTypes: [createRenderableMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			spacecraft: defineCollection({
+				loader: glob({ pattern: '*.md', base: 'src/content/space', deferRender: true }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		const columbia = store.values('spacecraft').find((e) => e.id === 'columbia');
+		assert.ok(columbia);
+		// Rendering is deferred: no rendered HTML is stored, entry is marked deferred
+		assert.equal(columbia.deferredRender, true);
+		assert.equal(columbia.rendered, undefined);
+		// The body is still retained so it can be rendered on demand
+		assert.ok(columbia.body);
+	});
+
+	it('does not defer non-renderable data entries when deferRender is true', async () => {
+		const store = new MutableDataStore();
+
+		const yamlEntryType = {
+			extensions: ['.yaml', '.yml'],
+			getEntryInfo: ({ contents }: any) => ({ data: { value: contents.trim() }, body: '' }),
+		};
+
+		const settings = createMinimalSettings(root, {
+			config: {
+				root,
+				srcDir: new URL('./src/', root),
+			},
+			dataEntryTypes: [yamlEntryType],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			numbersYaml: defineCollection({
+				loader: glob({ pattern: 'src/data/glob-yaml/*', base: '.', deferRender: true }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		const entries = store.values('numbersYaml');
+		assert.equal(entries.length, 3);
+		// Data entries have no render function, so deferRender must not mark them deferred
+		assert.ok(entries.every((e) => e.deferredRender === undefined));
 	});
 
 	it('loads YAML files with glob pattern', async () => {

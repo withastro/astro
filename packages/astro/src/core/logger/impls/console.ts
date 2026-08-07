@@ -1,6 +1,5 @@
 import {
 	getEventPrefix,
-	type AstroLoggerMessage,
 	type AstroLoggerDestination,
 	levels,
 	type AstroLoggerLevel,
@@ -13,12 +12,10 @@ export type ConsoleHandlerConfig = {
 	level?: AstroLoggerLevel;
 };
 
-function consoleLogDestination(
-	config: ConsoleHandlerConfig = {},
-): AstroLoggerDestination<AstroLoggerMessage> {
+function consoleLogDestination(config: ConsoleHandlerConfig = {}): AstroLoggerDestination {
 	const { level = 'info' } = config;
 	return {
-		write(event: AstroLoggerMessage) {
+		write(event) {
 			let dest = console.error;
 			if (levels[event.level] < levels['error']) {
 				dest = console.info;
@@ -44,6 +41,6 @@ export function createConsoleLogger({ level }: { level: AstroLoggerLevel }): Ast
 	});
 }
 
-export default function (options?: NodeHandlerConfig): AstroLoggerDestination<AstroLoggerMessage> {
+export default function (options?: NodeHandlerConfig): AstroLoggerDestination {
 	return consoleLogDestination(options);
 }

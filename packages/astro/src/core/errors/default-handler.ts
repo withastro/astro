@@ -7,15 +7,19 @@ import { getCookiesFromResponse } from '../cookies/response.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { matchRoute } from '../routing/match.js';
-import { provideSession } from '../session/handler.js';
+import { provideSession } from '../session/provider.js';
 import { validateHost } from '../app/validate-headers.js';
-import type { ErrorHandler } from './handler.js';
+import { getErrorRoutePath } from '../../i18n/error-routes.js';
+import { getOutputFilename } from '../output-filename.js';
+import { type ErrorHandler, rewroteToEmptyErrorResponse } from './handler.js';
 
 type ErrorPagePath =
 	| `${string}/404`
 	| `${string}/500`
 	| `${string}/404/`
 	| `${string}/500/`
+	| `${string}/404/index.html`
+	| `${string}/500/index.html`
 	| `${string}404.html`
 	| `${string}500.html`;
 
@@ -49,12 +53,17 @@ export class DefaultErrorHandler implements ErrorHandler {
 	): Promise<Response> {
 		const app = this.#app;
 		const resolvedPathname = pathname ?? new FetchState(app.pipeline, request).pathname;
-		const errorRoutePath = `/${status}${app.manifest.trailingSlash === 'always' ? '/' : ''}`;
+		const errorRoutePath = getErrorRoutePath(
+			resolvedPathname,
+			status,
+			app.manifestData.routes,
+			app.manifest.i18n?.locales,
+			app.manifest.trailingSlash === 'always',
+		);
 		const errorRouteData = matchRoute(errorRoutePath, app.manifestData);
 		const url = new URL(request.url);
 		if (errorRouteData) {
 			if (errorRouteData.prerender) {
-				const maybeDotHtml = errorRouteData.route.endsWith(`/${status}`) ? '.html' : '';
 				// Validate the request URL origin before using it for the error page fetch.
 				// Without this, an attacker-controlled Host header flows into statusURL,
 				// causing the server to fetch from an arbitrary origin (SSRF).
@@ -62,7 +71,11 @@ export class DefaultErrorHandler implements ErrorHandler {
 				const validatedHost = validateHost(url.host, url.protocol.replace(':', ''), allowedDomains);
 				const safeOrigin = validatedHost ? url.origin : `${url.protocol}//localhost`;
 				const statusURL = new URL(
-					`${app.baseWithoutTrailingSlash}/${status}${maybeDotHtml}`,
+					`${app.baseWithoutTrailingSlash}${getOutputFilename(
+						app.manifest.buildFormat,
+						errorRouteData.route,
+						errorRouteData,
+					)}`,
 					safeOrigin,
 				);
 				if (
@@ -114,6 +127,31 @@ export class DefaultErrorHandler implements ErrorHandler {
 					errorState,
 					this.#pagesHandler.handle.bind(this.#pagesHandler),
 				);
+				// A middleware rewrite (`ctx.rewrite()` / `next(payload)`) issued while
+				// rendering the error page swaps the state's routeData away from the
+				// error route, so the rewrite target renders instead of 404/500.astro.
+				// If that hijacked render produced another empty reroutable error
+				// response, we'd return a blank page — retry rendering the error page
+				// without middleware instead (same fallback used when middleware throws).
+				// A rewrite that produced a real body is left untouched, so middleware
+				// that intentionally rewrites error renders keeps working.
+				if (
+					rewroteToEmptyErrorResponse(
+						skipMiddleware,
+						errorRouteData,
+						errorState.routeData,
+						response,
+					)
+				) {
+					return this.renderError(request, {
+						...resolvedRenderOptions,
+						status,
+						error,
+						response: originalResponse,
+						skipMiddleware: true,
+						pathname: resolvedPathname,
+					});
+				}
 				const newResponse = mergeResponses(response, originalResponse);
 				prepareResponse(newResponse, resolvedRenderOptions);
 				return newResponse;
@@ -206,9 +244,11 @@ function mergeResponses(
 		seen.add(name.toLowerCase());
 	}
 	// Add new response headers that weren't already set by the original response,
-	// but skip content-type since the error page must return text/html
+	// but skip content-type since the error page must return text/html.
+	// set-cookie is special: it's a multi-value header, so we always append.
 	for (const [name, value] of newResponseHeaders) {
-		if (!seen.has(name.toLowerCase())) {
+		const lower = name.toLowerCase();
+		if (!seen.has(lower) || lower === 'set-cookie') {
 			newHeaders.append(name, value);
 		}
 	}
@@ -230,9 +270,7 @@ function mergeResponses(
 	if (originalCookies) {
 		// If both responses have cookies, merge new response cookies into original
 		if (newCookies) {
-			for (const cookieValue of newCookies.consume()) {
-				originalResponse.headers.append('set-cookie', cookieValue);
-			}
+			originalCookies.merge(newCookies);
 		}
 		attachCookiesToResponse(mergedResponse, originalCookies);
 	} else if (newCookies) {

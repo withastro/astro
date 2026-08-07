@@ -1,12 +1,10 @@
 import fs from 'node:fs';
-import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
-import type { RouteData } from '../types/public/internal.js';
 import { hasSpecialQueries } from '../vite-plugin-utils/index.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
-import { removeQueryString, removeTrailingForwardSlash, slash } from './path.js';
+import { removeQueryString, slash } from './path.js';
 
 /** Check if a file is a markdown file based on its extension */
 export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
@@ -19,33 +17,6 @@ export function isMarkdownFile(fileId: string, option?: { suffix?: string }): bo
 		if (id.endsWith(`${markdownFileExtension}${_suffix}`)) return true;
 	}
 	return false;
-}
-
-const STATUS_CODE_PAGES = new Set(['/404', '/500']);
-
-/**
- * Get the correct output filename for a route, based on your config.
- * Handles both "/foo" and "foo" `name` formats.
- * Handles `/404` and `/` correctly.
- */
-export function getOutputFilename(
-	buildFormat: NonNullable<AstroConfig['build']>['format'],
-	name: string,
-	routeData: RouteData,
-) {
-	if (routeData.type === 'endpoint') {
-		return name;
-	}
-	if (name === '/' || name === '') {
-		return path.posix.join(name, 'index.html');
-	}
-	if (buildFormat === 'file' || STATUS_CODE_PAGES.has(name)) {
-		return `${removeTrailingForwardSlash(name || 'index')}.html`;
-	}
-	if (buildFormat === 'preserve' && !routeData.isIndex) {
-		return `${removeTrailingForwardSlash(name || 'index')}.html`;
-	}
-	return path.posix.join(name, 'index.html');
 }
 
 /** is a specifier an npm package? */
@@ -166,6 +137,41 @@ export function resolveJsToTs(filePath: string) {
 		const tryPath = filePath.slice(0, -4) + '.tsx';
 		if (fs.existsSync(tryPath)) {
 			return tryPath;
+		}
+	}
+	return filePath;
+}
+
+// Match Vite's default `resolve.extensions` order so that when multiple
+// candidate files exist, we pick the same module Vite will load.
+// https://vite.dev/config/shared-options.html#resolve-extensions
+const VITE_DEFAULT_RESOLVE_EXTENSIONS = ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json'];
+
+/**
+ * Resolve a path that doesn't name a file on disk (e.g. produced by an
+ * extensionless import like `import { Counter } from './Counter'`) to the file
+ * Vite would load, by probing Vite's default extension order and directory
+ * `index` files. Returns the path unchanged when it already exists as a file
+ * or when no candidate is found.
+ */
+export function resolveExtensionlessPath(filePath: string): string {
+	const stat = fs.statSync(filePath, { throwIfNoEntry: false });
+	if (stat?.isFile()) {
+		return filePath;
+	}
+	for (const ext of VITE_DEFAULT_RESOLVE_EXTENSIONS) {
+		const tryPath = filePath + ext;
+		if (fs.existsSync(tryPath)) {
+			return tryPath;
+		}
+	}
+	// Directory import: resolve to its `index` module, like Vite does.
+	if (stat?.isDirectory()) {
+		for (const ext of VITE_DEFAULT_RESOLVE_EXTENSIONS) {
+			const tryPath = `${filePath}/index${ext}`;
+			if (fs.existsSync(tryPath)) {
+				return tryPath;
+			}
 		}
 	}
 	return filePath;

@@ -62,3 +62,7 @@ export function createRenderInstruction<T extends RenderInstruction>(instruction
 export function isRenderInstruction(chunk: any): chunk is RenderInstruction {
 	return chunk && typeof chunk === 'object' && chunk[RenderInstructionSymbol];
 }
+
+export function isScriptInstruction(chunk: any): chunk is RenderScriptInstruction {
+	return chunk && typeof chunk === 'object' && 'type' in chunk && chunk.type === 'script';
+}

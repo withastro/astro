@@ -1,5 +1,55 @@
 # @astrojs/markdoc
 
+## 2.0.6
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+
+## 2.0.5
+
+### Patch Changes
+
+- [#17460](https://github.com/withastro/astro/pull/17460) [`3b93a1a`](https://github.com/withastro/astro/commit/3b93a1a1cce669b71729d2b946fa2d41dae79ad6) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes custom `transform` functions being dropped when a tag or node also specifies a custom `render` component. User-written transforms are now always preserved; only Markdoc's built-in transforms are removed so the custom component wins.
+
+- [#17191](https://github.com/withastro/astro/pull/17191) [`fc3fb2b`](https://github.com/withastro/astro/commit/fc3fb2bcfdd3223a6a9acfcb3b09efaa9d4a28e8) Thanks [@eldardada](https://github.com/eldardada)! - Fixes custom `transform` functions being incorrectly dropped for tags and nodes whose names require bracket access (e.g. `side-note`). The check that detects whether a transform respects a custom `render` component now recognizes bracket notation, optional chaining and whitespace, not only dot notation.
+
+## 2.0.4
+
+### Patch Changes
+
+- [#17441](https://github.com/withastro/astro/pull/17441) [`6180c8e`](https://github.com/withastro/astro/commit/6180c8e03b93942c4bdd8c3c45a0ae94906eff69) Thanks [@renovate](https://github.com/apps/renovate)! - Updates dependency htmlparser2 to v12
+
+## 2.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c)]:
+  - @astrojs/internal-helpers@0.10.1
+
+## 2.0.2
+
+### Patch Changes
+
+- [#17249](https://github.com/withastro/astro/pull/17249) [`02b73b0`](https://github.com/withastro/astro/commit/02b73b0fc2e32102e788fd9031ce061337490a73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `peerDependencies` field used incorrect dependencies.
+
+## 2.0.1
+
+### Patch Changes
+
+- [#17142](https://github.com/withastro/astro/pull/17142) [`973ea49`](https://github.com/withastro/astro/commit/973ea495bf27699648406f8404913c0dbf6c6bc3) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a crash when rendering shiki-highlighted code blocks inside list items
+
+## 2.0.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Patch Changes
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
 ## 2.0.0-beta.1
 
 ### Patch Changes
@@ -1069,11 +1119,7 @@
   import shiki from '@astrojs/markdoc/shiki';
 
   export default defineMarkdocConfig({
-    extends: [
-      shiki({
-        /** Shiki config options */
-      }),
-    ],
+    extends: [shiki({/** Shiki config options */})],
   });
   ```
 

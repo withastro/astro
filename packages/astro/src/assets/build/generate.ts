@@ -12,7 +12,12 @@ import type { MapValue } from '../../type-utils.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import { getConfiguredImageService } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
-import type { AssetsGlobalStaticImagesList, ImageMetadata, ImageTransform } from '../types.js';
+import type {
+	AssetsGlobalStaticImagesList,
+	ImageMetadata,
+	ImageTransform,
+	SerializedStaticImage,
+} from '../types.js';
 import { isESMImportedImage } from '../utils/imageKind.js';
 import { loadRemoteImage, type RemoteCacheEntry, revalidateRemoteImage } from './remote.js';
 
@@ -354,6 +359,32 @@ export function getStaticImageList(): AssetsGlobalStaticImagesList {
 	}
 
 	return globalThis.astroAsset.staticImages;
+}
+
+/**
+ * Replay transforms attributed to a skipped page back into the global list, so
+ * the asset pipeline emits its optimized images even though the page was not
+ * rendered this build. Existing transforms (already added by a rendered page
+ * that shares the image) are left untouched.
+ */
+export function restoreStaticImages(images: SerializedStaticImage[]): void {
+	if (!globalThis.astroAsset) {
+		globalThis.astroAsset = { referencedImages: new Set() };
+	}
+	const staticImages = (globalThis.astroAsset.staticImages ??= new Map());
+	for (const image of images) {
+		let transformsForPath = staticImages.get(image.originalPath);
+		if (!transformsForPath) {
+			transformsForPath = { originalSrcPath: image.originalSrcPath, transforms: new Map() };
+			staticImages.set(image.originalPath, transformsForPath);
+		}
+		if (!transformsForPath.transforms.has(image.hash)) {
+			transformsForPath.transforms.set(image.hash, {
+				finalPath: image.finalPath,
+				transform: image.transform,
+			});
+		}
+	}
 }
 
 async function loadImage(path: string, env: AssetEnv): Promise<ImageData> {

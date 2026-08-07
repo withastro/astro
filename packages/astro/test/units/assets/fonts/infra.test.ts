@@ -767,12 +767,12 @@ describe('fonts infra', () => {
 			assert.equal(fontFileIdContentResolver.resolve(url), url);
 		});
 
-		it('returns url and content when absolute', () => {
+		it('returns content only when absolute', () => {
 			const url = fileURLToPath(new URL(import.meta.url));
 			const fontFileIdContentResolver = new FsFontFileContentResolver({
 				readFileSync: () => 'content',
 			});
-			assert.equal(fontFileIdContentResolver.resolve(url), url + 'content');
+			assert.equal(fontFileIdContentResolver.resolve(url), 'content');
 		});
 	});
 

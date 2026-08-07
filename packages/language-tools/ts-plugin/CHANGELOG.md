@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.10.10
+
+### Patch Changes
+
+- [#17269](https://github.com/withastro/astro/pull/17269) [`c72d4f2`](https://github.com/withastro/astro/commit/c72d4f2d55054d65d574aa38925f6b05550f0ed1) Thanks [@matthewp](https://github.com/matthewp)! - Fixes "Go To References" from `.ts` files missing usages inside `.astro` files that are reached through `Astro.locals`. The plugin now injects Astro's ambient types so type chains like `Astro.locals.utils.toUpper()` resolve, matching the language server.
+
 ## 1.10.9
 
 ### Patch Changes

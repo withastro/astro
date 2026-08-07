@@ -23,6 +23,7 @@ export interface Context {
 	ref: string;
 	install?: boolean;
 	git?: boolean;
+	ai: boolean;
 	typescript?: string;
 	stdin?: typeof process.stdin;
 	stdout?: typeof process.stdout;
@@ -61,6 +62,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 			'--no-install': Boolean,
 			'--git': Boolean,
 			'--no-git': Boolean,
+			'--no-ai': Boolean,
 			'--skip-houston': Boolean,
 			'--dry-run': Boolean,
 			'--help': Boolean,
@@ -85,6 +87,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		'--no-install': noInstall,
 		'--git': git,
 		'--no-git': noGit,
+		'--no-ai': noAI,
 		'--fancy': fancy,
 		'--skip-houston': skipHouston,
 		'--dry-run': dryRun,
@@ -137,6 +140,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		yes,
 		install: install ?? (noInstall ? false : undefined),
 		git: git ?? (noGit ? false : undefined),
+		ai: noAI ? false : true,
 		cwd,
 		exit(code) {
 			process.exit(code);

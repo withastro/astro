@@ -72,7 +72,7 @@ export function generateImageStylesCSS(
 }`
 		: '';
 
-	return `
+	const rules = `
 :where([data-astro-image]) {
   height: auto;
 }
@@ -87,4 +87,8 @@ ${defaultFitStyle}
 ${positionStyles}
 ${defaultPositionStyle}
 `.trim();
+
+	// Wrap in a @layer so these low-priority defaults don't override user
+	// styles that live inside CSS cascade layers.
+	return `@layer astro.images {\n${rules}\n}`;
 }

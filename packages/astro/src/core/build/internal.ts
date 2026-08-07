@@ -15,6 +15,15 @@ export interface BuildInternals {
 	cssModuleToChunkIdMap: Map<string, string>;
 
 	/**
+	 * Maps a key describing the exact set of CSS modules bundled into a chunk of the
+	 * prerender environment to the CSS asset filename emitted for that chunk. The SSR
+	 * environment renames its own CSS assets to these filenames when they are backed by
+	 * the same CSS source modules, so the prerender and server builds don't emit
+	 * duplicate stylesheets for shared layouts (#17298).
+	 */
+	prerenderCssAssetByModuleKey: Map<string, string>;
+
+	/**
 	 * If script is inlined, its id and inlined code is mapped here. The resolved id is
 	 * an URL like "/_astro/something.js" but will no longer exist as the content is now
 	 * inlined in this map.
@@ -123,6 +132,28 @@ export interface BuildInternals {
 	 * vs CSS that was included in SSR.
 	 */
 	ssrRenderedExports?: Map<string, Set<string>>;
+
+	/**
+	 * Map of page component path -> dependency hash for incremental builds.
+	 * Populated during the prerender Rolldown build by the incremental plugin.
+	 */
+	pageDependencyHashes?: Map<string, string>;
+
+	/**
+	 * Map of content entry root-relative `filePath` -> render-graph hash for
+	 * incremental builds. Keyed to match what the content runtime reports when it
+	 * renders an entry, so a path's cache entry can be invalidated when a component
+	 * imported by the content it renders changes.
+	 */
+	contentEntryRenderHashes?: Map<string, string>;
+
+	/**
+	 * Set of page component paths whose render graph contains a server island.
+	 * Populated during the prerender Rolldown build by the incremental plugin.
+	 * Such pages bake key-bound ciphertext into their HTML, so the incremental
+	 * cache only reuses them while the encryption key is unchanged.
+	 */
+	serverIslandPageComponents?: Set<string>;
 }
 
 /**
@@ -133,6 +164,7 @@ export function createBuildInternals(): BuildInternals {
 	return {
 		clientInput: new Set(),
 		cssModuleToChunkIdMap: new Map(),
+		prerenderCssAssetByModuleKey: new Map(),
 		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
 		pagesByKeys: new Map(),

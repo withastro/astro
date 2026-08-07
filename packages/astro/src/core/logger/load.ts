@@ -1,78 +1,64 @@
-import { AstroLogger, type AstroLoggerDestination, type AstroLoggerLevel } from './core.js';
+import { isAbsolute } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { AstroLogger, type AstroLoggerDestination } from './core.js';
 import { AstroError } from '../errors/index.js';
 import { UnableToLoadLogger } from '../errors/errors-data.js';
 import type { LoggerHandlerConfig } from './config.js';
 import type { AstroConfig, AstroInlineConfig } from '../../types/public/index.js';
-import { default as nodeLoggerCreator, createNodeLoggerFromFlags } from './impls/node.js';
-import { default as consoleLoggerCreator } from './impls/console.js';
-import { default as jsonLoggerCreator } from './impls/json.js';
-import { default as composeLoggerCreator } from './impls/compose.js';
+import { createNodeLoggerFromFlags } from './impls/node.js';
+import {
+	COMPOSE_LOGGER_ENTRYPOINT,
+	normalizeLoggerConfig,
+	type NormalizedLoggerConfig,
+} from './utils.js';
 
-export async function loadLogger(
+/**
+ * Instantiates a logger destination in a Node context.
+ *
+ * This is the runtime counterpart of `emitDestination()` in `./vite-plugin.ts`: both walk
+ * the same normalized config, but this one imports and instantiates the handler directly,
+ * while the Vite one *generates code* doing so, to bundle the handler into the build output.
+ */
+async function createDestination(config: NormalizedLoggerConfig): Promise<AstroLoggerDestination> {
+	// `normalizeLoggerConfig()` turns `URL` and relative entrypoints into absolute paths,
+	// which `import()` only accepts as file URLs on Windows. Package entrypoints keep their
+	// specifier and resolve through the regular module resolution.
+	const specifier = isAbsolute(config.entrypoint)
+		? pathToFileURL(config.entrypoint).href
+		: config.entrypoint;
+	const logger = await import(/* @vite-ignore */ specifier);
+
+	// `astro/logger/compose` takes the composed destinations rather than a serializable config.
+	if (config.entrypoint === COMPOSE_LOGGER_ENTRYPOINT) {
+		return logger.default(await Promise.all((config.loggers ?? []).map(createDestination)));
+	}
+
+	return logger.default(config.config);
+}
+
+/**
+ * Loads a logger destination in a Node context, i.e. outside of a built server bundle.
+ * Inside the bundle, the destination comes from the `virtual:astro:logger` module instead.
+ */
+export async function loadLoggerDestination(
 	config: LoggerHandlerConfig,
-	level: AstroLoggerLevel = 'info',
-): Promise<AstroLogger> {
-	let cause: Error | undefined = undefined;
+	/** The project root, which relative entrypoints are resolved against */
+	root: URL,
+): Promise<AstroLoggerDestination> {
+	const normalized = normalizeLoggerConfig(config, root);
 
 	try {
-		switch (config.entrypoint) {
-			case 'astro/logger/node': {
-				return new AstroLogger({
-					destination: nodeLoggerCreator(config.config),
-					level,
-				});
-			}
-			case 'astro/logger/console': {
-				return new AstroLogger({
-					destination: consoleLoggerCreator(config.config),
-					level,
-				});
-			}
-			case 'astro/logger/json': {
-				return new AstroLogger({
-					destination: jsonLoggerCreator(config.config),
-					level,
-				});
-			}
-			case 'astro/logger/compose': {
-				let destinations: AstroLoggerDestination[] = [];
-				if (config.config?.loggers) {
-					const loggers: LoggerHandlerConfig[] = config.config?.loggers;
-					destinations = await Promise.all(
-						loggers.map(async (loggerConfig) => {
-							const logger = await import(/* @vite-ignore */ loggerConfig.entrypoint);
-							return logger.default(loggerConfig.config) as AstroLoggerDestination;
-						}),
-					);
-				}
-
-				return new AstroLogger({
-					destination: composeLoggerCreator(destinations),
-					level,
-				});
-			}
-			default: {
-				const nodeLogger = await import(/* @vite-ignore */ config.entrypoint);
-				return new AstroLogger({
-					destination: nodeLogger.default(config.config),
-					level,
-				});
-			}
-		}
+		return await createDestination(normalized);
 	} catch (e: unknown) {
+		const error = new AstroError({
+			...UnableToLoadLogger,
+			message: UnableToLoadLogger.message(normalized.entrypoint),
+		});
 		if (e instanceof Error) {
-			cause = e;
+			error.cause = e;
 		}
+		throw error;
 	}
-
-	const error = new AstroError({
-		...UnableToLoadLogger,
-		message: UnableToLoadLogger.message(config.entrypoint),
-	});
-	if (cause) {
-		error.cause = cause;
-	}
-	throw error;
 }
 
 /**
@@ -84,14 +70,17 @@ export async function loadLogger(
 export async function loadOrCreateNodeLogger(
 	astroConfig: AstroConfig,
 	inlineAstroConfig: AstroInlineConfig,
-) {
+): Promise<AstroLogger> {
 	// Internal testing shortcut: if a pre-built AstroLogger instance was
 	// passed via the internal `_logger` property, use it directly.
 	if (inlineAstroConfig._logger) return inlineAstroConfig._logger;
 
 	try {
 		if (astroConfig.logger) {
-			return await loadLogger(astroConfig.logger, inlineAstroConfig.logLevel);
+			return new AstroLogger({
+				destination: await loadLoggerDestination(astroConfig.logger, astroConfig.root),
+				level: inlineAstroConfig.logLevel ?? 'info',
+			});
 		} else {
 			return createNodeLoggerFromFlags(inlineAstroConfig);
 		}

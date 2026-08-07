@@ -30,10 +30,13 @@ overrides:
   # with `@types/node@22`, one with `@types/node@25`, etc.. By adding this override, we force
   # pnpm to only keep one installation of `vite@7.3.2` with `@types/node@22`.
   '@types/node@22': '^22.19.0'
+  # Force modern-tar to 0.7.7 which fixes Unicode NFC/NFD path normalization on Linux (issue #17381)
+  'modern-tar': '>=0.7.7'
 
 # Wait until three days after release to install new versions of packages
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
+  - '@biomejs/*'
   # 'fake-data-pkg' is a local package used for testing
   - 'fake-data-pkg@1.0.0'
   # TODO: remove once more stable
@@ -45,14 +48,15 @@ minimumReleaseAgeExclude:
   - wrangler
   - 'satteri'
   - '@bruits/*'
-  - '@napi-rs/wasm-runtime@1.1.5'
+  - vite@8.1.0
+  - '@napi-rs/wasm-runtime@1.1.6 || 1.2.0'
+  - '@tybys/wasm-util@0.10.3'
+  # modern-tar 0.7.7 fixes Unicode NFC/NFD path normalization on Linux (issue #17381)
+  - 'modern-tar@0.7.7'
 peerDependencyRules:
   allowAny:
     - 'astro'
     - 'vite'
-
-patchedDependencies:
-  '@changesets/get-github-info@0.7.0': patches/@changesets__get-github-info@0.7.0.patch
 
 # Prevent installation of packages where trust level decreases
 trustPolicy: 'no-downgrade'

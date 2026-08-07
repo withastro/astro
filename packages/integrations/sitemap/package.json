@@ -3,7 +3,6 @@
   "description": "Generate a sitemap for your Astro site",
   "version": "3.7.3",
   "type": "module",
-  "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
