@@ -1,0 +1,19 @@
+packages/astro/test/units/build/plugin-incremental.test.ts
+  s_d950b151a507d8::t_dc82892a63f46e 99-119,166-194,201-216,250-251
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "efbd9cd3c3c091d4e3208abcbafa660fb390fbd5",
+  "prompts": {},
+  "sessions": {
+    "s_d950b151a507d8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fd831-75d8-7ab3-921f-1a840fec0cb0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Eric Clemmons <eclemmons@cloudflare.com>"
+    }
+  }
+}
