@@ -1,5 +1,25 @@
 # astro
 
+## 7.2.1
+
+### Patch Changes
+
+- [#17628](https://github.com/withastro/astro/pull/17628) [`4ada248`](https://github.com/withastro/astro/commit/4ada24889fc1bcc1ee89f3f8e5c6bc4cbe87cce6) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a CSP violation when using both `security.csp` and `experimental.clientPrerender` with `data-astro-prefetch` links. The dynamically injected `<script type="speculationrules">` now uses a static `"source": "document"` approach with a CSS selector, producing a deterministic payload that is hashed and included in the CSP `script-src` directive at build time.
+
+- [#17605](https://github.com/withastro/astro/pull/17605) [`89e4647`](https://github.com/withastro/astro/commit/89e4647bed74e65a2fc1c60ccb5a7fc6b7bf3bc4) Thanks [@ashleigh-yeoman](https://github.com/ashleigh-yeoman)! - Fixes middleware HMR not responding to changes in imported modules. Previously, only direct edits to the middleware file would trigger a reload.
+
+- [#17582](https://github.com/withastro/astro/pull/17582) [`bd2c1a5`](https://github.com/withastro/astro/commit/bd2c1a5a70666cc140c73a77edb41882fc88b277) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a regression where content collection `reference()` fields silently accepted entry IDs that don't exist, such as an ID that doesn't match a loader's slugified version of it. Astro now logs an error for references that point to a missing entry after all loaders finish syncing.
+
+- [#17349](https://github.com/withastro/astro/pull/17349) [`4328c73`](https://github.com/withastro/astro/commit/4328c736b18d36576429186445c8c89e8cd0d4b6) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes an issue where requests handled by the dev prerender environment (e.g. `/_image` with `@astrojs/cloudflare`'s `prerenderEnvironment: 'node'`) returned a 500 when a prerendered catch-all route existed, because non-prerendered route modules were imported in an environment where their runtime-specific APIs are unavailable
+
+- [#17603](https://github.com/withastro/astro/pull/17603) [`722eed6`](https://github.com/withastro/astro/commit/722eed64c4ec878a4778ab312599733b325b21ca) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `<video>` and `<audio>` elements being non-functional after navigating via view transitions (`<ClientRouter />`)
+
+- [#17616](https://github.com/withastro/astro/pull/17616) [`3a890d2`](https://github.com/withastro/astro/commit/3a890d226482e98c41650fb66c0c14d45eba2717) Thanks [@lazerg](https://github.com/lazerg)! - Fixes `experimental.incrementalBuild` re-rendering unchanged routes that import more than one asset. The route's dependency hash depended on the order the assets finished building, so two builds of identical sources could produce different hashes. The hash is now based on the file name each asset resolves to.
+
+- [#17547](https://github.com/withastro/astro/pull/17547) [`fba468c`](https://github.com/withastro/astro/commit/fba468c228d8661d2383a80c74206075201a187b) Thanks [@dmgawel](https://github.com/dmgawel)! - Improves `getCollection()` and `getEntry()` performance for entries without local image references
+
+- [#17602](https://github.com/withastro/astro/pull/17602) [`16e0d9d`](https://github.com/withastro/astro/commit/16e0d9d5c1b289242d317887e8334506627f2233) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a build error caused by hash collisions in generated content collection image import identifiers
+
 ## 7.2.0
 
 ### Minor Changes
