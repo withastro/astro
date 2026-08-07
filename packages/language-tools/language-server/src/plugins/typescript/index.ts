@@ -2,7 +2,11 @@ import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@vola
 import { create as createTypeScriptServices } from 'volar-service-typescript';
 import { URI } from 'vscode-uri';
 import { AstroVirtualCode } from '../../core/index.js';
-import { enhancedProvideCodeActions, enhancedResolveCodeAction } from './codeActions.js';
+import {
+	enhancedProvideCodeActions,
+	enhancedResolveCodeAction,
+	provideAstroComponentImportCodeActions,
+} from './codeActions.js';
 import { enhancedProvideCompletionItems, enhancedResolveCompletionItem } from './completions.js';
 import { enhancedProvideSemanticDiagnostics } from './diagnostics.js';
 
@@ -63,9 +67,20 @@ export const create = (
 								codeActionContext,
 								token,
 							);
-							if (!originalCodeActions) return null;
+							const mappedCodeActions = originalCodeActions
+								? enhancedProvideCodeActions(originalCodeActions, context)
+								: [];
+							const astroComponentImportCodeActions = await provideAstroComponentImportCodeActions(
+								ts,
+								typeScriptPlugin,
+								document,
+								codeActionContext,
+								context,
+								token,
+							);
+							const codeActions = [...mappedCodeActions, ...astroComponentImportCodeActions];
 
-							return enhancedProvideCodeActions(originalCodeActions, context);
+							return codeActions.length > 0 ? codeActions : null;
 						},
 						async resolveCodeAction(codeAction, token) {
 							const resolvedCodeAction = await typeScriptPlugin.resolveCodeAction!(

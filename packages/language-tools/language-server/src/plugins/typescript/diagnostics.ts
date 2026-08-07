@@ -3,6 +3,7 @@ import type { Diagnostic } from '@volar/language-server';
 // List of codes:
 // https://github.com/Microsoft/TypeScript/blob/main/src/compiler/diagnosticMessages.json
 export enum DiagnosticCodes {
+	CANNOT_FIND_NAME = 2304, // Cannot find name '{0}'.
 	IS_NOT_A_MODULE = 2306, // '{0}' is not a module.
 	CANNOT_FIND_MODULE = 2307, // Cannot find module '{0}' or its corresponding type declarations.
 	DUPLICATED_JSX_ATTRIBUTES = 17001, // JSX elements cannot have multiple attributes with the same name.
