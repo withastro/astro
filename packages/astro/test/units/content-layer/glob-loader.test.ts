@@ -64,6 +64,44 @@ describe('Glob Loader', () => {
 		assert.equal(columbia.filePath!.replace(/\\/g, '/'), 'src/content/space/columbia.md');
 	});
 
+	it('retains entries with numeric slug across multiple syncs', async () => {
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			spacecraft: defineCollection({
+				loader: glob({ pattern: '*.md', base: 'src/content/space' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		// First sync
+		await contentLayer.sync();
+		const numericEntry1 = store.values('spacecraft').find((e) => e.id === '20260624');
+		assert.ok(numericEntry1, 'Numeric slug entry should exist after first sync');
+		const count1 = store.values('spacecraft').length;
+
+		// Second sync — the bug caused entries with numeric slugs to be dropped here
+		await contentLayer.sync();
+		const numericEntry2 = store.values('spacecraft').find((e) => e.id === '20260624');
+		assert.ok(numericEntry2, 'Numeric slug entry should persist after second sync');
+		const count2 = store.values('spacecraft').length;
+
+		assert.equal(count1, count2, 'Entry count should be stable across syncs');
+	});
+
 	it('handles negative matches in glob pattern', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root, {
