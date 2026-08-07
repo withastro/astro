@@ -7,10 +7,10 @@ import { CompletionItemKind } from '@volar/language-server';
 import { URI } from 'vscode-uri';
 import { AstroVirtualCode } from '../../core/index.js';
 import {
-	getAlreadyImportedAstroComponentSources,
-	isAstroComponentImportSource,
+	getAlreadyImportedComponentSources,
+	isComponentImportSource,
 	mapEdit,
-	rewriteAstroImportText,
+	rewriteComponentImportText,
 	stripAstroComponentSuffix,
 } from './utils.js';
 
@@ -19,7 +19,7 @@ export function enhancedProvideCompletionItems(
 	completions: CompletionList,
 	documentText: string,
 ): CompletionList {
-	const importedAstroSources = getAlreadyImportedAstroComponentSources(ts, documentText);
+	const importedComponentSources = getAlreadyImportedComponentSources(ts, documentText);
 
 	completions.items = completions.items
 		.filter((completion) => {
@@ -28,7 +28,7 @@ export function enhancedProvideCompletionItems(
 			}
 
 			const source = completion?.data?.originalItem?.source;
-			return !(source && importedAstroSources.has(source));
+			return !(source && importedComponentSources.has(source));
 		})
 		.map((completion) => {
 			const source = completion?.data?.originalItem?.source;
@@ -39,15 +39,12 @@ export function enhancedProvideCompletionItems(
 				}
 
 				// For components import, use the file kind and sort them first, as they're often what the user want over something else
-				if (['.astro', '.svelte', '.vue'].some((ext) => source.endsWith(ext))) {
+				if (isComponentImportSource(source)) {
 					completion.kind = CompletionItemKind.File;
 					completion.detail = completion.detail + '\n\n' + source;
 					completion.sortText = '\u0001' + (completion.sortText ?? completion.label);
 					completion.data.isComponent = true;
-
-					if (isAstroComponentImportSource(source)) {
-						rewriteAstroComponentCompletion(completion);
-					}
+					rewriteAstroComponentCompletion(completion);
 				}
 			}
 
@@ -69,7 +66,7 @@ export function enhancedResolveCompletionItem(
 		);
 	}
 
-	if (isAstroComponentImportSource(resolvedCompletion.data.originalItem.source)) {
+	if (isComponentImportSource(resolvedCompletion.data.originalItem.source)) {
 		rewriteAstroComponentCompletion(resolvedCompletion);
 	}
 
@@ -104,7 +101,7 @@ function rewriteAstroComponentCompletion(completion: CompletionItem) {
 	if (completion.additionalTextEdits) {
 		completion.additionalTextEdits = completion.additionalTextEdits.map((edit) => ({
 			...edit,
-			newText: rewriteAstroImportText(edit.newText),
+			newText: rewriteComponentImportText(edit.newText),
 		}));
 	}
 }

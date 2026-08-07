@@ -9,8 +9,8 @@ import { addAstroTypes } from '../../dist/core/index.js';
 import { getAstroMetadata } from '../../dist/core/parseAstro.js';
 import { patchTSX } from '../../dist/core/utils.js';
 import {
-	getAlreadyImportedAstroComponentSources,
-	rewriteAstroImportText,
+	getAlreadyImportedComponentSources,
+	rewriteComponentImportText,
 } from '../../dist/plugins/typescript/utils.js';
 import * as utils from '../../dist/plugins/utils.js';
 
@@ -127,54 +127,54 @@ describe('Utilities', async () => {
 		});
 	});
 
-	it('rewriteAstroImportText - strips AstroComponent suffixes from default Astro imports', () => {
+	it('rewriteComponentImportText - strips AstroComponent suffixes from component imports', () => {
 		assert.strictEqual(
-			rewriteAstroImportText(`import ImageAstroComponent from "../components/Image.astro";\n`),
-			`import Image from "../components/Image.astro";\n`,
+			rewriteComponentImportText(`import ImageAstroComponent from "../components/Image.astro";\nimport CardAstroComponent from "../components/Card.vue";\nimport ChipAstroComponent from "../components/Chip.svelte";\n`),
+			`import Image from "../components/Image.astro";\nimport Card from "../components/Card.vue";\nimport Chip from "../components/Chip.svelte";\n`,
 		);
 	});
 
-	it('rewriteAstroImportText - only rewrites Astro imports', () => {
+	it('rewriteComponentImportText - only rewrites component imports', () => {
 		assert.strictEqual(
-			rewriteAstroImportText(`import ImageAstroComponent from "astro:assets";\n`),
+			rewriteComponentImportText(`import ImageAstroComponent from "astro:assets";\n`),
 			`import ImageAstroComponent from "astro:assets";\n`,
 		);
 	});
 
-	it('rewriteAstroImportText - preserves named imports on Astro component imports', () => {
+	it('rewriteComponentImportText - preserves named imports on component imports', () => {
 		assert.strictEqual(
-			rewriteAstroImportText(
+			rewriteComponentImportText(
 				`import ImageAstroComponent, { type Props } from "../components/Image.astro";\n`,
 			),
 			`import Image, { type Props } from "../components/Image.astro";\n`,
 		);
 	});
 
-	it('rewriteAstroImportText - strips AstroComponent suffixes from default aliases', () => {
+	it('rewriteComponentImportText - strips AstroComponent suffixes from default aliases', () => {
 		assert.strictEqual(
-			rewriteAstroImportText(
+			rewriteComponentImportText(
 				`import { default as ImageAstroComponent } from "../components/Image.astro";\n`,
 			),
 			`import { default as Image } from "../components/Image.astro";\n`,
 		);
 	});
 
-	it('getAlreadyImportedAstroComponentSources - detects runtime Astro component imports', () => {
+	it('getAlreadyImportedComponentSources - detects runtime component imports', () => {
 		assert.deepStrictEqual(
 			Array.from(
-				getAlreadyImportedAstroComponentSources(
+				getAlreadyImportedComponentSources(
 					ts,
-					`import Image from "../components/Image.astro";\nimport { default as Card } from "../components/Card.astro";\n`,
+					`import Image from "../components/Image.astro";\nimport { default as Card } from "../components/Card.vue";\nimport ChipComp from "../components/Chip.svelte";\n`,
 				),
 			),
-			['../components/Image.astro', '../components/Card.astro'],
+			['../components/Image.astro', '../components/Card.vue', '../components/Chip.svelte'],
 		);
 	});
 
-	it('getAlreadyImportedAstroComponentSources - ignores type-only Astro imports', () => {
+	it('getAlreadyImportedComponentSources - ignores type-only Astro imports', () => {
 		assert.deepStrictEqual(
 			Array.from(
-				getAlreadyImportedAstroComponentSources(
+				getAlreadyImportedComponentSources(
 					ts,
 					`import type { Props } from "../components/Image.astro";\n`,
 				),
@@ -183,10 +183,10 @@ describe('Utilities', async () => {
 		);
 	});
 
-	it('getAlreadyImportedAstroComponentSources - parses Astro frontmatter imports', () => {
+	it('getAlreadyImportedComponentSources - parses Astro frontmatter imports', () => {
 		assert.deepStrictEqual(
 			Array.from(
-				getAlreadyImportedAstroComponentSources(
+				getAlreadyImportedComponentSources(
 					ts,
 					`---
 import Image from "../components/Image.astro";
