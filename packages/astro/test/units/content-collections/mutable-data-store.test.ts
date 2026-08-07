@@ -150,4 +150,43 @@ describe('MutableDataStore', () => {
 			'key2 should be present in the written file (this will FAIL before the fix)',
 		);
 	});
+
+	it('strips image prefixes and records their paths as out-of-band imageImports', () => {
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('blog');
+		const entryFilePath = 'src/content/blog/post.md';
+
+		scoped.set({
+			id: 'post',
+			filePath: entryFilePath,
+			data: {
+				cover: '__ASTRO_IMAGE_./hero.png',
+				gallery: ['__ASTRO_IMAGE_./a.png'],
+				nested: { icon: '__ASTRO_IMAGE_./icon.png' },
+				title: 'Hello',
+			},
+		});
+
+		const entry = store.get('blog', 'post') as any;
+
+		// The stored data holds plain, serializable src strings — no prefixes.
+		assert.equal(entry.data.cover, './hero.png');
+		assert.equal(entry.data.gallery[0], './a.png');
+		assert.equal(entry.data.nested.icon, './icon.png');
+		assert.equal(entry.data.title, 'Hello');
+
+		// The image field locations are recorded out-of-band.
+		assert.deepEqual(entry.imageImports, [['cover'], ['gallery', 0], ['nested', 'icon']]);
+		assert.deepEqual(new Set(entry.assetImports), new Set(['./hero.png', './a.png', './icon.png']));
+	});
+
+	it('does not set imageImports when the entry has no images', () => {
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('blog');
+
+		scoped.set({ id: 'plain', data: { title: 'Hello' } });
+
+		const entry = store.get('blog', 'plain') as any;
+		assert.equal(entry.imageImports, undefined);
+	});
 });
