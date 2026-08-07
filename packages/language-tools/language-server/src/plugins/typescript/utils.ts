@@ -1,5 +1,6 @@
 import type { TextEdit } from 'vscode-html-languageservice';
 import type { AstroVirtualCode } from '../../core/index.js';
+import { classNameFromFilename } from '../../core/utils.js';
 import { editShouldBeInFrontmatter, ensureProperEditForFrontmatter } from '../utils.js';
 
 const ASTRO_COMPONENT_SUFFIX = 'AstroComponent';
@@ -7,6 +8,8 @@ const ASTRO_IMPORT_FROM_PATTERN = /\bfrom\s+['"][^'"]+\.astro['"]/;
 const ASTRO_DEFAULT_IMPORT_PATTERN =
 	/^(\s*import(?:\s+type)?\s+)([A-Za-z_$][\w$]*)AstroComponent(?=\s*,|\s+from\b)/;
 const ASTRO_DEFAULT_ALIAS_PATTERN = /(default\s+as\s+)([A-Za-z_$][\w$]*)AstroComponent(?=\s*\})/;
+const ASTRO_NAMED_IMPORT_PATTERN =
+	/^(\s*import\s+)\{\s*([A-Za-z_$][\w$]*)\s*\}(\s+from\s+['"]([^'"]+\.astro)['"])/;
 
 export function isAstroComponentImportSource(source: string | undefined): source is string {
 	return !!source && source.endsWith('.astro');
@@ -28,11 +31,20 @@ export function rewriteAstroImportText(text: string) {
 				return line;
 			}
 
-			return line
+			return rewriteComponentNamedImport(line)
 				.replace(ASTRO_DEFAULT_IMPORT_PATTERN, '$1$2')
 				.replace(ASTRO_DEFAULT_ALIAS_PATTERN, '$1$2');
 		})
 		.join('\n');
+}
+
+function rewriteComponentNamedImport(line: string) {
+	const match = line.match(ASTRO_NAMED_IMPORT_PATTERN);
+	if (!match || match[2] !== classNameFromFilename(match[4])) {
+		return line;
+	}
+
+	return line.replace(ASTRO_NAMED_IMPORT_PATTERN, '$1$2$3');
 }
 
 export function getAlreadyImportedAstroComponentSources(
