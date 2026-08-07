@@ -515,12 +515,56 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	});
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+	if (typeof value !== 'object' || value === null) {
+		return false;
+	}
+	const proto = Object.getPrototypeOf(value);
+	return proto === Object.prototype || proto === null;
+}
+
+/**
+ * Clones the structural containers (plain objects and arrays) of a value, passing
+ * every other value through by reference. Image reference replacement only ever
+ * rewrites strings nested in plain objects and arrays, so those are the only
+ * containers that must be copied to avoid mutating the data store. Cloning the
+ * rest with `structuredClone` would throw on non-cloneable values such as
+ * `Temporal.PlainDate` or class instances produced by Zod transforms.
+ */
+function cloneContainers<T>(value: T, seen = new WeakMap<object, unknown>()): T {
+	if (Array.isArray(value)) {
+		const cached = seen.get(value);
+		if (cached !== undefined) {
+			return cached as T;
+		}
+		const copy = new Array(value.length);
+		seen.set(value, copy);
+		for (let index = 0; index < value.length; index++) {
+			copy[index] = cloneContainers(value[index], seen);
+		}
+		return copy as T;
+	}
+	if (isPlainObject(value)) {
+		const cached = seen.get(value);
+		if (cached !== undefined) {
+			return cached as T;
+		}
+		const copy: Record<string, unknown> = {};
+		seen.set(value, copy);
+		for (const [key, entry] of Object.entries(value)) {
+			copy[key] = cloneContainers(entry, seen);
+		}
+		return copy as T;
+	}
+	return value;
+}
+
 export function updateImageReferencesInData<T extends Record<string, unknown>>(
 	data: T,
 	fileName?: string,
 	imageAssetMap?: Map<string, ImageMetadata>,
 ): T {
-	const copy = structuredClone(data);
+	const copy = cloneContainers(data);
 	forEach(copy, function (ctx, val) {
 		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 			const src = val.replace(IMAGE_IMPORT_PREFIX, '');

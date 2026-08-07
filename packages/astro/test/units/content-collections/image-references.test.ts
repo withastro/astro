@@ -122,4 +122,35 @@ describe('updateImageReferencesInData', () => {
 		assert.equal(result.flags.has('showCover'), false);
 		assert.equal(result.flags.size, 2);
 	});
+
+	it('preserves non-structuredClone-compatible values (see #17589)', () => {
+		// Stand-in for values like Temporal.PlainDate that structuredClone rejects
+		class PlainDate {
+			iso: string;
+			format = () => this.iso;
+			constructor(iso: string) {
+				this.iso = iso;
+			}
+		}
+		const publishedOn = new PlainDate('2026-08-04');
+		assert.throws(() => structuredClone(publishedOn), { name: 'DataCloneError' });
+
+		const data = { publishedOn, nested: { alsoDate: publishedOn } };
+		const result = updateImageReferencesInData(data, FILE_NAME, new Map());
+		assert.equal(result.publishedOn, publishedOn);
+		assert.equal(result.nested.alsoDate, publishedOn);
+		assert.equal(result.publishedOn.format(), '2026-08-04');
+	});
+
+	it('resolves images without mutating the original data', () => {
+		const data = {
+			image: `${IMAGE_PREFIX}./hero.png`,
+			meta: { caption: 'A hero' },
+		};
+		const map = makeImageMap('./hero.png', heroMeta);
+		const result = updateImageReferencesInData(data, FILE_NAME, map);
+		assert.deepEqual(result.image, heroMeta);
+		assert.equal(data.image, `${IMAGE_PREFIX}./hero.png`);
+		assert.notEqual(result.meta, data.meta);
+	});
 });
