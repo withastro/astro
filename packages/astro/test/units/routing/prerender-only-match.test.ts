@@ -16,7 +16,10 @@ import type { SSRManifest } from '../../../dist/core/app/types.js';
  * imported in the current environment (e.g. `cloudflare:workers` in Node).
  * `loadedComponents` records every component whose module was requested.
  */
-function createMockPipelineAndManifest(componentLoaders: Record<string, () => any>) {
+function createMockPipelineAndManifest(
+	componentLoaders: Record<string, () => any>,
+	logger = defaultLogger,
+) {
 	const loadedComponents: string[] = [];
 	const routeCache = new RouteCache(defaultLogger);
 	const manifest = {
@@ -29,7 +32,7 @@ function createMockPipelineAndManifest(componentLoaders: Record<string, () => an
 		outDir: new URL('file:///fake/'),
 	} as unknown as SSRManifest;
 	const pipeline = {
-		logger: defaultLogger,
+		logger,
 		routeCache,
 		manifest,
 		getComponentByRoute(route: RouteData) {
@@ -61,6 +64,15 @@ const prerenderedCatchAll = makeRoute({
 	route: '/[...slug]',
 	pathname: undefined,
 	component: 'src/pages/[...slug].astro',
+	prerender: true,
+});
+
+const prerendered404 = makeRoute({
+	segments: [[staticPart('404')]],
+	trailingSlash,
+	route: '/404',
+	pathname: '/404',
+	component: 'src/pages/404.astro',
 	prerender: true,
 });
 
@@ -137,6 +149,72 @@ describe('matchRoute with prerenderOnly', () => {
 			!loadedComponents.includes('src/pages/foo.ts'),
 			'Expected the non-prerendered component to never be imported on the retry',
 		);
+	});
+
+	// A prerendered custom 404 must not shadow the skipped SSR route: the
+	// prerender handler would render a 404 for /_image instead of letting the
+	// SSR handler serve it.
+	it('does not fall back to a prerendered 404 when candidates were skipped', async () => {
+		const { pipeline, manifest, loadedComponents } = createMockPipelineAndManifest({
+			'@astrojs/cloudflare/image-transform-endpoint': runtimeOnlyModule,
+			'src/pages/[...slug].astro': () => ({
+				getStaticPaths: () => [{ params: { slug: 'blog' } }],
+			}),
+		});
+
+		const routesList = { routes: [ssrImageEndpoint, prerenderedCatchAll, prerendered404] };
+		const result = await matchRoute('/_image', routesList, pipeline, manifest, {
+			prerenderOnly: true,
+		});
+
+		assert.equal(result, undefined, 'Expected no match so the SSR handler takes over');
+		assert.ok(
+			!loadedComponents.includes('@astrojs/cloudflare/image-transform-endpoint'),
+			'Expected the non-prerendered component to never be imported',
+		);
+	});
+
+	it('still falls back to the 404 when nothing was skipped', async () => {
+		const { pipeline, manifest } = createMockPipelineAndManifest({
+			'@astrojs/cloudflare/image-transform-endpoint': runtimeOnlyModule,
+		});
+
+		const routesList = { routes: [ssrImageEndpoint, prerendered404] };
+		const result = await matchRoute('/nope', routesList, pipeline, manifest, {
+			prerenderOnly: true,
+		});
+
+		assert.ok(result, 'Expected the 404 fallback for a genuinely unmatched path');
+		assert.equal(result.route.route, '/404');
+	});
+
+	it('does not log NoMatchingStaticPathFound when candidates were skipped', async () => {
+		const warnings: string[] = [];
+		const spyLogger = {
+			warn: (_label: string | null, message: string) => {
+				warnings.push(message);
+			},
+			error: () => {},
+			info: () => {},
+			debug: () => {},
+		} as unknown as typeof defaultLogger;
+
+		const { pipeline, manifest } = createMockPipelineAndManifest(
+			{
+				'@astrojs/cloudflare/image-transform-endpoint': runtimeOnlyModule,
+				'src/pages/[...slug].astro': () => ({
+					getStaticPaths: () => [{ params: { slug: 'blog' } }],
+				}),
+			},
+			spyLogger,
+		);
+
+		const routesList = { routes: [ssrImageEndpoint, prerenderedCatchAll] };
+		await matchRoute('/_image', routesList, pipeline, manifest, {
+			prerenderOnly: true,
+		});
+
+		assert.deepEqual(warnings, [], 'Expected no router warning for skipped SSR candidates');
 	});
 
 	it('returns prerendered matches as usual', async () => {
