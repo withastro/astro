@@ -38,4 +38,3 @@ export function imageSrcToImportId(imageSrc: string, filePath?: string): string 
 	}
 	return `${imageSrc}?${params.toString()}`;
 }
-
