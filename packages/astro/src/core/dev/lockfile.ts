@@ -2,6 +2,8 @@ import { existsSync, readFileSync, unlinkSync, writeFileSync, mkdirSync } from '
 import { fileURLToPath } from 'node:url';
 import type { ResolvedServerUrls } from 'vite';
 
+export type ServerCommand = 'dev' | 'preview';
+
 /** Maximum time (ms) to wait for a process to exit after SIGTERM before escalating to SIGKILL. */
 export const GRACEFUL_SHUTDOWN_TIMEOUT = 5000;
 
@@ -20,17 +22,17 @@ export interface ExistingServer {
 }
 
 /**
- * Get the URL of the dev lock file for a given project root.
+ * Get the URL of a server lock file for a given project root.
  */
-function getLockFileURL(root: URL): URL {
-	return new URL('.astro/dev.json', root);
+function getLockFileURL(root: URL, command: ServerCommand = 'dev'): URL {
+	return new URL(`.astro/${command}.json`, root);
 }
 
 /**
- * Get the URL of the dev log file for a given project root.
+ * Get the URL of a server log file for a given project root.
  */
-export function getLogFileURL(root: URL): URL {
-	return new URL('.astro/dev.log', root);
+export function getLogFileURL(root: URL, command: ServerCommand = 'dev'): URL {
+	return new URL(`.astro/${command}.log`, root);
 }
 
 function isStringArray(value: unknown): value is string[] {
@@ -94,8 +96,8 @@ export function isProcessAlive(pid: number): boolean {
 /**
  * Read the lock file from disk. Returns null if it doesn't exist or is invalid.
  */
-export function readLockFile(root: URL): LockFileData | null {
-	const lockFileURL = getLockFileURL(root);
+export function readLockFile(root: URL, command: ServerCommand = 'dev'): LockFileData | null {
+	const lockFileURL = getLockFileURL(root, command);
 	try {
 		const content = readFileSync(lockFileURL, 'utf-8');
 		return parseLockFile(content);
@@ -107,8 +109,8 @@ export function readLockFile(root: URL): LockFileData | null {
 /**
  * Write the lock file to disk.
  */
-export function writeLockFile(root: URL, data: LockFileData): void {
-	const lockFileURL = getLockFileURL(root);
+export function writeLockFile(root: URL, data: LockFileData, command: ServerCommand = 'dev'): void {
+	const lockFileURL = getLockFileURL(root, command);
 	const dirPath = fileURLToPath(new URL('.astro/', root));
 	try {
 		if (!existsSync(dirPath)) {
@@ -124,8 +126,8 @@ export function writeLockFile(root: URL, data: LockFileData): void {
 /**
  * Remove the lock file from disk. No-op if it doesn't exist.
  */
-export function removeLockFile(root: URL): void {
-	const lockFileURL = getLockFileURL(root);
+export function removeLockFile(root: URL, command: ServerCommand = 'dev'): void {
+	const lockFileURL = getLockFileURL(root, command);
 	try {
 		unlinkSync(lockFileURL);
 	} catch (err: any) {
@@ -152,18 +154,55 @@ export function evaluateExistingServer(
 }
 
 /**
- * Check for an existing dev server by reading the lock file and checking process liveness.
+ * Kill the dev server identified by `data` and clean up its lock file.
+ *
+ * Sends SIGTERM and waits up to {@link GRACEFUL_SHUTDOWN_TIMEOUT} for the
+ * process to exit, escalating to SIGKILL if it is still alive. The lock file
+ * is always removed afterwards so a new server can start.
+ */
+export async function killDevServer(root: URL, data: LockFileData): Promise<void> {
+	try {
+		process.kill(data.pid, 'SIGTERM');
+	} catch {
+		// Process may have already exited between check and kill
+	}
+
+	// Wait for graceful shutdown before escalating to SIGKILL
+	const deadline = Date.now() + GRACEFUL_SHUTDOWN_TIMEOUT;
+	while (Date.now() < deadline) {
+		if (!isProcessAlive(data.pid)) break;
+		await new Promise((r) => setTimeout(r, 100));
+	}
+
+	// If still alive after timeout, force kill
+	if (isProcessAlive(data.pid)) {
+		try {
+			process.kill(data.pid, 'SIGKILL');
+		} catch {
+			// Already dead
+		}
+	}
+
+	// Clean up the lock file in case the process didn't remove it
+	removeLockFile(root);
+}
+
+/**
+ * Check for an existing server by reading the lock file and checking process liveness.
  * Automatically cleans up stale lock files.
  * Returns the server info if a live server is found, null otherwise.
  */
-export function checkExistingServer(root: URL): LockFileData | null {
-	const data = readLockFile(root);
+export function checkExistingServer(
+	root: URL,
+	command: ServerCommand = 'dev',
+): LockFileData | null {
+	const data = readLockFile(root, command);
 	const result = evaluateExistingServer(data, data !== null && isProcessAlive(data.pid));
 	if (result === null) {
 		return null;
 	}
 	if (result.stale) {
-		removeLockFile(root);
+		removeLockFile(root, command);
 		return null;
 	}
 	return result.data;

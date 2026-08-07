@@ -7,7 +7,7 @@ import { I18n } from '../i18n/handler.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { renderRedirect } from '../redirects/render.js';
-import { provideSession } from '../session/handler.js';
+import { provideSession } from '../session/provider.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import type { BaseApp } from '../app/base.js';
@@ -114,6 +114,7 @@ export class AstroHandler {
 		state.status = defaultStatus;
 
 		let response;
+		let finalizeError: unknown;
 		try {
 			// `provideCache` always runs so `Astro.cache` is defined even
 			// when caching is disabled — it registers a no-op shim that
@@ -179,8 +180,25 @@ export class AstroHandler {
 				pathname: state.pathname,
 			});
 		} finally {
-			const finalize = state.finalizeAll();
-			if (finalize) await finalize;
+			// finalizeAll runs after the response is produced, so a rejection
+			// here would otherwise escape the handler. Capture it and turn it
+			// into a 500 below so the request always completes.
+			try {
+				const finalize = state.finalizeAll();
+				if (finalize) await finalize;
+			} catch (err: any) {
+				finalizeError = err;
+				this.#app.logger.error(null, err.stack || err.message || String(err));
+			}
+		}
+
+		if (finalizeError) {
+			return this.#app.renderError(request, {
+				...state.renderOptions,
+				status: 500,
+				error: finalizeError,
+				pathname: state.pathname,
+			});
 		}
 
 		if (

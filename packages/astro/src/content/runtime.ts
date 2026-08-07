@@ -1,11 +1,12 @@
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import { escape } from 'html-escaper';
-import { Traverse } from 'neotraverse/modern';
+import { forEach } from 'neotraverse';
 import * as z from 'zod/v4';
 import type * as zCore from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { createSvgComponent } from '../assets/runtime.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
+import { recordContentEntryRender } from '../core/build/incremental-content-collector.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isRemotePath, prependForwardSlash } from '../core/path.js';
 import {
@@ -109,13 +110,13 @@ export function createGetCollection({
 
 		const hasFilter = typeof filter === 'function';
 		const store = await globalDataStore.get();
-		if (store.hasCollection(collection)) {
+		if (await store.hasCollection(collection)) {
 			// @ts-expect-error	virtual module
 			const { default: imageAssetMap } = await import('astro:asset-imports');
 
 			const result = [];
-			for (const rawEntry of store.values<DataEntry>(collection)) {
-				const data = updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap);
+			for (const rawEntry of await store.values<DataEntry>(collection)) {
+				const data = resolveEntryData(rawEntry, imageAssetMap);
 
 				let entry = {
 					...rawEntry,
@@ -146,6 +147,7 @@ type ContentEntryResult = {
 	body: string;
 	collection: string;
 	data: Record<string, any>;
+	digest?: string | number;
 	render(): Promise<RenderResult>;
 };
 
@@ -153,6 +155,7 @@ type DataEntryResult = {
 	id: string;
 	collection: string;
 	data: Record<string, any>;
+	digest?: string | number;
 };
 
 type EntryLookupObject = { collection: string; id: string } | { collection: string; slug: string };
@@ -197,8 +200,8 @@ export function createGetEntry({ liveCollections }: { liveCollections: LiveColle
 		}
 		const store = await globalDataStore.get();
 
-		if (store.hasCollection(collection)) {
-			const entry = store.get<DataEntry>(collection, lookupId);
+		if (await store.hasCollection(collection)) {
+			const entry = await store.get<DataEntry>(collection, lookupId);
 			if (!entry) {
 				console.warn(`Entry ${collection} → ${lookupId} was not found.`);
 				return;
@@ -206,7 +209,7 @@ export function createGetEntry({ liveCollections }: { liveCollections: LiveColle
 
 			// @ts-expect-error	virtual module
 			const { default: imageAssetMap } = await import('astro:asset-imports');
-			const data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
+			const data = resolveEntryData(entry, imageAssetMap);
 			const result = {
 				...entry,
 				data,
@@ -518,7 +521,7 @@ export function updateImageReferencesInData<T extends Record<string, unknown>>(
 	imageAssetMap?: Map<string, ImageMetadata>,
 ): T {
 	const copy = structuredClone(data);
-	new Traverse(copy).forEach(function (ctx, val) {
+	forEach(copy, function (ctx, val) {
 		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 			const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 
@@ -555,10 +558,20 @@ export function updateImageReferencesInData<T extends Record<string, unknown>>(
 	return copy;
 }
 
+export function resolveEntryData<T extends Record<string, unknown>>(
+	entry: DataEntry<T>,
+	imageAssetMap?: Map<string, ImageMetadata>,
+): T {
+	return entry.assetImports?.length
+		? updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap)
+		: structuredClone(entry.data);
+}
+
 export async function renderEntry(entry: DataEntry) {
 	if (!entry) {
 		throw new AstroError(AstroErrorData.RenderUndefinedEntryError);
 	}
+	recordContentEntryRender(entry.filePath);
 
 	if (entry.deferredRender) {
 		try {

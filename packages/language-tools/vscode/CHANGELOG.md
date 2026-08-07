@@ -1,5 +1,17 @@
 # astro-vscode
 
+## 2.16.18
+
+### Patch Changes
+
+- [#17474](https://github.com/withastro/astro/pull/17474) [`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18) Thanks [@nicksnyder](https://github.com/nicksnyder)! - Updates dependency `js-yaml` to v4.3.0
+
+## 2.16.17
+
+### Patch Changes
+
+- [#17254](https://github.com/withastro/astro/pull/17254) [`2cffae1`](https://github.com/withastro/astro/commit/2cffae14fcdd4fca649eae1a9d82a1863c8991bd) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes syntax highlighting breaking when using CSS `@property` at-rules inside `<style>` blocks. The `</style>` closing tag and all subsequent blocks are now correctly recognized regardless of CSS content.
+
 ## 2.16.16
 
 ### Patch Changes

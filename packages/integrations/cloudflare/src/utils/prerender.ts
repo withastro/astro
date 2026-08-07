@@ -15,11 +15,18 @@
  */
 
 import type { BaseApp, RenderErrorOptions } from 'astro/app';
+import {
+	beginContentEntryCollection,
+	beginImageCollection,
+	endContentEntryCollection,
+	endImageCollection,
+} from 'astro/app';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import { StaticPaths } from 'astro:static-paths';
 import type {
 	StaticPathsResponse,
 	PrerenderRequest,
+	PrerenderEnvelope,
 	SerializedStaticImageEntry,
 	StaticImagesResponse,
 } from '../prerender-types.js';
@@ -27,7 +34,27 @@ import {
 	STATIC_PATHS_ENDPOINT,
 	PRERENDER_ENDPOINT,
 	STATIC_IMAGES_ENDPOINT,
+	IMAGE_TRANSFORM_ENDPOINT,
 } from './prerender-constants.js';
+import {
+	transform as transformWithImagesBinding,
+	transformStream as transformStreamWithImagesBinding,
+} from './image-binding-transform.js';
+
+/**
+ * Encodes a buffered response body as base64 so it can travel inside the JSON
+ * `PrerenderEnvelope`. Chunked to avoid overflowing the call stack when
+ * spreading a large byte array into `String.fromCharCode`.
+ */
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+	const bytes = new Uint8Array(buffer);
+	const CHUNK_SIZE = 0x8000;
+	let binary = '';
+	for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
+		binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK_SIZE));
+	}
+	return btoa(binary);
+}
 
 /**
  * Replicates core's `BuildErrorHandler` semantics on the worker app during
@@ -76,9 +103,10 @@ export async function handleStaticPathsRequest(app: BaseApp): Promise<Response> 
 	const staticPaths = new StaticPaths(app);
 	const paths = await staticPaths.getAll();
 	const response: StaticPathsResponse = {
-		paths: paths.map(({ pathname, route }) => ({
+		paths: paths.map(({ pathname, route, cacheKey }) => ({
 			pathname,
 			route: serializeRouteData(route, app.manifest.trailingSlash),
+			cacheKey,
 		})),
 	};
 	return new Response(JSON.stringify(response), {
@@ -109,8 +137,29 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 	// Buffer the full body to catch streaming errors before the HTTP layer
 	// commits a 200 status.
 	try {
+		// For incremental builds, collect the content entries and image transforms
+		// resolved during this render so the build process can attribute them to
+		// the path and replay them when the path is skipped on a later build.
+		if (body.incremental) {
+			beginContentEntryCollection();
+			beginImageCollection();
+		}
 		const response = await app.render(prerenderRequest, { routeData });
 		const bufferedBody = await response.arrayBuffer();
+		if (body.incremental) {
+			const contentEntryKeys = endContentEntryCollection();
+			const staticImages = endImageCollection();
+			const envelope: PrerenderEnvelope = {
+				status: response.status,
+				statusText: response.statusText,
+				headers: [...response.headers.entries()],
+				body: arrayBufferToBase64(bufferedBody),
+				metadata: { contentEntryKeys, staticImages },
+			};
+			return new Response(JSON.stringify(envelope), {
+				headers: { 'Content-Type': 'application/json' },
+			});
+		}
 		return new Response(bufferedBody, {
 			status: response.status,
 			statusText: response.statusText,
@@ -118,11 +167,14 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 		});
 	} catch (err: unknown) {
 		const message = err instanceof Error ? err.message : String(err);
+		// Sanitize newlines and other control characters from the error message
+		// before putting it in a header, as HTTP headers cannot contain them.
+		const headerSafe = message.replace(/[\r\n]+/g, ' ');
 		return new Response(message, {
 			status: 500,
 			headers: {
 				'Content-Type': 'text/plain',
-				'x-astro-prerender-error': message,
+				'x-astro-prerender-error': headerSafe,
 			},
 		});
 	}
@@ -131,6 +183,11 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 export function isStaticImagesRequest(request: Request): boolean {
 	const { pathname } = new URL(request.url);
 	return pathname === STATIC_IMAGES_ENDPOINT && request.method === 'POST';
+}
+
+export function isImageTransformRequest(request: Request): boolean {
+	const { pathname } = new URL(request.url);
+	return pathname === IMAGE_TRANSFORM_ENDPOINT && request.method === 'POST';
 }
 
 /** Serializes the global staticImages map collected in workerd back to the Node-side build. */
@@ -158,4 +215,51 @@ export function handleStaticImagesRequest(): Response {
 	return new Response(JSON.stringify(entries), {
 		headers: { 'Content-Type': 'application/json' },
 	});
+}
+
+interface ImageTransformOptions {
+	/** The Cloudflare IMAGES binding for image transformation. */
+	images?: ImagesBinding;
+	/** The Cloudflare ASSETS fetcher for loading local images. */
+	assets?: Fetcher;
+}
+
+/**
+ * Transforms a single image with the Cloudflare IMAGES binding and streams the raw
+ * bytes back to the Node-side build.
+ *
+ * The transform parameters arrive as query parameters on the request URL, in the same
+ * shape `/_image` uses. Handling one image per request keeps peak memory proportional to
+ * a single variant rather than to the whole image set, since neither the request body
+ * nor the response body is ever buffered in the isolate.
+ *
+ * Local originals are uploaded as the request body: at this point in the build they live
+ * in Astro's intermediate output, not in the client directory the ASSETS binding serves,
+ * so the worker cannot fetch them itself. Remote images have no body and are resolved
+ * here, exactly as the runtime `image-transform-endpoint` does.
+ */
+export async function handleImageTransformRequest(
+	request: Request,
+	{ images, assets }: ImageTransformOptions,
+): Promise<Response> {
+	if (!images) {
+		return new Response('The Cloudflare IMAGES binding is not available in the prerender worker.', {
+			status: 503,
+		});
+	}
+
+	if (request.body) {
+		return transformStreamWithImagesBinding(
+			request.body,
+			new URL(request.url).searchParams,
+			images,
+		);
+	}
+
+	if (!assets) {
+		return new Response('The Cloudflare ASSETS binding is not available in the prerender worker.', {
+			status: 503,
+		});
+	}
+	return transformWithImagesBinding(request.url, images, assets);
 }

@@ -1,5 +1,37 @@
 # @astrojs/vercel
 
+## 11.0.5
+
+### Patch Changes
+
+- [#17569](https://github.com/withastro/astro/pull/17569) [`d1bb7fa`](https://github.com/withastro/astro/commit/d1bb7fa0059a04ed8039ce92660c7c07a8b04914) Thanks [@lazerg](https://github.com/lazerg)! - Prevents `astro build` from crashing with `EEXIST` when `.vercel/output/server/` already exists by creating it with `{ recursive: true }`, matching the sibling `static/` directory call
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+
+## 11.0.3
+
+### Patch Changes
+
+- [#17370](https://github.com/withastro/astro/pull/17370) [`3a43cf0`](https://github.com/withastro/astro/commit/3a43cf0f3690a8e33cb30109bc5165611cf38fcd) Thanks [@matthewp](https://github.com/matthewp)! - Improves internal ISR route handling
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies [[`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c)]:
+  - @astrojs/internal-helpers@0.10.1
+
+## 11.0.1
+
+### Patch Changes
+
+- [#17249](https://github.com/withastro/astro/pull/17249) [`02b73b0`](https://github.com/withastro/astro/commit/02b73b0fc2e32102e788fd9031ce061337490a73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `peerDependencies` field used incorrect dependencies.
+
 ## 11.0.0
 
 ### Major Changes

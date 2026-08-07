@@ -17,6 +17,20 @@ export type AssetsGlobalStaticImagesList = Map<
 	}
 >;
 
+/**
+ * A single image transform flattened for persistence in the incremental build
+ * cache. `AssetsGlobalStaticImagesList` nests transforms under their original
+ * path; this carries the original path and transform hash inline so a skipped
+ * page's transforms can be replayed into the global list without a re-render.
+ */
+export interface SerializedStaticImage {
+	originalPath: string;
+	hash: string;
+	finalPath: string;
+	originalSrcPath: string | undefined;
+	transform: ImageTransform;
+}
+
 declare global {
 	var astroAsset: {
 		imageService?: ImageService;
@@ -191,6 +205,18 @@ type ImageSharedProps<T> = T & {
 	 * ```
 	 */
 	position?: string;
+
+	/**
+	 * The background color to use when converting images with transparency to a format that does not support it (e.g. PNG to JPEG).
+	 *
+	 * The value is a string that specifies a CSS color value, e.g. `#fff`, `white`, `rgb(255, 255, 255)`.
+	 *
+	 * **Example**:
+	 * ```astro
+	 * <Image src={...} format="jpeg" background="#fff" alt="..." />
+	 * ```
+	 */
+	background?: string;
 } & (
 		| {
 				/**

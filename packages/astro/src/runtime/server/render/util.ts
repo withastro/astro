@@ -15,7 +15,7 @@ const DOUBLE_QUOTE_REGEX = /"/g;
 const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
 // Per the HTML spec, attribute names must not contain ASCII whitespace, ", ', >, /, or =.
-const INVALID_ATTR_NAME_CHAR = /[\s"'>/=]/;
+export const INVALID_ATTR_NAME_CHAR = /[\s"'>/=]/;
 
 // converts (most) arbitrary strings to valid JS identifiers
 const toIdent = (k: string) =>
@@ -69,6 +69,12 @@ function handleBooleanAttribute(
 	shouldEscape: boolean,
 	tagName?: string,
 ): string {
+	// The Popover API only accepts "auto", "manual", or the attribute being absent.
+	// There's no valid string value for "off", so it must always be rendered as a
+	// boolean attribute, even on custom elements.
+	if (key === 'popover') {
+		return markHTMLString(value ? ` ${key}` : '');
+	}
 	// For custom elements, always render as string attributes
 	if (tagName && isCustomElement(tagName)) {
 		return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);

@@ -183,6 +183,54 @@ describe('CSP', () => {
 		);
 	});
 
+	it('should support granular directives via the `kind` option', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+			outDir: './dist/csp-kind',
+			security: {
+				csp: {
+					scriptDirective: {
+						resources: [{ resource: 'https://cdn.example.com', kind: 'element' }],
+					},
+					styleDirective: {
+						resources: [{ resource: "'unsafe-inline'", kind: 'attribute' }],
+					},
+				},
+			},
+		});
+		await fixture.build();
+		const html = await fixture.readFile('/inline/index.html');
+		const $ = cheerio.load(html);
+
+		const content = $('meta[http-equiv="Content-Security-Policy"]').attr('content')!.toString();
+		const parsed = new Map(
+			content
+				.split(';')
+				.map((part) => part.trim())
+				.filter(Boolean)
+				.map((part) => {
+					const [directive, ...resources] = part.split(/\s+/);
+					return [directive, resources] as const;
+				}),
+		);
+
+		// Baseline directives are always present.
+		assert.ok(parsed.has('script-src'), 'script-src baseline present');
+		assert.ok(parsed.has('style-src'), 'style-src baseline present');
+
+		// `script-src-elem` carries the user element resource AND Astro's generated hashes (folded).
+		const scriptElem = parsed.get('script-src-elem');
+		assert.ok(scriptElem, 'script-src-elem present');
+		assert.ok(scriptElem.includes('https://cdn.example.com'), 'element resource applied');
+		assert.ok(
+			scriptElem.some((r) => r.includes('sha256-')),
+			'Astro element hashes folded into script-src-elem',
+		);
+
+		// `style-src-attr` carries the user attribute source and no folded hashes.
+		assert.deepEqual(parsed.get('style-src-attr'), ["'unsafe-inline'"]);
+	});
+
 	it('should return CSP header inside a hook', async () => {
 		let routeToHeaders: Map<string, { headers: Headers }> | undefined;
 		fixture = await loadFixture({

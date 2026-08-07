@@ -1,5 +1,17 @@
 # @astrojs/vue
 
+## 7.0.2
+
+### Patch Changes
+
+- [#17515](https://github.com/withastro/astro/pull/17515) [`023e7be`](https://github.com/withastro/astro/commit/023e7be21edd9327a9966651a706dcadd5aa9893) Thanks [@barry166](https://github.com/barry166)! - Fix dev server crashes when Vue devtools are enabled with Vite 8.
+
+## 7.0.1
+
+### Patch Changes
+
+- [#17249](https://github.com/withastro/astro/pull/17249) [`02b73b0`](https://github.com/withastro/astro/commit/02b73b0fc2e32102e788fd9031ce061337490a73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `peerDependencies` field used incorrect dependencies.
+
 ## 7.0.0
 
 ### Major Changes
@@ -711,9 +723,7 @@
   import i18nPlugin from '../plugins/i18n';
 
   export default function setup(app: App) {
-    app.use(i18nPlugin, {
-      /* options */
-    });
+    app.use(i18nPlugin, {/* options */});
   }
   ```
 

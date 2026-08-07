@@ -98,12 +98,16 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		this.pipeline.clearActions();
 	}
 
-	async devMatch(pathname: string): Promise<DevMatch | undefined> {
+	async devMatch(
+		pathname: string,
+		{ prerenderOnly }: { prerenderOnly?: boolean } = {},
+	): Promise<DevMatch | undefined> {
 		const matchedRoute = await matchRoute(
 			pathname,
 			this.manifestData,
 			this.pipeline as unknown as RunnablePipeline,
 			this.manifest,
+			{ prerenderOnly },
 		);
 		if (!matchedRoute) {
 			return undefined;
@@ -190,13 +194,17 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 
 		const self = this;
 		await self.#loadFetchHandler();
+		// RouteCache is intentionally not cleared per request. devMatch() can use
+		// getStaticPaths() to test dynamic route candidates before the later render
+		// resolves props from the same static-path table. HMR/content invalidation
+		// clears stale entries through module identity checks or content-change events.
 
 		let handled = true;
 		await runWithErrorHandling({
 			controller,
 			pathname,
 			async run() {
-				const matchedRoute = await self.devMatch(pathname);
+				const matchedRoute = await self.devMatch(pathname, { prerenderOnly });
 				if (!matchedRoute) {
 					if (prerenderOnly) {
 						// In prerender-only mode, signal that we didn't handle this
@@ -245,33 +253,39 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 					socket.on('close', onSocketClose);
 				}
 
-				const request = createRequest({
-					url,
-					headers: incomingRequest.headers,
-					method: incomingRequest.method,
-					body,
-					logger: self.logger,
-					isPrerendered: matchedRoute.routeData.prerender,
-					routePattern: matchedRoute.routeData.component,
-					init: { signal: abortController.signal },
-				});
+				try {
+					const request = createRequest({
+						url,
+						headers: incomingRequest.headers,
+						method: incomingRequest.method,
+						body,
+						logger: self.logger,
+						isPrerendered: matchedRoute.routeData.prerender,
+						routePattern: matchedRoute.routeData.component,
+						init: { signal: abortController.signal },
+					});
 
-				// This is required for adapters to set locals in dev mode. They use a dev server middleware to inject locals to the `http.IncomingRequest` object.
-				const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
+					// This is required for adapters to set locals in dev mode. They use a dev server middleware to inject locals to the `http.IncomingRequest` object.
+					const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
 
-				// Set user specified headers to response object.
-				for (const [name, value] of Object.entries(self.settings.config.server.headers ?? {})) {
-					if (value) incomingResponse.setHeader(name, value);
+					// Set user specified headers to response object.
+					for (const [name, value] of Object.entries(self.settings.config.server.headers ?? {})) {
+						if (value) incomingResponse.setHeader(name, value);
+					}
+					const clientAddress = incomingRequest.socket.remoteAddress;
+
+					const response = await self.render(request, {
+						locals,
+						routeData: matchedRoute.routeData,
+						clientAddress,
+					});
+
+					await writeSSRResult(request, response, incomingResponse);
+				} finally {
+					// Remove the per-request socket listener so it doesn't accumulate
+					// across keep-alive requests that reuse the same socket.
+					socket.off('close', onSocketClose);
 				}
-				const clientAddress = incomingRequest.socket.remoteAddress;
-
-				const response = await self.render(request, {
-					locals,
-					routeData: matchedRoute.routeData,
-					clientAddress,
-				});
-
-				await writeSSRResult(request, response, incomingResponse);
 			},
 			onError(_err) {
 				const error = createSafeError(_err);

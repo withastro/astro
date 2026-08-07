@@ -36,6 +36,8 @@ export const CONTENT_FLAGS = [
 
 export const CONTENT_TYPES_FILE = 'content.d.ts';
 export const DATA_STORE_FILE = 'data-store.json';
+export const DATA_STORE_DIR = 'data-store/';
+export const DATA_STORE_MANIFEST_FILE = 'manifest.json';
 export const ASSET_IMPORTS_FILE = 'content-assets.mjs';
 export const MODULES_IMPORTS_FILE = 'content-modules.mjs';
 export const COLLECTIONS_MANIFEST_FILE = 'collections/collections.json';
@@ -43,3 +45,8 @@ export const COLLECTIONS_DIR = 'collections/';
 
 export const CONTENT_LAYER_TYPE = 'content_layer';
 export const LIVE_CONTENT_TYPE = 'live';
+
+export const DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX = `${DATA_STORE_VIRTUAL_ID}-chunk:`;
+export const RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX = `\0${DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}`;
+export const RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_SUFFIX = '.mjs';
+export const DATA_STORE_CHUNK_FILE_NAME_PATTERN = /^[a-f0-9]{16}\.txt$/;

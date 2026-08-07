@@ -1,5 +1,17 @@
 # @astrojs/solid-js
 
+## 7.0.2
+
+### Patch Changes
+
+- [#17584](https://github.com/withastro/astro/pull/17584) [`5462b81`](https://github.com/withastro/astro/commit/5462b81b8c13552a78131494ccf649b2d92b2968) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a build crash when a Solid island imports a package that ships pre-compiled browser artifacts via the `exports.solid` condition (e.g. `@kobalte/core`). Solid ecosystem packages are now bundled in non-client environments so that Vite resolves the correct export condition during prerendering.
+
+## 7.0.1
+
+### Patch Changes
+
+- [#17270](https://github.com/withastro/astro/pull/17270) [`0142964`](https://github.com/withastro/astro/commit/014296439e084384432e13f2e5b192b0f595045d) Thanks [@FrancoKaddour](https://github.com/FrancoKaddour)! - Fix `@astrojs/solid-js` incorrectly claiming Svelte 5 components compiled with the newer `$$renderer` prop (instead of the legacy `$$payload`). Projects mixing Solid and Svelte could see Svelte components silently rendered as empty strings by the Solid renderer.
+
 ## 7.0.0
 
 ### Major Changes

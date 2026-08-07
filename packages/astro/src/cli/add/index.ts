@@ -749,7 +749,7 @@ async function tryToInstallIntegrations({
 		cwd,
 		// Include the `install-metadata` strategy to have the package manager that's
 		// used for installation take precedence
-		strategies: ['install-metadata', 'lockfile', 'packageManager-field'],
+		strategies: ['install-metadata', 'lockfile', 'packageManager-field', 'devEngines-field'],
 	});
 	logger.debug('add', `package manager: "${packageManager?.name}"`);
 	if (!packageManager) return 'none';

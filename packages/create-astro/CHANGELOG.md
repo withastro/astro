@@ -1,5 +1,23 @@
 # create-astro
 
+## 5.2.3
+
+### Patch Changes
+
+- [#17423](https://github.com/withastro/astro/pull/17423) [`08e8adb`](https://github.com/withastro/astro/commit/08e8adb697a54c728735ae8c89acc4b87ee0b7f0) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `create-astro` silently writing template files to the wrong directory on Linux when the path contains non-ASCII characters.
+
+## 5.2.2
+
+### Patch Changes
+
+- [#17259](https://github.com/withastro/astro/pull/17259) [`ed6bea5`](https://github.com/withastro/astro/commit/ed6bea5ad9ff6036f7bc26cfbcb6f999142d16ef) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes proxy support by respecting `HTTP_PROXY` and `HTTPS_PROXY` environment variables when downloading templates. On Node.js v22.21.0+ and v24.5.0+, `create-astro` now automatically enables the `--use-env-proxy` flag so that native `fetch()` routes requests through the configured proxy.
+
+## 5.2.1
+
+### Patch Changes
+
+- [#17205](https://github.com/withastro/astro/pull/17205) [`e37dfe2`](https://github.com/withastro/astro/commit/e37dfe2a7623acd364d7e3556ecc9b31e3e45520) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes dependency installation when creating Astro projects with pnpm 11+
+
 ## 5.2.0
 
 ### Minor Changes
