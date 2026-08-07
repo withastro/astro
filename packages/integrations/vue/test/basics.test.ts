@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { parseHTML } from 'linkedom';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Basics', () => {
 	let fixture: Fixture;
@@ -46,5 +46,22 @@ describe('Basics', () => {
 
 		const allPreValues = [...document.querySelectorAll('pre')].map((e) => e.textContent);
 		assert.deepEqual(allPreValues, ['2345', '0', '1', '1', '1', '10', '100', '1000']);
+	});
+
+	describe('dev', () => {
+		let devServer: DevServer;
+
+		before(async () => {
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('starts with Vue devtools enabled', async () => {
+			const response = await fixture.fetch('/');
+			assert.equal(response.status, 200);
+		});
 	});
 });

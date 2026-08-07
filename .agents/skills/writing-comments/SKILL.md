@@ -61,6 +61,48 @@ Do not mix the jobs. Implementation details do not belong in the `/** */`
 contract — put them as `//` comments inside the body. The contract does not
 belong scattered across inline comments — put it on the declaration.
 
+## Behavior Documentation
+
+When item documentation is warranted, write the contract for a human reader,
+not as a translation of the implementation. This does not require JSDoc for
+every function; names, types, and structure should carry straightforward
+behavior on their own.
+
+- Start with a plain-language description of what the function returns or
+  accomplishes.
+- Use short or medium-length sentences with one main idea each.
+- Avoid internal Astro jargon when callers do not need it. If a technical term
+  is necessary, explain it in the same paragraph.
+- Describe caller-visible caveats that can be surprising: fallback behavior,
+  work limits, ambiguous results, overload ordering, side effects, and the
+  conditions that return `undefined`, `null`, an empty result, or another
+  indeterminate value.
+- Document thrown errors when callers are expected to distinguish or recover
+  from them.
+- Do not describe implementation details unless callers need them to understand
+  the behavior or use the API safely.
+
+Add an example when behavior depends on a relationship the signature cannot
+show clearly. Common Astro and TypeScript cases include:
+
+- which overload is selected;
+- how arguments map to optional or rest parameters;
+- which public Astro entrypoint exposes a symbol that is implemented or
+  re-exported elsewhere;
+- fallback behavior for ambiguous routes, incomplete configuration, or missing
+  content;
+- a result whose meaning is not obvious from its type.
+
+Introduce the example in prose before the code block. State what it demonstrates
+and what result is expected. Keep snippets minimal, self-contained, and written
+from the perspective of an Astro user or the internal caller that owns the
+contract.
+
+Module documentation should describe a durable concept, architectural boundary,
+or design reason. Do not list individual exports merely to summarize the file;
+such inventories become stale as symbols are added or renamed. If a module has
+no durable concept to explain, use a brief one-line description or no overview.
+
 ## The Deletion Test
 
 Before writing any comment, ask: **does this state something the reader cannot

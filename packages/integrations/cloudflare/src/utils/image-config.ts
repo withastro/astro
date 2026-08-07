@@ -13,12 +13,19 @@ export type ImageServiceConfig =
 	| {
 			build: 'compile';
 			runtime?: 'passthrough' | 'cloudflare-binding';
+	  }
+	| {
+			build: 'cloudflare-binding';
+			runtime?: 'cloudflare-binding' | 'passthrough';
 	  };
 
-/** Normalize string | compound config into separate build/runtime modes. */
+/** Normalize string | compound config into separate build/runtime modes.
+ *  `transformAtBuild` is true when the compound config is used; this opts the user
+ *  in to build-time image optimization. The string form preserves runtime-only behavior. */
 export function normalizeImageServiceConfig(config: ImageServiceConfig | undefined): {
 	buildService: ImageServiceMode;
 	runtimeService: ImageServiceMode;
+	transformAtBuild: boolean;
 } {
 	if (!config || typeof config === 'string') {
 		const mode = config ?? 'cloudflare-binding';
@@ -26,12 +33,16 @@ export function normalizeImageServiceConfig(config: ImageServiceConfig | undefin
 		return {
 			buildService: mode,
 			runtimeService: mode === 'compile' ? 'passthrough' : mode,
+			// Only `compile` opts in to build-time transforms via the string shorthand.
+			// String `cloudflare-binding` preserves the historical runtime-only behavior.
+			transformAtBuild: mode === 'compile',
 		};
 	}
-	// Compound config: { build: 'compile', runtime?: ... }
+	// Compound config: user explicitly opts in to build-time transforms.
 	return {
-		buildService: 'compile',
-		runtimeService: config.runtime ?? 'passthrough',
+		buildService: config.build,
+		runtimeService: config.runtime ?? (config.build === 'compile' ? 'passthrough' : config.build),
+		transformAtBuild: true,
 	};
 }
 
@@ -93,12 +104,16 @@ export function setImageConfig(
 			};
 
 		case 'cloudflare-binding':
+			// Dev always transforms through the IMAGES binding. At runtime, the compound
+			// config `{ build: 'cloudflare-binding', runtime: 'passthrough' }` serves
+			// original images instead of transforming on demand.
 			return {
 				...config,
 				service: WORKERD_IMAGE_SERVICE,
-				endpoint: {
-					entrypoint: '@astrojs/cloudflare/image-transform-endpoint',
-				},
+				endpoint:
+					command === 'dev' || runtimeService === 'cloudflare-binding'
+						? { entrypoint: '@astrojs/cloudflare/image-transform-endpoint' }
+						: CLOUDFLARE_PASSTHROUGH_ENDPOINT,
 			};
 
 		case 'compile': {
@@ -116,15 +131,35 @@ export function setImageConfig(
 		}
 
 		case 'custom':
-			return { ...config };
+			// Sharp's native binding cannot load inside workerd, in dev or in production.
+			// This also catches `imageService: 'custom'` without a configured `image.service`,
+			// which silently inherits Astro's default Sharp service.
+			if (command === 'dev' && config.service.entrypoint === SHARP_IMAGE_SERVICE) {
+				logger.warn(
+					`The Sharp image service cannot run inside the workerd runtime, so '/_image' requests will fail in dev and production. Configure a workerd-compatible 'image.service', or set 'imageService' to 'compile' for build-time optimization. See https://docs.astro.build/en/guides/integrations-guide/cloudflare/#imageservice`,
+				);
+			}
+			return {
+				...config,
+				// Astro's default dev endpoint imports `vite` and `node:fs`, which are
+				// unavailable in workerd. Use the generic (fetch-based) endpoint instead.
+				...(command === 'dev' && !config.endpoint?.entrypoint && { endpoint: GENERIC_ENDPOINT }),
+			};
 
 		default:
 			if (config.service.entrypoint === 'astro/assets/services/sharp') {
 				logger.warn(
 					`The current configuration does not support image optimization. To allow your project to build with the original, unoptimized images, the image service has been automatically switched to the 'passthrough' option. See https://docs.astro.build/en/reference/configuration-reference/#imageservice`,
 				);
-				return { ...config, service: passthroughImageService() };
+				return {
+					...config,
+					service: passthroughImageService(),
+					...(command === 'dev' && !config.endpoint?.entrypoint && { endpoint: GENERIC_ENDPOINT }),
+				};
 			}
-			return { ...config };
+			return {
+				...config,
+				...(command === 'dev' && !config.endpoint?.entrypoint && { endpoint: GENERIC_ENDPOINT }),
+			};
 	}
 }

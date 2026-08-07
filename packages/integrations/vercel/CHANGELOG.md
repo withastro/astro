@@ -1,5 +1,18 @@
 # @astrojs/vercel
 
+## 11.0.5
+
+### Patch Changes
+
+- [#17569](https://github.com/withastro/astro/pull/17569) [`d1bb7fa`](https://github.com/withastro/astro/commit/d1bb7fa0059a04ed8039ce92660c7c07a8b04914) Thanks [@lazerg](https://github.com/lazerg)! - Prevents `astro build` from crashing with `EEXIST` when `.vercel/output/server/` already exists by creating it with `{ recursive: true }`, matching the sibling `static/` directory call
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+
 ## 11.0.3
 
 ### Patch Changes

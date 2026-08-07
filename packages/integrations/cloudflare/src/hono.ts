@@ -33,7 +33,11 @@ type HonoCloudflareContextLike = {
 		raw: Request;
 	};
 	env: Env;
-	executionCtx: ExecutionContext;
+	executionCtx: {
+		waitUntil(promise: Promise<unknown>): void;
+		passThroughOnException(): void;
+		props: unknown;
+	};
 	get?: (key: string) => unknown;
 	set?: (key: string, value: unknown) => void;
 };

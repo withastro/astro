@@ -1,5 +1,22 @@
 # @astrojs/node
 
+## 11.1.0
+
+### Minor Changes
+
+- [#16871](https://github.com/withastro/astro/pull/16871) [`90c98ae`](https://github.com/withastro/astro/commit/90c98ae21ef0444a4088b7081676b0f97915001f) Thanks [@adamchal](https://github.com/adamchal)! - When `session: false` is set in `astro.config`, the adapter no longer auto-wires the filesystem session driver. Combined with the matching `astro` change, this lets the session runtime tree-shake out of the server bundle.
+
+### Patch Changes
+
+- [#17564](https://github.com/withastro/astro/pull/17564) [`004fb0a`](https://github.com/withastro/astro/commit/004fb0a01ebf8ca05035de705e8f84a3bc965b5d) Thanks [@dmgawel](https://github.com/dmgawel)! - Fixes middleware mode routing when a prerendered dynamic route sorts before an on-demand fallback
+
+## 11.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+
 ## 11.0.2
 
 ### Patch Changes

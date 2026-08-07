@@ -1250,6 +1250,7 @@ export interface AstroUserConfig<
 		 * Setting `build.format` controls what `Astro.url` is set to during the build. When it is:
 		 * - `directory` - The `Astro.url.pathname` will include a trailing slash to mimic folder behavior. (e.g. `/foo/`)
 		 * - `file` - The `Astro.url.pathname` will include `.html`. (e.g. `/foo.html`)
+		 * - `preserve` - The `Astro.url.pathname` matches the generated file for each page: index pages include a trailing slash (e.g. `/foo/`), while non-index pages include `.html` (e.g. `/foo.html`).
 		 *
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
 		 *
@@ -1602,8 +1603,7 @@ export interface AstroUserConfig<
 	 *
 	 * By default, Astro uses a built-in logger that outputs human-friendly logs to the console. You can customize this behavior by providing [your own logger handler](https://docs.astro.build/en/reference/logger-reference/#custom-loggers) or by using one of the [built-in log handlers](https://docs.astro.build/en/reference/logger-reference/#built-in-loggers):
 	 *
-	 * ```js
-	 * // astro.config.mjs
+	 * ```js title="astro.config.mjs"
 	 * import { defineConfig, logHandlers } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -1622,7 +1622,9 @@ export interface AstroUserConfig<
 	 * @version 7.0.0
 	 * @description
 	 *
-	 * The entrypoint of the log handler. This can be a path to a file in your project or an npm package:
+	 * The entrypoint for the [logger implementation](https://docs.astro.build/en/reference/logger-reference/#the-logger-implementation).
+	 * This can be an npm package, a path relative to your project root, or a `URL` pointing to a
+	 * file in your project:
 	 *
 	 * ```js title="astro.config.mjs"
 	 * import { defineConfig } from 'astro/config';
@@ -1633,6 +1635,9 @@ export interface AstroUserConfig<
 	 *   }
 	 * });
 	 * ```
+	 *
+	 * The logger entrypoint must be a JavaScript file. TypeScript is not supported. If Astro fails to load
+	 *  the implementation, it falls back to its default logger.
 	 */
 
 	/**
@@ -1662,6 +1667,7 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @kind heading
+	 * @type {object | false}
 	 * @version 5.7.0
 	 * @name Session Options
 	 * @description
@@ -1685,9 +1691,19 @@ export interface AstroUserConfig<
 	 *
 	 * Session drivers are configured at build time. This means environment variables used in the driver configuration are inlined. You must create your own driver entrypoint to [override the configuration at runtime](https://docs.astro.build/en/guides/sessions/#overriding-the-configuration-at-runtime).
 	 *
+	 * Since Astro v7.2.0, you can opt out of session support by setting the option to `false`. When sessions are disabled, the session runtime is excluded from the SSR bundle, and adapters skip wiring their default session driver. This is useful for serverless and edge runtimes where bundle parse time is sensitive.
+	 *
+	 * ```js title="astro.config.mjs"
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   session: false,
+	 * });
+	 * ```
+	 *
 	 * See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.
 	 */
-	session?: SessionConfig<TDriver>;
+	session?: SessionConfig<TDriver> | false;
 
 	/**
 	 * @docs
@@ -3292,7 +3308,7 @@ export interface AstroUserConfig<
 
 		/**
 		 * @name experimental.collectionStorage
-		 * @type {'single-file' | 'chunked'}
+		 * @type {'single-file' | 'chunked' | { type: 'chunked', chunkSize: number }}
 		 * @default `'single-file'`
 		 * @version 7.1.0
 		 * @description
@@ -3303,22 +3319,76 @@ export interface AstroUserConfig<
 		 * file. For very large content collections, this file can grow large
 		 * enough to hit platform file-size limits.
 		 *
-		 * When set to `'chunked'`, the store is split across many smaller,
-		 * content-addressed files so that no single file grows unbounded.
+		 * When set to `'chunked'`, the store is split into files
+		 * with a maximum size of 20 MiB each. To customize the maximum size,
+		 * pass an object with `type: 'chunked'` and `chunkSize`. A 1 MiB limit
+		 * is recommended for broad adapter compatibility.
 		 *
 		 * ```js
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
 		 *   experimental: {
-		 *     collectionStorage: 'chunked',
+		 *     collectionStorage: {
+		 *       type: 'chunked',
+		 *       chunkSize: 1024 * 1024,
+		 *     },
 		 *   },
 		 * });
 		 * ```
 		 *
 		 * See the [experimental data store chunking documentation](https://docs.astro.build/en/reference/experimental-flags/collection-storage/) for more information.
 		 */
-		collectionStorage?: 'single-file' | 'chunked';
+		collectionStorage?:
+			| 'single-file'
+			| 'chunked'
+			| {
+					type: 'chunked';
+					/** Maximum UTF-8 byte size of each data store chunk. */
+					chunkSize: number;
+			  };
+
+		/**
+		 * @name experimental.incrementalBuild
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 7.2
+		 * @description
+		 *
+		 * Enables incremental static builds. When enabled, pages with a `cacheKey` returned
+		 * from `getStaticPaths()` can be skipped during subsequent builds if neither
+		 * their data nor their dependencies have changed.
+		 *
+		 * On the first build, all pages are rendered normally and a cache manifest is saved.
+		 * On subsequent builds, each page is checked against the manifest: if the page's
+		 * `cacheKey` and the hash of its module dependency graph both match, the page is
+		 * skipped and the previous output is preserved.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * {
+		 *   experimental: {
+		 *     incrementalBuild: true,
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * In your dynamic routes, return a `cacheKey` from `getStaticPaths()`:
+		 *
+		 * ```js
+		 * // src/pages/blog/[slug].astro
+		 * export async function getStaticPaths() {
+		 *   const posts = await fetchPosts();
+		 *   return posts.map(post => ({
+		 *     params: { slug: post.slug },
+		 *     props: { post },
+		 *     cacheKey: post.digest,
+		 *   }));
+		 * }
+		 * ```
+		 * See the [experimental incremental static builds](https://docs.astro.build/en/reference/experimental-flags/incremental-build/) for more information.
+		 */
+		incrementalBuild?: boolean;
 	};
 }
 
