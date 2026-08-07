@@ -673,6 +673,32 @@ test.describe('View Transitions', () => {
 		await expectLoads(1);
 	});
 
+	test('Vite style nodes receive updated contents during head swaps', async ({ page, astro }) => {
+		const expectLoads = collectLoads(page);
+		await page.goto(astro.resolveUrl('/island-svelte-one'));
+
+		const cssStyle = page.locator('style[data-vite-dev-id*="client-router-hmr.css"]');
+		await expect(cssStyle).toHaveCount(1);
+		await cssStyle.evaluate((element) => (element.dataset.hmrStyle = 'css'));
+		await page.evaluate(() => {
+			document.addEventListener(
+				'astro:before-swap',
+				(event) => {
+					const incomingStyle = event.newDocument.querySelector<HTMLStyleElement>(
+						'style[data-vite-dev-id*="client-router-hmr.css"]',
+					);
+					if (incomingStyle) incomingStyle.textContent += '#island-two { color: red; }';
+				},
+				{ once: true },
+			);
+		});
+
+		await page.click('#click-two');
+		await expect(page.locator('#island-two')).toHaveCSS('color', 'rgb(255, 0, 0)');
+		await expect(page.locator('style[data-hmr-style="css"]')).toHaveCount(1);
+		await expectLoads(1);
+	});
+
 	test('Vue Islands can persist using transition:persist', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/island-vue-one'));
