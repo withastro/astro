@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { updateImageReferencesInData } from '../../../dist/content/runtime.js';
+import { resolveEntryData, updateImageReferencesInData } from '../../../dist/content/runtime.js';
 import { imageSrcToImportId } from '../../../dist/assets/utils/resolveImports.js';
 import type { ImageMetadata } from '../../../dist/assets/types.js';
 
@@ -121,5 +121,36 @@ describe('updateImageReferencesInData', () => {
 		assert.equal(result.flags.has('showDescription'), true);
 		assert.equal(result.flags.has('showCover'), false);
 		assert.equal(result.flags.size, 2);
+	});
+});
+
+describe('resolveEntryData', () => {
+	it('clones data without traversing it when assetImports is empty', () => {
+		const data = {
+			image: `${IMAGE_PREFIX}./hero.png`,
+			nested: { count: 1 },
+		};
+		const result = resolveEntryData(
+			{ id: 'entry', data, filePath: FILE_NAME, assetImports: [] },
+			makeImageMap('./hero.png', heroMeta),
+		);
+
+		assert.notEqual(result, data);
+		assert.notEqual(result.nested, data.nested);
+		assert.equal(result.image, `${IMAGE_PREFIX}./hero.png`);
+
+		result.nested.count = 2;
+		assert.equal(data.nested.count, 1);
+	});
+
+	it('resolves image references when assetImports is present', () => {
+		const data = { image: `${IMAGE_PREFIX}./hero.png` };
+		const result = resolveEntryData(
+			{ id: 'entry', data, filePath: FILE_NAME, assetImports: ['./hero.png'] },
+			makeImageMap('./hero.png', heroMeta),
+		);
+
+		assert.deepEqual(result.image, heroMeta);
+		assert.equal(data.image, `${IMAGE_PREFIX}./hero.png`);
 	});
 });
