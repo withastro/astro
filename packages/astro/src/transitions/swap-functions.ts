@@ -10,6 +10,8 @@ const PERSIST_ATTR = 'data-astro-transition-persist';
 
 const NON_OVERRIDABLE_ASTRO_ATTRS = ['data-astro-transition', 'data-astro-transition-fallback'];
 
+// Vite's CSS HMR runtime keeps references to the style nodes it injects, so preserve
+// those nodes across ClientRouter head swaps. https://github.com/withastro/astro/pull/17612
 const viteStyleState = import.meta.env.DEV
 	? (() => {
 			const styles = new Map<string, HTMLStyleElement>();
@@ -27,8 +29,8 @@ const viteStyleState = import.meta.env.DEV
 								const knownStyle = styles.get(viteDevId);
 								if (node === knownStyle) continue;
 
-								// Vite registers a separate node when a style first appears after a soft navigation.
-								// Keep that node for later HMR updates. https://github.com/withastro/astro/pull/16089
+								// ClientRouter appends the fetched style before Vite injects the node
+								// registered for HMR. Replace it and track Vite's node instead.
 								knownStyle?.remove();
 								styles.set(viteDevId, node);
 							}
@@ -121,8 +123,10 @@ export function swapHeadElements(doc: Document) {
 			const viteDevId = child instanceof HTMLStyleElement && child.dataset.viteDevId;
 			const knownStyle = viteDevId && viteStyleState?.styles.get(viteDevId);
 			if (knownStyle) {
-				// Reuse Vite's node for HMR, but refresh generated CSS that can change under a stable ID.
+				// Generated styles such as UnoCSS can keep the same Vite ID while their CSS changes
+				// between routes, so copy the incoming CSS into the style element Vite uses for HMR.
 				// https://github.com/withastro/astro/pull/16242
+				// Vue scoped styles are excluded because their content may be transformed in the browser.
 				if (!vueScopedStyleId(knownStyle)) knownStyle.textContent = child.textContent;
 				document.head.append(knownStyle);
 			} else {
