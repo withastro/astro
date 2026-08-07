@@ -39,7 +39,7 @@ export function rewriteAstroImportText(text: string) {
 }
 
 function rewriteComponentNamedImport(line: string) {
-	const match = line.match(ASTRO_NAMED_IMPORT_PATTERN);
+	const match = ASTRO_NAMED_IMPORT_PATTERN.exec(line);
 	if (!match || match[2] !== classNameFromFilename(match[4])) {
 		return line;
 	}
