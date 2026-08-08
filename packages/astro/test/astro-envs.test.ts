@@ -141,6 +141,13 @@ describe('Environment Variables', () => {
 			assert.equal($('#env').text(), 'A MYSTERY');
 			assert.equal($('#css').text(), 'good');
 		});
+
+		it('does inline builtin BASE_URL env in client-side components', async () => {
+			let res = await fixture.fetch('/src/components/Client.vue');
+			assert.equal(res.status, 200);
+			let js = await res.text();
+			assert.match(js, /"BASE_URL":\s*"\/blog"/);
+		});
 	});
 
 	describe('SSR', () => {
