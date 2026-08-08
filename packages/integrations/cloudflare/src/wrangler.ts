@@ -1,4 +1,5 @@
 import type { PluginConfig, WorkerConfig } from '@cloudflare/vite-plugin';
+import type { AstroIntegrationLogger } from 'astro';
 
 export const DEFAULT_SESSION_KV_BINDING_NAME = 'SESSION';
 export const DEFAULT_IMAGES_BINDING_NAME = 'IMAGES';
@@ -16,6 +17,11 @@ interface CloudflareConfigOptions {
 	needsSessionKVBinding?: boolean;
 	imagesBindingName?: string | false | undefined;
 	needsWorkerCache?: boolean;
+	/**
+	 * When set, warns once if the session KV binding is injected without an `id`,
+	 * since `wrangler deploy` will then provision a new KV namespace.
+	 */
+	logger?: AstroIntegrationLogger | undefined;
 }
 
 type KVNamespace = NonNullable<WorkerConfig['kv_namespaces']>[number];
@@ -34,6 +40,9 @@ export function cloudflareConfigCustomizer(
 			? undefined
 			: (options?.imagesBindingName ?? DEFAULT_IMAGES_BINDING_NAME);
 	const needsWorkerCache = options?.needsWorkerCache ?? false;
+	// The customizer runs once per worker (entry, prerender, previews), so the
+	// provisioning notice is deduplicated to a single warning per build.
+	let hasWarnedAboutProvisioning = false;
 
 	const customizer = (config: Partial<WorkerConfig>): Partial<WorkerConfig> => {
 		const getNonInheritableBindings = (
@@ -43,12 +52,24 @@ export function cloudflareConfigCustomizer(
 				(kv: KVNamespace) => kv.binding === sessionKVBindingName,
 			);
 			const hasImagesBinding = nonInheritableConfig?.images?.binding !== undefined;
+			const injectsSessionBinding = needsSessionKVBinding && !hasSessionBinding;
+
+			// The injected binding has no `id`, which wrangler reads as a request to
+			// provision a namespace on deploy. That needs a token with
+			// "Workers KV Storage: Edit", so surface it at build time rather than
+			// letting the deploy fail with an opaque authentication error.
+			if (injectsSessionBinding && options?.logger && !hasWarnedAboutProvisioning) {
+				hasWarnedAboutProvisioning = true;
+				options.logger.warn(
+					`The "${sessionKVBindingName}" KV binding has no \`id\`, so \`wrangler deploy\` will provision a new KV namespace. ` +
+						`This requires an API token with the "Workers KV Storage: Edit" permission.\n` +
+						`  To use an existing namespace, add \`kv_namespaces: [{ binding: "${sessionKVBindingName}", id: "<id>" }]\` to your Wrangler config.\n` +
+						`  To skip sessions entirely, set \`session: false\` in your Astro config.`,
+				);
+			}
 
 			return {
-				kv_namespaces:
-					!needsSessionKVBinding || hasSessionBinding
-						? undefined
-						: [{ binding: sessionKVBindingName }],
+				kv_namespaces: injectsSessionBinding ? [{ binding: sessionKVBindingName }] : undefined,
 				images:
 					hasImagesBinding || !imagesBindingName
 						? undefined
