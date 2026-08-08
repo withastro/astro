@@ -11,6 +11,7 @@ const StringSchema = z.object({
 	includes: z.string().optional(),
 	startsWith: z.string().optional(),
 	endsWith: z.string().optional(),
+	description: z.string().optional(),
 });
 export type StringSchema = z.infer<typeof StringSchema>;
 const NumberSchema = z.object({
@@ -22,12 +23,14 @@ const NumberSchema = z.object({
 	lt: z.number().optional(),
 	max: z.number().optional(),
 	int: z.boolean().optional(),
+	description: z.string().optional(),
 });
 export type NumberSchema = z.infer<typeof NumberSchema>;
 const BooleanSchema = z.object({
 	type: z.literal('boolean'),
 	optional: z.boolean().optional(),
 	default: z.boolean().optional(),
+	description: z.string().optional(),
 });
 const EnumSchema = z.object({
 	type: z.literal('enum'),
@@ -39,6 +42,7 @@ const EnumSchema = z.object({
 	),
 	optional: z.boolean().optional(),
 	default: z.string().optional(),
+	description: z.string().optional(),
 });
 export type EnumSchema = z.infer<typeof EnumSchema>;
 
