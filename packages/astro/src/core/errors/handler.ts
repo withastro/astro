@@ -38,7 +38,7 @@ export function renderErrorPage(
 			});
 		case 'build':
 			return renderBuildError(manifest, request, options);
-		default:
+		case 'default':
 			return renderDefaultError(manifest, request, options);
 	}
 }
