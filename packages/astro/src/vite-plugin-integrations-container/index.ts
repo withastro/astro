@@ -16,10 +16,18 @@ export default function astroIntegrationsContainerPlugin({
 	let server: ViteDevServer | undefined;
 	return {
 		name: 'astro:integration-container',
-		async configureServer(_server) {
-			server = _server;
-			if (_server.config.isProduction) return;
-			await runHookServerSetup({ config: settings.config, server: _server, logger });
+		configureServer: {
+			order: 'pre',
+			async handler(_server) {
+				server = _server;
+				if (_server.config.isProduction) return;
+				const middlewareIndex = _server.middlewares.stack.length;
+				await runHookServerSetup({ config: settings.config, server: _server, logger });
+				const integrationMiddleware = _server.middlewares.stack.splice(middlewareIndex);
+				return () => {
+					_server.middlewares.stack.push(...integrationMiddleware);
+				};
+			},
 		},
 		async buildStart() {
 			if (settings.injectedRoutes.length === settings.resolvedInjectedRoutes.length) return;

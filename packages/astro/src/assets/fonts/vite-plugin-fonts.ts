@@ -239,50 +239,55 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				serverAddress = settings.fontsHttpServer.address() as AddressInfo;
 			}
 		},
-		async configureServer(server) {
-			server.httpServer?.on('listening', () => {
-				serverAddress = server.httpServer?.address() as AddressInfo;
-			});
+		configureServer: {
+			order: 'pre',
+			async handler(server) {
+				server.httpServer?.on('listening', () => {
+					serverAddress = server.httpServer?.address() as AddressInfo;
+				});
 
-			server.watcher.on('change', (path) => {
-				if (!fontFileById) {
-					return;
-				}
-				const localPaths = [...fontFileById.values()]
-					.filter(({ url }) => isAbsolute(url))
-					.map((v) => v.url);
-				if (localPaths.includes(path)) {
-					logger.info('assets', 'Font file updated');
-					server.restart();
-				}
-			});
-			// We do not purge the cache in case the user wants to re-use the file later on
-			server.watcher.on('unlink', (path) => {
-				if (!fontFileById) {
-					return;
-				}
-				const localPaths = [...fontFileById.values()]
-					.filter(({ url }) => isAbsolute(url))
-					.map((v) => v.url);
-				if (localPaths.includes(path)) {
-					logger.warn(
-						'assets',
-						`The font file ${JSON.stringify(path)} referenced in your config has been deleted. Restore the file or remove this font from your configuration if it is no longer needed.`,
+				server.watcher.on('change', (path) => {
+					if (!fontFileById) {
+						return;
+					}
+					const localPaths = [...fontFileById.values()]
+						.filter(({ url }) => isAbsolute(url))
+						.map((v) => v.url);
+					if (localPaths.includes(path)) {
+						logger.info('assets', 'Font file updated');
+						server.restart();
+					}
+				});
+				// We do not purge the cache in case the user wants to re-use the file later on
+				server.watcher.on('unlink', (path) => {
+					if (!fontFileById) {
+						return;
+					}
+					const localPaths = [...fontFileById.values()]
+						.filter(({ url }) => isAbsolute(url))
+						.map((v) => v.url);
+					if (localPaths.includes(path)) {
+						logger.warn(
+							'assets',
+							`The font file ${JSON.stringify(path)} referenced in your config has been deleted. Restore the file or remove this font from your configuration if it is no longer needed.`,
+						);
+					}
+				});
+
+				return () => {
+					server.middlewares.use(assetsDir, (req, res, next) =>
+						fontFileMiddleware({
+							url: req.url,
+							response: resToMinimalResponse(res),
+							next,
+							fontFetcher,
+							fontFileById,
+							fontTypeExtractor,
+							logger,
+						}),
 					);
-				}
-			});
-
-			server.middlewares.use(assetsDir, (req, res, next) =>
-				fontFileMiddleware({
-					url: req.url,
-					response: resToMinimalResponse(res),
-					next,
-					fontFetcher,
-					fontFileById,
-					fontTypeExtractor,
-					logger,
-				}),
-			);
+				};
+			},
 		},
 		resolveId: {
 			filter: {

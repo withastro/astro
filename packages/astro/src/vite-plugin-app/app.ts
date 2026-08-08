@@ -16,6 +16,7 @@ import type { DevServerController } from '../vite-plugin-astro-server/controller
 import { recordServerError } from '../vite-plugin-astro-server/error.js';
 import { runWithErrorHandling } from '../vite-plugin-astro-server/index.js';
 import { handle500Response, writeSSRResult } from '../vite-plugin-astro-server/response.js';
+import { getDevServerBase } from '../core/app/dev-base.js';
 import { RunnablePipeline } from './pipeline.js';
 import { ensure404Route } from '../core/routing/astro-designed-error-pages.js';
 import { matchRoute } from '../core/routing/dev.js';
@@ -296,7 +297,12 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 						self.logger,
 						error,
 					);
-					handle500Response(self.loader, incomingResponse, errorWithMetadata);
+					handle500Response(
+						self.loader,
+						getDevServerBase(self.manifest.base, self.manifest.userAssetsBase),
+						incomingResponse,
+						errorWithMetadata,
+					);
 				}
 				return error;
 			},

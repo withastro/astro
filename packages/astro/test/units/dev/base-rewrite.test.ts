@@ -1,34 +1,28 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import {
-	evaluateBaseRewrite,
-	resolveDevRoot,
-} from '../../../dist/vite-plugin-astro-server/base.js';
+import { getDevServerBase } from '../../../dist/core/app/dev-base.js';
+import { evaluateBase, resolveDevRoot } from '../../../dist/vite-plugin-astro-server/base.js';
 
 // #region resolveDevRoot
 describe('resolveDevRoot', () => {
 	it('resolves /docs base without site', () => {
-		const { devRoot, devRootReplacement } = resolveDevRoot('/docs');
+		const { devRoot } = resolveDevRoot('/docs');
 		assert.equal(devRoot, '/docs');
-		assert.equal(devRootReplacement, '');
 	});
 
 	it('resolves /docs/ base with trailing slash', () => {
-		const { devRoot, devRootReplacement } = resolveDevRoot('/docs/');
+		const { devRoot } = resolveDevRoot('/docs/');
 		assert.equal(devRoot, '/docs/');
-		assert.equal(devRootReplacement, '/');
 	});
 
 	it('resolves / base (root)', () => {
-		const { devRoot, devRootReplacement } = resolveDevRoot('/');
+		const { devRoot } = resolveDevRoot('/');
 		assert.equal(devRoot, '/');
-		assert.equal(devRootReplacement, '/');
 	});
 
 	it('resolves empty base as /', () => {
-		const { devRoot, devRootReplacement } = resolveDevRoot('');
+		const { devRoot } = resolveDevRoot('');
 		assert.equal(devRoot, '/');
-		assert.equal(devRootReplacement, '/');
 	});
 
 	it('uses site pathname when site is provided', () => {
@@ -44,62 +38,24 @@ describe('resolveDevRoot', () => {
 });
 // #endregion
 
-// #region evaluateBaseRewrite — rewrite
-describe('evaluateBaseRewrite — rewrite', () => {
-	it('rewrites URL starting with base by stripping base', () => {
-		const result = evaluateBaseRewrite('/docs/about', '/docs/about', undefined, '/docs/', '/');
-		assert.equal(result.action, 'rewrite');
-		if (result.action === 'rewrite') {
-			assert.equal(result.newUrl, '/about');
-		}
+// #region evaluateBase — next
+describe('evaluateBase — next', () => {
+	it('leaves base-prefixed URLs for Vite to strip', () => {
+		const result = evaluateBase('/docs/about?foo=bar', '/docs/about', undefined, '/docs/');
+		assert.deepEqual(result, { action: 'next' });
 	});
 
-	it('rewrites root base request to /', () => {
-		const result = evaluateBaseRewrite('/docs/', '/docs/', undefined, '/docs/', '/');
-		assert.equal(result.action, 'rewrite');
-		if (result.action === 'rewrite') {
-			assert.equal(result.newUrl, '/');
-		}
-	});
-
-	it('preserves query params after rewrite', () => {
-		const result = evaluateBaseRewrite(
-			'/docs/page?foo=bar',
-			'/docs/page',
-			undefined,
-			'/docs/',
-			'/',
-		);
-		assert.equal(result.action, 'rewrite');
-		if (result.action === 'rewrite') {
-			assert.equal(result.newUrl, '/page?foo=bar');
-		}
-	});
-
-	it('ensures rewritten URL starts with /', () => {
-		// devRootReplacement is '' (no trailing slash on devRoot), so stripping
-		// '/docs' from '/docs/about' yields '/about' which already starts with /
-		const result = evaluateBaseRewrite('/docs/about', '/docs/about', undefined, '/docs', '');
-		assert.equal(result.action, 'rewrite');
-		if (result.action === 'rewrite') {
-			assert.ok(result.newUrl.startsWith('/'));
-		}
-	});
-
-	it('rewrites exact base match (no trailing content)', () => {
-		const result = evaluateBaseRewrite('/docs', '/docs', undefined, '/docs', '');
-		assert.equal(result.action, 'rewrite');
-		if (result.action === 'rewrite') {
-			assert.equal(result.newUrl, '/');
-		}
+	it('passes the exact base through', () => {
+		const result = evaluateBase('/docs', '/docs', undefined, '/docs');
+		assert.deepEqual(result, { action: 'next' });
 	});
 });
 // #endregion
 
-// #region evaluateBaseRewrite — not-found-subpath
-describe('evaluateBaseRewrite — not-found-subpath', () => {
+// #region evaluateBase — not-found-subpath
+describe('evaluateBase — not-found-subpath', () => {
 	it('returns not-found-subpath for / when base is not /', () => {
-		const result = evaluateBaseRewrite('/', '/', undefined, '/docs/', '/');
+		const result = evaluateBase('/', '/', undefined, '/docs/');
 		assert.equal(result.action, 'not-found-subpath');
 		if (result.action === 'not-found-subpath') {
 			assert.equal(result.pathname, '/');
@@ -108,7 +64,7 @@ describe('evaluateBaseRewrite — not-found-subpath', () => {
 	});
 
 	it('returns not-found-subpath for /index.html', () => {
-		const result = evaluateBaseRewrite('/index.html', '/index.html', undefined, '/docs/', '/');
+		const result = evaluateBase('/index.html', '/index.html', undefined, '/docs/');
 		assert.equal(result.action, 'not-found-subpath');
 		if (result.action === 'not-found-subpath') {
 			assert.equal(result.pathname, '/index.html');
@@ -117,10 +73,10 @@ describe('evaluateBaseRewrite — not-found-subpath', () => {
 });
 // #endregion
 
-// #region evaluateBaseRewrite — not-found (HTML)
-describe('evaluateBaseRewrite — not-found', () => {
+// #region evaluateBase — not-found (HTML)
+describe('evaluateBase — not-found', () => {
 	it('returns not-found for non-base URL with text/html accept', () => {
-		const result = evaluateBaseRewrite('/other', '/other', 'text/html', '/docs/', '/');
+		const result = evaluateBase('/other', '/other', 'text/html', '/docs/');
 		assert.equal(result.action, 'not-found');
 		if (result.action === 'not-found') {
 			assert.equal(result.pathname, '/other');
@@ -128,33 +84,41 @@ describe('evaluateBaseRewrite — not-found', () => {
 	});
 
 	it('returns not-found when accept includes text/html among others', () => {
-		const result = evaluateBaseRewrite(
-			'/other',
-			'/other',
-			'text/html, application/xhtml+xml',
-			'/docs/',
-			'/',
-		);
+		const result = evaluateBase('/other', '/other', 'text/html, application/xhtml+xml', '/docs/');
 		assert.equal(result.action, 'not-found');
 	});
 });
 // #endregion
 
-// #region evaluateBaseRewrite — check-public
-describe('evaluateBaseRewrite — check-public', () => {
+// #region evaluateBase — check-public
+describe('evaluateBase — check-public', () => {
 	it('returns check-public for non-base URL without HTML accept', () => {
-		const result = evaluateBaseRewrite('/favicon.ico', '/favicon.ico', 'image/*', '/docs/', '/');
+		const result = evaluateBase('/favicon.ico', '/favicon.ico', 'image/*', '/docs/');
 		assert.equal(result.action, 'check-public');
 	});
 
 	it('returns check-public when accept header is undefined', () => {
-		const result = evaluateBaseRewrite('/script.js', '/script.js', undefined, '/docs/', '/');
+		const result = evaluateBase('/script.js', '/script.js', undefined, '/docs/');
 		assert.equal(result.action, 'check-public');
 	});
 
 	it('returns check-public for non-HTML accept types', () => {
-		const result = evaluateBaseRewrite('/api/data', '/api/data', 'application/json', '/docs/', '/');
+		const result = evaluateBase('/api/data', '/api/data', 'application/json', '/docs/');
 		assert.equal(result.action, 'check-public');
 	});
 });
 // #endregion
+
+describe('getDevServerBase', () => {
+	it('uses the Astro base by default', () => {
+		assert.equal(getDevServerBase('/admin', undefined), '/admin');
+	});
+
+	it('preserves an explicit Vite base', () => {
+		assert.equal(getDevServerBase('/', '/admin'), '/admin');
+	});
+
+	it('composes Astro and Vite bases', () => {
+		assert.equal(getDevServerBase('/admin', '/assets'), '/admin/assets');
+	});
+});

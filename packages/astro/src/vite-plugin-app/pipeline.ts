@@ -28,6 +28,7 @@ import type {
 } from '../types/public/index.js';
 import { getComponentMetadata } from '../vite-plugin-astro-server/metadata.js';
 import { createResolve } from '../vite-plugin-astro-server/resolve.js';
+import { getDevServerBase, prependDevServerBase } from '../core/app/dev-base.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 
 /**
@@ -56,7 +57,8 @@ export class RunnablePipeline extends Pipeline {
 		getDebugInfo: () => Promise<string>,
 		defaultRoutes?: Array<DefaultRouteParams>,
 	) {
-		const resolve = createResolve(loader, manifest.rootDir);
+		const devBase = getDevServerBase(manifest.base, manifest.userAssetsBase);
+		const resolve = createResolve(loader, manifest.rootDir, devBase);
 		const streaming = true;
 		super(
 			logger,
@@ -102,6 +104,7 @@ export class RunnablePipeline extends Pipeline {
 
 	async headElements(routeData: RouteData): Promise<HeadElements> {
 		const { manifest, runtimeMode, settings } = this;
+		const devBase = getDevServerBase(manifest.base, manifest.userAssetsBase);
 		const filePath = new URL(`${routeData.component}`, manifest.rootDir);
 		const scripts = new Set<SSRElement>();
 
@@ -109,7 +112,7 @@ export class RunnablePipeline extends Pipeline {
 		if (settings) {
 			if (isPage(filePath, settings) && runtimeMode === 'development') {
 				scripts.add({
-					props: { type: 'module', src: '/@vite/client' },
+					props: { type: 'module', src: prependDevServerBase(devBase, '/@vite/client') },
 					children: '',
 				});
 
@@ -117,7 +120,10 @@ export class RunnablePipeline extends Pipeline {
 					scripts.add({
 						props: {
 							type: 'module',
-							src: '/@id/astro/runtime/client/dev-toolbar/entrypoint.js',
+							src: prependDevServerBase(
+								devBase,
+								'/@id/astro/runtime/client/dev-toolbar/entrypoint.js',
+							),
 						},
 						children: '',
 					});
@@ -149,7 +155,10 @@ export class RunnablePipeline extends Pipeline {
 					});
 				} else if (script.stage === 'page' && isPage(filePath, settings)) {
 					scripts.add({
-						props: { type: 'module', src: `/@id/${PAGE_SCRIPT_ID}` },
+						props: {
+							type: 'module',
+							src: prependDevServerBase(devBase, `/@id/${PAGE_SCRIPT_ID}`),
+						},
 						children: '',
 					});
 				}
