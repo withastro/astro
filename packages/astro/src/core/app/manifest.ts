@@ -23,9 +23,6 @@ export function deserializeManifest(
 				...serializedRoute,
 				routeData: deserializeRouteData(serializedRoute.routeData),
 			});
-
-			const route = serializedRoute as unknown as RouteInfo;
-			route.routeData = deserializeRouteData(serializedRoute.routeData);
 		}
 	}
 	if (routesList) {
