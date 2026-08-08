@@ -106,11 +106,14 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 			return;
 		}
 
-		// Redirects are considered prerendered routes in static mode, but we want to
-		// handle them dynamically, so prerendered routes are included here.
-		const routeData = app.match(request, true);
-		// But we still want to skip prerendered pages.
-		if (routeData && !(routeData.type === 'page' && routeData.prerender)) {
+		// Include prerendered routes so static-mode redirects remain dynamic.
+		let routeData = app.match(request, true);
+		// Normal matching can select a lower-priority on-demand route when a prerendered page
+		// matches first.
+		if (routeData?.type === 'page' && routeData.prerender) {
+			routeData = app.match(request);
+		}
+		if (routeData) {
 			const response = await als.run(request.url, () =>
 				app.render(request, {
 					addCookieHeader: true,

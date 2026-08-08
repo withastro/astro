@@ -105,7 +105,7 @@ export function vitePluginLogger({
 				// resolve from the project's node_modules, not from astro core's location.
 				const importerPath = fileURLToPath(new URL('package.json', settings.config.root));
 				const { expression, imports } = await emitDestination(
-					normalizeLoggerConfig(loggerConfig),
+					normalizeLoggerConfig(loggerConfig, settings.config.root),
 					async (entrypoint) => (await this.resolve(entrypoint, importerPath))?.id ?? null,
 				);
 

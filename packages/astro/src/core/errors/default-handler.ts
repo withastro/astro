@@ -7,7 +7,7 @@ import { getCookiesFromResponse } from '../cookies/response.js';
 import { AstroMiddleware } from '../middleware/astro-middleware.js';
 import { PagesHandler } from '../pages/handler.js';
 import { matchRoute } from '../routing/match.js';
-import { provideSession } from '../session/handler.js';
+import { provideSession } from '../session/provider.js';
 import { validateHost } from '../app/validate-headers.js';
 import { getErrorRoutePath } from '../../i18n/error-routes.js';
 import { getOutputFilename } from '../output-filename.js';
