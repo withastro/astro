@@ -5,6 +5,7 @@ import type { AddressInfo } from 'node:net';
 import { isAbsolute } from 'node:path';
 import colors from 'piccolore';
 import type { Plugin } from 'vite';
+import { createVolatileIncrementalMetadata } from '../../core/build/incremental-metadata.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../core/constants.js';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
 import { generateCspDigest } from '../../core/encryption.js';
@@ -339,6 +340,13 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					}
 
 					return {
+						// The address below belongs to a server on an ephemeral port, so this
+						// module's code differs between two otherwise identical builds. Mark it
+						// volatile so it stays out of route dependency hashes — otherwise every
+						// route using fonts looks modified on every build and incremental
+						// builds never reuse anything. Font configuration still reaches the
+						// hash through the `virtual:astro:assets/fonts/internal` module.
+						meta: createVolatileIncrementalMetadata(),
 						code: `
 							import { RemoteRuntimeFontFileUrlResolver } from ${JSON.stringify(new URL('./infra/remote-runtime-font-file-url-resolver.js', import.meta.url))};
 							export const runtimeFontFileUrlResolver = new RemoteRuntimeFontFileUrlResolver({

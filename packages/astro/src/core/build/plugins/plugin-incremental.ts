@@ -6,7 +6,10 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 import { removeQueryString } from '../../path.js';
 import { rootRelativePath } from '../../viteUtils.js';
 import { moduleIsTopLevelPage } from '../graph.js';
-import { isContentDataIncrementalModule } from '../incremental-metadata.js';
+import {
+	isContentDataIncrementalModule,
+	isVolatileIncrementalModule,
+} from '../incremental-metadata.js';
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID } from '../internal.js';
 import type { PageBuildData } from '../types.js';
@@ -32,7 +35,7 @@ function collectTransitiveDeps(graph: ModuleGraph, rootId: string): string[] {
 		if (deps.has(current)) continue;
 
 		const modInfo = graph.getModuleInfo(current);
-		if (isContentDataIncrementalModule(modInfo)) continue;
+		if (isContentDataIncrementalModule(modInfo) || isVolatileIncrementalModule(modInfo)) continue;
 
 		deps.add(current);
 		if (!modInfo) continue;
