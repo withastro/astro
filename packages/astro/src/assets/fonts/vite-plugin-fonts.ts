@@ -5,6 +5,7 @@ import type { AddressInfo } from 'node:net';
 import { isAbsolute } from 'node:path';
 import colors from 'piccolore';
 import type { Plugin } from 'vite';
+import { createSkipIncrementalMetadata } from '../../core/build/incremental-metadata.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../core/constants.js';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
 import { generateCspDigest } from '../../core/encryption.js';
@@ -335,6 +336,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 									urls: new Set(${JSON.stringify(urls)}),
 								});
 							`,
+							meta: createSkipIncrementalMetadata(),
 						};
 					}
 
@@ -346,6 +348,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 								address: ${JSON.stringify(serverAddress)},
 							});
 						`,
+						meta: createSkipIncrementalMetadata(),
 					};
 				}
 			},

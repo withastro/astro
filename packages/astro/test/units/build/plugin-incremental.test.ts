@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { createSkipIncrementalMetadata } from '../../../dist/core/build/incremental-metadata.js';
 import { pluginIncremental } from '../../../dist/core/build/plugins/plugin-incremental.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../dist/vite-plugin-pages/const.js';
 
@@ -15,7 +16,12 @@ const HANDLE_TWO = 'WPGYjwIlzWVNM1bYhOc83w';
 
 function moduleInfo(
 	id: string,
-	{ code = '', importedIds = [] as string[], importers = [] as string[] } = {},
+	{
+		code = '',
+		importedIds = [] as string[],
+		importers = [] as string[],
+		meta = {} as Record<string, any>,
+	} = {},
 ) {
 	return {
 		id,
@@ -24,7 +30,7 @@ function moduleInfo(
 		importers,
 		dynamicallyImportedIds: [],
 		dynamicImporters: [] as string[],
-		meta: {},
+		meta,
 	};
 }
 
@@ -40,6 +46,7 @@ function pluginContext(
 	codeByModule: Record<string, string>,
 	fileNames: Record<string, string>,
 	importedIds: string[],
+	metaByModule: Record<string, Record<string, any>> = {},
 ) {
 	const modules = new Map([
 		[
@@ -50,7 +57,9 @@ function pluginContext(
 				importers: [VIRTUAL_PAGE_RESOLVED_MODULE_ID],
 			}),
 		],
-		...importedIds.map((id) => [id, moduleInfo(id, { code: codeByModule[id] })] as const),
+		...importedIds.map(
+			(id) => [id, moduleInfo(id, { code: codeByModule[id], meta: metaByModule[id] })] as const,
+		),
 	]);
 
 	return {
@@ -69,10 +78,11 @@ function dependencyHash(
 	codeByModule: Record<string, string>,
 	fileNames: Record<string, string>,
 	importedIds = Object.keys(codeByModule),
+	metaByModule: Record<string, Record<string, any>> = {},
 ) {
 	const internals = { pagesByViteID: new Map([[PAGE_ID, { component: COMPONENT }]]) } as any;
 	const plugin = pluginIncremental(internals, ROOT) as any;
-	plugin.generateBundle.call(pluginContext(codeByModule, fileNames, importedIds));
+	plugin.generateBundle.call(pluginContext(codeByModule, fileNames, importedIds, metaByModule));
 	return internals.pageDependencyHashes.get(COMPONENT);
 }
 
@@ -121,6 +131,25 @@ describe('pluginIncremental', () => {
 			const second = dependencyHash(code, {});
 			assert.equal(first, second);
 			assert.match(first, /^[0-9a-f]{64}$/);
+		});
+
+		it('is stable when a skipped module changes its code between builds', () => {
+			const RESOLVER = '\0virtual:astro:assets/fonts/runtime/font-file-url-resolver';
+			const skipMeta = createSkipIncrementalMetadata();
+
+			const first = dependencyHash(
+				{ [RED]: imageCode(HANDLE_ONE), [RESOLVER]: 'address: "127.0.0.1:40001"' },
+				{ [HANDLE_ONE]: '_astro/red.aaaa.png' },
+				[RED, RESOLVER],
+				{ [RESOLVER]: skipMeta },
+			);
+			const second = dependencyHash(
+				{ [RED]: imageCode(HANDLE_ONE), [RESOLVER]: 'address: "127.0.0.1:55123"' },
+				{ [HANDLE_ONE]: '_astro/red.aaaa.png' },
+				[RED, RESOLVER],
+				{ [RESOLVER]: skipMeta },
+			);
+			assert.equal(first, second);
 		});
 	});
 });
