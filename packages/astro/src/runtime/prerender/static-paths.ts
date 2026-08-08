@@ -5,8 +5,17 @@ import type { RouteData } from '../../types/public/internal.js';
 import { stringifyParams } from '../../core/routing/params.js';
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../../core/routing/helpers.js';
 import { callGetStaticPaths } from '../../core/render/route-cache.js';
+import { generateContentHash } from '../../core/encryption.js';
+import { deterministicString } from '../../assets/utils/deterministic-string.js';
 
 export type { PathWithRoute } from '../../types/public/integrations.js';
+
+async function hashCacheKey(cacheKey: unknown): Promise<string | undefined> {
+	if (cacheKey === undefined) return undefined;
+	const input = deterministicString(cacheKey);
+	const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+	return await generateContentHash(hashBuffer);
+}
 
 /**
  * Minimal interface for what StaticPaths needs from an App.
@@ -120,7 +129,7 @@ export class StaticPaths {
 			paths.push({
 				pathname,
 				route,
-				cacheKey: staticPath.cacheKey === undefined ? undefined : String(staticPath.cacheKey),
+				cacheKey: await hashCacheKey(staticPath.cacheKey),
 			});
 		}
 
