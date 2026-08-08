@@ -6,6 +6,7 @@ import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { SessionSchema } from '../../../dist/core/session/config.js';
 import { sessionConfigToManifest } from '../../../dist/core/session/utils.js';
+import { getUsedFeatures } from '../../../dist/core/fetch/features.js';
 import { provideSession } from '../../../dist/core/session/provider-disabled.js';
 import { vitePluginSessionProvider } from '../../../dist/core/session/vite-plugin.js';
 
@@ -40,15 +41,16 @@ describe('session: false', () => {
 	describe('disabled provider', () => {
 		it('registers no session provider, leaving Astro.session undefined', () => {
 			let provideCalled = false;
+			const manifest = {} as never;
 			const fakeState = {
-				pipeline: { usedFeatures: 0 },
+				manifest,
 				provide() {
 					provideCalled = true;
 				},
 			};
 			provideSession(fakeState as never);
 			assert.equal(provideCalled, false, 'disabled provider should not register a session');
-			assert.notEqual(fakeState.pipeline.usedFeatures, 0, 'sessions feature should be marked used');
+			assert.notEqual(getUsedFeatures(manifest), 0, 'sessions feature should be marked used');
 		});
 	});
 

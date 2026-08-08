@@ -1,57 +1,40 @@
 /**
  * Public `astro/fetch` API.
  *
- * Every exported function here is a thin wrapper that resolves the
- * correct handler instance and delegates to it. **Do not add logic
- * here** — keep behaviour inside the handler modules so it stays
- * unit-testable without the virtual-module wiring.
+ * Every exported function here is a thin, byte-identical-signature wrapper
+ * that delegates to the handler modules. **Do not add logic here** — keep
+ * behaviour inside the handler modules so it stays unit-testable without
+ * the virtual-module wiring.
  */
-import { ActionHandler } from '../../actions/handler.js';
-import type { BaseApp } from '../app/base.js';
-import type { Pipeline } from '../base-pipeline.js';
+import { handleAction } from '../../actions/handler.js';
 import { FetchState as BaseFetchState } from './fetch-state.js';
 import type { AstroFetchState } from './fetch-state.js';
 export type { AstroFetchState };
-import { CacheHandler } from '../cache/handler.js';
-import { appSymbol } from '../constants.js';
-import { I18n } from '../i18n/handler.js';
-import { AstroMiddleware } from '../middleware/astro-middleware.js';
-import { PagesHandler } from '../pages/handler.js';
+import { handleCache } from '../cache/handler.js';
+import { finalizeI18n, getI18n } from '../i18n/handler.js';
+import { getAmbientManifest } from '../manifest/ambient.js';
+import { handleMiddlewareWithErrorFallback } from '../middleware/astro-middleware.js';
+import { handlePagesWithErrorFallback } from '../pages/handler.js';
 import { renderRedirect } from '../redirects/render.js';
-import { AstroHandler } from '../routing/handler.js';
+import { handleRequest } from '../routing/handler.js';
 import { provideSession } from '../session/provider.js';
-import { TrailingSlashHandler } from '../routing/trailing-slash-handler.js';
+import { handleTrailingSlash } from '../routing/trailing-slash-handler.js';
 
-function getApp(request: Request): BaseApp<Pipeline> {
-	const app = Reflect.get(request, appSymbol) as BaseApp<Pipeline> | undefined;
-	if (!app) {
-		throw new Error(
-			'FetchState(request) called on a request without an attached app. ' +
-				"Ensure it runs inside Astro's request pipeline.",
-		);
-	}
-	return app;
-}
-
+/**
+ * The public per-request state, constructible from a bare `Request` (Goal 3).
+ * Static, build-time data comes from the ambient manifest — the manifest
+ * module bundled into every Astro-built server — so no app, pipeline, or
+ * request-attached handle is needed (D1: ambient-only).
+ */
 export class FetchState extends BaseFetchState {
 	constructor(request: Request) {
-		super(getApp(request).pipeline, request);
+		super(getAmbientManifest(), request);
 	}
 }
-
-const astroHandlers = new WeakMap<BaseApp<Pipeline>, AstroHandler>();
 
 export function astro(state: FetchState): Promise<Response> {
-	const app = getApp(state.request);
-	let handler = astroHandlers.get(app);
-	if (!handler) {
-		handler = new AstroHandler(app);
-		astroHandlers.set(app, handler);
-	}
-	return handler.handle(state);
+	return handleRequest(state);
 }
-
-const trailingSlashHandlers = new WeakMap<BaseApp<Pipeline>, TrailingSlashHandler>();
 
 /**
  * Checks if the request pathname needs trailing-slash normalization and
@@ -59,16 +42,8 @@ const trailingSlashHandlers = new WeakMap<BaseApp<Pipeline>, TrailingSlashHandle
  * redirect is needed and the caller should continue processing.
  */
 export function trailingSlash(state: FetchState): Response | undefined {
-	const app = getApp(state.request);
-	let handler = trailingSlashHandlers.get(app);
-	if (!handler) {
-		handler = new TrailingSlashHandler(app);
-		trailingSlashHandlers.set(app, handler);
-	}
-	return handler.handle(state);
+	return handleTrailingSlash(state);
 }
-
-const middlewareInstances = new WeakMap<BaseApp<Pipeline>, AstroMiddleware>();
 
 /**
  * Runs Astro's middleware chain for the given state, calling `next` at
@@ -82,16 +57,8 @@ export function middleware(
 	state: FetchState,
 	next: (state: FetchState) => Promise<Response>,
 ): Promise<Response> {
-	const app = getApp(state.request);
-	let mw = middlewareInstances.get(app);
-	if (!mw) {
-		mw = new AstroMiddleware(app.pipeline);
-		middlewareInstances.set(app, mw);
-	}
-	return mw.handleWithErrorFallback(app, state, (s, _ctx) => next(s));
+	return handleMiddlewareWithErrorFallback(state, (s, _ctx) => next(s));
 }
-
-const pagesHandlers = new WeakMap<BaseApp<Pipeline>, PagesHandler>();
 
 /**
  * Dispatches the request to the matched route (endpoint, page, redirect,
@@ -100,13 +67,7 @@ const pagesHandlers = new WeakMap<BaseApp<Pipeline>, PagesHandler>();
  * render the 500 error page.
  */
 export function pages(state: FetchState): Promise<Response> {
-	const app = getApp(state.request);
-	let handler = pagesHandlers.get(app);
-	if (!handler) {
-		handler = new PagesHandler(app.pipeline);
-		pagesHandlers.set(app, handler);
-	}
-	return handler.handleWithErrorFallback(app, state);
+	return handlePagesWithErrorFallback(state);
 }
 
 /**
@@ -135,8 +96,6 @@ export function redirects(state: FetchState): Promise<Response> | undefined {
 	return undefined;
 }
 
-const actionHandlers = new WeakMap<BaseApp<Pipeline>, ActionHandler>();
-
 /**
  * Handles Astro Action requests (RPC + form). Returns a `Response` for
  * RPC actions, or `undefined` for form actions / non-action requests
@@ -144,43 +103,20 @@ const actionHandlers = new WeakMap<BaseApp<Pipeline>, ActionHandler>();
  * the render context if needed.
  */
 export function actions(state: FetchState): Promise<Response | undefined> | undefined {
-	const app = getApp(state.request);
-	let handler = actionHandlers.get(app);
-	if (!handler) {
-		handler = new ActionHandler();
-		actionHandlers.set(app, handler);
-	}
-	return handler.handle(state.getAPIContext(), state);
-}
-
-// `null` sentinel means "i18n not configured" — avoids re-checking manifest each request.
-const i18nHandlers = new WeakMap<BaseApp<Pipeline>, I18n | null>();
-
-function getI18n(app: BaseApp<Pipeline>): I18n | null {
-	let handler = i18nHandlers.get(app);
-	if (handler === undefined) {
-		const config = app.manifest.i18n;
-		handler =
-			config && config.strategy !== 'manual'
-				? new I18n(config, app.manifest.base, app.manifest.trailingSlash, app.manifest.buildFormat)
-				: null;
-		i18nHandlers.set(app, handler);
-	}
-	return handler;
+	return handleAction(state.getAPIContext(), state);
 }
 
 /**
- * Post-processes a response against the app's i18n configuration.
+ * Post-processes a response against the manifest's i18n configuration.
  * Handles locale redirects, 404s for invalid locales, and fallback
- * routing. Returns the response unmodified if i18n is not configured.
+ * routing. Returns the response unmodified if i18n is not configured
+ * (or the routing strategy is `manual`).
  */
 export function i18n(state: FetchState, response: Response): Promise<Response> {
-	const handler = getI18n(getApp(state.request));
-	if (!handler) return Promise.resolve(response);
-	return handler.finalize(state, response);
+	const compiled = getI18n(state.manifest);
+	if (!compiled) return Promise.resolve(response);
+	return finalizeI18n(compiled, state, response);
 }
-
-const cacheHandlers = new WeakMap<BaseApp<Pipeline>, CacheHandler>();
 
 /**
  * Wraps a render callback with cache provider logic. Handles runtime
@@ -189,11 +125,5 @@ const cacheHandlers = new WeakMap<BaseApp<Pipeline>, CacheHandler>();
  * internally.
  */
 export function cache(state: FetchState, next: () => Promise<Response>): Promise<Response> {
-	const app = getApp(state.request);
-	let handler = cacheHandlers.get(app);
-	if (!handler) {
-		handler = new CacheHandler(app);
-		cacheHandlers.set(app, handler);
-	}
-	return handler.handle(state, next);
+	return handleCache(state, next);
 }

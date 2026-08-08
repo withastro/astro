@@ -1,9 +1,14 @@
 import type { MiddlewareHandler, RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
-import { pipelineSymbol } from '../constants.js';
+import { fetchStateSymbol } from '../constants.js';
+import { getEnvironment } from '../environment/index.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
-import { getParams, type Pipeline } from '../render/index.js';
+// The FetchState import is type-only (the symbol is read directly off the
+// context) so this module has no runtime dependency on the fetch-state
+// module, which sits on the other side of the middleware import cycle.
+import type { FetchState } from '../fetch/fetch-state.js';
+import { getParams } from '../render/params-and-props.js';
 import { setOriginPathname } from '../routing/rewrite.js';
 import { defineMiddleware } from './defineMiddleware.js';
 
@@ -49,8 +54,18 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 							);
 						}
 						const oldPathname = handleContext.url.pathname;
-						const pipeline: Pipeline = Reflect.get(handleContext, pipelineSymbol);
-						const { routeData, pathname } = await pipeline.tryRewrite(
+						const state = Reflect.get(handleContext, fetchStateSymbol) as FetchState | undefined;
+						if (!state) {
+							// Outside Astro's request pipeline the state is never stamped;
+							// the pre-refactor code crashed here on an undefined pipeline —
+							// same failure point, explicit message.
+							throw new Error(
+								"FetchState not found on APIContext. `next(payload)` rewrites require a context created through Astro's request pipeline.",
+							);
+						}
+						const manifest = state.manifest;
+						const { routeData, pathname } = await getEnvironment(manifest).tryRewrite(
+							manifest,
 							payload,
 							handleContext.request,
 						);
@@ -59,7 +74,7 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 						// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
 						// so Astro can't retrieve it from the emitted manifest.
 						if (
-							pipeline.manifest.serverLike === true &&
+							manifest.serverLike === true &&
 							handleContext.isPrerendered === false &&
 							routeData.prerender === true
 						) {
@@ -82,8 +97,8 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 						setOriginPathname(
 							handleContext.request,
 							oldPathname,
-							pipeline.manifest.trailingSlash,
-							pipeline.manifest.buildFormat,
+							manifest.trailingSlash,
+							manifest.buildFormat,
 						);
 					}
 					return applyHandle(i + 1, handleContext);

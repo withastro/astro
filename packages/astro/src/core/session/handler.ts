@@ -1,5 +1,8 @@
-import { PipelineFeatures } from '../base-pipeline.js';
+import { getEnvironment } from '../environment/index.js';
+import { markFeatureUsed, PipelineFeatures } from '../fetch/features.js';
 import type { FetchState } from '../fetch/fetch-state.js';
+import type { SSRManifest } from '../app/types.js';
+import { getSessionDriver } from './driver.js';
 import { AstroSession, PERSIST_SYMBOL } from './runtime.js';
 
 const SESSION_KEY = 'session';
@@ -11,12 +14,11 @@ const SESSION_KEY = 'session';
  * persisted.
  *
  * No-op (returns synchronously) if sessions are not configured on the
- * pipeline, avoiding promise allocation on the hot path.
+ * manifest, avoiding promise allocation on the hot path.
  */
 export function provideSession(state: FetchState): Promise<void> | void {
-	state.pipeline.usedFeatures |= PipelineFeatures.sessions;
-	const pipeline = state.pipeline;
-	const config = pipeline.manifest.sessionConfig;
+	markFeatureUsed(state.manifest, PipelineFeatures.sessions);
+	const config = state.manifest.sessionConfig;
 	if (!config) return;
 
 	return provideSessionAsync(state, config);
@@ -24,10 +26,9 @@ export function provideSession(state: FetchState): Promise<void> | void {
 
 async function provideSessionAsync(
 	state: FetchState,
-	config: NonNullable<typeof state.pipeline.manifest.sessionConfig>,
+	config: NonNullable<SSRManifest['sessionConfig']>,
 ): Promise<void> {
-	const pipeline = state.pipeline;
-	const driverFactory = await pipeline.getSessionDriver();
+	const driverFactory = await getSessionDriver(state.manifest);
 	if (!driverFactory) return;
 
 	state.provide<AstroSession>(SESSION_KEY, {
@@ -36,10 +37,10 @@ async function provideSessionAsync(
 			return new AstroSession({
 				cookies,
 				config,
-				runtimeMode: pipeline.runtimeMode,
+				runtimeMode: getEnvironment(state.manifest).runtimeMode,
 				driverFactory,
 				mockStorage: null,
-				logger: pipeline.logger,
+				logger: state.logger,
 			});
 		},
 		finalize(session) {

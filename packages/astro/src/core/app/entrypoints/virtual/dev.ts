@@ -1,55 +1,69 @@
 import fetchable from 'virtual:astro:fetchable';
 import { manifest } from 'virtual:astro:manifest';
-import { DevApp } from '../../dev/app.js';
-import type { CreateApp, RouteInfo } from '../../types.js';
-import type { RoutesList } from '../../../../types/astro.js';
+import { clearActions } from '../../../../actions/load.js';
+import { createNonRunnableEnvironment } from '../../../environment/dev-nonrunnable.js';
+import { setEnvironment } from '../../../environment/index.js';
 import { createConsoleLogger } from '../../../logger/impls/console.js';
+import { getLogger, setLogger } from '../../../logger/manifest-logger.js';
+import { clearMiddleware } from '../../../middleware/load.js';
+import { getRouteCache } from '../../../render/route-cache.js';
+import { updateRouteTable } from '../../../routing/route-table.js';
+import { DevFacadeApp } from '../../dev-facade.js';
+import type { CreateApp, RouteInfo } from '../../types.js';
 
-let currentDevApp: DevApp | null = null;
+// Prevents duplicate listener registration when `createApp` is called
+// repeatedly on the same module instance. When the manifest module is
+// invalidated, this whole entrypoint module re-evaluates and re-registers
+// against the new manifest object (all per-manifest WeakMap state starts
+// fresh — plan-foundation §6.4).
+let hmrWired = false;
 
 export const createApp: CreateApp = ({ streaming } = {}) => {
-	const logger = createConsoleLogger(manifest.logLevel);
-	currentDevApp = new DevApp(manifest, streaming, logger);
-	currentDevApp.setFetchHandler(fetchable);
+	// Composition order (plan-facades §2): logger → environment → facade ctor
+	// (which warms the route table) → fetch handler → HMR wiring.
+	setLogger(manifest, createConsoleLogger(manifest.logLevel));
+	setEnvironment(manifest, createNonRunnableEnvironment());
+	const app = new DevFacadeApp(manifest, streaming);
+	app.setFetchHandler(fetchable);
 
-	// Listen for route updates via HMR
-	if (import.meta.hot) {
+	// The HMR listeners target the MANIFEST via the functional core (D3
+	// `fresh`): one atomic route-table replacement is visible to every
+	// consumer — matcher, custom-404 fallback, rewrites, error-page lookups,
+	// and the `manifestData` accessors — at once.
+	if (import.meta.hot && !hmrWired) {
+		hmrWired = true;
 		import.meta.hot.on('astro:routes-updated', async () => {
-			if (!currentDevApp) return;
 			try {
 				// Re-import the routes module to get fresh routes
 				const { routes: newRoutes } = await import('virtual:astro:routes');
-				const newRoutesList: RoutesList = {
-					routes: newRoutes.map((r: RouteInfo) => r.routeData),
-				};
-				currentDevApp.updateRoutes(newRoutesList);
+				updateRouteTable(
+					manifest,
+					newRoutes.map((r: RouteInfo) => r.routeData),
+				);
 			} catch (e: any) {
 				// Log error but don't crash - route updates are non-critical
-				logger.error('router', `Failed to update routes via HMR:\n ${e}`);
+				getLogger(manifest).error('router', `Failed to update routes via HMR:\n ${e}`);
 			}
 		});
 
 		// Listen for content collection changes via HMR.
 		// Clear the route cache so getStaticPaths() is re-evaluated with fresh data.
 		import.meta.hot.on('astro:content-changed', () => {
-			if (!currentDevApp) return;
-			currentDevApp.pipeline.routeCache.clearAll();
+			getRouteCache(manifest).clearAll();
 		});
 
 		// Listen for middleware file changes via HMR.
 		// Clear the cached middleware so it is re-resolved on the next request.
 		import.meta.hot.on('astro:middleware-updated', () => {
-			if (!currentDevApp) return;
-			currentDevApp.clearMiddleware();
+			clearMiddleware(manifest);
 		});
 
 		// Listen for action file changes via HMR.
 		// Clear the cached actions so they are re-resolved on the next request.
 		import.meta.hot.on('astro:actions-updated', () => {
-			if (!currentDevApp) return;
-			currentDevApp.clearActions();
+			clearActions(manifest);
 		});
 	}
 
-	return currentDevApp;
+	return app;
 };

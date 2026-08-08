@@ -1,7 +1,10 @@
-import type { Pipeline } from '../../../core/base-pipeline.js';
-import { pipelineSymbol } from '../../../core/constants.js';
+import { fetchStateSymbol } from '../../../core/constants.js';
 import { ActionCalledFromServerError } from '../../../core/errors/errors-data.js';
 import { AstroError } from '../../../core/errors/errors.js';
+// Type-only: the symbol is read directly off the context so this
+// virtual-module entrypoint's import graph stays leaf-y.
+import type { FetchState } from '../../../core/fetch/fetch-state.js';
+import { getAction } from '../../load.js';
 import { createGetActionPath, createActionsProxy } from '../client.js';
 import { shouldAppendTrailingSlash } from 'virtual:astro:actions/options';
 
@@ -24,13 +27,16 @@ export const getActionPath = createGetActionPath({
 
 export const actions = createActionsProxy({
 	handleAction: async (param, path, context) => {
-		const pipeline: Pipeline | undefined = context
-			? Reflect.get(context, pipelineSymbol)
+		const state: FetchState | undefined = context
+			? Reflect.get(context, fetchStateSymbol)
 			: undefined;
-		if (!pipeline) {
+		if (!state) {
+			// The context was not created by Astro's request pipeline (e.g.
+			// an action invoked from server code without a context) — the
+			// exact case the old pipeline-symbol lookup rejected.
 			throw new AstroError(ActionCalledFromServerError);
 		}
-		const action = await pipeline.getAction(path);
+		const action = await getAction(state.manifest, path);
 		if (!action) throw new Error(`Action not found: ${path}`);
 		return action.bind(context)(param);
 	},

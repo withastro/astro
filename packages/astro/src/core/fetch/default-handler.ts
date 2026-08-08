@@ -1,53 +1,50 @@
-import type { BaseApp, ResolvedRenderOptions } from '../app/base.js';
-import type { Pipeline } from '../base-pipeline.js';
+import type { ResolvedRenderOptions } from '../app/base.js';
+import type { SSRManifest } from '../app/types.js';
+import { getAmbientManifest } from '../manifest/ambient.js';
+import { getRenderOptions } from '../app/render-options.js';
+import { handleRequest } from '../routing/handler.js';
 import { FetchState } from './fetch-state.js';
-import { appSymbol } from '../constants.js';
-import { AstroHandler } from '../routing/handler.js';
 import type { FetchHandler } from './types.js';
 
 /**
- * The default request handler for `BaseApp`. Builds the per-request
- * `FetchState` and delegates to an `AstroHandler`.
+ * The default request handler for `BaseApp`. Stateless: builds the
+ * per-request `FetchState` from the manifest and delegates to
+ * `handleRequest`.
+ *
+ * The export path (`astro/app/fetch/default-handler`), the class name, and
+ * no-arg constructibility are baked into generated builds
+ * (`core/fetch/vite-plugin.ts` emits `new DefaultFetchHandler()`), so all
+ * three survive.
  */
 export class DefaultFetchHandler {
-	#app: BaseApp<Pipeline> | null;
-	#handler: AstroHandler | null;
+	#manifest: SSRManifest | undefined;
 
-	constructor(app?: BaseApp<Pipeline>) {
-		this.#app = app ?? null;
-		this.#handler = app ? new AstroHandler(app) : null;
+	/**
+	 * The optional parameter is KEPT for back-compat (callers historically
+	 * passed a `BaseApp`), structurally widened to `{ manifest: SSRManifest }`
+	 * — assignable from every current caller. Only the manifest is retained;
+	 * it is a resolution fallback ahead of the ambient manifest.
+	 */
+	constructor(app?: { manifest: SSRManifest }) {
+		this.#manifest = app?.manifest;
 	}
 
 	/**
-	 * Fast path: called directly by `BaseApp.render()` with pre-resolved
-	 * options, avoiding the `Reflect.set/get` round-trip through the request.
+	 * Fast path historically called by `BaseApp.render()` with pre-resolved
+	 * options. Kept as a compat shim — `BaseApp.render` now constructs the
+	 * `FetchState` itself (so it can pass the internal facade hooks) and
+	 * calls `handleRequest` directly.
 	 */
 	renderWithOptions(request: Request, options: ResolvedRenderOptions): Promise<Response> {
-		if (!this.#app) {
-			const app = Reflect.get(request, appSymbol) as BaseApp<Pipeline> | undefined;
-			if (!app) {
-				throw new Error('No fetch handler provided.');
-			}
-			this.#app = app;
-			this.#handler = new AstroHandler(app);
-		}
-		const state = new FetchState(this.#app.pipeline, request, options);
-		return this.#handler!.handle(state);
+		const manifest = this.#manifest ?? getAmbientManifest();
+		return handleRequest(new FetchState(manifest, request, options));
 	}
 
 	fetch: FetchHandler = (request) => {
-		if (!this.#app) {
-			const app = Reflect.get(request, appSymbol) as BaseApp<Pipeline> | undefined;
-			if (!app) {
-				throw new Error('No fetch handler provided.');
-			}
-			this.#app = app;
-			this.#handler = new AstroHandler(app);
-		}
-		const state = new FetchState(this.#app.pipeline, request);
-		if (!this.#handler) {
-			throw new Error('No fetch handler provided.');
-		}
-		return this.#handler.handle(state);
+		const options = getRenderOptions(request);
+		// Ambient-only manifest resolution (D1): the render-options record
+		// carries only genuine `render()` inputs — never a manifest.
+		const manifest = this.#manifest ?? getAmbientManifest();
+		return handleRequest(new FetchState(manifest, request, options));
 	};
 }

@@ -3,7 +3,7 @@ import {
 	createCrossOriginForbiddenResponse,
 	isForbiddenCrossOriginRequest,
 } from '../core/app/origin-check.js';
-import { PipelineFeatures } from '../core/base-pipeline.js';
+import { markFeatureUsed, PipelineFeatures } from '../core/fetch/features.js';
 import type { FetchState } from '../core/fetch/fetch-state.js';
 import { getActionContext, serializeActionResult } from './runtime/server.js';
 
@@ -24,66 +24,64 @@ import { getActionContext, serializeActionResult } from './runtime/server.js';
  * page dispatch. That placement preserves the existing behavior where
  * user middleware sees action requests and response finalization (cookies,
  * sessions, etc.) runs around the action response.
+ *
+ * Expects the APIContext that is already being used by the render pipeline.
+ * Returns a `Response` when the action fully handles the request (RPC),
+ * or `undefined` when the caller should continue processing the request
+ * (form actions or non-action requests).
  */
-export class ActionHandler {
-	/**
-	 * Run action handling for the current request. Expects the APIContext
-	 * that is already being used by the render pipeline.
-	 *
-	 * Returns a `Response` when the action fully handles the request (RPC),
-	 * or `undefined` when the caller should continue processing the
-	 * request (form actions or non-action requests).
-	 */
-	handle(apiContext: APIContext, state: FetchState): Promise<Response | undefined> | undefined {
-		state.pipeline.usedFeatures |= PipelineFeatures.actions;
-		if (apiContext.isPrerendered) {
-			return undefined;
-		}
-
-		const { action, setActionResult } = getActionContext(apiContext);
-		if (!action) {
-			return undefined;
-		}
-
-		// The origin check normally runs in the origin-check middleware, but the
-		// action dispatch can run before that middleware depending on how the
-		// pipeline is composed. Apply the same check here so it holds regardless
-		// of ordering.
-		if (
-			state.pipeline.manifest.checkOrigin &&
-			isForbiddenCrossOriginRequest(apiContext.request, apiContext.url, apiContext.isPrerendered)
-		) {
-			return Promise.resolve(createCrossOriginForbiddenResponse(apiContext.request));
-		}
-
-		return this.#executeAction(action, setActionResult);
-	}
-
-	async #executeAction(
-		action: ReturnType<typeof getActionContext>['action'],
-		setActionResult: ReturnType<typeof getActionContext>['setActionResult'],
-	): Promise<Response | undefined> {
-		const actionResult = await action!.handler();
-		const serialized = serializeActionResult(actionResult);
-
-		if (action!.calledFrom === 'rpc') {
-			if (serialized.type === 'empty') {
-				return new Response(null, {
-					status: serialized.status,
-				});
-			}
-			return new Response(serialized.body, {
-				status: serialized.status,
-				headers: {
-					'Content-Type': serialized.contentType,
-				},
-			});
-		}
-
-		// Form action: stash the result in locals and let the caller continue
-		// to render the page. A subsequent call to `getActionContext` during
-		// page rendering will see the stored payload and skip re-running.
-		setActionResult(action!.name, serialized);
+export function handleAction(
+	apiContext: APIContext,
+	state: FetchState,
+): Promise<Response | undefined> | undefined {
+	markFeatureUsed(state.manifest, PipelineFeatures.actions);
+	if (apiContext.isPrerendered) {
 		return undefined;
 	}
+
+	const { action, setActionResult } = getActionContext(apiContext);
+	if (!action) {
+		return undefined;
+	}
+
+	// The origin check normally runs in the origin-check middleware, but the
+	// action dispatch can run before that middleware depending on how the
+	// pipeline is composed. Apply the same check here so it holds regardless
+	// of ordering.
+	if (
+		state.manifest.checkOrigin &&
+		isForbiddenCrossOriginRequest(apiContext.request, apiContext.url, apiContext.isPrerendered)
+	) {
+		return Promise.resolve(createCrossOriginForbiddenResponse(apiContext.request));
+	}
+
+	return executeAction(action, setActionResult);
+}
+
+async function executeAction(
+	action: ReturnType<typeof getActionContext>['action'],
+	setActionResult: ReturnType<typeof getActionContext>['setActionResult'],
+): Promise<Response | undefined> {
+	const actionResult = await action!.handler();
+	const serialized = serializeActionResult(actionResult);
+
+	if (action!.calledFrom === 'rpc') {
+		if (serialized.type === 'empty') {
+			return new Response(null, {
+				status: serialized.status,
+			});
+		}
+		return new Response(serialized.body, {
+			status: serialized.status,
+			headers: {
+				'Content-Type': serialized.contentType,
+			},
+		});
+	}
+
+	// Form action: stash the result in locals and let the caller continue
+	// to render the page. A subsequent call to `getActionContext` during
+	// page rendering will see the stored payload and skip re-running.
+	setActionResult(action!.name, serialized);
+	return undefined;
 }

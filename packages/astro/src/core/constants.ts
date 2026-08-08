@@ -43,11 +43,6 @@ export const clientLocalsSymbol = Symbol.for('astro.locals');
 export const originPathnameSymbol = Symbol.for('astro.originPathname');
 
 /**
- * Use this symbol to set and retrieve the pipeline.
- */
-export const pipelineSymbol = Symbol.for('astro.pipeline');
-
-/**
  * Use this symbol to stash the active `FetchState` on an `APIContext`
  * (or `ActionAPIContext`). Consumed by internal shims that need access
  * to per-request state without appearing in the public context shape
@@ -55,14 +50,6 @@ export const pipelineSymbol = Symbol.for('astro.pipeline');
  * `src/i18n/middleware.ts`.
  */
 export const fetchStateSymbol = Symbol.for('astro.fetchState');
-
-/**
- * Use this symbol to stash the `BaseApp` on an incoming `Request` at the
- * top of the pipeline. Fetch handlers loaded from `virtual:astro:fetchable`
- * (including `DefaultFetchHandler`) read it to find the app associated
- * with the current request without needing App passed to their constructor.
- */
-export const appSymbol = Symbol.for('astro.app');
 
 /**
  * Use this symbol to opt into handling prerender routes in Astro core dev middleware.

@@ -16,21 +16,18 @@ import {
 	unescapeHTML,
 } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
-import type { Pipeline } from '../../../dist/core/render/index.js';
+import type { AppPipeline } from '../../../dist/core/app/pipeline.js';
 import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
 
 const createAstroModule = (AstroComponent: AstroComponentFactory) => ({ default: AstroComponent });
 
 describe('head injection app-level rendering', () => {
-	let pipeline: Pipeline;
+	let pipeline: AppPipeline;
 
 	before(async () => {
+		// The test environment registered by `createBasicPipeline` already
+		// stubs `headElements` to empty sets (environment behavior).
 		pipeline = createBasicPipeline();
-		pipeline.headElements = () => ({
-			links: new Set(),
-			scripts: new Set(),
-			styles: new Set(),
-		});
 	});
 
 	async function renderPage(Component: AstroComponentFactory) {
@@ -41,7 +38,7 @@ describe('head injection app-level rendering', () => {
 			component: 'src/pages/index.astro',
 			params: {},
 		};
-		const state = new FetchState(pipeline, request);
+		const state = new FetchState(pipeline.manifest, request);
 		state.routeData = routeData as any;
 		state.pathname = '/index';
 		const response = await renderThroughMiddleware(state, createAstroModule(Component));

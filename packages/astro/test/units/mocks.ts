@@ -13,7 +13,7 @@ import {
 	spreadAttributes,
 } from '../../dist/runtime/server/index.js';
 import { createManifest, createRouteInfo } from './app/test-helpers.ts';
-import type { Pipeline } from '../../dist/core/render/index.js';
+import type { AppPipeline } from '../../dist/core/app/pipeline.js';
 import type { RedirectConfig } from '../../dist/types/public/config.js';
 import type { RouteData, RoutePart, RouteType } from '../../dist/types/public/internal.js';
 import type { APIContext } from '../../dist/types/public/context.js';
@@ -33,7 +33,7 @@ interface LightMockRenderContextOverrides {
 	request?: Request;
 	routeData?: Partial<RouteData>;
 	params?: Record<string, string>;
-	pipeline?: Pipeline;
+	pipeline?: AppPipeline;
 	[key: string]: unknown;
 }
 
@@ -63,7 +63,7 @@ function createMockRenderContext(overrides: LightMockRenderContextOverrides = {}
  */
 export function createMockFetchState(overrides: LightMockRenderContextOverrides = {}) {
 	const ctx = createMockRenderContext(overrides);
-	const state = new FetchState(ctx.pipeline, ctx.request);
+	const state = new FetchState(ctx.pipeline.manifest, ctx.request);
 	state.routeData = ctx.routeData as any;
 	state.params = ctx.params as any;
 	return state;
@@ -123,7 +123,7 @@ export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): A
 	// Build a minimal FetchState and stash it on the context so internal
 	// shims (e.g. `createI18nMiddleware`) can find per-request state.
 	const pipeline = createBasicPipeline();
-	const state = new FetchState(pipeline, request);
+	const state = new FetchState(pipeline.manifest, request);
 	state.routeData = { prerender: isPrerendered } as any;
 	// If the test provides a mock rewrite, override the FetchState's
 	// rewrite method so it doesn't go through the real Rewrites handler.

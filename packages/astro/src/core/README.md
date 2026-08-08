@@ -10,44 +10,29 @@ import { dev, build, preview, sync } from 'astro';
 
 [See CONTRIBUTING.md](../../../../CONTRIBUTING.md) for a code overview.
 
-```
-                                                                                                            Pages
-                                                                                                   used by /
-                                                                                                          /
-                               creates                                                                   /
-                          App --------- AppPipeline                                           AstroGlobal
-                                                   \ implements                              /
-                                                    \                               creates /
-                          creates               impl.\           provided to               /
-vite-plugin-astro-server --------- DevPipeline ------ Pipeline ------------- RenderContext                Middleware
-                                                     /                                     \      used by /
-                                                    /                               creates \            /
-                             creates               / implements                              \          /
-               AstroBuilder --------- BuildPipeline                                           APIContext
-                                                                                                        \
-                                                                                                         \
-                                                                                                  used by \
-                                                                                                           Endpoints
-```
+## Request handling: the functional core
 
-## `App`
+Server-side request handling is a **purely functional core** keyed off the
+`SSRManifest` — the one allowed ambient source of truth, exposed to bundled
+code as the `virtual:astro:manifest` virtual module. There are no stateful
+app/pipeline god objects: behavior lives in plain functions that read static
+data from the manifest plus per-request state.
 
-## `vite-plugin-astro-server` (see `../vite-plugin-astro-server/`)
-
-## `AstroBuilder`
-
-## `Pipeline`
-
-The pipeline is an interface representing data that stays unchanged throughout the duration of the server or build. For example: the user configuration, the list of pages and endpoints in the project, and environment-specific way of gathering scripts and styles.
-
-There are 3 implementations of the pipeline:
-
-- `DevPipeline`: in-use during the `astro dev` CLI command. Created and used by `vite-plugin-astro-server`, and then forwarded to other internals.
-- `BuildPipeline`: in-use during the `astro build` command in `"static"` mode, and for prerendering in `"server"` and `"hybrid"` output modes. See `core/build/`.
-- `AppPipeline`: in-use during production server(less) deployments. Created and used by `App` (see `core/app/`), and then forwarded to other internals.
-
-All 3 expose a common, environment-agnostic interface which is used by the rest of the internals, most notably by `RenderContext`.
-
-## `RenderContext`
-
-Each request is rendered using a `RenderContext`. It manages data unique to each request. For example: the parsed `URL`, internationalization data, the `locals` object, and the route that matched the request. It is responsible for executing middleware, calling endpoints, and rendering pages by gathering necessary data from a `Pipeline`.
+- **Owning modules** hold per-manifest derived/mutable state in WeakMaps and
+  expose accessors: `routing/route-table.ts` (`getRouteTable`, `matchRoute`,
+  `updateRouteTable`), `middleware/load.ts`, `../actions/load.ts`,
+  `session/driver.ts`, `cache/provider.ts`, `render/route-cache.ts`,
+  `routing/default.ts`, `logger/manifest-logger.ts`, `fetch/features.ts`,
+  `manifest/ambient.ts`.
+- **`environment/`** expresses what genuinely varies between rendering
+  environments (production SSR, the two dev paths, build/prerender, the
+  container) as a stateless `RenderEnvironment` record registered per manifest
+  via `setEnvironment`; production is the unregistered default.
+- **`fetch/`** owns the per-request `FetchState` (constructible from a bare
+  `Request`, resolving the ambient manifest) and the handler functions
+  (`handleRequest` and the middleware/pages/error stages) that drive a request
+  through the chain.
+- **Facades**: `App` (`core/app/`) and `NodeApp` (`core/app/node.ts`) survive
+  as thin public compatibility shells — every method delegates to the
+  functional core. `app.pipeline` is a stateless `AppPipeline` delegate shim
+  (`core/app/pipeline.ts`) kept for public-surface compatibility.
