@@ -12,22 +12,28 @@ import {
 	renderSlot,
 } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
-import type { Pipeline } from '../../../dist/core/render/index.js';
+import type { AppPipeline } from '../../../dist/core/app/pipeline.js';
+import { getEnvironment, setEnvironment } from '../../../dist/core/environment/index.js';
 import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
 
 const createAstroModule = (AstroComponent: AstroComponentFactory) => ({ default: AstroComponent });
 
 describe('core/render', () => {
 	describe('Injected head contents', () => {
-		let pipeline: Pipeline;
+		let pipeline: AppPipeline;
 		before(async () => {
 			pipeline = createBasicPipeline();
-			pipeline.headElements = () => ({
-				links: new Set([
-					{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' },
-				]),
-				scripts: new Set(),
-				styles: new Set(),
+			// Head elements are environment behavior now — override the
+			// manifest's registered environment rather than the pipeline.
+			setEnvironment(pipeline.manifest, {
+				...getEnvironment(pipeline.manifest),
+				headElements: () => ({
+					links: new Set([
+						{ name: 'link', props: { rel: 'stylesheet', href: '/main.css' }, children: '' },
+					]),
+					scripts: new Set(),
+					styles: new Set(),
+				}),
 			});
 		});
 
@@ -105,7 +111,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const state = new FetchState(pipeline, request);
+			const state = new FetchState(pipeline.manifest, request);
 			state.routeData = routeData as any;
 			state.pathname = '/index';
 			const response = await renderThroughMiddleware(state, PageModule);
@@ -188,7 +194,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const state = new FetchState(pipeline, request);
+			const state = new FetchState(pipeline.manifest, request);
 			state.routeData = routeData as any;
 			state.pathname = '/index';
 			const response = await renderThroughMiddleware(state, PageModule);
@@ -238,7 +244,7 @@ describe('core/render', () => {
 				component: 'src/pages/index.astro',
 				params: {},
 			};
-			const state = new FetchState(pipeline, request);
+			const state = new FetchState(pipeline.manifest, request);
 			state.routeData = routeData as any;
 			state.pathname = '/index';
 			const response = await renderThroughMiddleware(state, PageModule);

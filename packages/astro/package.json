@@ -83,6 +83,12 @@
     "./_internal/test/units/test-utils": "./test/units/test-utils.ts",
     "./_internal/test/test-utils": "./test/test-utils.ts"
   },
+  "imports": {
+    "#astro-internal/ambient-manifest": {
+      "types": "./src/core/manifest/ambient-source.ts",
+      "default": "./dist/core/manifest/ambient-source.js"
+    }
+  },
   "bin": {
     "astro": "./bin/astro.mjs"
   },

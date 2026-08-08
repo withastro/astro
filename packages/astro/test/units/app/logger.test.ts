@@ -47,20 +47,28 @@ function createAppWithLogger(logger?: SSRManifest['logger']) {
 }
 
 describe('SSR Logger', () => {
-	it('adapterLogger re-creates itself after the pipeline logger is replaced', async () => {
+	it('adapterLogger stays stable while the logger destination is resolved in place', async () => {
 		const app = createAppWithLogger(jsonLogger);
 
 		// Access adapterLogger before getLogger(), caches it with the default options
 		const beforeOptions = app.adapterLogger.options;
+		const destinationBefore = app.logger.options.destination;
 
 		await app.pipeline.getLogger();
 
-		// After getLogger() replaces pipeline.logger, adapterLogger should re-create
-		const afterOptions = app.adapterLogger.options;
+		// The logger is identity-stable: getLogger() swaps the destination in
+		// place via setDestination() instead of replacing the instance, so the
+		// cached adapterLogger keeps writing through the same options object.
 		assert.notEqual(
+			app.logger.options.destination,
+			destinationBefore,
+			'the custom destination should be swapped in on the same logger instance',
+		);
+		const afterOptions = app.adapterLogger.options;
+		assert.equal(
 			beforeOptions,
 			afterOptions,
-			'adapterLogger should re-create when the pipeline logger is replaced',
+			'adapterLogger should not re-create — the logger identity is stable',
 		);
 	});
 

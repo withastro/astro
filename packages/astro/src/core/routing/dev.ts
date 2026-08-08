@@ -1,7 +1,6 @@
 /**
  * Use this module only to have functions needed in development
  */
-import type { RoutesList } from '../../types/astro.js';
 import type { SSRManifest } from '../app/types.js';
 import { matchAllRoutes } from './match.js';
 import { getSortedPreloadedMatches } from '../../prerender/routing.js';
@@ -10,7 +9,10 @@ import { getCustom404Route } from './helpers.js';
 import { NoMatchingStaticPathFound } from '../errors/errors-data.js';
 import { isAstroError } from '../errors/errors.js';
 import type { RouteData } from '../../types/public/index.js';
-import type { RunnablePipeline } from '../../vite-plugin-app/pipeline.js';
+import { getEnvironment } from '../environment/index.js';
+import { getLogger } from '../logger/manifest-logger.js';
+import { getRouteCache } from '../render/route-cache.js';
+import { getRouteTable } from './route-table.js';
 import { getErrorRoutePath } from '../../i18n/error-routes.js';
 
 interface MatchedRoute {
@@ -20,13 +22,16 @@ interface MatchedRoute {
 }
 
 export async function matchRoute(
-	pathname: string,
-	routesList: RoutesList,
-	pipeline: RunnablePipeline,
 	manifest: SSRManifest,
+	pathname: string,
 	{ prerenderOnly }: { prerenderOnly?: boolean } = {},
 ): Promise<MatchedRoute | undefined> {
-	const { logger, routeCache } = pipeline;
+	const logger = getLogger(manifest);
+	const routeCache = getRouteCache(manifest);
+	const env = getEnvironment(manifest);
+	// The single fresh route table (D3): matching, the custom-404 fallback,
+	// and every other consumer read the same atomically-swapped list.
+	const routesList = getRouteTable(manifest);
 	const matches = matchAllRoutes(pathname, routesList);
 
 	const preloadedMatches = getSortedPreloadedMatches({
@@ -49,12 +54,12 @@ export async function matchRoute(
 		// if this fails, we have a bad URL match!
 		try {
 			await getProps({
-				mod: await pipeline.getComponentByRoute(maybeRoute),
+				mod: await env.getComponentByRoute(manifest, maybeRoute),
 				routeData: maybeRoute,
 				routeCache,
 				pathname: pathname,
 				logger,
-				serverLike: pipeline.manifest.serverLike,
+				serverLike: manifest.serverLike,
 				base: manifest.base,
 				trailingSlash: manifest.trailingSlash,
 			});
@@ -88,7 +93,7 @@ export async function matchRoute(
 	const altPathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 
 	if (altPathname !== pathname) {
-		return await matchRoute(altPathname, routesList, pipeline, manifest, { prerenderOnly });
+		return await matchRoute(manifest, altPathname, { prerenderOnly });
 	}
 
 	// A non-prerendered route matched but was skipped above. Don't warn or fall
