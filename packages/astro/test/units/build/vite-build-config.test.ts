@@ -263,6 +263,30 @@ describe('createViteBuildConfig', () => {
 			assert.equal(config2.envPrefix, 'CUSTOM_');
 		});
 
+		it('sets cssTarget to browser-oriented defaults instead of inheriting esnext', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({ settings });
+			assert.ok(Array.isArray(config.build?.cssTarget), 'cssTarget should be an array');
+			const targets = config.build!.cssTarget as string[];
+			assert.ok(
+				targets.some((t) => t.startsWith('safari')),
+				'cssTarget should include safari',
+			);
+			assert.ok(
+				!targets.includes('esnext'),
+				'cssTarget should not include esnext (which produces empty Lightning CSS targets)',
+			);
+		});
+
+		it('allows user to override cssTarget', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: { build: { cssTarget: 'safari11' } },
+			});
+			assert.equal(config.build?.cssTarget, 'safari11');
+		});
+
 		it('sets cssMinify based on vite build.minify', async () => {
 			const settings = await createBasicSettings();
 

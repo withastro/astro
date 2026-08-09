@@ -55,6 +55,12 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 		logLevel: viteConfig.logLevel ?? 'error',
 		build: {
 			target: 'esnext',
+			// Vite defaults cssTarget to build.target when unset. Since we set
+			// build.target to 'esnext' (for Node-side JS), that would cause
+			// Lightning CSS to receive empty browser targets and strip all vendor
+			// prefixes from CSS that is actually served to browsers. Use Vite's
+			// baseline-widely-available browser targets so prefixes are preserved.
+			cssTarget: ['chrome111', 'edge111', 'firefox114', 'safari16.4', 'ios16.4'],
 			// Vite defaults cssMinify to false in SSR by default, but we want to minify it
 			// as the CSS generated are used and served to the client.
 			cssMinify: viteConfig.build?.minify == null ? true : !!viteConfig.build?.minify,
