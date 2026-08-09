@@ -1,9 +1,4 @@
-import { fileURLToPath } from 'node:url';
-import {
-	normalizePath as viteNormalizePath,
-	type ViteDevServer,
-	type Plugin as VitePlugin,
-} from 'vite';
+import type { Plugin as VitePlugin } from 'vite';
 import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import { addRolldownInput } from '../build/add-rolldown-input.js';
@@ -13,6 +8,7 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES, MIDDLEWARE_PATH_SEGMENT_NAME } from '../c
 import { MissingMiddlewareForInternationalization } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
 import { normalizePath } from '../viteUtils.js';
+import { isAstroServerEnvironment } from '../../environments.js';
 
 // This module name is used in Cloudflare's optimizedDeps configuration,
 // if th name changes that needs to be updated as well.
@@ -33,8 +29,6 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 		settings.middlewares.pre.length > 0 || settings.middlewares.post.length > 0;
 	let userMiddlewareIsPresent = false;
 
-	const normalizedSrcDir = viteNormalizePath(fileURLToPath(settings.config.srcDir));
-
 	return {
 		name: '@astro/plugin-middleware',
 		applyToEnvironment(environment) {
@@ -44,29 +38,18 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},
-		configureServer(server: ViteDevServer) {
-			server.watcher.on('change', (path) => {
-				const normalizedPath = viteNormalizePath(path);
-				// Check if the changed file is a middleware file under srcDir
-				if (!normalizedPath.startsWith(normalizedSrcDir)) return;
-				const relativePath = normalizedPath.slice(normalizedSrcDir.length);
-				if (!isMiddlewarePath(relativePath)) return;
+		hotUpdate: {
+			handler() {
+				if (!isAstroServerEnvironment(this.environment)) return;
 
-				for (const name of [
-					ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
-					ASTRO_VITE_ENVIRONMENT_NAMES.astro,
-				] as const) {
-					const environment = server.environments[name];
-					if (!environment) continue;
+				const middlewareVirtualMod = this.environment.moduleGraph.getModuleById(
+					MIDDLEWARE_RESOLVED_MODULE_ID,
+				);
+				if (!middlewareVirtualMod) return;
 
-					const virtualMod = environment.moduleGraph.getModuleById(MIDDLEWARE_RESOLVED_MODULE_ID);
-					if (virtualMod) {
-						environment.moduleGraph.invalidateModule(virtualMod);
-					}
-
-					environment.hot.send('astro:middleware-updated', {});
-				}
-			});
+				this.environment.moduleGraph.invalidateModule(middlewareVirtualMod);
+				this.environment.hot.send('astro:middleware-updated', {});
+			},
 		},
 		resolveId: {
 			filter: {

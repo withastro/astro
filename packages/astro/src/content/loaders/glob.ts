@@ -47,7 +47,7 @@ interface GlobOptions {
 
 function generateIdDefault({ entry, base, data }: GenerateIdOptions, isLegacy?: boolean): string {
 	if (data.slug) {
-		return data.slug as string;
+		return String(data.slug);
 	}
 	const entryURL = new URL(encodeURI(entry), base);
 	if (isLegacy) {
@@ -94,8 +94,11 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 	}
 
 	const isLegacy = !!globOptions[secretLegacyFlag];
-	const generateId =
+	const userGenerateId =
 		globOptions?.generateId ?? ((opts: GenerateIdOptions) => generateIdDefault(opts, isLegacy));
+	// Coerce to string so numeric ids from YAML don't cause Set strict-equality mismatches
+	// against string store keys in the untouched-entries cleanup. See #17624.
+	const generateId = (opts: GenerateIdOptions) => String(userGenerateId(opts));
 
 	const fileToIdMap = new Map<string, string>();
 

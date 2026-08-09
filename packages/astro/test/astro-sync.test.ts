@@ -161,7 +161,8 @@ describe('astro sync', () => {
   collection: "blog";
   data: InferEntrySchema<"blog">;
   rendered?: RenderedContent;
-  filePath?: string;`,
+  filePath?: string;
+  digest?: string | number;`,
 				'Types file does not include empty collection type',
 			);
 			fixture.thenFileContentShouldInclude(
@@ -173,6 +174,7 @@ describe('astro sync', () => {
   data: InferEntrySchema<"blogMeta">;
   rendered?: RenderedContent;
   filePath?: string;
+  digest?: string | number;
 }>;`,
 				'Types file does not include empty collection type',
 			);

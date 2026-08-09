@@ -36,6 +36,9 @@ const CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT = sessionDrivers.cloudflareKVBindi
 const CONTENT_CHUNK_SIZE = 1024 * 1024;
 
 function usesCloudflareKVSessionDriver(session: AstroConfig['session']): boolean {
+	if (session === false) {
+		return false;
+	}
 	const driver = session?.driver;
 
 	if (!driver) {
@@ -172,7 +175,7 @@ export default function createIntegration({
 					);
 				}
 
-				if (!session?.driver) {
+				if (session !== false && !session?.driver) {
 					logger.info(
 						`Enabling sessions with Cloudflare KV with the "${sessionKVBindingName}" KV binding.`,
 					);
@@ -525,6 +528,7 @@ export default function createIntegration({
 							userImageServiceEntrypoint: hasUserBuildImageService
 								? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
 								: undefined,
+							incremental: _config.experimental?.incrementalBuild ?? false,
 							logger,
 						}),
 					);

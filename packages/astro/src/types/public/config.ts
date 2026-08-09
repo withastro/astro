@@ -1623,7 +1623,8 @@ export interface AstroUserConfig<
 	 * @description
 	 *
 	 * The entrypoint for the [logger implementation](https://docs.astro.build/en/reference/logger-reference/#the-logger-implementation).
-	 * This can be an npm package, or a `URL` pointing to a file in your project:
+	 * This can be an npm package, a path relative to your project root, or a `URL` pointing to a
+	 * file in your project:
 	 *
 	 * ```js title="astro.config.mjs"
 	 * import { defineConfig } from 'astro/config';
@@ -1666,6 +1667,7 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @kind heading
+	 * @type {object | false}
 	 * @version 5.7.0
 	 * @name Session Options
 	 * @description
@@ -1689,9 +1691,19 @@ export interface AstroUserConfig<
 	 *
 	 * Session drivers are configured at build time. This means environment variables used in the driver configuration are inlined. You must create your own driver entrypoint to [override the configuration at runtime](https://docs.astro.build/en/guides/sessions/#overriding-the-configuration-at-runtime).
 	 *
+	 * Since Astro v7.2.0, you can opt out of session support by setting the option to `false`. When sessions are disabled, the session runtime is excluded from the SSR bundle, and adapters skip wiring their default session driver. This is useful for serverless and edge runtimes where bundle parse time is sensitive.
+	 *
+	 * ```js title="astro.config.mjs"
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   session: false,
+	 * });
+	 * ```
+	 *
 	 * See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.
 	 */
-	session?: SessionConfig<TDriver>;
+	session?: SessionConfig<TDriver> | false;
 
 	/**
 	 * @docs
@@ -3335,6 +3347,48 @@ export interface AstroUserConfig<
 					/** Maximum UTF-8 byte size of each data store chunk. */
 					chunkSize: number;
 			  };
+
+		/**
+		 * @name experimental.incrementalBuild
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 7.2
+		 * @description
+		 *
+		 * Enables incremental static builds. When enabled, pages with a `cacheKey` returned
+		 * from `getStaticPaths()` can be skipped during subsequent builds if neither
+		 * their data nor their dependencies have changed.
+		 *
+		 * On the first build, all pages are rendered normally and a cache manifest is saved.
+		 * On subsequent builds, each page is checked against the manifest: if the page's
+		 * `cacheKey` and the hash of its module dependency graph both match, the page is
+		 * skipped and the previous output is preserved.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * {
+		 *   experimental: {
+		 *     incrementalBuild: true,
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * In your dynamic routes, return a `cacheKey` from `getStaticPaths()`:
+		 *
+		 * ```js
+		 * // src/pages/blog/[slug].astro
+		 * export async function getStaticPaths() {
+		 *   const posts = await fetchPosts();
+		 *   return posts.map(post => ({
+		 *     params: { slug: post.slug },
+		 *     props: { post },
+		 *     cacheKey: post.digest,
+		 *   }));
+		 * }
+		 * ```
+		 * See the [experimental incremental static builds](https://docs.astro.build/en/reference/experimental-flags/incremental-build/) for more information.
+		 */
+		incrementalBuild?: boolean;
 	};
 }
 

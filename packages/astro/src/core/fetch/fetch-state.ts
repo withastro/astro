@@ -453,6 +453,7 @@ export class FetchState implements AstroFetchState {
 				resources: manifest.csp?.styleDirective ? [...manifest.csp.styleDirective.resources] : [],
 				hashes: manifest.csp?.styleDirective ? [...manifest.csp.styleDirective.hashes] : [],
 			},
+			speculationRulesContent: manifest.csp?.speculationRulesContent,
 			internalFetchHeaders: manifest.internalFetchHeaders,
 		};
 

@@ -20,6 +20,7 @@ import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import type {
 	StaticPathsResponse,
 	PrerenderRequest,
+	PrerenderEnvelope,
 	SerializedStaticImageEntry,
 	StaticImagesResponse,
 } from './prerender-types.js';
@@ -59,6 +60,7 @@ interface CloudflarePrerendererOptions {
 	/** When true, images are optimized by the IMAGES binding in workerd during the build. */
 	hasBindingImageService: boolean;
 	userImageServiceEntrypoint?: string;
+	incremental: boolean;
 	logger: AstroIntegrationLogger;
 }
 
@@ -171,6 +173,7 @@ export function createCloudflarePrerenderer({
 	hasBuildImageService,
 	hasBindingImageService,
 	userImageServiceEntrypoint,
+	incremental,
 	logger,
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
@@ -244,9 +247,10 @@ export function createCloudflarePrerenderer({
 			const data: StaticPathsResponse = await response.json();
 
 			// Deserialize the routes
-			return data.paths.map(({ pathname, route }) => ({
+			return data.paths.map(({ pathname, route, cacheKey }) => ({
 				pathname,
 				route: deserializeRouteData(route),
+				cacheKey,
 			}));
 		},
 
@@ -255,6 +259,7 @@ export function createCloudflarePrerenderer({
 			const body: PrerenderRequest = {
 				url: request.url,
 				routeData: serializeRouteData(routeData, trailingSlash),
+				incremental,
 			};
 
 			const response = await fetch(`${serverUrl}${PRERENDER_ENDPOINT}`, {
@@ -271,6 +276,20 @@ export function createCloudflarePrerenderer({
 			const prerenderError = response.headers.get('x-astro-prerender-error');
 			if (prerenderError) {
 				throw new Error(`Failed to prerender ${request.url}: ${prerenderError}`);
+			}
+
+			// Incremental builds receive a `PrerenderEnvelope` wrapping the response
+			// alongside the metadata collected in workerd, since a raw response
+			// cannot carry it. Reconstruct the response and return it paired with
+			// the metadata for the build to record.
+			if (incremental) {
+				const envelope: PrerenderEnvelope = await response.json();
+				const reconstructed = new Response(Buffer.from(envelope.body, 'base64'), {
+					status: envelope.status,
+					statusText: envelope.statusText,
+					headers: envelope.headers,
+				});
+				return { response: reconstructed, metadata: envelope.metadata };
 			}
 
 			return response;

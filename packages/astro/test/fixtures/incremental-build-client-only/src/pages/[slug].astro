@@ -1,0 +1,16 @@
+---
+import Island from '../components/Island.js';
+
+export function getStaticPaths() {
+	return [{ params: { slug: 'a' }, props: {}, cacheKey: 'v1' }];
+}
+---
+
+<html>
+	<head>
+		<title>Island</title>
+	</head>
+	<body>
+		<Island client:only="custom-renderer" />
+	</body>
+</html>
