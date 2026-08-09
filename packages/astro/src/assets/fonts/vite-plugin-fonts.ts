@@ -237,11 +237,18 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					});
 				});
 				serverAddress = settings.fontsHttpServer.address() as AddressInfo;
+				// Expose address on globalThis so the font-file-url-resolver virtual
+				// module can read it at evaluation time without embedding the
+				// ephemeral port in its source code. Keeping the port out of the
+				// module text prevents the incremental-build dependency hash from
+				// changing on every build. See https://github.com/withastro/astro/issues/17652
+				(globalThis as any).__astro_fonts_server_address = serverAddress;
 			}
 		},
 		async configureServer(server) {
 			server.httpServer?.on('listening', () => {
 				serverAddress = server.httpServer?.address() as AddressInfo;
+				(globalThis as any).__astro_fonts_server_address = serverAddress;
 			});
 
 			server.watcher.on('change', (path) => {
@@ -343,7 +350,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 							import { RemoteRuntimeFontFileUrlResolver } from ${JSON.stringify(new URL('./infra/remote-runtime-font-file-url-resolver.js', import.meta.url))};
 							export const runtimeFontFileUrlResolver = new RemoteRuntimeFontFileUrlResolver({
 								urls: new Set(${JSON.stringify(urls)}),
-								address: ${JSON.stringify(serverAddress)},
+								address: globalThis.__astro_fonts_server_address,
 							});
 						`,
 					};

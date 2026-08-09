@@ -3540,6 +3540,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/incremental-build-fonts:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/incremental-build-headers:
     dependencies:
       astro:
@@ -7118,12 +7124,6 @@ importers:
       tsx:
         specifier: ^4.22.0
         version: 4.22.3
-
-  triage/gh-17624:
-    dependencies:
-      astro:
-        specifier: ^7.2.0
-        version: link:../../packages/astro
 
 packages:
 
