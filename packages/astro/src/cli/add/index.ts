@@ -8,7 +8,7 @@ import { type ASTNode, builders, generateCode, loadFile, type ProxifiedModule } 
 import { getDefaultExportOptions } from 'magicast/helpers';
 import { detect, resolveCommand } from 'package-manager-detector';
 import colors from 'piccolore';
-import maxSatisfying from 'semver/ranges/max-satisfying.js';
+import { findMaxSatisfying } from 'verkit';
 import type yargsParser from 'yargs-parser';
 import {
 	loadTSConfig,
@@ -740,7 +740,7 @@ async function resolveRangeToInstallSpecifier(name: string, range: string): Prom
 	if (versions instanceof Error) return name;
 	// Filter out any prerelease versions, but fallback if there are no stable versions
 	const stableVersions = versions.filter((v) => !v.includes('-'));
-	const maxStable = maxSatisfying(stableVersions, range) ?? maxSatisfying(versions, range);
+	const maxStable = findMaxSatisfying(stableVersions, range) ?? findMaxSatisfying(versions, range);
 	if (!maxStable) return name;
 	return `${name}@^${maxStable}`;
 }
