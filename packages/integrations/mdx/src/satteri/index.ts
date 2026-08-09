@@ -21,6 +21,7 @@ import type { ResolvedMdxOptions } from '../index.js';
 import { shouldAddCharset } from './charset.js';
 import { type AstroMetadata, createAstroMetadataPlugin } from './hast-astro-metadata.js';
 import { createImageToComponentPlugin, type ImageImportInfo } from './hast-images-to-component.js';
+import { escapeBracesInInlineMath, restoreBracesInOutput } from './mdx-math-braces.js';
 
 type HighlightFn = (code: string, lang: string, meta?: string) => Promise<HastNode>;
 
@@ -118,7 +119,16 @@ export function createMdxProcessor(
 				};
 			}
 
-			const mdxResult = await mdxToJs(content, {
+			// Escape braces inside inline math before parsing so satteri's MDX
+			// tokenizer does not misread them as JSX expressions.
+			// https://github.com/withastro/astro/issues/17646
+			const mathFeature = satteriOptions.features.math;
+			const inlineMathEnabled =
+				mathFeature === true ||
+				(typeof mathFeature === 'object' && mathFeature.singleDollarTextMath !== false);
+			const preprocessed = inlineMathEnabled ? escapeBracesInInlineMath(content) : content;
+
+			const mdxResult = await mdxToJs(preprocessed, {
 				mdastPlugins: allMdastPlugins,
 				hastPlugins,
 				optimizeStatic,
@@ -138,7 +148,7 @@ export function createMdxProcessor(
 				elementAttributeNameCase: 'html',
 				data: { astro: astroData },
 			});
-			let compiled = mdxResult.code;
+			let compiled = inlineMathEnabled ? restoreBracesInOutput(mdxResult.code) : mdxResult.code;
 
 			// Read the returned bag, not the seeded reference, so a plugin that replaces it is honored.
 			const astro = mdxResult.data.astro;
