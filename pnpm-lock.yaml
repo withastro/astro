@@ -2667,6 +2667,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/cache-immutable-response:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/cache-memory-query:
     dependencies:
       astro:
@@ -2674,6 +2680,12 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/cache-memory-query-include:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/cache-provider-immutable:
     dependencies:
       astro:
         specifier: workspace:*
@@ -7118,12 +7130,6 @@ importers:
       tsx:
         specifier: ^4.22.0
         version: 4.22.3
-
-  triage/gh-17624:
-    dependencies:
-      astro:
-        specifier: ^7.2.0
-        version: link:../../packages/astro
 
 packages:
 
