@@ -10,7 +10,37 @@ const PERSIST_ATTR = 'data-astro-transition-persist';
 
 const NON_OVERRIDABLE_ASTRO_ATTRS = ['data-astro-transition', 'data-astro-transition-fallback'];
 
-const knownVueScopedStyles = new Map<string, HTMLStyleElement>();
+// Vite's CSS HMR runtime keeps references to the style nodes it injects, so preserve
+// those nodes across ClientRouter head swaps. https://github.com/withastro/astro/pull/17612
+const viteStyleState = import.meta.env.DEV
+	? (() => {
+			const styles = new Map<string, HTMLStyleElement>();
+			let observer: MutationObserver | undefined;
+			return {
+				styles,
+				observe() {
+					if (observer) return;
+					observer = new MutationObserver((records) => {
+						for (const record of records) {
+							for (const node of record.addedNodes) {
+								if (!(node instanceof HTMLStyleElement)) continue;
+								const viteDevId = node.dataset.viteDevId;
+								if (!viteDevId) continue;
+								const knownStyle = styles.get(viteDevId);
+								if (node === knownStyle) continue;
+
+								// ClientRouter appends the fetched style before Vite injects the node
+								// registered for HMR. Replace it and track Vite's node instead.
+								knownStyle?.remove();
+								styles.set(viteDevId, node);
+							}
+						}
+					});
+					observer.observe(document.head, { childList: true });
+				},
+			};
+		})()
+	: undefined;
 
 const scriptsAlreadyRan = new Set<string>();
 export function detectScriptExecuted(script: HTMLScriptElement) {
@@ -75,9 +105,8 @@ export function swapHeadElements(doc: Document) {
 			newEl.remove();
 		} else {
 			if (import.meta.env.DEV && el instanceof HTMLStyleElement) {
-				// In DEV mode, keep updated Vue scoped styles for later reuse
-				const viteDevId = vueScopedStyleId(el);
-				viteDevId && knownVueScopedStyles.set(viteDevId, el);
+				const viteDevId = el.dataset.viteDevId;
+				viteDevId && viteStyleState?.styles.set(viteDevId, el);
 			}
 			// If the element does not exist in the new document, remove the element from current the head.
 			el.remove();
@@ -90,9 +119,23 @@ export function swapHeadElements(doc: Document) {
 
 	// Everything left in the new head is new, append it all.
 	if (import.meta.env.DEV) {
-		// In DEV mode, replace known Vue scoped styles with the versions we remembered
 		relevantNodes(doc.head).forEach((child) => {
-			document.head.append(knownVueScopedStyles.get((child as any).dataset?.viteDevId) || child);
+			const viteDevId = child instanceof HTMLStyleElement && child.dataset.viteDevId;
+			const knownStyle = viteDevId && viteStyleState?.styles.get(viteDevId);
+			if (knownStyle) {
+				// Generated styles such as UnoCSS can keep the same Vite ID while their CSS changes
+				// between routes, so copy the incoming CSS into the style element Vite uses for HMR.
+				// https://github.com/withastro/astro/pull/16242
+				// Vue scoped styles are excluded because their content may be transformed in the browser.
+				if (!vueScopedStyleId(knownStyle)) knownStyle.textContent = child.textContent;
+				document.head.append(knownStyle);
+			} else {
+				if (viteDevId) {
+					viteStyleState?.styles.set(viteDevId, child);
+					viteStyleState?.observe();
+				}
+				document.head.append(child);
+			}
 		});
 	} else {
 		document.head.append(...relevantNodes(doc.head));
@@ -252,14 +295,8 @@ const persistedHeadElement = (el: HTMLElement, newDoc: Document): Element | null
 		const href = el.getAttribute('href');
 		return newDoc.head.querySelector(`link[rel=stylesheet][href="${href}"]`);
 	}
-	// In dev mode, Vite injects <style data-vite-dev-id="..."> elements whose
-	// textContent may later be transformed (especially Vue's `:deep()` → `[data-v-xxx]`).
-	// Match these by their stable dev ID so the already-transformed style is preserved
-	// across ClientRouter soft navigations instead of being replaced by the raw version.
-	// There are other ids that can't be preserved and need a refresh, like Uno's /__uno.css,
-	// which keeps the same id, but with different contents.
-	// To avoid enumerating all exceptions, we only apply the auto-persist logic to elements
-	// that look like Vue's dev styles.
+	// Vue scoped CSS may be transformed in the browser, so preserve its current contents
+	// across ClientRouter navigations. https://github.com/withastro/astro/pull/16379
 	if (import.meta.env.DEV && el instanceof HTMLStyleElement) {
 		const viteDevId = vueScopedStyleId(el);
 		if (viteDevId) {
