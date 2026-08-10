@@ -1,4 +1,3 @@
-import type { ResolvedRenderOptions } from '../app/base.js';
 import type { SSRManifest } from '../app/types.js';
 import { getAmbientManifest } from '../manifest/ambient.js';
 import { getRenderOptions } from '../app/render-options.js';
@@ -20,24 +19,12 @@ export class DefaultFetchHandler {
 	#manifest: SSRManifest | undefined;
 
 	/**
-	 * The optional parameter is KEPT for back-compat (callers historically
-	 * passed a `BaseApp`), structurally widened to `{ manifest: SSRManifest }`
-	 * — assignable from every current caller. Only the manifest is retained;
-	 * it is a resolution fallback ahead of the ambient manifest.
+	 * `BaseApp` passes itself so states resolve that app's manifest ahead of
+	 * the ambient one; generated builds construct the handler with no
+	 * arguments and use the ambient manifest.
 	 */
 	constructor(app?: { manifest: SSRManifest }) {
 		this.#manifest = app?.manifest;
-	}
-
-	/**
-	 * Fast path historically called by `BaseApp.render()` with pre-resolved
-	 * options. Kept as a compat shim — `BaseApp.render` now constructs the
-	 * `FetchState` itself (so it can pass the internal facade hooks) and
-	 * calls `handleRequest` directly.
-	 */
-	renderWithOptions(request: Request, options: ResolvedRenderOptions): Promise<Response> {
-		const manifest = this.#manifest ?? getAmbientManifest();
-		return handleRequest(new FetchState(manifest, request, options));
 	}
 
 	fetch: FetchHandler = (request) => {
