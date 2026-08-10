@@ -1,7 +1,7 @@
 // @ts-check
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import { dim, green } from 'kleur/colors';
 
 const dt = new Intl.DateTimeFormat('en-us', {
