@@ -75,6 +75,59 @@ describe('Static headers', () => {
 	});
 });
 
+describe('Static headers listener cleanup', () => {
+	let fixture: Fixture;
+	let server: AdapterServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/static-headers/',
+			outDir: './dist/listener-cleanup',
+			output: 'server',
+			adapter: nodejs({ mode: 'standalone', staticHeaders: true }),
+		});
+		await fixture.build();
+		const { startServer } = await fixture.loadAdapterEntryModule();
+		process.env.PORT = '4324';
+		const res = startServer();
+		server = res.server;
+		await waitServerListen(server.server);
+	});
+
+	after(async () => {
+		await server.stop();
+	});
+
+	it('does not leak socket close listeners on keep-alive connections', async () => {
+		const http = await import('node:http');
+		const agent = new http.Agent({ keepAlive: true });
+
+		let warningEmitted = false;
+		const onWarning = (warning: Error) => {
+			if (warning.name === 'MaxListenersExceededWarning') {
+				warningEmitted = true;
+			}
+		};
+		process.on('warning', onWarning);
+
+		try {
+			for (let i = 0; i < 30; i++) {
+				const res = await fetch(`http://${server.host}:${server.port}/`, {
+					// @ts-expect-error Node fetch doesn't type `agent`
+					agent,
+					headers: { Connection: 'keep-alive' },
+				});
+				await res.text();
+			}
+		} finally {
+			process.off('warning', onWarning);
+			agent.destroy();
+		}
+
+		assert.equal(warningEmitted, false, 'MaxListenersExceededWarning should not be emitted');
+	});
+});
+
 describe('Static headers with non-root base', () => {
 	let fixture: Fixture;
 	let server: AdapterServer;
