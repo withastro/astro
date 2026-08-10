@@ -6,7 +6,7 @@ import type { BaseApp } from 'astro/app';
 import send from 'send';
 import { resolveClientDir } from './shared.js';
 import type { NodeAppHeadersJson, Options } from './types.js';
-import { createRequestFromNodeRequest } from 'astro/app/node';
+import { createRequestFromNodeRequest, getAbortControllerCleanup } from 'astro/app/node';
 
 /**
  * Resolves a URL path to a filesystem path within the client directory,
@@ -72,6 +72,10 @@ export function createStaticHandler(
 					port: options.port,
 				});
 				const routeData = app.match(request, true);
+				// The Request is only used for route matching above. Clean up the
+				// socket `close` listener that wireAbortController added, otherwise
+				// keep-alive connections accumulate listeners on every request.
+				getAbortControllerCleanup(req)?.();
 				if (routeData && routeData.prerender) {
 					// Headers are stored keyed by base-less route paths (e.g. "/one"), so we
 					// must strip config.base from the incoming URL before matching, just as

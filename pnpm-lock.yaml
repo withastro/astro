@@ -7119,10 +7119,13 @@ importers:
         specifier: ^4.22.0
         version: 4.22.3
 
-  triage/gh-17624:
+  triage/gh-17657:
     dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.2.0
+        specifier: workspace:*
         version: link:../../packages/astro
 
 packages:
