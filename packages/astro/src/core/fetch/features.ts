@@ -26,9 +26,9 @@ export const ALL_PIPELINE_FEATURES =
 	PipelineFeatures.i18n |
 	PipelineFeatures.cache;
 
-// Per-manifest scoping (plan-foundation §6.3): two Apps constructed over the
-// same manifest object (the cloudflare custom-fetch worker) share this bitmask
-// — the bits accumulate from the same renders the warning already observed.
+// Scoped per manifest: two Apps constructed over the same manifest object
+// (e.g. the cloudflare custom-fetch worker) share this bitmask — the bits
+// accumulate from the same renders the warning already observed.
 const usedFeatures = new WeakMap<SSRManifest, { bits: number }>();
 
 /** ORs a feature bit into the manifest's used-features bitmask. */

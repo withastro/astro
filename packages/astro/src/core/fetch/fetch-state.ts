@@ -58,11 +58,10 @@ import { getServerIslands } from '../server-islands/mappings.js';
  * Per-render facade inputs passed by `BaseApp.render`'s fast path to the
  * internal `FetchState` constructor and stored as plain state fields.
  *
- * MEMBERSHIP CLAMP (review-2 F1, normative): frozen at
- * `{ streaming?, renderError?, logRequest? }`. Any addition requires the same
- * discipline as an env-record addition — it must be facade-INSTANCE behavior
- * that a public overridable/reassignable method dispatches today, justified in
- * the PR description. This type is never exported from a public entrypoint;
+ * MEMBERSHIP CLAMP: frozen at `{ streaming?, renderError?, logRequest? }`.
+ * Any addition must be facade-INSTANCE behavior — something a public
+ * overridable/reassignable method dispatches — never static or per-manifest
+ * data. This type is never exported from a public entrypoint;
  * only `BaseApp.render` constructs it; only the `FetchState` constructor
  * consumes it; it is never stored on a request, in a registry, or passed to
  * any other function.
@@ -1118,11 +1117,11 @@ export class FetchState implements AstroFetchState {
 		// request.url stays in sync with this.url. Request.url is a
 		// readonly string, so we must create a new Request object. The
 		// constructor carries over method, headers, body (incl. stream +
-		// duplex) and signal from the old request.
-		// No symbols are re-copied (review R2a): nothing resolves anything
-		// off the request anymore — static data comes from `this.manifest`,
-		// and render options were already captured in the constructor before
-		// this reconstruction runs.
+		// duplex) and signal from the original request. Symbols are not
+		// carried over, and don't need to be: nothing resolves anything off
+		// the request — static data comes from `this.manifest`, and render
+		// options were already captured in the constructor before this
+		// reconstruction runs.
 		this.request = new Request(this.url, this.request);
 	}
 

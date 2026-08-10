@@ -42,7 +42,7 @@ export class DefaultFetchHandler {
 
 	fetch: FetchHandler = (request) => {
 		const options = getRenderOptions(request);
-		// Ambient-only manifest resolution (D1): the render-options record
+		// Ambient-only manifest resolution: the render-options record
 		// carries only genuine `render()` inputs — never a manifest.
 		const manifest = this.#manifest ?? getAmbientManifest();
 		return handleRequest(new FetchState(manifest, request, options));

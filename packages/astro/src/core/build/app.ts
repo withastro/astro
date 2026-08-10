@@ -7,7 +7,7 @@ import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 
 /**
- * The build / prerender facade (plan-facades §2.4): a thin shell over the
+ * The build / prerender facade: a thin shell over the
  * build environment record. The two-phase init state (`setInternals` /
  * `setOptions`, injected by `createDefaultPrerenderer.setup()` after the
  * prerender bundle import) lives in the `BuildEnvironmentSlots` closure

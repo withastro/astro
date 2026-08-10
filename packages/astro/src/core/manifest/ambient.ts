@@ -7,11 +7,11 @@ import type { SSRManifest } from '../app/types.js';
 // `imports` field resolves it to the `undefined` stub in `ambient-source.ts`.
 import { manifest as viteManifest } from '#astro-internal/ambient-manifest';
 
-// Anti-god-object clamp (normative, plan-foundation §2.2): this module exports
-// exactly `setAmbientManifest`, `getAmbientManifest`, `tryGetAmbientManifest`
-// and holds exactly one piece of state (the registered manifest). It may never
-// hold derived data, caches, environment records, or a logger — derived state
-// lives in the owning module's manifest-keyed WeakMap.
+// Anti-god-object clamp: this module exports exactly `setAmbientManifest`,
+// `getAmbientManifest`, `tryGetAmbientManifest` and holds exactly one piece of
+// state (the registered manifest). It may never hold derived data, caches,
+// environment records, or a logger — derived state lives in the owning
+// module's manifest-keyed WeakMap.
 let registered: SSRManifest | undefined;
 
 /**
@@ -26,8 +26,8 @@ export function setAmbientManifest(manifest: SSRManifest | undefined): void {
 
 /**
  * The ambient manifest: the explicitly registered one, else the virtual
- * module's. Throws lazily when neither is available — the same failure timing
- * as the old one-arg `FetchState(request)` without an attached app.
+ * module's. Throws lazily when neither is available, so merely importing a
+ * module that uses this never fails — only actually handling a request does.
  */
 export function getAmbientManifest(): SSRManifest {
 	const manifest = registered ?? viteManifest;

@@ -31,9 +31,8 @@ export const actions = createActionsProxy({
 			? Reflect.get(context, fetchStateSymbol)
 			: undefined;
 		if (!state) {
-			// The context was not created by Astro's request pipeline (e.g.
-			// an action invoked from server code without a context) — the
-			// exact case the old pipeline-symbol lookup rejected.
+			// The context was not created by Astro's request handling (e.g.
+			// an action invoked from server code without a context).
 			throw new AstroError(ActionCalledFromServerError);
 		}
 		const action = await getAction(state.manifest, path);

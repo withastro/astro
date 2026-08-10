@@ -56,9 +56,7 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 						const oldPathname = handleContext.url.pathname;
 						const state = Reflect.get(handleContext, fetchStateSymbol) as FetchState | undefined;
 						if (!state) {
-							// Outside Astro's request pipeline the state is never stamped;
-							// the pre-refactor code crashed here on an undefined pipeline —
-							// same failure point, explicit message.
+							// Outside Astro's request pipeline the state is never stamped.
 							throw new Error(
 								"FetchState not found on APIContext. `next(payload)` rewrites require a context created through Astro's request pipeline.",
 							);

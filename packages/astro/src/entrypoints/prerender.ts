@@ -3,7 +3,7 @@ import { createBuildEnvironment } from '../core/build/environment.js';
 import { BuildApp } from '../core/build/app.js';
 import { setEnvironment } from '../core/environment/index.js';
 
-// Composition (plan-facades §2.4): the build environment record and its
+// Composition: the build environment record and its
 // mutable `internals`/`options` closure slots live at module scope INSIDE the
 // prerender bundle. `createDefaultPrerenderer.setup()` (plain Node, outside
 // the bundle) imports this bundle and calls `app.setInternals(...)` /

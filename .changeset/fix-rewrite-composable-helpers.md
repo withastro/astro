@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes the composable request helpers (`astro/fetch`) crashing when invoked after an in-flight rewrite (`Astro.rewrite()` / `next(payload)`). The rewritten request previously lost the internal handle the helpers relied on, so constructing per-request state from it threw; the helpers now resolve the manifest directly and work on rewritten requests.
+Fixes the composable request helpers (`astro/fetch`) throwing an error when used on a request that had been rewritten with `Astro.rewrite()` or `next()`

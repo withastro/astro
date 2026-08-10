@@ -48,7 +48,7 @@ export default async function createAstroServerApp(
 	});
 	const debugInfo = debugInfoFormatter.format(await debugInfoProvider.get());
 
-	// Composition order (plan-facades §2): logger → environment → facade ctor
+	// Composition order: logger → environment → facade ctor
 	// (which warms the route table from `manifest.routes` — in dev that IS the
 	// live array behind `virtual:astro:routes`, so no separate routes import
 	// is needed) → HMR wiring. The ModuleLoader and AstroSettings are captured
@@ -62,10 +62,10 @@ export default async function createAstroServerApp(
 	const app = new DevFacadeApp(manifest, true);
 	const deps: DevRequestDeps = { loader, settings, controller };
 
-	// The HMR listeners target the MANIFEST via the functional core (D3
-	// `fresh`): one atomic route-table replacement is visible to every
-	// consumer — matcher, custom-404 fallback, rewrites, error-page lookups,
-	// and the `manifestData` accessors — at once.
+	// The HMR listeners target the MANIFEST via the functional core: one
+	// atomic route-table replacement is visible to every consumer — matcher,
+	// custom-404 fallback, rewrites, error-page lookups, and the
+	// `manifestData` accessors — at once.
 	if (import.meta.hot) {
 		import.meta.hot.on('astro:routes-updated', async () => {
 			try {

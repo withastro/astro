@@ -69,8 +69,7 @@ export function getCustom500Route(manifestData: RoutesList): RouteData | undefin
 /**
  * Computes the default HTTP status code a route renders with:
  * `302` for i18n fallback matches, `404`/`500` for (possibly localized)
- * error routes, `200` otherwise. Moved verbatim from
- * `BaseApp.getDefaultStatusCode` (the method delegates here).
+ * error routes, `200` otherwise.
  */
 export function getDefaultStatusCode(
 	manifest: SSRManifest,

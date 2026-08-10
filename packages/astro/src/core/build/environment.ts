@@ -13,13 +13,12 @@ import { cssOrder, getPageData, mergeInlineCss } from './runtime.js';
 import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 
 /**
- * The build / prerender environment record and its mutable closure slots
- * (plan-facades §2.4, plan-foundation §4.4). The build has a two-phase
- * initialization: the prerender bundle is imported first, and
- * `createDefaultPrerenderer.setup()` injects `BuildInternals` /
+ * The build / prerender environment record and its mutable closure slots.
+ * The build has a two-phase initialization: the prerender bundle is imported
+ * first, and `createDefaultPrerenderer.setup()` injects `BuildInternals` /
  * `StaticBuildOptions` afterwards through the facade. The slots live in this
- * closure; accessors throw the same errors as the old `BuildPipeline` fields
- * before injection, and the environment functions close over the same slots.
+ * closure; accessors throw before injection, and the environment functions
+ * close over the same slots.
  */
 export interface BuildEnvironmentSlots {
 	/** The build `RenderEnvironment`; its functions close over the slots below. */
@@ -34,8 +33,8 @@ export interface BuildEnvironmentSlots {
 	getSettings(): AstroSettings;
 }
 
-// Ported from `BuildPipeline.getModuleForRoute` (identical to the production
-// implementation: redirect + i18n-fallback handling over pageMap/pageModule).
+// Identical to the production implementation: redirect + i18n-fallback
+// handling over pageMap/pageModule.
 async function getModuleForRoute(
 	manifest: SSRManifest,
 	route: RouteData,
@@ -105,15 +104,14 @@ export function createBuildEnvironment(): BuildEnvironmentSlots {
 		return getOptions().settings;
 	}
 
-	// Ported from `BuildPipeline`'s constructor `resolve` closure, including
-	// its process-lifetime `resolveCache`.
+	// The resolve cache lives for the whole build.
 	const resolveCache = new Map<string, string>();
 
 	const env: RenderEnvironment = {
 		name: 'build',
 		runtimeMode: 'production',
 		// We can skip streaming in SSG for performance as writing as strings is
-		// faster (`BuildPipeline` passed `manifest.serverLike` for streaming).
+		// faster.
 		defaultStreaming: (manifest) => manifest.serverLike,
 
 		async resolve(manifest: SSRManifest, specifier: string): Promise<string> {

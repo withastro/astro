@@ -1,15 +1,15 @@
 import type { SSRManifest } from '../app/types.js';
 
 /**
- * Shared helpers for "derived once per process per manifest" memoization
- * (plan-foundation §3.1). Manifest-keyed WeakMaps are the sanctioned
- * memoization primitive of the functional request core: each derivation lives
- * in its owning module with its own memo — there is deliberately no central
- * registry and no "get all derived state" function anywhere.
+ * Shared helpers for "derived once per process per manifest" memoization.
+ * Manifest-keyed WeakMaps are the sanctioned memoization primitive of the
+ * request core: each derivation lives in its owning module with its own memo —
+ * there is deliberately no central registry and no "get all derived state"
+ * function anywhere.
  *
  * Note: values are scoped per manifest OBJECT. Two `App`s constructed over the
  * same manifest object (e.g. the cloudflare custom-fetch worker) share every
- * memoized derivation — a verified-benign consequence (plan-foundation §6.3).
+ * memoized derivation.
  */
 
 export interface ManifestMemo<T> {
@@ -54,13 +54,11 @@ export interface AsyncManifestMemo<T> {
 
 /**
  * Caches the PROMISE (single-flight: concurrent callers share one derivation).
- * On rejection the entry is DELETED so the next call retries — preserving
- * today's "failed lazy resolve is retried" behavior (the Pipeline resolvers
- * assign their field AFTER the await, so a throw leaves it unset).
+ * On rejection the entry is DELETED so the next call retries a failed lazy
+ * resolve instead of caching the failure forever.
  *
- * Exception (review R6): the logger's `resolveLoggerDestination` must NOT use
- * this helper — its legacy semantics set the resolved flag BEFORE the await,
- * so a rejecting `manifest.logger()` is never retried. See
+ * Exception: the logger's `resolveLoggerDestination` must NOT use this helper
+ * — a rejecting `manifest.logger()` is deliberately never retried there. See
  * `core/logger/manifest-logger.ts`.
  */
 export function createAsyncManifestMemo<T>(

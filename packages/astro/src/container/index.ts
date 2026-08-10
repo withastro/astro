@@ -327,8 +327,7 @@ export class experimental_AstroContainer {
 			return specifier;
 		};
 		const interner = new WeakMap<RouteData, SinglePageBuiltModule>();
-		// Composition order (plan-facades §2): logger → environment → warm the
-		// route table.
+		// Composition order: logger → environment → warm the route table.
 		setLogger(ssrManifest, createConsoleLogger({ level: 'error' }));
 		setEnvironment(
 			ssrManifest,
@@ -339,11 +338,10 @@ export class experimental_AstroContainer {
 				streaming,
 			}),
 		);
-		// Warm the derived route table (foundation contract 8; replaces the old
-		// Pipeline-ctor router compile). Deliberately left un-refreshed when
-		// routes are inserted later, reproducing the never-rebuilt router —
-		// route matching is irrelevant here because `renderToResponse` always
-		// assigns `state.routeData` explicitly.
+		// Warm the derived route table. Deliberately left un-refreshed when
+		// routes are inserted later — route matching is irrelevant here
+		// because `renderToResponse` always assigns `state.routeData`
+		// explicitly.
 		getRouteTable(ssrManifest);
 		this.#manifest = ssrManifest;
 		this.#interner = interner;

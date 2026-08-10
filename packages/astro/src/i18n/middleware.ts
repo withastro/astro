@@ -10,7 +10,7 @@ import type { MiddlewareHandler } from '../types/public/common.js';
  * API exposed to users via `astro:i18n.middleware(...)` for the manual
  * routing strategy.
  *
- * Internal request handling no longer uses this — `handleRequest`
+ * Only user middleware goes through this wrapper — `handleRequest`
  * invokes `finalizeI18n` directly as an explicit post-processing step.
  */
 export function createI18nMiddleware(

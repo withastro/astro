@@ -60,9 +60,8 @@ async function getModuleForRoute(
 
 /**
  * The container environment. Registered by `experimental_AstroContainer`'s
- * constructor on its fabricated manifest (review R10b) — the container never
- * touches the ambient manifest, so multiple containers in one process stay
- * isolated.
+ * constructor on its fabricated manifest — the container never touches the
+ * ambient manifest, so multiple containers in one process stay isolated.
  */
 export function createContainerEnvironment({
 	interner,
@@ -124,10 +123,10 @@ export function createContainerEnvironment({
 			const { newUrl, pathname, routeData } = findRouteToRewrite({
 				payload,
 				request,
-				// PER-CALL scan of the live manifest routes (plan-foundation §6.6):
-				// the container inserts routes at runtime (`insertRoute` pushes into
-				// `manifest.routes`), and today's uncompiled scan sees them
-				// immediately. Reading the derived route table here would miss them.
+				// PER-CALL scan of the live manifest routes: the container inserts
+				// routes at runtime (`insertRoute` pushes into `manifest.routes`),
+				// and an uncompiled scan sees them immediately. Reading the derived
+				// route table here would miss them.
 				routes: manifest.routes.map((r) => r.routeData),
 				trailingSlash: manifest.trailingSlash,
 				buildFormat: manifest.buildFormat,

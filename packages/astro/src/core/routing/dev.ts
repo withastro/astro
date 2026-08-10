@@ -29,7 +29,7 @@ export async function matchRoute(
 	const logger = getLogger(manifest);
 	const routeCache = getRouteCache(manifest);
 	const env = getEnvironment(manifest);
-	// The single fresh route table (D3): matching, the custom-404 fallback,
+	// The single fresh route table: matching, the custom-404 fallback,
 	// and every other consumer read the same atomically-swapped list.
 	const routesList = getRouteTable(manifest);
 	const matches = matchAllRoutes(pathname, routesList);

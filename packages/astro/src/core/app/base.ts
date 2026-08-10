@@ -166,7 +166,7 @@ export abstract class BaseApp<P extends AppPipeline = AppPipeline> {
 	/**
 	 * Route data derived from the manifest, used for route matching. Reads and
 	 * writes go through the single per-manifest route table, so HMR updates are
-	 * visible to every consumer at once (D3 `fresh`).
+	 * visible to every consumer at once.
 	 */
 	get manifestData(): { routes: RouteData[] } {
 		return getRouteTable(this.manifest);
@@ -195,7 +195,7 @@ export abstract class BaseApp<P extends AppPipeline = AppPipeline> {
 
 	/**
 	 * The streaming flag fed into the internal `FetchState` facade hooks on
-	 * the fast path (plan-facades §2.4). Returns the constructor flag by
+	 * the fast path. Returns the constructor flag by
 	 * default; `BuildApp` overrides this to return `undefined` so streaming
 	 * falls through to the environment default (`manifest.serverLike`).
 	 */
@@ -216,9 +216,8 @@ export abstract class BaseApp<P extends AppPipeline = AppPipeline> {
 	/**
 	 * Returns the error handler used by this app. The default is a thin
 	 * bridge over the functional error API — strategy selection (production
-	 * default / dev / build) is environment-driven inside `renderErrorPage`,
-	 * so app subclasses no longer need overrides. External subclasses can
-	 * still override this to customize error rendering.
+	 * default / dev / build) is environment-driven inside `renderErrorPage`.
+	 * External subclasses can override this to customize error rendering.
 	 */
 	protected createErrorHandler(): ErrorHandler {
 		return {
@@ -275,7 +274,7 @@ export abstract class BaseApp<P extends AppPipeline = AppPipeline> {
 	abstract createPipeline(streaming: boolean, manifest: SSRManifest, ...args: any[]): P;
 
 	set setManifestData(newManifestData: RoutesList) {
-		// One atomic table replacement (review F4): matcher, 404 fallback,
+		// One atomic table replacement: matcher, 404 fallback,
 		// rewrites, and the `manifestData` accessors all read the same table.
 		updateRouteTable(this.manifest, newManifestData.routes);
 	}
@@ -433,8 +432,8 @@ export abstract class BaseApp<P extends AppPipeline = AppPipeline> {
 			);
 		} else {
 			// User-provided fetch handler: only the resolved render() inputs
-			// ride the pre-existing `astro.renderOptions` request symbol (D1 —
-			// no manifest, no callbacks, nothing internal). The handler's own
+			// ride the `astro.renderOptions` request symbol — no manifest, no
+			// callbacks, nothing internal. The handler's own
 			// `new FetchState(request)` resolves the ambient manifest.
 			setRenderOptions(request, resolvedOptions);
 			response = await this.#fetchHandler.fetch(request);

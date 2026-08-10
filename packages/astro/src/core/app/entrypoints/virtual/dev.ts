@@ -15,21 +15,21 @@ import type { CreateApp, RouteInfo } from '../../types.js';
 // repeatedly on the same module instance. When the manifest module is
 // invalidated, this whole entrypoint module re-evaluates and re-registers
 // against the new manifest object (all per-manifest WeakMap state starts
-// fresh — plan-foundation §6.4).
+// fresh).
 let hmrWired = false;
 
 export const createApp: CreateApp = ({ streaming } = {}) => {
-	// Composition order (plan-facades §2): logger → environment → facade ctor
+	// Composition order: logger → environment → facade ctor
 	// (which warms the route table) → fetch handler → HMR wiring.
 	setLogger(manifest, createConsoleLogger(manifest.logLevel));
 	setEnvironment(manifest, createNonRunnableEnvironment());
 	const app = new DevFacadeApp(manifest, streaming);
 	app.setFetchHandler(fetchable);
 
-	// The HMR listeners target the MANIFEST via the functional core (D3
-	// `fresh`): one atomic route-table replacement is visible to every
-	// consumer — matcher, custom-404 fallback, rewrites, error-page lookups,
-	// and the `manifestData` accessors — at once.
+	// The HMR listeners target the MANIFEST via the functional core: one
+	// atomic route-table replacement is visible to every consumer — matcher,
+	// custom-404 fallback, rewrites, error-page lookups, and the
+	// `manifestData` accessors — at once.
 	if (import.meta.hot && !hmrWired) {
 		hmrWired = true;
 		import.meta.hot.on('astro:routes-updated', async () => {

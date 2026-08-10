@@ -21,10 +21,10 @@ import { provideSession } from '../session/provider.js';
 import { handleTrailingSlash } from '../routing/trailing-slash-handler.js';
 
 /**
- * The public per-request state, constructible from a bare `Request` (Goal 3).
+ * The public per-request state, constructible from a bare `Request`.
  * Static, build-time data comes from the ambient manifest — the manifest
  * module bundled into every Astro-built server — so no app, pipeline, or
- * request-attached handle is needed (D1: ambient-only).
+ * request-attached handle is needed.
  */
 export class FetchState extends BaseFetchState {
 	constructor(request: Request) {

@@ -6,15 +6,13 @@ import { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
 
 /**
- * The shared thin dev facade (plan-facades §2.2): used by BOTH dev paths —
+ * The shared thin dev facade: used by BOTH dev paths —
  * the workerd / non-runnable dev entrypoint (`entrypoints/virtual/dev.ts`)
  * and the runnable dev server (`vite-plugin-app/createAstroServerApp.ts`).
- * It consolidates the identical dev-specific method bodies of the old
- * `DevApp` and `AstroServerApp` classes; everything environment-specific
- * (module loading, error strategy, request logging behavior) comes from the
- * `RenderEnvironment` record registered on the manifest before construction,
- * and the runnable dev server's HTTP glue lives in
- * `vite-plugin-app/handle-request.ts`.
+ * Everything environment-specific (module loading, error strategy, request
+ * logging behavior) comes from the `RenderEnvironment` record registered on
+ * the manifest before construction, and the runnable dev server's HTTP glue
+ * lives in `vite-plugin-app/handle-request.ts`.
  */
 export class DevFacadeApp extends BaseApp {
 	constructor(manifest: SSRManifest, streaming = true) {

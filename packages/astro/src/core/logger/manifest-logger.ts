@@ -7,13 +7,12 @@ const destinationResolutions = new WeakMap<SSRManifest, Promise<AstroLogger>>();
 
 /**
  * One identity-stable logger per manifest. Created on first access as a
- * console logger at `manifest.logLevel` (matches `AppPipeline.create` today).
+ * console logger at `manifest.logLevel`.
  *
- * Identity stability is a deliberate simplification over the old
- * replace-the-instance `Pipeline.getLogger()`: `resolveLoggerDestination`
- * swaps the destination in place via `AstroLogger.setDestination`, so every
- * holder (state-captured logger, adapterLogger's retained options) writes to
- * the new destination immediately (review M3).
+ * The instance is never replaced: `resolveLoggerDestination` swaps the
+ * destination in place via `AstroLogger.setDestination`, so every holder
+ * (state-captured logger, adapterLogger's retained options) writes to the
+ * new destination immediately.
  */
 export function getLogger(manifest: SSRManifest): AstroLogger {
 	let logger = loggers.get(manifest);
@@ -37,13 +36,11 @@ export function setLogger(manifest: SSRManifest, logger: AstroLogger): void {
 /**
  * One-shot lazy resolution of the user-configured destination (the
  * `manifest.logger` thunk), applied via `setDestination` on the manifest's
- * identity-stable logger. Memoized single-flight; awaited at request entry
- * exactly where `pipeline.getLogger()` is awaited today.
+ * identity-stable logger. Memoized single-flight; awaited at request entry.
  *
- * FAILURE SEMANTICS (review R6): reproduces the legacy set-flag-BEFORE-await
- * behavior — a rejecting thunk propagates to the FIRST caller and is NEVER
- * retried; the memo then resolves permanently to the unswapped (console)
- * logger for all subsequent calls. Deliberately not built on
+ * FAILURE SEMANTICS: a rejecting thunk propagates to the FIRST caller and is
+ * NEVER retried; the memo then resolves permanently to the unswapped
+ * (console) logger for all subsequent calls. Deliberately not built on
  * `createAsyncManifestMemo`, whose delete-on-rejection default would retry.
  */
 export function resolveLoggerDestination(manifest: SSRManifest): Promise<AstroLogger> {

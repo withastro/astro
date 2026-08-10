@@ -75,10 +75,8 @@ export function getI18n(manifest: SSRManifest): CompiledI18n | null {
 
 /**
  * Post-processes a rendered `Response` against the compiled i18n
- * configuration. This is the logic that previously ran as the internal
- * `createI18nMiddleware` middleware — lifted out of the middleware layer so
- * it runs as an explicit step in `handleRequest` after the middleware chain
- * returns. The manual-strategy public API (`astro:i18n.middleware(...)`)
+ * configuration, as an explicit step in `handleRequest` after the middleware
+ * chain returns. The manual-strategy public API (`astro:i18n.middleware(...)`)
  * wraps this in a middleware-shaped closure.
  */
 export async function finalizeI18n(

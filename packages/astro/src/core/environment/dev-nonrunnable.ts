@@ -20,8 +20,7 @@ import { findRouteToRewrite } from '../routing/rewrite.js';
 import { getRouteTable } from '../routing/route-table.js';
 import type { HeadElements, RenderEnvironment, TryRewriteResult } from './index.js';
 
-// Ported from the old `NonRunnablePipeline` (now deleted): the dev
-// environment that cannot load modules at runtime through the Vite
+// The dev environment that cannot load modules at runtime through the Vite
 // environment APIs (e.g. requests executed inside workerd). The
 // `virtual:astro:*` imports stay DYNAMIC inside the method bodies: this
 // module is only registered inside Vite environments where those specifiers
@@ -81,7 +80,7 @@ export function createNonRunnableEnvironment(): RenderEnvironment {
 	return {
 		name: 'dev-nonrunnable',
 		runtimeMode: 'development',
-		// Dev is always streaming today (review R7).
+		// Dev always streams.
 		defaultStreaming: () => true,
 
 		async resolve(_manifest: SSRManifest, specifier: string): Promise<string> {
@@ -190,7 +189,7 @@ export function createNonRunnableEnvironment(): RenderEnvironment {
 			const { newUrl, pathname, routeData } = findRouteToRewrite({
 				payload,
 				request,
-				// The single fresh route table (D3): HMR route updates are visible
+				// The single fresh route table: HMR route updates are visible
 				// to rewrites at the same instant as every other consumer.
 				routes: getRouteTable(manifest).routes,
 				trailingSlash: manifest.trailingSlash,

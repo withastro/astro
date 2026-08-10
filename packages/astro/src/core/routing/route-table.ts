@@ -32,7 +32,7 @@ const routeTables = createManifestMemo((manifest) =>
  * The route table for a manifest: the derived route list (with the default
  * 404 ensured) and the compiled router. All route reads — matching, rewrites,
  * custom-404 fallbacks, `manifestData` accessors — go through this single
- * entry so dev HMR updates are visible to every consumer at once (D3 `fresh`).
+ * entry so dev HMR updates are visible to every consumer at once.
  */
 export function getRouteTable(manifest: SSRManifest): RouteTable {
 	return routeTables.get(manifest);
@@ -41,8 +41,7 @@ export function getRouteTable(manifest: SSRManifest): RouteTable {
 /**
  * Atomically replaces the route table for a manifest (dev `astro:routes-updated`).
  * Runs `ensure404Route` on the new list, compiles a fresh `Router`, and swaps
- * the memo entry in one step, so no consumer can observe a half-updated table
- * (D3 `fresh` semantics — plan-foundation §6.4).
+ * the memo entry in one step, so no consumer can observe a half-updated table.
  */
 export function updateRouteTable(manifest: SSRManifest, routes: RouteData[]): void {
 	// Copy so `ensure404Route` never mutates the caller's array.

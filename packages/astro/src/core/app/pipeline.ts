@@ -26,20 +26,19 @@ import type { SessionDriverFactory } from '../session/types.js';
 import type { SSRManifest } from './types.js';
 
 /**
- * Compatibility shim for the public `app.pipeline` property (plan-facades
- * §1.3). It holds exactly two readonly plain values (`manifest`, `streaming`)
- * and zero behavior — every member is a one-line delegate to a foundation
- * accessor of the manifest-keyed functional core. It is a *view* over that
- * core: two shims over the same manifest are interchangeable, and nothing
- * anywhere consults shim identity.
+ * Compatibility shim for the public `app.pipeline` property. It holds exactly
+ * two readonly plain values (`manifest`, `streaming`) and zero behavior —
+ * every member is a one-line delegate to a foundation accessor of the
+ * manifest-keyed functional core. It is a *view* over that core: two shims
+ * over the same manifest are interchangeable, and nothing anywhere consults
+ * shim identity.
  *
- * No core code may import or accept this class (normative grep gate,
- * foundation contract 11): it is referenced only from `base.ts` typing and
- * `createPipeline` implementations.
+ * No core code may import or accept this class: it is referenced only from
+ * `base.ts` typing and `createPipeline` implementations.
  *
- * NOTE: `usedFeatures` is get-only on this shim (review §A.3/B4, accepted and
- * changeset-noted) — no in-repo writer remains; an external writer doing
- * `pipeline.usedFeatures |= x` was never a documented surface.
+ * NOTE: `usedFeatures` is get-only on this shim — no in-repo writer exists,
+ * and an external writer doing `pipeline.usedFeatures |= x` was never a
+ * documented surface.
  */
 export class AppPipeline {
 	readonly manifest: SSRManifest;
@@ -57,8 +56,8 @@ export class AppPipeline {
 		manifest: SSRManifest;
 		streaming?: boolean;
 	}): AppPipeline {
-		// Warmup, replacing the old Pipeline-ctor router compile and
-		// `AppPipeline.create`'s console-logger allocation (contract 8).
+		// Warm the route table and logger so first-request latency doesn't
+		// pay for their creation.
 		getRouteTable(manifest);
 		getLogger(manifest);
 		return new AppPipeline(manifest, streaming);

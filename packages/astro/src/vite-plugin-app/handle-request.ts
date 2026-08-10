@@ -81,12 +81,11 @@ async function loadFetchHandler(app: DevFacadeApp, loader: ModuleLoader): Promis
 }
 
 /**
- * Handle a dev-server request (plan-facades §2.3): the HTTP glue that drives
- * the `DevFacadeApp` the way an adapter does — it sits outside the functional
- * core, like the node adapter's `serve-app.ts`. This is the old
- * `AstroServerApp.handleRequest` body moved verbatim into a function; the
- * ModuleLoader and AstroSettings are closed over at composition time in
- * `createAstroServerApp` and passed as `deps`.
+ * Handle a dev-server request: the HTTP glue that drives the `DevFacadeApp`
+ * the way an adapter does — it sits outside the functional core, like the
+ * node adapter's `serve-app.ts`. The ModuleLoader and AstroSettings are
+ * closed over at composition time in `createAstroServerApp` and passed as
+ * `deps`.
  *
  * @returns Whether or not the request was handled by this handler. If the
  * result is not `true`, then the request has not been handled yet and other

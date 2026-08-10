@@ -13,9 +13,9 @@ import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/h
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import type { HeadElements, RenderEnvironment, TryRewriteResult } from './index.js';
 
-// Ported from `AppPipeline` (core/app/pipeline.ts): production behavior reads
-// nothing but the manifest, which is what makes it a safe default when no
-// environment is registered (Goal 3 — no setup needed for a bare FetchState).
+// Production behavior reads nothing but the manifest, which is what makes it
+// a safe default when no environment is registered — a bare `FetchState`
+// works with no setup.
 
 async function getModuleForRoute(
 	manifest: SSRManifest,

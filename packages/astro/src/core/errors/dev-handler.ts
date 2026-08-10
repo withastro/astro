@@ -117,7 +117,7 @@ export async function renderDevError(
 	};
 
 	// Custom error routes are read off the single per-manifest route table, so
-	// they stay HMR-fresh exactly like the old `app.manifestData` reads (D3).
+	// they stay HMR-fresh.
 	if (status === 404) {
 		const custom404 = getCustom404Route(getRouteTable(manifest));
 		if (custom404) {

@@ -30,13 +30,10 @@ import { getComponentMetadata } from '../vite-plugin-astro-server/metadata.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 
 /**
- * Per-manifest slot for the runnable dev server's renderers
- * (plan-foundation §6.2). Unlike every other environment, runnable dev
- * reloads renderers on each request (the `preload` port below), so the
- * value is overwritten per request. The initial value (`[]`) and the
- * shared-array visibility to concurrent requests match the old mutable
- * instance field exactly (racy before, racy now — behavior preserved, not
- * "fixed").
+ * Per-manifest slot for the runnable dev server's renderers. Unlike every
+ * other environment, runnable dev reloads renderers on each request (see
+ * `getComponentByRoute` below), so the value is overwritten per request and
+ * concurrent requests can observe each other's writes.
  */
 const devRenderers = new WeakMap<SSRManifest, SSRLoadedRenderer[]>();
 
@@ -97,8 +94,8 @@ export function createRunnableEnvironment({
 	settings,
 	getDebugInfo,
 }: RunnableEnvironmentOptions): RenderEnvironment {
-	// Ported from `RunnablePipeline.preload`: renderers are (re)loaded on every
-	// request before the route module is imported, into the per-manifest slot.
+	// Renderers are (re)loaded on every request before the route module is
+	// imported, into the per-manifest slot.
 	async function getComponentByRoute(
 		manifest: SSRManifest,
 		routeData: RouteData,
@@ -142,7 +139,7 @@ export function createRunnableEnvironment({
 	return {
 		name: 'dev-runnable',
 		runtimeMode: 'development',
-		// Dev is always streaming today (review R7).
+		// Dev always streams.
 		defaultStreaming: () => true,
 
 		resolve(manifest: SSRManifest, specifier: string): Promise<string> {
@@ -249,7 +246,7 @@ export function createRunnableEnvironment({
 			const { routeData, pathname, newUrl } = findRouteToRewrite({
 				payload,
 				request,
-				// The single fresh route table (D3): HMR route updates are visible
+				// The single fresh route table: HMR route updates are visible
 				// to rewrites at the same instant as every other consumer.
 				routes: getRouteTable(manifest).routes,
 				trailingSlash: manifest.trailingSlash,
