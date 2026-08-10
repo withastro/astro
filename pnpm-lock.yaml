@@ -4701,6 +4701,18 @@ importers:
         specifier: ^4.83.0
         version: 4.95.0(@cloudflare/workers-types@4.20260527.1)
 
+  packages/integrations/cloudflare/test/fixtures/custom-entryfile-fetch-state:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      wrangler:
+        specifier: ^4.83.0
+        version: 4.95.0(@cloudflare/workers-types@4.20260527.1)
+
   packages/integrations/cloudflare/test/fixtures/custom-image-service:
     dependencies:
       '@astrojs/cloudflare':
@@ -7118,12 +7130,6 @@ importers:
       tsx:
         specifier: ^4.22.0
         version: 4.22.3
-
-  triage/gh-17624:
-    dependencies:
-      astro:
-        specifier: ^7.2.0
-        version: link:../../packages/astro
 
 packages:
 
