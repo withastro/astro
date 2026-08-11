@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 14.2.1
+
+### Patch Changes
+
+- [#17627](https://github.com/withastro/astro/pull/17627) [`ba6a9f6`](https://github.com/withastro/astro/commit/ba6a9f6e4523fe4e88ea31d4664835d3ba1ff3bc) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes the `astro` peer dependency range from `^7.0.0` to `^7.2.0`. The adapter imports symbols (`beginContentEntryCollection`, `beginImageCollection`, `endContentEntryCollection`, `endImageCollection`) from `astro/app` that were added in Astro 7.2.0, so earlier versions fail at build time with a `MISSING_EXPORT` error.
+
+- Updated dependencies [[`0891ac9`](https://github.com/withastro/astro/commit/0891ac9de5a6996e5ebd227e3443f7f4a4ea935a)]:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.2.0
 
 ### Minor Changes
