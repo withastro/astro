@@ -1,0 +1,17 @@
+version: 1
+trigger:
+  label: "pr: astro-review"
+review:
+  skill: .agents/skills/astro-code-review
+  severity: [critical, high, medium, low, optional]
+  areas:
+    - design
+    - correctness
+    - security
+    - runtime
+    - completeness
+    - error-handling
+    - tests
+    - maintainability
+    - documentation
+    - changeset
