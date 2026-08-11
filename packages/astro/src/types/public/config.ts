@@ -2383,7 +2383,7 @@ export interface AstroUserConfig<
 		 * @name markdown.rehypePlugins
 		 * @type {RehypePlugins}
 		 * @deprecated This property is deprecated and will be removed in a future major version. Pass plugins to the configured [`markdown.processor`](https://docs.astro.build/en/reference/configuration-reference/#markdownprocessor) instead.
-
+		 *
 		 * Learn more about [setting up a Markdown processor](https://docs.astro.build/en/guides/markdown-content/#setting-up-a-markdown-processor) and [using plugins](https://docs.astro.build/en/guides/markdown-content/#markdown-processor-plugins) in the Markdown guide.
 		 * @description
 		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
@@ -2405,7 +2405,7 @@ export interface AstroUserConfig<
 		 * @default `true`
 		 * @version 2.0.0
 		 * @deprecated This property is deprecated and will be removed in a future major version. Pass `gfm` to the configured [`markdown.processor`](https://docs.astro.build/en/reference/configuration-reference/#markdownprocessor) instead.
-
+		 *
 		 * Learn more about [setting up a Markdown processor](https://docs.astro.build/en/guides/markdown-content/#setting-up-a-markdown-processor) and [using GitHub-flavored Markdown](https://docs.astro.build/en/guides/markdown-content/#github-flavored-markdown) in the Markdown guide.
 		 * @description
 		 * Astro uses [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) by default. To disable this, set the `gfm` flag to `false`:
@@ -2427,7 +2427,7 @@ export interface AstroUserConfig<
 		 * @default `true`
 		 * @version 2.0.0
 		 * @deprecated This property is deprecated and will be removed in a future major version. Pass it to the configured [`markdown.processor`](https://docs.astro.build/en/reference/configuration-reference/#markdownprocessor) instead. Use `smartypants` for `unified()` or `smartPunctuation` for `satteri()`.
-
+		 *
 		 * Learn more about [setting up a Markdown processor](https://docs.astro.build/en/guides/markdown-content/#setting-up-a-markdown-processor) and [using smart punctuation](https://docs.astro.build/en/guides/markdown-content/#smart-punctuation) in the Markdown guide.
 		 * @description
 		 * Whether to use the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) to transform straight quotes into smart quotes, dashes into en/em dashes, and triple dots into ellipses.
@@ -2443,9 +2443,9 @@ export interface AstroUserConfig<
 		 * @name markdown.remarkRehype
 		 * @type {RemarkRehype}
 		 * @deprecated This property is deprecated and will be removed in a future major version.
-
+		 *
 		 * To configure footnotes, pass `remarkRehype` to the `unified()` processor or `gfm.footnotes` to the `satteri()` processor instead. Other `remark-rehype` options are only supported when using `unified()`.
-
+		 * 
 		 * Learn more about [setting up a Markdown processor](https://docs.astro.build/en/guides/markdown-content/#setting-up-a-markdown-processor) and [using built-in features](https://docs.astro.build/en/guides/markdown-content/#built-in-features) in the Markdown guide.
 		 * @description
 		 * Pass options to [remark-rehype](https://github.com/remarkjs/remark-rehype#api).
