@@ -1,9 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { formatErrorMessage } from '../../../dist/core/messages/runtime.js';
+import type { ErrorWithMetadata } from '../../../dist/core/errors/errors.js';
 
-function errorWithStack(frames) {
-	const err = new Error('boom');
+function errorWithStack(frames: string[]): ErrorWithMetadata {
+	const err = new Error('boom') as ErrorWithMetadata;
 	err.stack = ['Error: boom', ...frames].join('\n');
 	return err;
 }
