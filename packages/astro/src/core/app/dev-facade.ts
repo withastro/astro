@@ -33,9 +33,12 @@ export class DevFacadeApp extends BaseApp {
 	 * based on priority and segments, plus the resolved pathname.
 	 */
 	override async devMatch(
-		pathname: string,
+		pathname?: string,
 		{ prerenderOnly }: { prerenderOnly?: boolean } = {},
 	): Promise<DevMatch | undefined> {
+		if (pathname === undefined) {
+			return undefined;
+		}
 		const matchedRoute = await devMatchRoute(this.manifest, pathname, { prerenderOnly });
 		if (!matchedRoute) {
 			return undefined;

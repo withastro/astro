@@ -163,11 +163,14 @@ export async function handleDevRequest(
 			let body: BodyInit | undefined = undefined;
 			if (!(incomingRequest.method === 'GET' || incomingRequest.method === 'HEAD')) {
 				let bytes: Uint8Array[] = [];
-				await new Promise((resolve) => {
+				await new Promise((resolve, reject) => {
 					incomingRequest.on('data', (part) => {
 						bytes.push(part);
 					});
 					incomingRequest.on('end', resolve);
+					// Without this, an errored stream (aborted upload, malformed
+					// chunked encoding) never emits 'end' and the request hangs.
+					incomingRequest.on('error', reject);
 				});
 				body = Buffer.concat(bytes);
 			}
