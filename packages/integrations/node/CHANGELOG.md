@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 11.1.1
+
+### Patch Changes
+
+- [#17658](https://github.com/withastro/astro/pull/17658) [`8b211a5`](https://github.com/withastro/astro/commit/8b211a56c86f0e41782e6d7fa4b4d13dec895e80) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes an EventEmitter memory leak when serving static pages over keep-alive connections with `staticHeaders` enabled and CSP (`security.csp`) active
+
 ## 11.1.0
 
 ### Minor Changes
