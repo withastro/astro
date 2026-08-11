@@ -1,20 +1,21 @@
 import * as assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import { after, before, describe, it } from 'node:test';
 import {
 	parseLockFile,
 	serializeLockFile,
 	evaluateExistingServer,
-	checkExistingServer,
 	killDevServer,
 	writeLockFile,
 	readLockFile,
 	isProcessAlive,
-	getProcessStartTime,
+	isAstroCommand,
+	isLockFileProcessAlive,
+	checkExistingServer,
 	type LockFileData,
 } from '../../../dist/core/dev/lockfile.js';
 
@@ -25,18 +26,6 @@ const validData: LockFileData = {
 	background: false,
 	startedAt: '2026-05-05T10:00:00.000Z',
 };
-
-// Process identity via /proc is only available on Linux.
-const isLinux = process.platform === 'linux';
-
-// Write a lock file exactly as given, without the start-time stamping that
-// writeLockFile applies to live PIDs — simulates files written by another
-// container or astro version.
-function writeRawLockFile(root: URL, data: LockFileData): void {
-	const dir = join(fileURLToPath(root), '.astro');
-	mkdirSync(dir, { recursive: true });
-	writeFileSync(join(dir, 'dev.json'), serializeLockFile(data), 'utf-8');
-}
 
 // #region parseLockFile
 describe('parseLockFile', () => {
@@ -159,18 +148,6 @@ describe('parseLockFile', () => {
 		const data = { ...validData, urls: { local: [], network: [123] } };
 		assert.equal(parseLockFile(JSON.stringify(data)), null);
 	});
-
-	it('parses a valid pidStartTime field', () => {
-		const data = { ...validData, pidStartTime: '38462841' };
-		const result = parseLockFile(JSON.stringify(data));
-		assert.notEqual(result, null);
-		assert.equal(result!.pidStartTime, '38462841');
-	});
-
-	it('returns null when pidStartTime is not a string', () => {
-		const data = { ...validData, pidStartTime: 38462841 };
-		assert.equal(parseLockFile(JSON.stringify(data)), null);
-	});
 });
 // #endregion
 
@@ -215,57 +192,75 @@ describe('evaluateExistingServer', () => {
 });
 // #endregion
 
-// #region getProcessStartTime
-describe('getProcessStartTime', () => {
-	it('returns the kernel start time of a live process', { skip: !isLinux }, () => {
-		const startTime = getProcessStartTime(process.pid);
-		assert.match(startTime!, /^\d+$/);
+describe('isAstroCommand', () => {
+	it('recognizes Astro CLI commands on Unix', () => {
+		assert.equal(isAstroCommand('node /workspace/node_modules/astro/bin/astro.mjs dev'), true);
+		assert.equal(isAstroCommand('node ./node_modules/.bin/astro preview'), true);
 	});
 
-	it('returns undefined for a process that does not exist', () => {
-		assert.equal(getProcessStartTime(999_999), undefined);
-	});
-});
-// #endregion
-
-// #region writeLockFile
-describe('writeLockFile', () => {
-	let tempDir: string;
-	let root: URL;
-
-	before(() => {
-		tempDir = mkdtempSync(join(tmpdir(), 'astro-lockfile-'));
-		root = pathToFileURL(tempDir + '/');
+	it('recognizes Astro CLI commands on Windows', () => {
+		assert.equal(
+			isAstroCommand(
+				'"C:\\Program Files\\nodejs\\node.exe" "C:\\project\\node_modules\\astro\\bin\\astro.mjs" dev',
+			),
+			true,
+		);
+		assert.equal(
+			isAstroCommand('cmd.exe /d /s /c "C:\\project\\node_modules\\.bin\\astro.cmd dev"'),
+			true,
+		);
 	});
 
-	after(() => {
-		rmSync(tempDir, { recursive: true, force: true });
-	});
-
-	it('records the start time of the recorded PID when available', { skip: !isLinux }, () => {
-		const data: LockFileData = { ...validData, pid: process.pid };
-		writeLockFile(root, data);
-
-		const written = readLockFile(root);
-		assert.notEqual(written, null);
-		assert.equal(written!.pidStartTime, getProcessStartTime(process.pid));
-	});
-
-	it('omits the start time when it cannot be determined', async () => {
-		// A process that already exited has no readable start time.
-		const child = spawn(process.execPath, ['-e', ''], { stdio: 'ignore' });
-		await new Promise((resolve) => child.on('exit', resolve));
-
-		writeLockFile(root, { ...validData, pid: child.pid! });
-
-		const written = readLockFile(root);
-		assert.notEqual(written, null);
-		assert.equal(written!.pidStartTime, undefined);
+	it('does not mistake an unrelated command for Astro', () => {
+		assert.equal(isAstroCommand('node /home/astro/server.mjs'), false);
+		assert.equal(isAstroCommand('node /workspace/astronomy.mjs'), false);
+		assert.equal(isAstroCommand('node ./astro.js'), false);
+		assert.equal(isAstroCommand('npm run dev'), false);
 	});
 });
-// #endregion
 
-// #region checkExistingServer
+describe('isLockFileProcessAlive', () => {
+	it('returns true when the recorded process command is Astro', async () => {
+		const data = { ...validData, pid: process.pid };
+		const findProcess = async () => [
+			{
+				pid: process.pid,
+				ppid: process.ppid,
+				name: 'node',
+				cmd: 'node /workspace/node_modules/astro/bin/astro.mjs dev',
+			},
+		];
+
+		assert.equal(await isLockFileProcessAlive(data, findProcess), true);
+	});
+
+	it('returns false when the PID belongs to another command', async () => {
+		const data = { ...validData, pid: process.pid };
+		const findProcess = async () => [
+			{
+				pid: process.pid,
+				ppid: process.ppid,
+				name: 'node',
+				cmd: 'node /app/server.mjs',
+			},
+		];
+
+		assert.equal(await isLockFileProcessAlive(data, findProcess), false);
+	});
+
+	it('keeps the PID-only result when the command cannot be inspected', async () => {
+		const data = { ...validData, pid: process.pid };
+
+		assert.equal(await isLockFileProcessAlive(data, async () => []), true);
+		assert.equal(
+			await isLockFileProcessAlive(data, async () => {
+				throw new Error('Process lookup failed');
+			}),
+			true,
+		);
+	});
+});
+
 describe('checkExistingServer', () => {
 	let tempDir: string;
 	let root: URL;
@@ -279,114 +274,14 @@ describe('checkExistingServer', () => {
 		rmSync(tempDir, { recursive: true, force: true });
 	});
 
-	it('treats the lock file as stale when the PID was reused by a different process', {
-		skip: !isLinux,
-	}, () => {
-		// Simulates the Docker container restart scenario from
-		// https://github.com/withastro/astro/issues/17656: the lock file persists on a
-		// volume mount, and the recorded PID is now used by an unrelated process.
-		const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {
-			stdio: 'ignore',
-		});
-		try {
-			const data: LockFileData = {
-				...validData,
-				pid: child.pid!,
-				// A start time that cannot match the reused process, as if the lock file
-				// was written by a previous container.
-				pidStartTime: '1',
-			};
-			writeRawLockFile(root, data);
+	it('cleans up a lock file when a live PID belongs to another command', async () => {
+		const data = { ...validData, pid: process.pid };
+		writeLockFile(root, data);
 
-			assert.equal(checkExistingServer(root), null);
-			// The stale lock file is cleaned up so a new server can start.
-			assert.equal(readLockFile(root), null);
-		} finally {
-			child.kill();
-		}
-	});
-
-	it('returns the lock data when the recorded process still matches', { skip: !isLinux }, () => {
-		const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {
-			stdio: 'ignore',
-		});
-		try {
-			const data: LockFileData = {
-				...validData,
-				pid: child.pid!,
-				pidStartTime: getProcessStartTime(child.pid!)!,
-			};
-			writeLockFile(root, data);
-
-			assert.deepEqual(checkExistingServer(root), data);
-		} finally {
-			child.kill();
-		}
-	});
-
-	it('treats a legacy lock file as stale when its process started after it was written', {
-		skip: !isLinux,
-	}, () => {
-		// Lock files written before process identity tracking carry no recorded start
-		// time. After a Docker container restart the reused PID belongs to a process
-		// that started after the lock file was written.
-		const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {
-			stdio: 'ignore',
-		});
-		try {
-			const data: LockFileData = {
-				...validData,
-				pid: child.pid!,
-			};
-			writeRawLockFile(root, data);
-			// Age the lock file so it predates the reused process.
-			const past = new Date(Date.now() - 3_600_000);
-			utimesSync(join(tempDir, '.astro', 'dev.json'), past, past);
-
-			assert.equal(checkExistingServer(root), null);
-			assert.equal(readLockFile(root), null);
-		} finally {
-			child.kill();
-		}
-	});
-
-	it('returns the lock data for a legacy lock file whose process predates it', () => {
-		// This test runner started well before the lock file is written.
-		const data: LockFileData = {
-			...validData,
-			pid: process.pid,
-		};
-		writeRawLockFile(root, data);
-
-		assert.deepEqual(checkExistingServer(root), data);
-	});
-
-	it('treats a legacy lock file as alive when its process started within the margin', {
-		skip: !isLinux,
-	}, () => {
-		// The process start time and file mtime come from soft clocks, so a legacy lock
-		// file is only stale when the recorded process clearly started after the write.
-		const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {
-			stdio: 'ignore',
-		});
-		try {
-			const data: LockFileData = {
-				...validData,
-				pid: child.pid!,
-			};
-			writeRawLockFile(root, data);
-			// Age the lock file by less than the stale margin, so its mtime is only
-			// slightly before the recorded process started.
-			const recent = new Date(Date.now() - 2_000);
-			utimesSync(join(tempDir, '.astro', 'dev.json'), recent, recent);
-
-			assert.deepEqual(checkExistingServer(root), data);
-		} finally {
-			child.kill();
-		}
+		assert.equal(await checkExistingServer(root), null);
+		assert.equal(readLockFile(root), null);
 	});
 });
-// #endregion
 
 // #region killDevServer
 describe('killDevServer', () => {

@@ -1,5 +1,6 @@
-import { existsSync, readFileSync, statSync, unlinkSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, unlinkSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import findProcess from 'find-process';
 import type { ResolvedServerUrls } from 'vite';
 
 export type ServerCommand = 'dev' | 'preview';
@@ -12,12 +13,6 @@ export interface LockFileData {
 	port: number;
 	url: string;
 	urls?: ResolvedServerUrls;
-	/**
-	 * Kernel start time of `pid`, captured when the lock file was written (Linux only).
-	 * Together with the PID it identifies the exact process instance, which survives PID
-	 * recycling — a reused PID always has a different start time.
-	 */
-	pidStartTime?: string;
 	background: boolean;
 	startedAt: string;
 }
@@ -73,10 +68,6 @@ export function parseLockFile(content: string): LockFileData | null {
 		if (data.urls !== undefined && !isResolvedServerUrls(data.urls)) {
 			return null;
 		}
-		// `pidStartTime` is optional, but if present it must be a string.
-		if (data.pidStartTime !== undefined && typeof data.pidStartTime !== 'string') {
-			return null;
-		}
 		return data as LockFileData;
 	} catch {
 		return null;
@@ -103,65 +94,48 @@ export function isProcessAlive(pid: number): boolean {
 	}
 }
 
+// Match Astro's published CLI entry and package-manager shims, not arbitrary files named astro.
+const ASTRO_COMMAND_PATTERN =
+	/(?:^|[\\/\s"'])(?:astro[\\/]bin[\\/]astro\.mjs|\.bin[\\/]astro(?:\.cmd)?)(?=$|[\s"'])/i;
+
 /**
- * Read the kernel start time of a process from `/proc/<pid>/stat` (Linux only).
- * Together with the PID it uniquely identifies a process instance: a recycled PID
- * always belongs to a process with a different start time. Returns undefined when the
- * start time cannot be determined (unsupported platform, exited process, unreadable
- * or malformed stat).
+ * Check whether a process command points to the Astro CLI.
  */
-export function getProcessStartTime(pid: number): string | undefined {
-	let stat: string;
-	try {
-		stat = readFileSync(`/proc/${pid}/stat`, 'utf-8');
-	} catch {
-		return undefined;
-	}
-	// The comm field (2) is wrapped in parentheses and may itself contain spaces or
-	// parentheses, so the remaining fields are parsed after the final ')'.
-	const closeParen = stat.lastIndexOf(')');
-	if (closeParen === -1) {
-		return undefined;
-	}
-	const fields = stat.slice(closeParen + 2).split(' ');
-	// starttime is field 22 overall — index 19 of the fields after comm.
-	return fields.length > 19 ? fields[19] : undefined;
+export function isAstroCommand(command: string): boolean {
+	return ASTRO_COMMAND_PATTERN.test(command);
 }
 
-/**
- * Clock ticks per second for the start time in `/proc/<pid>/stat` (USER_HZ).
- * 100 on mainstream Linux (x86, arm64).
- */
-const PROC_STAT_TICKS_PER_SECOND = 100;
+interface ProcessInfo {
+	pid: number;
+	cmd?: string;
+}
+
+type ProcessLookup = (
+	by: 'pid',
+	value: number,
+	options: { logLevel: 'error' },
+) => Promise<ProcessInfo[]>;
 
 /**
- * Margin (ms) for the legacy lock file check below: the recorded process must have
- * started before the lock file was written, but the comparison inputs are soft —
- * `btime` shifts when the system clock steps (NTP, suspend/resume) and the file
- * mtime can come from a different clock (bind mounts, network filesystems). Only a
- * start time clearly past the write marks the lock file as stale; anything within
- * the margin is treated as alive, so a running server never loses its lock file.
+ * Check whether the live process recorded in a lock file is still Astro.
+ * If the command cannot be inspected, keep the existing PID-only behavior.
  */
-const LEGACY_LOCK_STALE_MARGIN_MS = 5000;
+export async function isLockFileProcessAlive(
+	data: LockFileData,
+	find: ProcessLookup = findProcess,
+): Promise<boolean> {
+	if (!isProcessAlive(data.pid)) {
+		return false;
+	}
 
-/**
- * Read the system boot time in seconds since the epoch from /proc/stat (Linux only).
- * Returns undefined when the boot time cannot be determined.
- */
-function getBootTime(): number | undefined {
-	let stat: string;
 	try {
-		stat = readFileSync('/proc/stat', 'utf-8');
+		const processInfo = (await find('pid', data.pid, { logLevel: 'error' })).find(
+			({ pid }) => pid === data.pid,
+		);
+		return processInfo?.cmd === undefined || isAstroCommand(processInfo.cmd);
 	} catch {
-		return undefined;
+		return true;
 	}
-	for (const line of stat.split('\n')) {
-		if (line.startsWith('btime ')) {
-			const seconds = Number(line.slice('btime '.length));
-			return Number.isFinite(seconds) ? seconds : undefined;
-		}
-	}
-	return undefined;
 }
 
 /**
@@ -178,21 +152,16 @@ export function readLockFile(root: URL, command: ServerCommand = 'dev'): LockFil
 }
 
 /**
- * Write the lock file to disk. The kernel start time of the recorded PID is stored
- * alongside it when available, so later checks can tell the recorded process apart
- * from an unrelated one that recycled the PID.
+ * Write the lock file to disk.
  */
 export function writeLockFile(root: URL, data: LockFileData, command: ServerCommand = 'dev'): void {
 	const lockFileURL = getLockFileURL(root, command);
 	const dirPath = fileURLToPath(new URL('.astro/', root));
-	// `pidStartTime` is output-only: any caller-supplied value is replaced. undefined
-	// (unsupported platform, exited process) is dropped by JSON serialization.
-	const stamped = { ...data, pidStartTime: getProcessStartTime(data.pid) };
 	try {
 		if (!existsSync(dirPath)) {
 			mkdirSync(dirPath, { recursive: true });
 		}
-		writeFileSync(lockFileURL, serializeLockFile(stamped), 'utf-8');
+		writeFileSync(lockFileURL, serializeLockFile(data), 'utf-8');
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
 		throw new Error(`Failed to write lock file: ${message}`);
@@ -264,60 +233,18 @@ export async function killDevServer(root: URL, data: LockFileData): Promise<void
 }
 
 /**
- * Check whether the process recorded in the lock file is still the process that
- * wrote it. PID existence alone is not enough: the kernel recycles PIDs, and inside
- * a Docker container an unrelated process quickly reuses the recorded PID after a
- * container restart while the lock file persists on a volume mount, making a stale
- * lock file look alive. https://github.com/withastro/astro/issues/17656
- *
- * The recorded start time is compared exactly when present. Lock files written
- * before process identity tracking carry none; there the process start time is
- * compared against the lock file's write time, with {@link LEGACY_LOCK_STALE_MARGIN_MS}
- * absorbing clock inaccuracies. When neither can be verified (a platform without
- * /proc), falls back to PID existence only.
- */
-function isLockFileProcessAlive(lockFile: URL, data: LockFileData): boolean {
-	if (!isProcessAlive(data.pid)) {
-		return false;
-	}
-	const startTime = getProcessStartTime(data.pid);
-	if (startTime === undefined) {
-		return true;
-	}
-	if (data.pidStartTime !== undefined) {
-		return startTime === data.pidStartTime;
-	}
-	let mtimeMs: number;
-	try {
-		mtimeMs = statSync(lockFile).mtimeMs;
-	} catch {
-		return true;
-	}
-	const bootTime = getBootTime();
-	if (bootTime === undefined) {
-		return true;
-	}
-	const processStartedAtMs = (bootTime + Number(startTime) / PROC_STAT_TICKS_PER_SECOND) * 1000;
-	if (!Number.isFinite(processStartedAtMs)) {
-		return true;
-	}
-	return processStartedAtMs <= mtimeMs + LEGACY_LOCK_STALE_MARGIN_MS;
-}
-
-/**
- * Check for an existing server by reading the lock file and verifying that the
- * recorded process is still the one that wrote it.
+ * Check for an existing server by reading the lock file and checking process identity.
  * Automatically cleans up stale lock files.
  * Returns the server info if a live server is found, null otherwise.
  */
-export function checkExistingServer(
+export async function checkExistingServer(
 	root: URL,
 	command: ServerCommand = 'dev',
-): LockFileData | null {
+): Promise<LockFileData | null> {
 	const data = readLockFile(root, command);
 	const result = evaluateExistingServer(
 		data,
-		data !== null && isLockFileProcessAlive(getLockFileURL(root, command), data),
+		data !== null && (await isLockFileProcessAlive(data)),
 	);
 	if (result === null) {
 		return null;
