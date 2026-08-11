@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import type { AstroLoggerDestination, AstroLoggerMessage } from '../../../dist/core/logger/core.js';
 import {
 	getLogger,
-	resolveLoggerDestination,
+	getResolvedLogger,
 	setLogger,
 } from '../../../dist/core/logger/manifest-logger.js';
 import { createConsoleLogger } from '../../../dist/core/logger/impls/console.js';
@@ -39,7 +39,7 @@ describe('getLogger / setLogger', () => {
 	});
 });
 
-describe('resolveLoggerDestination', () => {
+describe('getResolvedLogger', () => {
 	it('swaps the destination on the same logger instance', async () => {
 		const { destination, messages } = createSpyDestination();
 		let thunkCalls = 0;
@@ -52,7 +52,7 @@ describe('resolveLoggerDestination', () => {
 		});
 
 		const before = getLogger(manifest);
-		const resolved = await resolveLoggerDestination(manifest);
+		const resolved = await getResolvedLogger(manifest);
 		// Identity-stable: the destination is mutated in place, so every holder
 		// of the logger writes to the new destination immediately.
 		assert.equal(resolved, before);
@@ -61,17 +61,18 @@ describe('resolveLoggerDestination', () => {
 		assert.equal(messages[0].message, 'hello');
 
 		// Memoized single-flight: the thunk is only invoked once.
-		assert.equal(await resolveLoggerDestination(manifest), resolved);
+		assert.equal(await getResolvedLogger(manifest), resolved);
 		assert.equal(thunkCalls, 1);
 	});
 
 	it('keeps the console destination when the manifest has no logger thunk', async () => {
 		const manifest = createManifest();
 		const logger = getLogger(manifest);
-		assert.equal(await resolveLoggerDestination(manifest), logger);
+		assert.equal(await getResolvedLogger(manifest), logger);
 	});
 
-	it('propagates a rejecting thunk to the first caller and never retries', async () => {
+	it('reports a failing thunk and continues on the unswapped logger', async () => {
+		const { destination, messages } = createSpyDestination();
 		let thunkCalls = 0;
 		const manifest = createManifest({
 			logLevel: 'info',
@@ -80,12 +81,19 @@ describe('resolveLoggerDestination', () => {
 				return Promise.reject(new Error('logger load failed'));
 			},
 		});
+		// Inject a spy-backed logger so the error report is observable.
+		const logger = createConsoleLogger({ level: 'info' });
+		logger.setDestination(destination);
+		setLogger(manifest, logger);
 
-		await assert.rejects(resolveLoggerDestination(manifest), {
-			message: 'logger load failed',
-		});
-		// Later calls proceed on the unswapped (console) logger.
-		assert.equal(await resolveLoggerDestination(manifest), getLogger(manifest));
+		// Never rejects: the request keeps its logger.
+		assert.equal(await getResolvedLogger(manifest), logger);
+		assert.equal(messages.length, 1);
+		assert.match(messages[0].message, /Failed to load the configured logger destination/);
+		assert.match(messages[0].message, /logger load failed/);
+
+		// The failure is memoized: the thunk is not retried.
+		assert.equal(await getResolvedLogger(manifest), logger);
 		assert.equal(thunkCalls, 1);
 	});
 });

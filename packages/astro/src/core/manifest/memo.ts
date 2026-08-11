@@ -56,10 +56,6 @@ export interface AsyncManifestMemo<T> {
  * Caches the PROMISE (single-flight: concurrent callers share one derivation).
  * On rejection the entry is DELETED so the next call retries a failed lazy
  * resolve instead of caching the failure forever.
- *
- * Exception: the logger's `resolveLoggerDestination` must NOT use this helper
- * — a rejecting `manifest.logger()` is deliberately never retried there. See
- * `core/logger/manifest-logger.ts`.
  */
 export function createAsyncManifestMemo<T>(
 	derive: (manifest: SSRManifest) => Promise<T>,

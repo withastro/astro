@@ -18,7 +18,7 @@ import { getUsedFeatures, FetchFeatures } from '../fetch/features.js';
 import { FetchState } from '../fetch/fetch-state.js';
 import type { FetchHandler } from '../fetch/types.js';
 import { type ErrorHandler, renderErrorPage } from '../errors/handler.js';
-import { getLogger, resolveLoggerDestination } from '../logger/manifest-logger.js';
+import { getLogger, getResolvedLogger } from '../logger/manifest-logger.js';
 import { handleRequest } from '../routing/handler.js';
 import { getDefaultStatusCode } from '../routing/helpers.js';
 import { matchRequest } from '../routing/match-request.js';
@@ -201,7 +201,7 @@ export abstract class BaseApp {
 	 * the configured destination).
 	 */
 	getLogger(): Promise<AstroLogger> {
-		return resolveLoggerDestination(this.manifest);
+		return getResolvedLogger(this.manifest);
 	}
 
 	/**
@@ -370,7 +370,7 @@ export abstract class BaseApp {
 		// Lazily resolve the logger destination from the manifest on the first request.
 		// This swaps the user-configured logger destination (if any) into the shared
 		// AstroLogger instance before any logging occurs.
-		await resolveLoggerDestination(this.manifest);
+		await getResolvedLogger(this.manifest);
 
 		if (routeData) {
 			this.logger.debug(

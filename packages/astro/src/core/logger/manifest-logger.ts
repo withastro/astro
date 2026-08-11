@@ -1,15 +1,15 @@
 import type { SSRManifest } from '../app/types.js';
 import type { AstroLogger } from './core.js';
+import { createAsyncManifestMemo } from '../manifest/memo.js';
 import { createConsoleLogger } from './impls/console.js';
 
 const loggers = new WeakMap<SSRManifest, AstroLogger>();
-const destinationResolutions = new WeakMap<SSRManifest, Promise<AstroLogger>>();
 
 /**
  * One identity-stable logger per manifest. Created on first access as a
  * console logger at `manifest.logLevel`.
  *
- * The instance is never replaced: `resolveLoggerDestination` swaps the
+ * The instance is never replaced: `getResolvedLogger` swaps the
  * destination in place via `AstroLogger.setDestination`, so every holder
  * (state-captured logger, adapterLogger's retained options) writes to the
  * new destination immediately.
@@ -33,34 +33,34 @@ export function setLogger(manifest: SSRManifest, logger: AstroLogger): void {
 	loggers.set(manifest, logger);
 }
 
-/**
- * One-shot lazy resolution of the user-configured destination (the
- * `manifest.logger` thunk), applied via `setDestination` on the manifest's
- * identity-stable logger. Memoized single-flight; awaited at request entry.
- *
- * FAILURE SEMANTICS: a rejecting thunk propagates to the FIRST caller and is
- * NEVER retried; the memo then resolves permanently to the unswapped
- * (console) logger for all subsequent calls. Deliberately not built on
- * `createAsyncManifestMemo`, whose delete-on-rejection default would retry.
- */
-export function resolveLoggerDestination(manifest: SSRManifest): Promise<AstroLogger> {
-	const existing = destinationResolutions.get(manifest);
-	if (existing) {
-		return existing;
-	}
-	const attempt = (async () => {
+const resolvedLogger = createAsyncManifestMemo(async (manifest: SSRManifest) => {
+	const logger = getLogger(manifest);
+	try {
 		const destination = (await manifest.logger?.())?.default;
-		const logger = getLogger(manifest);
 		if (destination) {
 			logger.setDestination(destination);
 		}
-		return logger;
-	})();
-	// Store a never-rejecting promise so later callers proceed on the
-	// unswapped logger; the first caller still observes the rejection.
-	destinationResolutions.set(
-		manifest,
-		attempt.catch(() => getLogger(manifest)),
-	);
-	return attempt;
+	} catch (error) {
+		logger.error(
+			'config',
+			'Failed to load the configured logger destination; continuing with the console logger.\n' +
+				(error instanceof Error ? (error.stack ?? error.message) : String(error)),
+		);
+	}
+	return logger;
+});
+
+/**
+ * The manifest's logger with the user-configured destination (the
+ * `manifest.logger` thunk) resolved and applied via `setDestination` on the
+ * identity-stable logger. Memoized single-flight; awaited at request entry.
+ *
+ * Never rejects: a destination that fails to load is reported through the
+ * unswapped (console) logger, which stays in place — a broken custom
+ * destination cannot fail a request. Because the derivation always resolves,
+ * the memo's delete-on-rejection retry path never triggers: the thunk runs
+ * at most once per manifest.
+ */
+export function getResolvedLogger(manifest: SSRManifest): Promise<AstroLogger> {
+	return resolvedLogger.get(manifest);
 }

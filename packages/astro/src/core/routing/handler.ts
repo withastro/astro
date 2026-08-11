@@ -7,7 +7,7 @@ import { getEnvironment, type RequestLogPayload } from '../environment/index.js'
 import { renderErrorFromState } from '../errors/handler.js';
 import { ALL_FETCH_FEATURES, markFeatureUsed, FetchFeatures } from '../fetch/features.js';
 import { finalizeI18n, getI18n } from '../i18n/handler.js';
-import { resolveLoggerDestination } from '../logger/manifest-logger.js';
+import { getResolvedLogger } from '../logger/manifest-logger.js';
 import { handleMiddleware } from '../middleware/astro-middleware.js';
 import { handlePages } from '../pages/handler.js';
 import { renderRedirect } from '../redirects/render.js';
@@ -54,7 +54,7 @@ export async function handleRequest(state: FetchState): Promise<Response> {
 	// Resolve the user-configured logger destination before anything logs.
 	// Memoized single-flight — on facade-driven requests this is already a
 	// resolved promise (BaseApp.render awaits it first).
-	await resolveLoggerDestination(state.manifest);
+	await getResolvedLogger(state.manifest);
 
 	// handleRequest is the "batteries-included" handler that wires up
 	// every pipeline feature internally. Mark them all as used so the
