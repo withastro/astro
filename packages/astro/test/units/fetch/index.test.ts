@@ -12,7 +12,7 @@ import {
 	pages,
 	i18n,
 } from '../../../dist/core/fetch/index.js';
-import { ALL_PIPELINE_FEATURES } from '../../../dist/core/fetch/features.js';
+import { ALL_FETCH_FEATURES } from '../../../dist/core/fetch/features.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import {
 	createEndpoint,
@@ -668,8 +668,8 @@ describe('astro() combined handler', () => {
 		// every feature as used so the one-shot warnMissingFeatures check
 		// in BaseApp never fires a false positive.
 		assert.equal(
-			getUsedFeatures(state.manifest) & ALL_PIPELINE_FEATURES,
-			ALL_PIPELINE_FEATURES,
+			getUsedFeatures(state.manifest) & ALL_FETCH_FEATURES,
+			ALL_FETCH_FEATURES,
 			'astro() should mark all pipeline features as used',
 		);
 	});

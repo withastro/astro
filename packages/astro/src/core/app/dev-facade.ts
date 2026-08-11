@@ -2,7 +2,6 @@ import type { RouteData } from '../../types/public/index.js';
 import { req } from '../messages/runtime.js';
 import { matchRoute as devMatchRoute } from '../routing/dev.js';
 import { BaseApp, type DevMatch, type LogRequestPayload } from './base.js';
-import { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
 
 /**
@@ -21,10 +20,6 @@ export class DevFacadeApp extends BaseApp {
 
 	isDev(): boolean {
 		return true;
-	}
-
-	createPipeline(streaming: boolean): AppPipeline {
-		return AppPipeline.create({ manifest: this.manifest, streaming });
 	}
 
 	/** Dev always allows prerendered routes to match. */

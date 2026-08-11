@@ -54,7 +54,7 @@ describe('SSR Logger', () => {
 		const beforeOptions = app.adapterLogger.options;
 		const destinationBefore = app.logger.options.destination;
 
-		await app.pipeline.getLogger();
+		await app.getLogger();
 
 		// The logger is identity-stable: getLogger() swaps the destination in
 		// place via setDestination() instead of replacing the instance, so the

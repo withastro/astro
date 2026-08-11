@@ -9,7 +9,7 @@ import {
 	renderHead,
 } from '../../../dist/runtime/server/index.js';
 import type { SSRManifestCSP } from '../../../dist/types/public/internal.js';
-import type { AppPipeline } from '../../../dist/core/app/pipeline.js';
+import type { TestPipeline } from '../test-utils.ts';
 import type { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createBasicPipeline, renderThroughMiddleware, SpyLogger } from '../test-utils.ts';
 
@@ -38,7 +38,7 @@ type CspTestConfig = {
 	styleAttrHashes?: string[];
 };
 
-function createCspPipeline(config: CspTestConfig = {}, logger?: AstroLogger): AppPipeline {
+function createCspPipeline(config: CspTestConfig = {}, logger?: AstroLogger): TestPipeline {
 	const resources = (defaults?: string[], element?: string[], attribute?: string[]) => [
 		...(defaults ?? []),
 		...(element ?? []).map((resource) => ({ resource, kind: 'element' as const })),
@@ -96,7 +96,7 @@ function parseCsp(content: string): Map<string, string[]> {
 
 async function renderPage(
 	PageComponent: ReturnType<typeof createComponent>,
-	pipeline: AppPipeline,
+	pipeline: TestPipeline,
 	prerender = true,
 ): Promise<{ html: string; response: Response }> {
 	const PageModule = { default: PageComponent };

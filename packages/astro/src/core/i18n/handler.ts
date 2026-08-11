@@ -1,7 +1,7 @@
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import { computeFallbackRoute } from '../../i18n/fallback.js';
 import { I18nRouter, type I18nRouterContext } from '../../i18n/router.js';
-import { markFeatureUsed, PipelineFeatures } from '../fetch/features.js';
+import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
 import type { SSRManifest } from '../app/types.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
 import type { FetchState } from '../fetch/fetch-state.js';
@@ -84,7 +84,7 @@ export async function finalizeI18n(
 	state: FetchState,
 	response: Response,
 ): Promise<Response> {
-	markFeatureUsed(state.manifest, PipelineFeatures.i18n);
+	markFeatureUsed(state.manifest, FetchFeatures.i18n);
 	const i18n = compiled.config;
 
 	// This is a case where we are internally rendering a 404/500, so we

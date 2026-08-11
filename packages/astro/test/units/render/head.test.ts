@@ -12,7 +12,7 @@ import {
 	renderSlot,
 } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
-import type { AppPipeline } from '../../../dist/core/app/pipeline.js';
+import type { TestPipeline } from '../test-utils.ts';
 import { getEnvironment, setEnvironment } from '../../../dist/core/environment/index.js';
 import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
 
@@ -20,7 +20,7 @@ const createAstroModule = (AstroComponent: AstroComponentFactory) => ({ default:
 
 describe('core/render', () => {
 	describe('Injected head contents', () => {
-		let pipeline: AppPipeline;
+		let pipeline: TestPipeline;
 		before(async () => {
 			pipeline = createBasicPipeline();
 			// Head elements are environment behavior now — override the

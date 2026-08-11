@@ -16,13 +16,13 @@ import {
 	unescapeHTML,
 } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
-import type { AppPipeline } from '../../../dist/core/app/pipeline.js';
+import type { TestPipeline } from '../test-utils.ts';
 import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
 
 const createAstroModule = (AstroComponent: AstroComponentFactory) => ({ default: AstroComponent });
 
 describe('head injection app-level rendering', () => {
-	let pipeline: AppPipeline;
+	let pipeline: TestPipeline;
 
 	before(async () => {
 		// The test environment registered by `createBasicPipeline` already

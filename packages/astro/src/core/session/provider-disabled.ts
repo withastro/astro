@@ -1,4 +1,4 @@
-import { markFeatureUsed, PipelineFeatures } from '../fetch/features.js';
+import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 
 // Drop-in for `provideSession` substituted in for `./provider.js` by the
@@ -12,5 +12,5 @@ import type { FetchState } from '../fetch/fetch-state.js';
 // type. We still mark the feature as used so the missing-feature warning
 // in `BaseApp` never fires.
 export function provideSession(state: FetchState): void {
-	markFeatureUsed(state.manifest, PipelineFeatures.sessions);
+	markFeatureUsed(state.manifest, FetchFeatures.sessions);
 }

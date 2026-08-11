@@ -14,7 +14,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { AstroIntegrationLogger, type AstroLogger } from '../logger/core.js';
 
 import { DefaultFetchHandler } from '../fetch/default-handler.js';
-import { getUsedFeatures, PipelineFeatures } from '../fetch/features.js';
+import { getUsedFeatures, FetchFeatures } from '../fetch/features.js';
 import { FetchState } from '../fetch/fetch-state.js';
 import type { FetchHandler } from '../fetch/types.js';
 import { type ErrorHandler, renderErrorPage } from '../errors/handler.js';
@@ -25,7 +25,6 @@ import { matchRequest } from '../routing/match-request.js';
 import { getRouteTable, matchRoute, updateRouteTable } from '../routing/route-table.js';
 import { setRenderOptions } from './render-options.js';
 import type { WaitUntilHook } from '../wait-until.js';
-import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
 
 export interface DevMatch {
@@ -126,9 +125,8 @@ type ErrorPagePath =
 	| `${string}404.html`
 	| `${string}500.html`;
 
-export abstract class BaseApp<P extends AppPipeline = AppPipeline> {
+export abstract class BaseApp {
 	manifest: SSRManifest;
-	pipeline: P;
 	#adapterLogger: AstroIntegrationLogger | undefined;
 	baseWithoutTrailingSlash: string;
 	/**
@@ -184,13 +182,26 @@ export abstract class BaseApp<P extends AppPipeline = AppPipeline> {
 		return this.#adapterLogger;
 	}
 
-	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
+	constructor(manifest: SSRManifest, streaming = true) {
 		this.manifest = manifest;
 		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base);
 		this.#streaming = streaming;
-		this.pipeline = this.createPipeline(streaming, manifest, ...args);
+		// Warm the route table and logger so first-request latency doesn't
+		// pay for their creation.
+		getRouteTable(manifest);
+		getLogger(manifest);
 		this.#fetchHandler = new DefaultFetchHandler(this);
 		this.#errorHandler = this.createErrorHandler();
+	}
+
+	/**
+	 * Resolves the user-configured logger destination from the manifest and
+	 * returns the logger. Lazy and only resolves once; safe to call before
+	 * the first render (adapters use this to log startup messages through
+	 * the configured destination).
+	 */
+	getLogger(): Promise<AstroLogger> {
+		return resolveLoggerDestination(this.manifest);
 	}
 
 	/**
@@ -262,16 +273,6 @@ export abstract class BaseApp<P extends AppPipeline = AppPipeline> {
 			return false;
 		}
 	}
-
-	/**
-	 * Creates a pipeline by reading the stored manifest
-	 *
-	 * @param streaming
-	 * @param manifest
-	 * @param args
-	 * @private
-	 */
-	abstract createPipeline(streaming: boolean, manifest: SSRManifest, ...args: any[]): P;
 
 	set setManifestData(newManifestData: RoutesList) {
 		// One atomic table replacement: matcher, 404 fallback,
@@ -501,23 +502,23 @@ export abstract class BaseApp<P extends AppPipeline = AppPipeline> {
 
 		if (
 			manifest.routes.some((r) => r.routeData.type === 'redirect') &&
-			!(used & PipelineFeatures.redirects)
+			!(used & FetchFeatures.redirects)
 		) {
 			missing.push('redirects');
 		}
-		if (manifest.sessionConfig && !(used & PipelineFeatures.sessions)) {
+		if (manifest.sessionConfig && !(used & FetchFeatures.sessions)) {
 			missing.push('sessions');
 		}
-		if (manifest.actions && !(used & PipelineFeatures.actions)) {
+		if (manifest.actions && !(used & FetchFeatures.actions)) {
 			missing.push('actions');
 		}
-		if (manifest.middleware && !(used & PipelineFeatures.middleware)) {
+		if (manifest.middleware && !(used & FetchFeatures.middleware)) {
 			missing.push('middleware');
 		}
-		if (manifest.i18n && manifest.i18n.strategy !== 'manual' && !(used & PipelineFeatures.i18n)) {
+		if (manifest.i18n && manifest.i18n.strategy !== 'manual' && !(used & FetchFeatures.i18n)) {
 			missing.push('i18n');
 		}
-		if (manifest.cacheConfig && !(used & PipelineFeatures.cache)) {
+		if (manifest.cacheConfig && !(used & FetchFeatures.cache)) {
 			missing.push('cache');
 		}
 
@@ -525,7 +526,7 @@ export abstract class BaseApp<P extends AppPipeline = AppPipeline> {
 			this.logger.warn(
 				'router',
 				`Your project uses ${feature}, but your custom src/fetch.ts does not call the ${feature}() handler. ` +
-					`This feature will not work unless you add it to your fetch.ts pipeline.`,
+					`This feature will not work unless your fetch handler calls it.`,
 			);
 		}
 	}

@@ -5,7 +5,7 @@ import { handleTrailingSlash } from './trailing-slash-handler.js';
 import { handleCache, provideCache } from '../cache/handler.js';
 import { getEnvironment, type RequestLogPayload } from '../environment/index.js';
 import { renderErrorFromState } from '../errors/handler.js';
-import { ALL_PIPELINE_FEATURES, markFeatureUsed, PipelineFeatures } from '../fetch/features.js';
+import { ALL_FETCH_FEATURES, markFeatureUsed, FetchFeatures } from '../fetch/features.js';
 import { finalizeI18n, getI18n } from '../i18n/handler.js';
 import { resolveLoggerDestination } from '../logger/manifest-logger.js';
 import { handleMiddleware } from '../middleware/astro-middleware.js';
@@ -60,7 +60,7 @@ export async function handleRequest(state: FetchState): Promise<Response> {
 	// every pipeline feature internally. Mark them all as used so the
 	// missing-feature warning in BaseApp never fires — the user didn't
 	// forget to include anything.
-	markFeatureUsed(state.manifest, ALL_PIPELINE_FEATURES);
+	markFeatureUsed(state.manifest, ALL_FETCH_FEATURES);
 
 	// Reject paths that were encoded too many times to fully decode, before
 	// any routing or middleware runs. If we let them through, middleware
@@ -112,7 +112,7 @@ async function render(state: FetchState): Promise<Response> {
 		const cacheP = provideCache(state);
 		if (sessionP || cacheP) await Promise.all([sessionP, cacheP]);
 		// Track feature usage even when skipped.
-		markFeatureUsed(state.manifest, PipelineFeatures.sessions);
+		markFeatureUsed(state.manifest, FetchFeatures.sessions);
 
 		// Redirect routes short-circuit the pipeline: no middleware, no
 		// page dispatch, no i18n post-processing. Inline routeData.type
@@ -141,7 +141,7 @@ async function render(state: FetchState): Promise<Response> {
 		// the cache handler. This avoids a closure allocation and an
 		// extra function call per request.
 		if (!state.manifest.cacheProvider) {
-			markFeatureUsed(state.manifest, PipelineFeatures.cache);
+			markFeatureUsed(state.manifest, FetchFeatures.cache);
 			response = await handleMiddleware(state, actionsAndPages);
 			if (i18n) {
 				response = await finalizeI18n(i18n, state, response);

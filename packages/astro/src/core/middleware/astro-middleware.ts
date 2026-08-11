@@ -5,7 +5,7 @@ import { ASTRO_ERROR_HEADER } from '../constants.js';
 import { attachCookiesToResponse } from '../cookies/index.js';
 import { getEnvironment } from '../environment/index.js';
 import { renderErrorFromState } from '../errors/handler.js';
-import { markFeatureUsed, PipelineFeatures } from '../fetch/features.js';
+import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
 import { applyRewriteToState } from '../rewrites/handler.js';
 import { callMiddleware } from './callMiddleware.js';
 import { getMiddleware } from './load.js';
@@ -32,7 +32,7 @@ export async function handleMiddleware(
 	state: FetchState,
 	renderRouteCallback: RenderRouteCallback,
 ): Promise<Response> {
-	markFeatureUsed(state.manifest, PipelineFeatures.middleware);
+	markFeatureUsed(state.manifest, FetchFeatures.middleware);
 
 	// Resolve props first (the async bit) so downstream consumers can
 	// call `state.getAPIContext()` synchronously on the hot path.

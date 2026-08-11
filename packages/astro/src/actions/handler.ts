@@ -3,7 +3,7 @@ import {
 	createCrossOriginForbiddenResponse,
 	isForbiddenCrossOriginRequest,
 } from '../core/app/origin-check.js';
-import { markFeatureUsed, PipelineFeatures } from '../core/fetch/features.js';
+import { markFeatureUsed, FetchFeatures } from '../core/fetch/features.js';
 import type { FetchState } from '../core/fetch/fetch-state.js';
 import { getActionContext, serializeActionResult } from './runtime/server.js';
 
@@ -34,7 +34,7 @@ export function handleAction(
 	apiContext: APIContext,
 	state: FetchState,
 ): Promise<Response | undefined> | undefined {
-	markFeatureUsed(state.manifest, PipelineFeatures.actions);
+	markFeatureUsed(state.manifest, FetchFeatures.actions);
 	if (apiContext.isPrerendered) {
 		return undefined;
 	}

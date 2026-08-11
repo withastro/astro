@@ -34,5 +34,4 @@ data from the manifest plus per-request state.
   through the chain.
 - **Facades**: `App` (`core/app/`) and `NodeApp` (`core/app/node.ts`) survive
   as thin public compatibility shells — every method delegates to the
-  functional core. `app.pipeline` is a stateless `AppPipeline` delegate shim
-  (`core/app/pipeline.ts`) kept for public-surface compatibility.
+  functional core.

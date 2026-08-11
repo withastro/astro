@@ -51,8 +51,8 @@ export interface RunnableEnvironmentOptions {
 	getDebugInfo: () => Promise<string>;
 }
 
-// Base-`Pipeline.getModuleForRoute` port: the runnable pipeline never
-// overrode it, so the environment record reproduces the inherited behavior.
+// Identical to the production implementation: redirect + i18n-fallback
+// handling over pageMap/pageModule.
 async function getModuleForRoute(
 	manifest: SSRManifest,
 	route: RouteData,

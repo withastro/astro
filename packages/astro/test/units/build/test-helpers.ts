@@ -6,7 +6,7 @@ import type { Plugin } from 'vite';
 import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import { createRoutesList as _createRoutesList } from '../../../dist/core/routing/create-manifest.js';
 import type { StaticBuildOptions } from '../../../dist/core/build/types.js';
-import type { AppPipeline } from '../../../dist/core/app/pipeline.js';
+import type { TestPipeline } from '../test-utils.ts';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 import type { AstroInlineConfig } from '../../../dist/types/public/config.js';
 import type { ComponentInstance } from '../../../dist/types/astro.js';
@@ -214,9 +214,9 @@ export function createMockPrerenderer(
 	const { staticPaths } = options;
 
 	/** Lazily-created shared pipeline — one per prerenderer instance. */
-	let _pipeline: AppPipeline | null = null;
+	let _pipeline: TestPipeline | null = null;
 
-	function getPipeline(): AppPipeline {
+	function getPipeline(): TestPipeline {
 		if (!_pipeline) _pipeline = createBasicPipeline();
 		return _pipeline;
 	}

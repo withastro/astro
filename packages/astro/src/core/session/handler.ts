@@ -1,5 +1,5 @@
 import { getEnvironment } from '../environment/index.js';
-import { markFeatureUsed, PipelineFeatures } from '../fetch/features.js';
+import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import type { SSRManifest } from '../app/types.js';
 import { getSessionDriver } from './driver.js';
@@ -17,7 +17,7 @@ const SESSION_KEY = 'session';
  * manifest, avoiding promise allocation on the hot path.
  */
 export function provideSession(state: FetchState): Promise<void> | void {
-	markFeatureUsed(state.manifest, PipelineFeatures.sessions);
+	markFeatureUsed(state.manifest, FetchFeatures.sessions);
 	const config = state.manifest.sessionConfig;
 	if (!config) return;
 

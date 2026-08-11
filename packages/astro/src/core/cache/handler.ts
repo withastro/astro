@@ -1,4 +1,4 @@
-import { markFeatureUsed, PipelineFeatures } from '../fetch/features.js';
+import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import type { SSRManifest } from '../app/types.js';
 import { getEnvironment } from '../environment/index.js';
@@ -81,7 +81,7 @@ export async function handleCache(
 	state: FetchState,
 	next: () => Promise<Response>,
 ): Promise<Response> {
-	markFeatureUsed(state.manifest, PipelineFeatures.cache);
+	markFeatureUsed(state.manifest, FetchFeatures.cache);
 	if (!state.manifest.cacheProvider) {
 		return next();
 	}

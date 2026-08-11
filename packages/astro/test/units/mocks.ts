@@ -13,7 +13,7 @@ import {
 	spreadAttributes,
 } from '../../dist/runtime/server/index.js';
 import { createManifest, createRouteInfo } from './app/test-helpers.ts';
-import type { AppPipeline } from '../../dist/core/app/pipeline.js';
+import type { TestPipeline } from './test-utils.ts';
 import type { RedirectConfig } from '../../dist/types/public/config.js';
 import type { RouteData, RoutePart, RouteType } from '../../dist/types/public/internal.js';
 import type { APIContext } from '../../dist/types/public/context.js';
@@ -33,7 +33,7 @@ interface LightMockRenderContextOverrides {
 	request?: Request;
 	routeData?: Partial<RouteData>;
 	params?: Record<string, string>;
-	pipeline?: AppPipeline;
+	pipeline?: TestPipeline;
 	[key: string]: unknown;
 }
 

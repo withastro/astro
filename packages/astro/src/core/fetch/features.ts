@@ -1,13 +1,13 @@
 import type { SSRManifest } from '../app/types.js';
 
 /**
- * Bit flags for pipeline features that handler classes register as
- * "used" when a custom `src/fetch.ts` fetch handler is in play. After the
- * first request (dev) or at runtime (prod SSR), we compare against the
- * manifest to warn about features the user configured but forgot to
- * include in their custom pipeline.
+ * Bit flags for features that handler functions register as "used" when a
+ * custom `src/fetch.ts` fetch handler is in play. After the first request
+ * (dev) or at runtime (prod SSR), we compare against the manifest to warn
+ * about features the user configured but forgot to include in their custom
+ * fetch handler.
  */
-export const PipelineFeatures = {
+export const FetchFeatures = {
 	redirects: 1 << 0,
 	sessions: 1 << 1,
 	actions: 1 << 2,
@@ -16,15 +16,15 @@ export const PipelineFeatures = {
 	cache: 1 << 5,
 } as const;
 
-/** All feature bits ORed together. Keep next to `PipelineFeatures` so
+/** All feature bits ORed together. Keep next to `FetchFeatures` so
  *  new flags are hard to forget. */
-export const ALL_PIPELINE_FEATURES =
-	PipelineFeatures.redirects |
-	PipelineFeatures.sessions |
-	PipelineFeatures.actions |
-	PipelineFeatures.middleware |
-	PipelineFeatures.i18n |
-	PipelineFeatures.cache;
+export const ALL_FETCH_FEATURES =
+	FetchFeatures.redirects |
+	FetchFeatures.sessions |
+	FetchFeatures.actions |
+	FetchFeatures.middleware |
+	FetchFeatures.i18n |
+	FetchFeatures.cache;
 
 // Scoped per manifest: two Apps constructed over the same manifest object
 // (e.g. the cloudflare custom-fetch worker) share this bitmask — the bits
@@ -44,13 +44,4 @@ export function markFeatureUsed(manifest: SSRManifest, feature: number): void {
 /** The used-features bitmask for a manifest; `0` when nothing was marked. */
 export function getUsedFeatures(manifest: SSRManifest): number {
 	return usedFeatures.get(manifest)?.bits ?? 0;
-}
-
-/**
- * Internal raw setter — exists only so the transitional `Pipeline` bridge can
- * expose `usedFeatures` as a get/set pair (`|=` is get-then-SET). Handlers use
- * `markFeatureUsed`.
- */
-export function setUsedFeatures(manifest: SSRManifest, bits: number): void {
-	usedFeatures.set(manifest, { bits });
 }

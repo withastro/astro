@@ -11,7 +11,7 @@ import { handleAction } from '../../dist/actions/handler.js';
 import type { FetchState } from '../../dist/core/fetch/fetch-state.js';
 import { handleMiddleware } from '../../dist/core/middleware/astro-middleware.js';
 import { handlePages } from '../../dist/core/pages/handler.js';
-import { AppPipeline } from '../../dist/core/app/pipeline.js';
+import { clearActions, getActions } from '../../dist/actions/load.js';
 import { setLogger } from '../../dist/core/logger/manifest-logger.js';
 import { setEnvironment } from '../../dist/core/environment/index.js';
 import { productionEnvironment } from '../../dist/core/environment/production.js';
@@ -115,17 +115,17 @@ function buffersToString(buffers: Buffer[]): string {
 }
 
 /**
- * The type `createBasicPipeline` returns: the public `AppPipeline` compat
- * shim — a stateless view over the manifest-keyed functional core. Kept as
- * an alias so tests can annotate helper variables.
+ * The handle `createBasicPipeline` returns: the test manifest plus the few
+ * functional-core delegates tests consume. Most tests only read `.manifest`.
  */
-export type TestPipeline = AppPipeline;
+export interface TestPipeline {
+	manifest: SSRManifest;
+	getActions: () => ReturnType<typeof getActions>;
+	clearActions: () => void;
+}
 
 /**
- * Creates a test manifest with a registered test environment + logger, and
- * returns the `AppPipeline` shim over it. Most tests only consume
- * `.manifest`; the shim also exposes the functional accessors
- * (`getActions()`, `clearActions()`, ...) as one-line delegates.
+ * Creates a test manifest with a registered test environment + logger.
  * For mock utilities like createMockFetchState, see mocks.ts
  */
 export function createBasicPipeline(
@@ -138,10 +138,10 @@ export function createBasicPipeline(
 		streaming?: boolean;
 		site?: string;
 	} = {},
-): AppPipeline {
+): TestPipeline {
 	const manifest = createManifest({ site: options.site, ...(options.manifest ?? {}) });
-	// Composition order mirrors the real entrypoints: logger, environment,
-	// then facade/shim construction (which warms the route table).
+	// Composition order mirrors the real entrypoints: logger, then
+	// environment.
 	setLogger(manifest, options.logger ?? defaultLogger);
 	// Register an environment carrying the requested runtime mode; the
 	// per-manifest RouteCache derives its mode (which gates the overwrite
@@ -167,7 +167,11 @@ export function createBasicPipeline(
 			throw new Error('getComponentByRoute is not implemented in the test environment');
 		},
 	});
-	return AppPipeline.create({ manifest, streaming: options.streaming ?? true });
+	return {
+		manifest,
+		getActions: () => getActions(manifest),
+		clearActions: () => clearActions(manifest),
+	};
 }
 
 export async function createBasicSettings(

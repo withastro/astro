@@ -122,8 +122,8 @@ export const productionEnvironment: RenderEnvironment = {
 		const { newUrl, pathname, routeData } = findRouteToRewrite({
 			payload,
 			request,
-			// RAW manifest routes, exactly like `AppPipeline.tryRewrite`, NOT the
-			// derived route table: production manifests deliberately do not carry
+			// RAW manifest routes, NOT the derived route table: production
+			// manifests deliberately do not carry
 			// the default 404 route (`createRoutesList` ensures it in dev only),
 			// and `findRouteToRewrite` gives an existing `/404` list entry
 			// precedence over dynamic routes that also match the path — so the

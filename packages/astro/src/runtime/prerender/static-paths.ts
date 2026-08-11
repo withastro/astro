@@ -16,18 +16,17 @@ export type { PathWithRoute } from '../../types/public/integrations.js';
  * Only the manifest is required: the route cache and the component loader can
  * be reached through the manifest-keyed functional core.
  *
- * When the caller passes a full App, its `pipeline` delegates are preferred:
- * they execute inside the app's own module graph, which matters when
- * `StaticPaths` and the app come from different bundles (the default
- * prerenderer imports the prerender bundle's `BuildApp`, whose per-manifest
- * state lives in the bundle's copies of the core modules).
+ * When the caller's app provides `routeCache` / `getComponentByRoute`
+ * (`BuildApp` does), those are preferred: they execute inside the app's own
+ * module graph, which matters when `StaticPaths` and the app come from
+ * different bundles (the default prerenderer imports the prerender bundle's
+ * `BuildApp`, whose per-manifest state lives in the bundle's copies of the
+ * core modules).
  */
 export interface StaticPathsApp {
 	manifest: SSRManifest;
-	pipeline?: {
-		routeCache: RouteCache;
-		getComponentByRoute(route: RouteData): Promise<ComponentInstance>;
-	};
+	routeCache?: RouteCache;
+	getComponentByRoute?(route: RouteData): Promise<ComponentInstance>;
 }
 
 /**
@@ -96,11 +95,10 @@ export class StaticPaths {
 	async #getPathsForRoute(route: RouteData): Promise<PathWithRoute[]> {
 		const paths: PathWithRoute[] = [];
 		const manifest = this.#app.manifest;
-		// Prefer the app's own pipeline delegates (they run inside the app's
-		// module graph — see the StaticPathsApp docs); fall back to the
+		// Prefer the app's own accessors (they run inside the app's module
+		// graph — see the StaticPathsApp docs); fall back to the
 		// manifest-keyed functional core for `{ manifest }`-only callers.
-		const pipeline = this.#app.pipeline;
-		const routeCache = pipeline?.routeCache ?? getRouteCache(manifest);
+		const routeCache = this.#app.routeCache ?? getRouteCache(manifest);
 
 		// Static route - single pathname
 		if (route.pathname) {
@@ -110,8 +108,8 @@ export class StaticPaths {
 
 		// Dynamic route - need to call getStaticPaths.
 		// getComponentByRoute handles redirects and fallbacks.
-		const componentInstance = pipeline
-			? await pipeline.getComponentByRoute(route)
+		const componentInstance = this.#app.getComponentByRoute
+			? await this.#app.getComponentByRoute(route)
 			: await getEnvironment(manifest).getComponentByRoute(manifest, route);
 
 		// Determine which route to use for getStaticPaths

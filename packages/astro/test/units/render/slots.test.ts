@@ -14,7 +14,7 @@ import {
 	unescapeHTML,
 } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
-import type { AppPipeline } from '../../../dist/core/app/pipeline.js';
+import type { TestPipeline } from '../test-utils.ts';
 import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
 
 const createAstroModule = (Component: AstroComponentFactory) => ({ default: Component });
@@ -22,7 +22,7 @@ const createAstroModule = (Component: AstroComponentFactory) => ({ default: Comp
 /**
  * Helper: render a page component through the pipeline and return the HTML string.
  */
-async function renderPage(Page: AstroComponentFactory, pipeline?: AppPipeline): Promise<string> {
+async function renderPage(Page: AstroComponentFactory, pipeline?: TestPipeline): Promise<string> {
 	const pl = pipeline ?? createBasicPipeline();
 	const request = new Request('http://example.com/');
 	const routeData = {

@@ -1,7 +1,10 @@
 import { BaseApp } from '../app/entrypoints/index.js';
 import type { LogRequestPayload } from '../app/base.js';
-import { AppPipeline } from '../app/pipeline.js';
 import type { SSRManifest } from '../app/types.js';
+import type { ComponentInstance } from '../../types/astro.js';
+import type { RouteData } from '../../types/public/internal.js';
+import { getEnvironment } from '../environment/index.js';
+import { getRouteCache, type RouteCache } from '../render/route-cache.js';
 import type { BuildEnvironmentSlots } from './environment.js';
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
@@ -18,13 +21,8 @@ export class BuildApp extends BaseApp {
 	#buildEnv: BuildEnvironmentSlots;
 
 	constructor(manifest: SSRManifest, buildEnv: BuildEnvironmentSlots) {
-		// BaseApp ctor: warms the route table via the pipeline shim.
 		super(manifest);
 		this.#buildEnv = buildEnv;
-	}
-
-	createPipeline(streaming: boolean): AppPipeline {
-		return AppPipeline.create({ manifest: this.manifest, streaming });
 	}
 
 	isDev(): boolean {
@@ -58,6 +56,21 @@ export class BuildApp extends BaseApp {
 
 	public getSettings() {
 		return this.#buildEnv.getSettings();
+	}
+
+	/**
+	 * Route cache and component loader for `StaticPaths`. Defined on the app
+	 * (rather than reached through the functional core at the call site) so
+	 * they execute inside the prerender bundle's module graph: the default
+	 * prerenderer constructs `StaticPaths` from a different bundle, whose
+	 * copies of the core modules hold separate per-manifest state.
+	 */
+	get routeCache(): RouteCache {
+		return getRouteCache(this.manifest);
+	}
+
+	getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
+		return getEnvironment(this.manifest).getComponentByRoute(this.manifest, routeData);
 	}
 
 	logRequest(_options: LogRequestPayload) {}
