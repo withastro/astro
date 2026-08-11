@@ -2445,7 +2445,7 @@ export interface AstroUserConfig<
 		 * @deprecated This property is deprecated and will be removed in a future major version.
 		 *
 		 * To configure footnotes, pass `remarkRehype` to the `unified()` processor or `gfm.footnotes` to the `satteri()` processor instead. Other `remark-rehype` options are only supported when using `unified()`.
-		 * 
+		 *
 		 * Learn more about [setting up a Markdown processor](https://docs.astro.build/en/guides/markdown-content/#setting-up-a-markdown-processor) and [using built-in features](https://docs.astro.build/en/guides/markdown-content/#built-in-features) in the Markdown guide.
 		 * @description
 		 * Pass options to [remark-rehype](https://github.com/remarkjs/remark-rehype#api).
