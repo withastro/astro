@@ -97,6 +97,7 @@
     "tsconfigs",
     "dist",
     "types",
+    "src/core/manifest/ambient-source.ts",
     "bin",
     "env.d.ts",
     "client.d.ts",
