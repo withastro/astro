@@ -98,12 +98,16 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		this.pipeline.clearActions();
 	}
 
-	async devMatch(pathname: string): Promise<DevMatch | undefined> {
+	async devMatch(
+		pathname: string,
+		{ prerenderOnly }: { prerenderOnly?: boolean } = {},
+	): Promise<DevMatch | undefined> {
 		const matchedRoute = await matchRoute(
 			pathname,
 			this.manifestData,
 			this.pipeline as unknown as RunnablePipeline,
 			this.manifest,
+			{ prerenderOnly },
 		);
 		if (!matchedRoute) {
 			return undefined;
@@ -200,7 +204,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 			controller,
 			pathname,
 			async run() {
-				const matchedRoute = await self.devMatch(pathname);
+				const matchedRoute = await self.devMatch(pathname, { prerenderOnly });
 				if (!matchedRoute) {
 					if (prerenderOnly) {
 						// In prerender-only mode, signal that we didn't handle this

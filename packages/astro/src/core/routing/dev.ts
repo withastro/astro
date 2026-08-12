@@ -24,6 +24,7 @@ export async function matchRoute(
 	routesList: RoutesList,
 	pipeline: RunnablePipeline,
 	manifest: SSRManifest,
+	{ prerenderOnly }: { prerenderOnly?: boolean } = {},
 ): Promise<MatchedRoute | undefined> {
 	const { logger, routeCache } = pipeline;
 	const matches = matchAllRoutes(pathname, routesList);
@@ -34,7 +35,16 @@ export async function matchRoute(
 	});
 
 	let firstError: unknown = null;
+	let skippedPrerenderOnly = false;
 	for await (const { route: maybeRoute, filePath } of preloadedMatches) {
+		// When running as the prerender handler, skip non-prerendered routes
+		// before importing their components. Their modules may use runtime-
+		// specific APIs (e.g. cloudflare:workers) unavailable in the prerender
+		// environment.
+		if (prerenderOnly && !maybeRoute.prerender) {
+			skippedPrerenderOnly = true;
+			continue;
+		}
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
 		try {
@@ -78,7 +88,15 @@ export async function matchRoute(
 	const altPathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 
 	if (altPathname !== pathname) {
-		return await matchRoute(altPathname, routesList, pipeline, manifest);
+		return await matchRoute(altPathname, routesList, pipeline, manifest, { prerenderOnly });
+	}
+
+	// A non-prerendered route matched but was skipped above. Don't warn or fall
+	// back to the 404 route (which may be prerendered and would shadow the SSR
+	// route): returning undefined lets the caller mark the request as not
+	// handled, so it falls through to the SSR handler and its own full matching.
+	if (skippedPrerenderOnly) {
+		return undefined;
 	}
 
 	if (matches.length) {

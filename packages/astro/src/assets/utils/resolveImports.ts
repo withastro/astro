@@ -1,6 +1,5 @@
 import { isRemotePath, removeBase } from '@astrojs/internal-helpers/path';
 import { CONTENT_IMAGE_FLAG, IMAGE_IMPORT_PREFIX } from '../../content/consts.js';
-import { shorthash } from '../../runtime/server/shorthash.js';
 import { VALID_INPUT_FORMATS } from '../consts.js';
 
 /**
@@ -39,6 +38,3 @@ export function imageSrcToImportId(imageSrc: string, filePath?: string): string 
 	}
 	return `${imageSrc}?${params.toString()}`;
 }
-
-export const importIdToSymbolName = (importId: string) =>
-	`__ASTRO_IMAGE_IMPORT_${shorthash(importId)}`;

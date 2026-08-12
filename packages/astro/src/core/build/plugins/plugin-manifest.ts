@@ -28,7 +28,8 @@ import {
 	trackStyleHashes,
 } from '../../csp/common.js';
 import { partitionByKind } from '../../csp/runtime.js';
-import { encodeKey } from '../../encryption.js';
+import { generateSpeculationRulesContent } from '../../../prefetch/speculation-rules.js';
+import { encodeKey, generateCspDigest } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
 import { getOutFile, getOutFolder } from '../common.js';
@@ -324,6 +325,20 @@ async function buildManifest(
 			...(await trackStyleHashes(internals, settings, algorithm)),
 		];
 
+		// When both CSP and clientPrerender are enabled, generate a static speculation rules
+		// script whose hash can be included in the CSP policy. Dynamic per-URL injection would
+		// produce unpredictable hashes that cannot be whitelisted at build time.
+		let speculationRulesContent: string | undefined;
+		if (settings.config.experimental.clientPrerender && settings.config.prefetch) {
+			const prefetchAll =
+				typeof settings.config.prefetch === 'object'
+					? (settings.config.prefetch.prefetchAll ?? false)
+					: false;
+			speculationRulesContent = generateSpeculationRulesContent(prefetchAll);
+			const speculationRulesHash = await generateCspDigest(speculationRulesContent, algorithm);
+			scriptHashes.push(speculationRulesHash);
+		}
+
 		const scriptDirective = {
 			resources: getScriptResources(cspConfig),
 			hashes: scriptHashes,
@@ -348,6 +363,7 @@ async function buildManifest(
 			styleResources: styleDefault.resources,
 			scriptDirective,
 			styleDirective,
+			speculationRulesContent,
 		};
 	}
 

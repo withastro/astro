@@ -1667,6 +1667,7 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @kind heading
+	 * @type {object | false}
 	 * @version 5.7.0
 	 * @name Session Options
 	 * @description
@@ -1690,7 +1691,7 @@ export interface AstroUserConfig<
 	 *
 	 * Session drivers are configured at build time. This means environment variables used in the driver configuration are inlined. You must create your own driver entrypoint to [override the configuration at runtime](https://docs.astro.build/en/guides/sessions/#overriding-the-configuration-at-runtime).
 	 *
-	 * Set to `false` to opt out of session support entirely. With `session: false`, the session runtime is excluded from the SSR bundle, adapters skip wiring their default session driver, and `Astro.session` (and `context.session`) is `undefined` — the same as a project without sessions configured. Useful for serverless and edge runtimes where bundle parse time is sensitive.
+	 * Since Astro v7.2.0, you can opt out of session support by setting the option to `false`. When sessions are disabled, the session runtime is excluded from the SSR bundle, and adapters skip wiring their default session driver. This is useful for serverless and edge runtimes where bundle parse time is sensitive.
 	 *
 	 * ```js title="astro.config.mjs"
 	 * import { defineConfig } from 'astro/config';
@@ -2361,7 +2362,9 @@ export interface AstroUserConfig<
 		 * @docs
 		 * @name markdown.remarkPlugins
 		 * @type {RemarkPlugins}
-		 * @deprecated Pass `remarkPlugins` to `unified({ remarkPlugins })` from `@astrojs/markdown-remark` and set it as `markdown.processor` instead. Will be removed in a future major.
+		 * @deprecated This property is deprecated and will be removed in a future major version. Pass plugins to the configured [`markdown.processor`](https://docs.astro.build/en/reference/configuration-reference/#markdownprocessor) instead.
+		 *
+		 * Learn more about [setting up a Markdown processor](https://docs.astro.build/en/guides/markdown-content/#setting-up-a-markdown-processor) and [using plugins](https://docs.astro.build/en/guides/markdown-content/#markdown-processor-plugins) in the Markdown guide.
 		 * @description
 		 * Pass [remark plugins](https://github.com/remarkjs/remark) to customize how your Markdown is built. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
@@ -2379,7 +2382,9 @@ export interface AstroUserConfig<
 		 * @docs
 		 * @name markdown.rehypePlugins
 		 * @type {RehypePlugins}
-		 * @deprecated Pass `rehypePlugins` to `unified({ rehypePlugins })` from `@astrojs/markdown-remark` and set it as `markdown.processor` instead. Will be removed in a future major.
+		 * @deprecated This property is deprecated and will be removed in a future major version. Pass plugins to the configured [`markdown.processor`](https://docs.astro.build/en/reference/configuration-reference/#markdownprocessor) instead.
+		 *
+		 * Learn more about [setting up a Markdown processor](https://docs.astro.build/en/guides/markdown-content/#setting-up-a-markdown-processor) and [using plugins](https://docs.astro.build/en/guides/markdown-content/#markdown-processor-plugins) in the Markdown guide.
 		 * @description
 		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
@@ -2399,7 +2404,9 @@ export interface AstroUserConfig<
 		 * @type {boolean}
 		 * @default `true`
 		 * @version 2.0.0
-		 * @deprecated Pass `gfm` to your processor instead (e.g. `unified({ gfm: false })`). Will be removed in a future major.
+		 * @deprecated This property is deprecated and will be removed in a future major version. Pass `gfm` to the configured [`markdown.processor`](https://docs.astro.build/en/reference/configuration-reference/#markdownprocessor) instead.
+		 *
+		 * Learn more about [setting up a Markdown processor](https://docs.astro.build/en/guides/markdown-content/#setting-up-a-markdown-processor) and [using GitHub-flavored Markdown](https://docs.astro.build/en/guides/markdown-content/#github-flavored-markdown) in the Markdown guide.
 		 * @description
 		 * Astro uses [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) by default. To disable this, set the `gfm` flag to `false`:
 		 *
@@ -2419,7 +2426,9 @@ export interface AstroUserConfig<
 		 * @type {boolean | Smartypants}
 		 * @default `true`
 		 * @version 2.0.0
-		 * @deprecated Pass `smartypants` to your processor instead (e.g. `unified({ smartypants: false })`). Will be removed in a future major.
+		 * @deprecated This property is deprecated and will be removed in a future major version. Pass it to the configured [`markdown.processor`](https://docs.astro.build/en/reference/configuration-reference/#markdownprocessor) instead. Use `smartypants` for `unified()` or `smartPunctuation` for `satteri()`.
+		 *
+		 * Learn more about [setting up a Markdown processor](https://docs.astro.build/en/guides/markdown-content/#setting-up-a-markdown-processor) and [using smart punctuation](https://docs.astro.build/en/guides/markdown-content/#smart-punctuation) in the Markdown guide.
 		 * @description
 		 * Whether to use the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) to transform straight quotes into smart quotes, dashes into en/em dashes, and triple dots into ellipses.
 		 *
@@ -2433,7 +2442,11 @@ export interface AstroUserConfig<
 		 * @docs
 		 * @name markdown.remarkRehype
 		 * @type {RemarkRehype}
-		 * @deprecated Pass `remarkRehype` to `unified({ remarkRehype })` from `@astrojs/markdown-remark` and set it as `markdown.processor` instead. Will be removed in a future major.
+		 * @deprecated This property is deprecated and will be removed in a future major version.
+		 *
+		 * To configure footnotes, pass `remarkRehype` to the `unified()` processor or `gfm.footnotes` to the `satteri()` processor instead. Other `remark-rehype` options are only supported when using `unified()`.
+		 *
+		 * Learn more about [setting up a Markdown processor](https://docs.astro.build/en/guides/markdown-content/#setting-up-a-markdown-processor) and [using built-in features](https://docs.astro.build/en/guides/markdown-content/#built-in-features) in the Markdown guide.
 		 * @description
 		 * Pass options to [remark-rehype](https://github.com/remarkjs/remark-rehype#api).
 		 *
@@ -2454,8 +2467,9 @@ export interface AstroUserConfig<
 		 * @type {MarkdownProcessor}
 		 * @version 6.4.0
 		 * @description
-		 * Configures the Markdown processor used to render `.md` files. Defaults to `satteri()` from
-		 * `@astrojs/markdown-satteri`, Astro's native Markdown pipeline.
+		 * Configures the [Markdown processor](https://docs.astro.build/en/guides/markdown-content/#markdown-processors) used to render `.md` files.
+		 *
+		 * Sätteri, Astro’s native Markdown pipeline, is the default processor. To configure it, install `@astrojs/markdown-satteri` and pass options to `satteri()`:
 		 *
 		 * ```js
 		 * // astro.config.mjs
@@ -2487,6 +2501,8 @@ export interface AstroUserConfig<
 		 *   },
 		 * });
 		 * ```
+		 *
+		 * Learn more about the [official Markdown processors and how to choose one](https://docs.astro.build/en/guides/markdown-content/#choosing-a-markdown-processor) in the Markdown guide.
 		 */
 		processor?: MarkdownProcessor;
 	};
