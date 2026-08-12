@@ -11,7 +11,8 @@ import type { HTMLDocument } from 'vscode-html-languageservice';
 import type { URI } from 'vscode-uri';
 import type { PackageInfo } from '../importPackage.js';
 import { getLanguageServerTypesDir } from '../utils.js';
-import { astro2tsx, type CompilerDiagnostic } from './astro2tsx.js';
+import type { AstroDiagnostic } from '@astrojs/astro2tsx';
+import { astro2tsx } from './astro2tsx.js';
 import type { AstroMetadata } from './parseAstro.js';
 import { getFrontmatterStatus } from './parseAstro.js';
 import { extractStylesheets } from './parseCSS.js';
@@ -174,7 +175,7 @@ export class AstroVirtualCode implements VirtualCode {
 	mappings!: CodeMapping[];
 	embeddedCodes!: VirtualCode[];
 	astroMeta!: AstroMetadata;
-	compilerDiagnostics!: CompilerDiagnostic[];
+	compilerDiagnostics!: AstroDiagnostic[];
 	htmlDocument!: HTMLDocument;
 	codegenStacks = [];
 	public fileName: string;
