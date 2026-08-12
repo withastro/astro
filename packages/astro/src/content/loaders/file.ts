@@ -1,6 +1,6 @@
 import { existsSync, promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import * as toml from 'smol-toml';
 import { FileGlobNotSupported, FileParserNotFound } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/index.js';
