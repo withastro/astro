@@ -80,7 +80,7 @@ export async function preview({ flags }: PreviewOptions) {
 	}
 
 	const root = pathToFileURL(resolveRoot(flags.root) + '/');
-	const existingServer = checkExistingServer(root, 'preview');
+	const existingServer = await checkExistingServer(root, 'preview');
 	if (existingServer) {
 		const message = [
 			'Another astro preview server is already running.',

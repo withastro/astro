@@ -61,6 +61,48 @@ async function handleSvgDeduplication(
 	}
 }
 
+const TRANSIENT_ERROR_CODES = new Set(['EMFILE', 'ENFILE', 'EAGAIN', 'EBUSY']);
+
+// Limits concurrent fs.readFile calls to avoid EMFILE when the bundler loads
+// thousands of images in parallel. 200 is well below typical OS defaults
+// (1024 on Linux, ~8000 on macOS) while leaving headroom for other I/O.
+const MAX_CONCURRENT_READS = 200;
+let activeReads = 0;
+const readQueue: Array<() => void> = [];
+
+/**
+ * Reads a file with concurrency limiting and retry logic for transient OS errors
+ * like EMFILE (too many open files). Large projects can exhaust file descriptors
+ * when the bundler loads thousands of images concurrently.
+ */
+async function readFileWithRetry(url: URL, maxRetries = 5): Promise<Buffer> {
+	// Wait for a slot if at the concurrency limit
+	if (activeReads >= MAX_CONCURRENT_READS) {
+		await new Promise<void>((resolve) => readQueue.push(resolve));
+	}
+	activeReads++;
+	try {
+		for (let attempt = 0; ; attempt++) {
+			try {
+				return await fs.readFile(url);
+			} catch (err) {
+				const code =
+					err instanceof Error && 'code' in err ? (err as NodeJS.ErrnoException).code : undefined;
+				if (code && TRANSIENT_ERROR_CODES.has(code) && attempt < maxRetries) {
+					await new Promise((resolve) => setTimeout(resolve, 50 * 2 ** attempt));
+					continue;
+				}
+				throw err;
+			}
+		}
+	} finally {
+		activeReads--;
+		if (readQueue.length > 0) {
+			readQueue.shift()!();
+		}
+	}
+}
+
 /**
  * Processes an image file and emits its metadata and optionally its contents. This function supports both build and development modes.
  *
@@ -79,9 +121,12 @@ export async function emitImageMetadata(
 	const url = pathToFileURL(id);
 	let fileData: Buffer;
 	try {
-		fileData = await fs.readFile(url);
-	} catch {
-		return undefined;
+		fileData = await readFileWithRetry(url);
+	} catch (err) {
+		if (err instanceof Error && 'code' in err && err.code === 'ENOENT') {
+			return undefined;
+		}
+		throw err;
 	}
 
 	const fileMetadata = await imageMetadata(fileData, id);

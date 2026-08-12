@@ -22,6 +22,7 @@ describe('Prerendering', () => {
 				output: 'server',
 				outDir: './dist/with-base',
 				adapter: nodejs({ mode: 'standalone' }),
+				redirects: { '/old-two': '/two' },
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
@@ -95,6 +96,20 @@ describe('Prerendering', () => {
 			const res = await fetch(`http://${server.host}:${server.port}/some-base/dogs/unknown`);
 
 			assert.equal(res.status, 404);
+		});
+
+		it('Can render 404 matching a prerendered dynamic endpoint pattern', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/api/dogs/unknown`);
+
+			assert.equal(res.status, 404);
+		});
+
+		it('Can render redirects alongside prerendered dynamic endpoints', async () => {
+			const res = await fetch(`http://${server.host}:${server.port}/some-base/old-two`, {
+				redirect: 'manual',
+			});
+
+			assert.equal(res.status, 301);
 		});
 	});
 

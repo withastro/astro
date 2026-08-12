@@ -13,6 +13,9 @@ import {
 	writeLockFile,
 	readLockFile,
 	isProcessAlive,
+	isAstroCommand,
+	isLockFileProcessAlive,
+	checkExistingServer,
 	type LockFileData,
 } from '../../../dist/core/dev/lockfile.js';
 
@@ -188,6 +191,97 @@ describe('evaluateExistingServer', () => {
 	});
 });
 // #endregion
+
+describe('isAstroCommand', () => {
+	it('recognizes Astro CLI commands on Unix', () => {
+		assert.equal(isAstroCommand('node /workspace/node_modules/astro/bin/astro.mjs dev'), true);
+		assert.equal(isAstroCommand('node ./node_modules/.bin/astro preview'), true);
+	});
+
+	it('recognizes Astro CLI commands on Windows', () => {
+		assert.equal(
+			isAstroCommand(
+				'"C:\\Program Files\\nodejs\\node.exe" "C:\\project\\node_modules\\astro\\bin\\astro.mjs" dev',
+			),
+			true,
+		);
+		assert.equal(
+			isAstroCommand('cmd.exe /d /s /c "C:\\project\\node_modules\\.bin\\astro.cmd dev"'),
+			true,
+		);
+	});
+
+	it('does not mistake an unrelated command for Astro', () => {
+		assert.equal(isAstroCommand('node /home/astro/server.mjs'), false);
+		assert.equal(isAstroCommand('node /workspace/astronomy.mjs'), false);
+		assert.equal(isAstroCommand('node ./astro.js'), false);
+		assert.equal(isAstroCommand('npm run dev'), false);
+	});
+});
+
+describe('isLockFileProcessAlive', () => {
+	it('returns true when the recorded process command is Astro', async () => {
+		const data = { ...validData, pid: process.pid };
+		const findProcess = async () => [
+			{
+				pid: process.pid,
+				ppid: process.ppid,
+				name: 'node',
+				cmd: 'node /workspace/node_modules/astro/bin/astro.mjs dev',
+			},
+		];
+
+		assert.equal(await isLockFileProcessAlive(data, findProcess), true);
+	});
+
+	it('returns false when the PID belongs to another command', async () => {
+		const data = { ...validData, pid: process.pid };
+		const findProcess = async () => [
+			{
+				pid: process.pid,
+				ppid: process.ppid,
+				name: 'node',
+				cmd: 'node /app/server.mjs',
+			},
+		];
+
+		assert.equal(await isLockFileProcessAlive(data, findProcess), false);
+	});
+
+	it('keeps the PID-only result when the command cannot be inspected', async () => {
+		const data = { ...validData, pid: process.pid };
+
+		assert.equal(await isLockFileProcessAlive(data, async () => []), true);
+		assert.equal(
+			await isLockFileProcessAlive(data, async () => {
+				throw new Error('Process lookup failed');
+			}),
+			true,
+		);
+	});
+});
+
+describe('checkExistingServer', () => {
+	let tempDir: string;
+	let root: URL;
+
+	before(() => {
+		tempDir = mkdtempSync(join(tmpdir(), 'astro-lockfile-'));
+		root = pathToFileURL(tempDir + '/');
+	});
+
+	after(() => {
+		rmSync(tempDir, { recursive: true, force: true });
+	});
+
+	it('cleans up a lock file when a live PID belongs to another command', async () => {
+		const data = { ...validData, pid: process.pid };
+		writeLockFile(root, data);
+
+		assert.equal(await checkExistingServer(root), null);
+		assert.equal(readLockFile(root), null);
+	});
+});
 
 // #region killDevServer
 describe('killDevServer', () => {
