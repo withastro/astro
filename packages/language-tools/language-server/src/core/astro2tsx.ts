@@ -1,35 +1,19 @@
-import { type ConvertToTsxResult, convertToTsx } from '@astrojs/astro2tsx';
+import {
+	type ConvertToTsxResult,
+	type ExtractedScript,
+	type ExtractedStyle,
+	convertToTsx,
+} from '@astrojs/astro2tsx';
 import type { CodeMapping, VirtualCode } from '@volar/language-core';
 import { Range } from '@volar/language-server';
 import { TextDocument } from 'vscode-html-languageservice';
 import { patchTSX } from './utils.js';
 
-export interface TSXExtractedTag {
-	position: { start: number; end: number };
-	content: string;
-	lang?: string;
-}
-
-export interface TSXExtractedScript extends TSXExtractedTag {
-	type: 'processed-module' | 'module' | 'inline' | 'event-attribute' | 'json' | 'raw' | 'unknown';
-}
-
-export interface TSXExtractedStyle extends TSXExtractedTag {
-	type: 'tag' | 'style-attribute';
-	lang: string;
-}
-
-export interface CompilerDiagnostic {
-	message: string;
-	severity: number;
-	position: { start: number; end: number };
-}
-
 export interface LSPTSXRanges {
 	frontmatter: Range;
 	body: Range;
-	scripts: TSXExtractedScript[];
-	styles: TSXExtractedStyle[];
+	scripts: ExtractedScript[];
+	styles: ExtractedStyle[];
 }
 
 export function safeConvertToTSX(
@@ -68,26 +52,6 @@ export function safeConvertToTSX(
 	}
 }
 
-/** The script family doubles as the `type` the embedded-code builders switch on. */
-function toScripts(tsx: ConvertToTsxResult): TSXExtractedScript[] {
-	return tsx.scripts.map((script) => ({
-		position: script.position,
-		content: script.content,
-		type: (script.kind === 'event-attribute'
-			? 'event-attribute'
-			: (script.lang ?? 'unknown')) as TSXExtractedScript['type'],
-	}));
-}
-
-function toStyles(tsx: ConvertToTsxResult): TSXExtractedStyle[] {
-	return tsx.styles.map((style) => ({
-		position: style.position,
-		content: style.content,
-		type: style.kind === 'style-attribute' ? 'style-attribute' : 'tag',
-		lang: style.lang ?? 'css',
-	}));
-}
-
 export function getTSXRangesAsLSPRanges(tsx: ConvertToTsxResult): LSPTSXRanges {
 	const textDocument = TextDocument.create('', 'typescriptreact', 0, tsx.code);
 
@@ -100,8 +64,8 @@ export function getTSXRangesAsLSPRanges(tsx: ConvertToTsxResult): LSPTSXRanges {
 			textDocument.positionAt(tsx.body.start),
 			textDocument.positionAt(tsx.body.end),
 		),
-		scripts: toScripts(tsx),
-		styles: toStyles(tsx),
+		scripts: tsx.scripts,
+		styles: tsx.styles,
 	};
 }
 
@@ -110,7 +74,7 @@ export function astro2tsx(input: string, fileName: string) {
 
 	return {
 		virtualCode: getVirtualCodeTSX(tsx, fileName),
-		diagnostics: tsx.diagnostics as CompilerDiagnostic[],
+		diagnostics: tsx.diagnostics,
 		ranges: getTSXRangesAsLSPRanges(tsx),
 		frontmatterStatus: tsx.frontmatterStatus,
 		frontmatterSource: tsx.frontmatterSource,
