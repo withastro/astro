@@ -1,5 +1,184 @@
 # astro
 
+## 7.2.1
+
+### Patch Changes
+
+- [#17612](https://github.com/withastro/astro/pull/17612) [`7133730`](https://github.com/withastro/astro/commit/71337304965425820e81cc27d54b95d23033c017) Thanks [@thelazylamaGit](https://github.com/thelazylamaGit)! - Fixes CSS hot module replacement after navigating between pages with `ClientRouter`
+
+- [#17628](https://github.com/withastro/astro/pull/17628) [`4ada248`](https://github.com/withastro/astro/commit/4ada24889fc1bcc1ee89f3f8e5c6bc4cbe87cce6) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a CSP violation when using both `security.csp` and `experimental.clientPrerender` with `data-astro-prefetch` links. The dynamically injected `<script type="speculationrules">` now uses a static `"source": "document"` approach with a CSS selector, producing a deterministic payload that is hashed and included in the CSP `script-src` directive at build time.
+
+- [#17605](https://github.com/withastro/astro/pull/17605) [`89e4647`](https://github.com/withastro/astro/commit/89e4647bed74e65a2fc1c60ccb5a7fc6b7bf3bc4) Thanks [@ashleigh-yeoman](https://github.com/ashleigh-yeoman)! - Fixes middleware HMR not responding to changes in imported modules. Previously, only direct edits to the middleware file would trigger a reload.
+
+- [#17582](https://github.com/withastro/astro/pull/17582) [`bd2c1a5`](https://github.com/withastro/astro/commit/bd2c1a5a70666cc140c73a77edb41882fc88b277) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a regression where content collection `reference()` fields silently accepted entry IDs that don't exist, such as an ID that doesn't match a loader's slugified version of it. Astro now logs an error for references that point to a missing entry after all loaders finish syncing.
+
+- [#17661](https://github.com/withastro/astro/pull/17661) [`97b0cc7`](https://github.com/withastro/astro/commit/97b0cc79c586bb1fc2ce2ffe4c420f3cf2db769e) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Improves Markdown options documentation with links to the Markdown guide and official processors.
+
+- [#17349](https://github.com/withastro/astro/pull/17349) [`4328c73`](https://github.com/withastro/astro/commit/4328c736b18d36576429186445c8c89e8cd0d4b6) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes an issue where requests handled by the dev prerender environment (e.g. `/_image` with `@astrojs/cloudflare`'s `prerenderEnvironment: 'node'`) returned a 500 when a prerendered catch-all route existed, because non-prerendered route modules were imported in an environment where their runtime-specific APIs are unavailable
+
+- [#17603](https://github.com/withastro/astro/pull/17603) [`722eed6`](https://github.com/withastro/astro/commit/722eed64c4ec878a4778ab312599733b325b21ca) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `<video>` and `<audio>` elements being non-functional after navigating via view transitions (`<ClientRouter />`)
+
+- [#17616](https://github.com/withastro/astro/pull/17616) [`3a890d2`](https://github.com/withastro/astro/commit/3a890d226482e98c41650fb66c0c14d45eba2717) Thanks [@lazerg](https://github.com/lazerg)! - Fixes `experimental.incrementalBuild` re-rendering unchanged routes that import more than one asset. The route's dependency hash depended on the order the assets finished building, so two builds of identical sources could produce different hashes. The hash is now based on the file name each asset resolves to.
+
+- [#17547](https://github.com/withastro/astro/pull/17547) [`fba468c`](https://github.com/withastro/astro/commit/fba468c228d8661d2383a80c74206075201a187b) Thanks [@dmgawel](https://github.com/dmgawel)! - Improves `getCollection()` and `getEntry()` performance for entries without local image references
+
+- [#17602](https://github.com/withastro/astro/pull/17602) [`16e0d9d`](https://github.com/withastro/astro/commit/16e0d9d5c1b289242d317887e8334506627f2233) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a build error caused by hash collisions in generated content collection image import identifiers
+
+## 7.2.0
+
+### Minor Changes
+
+- [#17174](https://github.com/withastro/astro/pull/17174) [`0224a3a`](https://github.com/withastro/astro/commit/0224a3a356c1f2956075b77c3667bc67cf027d8c) Thanks [@matthewp](https://github.com/matthewp)! - Adds the `astro preview --background` flag to start preview servers as background processes.
+
+  This makes preview servers easier to manage from scripts and AI coding agents because the command returns after the server is ready instead of keeping the terminal attached to the long-running process.
+
+  ```sh
+  astro preview --background
+  ```
+
+  When a preview server is running in the background, you can inspect or stop it with new `astro preview` subcommands:
+
+  ```sh
+  astro preview status
+  astro preview logs
+  astro preview logs --follow
+  astro preview stop
+  ```
+
+  If Astro detects that `astro preview` is being run by an AI coding agent, background mode is enabled automatically. This matches the existing behavior for `astro dev`, allowing agents to continue working after the preview server starts while still receiving the server URL and process ID.
+
+  To opt out of automatic background mode for preview servers, set `ASTRO_PREVIEW_BACKGROUND=0` before running `astro preview`.
+
+- [#17532](https://github.com/withastro/astro/pull/17532) [`7f94895`](https://github.com/withastro/astro/commit/7f94895f8c28fc4d6977c9bfb1f90e80a9cfaa08) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for paths relative to your project root in `logger.entrypoint`
+
+  Previously, pointing `logger.entrypoint` at a custom log handler living in your own project required building an absolute `URL`. You can now write the path directly:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    logger: {
+  -    entrypoint: new URL('./src/logger.js', import.meta.url),
+  +    entrypoint: './src/logger.js',
+    },
+  });
+  ```
+
+  Paths starting with `./` or `../` are resolved against your project root. Package specifiers such as `@org/astro-logger`, absolute paths, and `URL` entrypoints keep working as before.
+
+- [#17084](https://github.com/withastro/astro/pull/17084) [`961bbe5`](https://github.com/withastro/astro/commit/961bbe5fdf4a761adb479595dfb94dc2e80f2957) Thanks [@matthewp](https://github.com/matthewp)! - Widens the `AstroPrerenderer` `render()` return type so prerenderers can report incremental-build metadata
+
+  A prerenderer's `render()` may now resolve to either a `Response` (as before) or a `PrerenderResult` object that pairs the response with the content entries and optimized-image transforms the page resolved. This lets prerenderers that render out of process (for example, in an adapter's runtime like workerd) report those dependencies back to the build, so [incremental static builds](https://docs.astro.build/en/reference/experimental-flags/incremental-build/) can track and replay them for skipped pages.
+
+  ```ts
+  import type { AstroPrerenderer, PrerenderResult } from 'astro';
+
+  const prerenderer: AstroPrerenderer = {
+    name: 'my-adapter:prerenderer',
+    getStaticPaths,
+    async render(request, { routeData }): Promise<PrerenderResult> {
+      const { response, metadata } = await renderInRuntime(request, routeData);
+      return { response, metadata };
+    },
+  };
+  ```
+
+  This is a non-breaking widening: prerenderers that return a bare `Response` continue to work unchanged, and in-process prerenderers can keep returning a `Response` since the build collects their metadata directly.
+
+- [#16871](https://github.com/withastro/astro/pull/16871) [`90c98ae`](https://github.com/withastro/astro/commit/90c98ae21ef0444a4088b7081676b0f97915001f) Thanks [@adamchal](https://github.com/adamchal)! - Adds `session: false` in `astro.config` to opt out of session support. Projects that do not set `session: false` see no behavior change.
+
+  ```js title="astro.config.mjs"
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    session: false,
+  });
+  ```
+
+  The session runtime and dependencies (`unstorage`) are now tree-shaken out of the SSR bundle for any project where no session driver is wired via:
+
+  - `session: false`
+  - no `session` config at all
+  - a `session` config without a driver
+
+  Useful for serverless/edge runtimes where cold-start parse time is sensitive.
+
+- [#17084](https://github.com/withastro/astro/pull/17084) [`961bbe5`](https://github.com/withastro/astro/commit/961bbe5fdf4a761adb479595dfb94dc2e80f2957) Thanks [@matthewp](https://github.com/matthewp)! - Adds experimental support for incremental static builds with `experimental.incrementalBuild`.
+
+  When enabled, Astro can skip regenerating static pages from dynamic routes when both the page's module dependencies and its data cache key are unchanged from the previous build. This currently applies to pages returned from `getStaticPaths()` that include a `cacheKey`.
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      incrementalBuild: true,
+    },
+  });
+  ```
+
+  Return a `cacheKey` for each generated page from `getStaticPaths()`:
+
+  ```astro
+  ---
+  export async function getStaticPaths() {
+    const posts = await fetchPosts();
+
+    return posts.map((post) => ({
+      params: { slug: post.slug },
+      props: { post },
+      cacheKey: post.digest,
+    }));
+  }
+  ---
+  ```
+
+  For incremental builds to skip rendering in CI, Astro's cache directory must be preserved between builds. Astro empties the output directory on each build and restores skipped pages from the cache directory, so only that directory needs to persist. For the default config, cache and restore `node_modules/.astro/` before running `astro build`.
+
+  See the [experimental incremental static builds](https://docs.astro.build/en/reference/experimental-flags/incremental-build/) documentation for more information.
+
+- [#17084](https://github.com/withastro/astro/pull/17084) [`961bbe5`](https://github.com/withastro/astro/commit/961bbe5fdf4a761adb479595dfb94dc2e80f2957) Thanks [@matthewp](https://github.com/matthewp)! - Adds the optional `digest` property to content collection entries.
+
+  Loaders can provide an opaque digest value that changes when an entry changes. This is now reflected in the `CollectionEntry` type returned by `getCollection()` and `getEntry()`, making it easier to detect content changes without re-hashing large entry bodies.
+
+  ```astro
+  ---
+  import { getCollection } from 'astro:content';
+
+  const posts = await getCollection('blog');
+
+  for (const post of posts) {
+    console.log(post.digest);
+  }
+  ---
+  ```
+
+  The property is optional because not every loader provides a digest. See [incremental static builds](https://docs.astro.build/en/reference/experimental-flags/incremental-build/) for how `digest` can be used as a `cacheKey`.
+
+### Patch Changes
+
+- [#17534](https://github.com/withastro/astro/pull/17534) [`5a5337e`](https://github.com/withastro/astro/commit/5a5337ea718ab32401a37cdddc52e944289e8b66) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves `logger.entrypoint` reference docs
+
+- [#17529](https://github.com/withastro/astro/pull/17529) [`d52a787`](https://github.com/withastro/astro/commit/d52a787b321b67a0491f33d87e670b59ba16f9fe) Thanks [@QVinto](https://github.com/QVinto)! - Fixes `astro dev` crashing with `Invalid URL` when `--host` is set to a specific non-loopback address
+
+  Vite only reports a `local` URL for loopback hosts. When the dev server was started with `--host <custom-address>` bound to a specific non-loopback address (a LAN or Tailscale IP, for example), the URL was reported under `network` and `local` was empty, so writing the dev lock file threw `Invalid URL` and killed a server that had already started successfully.
+
+  The lock file URL now falls back to the network URL, and a server that exposes no URL at all is left untracked rather than being taken down by lock file bookkeeping.
+
+- [#17566](https://github.com/withastro/astro/pull/17566) [`296248c`](https://github.com/withastro/astro/commit/296248cb39e9e2cc3c0896441df75edb2d3b3959) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `fontProviders.googleicons()` returning the full icon font (~3.9MB) instead of only the requested glyphs when multiple `experimental.glyphs` are specified
+
+- [#17560](https://github.com/withastro/astro/pull/17560) [`ef45de1`](https://github.com/withastro/astro/commit/ef45de17d21a0303fe50d7ca50fc8deef15856a7) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `Astro.url.pathname` for non-index pages when using `build.format: 'preserve'`. Previously, a page like `src/pages/about-me.astro` would output to `dist/about-me.html` but `Astro.url.pathname` would incorrectly return `/about-me/` instead of `/about-me.html`.
+
+- [#17573](https://github.com/withastro/astro/pull/17573) [`0089f83`](https://github.com/withastro/astro/commit/0089f836320ec2aefdb6c448af31e56754115c5c) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a Content Layer build crash that could occur when another dependency causes an older version of `neotraverse` to be hoisted to the project root
+
+- [#17571](https://github.com/withastro/astro/pull/17571) [`116f700`](https://github.com/withastro/astro/commit/116f700d63b314467256d1913d544415d109f3bc) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes cookies set via `Astro.cookies.set()` inside a custom `404.astro` or `500.astro` error page being silently dropped from the final response
+
+- [#17579](https://github.com/withastro/astro/pull/17579) [`3ea55ce`](https://github.com/withastro/astro/commit/3ea55ce24024af7dc6ec3dcdde2f8af6ab5707d8) Thanks [@bluwy](https://github.com/bluwy)! - Supports the `devEngines` field in package.json when detecting the package manager for install commands
+
+- [#17422](https://github.com/withastro/astro/pull/17422) [`e4e2037`](https://github.com/withastro/astro/commit/e4e20374f55c3338e4bd22275a8ad265f1c24cbf) Thanks [@jiwonyoon-dev](https://github.com/jiwonyoon-dev)! - Fixes `popover` being rendered as `popover="true"`/`popover="false"` on custom elements (tag names containing a hyphen). Per the Popover API, the attribute only accepts `"auto"`, `"manual"`, or being absent, so boolean values are now always rendered as a bare `popover` attribute (or omitted), regardless of the tag name.
+
 ## 7.1.6
 
 ### Patch Changes

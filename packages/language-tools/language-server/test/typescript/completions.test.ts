@@ -102,11 +102,13 @@ describe('TypeScript - Completions', async () => {
 			Position.create(3, 4),
 		);
 
-		const imageCompletion = completions?.items.find(
+		const imageCompletions = completions?.items.filter(
 			(item) =>
 				item.label === 'Image' && item.labelDetails?.description === '../components/Image.astro',
 		);
-		assert.notStrictEqual(imageCompletion, undefined);
+		assert.strictEqual(imageCompletions?.length, 1);
+
+		const imageCompletion = imageCompletions[0];
 		assert.ok(!imageCompletion?.filterText?.includes('AstroComponent'));
 		assert.ok(!imageCompletion?.insertText?.includes('AstroComponent'));
 

@@ -20,6 +20,7 @@ interface HashableModuleInfo {
 
 interface ModuleGraph {
 	getModuleInfo(id: string): HashableModuleInfo | null;
+	getFileName(referenceId: string): string;
 }
 
 /** Collect the sorted, transitive dependency ids of a module, following static and dynamic imports. */
@@ -46,11 +47,42 @@ function collectTransitiveDeps(graph: ModuleGraph, rootId: string): string[] {
 	return [...deps].sort();
 }
 
+/** Each placeholder pattern paired with the token that has to be present for it to match. */
+const ASSET_PLACEHOLDERS = [
+	{ token: '__ASTRO_ASSET_IMAGE__', pattern: /__ASTRO_ASSET_IMAGE__([\w$]+)__(?:_(.*?)__)?/g },
+	{ token: '__VITE_ASSET__', pattern: /__VITE_ASSET__([\w$]+)__(?:\$_(.*?)__)?/g },
+];
+
+/**
+ * Replace the emit handles of imported assets with the file names they resolve
+ * to. Handles are assigned by the bundler in the order modules finish
+ * transforming, so two builds of the same sources can hand the same asset a
+ * different handle, while the file name it resolves to is content-hashed and
+ * stable. If a handle does not resolve to a file, the placeholder is left as
+ * it is; the worst case is an unnecessary re-render, not a stale one.
+ */
+function resolveAssetPlaceholders(graph: ModuleGraph, code: string): string {
+	let resolved = code;
+	for (const { token, pattern } of ASSET_PLACEHOLDERS) {
+		if (!resolved.includes(token)) continue;
+		resolved = resolved.replace(pattern, (placeholder, handle, postfix = '') => {
+			try {
+				return graph.getFileName(handle) + postfix;
+			} catch {
+				return placeholder;
+			}
+		});
+	}
+	return resolved;
+}
+
 /**
  * Hash a sorted set of module ids together with each module's compiled output.
  * Hashing the transformed `code` from the bundle (rather than the source file on
  * disk) reflects what actually ships and covers virtual modules, which have no
- * file on disk but still carry generated code.
+ * file on disk but still carry generated code. Emitted-asset placeholders in
+ * that code are resolved to their file names first, since the handles
+ * themselves are not stable between builds.
  */
 function hashModules(graph: ModuleGraph, sortedIds: string[]): string {
 	const hasher = crypto.createHash('sha256');
@@ -59,7 +91,7 @@ function hashModules(graph: ModuleGraph, sortedIds: string[]): string {
 		hasher.update('\n');
 		const code = graph.getModuleInfo(id)?.code;
 		if (code != null) {
-			hasher.update(code);
+			hasher.update(resolveAssetPlaceholders(graph, code));
 		}
 		hasher.update('\n');
 	}
