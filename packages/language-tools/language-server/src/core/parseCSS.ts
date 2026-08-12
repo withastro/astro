@@ -1,4 +1,4 @@
-import type { TSXExtractedStyle } from '@astrojs/compiler/types';
+import type { TSXExtractedStyle } from './astro2tsx.js';
 import type { CodeInformation, VirtualCode } from '@volar/language-core';
 import type { Segment } from 'muggle-string';
 import { toString } from 'muggle-string';
