@@ -6766,9 +6766,6 @@ importers:
       '@astrojs/yaml2ts':
         specifier: ^0.2.4
         version: link:../yaml2ts
-      '@jridgewell/sourcemap-codec':
-        specifier: ^1.5.5
-        version: 1.5.5
       '@volar/kit':
         specifier: ~2.4.28
         version: 2.4.28(typescript@6.0.3)
