@@ -1,8 +1,8 @@
 import { fetchStateSymbol } from '../../../core/constants.js';
 import { ActionCalledFromServerError } from '../../../core/errors/errors-data.js';
 import { AstroError } from '../../../core/errors/errors.js';
-// Type-only: the symbol is read directly off the context so this
-// virtual-module entrypoint's import graph stays leaf-y.
+// Type-only so `astro:actions` doesn't pull the request core into its
+// import graph.
 import type { FetchState } from '../../../core/fetch/fetch-state.js';
 import { getAction } from '../../load.js';
 import { createGetActionPath, createActionsProxy } from '../client.js';
