@@ -1,5 +1,4 @@
 import * as path from 'node:path';
-import type { DiagnosticMessage, DiagnosticSeverity } from '@astrojs/compiler/types';
 import {
 	type CodeMapping,
 	forEachEmbeddedCode,
@@ -12,9 +11,9 @@ import type { HTMLDocument } from 'vscode-html-languageservice';
 import type { URI } from 'vscode-uri';
 import type { PackageInfo } from '../importPackage.js';
 import { getLanguageServerTypesDir } from '../utils.js';
-import { astro2tsx } from './astro2tsx.js';
+import { astro2tsx, type CompilerDiagnostic } from './astro2tsx.js';
 import type { AstroMetadata } from './parseAstro.js';
-import { getAstroMetadata } from './parseAstro.js';
+import { getFrontmatterStatus } from './parseAstro.js';
 import { extractStylesheets } from './parseCSS.js';
 import { parseHTML } from './parseHTML.js';
 import { extractScriptTags } from './parseJS.js';
@@ -175,7 +174,7 @@ export class AstroVirtualCode implements VirtualCode {
 	mappings!: CodeMapping[];
 	embeddedCodes!: VirtualCode[];
 	astroMeta!: AstroMetadata;
-	compilerDiagnostics!: DiagnosticMessage[];
+	compilerDiagnostics!: CompilerDiagnostic[];
 	htmlDocument!: HTMLDocument;
 	codegenStacks = [];
 	public fileName: string;
@@ -200,17 +199,13 @@ export class AstroVirtualCode implements VirtualCode {
 			},
 		];
 
-		const tsx = astro2tsx(this.snapshot.getText(0, this.snapshot.getLength()), this.fileName);
-		const astroMetadata = getAstroMetadata(
-			this.fileName,
-			this.snapshot.getText(0, this.snapshot.getLength()),
-		);
+		const input = this.snapshot.getText(0, this.snapshot.getLength());
+		const tsx = astro2tsx(input, this.fileName);
+		const frontmatter = getFrontmatterStatus(tsx.frontmatterStatus, tsx.frontmatterSource, input);
 
 		const { htmlDocument, virtualCode: htmlVirtualCode } = parseHTML(
 			this.snapshot,
-			astroMetadata.frontmatter.status === 'closed'
-				? astroMetadata.frontmatter.position.end.offset
-				: 0,
+			frontmatter.status === 'closed' ? frontmatter.position.end.offset : 0,
 		);
 
 		this.htmlDocument = htmlDocument;
@@ -219,16 +214,12 @@ export class AstroVirtualCode implements VirtualCode {
 			...extractScriptTags(tsx.ranges.scripts),
 		];
 
-		this.astroMeta = { ...astroMetadata, tsxRanges: tsx.ranges };
-		this.compilerDiagnostics = [...tsx.diagnostics, ...astroMetadata.diagnostics];
+		this.astroMeta = { frontmatter, tsxRanges: tsx.ranges };
+		this.compilerDiagnostics = tsx.diagnostics;
 		this.embeddedCodes = [htmlVirtualCode, tsx.virtualCode];
 	}
 
 	get hasCompilationErrors(): boolean {
-		return (
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
-			this.compilerDiagnostics.filter((diag) => diag.severity === (1 satisfies DiagnosticSeverity))
-				.length > 0
-		);
+		return this.compilerDiagnostics.some((diagnostic) => diagnostic.severity === 1);
 	}
 }
