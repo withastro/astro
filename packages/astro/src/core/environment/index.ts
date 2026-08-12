@@ -30,35 +30,34 @@ export interface TryRewriteResult {
 }
 
 /**
- * The behavior that genuinely varies between rendering environments
- * (production SSR, the two dev paths, build/prerender, the container),
- * expressed as a stateless record of functions and static flags instead of a
- * class hierarchy with overridden methods.
- *
- * MEMBERSHIP CLAMP:
- * (i)  No member may hold or close over an App/facade instance. Env-private
- *      services (ModuleLoader, BuildInternals, the container interner)
- *      captured at composition time are fine — they are environment
- *      composition, unreachable from requests.
- * (ii) Members are limited to the set below: only behavior that genuinely
- *      differs between environments belongs here (request logging qualifies —
- *      prod is silent, dev emits request lines). Think hard before adding a
- *      member.
- * (iii) The record stays stateless; per-manifest mutable state stays in
- *      owning-module WeakMaps.
- * Facade-INSTANCE behavior (anything whose contract is "the public method on
- * *this* App, as possibly overridden or reassigned") must NOT go here — it
- * travels per-request via the internal FetchState-constructor hooks on the
- * facade fast path. It must also NOT ride `ResolvedRenderOptions` and NOT
- * live in per-manifest registries.
- */
-/**
  * The payload chain sites pass to request logging (`logRequestFromState`).
  * `reqTime` is computed by the receiver (facade `logThisRequest` or the env
  * record) from `timeStart`.
  */
 export type RequestLogPayload = Omit<LogRequestPayload, 'reqTime'> & { timeStart: number };
 
+/**
+ * The behavior that varies between rendering environments (production SSR,
+ * the two dev paths, build/prerender, the container), expressed as a plain
+ * record of functions and flags instead of a class hierarchy. Environments
+ * register their record for a manifest with `setEnvironment`; readers use
+ * `getEnvironment`, which falls back to the production record.
+ *
+ * When adding a member:
+ * - Only behavior that genuinely differs between environments belongs here
+ *   (e.g. request logging: production is silent, dev prints request lines).
+ *   If the build can emit it as data or a module thunk, put it on the
+ *   manifest instead; only behavior needing live services goes here.
+ * - The record is stateless and shared. Mutable per-app state belongs in a
+ *   manifest-keyed memo in the module that owns it, not here.
+ * - Members must not capture an App instance. Environment-private services
+ *   captured at setup time (the dev ModuleLoader, BuildInternals) are fine —
+ *   request handling can't reach them.
+ * - Behavior tied to one App instance — a public method a user may override
+ *   on their app — cannot live here, because the record is shared by every
+ *   app in the environment. The facade forwards that per request, via the
+ *   hooks it passes to the FetchState constructor.
+ */
 export interface RenderEnvironment {
 	/** Debug label. */
 	readonly name: string;
