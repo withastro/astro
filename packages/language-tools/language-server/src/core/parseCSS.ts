@@ -1,4 +1,4 @@
-import type { TSXExtractedStyle } from './astro2tsx.js';
+import type { ExtractedStyle } from '@astrojs/astro2tsx';
 import type { CodeInformation, VirtualCode } from '@volar/language-core';
 import type { Segment } from 'muggle-string';
 import { toString } from 'muggle-string';
@@ -11,11 +11,11 @@ function isSupportedLanguage(lang: string): lang is SupportedLanguages {
 	return SUPPORTED_LANGUAGES.includes(lang as SupportedLanguages);
 }
 
-export function extractStylesheets(styles: TSXExtractedStyle[]): VirtualCode[] {
+export function extractStylesheets(styles: ExtractedStyle[]): VirtualCode[] {
 	return mergeCSSContextsByLanguage(styles);
 }
 
-function mergeCSSContextsByLanguage(inlineStyles: TSXExtractedStyle[]): VirtualCode[] {
+function mergeCSSContextsByLanguage(inlineStyles: ExtractedStyle[]): VirtualCode[] {
 	const codes: Record<SupportedLanguages, Segment<CodeInformation>[]> = {
 		css: [],
 		scss: [],
