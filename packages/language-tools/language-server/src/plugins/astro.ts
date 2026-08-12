@@ -14,7 +14,7 @@ import {
 } from '@volar/language-server';
 import type { TextDocument } from 'vscode-html-languageservice';
 import { URI } from 'vscode-uri';
-import type { CompilerDiagnostic } from '../core/astro2tsx.js';
+import type { AstroDiagnostic } from '@astrojs/astro2tsx';
 import { AstroVirtualCode } from '../core/index.js';
 
 export const create = (): LanguageServicePlugin => {
@@ -59,7 +59,7 @@ export const create = (): LanguageServicePlugin => {
 
 					return virtualCode.compilerDiagnostics.map(compilerMessageToDiagnostic);
 
-					function compilerMessageToDiagnostic(diagnostic: CompilerDiagnostic): Diagnostic {
+					function compilerMessageToDiagnostic(diagnostic: AstroDiagnostic): Diagnostic {
 						return {
 							message: diagnostic.message,
 							range: Range.create(

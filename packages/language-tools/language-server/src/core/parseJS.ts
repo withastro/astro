@@ -1,10 +1,10 @@
-import type { TSXExtractedScript } from './astro2tsx.js';
+import type { ExtractedScript } from '@astrojs/astro2tsx';
 import type { CodeInformation, VirtualCode } from '@volar/language-core';
 import type { Segment } from 'muggle-string';
 import { toString } from 'muggle-string';
 import { buildMappings } from '../buildMappings';
 
-export function extractScriptTags(scripts: TSXExtractedScript[]): VirtualCode[] {
+export function extractScriptTags(scripts: ExtractedScript[]): VirtualCode[] {
 	const embeddedJSCodes: VirtualCode[] = [];
 
 	const moduleScripts = scripts
@@ -35,7 +35,7 @@ export function extractScriptTags(scripts: TSXExtractedScript[]): VirtualCode[] 
 	return embeddedJSCodes;
 }
 
-function moduleScriptToVirtualCode(script: TSXExtractedScript, index: number): VirtualCode {
+function moduleScriptToVirtualCode(script: ExtractedScript, index: number): VirtualCode {
 	let extension = 'mts';
 	let languageId = 'typescript';
 	if (script.type === 'module') {
@@ -70,7 +70,7 @@ function moduleScriptToVirtualCode(script: TSXExtractedScript, index: number): V
 	};
 }
 
-function jsonScriptToVirtualCode(script: TSXExtractedScript, index: number): VirtualCode {
+function jsonScriptToVirtualCode(script: ExtractedScript, index: number): VirtualCode {
 	return {
 		id: `${index}.json`,
 		languageId: 'json',
@@ -102,7 +102,7 @@ function jsonScriptToVirtualCode(script: TSXExtractedScript, index: number): Vir
 /**
  * Merge all the inline and non-hoisted scripts into a single `.mjs` file
  */
-function mergeJSContexts(inlineScripts: TSXExtractedScript[]): VirtualCode | undefined {
+function mergeJSContexts(inlineScripts: ExtractedScript[]): VirtualCode | undefined {
 	if (inlineScripts.length === 0) {
 		return undefined;
 	}
