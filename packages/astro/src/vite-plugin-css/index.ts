@@ -1,8 +1,9 @@
 import { prependForwardSlash } from '@astrojs/internal-helpers/path';
 import type * as vite from 'vite';
-import type { DevEnvironment, Plugin } from 'vite';
+import type { DevEnvironment, Environment, Plugin } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { wrapId } from '../core/util.js';
+import { isAstroClientEnvironment, isAstroServerEnvironment } from '../environments.js';
 import type { ImportedDevStyle, RoutesList } from '../types/astro.js';
 import { inlineRE, isBuildableCSSRequest, rawRE } from '../vite-plugin-astro-server/util.js';
 import { getVirtualModulePageNameForComponent } from '../vite-plugin-pages/util.js';
@@ -151,6 +152,11 @@ export function astroDevCssPlugin({
 }: AstroVitePluginOptions): Plugin[] {
 	let server: vite.ViteDevServer | undefined;
 
+	function applyToEnvironment(env: Environment): boolean {
+		if (env.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro) return command === 'dev';
+		return isAstroServerEnvironment(env) || isAstroClientEnvironment(env);
+	}
+
 	function getCurrentEnvironment(pluginEnv?: DevEnvironment): DevEnvironment | undefined {
 		return (
 			pluginEnv ??
@@ -165,14 +171,7 @@ export function astroDevCssPlugin({
 			async configureServer(viteServer) {
 				server = viteServer;
 			},
-			applyToEnvironment(env) {
-				return (
-					(command === 'dev' && env.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro) ||
-					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
-					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
-					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
-				);
-			},
+			applyToEnvironment,
 
 			resolveId: {
 				filter: {
@@ -287,13 +286,7 @@ export function astroDevCssPlugin({
 		},
 		{
 			name: MODULE_DEV_CSS_ALL,
-			applyToEnvironment(env) {
-				return (
-					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
-					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
-					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
-				);
-			},
+			applyToEnvironment,
 			resolveId: {
 				filter: {
 					id: new RegExp(`^${MODULE_DEV_CSS_ALL}$`),

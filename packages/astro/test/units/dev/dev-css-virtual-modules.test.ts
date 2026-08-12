@@ -4,14 +4,28 @@ import { wrapId } from '../../../dist/core/util.js';
 import { astroDevCssPlugin } from '../../../dist/vite-plugin-css/index.js';
 
 describe('dev CSS plugin environments', () => {
-	it('applies to the fallback Astro environment', () => {
-		const [plugin] = astroDevCssPlugin({
+	it('applies both plugins to the fallback Astro environment in dev', () => {
+		const plugins = astroDevCssPlugin({
 			routesList: {} as never,
 			command: 'dev',
 			cssContentCache: new Map(),
 		});
 
-		assert.equal(plugin.applyToEnvironment?.({ name: 'astro' } as never), true);
+		for (const plugin of plugins) {
+			assert.equal(plugin.applyToEnvironment?.({ name: 'astro' } as never), true);
+		}
+	});
+
+	it('does not apply either plugin to the Astro environment during builds', () => {
+		const plugins = astroDevCssPlugin({
+			routesList: {} as never,
+			command: 'build',
+			cssContentCache: new Map(),
+		});
+
+		for (const plugin of plugins) {
+			assert.equal(plugin.applyToEnvironment?.({ name: 'astro' } as never), false);
+		}
 	});
 });
 
