@@ -47,7 +47,10 @@ function stampApp(request: Request, app: ReturnType<typeof createTestApp>): Requ
 describe('FetchState (astro/fetch)', () => {
 	it('throws when no ambient manifest is available', () => {
 		setAmbientManifest(undefined);
-		assert.throws(() => new FetchState(new Request('http://example.com/')), /No manifest available/);
+		assert.throws(
+			() => new FetchState(new Request('http://example.com/')),
+			/outside of an Astro server/,
+		);
 	});
 
 	it('constructs successfully when an ambient manifest is registered', () => {
