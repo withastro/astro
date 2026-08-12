@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.16.14
+
+### Patch Changes
+
+- [#17618](https://github.com/withastro/astro/pull/17618) [`2630631`](https://github.com/withastro/astro/commit/263063116c8fa36474b255b7d4ecf43a0a55ffe2) Thanks [@lazerg](https://github.com/lazerg)! - Fixes the missing "Add all missing imports" and "Add import from" quick fixes for Astro components
+
 ## 2.16.13
 
 ### Patch Changes
