@@ -1,3 +1,4 @@
+import { NoManifestAvailable } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
 import type { SSRManifest } from '../app/types.js';
 // Static import; the binding is READ LAZILY inside the functions below so this
@@ -32,14 +33,7 @@ export function setAmbientManifest(manifest: SSRManifest | undefined): void {
 export function getAmbientManifest(): SSRManifest {
 	const manifest = registered ?? viteManifest;
 	if (!manifest) {
-		throw new AstroError({
-			name: 'NoManifestAvailableError',
-			title: 'No manifest available.',
-			message:
-				'No manifest available. `new FetchState(request)` requires running inside an ' +
-				'Astro-built server (where the manifest module is bundled) or an explicit ' +
-				'manifest registration.',
-		});
+		throw new AstroError(NoManifestAvailable);
 	}
 	return manifest;
 }
