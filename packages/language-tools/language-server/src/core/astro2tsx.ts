@@ -1,4 +1,5 @@
 import {
+	AstroFrontmatterStatus,
 	type ConvertToTsxResult,
 	type ExtractedScript,
 	type ExtractedStyle,
@@ -35,7 +36,7 @@ export function safeConvertToTSX(
 			lengths: new Uint32Array(),
 			frontmatter: { start: 0, end: 0 },
 			body: { start: 0, end: 0 },
-			frontmatterStatus: 'doesnt-exist',
+			frontmatterStatus: AstroFrontmatterStatus.DoesntExist,
 			frontmatterSource: { start: 0, end: 0 },
 			scripts: [],
 			styles: [],
@@ -47,7 +48,7 @@ export function safeConvertToTSX(
 				},
 			],
 			hasParseErrors: true,
-		} as ConvertToTsxResult;
+		} satisfies ConvertToTsxResult;
 	}
 }
 
@@ -83,23 +84,21 @@ export function astro2tsx(input: string, fileName: string) {
 function getVirtualCodeTSX(tsx: ConvertToTsxResult, fileName: string): VirtualCode {
 	// Only the trailing scaffolding is rewritten, so mapped offsets keep their meaning.
 	const code = patchTSX(tsx.code, fileName);
-	const mappings: CodeMapping[] = tsx.generatedOffsets.length
-		? [
-				{
-					sourceOffsets: Array.from(tsx.sourceOffsets),
-					generatedOffsets: Array.from(tsx.generatedOffsets),
-					lengths: Array.from(tsx.lengths),
-					data: {
-						verification: true,
-						completion: true,
-						semantic: true,
-						navigation: true,
-						structure: true,
-						format: false,
-					},
-				},
-			]
-		: [];
+	const mappings: CodeMapping[] = [
+		{
+			sourceOffsets: Array.from(tsx.sourceOffsets),
+			generatedOffsets: Array.from(tsx.generatedOffsets),
+			lengths: Array.from(tsx.lengths),
+			data: {
+				verification: true,
+				completion: true,
+				semantic: true,
+				navigation: true,
+				structure: true,
+				format: false,
+			},
+		},
+	];
 
 	return {
 		id: 'tsx',
