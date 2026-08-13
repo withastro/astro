@@ -3,18 +3,21 @@ import { describe, it } from 'node:test';
 import { matchRoute } from '../../../dist/core/routing/dev.js';
 import { makeRoute, dynamicPart } from './test-helpers.ts';
 import { defaultLogger } from '../test-utils.ts';
-import { RouteCache } from '../../../dist/core/render/route-cache.js';
+import { setEnvironment } from '../../../dist/core/environment/index.js';
+import { productionEnvironment } from '../../../dist/core/environment/production.js';
+import { setLogger } from '../../../dist/core/logger/manifest-logger.js';
+import { updateRouteTable } from '../../../dist/core/routing/route-table.js';
 
-import type { RunnablePipeline } from '../../../dist/vite-plugin-app/pipeline.js';
 import type { RouteData } from '../../../dist/types/public/index.js';
 import type { SSRManifest } from '../../../dist/core/app/types.js';
 
 /**
- * Creates a minimal mock pipeline and manifest for testing matchRoute.
+ * Creates a minimal mock manifest, registers a matching environment/logger,
+ * and installs the given routes into the per-manifest route table —
+ * `matchRoute` reads all of them through the manifest registries.
  * `componentModules` maps route component paths to their module exports.
  */
-function createMockPipelineAndManifest(componentModules: Record<string, any>) {
-	const routeCache = new RouteCache(defaultLogger);
+function createMockManifest(componentModules: Record<string, any>, routes: RouteData[]) {
 	const manifest = {
 		serverLike: false,
 		base: '/',
@@ -24,15 +27,17 @@ function createMockPipelineAndManifest(componentModules: Record<string, any>) {
 		buildClientDir: new URL('file:///fake/client/'),
 		outDir: new URL('file:///fake/'),
 	} as unknown as SSRManifest;
-	const pipeline = {
-		logger: defaultLogger,
-		routeCache,
-		manifest,
-		getComponentByRoute(route: RouteData) {
+	setLogger(manifest, defaultLogger);
+	setEnvironment(manifest, {
+		...productionEnvironment,
+		name: 'test-dev',
+		runtimeMode: 'development',
+		async getComponentByRoute(_manifest, route: RouteData) {
 			return componentModules[route.component];
 		},
-	} as unknown as RunnablePipeline;
-	return { pipeline, manifest };
+	});
+	updateRouteTable(manifest, routes);
+	return { manifest };
 }
 
 describe('matchRoute in dev', () => {
@@ -73,10 +78,9 @@ describe('matchRoute in dev', () => {
 			},
 		};
 
-		const { pipeline, manifest } = createMockPipelineAndManifest(componentModules);
+		const { manifest } = createMockManifest(componentModules, [routeA, routeB]);
 
-		const routesList = { routes: [routeA, routeB] };
-		const result = await matchRoute('/1/2/4', routesList, pipeline, manifest);
+		const result = await matchRoute(manifest, '/1/2/4');
 
 		assert.ok(result, 'Expected a matched route');
 		assert.equal(result.route.component, 'src/pages/[c]/[d]/[b]/index.astro');
@@ -102,11 +106,10 @@ describe('matchRoute in dev', () => {
 			},
 		};
 
-		const { pipeline, manifest } = createMockPipelineAndManifest(componentModules);
+		const { manifest } = createMockManifest(componentModules, [routeA]);
 
-		const routesList = { routes: [routeA] };
 		await assert.rejects(
-			() => matchRoute('/1/2/3', routesList, pipeline, manifest),
+			() => matchRoute(manifest, '/1/2/3'),
 			(err) => {
 				assert.ok(err instanceof Error);
 				assert.equal(err.message, 'static paths error');
