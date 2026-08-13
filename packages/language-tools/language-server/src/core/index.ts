@@ -176,6 +176,9 @@ export class AstroVirtualCode implements VirtualCode {
 	embeddedCodes!: VirtualCode[];
 	astroMeta!: AstroMetadata;
 	compilerDiagnostics!: AstroDiagnostic[];
+	/// Conversion recovers from most syntax errors, so a file with diagnostics
+	/// still type-checks; only an outright failure leaves nothing to check.
+	hasUsableTSX!: boolean;
 	htmlDocument!: HTMLDocument;
 	codegenStacks = [];
 	public fileName: string;
@@ -217,10 +220,7 @@ export class AstroVirtualCode implements VirtualCode {
 
 		this.astroMeta = { frontmatter, tsxRanges: tsx.ranges };
 		this.compilerDiagnostics = tsx.diagnostics;
+		this.hasUsableTSX = tsx.virtualCode.snapshot.getLength() > 0;
 		this.embeddedCodes = [htmlVirtualCode, tsx.virtualCode];
-	}
-
-	get hasCompilationErrors(): boolean {
-		return this.compilerDiagnostics.some((diagnostic) => diagnostic.severity === 1);
 	}
 }
