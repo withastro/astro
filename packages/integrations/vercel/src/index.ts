@@ -405,6 +405,13 @@ export default function vercelAdapter({
 			},
 			'astro:build:done': async ({ logger }: HookParameters<'astro:build:done'>) => {
 				const outDir = new URL('./.vercel/output/', _config.root);
+
+				// In static builds, server islands cause Astro core to produce an
+				// SSR bundle in outDir (not build.server). Detect this so we still
+				// create a serverless function for the /_server-islands/* endpoint.
+				const staticEntryFile = new URL(_serverEntry, _config.outDir);
+				const needsServerIslandFunction = _buildOutput === 'static' && existsSync(staticEntryFile);
+
 				if (staticDir) {
 					if (existsSync(staticDir)) {
 						await emptyDir(staticDir);
@@ -526,6 +533,35 @@ export default function vercelAdapter({
 							middlewareSecret,
 						);
 					}
+				} else if (needsServerIslandFunction) {
+					// Static build with server islands: the SSR entry lives in outDir
+					// (not build.server) because getServerOutputDirectory() returns
+					// outDir when buildOutput is 'static'. Build a serverless function
+					// so /_server-islands/* requests are handled at runtime.
+					const includeFiles = _includeFiles
+						.map((file) => new URL(file, _config.root))
+						.concat(extraFilesToInclude);
+					const excludeFiles = _excludeFiles.map((file) => new URL(file, _config.root));
+
+					const builder = new VercelBuilder(
+						_config,
+						excludeFiles,
+						includeFiles,
+						logger,
+						outDir,
+						maxDuration,
+					);
+
+					await builder.buildServerlessFolder(staticEntryFile, NODE_PATH, _config.root);
+
+					for (const route of routes) {
+						if (!route.isPrerendered) {
+							routeDefinitions.push({
+								src: route.patternRegex.source,
+								dest: NODE_PATH,
+							});
+						}
+					}
 				}
 				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
 				const vercelConfigJson = new URL('./.vercel/output/config.json', _config.root);
@@ -538,7 +574,7 @@ export default function vercelAdapter({
 						continue: true,
 					},
 				];
-				if (_buildOutput === 'server') {
+				if (_buildOutput === 'server' || needsServerIslandFunction) {
 					finalRoutes.push(...routeDefinitions);
 				}
 
