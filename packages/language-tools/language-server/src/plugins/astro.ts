@@ -8,7 +8,7 @@ import type {
 import {
 	CompletionItemKind,
 	InsertTextFormat,
-	Position,
+	type Position,
 	Range,
 	TextEdit,
 } from '@volar/language-server';
