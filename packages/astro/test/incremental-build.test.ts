@@ -88,7 +88,7 @@ describe('experimental.incrementalBuild', () => {
 	});
 
 	describe('fourth build (changed content entry)', () => {
-		const docA = new URL('./fixtures/incremental-build/src/content/docs/a.md', import.meta.url);
+		const docA = new URL('./fixtures/incremental-build/src/content/docs/a.mdx', import.meta.url);
 		let originalContent: string;
 
 		before(async () => {
@@ -190,6 +190,32 @@ describe('experimental.incrementalBuild', () => {
 		after(() => {
 			fs.writeFileSync(slugPage, originalContent);
 			fs.writeFileSync(layoutPage, originalLayout);
+		});
+	});
+
+	describe('shared content dependency', () => {
+		const sharedComponent = new URL(
+			'./fixtures/incremental-build/src/components/Shared.astro',
+			import.meta.url,
+		);
+		let originalContent: string;
+
+		before(async () => {
+			originalContent = fs.readFileSync(sharedComponent, 'utf-8');
+			fs.writeFileSync(sharedComponent, originalContent.replace('Shared v1', 'Shared v2'));
+			await fixture.build();
+		});
+
+		it('re-renders every content entry that imports the changed dependency', async () => {
+			for (const slug of ['a', 'b']) {
+				const html = await fixture.readFile(`/docs/${slug}/index.html`);
+				const $ = cheerio.load(html);
+				assert.equal($('.shared').text(), 'Shared v2');
+			}
+		});
+
+		after(() => {
+			fs.writeFileSync(sharedComponent, originalContent);
 		});
 	});
 
