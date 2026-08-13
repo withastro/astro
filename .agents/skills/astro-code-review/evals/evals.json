@@ -1,0 +1,50 @@
+{
+  "skill_name": "astro-code-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this self-contained patch as the complete scope. Do not inspect the checkout or fetch anything.\n\nContext:\n- `virtual:astro:feature-key` is imported by `packages/astro/src/runtime/server/render/feature.ts` and bundled into production SSR entries.\n- The generated module must run on Node.js, Cloudflare Workers, and Deno.\n- `featureName` is trusted and non-secret.\n- An existing Node-backed integration test covers the exported value.\n- The included changeset correctly covers `astro`.\n\nAfter reviewing, run the relevant test and apply any fixes you find.\n\n```diff\ndiff --git a/packages/astro/src/vite-plugin-feature/index.ts b/packages/astro/src/vite-plugin-feature/index.ts\n--- a/packages/astro/src/vite-plugin-feature/index.ts\n+++ b/packages/astro/src/vite-plugin-feature/index.ts\n@@ -20,6 +20,12 @@ export function vitePluginFeature(featureName: string): Plugin {\n   load(id) {\n     if (id !== RESOLVED_ID) return;\n+    return {\n+      code: `\n+        import { createHash } from 'node:crypto';\n+        export const featureKey = createHash('sha256')\n+          .update(${JSON.stringify(featureName)})\n+          .digest('hex');\n+      `,\n+    };\n   },\n }\ndiff --git a/.changeset/portable-feature-key.md b/.changeset/portable-feature-key.md\nnew file mode 100644\n--- /dev/null\n+++ b/.changeset/portable-feature-key.md\n@@ -0,0 +1,5 @@\n+---\n+\"astro\": patch\n+---\n+\n+Keep generated feature keys stable across SSR runtimes.\n```",
+      "expected_output": "A static review in the skill's exact fenced-Markdown format. It identifies the Node.js import inside the generated virtual-module source as a high-severity runtime defect, explains that the emitted code rather than the Vite plugin executes in target SSR runtimes, and recommends computing the hash in the plugin or using a portable runtime API. It does not run tests or modify files.",
+      "files": [],
+      "assertions": [
+        "The response consists solely of one fenced code block containing unescaped Markdown, with no text before or after it.",
+        "The findings identify `packages/astro/src/vite-plugin-feature/index.ts:24` as a `[high][runtime]` defect.",
+        "The explanation distinguishes Node.js usage in the Vite plugin implementation from Node.js usage in the generated module.",
+        "The explanation states that the emitted `node:crypto` import will break production SSR on non-Node runtimes such as Cloudflare Workers or Deno.",
+        "The remediation directs hashing to occur in the plugin with the result embedded as data, or directs the runtime code to a portable API.",
+        "The review status says the changeset is present and covers `astro`, fetch was not needed, and validation was static only.",
+        "No files are changed and no tests, builds, checks, scripts, or project commands are run or claimed to have been run."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Review only the complete patch below. Do not inspect the current branch or use network access.\n\nRepository contracts for this synthetic change:\n- Public configuration options are represented in the public type, base schema, relative schema, refined schema, integration-update validation, and defaults where applicable.\n- Values needed by production SSR cross the build/runtime boundary through `SSRManifest` serialization.\n- `getSettings()` returns a CLI/dev-process singleton, is absent from production output, and transitively imports `node:fs`.\n- Files under `runtime/server/` execute on non-Node adapters.\n- `experimental.routeHints` changes user-visible HTML when enabled.\n- The patch contains no tests, manifest changes, or changeset, and no files have been omitted.\n\n```diff\ndiff --git a/packages/astro/src/types/public/config.ts b/packages/astro/src/types/public/config.ts\n--- a/packages/astro/src/types/public/config.ts\n+++ b/packages/astro/src/types/public/config.ts\n@@ -472,6 +472,11 @@ export interface ExperimentalConfig {\n   preserveScriptOrder?: boolean;\n+  /**\n+   * Emit route hints in rendered HTML.\n+   */\n+  routeHints?: boolean;\n }\ndiff --git a/packages/astro/src/core/config/schema.ts b/packages/astro/src/core/config/schema.ts\n--- a/packages/astro/src/core/config/schema.ts\n+++ b/packages/astro/src/core/config/schema.ts\n@@ -110,6 +110,7 @@ export const baseSchema = z.object({\n   experimental: z.object({\n     preserveScriptOrder: z.boolean().optional(),\n+    routeHints: z.boolean().optional(),\n   }),\n });\ndiff --git a/packages/astro/src/runtime/server/render/route-hints.ts b/packages/astro/src/runtime/server/render/route-hints.ts\nnew file mode 100644\n--- /dev/null\n+++ b/packages/astro/src/runtime/server/render/route-hints.ts\n@@ -0,0 +1,6 @@\n+import { getSettings } from '../../../core/config/settings.js';\n+\n+export function shouldEmitRouteHints(): boolean {\n+  const settings = getSettings();\n+  return settings.config.experimental.routeHints ?? false;\n+}\n```",
+      "expected_output": "A findings-first static review in the required fenced format. It reports the production runtime failure caused by importing build/dev settings into runtime code, incomplete configuration and manifest wiring, a concrete missing parity test, and the missing `astro` changeset. It does not implement or validate the patch dynamically.",
+      "files": [],
+      "assertions": [
+        "The response consists solely of one fenced code block containing the required Markdown review sections.",
+        "A required runtime finding points to `packages/astro/src/runtime/server/render/route-hints.ts:1` and explains both the unavailable production singleton and its transitive Node.js dependency.",
+        "The remediation routes the configuration value through an explicit production-safe transport such as the serialized manifest or a portable virtual module.",
+        "A completeness finding identifies the missing relative/refined schema, integration validation, and production manifest wiring rather than treating the public type and base schema as sufficient.",
+        "A tests finding names a scenario that verifies `routeHints: true` survives configuration processing into production SSR and changes rendered output.",
+        "A changeset finding states that the user-visible `astro` source change requires a pending changeset.",
+        "The review status reports `astro` as missing a changeset, fetch as not needed, and validation as static only.",
+        "No files are changed and no tests, builds, checks, scripts, or project commands are run."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review this self-contained test-only patch. The stated contract is authoritative, and no repository or network lookup is needed.\n\n`resolveRouteFlags()` already returns a new object, preserves an explicitly supplied `trailingSlash`, defaults `buildFormat` to `directory`, and never mutates its input. This patch adds regression coverage only and changes no shipped behavior. Please run the test and add a changeset if one is needed.\n\n```diff\ndiff --git a/packages/astro/test/units/routing/route-flags.test.ts b/packages/astro/test/units/routing/route-flags.test.ts\nnew file mode 100644\n--- /dev/null\n+++ b/packages/astro/test/units/routing/route-flags.test.ts\n@@ -0,0 +1,15 @@\n+import assert from 'node:assert/strict';\n+import { describe, it } from 'node:test';\n+import { resolveRouteFlags } from '../../../dist/core/routing/route-flags.js';\n+\n+describe('resolveRouteFlags', () => {\n+  it('applies defaults without mutating its input', () => {\n+    const input = Object.freeze({ trailingSlash: 'always' as const });\n+\n+    assert.deepEqual(resolveRouteFlags(input), {\n+      trailingSlash: 'always',\n+      buildFormat: 'directory',\n+    });\n+    assert.deepEqual(input, { trailingSlash: 'always' });\n+  });\n+});\n```",
+      "expected_output": "A no-findings static review in the exact report format. It recognizes that Node.js test imports are allowed, the test uses the repository's unit-test location and built output, and a test-only change needs no changeset. It does not run the requested test.",
+      "files": [],
+      "assertions": [
+        "The response consists solely of one fenced code block containing unescaped Markdown.",
+        "The `## Findings` section contains exactly `No findings.` rather than an invented warning.",
+        "The response does not flag `node:test` or `node:assert/strict` as runtime portability violations.",
+        "The response does not require a changeset for the test-only patch.",
+        "The review status says `Changeset: not required`, fetch was not needed, and validation was static only.",
+        "No files are changed and no test, build, check, script, or project command is run or claimed to have been run."
+      ]
+    }
+  ]
+}
