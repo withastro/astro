@@ -24,28 +24,13 @@ interface ModuleGraph {
 	getFileName(referenceId: string): string;
 }
 
-/** Collect the sorted, transitive dependency ids of a module, following static and dynamic imports. */
-function collectTransitiveDeps(graph: ModuleGraph, rootId: string): string[] {
-	const deps = new Set<string>();
-	const queue = [rootId];
-	while (queue.length > 0) {
-		const current = queue.pop()!;
-		if (deps.has(current)) continue;
+interface HashableModuleGraph extends ModuleGraph {
+	getModuleIds(): IterableIterator<string>;
+}
 
-		const modInfo = graph.getModuleInfo(current);
-		if (isContentDataIncrementalModule(modInfo)) continue;
-
-		deps.add(current);
-		if (!modInfo) continue;
-
-		for (const dep of modInfo.importedIds) {
-			if (!deps.has(dep)) queue.push(dep);
-		}
-		for (const dep of modInfo.dynamicallyImportedIds) {
-			if (!deps.has(dep)) queue.push(dep);
-		}
-	}
-	return [...deps].sort();
+interface TransitiveGraphCache {
+	hashes: Map<string, string>;
+	serverIslandModules: Set<string>;
 }
 
 /** Each placeholder pattern paired with the token that has to be present for it to match. */
@@ -115,11 +100,150 @@ function hashModules(graph: ModuleGraph, sortedIds: string[]): string {
 }
 
 /**
+ * Build a transitive hash for every module with one pass over the dependency graph.
+ * Strongly connected components collapse cycles into a DAG, whose hashes can be
+ * folded into every importer without walking shared dependencies again for each root.
+ */
+function createTransitiveGraphCache(graph: HashableModuleGraph): TransitiveGraphCache {
+	const modules = new Map<string, HashableModuleInfo | null>();
+	const dependencies = new Map<string, string[]>();
+	const excludedModules = new Set<string>();
+	const pending = [...graph.getModuleIds()];
+	for (const id of pending) {
+		if (modules.has(id)) continue;
+
+		const info = graph.getModuleInfo(id);
+		modules.set(id, info);
+		if (isContentDataIncrementalModule(info)) {
+			excludedModules.add(id);
+			continue;
+		}
+
+		const importedIds = [...(info?.importedIds ?? []), ...(info?.dynamicallyImportedIds ?? [])];
+		dependencies.set(id, importedIds);
+		pending.push(...importedIds);
+	}
+	for (const id of excludedModules) modules.delete(id);
+	for (const [id, importedIds] of dependencies) {
+		dependencies.set(
+			id,
+			importedIds.filter((importedId) => !excludedModules.has(importedId)),
+		);
+	}
+
+	const reverseDependencies = new Map<string, string[]>();
+	for (const id of modules.keys()) reverseDependencies.set(id, []);
+	for (const [id, importedIds] of dependencies) {
+		for (const importedId of importedIds) reverseDependencies.get(importedId)?.push(id);
+	}
+
+	const visited = new Set<string>();
+	const finishOrder: string[] = [];
+	for (const rootId of modules.keys()) {
+		if (visited.has(rootId)) continue;
+		visited.add(rootId);
+		const stack: Array<[string, number]> = [[rootId, 0]];
+		while (stack.length > 0) {
+			const frame = stack[stack.length - 1];
+			const importedIds = dependencies.get(frame[0]) ?? [];
+			if (frame[1] < importedIds.length) {
+				const importedId = importedIds[frame[1]++];
+				if (!visited.has(importedId)) {
+					visited.add(importedId);
+					stack.push([importedId, 0]);
+				}
+			} else {
+				finishOrder.push(frame[0]);
+				stack.pop();
+			}
+		}
+	}
+
+	const componentByModule = new Map<string, number>();
+	const components: string[][] = [];
+	for (const rootId of finishOrder.toReversed()) {
+		if (componentByModule.has(rootId)) continue;
+		const componentIndex = components.length;
+		const component: string[] = [];
+		const stack = [rootId];
+		componentByModule.set(rootId, componentIndex);
+		while (stack.length > 0) {
+			const id = stack.pop()!;
+			component.push(id);
+			for (const importerId of reverseDependencies.get(id) ?? []) {
+				if (!componentByModule.has(importerId)) {
+					componentByModule.set(importerId, componentIndex);
+					stack.push(importerId);
+				}
+			}
+		}
+		components.push(component.sort());
+	}
+
+	const componentDependencies = components.map(() => new Set<number>());
+	const componentImporters = components.map(() => new Set<number>());
+	for (const [id, importedIds] of dependencies) {
+		const componentIndex = componentByModule.get(id)!;
+		for (const importedId of importedIds) {
+			const dependencyIndex = componentByModule.get(importedId)!;
+			if (dependencyIndex === componentIndex) continue;
+			componentDependencies[componentIndex].add(dependencyIndex);
+			componentImporters[dependencyIndex].add(componentIndex);
+		}
+	}
+
+	const componentHashes = new Map<number, string>();
+	const componentHasServerIsland = new Map<number, boolean>();
+	const unresolvedDependencies = componentDependencies.map((items) => items.size);
+	const ready = unresolvedDependencies.flatMap((count, index) => (count === 0 ? [index] : []));
+	for (const componentIndex of ready) {
+		const hasher = crypto.createHash('sha256');
+		hasher.update(hashModules(graph, components[componentIndex]));
+		const dependencyHashes = [...componentDependencies[componentIndex]]
+			.map((dependencyIndex) => componentHashes.get(dependencyIndex)!)
+			.sort();
+		for (const dependencyHash of dependencyHashes) {
+			hasher.update('\n');
+			hasher.update(dependencyHash);
+		}
+		componentHashes.set(componentIndex, hasher.digest('hex'));
+		componentHasServerIsland.set(
+			componentIndex,
+			components[componentIndex].some(
+				(id) => (modules.get(id)?.meta?.astro?.serverComponents?.length ?? 0) > 0,
+			) ||
+				[...componentDependencies[componentIndex]].some((dependencyIndex) =>
+					componentHasServerIsland.get(dependencyIndex),
+				),
+		);
+
+		for (const importerIndex of componentImporters[componentIndex]) {
+			unresolvedDependencies[importerIndex]--;
+			if (unresolvedDependencies[importerIndex] === 0) ready.push(importerIndex);
+		}
+	}
+
+	return {
+		hashes: new Map(
+			[...componentByModule].map(([id, componentIndex]) => [
+				id,
+				componentHashes.get(componentIndex)!,
+			]),
+		),
+		serverIslandModules: new Set(
+			[...componentByModule]
+				.filter(([, componentIndex]) => componentHasServerIsland.get(componentIndex))
+				.map(([id]) => id),
+		),
+	};
+}
+
+/**
  * Hash the transitive graph of each client entrypoint and accumulate the result
  * against every page that uses it, keyed by page component.
  */
 function collectClientEntrypointHashes(
-	graph: ModuleGraph,
+	transitiveHashes: Map<string, string>,
 	entrypointIds: Iterable<string>,
 	pagesByEntrypoint: Map<string, Set<PageBuildData>>,
 	hashesByComponent: Map<string, string[]>,
@@ -128,7 +252,8 @@ function collectClientEntrypointHashes(
 		const pages = pagesByEntrypoint.get(entrypointId);
 		if (!pages?.size) continue;
 
-		const hash = hashModules(graph, collectTransitiveDeps(graph, entrypointId));
+		const hash = transitiveHashes.get(entrypointId);
+		if (!hash) continue;
 		for (const pageData of pages) {
 			let list = hashesByComponent.get(pageData.component);
 			if (!list) {
@@ -149,19 +274,20 @@ function collectClientEntrypointHashes(
  * build we hash each entrypoint's transitive graph and fold it into the dependency
  * hash of every route that uses it.
  */
-function foldClientDependencies(graph: ModuleGraph, internals: BuildInternals): void {
+function foldClientDependencies(graph: HashableModuleGraph, internals: BuildInternals): void {
 	const baseHashes = internals.pageDependencyHashes;
 	if (!baseHashes) return;
 
+	const { hashes: transitiveHashes } = createTransitiveGraphCache(graph);
 	const hashesByComponent = new Map<string, string[]>();
 	collectClientEntrypointHashes(
-		graph,
+		transitiveHashes,
 		internals.discoveredClientOnlyComponents.keys(),
 		internals.pagesByClientOnly,
 		hashesByComponent,
 	);
 	collectClientEntrypointHashes(
-		graph,
+		transitiveHashes,
 		internals.discoveredScripts,
 		internals.pagesByScriptId,
 		hashesByComponent,
@@ -188,8 +314,9 @@ function foldClientDependencies(graph: ModuleGraph, internals: BuildInternals): 
  * entry's graph into another route's hash.
  */
 function collectContentEntryHashes(
-	graph: ModuleGraph & { getModuleIds(): IterableIterator<string> },
+	graph: HashableModuleGraph,
 	root: URL,
+	transitiveHashes: Map<string, string>,
 ): Map<string, string> {
 	const entryHashes = new Map<string, string>();
 	for (const id of graph.getModuleIds()) {
@@ -197,24 +324,10 @@ function collectContentEntryHashes(
 		// e.g. "/abs/src/content/docs/one.mdx?astroPropagatedAssets" -> render module id.
 		const renderModuleId = removeQueryString(id);
 		const key = rootRelativePath(root, renderModuleId, false);
-		const deps = collectTransitiveDeps(graph, renderModuleId);
-		entryHashes.set(key, hashModules(graph, deps));
+		const hash = transitiveHashes.get(renderModuleId);
+		if (hash) entryHashes.set(key, hash);
 	}
 	return entryHashes;
-}
-
-/**
- * Whether any module in a page's render graph uses a server island. The Astro
- * compiler records `server:defer` usage as `serverComponents` metadata on the
- * module that hosts it, so a page (or one of its layouts/components) that renders
- * an island is detectable from the graph it already walks for hashing.
- */
-function pageContainsServerIsland(graph: ModuleGraph, ids: string[]): boolean {
-	for (const id of ids) {
-		const serverComponents = graph.getModuleInfo(id)?.meta?.astro?.serverComponents;
-		if (serverComponents?.length) return true;
-	}
-	return false;
 }
 
 /**
@@ -243,6 +356,7 @@ export function pluginIncremental(internals: BuildInternals, root: URL): VitePlu
 				return;
 			}
 
+			const transitiveGraph = createTransitiveGraphCache(this);
 			const hashes = new Map<string, string>();
 			const serverIslandComponents = new Set<string>();
 			for (const id of this.getModuleIds()) {
@@ -253,16 +367,22 @@ export function pluginIncremental(internals: BuildInternals, root: URL): VitePlu
 				const pageData = getPageDataByViteID(internals, info.id);
 				if (!pageData) continue;
 
-				const deps = collectTransitiveDeps(this, info.id);
+				const hash = transitiveGraph.hashes.get(info.id);
+				if (!hash) continue;
+
 				// Key by component path (e.g. "src/pages/blog/[slug].astro")
-				hashes.set(pageData.component, hashModules(this, deps));
-				if (pageContainsServerIsland(this, deps)) {
+				hashes.set(pageData.component, hash);
+				if (transitiveGraph.serverIslandModules.has(info.id)) {
 					serverIslandComponents.add(pageData.component);
 				}
 			}
 
 			internals.pageDependencyHashes = hashes;
-			internals.contentEntryRenderHashes = collectContentEntryHashes(this, root);
+			internals.contentEntryRenderHashes = collectContentEntryHashes(
+				this,
+				root,
+				transitiveGraph.hashes,
+			);
 			internals.serverIslandPageComponents = serverIslandComponents;
 		},
 	};
