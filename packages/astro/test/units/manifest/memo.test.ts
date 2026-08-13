@@ -1,9 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import {
-	createAsyncManifestMemo,
-	createManifestMemo,
-} from '../../../dist/core/manifest/memo.js';
+import { createAsyncManifestMemo, createManifestMemo } from '../../../dist/core/manifest/memo.js';
 import type { SSRManifest } from '../../../dist/core/app/types.js';
 import { createManifest } from '../app/test-helpers.ts';
 

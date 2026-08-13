@@ -102,7 +102,10 @@ export function applyRewriteToState(
  * `FetchState` to reflect the new route, and re-runs the middleware
  * and page dispatch to produce the new response.
  */
-export async function executeRewrite(state: FetchState, payload: RewritePayload): Promise<Response> {
+export async function executeRewrite(
+	state: FetchState,
+	payload: RewritePayload,
+): Promise<Response> {
 	state.logger.debug('router', 'Calling rewrite: ', payload);
 	const result = await getEnvironment(state.manifest).tryRewrite(
 		state.manifest,

@@ -19,17 +19,11 @@ describe('features module', () => {
 		assert.equal(getUsedFeatures(manifest), FetchFeatures.redirects);
 
 		markFeatureUsed(manifest, FetchFeatures.actions);
-		assert.equal(
-			getUsedFeatures(manifest),
-			FetchFeatures.redirects | FetchFeatures.actions,
-		);
+		assert.equal(getUsedFeatures(manifest), FetchFeatures.redirects | FetchFeatures.actions);
 
 		// Marking the same feature again is a no-op.
 		markFeatureUsed(manifest, FetchFeatures.redirects);
-		assert.equal(
-			getUsedFeatures(manifest),
-			FetchFeatures.redirects | FetchFeatures.actions,
-		);
+		assert.equal(getUsedFeatures(manifest), FetchFeatures.redirects | FetchFeatures.actions);
 	});
 
 	it('scopes the bitmask per manifest object', () => {

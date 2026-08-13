@@ -1,5 +1,9 @@
 import { fileURLToPath } from 'node:url';
-import type { HeadElements, RenderEnvironment, TryRewriteResult } from '../core/environment/index.js';
+import type {
+	HeadElements,
+	RenderEnvironment,
+	TryRewriteResult,
+} from '../core/environment/index.js';
 import type { RequestLogPayload } from '../core/environment/index.js';
 import type { SinglePageBuiltModule } from '../core/build/types.js';
 import { ASTRO_VERSION } from '../core/constants.js';
@@ -8,7 +12,10 @@ import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js
 import { getLogger } from '../core/logger/manifest-logger.js';
 import { req } from '../core/messages/runtime.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
-import { RedirectComponentInstance, RedirectSinglePageBuiltModule } from '../core/redirects/index.js';
+import {
+	RedirectComponentInstance,
+	RedirectSinglePageBuiltModule,
+} from '../core/redirects/index.js';
 import { loadRenderer } from '../core/render/index.js';
 import { getDefaultRoutes } from '../core/routing/default.js';
 import { routeIsRedirect } from '../core/routing/helpers.js';
@@ -71,7 +78,9 @@ async function getModuleForRoute(
 		if (manifest.pageMap) {
 			const importComponentInstance = manifest.pageMap.get(route.component);
 			if (!importComponentInstance) {
-				throw new Error(`Unexpectedly unable to find a component instance for route ${route.route}`);
+				throw new Error(
+					`Unexpectedly unable to find a component instance for route ${route.route}`,
+				);
 			}
 			return await importComponentInstance();
 		} else if (manifest.pageModule) {

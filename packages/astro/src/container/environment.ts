@@ -8,9 +8,16 @@ import type {
 	SSRResult,
 } from '../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../core/build/types.js';
-import type { HeadElements, RenderEnvironment, TryRewriteResult } from '../core/environment/index.js';
+import type {
+	HeadElements,
+	RenderEnvironment,
+	TryRewriteResult,
+} from '../core/environment/index.js';
 import { RedirectSinglePageBuiltModule } from '../core/redirects/index.js';
-import { createModuleScriptElement, createStylesheetElementSet } from '../core/render/ssr-element.js';
+import {
+	createModuleScriptElement,
+	createStylesheetElementSet,
+} from '../core/render/ssr-element.js';
 import { getDefaultRoutes } from '../core/routing/default.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 
@@ -46,7 +53,9 @@ async function getModuleForRoute(
 		if (manifest.pageMap) {
 			const importComponentInstance = manifest.pageMap.get(route.component);
 			if (!importComponentInstance) {
-				throw new Error(`Unexpectedly unable to find a component instance for route ${route.route}`);
+				throw new Error(
+					`Unexpectedly unable to find a component instance for route ${route.route}`,
+				);
 			}
 			return await importComponentInstance();
 		} else if (manifest.pageModule) {

@@ -47,11 +47,7 @@ import { getLogger } from '../logger/manifest-logger.js';
 import type { AstroLogger } from '../logger/core.js';
 import { getSite } from '../manifest/derived.js';
 import { getRouteCache } from '../render/route-cache.js';
-import {
-	getRouteTable,
-	matchAllRoutes,
-	matchRoute,
-} from '../routing/route-table.js';
+import { getRouteTable, matchAllRoutes, matchRoute } from '../routing/route-table.js';
 import { getServerIslands } from '../server-islands/mappings.js';
 
 /**
@@ -380,12 +376,7 @@ export class FetchState implements AstroFetchState {
 		// (not the local parameter) because #applyForwardedHeaders()
 		// may have reconstructed it with a forwarded URL.
 		if (!Reflect.get(this.request, originPathnameSymbol)) {
-			setOriginPathname(
-				this.request,
-				this.pathname,
-				manifest.trailingSlash,
-				manifest.buildFormat,
-			);
+			setOriginPathname(this.request, this.pathname, manifest.trailingSlash, manifest.buildFormat);
 		}
 
 		// Eagerly resolve the route when it wasn't provided via render

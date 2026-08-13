@@ -80,7 +80,7 @@ describe('updateRouteTable', () => {
 		assert.equal(getRouteTable(manifest), after);
 	});
 
-	it('ensures the default 404 without mutating the caller\'s array', () => {
+	it("ensures the default 404 without mutating the caller's array", () => {
 		const manifest = createManifest({ routes: [] });
 		const newRoutes = [pageRoute('contact')];
 

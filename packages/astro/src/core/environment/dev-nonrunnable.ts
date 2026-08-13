@@ -44,7 +44,9 @@ async function getModuleForRoute(
 		if (manifest.pageMap) {
 			const importComponentInstance = manifest.pageMap.get(route.component);
 			if (!importComponentInstance) {
-				throw new Error(`Unexpectedly unable to find a component instance for route ${route.route}`);
+				throw new Error(
+					`Unexpectedly unable to find a component instance for route ${route.route}`,
+				);
 			}
 			return await importComponentInstance();
 		} else if (manifest.pageModule) {

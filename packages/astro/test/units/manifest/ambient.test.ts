@@ -16,12 +16,15 @@ describe('ambient manifest', () => {
 		// composable-API suites) register manifests in the same process, so
 		// clear it explicitly before asserting the unregistered behavior.
 		setAmbientManifest(undefined);
-		assert.throws(() => getAmbientManifest(), (error: unknown) => {
-			assert.ok(error instanceof Error);
-			assert.equal(error.name, 'NoManifestAvailableError');
-			assert.match(error.message, /outside of an Astro server/);
-			return true;
-		});
+		assert.throws(
+			() => getAmbientManifest(),
+			(error: unknown) => {
+				assert.ok(error instanceof Error);
+				assert.equal(error.name, 'NoManifestAvailableError');
+				assert.match(error.message, /outside of an Astro server/);
+				return true;
+			},
+		);
 	});
 
 	it('tryGetAmbientManifest returns undefined when no manifest is available', () => {
