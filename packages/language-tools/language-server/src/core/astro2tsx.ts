@@ -31,7 +31,6 @@ export function safeConvertToTSX(
 
 		return {
 			code: '',
-			map: '',
 			generatedOffsets: new Uint32Array(),
 			sourceOffsets: new Uint32Array(),
 			lengths: new Uint32Array(),
