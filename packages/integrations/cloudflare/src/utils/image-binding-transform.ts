@@ -44,5 +44,10 @@ export async function transform(
 		return new Response(null, { status: 404 });
 	}
 
-	return transformStream(content.body, url.searchParams, images);
+	return transformStream(
+		content.body,
+		url.searchParams,
+		images,
+		content.headers.get('content-type'),
+	);
 }
