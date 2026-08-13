@@ -3,14 +3,25 @@ import fs from 'node:fs';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { type Fixture, loadFixture } from './test-utils.ts';
+import { deterministicString } from '../dist/assets/utils/deterministic-string.js';
+import { generateContentHash } from '../dist/core/encryption.js';
 
 describe('experimental.incrementalBuild', () => {
 	const root = new URL('./fixtures/incremental-build/', import.meta.url);
 	const cacheFile = new URL('node_modules/.astro/incremental-build.json', root);
 	let fixture: Fixture;
+	let cacheKey_v1: string;
+	let cacheKey_v2: string;
 
 	describe('first build', () => {
 		before(async () => {
+			// generate cache keys inside async hook
+			cacheKey_v1 = await generateContentHash(
+				await crypto.subtle.digest('SHA-256', new TextEncoder().encode(deterministicString('v1'))),
+			);
+			cacheKey_v2 = await generateContentHash(
+				await crypto.subtle.digest('SHA-256', new TextEncoder().encode(deterministicString('v2'))),
+			);
 			fs.rmSync(new URL('dist/incremental-build/', root), { recursive: true, force: true });
 			fs.rmSync(cacheFile, { force: true });
 			fixture = await loadFixture({
@@ -52,7 +63,7 @@ describe('experimental.incrementalBuild', () => {
 			assert.ok(blogRoute, 'Blog route should be in cache');
 			assert.ok(blogRoute.dependencyHash, 'Should have a dependency hash');
 			assert.ok(blogRoute.paths['/blog/post-1'], 'post-1 should be tracked');
-			assert.equal(blogRoute.paths['/blog/post-1'].cacheKey, 'v1');
+			assert.equal(blogRoute.paths['/blog/post-1'].cacheKey, cacheKey_v1);
 			assert.equal(cache.routes['src/pages/index.astro'], undefined);
 		});
 	});
@@ -181,9 +192,9 @@ describe('experimental.incrementalBuild', () => {
 		it('updates the cache manifest with the new cacheKey', () => {
 			const cache = JSON.parse(fs.readFileSync(cacheFile, 'utf-8'));
 			const blogRoute = cache.routes['src/pages/blog/[slug].astro'];
-			assert.equal(blogRoute.paths['/blog/post-2'].cacheKey, 'v2');
+			assert.equal(blogRoute.paths['/blog/post-2'].cacheKey, cacheKey_v2);
 			// Other paths should still have v1
-			assert.equal(blogRoute.paths['/blog/post-1'].cacheKey, 'v1');
+			assert.equal(blogRoute.paths['/blog/post-1'].cacheKey, cacheKey_v1);
 		});
 
 		// Restore original file after tests

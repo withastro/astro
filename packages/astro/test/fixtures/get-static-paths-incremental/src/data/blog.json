@@ -1,0 +1,11 @@
+[
+  {
+    "id": "astro-1",
+    "title": "My First Blog Post",
+    "data": [
+      {
+        "content": "This is the content of my first blog post."
+      }
+    ]
+  }
+]

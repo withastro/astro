@@ -1,0 +1,30 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+	const blogs = await getCollection('blogs');
+	
+	return [
+		...blogs.map((blog) => ({
+      params: { slug: blog.id },
+      cacheKey: blog.data.data,
+		}))
+	];
+}
+
+const {  slug } = Astro.params;
+const blog = await getEntry('blogs', slug);
+const data = blog.data.data ?? [];
+---
+<html>
+	<body>
+		<h1>{blog.data.title}</h1>
+{data &&
+data.map((item) => (
+	<div>
+		<p>{item.content}</p>
+	</div>
+))
+}
+	</body>
+</html>
