@@ -7137,15 +7137,6 @@ importers:
         specifier: ^4.22.0
         version: 4.22.3
 
-  triage/gh-17678:
-    dependencies:
-      '@astrojs/vercel':
-        specifier: workspace:*
-        version: link:../../packages/integrations/vercel
-      astro:
-        specifier: workspace:*
-        version: link:../../packages/astro
-
 packages:
 
   '@anthropic-ai/sdk@0.91.1':

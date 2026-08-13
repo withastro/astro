@@ -127,6 +127,7 @@ function getAdapter({
 		adapterFeatures: {
 			buildOutput,
 			middlewareMode,
+			preserveBuildServerDir: true,
 			staticHeaders,
 		},
 		supportedAstroFeatures: {
@@ -266,6 +267,7 @@ export default function vercelAdapter({
 	let _buildTempFolder: URL;
 	let _serverEntry: string;
 	let _middlewareEntryPoint: URL | undefined;
+	let _hasServerBuild = false;
 	let _routeToHeaders: RouteToHeaders | undefined = undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
@@ -295,6 +297,9 @@ export default function vercelAdapter({
 					build: {
 						format: 'directory',
 						redirects: false,
+						...(config.output === 'static'
+							? { server: new URL('./.vercel/output/server/', config.root) }
+							: {}),
 					},
 					integrations: [
 						{
@@ -393,10 +398,12 @@ export default function vercelAdapter({
 				_serverEntry = config.build.serverEntry;
 			},
 			'astro:build:start': async () => {
+				_hasServerBuild = false;
 				// Ensure to have `.vercel/output` empty.
 				await emptyDir(new URL('./.vercel/output/', _config.root));
 			},
 			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
+				_hasServerBuild = true;
 				_middlewareEntryPoint = middlewareEntryPoint;
 			},
 
@@ -405,12 +412,6 @@ export default function vercelAdapter({
 			},
 			'astro:build:done': async ({ logger }: HookParameters<'astro:build:done'>) => {
 				const outDir = new URL('./.vercel/output/', _config.root);
-
-				// In static builds, server islands cause Astro core to produce an
-				// SSR bundle in outDir (not build.server). Detect this so we still
-				// create a serverless function for the /_server-islands/* endpoint.
-				const staticEntryFile = new URL(_serverEntry, _config.outDir);
-				const needsServerIslandFunction = _buildOutput === 'static' && existsSync(staticEntryFile);
 
 				if (staticDir) {
 					if (existsSync(staticDir)) {
@@ -435,9 +436,9 @@ export default function vercelAdapter({
 					middlewarePath?: string;
 				}> = [];
 
-				if (_buildOutput === 'server') {
+				if (_hasServerBuild) {
 					// Merge any includes from `vite.assetsInclude
-					if (_config.vite.assetsInclude) {
+					if (_buildOutput === 'server' && _config.vite.assetsInclude) {
 						const mergeGlobbedIncludes = (globPattern: unknown) => {
 							if (typeof globPattern === 'string') {
 								const entries = globSync(globPattern).map((p) => pathToFileURL(p));
@@ -467,7 +468,7 @@ export default function vercelAdapter({
 					);
 
 					const entryFile = new URL(_serverEntry, _buildTempFolder);
-					if (isr) {
+					if (_buildOutput === 'server' && isr) {
 						const isrConfig = typeof isr === 'object' ? isr : {};
 						await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
 						if (isrConfig.exclude?.length) {
@@ -533,35 +534,6 @@ export default function vercelAdapter({
 							middlewareSecret,
 						);
 					}
-				} else if (needsServerIslandFunction) {
-					// Static build with server islands: the SSR entry lives in outDir
-					// (not build.server) because getServerOutputDirectory() returns
-					// outDir when buildOutput is 'static'. Build a serverless function
-					// so /_server-islands/* requests are handled at runtime.
-					const includeFiles = _includeFiles
-						.map((file) => new URL(file, _config.root))
-						.concat(extraFilesToInclude);
-					const excludeFiles = _excludeFiles.map((file) => new URL(file, _config.root));
-
-					const builder = new VercelBuilder(
-						_config,
-						excludeFiles,
-						includeFiles,
-						logger,
-						outDir,
-						maxDuration,
-					);
-
-					await builder.buildServerlessFolder(staticEntryFile, NODE_PATH, _config.root);
-
-					for (const route of routes) {
-						if (!route.isPrerendered) {
-							routeDefinitions.push({
-								src: route.patternRegex.source,
-								dest: NODE_PATH,
-							});
-						}
-					}
 				}
 				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
 				const vercelConfigJson = new URL('./.vercel/output/config.json', _config.root);
@@ -574,7 +546,7 @@ export default function vercelAdapter({
 						continue: true,
 					},
 				];
-				if (_buildOutput === 'server' || needsServerIslandFunction) {
+				if (_hasServerBuild) {
 					finalRoutes.push(...routeDefinitions);
 				}
 
@@ -674,7 +646,7 @@ export default function vercelAdapter({
 				});
 
 				// Remove temporary folder
-				if (_buildOutput === 'server') {
+				if (_hasServerBuild) {
 					await removeDir(_buildTempFolder);
 				}
 			},
