@@ -460,6 +460,8 @@ export default function vercelAdapter({
 					);
 
 					const entryFile = new URL(_serverEntry, _buildTempFolder);
+					// Routes the edge middleware forwards to `_isr` instead of `_render`.
+					const isrRoutes: string[] = [];
 					if (isr) {
 						const isrConfig = typeof isr === 'object' ? isr : {};
 						await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
@@ -496,15 +498,21 @@ export default function vercelAdapter({
 
 							if (!excludeRouteFromIsr) {
 								const src = route.patternRegex.source;
-								const dest =
-									src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands')
-										? NODE_PATH
-										: getIsrPath(middlewareSecret);
-								if (!route.isPrerendered)
-									routeDefinitions.push({
-										src,
-										dest,
-									});
+								const isInternal =
+									src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands');
+
+								let dest = getIsrPath(middlewareSecret);
+								if (isInternal) {
+									dest = NODE_PATH;
+								} else if (_middlewareEntryPoint) {
+									// The middleware has to run before the cache is consulted.
+									dest = MIDDLEWARE_PATH;
+								}
+
+								if (!route.isPrerendered) {
+									routeDefinitions.push({ src, dest });
+									if (!isInternal) isrRoutes.push(src);
+								}
 							}
 						}
 					} else {
@@ -524,6 +532,7 @@ export default function vercelAdapter({
 							_middlewareEntryPoint,
 							MIDDLEWARE_PATH,
 							middlewareSecret,
+							isrRoutes,
 						);
 					}
 				}
@@ -741,7 +750,12 @@ class VercelBuilder {
 		});
 	}
 
-	async buildMiddlewareFolder(entry: URL, functionName: string, middlewareSecret: string) {
+	async buildMiddlewareFolder(
+		entry: URL,
+		functionName: string,
+		middlewareSecret: string,
+		isrRoutes: string[] = [],
+	) {
 		const functionFolder = new URL(`./functions/${functionName}.func/`, this.outDir);
 
 		await generateEdgeMiddleware(
@@ -751,6 +765,7 @@ class VercelBuilder {
 			new URL('./middleware.mjs', functionFolder),
 			middlewareSecret,
 			this.logger,
+			isrRoutes,
 		);
 
 		await writeJson(new URL(`./.vc-config.json`, functionFolder), {
