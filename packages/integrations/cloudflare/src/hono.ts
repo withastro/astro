@@ -21,6 +21,7 @@
  */
 import { FetchState } from 'astro/fetch';
 import { cf as cfFetch } from './fetch.js';
+import { finalizeCloudflareResponse } from './utils/cf.js';
 
 const FETCH_STATE_KEY = 'fetchState';
 
@@ -32,6 +33,7 @@ type HonoCloudflareContextLike = {
 	req: {
 		raw: Request;
 	};
+	res: Response;
 	env: Env;
 	executionCtx: {
 		waitUntil(promise: Promise<unknown>): void;
@@ -65,7 +67,8 @@ function getFetchState(context: HonoCloudflareContextLike): FetchState {
  * `locals.cfContext`, client address, `waitUntil`, and error page fetch.
  *
  * If the request matches a static asset, returns the asset response
- * directly. Otherwise calls `next()` to continue the middleware chain.
+ * directly. Otherwise calls `next()` to continue the middleware chain
+ * and applies the CDN cache default to the response.
  */
 export function cf(): HonoMiddlewareHandler {
 	return async (context, next) => {
@@ -73,5 +76,12 @@ export function cf(): HonoMiddlewareHandler {
 		const asset = await cfFetch(state, context.env, context.executionCtx);
 		if (asset) return asset;
 		await next();
+		// Apply CDN cache defaults. Only assign to context.res when the
+		// response was modified to avoid an unnecessary Hono response
+		// rebuild (Hono's res setter calls createResponseInstance).
+		const finalized = finalizeCloudflareResponse(context.res);
+		if (finalized !== context.res) {
+			context.res = finalized;
+		}
 	};
 }

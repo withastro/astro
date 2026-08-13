@@ -217,6 +217,11 @@ export default function createIntegration({
 									return {
 										...restWorkerConfig,
 										name: 'prerender',
+										// The prerender worker must use the default handler so
+										// the internal prerender endpoints (__astro_static_paths,
+										// __astro_prerender, etc.) are served. A custom `main`
+										// from the user's wrangler config does not handle these.
+										main: '@astrojs/cloudflare/entrypoints/server',
 										...(queues?.producers?.length && {
 											queues: { producers: queues.producers },
 										}),

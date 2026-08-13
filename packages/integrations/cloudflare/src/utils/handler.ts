@@ -1,9 +1,5 @@
 import { env as globalEnv } from 'cloudflare:workers';
-import {
-	compileImageConfig,
-	isPrerender,
-	cacheProviderEnabled,
-} from 'virtual:astro-cloudflare:config';
+import { compileImageConfig, isPrerender } from 'virtual:astro-cloudflare:config';
 import type { RenderOptions } from 'astro/app';
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
@@ -28,6 +24,7 @@ import {
 	createErrorPageFetch,
 	createLocals,
 	getClientAddress,
+	finalizeCloudflareResponse,
 } from './cf.js';
 
 export type { Runtime };
@@ -118,34 +115,25 @@ export async function handle(
 	// response up by identity, so it must see the original object.
 	const setCookieHeaders = app.setCookieHeaders ? [...app.setCookieHeaders(response)] : [];
 
-	// When the Cloudflare cache provider is configured, default uncached
-	// responses to `no-store` so opting in to route caching never
-	// accidentally caches a route that didn't set any cache intent.
-	// Cloudflare's Worker cache otherwise caches all GET responses for
-	// up to 2 hours by default.
-	const needsNoStoreDefault =
-		cacheProviderEnabled && !response.headers.has('Cloudflare-CDN-Cache-Control');
-
-	if (setCookieHeaders.length > 0 || needsNoStoreDefault) {
-		const applyHeaders = (res: Response) => {
+	if (setCookieHeaders.length > 0) {
+		const applyCookies = (res: Response) => {
 			for (const setCookieHeader of setCookieHeaders) {
 				res.headers.append('Set-Cookie', setCookieHeader);
 			}
-			if (needsNoStoreDefault) {
-				res.headers.set('Cloudflare-CDN-Cache-Control', 'no-store');
-			}
 		};
 		try {
-			applyHeaders(response);
+			applyCookies(response);
 		} catch {
 			// Responses served from the Workers Cache API (e.g. `/_image`
 			// cache hits) have immutable headers. The first mutation throws
 			// before changing anything, so rebuilding into a mutable
 			// Response and re-applying cannot duplicate headers.
 			response = new Response(response.body, response);
-			applyHeaders(response);
+			applyCookies(response);
 		}
 	}
+
+	response = finalizeCloudflareResponse(response);
 
 	return response;
 }

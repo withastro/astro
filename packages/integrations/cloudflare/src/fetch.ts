@@ -5,14 +5,14 @@
  *
  * ```ts
  * import { astro, FetchState } from 'astro/fetch';
- * import { cf } from '@astrojs/cloudflare/fetch';
+ * import { cf, finalizeResponse } from '@astrojs/cloudflare/fetch';
  *
  * export default {
- *   async fetch(request: Request) {
+ *   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
  *     const state = new FetchState(request);
  *     const asset = await cf(state, env, ctx);
  *     if (asset) return asset;
- *     return astro(state);
+ *     return finalizeResponse(await astro(state));
  *   }
  * }
  * ```
@@ -29,6 +29,7 @@ import {
 	createErrorPageFetch,
 	createLocals,
 	getClientAddress,
+	finalizeCloudflareResponse,
 } from './utils/cf.js';
 
 // Lazy initialization — `createApp` and `setGetEnv` are deferred to the
@@ -47,6 +48,7 @@ function ensureInitialized() {
 /**
  * Applies Cloudflare-specific setup to a `FetchState`:
  * - Injects the SESSION KV binding
+ * - Enables cookie headers (including session cookies) on the response
  * - Serves static assets via the ASSETS binding
  * - Sets `locals.cfContext`, client address, `waitUntil`, and error page fetch
  *
@@ -65,15 +67,39 @@ export async function cf(
 	const staticAsset = matchStaticAsset(app!.manifest, state.request.url, env);
 	if (staticAsset) return staticAsset;
 
-	if (!state.routeData) {
+	// `state.routeData` is always set — `FetchState.#resolveRouteData()`
+	// falls back to the internal 404 route when nothing matches. Use
+	// `app.match()` instead, which returns `undefined` for unmatched
+	// requests, so the ASSETS fallback can serve files that sit outside
+	// the route manifest (needed for `run_worker_first` routing).
+	if (!app!.match(state.request)) {
 		const asset = await fallbackToAssets(state.request.url, env);
 		if (asset) return asset;
 	}
 
 	Object.assign(state.locals, createLocals(ctx));
 	state.clientAddress = getClientAddress(state.request);
+	state.renderOptions.addCookieHeader = true;
 	state.renderOptions.waitUntil = ctx.waitUntil.bind(ctx);
 	state.renderOptions.prerenderedErrorPageFetch = createErrorPageFetch(env);
 
 	return undefined;
 }
+
+/**
+ * Applies Cloudflare-specific response defaults. When the Cloudflare
+ * cache provider is configured and the response lacks a
+ * `Cloudflare-CDN-Cache-Control` header, sets it to `no-store` so that
+ * routes without explicit cache intent are not cached by the Worker
+ * cache.
+ *
+ * Call this on the response returned by `astro(state)`:
+ *
+ * ```ts
+ * return finalizeResponse(await astro(state));
+ * ```
+ *
+ * The Hono middleware (`@astrojs/cloudflare/hono`) applies this
+ * automatically after `next()`.
+ */
+export const finalizeResponse: (response: Response) => Response = finalizeCloudflareResponse;
