@@ -77,8 +77,8 @@ export function resolvePages(config: AstroConfig) {
 }
 
 function isInPagesDir(file: URL, config: AstroConfig): boolean {
-	const pagesDir = resolvePages(config);
-	return file.toString().startsWith(pagesDir.toString());
+	const pagesDir = `${resolvePages(config).toString()}/`;
+	return file.toString().startsWith(pagesDir);
 }
 
 function isInjectedRoute(file: URL, settings: AstroSettings) {
