@@ -22,7 +22,7 @@ export function safeConvertToTSX(
 ): ConvertToTsxResult {
 	const fileName = options.filename ?? '';
 	try {
-		return convertToTsx(content, { filename: fileName, sourcemap: 'external' });
+		return convertToTsx(content, { filename: fileName, sourcemap: false });
 	} catch (e) {
 		console.error(
 			`There was an error transforming ${fileName} to TSX. An empty file will be returned instead. Please create an issue: https://github.com/withastro/astro/issues\nError: ${e}.`,
