@@ -51,6 +51,13 @@ describe('Dev image endpoint', () => {
 		assert.equal(res.status, 200);
 		assert.equal(res.headers.get('content-type'), 'image/avif');
 	});
+
+	// Core omits `f` when it cannot infer a source format from the URL. See withastro/astro.build#2610.
+	it('defaults to webp when no format parameter is given', async () => {
+		const res = await fixture.fetch('/_image?href=/placeholder.jpg&w=100');
+		assert.equal(res.status, 200);
+		assert.equal(res.headers.get('content-type'), 'image/webp');
+	});
 });
 
 describe('Dev image endpoint with prerenderEnvironment: node', () => {
