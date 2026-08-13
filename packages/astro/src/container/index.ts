@@ -129,6 +129,7 @@ function createManifest(
 	manifest?: AstroContainerManifest,
 	renderers?: SSRLoadedRenderer[],
 	middleware?: MiddlewareHandler,
+	site?: string,
 ): SSRManifest {
 	function middlewareInstance(): AstroMiddlewareInstance {
 		return {
@@ -169,6 +170,7 @@ function createManifest(
 		componentMetadata: manifest?.componentMetadata ?? new Map(),
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
 		i18n: manifest?.i18n,
+		site: site ?? manifest?.site,
 		checkOrigin: false,
 		allowedDomains: manifest?.allowedDomains ?? [],
 		actionBodySizeLimit: 1024 * 1024,
@@ -276,6 +278,7 @@ type AstroContainerManifest = Pick<
 	| 'middlewareMode'
 	| 'assetsDir'
 	| 'image'
+	| 'site'
 >;
 
 type AstroContainerConstructor = {
@@ -283,6 +286,7 @@ type AstroContainerConstructor = {
 	renderers?: SSRLoadedRenderer[];
 	manifest?: AstroContainerManifest;
 	resolve?: SSRResult['resolve'];
+	site?: string;
 };
 
 export class experimental_AstroContainer {
@@ -301,8 +305,9 @@ export class experimental_AstroContainer {
 		manifest,
 		renderers,
 		resolve,
+		site,
 	}: AstroContainerConstructor) {
-		const ssrManifest = createManifest(manifest, renderers);
+		const ssrManifest = createManifest(manifest, renderers, undefined, site);
 		this.#pipeline = ContainerPipeline.create({
 			logger: createConsoleLogger({ level: 'error' }),
 			manifest: ssrManifest,
@@ -337,12 +342,13 @@ export class experimental_AstroContainer {
 	public static async create(
 		containerOptions: AstroContainerOptions = {},
 	): Promise<experimental_AstroContainer> {
-		const { streaming = false, manifest, renderers = [], resolve } = containerOptions;
+		const { streaming = false, manifest, renderers = [], resolve, astroConfig } = containerOptions;
 		return new experimental_AstroContainer({
 			streaming,
 			manifest,
 			renderers,
 			resolve,
+			site: astroConfig?.site ?? manifest?.site,
 		});
 	}
 
