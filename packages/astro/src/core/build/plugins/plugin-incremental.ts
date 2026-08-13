@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import type { Plugin as VitePlugin } from 'vite';
+import { FONTS_SERVER_ADDRESS_PLACEHOLDER } from '../../../assets/fonts/constants.js';
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { hasContentFlag } from '../../../content/utils.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
@@ -39,6 +40,18 @@ const ASSET_PLACEHOLDERS = [
 ];
 
 /**
+ * Strip the fonts server address variable declaration from module code. The
+ * fonts plugin assigns the ephemeral HTTP server's AddressInfo to a variable
+ * named {@link FONTS_SERVER_ADDRESS_PLACEHOLDER}; the value includes an
+ * OS-assigned port that differs between builds. Removing the declaration
+ * (but keeping the stable variable reference) prevents the volatile port
+ * from poisoning the dependency hash.
+ */
+const FONTS_ADDRESS_DECLARATION = new RegExp(
+	`(?:const|let|var)\\s+${FONTS_SERVER_ADDRESS_PLACEHOLDER}\\s*=[^;]+;`,
+);
+
+/**
  * Replace the emit handles of imported assets with the file names they resolve
  * to. Handles are assigned by the bundler in the order modules finish
  * transforming, so two builds of the same sources can hand the same asset a
@@ -57,6 +70,9 @@ function resolveAssetPlaceholders(graph: ModuleGraph, code: string): string {
 				return placeholder;
 			}
 		});
+	}
+	if (resolved.includes(FONTS_SERVER_ADDRESS_PLACEHOLDER)) {
+		resolved = resolved.replace(FONTS_ADDRESS_DECLARATION, '');
 	}
 	return resolved;
 }
