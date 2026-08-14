@@ -1,5 +1,4 @@
 {
   "extends": "../../../configs/tsconfig.build.json",
-  "include": ["./src"],
   "references": [{ "path": "../../astro/tsconfig.json" }]
 }

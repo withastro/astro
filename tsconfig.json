@@ -21,6 +21,7 @@
     { "path": "./packages/astro/tsconfig.json" },
     { "path": "./packages/underscore-redirects/tsconfig.json" },
     { "path": "./packages/integrations/alpinejs/tsconfig.json" },
+    { "path": "./packages/integrations/appwrite/tsconfig.json" },
     { "path": "./packages/integrations/cloudflare/tsconfig.json" },
     { "path": "./packages/integrations/markdoc/tsconfig.json" },
     { "path": "./packages/integrations/mdx/tsconfig.json" },
