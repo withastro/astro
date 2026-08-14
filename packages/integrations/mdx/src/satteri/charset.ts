@@ -13,7 +13,7 @@ const leadingComponentRe = /^\s*<\s*([A-Za-z][A-Za-z0-9]*)\b/;
 // capitalized JSX element (treated as a wrapping layout).
 export function shouldAddCharset(content: string, filePath: string, srcDir: URL): boolean {
 	const srcDirPath = fileURLToPath(srcDir).replace(/\\/g, '/');
-	const pagesDir = path.posix.join(srcDirPath, 'pages');
+	const pagesDir = `${path.posix.join(srcDirPath, 'pages')}/`;
 	const normalizedFilePath = filePath.replace(/\\/g, '/');
 	if (!normalizedFilePath.startsWith(pagesDir)) return false;
 
