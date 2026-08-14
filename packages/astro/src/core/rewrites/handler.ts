@@ -3,11 +3,12 @@ import type { FetchState } from '../fetch/fetch-state.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { AstroCookies } from '../cookies/index.js';
+import { getEnvironment } from '../environment/index.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { AstroError } from '../errors/errors.js';
-import { AstroMiddleware } from '../middleware/astro-middleware.js';
-import { PagesHandler } from '../pages/handler.js';
-import { getParams } from '../render/index.js';
+import { handleMiddleware } from '../middleware/astro-middleware.js';
+import { handlePages } from '../pages/handler.js';
+import { getParams } from '../render/params-and-props.js';
 import { copyRequest, setOriginPathname } from '../routing/rewrite.js';
 import { createNormalizedUrl } from '../util/normalized-url.js';
 
@@ -28,8 +29,8 @@ interface TryRewriteResult {
  * - Invalidates cached API contexts so they're re-derived from the
  *   new route.
  *
- * Called by both `Rewrites.execute()` (user-triggered `Astro.rewrite`)
- * and `AstroMiddleware` (middleware `next(payload)`).
+ * Called by both `executeRewrite()` (user-triggered `Astro.rewrite`)
+ * and `handleMiddleware` (middleware `next(payload)`).
  */
 export function applyRewriteToState(
 	state: FetchState,
@@ -37,7 +38,6 @@ export function applyRewriteToState(
 	{ routeData, componentInstance, newUrl, pathname }: TryRewriteResult,
 	{ mergeCookies = false }: { mergeCookies?: boolean } = {},
 ): void {
-	const pipeline = state.pipeline;
 	const oldPathname = state.pathname;
 
 	// Disallow SSR→prerender rewrites: the prerendered route becomes a
@@ -45,7 +45,7 @@ export function applyRewriteToState(
 	// manifest. Allow i18n fallback routes as an exception.
 	const isI18nFallback = routeData.fallbackRoutes && routeData.fallbackRoutes.length > 0;
 	if (
-		pipeline.manifest.serverLike &&
+		state.manifest.serverLike &&
 		!state.routeData!.prerender &&
 		routeData.prerender &&
 		!isI18nFallback
@@ -66,7 +66,7 @@ export function applyRewriteToState(
 			newUrl,
 			state.request,
 			routeData.prerender,
-			pipeline.logger,
+			state.logger,
 			state.routeData!.route,
 		);
 	}
@@ -86,8 +86,8 @@ export function applyRewriteToState(
 	setOriginPathname(
 		state.request,
 		oldPathname,
-		pipeline.manifest.trailingSlash,
-		pipeline.manifest.buildFormat,
+		state.manifest.trailingSlash,
+		state.manifest.buildFormat,
 	);
 
 	// Props / API contexts are derived from the (now-changed) route;
@@ -98,19 +98,21 @@ export function applyRewriteToState(
 /**
  * Executes a user-triggered rewrite (`Astro.rewrite(...)` /
  * `ctx.rewrite(...)`) against a `FetchState`. Resolves the rewrite
- * target via `pipeline.tryRewrite`, validates it, mutates the
+ * target via the environment's `tryRewrite`, validates it, mutates the
  * `FetchState` to reflect the new route, and re-runs the middleware
  * and page dispatch to produce the new response.
  */
-export class Rewrites {
-	async execute(state: FetchState, payload: RewritePayload): Promise<Response> {
-		const pipeline = state.pipeline;
-		pipeline.logger.debug('router', 'Calling rewrite: ', payload);
-		const result = await pipeline.tryRewrite(payload, state.request);
-		applyRewriteToState(state, payload, result, { mergeCookies: true });
+export async function executeRewrite(
+	state: FetchState,
+	payload: RewritePayload,
+): Promise<Response> {
+	state.logger.debug('router', 'Calling rewrite: ', payload);
+	const result = await getEnvironment(state.manifest).tryRewrite(
+		state.manifest,
+		payload,
+		state.request,
+	);
+	applyRewriteToState(state, payload, result, { mergeCookies: true });
 
-		const middleware = new AstroMiddleware(pipeline);
-		const pagesHandler = new PagesHandler(pipeline);
-		return middleware.handle(state, pagesHandler.handle.bind(pagesHandler));
-	}
+	return handleMiddleware(state, handlePages);
 }

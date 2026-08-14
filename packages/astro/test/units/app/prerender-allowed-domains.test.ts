@@ -30,7 +30,7 @@ describe('FetchState with allowedDomains and prerendered routes', () => {
 			},
 		});
 
-		new FetchState(pipeline, request, {
+		new FetchState(pipeline.manifest, request, {
 			routeData,
 			addCookieHeader: false,
 			clientAddress: undefined,
@@ -70,7 +70,7 @@ describe('FetchState with allowedDomains and prerendered routes', () => {
 			},
 		});
 
-		new FetchState(pipeline, request, {
+		new FetchState(pipeline.manifest, request, {
 			routeData,
 			addCookieHeader: false,
 			clientAddress: undefined,

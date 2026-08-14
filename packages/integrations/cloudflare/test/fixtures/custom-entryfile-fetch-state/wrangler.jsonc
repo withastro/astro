@@ -1,0 +1,9 @@
+{
+  "compatibility_date": "2026-01-28",
+  "main": "./src/worker.ts",
+  "name": "astro-cloudflare-custom-entryfile-fetch-state",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  }
+}

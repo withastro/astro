@@ -190,7 +190,7 @@ export async function dev({ flags }: DevOptions) {
 	// an existing server, and it won't be tracked by `astro dev stop`/`status`/`logs`.
 	// We still do a read-only check purely to give the user a heads-up.
 	if (ignoreLock) {
-		const existingServer = checkExistingServer(root);
+		const existingServer = await checkExistingServer(root);
 		if (existingServer) {
 			logger.info(
 				'SKIP_FORMAT',
@@ -204,7 +204,7 @@ export async function dev({ flags }: DevOptions) {
 		return await devServer(inlineConfig);
 	}
 
-	const existingServer = checkExistingServer(root);
+	const existingServer = await checkExistingServer(root);
 	if (existingServer) {
 		if (flags.force) {
 			// --force: kill the existing server and replace it

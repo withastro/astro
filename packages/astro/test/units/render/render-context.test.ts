@@ -18,18 +18,17 @@ describe('FetchState', () => {
 					rootDir: import.meta.url,
 					serverLike: true,
 					experimentalQueuedRendering: { enabled: true },
+					// Mock actions module, resolved through the manifest thunk
+					actions: async () => ({
+						server: {
+							testAction: async function () {
+								actionWasCalled = true;
+								return { data: 'should not be called', error: undefined };
+							},
+						},
+					}),
 				},
 			} as any);
-
-			// Set up a mock action on the pipeline
-			(pipeline as any).resolvedActions = {
-				server: {
-					testAction: async function () {
-						actionWasCalled = true;
-						return { data: 'should not be called', error: undefined };
-					},
-				},
-			};
 
 			const SimplePage = createComponent(() => {
 				return render`<html><head>${maybeRenderHead()}</head><body><p>Error page</p></body></html>`;
@@ -52,7 +51,7 @@ describe('FetchState', () => {
 			};
 
 			// Create state with skipMiddleware=true (as happens during error recovery)
-			const state = new FetchState(pipeline, request);
+			const state = new FetchState(pipeline.manifest, request);
 			state.routeData = routeData as any;
 			state.pathname = '/404';
 			state.status = 404;
@@ -76,18 +75,17 @@ describe('FetchState', () => {
 					rootDir: import.meta.url,
 					serverLike: true,
 					experimentalQueuedRendering: { enabled: true },
+					// Mock actions module, resolved through the manifest thunk
+					actions: async () => ({
+						server: {
+							testAction: async function () {
+								actionWasCalled = true;
+								return { data: 'action result', error: undefined };
+							},
+						},
+					}),
 				},
 			} as any);
-
-			// Set up a mock action on the pipeline
-			(pipeline as any).resolvedActions = {
-				server: {
-					testAction: async function () {
-						actionWasCalled = true;
-						return { data: 'action result', error: undefined };
-					},
-				},
-			};
 
 			const SimplePage = createComponent(() => {
 				return render`<html><head>${maybeRenderHead()}</head><body><p>Page</p></body></html>`;
@@ -110,7 +108,7 @@ describe('FetchState', () => {
 			};
 
 			// Create state with skipMiddleware=false (normal flow)
-			const state = new FetchState(pipeline, request);
+			const state = new FetchState(pipeline.manifest, request);
 			state.routeData = routeData as any;
 			state.pathname = '/page';
 			state.skipMiddleware = false;
@@ -132,7 +130,7 @@ describe('FetchState', () => {
 		it('provides info/warn/error methods on context.logger', async () => {
 			const spyLogger = new SpyLogger();
 			const pipeline = createBasicPipeline({ logger: spyLogger });
-			const state = new FetchState(pipeline, new Request('http://localhost/'));
+			const state = new FetchState(pipeline.manifest, new Request('http://localhost/'));
 			state.routeData = minimalRouteData;
 
 			const { logger } = state.getActionAPIContext();
@@ -145,7 +143,7 @@ describe('FetchState', () => {
 		it('context.logger delegates to the pipeline logger', async () => {
 			const spyLogger = new SpyLogger();
 			const pipeline = createBasicPipeline({ logger: spyLogger });
-			const state = new FetchState(pipeline, new Request('http://localhost/'));
+			const state = new FetchState(pipeline.manifest, new Request('http://localhost/'));
 			state.routeData = minimalRouteData;
 
 			const ctx = state.getActionAPIContext();
@@ -177,7 +175,7 @@ describe('FetchState', () => {
 				return render`<html><head>${maybeRenderHead()}</head><body><p>Logged</p></body></html>`;
 			});
 
-			const state = new FetchState(pipeline, new Request('http://localhost/'));
+			const state = new FetchState(pipeline.manifest, new Request('http://localhost/'));
 			state.routeData = pageRouteData;
 			const response = await renderThroughMiddleware(state, createAstroModule(LoggingPage) as any);
 			assert.equal(response.status, 200);
@@ -201,7 +199,7 @@ describe('FetchState', () => {
 				return render`<html><head>${maybeRenderHead()}</head><body><p>OK</p></body></html>`;
 			});
 
-			const state = new FetchState(pipeline, new Request('http://localhost/'));
+			const state = new FetchState(pipeline.manifest, new Request('http://localhost/'));
 			state.routeData = pageRouteData;
 			const response = await renderThroughMiddleware(state, createAstroModule(LoggingPage) as any);
 			assert.equal(response.status, 200);
