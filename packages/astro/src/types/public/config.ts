@@ -112,6 +112,7 @@ export type ServerConfig = {
 	 * hostname is allowed.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -144,6 +145,7 @@ export type ServerConfig = {
 	 * Pass a full URL string (e.g. "http://example.com") or a pathname (e.g. "/about") to specify the URL to open.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -191,6 +193,7 @@ export interface AstroUserConfig<
 	 * Your final, deployed URL. Astro uses this full URL to generate your sitemap and canonical URLs in your final build. It is strongly recommended that you set this configuration to get the most out of Astro.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -210,6 +213,7 @@ export interface AstroUserConfig<
 	 * In the example below, `astro dev` will start your server at `/docs`.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -227,6 +231,7 @@ export interface AstroUserConfig<
 	 *
 	 * In the example below, the values of `import.meta.env.BASE_URL` and `config.base` when processed will both be `/docs`:
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -238,6 +243,7 @@ export interface AstroUserConfig<
 	 * In the example below, the values of `import.meta.env.BASE_URL` and `config.base` when processed will both be `/docs/`:
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -267,6 +273,7 @@ export interface AstroUserConfig<
 	 * See your hosting platform's documentation for more information. You cannot use Astro [redirects](https://docs.astro.build/en/reference/configuration-reference/#redirects) for this use case at this point.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -291,6 +298,7 @@ export interface AstroUserConfig<
 	 *
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * export default defineConfig({
 	 *   redirects: {
 	 *    '/old': '/new',
@@ -316,6 +324,7 @@ export interface AstroUserConfig<
 	 * You can customize the [redirection status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#redirection_messages) using an object in the redirect config:
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * export default defineConfig({
 	 *   redirects: {
 	 *     '/other': {
@@ -342,6 +351,7 @@ export interface AstroUserConfig<
 	 * - `'server'` - Use server-side rendering (SSR) for all pages by default, always outputting a server-rendered site.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -363,6 +373,7 @@ export interface AstroUserConfig<
 	 * See our [on-demand rendering guide](https://docs.astro.build/en/guides/on-demand-rendering/) for more on Astro's server rendering options.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 * import netlify from '@astrojs/netlify';
 	 *
@@ -385,6 +396,7 @@ export interface AstroUserConfig<
 	 * Read our [Integrations Guide](https://docs.astro.build/en/guides/integrations/) for help getting started with Astro Integrations.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 * import react from '@astrojs/react';
 	 * import mdx from '@astrojs/mdx';
@@ -411,15 +423,16 @@ export interface AstroUserConfig<
 	 * If you provide a relative path (ex: `--root: './my-project'`) Astro will resolve it against your current working directory.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
 	 *   root: './my-project-directory'
 	 * });
 	 * ```
-	 * 
+	 *
 	 * The following example sets the root directory using the CLI:
-	 * 
+	 *
 	 * ```bash
 	 * astro build --root ./my-project-directory
 	 * ```
@@ -436,6 +449,7 @@ export interface AstroUserConfig<
 	 * The value can be either an absolute file system path or a path relative to the project root.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -456,6 +470,7 @@ export interface AstroUserConfig<
 	 * The value can be either an absolute file system path or a path relative to the project root.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -476,6 +491,7 @@ export interface AstroUserConfig<
 	 * The value can be either an absolute file system path or a path relative to the project root.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -495,6 +511,7 @@ export interface AstroUserConfig<
 	 * The value can be either an absolute file system path or a path relative to the project root.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -520,6 +537,7 @@ export interface AstroUserConfig<
 	 * Setting this option to `false` disables HTML compression and preserves all whitespace.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -563,6 +581,7 @@ export interface AstroUserConfig<
 	 * - `ignore`: silently build using the highest-priority route when conflicts occur
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -585,6 +604,7 @@ export interface AstroUserConfig<
 	 * #### Examples
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -598,6 +618,7 @@ export interface AstroUserConfig<
 	 * ```
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -677,6 +698,7 @@ export interface AstroUserConfig<
 		 * - `**.example.com` - matches any subdomain depth (e.g., both `sub.example.com` and `deep.sub.example.com`)
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -700,6 +722,7 @@ export interface AstroUserConfig<
 		 * In some specific contexts (e.g., applications behind trusted reverse proxies with dynamic domains), you may need to allow all domains. To do this, use an empty object:
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -1275,6 +1298,7 @@ export interface AstroUserConfig<
 		 *   - `'preserve'`: Astro will generate HTML files exactly as they appear in your source folder. (e.g. `src/pages/about.astro` builds `/about.html` and `src/pages/about/index.astro` builds the file `/about/index.html`)
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -1312,6 +1336,7 @@ export interface AstroUserConfig<
 		 * This value is relative to the `outDir`.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -1334,6 +1359,7 @@ export interface AstroUserConfig<
 		 * This value is relative to the `outDir`.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -1355,6 +1381,7 @@ export interface AstroUserConfig<
 		 * Specifies the directory in the build output where Astro-generated assets (bundled JS and CSS for example) should live.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -1380,6 +1407,7 @@ export interface AstroUserConfig<
 		 * To fetch all assets uploaded to the same domain (e.g. `https://cdn.example.com/_astro/...`), set `assetsPrefix` to the root domain as a string (regardless of your `base` configuration):
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -1395,6 +1423,7 @@ export interface AstroUserConfig<
 		 * In this case, a `fallback` property is required and will be used by default for any other files.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -1425,6 +1454,7 @@ export interface AstroUserConfig<
 		 * detects that the file is a JavaScript module.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -1450,6 +1480,7 @@ export interface AstroUserConfig<
 		 * configuration files for redirects and do not need/want HTML based redirects.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -1473,6 +1504,7 @@ export interface AstroUserConfig<
 		 *  - `'never'` - project styles are sent in external stylesheets
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -1498,6 +1530,7 @@ export interface AstroUserConfig<
 		 * If the number is set too high, page rendering may slow down due to insufficient memory resources and because JS is single-threaded.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -1523,6 +1556,7 @@ export interface AstroUserConfig<
 	 * Customize the Astro dev server, used by both `astro dev` and `astro preview`.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -1533,6 +1567,7 @@ export interface AstroUserConfig<
 	 * To set different configuration based on the command run ("dev", "preview") a function can also be passed to this configuration option.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -1566,6 +1601,7 @@ export interface AstroUserConfig<
 	 * If the given port is already in use, Astro will automatically try the next available port.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -1586,6 +1622,7 @@ export interface AstroUserConfig<
 	 * hostname is allowed.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -1608,6 +1645,7 @@ export interface AstroUserConfig<
 	 * Pass a full URL string (e.g. "http://example.com") or a pathname (e.g. "/about") to specify the URL to open.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
@@ -1969,6 +2007,7 @@ export interface AstroUserConfig<
 				 * This value defaults to `true` when using the `<ClientRouter />` router. Otherwise, the default value is `false`.
 				 *
 				 * ```js
+				 * // astro.config.mjs
 				 * import { defineConfig } from 'astro/config';
 				 *
 				 * export default defineConfig({
@@ -2024,6 +2063,7 @@ export interface AstroUserConfig<
 		 * Set the endpoint to use for image optimization in dev and SSR. The `entrypoint` property can be set to `undefined` to use the default image endpoint.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -2056,6 +2096,7 @@ export interface AstroUserConfig<
 		 * The service entrypoint can be either one of the included services, or a third-party package.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -2222,6 +2263,7 @@ export interface AstroUserConfig<
 		 * 4. pathname
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -2389,6 +2431,7 @@ export interface AstroUserConfig<
 		 * - `false` - do not apply syntax highlighting.
 
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -2459,6 +2502,7 @@ export interface AstroUserConfig<
 		 * Pass [remark plugins](https://github.com/remarkjs/remark) to customize how your Markdown is built. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 * import remarkToc from 'remark-toc';
 		 *
@@ -2481,6 +2525,7 @@ export interface AstroUserConfig<
 		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 * import { rehypeAccessibleEmojis } from 'rehype-accessible-emojis';
 		 *
@@ -2505,6 +2550,7 @@ export interface AstroUserConfig<
 		 * Astro uses [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) by default. To disable this, set the `gfm` flag to `false`:
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -2547,6 +2593,7 @@ export interface AstroUserConfig<
 		 * Pass options to [remark-rehype](https://github.com/remarkjs/remark-rehype#api).
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -2662,6 +2709,7 @@ export interface AstroUserConfig<
 		 * The following example configures your content fallback strategy to redirect unavailable pages in `/pt-br/` to their `es` version, and unavailable pages in `/fr/` to their `en` version. Unavailable `/es/` pages will return a 404.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * export default defineConfig({
 		 *   i18n: {
 		 *     defaultLocale: "en",
@@ -2694,6 +2742,7 @@ export interface AstroUserConfig<
 		 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * export default defineConfig({
 		 *   i18n: {
 		 *     defaultLocale: "en",
@@ -2710,6 +2759,7 @@ export interface AstroUserConfig<
 		 * Since 4.6.0, this option can also be set to `manual`. When this routing strategy is enabled, Astro will **disable** its i18n middleware and no other `routing` options (e.g. `prefixDefaultLocale`) may be configured. You will be responsible for writing your own routing logic, or executing Astro's i18n middleware manually alongside your own.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * export default defineConfig({
 		 *   i18n: {
 		 *     defaultLocale: "en",
@@ -2740,6 +2790,7 @@ export interface AstroUserConfig<
 					 * Localized folders are used for every language, including the default.
 					 *
 					 * ```js
+					 * // astro.config.mjs
 					 * export default defineConfig({
 					 *   i18n: {
 					 *     defaultLocale: "en",
@@ -2961,6 +3012,7 @@ export interface AstroUserConfig<
 	 * The source of your font files. You can use a [built-in provider](https://docs.astro.build/en/reference/font-provider-reference/#built-in-providers) or write your own [custom provider](https://docs.astro.build/en/reference/font-provider-reference/#building-a-font-provider):
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig, fontProviders } from "astro/config";
 	 *
 	 * export default defineConfig({
@@ -3235,6 +3287,7 @@ export interface AstroUserConfig<
 		 * Use the provider's config function to get type-safe configuration:
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig, memoryCache } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -3362,6 +3415,7 @@ export interface AstroUserConfig<
 		 * When enabled, this feature will generate and add JSON schemas to the `.astro` directory in your project. These files can be used by the Astro language server to provide Intellisense inside content files (`.md`, `.mdx`, `.mdoc`).
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -3388,6 +3442,7 @@ export interface AstroUserConfig<
 		 * allowing you to edit files directly in the browser and have those changes reflected in your local file system.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -3413,6 +3468,7 @@ export interface AstroUserConfig<
 		 * and better performance while maintaining visual quality.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -3446,6 +3502,7 @@ export interface AstroUserConfig<
 		 * is recommended for broad adapter compatibility.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
