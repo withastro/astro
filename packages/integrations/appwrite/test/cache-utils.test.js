@@ -198,17 +198,6 @@ describe('resolveCredentials', () => {
 		assert.equal(credentials.projectId, 'site-project');
 	});
 
-	it('falls back to Appwrite Cloud when no endpoint is known', () => {
-		const credentials = resolveCredentials(
-			{},
-			{ apiKey: 'dynamic-key' },
-			{
-				APPWRITE_FUNCTION_PROJECT_ID: 'my-project',
-			},
-		);
-		assert.equal(credentials.endpoint, 'https://cloud.appwrite.io/v1');
-	});
-
 	it('falls back to APPWRITE_API_KEY outside of a request', () => {
 		const credentials = resolveCredentials({}, undefined, {
 			...SITE_ENV,
@@ -230,11 +219,26 @@ describe('resolveCredentials', () => {
 		});
 	});
 
-	it('explains how to supply a missing project', () => {
+	it('explains how to supply a missing endpoint', () => {
 		assert.throws(() => resolveCredentials({}, { apiKey: 'dynamic-key' }, {}), {
 			name: 'AppwriteCacheError',
-			message: /APPWRITE_FUNCTION_PROJECT_ID/,
+			message: /APPWRITE_FUNCTION_API_ENDPOINT/,
 		});
+	});
+
+	it('explains how to supply a missing project', () => {
+		assert.throws(
+			() =>
+				resolveCredentials(
+					{},
+					{ apiKey: 'dynamic-key' },
+					{ APPWRITE_FUNCTION_API_ENDPOINT: SITE_ENV.APPWRITE_FUNCTION_API_ENDPOINT },
+				),
+			{
+				name: 'AppwriteCacheError',
+				message: /APPWRITE_FUNCTION_PROJECT_ID/,
+			},
+		);
 	});
 
 	it('explains how to supply a missing API key', () => {

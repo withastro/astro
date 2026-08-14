@@ -29,13 +29,13 @@ For `cache.invalidate()` to be allowed to purge, the site's dynamic API key need
 
 Every option is optional; the defaults suit a site deployed on Appwrite Sites.
 
-| Option      | Default                                                                                  | Description                                                                                                                        |
-| ----------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `domain`    | the domain of the request being served                                                   | Domain(s) purged by `cache.invalidate()`. A purge only clears the domain it names, so a site on several domains has to list them.  |
-| `endpoint`  | `APPWRITE_FUNCTION_API_ENDPOINT`, then `APPWRITE_SITE_API_ENDPOINT`, then Appwrite Cloud | Appwrite API endpoint.                                                                                                             |
-| `projectId` | `APPWRITE_FUNCTION_PROJECT_ID`, then `APPWRITE_SITE_PROJECT_ID`                          | Appwrite project ID.                                                                                                               |
-| `apiKey`    | the `x-appwrite-key` request header, then `APPWRITE_API_KEY`                             | Key used to invalidate. Prefer the default: a value set here is baked into the build output.                                       |
-| `noStore`   | `true`                                                                                   | Send `no-store` for responses that declare no cache intent, so the CDN's default TTL cannot cache a route that never asked for it. |
+| Option      | Default                                                             | Description                                                                                                                        |
+| ----------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `domain`    | the domain of the request being served                              | Domain(s) purged by `cache.invalidate()`. A purge only clears the domain it names, so a site on several domains has to list them.  |
+| `endpoint`  | `APPWRITE_FUNCTION_API_ENDPOINT`, then `APPWRITE_SITE_API_ENDPOINT` | Appwrite API endpoint. Required, so pass it when neither variable is set.                                                          |
+| `projectId` | `APPWRITE_FUNCTION_PROJECT_ID`, then `APPWRITE_SITE_PROJECT_ID`     | Appwrite project ID.                                                                                                               |
+| `apiKey`    | the `x-appwrite-key` request header, then `APPWRITE_API_KEY`        | Key used to invalidate. Prefer the default: a value set here is baked into the build output.                                       |
+| `noStore`   | `true`                                                              | Send `no-store` for responses that declare no cache intent, so the CDN's default TTL cannot cache a route that never asked for it. |
 
 ## Good to know
 

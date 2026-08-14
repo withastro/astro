@@ -2,26 +2,7 @@ import type { InvalidateOptions } from 'astro';
 import { normalizeTags } from 'astro/cache/provider-utils';
 import type { AppwriteCacheConfig } from './index.js';
 
-/** Appwrite Cloud, used when neither the config nor the runtime names an endpoint. */
-const DEFAULT_ENDPOINT = 'https://cloud.appwrite.io/v1';
-
-/**
- * Longest cache key the invalidation API accepts as a `tag` reference. A longer
- * key can be attached to a response but never purged, so it is dropped on both
- * the response path and the purge path instead.
- */
 export const CACHE_KEY_MAX_LENGTH = 128;
-
-/**
- * Characters that reach the CDN unchanged. Everything else is percent-encoded,
- * including `%` itself so the encoding stays reversible and a tag always
- * normalizes to the same key on both paths.
- *
- * The edge splits `Appwrite-CDN-Cache-Key` on whitespace and re-joins the keys
- * with commas for the CDN's `Cache-Tag`, so a key containing whitespace would
- * become several keys and a key containing a comma would corrupt the header —
- * in both cases the response ends up tagged with something no purge can name.
- */
 const UNSAFE_KEY_CHARS = /[^A-Za-z0-9\-_.:~!$&'()*+;=@/]+/gu;
 
 const warned = new Set<string>();
@@ -30,11 +11,6 @@ export class AppwriteCacheError extends Error {
 	override name = 'AppwriteCacheError';
 }
 
-/**
- * Request-scoped values the invalidation API needs but `invalidate(options)`
- * does not carry: the dynamic API key Appwrite sends with every request, and
- * the domain the response was served on.
- */
 export interface RequestScope {
 	apiKey?: string;
 	domain?: string;
@@ -46,7 +22,6 @@ export interface AppwriteCredentials {
 	apiKey: string;
 }
 
-/** A single `POST /proxy/invalidations` call. */
 export interface Invalidation {
 	domain: string;
 	type: 'tag' | 'path';
@@ -54,8 +29,8 @@ export interface Invalidation {
 }
 
 /**
- * Convert an Astro cache tag into an Appwrite cache key. Returns `null` when the
- * tag cannot be represented as one.
+ * Convert an Astro cache tag into an Appwrite cache key.
+ * Returns `null` when the tag cannot be represented as one.
  */
 export function normalizeCacheKey(tag: string): string | null {
 	const key = tag.trim().replace(UNSAFE_KEY_CHARS, percentEncode);
@@ -75,8 +50,7 @@ export function normalizeCacheKey(tag: string): string | null {
 }
 
 /**
- * Normalize Astro cache tags into deduplicated Appwrite cache keys, in the order
- * they were declared.
+ * Normalize Astro cache tags into deduplicated Appwrite cache keys
  */
 export function toCacheKeys(tags: readonly string[] | undefined): string[] {
 	if (!tags?.length) {
@@ -95,11 +69,7 @@ export function toCacheKeys(tags: readonly string[] | undefined): string[] {
 }
 
 /**
- * Expand `cache.invalidate()` options into the invalidations to create.
- *
- * Appwrite purges one cache key or one URL path per call, for one domain, so `n`
- * references across `m` domains is `n * m` calls. Returns an empty list when
- * there is nothing to purge.
+ * Expand `cache.invalidate()` options into Appwrite invalidation
  */
 export function planInvalidations(
 	options: InvalidateOptions,
@@ -142,10 +112,7 @@ export function resolveCredentials(
 	env: Record<string, string | undefined> = process.env,
 ): AppwriteCredentials {
 	const endpoint =
-		config.endpoint ||
-		env.APPWRITE_FUNCTION_API_ENDPOINT ||
-		env.APPWRITE_SITE_API_ENDPOINT ||
-		DEFAULT_ENDPOINT;
+		config.endpoint || env.APPWRITE_FUNCTION_API_ENDPOINT || env.APPWRITE_SITE_API_ENDPOINT;
 
 	const projectId =
 		config.projectId || env.APPWRITE_FUNCTION_PROJECT_ID || env.APPWRITE_SITE_PROJECT_ID;
@@ -153,6 +120,12 @@ export function resolveCredentials(
 	// The dynamic key on the request is scoped to this deployment and expires with
 	// it, which makes it a better default than a long-lived key in the environment.
 	const apiKey = config.apiKey || scope?.apiKey || env.APPWRITE_API_KEY;
+
+	if (!endpoint) {
+		throw new AppwriteCacheError(
+			'Could not determine the Appwrite API endpoint to invalidate against. Set `APPWRITE_FUNCTION_API_ENDPOINT` or pass `endpoint` to `cacheAppwrite()`.',
+		);
+	}
 
 	if (!projectId) {
 		throw new AppwriteCacheError(
