@@ -89,22 +89,15 @@ export function planInvalidations(
 }
 
 /**
- * Reduce a path to what the invalidation API accepts as a `path` reference: an
- * absolute path with no relative segments, no query and no fragment. A full URL
- * is accepted and reduced to its path.
- *
- * A path purge clears the exact URL, so responses cached under the same path
- * with a query string are not covered by it.
+ * Ensure path is valid for Appwrite
  */
 export function normalizePathReference(path: string): string {
-	// Resolving against a base normalizes `.`/`..` segments, percent-encodes what
-	// the API would reject, and drops the query and fragment for free.
+	// Ghost URL object for parsing purpose
 	return new URL(path, 'https://astrojs-appwrite.invalid').pathname;
 }
 
 /**
- * Resolve the client credentials for an invalidation, preferring explicit config
- * over the request over the runtime environment.
+ * Resolve the client credentials for use when doing invalidations.
  */
 export function resolveCredentials(
 	config: AppwriteCacheConfig,
@@ -117,8 +110,6 @@ export function resolveCredentials(
 	const projectId =
 		config.projectId || env.APPWRITE_FUNCTION_PROJECT_ID || env.APPWRITE_SITE_PROJECT_ID;
 
-	// The dynamic key on the request is scoped to this deployment and expires with
-	// it, which makes it a better default than a long-lived key in the environment.
 	const apiKey = config.apiKey || scope?.apiKey || env.APPWRITE_API_KEY;
 
 	if (!endpoint) {
@@ -143,8 +134,7 @@ export function resolveCredentials(
 }
 
 /**
- * Resolve which domains to purge. A purge only clears the domain it names, so a
- * site on several domains has to name each of them.
+ * Resolve which domains to purge
  */
 export function resolveDomains(
 	config: AppwriteCacheConfig,
