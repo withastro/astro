@@ -1,7 +1,26 @@
 import * as assert from 'node:assert/strict';
+import net from 'node:net';
 import { after, before, describe, it } from 'node:test';
 import nodejs from '../dist/index.js';
 import { type Fixture, loadFixture, waitServerListen, type AdapterServer } from './test-utils.ts';
+
+/**
+ * Sends a raw HTTP request with a hand-written Host header and resolves with
+ * the status line. `fetch` rewrites the Host header, so a socket is the only
+ * way to exercise a client-supplied host with a malformed port.
+ */
+function requestWithHost(host: string, port: number, hostHeader: string): Promise<string> {
+	return new Promise((resolve, reject) => {
+		const socket = net.connect(port, host, () => {
+			socket.write(`GET / HTTP/1.1\r\nHost: ${hostHeader}\r\nConnection: close\r\n\r\n`);
+		});
+		let body = '';
+		socket.setEncoding('utf8');
+		socket.on('data', (chunk) => (body += chunk));
+		socket.on('end', () => resolve(body.split('\r\n')[0] ?? ''));
+		socket.on('error', reject);
+	});
+}
 
 type StaticHeaderEntry = { pathname: string; headers: Array<{ key: string; value: string }> };
 
@@ -72,6 +91,15 @@ describe('Static headers', () => {
 			cps.includes('script-src'),
 			'should contain script-src directive due to server island',
 		);
+	});
+
+	it('survives a request with a malformed port in the Host header', async () => {
+		// A malformed port makes the URL unparseable while the static handler
+		// builds a Request to look up per-route headers. The request must not
+		// take the process down; a follow-up request must still be served.
+		await requestWithHost(server.host ?? '127.0.0.1', server.port, 'example.com:65536');
+		const res = await fetch(`http://${server.host}:${server.port}/`);
+		assert.equal(res.status, 200);
 	});
 });
 

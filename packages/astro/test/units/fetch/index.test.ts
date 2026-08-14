@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { appSymbol } from '../../../dist/core/constants.js';
+import { setAmbientManifest } from '../../../dist/core/manifest/ambient.js';
+import { getUsedFeatures } from '../../../dist/core/fetch/features.js';
 import {
 	FetchState,
 	astro,
@@ -11,7 +12,7 @@ import {
 	pages,
 	i18n,
 } from '../../../dist/core/fetch/index.js';
-import { ALL_PIPELINE_FEATURES } from '../../../dist/core/base-pipeline.js';
+import { ALL_FETCH_FEATURES } from '../../../dist/core/fetch/features.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import {
 	createEndpoint,
@@ -21,6 +22,8 @@ import {
 	createMockFetchState,
 } from '../mocks.ts';
 import { dynamicPart, spreadPart } from '../routing/test-helpers.ts';
+import { createManifest, createRouteInfo } from '../app/test-helpers.ts';
+import type { RouteInfo, SSRManifest } from '../../../dist/core/app/types.js';
 import { SpyLogger } from '../test-utils.ts';
 
 /** A simple page component that renders `<h1>Hello</h1>`. */
@@ -29,25 +32,28 @@ const simplePage = createComponent((_result: any, _props: any, _slots: any) => {
 });
 
 /**
- * Stamps the `appSymbol` onto a request so `getApp()` inside the
- * `astro/fetch` module can find the associated App.
+ * Registers the app's manifest as the ambient manifest so the public
+ * one-arg `FetchState(request)` (and everything downstream) can resolve
+ * it — the post-refactor replacement for stamping `appSymbol` onto the
+ * request. Returns the request unchanged for call-site compatibility.
  */
 function stampApp(request: Request, app: ReturnType<typeof createTestApp>): Request {
-	Reflect.set(request, appSymbol, app);
+	setAmbientManifest(app.manifest);
 	return request;
 }
 
 // #region FetchState constructor
 
 describe('FetchState (astro/fetch)', () => {
-	it('throws when the request has no attached app', () => {
+	it('throws when no ambient manifest is available', () => {
+		setAmbientManifest(undefined);
 		assert.throws(
 			() => new FetchState(new Request('http://example.com/')),
-			/without an attached app/,
+			/outside of an Astro server/,
 		);
 	});
 
-	it('constructs successfully when the request has an attached app', () => {
+	it('constructs successfully when an ambient manifest is registered', () => {
 		const app = createTestApp([createPage(simplePage, { route: '/' })]);
 		const request = stampApp(new Request('http://example.com/'), app);
 		const state = new FetchState(request);
@@ -665,8 +671,8 @@ describe('astro() combined handler', () => {
 		// every feature as used so the one-shot warnMissingFeatures check
 		// in BaseApp never fires a false positive.
 		assert.equal(
-			state.pipeline.usedFeatures & ALL_PIPELINE_FEATURES,
-			ALL_PIPELINE_FEATURES,
+			getUsedFeatures(state.manifest) & ALL_FETCH_FEATURES,
+			ALL_FETCH_FEATURES,
 			'astro() should mark all pipeline features as used',
 		);
 	});
@@ -975,9 +981,7 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 		});
 		// Use BaseFetchState directly to pass clientAddress via options
 		const { FetchState: BaseFetchState } = await import('../../../dist/core/fetch/fetch-state.js');
-		const { appSymbol: sym } = await import('../../../dist/core/constants.js');
-		Reflect.set(request, sym, app);
-		const state = new BaseFetchState(app.pipeline, request, {
+		const state = new BaseFetchState(app.manifest, request, {
 			clientAddress: '10.0.0.1',
 			addCookieHeader: false,
 			locals: undefined,
@@ -1068,7 +1072,11 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 		assert.equal(new URL(state.request.url).hostname, 'localhost');
 	});
 
-	it('carries appSymbol onto the reconstructed request so the app still resolves', async () => {
+	it('renders through the full pipeline after request reconstruction', async () => {
+		// Replaces the removed "carries appSymbol onto the reconstructed
+		// request" test (the symbol is gone — review R2b): the reconstructed
+		// request carries nothing, and the chain still renders because static
+		// data is read from `state.manifest`, never from the request.
 		const app = createTestApp([createPage(simplePage, { route: '/' })], {
 			allowedDomains: [{ hostname: 'example.com' }],
 		});
@@ -1082,7 +1090,6 @@ describe('FetchState X-Forwarded-* header resolution', () => {
 		const state = new FetchState(request);
 
 		assert.notEqual(state.request, original);
-		assert.equal(Reflect.get(state.request, appSymbol), app);
 		const response = await astro(state);
 		assert.equal(response.status, 200);
 	});
@@ -1171,6 +1178,35 @@ describe('session stub getter', () => {
 		void target.session;
 		const warningsAfter = logger.logs.filter((l) => l.level === 'warn' && l.label === 'session');
 		assert.equal(warningsAfter.length, 1, 'should not warn a second time');
+	});
+});
+
+// #endregion
+
+// #region Goal 3: bare construction (ambient manifest only)
+
+describe('Goal 3: new FetchState(request) from a bare Request', () => {
+	it('constructs and routes with only setAmbientManifest — no App, no request symbols', async () => {
+		// Deliberately no `App` (and no `createTestApp`): the manifest is
+		// registered ambiently, exactly like a bundled worker where the
+		// manifest virtual module is the only static input. The public
+		// one-arg constructor and the composable `astro()` helper must work
+		// from the bare Request alone.
+		const { routeData, module } = createPage(simplePage, { route: '/' });
+		const manifest = createManifest({
+			routes: [createRouteInfo(routeData) as RouteInfo],
+			pageMap: new Map([[routeData.component, module]]) as unknown as SSRManifest['pageMap'],
+		});
+		setAmbientManifest(manifest as unknown as SSRManifest);
+		try {
+			const state = new FetchState(new Request('http://example.com/'));
+			assert.equal(state.routeData?.route, '/', 'route resolved from the ambient manifest');
+			const response = await astro(state);
+			assert.equal(response.status, 200);
+			assert.match(await response.text(), /<h1>Hello<\/h1>/);
+		} finally {
+			setAmbientManifest(undefined);
+		}
 	});
 });
 

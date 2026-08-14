@@ -6,6 +6,8 @@ import colors from 'piccolore';
 import picomatch from 'picomatch';
 import { glob as tinyglobby } from 'tinyglobby';
 import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
+import * as AstroErrorData from '../../core/errors/errors-data.js';
+import { AstroError } from '../../core/errors/index.js';
 import type { RenderedContent } from '../data-store.js';
 import { getContentEntryIdAndSlug, posixRelative } from '../utils.js';
 import type { Loader } from './types.js';
@@ -186,9 +188,20 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					// the unlink event just hasn't been processed yet
 					const oldFilePath = new URL(existingEntry.filePath, config.root);
 					if (existsSync(oldFilePath)) {
-						logger.warn(
-							`Duplicate id "${id}" found in ${filePath}. Later items with the same id will overwrite earlier ones.`,
+						const message = AstroErrorData.DuplicateContentEntrySlugError.message(
+							collection,
+							id,
+							existingEntry.filePath,
+							relativePath,
 						);
+						if (config.prerenderConflictBehavior === 'error') {
+							throw new AstroError({
+								...AstroErrorData.DuplicateContentEntrySlugError,
+								message,
+							});
+						} else if (config.prerenderConflictBehavior !== 'ignore') {
+							logger.warn(message);
+						}
 					}
 				}
 

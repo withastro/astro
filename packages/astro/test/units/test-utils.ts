@@ -3,27 +3,25 @@ import { fileURLToPath } from 'node:url';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { createFixture as _createFixture, type FileTree } from 'fs-fixture';
 import httpMocks from 'node-mocks-http';
-import { getDefaultClientDirectives } from '../../dist/core/client-directive/index.js';
 import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { AstroLogger } from '../../dist/core/logger/core.js';
 import nodeLoggerFactory from '../../dist/core/logger/impls/node.js';
-import { ActionHandler } from '../../dist/actions/handler.js';
+import { handleAction } from '../../dist/actions/handler.js';
 import type { FetchState } from '../../dist/core/fetch/fetch-state.js';
-import { AstroMiddleware } from '../../dist/core/middleware/astro-middleware.js';
-import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
-import { PagesHandler } from '../../dist/core/pages/handler.js';
-import { Pipeline } from '../../dist/core/render/index.js';
-import { RouteCache } from '../../dist/core/render/route-cache.js';
+import { handleMiddleware } from '../../dist/core/middleware/astro-middleware.js';
+import { handlePages } from '../../dist/core/pages/handler.js';
+import { clearActions, getActions } from '../../dist/actions/load.js';
+import { setLogger } from '../../dist/core/logger/manifest-logger.js';
+import { setEnvironment } from '../../dist/core/environment/index.js';
+import { productionEnvironment } from '../../dist/core/environment/production.js';
 
 import type { AstroLoggerLevel } from '../../dist/core/logger/core.js';
 import type { AstroInlineConfig, RuntimeMode } from '../../dist/types/public/config.js';
 import type { AstroSettings } from '../../dist/types/astro.js';
 import type { SSRManifest } from '../../dist/core/app/types.js';
-import type { RouteData, SSRLoadedRenderer, SSRResult } from '../../dist/types/public/internal.js';
-import type { HeadElements, TryRewriteResult } from '../../dist/core/base-pipeline.js';
+import type { SSRLoadedRenderer } from '../../dist/types/public/internal.js';
 import type { ComponentInstance } from '../../dist/types/astro.js';
-import type { RewritePayload, MiddlewareHandler } from '../../dist/types/public/common.js';
 import { createManifest } from './app/test-helpers.ts';
 
 export type { AstroSettings };
@@ -117,42 +115,17 @@ function buffersToString(buffers: Buffer[]): string {
 }
 
 /**
- * Concrete Pipeline subclass for unit testing. Implements the abstract
- * methods with minimal stubs so Pipeline can be instantiated without
- * a real build or dev server.
+ * The handle `createBasicPipeline` returns: the test manifest plus the few
+ * functional-core delegates tests consume. Most tests only read `.manifest`.
  */
-export class TestPipeline extends Pipeline {
-	headElements(): HeadElements {
-		return { scripts: new Set(), styles: new Set(), links: new Set() } as HeadElements;
-	}
-
-	async componentMetadata(): Promise<SSRResult['componentMetadata']> {
-		return new Map() as SSRResult['componentMetadata'];
-	}
-
-	async tryRewrite(_rewritePayload: RewritePayload, _request: Request): Promise<TryRewriteResult> {
-		throw new Error('tryRewrite is not implemented in TestPipeline');
-	}
-
-	async getComponentByRoute(_routeData: RouteData): Promise<ComponentInstance> {
-		throw new Error('getComponentByRoute is not implemented in TestPipeline');
-	}
-
-	getName(): string {
-		return 'test-pipeline';
-	}
-
-	override async getMiddleware(): Promise<MiddlewareHandler> {
-		return NOOP_MIDDLEWARE_FN;
-	}
-
-	clearActions(): void {
-		this.resolvedActions = undefined;
-	}
+export interface TestPipeline {
+	manifest: SSRManifest;
+	getActions: () => ReturnType<typeof getActions>;
+	clearActions: () => void;
 }
 
 /**
- * Creates a basic Pipeline instance for testing.
+ * Creates a test manifest with a registered test environment + logger.
  * For mock utilities like createMockFetchState, see mocks.ts
  */
 export function createBasicPipeline(
@@ -163,34 +136,42 @@ export function createBasicPipeline(
 		renderers?: SSRLoadedRenderer[];
 		resolve?: (s: string) => Promise<string>;
 		streaming?: boolean;
-		adapterName?: string;
-		clientDirectives?: Map<string, string>;
-		inlinedScripts?: Map<string, string>;
-		compressHTML?: boolean | 'jsx';
-		i18n?: SSRManifest['i18n'];
-		middleware?: SSRManifest['middleware'];
-		routeCache?: RouteCache;
 		site?: string;
-		logging?: AstroLogger;
 	} = {},
 ): TestPipeline {
-	const mode = options.mode ?? 'development';
-	return new TestPipeline(
-		options.logger ?? defaultLogger,
-		createManifest(options.manifest ?? {}),
-		options.mode ?? 'development',
-		options.renderers ?? [],
-		options.resolve ?? ((s: string) => Promise.resolve(s)),
-		options.streaming ?? true,
-		options.adapterName,
-		options.clientDirectives ?? getDefaultClientDirectives(),
-		options.inlinedScripts ?? new Map(),
-		options.compressHTML,
-		options.i18n,
-		options.middleware,
-		options.routeCache ?? new RouteCache(options.logging ?? defaultLogger, mode),
-		options.site ? new URL(options.site) : undefined,
-	);
+	const manifest = createManifest({ site: options.site, ...(options.manifest ?? {}) });
+	// Composition order mirrors the real entrypoints: logger, then
+	// environment.
+	setLogger(manifest, options.logger ?? defaultLogger);
+	// Register an environment carrying the requested runtime mode; the
+	// per-manifest RouteCache derives its mode (which gates the overwrite
+	// warning) from the environment registry. The behavior members are
+	// minimal stubs (empty head elements / component metadata, identity
+	// resolve, injected renderers, throwing tryRewrite) — `FetchState` and
+	// the handlers read them from `getEnvironment(manifest)`.
+	const resolve = options.resolve ?? ((s: string) => Promise.resolve(s));
+	const renderers = options.renderers ?? [];
+	setEnvironment(manifest, {
+		...productionEnvironment,
+		name: 'test',
+		runtimeMode: options.mode ?? 'development',
+		defaultStreaming: () => options.streaming ?? true,
+		resolve: (_manifest, specifier) => resolve(specifier),
+		headElements: () => ({ scripts: new Set(), styles: new Set(), links: new Set() }),
+		componentMetadata: () => {},
+		getRenderers: () => renderers,
+		tryRewrite: () => {
+			throw new Error('tryRewrite is not implemented in the test environment');
+		},
+		getComponentByRoute: () => {
+			throw new Error('getComponentByRoute is not implemented in the test environment');
+		},
+	});
+	return {
+		manifest,
+		getActions: () => getActions(manifest),
+		clearActions: () => clearActions(manifest),
+	};
 }
 
 export async function createBasicSettings(
@@ -307,7 +288,7 @@ export class SpyLogger extends AstroLogger {
 
 /**
  * Renders a component through the full pipeline
- * (AstroMiddleware + PagesHandler). Wires up the given `FetchState`
+ * (handleMiddleware + handlePages). Wires up the given `FetchState`
  * with middleware and page handlers.
  */
 export async function renderThroughMiddleware(
@@ -315,20 +296,16 @@ export async function renderThroughMiddleware(
 	componentInstance: ComponentInstance,
 	slots: Record<string, any> = {},
 ): Promise<Response> {
-	const pipeline = state.pipeline;
 	state.componentInstance = componentInstance;
 	state.slots = slots;
-	const middleware = new AstroMiddleware(pipeline);
-	const actionHandler = new ActionHandler();
-	const pagesHandler = new PagesHandler(pipeline);
-	return middleware.handle(state, (s, ctx) => {
+	return handleMiddleware(state, (s, ctx) => {
 		if (!s.skipMiddleware) {
-			const actionResult = actionHandler.handle(ctx, s);
+			const actionResult = handleAction(ctx, s);
 			if (actionResult) {
-				return actionResult.then((response) => response ?? pagesHandler.handle(s, ctx));
+				return actionResult.then((response) => response ?? handlePages(s, ctx));
 			}
 		}
-		return pagesHandler.handle(s, ctx);
+		return handlePages(s, ctx);
 	});
 }
 

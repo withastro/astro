@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 11.1.2
+
+### Patch Changes
+
+- [#17400](https://github.com/withastro/astro/pull/17400) [`c1cf110`](https://github.com/withastro/astro/commit/c1cf11037797da70196f9a9ff20744ce6c2524d3) Thanks [@tianrking](https://github.com/tianrking)! - Return a 404 instead of a 500 for unknown parameters that match a prerendered dynamic endpoint.
+
 ## 11.1.1
 
 ### Patch Changes

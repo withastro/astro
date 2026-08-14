@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { Hono } from 'hono';
-import { appSymbol } from '../../../dist/core/constants.js';
+import { setAmbientManifest } from '../../../dist/core/manifest/ambient.js';
 import { pages } from '../../../dist/core/hono/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createEndpoint, createPage, createTestApp } from '../mocks.ts';
@@ -40,11 +40,10 @@ function createEndpointApp() {
  * exercises the endpoint dispatch sink directly.
  */
 function createHonoApp(astroApp: ReturnType<typeof createEndpointApp>['app']) {
+	// The composable helpers resolve static data from the ambient manifest —
+	// there is no app handle on the request anymore.
+	setAmbientManifest(astroApp.manifest);
 	const hono = new Hono();
-	hono.use(async (context, next) => {
-		Reflect.set(context.req.raw, appSymbol, astroApp);
-		await next();
-	});
 	hono.use(pages());
 	return hono;
 }

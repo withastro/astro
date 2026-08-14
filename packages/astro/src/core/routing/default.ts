@@ -1,6 +1,7 @@
 import type { ComponentInstance } from '../../types/astro.js';
 import type { SSRManifest } from '../app/types.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
+import { createManifestMemo } from '../manifest/memo.js';
 import {
 	createEndpoint as createServerIslandEndpoint,
 	SERVER_ISLAND_COMPONENT,
@@ -33,4 +34,11 @@ export function createDefaultRoutes(manifest: SSRManifest): DefaultRouteParams[]
 			component: SERVER_ISLAND_COMPONENT,
 		},
 	];
+}
+
+const defaultRoutesMemo = createManifestMemo(createDefaultRoutes);
+
+/** The built-in internal routes for a manifest, derived once per manifest. */
+export function getDefaultRoutes(manifest: SSRManifest): DefaultRouteParams[] {
+	return defaultRoutesMemo.get(manifest);
 }

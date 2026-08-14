@@ -416,6 +416,21 @@ describe('node', () => {
 				assert.equal(result.url, 'https://example.com:3000/');
 			});
 
+			it('rejects Host header with a duplicated port', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com:8080:8080',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				// A host carrying two ports is invalid and must not validate,
+				// so it falls back to localhost rather than being interpolated verbatim.
+				assert.equal(result.url, 'https://localhost/');
+			});
+
 			it('accepts Host header with wildcard pattern in allowedDomains', () => {
 				const result = createRequest(
 					{
@@ -919,6 +934,41 @@ describe('node', () => {
 					},
 				});
 				assert.equal((result as any)[Symbol.for('astro.clientAddress')], '2.2.2.2');
+			});
+		});
+
+		describe('malformed host header', () => {
+			// A Host header with an unparseable port makes the interpolated URL
+			// invalid. The construction must not throw: it falls back to a host the
+			// server controls so callers always receive a Request.
+			const malformedHosts = [
+				'example.com:65536',
+				'example.com:99999',
+				'example.com:abc',
+				'example.com:443:443',
+				'example.com:-1',
+			];
+
+			for (const host of malformedHosts) {
+				it(`does not throw for host "${host}"`, () => {
+					const build = () =>
+						createRequestFromNodeRequest({
+							...mockNodeRequest,
+							socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+							headers: { host },
+						});
+					assert.doesNotThrow(build);
+					assert.ok(URL.canParse(build().url));
+				});
+			}
+
+			it('preserves a valid host with the maximum port', () => {
+				const result = createRequestFromNodeRequest({
+					...mockNodeRequest,
+					socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+					headers: { host: 'example.com:65535' },
+				});
+				assert.equal(new URL(result.url).host, 'example.com:65535');
 			});
 		});
 	});
