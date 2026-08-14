@@ -73,6 +73,8 @@ describe('astro cli', () => {
 	});
 
 	it('astro check no errors', {
+		// type definitions are not generated for ecosystem CI
+		skip: !!process.env.ECOSYSTEM_CI,
 		timeout: 35000,
 	}, async () => {
 		const projectRootURL = new URL('./fixtures/astro-check-no-errors/', import.meta.url);
@@ -87,6 +89,8 @@ describe('astro cli', () => {
 	});
 
 	it('astro check has errors', {
+		// type definitions are not generated for ecosystem CI
+		skip: !!process.env.ECOSYSTEM_CI,
 		timeout: 35000,
 	}, async () => {
 		const projectRootURL = new URL('./fixtures/astro-check-errors/', import.meta.url);

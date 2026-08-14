@@ -35,7 +35,7 @@ export default function standalone(
 		// Resolve the logger before the 'listening' event fires so the startup message
 		// uses the correct destination. standalone() stays synchronous so callers get
 		// the server object immediately.
-		app.pipeline.getLogger().then(() => logListeningOn(app.adapterLogger, server.server, host));
+		app.getLogger().then(() => logListeningOn(app.adapterLogger, server.server, host));
 	}
 	server.server.on('close', () => {
 		app.logger.close();
