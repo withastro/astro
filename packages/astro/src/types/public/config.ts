@@ -290,7 +290,8 @@ export interface AstroUserConfig<
 	 * @type {Record<string, RedirectConfig>}
 	 * @default `{}`
 	 * @version 2.9.0
-	 * @description Specify a mapping of redirects where the key is the route to match
+	 * @description
+	 * Specify a mapping of redirects where the key is the route to match
 	 * and the value is the path to redirect to.
 	 *
 	 * You can redirect both static and dynamic routes, but only to the same kind of route.
@@ -418,7 +419,8 @@ export interface AstroUserConfig<
 	 * @type {string}
 	 * @default `"."` (current working directory)
 	 * @summary Set the project root. The project root is the directory where your Astro project (and all `src`, `public` and `package.json` files) live.
-	 * @description  You should only provide this option if you run the `astro` CLI commands in a directory other than the project root directory. Usually, this option is provided via the CLI instead of the Astro config file, since Astro needs to know your project root before it can locate your config file.
+	 * @description
+	 * You should only provide this option if you run the `astro` CLI commands in a directory other than the project root directory. Usually, this option is provided via the CLI instead of the Astro config file, since Astro needs to know your project root before it can locate your config file.
 	 *
 	 * If you provide a relative path (ex: `--root: './my-project'`) Astro will resolve it against your current working directory.
 	 *
@@ -444,7 +446,8 @@ export interface AstroUserConfig<
 	 * @name srcDir
 	 * @type {string}
 	 * @default `"./src"`
-	 * @description Set the directory that Astro will read your site from.
+	 * @description
+	 * Set the directory that Astro will read your site from.
 	 *
 	 * The value can be either an absolute file system path or a path relative to the project root.
 	 *
@@ -486,7 +489,8 @@ export interface AstroUserConfig<
 	 * @type {string}
 	 * @default `"./dist"`
 	 * @see build.server
-	 * @description Set the directory that `astro build` writes your final build to.
+	 * @description
+	 * Set the directory that `astro build` writes your final build to.
 	 *
 	 * The value can be either an absolute file system path or a path relative to the project root.
 	 *
@@ -506,7 +510,8 @@ export interface AstroUserConfig<
 	 * @name cacheDir
 	 * @type {string}
 	 * @default `"./node_modules/.astro"`
-	 * @description Set the directory for caching build artifacts. Files in this directory will be used in subsequent builds to speed up the build time.
+	 * @description
+	 * Set the directory for caching build artifacts. Files in this directory will be used in subsequent builds to speed up the build time.
 	 *
 	 * The value can be either an absolute file system path or a path relative to the project root.
 	 *
