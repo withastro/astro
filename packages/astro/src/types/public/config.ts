@@ -1581,6 +1581,7 @@ export interface AstroUserConfig<
 	 * });
 	 * ```
 	 */
+	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
 
 	/**
 	 * @docs
@@ -1668,8 +1669,6 @@ export interface AstroUserConfig<
 	 * @description
 	 * Set custom HTTP response headers to be sent in `astro dev` and `astro preview`.
 	 */
-
-	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
 
 	/**
 	 * @docs
@@ -3007,6 +3006,11 @@ export interface AstroUserConfig<
 	 *
 	 * See our guide for more information on [using custom fonts in Astro](https://docs.astro.build/en/guides/fonts/).
 	 */
+	fonts?: [TFontProviders] extends [never]
+		? Array<FontFamily>
+		: {
+				[K in keyof TFontProviders]: FontFamily<TFontProviders[K]>;
+			};
 
 	/**
 	 * @docs
@@ -3242,12 +3246,6 @@ export interface AstroUserConfig<
 	 * variationSettings: "'xhgt' 0.7"
 	 * ```
 	 */
-
-	fonts?: [TFontProviders] extends [never]
-		? Array<FontFamily>
-		: {
-				[K in keyof TFontProviders]: FontFamily<TFontProviders[K]>;
-			};
 
 	/**
 	 * @docs
