@@ -410,8 +410,6 @@ export interface AstroUserConfig<
 	 *
 	 * If you provide a relative path (ex: `--root: './my-project'`) Astro will resolve it against your current working directory.
 	 *
-	 * #### Examples
-	 *
 	 * ```js
 	 * import { defineConfig } from 'astro/config';
 	 *
@@ -419,8 +417,11 @@ export interface AstroUserConfig<
 	 *   root: './my-project-directory'
 	 * });
 	 * ```
+	 * 
+	 * The following example sets the root directory using the CLI:
+	 * 
 	 * ```bash
-	 * $ astro build --root ./my-project-directory
+	 * astro build --root ./my-project-directory
 	 * ```
 	 */
 	root?: string;
