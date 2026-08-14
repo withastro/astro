@@ -300,6 +300,8 @@ export interface AstroUserConfig<
 	 *
 	 * ```js
 	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
 	 * export default defineConfig({
 	 *   redirects: {
 	 *    '/old': '/new',
@@ -326,6 +328,8 @@ export interface AstroUserConfig<
 	 *
 	 * ```js
 	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
 	 * export default defineConfig({
 	 *   redirects: {
 	 *     '/other': {
@@ -654,6 +658,8 @@ export interface AstroUserConfig<
 	 *
 	 * ```js
 	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
 	 * export default defineConfig({
 	 *   output: "server",
 	 *   security: {
@@ -758,6 +764,8 @@ export interface AstroUserConfig<
 		 *
 		 * ```js
 		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
 		 * export default defineConfig({
 		 *   security: {
 		 *     actionBodySizeLimit: 10 * 1024 * 1024 // 10 MB
@@ -783,6 +791,8 @@ export interface AstroUserConfig<
 		 *
 		 * ```js
 		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
 		 * export default defineConfig({
 		 *   security: {
 		 *     serverIslandBodySizeLimit: 10 * 1024 * 1024 // 10 MB
@@ -2714,6 +2724,8 @@ export interface AstroUserConfig<
 		 *
 		 * ```js
 		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
 		 * export default defineConfig({
 		 *   i18n: {
 		 *     defaultLocale: "en",
@@ -2747,6 +2759,8 @@ export interface AstroUserConfig<
 		 *
 		 * ```js
 		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
 		 * export default defineConfig({
 		 *   i18n: {
 		 *     defaultLocale: "en",
@@ -2764,6 +2778,8 @@ export interface AstroUserConfig<
 		 *
 		 * ```js
 		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
 		 * export default defineConfig({
 		 *   i18n: {
 		 *     defaultLocale: "en",
@@ -2795,6 +2811,8 @@ export interface AstroUserConfig<
 					 *
 					 * ```js
 					 * // astro.config.mjs
+					 * import { defineConfig } from 'astro/config';
+					 *
 					 * export default defineConfig({
 					 *   i18n: {
 					 *     defaultLocale: "en",
@@ -2823,6 +2841,8 @@ export interface AstroUserConfig<
 					 * Set `redirectToDefaultLocale: true` to enable this automatic redirection at the root of your site:
 					 * ```js
 					 * // astro.config.mjs
+					 * import { defineConfig } from 'astro/config';
+					 *
 					 * export default defineConfig({
 					 *   i18n:{
 					 *     defaultLocale: "en",
@@ -2857,6 +2877,8 @@ export interface AstroUserConfig<
 					 *
 					 * ```js
 					 * //astro.config.mjs
+					 * import { defineConfig } from 'astro/config';
+					 *
 					 * export default defineConfig({
 					 *   i18n: {
 					 *     defaultLocale: "en",
