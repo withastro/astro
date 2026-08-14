@@ -32,7 +32,7 @@
     "test": "astro-scripts test \"test/*.test.js\""
   },
   "dependencies": {
-    "node-appwrite": "https://pkg.vc/-/@appwrite/node-appwrite@7c1fc09"
+    "node-appwrite": "^28.0.0"
   },
   "peerDependencies": {
     "astro": "^7.0.0"
