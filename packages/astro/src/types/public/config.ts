@@ -1722,7 +1722,7 @@ export interface AstroUserConfig<
 	 * import vercel from '@astrojs/vercel'
 	 *
 	 * export default defineConfig({
-	 *   adapter: vercel()
+	 *   adapter: vercel(),
 	 *   session: {
 	 *     driver: sessionDrivers.redis({
 	 *       url: process.env.REDIS_URL
@@ -2569,7 +2569,7 @@ export interface AstroUserConfig<
 		 * 		defaultLocale: "en",
 		 * 		locales: ["en", "fr", "pt-br", "es"],
 		 * 		fallback: {
-		 * 			pt: "es",
+		 * 		  "pt-br": "es",
 		 * 		  fr: "en"
 		 * 		}
 		 * 	}
@@ -2749,7 +2749,9 @@ export interface AstroUserConfig<
 		 * 	 i18n: {
 		 *     defaultLocale: "en",
 		 *     locales: ["en", "fr", "pt-br", "es"],
-		 *     prefixDefaultLocale: false,
+		 *     routing: {
+		 *       prefixDefaultLocale: false,
+		 *     },
 		 *     domains: {
 		 *       fr: "https://fr.example.com",
 		 *       es: "https://example.es"
