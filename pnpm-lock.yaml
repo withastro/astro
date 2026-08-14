@@ -4554,6 +4554,22 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/appwrite:
+    dependencies:
+      node-appwrite:
+        specifier: https://pkg.vc/-/@appwrite/node-appwrite@7c1fc09
+        version: https://pkg.vc/-/@appwrite/node-appwrite@7c1fc09
+    devDependencies:
+      '@types/node':
+        specifier: ^22.19.0
+        version: 22.19.19
+      astro:
+        specifier: workspace:*
+        version: link:../../astro
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
+
   packages/integrations/cloudflare:
     dependencies:
       '@astrojs/internal-helpers':
@@ -13713,6 +13729,10 @@ packages:
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
 
+  node-appwrite@https://pkg.vc/-/@appwrite/node-appwrite@7c1fc09:
+    resolution: {integrity: sha512-tjXlc70/tstvyZTQZHIekUldV/dQPPFNttvC5syBaCzkEC457Jg6C73NdVqioUl11ZNLSdfUdd/7oQAB61olZw==, tarball: https://pkg.vc/-/@appwrite/node-appwrite@7c1fc09}
+    version: 27.1.0
+
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
@@ -15413,6 +15433,10 @@ packages:
 
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
+
+  undici@6.28.0:
+    resolution: {integrity: sha512-LIY910g9TI13YS95lrMFrs8Rm/u/irgHeTWoKCoteeJ04CUJ92eEfj0rVn+7VKMPBpUPiUoBKfhNyLI23EE/KA==}
+    engines: {node: '>=18.17'}
 
   undici@7.24.8:
     resolution: {integrity: sha512-6KQ/+QxK49Z/p3HO6E5ZCZWNnCasyZLa5ExaVYyvPxUwKtbCPMKELJOqh7EqOle0t9cH/7d2TaaTRRa6Nhs4YQ==}
@@ -23689,6 +23713,11 @@ snapshots:
 
   node-addon-api@7.1.1: {}
 
+  node-appwrite@https://pkg.vc/-/@appwrite/node-appwrite@7c1fc09:
+    dependencies:
+      json-bigint: 1.0.0
+      undici: 6.28.0
+
   node-domexception@1.0.0: {}
 
   node-fetch-native@1.6.7: {}
@@ -25714,6 +25743,8 @@ snapshots:
   undici-types@6.21.0: {}
 
   undici-types@7.16.0: {}
+
+  undici@6.28.0: {}
 
   undici@7.24.8: {}
 

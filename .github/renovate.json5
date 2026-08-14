@@ -60,6 +60,12 @@
 
     //#region Adapters
     {
+      "groupName": "@astrojs/appwrite",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["packages/integrations/appwrite/**"]
+    },
+    {
       "groupName": "@astrojs/cloudflare",
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["minor", "patch"],

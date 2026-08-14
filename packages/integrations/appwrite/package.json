@@ -1,0 +1,48 @@
+{
+  "name": "@astrojs/appwrite",
+  "description": "Route caching for Astro sites hosted on Appwrite",
+  "version": "0.0.0",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/integrations/appwrite"
+  },
+  "keywords": [
+    "withastro",
+    "astro-adapter",
+    "appwrite"
+  ],
+  "bugs": "https://github.com/withastro/astro/issues",
+  "exports": {
+    ".": "./dist/index.js",
+    "./cache": "./dist/cache/index.js",
+    "./cache/provider": "./dist/cache/provider.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/*.test.js\""
+  },
+  "dependencies": {
+    "node-appwrite": "https://pkg.vc/-/@appwrite/node-appwrite@7c1fc09"
+  },
+  "peerDependencies": {
+    "astro": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.6",
+    "astro": "workspace:*",
+    "astro-scripts": "workspace:*"
+  },
+  "publishConfig": {
+    "provenance": true
+  }
+}
