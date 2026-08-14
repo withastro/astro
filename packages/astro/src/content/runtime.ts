@@ -603,12 +603,7 @@ export function resolveEntryData<T extends Record<string, unknown>>(
 	entry: DataEntry<T>,
 	imageAssetMap?: Map<string, ImageMetadata>,
 ): T {
-	return updateImageReferencesInData(
-		entry.data,
-		entry.filePath,
-		imageAssetMap,
-		entry.imageImports,
-	);
+	return updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap, entry.imageImports);
 }
 
 export async function renderEntry(entry: DataEntry) {
