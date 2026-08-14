@@ -114,7 +114,7 @@ export type ServerConfig = {
 	 * ```js
 	 * {
 	 *   server: {
-	 *   	allowedHosts: ['staging.example.com', 'qa.example.com']
+	 *     allowedHosts: ['staging.example.com', 'qa.example.com']
 	 *   }
 	 * }
 	 * ```
@@ -220,8 +220,8 @@ export interface AstroUserConfig<
 	 * In the example below, the values of `import.meta.env.BASE_URL` and `config.base` when processed will both be `/docs`:
 	 * ```js
 	 * {
-	 * 	 base: '/docs/',
-	 * 	 trailingSlash: "never"
+	 *   base: '/docs/',
+	 *   trailingSlash: "never"
 	 * }
 	 * ```
 	 *
@@ -229,8 +229,8 @@ export interface AstroUserConfig<
 	 *
 	 * ```js
 	 * {
-	 * 	 base: '/docs',
-	 * 	 trailingSlash: "always"
+	 *   base: '/docs',
+	 *   trailingSlash: "always"
 	 * }
 	 * ```
 	 */
@@ -287,7 +287,7 @@ export interface AstroUserConfig<
 	 *      destination: 'https://example.com/news'
 	 *    },
 	 *    // '/product1/', '/product1' // Note, this is not supported
-	 * 	}
+	 *   }
 	 * })
 	 * ```
 	 *
@@ -1419,9 +1419,9 @@ export interface AstroUserConfig<
 		 *
 		 * ```js
 		 * {
-		 * 	build: {
-		 *		inlineStylesheets: `never`,
-		 * 	},
+		 *   build: {
+		 *     inlineStylesheets: `never`,
+		 *   },
 		 * }
 		 * ```
 		 */
@@ -1523,7 +1523,7 @@ export interface AstroUserConfig<
 	 * ```js
 	 * {
 	 *   server: {
-	 *   	allowedHosts: ['staging.example.com', 'qa.example.com']
+	 *     allowedHosts: ['staging.example.com', 'qa.example.com']
 	 *   }
 	 * }
 	 * ```
@@ -1894,7 +1894,7 @@ export interface AstroUserConfig<
 				 *
 				 * ```js
 				 * prefetch: {
-				 * 	prefetchAll: true
+				 *   prefetchAll: true
 				 * }
 				 * ```
 				 *
@@ -1948,9 +1948,9 @@ export interface AstroUserConfig<
 		 *   image: {
 		 *     // Example: Use a custom image endpoint at `/custom_endpoint`
 		 *     endpoint: {
-		 * 		 	route: '/custom_endpoint',
-		 * 		 	entrypoint: 'src/my_endpoint.ts',
-		 * 		},
+		 *       route: '/custom_endpoint',
+		 *       entrypoint: 'src/my_endpoint.ts',
+		 *     },
 		 *   },
 		 * }
 		 * ```
@@ -1978,18 +1978,18 @@ export interface AstroUserConfig<
 		 *   image: {
 		 *     // Example: Enable the Sharp-based image service with a custom config
 		 *     service: {
-		 * 			 entrypoint: 'astro/assets/services/sharp',
-		 * 			 config: {
-		 * 				 limitInputPixels: false,
-		 * 				 webp: {
-		 * 					 effort: 6,
-		 * 					 alphaQuality: 80,
-		 * 				 },
-		 * 				 jpeg: {
-		 * 					 mozjpeg: true,
-		 * 				 },
+		 *       entrypoint: 'astro/assets/services/sharp',
+		 *       config: {
+		 *         limitInputPixels: false,
+		 *         webp: {
+		 *           effort: 6,
+		 *           alphaQuality: 80,
+		 *         },
+		 *         jpeg: {
+		 *           mozjpeg: true,
+		 *         },
 		 *       },
-		 * 		 },
+		 *     },
 		 *   },
 		 * }
 		 * ```
@@ -2565,14 +2565,14 @@ export interface AstroUserConfig<
 		 *
 		 * ```js
 		 * export default defineConfig({
-		 * 	i18n: {
-		 * 		defaultLocale: "en",
-		 * 		locales: ["en", "fr", "pt-br", "es"],
-		 * 		fallback: {
-		 * 		  "pt-br": "es",
-		 * 		  fr: "en"
-		 * 		}
-		 * 	}
+		 *   i18n: {
+		 *     defaultLocale: "en",
+		 *     locales: ["en", "fr", "pt-br", "es"],
+		 *     fallback: {
+		 *       "pt-br": "es",
+		 *       fr: "en"
+		 *     }
+		 *   }
 		 * })
 		 * ```
 		 */
@@ -2597,15 +2597,15 @@ export interface AstroUserConfig<
 		 *
 		 * ```js
 		 * export default defineConfig({
-		 * 	i18n: {
-		 * 		defaultLocale: "en",
-		 * 		locales: ["en", "fr"],
-		 * 		routing: {
-		 * 			prefixDefaultLocale: false,
-		 * 			redirectToDefaultLocale: true,
-		 * 			fallbackType: "redirect",
-		 * 		}
-		 * 	}
+		 *   i18n: {
+		 *     defaultLocale: "en",
+		 *     locales: ["en", "fr"],
+		 *     routing: {
+		 *       prefixDefaultLocale: false,
+		 *       redirectToDefaultLocale: true,
+		 *       fallbackType: "redirect",
+		 *     }
+		 *   }
 		 * })
 		 * ```
 		 *
@@ -2613,11 +2613,11 @@ export interface AstroUserConfig<
 		 *
 		 * ```js
 		 * export default defineConfig({
-		 * 	i18n: {
-		 * 		defaultLocale: "en",
-		 * 		locales: ["en", "fr"],
-		 * 		routing: "manual"
-		 * 	}
+		 *   i18n: {
+		 *     defaultLocale: "en",
+		 *     locales: ["en", "fr"],
+		 *     routing: "manual"
+		 *   }
 		 * })
 		 * ```
 		 *
@@ -2643,13 +2643,13 @@ export interface AstroUserConfig<
 					 *
 					 * ```js
 					 * export default defineConfig({
-					 * 	i18n: {
-					 * 		defaultLocale: "en",
-					 * 		locales: ["en", "fr", "pt-br", "es"],
-					 * 		routing: {
-					 * 			prefixDefaultLocale: true,
-					 * 		}
-					 * 	}
+					 *   i18n: {
+					 *     defaultLocale: "en",
+					 *     locales: ["en", "fr", "pt-br", "es"],
+					 *     routing: {
+					 *       prefixDefaultLocale: true,
+					 *     }
+					 *   }
 					 * })
 					 * ```
 					 */
@@ -2673,7 +2673,7 @@ export interface AstroUserConfig<
 					 * export default defineConfig({
 					 *   i18n:{
 					 *     defaultLocale: "en",
-					 * 		locales: ["en", "fr"],
+					 *     locales: ["en", "fr"],
 					 *     routing: {
 					 *       prefixDefaultLocale: true,
 					 *       redirectToDefaultLocale: true
@@ -2705,15 +2705,15 @@ export interface AstroUserConfig<
 					 * ```js
 					 * //astro.config.mjs
 					 * export default defineConfig({
-					 * 	 i18n: {
+					 *   i18n: {
 					 *     defaultLocale: "en",
 					 *     locales: ["en", "fr"],
 					 *     routing: {
-					 *     	prefixDefaultLocale: false,
-					 *     	fallbackType: "rewrite",
+					 *       prefixDefaultLocale: false,
+					 *       fallbackType: "rewrite",
 					 *     },
 					 *     fallback: {
-					 *     	fr: "en",
+					 *       fr: "en",
 					 *     }
 					 *   },
 					 * })
@@ -2741,12 +2741,12 @@ export interface AstroUserConfig<
 		 * ```js
 		 * //astro.config.mjs
 		 * export default defineConfig({
-		 * 	 site: "https://example.com",
-		 * 	 output: "server", // required, with no prerendered pages
-		 * 	 adapter: node({
-		 * 	   mode: 'standalone',
-		 * 	 }),
-		 * 	 i18n: {
+		 *   site: "https://example.com",
+		 *   output: "server", // required, with no prerendered pages
+		 *   adapter: node({
+		 *     mode: 'standalone',
+		 *   }),
+		 *   i18n: {
 		 *     defaultLocale: "en",
 		 *     locales: ["en", "fr", "pt-br", "es"],
 		 *     routing: {
@@ -3234,9 +3234,9 @@ export interface AstroUserConfig<
 		 *     prefetchAll: true,
 		 *     defaultStrategy: 'viewport',
 		 *   },
-		 * 	experimental: {
-		 * 		clientPrerender: true,
-		 * 	},
+		 *   experimental: {
+		 *     clientPrerender: true,
+		 *   },
 		 * }
 		 * ```
 		 *
