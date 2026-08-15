@@ -3,7 +3,7 @@ import { normalizeTags } from 'astro/cache/provider-utils';
 import type { AppwriteCacheConfig } from './index.js';
 
 export const CACHE_KEY_MAX_LENGTH = 128;
-const UNSAFE_KEY_CHARS = /[^A-Za-z0-9\-_.:~!$&'()*+;=@/]+/gu;
+const UNSAFE_KEY_CHARS = /[^\w\-.:~!$&'()*+;=@/]+/gu;
 
 const warned = new Set<string>();
 

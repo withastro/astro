@@ -14,7 +14,7 @@ let received = [];
 // Started before the suite is declared, so that a provider built at declaration
 // time can never fall back to the real Appwrite endpoint.
 const { server, endpoint } = await (async () => {
-	const server = createServer((request, response) => {
+	const stub = createServer((request, response) => {
 		const chunks = [];
 		request.on('data', (chunk) => chunks.push(chunk));
 		request.on('end', () => {
@@ -45,9 +45,9 @@ const { server, endpoint } = await (async () => {
 		});
 	});
 
-	await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+	await new Promise((resolve) => stub.listen(0, '127.0.0.1', resolve));
 
-	return { server, endpoint: `http://127.0.0.1:${server.address().port}/v1` };
+	return { server: stub, endpoint: `http://127.0.0.1:${stub.address().port}/v1` };
 })();
 
 after(() => server.close());
