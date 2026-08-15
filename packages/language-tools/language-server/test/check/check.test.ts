@@ -78,7 +78,16 @@ describe('AstroCheck with project references', async () => {
 	});
 
 	it('Reports errors from referenced projects', async () => {
-		assert.strictEqual(result.errors, 1);
+		assert.strictEqual(result.errors, 2);
+	});
+
+	it('Includes .astro files from referenced projects', async () => {
+		const astroFile = result.fileResult.find((file) => file.fileUrl.pathname.endsWith('.astro'));
+		assert.notStrictEqual(
+			astroFile,
+			undefined,
+			'Expected an .astro file from a referenced tsconfig to be checked',
+		);
 	});
 });
 

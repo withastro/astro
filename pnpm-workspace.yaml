@@ -101,3 +101,6 @@ allowBuilds:
   protobufjs: false
   sharp: false
   workerd: false
+
+patchedDependencies:
+  '@volar/kit@2.4.28': patches/@volar__kit@2.4.28.patch
