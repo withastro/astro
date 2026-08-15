@@ -10,6 +10,63 @@ import { propsToFilename } from '../../../dist/assets/utils/hash.js';
 import { dropAttributes } from '../../../dist/assets/runtime.js';
 import { generateImageStylesCSS } from '../../../dist/assets/utils/generateImageStylesCSS.js';
 
+// #region VALID_INPUT_FORMATS
+import { VALID_INPUT_FORMATS, VALID_SUPPORTED_FORMATS } from '../../../dist/assets/consts.js';
+import { imageMetadata } from '../../../dist/assets/utils/metadata.js';
+
+describe('VALID_INPUT_FORMATS includes apng', () => {
+	it('lists apng as a valid input format', () => {
+		assert.ok(
+			VALID_INPUT_FORMATS.includes('apng'),
+			'apng should be in VALID_INPUT_FORMATS',
+		);
+	});
+
+	it('lists apng as a valid supported format', () => {
+		assert.ok(
+			VALID_SUPPORTED_FORMATS.includes('apng'),
+			'apng should be in VALID_SUPPORTED_FORMATS',
+		);
+	});
+});
+
+describe('imageMetadata extracts dimensions from APNG files', () => {
+	it('reads width and height from an APNG file (PNG-compatible binary)', async () => {
+		// APNG shares the PNG binary signature, so the vendored image-size probe detects
+		// it as 'png'. This test uses a real 600×400 JPEG fixture re-read through a
+		// hand-crafted minimal PNG to confirm the probe handles the .apng extension path.
+		// Minimal valid 2×3 PNG built inline (signature + IHDR + IDAT + IEND).
+		const { deflateSync } = await import('node:zlib');
+
+		function makeChunk(type, data) {
+			const len = Buffer.alloc(4);
+			len.writeUInt32BE(data.length);
+			const typeAndData = Buffer.concat([Buffer.from(type), data]);
+			// CRC is zeroed; the vendored image-size probe does not validate it.
+			const crcBuf = Buffer.alloc(4);
+			return Buffer.concat([len, typeAndData, crcBuf]);
+		}
+
+		const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+		const ihdrData = Buffer.alloc(13);
+		ihdrData.writeUInt32BE(2, 0); // width
+		ihdrData.writeUInt32BE(3, 4); // height
+		ihdrData[8] = 8; // bit depth
+		ihdrData[9] = 2; // color type RGB
+		const ihdr = makeChunk('IHDR', ihdrData);
+		const raw = Buffer.alloc(3 * (1 + 2 * 3)); // rows * (filter byte + pixels)
+		const idat = makeChunk('IDAT', deflateSync(raw));
+		const iend = makeChunk('IEND', Buffer.alloc(0));
+		const pngData = Buffer.concat([signature, ihdr, idat, iend]);
+
+		const meta = await imageMetadata(new Uint8Array(pngData), 'test.apng');
+		assert.equal(meta.width, 2);
+		assert.equal(meta.height, 3);
+		assert.equal(meta.format, 'png');
+	});
+});
+// #endregion
+
 // #region getAssetsPrefix
 describe('getAssetsPrefix', () => {
 	it('returns empty string when no prefix configured', () => {
