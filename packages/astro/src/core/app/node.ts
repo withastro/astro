@@ -75,12 +75,7 @@ export function createRequestFromNodeRequest(
 					? `localhost:${serverPort}`
 					: 'localhost';
 
-	let url: URL;
-	try {
-		url = new URL(`${protocol}://${hostname}${req.url}`);
-	} catch {
-		url = new URL(`${protocol}://${hostname}`);
-	}
+	const url = buildRequestUrl(protocol, hostname, req.url, serverPort);
 
 	const options: RequestInit = {
 		method: req.method || 'GET',
@@ -175,15 +170,7 @@ export function createRequest(
 		validated.port ??
 		(!validated.host && !validatedHostname && serverPort ? String(serverPort) : undefined);
 
-	let url: URL;
-	try {
-		const hostnamePort = getHostnamePort(hostname, port);
-		url = new URL(`${protocol}://${hostnamePort}${req.url}`);
-	} catch {
-		// Fallback using validated hostname to prevent SSRF
-		const hostnamePort = getHostnamePort(hostname, port);
-		url = new URL(`${protocol}://${hostnamePort}`);
-	}
+	const url = buildRequestUrl(protocol, getHostnamePort(hostname, port), req.url, serverPort);
 
 	const options: RequestInit = {
 		method: req.method || 'GET',
@@ -399,6 +386,33 @@ function getHostnamePort(hostname: string | string[] | undefined, port?: string)
 	const portInHostname = typeof hostname === 'string' && /:\d+$/.test(hostname);
 	const hostnamePort = portInHostname ? hostname : `${hostname}${port ? `:${port}` : ''}`;
 	return hostnamePort;
+}
+
+/**
+ * Builds the request URL from a client-supplied host, which may contain an
+ * unparseable port (e.g. `example.com:65536`). Parsing degrades in steps so
+ * that construction always yields a URL:
+ *
+ * 1. Full URL including the request path.
+ * 2. Origin only, dropping a request path that alone made the URL invalid.
+ * 3. A host the server controls, when the host itself is unparseable — using
+ *    the listening port when known so the origin still carries the right port.
+ */
+function buildRequestUrl(
+	protocol: string,
+	hostnamePort: string,
+	requestPath: string | undefined,
+	serverPort?: number,
+): URL {
+	const path = requestPath ?? '';
+	if (URL.canParse(`${protocol}://${hostnamePort}${path}`)) {
+		return new URL(`${protocol}://${hostnamePort}${path}`);
+	}
+	if (URL.canParse(`${protocol}://${hostnamePort}`)) {
+		return new URL(`${protocol}://${hostnamePort}`);
+	}
+	const fallbackHost = serverPort ? `localhost:${serverPort}` : 'localhost';
+	return new URL(`${protocol}://${fallbackHost}`);
 }
 
 function makeRequestHeaders(req: NodeRequest): Headers {

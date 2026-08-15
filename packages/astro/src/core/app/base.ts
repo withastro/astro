@@ -5,10 +5,8 @@ import {
 } from '@astrojs/internal-helpers/path';
 import { matchPattern } from '@astrojs/internal-helpers/remote';
 import { computePathnameFromDomain } from '../i18n/domain.js';
-import { isLocalizedErrorRoute } from '../../i18n/error-routes.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RemotePattern, RouteData } from '../../types/public/index.js';
-import { type Pipeline, PipelineFeatures } from '../base-pipeline.js';
 import { ASTRO_ERROR_HEADER, clientAddressSymbol } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 
@@ -16,14 +14,17 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { AstroIntegrationLogger, type AstroLogger } from '../logger/core.js';
 
 import { DefaultFetchHandler } from '../fetch/default-handler.js';
+import { getUsedFeatures, FetchFeatures } from '../fetch/features.js';
+import { FetchState } from '../fetch/fetch-state.js';
 import type { FetchHandler } from '../fetch/types.js';
-import { appSymbol } from '../constants.js';
-import { DefaultErrorHandler } from '../errors/default-handler.js';
-import type { ErrorHandler } from '../errors/handler.js';
-import { isRoute404, isRoute500 } from '../routing/internal/route-errors.js';
+import { type ErrorHandler, renderErrorPage } from '../errors/handler.js';
+import { getLogger, getResolvedLogger } from '../logger/manifest-logger.js';
+import { handleRequest } from '../routing/handler.js';
+import { getDefaultStatusCode } from '../routing/helpers.js';
+import { matchRequest } from '../routing/match-request.js';
+import { getRouteTable, matchRoute, updateRouteTable } from '../routing/route-table.js';
 import { setRenderOptions } from './render-options.js';
 import type { WaitUntilHook } from '../wait-until.js';
-import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
 
 export interface DevMatch {
@@ -124,12 +125,16 @@ type ErrorPagePath =
 	| `${string}404.html`
 	| `${string}500.html`;
 
-export abstract class BaseApp<P extends Pipeline = AppPipeline> {
+export abstract class BaseApp {
 	manifest: SSRManifest;
-	manifestData: { routes: RouteData[] };
-	pipeline: P;
 	#adapterLogger: AstroIntegrationLogger | undefined;
 	baseWithoutTrailingSlash: string;
+	/**
+	 * The streaming flag passed to the constructor, surfaced through the
+	 * protected `resolveStreaming()` hook and fed into the internal
+	 * `FetchState` facade hooks on the fast path.
+	 */
+	#streaming: boolean;
 	/**
 	 * The handler that turns incoming `Request` objects into `Response`s.
 	 * Defaults to a `DefaultFetchHandler` pinned to this app and can be
@@ -153,7 +158,20 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	#featureCheckDone = false;
 
 	get logger(): AstroLogger {
-		return this.pipeline.logger;
+		return getLogger(this.manifest);
+	}
+
+	/**
+	 * Route data derived from the manifest, used for route matching. Reads and
+	 * writes go through the single per-manifest route table, so HMR updates are
+	 * visible to every consumer at once.
+	 */
+	get manifestData(): { routes: RouteData[] } {
+		return getRouteTable(this.manifest);
+	}
+
+	set manifestData(routesList: { routes: RouteData[] }) {
+		updateRouteTable(this.manifest, routesList.routes);
 	}
 
 	get adapterLogger(): AstroIntegrationLogger {
@@ -164,16 +182,36 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		return this.#adapterLogger;
 	}
 
-	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
+	constructor(manifest: SSRManifest, streaming = true) {
 		this.manifest = manifest;
 		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base);
-		this.pipeline = this.createPipeline(streaming, manifest, ...args);
-		// Share the pipeline's manifestData so both BaseApp and the pipeline
-		// see the same routes array (the pipeline constructor already
-		// ensures a 404 fallback route is present).
-		this.manifestData = this.pipeline.manifestData;
+		this.#streaming = streaming;
+		// Warm the route table and logger so first-request latency doesn't
+		// pay for their creation.
+		getRouteTable(manifest);
+		getLogger(manifest);
 		this.#fetchHandler = new DefaultFetchHandler(this);
 		this.#errorHandler = this.createErrorHandler();
+	}
+
+	/**
+	 * Resolves the user-configured logger destination from the manifest and
+	 * returns the logger. Lazy and only resolves once; safe to call before
+	 * the first render (adapters use this to log startup messages through
+	 * the configured destination).
+	 */
+	getLogger(): Promise<AstroLogger> {
+		return getResolvedLogger(this.manifest);
+	}
+
+	/**
+	 * The streaming flag fed into the internal `FetchState` facade hooks on
+	 * the fast path. Returns the constructor flag by
+	 * default; `BuildApp` overrides this to return `undefined` so streaming
+	 * falls through to the environment default (`manifest.serverLike`).
+	 */
+	protected resolveStreaming(): boolean | undefined {
+		return this.#streaming;
 	}
 
 	/**
@@ -187,11 +225,15 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	}
 
 	/**
-	 * Returns the error handler strategy used by this app. Override to
-	 * provide environment-specific behavior (dev overlay, build-time throws, etc.).
+	 * Returns the error handler used by this app. The default is a thin
+	 * bridge over the functional error API — strategy selection (production
+	 * default / dev / build) is environment-driven inside `renderErrorPage`.
+	 * External subclasses can override this to customize error rendering.
 	 */
 	protected createErrorHandler(): ErrorHandler {
-		return new DefaultErrorHandler(this);
+		return {
+			renderError: (request, options) => renderErrorPage(this.manifest, request, options),
+		};
 	}
 
 	public abstract isDev(): boolean;
@@ -232,20 +274,10 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		}
 	}
 
-	/**
-	 * Creates a pipeline by reading the stored manifest
-	 *
-	 * @param streaming
-	 * @param manifest
-	 * @param args
-	 * @private
-	 */
-	abstract createPipeline(streaming: boolean, manifest: SSRManifest, ...args: any[]): P;
-
 	set setManifestData(newManifestData: RoutesList) {
-		this.manifestData = newManifestData;
-		this.pipeline.manifestData = newManifestData;
-		this.pipeline.rebuildRouter();
+		// One atomic table replacement: matcher, 404 fallback,
+		// rewrites, and the `manifestData` accessors all read the same table.
+		updateRouteTable(this.manifest, newManifestData.routes);
 	}
 
 	public removeBase(pathname: string) {
@@ -291,31 +323,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 * @param allowPrerenderedRoutes
 	 */
 	public match(request: Request, allowPrerenderedRoutes = false): RouteData | undefined {
-		const url = new URL(request.url);
-		// ignore requests matching public assets
-		if (this.manifest.assets.has(url.pathname)) return undefined;
-		let pathname = this.computePathnameFromDomain(request);
-		if (!pathname) {
-			pathname = prependForwardSlash(this.removeBase(url.pathname));
-		}
-		const routeData = this.pipeline.matchRoute(this.safeDecodeURI(pathname));
-		if (!routeData) return undefined;
-		if (allowPrerenderedRoutes) {
-			return routeData;
-		}
-		// Prerendered routes are served as static files by the hosting layer.
-		// When the first match is a prerendered *dynamic* route, try to find
-		// a non-prerendered route that can serve this path. Dynamic prerendered
-		// routes only cover their specific static paths, so an SSR route with
-		// the same pattern should handle all other URLs.
-		if (routeData.prerender) {
-			if (routeData.params.length > 0) {
-				const allMatches = this.pipeline.matchAllRoutes(this.safeDecodeURI(pathname));
-				return allMatches.find((r) => !r.prerender);
-			}
-			return undefined;
-		}
-		return routeData;
+		return matchRequest(this.manifest, request, allowPrerenderedRoutes);
 	}
 
 	/**
@@ -355,7 +363,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		// Lazily resolve the logger destination from the manifest on the first request.
 		// This swaps the user-configured logger destination (if any) into the shared
 		// AstroLogger instance before any logging occurs.
-		await this.pipeline.getLogger();
+		await getResolvedLogger(this.manifest);
 
 		if (routeData) {
 			this.logger.debug(
@@ -390,7 +398,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		if (!routeData) {
 			const domainPathname = this.computePathnameFromDomain(request);
 			if (domainPathname) {
-				routeData = this.pipeline.matchRoute(this.safeDecodeURI(domainPathname));
+				routeData = matchRoute(this.manifest, this.safeDecodeURI(domainPathname));
 			}
 		}
 		const resolvedOptions: ResolvedRenderOptions = {
@@ -404,13 +412,24 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 		let response: Response;
 		if (this.#fetchHandler instanceof DefaultFetchHandler) {
-			// Fast path: pass options directly, skip Reflect.set/get round-trip
-			Reflect.set(request, appSymbol, this);
-			response = await this.#fetchHandler.renderWithOptions(request, resolvedOptions);
+			// Fast path: the facade constructs the state itself so it can pass
+			// the internal facade hooks — per-App, per-render-call instance
+			// behavior (late-bound so instance-property reassignments and
+			// subclass overrides keep working). Nothing is stamped on the
+			// request.
+			response = await handleRequest(
+				new FetchState(this.manifest, request, resolvedOptions, {
+					streaming: this.resolveStreaming(),
+					renderError: (req, opts) => this.renderError(req, opts),
+					logRequest: (payload) => this.logThisRequest(payload),
+				}),
+			);
 		} else {
-			// User-provided fetch handler: stamp options + app on the request
+			// User-provided fetch handler: only the resolved render() inputs
+			// ride the `astro.renderOptions` request symbol — no manifest, no
+			// callbacks, nothing internal. The handler's own
+			// `new FetchState(request)` resolves the ambient manifest.
 			setRenderOptions(request, resolvedOptions);
-			Reflect.set(request, appSymbol, this);
 			response = await this.#fetchHandler.fetch(request);
 		}
 		this.#warnMissingFeatures();
@@ -472,27 +491,27 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		const manifest = this.manifest;
 		const missing: string[] = [];
 
-		const used = this.pipeline.usedFeatures;
+		const used = getUsedFeatures(this.manifest);
 
 		if (
 			manifest.routes.some((r) => r.routeData.type === 'redirect') &&
-			!(used & PipelineFeatures.redirects)
+			!(used & FetchFeatures.redirects)
 		) {
 			missing.push('redirects');
 		}
-		if (manifest.sessionConfig && !(used & PipelineFeatures.sessions)) {
+		if (manifest.sessionConfig && !(used & FetchFeatures.sessions)) {
 			missing.push('sessions');
 		}
-		if (manifest.actions && !(used & PipelineFeatures.actions)) {
+		if (manifest.actions && !(used & FetchFeatures.actions)) {
 			missing.push('actions');
 		}
-		if (manifest.middleware && !(used & PipelineFeatures.middleware)) {
+		if (manifest.middleware && !(used & FetchFeatures.middleware)) {
 			missing.push('middleware');
 		}
-		if (manifest.i18n && manifest.i18n.strategy !== 'manual' && !(used & PipelineFeatures.i18n)) {
+		if (manifest.i18n && manifest.i18n.strategy !== 'manual' && !(used & FetchFeatures.i18n)) {
 			missing.push('i18n');
 		}
-		if (manifest.cacheConfig && !(used & PipelineFeatures.cache)) {
+		if (manifest.cacheConfig && !(used & FetchFeatures.cache)) {
 			missing.push('cache');
 		}
 
@@ -500,32 +519,17 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			this.logger.warn(
 				'router',
 				`Your project uses ${feature}, but your custom src/fetch.ts does not call the ${feature}() handler. ` +
-					`This feature will not work unless you add it to your fetch.ts pipeline.`,
+					`This feature will not work unless your fetch handler calls it.`,
 			);
 		}
 	}
 
 	getDefaultStatusCode(routeData: RouteData, pathname: string): number {
-		if (!routeData.pattern.test(pathname)) {
-			for (const fallbackRoute of routeData.fallbackRoutes) {
-				if (fallbackRoute.pattern.test(pathname)) {
-					return 302;
-				}
-			}
-		}
-		const route = removeTrailingForwardSlash(routeData.route);
-		const locales = this.manifest.i18n?.locales;
-		if (isRoute404(route) || isLocalizedErrorRoute(route, 404, locales)) {
-			return 404;
-		}
-		if (isRoute500(route) || isLocalizedErrorRoute(route, 500, locales)) {
-			return 500;
-		}
-		return 200;
+		return getDefaultStatusCode(this.manifest, routeData, pathname);
 	}
 
 	public getManifest() {
-		return this.pipeline.manifest;
+		return this.manifest;
 	}
 
 	logThisRequest({

@@ -15,7 +15,6 @@ export {
 	serializeRouteData,
 	serializeRouteInfo,
 } from '../manifest.js';
-export { AppPipeline } from '../pipeline.js';
 export {
 	beginContentEntryCollection,
 	endContentEntryCollection,

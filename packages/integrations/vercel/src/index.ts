@@ -127,6 +127,7 @@ function getAdapter({
 		adapterFeatures: {
 			buildOutput,
 			middlewareMode,
+			preserveBuildServerDir: true,
 			staticHeaders,
 		},
 		supportedAstroFeatures: {
@@ -266,6 +267,7 @@ export default function vercelAdapter({
 	let _buildTempFolder: URL;
 	let _serverEntry: string;
 	let _middlewareEntryPoint: URL | undefined;
+	let _hasServerBuild = false;
 	let _routeToHeaders: RouteToHeaders | undefined = undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
@@ -295,6 +297,9 @@ export default function vercelAdapter({
 					build: {
 						format: 'directory',
 						redirects: false,
+						...(config.output === 'static'
+							? { server: new URL('./.vercel/output/server/', config.root) }
+							: {}),
 					},
 					integrations: [
 						{
@@ -393,10 +398,12 @@ export default function vercelAdapter({
 				_serverEntry = config.build.serverEntry;
 			},
 			'astro:build:start': async () => {
+				_hasServerBuild = false;
 				// Ensure to have `.vercel/output` empty.
 				await emptyDir(new URL('./.vercel/output/', _config.root));
 			},
 			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
+				_hasServerBuild = true;
 				_middlewareEntryPoint = middlewareEntryPoint;
 			},
 
@@ -405,6 +412,7 @@ export default function vercelAdapter({
 			},
 			'astro:build:done': async ({ logger }: HookParameters<'astro:build:done'>) => {
 				const outDir = new URL('./.vercel/output/', _config.root);
+
 				if (staticDir) {
 					if (existsSync(staticDir)) {
 						await emptyDir(staticDir);
@@ -428,9 +436,9 @@ export default function vercelAdapter({
 					middlewarePath?: string;
 				}> = [];
 
-				if (_buildOutput === 'server') {
+				if (_hasServerBuild) {
 					// Merge any includes from `vite.assetsInclude
-					if (_config.vite.assetsInclude) {
+					if (_buildOutput === 'server' && _config.vite.assetsInclude) {
 						const mergeGlobbedIncludes = (globPattern: unknown) => {
 							if (typeof globPattern === 'string') {
 								const entries = globSync(globPattern).map((p) => pathToFileURL(p));
@@ -460,7 +468,7 @@ export default function vercelAdapter({
 					);
 
 					const entryFile = new URL(_serverEntry, _buildTempFolder);
-					if (isr) {
+					if (_buildOutput === 'server' && isr) {
 						const isrConfig = typeof isr === 'object' ? isr : {};
 						await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
 						if (isrConfig.exclude?.length) {
@@ -538,7 +546,7 @@ export default function vercelAdapter({
 						continue: true,
 					},
 				];
-				if (_buildOutput === 'server') {
+				if (_hasServerBuild) {
 					finalRoutes.push(...routeDefinitions);
 				}
 
@@ -638,7 +646,7 @@ export default function vercelAdapter({
 				});
 
 				// Remove temporary folder
-				if (_buildOutput === 'server') {
+				if (_hasServerBuild) {
 					await removeDir(_buildTempFolder);
 				}
 			},
