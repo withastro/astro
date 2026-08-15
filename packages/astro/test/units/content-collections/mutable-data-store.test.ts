@@ -180,6 +180,69 @@ describe('MutableDataStore', () => {
 		assert.deepEqual(new Set(entry.assetImports), new Set(['./hero.png', './a.png', './icon.png']));
 	});
 
+	it('removes stale module imports when an entry is deleted', async () => {
+		const modulesFilePath = path.join(tmpDir, 'content-modules-delete.mjs');
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('docs');
+
+		scoped.set({
+			id: 'page-a',
+			data: {},
+			filePath: 'src/content/docs/page-a.mdx',
+			deferredRender: true,
+		});
+
+		scoped.set({
+			id: 'page-b',
+			data: {},
+			filePath: 'src/content/docs/page-b.mdx',
+			deferredRender: true,
+		});
+
+		await store.writeModuleImports(modulesFilePath);
+		const contentBefore = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(contentBefore.includes('page-a.mdx'), 'should contain page-a before deletion');
+		assert.ok(contentBefore.includes('page-b.mdx'), 'should contain page-b before deletion');
+
+		scoped.delete('page-a');
+		await store.writeModuleImports(modulesFilePath);
+		await store.waitUntilSaveComplete();
+
+		const contentAfter = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(
+			!contentAfter.includes('page-a.mdx'),
+			'should NOT contain page-a after the entry is deleted',
+		);
+		assert.ok(contentAfter.includes('page-b.mdx'), 'should still contain page-b');
+	});
+
+	it('removes stale module imports when a collection is cleared', async () => {
+		const modulesFilePath = path.join(tmpDir, 'content-modules-clear.mjs');
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('docs');
+
+		scoped.set({
+			id: 'page-1',
+			data: {},
+			filePath: 'src/content/docs/page-1.mdx',
+			deferredRender: true,
+		});
+
+		await store.writeModuleImports(modulesFilePath);
+		const contentBefore = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(contentBefore.includes('page-1.mdx'), 'should contain page-1 before clear');
+
+		scoped.clear();
+		await store.writeModuleImports(modulesFilePath);
+		await store.waitUntilSaveComplete();
+
+		const contentAfter = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(
+			!contentAfter.includes('page-1.mdx'),
+			'should NOT contain page-1 after the collection is cleared',
+		);
+	});
+
 	it('does not set imageImports when the entry has no images', () => {
 		const store = new MutableDataStore();
 		const scoped = store.scopedStore('blog');
