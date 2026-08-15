@@ -21,7 +21,9 @@ import { env as globalEnv } from 'cloudflare:workers';
 import type { FetchState } from 'astro/fetch';
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
+import { cacheProviderEnabled } from 'virtual:astro-cloudflare:config';
 import { createGetEnv } from './utils/env.js';
+import { applyCloudflareResponseHeaders } from './utils/response.js';
 import {
 	injectSessionBinding,
 	matchStaticAsset,
@@ -65,10 +67,21 @@ export async function cf(
 	const staticAsset = matchStaticAsset(app!.manifest, state.request.url, env);
 	if (staticAsset) return staticAsset;
 
-	if (!state.routeData) {
+	if (!state.hasMatchedRoute()) {
 		const asset = await fallbackToAssets(state.request.url, env);
 		if (asset) return asset;
 	}
+
+	let completedResponse: Response | undefined;
+	state.addResponseFinalizer((response) => {
+		if (response === completedResponse) return response;
+		completedResponse = applyCloudflareResponseHeaders(
+			response,
+			state.cookies.consume(),
+			cacheProviderEnabled,
+		);
+		return completedResponse;
+	});
 
 	Object.assign(state.locals, createLocals(ctx));
 	state.clientAddress = getClientAddress(state.request);

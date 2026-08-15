@@ -66,24 +66,25 @@ export async function handleRequest(state: FetchState): Promise<Response> {
 	// any routing or middleware runs. If we let them through, middleware
 	// could check one path while a later decode turns it into a different
 	// route.
+	let response: Response;
 	if (state.invalidEncoding) {
-		return new Response(null, { status: 400, statusText: 'Bad Request' });
+		response = new Response(null, { status: 400, statusText: 'Bad Request' });
+	} else {
+		const trailingSlashRedirect = handleTrailingSlash(state);
+		if (trailingSlashRedirect) {
+			response = trailingSlashRedirect;
+		} else if (!state.routeData) {
+			response = await renderErrorFromState(state, state.request, {
+				...state.renderOptions,
+				status: 404,
+				pathname: state.pathname,
+			});
+		} else {
+			response = await render(state);
+		}
 	}
 
-	const trailingSlashRedirect = handleTrailingSlash(state);
-	if (trailingSlashRedirect) {
-		return trailingSlashRedirect;
-	}
-
-	if (!state.routeData) {
-		return renderErrorFromState(state, state.request, {
-			...state.renderOptions,
-			status: 404,
-			pathname: state.pathname,
-		});
-	}
-
-	return render(state);
+	return state.finalize(response);
 }
 
 /**

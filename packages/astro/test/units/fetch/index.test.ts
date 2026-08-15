@@ -102,6 +102,17 @@ describe('FetchState (astro/fetch)', () => {
 
 		assert.ok(state.routeData, 'routeData should fall back to the 404 route');
 		assert.equal(state.routeData!.route, '/404');
+		assert.equal(state.hasMatchedRoute(), false);
+	});
+
+	it('distinguishes a matched 404 route from an unmatched request', () => {
+		const notFoundPage = createPage(simplePage, { route: '/404' });
+		const app = createTestApp([notFoundPage]);
+		const request = stampApp(new Request('http://example.com/404'), app);
+		const state = new FetchState(request);
+
+		assert.equal(state.routeData!.route, '/404');
+		assert.equal(state.hasMatchedRoute(), true);
 	});
 
 	it('preserves .html in pathname for endpoint routes with dynamic params', () => {
@@ -591,6 +602,32 @@ describe('astro() combined handler', () => {
 		assert.equal(response.status, 200);
 		const text = await response.text();
 		assert.match(text, /<h1>Hello<\/h1>/);
+	});
+
+	it('applies a registered response finalizer', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+		state.addResponseFinalizer((response) => {
+			response.headers.set('x-finalized', 'true');
+			return response;
+		});
+
+		const response = await astro(state);
+		assert.equal(response.headers.get('x-finalized'), 'true');
+	});
+
+	it('finalizes a response from fine-grained handlers', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+		state.addResponseFinalizer((response) => {
+			response.headers.set('x-finalized', 'true');
+			return response;
+		});
+
+		const response = state.finalize(new Response());
+		assert.equal(response.headers.get('x-finalized'), 'true');
 	});
 
 	it('returns a redirect for redirect routes', async () => {
