@@ -16,6 +16,33 @@ export function parseArgsAsCheckConfig(args: string[]) {
 
 export type Flags = Pick<ReturnType<typeof parseArgsAsCheckConfig>, keyof typeof options>;
 
+/**
+ * Message shown when TypeScript is installed but doesn't expose the programmatic
+ * Language Service API that `astro check` relies on (TypeScript 7's native compiler
+ * does not ship this API yet).
+ */
+export const UNSUPPORTED_TYPESCRIPT_MESSAGE =
+	`The installed version of TypeScript does not expose the programmatic Language Service API that ` +
+	`\`astro check\` relies on. TypeScript's native compiler (7.0 and later) does not ship this API yet. ` +
+	`Until it does, run \`astro check\` with a TypeScript version that still provides it (6.x). ` +
+	`See https://github.com/withastro/roadmap/discussions/1321 to track support.`;
+
+/**
+ * Resolves the path to the installed `typescript` package, or `undefined` if it's
+ * installed but has no default CJS export map entry (e.g. TypeScript 7+), which makes
+ * `resolve('typescript')` throw `ERR_PACKAGE_PATH_NOT_EXPORTED` instead of resolving.
+ */
+export function resolveTypeScriptPath(resolve: (id: string) => string): string | undefined {
+	try {
+		return resolve('typescript');
+	} catch (err) {
+		if ((err as NodeJS.ErrnoException)?.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
+			return undefined;
+		}
+		throw err;
+	}
+}
+
 export async function check(flags: Partial<Flags> & { watch: true }): Promise<void>;
 export async function check(flags: Partial<Flags> & { watch: false }): Promise<boolean>;
 export async function check(flags: Partial<Flags>): Promise<boolean | void>;
@@ -25,7 +52,14 @@ export async function check(flags: Partial<Flags>): Promise<boolean | void>;
 export async function check(flags: Partial<Flags>): Promise<boolean | void> {
 	const workspaceRoot = path.resolve(flags.root ?? process.cwd());
 	const require = createRequire(import.meta.url);
-	const checker = new AstroCheck(workspaceRoot, require.resolve('typescript'), flags.tsconfig);
+
+	const typescriptPath = resolveTypeScriptPath((id) => require.resolve(id));
+	if (!typescriptPath) {
+		console.error(`${red(bold('✖'))} ${UNSUPPORTED_TYPESCRIPT_MESSAGE}`);
+		return true;
+	}
+
+	const checker = new AstroCheck(workspaceRoot, typescriptPath, flags.tsconfig);
 
 	let req = 0;
 
