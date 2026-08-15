@@ -17,6 +17,7 @@ export const VALID_INPUT_FORMATS = [
 	'gif',
 	'svg',
 	'avif',
+	'apng',
 ] as const;
 /**
  * Valid formats that our base services support.
@@ -31,6 +32,7 @@ export const VALID_SUPPORTED_FORMATS = [
 	'gif',
 	'svg',
 	'avif',
+	'apng',
 ] as const;
 export const DEFAULT_OUTPUT_FORMAT = 'webp' as const;
 export const VALID_OUTPUT_FORMATS = ['avif', 'png', 'webp', 'jpeg', 'jpg', 'svg'] as const;

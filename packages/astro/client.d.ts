@@ -110,6 +110,10 @@ declare module '*.avif' {
 	const metadata: ImageMetadata;
 	export default metadata;
 }
+declare module '*.apng' {
+	const metadata: ImageMetadata;
+	export default metadata;
+}
 declare module '*.svg' {
 	const Component: import('./types').SvgComponent & ImageMetadata;
 	export default Component;

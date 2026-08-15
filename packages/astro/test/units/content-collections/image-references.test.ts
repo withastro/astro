@@ -19,6 +19,13 @@ const heroMeta: ImageMetadata = {
 	format: 'png',
 };
 
+describe('imageSrcToImportId', () => {
+	it('resolves an .apng import id', () => {
+		const id = imageSrcToImportId('./hero.apng', FILE_NAME);
+		assert.ok(id, 'imageSrcToImportId returned undefined for .apng');
+	});
+});
+
 describe('updateImageReferencesInData', () => {
 	it('replaces a top-level image src with resolved ImageMetadata', () => {
 		const data = { image: './hero.png' };
