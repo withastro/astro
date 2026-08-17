@@ -37,6 +37,32 @@ export interface DataEntry<TData extends Record<string, unknown> = Record<string
 	assetImports?: Array<string>;
 }
 
+export class ChunkedCollectionParser {
+	#entries = new Map<string, any>();
+	#remainder = '';
+
+	add(part: string) {
+		const content = this.#remainder + part;
+		const records = content.split('\n');
+		this.#remainder = records.pop()!;
+
+		for (const record of records) {
+			const parsed = devalue.parse(record);
+			if (!Array.isArray(parsed) || parsed.length !== 2 || typeof parsed[0] !== 'string') {
+				throw new Error('Invalid chunked data store entry');
+			}
+			this.#entries.set(parsed[0], parsed[1]);
+		}
+	}
+
+	finish() {
+		if (this.#remainder) {
+			throw new Error('Invalid chunked data store entry');
+		}
+		return this.#entries;
+	}
+}
+
 /**
  * A read-only data store for content collections. This is used to retrieve data from the content layer at runtime.
  * To add or modify data, use {@link MutableDataStore} instead.
@@ -90,21 +116,19 @@ export class ImmutableDataStore {
 	 *
 	 * Each collection maps to a list of parts. A part is either a raw string
 	 * (when the store is loaded from disk) or an ESM namespace from a virtual
-	 * chunk import (`{ default: string }`, when emitted at runtime). A collection's
-	 * parts are concatenated back into the exact
-	 * serialized string, then parsed with devalue. This is the inverse of
+	 * chunk import (`{ default: string }`, when emitted at runtime). Each part
+	 * contains independently serialized entry records. This is the inverse of
 	 * {@link import('./data-store-writer.js').ChunkedWriter} and stays free of
 	 * Node built-ins so it can run at runtime.
 	 */
 	static manifestToMap(manifest: Record<string, Array<string | { default: string }>>) {
 		const collections = new Map<string, Map<string, any>>();
 		for (const [collectionName, parts] of Object.entries(manifest)) {
-			let stringified = '';
+			const parser = new ChunkedCollectionParser();
 			for (const part of parts) {
-				stringified += typeof part === 'string' ? part : part.default;
+				parser.add(typeof part === 'string' ? part : part.default);
 			}
-			const entries: Map<string, any> = devalue.parse(stringified);
-			collections.set(collectionName, entries);
+			collections.set(collectionName, parser.finish());
 		}
 		return collections;
 	}

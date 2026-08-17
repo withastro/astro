@@ -12,7 +12,7 @@ import {
 	FileWriter,
 	serializeDataStore,
 } from './data-store-writer.js';
-import { type DataEntry, ImmutableDataStore } from './data-store.js';
+import { ChunkedCollectionParser, type DataEntry, ImmutableDataStore } from './data-store.js';
 import { contentModuleToId } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
@@ -519,17 +519,15 @@ export default new Map([\n${lines.join(',\n')}]);
 			try {
 				const manifestData = await fs.readFile(manifestFile, 'utf-8');
 				const manifest: DataStoreManifest = JSON.parse(manifestData);
-				// Swap each referenced part file name for its contents.
-				const expanded: Record<string, string[]> = {};
+				const collections = new Map<string, Map<string, any>>();
 				for (const collectionName in manifest) {
-					expanded[collectionName] = await Promise.all(
-						manifest[collectionName].map((fileName) =>
-							fs.readFile(new URL(`./${fileName}`, dirPath), 'utf-8'),
-						),
-					);
+					const parser = new ChunkedCollectionParser();
+					for (const fileName of manifest[collectionName]) {
+						parser.add(await fs.readFile(new URL(`./${fileName}`, dirPath), 'utf-8'));
+					}
+					collections.set(collectionName, parser.finish());
 				}
-				const map = ImmutableDataStore.manifestToMap(expanded);
-				const store = await MutableDataStore.fromMap(map);
+				const store = await MutableDataStore.fromMap(collections);
 				store.#writer = new ChunkedWriter(dirPath, chunkSize);
 				return store;
 			} catch (err) {

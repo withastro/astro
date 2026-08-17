@@ -216,6 +216,25 @@ describe('Content Layer - Store Persistence', () => {
 });
 
 describe('Content Layer - Store Persistence (chunked)', () => {
+	it('streams entry records across part boundaries', async () => {
+		const tempDir = createTempDir();
+		const dataStoreDir = new URL('./data-store/', tempDir);
+		const store = await MutableDataStore.fromDir(dataStoreDir, 16);
+		store.set('notes', 'first', { id: 'first', data: { text: 'first\nentry' } });
+		store.set('notes', 'second', { id: 'second', data: { text: 'second entry' } });
+		await store.waitUntilSaveComplete();
+
+		const reloaded = await MutableDataStore.fromDir(dataStoreDir, 16);
+		assert.deepEqual(reloaded.get('notes', 'first'), {
+			id: 'first',
+			data: { text: 'first\nentry' },
+		});
+		assert.deepEqual(reloaded.get('notes', 'second'), {
+			id: 'second',
+			data: { text: 'second entry' },
+		});
+	});
+
 	it('persists and accumulates entries across builds', async () => {
 		const tempDir = createTempDir();
 		const dataStoreDir = new URL('./data-store/', tempDir);
