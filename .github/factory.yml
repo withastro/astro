@@ -1,7 +1,8 @@
 version: 1
-trigger:
-  label: "pr: astro-review"
+
 review:
+  trigger:
+    label: "pr: astro-review"
   skill: .agents/skills/astro-code-review
   severity: [critical, high, medium, low, optional]
   areas:
@@ -15,3 +16,8 @@ review:
     - maintainability
     - documentation
     - changeset
+
+# Review only for now. Triage is enabled by default, so it has to be
+# switched off explicitly.
+triage:
+  enabled: false
