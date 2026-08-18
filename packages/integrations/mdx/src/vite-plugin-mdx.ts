@@ -72,7 +72,18 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 					// Surface compile failures as a dedicated MDX error with a source
 					// location so the dev overlay can point at the offending file.
 					err.name = 'MDXError';
-					err.loc = { file: id, line: e.line, column: e.column };
+					// Some parser errors (e.g. from oxc) embed line:col only in the
+					// message as a "line:col: ..." prefix instead of setting properties.
+					let line = e.line;
+					let column = e.column;
+					if (line == null || column == null) {
+						const match = /^(\d+):(\d+):/.exec(e.message);
+						if (match) {
+							line ??= Number(match[1]);
+							column ??= Number(match[2]);
+						}
+					}
+					err.loc = { file: id, line, column };
 					// Compiler errors may arrive without a JS stack; capture one here.
 					Error.captureStackTrace(err);
 					throw err;
