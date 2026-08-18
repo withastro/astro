@@ -132,7 +132,26 @@ describe('ISR with edge middleware', () => {
 	it('forwards routes excluded from ISR to the serverless function', {
 		timeout: 30000,
 	}, async () => {
+		// `/live` also matches the `[slug]` route, which is cached: an exclusion
+		// only holds if it is checked before the ISR patterns.
 		const url = await forwardedUrl('/live');
+		assert.equal(url.pathname, '/_render');
+	});
+
+	it('still caches the dynamic route the exclusion overlaps', {
+		timeout: 30000,
+	}, async () => {
+		const url = await forwardedUrl('/anything-else');
+		assert.equal(url.pathname, '/_isr');
+		assert.equal(url.searchParams.get('x_astro_path'), '/anything-else');
+	});
+
+	it('renders paths no route matches instead of caching them', {
+		timeout: 30000,
+	}, async () => {
+		// The 404 catch-all reaches the middleware too. Forwarding those to `_isr`
+		// would give every unmatched URL a cache entry.
+		const url = await forwardedUrl('/no/such/page');
 		assert.equal(url.pathname, '/_render');
 	});
 

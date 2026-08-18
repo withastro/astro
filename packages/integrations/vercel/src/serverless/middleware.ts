@@ -11,6 +11,13 @@ import {
 	NODE_PATH,
 } from '../index.js';
 
+export interface IsrForwarding {
+	/** Route patterns backed by the ISR function. */
+	isrRoutes: string[];
+	/** Route patterns `isr.exclude` keeps out of the cache; checked first. */
+	isrExcludedRoutes: string[];
+}
+
 /**
  * It generates the Vercel Edge Middleware file.
  *
@@ -24,7 +31,7 @@ import {
  * @param outPath
  * @param middlewareSecret
  * @param logger
- * @param isrRoutes Route patterns served by the ISR function, if any
+ * @param isrForwarding Route patterns the generated `next()` forwards to `_isr`, if any
  * @returns {Promise<URL>} The path to the bundled file
  */
 export async function generateEdgeMiddleware(
@@ -34,14 +41,14 @@ export async function generateEdgeMiddleware(
 	outPath: URL,
 	middlewareSecret: string,
 	logger: AstroIntegrationLogger,
-	isrRoutes: string[] = [],
+	isrForwarding?: IsrForwarding,
 ): Promise<URL> {
 	const code = edgeMiddlewareTemplate(
 		astroMiddlewareEntryPointPath,
 		vercelEdgeMiddlewareHandlerPath,
 		middlewareSecret,
 		logger,
-		isrRoutes,
+		isrForwarding,
 	);
 	// https://vercel.com/docs/concepts/functions/edge-middleware#create-edge-middleware
 	const bundledFilePath = fileURLToPath(outPath);
@@ -101,7 +108,7 @@ function edgeMiddlewareTemplate(
 	vercelEdgeMiddlewareHandlerPath: URL,
 	middlewareSecret: string,
 	logger: AstroIntegrationLogger,
-	isrRoutes: string[] = [],
+	isrForwarding?: IsrForwarding,
 ) {
 	const middlewarePath = JSON.stringify(
 		fileURLToPath(astroMiddlewareEntryPointPath).replace(/\\/g, '/'),
@@ -123,12 +130,19 @@ function edgeMiddlewareTemplate(
 import { onRequest } from ${middlewarePath};
 import { createContext, trySerializeLocals } from 'astro/middleware';
 
-const isrRoutes = ${JSON.stringify(isrRoutes)}.map((source) => new RegExp(source));
+const isrRoutes = ${JSON.stringify(isrForwarding?.isrRoutes ?? [])}.map((source) => new RegExp(source));
+const isrExcludedRoutes = ${JSON.stringify(isrForwarding?.isrExcludedRoutes ?? [])}.map(
+	(source) => new RegExp(source),
+);
+
+const isCached = (pathname) =>
+	!isrExcludedRoutes.some((route) => route.test(pathname)) &&
+	isrRoutes.some((route) => route.test(pathname));
 
 // Cached routes go back through \`_isr\`, or every request would re-render.
 // Keep in step with \`getIsrPath\`.
 function forwardPath(pathname) {
-	if (!isrRoutes.some((route) => route.test(pathname))) return '/${NODE_PATH}';
+	if (!isCached(pathname)) return '/${NODE_PATH}';
 	const params = new URLSearchParams({
 		'${ASTRO_PATH_PARAM}': pathname,
 		'${ASTRO_PATH_TOKEN_PARAM}': '${middlewareSecret}',

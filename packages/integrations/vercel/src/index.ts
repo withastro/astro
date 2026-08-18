@@ -32,7 +32,7 @@ import {
 	getInjectableWebAnalyticsContent,
 	type VercelWebAnalyticsConfig,
 } from './lib/web-analytics.js';
-import { generateEdgeMiddleware } from './serverless/middleware.js';
+import { generateEdgeMiddleware, type IsrForwarding } from './serverless/middleware.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
 
 const PACKAGE_NAME = '@astrojs/vercel';
@@ -470,6 +470,8 @@ export default function vercelAdapter({
 					const entryFile = new URL(_serverEntry, _buildTempFolder);
 					// Routes the edge middleware forwards to `_isr` instead of `_render`.
 					const isrRoutes: string[] = [];
+					// Checked first: a dynamic ISR route can also match an excluded path.
+					const isrExcludedRoutes: string[] = [];
 					if (_buildOutput === 'server' && isr) {
 						const isrConfig = typeof isr === 'object' ? isr : {};
 						await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
@@ -487,10 +489,9 @@ export default function vercelAdapter({
 							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 							for (const route of expandedExclusions) {
 								// vercel interprets src as a regex pattern, so we need to escape it
-								routeDefinitions.push({
-									src: escapeRegex(route),
-									dest,
-								});
+								const src = escapeRegex(route);
+								routeDefinitions.push({ src, dest });
+								isrExcludedRoutes.push(src);
 							}
 						}
 						await builder.buildISRFolder(entryFile, '_isr', isrConfig, _config.root);
@@ -540,7 +541,7 @@ export default function vercelAdapter({
 							_middlewareEntryPoint,
 							MIDDLEWARE_PATH,
 							middlewareSecret,
-							isrRoutes,
+							{ isrRoutes, isrExcludedRoutes },
 						);
 					}
 				}
@@ -762,7 +763,7 @@ class VercelBuilder {
 		entry: URL,
 		functionName: string,
 		middlewareSecret: string,
-		isrRoutes: string[] = [],
+		isrForwarding?: IsrForwarding,
 	) {
 		const functionFolder = new URL(`./functions/${functionName}.func/`, this.outDir);
 
@@ -773,7 +774,7 @@ class VercelBuilder {
 			new URL('./middleware.mjs', functionFolder),
 			middlewareSecret,
 			this.logger,
-			isrRoutes,
+			isrForwarding,
 		);
 
 		await writeJson(new URL(`./.vc-config.json`, functionFolder), {
