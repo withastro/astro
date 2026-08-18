@@ -43,8 +43,11 @@ export async function preview({ flags }: PreviewOptions) {
 		return;
 	}
 
-	const agentDetected = !process.env.ASTRO_PREVIEW_BACKGROUND && isRunByAgent();
-	if (agentDetected) {
+	// When an AI coding agent is detected, log as JSON so the output is machine
+	// readable. Unlike `astro dev`, this does not imply background mode — a preview
+	// server is usually started by something that waits on the process, so
+	// backgrounding it has to stay opt-in via `--background`.
+	if (!process.env.ASTRO_PREVIEW_BACKGROUND && isRunByAgent()) {
 		flags.json = true;
 	}
 
@@ -66,7 +69,7 @@ export async function preview({ flags }: PreviewOptions) {
 		return;
 	}
 
-	if (flags.background || agentDetected) {
+	if (flags.background) {
 		await background({ flags, logger, config: previewServerCommand });
 		return;
 	}
