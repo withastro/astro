@@ -1,5 +1,12 @@
 # @astrojs/react
 
+## 6.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277)]:
+  - @astrojs/internal-helpers@0.10.3
+
 ## 6.0.2
 
 ### Patch Changes
