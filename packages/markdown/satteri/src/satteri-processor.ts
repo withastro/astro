@@ -205,6 +205,19 @@ export function createHighlightPlugin(
 	};
 }
 
+// `htmlToHast` has no fragment mode, so it always parses into a full document.
+function firstBodyChild(document: HastNode): HastNode {
+	const html =
+		document.type === 'root'
+			? document.children.find((c) => c.type === 'element' && c.tagName === 'html')
+			: undefined;
+	const body =
+		html?.type === 'element'
+			? html.children.find((c) => c.type === 'element' && c.tagName === 'body')
+			: undefined;
+	return (body?.type === 'element' ? body.children[0] : undefined) as HastNode;
+}
+
 export interface SatteriMarkdownProcessorOptions extends AstroMarkdownOptions {
 	mdastPlugins?: MdastPluginDefinition[];
 	hastPlugins?: HastPluginDefinition[];
@@ -249,11 +262,11 @@ export async function createHighlightFn(
 
 	if (syntaxHighlightType === 'prism') {
 		const { runHighlighterWithAstro } = await import('@astrojs/prism/dist/highlighter');
-		const { fromHtml } = await import('hast-util-from-html');
+		const { htmlToHast } = await loadSatteri();
 		return async (code, lang) => {
 			const { html, classLanguage } = await runHighlighterWithAstro(lang, code);
 			const pre = `<pre class="${classLanguage}" data-language="${lang}"><code class="${classLanguage}">${html}</code></pre>`;
-			return fromHtml(pre, { fragment: true }).children[0] as HastNode;
+			return firstBodyChild(htmlToHast(pre));
 		};
 	}
 

@@ -29,7 +29,6 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/prism": "workspace:*",
     "github-slugger": "^2.0.0",
-    "hast-util-from-html": "^2.0.3",
     "satteri": "^0.10.0"
   },
   "devDependencies": {
