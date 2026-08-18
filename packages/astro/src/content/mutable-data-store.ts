@@ -12,7 +12,7 @@ import {
 	FileWriter,
 	serializeDataStore,
 } from './data-store-writer.js';
-import { type DataEntry, ImmutableDataStore } from './data-store.js';
+import { ChunkedCollectionParser, type DataEntry, ImmutableDataStore } from './data-store.js';
 import { contentModuleToId } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
@@ -349,11 +349,17 @@ export default new Map([\n${lines.join(',\n')}]);
 					}
 				}
 				const foundAssets = new Set<string>(assetImports);
-				// Check for image imports in the data. These will have been prefixed during schema parsing
-				forEach(data, (_, val) => {
+				const imageImports: (string | number)[][] = [];
+				// Image fields are prefixed during schema parsing. Record their locations and
+				// strip the prefix so the stored data holds a plain, devalue-serializable src
+				// string. The recorded paths let read-time resolution rewrite only these fields
+				// without traversing or cloning the rest of the data.
+				forEach(data, function (ctx, val) {
 					if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 						const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 						foundAssets.add(src);
+						imageImports.push(ctx.path.map((segment) => segment as string | number));
+						ctx.update(src);
 					}
 				});
 
@@ -376,6 +382,10 @@ export default new Map([\n${lines.join(',\n')}]);
 				if (foundAssets.size) {
 					entry.assetImports = Array.from(foundAssets);
 					this.addAssetImports(entry.assetImports, filePath);
+				}
+
+				if (imageImports.length) {
+					entry.imageImports = imageImports;
 				}
 
 				if (digest) {
@@ -519,17 +529,17 @@ export default new Map([\n${lines.join(',\n')}]);
 			try {
 				const manifestData = await fs.readFile(manifestFile, 'utf-8');
 				const manifest: DataStoreManifest = JSON.parse(manifestData);
-				// Swap each referenced part file name for its contents.
-				const expanded: Record<string, string[]> = {};
+				const collections = new Map<string, Map<string, any>>();
 				for (const collectionName in manifest) {
-					expanded[collectionName] = await Promise.all(
-						manifest[collectionName].map((fileName) =>
-							fs.readFile(new URL(`./${fileName}`, dirPath), 'utf-8'),
-						),
-					);
+					const parser = new ChunkedCollectionParser();
+					for (const fileName of manifest[collectionName]) {
+						// Parsing each part before reading the next prevents raw collection
+						// contents from accumulating in memory during cache restoration.
+						parser.add(await fs.readFile(new URL(`./${fileName}`, dirPath), 'utf-8'));
+					}
+					collections.set(collectionName, parser.finish());
 				}
-				const map = ImmutableDataStore.manifestToMap(expanded);
-				const store = await MutableDataStore.fromMap(map);
+				const store = await MutableDataStore.fromMap(collections);
 				store.#writer = new ChunkedWriter(dirPath, chunkSize);
 				return store;
 			} catch (err) {

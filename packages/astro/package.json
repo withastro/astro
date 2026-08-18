@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "7.2.1",
+  "version": "7.2.3",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -83,6 +83,12 @@
     "./_internal/test/units/test-utils": "./test/units/test-utils.ts",
     "./_internal/test/test-utils": "./test/test-utils.ts"
   },
+  "imports": {
+    "#astro-internal/ambient-manifest": {
+      "types": "./src/core/manifest/ambient-source.ts",
+      "default": "./dist/core/manifest/ambient-source.js"
+    }
+  },
   "bin": {
     "astro": "./bin/astro.mjs"
   },
@@ -91,6 +97,7 @@
     "tsconfigs",
     "dist",
     "types",
+    "src/core/manifest/ambient-source.ts",
     "bin",
     "env.d.ts",
     "client.d.ts",
@@ -163,7 +170,7 @@
     "tinyexec": "^1.0.4",
     "tinyglobby": "^0.2.15",
     "ultrahtml": "^1.6.0",
-    "unifont": "~0.7.4",
+    "unifont": "~0.7.5",
     "unstorage": "^1.17.5",
     "vite": "^8.0.13",
     "vitefu": "^1.1.2",

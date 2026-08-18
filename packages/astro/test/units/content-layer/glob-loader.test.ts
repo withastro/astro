@@ -1,11 +1,15 @@
 import { strict as assert } from 'node:assert';
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { glob } from '../../../dist/content/loaders/glob.js';
 import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
 import {
+	createTempDir,
 	createTestConfigObserver,
 	createMinimalSettings,
 	createMarkdownEntryType,
@@ -507,5 +511,94 @@ describe('Glob Loader', () => {
 		await contentLayer.sync();
 
 		assert.ok(warnings.some((w) => w.includes('No files found matching')));
+	});
+
+	it('throws on duplicate IDs when prerenderConflictBehavior is error', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'posts');
+		const { mkdirSync } = await import('node:fs');
+		mkdirSync(contentDir, { recursive: true });
+		writeFileSync(join(contentDir, 'post.md'), '---\ntitle: Post MD\n---\nContent MD');
+		writeFileSync(join(contentDir, 'post.mdx'), '---\ntitle: Post MDX\n---\nContent MDX');
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [
+				createMarkdownEntryType(),
+				{ extensions: ['.mdx'], getEntryInfo: createMarkdownEntryType().getEntryInfo },
+			],
+			config: { prerenderConflictBehavior: 'error' },
+		});
+
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'info',
+		});
+
+		const collections = {
+			posts: defineCollection({
+				loader: glob({ pattern: '*.{md,mdx}', base: 'src/content/posts' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await assert.rejects(() => contentLayer.sync(), {
+			name: 'DuplicateContentEntrySlugError',
+		});
+	});
+
+	it('suppresses duplicate ID warning when prerenderConflictBehavior is ignore', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'posts');
+		const { mkdirSync } = await import('node:fs');
+		mkdirSync(contentDir, { recursive: true });
+		writeFileSync(join(contentDir, 'post.md'), '---\ntitle: Post MD\n---\nContent MD');
+		writeFileSync(join(contentDir, 'post.mdx'), '---\ntitle: Post MDX\n---\nContent MDX');
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [
+				createMarkdownEntryType(),
+				{ extensions: ['.mdx'], getEntryInfo: createMarkdownEntryType().getEntryInfo },
+			],
+			config: { prerenderConflictBehavior: 'ignore' },
+		});
+
+		const warnings: string[] = [];
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					if (msg.level === 'warn') {
+						warnings.push(msg.message);
+					}
+					return true;
+				},
+			},
+			level: 'info',
+		});
+
+		const collections = {
+			posts: defineCollection({
+				loader: glob({ pattern: '*.{md,mdx}', base: 'src/content/posts' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		// No duplicate warnings should be logged
+		assert.ok(!warnings.some((w) => w.includes('post')));
 	});
 });

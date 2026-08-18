@@ -1,5 +1,14 @@
 # @astrojs/vercel
 
+## 11.0.6
+
+### Patch Changes
+
+- [#17680](https://github.com/withastro/astro/pull/17680) [`ce9f1da`](https://github.com/withastro/astro/commit/ce9f1da4867f07206dec720fdab7f1d02112f73e) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes server islands returning 404 responses in Vercel deployments using `output: "static"`
+
+- Updated dependencies [[`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277)]:
+  - @astrojs/internal-helpers@0.10.3
+
 ## 11.0.5
 
 ### Patch Changes

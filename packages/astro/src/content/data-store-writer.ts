@@ -4,10 +4,7 @@ import xxhash, { type XXHashAPI } from 'xxhash-wasm';
 import { emptyDir } from '../core/fs/index.js';
 import { DATA_STORE_MANIFEST_FILE } from './consts.js';
 
-/**
- * A chunked store manifest: each collection maps to the list of part file names
- * whose contents concatenate back into that collection's serialized string.
- */
+/** A chunked store manifest: each collection maps to its content-addressed part files. */
 export type DataStoreManifest = Record<string, string[]>;
 
 /**
@@ -52,6 +49,30 @@ export function serializeDataStore(collections: Map<string, Map<string, any>>): 
 const ENCODER = new TextEncoder();
 
 /**
+ * Finds the end of the largest UTF-8-safe slice beginning at `startIndex` that
+ * fits within `maxBytes`. A code point larger than `maxBytes` is returned on
+ * its own so callers always make progress.
+ */
+function getChunkEnd(str: string, startIndex: number, maxBytes: number) {
+	let index = startIndex;
+	let bytes = 0;
+	while (index < str.length) {
+		const codePoint = str.codePointAt(index)!;
+		const charLength = codePoint > 0xffff ? 2 : 1;
+		const charBytes = ENCODER.encode(str.slice(index, index + charLength)).length;
+		if (bytes + charBytes > maxBytes && index > startIndex) {
+			break;
+		}
+		index += charLength;
+		bytes += charBytes;
+		if (bytes >= maxBytes) {
+			break;
+		}
+	}
+	return { endIndex: index, bytes };
+}
+
+/**
  * Split a string into parts each at most `maxBytes` UTF-8 bytes, never splitting
  * a Unicode code point across parts.
  *
@@ -59,29 +80,17 @@ const ENCODER = new TextEncoder();
  * on UTF-16 code-unit boundaries (e.g. `String.prototype.slice`) can cut a
  * surrogate pair in half; encoding a lone surrogate to UTF-8 substitutes U+FFFD,
  * so concatenating the re-read parts would corrupt any astral-plane character
- * (emoji, some CJK, etc.). Iterating with `for...of` yields whole code points,
- * so `str.slice` is only ever called on code-point boundaries and the parts
- * always rejoin to the exact original string.
+ * (emoji, some CJK, etc.). `getChunkEnd()` advances by Unicode code point, so
+ * `str.slice` is only ever called on code-point boundaries and the parts always
+ * rejoin to the exact original string.
  */
 export function chunkString(str: string, maxBytes: number): string[] {
 	const chunks: string[] = [];
-	let startIndex = 0; // UTF-16 index where the current part starts
-	let index = 0; // current UTF-16 index (always on a code-point boundary)
-	let currentBytes = 0;
-	for (const char of str) {
-		const charBytes = ENCODER.encode(char).length;
-		// Close the current part before it would exceed the byte limit, but never
-		// emit an empty part (guards against a single code point over the limit).
-		if (currentBytes + charBytes > maxBytes && index > startIndex) {
-			chunks.push(str.slice(startIndex, index));
-			startIndex = index;
-			currentBytes = 0;
-		}
-		index += char.length; // 1 for BMP, 2 for a surrogate pair
-		currentBytes += charBytes;
-	}
-	if (startIndex < str.length) {
-		chunks.push(str.slice(startIndex));
+	let startIndex = 0;
+	while (startIndex < str.length) {
+		const { endIndex } = getChunkEnd(str, startIndex, maxBytes);
+		chunks.push(str.slice(startIndex, endIndex));
+		startIndex = endIndex;
 	}
 	return chunks;
 }
@@ -125,9 +134,9 @@ export class FileWriter implements DataStoreWriter {
  * A {@link DataStoreWriter} that splits the store across many content-addressed
  * files inside a directory, described by a manifest.
  *
- * Each collection is serialized to a string and split into parts no larger than
- * a fixed byte size, so no single file grows unbounded (platform file-size
- * limits). Each part file is named by the xxhash of its contents, so unchanged
+ * Entries are serialized independently into parts no larger than a fixed byte
+ * size, so writing a collection does not require a collection-wide serialized
+ * string. Each part file is named by the xxhash of its contents, so unchanged
  * parts keep the same name across builds and their writes are skipped, and two
  * identical parts are naturally deduplicated. The manifest is written last as
  * the commit point, and stale files are pruned afterwards. This is the inverse
@@ -138,6 +147,7 @@ export class ChunkedWriter implements DataStoreWriter {
 	#manifestFile: URL;
 	#chunkSize: number;
 	#hasher?: XXHashAPI;
+	#writtenFiles = new Set<string>();
 
 	constructor(dir: URL, chunkSize: number) {
 		this.#dir = dir;
@@ -149,32 +159,61 @@ export class ChunkedWriter implements DataStoreWriter {
 		if (!this.#hasher) {
 			this.#hasher = await xxhash();
 		}
-		const { h64ToString } = this.#hasher;
 
-		// Track every file this snapshot references so the rest can be pruned.
-		const writtenFiles = new Set<string>();
+		this.#writtenFiles = new Set();
 		const manifest: DataStoreManifest = {};
 
-		// Sorted iteration keeps file names deterministic across builds.
 		for (const [collectionName, entries] of sortCollections(collections)) {
-			const stringified = devalue.stringify(entries);
-			// Split the serialized collection so no single file grows unbounded.
-			const parts: string[] = [];
-			for (const part of chunkString(stringified, this.#chunkSize)) {
-				const fileName = `${h64ToString(part)}.txt`;
-				await writeFileAtomic(new URL(`./${fileName}`, this.#dir), part);
-				parts.push(fileName);
-				writtenFiles.add(fileName);
-			}
-			manifest[collectionName] = parts;
+			manifest[collectionName] = await this.#writeCollection(entries);
 		}
 
 		// The manifest is the commit point: every part it references already
 		// exists on disk, so a reader never sees a dangling reference.
 		await writeFileAtomic(this.#manifestFile, JSON.stringify(manifest));
-		writtenFiles.add(DATA_STORE_MANIFEST_FILE);
+		this.#writtenFiles.add(DATA_STORE_MANIFEST_FILE);
 
 		// Prune files left behind by previous snapshots.
-		emptyDir(this.#dir, writtenFiles);
+		emptyDir(this.#dir, this.#writtenFiles);
+	}
+
+	async #writeCollection(entries: Iterable<[string, unknown]>) {
+		const parts: string[] = [];
+		let chunk = '';
+		let chunkBytes = 0;
+
+		const writeChunk = async () => {
+			const fileName = `${this.#hasher!.h64ToString(chunk)}.txt`;
+			await writeFileAtomic(new URL(`./${fileName}`, this.#dir), chunk);
+			parts.push(fileName);
+			this.#writtenFiles.add(fileName);
+			chunk = '';
+			chunkBytes = 0;
+		};
+
+		for (const [id, entry] of entries) {
+			const serialized = `${devalue.stringify([id, entry])}\n`;
+			let startIndex = 0;
+
+			while (startIndex < serialized.length) {
+				const { endIndex, bytes } = getChunkEnd(
+					serialized,
+					startIndex,
+					this.#chunkSize - chunkBytes,
+				);
+				chunk += serialized.slice(startIndex, endIndex);
+				chunkBytes += bytes;
+				startIndex = endIndex;
+
+				if (chunkBytes >= this.#chunkSize) {
+					await writeChunk();
+				}
+			}
+		}
+
+		if (chunk) {
+			await writeChunk();
+		}
+
+		return parts;
 	}
 }

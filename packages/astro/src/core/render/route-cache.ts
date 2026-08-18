@@ -7,9 +7,12 @@ import type {
 	Params,
 } from '../../types/public/common.js';
 import type { AstroConfig, RuntimeMode } from '../../types/public/config.js';
-import type { RouteData } from '../../types/public/internal.js';
+import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import type { AstroLogger } from '../logger/core.js';
 
+import { getEnvironment } from '../environment/index.js';
+import { getLogger } from '../logger/manifest-logger.js';
+import { createManifestMemo } from '../manifest/memo.js';
 import { stringifyParams } from '../routing/params.js';
 import { validateDynamicRouteModule, validateGetStaticPathsResult } from '../routing/validation.js';
 import { generatePaginateFunction } from './paginate.js';
@@ -132,6 +135,18 @@ export class RouteCache {
 	key(route: RouteData) {
 		return `${route.route}_${route.component}`;
 	}
+}
+
+const routeCaches = createManifestMemo(
+	(manifest) => new RouteCache(getLogger(manifest), getEnvironment(manifest).runtimeMode),
+);
+
+/**
+ * The `RouteCache` for a manifest. Cleared via
+ * `getRouteCache(manifest).clearAll()` on dev `astro:content-changed`.
+ */
+export function getRouteCache(manifest: SSRManifest): RouteCache {
+	return routeCaches.get(manifest);
 }
 
 export function findPathItemByKey(
