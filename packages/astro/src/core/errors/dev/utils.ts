@@ -23,8 +23,8 @@ export function collectErrorMetadata(e: any, rootFolder?: URL): ErrorWithMetadat
 		AggregateError.is(e) || Array.isArray(e.errors) ? (e.errors as SSRError[]) : [e as SSRError];
 
 	err.forEach((error) => {
-		if (e.stack) {
-			const stackInfo = collectInfoFromStacktrace(e);
+		if (error.stack) {
+			const stackInfo = collectInfoFromStacktrace(error as SSRError & { stack: string });
 			try {
 				error.stack = stripVTControlCharacters(stackInfo.stack);
 			} catch {}
@@ -68,7 +68,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL): ErrorWithMetadat
 		}
 
 		// Generic error (probably from Vite, and already formatted)
-		error.hint = generateHint(e);
+		error.hint = generateHint(error);
 
 		// Strip ANSI for `message` property. Note that ESBuild errors may not have the property,
 		// but it will be handled and added below, which is already ANSI-free
