@@ -523,6 +523,8 @@ export default new Map([\n${lines.join(',\n')}]);
 				for (const collectionName in manifest) {
 					const parser = new ChunkedCollectionParser();
 					for (const fileName of manifest[collectionName]) {
+						// Parsing each part before reading the next prevents raw collection
+						// contents from accumulating in memory during cache restoration.
 						parser.add(await fs.readFile(new URL(`./${fileName}`, dirPath), 'utf-8'));
 					}
 					collections.set(collectionName, parser.finish());

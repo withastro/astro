@@ -163,7 +163,7 @@ export class ChunkedWriter implements DataStoreWriter {
 		this.#writtenFiles = new Set();
 		const manifest: DataStoreManifest = {};
 
-		for (const [collectionName, entries] of collections) {
+		for (const [collectionName, entries] of sortCollections(collections)) {
 			manifest[collectionName] = await this.#writeCollection(entries);
 		}
 

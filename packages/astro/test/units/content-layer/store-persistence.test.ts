@@ -492,4 +492,30 @@ describe('Content Layer - Store Persistence (chunked atomicity)', () => {
 		assert.equal(partsOnDisk.length, 1);
 		assert.equal(partsOnDisk[0], manifest.alpha[0]);
 	});
+
+	it('writes a deterministic manifest independent of entry insertion order', async () => {
+		const firstDir = new URL('./first/', createTempDir());
+		const firstStore = await MutableDataStore.fromDir(firstDir, CHUNK_SIZE);
+		firstStore.set('zoo', 'second', { id: 'second', data: { value: 2 } });
+		firstStore.set('zoo', 'first', { id: 'first', data: { value: 1 } });
+		firstStore.set('alpha', 'only', { id: 'only', data: { value: 3 } });
+		await firstStore.waitUntilSaveComplete();
+
+		const secondDir = new URL('./second/', createTempDir());
+		const secondStore = await MutableDataStore.fromDir(secondDir, CHUNK_SIZE);
+		secondStore.set('alpha', 'only', { id: 'only', data: { value: 3 } });
+		secondStore.set('zoo', 'first', { id: 'first', data: { value: 1 } });
+		secondStore.set('zoo', 'second', { id: 'second', data: { value: 2 } });
+		await secondStore.waitUntilSaveComplete();
+
+		const firstManifest = await fs.readFile(
+			new URL(`./${DATA_STORE_MANIFEST_FILE}`, firstDir),
+			'utf-8',
+		);
+		const secondManifest = await fs.readFile(
+			new URL(`./${DATA_STORE_MANIFEST_FILE}`, secondDir),
+			'utf-8',
+		);
+		assert.equal(firstManifest, secondManifest);
+	});
 });

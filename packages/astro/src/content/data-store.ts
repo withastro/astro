@@ -37,6 +37,10 @@ export interface DataEntry<TData extends Record<string, unknown> = Record<string
 	assetImports?: Array<string>;
 }
 
+/**
+ * Rebuilds a collection from ordered parts containing newline-delimited
+ * `devalue.stringify([id, entry])` records.
+ */
 export class ChunkedCollectionParser {
 	#entries = new Map<string, any>();
 	#remainder = '';
