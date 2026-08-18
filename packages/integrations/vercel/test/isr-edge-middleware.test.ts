@@ -160,6 +160,55 @@ describe('ISR with edge middleware', () => {
 		assert.equal(url.searchParams.get('x_astro_path'), '/');
 	});
 
+	/** The build's middleware secret, read back out of the generated middleware. */
+	async function middlewareSecret(): Promise<string> {
+		const bundle = await fixture.readFile(
+			'../.vercel/output/functions/_middleware.func/middleware.mjs',
+		);
+		const secret = (/"x-astro-middleware-secret":\s*"([^"]+)"/.exec(bundle))?.[1];
+		assert.ok(secret, 'the generated middleware carries no secret');
+		return secret;
+	}
+
+	async function isrFetch(path: string, headers: Record<string, string> = {}) {
+		const functionConfig = JSON.parse(
+			await fixture.readFile('../.vercel/output/functions/_isr.func/.vc-config.json'),
+		);
+		const entry = new URL(
+			`../.vercel/output/functions/_isr.func/${functionConfig.handler}`,
+			fixture.config.outDir,
+		);
+		const module = await import(entry.href);
+
+		return module.default.fetch(new Request(`https://example.com${path}`, { headers }));
+	}
+
+	it('keeps the query string the middleware forwarded', { timeout: 30000 }, async () => {
+		const secret = await middlewareSecret();
+		// The query rides the header, not the forward URL: it must not be swallowed
+		// by the path override.
+		const response = await isrFetch(
+			`/_isr?x_astro_path=%2Fapi%2Fdata&x_astro_path_token=${secret}`,
+			{
+				'x-astro-middleware-secret': secret,
+				'x-astro-path': '/api/data?foo=bar',
+			},
+		);
+
+		assert.deepEqual(await response.json(), { ok: true, query: '?foo=bar' });
+	});
+
+	it('keeps the query string the route rewrite passed through', { timeout: 30000 }, async () => {
+		const secret = await middlewareSecret();
+		// No middleware header: `passQuery` leaves the client's query on the request
+		// while the path arrives as a param.
+		const response = await isrFetch(
+			`/_isr?x_astro_path=%2Fapi%2Fdata&x_astro_path_token=${secret}&foo=bar`,
+		);
+
+		assert.deepEqual(await response.json(), { ok: true, query: '?foo=bar' });
+	});
+
 	it('still returns the response to the middleware', { timeout: 30000 }, async () => {
 		const entry = new URL(
 			'../.vercel/output/functions/_middleware.func/middleware.mjs',
