@@ -196,6 +196,7 @@ export default new Map([${exports.join(', ')}]);
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
+			return;
 		}
 
 		if (!this.#modulesDirty && existsSync(filePath)) {
