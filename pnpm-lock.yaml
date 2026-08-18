@@ -5376,6 +5376,9 @@ importers:
       remark-smartypants:
         specifier: ^3.0.2
         version: 3.0.2
+      satteri:
+        specifier: ^0.9.1
+        version: 0.9.1
       source-map:
         specifier: ^0.7.6
         version: 0.7.6
@@ -5437,9 +5440,6 @@ importers:
       remark-toc:
         specifier: ^9.0.0
         version: 9.0.0
-      satteri:
-        specifier: ^0.9.1
-        version: 0.9.1
       shiki:
         specifier: ^4.0.2
         version: 4.0.2
