@@ -123,4 +123,24 @@ describe('base stripping respects path-segment boundaries', () => {
 			'/app-/admin should not resolve to the protected /admin route',
 		);
 	});
+
+	it('app.match does not resolve /appX/admin to the protected route', () => {
+		const app = createApp(createAuthMiddleware());
+		const request = new Request('http://example.com/appX/admin');
+		const routeData = app.match(request);
+		assert.equal(routeData, undefined, '/appX/admin should not match a route under the base');
+	});
+
+	it('middleware blocks /appX/admin when the adapter supplies routeData', async () => {
+		const app = createApp(createAuthMiddleware());
+		const request = new Request('http://example.com/appX/admin');
+		// Adapters may call app.match() and thread the result back into render().
+		const routeData = app.match(request);
+		const response = await app.render(request, { routeData });
+		assert.notEqual(
+			response.status,
+			200,
+			'/appX/admin should not render the protected /admin route via the routeData render path',
+		);
+	});
 });
