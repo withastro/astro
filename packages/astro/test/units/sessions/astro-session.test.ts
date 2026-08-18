@@ -548,6 +548,25 @@ describe('AstroSession - Cookie Security', () => {
 		assert.equal(cookieOptions?.secure, false);
 		assert.equal(cookieOptions?.sameSite, 'lax');
 	});
+
+	it('should reject a non-UUID session cookie value and generate a new ID', async () => {
+		const mockCookies: MockCookies = {
+			...defaultMockCookies,
+			get: () => ({ value: 'not-a-uuid-at-all' }),
+		};
+
+		const session = createSession(defaultConfig, mockCookies);
+		session.set('key', 'value');
+
+		const id = session.sessionID;
+		assert.ok(id, 'session ID should exist');
+		assert.notEqual(id, 'not-a-uuid-at-all', 'non-UUID cookie value should be rejected');
+		assert.match(
+			id!,
+			/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+			'session ID should be a valid UUID',
+		);
+	});
 });
 
 // #endregion
