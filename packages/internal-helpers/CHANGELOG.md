@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.10.3
+
+### Patch Changes
+
+- [#17696](https://github.com/withastro/astro/pull/17696) [`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes incremental build cache invalidation caused by Shiki mutating the `langAlias` config object when loading languages
+
 ## 0.10.2
 
 ### Patch Changes
