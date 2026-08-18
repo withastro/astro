@@ -1,0 +1,20 @@
+---
+import Child from './AssetsChild.astro';
+const { message } = Astro.props;
+---
+
+<style>
+  .asset {
+    color: red;
+  }
+</style>
+
+<style is:inline>
+  .inline {
+    color: blue;
+  }
+</style>
+
+<div class="asset">{message}<slot /><Child /></div>
+<script is:inline>console.log('inline')</script>
+<script>console.log('page')</script>

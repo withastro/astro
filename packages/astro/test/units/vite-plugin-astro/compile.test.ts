@@ -92,6 +92,20 @@ const name = 'world
 		assert.equal(names.includes('file'), true);
 		assert.equal(names.includes('url'), true);
 	});
+
+	it('attaches direct styles and scripts to the component factory', async () => {
+		const result = await compile(
+			`<style>h1 { color: red; }</style><h1>Hello World</h1><script>console.log('hello')</script>`,
+			'/src/components/index.astro',
+		);
+
+		assert.match(result.code, /setComponentAssets/);
+		assert.match(result.code, /h1:where\(.astro-/);
+		assert.match(
+			result.code,
+			/\/src\/components\/index\.astro\?astro&type=script&index=0&lang\.ts/,
+		);
+	});
 });
 
 // #endregion

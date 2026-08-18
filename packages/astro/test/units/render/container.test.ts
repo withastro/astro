@@ -10,8 +10,10 @@ import {
 	render,
 	renderComponent,
 	renderHead,
+	renderScript,
 	renderSlot,
 	renderTemplate,
+	setComponentAssets,
 } from '../../../dist/runtime/server/index.js';
 
 const BaseLayout = createComponent((result, _props, slots) => {
@@ -275,6 +277,37 @@ describe('Container', () => {
 		});
 
 		assert.match(result, /Is open/);
+	});
+
+	it('Renders direct assets around component HTML', async () => {
+		const Child = createComponent((result) => {
+			return render`<span>Child</span>${renderScript(result, 'child-script')}`;
+		});
+		const Page = createComponent((result, props, slots) => {
+			return render`<div>${props.message}${renderSlot(result, slots.default)}${renderComponent(
+				result,
+				'Child',
+				Child,
+				{},
+			)}</div>${renderScript(result, 'page-script')}`;
+		});
+		setComponentAssets(Page, {
+			styles: ['div { color: red; }'],
+			scripts: ['page-script'],
+		});
+
+		const container = await experimental_AstroContainer.create({
+			resolve: async (id) => `/assets/${id}.js`,
+		});
+		const result = await container.renderComponent(Page, {
+			props: { message: 'Hello ' },
+			slots: { default: 'World' },
+		});
+
+		assert.equal(
+			result,
+			'<style>div { color: red; }</style><div>Hello World<span>Child</span><script type="module" src="/assets/child-script.js"></script></div><script type="module" src="/assets/page-script.js"></script>',
+		);
 	});
 
 	it('Astro.site reflects astroConfig.site', async () => {
