@@ -27,6 +27,13 @@ export async function compileAstro({
 	SUFFIX += `\nconst $$file = ${JSON.stringify(file)};\nconst $$url = ${JSON.stringify(
 		url,
 	)};export { $$file as file, $$url as url };\n`;
+	const componentName = /export default ([$\w]+);/.exec(transformResult.code)?.[1];
+	if (componentName) {
+		const scripts = transformResult.scripts.map(
+			(_, index) => `${compileProps.filename}?astro&type=script&index=${index}&lang.ts`,
+		);
+		SUFFIX += `import { setComponentAssets as $$setComponentAssets } from "astro/compiler-runtime";\n$$setComponentAssets(${componentName}, ${JSON.stringify({ styles: transformResult.css.map((style) => style.code), scripts })});\n`;
+	}
 
 	// Add HMR handling in dev mode.
 	if (!compileProps.viteConfig.isProduction) {
