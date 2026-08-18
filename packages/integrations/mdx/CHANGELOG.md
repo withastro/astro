@@ -1,5 +1,13 @@
 # @astrojs/mdx
 
+## 7.0.6
+
+### Patch Changes
+
+- Updated dependencies [[`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277)]:
+  - @astrojs/internal-helpers@0.10.3
+  - @astrojs/markdown-remark@7.2.3
+
 ## 7.0.5
 
 ### Patch Changes
