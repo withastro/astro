@@ -9,6 +9,9 @@ contact_links:
   - name: 💡 Ideas for New Features, Improvements and RFCs
     url: https://github.com/withastro/roadmap/discussions
     about: Propose and discuss future improvements to Astro
-  - name: 👾 Chat
+  - name: 👾 Chat & support
     url: https://astro.build/chat
     about: Our Discord server is active, come join us!
+  - name: ❔ Support (GitHub)
+    url: https://github.com/withastro/community-support/discussions
+    about: Another support channel than our Discord server
