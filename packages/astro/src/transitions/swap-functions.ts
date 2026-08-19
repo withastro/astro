@@ -149,9 +149,12 @@ export function swapBodyElement(newElement: Element, oldElement: Element) {
 	// (Chrome 133+) for zero-detachment atomic moves.
 	const persistPairs: { old: Element; newTarget: Element }[] = [];
 	const docEl = oldElement.ownerDocument.documentElement;
-	// Media that are live right now. Whatever of them survives the swap was carried
-	// over via transition:persist (at any nesting depth, or with the attribute on the
-	// media element itself) and must keep its identity and playback state.
+	// Media that are live right now. The only way for one of these nodes to end up in
+	// the new body is the persist transfer below (a matched `transition:persist`
+	// element moves with its whole subtree — so this also covers media inside an inner
+	// persist container that has no counterpart on the new page, and the attribute
+	// placed on the media element itself). Such nodes were never inert and must keep
+	// their identity and playback state; see reifyMediaElements().
 	const liveMedia = new Set<Element>(oldElement.querySelectorAll('video, audio'));
 
 	// moveBefore() is not yet in TypeScript's DOM lib, feature-detect and wrap.
