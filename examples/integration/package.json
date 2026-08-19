@@ -22,5 +22,8 @@
   },
   "peerDependencies": {
     "astro": "^4.0.0"
+  },
+  "allowScripts": {
+    "esbuild": true
   }
 }

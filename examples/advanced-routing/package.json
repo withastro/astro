@@ -16,5 +16,8 @@
     "@astrojs/node": "^11.1.3",
     "astro": "^7.2.3",
     "hono": "^4.12.14"
+  },
+  "allowScripts": {
+    "esbuild": true
   }
 }
