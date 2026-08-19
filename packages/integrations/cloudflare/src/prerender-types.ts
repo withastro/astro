@@ -54,4 +54,8 @@ export interface SerializedStaticImageEntry {
 	}>;
 }
 
-export type StaticImagesResponse = SerializedStaticImageEntry[];
+export interface StaticImagesResponse {
+	entries: SerializedStaticImageEntry[];
+	/** Image source paths accessed directly (e.g. via `img.src`) during prerendering. */
+	referencedImages: string[];
+}

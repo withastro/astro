@@ -311,7 +311,18 @@ export function createCloudflarePrerenderer({
 							);
 						}
 
-						const entries: StaticImagesResponse = await response.json();
+						const data: StaticImagesResponse = await response.json();
+
+						// Restore the referencedImages set collected in workerd so the
+						// Node-side image pipeline knows which originals are directly
+						// used (e.g. via `img.src`) and must not be deleted.
+						if (data.referencedImages?.length) {
+							globalThis.astroAsset ??= {};
+							globalThis.astroAsset.referencedImages ??= new Set();
+							for (const ref of data.referencedImages) {
+								globalThis.astroAsset.referencedImages.add(ref);
+							}
+						}
 
 						// Transforms left in this map fall through to the Node-side image
 						// service (the user-configured service, or Sharp).
@@ -335,7 +346,7 @@ export function createCloudflarePrerenderer({
 						if (hasBindingImageService) {
 							// Pull each optimized image out of workerd on its own request so the
 							// bytes stream to disk instead of being buffered into one response.
-							const jobs = entries.flatMap((entry) => {
+							const jobs = data.entries.flatMap((entry) => {
 								const sourcePath = isRemotePath(entry.originalPath)
 									? undefined
 									: findOriginalImage(
@@ -369,7 +380,7 @@ export function createCloudflarePrerenderer({
 								},
 							);
 						} else {
-							for (const entry of entries) {
+							for (const entry of data.entries) {
 								for (const t of entry.transforms) {
 									deferToNodeImageService(entry, t);
 								}

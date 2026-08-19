@@ -343,3 +343,61 @@ describe('CompileImageService with prerenderEnvironment: node', () => {
 		}
 	});
 });
+
+// Regression test for #17748: with workerd prerendering, original images whose
+// `src` is referenced directly in the HTML (e.g. `<a href={img.src}>`) must be
+// preserved in the build output. Previously the `referencedImages` set was only
+// populated in workerd and never transferred back to Node, so the originals
+// were deleted.
+describe('CompileImageService preserves directly-referenced original images', () => {
+	it('emits the original image when its src is used directly in markup', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/compile-custom-image-service/',
+			outDir: './dist/compile-referenced-originals/',
+			cacheDir: './node_modules/.astro-referenced-originals/',
+		});
+
+		// Add an <a href={testImage.src}> so the original is "referenced".
+		const resetPage = await fixture.editFile(
+			'src/pages/index.astro',
+			(contents) =>
+				contents.replace(
+					'<Image src={testImage} width={100} alt="test" />',
+					'<a id="original-link" href={testImage.src}>original</a>\n\t\t<Image src={testImage} width={100} alt="test" />',
+				),
+			false,
+		);
+
+		// Remove the user image.service so Sharp runs the transform.
+		const resetConfig = await fixture.editFile(
+			'astro.config.mjs',
+			(contents) =>
+				contents.replace(
+					"\n\timage: {\n\t\tservice: {\n\t\t\tentrypoint: './src/image-service.ts',\n\t\t},\n\t},",
+					'',
+				),
+			false,
+		);
+
+		try {
+			await fixture.build();
+			const html = await fixture.readFile('client/index.html');
+			const $ = cheerio.load(html);
+
+			const originalHref = $('a#original-link').attr('href');
+			assert.ok(originalHref, 'expected an <a> with the original image href');
+			assert.match(
+				originalHref,
+				/^\/_astro\/.+\.jpg$/,
+				'expected the original href to point to a hashed asset',
+			);
+
+			// The original image file must exist in the build output.
+			const originalFile = await fixture.readFile(`client${originalHref}`, null);
+			assert.ok(originalFile, 'original image file should exist in the build output');
+		} finally {
+			resetConfig();
+			resetPage();
+		}
+	});
+});
