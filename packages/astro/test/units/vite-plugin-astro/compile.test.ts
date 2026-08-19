@@ -100,6 +100,7 @@ const name = 'world
 		);
 
 		assert.match(result.code, /setComponentAssets/);
+		assert.equal((result.code.match(/from "astro\/compiler-runtime"/g) ?? []).length, 1);
 		assert.match(result.code, /h1:where\(.astro-/);
 		assert.match(
 			result.code,

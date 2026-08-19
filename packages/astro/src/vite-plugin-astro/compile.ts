@@ -18,6 +18,7 @@ export async function compileAstro({
 	astroFileToCompileMetadata,
 }: CompileAstroOption): Promise<CompileAstroResult> {
 	const transformResult = await compile(compileProps);
+	let code = transformResult.code;
 
 	const { fileId: file, fileUrl: url } = getFileInfo(
 		compileProps.filename,
@@ -29,18 +30,41 @@ export async function compileAstro({
 		url,
 	)};export { $$file as file, $$url as url };\n`;
 	await init;
-	const [, exports] = parse(transformResult.code);
+	const [imports, exports] = parse(code);
 	const defaultExport = exports.find((entry) => entry.n === 'default');
 	const componentName =
 		defaultExport?.ln ??
-		(defaultExport
-			? /^\s*([$A-Z_a-z][$\w]*)/.exec(transformResult.code.slice(defaultExport.e))?.[1]
-			: undefined);
+		(defaultExport ? /^\s*([$A-Z_a-z][$\w]*)/.exec(code.slice(defaultExport.e))?.[1] : undefined);
 	if (componentName) {
-		const scripts = transformResult.scripts.map(
-			(_, index) => `${compileProps.filename}?astro&type=script&index=${index}&lang.ts`,
-		);
-		SUFFIX += `import { setComponentAssets as $$setComponentAssets } from "astro/compiler-runtime";\n$$setComponentAssets(${componentName}, ${JSON.stringify({ styles: transformResult.css.map((style) => style.code), scripts })});\n`;
+		const declaration = `const ${componentName} = `;
+		const declarationStart = code.indexOf(declaration);
+		const initializerStart = declarationStart + declaration.length;
+		const initializerEnd = code.lastIndexOf(';', defaultExport!.s);
+		const runtimeImport = imports.find((entry) => entry.n === 'astro/compiler-runtime');
+		const importEnd = runtimeImport ? code.indexOf('}', runtimeImport.ss) : -1;
+		if (
+			declarationStart !== -1 &&
+			initializerEnd !== -1 &&
+			runtimeImport &&
+			importEnd !== -1 &&
+			importEnd < runtimeImport.s
+		) {
+			const scripts = transformResult.scripts.map(
+				(_, index) => `${compileProps.filename}?astro&type=script&index=${index}&lang.ts`,
+			);
+			const assets = JSON.stringify({
+				styles: transformResult.css.map((style) => style.code),
+				scripts,
+			});
+			code =
+				code.slice(0, initializerStart) +
+				`/* @__PURE__ */ $$setComponentAssets(${code.slice(initializerStart, initializerEnd)}, ${assets})` +
+				code.slice(initializerEnd);
+			code =
+				code.slice(0, importEnd) +
+				', setComponentAssets as $$setComponentAssets' +
+				code.slice(importEnd);
+		}
 	}
 
 	// Add HMR handling in dev mode.
@@ -61,7 +85,7 @@ export async function compileAstro({
 
 	return {
 		...transformResult,
-		code: transformResult.code + SUFFIX,
+		code: code + SUFFIX,
 		map: transformResult.map || null,
 	};
 }

@@ -29,8 +29,9 @@ export interface AstroComponentFactory {
 export function setComponentAssets(
 	factory: AstroComponentFactory,
 	assets: AstroContainerAssets,
-): void {
+): AstroComponentFactory {
 	Object.defineProperty(factory, 'containerAssets', { value: assets });
+	return factory;
 }
 
 export function isAstroComponentFactory(obj: any): obj is AstroComponentFactory {
