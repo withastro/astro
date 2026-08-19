@@ -249,11 +249,12 @@ export async function createHighlightFn(
 
 	if (syntaxHighlightType === 'prism') {
 		const { runHighlighterWithAstro } = await import('@astrojs/prism/dist/highlighter');
-		const { fromHtml } = await import('hast-util-from-html');
+		const { htmlToHast } = await loadSatteri();
 		return async (code, lang) => {
 			const { html, classLanguage } = await runHighlighterWithAstro(lang, code);
 			const pre = `<pre class="${classLanguage}" data-language="${lang}"><code class="${classLanguage}">${html}</code></pre>`;
-			return fromHtml(pre, { fragment: true }).children[0] as HastNode;
+			const tree = htmlToHast(pre, { fragment: true });
+			return ('children' in tree ? tree.children[0] : undefined) as HastNode;
 		};
 	}
 
