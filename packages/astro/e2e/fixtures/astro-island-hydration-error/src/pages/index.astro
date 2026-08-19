@@ -1,0 +1,21 @@
+---
+import Counter from '../components/Counter.jsx';
+---
+
+<html>
+	<head>
+		<script>
+			window.__hydrationErrorEvents = [];
+			window.addEventListener('astro:hydration-error', (event) => {
+				window.__hydrationErrorEvents.push({
+					componentUrl: event.detail?.componentUrl,
+					hasError: !!event.detail?.error,
+				});
+				event.preventDefault();
+			});
+		</script>
+	</head>
+	<body>
+		<Counter client:load />
+	</body>
+</html>

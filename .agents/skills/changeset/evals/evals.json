@@ -1,0 +1,48 @@
+{
+  "skill_name": "changeset",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Draft the exact contents of one changeset from this isolated context. Do not inspect the repository, run commands, or create files. Return only raw changeset Markdown without a code fence or explanation.\n\nContext:\n- The exact package name is `@astrojs/node`.\n- This is a backward-compatible bug fix.\n- The Node adapter currently produces invalid server URLs for IPv6 hosts such as `::1`; the fix brackets IPv6 addresses so generated URLs and startup output are valid.\n- Internally, the patch adds a `formatAddress()` helper and updates `server-address.test.js`.\n- The focused test command passed.",
+      "expected_output": "A patch changeset for `@astrojs/node` with a short user-facing message beginning with a present-tense verb and omitting implementation and test-process details.",
+      "files": [],
+      "assertions": [
+        "The output begins and ends its YAML front matter with `---`.",
+        "The front matter contains exactly one package entry: `'@astrojs/node': patch`.",
+        "The body contains one concise changelog paragraph whose first word is `Fixes`.",
+        "The message identifies IPv6 hosts and valid generated server URLs or startup URLs as the user-visible impact.",
+        "The message does not mention `formatAddress()`, `server-address.test.js`, a test command, or passing tests.",
+        "The output contains no prose before the opening front matter and no code fence."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Draft the exact changeset contents for this feature. Work only from the inline context; do not inspect files, run commands, or create anything. Return raw changeset Markdown with no surrounding explanation.\n\nContext:\n- The exact package name is `@astrojs/cloudflare`.\n- This is a backward-compatible public feature.\n- A new optional adapter property, `imageService: 'cloudflare'`, lets sites generate Cloudflare Image Resizing URLs for Astro image transformations.\n- Existing projects behave as before when the property is omitted.\n- Include a minimal JavaScript configuration example containing `cloudflare({ imageService: 'cloudflare' })` because usage is not obvious from the option name.\n- The internal implementation class and test commands are irrelevant to users.",
+      "expected_output": "A minor changeset beginning with an Adds statement, naming the option and user capability, followed by a minimal JavaScript example.",
+      "files": [],
+      "assertions": [
+        "The front matter contains exactly `'@astrojs/cloudflare': minor` and no other package entry.",
+        "The first prose sentence begins with `Adds`.",
+        "The prose formats `imageService` as inline code and explains that it generates Cloudflare Image Resizing URLs.",
+        "The body states or demonstrates that the option is configured with the value `cloudflare`.",
+        "The changeset contains a fenced `js` example with `cloudflare({ imageService: 'cloudflare' })`.",
+        "The message does not discuss internal classes, tests, commands, or passing checks.",
+        "The message contains no level-two or level-three Markdown headings; any heading used is level four or deeper."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Before creating anything, assess this changeset request and respond with the decision and a brief reason. Do not inspect the repository, run commands, or edit files.\n\nThe only changed paths are `examples/view-transitions/src/pages/index.astro` and `examples/view-transitions/README.md`. No package source or package metadata changed. I want an `'astro': minor` changeset so the new example appears in core release notes, but no maintainer has reviewed the bump.",
+      "expected_output": "A refusal to create the changeset because examples-only changes are exempt and cannot justify a core package bump, with an additional warning that core minor bumps require maintainer review and are blocked by CI.",
+      "files": [],
+      "assertions": [
+        "The response states that an examples-only change does not require a changeset.",
+        "The response states that the example does not justify bumping the `astro` package.",
+        "The response notes that minor bumps to core `astro` require maintainer review and are blocked by CI.",
+        "The response does not emit YAML front matter or a candidate `'astro': minor` changeset.",
+        "The response does not claim that a changeset was created.",
+        "No `.changeset` file or other file is created."
+      ]
+    }
+  ]
+}

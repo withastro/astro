@@ -1,0 +1,12 @@
+---
+export const prerender = true;
+---
+
+<html>
+  <head><title>Test</title></head>
+  <body>
+    <p>Some content before the error</p>
+    {(() => { throw new Error('Intentional render error for testing'); })()}
+    <p>This should never be written to disk.</p>
+  </body>
+</html>

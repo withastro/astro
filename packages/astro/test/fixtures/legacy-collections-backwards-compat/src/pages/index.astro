@@ -1,0 +1,26 @@
+---
+import { getCollection } from 'astro:content';
+
+const blogPosts = await getCollection('blog');
+const dataItems = await getCollection('data');
+---
+
+<html>
+	<head>
+		<title>Legacy Collections Test</title>
+	</head>
+	<body>
+		<h1>Blog Posts</h1>
+		<ul>
+			{blogPosts.map(post => (
+				<li>{post.id}: {post.data.title}</li>
+			))}
+		</ul>
+		<h1>Data Items</h1>
+		<ul>
+			{dataItems.map(item => (
+				<li>{item.id}: {item.data.name}</li>
+			))}
+		</ul>
+	</body>
+</html>

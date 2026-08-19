@@ -1,0 +1,12 @@
+---
+// Catch-all route — simulates a custom 404 handler.
+// This is intentional: if SSR-emitted assets are missing from manifest.assets,
+// asset requests like /_astro/*.css will match this catch-all instead of being
+// served as static files. See https://github.com/withastro/astro/issues/16039
+const { path } = Astro.params;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head><title>Not Found</title></head>
+<body>catch-all: {path}</body>
+</html>

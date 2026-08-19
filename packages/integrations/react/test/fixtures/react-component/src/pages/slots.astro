@@ -1,0 +1,21 @@
+---
+import ConditionalSlot from '../components/ConditionalSlot.jsx';
+
+const showEmptySlot = false;
+const showFilledSlot = true;
+---
+
+<html>
+	<head>
+		<title>Slots</title>
+	</head>
+	<body>
+		<ConditionalSlot id="empty" client:load>
+			{showEmptySlot ? <span slot="conditional">Hidden</span> : null}
+		</ConditionalSlot>
+
+		<ConditionalSlot id="filled" client:load>
+			{showFilledSlot ? <span slot="conditional">Visible</span> : null}
+		</ConditionalSlot>
+	</body>
+</html>

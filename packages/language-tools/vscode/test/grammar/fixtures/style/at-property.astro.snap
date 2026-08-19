@@ -1,0 +1,91 @@
+><script>
+#^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.start.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>  console.log(window);
+#^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.embedded.block.astro source.js
+></script>
+#^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro entity.name.tag.astro
+#        ^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
+><style>
+#^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro entity.name.tag.astro
+#      ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>  @property --logo-color {
+#^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css
+#   ^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css entity.name.tag.css
+#           ^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+#              ^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css entity.name.tag.css
+#                        ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+#                         ^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css
+>    syntax: "<color>";
+#^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+#    ^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css entity.name.tag.css
+#          ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+#              ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css entity.name.tag.css
+#                   ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css keyword.operator.combinator.css
+#                    ^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+>    inherits: false;
+#^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+#    ^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css entity.name.tag.css
+#            ^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+#              ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css entity.name.tag.css
+#                   ^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+>    initial-value: #c0ffee;
+#^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+#    ^^^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css entity.name.tag.css
+#                 ^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+#                    ^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css entity.name.tag.css
+#                          ^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+>  }
+#^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+></style>
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
+><style>
+#^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro entity.name.tag.astro
+#      ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>  div {
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+#  ^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css entity.name.tag.css
+#     ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+#      ^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css
+>    background: red;
+#^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+#    ^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css entity.name.tag.css
+#              ^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+#                ^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css entity.name.tag.css
+#                   ^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+>  }
+#^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css meta.selector.css
+></style>
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
+><script>
+#^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.start.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>  console.log(window);
+#^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.embedded.block.astro source.js
+>
+>  function testFunc() {
+#^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.embedded.block.astro source.js
+>        console.log("test");
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.embedded.block.astro source.js
+>    }
+#^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.embedded.block.astro source.js
+>
+>    testFunc();
+#^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.embedded.block.astro source.js
+></script>
+#^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro entity.name.tag.astro
+#        ^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>

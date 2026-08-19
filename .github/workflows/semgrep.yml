@@ -1,0 +1,19 @@
+name: Semgrep OSS scan
+
+permissions: {}
+
+on:
+  pull_request: {}
+  schedule:
+    - cron: '0 0 * * 6'
+jobs:
+  semgrep:
+    name: semgrep-oss
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # Checkout only
+    container:
+      image: semgrep/semgrep@sha256:40579a2e70910d891959a4868711ba0399293949a2f1f141ddb5002d5fc7dd0f # v1.157.0
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+      - run: semgrep scan --config=auto

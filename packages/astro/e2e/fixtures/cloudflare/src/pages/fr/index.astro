@@ -1,0 +1,50 @@
+---
+import { getAbsoluteLocaleUrlList } from "astro:i18n";
+export const prerender = false;
+import { getCollection, getEntry, render } from 'astro:content';
+import Hello from '../../components/react/Hello.tsx';
+import Island from '../../components/Island.astro';
+
+const workerRuntime = globalThis.navigator?.userAgent
+const blog = await getCollection('blog');
+const first = await getEntry('blog', 1);
+const dogs = await getCollection('dogs');
+const increment = await getEntry('increment', 'value');
+const { Content } = await render(increment);
+---
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>French index</title>
+</head>
+<body>
+<p>Last updated: {increment.data.lastUpdated.toLocaleTimeString()}</p>
+
+<h1>French Dogs</h1>
+<p>Running on: {workerRuntime ?? 'unknown runtime'}</p>
+<div id="framework">
+	<Hello client:load />
+</div>
+<Island server:defer/>
+<ul>
+	{dogs.map(dog => (
+		<li><a href={`/dogs/${dog.id}`}>{ dog.data?.breed }</a></li>
+	))}
+</ul>
+<section>
+	<Content />
+</section>
+<h1>Blog Posts</h1>
+
+<h2>{first.data.title}</h2>
+<ul>
+	{blog.map(post => (
+		<li><a href={`/blog/${post.id}`}>{ post.data?.title }</a></li>
+	))}
+</ul>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,38 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Inicio">
+	<h1>Inicio</h1>
+	<p>Esta es la version en espanol, servida a traves del middleware <code>astro()</code>.</p>
+	<p><a href="/">English</a></p>
+</Layout>
+
+<style>
+	h1 {
+		font-size: 1.75rem;
+		font-weight: 700;
+		margin-bottom: 1rem;
+	}
+
+	p {
+		color: #8b8fa3;
+		line-height: 1.6;
+		margin-bottom: 1rem;
+	}
+
+	code {
+		background: #1a1d27;
+		border: 1px solid #2a2d3a;
+		padding: 0.15em 0.4em;
+		border-radius: 4px;
+		font-size: 0.85em;
+	}
+
+	a {
+		color: #6366f1;
+	}
+	a:hover {
+		color: #818cf8;
+	}
+</style>

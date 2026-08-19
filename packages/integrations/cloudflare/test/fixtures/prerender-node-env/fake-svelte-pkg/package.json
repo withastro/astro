@@ -1,0 +1,11 @@
+{
+  "name": "fake-svelte-pkg",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  }
+}
