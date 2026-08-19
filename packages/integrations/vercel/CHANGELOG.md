@@ -1,5 +1,16 @@
 # @astrojs/vercel
 
+## 11.0.7
+
+### Patch Changes
+
+- [#17687](https://github.com/withastro/astro/pull/17687) [`0a22ff5`](https://github.com/withastro/astro/commit/0a22ff5b7e4600356ccabfe571b7ffdad76064d7) Thanks [@asmyshlyaev177](https://github.com/asmyshlyaev177)! - Fixes `middlewareMode: 'edge'` not running your middleware when `isr` is also enabled
+
+  Previously, enabling both options deployed the edge middleware but never reached it: requests went straight to the ISR function, which skips rendering entirely on a cache hit. Middleware now runs at the edge for ISR-backed routes before the cached response is served, and query strings are preserved when it forwards the request.
+
+- Updated dependencies [[`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527)]:
+  - @astrojs/internal-helpers@0.10.4
+
 ## 11.0.6
 
 ### Patch Changes
