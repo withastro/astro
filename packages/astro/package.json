@@ -171,7 +171,7 @@
     "ultrahtml": "^1.6.0",
     "unifont": "~0.7.5",
     "unstorage": "^1.17.5",
-    "verkit": "^0.3.2",
+    "verkit": "^0.4.0",
     "vite": "^8.0.13",
     "vitefu": "^1.1.2",
     "xxhash-wasm": "^1.1.0",
