@@ -30,7 +30,7 @@ export function setComponentAssets(
 	factory: AstroComponentFactory,
 	assets: AstroContainerAssets,
 ): void {
-	Object.defineProperty(factory, 'assets', { value: assets });
+	Object.defineProperty(factory, 'containerAssets', { value: assets });
 }
 
 export function isAstroComponentFactory(obj: any): obj is AstroComponentFactory {
