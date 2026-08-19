@@ -2,10 +2,6 @@
 '@astrojs/vercel': patch
 ---
 
-Fixes `middlewareMode: 'edge'` being ignored when `isr` is enabled
+Fixes `middlewareMode: 'edge'` not running your middleware when `isr` is also enabled
 
-The middleware edge function was built and deployed, but every route was pointed at the ISR function instead, so nothing invoked it. Middleware only ran inside the ISR function — which ISR skips entirely on a cache hit — meaning middleware silently stopped running once an entry was warm.
-
-Routes backed by ISR now go through the middleware edge function first, and `next()` forwards to the ISR function so cached responses are still served. Routes listed in `isr.exclude` continue to forward to the serverless function.
-
-Query strings are also no longer lost when middleware forwards a request: the entrypoint now keeps the query the middleware sends alongside the real path.
+Previously, enabling both options deployed the edge middleware but never reached it: requests went straight to the ISR function, which skips rendering entirely on a cache hit. Middleware now runs at the edge for ISR-backed routes before the cached response is served, and query strings are preserved when it forwards the request.
