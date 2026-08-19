@@ -1,4 +1,5 @@
 import type { Rolldown } from 'vite';
+import { init, parse } from 'es-module-lexer';
 import { type CompileProps, type CompileResult, compile } from '../core/compile/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import type { CompileMetadata } from './types.js';
@@ -27,7 +28,14 @@ export async function compileAstro({
 	SUFFIX += `\nconst $$file = ${JSON.stringify(file)};\nconst $$url = ${JSON.stringify(
 		url,
 	)};export { $$file as file, $$url as url };\n`;
-	const componentName = /export default ([$\w]+);/.exec(transformResult.code)?.[1];
+	await init;
+	const [, exports] = parse(transformResult.code);
+	const defaultExport = exports.find((entry) => entry.n === 'default');
+	const componentName =
+		defaultExport?.ln ??
+		(defaultExport
+			? /^\s*([$A-Z_a-z][$\w]*)/.exec(transformResult.code.slice(defaultExport.e))?.[1]
+			: undefined);
 	if (componentName) {
 		const scripts = transformResult.scripts.map(
 			(_, index) => `${compileProps.filename}?astro&type=script&index=${index}&lang.ts`,

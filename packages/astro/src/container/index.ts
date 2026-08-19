@@ -580,7 +580,7 @@ export class experimental_AstroContainer {
 		});
 		const html = await this.renderToString(Wrapper, options);
 		const styles = assets.styles
-			.map((style) => `<style>${style.replace(/<\/style/gi, '<\\/style')}</style>`)
+			.map((style) => `<style>${style.replace(/<\/style(?=[\t\n\f\r />])/gi, '<\\/style')}</style>`)
 			.join('');
 		return styles + html + scripts;
 	}

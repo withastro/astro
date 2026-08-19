@@ -310,6 +310,19 @@ describe('Container', () => {
 		);
 	});
 
+	it('Escapes style end tags in direct CSS', async () => {
+		const Page = createComponent(() => render`<div></div>`);
+		setComponentAssets(Page, {
+			styles: ['.test::before { content: "</style >"; }'],
+			scripts: [],
+		});
+
+		const container = await experimental_AstroContainer.create();
+		const result = await container.renderComponent(Page);
+
+		assert.equal(result, '<style>.test::before { content: "<\\/style >"; }</style><div></div>');
+	});
+
 	it('Astro.site reflects astroConfig.site', async () => {
 		const $Astro = createAstro('https://example.com');
 		const SitePage = createComponent((result, props, slots) => {
