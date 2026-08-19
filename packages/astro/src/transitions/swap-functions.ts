@@ -199,7 +199,9 @@ export function swapBodyElement(newElement: Element, oldElement: Element) {
 	// retroactively initialise one, leaving controls disabled. Replacing each
 	// element with a fresh copy created via document.createElement() forces
 	// the browser to set up playback. See https://github.com/withastro/astro/issues/17601
-	reifyMediaElements(newElement);
+	// Media inside persisted subtrees were never inert: they are the live nodes of
+	// the previous page, and re-creating them would destroy their playback state.
+	reifyMediaElements(newElement, new Set(persistPairs.map((pair) => pair.old)));
 }
 
 /**
@@ -208,10 +210,15 @@ export function swapBodyElement(newElement: Element, oldElement: Element) {
  * never initialises the media stack, leaving controls disabled after a view-transition
  * swap. Creating a fresh element via `document.createElement()` and copying attributes
  * and children forces proper initialisation.
+ * Media inside `persisted` hosts are skipped: they were carried over from the old
+ * document via `transition:persist` and are already live — replacing them would
+ * reset `currentTime`/`paused` and drop listeners and framework refs.
  * @see https://github.com/withastro/astro/issues/17601
  */
-function reifyMediaElements(root: Element) {
+function reifyMediaElements(root: Element, persisted: ReadonlySet<Element>) {
 	for (const media of root.querySelectorAll<HTMLVideoElement | HTMLAudioElement>('video, audio')) {
+		const persistedHost = media.closest(`[${PERSIST_ATTR}]`);
+		if (persistedHost && persisted.has(persistedHost)) continue;
 		const fresh = document.createElement(media.localName);
 		for (const attr of media.attributes) {
 			fresh.setAttribute(attr.name, attr.value);
