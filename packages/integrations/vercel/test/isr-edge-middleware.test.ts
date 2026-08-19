@@ -165,7 +165,7 @@ describe('ISR with edge middleware', () => {
 		const bundle = await fixture.readFile(
 			'../.vercel/output/functions/_middleware.func/middleware.mjs',
 		);
-		const secret = (/"x-astro-middleware-secret":\s*"([^"]+)"/.exec(bundle))?.[1];
+		const secret = /"x-astro-middleware-secret":\s*"([^"]+)"/.exec(bundle)?.[1];
 		assert.ok(secret, 'the generated middleware carries no secret');
 		return secret;
 	}
