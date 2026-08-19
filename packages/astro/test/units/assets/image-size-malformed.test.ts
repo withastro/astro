@@ -1,11 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 
-const lookupPath = fileURLToPath(
-	new URL('../../../dist/assets/utils/vendor/image-size/lookup.js', import.meta.url),
-);
+// Must stay a file:// URL: a bare Windows path is rejected by dynamic import as an unknown scheme.
+const lookupUrl = new URL('../../../dist/assets/utils/vendor/image-size/lookup.js', import.meta.url)
+	.href;
 
 const PROBE_TIMEOUT = 10_000;
 
@@ -18,7 +17,7 @@ function writeAscii(buffer: Uint8Array, offset: number, text: string) {
 // A missing guard shows up as a hang, so probe in a child process we can actually kill.
 function probe(payload: Uint8Array) {
 	const source = `
-		const { lookup } = await import(${JSON.stringify(lookupPath)});
+		const { lookup } = await import(${JSON.stringify(lookupUrl)});
 		const input = new Uint8Array(Buffer.from(process.argv[1], 'base64'));
 		try { lookup(input); } catch {}
 	`;
