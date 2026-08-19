@@ -30,7 +30,11 @@ function probe(payload: Uint8Array) {
 
 function assertTerminates(payload: Uint8Array) {
 	const result = probe(payload);
-	assert.equal(result.signal, null, `probe was killed after ${PROBE_TIMEOUT}ms instead of returning`);
+	assert.equal(
+		result.signal,
+		null,
+		`probe was killed after ${PROBE_TIMEOUT}ms instead of returning`,
+	);
 	assert.equal(result.status, 0, `probe exited unexpectedly: ${result.stderr}`);
 }
 
