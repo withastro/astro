@@ -32,6 +32,11 @@ overrides:
   '@types/node@22': '^22.19.0'
   # Force modern-tar to 0.7.7 which fixes Unicode NFC/NFD path normalization on Linux (issue #17381)
   'modern-tar': '>=0.7.7'
+  # Force nanoid to ^3.3.17, which fixes an infinite loop in customAlphabet/customRandom
+  # when size is 0 (GHSA-6v77-jg2r-5qmr). Reaches us transitively via vite -> postcss.
+  # Pinned to the 3.x line because postcss depends on nanoid@^3; a `>=` range would
+  # pull the breaking, ESM-only nanoid@6 into postcss's v3 API slot.
+  'nanoid@<3.3.17': '^3.3.17'
 
 # Wait until three days after release to install new versions of packages
 minimumReleaseAge: 4320
