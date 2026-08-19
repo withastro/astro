@@ -959,6 +959,16 @@ export class FetchState implements AstroFetchState {
 			!routeHasHtmlExtension(this.routeData)
 		) {
 			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+			// Route patterns are compiled with the configured trailing slash, so a
+			// pathname left without one after stripping `.html` no longer matches its
+			// own route and yields no params.
+			if (
+				this.manifest.trailingSlash === 'always' &&
+				this.pathname !== '' &&
+				!this.pathname.endsWith('/')
+			) {
+				this.pathname += '/';
+			}
 		}
 	}
 
