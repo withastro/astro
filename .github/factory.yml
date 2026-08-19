@@ -17,7 +17,15 @@ review:
     - documentation
     - changeset
 
-# Review only for now. Triage is enabled by default, so it has to be
-# switched off explicitly.
 triage:
-  enabled: false
+  enabled: true
+  skill: .agents/skills/triage
+  model: anthropic/claude-opus-4-6
+  verificationModel: anthropic/claude-sonnet-4-6
+  autoPrOnFix: false
+  installCommand:
+    - pnpm install --no-frozen-lockfile
+    - git clone --depth 1 https://github.com/withastro/compiler.git .compiler || true
+  buildCommand: pnpm build
+  previewRelease:
+    workflow: factory-preview.yml
