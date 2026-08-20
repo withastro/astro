@@ -802,8 +802,8 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
       js-yaml:
-        specifier: ^4.3.0
-        version: 4.3.0
+        specifier: ^5.3.0
+        version: 5.3.0
       jsonc-parser:
         specifier: ^3.3.1
         version: 3.3.1
@@ -6687,8 +6687,8 @@ importers:
         specifier: ^4.0.4
         version: 4.0.4
       js-yaml:
-        specifier: ^4.3.0
-        version: 4.3.0
+        specifier: ^5.3.0
+        version: 5.3.0
       picomatch:
         specifier: ^4.0.4
         version: 4.0.5
@@ -6960,8 +6960,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1(esbuild@0.17.19)
       js-yaml:
-        specifier: ^4.3.0
-        version: 4.3.0
+        specifier: ^5.3.0
+        version: 5.3.0
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
@@ -7168,12 +7168,6 @@ importers:
       tsx:
         specifier: ^4.22.0
         version: 4.22.3
-
-  triage/gh-17744:
-    dependencies:
-      astro:
-        specifier: ^7.2.4
-        version: link:../../packages/astro
 
 packages:
 
@@ -12991,8 +12985,8 @@ packages:
     resolution: {integrity: sha512-1td788aAnnZ5qs7V2QIRl1owjtYpbKt749Y3xauqQgwIIGF/xXWz1wMTEBx5O3LK3lXLVuqXPdPxj2BoFHaW9Q==}
     hasBin: true
 
-  js-yaml@5.2.3:
-    resolution: {integrity: sha512-n+mUVyUX5bVv7G/G2zyIHOhdxfuU1dY2NOFzTQUWiMUbFss8b57NFlgCCaggU78wSw5KVS9cllzeLyzyR+n5nw==}
+  js-yaml@5.3.0:
+    resolution: {integrity: sha512-muutsYr+e2+d3rTgUGslq5rxbBlUy3cJ61IsHag2QNDQV+7zXWjkUpmALIajhrlLlrgRUiymj6U3zUr/TMK84Q==}
     hasBin: true
 
   jsdoc-type-pratt-parser@7.1.1:
@@ -18047,7 +18041,7 @@ snapshots:
       '@modelcontextprotocol/client': 2.0.0
       '@valibot/to-json-schema': 1.5.0(valibot@1.4.2)
       hono: 4.12.18
-      js-yaml: 5.2.3
+      js-yaml: 5.3.0
       ulidx: 2.4.1
       valibot: 1.4.2(typescript@6.0.3)
     transitivePeerDependencies:
@@ -22777,7 +22771,7 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
-  js-yaml@5.2.3:
+  js-yaml@5.3.0:
     dependencies:
       argparse: 2.0.1
 
