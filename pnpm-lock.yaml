@@ -211,10 +211,6 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      astro-benchmark:
-        specifier: workspace:*
-        version: link:benchmark
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.5
@@ -237,6 +233,9 @@ importers:
       '@types/node':
         specifier: ^22.19.0
         version: 22.19.19
+      astro-benchmark:
+        specifier: workspace:*
+        version: link:benchmark
       bgproc:
         specifier: ^0.2.0
         version: 0.2.0
