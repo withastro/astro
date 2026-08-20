@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Adds support for importing `.apng` (Animated PNG) files in Astro components using the standard image import syntax
+Adds support for importing `.apng` files as image metadata for use with standard `<img>` elements. Astro's image components reject APNG files to avoid removing their animation

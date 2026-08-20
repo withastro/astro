@@ -27,7 +27,6 @@ export const VALID_SUPPORTED_FORMATS = [
 	'jpeg',
 	'jpg',
 	'png',
-	'apng',
 	'tiff',
 	'webp',
 	'gif',
