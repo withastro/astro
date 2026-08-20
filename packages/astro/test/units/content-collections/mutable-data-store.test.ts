@@ -128,6 +128,148 @@ describe('MutableDataStore', () => {
 		);
 	});
 
+	it('removes stale module imports when an entry is deleted (via debounced write trigger)', async () => {
+		const modulesFilePath = path.join(tmpDir, 'content-modules-delete.mjs');
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('docs');
+
+		scoped.set({
+			id: 'page-a',
+			data: {},
+			filePath: 'src/content/docs/page-a.mdx',
+			deferredRender: true,
+		});
+
+		scoped.set({
+			id: 'page-b',
+			data: {},
+			filePath: 'src/content/docs/page-b.mdx',
+			deferredRender: true,
+		});
+
+		await store.writeModuleImports(modulesFilePath);
+		const contentBefore = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(contentBefore.includes('page-a.mdx'), 'should contain page-a before deletion');
+		assert.ok(contentBefore.includes('page-b.mdx'), 'should contain page-b before deletion');
+
+		// Do NOT call writeModuleImports() again here: that would rebuild and write
+		// synchronously regardless of whether delete() actually schedules a rewrite.
+		// Rely solely on the debounced trigger that delete() is supposed to schedule,
+		// flushed via waitUntilSaveComplete(), so this test exercises the real
+		// dev-server code path (a filesystem delete triggers a rewrite on its own).
+		scoped.delete('page-a');
+		await store.waitUntilSaveComplete();
+
+		const contentAfter = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(
+			!contentAfter.includes('page-a.mdx'),
+			'should NOT contain page-a after the entry is deleted',
+		);
+		assert.ok(contentAfter.includes('page-b.mdx'), 'should still contain page-b');
+	});
+
+	it('removes stale module imports when a collection is cleared (via debounced write trigger)', async () => {
+		const modulesFilePath = path.join(tmpDir, 'content-modules-clear.mjs');
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('docs');
+
+		scoped.set({
+			id: 'page-1',
+			data: {},
+			filePath: 'src/content/docs/page-1.mdx',
+			deferredRender: true,
+		});
+
+		await store.writeModuleImports(modulesFilePath);
+		const contentBefore = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(contentBefore.includes('page-1.mdx'), 'should contain page-1 before clear');
+
+		scoped.clear();
+		await store.waitUntilSaveComplete();
+
+		const contentAfter = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(
+			!contentAfter.includes('page-1.mdx'),
+			'should NOT contain page-1 after the collection is cleared',
+		);
+	});
+
+	it('removes stale module imports when the entire store is cleared via clearAll (via debounced write trigger)', async () => {
+		const modulesFilePath = path.join(tmpDir, 'content-modules-clear-all.mjs');
+		const store = new MutableDataStore();
+		const docsScoped = store.scopedStore('docs');
+		const blogScoped = store.scopedStore('blog');
+
+		docsScoped.set({
+			id: 'page-1',
+			data: {},
+			filePath: 'src/content/docs/page-1.mdx',
+			deferredRender: true,
+		});
+		blogScoped.set({
+			id: 'post-1',
+			data: {},
+			filePath: 'src/content/blog/post-1.mdx',
+			deferredRender: true,
+		});
+
+		await store.writeModuleImports(modulesFilePath);
+		const contentBefore = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(contentBefore.includes('page-1.mdx'), 'should contain page-1 before clearAll');
+		assert.ok(contentBefore.includes('post-1.mdx'), 'should contain post-1 before clearAll');
+
+		store.clearAll();
+		await store.waitUntilSaveComplete();
+
+		const contentAfter = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(
+			!contentAfter.includes('page-1.mdx'),
+			'should NOT contain page-1 after clearAll',
+		);
+		assert.ok(
+			!contentAfter.includes('post-1.mdx'),
+			'should NOT contain post-1 after clearAll',
+		);
+	});
+
+	it('removes the old module import and adds the new one when an entry is renamed (issue #17707)', async () => {
+		// A rename is how glob.ts actually models it: delete the old id, then set the new one.
+		const modulesFilePath = path.join(tmpDir, 'content-modules-rename.mjs');
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('docs');
+
+		scoped.set({
+			id: 'otp',
+			data: {},
+			filePath: 'src/content/docs/otp.mdx',
+			deferredRender: true,
+		});
+
+		await store.writeModuleImports(modulesFilePath);
+		const contentBefore = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(contentBefore.includes('otp.mdx'), 'should contain the original file before rename');
+
+		// Rename: delete the old entry, then set the new one under a new id/filePath.
+		scoped.delete('otp');
+		scoped.set({
+			id: 'the-otp',
+			data: {},
+			filePath: 'src/content/docs/the-otp.mdx',
+			deferredRender: true,
+		});
+		await store.waitUntilSaveComplete();
+
+		const contentAfter = await fs.readFile(modulesFilePath, 'utf-8');
+		assert.ok(
+			!contentAfter.includes('"src/content/docs/otp.mdx"'),
+			'should NOT reference the old (renamed-away) file path',
+		);
+		assert.ok(
+			contentAfter.includes('the-otp.mdx'),
+			'should reference the new (renamed-to) file path',
+		);
+	});
+
 	it('reproduces race condition: concurrent writeToDisk() calls lose data', async () => {
 		const filePath = pathToFileURL(path.join(tmpDir, 'data-store.json'));
 		const store = await MutableDataStore.fromFile(filePath);
