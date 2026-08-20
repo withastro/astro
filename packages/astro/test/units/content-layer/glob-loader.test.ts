@@ -601,4 +601,46 @@ describe('Glob Loader', () => {
 		// No duplicate warnings should be logged
 		assert.ok(!warnings.some((w) => w.includes('post')));
 	});
+
+	it('loads files whose names contain a colon', async () => {
+		const store = new MutableDataStore();
+		const errors: string[] = [];
+		const settings = createMinimalSettings(root, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					if (msg.level === 'error') {
+						errors.push(msg.message);
+					}
+					return true;
+				},
+			},
+			level: 'info',
+		});
+
+		const collections = {
+			spacecraft: defineCollection({
+				loader: glob({ pattern: '*.md', base: 'src/content/space' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		// The colon-containing file should be loaded without errors
+		assert.ok(!errors.some((e) => e.includes('The URL must be of scheme file')));
+
+		const entries = store.values('spacecraft');
+		const colonEntry = entries.find((e) => e.id === 'guide-architecture');
+		assert.ok(colonEntry, 'Entry with colon in filename should be loaded');
+		assert.ok(colonEntry.body?.includes('colon in its filename'));
+	});
 });
