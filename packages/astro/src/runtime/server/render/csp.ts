@@ -43,6 +43,8 @@ export function renderCspContent(result: SSRResult): string {
 		script.default.resources.length > 0 ? script.default.resources.join(' ') : "'self'";
 	const styleResources =
 		style.default.resources.length > 0 ? style.default.resources.join(' ') : "'self'";
+	const scriptElementDefaultResource = script.default.resources.length > 0 ? '' : "'self'";
+	const styleElementDefaultResource = style.default.resources.length > 0 ? '' : "'self'";
 
 	// `script-src`/`style-src` cover everything; the `-elem`/`-attr` variants are narrower:
 	//   - `*-src-elem` → tags (`<script>`, `<style>`, `<link rel="stylesheet">`)
@@ -64,19 +66,26 @@ export function renderCspContent(result: SSRResult): string {
 	const styleElemActive = isEnabled(style.element);
 	const strictDynamicSuffix = scriptDirective.strictDynamic ? ` 'strict-dynamic'` : '';
 
-	// On the baseline, omit the element hashes when the `-elem` directive will carry them instead.
+	// Per the CSP spec, browsers ignore `'unsafe-inline'` when a hash or nonce is present in the
+	// same directive. Suppress hashes on any directive whose resources include `'unsafe-inline'` so
+	// the user's intent is preserved.
+	const scriptDefaultHasUnsafeInline = hasUnsafeInline(script.default.resources);
+	const styleDefaultHasUnsafeInline = hasUnsafeInline(style.default.resources);
+
+	// On the baseline, omit the element hashes when the `-elem` directive will carry them instead,
+	// and omit all hashes when `'unsafe-inline'` is present.
 	const scriptBaselineTokens = [
-		...(scriptElemActive ? [] : [...finalScriptHashes]),
+		...(scriptElemActive || scriptDefaultHasUnsafeInline ? [] : [...finalScriptHashes]),
 		...(scriptDirective.strictDynamic ? [`'strict-dynamic'`] : []),
 	];
 	const scriptSrc = `script-src ${scriptResources} ${scriptBaselineTokens.join(' ')};`;
-	const styleSrc = `style-src ${styleResources} ${(styleElemActive ? [] : [...finalStyleHashes]).join(' ')};`;
+	const styleSrc = `style-src ${styleResources} ${(styleElemActive || styleDefaultHasUnsafeInline ? [] : [...finalStyleHashes]).join(' ')};`;
 
 	const scriptSrcElem = scriptElemActive
 		? renderSpecificDirective(
 				'script-src-elem',
 				script.element.resources,
-				"'self'",
+				scriptElementDefaultResource,
 				finalScriptHashes,
 				script.element.hashes,
 				strictDynamicSuffix,
@@ -95,7 +104,7 @@ export function renderCspContent(result: SSRResult): string {
 		? renderSpecificDirective(
 				'style-src-elem',
 				style.element.resources,
-				"'self'",
+				styleElementDefaultResource,
 				finalStyleHashes,
 				style.element.hashes,
 			)
@@ -123,6 +132,10 @@ export function renderCspContent(result: SSRResult): string {
 		.join(' ');
 }
 
+function hasUnsafeInline(resources: string[]): boolean {
+	return resources.includes("'unsafe-inline'");
+}
+
 /** A more specific directive is emitted only when the user scoped at least one source/hash to it. */
 function isEnabled(sources: CspDirectiveSources): boolean {
 	return sources.resources.length > 0 || sources.hashes.length > 0;
@@ -134,7 +147,7 @@ function isEnabled(sources: CspDirectiveSources): boolean {
  *
  * @param name The directive name, e.g. `"script-src-elem"`.
  * @param resources The sources the user scoped to this directive (e.g. `'self'` or a URL).
- * @param defaultResource The source to use when `resources` is empty (`'self'` for `-elem`, `'none'` for `-attr`).
+ * @param defaultResource The source to use when `resources` is empty. This is `'self'` for `-elem` without configured default resources and `'none'` for `-attr`.
  * @param sharedHashes Already-quoted hashes to also include here — Astro's tag hashes for `-elem`, or `undefined` for `-attr` (which never receives them).
  * @param ownHashes Unquoted hashes the user scoped to this directive.
  * @param suffix Optional text added at the end, e.g. ` 'strict-dynamic'`.
@@ -147,9 +160,14 @@ function renderSpecificDirective(
 	ownHashes: string[],
 	suffix = '',
 ): string {
-	const hashes = new Set<string>(sharedHashes);
-	for (const hash of ownHashes) {
-		hashes.add(`'${hash}'`);
+	// Per the CSP spec, browsers ignore `'unsafe-inline'` when a hash is present in the same
+	// directive. Skip hashes entirely to preserve the user's `'unsafe-inline'` intent.
+	const unsafeInline = hasUnsafeInline(resources);
+	const hashes = new Set<string>(unsafeInline ? undefined : sharedHashes);
+	if (!unsafeInline) {
+		for (const hash of ownHashes) {
+			hashes.add(`'${hash}'`);
+		}
 	}
 	let finalResources: string;
 	if (resources.length > 0) {

@@ -1,11 +1,11 @@
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import { escape } from 'html-escaper';
-import { Traverse } from 'neotraverse/modern';
 import * as z from 'zod/v4';
 import type * as zCore from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { createSvgComponent } from '../assets/runtime.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
+import { recordContentEntryRender } from '../core/build/incremental-content-collector.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isRemotePath, prependForwardSlash } from '../core/path.js';
 import {
@@ -26,7 +26,7 @@ import type {
 	LiveDataEntryResult,
 } from '../types/public/content.js';
 import { defineCollection as defineCollectionOrig } from './config.js';
-import { IMAGE_IMPORT_PREFIX, type LIVE_CONTENT_TYPE } from './consts.js';
+import type { LIVE_CONTENT_TYPE } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import {
 	LiveCollectionCacheHintError,
@@ -115,7 +115,7 @@ export function createGetCollection({
 
 			const result = [];
 			for (const rawEntry of await store.values<DataEntry>(collection)) {
-				const data = updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap);
+				const data = resolveEntryData(rawEntry, imageAssetMap);
 
 				let entry = {
 					...rawEntry,
@@ -146,6 +146,7 @@ type ContentEntryResult = {
 	body: string;
 	collection: string;
 	data: Record<string, any>;
+	digest?: string | number;
 	render(): Promise<RenderResult>;
 };
 
@@ -153,6 +154,7 @@ type DataEntryResult = {
 	id: string;
 	collection: string;
 	data: Record<string, any>;
+	digest?: string | number;
 };
 
 type EntryLookupObject = { collection: string; id: string } | { collection: string; slug: string };
@@ -206,19 +208,19 @@ export function createGetEntry({ liveCollections }: { liveCollections: LiveColle
 
 			// @ts-expect-error	virtual module
 			const { default: imageAssetMap } = await import('astro:asset-imports');
-			const data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
+			const data = resolveEntryData(entry, imageAssetMap);
 			const result = {
 				...entry,
 				data,
 				collection,
 			} as DataEntryResult | ContentEntryResult;
-			// TODO: remove in Astro 7
+			// TODO: remove in Astro 8
 			warnForPropertyAccess(
 				result.data,
 				'slug',
 				`[content] Attempted to access deprecated property on "${collection}" entry.\nThe "slug" property is no longer automatically added to entries. Please use the "id" property instead.`,
 			);
-			// TODO: remove in Astro 7
+			// TODO: remove in Astro 8
 			warnForPropertyAccess(
 				result,
 				'render',
@@ -512,53 +514,103 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	});
 }
 
+/**
+ * Resolves the image src at `path` within `data` to its `ImageMetadata` (or a
+ * renderable SVG component). Returns the resolved value, or `undefined` when the
+ * image is not in the asset map and the plain src already stored in `data` should
+ * be kept.
+ */
+function resolveImageAtPath(
+	src: string,
+	fileName: string | undefined,
+	imageAssetMap: Map<string, ImageMetadata> | undefined,
+): unknown {
+	const id = imageSrcToImportId(src, fileName);
+	if (!id) {
+		return undefined;
+	}
+	const imported = imageAssetMap?.get(id) as
+		| (ImageMetadata & {
+				__svgData?: {
+					attributes: Record<string, string>;
+					children: string;
+					styles: string[];
+				};
+		  })
+		| undefined;
+	if (!imported) {
+		return undefined;
+	}
+	if (imported.__svgData) {
+		// Reconstruct the renderable SVG component from the data embedded at build
+		// time. We cannot call createSvgComponent inside the SVG Vite module itself
+		// because that would import the server runtime across a dynamic-import
+		// boundary, recreating the TLA circular-dependency deadlock (see #15575).
+		const { __svgData: svgData, ...meta } = imported;
+		return createSvgComponent({ meta: meta as ImageMetadata, ...svgData });
+	}
+	return imported;
+}
+
+/**
+ * Writes `value` at `path` within `target`, copying only the containers along
+ * that path so the shared store entry is never mutated. Sibling values and every
+ * container off the path are shared by reference, so values that `structuredClone`
+ * cannot handle (e.g. `Temporal` objects or class instances from Zod transforms)
+ * are never touched.
+ */
+function setAtPathCopying<T extends Record<string, unknown>>(
+	target: T,
+	path: (string | number)[],
+	value: unknown,
+): T {
+	if (path.length === 0) {
+		return target;
+	}
+	const [key, ...rest] = path;
+	const copy: any = Array.isArray(target) ? target.slice() : { ...target };
+	copy[key] = rest.length === 0 ? value : setAtPathCopying(copy[key], rest, value);
+	return copy;
+}
+
 export function updateImageReferencesInData<T extends Record<string, unknown>>(
 	data: T,
 	fileName?: string,
 	imageAssetMap?: Map<string, ImageMetadata>,
+	imageImports?: (string | number)[][],
 ): T {
-	const copy = structuredClone(data);
-	new Traverse(copy).forEach(function (ctx, val) {
-		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
-			const src = val.replace(IMAGE_IMPORT_PREFIX, '');
-
-			const id = imageSrcToImportId(src, fileName);
-			if (!id) {
-				ctx.update(src);
-				return;
-			}
-			const imported = imageAssetMap?.get(id) as
-				| (ImageMetadata & {
-						__svgData?: {
-							attributes: Record<string, string>;
-							children: string;
-							styles: string[];
-						};
-				  })
-				| undefined;
-			if (imported) {
-				if (imported.__svgData) {
-					// Reconstruct the renderable SVG component from the data embedded at build
-					// time. We cannot call createSvgComponent inside the SVG Vite module itself
-					// because that would import the server runtime across a dynamic-import
-					// boundary, recreating the TLA circular-dependency deadlock (see #15575).
-					const { __svgData: svgData, ...meta } = imported;
-					ctx.update(createSvgComponent({ meta: meta as ImageMetadata, ...svgData }));
-				} else {
-					ctx.update(imported);
-				}
-			} else {
-				ctx.update(src);
-			}
+	if (!imageImports?.length) {
+		return data;
+	}
+	let result = data;
+	for (const path of imageImports) {
+		let src: unknown = result;
+		for (const key of path) {
+			src = (src as Record<string | number, unknown>)?.[key];
 		}
-	});
-	return copy;
+		if (typeof src !== 'string') {
+			continue;
+		}
+		const resolved = resolveImageAtPath(src, fileName, imageAssetMap);
+		if (resolved !== undefined) {
+			result = setAtPathCopying(result, path, resolved);
+		}
+	}
+	return result;
+}
+
+export function resolveEntryData<T extends Record<string, unknown>>(
+	entry: DataEntry<T>,
+	imageAssetMap?: Map<string, ImageMetadata>,
+): T {
+	return updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap, entry.imageImports);
 }
 
 export async function renderEntry(entry: DataEntry) {
 	if (!entry) {
 		throw new AstroError(AstroErrorData.RenderUndefinedEntryError);
 	}
+	recordContentEntryRender(entry.filePath);
 
 	if (entry.deferredRender) {
 		try {

@@ -21,6 +21,7 @@ import { MIDDLEWARE_MODULE_ID } from '../core/middleware/vite-plugin.js';
 import { SERVER_ISLAND_MANIFEST } from '../core/server-islands/vite-plugin-server-islands.js';
 import { VIRTUAL_CACHE_PROVIDER_ID } from '../core/cache/vite-plugin.js';
 import { VIRTUAL_SESSION_DRIVER_ID } from '../core/session/vite-plugin.js';
+import { VIRTUAL_LOGGER_ID } from '../core/logger/vite-plugin.js';
 import type { AstroSettings } from '../types/astro.js';
 import { VIRTUAL_PAGES_MODULE_ID } from '../vite-plugin-pages/index.js';
 import { ASTRO_RENDERERS_MODULE_ID } from '../vite-plugin-renderers/index.js';
@@ -33,6 +34,15 @@ import { resolveMiddlewareMode } from '../integrations/adapter-utils.js';
 // This is used by Cloudflare optimizeDeps config
 export const SERIALIZED_MANIFEST_ID = 'virtual:astro:manifest';
 export const SERIALIZED_MANIFEST_RESOLVED_ID = '\0' + SERIALIZED_MANIFEST_ID;
+
+// Kept in sync with the static import in `src/core/manifest/ambient.ts` and the
+// package.json `imports` mapping. In plain Node the specifier resolves (via that
+// mapping) to the `undefined` stub in `core/manifest/ambient-source.ts`; in every
+// Vite-processed server environment this plugin resolves it to the serialized
+// manifest module, so the ambient manifest IS the virtual manifest there. No new
+// virtual module ID is minted: the module dedupes into the same chunk as every
+// other manifest importer and the build-time manifest injection is untouched.
+export const AMBIENT_MANIFEST_SPECIFIER = '#astro-internal/ambient-manifest';
 
 export function serializedManifestPlugin({
 	settings,
@@ -85,7 +95,7 @@ export function serializedManifestPlugin({
 
 		resolveId: {
 			filter: {
-				id: new RegExp(`^${SERIALIZED_MANIFEST_ID}$`),
+				id: new RegExp(`^(${SERIALIZED_MANIFEST_ID}|${AMBIENT_MANIFEST_SPECIFIER})$`),
 			},
 			handler() {
 				return SERIALIZED_MANIFEST_RESOLVED_ID;
@@ -110,8 +120,16 @@ export function serializedManifestPlugin({
 				const cacheProviderLine = hasCacheConfig
 					? `cacheProvider: () => import('${VIRTUAL_CACHE_PROVIDER_ID}'),`
 					: '';
+				const loggerLine = settings.config.logger
+					? `logger: () => import('${VIRTUAL_LOGGER_ID}'),`
+					: '';
 				const code = `
-					import { deserializeManifest as _deserializeManifest } from 'astro/app';
+					// 'astro/app/manifest' (not the 'astro/app' barrel): the barrel pulls in
+					// BaseApp -> DefaultFetchHandler -> the ambient-manifest module, which
+					// resolves to THIS virtual module — importing the barrel here would close
+					// a top-level import cycle that leaves deserializeManifest uninitialized
+					// when the dev module graph re-evaluates after invalidation.
+					import { deserializeManifest as _deserializeManifest } from 'astro/app/manifest';
 					import { renderers } from '${ASTRO_RENDERERS_MODULE_ID}';
 					import { routes } from '${ASTRO_ROUTES_MODULE_ID}';
 					import { pageMap } from '${VIRTUAL_PAGES_MODULE_ID}';
@@ -130,6 +148,7 @@ export function serializedManifestPlugin({
 					  middleware: () => import('${MIDDLEWARE_MODULE_ID}'),
 					  sessionDriver: () => import('${VIRTUAL_SESSION_DRIVER_ID}'),
 					  ${cacheProviderLine}
+					  ${loggerLine}
 					  serverIslandMappings: () => import('${SERVER_ISLAND_MANIFEST}'),
 					  routes: manifestRoutes,
 					  pageMap,
@@ -186,11 +205,6 @@ async function createSerializedManifest(
 			scriptDirective,
 			styleDirective,
 		};
-	}
-
-	let loggerConfig = undefined;
-	if (settings.config.logger) {
-		loggerConfig = settings.config.logger;
 	}
 
 	return {
@@ -250,6 +264,5 @@ async function createSerializedManifest(
 		},
 		logLevel: settings.logLevel,
 		shouldInjectCspMetaTags: false,
-		loggerConfig,
 	};
 }

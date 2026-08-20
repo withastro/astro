@@ -1,17 +1,20 @@
-import type { BaseApp, RenderErrorOptions } from '../app/base.js';
-import type { Pipeline } from '../base-pipeline.js';
+import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
+import type { RenderErrorOptions } from '../app/base.js';
+import type { SSRManifest } from '../app/types.js';
+import { getEnvironment } from '../environment/index.js';
 import { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import { attachCookiesToResponse } from '../cookies/index.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
-import { AstroMiddleware } from '../middleware/astro-middleware.js';
-import { PagesHandler } from '../pages/handler.js';
+import { handleMiddleware } from '../middleware/astro-middleware.js';
+import { handlePages } from '../pages/handler.js';
 import { matchRoute } from '../routing/match.js';
-import { provideSession } from '../session/handler.js';
+import { getRouteTable } from '../routing/route-table.js';
+import { provideSession } from '../session/provider.js';
 import { validateHost } from '../app/validate-headers.js';
 import { getErrorRoutePath } from '../../i18n/error-routes.js';
 import { getOutputFilename } from '../output-filename.js';
-import type { ErrorHandler } from './handler.js';
+import { rewroteToEmptyErrorResponse } from './handler.js';
 
 type ErrorPagePath =
 	| `${string}/404`
@@ -24,133 +27,136 @@ type ErrorPagePath =
 	| `${string}500.html`;
 
 /**
- * The default error handler used in production SSR. Attempts to render the
+ * The default error strategy used in production SSR. Attempts to render the
  * matching error route (404.astro / 500.astro), falling back to a plain
  * response with the given status. Handles prerendered error pages via
  * `prerenderedErrorPageFetch`.
  */
-export class DefaultErrorHandler implements ErrorHandler {
-	#app: BaseApp<Pipeline>;
-	#astroMiddleware: AstroMiddleware;
-	#pagesHandler: PagesHandler;
+export async function renderDefaultError(
+	manifest: SSRManifest,
+	request: Request,
+	{
+		status,
+		response: originalResponse,
+		skipMiddleware = false,
+		error,
+		pathname,
+		...resolvedRenderOptions
+	}: RenderErrorOptions,
+): Promise<Response> {
+	const resolvedPathname = pathname ?? new FetchState(manifest, request).pathname;
+	const routeTable = getRouteTable(manifest);
+	const errorRoutePath = getErrorRoutePath(
+		resolvedPathname,
+		status,
+		routeTable.routes,
+		manifest.i18n?.locales,
+		manifest.trailingSlash === 'always',
+	);
+	const errorRouteData = matchRoute(errorRoutePath, routeTable);
+	const url = new URL(request.url);
+	if (errorRouteData) {
+		if (errorRouteData.prerender) {
+			// Validate the request URL origin before using it for the error page fetch.
+			// Without this, an attacker-controlled Host header flows into statusURL,
+			// causing the server to fetch from an arbitrary origin (SSRF).
+			const allowedDomains = manifest.allowedDomains;
+			const validatedHost = validateHost(url.host, url.protocol.replace(':', ''), allowedDomains);
+			const safeOrigin = validatedHost ? url.origin : `${url.protocol}//localhost`;
+			const statusURL = new URL(
+				`${removeTrailingForwardSlash(manifest.base)}${getOutputFilename(
+					manifest.buildFormat,
+					errorRouteData.route,
+					errorRouteData,
+				)}`,
+				safeOrigin,
+			);
+			if (statusURL.toString() !== request.url && resolvedRenderOptions.prerenderedErrorPageFetch) {
+				try {
+					const response = await resolvedRenderOptions.prerenderedErrorPageFetch(
+						statusURL.toString() as ErrorPagePath,
+					);
 
-	constructor(app: BaseApp<Pipeline>) {
-		this.#app = app;
-		this.#astroMiddleware = new AstroMiddleware(app.pipeline);
-		this.#pagesHandler = new PagesHandler(app.pipeline);
-	}
+					// In order for the response of the remote to be usable as a response
+					// for this request, it needs to have our status code in the response
+					// instead of the likely successful 200 code it returned when fetching
+					// the error page.
+					//
+					// Furthermore, remote may have returned a compressed page
+					// (the Content-Encoding header was set to e.g. `gzip`). The fetch
+					// implementation in the `mergeResponses` method will make a decoded
+					// response available, so Content-Length and Content-Encoding will
+					// not match the body we provide and need to be removed.
+					const override = { status, removeContentEncodingHeaders: true };
 
-	async renderError(
-		request: Request,
-		{
-			status,
-			response: originalResponse,
-			skipMiddleware = false,
-			error,
-			pathname,
-			...resolvedRenderOptions
-		}: RenderErrorOptions,
-	): Promise<Response> {
-		const app = this.#app;
-		const resolvedPathname = pathname ?? new FetchState(app.pipeline, request).pathname;
-		const errorRoutePath = getErrorRoutePath(
-			resolvedPathname,
-			status,
-			app.manifestData.routes,
-			app.manifest.i18n?.locales,
-			app.manifest.trailingSlash === 'always',
-		);
-		const errorRouteData = matchRoute(errorRoutePath, app.manifestData);
-		const url = new URL(request.url);
-		if (errorRouteData) {
-			if (errorRouteData.prerender) {
-				// Validate the request URL origin before using it for the error page fetch.
-				// Without this, an attacker-controlled Host header flows into statusURL,
-				// causing the server to fetch from an arbitrary origin (SSRF).
-				const allowedDomains = app.manifest.allowedDomains;
-				const validatedHost = validateHost(url.host, url.protocol.replace(':', ''), allowedDomains);
-				const safeOrigin = validatedHost ? url.origin : `${url.protocol}//localhost`;
-				const statusURL = new URL(
-					`${app.baseWithoutTrailingSlash}${getOutputFilename(
-						app.manifest.buildFormat,
-						errorRouteData.route,
-						errorRouteData,
-					)}`,
-					safeOrigin,
-				);
-				if (
-					statusURL.toString() !== request.url &&
-					resolvedRenderOptions.prerenderedErrorPageFetch
-				) {
-					try {
-						const response = await resolvedRenderOptions.prerenderedErrorPageFetch(
-							statusURL.toString() as ErrorPagePath,
-						);
-
-						// In order for the response of the remote to be usable as a response
-						// for this request, it needs to have our status code in the response
-						// instead of the likely successful 200 code it returned when fetching
-						// the error page.
-						//
-						// Furthermore, remote may have returned a compressed page
-						// (the Content-Encoding header was set to e.g. `gzip`). The fetch
-						// implementation in the `mergeResponses` method will make a decoded
-						// response available, so Content-Length and Content-Encoding will
-						// not match the body we provide and need to be removed.
-						const override = { status, removeContentEncodingHeaders: true };
-
-						const newResponse = mergeResponses(response, originalResponse, override);
-						prepareResponse(newResponse, resolvedRenderOptions);
-						return newResponse;
-					} catch {
-						// If the error page fetch fails (e.g. connection refused), fall
-						// through to the plain error response below.
-						const response = mergeResponses(new Response(null, { status }), originalResponse);
-						prepareResponse(response, resolvedRenderOptions);
-						return response;
-					}
+					const newResponse = mergeResponses(response, originalResponse, override);
+					prepareResponse(newResponse, resolvedRenderOptions);
+					return newResponse;
+				} catch {
+					// If the error page fetch fails (e.g. connection refused), fall
+					// through to the plain error response below.
+					const response = mergeResponses(new Response(null, { status }), originalResponse);
+					prepareResponse(response, resolvedRenderOptions);
+					return response;
 				}
-			}
-			const mod = await app.pipeline.getComponentByRoute(errorRouteData);
-			const errorState = new FetchState(app.pipeline, request);
-			errorState.skipMiddleware = skipMiddleware;
-			errorState.clientAddress = resolvedRenderOptions.clientAddress;
-			errorState.routeData = errorRouteData;
-			errorState.pathname = resolvedPathname;
-			errorState.status = status;
-			errorState.componentInstance = mod;
-			errorState.locals = resolvedRenderOptions.locals ?? ({} as App.Locals);
-			errorState.initialProps = { error };
-			try {
-				await provideSession(errorState);
-				const response = await this.#astroMiddleware.handle(
-					errorState,
-					this.#pagesHandler.handle.bind(this.#pagesHandler),
-				);
-				const newResponse = mergeResponses(response, originalResponse);
-				prepareResponse(newResponse, resolvedRenderOptions);
-				return newResponse;
-			} catch {
-				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
-				if (skipMiddleware === false) {
-					return this.renderError(request, {
-						...resolvedRenderOptions,
-						status,
-						error,
-						response: originalResponse,
-						skipMiddleware: true,
-						pathname: resolvedPathname,
-					});
-				}
-			} finally {
-				await errorState.finalizeAll();
 			}
 		}
-
-		const response = mergeResponses(new Response(null, { status }), originalResponse);
-		prepareResponse(response, resolvedRenderOptions);
-		return response;
+		const mod = await getEnvironment(manifest).getComponentByRoute(manifest, errorRouteData);
+		const errorState = new FetchState(manifest, request);
+		errorState.skipMiddleware = skipMiddleware;
+		errorState.clientAddress = resolvedRenderOptions.clientAddress;
+		errorState.routeData = errorRouteData;
+		errorState.pathname = resolvedPathname;
+		errorState.status = status;
+		errorState.componentInstance = mod;
+		errorState.locals = resolvedRenderOptions.locals ?? ({} as App.Locals);
+		errorState.initialProps = { error };
+		try {
+			await provideSession(errorState);
+			const response = await handleMiddleware(errorState, handlePages);
+			// A middleware rewrite (`ctx.rewrite()` / `next(payload)`) issued while
+			// rendering the error page swaps the state's routeData away from the
+			// error route, so the rewrite target renders instead of 404/500.astro.
+			// If that hijacked render produced another empty reroutable error
+			// response, we'd return a blank page — retry rendering the error page
+			// without middleware instead (same fallback used when middleware throws).
+			// A rewrite that produced a real body is left untouched, so middleware
+			// that intentionally rewrites error renders keeps working.
+			if (
+				rewroteToEmptyErrorResponse(skipMiddleware, errorRouteData, errorState.routeData, response)
+			) {
+				return renderDefaultError(manifest, request, {
+					...resolvedRenderOptions,
+					status,
+					error,
+					response: originalResponse,
+					skipMiddleware: true,
+					pathname: resolvedPathname,
+				});
+			}
+			const newResponse = mergeResponses(response, originalResponse);
+			prepareResponse(newResponse, resolvedRenderOptions);
+			return newResponse;
+		} catch {
+			// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
+			if (skipMiddleware === false) {
+				return renderDefaultError(manifest, request, {
+					...resolvedRenderOptions,
+					status,
+					error,
+					response: originalResponse,
+					skipMiddleware: true,
+					pathname: resolvedPathname,
+				});
+			}
+		} finally {
+			await errorState.finalizeAll();
+		}
 	}
+
+	const response = mergeResponses(new Response(null, { status }), originalResponse);
+	prepareResponse(response, resolvedRenderOptions);
+	return response;
 }
 
 function mergeResponses(
@@ -219,9 +225,11 @@ function mergeResponses(
 		seen.add(name.toLowerCase());
 	}
 	// Add new response headers that weren't already set by the original response,
-	// but skip content-type since the error page must return text/html
+	// but skip content-type since the error page must return text/html.
+	// set-cookie is special: it's a multi-value header, so we always append.
 	for (const [name, value] of newResponseHeaders) {
-		if (!seen.has(name.toLowerCase())) {
+		const lower = name.toLowerCase();
+		if (!seen.has(lower) || lower === 'set-cookie') {
 			newHeaders.append(name, value);
 		}
 	}
@@ -243,9 +251,7 @@ function mergeResponses(
 	if (originalCookies) {
 		// If both responses have cookies, merge new response cookies into original
 		if (newCookies) {
-			for (const cookieValue of newCookies.consume()) {
-				originalResponse.headers.append('set-cookie', cookieValue);
-			}
+			originalCookies.merge(newCookies);
 		}
 		attachCookiesToResponse(mergedResponse, originalCookies);
 	} else if (newCookies) {

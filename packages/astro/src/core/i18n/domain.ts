@@ -1,9 +1,9 @@
 import {
 	appendForwardSlash,
-	collapseDuplicateLeadingSlashes,
 	joinPaths,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
+	stripRequestBase,
 } from '@astrojs/internal-helpers/path';
 import { normalizeTheLocale } from '../../i18n/path.js';
 import type { SSRManifest } from '../app/types.js';
@@ -25,6 +25,7 @@ export function computePathnameFromDomain(
 	base: SSRManifest['base'],
 	trailingSlash: SSRManifest['trailingSlash'],
 	logger: AstroLogger,
+	pathnameFromRequest?: string,
 ): string | undefined {
 	let pathname: string | undefined = undefined;
 
@@ -71,9 +72,8 @@ export function computePathnameFromDomain(
 				}
 
 				if (locale) {
-					pathname = prependForwardSlash(
-						joinPaths(normalizeTheLocale(locale), removeBase(url.pathname, base)),
-					);
+					const requestPathname = pathnameFromRequest ?? stripRequestBase(url.pathname, base);
+					pathname = prependForwardSlash(joinPaths(normalizeTheLocale(locale), requestPathname));
 					if (trailingSlash === 'always') {
 						pathname = appendForwardSlash(pathname);
 					} else if (trailingSlash === 'never') {
@@ -91,19 +91,6 @@ export function computePathnameFromDomain(
 				logger.error('router', `Error: ${e}`);
 			}
 		}
-	}
-	return pathname;
-}
-
-/**
- * Mirror of `BaseApp.removeBase`, including the
- * `collapseDuplicateLeadingSlashes` fix that prevents middleware
- * authorization bypass when the URL starts with `//`.
- */
-function removeBase(pathname: string, base: string): string {
-	pathname = collapseDuplicateLeadingSlashes(pathname);
-	if (pathname.startsWith(base)) {
-		return pathname.slice(removeTrailingForwardSlash(base).length + 1);
 	}
 	return pathname;
 }

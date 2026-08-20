@@ -161,7 +161,7 @@ function npm(
  * - [Google](https://docs.astro.build/en/reference/font-provider-reference/#google)
  * - [Google Icons](https://docs.astro.build/en/reference/font-provider-reference/#google-icons)
  * - [Local](https://docs.astro.build/en/reference/font-provider-reference/#local)
- * - [NPM](TODO:)
+ * - [NPM](https://docs.astro.build/en/reference/font-provider-reference/#npm)
  */
 export const fontProviders = {
 	adobe,

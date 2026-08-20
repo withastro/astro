@@ -1,5 +1,28 @@
 # @astrojs/markdown-satteri
 
+## 0.3.7
+
+### Patch Changes
+
+- [#17731](https://github.com/withastro/astro/pull/17731) [`bc171af`](https://github.com/withastro/astro/commit/bc171af0e29a1bb4ca56beffde1c4c03e1bb227f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates Sätteri processor to v0.10.3. See [its changelog](https://github.com/bruits/satteri/blob/main/packages/satteri/CHANGELOG.md#0103--2026-08-19) for details on bugs fixed and features added.
+
+- Updated dependencies [[`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527)]:
+  - @astrojs/internal-helpers@0.10.4
+
+## 0.3.6
+
+### Patch Changes
+
+- Updated dependencies [[`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277)]:
+  - @astrojs/internal-helpers@0.10.3
+
+## 0.3.5
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+
 ## 0.3.4
 
 ### Patch Changes

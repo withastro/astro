@@ -76,6 +76,19 @@ export function renderAllHeadContent(result: SSRResult) {
 	const sep = result.compressHTML === true || result.compressHTML === 'jsx' ? '' : '\n';
 	content += styles.join(sep) + links.join(sep) + scripts.join(sep);
 
+	// Inject static speculation rules when CSP + clientPrerender are both enabled.
+	// The content is pre-hashed at build time and included in the CSP script-src directive.
+	if (result.speculationRulesContent) {
+		content += renderElement(
+			'script',
+			{
+				props: { type: 'speculationrules' },
+				children: result.speculationRulesContent,
+			},
+			false,
+		);
+	}
+
 	content += result._metadata.extraHead.join('');
 
 	return markHTMLString(content);

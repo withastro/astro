@@ -1,6 +1,9 @@
 import { existsSync, readFileSync, unlinkSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import findProcess from 'find-process';
 import type { ResolvedServerUrls } from 'vite';
+
+export type ServerCommand = 'dev' | 'preview';
 
 /** Maximum time (ms) to wait for a process to exit after SIGTERM before escalating to SIGKILL. */
 export const GRACEFUL_SHUTDOWN_TIMEOUT = 5000;
@@ -20,17 +23,17 @@ export interface ExistingServer {
 }
 
 /**
- * Get the URL of the dev lock file for a given project root.
+ * Get the URL of a server lock file for a given project root.
  */
-function getLockFileURL(root: URL): URL {
-	return new URL('.astro/dev.json', root);
+function getLockFileURL(root: URL, command: ServerCommand = 'dev'): URL {
+	return new URL(`.astro/${command}.json`, root);
 }
 
 /**
- * Get the URL of the dev log file for a given project root.
+ * Get the URL of a server log file for a given project root.
  */
-export function getLogFileURL(root: URL): URL {
-	return new URL('.astro/dev.log', root);
+export function getLogFileURL(root: URL, command: ServerCommand = 'dev'): URL {
+	return new URL(`.astro/${command}.log`, root);
 }
 
 function isStringArray(value: unknown): value is string[] {
@@ -91,11 +94,55 @@ export function isProcessAlive(pid: number): boolean {
 	}
 }
 
+// Match Astro's published CLI entry and package-manager shims, not arbitrary files named astro.
+const ASTRO_COMMAND_PATTERN =
+	/(?:^|[\\/\s"'])(?:astro[\\/]bin[\\/]astro\.mjs|\.bin[\\/]astro(?:\.cmd)?)(?=$|[\s"'])/i;
+
+/**
+ * Check whether a process command points to the Astro CLI.
+ */
+export function isAstroCommand(command: string): boolean {
+	return ASTRO_COMMAND_PATTERN.test(command);
+}
+
+interface ProcessInfo {
+	pid: number;
+	cmd?: string;
+}
+
+type ProcessLookup = (
+	by: 'pid',
+	value: number,
+	options: { logLevel: 'error' },
+) => Promise<ProcessInfo[]>;
+
+/**
+ * Check whether the live process recorded in a lock file is still Astro.
+ * If the command cannot be inspected, keep the existing PID-only behavior.
+ */
+export async function isLockFileProcessAlive(
+	data: LockFileData,
+	find: ProcessLookup = findProcess,
+): Promise<boolean> {
+	if (!isProcessAlive(data.pid)) {
+		return false;
+	}
+
+	try {
+		const processInfo = (await find('pid', data.pid, { logLevel: 'error' })).find(
+			({ pid }) => pid === data.pid,
+		);
+		return processInfo?.cmd === undefined || isAstroCommand(processInfo.cmd);
+	} catch {
+		return true;
+	}
+}
+
 /**
  * Read the lock file from disk. Returns null if it doesn't exist or is invalid.
  */
-export function readLockFile(root: URL): LockFileData | null {
-	const lockFileURL = getLockFileURL(root);
+export function readLockFile(root: URL, command: ServerCommand = 'dev'): LockFileData | null {
+	const lockFileURL = getLockFileURL(root, command);
 	try {
 		const content = readFileSync(lockFileURL, 'utf-8');
 		return parseLockFile(content);
@@ -107,8 +154,8 @@ export function readLockFile(root: URL): LockFileData | null {
 /**
  * Write the lock file to disk.
  */
-export function writeLockFile(root: URL, data: LockFileData): void {
-	const lockFileURL = getLockFileURL(root);
+export function writeLockFile(root: URL, data: LockFileData, command: ServerCommand = 'dev'): void {
+	const lockFileURL = getLockFileURL(root, command);
 	const dirPath = fileURLToPath(new URL('.astro/', root));
 	try {
 		if (!existsSync(dirPath)) {
@@ -124,8 +171,8 @@ export function writeLockFile(root: URL, data: LockFileData): void {
 /**
  * Remove the lock file from disk. No-op if it doesn't exist.
  */
-export function removeLockFile(root: URL): void {
-	const lockFileURL = getLockFileURL(root);
+export function removeLockFile(root: URL, command: ServerCommand = 'dev'): void {
+	const lockFileURL = getLockFileURL(root, command);
 	try {
 		unlinkSync(lockFileURL);
 	} catch (err: any) {
@@ -186,18 +233,24 @@ export async function killDevServer(root: URL, data: LockFileData): Promise<void
 }
 
 /**
- * Check for an existing dev server by reading the lock file and checking process liveness.
+ * Check for an existing server by reading the lock file and checking process identity.
  * Automatically cleans up stale lock files.
  * Returns the server info if a live server is found, null otherwise.
  */
-export function checkExistingServer(root: URL): LockFileData | null {
-	const data = readLockFile(root);
-	const result = evaluateExistingServer(data, data !== null && isProcessAlive(data.pid));
+export async function checkExistingServer(
+	root: URL,
+	command: ServerCommand = 'dev',
+): Promise<LockFileData | null> {
+	const data = readLockFile(root, command);
+	const result = evaluateExistingServer(
+		data,
+		data !== null && (await isLockFileProcessAlive(data)),
+	);
 	if (result === null) {
 		return null;
 	}
 	if (result.stale) {
-		removeLockFile(root);
+		removeLockFile(root, command);
 		return null;
 	}
 	return result.data;

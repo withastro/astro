@@ -12,6 +12,7 @@ import {
 	removeBase,
 	removeQueryString,
 } from '../core/path.js';
+import { recordStaticImage } from '../core/build/incremental-image-collector.js';
 import { normalizePath } from '../core/viteUtils.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
@@ -96,6 +97,16 @@ const addStaticImageFactory = (
 				transform: options,
 			});
 		}
+
+		// Report every resolved transform (dedup hits included) so the incremental
+		// build cache can attribute it to the page currently rendering.
+		recordStaticImage({
+			originalPath: finalOriginalPath,
+			hash,
+			finalPath: finalFilePath,
+			originalSrcPath: originalFSPath,
+			transform: options,
+		});
 
 		// The paths here are used for URLs, so we need to make sure they have the proper format for an URL
 		// (leading slash, prefixed with the base / assets prefix, encoded, etc)

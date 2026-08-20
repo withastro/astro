@@ -1,5 +1,5 @@
-import { detectAgenticEnvironment } from 'am-i-vibing';
 import colors from 'piccolore';
+import type { ResolvedServerUrls } from 'vite';
 import devServer from '../../core/dev/index.js';
 import { pathToFileURL } from 'node:url';
 import {
@@ -10,21 +10,11 @@ import {
 } from '../../core/dev/lockfile.js';
 import { resolveRoot } from '../../core/config/config.js';
 import { printHelp } from '../../core/messages/runtime.js';
+import { isRunByAgent } from '../agent.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface DevOptions {
 	flags: Flags;
-}
-
-function isRunByAgent(): boolean {
-	try {
-		// Only treat direct "agent" types as auto-background-worthy.
-		// "hybrid" environments (e.g. Warp terminal) may not actually be running
-		// an AI agent, so we avoid false positives by excluding them.
-		return detectAgenticEnvironment().type === 'agent';
-	} catch {
-		return false;
-	}
 }
 
 /**
@@ -56,6 +46,28 @@ export function getBackgroundIgnoreLockConflict(
 		'Background dev servers rely on the lock file so `astro dev stop`, `astro dev status`, and `astro dev logs` can find them.',
 		'Run the dev server in the foreground to use --ignore-lock.',
 	].join('\n');
+}
+
+/**
+ * Pick the URL to record in the lock file.
+ *
+ * Vite only reports a `local` URL for loopback hosts. With `--host <custom-address>` set to a
+ * specific non-loopback address the URL lands in `network` instead and `local` is empty, so
+ * prefer `local` but fall back to `network` rather than reading `undefined`.
+ *
+ * Returns `null` when the server exposed no usable URL, which leaves the (purely bookkeeping)
+ * lock file unwritten instead of taking down an otherwise healthy dev server.
+ */
+export function resolveLockFileUrl(resolvedUrls: ResolvedServerUrls): string | null {
+	const resolved = resolvedUrls.local[0] ?? resolvedUrls.network[0];
+	if (!resolved) {
+		return null;
+	}
+	try {
+		return new URL(resolved).origin;
+	} catch {
+		return null;
+	}
 }
 
 /**
@@ -178,7 +190,7 @@ export async function dev({ flags }: DevOptions) {
 	// an existing server, and it won't be tracked by `astro dev stop`/`status`/`logs`.
 	// We still do a read-only check purely to give the user a heads-up.
 	if (ignoreLock) {
-		const existingServer = checkExistingServer(root);
+		const existingServer = await checkExistingServer(root);
 		if (existingServer) {
 			logger.info(
 				'SKIP_FORMAT',
@@ -192,7 +204,7 @@ export async function dev({ flags }: DevOptions) {
 		return await devServer(inlineConfig);
 	}
 
-	const existingServer = checkExistingServer(root);
+	const existingServer = await checkExistingServer(root);
 	if (existingServer) {
 		if (flags.force) {
 			// --force: kill the existing server and replace it
@@ -213,23 +225,25 @@ export async function dev({ flags }: DevOptions) {
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const server = await devServer(inlineConfig);
 
-	// Use Vite's resolved local URL which accounts for host and protocol (http/https).
-	const serverUrl = new URL(server.resolvedUrls.local[0]).origin;
-	writeLockFile(root, {
-		pid: process.pid,
-		port: server.address.port,
-		url: serverUrl,
-		urls: server.resolvedUrls,
-		background: !!process.env.ASTRO_DEV_BACKGROUND,
-		startedAt: new Date().toISOString(),
-	});
+	// Use Vite's resolved URL which accounts for host and protocol (http/https).
+	const serverUrl = resolveLockFileUrl(server.resolvedUrls);
+	if (serverUrl) {
+		writeLockFile(root, {
+			pid: process.pid,
+			port: server.address.port,
+			url: serverUrl,
+			urls: server.resolvedUrls,
+			background: !!process.env.ASTRO_DEV_BACKGROUND,
+			startedAt: new Date().toISOString(),
+		});
 
-	// Wrap the original stop to also clean up the lock file
-	const originalStop = server.stop.bind(server);
-	server.stop = async () => {
-		removeLockFile(root);
-		await originalStop();
-	};
+		// Wrap the original stop to also clean up the lock file
+		const originalStop = server.stop.bind(server);
+		server.stop = async () => {
+			removeLockFile(root);
+			await originalStop();
+		};
+	}
 
 	return server;
 }

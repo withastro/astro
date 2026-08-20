@@ -1,7 +1,6 @@
 /**
  * Use this module only to have functions needed in development
  */
-import type { RoutesList } from '../../types/astro.js';
 import type { SSRManifest } from '../app/types.js';
 import { matchAllRoutes } from './match.js';
 import { getSortedPreloadedMatches } from '../../prerender/routing.js';
@@ -10,7 +9,10 @@ import { getCustom404Route } from './helpers.js';
 import { NoMatchingStaticPathFound } from '../errors/errors-data.js';
 import { isAstroError } from '../errors/errors.js';
 import type { RouteData } from '../../types/public/index.js';
-import type { RunnablePipeline } from '../../vite-plugin-app/pipeline.js';
+import { getEnvironment } from '../environment/index.js';
+import { getLogger } from '../logger/manifest-logger.js';
+import { getRouteCache } from '../render/route-cache.js';
+import { getRouteTable } from './route-table.js';
 import { getErrorRoutePath } from '../../i18n/error-routes.js';
 
 interface MatchedRoute {
@@ -20,12 +22,16 @@ interface MatchedRoute {
 }
 
 export async function matchRoute(
-	pathname: string,
-	routesList: RoutesList,
-	pipeline: RunnablePipeline,
 	manifest: SSRManifest,
+	pathname: string,
+	{ prerenderOnly }: { prerenderOnly?: boolean } = {},
 ): Promise<MatchedRoute | undefined> {
-	const { logger, routeCache } = pipeline;
+	const logger = getLogger(manifest);
+	const routeCache = getRouteCache(manifest);
+	const env = getEnvironment(manifest);
+	// The single fresh route table: matching, the custom-404 fallback,
+	// and every other consumer read the same atomically-swapped list.
+	const routesList = getRouteTable(manifest);
 	const matches = matchAllRoutes(pathname, routesList);
 
 	const preloadedMatches = getSortedPreloadedMatches({
@@ -34,17 +40,26 @@ export async function matchRoute(
 	});
 
 	let firstError: unknown = null;
+	let skippedPrerenderOnly = false;
 	for await (const { route: maybeRoute, filePath } of preloadedMatches) {
+		// When running as the prerender handler, skip non-prerendered routes
+		// before importing their components. Their modules may use runtime-
+		// specific APIs (e.g. cloudflare:workers) unavailable in the prerender
+		// environment.
+		if (prerenderOnly && !maybeRoute.prerender) {
+			skippedPrerenderOnly = true;
+			continue;
+		}
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
 		try {
 			await getProps({
-				mod: await pipeline.getComponentByRoute(maybeRoute),
+				mod: await env.getComponentByRoute(manifest, maybeRoute),
 				routeData: maybeRoute,
 				routeCache,
 				pathname: pathname,
 				logger,
-				serverLike: pipeline.manifest.serverLike,
+				serverLike: manifest.serverLike,
 				base: manifest.base,
 				trailingSlash: manifest.trailingSlash,
 			});
@@ -78,7 +93,15 @@ export async function matchRoute(
 	const altPathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 
 	if (altPathname !== pathname) {
-		return await matchRoute(altPathname, routesList, pipeline, manifest);
+		return await matchRoute(manifest, altPathname, { prerenderOnly });
+	}
+
+	// A non-prerendered route matched but was skipped above. Don't warn or fall
+	// back to the 404 route (which may be prerendered and would shadow the SSR
+	// route): returning undefined lets the caller mark the request as not
+	// handled, so it falls through to the SSR handler and its own full matching.
+	if (skippedPrerenderOnly) {
+		return undefined;
 	}
 
 	if (matches.length) {

@@ -80,6 +80,25 @@ describe('renderCspContent', () => {
 		);
 	});
 
+	it('does not add self to element directives when default resources are configured', () => {
+		assert.equal(
+			renderCspContent(
+				createCspResult({
+					scriptDirective: {
+						hashes: [{ hash: 'sha256-script', kind: 'element' }],
+						resources: ["'none'"],
+					},
+					styleDirective: {
+						hashes: [{ hash: 'sha256-style', kind: 'element' }],
+						resources: ['https://styles.example.com'],
+					},
+				}),
+			),
+			"script-src 'none' ; script-src-elem 'sha256-script'; " +
+				"style-src https://styles.example.com ; style-src-elem 'sha256-style';",
+		);
+	});
+
 	it('does not share default hashes into the -attr directives', () => {
 		assert.equal(
 			renderCspContent(
@@ -190,6 +209,102 @@ describe('renderCspContent', () => {
 		assert.equal(
 			renderCspContent(createCspResult({ scriptDirective: { hashes: ['sha256-default'] } })),
 			"script-src 'self' 'sha256-default'; style-src 'self' ;",
+		);
+	});
+
+	it('suppresses hashes on style-src when unsafe-inline is present', () => {
+		assert.equal(
+			renderCspContent(
+				createCspResult({
+					styleDirective: {
+						resources: ["'unsafe-inline'"],
+						hashes: ['sha256-abc'],
+					},
+				}),
+			),
+			"script-src 'self' ; style-src 'unsafe-inline' ;",
+		);
+	});
+
+	it('suppresses hashes on script-src when unsafe-inline is present', () => {
+		assert.equal(
+			renderCspContent(
+				createCspResult({
+					scriptDirective: {
+						resources: ["'unsafe-inline'"],
+						hashes: ['sha256-abc'],
+						strictDynamic: false,
+					},
+				}),
+			),
+			"script-src 'unsafe-inline' ; style-src 'self' ;",
+		);
+	});
+
+	it('suppresses hashes on style-src-elem when unsafe-inline is present', () => {
+		assert.equal(
+			renderCspContent(
+				createCspResult({
+					styleDirective: {
+						resources: [{ resource: "'unsafe-inline'", kind: 'element' }],
+						hashes: ['sha256-abc'],
+					},
+				}),
+			),
+			"script-src 'self' ; style-src 'self' ; style-src-elem 'unsafe-inline';",
+		);
+	});
+
+	it('suppresses hashes on script-src-elem when unsafe-inline is present', () => {
+		assert.equal(
+			renderCspContent(
+				createCspResult({
+					scriptDirective: {
+						resources: [{ resource: "'unsafe-inline'", kind: 'element' }],
+						hashes: ['sha256-abc'],
+						strictDynamic: false,
+					},
+				}),
+			),
+			"script-src 'self' ; script-src-elem 'unsafe-inline'; style-src 'self' ;",
+		);
+	});
+
+	it('suppresses render-time extra hashes when unsafe-inline is on style-src', () => {
+		assert.equal(
+			renderCspContent(
+				createCspResult({
+					styleDirective: { resources: ["'unsafe-inline'"] },
+					extraStyleHashes: ['sha256-extra'],
+				}),
+			),
+			"script-src 'self' ; style-src 'unsafe-inline' ;",
+		);
+	});
+
+	it('suppresses render-time extra hashes when unsafe-inline is on script-src', () => {
+		assert.equal(
+			renderCspContent(
+				createCspResult({
+					scriptDirective: { resources: ["'unsafe-inline'"] },
+					extraScriptHashes: ['sha256-extra'],
+				}),
+			),
+			"script-src 'unsafe-inline' ; style-src 'self' ;",
+		);
+	});
+
+	it('keeps hashes on style-src when unsafe-inline is only on style-src-attr', () => {
+		assert.equal(
+			renderCspContent(
+				createCspResult({
+					styleDirective: {
+						resources: [{ resource: "'unsafe-inline'", kind: 'attribute' }],
+						hashes: ['sha256-abc'],
+					},
+				}),
+			),
+			"script-src 'self' ; style-src 'self' 'sha256-abc'; style-src-attr 'unsafe-inline';",
 		);
 	});
 });

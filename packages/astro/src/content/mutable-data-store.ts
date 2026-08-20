@@ -1,8 +1,8 @@
 import { existsSync, promises as fs, type PathLike } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as devalue from 'devalue';
-import { Traverse } from 'neotraverse/modern';
-import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
+import { forEach } from 'neotraverse';
+import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
 import {
@@ -12,7 +12,7 @@ import {
 	FileWriter,
 	serializeDataStore,
 } from './data-store-writer.js';
-import { type DataEntry, ImmutableDataStore } from './data-store.js';
+import { ChunkedCollectionParser, type DataEntry, ImmutableDataStore } from './data-store.js';
 import { contentModuleToId } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
@@ -145,8 +145,8 @@ export class MutableDataStore extends ImmutableDataStore {
 		const exports: Array<string> = [];
 		// Sort asset imports to ensure deterministic output across builds
 		const sortedAssetImports = [...this.#assetImports].sort();
-		sortedAssetImports.forEach((id) => {
-			const symbol = importIdToSymbolName(id);
+		sortedAssetImports.forEach((id, index) => {
+			const symbol = `__ASTRO_IMAGE_IMPORT_${index}`;
 			imports.push(`import ${symbol} from ${JSON.stringify(id)};`);
 			exports.push(`[${JSON.stringify(id)}, ${symbol}]`);
 		});
@@ -349,11 +349,17 @@ export default new Map([\n${lines.join(',\n')}]);
 					}
 				}
 				const foundAssets = new Set<string>(assetImports);
-				// Check for image imports in the data. These will have been prefixed during schema parsing
-				new Traverse(data).forEach((_, val) => {
+				const imageImports: (string | number)[][] = [];
+				// Image fields are prefixed during schema parsing. Record their locations and
+				// strip the prefix so the stored data holds a plain, devalue-serializable src
+				// string. The recorded paths let read-time resolution rewrite only these fields
+				// without traversing or cloning the rest of the data.
+				forEach(data, function (ctx, val) {
 					if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 						const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 						foundAssets.add(src);
+						imageImports.push(ctx.path.map((segment) => segment as string | number));
+						ctx.update(src);
 					}
 				});
 
@@ -376,6 +382,10 @@ export default new Map([\n${lines.join(',\n')}]);
 				if (foundAssets.size) {
 					entry.assetImports = Array.from(foundAssets);
 					this.addAssetImports(entry.assetImports, filePath);
+				}
+
+				if (imageImports.length) {
+					entry.imageImports = imageImports;
 				}
 
 				if (digest) {
@@ -507,30 +517,30 @@ export default new Map([\n${lines.join(',\n')}]);
 	}
 
 	/**
-	 * Loads a MutableDataStore from a chunked store directory (experimental
-	 * `collectionStorage: 'chunked'`), reading the manifest and its referenced parts.
+	 * Loads a MutableDataStore from a chunked store directory, reading the manifest
+	 * and its referenced parts.
 	 * If the directory has no manifest yet (fresh build) it starts empty. If the
 	 * manifest exists but can't be read (corrupt cache), it warns and starts
 	 * empty so loaders rebuild it, rather than failing the sync.
 	 */
-	static async fromDir(dirPath: URL) {
+	static async fromDir(dirPath: URL, chunkSize: number) {
 		const manifestFile = new URL(`./${DATA_STORE_MANIFEST_FILE}`, dirPath);
 		if (existsSync(manifestFile)) {
 			try {
 				const manifestData = await fs.readFile(manifestFile, 'utf-8');
 				const manifest: DataStoreManifest = JSON.parse(manifestData);
-				// Swap each referenced part file name for its contents.
-				const expanded: Record<string, string[]> = {};
+				const collections = new Map<string, Map<string, any>>();
 				for (const collectionName in manifest) {
-					expanded[collectionName] = await Promise.all(
-						manifest[collectionName].map((fileName) =>
-							fs.readFile(new URL(`./${fileName}`, dirPath), 'utf-8'),
-						),
-					);
+					const parser = new ChunkedCollectionParser();
+					for (const fileName of manifest[collectionName]) {
+						// Parsing each part before reading the next prevents raw collection
+						// contents from accumulating in memory during cache restoration.
+						parser.add(await fs.readFile(new URL(`./${fileName}`, dirPath), 'utf-8'));
+					}
+					collections.set(collectionName, parser.finish());
 				}
-				const map = ImmutableDataStore.manifestToMap(expanded);
-				const store = await MutableDataStore.fromMap(map);
-				store.#writer = new ChunkedWriter(dirPath);
+				const store = await MutableDataStore.fromMap(collections);
+				store.#writer = new ChunkedWriter(dirPath, chunkSize);
 				return store;
 			} catch (err) {
 				// The manifest exists but couldn't be read/parsed, or a referenced
@@ -545,7 +555,7 @@ export default new Map([\n${lines.join(',\n')}]);
 		// Fresh build, or recovering from a corrupt cache: start empty.
 		await fs.mkdir(dirPath, { recursive: true });
 		const store = new MutableDataStore();
-		store.#writer = new ChunkedWriter(dirPath);
+		store.#writer = new ChunkedWriter(dirPath, chunkSize);
 		return store;
 	}
 }

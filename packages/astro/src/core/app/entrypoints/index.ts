@@ -15,4 +15,12 @@ export {
 	serializeRouteData,
 	serializeRouteInfo,
 } from '../manifest.js';
-export { AppPipeline } from '../pipeline.js';
+export {
+	beginContentEntryCollection,
+	endContentEntryCollection,
+} from '../../build/incremental-content-collector.js';
+export {
+	beginImageCollection,
+	endImageCollection,
+	recordStaticImage,
+} from '../../build/incremental-image-collector.js';

@@ -6,6 +6,8 @@ import colors from 'piccolore';
 import picomatch from 'picomatch';
 import { glob as tinyglobby } from 'tinyglobby';
 import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
+import * as AstroErrorData from '../../core/errors/errors-data.js';
+import { AstroError } from '../../core/errors/index.js';
 import type { RenderedContent } from '../data-store.js';
 import { getContentEntryIdAndSlug, posixRelative } from '../utils.js';
 import type { Loader } from './types.js';
@@ -47,7 +49,7 @@ interface GlobOptions {
 
 function generateIdDefault({ entry, base, data }: GenerateIdOptions, isLegacy?: boolean): string {
 	if (data.slug) {
-		return data.slug as string;
+		return String(data.slug);
 	}
 	const entryURL = new URL(encodeURI(entry), base);
 	if (isLegacy) {
@@ -94,8 +96,11 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 	}
 
 	const isLegacy = !!globOptions[secretLegacyFlag];
-	const generateId =
+	const userGenerateId =
 		globOptions?.generateId ?? ((opts: GenerateIdOptions) => generateIdDefault(opts, isLegacy));
+	// Coerce to string so numeric ids from YAML don't cause Set strict-equality mismatches
+	// against string store keys in the untouched-entries cleanup. See #17624.
+	const generateId = (opts: GenerateIdOptions) => String(userGenerateId(opts));
 
 	const fileToIdMap = new Map<string, string>();
 
@@ -183,9 +188,20 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					// the unlink event just hasn't been processed yet
 					const oldFilePath = new URL(existingEntry.filePath, config.root);
 					if (existsSync(oldFilePath)) {
-						logger.warn(
-							`Duplicate id "${id}" found in ${filePath}. Later items with the same id will overwrite earlier ones.`,
+						const message = AstroErrorData.DuplicateContentEntrySlugError.message(
+							collection,
+							id,
+							existingEntry.filePath,
+							relativePath,
 						);
+						if (config.prerenderConflictBehavior === 'error') {
+							throw new AstroError({
+								...AstroErrorData.DuplicateContentEntrySlugError,
+								message,
+							});
+						} else if (config.prerenderConflictBehavior !== 'ignore') {
+							logger.warn(message);
+						}
 					}
 				}
 
@@ -343,8 +359,19 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 
 			watcher.add(filePath);
 
+			// Split negation patterns out and pass them as picomatch's `ignore` option
+			// so watcher filtering matches tinyglobby's semantics (set subtraction),
+			// not picomatch's default (any-match union). See #17484.
+			const patterns = Array.isArray(globOptions.pattern)
+				? globOptions.pattern
+				: [globOptions.pattern];
+			const positivePatterns = patterns.filter((p) => !p.startsWith('!'));
+			const negationPatterns = patterns.filter((p) => p.startsWith('!')).map((p) => p.slice(1));
 			const matchesGlob = (entry: string) =>
-				!entry.startsWith('../') && picomatch.isMatch(entry, globOptions.pattern);
+				!entry.startsWith('../') &&
+				picomatch.isMatch(entry, positivePatterns, {
+					ignore: negationPatterns.length > 0 ? negationPatterns : undefined,
+				});
 
 			const basePath = fileURLToPath(baseDir);
 

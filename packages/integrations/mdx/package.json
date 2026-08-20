@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Add support for MDX pages in your Astro site",
-  "version": "7.0.3",
+  "version": "7.0.7",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -76,7 +76,7 @@
     "remark-math": "^6.0.0",
     "remark-rehype": "^11.1.2",
     "remark-toc": "^9.0.0",
-    "satteri": "^0.9.1",
+    "satteri": "^0.10.3",
     "shiki": "^4.0.2",
     "unified": "^11.0.5",
     "vite": "^8.0.13"

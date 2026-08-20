@@ -33,8 +33,12 @@ import cfPrismPlugin from './vite-plugin-prism.js';
 import { loadWranglerEnv } from './utils/wrangler-config.js';
 
 const CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT = sessionDrivers.cloudflareKVBinding().entrypoint;
+const CONTENT_CHUNK_SIZE = 1024 * 1024;
 
 function usesCloudflareKVSessionDriver(session: AstroConfig['session']): boolean {
+	if (session === false) {
+		return false;
+	}
 	const driver = session?.driver;
 
 	if (!driver) {
@@ -142,9 +146,13 @@ export default function createIntegration({
 	let hasUserBuildImageService = false;
 	let compileImageConfig: CompileImageConfig | null = null;
 
-	const { buildService, runtimeService } = normalizeImageServiceConfig(imageService);
+	const { buildService, runtimeService, transformAtBuild } =
+		normalizeImageServiceConfig(imageService);
 	const needsImagesBinding = runtimeService === 'cloudflare-binding';
 	const hasBuildImageService = buildService === 'compile' || buildService === 'custom';
+	// Opt-in: user explicitly requested build-time image transformation via the compound config.
+	// The string shorthand `'cloudflare-binding'` keeps the historical runtime-only behavior.
+	const isBindingBuild = transformAtBuild && buildService === 'cloudflare-binding';
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -167,7 +175,7 @@ export default function createIntegration({
 					);
 				}
 
-				if (!session?.driver) {
+				if (session !== false && !session?.driver) {
 					logger.info(
 						`Enabling sessions with Cloudflare KV with the "${sessionKVBindingName}" KV binding.`,
 					);
@@ -183,10 +191,10 @@ export default function createIntegration({
 
 				const needsSessionKVBinding = usesCloudflareKVSessionDriver(session);
 
-				// In dev, `compile` needs the IMAGES binding for real transforms
-				// (the image-transform-endpoint uses it). At build time,
+				// In dev, `compile` and binding builds need the IMAGES binding for real
+				// transforms (the image-transform-endpoint uses it). At build time,
 				// `compile` uses Sharp on the Node side instead.
-				const needsImagesBindingForDev = isCompile && command === 'dev';
+				const needsImagesBindingForDev = (isCompile || isBindingBuild) && command === 'dev';
 				const usesContentCollections = hasContentCollectionsConfig(config.srcDir);
 				const prebundleContentRuntime = command === 'dev' && usesContentCollections;
 				const isTypeGenPhase = command === 'build' || command === 'sync';
@@ -212,7 +220,9 @@ export default function createIntegration({
 										...(queues?.producers?.length && {
 											queues: { producers: queues.producers },
 										}),
-										...(needsImagesBinding &&
+										// `isBindingBuild` needs the IMAGES binding in the prerender
+										// worker even when the runtime service is `passthrough`.
+										...((needsImagesBinding || isBindingBuild) &&
 											!restWorkerConfig.images && {
 												images: { binding: imagesBindingName },
 											}),
@@ -276,6 +286,11 @@ export default function createIntegration({
 				}
 
 				updateConfig({
+					...(config.experimental.collectionStorage === 'chunked' && {
+						experimental: {
+							collectionStorage: { type: 'chunked', chunkSize: CONTENT_CHUNK_SIZE },
+						},
+					}),
 					build: {
 						redirects: false,
 					},
@@ -333,6 +348,10 @@ export default function createIntegration({
 													'astro/app/fetch/default-handler',
 													'astro/fetch',
 													'astro/hono',
+													'astro/env/runtime',
+													'astro/zod',
+													'astro/actions/runtime/entrypoints/server.js',
+													'astro/actions/runtime/entrypoints/route.js',
 													'astro/assets',
 													'astro/assets/runtime',
 													'astro/assets/utils/inferRemoteSize.js',
@@ -341,7 +360,9 @@ export default function createIntegration({
 													'astro/compiler-runtime',
 													'astro/jsx-runtime',
 													'astro/app/entrypoint/dev',
+													'astro/middleware',
 													'astro/virtual-modules/middleware.js',
+													'astro/virtual-modules/live-config',
 													'astro/virtual-modules/transitions.js',
 													'astro/virtual-modules/transitions-events.js',
 													'astro/virtual-modules/transitions-router.js',
@@ -403,7 +424,7 @@ export default function createIntegration({
 								// cannot be resolved yet. The plugin serializes this object lazily
 								// at load time, after the mutation below has happened.
 								compileImageConfig:
-									hasBuildImageService && command !== 'dev'
+									(hasBuildImageService || isBindingBuild) && command !== 'dev'
 										? (compileImageConfig = {
 												base: config.base,
 												assetsPrefix:
@@ -412,6 +433,7 @@ export default function createIntegration({
 														: undefined,
 												imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
 												buildAssets: config.build.assets ?? '_astro',
+												transformWithBinding: isBindingBuild,
 											})
 										: null,
 								cacheProviderEnabled: needsWorkerCache,
@@ -491,7 +513,7 @@ export default function createIntegration({
 				// these variables at build time.
 				loadWranglerEnv(config.root, cloudflareOptions.configPath, logger);
 			},
-			'astro:build:start': ({ setPrerenderer }) => {
+			'astro:build:start': ({ setPrerenderer, logger }) => {
 				if (prerenderEnvironment === 'workerd') {
 					setPrerenderer(
 						createCloudflarePrerenderer({
@@ -502,15 +524,80 @@ export default function createIntegration({
 							trailingSlash: _config.trailingSlash,
 							cfPluginConfig,
 							hasBuildImageService,
+							hasBindingImageService: isBindingBuild,
 							userImageServiceEntrypoint: hasUserBuildImageService
 								? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
 								: undefined,
+							incremental: _config.experimental?.incrementalBuild ?? false,
+							logger,
 						}),
 					);
+				} else if (hasBuildImageService) {
+					// When prerenderEnvironment is 'node', prerendering runs in the same
+					// Node process using the workerd-safe image service stub (which is a
+					// passthrough). We need to install the real image service (sharp or
+					// the user's custom service) before the image generation pipeline runs.
+					// This mirrors what collectStaticImages does in the workerd prerenderer.
+					const entrypoint = hasUserBuildImageService
+						? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
+						: undefined;
+					setPrerenderer((defaultPrerenderer) => ({
+						...defaultPrerenderer,
+						async collectStaticImages() {
+							globalThis.astroAsset ??= {};
+							if (entrypoint) {
+								// Belt-and-braces rather than load-bearing: with a user-configured
+								// image.service, the Node prerender bundle already loads the user
+								// service via virtual:image-service and caches it here whenever a
+								// page renders an image, so this re-import only exists for symmetry
+								// with the workerd prerenderer's collectStaticImages. Guard it: the
+								// raw entrypoint import can fail where the bundled service works
+								// (e.g. TypeScript entrypoints on Node versions without type
+								// stripping), and an empty cache means no image was rendered, so
+								// the service is never used by the generation pipeline anyway.
+								if (!globalThis.astroAsset.imageService) {
+									try {
+										const mod = await import(entrypoint);
+										globalThis.astroAsset.imageService = mod.default ?? mod;
+									} catch {
+										// Unused when no images were rendered — never fail the build.
+									}
+								}
+							} else {
+								const { default: sharpService } = await import('astro/assets/services/sharp');
+								globalThis.astroAsset.imageService = sharpService;
+							}
+							// Static images are already in globalThis.astroAsset.staticImages
+							// from the Node-side prerendering. Return an empty map since
+							// there are no additional images to merge from a separate runtime.
+							return new Map();
+						},
+					}));
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
+					// When prerenderEnvironment is 'node' and we used setPrerenderer
+					// to add collectStaticImages for compile-time image optimization,
+					// the prerender entrypoint gets skipped (because settings.prerenderer
+					// is truthy). Restore the default entrypoint since we're still using
+					// the default Node-based prerenderer — we only wrapped it.
+					//
+					// NOTE: the entrypoint specifier and config shape below mirror the
+					// skip logic in packages/astro/src/core/build/vite-build-config.ts
+					// (the `rolldownOptions.input` handling for the prerender
+					// environment). If core renames 'astro/entrypoints/prerender' or
+					// reshapes that config, this must be updated in lockstep — otherwise
+					// builds silently degrade back to unoptimized image output.
+					if (prerenderEnvironment === 'node' && hasBuildImageService) {
+						vite.environments ??= {};
+						vite.environments.prerender ??= {};
+						(vite.environments.prerender as Record<string, any>).build ??= {};
+						(vite.environments.prerender as Record<string, any>).build.rolldownOptions ??= {};
+						(vite.environments.prerender as Record<string, any>).build.rolldownOptions.input =
+							'astro/entrypoints/prerender';
+					}
+
 					vite.resolve ||= {};
 					vite.resolve.alias ||= {};
 					vite.ssr ||= {};

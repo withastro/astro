@@ -17,6 +17,7 @@ import {
 	ASSETS_DIR,
 	CACHE_DIR,
 	DEFAULTS,
+	FONTS_SERVER_ADDRESS_PLACEHOLDER,
 	RESOLVED_RUNTIME_FONT_FILE_URL_RESOLVER_VIRTUAL_MODULE_ID,
 	RESOLVED_RUNTIME_VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
@@ -346,9 +347,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					return {
 						code: `
 							import { RemoteRuntimeFontFileUrlResolver } from ${JSON.stringify(new URL('./infra/remote-runtime-font-file-url-resolver.js', import.meta.url))};
+							const ${FONTS_SERVER_ADDRESS_PLACEHOLDER} = ${JSON.stringify(serverAddress)};
 							export const runtimeFontFileUrlResolver = new RemoteRuntimeFontFileUrlResolver({
 								urls: new Set(${JSON.stringify(urls)}),
-								address: ${JSON.stringify(serverAddress)},
+								address: ${FONTS_SERVER_ADDRESS_PLACEHOLDER},
 							});
 						`,
 					};

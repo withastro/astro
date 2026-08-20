@@ -8,6 +8,7 @@ export interface CompileImageConfig {
 	assetsPrefix: string | undefined;
 	imageServiceEntrypoint: string;
 	buildAssets: string;
+	transformWithBinding: boolean;
 }
 
 export interface Config {

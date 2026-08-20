@@ -1,5 +1,50 @@
 # @astrojs/node
 
+## 11.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527)]:
+  - @astrojs/internal-helpers@0.10.4
+
+## 11.1.3
+
+### Patch Changes
+
+- [#17636](https://github.com/withastro/astro/pull/17636) [`51723b1`](https://github.com/withastro/astro/commit/51723b100a37d6dd6df793957d35d9216e872cef) Thanks [@matthewp](https://github.com/matthewp)! - Updates the adapter to wait for the configured log destination through Astro's new `app.getLogger()` API. This release requires Astro 7.2.1 or later.
+
+- Updated dependencies [[`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277)]:
+  - @astrojs/internal-helpers@0.10.3
+
+## 11.1.2
+
+### Patch Changes
+
+- [#17400](https://github.com/withastro/astro/pull/17400) [`c1cf110`](https://github.com/withastro/astro/commit/c1cf11037797da70196f9a9ff20744ce6c2524d3) Thanks [@tianrking](https://github.com/tianrking)! - Return a 404 instead of a 500 for unknown parameters that match a prerendered dynamic endpoint.
+
+## 11.1.1
+
+### Patch Changes
+
+- [#17658](https://github.com/withastro/astro/pull/17658) [`8b211a5`](https://github.com/withastro/astro/commit/8b211a56c86f0e41782e6d7fa4b4d13dec895e80) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes an EventEmitter memory leak when serving static pages over keep-alive connections with `staticHeaders` enabled and CSP (`security.csp`) active
+
+## 11.1.0
+
+### Minor Changes
+
+- [#16871](https://github.com/withastro/astro/pull/16871) [`90c98ae`](https://github.com/withastro/astro/commit/90c98ae21ef0444a4088b7081676b0f97915001f) Thanks [@adamchal](https://github.com/adamchal)! - When `session: false` is set in `astro.config`, the adapter no longer auto-wires the filesystem session driver. Combined with the matching `astro` change, this lets the session runtime tree-shake out of the server bundle.
+
+### Patch Changes
+
+- [#17564](https://github.com/withastro/astro/pull/17564) [`004fb0a`](https://github.com/withastro/astro/commit/004fb0a01ebf8ca05035de705e8f84a3bc965b5d) Thanks [@dmgawel](https://github.com/dmgawel)! - Fixes middleware mode routing when a prerendered dynamic route sorts before an on-demand fallback
+
+## 11.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+
 ## 11.0.2
 
 ### Patch Changes

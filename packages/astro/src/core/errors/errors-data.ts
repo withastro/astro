@@ -1550,6 +1550,26 @@ export const LoggerConfigurationNotSerializable = {
 	name: 'LoggerConfigurationNotSerializable',
 	title: 'The configuration of the logger is not serializable.',
 } satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * `new FetchState(request)` can only be used inside an Astro server — the built
+ * server output or the dev server — where Astro provides the manifest describing
+ * your site. This error means it was called somewhere else, for example in a
+ * plain Node script that imports `astro/fetch`.
+ *
+ * If this error occurs inside an Astro-built server, please [open an issue](https://astro.build/issues/).
+ * @message
+ * `new FetchState(request)` was called outside of an Astro server, so no manifest is available.
+ */
+export const NoManifestAvailable = {
+	name: 'NoManifestAvailableError',
+	title: 'No manifest available.',
+	message:
+		'`new FetchState(request)` was called outside of an Astro server, so no manifest is available.',
+	hint: 'Make sure this code runs as part of your Astro app, such as its fetch entrypoint. If this error occurred inside an Astro-built server, please open an issue at https://github.com/withastro/astro/issues.',
+} satisfies ErrorData;
 /**
  * @docs
  * @kind heading
