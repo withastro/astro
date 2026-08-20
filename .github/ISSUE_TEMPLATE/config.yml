@@ -3,7 +3,7 @@ contact_links:
   - name: 💁 Support
     url: https://astro.build/chat
     about: This issue tracker is not for support questions. Join us on Discord for assistance!
-  - name: ❔ Support (GitHub)
+  - name: 💁 Support (GitHub)
     url: https://github.com/withastro/community-support/discussions
     about: No Discord account? Open a discussion on GitHub for assistance.
   - name: 📘 Documentation
