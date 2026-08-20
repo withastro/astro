@@ -40,7 +40,7 @@ Visit our [official documentation](https://docs.astro.build/).
 
 ## Support
 
-Having trouble? Get help in the official [Astro Discord](https://astro.build/chat).
+Having trouble? Get help in the official [Astro Discord](https://astro.build/chat) or via [GitHub discussions)(https://github.com/withastro/community-support/discussions).
 
 ## Contributing
 
