@@ -51,7 +51,7 @@ function generateIdDefault({ entry, base, data }: GenerateIdOptions, isLegacy?: 
 	if (data.slug) {
 		return String(data.slug);
 	}
-	const entryURL = new URL(encodeURI(entry), base);
+	const entryURL = new URL('./' + encodeURI(entry), base);
 	if (isLegacy) {
 		// Legacy behavior: use ID based on path, not slug
 		const { id } = getContentEntryIdAndSlug({
@@ -132,7 +132,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					logger.warn(`No entry type found for ${entry}`);
 					return;
 				}
-				const fileUrl = new URL(encodeURI(entry), base);
+				const fileUrl = new URL('./' + encodeURI(entry), base);
 				const contents = await fs.readFile(fileUrl, 'utf-8').catch((err) => {
 					logger.error(`Error reading ${entry}: ${err.message}`);
 					return;
@@ -314,7 +314,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 			);
 
 			function isConfigFile(file: string) {
-				const fileUrl = new URL(file, baseDir);
+				const fileUrl = new URL('./' + encodeURI(file), baseDir);
 				return configFiles.has(fileUrl.href);
 			}
 
