@@ -282,6 +282,18 @@ describe('renderCspContent', () => {
 		);
 	});
 
+	it('suppresses render-time extra hashes when unsafe-inline is on script-src', () => {
+		assert.equal(
+			renderCspContent(
+				createCspResult({
+					scriptDirective: { resources: ["'unsafe-inline'"] },
+					extraScriptHashes: ['sha256-extra'],
+				}),
+			),
+			"script-src 'unsafe-inline' ; style-src 'self' ;",
+		);
+	});
+
 	it('keeps hashes on style-src when unsafe-inline is only on style-src-attr', () => {
 		assert.equal(
 			renderCspContent(
