@@ -1,4 +1,5 @@
 import picomatch from 'picomatch';
+import { getCookiesFromResponse } from '../cookies/response.js';
 import { AstroError } from '../errors/errors.js';
 import { CacheQueryConfigConflict } from '../errors/errors-data.js';
 import type { CacheProvider, CacheProviderFactory, InvalidateOptions } from './types.js';
@@ -255,8 +256,26 @@ function matchesVary(request: Request, entry: CachedEntry): boolean {
 	return true;
 }
 
+/**
+ * Check whether a response carries cookies that should prevent caching:
+ * either a raw Set-Cookie header, or an AstroCookies instance with pending
+ * writes (from `Astro.cookies.set()` / `Astro.session`) that has not been
+ * flushed to a Set-Cookie header yet.
+ *
+ * The cache provider's onRequest runs before prepareResponse() flushes
+ * AstroCookies onto the response, so at store time a pending cookie write
+ * would otherwise be invisible to a plain header check, and the response
+ * (personalized for the current user) would be cached and served to
+ * everyone else without their own Set-Cookie header.
+ */
 function hasSetCookieHeader(response: Response): boolean {
-	return response.headers.has('set-cookie');
+	if (response.headers.has('set-cookie')) return true;
+	const cookies = getCookiesFromResponse(response);
+	if (!cookies) return false;
+	for (const _pending of cookies.headers()) {
+		return true;
+	}
+	return false;
 }
 
 function warnSkippedSetCookie(url: URL): void {

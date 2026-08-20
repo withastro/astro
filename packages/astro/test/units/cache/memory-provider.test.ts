@@ -3,6 +3,8 @@ import { describe, it } from 'node:test';
 import type { CacheProvider } from '../../../dist/core/cache/types.js';
 import type { MemoryCacheProviderOptions } from '../../../dist/core/cache/memory-provider.js';
 import memoryProvider from '../../../dist/core/cache/memory-provider.js';
+import { AstroCookies } from '../../../dist/core/cookies/cookies.js';
+import { attachCookiesToResponse } from '../../../dist/core/cookies/response.js';
 
 /**
  * Helper: create a CacheProvider instance with optional config.
@@ -123,6 +125,69 @@ describe('memory-provider onRequest', () => {
 			return new Response('fresh', { headers: h });
 		});
 		assert.equal(nextCalled, true);
+	});
+
+	it('does not cache responses with cookies pending via Astro.cookies (no Set-Cookie header yet)', async () => {
+		// Astro.cookies.set() / Astro.session writes land on an AstroCookies
+		// instance attached to the response by Symbol. The real Set-Cookie
+		// header is only synthesized later by prepareResponse(), which runs
+		// after the cache provider has already stored the response. So at
+		// store time, response.headers.has('set-cookie') is false even though
+		// the response carries a user-specific cookie write.
+		const provider = createProvider();
+		const url = 'http://localhost/page';
+
+		const req1 = makeRequest(url);
+		const cookies = new AstroCookies(req1);
+		cookies.set('session', 'user-1-secret');
+		await provider.onRequest!({ request: req1, url: new URL(req1.url) }, async () => {
+			const response = new Response('user-1 personalized page', {
+				headers: { 'CDN-Cache-Control': 'max-age=60' },
+			});
+			// Simulates handleMiddleware() attaching the request's AstroCookies
+			// to the response before prepareResponse() has flushed it.
+			attachCookiesToResponse(response, cookies);
+			return response;
+		});
+
+		// A second, unrelated request should never see the first user's
+		// cookie-personalized response served back from cache.
+		const req2 = makeRequest(url);
+		let nextCalled = false;
+		const res2 = await provider.onRequest!({ request: req2, url: new URL(req2.url) }, async () => {
+			nextCalled = true;
+			return new Response('fresh anonymous page', {
+				headers: { 'CDN-Cache-Control': 'max-age=60' },
+			});
+		});
+		assert.equal(nextCalled, true, "cache incorrectly served the first user's cached response");
+		assert.equal(await res2.text(), 'fresh anonymous page');
+	});
+
+	it('still caches responses that carry an AstroCookies instance with no pending writes', async () => {
+		const provider = createProvider();
+		const url = 'http://localhost/page';
+
+		const req1 = makeRequest(url);
+		await provider.onRequest!({ request: req1, url: new URL(req1.url) }, async () => {
+			const response = new Response('cacheable page', {
+				headers: { 'CDN-Cache-Control': 'max-age=60' },
+			});
+			// handleMiddleware() attaches an AstroCookies instance to every
+			// response. With no set()/delete() call the outgoing map stays empty,
+			// so this response must still be cached: the cookie check must not
+			// over-skip when nothing is actually pending.
+			attachCookiesToResponse(response, new AstroCookies(req1));
+			return response;
+		});
+
+		const req2 = makeRequest(url);
+		const res2 = await provider.onRequest!(
+			{ request: req2, url: new URL(req2.url) },
+			makeNext({ maxAge: 60, body: 'should not run' }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
+		assert.equal(await res2.text(), 'cacheable page');
 	});
 });
 
