@@ -120,7 +120,7 @@ Load the `changeset` skill to create the changeset file and write the message. I
 
 When writing the PR body:
 
-- Before posting, check whether a changeset exists. If the PR modifies a package and none exists, **create it now** using the `changeset` skill — do not post the PR without one. A missing changeset is a blocker, not a note to leave for the reviewer.
+- Before posting, check whether a changeset exists. If the PR modifies a package and none exists, **create it now** using the `changeset` skill — do not post the PR without one.
 - Do not mention "added changeset" in the `Changes` section — it is process noise, not a behavior change
 
 ## Self-Check Before Posting
