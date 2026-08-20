@@ -959,8 +959,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       undici:
-        specifier: ^7.22.0
-        version: 7.24.8
+        specifier: ^8.10.0
+        version: 8.10.0
       vitest:
         specifier: ^4.1.0
         version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
@@ -7168,12 +7168,6 @@ importers:
       tsx:
         specifier: ^4.22.0
         version: 4.22.3
-
-  triage/gh-17744:
-    dependencies:
-      astro:
-        specifier: ^7.2.4
-        version: link:../../packages/astro
 
 packages:
 

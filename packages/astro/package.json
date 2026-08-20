@@ -215,7 +215,7 @@
     "remark-code-titles": "^0.1.2",
     "sass": "^1.98.0",
     "typescript": "^6.0.3",
-    "undici": "^7.22.0",
+    "undici": "^8.10.0",
     "vitest": "^4.1.0"
   },
   "engines": {
