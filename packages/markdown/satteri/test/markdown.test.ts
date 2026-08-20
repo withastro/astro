@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { HastPluginDefinition, MdastPluginDefinition } from 'satteri';
-import { createSatteriMarkdownProcessor, satteriHeadingIdsPlugin } from '../dist/index.js';
+import { createSatteriMarkdownProcessor, satteri, satteriHeadingIdsPlugin } from '../dist/index.js';
 
 describe('satteri markdown', () => {
 	it('renders basic markdown', async () => {
@@ -135,5 +135,26 @@ describe('satteri markdown', () => {
 		});
 		assert.equal(metadata.frontmatter.title, 'hello');
 		assert.equal(metadata.frontmatter.injected, 'HELLO');
+	});
+
+	it('accepts conditional plugin factories', async () => {
+		const mdUppercasePlugin: MdastPluginDefinition = {
+			name: 'mdx-uppercase',
+			text(node, ctx) {
+				ctx.setProperty(node, 'value', node.value.toUpperCase());
+			},
+		};
+
+		const satteriProcessor = satteri({
+			mdastPlugins: [(ctx) => (ctx.sourceFormat === 'markdown' ? [mdUppercasePlugin] : null)],
+		});
+
+		const processor = await createSatteriMarkdownProcessor({
+			mdastPlugins: satteriProcessor.options.mdastPlugins,
+		});
+
+		const { code } = await processor.render('Hello');
+
+		assert.match(code, /<p>HELLO<\/p>/);
 	});
 });

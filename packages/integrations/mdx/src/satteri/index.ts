@@ -13,7 +13,9 @@ import {
 	mdxToJs,
 	type HastNode,
 	type HastPluginDefinition,
+	type HastPluginEntry,
 	type MdastPluginDefinition,
+	type MdastPluginEntry,
 	type MdxCompileOptions,
 } from 'satteri';
 import { ASTRO_IMAGE_IMPORT, USES_ASTRO_IMAGE_FLAG } from '../image-constants.js';
@@ -90,12 +92,9 @@ export function createMdxProcessor(
 				typeof syntaxHighlight === 'object' ? syntaxHighlight.excludeLangs : undefined;
 
 			// Collect last so image-URL rewrites by user plugins are captured.
-			const allMdastPlugins: MdastPluginDefinition[] = [
-				...satteriOptions.mdastPlugins,
-				collectImages,
-			];
+			const allMdastPlugins: MdastPluginEntry[] = [...satteriOptions.mdastPlugins, collectImages];
 
-			const hastPlugins: HastPluginDefinition[] = [];
+			const hastPlugins: HastPluginEntry[] = [];
 			if (highlightFn) {
 				hastPlugins.push(satteriHighlightPlugin(highlightFn, excludeLangs));
 			}
