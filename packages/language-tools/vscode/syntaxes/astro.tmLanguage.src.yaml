@@ -514,6 +514,16 @@ repository:
     name: meta.tag.start.astro
     patterns: [include: '#attributes']
 
+  # Scans tag attributes, stopping when a lang/type attribute or > is found.
+  # Used by the multi-line lang detection in tags-lang to process attributes
+  # before the lang/type line, then yield to non-\G lang-detection patterns.
+  tags-lang-start-attributes-prescan:
+    begin: \G
+    end: (?=/>)|>|(?=[^>]*?\b(?:type|lang)\s*=)
+    endCaptures: { 0: { name: punctuation.definition.tag.end.astro } }
+    name: meta.tag.start.astro
+    patterns: [include: '#attributes']
+
   # Matches the beginning (`<name`) section of a tag start node.
   tags-start-node:
     match: (<)([^/\s>/]*)
@@ -568,8 +578,28 @@ repository:
         end: (?=</|/>)
         name: meta.lang.$3.astro
         patterns: [include: '#tags-lang-start-attributes']
-      # Fallback to default language.
-      - include: '#tags-lang-start-attributes'
+      # Multi-line fallback: lang/type may be on a subsequent line.
+      # The prescan rule processes attributes (with meta.tag.start.astro) until
+      # it encounters a lang/type attribute or >, then yields to the non-\G
+      # lang-detection patterns which set the meta.lang.X scope for injection.
+      - begin: \G
+        end: (?=</|/>)
+        patterns:
+          - include: '#tags-lang-start-attributes-prescan'
+          - begin: (?=[^>]*?\b(type|lang)\s*=\s*(['"]|)(?:text\/)?(application\/ld\+json)\2)
+            end: (?=</|/>)
+            name: meta.lang.json.astro
+            patterns: [include: '#tags-lang-start-attributes']
+          - begin: (?=[^>]*?\b(type|lang)\s*=\s*(['"]|)(module)\2)
+            end: (?=</|/>)
+            name: meta.lang.javascript.astro
+            patterns: [include: '#tags-lang-start-attributes']
+          - begin: (?=[^>]*?\b(type|lang)\s*=\s*(['"]|)(?:text/|application/)?([\w\/+]+)\2)
+            end: (?=</|/>)
+            name: meta.lang.$3.astro
+            patterns: [include: '#tags-lang-start-attributes']
+          - match: '>'
+            name: meta.tag.start.astro punctuation.definition.tag.end.astro
 
   # Void element tags. They must be treated separately due to their lack of end nodes.
   # A void element cannot be differentiated from other tags, unless you look at their name.
