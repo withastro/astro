@@ -1,4 +1,4 @@
-import { relative as relativePath } from 'node:path';
+import { dirname, relative as relativePath } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { copyFilesToFolder } from '@astrojs/internal-helpers/fs';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
@@ -29,8 +29,16 @@ export async function copyDependenciesToFunction(
 	const entryPath = fileURLToPath(entry);
 	logger.info(`Bundling function ${relativePath(fileURLToPath(outDir), entryPath)}`);
 
-	// Set the base to the workspace root
-	const base = pathToFileURL(appendForwardSlash(searchForWorkspaceRoot(fileURLToPath(root))));
+	// Find the common ancestor of root and entry so the NFT base encompasses
+	// both the project root (where node_modules live) and the build output
+	// (where the entry and its chunks live). Without this, outDir outside root
+	// causes @vercel/nft to silently drop traced files. (#17761)
+	const rootPath = fileURLToPath(root);
+	let searchStart = rootPath;
+	while (!entryPath.startsWith(searchStart + '/') && entryPath !== searchStart) {
+		searchStart = dirname(searchStart);
+	}
+	const base = pathToFileURL(appendForwardSlash(searchForWorkspaceRoot(searchStart)));
 
 	// The Vite bundle includes an import to `@vercel/nft` for some reason,
 	// and that trips up `@vercel/nft` itself during the adapter build. Using a

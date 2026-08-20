@@ -6435,6 +6435,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/vercel/test/fixtures/outdir-outside-root/app:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../../astro
+
   packages/integrations/vercel/test/fixtures/prerendered-error-pages:
     dependencies:
       '@astrojs/vercel':
