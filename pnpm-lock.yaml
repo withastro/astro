@@ -838,9 +838,6 @@ importers:
       picomatch:
         specifier: ^4.0.4
         version: 4.0.4
-      semver:
-        specifier: ^7.7.4
-        version: 7.8.5
       shiki:
         specifier: ^4.0.2
         version: 4.0.2
@@ -868,6 +865,9 @@ importers:
       unstorage:
         specifier: ^1.17.5
         version: 1.17.5(@azure/identity@4.13.0)(@netlify/blobs@10.7.5)(@vercel/functions@3.4.3)
+      verkit:
+        specifier: ^0.4.0
+        version: 0.4.0
       vite:
         specifier: ^8.0.13
         version: 8.1.0(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
@@ -911,9 +911,6 @@ importers:
       '@types/picomatch':
         specifier: ^4.0.2
         version: 4.0.2
-      '@types/semver':
-        specifier: ^7.7.1
-        version: 7.7.1
       '@types/yargs-parser':
         specifier: ^21.0.3
         version: 21.0.3
@@ -6871,9 +6868,6 @@ importers:
       '@volar/typescript':
         specifier: ~2.4.28
         version: 2.4.28
-      semver:
-        specifier: ^7.7.4
-        version: 7.8.5
       vscode-languageserver-textdocument:
         specifier: ^1.0.12
         version: 1.0.12
@@ -6884,9 +6878,6 @@ importers:
       '@types/node':
         specifier: ^22.19.0
         version: 22.19.19
-      '@types/semver':
-        specifier: ^7.7.1
-        version: 7.7.1
       '@types/vscode':
         specifier: ^1.101.0
         version: 1.109.0
@@ -7132,16 +7123,13 @@ importers:
       package-manager-detector:
         specifier: ^1.6.0
         version: 1.6.0
-      semver:
-        specifier: ^7.7.4
-        version: 7.8.5
       terminal-link:
         specifier: ^5.0.0
         version: 5.0.0
+      verkit:
+        specifier: ^0.4.0
+        version: 0.4.0
     devDependencies:
-      '@types/semver':
-        specifier: ^7.7.1
-        version: 7.7.1
       arg:
         specifier: ^5.0.2
         version: 5.0.2
@@ -10425,9 +10413,6 @@ packages:
 
   '@types/sax@1.2.7':
     resolution: {integrity: sha512-rO73L89PJxeYM3s3pPPjiPgVVcymqU490g0YO5n5By0k2Erzj6tay/4lr1CHAAU4JyOWd1rpQ8bCf6cZfHU96A==}
-
-  '@types/semver@7.7.1':
-    resolution: {integrity: sha512-FmgJfu+MOcQ370SD0ev7EI8TlCAfKYU+B4m5T3yXc1CiRN94g/SZPtsCkk506aUDtlMnFZvasDwHHUcZUEaYuA==}
 
   '@types/send@1.2.1':
     resolution: {integrity: sha512-arsCikDvlU99zl1g69TcAB3mzZPpxgw0UQnaHeC1Nwb015xp8bknZv5rIfri9xTOcMuaVgvabfIRA7PSZVuZIQ==}
@@ -15661,6 +15646,10 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
+  verkit@0.4.0:
+    resolution: {integrity: sha512-sXMwN6DMHeouPfCxkxWkKAmxphWKEenHYY5H1nIBzU3PmDsmJp6kBXJdshjVdpMZuWCmL9SH7KFRx29AylpP6g==}
+    engines: {node: '>=18.12.0'}
+
   version-range@4.15.0:
     resolution: {integrity: sha512-Ck0EJbAGxHwprkzFO966t4/5QkRuzh+/I1RxhLgUKKwEn+Cd8NwM60mE3AqBZg5gYODoXW0EFsQvbZjRlvdqbg==}
     engines: {node: '>=4'}
@@ -19647,8 +19636,6 @@ snapshots:
   '@types/sax@1.2.7':
     dependencies:
       '@types/node': 22.19.19
-
-  '@types/semver@7.7.1': {}
 
   '@types/send@1.2.1':
     dependencies:
@@ -25907,6 +25894,8 @@ snapshots:
   validate-npm-package-name@5.0.1: {}
 
   vary@1.1.2: {}
+
+  verkit@0.4.0: {}
 
   version-range@4.15.0: {}
 
