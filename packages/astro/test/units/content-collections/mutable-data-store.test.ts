@@ -222,14 +222,8 @@ describe('MutableDataStore', () => {
 		await store.waitUntilSaveComplete();
 
 		const contentAfter = await fs.readFile(modulesFilePath, 'utf-8');
-		assert.ok(
-			!contentAfter.includes('page-1.mdx'),
-			'should NOT contain page-1 after clearAll',
-		);
-		assert.ok(
-			!contentAfter.includes('post-1.mdx'),
-			'should NOT contain post-1 after clearAll',
-		);
+		assert.ok(!contentAfter.includes('page-1.mdx'), 'should NOT contain page-1 after clearAll');
+		assert.ok(!contentAfter.includes('post-1.mdx'), 'should NOT contain post-1 after clearAll');
 	});
 
 	it('removes the old module import and adds the new one when an entry is renamed (issue #17707)', async () => {
