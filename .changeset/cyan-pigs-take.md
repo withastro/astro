@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Updates deprecation warnings and inline comments for the all removal target from Astro 7.0 to 8.0.
+Updates deprecation messages target from Astro 7 to 8
