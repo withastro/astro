@@ -860,6 +860,38 @@ describe('astro:image', () => {
 			);
 		});
 
+		it('imports APNG metadata for a standard img element', async () => {
+			logs.length = 0;
+			const res = await fixture.fetch('/apng-img');
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.match($('#apng').attr('src')!, /animated\.apng/);
+			assert.equal($('#apng').attr('width'), '2');
+			assert.equal($('#apng').attr('height'), '3');
+			assert.equal($('#format').text(), 'apng');
+			assert.equal(logs.length, 0);
+		});
+
+		it('rejects APNG images in the Image component', async () => {
+			logs.length = 0;
+			const res = await fixture.fetch('/apng-image');
+			await res.text();
+
+			assert.equal(logs.length >= 1, true);
+			assert.match(logs[0].message, /Received unsupported format `apng`/);
+		});
+
+		it('rejects APNG images in the Picture component', async () => {
+			logs.length = 0;
+			const res = await fixture.fetch('/apng-picture');
+			await res.text();
+
+			assert.equal(logs.length >= 1, true);
+			assert.match(logs[0].message, /Received unsupported format `apng`/);
+		});
+
 		it('properly error image in Markdown frontmatter is not found', async () => {
 			logs.length = 0;
 			let res = await fixture.fetch('/blog/one');

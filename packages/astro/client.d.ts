@@ -98,6 +98,10 @@ declare module '*.png' {
 	const metadata: ImageMetadata;
 	export default metadata;
 }
+declare module '*.apng' {
+	const metadata: ImageMetadata;
+	export default metadata;
+}
 declare module '*.tiff' {
 	const metadata: ImageMetadata;
 	export default metadata;
