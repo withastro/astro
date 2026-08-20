@@ -13,8 +13,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/markdoc": "^2.0.7",
-    "astro": "^7.2.3"
+    "@astrojs/markdoc": "^2.0.8",
+    "astro": "^7.2.4"
   },
   "allowScripts": {
     "esbuild": true

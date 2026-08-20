@@ -1,5 +1,22 @@
 # astro
 
+## 7.2.4
+
+### Patch Changes
+
+- [#17747](https://github.com/withastro/astro/pull/17747) [`a90ff66`](https://github.com/withastro/astro/commit/a90ff6650fc244bf6ec86844a82dd13b88a4fd41) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes builds hanging when an image file is malformed
+
+- [#17701](https://github.com/withastro/astro/pull/17701) [`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527) Thanks [@matthewp](https://github.com/matthewp)! - Fixes base path stripping to respect path-segment boundaries. With a configured `base` such as `/docs`, a request like `/docs-archive/page` is no longer treated as being under the base, so routing and `context.url.pathname` now agree on the same pathname.
+
+- [#17742](https://github.com/withastro/astro/pull/17742) [`70b449d`](https://github.com/withastro/astro/commit/70b449ddbae465348aa9337ff7d1d62ad8286e1a) Thanks [@Kjubikstronk](https://github.com/Kjubikstronk)! - Fixes `astro build` throwing `TypeError: Missing parameter` for dynamic routes when `build.format: 'preserve'` and `trailingSlash: 'always'` are used together. Stripping the framework-injected `.html` suffix dropped the trailing slash that the compiled route pattern requires, so the route no longer matched itself and its params resolved as empty.
+
+- [#17703](https://github.com/withastro/astro/pull/17703) [`771b0a9`](https://github.com/withastro/astro/commit/771b0a9a04ca4b4bcdd098b2062a5903cc988112) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `Astro.site` always being `undefined` when rendering components via the Container API, even when `site` is set in `astroConfig`
+
+- Updated dependencies [[`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527), [`bc171af`](https://github.com/withastro/astro/commit/bc171af0e29a1bb4ca56beffde1c4c03e1bb227f)]:
+  - @astrojs/internal-helpers@0.10.4
+  - @astrojs/markdown-satteri@0.3.7
+  - @astrojs/markdown-remark@7.2.4
+
 ## 7.2.3
 
 ### Patch Changes
