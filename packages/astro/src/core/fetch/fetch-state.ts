@@ -378,10 +378,6 @@ export class FetchState implements AstroFetchState {
 			setOriginPathname(this.request, this.pathname, manifest.trailingSlash, manifest.buildFormat);
 		}
 
-		// Eagerly resolve the route when it wasn't provided via render
-		// options. In dev the route is always passed through render options
-		// (handleRequest calls devMatch before render). In production
-		// app.match() is synchronous.
 		this.#resolveRouteData();
 	}
 
@@ -930,10 +926,11 @@ export class FetchState implements AstroFetchState {
 
 	/**
 	 * Resolves the route to use for this request and stores it on
-	 * `this.routeData`. If the adapter (or the dev server) provided a
-	 * `routeData` via render options it's already set and this is a
-	 * no-op. Otherwise we use the app's synchronous route matcher and
-	 * fall back to a `404.astro` route so middleware can still run.
+	 * `this.routeData`. Build-provided route data is authoritative because
+	 * prerendering may target a lower-priority route for a pathname. Route data
+	 * provided at runtime is retained when it agrees with the normalized request
+	 * pathname. Otherwise the app's synchronous route matcher selects the route.
+	 * A `404.astro` route is used as a fallback so middleware can still run.
 	 *
 	 * Called eagerly from the constructor so individual handlers
 	 * (actions, pages, middleware, etc.) always see a resolved route
@@ -972,17 +969,22 @@ export class FetchState implements AstroFetchState {
 	}
 
 	#resolveRouteData(): void {
-		// Fast path: routeData was provided via render options (build, dev
-		// with adapter).
-		if (this.routeData) {
-			this.#stripHtmlExtension();
-			return;
-		}
-
 		// this.pathname is already fully decoded by #computePathname
 		// (which iteratively decodes all encoding levels), so no
 		// additional decoding is needed here.
 		const matched = matchRoute(this.manifest, this.pathname);
+		if (
+			this.routeData &&
+			(getEnvironment(this.manifest).errorStrategy === 'build' ||
+				(matched &&
+					this.routeData.route === matched.route &&
+					this.routeData.component === matched.component))
+		) {
+			this.#stripHtmlExtension();
+			return;
+		}
+		this.routeData = undefined;
+
 		// In production SSR, prerendered routes are served as static files
 		// by the hosting layer and should not be rendered by the app.
 		// When the first match is a prerendered *dynamic* route, try to find
