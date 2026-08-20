@@ -41,9 +41,7 @@ export class RemoteRuntimeFontFileUrlResolver implements RuntimeFontFileUrlResol
 		}
 		if (this.#address) {
 			const host =
-				this.#address.family === 'IPv6'
-					? `[${this.#address.address}]`
-					: this.#address.address;
+				this.#address.family === 'IPv6' ? `[${this.#address.address}]` : this.#address.address;
 			return `http://${host}:${this.#address.port}${url}`;
 		}
 		// Fallback when the server address was not available at module

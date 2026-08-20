@@ -829,10 +829,7 @@ describe('fonts infra', () => {
 			});
 
 			assert.equal(
-				resolver.resolve(
-					'/_astro/fonts/foo.woff2',
-					new URL('http://localhost:4321/og.png'),
-				),
+				resolver.resolve('/_astro/fonts/foo.woff2', new URL('http://localhost:4321/og.png')),
 				'http://localhost:4321/_astro/fonts/foo.woff2',
 			);
 		});
