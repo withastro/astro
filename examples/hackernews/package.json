@@ -15,5 +15,8 @@
   "dependencies": {
     "@astrojs/node": "^11.1.4",
     "astro": "^7.2.4"
+  },
+  "allowScripts": {
+    "esbuild": true
   }
 }
