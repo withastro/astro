@@ -129,4 +129,4 @@ When writing the PR body:
 - `Changes` bullets describe behavior/implementation/impact
 - `Testing` lists test code added/changed, not test run results
 - `Docs` decision is explicit
-- Changeset file exists in `.changeset/` for any package-modifying PR — if missing, create it before posting rather than flagging it
+- Changeset file exists in `.changeset/` for any package-modifying PR — if missing, create it before posting
