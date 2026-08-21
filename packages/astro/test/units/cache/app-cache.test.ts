@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import sessionMemoryDriver from 'unstorage/drivers/memory';
 import memoryProvider from '../../../dist/core/cache/memory-provider.js';
 import { createComponent, render, renderHead } from '../../../dist/runtime/server/index.js';
 import { createEndpoint, createPage, createTestApp } from '../mocks.ts';
@@ -9,6 +10,14 @@ function createCacheManifestOverrides() {
 	return {
 		cacheProvider: async () => ({ default: memoryProvider }),
 		cacheConfig: { provider: 'memory' },
+	};
+}
+
+function createSessionCacheManifestOverrides() {
+	return {
+		...createCacheManifestOverrides(),
+		sessionConfig: { driver: 'memory', cookie: 'astro-session' },
+		sessionDriver: async () => ({ default: () => sessionMemoryDriver() }),
 	};
 }
 
@@ -70,6 +79,33 @@ function withCookieEndpoint() {
 			},
 		},
 		{ route: '/with-cookie' },
+	);
+}
+
+function withAstroCookieEndpoint() {
+	return createEndpoint(
+		{
+			GET: (ctx: APIContext) => {
+				ctx.cache.set({ maxAge: 300, tags: ['astro-cookie'] });
+				ctx.cookies.set('session', 'test', { path: '/', httpOnly: true });
+				return Response.json({ nonce: Math.random() });
+			},
+		},
+		{ route: '/with-astro-cookie' },
+	);
+}
+
+function withSessionEndpoint() {
+	return createEndpoint(
+		{
+			GET: async (ctx: APIContext) => {
+				ctx.cache.set({ maxAge: 300, tags: ['session'] });
+				const count = ((await ctx.session!.get<number>('count')) ?? 0) + 1;
+				ctx.session!.set('count', count);
+				return Response.json({ count, nonce: Math.random() });
+			},
+		},
+		{ route: '/with-session' },
 	);
 }
 
@@ -266,6 +302,53 @@ describe('context.cache through App pipeline', () => {
 		assert.ok(second.headers.get('Set-Cookie'));
 		const secondBody = await second.json();
 
+		assert.notEqual(firstBody.nonce, secondBody.nonce);
+	});
+
+	it('does not cache responses that set Astro cookies', async () => {
+		const overrides = createCacheManifestOverrides();
+		const app = createTestApp([withAstroCookieEndpoint()], overrides);
+
+		const first = await app.render(new Request('http://localhost/with-astro-cookie'), {
+			addCookieHeader: true,
+		});
+		assert.equal(first.headers.get('X-Astro-Cache'), null);
+		assert.ok(first.headers.get('Set-Cookie'));
+		const firstBody = await first.json();
+
+		const second = await app.render(new Request('http://localhost/with-astro-cookie'), {
+			addCookieHeader: true,
+		});
+		assert.equal(second.headers.get('X-Astro-Cache'), null);
+		assert.ok(second.headers.get('Set-Cookie'));
+		const secondBody = await second.json();
+
+		assert.notEqual(firstBody.nonce, secondBody.nonce);
+	});
+
+	it('does not cache responses that set an Astro session', async () => {
+		const overrides = createSessionCacheManifestOverrides();
+		const app = createTestApp([withSessionEndpoint()], overrides);
+
+		const first = await app.render(new Request('http://localhost/with-session'), {
+			addCookieHeader: true,
+		});
+		assert.equal(first.headers.get('X-Astro-Cache'), null);
+		const cookie = first.headers.get('Set-Cookie');
+		assert.ok(cookie);
+		const firstBody = await first.json();
+		assert.equal(firstBody.count, 1);
+
+		const second = await app.render(
+			new Request('http://localhost/with-session', {
+				headers: { Cookie: cookie.split(';', 1)[0] },
+			}),
+			{ addCookieHeader: true },
+		);
+		assert.equal(second.headers.get('X-Astro-Cache'), null);
+		const secondBody = await second.json();
+
+		assert.equal(secondBody.count, 2);
 		assert.notEqual(firstBody.nonce, secondBody.nonce);
 	});
 
