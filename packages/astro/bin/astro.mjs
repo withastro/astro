@@ -1,6 +1,21 @@
 #!/usr/bin/env node
 'use strict';
 
+import module from 'node:module';
+
+// Writing the cache only pays off once it is reused, and CI starts cold every run.
+if (!process.env.CI) {
+	try {
+		module.enableCompileCache?.();
+		// Long-running commands like `astro dev` never reach the flush that happens on process exit.
+		setTimeout(() => {
+			try {
+				module.flushCompileCache?.();
+			} catch {}
+		}, 10_000).unref();
+	} catch {}
+}
+
 const CI_INSTRUCTIONS = {
 	NETLIFY: 'https://docs.netlify.com/configure-builds/manage-dependencies/#node-js-and-javascript',
 	GITHUB_ACTIONS:
