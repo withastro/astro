@@ -3,7 +3,7 @@
 
 import module from 'node:module';
 
-// Writing the cache only pays off once it is reused, and CI starts cold every run.
+// In CI writing the cache is (most of the time) harmful, as it'll never get re-used and just slows down the CLI.
 if (!process.env.CI) {
 	try {
 		module.enableCompileCache?.();
