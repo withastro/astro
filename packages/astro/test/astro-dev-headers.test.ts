@@ -76,3 +76,66 @@ describe('Astro dev with vite.base path', () => {
 		assert.match($('script').attr('src')!, /^\/hello\/@vite\/client$/);
 	});
 });
+
+describe('Astro dev with base path', () => {
+	let fixture: Fixture;
+	let devServer: DevServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/astro-dev-headers/',
+			base: '/admin',
+			trailingSlash: 'always',
+			outDir: './dist/astro-dev-headers-astro-dev-with-base-path/',
+			cacheDir: './node_modules/.astro-test/astro-dev-headers-astro-dev-with-base-path/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('serves Vite internals under the Astro base', async () => {
+		const result = await fixture.fetch('/admin/');
+		assert.equal(result.status, 200);
+		const $ = cheerioLoad(await result.text());
+		const viteClientPath = $('script[src$="/@vite/client"]').attr('src');
+
+		assert.equal($('#pathname').text(), '/admin/');
+		assert.equal(viteClientPath, '/admin/@vite/client');
+		assert.equal((await fixture.fetch(viteClientPath!)).status, 200);
+		assert.equal((await fixture.fetch('/@vite/client')).status, 404);
+	});
+});
+
+describe('Astro dev with base and vite.base paths', () => {
+	let fixture: Fixture;
+	let devServer: DevServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/astro-dev-headers/',
+			base: '/admin',
+			vite: { base: '/hello' },
+			outDir: './dist/astro-dev-headers-astro-and-vite-base-paths/',
+			cacheDir: './node_modules/.astro-test/astro-dev-headers-astro-and-vite-base-paths/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('composes the paths for Vite internals', async () => {
+		const result = await fixture.fetch('/admin/hello/');
+		assert.equal(result.status, 200);
+		const $ = cheerioLoad(await result.text());
+		const viteClientPath = $('script[src$="/@vite/client"]').attr('src');
+
+		assert.equal($('#pathname').text(), '/admin/');
+		assert.equal(viteClientPath, '/admin/hello/@vite/client');
+		assert.equal((await fixture.fetch(viteClientPath!)).status, 200);
+	});
+});

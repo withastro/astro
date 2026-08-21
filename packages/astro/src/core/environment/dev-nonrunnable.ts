@@ -9,6 +9,7 @@ import type {
 } from '../../types/public/internal.js';
 import { stringifyForScript } from '../../runtime/server/escape.js';
 import type { RequestLogPayload } from './index.js';
+import { getDevServerBase, prependDevServerBase } from '../app/dev-base.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { ASTRO_VERSION } from '../constants.js';
 import { getLogger } from '../logger/manifest-logger.js';
@@ -85,11 +86,12 @@ export function createNonRunnableEnvironment(): RenderEnvironment {
 		// Dev always streams.
 		defaultStreaming: () => true,
 
-		async resolve(_manifest: SSRManifest, specifier: string): Promise<string> {
+		async resolve(manifest: SSRManifest, specifier: string): Promise<string> {
+			const devBase = getDevServerBase(manifest.base, manifest.userAssetsBase);
 			if (specifier.startsWith('/')) {
-				return specifier;
+				return prependDevServerBase(devBase, specifier);
 			} else {
-				return '/@id/' + specifier;
+				return prependDevServerBase(devBase, '/@id/' + specifier);
 			}
 		},
 
@@ -105,7 +107,8 @@ export function createNonRunnableEnvironment(): RenderEnvironment {
 				manifest.componentMetadata.set(id, entry);
 			}
 
-			const { assetsPrefix, base } = manifest;
+			const { assetsPrefix, base, userAssetsBase } = manifest;
+			const devBase = getDevServerBase(base, userAssetsBase);
 			const routeInfo = manifest.routes.find((route) => route.routeData === routeData);
 			// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 			const links = new Set<never>();
@@ -121,12 +124,12 @@ export function createNonRunnableEnvironment(): RenderEnvironment {
 						});
 					}
 				} else {
-					scripts.add(createModuleScriptElement(script));
+					scripts.add(createModuleScriptElement(script, devBase));
 				}
 			}
 
 			scripts.add({
-				props: { type: 'module', src: '/@vite/client' },
+				props: { type: 'module', src: prependDevServerBase(devBase, '/@vite/client') },
 				children: '',
 			});
 
@@ -134,7 +137,10 @@ export function createNonRunnableEnvironment(): RenderEnvironment {
 				scripts.add({
 					props: {
 						type: 'module',
-						src: '/@id/astro/runtime/client/dev-toolbar/entrypoint.js',
+						src: prependDevServerBase(
+							devBase,
+							'/@id/astro/runtime/client/dev-toolbar/entrypoint.js',
+						),
 					},
 					children: '',
 				});

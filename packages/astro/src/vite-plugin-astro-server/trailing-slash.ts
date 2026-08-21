@@ -2,6 +2,7 @@ import {
 	collapseDuplicateTrailingSlashes,
 	hasFileExtension,
 	isInternalPath,
+	removeBase,
 } from '@astrojs/internal-helpers/path';
 import type * as vite from 'vite';
 import { trailingSlashMismatchTemplate } from '../template/4xx.js';
@@ -39,8 +40,9 @@ export function evaluateTrailingSlash(
 	pathname: string,
 	search: string,
 	trailingSlash: 'always' | 'never' | 'ignore',
+	base = '/',
 ): TrailingSlashDecision {
-	if (isInternalPath(pathname)) {
+	if (isInternalPath(removeBase(pathname, base))) {
 		return { action: 'next' };
 	}
 
@@ -60,7 +62,7 @@ export function evaluateTrailingSlash(
 }
 
 export function trailingSlashMiddleware(settings: AstroSettings): vite.Connect.NextHandleFunction {
-	const { trailingSlash } = settings.config;
+	const { base, trailingSlash } = settings.config;
 
 	return function devTrailingSlash(req, res, next) {
 		const url = new URL(`http://localhost${req.url}`);
@@ -72,7 +74,7 @@ export function trailingSlashMiddleware(settings: AstroSettings): vite.Connect.N
 			return next(e);
 		}
 
-		const decision = evaluateTrailingSlash(pathname, url.search, trailingSlash);
+		const decision = evaluateTrailingSlash(pathname, url.search, trailingSlash, base);
 
 		switch (decision.action) {
 			case 'redirect':
