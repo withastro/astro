@@ -134,6 +134,7 @@ function createManifest(
 	manifest?: AstroContainerManifest,
 	renderers?: SSRLoadedRenderer[],
 	middleware?: MiddlewareHandler,
+	site?: string,
 ): SSRManifest {
 	function middlewareInstance(): AstroMiddlewareInstance {
 		return {
@@ -174,6 +175,7 @@ function createManifest(
 		componentMetadata: manifest?.componentMetadata ?? new Map(),
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
 		i18n: manifest?.i18n,
+		site: site ?? manifest?.site,
 		checkOrigin: false,
 		allowedDomains: manifest?.allowedDomains ?? [],
 		actionBodySizeLimit: 1024 * 1024,
@@ -281,6 +283,7 @@ type AstroContainerManifest = Pick<
 	| 'middlewareMode'
 	| 'assetsDir'
 	| 'image'
+	| 'site'
 >;
 
 type AstroContainerConstructor = {
@@ -288,6 +291,7 @@ type AstroContainerConstructor = {
 	renderers?: SSRLoadedRenderer[];
 	manifest?: AstroContainerManifest;
 	resolve?: SSRResult['resolve'];
+	site?: string;
 };
 
 export class experimental_AstroContainer {
@@ -315,8 +319,9 @@ export class experimental_AstroContainer {
 		manifest,
 		renderers,
 		resolve,
+		site,
 	}: AstroContainerConstructor) {
-		const ssrManifest = createManifest(manifest, renderers);
+		const ssrManifest = createManifest(manifest, renderers, undefined, site);
 		const containerRenderers = renderers ?? manifest?.renderers ?? [];
 		const containerResolve = async (specifier: string): Promise<string> => {
 			if (this.#withManifest) {
@@ -327,7 +332,6 @@ export class experimental_AstroContainer {
 			return specifier;
 		};
 		const interner = new WeakMap<RouteData, SinglePageBuiltModule>();
-		// Composition order: logger → environment → warm the route table.
 		setLogger(ssrManifest, createConsoleLogger({ level: 'error' }));
 		setEnvironment(
 			ssrManifest,
@@ -338,10 +342,6 @@ export class experimental_AstroContainer {
 				streaming,
 			}),
 		);
-		// Warm the derived route table. Deliberately left un-refreshed when
-		// routes are inserted later — route matching is irrelevant here
-		// because `renderToResponse` always assigns `state.routeData`
-		// explicitly.
 		getRouteTable(ssrManifest);
 		this.#manifest = ssrManifest;
 		this.#interner = interner;
@@ -363,12 +363,13 @@ export class experimental_AstroContainer {
 	public static async create(
 		containerOptions: AstroContainerOptions = {},
 	): Promise<experimental_AstroContainer> {
-		const { streaming = false, manifest, renderers = [], resolve } = containerOptions;
+		const { streaming = false, manifest, renderers = [], resolve, astroConfig } = containerOptions;
 		return new experimental_AstroContainer({
 			streaming,
 			manifest,
 			renderers,
 			resolve,
+			site: astroConfig?.site ?? manifest?.site,
 		});
 	}
 

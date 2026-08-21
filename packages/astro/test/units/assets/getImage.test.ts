@@ -324,6 +324,21 @@ describe('getImage', () => {
 	});
 
 	describe('format', () => {
+		it('rejects imported APNG images', async () => {
+			await assert.rejects(
+				renderImage({
+					src: {
+						src: '/_astro/animated.apng',
+						width: 2,
+						height: 3,
+						format: 'apng',
+					},
+					alt: 'Animated image',
+				}),
+				/Received unsupported format `apng`/,
+			);
+		});
+
 		it('defaults to webp for remote images with a non-svg extension', async () => {
 			const result = await renderImage({
 				src: 'https://example.com/photo.jpg',

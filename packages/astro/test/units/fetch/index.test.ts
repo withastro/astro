@@ -125,6 +125,31 @@ describe('FetchState (astro/fetch)', () => {
 		assert.equal(state.routeData!.type, 'endpoint');
 		assert.equal(state.pathname, '/file.html', '.html should be preserved for endpoint routes');
 	});
+
+	it('restores the trailing slash after stripping .html when trailingSlash is always', () => {
+		// Regression test for #17726: with `build.format: 'preserve'` the build
+		// requests `/welcome.html`, and route patterns are compiled with the
+		// configured trailing slash. Stripping `.html` without restoring the `/`
+		// leaves a pathname that no longer matches its own route, so the params
+		// come back empty and `stringifyParams()` throws `Missing parameter`.
+		const app = createTestApp([createPage(simplePage, { route: '/welcome' })], {
+			trailingSlash: 'always',
+		});
+		const request = stampApp(new Request('http://example.com/welcome.html'), app);
+		const state = new FetchState(request);
+
+		assert.equal(state.pathname, '/welcome/', 'trailing slash should survive .html stripping');
+	});
+
+	it('does not add a trailing slash when trailingSlash is not always', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/welcome' })], {
+			trailingSlash: 'ignore',
+		});
+		const request = stampApp(new Request('http://example.com/welcome.html'), app);
+		const state = new FetchState(request);
+
+		assert.equal(state.pathname, '/welcome', 'pathname should be left without a trailing slash');
+	});
 });
 
 // #endregion

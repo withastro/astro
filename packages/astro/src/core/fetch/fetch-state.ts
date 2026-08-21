@@ -1,9 +1,8 @@
 import colors from 'piccolore';
 import {
-	collapseDuplicateLeadingSlashes,
 	collapseDuplicateSlashes,
 	prependForwardSlash,
-	removeTrailingForwardSlash,
+	stripRequestBase,
 } from '@astrojs/internal-helpers/path';
 import { deserializeActionResult } from '../../actions/runtime/client.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../../actions/utils.js';
@@ -959,6 +958,16 @@ export class FetchState implements AstroFetchState {
 			!routeHasHtmlExtension(this.routeData)
 		) {
 			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+			// Route patterns are compiled with the configured trailing slash, so a
+			// pathname left without one after stripping `.html` no longer matches its
+			// own route and yields no params.
+			if (
+				this.manifest.trailingSlash === 'always' &&
+				this.pathname !== '' &&
+				!this.pathname.endsWith('/')
+			) {
+				this.pathname += '/';
+			}
 		}
 	}
 
@@ -1016,18 +1025,12 @@ export class FetchState implements AstroFetchState {
 	 * Strips the manifest's base from a normalized request pathname and prepends
 	 * a forward slash.
 	 *
-	 * Mirrors `BaseApp.removeBase`, including the
-	 * `collapseDuplicateLeadingSlashes` fix that prevents middleware
-	 * authorization bypass when the URL starts with `//`.
+	 * Mirrors `BaseApp.removeBase`: the router matches against this stripped path
+	 * while middleware reads the un-stripped `context.url.pathname`, so both must
+	 * strip the base identically.
 	 */
 	#computePathname(normalizedPathname: string): string {
-		let pathname = collapseDuplicateLeadingSlashes(normalizedPathname);
-		const base = this.manifest.base;
-		if (pathname.startsWith(base)) {
-			const baseWithoutTrailingSlash = removeTrailingForwardSlash(base);
-			pathname = pathname.slice(baseWithoutTrailingSlash.length + 1);
-		}
-		return prependForwardSlash(pathname);
+		return prependForwardSlash(stripRequestBase(normalizedPathname, this.manifest.base));
 	}
 
 	/**

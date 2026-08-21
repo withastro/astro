@@ -1,29 +1,10 @@
-import {
-	collapseDuplicateLeadingSlashes,
-	prependForwardSlash,
-	removeTrailingForwardSlash,
-} from '@astrojs/internal-helpers/path';
+import { prependForwardSlash, stripRequestBase } from '@astrojs/internal-helpers/path';
 import type { RouteData } from '../../types/public/internal.js';
 import type { SSRManifest } from '../app/types.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
 import { AstroIntegrationLogger } from '../logger/core.js';
 import { getLogger } from '../logger/manifest-logger.js';
 import { matchAllRoutes, matchRoute } from './route-table.js';
-
-/**
- * Strips the manifest base from a pathname (the pure counterpart of
- * `BaseApp.removeBase`). Collapses multiple leading slashes first to prevent
- * middleware authorization bypass: without this, `//admin` would be treated as
- * starting with base `/` and sliced to `/admin` for routing, while middleware
- * still sees `//admin` in the URL.
- */
-function removeBase(manifest: SSRManifest, pathname: string): string {
-	pathname = collapseDuplicateLeadingSlashes(pathname);
-	if (pathname.startsWith(manifest.base)) {
-		return pathname.slice(removeTrailingForwardSlash(manifest.base).length + 1);
-	}
-	return pathname;
-}
 
 /**
  * Decodes a pathname with `decodeURI`, falling back to the raw pathname when it
@@ -73,7 +54,7 @@ export function matchRequest(
 		getLogger(manifest),
 	);
 	if (!pathname) {
-		pathname = prependForwardSlash(removeBase(manifest, url.pathname));
+		pathname = prependForwardSlash(stripRequestBase(url.pathname, manifest.base));
 	}
 	const routeData = matchRoute(manifest, safeDecodeURI(manifest, pathname));
 	if (!routeData) return undefined;

@@ -563,6 +563,58 @@ test.describe('View Transitions', () => {
 		}).toPass();
 	});
 
+	test('persisted <video> keeps its DOM identity across navigation (not re-created by media reification)', async ({
+		page,
+		astro,
+	}) => {
+		// Regression for #17749: reifyMediaElements() used to replace every <video>/<audio>
+		// of the new body, including the live one carried over via transition:persist.
+		// An expando survives the swap only if the element itself survived.
+		await page.goto(astro.resolveUrl('/video-one'));
+		const vid = page.locator('video');
+		await expect(vid).toBeVisible();
+		await vid.evaluate(
+			(el) => ((el as HTMLVideoElement & { __persisted?: string }).__persisted = 'yes'),
+		);
+
+		await page.click('#click-two');
+		await expect(page.locator('#video-two')).toBeVisible();
+		const marker = await page.evaluate(
+			() =>
+				(document.querySelector('video') as (HTMLVideoElement & { __persisted?: string }) | null)
+					?.__persisted,
+		);
+		expect(marker).toBe('yes');
+	});
+
+	test('media inside a persisted subtree keep their identity even when the inner persist container has no counterpart', async ({
+		page,
+		astro,
+	}) => {
+		// The outer container is matched on page 2, the inner one is not — it travels as a
+		// descendant. Media there were live before the swap and must not be reified.
+		await page.goto(astro.resolveUrl('/nested-persist-one'));
+		const vid = page.locator('#nested-video');
+		await expect(vid).toBeVisible();
+		await vid.evaluate(
+			(el) => ((el as HTMLVideoElement & { __persisted?: string }).__persisted = 'yes'),
+		);
+
+		await page.click('#click-two');
+		await expect(page.locator('#nested-two')).toBeVisible();
+		const marker = await page.evaluate(
+			() =>
+				(
+					document.querySelector('#nested-video') as
+						| (HTMLVideoElement & { __persisted?: string })
+						| null
+				)?.__persisted,
+		);
+		expect(marker).toBe('yes');
+		// The placeholder of page 2 was replaced by the carried-over subtree.
+		await expect(page.locator('#nested-placeholder')).toHaveCount(0);
+	});
+
 	test('React Islands can persist using transition:persist', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/island-one'));

@@ -1,7 +1,7 @@
 import {
-	collapseDuplicateLeadingSlashes,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
+	stripRequestBase,
 } from '@astrojs/internal-helpers/path';
 import { matchPattern } from '@astrojs/internal-helpers/remote';
 import { computePathnameFromDomain } from '../i18n/domain.js';
@@ -281,14 +281,7 @@ export abstract class BaseApp {
 	}
 
 	public removeBase(pathname: string) {
-		// Collapse multiple leading slashes to prevent middleware authorization bypass.
-		// Without this, `//admin` would be treated as starting with base `/` and sliced
-		// to `/admin` for routing, while middleware still sees `//admin` in the URL.
-		pathname = collapseDuplicateLeadingSlashes(pathname);
-		if (pathname.startsWith(this.manifest.base)) {
-			return pathname.slice(this.baseWithoutTrailingSlash.length + 1);
-		}
-		return pathname;
+		return stripRequestBase(pathname, this.manifest.base);
 	}
 
 	/**

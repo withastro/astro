@@ -1,5 +1,5 @@
 import { strict as assert } from 'node:assert';
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -516,7 +516,6 @@ describe('Glob Loader', () => {
 	it('throws on duplicate IDs when prerenderConflictBehavior is error', async () => {
 		const tempDir = createTempDir();
 		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'posts');
-		const { mkdirSync } = await import('node:fs');
 		mkdirSync(contentDir, { recursive: true });
 		writeFileSync(join(contentDir, 'post.md'), '---\ntitle: Post MD\n---\nContent MD');
 		writeFileSync(join(contentDir, 'post.mdx'), '---\ntitle: Post MDX\n---\nContent MDX');
@@ -556,7 +555,6 @@ describe('Glob Loader', () => {
 	it('suppresses duplicate ID warning when prerenderConflictBehavior is ignore', async () => {
 		const tempDir = createTempDir();
 		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'posts');
-		const { mkdirSync } = await import('node:fs');
 		mkdirSync(contentDir, { recursive: true });
 		writeFileSync(join(contentDir, 'post.md'), '---\ntitle: Post MD\n---\nContent MD');
 		writeFileSync(join(contentDir, 'post.mdx'), '---\ntitle: Post MDX\n---\nContent MDX');
@@ -600,5 +598,58 @@ describe('Glob Loader', () => {
 
 		// No duplicate warnings should be logged
 		assert.ok(!warnings.some((w) => w.includes('post')));
+	});
+
+	// Colons are reserved in Windows filenames, so the file under test cannot be created there.
+	it('loads files whose names contain a colon', {
+		skip: process.platform === 'win32',
+	}, async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'space');
+		mkdirSync(contentDir, { recursive: true });
+		writeFileSync(
+			join(contentDir, 'Guide: Architecture.md'),
+			'---\ntitle: Guide Architecture\n---\n\nA document with a colon in its filename.',
+		);
+
+		const store = new MutableDataStore();
+		const errors: string[] = [];
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					if (msg.level === 'error') {
+						errors.push(msg.message);
+					}
+					return true;
+				},
+			},
+			level: 'info',
+		});
+
+		const collections = {
+			spacecraft: defineCollection({
+				loader: glob({ pattern: '*.md', base: 'src/content/space' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		// The colon-containing file should be loaded without errors
+		assert.ok(!errors.some((e) => e.includes('The URL must be of scheme file')));
+
+		const entries = store.values('spacecraft');
+		const colonEntry = entries.find((e) => e.id === 'guide-architecture');
+		assert.ok(colonEntry, 'Entry with colon in filename should be loaded');
+		assert.ok(colonEntry.body?.includes('colon in its filename'));
 	});
 });

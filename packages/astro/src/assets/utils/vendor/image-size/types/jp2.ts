@@ -15,8 +15,9 @@ export const JP2: IImage = {
 
   calculate(input) {
     const jp2hBox = findBox(input, 'jp2h', 0)
-    const ihdrBox = jp2hBox && findBox(input, 'ihdr', jp2hBox.offset + 8)
-    if (ihdrBox) {
+    const ihdrBox =
+      jp2hBox && jp2hBox.size >= 8 && findBox(input, 'ihdr', jp2hBox.offset + 8)
+    if (ihdrBox && ihdrBox.size >= 8) {
       return {
         height: readUInt32BE(input, ihdrBox.offset + 8),
         width: readUInt32BE(input, ihdrBox.offset + 12),

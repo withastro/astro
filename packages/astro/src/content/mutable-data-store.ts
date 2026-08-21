@@ -12,7 +12,7 @@ import {
 	FileWriter,
 	serializeDataStore,
 } from './data-store-writer.js';
-import { type DataEntry, ImmutableDataStore } from './data-store.js';
+import { ChunkedCollectionParser, type DataEntry, ImmutableDataStore } from './data-store.js';
 import { contentModuleToId } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
@@ -59,6 +59,7 @@ export class MutableDataStore extends ImmutableDataStore {
 			collection.delete(String(key));
 			this.#saveToDiskDebounced();
 			this.#writeAssetsImportsDebounced();
+			this.#writeModulesImportsDebounced();
 		}
 	}
 
@@ -66,12 +67,14 @@ export class MutableDataStore extends ImmutableDataStore {
 		this._collections.delete(collectionName);
 		this.#saveToDiskDebounced();
 		this.#writeAssetsImportsDebounced();
+		this.#writeModulesImportsDebounced();
 	}
 
 	clearAll() {
 		this._collections.clear();
 		this.#saveToDiskDebounced();
 		this.#writeAssetsImportsDebounced();
+		this.#writeModulesImportsDebounced();
 	}
 
 	addAssetImport(assetImport: string, filePath?: string) {
@@ -123,6 +126,27 @@ export class MutableDataStore extends ImmutableDataStore {
 		}
 	}
 
+	/**
+	 * Rebuilds #moduleImports from the current entries in _collections.
+	 * This ensures stale module entries are removed when content files are
+	 * deleted or renamed, preventing Vite from attempting to resolve
+	 * non-existent files listed in content-modules.mjs.
+	 */
+	#rebuildModuleImports() {
+		this.#moduleImports.clear();
+		for (const collection of this._collections.values()) {
+			for (const entry of collection.values()) {
+				const typedEntry = entry as DataEntry;
+				if (typedEntry.deferredRender && typedEntry.filePath) {
+					const id = contentModuleToId(typedEntry.filePath);
+					if (id) {
+						this.#moduleImports.set(typedEntry.filePath, id);
+					}
+				}
+			}
+		}
+	}
+
 	async writeAssetImports(filePath: PathLike) {
 		this.#assetsFile = filePath;
 		this.#rebuildAssetImports();
@@ -164,6 +188,7 @@ export default new Map([${exports.join(', ')}]);
 
 	async writeModuleImports(filePath: PathLike) {
 		this.#modulesFile = filePath;
+		this.#rebuildModuleImports();
 
 		if (this.#moduleImports.size === 0) {
 			try {
@@ -171,6 +196,7 @@ export default new Map([${exports.join(', ')}]);
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
+			return;
 		}
 
 		if (!this.#modulesDirty && existsSync(filePath)) {
@@ -529,17 +555,17 @@ export default new Map([\n${lines.join(',\n')}]);
 			try {
 				const manifestData = await fs.readFile(manifestFile, 'utf-8');
 				const manifest: DataStoreManifest = JSON.parse(manifestData);
-				// Swap each referenced part file name for its contents.
-				const expanded: Record<string, string[]> = {};
+				const collections = new Map<string, Map<string, any>>();
 				for (const collectionName in manifest) {
-					expanded[collectionName] = await Promise.all(
-						manifest[collectionName].map((fileName) =>
-							fs.readFile(new URL(`./${fileName}`, dirPath), 'utf-8'),
-						),
-					);
+					const parser = new ChunkedCollectionParser();
+					for (const fileName of manifest[collectionName]) {
+						// Parsing each part before reading the next prevents raw collection
+						// contents from accumulating in memory during cache restoration.
+						parser.add(await fs.readFile(new URL(`./${fileName}`, dirPath), 'utf-8'));
+					}
+					collections.set(collectionName, parser.finish());
 				}
-				const map = ImmutableDataStore.manifestToMap(expanded);
-				const store = await MutableDataStore.fromMap(map);
+				const store = await MutableDataStore.fromMap(collections);
 				store.#writer = new ChunkedWriter(dirPath, chunkSize);
 				return store;
 			} catch (err) {
