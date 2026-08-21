@@ -53,6 +53,8 @@ minimumReleaseAgeExclude:
   - '@tybys/wasm-util@0.10.3'
   # modern-tar 0.7.7 fixes Unicode NFC/NFD path normalization on Linux (issue #17381)
   - 'modern-tar@0.7.7'
+  # TODO(Roman): remove before merging
+  - find-proc@0.1.0
 peerDependencyRules:
   allowAny:
     - 'astro'
