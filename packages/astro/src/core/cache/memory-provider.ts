@@ -1,4 +1,5 @@
 import picomatch from 'picomatch';
+import { getCookiesFromResponse } from '../cookies/response.js';
 import { AstroError } from '../errors/errors.js';
 import { CacheQueryConfigConflict } from '../errors/errors-data.js';
 import type { CacheProvider, CacheProviderFactory, InvalidateOptions } from './types.js';
@@ -256,7 +257,9 @@ function matchesVary(request: Request, entry: CachedEntry): boolean {
 }
 
 function hasSetCookieHeader(response: Response): boolean {
-	return response.headers.has('set-cookie');
+	if (response.headers.has('set-cookie')) return true;
+	const cookies = getCookiesFromResponse(response);
+	return cookies ? !cookies.headers().next().done : false;
 }
 
 function warnSkippedSetCookie(url: URL): void {
