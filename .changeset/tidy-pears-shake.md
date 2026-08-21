@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Speeds up the Astro CLI by caching compiled code between runs
+Improves the performance of the Astro CLI in local by enabling Node's module compilation cache.
