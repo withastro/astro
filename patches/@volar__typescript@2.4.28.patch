@@ -1,0 +1,12 @@
+diff --git a/lib/node/proxyLanguageService.js b/lib/node/proxyLanguageService.js
+index 95f2cc3ef6336b7762bcd0a5036af27b114367a5..9b0c9e0a68bed912737dd8d2179afe21997277f7 100644
+--- a/lib/node/proxyLanguageService.js
++++ b/lib/node/proxyLanguageService.js
+@@ -112,6 +112,7 @@ function createProxyLanguageService(languageService) {
+                 return Reflect.get(target, p, receiver);
+             },
+             set(target, p, value, receiver) {
++                proxyCache.delete(p);
+                 return Reflect.set(target, p, value, receiver);
+             },
+         }),
