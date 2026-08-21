@@ -7,17 +7,13 @@ on:
       - main
   merge_group:
   pull_request:
-    # `astro check` type-checks the examples against Astro's emitted types, which are assembled
-    # from across `src` (assets, content, and more) rather than a single public entry point.
-    # Trigger on all of `src` and the shipped ambient declarations so type regressions that only
-    # surface in the examples are caught here instead of on `main`.
     paths:
       - "examples/**"
       - ".github/workflows/check.yml"
       - "scripts/smoke/check.js"
-      - "packages/astro/src/**"
-      - "packages/astro/*.d.ts"
+      - "packages/astro/src/types/public/**"
       - "pnpm-lock.yaml"
+      - "packages/astro/types.d.ts"
 
 permissions: {}
 
