@@ -15,6 +15,7 @@ import { provideSession } from '../session/provider.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import { getDefaultStatusCode } from './helpers.js';
+import { AstroErrorData, isAstroError } from '../errors/index.js';
 
 /**
  * Dispatches request logging: through the facade's late-bound
@@ -165,6 +166,22 @@ async function render(state: FetchState): Promise<Response> {
 			timeStart: state.timeStart,
 		});
 	} catch (err: any) {
+		const isNoMatchingStaticPath =
+			isAstroError(err) &&
+			(err.title === AstroErrorData.NoMatchingStaticPathFound.title ||
+				err.name === AstroErrorData.NoMatchingStaticPathFound.name);
+		const isFallbackMatch =
+			!routeData.pattern.test(pathname) &&
+			routeData.fallbackRoutes.some((fallbackRoute) => fallbackRoute.pattern.test(pathname));
+
+		if (isNoMatchingStaticPath && (isFallbackMatch || state.isRewriting)) {
+			return renderErrorFromState(state, request, {
+				...state.renderOptions,
+				status: 404,
+				pathname: state.pathname,
+			});
+		}
+
 		state.logger.error(null, err.stack || err.message || String(err));
 		return renderErrorFromState(state, request, {
 			...state.renderOptions,
