@@ -1,4 +1,5 @@
 import * as assert from 'node:assert/strict';
+import { writeFile } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
@@ -15,11 +16,16 @@ describe('Custom entry file using astro/fetch', () => {
 			root: './fixtures/custom-entryfile-fetch-state/',
 		});
 		await fixture.build();
+		await writeFile(
+			new URL('./fixtures/custom-entryfile-fetch-state/dist/client/stray.txt', import.meta.url),
+			'stray file body',
+		);
 		previewServer = await fixture.preview();
 	});
 
 	after(async () => {
 		await previewServer.stop();
+		await fixture.clean();
 	});
 
 	it('renders an SSR page from a state built with new FetchState(request)', async () => {
@@ -36,5 +42,46 @@ describe('Custom entry file using astro/fetch', () => {
 			'true',
 			'Expected the custom worker to add X-Fetch-State-Entrypoint header',
 		);
+	});
+
+	it('writes cookies and defaults uncached responses to no-store', async () => {
+		const response = await fixture.fetch('/');
+
+		assert.match(response.headers.get('set-cookie') ?? '', /repro=1/);
+		assert.equal(response.headers.get('Cloudflare-CDN-Cache-Control'), 'no-store');
+	});
+
+	it('preserves a session across requests', async () => {
+		const firstResponse = await fixture.fetch('/session');
+		const sessionCookie = /astro-session=[^;,]+/.exec(
+			firstResponse.headers.get('set-cookie') ?? '',
+		)?.[0];
+		assert.ok(sessionCookie);
+		assert.match(await firstResponse.text(), /count: 1/);
+
+		const secondResponse = await fixture.fetch('/session', {
+			headers: { cookie: sessionCookie },
+		});
+		assert.match(await secondResponse.text(), /count: 2/);
+	});
+
+	it('falls back to the assets binding when no Astro route matches', async () => {
+		const response = await fixture.fetch('/stray.txt');
+
+		assert.equal(response.status, 200);
+		assert.equal(await response.text(), 'stray file body');
+	});
+
+	it('finalizes Hono responses once without replacing mutable responses', async () => {
+		const response = await fixture.fetch('/hono');
+
+		assert.equal(response.headers.get('X-Hono-Response-Assignments'), '1');
+		assert.equal(response.headers.get('set-cookie')?.match(/hono=1/g)?.length, 1);
+		assert.equal(response.headers.get('Cloudflare-CDN-Cache-Control'), 'no-store');
+	});
+
+	it('uses the default server entrypoint for workerd prerendering', async () => {
+		const html = await fixture.readFile('/client/static/index.html');
+		assert.match(html, /prerendered through workerd/);
 	});
 });

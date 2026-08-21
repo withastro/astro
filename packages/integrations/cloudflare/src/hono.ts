@@ -32,6 +32,7 @@ type HonoCloudflareContextLike = {
 	req: {
 		raw: Request;
 	};
+	res: Response;
 	env: Env;
 	executionCtx: {
 		waitUntil(promise: Promise<unknown>): void;
@@ -73,5 +74,7 @@ export function cf(): HonoMiddlewareHandler {
 		const asset = await cfFetch(state, context.env, context.executionCtx);
 		if (asset) return asset;
 		await next();
+		const response = state.finalize(context.res);
+		if (response !== context.res) context.res = response;
 	};
 }

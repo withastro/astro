@@ -217,6 +217,7 @@ export default function createIntegration({
 									return {
 										...restWorkerConfig,
 										name: 'prerender',
+										main: '@astrojs/cloudflare/entrypoints/server',
 										...(queues?.producers?.length && {
 											queues: { producers: queues.producers },
 										}),

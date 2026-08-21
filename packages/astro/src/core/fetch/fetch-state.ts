@@ -118,6 +118,15 @@ export interface AstroFetchState {
 	response: Response | undefined;
 	/** Default HTTP status for the rendered response. */
 	status: number;
+	/**
+	 * Registers a finalizer that runs after Astro renders a response.
+	 * Finalizers run in registration order and may mutate or replace the response.
+	 */
+	addResponseFinalizer(finalizer: (response: Response) => Response): void;
+	/** Applies the registered response finalizers in registration order. */
+	finalize(response: Response): Response;
+	/** Returns whether the request matched an Astro route before fallback handling. */
+	hasMatchedRoute(): boolean;
 
 	/**
 	 * Triggers a rewrite to a different route.
@@ -156,6 +165,8 @@ export function getFetchStateFromAPIContext(context: APIContext): FetchState {
  * for rarely-accessed memoized caches and Maps.
  */
 export class FetchState implements AstroFetchState {
+	#routeMatched = false;
+	responseFinalizers: Array<(response: Response) => Response> | undefined;
 	/** The manifest — the single ambient source of static, build-time data. */
 	manifest: SSRManifest;
 	/** The manifest's identity-stable logger, captured once at construction. */
@@ -975,6 +986,7 @@ export class FetchState implements AstroFetchState {
 		// Fast path: routeData was provided via render options (build, dev
 		// with adapter).
 		if (this.routeData) {
+			this.#routeMatched = true;
 			this.#stripHtmlExtension();
 			return;
 		}
@@ -999,6 +1011,7 @@ export class FetchState implements AstroFetchState {
 		} else {
 			this.routeData = matched;
 		}
+		this.#routeMatched = Boolean(this.routeData);
 		this.logger.debug('router', 'Astro matched the following route for ' + this.request.url);
 		this.logger.debug('router', 'RouteData:\n' + this.routeData);
 
@@ -1019,6 +1032,21 @@ export class FetchState implements AstroFetchState {
 			return;
 		}
 		this.#stripHtmlExtension();
+	}
+
+	addResponseFinalizer(finalizer: (response: Response) => Response): void {
+		(this.responseFinalizers ??= []).push(finalizer);
+	}
+
+	hasMatchedRoute(): boolean {
+		return this.#routeMatched;
+	}
+
+	finalize(response: Response): Response {
+		for (const finalizer of this.responseFinalizers ?? []) {
+			response = finalizer(response);
+		}
+		return response;
 	}
 
 	/**
