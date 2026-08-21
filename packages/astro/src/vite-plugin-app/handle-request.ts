@@ -1,5 +1,5 @@
 import type http from 'node:http';
-import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
+import { hasFileExtension, removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { DevFacadeApp } from '../core/app/dev-facade.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { clientLocalsSymbol } from '../core/constants.js';
@@ -157,6 +157,10 @@ export async function handleDevRequest(
 				return;
 			}
 
+			if (shouldAppendHtmlExtension(url.pathname, manifest.buildFormat, matchedRoute.routeData)) {
+				url.pathname += '.html';
+			}
+
 			// Delay reading the request body until prerenderOnly routing has decided
 			// this handler really owns the request. Otherwise a prerender pass that
 			// falls through to SSR would exhaust the body stream first.
@@ -235,4 +239,24 @@ export async function handleDevRequest(
 		},
 	});
 	return handled;
+}
+
+/**
+ * Whether the dev server should append `.html` to the request URL pathname
+ * so that `Astro.url.pathname` matches the production build output.
+ *
+ * The production build's `getUrlForPath()` (in `generate.ts`) appends `.html`
+ * for `build.format: 'file'` and for non-index pages with `build.format:
+ * 'preserve'`. The trailing-slash normalization earlier in `handleDevRequest`
+ * covers the `directory` format; this covers the remaining two.
+ */
+export function shouldAppendHtmlExtension(
+	pathname: string,
+	buildFormat: SSRManifest['buildFormat'],
+	routeData: { type: string; isIndex: boolean },
+): boolean {
+	if (routeData.type !== 'page') return false;
+	if (pathname === '/') return false;
+	if (hasFileExtension(pathname)) return false;
+	return buildFormat === 'file' || (buildFormat === 'preserve' && !routeData.isIndex);
 }
