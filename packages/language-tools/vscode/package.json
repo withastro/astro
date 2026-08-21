@@ -253,22 +253,22 @@
     "@types/vscode": "^1.101.0",
     "@volar/language-server": "~2.4.28",
     "@volar/vscode": "~2.4.28",
-    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "2.32.0",
     "esbuild": "^0.17.19",
     "esbuild-plugin-copy": "^2.1.1",
-    "js-yaml": "^4.3.0",
+    "js-yaml": "^4.3.1",
     "kleur": "^4.1.5",
-    "mocha": "^11.7.5",
-    "ovsx": "^0.10.10",
-    "tsx": "^4.22.0",
+    "mocha": "^11.8.0",
+    "ovsx": "^0.10.12",
+    "tsx": "^4.23.12",
     "vscode-languageclient": "^9.0.1",
     "vscode-tmgrammar-test": "^0.1.3"
   },
   "dependencies": {
     "@astrojs/compiler": "^2.13.1",
-    "prettier": "^3.9.0",
+    "prettier": "^3.9.6",
     "prettier-plugin-astro": "^0.14.1"
   }
 }
