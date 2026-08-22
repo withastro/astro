@@ -132,12 +132,13 @@ function createApp(middleware: ReturnType<typeof createAuthMiddleware>) {
 }
 
 describe('URL normalization: double-encoding middleware bypass', () => {
-	it('resolves adapter-provided route data from the raw request URL', async () => {
+	it('normalizes the request pathname before adapter route matching', async () => {
 		const app = createApp(createPassthroughMiddleware());
 		const request = new Request('http://example.com/api/%2561dmin/users');
 		const routeData = app.match(request);
 
-		assert.equal(routeData?.route, '/api/[...path]');
+		assert.equal(app.getPathnameFromRequest(request), '/api/admin/users');
+		assert.equal(routeData?.route, '/api/admin/users');
 		const response = await app.render(request, { routeData });
 		assert.equal(response.status, 200);
 		assert.equal(await response.text(), 'admin');
