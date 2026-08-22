@@ -15,12 +15,7 @@
  */
 
 import type { BaseApp, RenderErrorOptions } from 'astro/app';
-import {
-	beginContentEntryCollection,
-	beginImageCollection,
-	endContentEntryCollection,
-	endImageCollection,
-} from 'astro/app';
+import { renderForPrerender } from 'astro/app';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import { StaticPaths } from 'astro:static-paths';
 import type {
@@ -137,29 +132,37 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 	// Buffer the full body to catch streaming errors before the HTTP layer
 	// commits a 200 status.
 	try {
-		// For incremental builds, collect the content entries and image transforms
-		// resolved during this render so the build process can attribute them to
-		// the path and replay them when the path is skipped on a later build.
-		if (body.incremental) {
-			beginContentEntryCollection();
-			beginImageCollection();
-		}
-		const response = await app.render(prerenderRequest, { routeData });
-		const bufferedBody = await response.arrayBuffer();
-		if (body.incremental) {
-			const contentEntryKeys = endContentEntryCollection();
-			const staticImages = endImageCollection();
+		// For incremental builds, `renderForPrerender` collects the content entries
+		// and image transforms resolved during this render — scoped to this
+		// request's async context, so concurrent prerender requests attribute
+		// correctly — and the metadata ships back to the build process by value in
+		// the envelope, to be recorded against the path and replayed when the path
+		// is skipped on a later build.
+		const { response, metadata } = await renderForPrerender(app, prerenderRequest, {
+			routeData,
+			collectMetadata: body.collectMetadata,
+		});
+		if (body.collectMetadata) {
+			// Already buffered inside the render scope by `renderForPrerender`; this
+			// is a cheap copy, not a stream drain.
+			const bufferedBody = await response.arrayBuffer();
+			// `metadata` is `undefined` when no render scope could be installed
+			// (degraded collection): the path is then recorded as "not tracked",
+			// which must never collapse into "tracked, empty".
 			const envelope: PrerenderEnvelope = {
 				status: response.status,
 				statusText: response.statusText,
 				headers: [...response.headers.entries()],
 				body: arrayBufferToBase64(bufferedBody),
-				metadata: { contentEntryKeys, staticImages },
+				metadata,
 			};
 			return new Response(JSON.stringify(envelope), {
 				headers: { 'Content-Type': 'application/json' },
 			});
 		}
+		// Non-collecting branch: buffer here so streaming errors are still caught
+		// before the HTTP layer commits a 200.
+		const bufferedBody = await response.arrayBuffer();
 		return new Response(bufferedBody, {
 			status: response.status,
 			statusText: response.statusText,

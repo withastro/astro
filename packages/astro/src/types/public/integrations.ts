@@ -251,9 +251,11 @@ export interface PathWithRoute {
 }
 
 /**
- * Incremental-build data an out-of-process prerenderer collects while rendering
- * a page, reported back to the build process so skipped pages can be tracked and
- * replayed without a re-render.
+ * Incremental-build data a prerenderer collects while rendering a page,
+ * reported back to the build orchestrator so skipped pages can be tracked and
+ * replayed without a re-render. This is the only attribution channel: every
+ * prerenderer — in-process and out-of-process — collects in its own rendering
+ * runtime and reports the result by value here.
  */
 export interface PrerenderRenderMetadata {
 	/** Root-relative `filePath`s of the content entries the page rendered. */
@@ -265,8 +267,8 @@ export interface PrerenderRenderMetadata {
 /**
  * The richer result a prerenderer's `render()` may return instead of a bare
  * `Response`, pairing the rendered response with the incremental-build metadata
- * collected for that page. Used by out-of-process prerenderers, which collect
- * the metadata in their own runtime rather than in the build's collectors.
+ * collected for that page. `metadata` is `undefined` when the page was not
+ * tracked (collection was not requested, or the prerenderer could not collect).
  */
 export interface PrerenderResult {
 	response: Response;
@@ -295,15 +297,19 @@ export interface AstroPrerenderer {
 	 *   use the `pathname` from the `PathWithRoute` entry returned by `getStaticPaths`.
 	 * @param options - Render options
 	 * @param options.routeData - The matched route for this path
+	 * @param options.collectMetadata - True exactly when the incremental build
+	 *   cache is active. The prerenderer should collect the page's per-render
+	 *   incremental metadata in its rendering runtime and report it on a
+	 *   {@link PrerenderResult}. A prerenderer that cannot collect may ignore the
+	 *   flag and return a bare `Response`; its paths are then recorded as
+	 *   "not tracked".
 	 * @returns A `Response`, or a {@link PrerenderResult} pairing the response with
-	 *   the incremental-build metadata the page resolved. Out-of-process
-	 *   prerenderers return the latter to report metadata they collect in their own
-	 *   runtime; in-process prerenderers populate the build's collectors directly
-	 *   and return a bare `Response`.
+	 *   the incremental-build metadata the page resolved. Metadata is the only
+	 *   attribution channel for all prerenderers.
 	 */
 	render: (
 		request: Request,
-		options: { routeData: RouteData },
+		options: { routeData: RouteData; collectMetadata?: boolean },
 	) => Promise<Response | PrerenderResult>;
 	/**
 	 * Returns images collected in the adapter's runtime (e.g. workerd) to be merged

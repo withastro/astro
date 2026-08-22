@@ -2,6 +2,7 @@ import { env as globalEnv } from 'cloudflare:workers';
 import {
 	compileImageConfig,
 	isPrerender,
+	loadPrerenderScope,
 	cacheProviderEnabled,
 } from 'virtual:astro-cloudflare:config';
 import type { RenderOptions } from 'astro/app';
@@ -63,6 +64,13 @@ export async function handle(
 			return handleStaticPathsRequest(app) as unknown as CfResponse;
 		}
 		if (isPrerenderRequest(request)) {
+			// Install the isolate's render scope so concurrent prerender requests
+			// each collect incremental metadata in their own per-render store. The
+			// loader thunk is generated into the virtual config module only for the
+			// prerender environment, keeping the module — and its `node:async_hooks`
+			// reference — out of production worker output entirely; the install
+			// itself is first-wins, making the per-request call idempotent.
+			await (await loadPrerenderScope?.())?.ensurePrerenderScope();
 			return handlePrerenderRequest(app, request) as unknown as CfResponse;
 		}
 		if (isStaticImagesRequest(request)) {

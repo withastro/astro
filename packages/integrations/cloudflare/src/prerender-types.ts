@@ -25,15 +25,17 @@ export interface PrerenderRequest {
 	routeData: SerializedRouteData;
 	/**
 	 * When true, the worker collects incremental-build metadata during the render
-	 * and returns a `PrerenderEnvelope` instead of the raw response.
+	 * and returns a `PrerenderEnvelope` instead of the raw response. Set per call
+	 * by the Node-side prerenderer from the `collectMetadata` flag the build
+	 * orchestrator passes to `AstroPrerenderer.render`.
 	 */
-	incremental?: boolean;
+	collectMetadata?: boolean;
 }
 
 /**
- * Response for an incremental prerender request. The raw response cannot carry
- * the render metadata on its own, so the body, status, and headers are wrapped
- * alongside the collected metadata.
+ * Response for a metadata-collecting prerender request. The raw response cannot
+ * carry the render metadata on its own, so the body, status, and headers are
+ * wrapped alongside the collected metadata.
  */
 export interface PrerenderEnvelope {
 	status: number;
@@ -41,7 +43,12 @@ export interface PrerenderEnvelope {
 	headers: [string, string][];
 	/** Base64-encoded response body. */
 	body: string;
-	metadata: PrerenderRenderMetadata;
+	/**
+	 * The metadata collected during the render, or `undefined` when no render
+	 * scope could be installed in the worker (degraded collection — the path is
+	 * recorded as "not tracked", which is distinct from tracked-but-empty).
+	 */
+	metadata?: PrerenderRenderMetadata;
 }
 
 export interface SerializedStaticImageEntry {

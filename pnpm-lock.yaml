@@ -3515,6 +3515,9 @@ importers:
 
   packages/astro/test/fixtures/incremental-build-concurrency:
     dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -4737,6 +4740,18 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/cloudflare/test/fixtures/incremental-concurrency:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../mdx
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/cloudflare/test/fixtures/incremental-images:
     dependencies:
       '@astrojs/cloudflare':
@@ -4821,6 +4836,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/cloudflare/test/fixtures/prerenderer-render-error:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/cloudflare/test/fixtures/production-async-hooks:
     dependencies:
       '@astrojs/cloudflare':
         specifier: workspace:*
@@ -7118,12 +7142,6 @@ importers:
       tsx:
         specifier: ^4.22.0
         version: 4.22.3
-
-  triage/gh-17624:
-    dependencies:
-      astro:
-        specifier: ^7.2.0
-        version: link:../../packages/astro
 
 packages:
 
