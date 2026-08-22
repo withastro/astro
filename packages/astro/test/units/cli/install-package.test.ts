@@ -37,4 +37,42 @@ describe('getPackage', () => {
 			await rm(projectDir, { recursive: true, force: true });
 		}
 	});
+
+	it('treats a package with no default export map entry (e.g. TypeScript 7) as installed', async () => {
+		// Simulate a package whose `exports` map has no `.` entry, like TypeScript 7,
+		// which causes `require.resolve(packageName)` to throw `ERR_PACKAGE_PATH_NOT_EXPORTED`
+		// instead of `MODULE_NOT_FOUND`.
+		const projectDir = join(tmpdir(), `astro-test-getpackage-no-export-${Date.now()}`);
+		const pkgDir = join(projectDir, 'node_modules', 'fake-no-export-pkg');
+
+		try {
+			await mkdir(pkgDir, { recursive: true });
+			await writeFile(
+				join(pkgDir, 'package.json'),
+				JSON.stringify({
+					name: 'fake-no-export-pkg',
+					version: '1.0.0',
+					type: 'module',
+					exports: {
+						'./package.json': './package.json',
+						'./unstable/sync': './unstable/sync.js',
+					},
+				}),
+			);
+			await mkdir(join(pkgDir, 'unstable'), { recursive: true });
+			await writeFile(join(pkgDir, 'unstable', 'sync.js'), 'export const loaded = true;\n');
+
+			const result = await getPackage('fake-no-export-pkg', defaultLogger, {
+				cwd: projectDir,
+				optional: true,
+			});
+
+			assert.ok(
+				result,
+				'Expected getPackage to treat the package as installed despite ERR_PACKAGE_PATH_NOT_EXPORTED',
+			);
+		} finally {
+			await rm(projectDir, { recursive: true, force: true });
+		}
+	});
 });
