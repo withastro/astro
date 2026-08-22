@@ -100,4 +100,56 @@ describe('@astrojs/cloudflare session: false', () => {
 			);
 		});
 	});
+
+	describe('provisioning warning', () => {
+		const collectWarnings = () => {
+			const warnings: string[] = [];
+			const logger = {
+				info: () => {},
+				warn: (message: string) => warnings.push(message),
+				error: () => {},
+				debug: () => {},
+			} as any;
+			return { warnings, logger };
+		};
+
+		it('warns that the deploy will provision a KV namespace', () => {
+			const { warnings, logger } = collectWarnings();
+			cloudflareConfigCustomizer({ needsSessionKVBinding: true, logger })({});
+
+			assert.equal(warnings.length, 1, 'expected exactly one warning');
+			assert.match(warnings[0], /provision a new KV namespace/);
+			assert.match(warnings[0], /Workers KV Storage: Edit/);
+		});
+
+		it('warns only once across multiple workers', () => {
+			const { warnings, logger } = collectWarnings();
+			const customize = cloudflareConfigCustomizer({ needsSessionKVBinding: true, logger });
+			customize({});
+			customize({});
+
+			assert.equal(warnings.length, 1, 'expected the warning to be deduplicated');
+		});
+
+		it('does not warn when the user declared the binding', () => {
+			const { warnings, logger } = collectWarnings();
+			cloudflareConfigCustomizer({ needsSessionKVBinding: true, logger })({
+				kv_namespaces: [{ binding: DEFAULT_SESSION_KV_BINDING_NAME, id: 'abc123' }],
+				previews: { kv_namespaces: [{ binding: DEFAULT_SESSION_KV_BINDING_NAME, id: 'abc123' }] },
+			} as any);
+
+			assert.deepEqual(warnings, []);
+		});
+
+		it('does not warn when sessions are disabled', () => {
+			const { warnings, logger } = collectWarnings();
+			cloudflareConfigCustomizer({ needsSessionKVBinding: false, logger })({});
+
+			assert.deepEqual(warnings, []);
+		});
+
+		it('does not warn without a logger', () => {
+			assert.doesNotThrow(() => cloudflareConfigCustomizer({ needsSessionKVBinding: true })({}));
+		});
+	});
 });
