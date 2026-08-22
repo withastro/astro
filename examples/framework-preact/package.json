@@ -17,5 +17,8 @@
     "@preact/signals": "^2.8.1",
     "astro": "^7.2.4",
     "preact": "^10.28.4"
+  },
+  "allowScripts": {
+    "esbuild": true
   }
 }

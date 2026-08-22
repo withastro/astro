@@ -7,7 +7,7 @@
 /// <reference path="./types/transitions.d.ts" />
 
 interface ImportMetaEnv {
-	// TODO: remove in Astro 7
+	// TODO: remove in Astro 8
 	/**
 	 * The prefix for Astro-generated asset links if the build.assetsPrefix config option is set. This can be used to create asset links not handled by Astro.
 	 * @deprecated This will be removed in a future major version of Astro. Use `build.assetsPrefix` from `astro:config/server` instead.
@@ -98,6 +98,10 @@ declare module '*.png' {
 	const metadata: ImageMetadata;
 	export default metadata;
 }
+declare module '*.apng' {
+	const metadata: ImageMetadata;
+	export default metadata;
+}
 declare module '*.tiff' {
 	const metadata: ImageMetadata;
 	export default metadata;
@@ -149,11 +153,11 @@ declare module 'astro:components' {
 	export * from 'astro/components';
 }
 
-// TODO: remove in Astro 7
+// TODO: remove in Astro 8
 /**
  * @deprecated
  * `import { z } from 'astro:schema'` is deprecated and will be removed
- * in Astro 7. Use `import { z } from 'astro/zod'` instead.
+ * in Astro 8. Use `import { z } from 'astro/zod'` instead.
  */
 declare module 'astro:schema' {
 	export * from 'astro/zod';
@@ -162,7 +166,7 @@ declare module 'astro:schema' {
 	/**
 	 * @deprecated
 	 * `import { z } from 'astro:schema'` is deprecated and will be removed
-	 * in Astro 7. Use `import { z } from 'astro/zod'` instead.
+	 * in Astro 8. Use `import { z } from 'astro/zod'` instead.
 	 */
 	export const z = zod.z;
 }

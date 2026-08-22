@@ -13,7 +13,7 @@ export {
 	defineLiveCollection,
 	renderEntry as render,
 } from 'astro/content/runtime';
-// TODO: remove in Astro 7
+// TODO: remove in Astro 8
 export { z } from 'astro/zod';
 
 /* @@LIVE_CONTENT_CONFIG@@ */
@@ -38,8 +38,8 @@ export const getLiveEntry = createGetLiveEntry({
 	liveCollections,
 });
 
-// TODO: remove in Astro 7
+// TODO: remove in Astro 8
 export const getEntryBySlug = createDeprecatedFunction('getEntryBySlug');
 
-// TODO: remove in Astro 7
+// TODO: remove in Astro 8
 export const getDataEntryById = createDeprecatedFunction('getDataEntryById');

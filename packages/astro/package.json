@@ -124,7 +124,7 @@
     "test:integration": "astro-scripts test \"test/*.test.ts\" --parallel --strip-types"
   },
   "dependencies": {
-    "@astrojs/compiler-rs": "^0.3.2",
+    "@astrojs/compiler-rs": "^0.4.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-satteri": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
@@ -139,7 +139,7 @@
     "common-ancestor-path": "^2.0.0",
     "cookie": "^2.0.1",
     "devalue": "^5.8.1",
-    "diff": "^8.0.3",
+    "diff": "^9.0.0",
     "dset": "^3.1.4",
     "es-module-lexer": "^2.0.0",
     "esbuild": "^0.28.0",
