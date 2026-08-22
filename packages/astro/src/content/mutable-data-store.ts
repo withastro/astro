@@ -1,7 +1,7 @@
 import { existsSync, promises as fs, type PathLike } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as devalue from 'devalue';
-import { forEach } from 'neotraverse';
+import { map as traverseMap } from 'neotraverse';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
@@ -363,7 +363,16 @@ export default new Map([\n${lines.join(',\n')}]);
 			entries: () => this.entries(collectionName),
 			values: () => this.values(collectionName),
 			keys: () => this.keys(collectionName),
-			set: ({ id: key, data, body, filePath, deferredRender, digest, rendered, assetImports }) => {
+			set: ({
+				id: key,
+				data: inputData,
+				body,
+				filePath,
+				deferredRender,
+				digest,
+				rendered,
+				assetImports,
+			}) => {
 				if (!key) {
 					throw new Error(`ID must be a non-empty string`);
 				}
@@ -380,14 +389,22 @@ export default new Map([\n${lines.join(',\n')}]);
 				// strip the prefix so the stored data holds a plain, devalue-serializable src
 				// string. The recorded paths let read-time resolution rewrite only these fields
 				// without traversing or cloning the rest of the data.
-				forEach(data, function (ctx, val) {
+				// Traverse immutably with `map` instead of mutating in place with
+				// `forEach` + `ctx.update`: parsed data may be frozen at runtime (e.g.
+				// Zod `.readonly()` schemas call `Object.freeze`), which would make the
+				// in-place write throw a TypeError. `map` writes replacements into
+				// copies, leaving the caller's object untouched.
+				let hasImageImports = false;
+				const strippedData = traverseMap(inputData, function (ctx, val) {
 					if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
+						hasImageImports = true;
 						const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 						foundAssets.add(src);
 						imageImports.push(ctx.path.map((segment) => segment as string | number));
-						ctx.update(src);
+						return src;
 					}
 				});
+				const data = hasImageImports ? strippedData : inputData;
 
 				const entry: DataEntry = {
 					id,
