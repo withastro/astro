@@ -237,4 +237,44 @@ describe('astro:assets - SVG Components', () => {
 			});
 		});
 	});
+
+	describe('SVGO optimization with prefixIds', () => {
+		let prefixFixture: Fixture;
+		let prefixDevServer: DevServer;
+
+		before(async () => {
+			prefixFixture = await loadFixture({
+				root: './fixtures/core-image-svg/',
+				experimental: {
+					svgOptimizer: svgoOptimizer({
+						plugins: ['cleanupIds', 'prefixIds'],
+					}),
+				},
+				outDir: './dist/core-image-svg-svgo-prefix-ids/',
+			});
+
+			prefixDevServer = await prefixFixture.startDevServer();
+		});
+
+		after(async () => {
+			await prefixDevServer.stop();
+		});
+
+		it('gives two SVGs that share an id different prefixes', async () => {
+			const res = await prefixFixture.fetch('/prefix-ids');
+			const html = await res.text();
+			const $ = cheerio.load(html, { xml: true });
+
+			const idOne = $('#gradient-one linearGradient').attr('id');
+			const idTwo = $('#gradient-two linearGradient').attr('id');
+
+			assert.ok(idOne, 'first gradient should have an id');
+			assert.ok(idTwo, 'second gradient should have an id');
+			assert.notEqual(
+				idOne,
+				idTwo,
+				'ids from different source files should not collide once inlined on the same page',
+			);
+		});
+	});
 });
