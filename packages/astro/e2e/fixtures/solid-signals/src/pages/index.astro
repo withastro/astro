@@ -1,0 +1,15 @@
+---
+import { createIslandSignal } from '@astrojs/solid-js/signals';
+import Counter from '../components/Counter';
+import Display from '../components/Display';
+const [count, setCount] = createIslandSignal(10);
+---
+<html>
+	<head>
+		<title>Solid Signals E2E</title>
+	</head>
+	<body>
+		<Counter id="counter" count={count} setCount={setCount} client:load />
+		<Display id="display" count={count} client:load />
+	</body>
+</html>
