@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 14.2.4
+
+### Patch Changes
+
+- [#17789](https://github.com/withastro/astro/pull/17789) [`7c541a7`](https://github.com/withastro/astro/commit/7c541a70c5c3688e7f159d8e1b39888a54f1bee4) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes dep scanning failure when `.astro` frontmatter contains regex literals with quote characters (e.g. `/"/g`)
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.2.3
 
 ### Patch Changes

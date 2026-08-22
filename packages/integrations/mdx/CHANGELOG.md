@@ -1,5 +1,13 @@
 # @astrojs/mdx
 
+## 7.0.8
+
+### Patch Changes
+
+- [#17757](https://github.com/withastro/astro/pull/17757) [`660991c`](https://github.com/withastro/astro/commit/660991c820fbeb087b2f27361e6ebaeba8285358) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes build errors showing wrong file location, missing line:col, and misleading hints when a plugin error (e.g. from MDX) is wrapped by Vite's build error
+
+- [#17766](https://github.com/withastro/astro/pull/17766) [`0762a83`](https://github.com/withastro/astro/commit/0762a8385b5b5b093def3768a0c4d0464a9dccc4) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes Sätteri processor option types to accept all plugin entries supported by Sätteri v0.10.3.
+
 ## 7.0.7
 
 ### Patch Changes
