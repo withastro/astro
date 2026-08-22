@@ -1,0 +1,13 @@
+---
+import { getCollection, render } from 'astro:content';
+
+const posts = await getCollection('blog');
+---
+<html>
+<body>
+	{posts.map(async (post) => {
+		const { Content } = await render(post);
+		return <Content />;
+	})}
+</body>
+</html>
