@@ -10,6 +10,10 @@ function mergeConfigRecursively(
 ) {
 	const merged: Record<string, any> = { ...defaults };
 	for (const key in overrides) {
+		// ponytail: __proto__/constructor/prototype filtered — sufficient for userland config merge; add a deep-freeze post-merge if defense-in-depth is ever required
+		if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+			continue;
+		}
 		const value = overrides[key];
 		if (value == null) {
 			continue;

@@ -210,8 +210,9 @@ function prerenderElementChildren(tag: string, children: any) {
 	// For content within <style> and <script> tags that are plain strings, e.g. injected
 	// by remark/rehype plugins, or if a user explicitly does `<script>{'...'}</script>`,
 	// we mark it as an HTML string to prevent the content from being HTML-escaped.
+	// ponytail: replaceAll handles common </script>/</style> injection in raw strings; full JS/CSS tokenizer only if user-controlled multi-line content is ever passed here
 	if (typeof children === 'string' && (tag === 'style' || tag === 'script')) {
-		return markHTMLString(children);
+		return markHTMLString(children.replaceAll('</script', '<\\/script').replaceAll('</style', '<\\/style'));
 	} else {
 		return children;
 	}
