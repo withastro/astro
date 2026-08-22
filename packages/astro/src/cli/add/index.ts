@@ -51,6 +51,12 @@ const ALIASES = new Map([
 	['tailwindcss', 'tailwind'],
 ]);
 
+// workerd rejects compatibility dates newer than ~7 days past its build date.
+// Using today's date can exceed that range when the installed workerd binary is
+// not the latest release. A hardcoded date avoids this. Keep in sync with
+// DEFAULT_COMPATIBILITY_DATE in packages/integrations/cloudflare/src/wrangler.ts.
+const CLOUDFLARE_COMPATIBILITY_DATE = '2026-04-15';
+
 const STUBS = {
 	ASTRO_CONFIG: `import { defineConfig } from 'astro/config';\n// https://astro.build/config\nexport default defineConfig({});`,
 	TAILWIND_GLOBAL_CSS: `@import "tailwindcss";`,
@@ -200,11 +206,13 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 					if (await askToContinue({ flags, logger })) {
 						const data = await getPackageJson();
-						let compatibilityDate = new Date().toISOString().slice(0, 10);
 
 						await fs.writeFile(
 							wranglerConfigURL,
-							STUBS.CLOUDFLARE_WRANGLER_CONFIG(data?.name ?? 'example', compatibilityDate),
+							STUBS.CLOUDFLARE_WRANGLER_CONFIG(
+								data?.name ?? 'example',
+								CLOUDFLARE_COMPATIBILITY_DATE,
+							),
 							'utf-8',
 						);
 					}
