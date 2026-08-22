@@ -1,8 +1,8 @@
+import type { PreviewServer } from 'astro';
+import type { BaseApp } from 'astro/app';
 import fs from 'node:fs';
 import http from 'node:http';
 import https from 'node:https';
-import type { PreviewServer } from 'astro';
-import type { BaseApp } from 'astro/app';
 import enableDestroy from 'server-destroy';
 import { logListeningOn } from './log-listening-on.js';
 import { createAppHandler } from './serve-app.js';
@@ -40,6 +40,30 @@ export default function standalone(
 	server.server.on('close', () => {
 		app.logger.close();
 	});
+
+	if (process.env.ASTRO_NODE_GRACEFUL_SHUTDOWN !== 'disabled') {
+		const timeoutMs = process.env.ASTRO_NODE_GRACEFUL_SHUTDOWN_TIMEOUT
+			? Number(process.env.ASTRO_NODE_GRACEFUL_SHUTDOWN_TIMEOUT)
+			: 10_000;
+
+		const shutdown = async (signal: string) => {
+			app.adapterLogger.info(`Received ${signal}, shutting down gracefully.`);
+			server.server.close();
+
+			// Force-destroy remaining connections if drain takes too long.
+			const timeout = setTimeout(() => {
+				app.adapterLogger.warn(`Graceful shutdown timed out after ${timeoutMs}ms, forcing close.`);
+				server.server.destroy();
+			}, timeoutMs);
+
+			await server.closed();
+			clearTimeout(timeout);
+		};
+
+		process.once('SIGTERM', () => shutdown('SIGTERM'));
+		process.once('SIGINT', () => shutdown('SIGINT'));
+	}
+
 	return {
 		server,
 		done: server.closed(),
