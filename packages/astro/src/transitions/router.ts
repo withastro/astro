@@ -9,6 +9,8 @@ type State = {
 	index: number;
 	scrollX: number;
 	scrollY: number;
+	// Whether this entry was created from the preceding entry without swapping the document.
+	sameDocument?: boolean;
 };
 type Navigation = { controller: AbortController };
 type Transition = {
@@ -68,17 +70,19 @@ let parser: DOMParser;
 // you can figure it using an index. On pushState the index is incremented so you
 // can use that to determine popstate if going forward or back.
 let currentHistoryIndex = 0;
+let currentEntryIsSameDocument = false;
 
 if (inBrowser) {
 	if (history.state) {
 		// Here we reloaded a page with history state
 		// (e.g. history navigation from non-transition page or browser reload)
 		currentHistoryIndex = history.state.index;
+		currentEntryIsSameDocument = history.state.sameDocument ?? false;
 		scrollTo({ left: history.state.scrollX, top: history.state.scrollY });
 	} else if (transitionEnabledOnThisPage()) {
 		// This page is loaded from the browser address bar or via a link from extern,
 		// it needs a state in the history
-		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
+		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY, sameDocument: false }, '');
 		history.scrollRestoration = 'manual';
 	}
 }
@@ -171,14 +175,20 @@ const moveToLocation = (
 	options: Options,
 	pageTitleForBrowserHistory: string,
 	historyState?: State,
+	sameDocumentNavigation = false,
 ) => {
 	const intraPage = samePage(from, to);
+	const changesLocation = to.href !== location.href && !historyState;
 
 	const targetPageTitle = document.title;
 	document.title = pageTitleForBrowserHistory;
 
 	let scrolledToTop = false;
-	if (to.href !== location.href && !historyState) {
+	if (changesLocation) {
+		const sameDocument =
+			sameDocumentNavigation && options.history === 'replace'
+				? currentEntryIsSameDocument
+				: sameDocumentNavigation;
 		if (options.history === 'replace') {
 			const current = history.state;
 			history.replaceState(
@@ -187,17 +197,27 @@ const moveToLocation = (
 					index: current.index,
 					scrollX: current.scrollX,
 					scrollY: current.scrollY,
+					sameDocument,
 				},
 				'',
 				to.href,
 			);
 		} else {
 			history.pushState(
-				{ ...options.state, index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
+				{
+					...options.state,
+					index: ++currentHistoryIndex,
+					scrollX: 0,
+					scrollY: 0,
+					sameDocument,
+				},
 				'',
 				to.href,
 			);
 		}
+	}
+	if (historyState || changesLocation) {
+		currentEntryIsSameDocument = history.state.sameDocument ?? false;
 	}
 	document.title = targetPageTitle;
 	// now we are on the new page for non-history navigation!
@@ -365,8 +385,15 @@ async function transition(
 		updateScrollPosition({ scrollX, scrollY });
 	}
 	if (samePage(from, to) && !options.formData) {
-		if ((direction !== 'back' && to.hash) || (direction === 'back' && from.hash)) {
-			moveToLocation(to, from, options, document.title, historyState);
+		const traversesSameDocument =
+			navigationType === 'traverse' &&
+			(direction === 'back' ? currentEntryIsSameDocument : (historyState?.sameDocument ?? false));
+		if (
+			traversesSameDocument ||
+			(direction !== 'back' && to.hash) ||
+			(direction === 'back' && from.hash)
+		) {
+			moveToLocation(to, from, options, document.title, historyState, true);
 			if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
 			return;
 		}

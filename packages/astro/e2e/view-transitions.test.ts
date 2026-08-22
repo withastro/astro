@@ -4,6 +4,7 @@ import { type DevServer, testFactory, waitForHydrate, warmupDevServer } from './
 declare global {
 	interface Window {
 		preloads: string[];
+		transitionCount: number;
 		clientSideRouterForTestsParkedHere?: (
 			url: string,
 			options?: { history?: 'auto' | 'replace' | 'push' },
@@ -445,6 +446,44 @@ test.describe('View Transitions', () => {
 		await page.goForward();
 		locator = page.locator('#click-one-again');
 		await expect(locator).toBeInViewport();
+	});
+
+	test('Rewritten fragment entries remain same-document history navigations', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/long-page'));
+		await page.evaluate(() => {
+			window.transitionCount = 0;
+			document.addEventListener('astro:before-preparation', () => {
+				window.transitionCount++;
+			});
+		});
+
+		await expect(page.locator('#click-one-again')).not.toBeInViewport();
+		await page.click('#click-scroll-down');
+		let locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+		await expect(page.locator('#click-scroll-down')).not.toBeInViewport();
+
+		await page.click('#click-scroll-up');
+		locator = page.locator('#click-scroll-down');
+		await expect(locator).toBeInViewport();
+
+		await page.evaluate(() => {
+			history.replaceState(history.state, '', location.pathname + location.search);
+		});
+		await expect(page).toHaveURL(astro.resolveUrl('/long-page'));
+
+		await page.goBack();
+		locator = page.locator('#click-one-again');
+		await expect(locator).toBeInViewport();
+
+		await page.goForward();
+		locator = page.locator('#click-scroll-down');
+		await expect(locator).toBeInViewport();
+
+		expect(await page.evaluate(() => window.transitionCount)).toBe(0);
 	});
 
 	test('View Transitions Rule', async ({ page, astro }) => {
