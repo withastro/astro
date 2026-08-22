@@ -31,6 +31,7 @@ import { eventCliSession, telemetry } from '../../events/index.js';
 import { exec } from '../exec.js';
 import { createLoggerFromFlags, type Flags, flagsToAstroInlineConfig } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
+import { createCloudflareWranglerConfig } from './cloudflare.js';
 
 const { bold, cyan, dim, green, magenta, red, yellow } = colors;
 
@@ -64,21 +65,6 @@ export default {
 # Lit libraries are required to be hoisted due to dependency issues.
 public-hoist-pattern[]=*lit*
 `,
-	CLOUDFLARE_WRANGLER_CONFIG: (name: string, compatibilityDate: string) => `\
-{
-	"$schema": "./node_modules/wrangler/config-schema.json",
-	"compatibility_date": ${JSON.stringify(compatibilityDate)},
-	"compatibility_flags": ["global_fetch_strictly_public"],
-	"name": ${JSON.stringify(name)},
-	"main": "@astrojs/cloudflare/entrypoints/server",
-	"assets": {
-		"directory": "./dist",
-		"binding": "ASSETS"
-	},
-	"observability": {
-		"enabled": true
-	}
-}`,
 };
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
@@ -200,11 +186,10 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 					if (await askToContinue({ flags, logger })) {
 						const data = await getPackageJson();
-						let compatibilityDate = new Date().toISOString().slice(0, 10);
 
 						await fs.writeFile(
 							wranglerConfigURL,
-							STUBS.CLOUDFLARE_WRANGLER_CONFIG(data?.name ?? 'example', compatibilityDate),
+							createCloudflareWranglerConfig(data?.name ?? 'example'),
 							'utf-8',
 						);
 					}
