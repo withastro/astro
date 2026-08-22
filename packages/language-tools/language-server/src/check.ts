@@ -306,8 +306,8 @@ export class AstroCheck {
 		};
 
 		languageServiceHost.getScriptFileNames = () => {
-			const { originalFileNames, extraFileNames } = resolveExtraFileNames();
-			return [...new Set([...originalFileNames, ...extraFileNames])];
+			const resolved = resolveExtraFileNames();
+			return [...new Set([...resolved.originalFileNames, ...resolved.extraFileNames])];
 		};
 
 		return () => resolveExtraFileNames().extraFileNames;
