@@ -9,6 +9,7 @@ import {
 } from '../app/origin-check.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
 import { renderErrorFromState } from '../errors/handler.js';
+import { AstroErrorData, isAstroError } from '../errors/index.js';
 
 // Shared empty-slots object so we don't allocate `{}` on every render for
 // requests that don't come from the container API. Safe to share because
@@ -124,6 +125,24 @@ export async function handlePagesWithErrorFallback(state: FetchState): Promise<R
 	try {
 		return await handlePages(state, ctx);
 	} catch (err: any) {
+		const isNoMatchingStaticPath =
+			isAstroError(err) &&
+			(err.title === AstroErrorData.NoMatchingStaticPathFound.title ||
+				err.name === AstroErrorData.NoMatchingStaticPathFound.name);
+		const isFallbackMatch =
+			!state.routeData!.pattern.test(state.pathname) &&
+			state.routeData!.fallbackRoutes.some((fallbackRoute) =>
+				fallbackRoute.pattern.test(state.pathname),
+			);
+
+		if (isNoMatchingStaticPath && (isFallbackMatch || state.isRewriting)) {
+			return renderErrorFromState(state, state.request, {
+				...state.renderOptions,
+				status: 404,
+				pathname: state.pathname,
+			});
+		}
+
 		// The header marker can't carry the error object, so render the
 		// 500 page directly to preserve `error` and the logged stack.
 		state.logger.error(null, err.stack || err.message || String(err));

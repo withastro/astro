@@ -6,6 +6,7 @@ import type { SSRManifest } from '../app/types.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { createManifestMemo } from '../manifest/memo.js';
+import { AstroErrorData, isAstroError } from '../errors/index.js';
 
 /**
  * The compiled i18n configuration for a manifest: the config values plus the
@@ -180,7 +181,18 @@ export async function finalizeI18n(
 					headers: { Location: fallbackDecision.pathname + url.search },
 				});
 			case 'rewrite':
-				return await state.rewrite(fallbackDecision.pathname + url.search);
+				try {
+					return await state.rewrite(fallbackDecision.pathname + url.search);
+				} catch (e) {
+					if (
+						isAstroError(e) &&
+						(e.title === AstroErrorData.NoMatchingStaticPathFound.title ||
+							e.name === AstroErrorData.NoMatchingStaticPathFound.name)
+					) {
+						return new Response(null, { status: 404 });
+					}
+					throw e;
+				}
 			case 'none':
 				break;
 		}

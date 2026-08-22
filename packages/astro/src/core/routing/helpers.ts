@@ -79,7 +79,7 @@ export function getDefaultStatusCode(
 	if (!routeData.pattern.test(pathname)) {
 		for (const fallbackRoute of routeData.fallbackRoutes) {
 			if (fallbackRoute.pattern.test(pathname)) {
-				return 302;
+				return manifest.i18n?.fallbackType === 'rewrite' ? 200 : 302;
 			}
 		}
 	}

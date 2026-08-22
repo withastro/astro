@@ -5,7 +5,7 @@ import type { RoutingStrategies } from '../../../dist/core/app/common.js';
 import { createI18nMiddleware } from '../../../dist/i18n/middleware.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import type { Locales } from '../../../dist/types/public/config.js';
-import { createPage, createTestApp } from '../mocks.ts';
+import { createPage, createRouteData, createTestApp } from '../mocks.ts';
 import { dynamicPart, spreadPart, staticPart } from '../routing/test-helpers.ts';
 
 interface I18nConfigOverrides {
@@ -663,6 +663,63 @@ describe('i18n via AstroHandler (no middleware) - prefix-always (#16800)', () =>
 	it('returns 404 for paths without locale prefix', async () => {
 		const app = createHandlerApp();
 		const res = await app.render(new Request('http://example.com/about'));
+		assert.equal(res.status, 404);
+	});
+});
+
+// #17778: i18n fallback 'rewrite' should return 404 instead of 500 when fallback target also has no matching static path
+describe('i18n via App - fallback rewrite with rest-param routes (#17778)', () => {
+	const i18n = makeI18nConfig({
+		strategy: 'pathname-prefix-always',
+		locales: ['en', 'es'],
+		defaultLocale: 'en',
+		fallback: { es: 'en' },
+		fallbackType: 'rewrite',
+	});
+
+	function createFallbackApp() {
+		const enRoute = createRouteData({
+			route: '/en/[...slug]',
+			segments: [[staticPart('en')], [spreadPart('...slug')]],
+			prerender: true,
+		});
+		enRoute.pathname = undefined;
+
+		const esFallbackRoute = createRouteData({
+			route: '/es/[...slug]',
+			segments: [[staticPart('es')], [spreadPart('...slug')]],
+			type: 'fallback',
+			prerender: true,
+		});
+		esFallbackRoute.pathname = undefined;
+		enRoute.fallbackRoutes.push(esFallbackRoute);
+
+		const enPage = {
+			routeData: enRoute,
+			module: async () => ({
+				page: async () => ({
+					default: paramsPage,
+					getStaticPaths: () => [{ params: { slug: 'existing' } }],
+				}),
+			}),
+		};
+
+		return createTestApp([enPage], {
+			i18n,
+		});
+	}
+
+	it('returns 200 and rewrites content when fallback target has matching static path', async () => {
+		const app = createFallbackApp();
+		const res = await app.render(new Request('http://example.com/es/existing'));
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#slug').text(), 'existing');
+	});
+
+	it('returns 404 instead of 500 when fallback target has no matching static path', async () => {
+		const app = createFallbackApp();
+		const res = await app.render(new Request('http://example.com/es/non-existent'));
 		assert.equal(res.status, 404);
 	});
 });
