@@ -39,11 +39,6 @@ import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../output-filename.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
-import {
-	beginContentEntryCollection,
-	endContentEntryCollection,
-} from './incremental-content-collector.js';
-import { beginImageCollection, endImageCollection } from './incremental-image-collector.js';
 import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
@@ -108,30 +103,19 @@ export async function generatePages(
 	// Incremental build support
 	let cache: IncrementalBuildCache | null = null;
 	if (options.settings.config.experimental.incrementalBuild) {
-		// Per-path content-entry and image tracking is collected through a single
-		// process-global side channel, which cannot attribute records to the right
-		// path once renders interleave. Rather than risk skipping a stale page, the
-		// cache is disabled when the build renders paths concurrently.
-		if (options.settings.config.build.concurrency > 1) {
-			logger.warn(
-				'build',
-				'The incremental build cache is disabled because `build.concurrency` is greater than 1.',
-			);
-		} else {
-			const [configHash, lockfileHash, keyDigest] = await Promise.all([
-				computeConfigHash(options.settings.config),
-				computeLockfileHash(fileURLToPath(options.settings.config.root)),
-				options.key.then(hashCryptoKey),
-			]);
-			cache = IncrementalBuildCache.load(
-				options.settings,
-				configHash,
-				lockfileHash,
-				keyDigest,
-				internals.contentEntryRenderHashes ?? new Map(),
-				options.force,
-			);
-		}
+		const [configHash, lockfileHash, keyDigest] = await Promise.all([
+			computeConfigHash(options.settings.config),
+			computeLockfileHash(fileURLToPath(options.settings.config.root)),
+			options.key.then(hashCryptoKey),
+		]);
+		cache = IncrementalBuildCache.load(
+			options.settings,
+			configHash,
+			lockfileHash,
+			keyDigest,
+			internals.contentEntryRenderHashes ?? new Map(),
+			options.force,
+		);
 	}
 
 	try {
@@ -458,6 +442,8 @@ interface RenderToPathPayload {
 	options: StaticBuildOptions;
 	routeToHeaders?: RouteToHeaders;
 	logger: AstroLogger;
+	/** Ask the prerenderer to collect and report per-render incremental metadata. */
+	collectMetadata?: boolean;
 }
 
 /**
@@ -491,6 +477,7 @@ export async function renderPath({
 	options,
 	routeToHeaders = new Map(),
 	logger,
+	collectMetadata,
 }: RenderToPathPayload): Promise<RenderPathResult | null> {
 	const { config } = options.settings;
 
@@ -550,7 +537,7 @@ export async function renderPath({
 	let metadata: PrerenderResult['metadata'];
 	try {
 		const rendered = normalizePrerenderResult(
-			await prerenderer.render(request, { routeData: route }),
+			await prerenderer.render(request, { routeData: route, collectMetadata }),
 		);
 		response = rendered.response;
 		metadata = rendered.metadata;
@@ -716,13 +703,11 @@ async function generatePathWithPrerenderer(
 		addPageName(pathname, options);
 	}
 
-	// Collect the content entries and image transforms resolved while generating
-	// this path, so they can be folded into the path's cache entry and replayed
-	// when the path is skipped on a later build.
-	if (cache) {
-		beginContentEntryCollection();
-		beginImageCollection();
-	}
+	// When the incremental cache is active, the prerenderer collects the content
+	// entries and image transforms resolved while rendering this path in its own
+	// runtime and reports them on the render's metadata, so they can be folded
+	// into the path's cache entry and replayed when the path is skipped on a
+	// later build.
 	const result = await renderPath({
 		prerenderer,
 		pathname,
@@ -730,15 +715,10 @@ async function generatePathWithPrerenderer(
 		options,
 		routeToHeaders,
 		logger,
+		collectMetadata: cache !== null,
 	});
-	// In-process prerenderers populate these collectors while rendering; always
-	// end them to clear the buckets for the next path. An out-of-process
-	// prerenderer (e.g. workerd) collects in its own runtime and reports the
-	// result on the render's metadata, which takes precedence when present.
-	const collectedContentEntryKeys = cache ? endContentEntryCollection() : undefined;
-	const collectedStaticImages = cache ? endImageCollection() : undefined;
-	const contentEntryKeys = result?.metadata?.contentEntryKeys ?? collectedContentEntryKeys;
-	const staticImages = result?.metadata?.staticImages ?? collectedStaticImages;
+	const contentEntryKeys = result?.metadata?.contentEntryKeys;
+	const staticImages = result?.metadata?.staticImages;
 	// Headers are collected only for `staticHeaders` adapters (see `renderPath`).
 	// Persist them so a skipped path can replay its route into the headers file.
 	const headers = cache ? [...(routeToHeaders.get(pathname)?.headers ?? [])] : undefined;

@@ -3523,6 +3523,9 @@ importers:
 
   packages/astro/test/fixtures/incremental-build-concurrency:
     dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -4763,6 +4766,18 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/cloudflare/test/fixtures/incremental-concurrency:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../mdx
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/cloudflare/test/fixtures/incremental-images:
     dependencies:
       '@astrojs/cloudflare':
@@ -4847,6 +4862,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/cloudflare/test/fixtures/prerenderer-render-error:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/cloudflare/test/fixtures/production-async-hooks:
     dependencies:
       '@astrojs/cloudflare':
         specifier: workspace:*

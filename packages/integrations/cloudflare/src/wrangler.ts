@@ -11,6 +11,31 @@ export const DEFAULT_ASSETS_BINDING_NAME = 'ASSETS';
 // This should be updated when upgrading wrangler/workerd dependencies.
 const DEFAULT_COMPATIBILITY_DATE = '2026-04-15';
 
+/**
+ * Compatibility flags that make `AsyncLocalStorage` (`node:async_hooks`)
+ * available in workerd.
+ */
+const ALS_CAPABLE_FLAGS = ['nodejs_als', 'nodejs_compat', 'nodejs_compat_v2'];
+
+/**
+ * Returns the compatibility flags for the build-time prerender worker,
+ * auto-appending `nodejs_als` when no ALS-capable flag is already present.
+ *
+ * The prerender worker installs an AsyncLocalStorage-backed render scope (see
+ * `utils/prerender-scope.ts`) so concurrent prerender requests attribute
+ * incremental-build metadata to the right path; `nodejs_als` makes
+ * `node:async_hooks` resolvable in that worker. This only ever shapes the
+ * transient build-time prerender worker config — the user's deployed wrangler
+ * config is untouched.
+ */
+export function withNodejsAlsFlag(compatibilityFlags: string[] | undefined): string[] {
+	const flags = compatibilityFlags ?? [];
+	if (flags.some((flag) => ALS_CAPABLE_FLAGS.includes(flag))) {
+		return flags;
+	}
+	return [...flags, 'nodejs_als'];
+}
+
 interface CloudflareConfigOptions {
 	sessionKVBindingName?: string | undefined;
 	needsSessionKVBinding?: boolean;

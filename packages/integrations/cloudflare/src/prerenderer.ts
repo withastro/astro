@@ -60,7 +60,6 @@ interface CloudflarePrerendererOptions {
 	/** When true, images are optimized by the IMAGES binding in workerd during the build. */
 	hasBindingImageService: boolean;
 	userImageServiceEntrypoint?: string;
-	incremental: boolean;
 	logger: AstroIntegrationLogger;
 }
 
@@ -173,7 +172,6 @@ export function createCloudflarePrerenderer({
 	hasBuildImageService,
 	hasBindingImageService,
 	userImageServiceEntrypoint,
-	incremental,
 	logger,
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
@@ -254,12 +252,14 @@ export function createCloudflarePrerenderer({
 			}));
 		},
 
-		async render(request, { routeData }) {
-			// Serialize routeData and send to workerd
+		async render(request, { routeData, collectMetadata }) {
+			// Serialize routeData and send to workerd. `collectMetadata` is threaded
+			// through per call from the build orchestrator (true exactly when the
+			// incremental cache is active) and decides envelope-vs-raw on both sides.
 			const body: PrerenderRequest = {
 				url: request.url,
 				routeData: serializeRouteData(routeData, trailingSlash),
-				incremental,
+				collectMetadata,
 			};
 
 			const response = await fetch(`${serverUrl}${PRERENDER_ENDPOINT}`, {
@@ -278,11 +278,13 @@ export function createCloudflarePrerenderer({
 				throw new Error(`Failed to prerender ${request.url}: ${prerenderError}`);
 			}
 
-			// Incremental builds receive a `PrerenderEnvelope` wrapping the response
-			// alongside the metadata collected in workerd, since a raw response
-			// cannot carry it. Reconstruct the response and return it paired with
-			// the metadata for the build to record.
-			if (incremental) {
+			// Metadata-collecting renders receive a `PrerenderEnvelope` wrapping the
+			// response alongside the metadata collected in workerd, since a raw
+			// response cannot carry it. Reconstruct the response and return it
+			// paired with the metadata for the build to record. `envelope.metadata`
+			// is `undefined` when the worker could not install a render scope
+			// (degraded collection): the path is recorded as "not tracked".
+			if (collectMetadata) {
 				const envelope: PrerenderEnvelope = await response.json();
 				const reconstructed = new Response(Buffer.from(envelope.body, 'base64'), {
 					status: envelope.status,
