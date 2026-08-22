@@ -1,7 +1,7 @@
 import { existsSync, promises as fs, type PathLike } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as devalue from 'devalue';
-import { map } from 'neotraverse';
+import { map as traverseMap } from 'neotraverse';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
@@ -395,7 +395,7 @@ export default new Map([\n${lines.join(',\n')}]);
 				// in-place write throw a TypeError. `map` writes replacements into
 				// copies, leaving the caller's object untouched.
 				let hasImageImports = false;
-				const strippedData = map(inputData, function (ctx, val) {
+				const strippedData = traverseMap(inputData, function (ctx, val) {
 					if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 						hasImageImports = true;
 						const src = val.replace(IMAGE_IMPORT_PREFIX, '');
