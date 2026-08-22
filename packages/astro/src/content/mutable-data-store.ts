@@ -1,7 +1,7 @@
 import { existsSync, promises as fs, type PathLike } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as devalue from 'devalue';
-import { forEach } from 'neotraverse';
+import { map } from 'neotraverse';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
@@ -380,7 +380,9 @@ export default new Map([\n${lines.join(',\n')}]);
 				// strip the prefix so the stored data holds a plain, devalue-serializable src
 				// string. The recorded paths let read-time resolution rewrite only these fields
 				// without traversing or cloning the rest of the data.
-				forEach(data, function (ctx, val) {
+				// `map` (immutable traversal) is used instead of `forEach` so that frozen
+				// objects produced by Zod `.readonly()` are handled without throwing.
+				const processedData = map(data, function (ctx, val) {
 					if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 						const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 						foundAssets.add(src);
@@ -391,7 +393,7 @@ export default new Map([\n${lines.join(',\n')}]);
 
 				const entry: DataEntry = {
 					id,
-					data,
+					data: processedData,
 				};
 				// We do it like this so we don't waste space stringifying
 				// the fields if they are not set

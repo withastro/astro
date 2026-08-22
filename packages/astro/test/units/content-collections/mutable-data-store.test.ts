@@ -316,6 +316,33 @@ describe('MutableDataStore', () => {
 		assert.deepEqual(new Set(entry.assetImports), new Set(['./hero.png', './a.png', './icon.png']));
 	});
 
+	it('strips image prefixes from frozen data without throwing', () => {
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('blog');
+
+		// Zod `.readonly()` calls Object.freeze() on parsed data
+		const images = Object.freeze({
+			hero: '__ASTRO_IMAGE_./hero.png',
+			social: '__ASTRO_IMAGE_./social.png',
+		});
+
+		scoped.set({
+			id: 'frozen-post',
+			filePath: 'src/content/blog/frozen.md',
+			data: { title: 'Frozen', images },
+		});
+
+		const entry = store.get('blog', 'frozen-post') as any;
+
+		assert.equal(entry.data.images.hero, './hero.png');
+		assert.equal(entry.data.images.social, './social.png');
+		assert.equal(entry.data.title, 'Frozen');
+		assert.deepEqual(entry.imageImports, [
+			['images', 'hero'],
+			['images', 'social'],
+		]);
+	});
+
 	it('does not set imageImports when the entry has no images', () => {
 		const store = new MutableDataStore();
 		const scoped = store.scopedStore('blog');
