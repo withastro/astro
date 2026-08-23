@@ -155,7 +155,13 @@ export function copyRequest(
 	return createRequest({
 		url: newUrl,
 		method: oldRequest.method,
-		body: oldRequest.body,
+		// GET/HEAD requests must not carry a body per the Fetch spec
+		// (https://fetch.spec.whatwg.org/#http-fetch), and constructing a
+		// Request with one throws a TypeError.
+		body:
+			oldRequest.method === 'GET' || oldRequest.method === 'HEAD'
+				? undefined
+				: oldRequest.body,
 		isPrerendered,
 		logger,
 		headers: isPrerendered ? {} : oldRequest.headers,

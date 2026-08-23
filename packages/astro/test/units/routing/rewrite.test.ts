@@ -5,6 +5,7 @@ import {
 	normalizeRewritePathname,
 	setOriginPathname,
 	getOriginPathname,
+	copyRequest,
 } from '../../../dist/core/routing/rewrite.js';
 
 describe('normalizeRewritePathname', () => {
@@ -195,5 +196,65 @@ describe('setOriginPathname / getOriginPathname', () => {
 		const req = new Request('http://example.com/');
 		setOriginPathname(req, '/café', 'never', 'file');
 		assert.equal(getOriginPathname(req), '/café');
+	});
+});
+
+describe('copyRequest', () => {
+	const logger = {
+		warn: () => {},
+		info: () => {},
+		debug: () => {},
+		error: () => {},
+	} as any;
+
+	it('does not forward a body for GET requests', () => {
+		const req = new Request('http://example.com/old', {
+			method: 'GET',
+			body: 'some-body',
+			headers: { 'content-type': 'text/plain' },
+		});
+		const result = copyRequest(
+			new URL('http://example.com/new'),
+			req,
+			false,
+			logger,
+			'/**',
+		);
+		assert.equal(result.method, 'GET');
+		assert.equal(result.body, null);
+	});
+
+	it('does not forward a body for HEAD requests', () => {
+		const req = new Request('http://example.com/old', {
+			method: 'HEAD',
+			body: 'some-body',
+			headers: { 'content-type': 'text/plain' },
+		});
+		const result = copyRequest(
+			new URL('http://example.com/new'),
+			req,
+			false,
+			logger,
+			'/**',
+		);
+		assert.equal(result.method, 'HEAD');
+		assert.equal(result.body, null);
+	});
+
+	it('forwards a body for POST requests', async () => {
+		const req = new Request('http://example.com/old', {
+			method: 'POST',
+			body: 'some-body',
+			headers: { 'content-type': 'text/plain' },
+		});
+		const result = copyRequest(
+			new URL('http://example.com/new'),
+			req,
+			false,
+			logger,
+			'/**',
+		);
+		assert.equal(result.method, 'POST');
+		assert.equal(await result.text(), 'some-body');
 	});
 });
