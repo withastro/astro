@@ -92,3 +92,32 @@ describe('setImageConfig custom mode', () => {
 		assert.equal(result.endpoint?.entrypoint, undefined);
 	});
 });
+
+describe('setImageConfig compile mode', () => {
+	function makeLogger() {
+		const warnings: string[] = [];
+		return {
+			warnings,
+			logger: { warn: (msg: string) => warnings.push(msg) } as unknown as AstroIntegrationLogger,
+		};
+	}
+
+	function makeImageConfig(serviceEntrypoint?: string) {
+		return {
+			service: serviceEntrypoint ? { entrypoint: serviceEntrypoint, config: {} } : undefined,
+			endpoint: { route: '/_image' },
+		} as unknown as AstroConfig['image'];
+	}
+
+	it('uses the generic endpoint in dev', () => {
+		const { logger } = makeLogger();
+		const result = setImageConfig('compile', makeImageConfig(), 'dev', logger);
+		assert.equal(result.endpoint?.entrypoint, 'astro/assets/endpoint/generic');
+	});
+
+	it('uses the passthrough endpoint during build by default', () => {
+		const { logger } = makeLogger();
+		const result = setImageConfig('compile', makeImageConfig(), 'build', logger);
+		assert.equal(result.endpoint?.entrypoint, '@astrojs/cloudflare/image-passthrough-endpoint');
+	});
+});
