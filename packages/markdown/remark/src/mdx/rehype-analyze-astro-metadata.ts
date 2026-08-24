@@ -45,10 +45,12 @@ export const rehypeAnalyzeAstroMetadata: RehypePlugin = () => {
 			// Match this component with its import source
 			const matchedImport = findMatchingImport(tagName, imports);
 			if (!matchedImport) {
-				throw new Error(
-					`Could not render \`${node.name}\`. No matching import has been found for \`${node.name}\`.\n` +
-						'Please make sure the component is properly imported.',
+				// Astro's dev overlay reads `hint` off the thrown error and renders it separately.
+				const error: Error & { hint?: string } = new Error(
+					`Could not render \`${node.name}\`. No matching import has been found for \`${node.name}\`.`,
 				);
+				error.hint = 'Please make sure the component is properly imported.';
+				throw error;
 			}
 
 			// If this is an Astro component, that means the `client:` directive is misused as it doesn't
