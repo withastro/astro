@@ -1,5 +1,17 @@
 # @astrojs/internal-helpers
 
+## 0.10.4
+
+### Patch Changes
+
+- [#17701](https://github.com/withastro/astro/pull/17701) [`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527) Thanks [@matthewp](https://github.com/matthewp)! - Fixes base path stripping to respect path-segment boundaries. With a configured `base` such as `/docs`, a request like `/docs-archive/page` is no longer treated as being under the base, so routing and `context.url.pathname` now agree on the same pathname.
+
+## 0.10.3
+
+### Patch Changes
+
+- [#17696](https://github.com/withastro/astro/pull/17696) [`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes incremental build cache invalidation caused by Shiki mutating the `langAlias` config object when loading languages
+
 ## 0.10.2
 
 ### Patch Changes

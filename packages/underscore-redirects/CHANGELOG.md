@@ -1,5 +1,11 @@
 # @astrojs/underscore-redirects
 
+## 1.0.4
+
+### Patch Changes
+
+- [#17620](https://github.com/withastro/astro/pull/17620) [`0891ac9`](https://github.com/withastro/astro/commit/0891ac9de5a6996e5ebd227e3443f7f4a4ea935a) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes dynamic redirect routes to honour user-configured status codes instead of hardcoding 301. Previously, a redirect configured with `{ destination: '/new', status: 302 }` would be emitted as 301 in the `_redirects` file when the route was dynamic.
+
 ## 1.0.3
 
 ### Patch Changes

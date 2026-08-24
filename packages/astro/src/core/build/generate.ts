@@ -283,7 +283,18 @@ export async function generatePages(
 		if (prerenderer.collectStaticImages) {
 			const adapterImages = await prerenderer.collectStaticImages();
 			for (const [path, entry] of adapterImages) {
-				staticImageList.set(path, entry);
+				const existing = staticImageList.get(path);
+				if (existing) {
+					// Merge adapter transforms into existing entries so that transforms
+					// restored from the incremental cache are preserved.
+					for (const [hash, transform] of entry.transforms) {
+						if (!existing.transforms.has(hash)) {
+							existing.transforms.set(hash, transform);
+						}
+					}
+				} else {
+					staticImageList.set(path, entry);
+				}
 			}
 		}
 	} finally {

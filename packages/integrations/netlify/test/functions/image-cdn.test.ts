@@ -116,6 +116,19 @@ describe('Image CDN', { timeout: 120000 }, () => {
 			);
 		});
 
+		it('rejects allowed patterns embedded in another URL', async () => {
+			assert.equal(
+				regexes[0]!.test(
+					'http://169.254.169.254/latest/meta-data/?url=https://example.net/image.jpg',
+				),
+				false,
+			);
+			assert.equal(
+				regexes[2]!.test('http://127.0.0.1:6379/?url=https://www.example.org/images/a.jpg'),
+				false,
+			);
+		});
+
 		it('treats metacharacters in a literal pathname as literals', async () => {
 			const spyLogger = new SpyLogger();
 			const logger = spyLogger.forkIntegrationLogger('test-spy');

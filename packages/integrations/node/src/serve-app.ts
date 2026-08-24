@@ -7,9 +7,12 @@ import {
 	writeResponse,
 	getAbortControllerCleanup,
 } from 'astro/app/node';
+import type { RouteType } from 'astro';
 import type { BaseApp } from 'astro/app';
 import { resolveClientDir } from './shared.js';
 import type { Options, RequestHandler } from './types.js';
+
+const PRERENDERED_ROUTE_TYPES: ReadonlyArray<RouteType> = ['page', 'endpoint'];
 
 /**
  * Read a prerendered error page from disk and return it as a Response.
@@ -108,9 +111,9 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 
 		// Include prerendered routes so static-mode redirects remain dynamic.
 		let routeData = app.match(request, true);
-		// Normal matching can select a lower-priority on-demand route when a prerendered page
+		// Normal matching can select a lower-priority on-demand route when a prerendered route
 		// matches first.
-		if (routeData?.type === 'page' && routeData.prerender) {
+		if (routeData?.prerender && PRERENDERED_ROUTE_TYPES.includes(routeData.type)) {
 			routeData = app.match(request);
 		}
 		if (routeData) {

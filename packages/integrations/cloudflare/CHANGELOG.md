@@ -1,5 +1,30 @@
 # @astrojs/cloudflare
 
+## 14.2.3
+
+### Patch Changes
+
+- Updated dependencies [[`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527)]:
+  - @astrojs/internal-helpers@0.10.4
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.2.2
+
+### Patch Changes
+
+- Updated dependencies [[`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277)]:
+  - @astrojs/internal-helpers@0.10.3
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.2.1
+
+### Patch Changes
+
+- [#17627](https://github.com/withastro/astro/pull/17627) [`ba6a9f6`](https://github.com/withastro/astro/commit/ba6a9f6e4523fe4e88ea31d4664835d3ba1ff3bc) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes the `astro` peer dependency range from `^7.0.0` to `^7.2.0`. The adapter imports symbols (`beginContentEntryCollection`, `beginImageCollection`, `endContentEntryCollection`, `endImageCollection`) from `astro/app` that were added in Astro 7.2.0, so earlier versions fail at build time with a `MISSING_EXPORT` error.
+
+- Updated dependencies [[`0891ac9`](https://github.com/withastro/astro/commit/0891ac9de5a6996e5ebd227e3443f7f4a4ea935a)]:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.2.0
 
 ### Minor Changes

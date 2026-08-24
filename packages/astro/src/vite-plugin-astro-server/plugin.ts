@@ -161,7 +161,7 @@ export default function createVitePluginAstroServer({
 								)) as { routes: RouteInfo[] };
 								const routesList = { routes: routes.map((route) => route.routeData) };
 								// This is intentionally a broad prerender gate. The real dev route
-								// resolution happens in AstroServerApp.handleRequest(), which also
+								// resolution happens in handleDevRequest(), which also
 								// checks getStaticPaths() and prerender tie-breaks that matchRoute()
 								// cannot express here.
 								const matches = matchAllRoutes(pathname, routesList);
