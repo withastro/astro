@@ -208,11 +208,16 @@ describe('copyRequest', () => {
 	} as any;
 
 	it('does not forward a body for GET requests', () => {
+		// A real GET Request can never carry a body (the constructor throws),
+		// so build one via an object with the shape copyRequest reads.
 		const req = new Request('http://example.com/old', {
-			method: 'GET',
+			method: 'POST',
 			body: 'some-body',
 			headers: { 'content-type': 'text/plain' },
 		});
+		// Simulate an upstream request whose method was changed to GET after
+		// construction — the state copyRequest guards against.
+		Object.defineProperty(req, 'method', { value: 'GET' });
 		const result = copyRequest(
 			new URL('http://example.com/new'),
 			req,
@@ -226,10 +231,11 @@ describe('copyRequest', () => {
 
 	it('does not forward a body for HEAD requests', () => {
 		const req = new Request('http://example.com/old', {
-			method: 'HEAD',
+			method: 'POST',
 			body: 'some-body',
 			headers: { 'content-type': 'text/plain' },
 		});
+		Object.defineProperty(req, 'method', { value: 'HEAD' });
 		const result = copyRequest(
 			new URL('http://example.com/new'),
 			req,
