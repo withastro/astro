@@ -105,6 +105,14 @@ export async function handleCache(
 		// Strip CDN headers after the runtime provider has read them
 		response.headers.delete('CDN-Cache-Control');
 		response.headers.delete('Cache-Tag');
+		// Ensure a browser-facing Cache-Control exists when validators are
+		// present, preventing heuristic freshness (RFC 9111 §4.2.2).
+		if (
+			!response.headers.has('Cache-Control') &&
+			(response.headers.has('Last-Modified') || response.headers.has('ETag'))
+		) {
+			response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+		}
 		return response;
 	}
 

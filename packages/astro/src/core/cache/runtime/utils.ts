@@ -34,6 +34,13 @@ export function defaultSetHeaders(options: CacheOptions): Headers {
 		headers.set('ETag', options.etag);
 	}
 
+	// Browser Cache-Control: when validators are present, tell browsers to
+	// always revalidate rather than relying on heuristic freshness
+	// (RFC 9111 §4.2.2). CDN-specific headers take precedence at the edge.
+	if (options.lastModified || options.etag) {
+		headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+	}
+
 	return headers;
 }
 

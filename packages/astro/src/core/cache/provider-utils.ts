@@ -54,7 +54,10 @@ export function buildCacheControlDirectives(
 }
 
 /**
- * Set common conditional headers (Last-Modified, ETag) on a Headers object.
+ * Set common conditional headers (Last-Modified, ETag) and a browser-facing
+ * `Cache-Control` on a Headers object. The `Cache-Control` forces browsers
+ * to revalidate rather than relying on heuristic freshness (RFC 9111 §4.2.2).
+ * Vendor-specific CDN cache-control headers take precedence at the edge.
  */
 export function setConditionalHeaders(headers: Headers, options: CacheOptions): void {
 	if (options.lastModified) {
@@ -62,6 +65,9 @@ export function setConditionalHeaders(headers: Headers, options: CacheOptions): 
 	}
 	if (options.etag) {
 		headers.set('ETag', options.etag);
+	}
+	if (options.lastModified || options.etag) {
+		headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
 	}
 }
 

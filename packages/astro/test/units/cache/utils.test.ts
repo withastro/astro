@@ -49,6 +49,21 @@ describe('defaultSetHeaders()', () => {
 		assert.equal(headers.get('Cache-Tag'), 'a');
 		assert.equal(headers.get('CDN-Cache-Control'), null);
 	});
+
+	it('sets Cache-Control when lastModified is present', () => {
+		const headers = defaultSetHeaders({ lastModified: new Date('2025-06-01T12:00:00Z') });
+		assert.equal(headers.get('Cache-Control'), 'public, max-age=0, must-revalidate');
+	});
+
+	it('sets Cache-Control when etag is present', () => {
+		const headers = defaultSetHeaders({ etag: '"abc123"' });
+		assert.equal(headers.get('Cache-Control'), 'public, max-age=0, must-revalidate');
+	});
+
+	it('no Cache-Control when no validators are present', () => {
+		const headers = defaultSetHeaders({ maxAge: 300, tags: ['a'] });
+		assert.equal(headers.get('Cache-Control'), null);
+	});
 });
 
 describe('isCacheHint()', () => {
