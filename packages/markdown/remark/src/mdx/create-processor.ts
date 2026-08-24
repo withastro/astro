@@ -61,10 +61,9 @@ export function createUnifiedMdxProcessor(
 	const mdxOptions: UnifiedMdxOptions = {
 		syntaxHighlight: shared.syntaxHighlight,
 		shikiConfig: shared.shikiConfig ?? {},
-		// `shared.gfm`/`smartypants` already encode the resolved precedence
-		// (`mdx({...})` > `unified({...})` > deprecated `markdown.*`), applied by `@astrojs/mdx`.
-		gfm: shared.gfm ?? true,
-		smartypants: shared.smartypants ?? true,
+		// `shared` carries the more specific `mdx({ gfm })`, so it outranks the processor's own.
+		gfm: shared.gfm ?? options.gfm ?? true,
+		smartypants: shared.smartypants ?? options.smartypants ?? true,
 		remarkPlugins: filterStringPlugins(options.remarkPlugins),
 		rehypePlugins: filterStringPlugins(options.rehypePlugins),
 		remarkRehype: options.remarkRehype,

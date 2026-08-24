@@ -112,16 +112,20 @@ export function createSatteriMdxProcessor(
 				};
 			}
 
+			const { gfm, smartPunctuation } = satteriOptions.features;
+
 			const mdxResult = await mdxToJs(content, {
 				mdastPlugins: allMdastPlugins,
 				hastPlugins,
 				optimizeStatic,
-				// The processor's own `features` win; the deprecated top-level `markdown.gfm` /
-				// `markdown.smartypants` act as fallback defaults, mirroring the `.md` pipeline.
+				// `shared` carries the more specific `mdx({ gfm })` and wins, but only over booleans.
 				features: {
-					gfm: (shared.gfm ?? true) !== false,
-					smartPunctuation: (shared.smartypants ?? true) !== false,
 					...satteriOptions.features,
+					gfm: typeof gfm === 'object' ? gfm : (shared.gfm ?? gfm ?? true) !== false,
+					smartPunctuation:
+						typeof smartPunctuation === 'object'
+							? smartPunctuation
+							: (shared.smartypants ?? smartPunctuation ?? true) !== false,
 				},
 				fileURL: pathToFileURL(filePath),
 				jsxImportSource: 'astro',

@@ -8,7 +8,7 @@ import {
 	type RemarkPlugins,
 	type RemarkRehype as RemarkRehypeOptions,
 } from '@astrojs/internal-helpers/markdown';
-import { satteri } from '@astrojs/markdown-satteri';
+import { isSatteriProcessor, satteri } from '@astrojs/markdown-satteri';
 import type {
 	AstroIntegration,
 	AstroIntegrationLogger,
@@ -43,9 +43,11 @@ export type MdxOptions = SharedMarkdownOptions & {
 	recmaPlugins: PluggableList;
 	optimize: boolean | OptimizeOptions;
 	/**
-	 * Override the markdown processor for `.mdx` files. Defaults to `config.markdown.processor`.
+	 * Override the markdown processor for `.mdx` files. Defaults to `config.markdown.processor`,
+	 * or to a clean `satteri()` processor when `extendMarkdownConfig` is `false`.
 	 * Use this to run `.mdx` files through a different processor (or the same processor with
-	 * different options) than your `.md` files.
+	 * different options) than your `.md` files. Takes precedence over the deprecated
+	 * `remarkPlugins`, `rehypePlugins`, `recmaPlugins` and `remarkRehype` options.
 	 */
 	processor?: MarkdownProcessor;
 	// Markdown allows strings as remark and rehype plugins.
@@ -144,35 +146,31 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 
 				const resolvedMdxOptions = applyDefaultOptions({
 					options: partialMdxOptions,
-					defaults: markdownConfigToMdxOptions(markdownConfig),
+					defaults: { ...markdownConfig, optimize: false },
 				});
 
-				// `extendMarkdownConfig: false` renders `.mdx` with a clean default processor
-				// (Sätteri) instead of inheriting the site's `markdown.processor`. An explicit
-				// `mdx({ processor })` always wins.
+				// `extendMarkdownConfig: false` means `.mdx` must not inherit `markdown.processor`.
 				let processor =
 					partialMdxOptions.processor ??
 					(extendMarkdownConfig ? config.markdown.processor : satteri());
 
-				// Deprecated `mdx({ remark/rehypePlugins, remarkRehype })` run on the `unified`
-				// processor. Wire them in by swapping to a `unified()` that carries them (per-key
-				// replacing, inheriting the rest when the active processor is already `unified`),
-				// mirroring how core folds `markdown.{remark,rehype}Plugins` into `unified()`.
-				const hasLegacyMdxPlugins =
-					(partialMdxOptions.remarkPlugins?.length ?? 0) > 0 ||
-					(partialMdxOptions.rehypePlugins?.length ?? 0) > 0 ||
-					(partialMdxOptions.recmaPlugins?.length ?? 0) > 0 ||
-					Object.keys(partialMdxOptions.remarkRehype ?? {}).length > 0;
-				if (hasLegacyMdxPlugins) {
+				// The deprecated plugin options only run on `unified`, so route `.mdx` through it.
+				if (!partialMdxOptions.processor && hasLegacyMdxPlugins(partialMdxOptions)) {
 					let unified: typeof import('@astrojs/markdown-remark').unified;
 					try {
 						({ unified } = await import('@astrojs/markdown-remark'));
 					} catch {
 						throw new Error(
-							'`remarkPlugins`, `rehypePlugins`, `remarkRehype`, and `recmaPlugins` on `mdx({...})` run on the `unified` processor from `@astrojs/markdown-remark`, which is not installed. Install it with:\n  npm install @astrojs/markdown-remark',
+							'`remarkPlugins`, `rehypePlugins`, `remarkRehype`, and `recmaPlugins` on `mdx({...})` run on the `unified` processor from `@astrojs/markdown-remark`, which could not be loaded. Add it to your project as a direct dependency (`npm install @astrojs/markdown-remark`) and reinstall, so `@astrojs/mdx` can resolve it as an optional peer dependency.',
 						);
 					}
 					const base = isUnifiedProcessor(processor) ? processor.options : undefined;
+					if (!base) {
+						logger.warn(
+							`\`.mdx\` files will be rendered by \`unified\` instead of your \`${processor.name}\` processor, because deprecated plugin options are set on \`mdx({...})\`. ` +
+								'Move them to `markdown.processor` to keep a single pipeline.',
+						);
+					}
 					processor = unified({
 						// MDX plugin lists are function-only; widen to the processor's plugin type.
 						remarkPlugins:
@@ -186,22 +184,17 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					});
 				}
 
-				if (extendMarkdownConfig && isUnifiedProcessor(processor)) {
-					// `gfm`/`smartypants` from `unified({...})` apply to `.mdx` too, unless
-					// `mdx({...})` set its own. The processor's remark/rehype plugins are read
-					// directly by its own `createMdxRenderer`, so no inheritance is needed here.
-					if (partialMdxOptions.gfm === undefined && processor.options.gfm !== undefined) {
-						resolvedMdxOptions.gfm = processor.options.gfm;
-					}
-					if (
-						partialMdxOptions.smartypants === undefined &&
-						processor.options.smartypants !== undefined
-					) {
-						resolvedMdxOptions.smartypants = processor.options.smartypants;
-					}
+				// Without this, the deprecated `markdown.*` would outrank the processor, unlike `.md`.
+				const processorFeatures = readProcessorFeatures(processor);
+				if (partialMdxOptions.gfm === undefined && processorFeatures.gfm !== undefined) {
+					resolvedMdxOptions.gfm = processorFeatures.gfm;
 				}
-				// Sätteri and other processors read their own options inside `createMdxRenderer`;
-				// only `unified` needs its `gfm`/`smartypants` lifted into the shared options above.
+				if (
+					partialMdxOptions.smartypants === undefined &&
+					processorFeatures.smartypants !== undefined
+				) {
+					resolvedMdxOptions.smartypants = processorFeatures.smartypants;
+				}
 
 				// Mutate `mdxOptions` so that `vitePluginMdx` can reference the actual options
 				Object.assign(vitePluginMdxOptions, {
@@ -221,6 +214,40 @@ const defaultMdxOptions = {
 	extendMarkdownConfig: true,
 } satisfies Partial<MdxOptions>;
 
+const LEGACY_PLUGIN_OPTIONS = [
+	'remarkPlugins',
+	'rehypePlugins',
+	'remarkRehype',
+	'recmaPlugins',
+] as const;
+
+function hasLegacyMdxPlugins(options: Partial<MdxOptions>): boolean {
+	return LEGACY_PLUGIN_OPTIONS.some((key) => {
+		const value = options[key];
+		return Array.isArray(value) ? value.length > 0 : Object.keys(value ?? {}).length > 0;
+	});
+}
+
+/**
+ * The processor's own equivalent of `gfm`/`smartypants`, when shape-compatible with the shared
+ * markdown options. Sätteri's object-form features have none, so they stay on the processor.
+ */
+function readProcessorFeatures(
+	processor: MarkdownProcessor,
+): Pick<AstroMarkdownOptions, 'gfm' | 'smartypants'> {
+	if (isUnifiedProcessor(processor)) {
+		return { gfm: processor.options.gfm, smartypants: processor.options.smartypants };
+	}
+	if (isSatteriProcessor(processor)) {
+		const { gfm, smartPunctuation } = processor.options.features;
+		return {
+			gfm: typeof gfm === 'boolean' ? gfm : undefined,
+			smartypants: typeof smartPunctuation === 'boolean' ? smartPunctuation : undefined,
+		};
+	}
+	return {};
+}
+
 let didWarnAboutDeprecatedMdxPluginOptions = false;
 
 function warnDeprecatedMdxPluginOptions(
@@ -228,9 +255,7 @@ function warnDeprecatedMdxPluginOptions(
 	logger: AstroIntegrationLogger,
 ): void {
 	if (didWarnAboutDeprecatedMdxPluginOptions) return;
-	const deprecated = (
-		['remarkPlugins', 'rehypePlugins', 'remarkRehype', 'recmaPlugins'] as const
-	).filter((key) => options[key] !== undefined);
+	const deprecated = LEGACY_PLUGIN_OPTIONS.filter((key) => options[key] !== undefined);
 	if (deprecated.length === 0) return;
 	didWarnAboutDeprecatedMdxPluginOptions = true;
 
@@ -242,17 +267,12 @@ function warnDeprecatedMdxPluginOptions(
 			`and set it as \`markdown.processor\` instead — MDX will inherit ${isPlural ? 'them' : 'it'}. ` +
 			'Will be removed in a future major.',
 	);
-}
-
-function markdownConfigToMdxOptions(markdownConfig: SharedMarkdownOptions): ResolvedMdxOptions {
-	return {
-		...markdownConfig,
-		// Deprecated `markdown.{gfm,smartypants}` may be unset (optional in the schema);
-		// fall back to the processor defaults so the MDX pipeline still enables them by default.
-		gfm: markdownConfig.gfm ?? markdownConfigDefaults.gfm,
-		smartypants: markdownConfig.smartypants ?? markdownConfigDefaults.smartypants,
-		optimize: false,
-	};
+	if (options.processor) {
+		logger.warn(
+			`${names} ${isPlural ? 'are' : 'is'} ignored because \`mdx({ processor })\` is set. ` +
+				`Configure ${isPlural ? 'them' : 'it'} on that processor instead.`,
+		);
+	}
 }
 
 function applyDefaultOptions({
