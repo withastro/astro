@@ -112,7 +112,7 @@ export interface MarkdownRenderResult {
  * Integrations extend the pipeline by mutating `processor.options.*` directly.
  */
 export interface MarkdownProcessor<TOptions extends object = object> {
-	/** Identifier for this processor. Used by integrations to look up built-in MDX support. */
+	/** Identifier for this processor, e.g. `'unified'`. Surfaced in errors and warnings. */
 	readonly name: string;
 	/** Processor-specific options. Always present; pass `{}` for processors that take no options. */
 	options: TOptions;

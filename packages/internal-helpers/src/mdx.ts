@@ -5,9 +5,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { slash } from './path.js';
 import type { AstroMetadata } from './markdown.js';
 
-// MDX helpers shared between `@astrojs/mdx` and the markdown processor packages
-// (`@astrojs/markdown-remark`, `@astrojs/markdown-satteri`). They live here so the
-// processor packages can own their MDX pipelines without depending on `astro`.
+// Helpers shared between `@astrojs/mdx`, the markdown processor packages and `astro`'s own island
+// resolution. They live here so the processor packages can own MDX without depending on `astro`.
 
 // Tag name we rewrite markdown-derived `<img>` elements to. Lowercase + hyphenated
 // so MDX routes the tag through the `_components` map.
