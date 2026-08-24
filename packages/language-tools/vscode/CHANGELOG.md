@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.16.19
+
+### Patch Changes
+
+- [#17791](https://github.com/withastro/astro/pull/17791) [`426eaa1`](https://github.com/withastro/astro/commit/426eaa17530f27f65a366e7f19a86279178bbc92) Thanks [@matthewp](https://github.com/matthewp)! - Fixes missing Vue template auto-import completions when the Astro extension loads first
+
 ## 2.16.18
 
 ### Patch Changes

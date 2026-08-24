@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 11.0.8
+
+### Patch Changes
+
+- [#17794](https://github.com/withastro/astro/pull/17794) [`dd29ce8`](https://github.com/withastro/astro/commit/dd29ce81f5b562f5d0dccdd96e28dade350c5e4c) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a bug where `@vercel/nft` file tracing silently dropped all dependency files when `outDir` was configured outside `root`, causing deployed functions to crash with `ERR_MODULE_NOT_FOUND`
+
 ## 11.0.7
 
 ### Patch Changes
