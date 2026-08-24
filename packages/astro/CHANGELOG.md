@@ -1,5 +1,11 @@
 # astro
 
+## 7.2.6
+
+### Patch Changes
+
+- [#17812](https://github.com/withastro/astro/pull/17812) [`29af6da`](https://github.com/withastro/astro/commit/29af6da5c11aff673133f96df029f40345674f0e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a bug where `new FetchState(request)` could fail in development when server dependencies were optimized
+
 ## 7.2.5
 
 ### Patch Changes
