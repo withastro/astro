@@ -6,7 +6,7 @@ import { type Fixture, loadFixture } from './test-utils.ts';
 
 // The Cloudflare prerenderer renders pages out of process in workerd, so the
 // image transforms a page resolves are collected in the worker and reported to
-// the build through the prerender envelope. This verifies a skipped page still
+// the build through the metadata endpoint. This verifies a skipped page still
 // emits its optimized images on a rebuild.
 describe('experimental.incrementalBuild optimized images (workerd)', () => {
 	const root = new URL('./fixtures/incremental-images/', import.meta.url);

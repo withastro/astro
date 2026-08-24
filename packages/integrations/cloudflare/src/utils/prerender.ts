@@ -21,7 +21,6 @@ import { StaticPaths } from 'astro:static-paths';
 import type {
 	StaticPathsResponse,
 	PrerenderRequest,
-	PrerenderEnvelope,
 	SerializedStaticImageEntry,
 	StaticImagesResponse,
 } from '../prerender-types.js';
@@ -35,21 +34,7 @@ import {
 	transform as transformWithImagesBinding,
 	transformStream as transformStreamWithImagesBinding,
 } from './image-binding-transform.js';
-
-/**
- * Encodes a buffered response body as base64 so it can travel inside the JSON
- * `PrerenderEnvelope`. Chunked to avoid overflowing the call stack when
- * spreading a large byte array into `String.fromCharCode`.
- */
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-	const bytes = new Uint8Array(buffer);
-	const CHUNK_SIZE = 0x8000;
-	let binary = '';
-	for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
-		binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK_SIZE));
-	}
-	return btoa(binary);
-}
+import { storePrerenderMetadata } from './prerender-metadata.js';
 
 /**
  * Replicates core's `BuildErrorHandler` semantics on the worker app during
@@ -135,29 +120,25 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 		// For incremental builds, `renderForPrerender` collects the content entries
 		// and image transforms resolved during this render — scoped to this
 		// request's async context, so concurrent prerender requests attribute
-		// correctly — and the metadata ships back to the build process by value in
-		// the envelope, to be recorded against the path and replayed when the path
-		// is skipped on a later build.
+		// correctly. Metadata is stored for a separate request so the rendered body
+		// can cross the process boundary as raw bytes.
 		const { response, metadata } = await renderForPrerender(app, prerenderRequest, {
 			routeData,
-			collectMetadata: body.collectMetadata,
+			collectMetadata: body.metadataId !== undefined,
 		});
-		if (body.collectMetadata) {
-			// Already buffered inside the render scope by `renderForPrerender`; this
-			// is a cheap copy, not a stream drain.
-			const bufferedBody = await response.arrayBuffer();
-			// `metadata` is `undefined` when no render scope could be installed
-			// (degraded collection): the path is then recorded as "not tracked",
-			// which must never collapse into "tracked, empty".
-			const envelope: PrerenderEnvelope = {
+		if (body.metadataId !== undefined) {
+			storePrerenderMetadata(body.metadataId, {
 				status: response.status,
 				statusText: response.statusText,
 				headers: [...response.headers.entries()],
-				body: arrayBufferToBase64(bufferedBody),
+				hasBody: response.body !== null,
 				metadata,
-			};
-			return new Response(JSON.stringify(envelope), {
-				headers: { 'Content-Type': 'application/json' },
+			});
+			return new Response(response.body, {
+				headers: {
+					'Cache-Control': 'no-store',
+					'Content-Type': 'application/octet-stream',
+				},
 			});
 		}
 		// Non-collecting branch: buffer here so streaming errors are still caught

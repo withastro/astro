@@ -22,6 +22,10 @@ import {
 	installPrerenderErrorPropagation,
 } from './prerender.js';
 import {
+	handlePrerenderMetadataRequest,
+	isPrerenderMetadataRequest,
+} from './prerender-metadata.js';
+import {
 	type Runtime,
 	injectSessionBinding,
 	matchStaticAsset,
@@ -72,6 +76,9 @@ export async function handle(
 			// itself is first-wins, making the per-request call idempotent.
 			await (await loadPrerenderScope?.())?.ensurePrerenderScope();
 			return handlePrerenderRequest(app, request) as unknown as CfResponse;
+		}
+		if (isPrerenderMetadataRequest(request)) {
+			return handlePrerenderMetadataRequest(request) as unknown as CfResponse;
 		}
 		if (isStaticImagesRequest(request)) {
 			return handleStaticImagesRequest() as unknown as CfResponse;

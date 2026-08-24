@@ -14,19 +14,21 @@ import { Readable } from 'node:stream';
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import { pipeline } from 'node:stream/promises';
 import { join, dirname } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import type {
 	StaticPathsResponse,
 	PrerenderRequest,
-	PrerenderEnvelope,
+	PrerenderMetadataResponse,
 	SerializedStaticImageEntry,
 	StaticImagesResponse,
 } from './prerender-types.js';
 import {
 	STATIC_PATHS_ENDPOINT,
 	PRERENDER_ENDPOINT,
+	PRERENDER_METADATA_ENDPOINT,
 	STATIC_IMAGES_ENDPOINT,
 	IMAGE_TRANSFORM_ENDPOINT,
 } from './utils/prerender-constants.js';
@@ -253,13 +255,13 @@ export function createCloudflarePrerenderer({
 		},
 
 		async render(request, { routeData, collectMetadata }) {
-			// Serialize routeData and send to workerd. `collectMetadata` is threaded
-			// through per call from the build orchestrator (true exactly when the
-			// incremental cache is active) and decides envelope-vs-raw on both sides.
+			// The metadata ID enables collection in workerd and correlates the
+			// follow-up request without wrapping the rendered body in JSON.
+			const metadataId = collectMetadata ? randomUUID() : undefined;
 			const body: PrerenderRequest = {
 				url: request.url,
 				routeData: serializeRouteData(routeData, trailingSlash),
-				collectMetadata,
+				metadataId,
 			};
 
 			const response = await fetch(`${serverUrl}${PRERENDER_ENDPOINT}`, {
@@ -278,20 +280,23 @@ export function createCloudflarePrerenderer({
 				throw new Error(`Failed to prerender ${request.url}: ${prerenderError}`);
 			}
 
-			// Metadata-collecting renders receive a `PrerenderEnvelope` wrapping the
-			// response alongside the metadata collected in workerd, since a raw
-			// response cannot carry it. Reconstruct the response and return it
-			// paired with the metadata for the build to record. `envelope.metadata`
-			// is `undefined` when the worker could not install a render scope
-			// (degraded collection): the path is recorded as "not tracked".
-			if (collectMetadata) {
-				const envelope: PrerenderEnvelope = await response.json();
-				const reconstructed = new Response(Buffer.from(envelope.body, 'base64'), {
-					status: envelope.status,
-					statusText: envelope.statusText,
-					headers: envelope.headers,
+			if (metadataId) {
+				const metadataUrl = new URL(PRERENDER_METADATA_ENDPOINT, serverUrl);
+				metadataUrl.searchParams.set('id', metadataId);
+				const metadataResponse = await fetch(metadataUrl);
+				if (!metadataResponse.ok) {
+					const details = await metadataResponse.text();
+					throw new Error(
+						`Failed to get prerender metadata from the Cloudflare prerender server (${metadataResponse.status}: ${metadataResponse.statusText}).${details ? `\n${details}` : ''}`,
+					);
+				}
+				const result: PrerenderMetadataResponse = await metadataResponse.json();
+				const reconstructed = new Response(result.hasBody ? response.body : null, {
+					status: result.status,
+					statusText: result.statusText,
+					headers: result.headers,
 				});
-				return { response: reconstructed, metadata: envelope.metadata };
+				return { response: reconstructed, metadata: result.metadata };
 			}
 
 			return response;

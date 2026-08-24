@@ -8,8 +8,8 @@ import { type Fixture, loadFixture } from './test-utils.ts';
 // so per-path incremental metadata is attributed inside the worker through an
 // AsyncLocalStorage-backed render scope (installed under the auto-appended
 // `nodejs_als` compatibility flag — this fixture configures no compat flags of
-// its own, so metadata arriving at all proves the flag reached workerd) and
-// ships back to the build by value in the prerender envelope.
+// its own, so metadata arriving at all proves the flag reached workerd). Each
+// rendered response crosses back as raw bytes, followed by a metadata request.
 describe('experimental.incrementalBuild with build.concurrency > 1 (workerd)', () => {
 	const root = new URL('./fixtures/incremental-concurrency/', import.meta.url);
 	const cacheFile = new URL('node_modules/.astro/incremental-build.json', root);
@@ -64,6 +64,17 @@ describe('experimental.incrementalBuild with build.concurrency > 1 (workerd)', (
 			[...hashesB].some((hash) => !hashesA.has(hash)),
 			'/pic/b should also record its non-shared transform',
 		);
+	});
+
+	it('preserves arbitrary non-2xx response bytes', () => {
+		assert.deepEqual(
+			fs.readFileSync(new URL('dist/client/status/not-found.bin', root)),
+			Buffer.from([0, 255, 128, 65]),
+		);
+	});
+
+	it('preserves null response bodies', () => {
+		assert.equal(fixture.pathExists('/client/empty/no-body.txt'), false);
 	});
 
 	describe('second build (no changes)', () => {

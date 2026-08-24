@@ -24,25 +24,17 @@ export interface PrerenderRequest {
 	url: string;
 	routeData: SerializedRouteData;
 	/**
-	 * When true, the worker collects incremental-build metadata during the render
-	 * and returns a `PrerenderEnvelope` instead of the raw response. Set per call
-	 * by the Node-side prerenderer from the `collectMetadata` flag the build
-	 * orchestrator passes to `AstroPrerenderer.render`.
+	 * Identifies metadata collected during this render. Its presence enables
+	 * collection; the Node-side prerenderer retrieves the result separately.
 	 */
-	collectMetadata?: boolean;
+	metadataId?: string;
 }
 
-/**
- * Response for a metadata-collecting prerender request. The raw response cannot
- * carry the render metadata on its own, so the body, status, and headers are
- * wrapped alongside the collected metadata.
- */
-export interface PrerenderEnvelope {
+export interface PrerenderMetadataResponse {
 	status: number;
 	statusText: string;
 	headers: [string, string][];
-	/** Base64-encoded response body. */
-	body: string;
+	hasBody: boolean;
 	/**
 	 * The metadata collected during the render, or `undefined` when no render
 	 * scope could be installed in the worker (degraded collection — the path is
