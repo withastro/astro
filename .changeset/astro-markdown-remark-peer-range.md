@@ -2,6 +2,6 @@
 'astro': patch
 ---
 
-If you have `@astrojs/markdown-remark` installed directly, it must now be 7.3.0 or later; it no longer has to match Astro's own version exactly.
+Fixes `@astrojs/markdown-remark` having to match Astro's own version exactly when installed directly. It now requires 7.3.0 or later.
 
-The `MdxRendererOptions` type exported from `astro/markdown` no longer includes `recmaPlugins`, and gains an optional `srcDir`. This only affects custom Markdown processors that implement `createMdxRenderer`.
+The `MdxRendererOptions` type from `astro/markdown` no longer includes `recmaPlugins` and gains an optional `srcDir`, which only affects custom Markdown processors implementing `createMdxRenderer`.
