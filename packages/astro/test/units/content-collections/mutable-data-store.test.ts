@@ -316,6 +316,41 @@ describe('MutableDataStore', () => {
 		assert.deepEqual(new Set(entry.assetImports), new Set(['./hero.png', './a.png', './icon.png']));
 	});
 
+	it('strips image prefixes from frozen data without mutating it (Zod .readonly() schemas, issue #17793)', () => {
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('blog');
+
+		// Zod's `.readonly()` applies `Object.freeze` to parsed data at runtime,
+		// so the store must not mutate the caller's object in place.
+		const data = Object.freeze({
+			title: 'Hello',
+			nested: Object.freeze({
+				hero: '__ASTRO_IMAGE_./hero.png',
+				gallery: Object.freeze(['__ASTRO_IMAGE_./a.png']),
+			}),
+		});
+
+		scoped.set({ id: 'frozen', data });
+
+		const entry = store.get('blog', 'frozen') as any;
+
+		// The stored (copied) data holds plain, serializable src strings — no prefixes.
+		assert.equal(entry.data.nested.hero, './hero.png');
+		assert.equal(entry.data.nested.gallery[0], './a.png');
+		assert.equal(entry.data.title, 'Hello');
+
+		// The original frozen object must be left untouched.
+		assert.equal(data.nested.hero, '__ASTRO_IMAGE_./hero.png');
+		assert.equal(data.nested.gallery[0], '__ASTRO_IMAGE_./a.png');
+
+		// The image field locations are recorded out-of-band.
+		assert.deepEqual(entry.imageImports, [
+			['nested', 'hero'],
+			['nested', 'gallery', 0],
+		]);
+		assert.deepEqual(new Set(entry.assetImports), new Set(['./hero.png', './a.png']));
+	});
+
 	it('does not set imageImports when the entry has no images', () => {
 		const store = new MutableDataStore();
 		const scoped = store.scopedStore('blog');
