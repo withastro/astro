@@ -40,7 +40,8 @@
   },
   "peerDependencies": {
     "@astrojs/markdown-remark": "workspace:^",
-    "astro": "^7.0.0"
+    "@astrojs/markdown-satteri": "^0.4.0",
+    "astro": "^7.2.5"
   },
   "peerDependenciesMeta": {
     "@astrojs/markdown-remark": {

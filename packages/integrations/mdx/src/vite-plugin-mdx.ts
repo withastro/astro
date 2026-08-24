@@ -91,19 +91,35 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 	};
 }
 
+// A stale copy resolves silently: `^0.3.x` / `^7.2.x` ranges never cross to these.
+const MDX_CAPABLE_RELEASES: Record<string, { pkg: string; range: string }> = {
+	satteri: { pkg: '@astrojs/markdown-satteri', range: '^0.4.0' },
+	unified: { pkg: '@astrojs/markdown-remark', range: '^7.3.0' },
+};
+
+function mdxUnsupportedMessage(name: string): string {
+	const known = MDX_CAPABLE_RELEASES[name];
+	if (known) {
+		return (
+			`\`${known.pkg}\` is too old to render \`.mdx\` files: \`@astrojs/mdx\` needs ${known.range}. ` +
+			`Update it in your own \`package.json\` — a \`^\` range on an older version will not pick it up:\n` +
+			`  npm install ${known.pkg}@${known.range}`
+		);
+	}
+	return (
+		`The markdown processor "${name}" does not provide MDX support. ` +
+		'Implement `createMdxRenderer` on the processor to enable MDX rendering.'
+	);
+}
+
 async function resolveMdxRenderer(
 	opts: VitePluginMdxOptions,
 	sourcemap: boolean,
 ): Promise<MdxRenderer> {
 	const { processor } = opts;
 
-	// The processor owns its MDX pipeline. The built-in `unified` / `satteri` processors and
-	// any third-party processor supply this; without it, the processor cannot render `.mdx`.
 	if (!processor.createMdxRenderer) {
-		throw new Error(
-			`The markdown processor "${processor.name}" does not provide MDX support. ` +
-				`Implement \`createMdxRenderer\` on the processor to enable MDX rendering.`,
-		);
+		throw new Error(mdxUnsupportedMessage(processor.name));
 	}
 
 	return processor.createMdxRenderer(
