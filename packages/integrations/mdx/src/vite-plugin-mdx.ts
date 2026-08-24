@@ -91,19 +91,19 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 	};
 }
 
-// A stale copy resolves silently: `^0.3.x` / `^7.2.x` ranges never cross to these.
-const MDX_CAPABLE_RELEASES: Record<string, { pkg: string; range: string }> = {
-	satteri: { pkg: '@astrojs/markdown-satteri', range: '^0.4.0' },
-	unified: { pkg: '@astrojs/markdown-remark', range: '^7.3.0' },
+// The package each built-in processor comes from, so the error can name what to update.
+const BUILT_IN_PROCESSOR_PACKAGES: Record<string, string> = {
+	satteri: '@astrojs/markdown-satteri',
+	unified: '@astrojs/markdown-remark',
 };
 
 function mdxUnsupportedMessage(name: string): string {
-	const known = MDX_CAPABLE_RELEASES[name];
-	if (known) {
+	const pkg = BUILT_IN_PROCESSOR_PACKAGES[name];
+	if (pkg) {
 		return (
-			`\`${known.pkg}\` is too old to render \`.mdx\` files: \`@astrojs/mdx\` needs ${known.range}. ` +
-			`Update it in your own \`package.json\` — a \`^\` range on an older version will not pick it up:\n` +
-			`  npm install ${known.pkg}@${known.range}`
+			`\`${pkg}\` is too old to render \`.mdx\` files. Update it to the latest version — ` +
+			`a \`^\` range on an older version will not pick it up:\n` +
+			`  npm install ${pkg}@latest`
 		);
 	}
 	return (
