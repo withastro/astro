@@ -36,10 +36,10 @@ export function filterStringPlugins(
 	let hasInvalidPlugin = false;
 	for (const plugin of plugins) {
 		if (typeof plugin === 'string') {
-			console.warn(`[MDX] ${plugin} not applied.`);
+			console.warn(`[@astrojs/mdx] \`${plugin}\` not applied.`);
 			hasInvalidPlugin = true;
 		} else if (Array.isArray(plugin) && typeof plugin[0] === 'string') {
-			console.warn(`[MDX] ${plugin[0]} not applied.`);
+			console.warn(`[@astrojs/mdx] \`${plugin[0]}\` not applied.`);
 			hasInvalidPlugin = true;
 		} else {
 			validPlugins.push(plugin as Pluggable);
@@ -47,7 +47,7 @@ export function filterStringPlugins(
 	}
 	if (hasInvalidPlugin) {
 		console.warn(
-			`[MDX] To inherit Markdown plugins in MDX, use explicit imports in your config instead of "strings." See https://docs.astro.build/en/guides/markdown-content/#markdown-plugins`,
+			`[@astrojs/mdx] To inherit Markdown plugins in MDX, use explicit imports in your config instead of "strings." See https://docs.astro.build/en/guides/markdown-content/#markdown-plugins`,
 		);
 	}
 	return validPlugins;
