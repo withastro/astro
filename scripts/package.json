@@ -8,6 +8,7 @@
     "astro-scripts": "./index.js"
   },
   "dependencies": {
+    "es-module-lexer": "^2.0.0",
     "esbuild": "^0.28.0",
     "jsonc-parser": "^3.3.1",
     "p-limit": "^7.3.0",

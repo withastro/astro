@@ -147,6 +147,9 @@ jobs:
       - name: Lint publish code
         run: pnpm run publint
 
+      - name: Check for undeclared dependencies
+        run: pnpm run check:undeclared-deps
+
       - name: Type-check files
         run: pnpm run typecheck
 

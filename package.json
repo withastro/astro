@@ -51,6 +51,7 @@
     "lint:fix": "biome lint --write --unsafe",
     "knip": "knip && knip --production",
     "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail exec publint",
+    "check:undeclared-deps": "node ./scripts/deps/check-undeclared.js",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format"
   },
   "workspaces": [

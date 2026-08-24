@@ -4567,6 +4567,9 @@ importers:
       piccolore:
         specifier: ^0.1.3
         version: 0.1.3
+      prismjs:
+        specifier: ^1.30.0
+        version: 1.30.0
       vite:
         specifier: ^8.0.13
         version: 8.2.1(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
@@ -4592,9 +4595,6 @@ importers:
       devalue:
         specifier: ^5.8.1
         version: 5.9.0
-      prismjs:
-        specifier: ^1.30.0
-        version: 1.30.0
       tinyglobby:
         specifier: ^0.2.15
         version: 0.2.17
@@ -5375,6 +5375,9 @@ importers:
       remark-smartypants:
         specifier: ^3.0.2
         version: 3.0.2
+      satteri:
+        specifier: ^0.10.3
+        version: 0.10.3
       source-map:
         specifier: ^0.7.6
         version: 0.7.6
@@ -5436,9 +5439,6 @@ importers:
       remark-toc:
         specifier: ^9.0.0
         version: 9.0.0
-      satteri:
-        specifier: ^0.10.3
-        version: 0.10.3
       shiki:
         specifier: ^4.0.2
         version: 4.0.2
@@ -7150,6 +7150,9 @@ importers:
 
   scripts:
     dependencies:
+      es-module-lexer:
+        specifier: ^2.0.0
+        version: 2.0.0
       esbuild:
         specifier: ^0.28.0
         version: 0.28.0
