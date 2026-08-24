@@ -386,7 +386,7 @@ export default new Map([\n${lines.join(',\n')}]);
 				}
 				const foundAssets = new Set<string>(assetImports);
 				const imageImports: (string | number)[][] = [];
-				const seenImageImportPaths = /* @__PURE__ */ new Set();
+				const seenImageImportPaths = new Set();
 				const recordImageImport = (imagePath: (string | number)[]) => {
 					const pathKey = JSON.stringify(imagePath);
 					if (seenImageImportPaths.has(pathKey)) {
