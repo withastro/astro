@@ -9,7 +9,7 @@ import { type Fixture, loadFixture } from './test-utils.ts';
 // AsyncLocalStorage-backed render scope (installed under the auto-appended
 // `nodejs_als` compatibility flag — this fixture configures no compat flags of
 // its own, so metadata arriving at all proves the flag reached workerd). Each
-// rendered response crosses back as raw bytes, followed by a metadata request.
+// framed response carries the metadata before the raw rendered bytes.
 describe('experimental.incrementalBuild with build.concurrency > 1 (workerd)', () => {
 	const root = new URL('./fixtures/incremental-concurrency/', import.meta.url);
 	const cacheFile = new URL('node_modules/.astro/incremental-build.json', root);

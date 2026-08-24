@@ -14,24 +14,22 @@ import { Readable } from 'node:stream';
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import { pipeline } from 'node:stream/promises';
 import { join, dirname } from 'node:path';
-import { randomUUID } from 'node:crypto';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import type {
 	StaticPathsResponse,
 	PrerenderRequest,
-	PrerenderMetadataResponse,
 	SerializedStaticImageEntry,
 	StaticImagesResponse,
 } from './prerender-types.js';
 import {
 	STATIC_PATHS_ENDPOINT,
 	PRERENDER_ENDPOINT,
-	PRERENDER_METADATA_ENDPOINT,
 	STATIC_IMAGES_ENDPOINT,
 	IMAGE_TRANSFORM_ENDPOINT,
 } from './utils/prerender-constants.js';
+import { readFramedPrerenderResponse } from './utils/prerender-response.js';
 
 /**
  * How many images to request from the prerender worker at once. Each response streams
@@ -255,13 +253,10 @@ export function createCloudflarePrerenderer({
 		},
 
 		async render(request, { routeData, collectMetadata }) {
-			// The metadata ID enables collection in workerd and correlates the
-			// follow-up request without wrapping the rendered body in JSON.
-			const metadataId = collectMetadata ? randomUUID() : undefined;
 			const body: PrerenderRequest = {
 				url: request.url,
 				routeData: serializeRouteData(routeData, trailingSlash),
-				metadataId,
+				collectMetadata,
 			};
 
 			const response = await fetch(`${serverUrl}${PRERENDER_ENDPOINT}`, {
@@ -280,23 +275,8 @@ export function createCloudflarePrerenderer({
 				throw new Error(`Failed to prerender ${request.url}: ${prerenderError}`);
 			}
 
-			if (metadataId) {
-				const metadataUrl = new URL(PRERENDER_METADATA_ENDPOINT, serverUrl);
-				metadataUrl.searchParams.set('id', metadataId);
-				const metadataResponse = await fetch(metadataUrl);
-				if (!metadataResponse.ok) {
-					const details = await metadataResponse.text();
-					throw new Error(
-						`Failed to get prerender metadata from the Cloudflare prerender server (${metadataResponse.status}: ${metadataResponse.statusText}).${details ? `\n${details}` : ''}`,
-					);
-				}
-				const result: PrerenderMetadataResponse = await metadataResponse.json();
-				const reconstructed = new Response(result.hasBody ? response.body : null, {
-					status: result.status,
-					statusText: result.statusText,
-					headers: result.headers,
-				});
-				return { response: reconstructed, metadata: result.metadata };
+			if (collectMetadata) {
+				return readFramedPrerenderResponse(response);
 			}
 
 			return response;

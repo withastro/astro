@@ -34,7 +34,7 @@ import {
 	transform as transformWithImagesBinding,
 	transformStream as transformStreamWithImagesBinding,
 } from './image-binding-transform.js';
-import { storePrerenderMetadata } from './prerender-metadata.js';
+import { createFramedPrerenderResponse } from './prerender-response.js';
 
 /**
  * Replicates core's `BuildErrorHandler` semantics on the worker app during
@@ -120,26 +120,14 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 		// For incremental builds, `renderForPrerender` collects the content entries
 		// and image transforms resolved during this render — scoped to this
 		// request's async context, so concurrent prerender requests attribute
-		// correctly. Metadata is stored for a separate request so the rendered body
-		// can cross the process boundary as raw bytes.
+		// correctly. A length-prefixed JSON header carries the metadata before the
+		// raw response bytes without requiring cross-request state.
 		const { response, metadata } = await renderForPrerender(app, prerenderRequest, {
 			routeData,
-			collectMetadata: body.metadataId !== undefined,
+			collectMetadata: body.collectMetadata,
 		});
-		if (body.metadataId !== undefined) {
-			storePrerenderMetadata(body.metadataId, {
-				status: response.status,
-				statusText: response.statusText,
-				headers: [...response.headers.entries()],
-				hasBody: response.body !== null,
-				metadata,
-			});
-			return new Response(response.body, {
-				headers: {
-					'Cache-Control': 'no-store',
-					'Content-Type': 'application/octet-stream',
-				},
-			});
+		if (body.collectMetadata) {
+			return createFramedPrerenderResponse(response, metadata);
 		}
 		// Non-collecting branch: buffer here so streaming errors are still caught
 		// before the HTTP layer commits a 200.

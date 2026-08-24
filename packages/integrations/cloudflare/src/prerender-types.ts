@@ -24,13 +24,13 @@ export interface PrerenderRequest {
 	url: string;
 	routeData: SerializedRouteData;
 	/**
-	 * Identifies metadata collected during this render. Its presence enables
-	 * collection; the Node-side prerenderer retrieves the result separately.
+	 * When true, the worker collects incremental-build metadata during the render
+	 * and includes it in the framed response.
 	 */
-	metadataId?: string;
+	collectMetadata?: boolean;
 }
 
-export interface PrerenderMetadataResponse {
+export interface PrerenderResponseMetadata {
 	status: number;
 	statusText: string;
 	headers: [string, string][];
