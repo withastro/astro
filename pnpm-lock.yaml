@@ -208,6 +208,9 @@ overrides:
   '@types/node@22': ^22.19.0
   modern-tar: '>=0.7.7'
 
+patchedDependencies:
+  '@volar/typescript@2.4.28': 08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad
+
 importers:
 
   .:
@@ -6811,7 +6814,7 @@ importers:
         version: 2.4.28
       '@volar/typescript':
         specifier: ~2.4.28
-        version: 2.4.28
+        version: 2.4.28(patch_hash=08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad)
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
@@ -6869,7 +6872,7 @@ importers:
         version: 2.4.28
       '@volar/typescript':
         specifier: ~2.4.28
-        version: 2.4.28
+        version: 2.4.28(patch_hash=08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad)
       semver:
         specifier: ^7.7.4
         version: 7.8.5
@@ -20083,7 +20086,7 @@ snapshots:
   '@volar/kit@2.4.28(typescript@6.0.3)':
     dependencies:
       '@volar/language-service': 2.4.28
-      '@volar/typescript': 2.4.28
+      '@volar/typescript': 2.4.28(patch_hash=08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad)
       typesafe-path: 0.2.2
       typescript: 6.0.3
       vscode-languageserver-textdocument: 1.0.12
@@ -20097,7 +20100,7 @@ snapshots:
     dependencies:
       '@volar/language-core': 2.4.28
       '@volar/language-service': 2.4.28
-      '@volar/typescript': 2.4.28
+      '@volar/typescript': 2.4.28(patch_hash=08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad)
       path-browserify: 1.0.1
       request-light: 0.7.0
       vscode-languageserver: 9.0.1
@@ -20121,7 +20124,7 @@ snapshots:
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.1.0
 
-  '@volar/typescript@2.4.28':
+  '@volar/typescript@2.4.28(patch_hash=08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad)':
     dependencies:
       '@volar/language-core': 2.4.28
       path-browserify: 1.0.1
