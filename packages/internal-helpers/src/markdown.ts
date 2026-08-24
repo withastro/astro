@@ -129,8 +129,12 @@ export interface MarkdownProcessor<TOptions extends object = object> {
 /** Cross-cutting MDX options passed to `createMdxRenderer` regardless of processor. */
 export interface MdxRendererOptions {
 	optimize: boolean | { ignoreElementNames?: string[] };
-	/** Astro's `srcDir`. Pipelines use it to default layout-less MDX pages to UTF-8. */
-	srcDir: URL;
+	/**
+	 * Astro's `srcDir`. Pipelines use it to default layout-less MDX pages to UTF-8.
+	 * Optional because `@astrojs/mdx` 7.0.x calls `createMdxRenderer` without it, so a
+	 * pipeline must still render when it is absent.
+	 */
+	srcDir?: URL;
 	/** Whether Vite has sourcemaps enabled; a pipeline may emit a source map when true. */
 	sourcemap?: boolean;
 }
