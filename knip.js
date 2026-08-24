@@ -126,6 +126,8 @@ export default {
 		'packages/integrations/mdx': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			project,
+			// Optional peer dep: dynamically imported for the deprecated remark/rehype options.
+			ignoreDependencies: ['@astrojs/markdown-remark'],
 		},
 		'packages/markdown/remark': {
 			entry: [srcEntry, dtsEntry, testEntry],

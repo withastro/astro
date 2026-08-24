@@ -39,7 +39,13 @@
     "es-module-lexer": "^2.0.0"
   },
   "peerDependencies": {
+    "@astrojs/markdown-remark": "workspace:^",
     "astro": "^7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@astrojs/markdown-remark": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@astrojs/markdown-remark": "workspace:*",
