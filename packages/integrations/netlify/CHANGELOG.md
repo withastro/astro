@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 8.2.4
+
+### Patch Changes
+
+- [#17752](https://github.com/withastro/astro/pull/17752) [`e362d4c`](https://github.com/withastro/astro/commit/e362d4cf540b27730482455c8fc02efe57d16702) Thanks [@matthewp](https://github.com/matthewp)! - Fixes generated Netlify Image CDN allowlists to reject remote URLs that contain an allowed image origin only within their path or query string
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 8.2.3
 
 ### Patch Changes
