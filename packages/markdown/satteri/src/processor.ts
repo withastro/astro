@@ -14,7 +14,7 @@ export interface SatteriFeatures extends Omit<Features, 'smartPunctuation'> {
 	 *
 	 * Default: `true` in Astro.
 	 */
-	smartPunctuation?: boolean;
+	smartPunctuation?: Features['smartPunctuation'];
 }
 
 export interface SatteriProcessorOptions {
