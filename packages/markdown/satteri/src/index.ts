@@ -9,6 +9,7 @@ export {
 	collectHastText as satteriCollectHastText,
 	type SatteriAstroData,
 	createSatteriMarkdownProcessor,
+	type SatteriFeatures,
 	type SatteriMarkdownProcessorOptions,
 } from './satteri-processor.js';
 export {

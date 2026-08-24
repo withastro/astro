@@ -50,6 +50,18 @@ describe('satteri markdown', () => {
 		assert.ok(code.includes('"hello"'));
 	});
 
+	it('applies smart punctuation by default through `satteri()`', async () => {
+		const renderer = await satteri().createRenderer({});
+		const { code } = await renderer.render('He said "hello"');
+		assert.match(code, /“hello”/);
+	});
+
+	it('disables smart punctuation when `satteri({ features: { smartPunctuation: false } })`', async () => {
+		const renderer = await satteri({ features: { smartPunctuation: false } }).createRenderer({});
+		const { code } = await renderer.render('He said "hello"');
+		assert.ok(code.includes('"hello"'));
+	});
+
 	it('collects local image paths into metadata', async () => {
 		const processor = await createSatteriMarkdownProcessor();
 		const { metadata } = await processor.render('![alt](./local.png)');

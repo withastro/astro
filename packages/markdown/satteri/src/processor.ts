@@ -1,17 +1,11 @@
 import type { MarkdownProcessor } from '@astrojs/internal-helpers/markdown';
-import type {
-	Features,
-	HastPluginEntry,
-	HastPluginList,
-	MdastPluginEntry,
-	MdastPluginList,
-} from 'satteri';
-import { createSatteriMarkdownProcessor } from './satteri-processor.js';
+import type { HastPluginEntry, HastPluginList, MdastPluginEntry, MdastPluginList } from 'satteri';
+import { createSatteriMarkdownProcessor, type SatteriFeatures } from './satteri-processor.js';
 
 export interface SatteriProcessorOptions {
 	mdastPlugins?: MdastPluginList;
 	hastPlugins?: HastPluginList;
-	features?: Features;
+	features?: SatteriFeatures;
 }
 
 /**
@@ -21,7 +15,7 @@ export interface SatteriProcessorOptions {
 export interface SatteriResolvedOptions {
 	mdastPlugins: MdastPluginEntry[];
 	hastPlugins: HastPluginEntry[];
-	features: Features;
+	features: SatteriFeatures;
 }
 
 /**

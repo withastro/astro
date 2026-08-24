@@ -214,10 +214,24 @@ export function createHighlightPlugin(
 	};
 }
 
+/** Sätteri's feature toggles, documented with the defaults Astro applies. */
+export interface SatteriFeatures extends Features {
+	/**
+	 * Smart punctuation à la SmartyPants. Default: `true` (Sätteri's own default is
+	 * `false`; Astro turns it on).
+	 *
+	 * Pass `false` to disable it, or an options object for granular control:
+	 * ```ts
+	 * smartPunctuation: { dashes: false } // quotes + ellipses only
+	 * ```
+	 */
+	smartPunctuation?: Features['smartPunctuation'];
+}
+
 export interface SatteriMarkdownProcessorOptions extends AstroMarkdownOptions {
 	mdastPlugins?: MdastPluginList;
 	hastPlugins?: HastPluginList;
-	features?: Features;
+	features?: SatteriFeatures;
 }
 
 /**
