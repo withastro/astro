@@ -50,6 +50,15 @@ describe('satteri markdown', () => {
 		assert.ok(code.includes('"hello"'));
 	});
 
+	it('accepts a granular options object for `smartPunctuation`', async () => {
+		const renderer = await satteri({
+			features: { smartPunctuation: { dashes: false } },
+		}).createRenderer({});
+		const { code } = await renderer.render('He said "hello" -- really');
+		assert.match(code, /“hello”/);
+		assert.ok(code.includes('--'));
+	});
+
 	it('collects local image paths into metadata', async () => {
 		const processor = await createSatteriMarkdownProcessor();
 		const { metadata } = await processor.render('![alt](./local.png)');
