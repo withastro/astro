@@ -46,8 +46,9 @@ export type MdxOptions = SharedMarkdownOptions & {
 	 * Override the markdown processor for `.mdx` files. Defaults to `config.markdown.processor`,
 	 * or to a clean `satteri()` processor when `extendMarkdownConfig` is `false`.
 	 * Use this to run `.mdx` files through a different processor (or the same processor with
-	 * different options) than your `.md` files. Takes precedence over the deprecated
-	 * `remarkPlugins`, `rehypePlugins`, `recmaPlugins` and `remarkRehype` options.
+	 * different options) than your `.md` files. It is never replaced: the deprecated
+	 * `remarkPlugins`, `rehypePlugins`, `recmaPlugins` and `remarkRehype` options apply only
+	 * when the processor is `unified`, and are ignored with a warning otherwise.
 	 */
 	processor?: MarkdownProcessor;
 	// Markdown allows strings as remark and rehype plugins.
@@ -150,38 +151,36 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				});
 
 				// `extendMarkdownConfig: false` means `.mdx` must not inherit `markdown.processor`.
-				let processor =
+				const configuredProcessor =
 					partialMdxOptions.processor ??
-					(extendMarkdownConfig ? config.markdown.processor : satteri());
+					(extendMarkdownConfig ? config.markdown.processor : undefined);
+				let processor = configuredProcessor ?? satteri();
 
-				// The deprecated plugin options only run on `unified`, so route `.mdx` through it.
-				if (!partialMdxOptions.processor && hasLegacyMdxPlugins(partialMdxOptions)) {
-					let unified: typeof import('@astrojs/markdown-remark').unified;
-					try {
-						({ unified } = await import('@astrojs/markdown-remark'));
-					} catch {
-						throw new Error(
-							'`remarkPlugins`, `rehypePlugins`, `remarkRehype`, and `recmaPlugins` on `mdx({...})` run on the `unified` processor from `@astrojs/markdown-remark`, which could not be loaded. Add it to your project as a direct dependency (`npm install @astrojs/markdown-remark`) and reinstall, so `@astrojs/mdx` can resolve it as an optional peer dependency.',
-						);
-					}
+				if (hasLegacyMdxPluginOptions(partialMdxOptions)) {
 					const base = isUnifiedProcessor(processor) ? processor.options : undefined;
-					if (!base) {
-						logger.warn(
-							`\`.mdx\` files will be rendered by \`unified\` instead of your \`${processor.name}\` processor, because deprecated plugin options are set on \`mdx({...})\`. ` +
-								'Move them to `markdown.processor` to keep a single pipeline.',
-						);
+					// Never replace a configured processor; a fallback default is ours to choose.
+					const mayUseUnified = base !== undefined || configuredProcessor === undefined;
+					const unified = mayUseUnified ? await importUnified() : undefined;
+					if (unified) {
+						processor = unified({
+							// MDX plugin lists are function-only; widen to the processor's plugin type.
+							remarkPlugins:
+								(partialMdxOptions.remarkPlugins as RemarkPlugins | undefined) ??
+								base?.remarkPlugins,
+							rehypePlugins:
+								(partialMdxOptions.rehypePlugins as RehypePlugins | undefined) ??
+								base?.rehypePlugins,
+							remarkRehype: partialMdxOptions.remarkRehype ?? base?.remarkRehype,
+							recmaPlugins: partialMdxOptions.recmaPlugins ?? base?.recmaPlugins,
+							gfm: base?.gfm,
+							smartypants: base?.smartypants,
+						});
+					} else {
+						warnLegacyMdxPluginOptionsIgnored(partialMdxOptions, processor, {
+							userConfigured: configuredProcessor !== undefined,
+							logger,
+						});
 					}
-					processor = unified({
-						// MDX plugin lists are function-only; widen to the processor's plugin type.
-						remarkPlugins:
-							(partialMdxOptions.remarkPlugins as RemarkPlugins | undefined) ?? base?.remarkPlugins,
-						rehypePlugins:
-							(partialMdxOptions.rehypePlugins as RehypePlugins | undefined) ?? base?.rehypePlugins,
-						remarkRehype: partialMdxOptions.remarkRehype ?? base?.remarkRehype,
-						recmaPlugins: partialMdxOptions.recmaPlugins ?? base?.recmaPlugins,
-						gfm: base?.gfm,
-						smartypants: base?.smartypants,
-					});
 				}
 
 				// Without this, the deprecated `markdown.*` would outrank the processor, unlike `.md`.
@@ -221,11 +220,37 @@ const LEGACY_PLUGIN_OPTIONS = [
 	'recmaPlugins',
 ] as const;
 
-function hasLegacyMdxPlugins(options: Partial<MdxOptions>): boolean {
-	return LEGACY_PLUGIN_OPTIONS.some((key) => {
-		const value = options[key];
-		return Array.isArray(value) ? value.length > 0 : Object.keys(value ?? {}).length > 0;
-	});
+// `mdx({ remarkPlugins: [] })` is a documented opt-out, so empty counts as set.
+function hasLegacyMdxPluginOptions(options: Partial<MdxOptions>): boolean {
+	return LEGACY_PLUGIN_OPTIONS.some((key) => options[key] !== undefined);
+}
+
+async function importUnified(): Promise<
+	typeof import('@astrojs/markdown-remark').unified | undefined
+> {
+	try {
+		return (await import('@astrojs/markdown-remark')).unified;
+	} catch {
+		return undefined;
+	}
+}
+
+function warnLegacyMdxPluginOptionsIgnored(
+	options: Partial<MdxOptions>,
+	processor: MarkdownProcessor,
+	{ userConfigured, logger }: { userConfigured: boolean; logger: AstroIntegrationLogger },
+): void {
+	const ignored = LEGACY_PLUGIN_OPTIONS.filter((key) => options[key] !== undefined);
+	const names = ignored.map((key) => `\`${key}\``).join(', ');
+	const isPlural = ignored.length > 1;
+	const whose = userConfigured
+		? `your \`${processor.name}\` processor`
+		: `the default \`${processor.name}\` processor used for \`.mdx\``;
+	logger.warn(
+		`${names} on \`mdx({...})\` ${isPlural ? 'are' : 'is'} ignored because ${whose} ` +
+			'does not run remark/rehype plugins. Set `markdown.processor: unified({...})` from ' +
+			'`@astrojs/markdown-remark` to apply them.',
+	);
 }
 
 /**
@@ -267,12 +292,6 @@ function warnDeprecatedMdxPluginOptions(
 			`and set it as \`markdown.processor\` instead — MDX will inherit ${isPlural ? 'them' : 'it'}. ` +
 			'Will be removed in a future major.',
 	);
-	if (options.processor) {
-		logger.warn(
-			`${names} ${isPlural ? 'are' : 'is'} ignored because \`mdx({ processor })\` is set. ` +
-				`Configure ${isPlural ? 'them' : 'it'} on that processor instead.`,
-		);
-	}
 }
 
 function applyDefaultOptions({
