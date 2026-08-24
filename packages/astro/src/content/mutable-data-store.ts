@@ -363,7 +363,17 @@ export default new Map([\n${lines.join(',\n')}]);
 			entries: () => this.entries(collectionName),
 			values: () => this.values(collectionName),
 			keys: () => this.keys(collectionName),
-			set: ({ id: key, data, body, filePath, deferredRender, digest, rendered, assetImports }) => {
+			set: ({
+				id: key,
+				data,
+				body,
+				filePath,
+				deferredRender,
+				digest,
+				rendered,
+				assetImports,
+				imageImports: incomingImageImports,
+			}) => {
 				if (!key) {
 					throw new Error(`ID must be a non-empty string`);
 				}
@@ -376,6 +386,18 @@ export default new Map([\n${lines.join(',\n')}]);
 				}
 				const foundAssets = new Set<string>(assetImports);
 				const imageImports: (string | number)[][] = [];
+				const seenImageImportPaths = /* @__PURE__ */ new Set();
+				const recordImageImport = (imagePath: (string | number)[]) => {
+					const pathKey = JSON.stringify(imagePath);
+					if (seenImageImportPaths.has(pathKey)) {
+						return;
+					}
+					seenImageImportPaths.add(pathKey);
+					imageImports.push(imagePath);
+				};
+				for (const existingImagePath of incomingImageImports ?? []) {
+					recordImageImport([...existingImagePath]);
+				}
 				// Image fields are prefixed during schema parsing. Record their locations and
 				// strip the prefix so the stored data holds a plain, devalue-serializable src
 				// string. The recorded paths let read-time resolution rewrite only these fields
@@ -384,7 +406,7 @@ export default new Map([\n${lines.join(',\n')}]);
 					if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 						const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 						foundAssets.add(src);
-						imageImports.push(ctx.path.map((segment) => segment as string | number));
+						recordImageImport(ctx.path.map((segment) => segment as string | number));
 						ctx.update(src);
 					}
 				});
