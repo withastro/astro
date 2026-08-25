@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.16.15
+
+### Patch Changes
+
+- [#17820](https://github.com/withastro/astro/pull/17820) [`89e5349`](https://github.com/withastro/astro/commit/89e53492d2358596afbb327ef8bb80a44cd59807) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `source.organizeImports` leaking generated Astro component exports into `.astro` files
+
 ## 2.16.14
 
 ### Patch Changes
