@@ -46,7 +46,7 @@ describe('production worker async_hooks scan', () => {
 
 	it('emits a production worker with zero occurrences of async_hooks', () => {
 		const serverDir = fileURLToPath(new URL('dist/server/', root));
-		const files = walk(serverDir).filter((file) => /\.(m?js|cjs)$/.test(file));
+		const files = walk(serverDir).filter((file) => /\.(?:m?js|cjs)$/.test(file));
 		assert.ok(files.length > 0, 'expected production worker JS output in dist/server/');
 		for (const file of files) {
 			const source = fs.readFileSync(file, 'utf-8');
