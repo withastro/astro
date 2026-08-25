@@ -3,4 +3,4 @@
 '@astrojs/cloudflare': patch
 ---
 
-Use the installed Cloudflare runtime's compatibility date when generating or defaulting `compatibility_date`
+Updates generated and default Cloudflare `compatibility_date` values to match the installed runtime and requires Wrangler `^4.125.0`
