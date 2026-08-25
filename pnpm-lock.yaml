@@ -208,6 +208,9 @@ overrides:
   '@types/node@22': ^22.19.0
   modern-tar: '>=0.7.7'
 
+patchedDependencies:
+  '@volar/typescript@2.4.28': 08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad
+
 importers:
 
   .:
@@ -390,7 +393,7 @@ importers:
         specifier: ^11.1.4
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
       hono:
         specifier: ^4.12.14
@@ -399,13 +402,13 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
 
   examples/blog:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^7.0.7
+        specifier: ^7.0.8
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
         specifier: ^4.0.19
@@ -414,7 +417,7 @@ importers:
         specifier: ^3.7.3
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
       sharp:
         specifier: ^0.35.0
@@ -423,7 +426,7 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
 
   examples/container-with-vitest:
@@ -432,7 +435,7 @@ importers:
         specifier: ^6.0.4
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -463,7 +466,7 @@ importers:
         specifier: ^3.15.8
         version: 3.15.8
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
 
   examples/framework-multiple:
@@ -490,7 +493,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -520,7 +523,7 @@ importers:
         specifier: ^2.8.1
         version: 2.8.2(preact@10.29.8)
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -538,7 +541,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -553,7 +556,7 @@ importers:
         specifier: ^7.0.2
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.11
@@ -565,7 +568,7 @@ importers:
         specifier: ^9.0.1
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -577,7 +580,7 @@ importers:
         specifier: ^7.0.2
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.29
@@ -589,25 +592,25 @@ importers:
         specifier: ^11.1.4
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
 
   examples/ssr:
@@ -619,7 +622,7 @@ importers:
         specifier: ^9.0.1
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -628,7 +631,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
       sass:
         specifier: ^1.97.3
@@ -643,7 +646,7 @@ importers:
         specifier: ^22.19.0
         version: 22.19.19
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -652,19 +655,19 @@ importers:
         specifier: ^2.0.8
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
 
   examples/with-mdx:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^7.0.7
+        specifier: ^7.0.8
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
         specifier: ^6.0.4
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -679,7 +682,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(nanostores@1.1.1)(preact@10.29.8)
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
       nanostores:
         specifier: ^1.1.1
@@ -691,7 +694,7 @@ importers:
   examples/with-tailwindcss:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^7.0.7
+        specifier: ^7.0.8
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.2.1
@@ -700,7 +703,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -715,7 +718,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^7.2.4
+        specifier: ^7.2.6
         version: link:../../packages/astro
       vitest:
         specifier: ^5.0.0-beta.2
@@ -6434,6 +6437,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/vercel/test/fixtures/outdir-outside-root/app:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: workspace:*
+        version: link:../../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../../astro
+
   packages/integrations/vercel/test/fixtures/prerendered-error-pages:
     dependencies:
       '@astrojs/vercel':
@@ -6811,7 +6823,7 @@ importers:
         version: 2.4.28
       '@volar/typescript':
         specifier: ~2.4.28
-        version: 2.4.28
+        version: 2.4.28(patch_hash=08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad)
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
@@ -6869,7 +6881,7 @@ importers:
         version: 2.4.28
       '@volar/typescript':
         specifier: ~2.4.28
-        version: 2.4.28
+        version: 2.4.28(patch_hash=08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad)
       semver:
         specifier: ^7.7.4
         version: 7.8.5
@@ -20083,7 +20095,7 @@ snapshots:
   '@volar/kit@2.4.28(typescript@6.0.3)':
     dependencies:
       '@volar/language-service': 2.4.28
-      '@volar/typescript': 2.4.28
+      '@volar/typescript': 2.4.28(patch_hash=08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad)
       typesafe-path: 0.2.2
       typescript: 6.0.3
       vscode-languageserver-textdocument: 1.0.12
@@ -20097,7 +20109,7 @@ snapshots:
     dependencies:
       '@volar/language-core': 2.4.28
       '@volar/language-service': 2.4.28
-      '@volar/typescript': 2.4.28
+      '@volar/typescript': 2.4.28(patch_hash=08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad)
       path-browserify: 1.0.1
       request-light: 0.7.0
       vscode-languageserver: 9.0.1
@@ -20121,7 +20133,7 @@ snapshots:
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.1.0
 
-  '@volar/typescript@2.4.28':
+  '@volar/typescript@2.4.28(patch_hash=08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad)':
     dependencies:
       '@volar/language-core': 2.4.28
       path-browserify: 1.0.1
