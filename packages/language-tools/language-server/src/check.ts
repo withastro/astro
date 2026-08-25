@@ -155,7 +155,7 @@ export class AstroCheck {
 			const extraFileExtensions = languagePlugins.flatMap(
 				(plugin) => plugin.typescript?.extraFileExtensions ?? [],
 			);
-			const extraFileNameResolvers: (() => string[])[] = [];
+			const allExtraFileNames: string[] = [];
 			this.linter = kit.createTypeScriptChecker(
 				languagePlugins,
 				services,
@@ -171,32 +171,31 @@ export class AstroCheck {
 						languageServiceHost,
 					);
 
-					const getExtraFileNames = this.includeExtraFileExtensionsFromReferences(
+					const extraFileNames = this.getExtraFileNamesFromReferences(
 						configFileName,
-						languageServiceHost,
 						extraFileExtensions,
 					);
-					if (getExtraFileNames) {
-						extraFileNameResolvers.push(getExtraFileNames);
+					if (extraFileNames.length > 0) {
+						allExtraFileNames.push(...extraFileNames);
+
+						const originalGetScriptFileNames =
+							languageServiceHost.getScriptFileNames.bind(languageServiceHost);
+						languageServiceHost.getScriptFileNames = () => [
+							...new Set([...originalGetScriptFileNames(), ...extraFileNames]),
+						];
 					}
 				},
 			);
 
 			// `getRootFileNames()` (used by `lint()` to enumerate the whole project when no
 			// explicit file list is given) reads project references' file lists from an
-			// internal host that `includeExtraFileExtensionsFromReferences` above cannot reach,
-			// so it needs its own, separate patch here.
-			if (extraFileNameResolvers.length > 0) {
+			// internal host that the per-project `languageServiceHost` patch above can't reach,
+			// so it needs its own, separate merge here.
+			if (allExtraFileNames.length > 0) {
 				const originalGetRootFileNames = this.linter.getRootFileNames.bind(this.linter);
-				this.linter.getRootFileNames = () => {
-					const fileNames = new Set(originalGetRootFileNames());
-					for (const getExtraFileNames of extraFileNameResolvers) {
-						for (const fileName of getExtraFileNames()) {
-							fileNames.add(fileName);
-						}
-					}
-					return [...fileNames];
-				};
+				this.linter.getRootFileNames = () => [
+					...new Set([...originalGetRootFileNames(), ...allExtraFileNames]),
+				];
 			}
 		} else {
 			this.linter = kit.createTypeScriptInferredChecker(
@@ -251,66 +250,29 @@ export class AstroCheck {
 	 * references it reuses TypeScript's own resolved `commandLine`, which never includes
 	 * extra extensions. That silently drops `.astro`/`.vue`/`.svelte` files that are only
 	 * reachable through a referenced tsconfig. `setup` is invoked once per project (the root
-	 * and each reference), so we can detect and fix this per-project from here, without
-	 * touching `@volar/kit` itself: re-parse this project's own tsconfig the same way the
-	 * root one already is, and merge any newly-found files into the language service host's
-	 * root file list.
-	 *
-	 * Returns a resolver that yields the extra file names found for this project, so callers
-	 * that can't reach `languageServiceHost` directly (e.g. `getRootFileNames()`) can still
-	 * pick them up.
+	 * and each reference), so this re-parses that project's own tsconfig the same way the
+	 * root one already is, and returns the extra file names found, for the caller to merge
+	 * into the language service host's root file list.
 	 */
-	private includeExtraFileExtensionsFromReferences(
+	private getExtraFileNamesFromReferences(
 		configFileName: string | undefined,
-		languageServiceHost: import('typescript').LanguageServiceHost,
 		extraFileExtensions: import('typescript').FileExtensionInfo[],
-	): (() => string[]) | undefined {
+	): string[] {
 		if (!configFileName || extraFileExtensions.length === 0) {
-			return undefined;
+			return [];
 		}
 
-		const originalGetScriptFileNames =
-			languageServiceHost.getScriptFileNames.bind(languageServiceHost);
+		const commandLine = this.ts.parseJsonSourceFileConfigFileContent(
+			this.ts.readJsonConfigFile(configFileName, this.ts.sys.readFile),
+			this.ts.sys,
+			dirname(configFileName),
+			undefined,
+			configFileName,
+			undefined,
+			extraFileExtensions,
+		);
 
-		// The underlying host already re-syncs `originalGetScriptFileNames()` cheaply from
-		// its own project-version tracking, but re-parsing the tsconfig from disk on every
-		// call would be wasteful. Only redo that work when the underlying file list actually
-		// changes (e.g. a file is added or removed).
-		let lastOriginalFileNames: string[] | undefined;
-		let extraFileNames: string[] = [];
-
-		const resolveExtraFileNames = () => {
-			const originalFileNames = originalGetScriptFileNames();
-
-			if (
-				!lastOriginalFileNames ||
-				originalFileNames.length !== lastOriginalFileNames.length ||
-				originalFileNames.some((fileName, i) => fileName !== lastOriginalFileNames?.[i])
-			) {
-				lastOriginalFileNames = originalFileNames;
-
-				const commandLine = this.ts.parseJsonSourceFileConfigFileContent(
-					this.ts.readJsonConfigFile(configFileName, this.ts.sys.readFile),
-					this.ts.sys,
-					dirname(configFileName),
-					undefined,
-					configFileName,
-					undefined,
-					extraFileExtensions,
-				);
-
-				extraFileNames = commandLine.fileNames;
-			}
-
-			return { originalFileNames, extraFileNames };
-		};
-
-		languageServiceHost.getScriptFileNames = () => {
-			const resolved = resolveExtraFileNames();
-			return [...new Set([...resolved.originalFileNames, ...resolved.extraFileNames])];
-		};
-
-		return () => resolveExtraFileNames().extraFileNames;
+		return commandLine.fileNames;
 	}
 
 	private getTsconfig() {
