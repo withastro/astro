@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { afterEach, describe, it, mock } from 'node:test';
+import { afterEach, describe, it } from 'node:test';
 import { collectPrerenderMetadata } from '../../../dist/core/render-scope/collect.js';
 import { uninstallRenderScope } from '../../../dist/core/render-scope/scope.js';
 import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
@@ -8,6 +8,7 @@ import {
 	recordStaticImage,
 } from '../../../dist/core/render-scope/record.js';
 import type { SerializedStaticImage } from '../../../dist/assets/types.js';
+import { defaultLogger, SpyLogger } from '../test-utils.ts';
 
 function image(hash: string): SerializedStaticImage {
 	return {
@@ -28,29 +29,26 @@ describe('collectPrerenderMetadata', () => {
 		// Unit tests share one process; import a fresh module instance so the
 		// warn-once latch is deterministically unset for this test.
 		const freshSpecifier = '../../../dist/core/render-scope/collect.js?warn-once';
-		const { collectPrerenderMetadata: collect } = (await import(freshSpecifier)) as typeof import(
-			'../../../dist/core/render-scope/collect.js'
-		);
-		const warn = mock.method(console, 'warn', () => {});
-		try {
-			const first = await collect(async () => 'first');
-			assert.equal(first.value, 'first');
-			assert.equal(first.metadata, undefined);
-			assert.equal(warn.mock.callCount(), 1);
-			assert.match(String(warn.mock.calls[0].arguments[0]), /no render scope is installed/);
+		const { collectPrerenderMetadata: collect } = (await import(
+			freshSpecifier
+		)) as typeof import('../../../dist/core/render-scope/collect.js');
+		const logger = new SpyLogger();
+		const first = await collect(async () => 'first', logger);
+		assert.equal(first.value, 'first');
+		assert.equal(first.metadata, undefined);
+		assert.equal(logger.logs.length, 1);
+		assert.equal(logger.logs[0].label, 'build');
+		assert.match(logger.logs[0].message, /no render scope is installed/);
 
-			const second = await collect(async () => 'second');
-			assert.equal(second.value, 'second');
-			assert.equal(second.metadata, undefined);
-			assert.equal(warn.mock.callCount(), 1);
-		} finally {
-			warn.mock.restore();
-		}
+		const second = await collect(async () => 'second', logger);
+		assert.equal(second.value, 'second');
+		assert.equal(second.metadata, undefined);
+		assert.equal(logger.logs.length, 1);
 	});
 
 	it('an empty collecting run yields empty arrays, never undefined', async () => {
 		ensureAsyncRenderScope();
-		const { value, metadata } = await collectPrerenderMetadata(async () => 42);
+		const { value, metadata } = await collectPrerenderMetadata(async () => 42, defaultLogger);
 		assert.equal(value, 42);
 		assert.deepEqual(metadata, { contentEntryKeys: [], staticImages: [] });
 	});
@@ -72,7 +70,7 @@ describe('collectPrerenderMetadata', () => {
 					recordContentEntryRender('entry-shared');
 					recordStaticImage(image('img-shared'));
 					return i;
-				}),
+				}, defaultLogger),
 			),
 		);
 		for (const { value: i, metadata } of results) {
@@ -99,7 +97,7 @@ describe('collectPrerenderMetadata', () => {
 				recordContentEntryRender('late');
 				recordStaticImage(image('late'));
 			});
-		});
+		}, defaultLogger);
 		releaseLateRecord();
 		await lateRecordDone;
 		assert.deepEqual(metadata?.contentEntryKeys, ['on-time']);
@@ -115,12 +113,12 @@ describe('collectPrerenderMetadata', () => {
 			collectPrerenderMetadata(async () => {
 				recordContentEntryRender('doomed');
 				throw new Error('render failed');
-			}),
+			}, defaultLogger),
 			/render failed/,
 		);
 		const { metadata } = await collectPrerenderMetadata(async () => {
 			recordContentEntryRender('clean');
-		});
+		}, defaultLogger);
 		assert.deepEqual(metadata?.contentEntryKeys, ['clean']);
 	});
 });

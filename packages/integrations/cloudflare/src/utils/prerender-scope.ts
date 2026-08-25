@@ -1,4 +1,4 @@
-import { installRenderScope } from 'astro/app';
+import { installRenderScope, type BaseApp } from 'astro/app';
 
 /**
  * Installs the AsyncLocalStorage-backed render scope for the workerd prerender
@@ -20,15 +20,16 @@ import { installRenderScope } from 'astro/app';
 
 let warned = false;
 
-export async function ensurePrerenderScope(): Promise<void> {
+export async function ensurePrerenderScope(logger: BaseApp['logger']): Promise<void> {
 	try {
 		const { AsyncLocalStorage } = await import('node:async_hooks');
 		installRenderScope(new AsyncLocalStorage());
 	} catch {
 		if (!warned) {
 			warned = true;
-			console.warn(
-				'[astro] AsyncLocalStorage is unavailable in this worker; incremental metadata will not be collected for prerendered paths. Enable the nodejs_als or nodejs_compat compatibility flag.',
+			logger.warn(
+				'build',
+				'AsyncLocalStorage is unavailable in this worker; incremental metadata will not be collected for prerendered paths. Enable the nodejs_als or nodejs_compat compatibility flag.',
 			);
 		}
 	}

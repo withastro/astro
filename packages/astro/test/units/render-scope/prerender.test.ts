@@ -11,6 +11,7 @@ import {
 	recordStaticImage,
 } from '../../../dist/core/render-scope/record.js';
 import type { SerializedStaticImage } from '../../../dist/assets/types.js';
+import { defaultLogger } from '../test-utils.ts';
 
 function image(hash: string): SerializedStaticImage {
 	return {
@@ -23,7 +24,7 @@ function image(hash: string): SerializedStaticImage {
 }
 
 function appOf(render: PrerenderableApp['render']): PrerenderableApp {
-	return { render };
+	return { logger: defaultLogger, render };
 }
 
 const request = () => new Request('https://example.com/page/');

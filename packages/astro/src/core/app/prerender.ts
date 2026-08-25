@@ -1,9 +1,10 @@
 import type { PrerenderResult } from '../../types/public/integrations.js';
 import type { RouteData } from '../../types/public/internal.js';
+import type { AstroLogger } from '../logger/core.js';
 import { collectPrerenderMetadata } from '../render-scope/collect.js';
 
-/** Structural app type: anything with a `render(request, { routeData })` method. */
 export interface PrerenderableApp {
+	logger: AstroLogger;
 	render(request: Request, opts: { routeData?: RouteData }): Promise<Response>;
 }
 
@@ -51,6 +52,6 @@ export async function renderForPrerender(
 			statusText: rendered.statusText,
 			headers: rendered.headers,
 		});
-	});
+	}, app.logger);
 	return { response, metadata };
 }

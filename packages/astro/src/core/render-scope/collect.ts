@@ -1,4 +1,5 @@
 import type { SerializedStaticImage } from '../../assets/types.js';
+import type { AstroLogger } from '../logger/core.js';
 import { getInstalledRenderScope, type RenderCollectors } from './scope.js';
 
 export interface CollectedPrerenderMetadata {
@@ -24,13 +25,15 @@ let warnedNoScope = false;
  */
 export async function collectPrerenderMetadata<T>(
 	fn: () => Promise<T>,
+	logger: AstroLogger,
 ): Promise<{ value: T; metadata: CollectedPrerenderMetadata | undefined }> {
 	const scope = getInstalledRenderScope();
 	if (!scope) {
 		if (!warnedNoScope) {
 			warnedNoScope = true;
-			console.warn(
-				'[astro] A prerenderer requested metadata collection but no render scope is installed; ' +
+			logger.warn(
+				'build',
+				'A prerenderer requested metadata collection but no render scope is installed; ' +
 					'install one with `installRenderScope` from `astro/app` — incremental metadata will ' +
 					'not be collected for prerendered paths.',
 			);
