@@ -38,7 +38,7 @@ function normalizePath(id: string) {
 	return path.posix.normalize(isWindows ? slash(id) : id);
 }
 
-export function resolveJsToTs(filePath: string) {
+function resolveJsToTs(filePath: string) {
 	if (filePath.endsWith('.jsx') && !existsSync(filePath)) {
 		const tryPath = filePath.slice(0, -4) + '.tsx';
 		if (existsSync(tryPath)) {
@@ -60,7 +60,7 @@ const VITE_DEFAULT_RESOLVE_EXTENSIONS = ['.mjs', '.js', '.mts', '.ts', '.jsx', '
  * `index` files. Returns the path unchanged when it already exists as a file
  * or when no candidate is found.
  */
-export function resolveExtensionlessPath(filePath: string): string {
+function resolveExtensionlessPath(filePath: string): string {
 	const stat = statSync(filePath, { throwIfNoEntry: false });
 	if (stat?.isFile()) {
 		return filePath;
