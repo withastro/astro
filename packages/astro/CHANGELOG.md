@@ -1,5 +1,19 @@
 # astro
 
+## 7.2.7
+
+### Patch Changes
+
+- [#17415](https://github.com/withastro/astro/pull/17415) [`55d38c8`](https://github.com/withastro/astro/commit/55d38c868b7cbf2266649929c60ddf442abe674f) Thanks [@iseraph-dev](https://github.com/iseraph-dev)! - Deserializes each route once when loading the SSR manifest
+
+- [#17772](https://github.com/withastro/astro/pull/17772) [`023b48b`](https://github.com/withastro/astro/commit/023b48b139a2c40420b340f61b53a62b47a557e5) Thanks [@matthewp](https://github.com/matthewp)! - Fixes route selection for normalized request paths in adapter and development request handling
+
+- [#17819](https://github.com/withastro/astro/pull/17819) [`633855b`](https://github.com/withastro/astro/commit/633855b0cabd55cc7b913eb556a739a6a2d93dd2) Thanks [@matthewp](https://github.com/matthewp)! - Updates generated and default Cloudflare `compatibility_date` values to match the installed runtime and requires Wrangler `^4.125.0`
+
+- [#17813](https://github.com/withastro/astro/pull/17813) [`ae26d18`](https://github.com/withastro/astro/commit/ae26d18c71515c47ecbd7e1ffe5c5dfc29fbd613) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `rewrite()` and `next(payload)` for GET and HEAD requests with host-provided bodies
+
+- [#17816](https://github.com/withastro/astro/pull/17816) [`a0d2fe3`](https://github.com/withastro/astro/commit/a0d2fe3af25a25bc9b808070f25886c37d5be6fc) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the experimental `svgOptimizer` not generating unique per-file ID prefixes when using SVGO's `prefixIds` plugin
+
 ## 7.2.6
 
 ### Patch Changes
