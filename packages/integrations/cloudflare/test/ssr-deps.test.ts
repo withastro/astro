@@ -48,7 +48,7 @@ describe('SSR dependencies', () => {
 
 	it('should not fail the dep scan when .ts files import .astro components', async () => {
 		// When a .ts file imports a .astro component with a default import
-		// (e.g. `import Duration from './Duration.astro'`), the esbuild scan plugin
+		// (e.g. `import Duration from './Duration.astro'`), the frontmatter scanner
 		// must provide a default export so the scan doesn't fail with
 		// "No matching export for import 'default'".
 		const scanFailedLog = viteMessages.find((msg) =>

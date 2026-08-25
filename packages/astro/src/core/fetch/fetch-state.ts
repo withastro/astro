@@ -1,9 +1,8 @@
 import colors from 'piccolore';
 import {
-	collapseDuplicateLeadingSlashes,
 	collapseDuplicateSlashes,
 	prependForwardSlash,
-	removeTrailingForwardSlash,
+	stripRequestBase,
 } from '@astrojs/internal-helpers/path';
 import { deserializeActionResult } from '../../actions/runtime/client.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../../actions/utils.js';
@@ -35,6 +34,7 @@ import { getParams, getProps } from '../render/index.js';
 import { executeRewrite } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
 import { MultiLevelEncodingError, validateAndDecodePathname } from '../util/pathname.js';
+import { setPathname } from '../util/normalized-url.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
 import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
@@ -343,8 +343,8 @@ export class FetchState implements AstroFetchState {
 		const url = new URL(request.url);
 		const publicPathname = this.#normalizePathname(url.pathname);
 		const pathname = this.#computePathname(publicPathname);
-		url.pathname = publicPathname;
-		url.pathname = collapseDuplicateSlashes(url.pathname);
+		setPathname(url, publicPathname);
+		setPathname(url, collapseDuplicateSlashes(url.pathname));
 		// For domain-based i18n routing, the locale prefix is derived from the
 		// request's Host header rather than its URL. When a locale is detected,
 		// the resulting pathname includes the prefix (e.g. /en/boats/1/foo) that
@@ -970,6 +970,16 @@ export class FetchState implements AstroFetchState {
 			!routeHasHtmlExtension(this.routeData)
 		) {
 			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+			// Route patterns are compiled with the configured trailing slash, so a
+			// pathname left without one after stripping `.html` no longer matches its
+			// own route and yields no params.
+			if (
+				this.manifest.trailingSlash === 'always' &&
+				this.pathname !== '' &&
+				!this.pathname.endsWith('/')
+			) {
+				this.pathname += '/';
+			}
 		}
 	}
 
@@ -1044,18 +1054,12 @@ export class FetchState implements AstroFetchState {
 	 * Strips the manifest's base from a normalized request pathname and prepends
 	 * a forward slash.
 	 *
-	 * Mirrors `BaseApp.removeBase`, including the
-	 * `collapseDuplicateLeadingSlashes` fix that prevents middleware
-	 * authorization bypass when the URL starts with `//`.
+	 * Mirrors `BaseApp.removeBase`: the router matches against this stripped path
+	 * while middleware reads the un-stripped `context.url.pathname`, so both must
+	 * strip the base identically.
 	 */
 	#computePathname(normalizedPathname: string): string {
-		let pathname = collapseDuplicateLeadingSlashes(normalizedPathname);
-		const base = this.manifest.base;
-		if (pathname.startsWith(base)) {
-			const baseWithoutTrailingSlash = removeTrailingForwardSlash(base);
-			pathname = pathname.slice(baseWithoutTrailingSlash.length + 1);
-		}
-		return prependForwardSlash(pathname);
+		return prependForwardSlash(stripRequestBase(normalizedPathname, this.manifest.base));
 	}
 
 	/**

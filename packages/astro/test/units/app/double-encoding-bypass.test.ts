@@ -26,6 +26,11 @@ const apiCatchAllRouteData = parseRoute('api/[...path].ts', routeOptions, {
 	type: 'endpoint',
 });
 
+const adminRouteData = parseRoute('api/admin/users.ts', routeOptions, {
+	component: 'src/pages/api/admin/users.ts',
+	type: 'endpoint',
+});
+
 const publicRouteData = parseRoute('index.astro', routeOptions, {
 	component: 'src/pages/index.astro',
 });
@@ -47,6 +52,14 @@ const pageMap = new Map<string, any>([
 						}),
 						{ headers: { 'Content-Type': 'application/json' } },
 					),
+			}),
+		}),
+	],
+	[
+		adminRouteData.component,
+		async () => ({
+			page: async () => ({
+				GET: async () => new Response('admin'),
 			}),
 		}),
 	],
@@ -98,10 +111,20 @@ function createRewriteAuthMiddleware() {
 	})) as () => Promise<{ onRequest: MiddlewareHandler }>;
 }
 
+function createPassthroughMiddleware() {
+	return (async () => ({
+		onRequest: (async (_context, next) => next()) satisfies MiddlewareHandler,
+	})) as () => Promise<{ onRequest: MiddlewareHandler }>;
+}
+
 function createApp(middleware: ReturnType<typeof createAuthMiddleware>) {
 	return new App(
 		createManifest({
-			routes: [createRouteInfo(apiCatchAllRouteData), createRouteInfo(publicRouteData)],
+			routes: [
+				createRouteInfo(adminRouteData),
+				createRouteInfo(apiCatchAllRouteData),
+				createRouteInfo(publicRouteData),
+			],
 			pageMap: pageMap as any,
 			middleware: middleware as any,
 		}) as any,
@@ -109,6 +132,18 @@ function createApp(middleware: ReturnType<typeof createAuthMiddleware>) {
 }
 
 describe('URL normalization: double-encoding middleware bypass', () => {
+	it('normalizes the request pathname before adapter route matching', async () => {
+		const app = createApp(createPassthroughMiddleware());
+		const request = new Request('http://example.com/api/%2561dmin/users');
+		const routeData = app.match(request);
+
+		assert.equal(app.getPathnameFromRequest(request), '/api/admin/users');
+		assert.equal(routeData?.route, '/api/admin/users');
+		const response = await app.render(request, { routeData });
+		assert.equal(response.status, 200);
+		assert.equal(await response.text(), 'admin');
+	});
+
 	it('middleware blocks /api/admin/users', async () => {
 		const app = createApp(createAuthMiddleware());
 		const request = new Request('http://example.com/api/admin/users');

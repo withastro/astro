@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import ts from 'typescript';
 import { astro2tsx } from '../../src/astro2tsx.js';
-import { addAstroTypes } from '../../src/astro-types.js';
+import { addAstroTypes, isAstroProject } from '../../src/astro-types.js';
 
 function createFixture() {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-ts-plugin-'));
@@ -110,6 +110,66 @@ function findToUpperReferenceFiles(injectAstroTypes: boolean) {
 		fs.rmSync(fixture.root, { recursive: true, force: true });
 	}
 }
+
+function createHoistedMonorepo() {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-ts-plugin-monorepo-'));
+	const astroPackage = path.join(root, 'node_modules', 'astro');
+	const docs = path.join(root, 'apps', 'docs');
+	const frontend = path.join(root, 'apps', 'frontend');
+	const standalone = path.join(root, 'apps', 'standalone');
+
+	fs.mkdirSync(astroPackage, { recursive: true });
+	fs.mkdirSync(docs, { recursive: true });
+	fs.mkdirSync(frontend, { recursive: true });
+	fs.mkdirSync(standalone, { recursive: true });
+
+	fs.writeFileSync(path.join(astroPackage, 'package.json'), '{"name":"astro","version":"6.0.0"}');
+	fs.writeFileSync(path.join(root, 'package.json'), '{"name":"monorepo","private":true}');
+	fs.writeFileSync(
+		path.join(docs, 'package.json'),
+		'{"name":"docs","dependencies":{"astro":"^6.0.0"}}',
+	);
+	fs.writeFileSync(
+		path.join(frontend, 'package.json'),
+		'{"name":"frontend","dependencies":{"react":"^19.0.0"}}',
+	);
+	fs.writeFileSync(path.join(standalone, 'package.json'), '{"name":"standalone"}');
+	fs.writeFileSync(path.join(standalone, 'astro.config.mjs'), 'export default {};\n');
+
+	return { root, docs, frontend, standalone };
+}
+
+suite('Astro project detection', () => {
+	test('skips a project that only reaches Astro through a hoisted node_modules', () => {
+		const monorepo = createHoistedMonorepo();
+
+		try {
+			assert.strictEqual(isAstroProject(ts, monorepo.frontend), false);
+		} finally {
+			fs.rmSync(monorepo.root, { recursive: true, force: true });
+		}
+	});
+
+	test('detects a project that depends on Astro', () => {
+		const monorepo = createHoistedMonorepo();
+
+		try {
+			assert.strictEqual(isAstroProject(ts, monorepo.docs), true);
+		} finally {
+			fs.rmSync(monorepo.root, { recursive: true, force: true });
+		}
+	});
+
+	test('detects a project with an Astro config but no Astro dependency', () => {
+		const monorepo = createHoistedMonorepo();
+
+		try {
+			assert.strictEqual(isAstroProject(ts, monorepo.standalone), true);
+		} finally {
+			fs.rmSync(monorepo.root, { recursive: true, force: true });
+		}
+	});
+});
 
 suite('Astro type injection', () => {
 	test('reproduces the missing Astro.locals reference without Astro types', () => {

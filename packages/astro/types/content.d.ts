@@ -10,11 +10,11 @@ declare module 'astro:content' {
 	} from 'astro/content/config';
 	export { defineLiveCollection, defineCollection } from 'astro/content/config';
 
-	// TODO: remove in Astro 7
+	// TODO: remove in Astro 8
 	/**
 	 * @deprecated
 	 * `import { z } from 'astro:content'` is deprecated and will be removed
-	 * in Astro 7. Use `import { z } from 'astro/zod'` instead.
+	 * in Astro 8. Use `import { z } from 'astro/zod'` instead.
 	 */
 	export const z = zod.z;
 
