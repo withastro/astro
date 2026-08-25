@@ -1,3 +1,4 @@
+import { createUnifiedMdxProcessor } from '#mdx-processor';
 import type {
 	MarkdownProcessor,
 	PluggableList,
@@ -75,9 +76,6 @@ export function unified(
 			});
 		},
 		async createMdxRenderer(shared, mdx) {
-			// Lazy import via `#mdx-processor` so the Node-only MDX/JSX stack isn't pulled into
-			// `.md`-only projects or browser/edge bundles (the browser condition stubs it out).
-			const { createUnifiedMdxProcessor } = await import('#mdx-processor');
 			return createUnifiedMdxProcessor(shared, mdx, processor.options);
 		},
 	};
