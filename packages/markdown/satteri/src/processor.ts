@@ -6,6 +6,7 @@ import type {
 	MdastPluginEntry,
 	MdastPluginList,
 } from 'satteri';
+import { createSatteriMdxProcessor } from './mdx/create-processor.js';
 import { createSatteriMarkdownProcessor } from './satteri-processor.js';
 
 export interface SatteriFeatures extends Omit<Features, 'smartPunctuation'> {
@@ -68,8 +69,6 @@ export function satteri(
 			});
 		},
 		async createMdxRenderer(shared, mdx) {
-			// Lazy import so the MDX/JSX compile path isn't pulled in for `.md`-only projects.
-			const { createSatteriMdxProcessor } = await import('./mdx/create-processor.js');
 			return createSatteriMdxProcessor(shared, mdx, processor.options);
 		},
 	};
