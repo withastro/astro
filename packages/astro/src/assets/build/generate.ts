@@ -5,7 +5,7 @@ import type { StaticBuildOptions } from '../../core/build/types.js';
 import { getTimeStat } from '../../core/build/util.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { AstroErrorData } from '../../core/errors/index.js';
-import type { AstroLogger } from '../../core/logger/core.js';
+import { astroToRuntimeLogger, type AstroLogger } from '../../core/logger/core.js';
 import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { MapValue } from '../../type-utils.js';
@@ -280,6 +280,7 @@ export async function generateImagesForPath(
 					originalImage.data,
 					{ ...options, src: originalImagePath },
 					env.imageConfig,
+					astroToRuntimeLogger(env.logger)
 				)
 			).data;
 		} catch (e) {

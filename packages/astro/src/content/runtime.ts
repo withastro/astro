@@ -35,6 +35,7 @@ import {
 	LiveEntryNotFoundError,
 } from './loaders/errors.js';
 import type { LiveLoader } from './loaders/types.js';
+import { getGlobalLogger } from '../core/logger/global.js';
 export {
 	LiveCollectionError,
 	LiveCollectionCacheHintError,
@@ -130,7 +131,8 @@ export function createGetCollection({
 			}
 			return result;
 		} else {
-			console.warn(
+			getGlobalLogger().warn(
+				'content',
 				`The collection ${JSON.stringify(
 					collection,
 				)} does not exist or is empty. Please check your content config file for errors.`,
@@ -202,7 +204,7 @@ export function createGetEntry({ liveCollections }: { liveCollections: LiveColle
 		if (await store.hasCollection(collection)) {
 			const entry = await store.get<DataEntry>(collection, lookupId);
 			if (!entry) {
-				console.warn(`Entry ${collection} → ${lookupId} was not found.`);
+				getGlobalLogger().warn('content', `Entry ${collection} → ${lookupId} was not found.`);
 				return;
 			}
 
@@ -241,7 +243,7 @@ function warnForPropertyAccess(entry: object, prop: string, message: string) {
 			get() {
 				// If the user sets value themselves, don't warn
 				if (_value === undefined) {
-					console.error(message);
+					getGlobalLogger().error('content', message);
 				}
 				return _value;
 			},
@@ -623,7 +625,7 @@ export async function renderEntry(entry: DataEntry) {
 				renderEntryImport,
 			});
 		} catch (e) {
-			console.error(e);
+			getGlobalLogger().error('content', `${e}`);
 		}
 	}
 

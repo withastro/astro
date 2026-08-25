@@ -143,6 +143,7 @@ export async function createContentTypesGenerator({
 				environment: viteServer.environments[
 					ASTRO_VITE_ENVIRONMENT_NAMES.astro
 				] as RunnableDevEnvironment,
+				logger,
 			});
 			return { shouldGenerateTypes: true };
 		}

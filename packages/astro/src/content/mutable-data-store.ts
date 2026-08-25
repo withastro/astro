@@ -4,6 +4,7 @@ import * as devalue from 'devalue';
 import { forEach } from 'neotraverse';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
 import {
 	ChunkedWriter,
@@ -571,7 +572,7 @@ export default new Map([\n${lines.join(',\n')}]);
 	 * manifest exists but can't be read (corrupt cache), it warns and starts
 	 * empty so loaders rebuild it, rather than failing the sync.
 	 */
-	static async fromDir(dirPath: URL, chunkSize: number) {
+	static async fromDir(dirPath: URL, chunkSize: number, logger: Pick<AstroLogger, 'warn'>) {
 		const manifestFile = new URL(`./${DATA_STORE_MANIFEST_FILE}`, dirPath);
 		if (existsSync(manifestFile)) {
 			try {
@@ -594,9 +595,9 @@ export default new Map([\n${lines.join(',\n')}]);
 				// The manifest exists but couldn't be read/parsed, or a referenced
 				// part is missing: the chunked cache is corrupt. Warn loudly and fall
 				// through to a fresh store so loaders rebuild it.
-				console.warn(
-					`[content] Could not read the chunked data store at ${fileURLToPath(dirPath)}, rebuilding from scratch.`,
-					err,
+				logger.warn(
+					'content',
+					`Could not read the chunked data store at ${fileURLToPath(dirPath)}, rebuilding from scratch. ${err instanceof Error ? err.message : err}`,
 				);
 			}
 		}

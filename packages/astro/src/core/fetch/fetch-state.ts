@@ -44,7 +44,7 @@ import { getFirstForwardedValue, validateForwardedHeaders } from '../app/validat
 import type { SSRManifest } from '../app/types.js';
 import { getEnvironment, type RequestLogPayload } from '../environment/index.js';
 import { getLogger } from '../logger/manifest-logger.js';
-import type { AstroLogger } from '../logger/core.js';
+import { astroToRuntimeLogger, type AstroLogger } from '../logger/core.js';
 import { getSite } from '../manifest/derived.js';
 import { getRouteCache } from '../render/route-cache.js';
 import { getRouteTable, matchAllRoutes, matchRoute } from '../routing/route-table.js';
@@ -358,7 +358,7 @@ export class FetchState implements AstroFetchState {
 		this.clientAddress = options?.clientAddress;
 		this.locals = (options?.locals ?? {}) as App.Locals;
 		this.url = url;
-		this.cookies = new AstroCookies(request);
+		this.cookies = new AstroCookies(request, this.logger);
 
 		// Apply X-Forwarded-* headers only when the user has configured
 		// allowedDomains — without it, forwarded headers are never trusted
@@ -619,17 +619,7 @@ export class FetchState implements AstroFetchState {
 				return state.getCsp();
 			},
 			get logger(): APIContext['logger'] {
-				return {
-					info(msg: string) {
-						logger.info(null, msg);
-					},
-					warn(msg: string) {
-						logger.warn(null, msg);
-					},
-					error(msg: string) {
-						logger.error(null, msg);
-					},
-				};
+				return astroToRuntimeLogger(logger);
 			},
 		};
 
@@ -1193,17 +1183,7 @@ export class FetchState implements AstroFetchState {
 				return state.getCsp();
 			},
 			get logger(): APIContext['logger'] {
-				return {
-					info(msg: string) {
-						state.logger.info(null, msg);
-					},
-					warn(msg: string) {
-						state.logger.warn(null, msg);
-					},
-					error(msg: string) {
-						state.logger.error(null, msg);
-					},
-				};
+				return astroToRuntimeLogger(state.logger);
 			},
 		};
 

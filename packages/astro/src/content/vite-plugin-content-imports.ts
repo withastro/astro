@@ -186,6 +186,7 @@ export const _internal = {
 								environment: viteServer.environments[
 									ASTRO_VITE_ENVIRONMENT_NAMES.astro
 								] as RunnableDevEnvironment,
+								logger,
 							});
 						}
 

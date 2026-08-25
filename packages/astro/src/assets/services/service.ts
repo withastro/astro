@@ -13,6 +13,7 @@ import type {
 import { isESMImportedImage, isRemoteImage } from '../utils/imageKind.js';
 import { inferSourceFormat, resolveDefaultOutputFormat } from '../utils/inferSourceFormat.js';
 import { inferRemoteSize } from '../utils/remoteProbe.js';
+import type { AstroRuntimeLogger } from '../../types/public/context.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -119,6 +120,7 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 		inputBuffer: Uint8Array,
 		transform: LocalImageTransform,
 		imageConfig: ImageConfig<T>,
+		logger: AstroRuntimeLogger
 	) => Promise<{ data: Uint8Array; format: ImageOutputFormat }>;
 
 	/**

@@ -7,6 +7,7 @@ import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
 import { inferSourceFormat } from '../utils/inferSourceFormat.js';
 import { fetchWithRedirects } from '../utils/redirectValidation.js';
+import type { AstroRuntimeLogger } from '../../types/public/context.js';
 
 const isLocal = (url: string) => {
 	const hostname = new URL(url).hostname;
@@ -35,9 +36,11 @@ export async function loadRemoteImage(src: URL): Promise<Buffer | undefined> {
 export const handleImageRequest = async ({
 	request,
 	loadLocalImage,
+	logger
 }: {
 	request: Request;
 	loadLocalImage: (src: string, baseUrl: URL) => Promise<Buffer | undefined>;
+	logger: AstroRuntimeLogger
 }) => {
 	const imageService = await getConfiguredImageService();
 
@@ -77,7 +80,7 @@ export const handleImageRequest = async ({
 		return new Response('Internal Server Error', { status: 500 });
 	}
 
-	const { data, format } = await imageService.transform(inputBuffer, transform, imageConfig);
+	const { data, format } = await imageService.transform(inputBuffer, transform, imageConfig, logger);
 
 	return new Response(data as Uint8Array<ArrayBuffer>, {
 		status: 200,

@@ -1,6 +1,7 @@
 import { createBasicPipeline } from './test-utils.ts';
 import { makeRoute, staticPart } from './routing/test-helpers.ts';
 import { AstroCookies } from '../../dist/core/cookies/index.js';
+import { mockLogger } from './cookies/test-helpers.ts';
 import { App } from '../../dist/core/app/app.js';
 import { FetchState } from '../../dist/core/fetch/fetch-state.js';
 import { fetchStateSymbol } from '../../dist/core/constants.js';
@@ -92,7 +93,7 @@ export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): A
 	const url =
 		overrides.url instanceof URL ? overrides.url : new URL(overrides.url ?? 'http://localhost/');
 	const request = overrides.request ?? new Request(url);
-	const cookies = overrides.cookies ?? new AstroCookies(request);
+	const cookies = overrides.cookies ?? new AstroCookies(request, mockLogger);
 
 	const rewrite =
 		overrides.rewrite ??
