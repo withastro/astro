@@ -1,32 +1,39 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { pathToFileURL } from 'node:url';
+import { getCloudflareCompatibilityDate } from '../../../dist/cli/add/cloudflare.js';
 
 describe('astro add cloudflare', () => {
-	// Guard against regression: the compatibility_date in the scaffolded wrangler config
-	// must not use today's date, because workerd rejects dates newer than ~7 days past
-	// its build date. See https://github.com/withastro/astro/issues/17796.
-	it('uses a hardcoded compatibility date instead of the current date', () => {
-		const source = readFileSync(
-			fileURLToPath(new URL('../../../src/cli/add/index.ts', import.meta.url)),
-			'utf-8',
-		);
+	it('uses the compatibility date exported by the installed adapter', async () => {
+		const projectDir = await mkdtemp(join(tmpdir(), 'astro-add-cloudflare-'));
+		const adapterDir = join(projectDir, 'node_modules', '@astrojs', 'cloudflare');
 
-		// The old, broken pattern: generating the date dynamically
-		const dynamicDatePattern = /compatibilityDate\s*=\s*new Date\(\)/;
-		assert.equal(
-			dynamicDatePattern.test(source),
-			false,
-			'compatibility_date must not use new Date() — workerd rejects dates past its binary max',
-		);
+		try {
+			await mkdir(adapterDir, { recursive: true });
+			await writeFile(
+				join(adapterDir, 'package.json'),
+				JSON.stringify({
+					name: '@astrojs/cloudflare',
+					type: 'module',
+					exports: { './info': './info.js' },
+				}),
+			);
+			await writeFile(
+				join(adapterDir, 'info.js'),
+				`export function getLocalWorkerdCompatibilityDate() {
+	return { date: '2026-08-15', source: 'workerd' };
+}
+`,
+			);
 
-		// Verify the hardcoded constant exists
-		const hardcodedDatePattern = /CLOUDFLARE_COMPATIBILITY_DATE\s*=\s*'\d{4}-\d{2}-\d{2}'/;
-		assert.equal(
-			hardcodedDatePattern.test(source),
-			true,
-			'CLOUDFLARE_COMPATIBILITY_DATE constant with a YYYY-MM-DD value must exist',
-		);
+			const date = await getCloudflareCompatibilityDate(pathToFileURL(`${projectDir}/`));
+
+			assert.equal(date, '2026-08-15');
+		} finally {
+			await rm(projectDir, { recursive: true, force: true });
+		}
 	});
 });

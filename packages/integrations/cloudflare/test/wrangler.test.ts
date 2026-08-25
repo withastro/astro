@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { getLocalWorkerdCompatibilityDate } from '../dist/info.js';
 import {
 	cloudflareConfigCustomizer,
 	DEFAULT_ASSETS_BINDING_NAME,
@@ -8,6 +9,22 @@ import {
 } from '../dist/wrangler.js';
 
 describe('cloudflareConfigCustomizer', () => {
+	describe('compatibility date', () => {
+		it('uses the date supported by the installed workerd', () => {
+			const customizer = cloudflareConfigCustomizer();
+			const result = customizer({});
+
+			assert.equal(result.compatibility_date, getLocalWorkerdCompatibilityDate().date);
+		});
+
+		it('preserves the user compatibility date', () => {
+			const customizer = cloudflareConfigCustomizer();
+			const result = customizer({ compatibility_date: '2025-01-01' });
+
+			assert.equal(result.compatibility_date, '2025-01-01');
+		});
+	});
+
 	describe('main entrypoint', () => {
 		it('sets main to the server entrypoint when none exists', () => {
 			const customizer = cloudflareConfigCustomizer();

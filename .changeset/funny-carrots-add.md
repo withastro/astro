@@ -1,5 +1,6 @@
 ---
 'astro': patch
+'@astrojs/cloudflare': patch
 ---
 
-Fixes `astro add cloudflare` generating a `compatibility_date` that can be rejected by the installed `workerd` binary
+Use the installed Cloudflare runtime's compatibility date when generating or defaulting `compatibility_date`

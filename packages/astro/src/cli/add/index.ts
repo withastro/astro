@@ -31,6 +31,7 @@ import { eventCliSession, telemetry } from '../../events/index.js';
 import { exec } from '../exec.js';
 import { createLoggerFromFlags, type Flags, flagsToAstroInlineConfig } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
+import { getCloudflareCompatibilityDate } from './cloudflare.js';
 
 const { bold, cyan, dim, green, magenta, red, yellow } = colors;
 
@@ -50,12 +51,6 @@ const ALIASES = new Map([
 	['solid', 'solid-js'],
 	['tailwindcss', 'tailwind'],
 ]);
-
-// workerd rejects compatibility dates newer than ~7 days past its build date.
-// Using today's date can exceed that range when the installed workerd binary is
-// not the latest release. A hardcoded date avoids this. Keep in sync with
-// DEFAULT_COMPATIBILITY_DATE in packages/integrations/cloudflare/src/wrangler.ts.
-const CLOUDFLARE_COMPATIBILITY_DATE = '2026-04-15';
 
 const STUBS = {
 	ASTRO_CONFIG: `import { defineConfig } from 'astro/config';\n// https://astro.build/config\nexport default defineConfig({});`,
@@ -206,13 +201,11 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 					if (await askToContinue({ flags, logger })) {
 						const data = await getPackageJson();
+						const compatibilityDate = await getCloudflareCompatibilityDate(root);
 
 						await fs.writeFile(
 							wranglerConfigURL,
-							STUBS.CLOUDFLARE_WRANGLER_CONFIG(
-								data?.name ?? 'example',
-								CLOUDFLARE_COMPATIBILITY_DATE,
-							),
+							STUBS.CLOUDFLARE_WRANGLER_CONFIG(data?.name ?? 'example', compatibilityDate),
 							'utf-8',
 						);
 					}
