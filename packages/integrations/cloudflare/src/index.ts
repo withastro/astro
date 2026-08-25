@@ -208,6 +208,8 @@ export default function createIntegration({
 						imagesBindingName:
 							needsImagesBinding || needsImagesBindingForDev ? imagesBindingName : false,
 						needsWorkerCache,
+						// Only relevant ahead of a deploy; `dev` never provisions anything.
+						logger: command === 'build' ? logger : undefined,
 					}),
 					...(prerenderEnvironment === 'workerd' && {
 						experimental: {
