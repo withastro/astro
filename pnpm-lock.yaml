@@ -770,7 +770,7 @@ importers:
         version: 2.0.1
       devalue:
         specifier: ^5.8.1
-        version: 5.9.0
+        version: 5.9.1
       diff:
         specifier: ^9.0.0
         version: 9.0.0
@@ -4594,7 +4594,7 @@ importers:
         version: 1.2.0
       devalue:
         specifier: ^5.8.1
-        version: 5.9.0
+        version: 5.9.1
       prismjs:
         specifier: ^1.30.0
         version: 1.30.0
@@ -5134,7 +5134,7 @@ importers:
         version: link:../../../scripts
       devalue:
         specifier: ^5.9.0
-        version: 5.9.0
+        version: 5.9.1
       linkedom:
         specifier: ^0.18.13
         version: 0.18.13
@@ -5679,7 +5679,7 @@ importers:
         version: 1.2.0
       devalue:
         specifier: ^5.8.1
-        version: 5.9.0
+        version: 5.9.1
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -5815,14 +5815,14 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       devalue:
-        specifier: ^5.9.0
-        version: 5.9.0
+        specifier: ^5.9.1
+        version: 5.9.1
       express:
         specifier: ^5.2.1
         version: 5.2.1
       fastify:
-        specifier: ^5.12.0
-        version: 5.12.0
+        specifier: ^5.12.1
+        version: 5.12.1
       node-mocks-http:
         specifier: ^1.18.1
         version: 1.18.1(@types/express@5.0.6)(@types/node@22.19.19)
@@ -6030,7 +6030,7 @@ importers:
         version: 2.8.2(preact@10.29.8)
       devalue:
         specifier: ^5.8.1
-        version: 5.9.0
+        version: 5.9.1
       preact-render-to-string:
         specifier: ^6.6.6
         version: 6.6.6(preact@10.29.8)
@@ -6058,7 +6058,7 @@ importers:
         version: 5.2.0(vite@8.2.1)
       devalue:
         specifier: ^5.8.1
-        version: 5.9.0
+        version: 5.9.1
       ultrahtml:
         specifier: ^1.6.0
         version: 1.6.0
@@ -11974,8 +11974,8 @@ packages:
   dettle@1.0.5:
     resolution: {integrity: sha512-ZVyjhAJ7sCe1PNXEGveObOH9AC8QvMga3HJIghHawtG7mE4K5pW9nz/vDGAr/U7a3LWgdOzEE7ac9MURnyfaTA==}
 
-  devalue@5.9.0:
-    resolution: {integrity: sha512-RWrqdArjvPbsATEhOPUo6Wndc/iWnkWKlhIrdlF3zMMYo/c3CVtoaVAyLtWxz5h8nSlkHzxnzV2uLydPXmtF+A==}
+  devalue@5.9.1:
+    resolution: {integrity: sha512-+17vil3EVQRzvtDJSFuTWEb8XJRvXqAiV3qZyQWD398QeXUa6CxsUyMdD1fxzEhUrd4FojitFz7lhIHBTlV4fw==}
 
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
@@ -12422,8 +12422,8 @@ packages:
   fastify-plugin@6.0.0:
     resolution: {integrity: sha512-fZOty7z3O7vOliF6d8bHE3wiEh1KcNnKEQensSgTk9C1DvN6nRLS++XVd86v33Hw/8u9Un8A1zDrQ8ujcQDHEg==}
 
-  fastify@5.12.0:
-    resolution: {integrity: sha512-A3RNEaDIHWaxFW8n8rNJaW1wQ+XAXuoU71llfUQJjuh5WaYLmKfRhhanaJBOx8m2EBPQkR6sDBovYdHNe9F6rA==}
+  fastify@5.12.1:
+    resolution: {integrity: sha512-FWi+tQvwxR/PeRX7Z2mhfEF5ozJ3jn9asiiclzKXNSzJRHAYcU924aIOKAdHFJ+YIKieh3cqr1IwCOvTr41B3Q==}
 
   fastq@1.20.1:
     resolution: {integrity: sha512-GGToxJ/w1x32s/D2EKND7kTil4n8OVk/9mycTc4VDza13lOvpUZTGX3mFSCtV9ksdGBVzvsyAVLM6mHFThxXxw==}
@@ -21577,7 +21577,7 @@ snapshots:
 
   dettle@1.0.5: {}
 
-  devalue@5.9.0: {}
+  devalue@5.9.1: {}
 
   devlop@1.1.0:
     dependencies:
@@ -22173,7 +22173,7 @@ snapshots:
 
   fastify-plugin@6.0.0: {}
 
-  fastify@5.12.0:
+  fastify@5.12.1:
     dependencies:
       '@fastify/ajv-compiler': 4.0.5
       '@fastify/error': 4.2.0
@@ -25870,7 +25870,7 @@ snapshots:
       aria-query: 5.3.1
       axobject-query: 4.1.0
       clsx: 2.1.1
-      devalue: 5.9.0
+      devalue: 5.9.1
       esm-env: 1.2.2
       esrap: 2.2.4
       is-reference: 3.0.3
