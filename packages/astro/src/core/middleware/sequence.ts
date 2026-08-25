@@ -9,7 +9,7 @@ import { AstroError } from '../errors/index.js';
 // module, which sits on the other side of the middleware import cycle.
 import type { FetchState } from '../fetch/fetch-state.js';
 import { getParams } from '../render/params-and-props.js';
-import { setOriginPathname } from '../routing/rewrite.js';
+import { copyRequest, setOriginPathname } from '../routing/rewrite.js';
 import { defineMiddleware } from './defineMiddleware.js';
 
 // From SvelteKit: https://github.com/sveltejs/kit/blob/master/packages/kit/src/exports/hooks/sequence.js
@@ -40,19 +40,6 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 			const result = handle(handleContext, async (payload?: RewritePayload) => {
 				if (i < length - 1) {
 					if (payload) {
-						let newRequest;
-						if (payload instanceof Request) {
-							newRequest = payload;
-						} else if (payload instanceof URL) {
-							// Cloning the original request ensures that the new Request gets its own copy of the body stream
-							// Without this it will throw an error if they both try to consume the stream, which will happen in a rewrite
-							newRequest = new Request(payload, handleContext.request.clone());
-						} else {
-							newRequest = new Request(
-								new URL(payload, handleContext.url.origin),
-								handleContext.request.clone(),
-							);
-						}
 						const oldPathname = handleContext.url.pathname;
 						const state = Reflect.get(handleContext, fetchStateSymbol) as FetchState | undefined;
 						if (!state) {
@@ -67,6 +54,18 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 							payload,
 							handleContext.request,
 						);
+						let newRequest: Request;
+						if (payload instanceof Request) {
+							newRequest = payload;
+						} else {
+							const request =
+								handleContext.request.method === 'GET' || handleContext.request.method === 'HEAD'
+									? handleContext.request
+									: handleContext.request.clone();
+							const newUrl =
+								payload instanceof URL ? payload : new URL(payload, handleContext.url.origin);
+							newRequest = copyRequest(newUrl, request, false, state.logger, routeData.route);
+						}
 
 						// This is a case where the user tries to rewrite from a SSR route to a prerendered route (SSG).
 						// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
