@@ -3,4 +3,4 @@
 '@astrojs/markdown-satteri': minor
 ---
 
-Adds MDX rendering to the `unified()` and `satteri()` processors, so `.mdx` files follow whichever processor you configure, plugins included.
+Adds MDX rendering to the `unified()` and `satteri()` processors, which now compile `.mdx` files themselves instead of `@astrojs/mdx` doing it.
