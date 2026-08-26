@@ -958,6 +958,7 @@ export class FetchState implements AstroFetchState {
 			this.routeData.type === 'page' &&
 			!routeHasHtmlExtension(this.routeData)
 		) {
+			const original = this.pathname;
 			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 			// Route patterns are compiled with the configured trailing slash, so a
 			// pathname left without one after stripping `.html` no longer matches its
@@ -968,6 +969,13 @@ export class FetchState implements AstroFetchState {
 				!this.pathname.endsWith('/')
 			) {
 				this.pathname += '/';
+			}
+			// For dynamic page routes the `.html` may be part of a captured param
+			// value rather than a framework-injected suffix (e.g. `/index.html`
+			// matched by `[slug]`). When stripping breaks the route's own pattern
+			// match, revert so downstream param extraction still works. (#17827)
+			if (this.pathname !== original && !this.routeData.pattern.test(this.pathname)) {
+				this.pathname = original;
 			}
 		}
 	}
