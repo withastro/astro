@@ -1,6 +1,5 @@
 import { ASTRO_GENERATOR } from '../../core/constants.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import { getGlobalLogger } from '../../core/logger/global.js';
 import type { AstroGlobal } from '../../types/public/context.js';
 
 function createError(name: string) {
@@ -13,13 +12,11 @@ function createError(name: string) {
 // This is used to create the top-level Astro global; the one that you can use
 // inside of getStaticPaths. See the `astroGlobalArgs` option for parameter type.
 export function createAstro(site: string | undefined): AstroGlobal {
-	const logger = getGlobalLogger();
 	return {
 		// TODO: throw in Astro 8
 		get site() {
 			// This is created inside of the runtime so we don't have access to the Astro logger.
-			logger.warn(
-				'deprecated',
+			console.warn(
 				`Astro.site inside getStaticPaths is deprecated and will be removed in a future major version of Astro. Use import.meta.env.SITE instead`,
 			);
 			return site ? new URL(site) : undefined;
@@ -27,8 +24,7 @@ export function createAstro(site: string | undefined): AstroGlobal {
 		// TODO: throw in Astro 8
 		get generator() {
 			// This is created inside of the runtime so we don't have access to the Astro logger.
-			logger.warn(
-				'deprecated',
+			console.warn(
 				`Astro.generator inside getStaticPaths is deprecated and will be removed in a future major version of Astro.`,
 			);
 			return ASTRO_GENERATOR;

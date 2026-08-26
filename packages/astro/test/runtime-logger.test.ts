@@ -124,33 +124,4 @@ describe('Runtime logger', () => {
 			assert.equal(message.message, 'Entry blog → missing-from-page was not found.');
 		});
 	});
-
-	describe('render-time warnings', () => {
-		it('routes the dynamic static-directive warning', async () => {
-			const response = await app.render(new Request('http://example.com/dynamic-directive'));
-			assert.equal(response.status, 200);
-
-			const [message] = matching(recordedMessages(), /directive cannot be applied dynamically/);
-			assert.ok(message);
-			assert.equal(message.level, 'warn');
-			// SKIP_FORMAT: already user-facing prose, so it must not pick up Astro's
-			// internal label prefix.
-			assert.equal(message.label, 'SKIP_FORMAT');
-			assert.match(message.message, /"set:html"/);
-		});
-
-		it('routes the hydration-directive-on-an-Astro-component warning', async () => {
-			const response = await app.render(new Request('http://example.com/hydrated-astro-component'));
-			assert.equal(response.status, 200);
-
-			const [message] = matching(
-				recordedMessages(),
-				/Astro components do not render in the client/,
-			);
-			assert.ok(message);
-			assert.equal(message.level, 'warn');
-			assert.equal(message.label, 'SKIP_FORMAT');
-			assert.match(message.message, /client:load/);
-		});
-	});
 });

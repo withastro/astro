@@ -1,4 +1,3 @@
-import { getGlobalLogger } from '../../../../core/logger/global.js';
 import type { SSRResult } from '../../../../types/public/internal.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
@@ -104,8 +103,7 @@ function validateComponentProps(
 		const directives = [...clientDirectives.keys()].map((directive) => `client:${directive}`);
 		for (const prop of Object.keys(props)) {
 			if (directives.includes(prop)) {
-				getGlobalLogger().warn(
-					'SKIP_FORMAT',
+				console.warn(
 					`You are attempting to render <${displayName} ${prop} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`,
 				);
 			}

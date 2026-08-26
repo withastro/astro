@@ -3,7 +3,6 @@ import type { SSRElement } from '../../../types/public/internal.js';
 import { HTMLString, markHTMLString, stringifyForScript } from '../escape.js';
 import { isPromise } from '../util.js';
 import type { RenderDestination, RenderDestinationChunk, RenderFunction } from './common.js';
-import { getGlobalLogger } from '../../../core/logger/global.js';
 
 export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
@@ -100,12 +99,9 @@ export function addAttribute(value: any, key: string, shouldEscape = true, tagNa
 
 	// compiler directives cannot be applied dynamically, log a warning and ignore.
 	if (STATIC_DIRECTIVES.has(key)) {
-		getGlobalLogger().warn(
-			'SKIP_FORMAT',
-			`The "${key}" directive cannot be applied dynamically at runtime. It will not be rendered as an attribute.
+		console.warn(`[astro] The "${key}" directive cannot be applied dynamically at runtime. It will not be rendered as an attribute.
 
-Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the dynamic spread syntax (\`{...{ "${key}": value }}\`).`,
-		);
+Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the dynamic spread syntax (\`{...{ "${key}": value }}\`).`);
 		return '';
 	}
 
