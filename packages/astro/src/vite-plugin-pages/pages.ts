@@ -39,13 +39,6 @@ export function pluginPages({ routesList }: PagesPluginOptions): VitePlugin {
 		enforce: 'post',
 		applyToEnvironment(environment) {
 			return (
-				// `astro` is included because `virtual:astro:manifest` imports this
-				// module, and server runtime code reachable from `astro:content` /
-				// `astro:middleware` pulls in the ambient manifest. Loading either in
-				// the runnable dev environment (content sync, config loading) must not
-				// fail to resolve the page map. Keep this list in sync with the
-				// serialized-manifest and routes plugins.
-				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);

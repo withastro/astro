@@ -18,9 +18,9 @@ function matching(messages: AstroLoggerMessage[], pattern: RegExp): AstroLoggerM
 }
 
 /**
- * Astro's runtime used to `console.warn`/`console.error` from code with no access
- * to a logger. Those call sites now go through `getGlobalLogger()`, which reads the
- * logger off the ambient manifest — so their output reaches the user-configured
+ * `astro:content` used to `console.warn`/`console.error` from code with no access
+ * to a logger. Its runtime factories are now built with one, injected by the
+ * template that generates the module — so their output reaches the user-configured
  * destination even where there is no request state to carry a logger.
  */
 describe('Runtime logger', () => {
@@ -71,8 +71,8 @@ describe('Runtime logger', () => {
 	// `fixtures/runtime-logger/src/middleware.ts` calls `getEntry()` at module
 	// scope: it runs when the middleware entrypoint is first imported, before any
 	// middleware handler. There is no request state to carry a logger, so the
-	// warning is only routed correctly if `getGlobalLogger()` falls back to the
-	// ambient manifest's logger.
+	// warning is only routed correctly because the logger was baked into
+	// `astro:content` rather than read from the manifest at call time.
 	describe('getEntry() outside of a request', () => {
 		it('routes the missing-entry warning to the configured destination', () => {
 			const [message, ...rest] = matching(bootstrapMessages, /missing-at-module-scope/);
