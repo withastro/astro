@@ -47,7 +47,7 @@ export function filterStringPlugins(
 	}
 	if (hasInvalidPlugin) {
 		console.warn(
-			`[@astrojs/mdx] To inherit Markdown plugins in MDX, use explicit imports in your config instead of "strings." See https://docs.astro.build/en/guides/markdown-content/#markdown-plugins`,
+			`[@astrojs/mdx] To inherit Markdown plugins in MDX, use explicit imports in your config instead of "strings." See https://docs.astro.build/en/guides/markdown-content/#markdown-processor-plugins`,
 		);
 	}
 	return validPlugins;
