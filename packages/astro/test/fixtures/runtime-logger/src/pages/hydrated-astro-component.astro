@@ -1,0 +1,8 @@
+---
+import Plain from '../components/Plain.astro';
+
+// Astro components never hydrate, so `validateComponentProps()` warns.
+const props = { 'client:load': true };
+---
+
+<Plain {...props} />

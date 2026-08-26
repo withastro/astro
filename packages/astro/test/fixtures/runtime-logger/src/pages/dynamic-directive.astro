@@ -1,0 +1,6 @@
+---
+// `set:html` cannot be applied through a spread, so `addAttribute()` warns.
+const attrs = { 'set:html': '<em>nope</em>' };
+---
+
+<div {...attrs}>fallback</div>
