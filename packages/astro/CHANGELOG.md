@@ -1,5 +1,13 @@
 # astro
 
+## 7.2.8
+
+### Patch Changes
+
+- [#17837](https://github.com/withastro/astro/pull/17837) [`ecb4082`](https://github.com/withastro/astro/commit/ecb4082131490b4fe9a56aa44fda84b54ef8967b) Thanks [@matthewp](https://github.com/matthewp)! - Updates the minimum supported version of Sharp to 0.35.4
+
+- [#17786](https://github.com/withastro/astro/pull/17786) [`db7c53b`](https://github.com/withastro/astro/commit/db7c53b1707856866e06cdeeef1aa4ae3598b1f2) Thanks [@gameroman](https://github.com/gameroman)! - Replaces the internal `find-process` dependency with a smaller, lighter alternative
+
 ## 7.2.7
 
 ### Patch Changes
