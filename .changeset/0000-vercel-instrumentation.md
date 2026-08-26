@@ -2,4 +2,4 @@
 '@astrojs/vercel': minor
 ---
 
-Adds automatic loading of project instrumentation files and inbound OpenTelemetry context propagation for Vercel serverless functions
+Adds an `instrumentation` option for loading project instrumentation files and propagating inbound OpenTelemetry context in Vercel serverless functions

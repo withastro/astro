@@ -4,11 +4,14 @@ import { W3CTraceContextPropagator } from '@opentelemetry/core';
 
 declare global {
 	var astroVercelInstrumentationRuns: number | undefined;
+	var notifyAstroVercelInstrumentationStarted: (() => void) | undefined;
 	var resetAstroVercelOpenTelemetry: (() => void) | undefined;
+	var waitForAstroVercelInstrumentation: Promise<void> | undefined;
 }
 
 export async function register() {
-	await Promise.resolve();
+	globalThis.notifyAstroVercelInstrumentationStarted?.();
+	await globalThis.waitForAstroVercelInstrumentation;
 
 	globalThis.astroVercelInstrumentationRuns =
 		(globalThis.astroVercelInstrumentationRuns ?? 0) + 1;
