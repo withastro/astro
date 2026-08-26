@@ -10,7 +10,16 @@ import { type Fixture, loadFixture } from './test-utils.ts';
 const createFixture = () => {
 	let astroFixture: Fixture;
 	const writtenFiles: Record<string, string> = {};
-	const warnLogs: Array<string> = [];
+	const logs: Array<AstroLoggerMessage> = [];
+	const logger = new AstroLogger({
+		level: 'debug',
+		destination: {
+			write(chunk) {
+				logs.push(chunk);
+				return true;
+			},
+		},
+	});
 
 	const getExpectedPath = (path: string) => fileURLToPath(new URL(path, astroFixture.config.root));
 
@@ -42,23 +51,13 @@ const createFixture = () => {
 				},
 			};
 
-			const originalWarn = console.warn;
-			console.warn = (message) => {
-				originalWarn(message);
-				warnLogs.push(message);
-			};
-
-			try {
-				await astroFixture.sync(
-					{ root: fileURLToPath(astroFixture.config.root) },
-					{
-						// @ts-ignore
-						fs: fsMock,
-					},
-				);
-			} finally {
-				console.error = originalWarn;
-			}
+			await astroFixture.sync(
+				{ root: fileURLToPath(astroFixture.config.root), _logger: logger },
+				{
+					// @ts-ignore
+					fs: fsMock,
+				},
+			);
 		},
 		thenFileShouldExist(path: string) {
 			assert.equal(
@@ -104,11 +103,12 @@ const createFixture = () => {
 			}
 		},
 		thenWarnLogsInclude(message: string) {
+			const warnLogs = logs.filter((log) => log.level === 'warn');
 			if (warnLogs.length === 0) {
-				assert.fail('No error log');
+				assert.fail('No warn log');
 			}
-			const index = warnLogs.findIndex((log) => log.includes(message));
-			assert.equal(index !== -1, true, 'No error log found');
+			const index = warnLogs.findIndex((log) => log.message.includes(message));
+			assert.equal(index !== -1, true, `No warn log found matching: ${message}`);
 		},
 	};
 };
@@ -273,7 +273,6 @@ describe('astro sync', () => {
 			});
 			fs.rmSync(new URL('./.astro/', astroFixture.config.root), { force: true, recursive: true });
 
-			// @ts-expect-error: `_logger` is an internal API
 			await astroFixture.sync({ root: fileURLToPath(astroFixture.config.root), _logger: logger });
 
 			const errorLogs = logs.filter((log) => log.level === 'error');
