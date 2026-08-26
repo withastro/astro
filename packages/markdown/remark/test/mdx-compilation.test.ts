@@ -91,16 +91,16 @@ describe('MDX SmartyPants plugin', () => {
 		});
 		// SmartyPants converts straight quotes to curly and -- to em dash
 		assert.ok(
-			code.includes('“') || code.includes('”') || code.includes('—'),
+			code.includes('\u201C') || code.includes('\u201D') || code.includes('\u2014'),
 			'SmartyPants should convert quotes or dashes to typographic equivalents',
 		);
 	});
 
 	it('does not convert quotes without SmartyPants', async () => {
 		const code = await compile('> "Smartypants" is -- awesome');
-		// Without SmartyPants, double dashes stay as -- (not converted to em dash —)
+		// Without SmartyPants, double dashes stay as -- (not converted to em dash \u2014)
 		assert.ok(code.includes('--'), 'Double dashes should remain unconverted');
-		assert.ok(!code.includes('—'), 'Em dash should not appear without SmartyPants');
+		assert.ok(!code.includes('\u2014'), 'Em dash should not appear without SmartyPants');
 	});
 });
 
