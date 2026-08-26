@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/ts-content-mapper",
   "version": "0.1.0",
-  "description": "TypeScript content mapper that lets tsgo type-check .astro files directly",
+  "description": "TypeScript content mapper that lets tsc type-check .astro files directly",
   "author": "withastro",
   "license": "MIT",
   "repository": {

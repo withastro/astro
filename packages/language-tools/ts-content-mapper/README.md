@@ -1,9 +1,9 @@
 # @astrojs/ts-content-mapper
 
-A [TypeScript content mapper](https://github.com/microsoft/TypeScript/pull/63936) for `.astro` files. It lets `tsgo` parse and type-check Astro components directly, without a language server plugin, by transforming each component to TSX and reporting the position mappings back to TypeScript.
+A [TypeScript content mapper](https://github.com/microsoft/TypeScript/pull/63936) for `.astro` files. It lets `tsc` parse and type-check Astro components directly, without a language server plugin, by transforming each component to TSX and reporting the position mappings back to TypeScript.
 
 > [!WARNING]
-> Content mappers are experimental and only exist in TypeScript nightlies (`>=7.1.0-dev.20260822.1`). The protocol has already changed once since it landed and has no version negotiation, so expect breakage between nightlies.
+> Content mappers are experimental. They landed after TypeScript 7.0 and are not in any 7.0.x release, so a `typescript@next` 7.1 nightly is required. The protocol changed once shortly after it landed and has no version negotiation, so prefer a recent nightly and expect breakage between them.
 
 ## Usage
 
@@ -27,7 +27,7 @@ Install the package, then register it in your `tsconfig.json`. `contentMappers` 
 Content mappers run arbitrary code from `node_modules` during compilation, so TypeScript requires an explicit opt-in flag:
 
 ```sh
-tsgo --noEmit --runExternalCode
+tsc --noEmit --runExternalCode
 ```
 
 The flag is command-line only and cannot be set in `tsconfig.json`. Without it, TypeScript reports an error and ignores the mapper entirely, which makes `.astro` files look like unknown foreign files.
