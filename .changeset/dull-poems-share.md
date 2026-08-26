@@ -24,5 +24,3 @@ const provider: FontProvider = {
 	}),
 };
 ```
-
-The font provider `init()` context now also exposes a `fetch()` function, which retries transient failures and routes requests through a proxy when one is configured.

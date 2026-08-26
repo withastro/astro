@@ -102,7 +102,7 @@ export class PassthroughFontResolver implements FontResolver {
 		const storage = new SpyStorage();
 		await Promise.all(
 			Array.from(providers.values()).map(async (provider) => {
-				await provider.init?.({ storage, root: new URL(import.meta.url), fetch });
+				await provider.init?.({ storage, root: new URL(import.meta.url) });
 			}),
 		);
 		return new PassthroughFontResolver(providers);

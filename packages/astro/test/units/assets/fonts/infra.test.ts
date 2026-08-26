@@ -632,6 +632,9 @@ describe('fonts infra', () => {
 					return {
 						name: provider._name,
 						async init(context) {
+							// @ts-expect-error `fetch` is deliberately not part of Astro's public provider
+							// context. unifont still types it as required but does not need us to pass it.
+							// TODO: drop this once unifont makes `fetch` optional in its provider context
 							initializedProvider = await provider(context);
 						},
 						async resolveFont({ familyName, ...rest }) {
