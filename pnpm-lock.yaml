@@ -6862,6 +6862,30 @@ importers:
         specifier: workspace:*
         version: link:../../../../astro
 
+  packages/language-tools/ts-content-mapper:
+    dependencies:
+      '@astrojs/astro2tsx':
+        specifier: link:/home/erika/worktrees/compiler-rs/feat-biome-tsx/crates/astro2tsx
+        version: link:../../../../../compiler-rs/feat-biome-tsx/crates/astro2tsx
+      vscode-jsonrpc:
+        specifier: ^9.0.1
+        version: 9.0.1
+    devDependencies:
+      '@types/node':
+        specifier: ^22.19.0
+        version: 22.19.19
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
+      tsx:
+        specifier: ^4.22.0
+        version: 4.22.3
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
+  packages/language-tools/ts-content-mapper/test: {}
+
   packages/language-tools/ts-plugin:
     dependencies:
       '@astrojs/compiler':
@@ -16166,6 +16190,10 @@ packages:
 
   vscode-jsonrpc@8.2.0:
     resolution: {integrity: sha512-C+r0eKJUIfiDIfwJhria30+TYWPtuHJXHtI7J0YlOmKAo7ogxP20T0zxB7HZQIFhIyvoBPwWskjxrvAtfjyZfA==}
+    engines: {node: '>=14.0.0'}
+
+  vscode-jsonrpc@9.0.1:
+    resolution: {integrity: sha512-rfuA6T75H6m5EkbhtEPzre9pT0HPcDI2MMy4+nPFIBks5J8JBAUHD4tRYSgaBOijIEC7SRkC1kKyXTLqbmh9jw==}
     engines: {node: '>=14.0.0'}
 
   vscode-languageclient@9.0.1:
@@ -26577,6 +26605,8 @@ snapshots:
       vscode-uri: 3.1.0
 
   vscode-jsonrpc@8.2.0: {}
+
+  vscode-jsonrpc@9.0.1: {}
 
   vscode-languageclient@9.0.1:
     dependencies:
