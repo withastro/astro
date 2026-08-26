@@ -247,9 +247,7 @@ function warnLegacyMdxPluginOptionsIgnored(
 		? `your \`${processor.name}\` processor`
 		: `the default \`${processor.name}\` processor used for \`.mdx\``;
 	logger.warn(
-		`${names} on \`mdx({...})\` ${isPlural ? 'are' : 'is'} ignored because ${whose} ` +
-			'does not run remark/rehype plugins. Set `markdown.processor: unified({...})` from ' +
-			'`@astrojs/markdown-remark` to apply them.',
+		`${names} on \`mdx({...})\` ${isPlural ? 'are' : 'is'} ignored because ${whose} does not run remark/rehype plugins. Set \`markdown.processor: unified({...})\` from \`@astrojs/markdown-remark\` to apply them.`,
 	);
 }
 
