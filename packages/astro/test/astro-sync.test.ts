@@ -52,6 +52,7 @@ const createFixture = () => {
 			};
 
 			await astroFixture.sync(
+				// @ts-expect-error: `_logger` is an internal API
 				{ root: fileURLToPath(astroFixture.config.root), _logger: logger },
 				{
 					// @ts-ignore
@@ -273,6 +274,7 @@ describe('astro sync', () => {
 			});
 			fs.rmSync(new URL('./.astro/', astroFixture.config.root), { force: true, recursive: true });
 
+			// @ts-expect-error: `_logger` is an internal API
 			await astroFixture.sync({ root: fileURLToPath(astroFixture.config.root), _logger: logger });
 
 			const errorLogs = logs.filter((log) => log.level === 'error');
