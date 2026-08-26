@@ -12,7 +12,7 @@ export interface UnifiedProcessorOptions {
 	remarkPlugins?: RemarkPlugins;
 	rehypePlugins?: RehypePlugins;
 	remarkRehype?: RemarkRehype;
-	/** recma (estree/JSX) plugins for the MDX compiler. Only affect `.mdx` files. */
+	/** recma (estree/JSX) plugins for the MDX compiler. Only affect `.mdx` files when using the `@astrojs/mdx` integration */
 	recmaPlugins?: PluggableList;
 	/** Enable GitHub-Flavored Markdown. Defaults to `true`. */
 	gfm?: boolean;
