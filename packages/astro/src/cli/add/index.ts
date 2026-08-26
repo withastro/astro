@@ -31,6 +31,7 @@ import { eventCliSession, telemetry } from '../../events/index.js';
 import { exec } from '../exec.js';
 import { createLoggerFromFlags, type Flags, flagsToAstroInlineConfig } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
+import { getCloudflareCompatibilityDate } from './cloudflare.js';
 
 const { bold, cyan, dim, green, magenta, red, yellow } = colors;
 
@@ -200,7 +201,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 					if (await askToContinue({ flags, logger })) {
 						const data = await getPackageJson();
-						let compatibilityDate = new Date().toISOString().slice(0, 10);
+						const compatibilityDate = await getCloudflareCompatibilityDate(root);
 
 						await fs.writeFile(
 							wranglerConfigURL,

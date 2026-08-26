@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@astrojs/markdoc": "^2.0.8",
-    "astro": "^7.2.6"
+    "astro": "^7.2.7"
   },
   "allowScripts": {
     "esbuild": true

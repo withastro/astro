@@ -1,5 +1,16 @@
 # @astrojs/cloudflare
 
+## 14.2.5
+
+### Patch Changes
+
+- [#17819](https://github.com/withastro/astro/pull/17819) [`633855b`](https://github.com/withastro/astro/commit/633855b0cabd55cc7b913eb556a739a6a2d93dd2) Thanks [@matthewp](https://github.com/matthewp)! - Updates generated and default Cloudflare `compatibility_date` values to match the installed runtime and requires Wrangler `^4.125.0`
+
+- [#17675](https://github.com/withastro/astro/pull/17675) [`44d384c`](https://github.com/withastro/astro/commit/44d384c9c30cf52ee6491348611ae483747734e7) Thanks [@danielmlr](https://github.com/danielmlr)! - Adds the Worker version to the cache metadata of cached responses when the `CF_VERSION_METADATA` binding is configured. Responses carry an `astro-version:<id>` cache tag for version-specific purging, and responses that already send `Last-Modified` get a weak `ETag` that folds the version in. Conditional revalidation then returns fresh content after a deploy that changes rendered output but not content — most commonly the hashed asset URLs in server-rendered HTML. Without the binding, nothing changes.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.2.4
 
 ### Patch Changes
