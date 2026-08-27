@@ -6129,9 +6129,6 @@ importers:
       sitemap:
         specifier: ^9.0.0
         version: 9.0.0
-      stream-replace-string:
-        specifier: ^2.0.0
-        version: 2.0.0
       zod:
         specifier: ^4.3.6
         version: 4.3.6
@@ -7180,6 +7177,15 @@ importers:
       tsx:
         specifier: ^4.22.0
         version: 4.22.3
+
+  triage/gh-17848:
+    dependencies:
+      '@astrojs/sitemap':
+        specifier: workspace:*
+        version: link:../../packages/integrations/sitemap
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
 
 packages:
 
@@ -15472,9 +15478,6 @@ packages:
   stdin-discarder@0.2.2:
     resolution: {integrity: sha512-UhDfHmA92YAlNnCfhmq0VeNL5bDbiZGg7sZ2IvPsXubGkiNa9EC+tUTsjBRsYUAz87btI6/1wf4XoVvQ3uRnmQ==}
     engines: {node: '>=18'}
-
-  stream-replace-string@2.0.0:
-    resolution: {integrity: sha512-TlnjJ1C0QrmxRNrON00JvaFFlNh5TTG00APw23j74ET7gkQpTASi6/L2fuiav8pzK715HXtUeClpBTw2NPSn6w==}
 
   streamx@2.23.0:
     resolution: {integrity: sha512-kn+e44esVfn2Fa/O0CPFcex27fjIL6MkVae0Mm6q+E6f0hWv578YCERbv+4m02cjxvDsPKLnmxral/rR6lBMAg==}
@@ -26032,8 +26035,6 @@ snapshots:
   std-env@4.0.0: {}
 
   stdin-discarder@0.2.2: {}
-
-  stream-replace-string@2.0.0: {}
 
   streamx@2.23.0:
     dependencies:
