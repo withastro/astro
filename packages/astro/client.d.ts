@@ -282,6 +282,11 @@ declare module '*.mdx' {
 	export default load;
 }
 
+declare module '*.html' {
+	const Component: (opts?: { slots?: Record<string, string> }) => string;
+	export default Component;
+}
+
 declare module 'astro:static-paths' {
 	export const StaticPaths: typeof import('./dist/runtime/prerender/static-paths.js').StaticPaths;
 }
