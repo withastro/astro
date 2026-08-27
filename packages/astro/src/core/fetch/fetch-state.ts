@@ -970,10 +970,14 @@ export class FetchState implements AstroFetchState {
 			) {
 				this.pathname += '/';
 			}
-			// Preserve the pathname when normalization would invalidate the selected route.
-			// Parameter extraction relies on the pathname matching this pattern.
+			// Restore only when normalization invalidates a route that matched the original pathname.
+			// Error routes can be selected as fallbacks without matching either pathname.
 			// https://github.com/withastro/astro/issues/17827
-			if (this.pathname !== original && !this.routeData.pattern.test(this.pathname)) {
+			if (
+				this.pathname !== original &&
+				this.routeData.pattern.test(original) &&
+				!this.routeData.pattern.test(this.pathname)
+			) {
 				this.pathname = original;
 			}
 		}
