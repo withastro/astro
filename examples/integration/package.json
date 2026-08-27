@@ -18,7 +18,7 @@
   ],
   "scripts": {},
   "devDependencies": {
-    "astro": "^7.2.8"
+    "astro": "^7.2.9"
   },
   "peerDependencies": {
     "astro": "^4.0.0"
