@@ -43,7 +43,6 @@ export class UnifontFontResolver implements FontResolver {
 				async listFonts() {
 					return astroProvider.listFonts?.();
 				},
-				// TODO: always forward the call once the callback is required in Astro 8
 				getFontProperties: astroProvider.getFontProperties
 					? async (familyName) => astroProvider.getFontProperties!({ familyName })
 					: undefined,

@@ -59,8 +59,6 @@ export interface FontProvider<
 	 * Optional callback, used to return the properties available for a given font family.
 	 * It allows Astro to warn about configured values a provider cannot serve. Return
 	 * `undefined` when the family is unknown to the provider.
-	 *
-	 * TODO: make this callback required in Astro 8
 	 */
 	getFontProperties?:
 		| ((options: GetFontPropertiesOptions) => Awaitable<FontProperties | undefined>)
