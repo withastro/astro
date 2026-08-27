@@ -1,0 +1,42 @@
+{
+  "name": "@astrojs/ts-content-mapper",
+  "version": "0.1.0",
+  "description": "TypeScript content mapper that lets tsc type-check .astro files directly",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/language-tools/ts-content-mapper"
+  },
+  "type": "commonjs",
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts"
+  ],
+  "typescript": {
+    "contentMapper": {
+      "exec": [
+        "node",
+        "dist/server.js"
+      ],
+      "compilerOptions": [],
+      "dynamicConfig": false
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "tsc -b --watch",
+    "test": "astro-scripts test \"test/**/*.test.ts\" --tsx true"
+  },
+  "dependencies": {
+    "@astrojs/astro2tsx": "link:/home/erika/worktrees/compiler-rs/feat-biome-tsx/crates/astro2tsx",
+    "vscode-jsonrpc": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.6",
+    "astro-scripts": "workspace:*",
+    "tsx": "^4.22.0",
+    "typescript": "^6.0.3"
+  }
+}
