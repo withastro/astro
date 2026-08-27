@@ -163,7 +163,7 @@ function injectManifest(manifest: SerializedSSRManifest, code: string) {
  * the prerendered HTML on disk already contains the `<style>` tags, and the
  * SSR worker never renders these routes.
  */
-function stripPrerenderedRouteStyles(manifest: SerializedSSRManifest): SerializedSSRManifest {
+export function stripPrerenderedRouteStyles(manifest: SerializedSSRManifest): SerializedSSRManifest {
 	let stripped = false;
 	const routes = manifest.routes.map((route) => {
 		if (!route.routeData.prerender || route.styles.length === 0) return route;
