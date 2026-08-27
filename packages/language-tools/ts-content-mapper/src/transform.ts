@@ -32,7 +32,12 @@ function toMapperDiagnostics(tsx: ConvertToTsxResult, source: string): MapperDia
 
 export function transform({ content, fileName }: TransformParams): TransformResult {
 	try {
-		const tsx = convertToTsx(content, { filename: fileName, sourcemap: false });
+		const tsx = convertToTsx(content, {
+			filename: fileName,
+			sourcemap: false,
+			// No language server injects globals here, so the TSX has to declare its own.
+			ambientTypes: true,
+		});
 
 		return {
 			text: tsx.code,
