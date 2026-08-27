@@ -33,7 +33,6 @@
   },
   "dependencies": {
     "sitemap": "^9.0.0",
-    "stream-replace-string": "^2.0.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

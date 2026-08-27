@@ -1,5 +1,25 @@
 # astro
 
+## 7.2.9
+
+### Patch Changes
+
+- [#17846](https://github.com/withastro/astro/pull/17846) [`b441180`](https://github.com/withastro/astro/commit/b44118001c8f9b4f05ccd004cc3b4d42a8da8bfc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes importing `.html` files not being typed outside of `.astro` files
+
+- [#17831](https://github.com/withastro/astro/pull/17831) [`32e8b44`](https://github.com/withastro/astro/commit/32e8b44c25a80759f0ed0b47551351331584f779) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a crash when requesting `/index.html` against a dynamic page route like `[slug].astro`
+
+- [#17841](https://github.com/withastro/astro/pull/17841) [`c35448e`](https://github.com/withastro/astro/commit/c35448ec8e53fc0f93798840953185c9facaa39b) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes SSR manifest containing stale `entryModules` references to prerender-only chunks that no longer exist in the final build output
+
+- [#17847](https://github.com/withastro/astro/pull/17847) [`eb87a23`](https://github.com/withastro/astro/commit/eb87a2391679ffa6fa25c61701569a474aa2e548) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `set:text` escaping in MDX script and style elements
+
+## 7.2.8
+
+### Patch Changes
+
+- [#17837](https://github.com/withastro/astro/pull/17837) [`ecb4082`](https://github.com/withastro/astro/commit/ecb4082131490b4fe9a56aa44fda84b54ef8967b) Thanks [@matthewp](https://github.com/matthewp)! - Updates the minimum supported version of Sharp to 0.35.4
+
+- [#17786](https://github.com/withastro/astro/pull/17786) [`db7c53b`](https://github.com/withastro/astro/commit/db7c53b1707856866e06cdeeef1aa4ae3598b1f2) Thanks [@gameroman](https://github.com/gameroman)! - Replaces the internal `find-process` dependency with a smaller, lighter alternative
+
 ## 7.2.7
 
 ### Patch Changes
