@@ -258,10 +258,10 @@ export interface PathWithRoute {
  * runtime and reports the result by value here.
  */
 export interface PrerenderRenderMetadata {
-	/** Root-relative `filePath`s of the content entries the page rendered. */
-	contentEntryKeys?: string[];
-	/** Optimized-image transforms the page resolved. */
-	staticImages?: SerializedStaticImage[];
+	/** Root-relative `filePath`s of the content entries the page rendered, or an empty array. */
+	contentEntryKeys: string[];
+	/** Optimized-image transforms the page resolved, or an empty array. */
+	staticImages: SerializedStaticImage[];
 }
 
 /**

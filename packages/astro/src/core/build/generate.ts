@@ -736,9 +736,8 @@ async function generatePathWithPrerenderer(
 	await nodeFs.promises.mkdir(result.outFolder, { recursive: true });
 	await nodeFs.promises.writeFile(result.outFile, result.body);
 
-	// Record this path in the new cache. A path without a cacheKey is never
-	// recorded, since it can never be skipped on a later build.
-	if (cache && cacheKey !== undefined) {
+	// Without a cache key or render metadata, the path cannot be skipped safely.
+	if (cache && cacheKey !== undefined && result.metadata !== undefined) {
 		await cache.writeOutputFile(options.settings, relativeOutFile, result.body);
 		cache.record(
 			route.component,
