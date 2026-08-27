@@ -21,7 +21,7 @@ let hmrWired = false;
 export const createApp: CreateApp = ({ streaming } = {}) => {
 	// Composition order: logger → environment → facade ctor
 	// (which warms the route table) → fetch handler → HMR wiring.
-	setLogger(manifest, createConsoleLogger(manifest.logLevel));
+	setLogger(manifest, createConsoleLogger({ level: manifest.logLevel }));
 	setEnvironment(manifest, createNonRunnableEnvironment());
 	const app = new DevFacadeApp(manifest, streaming);
 	app.setFetchHandler(fetchable);
