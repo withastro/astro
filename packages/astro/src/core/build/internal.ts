@@ -35,6 +35,15 @@ export interface BuildInternals {
 	entrySpecifierToBundleMap: Map<string, string>;
 
 	/**
+	 * Specifiers written to `entrySpecifierToBundleMap` by the prerender environment
+	 * that have not been overwritten by the SSR or client environments. These point
+	 * to chunk files inside the prerender output directory, which is deleted after
+	 * page generation. They must be stripped from the SSR manifest to avoid dangling
+	 * references.
+	 */
+	prerenderOnlyEntrySpecifiers: Set<string>;
+
+	/**
 	 * A map for page-specific information.
 	 */
 	pagesByKeys: Map<string, PageBuildData>;
@@ -167,6 +176,7 @@ export function createBuildInternals(): BuildInternals {
 		prerenderCssAssetByModuleKey: new Map(),
 		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
+		prerenderOnlyEntrySpecifiers: new Set<string>(),
 		pagesByKeys: new Map(),
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),

@@ -101,7 +101,8 @@ export async function manifestBuildPostHook(
 		// HTML on disk already has them inlined, and the SSR worker never renders
 		// these routes. Stripping keeps the entry chunk small on platforms like
 		// Cloudflare Workers that re-parse it on every cold isolate start.
-		const ssrManifest = stripPrerenderedRouteStyles(manifest);
+		let ssrManifest = stripPrerenderedRouteStyles(manifest);
+		ssrManifest = stripPrerenderOnlyEntryModules(ssrManifest, internals);
 		const code = injectManifest(ssrManifest, ssrManifestChunk.code);
 		mutate(ssrManifestChunk.fileName, code, false);
 	}
@@ -171,6 +172,26 @@ function stripPrerenderedRouteStyles(manifest: SerializedSSRManifest): Serialize
 		return { ...route, styles: [] };
 	});
 	return stripped ? { ...manifest, routes } : manifest;
+}
+
+/**
+ * Returns a copy of the manifest with `entryModules` entries removed for
+ * specifiers that were only emitted by the prerender environment. Those
+ * chunks live in the prerender output directory, which is deleted after
+ * page generation, so referencing them from the SSR manifest would produce
+ * dangling asset URLs at runtime.
+ */
+function stripPrerenderOnlyEntryModules(
+	manifest: SerializedSSRManifest,
+	internals: BuildInternals,
+): SerializedSSRManifest {
+	if (internals.prerenderOnlyEntrySpecifiers.size === 0) return manifest;
+	const filtered = Object.fromEntries(
+		Object.entries(manifest.entryModules).filter(
+			([key]) => !internals.prerenderOnlyEntrySpecifiers.has(key),
+		),
+	);
+	return { ...manifest, entryModules: filtered };
 }
 
 async function buildManifest(
