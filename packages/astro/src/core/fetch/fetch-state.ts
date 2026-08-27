@@ -970,10 +970,9 @@ export class FetchState implements AstroFetchState {
 			) {
 				this.pathname += '/';
 			}
-			// For dynamic page routes the `.html` may be part of a captured param
-			// value rather than a framework-injected suffix (e.g. `/index.html`
-			// matched by `[slug]`). When stripping breaks the route's own pattern
-			// match, revert so downstream param extraction still works. (#17827)
+			// Preserve the pathname when normalization would invalidate the selected route.
+			// Parameter extraction relies on the pathname matching this pattern.
+			// https://github.com/withastro/astro/issues/17827
 			if (this.pathname !== original && !this.routeData.pattern.test(this.pathname)) {
 				this.pathname = original;
 			}
