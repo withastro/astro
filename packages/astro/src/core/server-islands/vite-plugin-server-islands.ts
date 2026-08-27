@@ -11,8 +11,12 @@ const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
 const serverIslandPlaceholderMap = "'$$server-islands-map$$'";
 const serverIslandPlaceholderNameMap = "'$$server-islands-name-map$$'";
 export const SERVER_ISLAND_MAP_MARKER = '$$server-islands-map$$';
-const serverIslandMapReplaceExp = /['"]\$\$server-islands-map\$\$['"]/g;
-const serverIslandNameMapReplaceExp = /['"]\$\$server-islands-name-map\$\$['"]/g;
+// Backticks are matched for the same reason as in plugin-manifest.ts: these
+// replacements run on generated chunk code, and a minifier that normalises
+// string literals to template literals would otherwise leave the placeholders
+// unsubstituted.
+const serverIslandMapReplaceExp = /['"`]\$\$server-islands-map\$\$['"`]/g;
+const serverIslandNameMapReplaceExp = /['"`]\$\$server-islands-name-map\$\$['"`]/g;
 
 export function vitePluginServerIslands({
 	settings,

@@ -62,7 +62,13 @@ import { sessionConfigToManifest } from '../../session/utils.js';
  */
 
 export const MANIFEST_REPLACE = '@@ASTRO_MANIFEST_REPLACE@@';
-const replaceExp = new RegExp(`['"]${MANIFEST_REPLACE}['"]`, 'g');
+// The backtick is load-bearing: this replacement runs on already-generated chunk
+// code, so it sees whatever quoting the minifier chose. Rolldown/oxc normalises
+// string literals to template literals, so a minified server build emits the
+// placeholder backtick-quoted. Matching only ' and " left it unsubstituted, and
+// `deserializeManifest` then read `rootDir`/`srcDir`/… off a plain string and
+// threw `Invalid URL string` at runtime — with the build still exiting 0.
+const replaceExp = new RegExp(`['"\`]${MANIFEST_REPLACE}['"\`]`, 'g');
 
 /**
  * Post-build hook that injects the computed manifest into bundled chunks.
