@@ -1,0 +1,15 @@
+---
+import { Image } from 'astro:assets';
+import penguin from '../assets/penguin.jpg';
+
+export const prerender = false;
+---
+
+<html lang="en">
+	<head>
+		<title>On demand</title>
+	</head>
+	<body>
+		<Image id="image" src={penguin} alt="penguin" width={100} height={100} />
+	</body>
+</html>
