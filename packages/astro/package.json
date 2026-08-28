@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "7.2.7",
+  "version": "7.2.9",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -143,7 +143,7 @@
     "dset": "^3.1.4",
     "es-module-lexer": "^2.0.0",
     "esbuild": "^0.28.0",
-    "find-process": "^2.1.1",
+    "find-proc": "0.1.0",
     "flattie": "^1.1.1",
     "fontace": "~0.4.1",
     "get-tsconfig": "5.0.0-beta.4",
@@ -179,7 +179,7 @@
     "zod": "^4.3.6"
   },
   "optionalDependencies": {
-    "sharp": "^0.34.0 || ^0.35.0"
+    "sharp": "^0.35.4"
   },
   "peerDependencies": {
     "@astrojs/markdown-remark": "workspace:*"

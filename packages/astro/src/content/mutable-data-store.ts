@@ -47,6 +47,35 @@ export class MutableDataStore extends ImmutableDataStore {
 	#writeInProgress = false;
 	#writeQueued = false;
 
+	#fileWrittenListeners = new Set<(path: string) => void>();
+
+	/**
+	 * Registers a listener called with the file path whenever this store writes a
+	 * file to disk (the data store itself, or the asset/module import files).
+	 * Writes that are skipped because the data on disk is already identical do
+	 * not notify. The dev server uses this to invalidate the content virtual
+	 * modules deterministically, instead of relying on the file watcher to
+	 * observe the write — on some platforms (notably Windows) the watcher can
+	 * miss the atomic rename that commits it.
+	 * Returns a function that removes the listener.
+	 */
+	onFileWritten(listener: (path: string) => void): () => void {
+		this.#fileWrittenListeners.add(listener);
+		return () => {
+			this.#fileWrittenListeners.delete(listener);
+		};
+	}
+
+	#notifyFileWritten(path: PathLike) {
+		if (this.#fileWrittenListeners.size === 0) {
+			return;
+		}
+		const normalized = path instanceof URL ? fileURLToPath(path) : path.toString();
+		for (const listener of this.#fileWrittenListeners) {
+			listener(normalized);
+		}
+	}
+
 	set(collectionName: string, key: string, value: unknown) {
 		const collection = this._collections.get(collectionName) ?? new Map();
 		collection.set(String(key), value);
@@ -345,6 +374,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			// Write it to a temporary file first and then move it to prevent partial reads.
 			await fs.writeFile(tempFile, data);
 			await fs.rename(tempFile, filePath);
+			this.#notifyFileWritten(filePath);
 		} finally {
 			// We're done writing. Unflag the file and check if there are any pending writes for this file.
 			this.#writing.delete(fileKey);
@@ -510,7 +540,10 @@ export default new Map([\n${lines.join(',\n')}]);
 			// Mark as clean before writing to disk so that it catches any changes that happen during the write
 			this.#dirty = false;
 			this.#writeInProgress = true;
-			await this.#writer.write(this._collections);
+			const didWrite = await this.#writer.write(this._collections);
+			if (didWrite) {
+				this.#notifyFileWritten(this.#writer.target);
+			}
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		} finally {

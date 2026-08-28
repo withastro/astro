@@ -37,6 +37,8 @@ overrides:
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@biomejs/*'
+  - 'sharp@0.35.4'
+  - '@img/sharp-*'
   # 'fake-data-pkg' is a local package used for testing
   - 'fake-data-pkg@1.0.0'
   # TODO: remove once more stable
