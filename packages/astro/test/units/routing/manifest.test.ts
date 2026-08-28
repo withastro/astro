@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 import type { AstroLoggerMessage } from '../../../dist/core/logger/core.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createRoutesList } from '../../../dist/core/routing/create-manifest.js';
+import { isRoute3xx } from '../../../dist/core/routing/internal/route-3xx.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 import { createBasicSettings, createFixture, defaultLogger } from '../test-utils.ts';
 
@@ -44,6 +45,68 @@ function assertRouteRelations(routes: { route: string }[], relations: [string, s
 }
 
 describe('routing - createRoutesList', () => {
+	it('recognizes only the root 3xx.astro page as the known route', async () => {
+		const fixture = await createFixture({
+			'/src/pages/3xx.astro': '<h1>Redirect</h1>',
+			'/src/pages/nested/3xx.astro': '<h1>Nested</h1>',
+			'/src/pages/3xx.ts': 'export function GET() {}',
+		});
+		const settings = await createBasicSettings({ root: fixture.path });
+		const manifest = await createRoutesList({ cwd: fixture.path, settings }, defaultLogger);
+
+		assert.deepEqual(
+			manifest.routes.filter(isRoute3xx).map((route) => route.component),
+			['src/pages/3xx.astro'],
+		);
+		assert.equal(
+			manifest.routes.some((route) => route.component === 'src/pages/nested/3xx.astro'),
+			true,
+		);
+		assert.equal(
+			manifest.routes.some((route) => route.component === 'src/pages/3xx.ts'),
+			true,
+		);
+	});
+
+	it('does not create i18n fallback routes for the internal 3xx page', async () => {
+		const fixture = await createFixture({
+			'/src/pages/3xx.astro': '<h1>Redirect</h1>',
+			'/src/pages/index.astro': '<h1>Home</h1>',
+		});
+		const settings = await createBasicSettings({
+			root: fixture.path,
+			i18n: {
+				defaultLocale: 'en',
+				locales: ['en', 'fr'],
+				fallback: { fr: 'en' },
+			},
+		});
+		const manifest = await createRoutesList({ cwd: fixture.path, settings }, defaultLogger);
+		const redirectPage = manifest.routes.find(isRoute3xx);
+
+		assert.ok(redirectPage);
+		assert.deepEqual(redirectPage.fallbackRoutes, []);
+	});
+
+	it('does not treat an injected /3xx route as the internal page', async () => {
+		const fixture = await createFixture({
+			'/src/pages/index.astro': '<h1>Home</h1>',
+			'/src/integration/3xx.astro': '<h1>Integration route</h1>',
+		});
+		const settings = await createBasicSettings({ root: fixture.path });
+		settings.injectedRoutes = [
+			{
+				pattern: '/3xx',
+				entrypoint: 'src/integration/3xx.astro',
+				origin: 'external',
+			},
+		];
+		const manifest = await createRoutesList({ cwd: fixture.path, settings }, defaultLogger);
+
+		assert.equal(manifest.routes.some(isRoute3xx), false);
+		assert.ok(manifest.routes.some((route) => route.route === '/3xx'));
+	});
+
 	it('using trailingSlash: "never" does not match the index route when it contains a trailing slash', async () => {
 		const fixture = await createFixture({
 			'/src/pages/index.astro': `<h1>test</h1>`,

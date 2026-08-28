@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+	consumeRenderedRedirectPage,
 	computeRedirectStatus,
 	redirectIsExternal,
 	renderRedirect,
@@ -11,6 +12,21 @@ import { createMockFetchState } from '../mocks.ts';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 
 describe('redirects/render', () => {
+	it('recognizes and removes a serialized custom redirect marker', () => {
+		const response = new Response(null, { headers: { 'x-astro-redirect-page': 'true' } });
+
+		const result = consumeRenderedRedirectPage(response);
+		assert.equal(result.rendered, true);
+		assert.equal(result.headers.has('x-astro-redirect-page'), false);
+	});
+
+	it('accepts redirect responses with immutable headers', () => {
+		const result = consumeRenderedRedirectPage(Response.redirect('https://example.com'));
+
+		assert.equal(result.rendered, false);
+		assert.equal(result.headers.get('location'), 'https://example.com/');
+	});
+
 	describe('redirectIsExternal', () => {
 		it('returns true for http:// URLs', () => {
 			assert.equal(redirectIsExternal('http://example.com'), true);

@@ -22,6 +22,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
+import { isRoute3xx } from '../routing/internal/route-3xx.js';
 import { getPrerenderDefault } from '../../prerender/utils.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
@@ -262,7 +263,8 @@ export class AstroBuilder {
 			pages: pageNames,
 			routes: Object.values(allPages)
 				.flat()
-				.map((pageData) => pageData.route),
+				.map((pageData) => pageData.route)
+				.filter((route) => !isRoute3xx(route)),
 			logger: this.logger,
 		});
 

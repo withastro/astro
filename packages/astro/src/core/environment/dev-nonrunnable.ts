@@ -106,7 +106,10 @@ export function createNonRunnableEnvironment(): RenderEnvironment {
 			}
 
 			const { assetsPrefix, base } = manifest;
-			const routeInfo = manifest.routes.find((route) => route.routeData === routeData);
+			const routeInfo = manifest.routes.find(
+				(route) =>
+					route.routeData === routeData || route.routeData.component === routeData.component,
+			);
 			// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 			const links = new Set<never>();
 			const scripts = new Set<SSRElement>();

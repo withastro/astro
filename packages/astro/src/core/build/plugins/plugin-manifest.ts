@@ -32,6 +32,7 @@ import { generateSpeculationRulesContent } from '../../../prefetch/speculation-r
 import { encodeKey, generateCspDigest } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
+import { isRoute3xx } from '../../routing/internal/route-3xx.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import type { BuildInternals } from '../internal.js';
 import { cssOrder, mergeInlineCss } from '../runtime.js';
@@ -166,7 +167,9 @@ function injectManifest(manifest: SerializedSSRManifest, code: string) {
 function stripPrerenderedRouteStyles(manifest: SerializedSSRManifest): SerializedSSRManifest {
 	let stripped = false;
 	const routes = manifest.routes.map((route) => {
-		if (!route.routeData.prerender || route.styles.length === 0) return route;
+		if (!route.routeData.prerender || isRoute3xx(route.routeData) || route.styles.length === 0) {
+			return route;
+		}
 		stripped = true;
 		return { ...route, styles: [] };
 	});
@@ -266,7 +269,7 @@ async function buildManifest(
 		});
 
 		// Add the built .html file as a staticFile
-		if (route.prerender && route.pathname) {
+		if (route.prerender && route.pathname && !isRoute3xx(route)) {
 			const outFolder = getOutFolder(opts.settings, route.pathname, route);
 			const outFile = getOutFile(
 				opts.settings.config.build.format,

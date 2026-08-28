@@ -7,6 +7,7 @@ import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { createAssetLink, createStylesheetElementSet } from '../render/ssr-element.js';
 import { getDefaultRoutes } from '../routing/default.js';
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
+import { isRoute3xx } from '../routing/internal/route-3xx.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import type { BuildInternals } from './internal.js';
 import { cssOrder, getPageData, mergeInlineCss } from './runtime.js';
@@ -188,7 +189,9 @@ export function createBuildEnvironment(): BuildEnvironmentSlots {
 				// RAW manifest routes, exactly like `BuildPipeline.tryRewrite` — see
 				// the production environment's tryRewrite for why the derived
 				// (ensured-404) table is NOT observably identical here.
-				routes: manifest.routes.map((r) => r.routeData),
+				routes: manifest.routes
+					.map((r) => r.routeData)
+					.filter((candidate) => !isRoute3xx(candidate)),
 				trailingSlash: manifest.trailingSlash,
 				buildFormat: manifest.buildFormat,
 				base: manifest.base,

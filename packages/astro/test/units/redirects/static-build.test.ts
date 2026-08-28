@@ -83,6 +83,33 @@ describe('static redirects — meta refresh output', () => {
 		assert.ok(result.body.toString().includes('url=/test'));
 	});
 
+	it('uses the configured redirect delay', async () => {
+		const delayOptions = await createStaticBuildOptions({
+			pages: { 'src/pages/index.astro': TARGET_PAGE },
+			inlineConfig: {
+				redirectDelay: 5,
+				redirects: { '/delayed': '/' },
+			},
+		});
+		const route = delayOptions.routesList.routes.find(
+			(candidate) => candidate.route === '/delayed' && candidate.type === 'redirect',
+		);
+		assert.ok(route);
+
+		const result = await renderPath({
+			prerenderer: createMockPrerenderer({
+				'/delayed': new Response(null, { status: 301, headers: { location: '/' } }),
+			}),
+			pathname: '/delayed',
+			route,
+			options: delayOptions,
+			logger: delayOptions.logger,
+		});
+
+		assert.ok(result);
+		assert.match(result.body.toString(), /content="5;url=\/"/);
+	});
+
 	it('generates redirect HTML for an external destination', async () => {
 		const route = (options.routesList as { routes: RouteData[] }).routes.find(
 			(r) => r.route === '/external/redirect' && r.type === 'redirect',

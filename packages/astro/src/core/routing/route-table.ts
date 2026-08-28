@@ -2,22 +2,26 @@ import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import { createManifestMemo } from '../manifest/memo.js';
 import { ensure404Route } from './astro-designed-error-pages.js';
 import { Router } from './router.js';
+import { isRoute3xx } from './internal/route-3xx.js';
 
 export interface RouteTable {
 	/** Route data derived from the manifest, used for route matching. */
 	routes: RouteData[];
 	/** Pattern-matching router compiled from `routes`. */
 	router: Router;
+	/** Known `3xx.astro` route, excluded from route matching. */
+	redirectPage: RouteData | undefined;
 }
 
 function compileRouteTable(manifest: SSRManifest, routes: RouteData[]): RouteTable {
-	const routesList = ensure404Route({ routes });
+	const redirectPage = routes.find(isRoute3xx);
+	const routesList = ensure404Route({ routes: routes.filter((route) => !isRoute3xx(route)) });
 	const router = new Router(routesList.routes, {
 		base: manifest.base,
 		trailingSlash: manifest.trailingSlash,
 		buildFormat: manifest.buildFormat,
 	});
-	return { routes: routesList.routes, router };
+	return { routes: routesList.routes, router, redirectPage };
 }
 
 const routeTables = createManifestMemo((manifest) =>

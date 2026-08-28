@@ -10,7 +10,7 @@ import { finalizeI18n, getI18n } from '../i18n/handler.js';
 import { getResolvedLogger } from '../logger/manifest-logger.js';
 import { handleMiddleware } from '../middleware/astro-middleware.js';
 import { handlePages } from '../pages/handler.js';
-import { renderRedirect } from '../redirects/render.js';
+import { renderRedirect, renderRedirectPage } from '../redirects/render.js';
 import { provideSession } from '../session/provider.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
@@ -118,52 +118,54 @@ async function render(state: FetchState): Promise<Response> {
 		// page dispatch, no i18n post-processing. Inline routeData.type
 		// check to avoid a per-request function call + object overhead.
 		if (routeData.type === 'redirect') {
-			const redirectResponse = await renderRedirect(state);
+			const renderRouteRedirect = async () =>
+				renderRedirectPage(state, await renderRedirect(state));
+			response = state.manifest.cacheProvider
+				? await handleCache(state, renderRouteRedirect)
+				: await renderRouteRedirect();
 			logRequestFromState(state, {
 				pathname,
 				method: request.method,
-				statusCode: redirectResponse.status,
+				statusCode: response.status,
 				isRewrite: false,
 				timeStart: state.timeStart,
 			});
-			prepareResponse(redirectResponse, { addCookieHeader });
-			state.logger.flush();
-			return redirectResponse;
-		}
-
-		// `null` when i18n is unset or the strategy is `manual` — for the
-		// manual strategy users wire `astro:i18n.middleware(...)` into their
-		// own `onRequest`.
-		const i18n = getI18n(state.manifest);
-
-		// When no cache provider is configured (the common case), run
-		// the middleware + i18n pipeline directly without going through
-		// the cache handler. This avoids a closure allocation and an
-		// extra function call per request.
-		if (!state.manifest.cacheProvider) {
-			markFeatureUsed(state.manifest, FetchFeatures.cache);
-			response = await handleMiddleware(state, actionsAndPages);
-			if (i18n) {
-				response = await finalizeI18n(i18n, state, response);
-			}
 		} else {
-			const runPipeline = async (): Promise<Response> => {
-				let res = await handleMiddleware(state, actionsAndPages);
-				if (i18n) {
-					res = await finalizeI18n(i18n, state, res);
-				}
-				return res;
-			};
-			response = await handleCache(state, runPipeline);
-		}
+			// `null` when i18n is unset or the strategy is `manual` — for the
+			// manual strategy users wire `astro:i18n.middleware(...)` into their
+			// own `onRequest`.
+			const i18n = getI18n(state.manifest);
 
-		logRequestFromState(state, {
-			pathname,
-			method: request.method,
-			statusCode: response.status,
-			isRewrite: state.isRewriting,
-			timeStart: state.timeStart,
-		});
+			// When no cache provider is configured (the common case), run
+			// the middleware + i18n pipeline directly without going through
+			// the cache handler. This avoids a closure allocation and an
+			// extra function call per request.
+			if (!state.manifest.cacheProvider) {
+				markFeatureUsed(state.manifest, FetchFeatures.cache);
+				response = await handleMiddleware(state, actionsAndPages);
+				if (i18n) {
+					response = await finalizeI18n(i18n, state, response);
+				}
+				response = await renderRedirectPage(state, response);
+			} else {
+				const runPipeline = async (): Promise<Response> => {
+					let res = await handleMiddleware(state, actionsAndPages);
+					if (i18n) {
+						res = await finalizeI18n(i18n, state, res);
+					}
+					return renderRedirectPage(state, res);
+				};
+				response = await handleCache(state, runPipeline);
+			}
+
+			logRequestFromState(state, {
+				pathname,
+				method: request.method,
+				statusCode: response.status,
+				isRewrite: state.isRewriting,
+				timeStart: state.timeStart,
+			});
+		}
 	} catch (err: any) {
 		state.logger.error(null, err.stack || err.message || String(err));
 		return renderErrorFromState(state, request, {

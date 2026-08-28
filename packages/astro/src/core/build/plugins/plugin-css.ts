@@ -1,6 +1,7 @@
 import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin, Rolldown } from 'vite';
 import { isCSSRequest } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
+import { isRoute3xx } from '../../routing/internal/route-3xx.js';
 import { isPropagatedAssetBoundary } from '../../head-propagation/boundary.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../vite-plugin-pages/const.js';
 import {
@@ -266,7 +267,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 												pagesToCss,
 												depth,
 												order,
-												this.environment?.name,
+												isRoute3xx(pageData.route) ? undefined : this.environment?.name,
 											);
 										}
 									}
@@ -281,7 +282,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 												pagesToCss,
 												-1,
 												order,
-												this.environment?.name,
+												isRoute3xx(pageData.route) ? undefined : this.environment?.name,
 											);
 										}
 									}
@@ -308,7 +309,14 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 										const pages = internals.pagesByHydratedComponent.get(normalizedParent);
 										if (pages) {
 											for (const pageData of pages) {
-												appendCSSToPage(pageData, meta, pagesToCss, -1, -1, this.environment?.name);
+												appendCSSToPage(
+													pageData,
+													meta,
+													pagesToCss,
+													-1,
+													-1,
+													isRoute3xx(pageData.route) ? undefined : this.environment?.name,
+												);
 											}
 										}
 									}
@@ -349,14 +357,28 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							const pageViteID = pageInfo.id;
 							const pageData = getPageDataByViteID(internals, pageViteID);
 							if (pageData) {
-								appendCSSToPage(pageData, meta, pagesToCss, depth, order, this.environment?.name);
+								appendCSSToPage(
+									pageData,
+									meta,
+									pagesToCss,
+									depth,
+									order,
+									isRoute3xx(pageData.route) ? undefined : this.environment?.name,
+								);
 							}
 						} else if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 							// For scripts, walk parents until you find a page, and add the CSS to that page.
 							const pageDatas = internals.pagesByScriptId.get(pageInfo.id)!;
 							if (pageDatas) {
 								for (const pageData of pageDatas) {
-									appendCSSToPage(pageData, meta, pagesToCss, -1, order, this.environment?.name);
+									appendCSSToPage(
+										pageData,
+										meta,
+										pagesToCss,
+										-1,
+										order,
+										isRoute3xx(pageData.route) ? undefined : this.environment?.name,
+									);
 								}
 							}
 						}

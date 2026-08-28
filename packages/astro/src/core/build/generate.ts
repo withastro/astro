@@ -34,7 +34,9 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getRedirectLocationOrThrow } from '../redirects/index.js';
 import { createRequest } from '../request.js';
 import { redirectTemplate } from '../routing/3xx.js';
+import { consumeRenderedRedirectPage } from '../redirects/render.js';
 import { routeIsRedirect } from '../routing/helpers.js';
+import { isRoute3xx } from '../routing/internal/route-3xx.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../output-filename.js';
 import { getOutFile, getOutFolder } from './common.js';
@@ -151,6 +153,7 @@ export async function generatePages(
 		const fallbackPaths: typeof pathsWithRoutes = [];
 		for (const pathWithRoute of pathsWithRoutes) {
 			const { pathname, route } = pathWithRoute;
+			if (isRoute3xx(route)) continue;
 			// i18n domains won't work with prerendered routes
 			if (hasI18nDomains && route.prerender) {
 				throw new AstroError({
@@ -564,9 +567,10 @@ export async function renderPath({
 
 	// Handle the response
 	let body: string | Uint8Array;
-	const responseHeaders = response.headers;
+	const { rendered: renderedRedirectPage, headers: responseHeaders } =
+		consumeRenderedRedirectPage(response);
 
-	if (response.status >= 300 && response.status < 400) {
+	if (response.status >= 300 && response.status < 400 && response.status !== 304) {
 		// Handle redirects
 		if (routeIsRedirect(route) && !config.build.redirects) {
 			return null;
@@ -575,14 +579,19 @@ export async function renderPath({
 		const siteURL = config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(request.url).pathname;
-		body = redirectTemplate({
-			status: response.status,
-			absoluteLocation: location,
-			relativeLocation: locationSite,
-			from: fromPath,
-		});
-		if (config.compressHTML) {
-			body = body.replaceAll('\n', '');
+		if (renderedRedirectPage) {
+			body = Buffer.from(await response.arrayBuffer());
+		} else {
+			body = redirectTemplate({
+				status: response.status,
+				absoluteLocation: location,
+				relativeLocation: locationSite,
+				from: fromPath,
+				delay: config.redirectDelay,
+			});
+			if (config.compressHTML) {
+				body = body.replaceAll('\n', '');
+			}
 		}
 		if (route.type !== 'redirect') {
 			route.redirect = location.toString();
@@ -644,8 +653,19 @@ async function generatePathWithPrerenderer(
 	const relativeOutFile = outFile.href.slice(config.outDir.href.length);
 
 	// Look up the dependency hash for this route
-	const dependencyHash = internals.pageDependencyHashes?.get(route.component) ?? '';
-	const hasServerIsland = internals.serverIslandPageComponents?.has(route.component) ?? false;
+	const pageDependencyHashes = internals.pageDependencyHashes;
+	const routeDependencyHash = pageDependencyHashes?.get(route.component) ?? '';
+	const redirectPage = options.routesList.routes.find(isRoute3xx);
+	const redirectPageDependencyHash = redirectPage
+		? pageDependencyHashes?.get(redirectPage.component)
+		: undefined;
+	const dependencyHash = redirectPageDependencyHash
+		? `${routeDependencyHash}:${redirectPageDependencyHash}`
+		: routeDependencyHash;
+	const hasServerIsland =
+		internals.serverIslandPageComponents?.has(route.component) === true ||
+		(redirectPage !== undefined &&
+			internals.serverIslandPageComponents?.has(redirectPage.component) === true);
 
 	// Incremental build: check if we can skip this path
 	if (

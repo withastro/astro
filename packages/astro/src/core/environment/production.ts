@@ -10,6 +10,7 @@ import {
 } from '../render/ssr-element.js';
 import { getDefaultRoutes } from '../routing/default.js';
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
+import { isRoute3xx } from '../routing/internal/route-3xx.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import type { HeadElements, RenderEnvironment, TryRewriteResult } from './index.js';
 
@@ -87,7 +88,9 @@ export const productionEnvironment: RenderEnvironment = {
 
 	async headElements(manifest: SSRManifest, routeData: RouteData): Promise<HeadElements> {
 		const { assetsPrefix, base } = manifest;
-		const routeInfo = manifest.routes.find((route) => route.routeData.route === routeData.route);
+		const routeInfo = manifest.routes.find(
+			(route) => route.routeData === routeData || route.routeData.component === routeData.component,
+		);
 		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 		const links = new Set<never>();
 		const scripts = new Set<SSRElement>();
@@ -131,7 +134,7 @@ export const productionEnvironment: RenderEnvironment = {
 			// catch-all route on an explicit rewrite to `/404`. The no-match
 			// fallback already returns `DEFAULT_404_ROUTE`, so the raw list loses
 			// nothing.
-			routes: manifest.routes.map((r) => r.routeData),
+			routes: manifest.routes.map((r) => r.routeData).filter((candidate) => !isRoute3xx(candidate)),
 			trailingSlash: manifest.trailingSlash,
 			buildFormat: manifest.buildFormat,
 			base: manifest.base,

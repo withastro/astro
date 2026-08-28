@@ -245,6 +245,8 @@ export class FetchState implements AstroFetchState {
 	}
 	/** Normalized URL for this request. */
 	url: URL;
+	/** Normalized URL before any in-flight rewrites. */
+	originalUrl: URL;
 	/** Client address for this request. */
 	clientAddress: string | undefined;
 	/** Whether this is a partial render (container API). */
@@ -370,6 +372,7 @@ export class FetchState implements AstroFetchState {
 		) {
 			this.#applyForwardedHeaders();
 		}
+		this.originalUrl = new URL(this.url);
 
 		// Set origin pathname for rewrite tracking. Use this.request
 		// (not the local parameter) because #applyForwardedHeaders()
@@ -841,6 +844,14 @@ export class FetchState implements AstroFetchState {
 	 */
 	provide<T>(key: string, provider: ContextProvider<T>): void {
 		(this.#providers ??= new Map()).set(key, provider as ContextProvider<unknown>);
+	}
+
+	/** Shares request-scoped providers and locale state with a nested render. */
+	inheritContextFrom(state: FetchState): void {
+		this.#providers = state.#providers;
+		const resolvedValues = (state.#providersResolvedValues ??= new Map());
+		this.#providersResolvedValues = resolvedValues;
+		this.#currentLocale = state.computeCurrentLocale();
 	}
 
 	/**

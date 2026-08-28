@@ -31,6 +31,10 @@ const simplePage = createComponent((_result: any, _props: any, _slots: any) => {
 	return render`<h1>Hello</h1>`;
 });
 
+const customRedirectPage = createComponent((_result: any, props: any, _slots: any) => {
+	return render`<h1>Redirect from ${props.redirectFrom} to ${props.redirectTo}</h1>`;
+});
+
 /**
  * Registers the app's manifest as the ambient manifest so the public
  * one-arg `FetchState(request)` (and everything downstream) can resolve
@@ -222,6 +226,24 @@ describe('redirects()', () => {
 		assert.equal(response.headers.get('location'), '/new');
 	});
 
+	it('renders a configured redirect with the custom redirect page', async () => {
+		const app = createTestApp([
+			createRedirect({ route: '/old', redirect: '/new' }),
+			createPage(customRedirectPage, {
+				route: '/3xx',
+				component: 'src/pages/3xx.astro',
+			}),
+		]);
+		const request = stampApp(new Request('http://example.com/old'), app);
+		const state = new FetchState(request);
+
+		const result = redirects(state);
+		assert.ok(result !== undefined);
+		const response = await result;
+		assert.equal(response.status, 301);
+		assert.match(await response.text(), /Redirect from \/old to \/new/);
+	});
+
 	it('returns a redirect response for an external URL', async () => {
 		const app = createTestApp([
 			createRedirect({ route: '/old', redirect: 'https://other-site.com/landing' }),
@@ -404,6 +426,25 @@ describe('middleware()', () => {
 // #region pages()
 
 describe('pages()', () => {
+	it('renders a response redirect with the custom redirect page', async () => {
+		const app = createTestApp([
+			createEndpoint(
+				{ GET: () => new Response(null, { status: 307, headers: { location: '/new' } }) },
+				{ route: '/endpoint' },
+			),
+			createPage(customRedirectPage, {
+				route: '/3xx',
+				component: 'src/pages/3xx.astro',
+			}),
+		]);
+		const request = stampApp(new Request('http://example.com/endpoint'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+		assert.equal(response.status, 307);
+		assert.match(await response.text(), /Redirect from \/endpoint to \/new/);
+	});
+
 	it('renders a matched page', async () => {
 		const app = createTestApp([createPage(simplePage, { route: '/' })]);
 		const request = stampApp(new Request('http://example.com/'), app);

@@ -19,6 +19,7 @@ import {
 	createStylesheetElementSet,
 } from '../core/render/ssr-element.js';
 import { getDefaultRoutes } from '../core/routing/default.js';
+import { isRoute3xx } from '../core/routing/internal/route-3xx.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 
 export interface ContainerEnvironmentOptions {
@@ -99,7 +100,10 @@ export function createContainerEnvironment({
 		},
 
 		headElements(manifest: SSRManifest, routeData: RouteData): HeadElements {
-			const routeInfo = manifest.routes.find((route) => route.routeData === routeData);
+			const routeInfo = manifest.routes.find(
+				(route) =>
+					route.routeData === routeData || route.routeData.component === routeData.component,
+			);
 			const links = new Set<never>();
 			const scripts = new Set<SSRElement>();
 			const styles = createStylesheetElementSet(routeInfo?.styles ?? []);
@@ -136,7 +140,9 @@ export function createContainerEnvironment({
 				// routes at runtime (`insertRoute` pushes into `manifest.routes`),
 				// and an uncompiled scan sees them immediately. Reading the derived
 				// route table here would miss them.
-				routes: manifest.routes.map((r) => r.routeData),
+				routes: manifest.routes
+					.map((r) => r.routeData)
+					.filter((candidate) => !isRoute3xx(candidate)),
 				trailingSlash: manifest.trailingSlash,
 				buildFormat: manifest.buildFormat,
 				base: manifest.base,

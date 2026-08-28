@@ -78,6 +78,18 @@ describe('redirects/template', () => {
 		assert.equal(metaRefresh.attr('content'), '0;url=/perm');
 	});
 
+	it('uses a configured delay', () => {
+		const html = redirectTemplate({
+			status: 301,
+			absoluteLocation: 'https://example.com/redirect',
+			relativeLocation: '/redirect',
+			delay: 5,
+		});
+
+		const $ = cheerio.load(html);
+		assert.equal($('meta[http-equiv="refresh"]').attr('content'), '5;url=/redirect');
+	});
+
 	it('includes "from" information when provided', () => {
 		const html = redirectTemplate({
 			status: 301,

@@ -2,6 +2,7 @@ import type { RoutesList } from '../../types/astro.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { SERVER_ISLAND_COMPONENT } from '../server-islands/endpoint.js';
 import { isRoute404, isRoute500 } from './internal/route-errors.js';
+import { isRoute3xx } from './internal/route-3xx.js';
 
 /** Find matching route from pathname */
 export function matchRoute(pathname: string, manifest: RoutesList): RouteData | undefined {
@@ -18,15 +19,16 @@ export function matchRoute(pathname: string, manifest: RoutesList): RouteData | 
 
 	return manifest.routes.find((route) => {
 		return (
-			route.pattern.test(pathname) ||
-			route.fallbackRoutes.some((fallbackRoute) => fallbackRoute.pattern.test(pathname))
+			!isRoute3xx(route) &&
+			(route.pattern.test(pathname) ||
+				route.fallbackRoutes.some((fallbackRoute) => fallbackRoute.pattern.test(pathname)))
 		);
 	});
 }
 
 /** Finds all matching routes from pathname */
 export function matchAllRoutes(pathname: string, manifest: RoutesList): RouteData[] {
-	return manifest.routes.filter((route) => route.pattern.test(pathname));
+	return manifest.routes.filter((route) => !isRoute3xx(route) && route.pattern.test(pathname));
 }
 
 /**

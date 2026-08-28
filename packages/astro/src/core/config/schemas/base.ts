@@ -121,6 +121,7 @@ export const AstroConfigSchema = z.object({
 		.union([z.boolean(), z.literal('jsx')])
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.compressHTML),
+	redirectDelay: z.number().int().min(0).optional(),
 	base: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.base),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])

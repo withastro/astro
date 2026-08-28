@@ -560,6 +560,17 @@ export interface AstroUserConfig<
 
 	/**
 	 * @docs
+	 * @name redirectDelay
+	 * @type {number}
+	 * @description
+	 * Sets the delay, in seconds, used by Astro's built-in HTML redirect page during static builds.
+	 *
+	 * By default, `302` redirects use a two-second delay and all other redirects have no delay. A custom `src/pages/3xx.astro` page controls its own redirect behavior and ignores this option.
+	 */
+	redirectDelay?: number;
+
+	/**
+	 * @docs
 	 * @name scopedStyleStrategy
 	 * @type {('where' | 'class' | 'attribute')}
 	 * @default `'attribute'`

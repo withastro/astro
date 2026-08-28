@@ -14,6 +14,7 @@ import { getPrerenderOutputDirectory, getServerOutputDirectory } from '../../pre
 import type { RouteData } from '../../types/public/internal.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { routeIsRedirect } from '../routing/helpers.js';
+import { isRoute3xx } from '../routing/internal/route-3xx.js';
 
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
@@ -310,9 +311,13 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		isRolldownInput,
 	});
 
+	const integrationPages = new Map(internals.pagesByKeys);
+	for (const [key, pageData] of integrationPages) {
+		if (isRoute3xx(pageData.route)) integrationPages.delete(key);
+	}
 	const updatedViteBuildConfig = await runHookBuildSetup({
 		config: settings.config,
-		pages: internals.pagesByKeys,
+		pages: integrationPages,
 		vite: viteBuildConfig,
 		target: 'server',
 		logger: opts.logger,

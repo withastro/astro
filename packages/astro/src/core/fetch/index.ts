@@ -15,7 +15,7 @@ import { finalizeI18n, getI18n } from '../i18n/handler.js';
 import { getAmbientManifest } from '../manifest/ambient.js';
 import { handleMiddlewareWithErrorFallback } from '../middleware/astro-middleware.js';
 import { handlePagesWithErrorFallback } from '../pages/handler.js';
-import { renderRedirect } from '../redirects/render.js';
+import { renderRedirect, renderRedirectPage } from '../redirects/render.js';
 import { handleRequest } from '../routing/handler.js';
 import { provideSession } from '../session/provider.js';
 import { handleTrailingSlash } from '../routing/trailing-slash-handler.js';
@@ -57,7 +57,9 @@ export function middleware(
 	state: FetchState,
 	next: (state: FetchState) => Promise<Response>,
 ): Promise<Response> {
-	return handleMiddlewareWithErrorFallback(state, (s, _ctx) => next(s));
+	return handleMiddlewareWithErrorFallback(state, (s, _ctx) => next(s)).then((response) =>
+		renderRedirectPage(state, response),
+	);
 }
 
 /**
@@ -66,8 +68,8 @@ export function middleware(
  * routes render the 404 error page; render-time errors are logged and
  * render the 500 error page.
  */
-export function pages(state: FetchState): Promise<Response> {
-	return handlePagesWithErrorFallback(state);
+export async function pages(state: FetchState): Promise<Response> {
+	return renderRedirectPage(state, await handlePagesWithErrorFallback(state));
 }
 
 /**
@@ -91,7 +93,7 @@ export function sessions(state: FetchState): Promise<void> | void {
  */
 export function redirects(state: FetchState): Promise<Response> | undefined {
 	if (state.routeData?.type === 'redirect') {
-		return renderRedirect(state);
+		return renderRedirect(state).then((response) => renderRedirectPage(state, response));
 	}
 	return undefined;
 }
@@ -114,8 +116,8 @@ export function actions(state: FetchState): Promise<Response | undefined> | unde
  */
 export function i18n(state: FetchState, response: Response): Promise<Response> {
 	const compiled = getI18n(state.manifest);
-	if (!compiled) return Promise.resolve(response);
-	return finalizeI18n(compiled, state, response);
+	const finalized = compiled ? finalizeI18n(compiled, state, response) : Promise.resolve(response);
+	return finalized.then((result) => renderRedirectPage(state, result));
 }
 
 /**

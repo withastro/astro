@@ -15,6 +15,7 @@ function fakeConfig(overrides = {}): AstroConfig {
 		trailingSlash: 'ignore',
 		output: 'static',
 		compressHTML: true,
+		redirectDelay: undefined,
 		scopedStyleStrategy: 'attribute',
 		build: {
 			format: 'directory',
@@ -53,6 +54,7 @@ describe('getConfigHashInput', () => {
 			'markdown',
 			'output',
 			'prefetch',
+			'redirectDelay',
 			'redirects',
 			'scopedStyleStrategy',
 			'security',
@@ -153,6 +155,7 @@ describe('config schema coverage guard', () => {
 		'compressHTML',
 		'scopedStyleStrategy',
 		'build',
+		'redirectDelay',
 		'redirects',
 		'prefetch',
 		'image',

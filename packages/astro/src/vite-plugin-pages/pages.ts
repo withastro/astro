@@ -6,6 +6,7 @@ import type { RouteData } from '../types/public/internal.js';
 import { VIRTUAL_PAGE_MODULE_ID } from './const.js';
 import { getVirtualModulePageName } from './util.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { isRoute3xx } from '../core/routing/internal/route-3xx.js';
 
 export const VIRTUAL_PAGES_MODULE_ID = 'virtual:astro:pages';
 const VIRTUAL_PAGES_RESOLVED_MODULE_ID = '\0' + VIRTUAL_PAGES_MODULE_ID;
@@ -72,6 +73,10 @@ export function pluginPages({ routesList }: PagesPluginOptions): VitePlugin {
 					isSSR || isPrerender
 						? getRoutesForEnvironment(routesList.routes, isPrerender)
 						: new Set(routesList.routes);
+				const redirectPage = routesList.routes.find(isRoute3xx);
+				if (redirectPage) {
+					routes.add(redirectPage);
+				}
 
 				for (const route of routes) {
 					if (routeIsRedirect(route)) {

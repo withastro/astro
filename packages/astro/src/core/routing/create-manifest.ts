@@ -27,6 +27,7 @@ import { routeComparator } from './priority.js';
 import { getPattern } from './pattern.js';
 import { getRoutePrerenderOption } from './prerender.js';
 import { validateSegment } from './segment.js';
+import { isRoute3xx } from './internal/route-3xx.js';
 
 const require = createRequire(import.meta.url);
 
@@ -708,7 +709,7 @@ export async function createRoutesList(
 
 	const fileBasedRoutes = createFileBasedRoutes(params, logger);
 	for (const route of fileBasedRoutes) {
-		routeMap.set(route.route, route);
+		if (!isRoute3xx(route)) routeMap.set(route.route, route);
 	}
 
 	const injectedRoutes = createInjectedRoutes(params);
@@ -720,6 +721,7 @@ export async function createRoutesList(
 
 	// we remove the file based routes that were deemed redirects
 	const filteredFiledBasedRoutes = fileBasedRoutes.filter((fileBasedRoute) => {
+		if (isRoute3xx(fileBasedRoute)) return true;
 		const isRedirect = redirectRoutes.findIndex((rd) => rd.route === fileBasedRoute.route);
 		return isRedirect < 0;
 	});
@@ -734,6 +736,7 @@ export async function createRoutesList(
 	for (const route of routes) {
 		promises.push(
 			limit(async () => {
+				if (isRoute3xx(route)) return;
 				if (route.type !== 'page' && route.type !== 'endpoint' && route.type !== 'redirect') return;
 				// External redirects aren't taken into account
 				if (route.type === 'redirect' && !route.redirectRoute) return;
@@ -798,11 +801,13 @@ export async function createRoutesList(
 	if (dev || settings.config.adapter) {
 		injectServerIslandRoute(settings.config, { routes });
 	}
-	await runHookRoutesResolved({ routes, settings, logger });
+	await runHookRoutesResolved({
+		routes: routes.filter((route) => !isRoute3xx(route)),
+		settings,
+		logger,
+	});
 
-	return {
-		routes,
-	};
+	return { routes };
 }
 
 /**
@@ -827,7 +832,7 @@ export function createI18nFallbackRoutes(
 
 	// Group page routes by locale
 	const routesByLocale = new Map<string, RouteData[]>();
-	const setRoutes = new Set(routes.filter((route) => route.type === 'page'));
+	const setRoutes = new Set(routes.filter((route) => route.type === 'page' && !isRoute3xx(route)));
 
 	const filteredLocales = i18n.locales
 		.filter((loc) => {

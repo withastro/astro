@@ -1,0 +1,33 @@
+---
+const { status, redirectFrom, redirectTo } = Astro.props;
+Astro.response.headers.set('x-redirect-template', 'rendered');
+Astro.cookies.set('template-cookie', 'set');
+let sessionValue;
+if (redirectTo === '/target?source=session') {
+	const currentValue = await Astro.session?.get('redirect-session');
+	sessionValue = `${currentValue}-template`;
+	Astro.session?.set('redirect-session', sessionValue);
+}
+---
+
+<html>
+	<head>
+		<meta http-equiv="refresh" content={`9;url=${redirectTo}`} />
+	</head>
+	<body>
+		<p
+			id="redirect-details"
+			data-status={status}
+			data-from={redirectFrom}
+			data-to={redirectTo}
+			data-locale={Astro.currentLocale}
+			data-session={sessionValue}>Custom redirect</p
+		>
+	</body>
+</html>
+
+<style>
+	#redirect-details {
+		color: rgb(1, 2, 3);
+	}
+</style>

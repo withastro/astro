@@ -5,6 +5,7 @@ type RedirectTemplate = {
 	absoluteLocation: string | URL;
 	status: number;
 	relativeLocation: string;
+	delay?: number;
 };
 
 /**
@@ -15,10 +16,11 @@ export function redirectTemplate({
 	absoluteLocation,
 	relativeLocation,
 	from,
+	delay: configuredDelay,
 }: RedirectTemplate) {
 	// A short delay causes Google to interpret the redirect as temporary.
 	// https://developers.google.com/search/docs/crawling-indexing/301-redirects#metarefresh
-	const delay = status === 302 ? 2 : 0;
+	const delay = configuredDelay ?? (status === 302 ? 2 : 0);
 	const rel = escape(String(relativeLocation));
 	const abs = escape(String(absoluteLocation));
 	const fromHtml = from ? `from <code>${escape(from)}</code> ` : '';

@@ -33,6 +33,7 @@ export function getConfigHashInput(config: AstroConfig) {
 		trailingSlash: config.trailingSlash,
 		output: config.output,
 		compressHTML: config.compressHTML,
+		redirectDelay: config.redirectDelay,
 		scopedStyleStrategy: config.scopedStyleStrategy,
 		build: {
 			format: config.build.format,

@@ -21,6 +21,13 @@ describe('Config Validation', () => {
 		await assert.doesNotReject(validateConfig({}));
 	});
 
+	it('validates redirectDelay', async () => {
+		assert.equal((await validateConfig({ redirectDelay: 0 })).redirectDelay, 0);
+		assert.equal((await validateConfig({ redirectDelay: 5 })).redirectDelay, 5);
+		await assert.rejects(validateConfig({ redirectDelay: -1 }), z.ZodError);
+		await assert.rejects(validateConfig({ redirectDelay: 1.5 }), z.ZodError);
+	});
+
 	it('Zod errors are returned when invalid config is used', async () => {
 		const configError = await validateConfig({ site: 42 }).catch((err) => err);
 		assert.equal(configError instanceof z.ZodError, true);
