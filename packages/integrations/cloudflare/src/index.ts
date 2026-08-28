@@ -359,6 +359,9 @@ export default function createIntegration({
 													...(prebundleContentRuntime ? (['astro/content/runtime'] as const) : []),
 													'astro/compiler-runtime',
 													'astro/jsx-runtime',
+													...(config.logger?.entrypoint === 'astro/logger/json'
+														? ['astro/logger/json']
+														: []),
 													'astro/app/entrypoint/dev',
 													'astro/middleware',
 													'astro/virtual-modules/middleware.js',
