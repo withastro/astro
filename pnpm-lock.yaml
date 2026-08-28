@@ -3923,6 +3923,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/prerender-conflict-same-route:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/prerender-conflict-static-dynamic:
     dependencies:
       astro:
@@ -7177,15 +7183,6 @@ importers:
       tsx:
         specifier: ^4.22.0
         version: 4.22.3
-
-  triage/gh-17848:
-    dependencies:
-      '@astrojs/sitemap':
-        specifier: workspace:*
-        version: link:../../packages/integrations/sitemap
-      astro:
-        specifier: workspace:*
-        version: link:../../packages/astro
 
 packages:
 

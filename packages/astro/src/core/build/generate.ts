@@ -35,7 +35,6 @@ import { getRedirectLocationOrThrow } from '../redirects/index.js';
 import { createRequest } from '../request.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { routeIsRedirect } from '../routing/helpers.js';
-import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../output-filename.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
@@ -146,7 +145,9 @@ export async function generatePages(
 
 		// Filter paths for conflicts (same path from multiple routes)
 		const { config } = options.settings;
-		const builtPaths = new Set<string>();
+		// Maps each normalized pathname to the route that first claimed it,
+		// so conflict warnings identify the actual winning route.
+		const builtPaths = new Map<string, RouteData>();
 		const filteredPaths: typeof pathsWithRoutes = [];
 		const fallbackPaths: typeof pathsWithRoutes = [];
 		for (const pathWithRoute of pathsWithRoutes) {
@@ -163,36 +164,31 @@ export async function generatePages(
 
 			// Path hasn't been built yet, include it
 			if (!builtPaths.has(normalized)) {
-				builtPaths.add(normalized);
+				builtPaths.set(normalized, route);
 			} else {
-				// Path was already built. Check if this route has higher priority.
-				const matchedRoute = matchRoute(decodeURI(pathname), options.routesList);
-				if (!matchedRoute) {
-					continue;
-				}
+				// Path was already built by another route (or a duplicate from the same route).
+				const winningRoute = builtPaths.get(normalized)!;
 
-				if (matchedRoute !== route) {
-					// Current route is lower-priority. Warn or error based on config.
-					if (config.prerenderConflictBehavior === 'error') {
-						throw new AstroError({
-							...AstroErrorData.PrerenderRouteConflict,
-							message: AstroErrorData.PrerenderRouteConflict.message(
-								matchedRoute.route,
-								route.route,
-								normalized,
-							),
-							hint: AstroErrorData.PrerenderRouteConflict.hint(matchedRoute.route, route.route),
-						});
-					} else if (config.prerenderConflictBehavior === 'warn') {
-						const msg = AstroErrorData.PrerenderRouteConflict.message(
-							matchedRoute.route,
+				// Warn or error based on config.
+				if (config.prerenderConflictBehavior === 'error') {
+					throw new AstroError({
+						...AstroErrorData.PrerenderRouteConflict,
+						message: AstroErrorData.PrerenderRouteConflict.message(
+							winningRoute.route,
 							route.route,
 							normalized,
-						);
-						logger.warn('build', msg);
-					}
-					continue;
+						),
+						hint: AstroErrorData.PrerenderRouteConflict.hint(winningRoute.route, route.route),
+					});
+				} else if (config.prerenderConflictBehavior === 'warn') {
+					const msg = AstroErrorData.PrerenderRouteConflict.message(
+						winningRoute.route,
+						route.route,
+						normalized,
+					);
+					logger.warn('build', msg);
 				}
+				continue;
 			}
 
 			const paths = route.type === 'fallback' ? fallbackPaths : filteredPaths;
