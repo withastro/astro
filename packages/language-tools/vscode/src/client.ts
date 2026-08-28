@@ -12,6 +12,7 @@ import {
 } from '@volar/vscode';
 import * as vscode from 'vscode';
 import * as lsp from 'vscode-languageclient/node';
+import { isTsgoEnabled, registerContentMapper, useTsgoSections } from './contentMapper.js';
 
 let client: lsp.BaseLanguageClient;
 
@@ -70,12 +71,15 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 	const shouldDisableAutoImportCache =
 		vscode.workspace.getConfiguration('astro').get('auto-import-cache.enabled') === false;
 
+	const contentMapperEnabled = await registerContentMapper(context);
+
 	const initializationOptions = {
 		typescript: {
 			tsdk: (await getTsdk(context))!.tsdk,
 		},
 		contentIntellisense: hasContentIntellisense,
 		disableAutoImportCache: shouldDisableAutoImportCache,
+		contentMapperEnabled,
 	} satisfies InitOptions;
 
 	const clientOptions = {
@@ -92,10 +96,30 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 
 	// support for auto close tag
 	activateAutoInsertion('astro', client);
-	activateFindFileReferences('astro.findFileReferences', client);
 	activateReloadProjects('astro.reloadProjects', client);
 	activateTsConfigStatusItem('astro', 'astro.openTsConfig', client);
-	activateTsVersionStatusItem('astro', 'astro.selectTypescriptVersion', context, (text) => text);
+
+	// TypeScript serves these itself once the content mapper owns `.astro`.
+	if (!contentMapperEnabled) {
+		activateFindFileReferences('astro.findFileReferences', client);
+		activateTsVersionStatusItem('astro', 'astro.selectTypescriptVersion', context, (text) => text);
+	}
+
+	context.subscriptions.push(
+		vscode.workspace.onDidChangeConfiguration(async (event) => {
+			if (!useTsgoSections.some((section) => event.affectsConfiguration(section))) return;
+			if (isTsgoEnabled() === contentMapperEnabled) return;
+
+			const reload = 'Reload Window';
+			const result = await vscode.window.showInformationMessage(
+				'The TypeScript version used for Astro files changed. Reload to apply it.',
+				reload,
+			);
+			if (result === reload) {
+				await vscode.commands.executeCommand('workbench.action.reloadWindow');
+			}
+		}),
+	);
 
 	const volarLabs = createLabsInfo(protocol);
 	volarLabs.addLanguageClient(client);

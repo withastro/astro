@@ -39,15 +39,23 @@ export function getLanguageServicePlugins(
 	collectionConfig: CollectionConfig,
 	initializeParams?: InitializeParams,
 ) {
+	// A TypeScript 7 content mapper serves the same features, and both answering duplicates them.
+	const typeScriptHandledElsewhere =
+		initializeParams?.initializationOptions?.contentMapperEnabled === true;
+
 	const LanguageServicePlugins = [
 		createHtmlService(),
 		createCssService(),
 		createEmmetService(),
-		...createTypeScriptServices(ts, {
-			disableAutoImportCache: initializeParams?.initializationOptions?.disableAutoImportCache,
-		}),
-		createTypeScriptTwoSlashService(ts),
-		createTypeScriptAddonsService(),
+		...(typeScriptHandledElsewhere
+			? []
+			: [
+					...createTypeScriptServices(ts, {
+						disableAutoImportCache: initializeParams?.initializationOptions?.disableAutoImportCache,
+					}),
+					createTypeScriptTwoSlashService(ts),
+					createTypeScriptAddonsService(),
+				]),
 		createAstroService(),
 		getPrettierService(),
 		createYAMLService(collectionConfig),
