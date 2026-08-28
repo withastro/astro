@@ -36,11 +36,11 @@ export async function loadRemoteImage(src: URL): Promise<Buffer | undefined> {
 export const handleImageRequest = async ({
 	request,
 	loadLocalImage,
-	logger
+	logger,
 }: {
 	request: Request;
 	loadLocalImage: (src: string, baseUrl: URL) => Promise<Buffer | undefined>;
-	logger: AstroRuntimeLogger
+	logger: AstroRuntimeLogger;
 }) => {
 	const imageService = await getConfiguredImageService();
 
@@ -49,7 +49,7 @@ export const handleImageRequest = async ({
 	}
 
 	const url = new URL(request.url);
-	const transform = await imageService.parseURL(url, imageConfig);
+	const transform = await imageService.parseURL(url, imageConfig, logger);
 
 	if (!transform?.src) {
 		return new Response('Invalid request', { status: 400 });
@@ -80,7 +80,12 @@ export const handleImageRequest = async ({
 		return new Response('Internal Server Error', { status: 500 });
 	}
 
-	const { data, format } = await imageService.transform(inputBuffer, transform, imageConfig, logger);
+	const { data, format } = await imageService.transform(
+		inputBuffer,
+		transform,
+		imageConfig,
+		logger,
+	);
 
 	return new Response(data as Uint8Array<ArrayBuffer>, {
 		status: 200,

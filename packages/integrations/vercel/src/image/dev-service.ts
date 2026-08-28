@@ -4,7 +4,7 @@ import { baseDevService } from './shared-dev-service.js';
 
 const service: LocalImageService = {
 	...baseDevService,
-	getHTMLAttributes(options, serviceOptions) {
+	getHTMLAttributes(options, ...args) {
 		const { inputtedWidth, ...props } = options;
 
 		// If `validateOptions` returned a different width than the one of the image, use it for attributes
@@ -12,9 +12,7 @@ const service: LocalImageService = {
 			props.width = inputtedWidth;
 		}
 
-		return sharpService.getHTMLAttributes
-			? sharpService.getHTMLAttributes(props, serviceOptions)
-			: {};
+		return sharpService.getHTMLAttributes ? sharpService.getHTMLAttributes(props, ...args) : {};
 	},
 	transform(...args) {
 		const transform = args[1];

@@ -74,7 +74,7 @@ export const GET: APIRoute = async ({ request, logger }) => {
 	try {
 		return await handleImageRequest({ request, loadLocalImage, logger });
 	} catch (err: unknown) {
-		const message =`Could not process image request: ${err}`
+		const message = `Could not process image request: ${err}`;
 		logger.error(message);
 		return new Response(message, {
 			status: 500,

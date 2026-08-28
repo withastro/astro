@@ -21,6 +21,7 @@ import type { APIContext } from '../../dist/types/public/context.js';
 import type { SSRManifest, RouteInfo } from '../../dist/core/app/types.js';
 import type { AstroComponentFactory } from '../../dist/runtime/server/render/index.js';
 import type { ImageTransform } from '../../dist/assets/types.js';
+import type { AstroRuntimeLogger } from '../../dist/types/public/context.js';
 
 /**
  * Mock utilities for unit tests.
@@ -319,6 +320,16 @@ const unitTestImageService = {
 		if (options.position) params.set('pos', options.position);
 		return '/_image?' + params.toString();
 	},
+};
+
+/**
+ * Minimal `AstroRuntimeLogger` stub for the arguments image service hooks
+ * receive, which the unit test service never logs through.
+ */
+export const mockRuntimeLogger: AstroRuntimeLogger = {
+	info() {},
+	warn() {},
+	error() {},
 };
 
 interface ImageServiceOverrides {

@@ -2,9 +2,9 @@
 'astro': minor
 ---
 
-Adds a `logger` parameter to the `transform()` method of local image services
+Adds a `logger` parameter to image services hooks
 
-Custom image services now receive Astro's runtime logger as a fourth argument. Messages logged with it are routed through the destination configured in `logger` and respect your log level, instead of being written straight to the console:
+Custom image services now receive Astro's runtime logger as an extra argument. Messages logged with it are routed through the destination configured in `logger` and respect your log level, instead of being written straight to the console:
 
 ```ts
 import type { LocalImageService } from 'astro';

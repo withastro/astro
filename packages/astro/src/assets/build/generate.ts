@@ -280,7 +280,7 @@ export async function generateImagesForPath(
 					originalImage.data,
 					{ ...options, src: originalImagePath },
 					env.imageConfig,
-					astroToRuntimeLogger(env.logger)
+					astroToRuntimeLogger(env.logger),
 				)
 			).data;
 		} catch (e) {

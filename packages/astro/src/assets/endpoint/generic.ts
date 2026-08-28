@@ -20,7 +20,7 @@ export const GET: APIRoute = async ({ request, logger }) => {
 		}
 
 		const url = new URL(request.url);
-		const transform = await imageService.parseURL(url, imageConfig);
+		const transform = await imageService.parseURL(url, imageConfig, logger);
 
 		if (!transform?.src) {
 			throw new Error('Incorrect transform returned by `parseURL`');
