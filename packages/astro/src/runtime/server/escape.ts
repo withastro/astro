@@ -36,9 +36,10 @@ const htmlStringSymbol = Symbol.for('astro:html-string');
  * A "blessed" extension of String that tells Astro that the string
  * has already been escaped. This helps prevent double-escaping of HTML.
  */
-export class HTMLString extends String {
-	[htmlStringSymbol] = true;
-}
+export class HTMLString extends String {}
+
+// On the prototype, not an instance field: a per-instance store costs measurably on every rendered chunk.
+Object.defineProperty(HTMLString.prototype, htmlStringSymbol, { value: true });
 
 type BlessedType = string | HTMLBytes;
 
@@ -64,7 +65,8 @@ export const markHTMLString = (value: any) => {
 };
 
 export function isHTMLString(value: any): value is HTMLString {
-	return !!value?.[htmlStringSymbol];
+	// The `typeof` guard stops primitive strings, the most common argument, from being boxed to miss a symbol lookup.
+	return typeof value === 'object' && value !== null && value[htmlStringSymbol] === true;
 }
 
 function markHTMLBytes(bytes: Uint8Array) {
