@@ -34,14 +34,16 @@ export const toAttributeString = (value: any, shouldEscape = true) => {
 const kebab = (k: string) =>
 	k.toLowerCase() === k ? k : k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
 
-export const toStyleString = (obj: Record<string, any>) =>
-	Object.entries(obj)
-		.filter(([_, v]) => (typeof v === 'string' && v.trim()) || typeof v === 'number')
-		.map(([k, v]) => {
-			if (k[0] !== '-' && k[1] !== '-') return `${kebab(k)}:${v}`;
-			return `${k}:${v}`;
-		})
-		.join(';');
+export const toStyleString = (obj: Record<string, any>) => {
+	let output = '';
+	for (const key of Object.keys(obj)) {
+		const value = obj[key];
+		if (!((typeof value === 'string' && value.trim()) || typeof value === 'number')) continue;
+		if (output) output += ';';
+		output += key[0] !== '-' && key[1] !== '-' ? `${kebab(key)}:${value}` : `${key}:${value}`;
+	}
+	return output;
+};
 
 // Adds variables to an inline script.
 export function defineScriptVars(vars: Record<any, any>) {
@@ -164,8 +166,10 @@ export function internalSpreadAttributes(
 	tagName: string,
 ) {
 	let output = '';
-	for (const [key, value] of Object.entries(values)) {
-		output += addAttribute(value, key, shouldEscape, tagName);
+	const keys = Object.keys(values);
+	for (let i = 0; i < keys.length; i++) {
+		const key = keys[i];
+		output += addAttribute(values[key], key, shouldEscape, tagName);
 	}
 	return markHTMLString(output);
 }
