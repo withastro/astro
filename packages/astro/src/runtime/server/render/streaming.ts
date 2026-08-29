@@ -9,9 +9,11 @@ import { renderChild } from './any.js';
 import { Fragment, type RenderDestination } from './common.js';
 import { createBufferedRenderer, type RendererFlusher, voidElementNames } from './util.js';
 import { isAstroComponentFactory } from './astro/factory.js';
-import { createAstroComponentInstance } from './astro/instance.js';
+import { isHeadAndContent } from './astro/head-and-content.js';
+import { createAstroComponentInstance, isAstroComponentInstance } from './astro/instance.js';
 import { isRenderTemplateResult, type RenderTemplateResult } from './astro/render-template.js';
 import { containsServerDirective, ServerIslandComponent } from './server-islands.js';
+import { SlotRenderInstance } from './slot.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
@@ -301,6 +303,20 @@ export async function renderStreaming(
 		if (isVNode(node)) {
 			handleVNode(node as AstroVNode);
 			continue;
+		}
+		// Expanded onto the stack rather than rendered via `renderChild` so their static
+		// markup joins the surrounding batch instead of one write per template part.
+		if (node instanceof SlotRenderInstance) {
+			stack.push(node.evaluate());
+			continue;
+		}
+		if (isAstroComponentInstance(node)) {
+			const returnValue = node.init(result);
+			if (!isPromise(returnValue)) {
+				stack.push(isHeadAndContent(returnValue) ? returnValue.content : returnValue);
+				continue;
+			}
+			// `init` memoizes, so the dynamic path below re-uses this same promise.
 		}
 		// Dynamic node: component instance, render instance, promise, JSX vnode,
 		// render instruction, iterable, etc. Rendered via renderChild — streamed
