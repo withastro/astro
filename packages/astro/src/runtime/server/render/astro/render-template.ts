@@ -6,6 +6,21 @@ import { createBufferedRenderer } from '../util.js';
 
 const renderTemplateResultSym = Symbol.for('astro.renderTemplateResult');
 
+// A tagged template's strings array is per call site, so the wrappers can be built once, not per render.
+const markedHtmlParts = new WeakMap<TemplateStringsArray, string[]>();
+
+function markHtmlParts(htmlParts: TemplateStringsArray): string[] {
+	let marked = markedHtmlParts.get(htmlParts);
+	if (marked === undefined) {
+		marked = new Array(htmlParts.length);
+		for (let i = 0; i < htmlParts.length; i++) {
+			marked[i] = htmlParts[i] ? markHTMLString(htmlParts[i]) : htmlParts[i];
+		}
+		markedHtmlParts.set(htmlParts, marked);
+	}
+	return marked;
+}
+
 // The return value when rendering a component.
 // This is the result of calling render(), should this be named to RenderResult or...?
 export class RenderTemplateResult {
@@ -16,20 +31,22 @@ export class RenderTemplateResult {
 	constructor(htmlParts: TemplateStringsArray, expressions: unknown[]) {
 		this.htmlParts = htmlParts;
 		this.error = undefined;
-		this.expressions = expressions.map((expression) => {
-			// Wrap Promise expressions so we can catch errors
-			// There can only be 1 error that we rethrow from an Astro component,
-			// so this keeps track of whether or not we have already done so.
+		// Wrap Promise expressions so we can catch errors
+		// There can only be 1 error that we rethrow from an Astro component,
+		// so this keeps track of whether or not we have already done so.
+		// Mutating in place is safe: `renderTemplate`'s rest parameter hands us a fresh array.
+		for (let i = 0; i < expressions.length; i++) {
+			const expression = expressions[i];
 			if (isPromise(expression)) {
-				return Promise.resolve(expression).catch((err) => {
+				expressions[i] = Promise.resolve(expression).catch((err) => {
 					if (!this.error) {
 						this.error = err;
 						throw err;
 					}
 				});
 			}
-			return expression;
-		});
+		}
+		this.expressions = expressions;
 	}
 
 	render(destination: RenderDestination): void | Promise<void> {
@@ -41,12 +58,13 @@ export class RenderTemplateResult {
 		//
 		// Template structure: html[0] exp[0] html[1] exp[1] ... html[N]
 		// (htmlParts.length === expressions.length + 1)
-		const { htmlParts, expressions } = this;
+		const { expressions } = this;
+		const htmlParts = markHtmlParts(this.htmlParts);
 
 		for (let i = 0; i < htmlParts.length; i++) {
 			const html = htmlParts[i];
 			if (html) {
-				destination.write(markHTMLString(html));
+				destination.write(html);
 			}
 
 			// expressions[i] doesn't exist for the last htmlPart
@@ -80,7 +98,7 @@ export class RenderTemplateResult {
 							// Write the HTML part that precedes this expression
 							const rHtml = htmlParts[startIdx + k];
 							if (rHtml) {
-								destination.write(markHTMLString(rHtml));
+								destination.write(rHtml);
 							}
 
 							const flushResult = flushers[k++].flush();
@@ -91,7 +109,7 @@ export class RenderTemplateResult {
 						// Write the final trailing HTML part
 						const lastHtml = htmlParts[htmlParts.length - 1];
 						if (lastHtml) {
-							destination.write(markHTMLString(lastHtml));
+							destination.write(lastHtml);
 						}
 					};
 					return iterate();
