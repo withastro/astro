@@ -87,6 +87,41 @@ function handleBooleanAttribute(
 	return markHTMLString(value ? ` ${key}` : '');
 }
 
+const ATTRIBUTE_ORDINARY = 0;
+const ATTRIBUTE_INVALID_NAME = 1;
+const ATTRIBUTE_STATIC_DIRECTIVE = 2;
+const ATTRIBUTE_CLASS_LIST = 3;
+const ATTRIBUTE_STYLE = 4;
+const ATTRIBUTE_CLASS_NAME = 5;
+const ATTRIBUTE_BOOLEAN = 6;
+// `popover`, `download` and `hidden` accept strings too, so they are only boolean when the value is.
+const ATTRIBUTE_BOOLEAN_IF_BOOLEAN = 7;
+
+const attributeKinds = new Map<string, number>();
+
+function classifyAttribute(key: string): number {
+	if (INVALID_ATTR_NAME_CHAR.test(key)) return ATTRIBUTE_INVALID_NAME;
+	if (STATIC_DIRECTIVES.has(key)) return ATTRIBUTE_STATIC_DIRECTIVE;
+	if (key === 'class:list') return ATTRIBUTE_CLASS_LIST;
+	if (key === 'style') return ATTRIBUTE_STYLE;
+	if (key === 'className') return ATTRIBUTE_CLASS_NAME;
+	if (htmlBooleanAttributes.test(key)) return ATTRIBUTE_BOOLEAN;
+	if (key === 'popover' || key === 'download' || key === 'hidden') {
+		return ATTRIBUTE_BOOLEAN_IF_BOOLEAN;
+	}
+	return ATTRIBUTE_ORDINARY;
+}
+
+function attributeKind(key: string): number {
+	let kind = attributeKinds.get(key);
+	if (kind === undefined) {
+		kind = classifyAttribute(key);
+		// Spreads can carry attribute names from user data, so the cache is capped.
+		if (attributeKinds.size < 1024) attributeKinds.set(key, kind);
+	}
+	return kind;
+}
+
 // A helper used to turn expressions into attribute key/value
 // In the compiler, addAttribute is only printed to process attributes of elements
 // that may contain dynamic values. We don't need to pass tagName to addAttribute
@@ -96,64 +131,59 @@ export function addAttribute(value: any, key: string, shouldEscape = true, tagNa
 		return '';
 	}
 
-	// Reject attribute names with characters that could break out of the attribute context.
-	if (INVALID_ATTR_NAME_CHAR.test(key)) {
-		return '';
-	}
+	switch (attributeKind(key)) {
+		// Attribute names with characters that could break out of the attribute context.
+		case ATTRIBUTE_INVALID_NAME:
+			return '';
 
-	// compiler directives cannot be applied dynamically, log a warning and ignore.
-	if (STATIC_DIRECTIVES.has(key)) {
-		console.warn(`[astro] The "${key}" directive cannot be applied dynamically at runtime. It will not be rendered as an attribute.
+		// compiler directives cannot be applied dynamically, log a warning and ignore.
+		case ATTRIBUTE_STATIC_DIRECTIVE:
+			console.warn(`[astro] The "${key}" directive cannot be applied dynamically at runtime. It will not be rendered as an attribute.
 
 Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the dynamic spread syntax (\`{...{ "${key}": value }}\`).`);
-		return '';
-	}
-
-	// support "class" from an expression passed into an element (#782)
-	if (key === 'class:list') {
-		const listValue = toAttributeString(clsx(value), shouldEscape);
-		if (listValue === '') {
 			return '';
-		}
-		return markHTMLString(` ${key.slice(0, -5)}="${listValue}"`);
-	}
 
-	// support object styles for better JSX compat
-	if (key === 'style' && !(value instanceof HTMLString)) {
-		if (Array.isArray(value) && value.length === 2) {
-			return markHTMLString(
-				` ${key}="${toAttributeString(`${toStyleString(value[0])};${value[1]}`, shouldEscape)}"`,
-			);
+		// support "class" from an expression passed into an element (#782)
+		case ATTRIBUTE_CLASS_LIST: {
+			const listValue = toAttributeString(clsx(value), shouldEscape);
+			if (listValue === '') {
+				return '';
+			}
+			return markHTMLString(` class="${listValue}"`);
 		}
-		if (typeof value === 'object') {
-			return markHTMLString(` ${key}="${toAttributeString(toStyleString(value), shouldEscape)}"`);
-		}
-	}
 
-	// support `className` for better JSX compat
-	if (key === 'className') {
-		return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
-	}
+		// support object styles for better JSX compat
+		case ATTRIBUTE_STYLE:
+			if (!(value instanceof HTMLString)) {
+				if (Array.isArray(value) && value.length === 2) {
+					return markHTMLString(
+						` style="${toAttributeString(`${toStyleString(value[0])};${value[1]}`, shouldEscape)}"`,
+					);
+				}
+				if (typeof value === 'object') {
+					return markHTMLString(` style="${toAttributeString(toStyleString(value), shouldEscape)}"`);
+				}
+			}
+			break;
 
-	// Boolean values only need the key
-	if (htmlBooleanAttributes.test(key)) {
-		return handleBooleanAttribute(key, value, shouldEscape, tagName);
+		// support `className` for better JSX compat
+		case ATTRIBUTE_CLASS_NAME:
+			return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
+
+		// Boolean values only need the key
+		case ATTRIBUTE_BOOLEAN:
+			return handleBooleanAttribute(key, value, shouldEscape, tagName);
+
+		case ATTRIBUTE_BOOLEAN_IF_BOOLEAN:
+			if (typeof value === 'boolean') {
+				return handleBooleanAttribute(key, value, shouldEscape, tagName);
+			}
+			break;
 	}
 
 	// Other attributes with an empty string value can omit rendering the value
 	if (value === '') {
 		return markHTMLString(` ${key}`);
-	}
-
-	// We cannot add it to htmlBooleanAttributes because it can be: boolean | "auto" | "manual"
-	if (key === 'popover' && typeof value === 'boolean') {
-		return handleBooleanAttribute(key, value, shouldEscape, tagName);
-	}
-	if (key === 'download' && typeof value === 'boolean') {
-		return handleBooleanAttribute(key, value, shouldEscape, tagName);
-	}
-	if (key === 'hidden' && typeof value === 'boolean') {
-		return handleBooleanAttribute(key, value, shouldEscape, tagName);
 	}
 
 	return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
