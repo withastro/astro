@@ -11,7 +11,13 @@ const leadingComponentRe = /^\s*<\s*([A-Za-z][A-Za-z0-9]*)\b/;
 // Scans MDX source directly because Sätteri exposes no root-level visitor.
 // Skips imports/exports/blank lines and bails when the first content line is a
 // capitalized JSX element (treated as a wrapping layout).
-export function shouldAddCharset(content: string, filePath: string, srcDir: URL): boolean {
+export function shouldAddCharset(
+	content: string,
+	filePath: string,
+	srcDir: URL | undefined,
+): boolean {
+	// `@astrojs/mdx` 7.0.x never passes `srcDir`, so the `src/pages` check below cannot run.
+	if (!srcDir) return false;
 	const srcDirPath = fileURLToPath(srcDir).replace(/\\/g, '/');
 	const pagesDir = path.posix.join(srcDirPath, 'pages');
 	const normalizedFilePath = filePath.replace(/\\/g, '/');
