@@ -74,8 +74,9 @@ export function renderSlot(
 		return renderSlot(result, fallback);
 	}
 	return {
-		async render(destination) {
-			await renderChild(destination, typeof slotted === 'function' ? slotted(result) : slotted);
+		// Not `async`: that would return a promise even for sync slots, forcing the enclosing template to buffer.
+		render(destination) {
+			return renderChild(destination, typeof slotted === 'function' ? slotted(result) : slotted);
 		},
 	};
 }
