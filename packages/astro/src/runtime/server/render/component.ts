@@ -461,16 +461,8 @@ function renderAstroComponent(
 		return serverIslandComponent;
 	}
 
-	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
-
-	return {
-		render(destination: RenderDestination): Promise<void> | void {
-			// NOTE: This render call can't be pre-invoked outside of this function as it'll also initialize the slots
-			// recursively, which causes each Astro components in the tree to be called bottom-up, and is incorrect.
-			// The slots are initialized eagerly for head propagation.
-			return instance.render(destination);
-		},
-	};
+	// `instance.render` must stay deferred: invoking it here would initialize slots bottom-up.
+	return createAstroComponentInstance(result, displayName, Component, props, slots);
 }
 
 export function renderComponent(
