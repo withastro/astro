@@ -1,0 +1,24 @@
+---
+export const prerender = false;
+
+// The console logger writes inside the worker, whose stdout is not the test
+// process' stdout, so the capture has to happen in here.
+const written = [];
+const originalInfo = console.info;
+const originalError = console.error;
+console.info = (...args) => void written.push(args.join(' '));
+console.error = (...args) => void written.push(args.join(' '));
+try {
+	Astro.logger.info('info-from-astro-logger');
+	Astro.logger.error('error-from-astro-logger');
+} finally {
+	console.info = originalInfo;
+	console.error = originalError;
+}
+---
+
+<html>
+	<body>
+		<pre id="written">{JSON.stringify(written)}</pre>
+	</body>
+</html>

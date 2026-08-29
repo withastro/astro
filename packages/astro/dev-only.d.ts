@@ -29,8 +29,10 @@ declare module 'virtual:astro:actions/entrypoint' {
 }
 
 declare module 'virtual:astro:manifest' {
-	import type { SSRManifest } from './src/index.js';
-	export const manifest: SSRManifest;
+	// Must use an inline `import(...)` type: a top-level relative `import` inside an
+	// ambient module declaration is invalid (TS2439) and silently degrades the export
+	// to `any`, which is hidden by `skipLibCheck`.
+	export const manifest: import('./src/index.js').SSRManifest;
 }
 
 declare module 'virtual:astro:routes' {
