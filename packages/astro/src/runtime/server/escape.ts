@@ -1,8 +1,38 @@
 import { escape } from 'html-escaper';
 import { streamAsyncIterator } from './util.js';
 
-// Leverage the battle-tested `html-escaper` npm package.
-export const escapeHTML = escape;
+const ESCAPABLE = /[&<>'"]/g;
+
+function entityFor(code: number): string {
+	switch (code) {
+		case 38:
+			return '&amp;';
+		case 60:
+			return '&lt;';
+		case 62:
+			return '&gt;';
+		case 39:
+			return '&#39;';
+		default:
+			return '&quot;';
+	}
+}
+
+/** Output-identical to `html-escaper`; non-strings delegate so coercion and errors match. */
+export function escapeHTML(value: any): string {
+	if (typeof value !== 'string') return escape(value);
+	ESCAPABLE.lastIndex = 0;
+	if (!ESCAPABLE.test(value)) return value;
+	let output = '';
+	let last = 0;
+	do {
+		const index = ESCAPABLE.lastIndex - 1;
+		if (last !== index) output += value.slice(last, index);
+		output += entityFor(value.charCodeAt(index));
+		last = index + 1;
+	} while (ESCAPABLE.test(value));
+	return last === value.length ? output : output + value.slice(last);
+}
 
 /**
  * Serializes a value to a JSON string that is safe to embed inside a `<script>` tag.
