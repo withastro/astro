@@ -2,12 +2,16 @@ import type { SSRResult } from '../../../types/public/internal.js';
 import type { AstroVNode } from '../../../jsx-runtime/index.js';
 import { isVNode } from '../../../jsx-runtime/index.js';
 import { escapeHTML, HTMLString, isHTMLString, markHTMLString } from '../escape.js';
-import { spreadAttributes } from '../index.js';
 import { isPromise } from '../util.js';
 import { renderJSX } from '../jsx.js';
 import { renderChild } from './any.js';
 import { Fragment, type RenderDestination } from './common.js';
-import { createBufferedRenderer, type RendererFlusher, voidElementNames } from './util.js';
+import {
+	createBufferedRenderer,
+	type RendererFlusher,
+	spreadElementAttributes,
+	voidElementNames,
+} from './util.js';
 import { isAstroComponentFactory } from './astro/factory.js';
 import { isHeadAndContent } from './astro/head-and-content.js';
 import { createAstroComponentInstance, isAstroComponentInstance } from './astro/instance.js';
@@ -163,9 +167,6 @@ export async function renderStreaming(
 		// HTML element (e.g. 'div', 'span').
 		if (typeof type === 'string' && type !== ClientOnlyPlaceholder) {
 			const props = vnode.props;
-			// Check for attributes without copying props into a new object.
-			// Markdown/MDX is mostly elements with no attributes (<p>, <li>,
-			// <strong>…), for which we skip both that copy and `spreadAttributes`.
 			let hasAttrs = false;
 			if (props) {
 				for (const key in props) {
@@ -179,8 +180,7 @@ export async function renderStreaming(
 			const isVoid = (children == null || children === '') && voidElementNames.test(type);
 
 			if (!hasAttrs) {
-				// No attributes: skip the props copy and `spreadAttributes` entirely,
-				// and reuse the cached (constant) open/close tag strings for this tag.
+				// Without attributes the open tag depends only on the tag name, so it can be cached.
 				const key = isVoid ? `${type}/` : type;
 				let openTag = openTagCache.get(key);
 				if (openTag === undefined) {
@@ -193,14 +193,13 @@ export async function renderStreaming(
 					stack.push(closeTagFor(type));
 				}
 			} else {
-				const { children: _children, ...attrsProps } = props ?? {};
-				const attrs = spreadAttributes(attrsProps);
+				const attrs = spreadElementAttributes(props!);
 				if (isVoid) {
 					st.emitStatic(`<${type}${attrs}/>`);
 					return;
 				}
 				st.emitStatic(`<${type}${attrs}>`);
-				stack.push(markHTMLString(`</${type}>`));
+				stack.push(closeTagFor(type));
 			}
 
 			if (!isVoid && children != null && children !== '') {

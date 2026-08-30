@@ -189,6 +189,17 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 	return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
 }
 
+export function spreadElementAttributes(values: Record<string, any>): string {
+	let output = '';
+	const keys = Object.keys(values);
+	for (let i = 0; i < keys.length; i++) {
+		const key = keys[i];
+		if (key === 'children') continue;
+		output += addAttribute(values[key], key, true);
+	}
+	return output;
+}
+
 // Adds support for `<Component {...value} />
 export function internalSpreadAttributes(
 	values: Record<any, any>,
