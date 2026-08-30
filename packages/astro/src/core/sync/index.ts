@@ -141,7 +141,9 @@ export async function syncInternal({
 		// Create the Vite server once and keep it alive for both content config loading
 		// and content layer sync. This is needed because loaders may use dynamic imports
 		// which require the Vite server to be running. See https://github.com/withastro/astro/issues/12689
-		const tempViteServer = await createTempViteServer(settings, { mode, fs, logger });
+		const tempViteServer = needsContentRuntime(settings, fs, watcher)
+			? await createTempViteServer(settings, { mode, fs, logger })
+			: undefined;
 
 		try {
 			await syncContentCollections(settings, { fs, logger, viteServer: tempViteServer });
@@ -181,7 +183,7 @@ export async function syncInternal({
 			}
 			settings.timer.end('Sync content layer');
 		} finally {
-			await tempViteServer.close();
+			await tempViteServer?.close();
 		}
 	} else {
 		const paths = getContentPaths(
@@ -231,6 +233,24 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
 		astroDtsContent,
 		'utf-8',
 	);
+}
+
+/**
+ * A watcher can introduce a content config after sync starts, so servers are only skipped for
+ * one-shot commands (`build`, `sync`) whose config-less projects have nothing to execute.
+ */
+function needsContentRuntime(
+	settings: AstroSettings,
+	fs: typeof fsMod,
+	watcher: SyncOptions['watcher'],
+): boolean {
+	if (watcher) return true;
+	const contentPaths = getContentPaths(
+		settings.config,
+		fs,
+		settings.config.legacy?.collectionsBackwardsCompat,
+	);
+	return contentPaths.config.exists || contentPaths.liveConfig.exists;
 }
 
 /**
@@ -308,7 +328,11 @@ async function createTempViteServer(
  */
 async function syncContentCollections(
 	settings: AstroSettings,
-	{ logger, fs, viteServer }: { logger: AstroLogger; fs: typeof fsMod; viteServer: ViteDevServer },
+	{
+		logger,
+		fs,
+		viteServer,
+	}: { logger: AstroLogger; fs: typeof fsMod; viteServer: ViteDevServer | undefined },
 ): Promise<void> {
 	try {
 		const contentTypesGenerator = await createContentTypesGenerator({

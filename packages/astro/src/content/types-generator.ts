@@ -72,7 +72,7 @@ type CreateContentGeneratorParams = {
 	logger: AstroLogger;
 	settings: AstroSettings;
 	/** This is required for loading the content config */
-	viteServer: ViteDevServer;
+	viteServer: ViteDevServer | undefined;
 	fs: typeof fsMod;
 };
 
@@ -140,9 +140,10 @@ export async function createContentTypesGenerator({
 			await reloadContentConfigObserver({
 				fs,
 				settings,
-				environment: viteServer.environments[
-					ASTRO_VITE_ENVIRONMENT_NAMES.astro
-				] as RunnableDevEnvironment,
+				getEnvironment: () =>
+					viteServer?.environments[
+						ASTRO_VITE_ENVIRONMENT_NAMES.astro
+					] as RunnableDevEnvironment,
 				logger,
 			});
 			return { shouldGenerateTypes: true };
@@ -176,7 +177,7 @@ export async function createContentTypesGenerator({
 					}
 					const collectionInfo = collectionEntryMap[collectionKey];
 					if (collectionInfo.type === 'content') {
-						viteServer.environments.client.hot.send({
+						viteServer?.environments.client.hot.send({
 							type: 'error',
 							err: new AstroError({
 								...AstroErrorData.MixedContentDataCollectionError,
@@ -220,7 +221,7 @@ export async function createContentTypesGenerator({
 		}
 		const collectionInfo = collectionEntryMap[collectionKey];
 		if (collectionInfo.type === 'data') {
-			viteServer.environments.client.hot.send({
+			viteServer?.environments.client.hot.send({
 				type: 'error',
 				err: new AstroError({
 					...AstroErrorData.MixedContentDataCollectionError,
@@ -327,10 +328,11 @@ export async function createContentTypesGenerator({
 				logger,
 				settings,
 			});
-			if (!isRunnableDevEnvironment(viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
+			const ssrEnvironment = viteServer?.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+			if (!ssrEnvironment || !isRunnableDevEnvironment(ssrEnvironment)) {
 				return;
 			}
-			invalidateVirtualMod(viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]);
+			invalidateVirtualMod(ssrEnvironment);
 		}
 	}
 	return { init, queueEvent };
@@ -444,7 +446,7 @@ async function writeContentFiles({
 	typeTemplateContent: string;
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
-	viteServer: ViteDevServer;
+	viteServer: ViteDevServer | undefined;
 	logger: AstroLogger;
 	settings: AstroSettings;
 }) {
@@ -470,7 +472,7 @@ async function writeContentFiles({
 			collectionConfig.type !== CONTENT_LAYER_TYPE &&
 			collection.type !== collectionConfig.type
 		) {
-			viteServer.environments.client.hot.send({
+			viteServer?.environments.client.hot.send({
 				type: 'error',
 				err: new AstroError({
 					...AstroErrorData.ContentCollectionTypeMismatchError,

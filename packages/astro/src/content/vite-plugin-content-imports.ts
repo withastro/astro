@@ -183,9 +183,10 @@ export const _internal = {
 							await reloadContentConfigObserver({
 								fs,
 								settings,
-								environment: viteServer.environments[
-									ASTRO_VITE_ENVIRONMENT_NAMES.astro
-								] as RunnableDevEnvironment,
+								getEnvironment: () =>
+									viteServer.environments[
+										ASTRO_VITE_ENVIRONMENT_NAMES.astro
+									] as RunnableDevEnvironment,
 								logger,
 							});
 						}
