@@ -31,22 +31,22 @@ export class RenderTemplateResult {
 	constructor(htmlParts: TemplateStringsArray, expressions: unknown[]) {
 		this.htmlParts = htmlParts;
 		this.error = undefined;
-		// Wrap Promise expressions so we can catch errors
-		// There can only be 1 error that we rethrow from an Astro component,
-		// so this keeps track of whether or not we have already done so.
-		// Mutating in place is safe: `renderTemplate`'s rest parameter hands us a fresh array.
-		for (let i = 0; i < expressions.length; i++) {
-			const expression = expressions[i];
-			if (isPromise(expression)) {
-				expressions[i] = Promise.resolve(expression).catch((err) => {
-					if (!this.error) {
-						this.error = err;
-						throw err;
-					}
-				});
-			}
-		}
 		this.expressions = expressions;
+	}
+
+	/**
+	 * Wraps an async expression so the component rethrows only the first error.
+	 * Mutating in place is safe: `renderTemplate`'s rest parameter hands us a fresh array.
+	 */
+	catchExpressionError(index: number, expression: unknown): Promise<void> {
+		const wrapped = Promise.resolve(expression).catch((err) => {
+			if (!this.error) {
+				this.error = err;
+				throw err;
+			}
+		});
+		this.expressions[index] = wrapped;
+		return wrapped;
 	}
 
 	render(destination: RenderDestination): void | Promise<void> {
@@ -70,9 +70,10 @@ export class RenderTemplateResult {
 			// expressions[i] doesn't exist for the last htmlPart
 			if (i >= expressions.length) break;
 
-			const exp = expressions[i];
+			let exp = expressions[i];
 			// Skip render if falsy, except the number 0
 			if (!(exp || exp === 0)) continue;
+			if (isPromise(exp)) exp = this.catchExpressionError(i, exp);
 
 			const result = renderChild(destination, exp);
 
@@ -83,7 +84,8 @@ export class RenderTemplateResult {
 				const remaining = expressions.length - startIdx;
 				const flushers = new Array(remaining);
 				for (let j = 0; j < remaining; j++) {
-					const rExp = expressions[startIdx + j];
+					let rExp = expressions[startIdx + j];
+					if (isPromise(rExp)) rExp = this.catchExpressionError(startIdx + j, rExp);
 					flushers[j] = createBufferedRenderer(destination, (bufferDestination) => {
 						if (rExp || rExp === 0) {
 							return renderChild(bufferDestination, rExp);
