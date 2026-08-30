@@ -28,8 +28,12 @@ export class AstroComponentInstance {
 		this.result = result;
 		this.props = props;
 		this.factory = factory;
-		this.slotValues = {};
+		// Shared until a slot needs wrapping: most components have none, and the copy costs.
+		this.slotValues = slots;
 		for (const name in slots) {
+			if (this.slotValues === slots) {
+				this.slotValues = {};
+			}
 			// prerender the slots eagerly to make collection entries propagate styles and scripts
 			let didRender = false;
 			let value = slots[name](result);
