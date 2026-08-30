@@ -4,7 +4,7 @@ import {
 	buildImporterGraphFromModuleInfo,
 	computeInTreeAncestors,
 } from '../core/head-propagation/graph.js';
-import { getTopLevelPageModuleInfos } from '../core/build/graph.js';
+import { cachedModuleGraph, getTopLevelPageModuleInfos } from '../core/build/graph.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import { PROPAGATED_ASSET_FLAG } from '../content/consts.js';
 import type { SSRComponentMetadata, SSRResult } from '../types/public/internal.js';
@@ -210,6 +210,7 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 		},
 		generateBundle(_opts, bundle) {
 			const map: SSRResult['componentMetadata'] = internals.componentMetadata;
+			const graph = cachedModuleGraph(this);
 			const moduleIds = new Set<string>();
 			// Explicit runtime entries (`createComponent({ propagation: 'self' })`).
 			const selfPropagationSeeds = new Set<string>();
@@ -229,13 +230,13 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 				if (output.type !== 'chunk') continue;
 				for (const [id] of Object.entries(output.modules)) {
 					moduleIds.add(id);
-					const modinfo = this.getModuleInfo(id);
+					const modinfo = graph.getModuleInfo(id);
 
 					// <head> tag in the tree
 					if (modinfo) {
 						const meta = getAstroMetadata(modinfo);
 						if (meta?.containsHead) {
-							for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
+							for (const pageInfo of getTopLevelPageModuleInfos(id, graph)) {
 								let metadata = getOrCreateMetadata(pageInfo.id);
 								metadata.containsHead = true;
 							}
@@ -258,7 +259,7 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 
 			// Build once, then compute all ancestors from both seed kinds.
 			const importerGraph = buildImporterGraphFromModuleInfo(moduleIds, (id) =>
-				this.getModuleInfo(id),
+				graph.getModuleInfo(id),
 			);
 			const allPropagationSeeds = new Set([...selfPropagationSeeds, ...commentPropagationSeeds]);
 			const allAncestors = computeInTreeAncestors({

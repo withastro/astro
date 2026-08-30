@@ -4,6 +4,7 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 import { isPropagatedAssetBoundary } from '../../head-propagation/boundary.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../vite-plugin-pages/const.js';
 import {
+	cachedModuleGraph,
 	getParentExtendedModuleInfos,
 	getParentModuleInfos,
 	moduleIsTopLevelPage,
@@ -66,6 +67,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		},
 
 		async generateBundle(_outputOptions, bundle) {
+			const graph = cachedModuleGraph(this);
 			// Collect CSS modules that were bundled during SSR build for deduplication in client build
 			if (
 				this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
@@ -206,7 +208,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						// would incorrectly attribute the chunk's CSS to pages reached through
 						// modules that have no CSS dependency.
 						if (!isCSSRequest(id)) continue;
-						for (const pageData of getParentClientOnlys(id, this, internals)) {
+						for (const pageData of getParentClientOnlys(id, graph, internals)) {
 							for (const importedCssImport of meta.importedCss) {
 								const cssToInfoRecord = (pagesToCss[pageData.moduleSpecifier] ??= {});
 								cssToInfoRecord[importedCssImport] = { depth: -1, order: -1 };
@@ -242,7 +244,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					// These components may not be in the server build (due to conditional rendering)
 					// but are in the client build. We need to ensure their CSS is included.
 					for (const id of Object.keys(chunk.modules)) {
-						const moduleInfo = this.getModuleInfo(id);
+						const moduleInfo = graph.getModuleInfo(id);
 						const cssScopeTo = moduleInfo?.meta?.vite?.cssScopeTo as [string, string] | undefined;
 						if (cssScopeTo) {
 							const [scopedToModule, scopedToExport] = cssScopeTo;
@@ -253,8 +255,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								// Walk up from the scoped-to module to find pages or scripts
 								const parentModuleInfos = getParentExtendedModuleInfos(
 									scopedToModule,
-									this,
-									(moduleId) => isBuildCssBoundary(moduleId, this),
+									graph,
+									(moduleId) => isBuildCssBoundary(moduleId, graph),
 								);
 								for (const { info: pageInfo, depth, order } of parentModuleInfos) {
 									if (moduleIsTopLevelPage(pageInfo)) {
@@ -336,8 +338,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					// Only walk up for dependencies that are CSS
 					if (!isCSSRequest(id)) continue;
 
-					const parentModuleInfos = getParentExtendedModuleInfos(id, this, (importer) =>
-						isBuildCssBoundary(importer, this),
+					const parentModuleInfos = getParentExtendedModuleInfos(id, graph, (importer) =>
+						isBuildCssBoundary(importer, graph),
 					);
 					for (const { info: pageInfo, depth, order } of parentModuleInfos) {
 						if (isPropagatedAssetBoundary(pageInfo.id)) {

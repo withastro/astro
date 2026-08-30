@@ -1,6 +1,6 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types.js';
-import { getTopLevelPageModuleInfos } from '../graph.js';
+import { cachedModuleGraph, getTopLevelPageModuleInfos } from '../graph.js';
 import type { BuildInternals } from '../internal.js';
 import {
 	getPageDataByViteID,
@@ -21,9 +21,10 @@ export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 		},
 		async generateBundle() {
 			const ids = this.getModuleIds();
+			const graph = cachedModuleGraph(this);
 
 			for (const id of ids) {
-				const info = this.getModuleInfo(id);
+				const info = graph.getModuleInfo(id);
 				if (!info?.meta?.astro) continue;
 
 				const astro = info.meta.astro as AstroPluginMetadata['astro'];
@@ -43,7 +44,7 @@ export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 					}
 
 					// Track which pages use each hydrated component
-					for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
+					for (const pageInfo of getTopLevelPageModuleInfos(id, graph)) {
 						const newPageData = getPageDataByViteID(internals, pageInfo.id);
 						if (!newPageData) continue;
 
@@ -70,7 +71,7 @@ export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 						}
 					}
 
-					for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
+					for (const pageInfo of getTopLevelPageModuleInfos(id, graph)) {
 						const newPageData = getPageDataByViteID(internals, pageInfo.id);
 						if (!newPageData) continue;
 
@@ -92,7 +93,7 @@ export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 					}
 
 					// The script may import CSS, so we also have to track the pages that use this script
-					for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
+					for (const pageInfo of getTopLevelPageModuleInfos(id, graph)) {
 						const newPageData = getPageDataByViteID(internals, pageInfo.id);
 						if (!newPageData) continue;
 

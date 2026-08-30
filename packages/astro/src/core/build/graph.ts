@@ -8,6 +8,25 @@ interface ExtendedModuleInfo {
 	order: number;
 }
 
+export interface ModuleGraphContext {
+	getModuleInfo: Rolldown.GetModuleInfo;
+}
+
+// Only valid while the module graph is frozen, i.e. within a single hook invocation.
+export function cachedModuleGraph(ctx: ModuleGraphContext): ModuleGraphContext {
+	const cache = new Map<string, Rolldown.ModuleInfo | null>();
+	return {
+		getModuleInfo(id) {
+			let info = cache.get(id);
+			if (info === undefined) {
+				info = ctx.getModuleInfo(id) ?? null;
+				cache.set(id, info);
+			}
+			return info;
+		},
+	};
+}
+
 // This walks up the dependency graph and yields out each ModuleInfo object.
 export function getParentExtendedModuleInfos(
 	id: string,
