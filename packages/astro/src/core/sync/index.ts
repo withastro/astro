@@ -15,7 +15,7 @@ import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
-import type { AstroSettings } from '../../types/astro.js';
+import type { AstroSettings, RoutesList } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
@@ -141,8 +141,10 @@ export async function syncInternal({
 		// Create the Vite server once and keep it alive for both content config loading
 		// and content layer sync. This is needed because loaders may use dynamic imports
 		// which require the Vite server to be running. See https://github.com/withastro/astro/issues/12689
+		// Fires `astro:routes:resolved`, which integrations observe even when the server is skipped.
+		const routesList = await createRoutesList({ settings, fsMod: fs }, logger, { dev: true });
 		const tempViteServer = needsContentRuntime(settings, fs, watcher)
-			? await createTempViteServer(settings, { mode, fs, logger })
+			? await createTempViteServer(settings, { mode, fs, logger, routesList })
 			: undefined;
 
 		try {
@@ -259,17 +261,13 @@ function needsContentRuntime(
  */
 async function createTempViteServer(
 	settings: AstroSettings,
-	{ mode, logger, fs }: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs'>>,
-): Promise<ViteDevServer> {
-	const routesList = await createRoutesList(
-		{
-			settings,
-			fsMod: fs,
-		},
+	{
+		mode,
 		logger,
-		{ dev: true },
-	);
-
+		fs,
+		routesList,
+	}: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs'>> & { routesList: RoutesList },
+): Promise<ViteDevServer> {
 	const tempViteServer = await createServer(
 		await createVite(
 			{
