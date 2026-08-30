@@ -339,7 +339,7 @@ export async function renderStreaming(
 		// directly while synchronous, buffered once a node renders asynchronously.
 		if (!st.buffered) {
 			if (st.batch) {
-				destination.write(markHTMLString(st.batch));
+				destination.write(st.batch);
 				st.batch = '';
 			}
 			// Write the node's output straight to `destination`. It renders
@@ -361,7 +361,7 @@ export async function renderStreaming(
 
 	if (!st.buffered) {
 		if (st.batch) {
-			destination.write(markHTMLString(st.batch));
+			destination.write(st.batch);
 		}
 		return;
 	}
@@ -372,7 +372,7 @@ export async function renderStreaming(
 	flushTailStatic();
 	for (const seg of tail) {
 		if (typeof seg === 'string') {
-			destination.write(markHTMLString(seg));
+			destination.write(seg);
 		} else {
 			const r = seg.flush();
 			if (isPromise(r)) await r;
