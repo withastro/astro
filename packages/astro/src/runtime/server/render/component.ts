@@ -472,6 +472,11 @@ export function renderComponent(
 	props: Record<string | number, any>,
 	slots: ComponentSlots = {},
 ): RenderInstance | Promise<RenderInstance> {
+	// `.astro` components dominate; none of the checks below can match a factory.
+	if (isAstroComponentFactory(Component)) {
+		return renderAstroComponent(result, displayName, Component, normalizeProps(props), slots);
+	}
+
 	if (isPromise(Component)) {
 		return Component.catch(handleCancellation).then((x) => {
 			return renderComponent(result, displayName, x, props, slots);
@@ -488,10 +493,6 @@ export function renderComponent(
 	// .html components
 	if (isHTMLComponent(Component)) {
 		return renderHTMLComponent(result, Component, props, slots).catch(handleCancellation);
-	}
-
-	if (isAstroComponentFactory(Component)) {
-		return renderAstroComponent(result, displayName, Component, props, slots);
 	}
 
 	return renderFrameworkComponent(result, displayName, Component, props, slots).catch(
