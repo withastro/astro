@@ -63,6 +63,12 @@ export function setConditionalHeaders(headers: Headers, options: CacheOptions): 
 	if (options.etag) {
 		headers.set('ETag', options.etag);
 	}
+	// Prevent browser heuristic freshness (RFC 9111 §4.2.2) when a validator
+	// is present but no browser-facing Cache-Control has been set.
+	const hasValidator = headers.has('Last-Modified') || headers.has('ETag');
+	if (hasValidator && !headers.has('Cache-Control')) {
+		headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+	}
 }
 
 /**

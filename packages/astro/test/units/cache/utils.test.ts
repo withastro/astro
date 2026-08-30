@@ -49,6 +49,29 @@ describe('defaultSetHeaders()', () => {
 		assert.equal(headers.get('Cache-Tag'), 'a');
 		assert.equal(headers.get('CDN-Cache-Control'), null);
 	});
+
+	it('adds Cache-Control when Last-Modified is present', () => {
+		const headers = defaultSetHeaders({
+			maxAge: 300,
+			lastModified: new Date('2026-08-01T00:00:00Z'),
+		});
+		assert.equal(headers.get('Cache-Control'), 'public, max-age=0, must-revalidate');
+	});
+
+	it('adds Cache-Control when ETag is present', () => {
+		const headers = defaultSetHeaders({ maxAge: 300, etag: '"v1"' });
+		assert.equal(headers.get('Cache-Control'), 'public, max-age=0, must-revalidate');
+	});
+
+	it('no Cache-Control when no validator is present', () => {
+		const headers = defaultSetHeaders({ maxAge: 300 });
+		assert.equal(headers.get('Cache-Control'), null);
+	});
+
+	it('no Cache-Control when no options at all', () => {
+		const headers = defaultSetHeaders({});
+		assert.equal(headers.get('Cache-Control'), null);
+	});
 });
 
 describe('isCacheHint()', () => {

@@ -86,6 +86,31 @@ describe('cache provider-utils', () => {
 			setConditionalHeaders(headers, {});
 			assert.equal([...headers.entries()].length, 0);
 		});
+
+		it('adds Cache-Control when Last-Modified is set', () => {
+			const headers = new Headers();
+			setConditionalHeaders(headers, { lastModified: new Date('2026-08-01T00:00:00Z') });
+			assert.equal(headers.get('Cache-Control'), 'public, max-age=0, must-revalidate');
+		});
+
+		it('adds Cache-Control when ETag is set', () => {
+			const headers = new Headers();
+			setConditionalHeaders(headers, { etag: '"v1"' });
+			assert.equal(headers.get('Cache-Control'), 'public, max-age=0, must-revalidate');
+		});
+
+		it('does not override existing Cache-Control', () => {
+			const headers = new Headers();
+			headers.set('Cache-Control', 'private, no-store');
+			setConditionalHeaders(headers, { lastModified: new Date() });
+			assert.equal(headers.get('Cache-Control'), 'private, no-store');
+		});
+
+		it('no Cache-Control without validators', () => {
+			const headers = new Headers();
+			setConditionalHeaders(headers, {});
+			assert.equal(headers.get('Cache-Control'), null);
+		});
 	});
 
 	describe('normalizeTags', () => {

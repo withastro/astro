@@ -34,6 +34,15 @@ export function defaultSetHeaders(options: CacheOptions): Headers {
 		headers.set('ETag', options.etag);
 	}
 
+	// Prevent browser heuristic freshness (RFC 9111 §4.2.2) when a validator
+	// is present but no browser-facing Cache-Control has been set. Without this,
+	// browsers cache the response silently based on Last-Modified age, making
+	// tag-based invalidation and redeployments ineffective for affected visitors.
+	const hasValidator = headers.has('Last-Modified') || headers.has('ETag');
+	if (hasValidator && !headers.has('Cache-Control')) {
+		headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+	}
+
 	return headers;
 }
 
