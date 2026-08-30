@@ -321,9 +321,11 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 				if (isPage || renderer?.name === 'astro:jsx') {
 					destination.write(html);
 				} else if (html && html.length > 0) {
-					destination.write(
-						markHTMLString(removeStaticAstroSlot(html, renderer?.ssr?.supportsAstroStaticSlot)),
-					);
+					// Only renderer output can carry `<astro-static-slot>`; Astro's own markup never does.
+					const output = renderer
+						? removeStaticAstroSlot(html, renderer.ssr?.supportsAstroStaticSlot)
+						: html;
+					destination.write(markHTMLString(output));
 				}
 			},
 		};
