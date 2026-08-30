@@ -279,7 +279,11 @@ export async function renderStreaming(
 				// Complex expression: resume this frame after processing it.
 				node.storeCursor(i);
 				stack.push(node);
-				stack.push(expression);
+				stack.push(
+					isPromise(expression)
+						? node.templateResult.catchExpressionError(i - 1, expression)
+						: expression,
+				);
 				break;
 			}
 			continue;
