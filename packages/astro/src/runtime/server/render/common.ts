@@ -206,5 +206,5 @@ export function chunkToByteArrayOrString(
 }
 
 export function isRenderInstance(obj: unknown): obj is RenderInstance {
-	return !!obj && typeof obj === 'object' && 'render' in obj && typeof obj.render === 'function';
+	return typeof obj === 'object' && obj !== null && typeof (obj as any).render === 'function';
 }
