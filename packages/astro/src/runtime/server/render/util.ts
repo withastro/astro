@@ -27,7 +27,7 @@ const toIdent = (k: string) =>
 export const toAttributeString = (value: any, shouldEscape = true) => {
 	if (!shouldEscape) return value;
 	const str = String(value);
-	if (str.indexOf('&') === -1 && str.indexOf('"') === -1) return str;
+	if (!str.includes('&') && !str.includes('"')) return str;
 	return str.replace(AMPERSAND_REGEX, '&amp;').replace(DOUBLE_QUOTE_REGEX, '&quot;');
 };
 
@@ -191,9 +191,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 
 export function spreadElementAttributes(values: Record<string, any>): string {
 	let output = '';
-	const keys = Object.keys(values);
-	for (let i = 0; i < keys.length; i++) {
-		const key = keys[i];
+	for (const key of Object.keys(values)) {
 		if (key === 'children') continue;
 		output += addAttribute(values[key], key, true);
 	}
@@ -207,9 +205,7 @@ export function internalSpreadAttributes(
 	tagName: string,
 ) {
 	let output = '';
-	const keys = Object.keys(values);
-	for (let i = 0; i < keys.length; i++) {
-		const key = keys[i];
+	for (const key of Object.keys(values)) {
 		output += addAttribute(values[key], key, shouldEscape, tagName);
 	}
 	return markHTMLString(output);

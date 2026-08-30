@@ -90,9 +90,7 @@ export function spreadAttributes(
 			values.class = scopedClassName;
 		}
 	}
-	const keys = Object.keys(values);
-	for (let i = 0; i < keys.length; i++) {
-		const key = keys[i];
+	for (const key of Object.keys(values)) {
 		output += addAttribute(values[key], key, true, _name);
 	}
 	return markHTMLString(output);

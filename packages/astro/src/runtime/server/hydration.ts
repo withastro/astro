@@ -42,9 +42,7 @@ export function extractDirectives(
 		props: {},
 		propsWithoutTransitionAttributes: {},
 	};
-	const keys = Object.keys(inputProps);
-	for (let i = 0; i < keys.length; i++) {
-		const key = keys[i];
+	for (const key of Object.keys(inputProps)) {
 		const value = inputProps[key];
 		if (key.startsWith('server:')) {
 			if (key === 'server:root') {
