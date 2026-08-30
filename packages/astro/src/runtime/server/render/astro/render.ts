@@ -142,6 +142,8 @@ async function renderStreamToAsyncIterable(
 	let error: Error | null = null;
 	let next: ReturnType<typeof promiseWithResolvers<void>> | null = null;
 	const buffer: Array<Uint8Array | string> = [];
+	let hasBytes = false;
+	let lastIsString = false;
 	let renderingComplete = false;
 
 	// Buffer propagated head content (and run `propagation: 'self'` components,
@@ -170,43 +172,52 @@ async function renderStreamToAsyncIterable(
 				throw error;
 			}
 
-			// Merge buffer into single Uint8Array
-			let length = 0;
-			let stringToEncode = '';
-			for (let i = 0, len = buffer.length; i < len; i++) {
-				const bufferEntry = buffer[i];
+			// All-string buffers encode straight into the result, skipping the merge copy.
+			let mergedArray: Uint8Array;
+			if (!hasBytes) {
+				let text = '';
+				for (let i = 0, len = buffer.length; i < len; i++) text += buffer[i] as string;
+				mergedArray = encoder.encode(text);
+			} else {
+				let length = 0;
+				let stringToEncode = '';
+				for (let i = 0, len = buffer.length; i < len; i++) {
+					const bufferEntry = buffer[i];
 
-				if (typeof bufferEntry === 'string') {
-					const nextIsString = i + 1 < len && typeof buffer[i + 1] === 'string';
-					stringToEncode += bufferEntry;
-					if (!nextIsString) {
-						const encoded = encoder.encode(stringToEncode);
-						length += encoded.length;
-						stringToEncode = '';
-						buffer[i] = encoded;
+					if (typeof bufferEntry === 'string') {
+						const nextIsString = i + 1 < len && typeof buffer[i + 1] === 'string';
+						stringToEncode += bufferEntry;
+						if (!nextIsString) {
+							const encoded = encoder.encode(stringToEncode);
+							length += encoded.length;
+							stringToEncode = '';
+							buffer[i] = encoded;
+						} else {
+							buffer[i] = '';
+						}
 					} else {
-						buffer[i] = '';
+						length += bufferEntry.length;
 					}
-				} else {
-					length += bufferEntry.length;
 				}
-			}
 
-			const mergedArray = new Uint8Array(length);
-			let offset = 0;
-			for (let i = 0, len = buffer.length; i < len; i++) {
-				const item = buffer[i];
-				if (item === '') {
-					continue;
+				mergedArray = new Uint8Array(length);
+				let offset = 0;
+				for (let i = 0, len = buffer.length; i < len; i++) {
+					const item = buffer[i];
+					if (item === '') {
+						continue;
+					}
+					mergedArray.set(item as Uint8Array, offset);
+					offset += (item as Uint8Array).length;
 				}
-				mergedArray.set(item as Uint8Array, offset);
-				offset += (item as Uint8Array).length;
 			}
 
 			buffer.length = 0;
+			hasBytes = false;
+			lastIsString = false;
 
 			const returnValue = {
-				done: length === 0 && renderingComplete,
+				done: mergedArray.length === 0 && renderingComplete,
 				value: mergedArray,
 			};
 
@@ -224,7 +235,8 @@ async function renderStreamToAsyncIterable(
 				renderedFirstPageChunk = true;
 				if (!result.partial && !DOCTYPE_EXP.test(String(chunk))) {
 					const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
-					buffer.push(encoder.encode(doctype));
+					buffer.push(doctype);
+					lastIsString = true;
 				}
 			}
 			if (chunk instanceof Response) {
@@ -232,7 +244,19 @@ async function renderStreamToAsyncIterable(
 			}
 			const bytes = chunkToByteArrayOrString(result, chunk);
 			if (bytes.length > 0) {
-				buffer.push(bytes);
+				if (typeof bytes === 'string') {
+					// Appending to the previous entry keeps the all-strings merge on one rope.
+					if (lastIsString) {
+						buffer[buffer.length - 1] = (buffer[buffer.length - 1] as string) + bytes;
+					} else {
+						buffer.push(bytes);
+						lastIsString = true;
+					}
+				} else {
+					buffer.push(bytes);
+					hasBytes = true;
+					lastIsString = false;
+				}
 				next?.resolve();
 			} else if (buffer.length > 0) {
 				next?.resolve();
