@@ -50,6 +50,9 @@ import { getRouteCache } from '../render/route-cache.js';
 import { getRouteTable, matchAllRoutes, matchRoute } from '../routing/route-table.js';
 import { getServerIslands } from '../server-islands/mappings.js';
 
+const slotValuesSymbol = Symbol('astro.slotValues');
+const slotsSymbol = Symbol('astro.slots');
+
 /**
  * Per-render facade inputs passed by `BaseApp.render`'s fast path to the
  * internal `FetchState` constructor and stored as plain state fields.
@@ -281,7 +284,7 @@ export class FetchState implements AstroFetchState {
 	/** Initial props (from container/error handler). */
 	initialProps: Props = {};
 	/** Memoized Astro page partial. */
-	#astroPagePartial?: Omit<AstroGlobal, 'props' | 'self' | 'slots'>;
+	#astroPagePartial?: Omit<AstroGlobal, 'props' | 'self'>;
 	/**
 	 * Locale-prefixed pathname derived from the Host header for domain-based
 	 * i18n routing (e.g. `/en/boats/1/foo`), or `undefined` when the request
@@ -539,21 +542,10 @@ export class FetchState implements AstroFetchState {
 		}
 		this.#astroPagePartial ??= this.createAstroPagePartial(result, apiContext);
 		astroPagePartial = this.#astroPagePartial;
-		const astroComponentPartial = { props, self: null };
-		const Astro: Omit<AstroGlobal, 'self' | 'slots'> = Object.assign(
-			Object.create(astroPagePartial),
-			astroComponentPartial,
-		);
-
-		let _slots: AstroGlobal['slots'];
-		Object.defineProperty(Astro, 'slots', {
-			get: () => {
-				if (!_slots) {
-					_slots = new Slots(result, slotValues, this.logger) as unknown as AstroGlobal['slots'];
-				}
-				return _slots;
-			},
-		});
+		const Astro: Record<string | symbol, unknown> = Object.create(astroPagePartial);
+		Astro.props = props;
+		Astro.self = null;
+		Astro[slotValuesSymbol] = slotValues;
 
 		return Astro as AstroGlobal;
 	}
@@ -564,7 +556,7 @@ export class FetchState implements AstroFetchState {
 	createAstroPagePartial(
 		result: SSRResult,
 		apiContext: ActionAPIContext,
-	): Omit<AstroGlobal, 'props' | 'self' | 'slots'> {
+	): Omit<AstroGlobal, 'props' | 'self'> {
 		const state = this;
 		const { cookies, locals, params, logger, url } = this;
 		const { response } = result;
@@ -588,6 +580,19 @@ export class FetchState implements AstroFetchState {
 			routePattern: this.routeData!.route,
 			isPrerendered: this.routeData!.prerender,
 			cookies,
+			// On the shared partial, not the instance: a per-component accessor costs measurably.
+			get slots(): AstroGlobal['slots'] {
+				let slots = (this as any)[slotsSymbol];
+				if (slots === undefined) {
+					slots = new Slots(
+						result,
+						(this as any)[slotValuesSymbol],
+						logger,
+					) as unknown as AstroGlobal['slots'];
+					(this as any)[slotsSymbol] = slots;
+				}
+				return slots;
+			},
 			get clientAddress() {
 				return state.getClientAddress();
 			},
