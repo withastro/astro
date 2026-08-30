@@ -57,6 +57,22 @@ class TemplateFrame {
  * Head propagation is handled by the caller (`bufferHeadContent`) before this
  * runs.
  */
+// A class: per-render `emitStatic` closures give call sites a fresh callee each render, deoptimizing them.
+class EngineState {
+	// Streaming-mode buffer (written directly to `destination`).
+	batch = '';
+	// Buffered-tail mode (entered on the first async dynamic node).
+	buffered = false;
+	// Static text collected while in buffered-tail mode.
+	tailStatic = '';
+
+	emitStatic(s: string) {
+		if (!s) return;
+		if (this.buffered) this.tailStatic += s;
+		else this.batch += s;
+	}
+}
+
 export async function renderStreaming(
 	root: unknown,
 	result: SSRResult,
@@ -81,24 +97,14 @@ export async function renderStreaming(
 		return tag;
 	};
 
-	// Streaming-mode buffer (written directly to `destination`).
-	let batch = '';
-	// Buffered-tail mode (entered on the first async dynamic node).
-	let buffered = false;
+	const st = new EngineState();
 	let firstAsync: Promise<void> | null = null;
 	const tail: Array<string | RendererFlusher> = [];
-	// Static text collected while in buffered-tail mode.
-	let tailStatic = '';
 
-	const emitStatic = (s: string) => {
-		if (!s) return;
-		if (buffered) tailStatic += s;
-		else batch += s;
-	};
 	const flushTailStatic = () => {
-		if (tailStatic) {
-			tail.push(tailStatic);
-			tailStatic = '';
+		if (st.tailStatic) {
+			tail.push(st.tailStatic);
+			st.tailStatic = '';
 		}
 	};
 
@@ -181,7 +187,7 @@ export async function renderStreaming(
 					openTag = isVoid ? `<${type}/>` : `<${type}>`;
 					openTagCache.set(key, openTag);
 				}
-				emitStatic(openTag);
+				st.emitStatic(openTag);
 				if (!isVoid) {
 					// Push close tag first so it is emitted after the children.
 					stack.push(closeTagFor(type));
@@ -190,10 +196,10 @@ export async function renderStreaming(
 				const { children: _children, ...attrsProps } = props ?? {};
 				const attrs = spreadAttributes(attrsProps);
 				if (isVoid) {
-					emitStatic(`<${type}${attrs}/>`);
+					st.emitStatic(`<${type}${attrs}/>`);
 					return;
 				}
-				emitStatic(`<${type}${attrs}>`);
+				st.emitStatic(`<${type}${attrs}>`);
 				stack.push(markHTMLString(`</${type}>`));
 			}
 
@@ -237,7 +243,7 @@ export async function renderStreaming(
 			let i = node.cursor;
 			while (i < htmlParts.length) {
 				if (htmlParts[i]) {
-					emitStatic(htmlParts[i]);
+					st.emitStatic(htmlParts[i]);
 				}
 				// `htmlParts.length === expressions.length + 1`, so the final HTML
 				// part has no expression after it. This break must come *after*
@@ -255,7 +261,7 @@ export async function renderStreaming(
 				if (expression == null || expression === false) continue;
 				const expressionType = typeof expression;
 				if (expressionType === 'string') {
-					emitStatic(escapeHTML(expression as string));
+					st.emitStatic(escapeHTML(expression as string));
 					continue;
 				}
 				if (
@@ -263,11 +269,11 @@ export async function renderStreaming(
 					expressionType === 'bigint' ||
 					expressionType === 'boolean'
 				) {
-					emitStatic(String(expression));
+					st.emitStatic(String(expression));
 					continue;
 				}
 				if (expression instanceof HTMLString || isHTMLString(expression)) {
-					emitStatic((expression as HTMLString).toString());
+					st.emitStatic((expression as HTMLString).toString());
 					continue;
 				}
 				// Complex expression: resume this frame after processing it.
@@ -281,15 +287,15 @@ export async function renderStreaming(
 
 		const nodeType = typeof node;
 		if (nodeType === 'string') {
-			emitStatic(escapeHTML(node as string));
+			st.emitStatic(escapeHTML(node as string));
 			continue;
 		}
 		if (nodeType === 'number' || nodeType === 'bigint' || nodeType === 'boolean') {
-			emitStatic(String(node));
+			st.emitStatic(String(node));
 			continue;
 		}
 		if (node instanceof HTMLString || isHTMLString(node)) {
-			emitStatic((node as HTMLString).toString());
+			st.emitStatic((node as HTMLString).toString());
 			continue;
 		}
 		if (Array.isArray(node)) {
@@ -321,10 +327,10 @@ export async function renderStreaming(
 		// Dynamic node: component instance, render instance, promise, JSX vnode,
 		// render instruction, iterable, etc. Rendered via renderChild — streamed
 		// directly while synchronous, buffered once a node renders asynchronously.
-		if (!buffered) {
-			if (batch) {
-				destination.write(markHTMLString(batch));
-				batch = '';
+		if (!st.buffered) {
+			if (st.batch) {
+				destination.write(markHTMLString(st.batch));
+				st.batch = '';
 			}
 			// Write the node's output straight to `destination`. It renders
 			// synchronously and in order, so putting it in a temporary buffer
@@ -333,7 +339,7 @@ export async function renderStreaming(
 			const rendered = renderDynamic(node)(destination);
 			if (isPromise(rendered)) {
 				// First async node: stream stops here. Buffer the remaining tail.
-				buffered = true;
+				st.buffered = true;
 				firstAsync = rendered;
 			}
 		} else {
@@ -343,9 +349,9 @@ export async function renderStreaming(
 		}
 	}
 
-	if (!buffered) {
-		if (batch) {
-			destination.write(markHTMLString(batch));
+	if (!st.buffered) {
+		if (st.batch) {
+			destination.write(markHTMLString(st.batch));
 		}
 		return;
 	}
