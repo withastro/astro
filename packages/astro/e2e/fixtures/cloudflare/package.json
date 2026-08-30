@@ -23,8 +23,8 @@
 		"@types/react-dom": "^18.3.7",
 		"astro": "workspace:*",
 		"clsx": "^2.1.1",
-		"react": "^18.3.1",
-		"react-dom": "^18.3.1",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
 		"sharp": "^0.35.0"
 	}
 }
