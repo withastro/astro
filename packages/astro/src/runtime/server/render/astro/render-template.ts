@@ -38,7 +38,7 @@ export class RenderTemplateResult {
 	 * Wraps an async expression so the component rethrows only the first error.
 	 * Mutating in place is safe: `renderTemplate`'s rest parameter hands us a fresh array.
 	 */
-	catchExpressionError(index: number, expression: unknown): Promise<void> {
+	catchExpressionError(index: number, expression: unknown): Promise<unknown> {
 		const wrapped = Promise.resolve(expression).catch((err) => {
 			if (!this.error) {
 				this.error = err;

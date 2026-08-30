@@ -284,7 +284,7 @@ export class FetchState implements AstroFetchState {
 	/** Initial props (from container/error handler). */
 	initialProps: Props = {};
 	/** Memoized Astro page partial. */
-	#astroPagePartial?: Omit<AstroGlobal, 'props' | 'self'>;
+	#astroPagePartial?: Omit<AstroGlobal, 'props' | 'self' | 'slots'>;
 	/**
 	 * Locale-prefixed pathname derived from the Host header for domain-based
 	 * i18n routing (e.g. `/en/boats/1/foo`), or `undefined` when the request
@@ -547,7 +547,7 @@ export class FetchState implements AstroFetchState {
 		Astro.self = null;
 		Astro[slotValuesSymbol] = slotValues;
 
-		return Astro as AstroGlobal;
+		return Astro as unknown as AstroGlobal;
 	}
 
 	/**
@@ -556,7 +556,7 @@ export class FetchState implements AstroFetchState {
 	createAstroPagePartial(
 		result: SSRResult,
 		apiContext: ActionAPIContext,
-	): Omit<AstroGlobal, 'props' | 'self'> {
+	): Omit<AstroGlobal, 'props' | 'self' | 'slots'> {
 		const state = this;
 		const { cookies, locals, params, logger, url } = this;
 		const { response } = result;
