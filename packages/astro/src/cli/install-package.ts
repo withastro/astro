@@ -22,12 +22,14 @@ export async function getPackage<T>(
 	options: GetPackageOptions,
 	otherDeps: string[] = [],
 ): Promise<T | undefined> {
+	// Resolve and import in separate steps. Resolution answers "is the package installed",
+	// the import answers "does it load"; folding both into one `catch` reports a package that
+	// is installed but throws on import as if it were missing.
+	let resolved: string;
 	try {
 		// Try to resolve with `createRequire` first to prevent ESM caching of the package
 		// if it errors and fails here
-		const resolved = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
-		const packageImport = await import(pathToFileURL(resolved).href);
-		return packageImport as T;
+		resolved = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
 	} catch {
 		if (options.optional) return undefined;
 		let message = `To continue, Astro requires the following dependency to be installed: ${bold(
@@ -46,13 +48,21 @@ export async function getPackage<T>(
 
 		const result = await installPackage([packageName, ...otherDeps], options, logger);
 
-		if (result) {
-			const resolved = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
-			const packageImport = await import(pathToFileURL(resolved).href);
-			return packageImport;
-		} else {
-			return undefined;
-		}
+		if (!result) return undefined;
+		resolved = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
+	}
+
+	try {
+		return (await import(pathToFileURL(resolved).href)) as T;
+	} catch (error) {
+		if (options.optional) return undefined;
+		logger.error(
+			'SKIP_FORMAT',
+			`${bold(packageName)} is installed but could not be loaded: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+		);
+		return undefined;
 	}
 }
 

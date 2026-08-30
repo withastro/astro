@@ -37,4 +37,42 @@ describe('getPackage', () => {
 			await rm(projectDir, { recursive: true, force: true });
 		}
 	});
+
+	it('reports a package that is installed but throws on import', async () => {
+		const projectDir = join(tmpdir(), `astro-test-getpackage-throws-${Date.now()}`);
+		const pkgDir = join(projectDir, 'node_modules', 'throwing-test-pkg');
+
+		try {
+			await mkdir(pkgDir, { recursive: true });
+			await writeFile(
+				join(pkgDir, 'package.json'),
+				JSON.stringify({
+					name: 'throwing-test-pkg',
+					version: '1.0.0',
+					main: 'index.js',
+					type: 'module',
+				}),
+			);
+			await writeFile(join(pkgDir, 'index.js'), "throw new Error('boom');\n");
+
+			const messages: string[] = [];
+			const logger = {
+				...defaultLogger,
+				error: (_label: string, message: string) => messages.push(message),
+			};
+
+			const result = await getPackage('throwing-test-pkg', logger as never, { cwd: projectDir });
+
+			assert.equal(result, undefined, 'Expected getPackage to return undefined');
+			assert.equal(messages.length, 1, 'Expected exactly one error to be logged');
+			assert.match(
+				messages[0],
+				/installed but could not be loaded/,
+				'Expected the error to say the package failed to load, not that it is missing',
+			);
+			assert.match(messages[0], /boom/, 'Expected the underlying error to be reported');
+		} finally {
+			await rm(projectDir, { recursive: true, force: true });
+		}
+	});
 });

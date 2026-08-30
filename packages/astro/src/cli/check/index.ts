@@ -20,9 +20,13 @@ export async function check(flags: Flags): Promise<boolean | void> {
 	const typescript = await getPackage('typescript', logger, getPackageOpts);
 
 	if (!checkPackage || !typescript) {
+		const missing = [
+			checkPackage ? undefined : '`@astrojs/check`',
+			typescript ? undefined : '`typescript`',
+		].filter((name) => name !== undefined);
 		logger.error(
 			'check',
-			'The `@astrojs/check` and `typescript` packages are required for this command to work. Please manually install them into your project and try again.',
+			`The ${missing.join(' and ')} ${missing.length > 1 ? 'packages are' : 'package is'} required for this command to work. Please manually install ${missing.length > 1 ? 'them' : 'it'} into your project and try again.`,
 		);
 		return;
 	}
