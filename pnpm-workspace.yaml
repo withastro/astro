@@ -36,6 +36,8 @@ overrides:
 # Wait until three days after release to install new versions of packages
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
+  # Zod 4.5.4 published 2026-08-29; drop once past the 3-day window.
+  - zod
   - '@biomejs/*'
   - 'sharp@0.35.4'
   - '@img/sharp-*'
