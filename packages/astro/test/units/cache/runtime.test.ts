@@ -264,6 +264,27 @@ describe('applyCacheHeaders()', () => {
 		assert.equal(response.headers.get('ETag'), '"v1"');
 	});
 
+	it('adds no-cache when the response has a validator', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 60, lastModified: new Date('2025-06-01T12:00:00Z') });
+
+		const response = new Response('test');
+		applyCacheHeaders(cache, response, dummyRequest);
+		assert.equal(response.headers.get('Cache-Control'), 'no-cache');
+	});
+
+	it('preserves an explicit response Cache-Control header', () => {
+		const provider = createMockProvider({
+			setHeaders: () => new Headers({ 'Cache-Control': 'no-store', ETag: '"v1"' }),
+		});
+		const cache = new AstroCache(provider);
+		cache.set({ maxAge: 60 });
+
+		const response = new Response('test', { headers: { 'Cache-Control': 'private, max-age=60' } });
+		applyCacheHeaders(cache, response, dummyRequest);
+		assert.equal(response.headers.get('Cache-Control'), 'private, max-age=60');
+	});
+
 	it('uses provider.setHeaders() when available', () => {
 		const customHeaders = new Headers({ 'X-Custom-Cache': 'hit' });
 		const provider = createMockProvider({

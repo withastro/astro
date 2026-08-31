@@ -120,7 +120,16 @@ export class AstroCache implements CacheLike {
 		const headers =
 			this.#provider?.setHeaders?.(finalOptions, request) ?? defaultSetHeaders(finalOptions);
 		for (const [key, value] of headers) {
+			if (key.toLowerCase() === 'cache-control' && response.headers.has(key)) continue;
 			response.headers.set(key, value);
+		}
+		if (
+			!response.headers.has('Cache-Control') &&
+			(response.headers.has('Last-Modified') || response.headers.has('ETag'))
+		) {
+			// `no-cache` requires revalidation before a stored response is reused.
+			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control#no-cache
+			response.headers.set('Cache-Control', 'no-cache');
 		}
 	}
 
