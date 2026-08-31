@@ -90,15 +90,15 @@ describe('experimental.incrementalBuild with build.concurrency > 1', () => {
 		const paths = manifest.routes['src/pages/feed/[id].json.ts'].paths;
 		const pathnames = Object.keys(paths);
 		assert.equal(pathnames.length, 1);
-		assert.deepEqual(Object.keys(paths[pathnames[0]].contentHashes), [
-			'src/content/docs/feed.mdx',
-		]);
+		assert.deepEqual(Object.keys(paths[pathnames[0]].contentHashes), ['src/content/docs/feed.mdx']);
 	});
 
 	it('does not attribute a getStaticPaths-time render(entry) to any path', () => {
 		for (const routeEntry of Object.values<any>(manifest.routes)) {
 			for (const entry of Object.values<any>(routeEntry.paths)) {
-				assert.ok(!Object.keys(entry.contentHashes ?? {}).includes('src/content/docs/gsp-only.mdx'));
+				assert.ok(
+					!Object.keys(entry.contentHashes ?? {}).includes('src/content/docs/gsp-only.mdx'),
+				);
 			}
 		}
 	});

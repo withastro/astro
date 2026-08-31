@@ -78,9 +78,9 @@ describe('render scope channel', () => {
 		// different compiled copies of scope.ts. Simulate the second instance with a
 		// query-string cache-buster and assert both copies resolve one channel.
 		const copyBSpecifier = '../../../dist/core/render-scope/scope.js?render-scope-copy-b';
-		const copyB = (await import(copyBSpecifier)) as typeof import(
-			'../../../dist/core/render-scope/scope.js'
-		);
+		const copyB = (await import(
+			copyBSpecifier
+		)) as typeof import('../../../dist/core/render-scope/scope.js');
 
 		const scope = ensureAsyncRenderScope();
 		assert.equal(copyB.getInstalledRenderScope(), scope);

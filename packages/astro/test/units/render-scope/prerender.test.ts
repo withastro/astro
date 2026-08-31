@@ -1,9 +1,6 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, it } from 'node:test';
-import {
-	renderForPrerender,
-	type PrerenderableApp,
-} from '../../../dist/core/app/prerender.js';
+import { renderForPrerender, type PrerenderableApp } from '../../../dist/core/app/prerender.js';
 import { uninstallRenderScope } from '../../../dist/core/render-scope/scope.js';
 import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
 import {
@@ -102,10 +99,7 @@ describe('renderForPrerender', () => {
 			recordContentEntryRender('doomed');
 			throw new Error('boom');
 		});
-		await assert.rejects(
-			renderForPrerender(failing, request(), { collectMetadata: true }),
-			/boom/,
-		);
+		await assert.rejects(renderForPrerender(failing, request(), { collectMetadata: true }), /boom/);
 
 		const app = appOf(async () => {
 			recordContentEntryRender('clean');

@@ -50,9 +50,7 @@ describe('render scope edge safety', () => {
 		// astro/app resolves to dist/core/app/entrypoints/index.js and is bundled
 		// into production edge output. No module reachable from it may reference
 		// node:async_hooks — statically, dynamically, or as a bare string.
-		const graph = await collectModuleGraph(
-			path.join(distRoot, 'core/app/entrypoints/index.js'),
-		);
+		const graph = await collectModuleGraph(path.join(distRoot, 'core/app/entrypoints/index.js'));
 		assert.ok(graph.size > 0, 'expected the astro/app graph to contain modules');
 		assert.ok(
 			graph.has(path.join(distRoot, 'core/render-scope/scope.js')),
