@@ -73,6 +73,7 @@ export function pluginPages({ routesList }: PagesPluginOptions): VitePlugin {
 						? getRoutesForEnvironment(routesList.routes, isPrerender)
 						: new Set(routesList.routes);
 
+				const candidates: { component: string; virtualModuleName: string }[] = [];
 				for (const route of routes) {
 					if (routeIsRedirect(route)) {
 						continue;
@@ -83,16 +84,23 @@ export function pluginPages({ routesList }: PagesPluginOptions): VitePlugin {
 						continue;
 					}
 
-					const virtualModuleName = getVirtualModulePageName(
-						VIRTUAL_PAGE_MODULE_ID,
-						route.component,
-					);
-					const module = await this.resolve(virtualModuleName);
+					candidates.push({
+						component: route.component,
+						virtualModuleName: getVirtualModulePageName(VIRTUAL_PAGE_MODULE_ID, route.component),
+					});
+				}
+
+				const modules = await Promise.all(
+					candidates.map(({ virtualModuleName }) => this.resolve(virtualModuleName)),
+				);
+
+				for (const [index, module] of modules.entries()) {
 					if (module) {
+						const { component, virtualModuleName } = candidates[index];
 						const variable = `_page${i}`;
 						// use the non-resolved ID to resolve correctly the virtual module
 						imports.push(`const ${variable} = () => import("${virtualModuleName}");`);
-						pageMap.push(`[${JSON.stringify(route.component)}, ${variable}]`);
+						pageMap.push(`[${JSON.stringify(component)}, ${variable}]`);
 						i++;
 					}
 				}
