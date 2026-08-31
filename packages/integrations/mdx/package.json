@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Add support for MDX pages in your Astro site",
-  "version": "7.0.8",
+  "version": "8.0.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",

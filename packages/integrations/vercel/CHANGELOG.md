@@ -1,5 +1,14 @@
 # @astrojs/vercel
 
+## 11.0.9
+
+### Patch Changes
+
+- [#17450](https://github.com/withastro/astro/pull/17450) [`19dae21`](https://github.com/withastro/astro/commit/19dae210d42bd22662ee678c173676573b6168f2) Thanks [@ocavue](https://github.com/ocavue)! - Updates dependency `@vercel/analytics` to v2. See the [changelog](https://github.com/vercel/analytics/releases/tag/v2.0.0) for more details.
+  Updates dependency `@vercel/routing-utils` to v6. See the [changelog](https://github.com/vercel/vercel/blob/@vercel/routing-utils@6.4.0/packages/routing-utils/CHANGELOG.md#600) for more details.
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+
 ## 11.0.8
 
 ### Patch Changes
