@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes an issue where in some cases the Astro logger was improperly initilised at runtime.
+Fixes a case where the logger was improperly initialized at runtime in dev.
