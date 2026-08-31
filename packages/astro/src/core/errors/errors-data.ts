@@ -2112,6 +2112,21 @@ export const FileGlobNotSupported = {
 
 /**
  * @docs
+ * @see
+ *  - [Defining collection references](https://docs.astro.build/en/guides/content-collections/#defining-collection-references)
+ * @description
+ * `reference()` was given a value it cannot turn into a reference. It accepts an entry id, as a string or a number, or an already-resolved reference object belonging to the same collection.
+ */
+export const InvalidContentReferenceError = {
+	name: 'InvalidContentReferenceError',
+	title: 'Invalid content collection reference.',
+	message: (collection: string, reason: string) =>
+		`Could not reference an entry in the **${collection}** collection: ${reason}`,
+	hint: 'See https://docs.astro.build/en/guides/content-collections/#defining-collection-references for more on referencing entries.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name Action Errors
  */

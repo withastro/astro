@@ -754,11 +754,125 @@ async function render({
 	}
 }
 
-export function createReference() {
-	return function reference(collection: string) {
+/**
+ * What `reference()` resolves to, and what `getEntry()`/`getEntries()` accept.
+ *
+ * The `slug` variant only ever comes back out when it went in: a legacy reference object is
+ * passed through untouched rather than renamed, so re-parsing already-transformed data is a
+ * no-op.
+ */
+export type ReferenceField =
+	| { collection: string; id: string }
+	| { collection: string; slug: string };
+
+/** Every value `reference()` accepts as an entry lookup. */
+export type ReferenceLookup = string | number | ReferenceField;
+
+/**
+ * The resolution shared by both `reference()` signatures.
+ *
+ * Reports failure instead of throwing, so the deprecated schema form can surface it as a
+ * validation issue — collected alongside the schema's other issues — while the function
+ * form, which has no validator to report through, throws.
+ *
+ * Note what is *not* checked here: whether the entry exists. A reference may point at a
+ * collection whose loader has not run yet, so existence is verified once every loader has
+ * finished, by walking the store (`ContentLayer#validateReferences`).
+ */
+function resolveReference(
+	collection: string,
+	lookup: unknown,
+): { ok: true; value: ReferenceField } | { ok: false; message: string } {
+	if (typeof lookup === 'number') {
+		return { ok: true, value: { id: lookup.toString(10), collection } };
+	}
+	if (typeof lookup === 'string') {
+		return { ok: true, value: { id: lookup, collection } };
+	}
+	if (lookup !== null && typeof lookup === 'object') {
+		const entry = lookup as { collection?: unknown; id?: unknown; slug?: unknown };
+		if (typeof entry.collection === 'string') {
+			// Already a reference object, so the schema is running over data an earlier parse
+			// transformed. The collection is the one thing we can still check.
+			if (entry.collection !== collection) {
+				return {
+					ok: false,
+					message: `expected a reference to \`${collection}\`, but received one to \`${entry.collection}\`.`,
+				};
+			}
+			if (typeof entry.id === 'string') {
+				return { ok: true, value: { id: entry.id, collection } };
+			}
+			if (typeof entry.slug === 'string') {
+				return { ok: true, value: { slug: entry.slug, collection } };
+			}
+		}
+	}
+	return {
+		ok: false,
+		message: `expected an entry id, as a string or a number, but received ${JSON.stringify(lookup) ?? typeof lookup}.`,
+	};
+}
+
+/**
+ * Two signatures, kept apart by whether a lookup was passed.
+ *
+ * `reference(collection, id)` is an ordinary function, so it composes with any validator and
+ * its result can be validated further:
+ *
+ * ```js
+ * schema: z.object({
+ *   author: z.string().transform((id) => reference('authors', id)),
+ * })
+ * ```
+ *
+ * `reference(collection)` returns a Zod schema instead, and only works in a Zod schema. It
+ * is deprecated, and routed through the same resolution.
+ */
+export interface ReferenceFunction {
+	/**
+	 * @deprecated Pass the entry id as a second argument instead. `reference(collection, id)`
+	 * is an ordinary function rather than a schema factory, so it works with any validator and
+	 * its result can be validated further:
+	 *
+	 * ```js
+	 * schema: z.object({
+	 *   author: z.string().transform((id) => reference('authors', id)),
+	 * })
+	 * ```
+	 */
+	(collection: string): z.ZodType<ReferenceField, ReferenceLookup>;
+	(collection: string, lookup: ReferenceLookup): ReferenceField;
+}
+
+export function createReference(): ReferenceFunction {
+	function reference(collection: string): z.ZodType<ReferenceField, ReferenceLookup>;
+	function reference(collection: string, lookup: ReferenceLookup): ReferenceField;
+	function reference(
+		collection: string,
+		...rest: [] | [ReferenceLookup]
+	): ReferenceField | z.ZodType<ReferenceField, ReferenceLookup> {
+		// Arity, not the value: `reference('authors', undefined)` is a mistake worth reporting,
+		// not a request for the deprecated schema form.
+		if (rest.length > 0) {
+			const resolved = resolveReference(collection, rest[0]);
+			if (!resolved.ok) {
+				throw new AstroError({
+					...AstroErrorData.InvalidContentReferenceError,
+					message: AstroErrorData.InvalidContentReferenceError.message(
+						collection,
+						resolved.message,
+					),
+				});
+			}
+			return resolved.value;
+		}
+
+		// Deprecated schema form. The union stays in front of the resolution so that a value of
+		// the wrong type is still reported by Zod, with its own message and path.
 		return z
 			.union([
-				z.number().transform((num) => num.toString(10)),
+				z.number(),
 				z.string(),
 				z.object({
 					id: z.string(),
@@ -770,24 +884,16 @@ export function createReference() {
 				}),
 			])
 			.transform((lookup, ctx) => {
-				if (typeof lookup === 'object') {
-					// If these don't match then something is wrong with the reference
-					if (lookup.collection !== collection) {
-						const flattenedErrorPath = ctx.issues[0]?.path?.join('.');
-
-						ctx.addIssue({
-							code: 'custom',
-							message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${collection}. Received ${lookup.collection}.`,
-						});
-						return;
-					}
-					// If it is an object then we're validating later in the build, so we can check the collection at that point.
-					return lookup;
+				const resolved = resolveReference(collection, lookup);
+				if (!resolved.ok) {
+					ctx.addIssue({ code: 'custom', message: resolved.message });
+					return z.NEVER;
 				}
-
-				return { id: lookup, collection };
+				return resolved.value;
 			});
-	};
+	}
+
+	return reference;
 }
 
 type PropagatedAssetsModule = {

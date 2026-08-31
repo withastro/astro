@@ -54,3 +54,30 @@ type SchemalessData = InferLoaderSchema<'schemaless'>;
 // So we verify `any` by checking that arbitrary property access works:
 const _schemalessValue: SchemalessData = { anything: 'goes', count: 42 };
 const _schemalessAccess: string = _schemalessValue.nonExistentProp;
+
+// ============================================================================
+// `reference()`: two overloads, chosen by whether a lookup is passed.
+// ============================================================================
+
+import { reference, type ReferenceDataEntry } from 'astro:content';
+
+// With a lookup, it resolves to the reference itself — the shape `getEntry()` takes.
+const _blogRef: ReferenceDataEntry<'blog'> = reference('blog', 'my-post');
+// A numeric id is accepted too, and still narrows to the right collection.
+const _blogRefFromNumber: ReferenceDataEntry<'blog'> = reference('blog', 1);
+// @ts-expect-error - a reference to `blog` is not a reference to `legacy`
+const _wrongCollection: ReferenceDataEntry<'legacy'> = reference('blog', 'my-post');
+
+// Without one, it returns a schema, and the schema's output is the reference.
+const _blogRefSchema = reference('blog');
+// @ts-expect-error - the schema is not itself a reference
+const _schemaIsNotRef: ReferenceDataEntry<'blog'> = _blogRefSchema;
+const _blogRefSchemaOutput: import('astro/zod').output<typeof _blogRefSchema> = {
+	collection: 'blog',
+	id: 'my-post',
+};
+const _wrongSchemaOutput: import('astro/zod').output<typeof _blogRefSchema> = {
+	// @ts-expect-error - the schema resolves to `blog`, not `legacy`
+	collection: 'legacy',
+	id: 'my-post',
+};

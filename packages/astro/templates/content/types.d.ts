@@ -89,6 +89,28 @@ declare module 'astro:content' {
 		entry: import('astro').LiveDataEntry<LiveLoaderDataType<C>>,
 	): Promise<RenderResult>;
 
+	/**
+	 * Every value `reference()` accepts as an entry lookup. An already-resolved reference is
+	 * accepted, and passed through, so that re-parsing transformed data is a no-op.
+	 */
+	type ReferenceLookup<C> =
+		| string
+		| number
+		| { collection: C; id: string }
+		| { collection: C; slug: string };
+
+	/**
+	 * Resolve an entry id to a reference to an entry in another collection.
+	 *
+	 * Call it from inside a schema transform, so it composes with any validator and its result
+	 * can be validated further:
+	 *
+	 * ```js
+	 * schema: z.object({
+	 *   author: z.string().transform((id) => reference('authors', id)),
+	 * })
+	 * ```
+	 */
 	export function reference<
 		C extends
 			| keyof DataEntryMap
@@ -98,17 +120,32 @@ declare module 'astro:content' {
 			| (string & {}),
 	>(
 		collection: C,
-	): import('astro/zod').ZodPipe<
-		import('astro/zod').ZodString,
-		import('astro/zod').ZodTransform<
-			C extends keyof DataEntryMap
-				? {
-						collection: C;
-						id: string;
-					}
-				: never,
-			string
-		>
+		lookup: ReferenceLookup<C>,
+	): C extends keyof DataEntryMap ? ReferenceDataEntry<C> : never;
+
+	/**
+	 * @deprecated Pass the entry id as a second argument instead. `reference(collection, id)` is
+	 * an ordinary function rather than a schema factory, so it works with any validator and its
+	 * result can be validated further:
+	 *
+	 * ```js
+	 * schema: z.object({
+	 *   author: z.string().transform((id) => reference('authors', id)),
+	 * })
+	 * ```
+	 */
+	export function reference<
+		C extends
+			| keyof DataEntryMap
+			// Allow generic `string` to avoid excessive type errors in the config
+			// if `dev` is not running to update as you edit.
+			// Invalid collection names will be caught at build time.
+			| (string & {}),
+	>(
+		collection: C,
+	): import('astro/zod').ZodType<
+		C extends keyof DataEntryMap ? ReferenceDataEntry<C> : never,
+		ReferenceLookup<C>
 	>;
 
 	type ReturnTypeOrOriginal<T> = T extends (...args: any[]) => infer R ? R : T;
