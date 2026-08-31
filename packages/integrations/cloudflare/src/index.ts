@@ -258,6 +258,7 @@ export default function createIntegration({
 				// Note: this "Failed to resolve dependency" log will not appear as long as the `@astrojs/prism` package is installed,
 				// even if it is not actually used.
 				const prismFiles = [
+					'@astrojs/prism',
 					'@astrojs/prism > prismjs',
 					'@astrojs/prism > prismjs/components.js',
 					'@astrojs/prism > prismjs/dependencies.js',
@@ -359,6 +360,9 @@ export default function createIntegration({
 													...(prebundleContentRuntime ? (['astro/content/runtime'] as const) : []),
 													'astro/compiler-runtime',
 													'astro/jsx-runtime',
+													...(config.logger?.entrypoint === 'astro/logger/json'
+														? ['astro/logger/json']
+														: []),
 													'astro/app/entrypoint/dev',
 													'astro/middleware',
 													'astro/virtual-modules/middleware.js',

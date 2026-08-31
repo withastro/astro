@@ -4,7 +4,7 @@ import {
 	type HastPluginDefinition,
 	type MdxJsxAttributeNode,
 } from 'satteri';
-import { ASTRO_IMAGE_ELEMENT } from '../image-constants.js';
+import { ASTRO_IMAGE_ELEMENT } from '@astrojs/internal-helpers/mdx';
 import { makeJsxAttr, makeJsxExprAttr } from './jsx-utils.js';
 
 export interface ImageImportInfo {
