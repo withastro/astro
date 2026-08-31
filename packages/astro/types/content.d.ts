@@ -14,7 +14,7 @@ declare module 'astro:content' {
 	/**
 	 * @deprecated
 	 * `import { z } from 'astro:content'` is deprecated and will be removed
-	 * in Astro 8. Use `import { z } from 'astro/zod'` instead.
+	 * in Astro 8. Install `zod` and use `import { z } from 'zod'` instead.
 	 */
 	export const z = zod.z;
 
