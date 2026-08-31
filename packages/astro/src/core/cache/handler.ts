@@ -90,7 +90,7 @@ export async function handleCache(
 	const cacheProvider = await getCacheProvider(state.manifest);
 
 	if (cacheProvider?.onRequest) {
-		const response = await cacheProvider.onRequest(
+		let response = await cacheProvider.onRequest(
 			{
 				request: state.request,
 				url: new URL(state.request.url),
@@ -98,20 +98,28 @@ export async function handleCache(
 			},
 			async () => {
 				const res = await next();
-				applyCacheHeaders(cache!, res, state.request);
-				return res;
+				return applyCacheHeaders(cache!, res, state.request);
 			},
 		);
-		// Strip CDN headers after the runtime provider has read them
-		response.headers.delete('CDN-Cache-Control');
-		response.headers.delete('Cache-Tag');
+		// Strip CDN headers after the runtime provider has read them. A
+		// provider may return a response with immutable headers (e.g. served
+		// directly from a Cache API); rebuild before stripping in that case.
+		if (response.headers.has('CDN-Cache-Control') || response.headers.has('Cache-Tag')) {
+			try {
+				response.headers.delete('CDN-Cache-Control');
+				response.headers.delete('Cache-Tag');
+			} catch {
+				response = new Response(response.body, response);
+				response.headers.delete('CDN-Cache-Control');
+				response.headers.delete('Cache-Tag');
+			}
+		}
 		return response;
 	}
 
 	const response = await next();
 	// Apply cache headers for CDN-based providers (no onRequest)
-	applyCacheHeaders(cache!, response, state.request);
-	return response;
+	return applyCacheHeaders(cache!, response, state.request);
 }
 
 const compiledCacheRoutesMemo = createManifestMemo((manifest: SSRManifest) =>

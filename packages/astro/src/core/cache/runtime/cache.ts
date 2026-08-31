@@ -112,16 +112,28 @@ export class AstroCache implements CacheLike {
 	}
 
 	/** @internal */
-	[APPLY_HEADERS](response: Response, request: Request): void {
-		if (this.#disabled) return;
+	[APPLY_HEADERS](response: Response, request: Request): Response {
+		if (this.#disabled) return response;
 		const finalOptions: CacheOptions = { ...this.#options, tags: this.tags };
-		if (finalOptions.maxAge === undefined && !finalOptions.tags?.length) return;
+		if (finalOptions.maxAge === undefined && !finalOptions.tags?.length) return response;
 
 		const headers =
 			this.#provider?.setHeaders?.(finalOptions, request) ?? defaultSetHeaders(finalOptions);
-		for (const [key, value] of headers) {
-			response.headers.set(key, value);
+		try {
+			for (const [key, value] of headers) {
+				response.headers.set(key, value);
+			}
+		} catch {
+			// Responses returned from `fetch()` or a Cache API have immutable
+			// headers. The first `.set()` throws before changing anything, so
+			// rebuilding into a mutable Response and re-applying cannot
+			// duplicate headers.
+			response = new Response(response.body, response);
+			for (const [key, value] of headers) {
+				response.headers.set(key, value);
+			}
 		}
+		return response;
 	}
 
 	/** @internal */
@@ -133,12 +145,18 @@ export class AstroCache implements CacheLike {
 // ─── Framework-internal helpers (not exported from the `astro` package) ─────
 
 /**
- * Apply cache headers to a response.
+ * Apply cache headers to a response. Returns the response, rebuilt into a
+ * mutable copy when the original's headers cannot be modified.
  */
-export function applyCacheHeaders(cache: CacheLike, response: Response, request: Request): void {
+export function applyCacheHeaders(
+	cache: CacheLike,
+	response: Response,
+	request: Request,
+): Response {
 	if (APPLY_HEADERS in cache) {
-		(cache as AstroCache)[APPLY_HEADERS](response, request);
+		return (cache as AstroCache)[APPLY_HEADERS](response, request);
 	}
+	return response;
 }
 
 /**
