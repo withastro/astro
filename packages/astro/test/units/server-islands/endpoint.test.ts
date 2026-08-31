@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
 import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import {
 	createEndpoint,
@@ -351,14 +352,14 @@ describe('server island endpoint', () => {
 		const Island = createComponent(
 			(result) => render`${renderComponent(result, 'Content', Content, {}, {})}`,
 		);
-		const html = await renderServerIsland(Island);
+		const $ = cheerio.load(await renderServerIsland(Island), null, false);
 
-		assert.equal(html.match(/<style>/g)?.length, 1);
-		assert.equal(html.match(/<link rel="stylesheet"/g)?.length, 1);
-		assert.equal(html.match(/<script type="module"/g)?.length, 1);
-		assert.ok(html.indexOf('<style>') < html.indexOf('<div class="box">'));
-		assert.ok(html.includes('<div class="box">Island content</div>'));
-		assert.equal(html.includes('<!DOCTYPE html>'), false);
+		assert.equal($('style').length, 1);
+		assert.equal($('style').text(), '.box{color:red}');
+		assert.equal($('link[rel="stylesheet"][href="/content.css"]').length, 1);
+		assert.equal($('script[type="module"][src="/content.js"]').length, 1);
+		assert.equal($('.box').text(), 'Island content');
+		assert.equal($.root().contents().first().is('style'), true);
 	});
 
 	it('waits for async slots before serializing propagated head assets', async () => {
@@ -392,11 +393,10 @@ describe('server island endpoint', () => {
 					},
 				)}`,
 		);
-		const html = await renderServerIsland(Island);
+		const $ = cheerio.load(await renderServerIsland(Island), null, false);
 
-		const styleIndex = html.indexOf('<style>.async');
-		const contentIndex = html.indexOf('<div class="async">');
-		assert.notEqual(styleIndex, -1);
-		assert.ok(styleIndex < contentIndex);
+		assert.equal($('style').text(), '.async{color:red}');
+		assert.equal($('.async').text(), 'Async content');
+		assert.equal($.root().contents().first().is('style'), true);
 	});
 });
