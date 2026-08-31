@@ -73,7 +73,26 @@ export type BaseSchema = zCore.$ZodType;
 
 export type { ImageFunction };
 
-export type SchemaContext = { image: ImageFunction };
+export interface SchemaContext {
+	/**
+	 * Absolute path of the entry being parsed, when the loader provides one. Pass the
+	 * whole context to `image()` from `astro/content/image` to resolve a source relative
+	 * to it.
+	 */
+	filePath: string;
+	/**
+	 * @deprecated Use `image()` from `astro/content/image` instead, which is an ordinary
+	 * function rather than a schema factory, so it works with any validator and its result
+	 * can be validated further:
+	 *
+	 * ```js
+	 * schema: (context) => z.object({
+	 *   cover: z.string().transform((src) => image(context, { src })),
+	 * })
+	 * ```
+	 */
+	image: ImageFunction;
+}
 
 type LoaderConstraint<TData extends { id: string }> =
 	| Loader

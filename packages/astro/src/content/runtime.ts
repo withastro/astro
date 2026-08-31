@@ -470,13 +470,13 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 				imagePath.replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'"),
 			);
 
-			let image: GetImageResult;
+			let resolvedImage: GetImageResult;
 			if (URL.canParse(decodedImagePath.src)) {
 				// Remote image, pass through without resolving import
 				// We know we should resolve this remote image because either:
 				// 1. It was collected with the remark-collect-images plugin, which respects the astro image configuration,
 				// 2. OR it was manually injected by another plugin, and we should respect that.
-				image = await getImage(decodedImagePath);
+				resolvedImage = await getImage(decodedImagePath);
 			} else {
 				const id = imageSrcToImportId(decodedImagePath.src, fileName);
 
@@ -484,27 +484,27 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 				if (!id || imageObjects.has(id) || !imported) {
 					continue;
 				}
-				image = await getImage({ ...decodedImagePath, src: imported });
+				resolvedImage = await getImage({ ...decodedImagePath, src: imported });
 			}
-			imageObjects.set(imagePath, image);
+			imageObjects.set(imagePath, resolvedImage);
 		} catch {
 			throw new Error(`Failed to parse image reference: ${imagePath}`);
 		}
 	}
 
 	return html.replaceAll(CONTENT_LAYER_IMAGE_REGEX, (full, imagePath) => {
-		const image = imageObjects.get(imagePath);
+		const resolvedImage = imageObjects.get(imagePath);
 
-		if (!image) {
+		if (!resolvedImage) {
 			return full;
 		}
 
-		const { index, ...attributes } = image.attributes;
+		const { index, ...attributes } = resolvedImage.attributes;
 
 		return Object.entries({
 			...attributes,
-			src: image.src,
-			srcset: image.srcSet.attribute,
+			src: resolvedImage.src,
+			srcset: resolvedImage.srcSet.attribute,
 			// This attribute is used by the toolbar audit
 			...(import.meta.env.DEV ? { 'data-image-component': 'true' } : {}),
 		})
@@ -584,16 +584,36 @@ export function updateImageReferencesInData<T extends Record<string, unknown>>(
 	}
 	let result = data;
 	for (const path of imageImports) {
-		let src: unknown = result;
+		let current: unknown = result;
 		for (const key of path) {
-			src = (src as Record<string | number, unknown>)?.[key];
+			current = (current as Record<string | number, unknown>)?.[key];
 		}
-		if (typeof src !== 'string') {
+
+		// String form: the whole field is the marker, so replace it outright.
+		if (typeof current === 'string') {
+			const resolved = resolveImageAtPath(current, fileName, imageAssetMap);
+			if (resolved !== undefined) {
+				result = setAtPathCopying(result, path, resolved);
+			}
 			continue;
 		}
-		const resolved = resolveImageAtPath(src, fileName, imageAssetMap);
-		if (resolved !== undefined) {
-			result = setAtPathCopying(result, path, resolved);
+
+		// Object form (from `image()`): merge so that fields added by transforms
+		// downstream of `image()` survive resolution.
+		if (current && typeof current === 'object' && typeof (current as any).src === 'string') {
+			const resolved = resolveImageAtPath((current as any).src, fileName, imageAssetMap);
+			if (resolved === undefined) {
+				continue;
+			}
+			result = setAtPathCopying(
+				result,
+				path,
+				// SVGs resolve to a component factory rather than metadata, so there is
+				// nothing to merge into.
+				typeof resolved === 'function'
+					? resolved
+					: { ...(current as object), ...(resolved as object) },
+			);
 		}
 	}
 	return result;

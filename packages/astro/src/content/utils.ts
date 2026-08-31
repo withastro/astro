@@ -20,9 +20,9 @@ import {
 	CONTENT_LAYER_TYPE,
 	CONTENT_MODULE_FLAG,
 	DEFERRED_MODULE,
-	IMAGE_IMPORT_PREFIX,
 	LIVE_CONTENT_TYPE,
 } from './consts.js';
+import { image as resolveImageField } from './image.js';
 import { glob, secretLegacyFlag } from './loaders/glob.js';
 import type { LoaderContext } from './loaders/types.js';
 import { createImage } from './runtime-assets.js';
@@ -168,37 +168,20 @@ export async function getEntryData<
 	let schema = collectionConfig.schema;
 
 	if (typeof schema === 'function') {
+		const { filePath } = entry._internal;
 		if (pluginContext) {
 			schema = schema({
-				image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
+				filePath,
+				image: createImage(pluginContext, shouldEmitFile, filePath),
 			});
 		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
 			schema = schema({
-				image: () =>
-					z.string().transform((val) => {
-						// Normalize bare filenames to relative paths for consistent resolution
-						// This ensures bare filenames like "cover.jpg" work the same way as in markdown frontmatter
-						let normalizedPath = val;
-
-						// Skip normalization for URLs, absolute paths, and already-relative paths
-						const isUrl = val.includes('://');
-						const isAbsolute = val.startsWith('/');
-						const isRelative = val.startsWith('.');
-
-						if (val && !isUrl && !isAbsolute && !isRelative) {
-							// Check if this is a local file or an alias
-							// Resolve relative to the entry's directory
-							const entryDir = path.dirname(entry._internal.filePath);
-							const resolvedPath = path.resolve(entryDir, val);
-
-							// If the file exists, normalize to relative path
-							// Otherwise, keep as-is (likely a Vite alias)
-							if (fsMod.existsSync(resolvedPath)) {
-								normalizedPath = `./${val}`;
-							}
-						}
-						return `${IMAGE_IMPORT_PREFIX}${normalizedPath}`;
-					}),
+				// The entry's file path, so `image(context, { src })` can resolve relative
+				// sources.
+				filePath,
+				// Deprecated `({ image })` form. Routed through the same resolver, so legacy
+				// schemas gain probing and validation too.
+				image: () => z.string().transform((val) => resolveImageField({ filePath }, { src: val })),
 			});
 		}
 	}

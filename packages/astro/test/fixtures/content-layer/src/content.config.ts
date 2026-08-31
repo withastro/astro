@@ -1,4 +1,5 @@
 import { defineCollection, reference } from 'astro:content';
+import { image } from 'astro/content/image';
 import { z } from 'astro/zod';
 import { file, glob } from 'astro/loaders';
 import { loader } from './loaders/post-loader.js';
@@ -89,6 +90,28 @@ const spacecraft = defineCollection({
 				.string()
 				.optional()
 				.transform((str) => ({ type: 'test', content: str })),
+		}),
+});
+
+// Prototype: `image()` called inside a user transform, with a further transform
+// downstream of it to prove composition survives read-time resolution.
+const spacecraftComposed = defineCollection({
+	loader: glob({ pattern: '*.md', base: absoluteRoot }),
+	schema: (context) =>
+		z.object({
+			title: z.string(),
+			description: z.string(),
+			publishedDate: z.coerce.date(),
+			tags: z.array(z.string()),
+			heroImage: z
+				.string()
+				.optional()
+				.transform(async (src) => (src ? await image(context, { src }) : undefined))
+				.transform((img) =>
+					img && img.width && img.height
+						? { ...img, aspect: Math.round((img.width / img.height) * 1000) / 1000 }
+						: img,
+				),
 		}),
 });
 
@@ -394,6 +417,7 @@ export const collections = {
 	numbersToml,
 	numbersYaml,
 	spacecraft,
+	spacecraftComposed,
 	spacecraftNoBody,
 	increment,
 	images,
