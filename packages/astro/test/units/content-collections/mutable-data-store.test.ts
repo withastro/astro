@@ -316,6 +316,42 @@ describe('MutableDataStore', () => {
 		assert.deepEqual(new Set(entry.assetImports), new Set(['./hero.png', './a.png', './icon.png']));
 	});
 
+	it('handles frozen data from a `.readonly()` schema without throwing (issue #17793)', () => {
+		const store = new MutableDataStore();
+		const scoped = store.scopedStore('blog');
+		const entryFilePath = 'src/content/blog/post.md';
+
+		// Mirror what Zod returns for a `.readonly()` strictObject containing an
+		// `image()` field: a frozen object with frozen nested values.
+		const nested = Object.freeze({ icon: '__ASTRO_IMAGE_./icon.png' });
+		const frozenData = Object.freeze({
+			hero: '__ASTRO_IMAGE_./hero.png',
+			nested,
+			title: 'Hello',
+		});
+
+		assert.doesNotThrow(() => {
+			scoped.set({
+				id: 'post',
+				filePath: entryFilePath,
+				data: frozenData,
+			});
+		});
+
+		const entry = store.get('blog', 'post') as any;
+
+		// The prefix is stripped in the stored (cloned) data.
+		assert.equal(entry.data.hero, './hero.png');
+		assert.equal(entry.data.nested.icon, './icon.png');
+		assert.equal(entry.data.title, 'Hello');
+
+		// The user's original frozen object is left untouched.
+		assert.equal(frozenData.hero, '__ASTRO_IMAGE_./hero.png');
+		assert.equal(nested.icon, '__ASTRO_IMAGE_./icon.png');
+
+		assert.deepEqual(entry.imageImports, [['hero'], ['nested', 'icon']]);
+	});
+
 	it('does not set imageImports when the entry has no images', () => {
 		const store = new MutableDataStore();
 		const scoped = store.scopedStore('blog');
