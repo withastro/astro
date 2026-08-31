@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { type Fixture, loadFixture } from './test-utils.ts';
+import createTestPrerenderer from './test-prerenderer.ts';
 
 describe('experimental.incrementalBuild', () => {
 	const root = new URL('./fixtures/incremental-build/', import.meta.url);
@@ -256,6 +257,37 @@ describe('experimental.incrementalBuild', () => {
 			await forceFixture.build({ force: true });
 			const $ = cheerio.load(await forceFixture.readFile('/blog/post-1/index.html'));
 			assert.equal($('h1').text(), 'Post 1');
+		});
+	});
+
+	describe('custom prerenderer without metadata', () => {
+		const untrackedCacheDir = new URL('node_modules/.astro-untracked/', root);
+		const untrackedCacheFile = new URL('incremental-build.json', untrackedCacheDir);
+		let untrackedFixture: Fixture;
+
+		before(async () => {
+			fs.rmSync(new URL('dist/incremental-build-untracked/', root), {
+				recursive: true,
+				force: true,
+			});
+			fs.rmSync(untrackedCacheDir, { recursive: true, force: true });
+			const testPrerenderer = createTestPrerenderer();
+			untrackedFixture = await loadFixture({
+				root,
+				outDir: './dist/incremental-build-untracked/',
+				cacheDir: './node_modules/.astro-untracked/',
+				integrations: [testPrerenderer.integration],
+				experimental: {
+					incrementalBuild: true,
+				},
+			});
+			await untrackedFixture.build();
+		});
+
+		it('does not record paths whose prerenderer omits metadata', () => {
+			assert.ok(untrackedFixture.pathExists('/blog/post-1/index.html'));
+			const cache = JSON.parse(fs.readFileSync(untrackedCacheFile, 'utf-8'));
+			assert.deepEqual(cache.routes, {});
 		});
 	});
 
