@@ -273,16 +273,15 @@ describe('applyCacheHeaders()', () => {
 		assert.equal(response.headers.get('Cache-Control'), 'no-cache');
 	});
 
-	it('preserves an explicit response Cache-Control header', () => {
-		const provider = createMockProvider({
-			setHeaders: () => new Headers({ 'Cache-Control': 'no-store', ETag: '"v1"' }),
-		});
-		const cache = new AstroCache(provider);
-		cache.set({ maxAge: 60 });
+	it('does not add no-cache when the response has an Expires header', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 60, lastModified: new Date('2025-06-01T12:00:00Z') });
 
-		const response = new Response('test', { headers: { 'Cache-Control': 'private, max-age=60' } });
+		const response = new Response('test', {
+			headers: { Expires: 'Sun, 01 Jun 2025 12:01:00 GMT' },
+		});
 		applyCacheHeaders(cache, response, dummyRequest);
-		assert.equal(response.headers.get('Cache-Control'), 'private, max-age=60');
+		assert.equal(response.headers.get('Cache-Control'), null);
 	});
 
 	it('uses provider.setHeaders() when available', () => {
