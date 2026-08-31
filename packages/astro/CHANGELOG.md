@@ -1,5 +1,27 @@
 # astro
 
+## 7.2.10
+
+### Patch Changes
+
+- [#17262](https://github.com/withastro/astro/pull/17262) [`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `@astrojs/markdown-remark` being pinned to an exact version.
+
+- [#17874](https://github.com/withastro/astro/pull/17874) [`10c7e63`](https://github.com/withastro/astro/commit/10c7e636cd14232473ae856d7e22e886f5c65689) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes SSR manifest placeholder not being replaced when the server build is minified, which caused a runtime `Invalid URL` crash at server boot
+
+- [#17869](https://github.com/withastro/astro/pull/17869) [`2548abf`](https://github.com/withastro/astro/commit/2548abf1874f2fdfc7438aab51cfea03424753cc) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a case where the logger was improperly initialized at runtime in dev.
+
+- [#17878](https://github.com/withastro/astro/pull/17878) [`76eff3d`](https://github.com/withastro/astro/commit/76eff3d5fbc5f940acb1dcb341d4b1c9d95fa2a3) Thanks [@ematipico](https://github.com/ematipico)! - Fixes browser heuristic caching for cached responses that include `Last-Modified` or `ETag` validators
+
+- [#17833](https://github.com/withastro/astro/pull/17833) [`413a6e7`](https://github.com/withastro/astro/commit/413a6e7a9b966124913893182b83cbd30a9fd3ab) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes prerender conflict warnings to correctly identify the route that first rendered a duplicate pathname, instead of misattributing the conflict to an unrelated route that merely matches the URL pattern
+
+- [#17872](https://github.com/withastro/astro/pull/17872) [`f7191cc`](https://github.com/withastro/astro/commit/f7191cc4257330b6ca435fb4dae66d315b16115d) Thanks [@jx-grxf](https://github.com/jx-grxf)! - Fixes Markdown images in content collections rendering an empty `srcset` attribute when no responsive candidates are generated.
+
+- [#17755](https://github.com/withastro/astro/pull/17755) [`157c500`](https://github.com/withastro/astro/commit/157c500c38faa7ecf1251adbaeefcd109470d75c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a bug where editing a content collection entry during `astro dev` on Windows kept serving stale content until the dev server was restarted. The data store now notifies the dev server directly after each write instead of relying only on the file watcher, which can miss the atomic rename that commits the write on some platforms.
+
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40), [`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+  - @astrojs/markdown-satteri@0.4.0
+
 ## 7.2.9
 
 ### Patch Changes

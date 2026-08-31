@@ -1,5 +1,17 @@
 # @astrojs/cloudflare
 
+## 14.2.6
+
+### Patch Changes
+
+- [#17854](https://github.com/withastro/astro/pull/17854) [`07b919f`](https://github.com/withastro/astro/commit/07b919f23e3041c4cc9c4f33004a19a32a5294b3) Thanks [@ematipico](https://github.com/ematipico)! - Added `@astrojs/prism` to the list of dependencies to optimise. The dev server is now faster for sites that use Prism as code highlighter.
+
+- [#17850](https://github.com/withastro/astro/pull/17850) [`1301c37`](https://github.com/withastro/astro/commit/1301c374435897654bf52d80d91d0947b72cf1a1) Thanks [@matthewp](https://github.com/matthewp)! - Fixes React SSR failures on the first Cloudflare dev request when JSON logging is enabled
+
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.2.5
 
 ### Patch Changes
