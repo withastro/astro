@@ -120,7 +120,6 @@ export class AstroCache implements CacheLike {
 		const headers =
 			this.#provider?.setHeaders?.(finalOptions, request) ?? defaultSetHeaders(finalOptions);
 		for (const [key, value] of headers) {
-			if (key.toLowerCase() === 'cache-control' && response.headers.has(key)) continue;
 			response.headers.set(key, value);
 		}
 		if (
