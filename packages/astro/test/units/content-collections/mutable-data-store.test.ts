@@ -6,8 +6,15 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as devalue from 'devalue';
+import { z } from 'astro/zod';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { imageSrcToImportId } from '../../../dist/assets/utils/resolveImports.js';
+import { IMAGE_IMPORT_PREFIX } from '../../../dist/content/consts.js';
+
+// Content-layer `image()` fields are parsed to a prefixed src string (see
+// packages/astro/src/content/utils.ts). Model that transform so data can be
+// built through a real Zod schema, matching what the Content Layer feeds `set()`.
+const image = () => z.string().transform((v) => IMAGE_IMPORT_PREFIX + v);
 
 describe('MutableDataStore', () => {
 	let tmpDir: string;
@@ -321,20 +328,19 @@ describe('MutableDataStore', () => {
 		const scoped = store.scopedStore('blog');
 		const entryFilePath = 'src/content/blog/post.md';
 
-		// Mirror what Zod returns for a `.readonly()` strictObject containing an
-		// `image()` field: a frozen object with frozen nested values.
-		const nested = Object.freeze({ icon: '__ASTRO_IMAGE_./icon.png' });
-		const frozenData = Object.freeze({
-			hero: '__ASTRO_IMAGE_./hero.png',
-			nested,
-			title: 'Hello',
-		});
+		// Reproduce the reported schema: a `.readonly()` strictObject with top-level
+		// `image()` fields. `.readonly()` freezes the top-level object, so parsing
+		// real input yields the frozen object the Content Layer passes to `set()`.
+		const schema = z.strictObject({ hero: image(), social: image().optional() }).readonly();
+		const parsed = schema.parse({ hero: './hero.png', social: './social.png' });
+
+		assert.ok(Object.isFrozen(parsed), 'a `.readonly()` schema returns a frozen object');
 
 		assert.doesNotThrow(() => {
 			scoped.set({
 				id: 'post',
 				filePath: entryFilePath,
-				data: frozenData,
+				data: parsed,
 			});
 		});
 
@@ -342,14 +348,13 @@ describe('MutableDataStore', () => {
 
 		// The prefix is stripped in the stored (cloned) data.
 		assert.equal(entry.data.hero, './hero.png');
-		assert.equal(entry.data.nested.icon, './icon.png');
-		assert.equal(entry.data.title, 'Hello');
+		assert.equal(entry.data.social, './social.png');
 
 		// The user's original frozen object is left untouched.
-		assert.equal(frozenData.hero, '__ASTRO_IMAGE_./hero.png');
-		assert.equal(nested.icon, '__ASTRO_IMAGE_./icon.png');
+		assert.equal(parsed.hero, IMAGE_IMPORT_PREFIX + './hero.png');
+		assert.equal(parsed.social, IMAGE_IMPORT_PREFIX + './social.png');
 
-		assert.deepEqual(entry.imageImports, [['hero'], ['nested', 'icon']]);
+		assert.deepEqual(entry.imageImports, [['hero'], ['social']]);
 	});
 
 	it('does not set imageImports when the entry has no images', () => {
