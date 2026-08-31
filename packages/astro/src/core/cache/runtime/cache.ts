@@ -125,6 +125,7 @@ export class AstroCache implements CacheLike {
 		}
 		if (
 			!response.headers.has('Cache-Control') &&
+			!response.headers.has('Expires') &&
 			(response.headers.has('Last-Modified') || response.headers.has('ETag'))
 		) {
 			// `no-cache` requires revalidation before a stored response is reused.
