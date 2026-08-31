@@ -11,7 +11,7 @@ concurrency:
 jobs:
   reply-labeled:
     if: github.repository == 'withastro/astro'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Remove triaging label
         if: >-
