@@ -81,6 +81,15 @@ export default async function astroPluginRoutes({
 
 	const normalizedSrcDir = normalizePath(fileURLToPath(settings.config.srcDir));
 
+	function findRouteByFilename(filename: string) {
+		return initialRoutesList.routes.find(
+			(route) =>
+				normalizePath(fileURLToPath(new URL(`./${route.component}`, settings.config.root))) ===
+				filename,
+		);
+	}
+
+	// Only built in `build` environments, where the route list is fixed for the whole run
 	let routeByFilename: Map<string, RoutesList['routes'][number]> | null = null;
 	function getRouteByFilename(): Map<string, RoutesList['routes'][number]> {
 		if (routeByFilename === null) {
@@ -119,7 +128,6 @@ export default async function astroPluginRoutes({
 			// at creation time, so we must mutate the array in place rather than replacing it.
 			initialRoutesList.routes.length = 0;
 			initialRoutesList.routes.push(...newRoutesList.routes);
-			routeByFilename = null;
 
 			serializedRouteInfo = initialRoutesList.routes.map((r): SerializedRouteInfo => {
 				return {
@@ -229,7 +237,10 @@ export default async function astroPluginRoutes({
 			const fileIsPage = isPage(fileURL, settings);
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
-			const route = getRouteByFilename().get(filename);
+			const route =
+				this.environment.mode === 'build'
+					? getRouteByFilename().get(filename)
+					: findRouteByFilename(filename);
 
 			if (!route) {
 				return;
@@ -281,7 +292,7 @@ export default async function astroPluginRoutes({
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
 
-			const route = getRouteByFilename().get(filename);
+			const route = findRouteByFilename(filename);
 
 			if (!route) {
 				return;
