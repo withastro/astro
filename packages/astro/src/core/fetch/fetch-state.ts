@@ -119,6 +119,8 @@ export interface AstroFetchState {
 	response: Response | undefined;
 	/** Default HTTP status for the rendered response. */
 	status: number;
+	/** Returns whether the request matched an Astro route before fallback handling. */
+	hasMatchedRoute(): boolean;
 
 	/**
 	 * Triggers a rewrite to a different route.
@@ -157,6 +159,7 @@ export function getFetchStateFromAPIContext(context: APIContext): FetchState {
  * for rarely-accessed memoized caches and Maps.
  */
 export class FetchState implements AstroFetchState {
+	#routeMatched = false;
 	/** The manifest — the single ambient source of static, build-time data. */
 	manifest: SSRManifest;
 	/** The manifest's identity-stable logger, captured once at construction. */
@@ -988,6 +991,7 @@ export class FetchState implements AstroFetchState {
 		// with adapter).
 		if (this.routeData) {
 			this.#stripHtmlExtension();
+			this.#routeMatched = this.routeData.pattern.test(this.pathname);
 			return;
 		}
 
@@ -1011,6 +1015,7 @@ export class FetchState implements AstroFetchState {
 		} else {
 			this.routeData = matched;
 		}
+		this.#routeMatched = Boolean(this.routeData);
 		this.logger.debug('router', 'Astro matched the following route for ' + this.request.url);
 		this.logger.debug('router', 'RouteData:\n' + this.routeData);
 
@@ -1031,6 +1036,10 @@ export class FetchState implements AstroFetchState {
 			return;
 		}
 		this.#stripHtmlExtension();
+	}
+
+	hasMatchedRoute(): boolean {
+		return this.#routeMatched;
 	}
 
 	/**

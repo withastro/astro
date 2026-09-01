@@ -218,6 +218,7 @@ export default function createIntegration({
 									return {
 										...restWorkerConfig,
 										name: 'prerender',
+										main: '@astrojs/cloudflare/entrypoints/server',
 										// Make AsyncLocalStorage available in the build-time prerender
 										// worker (the render scope in `utils/prerender-scope.ts` needs
 										// it) by auto-appending `nodejs_als` when the user's config has
