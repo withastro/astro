@@ -20,6 +20,7 @@ review:
 triage:
   enabled: true
   skill: .agents/skills/triage
+  prWriterSkill: .agents/skills/astro-pr-writer
   model: anthropic/claude-opus-4-6
   verificationModel: anthropic/claude-sonnet-4-6
   autoPrOnFix: false

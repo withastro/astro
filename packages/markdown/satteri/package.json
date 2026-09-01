@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-satteri",
-  "version": "0.3.8",
+  "version": "0.4.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -32,6 +32,8 @@
     "satteri": "^0.10.3"
   },
   "devDependencies": {
+    "@types/estree": "^1.0.8",
+    "@types/hast": "^3.0.4",
     "astro-scripts": "workspace:*"
   },
   "publishConfig": {

@@ -969,6 +969,7 @@ export class FetchState implements AstroFetchState {
 			this.routeData.type === 'page' &&
 			!routeHasHtmlExtension(this.routeData)
 		) {
+			const original = this.pathname;
 			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 			// Route patterns are compiled with the configured trailing slash, so a
 			// pathname left without one after stripping `.html` no longer matches its
@@ -979,6 +980,16 @@ export class FetchState implements AstroFetchState {
 				!this.pathname.endsWith('/')
 			) {
 				this.pathname += '/';
+			}
+			// Restore only when normalization invalidates a route that matched the original pathname.
+			// Error routes can be selected as fallbacks without matching either pathname.
+			// https://github.com/withastro/astro/issues/17827
+			if (
+				this.pathname !== original &&
+				this.routeData.pattern.test(original) &&
+				!this.routeData.pattern.test(this.pathname)
+			) {
+				this.pathname = original;
 			}
 		}
 	}

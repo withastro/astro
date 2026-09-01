@@ -40,6 +40,13 @@ export async function getLanguageServer(): Promise<LanguageServer> {
 			},
 			{
 				textDocument: {
+					codeAction: {
+						codeActionLiteralSupport: {
+							codeActionKind: { valueSet: ['source.organizeImports', 'quickfix'] },
+						},
+						dataSupport: true,
+						resolveSupport: { properties: ['edit'] },
+					},
 					definition: {
 						linkSupport: true,
 					},
