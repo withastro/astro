@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { describe, it, mock } from 'node:test';
 import type { CacheProvider } from '../../../dist/core/cache/types.js';
 import type { MemoryCacheProviderOptions } from '../../../dist/core/cache/memory-provider.js';
 import memoryProvider from '../../../dist/core/cache/memory-provider.js';
@@ -353,23 +353,24 @@ describe('memory-provider Vary header', () => {
 		assert.equal(await res3.text(), 'english');
 	});
 
-	it('ignores Cookie in Vary header', async () => {
-		const provider = createProvider();
-		const url = 'http://localhost/page';
+	it('does not cache responses when Vary contains Cookie or *', async () => {
+		for (const vary of ['Cookie', '*', 'Accept-Language, Cookie']) {
+			const provider = createProvider();
+			const url = 'http://localhost/page';
+			const req1 = makeRequest(url, { Cookie: 'user=a' });
+			const res1 = await provider.onRequest!(
+				{ request: req1, url: new URL(req1.url) },
+				makeNext({ maxAge: 60, body: 'first', headers: { Vary: vary } }),
+			);
+			assert.equal(res1.headers.has('X-Astro-Cache'), false);
 
-		const req1 = makeRequest(url, { Cookie: 'user=a' });
-		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
-			makeNext({ maxAge: 60, body: 'first', headers: { Vary: 'Cookie' } }),
-		);
-
-		// Different cookie — should still HIT (Cookie is ignored in Vary)
-		const req2 = makeRequest(url, { Cookie: 'user=b' });
-		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
-			makeNext({ maxAge: 60, body: 'second' }),
-		);
-		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
+			const req2 = makeRequest(url, { Cookie: 'user=b' });
+			const res2 = await provider.onRequest!(
+				{ request: req2, url: new URL(req2.url) },
+				makeNext({ body: 'second' }),
+			);
+			assert.equal(await res2.text(), 'second');
+		}
 	});
 });
 
@@ -553,6 +554,35 @@ describe('memory-provider SWR', () => {
 			makeNext({ maxAge: 60, body: 'should-not-see' }),
 		);
 		assert.equal(res3.headers.get('X-Astro-Cache'), 'HIT');
+		assert.equal(await res3.text(), 'fresh-body');
+	});
+
+	it('removes stale entries when revalidation returns an uncacheable Vary header', async (t) => {
+		t.mock.timers.enable({ apis: ['Date'], now: 1_000 });
+		t.after(() => mock.timers.reset());
+		const provider = createProvider();
+		const url = 'http://localhost/page';
+		const req1 = makeRequest(url);
+		await provider.onRequest!(
+			{ request: req1, url: new URL(req1.url) },
+			makeNext({ maxAge: 1, swr: 60, body: 'stale-body' }),
+		);
+
+		t.mock.timers.tick(2_000);
+		const req2 = makeRequest(url);
+		const res2 = await provider.onRequest!(
+			{ request: req2, url: new URL(req2.url) },
+			makeNext({ maxAge: 60, body: 'uncached-body', headers: { Vary: 'Cookie' } }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'STALE');
+		await Promise.resolve();
+
+		const req3 = makeRequest(url);
+		const res3 = await provider.onRequest!(
+			{ request: req3, url: new URL(req3.url) },
+			makeNext({ body: 'fresh-body' }),
+		);
+		assert.equal(res3.headers.has('X-Astro-Cache'), false);
 		assert.equal(await res3.text(), 'fresh-body');
 	});
 });

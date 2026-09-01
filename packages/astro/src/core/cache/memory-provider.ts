@@ -211,14 +211,19 @@ function getPathFromCacheKey(key: string, queryConfig: NormalizedQueryConfig): s
 	return `${url.pathname}${buildQueryString(url, queryConfig)}`;
 }
 
-/**
- * Headers that should not be used for Vary-based cache key discrimination.
- * `cookie` is excluded because it has extremely high cardinality (every user
- * has different cookies), making it effectively uncacheable. Use config-level
- * cookie-based vary instead when that is supported.
- * `set-cookie` is a response header and should never appear in Vary.
- */
-const IGNORED_VARY_HEADERS = new Set(['cookie', 'set-cookie']);
+/** `set-cookie` is a response header and should never appear in Vary. */
+const IGNORED_VARY_HEADERS = new Set(['set-cookie']);
+
+function getUncacheableVaryHeader(response: Response): 'Cookie' | '*' | undefined {
+	const vary = response.headers.get('Vary');
+	if (!vary) return undefined;
+	for (const header of vary.split(',')) {
+		const normalized = header.trim().toLowerCase();
+		if (normalized === 'cookie') return 'Cookie';
+		if (normalized === '*') return '*';
+	}
+	return undefined;
+}
 
 /**
  * Parse the Vary header into an array of lowercased header names.
@@ -269,6 +274,12 @@ function hasSetCookieHeader(response: Response): boolean {
 function warnSkippedSetCookie(url: URL): void {
 	console.warn(
 		`[astro:cache] Skipping cache for ${url.pathname}${url.search} because response includes Set-Cookie.`,
+	);
+}
+
+function warnSkippedVary(url: URL, header: 'Cookie' | '*'): void {
+	console.warn(
+		`[astro:cache] Skipping cache for ${url.pathname}${url.search} because response includes Vary: ${header}.`,
 	);
 }
 
@@ -451,6 +462,12 @@ const memoryProvider = ((config): CacheProvider => {
 										warnSkippedSetCookie(requestUrl);
 										return;
 									}
+									const uncacheableVary = getUncacheableVaryHeader(freshResponse);
+									if (uncacheableVary) {
+										cache.delete(key);
+										warnSkippedVary(requestUrl, uncacheableVary);
+										return;
+									}
 									const newTags = parseCacheTags(freshResponse.headers.get('Cache-Tag'));
 									const newEntry = await serializeResponse(
 										freshResponse,
@@ -493,6 +510,12 @@ const memoryProvider = ((config): CacheProvider => {
 			if (maxAge > 0) {
 				if (hasSetCookieHeader(response)) {
 					warnSkippedSetCookie(requestUrl);
+					return response;
+				}
+				const uncacheableVary = getUncacheableVaryHeader(response);
+				if (uncacheableVary) {
+					cache.delete(key);
+					warnSkippedVary(requestUrl, uncacheableVary);
 					return response;
 				}
 				const tags = parseCacheTags(response.headers.get('Cache-Tag'));
