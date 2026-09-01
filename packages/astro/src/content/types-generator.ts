@@ -401,22 +401,39 @@ async function getContentLayerSchema<T extends keyof ContentConfig['collections'
 	return result?.schema;
 }
 
+/**
+ * The type of one collection's entries in the generated `DataMap`. Every collection gets a
+ * member, so that the collection names are known without resolving the config — see the note on
+ * `InferCollectionData` in `astro/types/content.d.ts` — but the type behind each name is
+ * inferred from the config rather than written out, in all but two cases:
+ *
+ * - a collection that exists as a directory under `src/content/` but is missing from the
+ *   config, which has no schema to infer from, and
+ * - a loader that builds its schema while loading (`createSchema()`), whose types are generated
+ *   here and written to a file of their own.
+ */
 async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T] | undefined,
 	collectionKey: T,
 ): Promise<{ type: string; injectedType?: InjectedType }> {
-	if (collection?.schema) {
-		return { type: `InferEntrySchema<${collectionKey}>` };
-	}
-	if (!collection?.type || typeof collection.loader === 'function' || !collection.loader) {
+	if (!collection) {
+		// Not in the config, so nothing describes its data.
 		return { type: 'any' };
 	}
-	if (typeof collection.loader === 'object' && collection.loader.schema) {
-		return { type: `InferLoaderSchema<${collectionKey}>` };
+	const inferred = { type: `InferCollectionData<ContentConfig, ${collectionKey}>` };
+	if (
+		collection.schema ||
+		!collection.type ||
+		typeof collection.loader === 'function' ||
+		!collection.loader ||
+		collection.loader.schema
+	) {
+		return inferred;
 	}
 	const result = await getCreateSchemaResult(collection, collectionKey);
 	if (!result) {
-		return { type: 'any' };
+		// A loader with no schema of any kind. Inference types it as `any`.
+		return inferred;
 	}
 	const base = `loaders/${collectionKey.slice(1, -1)}`;
 	return {
@@ -449,7 +466,7 @@ async function writeContentFiles({
 	logger: AstroLogger;
 	settings: AstroSettings;
 }) {
-	let dataTypesStr = '';
+	let dataMapStr = '';
 
 	const collectionSchemasDir = new URL(COLLECTIONS_DIR, settings.dotAstroDir);
 	fs.mkdirSync(collectionSchemasDir, { recursive: true });
@@ -492,10 +509,7 @@ async function writeContentFiles({
 			return;
 		}
 
-		const { type: dataType, injectedType } = await typeForCollection(
-			collectionConfig,
-			collectionKey,
-		);
+		const { type, injectedType } = await typeForCollection(collectionConfig, collectionKey);
 
 		if (injectedType) {
 			if (settings.injectedTypes.some((t) => t.filename === CONTENT_TYPES_FILE)) {
@@ -508,7 +522,7 @@ async function writeContentFiles({
 			}
 		}
 
-		dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  body?: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent;\n  filePath?: string;\n  digest?: string | number;\n}>;\n`;
+		dataMapStr += `\n\t\t${collectionKey}: ${type};`;
 
 		if (
 			collectionConfig &&
@@ -578,7 +592,14 @@ async function writeContentFiles({
 		}
 	}
 	typeTemplateContent = typeTemplateContent
-		.replace('// @@DATA_ENTRY_MAP@@', dataTypesStr)
+		.replace('@@DATA_MAP@@', dataMapStr ? `${dataMapStr}\n\t` : '')
+		// Live collections are not read at sync time, so their names cannot be written out the
+		// way `DataMap`'s are. Nothing calls into `LiveDataMap` from inside a live config, so
+		// inferring the whole map is safe here.
+		.replace(
+			'@@LIVE_DATA_MAP_BASE@@',
+			liveConfigPathRelativeToCacheDir ? ' extends InferLiveData<LiveContentConfig>' : '',
+		)
 		.replace(
 			"'@@CONTENT_CONFIG_TYPE@@'",
 			contentConfig ? `typeof import(${configPathRelativeToCacheDir})` : 'never',

@@ -149,35 +149,24 @@ describe('astro sync', () => {
 			fixture.thenFileShouldBeValidTypeScript('.astro/content.d.ts');
 		});
 
-		it('Writes types for empty collections', async () => {
+		it('Infers collections from the config, including ones with no entries yet', async () => {
 			await fixture.load('./fixtures/content-collections-empty-dir/');
 			fixture.clean();
 			await fixture.whenSyncing();
+			// A collection is named in `DataMap` whether or not it has any entries, and its data
+			// is inferred from the config rather than written out.
 			fixture.thenFileContentShouldInclude(
 				'.astro/content.d.ts',
-				`"blog": Record<string, {
-  id: string;
-  body?: string;
-  collection: "blog";
-  data: InferEntrySchema<"blog">;
-  rendered?: RenderedContent;
-  filePath?: string;
-  digest?: string | number;`,
-				'Types file does not include empty collection type',
+				`export type ContentConfig = typeof import("../src/content.config.js");`,
+				'Types file does not point at the content config',
 			);
-			fixture.thenFileContentShouldInclude(
-				'.astro/content.d.ts',
-				`"blogMeta": Record<string, {
-  id: string;
-  body?: string;
-  collection: "blogMeta";
-  data: InferEntrySchema<"blogMeta">;
-  rendered?: RenderedContent;
-  filePath?: string;
-  digest?: string | number;
-}>;`,
-				'Types file does not include empty collection type',
-			);
+			for (const collection of ['blog', 'blogMeta']) {
+				fixture.thenFileContentShouldInclude(
+					'.astro/content.d.ts',
+					`"${collection}": InferCollectionData<ContentConfig, "${collection}">;`,
+					`Types file does not include the empty ${collection} collection`,
+				);
+			}
 		});
 
 		it('fails when using a loader schema function', async () => {

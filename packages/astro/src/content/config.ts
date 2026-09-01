@@ -156,7 +156,7 @@ export type LiveCollectionConfig<
 };
 
 export type CollectionConfig<
-	S extends BaseSchema,
+	S extends BaseSchema = BaseSchema,
 	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
 > = ContentCollectionConfig<S> | DataCollectionConfig<S> | ContentLayerConfig<S, TLoader>;
 
@@ -220,10 +220,7 @@ export function defineLiveCollection<
 	return config;
 }
 
-export function defineCollection<
-	S extends BaseSchema,
-	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
->(config: CollectionConfig<S, TLoader>): CollectionConfig<S, TLoader> {
+export function defineCollection<T extends CollectionConfig>(config: T): T {
 	const importerFilename = getImporterFilename();
 
 	if (importerFilename?.includes('live.config')) {
@@ -256,3 +253,120 @@ export function defineCollection<
 	if (!config.type) config.type = 'content';
 	return config;
 }
+
+/**
+ * Collection types are inferred from the content config rather than written out collection by
+ * collection, so `astro sync` only has to generate the two lines that point `astro:content` at
+ * the project's config. Everything below is the type-level half of that: given the module type
+ * of a content config, it produces the map of collection name to entry data that the generated
+ * `DataMap` interface extends.
+ */
+
+type Defined<T> = Exclude<T, undefined>;
+
+/** Whether `S` is a schema rather than the absence of one. */
+type HasSchema<S> = [Defined<S>] extends [never] ? false : true;
+
+/** A schema is either passed directly or returned by a factory that receives the context. */
+type ResolveSchema<S> = S extends (context: SchemaContext) => infer R ? R : S;
+
+/**
+ * The schema declared on the collection itself, if it has one. Declaring it is what counts,
+ * not whether the property is optional: a config that never mentions `schema` has no schema to
+ * infer from, while one typed as `schema?: S` does.
+ */
+type CollectionSchema<TCollection> = 'schema' extends keyof TCollection
+	? ResolveSchema<Defined<TCollection['schema']>>
+	: never;
+
+/**
+ * The schema declared by the collection's loader, if it has one. A loader that builds its
+ * schema while loading (`createSchema()`) has nothing to infer from here: `astro sync` writes
+ * the type it generated straight into `DataMap` instead.
+ */
+type LoaderSchema<TCollection> = TCollection extends { loader: { schema: infer S } }
+	? // The function form of a loader schema is ignored at runtime, so it is ignored here too.
+		S extends (...args: Array<any>) => any
+		? never
+		: S
+	: never;
+
+/**
+ * The type of an entry's `data`, from the collection's own definition. A schema on the
+ * collection wins over one on its loader, and a collection with neither is unvalidated, so its
+ * data is `any`.
+ */
+type InferSchemaData<TCollection> =
+	HasSchema<CollectionSchema<TCollection>> extends true
+		? InferSchemaOutput<Defined<CollectionSchema<TCollection>>>
+		: HasSchema<LoaderSchema<TCollection>> extends true
+			? InferSchemaOutput<Defined<LoaderSchema<TCollection>>>
+			: any;
+
+/**
+ * The type of an entry's `data` in the `TName` collection of a content config. `astro sync`
+ * writes one of these per collection, so that the names in `DataMap` are known without
+ * resolving the config it reads them from — see {@link InferData}.
+ */
+export type InferCollectionData<TConfig, TName extends string> = [TConfig] extends [never]
+	? // No content config to read, as when a project has none at all.
+		any
+	: TConfig extends { collections: infer TCollections }
+		? TName extends keyof TCollections
+			? InferSchemaData<TCollections[TName]>
+			: any
+		: any;
+
+/**
+ * Map every collection in a content config to the type of its entry data:
+ *
+ * ```ts
+ * declare module 'astro:content' {
+ *   type ContentConfig = typeof import('../src/content.config.js');
+ *   interface DataMap extends InferData<ContentConfig> {}
+ * }
+ * ```
+ *
+ * This is not how `astro sync` writes `DataMap`, because the whole map cannot be resolved
+ * without resolving the config, and the config resolves `reference()`, which needs the
+ * collection names. It writes {@link InferCollectionData} per collection instead, so the names
+ * are declared up front and only the data behind each one is inferred. Use this when writing
+ * a `DataMap` by hand for a config that does not call `reference()`.
+ */
+export type InferData<TConfig> = [TConfig] extends [never]
+	? {}
+	: TConfig extends { collections: infer TCollections }
+		? { [K in keyof TCollections & string]: InferSchemaData<TCollections[K]> }
+		: {};
+
+type LiveLoaderOf<TCollection> = TCollection extends { loader: infer L } ? L : never;
+
+type InferLiveLoaderTypes<TLoader> =
+	TLoader extends LiveLoader<infer TData, infer TEntryFilter, infer TCollectionFilter, infer TError>
+		? {
+				data: TData;
+				entryFilter: TEntryFilter;
+				collectionFilter: TCollectionFilter;
+				error: TError;
+			}
+		: { data: never; entryFilter: never; collectionFilter: never; error: never };
+
+/**
+ * Everything a live collection is typed by: the data its loader returns (or its schema
+ * produces, when it has one) plus the filters and error type the loader accepts.
+ */
+export type InferLiveCollectionTypes<TCollection> = {
+	data: HasSchema<CollectionSchema<TCollection>> extends true
+		? InferSchemaOutput<Defined<CollectionSchema<TCollection>>>
+		: InferLiveLoaderTypes<LiveLoaderOf<TCollection>>['data'];
+	entryFilter: InferLiveLoaderTypes<LiveLoaderOf<TCollection>>['entryFilter'];
+	collectionFilter: InferLiveLoaderTypes<LiveLoaderOf<TCollection>>['collectionFilter'];
+	error: InferLiveLoaderTypes<LiveLoaderOf<TCollection>>['error'];
+};
+
+/** The `InferData` of live collections: every collection in a live config, fully typed. */
+export type InferLiveData<TConfig> = [TConfig] extends [never]
+	? {}
+	: TConfig extends { collections: infer TCollections }
+		? { [K in keyof TCollections & string]: InferLiveCollectionTypes<TCollections[K]> }
+		: {};
