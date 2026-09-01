@@ -87,9 +87,11 @@ export function createServer(
 	} else {
 		httpServer = http.createServer(listener);
 	}
-	// Must be set before the server starts listening: Node.js sets the socket timeout
-	// logic up on connection, so a later assignment would not apply to connections that
-	// are already open.
+	// Assigned here rather than by the caller so every connection this server accepts is
+	// served with the configured value: Node.js reads `keepAliveTimeout` when it arms a
+	// socket's idle timer, so an assignment made later would leave sockets that are
+	// already idling on the previous value. The guard matters — writing `undefined` would
+	// poison Node's timer arithmetic instead of preserving its default.
 	if (keepAliveTimeout !== undefined) {
 		httpServer.keepAliveTimeout = keepAliveTimeout;
 	}
