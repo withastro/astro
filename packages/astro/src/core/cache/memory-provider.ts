@@ -277,12 +277,6 @@ function warnSkippedSetCookie(url: URL): void {
 	);
 }
 
-function warnSkippedVary(url: URL, header: 'Cookie' | '*'): void {
-	console.warn(
-		`[astro:cache] Skipping cache for ${url.pathname}${url.search} because response includes Vary: ${header}.`,
-	);
-}
-
 /**
  * Simple LRU cache backed by a Map (insertion-order iteration).
  * When the cache exceeds `max` entries, the oldest entry is evicted.
@@ -465,7 +459,6 @@ const memoryProvider = ((config): CacheProvider => {
 									const uncacheableVary = getUncacheableVaryHeader(freshResponse);
 									if (uncacheableVary) {
 										cache.delete(key);
-										warnSkippedVary(requestUrl, uncacheableVary);
 										return;
 									}
 									const newTags = parseCacheTags(freshResponse.headers.get('Cache-Tag'));
@@ -515,7 +508,6 @@ const memoryProvider = ((config): CacheProvider => {
 				const uncacheableVary = getUncacheableVaryHeader(response);
 				if (uncacheableVary) {
 					cache.delete(key);
-					warnSkippedVary(requestUrl, uncacheableVary);
 					return response;
 				}
 				const tags = parseCacheTags(response.headers.get('Cache-Tag'));
