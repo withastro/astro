@@ -1,11 +1,8 @@
 ---
-'astro': minor
 '@astrojs/cloudflare': minor
 ---
 
-Adds `FetchState.hasMatchedRoute()` and a Cloudflare `finalize()` response handler
-
-`hasMatchedRoute()` reports whether the original request matched an Astro route. This differs from checking `state.routeData`, which can contain Astro's internal `/404` fallback for an unmatched request.
+Adds a Cloudflare `finalize()` response handler for custom request handlers
 
 Call `finalize()` to apply cookies and Cloudflare CDN cache defaults to the response from an `astro/fetch` pipeline:
 

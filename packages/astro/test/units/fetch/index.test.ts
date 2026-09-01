@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { setAmbientManifest } from '../../../dist/core/manifest/ambient.js';
-import { setRenderOptions } from '../../../dist/core/app/render-options.js';
 import { getUsedFeatures } from '../../../dist/core/fetch/features.js';
 import {
 	FetchState,
@@ -103,44 +102,6 @@ describe('FetchState (astro/fetch)', () => {
 
 		assert.ok(state.routeData, 'routeData should fall back to the 404 route');
 		assert.equal(state.routeData!.route, '/404');
-		assert.equal(state.hasMatchedRoute(), false);
-	});
-
-	it('distinguishes a matched 404 route from an unmatched request', () => {
-		const notFoundPage = createPage(simplePage, { route: '/404' });
-		const app = createTestApp([notFoundPage]);
-		const request = stampApp(new Request('http://example.com/404'), app);
-		const state = new FetchState(request);
-
-		assert.equal(state.routeData!.route, '/404');
-		assert.equal(state.hasMatchedRoute(), true);
-	});
-
-	it('checks provided route data against the request pathname', () => {
-		const notFoundPage = createPage(simplePage, { route: '/404' });
-		const welcomePage = createPage(simplePage, { route: '/welcome' });
-		const indexPage = createPage(simplePage, { route: '/' });
-		const app = createTestApp([notFoundPage, welcomePage, indexPage]);
-		setAmbientManifest(app.manifest);
-
-		for (const [pathname, routeData, expected] of [
-			['/missing', notFoundPage.routeData, false],
-			['/404', notFoundPage.routeData, true],
-			['/welcome.html', welcomePage.routeData, true],
-			['/index.html', indexPage.routeData, true],
-		] as const) {
-			const request = new Request(`http://example.com${pathname}`);
-			setRenderOptions(request, {
-				addCookieHeader: false,
-				clientAddress: undefined,
-				prerenderedErrorPageFetch: undefined,
-				locals: undefined,
-				routeData,
-				waitUntil: undefined,
-			});
-
-			assert.equal(new FetchState(request).hasMatchedRoute(), expected);
-		}
 	});
 
 	it('preserves .html in pathname for endpoint routes with dynamic params', () => {
