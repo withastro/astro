@@ -71,10 +71,11 @@ function sortAndFilterLocales(browserLocaleList: BrowserLocale[], locales: Local
 			return true;
 		})
 		.sort((a, b) => {
-			if (a.qualityValue && b.qualityValue) {
-				return Math.sign(b.qualityValue - a.qualityValue);
-			}
-			return 0;
+			// An absent `q=` means quality 1.0 (RFC 7231), while a bare `*` defaults
+			// to 0 so it is never ranked above a real locale.
+			const qa = a.locale === '*' ? (a.qualityValue ?? 0) : (a.qualityValue ?? 1);
+			const qb = b.locale === '*' ? (b.qualityValue ?? 0) : (b.qualityValue ?? 1);
+			return qb - qa;
 		});
 }
 

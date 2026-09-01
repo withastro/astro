@@ -1,6 +1,7 @@
 import {
 	type AstroComponentFactory,
 	type ComponentSlots,
+	markHTMLString,
 	renderComponent,
 	renderTemplate,
 } from '../../runtime/server/index.js';
@@ -208,7 +209,12 @@ export function createEndpoint(manifest: SSRManifest) {
 			Component.propagation = 'self';
 		}
 
-		return renderTemplate`${renderComponent(result, 'Component', Component, props, slots)}`;
+		// Server island modules are selected at runtime, outside the static propagation graph.
+		// Mark this route as propagating so async slots register head assets before streaming.
+		// https://github.com/withastro/astro/issues/17870
+		result._metadata.routeHasPropagation = true;
+		const renderPropagatedHead = () => markHTMLString(result._metadata.extraHead.join(''));
+		return renderTemplate`${renderPropagatedHead}${renderComponent(result, 'Component', Component, props, slots)}`;
 	};
 
 	page.isAstroComponentFactory = true;

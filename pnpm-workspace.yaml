@@ -37,6 +37,8 @@ overrides:
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@biomejs/*'
+  - 'sharp@0.35.4'
+  - '@img/sharp-*'
   # 'fake-data-pkg' is a local package used for testing
   - 'fake-data-pkg@1.0.0'
   # TODO: remove once more stable
@@ -68,6 +70,14 @@ trustPolicyExclude:
   - '@netlify/edge-bundler@14.10.2||14.10.1'
   - '@netlify/zip-it-and-ship-it@14.5.6'
   - '@netlify/serverless-functions-api@2.15.1'
+  # Vercel packages that do not have trusted publishing enabled on npm
+  # TODO: Remove once trusted publishing is enabled.
+  - '@vercel/functions@3.9.5'
+  - '@vercel/routing-utils@6.5.0'
+  # Transitive dependencies of '@vercel/functions'
+  - '@vercel/oidc@3.8.5'
+  - '@vercel/cli-exec@1.0.1'
+  - '@vercel/cli-config@0.2.4'
   # Outdated dependencies of @vitejs/plugin-react@^5 and @vscode/vsce
   # TODO: Update the Vite plugin to ^6 in Astro v7 and remove this
   - 'semver@6.3.1 || 5.7.2'
@@ -101,3 +111,6 @@ allowBuilds:
   protobufjs: false
   sharp: false
   workerd: false
+
+patchedDependencies:
+  '@volar/typescript@2.4.28': patches/@volar__typescript@2.4.28.patch

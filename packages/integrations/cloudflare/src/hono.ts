@@ -70,7 +70,7 @@ function getFetchState(context: HonoCloudflareContextLike): FetchState {
 export function cf(): HonoMiddlewareHandler {
 	return async (context, next) => {
 		const state = getFetchState(context);
-		const asset = await cfFetch(state, context.env, context.executionCtx);
+		const asset = await cfFetch(state, context.env, context.executionCtx as ExecutionContext);
 		if (asset) return asset;
 		await next();
 	};

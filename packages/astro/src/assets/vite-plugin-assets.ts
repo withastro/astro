@@ -12,7 +12,7 @@ import {
 	removeBase,
 	removeQueryString,
 } from '../core/path.js';
-import { recordStaticImage } from '../core/build/incremental-image-collector.js';
+import { recordStaticImage } from '../core/render-scope/record.js';
 import { normalizePath } from '../core/viteUtils.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';

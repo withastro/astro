@@ -1,15 +1,36 @@
 import type { PluginConfig, WorkerConfig } from '@cloudflare/vite-plugin';
+import { getLocalWorkerdCompatibilityDate } from './info.js';
 
 export const DEFAULT_SESSION_KV_BINDING_NAME = 'SESSION';
 export const DEFAULT_IMAGES_BINDING_NAME = 'IMAGES';
 export const DEFAULT_ASSETS_BINDING_NAME = 'ASSETS';
 
-// Default compatibility date used when the user doesn't set one in their wrangler config.
-// The @cloudflare/vite-plugin falls back to today's date, but that can exceed the maximum
-// date supported by the bundled workerd binary (which has a ~7 day buffer from its build date),
-// causing ERR_RUNTIME_FAILURE. A hard-coded date avoids this issue.
-// This should be updated when upgrading wrangler/workerd dependencies.
-const DEFAULT_COMPATIBILITY_DATE = '2026-04-15';
+const DEFAULT_COMPATIBILITY_DATE = getLocalWorkerdCompatibilityDate().date;
+
+/**
+ * Compatibility flags that make `AsyncLocalStorage` (`node:async_hooks`)
+ * available in workerd.
+ */
+const ALS_CAPABLE_FLAGS = ['nodejs_als', 'nodejs_compat', 'nodejs_compat_v2'];
+
+/**
+ * Returns the compatibility flags for the build-time prerender worker,
+ * auto-appending `nodejs_als` when no ALS-capable flag is already present.
+ *
+ * The prerender worker installs an AsyncLocalStorage-backed render scope (see
+ * `utils/prerender-scope.ts`) so concurrent prerender requests attribute
+ * incremental-build metadata to the right path; `nodejs_als` makes
+ * `node:async_hooks` resolvable in that worker. This only ever shapes the
+ * transient build-time prerender worker config — the user's deployed wrangler
+ * config is untouched.
+ */
+export function withNodejsAlsFlag(compatibilityFlags: string[] | undefined): string[] {
+	const flags = compatibilityFlags ?? [];
+	if (flags.some((flag) => ALS_CAPABLE_FLAGS.includes(flag))) {
+		return flags;
+	}
+	return [...flags, 'nodejs_als'];
+}
 
 interface CloudflareConfigOptions {
 	sessionKVBindingName?: string | undefined;

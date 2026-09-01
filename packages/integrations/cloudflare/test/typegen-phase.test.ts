@@ -17,7 +17,10 @@ interface OptimizeDepsPatch {
 	optimizeDeps?: { noDiscovery?: boolean; include?: string[]; exclude?: string[] };
 }
 
-async function runConfigSetup(command: 'dev' | 'build' | 'sync') {
+async function runConfigSetup(
+	command: 'dev' | 'build' | 'sync',
+	loggerConfig?: { entrypoint: string },
+) {
 	const integration = cloudflare();
 	let updatedConfig: { vite: { plugins: unknown[] } } | undefined;
 
@@ -31,6 +34,7 @@ async function runConfigSetup(command: 'dev' | 'build' | 'sync') {
 			experimental: {},
 			vite: {},
 			image: {},
+			logger: loggerConfig,
 		},
 		updateConfig(config: { vite: { plugins: unknown[] } }) {
 			updatedConfig = config;
@@ -115,6 +119,22 @@ describe('type generation phase (build and sync)', () => {
 			// entrypoints (#16933); losing them reintroduces mid-request discovery.
 			assert.ok(include.includes('astro/actions/runtime/entrypoints/server.js'));
 			assert.ok(include.includes('astro/actions/runtime/entrypoints/route.js'));
+		});
+
+		it('only prebundles the JSON logger when it is enabled', async () => {
+			const defaultConfig = await runConfigSetup('dev');
+			const defaultInclude =
+				defaultConfig.configEnvironment('ssr', {})?.optimizeDeps?.include ?? [];
+			assert.ok(!defaultInclude.includes('astro/logger/json'));
+
+			const consoleConfig = await runConfigSetup('dev', { entrypoint: 'astro/logger/console' });
+			const consoleInclude =
+				consoleConfig.configEnvironment('ssr', {})?.optimizeDeps?.include ?? [];
+			assert.ok(!consoleInclude.includes('astro/logger/json'));
+
+			const jsonConfig = await runConfigSetup('dev', { entrypoint: 'astro/logger/json' });
+			const jsonInclude = jsonConfig.configEnvironment('ssr', {})?.optimizeDeps?.include ?? [];
+			assert.ok(jsonInclude.includes('astro/logger/json'));
 		});
 	});
 });

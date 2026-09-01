@@ -34,6 +34,7 @@ import { getParams, getProps } from '../render/index.js';
 import { executeRewrite } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
 import { MultiLevelEncodingError, validateAndDecodePathname } from '../util/pathname.js';
+import { setPathname } from '../util/normalized-url.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
 import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
@@ -331,8 +332,8 @@ export class FetchState implements AstroFetchState {
 		const url = new URL(request.url);
 		const publicPathname = this.#normalizePathname(url.pathname);
 		const pathname = this.#computePathname(publicPathname);
-		url.pathname = publicPathname;
-		url.pathname = collapseDuplicateSlashes(url.pathname);
+		setPathname(url, publicPathname);
+		setPathname(url, collapseDuplicateSlashes(url.pathname));
 		// For domain-based i18n routing, the locale prefix is derived from the
 		// request's Host header rather than its URL. When a locale is detected,
 		// the resulting pathname includes the prefix (e.g. /en/boats/1/foo) that
@@ -957,6 +958,7 @@ export class FetchState implements AstroFetchState {
 			this.routeData.type === 'page' &&
 			!routeHasHtmlExtension(this.routeData)
 		) {
+			const original = this.pathname;
 			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 			// Route patterns are compiled with the configured trailing slash, so a
 			// pathname left without one after stripping `.html` no longer matches its
@@ -967,6 +969,16 @@ export class FetchState implements AstroFetchState {
 				!this.pathname.endsWith('/')
 			) {
 				this.pathname += '/';
+			}
+			// Restore only when normalization invalidates a route that matched the original pathname.
+			// Error routes can be selected as fallbacks without matching either pathname.
+			// https://github.com/withastro/astro/issues/17827
+			if (
+				this.pathname !== original &&
+				this.routeData.pattern.test(original) &&
+				!this.routeData.pattern.test(this.pathname)
+			) {
+				this.pathname = original;
 			}
 		}
 	}

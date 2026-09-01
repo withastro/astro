@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/internal-helpers",
   "description": "Internal helpers used by core Astro packages.",
-  "version": "0.10.4",
+  "version": "0.11.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -20,6 +20,7 @@
     "./request": "./dist/request.js",
     "./object": "./dist/object.js",
     "./markdown": "./dist/markdown.js",
+    "./mdx": "./dist/mdx.js",
     "./frontmatter": "./dist/frontmatter.js",
     "./shiki": "./dist/shiki.js"
   },

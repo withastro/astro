@@ -18,9 +18,12 @@
   ],
   "scripts": {},
   "devDependencies": {
-    "astro": "^7.2.4"
+    "astro": "^7.2.10"
   },
   "peerDependencies": {
     "astro": "^4.0.0"
+  },
+  "allowScripts": {
+    "esbuild": true
   }
 }

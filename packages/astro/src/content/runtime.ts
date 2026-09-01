@@ -5,7 +5,7 @@ import type * as zCore from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { createSvgComponent } from '../assets/runtime.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
-import { recordContentEntryRender } from '../core/build/incremental-content-collector.js';
+import { recordContentEntryRender } from '../core/render-scope/record.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isRemotePath, prependForwardSlash } from '../core/path.js';
 import {
@@ -214,13 +214,13 @@ export function createGetEntry({ liveCollections }: { liveCollections: LiveColle
 				data,
 				collection,
 			} as DataEntryResult | ContentEntryResult;
-			// TODO: remove in Astro 7
+			// TODO: remove in Astro 8
 			warnForPropertyAccess(
 				result.data,
 				'slug',
 				`[content] Attempted to access deprecated property on "${collection}" entry.\nThe "slug" property is no longer automatically added to entries. Please use the "id" property instead.`,
 			);
-			// TODO: remove in Astro 7
+			// TODO: remove in Astro 8
 			warnForPropertyAccess(
 				result,
 				'render',
@@ -504,7 +504,9 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 		return Object.entries({
 			...attributes,
 			src: image.src,
-			srcset: image.srcSet.attribute,
+			// An empty `srcset` is invalid HTML, so only emit it when there are
+			// actual candidates. This matches `vite-plugin-markdown/images.ts`.
+			...(image.srcSet.values.length > 0 ? { srcset: image.srcSet.attribute } : {}),
 			// This attribute is used by the toolbar audit
 			...(import.meta.env.DEV ? { 'data-image-component': 'true' } : {}),
 		})

@@ -46,6 +46,35 @@ export class MutableDataStore extends ImmutableDataStore {
 	#writeInProgress = false;
 	#writeQueued = false;
 
+	#fileWrittenListeners = new Set<(path: string) => void>();
+
+	/**
+	 * Registers a listener called with the file path whenever this store writes a
+	 * file to disk (the data store itself, or the asset/module import files).
+	 * Writes that are skipped because the data on disk is already identical do
+	 * not notify. The dev server uses this to invalidate the content virtual
+	 * modules deterministically, instead of relying on the file watcher to
+	 * observe the write — on some platforms (notably Windows) the watcher can
+	 * miss the atomic rename that commits it.
+	 * Returns a function that removes the listener.
+	 */
+	onFileWritten(listener: (path: string) => void): () => void {
+		this.#fileWrittenListeners.add(listener);
+		return () => {
+			this.#fileWrittenListeners.delete(listener);
+		};
+	}
+
+	#notifyFileWritten(path: PathLike) {
+		if (this.#fileWrittenListeners.size === 0) {
+			return;
+		}
+		const normalized = path instanceof URL ? fileURLToPath(path) : path.toString();
+		for (const listener of this.#fileWrittenListeners) {
+			listener(normalized);
+		}
+	}
+
 	set(collectionName: string, key: string, value: unknown) {
 		const collection = this._collections.get(collectionName) ?? new Map();
 		collection.set(String(key), value);
@@ -59,6 +88,7 @@ export class MutableDataStore extends ImmutableDataStore {
 			collection.delete(String(key));
 			this.#saveToDiskDebounced();
 			this.#writeAssetsImportsDebounced();
+			this.#writeModulesImportsDebounced();
 		}
 	}
 
@@ -66,12 +96,14 @@ export class MutableDataStore extends ImmutableDataStore {
 		this._collections.delete(collectionName);
 		this.#saveToDiskDebounced();
 		this.#writeAssetsImportsDebounced();
+		this.#writeModulesImportsDebounced();
 	}
 
 	clearAll() {
 		this._collections.clear();
 		this.#saveToDiskDebounced();
 		this.#writeAssetsImportsDebounced();
+		this.#writeModulesImportsDebounced();
 	}
 
 	addAssetImport(assetImport: string, filePath?: string) {
@@ -123,6 +155,27 @@ export class MutableDataStore extends ImmutableDataStore {
 		}
 	}
 
+	/**
+	 * Rebuilds #moduleImports from the current entries in _collections.
+	 * This ensures stale module entries are removed when content files are
+	 * deleted or renamed, preventing Vite from attempting to resolve
+	 * non-existent files listed in content-modules.mjs.
+	 */
+	#rebuildModuleImports() {
+		this.#moduleImports.clear();
+		for (const collection of this._collections.values()) {
+			for (const entry of collection.values()) {
+				const typedEntry = entry as DataEntry;
+				if (typedEntry.deferredRender && typedEntry.filePath) {
+					const id = contentModuleToId(typedEntry.filePath);
+					if (id) {
+						this.#moduleImports.set(typedEntry.filePath, id);
+					}
+				}
+			}
+		}
+	}
+
 	async writeAssetImports(filePath: PathLike) {
 		this.#assetsFile = filePath;
 		this.#rebuildAssetImports();
@@ -164,6 +217,7 @@ export default new Map([${exports.join(', ')}]);
 
 	async writeModuleImports(filePath: PathLike) {
 		this.#modulesFile = filePath;
+		this.#rebuildModuleImports();
 
 		if (this.#moduleImports.size === 0) {
 			try {
@@ -171,6 +225,7 @@ export default new Map([${exports.join(', ')}]);
 			} catch (err) {
 				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 			}
+			return;
 		}
 
 		if (!this.#modulesDirty && existsSync(filePath)) {
@@ -318,6 +373,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			// Write it to a temporary file first and then move it to prevent partial reads.
 			await fs.writeFile(tempFile, data);
 			await fs.rename(tempFile, filePath);
+			this.#notifyFileWritten(filePath);
 		} finally {
 			// We're done writing. Unflag the file and check if there are any pending writes for this file.
 			this.#writing.delete(fileKey);
@@ -337,7 +393,17 @@ export default new Map([\n${lines.join(',\n')}]);
 			entries: () => this.entries(collectionName),
 			values: () => this.values(collectionName),
 			keys: () => this.keys(collectionName),
-			set: ({ id: key, data, body, filePath, deferredRender, digest, rendered, assetImports }) => {
+			set: ({
+				id: key,
+				data,
+				body,
+				filePath,
+				deferredRender,
+				digest,
+				rendered,
+				assetImports,
+				imageImports: incomingImageImports,
+			}) => {
 				if (!key) {
 					throw new Error(`ID must be a non-empty string`);
 				}
@@ -350,6 +416,18 @@ export default new Map([\n${lines.join(',\n')}]);
 				}
 				const foundAssets = new Set<string>(assetImports);
 				const imageImports: (string | number)[][] = [];
+				const seenImageImportPaths = new Set();
+				const recordImageImport = (imagePath: (string | number)[]) => {
+					const pathKey = JSON.stringify(imagePath);
+					if (seenImageImportPaths.has(pathKey)) {
+						return;
+					}
+					seenImageImportPaths.add(pathKey);
+					imageImports.push(imagePath);
+				};
+				for (const existingImagePath of incomingImageImports ?? []) {
+					recordImageImport([...existingImagePath]);
+				}
 				// Image fields are prefixed during schema parsing. Record their locations and
 				// strip the prefix so the stored data holds a plain, devalue-serializable src
 				// string. The recorded paths let read-time resolution rewrite only these fields
@@ -358,7 +436,7 @@ export default new Map([\n${lines.join(',\n')}]);
 					if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 						const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 						foundAssets.add(src);
-						imageImports.push(ctx.path.map((segment) => segment as string | number));
+						recordImageImport(ctx.path.map((segment) => segment as string | number));
 						ctx.update(src);
 					}
 				});
@@ -461,7 +539,10 @@ export default new Map([\n${lines.join(',\n')}]);
 			// Mark as clean before writing to disk so that it catches any changes that happen during the write
 			this.#dirty = false;
 			this.#writeInProgress = true;
-			await this.#writer.write(this._collections);
+			const didWrite = await this.#writer.write(this._collections);
+			if (didWrite) {
+				this.#notifyFileWritten(this.#writer.target);
+			}
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		} finally {
