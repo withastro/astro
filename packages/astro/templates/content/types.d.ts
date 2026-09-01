@@ -149,16 +149,16 @@ declare module 'astro:content' {
 	>;
 
 	type ReturnTypeOrOriginal<T> = T extends (...args: any[]) => infer R ? R : T;
-	type InferEntrySchema<C extends keyof DataEntryMap> = import('astro/zod').infer<
+	/** The data type a schema produces, for any Standard Schema validator */
+	type InferSchema<S> = import('astro/content/config').InferSchemaOutput<S>;
+	type InferEntrySchema<C extends keyof DataEntryMap> = InferSchema<
 		ReturnTypeOrOriginal<Required<ContentConfig['collections'][C]>['schema']>
 	>;
 	type ExtractLoaderConfig<T> = T extends { loader: infer L } ? L : never;
 	type InferLoaderSchema<
 		C extends keyof DataEntryMap,
 		L = ExtractLoaderConfig<ContentConfig['collections'][C]>,
-	> = L extends { schema: import('astro/zod').ZodSchema }
-		? import('astro/zod').infer<L['schema']>
-		: any;
+	> = L extends { schema: infer S } ? InferSchema<S> : any;
 
 	type DataEntryMap = {
 		// @@DATA_ENTRY_MAP@@
@@ -180,9 +180,7 @@ declare module 'astro:content' {
 	type LiveLoaderDataType<C extends keyof LiveContentConfig['collections']> =
 		LiveContentConfig['collections'][C]['schema'] extends undefined
 			? ExtractDataType<LiveContentConfig['collections'][C]['loader']>
-			: import('astro/zod').infer<
-					Exclude<LiveContentConfig['collections'][C]['schema'], undefined>
-				>;
+			: InferSchema<Exclude<LiveContentConfig['collections'][C]['schema'], undefined>>;
 	type LiveLoaderEntryFilterType<C extends keyof LiveContentConfig['collections']> =
 		ExtractEntryFilterType<LiveContentConfig['collections'][C]['loader']>;
 	type LiveLoaderCollectionFilterType<C extends keyof LiveContentConfig['collections']> =

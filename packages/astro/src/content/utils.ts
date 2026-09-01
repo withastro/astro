@@ -6,8 +6,14 @@ import { slug as githubSlug } from 'github-slugger';
 import colors from 'piccolore';
 import type { RunnableDevEnvironment, Rolldown } from 'vite';
 import xxhash from 'xxhash-wasm';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import * as z from 'zod/v4';
-import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
+import {
+	AstroError,
+	AstroErrorData,
+	formatIssuePath,
+	MarkdownError,
+} from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
@@ -52,6 +58,19 @@ export const loaderReturnSchema = z.union([
 	),
 ]);
 
+const INVALID_SCHEMA_MESSAGE =
+	'Invalid schema. Expected a Standard Schema validator (https://standardschema.dev), such as a Zod, Valibot or ArkType schema.';
+
+/** Whether a value implements the [Standard Schema](https://standardschema.dev) interface. */
+export function isStandardSchema(value: unknown): value is StandardSchemaV1 {
+	return (
+		typeof value === 'object' &&
+		value !== null &&
+		'~standard' in value &&
+		typeof (value as StandardSchemaV1)['~standard']?.validate === 'function'
+	);
+}
+
 const collectionConfigParser = z.union([
 	z.object({
 		type: z.literal('content').optional(),
@@ -89,10 +108,10 @@ const collectionConfigParser = z.union([
 						return v;
 					})
 					.superRefine((v, ctx) => {
-						if (v !== undefined && !('_zod' in v)) {
+						if (v !== undefined && !isStandardSchema(v)) {
 							ctx.addIssue({
-								code: z.ZodIssueCode.custom,
-								message: 'Invalid Zod schema',
+								code: 'custom',
+								message: INVALID_SCHEMA_MESSAGE,
 							});
 							return z.NEVER;
 						}
@@ -103,7 +122,7 @@ const collectionConfigParser = z.union([
 						input: [],
 						output: z.promise(
 							z.object({
-								schema: z.custom<z.ZodSchema>((v: any) => '_zod' in v),
+								schema: z.custom<StandardSchemaV1>(isStandardSchema, INVALID_SCHEMA_MESSAGE),
 								types: z.string(),
 							}),
 						),
@@ -187,39 +206,33 @@ export async function getEntryData<
 	}
 
 	if (schema) {
-		// Use `safeParseAsync` to allow async transforms
-		let formattedError;
-		const parsed = await (schema as z.ZodSchema).safeParseAsync(data, {
-			error(issue) {
-				if (issue.code === 'custom' && issue.params?.isHoistedAstroError) {
-					formattedError = issue.params?.astroError;
-				}
-				return errorMap(issue);
-			},
-		});
-		if (parsed.success) {
-			data = parsed.data as TOutputData;
-		} else {
-			if (!formattedError) {
-				formattedError = new AstroError({
-					...AstroErrorData.InvalidContentEntryDataError,
-					message: AstroErrorData.InvalidContentEntryDataError.message(
-						entry.collection,
-						entry.id,
-						parsed.error,
-					),
-					location: {
-						file: entry._internal?.filePath,
-						line: getYAMLErrorLine(
-							entry._internal?.rawData,
-							String(parsed.error.issues[0].path[0]),
-						),
-						column: 0,
-					},
-				});
-			}
-			throw formattedError;
+		if (!isStandardSchema(schema)) {
+			throw new AstroError({
+				...AstroErrorData.InvalidCollectionSchemaError,
+				message: AstroErrorData.InvalidCollectionSchemaError.message(entry.collection),
+			});
 		}
+		// `validate()` may return a promise, which is what allows async transforms
+		const result = await schema['~standard'].validate(data);
+		if (result.issues) {
+			throw new AstroError({
+				...AstroErrorData.InvalidContentEntryDataError,
+				message: AstroErrorData.InvalidContentEntryDataError.message(
+					entry.collection,
+					entry.id,
+					result.issues,
+				),
+				location: {
+					file: entry._internal?.filePath,
+					line: getYAMLErrorLine(
+						entry._internal?.rawData,
+						formatIssuePath(result.issues[0]?.path).split('.')[0],
+					),
+					column: 0,
+				},
+			});
+		}
+		data = result.value as TOutputData;
 	}
 
 	return data;

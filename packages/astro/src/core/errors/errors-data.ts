@@ -2,7 +2,8 @@
 // Additionally, this code, much like `types/public/config.ts`, is used to generate documentation, so make sure to pass
 // your changes by our wonderful docs team before merging!
 
-import type { $ZodError } from 'zod/v4/core';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
+import { formatSchemaIssues } from './standard-schema.js';
 
 export interface ErrorData {
 	name: string;
@@ -1792,12 +1793,12 @@ export const GetEntryDeprecationError = {
 export const InvalidContentEntryFrontmatterError = {
 	name: 'InvalidContentEntryFrontmatterError',
 	title: 'Content entry frontmatter does not match schema.',
-	message(collection: string, entryId: string, error: $ZodError) {
+	message(collection: string, entryId: string, issues: readonly StandardSchemaV1.Issue[]) {
 		return [
 			`**${String(collection)} → ${String(
 				entryId,
 			)}** frontmatter does not match collection schema.`,
-			...error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`),
+			...formatSchemaIssues(issues),
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
@@ -1819,14 +1820,31 @@ export const InvalidContentEntryFrontmatterError = {
 export const InvalidContentEntryDataError = {
 	name: 'InvalidContentEntryDataError',
 	title: 'Content entry data does not match schema.',
-	message(collection: string, entryId: string, error: $ZodError) {
+	message(collection: string, entryId: string, issues: readonly StandardSchemaV1.Issue[]) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			...error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`),
+			...formatSchemaIssues(issues),
 			'',
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * The schema for the **blog** collection is not a valid schema.
+ * @description
+ * A collection was defined with a `schema` that is not a [Standard Schema](https://standardschema.dev) validator.
+ * Astro validates collection entries through the Standard Schema interface, so any validator that
+ * implements it — Zod, Valibot, ArkType, and others — can be used.
+ */
+export const InvalidCollectionSchemaError = {
+	name: 'InvalidCollectionSchemaError',
+	title: 'Collection schema is not a valid schema.',
+	message: (collection: string) =>
+		`The schema for the **${collection}** collection is not a valid schema.`,
+	hint: 'Astro collection schemas must implement the Standard Schema interface (https://standardschema.dev). Zod, Valibot and ArkType schemas all do.',
 } satisfies ErrorData;
 
 /**
@@ -1925,10 +1943,10 @@ export const ContentLoaderReturnsInvalidId = {
 export const ContentEntryDataError = {
 	name: 'ContentEntryDataError',
 	title: 'Content entry data does not match schema.',
-	message(collection: string, entryId: string, error: $ZodError) {
+	message(collection: string, entryId: string, issues: readonly StandardSchemaV1.Issue[]) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			...error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`),
+			...formatSchemaIssues(issues),
 			'',
 		].join('\n');
 	},

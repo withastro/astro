@@ -747,6 +747,9 @@ importers:
       '@oslojs/encoding':
         specifier: ^1.1.0
         version: 1.1.0
+      '@standard-schema/spec':
+        specifier: ^1.1.0
+        version: 1.1.0
       am-i-vibing:
         specifier: ^0.4.0
         version: 0.4.0

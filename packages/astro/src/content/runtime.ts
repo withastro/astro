@@ -1,7 +1,7 @@
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import { escape } from 'html-escaper';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import * as z from 'zod/v4';
-import type * as zCore from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { createSvgComponent } from '../assets/runtime.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
@@ -44,7 +44,7 @@ export {
 type LazyImport = () => Promise<any>;
 type LiveCollectionConfigMap = Record<
 	string,
-	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: zCore.$ZodType }
+	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: StandardSchemaV1 }
 >;
 
 const cacheHintSchema = z.object({
@@ -54,14 +54,15 @@ const cacheHintSchema = z.object({
 
 async function parseLiveEntry(
 	entry: LiveDataEntry,
-	schema: zCore.$ZodType,
+	schema: StandardSchemaV1,
 	collection: string,
 ): Promise<{ entry?: LiveDataEntry; error?: LiveCollectionError }> {
 	try {
-		const parsed = await z.safeParseAsync(schema, entry.data);
-		if (!parsed.success) {
+		// `validate()` may return a promise, which is what allows async transforms
+		const parsed = await schema['~standard'].validate(entry.data);
+		if (parsed.issues) {
 			return {
-				error: new LiveCollectionValidationError(collection, entry.id, parsed.error),
+				error: new LiveCollectionValidationError(collection, entry.id, parsed.issues),
 			};
 		}
 		if (entry.cacheHint) {
@@ -69,7 +70,7 @@ async function parseLiveEntry(
 
 			if (!cacheHint.success) {
 				return {
-					error: new LiveCollectionCacheHintError(collection, entry.id, cacheHint.error),
+					error: new LiveCollectionCacheHintError(collection, entry.id, cacheHint.error.issues),
 				};
 			}
 			entry.cacheHint = cacheHint.data;
@@ -77,7 +78,7 @@ async function parseLiveEntry(
 		return {
 			entry: {
 				...entry,
-				data: parsed.data as Record<string, unknown>,
+				data: parsed.value as Record<string, unknown>,
 			},
 		};
 	} catch (error) {
@@ -319,7 +320,11 @@ export function createGetLiveCollection({
 
 				if (!cacheHintResult.success) {
 					return {
-						error: new LiveCollectionCacheHintError(collection, undefined, cacheHintResult.error),
+						error: new LiveCollectionCacheHintError(
+							collection,
+							undefined,
+							cacheHintResult.error.issues,
+						),
 					};
 				}
 				cacheHint = cacheHintResult.data;

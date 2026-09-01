@@ -56,6 +56,18 @@ const _schemalessValue: SchemalessData = { anything: 'goes', count: 42 };
 const _schemalessAccess: string = _schemalessValue.nonExistentProp;
 
 // ============================================================================
+// Case 4: Collection validated by a Standard Schema validator that is not Zod
+// ("standard"). Its output type comes from `~standard.types`, so inference has to
+// work for any validator, not just Zod.
+// ============================================================================
+
+type StandardData = CollectionEntry<'standard'>['data'];
+
+// @ts-expect-error - `headline` is string, not number
+const _standardDataCheck: StandardData = { headline: 123 };
+const _standardDataOk: StandardData = { headline: 'Hello' };
+
+// ============================================================================
 // `reference()`: two overloads, chosen by whether a lookup is passed.
 // ============================================================================
 

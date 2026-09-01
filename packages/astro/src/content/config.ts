@@ -1,3 +1,4 @@
+import type { StandardJSONSchemaV1, StandardSchemaV1 } from '@standard-schema/spec';
 import type * as zCore from 'zod/v4/core';
 import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
@@ -69,7 +70,33 @@ export interface MetaStore {
 	has: (key: string) => boolean;
 }
 
-export type BaseSchema = zCore.$ZodType;
+/**
+ * Any [Standard Schema](https://standardschema.dev) validator: Zod, Valibot, ArkType, and
+ * others. Astro validates collection entries through the standard interface, so it is not
+ * tied to a single validation library.
+ */
+export type BaseSchema = StandardSchemaV1;
+
+/**
+ * A schema that can additionally describe itself as JSON Schema, per
+ * https://standardschema.dev/json-schema. Astro uses this to generate the `.schema.json`
+ * files that give data collections autocompletion and validation in editors.
+ *
+ * This is a capability, not a requirement: a collection schema is only ever typed as
+ * `BaseSchema`, and the extra methods are detected at runtime. Validators that do not
+ * implement the JSON Schema spec still work; only the generated JSON Schema is skipped.
+ */
+export type JSONSchemaCapableSchema = StandardSchemaV1 & StandardJSONSchemaV1;
+
+/** The type an entry has once it has been validated by `S`. */
+export type InferSchemaOutput<S> = S extends StandardSchemaV1
+	? StandardSchemaV1.InferOutput<S>
+	: never;
+
+/** The type an entry must have before it is validated by `S`. */
+export type InferSchemaInput<S> = S extends StandardSchemaV1
+	? StandardSchemaV1.InferInput<S>
+	: never;
 
 export type { ImageFunction };
 

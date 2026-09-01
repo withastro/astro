@@ -30,8 +30,26 @@ const schemaless = defineCollection({
 	loader: async () => [{ id: '1' }],
 });
 
+// Case 4: A Standard Schema validator that is not Zod. Written by hand so the fixture does
+// not depend on a second validation library.
+const standard = defineCollection({
+	loader: async () => [{ id: '1', headline: 'Hello' }],
+	schema: {
+		'~standard': {
+			version: 1,
+			vendor: 'test-validator',
+			validate: (value: unknown) => ({ value: value as { headline: string } }),
+			types: {
+				input: {} as { headline: string },
+				output: {} as { headline: string },
+			},
+		},
+	},
+});
+
 export const collections = {
 	blog,
 	legacy,
 	schemaless,
+	standard,
 };
