@@ -1,6 +1,6 @@
 ---
 'astro': minor
-'@astrojs/cloudflare': patch
+'@astrojs/cloudflare': minor
 ---
 
 Adds `FetchState.hasMatchedRoute()` for custom request handlers.
