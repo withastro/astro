@@ -30,6 +30,21 @@ export interface UserOptions {
 	 * @default {1073741824} 1GB
 	 */
 	bodySizeLimit?: number;
+
+	/**
+	 * The number of milliseconds of inactivity the server waits before destroying an idle
+	 * keep-alive connection. Maps to
+	 * [`server.keepAliveTimeout`](https://nodejs.org/api/http.html#serverkeepalivetimeout).
+	 *
+	 * When the server runs behind a reverse proxy or load balancer, this should be set
+	 * **higher** than the proxy's own idle timeout. Otherwise the server can close a pooled
+	 * connection that the proxy still believes is usable, and the proxy answers the next
+	 * request with a `502`. AWS Application Load Balancer, for example, defaults to a
+	 * 60 second idle timeout, so `65000` is a common value.
+	 *
+	 * Only applies in `standalone` mode. Leave unset to keep the Node.js default.
+	 */
+	keepAliveTimeout?: number;
 }
 
 export interface Options extends UserOptions {

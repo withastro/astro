@@ -29,7 +29,7 @@ export default function standalone(
 	// We spread a new object because `options` may be a frozen module namespace.
 	const resolvedOptions = { ...options, port };
 	const handler = createStandaloneHandler(app, resolvedOptions, headersMap);
-	const server = createServer(handler, host, port);
+	const server = createServer(handler, host, port, options.keepAliveTimeout);
 	server.server.listen(port, host);
 	if (process.env.ASTRO_NODE_LOGGING !== 'disabled') {
 		// Resolve the logger before the 'listening' event fires so the startup message
@@ -68,7 +68,12 @@ export function createStandaloneHandler(
 }
 
 // also used by preview entrypoint
-export function createServer(listener: http.RequestListener, host: string, port: number) {
+export function createServer(
+	listener: http.RequestListener,
+	host: string,
+	port: number,
+	keepAliveTimeout?: number,
+) {
 	let httpServer: http.Server | https.Server;
 
 	if (process.env.SERVER_CERT_PATH && process.env.SERVER_KEY_PATH) {
@@ -82,6 +87,13 @@ export function createServer(listener: http.RequestListener, host: string, port:
 	} else {
 		httpServer = http.createServer(listener);
 	}
+	// Must be set before the server starts listening: Node.js sets the socket timeout
+	// logic up on connection, so a later assignment would not apply to connections that
+	// are already open.
+	if (keepAliveTimeout !== undefined) {
+		httpServer.keepAliveTimeout = keepAliveTimeout;
+	}
+
 	enableDestroy(httpServer);
 
 	// Resolves once the server is closed
