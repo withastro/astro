@@ -81,6 +81,23 @@ export default async function astroPluginRoutes({
 
 	const normalizedSrcDir = normalizePath(fileURLToPath(settings.config.srcDir));
 
+	let routeByFilename: Map<string, RoutesList['routes'][number]> | null = null;
+	function getRouteByFilename(): Map<string, RoutesList['routes'][number]> {
+		if (routeByFilename === null) {
+			routeByFilename = new Map();
+			for (const route of initialRoutesList.routes) {
+				const filename = normalizePath(
+					fileURLToPath(new URL(`./${route.component}`, settings.config.root)),
+				);
+				// Several routes can share a component, and the first one owns the filename
+				if (!routeByFilename.has(filename)) {
+					routeByFilename.set(filename, route);
+				}
+			}
+		}
+		return routeByFilename;
+	}
+
 	async function rebuildRoutes(path: string | null = null, server: ViteDevServer) {
 		if (path != null && normalizePath(path).startsWith(normalizedSrcDir)) {
 			logger.debug(
@@ -102,6 +119,7 @@ export default async function astroPluginRoutes({
 			// at creation time, so we must mutate the array in place rather than replacing it.
 			initialRoutesList.routes.length = 0;
 			initialRoutesList.routes.push(...newRoutesList.routes);
+			routeByFilename = null;
 
 			serializedRouteInfo = initialRoutesList.routes.map((r): SerializedRouteInfo => {
 				return {
@@ -211,10 +229,7 @@ export default async function astroPluginRoutes({
 			const fileIsPage = isPage(fileURL, settings);
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
-			const route = initialRoutesList.routes.find((r) => {
-				const filePath = new URL(`./${r.component}`, settings.config.root);
-				return normalizePath(fileURLToPath(filePath)) === filename;
-			});
+			const route = getRouteByFilename().get(filename);
 
 			if (!route) {
 				return;
@@ -266,10 +281,7 @@ export default async function astroPluginRoutes({
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
 
-			const route = initialRoutesList.routes.find((r) => {
-				const filePath = new URL(`./${r.component}`, settings.config.root);
-				return normalizePath(fileURLToPath(filePath)) === filename;
-			});
+			const route = getRouteByFilename().get(filename);
 
 			if (!route) {
 				return;
