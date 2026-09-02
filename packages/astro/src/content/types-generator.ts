@@ -466,7 +466,7 @@ async function writeContentFiles({
 	logger: AstroLogger;
 	settings: AstroSettings;
 }) {
-	let dataMapStr = '';
+	const dataMapEntries: string[] = [];
 
 	const collectionSchemasDir = new URL(COLLECTIONS_DIR, settings.dotAstroDir);
 	fs.mkdirSync(collectionSchemasDir, { recursive: true });
@@ -522,7 +522,7 @@ async function writeContentFiles({
 			}
 		}
 
-		dataMapStr += `\n\t\t${collectionKey}: ${type};`;
+		dataMapEntries.push(`${collectionKey}: ${type};`);
 
 		if (
 			collectionConfig &&
@@ -592,12 +592,12 @@ async function writeContentFiles({
 		}
 	}
 	typeTemplateContent = typeTemplateContent
-		.replace('@@DATA_MAP@@', dataMapStr ? `${dataMapStr}\n\t` : '')
+		.replace('// @@DATA_MAP@@', dataMapEntries.join('\n\t\t'))
 		// Live collections are not read at sync time, so their names cannot be written out the
 		// way `DataMap`'s are. Nothing calls into `LiveDataMap` from inside a live config, so
 		// inferring the whole map is safe here.
 		.replace(
-			'@@LIVE_DATA_MAP_BASE@@',
+			' /* @@LIVE_DATA_MAP_BASE@@ */',
 			liveConfigPathRelativeToCacheDir ? ' extends InferLiveData<LiveContentConfig>' : '',
 		)
 		.replace(
