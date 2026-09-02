@@ -7,16 +7,34 @@ import { crawlFrameworkPkgs } from 'vitefu';
 import { getContainerRenderer as getContainerRendererImpl } from './container-renderer.js';
 
 function getViteConfiguration(
-	{ include, exclude, compiler }: Options,
+	{ include, exclude, compiler, serverFunctions }: Options,
 	solidNoExternal: string[],
 	manifestSource: ManifestSource,
 ) {
 	const plugins: PluginOption[] = [
-		solid({ include, exclude, compiler, ssr: true }),
+		solid({
+			include,
+			exclude,
+			compiler,
+			ssr: true,
+			// The integration owns endpoint dispatch through an injected Astro
+			// route (see server-function-endpoint.ts), so server-function
+			// requests flow through Astro's middleware pipeline in dev too —
+			// stand the plugin's own dev middleware down.
+			serverFunctions: serverFunctions
+				? { ...(serverFunctions === true ? {} : serverFunctions), devMiddleware: false }
+				: undefined,
+		}),
 		configEnvironmentPlugin(solidNoExternal, manifestSource),
 	];
 
 	return { plugins };
+}
+
+function serverFunctionsEndpoint(serverFunctions: Options['serverFunctions']): string {
+	const endpoint =
+		(typeof serverFunctions === 'object' && serverFunctions.endpoint) || '/_server';
+	return endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
 }
 
 /**
@@ -29,7 +47,8 @@ export function getContainerRenderer(): AstroRenderer {
 	return getContainerRendererImpl();
 }
 
-export interface Options extends Pick<ViteSolidPluginOptions, 'include' | 'exclude' | 'compiler'> {}
+export interface Options
+	extends Pick<ViteSolidPluginOptions, 'include' | 'exclude' | 'compiler' | 'serverFunctions'> {}
 
 export default function (options: Options = {}): AstroIntegration {
 	// Filled in during `astro:config:done` (before dev/build starts) and read
@@ -44,8 +63,18 @@ export default function (options: Options = {}): AstroIntegration {
 	return {
 		name: '@astrojs/solid-js',
 		hooks: {
-			'astro:config:setup': async ({ command, config, addRenderer, updateConfig }) => {
+			'astro:config:setup': async ({ command, config, addRenderer, updateConfig, injectRoute }) => {
 				manifestSource.command = command;
+				if (options.serverFunctions) {
+					// The transport posts to `<endpoint>/<id>` and
+					// `<endpoint>/data/<id>` — a rest route covers both (and the
+					// bare mount, which the runtime handler answers with a 404).
+					injectRoute({
+						pattern: `${serverFunctionsEndpoint(options.serverFunctions)}/[...solidServerFunction]`,
+						entrypoint: '@astrojs/solid-js/server-function-endpoint.js',
+						prerender: false,
+					});
+				}
 				// Solid component libraries that ship pre-compiled browser
 				// artifacts via the `exports.solid` condition must go through
 				// Vite's transform pipeline in non-client environments.
@@ -79,6 +108,14 @@ export default function (options: Options = {}): AstroIntegration {
 				manifestSource.serverDir =
 					config.output === 'server' ? fileURLToPath(config.build.server) : null;
 				manifestSource.base = config.base;
+
+				if (options.serverFunctions && manifestSource.command === 'build' && !config.adapter) {
+					throw new Error(
+						'[@astrojs/solid-js] `serverFunctions` needs a server to answer function calls at runtime. ' +
+							'Install an adapter (e.g. @astrojs/node) to build with server functions enabled.',
+					);
+				}
+
 				const knownJsxRenderers = ['@astrojs/react', '@astrojs/preact', '@astrojs/solid-js'];
 				const enabledKnownJsxRenderers = config.integrations.filter((renderer) =>
 					knownJsxRenderers.includes(renderer.name),

@@ -21,8 +21,9 @@
   "exports": {
     ".": "./dist/index.js",
     "./container-renderer": "./dist/container-renderer.js",
-    "./client.js": "./dist/client.js",
-    "./server.js": "./dist/server.js",
+		"./client.js": "./dist/client.js",
+		"./server.js": "./dist/server.js",
+		"./server-function-endpoint.js": "./dist/server-function-endpoint.js",
     "./package.json": "./package.json"
   },
   "files": [

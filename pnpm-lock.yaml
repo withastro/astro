@@ -1909,6 +1909,22 @@ importers:
         specifier: ^2.0.0-rc.5
         version: 2.0.0-rc.5
 
+  packages/astro/e2e/fixtures/solid-server-functions:
+    dependencies:
+      '@astrojs/solid-js':
+        specifier: workspace:*
+        version: link:../../../../integrations/solid
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+    devDependencies:
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
+      solid-js:
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
+
   packages/astro/e2e/fixtures/svelte-component:
     dependencies:
       '@astrojs/mdx':

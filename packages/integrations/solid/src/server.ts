@@ -5,6 +5,7 @@ import {
 	renderToStream,
 	ssr,
 } from '@solidjs/web';
+import { provideRequestEvent } from '@solidjs/web/storage';
 import type { NamedSSRLoadedRendererValue } from 'astro';
 import { getContext, incrementId } from './context.js';
 import type { RendererContext } from './types.js';
@@ -179,26 +180,41 @@ async function renderToStaticMarkup(
 	let errored = false;
 	let renderError: unknown;
 	let head = '';
-	const componentHtml = await renderToStream(renderFn, {
-		renderId,
-		noScripts: !needsHydrate || isProbe,
-		manifest: (await getManifest()) as any,
-		onError(err: unknown) {
-			if (isProbe) {
-				metadata!.onProbeError();
-			} else if (!errored) {
-				errored = true;
-				renderError = err;
-			}
-		},
-		// Capture head-bound output. Probe renders discard it — they must not
-		// consume style dedupe keys the real render needs.
-		onHead: isProbe
-			? () => {}
-			: (h: string) => {
-					head += h;
-				},
-	});
+	const doRender = async () =>
+		renderToStream(renderFn, {
+			renderId,
+			noScripts: !needsHydrate || isProbe,
+			manifest: (await getManifest()) as any,
+			onError(err: unknown) {
+				if (isProbe) {
+					metadata!.onProbeError();
+				} else if (!errored) {
+					errored = true;
+					renderError = err;
+				}
+			},
+			// Capture head-bound output. Probe renders discard it — they must not
+			// consume style dedupe keys the real render needs.
+			onHead: isProbe
+				? () => {}
+				: (h: string) => {
+						head += h;
+					},
+		});
+
+	// Scope the render to a Solid request event so `getRequestEvent()` (and
+	// server functions called directly during SSR) see the page's request.
+	// One event per page render, shared across islands. Astro's middleware
+	// locals ride along — reached through the Astro global, whose page
+	// partial the result caches per request anyway.
+	const request = this.result?.request;
+	if (request && !ctx.event) {
+		const locals = this.result.createAstro({}, null).locals as
+			| Record<string, unknown>
+			| undefined;
+		ctx.event = { request, locals: locals ?? {} };
+	}
+	const componentHtml = await (ctx.event ? provideRequestEvent(ctx.event, doRender) : doRender());
 	if (errored) throw renderError;
 
 	// Inline style-bearing head output (lazy boundary CSS, dev styles) at the

@@ -1,0 +1,13 @@
+{
+  "name": "@e2e/solid-server-functions",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/solid-js": "workspace:*",
+    "astro": "workspace:*"
+  },
+  "devDependencies": {
+    "@solidjs/web": "^2.0.0-rc.5",
+    "solid-js": "^2.0.0-rc.5"
+  }
+}
