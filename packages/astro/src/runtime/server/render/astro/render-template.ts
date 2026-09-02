@@ -28,6 +28,7 @@ export class RenderTemplateResult {
 	readonly htmlParts: TemplateStringsArray;
 	public expressions: any[];
 	private error: Error | undefined;
+	private wrapped: Set<number> | undefined;
 	constructor(htmlParts: TemplateStringsArray, expressions: unknown[]) {
 		this.htmlParts = htmlParts;
 		this.error = undefined;
@@ -39,12 +40,15 @@ export class RenderTemplateResult {
 	 * Mutating in place is safe: `renderTemplate`'s rest parameter hands us a fresh array.
 	 */
 	catchExpressionError(index: number, expression: unknown): Promise<unknown> {
+		// Re-wrapping hits the `this.error` guard and resolves, swallowing the rejection.
+		if (this.wrapped?.has(index)) return expression as Promise<unknown>;
 		const wrapped = Promise.resolve(expression).catch((err) => {
 			if (!this.error) {
 				this.error = err;
 				throw err;
 			}
 		});
+		(this.wrapped ??= new Set()).add(index);
 		this.expressions[index] = wrapped;
 		return wrapped;
 	}
