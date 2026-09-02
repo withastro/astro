@@ -1,11 +1,18 @@
 import { markdownConfigDefaults } from '@astrojs/internal-helpers/markdown';
+import {
+	getBuildTimings,
+	pluggableName,
+	timeAsync,
+	timedPlugin,
+	timeSync,
+} from '@astrojs/internal-helpers/timings';
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import remarkGfm from 'remark-gfm';
 import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import remarkSmartypants from 'remark-smartypants';
-import { unified } from 'unified';
+import { type Plugin, unified } from 'unified';
 import { VFile } from 'vfile';
 import { loadPlugins } from './load-plugins.js';
 import { rehypeHeadingIds } from './rehype-collect-headings.js';
@@ -95,31 +102,37 @@ export async function createMarkdownProcessor(
 	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
 	const loadedRehypePlugins = await Promise.all(loadPlugins(rehypePlugins));
 
+	const timed = <T extends Plugin<any[], any>>(name: string, plugin: T): T =>
+		timedPlugin('markdown-plugin', name, plugin);
+
 	const parser = unified().use(remarkParse);
 
 	// gfm and smartypants
 	if (!isPerformanceBenchmark) {
 		if (gfm) {
-			parser.use(remarkGfm);
+			parser.use(timed('remark-gfm', remarkGfm));
 		}
 		if (smartypants !== false) {
 			const smartypantsConfig = typeof smartypants === 'object' ? smartypants : {};
-			parser.use(remarkSmartypants, smartypantsConfig);
+			parser.use(timed('remark-smartypants', remarkSmartypants), smartypantsConfig);
 		}
 	}
 
 	// User remark plugins
-	for (const [plugin, pluginOpts] of loadedRemarkPlugins) {
-		parser.use(plugin, pluginOpts);
+	for (const [index, [plugin, pluginOpts]] of loadedRemarkPlugins.entries()) {
+		parser.use(
+			timed(pluggableName(remarkPlugins[index], index, 'remark plugin'), plugin),
+			pluginOpts,
+		);
 	}
 
 	if (!isPerformanceBenchmark) {
 		// Apply later in case user plugins resolve relative image paths
-		parser.use(remarkCollectImages, opts?.image);
+		parser.use(timed('remark-collect-images', remarkCollectImages), opts?.image);
 	}
 
 	// Remark -> Rehype
-	parser.use(remarkRehype, {
+	parser.use(timed('remark-rehype', remarkRehype), {
 		allowDangerousHtml: true,
 		passThrough: [],
 		...remarkRehypeOptions,
@@ -132,27 +145,34 @@ export async function createMarkdownProcessor(
 			typeof syntaxHighlight === 'object' ? syntaxHighlight?.excludeLangs : undefined;
 		// Syntax highlighting
 		if (syntaxHighlightType === 'shiki') {
-			parser.use(rehypeShiki, shikiConfig, excludeLangs);
+			parser.use(timed('rehype-shiki', rehypeShiki), shikiConfig, excludeLangs);
 		} else if (syntaxHighlightType === 'prism') {
-			parser.use(rehypePrism, excludeLangs);
+			parser.use(timed('rehype-prism', rehypePrism), excludeLangs);
 		}
 	}
 
 	// User rehype plugins
-	for (const [plugin, pluginOpts] of loadedRehypePlugins) {
-		parser.use(plugin, pluginOpts);
+	for (const [index, [plugin, pluginOpts]] of loadedRehypePlugins.entries()) {
+		parser.use(
+			timed(pluggableName(rehypePlugins[index], index, 'rehype plugin'), plugin),
+			pluginOpts,
+		);
 	}
 
 	// Images / Assets support
-	parser.use(rehypeImages);
+	parser.use(timed('rehype-images', rehypeImages));
 
 	// Headings
 	if (!isPerformanceBenchmark) {
-		parser.use(rehypeHeadingIds);
+		parser.use(timed('rehype-heading-ids', rehypeHeadingIds));
 	}
 
 	// Stringify to HTML
-	parser.use(rehypeRaw).use(rehypeStringify, { allowDangerousHtml: true });
+	parser.use(timed('rehype-raw', rehypeRaw)).use(rehypeStringify, { allowDangerousHtml: true });
+
+	if (getBuildTimings()) {
+		instrumentParseAndStringify(parser);
+	}
 
 	return {
 		async render(content, renderOpts) {
@@ -166,7 +186,9 @@ export async function createMarkdownProcessor(
 				},
 			});
 
-			const result = await parser.process(vfile).catch((err) => {
+			const result = await timeAsync('markdown-file', String(vfile.path ?? 'unknown'), () =>
+				parser.process(vfile),
+			).catch((err) => {
 				// Ensure that the error message contains the input filename
 				// to make it easier for the user to fix the issue
 				err = prefixError(err, `Failed to parse Markdown file "${vfile.path}"`);
@@ -185,6 +207,28 @@ export async function createMarkdownProcessor(
 			};
 		},
 	};
+}
+
+/** Parse and stringify are not transformers, so `timedPlugin` cannot reach them. */
+function instrumentParseAndStringify(processor: any): void {
+	// Attachers install `parser`/`compiler` on freeze, so they only exist to swap afterwards.
+	processor.freeze();
+
+	const parse = processor.parser;
+	if (typeof parse === 'function') {
+		processor.parser = function (this: unknown, document: string, file: unknown) {
+			return timeSync('markdown-plugin', 'remark-parse', () => parse.call(this, document, file));
+		};
+	}
+
+	const stringify = processor.compiler;
+	if (typeof stringify === 'function') {
+		processor.compiler = function (this: unknown, tree: unknown, file: unknown) {
+			return timeSync('markdown-plugin', 'rehype-stringify', () =>
+				stringify.call(this, tree, file),
+			);
+		};
+	}
 }
 
 function prefixError(err: any, prefix: string) {
