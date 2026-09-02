@@ -49,4 +49,40 @@ test.describe('Solid server functions', () => {
 		await page.locator('#sf-whoami').click();
 		await expect(page.locator('#sf-user')).toHaveText('astro-middleware');
 	});
+
+	test('server components SSR at t=0 and are adopted without endpoint requests', async ({
+		astro,
+		page,
+	}) => {
+		const endpointRequests: string[] = [];
+		page.on('request', (request) => {
+			if (new URL(request.url()).pathname.startsWith('/_server')) {
+				endpointRequests.push(request.url());
+			}
+		});
+
+		await page.goto(astro.resolveUrl('/'));
+
+		// Rendered inline during island SSR through the frames render plugin.
+		await expect(page.locator('#sc-name')).toHaveText('panel:alpha');
+		await expect(page.locator('#sc-secret')).toHaveText('rendered-on-the-server');
+
+		const demo = page.locator('#sc-demo');
+		await waitForHydrate(page, demo);
+
+		// Boot adopted the SSR'd boundary — no endpoint traffic.
+		expect(endpointRequests).toHaveLength(0);
+
+		// Client slot state to carry across the morph.
+		await page.locator('#sc-draft').fill('draft survives');
+
+		// Re-evaluating the call streams the new panel over the endpoint and
+		// morphs the boundary in place.
+		await page.locator('#sc-rename').click();
+		await expect(page.locator('#sc-name')).toHaveText('panel:beta');
+		expect(endpointRequests.length).toBeGreaterThan(0);
+
+		// The client slot kept its DOM identity through the morph.
+		await expect(page.locator('#sc-draft')).toHaveValue('draft survives');
+	});
 });

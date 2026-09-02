@@ -3,6 +3,8 @@
 // import in server.ts degrades gracefully when it isn't.
 declare module 'virtual:astro-solid-manifest' {
 	export function loadManifest(): unknown;
+	/** Whether `serverFunctions.components` is enabled. */
+	export const serverComponents: boolean;
 }
 
 // Provided by @solidjs/vite-plugin when the `serverFunctions` option is

@@ -14,22 +14,43 @@ const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w
 
 type RenderStrategy = 'default' | 'probe';
 
-// Asset manifest for resolving lazy boundary module URLs (preloads and the
-// serialized per-render asset maps consumed during hydration). Resolved
-// through the integration's virtual module: a live dev-server resolver in
-// dev, the client build's manifest in production. Outside Vite (e.g. the
-// Container API) the import fails and rendering proceeds without asset
-// resolution.
-let manifestLoader: (() => unknown) | null | undefined;
-async function getManifest(): Promise<unknown> {
-	if (manifestLoader === undefined) {
+// Render environment resolved through the integration's virtual module:
+// the asset manifest loader (a live dev-server resolver in dev, the client
+// build's manifest in production — resolves lazy boundary module URLs for
+// preloads and the serialized per-render asset maps consumed during
+// hydration), and, with server components enabled, the frames render plugin.
+// Outside Vite (e.g. the Container API) the import fails and rendering
+// proceeds without either.
+type RenderExtras = {
+	loadManifest: (() => unknown) | null;
+	plugins: unknown[] | undefined;
+};
+let renderExtras: Promise<RenderExtras> | undefined;
+function getRenderExtras(): Promise<RenderExtras> {
+	return (renderExtras ??= (async () => {
+		let loadManifest: RenderExtras['loadManifest'] = null;
+		let plugins: RenderExtras['plugins'];
 		try {
-			manifestLoader = (await import('virtual:astro-solid-manifest')).loadManifest;
-		} catch {
-			manifestLoader = null;
-		}
-	}
-	return manifestLoader ? manifestLoader() : undefined;
+			const mod = await import('virtual:astro-solid-manifest');
+			loadManifest = mod.loadManifest;
+			if (mod.serverComponents) {
+				const [frames, serverFunctions] = await Promise.all([
+					import('@solidjs/web/frames'),
+					import('@solidjs/web/server-functions'),
+				]);
+				// Direct (in-process) server-function calls during island SSR must
+				// resolve to inline-renderable components branded with the call
+				// address the client matches boundaries against. The endpoint's
+				// response transform is installed by the handler virtual; config
+				// merges per key.
+				serverFunctions.configureServerFunctionsServer({
+					transformDirectResult: frames.frameTransformDirectResult,
+				});
+				plugins = [frames.ServerComponentPlugin];
+			}
+		} catch {}
+		return { loadManifest, plugins };
+	})());
 }
 
 // Probe verdicts are stable per component function: cache them so the probe
@@ -180,11 +201,13 @@ async function renderToStaticMarkup(
 	let errored = false;
 	let renderError: unknown;
 	let head = '';
-	const doRender = async () =>
-		renderToStream(renderFn, {
+	const doRender = async () => {
+		const { loadManifest, plugins } = await getRenderExtras();
+		return renderToStream(renderFn, {
 			renderId,
 			noScripts: !needsHydrate || isProbe,
-			manifest: (await getManifest()) as any,
+			manifest: loadManifest?.() as any,
+			plugins: plugins as any,
 			onError(err: unknown) {
 				if (isProbe) {
 					metadata!.onProbeError();
@@ -201,6 +224,7 @@ async function renderToStaticMarkup(
 						head += h;
 					},
 		});
+	};
 
 	// Scope the render to a Solid request event so `getRequestEvent()` (and
 	// server functions called directly during SSR) see the page's request.

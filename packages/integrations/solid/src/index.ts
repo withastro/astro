@@ -51,6 +51,8 @@ export interface Options
 	extends Pick<ViteSolidPluginOptions, 'include' | 'exclude' | 'compiler' | 'serverFunctions'> {}
 
 export default function (options: Options = {}): AstroIntegration {
+	const serverComponents =
+		typeof options.serverFunctions === 'object' && !!options.serverFunctions.components;
 	// Filled in during `astro:config:done` (before dev/build starts) and read
 	// by the manifest virtual module's load hook.
 	const manifestSource: ManifestSource = {
@@ -58,12 +60,20 @@ export default function (options: Options = {}): AstroIntegration {
 		clientDirs: [],
 		serverDir: null,
 		base: '/',
+		serverComponents,
 	};
 
 	return {
 		name: '@astrojs/solid-js',
 		hooks: {
-			'astro:config:setup': async ({ command, config, addRenderer, updateConfig, injectRoute }) => {
+			'astro:config:setup': async ({
+				command,
+				config,
+				addRenderer,
+				updateConfig,
+				injectRoute,
+				injectScript,
+			}) => {
 				manifestSource.command = command;
 				if (options.serverFunctions) {
 					// The transport posts to `<endpoint>/<id>` and
@@ -74,6 +84,18 @@ export default function (options: Options = {}): AstroIntegration {
 						entrypoint: '@astrojs/solid-js/server-function-endpoint.js',
 						prerender: false,
 					});
+				}
+				if (serverComponents) {
+					// Installs the t=0 document-adoption registry and the transport
+					// policy (component responses morph their boundary instead of
+					// decoding as data). Astro's before-hydration stage runs it
+					// ahead of every island hydration. The server-side halves live
+					// in server.ts (render plugin, direct-call transform) and the
+					// endpoint handler virtual (response transform).
+					injectScript(
+						'before-hydration',
+						`import { installServerComponents } from '@solidjs/web/frames';\ninstallServerComponents();`,
+					);
 				}
 				// Solid component libraries that ship pre-compiled browser
 				// artifacts via the `exports.solid` condition must go through
@@ -136,6 +158,7 @@ export type ManifestSource = {
 	clientDirs: string[];
 	serverDir: string | null;
 	base: string;
+	serverComponents: boolean;
 };
 
 const VIRTUAL_MANIFEST_ID = 'virtual:astro-solid-manifest';
@@ -185,11 +208,13 @@ function configEnvironmentPlugin(solidNoExternal: string[], manifestSource: Mani
 		},
 		load(id) {
 			if (id !== RESOLVED_VIRTUAL_MANIFEST_ID) return;
+			const flags = `export const serverComponents = ${manifestSource.serverComponents};\n`;
 			if (manifestSource.command !== 'build') {
 				// Dev: @solidjs/vite-plugin's virtual manifest exports a live
 				// resolver backed by the dev server's module graph; hand it
 				// through verbatim (renderToStream accepts resolvers directly).
 				return (
+					flags +
 					`import manifest from 'virtual:solid-manifest';\n` +
 					`export function loadManifest() { return manifest; }\n`
 				);
@@ -207,6 +232,7 @@ function configEnvironmentPlugin(solidNoExternal: string[], manifestSource: Mani
 				`new URL(${JSON.stringify('../' + PERSISTED_MANIFEST_NAME)}, import.meta.url)`,
 			];
 			return (
+				flags +
 				`import { readFileSync } from 'node:fs';\n` +
 				`const base = ${JSON.stringify(manifestSource.base)};\n` +
 				`let manifest;\n` +
