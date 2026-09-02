@@ -199,9 +199,7 @@ export class ContentLayer {
 		globalThis.astroAsset ??= {};
 		const previousResolver = globalThis.astroAsset.contentImageResolver;
 		if (this.#viteServer) {
-			globalThis.astroAsset.contentImageResolver = createViteImageSourceResolver(
-				this.#viteServer,
-			);
+			globalThis.astroAsset.contentImageResolver = createViteImageSourceResolver(this.#viteServer);
 		}
 		try {
 			return await this.#doSyncInner(options);

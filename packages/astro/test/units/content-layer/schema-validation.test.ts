@@ -684,7 +684,7 @@ describe('Content Layer - Schema Validation', () => {
 			assert.equal(entry.data.title, 'Padded title');
 		});
 
-		it('reports the validator\'s own issues', async () => {
+		it("reports the validator's own issues", async () => {
 			const { store, settings, logger } = setup();
 
 			const collections = {

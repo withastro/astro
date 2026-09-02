@@ -166,9 +166,7 @@ declare module 'astro:content' {
 		entries: ReferenceDataEntry<C>[],
 	): Promise<CollectionEntry<C>[]>;
 
-	export function render<C extends CollectionKey>(
-		entry: CollectionEntry<C>,
-	): Promise<RenderResult>;
+	export function render<C extends CollectionKey>(entry: CollectionEntry<C>): Promise<RenderResult>;
 	export function render<C extends LiveCollectionKey>(
 		entry: import('astro').LiveDataEntry<LiveData<C>>,
 	): Promise<RenderResult>;
@@ -233,22 +231,22 @@ declare module 'astro:content' {
 	>;
 
 	type LiveTypes<C extends LiveCollectionKey> = ResolvedLiveDataMap[C];
-	type LiveData<C extends LiveCollectionKey> = LiveTypes<C> extends { data: infer TData }
-		? TData
-		: any;
-	type LiveEntryFilter<C extends LiveCollectionKey> = LiveTypes<C> extends {
-		entryFilter: infer TFilter;
-	}
-		? TFilter
-		: never;
-	type LiveCollectionFilter<C extends LiveCollectionKey> = LiveTypes<C> extends {
-		collectionFilter: infer TFilter;
-	}
-		? TFilter
-		: never;
-	type LiveError<C extends LiveCollectionKey> = LiveTypes<C> extends { error: infer TError }
-		? TError
-		: Error;
+	type LiveData<C extends LiveCollectionKey> =
+		LiveTypes<C> extends { data: infer TData } ? TData : any;
+	type LiveEntryFilter<C extends LiveCollectionKey> =
+		LiveTypes<C> extends {
+			entryFilter: infer TFilter;
+		}
+			? TFilter
+			: never;
+	type LiveCollectionFilter<C extends LiveCollectionKey> =
+		LiveTypes<C> extends {
+			collectionFilter: infer TFilter;
+		}
+			? TFilter
+			: never;
+	type LiveError<C extends LiveCollectionKey> =
+		LiveTypes<C> extends { error: infer TError } ? TError : Error;
 
 	export function getLiveCollection<C extends LiveCollectionKey>(
 		collection: C,
