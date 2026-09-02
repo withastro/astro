@@ -46,6 +46,13 @@ function ensureInitialized() {
 	}
 }
 
+function hasMatchingRoute(state: FetchState): boolean {
+	// When no Astro route matches, routeData can contain the fallback 404 route.
+	// Comparing its pattern to the original pathname distinguishes that fallback
+	// from a real match so the ASSETS binding gets a chance to handle the request.
+	return state.routeData?.pattern.test(state.pathname) ?? false;
+}
+
 /** Applies cookies and Cloudflare CDN cache defaults to an Astro response. */
 export function finalize(state: FetchState, response: Response): Response {
 	return applyCloudflareResponseHeaders(response, state.cookies.consume(), cacheProviderEnabled);
@@ -72,7 +79,7 @@ export async function cf(
 	const staticAsset = matchStaticAsset(app!.manifest, state.request.url, env);
 	if (staticAsset) return staticAsset;
 
-	if (!state.routeData?.pattern.test(state.pathname)) {
+	if (!hasMatchingRoute(state)) {
 		const asset = await fallbackToAssets(state.request.url, env);
 		if (asset) return asset;
 	}

@@ -76,6 +76,9 @@ export function cf(): HonoMiddlewareHandler {
 		await next();
 		const response = finalize(state, context.res);
 		if (response !== context.res) {
+			// Hono's response setter clones the assigned response and restores the current
+			// response's cookies. Preserve the cookies added by finalize() so they can be
+			// reapplied to the new context.res instead of being discarded by the setter.
 			const setCookieHeaders = response.headers.getSetCookie();
 			context.res = response;
 			context.res.headers.delete('set-cookie');
