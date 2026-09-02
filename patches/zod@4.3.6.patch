@@ -1,0 +1,96 @@
+diff --git a/v4/core/parse.cjs b/v4/core/parse.cjs
+index b3fc27ec55243af1a95cea3866486e316c8814d6..da23a268fd3dc8f17cf9b3aef9e0c4284804d1b9 100644
+--- a/v4/core/parse.cjs
++++ b/v4/core/parse.cjs
+@@ -60,7 +60,12 @@ const _safeParse = (_Err) => (schema, value, _ctx) => {
+     const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
+     const result = schema._zod.run({ value, issues: [] }, ctx);
+     if (result instanceof Promise) {
+-        throw new core.$ZodAsyncError();
++        const asyncError = new core.$ZodAsyncError();
++        // The parse turned out to need async work. Hand the run that is already in flight to
++        // the caller: it is a complete result, so an async-capable caller can await it
++        // instead of parsing a second time — and its rejection then has an owner.
++        asyncError.result = result;
++        throw asyncError;
+     }
+     return result.issues.length
+         ? {
+diff --git a/v4/core/parse.js b/v4/core/parse.js
+index 42c36d96e0a7146ec4894e3bf225837bd3bd81ee..bd591c13d797b37d6989758681d7cc1274b991bf 100644
+--- a/v4/core/parse.js
++++ b/v4/core/parse.js
+@@ -32,7 +32,12 @@ export const _safeParse = (_Err) => (schema, value, _ctx) => {
+     const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
+     const result = schema._zod.run({ value, issues: [] }, ctx);
+     if (result instanceof Promise) {
+-        throw new core.$ZodAsyncError();
++        const asyncError = new core.$ZodAsyncError();
++        // The parse turned out to need async work. Hand the run that is already in flight to
++        // the caller: it is a complete result, so an async-capable caller can await it
++        // instead of parsing a second time — and its rejection then has an owner.
++        asyncError.result = result;
++        throw asyncError;
+     }
+     return result.issues.length
+         ? {
+diff --git a/v4/core/schemas.cjs b/v4/core/schemas.cjs
+index 8444c1fa122b0502f56b141ffa2939906b49baf9..615a69a6413085b833a37a867f3220999750feb1 100644
+--- a/v4/core/schemas.cjs
++++ b/v4/core/schemas.cjs
+@@ -146,10 +146,23 @@ exports.$ZodType = core.$constructor("$ZodType", (inst, def) => {
+     util.defineLazy(inst, "~standard", () => ({
+         validate: (value) => {
+             try {
+-                const r = (0, parse_js_1.safeParse)(inst, value);
++                // `jitless` keeps this attempt off the compiled fastpass, which is hard-coded
++                // synchronous and throws a bare TypeError the moment a member returns a
++                // promise — losing both the error's meaning and the promise itself.
++                const r = (0, parse_js_1.safeParse)(inst, value, { jitless: true });
+                 return r.success ? { value: r.data } : { issues: r.error?.issues };
+             }
+-            catch (_) {
++            catch (err) {
++                // A synchronous parse cannot finish an async schema, but by the time it finds
++                // out it has already started the work. Await that run rather than discarding
++                // it: parsing again would invoke every async transform a second time, and
++                // would leave the first run's rejection unhandled on the process.
++                const inFlight = err?.result;
++                if (inFlight instanceof Promise) {
++                    return inFlight.then((result) => (result.issues.length
++                        ? { issues: result.issues.map((iss) => util.finalizeIssue(iss, { async: true }, core.config())) }
++                        : { value: result.value }));
++                }
+                 return (0, parse_js_1.safeParseAsync)(inst, value).then((r) => (r.success ? { value: r.data } : { issues: r.error?.issues }));
+             }
+         },
+diff --git a/v4/core/schemas.js b/v4/core/schemas.js
+index 29c61bc5fcf2ca90c2bb0121b7f02e16fdf19f11..8b7b1b5041fd094874ca504ffd13437b65b6cd0d 100644
+--- a/v4/core/schemas.js
++++ b/v4/core/schemas.js
+@@ -116,10 +116,23 @@ export const $ZodType = /*@__PURE__*/ core.$constructor("$ZodType", (inst, def)
+     util.defineLazy(inst, "~standard", () => ({
+         validate: (value) => {
+             try {
+-                const r = safeParse(inst, value);
++                // `jitless` keeps this attempt off the compiled fastpass, which is hard-coded
++                // synchronous and throws a bare TypeError the moment a member returns a
++                // promise — losing both the error's meaning and the promise itself.
++                const r = safeParse(inst, value, { jitless: true });
+                 return r.success ? { value: r.data } : { issues: r.error?.issues };
+             }
+-            catch (_) {
++            catch (err) {
++                // A synchronous parse cannot finish an async schema, but by the time it finds
++                // out it has already started the work. Await that run rather than discarding
++                // it: parsing again would invoke every async transform a second time, and
++                // would leave the first run's rejection unhandled on the process.
++                const inFlight = err?.result;
++                if (inFlight instanceof Promise) {
++                    return inFlight.then((result) => (result.issues.length
++                        ? { issues: result.issues.map((iss) => util.finalizeIssue(iss, { async: true }, core.config())) }
++                        : { value: result.value }));
++                }
+                 return safeParseAsync(inst, value).then((r) => (r.success ? { value: r.data } : { issues: r.error?.issues }));
+             }
+         },
