@@ -5,7 +5,7 @@ import * as z from 'zod/v4';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { createSvgComponent } from '../assets/runtime.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
-import { recordContentEntryRender } from '../core/build/incremental-content-collector.js';
+import { recordContentEntryRender } from '../core/render-scope/record.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isRemotePath, prependForwardSlash } from '../core/path.js';
 import {
@@ -509,7 +509,9 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 		return Object.entries({
 			...attributes,
 			src: resolvedImage.src,
-			srcset: resolvedImage.srcSet.attribute,
+			// An empty `srcset` is invalid HTML, so only emit it when there are
+			// actual candidates. This matches `vite-plugin-markdown/images.ts`.
+			...(resolvedImage.srcSet.values.length > 0 ? { srcset: resolvedImage.srcSet.attribute } : {}),
 			// This attribute is used by the toolbar audit
 			...(import.meta.env.DEV ? { 'data-image-component': 'true' } : {}),
 		})

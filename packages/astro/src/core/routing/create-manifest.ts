@@ -1008,7 +1008,17 @@ function joinSegments(segments: RoutePart[][]): string {
 	return `/${arr.join('/')}`;
 }
 
+/**
+ * Swaps the first `from` locale segment of a route for `to`. Routes that already carry the
+ * `to` locale, and routes with no `from` segment, are returned unchanged. Matching is done on
+ * whole segments — the same way routes are grouped by locale above — so a locale code that is
+ * merely a prefix of another segment (`/en/enterprise`) is left alone.
+ */
 function replaceOrKeep(original: string, from: string, to: string): string {
 	if (original.startsWith(`/${to}/`) || original === `/${to}`) return original;
-	return original.replace(`/${from}/`, `/${to}/`).replace(`/${from}`, `/${to}`);
+	const segments = original.split('/');
+	const index = segments.indexOf(from);
+	if (index === -1) return original;
+	segments[index] = to;
+	return segments.join('/');
 }

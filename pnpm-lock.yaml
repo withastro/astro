@@ -390,10 +390,10 @@ importers:
   examples/advanced-routing:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.1.4
+        specifier: ^11.1.5
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
       hono:
         specifier: ^4.12.14
@@ -402,22 +402,22 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
 
   examples/blog:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^7.0.8
+        specifier: ^8.0.0
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
         specifier: ^4.0.19
         version: link:../../packages/astro-rss
       '@astrojs/sitemap':
-        specifier: ^3.7.3
+        specifier: ^3.7.4
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
       sharp:
         specifier: ^0.35.0
@@ -426,16 +426,16 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
 
   examples/container-with-vitest:
     dependencies:
       '@astrojs/react':
-        specifier: ^6.0.4
+        specifier: ^6.0.5
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -466,16 +466,16 @@ importers:
         specifier: ^3.15.8
         version: 3.15.8
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
 
   examples/framework-multiple:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.0.4
+        specifier: ^6.0.5
         version: link:../../packages/integrations/preact
       '@astrojs/react':
-        specifier: ^6.0.4
+        specifier: ^6.0.5
         version: link:../../packages/integrations/react
       '@astrojs/solid-js':
         specifier: ^7.0.2
@@ -493,7 +493,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -517,13 +517,13 @@ importers:
   examples/framework-preact:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.0.4
+        specifier: ^6.0.5
         version: link:../../packages/integrations/preact
       '@preact/signals':
         specifier: ^2.8.1
         version: 2.8.2(preact@10.29.8)
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -532,7 +532,7 @@ importers:
   examples/framework-react:
     dependencies:
       '@astrojs/react':
-        specifier: ^6.0.4
+        specifier: ^6.0.5
         version: link:../../packages/integrations/react
       '@types/react':
         specifier: ^18.3.28
@@ -541,7 +541,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.28)
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -556,7 +556,7 @@ importers:
         specifier: ^7.0.2
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.11
@@ -568,7 +568,7 @@ importers:
         specifier: ^9.0.1
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -580,7 +580,7 @@ importers:
         specifier: ^7.0.2
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.29
@@ -589,40 +589,40 @@ importers:
   examples/hackernews:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.1.4
+        specifier: ^11.1.5
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
 
   examples/ssr:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.1.4
+        specifier: ^11.1.5
         version: link:../../packages/integrations/node
       '@astrojs/svelte':
         specifier: ^9.0.1
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
       svelte:
         specifier: ^5.53.5
@@ -631,7 +631,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
       sass:
         specifier: ^1.97.3
@@ -646,28 +646,28 @@ importers:
         specifier: ^22.19.0
         version: 22.19.19
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
 
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
-        specifier: ^2.0.8
+        specifier: ^2.0.9
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
 
   examples/with-mdx:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^7.0.8
+        specifier: ^8.0.0
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
-        specifier: ^6.0.4
+        specifier: ^6.0.5
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -676,13 +676,13 @@ importers:
   examples/with-nanostores:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.0.4
+        specifier: ^6.0.5
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
         specifier: ^1.0.0
         version: 1.0.0(nanostores@1.1.1)(preact@10.29.8)
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
       nanostores:
         specifier: ^1.1.1
@@ -694,7 +694,7 @@ importers:
   examples/with-tailwindcss:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^7.0.8
+        specifier: ^8.0.0
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.2.1
@@ -703,7 +703,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -718,7 +718,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^7.2.9
+        specifier: ^7.2.10
         version: link:../../packages/astro
       vitest:
         specifier: ^5.0.0-beta.2
@@ -1115,20 +1115,20 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/e2e/fixtures/client-idle-timeout:
     dependencies:
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
     devDependencies:
       '@astrojs/react':
         specifier: workspace:*
@@ -1143,11 +1143,11 @@ importers:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       solid-js:
         specifier: ^1.9.11
         version: 1.9.13
@@ -1198,11 +1198,11 @@ importers:
         specifier: workspace:*
         version: link:packages/my-lib
       '@types/react':
-        specifier: ^18.3.28
-        version: 18.3.28
+        specifier: ^19.0.0
+        version: 19.2.18
       '@types/react-dom':
-        specifier: ^18.3.7
-        version: 18.3.7(@types/react@18.3.28)
+        specifier: ^19.0.0
+        version: 19.2.5(@types/react@19.2.18)
       '@vitejs/plugin-vue':
         specifier: ^6.0.5
         version: 6.0.5(vite@8.2.1)(vue@3.5.30)
@@ -1216,11 +1216,11 @@ importers:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       sharp:
         specifier: ^0.35.0
         version: 0.35.2
@@ -1263,11 +1263,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/e2e/fixtures/css:
     dependencies:
@@ -1284,11 +1284,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/e2e/fixtures/dev-toolbar:
     dependencies:
@@ -1347,11 +1347,11 @@ importers:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       sass:
         specifier: ^1.98.0
         version: 1.98.0
@@ -1408,11 +1408,11 @@ importers:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       solid-js:
         specifier: ^1.9.11
         version: 1.9.13
@@ -1464,11 +1464,11 @@ importers:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       solid-js:
         specifier: ^1.9.11
         version: 1.9.13
@@ -1504,11 +1504,11 @@ importers:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       solid-js:
         specifier: ^1.9.11
         version: 1.9.13
@@ -1544,11 +1544,11 @@ importers:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       solid-js:
         specifier: ^1.9.11
         version: 1.9.13
@@ -1584,11 +1584,11 @@ importers:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       solid-js:
         specifier: ^1.9.11
         version: 1.9.13
@@ -1624,11 +1624,11 @@ importers:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       solid-js:
         specifier: ^1.9.11
         version: 1.9.13
@@ -1664,11 +1664,11 @@ importers:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       solid-js:
         specifier: ^1.9.11
         version: 1.9.13
@@ -1707,11 +1707,11 @@ importers:
   packages/astro/e2e/fixtures/pass-js:
     dependencies:
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
     devDependencies:
       '@astrojs/react':
         specifier: workspace:*
@@ -1780,11 +1780,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/e2e/fixtures/react19-preact-hook-error:
     dependencies:
@@ -1823,11 +1823,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/e2e/fixtures/server-islands-key:
     dependencies:
@@ -1915,11 +1915,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/e2e/fixtures/view-transitions:
     dependencies:
@@ -1942,11 +1942,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       solid-js:
         specifier: ^1.9.11
         version: 1.9.13
@@ -1987,20 +1987,20 @@ importers:
         specifier: workspace:*
         version: link:../utils
       '@types/react':
-        specifier: ^18.3.28
-        version: 18.3.28
+        specifier: ^19.0.0
+        version: 19.2.18
       '@types/react-dom':
-        specifier: ^18.3.7
-        version: 18.3.7(@types/react@18.3.28)
+        specifier: ^19.0.0
+        version: 19.2.5(@types/react@19.2.18)
       astro:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/performance/fixtures/mdoc:
     dependencies:
@@ -2014,20 +2014,20 @@ importers:
         specifier: workspace:*
         version: link:../utils
       '@types/react':
-        specifier: ^18.3.28
-        version: 18.3.28
+        specifier: ^19.0.0
+        version: 19.2.18
       '@types/react-dom':
-        specifier: ^18.3.7
-        version: 18.3.7(@types/react@18.3.28)
+        specifier: ^19.0.0
+        version: 19.2.5(@types/react@19.2.18)
       astro:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/performance/fixtures/mdx:
     dependencies:
@@ -2041,20 +2041,20 @@ importers:
         specifier: workspace:*
         version: link:../utils
       '@types/react':
-        specifier: ^18.3.28
-        version: 18.3.28
+        specifier: ^19.0.0
+        version: 19.2.18
       '@types/react-dom':
-        specifier: ^18.3.7
-        version: 18.3.7(@types/react@18.3.28)
+        specifier: ^19.0.0
+        version: 19.2.5(@types/react@19.2.18)
       astro:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/performance/fixtures/utils:
     devDependencies:
@@ -2062,11 +2062,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/test/fixtures/0-css:
     dependencies:
@@ -2196,11 +2196,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/test/fixtures/astro-basic:
     dependencies:
@@ -2286,11 +2286,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -2306,11 +2306,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/test/fixtures/astro-component-code:
     dependencies:
@@ -2354,11 +2354,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -2558,11 +2558,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/test/fixtures/astro-preview-allowed-hosts:
     dependencies:
@@ -2624,11 +2624,11 @@ importers:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       solid-js:
         specifier: ^1.9.11
         version: 1.9.13
@@ -2756,11 +2756,11 @@ importers:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -2771,8 +2771,8 @@ importers:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
     devDependencies:
       astro:
         specifier: workspace:*
@@ -2808,11 +2808,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       vue:
         specifier: ^3.5.30
         version: 3.5.30(typescript@6.0.3)
@@ -3143,20 +3143,20 @@ importers:
         specifier: workspace:*
         version: link:../../../../integrations/react
       '@types/react':
-        specifier: ^18.3.28
-        version: 18.3.28
+        specifier: ^19.0.0
+        version: 19.2.18
       '@types/react-dom':
-        specifier: ^18.3.7
-        version: 18.3.7(@types/react@18.3.28)
+        specifier: ^19.0.0
+        version: 19.2.5(@types/react@19.2.18)
       astro:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/test/fixtures/css-double-bundle:
     dependencies:
@@ -3209,11 +3209,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/test/fixtures/css-order-layout:
     dependencies:
@@ -3509,11 +3509,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/test/fixtures/incremental-build:
     dependencies:
@@ -3532,6 +3532,9 @@ importers:
 
   packages/astro/test/fixtures/incremental-build-concurrency:
     dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -3611,11 +3614,11 @@ importers:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       solid-js:
         specifier: ^1.9.11
         version: 1.9.13
@@ -3696,11 +3699,11 @@ importers:
         specifier: ^1.32.0
         version: 1.33.0
       react:
-        specifier: ^18.0.0
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.0.0
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/test/fixtures/lightningcss-scoped-nesting:
     dependencies:
@@ -3905,8 +3908,8 @@ importers:
   packages/astro/test/fixtures/preact-compat-component/packages/react-lib:
     dependencies:
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
 
   packages/astro/test/fixtures/preact-component:
     dependencies:
@@ -3953,11 +3956,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       solid-js:
         specifier: ^1.9.11
         version: 1.9.13
@@ -3965,11 +3968,11 @@ importers:
   packages/astro/test/fixtures/react-jsx-export:
     dependencies:
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
     devDependencies:
       '@astrojs/react':
         specifier: workspace:*
@@ -4110,11 +4113,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/test/fixtures/slots-solid:
     dependencies:
@@ -4194,11 +4197,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/test/fixtures/space in folder name/app:
     dependencies:
@@ -4218,11 +4221,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/test/fixtures/ssr-assets:
     dependencies:
@@ -4341,11 +4344,11 @@ importers:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/test/fixtures/static-build-page-url-format:
     dependencies:
@@ -4430,11 +4433,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/astro/test/fixtures/virtual-astro-file:
     dependencies:
@@ -4778,6 +4781,18 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/cloudflare/test/fixtures/incremental-concurrency:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../mdx
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/cloudflare/test/fixtures/incremental-images:
     dependencies:
       '@astrojs/cloudflare':
@@ -4862,6 +4877,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/cloudflare/test/fixtures/prerenderer-render-error:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/cloudflare/test/fixtures/production-async-hooks:
     dependencies:
       '@astrojs/cloudflare':
         specifier: workspace:*
@@ -5006,11 +5030,11 @@ importers:
         specifier: workspace:*
         version: link:../../../../vue
       '@types/react':
-        specifier: ^18.3.28
-        version: 18.3.28
+        specifier: ^19.0.0
+        version: 19.2.18
       '@types/react-dom':
-        specifier: ^18.3.7
-        version: 18.3.7(@types/react@18.3.28)
+        specifier: ^19.0.0
+        version: 19.2.5(@types/react@19.2.18)
       '@vitejs/plugin-vue':
         specifier: ^6.0.4
         version: 6.0.5(vite@8.2.1)(vue@3.5.30)
@@ -5018,11 +5042,11 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       sharp:
         specifier: ^0.35.0
         version: 0.35.2
@@ -5494,11 +5518,11 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/integrations/mdx/test/fixtures/mdx-infinite-loop:
     dependencies:
@@ -5527,11 +5551,11 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/integrations/mdx/test/fixtures/mdx-optimize:
     dependencies:
@@ -5551,11 +5575,11 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/integrations/mdx/test/fixtures/mdx-plus-react:
     dependencies:
@@ -5569,11 +5593,11 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/integrations/mdx/test/fixtures/mdx-plus-react-errors:
     dependencies:
@@ -5587,11 +5611,11 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.0.0
+        version: 19.2.4
       react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/integrations/mdx/test/fixtures/mdx-vite-env-vars:
     dependencies:
@@ -10742,8 +10766,16 @@ packages:
     peerDependencies:
       '@types/react': ^18.0.0
 
+  '@types/react-dom@19.2.5':
+    resolution: {integrity: sha512-fMPwH9v7r/pp43yUd2/Mbiex5KouJwwR3dzHkhLREUC6764VyDsqxhAxv6OFEYR1RhjOyD1naqba8ECDBe7ZQg==}
+    peerDependencies:
+      '@types/react': ^19.2.0
+
   '@types/react@18.3.28':
     resolution: {integrity: sha512-z9VXpC7MWrhfWipitjNdgCauoMLRdIILQsAEV+ZesIzBq/oUlxk0m3ApZuMFCXdnS4U7KrI+l3WRUEGQ8K1QKw==}
+
+  '@types/react@19.2.18':
+    resolution: {integrity: sha512-AnzbBERsrLKtk2XSfTbYRLjQPdy116Sty4q+T+Bp3IC4l6jNBvreVPAHmpq9qhXQM7CXZPjLVmGMw9sy+hxQ3w==}
 
   '@types/retry@0.12.0':
     resolution: {integrity: sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA==}
@@ -20281,9 +20313,17 @@ snapshots:
     dependencies:
       '@types/react': 18.3.28
 
+  '@types/react-dom@19.2.5(@types/react@19.2.18)':
+    dependencies:
+      '@types/react': 19.2.18
+
   '@types/react@18.3.28':
     dependencies:
       '@types/prop-types': 15.7.15
+      csstype: 3.2.3
+
+  '@types/react@19.2.18':
+    dependencies:
       csstype: 3.2.3
 
   '@types/retry@0.12.0': {}

@@ -26,6 +26,7 @@ import {
 	cloudflareConfigCustomizer,
 	DEFAULT_SESSION_KV_BINDING_NAME,
 	DEFAULT_IMAGES_BINDING_NAME,
+	withNodejsAlsFlag,
 } from './wrangler.js';
 import { sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
@@ -217,6 +218,13 @@ export default function createIntegration({
 									return {
 										...restWorkerConfig,
 										name: 'prerender',
+										// Make AsyncLocalStorage available in the build-time prerender
+										// worker (the render scope in `utils/prerender-scope.ts` needs
+										// it) by auto-appending `nodejs_als` when the user's config has
+										// no ALS-capable flag. This never touches the user's deployed
+										// config; a runtime probe in `prerender-scope.ts` is the safety
+										// net should ALS still be unavailable.
+										compatibility_flags: withNodejsAlsFlag(restWorkerConfig.compatibility_flags),
 										...(queues?.producers?.length && {
 											queues: { producers: queues.producers },
 										}),
@@ -532,7 +540,6 @@ export default function createIntegration({
 							userImageServiceEntrypoint: hasUserBuildImageService
 								? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
 								: undefined,
-							incremental: _config.experimental?.incrementalBuild ?? false,
 							logger,
 						}),
 					);
