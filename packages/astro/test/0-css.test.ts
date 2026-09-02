@@ -24,7 +24,14 @@ describe('CSS', function () {
 
 		before(
 			async () => {
-				await fixture.build();
+				await fixture.build({}, {
+					// This test file tests both build and dev. Sadly, we cannot run
+					// React v19 in build mode and in dev mode (i.e., with different
+					// NODE_ENV value) in the same process because of issue: https://github.com/react/react/issues/32030.
+					// To work around this, we also run the build tests in dev mode
+					// by setting the `devOutput` option to true.
+					devOutput: true
+				});
 
 				// get bundled CSS (will be hashed, hence DOM query)
 				html = await fixture.readFile('/index.html');
