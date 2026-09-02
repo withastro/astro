@@ -1,3 +1,4 @@
+import type { AstroLogger } from '../../core/logger/core.js';
 import * as msg from '../../core/messages/runtime.js';
 import { telemetry } from '../../events/index.js';
 import { createLoggerFromFlags, type Flags } from '../flags.js';
@@ -6,9 +7,9 @@ interface TelemetryOptions {
 	flags: Flags;
 }
 
-export async function notify() {
+export async function notify(logger: AstroLogger) {
 	await telemetry.notify(() => {
-		console.log(msg.telemetryNotice() + '\n');
+		logger.info('SKIP_FORMAT', msg.telemetryNotice() + '\n');
 		return true;
 	});
 }

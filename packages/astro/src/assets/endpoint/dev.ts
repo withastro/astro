@@ -66,16 +66,17 @@ async function loadLocalImage(src: string, url: URL) {
 /**
  * Endpoint used in dev and SSR to serve optimized images by the base image services
  */
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, logger }) => {
 	if (!import.meta.env.DEV) {
-		console.error('The dev image endpoint can only be used in dev mode.');
+		logger.error('The dev image endpoint can only be used in dev mode.');
 		return new Response('Invalid endpoint', { status: 500 });
 	}
 	try {
-		return await handleImageRequest({ request, loadLocalImage });
+		return await handleImageRequest({ request, loadLocalImage, logger });
 	} catch (err: unknown) {
-		console.error('Could not process image request:', err);
-		return new Response(`Could not process image request: ${err}`, {
+		const message = `Could not process image request: ${err}`;
+		logger.error(message);
+		return new Response(message, {
 			status: 500,
 		});
 	}
