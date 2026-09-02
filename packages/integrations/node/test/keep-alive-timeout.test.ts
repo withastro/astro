@@ -30,7 +30,7 @@ describe('keepAliveTimeout', () => {
 		// time, and only reaches the HTTP server through the built entrypoint. The header is
 		// also what a reverse proxy actually reads.
 		const agent = new http.Agent({ keepAlive: true });
-		const keepAlive = await new Promise<string | undefined>((resolve, reject) => {
+		const keepAlive = await new Promise<string | string[] | undefined>((resolve, reject) => {
 			const request = http.request(
 				{ host: server.host, port: server.port, path: '/', agent },
 				(response) => {
