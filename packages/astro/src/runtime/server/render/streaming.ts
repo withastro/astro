@@ -1,7 +1,13 @@
 import type { SSRResult } from '../../../types/public/internal.js';
 import type { AstroVNode } from '../../../jsx-runtime/index.js';
 import { isVNode } from '../../../jsx-runtime/index.js';
-import { escapeHTML, HTMLString, isHTMLString, markHTMLString } from '../escape.js';
+import {
+	escapeHTML,
+	escapeStyleText,
+	HTMLString,
+	isHTMLString,
+	markHTMLString,
+} from '../escape.js';
 import { spreadAttributes } from '../index.js';
 import { isPromise } from '../util.js';
 import { renderJSX } from '../jsx.js';
@@ -196,9 +202,13 @@ export async function renderStreaming(
 			}
 
 			if (!isVoid && children != null && children !== '') {
-				// `<script>`/`<style>` string content is raw HTML, not escaped.
-				if (typeof children === 'string' && (type === 'style' || type === 'script')) {
-					stack.push(markHTMLString(children));
+				// Literal `<style>` content is collapsed into `set:html` at compile time, so a
+				// remaining plain-string child here is a dynamic value that should be escaped
+				// like other element content. `escapeStyleText` only escapes `<`, preserving
+				// quotes CSS commonly relies on while still preventing the value from closing
+				// the `<style>` tag early.
+				if (typeof children === 'string' && type === 'style') {
+					stack.push(markHTMLString(escapeStyleText(children)));
 				} else {
 					stack.push(children);
 				}
