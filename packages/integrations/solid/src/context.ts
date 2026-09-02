@@ -3,6 +3,8 @@ import type { RendererContext } from './types.js';
 type Context = {
 	id: string;
 	c: number;
+	/** Style dedupe keys already emitted into an island on this page render. */
+	styles: Set<string>;
 };
 
 const contexts = new WeakMap<RendererContext['result'], Context>();
@@ -13,6 +15,7 @@ export function getContext(result: RendererContext['result']): Context {
 	}
 	let ctx: Context = {
 		c: 0,
+		styles: new Set<string>(),
 		get id() {
 			return 's' + this.c.toString();
 		},

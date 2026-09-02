@@ -11,10 +11,11 @@
     "astro": "workspace:*"
   },
   "dependencies": {
+    "@solidjs/web": "^2.0.0-rc.5",
     "preact": "^10.29.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "solid-js": "^1.9.11",
+    "solid-js": "^2.0.0-rc.5",
     "svelte": "^5.54.0",
     "vue": "^3.5.30"
   },

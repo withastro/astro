@@ -1,6 +1,9 @@
 // Based on reproduction from https://github.com/withastro/astro/issues/6912
 
 import { For, Match, Switch } from 'solid-js';
+// CSS on a lazily-loaded module: only reachable through the renderer's
+// manifest-resolved head channel, which must inline it into the island.
+import './Counter.css';
 
 export default function Counter(props) {
 	return (

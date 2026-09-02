@@ -7,6 +7,7 @@
     "astro": "workspace:*"
   },
   "devDependencies": {
-    "solid-js": "^1.9.11"
+    "@solidjs/web": "^2.0.0-rc.5",
+    "solid-js": "^2.0.0-rc.5"
   }
 }

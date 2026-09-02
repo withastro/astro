@@ -5,7 +5,8 @@
   "dependencies": {
     "@astrojs/mdx": "workspace:*",
     "@astrojs/solid-js": "workspace:*",
+    "@solidjs/web": "^2.0.0-rc.5",
     "astro": "workspace:*",
-    "solid-js": "^1.9.11"
+    "solid-js": "^2.0.0-rc.5"
   }
 }

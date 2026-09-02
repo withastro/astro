@@ -1,61 +1,20 @@
-import type { AstroIntegration, AstroIntegrationLogger, AstroRenderer } from 'astro';
 import { fileURLToPath } from 'node:url';
-import type { PluginOption, Plugin } from 'vite';
-import solid, { type Options as ViteSolidPluginOptions } from 'vite-plugin-solid';
+import type { Options as ViteSolidPluginOptions } from '@solidjs/vite-plugin';
+import solid from '@solidjs/vite-plugin';
+import type { AstroIntegration, AstroRenderer } from 'astro';
+import type { Plugin, PluginOption } from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
 import { getContainerRenderer as getContainerRendererImpl } from './container-renderer.js';
 
-// TODO: keep in sync with https://github.com/thetarnav/solid-devtools/blob/main/packages/main/src/vite/index.ts#L7
-type DevtoolsPluginOptions = {
-	/** Add automatic name when creating signals, memos, stores, or mutables */
-	autoname?: boolean;
-	locator?:
-		| boolean
-		| {
-				/** Choose in which IDE the component source code should be revealed. */
-				targetIDE?: string;
-				/**
-				 * Holding which key should enable the locator overlay?
-				 * @default 'Alt'
-				 */
-				key?: string;
-				/** Inject location attributes to jsx templates */
-				jsxLocation?: boolean;
-				/** Inject location information to component declarations */
-				componentLocation?: boolean;
-		  };
-};
-type DevtoolsPlugin = (_options?: DevtoolsPluginOptions) => PluginOption;
-
-async function getDevtoolsPlugin(logger: AstroIntegrationLogger, retrieve: boolean) {
-	if (!retrieve) {
-		return null;
-	}
-
-	try {
-		// @ts-ignore
-		return (await import('solid-devtools/vite')).default as DevtoolsPlugin;
-	} catch (_) {
-		logger.warn(
-			'Solid Devtools requires `solid-devtools` as a peer dependency, add it to your project.',
-		);
-		return null;
-	}
-}
-
 function getViteConfiguration(
-	{ include, exclude }: Options,
-	devtoolsPlugin: DevtoolsPlugin | null,
+	{ include, exclude, compiler }: Options,
 	solidNoExternal: string[],
+	manifestSource: ManifestSource,
 ) {
 	const plugins: PluginOption[] = [
-		solid({ include, exclude, ssr: true }),
-		configEnvironmentPlugin(solidNoExternal),
+		solid({ include, exclude, compiler, ssr: true }),
+		configEnvironmentPlugin(solidNoExternal, manifestSource),
 	];
-
-	if (devtoolsPlugin) {
-		plugins.push(devtoolsPlugin({ autoname: true }));
-	}
 
 	return { plugins };
 }
@@ -70,27 +29,23 @@ export function getContainerRenderer(): AstroRenderer {
 	return getContainerRendererImpl();
 }
 
-export interface Options extends Pick<ViteSolidPluginOptions, 'include' | 'exclude'> {
-	devtools?: boolean;
-}
+export interface Options extends Pick<ViteSolidPluginOptions, 'include' | 'exclude' | 'compiler'> {}
 
 export default function (options: Options = {}): AstroIntegration {
+	// Filled in during `astro:config:done` (before dev/build starts) and read
+	// by the manifest virtual module's load hook.
+	const manifestSource: ManifestSource = {
+		command: 'dev',
+		clientDirs: [],
+		serverDir: null,
+		base: '/',
+	};
+
 	return {
 		name: '@astrojs/solid-js',
 		hooks: {
-			'astro:config:setup': async ({
-				command,
-				config,
-				addRenderer,
-				updateConfig,
-				injectScript,
-				logger,
-			}) => {
-				const devtoolsPlugin = await getDevtoolsPlugin(
-					logger,
-					!!options.devtools && command === 'dev',
-				);
-
+			'astro:config:setup': async ({ command, config, addRenderer, updateConfig }) => {
+				manifestSource.command = command;
 				// Solid component libraries that ship pre-compiled browser
 				// artifacts via the `exports.solid` condition must go through
 				// Vite's transform pipeline in non-client environments.
@@ -101,20 +56,29 @@ export default function (options: Options = {}): AstroIntegration {
 					root: fileURLToPath(config.root),
 					isBuild: false,
 					isFrameworkPkgByJson(pkgJson) {
-						return !!pkgJson.peerDependencies?.['solid-js'];
+						return !!(
+							pkgJson.peerDependencies?.['solid-js'] ||
+							pkgJson.peerDependencies?.['@solidjs/web']
+						);
 					},
 				});
 
 				addRenderer(getContainerRendererImpl());
 				updateConfig({
-					vite: getViteConfiguration(options, devtoolsPlugin, solidPackages.ssr.noExternal),
+					vite: getViteConfiguration(options, solidPackages.ssr.noExternal, manifestSource),
 				});
-
-				if (devtoolsPlugin) {
-					injectScript('page', 'import "solid-devtools";');
-				}
 			},
 			'astro:config:done': ({ logger, config }) => {
+				// Where the client build's `.vite/manifest.json` will land. For
+				// `output: 'server'` client assets go to `build.client`; for static
+				// output they go to `outDir` directly. Record both candidates and
+				// probe at runtime, mirroring @solidjs/vite-plugin's own fallback.
+				manifestSource.clientDirs = [
+					...new Set([fileURLToPath(config.build.client), fileURLToPath(config.outDir)]),
+				];
+				manifestSource.serverDir =
+					config.output === 'server' ? fileURLToPath(config.build.server) : null;
+				manifestSource.base = config.base;
 				const knownJsxRenderers = ['@astrojs/react', '@astrojs/preact', '@astrojs/solid-js'];
 				const enabledKnownJsxRenderers = config.integrations.filter((renderer) =>
 					knownJsxRenderers.includes(renderer.name),
@@ -130,12 +94,39 @@ export default function (options: Options = {}): AstroIntegration {
 	};
 }
 
-function configEnvironmentPlugin(solidNoExternal: string[]): Plugin {
+export type ManifestSource = {
+	command: string;
+	clientDirs: string[];
+	serverDir: string | null;
+	base: string;
+};
+
+const VIRTUAL_MANIFEST_ID = 'virtual:astro-solid-manifest';
+const RESOLVED_VIRTUAL_MANIFEST_ID = '\0' + VIRTUAL_MANIFEST_ID;
+
+// Handoff channel between the client build (which produces the manifest) and
+// prerendering, which imports the server bundle in the same process. Astro
+// deletes every environment's `.vite` folder right after write (see its
+// `astro:ssr-assets` plugin), so the manifest cannot be read from disk later.
+const MANIFEST_REGISTRY_KEY = '@astrojs/solid-js:client-manifest';
+const PERSISTED_MANIFEST_NAME = 'solid-manifest.json';
+
+// Key the registry per project output so multiple builds in one process
+// (e.g. test runners building several fixtures) don't read each other's
+// manifests.
+function manifestRegistryKey(manifestSource: ManifestSource): string {
+	return `${MANIFEST_REGISTRY_KEY}:${manifestSource.clientDirs[0] ?? ''}`;
+}
+
+function configEnvironmentPlugin(solidNoExternal: string[], manifestSource: ManifestSource): Plugin {
 	return {
 		name: '@astrojs/solid:config-environment',
 		configEnvironment(environmentName) {
 			if (environmentName === 'client') {
 				return {
+					// Emit .vite/manifest.json in the client build so the server
+					// render can resolve lazy boundary module assets at runtime.
+					build: { manifest: true },
 					optimizeDeps: {
 						include: ['@astrojs/solid-js/client.js'],
 						exclude: ['@astrojs/solid-js/server.js'],
@@ -143,11 +134,84 @@ function configEnvironmentPlugin(solidNoExternal: string[]): Plugin {
 				};
 			}
 			return {
-				resolve: { noExternal: solidNoExternal },
+				// The integration itself must go through Vite in server
+				// environments so `virtual:astro-solid-manifest` resolves inside
+				// server.js (a bare Node import of it degrades gracefully).
+				resolve: { noExternal: [...solidNoExternal, '@astrojs/solid-js'] },
 				optimizeDeps: {
 					exclude: ['@astrojs/solid-js/server.js'],
 				},
 			};
+		},
+		resolveId(id) {
+			if (id === VIRTUAL_MANIFEST_ID) return RESOLVED_VIRTUAL_MANIFEST_ID;
+		},
+		load(id) {
+			if (id !== RESOLVED_VIRTUAL_MANIFEST_ID) return;
+			if (manifestSource.command !== 'build') {
+				// Dev: @solidjs/vite-plugin's virtual manifest exports a live
+				// resolver backed by the dev server's module graph; hand it
+				// through verbatim (renderToStream accepts resolvers directly).
+				return (
+					`import manifest from 'virtual:solid-manifest';\n` +
+					`export function loadManifest() { return manifest; }\n`
+				);
+			}
+			// Build: the server/prerender bundles are created before the client
+			// build produces the manifest, so it cannot be baked in. Resolve it
+			// lazily at render time: prerendering runs in the build process and
+			// finds it in the globalThis registry; a deployed server reads the
+			// copy persisted next to the server bundle.
+			const fileCandidates = [
+				...(manifestSource.serverDir
+					? [JSON.stringify(manifestSource.serverDir + PERSISTED_MANIFEST_NAME)]
+					: []),
+				`new URL(${JSON.stringify('./' + PERSISTED_MANIFEST_NAME)}, import.meta.url)`,
+				`new URL(${JSON.stringify('../' + PERSISTED_MANIFEST_NAME)}, import.meta.url)`,
+			];
+			return (
+				`import { readFileSync } from 'node:fs';\n` +
+				`const base = ${JSON.stringify(manifestSource.base)};\n` +
+				`let manifest;\n` +
+				`export function loadManifest() {\n` +
+				`  if (manifest !== undefined) return manifest;\n` +
+				`  manifest = globalThis[Symbol.for(${JSON.stringify(manifestRegistryKey(manifestSource))})];\n` +
+				`  if (manifest === undefined) {\n` +
+				`    for (const candidate of [${fileCandidates.join(', ')}]) {\n` +
+				`      try {\n` +
+				`        manifest = JSON.parse(readFileSync(candidate, 'utf-8'));\n` +
+				`        break;\n` +
+				`      } catch {}\n` +
+				`    }\n` +
+				`  }\n` +
+				`  if (manifest == null) return (manifest = null);\n` +
+				`  manifest._base = base;\n` +
+				`  return manifest;\n` +
+				`}\n`
+			);
+		},
+		writeBundle: {
+			sequential: true,
+			async handler() {
+				// Capture the client manifest before Astro's `astro:ssr-assets`
+				// plugin ('post' order) deletes the .vite folder.
+				if (this.environment.name !== 'client') return;
+				const { readFile, writeFile } = await import('node:fs/promises');
+				const { join } = await import('node:path');
+				for (const dir of manifestSource.clientDirs) {
+					try {
+						const raw = await readFile(join(dir, '.vite/manifest.json'), 'utf-8');
+						(globalThis as any)[Symbol.for(manifestRegistryKey(manifestSource))] = JSON.parse(raw);
+						if (manifestSource.serverDir) {
+							// Persist for deployed SSR runtimes, which cannot use the
+							// in-process registry. Lives next to the server bundle, so
+							// it is not publicly served.
+							await writeFile(join(manifestSource.serverDir, PERSISTED_MANIFEST_NAME), raw);
+						}
+						return;
+					} catch {}
+				}
+			},
 		},
 	};
 }

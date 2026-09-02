@@ -479,7 +479,7 @@ importers:
         version: link:../../packages/integrations/react
       '@astrojs/solid-js':
         specifier: ^7.0.2
-        version: link:../../packages/integrations/solid
+        version: 7.0.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(solid-js@1.9.13)(tsx@4.22.3)(yaml@2.9.0)
       '@astrojs/svelte':
         specifier: ^9.0.1
         version: link:../../packages/integrations/svelte
@@ -554,7 +554,7 @@ importers:
     dependencies:
       '@astrojs/solid-js':
         specifier: ^7.0.2
-        version: link:../../packages/integrations/solid
+        version: 7.0.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(solid-js@1.9.13)(tsx@4.22.3)(yaml@2.9.0)
       astro:
         specifier: ^7.2.10
         version: link:../../packages/astro
@@ -1133,6 +1133,9 @@ importers:
 
   packages/astro/e2e/fixtures/client-only:
     dependencies:
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       preact:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
@@ -1143,8 +1146,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -1334,6 +1337,9 @@ importers:
       '@astrojs/vue':
         specifier: workspace:*
         version: link:../../../../integrations/vue
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -1350,8 +1356,8 @@ importers:
         specifier: ^1.98.0
         version: 1.98.0
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -1398,6 +1404,9 @@ importers:
 
   packages/astro/e2e/fixtures/multiple-frameworks:
     dependencies:
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       preact:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
@@ -1408,8 +1417,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -1454,6 +1463,9 @@ importers:
 
   packages/astro/e2e/fixtures/nested-in-preact:
     dependencies:
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       preact:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
@@ -1464,8 +1476,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -1494,6 +1506,9 @@ importers:
 
   packages/astro/e2e/fixtures/nested-in-react:
     dependencies:
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       preact:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
@@ -1504,8 +1519,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -1534,6 +1549,9 @@ importers:
 
   packages/astro/e2e/fixtures/nested-in-solid:
     dependencies:
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       preact:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
@@ -1544,8 +1562,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -1574,6 +1592,9 @@ importers:
 
   packages/astro/e2e/fixtures/nested-in-svelte:
     dependencies:
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       preact:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
@@ -1584,8 +1605,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -1614,6 +1635,9 @@ importers:
 
   packages/astro/e2e/fixtures/nested-in-vue:
     dependencies:
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       preact:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
@@ -1624,8 +1648,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -1654,6 +1678,9 @@ importers:
 
   packages/astro/e2e/fixtures/nested-recursive:
     dependencies:
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       preact:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
@@ -1664,8 +1691,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -1841,9 +1868,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
     devDependencies:
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
 
   packages/astro/e2e/fixtures/solid-component:
     dependencies:
@@ -1853,12 +1883,15 @@ importers:
       '@astrojs/solid-js':
         specifier: workspace:*
         version: link:../../../../integrations/solid
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       astro:
         specifier: workspace:*
         version: link:../../..
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
 
   packages/astro/e2e/fixtures/solid-recurse:
     dependencies:
@@ -1869,9 +1902,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
     devDependencies:
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
 
   packages/astro/e2e/fixtures/svelte-component:
     dependencies:
@@ -1932,6 +1968,9 @@ importers:
       '@astrojs/vue':
         specifier: workspace:*
         version: link:../../../../integrations/vue
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -1942,8 +1981,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -2611,6 +2650,9 @@ importers:
       '@astrojs/vue':
         specifier: workspace:*
         version: link:../../../../integrations/vue
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -2624,8 +2666,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -3604,6 +3646,9 @@ importers:
 
   packages/astro/test/fixtures/jsx:
     dependencies:
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       preact:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
@@ -3614,8 +3659,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -3659,12 +3704,15 @@ importers:
       '@astrojs/solid-js':
         specifier: workspace:*
         version: link:../../../../integrations/solid
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       astro:
         specifier: workspace:*
         version: link:../../..
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
 
   packages/astro/test/fixtures/lazy-layout:
     dependencies:
@@ -3861,6 +3909,9 @@ importers:
       '@astrojs/vue':
         specifier: workspace:*
         version: link:../../../../integrations/vue
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -3871,8 +3922,8 @@ importers:
         specifier: ^8.5.8
         version: 8.5.26
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -3946,6 +3997,9 @@ importers:
       '@astrojs/solid-js':
         specifier: workspace:*
         version: link:../../../../integrations/solid
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -3956,8 +4010,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
 
   packages/astro/test/fixtures/react-jsx-export:
     dependencies:
@@ -4121,12 +4175,15 @@ importers:
       '@astrojs/solid-js':
         specifier: workspace:*
         version: link:../../../../integrations/solid
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       astro:
         specifier: workspace:*
         version: link:../../..
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
 
   packages/astro/test/fixtures/slots-svelte:
     dependencies:
@@ -4163,9 +4220,9 @@ importers:
       '@astrojs/solid-js':
         specifier: workspace:*
         version: link:../../../../integrations/solid
-      '@solidjs/router':
-        specifier: ^0.16.1
-        version: 0.16.1(solid-js@1.9.13)
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       '@test/solid-jsx-component':
         specifier: file:./deps/solid-jsx-component
         version: link:deps/solid-jsx-component
@@ -4173,14 +4230,17 @@ importers:
         specifier: workspace:*
         version: link:../../..
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
 
   packages/astro/test/fixtures/solid-component/deps/solid-jsx-component:
     dependencies:
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
 
   packages/astro/test/fixtures/sourcemap:
     dependencies:
@@ -6193,16 +6253,19 @@ importers:
 
   packages/integrations/solid:
     dependencies:
+      '@solidjs/vite-plugin':
+        specifier: ^3.0.0-next.37
+        version: 3.0.0-next.37(@solidjs/web@2.0.0-rc.5)(solid-js@2.0.0-rc.5)(vite@8.2.1)
       vite:
         specifier: ^8.0.13
         version: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
-      vite-plugin-solid:
-        specifier: ^2.11.12
-        version: 2.11.12(solid-js@1.9.13)(vite@8.2.1)
       vitefu:
         specifier: ^1.1.2
         version: 1.1.2(vite@8.2.1)
     devDependencies:
+      '@solidjs/web':
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5(solid-js@2.0.0-rc.5)
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -6210,8 +6273,8 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       solid-js:
-        specifier: ^1.9.13
-        version: 1.9.13
+        specifier: ^2.0.0-rc.5
+        version: 2.0.0-rc.5
 
   packages/integrations/svelte:
     dependencies:
@@ -7195,6 +7258,10 @@ importers:
 
 packages:
 
+  '@ampproject/remapping@2.3.0':
+    resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
+    engines: {node: '>=6.0.0'}
+
   '@anthropic-ai/sdk@0.91.1':
     resolution: {integrity: sha512-LAmu761tSN9r66ixvmciswUj/ZC+1Q4iAfpedTfSVLeswRwnY3n2Nb6Tsk+cLPP28aLOPWeMgIuTuCcMC6W/iw==}
     hasBin: true
@@ -7310,6 +7377,16 @@ packages:
 
   '@astrojs/compiler@2.13.1':
     resolution: {integrity: sha512-f3FN83d2G/v32ipNClRKgYv30onQlMZX1vCeZMjPsMMPl1mDpmbl0+N5BYo4S/ofzqJyS5hvwacEo0CCVDn/Qg==}
+
+  '@astrojs/solid-js@7.0.2':
+    resolution: {integrity: sha512-4Sk28a4HId176eXqEIrkuLmd+VFePwGSS/smL0ZdiUlb8cBAm5E5Gg0iSQIy/7bYuoj2xN398TcdtSZLl4regA==}
+    engines: {node: '>=22.12.0'}
+    peerDependencies:
+      solid-devtools: ^0.34.5
+      solid-js: ^1.9.13
+    peerDependenciesMeta:
+      solid-devtools:
+        optional: true
 
   '@atcute/atproto@4.0.3':
     resolution: {integrity: sha512-BNylfO7nK0yYBpSpnGhOYgrJTeZWrXHPrb6tOQmp9A3Am0epctIWm6/5lPC4ZNPHpUbwr5w/LzH/v7kjAoKEDg==}
@@ -8275,6 +8352,9 @@ packages:
   '@emnapi/core@1.11.1':
     resolution: {integrity: sha512-RSvbQmHzdKzNsLYa/wHrbc3KN4sYLKAdPZxqiM2HATqv/SBk2/ENSHpvXGaLOMcsAyz0poEGqkmmKYG3OWiJEQ==}
 
+  '@emnapi/core@1.11.3':
+    resolution: {integrity: sha512-zLpS5asjEb7lq8jYLq37N6XKaE41DIexlY1rF/z4/tIl3wo13Sqm28fRyfIsKZD+NZ8mM5RoKkpW/rBcuoSZSg==}
+
   '@emnapi/runtime@1.11.1':
     resolution: {integrity: sha512-vgj7R3y3Wgx24IQaGPA/R6YFXLHVMOZ0uVEyIQPaWs+rd1AzfEMXlAC22FYwO1XkKR6NPsq7mUandH8oIRdZFw==}
 
@@ -8283,6 +8363,9 @@ packages:
 
   '@emnapi/wasi-threads@1.2.2':
     resolution: {integrity: sha512-c95qOXkHdydNKhscBTebqEC1CVAZpyqOfVfBzQ1qgzyl3gfeldUjIggDbIZgDKsHLgnsM+igH7TJ/eAasaVuMA==}
+
+  '@emnapi/wasi-threads@1.2.3':
+    resolution: {integrity: sha512-ELEBe8PsLvvJ6QMr0zLt8ffvOHW/dc1m3CEzNMg7aJUv3bMaoDtw2TXyDAwkYBuroxxuHEwhRTLJSe5sya547g==}
 
   '@envelop/instrumentation@1.0.0':
     resolution: {integrity: sha512-cxgkB66RQB95H3X27jlnxCRNTmPuSTgmBAq6/4n2Dtv4hsk4yz8FadA1ggmd0uZzvKqWD6CR+WFgTjhDqg7eyw==}
@@ -10413,10 +10496,67 @@ packages:
   '@so-ric/colorspace@1.1.6':
     resolution: {integrity: sha512-/KiKkpHNOBgkFJwu9sh48LkHSMYGyuTcSFK/qMBdnOAlrRJzRSXAOFB5qwzaVQuDl8wAvHVMkaASQDReTahxuw==}
 
-  '@solidjs/router@0.16.1':
-    resolution: {integrity: sha512-IhyjedgC6LRpw/8CPGGI89FrV+r0xTHzOl2c4CRyzYQ1bLepJxbVI1LLKvsavMWY5TRBRacV7hAeOhuTXkjiqg==}
+  '@solidjs/babel-plugin@2.0.0-rc.5':
+    resolution: {integrity: sha512-Wd2cHNSRBxisVXTsl0Nq+21+0DFVYeKLQxnZqQqxCqXM8cEnijv6tfcIUzlSEp3esEyQD0gXnbQpSOyoLkHCwg==}
     peerDependencies:
-      solid-js: ^1.8.6
+      '@babel/core': ^7.20.12
+
+  '@solidjs/compiler-darwin-arm64@2.0.0-rc.5':
+    resolution: {integrity: sha512-rCSbArP+hLkYeUPdw6OisdQD313VxP+oaI7FOLohSx1FfiEOVwyAvKgYqGROe4T0ZZXjgTkSZUKHBzbG468j4A==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@solidjs/compiler-darwin-x64@2.0.0-rc.5':
+    resolution: {integrity: sha512-l1P0zal1yKy2k/TNMqnh2jFf7CkCr2Iu/AM45Rai65NW2n7zgPO+2LY6kDKCO/ooU4ZZ3FdnTKpwza6mT1xqUQ==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@solidjs/compiler-linux-arm64-gnu@2.0.0-rc.5':
+    resolution: {integrity: sha512-G2BBNzwIUJHtAxPISMjtMi+IsgyCWfJ29tS4MxfUC+Q4aEykTV55ybItAAffwF9YgeHA6JtQY3iVU002QGJDuw==}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  '@solidjs/compiler-linux-x64-gnu@2.0.0-rc.5':
+    resolution: {integrity: sha512-3ckN7cot0FiUiGUSnnKJON+sOJgIS8zuEXUPUv/ijjE+gA9pEepX8u06/DXzvEXkrDzPHGWrFx+v19Aogl+l5g==}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@solidjs/compiler-wasm32-wasi@2.0.0-rc.5':
+    resolution: {integrity: sha512-1l35k2lCYtpIV/RZBqpy9y7JNMruGAlMBZVxjIHDxCJDs9vKLue/7WPT0qg7cm3dCqa69hVxRNBQYqRHLa4P2g==}
+    engines: {node: '>=14.0.0'}
+
+  '@solidjs/compiler-win32-x64-msvc@2.0.0-rc.5':
+    resolution: {integrity: sha512-ZYumQABKyBWv0iEonwcMnrjOt1cKWdjdBeKc9xQ0eNxqMlJsOQvRFMB3Ow7OS2U2aYKfAIzfcPCKgsXv9JbIvA==}
+    cpu: [x64]
+    os: [win32]
+
+  '@solidjs/compiler@2.0.0-rc.5':
+    resolution: {integrity: sha512-DQF24zYiTW4GDhhOTITEjjK1PGvPGx8P3qR6ogWBeaXggeMN6vV2s0oqyrYoJr2g2ufJj1vf2FIdLVDu8Ip7zw==}
+
+  '@solidjs/signals@2.0.0-rc.5':
+    resolution: {integrity: sha512-Ks+97LbyN2vYqPEHWpy2YY+MYgoSCge0kHOUFN/Bzdz1Ex/M9Is1HIyBZGBVhf5y35394List5WWlU44yEnm4w==}
+
+  '@solidjs/vite-plugin@3.0.0-next.37':
+    resolution: {integrity: sha512-P1mWQ4TnqZexlVJHGHRlsVRLXfOklx7HrGgC4KBvPZX5v3MUYBNnmIrpxi+nOac5//Qo2pJHzhLj4J5Fx6Mh9g==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    peerDependencies:
+      '@solidjs/start-devtools': ^1.0.0-next.2
+      '@solidjs/web': ^2.0.0-rc.0
+      '@testing-library/jest-dom': ^5.16.6 || ^5.17.0 || ^6.*
+      solid-js: ^2.0.0-rc.0
+      vite: ^8.0.0 || ^9.0.0
+    peerDependenciesMeta:
+      '@solidjs/start-devtools':
+        optional: true
+      '@testing-library/jest-dom':
+        optional: true
+
+  '@solidjs/web@2.0.0-rc.5':
+    resolution: {integrity: sha512-0Q9QNJXgXDTl4dH8Nr972XdL3ET+GBV/UlxhBG1ZV7U54/PP2yhTJggWxubJNqfeWel8p/W8laNgtS3nLiZpbw==}
+    peerDependencies:
+      solid-js: ^2.0.0-rc.5
 
   '@speed-highlight/core@1.2.14':
     resolution: {integrity: sha512-G4ewlBNhUtlLvrJTb88d2mdy2KRijzs4UhnlrOSRT4bmjh/IqNElZa3zkrZ+TC47TwtlDWzVLFADljF1Ijp5hA==}
@@ -15320,8 +15460,18 @@ packages:
     peerDependencies:
       seroval: ^1.0
 
+  seroval-plugins@1.5.6:
+    resolution: {integrity: sha512-HXuLAX2pu/UByPpaeo/TaMfvMIi+1QqIoPJYCcAtU8QkVNwgR6MPlGuCQTErV1JwraaMbYaWVIBX7mppzGLATQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      seroval: ^1.0
+
   seroval@1.5.0:
     resolution: {integrity: sha512-OE4cvmJ1uSPrKorFIH9/w/Qwuvi/IMcGbv5RKgcJ/zjA/IohDLU6SVaxFN9FwajbP7nsX0dQqMDes1whk3y+yw==}
+    engines: {node: '>=10'}
+
+  seroval@1.5.6:
+    resolution: {integrity: sha512-rVQVWjjSvlINzaQPZH5JFqsqEsIWdTxY3iJZCnTL/5gQbXIRooVZKI60tVCkOVfzcRPejboxO2t0P89dg5mQaA==}
     engines: {node: '>=10'}
 
   serve-static@2.2.1:
@@ -15452,6 +15602,9 @@ packages:
 
   solid-js@1.9.13:
     resolution: {integrity: sha512-6hJeJMOcEX8ktqjpDoJZEmld3ijvcvWBDtiXBm7f4332SiFN66QeAQI1REQshvyUoISsSeJ4PHDauKYbwao9JQ==}
+
+  solid-js@2.0.0-rc.5:
+    resolution: {integrity: sha512-AI9ndOlUtXXeFf0/MUADM5HfMYwXtxfitIayOkjBCZl67ZyD4ct5+4kqv0EF2xeyIrUwlsrFTuKpHs54BNA6iw==}
 
   solid-refresh@0.6.3:
     resolution: {integrity: sha512-F3aPsX6hVw9ttm5LYlth8Q15x6MlI/J3Dn+o3EQyRTtTxidepSTwAYdozt01/YA+7ObcciagGEyXIopGZzQtbA==}
@@ -16120,6 +16273,9 @@ packages:
       typescript:
         optional: true
 
+  validate-html-nesting@1.2.4:
+    resolution: {integrity: sha512-doQi7e8EJ2OWneSG1aZpJluS6A49aZM0+EICXWKm1i6WvqTLmq0tpUcImc4KTWG50mORO0C4YDBtOCSYvElftw==}
+
   validate-npm-package-license@3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}
 
@@ -16687,6 +16843,11 @@ packages:
 
 snapshots:
 
+  '@ampproject/remapping@2.3.0':
+    dependencies:
+      '@jridgewell/gen-mapping': 0.3.13
+      '@jridgewell/trace-mapping': 0.3.31
+
   '@anthropic-ai/sdk@0.91.1(zod@4.3.6)':
     dependencies:
       json-schema-to-ts: 3.1.1
@@ -16814,6 +16975,28 @@ snapshots:
       - '@emnapi/runtime'
 
   '@astrojs/compiler@2.13.1': {}
+
+  '@astrojs/solid-js@7.0.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(solid-js@1.9.13)(tsx@4.22.3)(yaml@2.9.0)':
+    dependencies:
+      solid-js: 1.9.13
+      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite-plugin-solid: 2.11.12(solid-js@1.9.13)(vite@8.2.1)
+      vitefu: 1.1.2(vite@8.2.1)
+    transitivePeerDependencies:
+      - '@testing-library/jest-dom'
+      - '@types/node'
+      - '@vitejs/devtools'
+      - esbuild
+      - jiti
+      - less
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - tsx
+      - yaml
 
   '@atcute/atproto@4.0.3':
     dependencies:
@@ -18097,6 +18280,12 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
+  '@emnapi/core@1.11.3':
+    dependencies:
+      '@emnapi/wasi-threads': 1.2.3
+      tslib: 2.8.1
+    optional: true
+
   '@emnapi/runtime@1.11.1':
     dependencies:
       tslib: 2.8.1
@@ -18108,6 +18297,11 @@ snapshots:
     optional: true
 
   '@emnapi/wasi-threads@1.2.2':
+    dependencies:
+      tslib: 2.8.1
+    optional: true
+
+  '@emnapi/wasi-threads@1.2.3':
     dependencies:
       tslib: 2.8.1
     optional: true
@@ -18807,7 +19001,7 @@ snapshots:
 
   '@img/sharp-wasm32@0.34.5':
     dependencies:
-      '@emnapi/runtime': 1.11.1
+      '@emnapi/runtime': 1.11.3
     optional: true
 
   '@img/sharp-wasm32@0.35.2':
@@ -19015,7 +19209,7 @@ snapshots:
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:
       '@emnapi/core': 1.11.1
-      '@emnapi/runtime': 1.11.1
+      '@emnapi/runtime': 1.11.3
       '@tybys/wasm-util': 0.10.3
     optional: true
 
@@ -19023,6 +19217,13 @@ snapshots:
     dependencies:
       '@emnapi/core': 1.11.1
       '@emnapi/runtime': 1.11.1
+      '@tybys/wasm-util': 0.10.3
+    optional: true
+
+  '@napi-rs/wasm-runtime@1.2.3(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)':
+    dependencies:
+      '@emnapi/core': 1.11.3
+      '@emnapi/runtime': 1.11.3
       '@tybys/wasm-util': 0.10.3
     optional: true
 
@@ -19977,9 +20178,69 @@ snapshots:
       color: 5.0.3
       text-hex: 1.0.0
 
-  '@solidjs/router@0.16.1(solid-js@1.9.13)':
+  '@solidjs/babel-plugin@2.0.0-rc.5(@babel/core@7.29.0)':
     dependencies:
-      solid-js: 1.9.13
+      '@babel/core': 7.29.0
+      '@babel/helper-module-imports': 7.18.6
+      '@babel/plugin-syntax-jsx': 7.28.6(@babel/core@7.29.0)
+      '@babel/types': 7.29.0
+      html-entities: 2.3.3
+      parse5: 7.3.0
+      validate-html-nesting: 1.2.4
+
+  '@solidjs/compiler-darwin-arm64@2.0.0-rc.5':
+    optional: true
+
+  '@solidjs/compiler-darwin-x64@2.0.0-rc.5':
+    optional: true
+
+  '@solidjs/compiler-linux-arm64-gnu@2.0.0-rc.5':
+    optional: true
+
+  '@solidjs/compiler-linux-x64-gnu@2.0.0-rc.5':
+    optional: true
+
+  '@solidjs/compiler-wasm32-wasi@2.0.0-rc.5':
+    dependencies:
+      '@emnapi/core': 1.11.3
+      '@emnapi/runtime': 1.11.3
+      '@napi-rs/wasm-runtime': 1.2.3(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)
+    optional: true
+
+  '@solidjs/compiler-win32-x64-msvc@2.0.0-rc.5':
+    optional: true
+
+  '@solidjs/compiler@2.0.0-rc.5':
+    optionalDependencies:
+      '@solidjs/compiler-darwin-arm64': 2.0.0-rc.5
+      '@solidjs/compiler-darwin-x64': 2.0.0-rc.5
+      '@solidjs/compiler-linux-arm64-gnu': 2.0.0-rc.5
+      '@solidjs/compiler-linux-x64-gnu': 2.0.0-rc.5
+      '@solidjs/compiler-wasm32-wasi': 2.0.0-rc.5
+      '@solidjs/compiler-win32-x64-msvc': 2.0.0-rc.5
+
+  '@solidjs/signals@2.0.0-rc.5': {}
+
+  '@solidjs/vite-plugin@3.0.0-next.37(@solidjs/web@2.0.0-rc.5)(solid-js@2.0.0-rc.5)(vite@8.2.1)':
+    dependencies:
+      '@ampproject/remapping': 2.3.0
+      '@babel/core': 7.29.0
+      '@solidjs/babel-plugin': 2.0.0-rc.5(@babel/core@7.29.0)
+      '@solidjs/compiler': 2.0.0-rc.5
+      '@solidjs/web': 2.0.0-rc.5(solid-js@2.0.0-rc.5)
+      '@types/babel__core': 7.20.5
+      merge-anything: 5.1.7
+      solid-js: 2.0.0-rc.5
+      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vitefu: 1.1.2(vite@8.2.1)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@solidjs/web@2.0.0-rc.5(solid-js@2.0.0-rc.5)':
+    dependencies:
+      seroval: 1.5.6
+      seroval-plugins: 1.5.6(seroval@1.5.6)
+      solid-js: 2.0.0-rc.5
 
   '@speed-highlight/core@1.2.14': {}
 
@@ -25847,7 +26108,13 @@ snapshots:
     dependencies:
       seroval: 1.5.0
 
+  seroval-plugins@1.5.6(seroval@1.5.6):
+    dependencies:
+      seroval: 1.5.6
+
   seroval@1.5.0: {}
+
+  seroval@1.5.6: {}
 
   serve-static@2.2.1:
     dependencies:
@@ -26073,6 +26340,13 @@ snapshots:
       csstype: 3.2.3
       seroval: 1.5.0
       seroval-plugins: 1.5.0(seroval@1.5.0)
+
+  solid-js@2.0.0-rc.5:
+    dependencies:
+      '@solidjs/signals': 2.0.0-rc.5
+      csstype: 3.2.3
+      seroval: 1.5.6
+      seroval-plugins: 1.5.6(seroval@1.5.6)
 
   solid-refresh@0.6.3(solid-js@1.9.13):
     dependencies:
@@ -26723,6 +26997,8 @@ snapshots:
   valibot@1.4.2(typescript@6.0.3):
     optionalDependencies:
       typescript: 6.0.3
+
+  validate-html-nesting@1.2.4: {}
 
   validate-npm-package-license@3.0.4:
     dependencies:
