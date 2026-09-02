@@ -232,7 +232,7 @@ importers:
         version: 0.83.0(supports-color@8.1.1)(ws@8.21.0)(zod@4.3.6)
       '@flue/runtime':
         specifier: ^2.0.3
-        version: 2.0.3(typescript@6.0.3)(ws@8.21.0)(zod@4.3.6)
+        version: 2.0.3(typescript@6.0.3)(ws@8.21.0)(zod@4.5.4)
       '@types/node':
         specifier: ^22.19.0
         version: 22.19.19
@@ -883,8 +883,8 @@ importers:
         specifier: ^22.0.0
         version: 22.0.0
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.5.4
+        version: 4.5.4
     devDependencies:
       '@astrojs/check':
         specifier: workspace:*
@@ -994,8 +994,8 @@ importers:
         specifier: ^0.1.3
         version: 0.1.3
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.5.4
+        version: 4.5.4
     devDependencies:
       '@types/xml2js':
         specifier: ^0.4.14
@@ -2898,8 +2898,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.5.4
+        version: 4.5.4
 
   packages/astro/test/fixtures/content-collections-type-inference:
     dependencies:
@@ -6124,8 +6124,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.5.4
+        version: 4.5.4
     devDependencies:
       '@types/xml2js':
         specifier: ^0.4.14
@@ -16688,6 +16688,9 @@ packages:
   zod@4.3.6:
     resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
+  zod@4.5.4:
+    resolution: {integrity: sha512-sC95tT5iHHH9gtpj6A81kh+NEaRAUFN+qlUPDUbRfOMvNf5QCBqsb3WgvnpVtK5Y+4UfA6KqufotuTvMGiTlsA==}
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
@@ -16698,6 +16701,12 @@ snapshots:
       json-schema-to-ts: 3.1.1
     optionalDependencies:
       zod: 4.3.6
+
+  '@anthropic-ai/sdk@0.91.1(zod@4.5.4)':
+    dependencies:
+      json-schema-to-ts: 3.1.1
+    optionalDependencies:
+      zod: 4.5.4
 
   '@assemblyscript/loader@0.19.23': {}
 
@@ -18036,9 +18045,9 @@ snapshots:
       gonzales-pe: 4.3.0
       node-source-walk: 7.0.1
 
-  '@earendil-works/pi-agent-core@0.83.0(ws@8.21.0)(zod@4.3.6)':
+  '@earendil-works/pi-agent-core@0.83.0(ws@8.21.0)(zod@4.5.4)':
     dependencies:
-      '@earendil-works/pi-ai': 0.83.0(supports-color@8.1.1)(ws@8.21.0)(zod@4.3.6)
+      '@earendil-works/pi-ai': 0.83.0(ws@8.21.0)(zod@4.5.4)
       diff: 8.0.4
       ignore: 7.0.5
       typebox: 1.3.7
@@ -18062,6 +18071,27 @@ snapshots:
       http-proxy-agent: 7.0.2(supports-color@8.1.1)
       https-proxy-agent: 7.0.6
       openai: 6.26.0(ws@8.21.0)(zod@4.3.6)
+      partial-json: 0.1.7
+      typebox: 1.3.7
+    transitivePeerDependencies:
+      - '@modelcontextprotocol/sdk'
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+      - ws
+      - zod
+
+  '@earendil-works/pi-ai@0.83.0(ws@8.21.0)(zod@4.5.4)':
+    dependencies:
+      '@anthropic-ai/sdk': 0.91.1(zod@4.5.4)
+      '@aws-sdk/client-bedrock-runtime': 3.1048.0
+      '@google/genai': 1.52.0
+      '@mistralai/mistralai': 2.2.6(@opentelemetry/api@1.9.0)
+      '@opentelemetry/api': 1.9.0
+      '@smithy/node-http-handler': 4.7.3
+      http-proxy-agent: 7.0.2(supports-color@8.1.1)
+      https-proxy-agent: 7.0.6
+      openai: 6.26.0(ws@8.21.0)(zod@4.5.4)
       partial-json: 0.1.7
       typebox: 1.3.7
     transitivePeerDependencies:
@@ -18505,10 +18535,10 @@ snapshots:
       fastq: 1.20.1
       glob: 13.0.3
 
-  '@flue/runtime@2.0.3(typescript@6.0.3)(ws@8.21.0)(zod@4.3.6)':
+  '@flue/runtime@2.0.3(typescript@6.0.3)(ws@8.21.0)(zod@4.5.4)':
     dependencies:
-      '@earendil-works/pi-agent-core': 0.83.0(ws@8.21.0)(zod@4.3.6)
-      '@earendil-works/pi-ai': 0.83.0(supports-color@8.1.1)(ws@8.21.0)(zod@4.3.6)
+      '@earendil-works/pi-agent-core': 0.83.0(ws@8.21.0)(zod@4.5.4)
+      '@earendil-works/pi-ai': 0.83.0(ws@8.21.0)(zod@4.5.4)
       '@hono/node-server': 2.0.4(hono@4.12.18)
       '@modelcontextprotocol/client': 2.0.0
       '@valibot/to-json-schema': 1.5.0(valibot@1.4.2)
@@ -24654,6 +24684,11 @@ snapshots:
       ws: 8.21.0
       zod: 4.3.6
 
+  openai@6.26.0(ws@8.21.0)(zod@4.5.4):
+    optionalDependencies:
+      ws: 8.21.0
+      zod: 4.5.4
+
   optionator@0.9.4:
     dependencies:
       deep-is: 0.1.4
@@ -27330,5 +27365,7 @@ snapshots:
   zod@4.1.11: {}
 
   zod@4.3.6: {}
+
+  zod@4.5.4: {}
 
   zwitch@2.0.4: {}
