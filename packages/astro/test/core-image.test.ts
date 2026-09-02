@@ -4,6 +4,7 @@ import { createServer } from 'node:http';
 import { basename } from 'node:path';
 import { Writable } from 'node:stream';
 import { after, afterEach, before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { removeDir } from '@astrojs/internal-helpers/fs';
 import * as cheerio from 'cheerio';
 import parseSrcset from 'parse-srcset';
@@ -892,19 +893,6 @@ describe('astro:image', () => {
 			assert.match(logs[0].message, /Received unsupported format `apng`/);
 		});
 
-		it('properly error image in Markdown frontmatter is not found', async () => {
-			logs.length = 0;
-			let res = await fixture.fetch('/blog/one');
-			await res.text();
-
-			assert.equal(logs.length, 1);
-			assert.ok(
-				logs[0].message.includes(
-					'Could not find requested image `./does-not-exist.jpg`. Does it exist\?',
-				),
-			);
-		});
-
 		it('properly error image in Markdown content is not found', async () => {
 			logs.length = 0;
 			let res = await fixture.fetch('/post');
@@ -1015,6 +1003,39 @@ describe('astro:image', () => {
 			response = await app.render(request);
 			assert.equal(response.status, 403);
 		});
+	});
+});
+
+describe('content collection image errors', () => {
+	it('properly error image in Markdown frontmatter is not found', async () => {
+		// A missing image in a collection schema is a validation failure, so it is
+		// reported during sync rather than when the page is requested. The fixture is
+		// separate because that failure takes the whole dev server down with it.
+		const frontmatterFixture = await loadFixture({
+			root: './fixtures/core-image-errors-frontmatter/',
+			image: {
+				service: testImageService(),
+			},
+			outDir: './dist/core-image-errors-frontmatter/',
+		});
+
+		await assert.rejects(
+			async () => {
+				await frontmatterFixture.sync({
+					root: fileURLToPath(frontmatterFixture.config.root),
+					logLevel: 'silent',
+				});
+			},
+			(error) => {
+				assert.ok(error instanceof Error);
+				assert.ok(
+					error.message.includes(
+						'Could not find requested image `./does-not-exist.jpg`. Does it exist?',
+					),
+				);
+				return true;
+			},
+		);
 	});
 });
 

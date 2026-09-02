@@ -114,3 +114,4 @@ allowBuilds:
 
 patchedDependencies:
   '@volar/typescript@2.4.28': patches/@volar__typescript@2.4.28.patch
+  zod@4.3.6: patches/zod@4.3.6.patch

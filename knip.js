@@ -54,6 +54,13 @@ export default {
 			entry: [srcEntry, dtsEntry, testEntry],
 			project,
 		},
+		'packages/standard-form': {
+			entry: [srcEntry, dtsEntry, testEntry],
+			project,
+			// Every validator is an optional peer dependency: its handler is only imported once a
+			// schema from that validator shows up, so a project never installs the ones it doesn't use.
+			ignoreDependencies: ['zod'],
+		},
 		'packages/astro': {
 			entry: [
 				// Can't be detected automatically since it's only in package.json#files

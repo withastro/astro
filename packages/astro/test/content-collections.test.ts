@@ -283,7 +283,9 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = (e as Error).message;
 			}
-			assert.match(error!, /\*\*title\*\*: Required/);
+			// Messages come from the validator itself now that entries are parsed through the
+			// Standard Schema interface, so this is Zod's own wording.
+			assert.match(error!, /\*\*title\*\*: Invalid input: expected string, received undefined/);
 		});
 	});
 

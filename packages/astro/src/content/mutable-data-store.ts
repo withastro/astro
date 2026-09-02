@@ -4,7 +4,7 @@ import * as devalue from 'devalue';
 import { forEach } from 'neotraverse';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
+import { DATA_STORE_MANIFEST_FILE, IMAGE_FIELD_MARKER, IMAGE_IMPORT_PREFIX } from './consts.js';
 import {
 	ChunkedWriter,
 	type DataStoreManifest,
@@ -433,6 +433,18 @@ export default new Map([\n${lines.join(',\n')}]);
 				// string. The recorded paths let read-time resolution rewrite only these fields
 				// without traversing or cloning the rest of the data.
 				forEach(data, function (ctx, val) {
+					// Object form, produced by `image()`. Record the container path so read-time
+					// resolution can merge into it, and strip the marker key so the stored value
+					// is a plain, devalue-serializable object.
+					if (val && typeof val === 'object' && (val as any)[IMAGE_FIELD_MARKER]) {
+						const { [IMAGE_FIELD_MARKER]: _marker, ...rest } = val as Record<string, unknown>;
+						const src = String(rest.src).replace(IMAGE_IMPORT_PREFIX, '');
+						foundAssets.add(src);
+						recordImageImport(ctx.path.map((segment) => segment as string | number));
+						// `stopHere`: the marker object has no nested image fields to visit.
+						ctx.update({ ...rest, src }, true);
+						return;
+					}
 					if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 						const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 						foundAssets.add(src);

@@ -28,7 +28,7 @@ export function yaml2ts(frontmatter: string, collection: string): YAML2TSResult 
 		logLevel: 'silent',
 	});
 
-	let fullResult = 'import type { InferEntrySchema } from "astro:content";\n\n(\n';
+	let fullResult = 'import type { CollectionEntry } from "astro:content";\n\n(\n';
 	let objectContent = frontmatter.trim().length > 0 ? '' : '{}'; // If there's no content, provide an empty object so that there's no syntax error
 
 	YAML.visit(frontmatterContent, {
@@ -136,7 +136,7 @@ export function yaml2ts(frontmatter: string, collection: string): YAML2TSResult 
 		return itemKey;
 	}
 
-	fullResult += `${objectContent}) satisfies InferEntrySchema<"${collection}">;\n\n`;
+	fullResult += `${objectContent}) satisfies CollectionEntry<"${collection}">["data"];\n\n`;
 
 	return {
 		errors: frontmatterContent.errors,

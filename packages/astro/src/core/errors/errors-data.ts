@@ -2,8 +2,6 @@
 // Additionally, this code, much like `types/public/config.ts`, is used to generate documentation, so make sure to pass
 // your changes by our wonderful docs team before merging!
 
-import type { $ZodError } from 'zod/v4/core';
-
 export interface ErrorData {
 	name: string;
 	title: string;
@@ -1775,6 +1773,8 @@ export const GetEntryDeprecationError = {
 	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information.',
 } satisfies ErrorData;
 
+// TODO: consider removing. Unused since legacy content collections were removed in Astro 6 (#14407),
+// but kept because it is part of the published error reference.
 /**
  * @docs
  * @message
@@ -1792,12 +1792,12 @@ export const GetEntryDeprecationError = {
 export const InvalidContentEntryFrontmatterError = {
 	name: 'InvalidContentEntryFrontmatterError',
 	title: 'Content entry frontmatter does not match schema.',
-	message(collection: string, entryId: string, error: $ZodError) {
+	message(collection: string, entryId: string, issues: Array<string>) {
 		return [
 			`**${String(collection)} → ${String(
 				entryId,
 			)}** frontmatter does not match collection schema.`,
-			...error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`),
+			...issues,
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
@@ -1819,14 +1819,31 @@ export const InvalidContentEntryFrontmatterError = {
 export const InvalidContentEntryDataError = {
 	name: 'InvalidContentEntryDataError',
 	title: 'Content entry data does not match schema.',
-	message(collection: string, entryId: string, error: $ZodError) {
+	message(collection: string, entryId: string, issues: Array<string>) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			...error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`),
+			...issues,
 			'',
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * The schema for the **blog** collection is not a valid schema.
+ * @description
+ * A collection was defined with a `schema` that is not a [Standard Schema](https://standardschema.dev) validator.
+ * Astro validates collection entries through the Standard Schema interface, so any validator that
+ * implements it — Zod, Valibot, ArkType, and others — can be used.
+ */
+export const InvalidCollectionSchemaError = {
+	name: 'InvalidCollectionSchemaError',
+	title: 'Collection schema is not a valid schema.',
+	message: (collection: string) =>
+		`The schema for the **${collection}** collection is not a valid schema.`,
+	hint: 'Astro collection schemas must implement the Standard Schema interface (https://standardschema.dev). Zod, Valibot and ArkType schemas all do.',
 } satisfies ErrorData;
 
 /**
@@ -1909,6 +1926,8 @@ export const ContentLoaderReturnsInvalidId = {
 	hint: 'Make sure that the `id` of the entry is a string. See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders.',
 } satisfies ErrorData;
 
+// TODO: consider removing. Never referenced anywhere; an exact duplicate of
+// `InvalidContentEntryDataError` apart from its name.
 /**
  * @docs
  * @message
@@ -1925,10 +1944,10 @@ export const ContentLoaderReturnsInvalidId = {
 export const ContentEntryDataError = {
 	name: 'ContentEntryDataError',
 	title: 'Content entry data does not match schema.',
-	message(collection: string, entryId: string, error: $ZodError) {
+	message(collection: string, entryId: string, issues: Array<string>) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			...error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`),
+			...issues,
 			'',
 		].join('\n');
 	},
@@ -2112,6 +2131,21 @@ export const FileGlobNotSupported = {
 
 /**
  * @docs
+ * @see
+ *  - [Defining collection references](https://docs.astro.build/en/guides/content-collections/#defining-collection-references)
+ * @description
+ * `reference()` was given a value it cannot turn into a reference. It accepts an entry id, as a string or a number, or an already-resolved reference object belonging to the same collection.
+ */
+export const InvalidContentReferenceError = {
+	name: 'InvalidContentReferenceError',
+	title: 'Invalid content collection reference.',
+	message: (collection: string, reason: string) =>
+		`Could not reference an entry in the **${collection}** collection: ${reason}`,
+	hint: 'See https://docs.astro.build/en/guides/content-collections/#defining-collection-references for more on referencing entries.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name Action Errors
  */
@@ -2172,6 +2206,33 @@ export const ActionCalledFromServerError = {
 	message:
 		'Action called from a server-rendered page or endpoint without using `Astro.callAction()`. This wrapper must be used to call actions from server code.',
 	hint: 'See the `Astro.callAction()` reference for usage examples: https://docs.astro.build/en/reference/api-reference/#callaction',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Actions reference](https://docs.astro.build/en/guides/actions/)
+ * @description
+ * An action was defined with an `input` that cannot validate its payload.
+ *
+ * A JSON action accepts any [Standard Schema](https://standardschema.dev) validator — Zod,
+ * Valibot, ArkType, and others. A form action only accepts Zod: turning `FormData` into the
+ * value a schema expects needs more than Standard Schema describes, which is why that
+ * deprecated option is Zod-only. To validate a form with another validator, omit `input` and
+ * parse the `FormData` inside your handler.
+ */
+export const ActionsInvalidInputSchemaError = {
+	name: 'ActionsInvalidInputSchemaError',
+	title: 'Action `input` is not a valid schema.',
+	/** `vendor` is the validator a form action was given, or `undefined` when `input` is not a schema at all. */
+	message: (vendor?: string) =>
+		vendor === undefined
+			? 'The `input` of an action is not a valid schema.'
+			: `The deprecated \`input\` option of a form action only supports Zod schemas, but received a \`${vendor}\` schema.`,
+	hint: (vendor?: string) =>
+		vendor === undefined
+			? 'Astro action schemas must implement the Standard Schema interface (https://standardschema.dev). Zod, Valibot and ArkType schemas all do.'
+			: 'Omit `input` and parse the `FormData` inside your handler to validate a form with any Standard Schema validator. See https://docs.astro.build/en/guides/actions/ for more information on actions.',
 } satisfies ErrorData;
 
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.

@@ -39,6 +39,17 @@ declare global {
 			| undefined;
 		staticImages?: AssetsGlobalStaticImagesList;
 		referencedImages?: Set<string>;
+		/**
+		 * Resolves a content collection image source to an absolute path, the way read time
+		 * does. Installed by the content layer for the duration of a sync, and read by
+		 * `image()` from `astro/content/image`.
+		 *
+		 * Lives here rather than in module state because `content.config.ts` imports
+		 * `astro/content/image` through Vite while the content layer is loaded by Node, so
+		 * the two do not share module instances — the same reason `imageService` and
+		 * `addStaticImage` are global.
+		 */
+		contentImageResolver?: (source: string, importer: string) => Promise<string | undefined>;
 	};
 }
 

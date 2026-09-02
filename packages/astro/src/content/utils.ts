@@ -6,8 +6,16 @@ import { slug as githubSlug } from 'github-slugger';
 import colors from 'piccolore';
 import type { RunnableDevEnvironment, Rolldown } from 'vite';
 import xxhash from 'xxhash-wasm';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import * as z from 'zod/v4';
-import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
+import {
+	AstroError,
+	AstroErrorData,
+	formatIssuePath,
+	formatSchemaIssues,
+	isStandardSchema,
+	MarkdownError,
+} from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
@@ -20,9 +28,9 @@ import {
 	CONTENT_LAYER_TYPE,
 	CONTENT_MODULE_FLAG,
 	DEFERRED_MODULE,
-	IMAGE_IMPORT_PREFIX,
 	LIVE_CONTENT_TYPE,
 } from './consts.js';
+import { image as resolveImageField } from './image.js';
 import { glob, secretLegacyFlag } from './loaders/glob.js';
 import type { LoaderContext } from './loaders/types.js';
 import { createImage } from './runtime-assets.js';
@@ -51,6 +59,9 @@ export const loaderReturnSchema = z.union([
 			.passthrough(),
 	),
 ]);
+
+const INVALID_SCHEMA_MESSAGE =
+	'Invalid schema. Expected a Standard Schema validator (https://standardschema.dev), such as a Zod, Valibot or ArkType schema.';
 
 const collectionConfigParser = z.union([
 	z.object({
@@ -89,10 +100,10 @@ const collectionConfigParser = z.union([
 						return v;
 					})
 					.superRefine((v, ctx) => {
-						if (v !== undefined && !('_zod' in v)) {
+						if (v !== undefined && !isStandardSchema(v)) {
 							ctx.addIssue({
-								code: z.ZodIssueCode.custom,
-								message: 'Invalid Zod schema',
+								code: 'custom',
+								message: INVALID_SCHEMA_MESSAGE,
 							});
 							return z.NEVER;
 						}
@@ -103,7 +114,7 @@ const collectionConfigParser = z.union([
 						input: [],
 						output: z.promise(
 							z.object({
-								schema: z.custom<z.ZodSchema>((v: any) => '_zod' in v),
+								schema: z.custom<StandardSchemaV1>(isStandardSchema, INVALID_SCHEMA_MESSAGE),
 								types: z.string(),
 							}),
 						),
@@ -168,75 +179,52 @@ export async function getEntryData<
 	let schema = collectionConfig.schema;
 
 	if (typeof schema === 'function') {
+		const { filePath } = entry._internal;
 		if (pluginContext) {
 			schema = schema({
-				image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
+				filePath,
+				image: createImage(pluginContext, shouldEmitFile, filePath),
 			});
 		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
 			schema = schema({
-				image: () =>
-					z.string().transform((val) => {
-						// Normalize bare filenames to relative paths for consistent resolution
-						// This ensures bare filenames like "cover.jpg" work the same way as in markdown frontmatter
-						let normalizedPath = val;
-
-						// Skip normalization for URLs, absolute paths, and already-relative paths
-						const isUrl = val.includes('://');
-						const isAbsolute = val.startsWith('/');
-						const isRelative = val.startsWith('.');
-
-						if (val && !isUrl && !isAbsolute && !isRelative) {
-							// Check if this is a local file or an alias
-							// Resolve relative to the entry's directory
-							const entryDir = path.dirname(entry._internal.filePath);
-							const resolvedPath = path.resolve(entryDir, val);
-
-							// If the file exists, normalize to relative path
-							// Otherwise, keep as-is (likely a Vite alias)
-							if (fsMod.existsSync(resolvedPath)) {
-								normalizedPath = `./${val}`;
-							}
-						}
-						return `${IMAGE_IMPORT_PREFIX}${normalizedPath}`;
-					}),
+				// The entry's file path, so `image(context, { src })` can resolve relative
+				// sources.
+				filePath,
+				// Deprecated `({ image })` form. Routed through the same resolver, so legacy
+				// schemas gain probing and validation too.
+				image: () => z.string().transform((val) => resolveImageField({ filePath }, { src: val })),
 			});
 		}
 	}
 
 	if (schema) {
-		// Use `safeParseAsync` to allow async transforms
-		let formattedError;
-		const parsed = await (schema as z.ZodSchema).safeParseAsync(data, {
-			error(issue) {
-				if (issue.code === 'custom' && issue.params?.isHoistedAstroError) {
-					formattedError = issue.params?.astroError;
-				}
-				return errorMap(issue);
-			},
-		});
-		if (parsed.success) {
-			data = parsed.data as TOutputData;
-		} else {
-			if (!formattedError) {
-				formattedError = new AstroError({
-					...AstroErrorData.InvalidContentEntryDataError,
-					message: AstroErrorData.InvalidContentEntryDataError.message(
-						entry.collection,
-						entry.id,
-						parsed.error,
-					),
-					location: {
-						file: entry._internal?.filePath,
-						line: getYAMLErrorLine(
-							entry._internal?.rawData,
-							String(parsed.error.issues[0].path[0]),
-						),
-						column: 0,
-					},
-				});
-			}
-			throw formattedError;
+		if (!isStandardSchema(schema)) {
+			throw new AstroError({
+				...AstroErrorData.InvalidCollectionSchemaError,
+				message: AstroErrorData.InvalidCollectionSchemaError.message(entry.collection),
+			});
 		}
+		// `validate()` may return a promise, which is what allows async transforms
+		const result = await schema['~standard'].validate(data);
+		if (result.issues) {
+			throw new AstroError({
+				...AstroErrorData.InvalidContentEntryDataError,
+				message: AstroErrorData.InvalidContentEntryDataError.message(
+					entry.collection,
+					entry.id,
+					formatSchemaIssues(result.issues),
+				),
+				location: {
+					file: entry._internal?.filePath,
+					line: getYAMLErrorLine(
+						entry._internal?.rawData,
+						formatIssuePath(result.issues[0]?.path).split('.')[0],
+					),
+					column: 0,
+				},
+			});
+		}
+		data = result.value as TOutputData;
 	}
 
 	return data;

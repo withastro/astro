@@ -1,7 +1,7 @@
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import { escape } from 'html-escaper';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import * as z from 'zod/v4';
-import type * as zCore from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { createSvgComponent } from '../assets/runtime.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
@@ -44,7 +44,7 @@ export {
 type LazyImport = () => Promise<any>;
 type LiveCollectionConfigMap = Record<
 	string,
-	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: zCore.$ZodType }
+	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: StandardSchemaV1 }
 >;
 
 const cacheHintSchema = z.object({
@@ -54,14 +54,15 @@ const cacheHintSchema = z.object({
 
 async function parseLiveEntry(
 	entry: LiveDataEntry,
-	schema: zCore.$ZodType,
+	schema: StandardSchemaV1,
 	collection: string,
 ): Promise<{ entry?: LiveDataEntry; error?: LiveCollectionError }> {
 	try {
-		const parsed = await z.safeParseAsync(schema, entry.data);
-		if (!parsed.success) {
+		// `validate()` may return a promise, which is what allows async transforms
+		const parsed = await schema['~standard'].validate(entry.data);
+		if (parsed.issues) {
 			return {
-				error: new LiveCollectionValidationError(collection, entry.id, parsed.error),
+				error: new LiveCollectionValidationError(collection, entry.id, parsed.issues),
 			};
 		}
 		if (entry.cacheHint) {
@@ -69,7 +70,7 @@ async function parseLiveEntry(
 
 			if (!cacheHint.success) {
 				return {
-					error: new LiveCollectionCacheHintError(collection, entry.id, cacheHint.error),
+					error: new LiveCollectionCacheHintError(collection, entry.id, cacheHint.error.issues),
 				};
 			}
 			entry.cacheHint = cacheHint.data;
@@ -77,7 +78,7 @@ async function parseLiveEntry(
 		return {
 			entry: {
 				...entry,
-				data: parsed.data as Record<string, unknown>,
+				data: parsed.value as Record<string, unknown>,
 			},
 		};
 	} catch (error) {
@@ -319,7 +320,11 @@ export function createGetLiveCollection({
 
 				if (!cacheHintResult.success) {
 					return {
-						error: new LiveCollectionCacheHintError(collection, undefined, cacheHintResult.error),
+						error: new LiveCollectionCacheHintError(
+							collection,
+							undefined,
+							cacheHintResult.error.issues,
+						),
 					};
 				}
 				cacheHint = cacheHintResult.data;
@@ -470,13 +475,13 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 				imagePath.replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'"),
 			);
 
-			let image: GetImageResult;
+			let resolvedImage: GetImageResult;
 			if (URL.canParse(decodedImagePath.src)) {
 				// Remote image, pass through without resolving import
 				// We know we should resolve this remote image because either:
 				// 1. It was collected with the remark-collect-images plugin, which respects the astro image configuration,
 				// 2. OR it was manually injected by another plugin, and we should respect that.
-				image = await getImage(decodedImagePath);
+				resolvedImage = await getImage(decodedImagePath);
 			} else {
 				const id = imageSrcToImportId(decodedImagePath.src, fileName);
 
@@ -484,29 +489,29 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 				if (!id || imageObjects.has(id) || !imported) {
 					continue;
 				}
-				image = await getImage({ ...decodedImagePath, src: imported });
+				resolvedImage = await getImage({ ...decodedImagePath, src: imported });
 			}
-			imageObjects.set(imagePath, image);
+			imageObjects.set(imagePath, resolvedImage);
 		} catch {
 			throw new Error(`Failed to parse image reference: ${imagePath}`);
 		}
 	}
 
 	return html.replaceAll(CONTENT_LAYER_IMAGE_REGEX, (full, imagePath) => {
-		const image = imageObjects.get(imagePath);
+		const resolvedImage = imageObjects.get(imagePath);
 
-		if (!image) {
+		if (!resolvedImage) {
 			return full;
 		}
 
-		const { index, ...attributes } = image.attributes;
+		const { index, ...attributes } = resolvedImage.attributes;
 
 		return Object.entries({
 			...attributes,
-			src: image.src,
+			src: resolvedImage.src,
 			// An empty `srcset` is invalid HTML, so only emit it when there are
 			// actual candidates. This matches `vite-plugin-markdown/images.ts`.
-			...(image.srcSet.values.length > 0 ? { srcset: image.srcSet.attribute } : {}),
+			...(resolvedImage.srcSet.values.length > 0 ? { srcset: resolvedImage.srcSet.attribute } : {}),
 			// This attribute is used by the toolbar audit
 			...(import.meta.env.DEV ? { 'data-image-component': 'true' } : {}),
 		})
@@ -586,16 +591,36 @@ export function updateImageReferencesInData<T extends Record<string, unknown>>(
 	}
 	let result = data;
 	for (const path of imageImports) {
-		let src: unknown = result;
+		let current: unknown = result;
 		for (const key of path) {
-			src = (src as Record<string | number, unknown>)?.[key];
+			current = (current as Record<string | number, unknown>)?.[key];
 		}
-		if (typeof src !== 'string') {
+
+		// String form: the whole field is the marker, so replace it outright.
+		if (typeof current === 'string') {
+			const resolved = resolveImageAtPath(current, fileName, imageAssetMap);
+			if (resolved !== undefined) {
+				result = setAtPathCopying(result, path, resolved);
+			}
 			continue;
 		}
-		const resolved = resolveImageAtPath(src, fileName, imageAssetMap);
-		if (resolved !== undefined) {
-			result = setAtPathCopying(result, path, resolved);
+
+		// Object form (from `image()`): merge so that fields added by transforms
+		// downstream of `image()` survive resolution.
+		if (current && typeof current === 'object' && typeof (current as any).src === 'string') {
+			const resolved = resolveImageAtPath((current as any).src, fileName, imageAssetMap);
+			if (resolved === undefined) {
+				continue;
+			}
+			result = setAtPathCopying(
+				result,
+				path,
+				// SVGs resolve to a component factory rather than metadata, so there is
+				// nothing to merge into.
+				typeof resolved === 'function'
+					? resolved
+					: { ...(current as object), ...(resolved as object) },
+			);
 		}
 	}
 	return result;
@@ -736,11 +761,125 @@ async function render({
 	}
 }
 
-export function createReference() {
-	return function reference(collection: string) {
+/**
+ * What `reference()` resolves to, and what `getEntry()`/`getEntries()` accept.
+ *
+ * The `slug` variant only ever comes back out when it went in: a legacy reference object is
+ * passed through untouched rather than renamed, so re-parsing already-transformed data is a
+ * no-op.
+ */
+export type ReferenceField =
+	| { collection: string; id: string }
+	| { collection: string; slug: string };
+
+/** Every value `reference()` accepts as an entry lookup. */
+export type ReferenceLookup = string | number | ReferenceField;
+
+/**
+ * The resolution shared by both `reference()` signatures.
+ *
+ * Reports failure instead of throwing, so the deprecated schema form can surface it as a
+ * validation issue — collected alongside the schema's other issues — while the function
+ * form, which has no validator to report through, throws.
+ *
+ * Note what is *not* checked here: whether the entry exists. A reference may point at a
+ * collection whose loader has not run yet, so existence is verified once every loader has
+ * finished, by walking the store (`ContentLayer#validateReferences`).
+ */
+function resolveReference(
+	collection: string,
+	lookup: unknown,
+): { ok: true; value: ReferenceField } | { ok: false; message: string } {
+	if (typeof lookup === 'number') {
+		return { ok: true, value: { id: lookup.toString(10), collection } };
+	}
+	if (typeof lookup === 'string') {
+		return { ok: true, value: { id: lookup, collection } };
+	}
+	if (lookup !== null && typeof lookup === 'object') {
+		const entry = lookup as { collection?: unknown; id?: unknown; slug?: unknown };
+		if (typeof entry.collection === 'string') {
+			// Already a reference object, so the schema is running over data an earlier parse
+			// transformed. The collection is the one thing we can still check.
+			if (entry.collection !== collection) {
+				return {
+					ok: false,
+					message: `expected a reference to \`${collection}\`, but received one to \`${entry.collection}\`.`,
+				};
+			}
+			if (typeof entry.id === 'string') {
+				return { ok: true, value: { id: entry.id, collection } };
+			}
+			if (typeof entry.slug === 'string') {
+				return { ok: true, value: { slug: entry.slug, collection } };
+			}
+		}
+	}
+	return {
+		ok: false,
+		message: `expected an entry id, as a string or a number, but received ${JSON.stringify(lookup) ?? typeof lookup}.`,
+	};
+}
+
+/**
+ * Two signatures, kept apart by whether a lookup was passed.
+ *
+ * `reference(collection, id)` is an ordinary function, so it composes with any validator and
+ * its result can be validated further:
+ *
+ * ```js
+ * schema: z.object({
+ *   author: z.string().transform((id) => reference('authors', id)),
+ * })
+ * ```
+ *
+ * `reference(collection)` returns a Zod schema instead, and only works in a Zod schema. It
+ * is deprecated, and routed through the same resolution.
+ */
+export interface ReferenceFunction {
+	/**
+	 * @deprecated Pass the entry id as a second argument instead. `reference(collection, id)`
+	 * is an ordinary function rather than a schema factory, so it works with any validator and
+	 * its result can be validated further:
+	 *
+	 * ```js
+	 * schema: z.object({
+	 *   author: z.string().transform((id) => reference('authors', id)),
+	 * })
+	 * ```
+	 */
+	(collection: string): z.ZodType<ReferenceField, ReferenceLookup>;
+	(collection: string, lookup: ReferenceLookup): ReferenceField;
+}
+
+export function createReference(): ReferenceFunction {
+	function reference(collection: string): z.ZodType<ReferenceField, ReferenceLookup>;
+	function reference(collection: string, lookup: ReferenceLookup): ReferenceField;
+	function reference(
+		collection: string,
+		...rest: [] | [ReferenceLookup]
+	): ReferenceField | z.ZodType<ReferenceField, ReferenceLookup> {
+		// Arity, not the value: `reference('authors', undefined)` is a mistake worth reporting,
+		// not a request for the deprecated schema form.
+		if (rest.length > 0) {
+			const resolved = resolveReference(collection, rest[0]);
+			if (!resolved.ok) {
+				throw new AstroError({
+					...AstroErrorData.InvalidContentReferenceError,
+					message: AstroErrorData.InvalidContentReferenceError.message(
+						collection,
+						resolved.message,
+					),
+				});
+			}
+			return resolved.value;
+		}
+
+		// Deprecated schema form. The union stays in front of the resolution so that a value of
+		// the wrong type is still reported by Zod, with its own message and path.
 		return z
 			.union([
-				z.number().transform((num) => num.toString(10)),
+				z.number(),
 				z.string(),
 				z.object({
 					id: z.string(),
@@ -752,24 +891,16 @@ export function createReference() {
 				}),
 			])
 			.transform((lookup, ctx) => {
-				if (typeof lookup === 'object') {
-					// If these don't match then something is wrong with the reference
-					if (lookup.collection !== collection) {
-						const flattenedErrorPath = ctx.issues[0]?.path?.join('.');
-
-						ctx.addIssue({
-							code: 'custom',
-							message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${collection}. Received ${lookup.collection}.`,
-						});
-						return;
-					}
-					// If it is an object then we're validating later in the build, so we can check the collection at that point.
-					return lookup;
+				const resolved = resolveReference(collection, lookup);
+				if (!resolved.ok) {
+					ctx.addIssue({ code: 'custom', message: resolved.message });
+					return z.NEVER;
 				}
-
-				return { id: lookup, collection };
+				return resolved.value;
 			});
-	};
+	}
+
+	return reference;
 }
 
 type PropagatedAssetsModule = {
