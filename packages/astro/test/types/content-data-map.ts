@@ -1,5 +1,5 @@
-/// <reference path="../../client.d.ts" />
 import { describe, it } from 'node:test';
+import '../../client.d.ts';
 import { expectTypeOf } from 'expect-type';
 import {
 	getCollection,

@@ -318,6 +318,12 @@ export type InferCollectionData<TConfig, TName extends string> = [TConfig] exten
 		: any;
 
 /**
+ * The map of a config with no collections to read: no names, and so no data behind them.
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+type EmptyDataMap = {};
+
+/**
  * Map every collection in a content config to the type of its entry data:
  *
  * ```ts
@@ -334,10 +340,10 @@ export type InferCollectionData<TConfig, TName extends string> = [TConfig] exten
  * a `DataMap` by hand for a config that does not call `reference()`.
  */
 export type InferData<TConfig> = [TConfig] extends [never]
-	? {}
+	? EmptyDataMap
 	: TConfig extends { collections: infer TCollections }
 		? { [K in keyof TCollections & string]: InferSchemaData<TCollections[K]> }
-		: {};
+		: EmptyDataMap;
 
 type LiveLoaderOf<TCollection> = TCollection extends { loader: infer L } ? L : never;
 
@@ -366,7 +372,7 @@ export type InferLiveCollectionTypes<TCollection> = {
 
 /** The `InferData` of live collections: every collection in a live config, fully typed. */
 export type InferLiveData<TConfig> = [TConfig] extends [never]
-	? {}
+	? EmptyDataMap
 	: TConfig extends { collections: infer TCollections }
 		? { [K in keyof TCollections & string]: InferLiveCollectionTypes<TCollections[K]> }
-		: {};
+		: EmptyDataMap;
