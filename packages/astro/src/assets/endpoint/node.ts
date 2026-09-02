@@ -36,11 +36,11 @@ async function loadLocalImage(src: string, url: URL) {
 /**
  * Endpoint used in dev and SSR to serve optimized images by the base image services
  */
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, logger }) => {
 	try {
-		return await handleImageRequest({ request, loadLocalImage });
+		return await handleImageRequest({ request, loadLocalImage, logger });
 	} catch (err: unknown) {
-		console.error('Could not process image request:', err);
+		logger.error(`Could not process image request: ${err}`);
 		return new Response('Internal Server Error', {
 			status: 500,
 		});

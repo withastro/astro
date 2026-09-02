@@ -73,15 +73,19 @@ export async function emitDestination(
 	return { expression: `${name}(${JSON.stringify(config.config) ?? 'undefined'})`, imports };
 }
 
-export function vitePluginLogger({
-	settings,
-}: {
-	settings: AstroSettings;
-}): VitePlugin | undefined {
+/**
+ * Emits `virtual:astro:logger`: the configured destination as the default export
+ * (`null` when the user configured none) plus the resolved log level.
+ *
+ * The module is always registered, even without a `logger` config, so that code
+ * generated ahead of the user's config — `astro:content`, which is built from a
+ * static template — can import it unconditionally. It deliberately imports
+ * nothing but the user's destination entrypoint: unlike `virtual:astro:manifest`
+ * it is a leaf, so reaching a logger through it cannot pull renderers and pages
+ * into an importer's module graph.
+ */
+export function vitePluginLogger({ settings }: { settings: AstroSettings }): VitePlugin {
 	const loggerConfig = settings.config.logger;
-	if (!loggerConfig) {
-		return;
-	}
 
 	return {
 		name: VIRTUAL_LOGGER_ID,
@@ -101,6 +105,10 @@ export function vitePluginLogger({
 				id: new RegExp(`^${RESOLVED_VIRTUAL_LOGGER_ID}$`),
 			},
 			async handler() {
+				const level = `export const level = ${JSON.stringify(settings.logLevel)};\n`;
+				if (!loggerConfig) {
+					return { code: `${level}export default null;\n` };
+				}
 				// Use the project root as the importer so that user-provided handlers
 				// resolve from the project's node_modules, not from astro core's location.
 				const importerPath = fileURLToPath(new URL('package.json', settings.config.root));
@@ -110,7 +118,7 @@ export function vitePluginLogger({
 				);
 
 				return {
-					code: `${imports.join('\n')}\nexport default ${expression};\n`,
+					code: `${imports.join('\n')}\n${level}export default ${expression};\n`,
 				};
 			},
 		},
