@@ -23,7 +23,7 @@ import { isHeadAndContent } from './astro/head-and-content.js';
 import { createAstroComponentInstance, isAstroComponentInstance } from './astro/instance.js';
 import { isRenderTemplateResult, type RenderTemplateResult } from './astro/render-template.js';
 import { containsServerDirective, ServerIslandComponent } from './server-islands.js';
-import { SlotRenderInstance } from './slot.js';
+import { SlotRenderInstance, SlotString } from './slot.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
@@ -282,8 +282,10 @@ export async function renderStreaming(
 					continue;
 				}
 				if (expression instanceof HTMLString || isHTMLString(expression)) {
-					st.emitStatic((expression as HTMLString).toString());
-					continue;
+					if (!(expression instanceof SlotString)) {
+						st.emitStatic((expression as HTMLString).toString());
+						continue;
+					}
 				}
 				// Complex expression: resume this frame after processing it.
 				node.storeCursor(i);
@@ -308,8 +310,12 @@ export async function renderStreaming(
 			continue;
 		}
 		if (node instanceof HTMLString || isHTMLString(node)) {
-			st.emitStatic((node as HTMLString).toString());
-			continue;
+			// A SlotString's `instructions`/`chunks` are dropped by `toString()`; they only
+			// materialise when the object itself reaches the destination.
+			if (!(node instanceof SlotString)) {
+				st.emitStatic((node as HTMLString).toString());
+				continue;
+			}
 		}
 		if (Array.isArray(node)) {
 			for (let i = node.length - 1; i >= 0; i--) stack.push(node[i]);
