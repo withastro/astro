@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { describe, it, mock } from 'node:test';
 import type { CacheProvider } from '../../../dist/core/cache/types.js';
 import type { MemoryCacheProviderOptions } from '../../../dist/core/cache/memory-provider.js';
 import memoryProvider from '../../../dist/core/cache/memory-provider.js';
@@ -21,11 +21,11 @@ function makeRequest(url: string, headers: Record<string, string> = {}): Request
 /**
  * Helper: create the context passed to `onRequest`, with a no-op logger.
  */
-function makeContext(request: Request) {
+function makeContext(request: Request, warn: (message: string) => void = () => {}) {
 	return {
 		request,
 		url: new URL(request.url),
-		logger: { info() {}, warn() {}, error() {} },
+		logger: { info() {}, warn, error() {} },
 	};
 }
 
@@ -328,23 +328,31 @@ describe('memory-provider Vary header', () => {
 		assert.equal(await res3.text(), 'english');
 	});
 
-	it('ignores Cookie in Vary header', async () => {
-		const provider = createProvider();
-		const url = 'http://localhost/page';
+	it('does not cache responses when Vary contains Cookie or *', async () => {
+		for (const [vary, header] of [
+			['Cookie', 'Cookie'],
+			['*', '*'],
+			['Accept-Language, Cookie', 'Cookie'],
+		] as const) {
+			const provider = createProvider();
+			const url = 'http://localhost/page';
+			const req1 = makeRequest(url, { Cookie: 'user=a' });
+			const warn = mock.fn<(message: string) => void>();
+			const res1 = await provider.onRequest!(
+				makeContext(req1, warn),
+				makeNext({ maxAge: 60, body: 'first', headers: { Vary: vary } }),
+			);
+			assert.equal(res1.headers.has('X-Astro-Cache'), false);
+			assert.equal(warn.mock.callCount(), 1);
+			assert.equal(
+				warn.mock.calls[0].arguments[0],
+				`Skipping cache for /page because response includes Vary: ${header}.`,
+			);
 
-		const req1 = makeRequest(url, { Cookie: 'user=a' });
-		await provider.onRequest!(
-			makeContext(req1),
-			makeNext({ maxAge: 60, body: 'first', headers: { Vary: 'Cookie' } }),
-		);
-
-		// Different cookie — should still HIT (Cookie is ignored in Vary)
-		const req2 = makeRequest(url, { Cookie: 'user=b' });
-		const res2 = await provider.onRequest!(
-			makeContext(req2),
-			makeNext({ maxAge: 60, body: 'second' }),
-		);
-		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
+			const req2 = makeRequest(url, { Cookie: 'user=b' });
+			const res2 = await provider.onRequest!(makeContext(req2), makeNext({ body: 'second' }));
+			assert.equal(await res2.text(), 'second');
+		}
 	});
 });
 
@@ -504,6 +512,38 @@ describe('memory-provider SWR', () => {
 			makeNext({ maxAge: 60, body: 'should-not-see' }),
 		);
 		assert.equal(res3.headers.get('X-Astro-Cache'), 'HIT');
+		assert.equal(await res3.text(), 'fresh-body');
+	});
+
+	it('removes stale entries when revalidation returns an uncacheable Vary header', async (t) => {
+		t.mock.timers.enable({ apis: ['Date'], now: 1_000 });
+		t.after(() => mock.timers.reset());
+		const provider = createProvider();
+		const url = 'http://localhost/page';
+		const req1 = makeRequest(url);
+		await provider.onRequest!(
+			makeContext(req1),
+			makeNext({ maxAge: 1, swr: 60, body: 'stale-body' }),
+		);
+
+		t.mock.timers.tick(2_000);
+		const req2 = makeRequest(url);
+		const warn = mock.fn<(message: string) => void>();
+		const res2 = await provider.onRequest!(
+			makeContext(req2, warn),
+			makeNext({ maxAge: 60, body: 'uncached-body', headers: { Vary: 'Cookie' } }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'STALE');
+		await Promise.resolve();
+		assert.equal(warn.mock.callCount(), 1);
+		assert.equal(
+			warn.mock.calls[0].arguments[0],
+			'Skipping cache for /page because response includes Vary: Cookie.',
+		);
+
+		const req3 = makeRequest(url);
+		const res3 = await provider.onRequest!(makeContext(req3), makeNext({ body: 'fresh-body' }));
+		assert.equal(res3.headers.has('X-Astro-Cache'), false);
 		assert.equal(await res3.text(), 'fresh-body');
 	});
 });
