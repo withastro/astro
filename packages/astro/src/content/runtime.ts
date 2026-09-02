@@ -245,12 +245,7 @@ export function createGetEntry({
 	};
 }
 
-function warnForPropertyAccess(
-	logger: AstroLogger,
-	entry: object,
-	prop: string,
-	message: string,
-) {
+function warnForPropertyAccess(logger: AstroLogger, entry: object, prop: string, message: string) {
 	// Skip if the property is already defined (it may be legitimately defined on the entry)
 	if (!(prop in entry)) {
 		let _value: any = undefined;

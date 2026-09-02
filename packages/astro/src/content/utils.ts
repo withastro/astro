@@ -128,7 +128,7 @@ function contentConfigParser(logger: AstroLogger) {
 }
 
 export type ContentConfig = z.infer<ReturnType<typeof contentConfigParser>> & { digest?: string };
-export type CollectionConfig = ContentConfig["collections"][string]
+export type CollectionConfig = ContentConfig['collections'][string];
 
 type EntryInternal = { rawData: string | undefined; filePath: string };
 
@@ -496,12 +496,12 @@ async function loadContentConfig({
 	fs,
 	settings,
 	environment,
-	logger
+	logger,
 }: {
 	fs: typeof fsMod;
 	settings: AstroSettings;
 	environment: RunnableDevEnvironment;
-	logger: AstroLogger
+	logger: AstroLogger;
 }): Promise<ContentConfig | undefined> {
 	const contentPaths = getContentPaths(
 		settings.config,
@@ -524,10 +524,7 @@ async function loadContentConfig({
 		const message = config.error.issues
 			.map((issue) => `  → ${colors.green(issue.path.join('.'))}: ${colors.red(issue.message)}`)
 			.join('\n');
-		logger.error(
-			'content',
-			`There was a problem with your content config:\n\n${message}\n`,
-		);
+		logger.error('content', `There was a problem with your content config:\n\n${message}\n`);
 		const liveCollections = Object.entries(unparsedConfig.collections ?? {}).filter(
 			([, collection]: [string, any]) => collection?.type === LIVE_CONTENT_TYPE,
 		);
@@ -548,12 +545,12 @@ async function autogenerateCollections({
 	config,
 	settings,
 	fs,
-	logger
+	logger,
 }: {
 	config?: ContentConfig;
 	settings: AstroSettings;
 	fs: typeof fsMod;
-	logger: AstroLogger
+	logger: AstroLogger;
 }): Promise<ContentConfig | undefined> {
 	if (!config) {
 		return config;
@@ -642,7 +639,7 @@ export async function reloadContentConfigObserver({
 	settings: AstroSettings;
 	environment: RunnableDevEnvironment;
 	observer?: ContentObservable;
-	logger: AstroLogger
+	logger: AstroLogger;
 }) {
 	observer.set({ status: 'loading' });
 	try {
