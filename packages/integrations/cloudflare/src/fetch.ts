@@ -48,12 +48,7 @@ function ensureInitialized() {
 
 /** Applies cookies and Cloudflare CDN cache defaults to an Astro response. */
 export function finalize(state: FetchState, response: Response): Response {
-	ensureInitialized();
-	const setCookieHeaders = new Set([
-		...app!.setCookieHeaders(response),
-		...state.cookies.consume(),
-	]);
-	return applyCloudflareResponseHeaders(response, setCookieHeaders, cacheProviderEnabled);
+	return applyCloudflareResponseHeaders(response, state.cookies.consume(), cacheProviderEnabled);
 }
 
 /**
