@@ -132,6 +132,7 @@
     "@capsizecss/unpack": "^4.0.0",
     "@clack/prompts": "^1.1.0",
     "@oslojs/encoding": "^1.1.0",
+    "@standard-community/standard-form": "workspace:*",
     "@standard-schema/spec": "^1.1.0",
     "am-i-vibing": "^0.4.0",
     "aria-query": "^5.3.2",

@@ -12,6 +12,7 @@ import {
 	AstroError,
 	AstroErrorData,
 	formatIssuePath,
+	isStandardSchema,
 	MarkdownError,
 } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
@@ -60,16 +61,6 @@ export const loaderReturnSchema = z.union([
 
 const INVALID_SCHEMA_MESSAGE =
 	'Invalid schema. Expected a Standard Schema validator (https://standardschema.dev), such as a Zod, Valibot or ArkType schema.';
-
-/** Whether a value implements the [Standard Schema](https://standardschema.dev) interface. */
-export function isStandardSchema(value: unknown): value is StandardSchemaV1 {
-	return (
-		typeof value === 'object' &&
-		value !== null &&
-		'~standard' in value &&
-		typeof (value as StandardSchemaV1)['~standard']?.validate === 'function'
-	);
-}
 
 const collectionConfigParser = z.union([
 	z.object({

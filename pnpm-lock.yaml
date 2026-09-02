@@ -747,6 +747,9 @@ importers:
       '@oslojs/encoding':
         specifier: ^1.1.0
         version: 1.1.0
+      '@standard-community/standard-form':
+        specifier: workspace:*
+        version: link:../standard-form
       '@standard-schema/spec':
         specifier: ^1.1.0
         version: 1.1.0
@@ -7094,6 +7097,19 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
+
+  packages/standard-form:
+    dependencies:
+      '@standard-schema/spec':
+        specifier: ^1.1.0
+        version: 1.1.0
+    devDependencies:
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../scripts
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
 
   packages/telemetry:
     dependencies:

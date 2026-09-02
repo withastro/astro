@@ -1,5 +1,15 @@
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 
+/** Whether a value implements the [Standard Schema](https://standardschema.dev) interface. */
+export function isStandardSchema(value: unknown): value is StandardSchemaV1 {
+	return (
+		typeof value === 'object' &&
+		value !== null &&
+		'~standard' in value &&
+		typeof (value as StandardSchemaV1)['~standard']?.validate === 'function'
+	);
+}
+
 /**
  * Renders the path of a [Standard Schema](https://standardschema.dev) issue as a dotted
  * property path. Segments are either keys or `{ key }` objects, depending on the validator.

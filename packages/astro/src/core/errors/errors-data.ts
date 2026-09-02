@@ -2207,6 +2207,33 @@ export const ActionCalledFromServerError = {
 	hint: 'See the `Astro.callAction()` reference for usage examples: https://docs.astro.build/en/reference/api-reference/#callaction',
 } satisfies ErrorData;
 
+/**
+ * @docs
+ * @see
+ * - [Actions reference](https://docs.astro.build/en/guides/actions/)
+ * @description
+ * An action was defined with an `input` that cannot validate its payload.
+ *
+ * A JSON action accepts any [Standard Schema](https://standardschema.dev) validator — Zod,
+ * Valibot, ArkType, and others. A form action only accepts Zod: turning `FormData` into the
+ * value a schema expects needs more than Standard Schema describes, which is why that
+ * deprecated option is Zod-only. To validate a form with another validator, omit `input` and
+ * parse the `FormData` inside your handler.
+ */
+export const ActionsInvalidInputSchemaError = {
+	name: 'ActionsInvalidInputSchemaError',
+	title: 'Action `input` is not a valid schema.',
+	/** `vendor` is the validator a form action was given, or `undefined` when `input` is not a schema at all. */
+	message: (vendor?: string) =>
+		vendor === undefined
+			? 'The `input` of an action is not a valid schema.'
+			: `The deprecated \`input\` option of a form action only supports Zod schemas, but received a \`${vendor}\` schema.`,
+	hint: (vendor?: string) =>
+		vendor === undefined
+			? 'Astro action schemas must implement the Standard Schema interface (https://standardschema.dev). Zod, Valibot and ArkType schemas all do.'
+			: 'Omit `input` and parse the `FormData` inside your handler to validate a form with any Standard Schema validator. See https://docs.astro.build/en/guides/actions/ for more information on actions.',
+} satisfies ErrorData;
+
 // Generic catch-all - Only use this in extreme cases, like if there was a cosmic ray bit flip.
 export const UnknownError = { name: 'UnknownError', title: 'Unknown Error.' } satisfies ErrorData;
 

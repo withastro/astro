@@ -117,6 +117,41 @@ describe('ActionInputError', () => {
 		const error = new ActionInputError(issues);
 		assert.deepEqual(error.fields, {});
 	});
+
+	it('normalizes Standard Schema issues to Zod issues', () => {
+		const error = new ActionInputError([
+			{ message: 'Expected string', path: ['name'] },
+			// A validator may describe a segment as an object, and may omit the path entirely.
+			{ message: 'Too short', path: [{ key: 'name' }] },
+			{ message: 'Something wrong' },
+		]);
+
+		assert.deepEqual(error.issues, [
+			{ code: 'custom', message: 'Expected string', path: ['name'] },
+			{ code: 'custom', message: 'Too short', path: ['name'] },
+			{ code: 'custom', message: 'Something wrong', path: [] },
+		]);
+		assert.deepEqual(error.fields.name, ['Expected string', 'Too short']);
+	});
+
+	it('leaves Zod issues untouched', () => {
+		const issues = [
+			{ code: 'invalid_type', expected: 'string', message: 'Expected string', path: ['name'] },
+		] as unknown as ConstructorParameters<typeof ActionInputError>[0];
+		const error = new ActionInputError(issues);
+
+		assert.deepEqual(error.issues, issues);
+		assert.deepEqual(error.fields.name, ['Expected string']);
+	});
+
+	it('populates fields from a mix of both shapes', () => {
+		const error = new ActionInputError([
+			{ code: 'invalid_type', message: 'Expected string', path: ['name'] } as any,
+			{ message: 'Too short', path: [{ key: 'name' }] },
+		]);
+
+		assert.deepEqual(error.fields.name, ['Expected string', 'Too short']);
+	});
 });
 
 describe('isActionError', () => {
