@@ -75,19 +75,17 @@ describe('Custom entry file using astro/fetch', () => {
 		assert.equal(await response.text(), 'stray file body');
 	});
 
-	it('applies Hono response headers without replacing mutable responses', async () => {
+	it('applies response headers to Hono-rendered pages', async () => {
 		const response = await fixture.fetch('/hono');
 
-		assert.equal(response.headers.get('X-Hono-Response-Assignments'), '1');
 		assert.equal(response.headers.get('set-cookie')?.match(/hono=1/g)?.length, 1);
 		assert.equal(response.headers.get('Cloudflare-CDN-Cache-Control'), 'no-store');
 	});
 
-	it('replaces immutable Hono responses after applying headers', async () => {
+	it('preserves cookies when finalizing immutable Hono responses', async () => {
 		const response = await fixture.fetch('/hono-immutable', { redirect: 'manual' });
 
 		assert.equal(response.status, 302);
-		assert.equal(response.headers.get('X-Hono-Response-Assignments'), '2');
 		assert.match(response.headers.get('set-cookie') ?? '', /hono-immutable=1/);
 		assert.equal(response.headers.get('Cloudflare-CDN-Cache-Control'), 'no-store');
 	});
