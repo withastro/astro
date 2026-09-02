@@ -12,6 +12,7 @@ import {
 	AstroError,
 	AstroErrorData,
 	formatIssuePath,
+	formatSchemaIssues,
 	isStandardSchema,
 	MarkdownError,
 } from '../core/errors/index.js';
@@ -211,7 +212,7 @@ export async function getEntryData<
 				message: AstroErrorData.InvalidContentEntryDataError.message(
 					entry.collection,
 					entry.id,
-					result.issues,
+					formatSchemaIssues(result.issues),
 				),
 				location: {
 					file: entry._internal?.filePath,

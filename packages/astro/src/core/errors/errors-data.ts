@@ -2,9 +2,6 @@
 // Additionally, this code, much like `types/public/config.ts`, is used to generate documentation, so make sure to pass
 // your changes by our wonderful docs team before merging!
 
-import type { StandardSchemaV1 } from '@standard-schema/spec';
-import { formatSchemaIssues } from './standard-schema.js';
-
 export interface ErrorData {
 	name: string;
 	title: string;
@@ -1776,6 +1773,8 @@ export const GetEntryDeprecationError = {
 	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information.',
 } satisfies ErrorData;
 
+// TODO: consider removing. Unused since legacy content collections were removed in Astro 6 (#14407),
+// but kept because it is part of the published error reference.
 /**
  * @docs
  * @message
@@ -1793,12 +1792,12 @@ export const GetEntryDeprecationError = {
 export const InvalidContentEntryFrontmatterError = {
 	name: 'InvalidContentEntryFrontmatterError',
 	title: 'Content entry frontmatter does not match schema.',
-	message(collection: string, entryId: string, issues: readonly StandardSchemaV1.Issue[]) {
+	message(collection: string, entryId: string, issues: Array<string>) {
 		return [
 			`**${String(collection)} → ${String(
 				entryId,
 			)}** frontmatter does not match collection schema.`,
-			...formatSchemaIssues(issues),
+			...issues,
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
@@ -1820,10 +1819,10 @@ export const InvalidContentEntryFrontmatterError = {
 export const InvalidContentEntryDataError = {
 	name: 'InvalidContentEntryDataError',
 	title: 'Content entry data does not match schema.',
-	message(collection: string, entryId: string, issues: readonly StandardSchemaV1.Issue[]) {
+	message(collection: string, entryId: string, issues: Array<string>) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			...formatSchemaIssues(issues),
+			...issues,
 			'',
 		].join('\n');
 	},
@@ -1927,6 +1926,8 @@ export const ContentLoaderReturnsInvalidId = {
 	hint: 'Make sure that the `id` of the entry is a string. See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders.',
 } satisfies ErrorData;
 
+// TODO: consider removing. Never referenced anywhere; an exact duplicate of
+// `InvalidContentEntryDataError` apart from its name.
 /**
  * @docs
  * @message
@@ -1943,10 +1944,10 @@ export const ContentLoaderReturnsInvalidId = {
 export const ContentEntryDataError = {
 	name: 'ContentEntryDataError',
 	title: 'Content entry data does not match schema.',
-	message(collection: string, entryId: string, issues: readonly StandardSchemaV1.Issue[]) {
+	message(collection: string, entryId: string, issues: Array<string>) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			...formatSchemaIssues(issues),
+			...issues,
 			'',
 		].join('\n');
 	},
