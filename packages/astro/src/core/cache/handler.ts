@@ -95,6 +95,17 @@ export async function handleCache(
 				request: state.request,
 				url: new URL(state.request.url),
 				waitUntil: state.renderOptions.waitUntil,
+				logger: {
+					info(msg) {
+						state.logger.info('cache', msg);
+					},
+					warn(msg) {
+						state.logger.warn('cache', msg);
+					},
+					error(msg) {
+						state.logger.error('cache', msg);
+					},
+				},
 			},
 			async () => {
 				const res = await next();
