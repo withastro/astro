@@ -35,11 +35,19 @@ describe('getBackgroundIgnoreLockConflict', () => {
 		assert.match(message!, /cannot be used together/);
 	});
 
-	it('returns a conflict message when background is only implied by agent detection', () => {
+	it('returns a conflict message when background is only implied by agent detection and --ignore-lock is not set', () => {
+		// When agentDetected=true and ignoreLock=false, the caller passes wantsBackground=true
 		const message = getBackgroundIgnoreLockConflict({ _: [], background: false }, true);
 		assert.notEqual(message, null);
 		assert.match(message!, /auto-detected AI agent environment/);
 		assert.doesNotMatch(message!, /`--background`/);
+	});
+
+	it('has no conflict when agent detection is overridden by --ignore-lock', () => {
+		// When agentDetected=true and ignoreLock=true, the caller passes wantsBackground=false.
+		// `--ignore-lock` overrides agent-inferred background mode (#17903).
+		const message = getBackgroundIgnoreLockConflict({ _: [], background: false }, false);
+		assert.equal(message, null);
 	});
 
 	it('mentions astro dev stop/status/logs', () => {

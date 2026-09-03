@@ -54,7 +54,9 @@ export async function preview({ flags }: PreviewOptions) {
 	}
 
 	const ignoreLock = isIgnoreLock(flags);
-	const wantsBackground = !!flags.background || agentDetected;
+	// `--ignore-lock` overrides agent-inferred background mode: the user is explicitly
+	// requesting an untracked foreground server. Explicit `--background` still conflicts.
+	const wantsBackground = !!flags.background || (agentDetected && !ignoreLock);
 
 	const logger = createLoggerFromFlags(flags);
 	const subcommand = flags._[3]?.toString();
