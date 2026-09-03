@@ -32,7 +32,7 @@
     "satteri": "^0.10.3"
   },
   "devDependencies": {
-    "@types/estree": "^1.0.8",
+    "@types/estree": "^1.0.9",
     "@types/hast": "^3.0.4",
     "astro-scripts": "workspace:*"
   },
