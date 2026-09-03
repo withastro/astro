@@ -1,5 +1,11 @@
 # astro
 
+## 7.3.1
+
+### Patch Changes
+
+- [#17899](https://github.com/withastro/astro/pull/17899) [`0389640`](https://github.com/withastro/astro/commit/03896405717471f7d6ff54986ed6beaec0cac94f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an error that prevented projects using `astro:assets` from starting or building
+
 ## 7.3.0
 
 ### Minor Changes
