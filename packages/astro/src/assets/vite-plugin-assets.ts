@@ -138,11 +138,14 @@ const addStaticImageFactory = (
  */
 const RUNTIME_LOGGER_SETUP = `
 	import { createConsoleLogger as _createConsoleLogger } from "astro/logger/console";
-	import { astroToRuntimeLogger as _astroToRuntimeLogger } from "astro/_internal/logger";
 	import _loggerDestination, { level as _loggerLevel } from "virtual:astro:logger";
 	const _astroLogger = _createConsoleLogger({ level: _loggerLevel });
 	if (_loggerDestination) _astroLogger.setDestination(_loggerDestination);
-	const _runtimeLogger = _astroToRuntimeLogger(_astroLogger);
+	const _runtimeLogger = {
+		info: (message) => _astroLogger.info(null, message),
+		warn: (message) => _astroLogger.warn(null, message),
+		error: (message) => _astroLogger.error(null, message),
+	};
 `;
 
 /**
