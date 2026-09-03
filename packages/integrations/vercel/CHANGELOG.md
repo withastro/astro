@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 11.0.10
+
+### Patch Changes
+
+- [#17818](https://github.com/withastro/astro/pull/17818) [`c0b6581`](https://github.com/withastro/astro/commit/c0b65811dfa0dafa1aa04b7d6d67fd09250ff8c1) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the development image service to forward every argument it receives to Astro's Sharp service, including the new `logger` parameter
+
 ## 11.0.9
 
 ### Patch Changes
