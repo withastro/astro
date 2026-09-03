@@ -4,6 +4,7 @@ import {
 	type EstreeProgram,
 	type HastNode,
 	type HastPluginDefinition,
+	type HastVisitorContext,
 } from 'satteri';
 
 type ScriptStyleNode = Extract<
@@ -85,7 +86,7 @@ export const collapseScriptStyleText: HastPluginDefinition = defineHastPlugin({
 	mdxJsxTextElement: { filter: ['script', 'style'], visit: collapseIfAllText },
 });
 
-function collapseIfAllText(node: ScriptStyleNode, ctx: import('satteri').HastVisitorContext) {
+function collapseIfAllText(node: ScriptStyleNode, ctx: HastVisitorContext) {
 	if (node.children.length === 0 || hasSetDirective(node)) return;
 
 	let value = '';
