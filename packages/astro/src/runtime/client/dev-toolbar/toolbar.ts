@@ -581,9 +581,10 @@ export class DevToolbarCanvas extends HTMLElement {
 	constructor() {
 		super();
 		this.shadowRoot = this.attachShadow({ mode: 'open' });
-	}
-
-	connectedCallback() {
+		// Written once per element rather than on every connection. A client-side
+		// navigation re-appends the toolbar into the swapped body, which reconnects
+		// this canvas; rebuilding the shadow root here would discard whatever the
+		// app rendered into it, and `initApp` never runs again to restore it.
 		this.shadowRoot.innerHTML = `
 		<style>
 			:host {
