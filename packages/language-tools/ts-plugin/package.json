@@ -29,22 +29,22 @@
   "dependencies": {
     "@astrojs/compiler": "^2.13.1",
     "@astrojs/yaml2ts": "^0.2.4",
-    "@jridgewell/sourcemap-codec": "^1.5.5",
+    "@jridgewell/sourcemap-codec": "^1.6.0",
     "@volar/language-core": "~2.4.28",
     "@volar/typescript": "~2.4.28",
-    "semver": "^7.7.4",
-    "vscode-languageserver-textdocument": "^1.0.12"
+    "semver": "^7.8.5",
+    "vscode-languageserver-textdocument": "^1.0.14"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.10.6",
-    "@types/semver": "^7.7.1",
+    "@types/semver": "^7.8.0",
     "@types/vscode": "^1.101.0",
-    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^2.5.2",
-    "mocha": "^11.7.5",
-    "tsx": "^4.22.0",
+    "mocha": "^11.8.0",
+    "tsx": "^4.23.13",
     "typescript": "^6.0.3",
-    "vscode-uri": "^3.1.0"
+    "vscode-uri": "^3.2.0"
   }
 }
