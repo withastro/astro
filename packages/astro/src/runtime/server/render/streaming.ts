@@ -68,8 +68,11 @@ class TemplateFrame {
  * runs.
  */
 class StreamingRenderState {
+	// Streaming-mode buffer (written directly to `destination`).
 	pendingStaticOutput = '';
+	// Buffered-tail mode (entered on the first async dynamic node).
 	isBuffering = false;
+	// Static text collected while in buffered-tail mode.
 	bufferedStaticOutput = '';
 
 	appendStatic(output: string) {
@@ -169,6 +172,9 @@ export async function renderStreaming(
 		// HTML element (e.g. 'div', 'span').
 		if (typeof type === 'string' && type !== ClientOnlyPlaceholder) {
 			const props = vnode.props;
+			// Check for attributes without copying props into a new object.
+			// Markdown/MDX is mostly elements with no attributes (<p>, <li>,
+			// <strong>…), for which we skip both that copy and `spreadAttributes`.
 			let hasAttrs = false;
 			if (props) {
 				for (const key in props) {
@@ -182,6 +188,8 @@ export async function renderStreaming(
 			const isVoid = (children == null || children === '') && voidElementNames.test(type);
 
 			if (!hasAttrs) {
+				// No attributes: skip the props copy and `spreadAttributes` entirely,
+				// and reuse the cached (constant) open/close tag strings for this tag.
 				const key = isVoid ? `${type}/` : type;
 				let openTag = openTagCache.get(key);
 				if (openTag === undefined) {

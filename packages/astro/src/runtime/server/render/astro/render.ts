@@ -172,6 +172,7 @@ async function renderStreamToAsyncIterable(
 				throw error;
 			}
 
+			// Merge buffer into single Uint8Array
 			let mergedArray: Uint8Array;
 			if (!hasBytes) {
 				let text = '';

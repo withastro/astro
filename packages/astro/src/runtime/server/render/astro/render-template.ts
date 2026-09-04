@@ -35,6 +35,9 @@ export class RenderTemplateResult {
 	}
 
 	catchExpressionError(index: number, expression: unknown): Promise<unknown> {
+		// Wrap Promise expressions so we can catch errors
+		// There can only be 1 error that we rethrow from an Astro component,
+		// so this keeps track of whether or not we have already done so.
 		// Re-wrapping hits the `this.error` guard and resolves, swallowing the rejection.
 		if (this.wrapped?.has(index)) return expression as Promise<unknown>;
 		const wrapped = Promise.resolve(expression).catch((err) => {
