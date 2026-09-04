@@ -9,7 +9,6 @@ import {
 } from '../../../dist/runtime/server/index.js';
 import { createRenderInstruction } from '../../../dist/runtime/server/render/instruction.js';
 
-// The engine expands sync subtrees inline; these lock it to the buffered path it replaces.
 describe('sync subtree expansion', () => {
 	it('keeps scripts carried alongside a slot rendered into a sync component', async () => {
 		const Child = createComponent((_result, props) => render`<div>${props.content}</div>`);
@@ -33,7 +32,6 @@ describe('sync subtree expansion', () => {
 		assert.ok(html.includes('/* island */'), `script carried by the slot was dropped: ${html}`);
 	});
 
-	// The engine stringifies `NaN`/`0n` where the buffered path drops them, and predates this PR.
 	it('skips only null, undefined and false', async () => {
 		const Page = createComponent(
 			() =>

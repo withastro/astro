@@ -74,7 +74,7 @@ export class SlotRenderInstance implements RenderInstance {
 		this.slotted = slotted;
 	}
 
-	/** Evaluates the slot to its content. Must be called at most once per instance. */
+	/** Must be called at most once per instance. */
 	evaluate(): unknown {
 		const { slotted } = this;
 		return typeof slotted === 'function' ? slotted(this.result) : slotted;

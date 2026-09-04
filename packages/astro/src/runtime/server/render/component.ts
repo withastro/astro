@@ -474,7 +474,6 @@ export function renderComponent(
 	props: Record<string | number, any>,
 	slots: ComponentSlots = {},
 ): RenderInstance | Promise<RenderInstance> {
-	// `.astro` components dominate; none of the checks below can match a factory.
 	if (isAstroComponentFactory(Component)) {
 		return renderAstroComponent(result, displayName, Component, normalizeProps(props), slots);
 	}

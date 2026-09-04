@@ -94,7 +94,6 @@ const ATTRIBUTE_CLASS_LIST = 3;
 const ATTRIBUTE_STYLE = 4;
 const ATTRIBUTE_CLASS_NAME = 5;
 const ATTRIBUTE_BOOLEAN = 6;
-// `popover`, `download` and `hidden` accept strings too, so they are only boolean when the value is.
 const ATTRIBUTE_BOOLEAN_IF_BOOLEAN = 7;
 
 const attributeKinds = new Map<string, number>();
@@ -132,18 +131,15 @@ export function addAttribute(value: any, key: string, shouldEscape = true, tagNa
 	}
 
 	switch (attributeKind(key)) {
-		// Attribute names with characters that could break out of the attribute context.
 		case ATTRIBUTE_INVALID_NAME:
 			return '';
 
-		// compiler directives cannot be applied dynamically, log a warning and ignore.
 		case ATTRIBUTE_STATIC_DIRECTIVE:
 			console.warn(`[astro] The "${key}" directive cannot be applied dynamically at runtime. It will not be rendered as an attribute.
 
 Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the dynamic spread syntax (\`{...{ "${key}": value }}\`).`);
 			return '';
 
-		// support "class" from an expression passed into an element (#782)
 		case ATTRIBUTE_CLASS_LIST: {
 			const listValue = toAttributeString(clsx(value), shouldEscape);
 			if (listValue === '') {
@@ -152,7 +148,6 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 			return markHTMLString(` class="${listValue}"`);
 		}
 
-		// support object styles for better JSX compat
 		case ATTRIBUTE_STYLE:
 			if (!(value instanceof HTMLString)) {
 				if (Array.isArray(value) && value.length === 2) {
@@ -161,16 +156,16 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 					);
 				}
 				if (typeof value === 'object') {
-					return markHTMLString(` style="${toAttributeString(toStyleString(value), shouldEscape)}"`);
+					return markHTMLString(
+						` style="${toAttributeString(toStyleString(value), shouldEscape)}"`,
+					);
 				}
 			}
 			break;
 
-		// support `className` for better JSX compat
 		case ATTRIBUTE_CLASS_NAME:
 			return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
 
-		// Boolean values only need the key
 		case ATTRIBUTE_BOOLEAN:
 			return handleBooleanAttribute(key, value, shouldEscape, tagName);
 

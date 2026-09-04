@@ -68,7 +68,6 @@ const htmlStringSymbol = Symbol.for('astro:html-string');
  */
 export class HTMLString extends String {}
 
-// On the prototype, not an instance field: a per-instance store costs measurably on every rendered chunk.
 Object.defineProperty(HTMLString.prototype, htmlStringSymbol, { value: true });
 
 type BlessedType = string | HTMLBytes;
@@ -95,7 +94,6 @@ export const markHTMLString = (value: any) => {
 };
 
 export function isHTMLString(value: any): value is HTMLString {
-	// The `typeof` guard stops primitive strings, the most common argument, from being boxed to miss a symbol lookup.
 	return typeof value === 'object' && value !== null && value[htmlStringSymbol] === true;
 }
 

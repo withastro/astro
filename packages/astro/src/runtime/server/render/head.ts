@@ -89,7 +89,6 @@ export function renderAllHeadContent(result: SSRResult) {
 	return markHTMLString(content);
 }
 
-// Stateless, so one shared object saves an allocation per component render.
 const HEAD_INSTRUCTION = Object.freeze(
 	createRenderInstruction({ type: 'head' } as RenderHeadInstruction),
 );

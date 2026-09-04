@@ -61,13 +61,9 @@ class TemplateFrame {
  * Head propagation is handled by the caller (`bufferHeadContent`) before this
  * runs.
  */
-// A class: per-render `emitStatic` closures give call sites a fresh callee each render, deoptimizing them.
 class EngineState {
-	// Streaming-mode buffer (written directly to `destination`).
 	batch = '';
-	// Buffered-tail mode (entered on the first async dynamic node).
 	buffered = false;
-	// Static text collected while in buffered-tail mode.
 	tailStatic = '';
 
 	emitStatic(s: string) {
@@ -180,7 +176,6 @@ export async function renderStreaming(
 			const isVoid = (children == null || children === '') && voidElementNames.test(type);
 
 			if (!hasAttrs) {
-				// Without attributes the open tag depends only on the tag name, so it can be cached.
 				const key = isVoid ? `${type}/` : type;
 				let openTag = openTagCache.get(key);
 				if (openTag === undefined) {
@@ -300,8 +295,7 @@ export async function renderStreaming(
 			continue;
 		}
 		if (node instanceof HTMLString || isHTMLString(node)) {
-			// A SlotString's `instructions`/`chunks` are dropped by `toString()`; they only
-			// materialise when the object itself reaches the destination.
+			// SlotString metadata is lost when coerced to a string.
 			if (!(node instanceof SlotString)) {
 				st.emitStatic((node as HTMLString).toString());
 				continue;
@@ -319,8 +313,6 @@ export async function renderStreaming(
 			handleVNode(node as AstroVNode);
 			continue;
 		}
-		// Expanded onto the stack rather than rendered via `renderChild` so their static
-		// markup joins the surrounding batch instead of one write per template part.
 		if (node instanceof SlotRenderInstance) {
 			stack.push(node.evaluate());
 			continue;

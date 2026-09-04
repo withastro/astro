@@ -587,7 +587,6 @@ export class FetchState implements AstroFetchState {
 			routePattern: this.routeData!.route,
 			isPrerendered: this.routeData!.prerender,
 			cookies,
-			// On the shared partial, not the instance: a per-component accessor costs measurably.
 			get slots(): Slots {
 				let slots = slotsByAstro.get(this);
 				if (slots === undefined) {
