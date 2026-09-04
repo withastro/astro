@@ -92,7 +92,15 @@ export interface Options
 		PluginConfig,
 		'auxiliaryWorkers' | 'configPath' | 'inspectorPort' | 'persistState' | 'remoteBindings'
 	> {
-	/** Options for handling images. */
+	/**
+	 * Options for handling images.
+	 *
+	 * Defaults to `{ build: 'compile', runtime: 'cloudflare-binding' }`: prerendered pages get
+	 * their images optimized at build time and served as static assets, while on-demand pages
+	 * transform through the Cloudflare Images binding.
+	 *
+	 * See https://docs.astro.build/en/guides/integrations-guide/cloudflare/#imageservice
+	 */
 	imageService?: ImageServiceConfig;
 
 	/**
@@ -107,8 +115,9 @@ export interface Options
 	sessionKVBindingName?: string;
 
 	/**
-	 * When `imageService` is set to `cloudflare-binding`, the Cloudflare Images binding will be used
-	 * to transform images. The binding will be automatically configured for you.
+	 * When `imageService` resolves to `cloudflare-binding` for either build or runtime, the
+	 * Cloudflare Images binding will be used to transform images. The binding will be
+	 * automatically configured for you.
 	 *
 	 * By default, the binding is named `IMAGES`, but you can override this by providing a different name here.
 	 * If you define the binding manually in your wrangler config, Astro will use your configuration instead.
@@ -166,13 +175,14 @@ export default function createIntegration({
 				let session = config.session;
 				const isCompile = buildService === 'compile';
 
+				if (hasBuildImageService) {
+					logger.info(
+						`Enabling compile-time image optimization. Images will be pre-optimized at build time.`,
+					);
+				}
 				if (needsImagesBinding) {
 					logger.info(
 						`Enabling image processing with Cloudflare Images for production with the "${imagesBindingName}" Images binding.`,
-					);
-				} else if (hasBuildImageService) {
-					logger.info(
-						`Enabling compile-time image optimization. Images will be pre-optimized at build time.`,
 					);
 				}
 

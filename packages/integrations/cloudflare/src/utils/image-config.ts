@@ -19,29 +19,30 @@ export type ImageServiceConfig =
 			runtime?: 'cloudflare-binding' | 'passthrough';
 	  };
 
-/** Normalize string | compound config into separate build/runtime modes.
- *  `transformAtBuild` is true when the compound config is used; this opts the user
- *  in to build-time image optimization. The string form preserves runtime-only behavior. */
+export const DEFAULT_IMAGE_SERVICE = {
+	build: 'compile',
+	runtime: 'cloudflare-binding',
+} as const satisfies ImageServiceConfig;
+
 export function normalizeImageServiceConfig(config: ImageServiceConfig | undefined): {
 	buildService: ImageServiceMode;
 	runtimeService: ImageServiceMode;
 	transformAtBuild: boolean;
 } {
-	if (!config || typeof config === 'string') {
-		const mode = config ?? 'cloudflare-binding';
-		// `compile` is build-only; at runtime, serve pre-compiled static assets
+	const resolved = config ?? DEFAULT_IMAGE_SERVICE;
+	if (typeof resolved === 'string') {
 		return {
-			buildService: mode,
-			runtimeService: mode === 'compile' ? 'passthrough' : mode,
-			// Only `compile` opts in to build-time transforms via the string shorthand.
-			// String `cloudflare-binding` preserves the historical runtime-only behavior.
-			transformAtBuild: mode === 'compile',
+			buildService: resolved,
+			runtimeService: resolved === 'compile' ? 'passthrough' : resolved,
+			// String `'cloudflare-binding'` stays runtime-only for backwards compatibility;
+			// the compound form of the same mode does transform at build.
+			transformAtBuild: resolved === 'compile',
 		};
 	}
-	// Compound config: user explicitly opts in to build-time transforms.
 	return {
-		buildService: config.build,
-		runtimeService: config.runtime ?? (config.build === 'compile' ? 'passthrough' : config.build),
+		buildService: resolved.build,
+		runtimeService:
+			resolved.runtime ?? (resolved.build === 'compile' ? 'passthrough' : resolved.build),
 		transformAtBuild: true,
 	};
 }
