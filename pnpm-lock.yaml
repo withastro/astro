@@ -1088,18 +1088,6 @@ importers:
         specifier: ^10.29.0
         version: 10.29.8(preact-render-to-string@6.6.6)
 
-  packages/astro/e2e/fixtures/astro-envs:
-    dependencies:
-      '@astrojs/vue':
-        specifier: workspace:*
-        version: link:../../../../integrations/vue
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-      vue:
-        specifier: ^3.5.30
-        version: 3.5.30(typescript@6.0.3)
-
   packages/astro/e2e/fixtures/astro-island-hydration-error:
     dependencies:
       '@astrojs/react':
