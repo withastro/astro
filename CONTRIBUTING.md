@@ -20,7 +20,7 @@ We recommend using Corepack, [read PNPM docs](https://pnpm.io/installation#using
 
 ### Setting up your local repo
 
-Astro uses pnpm workspaces, so you should **always run `pnpm install` from the top-level project directory**. Running `pnpm install` in the top-level project root will install dependencies for `astro`, and every package in the repo.
+Astro uses [pnpm workspaces](https://pnpm.io/workspaces), so you should **always run `pnpm install` from the top-level project directory**. Running `pnpm install` in the top-level project root will install dependencies for `astro`, and every package in the repo.
 
 ```shell
 git clone && cd ...
