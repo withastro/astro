@@ -48,11 +48,6 @@ export function isForbiddenCrossOriginRequest(
 	}
 	const isSameOrigin = request.headers.get('origin') === url.origin;
 
-	const hasContentType = request.headers.has('content-type');
-	if (hasContentType) {
-		const formLikeHeader = hasFormLikeHeader(request.headers.get('content-type'));
-		return formLikeHeader && !isSameOrigin;
-	}
 	return !isSameOrigin;
 }
 
