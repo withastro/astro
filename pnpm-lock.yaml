@@ -6754,15 +6754,12 @@ importers:
 
   packages/language-tools/language-server:
     dependencies:
-      '@astrojs/compiler':
-        specifier: ^2.13.1
-        version: 2.13.1
+      '@astrojs/astro2tsx':
+        specifier: link:/home/erika/worktrees/compiler-rs/feat-biome-tsx/crates/astro2tsx
+        version: link:../../../../../compiler-rs/feat-biome-tsx/crates/astro2tsx
       '@astrojs/yaml2ts':
         specifier: ^0.2.4
         version: link:../yaml2ts
-      '@jridgewell/sourcemap-codec':
-        specifier: ^1.5.5
-        version: 1.5.5
       '@volar/kit':
         specifier: ~2.4.28
         version: 2.4.28(typescript@6.0.3)
