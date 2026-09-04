@@ -10,7 +10,13 @@ import { removeLeadingForwardSlash } from '../core/path.js';
 import { getParts } from '../core/routing/parts.js';
 import { getPattern } from '../core/routing/pattern.js';
 import { validateSegment } from '../core/routing/segment.js';
-import type { AstroComponentFactory } from '../runtime/server/index.js';
+import {
+	createComponent,
+	renderComponent as renderAstroComponent,
+	renderScript,
+	renderTemplate,
+	type AstroComponentFactory,
+} from '../runtime/server/index.js';
 import { SlotString } from '../runtime/server/render/slot.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { AstroMiddlewareInstance, MiddlewareHandler, Props } from '../types/public/common.js';
@@ -542,6 +548,41 @@ export class experimental_AstroContainer {
 
 		const response = await this.renderToResponse(component, options);
 		return await response.text();
+	}
+
+	/**
+	 * Renders an Astro component with its direct styles prepended and direct scripts appended.
+	 */
+	public async renderComponent(
+		component: AstroComponentFactory,
+		options: Omit<ContainerRenderOptions, 'routeType'> = {},
+	): Promise<string> {
+		const assets = component.containerAssets ?? { styles: [], scripts: [] };
+		let scripts = '';
+		const Wrapper = createComponent(async (result, props, slots) => {
+			const renderedScripts = await Promise.all(
+				assets.scripts.map((id) => renderScript(result, id)),
+			);
+			scripts = renderedScripts.map((script) => script.content).join('');
+			for (const script of renderedScripts) {
+				result._metadata.renderedScripts.add(script.id);
+			}
+			const componentSlots = Object.fromEntries(
+				Object.entries(slots).map(([name, slot]) => [name, () => renderTemplate`${slot}`]),
+			);
+			return renderTemplate`${renderAstroComponent(
+				result,
+				component.name,
+				component,
+				props,
+				componentSlots,
+			)}`;
+		});
+		const html = await this.renderToString(Wrapper, options);
+		const styles = assets.styles
+			.map((style) => `<style>${style.replace(/<\/style(?=[\t\n\f\r />])/gi, '<\\/style')}</style>`)
+			.join('');
+		return styles + html + scripts;
 	}
 
 	/**

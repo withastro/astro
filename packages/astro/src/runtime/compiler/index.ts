@@ -16,6 +16,7 @@ export {
 	renderScript,
 	renderSlot,
 	renderTransition,
+	setComponentAssets,
 	templateEnter,
 	templateExit,
 	spreadAttributes,
