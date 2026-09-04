@@ -1,0 +1,11 @@
+{
+  "$schema": "../.astro/collections/data-cl-json.schema.json",
+  "starlight": {
+    "name": "Starlight",
+    "color": "golden"
+  },
+  "astro": {
+    "name": "Astro flame",
+    "color": "red"
+  }
+}

@@ -1,0 +1,35 @@
+# MDX Nested Test
+
+Testing nested JSX structures in MDX.
+
+export const data = {
+  users: [
+    { name: 'Alice', age: 30 },
+    { name: 'Bob', age: 25 },
+    { name: 'Charlie', age: 35 }
+  ]
+};
+
+<div class="users">
+  {data.users.map(user => (
+    <div class="user-card">
+      <h3>{user.name}</h3>
+      <p>Age: {user.age}</p>
+    </div>
+  ))}
+</div>
+
+## Nested Lists
+
+<div class="nested">
+  <ul>
+    {[1, 2, 3].map(i => (
+      <li>
+        Item {i}
+        <ul>
+          {['a', 'b'].map(letter => <li>{i}{letter}</li>)}
+        </ul>
+      </li>
+    ))}
+  </ul>
+</div>

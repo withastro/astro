@@ -1,0 +1,11 @@
+{
+  "name": "@test/astro-cloudflare-custom-entryfile-fetch-state",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/cloudflare": "workspace:*",
+    "astro": "workspace:*",
+    "hono": "^4.12.14",
+    "wrangler": "^4.83.0"
+  }
+}

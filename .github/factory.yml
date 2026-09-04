@@ -1,0 +1,32 @@
+version: 1
+
+review:
+  trigger:
+    label: "pr: astro-review"
+  skill: .agents/skills/astro-code-review
+  severity: [critical, high, medium, low, optional]
+  areas:
+    - design
+    - correctness
+    - security
+    - runtime
+    - completeness
+    - error-handling
+    - tests
+    - maintainability
+    - documentation
+    - changeset
+
+triage:
+  enabled: true
+  skill: .agents/skills/triage
+  prWriterSkill: .agents/skills/astro-pr-writer
+  model: anthropic/claude-opus-4-6
+  verificationModel: anthropic/claude-sonnet-4-6
+  autoPrOnFix: false
+  installCommand:
+    - pnpm install --no-frozen-lockfile
+    - git clone --depth 1 https://github.com/withastro/compiler.git .compiler || true
+  buildCommand: pnpm build
+  previewRelease:
+    workflow: factory-preview.yml

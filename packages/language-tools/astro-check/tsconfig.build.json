@@ -1,0 +1,10 @@
+{
+  "extends": "../../../configs/tsconfig.language-tools.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "emitDeclarationOnly": false,
+    "sourceMap": true
+  },
+  "references": [{ "path": "../language-server/tsconfig.json" }]
+}

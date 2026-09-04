@@ -1,0 +1,4 @@
+{
+  "extends": "../../configs/tsconfig.build.json",
+  "references": [{ "path": "../astro/tsconfig.json" }]
+}

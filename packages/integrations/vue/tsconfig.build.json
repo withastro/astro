@@ -1,0 +1,9 @@
+{
+  "extends": "../../../configs/tsconfig.build.json",
+  "compilerOptions": {
+    // `"verbatimModuleSyntax": false` is required to support import/export statements in `src/editor.cts` file.
+    "verbatimModuleSyntax": false
+  },
+  "include": ["./src/**/*.ts", "./src/**/*.cts", "./env.d.ts"],
+  "references": [{ "path": "../../astro/tsconfig.json" }]
+}
