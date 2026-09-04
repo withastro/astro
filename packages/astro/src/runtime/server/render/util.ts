@@ -105,6 +105,7 @@ function classifyAttribute(key: string): number {
 	if (key === 'style') return ATTRIBUTE_STYLE;
 	if (key === 'className') return ATTRIBUTE_CLASS_NAME;
 	if (htmlBooleanAttributes.test(key)) return ATTRIBUTE_BOOLEAN;
+	// We cannot add it to htmlBooleanAttributes because it can be: boolean | "auto" | "manual"
 	if (key === 'popover' || key === 'download' || key === 'hidden') {
 		return ATTRIBUTE_BOOLEAN_IF_BOOLEAN;
 	}
@@ -131,15 +132,18 @@ export function addAttribute(value: any, key: string, shouldEscape = true, tagNa
 	}
 
 	switch (attributeKind(key)) {
+		// Reject attribute names with characters that could break out of the attribute context.
 		case ATTRIBUTE_INVALID_NAME:
 			return '';
 
+		// compiler directives cannot be applied dynamically, log a warning and ignore.
 		case ATTRIBUTE_STATIC_DIRECTIVE:
 			console.warn(`[astro] The "${key}" directive cannot be applied dynamically at runtime. It will not be rendered as an attribute.
 
 Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the dynamic spread syntax (\`{...{ "${key}": value }}\`).`);
 			return '';
 
+		// support "class" from an expression passed into an element (#782)
 		case ATTRIBUTE_CLASS_LIST: {
 			const listValue = toAttributeString(clsx(value), shouldEscape);
 			if (listValue === '') {
@@ -148,6 +152,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 			return markHTMLString(` class="${listValue}"`);
 		}
 
+		// support object styles for better JSX compat
 		case ATTRIBUTE_STYLE:
 			if (!(value instanceof HTMLString)) {
 				if (Array.isArray(value) && value.length === 2) {
@@ -163,9 +168,11 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 			}
 			break;
 
+		// support `className` for better JSX compat
 		case ATTRIBUTE_CLASS_NAME:
 			return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
 
+		// Boolean values only need the key
 		case ATTRIBUTE_BOOLEAN:
 			return handleBooleanAttribute(key, value, shouldEscape, tagName);
 

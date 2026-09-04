@@ -463,7 +463,6 @@ function renderAstroComponent(
 		return serverIslandComponent;
 	}
 
-	// `instance.render` must stay deferred: invoking it here would initialize slots bottom-up.
 	return createAstroComponentInstance(result, displayName, Component, props, slots);
 }
 

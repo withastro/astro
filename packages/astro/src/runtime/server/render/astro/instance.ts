@@ -77,6 +77,9 @@ export class AstroComponentInstance {
 		return this.returnValue;
 	}
 
+	// NOTE: This render call can't be pre-invoked outside of this function as it'll also initialize the slots
+	// recursively, which causes each Astro components in the tree to be called bottom-up, and is incorrect.
+	// The slots are initialized eagerly for head propagation.
 	render(destination: RenderDestination): void | Promise<void> {
 		const returnValue = this.init(this.result);
 
