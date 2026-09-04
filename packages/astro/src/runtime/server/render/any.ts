@@ -19,12 +19,12 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 		return;
 	}
 
-	if (isRenderInstance(child)) {
-		return child.render(destination);
-	}
-
 	if (isPromise(child)) {
 		return child.then((x) => renderChild(destination, x));
+	}
+
+	if (isRenderInstance(child)) {
+		return child.render(destination);
 	}
 
 	if (child instanceof SlotString) {

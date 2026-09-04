@@ -90,10 +90,12 @@ export function renderAllHeadContent(result: SSRResult) {
 }
 
 // Stateless, so one shared object saves an allocation per component render.
-const HEAD_INSTRUCTION = createRenderInstruction({ type: 'head' } as RenderHeadInstruction);
-const MAYBE_HEAD_INSTRUCTION = createRenderInstruction({
-	type: 'maybe-head',
-} as MaybeRenderHeadInstruction);
+const HEAD_INSTRUCTION = Object.freeze(
+	createRenderInstruction({ type: 'head' } as RenderHeadInstruction),
+);
+const MAYBE_HEAD_INSTRUCTION = Object.freeze(
+	createRenderInstruction({ type: 'maybe-head' } as MaybeRenderHeadInstruction),
+);
 
 export function renderHead(): RenderHeadInstruction {
 	return HEAD_INSTRUCTION;

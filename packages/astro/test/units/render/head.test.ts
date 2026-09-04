@@ -10,6 +10,8 @@ import {
 	renderComponent,
 	renderHead,
 	renderSlot,
+	templateEnter,
+	templateExit,
 } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
 import type { TestPipeline } from '../test-utils.ts';
@@ -19,6 +21,28 @@ import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
 const createAstroModule = (AstroComponent: AstroComponentFactory) => ({ default: AstroComponent });
 
 describe('core/render', () => {
+	it('isolates mutations to render instructions', () => {
+		const instructions = [
+			{ create: () => renderHead(), type: 'head' },
+			{ create: () => maybeRenderHead(), type: 'maybe-head' },
+			{ create: () => templateEnter({} as any), type: 'template-enter' },
+			{ create: () => templateExit({} as any), type: 'template-exit' },
+		];
+		const originals = instructions.map(({ create }) => create());
+		for (const instruction of originals) Reflect.set(instruction, 'type', 'invalid');
+
+		try {
+			assert.deepEqual(
+				instructions.map(({ create }) => create().type),
+				instructions.map(({ type }) => type),
+			);
+		} finally {
+			for (let i = 0; i < originals.length; i++) {
+				Reflect.set(originals[i], 'type', instructions[i].type);
+			}
+		}
+	});
+
 	describe('Injected head contents', () => {
 		let pipeline: TestPipeline;
 		before(async () => {
