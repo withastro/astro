@@ -12,7 +12,7 @@ import {
 	removeBase,
 	removeQueryString,
 } from '../core/path.js';
-import { recordStaticImage } from '../core/build/incremental-image-collector.js';
+import { recordStaticImage } from '../core/render-scope/record.js';
 import { normalizePath } from '../core/viteUtils.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
@@ -127,6 +127,40 @@ const addStaticImageFactory = (
 	};
 };
 
+/**
+ * Emitted into the `astro:assets` virtual modules: the `AstroRuntimeLogger` handed to the
+ * image service hooks called by `getImage()` and `inferRemoteSize()`.
+ *
+ * The logger is built from `virtual:astro:logger` rather than the manifest, for the same
+ * reason `astro:content` does it (see `templates/content/module.mjs`): the logger module is
+ * a leaf, so reaching the user's configured destination through it cannot drag every
+ * renderer and page into the importer's module graph.
+ */
+const RUNTIME_LOGGER_SETUP = `
+	import { createConsoleLogger as _createConsoleLogger } from "astro/logger/console";
+	import _loggerDestination, { level as _loggerLevel } from "virtual:astro:logger";
+	const _astroLogger = _createConsoleLogger({ level: _loggerLevel });
+	if (_loggerDestination) _astroLogger.setDestination(_loggerDestination);
+	const _runtimeLogger = {
+		info: (message) => _astroLogger.info(null, message),
+		warn: (message) => _astroLogger.warn(null, message),
+		error: (message) => _astroLogger.error(null, message),
+	};
+`;
+
+/**
+ * The client build has no configured destination to reach — and pulling the logger
+ * implementation into it just to call `inferRemoteSize()` would be dead weight — so the
+ * browser gets a console shim instead.
+ */
+const CLIENT_RUNTIME_LOGGER_SETUP = `
+	const _runtimeLogger = {
+		info: (message) => console.info(message),
+		warn: (message) => console.warn(message),
+		error: (message) => console.error(message),
+	};
+`;
+
 interface Options {
 	settings: AstroSettings;
 	sync: boolean;
@@ -182,8 +216,9 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						// bundled into the same prerender chunk (see #16036).
 						const isServerEnvironment = isAstroServerEnvironment(this.environment);
 						const getImageExport = isServerEnvironment
-							? `import { getImage as getImageInternal } from "astro/assets";
-								export const getImage = async (options) => await getImageInternal(options, imageConfig);`
+							? `${RUNTIME_LOGGER_SETUP}
+								import { getImage as getImageInternal } from "astro/assets";
+								export const getImage = async (options) => await getImageInternal(options, imageConfig, _runtimeLogger);`
 							: `import { AstroError, AstroErrorData } from "astro/errors";
 								export const getImage = async () => {
 									throw new AstroError(
@@ -213,7 +248,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					const isServerEnvironment = isAstroServerEnvironment(this.environment);
 					const getImageExport = isServerEnvironment
 						? `import { getImage as getImageInternal } from "astro/assets";
-							export const getImage = async (options) => await getImageInternal(options, imageConfig);`
+							export const getImage = async (options) => await getImageInternal(options, imageConfig, _runtimeLogger);`
 						: `import { AstroError, AstroErrorData } from "astro/errors";
 							export const getImage = async () => {
 								throw new AstroError(
@@ -224,6 +259,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 
 					return {
 						code: `
+				${isServerEnvironment ? RUNTIME_LOGGER_SETUP : CLIENT_RUNTIME_LOGGER_SETUP}
 				import { getConfiguredImageService as _getConfiguredImageService } from "astro/assets";
 				export { isLocalService } from "astro/assets";
 				${settings.config.image.responsiveStyles ? `import "${VIRTUAL_IMAGE_STYLES_ID}";` : ''}
@@ -260,7 +296,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					});
 					export const inferRemoteSize = async (url) => {
 						const service = await _getConfiguredImageService();
-						return service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSizeInternal(url, imageConfig);
+						return service.getRemoteSize?.(url, imageConfig, _runtimeLogger) ?? inferRemoteSizeInternal(url, imageConfig);
 					}
 					// This is used by the @astrojs/node integration to locate images.
 					// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)

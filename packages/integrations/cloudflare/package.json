@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers",
-  "version": "14.2.1",
+  "version": "14.3.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -18,6 +18,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
   "exports": {
     ".": "./dist/index.js",
+    "./info": "./dist/info.js",
     "./entrypoints/server": "./dist/entrypoints/server.js",
     "./entrypoints/preview": "./dist/entrypoints/preview.js",
     "./entrypoints/server.js": "./dist/entrypoints/server.js",
@@ -46,16 +47,16 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
-    "@cloudflare/vite-plugin": "^1.39.0",
+    "@cloudflare/vite-plugin": "^1.53.0",
     "piccolore": "^0.1.3",
     "vite": "^8.0.13"
   },
   "peerDependencies": {
     "astro": "^7.2.0",
-    "wrangler": "^4.83.0"
+    "wrangler": "^4.125.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260526.1",
+    "@cloudflare/workers-types": "^5.20260820.1",
     "@types/node": "^22.10.6",
     "@types/prismjs": "1.26.6",
     "astro": "workspace:*",
@@ -64,7 +65,7 @@
     "devalue": "^5.8.1",
     "prismjs": "^1.30.0",
     "tinyglobby": "^0.2.15",
-    "wrangler": "^4.83.0"
+    "wrangler": "^4.125.0"
   },
   "publishConfig": {
     "provenance": true

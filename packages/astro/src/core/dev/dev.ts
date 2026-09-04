@@ -7,7 +7,7 @@ import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from '../../content/paths.js';
 import { globalContentLayer } from '../../content/instance.js';
-import { attachContentServerListeners } from '../../content/index.js';
+import { attachContentServerListeners, attachDataStoreInvalidation } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
@@ -94,7 +94,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		const chunkSize = getDataStoreChunkSize(restart.container.settings);
 		if (chunkSize !== undefined) {
 			const dataStoreDir = getDataStoreDir(restart.container.settings, true);
-			store = await MutableDataStore.fromDir(dataStoreDir, chunkSize);
+			store = await MutableDataStore.fromDir(dataStoreDir, chunkSize, logger);
 		} else {
 			const dataStoreFile = getDataStoreFile(restart.container.settings, true);
 			store = await MutableDataStore.fromFile(dataStoreFile);
@@ -105,6 +105,11 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	if (!store) {
 		logger.error('content', 'Failed to create data store');
+	} else {
+		// Invalidate the content virtual modules directly when the store is
+		// written, rather than relying on the file watcher to observe the write.
+		// On Windows the watcher can miss it, leaving dev serving stale content.
+		attachDataStoreInvalidation(store, restart.container.viteServer, restart.container.settings);
 	}
 	await attachContentServerListeners(restart.container);
 

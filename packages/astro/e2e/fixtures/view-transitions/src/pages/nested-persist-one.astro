@@ -1,0 +1,15 @@
+---
+import Layout from '../components/Layout.astro';
+import vidUrl from '../assets/astro-build.mp4';
+---
+<Layout>
+	<p id="nested-one">Page 1</p>
+	<a id="click-two" href="/nested-persist-two">go to 2</a>
+	<div transition:persist="nested-outer">
+		<div transition:persist="nested-inner">
+			<video id="nested-video" controls="" muted>
+				<source src={vidUrl} type="video/mp4">
+			</video>
+		</div>
+	</div>
+</Layout>

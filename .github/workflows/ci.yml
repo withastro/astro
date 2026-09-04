@@ -193,6 +193,14 @@ jobs:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
 
+      # Deno 2.9.6 dropped `--allow-scripts` from `deno eval`, which @netlify/edge-functions-dev passes to boot its dev server.
+      # TODO: Remove once fixed upstream.
+      - name: Pin Deno
+        if: ${{ matrix.TEST_SUITE.name == 'integrations' }}
+        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: v2.9.5
+
       - name: Install dependencies
         run: pnpm install
 

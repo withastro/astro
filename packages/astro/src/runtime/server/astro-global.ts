@@ -13,7 +13,7 @@ function createError(name: string) {
 // inside of getStaticPaths. See the `astroGlobalArgs` option for parameter type.
 export function createAstro(site: string | undefined): AstroGlobal {
 	return {
-		// TODO: throw in Astro 7
+		// TODO: throw in Astro 8
 		get site() {
 			// This is created inside of the runtime so we don't have access to the Astro logger.
 			console.warn(
@@ -21,7 +21,7 @@ export function createAstro(site: string | undefined): AstroGlobal {
 			);
 			return site ? new URL(site) : undefined;
 		},
-		// TODO: throw in Astro 7
+		// TODO: throw in Astro 8
 		get generator() {
 			// This is created inside of the runtime so we don't have access to the Astro logger.
 			console.warn(

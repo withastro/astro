@@ -78,6 +78,7 @@ export function pluginInternals(
 				);
 			}
 			await Promise.all(promises);
+			const isPrerender = this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender;
 			for (const [_, chunk] of Object.entries(bundle)) {
 				if (chunk.fileName.startsWith(options.settings.config.build.assets)) {
 					internals.clientChunksAndAssets.add(chunk.fileName);
@@ -86,7 +87,14 @@ export function pluginInternals(
 				if (chunk.type === 'chunk' && chunk.facadeModuleId) {
 					const specifiers = mapping.get(chunk.facadeModuleId) || new Set([chunk.facadeModuleId]);
 					for (const specifier of specifiers) {
-						internals.entrySpecifierToBundleMap.set(normalizeEntryId(specifier), chunk.fileName);
+						const normalizedId = normalizeEntryId(specifier);
+						internals.entrySpecifierToBundleMap.set(normalizedId, chunk.fileName);
+						if (isPrerender) {
+							internals.prerenderOnlyEntrySpecifiers.add(normalizedId);
+						} else {
+							// Present in SSR or client — no longer prerender-only
+							internals.prerenderOnlyEntrySpecifiers.delete(normalizedId);
+						}
 					}
 				}
 			}

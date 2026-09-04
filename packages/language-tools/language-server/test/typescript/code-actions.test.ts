@@ -27,9 +27,12 @@ describe('TypeScript - Code Actions', () => {
 			codeAction.title.startsWith('Add import from'),
 		);
 		assert.ok(importAction);
+		const resolvedImportAction =
+			await languageServer.handle.sendCodeActionResolveRequest(importAction);
 
-		const edit = (importAction.edit?.documentChanges?.[0] as { edits: { newText: string }[] })
-			.edits[0];
+		const edit = (
+			resolvedImportAction.edit?.documentChanges?.[0] as { edits: { newText: string }[] }
+		).edits[0];
 		assert.strictEqual(
 			edit.newText.includes('import BlogPost from "./src/components/BlogPost.astro";'),
 			true,

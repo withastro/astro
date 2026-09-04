@@ -1,9 +1,8 @@
 import colors from 'piccolore';
 import {
-	collapseDuplicateLeadingSlashes,
 	collapseDuplicateSlashes,
 	prependForwardSlash,
-	removeTrailingForwardSlash,
+	stripRequestBase,
 } from '@astrojs/internal-helpers/path';
 import { deserializeActionResult } from '../../actions/runtime/client.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../../actions/utils.js';
@@ -35,6 +34,7 @@ import { getParams, getProps } from '../render/index.js';
 import { executeRewrite } from '../rewrites/handler.js';
 import { isRoute404or500, isRouteServerIsland } from '../routing/match.js';
 import { MultiLevelEncodingError, validateAndDecodePathname } from '../util/pathname.js';
+import { setPathname } from '../util/normalized-url.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
 import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
@@ -44,7 +44,7 @@ import { getFirstForwardedValue, validateForwardedHeaders } from '../app/validat
 import type { SSRManifest } from '../app/types.js';
 import { getEnvironment, type RequestLogPayload } from '../environment/index.js';
 import { getLogger } from '../logger/manifest-logger.js';
-import type { AstroLogger } from '../logger/core.js';
+import { astroToRuntimeLogger, type AstroLogger } from '../logger/core.js';
 import { getSite } from '../manifest/derived.js';
 import { getRouteCache } from '../render/route-cache.js';
 import { getRouteTable, matchAllRoutes, matchRoute } from '../routing/route-table.js';
@@ -332,8 +332,8 @@ export class FetchState implements AstroFetchState {
 		const url = new URL(request.url);
 		const publicPathname = this.#normalizePathname(url.pathname);
 		const pathname = this.#computePathname(publicPathname);
-		url.pathname = publicPathname;
-		url.pathname = collapseDuplicateSlashes(url.pathname);
+		setPathname(url, publicPathname);
+		setPathname(url, collapseDuplicateSlashes(url.pathname));
 		// For domain-based i18n routing, the locale prefix is derived from the
 		// request's Host header rather than its URL. When a locale is detected,
 		// the resulting pathname includes the prefix (e.g. /en/boats/1/foo) that
@@ -358,7 +358,7 @@ export class FetchState implements AstroFetchState {
 		this.clientAddress = options?.clientAddress;
 		this.locals = (options?.locals ?? {}) as App.Locals;
 		this.url = url;
-		this.cookies = new AstroCookies(request);
+		this.cookies = new AstroCookies(request, this.logger);
 
 		// Apply X-Forwarded-* headers only when the user has configured
 		// allowedDomains — without it, forwarded headers are never trusted
@@ -619,17 +619,7 @@ export class FetchState implements AstroFetchState {
 				return state.getCsp();
 			},
 			get logger(): APIContext['logger'] {
-				return {
-					info(msg: string) {
-						logger.info(null, msg);
-					},
-					warn(msg: string) {
-						logger.warn(null, msg);
-					},
-					error(msg: string) {
-						logger.error(null, msg);
-					},
-				};
+				return astroToRuntimeLogger(logger);
 			},
 		};
 
@@ -958,7 +948,28 @@ export class FetchState implements AstroFetchState {
 			this.routeData.type === 'page' &&
 			!routeHasHtmlExtension(this.routeData)
 		) {
+			const original = this.pathname;
 			this.pathname = this.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+			// Route patterns are compiled with the configured trailing slash, so a
+			// pathname left without one after stripping `.html` no longer matches its
+			// own route and yields no params.
+			if (
+				this.manifest.trailingSlash === 'always' &&
+				this.pathname !== '' &&
+				!this.pathname.endsWith('/')
+			) {
+				this.pathname += '/';
+			}
+			// Restore only when normalization invalidates a route that matched the original pathname.
+			// Error routes can be selected as fallbacks without matching either pathname.
+			// https://github.com/withastro/astro/issues/17827
+			if (
+				this.pathname !== original &&
+				this.routeData.pattern.test(original) &&
+				!this.routeData.pattern.test(this.pathname)
+			) {
+				this.pathname = original;
+			}
 		}
 	}
 
@@ -1016,18 +1027,12 @@ export class FetchState implements AstroFetchState {
 	 * Strips the manifest's base from a normalized request pathname and prepends
 	 * a forward slash.
 	 *
-	 * Mirrors `BaseApp.removeBase`, including the
-	 * `collapseDuplicateLeadingSlashes` fix that prevents middleware
-	 * authorization bypass when the URL starts with `//`.
+	 * Mirrors `BaseApp.removeBase`: the router matches against this stripped path
+	 * while middleware reads the un-stripped `context.url.pathname`, so both must
+	 * strip the base identically.
 	 */
 	#computePathname(normalizedPathname: string): string {
-		let pathname = collapseDuplicateLeadingSlashes(normalizedPathname);
-		const base = this.manifest.base;
-		if (pathname.startsWith(base)) {
-			const baseWithoutTrailingSlash = removeTrailingForwardSlash(base);
-			pathname = pathname.slice(baseWithoutTrailingSlash.length + 1);
-		}
-		return prependForwardSlash(pathname);
+		return prependForwardSlash(stripRequestBase(normalizedPathname, this.manifest.base));
 	}
 
 	/**
@@ -1189,17 +1194,7 @@ export class FetchState implements AstroFetchState {
 				return state.getCsp();
 			},
 			get logger(): APIContext['logger'] {
-				return {
-					info(msg: string) {
-						state.logger.info(null, msg);
-					},
-					warn(msg: string) {
-						state.logger.warn(null, msg);
-					},
-					error(msg: string) {
-						state.logger.error(null, msg);
-					},
-				};
+				return astroToRuntimeLogger(state.logger);
 			},
 		};
 

@@ -14,7 +14,10 @@
   },
   "dependencies": {
     "@astrojs/vue": "^7.0.2",
-    "astro": "^7.2.2",
+    "astro": "^7.3.1",
     "vue": "^3.5.29"
+  },
+  "allowScripts": {
+    "esbuild": true
   }
 }

@@ -1,5 +1,89 @@
 # @astrojs/cloudflare
 
+## 14.3.0
+
+### Minor Changes
+
+- [#17795](https://github.com/withastro/astro/pull/17795) [`15e2deb`](https://github.com/withastro/astro/commit/15e2debc7e81d353410ff76a76c3bf75b7fb3070) Thanks [@matthewp](https://github.com/matthewp)! - Adds concurrent rendering support for `experimental.incrementalBuild`, including when using `@astrojs/cloudflare`
+
+  Incremental builds no longer disable caching when `build.concurrency` is greater than `1`. Projects that set `build.concurrency: 1` to keep the cache enabled can remove that workaround. Cloudflare builds also reduce serialization overhead for large prerendered pages.
+
+- [#17887](https://github.com/withastro/astro/pull/17887) [`35aa62e`](https://github.com/withastro/astro/commit/35aa62e60226d81cda281d0b9355abcfa29d889d) Thanks [@matthewp](https://github.com/matthewp)! - Adds a Cloudflare `finalize()` response handler for custom request handlers
+
+  Call `finalize()` to apply cookies and Cloudflare CDN cache defaults to the response from an `astro/fetch` pipeline:
+
+  ```ts
+  import { astro, FetchState } from 'astro/fetch';
+  import { cf, finalize } from '@astrojs/cloudflare/fetch';
+
+  export default {
+    async fetch(request: Request, env: Env, context: ExecutionContext) {
+      const state = new FetchState(request);
+      const asset = await cf(state, env, context);
+      if (asset) return asset;
+
+      return finalize(state, await astro(state));
+    },
+  };
+  ```
+
+  The `@astrojs/cloudflare/hono` middleware applies these response headers automatically. Cloudflare custom entrypoints also fall back to static assets when no Astro route matches and use the default server entrypoint when prerendering through workerd.
+
+### Patch Changes
+
+- [#17895](https://github.com/withastro/astro/pull/17895) [`41b88ac`](https://github.com/withastro/astro/commit/41b88ac0b14719bf46fc3c842ec9a71dd3c9a6af) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes cold `astro dev` crashes by adding `astro/app/manifest` and `@astrojs/cloudflare/cache/provider` to the `optimizeDeps.include` list
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.2.6
+
+### Patch Changes
+
+- [#17854](https://github.com/withastro/astro/pull/17854) [`07b919f`](https://github.com/withastro/astro/commit/07b919f23e3041c4cc9c4f33004a19a32a5294b3) Thanks [@ematipico](https://github.com/ematipico)! - Added `@astrojs/prism` to the list of dependencies to optimise. The dev server is now faster for sites that use Prism as code highlighter.
+
+- [#17850](https://github.com/withastro/astro/pull/17850) [`1301c37`](https://github.com/withastro/astro/commit/1301c374435897654bf52d80d91d0947b72cf1a1) Thanks [@matthewp](https://github.com/matthewp)! - Fixes React SSR failures on the first Cloudflare dev request when JSON logging is enabled
+
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.2.5
+
+### Patch Changes
+
+- [#17819](https://github.com/withastro/astro/pull/17819) [`633855b`](https://github.com/withastro/astro/commit/633855b0cabd55cc7b913eb556a739a6a2d93dd2) Thanks [@matthewp](https://github.com/matthewp)! - Updates generated and default Cloudflare `compatibility_date` values to match the installed runtime and requires Wrangler `^4.125.0`
+
+- [#17675](https://github.com/withastro/astro/pull/17675) [`44d384c`](https://github.com/withastro/astro/commit/44d384c9c30cf52ee6491348611ae483747734e7) Thanks [@danielmlr](https://github.com/danielmlr)! - Adds the Worker version to the cache metadata of cached responses when the `CF_VERSION_METADATA` binding is configured. Responses carry an `astro-version:<id>` cache tag for version-specific purging, and responses that already send `Last-Modified` get a weak `ETag` that folds the version in. Conditional revalidation then returns fresh content after a deploy that changes rendered output but not content — most commonly the hashed asset URLs in server-rendered HTML. Without the binding, nothing changes.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.2.4
+
+### Patch Changes
+
+- [#17789](https://github.com/withastro/astro/pull/17789) [`7c541a7`](https://github.com/withastro/astro/commit/7c541a70c5c3688e7f159d8e1b39888a54f1bee4) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes dep scanning failure when `.astro` frontmatter contains regex literals with quote characters (e.g. `/"/g`)
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.2.3
+
+### Patch Changes
+
+- Updated dependencies [[`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527)]:
+  - @astrojs/internal-helpers@0.10.4
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.2.2
+
+### Patch Changes
+
+- Updated dependencies [[`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277)]:
+  - @astrojs/internal-helpers@0.10.3
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.2.1
 
 ### Patch Changes

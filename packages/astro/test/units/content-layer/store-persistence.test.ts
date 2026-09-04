@@ -1,12 +1,15 @@
 import { strict as assert } from 'node:assert';
-import { describe, it, mock } from 'node:test';
+import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs/promises';
 import { DATA_STORE_MANIFEST_FILE } from '../../../dist/content/consts.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
+import { SpyLogger } from '../test-utils.ts';
 import { createTempDir } from './test-helpers.ts';
 
 const CHUNK_SIZE = 1024 * 1024;
+
+const logger = new SpyLogger();
 
 describe('Content Layer - Store Persistence', () => {
 	it('updates the store on new builds', async () => {
@@ -216,12 +219,31 @@ describe('Content Layer - Store Persistence', () => {
 });
 
 describe('Content Layer - Store Persistence (chunked)', () => {
+	it('streams entry records across part boundaries', async () => {
+		const tempDir = createTempDir();
+		const dataStoreDir = new URL('./data-store/', tempDir);
+		const store = await MutableDataStore.fromDir(dataStoreDir, 16, logger);
+		store.set('notes', 'first', { id: 'first', data: { text: 'first\nentry' } });
+		store.set('notes', 'second', { id: 'second', data: { text: 'second entry' } });
+		await store.waitUntilSaveComplete();
+
+		const reloaded = await MutableDataStore.fromDir(dataStoreDir, 16, logger);
+		assert.deepEqual(reloaded.get('notes', 'first'), {
+			id: 'first',
+			data: { text: 'first\nentry' },
+		});
+		assert.deepEqual(reloaded.get('notes', 'second'), {
+			id: 'second',
+			data: { text: 'second entry' },
+		});
+	});
+
 	it('persists and accumulates entries across builds', async () => {
 		const tempDir = createTempDir();
 		const dataStoreDir = new URL('./data-store/', tempDir);
 
 		// First build - create initial data and write it to the chunked store.
-		const store1 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const store1 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		store1.set('dogs', 'beagle', {
 			id: 'beagle',
 			data: { breed: 'Beagle', temperament: ['Friendly'] },
@@ -229,7 +251,7 @@ describe('Content Layer - Store Persistence (chunked)', () => {
 		await store1.waitUntilSaveComplete();
 
 		// Second build - load from the directory and verify existing data persists.
-		const store2 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const store2 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		const beagle = store2.get('dogs', 'beagle');
 		assert.ok(beagle);
 		assert.equal(beagle.data.breed, 'Beagle');
@@ -242,7 +264,7 @@ describe('Content Layer - Store Persistence (chunked)', () => {
 		await store2.waitUntilSaveComplete();
 
 		// Third build - verify both entries exist.
-		const store3 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const store3 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		assert.equal(store3.values('dogs').length, 2);
 		assert.ok(store3.get('dogs', 'beagle'));
 		assert.ok(store3.get('dogs', 'poodle'));
@@ -253,7 +275,7 @@ describe('Content Layer - Store Persistence (chunked)', () => {
 		const dataStoreDir = new URL('./data-store/', tempDir);
 
 		// First build - create data across two collections.
-		const store1 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const store1 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		store1.set('dogs', 'beagle', { id: 'beagle', data: { breed: 'Beagle' } });
 		store1.metaStore().set('content-config-digest', 'digest1');
 		await store1.waitUntilSaveComplete();
@@ -265,13 +287,13 @@ describe('Content Layer - Store Persistence (chunked)', () => {
 		assert.ok(partsAfterFirst.length > 0, 'expected the first snapshot to write part files');
 
 		// Second build - clear everything and write different data.
-		const store2 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const store2 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		store2.clearAll();
 		store2.set('cats', 'siamese', { id: 'siamese', data: { breed: 'Siamese' } });
 		await store2.waitUntilSaveComplete();
 
 		// Old data is gone, new data exists.
-		const store3 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const store3 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		assert.equal(store3.values('dogs').length, 0);
 		assert.equal(store3.values('cats').length, 1);
 		assert.ok(store3.get('cats', 'siamese'));
@@ -293,7 +315,7 @@ describe('Content Layer - Store Persistence (chunked)', () => {
 		const dataStoreDir = new URL('./data-store/', tempDir);
 
 		// First build - an entry that references another collection.
-		const store1 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const store1 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		store1.set('cats', 'siamese', { id: 'siamese', data: { breed: 'Siamese' } });
 		store1.set('posts', 'post1', {
 			id: 'post1',
@@ -302,7 +324,7 @@ describe('Content Layer - Store Persistence (chunked)', () => {
 		await store1.waitUntilSaveComplete();
 
 		// Second build - rename the referenced entry and update the reference.
-		const store2 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const store2 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		store2.delete('cats', 'siamese');
 		store2.set('cats', 'siamese-cat', { id: 'siamese-cat', data: { breed: 'Siamese' } });
 		const post: any = store2.get('posts', 'post1');
@@ -311,7 +333,7 @@ describe('Content Layer - Store Persistence (chunked)', () => {
 		await store2.waitUntilSaveComplete();
 
 		// Cross-collection references survive the chunk split and rejoin.
-		const store3 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const store3 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		assert.ok(!store3.get('cats', 'siamese'));
 		assert.ok(store3.get('cats', 'siamese-cat'));
 		const updatedPost: any = store3.get('posts', 'post1');
@@ -332,11 +354,11 @@ describe('Content Layer - Store Persistence (chunked)', () => {
 			accented: 'café déjà vu',
 		};
 
-		const store1 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const store1 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		store1.set('notes', 'unicode', { id: 'unicode', data: richData });
 		await store1.waitUntilSaveComplete();
 
-		const store2 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const store2 = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		const entry: any = store2.get('notes', 'unicode');
 		assert.ok(entry);
 		assert.deepEqual(entry.data, richData);
@@ -365,7 +387,7 @@ describe('Content Layer - Store Persistence (chunked atomicity)', () => {
 		const tempDir = createTempDir();
 		const dataStoreDir = new URL('./data-store/', tempDir);
 
-		const store = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const store = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		store.set('pets', 'cat', { id: 'cat', data: { legs: 4 } });
 		// `writeToDisk()` runs synchronously up to its first internal await, so it
 		// leaves `#writeInProgress` set and returns a pending promise.
@@ -378,7 +400,7 @@ describe('Content Layer - Store Persistence (chunked atomicity)', () => {
 		await store.waitUntilSaveComplete();
 
 		// The final on-disk snapshot has both entries.
-		const reloaded = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const reloaded = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		assert.equal(reloaded.values('pets').length, 2);
 		assert.ok(reloaded.get('pets', 'cat'));
 		assert.ok(reloaded.get('pets', 'dog'));
@@ -400,7 +422,7 @@ describe('Content Layer - Store Persistence (chunked atomicity)', () => {
 		const tempDir = createTempDir();
 		const dataStoreDir = new URL('./data-store/', tempDir);
 
-		const store = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const store = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		store.set('pets', 'cat', { id: 'cat', data: { legs: 4 } });
 		await store.waitUntilSaveComplete();
 
@@ -410,7 +432,7 @@ describe('Content Layer - Store Persistence (chunked atomicity)', () => {
 		await fs.writeFile(orphan, 'written before the manifest was committed');
 
 		// Loading uses only the manifest, so the committed snapshot is intact.
-		const reloaded = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const reloaded = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		assert.equal(reloaded.values('pets').length, 1);
 		assert.ok(reloaded.get('pets', 'cat'));
 
@@ -427,7 +449,7 @@ describe('Content Layer - Store Persistence (chunked atomicity)', () => {
 		const tempDir = createTempDir();
 		const dataStoreDir = new URL('./data-store/', tempDir);
 
-		const store = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const store = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		store.set('pets', 'cat', { id: 'cat', data: { legs: 4 } });
 		await store.waitUntilSaveComplete();
 
@@ -435,17 +457,13 @@ describe('Content Layer - Store Persistence (chunked atomicity)', () => {
 		const [firstPart] = await readReferencedParts(dataStoreDir);
 		await fs.rm(new URL(`./${firstPart}`, dataStoreDir));
 
-		const warn = mock.method(console, 'warn', () => {});
-		let reloaded: MutableDataStore;
-		try {
-			reloaded = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
-		} finally {
-			warn.mock.restore();
-		}
+		const warningLogger = new SpyLogger();
+		const reloaded = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, warningLogger);
 
 		// It started empty (rebuild from scratch) and warned about the corruption.
 		assert.equal(reloaded.values('pets').length, 0);
-		assert.ok(warn.mock.calls.length >= 1, 'expected a warning about the corrupt cache');
+		const warnings = warningLogger.logs.filter((entry) => entry.level === 'warn');
+		assert.ok(warnings.length >= 1, 'expected a warning about the corrupt cache');
 	});
 
 	// D: parts are named by a hash of their contents, so two collections that
@@ -454,7 +472,7 @@ describe('Content Layer - Store Persistence (chunked atomicity)', () => {
 		const tempDir = createTempDir();
 		const dataStoreDir = new URL('./data-store/', tempDir);
 
-		const store = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const store = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 		// Two collections whose serialized chunk is byte-for-byte identical (the
 		// collection name is a manifest key, not part of the serialized content).
 		const entry = { id: 'x', data: { value: 1 } };
@@ -472,5 +490,31 @@ describe('Content Layer - Store Persistence (chunked atomicity)', () => {
 		const partsOnDisk = await readPartFilesOnDisk(dataStoreDir);
 		assert.equal(partsOnDisk.length, 1);
 		assert.equal(partsOnDisk[0], manifest.alpha[0]);
+	});
+
+	it('writes a deterministic manifest independent of entry insertion order', async () => {
+		const firstDir = new URL('./first/', createTempDir());
+		const firstStore = await MutableDataStore.fromDir(firstDir, CHUNK_SIZE, logger);
+		firstStore.set('zoo', 'second', { id: 'second', data: { value: 2 } });
+		firstStore.set('zoo', 'first', { id: 'first', data: { value: 1 } });
+		firstStore.set('alpha', 'only', { id: 'only', data: { value: 3 } });
+		await firstStore.waitUntilSaveComplete();
+
+		const secondDir = new URL('./second/', createTempDir());
+		const secondStore = await MutableDataStore.fromDir(secondDir, CHUNK_SIZE, logger);
+		secondStore.set('alpha', 'only', { id: 'only', data: { value: 3 } });
+		secondStore.set('zoo', 'first', { id: 'first', data: { value: 1 } });
+		secondStore.set('zoo', 'second', { id: 'second', data: { value: 2 } });
+		await secondStore.waitUntilSaveComplete();
+
+		const firstManifest = await fs.readFile(
+			new URL(`./${DATA_STORE_MANIFEST_FILE}`, firstDir),
+			'utf-8',
+		);
+		const secondManifest = await fs.readFile(
+			new URL(`./${DATA_STORE_MANIFEST_FILE}`, secondDir),
+			'utf-8',
+		);
+		assert.equal(firstManifest, secondManifest);
 	});
 });

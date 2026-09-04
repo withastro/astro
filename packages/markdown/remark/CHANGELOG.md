@@ -1,5 +1,34 @@
 # @astrojs/markdown-remark
 
+## 7.3.0
+
+### Minor Changes
+
+- [#17262](https://github.com/withastro/astro/pull/17262) [`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds MDX rendering to the `unified()` and `satteri()` processors.
+
+  Both processors now compile `.mdx` files themselves. You still need to install `@astrojs/mdx` to add MDX support to your project.
+
+- [#17262](https://github.com/withastro/astro/pull/17262) [`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a `recmaPlugins` option to `unified()` for adding recma (estree/JSX) plugins to the MDX compiler.
+
+### Patch Changes
+
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+
+## 7.2.4
+
+### Patch Changes
+
+- Updated dependencies [[`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527)]:
+  - @astrojs/internal-helpers@0.10.4
+
+## 7.2.3
+
+### Patch Changes
+
+- Updated dependencies [[`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277)]:
+  - @astrojs/internal-helpers@0.10.3
+
 ## 7.2.2
 
 ### Patch Changes

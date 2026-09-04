@@ -5,7 +5,16 @@ import {
 	syntaxHighlightDefaults,
 } from '@astrojs/internal-helpers/markdown';
 import Slugger from 'github-slugger';
-import type { Features, HastNode, HastPluginDefinition, MdastPluginDefinition } from 'satteri';
+import type {
+	Features,
+	HastNode,
+	HastPluginDefinition,
+	HastPluginEntry,
+	HastPluginList,
+	MdastPluginDefinition,
+	MdastPluginEntry,
+	MdastPluginList,
+} from 'satteri';
 import { createShikiHighlighter } from '@astrojs/internal-helpers/shiki';
 import type {
 	AstroMarkdownOptions,
@@ -206,8 +215,8 @@ export function createHighlightPlugin(
 }
 
 export interface SatteriMarkdownProcessorOptions extends AstroMarkdownOptions {
-	mdastPlugins?: MdastPluginDefinition[];
-	hastPlugins?: HastPluginDefinition[];
+	mdastPlugins?: MdastPluginList;
+	hastPlugins?: HastPluginList;
 	features?: Features;
 }
 
@@ -249,11 +258,12 @@ export async function createHighlightFn(
 
 	if (syntaxHighlightType === 'prism') {
 		const { runHighlighterWithAstro } = await import('@astrojs/prism/dist/highlighter');
-		const { fromHtml } = await import('hast-util-from-html');
+		const { htmlToHast } = await loadSatteri();
 		return async (code, lang) => {
 			const { html, classLanguage } = await runHighlighterWithAstro(lang, code);
 			const pre = `<pre class="${classLanguage}" data-language="${lang}"><code class="${classLanguage}">${html}</code></pre>`;
-			return fromHtml(pre, { fragment: true }).children[0] as HastNode;
+			const tree = htmlToHast(pre, { fragment: true });
+			return ('children' in tree ? tree.children[0] : undefined) as HastNode;
 		};
 	}
 
@@ -290,12 +300,12 @@ export async function createSatteriMarkdownProcessor(
 			};
 
 			// Collect last so image-URL rewrites by user plugins are captured.
-			const allMdastPlugins: MdastPluginDefinition[] = [
+			const allMdastPlugins: MdastPluginEntry[] = [
 				...userMdastPlugins,
 				createCollectImagesPlugin(opts?.image),
 			];
 
-			const hastPlugins: HastPluginDefinition[] = [];
+			const hastPlugins: HastPluginEntry[] = [];
 			if (highlightFn) {
 				hastPlugins.push(createHighlightPlugin(highlightFn, syntaxHighlightExcludeLangs));
 			}

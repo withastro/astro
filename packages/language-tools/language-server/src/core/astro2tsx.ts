@@ -9,13 +9,14 @@ import { decode } from '@jridgewell/sourcemap-codec';
 import type { CodeMapping, VirtualCode } from '@volar/language-core';
 import { Range } from '@volar/language-server';
 import { TextDocument } from 'vscode-html-languageservice';
-import { patchTSX } from './utils.js';
+import { patchTSXWithMetadata } from './utils.js';
 
 export interface LSPTSXRanges {
 	frontmatter: Range;
 	body: Range;
 	scripts: TSXExtractedScript[];
 	styles: TSXExtractedStyle[];
+	generatedComponentExport?: Range;
 }
 
 export function safeConvertToTSX(content: string, options: ConvertToTSXOptions) {
@@ -84,16 +85,18 @@ export function getTSXRangesAsLSPRanges(tsx: TSXResult): LSPTSXRanges {
 
 export function astro2tsx(input: string, fileName: string) {
 	const tsx = safeConvertToTSX(input, { filename: fileName });
+	const { virtualCode, generatedComponentExport } = getVirtualCodeTSX(input, tsx, fileName);
 
 	return {
-		virtualCode: getVirtualCodeTSX(input, tsx, fileName),
+		virtualCode,
 		diagnostics: tsx.diagnostics,
-		ranges: getTSXRangesAsLSPRanges(tsx),
+		ranges: { ...getTSXRangesAsLSPRanges(tsx), generatedComponentExport },
 	};
 }
 
-function getVirtualCodeTSX(input: string, tsx: TSXResult, fileName: string): VirtualCode {
-	tsx.code = patchTSX(tsx.code, fileName);
+function getVirtualCodeTSX(input: string, tsx: TSXResult, fileName: string) {
+	const patched = patchTSXWithMetadata(tsx.code, fileName);
+	tsx.code = patched.code;
 	const v3Mappings = decode(tsx.map.mappings);
 	const sourcedDoc = TextDocument.create('', 'astro', 0, input);
 	const genDoc = TextDocument.create('', 'typescriptreact', 0, tsx.code);
@@ -161,14 +164,22 @@ function getVirtualCodeTSX(input: string, tsx: TSXResult, fileName: string): Vir
 	}
 
 	return {
-		id: 'tsx',
-		languageId: 'typescriptreact',
-		snapshot: {
-			getText: (start, end) => tsx.code.substring(start, end),
-			getLength: () => tsx.code.length,
-			getChangeRange: () => undefined,
-		},
-		mappings: mappings,
-		embeddedCodes: [],
+		virtualCode: {
+			id: 'tsx',
+			languageId: 'typescriptreact',
+			snapshot: {
+				getText: (start, end) => tsx.code.substring(start, end),
+				getLength: () => tsx.code.length,
+				getChangeRange: () => undefined,
+			},
+			mappings: mappings,
+			embeddedCodes: [],
+		} satisfies VirtualCode,
+		generatedComponentExport: patched.generatedComponentExport
+			? Range.create(
+					genDoc.positionAt(patched.generatedComponentExport.start),
+					genDoc.positionAt(patched.generatedComponentExport.end),
+				)
+			: undefined,
 	};
 }

@@ -1,7 +1,10 @@
 import picomatch from 'picomatch';
+import type { AstroCookies } from '../cookies/cookies.js';
+import { getCookiesFromResponse } from '../cookies/response.js';
 import { AstroError } from '../errors/errors.js';
 import { CacheQueryConfigConflict } from '../errors/errors-data.js';
 import type { CacheProvider, CacheProviderFactory, InvalidateOptions } from './types.js';
+import type { AstroRuntimeLogger } from '../../types/public/context.js';
 
 interface CachedEntry {
 	body: ArrayBuffer;
@@ -209,14 +212,19 @@ function getPathFromCacheKey(key: string, queryConfig: NormalizedQueryConfig): s
 	return `${url.pathname}${buildQueryString(url, queryConfig)}`;
 }
 
-/**
- * Headers that should not be used for Vary-based cache key discrimination.
- * `cookie` is excluded because it has extremely high cardinality (every user
- * has different cookies), making it effectively uncacheable. Use config-level
- * cookie-based vary instead when that is supported.
- * `set-cookie` is a response header and should never appear in Vary.
- */
-const IGNORED_VARY_HEADERS = new Set(['cookie', 'set-cookie']);
+/** `set-cookie` is a response header and should never appear in Vary. */
+const IGNORED_VARY_HEADERS = new Set(['set-cookie']);
+
+function getUncacheableVaryHeader(response: Response): 'Cookie' | '*' | undefined {
+	const vary = response.headers.get('Vary');
+	if (!vary) return undefined;
+	for (const header of vary.split(',')) {
+		const normalized = header.trim().toLowerCase();
+		if (normalized === 'cookie') return 'Cookie';
+		if (normalized === '*') return '*';
+	}
+	return undefined;
+}
 
 /**
  * Parse the Vary header into an array of lowercased header names.
@@ -255,13 +263,24 @@ function matchesVary(request: Request, entry: CachedEntry): boolean {
 	return true;
 }
 
-function hasSetCookieHeader(response: Response): boolean {
-	return response.headers.has('set-cookie');
+function hasAtLeastOneCookie(cookies: AstroCookies | undefined): boolean {
+	return cookies ? !cookies.headers().next().done : false;
 }
 
-function warnSkippedSetCookie(url: URL): void {
-	console.warn(
-		`[astro:cache] Skipping cache for ${url.pathname}${url.search} because response includes Set-Cookie.`,
+function hasSetCookieHeader(response: Response): boolean {
+	if (response.headers.has('set-cookie')) return true;
+	return hasAtLeastOneCookie(getCookiesFromResponse(response));
+}
+
+function warnSkippedSetCookie(logger: AstroRuntimeLogger, url: URL): void {
+	logger.warn(
+		`Skipping cache for ${url.pathname}${url.search} because response includes Set-Cookie.`,
+	);
+}
+
+function warnSkippedVary(logger: AstroRuntimeLogger, url: URL, header: 'Cookie' | '*'): void {
+	logger.warn(
+		`Skipping cache for ${url.pathname}${url.search} because response includes Vary: ${header}.`,
 	);
 }
 
@@ -441,7 +460,13 @@ const memoryProvider = ((config): CacheProvider => {
 								const { maxAge: newMaxAge, swr: newSwr } = parseCdnCacheControl(cdnCC);
 								if (newMaxAge > 0) {
 									if (hasSetCookieHeader(freshResponse)) {
-										warnSkippedSetCookie(requestUrl);
+										warnSkippedSetCookie(context.logger, requestUrl);
+										return;
+									}
+									const uncacheableVary = getUncacheableVaryHeader(freshResponse);
+									if (uncacheableVary) {
+										cache.delete(key);
+										warnSkippedVary(context.logger, requestUrl, uncacheableVary);
 										return;
 									}
 									const newTags = parseCacheTags(freshResponse.headers.get('Cache-Tag'));
@@ -460,8 +485,8 @@ const memoryProvider = ((config): CacheProvider => {
 								}
 							})
 							.catch((error) => {
-								console.warn(
-									`[astro:cache] Background revalidation failed for ${requestUrl.pathname}${requestUrl.search}: ${String(
+								context.logger.warn(
+									`Background revalidation failed for ${requestUrl.pathname}${requestUrl.search}: ${String(
 										error,
 									)}`,
 								);
@@ -485,7 +510,13 @@ const memoryProvider = ((config): CacheProvider => {
 
 			if (maxAge > 0) {
 				if (hasSetCookieHeader(response)) {
-					warnSkippedSetCookie(requestUrl);
+					warnSkippedSetCookie(context.logger, requestUrl);
+					return response;
+				}
+				const uncacheableVary = getUncacheableVaryHeader(response);
+				if (uncacheableVary) {
+					cache.delete(key);
+					warnSkippedVary(context.logger, requestUrl, uncacheableVary);
 					return response;
 				}
 				const tags = parseCacheTags(response.headers.get('Cache-Tag'));

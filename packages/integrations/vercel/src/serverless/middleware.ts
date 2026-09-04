@@ -6,8 +6,17 @@ import {
 	ASTRO_LOCALS_HEADER,
 	ASTRO_MIDDLEWARE_SECRET_HEADER,
 	ASTRO_PATH_HEADER,
+	ASTRO_PATH_PARAM,
+	ASTRO_PATH_TOKEN_PARAM,
 	NODE_PATH,
 } from '../index.js';
+
+export interface IsrForwarding {
+	/** Route patterns backed by the ISR function. */
+	isrRoutes: string[];
+	/** Route patterns `isr.exclude` keeps out of the cache; checked first. */
+	isrExcludedRoutes: string[];
+}
 
 /**
  * It generates the Vercel Edge Middleware file.
@@ -22,6 +31,7 @@ import {
  * @param outPath
  * @param middlewareSecret
  * @param logger
+ * @param isrForwarding Route patterns the generated `next()` forwards to `_isr`, if any
  * @returns {Promise<URL>} The path to the bundled file
  */
 export async function generateEdgeMiddleware(
@@ -31,12 +41,14 @@ export async function generateEdgeMiddleware(
 	outPath: URL,
 	middlewareSecret: string,
 	logger: AstroIntegrationLogger,
+	isrForwarding?: IsrForwarding,
 ): Promise<URL> {
 	const code = edgeMiddlewareTemplate(
 		astroMiddlewareEntryPointPath,
 		vercelEdgeMiddlewareHandlerPath,
 		middlewareSecret,
 		logger,
+		isrForwarding,
 	);
 	// https://vercel.com/docs/concepts/functions/edge-middleware#create-edge-middleware
 	const bundledFilePath = fileURLToPath(outPath);
@@ -96,6 +108,7 @@ function edgeMiddlewareTemplate(
 	vercelEdgeMiddlewareHandlerPath: URL,
 	middlewareSecret: string,
 	logger: AstroIntegrationLogger,
+	isrForwarding?: IsrForwarding,
 ) {
 	const middlewarePath = JSON.stringify(
 		fileURLToPath(astroMiddlewareEntryPointPath).replace(/\\/g, '/'),
@@ -116,6 +129,27 @@ function edgeMiddlewareTemplate(
 	${handlerTemplateImport}
 import { onRequest } from ${middlewarePath};
 import { createContext, trySerializeLocals } from 'astro/middleware';
+
+const isrRoutes = ${JSON.stringify(isrForwarding?.isrRoutes ?? [])}.map((source) => new RegExp(source));
+const isrExcludedRoutes = ${JSON.stringify(isrForwarding?.isrExcludedRoutes ?? [])}.map(
+	(source) => new RegExp(source),
+);
+
+const isCached = (pathname) =>
+	!isrExcludedRoutes.some((route) => route.test(pathname)) &&
+	isrRoutes.some((route) => route.test(pathname));
+
+// Cached routes go back through \`_isr\`, or every request would re-render.
+// Keep in step with \`getIsrPath\`.
+function forwardPath(pathname) {
+	if (!isCached(pathname)) return '/${NODE_PATH}';
+	const params = new URLSearchParams({
+		'${ASTRO_PATH_PARAM}': pathname,
+		'${ASTRO_PATH_TOKEN_PARAM}': '${middlewareSecret}',
+	});
+	return '/_isr?' + params.toString();
+}
+
 export default async function middleware(request, context) {
 	const ctx = createContext({
 		request,
@@ -123,10 +157,10 @@ export default async function middleware(request, context) {
 		clientAddress: request.headers.get('x-real-ip') || undefined,
 	});
 	Object.assign(ctx.locals, { vercel: { edge: context }, ...${handlerTemplateCall} });
-	const { origin } = new URL(request.url);
+	const { origin, pathname } = new URL(request.url);
 	const next = async () => {
 		const { vercel, ...locals } = ctx.locals;
-		const response = await fetch(new URL('/${NODE_PATH}', request.url), {
+		const response = await fetch(new URL(forwardPath(pathname), request.url), {
 			method: request.method,
 			headers: {
 				...Object.fromEntries(request.headers.entries()),

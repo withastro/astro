@@ -205,7 +205,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	}
 
 	const { notify } = await import('./telemetry/index.js');
-	await notify();
+	await notify(logger);
 
 	// These commands uses the logging and user config. All commands are assumed to have been handled
 	// by the end of this switch statement.

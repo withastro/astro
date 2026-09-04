@@ -1,5 +1,42 @@
 # @astrojs/markdown-satteri
 
+## 0.4.0
+
+### Minor Changes
+
+- [#17262](https://github.com/withastro/astro/pull/17262) [`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds MDX rendering to the `unified()` and `satteri()` processors.
+
+  Both processors now compile `.mdx` files themselves. You still need to install `@astrojs/mdx` to add MDX support to your project.
+
+### Patch Changes
+
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+
+## 0.3.8
+
+### Patch Changes
+
+- [#17766](https://github.com/withastro/astro/pull/17766) [`0762a83`](https://github.com/withastro/astro/commit/0762a8385b5b5b093def3768a0c4d0464a9dccc4) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes Sätteri processor option types to accept all plugin entries supported by Sätteri v0.10.3.
+
+- [#17314](https://github.com/withastro/astro/pull/17314) [`0c99615`](https://github.com/withastro/astro/commit/0c996155d82acbb0c3accad1e56ba356bf47b743) Thanks [@barry166](https://github.com/barry166)! - Fixes the editor tooltip for `smartPunctuation` claiming it defaults to `false` when Astro enables it by default.
+
+## 0.3.7
+
+### Patch Changes
+
+- [#17731](https://github.com/withastro/astro/pull/17731) [`bc171af`](https://github.com/withastro/astro/commit/bc171af0e29a1bb4ca56beffde1c4c03e1bb227f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates Sätteri processor to v0.10.3. See [its changelog](https://github.com/bruits/satteri/blob/main/packages/satteri/CHANGELOG.md#0103--2026-08-19) for details on bugs fixed and features added.
+
+- Updated dependencies [[`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527)]:
+  - @astrojs/internal-helpers@0.10.4
+
+## 0.3.6
+
+### Patch Changes
+
+- Updated dependencies [[`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277)]:
+  - @astrojs/internal-helpers@0.10.3
+
 ## 0.3.5
 
 ### Patch Changes
