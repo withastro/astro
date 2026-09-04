@@ -1,4 +1,5 @@
 import type { SSRResult } from '../../../types/public/internal.js';
+import { getDevServerBase } from '../../../core/app/dev-base.js';
 import { markHTMLString } from '../escape.js';
 import { renderCspContent } from './csp.js';
 import type { MaybeRenderHeadInstruction, RenderHeadInstruction } from './instruction.js';
@@ -52,7 +53,11 @@ export function renderAllHeadContent(result: SSRResult) {
 	// Clear result.styles so that any new styles added will be inlined.
 	result.styles.clear();
 	const scripts = deduplicateElements(Array.from(result.scripts)).map((script) => {
-		if (result.userAssetsBase) {
+		if (
+			result.userAssetsBase &&
+			script.props.src &&
+			!script.props.src.startsWith(getDevServerBase(result.base, result.userAssetsBase))
+		) {
 			script.props.src =
 				(result.base === '/' ? '' : result.base) + result.userAssetsBase + script.props.src;
 		}

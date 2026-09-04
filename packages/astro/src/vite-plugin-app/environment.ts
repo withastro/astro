@@ -5,6 +5,7 @@ import type {
 	TryRewriteResult,
 } from '../core/environment/index.js';
 import type { RequestLogPayload } from '../core/environment/index.js';
+import { getDevServerBase, prependDevServerBase } from '../core/app/dev-base.js';
 import type { SinglePageBuiltModule } from '../core/build/types.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
@@ -151,11 +152,16 @@ export function createRunnableEnvironment({
 		// Dev always streams.
 		defaultStreaming: () => true,
 
-		resolve(manifest: SSRManifest, specifier: string): Promise<string> {
-			return resolveIdToUrl(loader, specifier, manifest.rootDir);
+		async resolve(manifest: SSRManifest, specifier: string): Promise<string> {
+			const devBase = getDevServerBase(manifest.base, manifest.userAssetsBase);
+			return prependDevServerBase(
+				devBase,
+				await resolveIdToUrl(loader, specifier, manifest.rootDir),
+			);
 		},
 
 		async headElements(manifest: SSRManifest, routeData: RouteData): Promise<HeadElements> {
+			const devBase = getDevServerBase(manifest.base, manifest.userAssetsBase);
 			const filePath = new URL(`${routeData.component}`, manifest.rootDir);
 			const scripts = new Set<SSRElement>();
 
@@ -163,7 +169,7 @@ export function createRunnableEnvironment({
 			if (settings) {
 				if (isPage(filePath, settings)) {
 					scripts.add({
-						props: { type: 'module', src: '/@vite/client' },
+						props: { type: 'module', src: prependDevServerBase(devBase, '/@vite/client') },
 						children: '',
 					});
 
@@ -171,7 +177,10 @@ export function createRunnableEnvironment({
 						scripts.add({
 							props: {
 								type: 'module',
-								src: '/@id/astro/runtime/client/dev-toolbar/entrypoint.js',
+								src: prependDevServerBase(
+									devBase,
+									'/@id/astro/runtime/client/dev-toolbar/entrypoint.js',
+								),
 							},
 							children: '',
 						});
@@ -203,7 +212,10 @@ export function createRunnableEnvironment({
 						});
 					} else if (script.stage === 'page' && isPage(filePath, settings)) {
 						scripts.add({
-							props: { type: 'module', src: `/@id/${PAGE_SCRIPT_ID}` },
+							props: {
+								type: 'module',
+								src: prependDevServerBase(devBase, `/@id/${PAGE_SCRIPT_ID}`),
+							},
 							children: '',
 						});
 					}

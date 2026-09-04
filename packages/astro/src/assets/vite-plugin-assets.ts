@@ -394,7 +394,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					const fileEmitter = shouldEmitFile
 						? (opts: Parameters<typeof this.emitFile>[0]) => emitClientAsset(this as any, opts)
 						: undefined;
-					const imageMetadata = await emitImageMetadata(id, fileEmitter);
+					const imageMetadata = await emitImageMetadata(id, fileEmitter, resolvedConfig.base);
 
 					if (!imageMetadata) {
 						throw new AstroError({

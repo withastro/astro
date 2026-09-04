@@ -1,5 +1,6 @@
 import type http from 'node:http';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
+import { getDevServerBase } from '../core/app/dev-base.js';
 import type { DevFacadeApp } from '../core/app/dev-facade.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { clientLocalsSymbol } from '../core/constants.js';
@@ -234,7 +235,12 @@ export async function handleDevRequest(
 			if (loader) {
 				const { errorWithMetadata } = recordServerError(loader, manifest, app.logger, error);
 				// Dev error overlay.
-				handle500Response(loader, incomingResponse, errorWithMetadata);
+				handle500Response(
+					loader,
+					getDevServerBase(manifest.base, manifest.userAssetsBase),
+					incomingResponse,
+					errorWithMetadata,
+				);
 			}
 			return error;
 		},

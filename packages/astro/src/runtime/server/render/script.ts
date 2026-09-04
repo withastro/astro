@@ -1,5 +1,6 @@
 import type { SSRResult } from '../../../types/public/internal.js';
 import { createRenderInstruction } from './instruction.js';
+import { getDevServerBase } from '../../../core/app/dev-base.js';
 
 /**
  * Relies on the `renderScript: true` compiler option
@@ -15,7 +16,14 @@ export async function renderScript(result: SSRResult, id: string) {
 		}
 	} else {
 		const resolved = await result.resolve(id);
-		content = `<script type="module" src="${result.userAssetsBase ? (result.base === '/' ? '' : result.base) + result.userAssetsBase : ''}${resolved}"></script>`;
+		const userAssetsBase = result.userAssetsBase
+			? (result.base === '/' ? '' : result.base) + result.userAssetsBase
+			: '';
+		const prefix =
+			userAssetsBase && !resolved.startsWith(getDevServerBase(result.base, result.userAssetsBase))
+				? userAssetsBase
+				: '';
+		content = `<script type="module" src="${prefix}${resolved}"></script>`;
 	}
 
 	return createRenderInstruction({ type: 'script', id, content });
