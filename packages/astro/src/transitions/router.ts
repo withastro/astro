@@ -173,6 +173,7 @@ const moveToLocation = (
 	historyState?: State,
 ) => {
 	const intraPage = samePage(from, to);
+	const toHasFragment = to.href.includes('#');
 
 	const targetPageTitle = document.title;
 	document.title = pageTitleForBrowserHistory;
@@ -213,7 +214,7 @@ const moveToLocation = (
 	if (historyState) {
 		scrollTo(historyState.scrollX, historyState.scrollY);
 	} else {
-		if (to.hash) {
+		if (toHasFragment) {
 			// because we are already on the target page ...
 			// ... what comes next is an intra-page navigation
 			// that won't reload the page but instead scroll to the fragment
@@ -232,6 +233,16 @@ const moveToLocation = (
 			}
 		}
 		history.scrollRestoration = 'manual';
+	}
+	// pushState/replaceState above already set the URL to `to.href`, so assigning
+	// `location.href = to.href` for fragment scrolling was a same-URL no-op.
+	if (!historyState && intraPage && toHasFragment && from.href !== to.href) {
+		window.dispatchEvent(
+			new HashChangeEvent('hashchange', {
+				oldURL: from.href,
+				newURL: to.href,
+			}),
+		);
 	}
 };
 
@@ -365,7 +376,15 @@ async function transition(
 		updateScrollPosition({ scrollX, scrollY });
 	}
 	if (samePage(from, to) && !options.formData) {
-		if ((direction !== 'back' && to.hash) || (direction === 'back' && from.hash)) {
+		const fromHasFragment = from.href.includes('#');
+		const toHasFragment = to.href.includes('#');
+		if (!historyState && fromHasFragment && !toHasFragment) {
+			if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
+			if (options.history === 'replace') location.replace(to.href);
+			else location.href = to.href;
+			return;
+		}
+		if ((direction !== 'back' && toHasFragment) || (direction === 'back' && fromHasFragment)) {
 			moveToLocation(to, from, options, document.title, historyState);
 			if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
 			return;

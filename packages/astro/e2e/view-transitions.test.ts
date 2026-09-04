@@ -4,6 +4,7 @@ import { type DevServer, testFactory, waitForHydrate, warmupDevServer } from './
 declare global {
 	interface Window {
 		preloads: string[];
+		hashchanges: HashChangeRecord[];
 		clientSideRouterForTestsParkedHere?: (
 			url: string,
 			options?: { history?: 'auto' | 'replace' | 'push' },
@@ -11,7 +12,10 @@ declare global {
 	}
 }
 
+type HashChangeRecord = { oldURL: string; newURL: string };
+
 const test = testFactory(import.meta.url, { root: './fixtures/view-transitions/' });
+const hashChangeStorageKey = 'astro:view-transition-hashchanges';
 
 let devServer: DevServer;
 
@@ -58,6 +62,37 @@ function collectPreloads(page: Page) {
 		});
 		observer.observe(document.head, { childList: true });
 	});
+}
+
+function collectHashChanges(page: Page) {
+	return page.evaluate((storageKey) => {
+		window.hashchanges = [];
+		sessionStorage.setItem(storageKey, JSON.stringify([]));
+		window.addEventListener('hashchange', (e) => {
+			const event = {
+				oldURL: e.oldURL,
+				newURL: e.newURL,
+			};
+			window.hashchanges.push(event);
+			const events = JSON.parse(sessionStorage.getItem(storageKey) ?? '[]') as HashChangeRecord[];
+			events.push(event);
+			sessionStorage.setItem(storageKey, JSON.stringify(events));
+		});
+	}, hashChangeStorageKey);
+}
+
+function getHashChanges(page: Page) {
+	return page.evaluate((storageKey) => {
+		return JSON.parse(sessionStorage.getItem(storageKey) ?? '[]') as HashChangeRecord[];
+	}, hashChangeStorageKey);
+}
+
+async function expectHashChangeCount(page: Page, count: number) {
+	await expect.poll(async () => (await getHashChanges(page)).length).toBe(count);
+	await page.waitForTimeout(200);
+	const events = await getHashChanges(page);
+	expect(events).toHaveLength(count);
+	return events;
 }
 
 async function nativeViewTransition(page: Page) {
@@ -377,6 +412,103 @@ test.describe('View Transitions', () => {
 		await expect(locator).toBeInViewport();
 	});
 
+	test('hashchange fires for same-page fragment navigation', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/long-page'));
+		await collectHashChanges(page);
+
+		await page.click('#click-scroll-down');
+		await expect(page).toHaveURL(astro.resolveUrl('/long-page#click-one-again'));
+
+		const events = await expectHashChangeCount(page, 1);
+		expect(events[0]).toEqual({
+			oldURL: astro.resolveUrl('/long-page'),
+			newURL: astro.resolveUrl('/long-page#click-one-again'),
+		});
+	});
+
+	test('hashchange fires for same-page navigation between fragments', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/long-page#longpage'));
+		await collectHashChanges(page);
+
+		await page.click('#click-scroll-down');
+		await expect(page).toHaveURL(astro.resolveUrl('/long-page#click-one-again'));
+
+		const events = await expectHashChangeCount(page, 1);
+		expect(events[0]).toEqual({
+			oldURL: astro.resolveUrl('/long-page#longpage'),
+			newURL: astro.resolveUrl('/long-page#click-one-again'),
+		});
+	});
+
+	test('hashchange uses native events for same-page fragment history traversal', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/long-page'));
+		await collectHashChanges(page);
+
+		await page.click('#click-scroll-down');
+		await expect(page).toHaveURL(astro.resolveUrl('/long-page#click-one-again'));
+		await expectHashChangeCount(page, 1);
+
+		await page.goBack();
+		await expect(page).toHaveURL(astro.resolveUrl('/long-page'));
+		let events = await expectHashChangeCount(page, 2);
+		expect(events[1]).toEqual({
+			oldURL: astro.resolveUrl('/long-page#click-one-again'),
+			newURL: astro.resolveUrl('/long-page'),
+		});
+
+		await page.goForward();
+		await expect(page).toHaveURL(astro.resolveUrl('/long-page#click-one-again'));
+		events = await expectHashChangeCount(page, 3);
+		expect(events[2]).toEqual({
+			oldURL: astro.resolveUrl('/long-page'),
+			newURL: astro.resolveUrl('/long-page#click-one-again'),
+		});
+	});
+
+	test('hashchange does not fire when removing a fragment', async ({ page, astro }) => {
+		const expectLoads = collectLoads(page);
+
+		await page.goto(astro.resolveUrl('/long-page#click-one-again'));
+		await collectHashChanges(page);
+
+		await page.click('#click-self');
+		await expect(page).toHaveURL(astro.resolveUrl('/long-page'));
+		await expectLoads(2);
+
+		await expectHashChangeCount(page, 0);
+	});
+
+	test('hashchange does not fire when going back after removing a fragment', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/long-page#click-one-again'));
+		await collectHashChanges(page);
+
+		await page.click('#click-self');
+		await expect(page).toHaveURL(astro.resolveUrl('/long-page'));
+
+		await collectHashChanges(page);
+		await page.goBack();
+		await expect(page).toHaveURL(astro.resolveUrl('/long-page#click-one-again'));
+
+		await expectHashChangeCount(page, 0);
+	});
+
+	test('hashchange does not fire for cross-page navigation', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/one'));
+		await collectHashChanges(page);
+
+		await page.click('#click-two');
+		const locator = page.locator('#two');
+		await expect(locator).toHaveText('Page 2');
+
+		await expectHashChangeCount(page, 0);
+	});
+
 	test('Scroll position restored when transitioning back to fragment', async ({ page, astro }) => {
 		// Go to the long page
 		await page.goto(astro.resolveUrl('/long-page'));
@@ -503,29 +635,26 @@ test.describe('View Transitions', () => {
 		await expect(locator).toBeInViewport();
 		expect(consoleCount).toEqual(1);
 
-		// click 'hash' to '' (transition)
-		consolePromise = page.waitForEvent('console');
+		// click 'hash' to '' (native navigation, no transition)
 		await page.click('#click-self');
-		await consolePromise;
+		await expect(page).toHaveURL(astro.resolveUrl('/long-page'));
 		locator = page.locator('#longpage');
 		await expect(locator).toBeInViewport();
-		expect(consoleCount).toEqual(2);
+		expect(consoleCount).toEqual(1);
 
-		// back '' to 'hash' (transition)
-		consolePromise = page.waitForEvent('console');
-		await page.goBack();
-		await consolePromise;
+		// back '' to 'hash' (native traversal, no transition)
+		await page.goBack({ waitUntil: 'networkidle' });
+		await expect(page).toHaveURL(astro.resolveUrl('/long-page#longpage'));
 		locator = page.locator('#longpage');
 		await expect(locator).toBeInViewport();
-		expect(consoleCount).toEqual(3);
+		expect(consoleCount).toEqual(1);
 
-		// forward 'hash' to '' (transition)
-		consolePromise = page.waitForEvent('console');
-		await page.goForward();
-		await consolePromise;
+		// forward 'hash' to '' (native traversal, no transition)
+		await page.goForward({ waitUntil: 'networkidle' });
+		await expect(page).toHaveURL(astro.resolveUrl('/long-page'));
 		locator = page.locator('#longpage');
 		await expect(locator).toBeInViewport();
-		expect(consoleCount).toEqual(4);
+		expect(consoleCount).toEqual(1);
 	});
 
 	test('<Image /> component forwards transitions to the <img>', async ({ page, astro }) => {
