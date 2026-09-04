@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import { unified } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import * as cheerio from 'cheerio';
 import { parseHTML } from 'linkedom';
@@ -277,6 +278,19 @@ describe('MDX basics (merged fixture)', () => {
 				assert.equal(document.getElementById('script-text-following'), null);
 				assert.equal(document.getElementById('style-text-following'), null);
 			});
+
+			it('escapes dynamic script and style values instead of rendering them raw', async () => {
+				const html = await fixture.readFile('/script-style-dynamic/index.html');
+				const { document } = parseHTML(html);
+
+				assert.equal(document.getElementById('script-owned'), null);
+				assert.equal(document.getElementById('style-owned'), null);
+				assert.match(
+					document.getElementById('test-script-dynamic')!.textContent,
+					/^&lt;\/script&gt;/,
+				);
+				assert.match(document.getElementById('test-style-dynamic')!.textContent, /^\\3C \/style/);
+			});
 		});
 	});
 
@@ -478,6 +492,61 @@ describe('MDX basics (merged fixture)', () => {
 				assert.equal(document.getElementById('script-text-following'), null);
 				assert.equal(document.getElementById('style-text-following'), null);
 			});
+
+			it('escapes dynamic script and style values instead of rendering them raw', async () => {
+				const res = await fixture.fetch('/script-style-dynamic');
+				assert.equal(res.status, 200);
+
+				const html = await res.text();
+				const { document } = parseHTML(html);
+
+				assert.equal(document.getElementById('script-owned'), null);
+				assert.equal(document.getElementById('style-owned'), null);
+				assert.match(
+					document.getElementById('test-script-dynamic')!.textContent,
+					/^&lt;\/script&gt;/,
+				);
+				assert.match(document.getElementById('test-style-dynamic')!.textContent, /^\\3C \/style/);
+			});
 		});
+	});
+});
+
+describe('MDX basics with the Unified processor', () => {
+	let fixture: Fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: FIXTURE_ROOT,
+			outDir: './dist/mdx-basics-unified/',
+			integrations: [mdx({ processor: unified() })],
+		});
+		await fixture.build();
+	});
+
+	it('preserves literal and escapes dynamic script and style content', async () => {
+		const rawHtml = await fixture.readFile('/script-style-raw/index.html');
+		const { document: rawDocument } = parseHTML(rawHtml);
+		assert.match(
+			rawDocument.getElementById('test-script')!.innerHTML,
+			/console\.log\('raw script'\)/,
+		);
+		assert.match(
+			rawDocument.getElementById('test-style')!.innerHTML,
+			/h1\[id="script-style-raw"\]/,
+		);
+
+		const dynamicHtml = await fixture.readFile('/script-style-dynamic/index.html');
+		const { document: dynamicDocument } = parseHTML(dynamicHtml);
+		assert.equal(dynamicDocument.getElementById('script-owned'), null);
+		assert.equal(dynamicDocument.getElementById('style-owned'), null);
+		assert.match(
+			dynamicDocument.getElementById('test-script-dynamic')!.textContent,
+			/^&lt;\/script&gt;/,
+		);
+		assert.match(
+			dynamicDocument.getElementById('test-style-dynamic')!.textContent,
+			/^\\3C \/style/,
+		);
 	});
 });
