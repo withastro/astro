@@ -51,7 +51,7 @@ import { getRouteTable, matchAllRoutes, matchRoute } from '../routing/route-tabl
 import { getServerIslands } from '../server-islands/mappings.js';
 
 const slotValuesSymbol = Symbol('astro.slotValues');
-const slotsSymbol = Symbol('astro.slots');
+const slotsByAstro = new WeakMap<object, AstroGlobal['slots']>();
 
 /**
  * Per-render facade inputs passed by `BaseApp.render`'s fast path to the
@@ -582,14 +582,14 @@ export class FetchState implements AstroFetchState {
 			cookies,
 			// On the shared partial, not the instance: a per-component accessor costs measurably.
 			get slots(): AstroGlobal['slots'] {
-				let slots = (this as any)[slotsSymbol];
+				let slots = slotsByAstro.get(this);
 				if (slots === undefined) {
 					slots = new Slots(
 						result,
 						(this as any)[slotValuesSymbol],
 						logger,
 					) as unknown as AstroGlobal['slots'];
-					(this as any)[slotsSymbol] = slots;
+					slotsByAstro.set(this, slots);
 				}
 				return slots;
 			},
