@@ -61,15 +61,15 @@ class TemplateFrame {
  * Head propagation is handled by the caller (`bufferHeadContent`) before this
  * runs.
  */
-class EngineState {
-	batch = '';
-	buffered = false;
-	tailStatic = '';
+class StreamingRenderState {
+	pendingStaticOutput = '';
+	isBuffering = false;
+	bufferedStaticOutput = '';
 
-	emitStatic(s: string) {
-		if (!s) return;
-		if (this.buffered) this.tailStatic += s;
-		else this.batch += s;
+	appendStatic(output: string) {
+		if (!output) return;
+		if (this.isBuffering) this.bufferedStaticOutput += output;
+		else this.pendingStaticOutput += output;
 	}
 }
 
@@ -97,14 +97,14 @@ export async function renderStreaming(
 		return tag;
 	};
 
-	const st = new EngineState();
-	let firstAsync: Promise<void> | null = null;
-	const tail: Array<string | RendererFlusher> = [];
+	const streamingState = new StreamingRenderState();
+	let firstAsyncRender: Promise<void> | null = null;
+	const bufferedTail: Array<string | RendererFlusher> = [];
 
-	const flushTailStatic = () => {
-		if (st.tailStatic) {
-			tail.push(st.tailStatic);
-			st.tailStatic = '';
+	const flushBufferedStaticOutput = () => {
+		if (streamingState.bufferedStaticOutput) {
+			bufferedTail.push(streamingState.bufferedStaticOutput);
+			streamingState.bufferedStaticOutput = '';
 		}
 	};
 
@@ -182,7 +182,7 @@ export async function renderStreaming(
 					openTag = isVoid ? `<${type}/>` : `<${type}>`;
 					openTagCache.set(key, openTag);
 				}
-				st.emitStatic(openTag);
+				streamingState.appendStatic(openTag);
 				if (!isVoid) {
 					// Push close tag first so it is emitted after the children.
 					stack.push(closeTagFor(type));
@@ -190,10 +190,10 @@ export async function renderStreaming(
 			} else {
 				const attrs = spreadElementAttributes(props!);
 				if (isVoid) {
-					st.emitStatic(`<${type}${attrs}/>`);
+					streamingState.appendStatic(`<${type}${attrs}/>`);
 					return;
 				}
-				st.emitStatic(`<${type}${attrs}>`);
+				streamingState.appendStatic(`<${type}${attrs}>`);
 				stack.push(closeTagFor(type));
 			}
 
@@ -237,7 +237,7 @@ export async function renderStreaming(
 			let i = node.cursor;
 			while (i < htmlParts.length) {
 				if (htmlParts[i]) {
-					st.emitStatic(htmlParts[i]);
+					streamingState.appendStatic(htmlParts[i]);
 				}
 				// `htmlParts.length === expressions.length + 1`, so the final HTML
 				// part has no expression after it. This break must come *after*
@@ -255,7 +255,7 @@ export async function renderStreaming(
 				if (expression == null || expression === false) continue;
 				const expressionType = typeof expression;
 				if (expressionType === 'string') {
-					st.emitStatic(escapeHTML(expression as string));
+					streamingState.appendStatic(escapeHTML(expression as string));
 					continue;
 				}
 				if (
@@ -263,12 +263,12 @@ export async function renderStreaming(
 					expressionType === 'bigint' ||
 					expressionType === 'boolean'
 				) {
-					st.emitStatic(String(expression));
+					streamingState.appendStatic(String(expression));
 					continue;
 				}
 				if (expression instanceof HTMLString || isHTMLString(expression)) {
 					if (!(expression instanceof SlotString)) {
-						st.emitStatic((expression as HTMLString).toString());
+						streamingState.appendStatic((expression as HTMLString).toString());
 						continue;
 					}
 				}
@@ -287,17 +287,17 @@ export async function renderStreaming(
 
 		const nodeType = typeof node;
 		if (nodeType === 'string') {
-			st.emitStatic(escapeHTML(node as string));
+			streamingState.appendStatic(escapeHTML(node as string));
 			continue;
 		}
 		if (nodeType === 'number' || nodeType === 'bigint' || nodeType === 'boolean') {
-			st.emitStatic(String(node));
+			streamingState.appendStatic(String(node));
 			continue;
 		}
 		if (node instanceof HTMLString || isHTMLString(node)) {
 			// SlotString metadata is lost when coerced to a string.
 			if (!(node instanceof SlotString)) {
-				st.emitStatic((node as HTMLString).toString());
+				streamingState.appendStatic((node as HTMLString).toString());
 				continue;
 			}
 		}
@@ -328,10 +328,10 @@ export async function renderStreaming(
 		// Dynamic node: component instance, render instance, promise, JSX vnode,
 		// render instruction, iterable, etc. Rendered via renderChild — streamed
 		// directly while synchronous, buffered once a node renders asynchronously.
-		if (!st.buffered) {
-			if (st.batch) {
-				destination.write(st.batch);
-				st.batch = '';
+		if (!streamingState.isBuffering) {
+			if (streamingState.pendingStaticOutput) {
+				destination.write(streamingState.pendingStaticOutput);
+				streamingState.pendingStaticOutput = '';
 			}
 			// Write the node's output straight to `destination`. It renders
 			// synchronously and in order, so putting it in a temporary buffer
@@ -340,33 +340,33 @@ export async function renderStreaming(
 			const rendered = renderDynamic(node)(destination);
 			if (isPromise(rendered)) {
 				// First async node: stream stops here. Buffer the remaining tail.
-				st.buffered = true;
-				firstAsync = rendered;
+				streamingState.isBuffering = true;
+				firstAsyncRender = rendered;
 			}
 		} else {
-			flushTailStatic();
+			flushBufferedStaticOutput();
 			// createBufferedRenderer starts the work right away, so async nodes run in parallel.
-			tail.push(createBufferedRenderer(destination, renderDynamic(node)));
+			bufferedTail.push(createBufferedRenderer(destination, renderDynamic(node)));
 		}
 	}
 
-	if (!st.buffered) {
-		if (st.batch) {
-			destination.write(st.batch);
+	if (!streamingState.isBuffering) {
+		if (streamingState.pendingStaticOutput) {
+			destination.write(streamingState.pendingStaticOutput);
 		}
 		return;
 	}
 
 	// Wait for the first async node to finish writing to `destination`, then
 	// flush the buffered tail in order.
-	await firstAsync;
-	flushTailStatic();
-	for (const seg of tail) {
-		if (typeof seg === 'string') {
-			destination.write(seg);
+	await firstAsyncRender;
+	flushBufferedStaticOutput();
+	for (const segment of bufferedTail) {
+		if (typeof segment === 'string') {
+			destination.write(segment);
 		} else {
-			const r = seg.flush();
-			if (isPromise(r)) await r;
+			const flushResult = segment.flush();
+			if (isPromise(flushResult)) await flushResult;
 		}
 	}
 }
