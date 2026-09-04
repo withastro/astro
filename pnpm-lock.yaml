@@ -784,8 +784,8 @@ importers:
         specifier: ^0.28.0
         version: 0.28.1
       find-proc:
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: ^0.2.0
+        version: 0.2.0
       flattie:
         specifier: ^1.1.1
         version: 1.1.1
@@ -12680,8 +12680,8 @@ packages:
     resolution: {integrity: sha512-JtyUgATO7qxRp2zKhrmWof74Mqxc1ikbwpwMY97p8ipuTj2QtreA4gK2JNAF6SOqqHnYYkwMUvsgQVi2AJxIyw==}
     engines: {node: '>=20'}
 
-  find-proc@0.1.0:
-    resolution: {integrity: sha512-OaOpEYv2PiQ7SQ5LIrl+deA1XaWcxEjnpM6VuWXTUvn+teIXxeFTLDmu18/zDQpFmHN4o3oDBX+BT0AGwEhemg==}
+  find-proc@0.2.0:
+    resolution: {integrity: sha512-a6h2nTrgB3g5Wrn4au9Ux4kMk7IJtyF6oA8uGn+mk3weLZssUtc1cp6meHIzzuW2o1srrBAxzkmXLbqjRkgB6w==}
     engines: {node: ^20.19.0 || >=22.12.0}
 
   find-up-simple@1.0.1:
@@ -22653,7 +22653,7 @@ snapshots:
       fast-querystring: 1.1.2
       safe-regex2: 5.1.1
 
-  find-proc@0.1.0: {}
+  find-proc@0.2.0: {}
 
   find-up-simple@1.0.1: {}
 

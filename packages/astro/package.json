@@ -143,7 +143,7 @@
     "dset": "^3.1.4",
     "es-module-lexer": "^2.0.0",
     "esbuild": "^0.28.0",
-    "find-proc": "0.1.0",
+    "find-proc": "^0.2.0",
     "flattie": "^1.1.1",
     "fontace": "~0.4.1",
     "get-tsconfig": "5.0.0-beta.4",
