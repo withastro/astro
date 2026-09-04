@@ -1,13 +1,45 @@
 import * as assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { createServer, type Server } from 'node:http';
 import { after, before, describe, it } from 'node:test';
 import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
+
+const PLACEHOLDER_JPEG = readFileSync(
+	new URL('./fixtures/binding-image-service/public/placeholder.jpg', import.meta.url),
+);
+const LOGO_SVG = readFileSync(
+	new URL('./fixtures/binding-image-service/public/logo.svg', import.meta.url),
+);
+
+/** Serves images from extensionless paths, the way GitHub serves user avatars. */
+function startRemoteImageServer(): Promise<{ server: Server; port: number }> {
+	const server = createServer((req, res) => {
+		if (req.url?.startsWith('/svg')) {
+			res.writeHead(200, { 'Content-Type': 'image/svg+xml' });
+			res.end(LOGO_SVG);
+			return;
+		}
+		res.writeHead(200, { 'Content-Type': 'image/jpeg' });
+		res.end(PLACEHOLDER_JPEG);
+	});
+	return new Promise((resolve) => {
+		server.listen(0, () => {
+			const address = server.address();
+			if (typeof address === 'string' || !address) {
+				throw new TypeError('Unexpected address for testing');
+			}
+			resolve({ server, port: address.port });
+		});
+	});
+}
 
 describe('BindingImageService', () => {
 	let fixture: Fixture;
 	let previewServer: PreviewServer;
 	let redirectServer: Server;
 	let redirectServerPort: number;
+	let imageServer: Server;
+	let imageServerPort: number;
 
 	before(async () => {
 		// Start a local HTTP server that always responds with a 302 redirect.
@@ -27,6 +59,8 @@ describe('BindingImageService', () => {
 			});
 		});
 
+		({ server: imageServer, port: imageServerPort } = await startRemoteImageServer());
+
 		fixture = await loadFixture({
 			root: './fixtures/binding-image-service/',
 		});
@@ -37,6 +71,7 @@ describe('BindingImageService', () => {
 	after(async () => {
 		await previewServer.stop();
 		await new Promise((resolve) => redirectServer.close(resolve));
+		await new Promise((resolve) => imageServer.close(resolve));
 	});
 
 	it('returns 403 for missing href parameter', async () => {
@@ -78,5 +113,35 @@ describe('BindingImageService', () => {
 		const href = `http://localhost:${redirectServerPort}/image.jpg`;
 		const res = await fixture.fetch(`/_image?href=${encodeURIComponent(href)}&f=webp`);
 		assert.equal(res.status, 404);
+	});
+
+	// Core omits `f` when it cannot infer a source format from the URL, which is the case
+	// for every extensionless remote image (GitHub avatars, for one). See withastro/astro.build#2610.
+	it('defaults to webp for remote images with no format parameter', async () => {
+		const href = `http://localhost:${imageServerPort}/u/2738`;
+		const res = await fixture.fetch(`/_image?href=${encodeURIComponent(href)}&w=100`);
+		assert.equal(res.status, 200);
+		assert.equal(res.headers.get('content-type'), 'image/webp');
+	});
+
+	it('passes through remote SVGs with no format parameter', async () => {
+		const href = `http://localhost:${imageServerPort}/svg`;
+		const res = await fixture.fetch(`/_image?href=${encodeURIComponent(href)}&w=100`);
+		assert.equal(res.status, 200);
+		assert.equal(res.headers.get('content-type'), 'image/svg+xml');
+		assert.ok((await res.text()).includes('<svg'));
+	});
+
+	it('passes through local SVGs requested as f=svg', async () => {
+		const res = await fixture.fetch('/_image?href=/logo.svg&f=svg&w=100');
+		assert.equal(res.status, 200);
+		assert.equal(res.headers.get('content-type'), 'image/svg+xml');
+		assert.ok((await res.text()).includes('<svg'));
+	});
+
+	it('defaults to webp for local images with no format parameter', async () => {
+		const res = await fixture.fetch('/_image?href=/placeholder.jpg&w=100');
+		assert.equal(res.status, 200);
+		assert.equal(res.headers.get('content-type'), 'image/webp');
 	});
 });
