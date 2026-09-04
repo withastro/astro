@@ -134,7 +134,7 @@ export default function configAliasVitePlugin({
 			transform: {
 				filter: {
 					id: {
-						include: /\.css$/,
+						include: /\.(css|scss|sass|less|styl)$/,
 					},
 				},
 				handler(code) {
