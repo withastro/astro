@@ -51,7 +51,13 @@ import { getRouteTable, matchAllRoutes, matchRoute } from '../routing/route-tabl
 import { getServerIslands } from '../server-islands/mappings.js';
 
 const slotValuesSymbol = Symbol('astro.slotValues');
-const slotsByAstro = new WeakMap<object, AstroGlobal['slots']>();
+const slotsByAstro = new WeakMap<object, Slots>();
+
+type AstroSlotValues = {
+	[slotValuesSymbol]: Record<string, any> | null;
+};
+
+type AstroComponentPartial = Omit<AstroGlobal, 'self' | 'slots'> & Partial<AstroSlotValues>;
 
 /**
  * Per-render facade inputs passed by `BaseApp.render`'s fast path to the
@@ -542,12 +548,13 @@ export class FetchState implements AstroFetchState {
 		}
 		this.#astroPagePartial ??= this.createAstroPagePartial(result, apiContext);
 		astroPagePartial = this.#astroPagePartial;
-		const Astro: Record<string | symbol, unknown> = Object.create(astroPagePartial);
-		Astro.props = props;
-		Astro.self = null;
+		const Astro: AstroComponentPartial = Object.assign(Object.create(astroPagePartial), {
+			props,
+			self: null,
+		});
 		Astro[slotValuesSymbol] = slotValues;
 
-		return Astro as unknown as AstroGlobal;
+		return Astro as AstroGlobal;
 	}
 
 	/**
@@ -581,14 +588,14 @@ export class FetchState implements AstroFetchState {
 			isPrerendered: this.routeData!.prerender,
 			cookies,
 			// On the shared partial, not the instance: a per-component accessor costs measurably.
-			get slots(): AstroGlobal['slots'] {
+			get slots(): Slots {
 				let slots = slotsByAstro.get(this);
 				if (slots === undefined) {
 					slots = new Slots(
 						result,
-						(this as any)[slotValuesSymbol],
+						(this as Partial<AstroSlotValues>)[slotValuesSymbol] ?? null,
 						logger,
-					) as unknown as AstroGlobal['slots'];
+					);
 					slotsByAstro.set(this, slots);
 				}
 				return slots;
