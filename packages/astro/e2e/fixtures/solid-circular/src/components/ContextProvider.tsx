@@ -6,8 +6,8 @@ export const ApplicationContext = createContext([{ lng: 'en' }, {}]);
 
 export const ContextProvider: Component = () => {
   return (
-    <ApplicationContext.Provider value={[{ lng: 'fr' }]}>
+    <ApplicationContext value={[{ lng: 'fr' }]}>
       <SimpleDiv />
-    </ApplicationContext.Provider>
+    </ApplicationContext>
   );
 };

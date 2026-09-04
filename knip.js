@@ -114,8 +114,6 @@ export default {
 		'packages/integrations/solid': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			project,
-			// It's an optional peer dep (triggers a warning) but it's fine in this case
-			ignoreDependencies: ['solid-devtools'],
 		},
 		'packages/integrations/svelte': {
 			entry: [srcEntry, dtsEntry, testEntry],
