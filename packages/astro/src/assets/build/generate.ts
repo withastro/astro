@@ -1,6 +1,7 @@
 import fs, { readFileSync } from 'node:fs';
 import { basename } from 'node:path/posix';
 import colors from 'piccolore';
+import { getBuildTimings } from '../../core/build/timings/index.js';
 import type { StaticBuildOptions } from '../../core/build/types.js';
 import { getTimeStat } from '../../core/build/util.js';
 import { AstroError } from '../../core/errors/errors.js';
@@ -153,6 +154,9 @@ export async function generateImagesForPath(
 			null,
 			`  ${colors.green('▶')} ${filepath} ${colors.dim(statsText)} ${colors.dim(timeIncrease)} ${colors.dim(count)}`,
 		);
+		getBuildTimings()?.record('image', filepath, timeEnd - timeStart, {
+			cached: generationData.cached !== 'miss',
+		});
 		env.count.current++;
 	}
 

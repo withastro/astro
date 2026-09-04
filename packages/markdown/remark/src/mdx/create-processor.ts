@@ -8,6 +8,7 @@ import type {
 	SyntaxHighlightConfig,
 	SyntaxHighlightConfigType,
 } from '@astrojs/internal-helpers/markdown';
+import { timeAsync, timedPluggableList } from '@astrojs/internal-helpers/timings';
 import { createProcessor, nodeTypes } from '@mdx-js/mdx';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
@@ -83,7 +84,7 @@ export function createUnifiedMdxProcessor(
 					applyFrontmatterExport: { srcDir: mdx.srcDir },
 				},
 			});
-			const compiled = await processor.process(vfile);
+			const compiled = await timeAsync('markdown-file', filePath, () => processor.process(vfile));
 			const astroMetadata = getAstroMetadata(vfile);
 			if (!astroMetadata) {
 				throw new Error(
@@ -104,8 +105,8 @@ export function createMdxProcessor(
 	extraOptions: MdxProcessorExtraOptions,
 ) {
 	return createProcessor({
-		remarkPlugins: getRemarkPlugins(mdxOptions),
-		rehypePlugins: getRehypePlugins(mdxOptions),
+		remarkPlugins: timedPluggableList('mdx-plugin', getRemarkPlugins(mdxOptions), 'remark plugin'),
+		rehypePlugins: timedPluggableList('mdx-plugin', getRehypePlugins(mdxOptions), 'rehype plugin'),
 		recmaPlugins: mdxOptions.recmaPlugins,
 		remarkRehypeOptions: mdxOptions.remarkRehype,
 		jsxImportSource: 'astro',
