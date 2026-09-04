@@ -3,11 +3,10 @@
 */
 
 import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
+import { hasBeenPrefetched, normalizePrefetchUrl, recordPrefetch } from './registry.js';
 
 const debug = import.meta.env.DEV ? console.debug : undefined;
 const inBrowser = import.meta.env.SSR === false;
-// Track prefetched URLs so we don't prefetch twice
-const prefetchedUrls = new Set<string>();
 // Track listened anchors so we don't attach duplicated listeners
 const listenedAnchors = new WeakSet<HTMLAnchorElement>();
 
@@ -219,11 +218,13 @@ export interface PrefetchOptions {
  */
 export function prefetch(url: string, opts?: PrefetchOptions) {
 	// Remove url hash to avoid prefetching the same URL multiple times
-	url = url.replace(/#.*/, '');
+	// One normalization for the link href, the speculation rules, and the registry key
+	// (also resolves against location.href rather than a potentially divergent <base href>).
+	url = normalizePrefetchUrl(url);
 
 	const ignoreSlowConnection = opts?.ignoreSlowConnection ?? false;
 	if (!canPrefetchUrl(url, ignoreSlowConnection)) return;
-	prefetchedUrls.add(url);
+	recordPrefetch(url);
 
 	// Prefetch with speculationrules if `clientPrerender` is enabled and supported.
 	// Skip dynamic injection when a static document-source speculation rules script is already
@@ -273,7 +274,7 @@ function canPrefetchUrl(url: string, ignoreSlowConnection: boolean) {
 		return (
 			location.origin === urlObj.origin &&
 			(location.pathname !== urlObj.pathname || location.search !== urlObj.search) &&
-			!prefetchedUrls.has(url)
+			!hasBeenPrefetched(url)
 		);
 	} catch {}
 	return false;
