@@ -12,7 +12,9 @@ const ASTRO_NAMED_IMPORT_PATTERN =
 	/^(\s*import\s+)\{\s*([A-Za-z_$][\w$]*)\s*\}(\s+from\s+['"]([^'"]+\.astro)['"])/;
 
 export function isComponentImportSource(source: string | undefined): source is string {
-	return !!source && (source?.endsWith('.astro'));
+	return (
+		!!source && (source.endsWith('.astro') || source.endsWith('.svelte') || source.endsWith('.vue'))
+	);
 }
 
 export function stripAstroComponentSuffix(name: string) {

@@ -34,7 +34,7 @@ export function enhancedProvideCompletionItems(
 			}
 
 			// A component is exported twice, as a default export and under its clean name, so only offer it once
-			if (isComponentImportSource(source)) {
+			if (source?.endsWith('.astro')) {
 				const key = `${stripAstroComponentSuffix(String(completion.label))}\u0000${source}`;
 				if (seenAstroComponents.has(key)) {
 					return false;
