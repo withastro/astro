@@ -218,6 +218,7 @@ export default function createIntegration({
 									return {
 										...restWorkerConfig,
 										name: 'prerender',
+										main: '@astrojs/cloudflare/entrypoints/server',
 										// Make AsyncLocalStorage available in the build-time prerender
 										// worker (the render scope in `utils/prerender-scope.ts` needs
 										// it) by auto-appending `nodejs_als` when the user's config has
@@ -354,6 +355,7 @@ export default function createIntegration({
 													'astro > piccolore',
 													'astro > picomatch',
 													'astro/app',
+													'astro/app/manifest',
 													'astro/app/fetch/default-handler',
 													'astro/fetch',
 													'astro/hono',
@@ -371,6 +373,7 @@ export default function createIntegration({
 													...(config.logger?.entrypoint === 'astro/logger/json'
 														? ['astro/logger/json']
 														: []),
+													...(needsWorkerCache ? ['@astrojs/cloudflare/cache/provider'] : []),
 													'astro/app/entrypoint/dev',
 													'astro/middleware',
 													'astro/virtual-modules/middleware.js',

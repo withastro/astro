@@ -1,5 +1,41 @@
 # @astrojs/cloudflare
 
+## 14.3.0
+
+### Minor Changes
+
+- [#17795](https://github.com/withastro/astro/pull/17795) [`15e2deb`](https://github.com/withastro/astro/commit/15e2debc7e81d353410ff76a76c3bf75b7fb3070) Thanks [@matthewp](https://github.com/matthewp)! - Adds concurrent rendering support for `experimental.incrementalBuild`, including when using `@astrojs/cloudflare`
+
+  Incremental builds no longer disable caching when `build.concurrency` is greater than `1`. Projects that set `build.concurrency: 1` to keep the cache enabled can remove that workaround. Cloudflare builds also reduce serialization overhead for large prerendered pages.
+
+- [#17887](https://github.com/withastro/astro/pull/17887) [`35aa62e`](https://github.com/withastro/astro/commit/35aa62e60226d81cda281d0b9355abcfa29d889d) Thanks [@matthewp](https://github.com/matthewp)! - Adds a Cloudflare `finalize()` response handler for custom request handlers
+
+  Call `finalize()` to apply cookies and Cloudflare CDN cache defaults to the response from an `astro/fetch` pipeline:
+
+  ```ts
+  import { astro, FetchState } from 'astro/fetch';
+  import { cf, finalize } from '@astrojs/cloudflare/fetch';
+
+  export default {
+    async fetch(request: Request, env: Env, context: ExecutionContext) {
+      const state = new FetchState(request);
+      const asset = await cf(state, env, context);
+      if (asset) return asset;
+
+      return finalize(state, await astro(state));
+    },
+  };
+  ```
+
+  The `@astrojs/cloudflare/hono` middleware applies these response headers automatically. Cloudflare custom entrypoints also fall back to static assets when no Astro route matches and use the default server entrypoint when prerendering through workerd.
+
+### Patch Changes
+
+- [#17895](https://github.com/withastro/astro/pull/17895) [`41b88ac`](https://github.com/withastro/astro/commit/41b88ac0b14719bf46fc3c842ec9a71dd3c9a6af) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes cold `astro dev` crashes by adding `astro/app/manifest` and `@astrojs/cloudflare/cache/provider` to the `optimizeDeps.include` list
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.2.6
 
 ### Patch Changes
