@@ -1,0 +1,12 @@
+{
+  "name": "@test/astro-vercel-instrumentation",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/vercel": "workspace:*",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/context-async-hooks": "^2.7.1",
+    "@opentelemetry/core": "^2.7.1",
+    "astro": "workspace:*"
+  }
+}

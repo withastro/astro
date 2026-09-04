@@ -1,3 +1,4 @@
+import { runWithInboundTraceContext } from 'virtual:astro-vercel:instrumentation';
 import { setGetEnv } from 'astro/env/setup';
 import {
 	ASTRO_LOCALS_HEADER,
@@ -14,72 +15,76 @@ setGetEnv((key) => process.env[key]);
 
 const app = createApp();
 
-export default {
-	async fetch(request: Request): Promise<Response> {
-		const url = new URL(request.url);
-		const middlewareSecretHeader = request.headers.get(ASTRO_MIDDLEWARE_SECRET_HEADER);
-		const hasValidMiddlewareSecret = middlewareSecretHeader === middlewareSecret;
-		let realPath = undefined;
-		if (hasValidMiddlewareSecret) {
-			realPath = request.headers.get(ASTRO_PATH_HEADER);
-		} else if (url.searchParams.get(ASTRO_PATH_TOKEN_PARAM) === middlewareSecret) {
-			// ISR functions only receive the target path via the URL, so the route
-			// rewrite carries the build's path token alongside it. Only honor the
-			// override when that token matches, otherwise the path is ignored and
-			// the request is served as `/_isr`.
-			realPath = url.searchParams.get(ASTRO_PATH_PARAM);
-		}
-		if (typeof realPath === 'string') {
-			// The header carries the client's whole path, query included; the route
-			// rewrite carries only the pathname and leaves the query on this request.
-			const target = new URL(realPath, url);
-			const search = target.search || url.search;
-			url.pathname = target.pathname;
-			url.search = search;
-			// Remove the internal routing params so they never reach user code.
-			url.searchParams.delete(ASTRO_PATH_PARAM);
-			url.searchParams.delete(ASTRO_PATH_TOKEN_PARAM);
-			request = new Request(url.toString(), {
-				method: request.method,
-				headers: request.headers,
-				...(request.body ? { body: request.body, duplex: 'half' } : {}),
-			});
-		}
-
-		const routeData = app.match(request);
-
-		let locals: Record<string, unknown> = {};
-
-		const astroLocalsHeader = request.headers.get(ASTRO_LOCALS_HEADER);
-		if (astroLocalsHeader) {
-			if (!hasValidMiddlewareSecret) {
-				return new Response('Forbidden', { status: 403 });
-			}
-			locals = JSON.parse(astroLocalsHeader);
-		}
-
-		// hide the secret from the rest of user code
-		if (hasValidMiddlewareSecret) {
-			request.headers.delete(ASTRO_MIDDLEWARE_SECRET_HEADER);
-		}
-
-		// https://vercel.com/docs/deployments/skew-protection#supported-frameworks
-		if (skewProtection && process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1') {
-			request.headers.set('x-deployment-id', process.env.VERCEL_DEPLOYMENT_ID!);
-		}
-
-		const response = await app.render(request, {
-			routeData,
-			clientAddress: getClientIpAddress(request),
-			locals,
+async function handleRequest(request: Request): Promise<Response> {
+	const url = new URL(request.url);
+	const middlewareSecretHeader = request.headers.get(ASTRO_MIDDLEWARE_SECRET_HEADER);
+	const hasValidMiddlewareSecret = middlewareSecretHeader === middlewareSecret;
+	let realPath = undefined;
+	if (hasValidMiddlewareSecret) {
+		realPath = request.headers.get(ASTRO_PATH_HEADER);
+	} else if (url.searchParams.get(ASTRO_PATH_TOKEN_PARAM) === middlewareSecret) {
+		// ISR functions only receive the target path via the URL, so the route
+		// rewrite carries the build's path token alongside it. Only honor the
+		// override when that token matches, otherwise the path is ignored and
+		// the request is served as `/_isr`.
+		realPath = url.searchParams.get(ASTRO_PATH_PARAM);
+	}
+	if (typeof realPath === 'string') {
+		// The header carries the client's whole path, query included; the route
+		// rewrite carries only the pathname and leaves the query on this request.
+		const target = new URL(realPath, url);
+		const search = target.search || url.search;
+		url.pathname = target.pathname;
+		url.search = search;
+		// Remove the internal routing params so they never reach user code.
+		url.searchParams.delete(ASTRO_PATH_PARAM);
+		url.searchParams.delete(ASTRO_PATH_TOKEN_PARAM);
+		request = new Request(url.toString(), {
+			method: request.method,
+			headers: request.headers,
+			...(request.body ? { body: request.body, duplex: 'half' } : {}),
 		});
+	}
 
-		if (app.setCookieHeaders) {
-			for (const setCookieHeader of app.setCookieHeaders(response)) {
-				response.headers.append('Set-Cookie', setCookieHeader);
-			}
+	const routeData = app.match(request);
+
+	let locals: Record<string, unknown> = {};
+
+	const astroLocalsHeader = request.headers.get(ASTRO_LOCALS_HEADER);
+	if (astroLocalsHeader) {
+		if (!hasValidMiddlewareSecret) {
+			return new Response('Forbidden', { status: 403 });
 		}
+		locals = JSON.parse(astroLocalsHeader);
+	}
 
-		return response;
+	// hide the secret from the rest of user code
+	if (hasValidMiddlewareSecret) {
+		request.headers.delete(ASTRO_MIDDLEWARE_SECRET_HEADER);
+	}
+
+	// https://vercel.com/docs/deployments/skew-protection#supported-frameworks
+	if (skewProtection && process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1') {
+		request.headers.set('x-deployment-id', process.env.VERCEL_DEPLOYMENT_ID!);
+	}
+
+	const response = await app.render(request, {
+		routeData,
+		clientAddress: getClientIpAddress(request),
+		locals,
+	});
+
+	if (app.setCookieHeaders) {
+		for (const setCookieHeader of app.setCookieHeaders(response)) {
+			response.headers.append('Set-Cookie', setCookieHeader);
+		}
+	}
+
+	return response;
+}
+
+export default {
+	fetch(request: Request): Promise<Response> {
+		return runWithInboundTraceContext(request.headers, () => handleRequest(request));
 	},
 };
