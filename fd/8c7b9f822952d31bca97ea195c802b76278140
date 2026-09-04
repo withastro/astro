@@ -1,0 +1,19 @@
+packages/astro/src/runtime/server/render/util.ts
+  s_4254042d929106::t_dbd77f2f474a29 159-161
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "fd8c7b9f822952d31bca97ea195c802b76278140",
+  "prompts": {},
+  "sessions": {
+    "s_4254042d929106": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f96221e42ffeQqqgh7To6OumVC",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Princesseuh <3019731+Princesseuh@users.noreply.github.com>"
+    }
+  }
+}
