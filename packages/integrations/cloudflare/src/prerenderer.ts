@@ -298,7 +298,22 @@ export function createCloudflarePrerenderer({
 							);
 						}
 
-						const entries: StaticImagesResponse = await response.json();
+						const rawData: StaticImagesResponse = await response.json();
+						const entries: SerializedStaticImageEntry[] = Array.isArray(rawData)
+							? rawData
+							: rawData.entries;
+						const referencedImages: string[] = Array.isArray(rawData)
+							? []
+							: (rawData.referencedImages ?? []);
+
+						// Rehydrate referencedImages into Node global scope so generate.ts preserves original files
+						if (referencedImages.length > 0) {
+							globalThis.astroAsset ??= {};
+							globalThis.astroAsset.referencedImages ??= new Set();
+							for (const img of referencedImages) {
+								globalThis.astroAsset.referencedImages.add(img);
+							}
+						}
 
 						// Transforms left in this map fall through to the Node-side image
 						// service (the user-configured service, or Sharp).

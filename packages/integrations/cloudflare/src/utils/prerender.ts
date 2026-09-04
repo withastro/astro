@@ -162,29 +162,34 @@ export function isImageTransformRequest(request: Request): boolean {
 	return pathname === IMAGE_TRANSFORM_ENDPOINT && request.method === 'POST';
 }
 
-/** Serializes the global staticImages map collected in workerd back to the Node-side build. */
+/** Serializes the global staticImages map and referencedImages collected in workerd back to the Node-side build. */
 export function handleStaticImagesRequest(): Response {
 	const staticImages = globalThis.astroAsset?.staticImages;
-	if (!staticImages || staticImages.size === 0) {
-		return new Response('[]', {
-			headers: { 'Content-Type': 'application/json' },
-		});
-	}
+	const referencedImages = globalThis.astroAsset?.referencedImages
+		? Array.from(globalThis.astroAsset.referencedImages)
+		: [];
 
-	const entries: StaticImagesResponse = [];
-	for (const [originalPath, { originalSrcPath, transforms }] of staticImages) {
-		const serializedTransforms: SerializedStaticImageEntry['transforms'] = [];
-		for (const [hash, { finalPath, transform }] of transforms) {
-			serializedTransforms.push({
-				hash,
-				finalPath,
-				transform: transform as Record<string, any>,
-			});
+	const entries: SerializedStaticImageEntry[] = [];
+	if (staticImages && staticImages.size > 0) {
+		for (const [originalPath, { originalSrcPath, transforms }] of staticImages) {
+			const serializedTransforms: SerializedStaticImageEntry['transforms'] = [];
+			for (const [hash, { finalPath, transform }] of transforms) {
+				serializedTransforms.push({
+					hash,
+					finalPath,
+					transform: transform as Record<string, any>,
+				});
+			}
+			entries.push({ originalPath, originalSrcPath, transforms: serializedTransforms });
 		}
-		entries.push({ originalPath, originalSrcPath, transforms: serializedTransforms });
 	}
 
-	return new Response(JSON.stringify(entries), {
+	const payload: StaticImagesResponse = {
+		entries,
+		referencedImages,
+	};
+
+	return new Response(JSON.stringify(payload), {
 		headers: { 'Content-Type': 'application/json' },
 	});
 }

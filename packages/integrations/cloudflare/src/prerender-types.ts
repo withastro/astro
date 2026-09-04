@@ -53,4 +53,9 @@ export interface SerializedStaticImageEntry {
 	}>;
 }
 
-export type StaticImagesResponse = SerializedStaticImageEntry[];
+export interface StaticImagesPayload {
+	entries: SerializedStaticImageEntry[];
+	referencedImages?: string[];
+}
+
+export type StaticImagesResponse = SerializedStaticImageEntry[] | StaticImagesPayload;
