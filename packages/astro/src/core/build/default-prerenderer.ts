@@ -2,6 +2,8 @@ import type { AstroPrerenderer, PathWithRoute } from '../../types/public/integra
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { BuildApp } from './app.js';
+import { renderForPrerender } from '../app/prerender.js';
+import { ensureAsyncRenderScope } from '../render-scope/node-scope.js';
 import { StaticPaths } from '../../runtime/prerender/static-paths.js';
 
 interface DefaultPrerendererOptions {
@@ -53,8 +55,12 @@ export function createDefaultPrerenderer({
 			return staticPaths.getAll();
 		},
 
-		async render(request, { routeData }) {
-			return prerenderer.app!.render(request, { routeData });
+		async render(request, { routeData, collectMetadata }) {
+			// The scope is installed in the orchestrator's module instance; records
+			// originating in the bundled prerender runtime reach it through the
+			// `Symbol.for('astro:render-scope')` channel.
+			if (collectMetadata) ensureAsyncRenderScope();
+			return renderForPrerender(prerenderer.app!, request, { routeData, collectMetadata });
 		},
 
 		async teardown() {

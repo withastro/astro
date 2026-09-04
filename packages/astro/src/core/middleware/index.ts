@@ -10,6 +10,9 @@ import { DisabledAstroCache } from '../cache/runtime/noop.js';
 import { ASTRO_GENERATOR } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import type { AstroLogger } from '../logger/core.js';
+import { getLogger } from '../logger/manifest-logger.js';
+import { tryGetAmbientManifest } from '../manifest/ambient.js';
 import { getOriginPathname } from '../routing/rewrite.js';
 import { sequence } from './sequence.js';
 
@@ -51,6 +54,24 @@ export type CreateContext = {
 };
 
 /**
+ * Edge middleware runs outside of a request's `FetchState`, so the logger is
+ * resolved from the ambient manifest at call time. No manifest is available in
+ * plain Node (unit tests, embedders), where the console is the only destination.
+ */
+function getMiddlewareLogger(): Pick<AstroLogger, 'warn'> {
+	const manifest = tryGetAmbientManifest();
+	if (manifest) {
+		return getLogger(manifest);
+	}
+
+	return {
+		warn(_label, message) {
+			console.warn(message);
+		},
+	};
+}
+
+/**
  * Creates a context to be passed to Astro middleware `onRequest` function.
  */
 function createContext({
@@ -73,7 +94,7 @@ function createContext({
 		return Promise.resolve(new Response(null));
 	};
 	const context: Omit<APIContext, 'getActionResult' | 'callAction'> = {
-		cookies: new AstroCookies(request),
+		cookies: new AstroCookies(request, getMiddlewareLogger()),
 		request,
 		params,
 		site: undefined,

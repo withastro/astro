@@ -11,8 +11,9 @@ const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
 const serverIslandPlaceholderMap = "'$$server-islands-map$$'";
 const serverIslandPlaceholderNameMap = "'$$server-islands-name-map$$'";
 export const SERVER_ISLAND_MAP_MARKER = '$$server-islands-map$$';
-const serverIslandMapReplaceExp = /['"]\$\$server-islands-map\$\$['"]/g;
-const serverIslandNameMapReplaceExp = /['"]\$\$server-islands-name-map\$\$['"]/g;
+// Backtick included: Rolldown's minifier may rewrite string literals as template literals.
+const serverIslandMapReplaceExp = /['"`]\$\$server-islands-map\$\$['"`]/g;
+const serverIslandNameMapReplaceExp = /['"`]\$\$server-islands-name-map\$\$['"`]/g;
 
 export function vitePluginServerIslands({
 	settings,

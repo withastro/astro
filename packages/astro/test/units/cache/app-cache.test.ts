@@ -35,6 +35,18 @@ function cachedEndpoint() {
 	);
 }
 
+function cachedValidatorEndpoint() {
+	return createEndpoint(
+		{
+			GET: (ctx: APIContext) => {
+				ctx.cache.set({ maxAge: 300, lastModified: new Date('2025-06-01T12:00:00Z') });
+				return Response.json({ timestamp: Date.now() });
+			},
+		},
+		{ route: '/cached-validator' },
+	);
+}
+
 function headCachedEndpoint() {
 	return createEndpoint(
 		{
@@ -207,6 +219,18 @@ describe('context.cache through App pipeline', () => {
 		// are stripped from the final response so end-users never see them.
 		assert.equal(second.headers.get('CDN-Cache-Control'), null);
 		assert.equal(second.headers.get('Cache-Tag'), null);
+	});
+
+	it('retains no-cache on memory cache misses and hits with validators', async () => {
+		const overrides = createCacheManifestOverrides();
+		const app = createTestApp([cachedValidatorEndpoint()], overrides);
+
+		const first = await app.render(new Request('http://localhost/cached-validator'));
+		assert.equal(first.headers.get('Cache-Control'), 'no-cache');
+
+		const second = await app.render(new Request('http://localhost/cached-validator'));
+		assert.equal(second.headers.get('X-Astro-Cache'), 'HIT');
+		assert.equal(second.headers.get('Cache-Control'), 'no-cache');
 	});
 
 	it('uncached route passes through without cache headers', async () => {

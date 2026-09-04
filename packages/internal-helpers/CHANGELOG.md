@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.11.0
+
+### Minor Changes
+
+- [#17262](https://github.com/withastro/astro/pull/17262) [`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds an `@astrojs/internal-helpers/mdx` entrypoint with the shared helpers the Markdown processor packages use to render `.mdx` files.
+
 ## 0.10.4
 
 ### Patch Changes

@@ -1,0 +1,6 @@
+---
+export const prerender = false;
+const count = ((await Astro.session?.get<number>('count')) ?? 0) + 1;
+Astro.session?.set('count', count);
+---
+<p>count: {count}</p>

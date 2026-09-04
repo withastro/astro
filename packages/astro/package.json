@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "7.2.9",
+  "version": "7.3.1",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -176,7 +176,7 @@
     "vitefu": "^1.1.2",
     "xxhash-wasm": "^1.1.0",
     "yargs-parser": "^22.0.0",
-    "zod": "^4.3.6"
+    "zod": "^4.5.4"
   },
   "optionalDependencies": {
     "sharp": "^0.35.4"

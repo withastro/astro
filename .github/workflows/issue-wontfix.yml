@@ -7,7 +7,7 @@ on:
 jobs:
   wontfix:
     if: github.event.label.name == 'wontfix'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Comment and close issue
         env:

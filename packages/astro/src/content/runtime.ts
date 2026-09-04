@@ -5,7 +5,7 @@ import type * as zCore from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { createSvgComponent } from '../assets/runtime.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
-import { recordContentEntryRender } from '../core/build/incremental-content-collector.js';
+import { recordContentEntryRender } from '../core/render-scope/record.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isRemotePath, prependForwardSlash } from '../core/path.js';
 import {
@@ -35,6 +35,7 @@ import {
 	LiveEntryNotFoundError,
 } from './loaders/errors.js';
 import type { LiveLoader } from './loaders/types.js';
+import type { AstroLogger } from '../core/logger/core.js';
 export {
 	LiveCollectionError,
 	LiveCollectionCacheHintError,
@@ -93,8 +94,10 @@ async function parseLiveEntry(
 
 export function createGetCollection({
 	liveCollections,
+	logger,
 }: {
 	liveCollections: LiveCollectionConfigMap;
+	logger: AstroLogger;
 }) {
 	return async function getCollection(
 		collection: string,
@@ -130,7 +133,8 @@ export function createGetCollection({
 			}
 			return result;
 		} else {
-			console.warn(
+			logger.warn(
+				'content',
 				`The collection ${JSON.stringify(
 					collection,
 				)} does not exist or is empty. Please check your content config file for errors.`,
@@ -159,7 +163,13 @@ type DataEntryResult = {
 
 type EntryLookupObject = { collection: string; id: string } | { collection: string; slug: string };
 
-export function createGetEntry({ liveCollections }: { liveCollections: LiveCollectionConfigMap }) {
+export function createGetEntry({
+	liveCollections,
+	logger,
+}: {
+	liveCollections: LiveCollectionConfigMap;
+	logger: AstroLogger;
+}) {
 	return async function getEntry(
 		// Can either pass collection and identifier as 2 positional args,
 		// Or pass a single object with the collection and identifier as properties.
@@ -202,7 +212,7 @@ export function createGetEntry({ liveCollections }: { liveCollections: LiveColle
 		if (await store.hasCollection(collection)) {
 			const entry = await store.get<DataEntry>(collection, lookupId);
 			if (!entry) {
-				console.warn(`Entry ${collection} → ${lookupId} was not found.`);
+				logger.warn('content', `Entry ${collection} → ${lookupId} was not found.`);
 				return;
 			}
 
@@ -216,12 +226,14 @@ export function createGetEntry({ liveCollections }: { liveCollections: LiveColle
 			} as DataEntryResult | ContentEntryResult;
 			// TODO: remove in Astro 8
 			warnForPropertyAccess(
+				logger,
 				result.data,
 				'slug',
 				`[content] Attempted to access deprecated property on "${collection}" entry.\nThe "slug" property is no longer automatically added to entries. Please use the "id" property instead.`,
 			);
 			// TODO: remove in Astro 8
 			warnForPropertyAccess(
+				logger,
 				result,
 				'render',
 				`[content] Invalid attempt to access "render()" method on "${collection}" entry.\nTo render an entry, use "render(entry)" from "astro:content".`,
@@ -233,7 +245,7 @@ export function createGetEntry({ liveCollections }: { liveCollections: LiveColle
 	};
 }
 
-function warnForPropertyAccess(entry: object, prop: string, message: string) {
+function warnForPropertyAccess(logger: AstroLogger, entry: object, prop: string, message: string) {
 	// Skip if the property is already defined (it may be legitimately defined on the entry)
 	if (!(prop in entry)) {
 		let _value: any = undefined;
@@ -241,7 +253,7 @@ function warnForPropertyAccess(entry: object, prop: string, message: string) {
 			get() {
 				// If the user sets value themselves, don't warn
 				if (_value === undefined) {
-					console.error(message);
+					logger.error('content', message);
 				}
 				return _value;
 			},
@@ -608,37 +620,39 @@ export function resolveEntryData<T extends Record<string, unknown>>(
 	return updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap, entry.imageImports);
 }
 
-export async function renderEntry(entry: DataEntry) {
-	if (!entry) {
-		throw new AstroError(AstroErrorData.RenderUndefinedEntryError);
-	}
-	recordContentEntryRender(entry.filePath);
-
-	if (entry.deferredRender) {
-		try {
-			// @ts-expect-error	virtual module
-			const { default: contentModules } = await import('astro:content-module-imports');
-			const renderEntryImport = contentModules.get(entry.filePath);
-			return render({
-				collection: '',
-				id: entry.id,
-				renderEntryImport,
-			});
-		} catch (e) {
-			console.error(e);
+export function createRenderEntry({ logger }: { logger: AstroLogger }) {
+	return async function renderEntry(entry: DataEntry) {
+		if (!entry) {
+			throw new AstroError(AstroErrorData.RenderUndefinedEntryError);
 		}
-	}
+		recordContentEntryRender(entry.filePath);
 
-	const html =
-		entry?.rendered?.metadata?.imagePaths?.length && entry.filePath
-			? await updateImageReferencesInBody(entry.rendered.html, entry.filePath)
-			: entry?.rendered?.html;
+		if (entry.deferredRender) {
+			try {
+				// @ts-expect-error	virtual module
+				const { default: contentModules } = await import('astro:content-module-imports');
+				const renderEntryImport = contentModules.get(entry.filePath);
+				return render({
+					collection: '',
+					id: entry.id,
+					renderEntryImport,
+				});
+			} catch (e) {
+				logger.error('content', `${e}`);
+			}
+		}
 
-	const Content = createComponent(() => serverRender`${unescapeHTML(html)}`);
-	return {
-		Content,
-		headings: entry?.rendered?.metadata?.headings ?? [],
-		remarkPluginFrontmatter: entry?.rendered?.metadata?.frontmatter ?? {},
+		const html =
+			entry?.rendered?.metadata?.imagePaths?.length && entry.filePath
+				? await updateImageReferencesInBody(entry.rendered.html, entry.filePath)
+				: entry?.rendered?.html;
+
+		const Content = createComponent(() => serverRender`${unescapeHTML(html)}`);
+		return {
+			Content,
+			headings: entry?.rendered?.metadata?.headings ?? [],
+			remarkPluginFrontmatter: entry?.rendered?.metadata?.frontmatter ?? {},
+		};
 	};
 }
 
