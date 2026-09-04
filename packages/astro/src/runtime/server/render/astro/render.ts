@@ -172,7 +172,6 @@ async function renderStreamToAsyncIterable(
 				throw error;
 			}
 
-			// All-string buffers encode straight into the result, skipping the merge copy.
 			let mergedArray: Uint8Array;
 			if (!hasBytes) {
 				let text = '';
@@ -245,7 +244,6 @@ async function renderStreamToAsyncIterable(
 			const bytes = chunkToByteArrayOrString(result, chunk);
 			if (bytes.length > 0) {
 				if (typeof bytes === 'string') {
-					// Appending to the previous entry keeps the all-strings merge on one rope.
 					if (lastIsString) {
 						buffer[buffer.length - 1] = (buffer[buffer.length - 1] as string) + bytes;
 					} else {

@@ -28,7 +28,6 @@ export class AstroComponentInstance {
 		this.result = result;
 		this.props = props;
 		this.factory = factory;
-		// Shared until a slot needs wrapping: most components have none, and the copy costs.
 		this.slotValues = slots;
 		for (const name in slots) {
 			if (this.slotValues === slots) {

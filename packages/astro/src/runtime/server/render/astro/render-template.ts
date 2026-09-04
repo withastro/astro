@@ -6,7 +6,6 @@ import { createBufferedRenderer } from '../util.js';
 
 const renderTemplateResultSym = Symbol.for('astro.renderTemplateResult');
 
-// A tagged template's strings array is per call site, so the wrappers can be built once, not per render.
 const markedHtmlParts = new WeakMap<TemplateStringsArray, string[]>();
 
 function markHtmlParts(htmlParts: TemplateStringsArray): string[] {
@@ -35,10 +34,6 @@ export class RenderTemplateResult {
 		this.expressions = expressions;
 	}
 
-	/**
-	 * Wraps an async expression so the component rethrows only the first error.
-	 * Mutating in place is safe: `renderTemplate`'s rest parameter hands us a fresh array.
-	 */
 	catchExpressionError(index: number, expression: unknown): Promise<unknown> {
 		// Re-wrapping hits the `this.error` guard and resolves, swallowing the rejection.
 		if (this.wrapped?.has(index)) return expression as Promise<unknown>;

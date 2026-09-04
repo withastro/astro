@@ -56,7 +56,6 @@ function stringifyChunk(
 	result: SSRResult,
 	chunk: string | HTMLString | SlotString | RenderInstruction,
 ): string {
-	// Primitive strings are the bulk of the stream; the checks below would each box them.
 	if (typeof chunk === 'string') return chunk;
 
 	if (isRenderInstruction(chunk)) {

@@ -54,7 +54,6 @@ export type RenderInstruction =
 	| TemplateExitInstruction;
 
 export function createRenderInstruction<T extends RenderInstruction>(instruction: T): T {
-	// Plain assignment, not `Object.defineProperty`: the latter is a runtime call per instruction.
 	(instruction as any)[RenderInstructionSymbol] = true;
 	return instruction;
 }
