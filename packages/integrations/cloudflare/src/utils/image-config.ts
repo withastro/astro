@@ -117,12 +117,12 @@ export function setImageConfig(
 			};
 
 		case 'compile': {
-			// Dev: IMAGES binding (via Cloudflare Vite plugin) for real transforms.
-			// Build: endpoint depends on runtime - `cloudflare-binding` uses IMAGES, `passthrough` uses generic.
 			const endpoint =
-				command === 'dev' || runtimeService === 'cloudflare-binding'
-					? { entrypoint: '@astrojs/cloudflare/image-transform-endpoint' }
-					: CLOUDFLARE_PASSTHROUGH_ENDPOINT;
+				command === 'dev'
+					? GENERIC_ENDPOINT
+					: runtimeService === 'cloudflare-binding'
+						? { entrypoint: '@astrojs/cloudflare/image-transform-endpoint' }
+						: CLOUDFLARE_PASSTHROUGH_ENDPOINT;
 			return {
 				...config,
 				service: hasUserImageService(config) ? config.service : WORKERD_IMAGE_SERVICE,
