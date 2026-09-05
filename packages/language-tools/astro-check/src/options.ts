@@ -26,7 +26,7 @@ export const options = {
 	},
 	preserveWatchOutput: {
 		type: 'boolean',
-		description: "If set to false, output won't be cleared between checks in watch mode.",
+		description: "If set to true, output won't be cleared between checks in watch mode.",
 		default: false,
 	},
 } as const;

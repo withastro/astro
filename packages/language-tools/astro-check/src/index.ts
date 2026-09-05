@@ -34,7 +34,8 @@ export async function check(flags: Partial<Flags>): Promise<boolean | void> {
 		function createWatcher(rootPath: string, extensions: string[]) {
 			return watch(rootPath, {
 				ignored(pathStr, stats) {
-					if (pathStr.includes('node_modules') || pathStr.includes('.git')) return true;
+					const segments = path.relative(rootPath, pathStr).split(path.sep);
+					if (segments.includes('node_modules') || segments.includes('.git')) return true;
 					if (stats?.isFile() && !extensions.includes(path.extname(pathStr))) return true;
 					return false;
 				},
@@ -79,6 +80,8 @@ export async function check(flags: Partial<Flags>): Promise<boolean | void> {
 			},
 			cancel: isCanceled,
 		});
+		if (result.status === 'cancelled') return;
+
 		console.info(
 			[
 				bold(`Result (${result.fileChecked} file${result.fileChecked === 1 ? '' : 's'}): `),
