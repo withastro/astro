@@ -1,4 +1,3 @@
-import { escape } from 'html-escaper';
 import { streamAsyncIterator } from './util.js';
 
 const ESCAPABLE = /[&<>'"]/g;
@@ -18,9 +17,7 @@ function entityFor(code: number): string {
 	}
 }
 
-/** Output-identical to `html-escaper`; non-strings delegate so coercion and errors match. */
-export function escapeHTML(value: any): string {
-	if (typeof value !== 'string') return escape(value);
+export function escapeHTML(value: string): string {
 	ESCAPABLE.lastIndex = 0;
 	if (!ESCAPABLE.test(value)) return value;
 	let output = '';
