@@ -204,7 +204,7 @@ export class AstroCheck {
 				() => {
 					return globSync('**/*.astro', {
 						cwd: this.workspacePath,
-						ignore: ['node_modules'],
+						ignore: ['**/node_modules/**'],
 						absolute: true,
 						// Required to avoid tinyglobby running eternally
 						expandDirectories: false,
