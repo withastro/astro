@@ -1,7 +1,7 @@
 import { escapeHTML, isHTMLString, markHTMLString } from '../escape.js';
 import { isPromise } from '../util.js';
-import { isAstroComponentInstance, isRenderTemplateResult } from './astro/index.js';
 import { isRenderInstance, type RenderDestination } from './common.js';
+import { isRenderInstruction } from './instruction.js';
 import { SlotString } from './slot.js';
 import { createBufferedRenderer } from './util.js';
 
@@ -13,8 +13,18 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 		return;
 	}
 
+	// Must precede `isRenderInstance`: a `renderer-hydration-script` instruction has a `render` property.
+	if (isRenderInstruction(child)) {
+		destination.write(child);
+		return;
+	}
+
 	if (isPromise(child)) {
 		return child.then((x) => renderChild(destination, x));
+	}
+
+	if (isRenderInstance(child)) {
+		return child.render(destination);
 	}
 
 	if (child instanceof SlotString) {
@@ -41,18 +51,6 @@ export function renderChild(destination: RenderDestination, child: any): void | 
 		// This lets you do {() => ...} without the extra boilerplate
 		// of wrapping it in a function and calling it.
 		return renderChild(destination, child());
-	}
-
-	if (isRenderInstance(child)) {
-		return child.render(destination);
-	}
-
-	if (isRenderTemplateResult(child)) {
-		return child.render(destination);
-	}
-
-	if (isAstroComponentInstance(child)) {
-		return child.render(destination);
 	}
 
 	if (ArrayBuffer.isView(child)) {

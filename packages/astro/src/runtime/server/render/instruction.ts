@@ -54,9 +54,8 @@ export type RenderInstruction =
 	| TemplateExitInstruction;
 
 export function createRenderInstruction<T extends RenderInstruction>(instruction: T): T {
-	return Object.defineProperty(instruction as T, RenderInstructionSymbol, {
-		value: true,
-	});
+	(instruction as any)[RenderInstructionSymbol] = true;
+	return instruction;
 }
 
 export function isRenderInstruction(chunk: any): chunk is RenderInstruction {

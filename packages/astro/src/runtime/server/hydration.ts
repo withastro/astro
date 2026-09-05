@@ -24,7 +24,7 @@ interface ExtractedProps {
 	propsWithoutTransitionAttributes: Props;
 }
 
-const transitionDirectivesToCopyOnIsland = Object.freeze([
+const transitionDirectivesToCopyOnIsland = new Set([
 	'data-astro-transition-scope',
 	'data-astro-transition-persist',
 	'data-astro-transition-persist-props',
@@ -42,7 +42,8 @@ export function extractDirectives(
 		props: {},
 		propsWithoutTransitionAttributes: {},
 	};
-	for (const [key, value] of Object.entries(inputProps)) {
+	for (const key of Object.keys(inputProps)) {
+		const value = inputProps[key];
 		if (key.startsWith('server:')) {
 			if (key === 'server:root') {
 				extracted.isPage = true;
@@ -101,7 +102,7 @@ export function extractDirectives(
 			}
 		} else {
 			extracted.props[key] = value;
-			if (!transitionDirectivesToCopyOnIsland.includes(key)) {
+			if (!transitionDirectivesToCopyOnIsland.has(key)) {
 				extracted.propsWithoutTransitionAttributes[key] = value;
 			}
 		}

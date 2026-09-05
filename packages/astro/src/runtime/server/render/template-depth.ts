@@ -1,16 +1,19 @@
 import type { SSRResult } from '../../../types/public/internal.js';
 import { createRenderInstruction } from './instruction.js';
 
+const TEMPLATE_ENTER = Object.freeze(createRenderInstruction({ type: 'template-enter' } as const));
+const TEMPLATE_EXIT = Object.freeze(createRenderInstruction({ type: 'template-exit' } as const));
+
 /**
  * Emitted by the compiler when entering an HTML `<template>` element.
  */
 export function templateEnter(_result: SSRResult) {
-	return createRenderInstruction({ type: 'template-enter' });
+	return TEMPLATE_ENTER;
 }
 
 /**
  * Emitted by the compiler when exiting an HTML `<template>` element.
  */
 export function templateExit(_result: SSRResult) {
-	return createRenderInstruction({ type: 'template-exit' });
+	return TEMPLATE_EXIT;
 }

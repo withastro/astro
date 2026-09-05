@@ -56,6 +56,8 @@ function stringifyChunk(
 	result: SSRResult,
 	chunk: string | HTMLString | SlotString | RenderInstruction,
 ): string {
+	if (typeof chunk === 'string') return chunk;
+
 	if (isRenderInstruction(chunk)) {
 		const instruction = chunk;
 		switch (instruction.type) {
@@ -203,5 +205,5 @@ export function chunkToByteArrayOrString(
 }
 
 export function isRenderInstance(obj: unknown): obj is RenderInstance {
-	return !!obj && typeof obj === 'object' && 'render' in obj && typeof obj.render === 'function';
+	return typeof obj === 'object' && obj !== null && typeof (obj as any).render === 'function';
 }

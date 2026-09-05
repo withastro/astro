@@ -28,8 +28,11 @@ export class AstroComponentInstance {
 		this.result = result;
 		this.props = props;
 		this.factory = factory;
-		this.slotValues = {};
+		this.slotValues = slots;
 		for (const name in slots) {
+			if (this.slotValues === slots) {
+				this.slotValues = {};
+			}
 			// prerender the slots eagerly to make collection entries propagate styles and scripts
 			let didRender = false;
 			let value = slots[name](result);
@@ -74,6 +77,9 @@ export class AstroComponentInstance {
 		return this.returnValue;
 	}
 
+	// NOTE: This render call can't be pre-invoked outside of this function as it'll also initialize the slots
+	// recursively, which causes each Astro components in the tree to be called bottom-up, and is incorrect.
+	// The slots are initialized eagerly for head propagation.
 	render(destination: RenderDestination): void | Promise<void> {
 		const returnValue = this.init(this.result);
 
@@ -100,9 +106,8 @@ function validateComponentProps(
 	displayName: string,
 ) {
 	if (props != null) {
-		const directives = [...clientDirectives.keys()].map((directive) => `client:${directive}`);
-		for (const prop of Object.keys(props)) {
-			if (directives.includes(prop)) {
+		for (const prop in props) {
+			if (prop.startsWith('client:') && clientDirectives.has(prop.slice(7))) {
 				console.warn(
 					`You are attempting to render <${displayName} ${prop} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`,
 				);
