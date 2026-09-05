@@ -1,0 +1,20 @@
+{
+  "name": "prerender-durable-object",
+  "main": "./src/worker.js",
+  "compatibility_date": "2026-01-28",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "EXAMPLE_DO",
+        "class_name": "ExampleDO"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["ExampleDO"]
+    }
+  ]
+}
