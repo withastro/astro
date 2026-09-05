@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 14.3.1
+
+### Patch Changes
+
+- [#17914](https://github.com/withastro/astro/pull/17914) [`a400504`](https://github.com/withastro/astro/commit/a40050476598ee856cd44cee6976a5d63c81db86) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a build crash when a custom worker entrypoint exports Durable Object classes alongside prerendered pages. The prerender worker no longer inherits `durable_objects`, `migrations`, or `workflows` from the entry worker config.
+
 ## 14.3.0
 
 ### Minor Changes
