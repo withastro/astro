@@ -8,7 +8,6 @@ import type {
 	PrerenderRenderMetadata,
 	PrerenderResult,
 } from '../../types/public/integrations.js';
-import type { SerializedRouteData } from '../../types/astro.js';
 import { serializeRouteData } from '../app/manifest.js';
 import type { AstroLoggerMessage } from '../logger/core.js';
 import { removeBase } from '../path.js';
@@ -51,7 +50,8 @@ interface RenderWorkerRequest {
 	url: string;
 	method: string;
 	headers: [string, string][];
-	routeData: string;
+	routeId: number;
+	routeData?: string;
 	collectMetadata: boolean;
 	staticPath?: GetStaticPathsItem;
 }
@@ -72,15 +72,20 @@ interface SerializedResponse {
 
 type WorkerMessage =
 	| { type: 'ready' }
-	| { type: 'log'; message: AstroLoggerMessage }
 	| { type: 'startup-error'; error: SerializedWorkerError }
 	| {
 			type: 'result';
 			id: number;
 			response: SerializedResponse;
 			metadata?: PrerenderRenderMetadata;
+			logs: AstroLoggerMessage[];
 	  }
-	| { type: 'render-error'; id: number; error: SerializedWorkerError }
+	| {
+			type: 'render-error';
+			id: number;
+			error: SerializedWorkerError;
+			logs: AstroLoggerMessage[];
+	  }
 	| { type: 'images'; id: number; images: AssetsGlobalStaticImagesList };
 
 interface RenderJob {
@@ -96,6 +101,7 @@ interface WorkerState {
 	worker: Worker;
 	idle: boolean;
 	failed: boolean;
+	routes: Set<number>;
 }
 
 interface InFlightRequest {
@@ -119,11 +125,19 @@ function deserializeError(serialized: SerializedWorkerError): Error {
 	return error;
 }
 
+function isDataCloneError(error: unknown): boolean {
+	return (
+		typeof error === 'object' && error !== null && Reflect.get(error, 'name') === 'DataCloneError'
+	);
+}
+
 class PrerenderWorkerPool {
 	#workers: WorkerState[] = [];
 	#queue: RenderJob[] = [];
 	#inFlight = new Map<number, InFlightRequest>();
 	#nextId = 1;
+	#nextRouteId = 1;
+	#routeIds = new Map<string, number>();
 	#routeWorkers = new Map<string, Set<number>>();
 	#fallbackTimer: ReturnType<typeof setTimeout> | undefined;
 	#closing = false;
@@ -158,10 +172,16 @@ class PrerenderWorkerPool {
 
 	render(
 		request: Request,
-		routeData: SerializedRouteData,
+		routeData: string,
+		component: string,
 		collectMetadata: boolean,
 		staticPath?: GetStaticPathsItem,
 	): Promise<PrerenderResult> {
+		let routeId = this.#routeIds.get(routeData);
+		if (routeId === undefined) {
+			routeId = this.#nextRouteId++;
+			this.#routeIds.set(routeData, routeId);
+		}
 		return new Promise((resolve, reject) => {
 			this.#queue.push({
 				request: {
@@ -169,11 +189,12 @@ class PrerenderWorkerPool {
 					url: request.url,
 					method: request.method,
 					headers: [...request.headers],
-					routeData: JSON.stringify(routeData),
+					routeId,
+					routeData,
 					collectMetadata,
 					staticPath,
 				},
-				eligibleWorkers: this.#routeWorkers.get(routeData.component),
+				eligibleWorkers: this.#routeWorkers.get(component),
 				queuedAt: performance.now(),
 				resolve,
 				reject,
@@ -217,7 +238,7 @@ class PrerenderWorkerPool {
 		const worker = new Worker(new URL('./prerender-worker.js', import.meta.url), {
 			workerData: this.workerData,
 		});
-		const state: WorkerState = { index, worker, idle: false, failed: false };
+		const state: WorkerState = { index, worker, idle: false, failed: false, routes: new Set() };
 		this.#workers.push(state);
 
 		await new Promise<void>((resolve, reject) => {
@@ -261,20 +282,18 @@ class PrerenderWorkerPool {
 	}
 
 	#handleMessage(state: WorkerState, message: WorkerMessage) {
-		if (message.type === 'log') {
-			this.destination.write(message.message);
-			return;
-		}
 		if (message.type === 'ready' || message.type === 'startup-error') return;
 		const request = this.#inFlight.get(message.id);
 		if (!request) return;
 		this.#inFlight.delete(message.id);
 		state.idle = true;
 		if (message.type === 'render-error') {
+			for (const log of message.logs) this.destination.write(log);
 			request.reject(deserializeError(message.error));
 		} else if (message.type === 'images') {
 			request.resolve(message.images);
 		} else {
+			for (const log of message.logs) this.destination.write(log);
 			const { body, ...init } = message.response;
 			request.resolve({
 				response: new Response(body === null ? null : new Uint8Array(body), init),
@@ -320,9 +339,29 @@ class PrerenderWorkerPool {
 
 			const [job] = this.#queue.splice(jobIndex, 1);
 			const id = this.#nextId++;
+			const message: RenderWorkerRequest = { ...job.request, id };
+			if (state.routes.has(message.routeId)) delete message.routeData;
+			try {
+				state.worker.postMessage(message);
+			} catch (error) {
+				if (message.staticPath === undefined || !isDataCloneError(error)) {
+					job.reject(error instanceof Error ? error : new Error(String(error)));
+					continue;
+				}
+				const messageWithoutStaticPath = { ...message };
+				delete messageWithoutStaticPath.staticPath;
+				try {
+					state.worker.postMessage(messageWithoutStaticPath);
+				} catch (fallbackError) {
+					job.reject(
+						fallbackError instanceof Error ? fallbackError : new Error(String(fallbackError)),
+					);
+					continue;
+				}
+			}
+			state.routes.add(message.routeId);
 			state.idle = false;
 			this.#inFlight.set(id, { worker: state, resolve: job.resolve, reject: job.reject });
-			state.worker.postMessage({ ...job.request, id });
 		}
 
 		if (this.#queue.length > 0 && this.#workers.some((worker) => worker.idle && !worker.failed)) {
@@ -354,6 +393,7 @@ export function createParallelPrerenderer({
 }: ParallelPrerendererOptions): AstroPrerenderer {
 	let pool: PrerenderWorkerPool | undefined;
 	const staticPaths = new Map<string, GetStaticPathsItem>();
+	const serializedRoutes = new WeakMap<object, string>();
 	return {
 		name: 'astro:parallel',
 		async setup() {
@@ -388,12 +428,7 @@ export function createParallelPrerenderer({
 			const paths = await defaultPrerenderer.getStaticPaths();
 			for (const { pathname, route } of paths) {
 				const item = defaultPrerenderer.app?.routeCache.get(route)?.staticPaths.keyed.get(pathname);
-				if (!item) continue;
-				try {
-					staticPaths.set(`${route.component}:${pathname}`, structuredClone(item));
-				} catch {
-					// Props containing functions cannot cross isolates, so the worker evaluates getStaticPaths itself.
-				}
+				if (item) staticPaths.set(`${route.component}:${pathname}`, item);
 			}
 			pool!.setRoutes(paths, internals.prerenderRouteUniqueBytes ?? new Map());
 			return paths;
@@ -408,9 +443,17 @@ export function createParallelPrerenderer({
 				routeData,
 				options.settings.config.trailingSlash,
 			);
+			let serializedRoute = serializedRoutes.get(routeData);
+			if (serializedRoute === undefined) {
+				serializedRoute = JSON.stringify(
+					serializeRouteData(routeData, options.settings.config.trailingSlash),
+				);
+				serializedRoutes.set(routeData, serializedRoute);
+			}
 			return pool!.render(
 				request,
-				serializeRouteData(routeData, options.settings.config.trailingSlash),
+				serializedRoute,
+				routeData.component,
 				collectMetadata ?? false,
 				staticPaths.get(`${routeData.component}:${pathname}`),
 			);

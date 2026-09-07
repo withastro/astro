@@ -71,6 +71,7 @@ export async function generatePages(
 
 	// Get or create the prerenderer
 	let prerenderer: DefaultPrerenderer;
+	let usesParallelPrerenderer = false;
 	const settingsPrerenderer = options.settings.prerenderer;
 	if (!settingsPrerenderer) {
 		const defaultPrerenderer = createDefaultPrerenderer({
@@ -78,14 +79,17 @@ export async function generatePages(
 			options,
 			prerenderOutputDir,
 		});
-		prerenderer = options.settings.config.experimental.parallelPrerender
-			? createParallelPrerenderer({
-					defaultPrerenderer,
-					internals,
-					options,
-					prerenderOutputDir,
-				})
-			: defaultPrerenderer;
+		if (options.settings.config.experimental.parallelPrerender) {
+			usesParallelPrerenderer = true;
+			prerenderer = createParallelPrerenderer({
+				defaultPrerenderer,
+				internals,
+				options,
+				prerenderOutputDir,
+			});
+		} else {
+			prerenderer = defaultPrerenderer;
+		}
 	} else if (typeof settingsPrerenderer === 'function') {
 		// Factory function - create default and pass it
 		const defaultPrerenderer = createDefaultPrerenderer({
@@ -190,7 +194,10 @@ export async function generatePages(
 
 		// Generate each path
 		if (config.build.concurrency > 1) {
-			const limit = PLimit(config.build.concurrency);
+			const generationConcurrency = usesParallelPrerenderer
+				? config.build.concurrency * 2
+				: config.build.concurrency;
+			const limit = PLimit(generationConcurrency);
 			// Process in batches to avoid V8's Promise.all element limit, which is around ~123k items
 			//
 			// NOTE: ideally we could consider an iterator to avoid the batching limitation

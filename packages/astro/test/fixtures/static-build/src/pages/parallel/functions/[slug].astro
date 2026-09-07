@@ -1,0 +1,14 @@
+---
+export function getStaticPaths() {
+	return [
+		{
+			params: { slug: 'one' },
+			props: { getValue: () => 'function prop' },
+		},
+	];
+}
+
+const { getValue } = Astro.props;
+---
+
+<p>{getValue()}</p>

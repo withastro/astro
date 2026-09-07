@@ -81,6 +81,10 @@ describe('parallel prerender static paths', () => {
 			const firstRandom = await fixture.readFile('/parallel/random/index.html');
 			assert.equal(fs.readFileSync(counterFile, 'utf8'), '1');
 			assert.match(await fixture.readFile('/parallel/items/one/index.html'), />1<\/p>/);
+			assert.match(
+				await fixture.readFile('/parallel/functions/one/index.html'),
+				/>function prop<\/p>/,
+			);
 
 			await fixture.build();
 			assert.equal(fs.readFileSync(counterFile, 'utf8'), '1');

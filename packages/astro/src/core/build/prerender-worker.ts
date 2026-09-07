@@ -2,6 +2,7 @@ import { parentPort, workerData } from 'node:worker_threads';
 import { addStaticImageFactory } from '../../assets/build/add-static-image.js';
 import { getStaticImageList } from '../../assets/build/generate.js';
 import type { AstroSettings } from '../../types/astro.js';
+import type { RouteData } from '../../types/public/internal.js';
 import type { AstroLoggerMessage } from '../logger/core.js';
 import { deserializeRouteData } from '../app/manifest.js';
 import { renderForPrerender } from '../app/prerender.js';
@@ -37,9 +38,10 @@ function serializeError(error: unknown): SerializedWorkerError {
 async function start() {
 	const entry = await import(data.entryUrl);
 	const app = entry.app as BuildApp;
+	let logs: AstroLoggerMessage[] = [];
 	const destination = {
 		write(message: AstroLoggerMessage) {
-			port.postMessage({ type: 'log', message });
+			logs.push(message);
 		},
 	};
 	const internals = {
@@ -68,6 +70,7 @@ async function start() {
 	globalThis.astroAsset.addStaticImage = addStaticImageFactory(settings);
 	app.setInternals(internals);
 	app.setOptions(options);
+	const routes = new Map<number, RouteData>();
 
 	port.on('message', async (message: PrerenderWorkerRequest) => {
 		if (message.type === 'collect-images') {
@@ -76,8 +79,12 @@ async function start() {
 		}
 		if (message.type !== 'render') return;
 
+		logs = [];
 		try {
-			const routeData = deserializeRouteData(JSON.parse(message.routeData));
+			if (message.routeData !== undefined) {
+				routes.set(message.routeId, deserializeRouteData(JSON.parse(message.routeData)));
+			}
+			const routeData = routes.get(message.routeId)!;
 			const request = new Request(message.url, {
 				method: message.method,
 				headers: message.headers,
@@ -100,11 +107,17 @@ async function start() {
 						headers: [...response.headers],
 					},
 					metadata,
+					logs,
 				},
 				body ? [body] : [],
 			);
 		} catch (error) {
-			port.postMessage({ type: 'render-error', id: message.id, error: serializeError(error) });
+			port.postMessage({
+				type: 'render-error',
+				id: message.id,
+				error: serializeError(error),
+				logs,
+			});
 		}
 	});
 
