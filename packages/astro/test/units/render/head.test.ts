@@ -14,6 +14,7 @@ import {
 	templateExit,
 } from '../../../dist/runtime/server/index.js';
 import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
+import type { SSRResult } from '../../../dist/types/public/internal.js';
 import type { TestPipeline } from '../test-utils.ts';
 import { getEnvironment, setEnvironment } from '../../../dist/core/environment/index.js';
 import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
@@ -25,8 +26,8 @@ describe('core/render', () => {
 		const instructions = [
 			{ create: () => renderHead(), type: 'head' },
 			{ create: () => maybeRenderHead(), type: 'maybe-head' },
-			{ create: () => templateEnter({} as any), type: 'template-enter' },
-			{ create: () => templateExit({} as any), type: 'template-exit' },
+			{ create: () => templateEnter({} as SSRResult), type: 'template-enter' },
+			{ create: () => templateExit({} as SSRResult), type: 'template-exit' },
 		];
 		const originals = instructions.map(({ create }) => create());
 		for (const instruction of originals) Reflect.set(instruction, 'type', 'invalid');

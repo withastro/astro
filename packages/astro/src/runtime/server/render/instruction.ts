@@ -43,7 +43,9 @@ export type TemplateExitInstruction = {
 	type: 'template-exit';
 };
 
-export type RenderInstruction =
+export type RenderInstruction = {
+	[RenderInstructionSymbol]?: true;
+} & (
 	| RenderDirectiveInstruction
 	| RenderHeadInstruction
 	| MaybeRenderHeadInstruction
@@ -51,10 +53,11 @@ export type RenderInstruction =
 	| ServerIslandRuntimeInstruction
 	| RenderScriptInstruction
 	| TemplateEnterInstruction
-	| TemplateExitInstruction;
+	| TemplateExitInstruction
+);
 
 export function createRenderInstruction<T extends RenderInstruction>(instruction: T): T {
-	(instruction as any)[RenderInstructionSymbol] = true;
+	instruction[RenderInstructionSymbol] = true;
 	return instruction;
 }
 
