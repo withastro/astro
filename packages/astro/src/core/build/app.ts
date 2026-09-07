@@ -2,9 +2,11 @@ import { BaseApp } from '../app/entrypoints/index.js';
 import type { LogRequestPayload } from '../app/base.js';
 import type { SSRManifest } from '../app/types.js';
 import type { ComponentInstance } from '../../types/astro.js';
+import type { GetStaticPathsItem, GetStaticPathsResultKeyed } from '../../types/public/common.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { getEnvironment } from '../environment/index.js';
 import { getRouteCache, type RouteCache } from '../render/route-cache.js';
+import { stringifyParams } from '../routing/params.js';
 import type { BuildEnvironmentSlots } from './environment.js';
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
@@ -71,6 +73,21 @@ export class BuildApp extends BaseApp {
 
 	getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
 		return getEnvironment(this.manifest).getComponentByRoute(this.manifest, routeData);
+	}
+
+	async setStaticPath(routeData: RouteData, item: GetStaticPathsItem) {
+		const mod = await this.getComponentByRoute(routeData);
+		const cached = this.routeCache.get(routeData);
+		const key = stringifyParams(item.params, routeData, this.manifest.trailingSlash);
+		if (cached?.mod === mod) {
+			if (!cached.staticPaths.keyed.has(key)) cached.staticPaths.push(item);
+			cached.staticPaths.keyed.set(key, item);
+			return;
+		}
+		const staticPaths = Object.assign([item], {
+			keyed: new Map([[key, item]]),
+		}) as GetStaticPathsResultKeyed;
+		this.routeCache.set(routeData, { mod, staticPaths });
 	}
 
 	logRequest(_options: LogRequestPayload) {}

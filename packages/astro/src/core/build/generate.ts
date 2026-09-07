@@ -38,6 +38,7 @@ import { routeIsRedirect } from '../routing/helpers.js';
 import { getOutputFilename } from '../output-filename.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
+import { createParallelPrerenderer } from './parallel-prerenderer.js';
 import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
@@ -72,12 +73,19 @@ export async function generatePages(
 	let prerenderer: DefaultPrerenderer;
 	const settingsPrerenderer = options.settings.prerenderer;
 	if (!settingsPrerenderer) {
-		// No custom prerenderer - create default
-		prerenderer = createDefaultPrerenderer({
+		const defaultPrerenderer = createDefaultPrerenderer({
 			internals,
 			options,
 			prerenderOutputDir,
 		});
+		prerenderer = options.settings.config.experimental.parallelPrerender
+			? createParallelPrerenderer({
+					defaultPrerenderer,
+					internals,
+					options,
+					prerenderOutputDir,
+				})
+			: defaultPrerenderer;
 	} else if (typeof settingsPrerenderer === 'function') {
 		// Factory function - create default and pass it
 		const defaultPrerenderer = createDefaultPrerenderer({

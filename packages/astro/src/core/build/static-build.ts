@@ -32,6 +32,7 @@ import {
 	hasServerIslands,
 } from '../server-islands/vite-plugin-server-islands.js';
 import { createViteBuildConfig } from './vite-build-config.js';
+import { computeRouteUniqueBytes, type PrerenderChunk } from './parallel-prerender-affinity.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -258,6 +259,15 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				// Extract chunks needing injection, then release output for GC
 				const prerenderOutputs = viteBuildReturnToRolldownOutputs(prerenderOutput);
 				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
+				if (settings.config.experimental.parallelPrerender) {
+					internals.prerenderRouteUniqueBytes = computeRouteUniqueBytes(
+						prerenderOutputs.flatMap((output) =>
+							output.output.filter(
+								(chunk): chunk is Rolldown.OutputChunk => chunk.type === 'chunk',
+							),
+						) satisfies PrerenderChunk[],
+					);
+				}
 				prerenderOutput = undefined as any;
 
 				// Build ssr environment for server output

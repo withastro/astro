@@ -1,3 +1,4 @@
+import type { ImageService } from '../../assets/services/service.js';
 import type { AstroPrerenderer, PathWithRoute } from '../../types/public/integrations.js';
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
@@ -18,6 +19,7 @@ interface DefaultPrerendererOptions {
 export interface DefaultPrerenderer extends AstroPrerenderer {
 	/** The BuildApp instance, available after setup() is called */
 	app?: BuildApp;
+	loadImageService?: () => Promise<ImageService>;
 }
 
 /**
@@ -48,6 +50,7 @@ export function createDefaultPrerenderer({
 			app.setInternals(internals);
 			app.setOptions(options);
 			prerenderer.app = app;
+			prerenderer.loadImageService = prerenderEntry.loadImageService;
 		},
 
 		async getStaticPaths(): Promise<PathWithRoute[]> {
