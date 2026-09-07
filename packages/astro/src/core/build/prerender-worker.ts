@@ -2,10 +2,13 @@ import { parentPort, workerData } from 'node:worker_threads';
 import { addStaticImageFactory } from '../../assets/build/add-static-image.js';
 import { getStaticImageList } from '../../assets/build/generate.js';
 import type { AstroSettings } from '../../types/astro.js';
+import type { GetStaticPathsItem } from '../../types/public/common.js';
 import type { RouteData } from '../../types/public/internal.js';
+import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { AstroLoggerMessage } from '../logger/core.js';
 import { deserializeRouteData } from '../app/manifest.js';
 import { renderForPrerender } from '../app/prerender.js';
+import { createRequest } from '../request.js';
 import { ensureAsyncRenderScope } from '../render-scope/node-scope.js';
 import type { BuildApp } from './app.js';
 import type { BuildInternals } from './internal.js';
@@ -46,7 +49,9 @@ async function start() {
 	};
 	const internals = {
 		pagesByKeys: new Map(data.pagesByKeys),
-		entrySpecifierToBundleMap: new Map(data.entrySpecifierToBundleMap),
+		entrySpecifierToBundleMap: new Map(
+			data.pageScript ? [[PAGE_SCRIPT_ID, data.pageScript]] : undefined,
+		),
 	} as BuildInternals;
 	const settings = {
 		scripts: data.scripts,
@@ -85,32 +90,53 @@ async function start() {
 				routes.set(message.routeId, deserializeRouteData(JSON.parse(message.routeData)));
 			}
 			const routeData = routes.get(message.routeId)!;
-			const request = new Request(message.url, {
-				method: message.method,
-				headers: message.headers,
+			const request = createRequest({
+				url: message.url,
+				headers: {},
+				logger: app.logger,
+				isPrerendered: true,
+				routePattern: routeData.component,
 			});
-			if (message.staticPath) await app.setStaticPath(routeData, message.staticPath);
-			if (message.collectMetadata) ensureAsyncRenderScope();
-			const { response, metadata } = await renderForPrerender(app, request, {
-				routeData,
-				collectMetadata: message.collectMetadata,
-			});
-			const body = response.body === null ? null : await response.arrayBuffer();
-			port.postMessage(
-				{
-					type: 'result',
-					id: message.id,
-					response: {
-						body,
-						status: response.status,
-						statusText: response.statusText,
-						headers: [...response.headers],
+			let staticPathSet = false;
+			let previousStaticPath: GetStaticPathsItem | undefined;
+			try {
+				if (message.staticPath) {
+					previousStaticPath = await app.setStaticPath(routeData, message.staticPath);
+					staticPathSet = true;
+				}
+				if (message.collectMetadata) ensureAsyncRenderScope();
+				const { response, metadata } = await renderForPrerender(app, request, {
+					routeData,
+					collectMetadata: message.collectMetadata,
+				});
+				const body =
+					response.body === null || (response.status >= 300 && response.status < 400)
+						? null
+						: await response.arrayBuffer();
+				if (staticPathSet) {
+					app.deleteStaticPath(routeData, message.staticPath!, previousStaticPath);
+					staticPathSet = false;
+				}
+				port.postMessage(
+					{
+						type: 'result',
+						id: message.id,
+						response: {
+							body,
+							status: response.status,
+							statusText: response.statusText,
+							headers: [...response.headers],
+						},
+						metadata,
+						logs,
 					},
-					metadata,
-					logs,
-				},
-				body ? [body] : [],
-			);
+					body ? [body] : [],
+				);
+			} finally {
+				if (staticPathSet) {
+					app.deleteStaticPath(routeData, message.staticPath!, previousStaticPath);
+				}
+			}
 		} catch (error) {
 			port.postMessage({
 				type: 'render-error',

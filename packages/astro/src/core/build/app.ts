@@ -80,14 +80,33 @@ export class BuildApp extends BaseApp {
 		const cached = this.routeCache.get(routeData);
 		const key = stringifyParams(item.params, routeData, this.manifest.trailingSlash);
 		if (cached?.mod === mod) {
-			if (!cached.staticPaths.keyed.has(key)) cached.staticPaths.push(item);
+			const previous = cached.staticPaths.keyed.get(key);
+			if (!previous) cached.staticPaths.push(item);
 			cached.staticPaths.keyed.set(key, item);
-			return;
+			return previous;
 		}
 		const staticPaths = Object.assign([item], {
 			keyed: new Map([[key, item]]),
 		}) as GetStaticPathsResultKeyed;
 		this.routeCache.set(routeData, { mod, staticPaths });
+	}
+
+	deleteStaticPath(
+		routeData: RouteData,
+		item: GetStaticPathsItem,
+		previous: GetStaticPathsItem | undefined,
+	) {
+		const cached = this.routeCache.get(routeData);
+		if (!cached) return;
+		const key = stringifyParams(item.params, routeData, this.manifest.trailingSlash);
+		if (cached.staticPaths.keyed.get(key) !== item) return;
+		if (previous) {
+			cached.staticPaths.keyed.set(key, previous);
+			return;
+		}
+		cached.staticPaths.keyed.delete(key);
+		const index = cached.staticPaths.indexOf(item);
+		if (index !== -1) cached.staticPaths.splice(index, 1);
 	}
 
 	logRequest(_options: LogRequestPayload) {}

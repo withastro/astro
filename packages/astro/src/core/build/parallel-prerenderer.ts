@@ -2,6 +2,7 @@ import { Worker } from 'node:worker_threads';
 import type { AssetsGlobalStaticImagesList } from '../../assets/types.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { GetStaticPathsItem } from '../../types/public/common.js';
+import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type {
 	AstroPrerenderer,
 	PathWithRoute,
@@ -21,7 +22,7 @@ import type { StaticBuildOptions } from './types.js';
 export interface ParallelPrerenderWorkerData {
 	entryUrl: string;
 	pagesByKeys: Array<[string, { styles: unknown[] }]>;
-	entrySpecifierToBundleMap: Array<[string, string]>;
+	pageScript?: string;
 	scripts: AstroSettings['scripts'];
 	image: {
 		base: string;
@@ -48,8 +49,6 @@ interface RenderWorkerRequest {
 	type: 'render';
 	id: number;
 	url: string;
-	method: string;
-	headers: [string, string][];
 	routeId: number;
 	routeData?: string;
 	collectMetadata: boolean;
@@ -117,7 +116,14 @@ interface ParallelPrerendererOptions {
 	prerenderOutputDir: URL;
 }
 
-const AFFINITY_FALLBACK_MS = 500;
+const AFFINITY_FALLBACK_MS = 100;
+const transferredResponseBodies = new WeakMap<Response, ArrayBuffer>();
+
+export function takeTransferredResponseBody(response: Response): ArrayBuffer | undefined {
+	const body = transferredResponseBodies.get(response);
+	transferredResponseBodies.delete(response);
+	return body;
+}
 
 function deserializeError(serialized: SerializedWorkerError): Error {
 	const error = new Error(serialized.message);
@@ -187,8 +193,6 @@ class PrerenderWorkerPool {
 				request: {
 					type: 'render',
 					url: request.url,
-					method: request.method,
-					headers: [...request.headers],
 					routeId,
 					routeData,
 					collectMetadata,
@@ -295,10 +299,9 @@ class PrerenderWorkerPool {
 		} else {
 			for (const log of message.logs) this.destination.write(log);
 			const { body, ...init } = message.response;
-			request.resolve({
-				response: new Response(body === null ? null : new Uint8Array(body), init),
-				metadata: message.metadata,
-			});
+			const response = new Response(null, init);
+			if (body !== null) transferredResponseBodies.set(response, body);
+			request.resolve({ response, metadata: message.metadata });
 		}
 		this.#pump();
 	}
@@ -392,7 +395,6 @@ export function createParallelPrerenderer({
 	prerenderOutputDir,
 }: ParallelPrerendererOptions): AstroPrerenderer {
 	let pool: PrerenderWorkerPool | undefined;
-	const staticPaths = new Map<string, GetStaticPathsItem>();
 	const serializedRoutes = new WeakMap<object, string>();
 	return {
 		name: 'astro:parallel',
@@ -408,7 +410,7 @@ export function createParallelPrerenderer({
 						key,
 						{ styles: page.styles },
 					]),
-					entrySpecifierToBundleMap: [...internals.entrySpecifierToBundleMap],
+					pageScript: internals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID),
 					scripts: options.settings.scripts,
 					image: {
 						base: options.settings.config.base,
@@ -426,10 +428,6 @@ export function createParallelPrerenderer({
 		},
 		async getStaticPaths() {
 			const paths = await defaultPrerenderer.getStaticPaths();
-			for (const { pathname, route } of paths) {
-				const item = defaultPrerenderer.app?.routeCache.get(route)?.staticPaths.keyed.get(pathname);
-				if (item) staticPaths.set(`${route.component}:${pathname}`, item);
-			}
 			pool!.setRoutes(paths, internals.prerenderRouteUniqueBytes ?? new Map());
 			return paths;
 		},
@@ -455,7 +453,7 @@ export function createParallelPrerenderer({
 				serializedRoute,
 				routeData.component,
 				collectMetadata ?? false,
-				staticPaths.get(`${routeData.component}:${pathname}`),
+				defaultPrerenderer.app?.routeCache.get(routeData)?.staticPaths.keyed.get(pathname),
 			);
 		},
 		async collectStaticImages() {

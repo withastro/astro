@@ -38,7 +38,7 @@ import { routeIsRedirect } from '../routing/helpers.js';
 import { getOutputFilename } from '../output-filename.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
-import { createParallelPrerenderer } from './parallel-prerenderer.js';
+import { createParallelPrerenderer, takeTransferredResponseBody } from './parallel-prerenderer.js';
 import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
@@ -586,10 +586,11 @@ export async function renderPath({
 			route.redirect = location.toString();
 		}
 	} else {
-		if (!response.body) {
+		const transferredBody = takeTransferredResponseBody(response);
+		if (!response.body && transferredBody === undefined) {
 			return null;
 		}
-		body = Buffer.from(await response.arrayBuffer());
+		body = Buffer.from(transferredBody ?? (await response.arrayBuffer()));
 	}
 
 	// Compute output paths

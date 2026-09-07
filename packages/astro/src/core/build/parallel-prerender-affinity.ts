@@ -11,42 +11,48 @@ export interface PrerenderChunk {
 
 export function computeRouteUniqueBytes(chunks: PrerenderChunk[]): Map<string, number> {
 	const chunksByFileName = new Map(chunks.map((chunk) => [chunk.fileName, chunk]));
-	const routeClosures = new Map<string, Set<string>>();
-
+	const routeEntries = new Map<string, PrerenderChunk>();
 	for (const chunk of chunks) {
 		if (!chunk.facadeModuleId?.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) continue;
 		const component = chunk.facadeModuleId
 			.slice(VIRTUAL_PAGE_RESOLVED_MODULE_ID.length)
 			.replaceAll('@_@', '.');
-		const closure = new Set<string>();
-		const pending = [chunk.fileName];
+		routeEntries.set(component, chunk);
+	}
+
+	const collectClosure = (entry: PrerenderChunk) => {
+		const closure = new Set<PrerenderChunk>();
+		const pending = [entry];
 		while (pending.length > 0) {
-			const fileName = pending.pop()!;
-			if (closure.has(fileName)) continue;
-			closure.add(fileName);
-			const dependency = chunksByFileName.get(fileName);
-			if (dependency) pending.push(...dependency.imports, ...dependency.dynamicImports);
-		}
-		routeClosures.set(component, closure);
-	}
-
-	const usage = new Map<string, number>();
-	for (const closure of routeClosures.values()) {
-		for (const fileName of closure) usage.set(fileName, (usage.get(fileName) ?? 0) + 1);
-	}
-
-	const encoder = new TextEncoder();
-	return new Map(
-		[...routeClosures].map(([component, closure]) => {
-			let uniqueBytes = 0;
-			for (const fileName of closure) {
-				if (usage.get(fileName) !== 1) continue;
-				const chunk = chunksByFileName.get(fileName);
-				if (chunk) uniqueBytes += encoder.encode(chunk.code).byteLength;
+			const chunk = pending.pop()!;
+			if (closure.has(chunk)) continue;
+			closure.add(chunk);
+			for (const fileName of chunk.imports) {
+				const dependency = chunksByFileName.get(fileName);
+				if (dependency) pending.push(dependency);
 			}
-			return [component, uniqueBytes];
-		}),
-	);
+			for (const fileName of chunk.dynamicImports) {
+				const dependency = chunksByFileName.get(fileName);
+				if (dependency) pending.push(dependency);
+			}
+		}
+		return closure;
+	};
+
+	const usage = new Map<PrerenderChunk, number>();
+	for (const entry of routeEntries.values()) {
+		for (const chunk of collectClosure(entry)) usage.set(chunk, (usage.get(chunk) ?? 0) + 1);
+	}
+
+	const routeUniqueBytes = new Map<string, number>();
+	for (const [component, entry] of routeEntries) {
+		let uniqueBytes = 0;
+		for (const chunk of collectClosure(entry)) {
+			if (usage.get(chunk) === 1) uniqueBytes += Buffer.byteLength(chunk.code);
+		}
+		routeUniqueBytes.set(component, uniqueBytes);
+	}
+	return routeUniqueBytes;
 }
 
 export function assignRouteWorkers(
