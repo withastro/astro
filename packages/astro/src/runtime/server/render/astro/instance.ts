@@ -10,6 +10,7 @@ import { isHeadAndContent } from './head-and-content.js';
 type ComponentProps = Record<string | number, any>;
 
 const astroComponentInstanceSym = Symbol.for('astro.componentInstance');
+const CLIENT_DIRECTIVE_PREFIX = 'client:';
 
 export class AstroComponentInstance {
 	[astroComponentInstanceSym] = true;
@@ -107,7 +108,10 @@ function validateComponentProps(
 ) {
 	if (props != null) {
 		for (const prop in props) {
-			if (prop.startsWith('client:') && clientDirectives.has(prop.slice(7))) {
+			if (
+				prop.startsWith(CLIENT_DIRECTIVE_PREFIX) &&
+				clientDirectives.has(prop.slice(CLIENT_DIRECTIVE_PREFIX.length))
+			) {
 				console.warn(
 					`You are attempting to render <${displayName} ${prop} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`,
 				);

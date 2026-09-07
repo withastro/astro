@@ -87,32 +87,36 @@ function handleBooleanAttribute(
 	return markHTMLString(value ? ` ${key}` : '');
 }
 
-const ATTRIBUTE_ORDINARY = 0;
-const ATTRIBUTE_INVALID_NAME = 1;
-const ATTRIBUTE_STATIC_DIRECTIVE = 2;
-const ATTRIBUTE_CLASS_LIST = 3;
-const ATTRIBUTE_STYLE = 4;
-const ATTRIBUTE_CLASS_NAME = 5;
-const ATTRIBUTE_BOOLEAN = 6;
-const ATTRIBUTE_BOOLEAN_IF_BOOLEAN = 7;
+const ATTRIBUTE_KIND = {
+	ORDINARY: 0,
+	INVALID_NAME: 1,
+	STATIC_DIRECTIVE: 2,
+	CLASS_LIST: 3,
+	STYLE: 4,
+	CLASS_NAME: 5,
+	BOOLEAN: 6,
+	BOOLEAN_IF_BOOLEAN: 7,
+} as const;
 
-const attributeKinds = new Map<string, number>();
+type AttributeKind = (typeof ATTRIBUTE_KIND)[keyof typeof ATTRIBUTE_KIND];
 
-function classifyAttribute(key: string): number {
-	if (INVALID_ATTR_NAME_CHAR.test(key)) return ATTRIBUTE_INVALID_NAME;
-	if (STATIC_DIRECTIVES.has(key)) return ATTRIBUTE_STATIC_DIRECTIVE;
-	if (key === 'class:list') return ATTRIBUTE_CLASS_LIST;
-	if (key === 'style') return ATTRIBUTE_STYLE;
-	if (key === 'className') return ATTRIBUTE_CLASS_NAME;
-	if (htmlBooleanAttributes.test(key)) return ATTRIBUTE_BOOLEAN;
+const attributeKinds = new Map<string, AttributeKind>();
+
+function classifyAttribute(key: string): AttributeKind {
+	if (INVALID_ATTR_NAME_CHAR.test(key)) return ATTRIBUTE_KIND.INVALID_NAME;
+	if (STATIC_DIRECTIVES.has(key)) return ATTRIBUTE_KIND.STATIC_DIRECTIVE;
+	if (key === 'class:list') return ATTRIBUTE_KIND.CLASS_LIST;
+	if (key === 'style') return ATTRIBUTE_KIND.STYLE;
+	if (key === 'className') return ATTRIBUTE_KIND.CLASS_NAME;
+	if (htmlBooleanAttributes.test(key)) return ATTRIBUTE_KIND.BOOLEAN;
 	// We cannot add it to htmlBooleanAttributes because it can be: boolean | "auto" | "manual"
 	if (key === 'popover' || key === 'download' || key === 'hidden') {
-		return ATTRIBUTE_BOOLEAN_IF_BOOLEAN;
+		return ATTRIBUTE_KIND.BOOLEAN_IF_BOOLEAN;
 	}
-	return ATTRIBUTE_ORDINARY;
+	return ATTRIBUTE_KIND.ORDINARY;
 }
 
-function attributeKind(key: string): number {
+function attributeKind(key: string): AttributeKind {
 	let kind = attributeKinds.get(key);
 	if (kind === undefined) {
 		kind = classifyAttribute(key);
@@ -131,20 +135,21 @@ export function addAttribute(value: any, key: string, shouldEscape = true, tagNa
 		return '';
 	}
 
-	switch (attributeKind(key)) {
+	const kind = attributeKind(key);
+	switch (kind) {
 		// Reject attribute names with characters that could break out of the attribute context.
-		case ATTRIBUTE_INVALID_NAME:
+		case ATTRIBUTE_KIND.INVALID_NAME:
 			return '';
 
 		// compiler directives cannot be applied dynamically, log a warning and ignore.
-		case ATTRIBUTE_STATIC_DIRECTIVE:
+		case ATTRIBUTE_KIND.STATIC_DIRECTIVE:
 			console.warn(`[astro] The "${key}" directive cannot be applied dynamically at runtime. It will not be rendered as an attribute.
 
 Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the dynamic spread syntax (\`{...{ "${key}": value }}\`).`);
 			return '';
 
 		// support "class" from an expression passed into an element (#782)
-		case ATTRIBUTE_CLASS_LIST: {
+		case ATTRIBUTE_KIND.CLASS_LIST: {
 			const listValue = toAttributeString(clsx(value), shouldEscape);
 			if (listValue === '') {
 				return '';
@@ -153,7 +158,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		}
 
 		// support object styles for better JSX compat
-		case ATTRIBUTE_STYLE:
+		case ATTRIBUTE_KIND.STYLE:
 			if (!(value instanceof HTMLString)) {
 				if (Array.isArray(value) && value.length === 2) {
 					return markHTMLString(
@@ -169,18 +174,24 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 			break;
 
 		// support `className` for better JSX compat
-		case ATTRIBUTE_CLASS_NAME:
+		case ATTRIBUTE_KIND.CLASS_NAME:
 			return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
 
 		// Boolean values only need the key
-		case ATTRIBUTE_BOOLEAN:
+		case ATTRIBUTE_KIND.BOOLEAN:
 			return handleBooleanAttribute(key, value, shouldEscape, tagName);
 
-		case ATTRIBUTE_BOOLEAN_IF_BOOLEAN:
+		case ATTRIBUTE_KIND.BOOLEAN_IF_BOOLEAN:
 			if (typeof value === 'boolean') {
 				return handleBooleanAttribute(key, value, shouldEscape, tagName);
 			}
 			break;
+
+		case ATTRIBUTE_KIND.ORDINARY:
+			break;
+
+		default:
+			kind satisfies never;
 	}
 
 	// Other attributes with an empty string value can omit rendering the value
