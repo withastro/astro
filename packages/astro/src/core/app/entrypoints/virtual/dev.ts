@@ -1,4 +1,4 @@
-import fetchable from 'virtual:astro:fetchable';
+import fetchable, { isDefaultFetchHandler } from 'virtual:astro:fetchable';
 import { manifest } from 'virtual:astro:manifest';
 import { clearActions } from '../../../../actions/load.js';
 import { createNonRunnableEnvironment } from '../../../environment/dev-nonrunnable.js';
@@ -24,7 +24,15 @@ export const createApp: CreateApp = ({ streaming } = {}) => {
 	setLogger(manifest, createConsoleLogger({ level: manifest.logLevel }));
 	setEnvironment(manifest, createNonRunnableEnvironment());
 	const app = new DevFacadeApp(manifest, streaming);
-	app.setFetchHandler(fetchable);
+	// Only install a user-authored fetch handler. The built-in fallback
+	// (`isDefaultFetchHandler`) must be skipped: in the workerd dev
+	// environment the optimizer can place `DefaultFetchHandler` in a
+	// separate chunk, producing a different class identity that defeats
+	// the `instanceof` fast-path in `BaseApp.render`. Mirrors the guard
+	// in `vite-plugin-app/handle-request.ts`. See #17927.
+	if (!isDefaultFetchHandler) {
+		app.setFetchHandler(fetchable);
+	}
 
 	// The HMR listeners target the MANIFEST via the functional core: one
 	// atomic route-table replacement is visible to every consumer — matcher,
