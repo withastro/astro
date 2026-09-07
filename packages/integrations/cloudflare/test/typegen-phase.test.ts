@@ -20,6 +20,7 @@ interface OptimizeDepsPatch {
 async function runConfigSetup(
 	command: 'dev' | 'build' | 'sync',
 	loggerConfig?: { entrypoint: string },
+	cacheConfig?: { provider?: { name: string; entrypoint: string } },
 ) {
 	const integration = cloudflare();
 	let updatedConfig: { vite: { plugins: unknown[] } } | undefined;
@@ -35,6 +36,7 @@ async function runConfigSetup(
 			vite: {},
 			image: {},
 			logger: loggerConfig,
+			cache: cacheConfig,
 		},
 		updateConfig(config: { vite: { plugins: unknown[] } }) {
 			updatedConfig = config;
@@ -119,6 +121,25 @@ describe('type generation phase (build and sync)', () => {
 			// entrypoints (#16933); losing them reintroduces mid-request discovery.
 			assert.ok(include.includes('astro/actions/runtime/entrypoints/server.js'));
 			assert.ok(include.includes('astro/actions/runtime/entrypoints/route.js'));
+		});
+
+		it('prebundles astro/app/manifest for server environments', async () => {
+			const { configEnvironment } = await runConfigSetup('dev');
+			const include = configEnvironment('ssr', {})?.optimizeDeps?.include ?? [];
+			assert.ok(include.includes('astro/app/manifest'));
+		});
+
+		it('only prebundles the cache provider when Workers Caching is enabled', async () => {
+			const withoutCache = await runConfigSetup('dev');
+			const withoutCacheInclude =
+				withoutCache.configEnvironment('ssr', {})?.optimizeDeps?.include ?? [];
+			assert.ok(!withoutCacheInclude.includes('@astrojs/cloudflare/cache/provider'));
+
+			const withCache = await runConfigSetup('dev', undefined, {
+				provider: { name: 'cloudflare', entrypoint: '@astrojs/cloudflare/cache/provider' },
+			});
+			const withCacheInclude = withCache.configEnvironment('ssr', {})?.optimizeDeps?.include ?? [];
+			assert.ok(withCacheInclude.includes('@astrojs/cloudflare/cache/provider'));
 		});
 
 		it('only prebundles the JSON logger when it is enabled', async () => {

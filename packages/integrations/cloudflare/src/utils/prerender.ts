@@ -15,18 +15,12 @@
  */
 
 import type { BaseApp, RenderErrorOptions } from 'astro/app';
-import {
-	beginContentEntryCollection,
-	beginImageCollection,
-	endContentEntryCollection,
-	endImageCollection,
-} from 'astro/app';
+import { renderForPrerender } from 'astro/app';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import { StaticPaths } from 'astro:static-paths';
 import type {
 	StaticPathsResponse,
 	PrerenderRequest,
-	PrerenderEnvelope,
 	SerializedStaticImageEntry,
 	StaticImagesResponse,
 } from '../prerender-types.js';
@@ -40,21 +34,7 @@ import {
 	transform as transformWithImagesBinding,
 	transformStream as transformStreamWithImagesBinding,
 } from './image-binding-transform.js';
-
-/**
- * Encodes a buffered response body as base64 so it can travel inside the JSON
- * `PrerenderEnvelope`. Chunked to avoid overflowing the call stack when
- * spreading a large byte array into `String.fromCharCode`.
- */
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-	const bytes = new Uint8Array(buffer);
-	const CHUNK_SIZE = 0x8000;
-	let binary = '';
-	for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
-		binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK_SIZE));
-	}
-	return btoa(binary);
-}
+import { createFramedPrerenderResponse } from './prerender-response.js';
 
 /**
  * Replicates core's `BuildErrorHandler` semantics on the worker app during
@@ -137,29 +117,21 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 	// Buffer the full body to catch streaming errors before the HTTP layer
 	// commits a 200 status.
 	try {
-		// For incremental builds, collect the content entries and image transforms
-		// resolved during this render so the build process can attribute them to
-		// the path and replay them when the path is skipped on a later build.
-		if (body.incremental) {
-			beginContentEntryCollection();
-			beginImageCollection();
+		// For incremental builds, `renderForPrerender` collects the content entries
+		// and image transforms resolved during this render — scoped to this
+		// request's async context, so concurrent prerender requests attribute
+		// correctly. A length-prefixed JSON header carries the metadata before the
+		// raw response bytes without requiring cross-request state.
+		const { response, metadata } = await renderForPrerender(app, prerenderRequest, {
+			routeData,
+			collectMetadata: body.collectMetadata,
+		});
+		if (body.collectMetadata) {
+			return createFramedPrerenderResponse(response, metadata);
 		}
-		const response = await app.render(prerenderRequest, { routeData });
+		// Non-collecting branch: buffer here so streaming errors are still caught
+		// before the HTTP layer commits a 200.
 		const bufferedBody = await response.arrayBuffer();
-		if (body.incremental) {
-			const contentEntryKeys = endContentEntryCollection();
-			const staticImages = endImageCollection();
-			const envelope: PrerenderEnvelope = {
-				status: response.status,
-				statusText: response.statusText,
-				headers: [...response.headers.entries()],
-				body: arrayBufferToBase64(bufferedBody),
-				metadata: { contentEntryKeys, staticImages },
-			};
-			return new Response(JSON.stringify(envelope), {
-				headers: { 'Content-Type': 'application/json' },
-			});
-		}
 		return new Response(bufferedBody, {
 			status: response.status,
 			statusText: response.statusText,

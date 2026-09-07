@@ -829,7 +829,7 @@ async function tryToInstallIntegrations({
 			spinner.error('Error installing dependencies.');
 			logger.debug('add', 'Error installing dependencies', err);
 			// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
-			console.error('\n', err.stdout || err.message, '\n');
+			logger.error('add', `\n${err.stdout || err.message}\n`);
 			return 'failure';
 		}
 	} else {

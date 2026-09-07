@@ -207,6 +207,8 @@ When exports change:
 - Workspace-only internals belong under an explicit `./_internal/*` subpath and only in the monorepo export map.
 - Other workspace packages should use declared subpaths instead of deep relative imports into another package.
 
+Whenever production code, publishable templates, or emitted virtual modules reference an `astro/*` subpath, verify that the subpath is present in `publishConfig.exports`, not merely the monorepo `exports` map. Code shipped to or emitted into user projects must not import workspace-only `./_internal/*` entrypoints. Include imports embedded in generated source strings in this check because workspace fixtures resolve against the broader monorepo map and can hide failures that occur only with the published package.
+
 Follow the "Public vs. internal API" section in [`CONTRIBUTING.md`](../../../CONTRIBUTING.md).
 
 #### Dependencies and Project References

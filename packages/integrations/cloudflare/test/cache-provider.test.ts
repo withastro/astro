@@ -98,6 +98,7 @@ describe('Cloudflare cache provider', () => {
 
 		const lastModified = res.headers.get('Last-Modified');
 		assert.equal(lastModified, new Date('2026-01-15T10:00:00.000Z').toUTCString());
+		assert.equal(res.headers.get('Cache-Control'), 'no-cache');
 
 		const etag = res.headers.get('ETag');
 		assert.ok(etag, 'ETag header should be present');

@@ -94,7 +94,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		const chunkSize = getDataStoreChunkSize(restart.container.settings);
 		if (chunkSize !== undefined) {
 			const dataStoreDir = getDataStoreDir(restart.container.settings, true);
-			store = await MutableDataStore.fromDir(dataStoreDir, chunkSize);
+			store = await MutableDataStore.fromDir(dataStoreDir, chunkSize, logger);
 		} else {
 			const dataStoreFile = getDataStoreFile(restart.container.settings, true);
 			store = await MutableDataStore.fromFile(dataStoreFile);

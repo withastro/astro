@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { DATA_STORE_MANIFEST_FILE } from '../../../dist/content/consts.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { createTempDir } from './test-helpers.ts';
+import { SpyLogger } from '../test-utils.ts';
 
 const CHUNK_SIZE = 1024 * 1024;
 
@@ -49,7 +50,8 @@ describe('MutableDataStore - write notifications', () => {
 	it('notifies with the manifest path for chunked stores', async () => {
 		const tempDir = createTempDir();
 		const dataStoreDir = new URL('./data-store/', tempDir);
-		const store = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE);
+		const logger = new SpyLogger();
+		const store = await MutableDataStore.fromDir(dataStoreDir, CHUNK_SIZE, logger);
 
 		const written: string[] = [];
 		store.onFileWritten((path) => written.push(path));

@@ -62,7 +62,8 @@ import { sessionConfigToManifest } from '../../session/utils.js';
  */
 
 export const MANIFEST_REPLACE = '@@ASTRO_MANIFEST_REPLACE@@';
-const replaceExp = new RegExp(`['"]${MANIFEST_REPLACE}['"]`, 'g');
+// Backtick included: Rolldown's minifier may rewrite string literals as template literals.
+const replaceExp = new RegExp(`['"\`]${MANIFEST_REPLACE}['"\`]`, 'g');
 
 /**
  * Post-build hook that injects the computed manifest into bundled chunks.

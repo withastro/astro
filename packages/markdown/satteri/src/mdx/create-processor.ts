@@ -1,0 +1,208 @@
+import { pathToFileURL } from 'node:url';
+import { isFrontmatterValid } from '@astrojs/internal-helpers/frontmatter';
+import type {
+	AstroMarkdownOptions,
+	MarkdownHeading,
+	MdxRendererOptions,
+	MdxRenderResult,
+} from '@astrojs/internal-helpers/markdown';
+import {
+	ASTRO_IMAGE_IMPORT,
+	createDefaultAstroMetadata,
+	USES_ASTRO_IMAGE_FLAG,
+} from '@astrojs/internal-helpers/mdx';
+import {
+	mdxToJs,
+	type HastNode,
+	type HastPluginDefinition,
+	type HastPluginEntry,
+	type MdastPluginDefinition,
+	type MdastPluginEntry,
+	type MdxCompileOptions,
+} from 'satteri';
+import type { SatteriResolvedOptions } from '../processor.js';
+import {
+	createCollectImagesPlugin,
+	createHeadingIdsPlugin,
+	createHighlightFn,
+	createHighlightPlugin,
+	type SatteriAstroData,
+} from '../satteri-processor.js';
+import { shouldAddCharset } from './charset.js';
+import { createAstroMetadataPlugin } from './hast-astro-metadata.js';
+import { createImageToComponentPlugin, type ImageImportInfo } from './hast-images-to-component.js';
+
+type HighlightFn = (code: string, lang: string, meta?: string) => Promise<HastNode>;
+
+export type { MdastPluginDefinition, HastPluginDefinition, MarkdownHeading };
+export type { AstroMetadata } from './hast-astro-metadata.js';
+
+declare module 'hast' {
+	interface ElementData {
+		lang?: string | null;
+	}
+}
+
+export function createSatteriMdxProcessor(
+	shared: AstroMarkdownOptions,
+	mdx: MdxRendererOptions,
+	satteriOptions: SatteriResolvedOptions,
+) {
+	let highlightFn: HighlightFn | undefined;
+	let initPromise: Promise<void> | undefined;
+
+	function initHighlighter() {
+		initPromise = createHighlightFn(shared.syntaxHighlight, shared.shikiConfig).then((fn) => {
+			highlightFn = fn;
+		});
+	}
+
+	return {
+		async process(
+			content: string,
+			filePath: string,
+			frontmatter: Record<string, any>,
+		): Promise<MdxRenderResult> {
+			if (!highlightFn && !initPromise) {
+				initHighlighter();
+			}
+			if (initPromise) await initPromise;
+
+			const astroData: SatteriAstroData = {
+				frontmatter,
+				headings: [],
+				localImagePaths: new Set(),
+				remoteImagePaths: new Set(),
+			};
+
+			const collectImages = createCollectImagesPlugin();
+			const headingIds = createHeadingIdsPlugin();
+			const astroMeta = createAstroMetadataPlugin(filePath);
+			const imageImportInfo: ImageImportInfo = {
+				importedImages: new Map(),
+				hasImages: false,
+			};
+			const imageToComponent = createImageToComponentPlugin(imageImportInfo);
+
+			const syntaxHighlight = shared.syntaxHighlight;
+			const excludeLangs =
+				typeof syntaxHighlight === 'object' ? syntaxHighlight.excludeLangs : undefined;
+
+			// Collect last so image-URL rewrites by user plugins are captured.
+			const allMdastPlugins: MdastPluginEntry[] = [...satteriOptions.mdastPlugins, collectImages];
+
+			const hastPlugins: HastPluginEntry[] = [];
+			if (highlightFn) {
+				hastPlugins.push(createHighlightPlugin(highlightFn, excludeLangs));
+			}
+			if (satteriOptions.hastPlugins.length) {
+				hastPlugins.push(...satteriOptions.hastPlugins);
+			}
+			hastPlugins.push(imageToComponent, headingIds, astroMeta);
+
+			let optimizeStatic: MdxCompileOptions['optimizeStatic'];
+			if (mdx.optimize) {
+				const ignoreElements =
+					typeof mdx.optimize === 'object' ? mdx.optimize.ignoreElementNames : undefined;
+
+				optimizeStatic = {
+					component: 'Fragment',
+					prop: 'set:html',
+					...(ignoreElements && { ignoreElements }),
+				};
+			}
+
+			const { gfm, smartPunctuation } = satteriOptions.features;
+
+			const mdxResult = await mdxToJs(content, {
+				mdastPlugins: allMdastPlugins,
+				hastPlugins,
+				optimizeStatic,
+				// `shared` carries the more specific `mdx({ gfm })` and wins, but only over booleans.
+				features: {
+					...satteriOptions.features,
+					gfm: typeof gfm === 'object' ? gfm : (shared.gfm ?? gfm ?? true) !== false,
+					smartPunctuation:
+						typeof smartPunctuation === 'object'
+							? smartPunctuation
+							: (shared.smartypants ?? smartPunctuation ?? true) !== false,
+				},
+				fileURL: pathToFileURL(filePath),
+				jsxImportSource: 'astro',
+				elementAttributeNameCase: 'html',
+				data: { astro: astroData },
+			});
+			let compiled = mdxResult.code;
+
+			// Read the returned bag, not the seeded reference, so a plugin that replaces it is honored.
+			const astro = mdxResult.data.astro;
+			const headings = astro?.headings ?? [];
+			const astroMetadata = mdxResult.data.__astroMetadata ?? createDefaultAstroMetadata();
+
+			// Plugins may have mutated frontmatter; emit the final value.
+			const resolvedFrontmatter = astro?.frontmatter;
+			if (!resolvedFrontmatter || !isFrontmatterValid(resolvedFrontmatter)) {
+				throw new Error(
+					'[MDX] A Sätteri plugin attempted to inject invalid frontmatter. Ensure `ctx.data.astro.frontmatter` is a valid object that is not `null` or `undefined`.',
+				);
+			}
+
+			compiled = compiled.replace(/^export default MDXContent;\s*$/m, '');
+
+			if (imageImportInfo.hasImages) {
+				// `vite-plugin-mdx-postprocess` wraps Content to map
+				// `astro-image` → `components.img ?? __AstroImage__`, so a user's
+				// `export const components = { img: ... }` override is honored.
+				compiled += `\nimport { Image as ${ASTRO_IMAGE_IMPORT} } from "astro:assets";`;
+				for (const [src, importName] of imageImportInfo.importedImages) {
+					compiled += `\nimport ${importName} from ${JSON.stringify(src)};`;
+				}
+				compiled += `\nexport const ${USES_ASTRO_IMAGE_FLAG} = true;`;
+			}
+
+			compiled += `\nexport const frontmatter = ${JSON.stringify(resolvedFrontmatter)};`;
+			compiled += `\nexport function getHeadings() { return ${JSON.stringify(headings)}; }`;
+
+			if (resolvedFrontmatter.layout) {
+				compiled = compiled.replace(/^function MDXContent\(/m, 'function __OriginalMDXContent__(');
+				compiled += `
+import { jsx as __astro_layout_jsx__ } from 'astro/jsx-runtime';
+import __astro_layout_component__ from ${JSON.stringify(resolvedFrontmatter.layout)};
+export default function MDXContent(props) {
+	const content = __OriginalMDXContent__(props);
+	const { layout, ...frontmatterContent } = frontmatter;
+	frontmatterContent.file = file;
+	frontmatterContent.url = url;
+	return __astro_layout_jsx__(__astro_layout_component__, {
+		file,
+		url,
+		content: frontmatterContent,
+		frontmatter: frontmatterContent,
+		headings: getHeadings(),
+		'server:root': true,
+		children: content,
+	});
+}`;
+			} else if (shouldAddCharset(content, filePath, mdx.srcDir)) {
+				// Default MDX pages without a layout to UTF-8 so users don't have to think about it.
+				compiled = compiled.replace(/^function MDXContent\(/m, 'function __OriginalMDXContent__(');
+				compiled += `
+import { jsx as __astro_charset_jsx__, jsxs as __astro_charset_jsxs__, Fragment as __astro_charset_Fragment__ } from 'astro/jsx-runtime';
+export default function MDXContent(props) {
+	return __astro_charset_jsxs__(__astro_charset_Fragment__, {
+		children: [
+			__astro_charset_jsx__('meta', { charset: 'utf-8' }),
+			__OriginalMDXContent__(props),
+		],
+	});
+}`;
+			}
+
+			return {
+				code: compiled,
+				map: null,
+				astroMetadata,
+			};
+		},
+	};
+}
