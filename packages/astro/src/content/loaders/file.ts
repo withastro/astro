@@ -1,8 +1,12 @@
 import { existsSync, promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import * as toml from 'smol-toml';
-import { FileGlobNotSupported, FileParserNotFound } from '../../core/errors/errors-data.js';
+import {
+	DuplicateContentEntrySlugError,
+	FileGlobNotSupported,
+	FileParserNotFound,
+} from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/index.js';
 import { posixRelative } from '../utils.js';
 import type { Loader, LoaderContext } from './types.js';
@@ -49,7 +53,10 @@ export function file(fileName: string, options?: FileOptions): Loader {
 		});
 	}
 
-	async function syncData(filePath: string, { logger, parseData, store, config }: LoaderContext) {
+	async function syncData(
+		filePath: string,
+		{ logger, parseData, store, config, collection }: LoaderContext,
+	) {
 		let data: Array<Record<string, unknown>> | Record<string, Record<string, unknown>>;
 
 		try {
@@ -77,9 +84,20 @@ export function file(fileName: string, options?: FileOptions): Loader {
 					continue;
 				}
 				if (idList.has(id)) {
-					logger.warn(
-						`Duplicate id "${id}" found in ${fileName}. Later items with the same id will overwrite earlier ones.`,
+					const message = DuplicateContentEntrySlugError.message(
+						collection,
+						id,
+						fileName,
+						fileName,
 					);
+					if (config.prerenderConflictBehavior === 'error') {
+						throw new AstroError({
+							...DuplicateContentEntrySlugError,
+							message,
+						});
+					} else if (config.prerenderConflictBehavior !== 'ignore') {
+						logger.warn(message);
+					}
 				}
 				idList.add(id);
 				const parsedData = await parseData({ id, data: rawItem, filePath });

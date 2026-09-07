@@ -1,6 +1,7 @@
 import { createBasicPipeline } from './test-utils.ts';
 import { makeRoute, staticPart } from './routing/test-helpers.ts';
 import { AstroCookies } from '../../dist/core/cookies/index.js';
+import { mockLogger } from './cookies/test-helpers.ts';
 import { App } from '../../dist/core/app/app.js';
 import { FetchState } from '../../dist/core/fetch/fetch-state.js';
 import { fetchStateSymbol } from '../../dist/core/constants.js';
@@ -13,13 +14,14 @@ import {
 	spreadAttributes,
 } from '../../dist/runtime/server/index.js';
 import { createManifest, createRouteInfo } from './app/test-helpers.ts';
-import type { Pipeline } from '../../dist/core/render/index.js';
+import type { TestPipeline } from './test-utils.ts';
 import type { RedirectConfig } from '../../dist/types/public/config.js';
 import type { RouteData, RoutePart, RouteType } from '../../dist/types/public/internal.js';
 import type { APIContext } from '../../dist/types/public/context.js';
 import type { SSRManifest, RouteInfo } from '../../dist/core/app/types.js';
 import type { AstroComponentFactory } from '../../dist/runtime/server/render/index.js';
 import type { ImageTransform } from '../../dist/assets/types.js';
+import type { AstroRuntimeLogger } from '../../dist/types/public/context.js';
 
 /**
  * Mock utilities for unit tests.
@@ -33,7 +35,7 @@ interface LightMockRenderContextOverrides {
 	request?: Request;
 	routeData?: Partial<RouteData>;
 	params?: Record<string, string>;
-	pipeline?: Pipeline;
+	pipeline?: TestPipeline;
 	[key: string]: unknown;
 }
 
@@ -63,7 +65,7 @@ function createMockRenderContext(overrides: LightMockRenderContextOverrides = {}
  */
 export function createMockFetchState(overrides: LightMockRenderContextOverrides = {}) {
 	const ctx = createMockRenderContext(overrides);
-	const state = new FetchState(ctx.pipeline, ctx.request);
+	const state = new FetchState(ctx.pipeline.manifest, ctx.request);
 	state.routeData = ctx.routeData as any;
 	state.params = ctx.params as any;
 	return state;
@@ -92,7 +94,7 @@ export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): A
 	const url =
 		overrides.url instanceof URL ? overrides.url : new URL(overrides.url ?? 'http://localhost/');
 	const request = overrides.request ?? new Request(url);
-	const cookies = overrides.cookies ?? new AstroCookies(request);
+	const cookies = overrides.cookies ?? new AstroCookies(request, mockLogger);
 
 	const rewrite =
 		overrides.rewrite ??
@@ -123,7 +125,7 @@ export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): A
 	// Build a minimal FetchState and stash it on the context so internal
 	// shims (e.g. `createI18nMiddleware`) can find per-request state.
 	const pipeline = createBasicPipeline();
-	const state = new FetchState(pipeline, request);
+	const state = new FetchState(pipeline.manifest, request);
 	state.routeData = { prerender: isPrerendered } as any;
 	// If the test provides a mock rewrite, override the FetchState's
 	// rewrite method so it doesn't go through the real Rewrites handler.
@@ -318,6 +320,16 @@ const unitTestImageService = {
 		if (options.position) params.set('pos', options.position);
 		return '/_image?' + params.toString();
 	},
+};
+
+/**
+ * Minimal `AstroRuntimeLogger` stub for the arguments image service hooks
+ * receive, which the unit test service never logs through.
+ */
+export const mockRuntimeLogger: AstroRuntimeLogger = {
+	info() {},
+	warn() {},
+	error() {},
 };
 
 interface ImageServiceOverrides {

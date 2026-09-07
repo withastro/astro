@@ -1,4 +1,4 @@
 export interface SvgOptimizer {
 	name: string;
-	optimize: (contents: string) => string | Promise<string>;
+	optimize: (contents: string, path: string) => string | Promise<string>;
 }

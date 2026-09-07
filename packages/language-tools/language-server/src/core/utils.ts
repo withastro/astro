@@ -73,11 +73,16 @@ export function classNameFromFilename(filename: string): string {
 
 // TODO: Patch the upstream packages with these changes
 export function patchTSX(code: string, filePath: string) {
+	return patchTSXWithMetadata(code, filePath).code;
+}
+
+export function patchTSXWithMetadata(code: string, filePath: string) {
 	const url = URI.parse(filePath);
 	const basename = Utils.basename(url).slice(0, -Utils.extname(url).length);
 	const isDynamic = basename.startsWith('[') && basename.endsWith(']');
 
-	return code.replace(/\b(\S*)__AstroComponent_/g, (fullMatch, m1: string) => {
+	const componentNames = new Set<string>();
+	const patched = code.replace(/\b(\S*)__AstroComponent_/g, (fullMatch, m1: string) => {
 		// If we don't have a match here, it usually means the file has a weird name that couldn't be expressed with valid identifier characters
 		if (!m1) {
 			if (basename === '404') return 'FourOhFourAstroComponent';
@@ -85,6 +90,22 @@ export function patchTSX(code: string, filePath: string) {
 		}
 
 		const componentName = isDynamic ? `_${m1}_` : m1[0].toUpperCase() + m1.slice(1);
+		componentNames.add(componentName);
 		return `${componentName}AstroComponent`;
 	});
+
+	// TypeScript matches auto-imports against export names, so the suffixed name is never offered for `<Component />`
+	const cleanName = classNameFromFilename(filePath);
+	if (!componentNames.has(cleanName)) {
+		return { code: patched };
+	}
+
+	const generatedComponentExport = `export { ${cleanName}AstroComponent as ${cleanName} };\n`;
+	return {
+		code: `${patched}\n${generatedComponentExport}`,
+		generatedComponentExport: {
+			start: patched.length + 1,
+			end: patched.length + 1 + generatedComponentExport.length,
+		},
+	};
 }

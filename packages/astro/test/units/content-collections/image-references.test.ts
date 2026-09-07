@@ -1,10 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { updateImageReferencesInData } from '../../../dist/content/runtime.js';
+import { resolveEntryData, updateImageReferencesInData } from '../../../dist/content/runtime.js';
 import { imageSrcToImportId } from '../../../dist/assets/utils/resolveImports.js';
 import type { ImageMetadata } from '../../../dist/assets/types.js';
 
-const IMAGE_PREFIX = '__ASTRO_IMAGE_';
 const FILE_NAME = 'src/content/blog/post.md';
 
 function makeImageMap(src: string, meta: ImageMetadata): Map<string, ImageMetadata> {
@@ -21,59 +20,42 @@ const heroMeta: ImageMetadata = {
 };
 
 describe('updateImageReferencesInData', () => {
-	it('replaces a top-level image placeholder with resolved ImageMetadata', () => {
-		const data = { image: `${IMAGE_PREFIX}./hero.png` };
+	it('replaces a top-level image src with resolved ImageMetadata', () => {
+		const data = { image: './hero.png' };
 		const map = makeImageMap('./hero.png', heroMeta);
-		const result = updateImageReferencesInData(data, FILE_NAME, map);
+		const result = updateImageReferencesInData(data, FILE_NAME, map, [['image']]);
 		assert.deepEqual(result.image, heroMeta);
 	});
 
 	it('resolves an image nested inside an object', () => {
-		const data = { cover: { src: `${IMAGE_PREFIX}./hero.png`, alt: 'Hero' } };
+		const data = { cover: { src: './hero.png', alt: 'Hero' } };
 		const map = makeImageMap('./hero.png', heroMeta);
-		const result = updateImageReferencesInData(data, FILE_NAME, map);
+		const result = updateImageReferencesInData(data, FILE_NAME, map, [['cover', 'src']]);
 		assert.deepEqual(result.cover.src, heroMeta);
+		assert.equal(result.cover.alt, 'Hero');
 	});
 
 	it('resolves images nested inside an array', () => {
-		const data = {
-			gallery: [`${IMAGE_PREFIX}./hero.png`, `${IMAGE_PREFIX}./hero.png`],
-		};
+		const data = { gallery: ['./hero.png', './hero.png'] };
 		const map = makeImageMap('./hero.png', heroMeta);
-		const result = updateImageReferencesInData(data, FILE_NAME, map);
+		const result = updateImageReferencesInData(data, FILE_NAME, map, [
+			['gallery', 0],
+			['gallery', 1],
+		]);
 		assert.deepEqual(result.gallery[0], heroMeta);
 		assert.deepEqual(result.gallery[1], heroMeta);
 	});
 
-	it('falls back to the raw src string when the id is not in the map', () => {
-		const data = { image: `${IMAGE_PREFIX}./missing.png` };
-		const result = updateImageReferencesInData(data, FILE_NAME, new Map());
+	it('keeps the raw src string when the id is not in the map', () => {
+		const data = { image: './missing.png' };
+		const result = updateImageReferencesInData(data, FILE_NAME, new Map(), [['image']]);
 		assert.equal(result.image, './missing.png');
 	});
 
-	it('leaves non-image strings unchanged', () => {
+	it('returns the data unchanged when there are no image imports', () => {
 		const data = { title: 'Hello', slug: 'hello-world' };
-		const result = updateImageReferencesInData(data, FILE_NAME, new Map());
-		assert.equal(result.title, 'Hello');
-		assert.equal(result.slug, 'hello-world');
-	});
-
-	it('handles an empty imageAssetMap gracefully', () => {
-		const data = { image: `${IMAGE_PREFIX}./hero.png` };
-		const result = updateImageReferencesInData(data, FILE_NAME, new Map());
-		assert.equal(result.image, './hero.png');
-	});
-
-	it('handles undefined imageAssetMap — falls back to raw src', () => {
-		const data = { image: `${IMAGE_PREFIX}./hero.png` };
-		const result = updateImageReferencesInData(data, FILE_NAME, undefined);
-		assert.equal(result.image, './hero.png');
-	});
-
-	it('handles data with no image fields', () => {
-		const data = { title: 'My Post', tags: ['a', 'b'], count: 3 };
-		const result = updateImageReferencesInData(data, FILE_NAME, new Map());
-		assert.deepEqual(result, data);
+		const result = updateImageReferencesInData(data, FILE_NAME, new Map(), undefined);
+		assert.equal(result, data);
 	});
 
 	it('resolves multiple different images in the same entry', () => {
@@ -91,35 +73,74 @@ describe('updateImageReferencesInData', () => {
 			[heroId, heroMeta],
 			[thumbId, thumbMeta],
 		]);
-		const data = {
-			hero: `${IMAGE_PREFIX}./hero.png`,
-			thumb: `${IMAGE_PREFIX}./thumb.png`,
-		};
-		const result = updateImageReferencesInData(data, FILE_NAME, map);
+		const data = { hero: './hero.png', thumb: './thumb.png' };
+		const result = updateImageReferencesInData(data, FILE_NAME, map, [['hero'], ['thumb']]);
 		assert.deepEqual(result.hero, heroMeta);
 		assert.deepEqual(result.thumb, thumbMeta);
 	});
 
-	it('preserves Map instances', () => {
-		const data = {
-			metadata: new Map([
-				['title', 'Hello'],
-				['description', 'World'],
-			]),
-		};
-		const result = updateImageReferencesInData(data, FILE_NAME, new Map());
-		assert.equal(result.metadata.get('title'), 'Hello');
-		assert.equal(result.metadata.get('description'), 'World');
-		assert.equal(result.metadata.get('cover'), undefined);
-		assert.equal(result.metadata.size, 2);
+	it('does not mutate the original data', () => {
+		const data = { image: './hero.png' };
+		const map = makeImageMap('./hero.png', heroMeta);
+		const result = updateImageReferencesInData(data, FILE_NAME, map, [['image']]);
+		assert.deepEqual(result.image, heroMeta);
+		assert.equal(data.image, './hero.png');
+		assert.notEqual(result, data);
 	});
 
-	it('preserves Set instances', () => {
-		const data = { flags: new Set(['showTitle', 'showDescription']) };
-		const result = updateImageReferencesInData(data, FILE_NAME, new Map());
+	it('shares non-image sibling values by reference without cloning them', () => {
+		// A value structuredClone cannot handle (it has a method), standing in for
+		// the class instances produced by Zod transforms (e.g. Temporal.PlainDate).
+		const publishedOn = {
+			iso: '2026-08-04',
+			format() {
+				return this.iso;
+			},
+		};
+		assert.throws(() => structuredClone(publishedOn), /DataCloneError|could not be cloned/);
+
+		const data = { image: './hero.png', publishedOn };
+		const map = makeImageMap('./hero.png', heroMeta);
+		const result = updateImageReferencesInData(data, FILE_NAME, map, [['image']]);
+
+		assert.deepEqual(result.image, heroMeta);
+		assert.equal(result.publishedOn, publishedOn);
+		assert.equal(result.publishedOn.format(), '2026-08-04');
+	});
+
+	it('preserves Map and Set siblings by reference', () => {
+		const metadata = new Map([['title', 'Hello']]);
+		const flags = new Set(['showTitle']);
+		const data = { image: './hero.png', metadata, flags };
+		const map = makeImageMap('./hero.png', heroMeta);
+		const result = updateImageReferencesInData(data, FILE_NAME, map, [['image']]);
+
+		assert.deepEqual(result.image, heroMeta);
+		assert.equal(result.metadata, metadata);
+		assert.equal(result.metadata.get('title'), 'Hello');
+		assert.equal(result.flags, flags);
 		assert.equal(result.flags.has('showTitle'), true);
-		assert.equal(result.flags.has('showDescription'), true);
-		assert.equal(result.flags.has('showCover'), false);
-		assert.equal(result.flags.size, 2);
+	});
+});
+
+describe('resolveEntryData', () => {
+	it('returns the data by reference when there are no image imports', () => {
+		const data = { title: 'Hello', nested: { count: 1 } };
+		const result = resolveEntryData(
+			{ id: 'entry', data, filePath: FILE_NAME },
+			makeImageMap('./hero.png', heroMeta),
+		);
+		assert.equal(result, data);
+	});
+
+	it('resolves image references at their recorded paths', () => {
+		const data = { image: './hero.png' };
+		const result = resolveEntryData(
+			{ id: 'entry', data, filePath: FILE_NAME, imageImports: [['image']] },
+			makeImageMap('./hero.png', heroMeta),
+		);
+
+		assert.deepEqual(result.image, heroMeta);
+		assert.equal(data.image, './hero.png');
 	});
 });

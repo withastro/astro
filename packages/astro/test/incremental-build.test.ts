@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { type Fixture, loadFixture } from './test-utils.ts';
+import createTestPrerenderer from './test-prerenderer.ts';
 
 describe('experimental.incrementalBuild', () => {
 	const root = new URL('./fixtures/incremental-build/', import.meta.url);
@@ -88,7 +89,7 @@ describe('experimental.incrementalBuild', () => {
 	});
 
 	describe('fourth build (changed content entry)', () => {
-		const docA = new URL('./fixtures/incremental-build/src/content/docs/a.md', import.meta.url);
+		const docA = new URL('./fixtures/incremental-build/src/content/docs/a.mdx', import.meta.url);
 		let originalContent: string;
 
 		before(async () => {
@@ -193,6 +194,32 @@ describe('experimental.incrementalBuild', () => {
 		});
 	});
 
+	describe('shared content dependency', () => {
+		const sharedComponent = new URL(
+			'./fixtures/incremental-build/src/components/Shared.astro',
+			import.meta.url,
+		);
+		let originalContent: string;
+
+		before(async () => {
+			originalContent = fs.readFileSync(sharedComponent, 'utf-8');
+			fs.writeFileSync(sharedComponent, originalContent.replace('Shared v1', 'Shared v2'));
+			await fixture.build();
+		});
+
+		it('re-renders every content entry that imports the changed dependency', async () => {
+			for (const slug of ['a', 'b']) {
+				const html = await fixture.readFile(`/docs/${slug}/index.html`);
+				const $ = cheerio.load(html);
+				assert.equal($('.shared').text(), 'Shared v2');
+			}
+		});
+
+		after(() => {
+			fs.writeFileSync(sharedComponent, originalContent);
+		});
+	});
+
 	describe('force build', () => {
 		const forceCachedPost1 = new URL('node_modules/.astro-force/dist/blog/post-1/index.html', root);
 		let forceFixture: Fixture;
@@ -230,6 +257,37 @@ describe('experimental.incrementalBuild', () => {
 			await forceFixture.build({ force: true });
 			const $ = cheerio.load(await forceFixture.readFile('/blog/post-1/index.html'));
 			assert.equal($('h1').text(), 'Post 1');
+		});
+	});
+
+	describe('custom prerenderer without metadata', () => {
+		const untrackedCacheDir = new URL('node_modules/.astro-untracked/', root);
+		const untrackedCacheFile = new URL('incremental-build.json', untrackedCacheDir);
+		let untrackedFixture: Fixture;
+
+		before(async () => {
+			fs.rmSync(new URL('dist/incremental-build-untracked/', root), {
+				recursive: true,
+				force: true,
+			});
+			fs.rmSync(untrackedCacheDir, { recursive: true, force: true });
+			const testPrerenderer = createTestPrerenderer();
+			untrackedFixture = await loadFixture({
+				root,
+				outDir: './dist/incremental-build-untracked/',
+				cacheDir: './node_modules/.astro-untracked/',
+				integrations: [testPrerenderer.integration],
+				experimental: {
+					incrementalBuild: true,
+				},
+			});
+			await untrackedFixture.build();
+		});
+
+		it('does not record paths whose prerenderer omits metadata', () => {
+			assert.ok(untrackedFixture.pathExists('/blog/post-1/index.html'));
+			const cache = JSON.parse(fs.readFileSync(untrackedCacheFile, 'utf-8'));
+			assert.deepEqual(cache.routes, {});
 		});
 	});
 

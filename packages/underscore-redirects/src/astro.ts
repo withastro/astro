@@ -153,7 +153,7 @@ export function createRedirectsFromAstroRoutes({
 					dynamic: true,
 					input: `${base}${pattern}`,
 					target,
-					status: route.type === 'redirect' ? 301 : 200,
+					status: route.type === 'redirect' ? getRedirectStatus(route) : 200,
 					weight: 1,
 				});
 			} else {

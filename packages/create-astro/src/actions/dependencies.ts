@@ -123,6 +123,7 @@ async function astroAdd({
 async function install({ packageManager, cwd }: { packageManager: string; cwd: string }) {
 	if (packageManager === 'yarn') await ensureYarnLock({ cwd });
 	if (packageManager === 'pnpm') await ensurePnpmBuildsAllowed({ cwd });
+	if (packageManager === 'npm') await ensureNpmScriptsAllowed({ cwd });
 	return shell(packageManager, ['install'], { cwd, timeout: 90_000, stdio: 'ignore' });
 }
 
@@ -150,6 +151,30 @@ async function ensurePnpmBuildsAllowed({ cwd }: { cwd: string }) {
 	const separator = content.length > 0 ? '\n' : '';
 	const allowBuildsBlock = `${separator}allowBuilds:\n${packagesToAllow.map((pkg) => `  ${pkg}: true`).join('\n')}\n`;
 	return fs.promises.writeFile(workspaceFile, content + allowBuildsBlock, 'utf-8');
+}
+
+/**
+ * npm v11+ warns about packages with unapproved install scripts, and npm v12 will
+ * make this a hard failure. Astro depends on `esbuild` which has a postinstall script
+ * that downloads platform-specific binaries.
+ *
+ * This function ensures esbuild is pre-approved in `package.json` via the `allowScripts`
+ * field so that `npm install` succeeds without warnings or failures.
+ * See https://docs.npmjs.com/cli/v11/using-npm/config#allow-scripts
+ */
+async function ensureNpmScriptsAllowed({ cwd }: { cwd: string }) {
+	const pkgFile = path.join(cwd, 'package.json');
+	if (!fs.existsSync(pkgFile)) return;
+
+	const content = await fs.promises.readFile(pkgFile, 'utf-8');
+	const packageJson = JSON.parse(content);
+
+	// If allowScripts is already configured, don't touch it
+	if (packageJson.allowScripts) return;
+
+	const indent = /(^\s+)/m.exec(content)?.[1] ?? '\t';
+	packageJson.allowScripts = { esbuild: true };
+	return fs.promises.writeFile(pkgFile, JSON.stringify(packageJson, null, indent) + '\n', 'utf-8');
 }
 
 /**

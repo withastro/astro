@@ -12,6 +12,7 @@ export const VALID_INPUT_FORMATS = [
 	'jpeg',
 	'jpg',
 	'png',
+	'apng',
 	'tiff',
 	'webp',
 	'gif',

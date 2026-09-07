@@ -563,6 +563,58 @@ test.describe('View Transitions', () => {
 		}).toPass();
 	});
 
+	test('persisted <video> keeps its DOM identity across navigation (not re-created by media reification)', async ({
+		page,
+		astro,
+	}) => {
+		// Regression for #17749: reifyMediaElements() used to replace every <video>/<audio>
+		// of the new body, including the live one carried over via transition:persist.
+		// An expando survives the swap only if the element itself survived.
+		await page.goto(astro.resolveUrl('/video-one'));
+		const vid = page.locator('video');
+		await expect(vid).toBeVisible();
+		await vid.evaluate(
+			(el) => ((el as HTMLVideoElement & { __persisted?: string }).__persisted = 'yes'),
+		);
+
+		await page.click('#click-two');
+		await expect(page.locator('#video-two')).toBeVisible();
+		const marker = await page.evaluate(
+			() =>
+				(document.querySelector('video') as (HTMLVideoElement & { __persisted?: string }) | null)
+					?.__persisted,
+		);
+		expect(marker).toBe('yes');
+	});
+
+	test('media inside a persisted subtree keep their identity even when the inner persist container has no counterpart', async ({
+		page,
+		astro,
+	}) => {
+		// The outer container is matched on page 2, the inner one is not — it travels as a
+		// descendant. Media there were live before the swap and must not be reified.
+		await page.goto(astro.resolveUrl('/nested-persist-one'));
+		const vid = page.locator('#nested-video');
+		await expect(vid).toBeVisible();
+		await vid.evaluate(
+			(el) => ((el as HTMLVideoElement & { __persisted?: string }).__persisted = 'yes'),
+		);
+
+		await page.click('#click-two');
+		await expect(page.locator('#nested-two')).toBeVisible();
+		const marker = await page.evaluate(
+			() =>
+				(
+					document.querySelector('#nested-video') as
+						| (HTMLVideoElement & { __persisted?: string })
+						| null
+				)?.__persisted,
+		);
+		expect(marker).toBe('yes');
+		// The placeholder of page 2 was replaced by the carried-over subtree.
+		await expect(page.locator('#nested-placeholder')).toHaveCount(0);
+	});
+
 	test('React Islands can persist using transition:persist', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/island-one'));
@@ -632,6 +684,71 @@ test.describe('View Transitions', () => {
 		cnt = page.locator('.counter pre');
 		// Count should remain, but the prefix should be updated
 		await expect(cnt).toHaveText('B1');
+	});
+
+	test('Vite styles keep HMR after returning to a route', async ({ page, astro }) => {
+		const expectLoads = collectLoads(page);
+		await page.goto(astro.resolveUrl('/one'));
+		await page.click('#click-svelte-styles');
+
+		const nestedMessage = page.locator('.nested-message');
+		const pageTitle = page.locator('#island-one');
+		await expect(nestedMessage).toHaveCSS('background-color', 'rgb(128, 0, 0)');
+		await expect(pageTitle).toHaveCSS('color', 'rgb(0, 0, 255)');
+
+		const nestedSvelteStyles = page.locator('style[data-vite-dev-id*="SvelteMessage.svelte"]');
+		const cssStyles = page.locator('style[data-vite-dev-id*="client-router-hmr.css"]');
+		await expect(nestedSvelteStyles).toHaveCount(1);
+		await expect(cssStyles).toHaveCount(1);
+		const nestedSvelteStyle = nestedSvelteStyles.first();
+		const cssStyle = cssStyles.first();
+		await nestedSvelteStyle.evaluate((element) => (element.dataset.hmrStyle = 'nested-svelte'));
+		await cssStyle.evaluate((element) => (element.dataset.hmrStyle = 'css'));
+
+		await page.click('#click-away');
+		await expect(page.locator('#one')).toHaveText('Page 1');
+		await page.goBack();
+		await expect(pageTitle).toBeVisible();
+
+		await expect(page.locator('style[data-hmr-style="nested-svelte"]')).toHaveCount(1);
+		await expect(page.locator('style[data-hmr-style="css"]')).toHaveCount(1);
+
+		await astro.editFile('./src/components/SvelteMessage.svelte', (contents) =>
+			contents.replace('background-color: maroon', 'background-color: navy'),
+		);
+		await expect(nestedMessage).toHaveCSS('background-color', 'rgb(0, 0, 128)');
+
+		await astro.editFile('./src/components/client-router-hmr.css', (contents) =>
+			contents.replace('color: blue', 'color: red'),
+		);
+		await expect(pageTitle).toHaveCSS('color', 'rgb(255, 0, 0)');
+		await expectLoads(1);
+	});
+
+	test('Vite style nodes receive updated contents during head swaps', async ({ page, astro }) => {
+		const expectLoads = collectLoads(page);
+		await page.goto(astro.resolveUrl('/island-svelte-one'));
+
+		const cssStyle = page.locator('style[data-vite-dev-id*="client-router-hmr.css"]');
+		await expect(cssStyle).toHaveCount(1);
+		await cssStyle.evaluate((element) => (element.dataset.hmrStyle = 'css'));
+		await page.evaluate(() => {
+			document.addEventListener(
+				'astro:before-swap',
+				(event) => {
+					const incomingStyle = event.newDocument.querySelector<HTMLStyleElement>(
+						'style[data-vite-dev-id*="client-router-hmr.css"]',
+					);
+					if (incomingStyle) incomingStyle.textContent += '#island-two { color: red; }';
+				},
+				{ once: true },
+			);
+		});
+
+		await page.click('#click-two');
+		await expect(page.locator('#island-two')).toHaveCSS('color', 'rgb(255, 0, 0)');
+		await expect(page.locator('style[data-hmr-style="css"]')).toHaveCount(1);
+		await expectLoads(1);
 	});
 
 	test('Vue Islands can persist using transition:persist', async ({ page, astro }) => {

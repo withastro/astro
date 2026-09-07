@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
-import { Rewrites, applyRewriteToState } from '../../../dist/core/rewrites/handler.js';
+import { executeRewrite, applyRewriteToState } from '../../../dist/core/rewrites/handler.js';
 import { AstroError } from '../../../dist/core/errors/errors.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createBasicPipeline } from '../test-utils.ts';
@@ -15,7 +15,7 @@ function createState(
 ) {
 	const routeData = createRouteData(routeConfig);
 	const pipeline = createBasicPipeline({ manifest: manifestOverrides });
-	const state = new FetchState(pipeline, request, {
+	const state = new FetchState(pipeline.manifest, request, {
 		routeData,
 		addCookieHeader: false,
 		clientAddress: undefined,
@@ -160,15 +160,15 @@ describe('applyRewriteToState', () => {
 
 // #endregion
 
-// #region Rewrites.execute
+// #region executeRewrite
 
-describe('Rewrites.execute()', () => {
+describe('executeRewrite()', () => {
 	const simplePage = createComponent(() => render`<h1>Hello</h1>`);
 	const targetPage = createComponent(() => render`<h1>Target</h1>`);
 
 	function createFetchState(app: ReturnType<typeof createTestApp>, url: string) {
 		const request = new Request(url);
-		return new FetchState(app.pipeline, request, {
+		return new FetchState(app.manifest, request, {
 			routeData: app.match(request)!,
 			addCookieHeader: false,
 			clientAddress: undefined,
@@ -185,8 +185,7 @@ describe('Rewrites.execute()', () => {
 		]);
 		const state = createFetchState(app, 'http://example.com/source');
 
-		const rewrites = new Rewrites();
-		const response = await rewrites.execute(state, '/target');
+		const response = await executeRewrite(state, '/target');
 
 		assert.equal(response.status, 200);
 		assert.match(await response.text(), /<h1>Target<\/h1>/);
@@ -200,8 +199,7 @@ describe('Rewrites.execute()', () => {
 		const state = createFetchState(app, 'http://example.com/source');
 		assert.equal(state.routeData!.route, '/source');
 
-		const rewrites = new Rewrites();
-		await rewrites.execute(state, '/target');
+		await executeRewrite(state, '/target');
 
 		assert.equal(state.routeData!.route, '/target');
 		assert.equal(state.pathname, '/target');
@@ -224,8 +222,7 @@ describe('Rewrites.execute()', () => {
 		]);
 		const state = createFetchState(app, 'http://example.com/');
 
-		const rewrites = new Rewrites();
-		const response = await rewrites.execute(state, '/blog/hello');
+		const response = await executeRewrite(state, '/blog/hello');
 
 		assert.equal(response.status, 200);
 		assert.match(await response.text(), /hello/);
@@ -236,8 +233,7 @@ describe('Rewrites.execute()', () => {
 		const app = createTestApp([createPage(simplePage, { route: '/source' })]);
 		const state = createFetchState(app, 'http://example.com/source');
 
-		const rewrites = new Rewrites();
-		const response = await rewrites.execute(state, '/nowhere');
+		const response = await executeRewrite(state, '/nowhere');
 
 		assert.equal(response.status, 404);
 	});

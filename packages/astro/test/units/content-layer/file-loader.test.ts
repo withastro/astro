@@ -283,11 +283,88 @@ describe('File Loader', () => {
 		await contentLayer.sync();
 
 		// Check that a warning was logged
-		assert.ok(warnings.some((w) => w.includes('Duplicate id "beagle"')));
+		assert.ok(warnings.some((w) => w.includes('beagle')));
 
 		// Check that the last entry won
 		const entries = store.values('dogsWithDupes');
 		assert.equal(entries.length, 1);
 		assert.equal(entries[0].data.breed, 'Beagle 2');
+	});
+
+	it('throws on duplicate IDs when prerenderConflictBehavior is error', async () => {
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root, {
+			config: { prerenderConflictBehavior: 'error' },
+		});
+
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'info',
+		});
+
+		const collections = {
+			dogsWithDupes: defineCollection({
+				loader: file('src/data/dogs.json', {
+					parser: () => [
+						{ id: 'beagle', breed: 'Beagle 1' },
+						{ id: 'beagle', breed: 'Beagle 2' },
+					],
+				}),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await assert.rejects(() => contentLayer.sync(), {
+			name: 'DuplicateContentEntrySlugError',
+		});
+	});
+
+	it('suppresses duplicate ID warning when prerenderConflictBehavior is ignore', async () => {
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root, {
+			config: { prerenderConflictBehavior: 'ignore' },
+		});
+
+		const warnings: string[] = [];
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					if (msg.level === 'warn') {
+						warnings.push(msg.message);
+					}
+					return true;
+				},
+			},
+			level: 'info',
+		});
+
+		const collections = {
+			dogsWithDupes: defineCollection({
+				loader: file('src/data/dogs.json', {
+					parser: () => [
+						{ id: 'beagle', breed: 'Beagle 1' },
+						{ id: 'beagle', breed: 'Beagle 2' },
+					],
+				}),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		// No duplicate warnings should be logged
+		assert.ok(!warnings.some((w) => w.includes('beagle')));
 	});
 });

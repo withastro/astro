@@ -1,0 +1,15 @@
+---
+import { getEntry, render } from 'astro:content';
+
+export const prerender = true;
+
+const entry = await getEntry('docs', 'one');
+const { Content } = await render(entry);
+---
+
+<html>
+	<body>
+		<h1>Prerendered</h1>
+		<Content />
+	</body>
+</html>

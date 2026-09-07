@@ -167,6 +167,7 @@ export function astroDevCssPlugin({
 			},
 			applyToEnvironment(env) {
 				return (
+					(command === 'dev' && env.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro) ||
 					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
 					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
@@ -288,6 +289,7 @@ export function astroDevCssPlugin({
 			name: MODULE_DEV_CSS_ALL,
 			applyToEnvironment(env) {
 				return (
+					(command === 'dev' && env.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro) ||
 					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
 					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender

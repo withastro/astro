@@ -6,7 +6,10 @@
     // Root config files that aren't in any package
     "./prettier.config.mjs",
     "./eslint.config.js",
-    "./knip.js"
+    "./knip.js",
+    "./vitest.skills.config.ts",
+    "./.agents/evals/load-evals.ts",
+    "./.agents/evals/skills.eval.ts"
   ],
   "references": [
     { "path": "./benchmark/tsconfig.json" },

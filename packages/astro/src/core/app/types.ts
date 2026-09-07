@@ -204,6 +204,8 @@ export type SSRManifestCSP = {
 		resources: CspResourceEntry[];
 		hashes: CspHashEntry[];
 	};
+	/** Static speculation rules JSON to inject in the head when CSP + clientPrerender are both enabled. */
+	speculationRulesContent?: string;
 };
 
 export interface SSRManifestSession extends BaseSessionConfig {

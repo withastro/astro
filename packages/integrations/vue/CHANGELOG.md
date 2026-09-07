@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 7.0.2
+
+### Patch Changes
+
+- [#17515](https://github.com/withastro/astro/pull/17515) [`023e7be`](https://github.com/withastro/astro/commit/023e7be21edd9327a9966651a706dcadd5aa9893) Thanks [@barry166](https://github.com/barry166)! - Fix dev server crashes when Vue devtools are enabled with Vite 8.
+
 ## 7.0.1
 
 ### Patch Changes

@@ -20,6 +20,7 @@ export function enhancedProvideCompletionItems(
 	documentText: string,
 ): CompletionList {
 	const importedAstroSources = getAlreadyImportedAstroComponentSources(ts, documentText);
+	const seenAstroComponents = new Set<string>();
 
 	completions.items = completions.items
 		.filter((completion) => {
@@ -28,7 +29,21 @@ export function enhancedProvideCompletionItems(
 			}
 
 			const source = completion?.data?.originalItem?.source;
-			return !(source && importedAstroSources.has(source));
+			if (source && importedAstroSources.has(source)) {
+				return false;
+			}
+
+			// A component is exported twice, as a default export and under its clean name, so only offer it once
+			if (isAstroComponentImportSource(source)) {
+				const key = `${stripAstroComponentSuffix(String(completion.label))}\u0000${source}`;
+				if (seenAstroComponents.has(key)) {
+					return false;
+				}
+
+				seenAstroComponents.add(key);
+			}
+
+			return true;
 		})
 		.map((completion) => {
 			const source = completion?.data?.originalItem?.source;

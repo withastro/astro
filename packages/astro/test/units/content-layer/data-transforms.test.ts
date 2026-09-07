@@ -515,6 +515,140 @@ describe('Content Layer - Data Transforms', () => {
 		assert.equal(result2.data.category, 'general');
 	});
 
+	it('logs error for invalid reference after sync', async () => {
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root);
+		const errors: string[] = [];
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					errors.push(msg.message ?? String(msg));
+				},
+			},
+			level: 'info',
+		});
+
+		const authorsLoader = {
+			name: 'authors-loader',
+			load: async (context: any) => {
+				const parsed = await context.parseData({
+					id: 'john-doe',
+					data: { id: 'john-doe', name: 'John Doe' },
+				});
+				await context.store.set({ id: 'john-doe', data: parsed });
+			},
+		};
+
+		const postsLoader = {
+			name: 'posts-loader',
+			load: async (context: any) => {
+				const parsed = await context.parseData({
+					id: 'my-post',
+					data: { id: 'my-post', title: 'My Post', author: 'John-Doe' },
+				});
+				await context.store.set({ id: 'my-post', data: parsed });
+			},
+		};
+
+		const collections = {
+			authors: defineCollection({
+				loader: authorsLoader,
+				schema: z.object({ id: z.string(), name: z.string() }),
+			}),
+			posts: defineCollection({
+				loader: postsLoader,
+				schema: z.object({
+					id: z.string(),
+					title: z.string(),
+					author: reference('authors'),
+				}),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		// The reference "John-Doe" should trigger an error because the actual id is "john-doe"
+		const errorMessages = errors.join('\n');
+		assert.ok(
+			errorMessages.includes('John-Doe') && errorMessages.includes('does not exist'),
+			`Expected error about invalid reference "John-Doe", got: ${errorMessages}`,
+		);
+	});
+
+	it('does not log error for valid references after sync', async () => {
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root);
+		const errors: string[] = [];
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					errors.push(msg.message ?? String(msg));
+				},
+			},
+			level: 'info',
+		});
+
+		const authorsLoader = {
+			name: 'authors-loader',
+			load: async (context: any) => {
+				const parsed = await context.parseData({
+					id: 'john-doe',
+					data: { id: 'john-doe', name: 'John Doe' },
+				});
+				await context.store.set({ id: 'john-doe', data: parsed });
+			},
+		};
+
+		const postsLoader = {
+			name: 'posts-loader',
+			load: async (context: any) => {
+				const parsed = await context.parseData({
+					id: 'my-post',
+					data: { id: 'my-post', title: 'My Post', author: 'john-doe' },
+				});
+				await context.store.set({ id: 'my-post', data: parsed });
+			},
+		};
+
+		const collections = {
+			authors: defineCollection({
+				loader: authorsLoader,
+				schema: z.object({ id: z.string(), name: z.string() }),
+			}),
+			posts: defineCollection({
+				loader: postsLoader,
+				schema: z.object({
+					id: z.string(),
+					title: z.string(),
+					author: reference('authors'),
+				}),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		// No errors about invalid references
+		const errorMessages = errors.join('\n');
+		assert.ok(
+			!errorMessages.includes('does not exist'),
+			`Unexpected reference error: ${errorMessages}`,
+		);
+	});
+
 	it('transforms numeric ids to strings', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root);

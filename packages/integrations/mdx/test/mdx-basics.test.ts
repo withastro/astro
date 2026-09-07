@@ -267,6 +267,16 @@ describe('MDX basics (merged fixture)', () => {
 					'style should not be html-escaped',
 				);
 			});
+
+			it('keeps set:text within script and style elements', async () => {
+				const html = await fixture.readFile('/set-text/index.html');
+				const { document } = parseHTML(html);
+
+				assert.match(document.getElementById('script-text')!.textContent, /^&lt;\/script&gt;/);
+				assert.match(document.getElementById('style-text')!.textContent, /^&lt;\/style&gt;/);
+				assert.equal(document.getElementById('script-text-following'), null);
+				assert.equal(document.getElementById('style-text-following'), null);
+			});
 		});
 	});
 
@@ -454,6 +464,19 @@ describe('MDX basics (merged fixture)', () => {
 					true,
 					'style should not be html-escaped',
 				);
+			});
+
+			it('keeps set:text within script and style elements', async () => {
+				const res = await fixture.fetch('/set-text');
+				assert.equal(res.status, 200);
+
+				const html = await res.text();
+				const { document } = parseHTML(html);
+
+				assert.match(document.getElementById('script-text')!.textContent, /^&lt;\/script&gt;/);
+				assert.match(document.getElementById('style-text')!.textContent, /^&lt;\/style&gt;/);
+				assert.equal(document.getElementById('script-text-following'), null);
+				assert.equal(document.getElementById('style-text-following'), null);
 			});
 		});
 	});

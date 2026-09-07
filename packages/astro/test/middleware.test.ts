@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { after, before, describe, it } from 'node:test';
+import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.ts';
@@ -194,5 +194,103 @@ describe('Middleware with tailwind', () => {
 			.replace(/\s/g, '')
 			.replace('/n', '');
 		assert.equal(bundledCSS.includes('--tw'), true);
+	});
+});
+
+describe('Middleware HMR', () => {
+	let fixture: Fixture;
+	let devServer: DevServer;
+
+	beforeEach(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/hmr-middleware/',
+			outDir: './dist/middleware-middleware-hmr/',
+		});
+
+		devServer = await fixture.startDevServer();
+	});
+
+	afterEach(async () => {
+		await devServer.stop();
+		fixture.resetAllFiles();
+	});
+
+	const fetchAndAssertTwice = async () => {
+		let response = await fixture.fetch('/');
+		assert.equal(response.headers.get('x-test-executed'), '1');
+		assert.equal(response.headers.get('x-test-other-count'), '1');
+
+		response = await fixture.fetch('/');
+		assert.equal(response.headers.get('x-test-executed'), '2');
+		assert.equal(response.headers.get('x-test-other-count'), '2');
+
+		return response;
+	};
+
+	it('should perform HMR on middleware.js', async () => {
+		await fetchAndAssertTwice();
+
+		await fixture.editFile('./src/middleware.js', (original) =>
+			original.replace('add newline here', 'add newline here\n'),
+		);
+
+		await new Promise((resolve) => setTimeout(resolve, 2000));
+
+		// src/middleware.js should reload
+		// src/utils/other.js shouldn't reload
+		const response = await fixture.fetch('/');
+		assert.equal(response.headers.get('x-test-executed'), '1');
+		assert.equal(response.headers.get('x-test-other-count'), '3');
+	});
+
+	it('should perform HMR on modules imported by middleware.js', async () => {
+		let response = await fetchAndAssertTwice();
+		assert.ok((await response.text()).includes('Hello Astro'));
+
+		await fixture.editFile('./src/utils/misc.js', (original) =>
+			original.replace('join(" ")', 'join(" - ")'),
+		);
+
+		await new Promise((resolve) => setTimeout(resolve, 2000));
+
+		// src/utils/misc.js should reload, as should src/middleware.js
+		// src/pages/index.astro should therefore receive the new instance of MiscUtils
+		// src/utils/other.js shouldn't reload
+		response = await fixture.fetch('/');
+		assert.equal(response.headers.get('x-test-executed'), '1');
+		assert.equal(response.headers.get('x-test-other-count'), '3');
+		assert.ok((await response.text()).includes('Hello - Astro'));
+	});
+
+	it('should perform HMR on nested modules imported by middleware.js', async () => {
+		await fetchAndAssertTwice();
+
+		await fixture.editFile('./src/utils/other.js', (original) =>
+			original.replace('let count = 0;', 'let count = 0;\n//foo\n'),
+		);
+
+		await new Promise((resolve) => setTimeout(resolve, 2000));
+
+		// src/utils/other.js should reload, as should src/middleware.js
+		const response = await fixture.fetch('/');
+		assert.equal(response.headers.get('x-test-executed'), '1');
+		assert.equal(response.headers.get('x-test-other-count'), '1');
+	});
+
+	it("shouldn't reload middleware.js when an unrelated module is reloaded", async () => {
+		let response = await fetchAndAssertTwice();
+		assert.equal(response.headers.get('x-index-count'), '2');
+
+		await fixture.editFile('./src/utils/notImportedByMiddleware.js', (original) =>
+			original.replace('let count = 0;', 'let count = 0;\n//foo\n'),
+		);
+		await new Promise((resolve) => setTimeout(resolve, 2000));
+
+		// src/utils/notImportedByMiddleware.js should reload
+		// src/middleware.js shouldn't reload, and neither should src/utils/other.js
+		response = await fixture.fetch('/');
+		assert.equal(response.headers.get('x-test-executed'), '3');
+		assert.equal(response.headers.get('x-test-other-count'), '3');
+		assert.equal(response.headers.get('x-index-count'), '1');
 	});
 });

@@ -252,6 +252,8 @@ export interface SSRResult {
 	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
 	scriptDirective: SSRManifestCSP['scriptDirective'];
 	styleDirective: SSRManifestCSP['styleDirective'];
+	/** Static speculation rules JSON to inject in the head when CSP + clientPrerender are both enabled. */
+	speculationRulesContent?: string;
 	internalFetchHeaders?: Record<string, string>;
 }
 

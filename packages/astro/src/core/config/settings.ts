@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import * as toml from 'smol-toml';
 import { getContentPaths } from '../../content/index.js';
 import createPreferences from '../../preferences/index.js';

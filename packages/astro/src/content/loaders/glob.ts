@@ -6,6 +6,8 @@ import colors from 'piccolore';
 import picomatch from 'picomatch';
 import { glob as tinyglobby } from 'tinyglobby';
 import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
+import * as AstroErrorData from '../../core/errors/errors-data.js';
+import { AstroError } from '../../core/errors/index.js';
 import type { RenderedContent } from '../data-store.js';
 import { getContentEntryIdAndSlug, posixRelative } from '../utils.js';
 import type { Loader } from './types.js';
@@ -47,9 +49,9 @@ interface GlobOptions {
 
 function generateIdDefault({ entry, base, data }: GenerateIdOptions, isLegacy?: boolean): string {
 	if (data.slug) {
-		return data.slug as string;
+		return String(data.slug);
 	}
-	const entryURL = new URL(encodeURI(entry), base);
+	const entryURL = new URL('./' + encodeURI(entry), base);
 	if (isLegacy) {
 		// Legacy behavior: use ID based on path, not slug
 		const { id } = getContentEntryIdAndSlug({
@@ -94,8 +96,11 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 	}
 
 	const isLegacy = !!globOptions[secretLegacyFlag];
-	const generateId =
+	const userGenerateId =
 		globOptions?.generateId ?? ((opts: GenerateIdOptions) => generateIdDefault(opts, isLegacy));
+	// Coerce to string so numeric ids from YAML don't cause Set strict-equality mismatches
+	// against string store keys in the untouched-entries cleanup. See #17624.
+	const generateId = (opts: GenerateIdOptions) => String(userGenerateId(opts));
 
 	const fileToIdMap = new Map<string, string>();
 
@@ -127,7 +132,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					logger.warn(`No entry type found for ${entry}`);
 					return;
 				}
-				const fileUrl = new URL(encodeURI(entry), base);
+				const fileUrl = new URL('./' + encodeURI(entry), base);
 				const contents = await fs.readFile(fileUrl, 'utf-8').catch((err) => {
 					logger.error(`Error reading ${entry}: ${err.message}`);
 					return;
@@ -183,9 +188,20 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					// the unlink event just hasn't been processed yet
 					const oldFilePath = new URL(existingEntry.filePath, config.root);
 					if (existsSync(oldFilePath)) {
-						logger.warn(
-							`Duplicate id "${id}" found in ${filePath}. Later items with the same id will overwrite earlier ones.`,
+						const message = AstroErrorData.DuplicateContentEntrySlugError.message(
+							collection,
+							id,
+							existingEntry.filePath,
+							relativePath,
 						);
+						if (config.prerenderConflictBehavior === 'error') {
+							throw new AstroError({
+								...AstroErrorData.DuplicateContentEntrySlugError,
+								message,
+							});
+						} else if (config.prerenderConflictBehavior !== 'ignore') {
+							logger.warn(message);
+						}
 					}
 				}
 
@@ -298,7 +314,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 			);
 
 			function isConfigFile(file: string) {
-				const fileUrl = new URL(file, baseDir);
+				const fileUrl = new URL('./' + encodeURI(file), baseDir);
 				return configFiles.has(fileUrl.href);
 			}
 

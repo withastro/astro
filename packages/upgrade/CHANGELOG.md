@@ -1,5 +1,11 @@
 # @astrojs/upgrade
 
+## 0.7.4
+
+### Patch Changes
+
+- [#17579](https://github.com/withastro/astro/pull/17579) [`3ea55ce`](https://github.com/withastro/astro/commit/3ea55ce24024af7dc6ec3dcdde2f8af6ab5707d8) Thanks [@bluwy](https://github.com/bluwy)! - Supports the `devEngines` field in package.json when detecting the package manager for install commands
+
 ## 0.7.3
 
 ### Patch Changes

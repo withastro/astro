@@ -1,5 +1,23 @@
 # @astrojs/language-server
 
+## 2.16.16
+
+### Patch Changes
+
+- [#17715](https://github.com/withastro/astro/pull/17715) [`a51c533`](https://github.com/withastro/astro/commit/a51c533224687120f0b279f740bdd80b62bc3769) Thanks [@wakqasahmed](https://github.com/wakqasahmed)! - Fixes `astro check` silently skipping `.astro` files that are only reachable through a TypeScript project reference (a tsconfig referenced via `references` in another tsconfig). These files are now checked and reported like any other `.astro` file.
+
+## 2.16.15
+
+### Patch Changes
+
+- [#17820](https://github.com/withastro/astro/pull/17820) [`89e5349`](https://github.com/withastro/astro/commit/89e53492d2358596afbb327ef8bb80a44cd59807) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `source.organizeImports` leaking generated Astro component exports into `.astro` files
+
+## 2.16.14
+
+### Patch Changes
+
+- [#17618](https://github.com/withastro/astro/pull/17618) [`2630631`](https://github.com/withastro/astro/commit/263063116c8fa36474b255b7d4ecf43a0a55ffe2) Thanks [@lazerg](https://github.com/lazerg)! - Fixes the missing "Add all missing imports" and "Add import from" quick fixes for Astro components
+
 ## 2.16.13
 
 ### Patch Changes

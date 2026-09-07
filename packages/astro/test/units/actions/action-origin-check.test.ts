@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { Hono } from 'hono';
 import { defineAction } from '../../../dist/actions/runtime/server.js';
-import { appSymbol } from '../../../dist/core/constants.js';
+import { setAmbientManifest } from '../../../dist/core/manifest/ambient.js';
 import { actions, middleware, pages } from '../../../dist/core/hono/index.js';
 import { createPage, createRouteData, createTestApp } from '../mocks.ts';
 import { spreadPart, staticPart } from '../routing/test-helpers.ts';
@@ -58,18 +58,14 @@ function createActionsApp() {
 
 /**
  * Composes a Hono app around the given Astro app the way the `astro/hono`
- * primitives expect (the app is attached to the request; the primitives
- * derive their per-request `FetchState` from it). `actions()` is mounted
- * *before* `middleware()` — the order shipped in the `advanced-routing`
- * example — so the action dispatch runs before the origin-check middleware
- * would.
+ * primitives expect (the primitives derive their per-request `FetchState`
+ * from the ambient manifest). `actions()` is mounted *before*
+ * `middleware()` — the order shipped in the `advanced-routing` example —
+ * so the action dispatch runs before the origin-check middleware would.
  */
 function createHonoApp(astroApp: ReturnType<typeof createActionsApp>['app']) {
+	setAmbientManifest(astroApp.manifest);
 	const hono = new Hono();
-	hono.use(async (context, next) => {
-		Reflect.set(context.req.raw, appSymbol, astroApp);
-		await next();
-	});
 	hono.use(actions());
 	hono.use(middleware());
 	hono.use(pages());

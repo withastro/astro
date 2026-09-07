@@ -14,6 +14,7 @@ export {
 export {
 	isSatteriProcessor,
 	satteri,
+	type SatteriFeatures,
 	type SatteriProcessorOptions,
 	type SatteriResolvedOptions,
 } from './processor.js';

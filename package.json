@@ -40,13 +40,16 @@
     "test:e2e:alpinejs": "cd packages/integrations/alpinejs && pnpm run test:e2e",
     "test:e2e:match": "cd packages/astro && pnpm playwright install firefox && pnpm run test:e2e:match",
     "test:e2e:hosts": "turbo run test:hosted",
+    "eval:skills": "vitest run --config vitest.skills.config.ts",
+    "eval:skills:validate": "vitest list --config vitest.skills.config.ts",
     "typecheck": "tsc -b",
     "benchmark": "astro-benchmark",
-    "lint": "biome lint && knip && eslint --cache --concurrency=auto",
-    "lint:ai": "biome lint --reporter=concise && knip && eslint --cache --concurrency=auto",
-    "lint:ci": "knip && pnpm run eslint:ci",
+    "lint": "biome lint && pnpm run knip && eslint --cache --concurrency=auto",
+    "lint:ai": "biome lint --reporter=concise && pnpm run knip && eslint --cache --concurrency=auto",
+    "lint:ci": "pnpm run knip && pnpm run eslint:ci",
     "eslint:ci": "NODE_OPTIONS=\"--max-old-space-size=8192\" eslint --cache --concurrency=auto",
     "lint:fix": "biome lint --write --unsafe",
+    "knip": "knip && knip --production",
     "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail exec publint",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format"
   },
@@ -60,17 +63,15 @@
     "node": ">=22.12.0"
   },
   "packageManager": "pnpm@11.13.1",
-  "dependencies": {
-    "astro-benchmark": "workspace:*"
-  },
   "devDependencies": {
     "@astrojs/check": "^0.9.5",
     "@biomejs/biome": "2.5.3",
     "@changesets/changelog-github": "^0.5.2",
     "@changesets/cli": "^2.29.8",
-    "@flue/cli": "^0.8.0",
-    "@flue/runtime": "^0.8.0",
+    "@earendil-works/pi-ai": "^0.83.0",
+    "@flue/runtime": "^2.0.3",
     "@types/node": "^22.10.6",
+    "astro-benchmark": "workspace:*",
     "bgproc": "^0.2.0",
     "eslint": "^10.4.0",
     "eslint-plugin-regexp": "^3.1.0",
@@ -83,6 +84,7 @@
     "turbo": "^2.10.2",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.59.1",
-    "valibot": "^1.2.0"
+    "valibot": "^1.2.0",
+    "vitest": "^4.1.0"
   }
 }

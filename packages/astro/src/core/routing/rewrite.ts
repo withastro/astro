@@ -149,13 +149,14 @@ export function copyRequest(
 	logger: AstroLogger,
 	routePattern: string,
 ): Request {
-	if (oldRequest.bodyUsed) {
+	const canHaveBody = oldRequest.method !== 'GET' && oldRequest.method !== 'HEAD';
+	if (canHaveBody && oldRequest.bodyUsed) {
 		throw new AstroError(AstroErrorData.RewriteWithBodyUsed);
 	}
 	return createRequest({
 		url: newUrl,
 		method: oldRequest.method,
-		body: oldRequest.body,
+		body: canHaveBody ? oldRequest.body : undefined,
 		isPrerendered,
 		logger,
 		headers: isPrerendered ? {} : oldRequest.headers,

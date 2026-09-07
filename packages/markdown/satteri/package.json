@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-satteri",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -29,10 +29,11 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/prism": "workspace:*",
     "github-slugger": "^2.0.0",
-    "hast-util-from-html": "^2.0.3",
-    "satteri": "^0.9.1"
+    "satteri": "^0.10.3"
   },
   "devDependencies": {
+    "@types/estree": "^1.0.8",
+    "@types/hast": "^3.0.4",
     "astro-scripts": "workspace:*"
   },
   "publishConfig": {

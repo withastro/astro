@@ -32,6 +32,7 @@ async function runConfigSetup(session: unknown) {
 			outDir: new URL('./dist/', root),
 			cacheDir: new URL('./.astro/', root),
 			build: { client: new URL('./dist/client/', root), server: new URL('./dist/server/', root) },
+			experimental: { collectionStorage: 'single-file' },
 			vite: {},
 		},
 		logger: {

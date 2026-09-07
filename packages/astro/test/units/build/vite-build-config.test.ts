@@ -246,6 +246,95 @@ describe('createViteBuildConfig', () => {
 		});
 	});
 
+	describe('environment key ordering', () => {
+		it('places ssr environment last even when user defines environments.ssr', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					environments: {
+						ssr: {
+							resolve: { external: ['some-pkg'] },
+						},
+					},
+				},
+			});
+
+			const envKeys = Object.keys(config.environments ?? {});
+			assert.equal(envKeys.at(-1), 'ssr', 'ssr must be the last environment key');
+		});
+
+		it('preserves user non-build properties on the ssr environment', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					environments: {
+						ssr: {
+							resolve: { external: ['some-pkg'] },
+						},
+					},
+				},
+			});
+
+			const ssrEnv = config.environments?.ssr as Record<string, any>;
+			assert.deepEqual(ssrEnv.resolve, { external: ['some-pkg'] });
+		});
+
+		it('preserves user non-build properties on the prerender environment', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					environments: {
+						prerender: {
+							resolve: { external: ['some-pkg'] },
+						},
+					},
+				},
+			});
+
+			const prerenderEnv = config.environments?.prerender as Record<string, any>;
+			assert.deepEqual(prerenderEnv.resolve, { external: ['some-pkg'] });
+		});
+
+		it('preserves user non-build properties on the client environment', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					environments: {
+						client: {
+							resolve: { external: ['some-pkg'] },
+						},
+					},
+				},
+			});
+
+			const clientEnv = config.environments?.client as Record<string, any>;
+			assert.deepEqual(clientEnv.resolve, { external: ['some-pkg'] });
+		});
+
+		it('does not include managed keys when user sets environments.ssr before other keys', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					environments: {
+						ssr: { resolve: { external: ['a'] } },
+						prerender: { resolve: { external: ['b'] } },
+						client: { resolve: { external: ['c'] } },
+					},
+				},
+			});
+
+			const envKeys = Object.keys(config.environments ?? {});
+			// Managed keys appear exactly once each, at the end
+			const lastThree = envKeys.slice(-3);
+			assert.deepEqual(lastThree, ['prerender', 'client', 'ssr']);
+		});
+	});
+
 	describe('general config', () => {
 		it('sets base from settings config', async () => {
 			const settings = await createBasicSettings({ base: '/blog' });

@@ -6,7 +6,7 @@ import type { Plugin } from 'vite';
 import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import { createRoutesList as _createRoutesList } from '../../../dist/core/routing/create-manifest.js';
 import type { StaticBuildOptions } from '../../../dist/core/build/types.js';
-import type { Pipeline } from '../../../dist/core/base-pipeline.js';
+import type { TestPipeline } from '../test-utils.ts';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 import type { AstroInlineConfig } from '../../../dist/types/public/config.js';
 import type { ComponentInstance } from '../../../dist/types/astro.js';
@@ -214,9 +214,9 @@ export function createMockPrerenderer(
 	const { staticPaths } = options;
 
 	/** Lazily-created shared pipeline — one per prerenderer instance. */
-	let _pipeline: Pipeline | null = null;
+	let _pipeline: TestPipeline | null = null;
 
-	function getPipeline(): Pipeline {
+	function getPipeline(): TestPipeline {
 		if (!_pipeline) _pipeline = createBasicPipeline();
 		return _pipeline;
 	}
@@ -264,7 +264,7 @@ export function createMockPrerenderer(
 			const { props = {}, ...componentInstance } = page as ComponentInstance & {
 				props?: Record<string, unknown>;
 			};
-			const state = new FetchState(getPipeline(), request);
+			const state = new FetchState(getPipeline().manifest, request);
 			state.routeData = routeData as any;
 			state.pathname = pathname;
 			state.initialProps = props;

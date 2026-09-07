@@ -7,7 +7,7 @@ import * as html from 'vscode-html-languageservice';
 import { getTSXRangesAsLSPRanges, safeConvertToTSX } from '../../dist/core/astro2tsx.js';
 import { addAstroTypes } from '../../dist/core/index.js';
 import { getAstroMetadata } from '../../dist/core/parseAstro.js';
-import { patchTSX } from '../../dist/core/utils.js';
+import { patchTSX, patchTSXWithMetadata } from '../../dist/core/utils.js';
 import {
 	getAlreadyImportedAstroComponentSources,
 	rewriteAstroImportText,
@@ -150,6 +150,20 @@ describe('Utilities', async () => {
 		);
 	});
 
+	it('rewriteAstroImportText - turns component named imports into default imports', () => {
+		assert.strictEqual(
+			rewriteAstroImportText(`import { Image } from "../components/Image.astro";\n`),
+			`import Image from "../components/Image.astro";\n`,
+		);
+	});
+
+	it('rewriteAstroImportText - keeps named imports that are not the component itself', () => {
+		assert.strictEqual(
+			rewriteAstroImportText(`import { Props } from "../components/Image.astro";\n`),
+			`import { Props } from "../components/Image.astro";\n`,
+		);
+	});
+
 	it('rewriteAstroImportText - strips AstroComponent suffixes from default aliases', () => {
 		assert.strictEqual(
 			rewriteAstroImportText(
@@ -235,6 +249,25 @@ export default function Image__AstroComponent_(_props: Record<string, any>): any
 			patchTSX(input, 'file:///src/pages/[slug].astro'),
 			/export default function _slug_AstroComponent\(/,
 		);
+	});
+
+	it('patchTSX - re-exports the component under its clean name', () => {
+		const input = `export default function Image__AstroComponent_(_props: Record<string, any>): any {}`;
+		const patched = patchTSXWithMetadata(input, 'file:///src/components/Image.astro');
+
+		assert.strictEqual(
+			patched.code.slice(
+				patched.generatedComponentExport?.start,
+				patched.generatedComponentExport?.end,
+			),
+			'export { ImageAstroComponent as Image };\n',
+		);
+	});
+
+	it('patchTSX - does not re-export when the clean name is not a valid tag name', () => {
+		const input = `export default function slug__AstroComponent_(_props: Record<string, any>): any {}`;
+
+		assert.doesNotMatch(patchTSX(input, 'file:///src/pages/[slug].astro'), /^export \{/m);
 	});
 
 	it('addAstroTypes - adds getParsedCommandLine that filters non-TS files', () => {

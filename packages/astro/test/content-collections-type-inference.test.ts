@@ -51,7 +51,10 @@ describe('Content collection type inference', () => {
 		);
 	});
 
-	it('type-checks correctly against the generated types', () => {
+	it('type-checks correctly against the generated types', {
+		// type definitions are not generated for ecosystem CI
+		skip: !!process.env.ECOSYSTEM_CI,
+	}, () => {
 		// Run tsc on the fixture to verify the type assertions in src/type-checks.ts
 		// pass against the real generated content.d.ts.
 		//

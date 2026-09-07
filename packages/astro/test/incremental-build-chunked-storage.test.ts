@@ -13,7 +13,7 @@ import { type Fixture, loadFixture } from './test-utils.ts';
 describe('experimental.incrementalBuild chunked collection storage', () => {
 	const root = new URL('./fixtures/incremental-build/', import.meta.url);
 	const cachedDocB = new URL('node_modules/.astro-chunked/dist/docs/b/index.html', root);
-	const docA = new URL('src/content/docs/a.md', root);
+	const docA = new URL('src/content/docs/a.mdx', root);
 	let fixture: Fixture;
 	let originalDocA: string;
 

@@ -3,7 +3,9 @@ import { after, before, describe, it } from 'node:test';
 import { remotePatternToRegex } from '@astrojs/netlify';
 import imageService from '../../dist/image-service.js';
 import { loadFixture, SpyLogger } from '../test-utils.ts';
-import type { ImageTransform } from 'astro';
+import type { AstroRuntimeLogger, ImageTransform } from 'astro';
+
+const noopLogger: AstroRuntimeLogger = { info() {}, warn() {}, error() {} };
 
 async function getURL(options: ImageTransform) {
 	return await imageService.getURL(
@@ -12,6 +14,7 @@ async function getURL(options: ImageTransform) {
 		// implementation of `imageService.getURL`, but we need to pass it
 		// to satisfy the type signature.
 		{},
+		noopLogger,
 	);
 }
 
@@ -113,6 +116,19 @@ describe('Image CDN', { timeout: 120000 }, () => {
 				patterns.test('https://www.example.org/images/a/b.jpg'),
 				false,
 				'deeper path should not match for /images/*',
+			);
+		});
+
+		it('rejects allowed patterns embedded in another URL', async () => {
+			assert.equal(
+				regexes[0]!.test(
+					'http://169.254.169.254/latest/meta-data/?url=https://example.net/image.jpg',
+				),
+				false,
+			);
+			assert.equal(
+				regexes[2]!.test('http://127.0.0.1:6379/?url=https://www.example.org/images/a.jpg'),
+				false,
 			);
 		});
 

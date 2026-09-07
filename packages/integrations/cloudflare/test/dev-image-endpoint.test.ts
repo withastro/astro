@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import cloudflare from '../dist/index.js';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Dev image endpoint', () => {
@@ -49,5 +50,38 @@ describe('Dev image endpoint', () => {
 		const res = await fixture.fetch('/_image?href=/placeholder.jpg&f=avif&w=100');
 		assert.equal(res.status, 200);
 		assert.equal(res.headers.get('content-type'), 'image/avif');
+	});
+});
+
+describe('Dev image endpoint with prerenderEnvironment: node', () => {
+	let fixture: Fixture;
+	let devServer: DevServer;
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/dev-image-endpoint/',
+			adapter: cloudflare({ prerenderEnvironment: 'node' }),
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	// Regression test for #17348: the prerendered catch-all route makes the
+	// dev prerender gate send /_image through the Node prerender handler,
+	// which previously imported the image endpoint (and its top-level
+	// `cloudflare:workers` import) in Node and returned a 500.
+	it('transforms local images when a prerendered catch-all route exists', async () => {
+		const res = await fixture.fetch('/_image?href=/placeholder.jpg&f=png&w=100');
+		assert.equal(res.status, 200);
+		assert.equal(res.headers.get('content-type'), 'image/png');
+	});
+
+	it('renders the prerendered catch-all page', async () => {
+		const res = await fixture.fetch('/catch-all-page');
+		assert.equal(res.status, 200);
+		const html = await res.text();
+		assert.ok(html.includes('id="catch-all"'), 'Expected the catch-all page content');
 	});
 });
