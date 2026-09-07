@@ -57,7 +57,8 @@ describe('parallel prerender integrations', () => {
 
 		const html = await fixture.readFile('/pic/a/index.html');
 		const src = /<img[^>]+src="([^"]+)"/.exec(html)?.[1];
-		assert.ok(src?.startsWith('/_astro/'));
+		assert.ok(src);
+		assert.ok(src.startsWith('/_astro/'));
 		assert.equal(fixture.pathExists(src), true);
 	});
 });
