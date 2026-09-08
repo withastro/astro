@@ -292,7 +292,6 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 				logger.warn(
 					`No files found matching "${globOptions.pattern}" in directory "${relativePath}"`,
 				);
-				return;
 			}
 
 			function configForFile(file: string) {
