@@ -12,8 +12,10 @@ function getConfigEnvironmentHook(plugin: vite.Plugin) {
 describe('vite-plugin-environment server entries', () => {
 	it('includes renderer server entrypoints in optimizeDeps.include for server environments', async () => {
 		const settings = await createBasicSettings();
-		// Mirror what integrations register through `addRenderer`: string
-		// entrypoints (`@astrojs/svelte`) and URL entrypoints.
+		// The pre-include is scoped to the Cloudflare adapter (see the gate in
+		// vite-plugin-environment); mirror what integrations register through
+		// `addRenderer`: string entrypoints (`@astrojs/svelte`) and URL entrypoints.
+		settings.adapter = { name: '@astrojs/cloudflare', hooks: {} } as any;
 		settings.renderers = [
 			{
 				name: '@astrojs/svelte',
@@ -60,6 +62,7 @@ describe('vite-plugin-environment server entries', () => {
 
 	it('does not include renderer server entrypoints for the client environment', async () => {
 		const settings = await createBasicSettings();
+		settings.adapter = { name: '@astrojs/cloudflare', hooks: {} } as any;
 		settings.renderers = [
 			{
 				name: '@astrojs/svelte',
@@ -93,6 +96,7 @@ describe('vite-plugin-environment server entries', () => {
 		// plugin replace the optimizer options; the renderer entries must be
 		// appended to that replacement, not to the object it discards.
 		const settings = await createBasicSettings();
+		settings.adapter = { name: '@astrojs/cloudflare', hooks: {} } as any;
 		settings.renderers = [
 			{
 				name: '@astrojs/svelte',
@@ -151,5 +155,44 @@ describe('vite-plugin-environment server entries', () => {
 				`ssr should include every renderer server entrypoint (missing ${entrypoint}), got: ${include}`,
 			);
 		}
+	});
+
+	it('does not pre-include renderer server entrypoints for other runtimes', async () => {
+		// Pre-bundling renderers on runtimes that serve them through the transform
+		// pipeline duplicates framework modules (e.g. two React copies, "invalid
+		// hook call"); only the Cloudflare adapter is allowed the pre-include.
+		const settings = await createBasicSettings();
+		settings.adapter = { name: '@astrojs/node', hooks: {} } as any;
+		settings.renderers = [
+			{
+				name: '@astrojs/svelte',
+				clientEntrypoint: '@astrojs/svelte/client.js',
+				serverEntrypoint: '@astrojs/svelte/server.js',
+			},
+		];
+
+		const plugin = vitePluginEnvironment({
+			command: 'dev',
+			settings,
+			astroPkgsConfig: {
+				optimizeDeps: { include: [], exclude: [] },
+				ssr: { noExternal: [], external: [] },
+			},
+		});
+		const configEnvironment = getConfigEnvironmentHook(plugin);
+		assert.ok(configEnvironment, 'configEnvironment hook should exist');
+
+		const result = await configEnvironment!.call(
+			{} as any,
+			'ssr',
+			{ optimizeDeps: { noDiscovery: false } } as any,
+			{} as any,
+		);
+		const include = (result as vite.EnvironmentOptions)?.optimizeDeps?.include;
+		assert.ok(Array.isArray(include), 'ssr environment should have optimizeDeps.include');
+		assert.ok(
+			!include!.includes('@astrojs/svelte/server.js'),
+			`ssr should not pre-include server entrypoints for @astrojs/node, got: ${include}`,
+		);
 	});
 });

@@ -50,16 +50,22 @@ export function vitePluginEnvironment({
 
 	// Renderer server entrypoints (e.g. `@astrojs/svelte/server.js`) are only
 	// imported lazily through `virtual:astro:renderers`, so the optimizer scan
-	// cannot reach them. Discovering them mid-request replaces the optimized dep
-	// cache while workerd still references the old chunks
-	// (https://github.com/withastro/astro/issues/17921); pre-include them for
-	// server environments, mirroring how `core/dev/container.ts` pre-includes
-	// client entrypoints.
-	const rendererServerEntries = settings.renderers.map((renderer) =>
-		typeof renderer.serverEntrypoint === 'string'
-			? renderer.serverEntrypoint
-			: fileURLToPath(renderer.serverEntrypoint),
-	);
+	// cannot reach them. The Cloudflare adapter pre-bundles the entire server
+	// graph, so a mid-request discovery there replaces the optimized dep cache
+	// while workerd still references the old chunks, crashing dev
+	// (https://github.com/withastro/astro/issues/17921). Other runtimes serve
+	// renderers through the transform pipeline, where pre-bundling would
+	// duplicate framework modules (e.g. two React copies), so this is scoped to
+	// Cloudflare; the adapter cannot read `settings.renderers` from its hooks,
+	// hence the gate lives here.
+	const rendererServerEntries =
+		settings.adapter?.name === '@astrojs/cloudflare'
+			? settings.renderers.map((renderer) =>
+					typeof renderer.serverEntrypoint === 'string'
+						? renderer.serverEntrypoint
+						: fileURLToPath(renderer.serverEntrypoint),
+				)
+			: [];
 
 	return {
 		name: 'astro:environment',
