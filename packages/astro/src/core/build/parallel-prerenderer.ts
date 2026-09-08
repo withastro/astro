@@ -2,6 +2,7 @@ import { Worker } from 'node:worker_threads';
 import type { AssetsGlobalStaticImagesList } from '../../assets/types.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { GetStaticPathsItem } from '../../types/public/common.js';
+import type { RouteData } from '../../types/public/internal.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type {
 	AstroPrerenderer,
