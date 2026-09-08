@@ -130,4 +130,50 @@ describe('TypeScript - Organize & Sort Imports', () => {
 
 		assert.ok(returnedText.some((text) => text.includes('helperOne, helperTwo')));
 	});
+
+	it('organizes imports in every TypeScript region for full-document actions', async () => {
+		const document = await languageServer.openFakeDocument(
+			`---
+import { serverTwo, serverOne } from './server';
+
+serverOne();
+serverTwo();
+---
+
+<script>
+	import { clientTwo, clientOne } from './client';
+
+	clientOne();
+	clientTwo();
+</script>
+
+<script>
+	import { otherTwo, otherOne } from './other';
+
+	otherOne();
+	otherTwo();
+</script>
+`,
+			'astro',
+		);
+		const organizeActions = await languageServer.handle.sendCodeActionsRequest(
+			document.uri,
+			Range.create(0, 0, document.lineCount - 1, 0),
+			{
+				diagnostics: [],
+				only: ['source.organizeImports'],
+				triggerKind: 2,
+			},
+		);
+		const organizeEdits = await Promise.all(
+			(organizeActions as CodeAction[]).map((action) =>
+				languageServer.handle.sendCodeActionResolveRequest(action),
+			),
+		);
+		const returnedText = getTextEdits(organizeEdits).map((edit) => edit.newText);
+
+		assert.ok(returnedText.some((text) => text.includes('serverOne, serverTwo')));
+		assert.ok(returnedText.some((text) => text.includes('clientOne, clientTwo')));
+		assert.ok(returnedText.some((text) => text.includes('otherOne, otherTwo')));
+	});
 });

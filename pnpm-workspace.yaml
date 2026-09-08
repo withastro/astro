@@ -113,4 +113,5 @@ allowBuilds:
   workerd: false
 
 patchedDependencies:
+  '@volar/language-service@2.4.28': patches/@volar__language-service@2.4.28.patch
   '@volar/typescript@2.4.28': patches/@volar__typescript@2.4.28.patch

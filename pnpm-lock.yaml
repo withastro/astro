@@ -209,6 +209,7 @@ overrides:
   modern-tar: '>=0.7.7'
 
 patchedDependencies:
+  '@volar/language-service@2.4.28': 09741a82cb00ac74eaaadd70420ac669b56a8df2b1b926de1cf25500a15a6b5a
   '@volar/typescript@2.4.28': 08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad
 
 importers:
@@ -6783,7 +6784,7 @@ importers:
         version: 2.4.28
       '@volar/language-service':
         specifier: ~2.4.28
-        version: 2.4.28
+        version: 2.4.28(patch_hash=09741a82cb00ac74eaaadd70420ac669b56a8df2b1b926de1cf25500a15a6b5a)
       muggle-string:
         specifier: ^0.4.1
         version: 0.4.1
@@ -20718,7 +20719,7 @@ snapshots:
 
   '@volar/kit@2.4.28(typescript@6.0.3)':
     dependencies:
-      '@volar/language-service': 2.4.28
+      '@volar/language-service': 2.4.28(patch_hash=09741a82cb00ac74eaaadd70420ac669b56a8df2b1b926de1cf25500a15a6b5a)
       '@volar/typescript': 2.4.28(patch_hash=08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad)
       typesafe-path: 0.2.2
       typescript: 6.0.3
@@ -20732,7 +20733,7 @@ snapshots:
   '@volar/language-server@2.4.28':
     dependencies:
       '@volar/language-core': 2.4.28
-      '@volar/language-service': 2.4.28
+      '@volar/language-service': 2.4.28(patch_hash=09741a82cb00ac74eaaadd70420ac669b56a8df2b1b926de1cf25500a15a6b5a)
       '@volar/typescript': 2.4.28(patch_hash=08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad)
       path-browserify: 1.0.1
       request-light: 0.7.0
@@ -20741,7 +20742,7 @@ snapshots:
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.1.0
 
-  '@volar/language-service@2.4.28':
+  '@volar/language-service@2.4.28(patch_hash=09741a82cb00ac74eaaadd70420ac669b56a8df2b1b926de1cf25500a15a6b5a)':
     dependencies:
       '@volar/language-core': 2.4.28
       vscode-languageserver-protocol: 3.17.5
@@ -26981,7 +26982,7 @@ snapshots:
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.1.0
     optionalDependencies:
-      '@volar/language-service': 2.4.28
+      '@volar/language-service': 2.4.28(patch_hash=09741a82cb00ac74eaaadd70420ac669b56a8df2b1b926de1cf25500a15a6b5a)
 
   volar-service-emmet@0.0.71(@volar/language-service@2.4.28):
     dependencies:
@@ -26990,7 +26991,7 @@ snapshots:
       '@vscode/emmet-helper': 2.11.0
       vscode-uri: 3.1.0
     optionalDependencies:
-      '@volar/language-service': 2.4.28
+      '@volar/language-service': 2.4.28(patch_hash=09741a82cb00ac74eaaadd70420ac669b56a8df2b1b926de1cf25500a15a6b5a)
 
   volar-service-html@0.0.71(@volar/language-service@2.4.28):
     dependencies:
@@ -26998,20 +26999,20 @@ snapshots:
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.1.0
     optionalDependencies:
-      '@volar/language-service': 2.4.28
+      '@volar/language-service': 2.4.28(patch_hash=09741a82cb00ac74eaaadd70420ac669b56a8df2b1b926de1cf25500a15a6b5a)
 
   volar-service-prettier@0.0.71(@volar/language-service@2.4.28)(prettier@3.9.0):
     dependencies:
       vscode-uri: 3.1.0
     optionalDependencies:
-      '@volar/language-service': 2.4.28
+      '@volar/language-service': 2.4.28(patch_hash=09741a82cb00ac74eaaadd70420ac669b56a8df2b1b926de1cf25500a15a6b5a)
       prettier: 3.9.0
 
   volar-service-typescript-twoslash-queries@0.0.71(@volar/language-service@2.4.28):
     dependencies:
       vscode-uri: 3.1.0
     optionalDependencies:
-      '@volar/language-service': 2.4.28
+      '@volar/language-service': 2.4.28(patch_hash=09741a82cb00ac74eaaadd70420ac669b56a8df2b1b926de1cf25500a15a6b5a)
 
   volar-service-typescript@0.0.71(@volar/language-service@2.4.28):
     dependencies:
@@ -27022,14 +27023,14 @@ snapshots:
       vscode-nls: 5.2.0
       vscode-uri: 3.1.0
     optionalDependencies:
-      '@volar/language-service': 2.4.28
+      '@volar/language-service': 2.4.28(patch_hash=09741a82cb00ac74eaaadd70420ac669b56a8df2b1b926de1cf25500a15a6b5a)
 
   volar-service-yaml@0.0.71(@volar/language-service@2.4.28):
     dependencies:
       vscode-uri: 3.1.0
       yaml-language-server: 1.23.0
     optionalDependencies:
-      '@volar/language-service': 2.4.28
+      '@volar/language-service': 2.4.28(patch_hash=09741a82cb00ac74eaaadd70420ac669b56a8df2b1b926de1cf25500a15a6b5a)
 
   vscode-css-languageservice@6.3.9:
     dependencies:
