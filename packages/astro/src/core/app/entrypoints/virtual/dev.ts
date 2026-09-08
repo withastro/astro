@@ -24,12 +24,9 @@ export const createApp: CreateApp = ({ streaming } = {}) => {
 	setLogger(manifest, createConsoleLogger({ level: manifest.logLevel }));
 	setEnvironment(manifest, createNonRunnableEnvironment());
 	const app = new DevFacadeApp(manifest, streaming);
-	// Only install a user-authored fetch handler. The built-in fallback
-	// (`isDefaultFetchHandler`) must be skipped: in the workerd dev
-	// environment the optimizer can place `DefaultFetchHandler` in a
-	// separate chunk, producing a different class identity that defeats
-	// the `instanceof` fast-path in `BaseApp.render`. Mirrors the guard
-	// in `vite-plugin-app/handle-request.ts`. See #17927.
+	// Keep the facade's own DefaultFetchHandler when the virtual module is the
+	// built-in fallback: `instanceof` can't recognize the fallback in dev, where
+	// its class identity is unstable. https://github.com/withastro/astro/issues/17927
 	if (!isDefaultFetchHandler) {
 		app.setFetchHandler(fetchable);
 	}
