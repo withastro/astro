@@ -106,7 +106,7 @@ export async function* crawlGraph(
 	// scan imported modules for CSS imports & add them to our collection.
 	// Then, crawl that file to follow and scan all deep imports as well.
 	for (const importedModule of importedModules) {
-		if (!importedModule.id || scanned.has(importedModule.id)) {
+		if (!importedModule.id || scanned.has(unwrapId(importedModule.id))) {
 			continue;
 		}
 
