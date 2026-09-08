@@ -56,12 +56,9 @@
     "wrangler": "^4.125.0"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "0.22.0",
     "@cloudflare/workers-types": "^5.20260820.1",
     "@types/node": "^22.10.6",
     "@types/prismjs": "1.26.6",
-    "@vitest/runner": "4.1.10",
-    "@vitest/snapshot": "4.1.10",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",

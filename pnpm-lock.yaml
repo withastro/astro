@@ -4589,9 +4589,6 @@ importers:
         specifier: ^8.0.13
         version: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
     devDependencies:
-      '@cloudflare/vitest-pool-workers':
-        specifier: 0.22.0
-        version: 0.22.0(@cloudflare/workers-types@5.20260825.1)(@vitest/runner@4.1.10)(@vitest/snapshot@4.1.10)(vitest@4.1.10)
       '@cloudflare/workers-types':
         specifier: ^5.20260820.1
         version: 5.20260825.1
@@ -4601,12 +4598,6 @@ importers:
       '@types/prismjs':
         specifier: 1.26.6
         version: 1.26.6
-      '@vitest/runner':
-        specifier: 4.1.10
-        version: 4.1.10
-      '@vitest/snapshot':
-        specifier: 4.1.10
-        version: 4.1.10
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -5090,6 +5081,12 @@ importers:
       '@cloudflare/vitest-pool-workers':
         specifier: 0.22.0
         version: 0.22.0(@cloudflare/workers-types@5.20260825.1)(@vitest/runner@4.1.10)(@vitest/snapshot@4.1.10)(vitest@4.1.10)
+      '@vitest/runner':
+        specifier: 4.1.10
+        version: 4.1.10
+      '@vitest/snapshot':
+        specifier: 4.1.10
+        version: 4.1.10
       vitest:
         specifier: 4.1.10
         version: 4.1.10(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.2.2)
