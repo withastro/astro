@@ -96,12 +96,13 @@ type Undefinable<T> = T extends object ? { [K in keyof T]?: T[K] | undefined } :
  * Options accepted by the image transformation service.
  */
 export type ImageTransform = Simplify<
-	Undefinable<ImageSharedProps<object>> & {
-		src: ImageMetadata | string;
-		width?: number | undefined;
-		height?: number | undefined;
-		[key: string]: any;
-	}
+	Undefinable<ImageSharedProps<object>> &
+		Astro.CustomImageProps & {
+			src: ImageMetadata | string;
+			width?: number | undefined;
+			height?: number | undefined;
+			[key: string]: any;
+		}
 >;
 
 export interface GetImageResult {
