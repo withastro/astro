@@ -19,7 +19,7 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
-import { isActionsFilePresent } from './utils.js';
+import { isActionsFilePresent } from './actions-file.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 /**
