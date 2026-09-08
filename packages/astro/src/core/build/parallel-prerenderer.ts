@@ -9,18 +9,18 @@ import type {
 	PrerenderRenderMetadata,
 	PrerenderResult,
 } from '../../types/public/integrations.js';
-import { serializeRouteData } from '../app/manifest.js';
+import { deserializeRouteData, serializeRouteData } from '../app/manifest.js';
 import type { AstroLoggerMessage } from '../logger/core.js';
 import { removeBase } from '../path.js';
 import { getParams } from '../render/params-and-props.js';
 import { stringifyParams } from '../routing/params.js';
-import type { DefaultPrerenderer } from './default-prerenderer.js';
 import type { BuildInternals } from './internal.js';
 import { assignRouteWorkers } from './parallel-prerender-affinity.js';
 import type { StaticBuildOptions } from './types.js';
 
 export interface ParallelPrerenderWorkerData {
 	entryUrl: string;
+	discoveryConcurrency: number;
 	pagesByKeys: Array<[string, { styles: unknown[] }]>;
 	pageScript?: string;
 	scripts: AstroSettings['scripts'];
@@ -49,10 +49,16 @@ interface RenderWorkerRequest {
 	type: 'render';
 	id: number;
 	url: string;
+	outFile?: string;
 	routeId: number;
 	routeData?: string;
 	collectMetadata: boolean;
 	staticPath?: GetStaticPathsItem;
+}
+
+interface DiscoverWorkerRequest {
+	type: 'discover';
+	id: number;
 }
 
 interface CollectImagesWorkerRequest {
@@ -60,18 +66,42 @@ interface CollectImagesWorkerRequest {
 	id: number;
 }
 
-export type PrerenderWorkerRequest = RenderWorkerRequest | CollectImagesWorkerRequest;
+export type PrerenderWorkerRequest =
+	| RenderWorkerRequest
+	| DiscoverWorkerRequest
+	| CollectImagesWorkerRequest;
 
 interface SerializedResponse {
 	body: ArrayBuffer | null;
+	written: boolean;
 	status: number;
 	statusText: string;
 	headers: [string, string][];
 }
 
+interface DiscoveredRoute {
+	id: number;
+	data: string;
+}
+
+interface DiscoveredPath {
+	pathname: string;
+	routeId: number;
+	cacheKey?: string;
+	staticPath?: GetStaticPathsItem;
+	localStaticPath: boolean;
+}
+
 type WorkerMessage =
 	| { type: 'ready' }
 	| { type: 'startup-error'; error: SerializedWorkerError }
+	| {
+			type: 'paths';
+			id: number;
+			paths: DiscoveredPath[];
+			routes: DiscoveredRoute[];
+			logs: AstroLoggerMessage[];
+	  }
 	| {
 			type: 'result';
 			id: number;
@@ -90,6 +120,7 @@ type WorkerMessage =
 interface RenderJob {
 	request: Omit<RenderWorkerRequest, 'id'>;
 	eligibleWorkers?: Set<number>;
+	localOnly: boolean;
 	queuedAt: number;
 	resolve: (result: PrerenderResult) => void;
 	reject: (error: Error) => void;
@@ -110,19 +141,41 @@ interface InFlightRequest {
 }
 
 interface ParallelPrerendererOptions {
-	defaultPrerenderer: DefaultPrerenderer;
 	internals: BuildInternals;
 	options: StaticBuildOptions;
 	prerenderOutputDir: URL;
 }
 
-const AFFINITY_FALLBACK_MS = 100;
-const transferredResponseBodies = new WeakMap<Response, ArrayBuffer>();
+export interface ParallelPrerenderer extends AstroPrerenderer {
+	renderToFile: (
+		request: Request,
+		options: {
+			routeData: RouteData;
+			pathname: string;
+			outFile: URL;
+			collectMetadata: boolean;
+		},
+	) => Promise<PrerenderResult>;
+}
 
-export function takeTransferredResponseBody(response: Response): ArrayBuffer | undefined {
-	const body = transferredResponseBodies.get(response);
-	transferredResponseBodies.delete(response);
-	return body;
+interface CompletedResponse {
+	body?: ArrayBuffer;
+	written: boolean;
+}
+
+const AFFINITY_FALLBACK_MS = 100;
+const completedResponses = new WeakMap<Response, CompletedResponse>();
+
+export function takeCompletedResponse(response: Response): CompletedResponse | undefined {
+	const completed = completedResponses.get(response);
+	completedResponses.delete(response);
+	return completed;
+}
+
+export function isParallelPrerenderer(
+	prerenderer: AstroPrerenderer,
+): prerenderer is ParallelPrerenderer {
+	return typeof Reflect.get(prerenderer, 'renderToFile') === 'function';
 }
 
 function deserializeError(serialized: SerializedWorkerError): Error {
@@ -145,6 +198,8 @@ class PrerenderWorkerPool {
 	#nextRouteId = 1;
 	#routeIds = new Map<string, number>();
 	#routeWorkers = new Map<string, Set<number>>();
+	#staticPaths = new Map<string, GetStaticPathsItem>();
+	#localStaticPaths = new Set<string>();
 	#fallbackTimer: ReturnType<typeof setTimeout> | undefined;
 	#closing = false;
 	private readonly workerCount: number;
@@ -172,6 +227,37 @@ class PrerenderWorkerPool {
 		}
 	}
 
+	async getStaticPaths(): Promise<PathWithRoute[]> {
+		const state = this.#workers[0];
+		const result = await new Promise<Extract<WorkerMessage, { type: 'paths' }>>(
+			(resolve, reject) => {
+				const id = this.#nextId++;
+				state.idle = false;
+				this.#inFlight.set(id, { worker: state, resolve, reject });
+				state.worker.postMessage({ type: 'discover', id } satisfies DiscoverWorkerRequest);
+			},
+		);
+		const routes = new Map<number, RouteData>();
+		for (const serialized of result.routes) {
+			const route = deserializeRouteData(JSON.parse(serialized.data));
+			routes.set(serialized.id, route);
+			this.#routeIds.set(serialized.data, serialized.id);
+			this.#nextRouteId = Math.max(this.#nextRouteId, serialized.id + 1);
+			state.routes.add(serialized.id);
+		}
+		const paths = result.paths.map((path) => {
+			const key = `${path.routeId}:${path.pathname}`;
+			if (path.staticPath) this.#staticPaths.set(key, path.staticPath);
+			if (path.localStaticPath) this.#localStaticPaths.add(key);
+			return {
+				pathname: path.pathname,
+				route: routes.get(path.routeId)!,
+				cacheKey: path.cacheKey,
+			};
+		});
+		return paths;
+	}
+
 	setRoutes(paths: PathWithRoute[], routeUniqueBytes: Map<string, number>) {
 		this.#routeWorkers = assignRouteWorkers(paths, routeUniqueBytes, this.workerCount);
 	}
@@ -180,25 +266,33 @@ class PrerenderWorkerPool {
 		request: Request,
 		routeData: string,
 		component: string,
+		pathname: string,
 		collectMetadata: boolean,
-		staticPath?: GetStaticPathsItem,
+		outFile?: URL,
 	): Promise<PrerenderResult> {
 		let routeId = this.#routeIds.get(routeData);
 		if (routeId === undefined) {
 			routeId = this.#nextRouteId++;
 			this.#routeIds.set(routeData, routeId);
 		}
+		const staticPathKey = `${routeId}:${pathname}`;
+		const staticPath = this.#staticPaths.get(staticPathKey);
+		const localOnly = this.#localStaticPaths.has(staticPathKey);
+		this.#staticPaths.delete(staticPathKey);
+		this.#localStaticPaths.delete(staticPathKey);
 		return new Promise((resolve, reject) => {
 			this.#queue.push({
 				request: {
 					type: 'render',
 					url: request.url,
+					outFile: outFile?.href,
 					routeId,
 					routeData,
 					collectMetadata,
 					staticPath,
 				},
-				eligibleWorkers: this.#routeWorkers.get(component),
+				eligibleWorkers: localOnly ? new Set([0]) : this.#routeWorkers.get(component),
+				localOnly,
 				queuedAt: performance.now(),
 				resolve,
 				reject,
@@ -296,11 +390,14 @@ class PrerenderWorkerPool {
 			request.reject(deserializeError(message.error));
 		} else if (message.type === 'images') {
 			request.resolve(message.images);
+		} else if (message.type === 'paths') {
+			for (const log of message.logs) this.destination.write(log);
+			request.resolve(message);
 		} else {
 			for (const log of message.logs) this.destination.write(log);
-			const { body, ...init } = message.response;
+			const { body, written, ...init } = message.response;
 			const response = new Response(null, init);
-			if (body !== null) transferredResponseBodies.set(response, body);
+			completedResponses.set(response, { body: body ?? undefined, written });
 			request.resolve({ response, metadata: message.metadata });
 		}
 		this.#pump();
@@ -335,7 +432,7 @@ class PrerenderWorkerPool {
 			);
 			if (jobIndex === -1) {
 				jobIndex = this.#queue.findIndex(
-					(job) => performance.now() - job.queuedAt >= AFFINITY_FALLBACK_MS,
+					(job) => !job.localOnly && performance.now() - job.queuedAt >= AFFINITY_FALLBACK_MS,
 				);
 			}
 			if (jobIndex === -1) continue;
@@ -367,11 +464,12 @@ class PrerenderWorkerPool {
 			this.#inFlight.set(id, { worker: state, resolve: job.resolve, reject: job.reject });
 		}
 
-		if (this.#queue.length > 0 && this.#workers.some((worker) => worker.idle && !worker.failed)) {
+		const fallbackJobs = this.#queue.filter((job) => !job.localOnly);
+		if (fallbackJobs.length > 0 && this.#workers.some((worker) => worker.idle && !worker.failed)) {
 			const wait = Math.max(
 				0,
 				Math.min(
-					...this.#queue.map((job) => AFFINITY_FALLBACK_MS - (performance.now() - job.queuedAt)),
+					...fallbackJobs.map((job) => AFFINITY_FALLBACK_MS - (performance.now() - job.queuedAt)),
 				),
 			);
 			this.#fallbackTimer = setTimeout(() => this.#pump(), wait);
@@ -389,23 +487,23 @@ class PrerenderWorkerPool {
 }
 
 export function createParallelPrerenderer({
-	defaultPrerenderer,
 	internals,
 	options,
 	prerenderOutputDir,
-}: ParallelPrerendererOptions): AstroPrerenderer {
+}: ParallelPrerendererOptions): ParallelPrerenderer {
 	let pool: PrerenderWorkerPool | undefined;
+	let hasStaticImages = false;
 	const serializedRoutes = new WeakMap<object, string>();
 	return {
 		name: 'astro:parallel',
 		async setup() {
-			await defaultPrerenderer.setup?.();
 			const entryFileName = internals.prerenderEntryFileName!;
 			const workerCount = Math.max(1, Math.floor(options.settings.config.build.concurrency));
 			pool = new PrerenderWorkerPool(
 				workerCount,
 				{
 					entryUrl: new URL(entryFileName, prerenderOutputDir).toString(),
+					discoveryConcurrency: workerCount,
 					pagesByKeys: [...internals.pagesByKeys].map(([key, page]) => [
 						key,
 						{ styles: page.styles },
@@ -427,7 +525,7 @@ export function createParallelPrerenderer({
 			await pool.start();
 		},
 		async getStaticPaths() {
-			const paths = await defaultPrerenderer.getStaticPaths();
+			const paths = await pool!.getStaticPaths();
 			pool!.setRoutes(paths, internals.prerenderRouteUniqueBytes ?? new Map());
 			return paths;
 		},
@@ -452,21 +550,41 @@ export function createParallelPrerenderer({
 				request,
 				serializedRoute,
 				routeData.component,
+				pathname,
 				collectMetadata ?? false,
-				defaultPrerenderer.app?.routeCache.get(routeData)?.staticPaths.keyed.get(pathname),
+			);
+		},
+		async renderToFile(request, { routeData, pathname, outFile, collectMetadata }) {
+			let serializedRoute = serializedRoutes.get(routeData);
+			if (serializedRoute === undefined) {
+				serializedRoute = JSON.stringify(
+					serializeRouteData(routeData, options.settings.config.trailingSlash),
+				);
+				serializedRoutes.set(routeData, serializedRoute);
+			}
+			return pool!.render(
+				request,
+				serializedRoute,
+				routeData.component,
+				pathname,
+				collectMetadata,
+				outFile,
 			);
 		},
 		async collectStaticImages() {
 			const images = await pool!.collectStaticImages();
-			if (images.size > 0 && !globalThis.astroAsset?.imageService) {
-				globalThis.astroAsset ??= { referencedImages: new Set() };
-				globalThis.astroAsset.imageService = await defaultPrerenderer.loadImageService!();
-			}
+			hasStaticImages = images.size > 0;
 			return images;
 		},
 		async teardown() {
 			await pool?.close();
-			await defaultPrerenderer.teardown?.();
+			if (hasStaticImages && !globalThis.astroAsset?.imageService) {
+				const fileName = internals.prerenderImageServiceFileName!;
+				globalThis.astroAsset ??= { referencedImages: new Set() };
+				globalThis.astroAsset.imageService = (
+					await import(new URL(fileName, prerenderOutputDir).href)
+				).default;
+			}
 		},
 	};
 }

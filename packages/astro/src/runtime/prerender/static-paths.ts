@@ -43,8 +43,9 @@ export class StaticPaths {
 	/**
 	 * Get all static paths for prerendering with their associated routes.
 	 * This avoids needing to re-match routes later, which can be incorrect due to route priority.
+	 * Results preserve manifest order when routes are evaluated concurrently.
 	 */
-	async getAll(): Promise<PathWithRoute[]> {
+	async getAll(concurrency = 1): Promise<PathWithRoute[]> {
 		const allPaths: PathWithRoute[] = [];
 		const manifest = this.#app.manifest;
 
@@ -70,21 +71,29 @@ export class StaticPaths {
 			routesToGenerate.push(routeData);
 		}
 
-		// Get paths for each route (mirrors getPathsForRoute)
+		const orderedRoutes: RouteData[] = [];
 		for (const route of routesToGenerate) {
-			// Also process fallback routes
-			for (const currentRoute of eachRouteInRouteData(route)) {
-				const paths = await this.#getPathsForRoute(currentRoute);
-				// Use a loop instead of spread operator (allPaths.push(...paths)) to avoid
-				// "Maximum call stack size exceeded" error with large arrays (issue #15578).
-				// The spread operator tries to pass all array elements as individual arguments,
-				// which hits the call stack limit when dealing with 100k+ routes.
-				for (const path of paths) {
-					allPaths.push(path);
-				}
-			}
+			for (const currentRoute of eachRouteInRouteData(route)) orderedRoutes.push(currentRoute);
 		}
 
+		const pathsByRoute = new Array<PathWithRoute[]>(orderedRoutes.length);
+		let nextRoute = 0;
+		await Promise.all(
+			Array.from(
+				{ length: Math.min(Math.max(Math.floor(concurrency), 1), orderedRoutes.length) },
+				async () => {
+					while (true) {
+						const index = nextRoute++;
+						const route = orderedRoutes[index];
+						if (!route) return;
+						pathsByRoute[index] = await this.#getPathsForRoute(route);
+					}
+				},
+			),
+		);
+		for (const paths of pathsByRoute) {
+			for (const path of paths) allPaths.push(path);
+		}
 		return allPaths;
 	}
 

@@ -20,6 +20,8 @@ describe('experimental.parallelPrerender', () => {
 	it('renders pages in worker threads', async () => {
 		assert.match(await fixture.readFile('/index.html'), /<html/);
 		assert.match(await fixture.readFile('/posts/thoughts/index.html'), /Testing here/);
+		assert.equal((await fixture.readFile('/parallel/large.txt')).length, 300 * 1024);
+		assert.equal(await fixture.readFile('/parallel/public.txt'), 'public\n');
 	});
 
 	it('preserves redirects and endpoint responses', async () => {
@@ -60,6 +62,9 @@ describe('parallel prerender integrations', () => {
 		assert.ok(src);
 		assert.ok(src.startsWith('/_astro/'));
 		assert.equal(fixture.pathExists(src), true);
+
+		await fixture.build();
+		assert.equal(await fixture.readFile('/pic/a/index.html'), html);
 	});
 });
 
@@ -83,11 +88,15 @@ describe('parallel prerender static paths', () => {
 			assert.match(await fixture.readFile('/parallel/items/one/index.html'), />1<\/p>/);
 			assert.match(
 				await fixture.readFile('/parallel/functions/one/index.html'),
-				/>function prop<\/p>/,
+				/>function prop <\/p>/,
+			);
+			assert.match(
+				await fixture.readFile('/parallel/functions/two/index.html'),
+				/>URL prop https:\/\/astro\.build\/<\/p>/,
 			);
 
 			await fixture.build();
-			assert.equal(fs.readFileSync(counterFile, 'utf8'), '1');
+			assert.equal(fs.readFileSync(counterFile, 'utf8'), '2');
 			assert.notEqual(await fixture.readFile('/parallel/random/index.html'), firstRandom);
 		} finally {
 			delete process.env.ASTRO_PARALLEL_PRERENDER_COUNTER;

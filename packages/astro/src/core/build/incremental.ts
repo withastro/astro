@@ -301,6 +301,12 @@ export class IncrementalBuildCache {
 		await fs.promises.writeFile(cachedOutputFile, body);
 	}
 
+	async copyOutputFile(settings: AstroSettings, outputFile: string, source: URL): Promise<void> {
+		const cachedOutputFile = getCachedOutputFile(settings, outputFile);
+		await this.#ensureDir(new URL('./', cachedOutputFile));
+		await fs.promises.copyFile(source, cachedOutputFile);
+	}
+
 	async deleteOutputFile(settings: AstroSettings, outputFile: string): Promise<void> {
 		await fs.promises.rm(getCachedOutputFile(settings, outputFile), { force: true });
 	}

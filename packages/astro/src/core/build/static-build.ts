@@ -35,6 +35,7 @@ import { createViteBuildConfig } from './vite-build-config.js';
 import { computeRouteUniqueBytes, type PrerenderChunk } from './parallel-prerender-affinity.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
+const PRERENDER_IMAGE_SERVICE_FILENAME_PREFIX = 'prerender-image-service';
 
 /**
  * Minimal chunk data extracted from RolldownOutput for deferred manifest/content injection.
@@ -332,38 +333,29 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	await builder.buildApp();
 }
 
-/**
- * Finds and returns the prerender entry filename from the build output.
- * Throws an error if no prerender entry file is found.
- */
-function getPrerenderEntryFileName(
+/** Finds an emitted prerender chunk by entry name or filename prefix. */
+function getPrerenderFileName(
 	prerenderOutput:
 		| vite.Rolldown.RolldownOutput
 		| vite.Rolldown.RolldownOutput[]
 		| vite.Rolldown.RolldownWatcher,
-): string {
+	prefix: string,
+): string | undefined {
 	const outputs = viteBuildReturnToRolldownOutputs(prerenderOutput);
-
 	for (const output of outputs) {
 		for (const chunk of output.output) {
-			if (chunk.type !== 'asset' && 'fileName' in chunk) {
-				const fileName = chunk.fileName;
-				if (fileName.startsWith(PRERENDER_ENTRY_FILENAME_PREFIX)) {
-					return fileName;
-				}
+			if (
+				chunk.type !== 'asset' &&
+				'fileName' in chunk &&
+				(chunk.fileName.startsWith(prefix) || ('name' in chunk && chunk.name === prefix))
+			) {
+				return chunk.fileName;
 			}
 		}
 	}
-
-	throw new Error(
-		'Could not find the prerender entry point in the build output. This is likely a bug in Astro.',
-	);
 }
 
-/**
- * Extracts the prerender entry filename from the build output
- * and stores it in internals for later retrieval in generatePages.
- */
+/** Stores the emitted prerender entry filenames used during page generation. */
 function extractPrerenderEntryFileName(
 	internals: BuildInternals,
 	prerenderOutput:
@@ -371,7 +363,19 @@ function extractPrerenderEntryFileName(
 		| vite.Rolldown.RolldownOutput[]
 		| vite.Rolldown.RolldownWatcher,
 ) {
-	internals.prerenderEntryFileName = getPrerenderEntryFileName(prerenderOutput);
+	internals.prerenderEntryFileName = getPrerenderFileName(
+		prerenderOutput,
+		PRERENDER_ENTRY_FILENAME_PREFIX,
+	);
+	if (!internals.prerenderEntryFileName) {
+		throw new Error(
+			'Could not find the prerender entry point in the build output. This is likely a bug in Astro.',
+		);
+	}
+	internals.prerenderImageServiceFileName = getPrerenderFileName(
+		prerenderOutput,
+		PRERENDER_IMAGE_SERVICE_FILENAME_PREFIX,
+	);
 }
 
 async function runManifestInjection(

@@ -91,6 +91,21 @@ export class BuildApp extends BaseApp {
 		this.routeCache.set(routeData, { mod, staticPaths });
 	}
 
+	deleteStaticPaths(routeData: RouteData, items: Set<GetStaticPathsItem>) {
+		const cached = this.routeCache.get(routeData);
+		if (!cached) return;
+		let nextIndex = 0;
+		for (const item of cached.staticPaths) {
+			if (items.has(item)) {
+				const key = stringifyParams(item.params, routeData, this.manifest.trailingSlash);
+				if (cached.staticPaths.keyed.get(key) === item) cached.staticPaths.keyed.delete(key);
+			} else {
+				cached.staticPaths[nextIndex++] = item;
+			}
+		}
+		cached.staticPaths.length = nextIndex;
+	}
+
 	deleteStaticPath(
 		routeData: RouteData,
 		item: GetStaticPathsItem,
