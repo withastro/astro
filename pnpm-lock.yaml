@@ -323,7 +323,7 @@ importers:
     devDependencies:
       '@codspeed/vitest-plugin':
         specifier: 5.2.0
-        version: 5.2.0(tinybench@2.9.0)(vite@8.2.2)(vitest@4.1.0)
+        version: 5.2.0(tinybench@2.9.0)(vite@8.2.1)(vitest@4.1.0)
       vitest:
         specifier: ^4.1.0
         version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
@@ -722,7 +722,7 @@ importers:
         version: link:../../packages/astro
       vitest:
         specifier: ^5.0.0-beta.2
-        version: 5.0.0-beta.3(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.2.2)
+        version: 5.0.0-beta.3(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.2.1)
 
   packages/astro:
     dependencies:
@@ -1199,7 +1199,7 @@ importers:
         version: 19.2.5(@types/react@19.2.18)
       '@vitejs/plugin-vue':
         specifier: ^6.0.5
-        version: 6.0.5(vite@8.2.2)(vue@3.5.30)
+        version: 6.0.5(vite@8.2.1)(vue@3.5.30)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -1892,7 +1892,7 @@ importers:
     dependencies:
       '@tailwindcss/vite':
         specifier: ^4.2.2
-        version: 4.2.2(vite@8.2.2)
+        version: 4.2.2(vite@8.2.1)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -2586,7 +2586,7 @@ importers:
     dependencies:
       '@tailwindcss/vite':
         specifier: ^4.2.2
-        version: 4.2.2(vite@8.2.2)
+        version: 4.2.2(vite@8.2.1)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -3748,7 +3748,7 @@ importers:
     dependencies:
       '@tailwindcss/vite':
         specifier: ^4.2.2
-        version: 4.2.2(vite@8.2.2)
+        version: 4.2.2(vite@8.2.1)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -4401,7 +4401,7 @@ importers:
         version: link:../../../../integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.2.2
-        version: 4.2.2(vite@8.2.2)
+        version: 4.2.2(vite@8.2.1)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -4581,13 +4581,13 @@ importers:
         version: link:../../underscore-redirects
       '@cloudflare/vite-plugin':
         specifier: ^1.53.0
-        version: 1.53.1(vite@8.2.2)(wrangler@4.125.0)
+        version: 1.53.1(vite@8.2.1)(wrangler@4.125.0)
       piccolore:
         specifier: ^0.1.3
         version: 0.1.3
       vite:
         specifier: ^8.0.13
-        version: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^5.20260820.1
@@ -4618,7 +4618,7 @@ importers:
         version: 0.2.17
       vitest:
         specifier: 4.1.10
-        version: 4.1.10(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.2.2)
+        version: 4.1.10(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.2.1)
       wrangler:
         specifier: ^4.125.0
         version: 4.125.0(@cloudflare/workers-types@5.20260825.1)
@@ -4874,7 +4874,7 @@ importers:
         version: link:../../../../mdx
       '@tailwindcss/vite':
         specifier: ^4.2.1
-        version: 4.2.2(vite@8.2.2)
+        version: 4.2.2(vite@8.2.1)
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
@@ -5052,7 +5052,7 @@ importers:
         version: 19.2.5(@types/react@19.2.18)
       '@vitejs/plugin-vue':
         specifier: ^6.0.4
-        version: 6.0.5(vite@8.2.2)(vue@3.5.30)
+        version: 6.0.5(vite@8.2.1)(vue@3.5.30)
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
@@ -5089,7 +5089,7 @@ importers:
         version: 4.1.10
       vitest:
         specifier: 4.1.10
-        version: 4.1.10(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.2.2)
+        version: 4.1.10(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.2.1)
 
   packages/integrations/cloudflare/test/fixtures/with-base:
     dependencies:
@@ -16351,49 +16351,6 @@ packages:
       yaml:
         optional: true
 
-  vite@8.2.2:
-    resolution: {integrity: sha512-cFKLV/PRgAUlIRm5WjMjJ86jrftzpqcgH+Us+DS8mI3CDNiH30Whrz8uHL3+MOLPAgqbMBAqWdAHAphOAM+z/Q==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': ^22.19.0
-      '@vitejs/devtools': ^0.4.0 || ^0.5.0
-      esbuild: ^0.27.0 || ^0.28.0
-      jiti: '>=1.21.0'
-      less: ^4.0.0
-      sass: ^1.70.0
-      sass-embedded: ^1.70.0
-      stylus: '>=0.54.8'
-      sugarss: ^5.0.0
-      terser: ^5.16.0
-      tsx: ^4.8.1
-      yaml: ^2.4.2
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      '@vitejs/devtools':
-        optional: true
-      esbuild:
-        optional: true
-      jiti:
-        optional: true
-      less:
-        optional: true
-      sass:
-        optional: true
-      sass-embedded:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-      tsx:
-        optional: true
-      yaml:
-        optional: true
-
   vitefu@1.1.2:
     resolution: {integrity: sha512-zpKATdUbzbsycPFBN71nS2uzBUQiVnFoOrr2rvqv34S1lcAgMKKkjWleLGeiJlZ8lwCXvtWaRn7R3ZC16SYRuw==}
     peerDependencies:
@@ -17872,12 +17829,12 @@ snapshots:
     optionalDependencies:
       workerd: 1.20260820.1
 
-  '@cloudflare/vite-plugin@1.53.1(vite@8.2.2)(wrangler@4.125.0)':
+  '@cloudflare/vite-plugin@1.53.1(vite@8.2.1)(wrangler@4.125.0)':
     dependencies:
       '@cloudflare/unenv-preset': 2.16.1(unenv@2.0.0-rc.24)(workerd@1.20260820.1)
       miniflare: 5.20260820.0-alpha
       unenv: 2.0.0-rc.24
-      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       workerd: 1.20260820.1
       wrangler: 4.125.0(@cloudflare/workers-types@5.20260825.1)
       ws: 8.21.0
@@ -17892,7 +17849,7 @@ snapshots:
       cjs-module-lexer: 1.2.3
       esbuild: 0.28.1
       miniflare: 5.20260815.0-alpha
-      vitest: 4.1.10(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.2.2)
+      vitest: 4.1.10(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.2.1)
       wrangler: 4.124.0(@cloudflare/workers-types@5.20260825.1)
       zod: 4.4.3
     transitivePeerDependencies:
@@ -17941,11 +17898,11 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@codspeed/vitest-plugin@5.2.0(tinybench@2.9.0)(vite@8.2.2)(vitest@4.1.0)':
+  '@codspeed/vitest-plugin@5.2.0(tinybench@2.9.0)(vite@8.2.1)(vitest@4.1.0)':
     dependencies:
       '@codspeed/core': 5.2.0
       tinybench: 2.9.0
-      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       vitest: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
     transitivePeerDependencies:
       - debug
@@ -20347,13 +20304,6 @@ snapshots:
       tailwindcss: 4.2.2
       vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
-  '@tailwindcss/vite@4.2.2(vite@8.2.2)':
-    dependencies:
-      '@tailwindcss/node': 4.2.2
-      '@tailwindcss/oxide': 4.2.2
-      tailwindcss: 4.2.2
-      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
-
   '@test/server-entry-fake-adapter@file:packages/astro/test/fixtures/server-entry/fake-adapter':
     dependencies:
       astro: link:packages/astro
@@ -20890,12 +20840,6 @@ snapshots:
       vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       vue: 3.5.30(typescript@6.0.3)
 
-  '@vitejs/plugin-vue@6.0.5(vite@8.2.2)(vue@3.5.30)':
-    dependencies:
-      '@rolldown/pluginutils': 1.0.0-rc.2
-      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
-      vue: 3.5.30(typescript@6.0.3)
-
   '@vitest/expect@4.1.0':
     dependencies:
       '@standard-schema/spec': 1.1.0
@@ -20929,23 +20873,14 @@ snapshots:
       magic-string: 0.30.21
     optionalDependencies:
       vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
-    optional: true
 
-  '@vitest/mocker@4.1.10(vite@8.2.2)':
-    dependencies:
-      '@vitest/spy': 4.1.10
-      estree-walker: 3.0.3
-      magic-string: 0.30.21
-    optionalDependencies:
-      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
-
-  '@vitest/mocker@5.0.0-beta.3(vite@8.2.2)':
+  '@vitest/mocker@5.0.0-beta.3(vite@8.2.1)':
     dependencies:
       '@vitest/spy': 5.0.0-beta.3
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
   '@vitest/pretty-format@4.1.0':
     dependencies:
@@ -27214,22 +27149,6 @@ snapshots:
       tsx: 4.22.3
       yaml: 2.9.0
 
-  vite@8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0):
-    dependencies:
-      lightningcss: 1.33.0
-      picomatch: 4.0.5
-      postcss: 8.5.26
-      rolldown: 1.2.4
-      tinyglobby: 0.2.17
-    optionalDependencies:
-      '@types/node': 22.19.19
-      esbuild: 0.28.1
-      fsevents: 2.3.3
-      jiti: 2.6.1
-      sass: 1.98.0
-      tsx: 4.22.3
-      yaml: 2.9.0
-
   vitefu@1.1.2(vite@8.2.1):
     optionalDependencies:
       vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
@@ -27300,40 +27219,11 @@ snapshots:
       '@types/node': 22.19.19
     transitivePeerDependencies:
       - msw
-    optional: true
 
-  vitest@4.1.10(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.2.2):
-    dependencies:
-      '@vitest/expect': 4.1.10
-      '@vitest/mocker': 4.1.10(vite@8.2.2)
-      '@vitest/pretty-format': 4.1.10
-      '@vitest/runner': 4.1.10
-      '@vitest/snapshot': 4.1.10
-      '@vitest/spy': 4.1.10
-      '@vitest/utils': 4.1.10
-      es-module-lexer: 2.0.0
-      expect-type: 1.3.0
-      magic-string: 0.30.21
-      obug: 2.1.1
-      pathe: 2.0.3
-      picomatch: 4.0.5
-      std-env: 4.0.0
-      tinybench: 2.9.0
-      tinyexec: 1.0.4
-      tinyglobby: 0.2.17
-      tinyrainbow: 3.1.0
-      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@opentelemetry/api': 1.9.0
-      '@types/node': 22.19.19
-    transitivePeerDependencies:
-      - msw
-
-  vitest@5.0.0-beta.3(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.2.2):
+  vitest@5.0.0-beta.3(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.2.1):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.0-beta.3(vite@8.2.2)
+      '@vitest/mocker': 5.0.0-beta.3(vite@8.2.1)
       '@vitest/pretty-format': 5.0.0-beta.3
       '@vitest/runner': 5.0.0-beta.3
       '@vitest/spy': 5.0.0-beta.3
@@ -27350,7 +27240,7 @@ snapshots:
       tinyexec: 1.0.4
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
-      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
