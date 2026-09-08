@@ -3,6 +3,8 @@ import { describe, it } from 'node:test';
 import type { AstroIntegration, HookParameters } from 'astro';
 import createIntegration from '../../dist/index.js';
 
+type UpdateConfigParam = Parameters<HookParameters<'astro:config:setup'>['updateConfig']>[0];
+
 /**
  * Runs the adapter's `astro:config:setup` hook with the minimal stubs it
  * reads, capturing the Vite config it pushes through `updateConfig`.
@@ -20,7 +22,7 @@ async function runConfigSetup(integration: AstroIntegration) {
 			vite: {},
 			experimental: {},
 		} as any,
-		updateConfig(newConfig) {
+		updateConfig(newConfig: UpdateConfigParam) {
 			updatedConfig = newConfig;
 			return newConfig;
 		},
