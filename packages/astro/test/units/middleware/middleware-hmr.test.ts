@@ -72,7 +72,7 @@ describe('middleware HMR hotUpdate handler', () => {
 		const handler = await getHandler();
 		const { environment, invalidated, sent } = fakeEnvironment();
 
-		handler.call(
+		await handler.call(
 			{ environment } as any,
 			{
 				modules: [{ id: '/src/middleware.ts' }],
@@ -87,7 +87,7 @@ describe('middleware HMR hotUpdate handler', () => {
 		const handler = await getHandler();
 		const { environment, invalidated, sent } = fakeEnvironment();
 
-		handler.call(
+		await handler.call(
 			{ environment } as any,
 			{
 				// A change that matched modules in the graph is not filtered: it
@@ -105,7 +105,7 @@ describe('middleware HMR hotUpdate handler', () => {
 		const handler = await getHandler();
 		const { environment, invalidated, sent } = fakeEnvironment();
 
-		handler.call({ environment } as any, { modules: [] } as any);
+		await handler.call({ environment } as any, { modules: [] } as any);
 
 		assert.equal(invalidated.length, 0);
 		assert.equal(sent.length, 0);
@@ -115,7 +115,7 @@ describe('middleware HMR hotUpdate handler', () => {
 		const handler = await getHandler();
 		const { environment, invalidated, sent } = fakeEnvironment('client');
 
-		handler.call(
+		await handler.call(
 			{ environment } as any,
 			{
 				modules: [{ id: '/src/middleware.ts' }],
