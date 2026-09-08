@@ -51,7 +51,6 @@ import { getRouteTable, matchAllRoutes, matchRoute } from '../routing/route-tabl
 import { getServerIslands } from '../server-islands/mappings.js';
 
 const slotValuesSymbol = Symbol('astro.slotValues');
-const slotsByAstro = new WeakMap<object, Slots>();
 
 type AstroSlotValues = {
 	[slotValuesSymbol]: Record<string, any> | null;
@@ -588,6 +587,7 @@ export class FetchState implements AstroFetchState {
 			isPrerendered: this.routeData!.prerender,
 			cookies,
 			get slots(): Slots {
+				const slotsByAstro = (result._metadata.slotsByAstro ??= new WeakMap());
 				let slots = slotsByAstro.get(this);
 				if (slots === undefined) {
 					slots = new Slots(
