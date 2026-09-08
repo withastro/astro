@@ -5,6 +5,18 @@ import createIntegration from '../../dist/index.js';
 
 type UpdateConfigParam = Parameters<HookParameters<'astro:config:setup'>['updateConfig']>[0];
 
+const stubConfig = {
+	root: new URL('./fixtures/user-optimize-deps/', import.meta.url),
+	srcDir: new URL('./fixtures/user-optimize-deps/src/', import.meta.url),
+	session: false,
+	cache: {},
+	logger: {},
+	vite: {},
+	experimental: {},
+} as any;
+
+const stubLogger = { info() {}, warn() {}, error() {} };
+
 /**
  * Runs the adapter's `astro:config:setup` hook with the minimal stubs it
  * reads, capturing the Vite config it pushes through `updateConfig`.
@@ -13,20 +25,12 @@ async function runConfigSetup(integration: AstroIntegration) {
 	let updatedConfig: any;
 	await integration.hooks['astro:config:setup']!({
 		command: 'dev',
-		config: {
-			root: new URL('./fixtures/user-optimize-deps/', import.meta.url),
-			srcDir: new URL('./fixtures/user-optimize-deps/src/', import.meta.url),
-			session: false,
-			cache: {},
-			logger: {},
-			vite: {},
-			experimental: {},
-		} as any,
+		config: stubConfig,
 		updateConfig(newConfig: UpdateConfigParam) {
 			updatedConfig = newConfig;
 			return newConfig;
 		},
-		logger: { info() {}, warn() {}, error() {} },
+		logger: stubLogger,
 		addWatchFile() {},
 	} as unknown as HookParameters<'astro:config:setup'>);
 
@@ -34,10 +38,46 @@ async function runConfigSetup(integration: AstroIntegration) {
 	return updatedConfig;
 }
 
+/**
+ * Runs `astro:config:done`, which is where the adapter captures the renderer
+ * server entrypoints that its `configEnvironment` plugin then pre-includes.
+ */
+async function runConfigDone(integration: AstroIntegration, renderers: any[]) {
+	await integration.hooks['astro:config:done']!({
+		config: {
+			...stubConfig,
+			base: '/',
+			build: { client: new URL('./dist/client/', stubConfig.root) },
+			image: {},
+		},
+		renderers,
+		setAdapter() {},
+		injectTypes() {
+			return new URL('file:///tmp/types.d.ts');
+		},
+		logger: stubLogger,
+		buildOutput: 'server',
+	} as any);
+}
+
 describe('@astrojs/cloudflare optimizeDeps includes', () => {
-	it('pre-includes astro/logger/console for server environments', async () => {
+	it('pre-includes renderer server entrypoints and astro/logger/console for server environments', async () => {
 		const integration = createIntegration();
 		const updatedConfig = await runConfigSetup(integration);
+		// Mirror what framework integrations register through `addRenderer`:
+		// string entrypoints (`@astrojs/svelte`) and URL entrypoints.
+		await runConfigDone(integration, [
+			{
+				name: '@astrojs/svelte',
+				clientEntrypoint: '@astrojs/svelte/client.js',
+				serverEntrypoint: '@astrojs/svelte/server.js',
+			},
+			{
+				name: '@astrojs/react',
+				clientEntrypoint: '@astrojs/react/client.js',
+				serverEntrypoint: new URL('file:///tmp/react-server.js'),
+			},
+		]);
 
 		const plugins = updatedConfig.vite.plugins as any[];
 		const environmentPlugin = plugins.find(
@@ -45,10 +85,12 @@ describe('@astrojs/cloudflare optimizeDeps includes', () => {
 		);
 		assert.ok(environmentPlugin, 'expected an @astrojs/cloudflare:environment plugin');
 
-		// `astro:assets`' runtime logger setup always imports the console logger on
-		// the server, so every server environment must pre-bundle it during the
-		// initial optimization pass (a mid-request discovery would re-optimize the
-		// dependency cache while workerd still references the old chunks).
+		// Renderer server entrypoints are imported lazily through
+		// `virtual:astro:renderers`, so the optimizer scan cannot reach them. A
+		// mid-request discovery would re-optimize the dependency cache while
+		// workerd still references the old chunks; `astro/logger/console` is
+		// always imported by the assets runtime logger setup. Both must be
+		// pre-bundled during the initial pass.
 		for (const environmentName of ['astro', 'ssr', 'prerender']) {
 			const result = environmentPlugin.configEnvironment(environmentName, {
 				optimizeDeps: { noDiscovery: false },
@@ -58,6 +100,39 @@ describe('@astrojs/cloudflare optimizeDeps includes', () => {
 				Array.isArray(include) && include.includes('astro/logger/console'),
 				`${environmentName} should pre-include astro/logger/console, got: ${JSON.stringify(include)}`,
 			);
+			assert.ok(
+				include.includes('@astrojs/svelte/server.js'),
+				`${environmentName} should pre-include string renderer server entrypoints, got: ${JSON.stringify(include)}`,
+			);
+			assert.ok(
+				include.includes('/tmp/react-server.js'),
+				`${environmentName} should pre-include URL renderer server entrypoints, got: ${JSON.stringify(include)}`,
+			);
 		}
+	});
+
+	it('does not pre-include renderer server entrypoints for the client environment', async () => {
+		const integration = createIntegration();
+		const updatedConfig = await runConfigSetup(integration);
+		await runConfigDone(integration, [
+			{
+				name: '@astrojs/svelte',
+				clientEntrypoint: '@astrojs/svelte/client.js',
+				serverEntrypoint: '@astrojs/svelte/server.js',
+			},
+		]);
+
+		const plugins = updatedConfig.vite.plugins as any[];
+		const environmentPlugin = plugins.find(
+			(plugin) => plugin.name === '@astrojs/cloudflare:environment',
+		);
+		assert.ok(environmentPlugin, 'expected an @astrojs/cloudflare:environment plugin');
+
+		const result = environmentPlugin.configEnvironment('client', {});
+		const include = result?.optimizeDeps?.include ?? [];
+		assert.ok(
+			!include.includes('@astrojs/svelte/server.js'),
+			`client environment should not pre-include server entrypoints, got: ${JSON.stringify(include)}`,
+		);
 	});
 });

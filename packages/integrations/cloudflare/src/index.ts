@@ -142,6 +142,14 @@ export default function createIntegration({
 	let _buildOutput: 'server' | 'static';
 	let _originalClientDir: URL;
 
+	// Renderer server entrypoints (e.g. `@astrojs/svelte/server.js`), captured
+	// in `astro:config:done` once every integration has registered its renderer.
+	// They are only imported lazily through `virtual:astro:renderers`, so the dep
+	// optimizer scan cannot reach them; pre-bundling them up front keeps the
+	// optimizer from re-running mid-request, when workerd still references the
+	// previous bundle (see https://github.com/withastro/astro/issues/17921).
+	let rendererServerEntries: string[] = [];
+
 	let _routes: IntegrationResolvedRoute[];
 	let cfPluginConfig: PluginConfig;
 	let hasUserBuildImageService = false;
@@ -371,6 +379,7 @@ export default function createIntegration({
 													...(prebundleContentRuntime ? (['astro/content/runtime'] as const) : []),
 													'astro/compiler-runtime',
 													'astro/jsx-runtime',
+													...rendererServerEntries,
 													// The server-side runtime logger setup in `vite-plugin-assets.ts` always
 													// imports the console logger. Pre-bundling it avoids discovering it after
 													// workerd has loaded modules, which would trigger a re-optimization that
@@ -476,10 +485,23 @@ export default function createIntegration({
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
 			},
-			'astro:config:done': ({ setAdapter, config, injectTypes, logger, buildOutput }) => {
+			'astro:config:done': ({
+				setAdapter,
+				config,
+				injectTypes,
+				logger,
+				buildOutput,
+				renderers,
+			}) => {
 				_config = config;
 				_buildOutput = buildOutput;
 				_originalClientDir = new URL(config.build.client.href);
+
+				rendererServerEntries = renderers.map((renderer) =>
+					typeof renderer.serverEntrypoint === 'string'
+						? renderer.serverEntrypoint
+						: fileURLToPath(renderer.serverEntrypoint),
+				);
 
 				// Resolve the custom image service against the FINAL config: the adapter's
 				// `astro:config:setup` runs before every user integration (Astro unshifts

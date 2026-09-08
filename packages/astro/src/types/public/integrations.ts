@@ -402,6 +402,7 @@ export interface BaseIntegrationHooks {
 	}) => void | Promise<void>;
 	'astro:config:done': (options: {
 		config: AstroConfig;
+		renderers: AstroRenderer[];
 		setAdapter: (adapter: AstroAdapter) => void;
 		injectTypes: (injectedType: InjectedType) => URL;
 		logger: AstroIntegrationLogger;

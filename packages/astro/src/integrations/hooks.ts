@@ -387,6 +387,7 @@ export async function runHookConfigDone({
 			logger,
 			params: () => ({
 				config: settings.config,
+				renderers: settings.renderers,
 				setAdapter(adapter) {
 					validateSetAdapter(logger, settings, adapter, integration.name, command);
 
