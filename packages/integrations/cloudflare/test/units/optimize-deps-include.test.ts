@@ -135,4 +135,45 @@ describe('@astrojs/cloudflare optimizeDeps includes', () => {
 			`client environment should not pre-include server entrypoints, got: ${JSON.stringify(include)}`,
 		);
 	});
+
+	it('skips renderer server entrypoints for the Node prerender environment', async () => {
+		// With `prerenderEnvironment: 'node'` the prerender environment runs on
+		// Node, where pre-bundling renderers would duplicate framework modules;
+		// only the workerd environments (ssr, astro) get the renderer entries.
+		const integration = createIntegration({ prerenderEnvironment: 'node' });
+		const updatedConfig = await runConfigSetup(integration);
+		await runConfigDone(integration, [
+			{
+				name: '@astrojs/svelte',
+				clientEntrypoint: '@astrojs/svelte/client.js',
+				serverEntrypoint: '@astrojs/svelte/server.js',
+			},
+		]);
+
+		const plugins = updatedConfig.vite.plugins as any[];
+		const environmentPlugin = plugins.find(
+			(plugin) => plugin.name === '@astrojs/cloudflare:environment',
+		);
+		assert.ok(environmentPlugin, 'expected an @astrojs/cloudflare:environment plugin');
+
+		for (const environmentName of ['ssr', 'astro']) {
+			const result = environmentPlugin.configEnvironment(environmentName, {
+				optimizeDeps: { noDiscovery: false },
+			});
+			const include = result?.optimizeDeps?.include ?? [];
+			assert.ok(
+				include.includes('@astrojs/svelte/server.js'),
+				`${environmentName} should pre-include renderer server entrypoints, got: ${JSON.stringify(include)}`,
+			);
+		}
+
+		const prerenderResult = environmentPlugin.configEnvironment('prerender', {
+			optimizeDeps: { noDiscovery: false },
+		});
+		const prerenderInclude = prerenderResult?.optimizeDeps?.include ?? [];
+		assert.ok(
+			!prerenderInclude.includes('@astrojs/svelte/server.js'),
+			`Node prerender environment should not pre-include renderer server entrypoints, got: ${JSON.stringify(prerenderInclude)}`,
+		);
+	});
 });

@@ -387,7 +387,9 @@ export async function runHookConfigDone({
 			logger,
 			params: () => ({
 				config: settings.config,
-				renderers: settings.renderers,
+				// Snapshot: integrations must not be able to mutate the internal list
+				// after registration (e.g. push renderers the framework never validated).
+				renderers: [...settings.renderers],
 				setAdapter(adapter) {
 					validateSetAdapter(logger, settings, adapter, integration.name, command);
 

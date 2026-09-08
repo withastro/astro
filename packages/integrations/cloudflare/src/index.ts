@@ -343,6 +343,11 @@ export default function createIntegration({
 										environmentName,
 									);
 									if (isServerEnvironment && !_options.optimizeDeps?.noDiscovery) {
+										// The prerender environment runs on Node when `prerenderEnvironment:
+										// 'node'`, where pre-bundling renderers would duplicate framework
+										// modules; only the workerd environments get the renderer entries.
+										const isNodePrerender =
+											prerenderEnvironment === 'node' && environmentName === 'prerender';
 										return {
 											optimizeDeps: {
 												include: [
@@ -379,7 +384,7 @@ export default function createIntegration({
 													...(prebundleContentRuntime ? (['astro/content/runtime'] as const) : []),
 													'astro/compiler-runtime',
 													'astro/jsx-runtime',
-													...rendererServerEntries,
+													...(isNodePrerender ? [] : rendererServerEntries),
 													// The server-side runtime logger setup in `vite-plugin-assets.ts` always
 													// imports the console logger. Pre-bundling it avoids discovering it after
 													// workerd has loaded modules, which would trigger a re-optimization that
