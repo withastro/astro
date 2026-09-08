@@ -371,6 +371,11 @@ export default function createIntegration({
 													...(prebundleContentRuntime ? (['astro/content/runtime'] as const) : []),
 													'astro/compiler-runtime',
 													'astro/jsx-runtime',
+													// The server-side runtime logger setup in `vite-plugin-assets.ts` always
+													// imports the console logger. Pre-bundling it avoids discovering it after
+													// workerd has loaded modules, which would trigger a re-optimization that
+													// crashes the dev server (see https://github.com/withastro/astro/issues/17921).
+													'astro/logger/console',
 													...(config.logger?.entrypoint === 'astro/logger/json'
 														? ['astro/logger/json']
 														: []),

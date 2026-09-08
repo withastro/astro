@@ -48,6 +48,19 @@ export function vitePluginEnvironment({
 }: Payload): vite.Plugin {
 	const srcDirPattern = convertPathToPattern(fileURLToPath(settings.config.srcDir));
 
+	// Renderer server entrypoints (e.g. `@astrojs/svelte/server.js`) are only
+	// imported lazily through `virtual:astro:renderers`, so the optimizer scan
+	// cannot reach them. Discovering them mid-request replaces the optimized dep
+	// cache while workerd still references the old chunks
+	// (https://github.com/withastro/astro/issues/17921); pre-include them for
+	// server environments, mirroring how `core/dev/container.ts` pre-includes
+	// client entrypoints.
+	const rendererServerEntries = settings.renderers.map((renderer) =>
+		typeof renderer.serverEntrypoint === 'string'
+			? renderer.serverEntrypoint
+			: fileURLToPath(renderer.serverEntrypoint),
+	);
+
 	return {
 		name: 'astro:environment',
 		configEnvironment(environmentName, _options): EnvironmentOptions {
@@ -61,12 +74,11 @@ export function vitePluginEnvironment({
 					dedupe: ['astro'],
 				},
 			};
-			if (
+			const isServerEnvironment =
 				environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
-				environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
-				environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.client
-			) {
+				environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender;
+			if (isServerEnvironment || environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 				if (_options.resolve?.noExternal !== true) {
 					finalEnvironmentOptions.resolve!.noExternal = [
 						...ALWAYS_NOEXTERNAL,
@@ -84,6 +96,10 @@ export function vitePluginEnvironment({
 						include: [],
 						exclude: ['node-fetch'],
 					};
+				}
+
+				if (isServerEnvironment && rendererServerEntries.length > 0) {
+					finalEnvironmentOptions.optimizeDeps!.include!.push(...rendererServerEntries);
 				}
 			}
 
