@@ -1,0 +1,83 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Home">
+	<h1>Advanced Routing</h1>
+	<p>
+		This example uses <code>src/app.ts</code> to control the request pipeline with Hono. Individual feature
+		middleware from <code>astro/hono</code> and <code>astro/fetch</code>
+		are composed together, with your own Hono middleware running between them.
+	</p>
+
+	<div class="cards">
+		<a href="/dashboard" class="card">
+			<h2>Dashboard</h2>
+			<p>Protected by auth middleware. You'll be redirected to login without a session cookie.</p>
+		</a>
+		<a href="/old-dashboard" class="card">
+			<h2>Old Dashboard Link</h2>
+			<p>Redirected by Astro's built-in routing inside <code>astro()</code>.</p>
+		</a>
+		<a href="/es" class="card">
+			<h2>Spanish</h2>
+			<p>Served through Astro's i18n handling, also composed inside <code>astro()</code>.</p>
+		</a>
+	</div>
+</Layout>
+
+<style>
+	h1 {
+		font-size: 1.75rem;
+		font-weight: 700;
+		margin-bottom: 1rem;
+		color: blue;
+	}
+
+	p {
+		color: #8b8fa3;
+		line-height: 1.6;
+		margin-bottom: 1rem;
+	}
+
+	code {
+		background: #1a1d27;
+		border: 1px solid #2a2d3a;
+		padding: 0.15em 0.4em;
+		border-radius: 4px;
+		font-size: 0.85em;
+	}
+
+	.cards {
+		display: grid;
+		gap: 1rem;
+		margin-top: 1.5rem;
+	}
+
+	.card {
+		display: block;
+		background: #1a1d27;
+		border: 1px solid #2a2d3a;
+		border-radius: 8px;
+		padding: 1.5rem;
+		text-decoration: none;
+		color: inherit;
+		transition: border-color 0.15s;
+	}
+
+	.card:hover {
+		border-color: #6366f1;
+	}
+
+	.card h2 {
+		font-size: 1.125rem;
+		font-weight: 600;
+		margin-bottom: 0.5rem;
+		color: #e1e4ed;
+	}
+
+	.card p {
+		margin-bottom: 0;
+		font-size: 0.875rem;
+	}
+</style>
