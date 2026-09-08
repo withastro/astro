@@ -1,0 +1,9 @@
+---
+import { ImageComponent } from '../components/ImageComponent';
+---
+
+<!-- Image inside a framework component should NOT trigger the audit -->
+<ImageComponent client:load />
+
+<!-- Raw img tag should still trigger the audit -->
+<img src="/the-future.jpg" alt="The future" />

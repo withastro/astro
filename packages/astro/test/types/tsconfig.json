@@ -1,0 +1,6 @@
+{
+  "extends": "../../../../configs/tsconfig.base.json",
+  "compilerOptions": {
+    "emitDeclarationOnly": false
+  }
+}

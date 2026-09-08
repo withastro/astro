@@ -1,0 +1,14 @@
+<!-- Test special characters inside attributes names -->
+
+<div @class></div>
+<div class_name></div>
+<div class.astro></div>
+<div i18nReady></div>
+
+<div onclick="console.log()"></div>
+
+<div onload={"console.log('')"}></div>
+
+<div onload=`console.log('')`></div>
+
+<div class=`\${not-a-variable}`></div>

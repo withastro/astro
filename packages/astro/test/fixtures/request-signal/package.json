@@ -1,0 +1,10 @@
+{
+	"name": "@test/request-signal",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"@astrojs/node": "workspace:*",
+		"astro": "workspace:*"
+	}
+}

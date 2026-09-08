@@ -1,0 +1,25 @@
+{
+	"name": "@test/astro-cloudflare-vite-plugin",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro build"
+	},
+	"dependencies": {
+		"@astrojs/cloudflare": "workspace:*",
+		"@astrojs/mdx": "workspace:*",
+		"@astrojs/react": "workspace:*",
+    "@astrojs/vue": "workspace:*",
+		"@astrojs/svelte": "workspace:*",
+		"svelte":"^5.53.5",
+    "vue": "^3.5.29",
+    "@vitejs/plugin-vue": "^6.0.4",
+		"@types/react": "^19.0.0",
+		"@types/react-dom": "^19.0.0",
+		"astro": "workspace:*",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
+		"sharp": "^0.35.0"
+	}
+}

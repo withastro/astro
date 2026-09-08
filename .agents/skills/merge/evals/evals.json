@@ -1,0 +1,44 @@
+{
+  "skill_name": "merge",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Run the merge skill with `step=resolve-conflicts`, `branch=ci/merge-main-to-next-eval`, and `hasConflicts=true`. This is an output-only dry run: do not inspect or modify the checkout and do not execute commands. Treat the following synthetic snippets as the complete merge state. Return resolved contents or a unified diff, the files considered resolved, and the exact commands that would be used to stage and verify them.\n\n`packages/astro/package.json`:\n```json\n{\n  \"name\": \"astro\",\n<<<<<<< HEAD\n  \"version\": \"6.0.0-beta.4\",\n  \"scripts\": { \"build\": \"astro-scripts build\", \"test:unit\": \"astro-scripts test\" },\n  \"dependencies\": { \"vite\": \"7.1.0\", \"tsconfck\": \"^3.0.0\" }\n=======\n  \"version\": \"5.14.2\",\n  \"scripts\": { \"build\": \"astro-scripts build\", \"test:unit\": \"astro-scripts test\", \"test:smoke\": \"astro-scripts smoke\" },\n  \"dependencies\": { \"vite\": \"6.1.0\", \"get-tsconfig\": \"^4.10.0\", \"kleur\": \"^4.1.5\" }\n>>>>>>> origin/main\n}\n```\n\n`packages/astro/src/core/config/read.ts`:\n```ts\nimport { loadTsconfig } from 'tsconfck';\nexport async function read(path) {\n<<<<<<< HEAD\n  const result = await loadTsconfig(path, { cache: false });\n  return normalize(result.tsconfig);\n=======\n  const result = await loadTsconfig(path);\n  if (!result) return undefined;\n  return normalize(result.config);\n>>>>>>> origin/main\n}\n```\n\n`pnpm-lock.yaml` also contains merge markers.",
+      "expected_output": "A dry-run conflict resolution that preserves next's prerelease and APIs, incorporates compatible additions and the main-side null guard, delegates lockfile resolution, and proposes staging and marker-verification commands without installing or committing.",
+      "files": [],
+      "assertions": [
+        "The response handles only the `resolve-conflicts` step and lists `packages/astro/package.json`, `packages/astro/src/core/config/read.ts`, and `pnpm-lock.yaml` as resolved.",
+        "The resolved package manifest keeps version `6.0.0-beta.4`, Vite `7.1.0`, and `tsconfck`, adds `kleur` and `test:smoke`, and does not add `get-tsconfig`.",
+        "The resolved source calls `loadTsconfig(path, { cache: false })`, checks for a missing result, and reads `result.tsconfig` rather than the main branch's obsolete `result.config` API.",
+        "The proposed commands resolve `pnpm-lock.yaml` with `git checkout --theirs`, stage all resolved files, and search for remaining conflict markers.",
+        "No checkout file is actually modified, and the proposed command sequence does not execute `pnpm install` or `git commit`."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Run the merge skill with `step=clean-changesets` as an output-only dry run. Do not inspect or modify the checkout and do not execute commands. Use only this synthetic snapshot and return the exact removal list, required `pre.json` edit, and commands that would be used.\n\nNew files reported by `git diff --name-only --diff-filter=A origin/next -- .changeset/`:\n- `.changeset/fuzzy-rivers.md`\n- `.changeset/brave-stars.md`\n- `.changeset/quiet-moon.md`\n\n`.changeset/fuzzy-rivers.md`:\n```md\n---\n'@astrojs/sitemap': patch\n---\n\nFixes generated sitemap entries for encoded paths\n```\n\n`.changeset/brave-stars.md`:\n```md\n---\n'astro': major\n---\n\nAdds the version 6 route manifest API\n```\n\n`.changeset/quiet-moon.md`:\n```md\n---\n'@astrojs/node': patch\n---\n\nFixes response headers when streaming empty bodies\n```\n\n`origin/main` has `@astrojs/sitemap` 3.7.0 and its 3.7.0 changelog contains the exact fuzzy-rivers message. `origin/next` has 3.6.1-beta.2. Main has Astro 5.14.2, so brave-stars is next-only. Main's `@astrojs/node` version advanced for unrelated releases, but its history and changelog contain no quiet-moon message, so there is no evidence that quiet-moon was released.\n\n`.changeset/pre.json` is valid pre-mode JSON whose `changesets` array is `[\"fuzzy-rivers\", \"brave-stars\", \"quiet-moon\"]`.",
+      "expected_output": "A conservative changeset-cleanup dry run that removes only the demonstrably released sitemap changeset, removes its identifier from pre.json, and retains next-specific or uncertain changesets.",
+      "files": [],
+      "assertions": [
+        "The removal list contains only `.changeset/fuzzy-rivers.md`.",
+        "The proposed `pre.json` result removes `fuzzy-rivers` from `changesets` while retaining `brave-stars` and `quiet-moon`.",
+        "The response retains `.changeset/brave-stars.md` as next-specific and `.changeset/quiet-moon.md` because its release status is unproven.",
+        "The proposed deletion command is `git rm .changeset/fuzzy-rivers.md`; neither `.changeset/pre.json` nor `.changeset/config.json` is deleted.",
+        "No checkout file is actually modified, and no `pnpm`, install, or commit command is executed or proposed."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Run the merge skill with `step=fix-ci`, `prNumber=9999`, and the synthetic `ciLogs` below. This is an output-only dry run: do not inspect or modify the checkout, call GitHub, or execute commands. Return the minimal unified diff, the verification command sequence, modified-file list, and any intentionally unhandled failures.\n\nciLogs:\n- build: SUCCESS\n- unit-tests: FAILURE in `packages/astro/test/units/routing/redirect.test.ts`; assertion expected Location `/docs` but received `/docs/`\n- smoke: FAILURE because an optional example deployment token is absent\n- astro-check: FAILURE with an existing diagnostic fixture mismatch\n\nRelevant merge diff from `origin/next...HEAD`:\n```diff\n+it('preserves redirect destinations', async () => {\n+  assert.equal(response.headers.get('location'), '/docs');\n+});\n```\n\nRelevant next-branch source behavior:\n```ts\n// Redirect destinations follow the configured trailing-slash policy.\nreturn trailingSlash === 'always' ? appendForwardSlash(location) : location;\n```\n\nThe fixture uses `trailingSlash: 'always'`, and the source behavior is deliberate and already covered elsewhere.",
+      "expected_output": "A minimal CI-fix dry run that updates only the stale unit-test expectation to `/docs/`, ignores permitted smoke and astro-check failures, and proposes build/diff/targeted-test commands without reinstalling dependencies or contacting GitHub.",
+      "files": [],
+      "assertions": [
+        "The response handles only `fix-ci` and proposes changing the redirect test expectation from `/docs` to `/docs/` without changing source behavior.",
+        "The proposed sequence starts with `pnpm build`, uses the merge diff as the primary diagnostic evidence, and runs only `packages/astro/test/units/routing/redirect.test.ts` for targeted test verification.",
+        "The targeted test command is not piped through `grep`, and no full test suite is proposed.",
+        "The smoke failure and astro-check failure are listed as intentionally not fixed under the skill's permitted-failure rules.",
+        "No checkout file is actually modified, and no `pnpm install`, `gh`, commit, or push command is executed or proposed."
+      ]
+    }
+  ]
+}

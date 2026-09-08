@@ -1,0 +1,16 @@
+---
+export const prerender = false;
+import Counter from "@test/e2e-my-lib";
+---
+<html>
+<head>
+	<title>Linked Package Test</title>
+</head>
+<body>
+	<h1>Linked Package with client:only</h1>
+	<p>This page tests that components from linked packages work with client:only</p>
+	<div id="counter-container">
+		<Counter client:only="react" />
+	</div>
+</body>
+</html>

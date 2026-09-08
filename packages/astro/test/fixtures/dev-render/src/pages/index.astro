@@ -1,0 +1,12 @@
+---
+const name = 'Testing';
+const TagA = 'p style=color:red;'
+const TagB = 'p><script id="pwnd">console.log("pwnd")</script>'
+---
+<html>
+	<head><title>{name}</title></head>
+	<body>
+		<TagA id="target" />
+		<TagB />
+	</body>
+</html>

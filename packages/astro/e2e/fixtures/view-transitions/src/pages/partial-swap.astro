@@ -1,0 +1,20 @@
+---
+import { ClientRouter } from "astro:transitions";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <ClientRouter />
+    <script is:inline>
+			console.log("[test] head script");
+			document.addEventListener("astro:before-swap", e => e.swap = () => {});
+		</script>
+  </head>
+  <body>
+    <h1>Astro</h1>
+		<script is:inline>console.log("[test] body script")</script>
+    <a id="link2" href="/partial-swap?v=2">revisit</a><br/>
+    <a id="link3" href="/partial-swap?v=3">revisit</a>
+  </body>
+</html>

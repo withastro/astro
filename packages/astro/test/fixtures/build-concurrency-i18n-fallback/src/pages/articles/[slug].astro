@@ -1,0 +1,18 @@
+---
+import { setTimeout } from 'node:timers/promises';
+
+export function getStaticPaths() {
+	return ['one', 'two', 'three', 'four', 'slow-page'].map((slug) => ({
+		params: { slug },
+	}));
+}
+
+const { slug } = Astro.params;
+const isDefaultLocale = Astro.currentLocale === undefined || Astro.currentLocale === 'en';
+
+if (slug === 'slow-page' && isDefaultLocale) {
+	await setTimeout(500);
+}
+---
+
+<h1>Article: {slug}</h1>

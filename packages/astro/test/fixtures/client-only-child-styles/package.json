@@ -1,0 +1,10 @@
+{
+  "name": "@test/client-only-child-styles",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/vue": "workspace:*",
+    "vue": "^3.5.0"
+  }
+}

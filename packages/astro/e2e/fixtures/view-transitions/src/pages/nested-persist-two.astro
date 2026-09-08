@@ -1,0 +1,12 @@
+---
+import Layout from '../components/Layout.astro';
+---
+<Layout>
+	<p id="nested-two">Page 2</p>
+	<a id="click-one" href="/nested-persist-one">go to 1</a>
+	<!-- Only the outer container has a counterpart here: the inner one travels
+	     with it as a descendant without being matched itself. -->
+	<div transition:persist="nested-outer">
+		<p id="nested-placeholder">replaced by the persisted subtree</p>
+	</div>
+</Layout>

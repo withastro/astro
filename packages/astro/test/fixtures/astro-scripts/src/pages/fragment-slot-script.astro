@@ -1,0 +1,20 @@
+---
+import SlotWrapper from '../components/SlotWrapper.astro'
+import ScriptComponent from '../components/ScriptComponent.astro'
+---
+<html lang="en">
+    <head>
+        <title>Fragment Slot Script Test</title>
+    </head>
+    <body>
+        <SlotWrapper>
+            <h1>TEST</h1>
+            <ScriptComponent />
+            <Fragment slot="prod">
+                <h1>Test</h1>
+                <p>Test</p>
+                <ScriptComponent />
+            </Fragment>
+        </SlotWrapper>
+    </body>
+</html>

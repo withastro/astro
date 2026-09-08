@@ -1,0 +1,66 @@
+{
+  "$schema": "https://turborepo.org/schema.json",
+  "tasks": {
+    "prebuild": {
+      "dependsOn": ["^prebuild"],
+      "inputs": [
+        "**/*",
+        "!test/**/*",
+        "!e2e/**/*",
+        "!performance/**/*",
+        "!.astro/**/*",
+        "!.cache/**/*",
+        "!.turbo/**/*",
+        "!mod.js",
+        "!mod.js.map"
+      ],
+      "outputs": ["src/**/*.prebuilt*"]
+    },
+    "build": {
+      "dependsOn": ["^build", "prebuild"],
+      "inputs": [
+        "**/*",
+        "!test/**/*",
+        "!e2e/**/*",
+        "!performance/**/*",
+        "!.astro/**/*",
+        "!.cache/**/*",
+        "!.turbo/**/*",
+        "!mod.js",
+        "!mod.js.map"
+      ],
+      "outputs": ["dist/**/*", "!vendor/**", "mod.js", "mod.js.map"],
+      "outputLogs": "new-only",
+      "passThroughEnv": ["SKIP_OG", "PUBLIC_TWO_LANG"]
+    },
+    "build:ci": {
+      "dependsOn": ["^build:ci", "prebuild"],
+      "inputs": [
+        "**/*",
+        "!test/**/*",
+        "!e2e/**/*",
+        "!performance/**/*",
+        "!.astro/**/*",
+        "!.cache/**/*",
+        "!.turbo/**/*",
+        "!mod.js",
+        "!mod.js.map"
+      ],
+      "outputs": ["dist/**/*", "!vendor/**", "mod.js", "mod.js.map"],
+      "outputLogs": "new-only"
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "test": {
+      "dependsOn": ["^test"],
+      "env": ["RUNNER_OS", "NODE_VERSION"],
+      "outputLogs": "new-only"
+    },
+    "test:hosted": {
+      "cache": false,
+      "outputLogs": "new-only"
+    }
+  }
+}

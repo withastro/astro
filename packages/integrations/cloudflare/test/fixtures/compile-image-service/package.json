@@ -1,0 +1,9 @@
+{
+  "name": "@test/astro-cloudflare-compile-image-service",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/cloudflare": "workspace:*",
+    "astro": "workspace:*"
+  }
+}

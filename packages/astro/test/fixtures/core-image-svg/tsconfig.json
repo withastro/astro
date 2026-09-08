@@ -1,0 +1,10 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "paths": {
+      "~/assets/*": [
+        "src/assets/*"
+      ]
+    },
+  }
+}

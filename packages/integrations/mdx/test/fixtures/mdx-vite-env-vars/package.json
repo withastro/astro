@@ -1,0 +1,9 @@
+{
+  "name": "@test/mdx-env-variables",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/markdown-satteri": "workspace:*",
+    "@astrojs/mdx": "workspace:*"
+  }
+}

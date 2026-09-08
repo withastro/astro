@@ -1,0 +1,14 @@
+---
+import CurrentTime from '../components/CurrentTime';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>CSS Leak Test</title>
+  </head>
+  <body>
+    <CurrentTime client:only="react" />
+    <slot />
+  </body>
+</html>

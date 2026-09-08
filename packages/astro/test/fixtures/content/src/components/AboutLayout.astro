@@ -1,0 +1,9 @@
+---
+import BlogLayout from './BlogLayout.astro';
+import { doSomething } from '../libs/routes';
+
+// Calling a random function from a file importing `astro:content`.
+doSomething()
+---
+
+<BlogLayout title="About Page"><slot /></BlogLayout>

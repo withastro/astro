@@ -1,0 +1,12 @@
+---
+import Class from '../components/Class.astro';
+import ClassList from '../components/ClassList.astro';
+import BothLiteral from '../components/BothLiteral.astro';
+import BothFlipped from '../components/BothFlipped.astro';
+import BothSpread from '../components/BothSpread.astro';
+---
+<Class class="red blue" />
+<ClassList class:list={{ red: true, blue: true }} />
+<BothLiteral class="red" class:list={{ blue: true }} />
+<BothFlipped class:list={{ blue: true }} class="red" />
+<BothSpread class:list={{ blue: true }} { ...{ class: "red" }} />

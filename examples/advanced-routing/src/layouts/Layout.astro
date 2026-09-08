@@ -1,0 +1,84 @@
+---
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{title}</title>
+	</head>
+	<body>
+		<header>
+			<a href="/" class="logo">acme</a>
+			<nav>
+				<a href="/">Home</a>
+				<a href="/dashboard">Dashboard</a>
+				<a href="/login">Login</a>
+				<a href="/es">ES</a>
+			</nav>
+		</header>
+		<main>
+			<slot />
+		</main>
+	</body>
+</html>
+
+<style>
+	:global(*) {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+	}
+
+	:global(body) {
+		font-family:
+			system-ui,
+			-apple-system,
+			sans-serif;
+		background: #0f1117;
+		color: #e1e4ed;
+		min-height: 100vh;
+	}
+
+	header {
+		border-bottom: 1px solid #2a2d3a;
+		padding: 1rem 2rem;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.logo {
+		font-weight: 700;
+		font-size: 1.125rem;
+		color: #6366f1;
+		text-decoration: none;
+	}
+
+	nav {
+		display: flex;
+		gap: 1.5rem;
+	}
+
+	nav a {
+		color: #8b8fa3;
+		text-decoration: none;
+		font-size: 0.875rem;
+		transition: color 0.15s;
+	}
+
+	nav a:hover {
+		color: #e1e4ed;
+	}
+
+	main {
+		max-width: 48rem;
+		margin: 0 auto;
+		padding: 3rem 2rem;
+	}
+</style>

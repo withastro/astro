@@ -1,0 +1,18 @@
+{
+  "name": "prerender-queue-consumers",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_date": "2026-01-28",
+  "queues": {
+    "consumers": [
+      {
+        "queue": "my-queue"
+      }
+    ],
+    "producers": [
+      {
+        "binding": "MY_QUEUE",
+        "queue": "my-queue"
+      }
+    ]
+  }
+}
