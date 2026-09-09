@@ -67,14 +67,7 @@ export function isForbiddenCrossOriginRequest(
 	if (!origin) {
 		return false;
 	}
-
-	try {
-		// Modern browsers send Sec-Fetch-Site to trustworthy targets, so the fallback
-		// ignores the scheme to support HTTP targets and reverse proxies.
-		return new URL(origin).host !== url.host;
-	} catch {
-		return true;
-	}
+	return origin !== url.origin;
 }
 
 /**

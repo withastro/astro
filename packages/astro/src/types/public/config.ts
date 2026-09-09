@@ -682,7 +682,7 @@ export interface AstroUserConfig<
 		 *
 		 * The check is executed only for pages rendered on demand, and only for unsafe requests such as `POST`, `PATCH`, `DELETE`, and `PUT` with no `content-type` header or one of the following values: `'application/x-www-form-urlencoded'`, `'multipart/form-data'`, `'text/plain'`.
 		 *
-		 * Requests with other `content-type` values are not checked because browsers require a CORS preflight before sending them cross-origin. Requests without either `Sec-Fetch-Site` or `Origin` are treated as non-browser requests and are also allowed.
+		 * Requests with other `content-type` values are not checked because browsers require a CORS preflight before sending them cross-origin. These requests rely on your application's CORS policy, which should not allow credentialed requests from untrusted origins. Requests without either `Sec-Fetch-Site` or `Origin` are treated as non-browser requests and are also allowed.
 		 *
 		 * If the request is identified as cross-origin, Astro will return a 403 status code and will not render the page.
 		 */
