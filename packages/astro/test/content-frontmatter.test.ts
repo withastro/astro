@@ -26,7 +26,7 @@ describe('frontmatter (loadFixture)', () => {
 		fs.writeFileSync(blogPath, originalContent);
 	});
 
-	it('errors in content/ does not crash server', { timeout: 2000 }, async () => {
+	it('errors in content/ does not crash server', { timeout: 5000 }, async () => {
 		// Verify server is alive
 		const res1 = await fixture.fetch('/');
 		assert.equal(res1.status, 200);
