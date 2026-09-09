@@ -1,3 +1,4 @@
+import { reactCompilerPlugin, withCompilerCheck, type CompilerOptions } from './compiler.js';
 import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
 import type { AstroIntegration, AstroRenderer } from 'astro';
 import type * as vite from 'vite';
@@ -17,8 +18,9 @@ import * as devalue from 'devalue';
 
 export type ReactIntegrationOptions = Pick<
 	ViteReactPluginOptions,
-	'include' | 'exclude' | 'compiler'
+	'include' | 'exclude' | 'babel'
 > & {
+	compiler?: boolean | CompilerOptions;
 	experimentalReactChildren?: boolean;
 	/**
 	 * Disable streaming in React components
@@ -74,6 +76,7 @@ function getViteConfiguration(
 	{
 		include,
 		exclude,
+		babel,
 		compiler,
 		experimentalReactChildren,
 		experimentalDisableStreaming,
@@ -85,16 +88,21 @@ function getViteConfiguration(
 	// Without excluding .astro, the filter matches .astro virtual module scripts (e.g.
 	// Foo.astro?astro&type=script&index=0&lang.ts) and forces lang to 'js', causing OXC
 	// to fail parsing TypeScript syntax like `import type`.
-	const defaultExclude = [/\.astro$/, /\/node_modules\//];
+	const astroExclude = /\.astro$/;
 	const mergedExclude = exclude
 		? Array.isArray(exclude)
-			? [...exclude, ...defaultExclude]
-			: [exclude, ...defaultExclude]
-		: defaultExclude;
+			? [...exclude, astroExclude]
+			: [exclude, astroExclude]
+		: astroExclude;
 
 	return {
 		plugins: [
-			react({ include, exclude: mergedExclude, compiler }),
+			compiler && reactCompilerPlugin(compiler, { include, exclude: mergedExclude }),
+			react({
+				include,
+				exclude: mergedExclude,
+				babel: compiler ? withCompilerCheck(babel) : babel,
+			}),
 			optionsPlugin({
 				include,
 				exclude,
@@ -164,23 +172,19 @@ function configEnvironmentPlugin(reactConfig: ReactVersionConfig): vite.Plugin {
 	};
 }
 
-export default function (options: ReactIntegrationOptions = {}): AstroIntegration {
-	if ('babel' in options) {
-		throw new Error(
-			'The @astrojs/react babel option has been removed. Configure @rolldown/plugin-babel in vite.plugins for custom Babel transforms.',
-		);
-	}
-	const { include, exclude, compiler, experimentalReactChildren, experimentalDisableStreaming } =
-		options;
+export default function ({
+	include,
+	exclude,
+	babel,
+	compiler,
+	experimentalReactChildren,
+	experimentalDisableStreaming,
+}: ReactIntegrationOptions = {}): AstroIntegration {
 	const majorVersion = getReactMajorVersion();
 	if (!isSupportedReactVersion(majorVersion)) {
 		throw new Error(`Unsupported React version: ${majorVersion}.`);
 	}
 	const versionConfig = versionsConfig[majorVersion];
-	const compilerOptions = compiler && {
-		target: `${majorVersion}` as const,
-		...(typeof compiler === 'object' ? compiler : {}),
-	};
 
 	return {
 		name: '@astrojs/react',
@@ -192,7 +196,8 @@ export default function (options: ReactIntegrationOptions = {}): AstroIntegratio
 						{
 							include,
 							exclude,
-							compiler: compilerOptions,
+							babel,
+							compiler,
 							experimentalReactChildren,
 							experimentalDisableStreaming,
 						},

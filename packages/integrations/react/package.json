@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
-    "@vitejs/plugin-react": "^6.1.0",
+    "@vitejs/plugin-react": "^5.2.0",
     "devalue": "^5.8.1",
     "ultrahtml": "^1.6.0",
     "vite": "^8.0.13"

@@ -111,6 +111,11 @@ export default {
 			// never imports by name
 			ignoreDependencies: ['@netlify/blobs'],
 		},
+		'packages/integrations/react': {
+			entry: [srcEntry, dtsEntry, testEntry],
+			project,
+			ignoreDependencies: ['oxc-transform-react'],
+		},
 		'packages/integrations/solid': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			project,
