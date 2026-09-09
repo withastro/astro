@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { before, describe, it } from 'node:test';
 import { lookup as probe } from '../../../dist/assets/utils/vendor/image-size/lookup.js';
+import { spawnSync } from 'node:child_process';
 
 // Small local image (600×400) to keep transforms fast without depending on external fixtures
 const FIXTURE_IMAGE = new URL('./600x400.jpg', import.meta.url);
@@ -255,5 +256,56 @@ describe('sharp image service SVG handling', async () => {
 		);
 		assert.equal(format, 'svg');
 		assert.equal(data, PADDED_SVG);
+	});
+});
+
+describe('sharp image service metadata handling', async () => {
+	const sharpService = (await import('../../../dist/assets/services/sharp.js')).default;
+
+	let inputBuffer: Uint8Array;
+	before(async () => {
+		inputBuffer = new Uint8Array(await readFile(FIXTURE_IMAGE));
+	});
+
+	const descriptionRegex = /^Description\s+/m;
+	function containsDescription(lines: ReadonlyArray<string | null>) {
+		if (lines === null) {
+			return false;
+		}
+
+		for (const line of lines) {
+			if (line === null) {
+				continue;
+			}
+			if (line.match(descriptionRegex)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	it('Does not retain metadata if not requested', async () => {
+		const { data } = await sharpService.transform(
+			inputBuffer,
+			{ src: 'blue.jpg', format: 'webp' },
+			{ service: { entrypoint: '', config: {} } } as any,
+			noopLogger,
+		);
+		assert.equal(
+			containsDescription(spawnSync('exiftool', ['-'], { input: data, encoding: 'utf-8' }).output),
+			false,
+		);
+	});
+	it('Contains metadata if requested', async () => {
+		const { data } = await sharpService.transform(
+			inputBuffer,
+			{ src: 'blue.jpg', format: 'webp' },
+			{ service: { entrypoint: '', config: { keepMetadata: true } } } as any,
+			noopLogger,
+		);
+		assert.equal(
+			containsDescription(spawnSync('exiftool', ['-'], { input: data, encoding: 'utf-8' }).output),
+			true,
+		);
 	});
 });
