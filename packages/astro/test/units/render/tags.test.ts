@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { SSRResult } from '../../../dist/types/public/internal.js';
 import { renderUniqueStylesheet } from '../../../dist/runtime/server/render/tags.js';
 
 function createResult() {
-	return {
-		styles: new Set(),
-	};
+	return { styles: new Set() } as unknown as SSRResult;
 }
 
 describe('renderUniqueStylesheet', () => {
