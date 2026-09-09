@@ -551,7 +551,12 @@ export class FetchState implements AstroFetchState {
 			props,
 			self: null,
 		});
-		Astro[slotValuesSymbol] = slotValues;
+		Object.defineProperty(Astro, slotValuesSymbol, {
+			value: slotValues,
+			writable: true,
+			configurable: true,
+			enumerable: false,
+		});
 
 		return Astro as AstroGlobal;
 	}

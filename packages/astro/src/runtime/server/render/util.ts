@@ -100,8 +100,6 @@ const ATTRIBUTE_KIND = {
 
 type AttributeKind = (typeof ATTRIBUTE_KIND)[keyof typeof ATTRIBUTE_KIND];
 
-const attributeKinds = new Map<string, AttributeKind>();
-
 function classifyAttribute(key: string): AttributeKind {
 	if (INVALID_ATTR_NAME_CHAR.test(key)) return ATTRIBUTE_KIND.INVALID_NAME;
 	if (STATIC_DIRECTIVES.has(key)) return ATTRIBUTE_KIND.STATIC_DIRECTIVE;
@@ -116,16 +114,6 @@ function classifyAttribute(key: string): AttributeKind {
 	return ATTRIBUTE_KIND.ORDINARY;
 }
 
-function attributeKind(key: string): AttributeKind {
-	let kind = attributeKinds.get(key);
-	if (kind === undefined) {
-		kind = classifyAttribute(key);
-		// Spreads can carry attribute names from user data, so the cache is capped.
-		if (attributeKinds.size < 1024) attributeKinds.set(key, kind);
-	}
-	return kind;
-}
-
 // A helper used to turn expressions into attribute key/value
 // In the compiler, addAttribute is only printed to process attributes of elements
 // that may contain dynamic values. We don't need to pass tagName to addAttribute
@@ -135,7 +123,7 @@ export function addAttribute(value: any, key: string, shouldEscape = true, tagNa
 		return '';
 	}
 
-	const kind = attributeKind(key);
+	const kind = classifyAttribute(key);
 	switch (kind) {
 		// Reject attribute names with characters that could break out of the attribute context.
 		case ATTRIBUTE_KIND.INVALID_NAME:
