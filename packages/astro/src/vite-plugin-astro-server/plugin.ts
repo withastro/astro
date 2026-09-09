@@ -4,7 +4,11 @@ import { IncomingMessage } from 'node:http';
 import type * as vite from 'vite';
 import { isRunnableDevEnvironment, type RunnableDevEnvironment } from 'vite';
 import type { RouteInfo, SSRManifest } from '../core/app/types.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES, devPrerenderMiddlewareSymbol } from '../core/constants.js';
+import {
+	ASTRO_VITE_ENVIRONMENT_NAMES,
+	devPrerenderMiddlewareSymbol,
+	devServerAppReadySymbol,
+} from '../core/constants.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
@@ -69,10 +73,14 @@ export default function createVitePluginAstroServer({
 				return { controller, handler, loader, manifest, environment };
 			}
 
-			// Kick off the content config load as early as possible. It is awaited by
-			// the types generator before the server finishes starting, so starting it
-			// here overlaps the load with the rest of server creation instead of
-			// blocking on it.
+			// Kick off the content config load and the dev server app compile as
+			// early as possible. Neither is needed until the first request, so
+			// instead of awaiting them here (which blocks server creation on the
+			// on-demand compilation of astro's own module graphs, ~400ms), install
+			// the middleware synchronously and let the request handlers await the
+			// in-flight results lazily. The dev server app compile is serialized
+			// after the content config load so the two don't contend for the main
+			// thread during startup.
 			const astroEnvironment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.astro];
 			const runnableAstroEnvironment = isRunnableDevEnvironment(astroEnvironment)
 				? (astroEnvironment as RunnableDevEnvironment)
@@ -86,48 +94,27 @@ export default function createVitePluginAstroServer({
 					})
 				: Promise.resolve();
 
-			// The dev server app compile is deferred to the first request instead of
-			// being awaited here (which blocks server creation on the on-demand
-			// compilation of astro's own module graphs, ~400ms). It is created lazily
-			// so a dev server that is started and stopped without serving any request
-			// never compiles the app at all (and never leaves compilation work
-			// in-flight when the server closes).
-			let ssrHandlerPromise: Promise<Awaited<ReturnType<typeof createHandler>>> | undefined;
-			const getSsrHandler = () => {
-				if (!ssrHandlerPromise) {
-					if (!runnableSsrEnvironment) {
-						return undefined;
-					}
-					const promise = contentConfigLoad.then(() => createHandler(runnableSsrEnvironment));
-					// Compile failures surface here so they are reported, and also as a
-					// rejected lazy await in the request handlers below.
-					promise.catch((error) => {
-						logger.error(null, `Failed to create the dev server app: ${error?.message ?? error}`);
-					});
-					ssrHandlerPromise = promise;
-				}
-				return ssrHandlerPromise;
-			};
+			const ssrHandlerPromise = runnableSsrEnvironment
+				? contentConfigLoad.then(() => createHandler(runnableSsrEnvironment))
+				: undefined;
+			const prerenderHandlerPromise = runnablePrerenderEnvironment
+				? contentConfigLoad.then(() => createHandler(runnablePrerenderEnvironment))
+				: undefined;
 
-			let prerenderHandlerPromise: Promise<Awaited<ReturnType<typeof createHandler>>> | undefined;
-			const getPrerenderHandler = () => {
-				if (!prerenderHandlerPromise) {
-					if (!runnablePrerenderEnvironment) {
-						return undefined;
-					}
-					const promise = contentConfigLoad.then(() => createHandler(runnablePrerenderEnvironment));
-					// Compile failures surface here so they are reported, and also as a
-					// rejected lazy await in the request handlers below.
-					promise.catch((error) => {
-						logger.error(
-							null,
-							`Failed to create the prerender server app: ${error?.message ?? error}`,
-						);
-					});
-					prerenderHandlerPromise = promise;
-				}
-				return prerenderHandlerPromise;
-			};
+			// App setup uses the runnable environments' module runners. Keep shutdown
+			// from disconnecting those runners while an import is still in flight.
+			(viteServer as any)[devServerAppReadySymbol] = Promise.allSettled(
+				[ssrHandlerPromise, prerenderHandlerPromise].filter(Boolean),
+			).then(() => undefined);
+
+			// Compile failures surface here so startup still reports them, and also
+			// as a rejected lazy await in the request handlers below.
+			ssrHandlerPromise?.catch((error) => {
+				logger.error(null, `Failed to create the dev server app: ${error?.message ?? error}`);
+			});
+			prerenderHandlerPromise?.catch((error) => {
+				logger.error(null, `Failed to create the prerender server app: ${error?.message ?? error}`);
+			});
 			const localStorage = new AsyncLocalStorage();
 
 			async function handleUnhandledRejection(rejection: any) {
@@ -212,7 +199,7 @@ export default function createVitePluginAstroServer({
 							}
 
 							try {
-								const prerenderHandler = await getPrerenderHandler()!;
+								const prerenderHandler = await prerenderHandlerPromise!;
 								const pathname = decodeURI(new URL(request.url, 'http://localhost').pathname);
 								const { routes } = (await prerenderHandler.environment.runner.import(
 									'virtual:astro:routes',
@@ -251,7 +238,7 @@ export default function createVitePluginAstroServer({
 							return;
 						}
 
-						const ssrHandler = await getSsrHandler()!;
+						const ssrHandler = await ssrHandlerPromise!;
 						localStorage.run(request, () => {
 							ssrHandler.handler(request, response);
 						});

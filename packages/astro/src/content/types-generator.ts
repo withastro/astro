@@ -138,8 +138,14 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 		if (fileType === 'config') {
-			const status = contentConfigObserver.get().status;
-			if (status === 'init') {
+			// Dev server creation may already be loading this config. Wait for that
+			// exact load when present; otherwise this path owns the reload. Do not
+			// infer ownership from the global observer status because `astro sync`
+			// can retain a settled status from an earlier invocation in the process.
+			const prewarm = getContentConfigLoadPromise();
+			if (prewarm) {
+				await prewarm;
+			} else {
 				await reloadContentConfigObserver({
 					fs,
 					settings,
@@ -148,15 +154,6 @@ export async function createContentTypesGenerator({
 					] as RunnableDevEnvironment,
 					logger,
 				});
-			} else {
-				// The config may already have been loaded by the dev server app
-				// setup, which kicks off the load during server creation. If it
-				// is still in flight, wait for that same load instead of
-				// re-importing (which would compile the config twice).
-				const prewarm = getContentConfigLoadPromise();
-				if (prewarm && status === 'loading') {
-					await prewarm;
-				}
 			}
 			return { shouldGenerateTypes: true };
 		}
