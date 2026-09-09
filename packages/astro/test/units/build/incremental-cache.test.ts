@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { slash } from '../../../dist/core/path.js';
 import { after, describe, it } from 'node:test';
 import {
 	IncrementalBuildCache,
@@ -17,7 +18,14 @@ import type { AstroSettings } from '../../../dist/types/astro.js';
 
 const ROUTE = 'src/pages/[slug].astro';
 const HASH = 'deadbeef';
-const ROOT = new URL('file:///project/');
+// A real absolute file URL so `rootRelativePath` path math works on every OS;
+// the directory itself never needs to exist.
+const ROOT = new URL('./project/', import.meta.url);
+
+/** Absolute forward-slash module id under the fake project root. */
+function projectFile(path: string): string {
+	return slash(fileURLToPath(new URL(path, ROOT)));
+}
 
 function settings(cacheDir: URL): AstroSettings {
 	return { config: { cacheDir, root: ROOT } } as unknown as AstroSettings;
@@ -438,10 +446,10 @@ describe('IncrementalBuildCache', () => {
 			return { cache, temp };
 		}
 
-		const PAGE = '/project/src/pages/page.astro';
-		const SIDEBAR = '/project/src/components/Sidebar.astro';
-		const SIDEBAR_DATA = '/project/src/data/sidebar_data.ts';
-		const OTHER = '/project/src/components/Other.astro';
+		const PAGE = projectFile('src/pages/page.astro');
+		const SIDEBAR = projectFile('src/components/Sidebar.astro');
+		const SIDEBAR_DATA = projectFile('src/data/sidebar_data.ts');
+		const OTHER = projectFile('src/components/Other.astro');
 
 		it('explains a changed leaf with a deterministic chain', () => {
 			const previous = graph(
@@ -542,8 +550,8 @@ describe('IncrementalBuildCache', () => {
 		});
 
 		it('terminates on cycles and explains each changed leaf once', () => {
-			const A = '/project/src/components/A.astro';
-			const B = '/project/src/components/B.astro';
+			const A = projectFile('src/components/A.astro');
+			const B = projectFile('src/components/B.astro');
 			const previous = graph(
 				{
 					[PAGE]: { fingerprint: 'page', importedIds: [A] },
@@ -571,8 +579,8 @@ describe('IncrementalBuildCache', () => {
 		});
 
 		it('explains a content entry change through the rendered-content boundary', () => {
-			const ENTRY = '/project/src/content/docs/a.mdx';
-			const CALLOUT = '/project/src/components/Callout.astro';
+			const ENTRY = projectFile('src/content/docs/a.mdx');
+			const CALLOUT = projectFile('src/components/Callout.astro');
 			const previous = graph(
 				{
 					[ENTRY]: { fingerprint: 'entry1', importedIds: [CALLOUT] },

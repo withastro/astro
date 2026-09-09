@@ -3,15 +3,26 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import { slash } from '../../../dist/core/path.js';
 import { pluginIncremental } from '../../../dist/core/build/plugins/plugin-incremental.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../dist/vite-plugin-pages/const.js';
 
-const ROOT = new URL('file:///project/');
-const PAGE_ID = '/project/src/pages/[slug].astro';
+// A real absolute file URL so `rootRelativePath` path math works on every OS;
+// the directory itself never needs to exist.
+const ROOT = new URL('./project/', import.meta.url);
+const PROJECT_PATH = slash(fileURLToPath(ROOT));
+
+/** Absolute forward-slash module id under the fake project root. */
+function projectFile(path: string): string {
+	return PROJECT_PATH + path;
+}
+
+const PAGE_ID = projectFile('src/pages/[slug].astro');
 const COMPONENT = 'src/pages/[slug].astro';
-const RED = '/project/src/assets/red.png';
-const BLUE = '/project/src/assets/blue.png';
-const VIDEO = '/project/src/assets/clip.mp4';
+const RED = projectFile('src/assets/red.png');
+const BLUE = projectFile('src/assets/blue.png');
+const VIDEO = projectFile('src/assets/clip.mp4');
 
 const HANDLE_ONE = 'VRAku6fjghkApIISiBWPzg';
 const HANDLE_TWO = 'WPGYjwIlzWVNM1bYhOc83w';
@@ -203,7 +214,7 @@ describe('pluginIncremental', () => {
 	});
 
 	describe('diagnostics graph', () => {
-		const MODULE = '/project/src/utils/format.ts';
+		const MODULE = projectFile('src/utils/format.ts');
 
 		it('records the page root and module fingerprints', () => {
 			const diagnostics = diagnosticsGraph({ [MODULE]: 'export const fmt = 1;' }, {}, [MODULE]);
@@ -234,8 +245,8 @@ describe('pluginIncremental', () => {
 		});
 
 		it('changes a fingerprint when an import edge changes', () => {
-			const OTHER = '/project/src/utils/other.ts';
-			const EXTRA = '/project/src/utils/extra.ts';
+			const OTHER = projectFile('src/utils/other.ts');
+			const EXTRA = projectFile('src/utils/extra.ts');
 			const first = diagnosticsGraph(
 				{ [MODULE]: 'x', [OTHER]: 'y', [EXTRA]: 'z' },
 				{},
@@ -254,8 +265,8 @@ describe('pluginIncremental', () => {
 		});
 
 		it('captures static and dynamic import edges', () => {
-			const STATIC = '/project/src/static.ts';
-			const DYNAMIC = '/project/src/dynamic.ts';
+			const STATIC = projectFile('src/static.ts');
+			const DYNAMIC = projectFile('src/dynamic.ts');
 			const diagnostics = diagnosticsGraph(
 				{ [STATIC]: 's', [DYNAMIC]: 'd' },
 				{},
@@ -267,7 +278,7 @@ describe('pluginIncremental', () => {
 		});
 
 		it('records content render roots for propagated asset modules', () => {
-			const RENDER = '/project/src/content/docs/a.mdx';
+			const RENDER = projectFile('src/content/docs/a.mdx');
 			const PROPAGATED = `${RENDER}?astroPropagatedAssets`;
 			const diagnostics = diagnosticsGraph(
 				{ [RENDER]: 'export default {};', [PROPAGATED]: 'import x from "./a.mdx";' },
@@ -282,10 +293,13 @@ describe('pluginIncremental', () => {
 				pagesByViteID: new Map([[PAGE_ID, { component: COMPONENT }]]),
 				pageDependencyHashes: new Map([[COMPONENT, 'base']]),
 				discoveredClientOnlyComponents: new Map([
-					['/@fs/project/src/components/Search.tsx', ['default']],
+					['/@fs/' + PROJECT_PATH + 'src/components/Search.tsx', ['default']],
 				]),
 				pagesByClientOnly: new Map([
-					['/@fs/project/src/components/Search.tsx', new Set([{ component: COMPONENT }])],
+					[
+						'/@fs/' + PROJECT_PATH + 'src/components/Search.tsx',
+						new Set([{ component: COMPONENT }]),
+					],
 				]),
 				discoveredScripts: new Set(),
 				pagesByScriptId: new Map(),
@@ -297,7 +311,7 @@ describe('pluginIncremental', () => {
 				},
 			} as any;
 			const plugin = pluginIncremental(internals, ROOT) as any;
-			const entryId = '/@fs/project/src/components/Search.tsx';
+			const entryId = '/@fs/' + PROJECT_PATH + 'src/components/Search.tsx';
 			const modules = new Map([
 				[entryId, moduleInfo(entryId, { code: 'export default () => null;' })],
 			]);

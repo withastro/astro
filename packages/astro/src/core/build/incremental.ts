@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import type { SerializedStaticImage } from '../../assets/types.js';
 import { rootRelativePath } from '../viteUtils.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -402,9 +403,10 @@ function findLeafChains(
 // console; the aggregate reason still names every dropped leaf.
 const MAX_EXPLAINED_LEAVES = 200;
 
-// Placeholder root used only when a cache was constructed without settings;
-// production caches always pass the project root.
-const ROOT_FALLBACK = new URL('file:///');
+// Placeholder root used only when a cache is constructed without settings
+// (tests); production caches always pass the project root. `file:///` would be
+// an invalid file URL on Windows, so derive from the working directory instead.
+const ROOT_FALLBACK = pathToFileURL(process.cwd());
 
 /**
  * Tracks which prerendered paths can be reused from a previous build.
