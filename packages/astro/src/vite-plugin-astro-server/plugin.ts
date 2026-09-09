@@ -92,37 +92,39 @@ export default function createVitePluginAstroServer({
 			// so a dev server that is started and stopped without serving any request
 			// never compiles the app at all (and never leaves compilation work
 			// in-flight when the server closes).
-			let ssrHandlerPromise: Promise<ReturnType<typeof createHandler>> | undefined;
+			let ssrHandlerPromise: Promise<Awaited<ReturnType<typeof createHandler>>> | undefined;
 			const getSsrHandler = () => {
 				if (!ssrHandlerPromise) {
 					if (!runnableSsrEnvironment) {
 						return undefined;
 					}
-					ssrHandlerPromise = contentConfigLoad.then(() => createHandler(runnableSsrEnvironment));
+					const promise = contentConfigLoad.then(() => createHandler(runnableSsrEnvironment));
 					// Compile failures surface here so they are reported, and also as a
 					// rejected lazy await in the request handlers below.
-					ssrHandlerPromise.catch((error) => {
+					promise.catch((error) => {
 						logger.error(null, `Failed to create the dev server app: ${error?.message ?? error}`);
 					});
+					ssrHandlerPromise = promise;
 				}
 				return ssrHandlerPromise;
 			};
 
-			let prerenderHandlerPromise: Promise<ReturnType<typeof createHandler>> | undefined;
+			let prerenderHandlerPromise: Promise<Awaited<ReturnType<typeof createHandler>>> | undefined;
 			const getPrerenderHandler = () => {
 				if (!prerenderHandlerPromise) {
 					if (!runnablePrerenderEnvironment) {
 						return undefined;
 					}
-					prerenderHandlerPromise = contentConfigLoad.then(() =>
-						createHandler(runnablePrerenderEnvironment),
-					);
-					prerenderHandlerPromise.catch((error) => {
+					const promise = contentConfigLoad.then(() => createHandler(runnablePrerenderEnvironment));
+					// Compile failures surface here so they are reported, and also as a
+					// rejected lazy await in the request handlers below.
+					promise.catch((error) => {
 						logger.error(
 							null,
 							`Failed to create the prerender server app: ${error?.message ?? error}`,
 						);
 					});
+					prerenderHandlerPromise = promise;
 				}
 				return prerenderHandlerPromise;
 			};
