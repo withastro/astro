@@ -27,7 +27,7 @@ export default defineConfig({
 
 The compiler automatically memoizes client components and hooks. It does not compile server rendering. The target defaults to your installed React major version. For React 17 or 18, also install `react-compiler-runtime` as a runtime dependency.
 
-Pass an options object, such as `compiler: { compilationMode: 'annotation' }`, to configure Oxc's React Compiler. The integration's `include` and `exclude` filters apply; dependencies and Astro files are excluded. Compilation is disabled by default. The integration uses `@vitejs/plugin-react` v6 and Oxc for JSX and Fast Refresh. The `babel` integration option is removed. Projects requiring custom Babel plugins must configure `@rolldown/plugin-babel` separately under Astro’s `vite.plugins`; do not also enable `babel-plugin-react-compiler` on the same files.
+Pass an options object, such as `compiler: { compilationMode: 'annotation' }`, to configure Oxc's React Compiler. The integration's `include` and `exclude` filters apply; dependencies and Astro files are excluded. Compilation is disabled by default. Existing `babel` configuration and JSX/Fast Refresh behavior are preserved. The Oxc transform runs before the existing React plugin and preserves JSX for that pipeline. Do not also enable `babel-plugin-react-compiler` on the same client components; explicitly configuring both compilers produces an error.
 
 ## Support
 

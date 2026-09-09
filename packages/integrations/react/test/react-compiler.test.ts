@@ -2,7 +2,20 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load } from 'cheerio';
 import react from '../dist/index.js';
+import { withCompilerCheck } from '../dist/compiler.js';
 import { loadFixture, type DevServer, type Fixture } from './test-utils.ts';
+
+const babelOptions = {
+	plugins: [
+		() => ({
+			visitor: {
+				StringLiteral(path: { node: { value: string } }) {
+					if (path.node.value === 'before-babel') path.node.value = 'after-babel';
+				},
+			},
+		}),
+	],
+};
 
 for (const enabled of [true, false]) {
 	describe(`React compiler (${enabled ? 'enabled' : 'disabled'})`, () => {
@@ -11,7 +24,9 @@ for (const enabled of [true, false]) {
 		before(async () => {
 			fixture = await loadFixture({
 				root: new URL(`./fixtures/react-compiler${enabled ? '' : '-disabled'}/`, import.meta.url),
-				integrations: [react({ compiler: enabled })],
+				integrations: [
+					react({ compiler: enabled, babel: enabled ? () => babelOptions : babelOptions }),
+				],
 			});
 		});
 		describe('dev', () => {
@@ -26,11 +41,14 @@ for (const enabled of [true, false]) {
 				assert.equal(response.status, 200);
 				const code = await response.text();
 				assert.equal(/react[-_]compiler[-_]runtime/.test(code), enabled);
+				assert.match(code, /after-babel/);
 			});
 			it('preserves server rendering', async () => {
 				const response = await fixture.fetch('/');
 				assert.equal(response.status, 200);
-				assert.equal(load(await response.text())('button').text(), 'Count: 0');
+				const $ = load(await response.text());
+				assert.equal($('button').text(), 'Count: 0');
+				assert.equal($('button').attr('data-babel'), 'after-babel');
 			});
 		});
 		describe('build', () => {
@@ -40,6 +58,7 @@ for (const enabled of [true, false]) {
 			it('renders the island and emits a compiled client bundle only when enabled', async () => {
 				const $ = load(await fixture.readFile('/index.html'));
 				assert.equal($('button').text(), 'Count: 0');
+				assert.equal($('button').attr('data-babel'), 'after-babel');
 				const component = $('astro-island').attr('component-url');
 				assert.ok(component);
 				const code = await fixture.readFile(component);
@@ -49,11 +68,37 @@ for (const enabled of [true, false]) {
 	});
 }
 
-describe('React integration migration', () => {
-	it('reports how to migrate the removed babel option', () => {
+describe('React Compiler conflicts', () => {
+	it('rejects the Babel compiler in plugin lists and overrides', () => {
 		assert.throws(
-			() => Reflect.apply(react, undefined, [{ babel: {} }]),
-			/@rolldown\/plugin-babel in vite\.plugins/,
+			() => withCompilerCheck({ plugins: ['babel-plugin-react-compiler'] }),
+			/Enable only one React Compiler/,
+		);
+		assert.throws(
+			() => withCompilerCheck({ overrides: [{ plugins: [['babel-plugin-react-compiler', {}]] }] }),
+			/Enable only one React Compiler/,
+		);
+	});
+	it('checks Babel callbacks and preserves their arguments', () => {
+		const checked = withCompilerCheck((id, options) => {
+			assert.equal(id, '/src/Counter.jsx');
+			assert.equal(options.ssr, false);
+			return { plugins: ['babel-plugin-react-compiler'] };
+		});
+		assert.ok(typeof checked === 'function');
+		assert.throws(
+			() => checked('/src/Counter.jsx', { ssr: false }),
+			/Enable only one React Compiler/,
+		);
+	});
+	it('allows a Babel compiler callback confined to SSR', () => {
+		const checked = withCompilerCheck(() => ({ plugins: ['babel-plugin-react-compiler'] }));
+		assert.ok(typeof checked === 'function');
+		assert.doesNotThrow(() => checked('/src/Counter.jsx', { ssr: true }));
+	});
+	it('allows disabled Babel compiler entries', () => {
+		assert.doesNotThrow(() =>
+			withCompilerCheck({ plugins: [['babel-plugin-react-compiler', false]] }),
 		);
 	});
 });
