@@ -19,4 +19,7 @@ export class PassthroughTextStyler implements TextStyler {
 	bgGreen(msg: string): string {
 		return msg;
 	}
+	cyan(msg: string): string {
+		return msg;
+	}
 }

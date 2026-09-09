@@ -15,6 +15,15 @@ export interface BuildInternals {
 	cssModuleToChunkIdMap: Map<string, string>;
 
 	/**
+	 * Maps a key describing the exact set of CSS modules bundled into a chunk of the
+	 * prerender environment to the CSS asset filename emitted for that chunk. The SSR
+	 * environment renames its own CSS assets to these filenames when they are backed by
+	 * the same CSS source modules, so the prerender and server builds don't emit
+	 * duplicate stylesheets for shared layouts (#17298).
+	 */
+	prerenderCssAssetByModuleKey: Map<string, string>;
+
+	/**
 	 * If script is inlined, its id and inlined code is mapped here. The resolved id is
 	 * an URL like "/_astro/something.js" but will no longer exist as the content is now
 	 * inlined in this map.
@@ -24,6 +33,15 @@ export interface BuildInternals {
 	// A mapping of specifiers like astro/client/idle.js to the hashed bundled name.
 	// Used to render pages with the correct specifiers.
 	entrySpecifierToBundleMap: Map<string, string>;
+
+	/**
+	 * Specifiers written to `entrySpecifierToBundleMap` by the prerender environment
+	 * that have not been overwritten by the SSR or client environments. These point
+	 * to chunk files inside the prerender output directory, which is deleted after
+	 * page generation. They must be stripped from the SSR manifest to avoid dangling
+	 * references.
+	 */
+	prerenderOnlyEntrySpecifiers: Set<string>;
 
 	/**
 	 * A map for page-specific information.
@@ -95,6 +113,7 @@ export interface BuildInternals {
 	prerenderEntryFileName?: string;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;
+	loggerEntryPoint: URL | undefined;
 	astroActionsEntryPoint: URL | undefined;
 
 	/**
@@ -114,6 +133,36 @@ export interface BuildInternals {
 		moduleIds: string[];
 		prerender: boolean;
 	}>;
+
+	/**
+	 * Component exports that were rendered during the SSR build.
+	 * Used by the client build's cssScopeTo recovery to distinguish between
+	 * CSS that was tree-shaken because the component wasn't rendered in SSR
+	 * vs CSS that was included in SSR.
+	 */
+	ssrRenderedExports?: Map<string, Set<string>>;
+
+	/**
+	 * Map of page component path -> dependency hash for incremental builds.
+	 * Populated during the prerender Rolldown build by the incremental plugin.
+	 */
+	pageDependencyHashes?: Map<string, string>;
+
+	/**
+	 * Map of content entry root-relative `filePath` -> render-graph hash for
+	 * incremental builds. Keyed to match what the content runtime reports when it
+	 * renders an entry, so a path's cache entry can be invalidated when a component
+	 * imported by the content it renders changes.
+	 */
+	contentEntryRenderHashes?: Map<string, string>;
+
+	/**
+	 * Set of page component paths whose render graph contains a server island.
+	 * Populated during the prerender Rolldown build by the incremental plugin.
+	 * Such pages bake key-bound ciphertext into their HTML, so the incremental
+	 * cache only reuses them while the encryption key is unchanged.
+	 */
+	serverIslandPageComponents?: Set<string>;
 }
 
 /**
@@ -124,8 +173,10 @@ export function createBuildInternals(): BuildInternals {
 	return {
 		clientInput: new Set(),
 		cssModuleToChunkIdMap: new Map(),
+		prerenderCssAssetByModuleKey: new Map(),
 		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
+		prerenderOnlyEntrySpecifiers: new Set<string>(),
 		pagesByKeys: new Map(),
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
@@ -139,6 +190,7 @@ export function createBuildInternals(): BuildInternals {
 		componentMetadata: new Map(),
 		astroActionsEntryPoint: undefined,
 		middlewareEntryPoint: undefined,
+		loggerEntryPoint: undefined,
 		clientChunksAndAssets: new Set(),
 		ssrAssetsPerEnvironment: new Map(),
 	};

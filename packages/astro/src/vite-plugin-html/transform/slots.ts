@@ -1,32 +1,41 @@
-import type { Root, RootContent } from 'hast';
-import type MagicString from 'magic-string';
-import type { Plugin } from 'unified';
-import { visit } from 'unist-util-visit';
+import { ELEMENT_NODE, parse, walkSync } from 'ultrahtml';
 import { escapeTemplateLiteralCharacters } from './utils.js';
 
-const rehypeSlots: Plugin<[{ s: MagicString }], Root> = ({ s }) => {
-	return (tree, file) => {
-		visit(tree, (node: Root | RootContent) => {
-			if (node.type === 'element' && node.tagName === 'slot') {
-				if (typeof node.properties?.['is:inline'] !== 'undefined') return;
-				const name = node.properties?.['name'] ?? 'default';
-				const start = node.position?.start.offset ?? 0;
-				const end = node.position?.end.offset ?? 0;
-				const first = node.children.at(0) ?? node;
-				const last = node.children.at(-1) ?? node;
-				const text = file.value
-					.slice(first.position?.start.offset ?? 0, last.position?.end.offset ?? 0)
-					.toString();
-				s.overwrite(
-					start,
-					end,
-					`\${${SLOT_PREFIX}["${name}"] ?? \`${escapeTemplateLiteralCharacters(text).trim()}\`}`,
-				);
-			}
-		});
-	};
-};
-
-export default rehypeSlots;
-
 export const SLOT_PREFIX = `___SLOTS___`;
+
+export interface SlotReplacement {
+	start: number;
+	end: number;
+	value: string;
+}
+
+/**
+ * Find every `<slot>` (excluding `is:inline` ones) and describe how to replace it
+ * with a `${___SLOTS___[name] ?? `fallback`}` template literal expression.
+ */
+export function collectSlots(code: string): SlotReplacement[] {
+	const slots: SlotReplacement[] = [];
+
+	walkSync(parse(code), (node) => {
+		if (node.type !== ELEMENT_NODE || node.name !== 'slot') return;
+		if ('is:inline' in node.attributes) return;
+
+		const [open, close] = node.loc;
+		if (!close) return; // Unclosed slot, leave the markup untouched
+
+		const name = node.attributes.name ?? 'default';
+		// Empty slots fall back to rendering the slot tag itself
+		const fallback =
+			open.end < close.start
+				? code.slice(open.end, close.start)
+				: code.slice(open.start, close.end);
+
+		slots.push({
+			start: open.start,
+			end: close.end,
+			value: `\${${SLOT_PREFIX}["${name}"] ?? \`${escapeTemplateLiteralCharacters(fallback).trim()}\`}`,
+		});
+	});
+
+	return slots;
+}

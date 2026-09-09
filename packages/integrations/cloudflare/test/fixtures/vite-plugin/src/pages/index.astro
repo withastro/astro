@@ -17,7 +17,7 @@ const dogs = await getCollection('dogs');
 const increment = await getEntry('increment', 'value');
 const { Content } = await render(increment);
 
-const surnamne = Astro.url.searchParams.get('surname');
+const surname = Astro.url.searchParams.get('surname');
 ---
 
 <html>
@@ -51,7 +51,7 @@ const surnamne = Astro.url.searchParams.get('surname');
 		<HelloSvelte client:load />
 	</div>
 	<Island server:defer/>
-	<IslandProps server:defer name="Aria" surname={surnamne}/>
+	<IslandProps server:defer name="Aria" surname={surname}/>
 	<ul>
 		{dogs.map(dog => (
 			<li><a href={`/dogs/${dog.id}`}>{ dog.data?.breed }</a></li>

@@ -1,7 +1,8 @@
 import { fileURLToPath } from 'node:url';
 import { glob } from 'tinyglobby';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
-import { normalizeTheLocale } from '../../../i18n/index.js';
+import { normalizeTheLocale } from '../../../i18n/path.js';
+import { resolveMiddlewareMode } from '../../../integrations/adapter-utils.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../../manifest/serialized.js';
 import type { ExtractedChunk } from '../static-build.js';
@@ -26,7 +27,9 @@ import {
 	trackScriptHashes,
 	trackStyleHashes,
 } from '../../csp/common.js';
-import { encodeKey } from '../../encryption.js';
+import { partitionByKind } from '../../csp/runtime.js';
+import { generateSpeculationRulesContent } from '../../../prefetch/speculation-rules.js';
+import { encodeKey, generateCspDigest } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
 import { getOutFile, getOutFolder } from '../common.js';
@@ -34,6 +37,7 @@ import type { BuildInternals } from '../internal.js';
 import { cssOrder, mergeInlineCss } from '../runtime.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
+import { cacheConfigToManifest } from '../../cache/utils.js';
 import { sessionConfigToManifest } from '../../session/utils.js';
 
 /**
@@ -58,7 +62,8 @@ import { sessionConfigToManifest } from '../../session/utils.js';
  */
 
 export const MANIFEST_REPLACE = '@@ASTRO_MANIFEST_REPLACE@@';
-const replaceExp = new RegExp(`['"]${MANIFEST_REPLACE}['"]`, 'g');
+// Backtick included: Rolldown's minifier may rewrite string literals as template literals.
+const replaceExp = new RegExp(`['"\`]${MANIFEST_REPLACE}['"\`]`, 'g');
 
 /**
  * Post-build hook that injects the computed manifest into bundled chunks.
@@ -83,8 +88,8 @@ export async function manifestBuildPostHook(
 	);
 
 	if (ssrManifestChunk) {
-		const shouldPassMiddlewareEntryPoint =
-			options.settings.adapter?.adapterFeatures?.edgeMiddleware;
+		const middlewareMode = resolveMiddlewareMode(options.settings.adapter?.adapterFeatures);
+		const shouldPassMiddlewareEntryPoint = middlewareMode === 'edge';
 		await runHookBuildSsr({
 			config: options.settings.config,
 			manifest,
@@ -93,7 +98,13 @@ export async function manifestBuildPostHook(
 				? internals.middlewareEntryPoint
 				: undefined,
 		});
-		const code = injectManifest(manifest, ssrManifestChunk.code);
+		// Prerendered routes' styles are dead weight in the SSR manifest: the static
+		// HTML on disk already has them inlined, and the SSR worker never renders
+		// these routes. Stripping keeps the entry chunk small on platforms like
+		// Cloudflare Workers that re-parse it on every cold isolate start.
+		let ssrManifest = stripPrerenderedRouteStyles(manifest);
+		ssrManifest = stripPrerenderOnlyEntryModules(ssrManifest, internals);
+		const code = injectManifest(ssrManifest, ssrManifestChunk.code);
 		mutate(ssrManifestChunk.fileName, code, false);
 	}
 
@@ -122,6 +133,17 @@ async function createManifest(
 		internals.staticFiles.add(file);
 	}
 
+	// Also include SSR-emitted assets (CSS, fonts, images) tracked in ssrAssetsPerEnvironment.
+	// These assets are moved to the client directory by ssrMoveAssets() later in the pipeline,
+	// so they haven't landed on disk yet when we glob above. Without this, adapters in middleware
+	// mode won't recognize them as static files and will match them against catch-all routes instead.
+	// See: https://github.com/withastro/astro/issues/16039
+	for (const [, ssrAssets] of internals.ssrAssetsPerEnvironment) {
+		for (const asset of ssrAssets) {
+			internals.staticFiles.add(asset);
+		}
+	}
+
 	const staticFiles = internals.staticFiles;
 	const encodedKey = await encodeKey(await buildOpts.key);
 	const manifest = await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
@@ -137,6 +159,42 @@ function injectManifest(manifest: SerializedSSRManifest, code: string) {
 	});
 }
 
+/**
+ * Returns a copy of the manifest with `styles` cleared on every prerendered
+ * route. Inline CSS for prerendered routes is dead weight in the SSR manifest:
+ * the prerendered HTML on disk already contains the `<style>` tags, and the
+ * SSR worker never renders these routes.
+ */
+function stripPrerenderedRouteStyles(manifest: SerializedSSRManifest): SerializedSSRManifest {
+	let stripped = false;
+	const routes = manifest.routes.map((route) => {
+		if (!route.routeData.prerender || route.styles.length === 0) return route;
+		stripped = true;
+		return { ...route, styles: [] };
+	});
+	return stripped ? { ...manifest, routes } : manifest;
+}
+
+/**
+ * Returns a copy of the manifest with `entryModules` entries removed for
+ * specifiers that were only emitted by the prerender environment. Those
+ * chunks live in the prerender output directory, which is deleted after
+ * page generation, so referencing them from the SSR manifest would produce
+ * dangling asset URLs at runtime.
+ */
+function stripPrerenderOnlyEntryModules(
+	manifest: SerializedSSRManifest,
+	internals: BuildInternals,
+): SerializedSSRManifest {
+	if (internals.prerenderOnlyEntrySpecifiers.size === 0) return manifest;
+	const filtered = Object.fromEntries(
+		Object.entries(manifest.entryModules).filter(
+			([key]) => !internals.prerenderOnlyEntrySpecifiers.has(key),
+		),
+	);
+	return { ...manifest, entryModules: filtered };
+}
+
 async function buildManifest(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
@@ -147,15 +205,21 @@ async function buildManifest(
 
 	const routes: SerializedRouteInfo[] = [];
 	const domainLookupTable: Record<string, string> = {};
-	const entryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
-	if (settings.scripts.some((script) => script.stage === 'page')) {
-		staticFiles.push(entryModules[PAGE_SCRIPT_ID]);
-	}
+	const rawEntryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
 
 	const assetQueryParams = settings.adapter?.client?.assetQueryParams;
 	const assetQueryString = assetQueryParams ? assetQueryParams.toString() : undefined;
 
 	const appendAssetQuery = (pth: string) => (assetQueryString ? `${pth}?${assetQueryString}` : pth);
+	const entryModules = Object.fromEntries(
+		Object.entries(rawEntryModules).map(([key, value]) => [
+			key,
+			value ? appendAssetQuery(value) : value,
+		]),
+	);
+	if (settings.scripts.some((script) => script.stage === 'page')) {
+		staticFiles.push(rawEntryModules[PAGE_SCRIPT_ID]);
+	}
 
 	const prefixAssetPath = (pth: string) => {
 		let result = '';
@@ -193,7 +257,7 @@ async function buildManifest(
 
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (settings.scripts.some((script) => script.stage === 'page')) {
-			const src = entryModules[PAGE_SCRIPT_ID];
+			const src = rawEntryModules[PAGE_SCRIPT_ID];
 
 			scripts.push({
 				type: 'external',
@@ -268,26 +332,60 @@ async function buildManifest(
 	let csp: SSRManifestCSP | undefined = undefined;
 
 	if (shouldTrackCspHashes(settings.config.security.csp)) {
-		const algorithm = getAlgorithm(settings.config.security.csp);
+		const cspConfig = settings.config.security.csp;
+		const algorithm = getAlgorithm(cspConfig);
+		// Astro's generated hashes are element hashes. They are appended to the directive's `hashes`
+		// as `default`-kind entries (bare strings), so they land on `script-src`/`style-src` and are
+		// folded into the `-elem` directives at render time.
 		const scriptHashes = [
-			...getScriptHashes(settings.config.security.csp),
+			...getScriptHashes(cspConfig),
 			...(await trackScriptHashes(internals, settings, algorithm)),
 		];
 		const styleHashes = [
-			...getStyleHashes(settings.config.security.csp),
+			...getStyleHashes(cspConfig),
 			...settings.injectedCsp.styleHashes,
 			...(await trackStyleHashes(internals, settings, algorithm)),
 		];
 
+		// When both CSP and clientPrerender are enabled, generate a static speculation rules
+		// script whose hash can be included in the CSP policy. Dynamic per-URL injection would
+		// produce unpredictable hashes that cannot be whitelisted at build time.
+		let speculationRulesContent: string | undefined;
+		if (settings.config.experimental.clientPrerender && settings.config.prefetch) {
+			const prefetchAll =
+				typeof settings.config.prefetch === 'object'
+					? (settings.config.prefetch.prefetchAll ?? false)
+					: false;
+			speculationRulesContent = generateSpeculationRulesContent(prefetchAll);
+			const speculationRulesHash = await generateCspDigest(speculationRulesContent, algorithm);
+			scriptHashes.push(speculationRulesHash);
+		}
+
+		const scriptDirective = {
+			resources: getScriptResources(cspConfig),
+			hashes: scriptHashes,
+			strictDynamic: getStrictDynamic(cspConfig),
+		};
+		const styleDirective = {
+			resources: getStyleResources(cspConfig),
+			hashes: styleHashes,
+		};
+		// Derive the deprecated flat fields from the `default`-kind entries for back-compat.
+		const scriptDefault = partitionByKind(scriptDirective).default;
+		const styleDefault = partitionByKind(styleDirective).default;
+
 		csp = {
 			cspDestination: settings.adapter?.adapterFeatures?.staticHeaders ? 'adapter' : undefined,
-			scriptHashes,
-			scriptResources: getScriptResources(settings.config.security.csp),
-			styleHashes,
-			styleResources: getStyleResources(settings.config.security.csp),
 			algorithm,
 			directives: getDirectives(settings),
-			isStrictDynamic: getStrictDynamic(settings.config.security.csp),
+			scriptHashes: scriptDefault.hashes,
+			scriptResources: scriptDefault.resources,
+			isStrictDynamic: scriptDirective.strictDynamic,
+			styleHashes: styleDefault.hashes,
+			styleResources: styleDefault.resources,
+			scriptDirective,
+			styleDirective,
+			speculationRulesContent,
 		};
 	}
 
@@ -303,6 +401,8 @@ async function buildManifest(
 		}
 	}
 
+	const middlewareMode = resolveMiddlewareMode(opts.settings.adapter?.adapterFeatures);
+
 	return {
 		rootDir: opts.settings.config.root.toString(),
 		cacheDir: opts.settings.config.cacheDir.toString(),
@@ -315,6 +415,7 @@ async function buildManifest(
 		assetsDir: opts.settings.config.build.assets,
 		routes,
 		serverLike: opts.settings.buildOutput === 'server',
+		middlewareMode,
 		site: settings.config.site,
 		base: settings.config.base,
 		userAssetsBase: settings.config?.vite?.base,
@@ -331,9 +432,18 @@ async function buildManifest(
 		buildFormat: settings.config.build.format,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
+		actionBodySizeLimit:
+			settings.config.security?.actionBodySizeLimit && settings.buildOutput === 'server'
+				? settings.config.security.actionBodySizeLimit
+				: 1024 * 1024,
+		serverIslandBodySizeLimit:
+			settings.config.security?.serverIslandBodySizeLimit && settings.buildOutput === 'server'
+				? settings.config.security.serverIslandBodySizeLimit
+				: 1024 * 1024,
 		allowedDomains: settings.config.security?.allowedDomains,
 		key: encodedKey,
 		sessionConfig: sessionConfigToManifest(settings.config.session),
+		cacheConfig: cacheConfigToManifest(settings.config.cache, settings.config.routeRules),
 		csp,
 		image: {
 			objectFit: settings.config.image.objectFit,

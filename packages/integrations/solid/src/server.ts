@@ -26,7 +26,9 @@ async function check(
 	// Svelte component renders fine by Solid as an empty string. The only way to detect
 	// if this isn't a Solid but Svelte component is to unfortunately copy the check
 	// implementation of the Svelte renderer.
-	if (Component.toString().includes('$$payload')) return false;
+	// `$$payload` is the legacy prop name; `$$renderer` is the name used since Svelte 5.x.
+	const componentStr = Component.toString();
+	if (componentStr.includes('$$payload') || componentStr.includes('$$renderer')) return false;
 
 	// There is nothing particularly special about Solid components. Basically they are just functions.
 	// In general, components from other frameworks (eg, MDX, React, etc.) tend to render as "undefined",

@@ -1,18 +1,22 @@
 {
   "name": "@astrojs/check",
   "description": "Type checking and diagnostics for Astro projects",
-  "version": "0.9.7-beta.1",
+  "version": "0.9.10",
   "author": "withastro",
   "license": "MIT",
   "homepage": "https://github.com/withastro/astro/tree/main/packages/language-tools/astro-check",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/astro.git",
+    "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/language-tools/astro-check"
   },
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
   "bin": {
     "astro-check": "./bin/astro-check.js"
   },
@@ -22,24 +26,24 @@
     "dist/**/*.d.ts"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "tsc -b",
+    "dev": "tsc -b --watch",
     "test": "astro-scripts test \"**/*.test.ts\"  --tsx true"
   },
   "dependencies": {
-    "@astrojs/language-server": "^2.16.1-beta.1",
+    "@astrojs/language-server": "^2.16.7",
     "chokidar": "^4.0.3",
     "kleur": "^4.1.5",
-    "yargs": "^17.7.2"
+    "yargs": "^18.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.9.0",
-    "tinyglobby": "^0.2.15",
+    "@types/node": "^22.10.6",
     "@types/yargs": "^17.0.35",
-    "tsx": "^4.21.0",
-    "astro-scripts": "workspace:*"
+    "astro-scripts": "workspace:*",
+    "tinyglobby": "^0.2.16",
+    "tsx": "^4.22.0"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0 || ^6.0.0"
   }
 }

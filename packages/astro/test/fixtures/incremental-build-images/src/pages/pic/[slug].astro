@@ -1,0 +1,17 @@
+---
+import { Image } from 'astro:assets';
+import penguin from '../../assets/penguin.jpg';
+
+export async function getStaticPaths() {
+	return [{ params: { slug: 'a' }, props: { title: 'Pic A' }, cacheKey: 'v1' }];
+}
+
+const { title } = Astro.props;
+---
+<html>
+	<head><title>{title}</title></head>
+	<body>
+		<h1>{title}</h1>
+		<Image src={penguin} alt="A penguin" width={100} />
+	</body>
+</html>

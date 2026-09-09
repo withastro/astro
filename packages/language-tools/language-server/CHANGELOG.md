@@ -1,5 +1,97 @@
 # @astrojs/language-server
 
+## 2.16.16
+
+### Patch Changes
+
+- [#17715](https://github.com/withastro/astro/pull/17715) [`a51c533`](https://github.com/withastro/astro/commit/a51c533224687120f0b279f740bdd80b62bc3769) Thanks [@wakqasahmed](https://github.com/wakqasahmed)! - Fixes `astro check` silently skipping `.astro` files that are only reachable through a TypeScript project reference (a tsconfig referenced via `references` in another tsconfig). These files are now checked and reported like any other `.astro` file.
+
+## 2.16.15
+
+### Patch Changes
+
+- [#17820](https://github.com/withastro/astro/pull/17820) [`89e5349`](https://github.com/withastro/astro/commit/89e53492d2358596afbb327ef8bb80a44cd59807) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `source.organizeImports` leaking generated Astro component exports into `.astro` files
+
+## 2.16.14
+
+### Patch Changes
+
+- [#17618](https://github.com/withastro/astro/pull/17618) [`2630631`](https://github.com/withastro/astro/commit/263063116c8fa36474b255b7d4ecf43a0a55ffe2) Thanks [@lazerg](https://github.com/lazerg)! - Fixes the missing "Add all missing imports" and "Add import from" quick fixes for Astro components
+
+## 2.16.13
+
+### Patch Changes
+
+- [#17465](https://github.com/withastro/astro/pull/17465) [`6a1c1d8`](https://github.com/withastro/astro/commit/6a1c1d8571bda501d6ac64b726b4250f67c6bb0b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where errors in files included in tsconfig project references would never be caught
+
+## 2.16.12
+
+### Patch Changes
+
+- [#17345](https://github.com/withastro/astro/pull/17345) [`5196fb4`](https://github.com/withastro/astro/commit/5196fb45aec8b63ba43f86d558bd98b302abd0a9) Thanks [@kkhys](https://github.com/kkhys)! - Fixes an opaque `Cannot read properties of undefined (reading 'fileExists')` crash when `astro check` runs against the TypeScript 7 native compiler. The native compiler does not ship the programmatic API the checker relies on yet, so `astro check` now fails early with a clear message pointing to the tracking issue instead.
+
+## 2.16.11
+
+### Patch Changes
+
+- [#17059](https://github.com/withastro/astro/pull/17059) [`60cb289`](https://github.com/withastro/astro/commit/60cb289faa8f9e0056a4de7ecca6ec420abd147f) Thanks [@dupontcyborg](https://github.com/dupontcyborg)! - Update volar-service-* dependencies from 0.0.70 to 0.0.71 to pull in yaml-language-server 1.23.0 and yaml 2.8.3, resolving CVE-2026-33532 (GHSA-48c2-rrv3-qjmp), a denial-of-service vulnerability in yaml <2.8.3.
+
+## 2.16.10
+
+### Patch Changes
+
+- [#16827](https://github.com/withastro/astro/pull/16827) [`90ee151`](https://github.com/withastro/astro/commit/90ee151f1a77b1e3d55d0f8db768e65c3f8c8948) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a crash in the language server and `astro check` when using TypeScript project references with `.vue` or `.svelte` files
+
+## 2.16.9
+
+### Patch Changes
+
+- [#16661](https://github.com/withastro/astro/pull/16661) [`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0) Thanks [@ocavue](https://github.com/ocavue)! - Updates `typescript` to v6. No changes are needed from users.
+
+- Updated dependencies [[`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0)]:
+  - @astrojs/yaml2ts@0.2.4
+
+## 2.16.8
+
+### Patch Changes
+
+- [#16627](https://github.com/withastro/astro/pull/16627) [`5778cb7`](https://github.com/withastro/astro/commit/5778cb75515112e605da2aba5331646818802bc8) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes unintended dependency on the `typescript` package being available to the language server
+
+## 2.16.7
+
+### Patch Changes
+
+- [#15908](https://github.com/withastro/astro/pull/15908) [`8c62159`](https://github.com/withastro/astro/commit/8c62159eac6a77c32ac533e81d9c561409993db9) Thanks [@felmonon](https://github.com/felmonon)! - Keep generated `AstroComponent` suffixes in language-server output while rewriting `.astro` auto-import suggestions and edits back to the expected component name.
+
+## 2.16.6
+
+### Patch Changes
+
+- [#15927](https://github.com/withastro/astro/pull/15927) [`421e8de`](https://github.com/withastro/astro/commit/421e8de6e9e13ca45864c2d3deed7e98e3ee6138) Thanks [@FelmonFekadu](https://github.com/FelmonFekadu)! - Fixes completions sometimes not working inside the `href` attribute
+
+## 2.16.5
+
+### Patch Changes
+
+- [#15895](https://github.com/withastro/astro/pull/15895) [`7b4b254`](https://github.com/withastro/astro/commit/7b4b2549437eb099c5e96025dcf8d24ea56f30d0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updates Volar services to 0.0.70. This updates notably mean that the transitive dependency yaml-language-server no longer depends on a vulnerable version of lodash, causing warnings to show when installing the language server.
+
+## 2.16.4
+
+### Patch Changes
+
+- [#15820](https://github.com/withastro/astro/pull/15820) [`e20474b`](https://github.com/withastro/astro/commit/e20474b98c6d868ed9734f7eeb7564bffe8bfd77) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes broken publish
+
+- Updated dependencies [[`e20474b`](https://github.com/withastro/astro/commit/e20474b98c6d868ed9734f7eeb7564bffe8bfd77)]:
+  - @astrojs/yaml2ts@0.2.3
+
+## 2.16.1
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- [#14421](https://github.com/withastro/astro/pull/14421) [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the previously deprecated `Astro.glob()` - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-astroglob))
+
 ## 2.16.1-beta.1
 
 ### Patch Changes
@@ -10,7 +102,7 @@
 
 ### Patch Changes
 
-- [#14421](https://github.com/withastro/astro/pull/14421) [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the previously deprecated `Astro.glob()` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-astroglob))
+- [#14421](https://github.com/withastro/astro/pull/14421) [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the previously deprecated `Astro.glob()` - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-astroglob))
 
 ## 2.16.3
 
@@ -655,7 +747,7 @@ In the background, this update means that we now have to maintain a lot less cod
 
 ### Patch Changes
 
-- c4f7a36: Trying desesperately to figure deployment out
+- c4f7a36: Trying desperately to figure deployment out
 
 ## 0.26.0
 
@@ -717,7 +809,7 @@ In the background, this update means that we now have to maintain a lot less cod
 ### Patch Changes
 
 - 61620f1: Add support for Go To Type Definition
-- 9337f00: Fix language server not working when no initlizationOptions were passed
+- 9337f00: Fix language server not working when no initializationOptions were passed
 
 ## 0.21.1
 
@@ -748,7 +840,7 @@ In the background, this update means that we now have to maintain a lot less cod
 ### Patch Changes
 
 - e6996f5: Fixed many situations where the language server would warn abusively about not being able to find Astro
-- 4589c2b: Fix the language server not warning properly when a package is implicitely any due to missing types
+- 4589c2b: Fix the language server not warning properly when a package is implicitly any due to missing types
 
 ## 0.20.0
 
@@ -772,7 +864,7 @@ In the background, this update means that we now have to maintain a lot less cod
 
 - 421ab52: Added a new setting (`astro.typescript.allowArbitraryAttributes`) to enable support for arbitrary attributes
 - 06e3c95: Updated behaviour when no settings are provided. All features are now considered enabled by default
-- 301dcfb: Remove Lodash from the code base, significally reducing the file count of the package
+- 301dcfb: Remove Lodash from the code base, significantly reducing the file count of the package
 - dd1283b: Updated Component detection so completions now work for namespaced components (for example, typing `<myMarkdown.` will now give you a completion for the Content component)
 
 ## 0.19.4

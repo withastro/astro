@@ -1,22 +1,18 @@
 import { existsSync, promises as fs } from 'node:fs';
-import {
-	createMarkdownProcessor,
-	parseFrontmatter,
-	type MarkdownProcessor,
-} from '@astrojs/markdown-remark';
+import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
+import type { MarkdownRenderer } from '@astrojs/internal-helpers/markdown';
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
 import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType, RefreshContentOptions } from '../types/public/content.js';
 import {
 	ASSET_IMPORTS_FILE,
 	COLLECTIONS_MANIFEST_FILE,
 	CONTENT_LAYER_TYPE,
-	DATA_STORE_FILE,
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
 import type { RenderedContent } from './data-store.js';
@@ -32,11 +28,12 @@ import {
 } from './utils.js';
 import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
 
-interface ContentLayerOptions {
+export interface ContentLayerOptions {
 	store: MutableDataStore;
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	watcher?: FSWatcher;
+	contentConfigObserver?: ContentObservable;
 }
 
 type CollectionLoader<TData> = () =>
@@ -45,25 +42,30 @@ type CollectionLoader<TData> = () =>
 	| Record<string, Record<string, unknown>>
 	| Promise<Record<string, Record<string, unknown>>>;
 
-class ContentLayer {
-	#logger: Logger;
+export class ContentLayer {
+	#logger: AstroLogger;
 	#store: MutableDataStore;
 	#settings: AstroSettings;
 	#watcher?: WrappedWatcher;
 	#lastConfigDigest?: string;
 	#unsubscribe?: () => void;
-	#markdownProcessor?: MarkdownProcessor;
+	#markdownRenderer?: MarkdownRenderer;
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
+	#contentConfigObserver: ContentObservable;
 
 	#queue: PQueue;
 
-	constructor({ settings, logger, store, watcher }: ContentLayerOptions) {
-		// The default max listeners is 10, which can be exceeded when using a lot of loaders
-		watcher?.setMaxListeners(50);
-
+	constructor({
+		settings,
+		logger,
+		store,
+		watcher,
+		contentConfigObserver = globalContentConfigObserver,
+	}: ContentLayerOptions) {
 		this.#logger = logger;
 		this.#store = store;
 		this.#settings = settings;
+		this.#contentConfigObserver = contentConfigObserver;
 		if (watcher) {
 			this.#watcher = createWatcherWrapper(watcher);
 		}
@@ -82,7 +84,7 @@ class ContentLayer {
 	 */
 	watchContentConfig() {
 		this.#unsubscribe?.();
-		this.#unsubscribe = globalContentConfigObserver.subscribe(async (ctx) => {
+		this.#unsubscribe = this.#contentConfigObserver.subscribe(async (ctx) => {
 			if (ctx.status === 'loaded' && ctx.config.digest !== this.#lastConfigDigest) {
 				this.sync();
 			}
@@ -148,15 +150,27 @@ class ContentLayer {
 		content: string,
 		options?: RenderMarkdownOptions,
 	): Promise<RenderedContent> {
-		this.#markdownProcessor ??= await createMarkdownProcessor(this.#settings.config.markdown);
+		if (!this.#markdownRenderer) {
+			const { markdown, image } = this.#settings.config;
+			this.#markdownRenderer = await markdown.processor.createRenderer({
+				image,
+				syntaxHighlight: markdown.syntaxHighlight,
+				shikiConfig: markdown.shikiConfig,
+				gfm: markdown.gfm,
+				smartypants: markdown.smartypants,
+			});
+		}
 		const { frontmatter, content: body } = parseFrontmatter(content);
-		const { code, metadata } = await this.#markdownProcessor.render(body, {
+		const { code, metadata } = await this.#markdownRenderer.render(body, {
 			frontmatter,
 			fileURL: options?.fileURL,
 		});
 		return {
 			html: code,
-			metadata,
+			metadata: {
+				...metadata,
+				imagePaths: (metadata.localImagePaths ?? []).concat(metadata.remoteImagePaths ?? []),
+			},
 		};
 	}
 
@@ -172,13 +186,13 @@ class ContentLayer {
 	}
 
 	async #doSync(options: RefreshContentOptions) {
-		let contentConfig = globalContentConfigObserver.get();
+		let contentConfig = this.#contentConfigObserver.get();
 		const logger = this.#logger.forkIntegrationLogger('content');
 
 		if (contentConfig?.status === 'loading') {
 			contentConfig = await Promise.race<ReturnType<ContentObservable['get']>>([
 				new Promise((resolve) => {
-					const unsub = globalContentConfigObserver.subscribe((ctx) => {
+					const unsub = this.#contentConfigObserver.subscribe((ctx) => {
 						unsub();
 						resolve(ctx);
 					});
@@ -230,9 +244,9 @@ class ContentLayer {
 		this.#lastConfigDigest = currentConfigDigest;
 
 		let shouldClear = false;
-		const previousConfigDigest = await this.#store.metaStore().get('content-config-digest');
-		const previousAstroConfigDigest = await this.#store.metaStore().get('astro-config-digest');
-		const previousAstroVersion = await this.#store.metaStore().get('astro-version');
+		const previousConfigDigest = this.#store.metaStore().get('content-config-digest');
+		const previousAstroConfigDigest = this.#store.metaStore().get('astro-config-digest');
+		const previousAstroVersion = this.#store.metaStore().get('astro-version');
 
 		if (previousAstroConfigDigest && previousAstroConfigDigest !== astroConfigDigest) {
 			logger.info('Astro config changed');
@@ -252,13 +266,13 @@ class ContentLayer {
 			this.#store.clearAll();
 		}
 		if (process.env.ASTRO_VERSION) {
-			await this.#store.metaStore().set('astro-version', process.env.ASTRO_VERSION);
+			this.#store.metaStore().set('astro-version', process.env.ASTRO_VERSION);
 		}
 		if (currentConfigDigest) {
-			await this.#store.metaStore().set('content-config-digest', currentConfigDigest);
+			this.#store.metaStore().set('content-config-digest', currentConfigDigest);
 		}
 		if (astroConfigDigest) {
-			await this.#store.metaStore().set('astro-config-digest', astroConfigDigest);
+			this.#store.metaStore().set('astro-config-digest', astroConfigDigest);
 		}
 
 		if (!options?.loaders?.length) {
@@ -333,6 +347,7 @@ class ContentLayer {
 				}
 			}),
 		);
+		this.#validateReferences(contentConfig.config.collections, logger);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
 		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
@@ -343,6 +358,79 @@ class ContentLayer {
 		logger.info('Synced content');
 		if (this.#settings.config.experimental.contentIntellisense) {
 			await this.regenerateCollectionFileManifest();
+		}
+	}
+
+	/**
+	 * After all loaders complete, walks every entry's data to find reference objects
+	 * (`{ id, collection }`) and checks that the referenced entry exists in the store.
+	 * This replaces the inline Zod validation that was removed in the Zod 4 upgrade.
+	 */
+	#validateReferences(collections: Record<string, any>, logger: { error(message: string): void }) {
+		const collectionNames = new Set(Object.keys(collections));
+		for (const collectionName of collectionNames) {
+			for (const entry of this.#store.values(collectionName)) {
+				if (entry?.data) {
+					this.#findInvalidReferences(
+						entry.data,
+						collectionNames,
+						collectionName,
+						entry.id,
+						logger,
+						'',
+					);
+				}
+			}
+		}
+	}
+
+	#findInvalidReferences(
+		value: unknown,
+		collectionNames: Set<string>,
+		ownerCollection: string,
+		ownerId: string,
+		logger: { error(message: string): void },
+		path: string,
+	) {
+		if (value == null || typeof value !== 'object') return;
+
+		if (Array.isArray(value)) {
+			for (let i = 0; i < value.length; i++) {
+				this.#findInvalidReferences(
+					value[i],
+					collectionNames,
+					ownerCollection,
+					ownerId,
+					logger,
+					`${path}[${i}]`,
+				);
+			}
+			return;
+		}
+
+		const obj = value as Record<string, unknown>;
+		// A reference object has `id` (or `slug`) and `collection` string fields
+		if (typeof obj.collection === 'string' && collectionNames.has(obj.collection)) {
+			const refId =
+				typeof obj.id === 'string' ? obj.id : typeof obj.slug === 'string' ? obj.slug : undefined;
+			if (refId !== undefined && !this.#store.has(obj.collection, refId)) {
+				const fieldPath = path ? ` (field: ${path})` : '';
+				logger.error(
+					`Invalid content reference: entry "${ownerId}" in collection "${ownerCollection}"${fieldPath} references "${refId}" in collection "${obj.collection}", but that entry does not exist.`,
+				);
+			}
+			return;
+		}
+
+		for (const [key, val] of Object.entries(obj)) {
+			this.#findInvalidReferences(
+				val,
+				collectionNames,
+				ownerCollection,
+				ownerId,
+				logger,
+				path ? `${path}.${key}` : key,
+			);
 		}
 	}
 
@@ -451,29 +539,3 @@ async function simpleLoader<TData extends { id: string }>(
 		),
 	});
 }
-/**
- * Get the path to the data store file.
- * During development, this is in the `.astro` directory so that the Vite watcher can see it.
- * In production, it's in the cache directory so that it's preserved between builds.
- */
-export function getDataStoreFile(settings: AstroSettings, isDev: boolean) {
-	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
-}
-
-function contentLayerSingleton() {
-	let instance: ContentLayer | null = null;
-	return {
-		init: (options: ContentLayerOptions) => {
-			instance?.dispose();
-			instance = new ContentLayer(options);
-			return instance;
-		},
-		get: () => instance,
-		dispose: () => {
-			instance?.dispose();
-			instance = null;
-		},
-	};
-}
-
-export const globalContentLayer = contentLayerSingleton();

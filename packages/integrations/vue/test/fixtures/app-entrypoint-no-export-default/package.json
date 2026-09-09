@@ -8,7 +8,7 @@
   "dependencies": {
     "@astrojs/vue": "workspace:*",
     "astro": "workspace:*",
-    "vite-svg-loader": "5.1.0",
-    "vue": "^3.5.28"
+    "vite-svg-loader": "5.1.1",
+    "vue": "^3.5.30"
   }
 }

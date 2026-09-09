@@ -1,5 +1,6 @@
 import { extname } from 'node:path';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
+import { createContentDataIncrementalMetadata } from '../core/build/incremental-metadata.js';
 import type { AssetsPrefix } from '../core/app/types.js';
 import { fileExtension } from '../core/path.js';
 import { fileURLToPath } from 'node:url';
@@ -25,8 +26,13 @@ import { isAstroServerEnvironment } from '../environments.js';
 
 export function astroContentAssetPropagationPlugin({
 	settings,
+	cssContentCache,
 }: {
 	settings: AstroSettings;
+	/** Shared cache of CSS content populated by the dev-css plugin's transform hook.
+	 *  Used to retrieve already-processed CSS for CSS modules without re-importing
+	 *  via `?inline`, which would produce different scoped-name hashes with Lightning CSS. */
+	cssContentCache?: Map<string, string>;
 }): Plugin {
 	let environment: RunnableDevEnvironment | undefined = undefined;
 	return {
@@ -53,6 +59,11 @@ export function astroContentAssetPropagationPlugin({
 							message: AstroErrorData.ImageNotFound.message(base),
 						});
 					}
+					// Preserve the content image flag in the resolved ID so that downstream plugins
+					// (e.g. astro:assets:esm) can detect content collection images and avoid creating
+					// full SVG components, which would import from the server runtime and cause a
+					// circular module dependency deadlock when combined with top-level await (TLA).
+					resolved.id = `${resolved.id}?${CONTENT_IMAGE_FLAG}`;
 					return resolved;
 				}
 				if (hasContentFlag(id, CONTENT_RENDER_FLAG)) {
@@ -73,10 +84,19 @@ export function astroContentAssetPropagationPlugin({
 			},
 		},
 		configureServer(server) {
-			if (!isRunnableDevEnvironment(server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
-				return;
+			const ssrEnv = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+			if (isRunnableDevEnvironment(ssrEnv)) {
+				environment = ssrEnv;
+			} else if (
+				isRunnableDevEnvironment(server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.astro])
+			) {
+				// When the ssr environment is not a RunnableDevEnvironment (e.g. when using the
+				// Cloudflare adapter which runs ssr in workerd), fall back to the 'astro' environment
+				// which is always a RunnableDevEnvironment available in dev.
+				environment = server.environments[
+					ASTRO_VITE_ENVIRONMENT_NAMES.astro
+				] as RunnableDevEnvironment;
 			}
-			environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as RunnableDevEnvironment;
 		},
 		transform: {
 			filter: {
@@ -91,13 +111,17 @@ export function astroContentAssetPropagationPlugin({
 					// so resolve collected styles and scripts here.
 					if (isAstroServerEnvironment(this.environment) && environment) {
 						if (!environment.moduleGraph.getModuleById(basePath)?.ssrModule) {
-							await environment.runner.import(basePath);
+							// Ignore errors here — when using a fallback environment (e.g. the 'astro'
+							// env when Cloudflare's ssr env is non-runnable), the module may already be
+							// loaded in the fallback env's graph even if this import throws due to
+							// concurrent bundle editing.
+							await environment.runner.import(basePath).catch(() => {});
 						}
 						const {
 							styles,
 							urls,
 							crawledFiles: styleCrawledFiles,
-						} = await getStylesForURL(basePath, environment);
+						} = await getStylesForURL(basePath, environment, cssContentCache);
 
 						// Register files we crawled to be able to retrieve the rendered styles and scripts,
 						// as when they get updated, we need to re-transform ourselves.
@@ -120,6 +144,7 @@ export function astroContentAssetPropagationPlugin({
 					}
 
 					const code = `
+					"use astro:head-inject";
 					async function getMod() {
 						return import(${JSON.stringify(basePath)});
 					}
@@ -130,7 +155,11 @@ export function astroContentAssetPropagationPlugin({
 				`;
 					// ^ Use a default export for tools like Markdoc
 					// to catch the `__astroPropagation` identifier
-					return { code, map: { mappings: '' } };
+					return {
+						code,
+						map: { mappings: '' },
+						meta: createContentDataIncrementalMetadata(),
+					};
 				}
 			},
 		},
@@ -148,6 +177,7 @@ const INLINE_QUERY_REGEX = /(?:\?|&)inline(?:$|&)/;
 async function getStylesForURL(
 	filePath: string,
 	environment: RunnableDevEnvironment,
+	cssContentCache?: Map<string, string>,
 ): Promise<{ urls: Set<string>; styles: ImportedDevStyle[]; crawledFiles: Set<string> }> {
 	const importedCssUrls = new Set<string>();
 	// Map of url to injected style object. Use a `url` key to deduplicate styles
@@ -164,6 +194,13 @@ async function getStylesForURL(
 			// If this is a plain CSS module, the default export should be a string
 			if (typeof importedModule.ssrModule?.default === 'string') {
 				css = importedModule.ssrModule.default;
+			}
+			// Check the shared CSS content cache (populated by the dev-css plugin's
+			// transform hook). This avoids re-importing with `?inline`, which causes
+			// Lightning CSS to compute a different scoped-name hash because the
+			// `?inline` suffix changes the filename passed to the hasher.
+			else if (importedModule.id && cssContentCache?.has(importedModule.id)) {
+				css = cssContentCache.get(importedModule.id)!;
 			}
 			// Else try to load it
 			else {

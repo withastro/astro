@@ -6,6 +6,7 @@ import Hello from '../components/Hello.jsx';
 import PropsSpread from '../components/PropsSpread.jsx';
 import Pure from '../components/Pure.jsx';
 import {Research2} from '../components/Research.jsx';
+import Span from '../components/Span.jsx';
 import TypeScriptComponent from '../components/TypeScriptComponent';
 import WithChildren from '../components/WithChildren';
 import WithId from '../components/WithId';
@@ -37,5 +38,7 @@ const someProps = {
 		<WithChildren client:load children="test" />
 		<WithId client:idle />
 		<WithId client:idle />
+		<Span id="true" attr={true} />
+		<Span id="false" attr={false} />
   </body>
 </html>

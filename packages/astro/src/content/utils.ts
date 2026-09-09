@@ -1,16 +1,15 @@
 import fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { parseFrontmatter } from '@astrojs/markdown-remark';
+import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
 import { slug as githubSlug } from 'github-slugger';
 import colors from 'piccolore';
-import type { PluginContext } from 'rollup';
-import type { RunnableDevEnvironment } from 'vite';
+import type { RunnableDevEnvironment, Rolldown } from 'vite';
 import xxhash from 'xxhash-wasm';
 import * as z from 'zod/v4';
 import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -23,7 +22,6 @@ import {
 	DEFERRED_MODULE,
 	IMAGE_IMPORT_PREFIX,
 	LIVE_CONTENT_TYPE,
-	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
 import { glob, secretLegacyFlag } from './loaders/glob.js';
 import type { LoaderContext } from './loaders/types.js';
@@ -54,79 +52,83 @@ export const loaderReturnSchema = z.union([
 	),
 ]);
 
-const collectionConfigParser = z.union([
-	z.object({
-		type: z.literal('content').optional(),
-		schema: z.any().optional(),
-		loader: z.never().optional(),
-	}),
-	z.object({
-		type: z.literal('data').optional(),
-		schema: z.any().optional(),
-		loader: z.never().optional(),
-	}),
-	z.object({
-		type: z.literal(CONTENT_LAYER_TYPE),
-		schema: z.any().optional(),
-		loader: z.union([
-			z.function(),
-			z.object({
-				name: z.string(),
-				load: z.function({
-					input: [z.custom<LoaderContext>()],
-					output: z.custom<{
-						schema?: any;
-						types?: string;
-					} | void>(),
+function contentConfigParser(logger: AstroLogger) {
+	return z.object({
+		collections: z.record(
+			z.string(),
+			z.union([
+				z.object({
+					type: z.literal('content').optional(),
+					schema: z.any().optional(),
+					loader: z.never().optional(),
 				}),
-				schema: z
-					.any()
-					.transform((v) => {
-						if (typeof v === 'function') {
-							console.warn(
-								`Your loader's schema is defined using a function. This is no longer supported and the schema will be ignored. Please update your loader to use the \`createSchema()\` utility instead, or report this to the loader author. In a future major version, this will cause the loader to break entirely.`,
-							);
-							return undefined;
-						}
-						return v;
-					})
-					.superRefine((v, ctx) => {
-						if (v !== undefined && !('_zod' in v)) {
-							ctx.addIssue({
-								code: z.ZodIssueCode.custom,
-								message: 'Invalid Zod schema',
-							});
-							return z.NEVER;
-						}
-					})
-					.optional(),
-				createSchema: z
-					.function({
-						input: [],
-						output: z.promise(
-							z.object({
-								schema: z.custom<z.ZodSchema>((v: any) => '_zod' in v),
-								types: z.string(),
+				z.object({
+					type: z.literal('data').optional(),
+					schema: z.any().optional(),
+					loader: z.never().optional(),
+				}),
+				z.object({
+					type: z.literal(CONTENT_LAYER_TYPE),
+					schema: z.any().optional(),
+					loader: z.union([
+						z.function(),
+						z.object({
+							name: z.string(),
+							load: z.function({
+								input: [z.custom<LoaderContext>()],
+								output: z.custom<{
+									schema?: any;
+									types?: string;
+								} | void>(),
 							}),
-						),
-					})
-					.optional(),
-			}),
-		]),
-	}),
-	z.object({
-		type: z.literal(LIVE_CONTENT_TYPE).optional().default(LIVE_CONTENT_TYPE),
-		schema: z.any().optional(),
-		loader: z.function(),
-	}),
-]);
+							schema: z
+								.any()
+								.transform((v) => {
+									if (typeof v === 'function') {
+										logger.warn(
+											'content',
+											`Your loader's schema is defined using a function. This is no longer supported and the schema will be ignored. Please update your loader to use the \`createSchema()\` utility instead, or report this to the loader author. In a future major version, this will cause the loader to break entirely.`,
+										);
+										return undefined;
+									}
+									return v;
+								})
+								.superRefine((v, ctx) => {
+									if (v !== undefined && !('_zod' in v)) {
+										ctx.addIssue({
+											code: z.ZodIssueCode.custom,
+											message: 'Invalid Zod schema',
+										});
+										return z.NEVER;
+									}
+								})
+								.optional(),
+							createSchema: z
+								.function({
+									input: [],
+									output: z.promise(
+										z.object({
+											schema: z.custom<z.ZodSchema>((v: any) => '_zod' in v),
+											types: z.string(),
+										}),
+									),
+								})
+								.optional(),
+						}),
+					]),
+				}),
+				z.object({
+					type: z.literal(LIVE_CONTENT_TYPE).optional().default(LIVE_CONTENT_TYPE),
+					schema: z.any().optional(),
+					loader: z.function(),
+				}),
+			]),
+		),
+	});
+}
 
-const contentConfigParser = z.object({
-	collections: z.record(z.string(), collectionConfigParser),
-});
-
-export type CollectionConfig = z.infer<typeof collectionConfigParser>;
-export type ContentConfig = z.infer<typeof contentConfigParser> & { digest?: string };
+export type ContentConfig = z.infer<ReturnType<typeof contentConfigParser>> & { digest?: string };
+export type CollectionConfig = ContentConfig['collections'][string];
 
 type EntryInternal = { rawData: string | undefined; filePath: string };
 
@@ -163,7 +165,7 @@ export async function getEntryData<
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
-	pluginContext?: PluginContext,
+	pluginContext?: Rolldown.PluginContext,
 ): Promise<TOutputData> {
 	let data = entry.unvalidatedData as TOutputData;
 
@@ -194,7 +196,7 @@ export async function getEntryData<
 							const resolvedPath = path.resolve(entryDir, val);
 
 							// If the file exists, normalize to relative path
-							// Otherwise keep as-is (likely a Vite alias)
+							// Otherwise, keep as-is (likely a Vite alias)
 							if (fsMod.existsSync(resolvedPath)) {
 								normalizedPath = `./${val}`;
 							}
@@ -270,7 +272,7 @@ export async function getSymlinkedContentCollections({
 	fs,
 }: {
 	contentDir: URL;
-	logger: Logger;
+	logger: AstroLogger;
 	fs: typeof fsMod;
 }): Promise<Map<string, string>> {
 	const contentPaths = new Map<string, string>();
@@ -494,10 +496,12 @@ async function loadContentConfig({
 	fs,
 	settings,
 	environment,
+	logger,
 }: {
 	fs: typeof fsMod;
 	settings: AstroSettings;
 	environment: RunnableDevEnvironment;
+	logger: AstroLogger;
 }): Promise<ContentConfig | undefined> {
 	const contentPaths = getContentPaths(
 		settings.config,
@@ -510,7 +514,7 @@ async function loadContentConfig({
 	const configPathname = fileURLToPath(contentPaths.config.url);
 	const unparsedConfig = await environment.runner.import(configPathname);
 
-	const config = contentConfigParser.safeParse(unparsedConfig);
+	const config = contentConfigParser(logger).safeParse(unparsedConfig);
 	if (config.success) {
 		// Generate a digest of the config file so we can invalidate the cache if it changes
 		const hasher = await xxhash();
@@ -520,9 +524,7 @@ async function loadContentConfig({
 		const message = config.error.issues
 			.map((issue) => `  → ${colors.green(issue.path.join('.'))}: ${colors.red(issue.message)}`)
 			.join('\n');
-		console.error(
-			`${colors.green('[content]')} There was a problem with your content config:\n\n${message}\n`,
-		);
+		logger.error('content', `There was a problem with your content config:\n\n${message}\n`);
 		const liveCollections = Object.entries(unparsedConfig.collections ?? {}).filter(
 			([, collection]: [string, any]) => collection?.type === LIVE_CONTENT_TYPE,
 		);
@@ -543,10 +545,12 @@ async function autogenerateCollections({
 	config,
 	settings,
 	fs,
+	logger,
 }: {
 	config?: ContentConfig;
 	settings: AstroSettings;
 	fs: typeof fsMod;
+	logger: AstroLogger;
 }): Promise<ContentConfig | undefined> {
 	if (!config) {
 		return config;
@@ -612,7 +616,8 @@ async function autogenerateCollections({
 		}
 
 		if (orphanedCollections.length > 0) {
-			console.warn(
+			logger.warn(
+				'SKIP_FORMAT',
 				`
 Auto-generating collections for folders in "src/content/" that are not defined as collections.
 This is deprecated, so you should define these collections yourself in "src/content.config.ts".
@@ -634,6 +639,7 @@ export async function reloadContentConfigObserver({
 	settings: AstroSettings;
 	environment: RunnableDevEnvironment;
 	observer?: ContentObservable;
+	logger: AstroLogger;
 }) {
 	observer.set({ status: 'loading' });
 	try {
@@ -852,14 +858,6 @@ function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): stri
 		`!${contentDir}**/_*/**/*${extGlob}`,
 		`!${contentDir}**/_*${extGlob}`,
 	];
-}
-
-export function hasAssetPropagationFlag(id: string): boolean {
-	try {
-		return new URL(id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG);
-	} catch {
-		return false;
-	}
 }
 
 /**

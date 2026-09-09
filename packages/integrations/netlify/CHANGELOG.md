@@ -1,5 +1,478 @@
 # @astrojs/netlify
 
+## 8.2.5
+
+### Patch Changes
+
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.4
+
+### Patch Changes
+
+- [#17752](https://github.com/withastro/astro/pull/17752) [`e362d4c`](https://github.com/withastro/astro/commit/e362d4cf540b27730482455c8fc02efe57d16702) Thanks [@matthewp](https://github.com/matthewp)! - Fixes generated Netlify Image CDN allowlists to reject remote URLs that contain an allowed image origin only within their path or query string
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.3
+
+### Patch Changes
+
+- Updated dependencies [[`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527)]:
+  - @astrojs/internal-helpers@0.10.4
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.2
+
+### Patch Changes
+
+- Updated dependencies [[`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277)]:
+  - @astrojs/internal-helpers@0.10.3
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`0891ac9`](https://github.com/withastro/astro/commit/0891ac9de5a6996e5ebd227e3443f7f4a4ea935a)]:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.0
+
+### Minor Changes
+
+- [#16871](https://github.com/withastro/astro/pull/16871) [`90c98ae`](https://github.com/withastro/astro/commit/90c98ae21ef0444a4088b7081676b0f97915001f) Thanks [@adamchal](https://github.com/adamchal)! - When `session: false` is set in `astro.config`, the adapter no longer auto-wires the Netlify Blobs session driver. Combined with the matching `astro` change, this lets the session runtime tree-shake out of the function bundle.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 8.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+  - @astrojs/underscore-redirects@1.0.3
+
+## 8.1.2
+
+### Patch Changes
+
+- [#17368](https://github.com/withastro/astro/pull/17368) [`ee74c28`](https://github.com/withastro/astro/commit/ee74c289bfe32fb6a7f59ed97c5c22db16394b72) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the generated Netlify Image CDN `remote_images` patterns so that regex metacharacters (such as `.`) in `image.remotePatterns` (`hostname`, `pathname`) and `image.domains` are matched literally instead of behaving like wildcards. This makes the generated patterns consistent with how Astro matches these values elsewhere.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c)]:
+  - @astrojs/internal-helpers@0.10.1
+  - @astrojs/underscore-redirects@1.0.3
+
+## 8.1.0
+
+### Minor Changes
+
+- [#17245](https://github.com/withastro/astro/pull/17245) [`f56d9e7`](https://github.com/withastro/astro/commit/f56d9e7eb46ca59e70f636cb8cd281bdf41971c4) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Adds `edgeFunctions` to the `devFeatures` adapter option, allowing users to disable Netlify Edge Function emulation during `astro dev`
+
+  Some npm packages that access the filesystem at initialization (e.g. `node-html-parser`) fail inside the edge function sandbox with "Reading or writing files with Edge Functions is not supported yet." You can now disable edge function emulation to avoid this error:
+
+  ```js
+  import netlify from '@astrojs/netlify';
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    adapter: netlify({
+      devFeatures: {
+        edgeFunctions: false,
+      },
+    }),
+  });
+  ```
+
+  Edge functions will still work in production builds and via `netlify dev`.
+
+### Patch Changes
+
+- [#17249](https://github.com/withastro/astro/pull/17249) [`02b73b0`](https://github.com/withastro/astro/commit/02b73b0fc2e32102e788fd9031ce061337490a73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `peerDependencies` field used incorrect dependencies.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 8.0.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Minor Changes
+
+- [#16335](https://github.com/withastro/astro/pull/16335) [`9a53f77`](https://github.com/withastro/astro/commit/9a53f77d35e76bcb0165b44cbd2b7e48d48c9f59) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds a CDN cache provider for Astro [route caching](https://docs.astro.build/en/guides/caching/) on Netlify
+
+  #### Setup
+
+  Import `cacheNetlify()` from `@astrojs/netlify/cache` and set it as your cache provider:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify';
+  import { cacheNetlify } from '@astrojs/netlify/cache';
+
+  export default defineConfig({
+    adapter: netlify(),
+    cache: {
+      provider: cacheNetlify(),
+    },
+  });
+  ```
+
+  #### Caching responses
+
+  Use `Astro.cache.set()` in your pages and API routes to cache responses on Netlify's edge network. The provider uses [Netlify's durable cache](https://docs.netlify.com/platform/caching/#durable-directive) so cached responses are shared across all edge nodes, reducing function invocations.
+
+  ```astro
+  ---
+  Astro.cache.set({ maxAge: 300, tags: ['products'] });
+  const data = await fetchProducts();
+  ---
+
+  <ProductList items={data} />
+  ```
+
+  You can also set cache rules for groups of routes in your config:
+
+  ```js
+  cache: { provider: cacheNetlify() },
+  routeRules: {
+    '/products/[...slug]': { maxAge: 3600, tags: ['products'] },
+    '/api/[...path]': { maxAge: 60, swr: 600 },
+  },
+  ```
+
+  #### Invalidation
+
+  Purge cached responses by tag or path from any API route or server endpoint:
+
+  ```ts
+  // src/pages/api/purge.ts
+  export async function POST({ request, cache }) {
+    await cache.invalidate({ tags: ['products'] });
+    return new Response('Purged');
+  }
+
+  // Path-based invalidation
+  await cache.invalidate({ path: '/products/123' });
+  ```
+
+  Both tag-based and path-based invalidation are supported.
+
+### Patch Changes
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 8.0.0-beta.1
+
+### Patch Changes
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+## 8.0.0-alpha.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Patch Changes
+
+- Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
+  - astro@7.0.0-alpha.0
+
+## 7.0.13
+
+### Patch Changes
+
+- [#17018](https://github.com/withastro/astro/pull/17018) [`1310277`](https://github.com/withastro/astro/commit/1310277db33cd93aa99e87492650c633af0fe257) Thanks [@matthewp](https://github.com/matthewp)! - Hardens `remotePatterns` regex generation to match canonical wildcard semantics more strictly
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.12
+
+### Patch Changes
+
+- [#16693](https://github.com/withastro/astro/pull/16693) [`9e6edc2`](https://github.com/withastro/astro/commit/9e6edc2da5ccf06243588a7f519dea5fbcc126cd) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes a link in the documentation specifying where to open an issue for the adapter.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.11
+
+### Patch Changes
+
+- Updated dependencies [[`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc)]:
+  - @astrojs/internal-helpers@0.10.0
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.10
+
+### Patch Changes
+
+- [#16661](https://github.com/withastro/astro/pull/16661) [`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0) Thanks [@ocavue](https://github.com/ocavue)! - Updates `typescript` to v6. No changes are needed from users.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.9
+
+### Patch Changes
+
+- [#16716](https://github.com/withastro/astro/pull/16716) [`04fdbb2`](https://github.com/withastro/astro/commit/04fdbb29978d5a00acfb956538e54256ae24b486) Thanks [@delucis](https://github.com/delucis)! - Updates internal dependencies
+
+- Updated dependencies [[`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce)]:
+  - @astrojs/internal-helpers@0.9.1
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.8
+
+### Patch Changes
+
+- Updated dependencies [[`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd), [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d)]:
+  - @astrojs/internal-helpers@0.9.0
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.7
+
+### Patch Changes
+
+- [#16027](https://github.com/withastro/astro/pull/16027) [`c62516b`](https://github.com/withastro/astro/commit/c62516bbbf8fdf95d38293440d28221c048c41f0) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fixes a bug where remote image dimensions were not validated during static builds on Netlify.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.6
+
+### Patch Changes
+
+- Updated dependencies [[`814406d`](https://github.com/withastro/astro/commit/814406de7dc3ea014b47d2d886d55c45e4e1c034)]:
+  - @astrojs/underscore-redirects@1.0.3
+
+## 7.0.5
+
+### Patch Changes
+
+- [#16063](https://github.com/withastro/astro/pull/16063) [`ccb6a9c`](https://github.com/withastro/astro/commit/ccb6a9c918c1747ffab905af1492c45e5ca65f4b) Thanks [@matthewp](https://github.com/matthewp)! - Fixes server islands returning 404 in production when using `output: 'static'` (the default)
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.2
+
+## 7.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`3b8d473`](https://github.com/withastro/astro/commit/3b8d473768bf7d356a21a0a432e6a33f90928a9e)]:
+  - @astrojs/underscore-redirects@1.0.2
+
+## 7.0.3
+
+### Patch Changes
+
+- [#15934](https://github.com/withastro/astro/pull/15934) [`6f8f0bc`](https://github.com/withastro/astro/commit/6f8f0bc4e22e958ccc2164acb1aa8cce21c43148) Thanks [@ematipico](https://github.com/ematipico)! - Updates the Astro `peerDependencies#astro` to be `6.0.0`.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.1
+
+## 7.0.2
+
+### Patch Changes
+
+- [#15868](https://github.com/withastro/astro/pull/15868) [`bb2b8f5`](https://github.com/withastro/astro/commit/bb2b8f5cd3c9f3140b4bb0fb5a1d4c62b41883b8) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the adapter would cause a series of warnings during the build.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.1
+
+## 7.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`e20474b`](https://github.com/withastro/astro/commit/e20474b98c6d868ed9734f7eeb7564bffe8bfd77)]:
+  - @astrojs/underscore-redirects@1.0.1
+
+## 7.0.0
+
+### Major Changes
+
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
+
+### Minor Changes
+
+- [#15258](https://github.com/withastro/astro/pull/15258) [`d339a18`](https://github.com/withastro/astro/commit/d339a182b387a7a1b0d5dd0d67a0638aaa2b4262) Thanks [@ematipico](https://github.com/ematipico)! - Stabilizes the adapter feature `experimentalStatiHeaders`. If you were using this feature in any of the supported adapters, you'll need to change the name of the flag:
+
+  ```diff
+  export default defineConfig({
+    adapter: netlify({
+  -    experimentalStaticHeaders: true
+  +    staticHeaders: true
+    })
+  })
+  ```
+
+- [#15809](https://github.com/withastro/astro/pull/15809) [`94b4a46`](https://github.com/withastro/astro/commit/94b4a465f12e89b018bf120c9b163fc567aa0e84) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds support for the `fit` option to the image service
+
+- [#15495](https://github.com/withastro/astro/pull/15495) [`5b99e90`](https://github.com/withastro/astro/commit/5b99e9077a92602f1e46e9b6eb9094bcd00c640e) Thanks [@leekeh](https://github.com/leekeh)! - Adds new `middlewareMode` adapter feature and deprecates `edgeMiddleware` option
+
+  The `edgeMiddleware` option is now deprecated and will be removed in a future major release, so users should transition to using the new `middlewareMode` feature as soon as possible.
+
+  ```diff
+  export default defineConfig({
+    adapter: netlify({
+  -    edgeMiddleware: true
+  +    middlewareMode: 'edge'
+    })
+  })
+  ```
+
+- [#15006](https://github.com/withastro/astro/pull/15006) [`f361730`](https://github.com/withastro/astro/commit/f361730bc820c01a2ec3e508ac940be8077d8c04) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds new session driver object shape
+
+  For greater flexibility and improved consistency with other Astro code, session drivers are now specified as an object:
+
+  ```diff
+  -import { defineConfig } from 'astro/config'
+  +import { defineConfig, sessionDrivers } from 'astro/config'
+
+  export default defineConfig({
+    session: {
+  -    driver: 'redis',
+  -    options: {
+  -      url: process.env.REDIS_URL
+  -    },
+  +    driver: sessionDrivers.redis({
+  +      url: process.env.REDIS_URL
+  +    }),
+    }
+  })
+  ```
+
+  Specifying the session driver as a string has been deprecated, but will continue to work until this feature is removed completely in a future major version. The object shape is the current recommended and documented way to configure a session driver.
+
+- [#15413](https://github.com/withastro/astro/pull/15413) [`736216b`](https://github.com/withastro/astro/commit/736216b2c46f758c6b4a607ccfadcc191c1d56b4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the implementation to use the new Adapter API
+
+- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- [#15781](https://github.com/withastro/astro/pull/15781) [`2de969d`](https://github.com/withastro/astro/commit/2de969d1f5279d2d0f3024208146f9cd895267b6) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new `clientAddress` option to the `createContext()` function
+
+  Providing this value gives adapter and middleware authors explicit control over the client IP address. When not provided, accessing `clientAddress` throws an error consistent with other contexts where it is not set by the adapter.
+
+  Additionally, both of the official Netlify and Vercel adapters have been updated to provide this information in their edge middleware.
+
+  ```js
+  import { createContext } from 'astro/middleware';
+
+  createContext({
+    clientAddress: context.headers.get('x-real-ip'),
+  });
+  ```
+
+- [#15665](https://github.com/withastro/astro/pull/15665) [`52a7efd`](https://github.com/withastro/astro/commit/52a7efdde4c46e2b40b10f78ebb4a812e5d5b82f) Thanks [@matthewp](https://github.com/matthewp)! - Fixes builds that were failing with "Entry module cannot be external" error when using the Netlify adapter
+
+  This error was preventing sites from building after recent internal changes. Your builds should now work as expected without any changes to your code.
+
+- [#15679](https://github.com/withastro/astro/pull/15679) [`19ba822`](https://github.com/withastro/astro/commit/19ba8221bbdb1169568c80443eb3c509c688193d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes server-rendered routes returning 404 errors
+
+  A configuration error in the build output prevented Netlify from correctly routing requests to server-rendered pages, causing them to return 404 errors. This fix ensures that all server routes are properly handled by the Netlify SSR function.
+
+- [#15809](https://github.com/withastro/astro/pull/15809) [`94b4a46`](https://github.com/withastro/astro/commit/94b4a465f12e89b018bf120c9b163fc567aa0e84) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes the image CDN being used in development despite being disabled in certain cases
+
+- [#15460](https://github.com/withastro/astro/pull/15460) [`ee7e53f`](https://github.com/withastro/astro/commit/ee7e53f9de2338517e149895efd26fca44ad80b6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates to use the new Adapter API
+
+- [#15450](https://github.com/withastro/astro/pull/15450) [`50c9129`](https://github.com/withastro/astro/commit/50c912978cca4afbe4b3ebd11c30305d5e9c8315) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `build.serverEntry` would not be respected when using the new Adapter API
+
+- [#15461](https://github.com/withastro/astro/pull/15461) [`9f21b24`](https://github.com/withastro/astro/commit/9f21b243d21478cdc5fb0193e05adad8e753839f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates to new Adapter API introduced in v6
+
+- Updated dependencies [[`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56), [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529), [`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`cf6ea6b`](https://github.com/withastro/astro/commit/cf6ea6b36b67c7712395ed3f9ca19cb14ba1a013), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da), [`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd), [`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0
+  - @astrojs/underscore-redirects@1.0.0
+
+## 7.0.0-beta.14
+
+### Patch Changes
+
+- [#15781](https://github.com/withastro/astro/pull/15781) [`2de969d`](https://github.com/withastro/astro/commit/2de969d1f5279d2d0f3024208146f9cd895267b6) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new `clientAddress` option to the `createContext()` function
+
+  Providing this value gives adapter and middleware authors explicit control over the client IP address. When not provided, accessing `clientAddress` throws an error consistent with other contexts where it is not set by the adapter.
+
+  Additionally, both of the official Netlify and Vercel adapters have been updated to provide this information in their edge middleware.
+
+  ```js
+  import { createContext } from 'astro/middleware';
+
+  createContext({
+    clientAddress: context.headers.get('x-real-ip'),
+  });
+  ```
+
+- Updated dependencies [[`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56), [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529)]:
+  - @astrojs/internal-helpers@0.8.0-beta.3
+  - @astrojs/underscore-redirects@1.0.0
+
+## 7.0.0-beta.13
+
+### Patch Changes
+
+- Updated dependencies [[`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0-beta.2
+  - @astrojs/underscore-redirects@1.0.0
+
+## 7.0.0-beta.12
+
+### Minor Changes
+
+- [#15495](https://github.com/withastro/astro/pull/15495) [`5b99e90`](https://github.com/withastro/astro/commit/5b99e9077a92602f1e46e9b6eb9094bcd00c640e) Thanks [@leekeh](https://github.com/leekeh)! - Adds new `middlewareMode` adapter feature and deprecates `edgeMiddleware` option
+
+  The `edgeMiddleware` option is now deprecated and will be removed in a future major release, so users should transition to using the new `middlewareMode` feature as soon as possible.
+
+  ```diff
+  export default defineConfig({
+    adapter: netlify({
+  -    edgeMiddleware: true
+  +    middlewareMode: 'edge'
+    })
+  })
+  ```
+
+### Patch Changes
+
+- [#15679](https://github.com/withastro/astro/pull/15679) [`19ba822`](https://github.com/withastro/astro/commit/19ba8221bbdb1169568c80443eb3c509c688193d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes server-rendered routes returning 404 errors
+
+  A configuration error in the build output prevented Netlify from correctly routing requests to server-rendered pages, causing them to return 404 errors. This fix ensures that all server routes are properly handled by the Netlify SSR function.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 7.0.0-beta.11
+
+### Patch Changes
+
+- [#15665](https://github.com/withastro/astro/pull/15665) [`52a7efd`](https://github.com/withastro/astro/commit/52a7efdde4c46e2b40b10f78ebb4a812e5d5b82f) Thanks [@matthewp](https://github.com/matthewp)! - Fixes builds that were failing with "Entry module cannot be external" error when using the Netlify adapter
+
+  This error was preventing sites from building after recent internal changes. Your builds should now work as expected without any changes to your code.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 7.0.0-beta.10
 
 ### Patch Changes
@@ -102,7 +575,7 @@
 
 ### Minor Changes
 
-- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
 
 ### Patch Changes
 
@@ -113,7 +586,7 @@
 
 ### Major Changes
 
-- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
 
 ### Patch Changes
 
@@ -1031,7 +1504,7 @@ While not required for fully static, prerendered web sites, you may still wish t
   });
   ```
 
-  This adapter had several known limitations and compatibility issues that prevented many people from using it in production. To reduce maintenance costs and because we have a better story with Serveless + Edge Middleware, we are removing the Edge adapter.
+  This adapter had several known limitations and compatibility issues that prevented many people from using it in production. To reduce maintenance costs and because we have a better story with Serverless + Edge Middleware, we are removing the Edge adapter.
 
 ### Minor Changes
 
@@ -1133,7 +1606,7 @@ While not required for fully static, prerendered web sites, you may still wish t
   });
   ```
 
-  This adapter had several known limitations and compatibility issues that prevented many people from using it in production. To reduce maintenance costs and because we have a better story with Serveless + Edge Middleware, we are removing the Edge adapter.
+  This adapter had several known limitations and compatibility issues that prevented many people from using it in production. To reduce maintenance costs and because we have a better story with Serverless + Edge Middleware, we are removing the Edge adapter.
 
 ### Patch Changes
 
@@ -1676,7 +2149,7 @@ While not required for fully static, prerendered web sites, you may still wish t
 
   When using the `"server"` output target, you must also include a runtime adapter via the `adapter` configuration. An adapter will _adapt_ your final build to run on the deployed platform of your choice (Netlify, Vercel, Node.js, Deno, etc).
 
-  To migrate: No action is required for most users. If you currently define an `adapter`, you will need to also add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
+  To migrate: No action is required for most users. If you currently define an `adapter`, you will also need to add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
 
   ```diff
   import { defineConfig } from 'astro/config';

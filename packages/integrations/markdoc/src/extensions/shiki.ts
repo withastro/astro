@@ -1,4 +1,4 @@
-import { createShikiHighlighter } from '@astrojs/markdown-remark';
+import { createShikiHighlighter } from '@astrojs/internal-helpers/shiki';
 import Markdoc from '@markdoc/markdoc';
 import type { ShikiConfig } from 'astro';
 import { unescapeHTML } from 'astro/runtime/server/index.js';

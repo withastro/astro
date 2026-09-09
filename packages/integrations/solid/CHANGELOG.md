@@ -1,5 +1,91 @@
 # @astrojs/solid-js
 
+## 7.0.2
+
+### Patch Changes
+
+- [#17584](https://github.com/withastro/astro/pull/17584) [`5462b81`](https://github.com/withastro/astro/commit/5462b81b8c13552a78131494ccf649b2d92b2968) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes a build crash when a Solid island imports a package that ships pre-compiled browser artifacts via the `exports.solid` condition (e.g. `@kobalte/core`). Solid ecosystem packages are now bundled in non-client environments so that Vite resolves the correct export condition during prerendering.
+
+## 7.0.1
+
+### Patch Changes
+
+- [#17270](https://github.com/withastro/astro/pull/17270) [`0142964`](https://github.com/withastro/astro/commit/014296439e084384432e13f2e5b192b0f595045d) Thanks [@FrancoKaddour](https://github.com/FrancoKaddour)! - Fix `@astrojs/solid-js` incorrectly claiming Svelte 5 components compiled with the newer `$$renderer` prop (instead of the legacy `$$payload`). Projects mixing Solid and Svelte could see Svelte components silently rendered as empty strings by the Solid renderer.
+
+## 7.0.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Minor Changes
+
+- [#17093](https://github.com/withastro/astro/pull/17093) [`4585fe5`](https://github.com/withastro/astro/commit/4585fe57dda06226058118f90a809f9e33d4b2af) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Replaces the import entrypoint of `getContainerRenderer()`
+
+  A new `container-renderer` entrypoint exporting `getContainerRenderer()` has been added to the following integrations: React, Preact, Svelte, SolidJS, Vue, and MDX. This prevents bundlers from trying to bundle unrelated exports from the package root when only the Container API is used.
+
+  If you are using the Container API, update your import statements to use the new entrypoint. The following example updates the `getContainerRenderer()` import for React:
+
+  ```diff
+  - import { getContainerRenderer } from '@astrojs/react';
+  + import { getContainerRenderer } from '@astrojs/react/container-renderer';
+  ```
+
+  Importing `getContainerRenderer()` from the package root still works, but is now deprecated and logs a warning.
+
+### Patch Changes
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+## 7.0.0-beta.2
+
+### Minor Changes
+
+- [#17093](https://github.com/withastro/astro/pull/17093) [`4585fe5`](https://github.com/withastro/astro/commit/4585fe57dda06226058118f90a809f9e33d4b2af) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Replaces the import entrypoint of `getContainerRenderer()`
+
+  A new `container-renderer` entrypoint exporting `getContainerRenderer()` has been added to the following integrations: React, Preact, Svelte, SolidJS, Vue, and MDX. This prevents bundlers from trying to bundle unrelated exports from the package root when only the Container API is used.
+
+  If you are using the Container API, update your import statements to use the new entrypoint. The following example updates the `getContainerRenderer()` import for React:
+
+  ```diff
+  - import { getContainerRenderer } from '@astrojs/react';
+  + import { getContainerRenderer } from '@astrojs/react/container-renderer';
+  ```
+
+  Importing `getContainerRenderer()` from the package root still works, but is now deprecated and logs a warning.
+
+## 7.0.0-beta.1
+
+### Patch Changes
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+## 7.0.0-alpha.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+## 6.0.1
+
+### Patch Changes
+
+- [#15864](https://github.com/withastro/astro/pull/15864) [`d3c7de9`](https://github.com/withastro/astro/commit/d3c7de9253e9cb31fa5c4bf9f4bdf59dd1ada7b0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes temporary support for Node >=20.19.1 because Stackblitz now uses Node 22 by default
+
+## 6.0.0
+
+### Major Changes
+
+- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#node-22))
+
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- [#15264](https://github.com/withastro/astro/pull/15264) [`11efb05`](https://github.com/withastro/astro/commit/11efb058e85cda68f9a8e8f15a2c7edafe5a4789) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Lower the Node version requirement to allow running on Stackblitz until it supports v22
+
 ## 6.0.0-beta.2
 
 ### Patch Changes
@@ -16,9 +102,9 @@
 
 ### Major Changes
 
-- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#node-22))
+- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#node-22))
 
-- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
 
 ## 5.1.3
 

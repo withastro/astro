@@ -1,9 +1,10 @@
 import type * as fsMod from 'node:fs';
 import { extname } from 'node:path';
 import MagicString from 'magic-string';
+import picomatch from 'picomatch';
 import type * as vite from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import {
 	appendForwardSlash,
 	joinPaths,
@@ -11,13 +12,17 @@ import {
 	removeBase,
 	removeQueryString,
 } from '../core/path.js';
+import { recordStaticImage } from '../core/render-scope/record.js';
 import { normalizePath } from '../core/viteUtils.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
+	RESOLVED_VIRTUAL_GET_IMAGE_ID,
 	RESOLVED_VIRTUAL_IMAGE_STYLES_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VALID_INPUT_FORMATS,
+	VIRTUAL_GET_IMAGE_ID,
 	VIRTUAL_IMAGE_STYLES_ID,
 	VIRTUAL_MODULE_ID,
 	VIRTUAL_SERVICE_ID,
@@ -28,9 +33,11 @@ import type { ImageTransform } from './types.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 import { isESMImportedImage } from './utils/index.js';
 import { emitClientAsset } from './utils/assets.js';
-import { emitImageMetadata, hashTransform, propsToFilename } from './utils/node.js';
+import { hashTransform, propsToFilename } from './utils/hash.js';
+import { emitImageMetadata } from './utils/node.js';
+import { CONTENT_IMAGE_FLAG } from '../content/consts.js';
 import { getProxyCode } from './utils/proxy.js';
-import { makeSvgComponent } from './utils/svg.js';
+import { makeSvgComponent, parseSvgComponentData } from './svg/utils.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
 
 const assetRegex = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})`, 'i');
@@ -49,7 +56,7 @@ const addStaticImageFactory = (
 			>();
 		}
 
-		// Rollup will copy the file to the output directory, as such this is the path in the output directory, including the asset prefix / base
+		// Rolldown will copy the file to the output directory, as such this is the path in the output directory, including the asset prefix / base
 		const ESMImportedImageSrc = isESMImportedImage(options.src) ? options.src.src : options.src;
 		const fileExtension = extname(ESMImportedImageSrc);
 		const assetPrefix = getAssetsPrefix(fileExtension, settings.config.build.assetsPrefix);
@@ -91,6 +98,16 @@ const addStaticImageFactory = (
 			});
 		}
 
+		// Report every resolved transform (dedup hits included) so the incremental
+		// build cache can attribute it to the page currently rendering.
+		recordStaticImage({
+			originalPath: finalOriginalPath,
+			hash,
+			finalPath: finalFilePath,
+			originalSrcPath: originalFSPath,
+			transform: options,
+		});
+
 		// The paths here are used for URLs, so we need to make sure they have the proper format for an URL
 		// (leading slash, prefixed with the base / assets prefix, encoded, etc)
 		// Create URL object to safely manipulate and append assetQueryParams if available (for adapter-level tracking like skew protection)
@@ -110,10 +127,44 @@ const addStaticImageFactory = (
 	};
 };
 
+/**
+ * Emitted into the `astro:assets` virtual modules: the `AstroRuntimeLogger` handed to the
+ * image service hooks called by `getImage()` and `inferRemoteSize()`.
+ *
+ * The logger is built from `virtual:astro:logger` rather than the manifest, for the same
+ * reason `astro:content` does it (see `templates/content/module.mjs`): the logger module is
+ * a leaf, so reaching the user's configured destination through it cannot drag every
+ * renderer and page into the importer's module graph.
+ */
+const RUNTIME_LOGGER_SETUP = `
+	import { createConsoleLogger as _createConsoleLogger } from "astro/logger/console";
+	import _loggerDestination, { level as _loggerLevel } from "virtual:astro:logger";
+	const _astroLogger = _createConsoleLogger({ level: _loggerLevel });
+	if (_loggerDestination) _astroLogger.setDestination(_loggerDestination);
+	const _runtimeLogger = {
+		info: (message) => _astroLogger.info(null, message),
+		warn: (message) => _astroLogger.warn(null, message),
+		error: (message) => _astroLogger.error(null, message),
+	};
+`;
+
+/**
+ * The client build has no configured destination to reach — and pulling the logger
+ * implementation into it just to call `inferRemoteSize()` would be dead weight — so the
+ * browser gets a console shim instead.
+ */
+const CLIENT_RUNTIME_LOGGER_SETUP = `
+	const _runtimeLogger = {
+		info: (message) => console.info(message),
+		warn: (message) => console.warn(message),
+		error: (message) => console.error(message),
+	};
+`;
+
 interface Options {
 	settings: AstroSettings;
 	sync: boolean;
-	logger: Logger;
+	logger: AstroLogger;
 	fs: typeof fsMod;
 }
 
@@ -136,7 +187,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 			},
 			resolveId: {
 				filter: {
-					id: new RegExp(`^(${VIRTUAL_SERVICE_ID}|${VIRTUAL_MODULE_ID})$`),
+					id: new RegExp(`^(${VIRTUAL_SERVICE_ID}|${VIRTUAL_MODULE_ID}|${VIRTUAL_GET_IMAGE_ID})$`),
 				},
 				async handler(id) {
 					if (id === VIRTUAL_SERVICE_ID) {
@@ -148,70 +199,123 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					if (id === VIRTUAL_MODULE_ID) {
 						return RESOLVED_VIRTUAL_MODULE_ID;
 					}
+					if (id === VIRTUAL_GET_IMAGE_ID) {
+						return RESOLVED_VIRTUAL_GET_IMAGE_ID;
+					}
 				},
 			},
 			load: {
 				filter: {
-					id: new RegExp(`^(${RESOLVED_VIRTUAL_MODULE_ID})$`),
+					id: new RegExp(`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_VIRTUAL_GET_IMAGE_ID})$`),
 				},
-				handler() {
+				handler(id) {
+					if (id === RESOLVED_VIRTUAL_GET_IMAGE_ID) {
+						// Lightweight module exporting only getImage + imageConfig.
+						// No component references (Image, Picture, Font) to avoid TDZ
+						// errors when the content runtime and component pages are
+						// bundled into the same prerender chunk (see #16036).
+						const isServerEnvironment = isAstroServerEnvironment(this.environment);
+						const getImageExport = isServerEnvironment
+							? `${RUNTIME_LOGGER_SETUP}
+								import { getImage as getImageInternal } from "astro/assets";
+								export const getImage = async (options) => await getImageInternal(options, imageConfig, _runtimeLogger);`
+							: `import { AstroError, AstroErrorData } from "astro/errors";
+								export const getImage = async () => {
+									throw new AstroError(
+										AstroErrorData.GetImageNotUsedOnServer.message,
+										AstroErrorData.GetImageNotUsedOnServer.hint,
+									);
+								};`;
+
+						const assetQueryParams = settings.adapter?.client?.assetQueryParams
+							? `new URLSearchParams(${JSON.stringify(
+									Array.from(settings.adapter.client.assetQueryParams.entries()),
+								)})`
+							: 'undefined';
+
+						return {
+							code: `
+								export const imageConfig = ${JSON.stringify(settings.config.image)};
+								Object.defineProperty(imageConfig, 'assetQueryParams', {
+									value: ${assetQueryParams},
+									enumerable: false,
+									configurable: true,
+								});
+								${getImageExport}
+							`,
+						};
+					}
+					const isServerEnvironment = isAstroServerEnvironment(this.environment);
+					const getImageExport = isServerEnvironment
+						? `import { getImage as getImageInternal } from "astro/assets";
+							export const getImage = async (options) => await getImageInternal(options, imageConfig, _runtimeLogger);`
+						: `import { AstroError, AstroErrorData } from "astro/errors";
+							export const getImage = async () => {
+								throw new AstroError(
+									AstroErrorData.GetImageNotUsedOnServer.message,
+									AstroErrorData.GetImageNotUsedOnServer.hint,
+								);
+							};`;
+
 					return {
 						code: `
-						import { getConfiguredImageService as _getConfiguredImageService } from "astro/assets";
-						export { isLocalService } from "astro/assets";
-						import { getImage as getImageInternal } from "astro/assets";
-						${settings.config.image.responsiveStyles ? `import "${VIRTUAL_IMAGE_STYLES_ID}";` : ''}
-						export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
-						export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
-						import { inferRemoteSize as inferRemoteSizeInternal } from "astro/assets/utils/inferRemoteSize.js";
+				${isServerEnvironment ? RUNTIME_LOGGER_SETUP : CLIENT_RUNTIME_LOGGER_SETUP}
+				import { getConfiguredImageService as _getConfiguredImageService } from "astro/assets";
+				export { isLocalService } from "astro/assets";
+				${settings.config.image.responsiveStyles ? `import "${VIRTUAL_IMAGE_STYLES_ID}";` : ''}
+					export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
+					export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
+					import { inferRemoteSize as inferRemoteSizeInternal } from "astro/assets/utils/inferRemoteSize.js";
 
-						export { default as Font } from "astro/components/Font.astro";
-						export * from "${RUNTIME_VIRTUAL_MODULE_ID}";
-						
-						export const getConfiguredImageService = _getConfiguredImageService;
+					export { default as Font } from "astro/components/Font.astro";
+					export * from "${RUNTIME_VIRTUAL_MODULE_ID}";
 
-							export const viteFSConfig = ${JSON.stringify(resolvedConfig.server.fs ?? {})};
+					export const getConfiguredImageService = _getConfiguredImageService;
 
-						export const safeModulePaths = new Set(${JSON.stringify(
-							// @ts-expect-error safeModulePaths is internal to Vite
-							Array.from(resolvedConfig.safeModulePaths ?? []),
-						)});
+					export const viteFSConfig = ${JSON.stringify(resolvedConfig.server.fs ?? {})};
 
-						const assetQueryParams = ${
-							settings.adapter?.client?.assetQueryParams
-								? `new URLSearchParams(${JSON.stringify(
-										Array.from(settings.adapter.client.assetQueryParams.entries()),
-									)})`
-								: 'undefined'
-						};
-						export const imageConfig = ${JSON.stringify(settings.config.image)};
-						Object.defineProperty(imageConfig, 'assetQueryParams', {
-							value: assetQueryParams,
-							enumerable: false,
-							configurable: true,
-						});
-export const inferRemoteSize = async (url) => {
-                const service = await _getConfiguredImageService()
+					export const safeModulePaths = new Set(${JSON.stringify(
+						// @ts-expect-error safeModulePaths is internal to Vite
+						Array.from(resolvedConfig.safeModulePaths ?? []),
+					)});
 
-                return service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSizeInternal(url)
-              }						// This is used by the @astrojs/node integration to locate images.
-						// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
-						// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
-						// in the Lambda bundle, which would bloat the bundle with images.
-						// To prevent this, we mark the URL construction as pure,
-						// so that it's tree-shaken away for all platforms that don't need it.
-						export const outDir = /* #__PURE__ */ new URL(${JSON.stringify(
-							new URL(
-								settings.buildOutput === 'server'
-									? settings.config.build.client
-									: settings.config.outDir,
-							),
-						)});
-              export const serverDir = /* #__PURE__ */ new URL(${JSON.stringify(
-								new URL(settings.config.build.server),
-							)});
-						export const getImage = async (options) => await getImageInternal(options, imageConfig);
-					`,
+					export const fsDenyGlob = ${serializeFsDenyGlob(resolvedConfig.server.fs?.deny ?? [])};
+
+					const assetQueryParams = ${
+						settings.adapter?.client?.assetQueryParams
+							? `new URLSearchParams(${JSON.stringify(
+									Array.from(settings.adapter.client.assetQueryParams.entries()),
+								)})`
+							: 'undefined'
+					};
+					export const imageConfig = ${JSON.stringify(settings.config.image)};
+					Object.defineProperty(imageConfig, 'assetQueryParams', {
+						value: assetQueryParams,
+						enumerable: false,
+						configurable: true,
+					});
+					export const inferRemoteSize = async (url) => {
+						const service = await _getConfiguredImageService();
+						return service.getRemoteSize?.(url, imageConfig, _runtimeLogger) ?? inferRemoteSizeInternal(url, imageConfig);
+					}
+					// This is used by the @astrojs/node integration to locate images.
+					// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
+					// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
+					// in the Lambda bundle, which would bloat the bundle with images.
+					// To prevent this, we mark the URL construction as pure,
+					// so that it's tree-shaken away for all platforms that don't need it.
+					export const outDir = /* #__PURE__ */ new URL(${JSON.stringify(
+						new URL(
+							settings.buildOutput === 'server'
+								? settings.config.build.client
+								: settings.config.outDir,
+						),
+					)});
+					export const serverDir = /* #__PURE__ */ new URL(${JSON.stringify(
+						new URL(settings.config.build.server),
+					)});
+					${getImageExport}
+				`,
 					};
 				},
 			},
@@ -266,6 +370,15 @@ export const inferRemoteSize = async (url) => {
 					if (!globalThis.astroAsset.referencedImages)
 						globalThis.astroAsset.referencedImages = new Set();
 
+					// Content collection images have the astroContentImageFlag query param.
+					// Strip it so we can process the image, but remember it so we can avoid
+					// creating SVG components (which import from the server runtime and cause
+					// circular dependency deadlocks with top-level await).
+					const isContentImage = id.includes(CONTENT_IMAGE_FLAG);
+					if (isContentImage) {
+						id = removeQueryString(id);
+					}
+
 					if (id !== removeQueryString(id)) {
 						// If our import has any query params, we'll let Vite handle it, nonetheless we'll make sure to not delete it
 						// See https://github.com/withastro/astro/issues/8333
@@ -294,20 +407,51 @@ export const inferRemoteSize = async (url) => {
 					// Since you cannot use image optimization on the client anyway, it's safe to assume that if the user imported
 					// an image on the client, it should be present in the final build.
 					if (isAstroServerEnvironment(this.environment)) {
+						// For SVGs imported directly (not via content collections), create a full
+						// component that can be rendered inline. For content collection SVGs, the
+						// component is reconstructed later in content/runtime.ts from __svgData
+						// embedded in the metadata, avoiding a server-runtime import here that
+						// would create a circular dependency when combined with TLA.
 						if (id.endsWith('.svg')) {
 							const contents = await fs.promises.readFile(imageMetadata.fsPath, {
 								encoding: 'utf8',
 							});
 							// We know that the contents are present, as we only emit this property for SVG files
 							return {
-								code: makeSvgComponent(imageMetadata, contents, settings.config.experimental.svgo),
+								code: await makeSvgComponent(
+									imageMetadata,
+									contents,
+									settings.config.experimental.svgOptimizer,
+								),
+							};
+						}
+						// In SSR builds, any image loaded by the SSR environment could be reachable at
+						// request time without us knowing, so we'll always consider them as referenced.
+						const isSSROnlyEnvironment =
+							settings.buildOutput === 'server' &&
+							this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
+						if (isSSROnlyEnvironment) {
+							globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);
+						}
+						// Content-collection SVG: embed parsed SVG data so content/runtime.ts can
+						// reconstruct a renderable component without importing from the server runtime
+						// (which would recreate the TLA circular-dependency deadlock, see #15575).
+						if (id.endsWith('.svg') && isContentImage) {
+							const contents = await fs.promises.readFile(imageMetadata.fsPath, {
+								encoding: 'utf8',
+							});
+							const svgData = await parseSvgComponentData(
+								imageMetadata,
+								contents,
+								settings.config.experimental.svgOptimizer,
+							);
+							const metadataWithSvg = { ...imageMetadata, __svgData: svgData };
+							return {
+								code: `export default ${getProxyCode(metadataWithSvg as typeof imageMetadata, isSSROnlyEnvironment)}`,
 							};
 						}
 						return {
-							code: `export default ${getProxyCode(
-								imageMetadata,
-								settings.buildOutput === 'server',
-							)}`,
+							code: `export default ${getProxyCode(imageMetadata, isSSROnlyEnvironment)}`,
 						};
 					} else {
 						globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);
@@ -348,4 +492,30 @@ export const inferRemoteSize = async (url) => {
 			},
 		},
 	];
+}
+
+// Precompile the denies patterns to avoid using a CJS package in the runtime
+function serializeFsDenyGlob(denyPatterns: string[]): string {
+	// Replicate the same pattern transformation that Vite does internally:
+	// https://github.com/vitejs/vite/blob/e6156f71f0e21f4068941b63bcc17b0e9b0a7455/packages/vite/src/node/config.ts#L1931
+	const expandedPatterns = denyPatterns.map((pattern) =>
+		pattern.includes('/') ? pattern : `**/${pattern}`,
+	);
+
+	const regexes = expandedPatterns.map((pattern) =>
+		picomatch.makeRe(pattern, {
+			matchBase: false,
+			nocase: true,
+			dot: true,
+		}),
+	);
+
+	// Serialize the regexes as a function that tests a path against all patterns
+	const serializedRegexes = regexes.map((re) => re.toString()).join(', ');
+	return `(function() {
+		const regexes = [${serializedRegexes}];
+		return function fsDenyGlob(testPath) {
+			return regexes.some(re => re.test(testPath));
+		};
+	})()`;
 }

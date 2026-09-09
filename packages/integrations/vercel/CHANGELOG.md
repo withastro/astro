@@ -1,5 +1,329 @@
 # @astrojs/vercel
 
+## 11.0.10
+
+### Patch Changes
+
+- [#17818](https://github.com/withastro/astro/pull/17818) [`c0b6581`](https://github.com/withastro/astro/commit/c0b65811dfa0dafa1aa04b7d6d67fd09250ff8c1) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the development image service to forward every argument it receives to Astro's Sharp service, including the new `logger` parameter
+
+## 11.0.9
+
+### Patch Changes
+
+- [#17450](https://github.com/withastro/astro/pull/17450) [`19dae21`](https://github.com/withastro/astro/commit/19dae210d42bd22662ee678c173676573b6168f2) Thanks [@ocavue](https://github.com/ocavue)! - Updates dependency `@vercel/analytics` to v2. See the [changelog](https://github.com/vercel/analytics/releases/tag/v2.0.0) for more details.
+  Updates dependency `@vercel/routing-utils` to v6. See the [changelog](https://github.com/vercel/vercel/blob/@vercel/routing-utils@6.4.0/packages/routing-utils/CHANGELOG.md#600) for more details.
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+
+## 11.0.8
+
+### Patch Changes
+
+- [#17794](https://github.com/withastro/astro/pull/17794) [`dd29ce8`](https://github.com/withastro/astro/commit/dd29ce81f5b562f5d0dccdd96e28dade350c5e4c) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a bug where `@vercel/nft` file tracing silently dropped all dependency files when `outDir` was configured outside `root`, causing deployed functions to crash with `ERR_MODULE_NOT_FOUND`
+
+## 11.0.7
+
+### Patch Changes
+
+- [#17687](https://github.com/withastro/astro/pull/17687) [`0a22ff5`](https://github.com/withastro/astro/commit/0a22ff5b7e4600356ccabfe571b7ffdad76064d7) Thanks [@asmyshlyaev177](https://github.com/asmyshlyaev177)! - Fixes `middlewareMode: 'edge'` not running your middleware when `isr` is also enabled
+
+  Previously, enabling both options deployed the edge middleware but never reached it: requests went straight to the ISR function, which skips rendering entirely on a cache hit. Middleware now runs at the edge for ISR-backed routes before the cached response is served, and query strings are preserved when it forwards the request.
+
+- Updated dependencies [[`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527)]:
+  - @astrojs/internal-helpers@0.10.4
+
+## 11.0.6
+
+### Patch Changes
+
+- [#17680](https://github.com/withastro/astro/pull/17680) [`ce9f1da`](https://github.com/withastro/astro/commit/ce9f1da4867f07206dec720fdab7f1d02112f73e) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes server islands returning 404 responses in Vercel deployments using `output: "static"`
+
+- Updated dependencies [[`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277)]:
+  - @astrojs/internal-helpers@0.10.3
+
+## 11.0.5
+
+### Patch Changes
+
+- [#17569](https://github.com/withastro/astro/pull/17569) [`d1bb7fa`](https://github.com/withastro/astro/commit/d1bb7fa0059a04ed8039ce92660c7c07a8b04914) Thanks [@lazerg](https://github.com/lazerg)! - Prevents `astro build` from crashing with `EEXIST` when `.vercel/output/server/` already exists by creating it with `{ recursive: true }`, matching the sibling `static/` directory call
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+
+## 11.0.3
+
+### Patch Changes
+
+- [#17370](https://github.com/withastro/astro/pull/17370) [`3a43cf0`](https://github.com/withastro/astro/commit/3a43cf0f3690a8e33cb30109bc5165611cf38fcd) Thanks [@matthewp](https://github.com/matthewp)! - Improves internal ISR route handling
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies [[`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c)]:
+  - @astrojs/internal-helpers@0.10.1
+
+## 11.0.1
+
+### Patch Changes
+
+- [#17249](https://github.com/withastro/astro/pull/17249) [`02b73b0`](https://github.com/withastro/astro/commit/02b73b0fc2e32102e788fd9031ce061337490a73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `peerDependencies` field used incorrect dependencies.
+
+## 11.0.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Minor Changes
+
+- [#16335](https://github.com/withastro/astro/pull/16335) [`9a53f77`](https://github.com/withastro/astro/commit/9a53f77d35e76bcb0165b44cbd2b7e48d48c9f59) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds a CDN cache provider for Astro [route caching](https://docs.astro.build/en/guides/caching/) on Vercel
+
+  #### Setup
+
+  Import `cacheVercel()` from `@astrojs/vercel/cache` and set it as your cache provider:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import vercel from '@astrojs/vercel';
+  import { cacheVercel } from '@astrojs/vercel/cache';
+
+  export default defineConfig({
+    adapter: vercel(),
+    cache: {
+      provider: cacheVercel(),
+    },
+  });
+  ```
+
+  #### Caching responses
+
+  Use `Astro.cache.set()` in your pages and API routes to cache responses on Vercel's edge network. The provider sets `Vercel-CDN-Cache-Control` and `Vercel-Cache-Tag` headers on responses.
+
+  ```astro
+  ---
+  Astro.cache.set({ maxAge: 300, tags: ['products'] });
+  const data = await fetchProducts();
+  ---
+
+  <ProductList items={data} />
+  ```
+
+  You can also set cache rules for groups of routes in your config:
+
+  ```js
+  cache: { provider: cacheVercel() },
+  routeRules: {
+    '/products/[...slug]': { maxAge: 3600, tags: ['products'] },
+    '/api/[...path]': { maxAge: 60, swr: 600 },
+  },
+  ```
+
+  #### Invalidation
+
+  Purge cached responses by tag or path from any API route or server endpoint:
+
+  ```ts
+  // src/pages/api/purge.ts
+  export async function POST({ request, cache }) {
+    await cache.invalidate({ tags: ['products'] });
+    return new Response('Purged');
+  }
+
+  // Path-based invalidation
+  await cache.invalidate({ path: '/products/123' });
+  ```
+
+  Both tag-based and path-based invalidation are supported. Tag invalidation is a soft invalidation, marking cached responses as stale so they can be revalidated in the background via stale-while-revalidate.
+
+### Patch Changes
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+## 11.0.0-beta.1
+
+### Patch Changes
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+## 11.0.0-alpha.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Patch Changes
+
+- Updated dependencies [[`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27), [`c30a778`](https://github.com/withastro/astro/commit/c30a7789a477e44826c54c8560587d09dc46a229), [`ee079d4`](https://github.com/withastro/astro/commit/ee079d4c7f143076b84d663c832911009a077c7f)]:
+  - astro@7.0.0-alpha.0
+
+## 10.0.8
+
+### Patch Changes
+
+- Updated dependencies [[`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc)]:
+  - @astrojs/internal-helpers@0.10.0
+
+## 10.0.7
+
+### Patch Changes
+
+- Updated dependencies [[`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce)]:
+  - @astrojs/internal-helpers@0.9.1
+
+## 10.0.6
+
+### Patch Changes
+
+- [#16486](https://github.com/withastro/astro/pull/16486) [`0bae1a5`](https://github.com/withastro/astro/commit/0bae1a51f0f271403d43f5ec0ae031c9c614fd3c) Thanks [@cyphercodes](https://github.com/cyphercodes)! - Fix forwarded serverless requests with streamed bodies by preserving the required `duplex: 'half'` option when rewriting middleware paths.
+
+## 10.0.5
+
+### Patch Changes
+
+- Updated dependencies [[`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd), [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d)]:
+  - @astrojs/internal-helpers@0.9.0
+
+## 10.0.4
+
+### Patch Changes
+
+- [#16170](https://github.com/withastro/astro/pull/16170) [`d0fe1ec`](https://github.com/withastro/astro/commit/d0fe1ec216f8f322392e34ce40378d022e495cef) Thanks [@bittoby](https://github.com/bittoby)! - Fixes edge middleware `next()` dropping the HTTP method and body when forwarding requests to the serverless function, which caused non-GET API routes (POST, PUT, PATCH, DELETE) to return 404
+
+## 10.0.3
+
+### Patch Changes
+
+- [#16079](https://github.com/withastro/astro/pull/16079) [`aa26636`](https://github.com/withastro/astro/commit/aa266364fe9e105317b66e218fe04567307fb57f) Thanks [@empoulter-uclan](https://github.com/empoulter-uclan)! - Fix vercel ISR path rewrite
+
+## 10.0.2
+
+### Patch Changes
+
+- [#15959](https://github.com/withastro/astro/pull/15959) [`335a204`](https://github.com/withastro/astro/commit/335a204161f5a7293c128db570901d4f8639c6ed) Thanks [@matthewp](https://github.com/matthewp)! - Fix Vercel serverless path override handling so override values are only applied when the trusted middleware secret is present.
+
+## 10.0.1
+
+### Patch Changes
+
+- [#15934](https://github.com/withastro/astro/pull/15934) [`6f8f0bc`](https://github.com/withastro/astro/commit/6f8f0bc4e22e958ccc2164acb1aa8cce21c43148) Thanks [@ematipico](https://github.com/ematipico)! - Updates the Astro `peerDependencies#astro` to be `6.0.0`.
+
+## 10.0.0
+
+### Major Changes
+
+- [#15413](https://github.com/withastro/astro/pull/15413) [`736216b`](https://github.com/withastro/astro/commit/736216b2c46f758c6b4a607ccfadcc191c1d56b4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the deprecated `@astrojs/vercel/serverless` and `@astrojs/vercel/static` exports. Use the `@astrojs/vercel` export instead
+
+### Minor Changes
+
+- [#15258](https://github.com/withastro/astro/pull/15258) [`d339a18`](https://github.com/withastro/astro/commit/d339a182b387a7a1b0d5dd0d67a0638aaa2b4262) Thanks [@ematipico](https://github.com/ematipico)! - Stabilizes the adapter feature `experimentalStatiHeaders`. If you were using this feature in any of the supported adapters, you'll need to change the name of the flag:
+
+  ```diff
+  export default defineConfig({
+    adapter: netlify({
+  -    experimentalStaticHeaders: true
+  +    staticHeaders: true
+    })
+  })
+  ```
+
+- [#15413](https://github.com/withastro/astro/pull/15413) [`736216b`](https://github.com/withastro/astro/commit/736216b2c46f758c6b4a607ccfadcc191c1d56b4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the implementation to use the new Adapter API
+
+- [#15495](https://github.com/withastro/astro/pull/15495) [`5b99e90`](https://github.com/withastro/astro/commit/5b99e9077a92602f1e46e9b6eb9094bcd00c640e) Thanks [@leekeh](https://github.com/leekeh)! - Adds new `middlewareMode` adapter feature and deprecates `edgeMiddleware` option
+
+  The `edgeMiddleware` option is now deprecated and will be removed in a future release, so users should transition to using the new `middlewareMode` feature as soon as possible.
+
+  ```diff
+  export default defineConfig({
+    adapter: vercel({
+  -    edgeMiddleware: true
+  +    middlewareMode: 'edge'
+    })
+  })
+  ```
+
+- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+
+### Patch Changes
+
+- [#15781](https://github.com/withastro/astro/pull/15781) [`2de969d`](https://github.com/withastro/astro/commit/2de969d1f5279d2d0f3024208146f9cd895267b6) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new `clientAddress` option to the `createContext()` function
+
+  Providing this value gives adapter and middleware authors explicit control over the client IP address. When not provided, accessing `clientAddress` throws an error consistent with other contexts where it is not set by the adapter.
+
+  Additionally, both of the official Netlify and Vercel adapters have been updated to provide this information in their edge middleware.
+
+  ```js
+  import { createContext } from 'astro/middleware';
+
+  createContext({
+    clientAddress: context.headers.get('x-real-ip'),
+  });
+  ```
+
+- [#15778](https://github.com/withastro/astro/pull/15778) [`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the computed `clientAddress` was incorrect in cases of a Request header with multiple values. The `clientAddress` is now also validated to contain only characters valid in IP addresses, rejecting injection payloads.
+
+- [#15460](https://github.com/withastro/astro/pull/15460) [`ee7e53f`](https://github.com/withastro/astro/commit/ee7e53f9de2338517e149895efd26fca44ad80b6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates to use the new Adapter API
+
+- [#15450](https://github.com/withastro/astro/pull/15450) [`50c9129`](https://github.com/withastro/astro/commit/50c912978cca4afbe4b3ebd11c30305d5e9c8315) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `build.serverEntry` would not be respected when using the new Adapter API
+
+- [#15461](https://github.com/withastro/astro/pull/15461) [`9f21b24`](https://github.com/withastro/astro/commit/9f21b243d21478cdc5fb0193e05adad8e753839f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates to new Adapter API introduced in v6
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates Node versions data to account for v24 as the default
+
+- Updated dependencies [[`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56), [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529), [`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`cf6ea6b`](https://github.com/withastro/astro/commit/cf6ea6b36b67c7712395ed3f9ca19cb14ba1a013), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da), [`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd), [`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0
+
+## 10.0.0-beta.8
+
+### Patch Changes
+
+- [#15781](https://github.com/withastro/astro/pull/15781) [`2de969d`](https://github.com/withastro/astro/commit/2de969d1f5279d2d0f3024208146f9cd895267b6) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new `clientAddress` option to the `createContext()` function
+
+  Providing this value gives adapter and middleware authors explicit control over the client IP address. When not provided, accessing `clientAddress` throws an error consistent with other contexts where it is not set by the adapter.
+
+  Additionally, both of the official Netlify and Vercel adapters have been updated to provide this information in their edge middleware.
+
+  ```js
+  import { createContext } from 'astro/middleware';
+
+  createContext({
+    clientAddress: context.headers.get('x-real-ip'),
+  });
+  ```
+
+- [#15778](https://github.com/withastro/astro/pull/15778) [`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the computed `clientAddress` was incorrect in cases of a Request header with multiple values. The `clientAddress` is now also validated to contain only characters valid in IP addresses, rejecting injection payloads.
+
+- Updated dependencies [[`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56), [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529)]:
+  - @astrojs/internal-helpers@0.8.0-beta.3
+
+## 10.0.0-beta.7
+
+### Patch Changes
+
+- Updated dependencies [[`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0-beta.2
+
+## 10.0.0-beta.6
+
+### Minor Changes
+
+- [#15495](https://github.com/withastro/astro/pull/15495) [`5b99e90`](https://github.com/withastro/astro/commit/5b99e9077a92602f1e46e9b6eb9094bcd00c640e) Thanks [@leekeh](https://github.com/leekeh)! - Adds new `middlewareMode` adapter feature and deprecates `edgeMiddleware` option
+
+  The `edgeMiddleware` option is now deprecated and will be removed in a future release, so users should transition to using the new `middlewareMode` feature as soon as possible.
+
+  ```diff
+  export default defineConfig({
+    adapter: vercel({
+  -    edgeMiddleware: true
+  +    middlewareMode: 'edge'
+    })
+  })
+  ```
+
 ## 10.0.0-beta.5
 
 ### Patch Changes
@@ -61,7 +385,7 @@
 
 ### Minor Changes
 
-- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
 
 ## 10.0.0-alpha.0
 
@@ -1082,7 +1406,7 @@
   });
   ```
 
-  This adapter had several known limitations and compatibility issues that prevented many people from using it in production. To reduce maintenance costs and because we have a better story with Serveless + Edge Middleware, we are removing the Edge adapter.
+  This adapter had several known limitations and compatibility issues that prevented many people from using it in production. To reduce maintenance costs and because we have a better story with Serverless + Edge Middleware, we are removing the Edge adapter.
 
 - [#8239](https://github.com/withastro/astro/pull/8239) [`52f0837bd`](https://github.com/withastro/astro/commit/52f0837bdeca0b54e07cbf76a7570bd042b98922) Thanks [@matthewp](https://github.com/matthewp)! - Vercel adapter now defaults to `functionPerRoute`.
 
@@ -1224,7 +1548,7 @@
   });
   ```
 
-  This adapter had several known limitations and compatibility issues that prevented many people from using it in production. To reduce maintenance costs and because we have a better story with Serveless + Edge Middleware, we are removing the Edge adapter.
+  This adapter had several known limitations and compatibility issues that prevented many people from using it in production. To reduce maintenance costs and because we have a better story with Serverless + Edge Middleware, we are removing the Edge adapter.
 
 ### Patch Changes
 
@@ -1893,7 +2217,7 @@
 
   When using the `"server"` output target, you must also include a runtime adapter via the `adapter` configuration. An adapter will _adapt_ your final build to run on the deployed platform of your choice (Netlify, Vercel, Node.js, Deno, etc).
 
-  To migrate: No action is required for most users. If you currently define an `adapter`, you will need to also add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
+  To migrate: No action is required for most users. If you currently define an `adapter`, you will also need to add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
 
   ```diff
   import { defineConfig } from 'astro/config';

@@ -56,4 +56,4 @@ async function snapShotTest() {
 	}
 }
 
-snapShotTest();
+void snapShotTest();

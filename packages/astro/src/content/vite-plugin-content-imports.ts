@@ -2,12 +2,13 @@ import type fsMod from 'node:fs';
 import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as devalue from 'devalue';
-import type { PluginContext } from 'rollup';
-import type { Plugin, RunnableDevEnvironment } from 'vite';
+import type { Plugin, Rolldown, RunnableDevEnvironment } from 'vite';
 import { getProxyCode } from '../assets/utils/proxy.js';
+import { createContentDataIncrementalMetadata } from '../core/build/incremental-metadata.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type {
@@ -35,7 +36,6 @@ import {
 	reloadContentConfigObserver,
 	reverseSymlink,
 } from './utils.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 function getContentRendererByViteId(
 	viteId: string,
@@ -70,7 +70,7 @@ export function astroContentImportPlugin({
 }: {
 	fs: typeof fsMod;
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 }): Plugin[] {
 	const contentPaths = getContentPaths(
 		settings.config,
@@ -130,7 +130,11 @@ export const _internal = {
 	rawData: ${JSON.stringify(_internal.rawData)},
 };
 `;
-						return code;
+						return {
+							code,
+							map: { mappings: '' },
+							meta: createContentDataIncrementalMetadata(),
+						};
 					} else if (hasContentFlag(viteId, CONTENT_FLAG)) {
 						const fileId = reverseSymlink({ entry: viteId.split('?')[0], contentDir, symlinks });
 						const { id, slug, collection, body, data, _internal } = await getContentEntryModule({
@@ -155,7 +159,11 @@ export const _internal = {
 							rawData: ${JSON.stringify(_internal.rawData)},
 						};`;
 
-						return { code, map: { mappings: '' } };
+						return {
+							code,
+							map: { mappings: '' },
+							meta: createContentDataIncrementalMetadata(),
+						};
 					}
 				},
 			},
@@ -178,6 +186,7 @@ export const _internal = {
 								environment: viteServer.environments[
 									ASTRO_VITE_ENVIRONMENT_NAMES.astro
 								] as RunnableDevEnvironment,
+								logger,
 							});
 						}
 
@@ -237,7 +246,7 @@ type GetEntryModuleParams<TEntryType extends ContentEntryType | DataEntryType> =
 	fs: typeof fsMod;
 	fileId: string;
 	contentDir: URL;
-	pluginContext: PluginContext;
+	pluginContext: Rolldown.PluginContext;
 	entryConfigByExt: Map<string, TEntryType>;
 	config: AstroConfig;
 	shouldEmitFile: boolean;

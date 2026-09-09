@@ -41,7 +41,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 	const packageManager = (await detect({
 		// Include the `install-metadata` strategy to have the package manager that's
 		// used for installation take precedence
-		strategies: ['install-metadata', 'lockfile', 'packageManager-field'],
+		strategies: ['install-metadata', 'lockfile', 'packageManager-field', 'devEngines-field'],
 	})) ?? { agent: 'npm', name: 'npm' };
 	const { _: [version = 'latest'] = [], '--help': help = false, '--dry-run': dryRun } = flags;
 

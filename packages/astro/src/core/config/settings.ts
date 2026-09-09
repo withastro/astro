@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import yaml from 'js-yaml';
-import toml from 'smol-toml';
+import * as yaml from 'js-yaml';
+import * as toml from 'smol-toml';
 import { getContentPaths } from '../../content/index.js';
 import createPreferences from '../../preferences/index.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -161,6 +161,7 @@ export function createBaseSettings(
 			styleHashes: [],
 		},
 		logLevel: logLevel ?? 'info',
+		fontsHttpServer: null,
 	};
 }
 
@@ -177,10 +178,8 @@ export async function createSettings(
 		watchFiles.push(fileURLToPath(new URL('./package.json', pathToFileURL(cwd))));
 	}
 
-	if (typeof tsconfig !== 'string') {
-		watchFiles.push(
-			...[tsconfig.tsconfigFile, ...(tsconfig.extended ?? []).map((e) => e.tsconfigFile)],
-		);
+	if (!tsconfig.error) {
+		watchFiles.push(...tsconfig.sources);
 		settings.tsConfig = tsconfig.tsconfig;
 		settings.tsConfigPath = tsconfig.tsconfigFile;
 	}

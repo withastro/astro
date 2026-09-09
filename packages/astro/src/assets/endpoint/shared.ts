@@ -5,10 +5,23 @@ import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import * as mime from 'mrmime';
 import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
+import { inferSourceFormat } from '../utils/inferSourceFormat.js';
+import { fetchWithRedirects } from '../utils/redirectValidation.js';
+import type { AstroRuntimeLogger } from '../../types/public/context.js';
+
+const isLocal = (url: string) => {
+	const hostname = new URL(url).hostname;
+	return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+};
 
 export async function loadRemoteImage(src: URL): Promise<Buffer | undefined> {
 	try {
-		const res = await fetch(src);
+		const res = await fetchWithRedirects({ url: src, imageConfig });
+
+		// Local URLs are allowed by default
+		if (!isRemoteAllowed(res.url, imageConfig) && !isLocal(res.url)) {
+			return undefined;
+		}
 
 		if (!res.ok) {
 			return undefined;
@@ -20,12 +33,20 @@ export async function loadRemoteImage(src: URL): Promise<Buffer | undefined> {
 	}
 }
 
+export type LocalImageLoadResult =
+	| { kind: 'loaded'; buffer: Buffer }
+	| { kind: 'invalid-path' }
+	| { kind: 'not-found' }
+	| { kind: 'failed' };
+
 export const handleImageRequest = async ({
 	request,
 	loadLocalImage,
+	logger,
 }: {
 	request: Request;
-	loadLocalImage: (src: string, baseUrl: URL) => Promise<Buffer | undefined>;
+	loadLocalImage: (src: string, baseUrl: URL) => Promise<LocalImageLoadResult>;
+	logger: AstroRuntimeLogger;
 }) => {
 	const imageService = await getConfiguredImageService();
 
@@ -34,10 +55,19 @@ export const handleImageRequest = async ({
 	}
 
 	const url = new URL(request.url);
-	const transform = await imageService.parseURL(url, imageConfig);
+	const transform = await imageService.parseURL(url, imageConfig, logger);
 
 	if (!transform?.src) {
 		return new Response('Invalid request', { status: 400 });
+	}
+
+	// Reject requests that attempt to convert a non-SVG source to SVG output.
+	// This mirrors the same guard in verifyOptions() that protects the <Image> component path.
+	if (transform.format === 'svg') {
+		const sourceFormat = inferSourceFormat(transform.src);
+		if (sourceFormat !== 'svg') {
+			return new Response('Cannot convert non-SVG source to SVG format', { status: 403 });
+		}
 	}
 
 	let inputBuffer: Buffer | undefined = undefined;
@@ -49,14 +79,29 @@ export const handleImageRequest = async ({
 
 		inputBuffer = await loadRemoteImage(new URL(transform.src));
 	} else {
-		inputBuffer = await loadLocalImage(removeQueryString(transform.src), url);
+		const result = await loadLocalImage(removeQueryString(transform.src), url);
+		switch (result.kind) {
+			case 'invalid-path':
+				return new Response('Invalid request', { status: 400 });
+			case 'not-found':
+				return new Response('Not Found', { status: 404 });
+			case 'failed':
+				return new Response('Internal Server Error', { status: 500 });
+			case 'loaded':
+				inputBuffer = result.buffer;
+		}
 	}
 
 	if (!inputBuffer) {
 		return new Response('Internal Server Error', { status: 500 });
 	}
 
-	const { data, format } = await imageService.transform(inputBuffer, transform, imageConfig);
+	const { data, format } = await imageService.transform(
+		inputBuffer,
+		transform,
+		imageConfig,
+		logger,
+	);
 
 	return new Response(data as Uint8Array<ArrayBuffer>, {
 		status: 200,

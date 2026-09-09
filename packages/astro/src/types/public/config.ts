@@ -5,17 +5,26 @@ import type {
 	RemarkPlugins,
 	RemarkRehype,
 	ShikiConfig,
+	Smartypants,
 	SyntaxHighlightConfigType,
-} from '@astrojs/markdown-remark';
-import type { Config as SvgoConfig } from 'svgo';
+} from '@astrojs/internal-helpers/markdown';
+import type { MarkdownProcessor } from '../../markdown/index.js';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
+import type { CacheProviderConfig, RouteRules } from '../../core/cache/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
-import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
-import type { Logger, LoggerLevel } from '../../core/logger/core.js';
+import type {
+	CspAlgorithm,
+	CspDirective,
+	CspHash,
+	CspHashEntry,
+	CspKind,
+	CspResourceEntry,
+} from '../../core/csp/config.js';
+import type { AstroLogger, AstroLoggerLevel } from '../../core/logger/core.js';
 import type {
 	SessionConfig,
 	SessionDriverConfig,
@@ -23,19 +32,23 @@ import type {
 } from '../../core/session/types.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { SvgOptimizer } from '../../assets/svg/types.js';
+import type { LoggerHandlerConfig } from '../../core/logger/config.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
 export type { FontProvider };
 
-export type { CspAlgorithm, CspHash };
+export type { CspAlgorithm, CspHash, CspKind, CspResourceEntry, CspHashEntry };
 
 export type { RemotePattern };
 
-export type CspStyleDirective = { hashes?: CspHash[]; resources?: string[] };
+export type { SvgOptimizer };
+
+export type CspStyleDirective = { hashes?: CspHashEntry[]; resources?: CspResourceEntry[] };
 export type CspScriptDirective = {
-	hashes?: CspHash[];
-	resources?: string[];
+	hashes?: CspHashEntry[];
+	resources?: CspResourceEntry[];
 	strictDynamic?: boolean;
 };
 
@@ -99,11 +112,14 @@ export type ServerConfig = {
 	 * hostname is allowed.
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   server: {
-	 *   	allowedHosts: ['staging.example.com', 'qa.example.com']
+	 *     allowedHosts: ['staging.example.com', 'qa.example.com']
 	 *   }
-	 * }
+	 * });
 	 * ```
 	 */
 	allowedHosts?: string[] | true;
@@ -129,9 +145,12 @@ export type ServerConfig = {
 	 * Pass a full URL string (e.g. "http://example.com") or a pathname (e.g. "/about") to specify the URL to open.
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   server: { open: "/about" }
-	 * }
+	 * });
 	 * ```
 	 */
 	open?: string | boolean;
@@ -174,9 +193,12 @@ export interface AstroUserConfig<
 	 * Your final, deployed URL. Astro uses this full URL to generate your sitemap and canonical URLs in your final build. It is strongly recommended that you set this configuration to get the most out of Astro.
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   site: 'https://www.my-site.dev'
-	 * }
+	 * });
 	 * ```
 	 */
 	site?: string;
@@ -191,9 +213,12 @@ export interface AstroUserConfig<
 	 * In the example below, `astro dev` will start your server at `/docs`.
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   base: '/docs'
-	 * }
+	 * });
 	 * ```
 	 *
 	 * When using this option, all of your static asset imports and URLs should add the base as a prefix. You can access this value via `import.meta.env.BASE_URL`.
@@ -206,19 +231,25 @@ export interface AstroUserConfig<
 	 *
 	 * In the example below, the values of `import.meta.env.BASE_URL` and `config.base` when processed will both be `/docs`:
 	 * ```js
-	 * {
-	 * 	 base: '/docs/',
-	 * 	 trailingSlash: "never"
-	 * }
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   base: '/docs/',
+	 *   trailingSlash: "never"
+	 * });
 	 * ```
 	 *
 	 * In the example below, the values of `import.meta.env.BASE_URL` and `config.base` when processed will both be `/docs/`:
 	 *
 	 * ```js
-	 * {
-	 * 	 base: '/docs',
-	 * 	 trailingSlash: "always"
-	 * }
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   base: '/docs',
+	 *   trailingSlash: "always"
+	 * });
 	 * ```
 	 */
 	base?: string;
@@ -242,10 +273,13 @@ export interface AstroUserConfig<
 	 * See your hosting platform's documentation for more information. You cannot use Astro [redirects](https://docs.astro.build/en/reference/configuration-reference/#redirects) for this use case at this point.
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   // Example: Require a trailing slash during development
 	 *   trailingSlash: 'always'
-	 * }
+	 * });
 	 * ```
 	 */
 	trailingSlash?: 'always' | 'never' | 'ignore';
@@ -256,7 +290,8 @@ export interface AstroUserConfig<
 	 * @type {Record<string, RedirectConfig>}
 	 * @default `{}`
 	 * @version 2.9.0
-	 * @description Specify a mapping of redirects where the key is the route to match
+	 * @description
+	 * Specify a mapping of redirects where the key is the route to match
 	 * and the value is the path to redirect to.
 	 *
 	 * You can redirect both static and dynamic routes, but only to the same kind of route.
@@ -264,6 +299,9 @@ export interface AstroUserConfig<
 	 *
 	 *
 	 * ```js
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
 	 * export default defineConfig({
 	 *   redirects: {
 	 *    '/old': '/new',
@@ -274,8 +312,8 @@ export interface AstroUserConfig<
 	 *      destination: 'https://example.com/news'
 	 *    },
 	 *    // '/product1/', '/product1' // Note, this is not supported
-	 * 	}
-	 * })
+	 *   }
+	 * });
 	 * ```
 	 *
 	 *
@@ -289,6 +327,9 @@ export interface AstroUserConfig<
 	 * You can customize the [redirection status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#redirection_messages) using an object in the redirect config:
 	 *
 	 * ```js
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
 	 * export default defineConfig({
 	 *   redirects: {
 	 *     '/other': {
@@ -296,9 +337,7 @@ export interface AstroUserConfig<
 	 *       destination: '/place',
 	 *     },
 	 *   }
-	 * })
-	 *
-	 *
+	 * });
 	 * ```
 	 */
 	redirects?: Record<string, RedirectConfig>;
@@ -317,11 +356,12 @@ export interface AstroUserConfig<
 	 * - `'server'` - Use server-side rendering (SSR) for all pages by default, always outputting a server-rendered site.
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig } from 'astro/config';
 	 *
 	 * export default defineConfig({
 	 *   output: 'static'
-	 * })
+	 * });
 	 * ```
 	 */
 	output?: 'static' | 'server';
@@ -338,11 +378,14 @@ export interface AstroUserConfig<
 	 * See our [on-demand rendering guide](https://docs.astro.build/en/guides/on-demand-rendering/) for more on Astro's server rendering options.
 	 *
 	 * ```js
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
 	 * import netlify from '@astrojs/netlify';
-	 * {
+	 *
+	 * export default defineConfig({
 	 *   // Example: Build for Netlify serverless deployment
 	 *   adapter: netlify(),
-	 * }
+	 * });
 	 * ```
 	 */
 	adapter?: AstroIntegration;
@@ -355,15 +398,18 @@ export interface AstroUserConfig<
 	 *
 	 * Extend Astro with custom integrations. Integrations are your one-stop-shop for adding framework support (like Solid.js), new features (like sitemaps), and new libraries (like Partytown).
 	 *
-	 * Read our [Integrations Guide](https://docs.astro.build/en/guides/integrations-guide/) for help getting started with Astro Integrations.
+	 * Read our [Integrations Guide](https://docs.astro.build/en/guides/integrations/) for help getting started with Astro Integrations.
 	 *
 	 * ```js
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
 	 * import react from '@astrojs/react';
 	 * import mdx from '@astrojs/mdx';
-	 * {
+	 *
+	 * export default defineConfig({
 	 *   // Example: Add React + MDX support to Astro
 	 *   integrations: [react(), mdx()]
-	 * }
+	 * });
 	 * ```
 	 */
 	integrations?: Array<
@@ -377,19 +423,24 @@ export interface AstroUserConfig<
 	 * @type {string}
 	 * @default `"."` (current working directory)
 	 * @summary Set the project root. The project root is the directory where your Astro project (and all `src`, `public` and `package.json` files) live.
-	 * @description  You should only provide this option if you run the `astro` CLI commands in a directory other than the project root directory. Usually, this option is provided via the CLI instead of the Astro config file, since Astro needs to know your project root before it can locate your config file.
+	 * @description
+	 * You should only provide this option if you run the `astro` CLI commands in a directory other than the project root directory. Usually, this option is provided via the CLI instead of the Astro config file, since Astro needs to know your project root before it can locate your config file.
 	 *
 	 * If you provide a relative path (ex: `--root: './my-project'`) Astro will resolve it against your current working directory.
 	 *
-	 * #### Examples
-	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   root: './my-project-directory'
-	 * }
+	 * });
 	 * ```
+	 *
+	 * The following example sets the root directory using the CLI:
+	 *
 	 * ```bash
-	 * $ astro build --root ./my-project-directory
+	 * astro build --root ./my-project-directory
 	 * ```
 	 */
 	root?: string;
@@ -399,14 +450,18 @@ export interface AstroUserConfig<
 	 * @name srcDir
 	 * @type {string}
 	 * @default `"./src"`
-	 * @description Set the directory that Astro will read your site from.
+	 * @description
+	 * Set the directory that Astro will read your site from.
 	 *
 	 * The value can be either an absolute file system path or a path relative to the project root.
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   srcDir: './www'
-	 * }
+	 * });
 	 * ```
 	 */
 	srcDir?: string;
@@ -422,9 +477,12 @@ export interface AstroUserConfig<
 	 * The value can be either an absolute file system path or a path relative to the project root.
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   publicDir: './my-custom-publicDir-directory'
-	 * }
+	 * });
 	 * ```
 	 */
 	publicDir?: string;
@@ -435,14 +493,18 @@ export interface AstroUserConfig<
 	 * @type {string}
 	 * @default `"./dist"`
 	 * @see build.server
-	 * @description Set the directory that `astro build` writes your final build to.
+	 * @description
+	 * Set the directory that `astro build` writes your final build to.
 	 *
 	 * The value can be either an absolute file system path or a path relative to the project root.
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   outDir: './my-custom-build-directory'
-	 * }
+	 * });
 	 * ```
 	 */
 	outDir?: string;
@@ -452,14 +514,18 @@ export interface AstroUserConfig<
 	 * @name cacheDir
 	 * @type {string}
 	 * @default `"./node_modules/.astro"`
-	 * @description Set the directory for caching build artifacts. Files in this directory will be used in subsequent builds to speed up the build time.
+	 * @description
+	 * Set the directory for caching build artifacts. Files in this directory will be used in subsequent builds to speed up the build time.
 	 *
 	 * The value can be either an absolute file system path or a path relative to the project root.
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   cacheDir: './my-custom-cache-directory'
-	 * }
+	 * });
 	 * ```
 	 */
 	cacheDir?: string;
@@ -467,24 +533,30 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @name compressHTML
-	 * @type {boolean}
-	 * @default `true`
+	 * @type {boolean | "jsx"}
+	 * @default `'jsx'`
 	 * @description
 	 *
-	 * This is an option to minify your HTML output and reduce the size of your HTML files.
+	 * Controls how Astro handles whitespace in your HTML. This affects both development mode and the final build output.
 	 *
-	 * By default, Astro removes whitespace from your HTML, including line breaks, from `.astro` components in a lossless manner.
-	 * Some whitespace may be kept as needed to preserve the visual rendering of your HTML. This occurs both in development mode and in the final build.
+	 * Since v7.0,  Astro applies by default the JSX whitespace rules used by frameworks like React. This removes whitespace and line breaks around elements, collapses multi-line text onto a single line, and preserves whitespace within a single line (e.g. a space between two inline elements). To keep a space that would otherwise be removed, include it explicitly in the source through constructs such as `{" "}`.
 	 *
-	 * To disable HTML compression, set `compressHTML` to false.
+	 * Setting this option to `true` instead removes whitespace, including line breaks, in a lossless manner from `.astro` components. Some whitespace may be preserved as needed to maintain the visual rendering of your HTML.
+	 *
+	 * Setting this option to `false` disables HTML compression and preserves all whitespace.
 	 *
 	 * ```js
-	 * {
-	 *   compressHTML: false
-	 * }
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   compressHTML: true
+	 *   // or:
+	 *   // compressHTML: false
+	 * });
 	 * ```
 	 */
-	compressHTML?: boolean;
+	compressHTML?: boolean | 'jsx';
 
 	/**
 	 * @docs
@@ -518,9 +590,12 @@ export interface AstroUserConfig<
 	 * - `ignore`: silently build using the highest-priority route when conflicts occur
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   prerenderConflictBehavior: 'error'
-	 * }
+	 * });
 	 * ```
 	 */
 	prerenderConflictBehavior?: 'error' | 'warn' | 'ignore';
@@ -538,23 +613,29 @@ export interface AstroUserConfig<
 	 * #### Examples
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   vite: {
 	 *     ssr: {
 	 *       // Example: Force a broken package to skip SSR processing, if needed
 	 *       external: ['broken-npm-package'],
 	 *     }
 	 *   }
-	 * }
+	 * });
 	 * ```
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   vite: {
 	 *     // Example: Add custom vite plugins directly to your Astro project
 	 *     plugins: [myPlugin()],
 	 *   }
-	 * }
+	 * });
 	 * ```
 	 */
 	vite?: ViteUserConfig;
@@ -571,18 +652,20 @@ export interface AstroUserConfig<
 	 *
 	 * These features only exist for pages rendered on demand (SSR) using `server` mode or pages that opt out of prerendering in `static` mode.
 	 *
-	 * By default, Astro will automatically check that the “origin” header
-	 * matches the URL sent by each request in on-demand rendered pages. You can
-	 * disable this behavior by setting `checkOrigin` to `false`:
+	 * By default, Astro checks browser request metadata to ensure that form submissions
+	 * to on-demand rendered pages come from the same origin. You can disable this
+	 * behavior by setting `checkOrigin` to `false`:
 	 *
 	 * ```js
 	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
 	 * export default defineConfig({
 	 *   output: "server",
 	 *   security: {
 	 *     checkOrigin: false
 	 *   }
-	 * })
+	 * });
 	 * ```
 	 */
 	security?: {
@@ -595,12 +678,13 @@ export interface AstroUserConfig<
 		 * @version 4.9.0
 		 * @description
 		 *
-		 * Performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
+		 * Checks the `Sec-Fetch-Site` header provided by modern browsers, falling back to the `Origin` header when unavailable. This is used to provide Cross-Site Request Forgery (CSRF) protection.
 		 *
-		 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST`, `PATCH`, `DELETE` and `PUT` with
-		 * one of the following `content-type` headers: `'application/x-www-form-urlencoded'`, `'multipart/form-data'`, `'text/plain'`.
+		 * The check is executed only for pages rendered on demand, and only for unsafe requests such as `POST`, `PATCH`, `DELETE`, and `PUT` with no `content-type` header or one of the following values: `'application/x-www-form-urlencoded'`, `'multipart/form-data'`, `'text/plain'`.
 		 *
-		 * If the "origin" header doesn't match the `pathname` of the request, Astro will return a 403 status code and will not render the page.
+		 * Requests with other `content-type` values are not checked because browsers require a CORS preflight before sending them cross-origin. Requests without either `Sec-Fetch-Site` or `Origin` are treated as non-browser requests and are also allowed.
+		 *
+		 * If the request is identified as cross-origin, Astro will return a 403 status code and will not render the page.
 		 */
 
 		checkOrigin?: boolean;
@@ -622,8 +706,14 @@ export interface AstroUserConfig<
 		 * Each pattern can specify `protocol`, `hostname`, and `port`. All three are validated if provided.
 		 * The patterns support wildcards for flexible hostname matching:
 		 *
+		 * - `*.example.com` - matches exactly one subdomain level (e.g., `sub.example.com` but not `deep.sub.example.com`)
+		 * - `**.example.com` - matches any subdomain depth (e.g., both `sub.example.com` and `deep.sub.example.com`)
+		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   security: {
 		 *     // Example: Allow any subdomain of example.com on https
 		 *     allowedDomains: [
@@ -638,12 +728,80 @@ export interface AstroUserConfig<
 		 *       }
 		 *     ]
 		 *   }
-		 * }
+		 * });
+		 * ```
+		 *
+		 * In some specific contexts (e.g., applications behind trusted reverse proxies with dynamic domains), you may need to allow all domains. To do this, use an empty object:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   security: {
+		 *     // Allow any domain - use this only when necessary
+		 *     allowedDomains: [{}]
+		 *   }
+		 * });
 		 * ```
 		 *
 		 * When not configured, `X-Forwarded-Host` headers are not trusted and will be ignored.
 		 */
 		allowedDomains?: Partial<RemotePattern>[];
+
+		/**
+		 * @docs
+		 * @name security.actionBodySizeLimit
+		 * @kind h4
+		 * @type {number}
+		 * @default `1048576` (1 MB)
+		 * @version 5.18.0
+		 * @description
+		 *
+		 * Sets the maximum size in bytes allowed for action request bodies.
+		 *
+		 * By default, action request bodies are limited to 1 MB (1048576 bytes) to prevent abuse.
+		 * You can increase this limit if your actions need to accept larger payloads, for example when handling file uploads.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   security: {
+		 *     actionBodySizeLimit: 10 * 1024 * 1024 // 10 MB
+		 *   }
+		 * });
+		 * ```
+		 */
+		actionBodySizeLimit?: number;
+
+		/**
+		 * @docs
+		 * @name security.serverIslandBodySizeLimit
+		 * @kind h4
+		 * @type {number}
+		 * @default `1048576` (1 MB)
+		 * @version 6.0.0
+		 * @description
+		 *
+		 * Sets the maximum size in bytes allowed for server island request bodies, which contain the encrypted props and slot HTML passed to the island component.
+		 *
+		 * By default, server island request bodies are limited to 1 MB (1048576 bytes) to prevent abuse.
+		 * You can increase this limit if your server islands need to accept larger payloads.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   security: {
+		 *     serverIslandBodySizeLimit: 10 * 1024 * 1024 // 10 MB
+		 *   }
+		 * });
+		 * ```
+		 */
+		serverIslandBodySizeLimit?: number;
 
 		/**
 		 * @docs
@@ -659,16 +817,17 @@ export interface AstroUserConfig<
 		 * Enabling this feature adds additional security to Astro's handling of processed and bundled scripts and styles by default, and allows you to further configure these, and additional, content types.
 		 *
 		 * This feature comes with some limitations:
-		 * - External scripts and external styles are not supported out of the box, but you can [provide your own hashes](https://v6.docs.astro.build/en/reference/configuration-reference/#hashes).
-		 * - [Astro's view transitions](https://v6.docs.astro.build/en/guides/view-transitions/) using the `<ClientRouter />` are not supported, but you can [consider migrating to the browser native View Transition API](https://events-3bg.pages.dev/jotter/astro-view-transitions/) instead if you are not using Astro's enhancements to the native View Transitions and Navigation APIs.
-		 * - Shiki isn't currently supported. By design, Shiki functions using inline styles.
+		 * - External scripts and external styles are not supported out of the box, but you can [provide your own hashes](https://docs.astro.build/en/reference/configuration-reference/#securitycspscriptdirectivehashes).
+		 * - [Astro's view transitions](https://docs.astro.build/en/guides/view-transitions/) using the `<ClientRouter />` are not supported, but you can [consider migrating to the browser native View Transition API](https://events-3bg.pages.dev/jotter/astro-view-transitions/) instead if you are not using Astro's enhancements to the native View Transitions and Navigation APIs.
+		 * - Shiki isn't currently supported. By design, Shiki functions use inline styles that cannot work with Astro CSP implementation. Consider [using `<Prism />`](https://docs.astro.build/en/guides/syntax-highlighting/#prism-) when your project requires both CSP and syntax highlighting.
+		 * - When `'unsafe-inline'` is included as a resource in a directive, Astro will not emit hashes on that directive. Per the CSP spec, browsers ignore `'unsafe-inline'` when a hash or nonce is present in the same directive, so Astro suppresses hashes to preserve `'unsafe-inline'` behavior. Note that this reduces the security of that directive to the level of `'unsafe-inline'`.
 		 *
 		 * :::note
 		 * Due to the nature of the Vite dev server, this feature isn't supported while working in `dev` mode. Instead, you can test this in your Astro project using `build` and `preview`.
 		 * :::
 		 *
 		 * When enabled, Astro will add a `<meta>` element inside the `<head>` element of each page.
-		 * This element will have the `http-equiv="content-security-policy"` attribute, and the `content` attribute will provide values for the `script-src` and `style-src` [directives](https://v6.docs.astro.build/en/reference/configuration-reference/#securitycspdirectives) based on the script and styles used in the page.
+		 * This element will have the `http-equiv="content-security-policy"` attribute, and the `content` attribute will provide values for the `script-src` and `style-src` [directives](https://docs.astro.build/en/reference/configuration-reference/#securitycspdirectives) based on the script and styles used in the page.
 		 *
 		 * ```html
 		 *
@@ -763,13 +922,13 @@ export interface AstroUserConfig<
 					 * @version 6.0.0
 					 * @description
 					 *
-					 * A configuration object that allows you to override the default sources for the `style-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#resources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#hashes) to be rendered.					 */
+					 * A configuration object that allows you to override the default sources for the `style-src` directive with the [`resources`](https://docs.astro.build/en/reference/configuration-reference/#securitycspstyledirectiveresources) property, or to provide additional [hashes](https://docs.astro.build/en/reference/configuration-reference/#securitycspstyledirectivehashes) to be rendered.					 */
 					styleDirective?: {
 						/**
 						 * @docs
 						 * @name security.csp.styleDirective.hashes
 						 * @kind h6
-						 * @type {CspHash[]}
+						 * @type {CspHashEntry[]}
 						 * @default `[]`
 						 * @version 6.0.0
 						 * @description
@@ -777,6 +936,13 @@ export interface AstroUserConfig<
 						 * A list of additional hashes to be rendered.
 						 *
 						 * You must provide hashes that start with `sha384-`, `sha512-` or `sha256-`. Other values will cause a validation error. These hashes are added to all pages.
+						 *
+						 * Since Astro v7.1, each entry can be a string or an object. The object allows changing the scope of the hash via the `kind` field. The `kind` field accepts:
+						 * - `"element"`: it will store the hash in the `style-src-elem` directive
+						 * - `"attribute"`: it will store the hash in the `style-src-attr` directive
+						 * - `"default"`: it will store the hash in the `style-src` directive
+						 *
+						 * A `"default"` hash goes on `style-src`, or on `style-src-elem` instead once you use `kind: "element"`. It is never added to `style-src-attr`. Astro's generated hashes follow the same rule.
 						 *
 						 * ```js title="astro.config.mjs"
 						 * import { defineConfig } from 'astro/config';
@@ -806,19 +972,56 @@ export interface AstroUserConfig<
 						 *   "
 						 * >
 						 * ```
+						 *
+						 * Scoping a hash to `"element"` stores it in `style-src-elem` instead. Astro's generated hashes move there too:
+						 *
+						 * ```js title="astro.config.mjs"
+						 * import { defineConfig } from 'astro/config';
+						 *
+						 * export default defineConfig({
+						 *   security: {
+						 *     csp: {
+						 *       styleDirective: {
+						 *         hashes: [{ hash: "sha256-styleHash", kind: "element" }]
+						 *       }
+						 *     }
+						 *   }
+						 * });
+						 * ```
+						 *
+						 * After the build, the `<meta>` element will include the hash in the `style-src-elem` directive instead of `style-src`:
+						 *
+						 * ```html
+						 * <meta
+						 *   http-equiv="content-security-policy"
+						 *   content="
+						 *     style-src 'self';
+						 *     style-src-elem 'self' 'sha256-styleHash' 'sha256-generatedByAstro';
+						 *   "
+						 * >
+						 * ```
 						 */
-						hashes?: CspHash[];
+						hashes?: CspHashEntry[];
 
 						/**
 						 * @docs
 						 * @name security.csp.styleDirective.resources
 						 * @kind h6
-						 * @type {string[]}
+						 * @type {CspResourceEntry[]}
 						 * @default `[]`
 						 * @version 6.0.0
 						 * @description
 						 *
 						 * A list of valid sources for `style-src` directives to override Astro's default sources. This will not include `'self'` by default, and must be included in this list if you wish to keep it. These resources are added to all pages.
+						 *
+						 * Since Astro v7.1, each entry can be a string or an object. The object allows changing the scope of the source via the `kind` field. The `kind` field accepts:
+						 * - `"element"`: it will store the source in the `style-src-elem` directive
+						 * - `"attribute"`: it will store the source in the `style-src-attr` directive
+						 * - `"default"`: it will store the source in the `style-src` directive
+						 *
+						 * `"attribute"` sources must be one of `'none'`, `'unsafe-hashes'`, `'unsafe-inline'`, or `'report-sample'`, and `'unsafe-hashes'` cannot be used with `"element"`. A common use is allowing inline `style` attributes (for example, from `define:vars` or Shiki) with `{ resource: "'unsafe-inline'", kind: "attribute" }`.
+						 *
+						 * Unlike a hash, a `"default"` source is never moved: it stays on `style-src` only. Where there is a mix of "default" and specific resources (e.g. `"element"` or `"attribute"`), Astro emits a warning.
 						 *
 						 * ```js title="astro.config.mjs"
 						 * import { defineConfig } from 'astro/config';
@@ -850,9 +1053,40 @@ export interface AstroUserConfig<
 						 * </head>
 						 * ```
 						 *
+						 * A `"default"` source is not copied into the more specific directives. Here, a `"default"` source and an `"element"` source render in different directives:
+						 *
+						 * ```js title="astro.config.mjs"
+						 * import { defineConfig } from 'astro/config';
+						 *
+						 * export default defineConfig({
+						 *   security: {
+						 *     csp: {
+						 *       styleDirective: {
+						 *         resources: [
+						 *           "https://styles.cdn.example.com",
+						 *           { resource: "https://elements.cdn.example.com", kind: "element" }
+						 *         ]
+						 *       }
+						 *     }
+						 *   }
+						 * });
+						 * ```
+						 *
+						 * After the build, the `<meta>` element keeps `https://styles.cdn.example.com` on `style-src` only. This means that this value is not added to `style-src-elem` and does not apply to `<style>` and `<link>` elements (the generated hash, by contrast, does move there):
+						 *
+						 * ```html
+						 * <meta
+						 *   http-equiv="content-security-policy"
+						 *   content="
+						 *     style-src https://styles.cdn.example.com;
+						 *     style-src-elem https://elements.cdn.example.com 'sha256-generatedByAstro';
+						 *   "
+						 * >
+						 * ```
+						 *
 						 * When resources are inserted multiple times or from multiple sources (e.g. defined in your `csp` config and added using [the CSP runtime API](/en/reference/api-reference/#csp)), Astro will merge and deduplicate all resources to create your `<meta>` element.
 						 */
-						resources?: string[];
+						resources?: CspResourceEntry[];
 					};
 
 					/**
@@ -864,14 +1098,14 @@ export interface AstroUserConfig<
 					 * @version 6.0.0
 					 * @description
 					 *
-					 * A configuration object that allows you to override the default sources for the `script-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#resources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#hashes) to be rendered.
+					 * A configuration object that allows you to override the default sources for the `script-src` directive with the [`resources`](https://docs.astro.build/en/reference/configuration-reference/#securitycspscriptdirectiveresources) property, or to provide additional [hashes](https://docs.astro.build/en/reference/configuration-reference/#securitycspscriptdirectivehashes) to be rendered.
 					 */
 					scriptDirective?: {
 						/**
 						 * @docs
 						 * @name security.csp.scriptDirective.hashes
 						 * @kind h6
-						 * @type {CspHash[]}
+						 * @type {CspHashEntry[]}
 						 * @default `[]`
 						 * @version 6.0.0
 						 * @description
@@ -879,6 +1113,13 @@ export interface AstroUserConfig<
 						 * A list of additional hashes to be rendered.
 						 *
 						 * You must provide hashes that start with `sha384-`, `sha512-` or `sha256-`. Other values will cause a validation error. These hashes are added to all pages.
+						 *
+						 * Since Astro v7.1, each entry can be a string or an object. The object allows changing the scope of the hash via the `kind` field. The `kind` field accepts:
+						 * - `"element"`: it will store the hash in the `script-src-elem` directive
+						 * - `"attribute"`: it will store the hash in the `script-src-attr` directive
+						 * - `"default"`: it will store the hash in the `script-src` directive
+						 *
+						 * A `"default"` hash goes on `script-src`, or on `script-src-elem` instead once you use `kind: "element"`. It is never added to `script-src-attr`. Astro's generated hashes follow the same rule.
 						 *
 						 * ```js title="astro.config.mjs"
 						 * import { defineConfig } from 'astro/config';
@@ -908,19 +1149,56 @@ export interface AstroUserConfig<
 						 *   "
 						 * >
 						 * ```
+						 *
+						 * Scoping a hash to `"element"` stores it in `script-src-elem` instead. Astro's generated hashes move there too:
+						 *
+						 * ```js title="astro.config.mjs"
+						 * import { defineConfig } from 'astro/config';
+						 *
+						 * export default defineConfig({
+						 *   security: {
+						 *     csp: {
+						 *       scriptDirective: {
+						 *         hashes: [{ hash: "sha256-scriptHash", kind: "element" }]
+						 *       }
+						 *     }
+						 *   }
+						 * });
+						 * ```
+						 *
+						 * After the build, the `<meta>` element will include the hash in the `script-src-elem` directive instead of `script-src`:
+						 *
+						 * ```html
+						 * <meta
+						 *   http-equiv="content-security-policy"
+						 *   content="
+						 *     script-src 'self';
+						 *     script-src-elem 'self' 'sha256-scriptHash' 'sha256-generatedByAstro';
+						 *   "
+						 * >
+						 * ```
 						 */
-						hashes?: CspHash[];
+						hashes?: CspHashEntry[];
 
 						/**
 						 * @docs
 						 * @name security.csp.scriptDirective.resources
 						 * @kind h6
-						 * @type {string[]}
+						 * @type {CspResourceEntry[]}
 						 * @default `[]`
 						 * @version 6.0.0
 						 * @description
 						 *
 						 * A list of valid sources for the `script-src` directives to override Astro's default sources. This will not include `'self'` by default, and must be included in this list if you wish to keep it. These resources are added to all pages.
+						 *
+						 * Since Astro v7.1, each entry can be a string or an object. The object allows changing the scope of the source via the `kind` field. The `kind` field accepts:
+						 * - `"element"`: it will store the source in the `script-src-elem` directive
+						 * - `"attribute"`: it will store the source in the `script-src-attr` directive
+						 * - `"default"`: it will store the source in the `script-src` directive
+						 *
+						 * `"attribute"` sources must be one of `'none'`, `'unsafe-hashes'`, `'unsafe-inline'`, or `'report-sample'`, and `'unsafe-hashes'` cannot be used with `"element"`.
+						 *
+						 * Unlike a hash, a `"default"` source is never moved and stays on `script-src` only. This does not apply where you also scope `"element"` or `"attribute"` sources, since browsers do not fall back. Astro warns when this happens. Add it to the more specific directive as well, if necessary.
 						 *
 						 * ```js title="astro.config.mjs"
 						 * import { defineConfig } from 'astro/config';
@@ -951,9 +1229,40 @@ export interface AstroUserConfig<
 						 * </head>
 						 * ```
 						 *
+						 * A `"default"` source is not copied into the more specific directives. Here, a `"default"` source and an `"element"` source render in different directives:
+						 *
+						 * ```js title="astro.config.mjs"
+						 * import { defineConfig } from 'astro/config';
+						 *
+						 * export default defineConfig({
+						 *   security: {
+						 *     csp: {
+						 *       scriptDirective: {
+						 *         resources: [
+						 *           "https://cdn.example.com",
+						 *           { resource: "https://elements.cdn.example.com", kind: "element" }
+						 *         ]
+						 *       }
+						 *     }
+						 *   }
+						 * });
+						 * ```
+						 *
+						 * After the build, the `<meta>` element keeps `https://cdn.example.com` on `script-src` only. This means that this value is not added to `script-src-elem` and does not apply to `<script>` elements (the generated hash, by contrast, does move there):
+						 *
+						 * ```html
+						 * <meta
+						 *   http-equiv="content-security-policy"
+						 *   content="
+						 *     script-src https://cdn.example.com;
+						 *     script-src-elem https://elements.cdn.example.com 'sha256-generatedByAstro';
+						 *   "
+						 * >
+						 * ```
+						 *
 						 * When resources are inserted multiple times or from multiple sources (e.g. defined in your `csp` config and added using [the CSP runtime API](/en/reference/api-reference/#csp)), Astro will merge and deduplicate all resources to create your `<meta>` element.
 						 */
-						resources?: string[];
+						resources?: CspResourceEntry[];
 
 						/**
 						 * @docs
@@ -979,6 +1288,8 @@ export interface AstroUserConfig<
 						 *   }
 						 * });
 						 * ```
+						 *
+						 * This applies to `script-src`. When you also scope `script` resources or hashes to `script-src-elem` (using `kind: "element"`), `strict-dynamic` is inherited by `script-src-elem` so that dynamically injected `<script>` elements continue to work.
 						 */
 						strictDynamic?: boolean;
 					};
@@ -1003,12 +1314,15 @@ export interface AstroUserConfig<
 		 *   - `'preserve'`: Astro will generate HTML files exactly as they appear in your source folder. (e.g. `src/pages/about.astro` builds `/about.html` and `src/pages/about/index.astro` builds the file `/about/index.html`)
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   build: {
 		 *     // Example: Generate `page.html` instead of `page/index.html` during build.
 		 *     format: 'file'
 		 *   }
-		 * }
+		 * });
 		 * ```
 		 *
 		 *
@@ -1017,6 +1331,7 @@ export interface AstroUserConfig<
 		 * Setting `build.format` controls what `Astro.url` is set to during the build. When it is:
 		 * - `directory` - The `Astro.url.pathname` will include a trailing slash to mimic folder behavior. (e.g. `/foo/`)
 		 * - `file` - The `Astro.url.pathname` will include `.html`. (e.g. `/foo.html`)
+		 * - `preserve` - The `Astro.url.pathname` matches the generated file for each page: index pages include a trailing slash (e.g. `/foo/`), while non-index pages include `.html` (e.g. `/foo.html`).
 		 *
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
 		 *
@@ -1037,12 +1352,15 @@ export interface AstroUserConfig<
 		 * This value is relative to the `outDir`.
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   output: 'server',
 		 *   build: {
 		 *     client: './client'
 		 *   }
-		 * }
+		 * });
 		 * ```
 		 */
 		client?: string;
@@ -1057,11 +1375,14 @@ export interface AstroUserConfig<
 		 * This value is relative to the `outDir`.
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   build: {
 		 *     server: './server'
 		 *   }
-		 * }
+		 * });
 		 * ```
 		 */
 		server?: string;
@@ -1076,11 +1397,14 @@ export interface AstroUserConfig<
 		 * Specifies the directory in the build output where Astro-generated assets (bundled JS and CSS for example) should live.
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   build: {
 		 *     assets: '_custom'
 		 *   }
-		 * }
+		 * });
 		 * ```
 		 */
 		assets?: string;
@@ -1099,11 +1423,14 @@ export interface AstroUserConfig<
 		 * To fetch all assets uploaded to the same domain (e.g. `https://cdn.example.com/_astro/...`), set `assetsPrefix` to the root domain as a string (regardless of your `base` configuration):
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   build: {
 		 *     assetsPrefix: 'https://cdn.example.com'
 		 *   }
-		 * }
+		 * });
 		 * ```
 		 *
 		 * **Added in:** `astro@4.5.0`
@@ -1112,7 +1439,10 @@ export interface AstroUserConfig<
 		 * In this case, a `fallback` property is required and will be used by default for any other files.
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   build: {
 		 *     assetsPrefix: {
 		 *       'js': 'https://js.cdn.example.com',
@@ -1121,7 +1451,7 @@ export interface AstroUserConfig<
 		 *       'fallback': 'https://cdn.example.com'
 		 *     }
 		 *   }
-		 * }
+		 * });
 		 * ```
 		 *
 		 */
@@ -1140,11 +1470,14 @@ export interface AstroUserConfig<
 		 * detects that the file is a JavaScript module.
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   build: {
 		 *     serverEntry: 'main.mjs'
 		 *   }
-		 * }
+		 * });
 		 * ```
 		 */
 		serverEntry?: string;
@@ -1163,11 +1496,14 @@ export interface AstroUserConfig<
 		 * configuration files for redirects and do not need/want HTML based redirects.
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   build: {
 		 *     redirects: false
 		 *   }
-		 * }
+		 * });
 		 * ```
 		 */
 		redirects?: boolean;
@@ -1184,11 +1520,14 @@ export interface AstroUserConfig<
 		 *  - `'never'` - project styles are sent in external stylesheets
 		 *
 		 * ```js
-		 * {
-		 * 	build: {
-		 *		inlineStylesheets: `never`,
-		 * 	},
-		 * }
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   build: {
+		 *     inlineStylesheets: `never`,
+		 *   },
+		 * });
 		 * ```
 		 */
 		inlineStylesheets?: 'always' | 'auto' | 'never';
@@ -1207,11 +1546,14 @@ export interface AstroUserConfig<
 		 * If the number is set too high, page rendering may slow down due to insufficient memory resources and because JS is single-threaded.
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   build: {
 		 *     concurrency: 2
 		 *   }
-		 * }
+		 * });
 		 * ```
 		 *
 		 *  :::caution[Breaking changes possible]
@@ -1230,20 +1572,27 @@ export interface AstroUserConfig<
 	 * Customize the Astro dev server, used by both `astro dev` and `astro preview`.
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   server: { port: 1234, host: true}
-	 * }
+	 * });
 	 * ```
 	 *
 	 * To set different configuration based on the command run ("dev", "preview") a function can also be passed to this configuration option.
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   // Example: Use the function syntax to customize based on command
 	 *   server: ({ command }) => ({ port: command === 'dev' ? 4321 : 4000 })
-	 * }
+	 * });
 	 * ```
 	 */
+	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
 
 	/**
 	 * @docs
@@ -1269,9 +1618,12 @@ export interface AstroUserConfig<
 	 * If the given port is already in use, Astro will automatically try the next available port.
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   server: { port: 8080 }
-	 * }
+	 * });
 	 * ```
 	 */
 
@@ -1287,11 +1639,14 @@ export interface AstroUserConfig<
 	 * hostname is allowed.
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   server: {
-	 *   	allowedHosts: ['staging.example.com', 'qa.example.com']
+	 *     allowedHosts: ['staging.example.com', 'qa.example.com']
 	 *   }
-	 * }
+	 * });
 	 * ```
 	 */
 
@@ -1307,9 +1662,12 @@ export interface AstroUserConfig<
 	 * Pass a full URL string (e.g. "http://example.com") or a pathname (e.g. "/about") to specify the URL to open.
 	 *
 	 * ```js
-	 * {
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
 	 *   server: { open: "/about" }
-	 * }
+	 * });
 	 * ```
 	 */
 
@@ -1323,35 +1681,151 @@ export interface AstroUserConfig<
 	 * Set custom HTTP response headers to be sent in `astro dev` and `astro preview`.
 	 */
 
-	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name fetchFile
+	 * @type {string | null}
+	 * @default `'fetch'`
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * Customizes the file used as the fetch entrypoint inside `srcDir`.
+	 * Defaults to `'fetch'`, meaning Astro looks for `src/fetch.ts` (or `.js` / `.mjs` / `.mts`).
+	 *
+	 * The fetch file allows you to compose Astro's request pipeline with the
+	 * Web Fetch standard or your own Hono middleware.
+	 *
+	 * If you already have a `src/fetch.ts` file in use for other purposes, define a
+	 * different filename or set the value to `null` to disable the entrypoint:
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   fetchFile: 'handler',
+	 * });
+	 * ```
+	 *
+	 * Learn more about customizing the request pipeline in the [advanced routing guide](https://docs.astro.build/en/guides/routing/#advanced-routing).
+	 */
+	fetchFile?: string | null;
 
 	/**
 	 * @docs
 	 * @kind heading
+	 * @name Logger Options
+	 * @type {LoggerHandlerConfig}
+	 * @default `undefined`
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * Configures how Astro logs messages during development and production.
+	 *
+	 * By default, Astro uses a built-in logger that outputs human-friendly logs to the console. You can customize this behavior by providing [your own logger handler](https://docs.astro.build/en/reference/logger-reference/#custom-loggers) or by using one of the [built-in log handlers](https://docs.astro.build/en/reference/logger-reference/#built-in-loggers):
+	 *
+	 * ```js title="astro.config.mjs"
+	 * import { defineConfig, logHandlers } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   logger: logHandlers.json({ level: 'info' })
+	 * });
+	 * ```
+	 *
+	 * See [the logger API reference](https://docs.astro.build/en/reference/logger-reference/) for more information.
+	 */
+	logger?: LoggerHandlerConfig;
+
+	/**
+	 * @docs
+	 * @name logger.entrypoint
+	 * @type {string | URL}
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * The entrypoint for the [logger implementation](https://docs.astro.build/en/reference/logger-reference/#the-logger-implementation).
+	 * This can be an npm package, a path relative to your project root, or a `URL` pointing to a
+	 * file in your project:
+	 *
+	 * ```js title="astro.config.mjs"
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   logger: {
+	 *     entrypoint: "@org/astro-logger",
+	 *   }
+	 * });
+	 * ```
+	 *
+	 * The logger entrypoint must be a JavaScript file. TypeScript is not supported. If Astro fails to load
+	 *  the implementation, it falls back to its default logger.
+	 */
+
+	/**
+	 * @docs
+	 * @name logger.config
+	 * @type {Record<string, unknown> | undefined}
+	 * @version 7.0.0
+	 * @default `{}`
+	 * @description
+	 *
+	 * The configuration object for the log handler. The options depend on the configured logger.
+	 *
+	 * ```js title="astro.config.mjs"
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   logger: {
+	 *     entrypoint: "@org/astro-logger",
+	 *     config: {
+	 *      level: "error"
+	 *     }
+	 *   }
+	 * });
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @type {object | false}
 	 * @version 5.7.0
 	 * @name Session Options
 	 * @description
 	 *
 	 * Configures session storage for your Astro project. This is used to store session data in a persistent way, so that it can be accessed across different requests.
-	 * Some adapters may provide a default session driver, but you can override it with your own configuration.
 	 *
-	 * See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.
+	 * Some adapters may provide a default session driver, but you can override it with your own configuration:
 	 *
 	 * ```js title="astro.config.mjs"
-	 *   {
-	 *     session: {
-	 *       // The name of the Unstorage driver
-	 *       driver: 'redis',
-	 *       // The required options depend on the driver
-	 *       options: {
-	 *         url: process.env.REDIS_URL,
-	 *       },
-	 *       ttl: 3600, // 1 hour
-	 *     }
+	 * import { defineConfig, sessionDrivers } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   session: {
+	 *     driver: sessionDrivers.redis({
+	 *       // The options are driver-dependent and some may be required.
+	 *       url: process.env.REDIS_URL
+	 *     }),
 	 *   }
+	 * });
 	 * ```
+	 *
+	 * Session drivers are configured at build time. This means environment variables used in the driver configuration are inlined. You must create your own driver entrypoint to [override the configuration at runtime](https://docs.astro.build/en/guides/sessions/#overriding-the-configuration-at-runtime).
+	 *
+	 * Since Astro v7.2.0, you can opt out of session support by setting the option to `false`. When sessions are disabled, the session runtime is excluded from the SSR bundle, and adapters skip wiring their default session driver. This is useful for serverless and edge runtimes where bundle parse time is sensitive.
+	 *
+	 * ```js title="astro.config.mjs"
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   session: false,
+	 * });
+	 * ```
+	 *
+	 * See [the sessions guide](https://docs.astro.build/en/guides/sessions/) for more information.
 	 */
-	session?: SessionConfig<TDriver>;
+	session?: SessionConfig<TDriver> | false;
 
 	/**
 	 * @docs
@@ -1370,13 +1844,13 @@ export interface AstroUserConfig<
 	 * import vercel from '@astrojs/vercel'
 	 *
 	 * export default defineConfig({
-	 *   adapter: vercel()
+	 *   adapter: vercel(),
 	 *   session: {
 	 *     driver: sessionDrivers.redis({
 	 *       url: process.env.REDIS_URL
 	 *     }),
 	 *   }
-	 * })
+	 * });
 	 * ```
 	 *
 	 * :::note
@@ -1399,15 +1873,17 @@ export interface AstroUserConfig<
 	 * The driver-specific options to use for session storage. The options depend on the driver you are using. See the [Unstorage documentation](https://unstorage.unjs.io/drivers)
 	 * for more information on the options available for each driver.
 	 *
-	 * ```js title="astro.config.mjs" ins={4-6}
-	 * {
-	 *    session: {
-	 *      driver: "redis",
-	 *      options: {
-	 *        url: process.env.REDIS_URL
-	 *      },
-	 *    }
-	 * }
+	 * ```js title="astro.config.mjs" ins={6-8}
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   session: {
+	 *     driver: "redis",
+	 *     options: {
+	 *       url: process.env.REDIS_URL
+	 *     },
+	 *   }
+	 * });
 	 * ```
 	 */
 
@@ -1422,27 +1898,30 @@ export interface AstroUserConfig<
 	 * The session cookie configuration. If set to a string, it will be used as the cookie name.
 	 * Alternatively, you can pass an object with additional options. These will be merged with the defaults.
 	 *
-	 * ```js title="astro.config.mjs" ins={3-4}
-	 * {
-	 *  session: {
-	 *    // If set to a string, it will be used as the cookie name.
-	 *    cookie: "my-session-cookie",
-	 *  }
-	 * }
+	 * ```js title="astro.config.mjs" ins={5-6}
+	 * import { defineConfig } from 'astro/config';
 	 *
+	 * export default defineConfig({
+	 *   session: {
+	 *     // If set to a string, it will be used as the cookie name.
+	 *     cookie: "my-session-cookie",
+	 *   }
+	 * });
 	 * ```
 	 *
-	 * ```js title="astro.config.mjs" ins={4-8}
-	 * {
-	 *  session: {
-	 *    // If set to an object, it will be used as the cookie options.
-	 *    cookie: {
-	 *      name: "my-session-cookie",
-	 *      sameSite: "lax",
-	 *      secure: true,
-	 *    }
-	 *  }
-	 * }
+	 * ```js title="astro.config.mjs" ins={5-10}
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   session: {
+	 *     // If set to an object, it will be used as the cookie options.
+	 *     cookie: {
+	 *       name: "my-session-cookie",
+	 *       sameSite: "lax",
+	 *       secure: true,
+	 *     }
+	 *   }
+	 * });
 	 * ```
 	 */
 
@@ -1457,16 +1936,18 @@ export interface AstroUserConfig<
 	 * An optional default time-to-live expiration period for session values, in seconds.
 	 *
 	 * By default, session values persist until they are deleted or the session is destroyed, and do not automatically expire because a particular amount of time has passed.
-	 * Set `session.ttl` to add a default expiration period for your session values. Passing a `ttl` option to [`session.set()`](https://docs.astro.build/en/reference/api-reference/#set) will override the global default
+	 * Set `session.ttl` to add a default expiration period for your session values. Passing a `ttl` option to [`session.set()`](https://docs.astro.build/en/reference/api-reference/#sessionset) will override the global default
 	 * for that individual entry.
 	 *
-	 * ```js title="astro.config.mjs" ins={3-4}
-	 * {
-	 *  session: {
-	 *    // Set a default expiration period of 1 hour (3600 seconds)
-	 *    ttl: 3600,
-	 *  }
-	 * }
+	 * ```js title="astro.config.mjs" ins={5-6}
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   session: {
+	 *     // Set a default expiration period of 1 hour (3600 seconds)
+	 *     ttl: 3600,
+	 *   }
+	 * });
 	 * ```
 	 * :::note
 	 * Setting a value for `ttl` does not automatically delete the value from storage after the time limit has passed.
@@ -1541,9 +2022,14 @@ export interface AstroUserConfig<
 				 * This value defaults to `true` when using the `<ClientRouter />` router. Otherwise, the default value is `false`.
 				 *
 				 * ```js
-				 * prefetch: {
-				 * 	prefetchAll: true
-				 * }
+				 * // astro.config.mjs
+				 * import { defineConfig } from 'astro/config';
+				 *
+				 * export default defineConfig({
+				 *   prefetch: {
+				 *     prefetchAll: true,
+				 *   },
+				 * });
 				 * ```
 				 *
 				 * When set to `true`, you can disable prefetching individually by setting `data-astro-prefetch="false"` on any individual links.
@@ -1592,15 +2078,18 @@ export interface AstroUserConfig<
 		 * Set the endpoint to use for image optimization in dev and SSR. The `entrypoint` property can be set to `undefined` to use the default image endpoint.
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   image: {
 		 *     // Example: Use a custom image endpoint at `/custom_endpoint`
 		 *     endpoint: {
-		 * 		 	route: '/custom_endpoint',
-		 * 		 	entrypoint: 'src/my_endpoint.ts',
-		 * 		},
+		 *       route: '/custom_endpoint',
+		 *       entrypoint: 'src/my_endpoint.ts',
+		 *     },
 		 *   },
-		 * }
+		 * });
 		 * ```
 		 */
 		endpoint?: {
@@ -1622,17 +2111,27 @@ export interface AstroUserConfig<
 		 * The service entrypoint can be either one of the included services, or a third-party package.
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   image: {
 		 *     // Example: Enable the Sharp-based image service with a custom config
 		 *     service: {
-		 * 			 entrypoint: 'astro/assets/services/sharp',
-		 * 			 config: {
-		 * 				 limitInputPixels: false,
+		 *       entrypoint: 'astro/assets/services/sharp',
+		 *       config: {
+		 *         limitInputPixels: false,
+		 *         webp: {
+		 *           effort: 6,
+		 *           alphaQuality: 80,
+		 *         },
+		 *         jpeg: {
+		 *           mozjpeg: true,
+		 *         },
 		 *       },
-		 * 		 },
+		 *     },
 		 *   },
-		 * }
+		 * });
 		 * ```
 		 */
 		service?: ImageServiceConfig;
@@ -1666,6 +2165,80 @@ export interface AstroUserConfig<
 
 		/**
 		 * @docs
+		 * @name image.service.config.jpeg
+		 * @kind h4
+		 * @type {Record<string, any> | undefined}
+		 * @default `undefined`
+		 * @version 6.1.0
+		 * @description
+		 *
+		 * The default encoder options passed to `sharp().jpeg()` when using Astro's built-in Sharp image service.
+		 *
+		 * This can be used for options such as `mozjpeg`, `progressive`, `chromaSubsampling`, or a default `quality`.
+		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.service.config.webp
+		 * @kind h4
+		 * @type {Record<string, any> | undefined}
+		 * @default `undefined`
+		 * @version 6.1.0
+		 * @description
+		 *
+		 * The default encoder options passed to `sharp().webp()` when using Astro's built-in Sharp image service.
+		 *
+		 * This can be used for options such as `effort`, `alphaQuality`, `lossless`, `nearLossless`, or a default `quality`.
+		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.service.config.avif
+		 * @kind h4
+		 * @type {Record<string, any> | undefined}
+		 * @default `undefined`
+		 * @version 6.1.0
+		 * @description
+		 *
+		 * The default encoder options passed to `sharp().avif()` when using Astro's built-in Sharp image service.
+		 *
+		 * This can be used for options such as `effort`, `chromaSubsampling`, `bitdepth`, `lossless`, or a default `quality`.
+		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.service.config.png
+		 * @kind h4
+		 * @type {Record<string, any> | undefined}
+		 * @default `undefined`
+		 * @version 6.1.0
+		 * @description
+		 *
+		 * The default encoder options passed to `sharp().png()` when using Astro's built-in Sharp image service.
+		 *
+		 * This can be used for options such as `compressionLevel`, `effort`, `palette`, or a default `quality`.
+		 * Per-image `quality` values from `<Image />`, `<Picture />`, and `getImage()` still take precedence.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.dangerouslyProcessSVG
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 6.3.0
+		 * @description
+		 *
+		 * Allows SVG source images to be processed by the image optimization pipeline.
+		 *
+		 * This is disabled by default as specifically formed SVGs can be prohibitively expensive to process and used by malicious actors to execute denial of service attacks. Only enable this option if you trust the source of your SVG images and understand the risks of processing them.
+		 */
+		dangerouslyProcessSVG?: boolean;
+
+		/**
+		 * @docs
 		 * @name image.domains
 		 * @type {string[]}
 		 * @default `[]`
@@ -1677,12 +2250,14 @@ export interface AstroUserConfig<
 		 *
 		 * ```js
 		 * // astro.config.mjs
-		 * {
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   image: {
 		 *     // Example: Allow remote image optimization from a single domain
 		 *     domains: ['astro.build'],
 		 *   },
-		 * }
+		 * });
 		 * ```
 		 */
 		domains?: string[];
@@ -1703,7 +2278,10 @@ export interface AstroUserConfig<
 		 * 4. pathname
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   image: {
 		 *     // Example: allow processing all images from your aws s3 bucket
 		 *     remotePatterns: [{
@@ -1711,17 +2289,20 @@ export interface AstroUserConfig<
 		 *       hostname: '**.amazonaws.com',
 		 *     }],
 		 *   },
-		 * }
+		 * });
 		 * ```
 		 *
-		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured:
-		 * `hostname`:
-		 *   - Start with '**.' to allow all subdomains ('endsWith').
-		 *   - Start with '*.' to allow only one level of subdomain.
+		 * You can use wildcards to define the permitted `hostname` and `pathname` values as described below. Otherwise, only the exact values provided will be configured.
 		 *
-		 * `pathname`:
-		 *   - End with '/**' to allow all sub-routes ('startsWith').
-		 *   - End with '/*' to allow only one level of sub-route.
+		 * `hostname` patterns:
+		 *   - Start with `**.` to allow all subdomains (like `endsWith`).
+		 *   - Start with `*.` to allow only one level of subdomain.
+		 *
+		 * `pathname` patterns:
+		 *   - End with `/**` to allow all sub-routes (like `startsWith`).
+		 *   - End with `/*` to allow only one level of sub-route.
+		 *
+		 * HTTP redirects are also followed when an image URL matches a remote pattern. The final destination URL must be among the allowed remote patterns to be loaded.
 
 		 */
 		remotePatterns?: Partial<RemotePattern>[];
@@ -1865,12 +2446,15 @@ export interface AstroUserConfig<
 		 * - `false` - do not apply syntax highlighting.
 
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   markdown: {
 		 *     // Example: Switch to use prism for syntax highlighting in Markdown
 		 *     syntaxHighlight: 'prism',
 		 *   }
-		 * }
+		 * });
 		 * ```
 		 *
 	 	 * For more control over syntax highlighting, you can instead specify a configuration object with the properties listed below.
@@ -1926,16 +2510,22 @@ export interface AstroUserConfig<
 		 * @docs
 		 * @name markdown.remarkPlugins
 		 * @type {RemarkPlugins}
+		 * @deprecated This property is deprecated and will be removed in a future major version. Pass plugins to the configured [`markdown.processor`](https://docs.astro.build/en/reference/configuration-reference/#markdownprocessor) instead.
+		 *
+		 * Learn more about [setting up a Markdown processor](https://docs.astro.build/en/guides/markdown-content/#setting-up-a-markdown-processor) and [using plugins](https://docs.astro.build/en/guides/markdown-content/#markdown-processor-plugins) in the Markdown guide.
 		 * @description
 		 * Pass [remark plugins](https://github.com/remarkjs/remark) to customize how your Markdown is built. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
 		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
 		 * import remarkToc from 'remark-toc';
-		 * {
+		 *
+		 * export default defineConfig({
 		 *   markdown: {
 		 *     remarkPlugins: [ [remarkToc, { heading: "contents"} ] ]
 		 *   }
-		 * }
+		 * });
 		 * ```
 		 */
 		remarkPlugins?: RemarkPlugins;
@@ -1943,16 +2533,22 @@ export interface AstroUserConfig<
 		 * @docs
 		 * @name markdown.rehypePlugins
 		 * @type {RehypePlugins}
+		 * @deprecated This property is deprecated and will be removed in a future major version. Pass plugins to the configured [`markdown.processor`](https://docs.astro.build/en/reference/configuration-reference/#markdownprocessor) instead.
+		 *
+		 * Learn more about [setting up a Markdown processor](https://docs.astro.build/en/guides/markdown-content/#setting-up-a-markdown-processor) and [using plugins](https://docs.astro.build/en/guides/markdown-content/#markdown-processor-plugins) in the Markdown guide.
 		 * @description
 		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
 		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
 		 * import { rehypeAccessibleEmojis } from 'rehype-accessible-emojis';
-		 * {
+		 *
+		 * export default defineConfig({
 		 *   markdown: {
 		 *     rehypePlugins: [rehypeAccessibleEmojis]
 		 *   }
-		 * }
+		 * });
 		 * ```
 		 */
 		rehypePlugins?: RehypePlugins;
@@ -1962,53 +2558,113 @@ export interface AstroUserConfig<
 		 * @type {boolean}
 		 * @default `true`
 		 * @version 2.0.0
+		 * @deprecated This property is deprecated and will be removed in a future major version. Pass `gfm` to the configured [`markdown.processor`](https://docs.astro.build/en/reference/configuration-reference/#markdownprocessor) instead.
+		 *
+		 * Learn more about [setting up a Markdown processor](https://docs.astro.build/en/guides/markdown-content/#setting-up-a-markdown-processor) and [using GitHub-flavored Markdown](https://docs.astro.build/en/guides/markdown-content/#github-flavored-markdown) in the Markdown guide.
 		 * @description
 		 * Astro uses [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) by default. To disable this, set the `gfm` flag to `false`:
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   markdown: {
 		 *     gfm: false,
 		 *   }
-		 * }
+		 * });
 		 * ```
 		 */
 		gfm?: boolean;
+
 		/**
 		 * @docs
 		 * @name markdown.smartypants
-		 * @type {boolean}
+		 * @type {boolean | Smartypants}
 		 * @default `true`
 		 * @version 2.0.0
-		 * @description
-		 * Astro uses the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) by default. To disable this, set the `smartypants` flag to `false`:
+		 * @deprecated This property is deprecated and will be removed in a future major version. Pass it to the configured [`markdown.processor`](https://docs.astro.build/en/reference/configuration-reference/#markdownprocessor) instead. Use `smartypants` for `unified()` or `smartPunctuation` for `satteri()`.
 		 *
-		 * ```js
-		 * {
-		 *   markdown: {
-		 *     smartypants: false,
-		 *   }
-		 * }
-		 * ```
+		 * Learn more about [setting up a Markdown processor](https://docs.astro.build/en/guides/markdown-content/#setting-up-a-markdown-processor) and [using smart punctuation](https://docs.astro.build/en/guides/markdown-content/#smart-punctuation) in the Markdown guide.
+		 * @description
+		 * Whether to use the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) to transform straight quotes into smart quotes, dashes into en/em dashes, and triple dots into ellipses.
+		 *
+		 * To disable this, set the `smartypants` flag to `false`.
+		 *
+		 * For more control over typography, you can instead specify a configuration object with the [properties supported by `retext-smartypants`](https://github.com/retextjs/retext-smartypants?tab=readme-ov-file#fields).
 		 */
-		smartypants?: boolean;
+		smartypants?: boolean | Smartypants;
+
 		/**
 		 * @docs
 		 * @name markdown.remarkRehype
 		 * @type {RemarkRehype}
+		 * @deprecated This property is deprecated and will be removed in a future major version.
+		 *
+		 * To configure footnotes, pass `remarkRehype` to the `unified()` processor or `gfm.footnotes` to the `satteri()` processor instead. Other `remark-rehype` options are only supported when using `unified()`.
+		 *
+		 * Learn more about [setting up a Markdown processor](https://docs.astro.build/en/guides/markdown-content/#setting-up-a-markdown-processor) and [using built-in features](https://docs.astro.build/en/guides/markdown-content/#built-in-features) in the Markdown guide.
 		 * @description
 		 * Pass options to [remark-rehype](https://github.com/remarkjs/remark-rehype#api).
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   markdown: {
 		 *     // Example: Translate the footnotes text to another language, here are the default English values
 		 *     remarkRehype: { footnoteLabel: "Footnotes", footnoteBackLabel: "Back to reference 1"},
 		 *   },
-		 * };
+		 * });
 		 * ```
 		 */
 		remarkRehype?: RemarkRehype;
+
+		/**
+		 * @docs
+		 * @name markdown.processor
+		 * @type {MarkdownProcessor}
+		 * @version 6.4.0
+		 * @description
+		 * Configures the [Markdown processor](https://docs.astro.build/en/guides/markdown-content/#markdown-processors) used to render `.md` files.
+		 *
+		 * Sätteri, Astro’s native Markdown pipeline, is the default processor. To configure it, install `@astrojs/markdown-satteri` and pass options to `satteri()`:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 * import { satteri } from '@astrojs/markdown-satteri';
+		 *
+		 * export default defineConfig({
+		 *   markdown: {
+		 *     processor: satteri({
+		 *       features: { gfm: false },
+		 *     }),
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * To keep the remark/rehype pipeline, install `@astrojs/markdown-remark` and pass `unified()`:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 * import { unified } from '@astrojs/markdown-remark';
+		 * import remarkToc from 'remark-toc';
+		 *
+		 * export default defineConfig({
+		 *   markdown: {
+		 *     processor: unified({
+		 *       remarkPlugins: [remarkToc],
+		 *     }),
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * Learn more about the [official Markdown processors and how to choose one](https://docs.astro.build/en/guides/markdown-content/#choosing-a-markdown-processor) in the Markdown guide.
+		 */
+		processor?: MarkdownProcessor;
 	};
 
 	/**
@@ -2068,16 +2724,19 @@ export interface AstroUserConfig<
 		 * The following example configures your content fallback strategy to redirect unavailable pages in `/pt-br/` to their `es` version, and unavailable pages in `/fr/` to their `en` version. Unavailable `/es/` pages will return a 404.
 		 *
 		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
 		 * export default defineConfig({
-		 * 	i18n: {
-		 * 		defaultLocale: "en",
-		 * 		locales: ["en", "fr", "pt-br", "es"],
-		 * 		fallback: {
-		 * 			pt: "es",
-		 * 		  fr: "en"
-		 * 		}
-		 * 	}
-		 * })
+		 *   i18n: {
+		 *     defaultLocale: "en",
+		 *     locales: ["en", "fr", "pt-br", "es"],
+		 *     fallback: {
+		 *       "pt-br": "es",
+		 *       fr: "en"
+		 *     }
+		 *   }
+		 * });
 		 * ```
 		 */
 		fallback?: [TLocales] extends [never]
@@ -2100,29 +2759,35 @@ export interface AstroUserConfig<
 		 * Controls the routing strategy to determine your site URLs. Set this based on your folder/URL path configuration for your default language.
 		 *
 		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
 		 * export default defineConfig({
-		 * 	i18n: {
-		 * 		defaultLocale: "en",
-		 * 		locales: ["en", "fr"],
-		 * 		routing: {
-		 * 			prefixDefaultLocale: false,
-		 * 			redirectToDefaultLocale: true,
-		 * 			fallbackType: "redirect",
-		 * 		}
-		 * 	}
-		 * })
+		 *   i18n: {
+		 *     defaultLocale: "en",
+		 *     locales: ["en", "fr"],
+		 *     routing: {
+		 *       prefixDefaultLocale: false,
+		 *       redirectToDefaultLocale: true,
+		 *       fallbackType: "redirect",
+		 *     }
+		 *   }
+		 * });
 		 * ```
 		 *
 		 * Since 4.6.0, this option can also be set to `manual`. When this routing strategy is enabled, Astro will **disable** its i18n middleware and no other `routing` options (e.g. `prefixDefaultLocale`) may be configured. You will be responsible for writing your own routing logic, or executing Astro's i18n middleware manually alongside your own.
 		 *
 		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
 		 * export default defineConfig({
-		 * 	i18n: {
-		 * 		defaultLocale: "en",
-		 * 		locales: ["en", "fr"],
-		 * 		routing: "manual"
-		 * 	}
-		 * })
+		 *   i18n: {
+		 *     defaultLocale: "en",
+		 *     locales: ["en", "fr"],
+		 *     routing: "manual"
+		 *   }
+		 * });
 		 * ```
 		 *
 		 */
@@ -2146,15 +2811,18 @@ export interface AstroUserConfig<
 					 * Localized folders are used for every language, including the default.
 					 *
 					 * ```js
+					 * // astro.config.mjs
+					 * import { defineConfig } from 'astro/config';
+					 *
 					 * export default defineConfig({
-					 * 	i18n: {
-					 * 		defaultLocale: "en",
-					 * 		locales: ["en", "fr", "pt-br", "es"],
-					 * 		routing: {
-					 * 			prefixDefaultLocale: true,
-					 * 		}
-					 * 	}
-					 * })
+					 *   i18n: {
+					 *     defaultLocale: "en",
+					 *     locales: ["en", "fr", "pt-br", "es"],
+					 *     routing: {
+					 *       prefixDefaultLocale: true,
+					 *     }
+					 *   }
+					 * });
 					 * ```
 					 */
 					prefixDefaultLocale?: boolean;
@@ -2174,17 +2842,19 @@ export interface AstroUserConfig<
 					 * Set `redirectToDefaultLocale: true` to enable this automatic redirection at the root of your site:
 					 * ```js
 					 * // astro.config.mjs
+					 * import { defineConfig } from 'astro/config';
+					 *
 					 * export default defineConfig({
 					 *   i18n:{
 					 *     defaultLocale: "en",
-					 * 		locales: ["en", "fr"],
+					 *     locales: ["en", "fr"],
 					 *     routing: {
 					 *       prefixDefaultLocale: true,
 					 *       redirectToDefaultLocale: true
 					 *     }
 					 *   }
-					 * })
-					 *```
+					 * });
+					 * ```
 					 * */
 					redirectToDefaultLocale?: boolean;
 
@@ -2208,19 +2878,21 @@ export interface AstroUserConfig<
 					 *
 					 * ```js
 					 * //astro.config.mjs
+					 * import { defineConfig } from 'astro/config';
+					 *
 					 * export default defineConfig({
-					 * 	 i18n: {
+					 *   i18n: {
 					 *     defaultLocale: "en",
 					 *     locales: ["en", "fr"],
 					 *     routing: {
-					 *     	prefixDefaultLocale: false,
-					 *     	fallbackType: "rewrite",
+					 *       prefixDefaultLocale: false,
+					 *       fallbackType: "rewrite",
 					 *     },
 					 *     fallback: {
-					 *     	fr: "en",
+					 *       fr: "en",
 					 *     }
 					 *   },
-					 * })
+					 * });
 					 * ```
 					 */
 					fallbackType?: 'redirect' | 'rewrite';
@@ -2245,21 +2917,23 @@ export interface AstroUserConfig<
 		 * ```js
 		 * //astro.config.mjs
 		 * export default defineConfig({
-		 * 	 site: "https://example.com",
-		 * 	 output: "server", // required, with no prerendered pages
-		 * 	 adapter: node({
-		 * 	   mode: 'standalone',
-		 * 	 }),
-		 * 	 i18n: {
+		 *   site: "https://example.com",
+		 *   output: "server", // required, with no prerendered pages
+		 *   adapter: node({
+		 *     mode: 'standalone',
+		 *   }),
+		 *   i18n: {
 		 *     defaultLocale: "en",
 		 *     locales: ["en", "fr", "pt-br", "es"],
-		 *     prefixDefaultLocale: false,
+		 *     routing: {
+		 *       prefixDefaultLocale: false,
+		 *     },
 		 *     domains: {
 		 *       fr: "https://fr.example.com",
 		 *       es: "https://example.es"
 		 *     }
 		 *   },
-		 * })
+		 * });
 		 * ```
 		 *
 		 * Both page routes built and URLs returned by the `astro:i18n` helper functions [`getAbsoluteLocaleUrl()`](https://docs.astro.build/en/reference/modules/astro-i18n/#getabsolutelocaleurl) and [`getAbsoluteLocaleUrlList()`](https://docs.astro.build/en/reference/modules/astro-i18n/#getabsolutelocaleurllist) will use the options set in `i18n.domains`.
@@ -2293,7 +2967,7 @@ export interface AstroUserConfig<
 		 * @version 5.0.0
 		 * @description
 		 *
-		 * Defines environment variables to be enforced by Zod validation and for which TypeScript support (e.g. autocompletion, type-safety) is available. Each key corresponds to the variable name and the value to the data type and validations [defined with `envField`](https://v6.docs.astro.build/en/reference/modules/astro-config/#envfield).
+		 * Defines environment variables to be enforced by Zod validation and for which TypeScript support (e.g. autocompletion, type-safety) is available. Each key corresponds to the variable name and the value to the data type and validations [defined with `envField`](https://docs.astro.build/en/reference/modules/astro-config/#envfield).
 		 *
 		 * Four data types are supported: string, number, enumeration, and boolean. Each type requires a `context` (client or server), an `access` level (public or secret), and additional validations, such as a `default` value and an indication of whether the variable is `optional` (defaults to `false`).
 		 *
@@ -2309,7 +2983,7 @@ export interface AstroUserConfig<
 		 *       API_SECRET: envField.string({ context: "server", access: "secret" }),
 		 *     }
 		 *   }
-		 * })
+		 * });
 		 * ```
 		 */
 		schema?: EnvSchema;
@@ -2337,7 +3011,7 @@ export interface AstroUserConfig<
 		 *     },
 		 *     validateSecrets: true
 		 *   }
-		 * })
+		 * });
 		 * ```
 		 */
 		validateSecrets?: boolean;
@@ -2353,8 +3027,13 @@ export interface AstroUserConfig<
 	 * @description
 	 * Configures fonts and allows you to specify some customization options on a per-font basis.
 	 *
-	 * See our guide for more information on [using custom fonts in Astro](https://v6.docs.astro.build/en/guides/fonts/).
+	 * See our guide for more information on [using custom fonts in Astro](https://docs.astro.build/en/guides/fonts/).
 	 */
+	fonts?: [TFontProviders] extends [never]
+		? Array<FontFamily>
+		: {
+				[K in keyof TFontProviders]: FontFamily<TFontProviders[K]>;
+			};
 
 	/**
 	 * @docs
@@ -2362,9 +3041,10 @@ export interface AstroUserConfig<
 	 * @type {FontProvider}
 	 * @version 6.0.0
 	 * @description
-	 * The source of your font files. You can use a [built-in provider](https://v6.docs.astro.build/en/reference/font-provider-reference/#built-in-providers) or write your own [custom provider](https://v6.docs.astro.build/en/reference/font-provider-reference/#building-a-font-provider):
+	 * The source of your font files. You can use a [built-in provider](https://docs.astro.build/en/reference/font-provider-reference/#built-in-providers) or write your own [custom provider](https://docs.astro.build/en/reference/font-provider-reference/#building-a-font-provider):
 	 *
 	 * ```js
+	 * // astro.config.mjs
 	 * import { defineConfig, fontProviders } from "astro/config";
 	 *
 	 * export default defineConfig({
@@ -2432,7 +3112,7 @@ export interface AstroUserConfig<
 	 * @default `true`
 	 * @version 6.0.0
 	 * @description
-	 * Whether or not to enable Astro's default optimization when generating fallback fonts. You may disable this default optimization to have full control over how [`fallbacks`](https://v6.docs.astro.build/en/reference/configuration-reference/#fontfallbacks) are generated:
+	 * Whether or not to enable Astro's default optimization when generating fallback fonts. You may disable this default optimization to have full control over how [`fallbacks`](https://docs.astro.build/en/reference/configuration-reference/#fontfallbacks) are generated:
 	 *
 	 * ```js
 	 * optimizedFallbacks: false
@@ -2507,7 +3187,7 @@ export interface AstroUserConfig<
 	 * @type {Record<string, any>}
 	 * @version 6.0.0
 	 * @description
-	 * An object to pass provider specific options. It is typed automatically based on the font family [provider](https://v6.docs.astro.build/en/reference/configuration-reference/#fontprovider):
+	 * An object to pass provider specific options. It is typed automatically based on the font family [provider](https://docs.astro.build/en/reference/configuration-reference/#fontprovider):
 	 *
 	 * ```js
 	 * options: {
@@ -2539,7 +3219,7 @@ export interface AstroUserConfig<
 	 * @default `undefined`
 	 * @version 6.0.0
 	 * @description
-	 * Determines when a font must be downloaded and used based on a specific [range of unicode characters](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range). If a character on the page matches the configured range, the browser will download the font and all characters will be available for use on the page. To configure a subset of characters preloaded for a single font, see the [subsets](https://v6.docs.astro.build/en/reference/configuration-reference/#fontsubsets) property instead.
+	 * Determines when a font must be downloaded and used based on a specific [range of unicode characters](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range). If a character on the page matches the configured range, the browser will download the font and all characters will be available for use on the page. To configure a subset of characters preloaded for a single font, see the [subsets](https://docs.astro.build/en/reference/configuration-reference/#fontsubsets) property instead.
 	 *
 	 * This can be useful for localization to avoid unnecessary font downloads when a specific part of your website uses a different alphabet and will be displayed with a separate font. For example, a website that offers both English and Japanese versions can prevent the browser from downloading the Japanese font on English versions of the page that do not contain any of the Japanese characters provided in `unicodeRange`.
 	 *
@@ -2590,11 +3270,87 @@ export interface AstroUserConfig<
 	 * ```
 	 */
 
-	fonts?: [TFontProviders] extends [never]
-		? Array<FontFamily>
-		: {
-				[K in keyof TFontProviders]: FontFamily<TFontProviders[K]>;
-			};
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name cache
+	 * @type {object}
+	 * @default `undefined`
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * Enables route caching for SSR responses. Provides a platform-agnostic API
+	 * for caching rendered pages and API responses, with pluggable providers
+	 * that adapters can configure automatically.
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * import { defineConfig, memoryCache } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   cache: {
+	 *     provider: memoryCache(),
+	 *   },
+	 *   routeRules: {
+	 *     '/blog/[...path]': { maxAge: 300, swr: 60 },
+	 *   },
+	 * });
+	 * ```
+	 *
+	 * Use `Astro.cache.set()` in routes and `context.cache.set()` in middleware
+	 * or API routes to control caching per-request.
+	 */
+	cache?: {
+		/**
+		 * @docs
+		 * @name cache.provider
+		 * @type {CacheProviderConfig}
+		 * @version 7.0.0
+		 * @description
+		 *
+		 * A provider that controls how responses are cached.
+		 *
+		 * Use the provider's config function to get type-safe configuration:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig, memoryCache } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   cache: { provider: memoryCache() },
+		 * });
+		 * ```
+		 */
+		provider?: CacheProviderConfig;
+	};
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name routeRules
+	 * @type {Record<string, RouteRule>}
+	 * @default `undefined`
+	 * @version 7.0.0
+	 * @description
+	 *
+	 * Route patterns mapped to cache rules.
+	 * Uses the same `[param]` and `[...rest]` syntax as [file-based routing](/en/guides/routing/#route-priority-order).
+	 * Use a `[...rest]` parameter to match a group of routes:
+	 *
+	 * ```js
+	 * // astro.config.mjs
+	 * import { defineConfig, memoryCache } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   cache: { provider: memoryCache() },
+	 *   routeRules: {
+	 *     '/api/[...path]': { swr: 600 },
+	 *     '/products/[...slug]': { maxAge: 3600, tags: ['products'] },
+	 *   },
+	 * });
+	 * ```
+	 */
+	routeRules?: RouteRules;
 
 	/**
 	 *
@@ -2650,21 +3406,23 @@ export interface AstroUserConfig<
 		 *
 		 * ```js
 		 * // astro.config.mjs
-		 * {
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   prefetch: {
 		 *     prefetchAll: true,
 		 *     defaultStrategy: 'viewport',
 		 *   },
-		 * 	experimental: {
-		 * 		clientPrerender: true,
-		 * 	},
-		 * }
+		 *   experimental: {
+		 *     clientPrerender: true,
+		 *   },
+		 * });
 		 * ```
 		 *
 		 * Continue to use the `data-astro-prefetch` attribute on any `<a />` link on your site to opt in to prefetching.
 		 * Instead of appending a `<link>` tag to the head of the document or fetching the page with JavaScript, a `<script>` tag will be appended with the corresponding speculation rules.
 		 *
-		 * Client side prerendering requires browser support. If the Speculation Rules API is not supported, `prefetch` will fallback to the supported strategy.
+		 * Client side prerendering requires browser support. If the Speculation Rules API is not supported, `prefetch` will fall back to the supported strategy.
 		 *
 		 * See the [Prefetch Guide](https://docs.astro.build/en/guides/prefetch/) for more `prefetch` options and usage.
 		 */
@@ -2683,11 +3441,14 @@ export interface AstroUserConfig<
 		 * When enabled, this feature will generate and add JSON schemas to the `.astro` directory in your project. These files can be used by the Astro language server to provide Intellisense inside content files (`.md`, `.mdx`, `.mdoc`).
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   experimental: {
 		 *     contentIntellisense: true,
 		 *   },
-		 * }
+		 * });
 		 * ```
 		 *
 		 * To use this feature with the Astro VS Code extension, you must also enable the `astro.content-intellisense` option in your VS Code settings. For editors using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
@@ -2707,6 +3468,7 @@ export interface AstroUserConfig<
 		 * allowing you to edit files directly in the browser and have those changes reflected in your local file system.
 		 *
 		 * ```js
+		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';
 		 *
 		 * export default defineConfig({
@@ -2721,48 +3483,118 @@ export interface AstroUserConfig<
 		chromeDevtoolsWorkspace?: boolean;
 
 		/**
-		 * @name experimental.svgo
-		 * @type {boolean | SvgoConfig}
-		 * @default `false`
+		 * @name experimental.svgOptimizer
+		 * @type {SvgOptimizer}
+		 * @default `undefined`
+		 * @version 6.2.0
 		 * @description
-		 * Enable SVG optimization using SVGO during build time.
-		 *
-		 * Set to `true` to enable optimization with default settings, or pass a configuration
-		 * object to customize SVGO behavior.
+		 * Enable SVG optimization at build time.
 		 *
 		 * When enabled, all imported SVG files will be optimized for smaller file sizes
 		 * and better performance while maintaining visual quality.
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   experimental: {
 		 *     // Enable with defaults
-		 *     svgo: true
+		 *     svgOptimizer: svgoOptimizer()
 		 *   }
-		 * }
+		 * });
 		 * ```
 		 *
-		 * To customize optimization, pass a [SVGO configuration object](https://svgo.dev/):
+		 * See the [experimental SVG optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
+		 */
+		svgOptimizer?: SvgOptimizer;
+
+		/**
+		 * @name experimental.collectionStorage
+		 * @type {'single-file' | 'chunked' | { type: 'chunked', chunkSize: number }}
+		 * @default `'single-file'`
+		 * @version 7.1.0
+		 * @description
+		 *
+		 * Controls how Astro persists the content layer data store.
+		 *
+		 * By default, the entire store is written to a single `data-store.json`
+		 * file. For very large content collections, this file can grow large
+		 * enough to hit platform file-size limits.
+		 *
+		 * When set to `'chunked'`, the store is split into files
+		 * with a maximum size of 20 MiB each. To customize the maximum size,
+		 * pass an object with `type: 'chunked'` and `chunkSize`. A 1 MiB limit
+		 * is recommended for broad adapter compatibility.
 		 *
 		 * ```js
-		 * {
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
 		 *   experimental: {
-		 *     svgo: {
-		 *       plugins: [
-		 *         'preset-default',
-		 *         {
-		 *           name: 'removeViewBox',
-		 *           active: false
-		 *         }
-		 *       ]
-		 *     }
-		 *   }
-		 * }
+		 *     collectionStorage: {
+		 *       type: 'chunked',
+		 *       chunkSize: 1024 * 1024,
+		 *     },
+		 *   },
+		 * });
 		 * ```
 		 *
-		 * See the [experimental SVGO optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
+		 * See the [experimental data store chunking documentation](https://docs.astro.build/en/reference/experimental-flags/collection-storage/) for more information.
 		 */
-		svgo?: boolean | SvgoConfig;
+		collectionStorage?:
+			| 'single-file'
+			| 'chunked'
+			| {
+					type: 'chunked';
+					/** Maximum UTF-8 byte size of each data store chunk. */
+					chunkSize: number;
+			  };
+
+		/**
+		 * @name experimental.incrementalBuild
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 7.2
+		 * @description
+		 *
+		 * Enables incremental static builds. When enabled, pages with a `cacheKey` returned
+		 * from `getStaticPaths()` can be skipped during subsequent builds if neither
+		 * their data nor their dependencies have changed.
+		 *
+		 * On the first build, all pages are rendered normally and a cache manifest is saved.
+		 * On subsequent builds, each page is checked against the manifest: if the page's
+		 * `cacheKey` and the hash of its module dependency graph both match, the page is
+		 * skipped and the previous output is preserved.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     incrementalBuild: true,
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * In your dynamic routes, return a `cacheKey` from `getStaticPaths()`:
+		 *
+		 * ```js
+		 * // src/pages/blog/[slug].astro
+		 * export async function getStaticPaths() {
+		 *   const posts = await fetchPosts();
+		 *   return posts.map(post => ({
+		 *     params: { slug: post.slug },
+		 *     props: { post },
+		 *     cacheKey: post.digest,
+		 *   }));
+		 * }
+		 * ```
+		 * See the [experimental incremental static builds](https://docs.astro.build/en/reference/experimental-flags/incremental-build/) for more information.
+		 */
+		incrementalBuild?: boolean;
 	};
 }
 
@@ -2813,7 +3645,7 @@ export interface AstroInlineOnlyConfig {
 	 *
 	 * @default "info"
 	 */
-	logLevel?: LoggerLevel;
+	logLevel?: AstroLoggerLevel;
 	/**
 	 * Clear the content layer cache, forcing a rebuild of all content entries.
 	 */
@@ -2821,5 +3653,5 @@ export interface AstroInlineOnlyConfig {
 	/**
 	 * @internal for testing only, use `logLevel` instead.
 	 */
-	logger?: Logger;
+	_logger?: AstroLogger;
 }

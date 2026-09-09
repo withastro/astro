@@ -4,44 +4,10 @@ export const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
 export const ASTRO_GENERATOR = `Astro v${ASTRO_VERSION}`;
 
 /**
- * The name for the header used to help rerouting behavior.
- * When set to "no", astro will NOT try to reroute an error response to the corresponding error page, which is the default behavior that can sometimes lead to loops.
- *
- * ```ts
- * const response = new Response("keep this content as-is", {
- *     status: 404,
- *     headers: {
- *         // note that using a variable name as the key of an object needs to be wrapped in square brackets in javascript
- *         // without them, the header name will be interpreted as "REROUTE_DIRECTIVE_HEADER" instead of "X-Astro-Reroute"
- *         [REROUTE_DIRECTIVE_HEADER]: 'no',
- *     }
- * })
- * ```
- * Alternatively...
- * ```ts
- * response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
- * ```
+ * Set by internal handlers (e.g. PagesHandler) to signal that a
+ * response should be replaced with the corresponding error page.
  */
-export const REROUTE_DIRECTIVE_HEADER = 'X-Astro-Reroute';
-
-/**
- * Header and value that are attached to a Response object when a **user rewrite** occurs.
- *
- * This metadata is used to determine the origin of a Response. If a rewrite has occurred, it should be prioritised over other logic.
- */
-export const REWRITE_DIRECTIVE_HEADER_KEY = 'X-Astro-Rewrite';
-
-export const REWRITE_DIRECTIVE_HEADER_VALUE = 'yes';
-
-/**
- * This header is set by the no-op Astro middleware.
- */
-export const NOOP_MIDDLEWARE_HEADER = 'X-Astro-Noop';
-
-/**
- * The name for the header used to help i18n middleware, which only needs to act on "page" and "fallback" route types.
- */
-export const ROUTE_TYPE_HEADER = 'X-Astro-Route-Type';
+export const ASTRO_ERROR_HEADER = 'X-Astro-Error';
 
 /**
  * The value of the `component` field of the default 404 page, which is used when there is no user-provided 404.astro page.
@@ -67,7 +33,7 @@ export const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
 /**
  * The symbol used as a field on the request object to store the object to be made available to Astro APIs as `locals`.
- * Use judiciously, as locals are now stored within `RenderContext` by default. Tacking it onto request is no longer necessary.
+ * Use judiciously, as locals are now stored within `FetchState` by default. Tacking it onto request is no longer necessary.
  */
 export const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -77,9 +43,18 @@ export const clientLocalsSymbol = Symbol.for('astro.locals');
 export const originPathnameSymbol = Symbol.for('astro.originPathname');
 
 /**
- * Use this symbol to set and retrieve the pipeline.
+ * Use this symbol to stash the active `FetchState` on an `APIContext`
+ * (or `ActionAPIContext`). Consumed by internal shims that need access
+ * to per-request state without appearing in the public context shape
+ * — e.g. the manual-strategy i18n middleware wrapper in
+ * `src/i18n/middleware.ts`.
  */
-export const pipelineSymbol = Symbol.for('astro.pipeline');
+export const fetchStateSymbol = Symbol.for('astro.fetchState');
+
+/**
+ * Use this symbol to opt into handling prerender routes in Astro core dev middleware.
+ */
+export const devPrerenderMiddlewareSymbol = Symbol.for('astro.devPrerenderMiddleware');
 
 /**
  * The symbol used as a field on the request object to store a cleanup callback associated with aborting the request when the underlying socket closes.

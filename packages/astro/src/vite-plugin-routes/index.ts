@@ -6,9 +6,9 @@ import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { serializeRouteData } from '../core/app/entrypoints/index.js';
 import type { SerializedRouteInfo } from '../core/app/types.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
-import type { Logger } from '../core/logger/core.js';
-import { createRoutesList } from '../core/routing/manifest/create.js';
-import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
+import type { AstroLogger } from '../core/logger/core.js';
+import { createRoutesList } from '../core/routing/create-manifest.js';
+import { getRoutePrerenderOption } from '../core/routing/prerender.js';
 import { isEndpoint, isPage } from '../core/util.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
@@ -16,10 +16,12 @@ import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
+import { RESOLVED_MODULE_DEV_CSS_ALL } from '../vite-plugin-css/const.js';
+import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 
 type Payload = {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	fsMod?: typeof fsMod;
 	routesList: RoutesList;
 	command: 'dev' | 'build';
@@ -29,6 +31,32 @@ export const ASTRO_ROUTES_MODULE_ID = 'virtual:astro:routes';
 const ASTRO_ROUTES_MODULE_ID_RESOLVED = '\0' + ASTRO_ROUTES_MODULE_ID;
 
 const KNOWN_FILE_EXTENSIONS = ['.astro', '.js', '.ts'];
+
+/**
+ * In dev mode, populate route scripts with integration-injected scripts from settings.
+ * This ensures non-runnable environments (e.g. Cloudflare's workerd) can access
+ * scripts injected via `injectScript()` during `astro:config:setup`.
+ */
+export function getDevRouteScripts(
+	command: 'dev' | 'build',
+	scripts: AstroSettings['scripts'],
+): SerializedRouteInfo['scripts'] {
+	if (command !== 'dev') return [];
+	const result: SerializedRouteInfo['scripts'] = [];
+	const hasPageScripts = scripts.some((s) => s.stage === 'page');
+	if (hasPageScripts) {
+		result.push({
+			type: 'external',
+			value: `/@id/${PAGE_SCRIPT_ID}`,
+		});
+	}
+	for (const script of scripts) {
+		if (script.stage === 'head-inline') {
+			result.push({ stage: script.stage, children: script.content });
+		}
+	}
+	return result;
+}
 
 export default async function astroPluginRoutes({
 	settings,
@@ -44,18 +72,46 @@ export default async function astroPluginRoutes({
 			return {
 				file: '',
 				links: [],
-				scripts: [],
+				scripts: getDevRouteScripts(command, settings.scripts),
 				styles: [],
 				routeData: serializeRouteData(r, settings.config.trailingSlash),
 			};
 		},
 	);
 
+	const normalizedSrcDir = normalizePath(fileURLToPath(settings.config.srcDir));
+
+	function findRouteByFilename(filename: string) {
+		return initialRoutesList.routes.find(
+			(route) =>
+				normalizePath(fileURLToPath(new URL(`./${route.component}`, settings.config.root))) ===
+				filename,
+		);
+	}
+
+	// Only built in `build` environments, where the route list is fixed for the whole run
+	let routeByFilename: Map<string, RoutesList['routes'][number]> | null = null;
+	function getRouteByFilename(): Map<string, RoutesList['routes'][number]> {
+		if (routeByFilename === null) {
+			routeByFilename = new Map();
+			for (const route of initialRoutesList.routes) {
+				const filename = normalizePath(
+					fileURLToPath(new URL(`./${route.component}`, settings.config.root)),
+				);
+				// Several routes can share a component, and the first one owns the filename
+				if (!routeByFilename.has(filename)) {
+					routeByFilename.set(filename, route);
+				}
+			}
+		}
+		return routeByFilename;
+	}
+
 	async function rebuildRoutes(path: string | null = null, server: ViteDevServer) {
-		if (path != null && path.startsWith(settings.config.srcDir.pathname)) {
+		if (path != null && normalizePath(path).startsWith(normalizedSrcDir)) {
 			logger.debug(
 				'update',
-				`Re-calculating routes for ${path.slice(settings.config.srcDir.pathname.length)}`,
+				`Re-calculating routes for ${normalizePath(path).slice(normalizedSrcDir.length)}`,
 			);
 			const file = pathToFileURL(normalizePath(path));
 			const newRoutesList = await createRoutesList(
@@ -77,20 +133,37 @@ export default async function astroPluginRoutes({
 				return {
 					file: fileURLToPath(file),
 					links: [],
-					scripts: [],
+					scripts: getDevRouteScripts(command, settings.scripts),
 					styles: [],
 					routeData: serializeRouteData(r, settings.config.trailingSlash),
 				};
 			});
-			let environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
-			const virtualMod = environment.moduleGraph.getModuleById(ASTRO_ROUTES_MODULE_ID_RESOLVED);
-			if (!virtualMod) return;
+			const environmentsToInvalidate = [];
+			for (const name of [
+				ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
+				ASTRO_VITE_ENVIRONMENT_NAMES.prerender,
+			] as const) {
+				const environment = server.environments[name];
+				if (environment) {
+					environmentsToInvalidate.push(environment);
+				}
+			}
 
-			environment.moduleGraph.invalidateModule(virtualMod);
+			for (const environment of environmentsToInvalidate) {
+				const virtualMod = environment.moduleGraph.getModuleById(ASTRO_ROUTES_MODULE_ID_RESOLVED);
+				if (!virtualMod) continue;
 
-			// Signal that routes have changed so running apps can update
-			// NOTE: Consider adding debouncing here if rapid file changes cause performance issues
-			environment.hot.send('astro:routes-updated', {});
+				environment.moduleGraph.invalidateModule(virtualMod);
+
+				const cssMod = environment.moduleGraph.getModuleById(RESOLVED_MODULE_DEV_CSS_ALL);
+				if (cssMod) {
+					environment.moduleGraph.invalidateModule(cssMod);
+				}
+
+				// Signal that routes have changed so running apps can update
+				// NOTE: Consider adding debouncing here if rapid file changes cause performance issues
+				environment.hot.send('astro:routes-updated', {});
+			}
 		}
 	}
 	return {
@@ -139,7 +212,7 @@ export default async function astroPluginRoutes({
 				});
 
 				const code = `
-				import { deserializeRouteInfo } from 'astro/app';
+				import { deserializeRouteInfo } from 'astro/app/manifest';
 				const serializedData = ${JSON.stringify(filteredRoutes)};
 				const routes = serializedData.map(deserializeRouteInfo);
 				export { routes };
@@ -164,10 +237,10 @@ export default async function astroPluginRoutes({
 			const fileIsPage = isPage(fileURL, settings);
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
-			const route = initialRoutesList.routes.find((r) => {
-				const filePath = new URL(`./${r.component}`, settings.config.root);
-				return normalizePath(fileURLToPath(filePath)) === filename;
-			});
+			const route =
+				this.environment.mode === 'build'
+					? getRouteByFilename().get(filename)
+					: findRouteByFilename(filename);
 
 			if (!route) {
 				return;
@@ -219,10 +292,7 @@ export default async function astroPluginRoutes({
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
 
-			const route = initialRoutesList.routes.find((r) => {
-				const filePath = new URL(`./${r.component}`, settings.config.root);
-				return normalizePath(fileURLToPath(filePath)) === filename;
-			});
+			const route = findRouteByFilename(filename);
 
 			if (!route) {
 				return;

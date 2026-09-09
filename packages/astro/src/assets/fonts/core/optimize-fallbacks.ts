@@ -1,10 +1,25 @@
 import type * as unifont from 'unifont';
 import type { FontMetricsResolver, SystemFallbacksProvider } from '../definitions.js';
-import type { FontFileData, ResolvedFontFamily } from '../types.js';
+import type { FallbackVariant, FontFileData, ResolvedFontFamily } from '../types.js';
 import { isGenericFontFamily, unifontFontFaceDataToProperties } from '../utils.js';
 
 export interface CollectedFontForMetrics extends FontFileData {
 	data: Partial<unifont.FontFaceData>;
+}
+
+function deriveFallbackVariant(data: Partial<unifont.FontFaceData>): FallbackVariant {
+	const weight = data.weight;
+	if (typeof weight === 'number' && weight >= 700) {
+		return 'bold';
+	}
+	if (typeof weight === 'string') {
+		if (weight === 'bold') return 'bold';
+		// Variable weights (e.g. "100 900") are treated as normal.
+		if (weight.includes(' ')) return 'normal';
+		const n = Number.parseInt(weight, 10);
+		if (!Number.isNaN(n) && n >= 700) return 'bold';
+	}
+	return 'normal';
 }
 
 export async function optimizeFallbacks({
@@ -37,37 +52,53 @@ export async function optimizeFallbacks({
 		return null;
 	}
 
-	// If it's a generic family name, we get the associated local fonts (eg. Arial)
-	const localFonts = systemFallbacksProvider.getLocalFonts(lastFallback);
+	// For each collected font, the local fallback list may differ based on its variant
+	// (e.g. italic-style fonts may map to a different local font than bold ones).
+	const collectedWithLocalFonts = collectedFonts.map((collected) => ({
+		collected,
+		localFonts:
+			systemFallbacksProvider.getLocalFonts(lastFallback, deriveFallbackVariant(collected.data)) ??
+			[],
+	}));
+
+	// Union of all local fonts seen across variants, preserving first-seen order.
+	const uniqueLocalFonts: Array<string> = [];
+	for (const { localFonts } of collectedWithLocalFonts) {
+		for (const font of localFonts) {
+			if (!uniqueLocalFonts.includes(font)) {
+				uniqueLocalFonts.push(font);
+			}
+		}
+	}
+
 	// Some generic families do not have associated local fonts so we abort early
-	if (!localFonts || localFonts.length === 0) {
+	if (uniqueLocalFonts.length === 0) {
 		return null;
 	}
 
 	// If the family is already a system font, no need to generate fallbacks
-	if (localFonts.includes(family.name)) {
+	if (uniqueLocalFonts.includes(family.name)) {
 		return null;
 	}
 
-	const localFontsMappings = localFonts.map((font) => ({
-		font,
+	const nameForFont = (font: string) =>
 		// We mustn't wrap in quote because that's handled by the CSS renderer
-		name: `${family.uniqueName} fallback: ${font}`,
-	}));
+		`${family.uniqueName} fallback: ${font}`;
 
-	// We prepend the fallbacks with the local fonts and we dedupe in case a local font is already provided
-	fallbacks = [...localFontsMappings.map((m) => m.name), ...fallbacks];
+	// We prepend the fallbacks with the local fonts
+	fallbacks = [...uniqueLocalFonts.map(nameForFont), ...fallbacks];
 	let css = '';
 
-	for (const { font, name } of localFontsMappings) {
-		for (const collected of collectedFonts) {
-			// We generate a fallback for each font collected, which is per weight and style
+	for (const { collected, localFonts } of collectedWithLocalFonts) {
+		const properties = unifontFontFaceDataToProperties(collected.data);
+		const metrics = await fontMetricsResolver.getMetrics(family.name, collected);
+		for (const font of localFonts) {
 			css += fontMetricsResolver.generateFontFace({
-				metrics: await fontMetricsResolver.getMetrics(family.name, collected),
+				metrics,
 				fallbackMetrics: systemFallbacksProvider.getMetricsForLocalFont(font),
 				font,
-				name,
-				properties: unifontFontFaceDataToProperties(collected.data),
+				name: nameForFont(font),
+				properties,
 			});
 		}
 	}

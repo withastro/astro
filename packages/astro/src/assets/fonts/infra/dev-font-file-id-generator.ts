@@ -27,6 +27,10 @@ export class DevFontFileIdGenerator implements FontFileIdGenerator {
 		return weight?.replace(/\s+/g, '-');
 	}
 
+	#formatStyle(style: unifont.FontFaceData['style']): string | undefined {
+		return style?.replace(/\s+/g, '-');
+	}
+
 	generate({
 		cssVariable,
 		originalUrl,
@@ -41,7 +45,7 @@ export class DevFontFileIdGenerator implements FontFileIdGenerator {
 		return [
 			cssVariable.slice(2),
 			this.#formatWeight(font.weight),
-			font.style,
+			this.#formatStyle(font.style),
 			font.meta?.subset,
 			`${this.#hasher.hashString(this.#contentResolver.resolve(originalUrl))}.${type}`,
 		]

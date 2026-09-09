@@ -1,6 +1,7 @@
 import type { ActionClient, ActionReturnType } from '../../actions/runtime/types.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
-import type { CspDirective, CspHash } from '../../core/csp/config.js';
+import type { CspDirective, CspHashEntry, CspResourceEntry } from '../../core/csp/config.js';
+import type { CacheLike } from '../../core/cache/runtime/cache.js';
 import type { AstroSession } from '../../core/session/runtime.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { RewritePayload } from './common.js';
@@ -129,6 +130,26 @@ export interface AstroGlobal<
 }
 
 /**
+ * A type containing functions for logging messages.
+ *
+ * [Astro reference](https://docs.astro.build/en/reference/api-reference/#logger)
+ */
+export interface AstroRuntimeLogger {
+	/**
+	 * Logs a message with `info` level.
+	 */
+	info: (msg: string) => void;
+	/**
+	 * Logs a message with `warn` level.
+	 */
+	warn: (msg: string) => void;
+	/**
+	 * Logs a message with `error` level.
+	 */
+	error: (msg: string) => void;
+}
+
+/**
  * The `APIContext` is the object made available to endpoints and middleware.
  * It is a subset of the `Astro` global object available in pages.
  *
@@ -202,6 +223,16 @@ export interface APIContext<
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#session)
 	 */
 	session: AstroSession | undefined;
+
+	/**
+	 * An object for controlling route-level caching of SSR responses.
+	 *
+	 * Use `cache.set()` to configure caching options, `cache.tags` to read accumulated tags,
+	 * and `cache.invalidate()` to purge cached entries.
+	 *
+	 * In dev mode, the cache object is available but performs no caching.
+	 */
+	cache: CacheLike;
 
 	/**
 	 * A standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object containing information about the current request.
@@ -438,7 +469,7 @@ export interface APIContext<
 	 *
 	 * ## Example
 	 *
-	 * Given `i18n.locales` equals to `['fr', 'de']`, and the `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
+	 * Given `i18n.locales` equals `['fr', 'de']`, and the `Accept-Language` value equals `en, de;q=0.2, fr;q=0.6`, the
 	 * `Astro.preferredLanguage` will be `fr` because `en` is not supported, its [quality value](https://developer.mozilla.org/en-US/docs/Glossary/Quality_values) is the highest.
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#preferredlocale)
@@ -457,8 +488,8 @@ export interface APIContext<
 	 *
 	 * ## Example
 	 *
-	 * Given `i18n.locales` equals to `['fr', 'pt', 'de']`, and the
-	 * `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
+	 * Given `i18n.locales` equals `['fr', 'pt', 'de']`, and the
+	 * `Accept-Language` value equals `en, de;q=0.2, fr;q=0.6`, the
 	 * `Astro.preferredLocaleList` will be equal to `['fs', 'de']` because `en`
 	 * isn't supported, and `pt` isn't part of the locales contained in the
 	 * header.
@@ -504,66 +535,87 @@ export interface APIContext<
 				insertDirective: (directive: CspDirective) => void;
 
 				/**
-				 * It set the resource for the directive `style-src` in the route being rendered. It overrides Astro's default.
+				 * It sets the resource for the `style-src` family of directives in the route being rendered. It overrides Astro's default.
 				 *
-				 * @param {string} payload - The source to insert in the `style-src` directive.
+				 * Pass a bare string to add the source to `style-src`, or an object with a `kind` to scope it:
+				 * `"element"` → `style-src-elem`, `"attribute"` → `style-src-attr`, `"default"` → `style-src`.
+				 *
+				 * @param {string | { resource: string; kind?: "element" | "attribute" | "default" }} payload - The source to insert.
 				 *
 				 * ## Example
 				 *
 				 * ```js
 				 * ctx.insertStyleResource("https://styles.cdn.example.com/")
+				 * ctx.insertStyleResource({ resource: "'unsafe-inline'", kind: "attribute" })
 				 * ```
 				 *
 				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstyleresource)
 				 */
-				insertStyleResource: (payload: string) => void;
+				insertStyleResource: (payload: CspResourceEntry) => void;
 
 				/**
 				 * Insert a single style hash to the route being rendered.
 				 *
-				 * @param {CspHash} hash - The hash to insert in the `style-src` directive.
+				 * Pass a bare hash to add it to `style-src`, or an object with a `kind` to scope it:
+				 * `"element"` → `style-src-elem`, `"attribute"` → `style-src-attr`, `"default"` → `style-src`.
+				 *
+				 * @param {CspHash | { hash: CspHash; kind?: "element" | "attribute" | "default" }} payload - The hash to insert.
 				 *
 				 * ## Example
 				 *
 				 * ```js
 				 * ctx.insertStyleHash("sha256-1234567890abcdef1234567890")
+				 * ctx.insertStyleHash({ hash: "sha256-1234567890abcdef1234567890", kind: "element" })
 				 * ```
 				 *
 				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstylehash)
 				 */
-				insertStyleHash: (hash: CspHash) => void;
+				insertStyleHash: (payload: CspHashEntry) => void;
 
 				/**
-				 * It set the resource for the directive `script-src` in the route being rendered.
+				 * It sets the resource for the `script-src` family of directives in the route being rendered.
 				 *
-				 * @param {string} resource - The source to insert in the `script-src` directive.
+				 * Pass a bare string to add the source to `script-src`, or an object with a `kind` to scope it:
+				 * `"element"` → `script-src-elem`, `"attribute"` → `script-src-attr`, `"default"` → `script-src`.
+				 *
+				 * @param {string | { resource: string; kind?: "element" | "attribute" | "default" }} payload - The source to insert.
 				 *
 				 * ## Example
 				 *
 				 * ```js
 				 * ctx.insertScriptResource("https://scripts.cdn.example.com/")
+				 * ctx.insertScriptResource({ resource: "https://scripts.cdn.example.com/", kind: "element" })
 				 * ```
 				 *
 				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscriptresource)
 				 */
-				insertScriptResource: (resource: string) => void;
+				insertScriptResource: (payload: CspResourceEntry) => void;
 
 				/**
 				 * Insert a single script hash to the route being rendered.
 				 *
-				 * @param {CspHash} hash - The hash to insert in the `script-src` directive.
+				 * Pass a bare hash to add it to `script-src`, or an object with a `kind` to scope it:
+				 * `"element"` → `script-src-elem`, `"attribute"` → `script-src-attr`, `"default"` → `script-src`.
+				 *
+				 * @param {CspHash | { hash: CspHash; kind?: "element" | "attribute" | "default" }} payload - The hash to insert.
 				 *
 				 * ## Example
 				 *
 				 * ```js
 				 * ctx.insertScriptHash("sha256-1234567890abcdef1234567890")
+				 * ctx.insertScriptHash({ hash: "sha256-1234567890abcdef1234567890", kind: "element" })
 				 * ```
 				 *
 				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscripthash)
 				 */
-				insertScriptHash: (hash: CspHash) => void;
+				insertScriptHash: (payload: CspHashEntry) => void;
 		  }
 		| undefined;
+
+	/**
+	 * It exposes utilities for logging messages.
+	 */
+	logger: AstroRuntimeLogger;
 
 	/**
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.

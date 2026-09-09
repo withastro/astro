@@ -1,35 +1,31 @@
 import {
-	appendForwardSlash,
-	collapseDuplicateTrailingSlashes,
-	hasFileExtension,
-	isInternalPath,
-	joinPaths,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
+	stripRequestBase,
 } from '@astrojs/internal-helpers/path';
-import { matchPattern } from '../../assets/utils/index.js';
-import { normalizeTheLocale } from '../../i18n/index.js';
+import { matchPattern } from '@astrojs/internal-helpers/remote';
+import { computePathnameFromDomain } from '../i18n/domain.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RemotePattern, RouteData } from '../../types/public/index.js';
-import type { Pipeline } from '../base-pipeline.js';
-import {
-	clientAddressSymbol,
-	DEFAULT_404_COMPONENT,
-	REROUTABLE_STATUS_CODES,
-	REROUTE_DIRECTIVE_HEADER,
-	responseSentSymbol,
-	REWRITE_DIRECTIVE_HEADER_KEY,
-} from '../constants.js';
+import { ASTRO_ERROR_HEADER, clientAddressSymbol } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
+
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { consoleLogDestination } from '../logger/console.js';
-import { AstroIntegrationLogger, Logger } from '../logger/core.js';
-import { type CreateRenderContext, RenderContext } from '../render-context.js';
-import { redirectTemplate } from '../routing/3xx.js';
-import { ensure404Route } from '../routing/astro-designed-error-pages.js';
-import { matchRoute } from '../routing/match.js';
-import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
-import type { AppPipeline } from './pipeline.js';
+import { AstroIntegrationLogger, type AstroLogger } from '../logger/core.js';
+
+import { DefaultFetchHandler } from '../fetch/default-handler.js';
+import { getUsedFeatures, FetchFeatures } from '../fetch/features.js';
+import { FetchState } from '../fetch/fetch-state.js';
+import type { FetchHandler } from '../fetch/types.js';
+import { type ErrorHandler, renderErrorPage } from '../errors/handler.js';
+import { getLogger, getResolvedLogger } from '../logger/manifest-logger.js';
+import { handleRequest } from '../routing/handler.js';
+import { getDefaultStatusCode } from '../routing/helpers.js';
+import { matchRequest } from '../routing/match-request.js';
+import { getRouteTable, matchRoute, updateRouteTable } from '../routing/route-table.js';
+import { validateAndDecodePathname } from '../util/pathname.js';
+import { setRenderOptions } from './render-options.js';
+import type { WaitUntilHook } from '../wait-until.js';
 import type { SSRManifest } from './types.js';
 
 export interface DevMatch {
@@ -64,7 +60,7 @@ export interface RenderOptions {
 	/**
 	 * A custom fetch function for retrieving prerendered pages - 404 or 500.
 	 *
-	 * If not provided, Astro will fallback to its default behavior for fetching error pages.
+	 * If not provided, Astro will fall back to its default behavior for fetching error pages.
 	 *
 	 * When a dynamic route is matched but ultimately results in a 404, this function will be used
 	 * to fetch the prerendered 404 page if available. Similarly, it may be used to fetch a
@@ -76,6 +72,14 @@ export interface RenderOptions {
 	prerenderedErrorPageFetch?: (url: ErrorPagePath) => Promise<Response>;
 
 	/**
+	 * Optional platform hook to keep background work alive after the response is sent.
+	 *
+	 * Adapters can pass this through so runtime cache providers can schedule cache writes
+	 * without blocking the response path.
+	 */
+	waitUntil?: WaitUntilHook;
+
+	/**
 	 * **Advanced API**: you probably do not need to use this.
 	 *
 	 * Default: `app.match(request)`
@@ -83,9 +87,18 @@ export interface RenderOptions {
 	routeData?: RouteData;
 }
 
-export interface RenderErrorOptions {
-	locals?: App.Locals;
-	routeData?: RouteData;
+type RequiredRenderOptions = Required<RenderOptions>;
+
+export interface ResolvedRenderOptions {
+	addCookieHeader: RequiredRenderOptions['addCookieHeader'];
+	clientAddress: RequiredRenderOptions['clientAddress'] | undefined;
+	prerenderedErrorPageFetch: RequiredRenderOptions['prerenderedErrorPageFetch'] | undefined;
+	locals: RequiredRenderOptions['locals'] | undefined;
+	routeData: RequiredRenderOptions['routeData'] | undefined;
+	waitUntil: RequiredRenderOptions['waitUntil'] | undefined;
+}
+
+export interface RenderErrorOptions extends ResolvedRenderOptions {
 	response?: Response;
 	status: 404 | 500;
 	/**
@@ -96,8 +109,11 @@ export interface RenderErrorOptions {
 	 * Allows passing an error to 500.astro. It will be available through `Astro.props.error`.
 	 */
 	error?: unknown;
-	clientAddress: string | undefined;
-	prerenderedErrorPageFetch: ((url: ErrorPagePath) => Promise<Response>) | undefined;
+	/**
+	 * The pathname to use for the error page render context. If omitted, the
+	 * error handler computes it from `request` via a short-lived `FetchState`.
+	 */
+	pathname?: string;
 }
 
 type ErrorPagePath =
@@ -105,39 +121,130 @@ type ErrorPagePath =
 	| `${string}/500`
 	| `${string}/404/`
 	| `${string}/500/`
+	| `${string}/404/index.html`
+	| `${string}/500/index.html`
 	| `${string}404.html`
 	| `${string}500.html`;
 
-export abstract class BaseApp<P extends Pipeline = AppPipeline> {
+export abstract class BaseApp {
 	manifest: SSRManifest;
-	manifestData: RoutesList;
-	pipeline: P;
-	adapterLogger: AstroIntegrationLogger;
+	#adapterLogger: AstroIntegrationLogger | undefined;
 	baseWithoutTrailingSlash: string;
-	logger: Logger;
-	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
+	/**
+	 * The streaming flag passed to the constructor, surfaced through the
+	 * protected `resolveStreaming()` hook and fed into the internal
+	 * `FetchState` facade hooks on the fast path.
+	 */
+	#streaming: boolean;
+	/**
+	 * The handler that turns incoming `Request` objects into `Response`s.
+	 * Defaults to a `DefaultFetchHandler` pinned to this app and can be
+	 * overridden via `setFetchHandler` — typically by the bundled
+	 * entrypoint after importing `virtual:astro:fetchable`.
+	 */
+	#fetchHandler: { fetch: FetchHandler };
+	#errorHandler: ErrorHandler;
+
+	/**
+	 * Whether a custom fetch handler (from `src/fetch.ts`) has been set
+	 * via `setFetchHandler`. When false, the `DefaultFetchHandler` is
+	 * in use and all features are implicitly active.
+	 */
+	#hasCustomFetchHandler = false;
+
+	/**
+	 * Whether the missing-feature check has already run. We only want
+	 * to warn once — after the first request in dev, or at build end.
+	 */
+	#featureCheckDone = false;
+
+	get logger(): AstroLogger {
+		return getLogger(this.manifest);
+	}
+
+	/**
+	 * Route data derived from the manifest, used for route matching. Reads and
+	 * writes go through the single per-manifest route table, so HMR updates are
+	 * visible to every consumer at once.
+	 */
+	get manifestData(): { routes: RouteData[] } {
+		return getRouteTable(this.manifest);
+	}
+
+	set manifestData(routesList: { routes: RouteData[] }) {
+		updateRouteTable(this.manifest, routesList.routes);
+	}
+
+	get adapterLogger(): AstroIntegrationLogger {
+		const currentOptions = this.logger.options;
+		if (!this.#adapterLogger || this.#adapterLogger.options !== currentOptions) {
+			this.#adapterLogger = new AstroIntegrationLogger(currentOptions, this.manifest.adapterName);
+		}
+		return this.#adapterLogger;
+	}
+
+	constructor(manifest: SSRManifest, streaming = true) {
 		this.manifest = manifest;
-		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
 		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base);
-		this.pipeline = this.createPipeline(streaming, manifest, ...args);
-		this.logger = new Logger({
-			dest: consoleLogDestination,
-			level: manifest.logLevel,
-		});
-		this.adapterLogger = new AstroIntegrationLogger(this.logger.options, manifest.adapterName);
-		// This is necessary to allow running middlewares for 404 in SSR. There's special handling
-		// to return the host 404 if the user doesn't provide a custom 404
-		ensure404Route(this.manifestData);
+		this.#streaming = streaming;
+		// Warm the route table and logger so first-request latency doesn't
+		// pay for their creation.
+		getRouteTable(manifest);
+		getLogger(manifest);
+		this.#fetchHandler = new DefaultFetchHandler(this);
+		this.#errorHandler = this.createErrorHandler();
+	}
+
+	/**
+	 * Resolves the user-configured logger destination from the manifest and
+	 * returns the logger. Lazy and only resolves once; safe to call before
+	 * the first render (adapters use this to log startup messages through
+	 * the configured destination).
+	 */
+	getLogger(): Promise<AstroLogger> {
+		return getResolvedLogger(this.manifest);
+	}
+
+	/**
+	 * The streaming flag fed into the internal `FetchState` facade hooks on
+	 * the fast path. Returns the constructor flag by
+	 * default; `BuildApp` overrides this to return `undefined` so streaming
+	 * falls through to the environment default (`manifest.serverLike`).
+	 */
+	protected resolveStreaming(): boolean | undefined {
+		return this.#streaming;
+	}
+
+	/**
+	 * Override the fetch handler used to dispatch requests. Entrypoints
+	 * call this with the default export of `virtual:astro:fetchable` to
+	 * plug in a user-authored handler from `src/fetch.ts`.
+	 */
+	setFetchHandler(handler: { fetch: FetchHandler }): void {
+		this.#fetchHandler = handler;
+		this.#hasCustomFetchHandler = !(handler instanceof DefaultFetchHandler);
+	}
+
+	/**
+	 * Returns the error handler used by this app. The default is a thin
+	 * bridge over the functional error API — strategy selection (production
+	 * default / dev / build) is environment-driven inside `renderErrorPage`.
+	 * External subclasses can override this to customize error rendering.
+	 */
+	protected createErrorHandler(): ErrorHandler {
+		return {
+			renderError: (request, options) => renderErrorPage(this.manifest, request, options),
+		};
 	}
 
 	public abstract isDev(): boolean;
 
-	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
-		return RenderContext.create(payload);
-	}
-
-	getAdapterLogger(): AstroIntegrationLogger {
-		return this.adapterLogger;
+	/**
+	 * Resets the cached adapter logger so it picks up a new logger instance.
+	 * Used by BuildApp when the logger is replaced via setOptions().
+	 */
+	protected resetAdapterLogger(): void {
+		this.#adapterLogger = undefined;
 	}
 
 	getAllowedDomains() {
@@ -168,42 +275,44 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		}
 	}
 
-	/**
-	 * Creates a pipeline by reading the stored manifest
-	 *
-	 * @param streaming
-	 * @param manifest
-	 * @param args
-	 * @private
-	 */
-	abstract createPipeline(streaming: boolean, manifest: SSRManifest, ...args: any[]): P;
-
 	set setManifestData(newManifestData: RoutesList) {
-		this.manifestData = newManifestData;
+		// One atomic table replacement: matcher, 404 fallback,
+		// rewrites, and the `manifestData` accessors all read the same table.
+		updateRouteTable(this.manifest, newManifestData.routes);
 	}
 
 	public removeBase(pathname: string) {
-		if (pathname.startsWith(this.manifest.base)) {
-			return pathname.slice(this.baseWithoutTrailingSlash.length + 1);
-		}
-		return pathname;
+		return stripRequestBase(pathname, this.manifest.base);
 	}
 
 	/**
-	 * It removes the base from the request URL, prepends it with a forward slash and attempts to decoded it.
-	 *
-	 * If the decoding fails, it logs the error and return the pathname as is.
-	 * @param request
+	 * Fully decodes a pathname, falling back to a single decode and then the raw pathname
+	 * when validation fails. Adapter matching runs before `render()`, so it must not throw
+	 * for request input that render-time validation handles.
+	 */
+	private safeDecodePathname(pathname: string): string {
+		try {
+			return validateAndDecodePathname(pathname);
+		} catch (e: any) {
+			// Path decoding failures are request input rather than a server fault. Log at
+			// `debug` so they stay diagnosable without flooding error logs.
+			this.adapterLogger.debug(e.toString());
+			try {
+				return decodeURI(pathname);
+			} catch {
+				return pathname;
+			}
+		}
+	}
+
+	/**
+	 * Extracts the base-stripped, decoded pathname from a request.
+	 * Used by adapters to compute the pathname for dev-mode route matching.
 	 */
 	public getPathnameFromRequest(request: Request): string {
 		const url = new URL(request.url);
 		const pathname = prependForwardSlash(this.removeBase(url.pathname));
-		try {
-			return decodeURI(pathname);
-		} catch (e: any) {
-			this.getAdapterLogger().error(e.toString());
-			return pathname;
-		}
+		return this.safeDecodePathname(pathname);
 	}
 
 	/**
@@ -215,23 +324,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 * @param allowPrerenderedRoutes
 	 */
 	public match(request: Request, allowPrerenderedRoutes = false): RouteData | undefined {
-		const url = new URL(request.url);
-		// ignore requests matching public assets
-		if (this.manifest.assets.has(url.pathname)) return undefined;
-		let pathname = this.computePathnameFromDomain(request);
-		if (!pathname) {
-			pathname = prependForwardSlash(this.removeBase(url.pathname));
-		}
-		let routeData = matchRoute(decodeURI(pathname), this.manifestData);
-		if (!routeData) return undefined;
-		if (allowPrerenderedRoutes) {
-			return routeData;
-		}
-		// missing routes fall-through, pre rendered are handled by static layer
-		else if (routeData.prerender) {
-			return undefined;
-		}
-		return routeData;
+		return matchRequest(this.manifest, request, allowPrerenderedRoutes);
 	}
 
 	/**
@@ -247,133 +340,31 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	}
 
 	private computePathnameFromDomain(request: Request): string | undefined {
-		let pathname: string | undefined = undefined;
-		const url = new URL(request.url);
-
-		if (
-			this.manifest.i18n &&
-			(this.manifest.i18n.strategy === 'domains-prefix-always' ||
-				this.manifest.i18n.strategy === 'domains-prefix-other-locales' ||
-				this.manifest.i18n.strategy === 'domains-prefix-always-no-redirect')
-		) {
-			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
-			let host = request.headers.get('X-Forwarded-Host');
-			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto
-			let protocol = request.headers.get('X-Forwarded-Proto');
-			if (protocol) {
-				// this header doesn't have a colon at the end, so we add to be in line with URL#protocol, which does have it
-				protocol = protocol + ':';
-			} else {
-				// we fall back to the protocol of the request
-				protocol = url.protocol;
-			}
-			if (!host) {
-				// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Host
-				host = request.headers.get('Host');
-			}
-			// If we don't have a host and a protocol, it's impossible to proceed
-			if (host && protocol) {
-				// The header might have a port in their name, so we remove it
-				host = host.split(':')[0];
-				try {
-					let locale;
-					const hostAsUrl = new URL(`${protocol}//${host}`);
-					for (const [domainKey, localeValue] of Object.entries(
-						this.manifest.i18n.domainLookupTable,
-					)) {
-						// This operation should be safe because we force the protocol via zod inside the configuration
-						// If not, then it means that the manifest was tampered
-						const domainKeyAsUrl = new URL(domainKey);
-
-						if (
-							hostAsUrl.host === domainKeyAsUrl.host &&
-							hostAsUrl.protocol === domainKeyAsUrl.protocol
-						) {
-							locale = localeValue;
-							break;
-						}
-					}
-
-					if (locale) {
-						pathname = prependForwardSlash(
-							joinPaths(normalizeTheLocale(locale), this.removeBase(url.pathname)),
-						);
-						if (url.pathname.endsWith('/')) {
-							pathname = appendForwardSlash(pathname);
-						}
-					}
-				} catch (e: any) {
-					this.logger.error(
-						'router',
-						`Astro tried to parse ${protocol}//${host} as an URL, but it threw a parsing error. Check the X-Forwarded-Host and X-Forwarded-Proto headers.`,
-					);
-					this.logger.error('router', `Error: ${e}`);
-				}
-			}
-		}
-		return pathname;
+		return computePathnameFromDomain(
+			request,
+			new URL(request.url),
+			this.manifest.i18n,
+			this.manifest.base,
+			this.manifest.trailingSlash,
+			this.logger,
+		);
 	}
 
-	private redirectTrailingSlash(pathname: string): string {
-		const { trailingSlash } = this.manifest;
-
-		// Ignore root and internal paths
-		if (pathname === '/' || isInternalPath(pathname)) {
-			return pathname;
-		}
-
-		// Redirect multiple trailing slashes to collapsed path
-		const path = collapseDuplicateTrailingSlashes(pathname, trailingSlash !== 'never');
-		if (path !== pathname) {
-			return path;
-		}
-
-		if (trailingSlash === 'ignore') {
-			return pathname;
-		}
-
-		if (trailingSlash === 'always' && !hasFileExtension(pathname)) {
-			return appendForwardSlash(pathname);
-		}
-		if (trailingSlash === 'never') {
-			return removeTrailingForwardSlash(pathname);
-		}
-
-		return pathname;
-	}
-
-	public async render(request: Request, renderOptions?: RenderOptions): Promise<Response> {
-		const timeStart = performance.now();
-		let routeData: RouteData | undefined = renderOptions?.routeData;
-		let locals: object | undefined;
-		let clientAddress: string | undefined;
-		let addCookieHeader: boolean | undefined;
-		const url = new URL(request.url);
-		const redirect = this.redirectTrailingSlash(url.pathname);
-		const prerenderedErrorPageFetch = renderOptions?.prerenderedErrorPageFetch ?? fetch;
-
-		if (redirect !== url.pathname) {
-			const status = request.method === 'GET' ? 301 : 308;
-			return new Response(
-				redirectTemplate({
-					status,
-					relativeLocation: url.pathname,
-					absoluteLocation: redirect,
-					from: request.url,
-				}),
-				{
-					status,
-					headers: {
-						location: redirect + url.search,
-					},
-				},
-			);
-		}
-
-		addCookieHeader = renderOptions?.addCookieHeader;
-		clientAddress = renderOptions?.clientAddress ?? Reflect.get(request, clientAddressSymbol);
-		routeData = renderOptions?.routeData;
-		locals = renderOptions?.locals;
+	public async render(
+		request: Request,
+		{
+			addCookieHeader = false,
+			clientAddress = Reflect.get(request, clientAddressSymbol),
+			locals,
+			prerenderedErrorPageFetch = fetch,
+			routeData,
+			waitUntil,
+		}: RenderOptions = {},
+	): Promise<Response> {
+		// Lazily resolve the logger destination from the manifest on the first request.
+		// This swaps the user-configured logger destination (if any) into the shared
+		// AstroLogger instance before any logging occurs.
+		await getResolvedLogger(this.manifest);
 
 		if (routeData) {
 			this.logger.debug(
@@ -389,117 +380,74 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				const error = new AstroError(AstroErrorData.LocalsNotAnObject);
 				this.logger.error(null, error.stack!);
 				return this.renderError(request, {
+					addCookieHeader,
+					clientAddress,
+					prerenderedErrorPageFetch,
+					// If locals are invalid, we don't want to include them when
+					// rendering the error page
+					locals: undefined,
+					routeData,
+					waitUntil,
 					status: 500,
 					error,
-					clientAddress,
-					prerenderedErrorPageFetch: prerenderedErrorPageFetch,
 				});
 			}
 		}
+		// For domain-based i18n, match against the locale-prefixed pathname
+		// derived from the Host header. FetchState recomputes this pathname
+		// itself for param/locale resolution, so it isn't threaded through here.
 		if (!routeData) {
-			if (this.isDev()) {
-				const result = await this.devMatch(this.getPathnameFromRequest(request));
-				if (result) {
-					routeData = result.routeData;
-				}
-			} else {
-				routeData = this.match(request);
+			const domainPathname = this.computePathnameFromDomain(request);
+			if (domainPathname) {
+				routeData = matchRoute(this.manifest, this.safeDecodePathname(domainPathname));
 			}
-
-			this.logger.debug('router', 'Astro matched the following route for ' + request.url);
-			this.logger.debug('router', 'RouteData:\n' + routeData);
 		}
-		// At this point we haven't found a route that matches the request, so we create
-		// a "fake" 404 route, so we can call the RenderContext.render
-		// and hit the middleware, which might be able to return a correct Response.
-		if (!routeData) {
-			routeData = this.manifestData.routes.find(
-				(route) => route.component === '404.astro' || route.component === DEFAULT_404_COMPONENT,
+		const resolvedOptions: ResolvedRenderOptions = {
+			addCookieHeader,
+			clientAddress,
+			prerenderedErrorPageFetch,
+			locals,
+			routeData,
+			waitUntil,
+		};
+
+		let response: Response;
+		if (this.#fetchHandler instanceof DefaultFetchHandler) {
+			// Fast path: the facade constructs the state itself so it can pass
+			// the internal facade hooks — per-App, per-render-call instance
+			// behavior (late-bound so instance-property reassignments and
+			// subclass overrides keep working). Nothing is stamped on the
+			// request.
+			response = await handleRequest(
+				new FetchState(this.manifest, request, resolvedOptions, {
+					streaming: this.resolveStreaming(),
+					renderError: (req, opts) => this.renderError(req, opts),
+					logRequest: (payload) => this.logThisRequest(payload),
+				}),
 			);
+		} else {
+			// User-provided fetch handler: only the resolved render() inputs
+			// ride the `astro.renderOptions` request symbol — no manifest, no
+			// callbacks, nothing internal. The handler's own
+			// `new FetchState(request)` resolves the ambient manifest.
+			setRenderOptions(request, resolvedOptions);
+			response = await this.#fetchHandler.fetch(request);
 		}
-		if (!routeData) {
-			this.logger.debug('router', "Astro hasn't found routes that match " + request.url);
-			this.logger.debug('router', "Here's the available routes:\n", this.manifestData);
+		this.#warnMissingFeatures();
+		if (response.headers.get(ASTRO_ERROR_HEADER)) {
+			response.headers.delete(ASTRO_ERROR_HEADER);
 			return this.renderError(request, {
-				locals,
-				status: 404,
+				addCookieHeader,
 				clientAddress,
-				prerenderedErrorPageFetch: prerenderedErrorPageFetch,
-			});
-		}
-		const pathname = this.getPathnameFromRequest(request);
-		const defaultStatus = this.getDefaultStatusCode(routeData, pathname);
-
-		let response;
-		let session: AstroSession | undefined;
-		try {
-			// Load route module. We also catch its error here if it fails on initialization
-			const componentInstance = await this.pipeline.getComponentByRoute(routeData);
-			const renderContext = await this.createRenderContext({
-				pipeline: this.pipeline,
+				prerenderedErrorPageFetch,
 				locals,
-				pathname,
-				request,
 				routeData,
-				status: defaultStatus,
-				clientAddress,
-			});
-			session = renderContext.session;
-			response = await renderContext.render(componentInstance);
-
-			const isRewrite = response.headers.has(REWRITE_DIRECTIVE_HEADER_KEY);
-
-			this.logThisRequest({
-				pathname,
-				method: request.method,
-				statusCode: response.status,
-				isRewrite,
-				timeStart,
-			});
-		} catch (err: any) {
-			this.logger.error(null, err.stack || err.message || String(err));
-			return this.renderError(request, {
-				locals,
-				status: 500,
-				error: err,
-				clientAddress,
-				prerenderedErrorPageFetch: prerenderedErrorPageFetch,
-			});
-		} finally {
-			await session?.[PERSIST_SYMBOL]();
-		}
-
-		if (
-			REROUTABLE_STATUS_CODES.includes(response.status) &&
-			// If the body isn't null, that means the user sets the 404 status
-			// but uses the current route to handle the 404
-			response.body === null &&
-			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
-		) {
-			return this.renderError(request, {
-				locals,
+				waitUntil,
 				response,
 				status: response.status as 404 | 500,
-				// We don't have an error to report here. Passing null means we pass nothing intentionally
-				// while undefined means there's no error
 				error: response.status === 500 ? null : undefined,
-				clientAddress,
-				prerenderedErrorPageFetch: prerenderedErrorPageFetch,
 			});
 		}
-
-		// We remove internally-used header before we send the response to the user agent.
-		if (response.headers.has(REROUTE_DIRECTIVE_HEADER)) {
-			response.headers.delete(REROUTE_DIRECTIVE_HEADER);
-		}
-
-		if (addCookieHeader) {
-			for (const setCookieHeaderValue of BaseApp.getSetCookieFromResponse(response)) {
-				response.headers.append('set-cookie', setCookieHeaderValue);
-			}
-		}
-
-		Reflect.set(response, responseSentSymbol, true);
 		return response;
 	}
 
@@ -522,168 +470,67 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	/**
 	 * If it is a known error code, try sending the according page (e.g. 404.astro / 500.astro).
-	 * This also handles pre-rendered /404 or /500 routes
+	 * This also handles pre-rendered /404 or /500 routes.
+	 *
+	 * Delegates to the app's configured `ErrorHandler`. To customize behavior
+	 * for a specific environment, override `createErrorHandler()` rather than
+	 * this method.
 	 */
-	public async renderError(
-		request: Request,
-		{
-			locals,
-			status,
-			response: originalResponse,
-			skipMiddleware = false,
-			error,
-			clientAddress,
-			prerenderedErrorPageFetch,
-		}: RenderErrorOptions,
-	): Promise<Response> {
-		const errorRoutePath = `/${status}${this.manifest.trailingSlash === 'always' ? '/' : ''}`;
-		const errorRouteData = matchRoute(errorRoutePath, this.manifestData);
-		const url = new URL(request.url);
-		if (errorRouteData) {
-			if (errorRouteData.prerender) {
-				const maybeDotHtml = errorRouteData.route.endsWith(`/${status}`) ? '.html' : '';
-				const statusURL = new URL(`${this.baseWithoutTrailingSlash}/${status}${maybeDotHtml}`, url);
-				if (statusURL.toString() !== request.url && prerenderedErrorPageFetch) {
-					const response = await prerenderedErrorPageFetch(statusURL.toString() as ErrorPagePath);
-
-					// In order for the response of the remote to be usable as a response
-					// for this request, it needs to have our status code in the response
-					// instead of the likely successful 200 code it returned when fetching
-					// the error page.
-					//
-					// Furthermore, remote may have returned a compressed page
-					// (the Content-Encoding header was set to e.g. `gzip`). The fetch
-					// implementation in the `mergeResponses` method will make a decoded
-					// response available, so Content-Length and Content-Encoding will
-					// not match the body we provide and need to be removed.
-					const override = { status, removeContentEncodingHeaders: true };
-
-					return this.mergeResponses(response, originalResponse, override);
-				}
-			}
-			const mod = await this.pipeline.getComponentByRoute(errorRouteData);
-			let session: AstroSession | undefined;
-			try {
-				const renderContext = await this.createRenderContext({
-					locals,
-					pipeline: this.pipeline,
-					skipMiddleware,
-					pathname: this.getPathnameFromRequest(request),
-					request,
-					routeData: errorRouteData,
-					status,
-					props: { error },
-					clientAddress,
-				});
-				session = renderContext.session;
-				const response = await renderContext.render(mod);
-				return this.mergeResponses(response, originalResponse);
-			} catch {
-				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
-				if (skipMiddleware === false) {
-					return this.renderError(request, {
-						locals,
-						status,
-						response: originalResponse,
-						skipMiddleware: true,
-						clientAddress,
-						prerenderedErrorPageFetch,
-					});
-				}
-			} finally {
-				await session?.[PERSIST_SYMBOL]();
-			}
-		}
-
-		const response = this.mergeResponses(new Response(null, { status }), originalResponse);
-		Reflect.set(response, responseSentSymbol, true);
-		return response;
+	public async renderError(request: Request, options: RenderErrorOptions): Promise<Response> {
+		return this.#errorHandler.renderError(request, options);
 	}
 
-	private mergeResponses(
-		newResponse: Response,
-		originalResponse?: Response,
-		override?: {
-			status: 404 | 500;
-			removeContentEncodingHeaders: boolean;
-		},
-	) {
-		let newResponseHeaders = newResponse.headers;
+	/**
+	 * One-shot check: after the first request with a custom `src/fetch.ts`,
+	 * compare `usedFeatures` against the manifest and warn about any
+	 * configured features the user's pipeline doesn't call.
+	 */
+	#warnMissingFeatures(): void {
+		if (this.#featureCheckDone || !this.#hasCustomFetchHandler) return;
+		this.#featureCheckDone = true;
 
-		// In order to set the body of a remote response as the new response body, we need to remove
-		// headers about encoding in transit, as Node's standard fetch implementation `undici`
-		// currently does not do so.
-		//
-		// Also see https://github.com/nodejs/undici/issues/2514
-		if (override?.removeContentEncodingHeaders) {
-			// The original headers are immutable, so we need to clone them here.
-			newResponseHeaders = new Headers(newResponseHeaders);
+		const manifest = this.manifest;
+		const missing: string[] = [];
 
-			newResponseHeaders.delete('Content-Encoding');
-			newResponseHeaders.delete('Content-Length');
+		const used = getUsedFeatures(this.manifest);
+
+		if (
+			manifest.routes.some((r) => r.routeData.type === 'redirect') &&
+			!(used & FetchFeatures.redirects)
+		) {
+			missing.push('redirects');
+		}
+		if (manifest.sessionConfig && !(used & FetchFeatures.sessions)) {
+			missing.push('sessions');
+		}
+		if (manifest.actions && !(used & FetchFeatures.actions)) {
+			missing.push('actions');
+		}
+		if (manifest.middleware && !(used & FetchFeatures.middleware)) {
+			missing.push('middleware');
+		}
+		if (manifest.i18n && manifest.i18n.strategy !== 'manual' && !(used & FetchFeatures.i18n)) {
+			missing.push('i18n');
+		}
+		if (manifest.cacheConfig && !(used & FetchFeatures.cache)) {
+			missing.push('cache');
 		}
 
-		if (!originalResponse) {
-			if (override !== undefined) {
-				return new Response(newResponse.body, {
-					status: override.status,
-					statusText: newResponse.statusText,
-					headers: newResponseHeaders,
-				});
-			}
-			return newResponse;
+		for (const feature of missing) {
+			this.logger.warn(
+				'router',
+				`Your project uses ${feature}, but your custom src/fetch.ts does not call the ${feature}() handler. ` +
+					`This feature will not work unless your fetch handler calls it.`,
+			);
 		}
-
-		// If the new response did not have a meaningful status, an override may have been provided
-		// If the original status was 200 (default), override it with the new status (probably 404 or 500)
-		// Otherwise, the user set a specific status while rendering and we should respect that one
-		const status = override?.status
-			? override.status
-			: originalResponse.status === 200
-				? newResponse.status
-				: originalResponse.status;
-
-		try {
-			// this function could throw an error...
-			originalResponse.headers.delete('Content-type');
-		} catch {}
-		// we use a map to remove duplicates
-		const mergedHeaders = new Map([
-			...Array.from(newResponseHeaders),
-			...Array.from(originalResponse.headers),
-		]);
-		const newHeaders = new Headers();
-		for (const [name, value] of mergedHeaders) {
-			newHeaders.set(name, value);
-		}
-		return new Response(newResponse.body, {
-			status,
-			statusText: status === 200 ? newResponse.statusText : originalResponse.statusText,
-			// If you're looking at here for possible bugs, it means that it's not a bug.
-			// With the middleware, users can meddle with headers, and we should pass to the 404/500.
-			// If users see something weird, it's because they are setting some headers they should not.
-			//
-			// Although, we don't want it to replace the content-type, because the error page must return `text/html`
-			headers: newHeaders,
-		});
 	}
 
 	getDefaultStatusCode(routeData: RouteData, pathname: string): number {
-		if (!routeData.pattern.test(pathname)) {
-			for (const fallbackRoute of routeData.fallbackRoutes) {
-				if (fallbackRoute.pattern.test(pathname)) {
-					return 302;
-				}
-			}
-		}
-		const route = removeTrailingForwardSlash(routeData.route);
-		if (route.endsWith('/404')) return 404;
-		if (route.endsWith('/500')) return 500;
-		return 200;
+		return getDefaultStatusCode(this.manifest, routeData, pathname);
 	}
 
 	public getManifest() {
-		return this.pipeline.manifest;
+		return this.manifest;
 	}
 
 	logThisRequest({

@@ -1,9 +1,9 @@
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
-import type { LogLevel, Rollup, Logger as ViteLogger } from 'vite';
+import type { LogLevel, Rolldown, Logger as ViteLogger } from 'vite';
 import { isAstroError } from '../errors/errors.js';
 import { serverShortcuts as formatServerShortcuts } from '../messages/runtime.js';
-import { type Logger as AstroLogger, isLogLevelEnabled } from './core.js';
+import { type AstroLogger as AstroLogger, isLogLevelEnabled } from './core.js';
 
 const PKG_PREFIX = fileURLToPath(new URL('../../../', import.meta.url));
 const E2E_PREFIX = fileURLToPath(new URL('../../../e2e', import.meta.url));
@@ -29,7 +29,7 @@ export function createViteLogger(
 	viteLogLevel: LogLevel = 'info',
 ): ViteLogger {
 	const warnedMessages = new Set<string>();
-	const loggedErrors = new WeakSet<Error | Rollup.RollupError>();
+	const loggedErrors = new WeakSet<Error | Rolldown.RolldownError>();
 
 	const logger: ViteLogger = {
 		hasWarned: false,

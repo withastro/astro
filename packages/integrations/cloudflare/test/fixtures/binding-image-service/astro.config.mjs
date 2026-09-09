@@ -5,5 +5,8 @@ export default defineConfig({
 	adapter: cloudflare({
 		imageService: 'cloudflare-binding',
 	}),
+	image: {
+		domains: ['localhost'],
+	},
 	output: 'server',
 });

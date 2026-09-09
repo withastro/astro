@@ -8,5 +8,7 @@ export default defineConfig({
 	adapter: cloudflare(),
 	redirects: {
 		'/a/redirect': '/',
+		// TEST CASE FOR https://github.com/withastro/astro/issues/13165
+		'/a/redirect/': '/',
 	},
 });

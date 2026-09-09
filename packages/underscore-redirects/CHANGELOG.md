@@ -1,5 +1,29 @@
 # @astrojs/underscore-redirects
 
+## 1.0.4
+
+### Patch Changes
+
+- [#17620](https://github.com/withastro/astro/pull/17620) [`0891ac9`](https://github.com/withastro/astro/commit/0891ac9de5a6996e5ebd227e3443f7f4a4ea935a) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes dynamic redirect routes to honour user-configured status codes instead of hardcoding 301. Previously, a redirect configured with `{ destination: '/new', status: 302 }` would be emitted as 301 in the `_redirects` file when the route was dynamic.
+
+## 1.0.3
+
+### Patch Changes
+
+- [#16034](https://github.com/withastro/astro/pull/16034) [`814406d`](https://github.com/withastro/astro/commit/814406de7dc3ea014b47d2d886d55c45e4e1c034) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes generated redirect files to respect Astro’s `trailingSlash` configuration, so redirect routes work with the expected URL format in built output instead of returning a 404 when accessed with a trailing slash.
+
+## 1.0.2
+
+### Patch Changes
+
+- [#15979](https://github.com/withastro/astro/pull/15979) [`3b8d473`](https://github.com/withastro/astro/commit/3b8d473768bf7d356a21a0a432e6a33f90928a9e) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue where redirects in `_redirects` file where not correctly created with trailing slashes.
+
+## 1.0.1
+
+### Patch Changes
+
+- [#15820](https://github.com/withastro/astro/pull/15820) [`e20474b`](https://github.com/withastro/astro/commit/e20474b98c6d868ed9734f7eeb7564bffe8bfd77) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes broken publish
+
 ## 1.0.0
 
 ### Major Changes

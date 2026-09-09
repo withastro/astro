@@ -16,6 +16,8 @@ type Props = {
 const StaticHtml = ({ value, name, hydrate = true }: Props) => {
 	if (!value) return null;
 	const tagName = hydrate ? 'astro-slot' : 'astro-static-slot';
+	// nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml
+	// Astro passes framework-rendered HTML through this adapter boundary intentionally.
 	return h(tagName, { name, dangerouslySetInnerHTML: { __html: value } });
 };
 

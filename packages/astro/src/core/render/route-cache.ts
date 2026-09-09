@@ -7,9 +7,12 @@ import type {
 	Params,
 } from '../../types/public/common.js';
 import type { AstroConfig, RuntimeMode } from '../../types/public/config.js';
-import type { RouteData } from '../../types/public/internal.js';
-import type { Logger } from '../logger/core.js';
+import type { RouteData, SSRManifest } from '../../types/public/internal.js';
+import type { AstroLogger } from '../logger/core.js';
 
+import { getEnvironment } from '../environment/index.js';
+import { getLogger } from '../logger/manifest-logger.js';
+import { createManifestMemo } from '../manifest/memo.js';
 import { stringifyParams } from '../routing/params.js';
 import { validateDynamicRouteModule, validateGetStaticPathsResult } from '../routing/validation.js';
 import { generatePaginateFunction } from './paginate.js';
@@ -35,16 +38,23 @@ export async function callGetStaticPaths({
 	if (!mod) {
 		throw new Error('This is an error caused by Astro and not your code. Please file an issue.');
 	}
-	if (cached?.staticPaths) {
+	// After HMR, `mod` is a new object from a fresh import(). If the cached
+	// entry was produced by a previous module instance, treat it as stale so
+	// getStaticPaths() is re-called with the updated module.
+	if (cached?.staticPaths && cached.mod === mod) {
 		return cached.staticPaths;
 	}
 
 	validateDynamicRouteModule(mod, { ssr, route });
 
-	// No static paths in SSR mode. Return an empty RouteCacheEntry.
-	if (ssr && !route.prerender) {
+	// No static paths in SSR mode or for internal routes. Return an empty RouteCacheEntry.
+	if ((ssr && !route.prerender) || route.origin === 'internal') {
 		const entry: GetStaticPathsResultKeyed = Object.assign([], { keyed: new Map() });
-		routeCache.set(route, { ...cached, staticPaths: entry });
+		// Store `mod` alongside the entry so the fast-path above hits on
+		// subsequent requests; otherwise `cached.mod === mod` is always false
+		// in SSR and we re-enter this branch, triggering the "route cache
+		// overwritten" warning on every request after the first.
+		routeCache.set(route, { ...cached, mod, staticPaths: entry });
 		return entry;
 	}
 
@@ -73,25 +83,31 @@ export async function callGetStaticPaths({
 		keyedStaticPaths.keyed.set(paramsKey, sp);
 	}
 
-	routeCache.set(route, { ...cached, staticPaths: keyedStaticPaths });
+	routeCache.set(route, { ...cached, mod, staticPaths: keyedStaticPaths });
 	return keyedStaticPaths;
 }
 
 interface RouteCacheEntry {
+	mod: ComponentInstance;
 	staticPaths: GetStaticPathsResultKeyed;
 }
 
 /**
  * Manage the route cache, responsible for caching data related to each route,
- * including the result of calling getStaticPath() so that it can be reused across
- * responses during dev and only ever called once during build.
+ * including the result of calling getStaticPaths(). This gives route matching,
+ * params/props resolution, and prerender generation a shared static-path table.
+ *
+ * In dev, this cache intentionally survives requests. It is invalidated by route
+ * module identity changes after HMR or by explicit cache clears from content data
+ * changes, not by each request. Dev route matching can call getStaticPaths()
+ * before rendering, and render-time props resolution may ask for it again.
  */
 export class RouteCache {
-	private logger: Logger;
+	private logger: AstroLogger;
 	private cache: Record<string, RouteCacheEntry> = {};
 	private runtimeMode: RuntimeMode;
 
-	constructor(logger: Logger, runtimeMode: RuntimeMode = 'production') {
+	constructor(logger: AstroLogger, runtimeMode: RuntimeMode = 'production') {
 		this.logger = logger;
 		this.runtimeMode = runtimeMode;
 	}
@@ -121,11 +137,23 @@ export class RouteCache {
 	}
 }
 
+const routeCaches = createManifestMemo(
+	(manifest) => new RouteCache(getLogger(manifest), getEnvironment(manifest).runtimeMode),
+);
+
+/**
+ * The `RouteCache` for a manifest. Cleared via
+ * `getRouteCache(manifest).clearAll()` on dev `astro:content-changed`.
+ */
+export function getRouteCache(manifest: SSRManifest): RouteCache {
+	return routeCaches.get(manifest);
+}
+
 export function findPathItemByKey(
 	staticPaths: GetStaticPathsResultKeyed,
 	params: Params,
 	route: RouteData,
-	logger: Logger,
+	logger: AstroLogger,
 	trailingSlash: AstroConfig['trailingSlash'],
 ) {
 	const paramsKey = stringifyParams(params, route, trailingSlash);

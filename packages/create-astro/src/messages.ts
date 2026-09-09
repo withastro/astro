@@ -123,7 +123,7 @@ export const nextSteps = async ({ projectDir, devCmd }: { projectDir: string; de
 		log(enter.join(len > max ? '\n' + prefix : ' '));
 	}
 	log(
-		`${prefix}Run ${color.cyan(devCmd)} to start the dev server. ${color.cyan('CTRL+C')} to stop.`,
+		`${prefix}Run ${color.cyan(devCmd)} to start the dev server. ${color.cyan('q')} + ${color.cyan('ENTER')} to stop.`,
 	);
 	await sleep(100);
 	log(

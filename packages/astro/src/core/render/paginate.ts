@@ -9,7 +9,7 @@ import type { AstroConfig } from '../../types/public/index.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { joinPaths } from '../path.js';
-import { getRouteGenerator } from '../routing/manifest/generator.js';
+import { getRouteGenerator } from '../routing/generator.js';
 
 export function generatePaginateFunction(
 	routeMatch: RouteData,
@@ -21,11 +21,12 @@ export function generatePaginateFunction(
 		args: PaginateOptions<Props, Params> = {},
 	): ReturnType<PaginateFunction> {
 		const generate = getRouteGenerator(routeMatch.segments, trailingSlash);
-		let { pageSize: _pageSize, params: _params, props: _props } = args;
+		let { pageSize: _pageSize, params: _params, props: _props, format: _format } = args;
 		const pageSize = _pageSize || 10;
 		const paramName = 'page';
 		const additionalParams = _params || {};
 		const additionalProps = _props || {};
+		const formatUrl = _format || ((url: string) => url);
 		let includesFirstPageNumber: boolean;
 		if (routeMatch.params.includes(`...${paramName}`)) {
 			includesFirstPageNumber = false;
@@ -47,36 +48,40 @@ export function generatePaginateFunction(
 				...additionalParams,
 				[paramName]: includesFirstPageNumber || pageNum > 1 ? String(pageNum) : undefined,
 			};
-			const current = addRouteBase(generate({ ...params }), base);
+			const current = formatUrl(addRouteBase(generate({ ...params }), base));
 			const next =
 				pageNum === lastPage
 					? undefined
-					: addRouteBase(generate({ ...params, page: String(pageNum + 1) }), base);
+					: formatUrl(addRouteBase(generate({ ...params, page: String(pageNum + 1) }), base));
 			const prev =
 				pageNum === 1
 					? undefined
-					: addRouteBase(
-							generate({
-								...params,
-								page:
-									!includesFirstPageNumber && pageNum - 1 === 1 ? undefined : String(pageNum - 1),
-							}),
-							base,
+					: formatUrl(
+							addRouteBase(
+								generate({
+									...params,
+									page:
+										!includesFirstPageNumber && pageNum - 1 === 1 ? undefined : String(pageNum - 1),
+								}),
+								base,
+							),
 						);
 			const first =
 				pageNum === 1
 					? undefined
-					: addRouteBase(
-							generate({
-								...params,
-								page: includesFirstPageNumber ? '1' : undefined,
-							}),
-							base,
+					: formatUrl(
+							addRouteBase(
+								generate({
+									...params,
+									page: includesFirstPageNumber ? '1' : undefined,
+								}),
+								base,
+							),
 						);
 			const last =
 				pageNum === lastPage
 					? undefined
-					: addRouteBase(generate({ ...params, page: String(lastPage) }), base);
+					: formatUrl(addRouteBase(generate({ ...params, page: String(lastPage) }), base));
 			return {
 				params,
 				props: {

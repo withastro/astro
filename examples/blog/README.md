@@ -24,7 +24,7 @@ Features:
 
 - ✅ Minimal styling (make it your own!)
 - ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and OpenGraph data
+- ✅ SEO-friendly with canonical URLs and Open Graph data
 - ✅ Sitemap support
 - ✅ RSS Feed support
 - ✅ Markdown & MDX support
@@ -36,6 +36,7 @@ Inside of your Astro project, you'll see the following folders and files:
 ```text
 ├── public/
 ├── src/
+│   ├── assets/
 │   ├── components/
 │   ├── content/
 │   ├── layouts/

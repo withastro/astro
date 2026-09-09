@@ -35,4 +35,4 @@ Copyright (c) 2023–present [Astro][astro]
 [community]: https://github.com/withastro/.github/blob/main/COMMUNITY_GUIDE.md
 [discord]: https://astro.build/chat/
 [issues]: https://github.com/withastro/astro/issues
-[astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
+[astro-integration]: https://docs.astro.build/en/guides/integrations/

@@ -1,13 +1,13 @@
 import type { Root } from 'hast';
 import type { Plugin } from 'unified';
 import { highlightCodeBlocks } from './highlight.js';
-import { createShikiHighlighter, type ShikiHighlighter } from './shiki.js';
-import type { ShikiConfig } from './types.js';
+import { createShikiHighlighter, type ShikiHighlighter } from '@astrojs/internal-helpers/shiki';
+import type { ShikiConfig } from '@astrojs/internal-helpers/markdown';
 
 export const rehypeShiki: Plugin<[ShikiConfig, string[]?], Root> = (config, excludeLangs) => {
 	let highlighterAsync: Promise<ShikiHighlighter> | undefined;
 
-	return async (tree, vfile) => {
+	return async (tree) => {
 		highlighterAsync ??= createShikiHighlighter({
 			langs: config?.langs,
 			theme: config?.theme,
@@ -16,7 +16,7 @@ export const rehypeShiki: Plugin<[ShikiConfig, string[]?], Root> = (config, excl
 		});
 		const highlighter = await highlighterAsync;
 
-		const codeBlockCount = await highlightCodeBlocks(
+		await highlightCodeBlocks(
 			tree,
 			(code, language, options) => {
 				return highlighter.codeToHast(code, language, {
@@ -28,11 +28,5 @@ export const rehypeShiki: Plugin<[ShikiConfig, string[]?], Root> = (config, excl
 			},
 			excludeLangs,
 		);
-
-		// Store flag in vfile.data if code blocks were found
-		if (codeBlockCount > 0) {
-			vfile.data.astro ??= {};
-			vfile.data.astro.hasCodeBlocks = true;
-		}
 	};
 };

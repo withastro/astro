@@ -1,5 +1,107 @@
 # @astrojs/internal-helpers
 
+## 0.11.0
+
+### Minor Changes
+
+- [#17262](https://github.com/withastro/astro/pull/17262) [`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds an `@astrojs/internal-helpers/mdx` entrypoint with the shared helpers the Markdown processor packages use to render `.mdx` files.
+
+## 0.10.4
+
+### Patch Changes
+
+- [#17701](https://github.com/withastro/astro/pull/17701) [`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527) Thanks [@matthewp](https://github.com/matthewp)! - Fixes base path stripping to respect path-segment boundaries. With a configured `base` such as `/docs`, a request like `/docs-archive/page` is no longer treated as being under the base, so routing and `context.url.pathname` now agree on the same pathname.
+
+## 0.10.3
+
+### Patch Changes
+
+- [#17696](https://github.com/withastro/astro/pull/17696) [`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes incremental build cache invalidation caused by Shiki mutating the `langAlias` config object when loading languages
+
+## 0.10.2
+
+### Patch Changes
+
+- [#17474](https://github.com/withastro/astro/pull/17474) [`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18) Thanks [@nicksnyder](https://github.com/nicksnyder)! - Updates dependency `js-yaml` to v4.3.0
+
+## 0.10.1
+
+### Patch Changes
+
+- [#17252](https://github.com/withastro/astro/pull/17252) [`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes trailing-slash handling for request paths that begin with a backslash
+
+  With `trailingSlash: 'always'`, the standalone Node server could append a trailing slash to a request path that begins with a backslash (for example `/\example.com/foo`) and echo that path back in the `Location` header of a `301` response. Because browsers resolve a leading `\` the same way as `/`, the resulting `Location` could point off-site.
+
+  Such paths are now recognized as internal paths, matching the existing handling for paths that begin with `//`, so they are no longer rewritten with a trailing slash.
+
+## 0.10.0
+
+### Minor Changes
+
+- [#16848](https://github.com/withastro/astro/pull/16848) [`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds `markdown`, `frontmatter`, and `shiki` helper modules, shared by Astro's content pipeline.
+
+## 0.9.1
+
+### Patch Changes
+
+- [#16544](https://github.com/withastro/astro/pull/16544) [`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce) Thanks [@matthewp](https://github.com/matthewp)! - Tightens `isRemotePath()` to reject control characters after a leading slash and fixes the dev image endpoint origin check
+
+## 0.9.0
+
+### Minor Changes
+
+- [#16419](https://github.com/withastro/astro/pull/16419) [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d) Thanks [@matthewp](https://github.com/matthewp)! - Hardens nested object and package metadata lookups to ignore prototype keys in content handling and project scaffolding
+
+### Patch Changes
+
+- [#16448](https://github.com/withastro/astro/pull/16448) [`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd) Thanks [@matthewp](https://github.com/matthewp)! - Updates vite, picomatch, and unstorage to latest patch versions
+
+## 0.8.0
+
+### Minor Changes
+
+- [#15778](https://github.com/withastro/astro/pull/15778) [`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56) Thanks [@ematipico](https://github.com/ematipico)! - Added a new entry point called `/request`, which exposes utilities to work with the `Request` type:
+  - `getFirstForwardedValue`: retrieves the first value of a multi-value header.
+  - `isValidIpAddress`: checks whether a string contains only characters valid in IPv4/IPv6 addresses.
+  - `getValidatedIpFromHeader`: extracts the first value from a header and validates it as an IP address.
+  - `getClientIpAddress`: retrieves and validates the first IP from the `x-forwarded-for` header.
+
+- [#15077](https://github.com/withastro/astro/pull/15077) [`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3) Thanks [@matthewp](https://github.com/matthewp)! - Adds `normalizePathname()` utility function for normalizing URL pathnames to match the canonical form used by route generation.
+
+- [#15419](https://github.com/withastro/astro/pull/15419) [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new `/cli` specifier and the utility `NPM_PACKAGE_NAME_REGEX`.
+
+- [#15369](https://github.com/withastro/astro/pull/15369) [`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE**
+
+  Removes `collapseDuplicateSlashes()`, `startsWithForwardSlash()`, `startsWithDotDotSlash()`, `startsWithDotSlash()` and `isAbsolutePath()` from the `/path` export
+
+- [#15771](https://github.com/withastro/astro/pull/15771) [`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74) Thanks [@rururux](https://github.com/rururux)! - Adds the new utilities `MANY_LEADING_SLASHES` and `collapseDuplicateLeadingSlashes`.
+
+### Patch Changes
+
+- [#15700](https://github.com/withastro/astro/pull/15700) [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529) Thanks [@ocavue](https://github.com/ocavue)! - Adds a fork of `createFilter` from `@rollup/pluginutils` without Node.js APIs.
+
+- [#15779](https://github.com/withastro/astro/pull/15779) [`cf6ea6b`](https://github.com/withastro/astro/commit/cf6ea6b36b67c7712395ed3f9ca19cb14ba1a013) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes glob matching of remote patterns matching more paths than intended in select situations
+
+## 0.8.0-beta.3
+
+### Minor Changes
+
+- [#15778](https://github.com/withastro/astro/pull/15778) [`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56) Thanks [@ematipico](https://github.com/ematipico)! - Added a new entry point called `/request`, which exposes utilities to work with the `Request` type:
+  - `getFirstForwardedValue`: retrieves the first value of a multi-value header.
+  - `isValidIpAddress`: checks whether a string contains only characters valid in IPv4/IPv6 addresses.
+  - `getValidatedIpFromHeader`: extracts the first value from a header and validates it as an IP address.
+  - `getClientIpAddress`: retrieves and validates the first IP from the `x-forwarded-for` header.
+
+### Patch Changes
+
+- [#15700](https://github.com/withastro/astro/pull/15700) [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529) Thanks [@ocavue](https://github.com/ocavue)! - Adds a fork of `createFilter` from `@rollup/pluginutils` without Node.js APIs.
+
+## 0.8.0-beta.2
+
+### Minor Changes
+
+- [#15771](https://github.com/withastro/astro/pull/15771) [`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74) Thanks [@rururux](https://github.com/rururux)! - Adds the new utilities `MANY_LEADING_SLASHES` and `collapseDuplicateLeadingSlashes`.
+
 ## 0.8.0-beta.1
 
 ### Minor Changes

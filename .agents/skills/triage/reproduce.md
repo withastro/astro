@@ -4,6 +4,8 @@ Reproduce a GitHub issue to determine if a bug is valid and reproducible.
 
 **CRITICAL: You MUST always read `report.md` and write `report.md` to the triage directory before finishing, regardless of outcome. Even if you encounter errors, cannot reproduce the bug, hit unexpected problems, or need to skip — always write `report.md`. The orchestrator and downstream skills depend on this file to determine what happened. If you finish without writing it, the entire pipeline fails silently.**
 
+**SCOPE: Your job is reproduction only. Finish your work once you've completed this workflow. Do NOT go further than this (no larger diagnosis of the issue, no fixing of the issue, etc.). Do not spawn tasks/sub-agents.**
+
 ## Prerequisites
 
 These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone.
@@ -67,7 +69,7 @@ Skip if the bug is specific to Bun or Deno. Our sandbox only supports Node.js.
 
 ### Maintainer Override (`maintainer-override`)
 
-Skip if a repository maintainer has commented that this issue should not be reproduced here. To determine if a commenter is a maintainer, check the `author_association` field on their comment in `issueDetails` — values of `MEMBER`, `COLLABORATOR`, or `OWNER` indicate a maintainer.
+Skip if a repository maintainer has commented that this issue should not be reproduced here. To determine if a commenter is a maintainer, check the `authorAssociation` field on their comment in `issueDetails` — values of `MEMBER`, `COLLABORATOR`, or `OWNER` indicate a maintainer.
 
 ## Step 3: Set Up Reproduction Project
 
@@ -141,6 +143,16 @@ Use all of the tools at your disposal — `pnpm run dev|build|preview|test`, `cu
 1. **Trigger the bug.** Follow the reproduction steps from the issue and confirm that the bug appears.
 2. **Verify the baseline.** Remove or reverse the triggering code and confirm the project works without the bug. This guards against false positives — if the project is still broken without the triggering code, the issue may be in your setup, not the reported bug.
 3. **Document what you observe.** Record exact error messages and stack traces, which command triggers the issue, and whether it's consistent or intermittent.
+
+### Server Management Rules
+
+Running dev/preview servers is often necessary for reproduction, but server problems must not consume your time budget. Follow these rules:
+
+- **Bail out after 2 failed server starts.** If `astro dev --background` or a manual server command fails twice in a row, stop trying. Do NOT loop endlessly with variations. Write your report with what you already know.
+- **Always stop servers before restarting.** Run `pnpm -C <triageDir> dev stop` before starting a new dev server. If that doesn't work, try `pkill -f "astro dev\|astro preview\|node.*entry.mjs"` as a fallback. If that also fails, use a different port (`--port 4322`) rather than fighting the stale process.
+- **One reproduction run is enough.** Once you have confirmed or denied the bug, do NOT restart the server to re-test with minor config variations. Additional testing belongs in the diagnose step, not here. Write your findings and move on.
+- **Prefer `astro build` over dev/preview when possible.** Build-time reproduction avoids server lifecycle issues entirely. Only use dev/preview servers when the bug specifically requires a running server (e.g., HMR, runtime SSR, request handling).
+- **Always use Astro's background dev server — never `&`.** Do not background servers with `&` (e.g., `pnpm dev &`). This hangs in CI. Use `pnpm -C <triageDir> dev --background` / `pnpm -C <triageDir> dev stop` for dev server lifecycle management.
 
 ## Step 5: Write Output
 

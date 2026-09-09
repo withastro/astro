@@ -14,16 +14,17 @@ import type {
 	AstroIntegrationLogger,
 	HookParameters,
 	IntegrationResolvedRoute,
+	MiddlewareMode,
 	RouteToHeaders,
 } from 'astro';
 import { AstroError } from 'astro/errors';
 import { globSync } from 'tinyglobby';
-import type { RemotePattern } from './image/shared.js';
 import {
 	type DevImageService,
 	getAstroImageConfig,
 	getDefaultImageConfig,
 	type VercelImageConfig,
+	type RemotePattern,
 } from './image/shared.js';
 import { copyDependenciesToFunction } from './lib/nft.js';
 import { escapeRegex, getRedirects } from './lib/redirects.js';
@@ -31,7 +32,7 @@ import {
 	getInjectableWebAnalyticsContent,
 	type VercelWebAnalyticsConfig,
 } from './lib/web-analytics.js';
-import { generateEdgeMiddleware } from './serverless/middleware.js';
+import { generateEdgeMiddleware, type IsrForwarding } from './serverless/middleware.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
 
 const PACKAGE_NAME = '@astrojs/vercel';
@@ -42,6 +43,15 @@ const PACKAGE_NAME = '@astrojs/vercel';
  */
 export const ASTRO_PATH_HEADER = 'x-astro-path';
 export const ASTRO_PATH_PARAM = 'x_astro_path';
+
+/**
+ * ISR functions receive the target path through the `x_astro_path` query
+ * parameter instead of a header. Because that parameter travels on the URL, it
+ * is accompanied by this token so the entrypoint can confirm the path override
+ * came from Astro's own build-time route rewrite rather than from an arbitrary
+ * caller. The value is the per-build `middlewareSecret`.
+ */
+export const ASTRO_PATH_TOKEN_PARAM = 'x_astro_path_token';
 
 /**
  * The edge function calls the node server at /_render,
@@ -59,7 +69,10 @@ const MIDDLEWARE_PATH = '_middleware';
 // This isn't documented by vercel anywhere, but unlike serverless
 // and edge functions, isr functions are not passed the original path.
 // Instead, we have to use $0 to refer to the regex match from "src".
-const ISR_PATH = `/_isr?${ASTRO_PATH_PARAM}=$0`;
+// The path token is appended so the entrypoint can verify the rewrite
+// originated from this build's route table and not from an external caller.
+const getIsrPath = (pathToken: string) =>
+	`/_isr?${ASTRO_PATH_PARAM}=$0&${ASTRO_PATH_TOKEN_PARAM}=${pathToken}`;
 
 // https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/node-js#node.js-version
 const SUPPORTED_NODE_VERSIONS: Record<
@@ -97,13 +110,13 @@ const SUPPORTED_NODE_VERSIONS: Record<
 };
 
 function getAdapter({
-	edgeMiddleware,
+	middlewareMode,
 	skewProtection,
 	buildOutput,
 	staticHeaders,
 }: {
 	buildOutput: 'server' | 'static';
-	edgeMiddleware: NonNullable<VercelServerlessConfig['edgeMiddleware']>;
+	middlewareMode: NonNullable<VercelServerlessConfig['middlewareMode']>;
 	skewProtection: boolean;
 	staticHeaders: NonNullable<VercelServerlessConfig['staticHeaders']>;
 }): AstroAdapter {
@@ -112,8 +125,9 @@ function getAdapter({
 		entrypointResolution: 'auto',
 		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
 		adapterFeatures: {
-			edgeMiddleware,
 			buildOutput,
+			middlewareMode,
+			preserveBuildServerDir: true,
 			staticHeaders,
 		},
 		supportedAstroFeatures: {
@@ -161,7 +175,16 @@ export interface VercelServerlessConfig {
 	/** Allows you to configure which image service to use in development when imageService is enabled. */
 	devImageService?: DevImageService;
 
-	/** Whether to create the Vercel Edge middleware from an Astro middleware in your code base. */
+	/**
+	 * Controls when and how middleware executes.
+	 * - 'classic' (default): Middleware runs for prerendered pages at build time, and for SSR pages at request time.
+	 * - 'edge': Middleware is deployed as a separate edge function.
+	 */
+	middlewareMode?: MiddlewareMode;
+
+	/**
+	 * @deprecated Use `middlewareMode: 'edge'` instead.
+	 */
 	edgeMiddleware?: boolean;
 
 	/** The maximum duration (in seconds) that Serverless Functions can run before timing out. See the [Vercel documentation](https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration) for the default and maximum limit for your account plan. */
@@ -217,12 +240,16 @@ export default function vercelAdapter({
 	imageService,
 	imagesConfig,
 	devImageService = 'sharp',
-	edgeMiddleware = false,
+	middlewareMode,
+	edgeMiddleware,
 	maxDuration,
 	isr = false,
 	skewProtection = process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1',
 	staticHeaders = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
+	// Resolve middleware mode with backward compatibility
+	const resolvedMiddlewareMode = middlewareMode ?? (edgeMiddleware ? 'edge' : 'classic');
+
 	if (maxDuration) {
 		if (typeof maxDuration !== 'number') {
 			throw new TypeError(`maxDuration must be a number`, {
@@ -240,6 +267,7 @@ export default function vercelAdapter({
 	let _buildTempFolder: URL;
 	let _serverEntry: string;
 	let _middlewareEntryPoint: URL | undefined;
+	let _hasServerBuild = false;
 	let _routeToHeaders: RouteToHeaders | undefined = undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
@@ -269,6 +297,9 @@ export default function vercelAdapter({
 					build: {
 						format: 'directory',
 						redirects: false,
+						...(config.output === 'static'
+							? { server: new URL('./.vercel/output/server/', config.root) }
+							: {}),
 					},
 					integrations: [
 						{
@@ -347,7 +378,7 @@ export default function vercelAdapter({
 					setAdapter(
 						getAdapter({
 							buildOutput: _buildOutput,
-							edgeMiddleware,
+							middlewareMode: resolvedMiddlewareMode,
 							skewProtection,
 							staticHeaders: staticHeaders,
 						}),
@@ -355,7 +386,7 @@ export default function vercelAdapter({
 				} else {
 					setAdapter(
 						getAdapter({
-							edgeMiddleware: false,
+							middlewareMode: resolvedMiddlewareMode,
 							skewProtection,
 							buildOutput: _buildOutput,
 							staticHeaders: staticHeaders,
@@ -367,10 +398,12 @@ export default function vercelAdapter({
 				_serverEntry = config.build.serverEntry;
 			},
 			'astro:build:start': async () => {
+				_hasServerBuild = false;
 				// Ensure to have `.vercel/output` empty.
 				await emptyDir(new URL('./.vercel/output/', _config.root));
 			},
 			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
+				_hasServerBuild = true;
 				_middlewareEntryPoint = middlewareEntryPoint;
 			},
 
@@ -379,15 +412,16 @@ export default function vercelAdapter({
 			},
 			'astro:build:done': async ({ logger }: HookParameters<'astro:build:done'>) => {
 				const outDir = new URL('./.vercel/output/', _config.root);
+
 				if (staticDir) {
 					if (existsSync(staticDir)) {
-						emptyDir(staticDir);
+						await emptyDir(staticDir);
 					}
 					mkdirSync(new URL('./.vercel/output/static/', _config.root), {
 						recursive: true,
 					});
 
-					mkdirSync(new URL('./.vercel/output/server/', _config.root));
+					mkdirSync(new URL('./.vercel/output/server/', _config.root), { recursive: true });
 
 					if (_buildOutput !== 'static') {
 						cpSync(_config.build.server, new URL('./.vercel/output/_functions/', _config.root), {
@@ -402,9 +436,9 @@ export default function vercelAdapter({
 					middlewarePath?: string;
 				}> = [];
 
-				if (_buildOutput === 'server') {
+				if (_hasServerBuild) {
 					// Merge any includes from `vite.assetsInclude
-					if (_config.vite.assetsInclude) {
+					if (_buildOutput === 'server' && _config.vite.assetsInclude) {
 						const mergeGlobbedIncludes = (globPattern: unknown) => {
 							if (typeof globPattern === 'string') {
 								const entries = globSync(globPattern).map((p) => pathToFileURL(p));
@@ -434,7 +468,11 @@ export default function vercelAdapter({
 					);
 
 					const entryFile = new URL(_serverEntry, _buildTempFolder);
-					if (isr) {
+					// Routes the edge middleware forwards to `_isr` instead of `_render`.
+					const isrRoutes: string[] = [];
+					// Checked first: a dynamic ISR route can also match an excluded path.
+					const isrExcludedRoutes: string[] = [];
+					if (_buildOutput === 'server' && isr) {
 						const isrConfig = typeof isr === 'object' ? isr : {};
 						await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
 						if (isrConfig.exclude?.length) {
@@ -451,10 +489,9 @@ export default function vercelAdapter({
 							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 							for (const route of expandedExclusions) {
 								// vercel interprets src as a regex pattern, so we need to escape it
-								routeDefinitions.push({
-									src: escapeRegex(route),
-									dest,
-								});
+								const src = escapeRegex(route);
+								routeDefinitions.push({ src, dest });
+								isrExcludedRoutes.push(src);
 							}
 						}
 						await builder.buildISRFolder(entryFile, '_isr', isrConfig, _config.root);
@@ -470,15 +507,21 @@ export default function vercelAdapter({
 
 							if (!excludeRouteFromIsr) {
 								const src = route.patternRegex.source;
-								const dest =
-									src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands')
-										? NODE_PATH
-										: ISR_PATH;
-								if (!route.isPrerendered)
-									routeDefinitions.push({
-										src,
-										dest,
-									});
+								const isInternal =
+									src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands');
+
+								let dest = getIsrPath(middlewareSecret);
+								if (isInternal) {
+									dest = NODE_PATH;
+								} else if (_middlewareEntryPoint) {
+									// The middleware has to run before the cache is consulted.
+									dest = MIDDLEWARE_PATH;
+								}
+
+								if (!route.isPrerendered) {
+									routeDefinitions.push({ src, dest });
+									if (!isInternal) isrRoutes.push(src);
+								}
 							}
 						}
 					} else {
@@ -498,6 +541,7 @@ export default function vercelAdapter({
 							_middlewareEntryPoint,
 							MIDDLEWARE_PATH,
 							middlewareSecret,
+							{ isrRoutes, isrExcludedRoutes },
 						);
 					}
 				}
@@ -512,7 +556,7 @@ export default function vercelAdapter({
 						continue: true,
 					},
 				];
-				if (_buildOutput === 'server') {
+				if (_hasServerBuild) {
 					finalRoutes.push(...routeDefinitions);
 				}
 
@@ -612,7 +656,7 @@ export default function vercelAdapter({
 				});
 
 				// Remove temporary folder
-				if (_buildOutput === 'server') {
+				if (_hasServerBuild) {
 					await removeDir(_buildTempFolder);
 				}
 			},
@@ -637,16 +681,31 @@ type Runtime = `nodejs${string}.x`;
 
 class VercelBuilder {
 	readonly NTF_CACHE = {};
+	readonly config: AstroConfig;
+	readonly excludeFiles: URL[];
+	readonly includeFiles: URL[];
+	readonly logger: AstroIntegrationLogger;
+	readonly outDir: URL;
+	readonly maxDuration: number | undefined;
+	readonly runtime: string;
 
 	constructor(
-		readonly config: AstroConfig,
-		readonly excludeFiles: URL[],
-		readonly includeFiles: URL[],
-		readonly logger: AstroIntegrationLogger,
-		readonly outDir: URL,
-		readonly maxDuration?: number,
-		readonly runtime = getRuntime(process, logger),
-	) {}
+		config: AstroConfig,
+		excludeFiles: URL[],
+		includeFiles: URL[],
+		logger: AstroIntegrationLogger,
+		outDir: URL,
+		maxDuration?: number,
+		runtime = getRuntime(process, logger),
+	) {
+		this.config = config;
+		this.excludeFiles = excludeFiles;
+		this.includeFiles = includeFiles;
+		this.logger = logger;
+		this.outDir = outDir;
+		this.maxDuration = maxDuration;
+		this.runtime = runtime;
+	}
 
 	async buildServerlessFolder(entry: URL, functionName: string, root: URL) {
 		const { includeFiles, excludeFiles, logger, NTF_CACHE, runtime, maxDuration } = this;
@@ -695,12 +754,17 @@ class VercelBuilder {
 		await writeJson(prerenderConfig, {
 			expiration: isr.expiration ?? false,
 			bypassToken: isr.bypassToken,
-			allowQuery: [ASTRO_PATH_PARAM],
+			allowQuery: [ASTRO_PATH_PARAM, ASTRO_PATH_TOKEN_PARAM],
 			passQuery: true,
 		});
 	}
 
-	async buildMiddlewareFolder(entry: URL, functionName: string, middlewareSecret: string) {
+	async buildMiddlewareFolder(
+		entry: URL,
+		functionName: string,
+		middlewareSecret: string,
+		isrForwarding?: IsrForwarding,
+	) {
 		const functionFolder = new URL(`./functions/${functionName}.func/`, this.outDir);
 
 		await generateEdgeMiddleware(
@@ -710,6 +774,7 @@ class VercelBuilder {
 			new URL('./middleware.mjs', functionFolder),
 			middlewareSecret,
 			this.logger,
+			isrForwarding,
 		);
 
 		await writeJson(new URL(`./.vc-config.json`, functionFolder), {

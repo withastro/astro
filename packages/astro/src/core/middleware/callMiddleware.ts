@@ -20,7 +20,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
  * - call `next`;
  *
  * Failing doing so will result an error. A middleware can call `next` and do not return a
- * response. A middleware can not call `next` and return a new `Response` from scratch (maybe with a redirect).
+ * response. A middleware cannot call `next` and return a new `Response` from scratch (maybe with a redirect).
  *
  * ```js
  * const onRequest = async (context, next) => {

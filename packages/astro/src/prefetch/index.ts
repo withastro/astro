@@ -59,8 +59,9 @@ function initTapStrategy() {
 		document.addEventListener(
 			event,
 			(e) => {
-				if (elMatchesStrategy(e.target, 'tap')) {
-					prefetch(e.target.href, { ignoreSlowConnection: true });
+				const anchor = (e.target as Element).closest('a');
+				if (elMatchesStrategy(anchor, 'tap')) {
+					prefetch(anchor.href, { ignoreSlowConnection: true });
 				}
 			},
 			{ passive: true },
@@ -78,8 +79,9 @@ function initHoverStrategy() {
 	document.body.addEventListener(
 		'focusin',
 		(e) => {
-			if (elMatchesStrategy(e.target, 'hover')) {
-				handleHoverIn(e);
+			const anchor = (e.target as Element).closest('a');
+			if (elMatchesStrategy(anchor, 'hover')) {
+				handleHoverIn(anchor.href);
 			}
 		},
 		{ passive: true },
@@ -94,15 +96,17 @@ function initHoverStrategy() {
 			// Add listeners for anchors matching the strategy
 			if (elMatchesStrategy(anchor, 'hover')) {
 				listenedAnchors.add(anchor);
-				anchor.addEventListener('mouseenter', handleHoverIn, { passive: true });
+				anchor.addEventListener(
+					'mouseenter',
+					(e) => handleHoverIn((e.currentTarget as HTMLAnchorElement).href),
+					{ passive: true },
+				);
 				anchor.addEventListener('mouseleave', handleHoverOut, { passive: true });
 			}
 		}
 	});
 
-	function handleHoverIn(e: Event) {
-		const href = (e.target as HTMLAnchorElement).href;
-
+	function handleHoverIn(href: string) {
 		// Debounce hover prefetches by 80ms
 		if (timeout) {
 			clearTimeout(timeout);
@@ -221,9 +225,15 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 	if (!canPrefetchUrl(url, ignoreSlowConnection)) return;
 	prefetchedUrls.add(url);
 
-	// Prefetch with speculationrules if `clientPrerender` is enabled and supported
+	// Prefetch with speculationrules if `clientPrerender` is enabled and supported.
+	// Skip dynamic injection when a static document-source speculation rules script is already
+	// in the page (injected at build time for CSP compatibility).
 	// NOTE: This condition is tree-shaken if `clientPrerender` is false as its a static value
-	if (clientPrerender && HTMLScriptElement.supports?.('speculationrules')) {
+	if (
+		clientPrerender &&
+		HTMLScriptElement.supports?.('speculationrules') &&
+		!hasStaticSpeculationRules()
+	) {
 		debug?.(`[astro] Prefetching ${url} with <script type="speculationrules">`);
 		appendSpeculationRules(url, opts?.eagerness ?? 'immediate');
 	}
@@ -243,7 +253,12 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 		for (const [key, value] of Object.entries(internalFetchHeaders) as [string, string][]) {
 			headers.set(key, value);
 		}
-		fetch(url, { priority: 'low', headers });
+		// The `<link rel="prefetch">` branch above is unsupported in WebKit
+		// (Safari), so this fetch fallback is the path there. A prefetch is a
+		// best-effort hint, so swallow network failures — otherwise a flaky
+		// connection surfaces an unhandled `TypeError: Load failed` rejection
+		// to the page's global error handlers (and trips no-floating-promises).
+		fetch(url, { priority: 'low', headers }).catch(() => {});
 	}
 }
 
@@ -302,7 +317,8 @@ function isSlowConnection() {
 }
 
 /**
- * Listen to page loads and handle Astro's View Transition specific events
+ * Listen to page loads and handle Astro's View Transition specific events.
+ * Also observes DOM mutations for dynamically added anchors (e.g. from server islands).
  */
 function onPageLoad(cb: () => void) {
 	cb();
@@ -316,6 +332,44 @@ function onPageLoad(cb: () => void) {
 		}
 		cb();
 	});
+
+	// Watch for dynamically added anchors (e.g. from server islands)
+	new MutationObserver((mutations) => {
+		for (const mutation of mutations) {
+			for (const node of mutation.addedNodes) {
+				if (node instanceof Element && (node.tagName === 'A' || node.querySelector?.('a'))) {
+					cb();
+					return;
+				}
+			}
+		}
+	}).observe(document.body, { childList: true, subtree: true });
+}
+
+/** Cached result of static speculation rules detection. */
+let _hasStaticRules: boolean | undefined;
+
+/**
+ * Returns `true` when a `<script type="speculationrules">` using `"source": "document"`
+ * is already present in the page (injected server-side for CSP compatibility).
+ * The browser handles URL matching via CSS selectors in that case, so per-URL
+ * dynamic injection is unnecessary.
+ */
+function hasStaticSpeculationRules(): boolean {
+	if (_hasStaticRules === undefined) {
+		_hasStaticRules = Array.from(document.querySelectorAll('script[type="speculationrules"]')).some(
+			(el) => {
+				try {
+					const rules = JSON.parse(el.textContent ?? '');
+					const entries = [...(rules.prerender ?? []), ...(rules.prefetch ?? [])];
+					return entries.some((entry: any) => entry.source === 'document');
+				} catch {
+					return false;
+				}
+			},
+		);
+	}
+	return _hasStaticRules;
 }
 
 /**
@@ -332,6 +386,8 @@ function onPageLoad(cb: () => void) {
 function appendSpeculationRules(url: string, eagerness: PrefetchOptions['eagerness']) {
 	const script = document.createElement('script');
 	script.type = 'speculationrules';
+	// nosemgrep: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
+	// This writes JSON via textContent, not executable JavaScript source.
 	script.textContent = JSON.stringify({
 		prerender: [
 			{

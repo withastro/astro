@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import { getAstroMetadata } from '../../dist/core/parseAstro.js';
-import { createCompilerPoint, createCompilerPosition } from '../utils.ts';
+import { createCompilerPoint, createCompilerPosition } from '../test-utils.ts';
 
 describe('parseAstro - Can parse astro files', () => {
 	it('Can parse files', () => {

@@ -1,9 +1,8 @@
 {
   "name": "@astrojs/partytown",
   "description": "Use Partytown to move scripts into a web worker in your Astro project",
-  "version": "2.1.4",
+  "version": "2.1.7",
   "type": "module",
-  "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -27,12 +26,12 @@
     "dist"
   ],
   "scripts": {
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@qwik.dev/partytown": "^0.11.2",
+    "@qwik.dev/partytown": "^0.13.2",
     "mrmime": "^2.0.1"
   },
   "devDependencies": {

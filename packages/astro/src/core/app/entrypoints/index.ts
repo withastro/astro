@@ -7,7 +7,7 @@ export {
 	type LogRequestPayload,
 } from '../base.js';
 export { fromRoutingStrategy, toRoutingStrategy } from '../common.js';
-export { createConsoleLogger } from '../logging.js';
+export { createConsoleLogger } from '../../logger/impls/console.js';
 export {
 	deserializeManifest,
 	deserializeRouteData,
@@ -15,4 +15,19 @@ export {
 	serializeRouteData,
 	serializeRouteInfo,
 } from '../manifest.js';
-export { AppPipeline } from '../pipeline.js';
+export {
+	getInstalledRenderScope,
+	installRenderScope,
+	type RenderCollectors,
+	type RenderCollectorScope,
+} from '../../render-scope/scope.js';
+export { recordStaticImage } from '../../render-scope/record.js';
+export {
+	collectPrerenderMetadata,
+	type CollectedPrerenderMetadata,
+} from '../../render-scope/collect.js';
+export {
+	renderForPrerender,
+	type PrerenderableApp,
+	type PrerenderRenderOptions,
+} from '../prerender.js';

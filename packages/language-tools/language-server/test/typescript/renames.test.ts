@@ -4,7 +4,7 @@ import { before, describe, it } from 'node:test';
 import type { RenameFilesParams } from 'vscode-languageserver-protocol';
 import { WillRenameFilesRequest } from 'vscode-languageserver-protocol';
 import { getLanguageServer, type LanguageServer } from '../server.ts';
-import { fixtureDir } from '../utils.ts';
+import { fixtureDir } from '../test-utils.ts';
 
 describe('TypeScript - Renaming', async () => {
 	let languageServer: LanguageServer;

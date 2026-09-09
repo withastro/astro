@@ -1,3 +1,4 @@
+import { defaultExcludeLanguages } from '@astrojs/internal-helpers/markdown';
 import type { Element, Parent, Root } from 'hast';
 import { fromHtml } from 'hast-util-from-html';
 import { toText } from 'hast-util-to-text';
@@ -11,8 +12,6 @@ type Highlighter = (
 ) => Promise<Root | string>;
 
 const languagePattern = /\blanguage-(\S+)\b/;
-// Don’t highlight math code blocks by default.
-export const defaultExcludeLanguages = ['math'];
 
 /**
  * A hast utility to syntax highlight code blocks with a given syntax highlighter.
@@ -22,13 +21,12 @@ export const defaultExcludeLanguages = ['math'];
  * @param highlighter
  *   A function which receives the code and language, and returns the HTML of a syntax
  *   highlighted `<pre>` element.
- * @returns The number of code blocks that were highlighted.
  */
 export async function highlightCodeBlocks(
 	tree: Root,
 	highlighter: Highlighter,
 	excludeLanguages: string[] = [],
-): Promise<number> {
+) {
 	const nodes: Array<{
 		node: Element;
 		language: string;
@@ -100,6 +98,4 @@ export async function highlightCodeBlocks(
 		const index = grandParent.children.indexOf(parent);
 		grandParent.children[index] = replacement;
 	}
-
-	return nodes.length;
 }

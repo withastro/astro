@@ -1,18 +1,23 @@
 import fs, { readFileSync } from 'node:fs';
 import { basename } from 'node:path/posix';
 import colors from 'piccolore';
-import type { BuildApp } from '../../core/build/app.js';
-import { getOutDirWithinCwd } from '../../core/build/common.js';
+import type { StaticBuildOptions } from '../../core/build/types.js';
 import { getTimeStat } from '../../core/build/util.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { AstroErrorData } from '../../core/errors/index.js';
-import type { Logger } from '../../core/logger/core.js';
+import { astroToRuntimeLogger, type AstroLogger } from '../../core/logger/core.js';
 import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
+import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { MapValue } from '../../type-utils.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import { getConfiguredImageService } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
-import type { AssetsGlobalStaticImagesList, ImageMetadata, ImageTransform } from '../types.js';
+import type {
+	AssetsGlobalStaticImagesList,
+	ImageMetadata,
+	ImageTransform,
+	SerializedStaticImage,
+} from '../types.js';
 import { isESMImportedImage } from '../utils/imageKind.js';
 import { loadRemoteImage, type RemoteCacheEntry, revalidateRemoteImage } from './remote.js';
 
@@ -31,7 +36,7 @@ interface GenerationDataCached {
 type GenerationData = GenerationDataUncached | GenerationDataCached;
 
 type AssetEnv = {
-	logger: Logger;
+	logger: AstroLogger;
 	isSSR: boolean;
 	count: { total: number; current: number };
 	useCache: boolean;
@@ -50,14 +55,12 @@ type ImageData = {
 };
 
 export async function prepareAssetsGenerationEnv(
-	app: BuildApp,
+	options: StaticBuildOptions,
 	totalCount: number,
 ): Promise<AssetEnv> {
-	const settings = app.getSettings();
-	const logger = app.logger;
-	const manifest = app.getManifest();
+	const { settings, logger } = options;
 	let useCache = true;
-	const assetsCacheDir = new URL('assets/', app.manifest.cacheDir);
+	const assetsCacheDir = new URL('assets/', settings.config.cacheDir);
 	const count = { total: totalCount, current: 1 };
 
 	// Ensure that the cache directory exists
@@ -75,11 +78,14 @@ export async function prepareAssetsGenerationEnv(
 	let serverRoot: URL, clientRoot: URL;
 	if (isServerOutput) {
 		// Images are collected during prerender, which outputs to .prerender/ subdirectory
-		serverRoot = new URL('.prerender/', manifest.buildServerDir);
-		clientRoot = manifest.buildClientDir;
+		serverRoot = new URL('.prerender/', settings.config.build.server);
+		clientRoot = settings.config.build.client;
 	} else {
-		serverRoot = getOutDirWithinCwd(manifest.outDir);
-		clientRoot = manifest.outDir;
+		// For static builds, images have already been moved to the client output directory
+		// by ssrMoveAssets. Use getClientOutputDirectory to respect preserveBuildClientDir.
+		const clientOutputDir = getClientOutputDirectory(settings);
+		serverRoot = clientOutputDir;
+		clientRoot = clientOutputDir;
 	}
 
 	return {
@@ -91,7 +97,7 @@ export async function prepareAssetsGenerationEnv(
 		serverRoot,
 		clientRoot,
 		imageConfig: settings.config.image,
-		assetsFolder: manifest.assetsDir,
+		assetsFolder: settings.config.build.assets,
 	};
 }
 
@@ -110,10 +116,9 @@ export async function generateImagesForPath(
 		await generateImage(transform.finalPath, transform.transform);
 	}
 
-	// In SSR, we cannot know if an image is referenced in a server-rendered page, so we can't delete anything
-	// For instance, the same image could be referenced in both a server-rendered page and build-time-rendered page
+	// Delete original images that are only used for optimization
+	// The referencedImages set tracks images that were used via raw `src` access (e.g., <img src={img.src}>).
 	if (
-		!env.isSSR &&
 		transformsAndPath.originalSrcPath &&
 		!globalThis.astroAsset.referencedImages?.has(transformsAndPath.originalSrcPath)
 	) {
@@ -179,13 +184,11 @@ export async function generateImagesForPath(
 			} else {
 				const JSONData = JSON.parse(readFileSync(cachedMetaFileURL, 'utf-8')) as RemoteCacheEntry;
 
-				if (!JSONData.expires) {
-					try {
-						await fs.promises.unlink(cachedFileURL);
-					} catch {
-						/* Old caches may not have a separate image binary, no-op */
-					}
-					await fs.promises.unlink(cachedMetaFileURL);
+				if (typeof JSONData.expires !== 'number') {
+					await Promise.allSettled([
+						fs.promises.unlink(cachedFileURL),
+						fs.promises.unlink(cachedMetaFileURL),
+					]);
 
 					throw new Error(
 						`Malformed cache entry for ${filepath}, cache will be regenerated for this file.`,
@@ -206,9 +209,7 @@ export async function generateImagesForPath(
 				if (JSONData.expires > Date.now()) {
 					await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
 
-					return {
-						cached: 'hit',
-					};
+					return { cached: 'hit' };
 				}
 
 				// Try to revalidate the cache
@@ -219,18 +220,16 @@ export async function generateImagesForPath(
 							lastModified: JSONData.lastModified,
 						});
 
-						if (revalidatedData.data.length) {
+						if (revalidatedData.data !== null) {
 							// Image cache was stale, update original image to avoid redownload
-							originalImage = revalidatedData;
+							originalImage = revalidatedData as ImageData;
 						} else {
-							// Freshen cache on disk
-							await writeCacheMetaFile(cachedMetaFileURL, revalidatedData, env);
+							// Freshen cache on disk and output cached image
+							await Promise.all([
+								writeCacheMetaFile(cachedMetaFileURL, revalidatedData, env),
+								fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE),
+							]);
 
-							await fs.promises.copyFile(
-								cachedFileURL,
-								finalFileURL,
-								fs.constants.COPYFILE_FICLONE,
-							);
 							return { cached: 'revalidated' };
 						}
 					} catch (e) {
@@ -245,8 +244,10 @@ export async function generateImagesForPath(
 					}
 				}
 
-				await fs.promises.unlink(cachedFileURL);
-				await fs.promises.unlink(cachedMetaFileURL);
+				await Promise.allSettled([
+					fs.promises.unlink(cachedFileURL),
+					fs.promises.unlink(cachedMetaFileURL),
+				]);
 			}
 		} catch (e: any) {
 			if (e.code !== 'ENOENT') {
@@ -279,6 +280,7 @@ export async function generateImagesForPath(
 					originalImage.data,
 					{ ...options, src: originalImagePath },
 					env.imageConfig,
+					astroToRuntimeLogger(env.logger),
 				)
 			).data;
 		} catch (e) {
@@ -342,6 +344,7 @@ async function writeCacheMetaFile(
 				etag: resultData.etag,
 				lastModified: resultData.lastModified,
 			}),
+			'utf-8',
 		);
 	} catch (e) {
 		env.logger.warn(
@@ -359,9 +362,35 @@ export function getStaticImageList(): AssetsGlobalStaticImagesList {
 	return globalThis.astroAsset.staticImages;
 }
 
+/**
+ * Replay transforms attributed to a skipped page back into the global list, so
+ * the asset pipeline emits its optimized images even though the page was not
+ * rendered this build. Existing transforms (already added by a rendered page
+ * that shares the image) are left untouched.
+ */
+export function restoreStaticImages(images: SerializedStaticImage[]): void {
+	if (!globalThis.astroAsset) {
+		globalThis.astroAsset = { referencedImages: new Set() };
+	}
+	const staticImages = (globalThis.astroAsset.staticImages ??= new Map());
+	for (const image of images) {
+		let transformsForPath = staticImages.get(image.originalPath);
+		if (!transformsForPath) {
+			transformsForPath = { originalSrcPath: image.originalSrcPath, transforms: new Map() };
+			staticImages.set(image.originalPath, transformsForPath);
+		}
+		if (!transformsForPath.transforms.has(image.hash)) {
+			transformsForPath.transforms.set(image.hash, {
+				finalPath: image.finalPath,
+				transform: image.transform,
+			});
+		}
+	}
+}
+
 async function loadImage(path: string, env: AssetEnv): Promise<ImageData> {
 	if (isRemotePath(path)) {
-		return await loadRemoteImage(path);
+		return await loadRemoteImage(path, undefined, env.imageConfig);
 	}
 
 	return {

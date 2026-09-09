@@ -386,7 +386,7 @@ export class DevToolbarAuditListWindow extends HTMLElement {
 						<h1></astro-dev-toolbar-icon>No accessibility or performance issues detected.</h1>
 					</header>
 					<p>
-						Nice work! This app scans the page and highlights common accessibility and performance issues for you, like a missing "alt" attribute on an image, or a image not using performant attributes.
+						Nice work! This app scans the page and highlights common accessibility and performance issues for you, like a missing "alt" attribute on an image, or an image not using performant attributes.
 					</p>
 					<astro-dev-toolbar-icon icon="houston-detective"></astro-dev-toolbar-icon>
 					`;

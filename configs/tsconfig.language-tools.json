@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "target": "ES2021",
+    "lib": ["WebWorker", "ES2021"],
+    "module": "commonjs",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": false,
+    "erasableSyntaxOnly": false
+  }
+}

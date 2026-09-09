@@ -2,7 +2,7 @@ import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isRemotePath, joinPaths } from '../../core/path.js';
 import type { AstroConfig } from '../../types/public/config.js';
-import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
+import { DEFAULT_HASH_PROPS, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import type {
 	ImageFit,
 	ImageMetadata,
@@ -11,7 +11,9 @@ import type {
 	UnresolvedSrcSetValue,
 } from '../types.js';
 import { isESMImportedImage, isRemoteImage } from '../utils/imageKind.js';
+import { inferSourceFormat, resolveDefaultOutputFormat } from '../utils/inferSourceFormat.js';
 import { inferRemoteSize } from '../utils/remoteProbe.js';
+import type { AstroRuntimeLogger } from '../../types/public/context.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -46,7 +48,11 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	 * For external services, this should point to the URL your images are coming from, for instance, `/_vercel/image`
 	 *
 	 */
-	getURL: (options: ImageTransform, imageConfig: ImageConfig<T>) => string | Promise<string>;
+	getURL: (
+		options: ImageTransform,
+		imageConfig: ImageConfig<T>,
+		logger: AstroRuntimeLogger,
+	) => string | Promise<string>;
 	/**
 	 * Generate additional `srcset` values for the image.
 	 *
@@ -56,6 +62,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	getSrcSet?: (
 		options: ImageTransform,
 		imageConfig: ImageConfig<T>,
+		logger: AstroRuntimeLogger,
 	) => UnresolvedSrcSetValue[] | Promise<UnresolvedSrcSetValue[]>;
 	/**
 	 * Return any additional HTML attributes separate from `src` that your service requires to show the image properly.
@@ -66,6 +73,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	getHTMLAttributes?: (
 		options: ImageTransform,
 		imageConfig: ImageConfig<T>,
+		logger: AstroRuntimeLogger,
 	) => Record<string, any> | Promise<Record<string, any>>;
 	/**
 	 * Validate and return the options passed by the user.
@@ -78,6 +86,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	validateOptions?: (
 		options: ImageTransform,
 		imageConfig: ImageConfig<T>,
+		logger: AstroRuntimeLogger,
 	) => ImageTransform | Promise<ImageTransform>;
 	/**
 	 * Return the dimensions of a remote image.
@@ -88,6 +97,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	getRemoteSize?: (
 		url: string,
 		imageConfig: ImageConfig<T>,
+		logger: AstroRuntimeLogger,
 	) => Omit<ImageMetadata, 'src' | 'fsPath'> | Promise<Omit<ImageMetadata, 'src' | 'fsPath'>>;
 }
 
@@ -109,6 +119,7 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 	parseURL: (
 		url: URL,
 		imageConfig: ImageConfig<T>,
+		logger: AstroRuntimeLogger,
 	) => LocalImageTransform | undefined | Promise<LocalImageTransform> | Promise<undefined>;
 	/**
 	 * Performs the image transformations on the input image and returns both the binary data and
@@ -118,6 +129,7 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 		inputBuffer: Uint8Array,
 		transform: LocalImageTransform,
 		imageConfig: ImageConfig<T>,
+		logger: AstroRuntimeLogger,
 	) => Promise<{ data: Uint8Array; format: ImageOutputFormat }>;
 
 	/**
@@ -132,7 +144,7 @@ export type BaseServiceTransform = {
 	src: string;
 	width?: number;
 	height?: number;
-	format: string;
+	format?: string;
 	quality?: string | null;
 	fit?: ImageFit;
 	position?: string;
@@ -231,16 +243,16 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 		// Apply defaults and normalization separate from verification
 		if (!options.format) {
-			if (isESMImportedImage(options.src) && options.src.format === 'svg') {
-				options.format = 'svg';
+			if (isESMImportedImage(options.src)) {
+				options.format = resolveDefaultOutputFormat(options.src.format);
 			} else {
-				options.format = DEFAULT_OUTPUT_FORMAT;
+				const inferred = inferSourceFormat(options.src);
+				if (inferred) options.format = resolveDefaultOutputFormat(inferred);
 			}
 		}
 		if (options.width) options.width = Math.round(options.width);
 		if (options.height) options.height = Math.round(options.height);
-		if (options.layout && options.width && options.height) {
-			options.fit ??= 'cover';
+		if (options.layout) {
 			delete options.layout;
 		}
 		if (options.fit === 'none') {
@@ -278,7 +290,9 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		const { targetWidth, targetHeight } = getTargetDimensions(options);
 		const aspectRatio = targetWidth / targetHeight;
 		const { widths, densities } = options;
-		const targetFormat = options.format ?? DEFAULT_OUTPUT_FORMAT;
+		// When format is undefined the response type is resolved from the buffer at request time,
+		// so leave the <source type> attribute off rather than asserting webp.
+		const targetFormat = options.format;
 
 		let transformedWidths = (widths ?? []).sort(sortNumeric);
 
@@ -304,7 +318,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		transformedWidths = Array.from(new Set(transformedWidths));
 
 		// Since `widths` and `densities` ultimately control the width and height of the image,
-		// we don't want the dimensions the user specified, we'll create those ourselves.
+		// we don't want the dimensions to be user specified, we'll create those ourselves.
 		const {
 			width: transformWidth,
 			height: transformHeight,
@@ -348,9 +362,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			return {
 				transform,
 				descriptor,
-				attributes: {
-					type: `image/${targetFormat}`,
-				},
+				attributes: targetFormat ? { type: `image/${targetFormat}` } : {},
 			};
 		});
 	},
@@ -404,7 +416,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			src: params.get('href')!,
 			width: params.has('w') ? Number.parseInt(params.get('w')!) : undefined,
 			height: params.has('h') ? Number.parseInt(params.get('h')!) : undefined,
-			format: params.get('f') as ImageOutputFormat,
+			format: params.has('f') ? (params.get('f') as ImageOutputFormat) : undefined,
 			quality: params.get('q'),
 			fit: params.get('fit') as ImageFit,
 			position: params.get('position') ?? undefined,
@@ -413,8 +425,8 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 		return transform;
 	},
-	getRemoteSize(url, _imageConfig) {
-		return inferRemoteSize(url);
+	getRemoteSize(url, imageConfig) {
+		return inferRemoteSize(url, imageConfig);
 	},
 };
 

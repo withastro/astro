@@ -128,15 +128,12 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							return new URL(fullPath, finalSiteUrl).href;
 						});
 
-					const routeUrls = _routes.reduce<string[]>((urls, r) => {
-						// Only expose pages, not endpoints or redirects
-						if (r.type !== 'page') return urls;
-
+					const addRouteUrl = (urls: string[], r: IntegrationResolvedRoute): void => {
 						/**
 						 * Dynamic URLs have entries with `undefined` pathnames
 						 */
 						if (r.pathname) {
-							if (shouldIgnoreStatus(r.pathname ?? r.pattern)) return urls;
+							if (shouldIgnoreStatus(r.pathname ?? r.pattern)) return;
 
 							// `finalSiteUrl` may end with a trailing slash
 							// or not because of base paths.
@@ -153,6 +150,18 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							} else {
 								urls.push(newUrl);
 							}
+						}
+					};
+
+					const routeUrls = _routes.reduce<string[]>((urls, r) => {
+						// Only expose pages, not endpoints or redirects
+						if (r.type !== 'page') return urls;
+
+						addRouteUrl(urls, r);
+
+						// Include i18n fallback routes (e.g. /fr/ falling back to /en/)
+						for (const fallbackRoute of r.fallbackRoutes ?? []) {
+							addRouteUrl(urls, fallbackRoute);
 						}
 
 						return urls;
@@ -222,22 +231,19 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 								(urlDataItem) => !groupedUrlCollection.includes(urlDataItem.url),
 							);
 							// Process each chunk here
-							await writeSitemapChunk(
-								{
-									filenameBase,
-									hostname: finalSiteUrl.href,
-									sitemapHostname: finalSiteUrl.href,
-									sourceData: chunksItem,
-									destinationDir: destDir,
-									publicBasePath: config.base,
-									customSitemaps,
-									limit: entryLimit,
-									xslURL,
-									lastmod,
-									namespaces: opts.namespaces,
-								},
-								config,
-							);
+							await writeSitemapChunk({
+								filenameBase,
+								hostname: finalSiteUrl.href,
+								sitemapHostname: finalSiteUrl.href,
+								sourceData: chunksItem,
+								destinationDir: destDir,
+								publicBasePath: config.base,
+								customSitemaps,
+								limit: entryLimit,
+								xslURL,
+								lastmod,
+								namespaces: opts.namespaces,
+							});
 							logger.info(`\`${outFile}\` created at \`${path.relative(process.cwd(), destDir)}\``);
 							return;
 						} catch (err) {
@@ -245,21 +251,18 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							return;
 						}
 					}
-					await writeSitemap(
-						{
-							filenameBase: filenameBase,
-							hostname: finalSiteUrl.href,
-							destinationDir: destDir,
-							publicBasePath: config.base,
-							sourceData: urlData,
-							limit: entryLimit,
-							customSitemaps,
-							xslURL: xslURL,
-							lastmod,
-							namespaces: opts.namespaces,
-						},
-						config,
-					);
+					await writeSitemap({
+						filenameBase: filenameBase,
+						hostname: finalSiteUrl.href,
+						destinationDir: destDir,
+						publicBasePath: config.base,
+						sourceData: urlData,
+						limit: entryLimit,
+						customSitemaps,
+						xslURL: xslURL,
+						lastmod,
+						namespaces: opts.namespaces,
+					});
 					logger.info(`\`${outFile}\` created at \`${path.relative(process.cwd(), destDir)}\``);
 				} catch (err) {
 					if (err instanceof ZodError) {

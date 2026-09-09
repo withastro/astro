@@ -88,6 +88,7 @@ function renderTreeNodeToFactoryResult(result: SSRResult, treeNode: TreeNode) {
 		const head = unescapeHTML(styles + links + scripts);
 
 		let headAndContent = createHeadAndContent(
+			// @ts-expect-error: `createHeadAndContent` expect a string and we know `head` is definitely a string
 			head,
 			renderTemplate`${renderComponent(
 				result,
@@ -112,6 +113,7 @@ function renderTreeNodeToFactoryResult(result: SSRResult, treeNode: TreeNode) {
 }
 
 export const ComponentNode = createComponent({
+	// @ts-expect-error: The types are a bit complex here. Some further refactor might be needed to make this more type-safe.
 	factory(result: SSRResult, { treeNode }: { treeNode: TreeNode | TreeNode[] }) {
 		return renderTreeNodeToFactoryResult(result, treeNode);
 	},
@@ -129,7 +131,11 @@ export async function createTreeNode(node: RenderableTreeNodes): Promise<TreeNod
 		return { type: 'text', content: '' };
 	}
 
-	const children = await Promise.all(node.children.map((child) => createTreeNode(child)));
+	// `node.children` may be a Promise instead of an array when a Markdoc built-in node
+	// transform (e.g. `list`) passes async `transformChildren()` results directly to `new Tag()`.
+	// Await it defensively before mapping.
+	const resolvedChildren = await Promise.resolve(node.children);
+	const children = await Promise.all(resolvedChildren.map((child) => createTreeNode(child)));
 
 	if (typeof node.name === 'function') {
 		const component = node.name;

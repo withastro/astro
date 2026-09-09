@@ -5,11 +5,20 @@ import { color } from '@astrojs/cli-kit';
 import { error, info, title } from '../messages.js';
 import { shell } from '../shell.js';
 import type { Context } from './context.js';
+import { isThirdPartyTemplate } from './template.js';
 
 export async function dependencies(
 	ctx: Pick<
 		Context,
-		'install' | 'yes' | 'prompt' | 'packageManager' | 'cwd' | 'dryRun' | 'tasks' | 'add'
+		| 'install'
+		| 'yes'
+		| 'prompt'
+		| 'packageManager'
+		| 'cwd'
+		| 'dryRun'
+		| 'tasks'
+		| 'add'
+		| 'template'
 	>,
 ) {
 	let deps = ctx.install ?? ctx.yes;
@@ -31,6 +40,13 @@ export async function dependencies(
 			// Validate package name to prevent command injection attacks
 			assertValidPackageName(addValue);
 		}
+	}
+
+	if (deps && ctx.template && isThirdPartyTemplate(ctx.template)) {
+		await info(
+			'warn',
+			`Third-party template detected. Installing dependencies may run lifecycle scripts. Continue only if you trust this template. Use ${color.bold('--no-install')} to skip automatic install.`,
+		);
 	}
 
 	if (ctx.dryRun) {
@@ -106,7 +122,59 @@ async function astroAdd({
 
 async function install({ packageManager, cwd }: { packageManager: string; cwd: string }) {
 	if (packageManager === 'yarn') await ensureYarnLock({ cwd });
+	if (packageManager === 'pnpm') await ensurePnpmBuildsAllowed({ cwd });
+	if (packageManager === 'npm') await ensureNpmScriptsAllowed({ cwd });
 	return shell(packageManager, ['install'], { cwd, timeout: 90_000, stdio: 'ignore' });
+}
+
+/**
+ * pnpm v11+ enables `strictDepBuilds` by default, which causes `pnpm install` to fail
+ * with a non-zero exit code if any dependencies have unapproved build scripts (postinstall).
+ * Astro depends on `esbuild` and `sharp` which both have build scripts.
+ *
+ * This function ensures those packages are pre-approved in `pnpm-workspace.yaml`
+ * so that `pnpm install` succeeds without user intervention.
+ * See https://pnpm.io/settings#allowbuilds
+ */
+async function ensurePnpmBuildsAllowed({ cwd }: { cwd: string }) {
+	const workspaceFile = path.join(cwd, 'pnpm-workspace.yaml');
+	const packagesToAllow = ['esbuild', 'sharp'];
+
+	let content = '';
+	if (fs.existsSync(workspaceFile)) {
+		content = await fs.promises.readFile(workspaceFile, 'utf-8');
+	}
+
+	// If allowBuilds is already configured, don't touch it
+	if (content.includes('allowBuilds')) return;
+
+	const separator = content.length > 0 ? '\n' : '';
+	const allowBuildsBlock = `${separator}allowBuilds:\n${packagesToAllow.map((pkg) => `  ${pkg}: true`).join('\n')}\n`;
+	return fs.promises.writeFile(workspaceFile, content + allowBuildsBlock, 'utf-8');
+}
+
+/**
+ * npm v11+ warns about packages with unapproved install scripts, and npm v12 will
+ * make this a hard failure. Astro depends on `esbuild` which has a postinstall script
+ * that downloads platform-specific binaries.
+ *
+ * This function ensures esbuild is pre-approved in `package.json` via the `allowScripts`
+ * field so that `npm install` succeeds without warnings or failures.
+ * See https://docs.npmjs.com/cli/v11/using-npm/config#allow-scripts
+ */
+async function ensureNpmScriptsAllowed({ cwd }: { cwd: string }) {
+	const pkgFile = path.join(cwd, 'package.json');
+	if (!fs.existsSync(pkgFile)) return;
+
+	const content = await fs.promises.readFile(pkgFile, 'utf-8');
+	const packageJson = JSON.parse(content);
+
+	// If allowScripts is already configured, don't touch it
+	if (packageJson.allowScripts) return;
+
+	const indent = /(^\s+)/m.exec(content)?.[1] ?? '\t';
+	packageJson.allowScripts = { esbuild: true };
+	return fs.promises.writeFile(pkgFile, JSON.stringify(packageJson, null, indent) + '\n', 'utf-8');
 }
 
 /**

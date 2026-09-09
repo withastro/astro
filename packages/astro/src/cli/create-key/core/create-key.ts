@@ -1,9 +1,9 @@
-import type { Logger } from '../../../core/logger/core.js';
+import type { AstroLogger } from '../../../core/logger/core.js';
 import { defineCommand } from '../../domain/command.js';
 import type { KeyGenerator } from '../definitions.js';
 
 interface Options {
-	logger: Logger;
+	logger: AstroLogger;
 	keyGenerator: KeyGenerator;
 }
 

@@ -707,12 +707,13 @@ class ErrorOverlay extends HTMLElement {
 
 						// Add an empty line below the error line so we can show a caret under the error
 						if (err.loc?.column) {
-							errorLine.insertAdjacentHTML(
-								'afterend',
-								`\n<span class="line error-caret"><span style="padding-left:${
-									err.loc.column - 1
-								}ch;">^</span></span>`,
-							);
+							const caretLine = document.createElement('span');
+							caretLine.className = 'line error-caret';
+							const caret = document.createElement('span');
+							caret.style.paddingLeft = `${err.loc.column - 1}ch`;
+							caret.textContent = '^';
+							caretLine.append(caret);
+							errorLine.insertAdjacentElement('afterend', caretLine);
 						}
 					}
 				});

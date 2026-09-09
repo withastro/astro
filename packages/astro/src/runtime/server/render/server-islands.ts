@@ -1,11 +1,13 @@
 import { encryptString, generateCspDigest } from '../../../core/encryption.js';
 import type { SSRResult } from '../../../types/public/internal.js';
-import { markHTMLString } from '../escape.js';
+import { markHTMLString, stringifyForScript } from '../escape.js';
 import { renderChild } from './any.js';
 import { createThinHead, type ThinHead } from './astro/head-and-content.js';
 import type { RenderDestination } from './common.js';
 import { createRenderInstruction } from './instruction.js';
-import { type ComponentSlots, renderSlotToString } from './slot.js';
+import { SERVER_ISLAND_START } from './server-islands-shared.js';
+import { type ComponentSlots, type SlotString, renderSlotToString } from './slot.js';
+import { toAttributeString } from './util.js';
 
 const internalProps = new Set([
 	'server:component-path',
@@ -16,21 +18,6 @@ const internalProps = new Set([
 
 export function containsServerDirective(props: Record<string | number, any>) {
 	return 'server:component-directive' in props;
-}
-
-const SCRIPT_RE = /<\/script/giu;
-const COMMENT_RE = /<!--/gu;
-const SCRIPT_REPLACER = '<\\/script';
-const COMMENT_REPLACER = '\\u003C!--';
-
-/**
- * Encodes the script end-tag open (ETAGO) delimiter and opening HTML comment syntax for JSON inside a `<script>` tag.
- * @see https://mathiasbynens.be/notes/etago
- */
-function safeJsonStringify(obj: any) {
-	return JSON.stringify(obj)
-		.replace(SCRIPT_RE, SCRIPT_REPLACER)
-		.replace(COMMENT_RE, COMMENT_REPLACER);
 }
 
 function createSearchParams(
@@ -91,7 +78,7 @@ export class ServerIslandComponent {
 		const hostId = await this.getHostId();
 		const islandContent = await this.getIslandContent();
 		destination.write(createRenderInstruction({ type: 'server-island-runtime' }));
-		destination.write('<!--[if astro]>server-island-start<![endif]-->');
+		destination.write(`<!--${SERVER_ISLAND_START}-->`);
 		// Render the slots
 		for (const name in this.slots) {
 			if (name === 'fallback') {
@@ -141,7 +128,8 @@ export class ServerIslandComponent {
 
 		const componentPath = this.getComponentPath();
 		const componentExport = this.getComponentExport();
-		let componentId = this.result.serverIslandNameMap.get(componentPath);
+		const serverIslandNameMap = await this.result.getServerIslandNameMap();
+		let componentId = serverIslandNameMap.get(componentPath);
 		if (!componentId) {
 			throw new Error(`Could not find server component name ${componentPath}`);
 		}
@@ -158,25 +146,42 @@ export class ServerIslandComponent {
 		for (const name in this.slots) {
 			if (name !== 'fallback') {
 				const content = await renderSlotToString(this.result, this.slots[name]);
-				renderedSlots[name] = content.toString();
+				// renderSlotToString returns a SlotString (typed as string) whose
+				// `chunks` hold the ordered content stream. Scripts live inline there,
+				// so walking it keeps them at their original position in the island
+				// response instead of being appended at the end.
+				const slotContent = content as unknown as SlotString;
+				let slotHtml = '';
+				if (slotContent.chunks?.length) {
+					for (const part of slotContent.chunks) {
+						slotHtml += typeof part === 'string' ? part : part.content;
+					}
+				} else {
+					slotHtml = content.toString();
+				}
+				renderedSlots[name] = slotHtml;
 			}
 		}
 
 		const key = await this.result.key;
 
 		// Encrypt componentExport
-		const componentExportEncrypted = await encryptString(key, componentExport);
+		const componentExportEncrypted = await encryptString(
+			key,
+			componentExport,
+			`export:${componentId}`,
+		);
 
 		const propsEncrypted =
 			Object.keys(this.props).length === 0
 				? ''
-				: await encryptString(key, JSON.stringify(this.props));
+				: await encryptString(key, JSON.stringify(this.props), `props:${componentId}`);
 
 		// Encrypt slots
 		const slotsEncrypted =
 			Object.keys(renderedSlots).length === 0
 				? ''
-				: await encryptString(key, JSON.stringify(renderedSlots));
+				: await encryptString(key, JSON.stringify(renderedSlots), `slots:${componentId}`);
 
 		const hostId = await this.getHostId();
 		const slash = this.result.base.endsWith('/') ? '' : '/';
@@ -194,33 +199,34 @@ export class ServerIslandComponent {
 			serverIslandUrl += '?' + potentialSearchParams.toString();
 			this.result._metadata.extraHead.push(
 				markHTMLString(
-					`<link rel="preload" as="fetch" href="${serverIslandUrl}" crossorigin="anonymous">`,
+					`<link rel="preload" as="fetch" href="${toAttributeString(serverIslandUrl)}" crossorigin="anonymous">`,
 				),
 			);
 		}
 
 		// Get adapter headers for inline script
 		const adapterHeaders = this.result.internalFetchHeaders || {};
-		const headersJson = safeJsonStringify(adapterHeaders);
+		const headersJson = stringifyForScript(adapterHeaders);
+		const serverIslandUrlJson = stringifyForScript(serverIslandUrl);
 
 		const method = useGETRequest
 			? // GET request
 				`const headers = new Headers(${headersJson});
-let response = await fetch('${serverIslandUrl}', { headers });`
+let response = await fetch(${serverIslandUrlJson}, { headers });`
 			: // POST request
 				`let data = {
-	encryptedComponentExport: ${safeJsonStringify(componentExportEncrypted)},
-	encryptedProps: ${safeJsonStringify(propsEncrypted)},
-	encryptedSlots: ${safeJsonStringify(slotsEncrypted)},
+	encryptedComponentExport: ${stringifyForScript(componentExportEncrypted)},
+	encryptedProps: ${stringifyForScript(propsEncrypted)},
+	encryptedSlots: ${stringifyForScript(slotsEncrypted)},
 };
 const headers = new Headers({ 'Content-Type': 'application/json', ...${headersJson} });
-let response = await fetch('${serverIslandUrl}', {
+let response = await fetch(${serverIslandUrlJson}, {
 	method: 'POST',
 	body: JSON.stringify(data),
 	headers,
 });`;
 
-		this.islandContent = `${method}replaceServerIsland('${hostId}', response);`;
+		this.islandContent = `${method}replaceServerIsland(${stringifyForScript(hostId)}, response);`;
 		return this.islandContent;
 	}
 }
@@ -237,7 +243,7 @@ const SERVER_ISLAND_REPLACER = markHTMLString(
 	// Load the HTML before modifying the DOM in case of errors
 	let html = await r.text();
 	// Remove any placeholder content before the island script
-	while (s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '[if astro]>server-island-start<![endif]')
+	while (s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '${SERVER_ISLAND_START}')
 		s.previousSibling.remove();
 	s.previousSibling?.remove();
 	// Insert the new HTML

@@ -12,6 +12,7 @@ export function help() {
 				['--install / --no-install', 'Install dependencies (or not).'],
 				['--add <integrations>', 'Add integrations.'],
 				['--git / --no-git', 'Initialize git repo (or not).'],
+				['--no-ai', 'Skip creating AI agent files.'],
 				['--yes (-y)', 'Skip all prompts by accepting defaults.'],
 				['--no (-n)', 'Skip all prompts by declining defaults.'],
 				['--dry-run', 'Walk through steps without executing.'],

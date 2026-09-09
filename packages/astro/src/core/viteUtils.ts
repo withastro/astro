@@ -2,7 +2,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { prependForwardSlash, slash } from '../core/path.js';
 import type { ModuleLoader } from './module-loader/index.js';
-import { resolveJsToTs, unwrapId, VALID_ID_PREFIX, viteID } from './util.js';
+import { unwrapId, VALID_ID_PREFIX, viteID } from './util.js';
+
+export { resolvePath } from '@astrojs/internal-helpers/mdx';
 
 const isWindows = typeof process !== 'undefined' && process.platform === 'win32';
 
@@ -11,18 +13,6 @@ const isWindows = typeof process !== 'undefined' && process.platform === 'win32'
  */
 export function normalizePath(id: string) {
 	return path.posix.normalize(isWindows ? slash(id) : id);
-}
-
-/**
- * Resolve the hydration paths so that it can be imported in the client
- */
-export function resolvePath(specifier: string, importer: string) {
-	if (specifier.startsWith('.')) {
-		const absoluteSpecifier = path.resolve(path.dirname(importer), specifier);
-		return resolveJsToTs(normalizePath(absoluteSpecifier));
-	} else {
-		return specifier;
-	}
 }
 
 export function rootRelativePath(

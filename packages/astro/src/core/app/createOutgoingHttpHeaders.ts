@@ -25,7 +25,7 @@ export const createOutgoingHttpHeaders = (
 	if (headers.has('set-cookie')) {
 		const cookieHeaders = headers.getSetCookie();
 		if (cookieHeaders.length > 1) {
-			// the Headers.entries() API already normalized all header names to lower case so we can safely index this as 'set-cookie'
+			// the Headers.entries() API already normalized all header names to lowercase so we can safely index this as 'set-cookie'
 			nodeHeaders['set-cookie'] = cookieHeaders;
 		}
 	}

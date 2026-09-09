@@ -4,9 +4,11 @@ import {
 	ASTRO_MIDDLEWARE_SECRET_HEADER,
 	ASTRO_PATH_HEADER,
 	ASTRO_PATH_PARAM,
+	ASTRO_PATH_TOKEN_PARAM,
 } from '../index.js';
 import { middlewareSecret, skewProtection } from 'virtual:astro-vercel:config';
 import { createApp } from 'astro/app/entrypoint';
+import { getClientIpAddress } from '@astrojs/internal-helpers/request';
 
 setGetEnv((key) => process.env[key]);
 
@@ -15,14 +17,32 @@ const app = createApp();
 export default {
 	async fetch(request: Request): Promise<Response> {
 		const url = new URL(request.url);
-		const realPath =
-			request.headers.get(ASTRO_PATH_HEADER) ?? url.searchParams.get(ASTRO_PATH_PARAM);
+		const middlewareSecretHeader = request.headers.get(ASTRO_MIDDLEWARE_SECRET_HEADER);
+		const hasValidMiddlewareSecret = middlewareSecretHeader === middlewareSecret;
+		let realPath = undefined;
+		if (hasValidMiddlewareSecret) {
+			realPath = request.headers.get(ASTRO_PATH_HEADER);
+		} else if (url.searchParams.get(ASTRO_PATH_TOKEN_PARAM) === middlewareSecret) {
+			// ISR functions only receive the target path via the URL, so the route
+			// rewrite carries the build's path token alongside it. Only honor the
+			// override when that token matches, otherwise the path is ignored and
+			// the request is served as `/_isr`.
+			realPath = url.searchParams.get(ASTRO_PATH_PARAM);
+		}
 		if (typeof realPath === 'string') {
-			url.pathname = realPath;
+			// The header carries the client's whole path, query included; the route
+			// rewrite carries only the pathname and leaves the query on this request.
+			const target = new URL(realPath, url);
+			const search = target.search || url.search;
+			url.pathname = target.pathname;
+			url.search = search;
+			// Remove the internal routing params so they never reach user code.
+			url.searchParams.delete(ASTRO_PATH_PARAM);
+			url.searchParams.delete(ASTRO_PATH_TOKEN_PARAM);
 			request = new Request(url.toString(), {
 				method: request.method,
 				headers: request.headers,
-				body: request.body,
+				...(request.body ? { body: request.body, duplex: 'half' } : {}),
 			});
 		}
 
@@ -31,14 +51,16 @@ export default {
 		let locals: Record<string, unknown> = {};
 
 		const astroLocalsHeader = request.headers.get(ASTRO_LOCALS_HEADER);
-		const middlewareSecretHeader = request.headers.get(ASTRO_MIDDLEWARE_SECRET_HEADER);
 		if (astroLocalsHeader) {
-			if (middlewareSecretHeader !== middlewareSecret) {
+			if (!hasValidMiddlewareSecret) {
 				return new Response('Forbidden', { status: 403 });
 			}
-			// hide the secret from the rest of user code
-			request.headers.delete(ASTRO_MIDDLEWARE_SECRET_HEADER);
 			locals = JSON.parse(astroLocalsHeader);
+		}
+
+		// hide the secret from the rest of user code
+		if (hasValidMiddlewareSecret) {
+			request.headers.delete(ASTRO_MIDDLEWARE_SECRET_HEADER);
 		}
 
 		// https://vercel.com/docs/deployments/skew-protection#supported-frameworks
@@ -48,7 +70,7 @@ export default {
 
 		const response = await app.render(request, {
 			routeData,
-			clientAddress: request.headers.get('x-forwarded-for') ?? undefined,
+			clientAddress: getClientIpAddress(request),
 			locals,
 		});
 

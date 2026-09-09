@@ -15,6 +15,7 @@ export interface GetStaticPathsOptions {
 export type GetStaticPathsItem = {
 	params: Params;
 	props?: Props;
+	cacheKey?: string | number;
 };
 export type GetStaticPathsResult = GetStaticPathsItem[];
 export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
@@ -42,6 +43,19 @@ export interface PaginateOptions<PaginateProps extends Props, PaginateParams ext
 	params?: PaginateParams;
 	/** object of props to forward to `page` result */
 	props?: PaginateProps;
+	/**
+	 * Transform each pagination URL before it is set on the page result.
+	 * Useful for adding a file extension (e.g. `.html`) when deploying to a
+	 * static file server that does not support clean URLs.
+	 *
+	 * @example
+	 * ```ts
+	 * paginate(items, {
+	 *   format: (url) => `${url}.html`,
+	 * })
+	 * ```
+	 */
+	format?: (url: string) => string;
 }
 
 /**
@@ -184,3 +198,9 @@ export type Params = Record<string, string | undefined>;
 export type Props = Record<string, unknown>;
 
 export type CodeLanguage = BundledLanguage | LanguageRegistration | SpecialLanguage;
+
+export type {
+	AstroLoggerDestination,
+	AstroLoggerLevel,
+	AstroLoggerMessage,
+} from '../../core/logger/core.js';

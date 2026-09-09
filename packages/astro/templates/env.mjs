@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // @ts-check
 import { schema } from 'virtual:astro:env/internal';
 import {

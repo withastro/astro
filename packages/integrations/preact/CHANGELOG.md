@@ -1,5 +1,201 @@
 # @astrojs/preact
 
+## 6.0.5
+
+### Patch Changes
+
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+
+## 6.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527)]:
+  - @astrojs/internal-helpers@0.10.4
+
+## 6.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`8c193f6`](https://github.com/withastro/astro/commit/8c193f67cce77cf2e41fb702c88ca46f788f1277)]:
+  - @astrojs/internal-helpers@0.10.3
+
+## 6.0.2
+
+### Patch Changes
+
+- Updated dependencies [[`c895b12`](https://github.com/withastro/astro/commit/c895b12b99a73f5a9f98d6699452d12c138f8a18)]:
+  - @astrojs/internal-helpers@0.10.2
+
+## 6.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`eb6f97e`](https://github.com/withastro/astro/commit/eb6f97e391ee587747e37609c255c7cd4b9cce3c)]:
+  - @astrojs/internal-helpers@0.10.1
+
+## 6.0.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+### Minor Changes
+
+- [#17093](https://github.com/withastro/astro/pull/17093) [`4585fe5`](https://github.com/withastro/astro/commit/4585fe57dda06226058118f90a809f9e33d4b2af) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Replaces the import entrypoint of `getContainerRenderer()`
+
+  A new `container-renderer` entrypoint exporting `getContainerRenderer()` has been added to the following integrations: React, Preact, Svelte, SolidJS, Vue, and MDX. This prevents bundlers from trying to bundle unrelated exports from the package root when only the Container API is used.
+
+  If you are using the Container API, update your import statements to use the new entrypoint. The following example updates the `getContainerRenderer()` import for React:
+
+  ```diff
+  - import { getContainerRenderer } from '@astrojs/react';
+  + import { getContainerRenderer } from '@astrojs/react/container-renderer';
+  ```
+
+  Importing `getContainerRenderer()` from the package root still works, but is now deprecated and logs a warning.
+
+### Patch Changes
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+## 6.0.0-beta.2
+
+### Minor Changes
+
+- [#17093](https://github.com/withastro/astro/pull/17093) [`4585fe5`](https://github.com/withastro/astro/commit/4585fe57dda06226058118f90a809f9e33d4b2af) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Replaces the import entrypoint of `getContainerRenderer()`
+
+  A new `container-renderer` entrypoint exporting `getContainerRenderer()` has been added to the following integrations: React, Preact, Svelte, SolidJS, Vue, and MDX. This prevents bundlers from trying to bundle unrelated exports from the package root when only the Container API is used.
+
+  If you are using the Container API, update your import statements to use the new entrypoint. The following example updates the `getContainerRenderer()` import for React:
+
+  ```diff
+  - import { getContainerRenderer } from '@astrojs/react';
+  + import { getContainerRenderer } from '@astrojs/react/container-renderer';
+  ```
+
+  Importing `getContainerRenderer()` from the package root still works, but is now deprecated and logs a warning.
+
+## 6.0.0-beta.1
+
+### Patch Changes
+
+- [#17027](https://github.com/withastro/astro/pull/17027) [`241250b`](https://github.com/withastro/astro/commit/241250bf126f39c86a8aedd38df106e533301752) Thanks [@ocavue](https://github.com/ocavue)! - Triggers beta prereleases for packages that are still on alpha
+
+## 6.0.0-alpha.0
+
+### Major Changes
+
+- [#15819](https://github.com/withastro/astro/pull/15819) [`cafec4e`](https://github.com/withastro/astro/commit/cafec4e23365061491103dfce2e889a15cf86f27) Thanks [@delucis](https://github.com/delucis)! - Upgrade to Vite v8
+
+## 5.1.5
+
+### Patch Changes
+
+- [#16900](https://github.com/withastro/astro/pull/16900) [`17a0fbd`](https://github.com/withastro/astro/commit/17a0fbd34d11db765e79caf269bfd5f43ef51da8) Thanks [@ocavue](https://github.com/ocavue)! - Bumps `devalue` dependency to v5.8.1
+
+## 5.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`f732f3c`](https://github.com/withastro/astro/commit/f732f3cc716342a63e5b03815243ba10964b89dc)]:
+  - @astrojs/internal-helpers@0.10.0
+
+## 5.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`d365c97`](https://github.com/withastro/astro/commit/d365c975ba2d88fc1dbdfe698df2bf9e2eafadce)]:
+  - @astrojs/internal-helpers@0.9.1
+
+## 5.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`99464ed`](https://github.com/withastro/astro/commit/99464edb5fc0968f6497328e106f26ab393668bd), [`f3485c3`](https://github.com/withastro/astro/commit/f3485c3458bc8bf70c152126e418c24f489ded9d)]:
+  - @astrojs/internal-helpers@0.9.0
+
+## 5.1.1
+
+### Patch Changes
+
+- [#16180](https://github.com/withastro/astro/pull/16180) [`1d1448c`](https://github.com/withastro/astro/commit/1d1448c2c0e1a149709ada5d00a74f1cd7c1142b) Thanks [@matthewp](https://github.com/matthewp)! - Pre-optimizes `@preact/signals` and `preact/hooks` in the Vite dep optimizer to prevent late discovery triggering full page reloads during dev
+
+## 5.1.0
+
+### Minor Changes
+
+- [#15862](https://github.com/withastro/astro/pull/15862) [`06fba3a`](https://github.com/withastro/astro/commit/06fba3a9636ef45a6aedd35e04b1d67b7cf00c82) Thanks [@crutchcorn](https://github.com/crutchcorn)! - Adds support for passing a Babel config to the Preact Vite Plugin:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import preact from '@astrojs/preact';
+
+  export default defineConfig({
+    integrations: [
+      preact({
+        babel: {
+          generatorOpts: {
+            importAttributesKeyword: 'with',
+          },
+        },
+      }),
+    ],
+  });
+  ```
+
+## 5.0.2
+
+### Patch Changes
+
+- [#15864](https://github.com/withastro/astro/pull/15864) [`d3c7de9`](https://github.com/withastro/astro/commit/d3c7de9253e9cb31fa5c4bf9f4bdf59dd1ada7b0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes temporary support for Node >=20.19.1 because Stackblitz now uses Node 22 by default
+
+## 5.0.1
+
+### Patch Changes
+
+- [#15881](https://github.com/withastro/astro/pull/15881) [`de2860c`](https://github.com/withastro/astro/commit/de2860c88c8ce500f8f747df770d3b8cc2d3c1c6) Thanks [@matthewp](https://github.com/matthewp)! - Fix `useId()` collisions across multiple Astro islands by seeding a unique per-island root mask for Preact SSR and hydration.
+
+## 5.0.0
+
+### Major Changes
+
+- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#node-22))
+
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- [#15619](https://github.com/withastro/astro/pull/15619) [`bbfa7c8`](https://github.com/withastro/astro/commit/bbfa7c8b73776976c93f41203fdcb7bf44ad6cc2) Thanks [@rururux](https://github.com/rururux)! - Fixed an issue where the Preact integration would incorrectly intercept React 19 components, triggering "Invalid hook call" error logs.
+
+- [#15383](https://github.com/withastro/astro/pull/15383) [`876b664`](https://github.com/withastro/astro/commit/876b664d6984f97b995fd95400b41c2220528d4a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Preact components failing to render when using the Cloudflare adapter in dev mode.
+
+- [#15264](https://github.com/withastro/astro/pull/15264) [`11efb05`](https://github.com/withastro/astro/commit/11efb058e85cda68f9a8e8f15a2c7edafe5a4789) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Lower the Node version requirement to allow running on Stackblitz until it supports v22
+
+- [#15700](https://github.com/withastro/astro/pull/15700) [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529) Thanks [@ocavue](https://github.com/ocavue)! - Improves how Preact components are identified when setting the `include` and/or `exclude` options in projects where multiple JSX frameworks are used together
+
+- Updated dependencies [[`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56), [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529), [`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`cf6ea6b`](https://github.com/withastro/astro/commit/cf6ea6b36b67c7712395ed3f9ca19cb14ba1a013), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da), [`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd), [`745e632`](https://github.com/withastro/astro/commit/745e632fc590e41a5701509e9cc4ed971bdddf74)]:
+  - @astrojs/internal-helpers@0.8.0
+
+## 5.0.0-beta.5
+
+### Patch Changes
+
+- [#15700](https://github.com/withastro/astro/pull/15700) [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529) Thanks [@ocavue](https://github.com/ocavue)! - Improves how Preact components are identified when setting the `include` and/or `exclude` options in projects where multiple JSX frameworks are used together
+
+- Updated dependencies [[`4ebc1e3`](https://github.com/withastro/astro/commit/4ebc1e328ac40e892078031ed9dfecf60691fd56), [`4e7f3e8`](https://github.com/withastro/astro/commit/4e7f3e8e6849c314a0ab031ebd7f23fb982f0529)]:
+  - @astrojs/internal-helpers@0.8.0-beta.3
+
+## 5.0.0-beta.4
+
+### Patch Changes
+
+- [#15619](https://github.com/withastro/astro/pull/15619) [`bbfa7c8`](https://github.com/withastro/astro/commit/bbfa7c8b73776976c93f41203fdcb7bf44ad6cc2) Thanks [@rururux](https://github.com/rururux)! - Fixed an issue where the Preact integration would incorrectly intercept React 19 components, triggering "Invalid hook call" error logs.
+
 ## 5.0.0-beta.3
 
 ### Patch Changes
@@ -22,9 +218,9 @@
 
 ### Major Changes
 
-- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#node-22))
+- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#node-22))
 
-- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
 
 ## 4.1.3
 

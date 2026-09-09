@@ -1,11 +1,11 @@
-import type { Logger } from '../../../core/logger/core.js';
+import type { AstroLogger } from '../../../core/logger/core.js';
 import { defineCommand } from '../../domain/command.js';
 import type { Clipboard, DebugInfoFormatter, DebugInfoProvider } from '../definitions.js';
 
 interface Options {
 	debugInfoProvider: DebugInfoProvider;
 	getDebugInfoFormatter: (options: { pretty: boolean }) => DebugInfoFormatter;
-	logger: Logger;
+	logger: AstroLogger;
 	clipboard: Clipboard;
 }
 

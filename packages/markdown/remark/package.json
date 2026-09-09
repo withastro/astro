@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "7.0.0-beta.7",
+  "version": "7.3.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -14,18 +14,16 @@
   "main": "./dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-    "./shiki": "./dist/shiki.js",
-    "./shiki-style-collector": "./dist/shiki-style-collector.js",
-    "./transformers/style-to-class": "./dist/transformers/style-to-class.js"
+    "./shiki": "./dist/shiki.js"
   },
   "imports": {
     "#import-plugin": {
       "browser": "./dist/import-plugin-browser.js",
       "default": "./dist/import-plugin-default.js"
     },
-    "#shiki-engine": {
-      "workerd": "./dist/shiki-engine-workerd.js",
-      "default": "./dist/shiki-engine-default.js"
+    "#mdx-processor": {
+      "browser": "./dist/mdx/create-processor-browser.js",
+      "default": "./dist/mdx/create-processor.js"
     }
   },
   "files": [
@@ -33,18 +31,21 @@
   ],
   "scripts": {
     "prepublish": "pnpm build",
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.js\""
+    "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/prism": "workspace:*",
+    "@mdx-js/mdx": "^3.1.1",
+    "acorn": "^8.16.0",
+    "estree-util-visit": "^2.0.0",
     "github-slugger": "^2.0.0",
     "hast-util-from-html": "^2.0.3",
+    "hast-util-to-html": "^9.0.5",
     "hast-util-to-text": "^4.0.2",
-    "js-yaml": "^4.1.1",
     "mdast-util-definitions": "^6.0.0",
     "rehype-raw": "^7.0.0",
     "rehype-stringify": "^10.0.1",
@@ -52,8 +53,7 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
     "remark-smartypants": "^3.0.2",
-    "shiki": "^3.22.0",
-    "smol-toml": "^1.6.0",
+    "source-map": "^0.7.6",
     "unified": "^11.0.5",
     "unist-util-remove-position": "^5.0.0",
     "unist-util-visit": "^5.1.0",
@@ -63,12 +63,14 @@
   "devDependencies": {
     "@types/estree": "^1.0.8",
     "@types/hast": "^3.0.4",
-    "@types/js-yaml": "^4.0.9",
     "@types/mdast": "^4.0.4",
     "@types/unist": "^3.0.3",
     "astro-scripts": "workspace:*",
-    "esbuild": "^0.24.2",
-    "mdast-util-mdx-expression": "^2.0.1"
+    "esbuild": "^0.28.0",
+    "mdast-util-mdx": "^3.0.0",
+    "mdast-util-mdx-expression": "^2.0.1",
+    "mdast-util-mdx-jsx": "^3.2.0",
+    "shiki": "^4.0.0"
   },
   "publishConfig": {
     "provenance": true

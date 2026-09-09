@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.3/schema.json",
   "files": {
     "includes": [
       "**",
@@ -40,13 +40,14 @@
       "test": "recommended"
     },
     "rules": {
-      "recommended": false,
+      "preset": "none",
       "style": {
         "useNodejsImportProtocol": "error",
         // Enforce separate type imports for type-only imports to avoid bundling unneeded code
         "useImportType": "error",
         "useExportType": "error",
-        "useNumberNamespace": "warn"
+        "useNumberNamespace": "warn",
+        "noInferrableTypes": "error"
       },
       "suspicious": {
         // This one is specific to catch `console.log`. The rest of logs are permitted
@@ -148,6 +149,26 @@
       }
     },
     {
+      "includes": ["packages/astro/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["astro/_internal", "astro/_internal/**"],
+                    "message": "Internal Astro entrypoints are only available to workspace tests and cannot be imported by production source code."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "includes": ["**/*.astro", "**/client.d.ts", "**/jsx-runtime.d.ts"],
       "linter": {
         "rules": {
@@ -175,7 +196,6 @@
     },
     {
       "includes": [
-        "**/packages/db/**/cli/**/*.ts",
         "**/benchmark/**/*.js",
         "**/packages/astro/src/cli/**/*.ts",
         "**/packages/astro/bin/**/*.mjs"
@@ -184,6 +204,26 @@
         "rules": {
           "suspicious": {
             "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/astro/test/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/src/**"],
+                    "message": "The test should not import the source code. Import the code from the dist/ folder instead."
+                  }
+                ]
+              }
+            }
           }
         }
       }

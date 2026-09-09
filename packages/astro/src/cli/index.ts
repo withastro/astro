@@ -9,7 +9,6 @@ type CLICommand =
 	| 'dev'
 	| 'build'
 	| 'preview'
-	| 'db'
 	| 'sync'
 	| 'check'
 	| 'info'
@@ -32,12 +31,7 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
 		'check',
 		'create-key',
 		'docs',
-		'db',
 		'info',
-		'login',
-		'logout',
-		'link',
-		'init',
 	]);
 	if (supportedCommands.has(cmd)) {
 		return cmd as CLICommand;
@@ -102,7 +96,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				{ getPackageManager },
 				{ StyledDebugInfoFormatter },
 				{ ClackPrompt },
-				{ CliClipboard },
+				{ TinyclipClipboard },
 				{ PassthroughTextStyler },
 				{ infoCommand },
 			] = await Promise.all([
@@ -115,7 +109,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				import('./info/core/get-package-manager.js'),
 				import('./info/infra/styled-debug-info-formatter.js'),
 				import('./info/infra/clack-prompt.js'),
-				import('./info/infra/cli-clipboard.js'),
+				import('./info/infra/tinyclip-clipboard.js'),
 				import('./infra/passthrough-text-styler.js'),
 				import('./info/core/info.js'),
 			]);
@@ -135,10 +129,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				nodeVersionProvider,
 			});
 			const prompt = new ClackPrompt({ force: flags.copy });
-			const clipboard = new CliClipboard({
-				commandExecutor,
+			const clipboard = new TinyclipClipboard({
 				logger,
-				operatingSystemProvider,
 				prompt,
 			});
 
@@ -213,7 +205,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	}
 
 	const { notify } = await import('./telemetry/index.js');
-	await notify();
+	await notify(logger);
 
 	// These commands uses the logging and user config. All commands are assumed to have been handled
 	// by the end of this switch statement.
@@ -222,15 +214,6 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			const { add } = await import('./add/index.js');
 			const packages = flags._.slice(3) as string[];
 			await add(packages, { flags });
-			return;
-		}
-		case 'db':
-		case 'login':
-		case 'logout':
-		case 'link':
-		case 'init': {
-			const { db } = await import('./db/index.js');
-			await db({ flags });
 			return;
 		}
 		case 'dev': {

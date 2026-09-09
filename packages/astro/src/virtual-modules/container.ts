@@ -5,7 +5,7 @@ import type { SSRLoadedRenderer } from '../types/public/internal.js';
  * Use this function to provide renderers to the `AstroContainer`:
  *
  * ```js
- * import { getContainerRenderer } from "@astrojs/react";
+ * import { getContainerRenderer } from "@astrojs/react/container-renderer";
  * import { experimental_AstroContainer as AstroContainer } from "astro/container";
  * import { loadRenderers } from "astro:container"; // use this only when using vite/vitest
  *

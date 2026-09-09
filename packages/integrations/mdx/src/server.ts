@@ -1,9 +1,10 @@
 import type { NamedSSRLoadedRendererValue } from 'astro';
 import { AstroError } from 'astro/errors';
 import { AstroJSX, jsx } from 'astro/jsx-runtime';
-import { renderJSX } from 'astro/runtime/server/index.js';
+import { chunkToString, renderStreaming } from 'astro/runtime/server/index.js';
 
-const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
+export const slotName = (str: string) =>
+	str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 
 // NOTE: In practice, MDX components are always tagged with `__astro_tag_component__`, so the right renderer
 // is used directly, and this check is not often used to return true.
@@ -41,7 +42,18 @@ export async function renderToStaticMarkup(
 
 	const { result } = this;
 	try {
-		const html = await renderJSX(result, jsx(Component, { ...props, ...slots, children }));
+		// Render the MDX vnode tree through Astro's streaming engine, the same
+		// fast path used by `.astro` pages. The chunks are collected into a
+		// string because this renderer must return ready HTML to its caller
+		// (`renderComponent`).
+		let html = '';
+		const destination = {
+			write(chunk: any) {
+				if (chunk instanceof Response) return;
+				html += chunkToString(result, chunk);
+			},
+		};
+		await renderStreaming(jsx(Component, { ...props, ...slots, children }), result, destination);
 		return { html };
 	} catch (e) {
 		throwEnhancedErrorIfMdxComponent(e as Error, Component);

@@ -1,17 +1,16 @@
 // @ts-expect-error
-import { safeModulePaths, viteFSConfig } from 'astro:assets';
+import { fsDenyGlob, safeModulePaths, viteFSConfig } from 'astro:assets';
 import { readFile } from 'node:fs/promises';
 import os from 'node:os';
-import picomatch from 'picomatch';
 import { type AnymatchFn, isFileLoadingAllowed, type ResolvedConfig } from 'vite';
 import type { APIRoute } from '../../types/public/common.js';
-import { handleImageRequest, loadRemoteImage } from './shared.js';
+import { handleImageRequest, type LocalImageLoadResult, loadRemoteImage } from './shared.js';
 
 function replaceFileSystemReferences(src: string) {
 	return os.platform().includes('win32') ? src.replace(/^\/@fs\//, '') : src.replace(/^\/@fs/, '');
 }
 
-async function loadLocalImage(src: string, url: URL) {
+async function loadLocalImage(src: string, url: URL): Promise<LocalImageLoadResult> {
 	let returnValue: Buffer | undefined;
 	let fsPath: string | undefined;
 
@@ -21,24 +20,12 @@ async function loadLocalImage(src: string, url: URL) {
 	}
 
 	// Vite only uses the fs config, but the types ask for the full config
-	// fsDenyGlob's implementation is internal from https://github.com/vitejs/vite/blob/e6156f71f0e21f4068941b63bcc17b0e9b0a7455/packages/vite/src/node/config.ts#L1931
+
 	if (
 		fsPath &&
 		isFileLoadingAllowed(
 			{
-				fsDenyGlob: picomatch(
-					// matchBase: true does not work as it's documented
-					// https://github.com/micromatch/picomatch/issues/89
-					// convert patterns without `/` on our side for now
-					viteFSConfig.deny.map((pattern: string) =>
-						pattern.includes('/') ? pattern : `**/${pattern}`,
-					),
-					{
-						matchBase: false,
-						nocase: true,
-						dot: true,
-					},
-				),
+				fsDenyGlob,
 				server: { fs: viteFSConfig },
 				safeModulePaths,
 			} as unknown as ResolvedConfig & { fsDenyGlob: AnymatchFn; safeModulePaths: Set<string> },
@@ -64,31 +51,33 @@ async function loadLocalImage(src: string, url: URL) {
 			}
 		}
 	} else {
-		// Otherwise we'll assume it's a local URL and try to load it via fetch
+		// Otherwise, we'll assume it's a local URL and try to load it via fetch
 		const sourceUrl = new URL(src, url.origin);
 		// This is only allowed if this is the same origin
 		if (sourceUrl.origin !== url.origin) {
-			returnValue = undefined;
+			return { kind: 'invalid-path' };
 		}
-		return loadRemoteImage(sourceUrl);
+		const buffer = await loadRemoteImage(sourceUrl);
+		return buffer ? { kind: 'loaded', buffer } : { kind: 'failed' };
 	}
 
-	return returnValue;
+	return returnValue ? { kind: 'loaded', buffer: returnValue } : { kind: 'failed' };
 }
 
 /**
  * Endpoint used in dev and SSR to serve optimized images by the base image services
  */
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, logger }) => {
 	if (!import.meta.env.DEV) {
-		console.error('The dev image endpoint can only be used in dev mode.');
+		logger.error('The dev image endpoint can only be used in dev mode.');
 		return new Response('Invalid endpoint', { status: 500 });
 	}
 	try {
-		return await handleImageRequest({ request, loadLocalImage });
+		return await handleImageRequest({ request, loadLocalImage, logger });
 	} catch (err: unknown) {
-		console.error('Could not process image request:', err);
-		return new Response(`Could not process image request: ${err}`, {
+		const message = `Could not process image request: ${err}`;
+		logger.error(message);
+		return new Response(message, {
 			status: 500,
 		});
 	}

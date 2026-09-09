@@ -1,0 +1,13 @@
+{
+	"name": "@test/cf-user-optimize-deps",
+	"version": "0.0.0",
+	"private": true,
+	"dependencies": {
+		"astro": "workspace:*",
+		"@astrojs/cloudflare": "workspace:*",
+		"fake-data-pkg": "file:./packages/fake-data-pkg/fake-data-pkg-1.0.0.tgz"
+	},
+	"scripts": {
+		"dev": "astro dev"
+	}
+}

@@ -13,11 +13,14 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/react": "^5.0.0-beta.3",
+    "@astrojs/react": "^6.0.5",
     "@types/react": "^18.3.28",
     "@types/react-dom": "^18.3.7",
-    "astro": "^6.0.0-beta.14",
+    "astro": "^7.3.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
+  },
+  "allowScripts": {
+    "esbuild": true
   }
 }

@@ -14,6 +14,7 @@ export function collectFontData(
 			fontData.push({
 				weight: renderFontWeight(data.weight),
 				style: data.style,
+				subset: data.meta?.subset,
 				src: data.src
 					.filter((src) => 'url' in src)
 					.map((src) => ({

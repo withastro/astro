@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process';
 import type { BinaryLike } from 'node:crypto';
 import { createHash } from 'node:crypto';
-import detectPackageManager from 'which-pm-runs';
+import { detect } from 'package-manager-detector';
 
 /**
  * Astro Telemetry -- Project Info
@@ -104,13 +104,12 @@ function getProjectId(isCI: boolean): Pick<ProjectInfo, 'anonymousProjectId' | '
 	};
 }
 
-export function getProjectInfo(isCI: boolean): ProjectInfo {
+export async function getProjectInfo(isCI: boolean): Promise<ProjectInfo> {
 	const projectId = getProjectId(isCI);
-	const packageManager = detectPackageManager();
+	const packageManager = await detect();
 	return {
 		...projectId,
 		packageManager: packageManager?.name,
 		packageManagerVersion: packageManager?.version,
 	};
 }
-//

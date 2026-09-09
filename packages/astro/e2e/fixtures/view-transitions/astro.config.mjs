@@ -9,11 +9,12 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	output: 'static',
 	adapter: nodejs({ mode: 'standalone' }),
-	integrations: [react( {
-		exclude: ['**/solid/**'],
-	}),vue(),svelte(),solidjs({
-		include: ['**/solid/**'],
-	})],
+	integrations: [
+		react({ exclude: ['**/solid/**'] }),
+		vue(),
+		svelte(),
+		solidjs({ include: ['**/solid/**'] }),
+	],
 	redirects: {
 		'/redirect-two': '/two',
 		'/redirect-external': 'https://example.com/',

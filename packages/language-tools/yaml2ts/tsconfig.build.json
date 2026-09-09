@@ -1,0 +1,7 @@
+{
+  "extends": "../../../configs/tsconfig.language-tools.json",
+  "compilerOptions": {
+    "emitDeclarationOnly": false,
+    "sourceMap": true
+  }
+}

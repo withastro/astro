@@ -34,7 +34,7 @@ button:hover {
   transform:scale(1.1);
 }
 
-.pretext {
+.pre-text {
   color:#fff;
   background:#0652DD;
   position:absolute;
@@ -50,5 +50,5 @@ button:hover {
 }
 </style>
 <button click={addToCart}>
-	<span class="pretext">Add to cart</span>
+	<span class="pre-text">Add to cart</span>
 </button>

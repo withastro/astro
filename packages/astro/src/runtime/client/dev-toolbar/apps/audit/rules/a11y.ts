@@ -31,6 +31,17 @@ import type { AuditRuleWithSelector } from './index.js';
 
 const WHITESPACE_REGEX = /\s+/;
 
+function isHiddenByClosedDetails(element: HTMLElement): boolean {
+	for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+		if (parent.localName !== 'details' || (parent as HTMLDetailsElement).open) continue;
+
+		const summary = Array.from(parent.children).find((child) => child.localName === 'summary');
+		if (!summary?.contains(element)) return true;
+	}
+
+	return false;
+}
+
 const a11y_required_attributes = {
 	a: ['href'],
 	area: ['alt', 'aria-label', 'aria-labelledby'],
@@ -62,7 +73,7 @@ const interactiveElements = [
 	...MAYBE_INTERACTIVE.keys(),
 ];
 
-const labellableElements = ['button', 'input', 'meter', 'output', 'progress', 'select', 'textarea'];
+const labelableElements = ['button', 'input', 'meter', 'output', 'progress', 'select', 'textarea'];
 
 const aria_non_interactive_roles = [
 	'alert',
@@ -83,6 +94,7 @@ const aria_non_interactive_roles = [
 	'form',
 	'group',
 	'heading',
+	'image',
 	'img',
 	'list',
 	'listitem',
@@ -90,7 +102,6 @@ const aria_non_interactive_roles = [
 	'main',
 	'marquee',
 	'math',
-	'menuitemradio',
 	'navigation',
 	'none',
 	'note',
@@ -149,7 +160,7 @@ const a11y_implicit_semantics = new Map([
 	['h5', 'heading'],
 	['h6', 'heading'],
 	['hr', 'separator'],
-	['img', 'img'],
+	['img', 'image'],
 	['li', 'listitem'],
 	['link', 'link'],
 	['main', 'main'],
@@ -201,7 +212,7 @@ const ariaAttributes = new Set(
 
 // All the WAI-ARIA 1.2 role attribute values from https://www.w3.org/TR/wai-aria-1.2/#role_definitions
 const ariaRoles = new Set(
-	'alert alertdialog application article banner blockquote button caption cell checkbox code columnheader combobox command complementary composite contentinfo definition deletion dialog directory document emphasis feed figure form generic grid gridcell group heading img input insertion landmark link list listbox listitem log main marquee math meter menu menubar menuitem menuitemcheckbox menuitemradio navigation none note option paragraph presentation progressbar radio radiogroup range region roletype row rowgroup rowheader scrollbar search searchbox section sectionhead select separator slider spinbutton status strong structure subscript superscript switch tab table tablist tabpanel term textbox time timer toolbar tooltip tree treegrid treeitem widget window'.split(
+	'alert alertdialog application article banner blockquote button caption cell checkbox code columnheader combobox command complementary composite contentinfo definition deletion dialog directory document emphasis feed figure form generic grid gridcell group heading image img input insertion landmark link list listbox listitem log main marquee math meter menu menubar menuitem menuitemcheckbox menuitemradio navigation none note option paragraph presentation progressbar radio radiogroup range region roletype row rowgroup rowheader scrollbar search searchbox section sectionhead select separator slider spinbutton status strong structure subscript superscript switch tab table tablist tabpanel term textbox time timer toolbar tooltip tree treegrid treeitem widget window'.split(
 		' ',
 	),
 );
@@ -214,6 +225,41 @@ function isInteractive(element: Element): boolean {
 
 	return true;
 }
+
+function hasAccessibleName(element: Element): boolean {
+	return element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby');
+}
+
+// Returns the effective implicit role, or null if no implicit role applies.
+const conditional_implicit_roles = new Map<string, (el: Element) => string | null>([
+	['a', (el) => (el.hasAttribute('href') ? 'link' : null)],
+	[
+		'aside',
+		(el) => {
+			// <aside> downgrades to 'generic' when nested inside sectioning content/main without an accessible name.
+			// Reference: https://www.w3.org/TR/html-aria/#:~:text=the%20allowed%20roles.-,aside,-role%3Dcomplementary
+			const isNested = !!el.parentElement?.closest('article, aside, nav, section');
+			return !isNested || hasAccessibleName(el) ? 'complementary' : null;
+		},
+	],
+	[
+		'img',
+		(el) => {
+			// alt="" marks the image as decorative (role="presentation"), losing its implicit "image" role.
+			// Reference: https://www.w3.org/TR/html-aria/#:~:text=the%20allowed%20roles.-,img,-If%20the%20img
+			if (el.getAttribute('alt') === '') return null;
+			return 'image';
+		},
+	],
+	[
+		'section',
+		(el) => {
+			// <section> downgrades to 'generic' when it lacks an accessible name (aria-label/aria-labelledby).
+			// Reference: https://www.w3.org/TR/html-aria/#:~:text=the%20allowed%20roles.-,section,-role%3Dregion
+			return hasAccessibleName(el) ? 'region' : null;
+		},
+	],
+]);
 
 export const a11y: AuditRuleWithSelector[] = [
 	{
@@ -298,8 +344,8 @@ export const a11y: AuditRuleWithSelector[] = [
 		match(element: HTMLLabelElement) {
 			// Label must be associated with a control, either using `for` or having a nested valid element
 			const hasFor = element.hasAttribute('for');
-			const nestedLabellableElement = element.querySelector(`${labellableElements.join(', ')}`);
-			if (!hasFor && !nestedLabellableElement) return true;
+			const nestedLabelableElement = element.querySelector(`${labelableElements.join(', ')}`);
+			if (!hasFor && !nestedLabelableElement) return true;
 
 			// Label must have text content, using innerText to ignore hidden text
 			const innerText = element.innerText.trim();
@@ -367,6 +413,8 @@ export const a11y: AuditRuleWithSelector[] = [
 			'Headings and anchors must have an accessible name, which can come from: inner text, aria-label, aria-labelledby, an img with alt property, or an svg with a tag <title></title>.',
 		selector: a11y_required_content.join(','),
 		match(element: HTMLElement) {
+			if (isHiddenByClosedDetails(element)) return false;
+
 			// innerText is used to ignore hidden text
 			const innerText = element.innerText?.trim();
 			if (innerText && innerText !== '') return false;
@@ -435,26 +483,45 @@ export const a11y: AuditRuleWithSelector[] = [
 		title: 'HTML element has redundant ARIA roles',
 		message:
 			'Giving these elements an ARIA role that is already set by the browser has no effect and is redundant.',
-		selector: [...a11y_implicit_semantics.keys()].join(','),
+		// The selector is all elements that have an implicit role, as well as input elements since their implicit role can change based on their attributes
+		selector: `[role]:is(${[...a11y_implicit_semantics.keys()].join(',')},input)`,
 		match(element) {
 			const role = element.getAttribute('role');
+			if (!role) return false;
 
-			if (element.localName === 'input') {
-				const type = element.getAttribute('type');
-				if (!type) return true;
+			const localName = element.localName;
 
+			if (
+				// <ul>, <ol>, and <li> are legitimate workarounds to restore list semantics
+				// that some browsers (e.g., Safari) strip when CSS `list-style: none` is applied.
+				// Reference: https://bugs.webkit.org/show_bug.cgi?id=170179
+				(localName === 'ul' && role === 'list') ||
+				(localName === 'ol' && role === 'list') ||
+				(localName === 'li' && role === 'listitem')
+			) {
+				return false;
+			}
+
+			if (localName === 'input') {
+				const type = element.getAttribute('type') || 'text';
 				const implicitRoleForType = input_type_to_implicit_role.get(type);
-				if (!implicitRoleForType) return true;
-
-				if (role === implicitRoleForType) return false;
+				// If the input type doesn't have an implicit role, then it can take any role without being redundant
+				// Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#:~:text=phrasing%20content.-,Implicit%20ARIA%20role,-type%3Dbutton%3A
+				return role === implicitRoleForType;
 			}
 
 			// TODO: Handle menuitem and elements that inherit their role from their parent
 
-			const implicitRole = a11y_implicit_semantics.get(element.localName);
-			if (!implicitRole) return true;
+			const getConditionalRole = conditional_implicit_roles.get(localName);
+			if (getConditionalRole) {
+				const effectiveRole = getConditionalRole(element);
+				return effectiveRole ? role === effectiveRole : false;
+			}
 
-			if (role === implicitRole) return false;
+			const implicitRole = a11y_implicit_semantics.get(localName);
+			if (!implicitRole) return false;
+
+			return role === implicitRole;
 		},
 	},
 	{
@@ -545,7 +612,9 @@ export const a11y: AuditRuleWithSelector[] = [
 
 			const elementRoles = role.split(WHITESPACE_REGEX) as ARIARoleDefinitionKey[];
 			for (const elementRole of elementRoles) {
-				const { requiredProps } = roles.get(elementRole)!;
+				const roleData = roles.get(normalizeAriaRole(elementRole));
+				if (!roleData) continue;
+				const { requiredProps } = roleData;
 				const required_role_props = Object.keys(requiredProps);
 				const missingProps = required_role_props.filter((prop) => !element.hasAttribute(prop));
 				if (missingProps.length > 0) {
@@ -575,7 +644,9 @@ export const a11y: AuditRuleWithSelector[] = [
 
 			const elementRoles = role.split(WHITESPACE_REGEX) as ARIARoleDefinitionKey[];
 			for (const elementRole of elementRoles) {
-				const { props } = roles.get(elementRole)!;
+				const roleData = roles.get(normalizeAriaRole(elementRole));
+				if (!roleData) continue;
+				const { props } = roleData;
 				const attributes = getAttributeObject(element);
 				const unsupportedAttributes = aria.keys().filter((attribute) => !(attribute in props));
 				const invalidAttributes: string[] = Object.keys(attributes).filter(
@@ -652,6 +723,18 @@ function menuitem_implicit_role(attributes: Record<string, string>) {
 	const { type } = attributes;
 	if (!type) return;
 	return menuitem_type_to_implicit_role.get(type);
+}
+
+// Some ARIA role names used in the spec (and by browsers) differ from the keys
+// used in aria-query's roles map. This map normalizes those mismatches so that
+// roles.get() lookups succeed. For example, WAI-ARIA 1.2 uses "image" but
+// aria-query only has "img".
+const ariaQueryRoleAliases: Partial<Record<string, ARIARoleDefinitionKey>> = {
+	image: 'img',
+};
+
+function normalizeAriaRole(role: string): ARIARoleDefinitionKey {
+	return (ariaQueryRoleAliases[role] ?? role) as ARIARoleDefinitionKey;
 }
 
 function getRole(element: Element): ARIARoleDefinitionKey | undefined {

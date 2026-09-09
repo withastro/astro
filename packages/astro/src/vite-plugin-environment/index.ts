@@ -14,8 +14,6 @@ const ONLY_DEV_EXTERNAL = [
 	'prismjs/components/index.js',
 	// Imported by `astro/assets` -> `packages/astro/src/core/logger/core.ts`
 	'string-width',
-	// Imported by `astro:transitions` -> packages/astro/src/runtime/server/transition.ts
-	'cssesc',
 ];
 
 const ALWAYS_NOEXTERNAL = [
@@ -28,6 +26,9 @@ const ALWAYS_NOEXTERNAL = [
 	'@nanostores/preact',
 	// fontsource packages are CSS that need to be processed
 	'@fontsource/*',
+	// Must be bundled so the prerender output resolves Astro's own copy, not an
+	// older hoisted version from another dependency. See https://github.com/withastro/astro/issues/17508
+	'neotraverse',
 ];
 
 interface Payload {
@@ -91,10 +92,16 @@ export function vitePluginEnvironment({
 					include: [
 						// For the dev toolbar
 						'astro > html-escaper',
+						'astro/runtime/client/dev-toolbar/entrypoint.js',
 					],
-					exclude: ['astro:*', 'virtual:astro:*'],
-					// Astro files can't be rendered on the client
-					entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html}`],
+					exclude: ['astro:*', 'virtual:astro:*', 'astro/virtual-modules/prefetch.js'],
+					// .astro files can't be rendered on the client, but Vite's dep
+					// scanner extracts their <script> tags to discover client-side
+					// imports. Without .astro here, deps reachable only through
+					// <script> (e.g. workspace packages and their transitive deps)
+					// are missed during the initial scan, causing late re-optimization
+					// that 504s already-served modules like the dev toolbar.
+					entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`],
 				};
 			}
 

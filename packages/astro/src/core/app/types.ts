@@ -14,11 +14,13 @@ import type {
 	SSRResult,
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
-import type { CspDirective } from '../csp/config.js';
-import type { LoggerLevel } from '../logger/core.js';
+import type { AstroLoggerDestination, AstroLoggerLevel } from '../logger/core.js';
+import type { CspDirective, CspHashEntry, CspResourceEntry } from '../csp/config.js';
 import type { RoutingStrategies } from './common.js';
+import type { CacheProviderFactory, SSRManifestCache } from '../cache/types.js';
 import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.js';
 import type { DevToolbarPlacement } from '../../types/public/toolbar.js';
+import type { MiddlewareMode } from '../../types/public/integrations.js';
 import type { BaseApp } from './base.js';
 
 type ComponentPath = string;
@@ -72,7 +74,7 @@ export type SSRManifest = {
 	userAssetsBase: string | undefined;
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: NonNullable<AstroConfig['build']>['format'];
-	compressHTML: boolean;
+	compressHTML: boolean | 'jsx';
 	assetsPrefix?: AssetsPrefix;
 	renderers: SSRLoadedRenderer[];
 	/**
@@ -82,6 +84,12 @@ export type SSRManifest = {
 	 * the creation of `dist/client` and `dist/server` folders.
 	 */
 	serverLike: boolean;
+	/**
+	 * The middleware mode determines when and how middleware executes.
+	 * - 'classic' (default): Build-time for prerendered pages, request-time for SSR pages
+	 * - 'edge': Middleware deployed as separate edge function
+	 */
+	middlewareMode: MiddlewareMode;
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
@@ -96,11 +104,16 @@ export type SSRManifest = {
 	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
+	logger?: () => Promise<{ default: AstroLoggerDestination }> | { default: AstroLoggerDestination };
 	actions?: () => Promise<SSRActions> | SSRActions;
 	sessionDriver?: () => Promise<{ default: SessionDriverFactory | null }>;
+	cacheProvider?: () => Promise<{ default: CacheProviderFactory | null }>;
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
+	actionBodySizeLimit: number;
+	serverIslandBodySizeLimit: number;
 	sessionConfig?: SSRManifestSession;
+	cacheConfig?: SSRManifestCache;
 	cacheDir: URL;
 	srcDir: URL;
 	outDir: URL;
@@ -131,7 +144,7 @@ export type SSRManifest = {
 		placement: DevToolbarPlacement | undefined;
 	};
 	internalFetchHeaders?: Record<string, string>;
-	logLevel: LoggerLevel;
+	logLevel: AstroLoggerLevel;
 };
 
 export type SSRActions = {
@@ -148,15 +161,51 @@ export type SSRManifestI18n = {
 	domains: Record<string, string> | undefined;
 };
 
+/**
+ * The CSP section of the manifest. It mirrors the `security.csp` config: `directives` plus a
+ * `scriptDirective`/`styleDirective`, each holding `resources`/`hashes` entries that carry their
+ * `kind` (`default`/`element`/`attribute`). The `kind` is only interpreted at render time. Astro's
+ * generated hashes are appended to the relevant `hashes` array as `default`-kind entries.
+ */
 export type SSRManifestCSP = {
 	cspDestination: 'adapter' | 'meta' | 'header' | undefined;
 	algorithm: CspAlgorithm;
-	scriptHashes: string[];
-	scriptResources: string[];
-	isStrictDynamic: boolean;
-	styleHashes: string[];
-	styleResources: string[];
 	directives: CspDirective[];
+	/**
+	 * @deprecated Use {@linkcode scriptDirective} instead. Holds the `default`-kind `script-src`
+	 * hashes (the same values `scriptDirective.hashes` carries with `kind: "default"`).
+	 */
+	scriptHashes: string[];
+	/**
+	 * @deprecated Use {@linkcode scriptDirective} instead. Holds the `default`-kind `script-src`
+	 * resources.
+	 */
+	scriptResources: string[];
+	/**
+	 * @deprecated Use {@linkcode scriptDirective}'s `strictDynamic` instead.
+	 */
+	isStrictDynamic: boolean;
+	/**
+	 * @deprecated Use {@linkcode styleDirective} instead. Holds the `default`-kind `style-src`
+	 * hashes.
+	 */
+	styleHashes: string[];
+	/**
+	 * @deprecated Use {@linkcode styleDirective} instead. Holds the `default`-kind `style-src`
+	 * resources.
+	 */
+	styleResources: string[];
+	scriptDirective: {
+		resources: CspResourceEntry[];
+		hashes: CspHashEntry[];
+		strictDynamic: boolean;
+	};
+	styleDirective: {
+		resources: CspResourceEntry[];
+		hashes: CspHashEntry[];
+	};
+	/** Static speculation rules JSON to inject in the head when CSP + clientPrerender are both enabled. */
+	speculationRulesContent?: string;
 };
 
 export interface SSRManifestSession extends BaseSessionConfig {
@@ -168,6 +217,7 @@ export interface SSRManifestSession extends BaseSessionConfig {
 export type SerializedSSRManifest = Omit<
 	SSRManifest,
 	| 'middleware'
+	| 'logger'
 	| 'routes'
 	| 'assets'
 	| 'componentMetadata'

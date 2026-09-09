@@ -1,9 +1,10 @@
 import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
 import * as clack from '@clack/prompts';
 import ci from 'ci-info';
 import { detect, resolveCommand } from 'package-manager-detector';
 import colors from 'piccolore';
-import type { Logger } from '../core/logger/core.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { exec } from './exec.js';
 
 const require = createRequire(import.meta.url);
@@ -17,15 +18,15 @@ type GetPackageOptions = {
 
 export async function getPackage<T>(
 	packageName: string,
-	logger: Logger,
+	logger: AstroLogger,
 	options: GetPackageOptions,
 	otherDeps: string[] = [],
 ): Promise<T | undefined> {
 	try {
 		// Try to resolve with `createRequire` first to prevent ESM caching of the package
 		// if it errors and fails here
-		require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
-		const packageImport = await import(packageName);
+		const resolved = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
+		const packageImport = await import(pathToFileURL(resolved).href);
 		return packageImport as T;
 	} catch {
 		if (options.optional) return undefined;
@@ -46,7 +47,8 @@ export async function getPackage<T>(
 		const result = await installPackage([packageName, ...otherDeps], options, logger);
 
 		if (result) {
-			const packageImport = await import(packageName);
+			const resolved = require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
+			const packageImport = await import(pathToFileURL(resolved).href);
 			return packageImport;
 		} else {
 			return undefined;
@@ -57,14 +59,14 @@ export async function getPackage<T>(
 async function installPackage(
 	packageNames: string[],
 	options: GetPackageOptions,
-	logger: Logger,
+	logger: AstroLogger,
 ): Promise<boolean> {
 	const cwd = options.cwd ?? process.cwd();
 	const packageManager = await detect({
 		cwd,
 		// Include the `install-metadata` strategy to have the package manager that's
 		// used for installation take precedence
-		strategies: ['install-metadata', 'lockfile', 'packageManager-field'],
+		strategies: ['install-metadata', 'lockfile', 'packageManager-field', 'devEngines-field'],
 	});
 	const installCommand = resolveCommand(packageManager?.agent ?? 'npm', 'add', []);
 	if (!installCommand) return false;

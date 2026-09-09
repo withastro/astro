@@ -53,7 +53,7 @@ export function getSnippetCompletions(frontmatter: FrontmatterStatus): Completio
 			documentation: {
 				kind: 'markdown',
 				value: [
-					'Add prerender export. When [using server-side rendering](https://docs.astro.build/en/guides/on-demand-rendering/#enabling-on-demand-rendering), this value will be used to determine whether to prerender the page or not.',
+					'Add prerender export. When [using server-side rendering](https://docs.astro.build/en/guides/on-demand-rendering/#enabling-on-demand-rendering), this value will be used to determine whether or not to prerender the page.',
 					'\n',
 					'[Astro reference](https://docs.astro.build/en/reference/routing-reference/#prerender)',
 				].join('\n'),

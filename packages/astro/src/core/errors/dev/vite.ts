@@ -166,7 +166,7 @@ export async function getViteErrorPayload(err: ErrorWithMetadata): Promise<Astro
 }
 
 /**
- * Transformer for `shiki`'s legacy `lineOptions`, allows to add classes to specific lines
+ * Transformer for `shiki`'s legacy `lineOptions`, allows adding classes to specific lines
  * FROM: https://github.com/shikijs/shiki/blob/4a58472070a9a359a4deafec23bb576a73e24c6a/packages/transformers/src/transformers/compact-line-options.ts
  * LICENSE: https://github.com/shikijs/shiki/blob/4a58472070a9a359a4deafec23bb576a73e24c6a/LICENSE
  */

@@ -1,12 +1,9 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
-import type { RouteData } from '../types/public/internal.js';
 import { hasSpecialQueries } from '../vite-plugin-utils/index.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
-import { removeQueryString, removeTrailingForwardSlash, slash } from './path.js';
+import { removeQueryString, slash } from './path.js';
 
 /** Check if a file is a markdown file based on its extension */
 export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
@@ -19,33 +16,6 @@ export function isMarkdownFile(fileId: string, option?: { suffix?: string }): bo
 		if (id.endsWith(`${markdownFileExtension}${_suffix}`)) return true;
 	}
 	return false;
-}
-
-const STATUS_CODE_PAGES = new Set(['/404', '/500']);
-
-/**
- * Get the correct output filename for a route, based on your config.
- * Handles both "/foo" and "foo" `name` formats.
- * Handles `/404` and `/` correctly.
- */
-export function getOutputFilename(
-	buildFormat: NonNullable<AstroConfig['build']>['format'],
-	name: string,
-	routeData: RouteData,
-) {
-	if (routeData.type === 'endpoint') {
-		return name;
-	}
-	if (name === '/' || name === '') {
-		return path.posix.join(name, 'index.html');
-	}
-	if (buildFormat === 'file' || STATUS_CODE_PAGES.has(name)) {
-		return `${removeTrailingForwardSlash(name || 'index')}.html`;
-	}
-	if (buildFormat === 'preserve' && !routeData.isIndex) {
-		return `${removeTrailingForwardSlash(name || 'index')}.html`;
-	}
-	return path.posix.join(name, 'index.html');
 }
 
 /** is a specifier an npm package? */
@@ -106,8 +76,8 @@ export function resolvePages(config: AstroConfig) {
 }
 
 function isInPagesDir(file: URL, config: AstroConfig): boolean {
-	const pagesDir = resolvePages(config);
-	return file.toString().startsWith(pagesDir.toString());
+	const pagesDir = `${resolvePages(config).toString()}/`;
+	return file.toString().startsWith(pagesDir);
 }
 
 function isInjectedRoute(file: URL, settings: AstroSettings) {
@@ -159,16 +129,6 @@ export function isEndpoint(file: URL, settings: AstroSettings): boolean {
 	if (!isInPagesDir(file, settings.config) && !isInjectedRoute(file, settings)) return false;
 	if (!isPublicRoute(file, settings.config)) return false;
 	return !endsWithPageExt(file, settings) && !file.toString().includes('?astro');
-}
-
-export function resolveJsToTs(filePath: string) {
-	if (filePath.endsWith('.jsx') && !fs.existsSync(filePath)) {
-		const tryPath = filePath.slice(0, -4) + '.tsx';
-		if (fs.existsSync(tryPath)) {
-			return tryPath;
-		}
-	}
-	return filePath;
 }
 
 /**

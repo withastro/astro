@@ -1,4 +1,4 @@
-import type { Logger } from '../../../core/logger/core.js';
+import type { AstroLogger } from '../../../core/logger/core.js';
 import type { FontResolver, StringMatcher } from '../definitions.js';
 import type {
 	Collaborator,
@@ -24,7 +24,7 @@ export async function computeFontFamiliesAssets({
 }: {
 	resolvedFamilies: Array<ResolvedFontFamily>;
 	fontResolver: FontResolver;
-	logger: Logger;
+	logger: AstroLogger;
 	bold: (input: string) => string;
 	defaults: Defaults;
 	stringMatcher: StringMatcher;

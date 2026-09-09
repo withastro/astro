@@ -6,7 +6,6 @@ import type { RunnableDevEnvironment } from 'vite';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { getViteErrorPayload } from '../errors/dev/vite.js';
 import type { ModuleLoader, ModuleLoaderEventEmitter } from './runner.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 
 export function createViteLoader(
 	viteServer: vite.ViteDevServer,
@@ -110,7 +109,7 @@ export function createViteLoader(
 			return viteServer.environments.client.hot.send(msg);
 		},
 		getSSREnvironment() {
-			return viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as RunnableDevEnvironment;
+			return ssrEnvironment;
 		},
 		isHttps() {
 			return !!ssrEnvironment.config.server.https;

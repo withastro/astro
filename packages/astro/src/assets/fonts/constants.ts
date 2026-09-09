@@ -16,6 +16,11 @@ export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 export const RUNTIME_VIRTUAL_MODULE_ID = 'virtual:astro:assets/fonts/runtime';
 export const RESOLVED_RUNTIME_VIRTUAL_MODULE_ID = '\0' + RUNTIME_VIRTUAL_MODULE_ID;
 
+export const RUNTIME_FONT_FILE_URL_RESOLVER_VIRTUAL_MODULE_ID =
+	'virtual:astro:assets/fonts/runtime/font-file-url-resolver';
+export const RESOLVED_RUNTIME_FONT_FILE_URL_RESOLVER_VIRTUAL_MODULE_ID =
+	'\0' + RUNTIME_FONT_FILE_URL_RESOLVER_VIRTUAL_MODULE_ID;
+
 export const ASSETS_DIR = 'fonts';
 export const CACHE_DIR = './fonts/';
 
@@ -46,3 +51,12 @@ export const GENERIC_FALLBACK_NAMES = [
 ] as const;
 
 export const FONTS_TYPES_FILE = 'fonts.d.ts';
+
+/**
+ * Variable name used in the font-file-url-resolver virtual module to hold
+ * the ephemeral font HTTP server address. The incremental build plugin
+ * strips the variable declaration (which contains an OS-assigned port that
+ * changes every build) from the module source before hashing so that the
+ * dependency hash is deterministic across builds.
+ */
+export const FONTS_SERVER_ADDRESS_PLACEHOLDER = '__ASTRO_FONTS_SERVER_ADDRESS__';

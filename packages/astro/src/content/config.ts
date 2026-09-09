@@ -39,6 +39,7 @@ type ImageFunction = () => z.ZodObject<{
 			zCore.$ZodLiteral<'gif'>,
 			zCore.$ZodLiteral<'svg'>,
 			zCore.$ZodLiteral<'avif'>,
+			zCore.$ZodLiteral<'apng'>,
 		]
 	>;
 }>;

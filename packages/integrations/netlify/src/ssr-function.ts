@@ -1,6 +1,6 @@
 import type { Context } from '@netlify/functions';
 import { setGetEnv } from 'astro/env/setup';
-import { middlewareSecret, cacheOnDemandPages, packageVersion } from 'virtual:astro-netlify:config';
+import { middlewareSecret, cacheOnDemandPages } from 'virtual:astro-netlify:config';
 import { createApp } from 'astro/app/entrypoint';
 
 setGetEnv((key) => process.env[key]);
@@ -64,12 +64,3 @@ export function createHandler({ notFoundContent }: { notFoundContent: string | u
 		return response;
 	};
 }
-
-export const config = {
-	includedFiles: ['**/*'],
-	name: 'Astro SSR',
-	nodeBundler: 'none',
-	generator: `@astrojs/netlify@${packageVersion}`,
-	path: '/*',
-	preferStatic: true,
-};

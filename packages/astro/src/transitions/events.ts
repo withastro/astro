@@ -1,23 +1,9 @@
 import { swap } from './swap-functions.js';
 import type { Direction, NavigationTypeString } from './types.js';
 
-/** @deprecated This will be removed in Astro 7 */
-export const TRANSITION_BEFORE_PREPARATION = 'astro:before-preparation';
-/** @deprecated This will be removed in Astro 7 */
-export const TRANSITION_AFTER_PREPARATION = 'astro:after-preparation';
-/** @deprecated This will be removed in Astro 7 */
-export const TRANSITION_BEFORE_SWAP = 'astro:before-swap';
-/** @deprecated This will be removed in Astro 7 */
-export const TRANSITION_AFTER_SWAP = 'astro:after-swap';
-/** @deprecated This will be removed in Astro 7 */
-export const TRANSITION_PAGE_LOAD = 'astro:page-load';
-
-type Events =
-	| typeof TRANSITION_AFTER_PREPARATION
-	| typeof TRANSITION_AFTER_SWAP
-	| typeof TRANSITION_PAGE_LOAD;
+type Events = 'astro:after-preparation' | 'astro:after-swap' | 'astro:page-load';
 export const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
-export const onPageLoad = () => triggerEvent(TRANSITION_PAGE_LOAD);
+export const onPageLoad = () => triggerEvent('astro:page-load');
 
 /*
  * Common stuff
@@ -71,10 +57,6 @@ class BeforeEvent extends Event {
  * TransitionBeforePreparationEvent
 
  */
-/** @deprecated This will be removed in Astro 7 */
-export const isTransitionBeforePreparationEvent = (
-	value: any,
-): value is TransitionBeforePreparationEvent => value.type === TRANSITION_BEFORE_PREPARATION;
 export class TransitionBeforePreparationEvent extends BeforeEvent {
 	formData: FormData | undefined;
 	loader: () => Promise<void>;
@@ -91,7 +73,7 @@ export class TransitionBeforePreparationEvent extends BeforeEvent {
 		loader: (event: TransitionBeforePreparationEvent) => Promise<void>,
 	) {
 		super(
-			TRANSITION_BEFORE_PREPARATION,
+			'astro:before-preparation',
 			{ cancelable: true },
 			from,
 			to,
@@ -114,9 +96,6 @@ export class TransitionBeforePreparationEvent extends BeforeEvent {
 /*
  * TransitionBeforeSwapEvent
  */
-/** @deprecated This will be removed in Astro 7 */
-export const isTransitionBeforeSwapEvent = (value: any): value is TransitionBeforeSwapEvent =>
-	value.type === TRANSITION_BEFORE_SWAP;
 export class TransitionBeforeSwapEvent extends BeforeEvent {
 	readonly direction: Direction | string;
 	readonly viewTransition: ViewTransition;
@@ -124,7 +103,7 @@ export class TransitionBeforeSwapEvent extends BeforeEvent {
 
 	constructor(afterPreparation: BeforeEvent, viewTransition: ViewTransition) {
 		super(
-			TRANSITION_BEFORE_SWAP,
+			'astro:before-swap',
 			undefined,
 			afterPreparation.from,
 			afterPreparation.to,
@@ -173,7 +152,7 @@ export async function doPreparation(
 	if (document.dispatchEvent(event)) {
 		await event.loader();
 		if (!event.defaultPrevented) {
-			triggerEvent(TRANSITION_AFTER_PREPARATION);
+			triggerEvent('astro:after-preparation');
 			if (event.navigationType !== 'traverse') {
 				// save the current scroll position before we change the DOM and transition to the new page
 				updateScrollPosition({ scrollX, scrollY });

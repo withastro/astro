@@ -25,6 +25,7 @@ interface EventContext extends ProjectInfo {
 	anonymousSessionId: string;
 }
 export class AstroTelemetry {
+	private opts: AstroTelemetryOptions;
 	private _anonymousSessionId: string | undefined;
 	private _anonymousProjectInfo: ProjectInfo | undefined;
 	private config = new GlobalConfig({ name: 'astro' });
@@ -44,7 +45,8 @@ export class AstroTelemetry {
 		return this.env.TELEMETRY_DISABLED;
 	}
 
-	constructor(private opts: AstroTelemetryOptions) {
+	constructor(opts: AstroTelemetryOptions) {
+		this.opts = opts;
 		// TODO: When the process exits, flush any queued promises
 		// This caused a "cannot exist astro" error when it ran, so it was removed.
 		// process.on('SIGINT', () => this.flush());
@@ -83,9 +85,9 @@ export class AstroTelemetry {
 		return this._anonymousSessionId;
 	}
 
-	private get anonymousProjectInfo(): ProjectInfo {
+	private async getAnonymousProjectInfo(): Promise<ProjectInfo> {
 		// NOTE(fks): this value isn't global, so it can't use getConfigWithFallback().
-		this._anonymousProjectInfo = this._anonymousProjectInfo || getProjectInfo(this.isCI);
+		this._anonymousProjectInfo = this._anonymousProjectInfo || (await getProjectInfo(this.isCI));
 		return this._anonymousProjectInfo;
 	}
 
@@ -148,8 +150,10 @@ export class AstroTelemetry {
 			...getSystemInfo({ astroVersion: this.astroVersion, viteVersion: this.viteVersion }),
 		};
 
+		const anonymousProjectInfo = await this.getAnonymousProjectInfo();
+
 		const context: EventContext = {
-			...this.anonymousProjectInfo,
+			...anonymousProjectInfo,
 			anonymousId: this.anonymousId,
 			anonymousSessionId: this.anonymousSessionId,
 		};

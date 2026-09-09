@@ -1,5 +1,25 @@
 # @astrojs/telemetry
 
+## 3.3.3
+
+### Patch Changes
+
+- [#17323](https://github.com/withastro/astro/pull/17323) [`4298883`](https://github.com/withastro/astro/commit/4298883399550cae5d5e089d73cb9adadbc2d69b) Thanks [@ematipico](https://github.com/ematipico)! - Refactors internal WSL detection by removing the `is-wsl` dependency.
+
+- [#17323](https://github.com/withastro/astro/pull/17323) [`4298883`](https://github.com/withastro/astro/commit/4298883399550cae5d5e089d73cb9adadbc2d69b) Thanks [@ematipico](https://github.com/ematipico)! - Replaced `which-pm-runs` dependency with `package-manager-detector`
+
+## 3.3.2
+
+### Patch Changes
+
+- [#16260](https://github.com/withastro/astro/pull/16260) [`354e231`](https://github.com/withastro/astro/commit/354e23191f6a85fd466b512d378959cc12aebb01) Thanks [@gameroman](https://github.com/gameroman)! - Refactors internal config logic to remove the `dlv` dependency in favor of native logic
+
+## 3.3.1
+
+### Patch Changes
+
+- [#16257](https://github.com/withastro/astro/pull/16257) [`e0b240e`](https://github.com/withastro/astro/commit/e0b240edea4db632138def3a9003b4b12e12f765) Thanks [@gameroman](https://github.com/gameroman)! - Removed `debug` dependency
+
 ## 3.3.0
 
 ### Minor Changes

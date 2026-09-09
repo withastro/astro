@@ -17,6 +17,20 @@ export type AssetsGlobalStaticImagesList = Map<
 	}
 >;
 
+/**
+ * A single image transform flattened for persistence in the incremental build
+ * cache. `AssetsGlobalStaticImagesList` nests transforms under their original
+ * path; this carries the original path and transform hash inline so a skipped
+ * page's transforms can be replayed into the global list without a re-render.
+ */
+export interface SerializedStaticImage {
+	originalPath: string;
+	hash: string;
+	finalPath: string;
+	originalSrcPath: string | undefined;
+	transform: ImageTransform;
+}
+
 declare global {
 	var astroAsset: {
 		imageService?: ImageService;
@@ -167,6 +181,42 @@ type ImageSharedProps<T> = T & {
 	 * ```
 	 */
 	priority?: boolean;
+
+	/**
+	 * Defines how the image should be cropped if the aspect ratio is changed.
+	 *
+	 * Default is `cover`. Allowed values are `fill`, `contain`, `cover`, `none` or `scale-down`. These behave like the equivalent CSS `object-fit` values. Other values may be passed if supported by the image service.
+	 *
+	 * **Example**:
+	 * ```astro
+	 * <Image src={...} fit="contain" alt="..." />
+	 * ```
+	 */
+	fit?: ImageFit;
+
+	/**
+	 * Defines the position of the image when cropping.
+	 *
+	 * The value is a string that specifies the position of the image, which matches the CSS `object-position` property. Other values may be passed if supported by the image service.
+	 *
+	 * **Example**:
+	 * ```astro
+	 * <Image src={...} position="center top" alt="..." />
+	 * ```
+	 */
+	position?: string;
+
+	/**
+	 * The background color to use when converting images with transparency to a format that does not support it (e.g. PNG to JPEG).
+	 *
+	 * The value is a string that specifies a CSS color value, e.g. `#fff`, `white`, `rgb(255, 255, 255)`.
+	 *
+	 * **Example**:
+	 * ```astro
+	 * <Image src={...} format="jpeg" background="#fff" alt="..." />
+	 * ```
+	 */
+	background?: string;
 } & (
 		| {
 				/**
@@ -187,32 +237,6 @@ type ImageSharedProps<T> = T & {
 				layout?: ImageLayout;
 
 				/**
-				 * Defines how the image should be cropped if the aspect ratio is changed. Requires `layout` to be set.
-				 *
-				 * Default is `cover`. Allowed values are `fill`, `contain`, `cover`, `none` or `scale-down`. These behave like the equivalent CSS `object-fit` values. Other values may be passed if supported by the image service.
-				 *
-				 * **Example**:
-				 * ```astro
-				 * <Image src={...} fit="contain" alt="..." />
-				 * ```
-				 */
-
-				fit?: ImageFit;
-
-				/**
-				 * Defines the position of the image when cropping. Requires `layout` to be set.
-				 *
-				 * The value is a string that specifies the position of the image, which matches the CSS `object-position` property. Other values may be passed if supported by the image service.
-				 *
-				 * **Example**:
-				 * ```astro
-				 * <Image src={...} position="center top" alt="..." />
-				 * ```
-				 */
-
-				position?: string;
-
-				/**
 				 * A list of widths to generate images for. The value of this property will be used to assign the `srcset` property on the final `img` element.
 				 *
 				 * This attribute is incompatible with `densities`.
@@ -229,8 +253,6 @@ type ImageSharedProps<T> = T & {
 				densities?: (number | `${number}x`)[];
 				widths?: never;
 				layout?: never;
-				fit?: never;
-				position?: never;
 		  }
 	) &
 	Astro.CustomImageProps;

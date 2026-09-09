@@ -18,7 +18,9 @@ export default async function build() {
 		entryPoints: {
 			'dist/node/client': './src/client.ts',
 			'dist/node/server': './node_modules/@astrojs/language-server/bin/nodeServer.js',
-			'dist/astro-ts-plugin-bundle/index': './node_modules/@astrojs/ts-plugin/dist/index.js',
+			// We need to generate this inside node_modules so VS Code can resolve it
+			'node_modules/astro-ts-plugin-bundle/index':
+				'./node_modules/@astrojs/ts-plugin/dist/index.js',
 		},
 		bundle: true,
 		metafile: metaFile,
@@ -70,8 +72,8 @@ export default async function build() {
 	await builder.watch();
 
 	process.on('beforeExit', () => {
-		builder.dispose && builder.dispose();
+		void builder.dispose?.();
 	});
 }
 
-build();
+void build();

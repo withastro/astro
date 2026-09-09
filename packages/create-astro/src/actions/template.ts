@@ -96,40 +96,68 @@ const FILES_TO_REMOVE = ['CHANGELOG.md', '.codesandbox'];
 const FILES_TO_UPDATE = {
 	'package.json': (file: string, overrides: { name: string }) =>
 		fs.promises.readFile(file, 'utf-8').then((value) => {
-			// Match first indent in the file or fallback to `\t`
+			// Match first indent in the file or fall back to `\t`
 			const indent = /(^\s+)/m.exec(value)?.[1] ?? '\t';
-			return fs.promises.writeFile(
-				file,
-				JSON.stringify(
-					Object.assign(JSON.parse(value), Object.assign(overrides, { private: undefined })),
-					null,
-					indent,
-				),
-				'utf-8',
-			);
+			const packageJson = JSON.parse(value);
+			packageJson.name = overrides.name;
+			delete packageJson.private;
+			return fs.promises.writeFile(file, JSON.stringify(packageJson, null, indent), 'utf-8');
 		}),
 };
 
+export function generateAgentsMd(): string {
+	return `## Development
+
+When starting the dev server, use background mode:
+
+\`\`\`
+astro dev --background
+\`\`\`
+
+Manage the background server with \`astro dev stop\`, \`astro dev status\`, and \`astro dev logs\`.
+
+## Documentation
+
+Full documentation: https://docs.astro.build
+
+Consult these guides before working on related tasks:
+
+- [Adding pages, dynamic routes, or middleware](https://docs.astro.build/en/guides/routing/)
+- [Working with Astro components](https://docs.astro.build/en/basics/astro-components/)
+- [Using React, Vue, Svelte, or other framework components](https://docs.astro.build/en/guides/framework-components/)
+- [Adding or managing content](https://docs.astro.build/en/guides/content-collections/)
+- [Adding styles or using Tailwind](https://docs.astro.build/en/guides/styling/)
+- [Supporting multiple languages](https://docs.astro.build/en/guides/internationalization/)
+`;
+}
+
 export function getTemplateTarget(tmpl: string, ref = 'latest') {
 	// Handle Starlight templates
-	if (tmpl.startsWith('starlight')) {
+	if (tmpl === 'starlight' || tmpl.startsWith('starlight/')) {
 		const [, starter = 'basics'] = tmpl.split('/');
 		return `github:withastro/starlight/examples/${starter}`;
 	}
 
 	// Handle third-party templates
-	const isThirdParty = tmpl.includes('/');
-	if (isThirdParty) return tmpl;
+	if (isThirdPartyTemplate(tmpl)) return tmpl;
 
 	// Handle Astro templates
 	if (ref === 'latest') {
 		// `latest` ref is specially handled to route to a branch specifically
-		// to allow faster downloads. Otherwise giget has to download the entire
+		// to allow faster downloads. Otherwise, giget has to download the entire
 		// repo and only copy a sub directory
 		return `github:withastro/astro#examples/${tmpl}`;
 	} else {
 		return `github:withastro/astro/examples/${tmpl}#${ref}`;
 	}
+}
+
+export function isThirdPartyTemplate(tmpl: string) {
+	// A template is considered third-party when it includes a path separator
+	// (for example `owner/repo` or `github:owner/repo`) and is not one of the
+	// built-in `starlight` templates (`starlight` / `starlight/<starter>`).
+	if (tmpl === 'starlight' || tmpl.startsWith('starlight/')) return false;
+	return tmpl.includes('/');
 }
 
 async function copyTemplate(tmpl: string, ctx: Context) {
@@ -181,6 +209,22 @@ async function copyTemplate(tmpl: string, ctx: Context) {
 				}
 			} catch {}
 			throw new Error(`Unable to download template ${color.reset(tmpl)}`);
+		}
+
+		if (ctx.ai) {
+			// Generate AGENTS.md for AI coding agents, with a CLAUDE.md link
+			const agentsPath = path.resolve(ctx.cwd, 'AGENTS.md');
+			const claudePath = path.resolve(ctx.cwd, 'CLAUDE.md');
+			fs.writeFileSync(agentsPath, generateAgentsMd());
+			try {
+				fs.symlinkSync('AGENTS.md', claudePath);
+			} catch {
+				try {
+					fs.linkSync(agentsPath, claudePath);
+				} catch {
+					// Link creation failed; AGENTS.md still exists
+				}
+			}
 		}
 
 		// Post-process in parallel

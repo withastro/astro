@@ -9,7 +9,11 @@ import { projectName } from './actions/project-name.js';
 import { template } from './actions/template.js';
 import { verify } from './actions/verify.js';
 
-export { processTemplateReadme, removeTemplateMarkerSections } from './actions/template.js';
+export {
+	generateAgentsMd,
+	processTemplateReadme,
+	removeTemplateMarkerSections,
+} from './actions/template.js';
 export { setStdout } from './messages.js';
 
 const exit = () => process.exit(0);

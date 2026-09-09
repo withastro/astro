@@ -44,11 +44,12 @@ export class AstroVirtualCode implements VirtualCode {
 	mappings!: CodeMapping[];
 	embeddedCodes!: VirtualCode[];
 	codegenStacks = [];
+	public fileName: string;
+	public snapshot: ts.IScriptSnapshot;
 
-	constructor(
-		public fileName: string,
-		public snapshot: ts.IScriptSnapshot,
-	) {
+	constructor(fileName: string, snapshot: ts.IScriptSnapshot) {
+		this.fileName = fileName;
+		this.snapshot = snapshot;
 		this.mappings = [
 			{
 				sourceOffsets: [0],

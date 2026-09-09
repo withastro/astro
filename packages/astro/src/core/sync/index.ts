@@ -6,7 +6,8 @@ import colors from 'piccolore';
 import { createServer, type FSWatcher, type HotPayload, type ViteDevServer } from 'vite';
 import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
-import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
+import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from '../../content/paths.js';
+import { globalContentLayer } from '../../content/instance.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { getContentPaths, globalContentConfigObserver } from '../../content/utils.js';
@@ -18,7 +19,7 @@ import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
-import { createNodeLogger } from '../logger/node.js';
+import { loadOrCreateNodeLogger } from '../logger/load.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import {
@@ -29,8 +30,8 @@ import {
 	type ErrorWithMetadata,
 	isAstroError,
 } from '../errors/index.js';
-import type { Logger } from '../logger/core.js';
-import { createRoutesList } from '../routing/manifest/create.js';
+import type { AstroLogger } from '../logger/core.js';
+import { createRoutesList } from '../routing/create-manifest.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
 
@@ -40,7 +41,7 @@ type SyncOptions = {
 	 * @internal only used for testing
 	 */
 	fs?: typeof fsMod;
-	logger: Logger;
+	logger: AstroLogger;
 	settings: AstroSettings;
 	force?: boolean;
 	skip?: {
@@ -58,8 +59,8 @@ export default async function sync(
 	{ fs, telemetry: _telemetry = false }: { fs?: typeof fsMod; telemetry?: boolean } = {},
 ) {
 	ensureProcessNodeEnv('production');
-	const logger = createNodeLogger(inlineConfig);
 	const { astroConfig, userConfig } = await resolveConfig(inlineConfig ?? {}, 'sync');
+	const logger = await loadOrCreateNodeLogger(astroConfig, inlineConfig ?? {});
 	if (_telemetry) {
 		telemetry.record(eventCliSession('sync', userConfig));
 	}
@@ -91,15 +92,25 @@ export async function clearContentLayerCache({
 	isDev,
 }: {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	fs?: typeof fsMod;
 	isDev: boolean;
 }) {
-	const dataStore = getDataStoreFile(settings, isDev);
-	if (fs.existsSync(dataStore)) {
-		logger.debug('content', 'clearing data store');
-		await fs.promises.rm(dataStore, { force: true });
-		logger.warn('content', 'data store cleared (force)');
+	if (getDataStoreChunkSize(settings) !== undefined) {
+		const dataStore = getDataStoreDir(settings, isDev);
+		if (fs.existsSync(dataStore)) {
+			logger.debug('content', 'clearing data store');
+			await fs.promises.rm(dataStore, { force: true, recursive: true });
+			await fs.promises.mkdir(dataStore, { recursive: true });
+			logger.warn('content', 'data store cleared (force)');
+		}
+	} else {
+		const dataStore = getDataStoreFile(settings, isDev);
+		if (fs.existsSync(dataStore)) {
+			logger.debug('content', 'clearing data store');
+			await fs.promises.rm(dataStore, { force: true });
+			logger.warn('content', 'data store cleared (force)');
+		}
 	}
 }
 
@@ -138,8 +149,14 @@ export async function syncInternal({
 
 			let store: MutableDataStore | undefined;
 			try {
-				const dataStoreFile = getDataStoreFile(settings, isDev);
-				store = await MutableDataStore.fromFile(dataStoreFile);
+				const chunkSize = getDataStoreChunkSize(settings);
+				if (chunkSize !== undefined) {
+					const dataStoreDir = getDataStoreDir(settings, isDev);
+					store = await MutableDataStore.fromDir(dataStoreDir, chunkSize, logger);
+				} else {
+					const dataStoreFile = getDataStoreFile(settings, isDev);
+					store = await MutableDataStore.fromFile(dataStoreFile);
+				}
 			} catch (err: any) {
 				logger.error('content', err.message);
 			}
@@ -230,7 +247,7 @@ async function createTempViteServer(
 			fsMod: fs,
 		},
 		logger,
-		{ dev: true, skipBuildOutputAssignment: true },
+		{ dev: true },
 	);
 
 	const tempViteServer = await createServer(
@@ -280,7 +297,7 @@ async function createTempViteServer(
  *
  * A non-zero process signal is emitted in case there's an error while generating content collection types.
  *
- * This should only be used when the callee already has an `AstroSetting`, otherwise use `sync()` instead.
+ * This should only be used when the callee already has an `AstroSetting`; otherwise, use `sync()` instead.
  * @internal
  *
  * @param {SyncOptions} options
@@ -291,7 +308,7 @@ async function createTempViteServer(
  */
 async function syncContentCollections(
 	settings: AstroSettings,
-	{ logger, fs, viteServer }: { logger: Logger; fs: typeof fsMod; viteServer: ViteDevServer },
+	{ logger, fs, viteServer }: { logger: AstroLogger; fs: typeof fsMod; viteServer: ViteDevServer },
 ): Promise<void> {
 	try {
 		const contentTypesGenerator = await createContentTypesGenerator({

@@ -27,7 +27,7 @@ export function filterAndTransformFontFaces({
 					if ('name' in source) {
 						return source;
 					}
-					// We handle protocol relative URLs here, otherwise they're considered absolute by the font
+					// We handle protocol relative URLs here; otherwise, they're considered absolute by the font
 					// fetcher which will try to read them from the file system
 					const originalUrl = source.url.startsWith('//') ? `https:${source.url}` : source.url;
 					let format = FONT_FORMATS.find((e) => e.format === source.format);

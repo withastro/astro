@@ -1,16 +1,15 @@
 import fs from 'node:fs/promises';
-import path, { basename, dirname, extname } from 'node:path';
+import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { deterministicString } from 'deterministic-object-hash';
-import type * as vite from 'vite';
+import type { Rolldown } from 'vite';
 import { generateContentHash } from '../../core/encryption.js';
-import { prependForwardSlash, removeQueryString, slash } from '../../core/path.js';
-import { shorthash } from '../../runtime/server/shorthash.js';
-import type { ImageMetadata, ImageTransform } from '../types.js';
-import { isESMImportedImage } from './imageKind.js';
+import { prependForwardSlash, slash } from '../../core/path.js';
+import type { ImageMetadata } from '../types.js';
 import { imageMetadata } from './metadata.js';
 
-type FileEmitter = vite.Rollup.EmitFile;
+export { hashTransform, propsToFilename } from './hash.js';
+
+type FileEmitter = (opts: Parameters<Rolldown.PluginContext['emitFile']>[0]) => string;
 type ImageMetadataWithContents = ImageMetadata & { contents?: Buffer };
 
 type SvgCacheKey = { hash: string };
@@ -43,7 +42,7 @@ async function handleSvgDeduplication(
 
 	if (existing) {
 		// Emit file again with the same filename to get a new handle
-		// This ensures Rollup knows about this handle while maintaining deduplication on disk
+		// This ensures Rolldown knows about this handle while maintaining deduplication on disk
 		const handle = fileEmitter({
 			name: existing.filename,
 			source: fileData,
@@ -59,6 +58,48 @@ async function handleSvgDeduplication(
 		});
 		svgContentCache.set(key, { handle, filename });
 		return handle;
+	}
+}
+
+const TRANSIENT_ERROR_CODES = new Set(['EMFILE', 'ENFILE', 'EAGAIN', 'EBUSY']);
+
+// Limits concurrent fs.readFile calls to avoid EMFILE when the bundler loads
+// thousands of images in parallel. 200 is well below typical OS defaults
+// (1024 on Linux, ~8000 on macOS) while leaving headroom for other I/O.
+const MAX_CONCURRENT_READS = 200;
+let activeReads = 0;
+const readQueue: Array<() => void> = [];
+
+/**
+ * Reads a file with concurrency limiting and retry logic for transient OS errors
+ * like EMFILE (too many open files). Large projects can exhaust file descriptors
+ * when the bundler loads thousands of images concurrently.
+ */
+async function readFileWithRetry(url: URL, maxRetries = 5): Promise<Buffer> {
+	// Wait for a slot if at the concurrency limit
+	if (activeReads >= MAX_CONCURRENT_READS) {
+		await new Promise<void>((resolve) => readQueue.push(resolve));
+	}
+	activeReads++;
+	try {
+		for (let attempt = 0; ; attempt++) {
+			try {
+				return await fs.readFile(url);
+			} catch (err) {
+				const code =
+					err instanceof Error && 'code' in err ? (err as NodeJS.ErrnoException).code : undefined;
+				if (code && TRANSIENT_ERROR_CODES.has(code) && attempt < maxRetries) {
+					await new Promise((resolve) => setTimeout(resolve, 50 * 2 ** attempt));
+					continue;
+				}
+				throw err;
+			}
+		}
+	} finally {
+		activeReads--;
+		if (readQueue.length > 0) {
+			readQueue.shift()!();
+		}
 	}
 }
 
@@ -80,12 +121,18 @@ export async function emitImageMetadata(
 	const url = pathToFileURL(id);
 	let fileData: Buffer;
 	try {
-		fileData = await fs.readFile(url);
-	} catch {
-		return undefined;
+		fileData = await readFileWithRetry(url);
+	} catch (err) {
+		if (err instanceof Error && 'code' in err && err.code === 'ENOENT') {
+			return undefined;
+		}
+		throw err;
 	}
 
 	const fileMetadata = await imageMetadata(fileData, id);
+	if (path.extname(id).toLowerCase() === '.apng') {
+		fileMetadata.format = 'apng';
+	}
 
 	const emittedImage: Omit<ImageMetadataWithContents, 'fsPath'> = {
 		src: '',
@@ -141,71 +188,4 @@ export async function emitImageMetadata(
 function fileURLToNormalizedPath(filePath: URL): string {
 	// Uses `slash` instead of Vite's `normalizePath` to avoid CJS bundling issues.
 	return slash(fileURLToPath(filePath) + filePath.search).replace(/\\/g, '/');
-}
-
-// Taken from https://github.com/rollup/rollup/blob/a8647dac0fe46c86183be8596ef7de25bc5b4e4b/src/utils/sanitizeFileName.ts
-// eslint-disable-next-line no-control-regex
-const INVALID_CHAR_REGEX = /[\u0000-\u001F"#$%&*+,:;<=>?[\]^`{|}\u007F]/g;
-
-/**
- * Converts a file path and transformation properties of the transformation image service, into a formatted filename.
- *
- * The formatted filename follows this structure:
- *
- * `<prefixDirname>/<baseFilename>_<hash><outputExtension>`
- *
- * - `prefixDirname`: If the image is an ESM imported image, this is the directory name of the original file path; otherwise, it will be an empty string.
- * - `baseFilename`: The base name of the file or a hashed short name if the file is a `data:` URI.
- * - `hash`: A unique hash string generated to distinguish the transformed file.
- * - `outputExtension`: The desired output file extension derived from the `transform.format` or the original file extension.
- *
- * ## Example
- * - Input: `filePath = '/images/photo.jpg'`, `transform = { format: 'png', src: '/images/photo.jpg' }`, `hash = 'abcd1234'`.
- * - Output: `/images/photo_abcd1234.png`
- *
- * @param {string} filePath - The original file path or data URI of the source image.
- * @param {ImageTransform} transform - An object representing the transformation properties, including format and source.
- * @param {string} hash - A unique hash used to differentiate the transformed file.
- * @return {string} The generated filename based on the provided input, transformations, and hash.
- */
-
-export function propsToFilename(filePath: string, transform: ImageTransform, hash: string): string {
-	let filename = decodeURIComponent(removeQueryString(filePath));
-	const ext = extname(filename);
-	if (filePath.startsWith('data:')) {
-		filename = shorthash(filePath);
-	} else {
-		filename = basename(filename, ext).replace(INVALID_CHAR_REGEX, '_');
-	}
-	const prefixDirname = isESMImportedImage(transform.src) ? dirname(filePath) : '';
-
-	let outputExt = transform.format ? `.${transform.format}` : ext;
-	return `${prefixDirname}/${filename}_${hash}${outputExt}`;
-}
-
-/**
- * Transforms the provided `transform` object into a hash string based on selected properties
- * and the specified `imageService`.
- *
- * @param {ImageTransform} transform - The transform object containing various image transformation properties.
- * @param {string} imageService - The name of the image service related to the transform.
- * @param {string[]} propertiesToHash - An array of property names from the `transform` object that should be used to generate the hash.
- * @return {string} A hashed string created from the specified properties of the `transform` object and the image service.
- */
-export function hashTransform(
-	transform: ImageTransform,
-	imageService: string,
-	propertiesToHash: string[],
-): string {
-	// Extract the fields we want to hash
-	const hashFields = propertiesToHash.reduce(
-		(acc, prop) => {
-			// It's possible for `transform[prop]` here to be undefined, or null, but that's fine because it's still consistent
-			// between different transforms. (ex: every transform without a height will explicitly have a `height: undefined` property)
-			acc[prop] = transform[prop];
-			return acc;
-		},
-		{ imageService } as Record<string, unknown>,
-	);
-	return shorthash(deterministicString(hashFields));
 }

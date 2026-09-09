@@ -2,10 +2,9 @@ import { fileURLToPath } from 'node:url';
 import type { CreatePreviewServer } from 'astro';
 import { AstroError } from 'astro/errors';
 import { logListeningOn } from './log-listening-on.js';
-import type { createExports } from './server.js';
 import { createServer } from './standalone.js';
 
-type ServerModule = ReturnType<typeof createExports>;
+type ServerModule = typeof import('./server.js');
 type MaybeServerModule = Partial<ServerModule>;
 
 const createPreviewServer: CreatePreviewServer = async (preview) => {

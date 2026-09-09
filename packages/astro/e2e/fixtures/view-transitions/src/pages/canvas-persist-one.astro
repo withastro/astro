@@ -1,0 +1,15 @@
+---
+import Layout from '../components/Layout.astro';
+---
+<Layout>
+	<p id="canvas-one">Canvas Page 1</p>
+	<a id="click-two" href="/canvas-persist-two">go to 2</a>
+	<a id="click-no-canvas" href="/one">go to page without canvas</a>
+	<canvas id="my-canvas" transition:persist="my-canvas" width="200" height="200"></canvas>
+</Layout>
+<script>
+	const canvas = document.querySelector<HTMLCanvasElement>('#my-canvas')!;
+	const ctx = canvas.getContext('2d')!;
+	ctx.fillStyle = 'red';
+	ctx.fillRect(10, 10, 50, 50);
+</script>

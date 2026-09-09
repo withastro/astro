@@ -1,6 +1,20 @@
 import { matchPattern, type RemotePattern } from '@astrojs/internal-helpers/remote';
 
 /**
+ * Parses a potentially comma-separated multi-value header (as produced by
+ * proxy chains) and returns the first value, trimmed of whitespace.
+ * Returns `undefined` when the header is absent or empty.
+ */
+export function getFirstForwardedValue(
+	multiValueHeader: string | string[] | undefined,
+): string | undefined {
+	return multiValueHeader
+		?.toString()
+		.split(',')
+		.map((e) => e.trim())[0];
+}
+
+/**
  * Sanitize a hostname by rejecting any with path separators.
  * Prevents path injection attacks. Invalid hostnames return undefined.
  */
@@ -17,10 +31,14 @@ interface ParsedHost {
 }
 
 /**
- * Parse a host string into hostname and port components.
+ * Parse a host string into hostname and port components. Returns `undefined`
+ * for a host that carries more than a single `hostname:port` pair (e.g.
+ * `example.com:8080:8080`), which is not a valid host and would otherwise be
+ * accepted by inspecting only the first two segments.
  */
-function parseHost(host: string): ParsedHost {
+function parseHost(host: string): ParsedHost | undefined {
 	const parts = host.split(':');
+	if (parts.length > 2) return undefined;
 	return {
 		hostname: parts[0],
 		port: parts[1],
@@ -50,7 +68,7 @@ function matchesAllowedDomains(
 
 /**
  * Validate a host against allowedDomains.
- * Returns the host only if it matches an allowed pattern, otherwise undefined.
+ * Returns the host only if it matches an allowed pattern; otherwise, undefined.
  * This prevents SSRF attacks by ensuring the Host header is trusted.
  */
 export function validateHost(
@@ -64,7 +82,10 @@ export function validateHost(
 	const sanitized = sanitizeHost(host);
 	if (!sanitized) return undefined;
 
-	const { hostname, port } = parseHost(sanitized);
+	const parsed = parseHost(sanitized);
+	if (!parsed) return undefined;
+
+	const { hostname, port } = parsed;
 	if (matchesAllowedDomains(hostname, protocol, port, allowedDomains)) {
 		return sanitized;
 	}
@@ -106,10 +127,11 @@ export function validateForwardedHeaders(
 				// allowedDomains exist but no protocol patterns, allow http/https
 				result.protocol = forwardedProtocol;
 			}
-		} else if (/^https?$/.test(forwardedProtocol)) {
-			// No allowedDomains, only allow http/https
-			result.protocol = forwardedProtocol;
 		}
+		// When no allowedDomains is configured, do not trust X-Forwarded-Proto.
+		// Without allowedDomains there is no proxy configuration to validate against,
+		// so accepting a forwarded protocol could let an attacker change the origin
+		// used for comparisons (e.g., switching http to https).
 	}
 
 	// Validate port first
@@ -130,8 +152,9 @@ export function validateForwardedHeaders(
 	if (forwardedHost && forwardedHost.length > 0 && allowedDomains && allowedDomains.length > 0) {
 		const protoForValidation = result.protocol || 'https';
 		const sanitized = sanitizeHost(forwardedHost);
-		if (sanitized) {
-			const { hostname, port: portFromHost } = parseHost(sanitized);
+		const parsed = sanitized ? parseHost(sanitized) : undefined;
+		if (sanitized && parsed) {
+			const { hostname, port: portFromHost } = parsed;
 			const portForValidation = result.port || portFromHost;
 			if (matchesAllowedDomains(hostname, protoForValidation, portForValidation, allowedDomains)) {
 				result.host = sanitized;

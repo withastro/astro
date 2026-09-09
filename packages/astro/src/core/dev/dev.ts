@@ -5,8 +5,9 @@ import { performance } from 'node:perf_hooks';
 import colors from 'piccolore';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
-import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
-import { attachContentServerListeners } from '../../content/index.js';
+import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from '../../content/paths.js';
+import { globalContentLayer } from '../../content/instance.js';
+import { attachContentServerListeners, attachDataStoreInvalidation } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
@@ -21,9 +22,12 @@ import {
 	MAX_PATCH_DISTANCE,
 	shouldCheckForUpdates,
 } from './update-check.js';
+import { BuildTimeAstroVersionProvider } from '../../cli/infra/build-time-astro-version-provider.js';
+import { piccoloreTextStyler } from '../../cli/infra/piccolore-text-styler.js';
 
 export interface DevServer {
 	address: AddressInfo;
+	resolvedUrls: vite.ResolvedServerUrls;
 	handle: (req: http.IncomingMessage, res: http.ServerResponse<http.IncomingMessage>) => void;
 	watcher: vite.FSWatcher;
 	stop(): Promise<void>;
@@ -87,14 +91,25 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	let store: MutableDataStore | undefined;
 	try {
-		const dataStoreFile = getDataStoreFile(restart.container.settings, true);
-		store = await MutableDataStore.fromFile(dataStoreFile);
+		const chunkSize = getDataStoreChunkSize(restart.container.settings);
+		if (chunkSize !== undefined) {
+			const dataStoreDir = getDataStoreDir(restart.container.settings, true);
+			store = await MutableDataStore.fromDir(dataStoreDir, chunkSize, logger);
+		} else {
+			const dataStoreFile = getDataStoreFile(restart.container.settings, true);
+			store = await MutableDataStore.fromFile(dataStoreFile);
+		}
 	} catch (err: any) {
 		logger.error('content', err.message);
 	}
 
 	if (!store) {
 		logger.error('content', 'Failed to create data store');
+	} else {
+		// Invalidate the content virtual modules directly when the store is
+		// written, rather than relying on the file watcher to observe the write.
+		// On Windows the watcher can miss it, leaving dev serving stale content.
+		attachDataStoreInvalidation(store, restart.container.viteServer, restart.container.settings);
 	}
 	await attachContentServerListeners(restart.container);
 
@@ -111,12 +126,13 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		});
 		contentLayer.watchContentConfig();
 		await contentLayer.sync();
-	} else {
+	} else if (config.status !== 'does-not-exist') {
 		logger.warn('content', 'Content config not loaded');
 	}
 
 	// Start listening to the port
 	const devServerAddressInfo = await startContainer(restart.container);
+
 	restart.bindCLIShortcuts();
 	logger.info(
 		'SKIP_FORMAT',
@@ -125,6 +141,8 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			resolvedUrls: restart.container.viteServer.resolvedUrls || { local: [], network: [] },
 			host: restart.container.settings.config.server.host,
 			base: restart.container.settings.config.base,
+			astroVersionProvider: new BuildTimeAstroVersionProvider(),
+			textStyler: piccoloreTextStyler,
 		}),
 	);
 
@@ -139,6 +157,9 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	return {
 		address: devServerAddressInfo,
+		get resolvedUrls() {
+			return restart.container.viteServer.resolvedUrls || { local: [], network: [] };
+		},
 		get watcher() {
 			return restart.container.viteServer.watcher;
 		},

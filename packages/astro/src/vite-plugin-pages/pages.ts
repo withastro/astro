@@ -1,6 +1,6 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { DEFAULT_COMPONENTS } from '../core/routing/default.js';
-import { routeIsRedirect } from '../core/routing/index.js';
+import { routeIsRedirect } from '../core/routing/helpers.js';
 import type { RoutesList } from '../types/astro.js';
 import type { RouteData } from '../types/public/internal.js';
 import { VIRTUAL_PAGE_MODULE_ID } from './const.js';
@@ -16,16 +16,18 @@ interface PagesPluginOptions {
 
 /**
  * Filters routes for a specific build environment.
- * Redirects need their target route included so the redirect response can be generated at runtime.
+ *
+ * Redirect target routes do not need special handling here: they already
+ * appear in the routes list with their own `prerender` flag and are
+ * included when it matches `isPrerender`. At SSR runtime, redirect
+ * responses are generated from route metadata alone (no component is
+ * loaded), so the target's component is never needed in the SSR page map.
  */
-function getRoutesForEnvironment(routes: RouteData[], isPrerender: boolean): Set<RouteData> {
+export function getRoutesForEnvironment(routes: RouteData[], isPrerender: boolean): Set<RouteData> {
 	const result = new Set<RouteData>();
 	for (const route of routes) {
 		if (route.prerender === isPrerender) {
 			result.add(route);
-		}
-		if (route.redirectRoute) {
-			result.add(route.redirectRoute);
 		}
 	}
 	return result;

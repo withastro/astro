@@ -1,9 +1,8 @@
 {
   "name": "@astrojs/alpinejs",
   "description": "Use Alpine within Astro",
-  "version": "0.5.0-beta.1",
+  "version": "1.0.0",
   "type": "module",
-  "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -28,7 +27,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test:e2e": "playwright test"
@@ -41,7 +40,7 @@
     "@playwright/test": "1.58.2",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "vite": "^7.3.1"
+    "vite": "^8.0.13"
   },
   "publishConfig": {
     "provenance": true

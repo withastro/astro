@@ -1,40 +1,23 @@
-import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
+import {
+	appendForwardSlash,
+	joinPaths,
+	removeTrailingForwardSlash,
+} from '@astrojs/internal-helpers/path';
 import type { RoutingStrategies } from '../core/app/common.js';
 import type { SSRManifest } from '../core/app/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
-import { REROUTE_DIRECTIVE_HEADER } from '../core/constants.js';
+import { getFetchStateFromAPIContext } from '../core/fetch/fetch-state.js';
 import { i18nNoLocaleFoundInPath, MissingLocale } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
 import type { AstroConfig, Locales, ValidRedirectStatus } from '../types/public/config.js';
 import type { APIContext } from '../types/public/context.js';
 import { createI18nMiddleware } from './middleware.js';
+import { normalizeTheLocale, pathHasLocale } from './path.js';
 
 export function requestHasLocale(locales: Locales) {
 	return function (context: APIContext): boolean {
 		return pathHasLocale(context.url.pathname, locales);
 	};
-}
-
-// Checks if the pathname has any locale
-export function pathHasLocale(path: string, locales: Locales): boolean {
-	// pages that use a locale param ([locale].astro or [locale]/index.astro)
-	// and getStaticPaths make [locale].html the pathname during SSG
-	// which will not match a configured locale without removing .html
-	// as we do in normalizeThePath
-	const segments = path.split('/').map(normalizeThePath);
-	for (const segment of segments) {
-		for (const locale of locales) {
-			if (typeof locale === 'string') {
-				if (normalizeTheLocale(segment) === normalizeTheLocale(locale)) {
-					return true;
-				}
-			} else if (segment === locale.path) {
-				return true;
-			}
-		}
-	}
-
-	return false;
 }
 
 type GetLocaleRelativeUrl = GetLocaleOptions & {
@@ -51,7 +34,7 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 
 export type GetLocaleOptions = {
 	/**
-	 * Makes the locale URL-friendly by replacing underscores with dashes, and converting the locale to lower case.
+	 * Makes the locale URL-friendly by replacing underscores with dashes, and converting the locale to lowercase.
 	 * @default true
 	 */
 	normalizeLocale?: boolean;
@@ -106,7 +89,7 @@ export function getLocaleRelativeUrl({
 	if (shouldAppendForwardSlash(trailingSlash, format)) {
 		relativePath = appendForwardSlash(joinPaths(...pathsToJoin));
 	} else {
-		relativePath = joinPaths(...pathsToJoin);
+		relativePath = removeTrailingForwardSlash(joinPaths(...pathsToJoin));
 	}
 
 	if (relativePath === '') {
@@ -220,25 +203,6 @@ export function getLocaleByPath(path: string, locales: Locales): string {
 }
 
 /**
- *
- * Given a locale, this function:
- * - replaces the `_` with a `-`;
- * - transforms all letters to be lower case;
- */
-export function normalizeTheLocale(locale: string): string {
-	return locale.replaceAll('_', '-').toLowerCase();
-}
-
-/**
- *
- * Given a path or path segment, this function:
- * - removes the `.html` extension if it exists
- */
-export function normalizeThePath(path: string): string {
-	return path.endsWith('.html') ? path.slice(0, -5) : path;
-}
-
-/**
  * Returns an array of only locales, by picking the `code`
  * @param locales
  */
@@ -327,10 +291,9 @@ export function redirectToDefaultLocale({
 // NOTE: public function exported to the users via `astro:i18n` module
 export function notFound({ base, locales, fallback }: MiddlewarePayload) {
 	return function (context: APIContext, response?: Response): Response | undefined {
-		if (
-			response?.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no' &&
-			typeof fallback === 'undefined'
-		) {
+		const fetchState = getFetchStateFromAPIContext(context);
+
+		if (fetchState.skipErrorReroute && typeof fallback === 'undefined') {
 			return response;
 		}
 
@@ -340,8 +303,8 @@ export function notFound({ base, locales, fallback }: MiddlewarePayload) {
 		// - the URL doesn't contain a locale
 		const isRoot = url.pathname === base + '/' || url.pathname === base;
 		if (!(isRoot || pathHasLocale(url.pathname, locales))) {
+			fetchState.skipErrorReroute = true;
 			if (response) {
-				response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
 				return new Response(response.body, {
 					status: 404,
 					headers: response.headers,
@@ -349,9 +312,6 @@ export function notFound({ base, locales, fallback }: MiddlewarePayload) {
 			} else {
 				return new Response(null, {
 					status: 404,
-					headers: {
-						[REROUTE_DIRECTIVE_HEADER]: 'no',
-					},
 				});
 			}
 		}
@@ -372,7 +332,7 @@ export function redirectToFallback({
 	fallbackType,
 }: MiddlewarePayload) {
 	return async function (context: APIContext, response: Response): Promise<Response> {
-		if (response.status >= 300 && fallback) {
+		if (response.status === 404 && fallback) {
 			const fallbackKeys = fallback ? Object.keys(fallback) : [];
 			// we split the URL using the `/`, and then check in the returned array we have the locale
 			const segments = context.url.pathname.split('/');

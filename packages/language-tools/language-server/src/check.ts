@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as kit from '@volar/kit';
 import { Diagnostic, DiagnosticSeverity } from '@volar/language-server';
@@ -33,12 +33,18 @@ export interface CheckResult {
 export class AstroCheck {
 	private ts!: typeof import('typescript');
 	public linter!: ReturnType<(typeof kit)['createTypeScriptChecker']>;
+	private readonly workspacePath: string;
+	private readonly typescriptPath: string | undefined;
+	private readonly tsconfigPath: string | undefined;
 
 	constructor(
-		private readonly workspacePath: string,
-		private readonly typescriptPath: string | undefined,
-		private readonly tsconfigPath: string | undefined,
+		workspacePath: string,
+		typescriptPath: string | undefined,
+		tsconfigPath: string | undefined,
 	) {
+		this.workspacePath = workspacePath;
+		this.typescriptPath = typescriptPath;
+		this.tsconfigPath = tsconfigPath;
 		this.initialize();
 	}
 
@@ -134,6 +140,7 @@ export class AstroCheck {
 
 	private initialize() {
 		this.ts = this.typescriptPath ? require(this.typescriptPath) : require('typescript');
+		this.assertCompatibleTypeScript();
 		const tsconfigPath = this.getTsconfig();
 
 		const languagePlugins = [
@@ -144,14 +151,18 @@ export class AstroCheck {
 		const services = [...createTypeScriptServices(this.ts), createAstroService()];
 
 		if (tsconfigPath) {
-			const includeProjectReference = false; // #920
+			const includeProjectReference = true;
+			const extraFileExtensions = languagePlugins.flatMap(
+				(plugin) => plugin.typescript?.extraFileExtensions ?? [],
+			);
+			const allExtraFileNames: string[] = [];
 			this.linter = kit.createTypeScriptChecker(
 				languagePlugins,
 				services,
 				tsconfigPath,
 				includeProjectReference,
 				({ project }) => {
-					const { languageServiceHost } = project.typescript!;
+					const { configFileName, languageServiceHost } = project.typescript!;
 					const astroInstall = getAstroInstall([this.workspacePath]);
 
 					addAstroTypes(
@@ -159,8 +170,33 @@ export class AstroCheck {
 						this.ts,
 						languageServiceHost,
 					);
+
+					const extraFileNames = this.getExtraFileNamesFromReferences(
+						configFileName,
+						extraFileExtensions,
+					);
+					if (extraFileNames.length > 0) {
+						allExtraFileNames.push(...extraFileNames);
+
+						const originalGetScriptFileNames =
+							languageServiceHost.getScriptFileNames.bind(languageServiceHost);
+						languageServiceHost.getScriptFileNames = () => [
+							...new Set([...originalGetScriptFileNames(), ...extraFileNames]),
+						];
+					}
 				},
 			);
+
+			// `getRootFileNames()` (used by `lint()` to enumerate the whole project when no
+			// explicit file list is given) reads project references' file lists from an
+			// internal host that the per-project `languageServiceHost` patch above can't reach,
+			// so it needs its own, separate merge here.
+			if (allExtraFileNames.length > 0) {
+				const originalGetRootFileNames = this.linter.getRootFileNames.bind(this.linter);
+				this.linter.getRootFileNames = () => [
+					...new Set([...originalGetRootFileNames(), ...allExtraFileNames]),
+				];
+			}
 		} else {
 			this.linter = kit.createTypeScriptInferredChecker(
 				languagePlugins,
@@ -187,6 +223,56 @@ export class AstroCheck {
 				},
 			);
 		}
+	}
+
+	/**
+	 * The checker is built on Volar and TypeScript's programmatic Language Service API
+	 * (`ts.sys`, `ts.findConfigFile`, `LanguageServiceHost`, etc.). TypeScript's native
+	 * compiler does not ship that API yet — `require('typescript')` only exposes `version`
+	 * and `versionMajorMinor` — so continuing would crash later with an opaque
+	 * `Cannot read properties of undefined` error. Fail early with an actionable message.
+	 */
+	private assertCompatibleTypeScript() {
+		if (typeof this.ts.findConfigFile !== 'function' || this.ts.sys === undefined) {
+			const version = this.ts.version ? ` (found ${this.ts.version})` : '';
+			throw new Error(
+				`The TypeScript module loaded${version} does not expose the programmatic API that \`astro check\` relies on. ` +
+					`TypeScript's native compiler (7.0 and later) does not ship this API yet. ` +
+					`Until it does, run \`astro check\` with a TypeScript version that still provides it (6.x). ` +
+					`See https://github.com/withastro/roadmap/discussions/1321 to track support.`,
+			);
+		}
+	}
+
+	/**
+	 * `@volar/kit`'s `createTypeScriptChecker` re-parses the root tsconfig with the language
+	 * plugins' `extraFileExtensions` (so `.astro` files are included), but for project
+	 * references it reuses TypeScript's own resolved `commandLine`, which never includes
+	 * extra extensions. That silently drops `.astro`/`.vue`/`.svelte` files that are only
+	 * reachable through a referenced tsconfig. `setup` is invoked once per project (the root
+	 * and each reference), so this re-parses that project's own tsconfig the same way the
+	 * root one already is, and returns the extra file names found, for the caller to merge
+	 * into the language service host's root file list.
+	 */
+	private getExtraFileNamesFromReferences(
+		configFileName: string | undefined,
+		extraFileExtensions: import('typescript').FileExtensionInfo[],
+	): string[] {
+		if (!configFileName || extraFileExtensions.length === 0) {
+			return [];
+		}
+
+		const commandLine = this.ts.parseJsonSourceFileConfigFileContent(
+			this.ts.readJsonConfigFile(configFileName, this.ts.sys.readFile),
+			this.ts.sys,
+			dirname(configFileName),
+			undefined,
+			configFileName,
+			undefined,
+			extraFileExtensions,
+		);
+
+		return commandLine.fileNames;
 	}
 
 	private getTsconfig() {

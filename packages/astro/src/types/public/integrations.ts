@@ -1,6 +1,7 @@
 import type { AddressInfo } from 'node:net';
-import type { ViteDevServer, InlineConfig as ViteInlineConfig } from 'vite';
+import type { ViteDevServer, InlineConfig } from 'vite';
 import type { SerializedSSRManifest } from '../../core/app/types.js';
+import type { AssetsGlobalStaticImagesList, SerializedStaticImage } from '../../assets/types.js';
 import type { PageBuildData } from '../../core/build/types.js';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { AdapterFeatureStability } from '../../integrations/features-validation.js';
@@ -20,7 +21,7 @@ export interface RouteOptions {
 	readonly component: string;
 	/**
 	 * Whether this route should be prerendered. If the route has an explicit `prerender` export,
-	 * the value will be passed here. Otherwise, it's undefined and will fallback to a prerender
+	 * the value will be passed here. Otherwise, it's undefined and will fall back to a prerender
 	 * default depending on the `output` option.
 	 */
 	prerender?: boolean;
@@ -80,12 +81,24 @@ export type AdapterSupportWithMessage = {
 
 export type AdapterSupport = AdapterSupportsKind | AdapterSupportWithMessage;
 
+export type MiddlewareMode = 'classic' | 'edge';
+
 export interface AstroAdapterFeatures {
 	/**
-	 * Defines whether any on-demand rendering middleware code will be bundled when built. When enabled, this prevents
-	 * middleware code from being bundled and imported by all pages during the build.
+	 * Creates an edge function that will communicate with the Astro middleware
+	 *
+	 * @deprecated Use `middlewareMode: 'edge'` instead
 	 */
-	edgeMiddleware: boolean;
+	edgeMiddleware?: boolean;
+
+	/**
+	 * Determines when and how middleware executes:
+	 * - `'classic'` (default): Middleware runs for prerendered pages at build time, and for SSR pages at request time. Does not run for prerendered pages at request time.
+	 * - `'edge'`: Middleware is deployed as a separate edge function. Middleware code will not be bundled and imported by all pages during the build.
+	 *
+	 * @default 'classic'
+	 */
+	middlewareMode?: MiddlewareMode;
 
 	/**
 	 * Allows you to force a specific output shape for the build. This can be useful for adapters that only work with
@@ -101,6 +114,24 @@ export interface AstroAdapterFeatures {
 	 * for example, to create a `_headers` file for platforms that support it.
 	 */
 	staticHeaders?: boolean;
+
+	/**
+	 * When true, static builds will preserve the client/server directory structure
+	 * instead of outputting directly to outDir. This ensures static builds use
+	 * build.client for assets, maintaining consistency with server builds.
+	 * Useful for adapters that require a specific directory structure regardless
+	 * of the build output type.
+	 */
+	preserveBuildClientDir?: boolean;
+
+	/**
+	 * When true, static builds will preserve the server directory structure
+	 * instead of outputting to outDir. This ensures static builds use
+	 * build.server for server output, maintaining consistency with server builds.
+	 * Useful for adapters that require a specific directory structure regardless
+	 * of the build output type.
+	 */
+	preserveBuildServerDir?: boolean;
 }
 
 /**
@@ -125,13 +156,13 @@ export interface AstroAdapterClientConfig {
 interface AdapterExplicitProperties {
 	/**
 	 * @deprecated `entrypointResolution: "explicit"` is deprecated. `entrypointResolution: "auto"` will become the default,
-	 * and only, behavior in a future major version. See [how to migrate](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-createexports-and-start-adapter-api).
+	 * and only, behavior in a future major version. See [how to migrate](https://docs.astro.build/en/guides/upgrade-to/v6/#deprecated-createexports-and-start-adapter-api).
 	 *
 	 * Specifies the method Astro will use to resolve the server entrypoint: `"auto"` (recommended)
 	 * or `"explicit"` (default, but deprecated):
 	 *
 	 * - **`"auto"` (recommended):** You are responsible for providing a valid module as an entrypoint
-	 * using either `serverEntrypoint` or, if you need further customization at the Vite level using `vite.build.rollupOptions.input`.
+	 * using either `serverEntrypoint` or, if you need further customization at the Vite level using `vite.build.rolldownOptions.input`.
 	 * - **`"explicit"` (deprecated)**: You must provide the exports required by the host in the server entrypoint
 	 * using a `createExports()` function before passing them to `setAdapter()` as an [`exports`](#exports) list. This supports
 	 * adapters built using the Astro 5 version of the Adapter API. By default, all adapters will receive this value to allow backwards
@@ -166,7 +197,7 @@ interface AdapterAutoProperties {
 	 * or `"explicit"` (default, but deprecated):
 	 *
 	 * - **`"auto"` (recommended):** You are responsible for providing a valid module as an entrypoint
-	 * using either `serverEntrypoint` or, if you need further customization at the Vite level using `vite.build.rollupOptions.input`.
+	 * using either `serverEntrypoint` or, if you need further customization at the Vite level using `vite.build.rolldownOptions.input`.
 	 * - **`"explicit"` (deprecated)**: You must provide the exports required by the host in the server entrypoint
 	 * using a `createExports()` function before passing them to `setAdapter()` as an [`exports`](#exports) list. This supports
 	 * adapters built using the Astro 5 version of the Adapter API. By default, all adapters will receive this value to allow backwards
@@ -216,6 +247,32 @@ export type AstroAdapter = {
 export interface PathWithRoute {
 	pathname: string;
 	route: RouteData;
+	cacheKey?: string;
+}
+
+/**
+ * Incremental-build data a prerenderer collects while rendering a page,
+ * reported back to the build orchestrator so skipped pages can be tracked and
+ * replayed without a re-render. This is the only attribution channel: every
+ * prerenderer — in-process and out-of-process — collects in its own rendering
+ * runtime and reports the result by value here.
+ */
+export interface PrerenderRenderMetadata {
+	/** Root-relative `filePath`s of the content entries the page rendered, or an empty array. */
+	contentEntryKeys: string[];
+	/** Optimized-image transforms the page resolved, or an empty array. */
+	staticImages: SerializedStaticImage[];
+}
+
+/**
+ * The richer result a prerenderer's `render()` may return instead of a bare
+ * `Response`, pairing the rendered response with the incremental-build metadata
+ * collected for that page. `metadata` is `undefined` when the page was not
+ * tracked (collection was not requested, or the prerenderer could not collect).
+ */
+export interface PrerenderResult {
+	response: Response;
+	metadata?: PrerenderRenderMetadata;
 }
 
 /**
@@ -235,10 +292,30 @@ export interface AstroPrerenderer {
 	getStaticPaths: () => Promise<PathWithRoute[]>;
 	/**
 	 * Renders a single page. Called by Astro for each path returned by getStaticPaths.
-	 * @param request - The request to render
-	 * @param options - Render options including routeData
+	 * @param request - The request to render. The URL reflects the build format
+	 *   (e.g. trailing slash for `directory` format). To get the canonical pathname,
+	 *   use the `pathname` from the `PathWithRoute` entry returned by `getStaticPaths`.
+	 * @param options - Render options
+	 * @param options.routeData - The matched route for this path
+	 * @param options.collectMetadata - True exactly when the incremental build
+	 *   cache is active. The prerenderer should collect the page's per-render
+	 *   incremental metadata in its rendering runtime and report it on a
+	 *   {@link PrerenderResult}. A prerenderer that cannot collect may ignore the
+	 *   flag and return a bare `Response`; its paths are then recorded as
+	 *   "not tracked".
+	 * @returns A `Response`, or a {@link PrerenderResult} pairing the response with
+	 *   the incremental-build metadata the page resolved. Metadata is the only
+	 *   attribution channel for all prerenderers.
 	 */
-	render: (request: Request, options: { routeData: RouteData }) => Promise<Response>;
+	render: (
+		request: Request,
+		options: { routeData: RouteData; collectMetadata?: boolean },
+	) => Promise<Response | PrerenderResult>;
+	/**
+	 * Returns images collected in the adapter's runtime (e.g. workerd) to be merged
+	 * into the Node-side static image list. The default Sharp pipeline runs after.
+	 */
+	collectStaticImages?: () => Promise<AssetsGlobalStaticImagesList>;
 	/**
 	 * Called after all pages are prerendered. Use for cleanup like stopping a preview server.
 	 */
@@ -356,10 +433,10 @@ export interface BaseIntegrationHooks {
 		) => void;
 	}) => void | Promise<void>;
 	'astro:build:setup': (options: {
-		vite: ViteInlineConfig;
+		vite: InlineConfig;
 		pages: Map<string, PageBuildData>;
 		target: 'client' | 'server';
-		updateConfig: (newConfig: ViteInlineConfig) => void;
+		updateConfig: (newConfig: InlineConfig) => void;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
 	'astro:build:generated': (options: {
@@ -425,6 +502,11 @@ export interface IntegrationResolvedRoute
 	 * {@link RouteData.redirectRoute}
 	 */
 	redirectRoute?: IntegrationResolvedRoute;
+
+	/**
+	 * {@link RouteData.fallbackRoutes}
+	 */
+	fallbackRoutes: IntegrationResolvedRoute[];
 
 	/**
 	 * @param {any} data The optional parameters of the route

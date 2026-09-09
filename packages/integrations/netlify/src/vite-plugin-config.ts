@@ -6,12 +6,22 @@ const RESOLVED_VIRTUAL_CONFIG_ID = '\0' + VIRTUAL_CONFIG_ID;
 export interface Config {
 	middlewareSecret: string;
 	cacheOnDemandPages: boolean;
-	packageVersion: string;
 }
+
+const SERVER_ENVIRONMENTS = ['ssr', 'prerender', 'astro'];
 
 export function createConfigPlugin(config: Config): PluginOption {
 	return {
 		name: VIRTUAL_CONFIG_ID,
+		configEnvironment(environmentName) {
+			if (SERVER_ENVIRONMENTS.includes(environmentName)) {
+				return {
+					resolve: {
+						noExternal: ['@astrojs/netlify'],
+					},
+				};
+			}
+		},
 		resolveId: {
 			filter: {
 				id: new RegExp(`^${VIRTUAL_CONFIG_ID}$`),

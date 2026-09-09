@@ -1,21 +1,20 @@
-import { posix } from 'node:path';
-import { getDefaultClientDirectives } from '../core/client-directive/index.js';
-import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schemas/index.js';
-import { validateConfig } from '../core/config/validate.js';
+import { getDefaultClientDirectives } from '../core/client-directive/default.js';
+import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schemas/defaults.js';
 import { createKey } from '../core/encryption.js';
-import { Logger } from '../core/logger/core.js';
-import { nodeLogDestination } from '../core/logger/node.js';
+import { FetchState } from '../core/fetch/fetch-state.js';
+import { handleMiddleware } from '../core/middleware/astro-middleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
+import { handlePages } from '../core/pages/handler.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
-import { RenderContext } from '../core/render-context.js';
-import { getParts } from '../core/routing/manifest/parts.js';
-import { getPattern } from '../core/routing/manifest/pattern.js';
-import { validateSegment } from '../core/routing/manifest/segment.js';
+
+import { getParts } from '../core/routing/parts.js';
+import { getPattern } from '../core/routing/pattern.js';
+import { validateSegment } from '../core/routing/segment.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
 import { SlotString } from '../runtime/server/render/slot.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { AstroMiddlewareInstance, MiddlewareHandler, Props } from '../types/public/common.js';
-import type { AstroConfig, AstroUserConfig } from '../types/public/config.js';
+import type { AstroUserConfig } from '../types/public/config.js';
 import type {
 	NamedSSRLoadedRendererValue,
 	RouteData,
@@ -25,7 +24,13 @@ import type {
 	SSRManifest,
 	SSRResult,
 } from '../types/public/internal.js';
-import { ContainerPipeline } from './pipeline.js';
+import type { SinglePageBuiltModule } from '../core/build/types.js';
+import { createContainerEnvironment } from './environment.js';
+import { setEnvironment } from '../core/environment/index.js';
+import { createConsoleLogger } from '../core/logger/impls/console.js';
+import { setLogger } from '../core/logger/manifest-logger.js';
+import { peekMiddleware } from '../core/middleware/load.js';
+import { getRouteTable } from '../core/routing/route-table.js';
 
 /**
  * Public type, used for integrations to define a renderer for the container API
@@ -79,7 +84,7 @@ export type ContainerRenderOptions = {
 	 */
 	params?: Record<string, string | undefined>;
 	/**
-	 * Useful if your component needs to access some locals without the use a middleware.
+	 * Useful if your component needs to access some locals without the use of middleware.
 	 * ```js
 	 * container.renderToString(Component, { locals: { getSomeValue() {} } });
 	 * ```
@@ -94,7 +99,7 @@ export type ContainerRenderOptions = {
 	routeType?: RouteType;
 
 	/**
-	 * Allows to pass `Astro.props` to an Astro component:
+	 * Allows passing `Astro.props` to an Astro component:
 	 *
 	 * ```js
 	 * container.renderToString(Endpoint, { props: { "lorem": "ipsum" } });
@@ -103,9 +108,9 @@ export type ContainerRenderOptions = {
 	props?: Props;
 
 	/**
-	 * When `false`, it forces to render the component as it was a full-fledged page.
+	 * When `false`, it forces the component to render as if it were a full-fledged page.
 	 *
-	 * By default, the container API render components as [partials](https://docs.astro.build/en/basics/astro-pages/#page-partials).
+	 * By default, the container API renders components as [partials](https://docs.astro.build/en/basics/astro-pages/#page-partials).
 	 *
 	 */
 	partial?: boolean;
@@ -129,14 +134,21 @@ function createManifest(
 	manifest?: AstroContainerManifest,
 	renderers?: SSRLoadedRenderer[],
 	middleware?: MiddlewareHandler,
+	site?: string,
 ): SSRManifest {
 	function middlewareInstance(): AstroMiddlewareInstance {
 		return {
 			onRequest: middleware ?? NOOP_MIDDLEWARE_FN,
 		};
 	}
-
-	const root = new URL(import.meta.url);
+	// Use import.meta.url as root when available (Node.js), otherwise fall back
+	// to a synthetic URL so the container works in non-Node environments (e.g. workerd).
+	let root: URL;
+	try {
+		root = new URL(import.meta.url);
+	} catch {
+		root = new URL('file:///container/');
+	}
 	return {
 		rootDir: root,
 		srcDir: manifest?.srcDir ?? new URL(ASTRO_CONFIG_DEFAULTS.srcDir, root),
@@ -150,6 +162,7 @@ function createManifest(
 		compressHTML: manifest?.compressHTML ?? ASTRO_CONFIG_DEFAULTS.compressHTML,
 		assetsDir: manifest?.assetsDir ?? ASTRO_CONFIG_DEFAULTS.build.assets,
 		serverLike: manifest?.serverLike ?? true,
+		middlewareMode: manifest?.middlewareMode ?? 'classic',
 		assets: manifest?.assets ?? new Set(),
 		assetsPrefix: manifest?.assetsPrefix ?? undefined,
 		entryModules: manifest?.entryModules ?? {},
@@ -162,8 +175,11 @@ function createManifest(
 		componentMetadata: manifest?.componentMetadata ?? new Map(),
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
 		i18n: manifest?.i18n,
+		site: site ?? manifest?.site,
 		checkOrigin: false,
 		allowedDomains: manifest?.allowedDomains ?? [],
+		actionBodySizeLimit: 1024 * 1024,
+		serverIslandBodySizeLimit: 1024 * 1024,
 		middleware: manifest?.middleware ?? middlewareInstance,
 		key: createKey(),
 		csp: manifest?.csp,
@@ -264,8 +280,10 @@ type AstroContainerManifest = Pick<
 	| 'csp'
 	| 'allowedDomains'
 	| 'serverLike'
+	| 'middlewareMode'
 	| 'assetsDir'
 	| 'image'
+	| 'site'
 >;
 
 type AstroContainerConstructor = {
@@ -273,11 +291,22 @@ type AstroContainerConstructor = {
 	renderers?: SSRLoadedRenderer[];
 	manifest?: AstroContainerManifest;
 	resolve?: SSRResult['resolve'];
-	astroConfig?: AstroConfig;
+	site?: string;
 };
 
 export class experimental_AstroContainer {
-	#pipeline: ContainerPipeline;
+	/**
+	 * The container's fabricated manifest — the source of truth all the
+	 * functional-core accessors key off. The container never touches the
+	 * ambient manifest, so multiple containers in one process stay isolated.
+	 */
+	#manifest: SSRManifest;
+
+	/**
+	 * The route → module interner, shared between the environment record
+	 * (lookups) and the `insertRoute` writes below.
+	 */
+	#interner: WeakMap<RouteData, SinglePageBuiltModule>;
 
 	/**
 	 * Internally used to check if the container was created with a manifest.
@@ -290,31 +319,38 @@ export class experimental_AstroContainer {
 		manifest,
 		renderers,
 		resolve,
-		astroConfig,
+		site,
 	}: AstroContainerConstructor) {
-		this.#pipeline = ContainerPipeline.create({
-			logger: new Logger({
-				level: 'info',
-				dest: nodeLogDestination,
+		const ssrManifest = createManifest(manifest, renderers, undefined, site);
+		const containerRenderers = renderers ?? manifest?.renderers ?? [];
+		const containerResolve = async (specifier: string): Promise<string> => {
+			if (this.#withManifest) {
+				return this.#containerResolve(specifier, ssrManifest);
+			} else if (resolve) {
+				return resolve(specifier);
+			}
+			return specifier;
+		};
+		const interner = new WeakMap<RouteData, SinglePageBuiltModule>();
+		setLogger(ssrManifest, createConsoleLogger({ level: 'error' }));
+		setEnvironment(
+			ssrManifest,
+			createContainerEnvironment({
+				interner,
+				resolve: containerResolve,
+				renderers: containerRenderers,
+				streaming,
 			}),
-			manifest: createManifest(manifest, renderers),
-			streaming,
-			renderers: renderers ?? manifest?.renderers ?? [],
-			resolve: async (specifier: string) => {
-				if (this.#withManifest) {
-					return this.#containerResolve(specifier, astroConfig);
-				} else if (resolve) {
-					return resolve(specifier);
-				}
-				return specifier;
-			},
-		});
+		);
+		getRouteTable(ssrManifest);
+		this.#manifest = ssrManifest;
+		this.#interner = interner;
 	}
 
-	async #containerResolve(specifier: string, astroConfig?: AstroConfig): Promise<string> {
-		const found = this.#pipeline.manifest.entryModules[specifier];
+	async #containerResolve(specifier: string, manifest: SSRManifest): Promise<string> {
+		const found = manifest.entryModules[specifier];
 		if (found) {
-			return new URL(found, astroConfig?.build.client).toString();
+			return new URL(found, manifest.buildClientDir).toString();
 		}
 		return found;
 	}
@@ -327,14 +363,13 @@ export class experimental_AstroContainer {
 	public static async create(
 		containerOptions: AstroContainerOptions = {},
 	): Promise<experimental_AstroContainer> {
-		const { streaming = false, manifest, renderers = [], resolve } = containerOptions;
-		const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
+		const { streaming = false, manifest, renderers = [], resolve, astroConfig } = containerOptions;
 		return new experimental_AstroContainer({
 			streaming,
 			manifest,
 			renderers,
-			astroConfig,
 			resolve,
+			site: astroConfig?.site ?? manifest?.site,
 		});
 	}
 
@@ -370,12 +405,12 @@ export class experimental_AstroContainer {
 			);
 		}
 		if (isNamedRenderer(renderer)) {
-			this.#pipeline.manifest.renderers.push({
+			this.#manifest.renderers.push({
 				name: renderer.name,
 				ssr: renderer,
 			});
 		} else if ('name' in options) {
-			this.#pipeline.manifest.renderers.push({
+			this.#manifest.renderers.push({
 				name: options.name,
 				ssr: renderer,
 			});
@@ -412,7 +447,7 @@ export class experimental_AstroContainer {
 	public addClientRenderer(options: AddClientRenderer): void {
 		const { entrypoint, name } = options;
 
-		const rendererIndex = this.#pipeline.manifest.renderers.findIndex((r) => r.name === name);
+		const rendererIndex = this.#manifest.renderers.findIndex((r) => r.name === name);
 		if (rendererIndex === -1) {
 			throw new Error(
 				'You tried to add the ' +
@@ -420,10 +455,10 @@ export class experimental_AstroContainer {
 					" client renderer, but its server renderer wasn't added. You must add the server renderer first. Use the `addServerRenderer` function.",
 			);
 		}
-		const renderer = this.#pipeline.manifest.renderers[rendererIndex];
+		const renderer = this.#manifest.renderers[rendererIndex];
 		renderer.clientEntrypoint = entrypoint;
 
-		this.#pipeline.manifest.renderers[rendererIndex] = renderer;
+		this.#manifest.renderers[rendererIndex] = renderer;
 	}
 
 	// NOTE: we keep this private via TS instead via `#` so it's still available on the surface, so we can play with it.
@@ -431,13 +466,26 @@ export class experimental_AstroContainer {
 	private static async createFromManifest(
 		manifest: SSRManifest,
 	): Promise<experimental_AstroContainer> {
-		const astroConfig = await validateConfig(ASTRO_CONFIG_DEFAULTS, process.cwd(), 'container');
 		const container = new experimental_AstroContainer({
 			manifest,
-			astroConfig,
 		});
 		container.#withManifest = true;
 		return container;
+	}
+
+	/**
+	 * Associates a runtime-inserted route with its component module in the
+	 * interner shared with the container environment record. Snapshots the
+	 * already-resolved middleware synchronously via `peekMiddleware` —
+	 * `undefined` when `getMiddleware` has not settled yet.
+	 */
+	#internRoute(routeData: RouteData, componentInstance: ComponentInstance): void {
+		this.#interner.set(routeData, {
+			page() {
+				return Promise.resolve(componentInstance);
+			},
+			onRequest: peekMiddleware(this.#manifest),
+		});
 	}
 
 	#insertRoute({
@@ -454,14 +502,14 @@ export class experimental_AstroContainer {
 	}): RouteData {
 		const pathUrl = new URL(path, 'https://example.com');
 		const routeData: RouteData = this.#createRoute(pathUrl, params, type);
-		this.#pipeline.manifest.routes.push({
+		this.#manifest.routes.push({
 			routeData,
 			file: '',
 			links: [],
 			styles: [],
 			scripts: [],
 		});
-		this.#pipeline.insertRoute(routeData, componentInstance);
+		this.#internRoute(routeData, componentInstance);
 		return routeData;
 	}
 
@@ -532,24 +580,21 @@ export class experimental_AstroContainer {
 			params: options.params,
 			type: routeType,
 		});
-		const renderContext = await RenderContext.create({
-			pipeline: this.#pipeline,
-			routeData,
-			status: 200,
-			request,
-			pathname: url.pathname,
-			locals: options?.locals ?? {},
-			partial: options?.partial ?? true,
-			clientAddress: '',
-		});
+		const state = new FetchState(this.#manifest, request);
+		state.routeData = routeData;
+		state.pathname = url.pathname;
+		state.clientAddress = '';
+		state.partial = options?.partial ?? true;
+		state.componentInstance = componentInstance;
+		state.slots = slots ?? {};
 		if (options.params) {
-			renderContext.params = options.params;
+			state.params = options.params;
 		}
+		state.locals = (options?.locals ?? {}) as App.Locals;
 		if (options.props) {
-			renderContext.props = options.props;
+			state.initialProps = options.props;
 		}
-
-		return renderContext.render(componentInstance, slots);
+		return handleMiddleware(state, handlePages);
 	}
 
 	/**
@@ -569,7 +614,7 @@ export class experimental_AstroContainer {
 	) {
 		const url = new URL(route, 'https://example.com/');
 		const routeData: RouteData = this.#createRoute(url, params ?? {}, 'page');
-		this.#pipeline.manifest.routes.push({
+		this.#manifest.routes.push({
 			routeData,
 			file: '',
 			links: [],
@@ -577,12 +622,12 @@ export class experimental_AstroContainer {
 			scripts: [],
 		});
 		const componentInstance = this.#wrapComponent(component, params);
-		this.#pipeline.insertRoute(routeData, componentInstance);
+		this.#internRoute(routeData, componentInstance);
 	}
 
 	#createRoute(url: URL, params: Record<string, string | undefined>, type: RouteType): RouteData {
 		const segments = removeLeadingForwardSlash(url.pathname)
-			.split(posix.sep)
+			.split('/')
 			.filter(Boolean)
 			.map((s: string) => {
 				validateSegment(s);

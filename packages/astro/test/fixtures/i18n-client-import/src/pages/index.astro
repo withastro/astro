@@ -1,0 +1,18 @@
+---
+---
+<html>
+	<head>
+		<title>i18n client import test</title>
+	</head>
+	<body>
+		<h1 id="title">Test</h1>
+		<span id="locale-url" data-testid="locale-url"></span>
+		<script>
+			import { getRelativeLocaleUrl } from 'astro:i18n';
+			const el = document.getElementById('locale-url');
+			if (el) {
+				el.textContent = getRelativeLocaleUrl('es', 'test');
+			}
+		</script>
+	</body>
+</html>

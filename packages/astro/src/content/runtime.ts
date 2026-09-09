@@ -1,10 +1,11 @@
-import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import { escape } from 'html-escaper';
-import { Traverse } from 'neotraverse/modern';
 import * as z from 'zod/v4';
 import type * as zCore from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
+import { createSvgComponent } from '../assets/runtime.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
+import { recordContentEntryRender } from '../core/render-scope/record.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isRemotePath, prependForwardSlash } from '../core/path.js';
 import {
@@ -25,7 +26,7 @@ import type {
 	LiveDataEntryResult,
 } from '../types/public/content.js';
 import { defineCollection as defineCollectionOrig } from './config.js';
-import { IMAGE_IMPORT_PREFIX, type LIVE_CONTENT_TYPE } from './consts.js';
+import type { LIVE_CONTENT_TYPE } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import {
 	LiveCollectionCacheHintError,
@@ -34,6 +35,7 @@ import {
 	LiveEntryNotFoundError,
 } from './loaders/errors.js';
 import type { LiveLoader } from './loaders/types.js';
+import type { AstroLogger } from '../core/logger/core.js';
 export {
 	LiveCollectionError,
 	LiveCollectionCacheHintError,
@@ -92,8 +94,10 @@ async function parseLiveEntry(
 
 export function createGetCollection({
 	liveCollections,
+	logger,
 }: {
 	liveCollections: LiveCollectionConfigMap;
+	logger: AstroLogger;
 }) {
 	return async function getCollection(
 		collection: string,
@@ -108,13 +112,13 @@ export function createGetCollection({
 
 		const hasFilter = typeof filter === 'function';
 		const store = await globalDataStore.get();
-		if (store.hasCollection(collection)) {
+		if (await store.hasCollection(collection)) {
 			// @ts-expect-error	virtual module
 			const { default: imageAssetMap } = await import('astro:asset-imports');
 
 			const result = [];
-			for (const rawEntry of store.values<DataEntry>(collection)) {
-				const data = updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap);
+			for (const rawEntry of await store.values<DataEntry>(collection)) {
+				const data = resolveEntryData(rawEntry, imageAssetMap);
 
 				let entry = {
 					...rawEntry,
@@ -129,7 +133,8 @@ export function createGetCollection({
 			}
 			return result;
 		} else {
-			console.warn(
+			logger.warn(
+				'content',
 				`The collection ${JSON.stringify(
 					collection,
 				)} does not exist or is empty. Please check your content config file for errors.`,
@@ -145,6 +150,7 @@ type ContentEntryResult = {
 	body: string;
 	collection: string;
 	data: Record<string, any>;
+	digest?: string | number;
 	render(): Promise<RenderResult>;
 };
 
@@ -152,11 +158,18 @@ type DataEntryResult = {
 	id: string;
 	collection: string;
 	data: Record<string, any>;
+	digest?: string | number;
 };
 
 type EntryLookupObject = { collection: string; id: string } | { collection: string; slug: string };
 
-export function createGetEntry({ liveCollections }: { liveCollections: LiveCollectionConfigMap }) {
+export function createGetEntry({
+	liveCollections,
+	logger,
+}: {
+	liveCollections: LiveCollectionConfigMap;
+	logger: AstroLogger;
+}) {
 	return async function getEntry(
 		// Can either pass collection and identifier as 2 positional args,
 		// Or pass a single object with the collection and identifier as properties.
@@ -196,28 +209,31 @@ export function createGetEntry({ liveCollections }: { liveCollections: LiveColle
 		}
 		const store = await globalDataStore.get();
 
-		if (store.hasCollection(collection)) {
-			const entry = store.get<DataEntry>(collection, lookupId);
+		if (await store.hasCollection(collection)) {
+			const entry = await store.get<DataEntry>(collection, lookupId);
 			if (!entry) {
-				console.warn(`Entry ${collection} → ${lookupId} was not found.`);
+				logger.warn('content', `Entry ${collection} → ${lookupId} was not found.`);
 				return;
 			}
 
 			// @ts-expect-error	virtual module
 			const { default: imageAssetMap } = await import('astro:asset-imports');
-			entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
+			const data = resolveEntryData(entry, imageAssetMap);
 			const result = {
 				...entry,
+				data,
 				collection,
 			} as DataEntryResult | ContentEntryResult;
-			// TODO: remove in Astro 7
+			// TODO: remove in Astro 8
 			warnForPropertyAccess(
+				logger,
 				result.data,
 				'slug',
 				`[content] Attempted to access deprecated property on "${collection}" entry.\nThe "slug" property is no longer automatically added to entries. Please use the "id" property instead.`,
 			);
-			// TODO: remove in Astro 7
+			// TODO: remove in Astro 8
 			warnForPropertyAccess(
+				logger,
 				result,
 				'render',
 				`[content] Invalid attempt to access "render()" method on "${collection}" entry.\nTo render an entry, use "render(entry)" from "astro:content".`,
@@ -229,7 +245,7 @@ export function createGetEntry({ liveCollections }: { liveCollections: LiveColle
 	};
 }
 
-function warnForPropertyAccess(entry: object, prop: string, message: string) {
+function warnForPropertyAccess(logger: AstroLogger, entry: object, prop: string, message: string) {
 	// Skip if the property is already defined (it may be legitimately defined on the entry)
 	if (!(prop in entry)) {
 		let _value: any = undefined;
@@ -237,7 +253,7 @@ function warnForPropertyAccess(entry: object, prop: string, message: string) {
 			get() {
 				// If the user sets value themselves, don't warn
 				if (_value === undefined) {
-					console.error(message);
+					logger.error('content', message);
 				}
 				return _value;
 			},
@@ -453,14 +469,18 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 
 	const imageObjects = new Map<string, GetImageResult>();
 
-	// @ts-expect-error Virtual module resolved at runtime
-	const { getImage } = await import('astro:assets');
+	const { getImage } = await import('virtual:astro:get-image');
 
 	// First load all the images. This is done outside of the replaceAll
 	// function because getImage is async.
 	for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
 		try {
-			const decodedImagePath = JSON.parse(imagePath.replaceAll('&#x22;', '"'));
+			// Markdown processors disagree on which character references to emit when
+			// serialising attribute values: remark uses the numeric forms (`&#x22;` / `&#x27;`),
+			// satteri uses the named forms (`&quot;` / `&apos;`). Decode both before JSON.parse.
+			const decodedImagePath = JSON.parse(
+				imagePath.replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'"),
+			);
 
 			let image: GetImageResult;
 			if (URL.canParse(decodedImagePath.src)) {
@@ -496,69 +516,143 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 		return Object.entries({
 			...attributes,
 			src: image.src,
-			srcset: image.srcSet.attribute,
+			// An empty `srcset` is invalid HTML, so only emit it when there are
+			// actual candidates. This matches `vite-plugin-markdown/images.ts`.
+			...(image.srcSet.values.length > 0 ? { srcset: image.srcSet.attribute } : {}),
 			// This attribute is used by the toolbar audit
 			...(import.meta.env.DEV ? { 'data-image-component': 'true' } : {}),
 		})
-			.map(([key, value]) => (value ? `${key}="${escape(value)}"` : ''))
+			.filter(([, value]) => value != null)
+			.map(([key, value]) => (value === '' ? `${key}=""` : `${key}="${escape(String(value))}"`))
 			.join(' ');
 	});
 }
 
-function updateImageReferencesInData<T extends Record<string, unknown>>(
+/**
+ * Resolves the image src at `path` within `data` to its `ImageMetadata` (or a
+ * renderable SVG component). Returns the resolved value, or `undefined` when the
+ * image is not in the asset map and the plain src already stored in `data` should
+ * be kept.
+ */
+function resolveImageAtPath(
+	src: string,
+	fileName: string | undefined,
+	imageAssetMap: Map<string, ImageMetadata> | undefined,
+): unknown {
+	const id = imageSrcToImportId(src, fileName);
+	if (!id) {
+		return undefined;
+	}
+	const imported = imageAssetMap?.get(id) as
+		| (ImageMetadata & {
+				__svgData?: {
+					attributes: Record<string, string>;
+					children: string;
+					styles: string[];
+				};
+		  })
+		| undefined;
+	if (!imported) {
+		return undefined;
+	}
+	if (imported.__svgData) {
+		// Reconstruct the renderable SVG component from the data embedded at build
+		// time. We cannot call createSvgComponent inside the SVG Vite module itself
+		// because that would import the server runtime across a dynamic-import
+		// boundary, recreating the TLA circular-dependency deadlock (see #15575).
+		const { __svgData: svgData, ...meta } = imported;
+		return createSvgComponent({ meta: meta as ImageMetadata, ...svgData });
+	}
+	return imported;
+}
+
+/**
+ * Writes `value` at `path` within `target`, copying only the containers along
+ * that path so the shared store entry is never mutated. Sibling values and every
+ * container off the path are shared by reference, so values that `structuredClone`
+ * cannot handle (e.g. `Temporal` objects or class instances from Zod transforms)
+ * are never touched.
+ */
+function setAtPathCopying<T extends Record<string, unknown>>(
+	target: T,
+	path: (string | number)[],
+	value: unknown,
+): T {
+	if (path.length === 0) {
+		return target;
+	}
+	const [key, ...rest] = path;
+	const copy: any = Array.isArray(target) ? target.slice() : { ...target };
+	copy[key] = rest.length === 0 ? value : setAtPathCopying(copy[key], rest, value);
+	return copy;
+}
+
+export function updateImageReferencesInData<T extends Record<string, unknown>>(
 	data: T,
 	fileName?: string,
 	imageAssetMap?: Map<string, ImageMetadata>,
+	imageImports?: (string | number)[][],
 ): T {
-	return new Traverse(data).map(function (ctx, val) {
-		if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
-			const src = val.replace(IMAGE_IMPORT_PREFIX, '');
-
-			const id = imageSrcToImportId(src, fileName);
-			if (!id) {
-				ctx.update(src);
-				return;
-			}
-			const imported = imageAssetMap?.get(id);
-			if (imported) {
-				ctx.update(imported);
-			} else {
-				ctx.update(src);
-			}
+	if (!imageImports?.length) {
+		return data;
+	}
+	let result = data;
+	for (const path of imageImports) {
+		let src: unknown = result;
+		for (const key of path) {
+			src = (src as Record<string | number, unknown>)?.[key];
 		}
-	});
+		if (typeof src !== 'string') {
+			continue;
+		}
+		const resolved = resolveImageAtPath(src, fileName, imageAssetMap);
+		if (resolved !== undefined) {
+			result = setAtPathCopying(result, path, resolved);
+		}
+	}
+	return result;
 }
 
-export async function renderEntry(entry: DataEntry) {
-	if (!entry) {
-		throw new AstroError(AstroErrorData.RenderUndefinedEntryError);
-	}
+export function resolveEntryData<T extends Record<string, unknown>>(
+	entry: DataEntry<T>,
+	imageAssetMap?: Map<string, ImageMetadata>,
+): T {
+	return updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap, entry.imageImports);
+}
 
-	if (entry.deferredRender) {
-		try {
-			// @ts-expect-error	virtual module
-			const { default: contentModules } = await import('astro:content-module-imports');
-			const renderEntryImport = contentModules.get(entry.filePath);
-			return render({
-				collection: '',
-				id: entry.id,
-				renderEntryImport,
-			});
-		} catch (e) {
-			console.error(e);
+export function createRenderEntry({ logger }: { logger: AstroLogger }) {
+	return async function renderEntry(entry: DataEntry) {
+		if (!entry) {
+			throw new AstroError(AstroErrorData.RenderUndefinedEntryError);
 		}
-	}
+		recordContentEntryRender(entry.filePath);
 
-	const html =
-		entry?.rendered?.metadata?.imagePaths?.length && entry.filePath
-			? await updateImageReferencesInBody(entry.rendered.html, entry.filePath)
-			: entry?.rendered?.html;
+		if (entry.deferredRender) {
+			try {
+				// @ts-expect-error	virtual module
+				const { default: contentModules } = await import('astro:content-module-imports');
+				const renderEntryImport = contentModules.get(entry.filePath);
+				return render({
+					collection: '',
+					id: entry.id,
+					renderEntryImport,
+				});
+			} catch (e) {
+				logger.error('content', `${e}`);
+			}
+		}
 
-	const Content = createComponent(() => serverRender`${unescapeHTML(html)}`);
-	return {
-		Content,
-		headings: entry?.rendered?.metadata?.headings ?? [],
-		remarkPluginFrontmatter: entry?.rendered?.metadata?.frontmatter ?? {},
+		const html =
+			entry?.rendered?.metadata?.imagePaths?.length && entry.filePath
+				? await updateImageReferencesInBody(entry.rendered.html, entry.filePath)
+				: entry?.rendered?.html;
+
+		const Content = createComponent(() => serverRender`${unescapeHTML(html)}`);
+		return {
+			Content,
+			headings: entry?.rendered?.metadata?.headings ?? [],
+			remarkPluginFrontmatter: entry?.rendered?.metadata?.frontmatter ?? {},
+		};
 	};
 }
 
@@ -660,6 +754,7 @@ export function createReference() {
 	return function reference(collection: string) {
 		return z
 			.union([
+				z.number().transform((num) => num.toString(10)),
 				z.string(),
 				z.object({
 					id: z.string(),

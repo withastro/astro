@@ -10,8 +10,7 @@
 		"astro": "astro"
 	},
 	"dependencies": {
-		"@astrojs/check": "^0.9.6",
-		"@astrojs/db": "workspace:*",
+		"@astrojs/check": "workspace:*",
     "@astrojs/node": "workspace:*",
 		"@astrojs/react": "workspace:*",
 		"@types/react": "npm:types-react",
@@ -19,7 +18,7 @@
 		"astro": "workspace:*",
 		"react": "19.2.4",
 		"react-dom": "19.2.4",
-		"typescript": "^5.9.3"
+		"typescript": "^6.0.3"
 	},
   "overrides": {
     "@types/react": "npm:types-react",

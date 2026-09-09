@@ -11,6 +11,10 @@ declare module 'virtual:astro:assets/fonts/internal' {
 	export const fontDataByCssVariable: import('./src/assets/fonts/types.js').FontDataByCssVariable;
 }
 
+declare module 'virtual:astro:assets/fonts/runtime/font-file-url-resolver' {
+	export const runtimeFontFileUrlResolver: import('./src/assets/fonts/definitions.js').RuntimeFontFileUrlResolver;
+}
+
 declare module 'virtual:astro:adapter-config/client' {
 	export const internalFetchHeaders: Record<string, string>;
 }
@@ -20,34 +24,29 @@ declare module 'virtual:astro:actions/options' {
 }
 
 declare module 'virtual:astro:actions/entrypoint' {
-	import type { SSRActions } from './src/index.js';
-	export const server: SSRActions;
+	export const server: import('./src/index.js').SSRActions;
 }
 
 declare module 'virtual:astro:manifest' {
-	import type { SSRManifest } from './src/index.js';
-	export const manifest: SSRManifest;
+	export const manifest: import('./src/index.js').SSRManifest;
 }
 
 declare module 'virtual:astro:routes' {
-	import type { RoutesList } from './src/types/astro.js';
-	export const routes: RoutesList[];
+	export const routes: import('./src/core/app/types.js').RouteInfo[];
 }
 
 declare module 'virtual:astro:renderers' {
-	import type { AstroRenderer } from './src/index.js';
-	export const renderers: AstroRenderer[];
+	export const renderers: import('./src/index.js').AstroRenderer[];
 }
 
 declare module 'virtual:astro:middleware' {
-	import type { AstroMiddlewareInstance } from './src/index.js';
-	const middleware: AstroMiddlewareInstance;
+	const middleware: import('./src/index.js').AstroMiddlewareInstance;
 	export default middleware;
+	export = middleware;
 }
 
 declare module 'virtual:astro:session-driver' {
-	import type { Driver } from 'unstorage';
-	export const driver: Driver;
+	export const driver: import('unstorage').Driver;
 }
 
 declare module 'virtual:astro:pages' {
@@ -69,19 +68,35 @@ declare module 'virtual:astro:adapter-config' {
 }
 
 declare module 'virtual:astro:dev-css' {
-	import type { ImportedDevStyles } from './src/types/astro.js';
-	export const css: Set<ImportedDevStyles>;
+	export const css: Set<import('./src/types/astro.js').ImportedDevStyles>;
 }
 
 declare module 'virtual:astro:dev-css-all' {
-	import type { ImportedDevStyles } from './src/types/astro.js';
-	export const devCSSMap: Map<string, () => Promise<{ css: Set<ImportedDevStyles> }>>;
+	export const devCSSMap: Map<
+		string,
+		() => Promise<{ css: Set<import('./src/types/astro.js').ImportedDevStyles> }>
+	>;
+}
+
+declare module 'virtual:astro:component-metadata' {
+	export const componentMetadataEntries: [
+		string,
+		import('./src/types/public/internal.js').SSRComponentMetadata,
+	][];
 }
 
 declare module 'virtual:astro:app' {
 	export const createApp: import('./src/core/app/types.js').CreateApp;
 }
 
-declare module 'virtual:astro:shiki-styles.css' {
-	// CSS module - no exports, imported for side effects
+declare module 'virtual:astro:fetchable' {
+	const fetchable: { fetch: import('./src/core/fetch/types.js').FetchHandler };
+	export default fetchable;
+	export const isDefaultFetchHandler: true | undefined;
+}
+
+declare module 'virtual:astro:get-image' {
+	export const getImage: (
+		options: import('./src/types/public/index.js').UnresolvedImageTransform,
+	) => Promise<import('./src/types/public/index.js').GetImageResult>;
 }

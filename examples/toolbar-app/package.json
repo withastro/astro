@@ -15,10 +15,13 @@
     "./app": "./dist/app.js"
   },
   "devDependencies": {
-    "@types/node": "^18.17.8",
-    "astro": "^6.0.0-beta.14"
+    "@types/node": "^22.10.6",
+    "astro": "^7.3.2"
   },
   "engines": {
     "node": ">=22.12.0"
+  },
+  "allowScripts": {
+    "esbuild": true
   }
 }

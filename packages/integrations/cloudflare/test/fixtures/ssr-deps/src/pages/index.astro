@@ -1,7 +1,7 @@
 ---
-import ms from 'ms';
+import { getRenderers } from '../utils/get-renderers';
 
-const duration = ms('2 days');
+const { Duration } = getRenderers();
 ---
 <html>
 <head>
@@ -9,6 +9,6 @@ const duration = ms('2 days');
 </head>
 <body>
 	<h1>SSR Dependencies</h1>
-	<p>Two days in milliseconds: {duration}</p>
+	<p>One hour in milliseconds: <Duration /></p>
 </body>
 </html>

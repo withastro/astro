@@ -6,10 +6,13 @@ import {
 } from '../../i18n/utils.js';
 import type { Params, RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
+import { DisabledAstroCache } from '../cache/runtime/noop.js';
 import { ASTRO_GENERATOR } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { getClientIpAddress } from '../routing/request.js';
+import type { AstroLogger } from '../logger/core.js';
+import { getLogger } from '../logger/manifest-logger.js';
+import { tryGetAmbientManifest } from '../manifest/ambient.js';
 import { getOriginPathname } from '../routing/rewrite.js';
 import { sequence } from './sequence.js';
 
@@ -40,7 +43,33 @@ export type CreateContext = {
 	 * Initial value of the locals
 	 */
 	locals?: App.Locals;
+
+	/**
+	 * The client IP address. Must be provided by the adapter or platform from a
+	 * trusted source (e.g. socket address, platform-provided header).
+	 *
+	 * If not provided, accessing `context.clientAddress` will throw an error.
+	 */
+	clientAddress?: string;
 };
+
+/**
+ * Edge middleware runs outside of a request's `FetchState`, so the logger is
+ * resolved from the ambient manifest at call time. No manifest is available in
+ * plain Node (unit tests, embedders), where the console is the only destination.
+ */
+function getMiddlewareLogger(): Pick<AstroLogger, 'warn'> {
+	const manifest = tryGetAmbientManifest();
+	if (manifest) {
+		return getLogger(manifest);
+	}
+
+	return {
+		warn(_label, message) {
+			console.warn(message);
+		},
+	};
+}
 
 /**
  * Creates a context to be passed to Astro middleware `onRequest` function.
@@ -51,11 +80,11 @@ function createContext({
 	userDefinedLocales = [],
 	defaultLocale = '',
 	locals = {},
+	clientAddress,
 }: CreateContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
 	let currentLocale: string | undefined = undefined;
-	let clientIpAddress: string | undefined;
 	const url = new URL(request.url);
 	const route = url.pathname;
 
@@ -65,7 +94,7 @@ function createContext({
 		return Promise.resolve(new Response(null));
 	};
 	const context: Omit<APIContext, 'getActionResult' | 'callAction'> = {
-		cookies: new AstroCookies(request),
+		cookies: new AstroCookies(request, getMiddlewareLogger()),
 		request,
 		params,
 		site: undefined,
@@ -96,14 +125,10 @@ function createContext({
 			return getOriginPathname(request);
 		},
 		get clientAddress() {
-			if (clientIpAddress) {
-				return clientIpAddress;
+			if (clientAddress) {
+				return clientAddress;
 			}
-			clientIpAddress = getClientIpAddress(request);
-			if (!clientIpAddress) {
-				throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
-			}
-			return clientIpAddress;
+			throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
 		},
 		get locals() {
 			if (typeof locals !== 'object') {
@@ -115,7 +140,13 @@ function createContext({
 			throw new AstroError(AstroErrorData.LocalsReassigned);
 		},
 		session: undefined,
+		cache: new DisabledAstroCache(),
 		csp: undefined,
+		logger: {
+			info() {},
+			warn() {},
+			error() {},
+		},
 	};
 	return Object.assign(context, {
 		getActionResult: createGetActionResult(context.locals),
@@ -129,28 +160,30 @@ function createContext({
  * A serializable value contains plain values. For example, `Proxy`, `Set`, `Map`, functions, etc.
  * are not accepted because they can't be serialized.
  */
-function isLocalsSerializable(value: unknown): boolean {
-	let type = typeof value;
-	let plainObject = true;
-	if (type === 'object' && isPlainObject(value)) {
-		for (const [, nestedValue] of Object.entries(value)) {
-			if (!isLocalsSerializable(nestedValue)) {
-				plainObject = false;
-				break;
-			}
-		}
-	} else {
-		plainObject = false;
-	}
-	let result =
-		value === null ||
-		type === 'string' ||
-		type === 'number' ||
-		type === 'boolean' ||
-		Array.isArray(value) ||
-		plainObject;
+export function isLocalsSerializable(value: unknown): boolean {
+	const stack: unknown[] = [value];
+	while (stack.length > 0) {
+		const current = stack.pop();
+		const type = typeof current;
 
-	return result;
+		if (current === null || type === 'string' || type === 'number' || type === 'boolean') {
+			continue;
+		}
+
+		if (Array.isArray(current)) {
+			stack.push(...current);
+			continue;
+		}
+
+		if (type === 'object' && isPlainObject(current)) {
+			stack.push(...Object.values(current as Record<string, unknown>));
+			continue;
+		}
+
+		// Any other type (Date, Map, Set, class instance, function, …) is not serializable.
+		return false;
+	}
+	return true;
 }
 
 /**

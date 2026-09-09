@@ -1,26 +1,68 @@
 import { fileURLToPath } from 'node:url';
 import { preact, type PreactPluginOptions as VitePreactPluginOptions } from '@preact/preset-vite';
 import type { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
+import * as devalue from 'devalue';
 import type { EnvironmentOptions, Plugin } from 'vite';
+import {
+	getContainerRenderer as getContainerRendererImpl,
+	getRenderer,
+} from './container-renderer.js';
+import type { VirtualModuleOptions } from './types.js';
 
 const babelCwd = new URL('../', import.meta.url);
 
-function getRenderer(development: boolean): AstroRenderer {
+/**
+ * @deprecated Import `getContainerRenderer` from `@astrojs/preact/container-renderer` instead.
+ */
+export function getContainerRenderer(): AstroRenderer {
+	console.warn(
+		'[@astrojs/preact] Importing `getContainerRenderer` from `@astrojs/preact` is deprecated. Import it from `@astrojs/preact/container-renderer` instead.',
+	);
+	return getContainerRendererImpl();
+}
+
+function optionsPlugin(include: Options['include'], exclude: Options['exclude']): Plugin {
+	const virtualModule = 'astro:preact:opts';
+	const virtualModuleId = '\0' + virtualModule;
 	return {
-		name: '@astrojs/preact',
-		clientEntrypoint: development ? '@astrojs/preact/client-dev.js' : '@astrojs/preact/client.js',
-		serverEntrypoint: '@astrojs/preact/server.js',
+		name: '@astrojs/preact:opts',
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${virtualModule}$`),
+			},
+			handler() {
+				return virtualModuleId;
+			},
+		},
+		load: {
+			filter: {
+				id: new RegExp(`^${virtualModuleId}$`),
+			},
+			handler() {
+				const opts: VirtualModuleOptions = {
+					include,
+					exclude,
+				};
+				return {
+					code: `export default ${devalue.uneval(opts)}`,
+				};
+			},
+		},
 	};
 }
 
-export const getContainerRenderer = (): AstroRenderer => getRenderer(false);
-
-export interface Options extends Pick<VitePreactPluginOptions, 'include' | 'exclude'> {
+export interface Options extends Pick<VitePreactPluginOptions, 'include' | 'exclude' | 'babel'> {
 	compat?: boolean;
 	devtools?: boolean;
 }
 
-export default function ({ include, exclude, compat, devtools }: Options = {}): AstroIntegration {
+export default function ({
+	include,
+	exclude,
+	compat,
+	devtools,
+	babel,
+}: Options = {}): AstroIntegration {
 	return {
 		name: '@astrojs/preact',
 		hooks: {
@@ -30,6 +72,7 @@ export default function ({ include, exclude, compat, devtools }: Options = {}): 
 					include,
 					exclude,
 					babel: {
+						...babel,
 						cwd: fileURLToPath(babelCwd),
 					},
 				});
@@ -42,7 +85,11 @@ export default function ({ include, exclude, compat, devtools }: Options = {}): 
 					},
 				};
 
-				viteConfig.plugins = [preactPlugin, configEnvironmentPlugin(compat)];
+				viteConfig.plugins = [
+					preactPlugin,
+					optionsPlugin(include, exclude),
+					configEnvironmentPlugin(compat),
+				];
 
 				addRenderer(getRenderer(command === 'dev'));
 				updateConfig({
@@ -83,6 +130,8 @@ function configEnvironmentPlugin(compat: boolean | undefined): Plugin {
 					'@astrojs/preact/client.js',
 					'preact',
 					'preact/jsx-runtime',
+					'preact/hooks',
+					'@astrojs/preact > @preact/signals',
 				];
 			}
 

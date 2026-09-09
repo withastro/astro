@@ -15,6 +15,24 @@ export function prependForwardSlash(path: string) {
 	return path[0] === '/' ? path : '/' + path;
 }
 
+export const MANY_LEADING_SLASHES = /^\/{2,}/;
+
+export function collapseDuplicateLeadingSlashes(path: string) {
+	if (!path) {
+		return path;
+	}
+	return path.replace(MANY_LEADING_SLASHES, '/');
+}
+
+const MANY_SLASHES = /\/{2,}/g;
+
+export function collapseDuplicateSlashes(path: string) {
+	if (!path) {
+		return path;
+	}
+	return path.replace(MANY_SLASHES, '/');
+}
+
 export const MANY_TRAILING_SLASHES = /\/{2,}$/g;
 
 export function collapseDuplicateTrailingSlashes(path: string, trailingSlash: boolean) {
@@ -65,7 +83,13 @@ const INTERNAL_PREFIXES = new Set(['/_', '/@', '/.', '//']);
 const JUST_SLASHES = /^\/{2,}$/;
 
 export function isInternalPath(path: string) {
-	return INTERNAL_PREFIXES.has(path.slice(0, 2)) && !JUST_SLASHES.test(path);
+	// Browsers follow the WHATWG URL spec and treat backslashes as forward
+	// slashes when resolving a path, so `/\host` behaves like `//host`. Fold
+	// backslashes to forward slashes before comparing the prefix so those
+	// paths are recognized as internal too, instead of being appended with a
+	// trailing slash and echoed back into a `Location` header.
+	const prefix = path.slice(0, 2).replace(/\\/g, '/');
+	return INTERNAL_PREFIXES.has(prefix) && !JUST_SLASHES.test(path);
 }
 
 export function joinPaths(...paths: (string | undefined)[]) {
@@ -130,9 +154,9 @@ export function isRemotePath(src: string) {
 		return false;
 	}
 
-	// Check for Unix absolute path (starts with / but not // or /\)
+	// Check for Unix absolute path (starts with / followed by a normal path character)
 	// This needs to be before the backslash check
-	if (decoded[0] === '/' && decoded[1] !== '/' && decoded[1] !== '\\') {
+	if (decoded[0] === '/' && /^\/[\w.@-]/.test(decoded)) {
 		return false;
 	}
 
@@ -236,6 +260,28 @@ export function removeBase(path: string, base: string) {
 		return path.slice(removeTrailingForwardSlash(base).length);
 	}
 	return path;
+}
+
+/**
+ * Strips a configured request `base` from a pathname, only when the pathname is
+ * the base itself or lies under it at a path-segment boundary. `stripRequestBase('/appX/admin', '/app')`
+ * leaves the pathname untouched, whereas `stripRequestBase('/app/admin', '/app')` returns `/admin`.
+ *
+ * Leading slashes are collapsed first so `//admin` cannot pose as being under a
+ * `/` base. Route matching and `context.url.pathname` derive from separate
+ * copies of the request path, so a mismatch here lets a request reach a route
+ * whose base-prefixed pathname middleware never observes.
+ */
+export function stripRequestBase(pathname: string, base: string): string {
+	pathname = collapseDuplicateLeadingSlashes(pathname);
+	const baseWithoutTrailingSlash = removeTrailingForwardSlash(base);
+	if (pathname === baseWithoutTrailingSlash) {
+		return '/';
+	}
+	if (pathname.startsWith(baseWithoutTrailingSlash + '/')) {
+		return pathname.slice(baseWithoutTrailingSlash.length);
+	}
+	return pathname;
 }
 
 const WITH_FILE_EXT = /\/[^/]+\.\w+$/;

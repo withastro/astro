@@ -13,16 +13,13 @@ interface LoadFallbackPluginParams {
 
 const FALLBACK_FLAG = 'astroFallbackFlag';
 
-export default function loadFallbackPlugin({
-	fs,
-	root,
-}: LoadFallbackPluginParams): vite.Plugin[] | false {
+export default function loadFallbackPlugin({ fs, root }: LoadFallbackPluginParams): vite.Plugin[] {
 	// Only add this plugin if a custom fs implementation is provided.
 	// Also check for `fs.default` because `import * as fs from 'node:fs'` will
 	// export as so, which only it's `.default` would === `nodeFs`.
 	// @ts-expect-error check default
 	if (!fs || fs === nodeFs || fs.default === nodeFs) {
-		return false;
+		return [];
 	}
 
 	const tryLoadModule = async (id: string) => {

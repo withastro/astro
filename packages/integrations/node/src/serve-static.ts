@@ -2,10 +2,37 @@ import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
 import { hasFileExtension, isInternalPath } from '@astrojs/internal-helpers/path';
-import type { NodeApp } from 'astro/app/node';
+import type { BaseApp } from 'astro/app';
 import send from 'send';
 import { resolveClientDir } from './shared.js';
-import type { Options } from './types.js';
+import type { NodeAppHeadersJson, Options } from './types.js';
+import { createRequestFromNodeRequest, getAbortControllerCleanup } from 'astro/app/node';
+
+/**
+ * Resolves a URL path to a filesystem path within the client directory,
+ * and checks whether it is a directory.
+ *
+ * Returns `isDirectory: false` if the resolved path escapes the client root
+ * (e.g. via `..` path traversal segments).
+ */
+export function resolveStaticPath(client: string, urlPath: string) {
+	const filePath = path.join(client, urlPath);
+	const resolved = path.resolve(filePath);
+	const resolvedClient = path.resolve(client);
+
+	// Prevent path traversal: if the resolved path is outside the client
+	// directory, treat it as non-existent rather than probing the filesystem.
+	if (resolved !== resolvedClient && !resolved.startsWith(resolvedClient + path.sep)) {
+		return { filePath: resolved, isDirectory: false };
+	}
+
+	let isDirectory = false;
+	try {
+		isDirectory = fs.lstatSync(filePath).isDirectory();
+	} catch {}
+
+	return { filePath: resolved, isDirectory };
+}
 
 /**
  * Creates a Node.js http listener for static files and prerendered pages.
@@ -13,7 +40,11 @@ import type { Options } from './types.js';
  * If one matching the request path is not found, it relegates to the SSR handler.
  * Intended to be used only in the standalone mode.
  */
-export function createStaticHandler(app: NodeApp, options: Options) {
+export function createStaticHandler(
+	app: BaseApp,
+	options: Options,
+	headersMap: NodeAppHeadersJson | undefined,
+) {
 	const client = resolveClientDir(options);
 	/**
 	 * @param ssr The SSR handler to be called if the static handler does not find a matching file.
@@ -27,22 +58,32 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			}
 
 			const [urlPath, urlQuery] = fullUrl.split('?');
-			const filePath = path.join(client, app.removeBase(urlPath));
-
-			let isDirectory = false;
+			let fsPath = app.removeBase(urlPath);
 			try {
-				isDirectory = fs.lstatSync(filePath).isDirectory();
+				fsPath = decodeURI(fsPath);
 			} catch {}
-
-			const { trailingSlash = 'ignore' } = options;
+			const { isDirectory } = resolveStaticPath(client, fsPath);
 
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;
 
-			if (app.headersMap && app.headersMap.length > 0) {
-				const routeData = app.match(req, true);
+			if (headersMap && headersMap.length > 0) {
+				const request = createRequestFromNodeRequest(req, {
+					port: options.port,
+				});
+				const routeData = app.match(request, true);
+				// The Request is only used for route matching above. Clean up the
+				// socket `close` listener that wireAbortController added, otherwise
+				// keep-alive connections accumulate listeners on every request.
+				getAbortControllerCleanup(req)?.();
 				if (routeData && routeData.prerender) {
-					const matchedRoute = app.headersMap.find((header) => header.pathname.includes(pathname));
+					// Headers are stored keyed by base-less route paths (e.g. "/one"), so we
+					// must strip config.base from the incoming URL before matching, just as
+					// we do for filesystem access above.
+					const baselessPathname = prependForwardSlash(app.removeBase(urlPath));
+					const matchedRoute = headersMap.find((header) =>
+						header.pathname.includes(baselessPathname),
+					);
 					if (matchedRoute) {
 						for (const header of matchedRoute.headers) {
 							res.setHeader(header.key, header.value);
@@ -51,7 +92,7 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 				}
 			}
 
-			switch (trailingSlash) {
+			switch (app.manifest.trailingSlash) {
 				case 'never': {
 					if (isDirectory && urlPath !== '/' && hasSlash) {
 						pathname = urlPath.slice(0, -1) + (urlQuery ? '?' + urlQuery : '');
@@ -86,34 +127,50 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			// app.removeBase sometimes returns a path without a leading slash
 			pathname = prependForwardSlash(app.removeBase(pathname));
 
-			const stream = send(req, pathname, {
+			const normalizedPathname = path.posix.normalize(pathname);
+			const stream = send(req, normalizedPathname, {
 				root: client,
-				dotfiles: pathname.startsWith('/.well-known/') ? 'allow' : 'deny',
+				dotfiles: normalizedPathname.startsWith('/.well-known/') ? 'allow' : 'deny',
+				// When build.format is 'file' or 'preserve', pages are output as
+				// `page.html` instead of `page/index.html`. Tell `send` to try
+				// appending `.html` so that clean URLs like `/about` resolve to
+				// `/about.html` on disk.
+				extensions:
+					app.manifest.buildFormat === 'file' || app.manifest.buildFormat === 'preserve'
+						? ['html']
+						: [],
 			});
 
 			let forwardError = false;
 
 			stream.on('error', (err) => {
 				if (forwardError) {
-					console.error(err.toString());
-					res.writeHead(500);
-					res.end('Internal server error');
+					// The `send` library emits errors with a `statusCode` property
+					// (e.g. 412 for precondition failures from If-Match / If-Unmodified-Since).
+					// Use the real status when available instead of always returning 500.
+					const status = 'statusCode' in err ? (err as any).statusCode : 500;
+					if (status >= 500) {
+						console.error(err.toString());
+					}
+					res.writeHead(status);
+					res.end(status >= 500 ? 'Internal server error' : '');
 					return;
 				}
 				// File not found, forward to the SSR handler
 				ssr();
 			});
-			stream.on('headers', (_res: ServerResponse) => {
-				// assets in dist/_astro are hashed and should get the immutable header
-				if (pathname.startsWith(`/${options.assets}/`)) {
-					// This is the "far future" cache header, used for static files whose name includes their digest hash.
-					// 1 year (31,536,000 seconds) is convention.
-					// Taken from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#immutable
-					_res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-				}
-			});
 			stream.on('file', () => {
 				forwardError = true;
+			});
+			// The `stream` event fires only when `send` is actually going to stream
+			// the file content (i.e. after all precondition checks like If-Match and
+			// If-Unmodified-Since have passed). Setting cache headers here instead of
+			// in the `headers` event ensures error responses (e.g. 412) are never
+			// sent with immutable cache headers, which would poison CDN caches.
+			stream.on('stream', () => {
+				if (normalizedPathname.startsWith(`/${app.manifest.assetsDir}/`)) {
+					res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+				}
 			});
 			stream.pipe(res);
 		} else {

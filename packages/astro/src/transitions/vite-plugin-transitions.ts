@@ -10,13 +10,6 @@ const RESOLVED_VIRTUAL_CLIENT_MODULE_ID = '\0' + VIRTUAL_CLIENT_MODULE_ID;
 export default function astroTransitions({ settings }: { settings: AstroSettings }): vite.Plugin {
 	return {
 		name: 'astro:transitions',
-		config() {
-			return {
-				optimizeDeps: {
-					include: ['astro > cssesc'],
-				},
-			};
-		},
 		resolveId: {
 			filter: {
 				id: new RegExp(`^(${VIRTUAL_MODULE_ID}|${VIRTUAL_CLIENT_MODULE_ID})$`),
@@ -49,10 +42,8 @@ export default function astroTransitions({ settings }: { settings: AstroSettings
 						export { navigate, supportsViewTransitions, transitionEnabledOnThisPage } from "astro/virtual-modules/transitions-router.js";
 						export * from "astro/virtual-modules/transitions-types.js";
 						export {
-							TRANSITION_BEFORE_PREPARATION, isTransitionBeforePreparationEvent, TransitionBeforePreparationEvent,
-							TRANSITION_AFTER_PREPARATION,
-							TRANSITION_BEFORE_SWAP, isTransitionBeforeSwapEvent, TransitionBeforeSwapEvent,
-							TRANSITION_AFTER_SWAP, TRANSITION_PAGE_LOAD
+							TransitionBeforePreparationEvent,
+							TransitionBeforeSwapEvent,
 						} from "astro/virtual-modules/transitions-events.js";
 						export { swapFunctions } from "astro/virtual-modules/transitions-swap-functions.js";
 					`,

@@ -1,5 +1,41 @@
 # @astrojs/ts-plugin
 
+## 1.10.11
+
+### Patch Changes
+
+- [#17668](https://github.com/withastro/astro/pull/17668) [`bef9db5`](https://github.com/withastro/astro/commit/bef9db51186d7201604fc561e1c599a0610d54b0) Thanks [@lazerg](https://github.com/lazerg)! - Fixes Astro's ambient types leaking into unrelated TypeScript projects. In a monorepo with hoisted `node_modules`, the plugin found the shared `astro` install from any project and injected `env.d.ts` and `astro-jsx.d.ts` into it, which pulled `@types/node` into projects that never asked for it. The plugin now only injects those types when the project actually depends on `astro` or has an `astro.config.*` file.
+
+## 1.10.10
+
+### Patch Changes
+
+- [#17269](https://github.com/withastro/astro/pull/17269) [`c72d4f2`](https://github.com/withastro/astro/commit/c72d4f2d55054d65d574aa38925f6b05550f0ed1) Thanks [@matthewp](https://github.com/matthewp)! - Fixes "Go To References" from `.ts` files missing usages inside `.astro` files that are reached through `Astro.locals`. The plugin now injects Astro's ambient types so type chains like `Astro.locals.utils.toUpper()` resolve, matching the language server.
+
+## 1.10.9
+
+### Patch Changes
+
+- [#16661](https://github.com/withastro/astro/pull/16661) [`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0) Thanks [@ocavue](https://github.com/ocavue)! - Updates `typescript` to v6. No changes are needed from users.
+
+- Updated dependencies [[`03b8f7f`](https://github.com/withastro/astro/commit/03b8f7f7644cc1d9e738a8221d6bd377399538c0)]:
+  - @astrojs/yaml2ts@0.2.4
+
+## 1.10.8
+
+### Patch Changes
+
+- [#16716](https://github.com/withastro/astro/pull/16716) [`04fdbb2`](https://github.com/withastro/astro/commit/04fdbb29978d5a00acfb956538e54256ae24b486) Thanks [@delucis](https://github.com/delucis)! - Drops support for versions of VS Code below 1.101.0 [May 2025]
+
+## 1.10.7
+
+### Patch Changes
+
+- [#15820](https://github.com/withastro/astro/pull/15820) [`e20474b`](https://github.com/withastro/astro/commit/e20474b98c6d868ed9734f7eeb7564bffe8bfd77) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes broken publish
+
+- Updated dependencies [[`e20474b`](https://github.com/withastro/astro/commit/e20474b98c6d868ed9734f7eeb7564bffe8bfd77)]:
+  - @astrojs/yaml2ts@0.2.3
+
 ## 1.10.6
 
 ### Patch Changes

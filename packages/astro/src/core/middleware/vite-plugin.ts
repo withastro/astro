@@ -1,19 +1,27 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
-import { addRollupInput } from '../build/add-rollup-input.js';
+import { addRolldownInput } from '../build/add-rolldown-input.js';
 import type { BuildInternals } from '../build/internal.js';
 import type { StaticBuildOptions } from '../build/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES, MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
 import { MissingMiddlewareForInternationalization } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
 import { normalizePath } from '../viteUtils.js';
+import { isAstroServerEnvironment } from '../../environments.js';
 
-// This module name is used in Cloudflare's optmizedDeps configuration,
+// This module name is used in Cloudflare's optimizedDeps configuration,
 // if th name changes that needs to be updated as well.
 export const MIDDLEWARE_MODULE_ID = 'virtual:astro:middleware';
 const MIDDLEWARE_RESOLVED_MODULE_ID = '\0' + MIDDLEWARE_MODULE_ID;
 const NOOP_MIDDLEWARE = '\0noop-middleware';
+
+export function isMiddlewarePath(relativePath: string): boolean {
+	return (
+		relativePath.startsWith(`${MIDDLEWARE_PATH_SEGMENT_NAME}.`) ||
+		relativePath.startsWith(`${MIDDLEWARE_PATH_SEGMENT_NAME}/`)
+	);
+}
 
 export function vitePluginMiddleware({ settings }: { settings: AstroSettings }): VitePlugin {
 	let resolvedMiddlewareId: string | undefined = undefined;
@@ -29,6 +37,27 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
+		},
+		hotUpdate: {
+			handler(ctx) {
+				if (!isAstroServerEnvironment(this.environment)) return;
+
+				// A change that matched no modules in the graph can't affect the
+				// middleware or anything it imports, so there's nothing to invalidate.
+				// Writes outside the graph (e.g. `@astrojs/cloudflare`'s `.wrangler/state`)
+				// fire a hotUpdate per write and would otherwise reload the middleware
+				// on every request.
+				// https://github.com/withastro/astro/issues/17933
+				if (ctx.modules.length === 0) return;
+
+				const middlewareVirtualMod = this.environment.moduleGraph.getModuleById(
+					MIDDLEWARE_RESOLVED_MODULE_ID,
+				);
+				if (!middlewareVirtualMod) return;
+
+				this.environment.moduleGraph.invalidateModule(middlewareVirtualMod);
+				this.environment.hot.send('astro:middleware-updated', {});
+			},
 		},
 		resolveId: {
 			filter: {
@@ -130,9 +159,9 @@ export function vitePluginMiddlewareBuild(
 
 		options(options) {
 			if (canSplitMiddleware) {
-				// Add middleware as a separate rollup input for environments that support multiple entrypoints.
+				// Add middleware as a separate rolldown input for environments that support multiple entrypoints.
 				// This allows the middleware to be bundled independently.
-				return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
+				return addRolldownInput(options, [MIDDLEWARE_MODULE_ID]);
 			} else {
 				// TODO warn if edge middleware is enabled
 			}

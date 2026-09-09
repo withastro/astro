@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Use a port of go's csrf protection, checking the sec-fetch-site header before origin
+Use `Sec-Fetch-Site` request metadata for CSRF protection, falling back to the `Origin` header for older browsers

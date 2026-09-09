@@ -12,6 +12,7 @@ import type {
 	AstroIntegrationLogger,
 	HookParameters,
 	IntegrationResolvedRoute,
+	MiddlewareMode,
 	RouteToHeaders,
 } from 'astro';
 import { build } from 'esbuild';
@@ -33,6 +34,13 @@ export interface NetlifyLocals {
 type RemotePattern = AstroConfig['image']['remotePatterns'][number];
 
 /**
+ * Escape regex metacharacters in a literal string so it matches verbatim.
+ */
+function escapeRegex(literal: string): string {
+	return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
  * Convert a remote pattern object to a regex string
  */
 export function remotePatternToRegex(
@@ -41,7 +49,7 @@ export function remotePatternToRegex(
 ): string | undefined {
 	let { protocol, hostname, port, pathname } = pattern;
 
-	let regexStr = '';
+	let regexStr = '^';
 
 	if (protocol) {
 		regexStr += `${protocol}://`;
@@ -52,16 +60,16 @@ export function remotePatternToRegex(
 
 	if (hostname) {
 		if (hostname.startsWith('**.')) {
-			// match any number of subdomains
-			regexStr += '([a-z0-9-]+\\.)*';
+			// match one or more subdomains
+			regexStr += '([a-z0-9-]+\\.)+';
 			hostname = hostname.substring(3);
 		} else if (hostname.startsWith('*.')) {
-			// match one subdomain
-			regexStr += '([a-z0-9-]+\\.)?';
+			// match exactly one subdomain
+			regexStr += '([a-z0-9-]+\\.)';
 			hostname = hostname.substring(2); // Remove '*.' from the beginning
 		}
-		// Escape dots in the hostname
-		regexStr += hostname.replace(/\./g, '\\.');
+		// Escape metacharacters in the literal hostname so they match verbatim.
+		regexStr += escapeRegex(hostname);
 	} else {
 		regexStr += '[a-z0-9.-]+';
 	}
@@ -75,15 +83,15 @@ export function remotePatternToRegex(
 
 	if (pathname) {
 		if (pathname.endsWith('/**')) {
-			// Match any path.
-			regexStr += `(\\${pathname.replace('/**', '')}.*)`;
-		}
-		if (pathname.endsWith('/*')) {
+			// Match any path. Escape the literal prefix so metacharacters
+			// (e.g. `.`) match verbatim instead of acting as wildcards.
+			regexStr += `(${escapeRegex(pathname.replace('/**', ''))}.*)`;
+		} else if (pathname.endsWith('/*')) {
 			// Match one level of path
-			regexStr += `(\\${pathname.replace('/*', '')}\/[^/?#]+)\/?`;
+			regexStr += `(${escapeRegex(pathname.replace('/*', ''))}\/[^/?#]+)\/?`;
 		} else {
 			// Exact match
-			regexStr += `(\\${pathname})`;
+			regexStr += `(${escapeRegex(pathname)})`;
 		}
 	} else {
 		// Default to matching any path
@@ -93,7 +101,11 @@ export function remotePatternToRegex(
 		// Match query, but only if it's not already matched by the pathname
 		regexStr += '([?][^#]*)?';
 	}
+	// Anchor to end of string so .test() can't match a prefix
+	regexStr += '$';
 	try {
+		// nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+		// This only validates the generated pattern before handing it to Netlify.
 		new RegExp(regexStr);
 	} catch {
 		logger.warn(
@@ -113,7 +125,7 @@ function remoteImagesFromAstroConfig(
 	const remoteImages: string[] = [];
 	// Domains get a simple regex match
 	remoteImages.push(
-		...config.image.domains.map((domain) => `https?:\/\/${domain.replaceAll('.', '\\.')}\/.*`),
+		...config.image.domains.map((domain) => `^https?:\/\/${escapeRegex(domain)}\/.*$`),
 	);
 	// Remote patterns need to be converted to regexes
 	remoteImages.push(
@@ -236,9 +248,14 @@ export interface NetlifyIntegrationConfig {
 	cacheOnDemandPages?: boolean;
 
 	/**
-	 * If disabled, Middleware is applied to prerendered pages at build-time, and to on-demand-rendered pages at runtime.
-	 * Only disable when your Middleware does not need to run on prerendered pages.
-	 * If you use Middleware to implement authentication, redirects or similar things, you should should likely enabled it.
+	 * Controls when and how middleware executes.
+	 * - 'classic' (default): Middleware runs for prerendered pages at build time, and for SSR pages at request time.
+	 * - 'edge': Middleware is deployed as a separate edge function. Recommended if you want to implement authentication, redirects, or similar things.
+	 */
+	middlewareMode?: MiddlewareMode;
+
+	/**
+	 * @deprecated Use `middlewareMode: 'edge'` instead.
 	 *
 	 * If enabled, Astro Middleware is deployed as an Edge Function and applies to all routes.
 	 * Caveat: Locals set in Middleware are not applied to prerendered pages, because they've been rendered at build-time and are served from the CDN.
@@ -272,10 +289,13 @@ export interface NetlifyIntegrationConfig {
 	 *
 	 * - `images`: Enables the Netlify Image CDN in local development. Default: true
 	 * - `environmentVariables`: If your site is linked to a Netlify site, this will automatically load the environment variables from the Netlify site or team. Default: false
+	 * - `edgeFunctions`: Enables emulation of Netlify Edge Functions defined in your project's `netlify/edge-functions` directory. Some npm packages that access the filesystem may not work in the edge function sandbox. If you encounter errors, disable this and use `netlify dev` instead. Default: true
 	 *
-	 * @default {{ environmentVariables: false, images: true }}
+	 * @default {{ environmentVariables: false, images: true, edgeFunctions: true }}
 	 */
-	devFeatures?: { environmentVariables: boolean; images: boolean } | boolean;
+	devFeatures?:
+		| { environmentVariables: boolean; images: boolean; edgeFunctions: boolean }
+		| boolean;
 }
 
 export default function netlifyIntegration(
@@ -414,11 +434,20 @@ export default function netlifyIntegration(
 		await writeFile(
 			new URL('./ssr.mjs', ssrOutputDir()),
 			`
-			import { config, createHandler } from './${handler}';
+			import { createHandler } from './${handler}';
 
 			export default createHandler(${JSON.stringify({ notFoundContent })});
 
-			export { config };
+			// The config must be inlined here instead of imported because Netlify
+			// parses this file statically to read the config.
+			export const config = {
+				includedFiles: ['**/*'],
+				name: 'Astro SSR',
+				nodeBundler: 'none',
+				generator: '@astrojs/netlify@${packageVersion}',
+				path: '/*',
+				preferStatic: true,
+			};
 		`,
 		);
 	}
@@ -441,7 +470,8 @@ export default function netlifyIntegration(
 				const ctx = createContext({
 					request,
 					params: {},
-					locals: { netlify: { context } }
+					locals: { netlify: { context } },
+					clientAddress: context.ip,
 				});
 				// https://docs.netlify.com/edge-functions/api/#return-a-rewrite
 				ctx.rewrite = (target) => {
@@ -487,8 +517,8 @@ export default function netlifyIntegration(
 			plugins: [
 				{
 					name: 'allowNodePrefixedImports',
-					setup(puglinBuild) {
-						puglinBuild.onResolve({ filter: /^node:.*$/ }, (args) => ({
+					setup(pluginBuild) {
+						pluginBuild.onResolve({ filter: /^node:.*$/ }, (args) => ({
 							path: args.path,
 							external: true,
 						}));
@@ -594,7 +624,7 @@ export default function netlifyIntegration(
 
 				let session = config.session;
 
-				if (!session?.driver) {
+				if (session !== false && !session?.driver) {
 					logger.info('Enabling sessions with Netlify Blobs');
 
 					session = {
@@ -612,10 +642,12 @@ export default function netlifyIntegration(
 						? {
 								images: integrationConfig.devFeatures,
 								environmentVariables: integrationConfig.devFeatures,
+								edgeFunctions: integrationConfig.devFeatures,
 							}
 						: {
 								images: integrationConfig?.devFeatures?.images ?? true,
 								environmentVariables: integrationConfig?.devFeatures?.environmentVariables ?? false,
+								edgeFunctions: integrationConfig?.devFeatures?.edgeFunctions ?? true,
 							};
 
 				const vitePluginOptions: NetlifyPluginOptions = {
@@ -629,6 +661,9 @@ export default function netlifyIntegration(
 						// If features is an object, use the `environmentVariables` property
 						// Otherwise, use the boolean value of `features`, defaulting to false
 						enabled: features.environmentVariables,
+					},
+					edgeFunctions: {
+						enabled: features.edgeFunctions,
 					},
 				};
 
@@ -646,7 +681,6 @@ export default function netlifyIntegration(
 							createConfigPlugin({
 								middlewareSecret,
 								cacheOnDemandPages: !!integrationConfig?.cacheOnDemandPages,
-								packageVersion,
 							}),
 						],
 						server: {
@@ -660,7 +694,8 @@ export default function netlifyIntegration(
 							// defaults to true, so should only be disabled if the user has
 							// explicitly set false
 							entrypoint:
-								(command === 'build' && integrationConfig?.imageCDN === false) ||
+								integrationConfig?.imageCDN === false ||
+								// In dev, if the vite plugin's image proxy isn't enabled, don't try to use the Netlify service since it won't work
 								(command === 'dev' && vitePluginOptions?.images?.enabled === false)
 									? undefined
 									: '@astrojs/netlify/image-service.js',
@@ -671,21 +706,22 @@ export default function netlifyIntegration(
 			'astro:routes:resolved': (params) => {
 				routes = params.routes;
 			},
-			'astro:config:done': async ({ config, setAdapter, buildOutput }) => {
-				rootDir = config.root;
-				_config = config;
+			'astro:config:done': async (params) => {
+				rootDir = params.config.root;
+				_config = params.config;
 
-				finalBuildOutput = buildOutput;
-
-				const useEdgeMiddleware = integrationConfig?.edgeMiddleware ?? false;
+				// Resolve middleware mode with backward compatibility
+				const middlewareMode =
+					integrationConfig?.middlewareMode ??
+					(integrationConfig?.edgeMiddleware ? 'edge' : 'classic');
 				const useStaticHeaders = integrationConfig?.staticHeaders ?? false;
 
-				setAdapter({
+				params.setAdapter({
 					name: '@astrojs/netlify',
 					entrypointResolution: 'auto',
 					serverEntrypoint: '@astrojs/netlify/ssr-function.js',
 					adapterFeatures: {
-						edgeMiddleware: useEdgeMiddleware,
+						middlewareMode,
 						staticHeaders: useStaticHeaders,
 					},
 					supportedAstroFeatures: {
@@ -708,6 +744,11 @@ export default function netlifyIntegration(
 							: undefined,
 					},
 				});
+
+				// Read buildOutput AFTER setAdapter() so we get the value that setAdapter()
+				// may have updated. Destructuring before setAdapter() would capture a stale
+				// 'static' snapshot even when setAdapter() upgrades it to 'server'.
+				finalBuildOutput = params.buildOutput;
 			},
 			'astro:build:generated': ({ routeToHeaders }) => {
 				staticHeadersMap = routeToHeaders;

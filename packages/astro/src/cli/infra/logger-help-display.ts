@@ -1,11 +1,11 @@
-import type { Logger } from '../../core/logger/core.js';
+import type { AstroLogger } from '../../core/logger/core.js';
 import type { AstroVersionProvider, HelpDisplay, TextStyler } from '../definitions.js';
 import type { HelpPayload } from '../domain/help-payload.js';
 import type { Flags } from '../flags.js';
 import { formatVersion } from '../utils/format-version.js';
 
 export class LoggerHelpDisplay implements HelpDisplay {
-	readonly #logger: Logger;
+	readonly #logger: AstroLogger;
 	readonly #textStyler: TextStyler;
 	readonly #astroVersionProvider: AstroVersionProvider;
 	// TODO: find something better
@@ -17,7 +17,7 @@ export class LoggerHelpDisplay implements HelpDisplay {
 		astroVersionProvider,
 		flags,
 	}: {
-		logger: Logger;
+		logger: AstroLogger;
 		textStyler: TextStyler;
 		astroVersionProvider: AstroVersionProvider;
 		flags: Flags;

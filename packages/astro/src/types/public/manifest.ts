@@ -2,7 +2,7 @@
  * **IMPORTANT**: use the `Pick` interface to select only the properties that we want to expose
  * to the users. Using blanket types could expose properties that we don't want. So if we decide to expose
  * properties, we need to be good at justifying them. For example: why you need this config? can't you use an integration?
- * why do you need access to the shiki config? (very low-level confiig)
+ * why do you need access to the shiki config? (very low-level config)
  */
 
 import type { SSRManifest } from '../../core/app/types.js';
@@ -25,7 +25,7 @@ export type ServerDeserializedManifest = Pick<
 > &
 	DeserializedDirs & {
 		i18n: AstroConfig['i18n'];
-		build: Pick<AstroConfig['build'], 'server' | 'client' | 'format'>;
+		build: Pick<AstroConfig['build'], 'server' | 'client' | 'format' | 'assetsPrefix'>;
 		root: URL;
 		image: Pick<AstroConfig['image'], 'objectFit' | 'objectPosition' | 'layout'>;
 	};

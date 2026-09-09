@@ -18,13 +18,14 @@ Provides language support for `.astro` files. This extension is powered by the [
 - [Go to Definition](https://code.visualstudio.com/docs/editor/editingevolved#_go-to-definition), [Go to Type Definition](https://code.visualstudio.com/docs/editor/editingevolved#_go-to-type-definition), [Go to Implementation](https://code.visualstudio.com/docs/editor/editingevolved#_go-to-implementation) etc
 - [Inlay hints](https://code.visualstudio.com/docs/editor/editingevolved#_inlay-hints)
 - [Code folding](https://code.visualstudio.com/docs/editor/codebasics#_folding)
+- [Snippets & File Templates](https://code.visualstudio.com/docs/editing/userdefinedsnippets)
 - and more!
 
 A TypeScript plugin adding support for importing and exporting Astro components inside JavaScript and TypeScript files is also included.
 
 ## Configuration
 
-HTML, CSS and TypeScript settings can be configured through the `html`, `css` and `typescript` namespaces respectively. For example, HTML documentation on hover can be disabled using `'html.hover.documentation': false`. Formatting can be configured through [Prettier's different configuration methods](https://prettier.io/docs/en/configuration.html).
+HTML and CSS settings can be configured through the `html` and `css` setting prefixes. TypeScript-related settings appear in the VS Code Settings UI under the **JavaScript and TypeScript (js/ts)** category in recent VS Code versions, but the actual JSON keys use the `typescript.*` namespace (for example, `"typescript.preferences.importModuleSpecifier": "non-relative"`). For example, HTML documentation on hover can be disabled using `"html.hover.documentation": false`. Formatting can be configured through [Prettier's different configuration methods](https://prettier.io/docs/en/configuration.html).
 
 ## Troubleshooting
 

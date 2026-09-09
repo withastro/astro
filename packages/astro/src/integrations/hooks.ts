@@ -5,9 +5,9 @@ import colors from 'piccolore';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import astroIntegrationActionsRouteHandler from '../actions/integration.js';
-import { isActionsFilePresent } from '../actions/utils.js';
+import { isActionsFilePresent } from '../actions/actions-file.js';
 import { CONTENT_LAYER_TYPE } from '../content/consts.js';
-import { globalContentLayer } from '../content/content-layer.js';
+import { globalContentLayer } from '../content/instance.js';
 import { globalContentConfigObserver } from '../content/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
@@ -15,8 +15,8 @@ import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.j
 import { mergeConfig } from '../core/config/merge.js';
 import { validateConfigRefined } from '../core/config/validate.js';
 import { validateSetAdapter } from '../core/dev/adapter-validation.js';
-import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
-import { getRouteGenerator } from '../core/routing/manifest/generator.js';
+import type { AstroIntegrationLogger, AstroLogger } from '../core/logger/core.js';
+import { getRouteGenerator } from '../core/routing/generator.js';
 import { getClientOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -36,6 +36,7 @@ import type {
 } from '../types/public/integrations.js';
 import type { RouteData } from '../types/public/internal.js';
 import { validateSupportedFeatures } from './features-validation.js';
+import { loadLoggerDestination } from '../core/logger/load.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -47,7 +48,7 @@ async function withTakingALongTimeMsg<T>({
 	name: string;
 	hookName: keyof BaseIntegrationHooks;
 	hookFn: () => T | Promise<T>;
-	logger: Logger;
+	logger: AstroLogger;
 	integrationLogger: AstroIntegrationLogger;
 }): Promise<T> {
 	const timeout = setTimeout(() => {
@@ -79,7 +80,7 @@ async function runHookInternal<THook extends keyof BaseIntegrationHooks>({
 }: {
 	integration: AstroIntegration;
 	hookName: THook;
-	logger: Logger;
+	logger: AstroLogger;
 	params: () => Omit<HookParameters<NoInfer<THook>>, 'logger'>;
 }) {
 	const hook = integration?.hooks?.[hookName];
@@ -99,7 +100,7 @@ async function runHookInternal<THook extends keyof BaseIntegrationHooks>({
 // Used internally to store instances of loggers.
 const Loggers = new WeakMap<AstroIntegration, AstroIntegrationLogger>();
 
-function getLogger(integration: AstroIntegration, logger: Logger) {
+function getLogger(integration: AstroIntegration, logger: AstroLogger) {
 	if (Loggers.has(integration)) {
 		// SAFETY: we check the existence in the if block
 		return Loggers.get(integration)!;
@@ -167,7 +168,7 @@ export function normalizeInjectedTypeFilename(filename: string, integrationName:
 interface RunHookConfigSetup {
 	settings: AstroSettings;
 	command: 'dev' | 'build' | 'preview' | 'sync';
-	logger: Logger;
+	logger: AstroLogger;
 	isRestart?: boolean;
 	fs?: typeof fsMod;
 }
@@ -212,6 +213,8 @@ export async function runHookConfigSetup({
 		 * ```
 		 */
 
+		let isLoggerUpdated = false;
+
 		const { integrationLogger } = await runHookInternal({
 			integration,
 			hookName: 'astro:config:setup',
@@ -244,6 +247,10 @@ export async function runHookConfigSetup({
 						updatedSettings.scripts.push({ stage, content });
 					},
 					updateConfig: (newConfig) => {
+						// Logger destination is updated later because it's async
+						if (newConfig.logger?.entrypoint) {
+							isLoggerUpdated = true;
+						}
 						updatedConfig = mergeConfig(updatedConfig, newConfig);
 						return { ...updatedConfig };
 					},
@@ -344,6 +351,11 @@ export async function runHookConfigSetup({
 
 		try {
 			updatedConfig = await validateConfigRefined(updatedConfig);
+			if (isLoggerUpdated) {
+				logger.setDestination(
+					await loadLoggerDestination(updatedConfig.logger!, updatedConfig.root),
+				);
+			}
 		} catch (error) {
 			integrationLogger.error('An error occurred while updating the config');
 			throw error;
@@ -365,7 +377,7 @@ export async function runHookConfigDone({
 	command,
 }: {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	command?: 'dev' | 'build' | 'preview' | 'sync';
 }) {
 	for (const integration of settings.config.integrations) {
@@ -426,7 +438,7 @@ export async function runHookServerSetup({
 }: {
 	config: AstroConfig;
 	server: ViteDevServer;
-	logger: Logger;
+	logger: AstroLogger;
 }) {
 	let refreshContent: undefined | ((options: RefreshContentOptions) => Promise<void>);
 	refreshContent = async (options: RefreshContentOptions) => {
@@ -465,7 +477,7 @@ export async function runHookServerStart({
 }: {
 	config: AstroConfig;
 	address: AddressInfo;
-	logger: Logger;
+	logger: AstroLogger;
 }) {
 	for (const integration of config.integrations) {
 		await runHookInternal({
@@ -482,7 +494,7 @@ export async function runHookServerDone({
 	logger,
 }: {
 	config: AstroConfig;
-	logger: Logger;
+	logger: AstroLogger;
 }) {
 	for (const integration of config.integrations) {
 		await runHookInternal({
@@ -499,7 +511,7 @@ export async function runHookBuildStart({
 	logger,
 }: {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 }) {
 	for (const integration of settings.config.integrations) {
 		await runHookInternal({
@@ -526,7 +538,7 @@ export async function runHookBuildSetup({
 	vite: InlineConfig;
 	pages: Map<string, PageBuildData>;
 	target: 'server' | 'client';
-	logger: Logger;
+	logger: AstroLogger;
 }): Promise<InlineConfig> {
 	let updatedConfig = vite;
 
@@ -553,7 +565,7 @@ export async function runHookBuildSetup({
 type RunHookBuildSsr = {
 	config: AstroConfig;
 	manifest: SerializedSSRManifest;
-	logger: Logger;
+	logger: AstroLogger;
 	middlewareEntryPoint: URL | undefined;
 };
 
@@ -582,11 +594,14 @@ export async function runHookBuildGenerated({
 	routeToHeaders,
 }: {
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 	routeToHeaders: RouteToHeaders;
 }) {
+	const preserveStructure = settings.adapter?.adapterFeatures?.preserveBuildClientDir;
 	const dir =
-		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
+		settings.buildOutput === 'server' || preserveStructure
+			? settings.config.build.client
+			: settings.config.outDir;
 
 	for (const integration of settings.config.integrations) {
 		await runHookInternal({
@@ -602,7 +617,7 @@ type RunHookBuildDone = {
 	settings: AstroSettings;
 	pages: string[];
 	routes: RouteData[];
-	logger: Logger;
+	logger: AstroLogger;
 };
 
 export async function runHookBuildDone({ settings, pages, routes, logger }: RunHookBuildDone) {
@@ -632,7 +647,7 @@ export async function runHookRouteSetup({
 }: {
 	route: RouteOptions;
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 }) {
 	const prerenderChangeLogs: { integrationName: string; value: boolean | undefined }[] = [];
 
@@ -665,7 +680,7 @@ export async function runHookRoutesResolved({
 }: {
 	routes: Array<RouteData>;
 	settings: AstroSettings;
-	logger: Logger;
+	logger: AstroLogger;
 }) {
 	for (const integration of settings.config.integrations) {
 		await runHookInternal({
@@ -700,5 +715,8 @@ export function toIntegrationResolvedRoute(
 		redirectRoute: route.redirectRoute
 			? toIntegrationResolvedRoute(route.redirectRoute, trailingSlash)
 			: undefined,
+		fallbackRoutes: route.fallbackRoutes.map((fallbackRoute) =>
+			toIntegrationResolvedRoute(fallbackRoute, trailingSlash),
+		),
 	};
 }

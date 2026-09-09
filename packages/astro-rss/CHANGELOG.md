@@ -1,5 +1,43 @@
 # @astrojs/rss
 
+## 4.0.19
+
+### Patch Changes
+
+- [#17209](https://github.com/withastro/astro/pull/17209) [`fbcfa03`](https://github.com/withastro/astro/commit/fbcfa039dfe3d700b239f595a6c55ee35e45bd06) Thanks [@matthewp](https://github.com/matthewp)! - Hardens RSS feed generation by escaping the `source` and `enclosure` item fields. These fields are now serialized as structured XML values, ensuring that special characters in values like `source.title` and `enclosure.type` are always treated as text rather than markup, consistent with how other feed fields are handled.
+
+## 4.0.18
+
+### Patch Changes
+
+- [#16037](https://github.com/withastro/astro/pull/16037) [`fdd2c5a`](https://github.com/withastro/astro/commit/fdd2c5a2f0eb63332b018df01b2c1eb0d5c8a102) Thanks [@blimmer](https://github.com/blimmer)! - Unpin `fast-xml-parser` to `^5.5.7` to resolve entity expansion CVEs
+
+## 4.0.17
+
+### Patch Changes
+
+- [#15830](https://github.com/withastro/astro/pull/15830) [`8d3f3aa`](https://github.com/withastro/astro/commit/8d3f3aa1fdefebc22bb45de26591d3ec3d6da580) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Pin `fast-xml-parser` to 5.4.1 in order to fix an upstream bug
+
+## 4.0.16
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- [#14956](https://github.com/withastro/astro/pull/14956) [`0ff51df`](https://github.com/withastro/astro/commit/0ff51dfa3c6c615af54228e159f324034472b1a2) Thanks [@matthewp](https://github.com/matthewp)! - Updates usage of zod to own dependency rather than relying on `astro/zod`
+
+- [#15561](https://github.com/withastro/astro/pull/15561) [`413b0f7`](https://github.com/withastro/astro/commit/413b0f746a28503c936b3875ffaee6b7f04c67b9) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `fast-xml-parser` to v5.3.6
+
+- [#15283](https://github.com/withastro/astro/pull/15283) [`daf41c6`](https://github.com/withastro/astro/commit/daf41c6652e061fbc7550daf4f0a0ec2f74c4d0b) Thanks [@eldair](https://github.com/eldair)! - Updates validation to use Zod v4
+
+- [#15373](https://github.com/withastro/astro/pull/15373) [`14252b2`](https://github.com/withastro/astro/commit/14252b22f9129f51fae9b224386ab6c4ea1b76c5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates zod to v4
+
+## 4.0.15-beta.4
+
+### Patch Changes
+
+- [#15561](https://github.com/withastro/astro/pull/15561) [`413b0f7`](https://github.com/withastro/astro/commit/413b0f746a28503c936b3875ffaee6b7f04c67b9) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `fast-xml-parser` to v5.3.6
+
 ## 4.0.15-beta.3
 
 ### Patch Changes
@@ -244,7 +282,7 @@
 
 ### Patch Changes
 
-- [#6614](https://github.com/withastro/astro/pull/6614) [`b1b9b1390`](https://github.com/withastro/astro/commit/b1b9b1390f95c6ae91389eba55f7563b911bccc7) Thanks [@aivarsliepa](https://github.com/aivarsliepa)! - Fixes `RSSOptions` type error when using `strictest` Typescript tsconfig
+- [#6614](https://github.com/withastro/astro/pull/6614) [`b1b9b1390`](https://github.com/withastro/astro/commit/b1b9b1390f95c6ae91389eba55f7563b911bccc7) Thanks [@aivarsliepa](https://github.com/aivarsliepa)! - Fixes `RSSOptions` type error when using `strictest` TypeScript tsconfig
 
 ## 2.3.1
 

@@ -33,11 +33,23 @@ const dataDates = defineCollection({
 	})
 })
 
+// Zod features like `.default()` create a difference in the input and output shape of a schema.
+// This schema helps us check we use the input shape in generated JSON schemas.
+const schemaWithIODifferences = z.object({
+	optionalWithDefault: z.string().optional().default('default value'),
+	requiredProperty: z.string(),
+});
+const ioDifferences = defineCollection({
+	loader: () => [{ id: '1', requiredProperty: 'defined' }],
+	schema: schemaWithIODifferences
+});
+
 export const collections = {
 	"blog-cc": blogCC,
 	"blog-cl": blogCL,
 	"data-cl": dataYML,
 	"data-cl-json": dataJSON,
 	"data-schema-misuse": dataWithSchemaMisuse,
-	"data-dates": dataDates
+	"data-dates": dataDates,
+	"io-differences": ioDifferences,
 };

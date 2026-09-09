@@ -1,5 +1,41 @@
 # @astrojs/upgrade
 
+## 0.7.4
+
+### Patch Changes
+
+- [#17579](https://github.com/withastro/astro/pull/17579) [`3ea55ce`](https://github.com/withastro/astro/commit/3ea55ce24024af7dc6ec3dcdde2f8af6ab5707d8) Thanks [@bluwy](https://github.com/bluwy)! - Supports the `devEngines` field in package.json when detecting the package manager for install commands
+
+## 0.7.3
+
+### Patch Changes
+
+- [#17188](https://github.com/withastro/astro/pull/17188) [`675d11d`](https://github.com/withastro/astro/commit/675d11d0859478f0a31132e2ca1371b1afe5651d) Thanks [@astrobot-houston](https://github.com/astrobot-houston)! - Fixes `@astrojs/upgrade` showing a generic error when pnpm's `minimumReleaseAge` policy blocks installation. The error message now explains that pnpm's policy blocked the update and suggests running the install command manually.
+
+## 0.7.2
+
+### Patch Changes
+
+- [#16424](https://github.com/withastro/astro/pull/16424) [`3fcdaf1`](https://github.com/withastro/astro/commit/3fcdaf1d0613315c3d9902b66e6a70becfec3c88) Thanks [@matthewp](https://github.com/matthewp)! - Improves how `@astrojs/upgrade` spawns package manager commands so it uses the same Windows command resolution as `create-astro`
+
+## 0.7.1
+
+### Patch Changes
+
+- [#15864](https://github.com/withastro/astro/pull/15864) [`d3c7de9`](https://github.com/withastro/astro/commit/d3c7de9253e9cb31fa5c4bf9f4bdf59dd1ada7b0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes temporary support for Node >=20.19.1 because Stackblitz now uses Node 22 by default
+
+## 0.7.0
+
+### Minor Changes
+
+- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#node-22))
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- [#15264](https://github.com/withastro/astro/pull/15264) [`11efb05`](https://github.com/withastro/astro/commit/11efb058e85cda68f9a8e8f15a2c7edafe5a4789) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Lower the Node version requirement to allow running on Stackblitz until it supports v22
+
 ## 0.7.0-beta.2
 
 ### Patch Changes
@@ -16,7 +52,7 @@
 
 ### Minor Changes
 
-- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#node-22))
+- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://docs.astro.build/en/guides/upgrade-to/v6/#node-22))
 
 ## 0.6.2
 

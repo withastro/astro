@@ -1,9 +1,8 @@
 {
   "name": "@astrojs/solid-js",
-  "version": "6.0.0-beta.2",
+  "version": "7.0.2",
   "description": "Use Solid components within Astro",
   "type": "module",
-  "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -21,6 +20,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/solid-js/",
   "exports": {
     ".": "./dist/index.js",
+    "./container-renderer": "./dist/container-renderer.js",
     "./client.js": "./dist/client.js",
     "./server.js": "./dist/server.js",
     "./package.json": "./package.json"
@@ -29,22 +29,23 @@
     "dist"
   ],
   "scripts": {
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "vite": "^7.3.1",
-    "vite-plugin-solid": "^2.11.10"
+    "vite": "^8.0.13",
+    "vite-plugin-solid": "^2.11.12",
+    "vitefu": "^1.1.2"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "solid-js": "^1.9.11"
+    "solid-js": "^1.9.13"
   },
   "peerDependencies": {
-    "solid-devtools": "^0.30.1",
-    "solid-js": "^1.8.5"
+    "solid-devtools": "^0.34.5",
+    "solid-js": "^1.9.13"
   },
   "peerDependenciesMeta": {
     "solid-devtools": {
@@ -52,7 +53,7 @@
     }
   },
   "engines": {
-    "node": "^20.19.1 || >=22.12.0"
+    "node": ">=22.12.0"
   },
   "publishConfig": {
     "provenance": true

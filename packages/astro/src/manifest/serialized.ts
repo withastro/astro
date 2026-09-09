@@ -1,4 +1,5 @@
-import type { Plugin, ViteDevServer } from 'vite';
+import { fileURLToPath } from 'node:url';
+import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID } from '../actions/consts.js';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/entrypoints/index.js';
@@ -14,20 +15,34 @@ import {
 	getStyleResources,
 	shouldTrackCspHashes,
 } from '../core/csp/common.js';
+import { partitionByKind } from '../core/csp/runtime.js';
 import { createKey, encodeKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
 import { MIDDLEWARE_MODULE_ID } from '../core/middleware/vite-plugin.js';
 import { SERVER_ISLAND_MANIFEST } from '../core/server-islands/vite-plugin-server-islands.js';
+import { VIRTUAL_CACHE_PROVIDER_ID } from '../core/cache/vite-plugin.js';
 import { VIRTUAL_SESSION_DRIVER_ID } from '../core/session/vite-plugin.js';
+import { VIRTUAL_LOGGER_ID } from '../core/logger/vite-plugin.js';
 import type { AstroSettings } from '../types/astro.js';
 import { VIRTUAL_PAGES_MODULE_ID } from '../vite-plugin-pages/index.js';
 import { ASTRO_RENDERERS_MODULE_ID } from '../vite-plugin-renderers/index.js';
 import { ASTRO_ROUTES_MODULE_ID } from '../vite-plugin-routes/index.js';
+import { cacheConfigToManifest } from '../core/cache/utils.js';
 import { sessionConfigToManifest } from '../core/session/utils.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { resolveMiddlewareMode } from '../integrations/adapter-utils.js';
 
 // This is used by Cloudflare optimizeDeps config
 export const SERIALIZED_MANIFEST_ID = 'virtual:astro:manifest';
 export const SERIALIZED_MANIFEST_RESOLVED_ID = '\0' + SERIALIZED_MANIFEST_ID;
+
+// Kept in sync with the static import in `src/core/manifest/ambient.ts` and the
+// package.json `imports` mapping. In plain Node the specifier resolves (via that
+// mapping) to the `undefined` stub in `core/manifest/ambient-source.ts`; in every
+// Vite-processed server environment this plugin resolves it to the serialized
+// manifest module, so the ambient manifest IS the virtual manifest there. No new
+// virtual module ID is minted: the module dedupes into the same chunk as every
+// other manifest importer and the build-time manifest injection is untouched.
+export const AMBIENT_MANIFEST_SPECIFIER = '#astro-internal/ambient-manifest';
 
 export function serializedManifestPlugin({
 	settings,
@@ -38,8 +53,19 @@ export function serializedManifestPlugin({
 	command: 'dev' | 'build';
 	sync: boolean;
 }): Plugin {
+	const normalizedSrcDir = normalizePath(fileURLToPath(settings.config.srcDir));
+	let encodedKeyPromise: Promise<string> | undefined;
+
+	function getEncodedKey() {
+		encodedKeyPromise ??= (async () => {
+			const key = hasEnvironmentKey() ? await getEnvironmentKey() : await createKey();
+			return encodeKey(key);
+		})();
+		return encodedKeyPromise;
+	}
+
 	function reloadManifest(path: string | null, server: ViteDevServer) {
-		if (path != null && path.startsWith(settings.config.srcDir.pathname)) {
+		if (path != null && normalizePath(path).startsWith(normalizedSrcDir)) {
 			const environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 			const virtualMod = environment.moduleGraph.getModuleById(SERIALIZED_MANIFEST_RESOLVED_ID);
 			if (!virtualMod) return;
@@ -51,15 +77,43 @@ export function serializedManifestPlugin({
 	return {
 		name: SERIALIZED_MANIFEST_ID,
 		enforce: 'pre',
+		// Dependency optimization runs as a nested Rolldown build that cannot load Vite virtual
+		// modules. Keep this import external so the server module graph resolves it below.
+		configEnvironment(environmentName) {
+			if (
+				command === 'dev' &&
+				(environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
+					environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+					environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender)
+			) {
+				return {
+					optimizeDeps: {
+						rolldownOptions: {
+							external: [AMBIENT_MANIFEST_SPECIFIER],
+						},
+					},
+				};
+			}
+		},
 		configureServer(server) {
 			server.watcher.on('add', (path) => reloadManifest(path, server));
 			server.watcher.on('unlink', (path) => reloadManifest(path, server));
 			server.watcher.on('change', (path) => reloadManifest(path, server));
 		},
 
+		// Restrict to server environments only since the generated code imports
+		// server-only virtual modules (virtual:astro:routes, virtual:astro:pages)
+		applyToEnvironment(environment) {
+			return (
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+			);
+		},
+
 		resolveId: {
 			filter: {
-				id: new RegExp(`^${SERIALIZED_MANIFEST_ID}$`),
+				id: new RegExp(`^(${SERIALIZED_MANIFEST_ID}|${AMBIENT_MANIFEST_SPECIFIER})$`),
 			},
 			handler() {
 				return SERIALIZED_MANIFEST_RESOLVED_ID;
@@ -77,11 +131,23 @@ export function serializedManifestPlugin({
 					// See plugin-manifest.ts for full architecture explanation
 					manifestData = `'${MANIFEST_REPLACE}'`;
 				} else {
-					const serialized = await createSerializedManifest(settings);
+					const serialized = await createSerializedManifest(settings, await getEncodedKey());
 					manifestData = JSON.stringify(serialized);
 				}
+				const hasCacheConfig = !!settings.config.cache?.provider;
+				const cacheProviderLine = hasCacheConfig
+					? `cacheProvider: () => import('${VIRTUAL_CACHE_PROVIDER_ID}'),`
+					: '';
+				const loggerLine = settings.config.logger
+					? `logger: () => import('${VIRTUAL_LOGGER_ID}'),`
+					: '';
 				const code = `
-					import { deserializeManifest as _deserializeManifest } from 'astro/app';
+					// 'astro/app/manifest' (not the 'astro/app' barrel): the barrel pulls in
+					// BaseApp -> DefaultFetchHandler -> the ambient-manifest module, which
+					// resolves to THIS virtual module — importing the barrel here would close
+					// a top-level import cycle that leaves deserializeManifest uninitialized
+					// when the dev module graph re-evaluates after invalidation.
+					import { deserializeManifest as _deserializeManifest } from 'astro/app/manifest';
 					import { renderers } from '${ASTRO_RENDERERS_MODULE_ID}';
 					import { routes } from '${ASTRO_ROUTES_MODULE_ID}';
 					import { pageMap } from '${VIRTUAL_PAGES_MODULE_ID}';
@@ -99,6 +165,8 @@ export function serializedManifestPlugin({
 					  actions: () => import('${ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID}'),
 					  middleware: () => import('${MIDDLEWARE_MODULE_ID}'),
 					  sessionDriver: () => import('${VIRTUAL_SESSION_DRIVER_ID}'),
+					  ${cacheProviderLine}
+					  ${loggerLine}
 					  serverIslandMappings: () => import('${SERVER_ISLAND_MANIFEST}'),
 					  routes: manifestRoutes,
 					  pageMap,
@@ -111,7 +179,10 @@ export function serializedManifestPlugin({
 	};
 }
 
-async function createSerializedManifest(settings: AstroSettings): Promise<SerializedSSRManifest> {
+async function createSerializedManifest(
+	settings: AstroSettings,
+	encodedKey?: string,
+): Promise<SerializedSSRManifest> {
 	let i18nManifest: SSRManifestI18n | undefined;
 	let csp: SSRManifestCSP | undefined;
 	if (settings.config.i18n) {
@@ -127,15 +198,30 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 	}
 
 	if (shouldTrackCspHashes(settings.config.security.csp)) {
+		const cspConfig = settings.config.security.csp;
+		const scriptDirective = {
+			resources: getScriptResources(cspConfig),
+			hashes: getScriptHashes(cspConfig),
+			strictDynamic: getStrictDynamic(cspConfig),
+		};
+		const styleDirective = {
+			resources: getStyleResources(cspConfig),
+			hashes: getStyleHashes(cspConfig),
+		};
+		// Derive the deprecated flat fields from the `default`-kind entries for back-compat.
+		const scriptDefault = partitionByKind(scriptDirective).default;
+		const styleDefault = partitionByKind(styleDirective).default;
 		csp = {
 			cspDestination: settings.adapter?.adapterFeatures?.staticHeaders ? 'adapter' : undefined,
-			scriptHashes: getScriptHashes(settings.config.security.csp),
-			scriptResources: getScriptResources(settings.config.security.csp),
-			styleHashes: getStyleHashes(settings.config.security.csp),
-			styleResources: getStyleResources(settings.config.security.csp),
-			algorithm: getAlgorithm(settings.config.security.csp),
+			algorithm: getAlgorithm(cspConfig),
 			directives: getDirectives(settings),
-			isStrictDynamic: getStrictDynamic(settings.config.security.csp),
+			scriptHashes: scriptDefault.hashes,
+			scriptResources: scriptDefault.resources,
+			isStrictDynamic: scriptDirective.strictDynamic,
+			styleHashes: styleDefault.hashes,
+			styleResources: styleDefault.resources,
+			scriptDirective,
+			styleDirective,
 		};
 	}
 
@@ -152,6 +238,7 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		buildFormat: settings.config.build.format,
 		compressHTML: settings.config.compressHTML,
 		serverLike: settings.buildOutput === 'server',
+		middlewareMode: resolveMiddlewareMode(settings.adapter?.adapterFeatures),
 		assets: [],
 		entryModules: {},
 		routes: [],
@@ -167,8 +254,18 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		i18n: i18nManifest,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
-		key: await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey()),
+		allowedDomains: settings.config.security?.allowedDomains,
+		actionBodySizeLimit: settings.config.security?.actionBodySizeLimit
+			? settings.config.security.actionBodySizeLimit
+			: 1024 * 1024, // 1mb default
+		serverIslandBodySizeLimit: settings.config.security?.serverIslandBodySizeLimit
+			? settings.config.security.serverIslandBodySizeLimit
+			: 1024 * 1024, // 1mb default
+		key:
+			encodedKey ??
+			(await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey())),
 		sessionConfig: sessionConfigToManifest(settings.config.session),
+		cacheConfig: cacheConfigToManifest(settings.config.cache, settings.config.routeRules),
 		csp,
 		image: {
 			objectFit: settings.config.image.objectFit,

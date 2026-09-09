@@ -77,6 +77,22 @@ During the development process, you may want to test your changes to ensure they
 
 Overall, it's up to personal preference which method to use. For smaller changes, using the examples folder may be sufficient. For larger changes, using a separate project may be more appropriate.
 
+**How can I test changes to `@astrojs/compiler` (or other dependencies) locally?**
+
+If you're working on a dependency like `@astrojs/compiler` and want to test your changes against the Astro repo, you can use [`pnpm.overrides`](https://pnpm.io/package_json#pnpmoverrides) in the root `package.json` to point to your local build:
+
+```json
+{
+  "pnpm": {
+    "overrides": {
+      "@astrojs/compiler": "file:../astro-compiler/packages/compiler"
+    }
+  }
+}
+```
+
+After adding the override, run `pnpm install` to link the local package. Make sure to build the dependency first so the `dist/` folder is up to date. Remove the override before committing.
+
 #### Contributing to language tooling
 
 For information on contributing to the language tooling (VS Code extension, language server, etc.), see [packages/language-tools/CONTRIBUTING.md](./packages/language-tools/CONTRIBUTING.md).
@@ -116,7 +132,7 @@ pnpm run test
 pnpm run test:match "$STRING_MATCH"
 # run tests on another package
 # (example - `pnpm --filter @astrojs/rss run test` runs `packages/astro-rss/test/rss.test.js`)
-pnpm --filter $STRING_MATCH run test
+pnpm --filter "$STRING_MATCH" run test
 ```
 
 Most tests use [`mocha`](https://mochajs.org) as the test runner. We're slowly migrating to use [`node:test`](https://nodejs.org/api/test.html) instead through the custom [`astro-scripts test`](./scripts/cmd/test.js) command. For packages that use `node:test`, you can run these commands in their directories:
@@ -165,7 +181,7 @@ node --test --test-only test/astro-basic.test.js
 
 #### Debugging tests in CI
 
-There might be occasions where some tests fail in certain CI runs due to some timeout issue. If this happens, it will be very difficult to understand which file cause the timeout. That's caused by come quirks of the Node.js test runner combined with our architecture.
+There might be occasions where some tests fail in certain CI runs due to some timeout issue. If this happens, it will be very difficult to understand which file cause the timeout. That's caused by some quirks of the Node.js test runner combined with our architecture.
 
 To understand which file causes the issue, you can modify the `test` script inside the `package.json` by adding the `--parallel` option:
 
@@ -176,7 +192,7 @@ To understand which file causes the issue, you can modify the `test` script insi
 }
 ```
 
-Save the change and **push it** to your PR. This change will make the test CI slower, but it will allow to see which files causes the timeout. Once you fixed the issue **revert the change and push it**.
+Save the change and **push it** to your PR. This change will make the test CI slower, but it will allow you to see which files cause the timeout. Once you fixed the issue **revert the change and push it**.
 
 #### E2E tests
 
@@ -194,7 +210,7 @@ pnpm run test:e2e:match "$STRING_MATCH"
 
 Any tests for `astro build` output should use the main `mocha` tests rather than E2E - these tests will run faster than having Playwright start the `astro preview` server.
 
-If a test needs to validate what happens on the page after it's loading in the browser, that's a perfect use for E2E dev server tests, i.e. to verify that hot-module reloading works in `astro dev` or that components were client hydrated and are interactive.
+If a test needs to validate what happens on the page after it's loaded in the browser, that's a perfect use for E2E dev server tests, i.e. to verify that hot-module reloading works in `astro dev` or that components were client hydrated and are interactive.
 
 #### Creating tests
 
@@ -203,8 +219,8 @@ When creating new tests, it's best to reference other existing test files and re
 - When re-using a fixture multiple times with different configurations, you should also configure unique `outDir`, `build.client`, and `build.server` values so the build output runtime isn't cached and shared by ESM between test runs.
 
 > [!IMPORTANT]
-> If tests start to fail for no apparent reason, the first thing to look at the `outDir` configuration. As build cache artifacts between runs, different tests might end up sharing some of the emitted modules.
-> To avoid this possible overlap, **make sure to add a custom `outDir` to your test case**
+> If tests start to fail for no apparent reason, the first thing to look at the `outDir` configuration. As build caches artifacts between runs, different tests might end up sharing some of the emitted modules.
+> To avoid this possible overlap, **make sure to add a custom `outDir` to your test case**.
 >
 > ```js
 > await loadFixture({
@@ -259,7 +275,7 @@ To run only a specific benchmark on CI, add its name after the command in your c
 
 ## For maintainers
 
-This paragraph provides some guidance to the maintainers of the monorepo. The guidelines explained here aren't necessarily followed by other repositories of the same GitHub organisation.
+This paragraph provides some guidance to the maintainers of the monorepo. The guidelines explained here aren't necessarily followed by other repositories of the GitHub organisation.
 
 ### Issue triaging workflow
 
@@ -301,7 +317,7 @@ The Astro project has five levels of priority to issues, where `p5` is the highe
 - `p4`: the bug impacts _many_ Astro projects, it doesn't have a workaround but Astro is still stable/usable.
 - `p3`: any bug that doesn't fall in the `p4` or `p5` category. If the documentation doesn't cover
   the case reported by the user, it's useful to initiate a discussion via the `"needs discussion"` label. Seek opinions from OP and other maintainers.
-- `p2`: all the bugs that have workarounds.
+- `p2`: all bugs that have workarounds.
 - `p1`: very minor bug, that impacts a small amount of users. Sometimes it's an edge case and it's easy to fix. Very useful if you want to assign the fix to a first-time contributor.
 
 > [!IMPORTANT]
@@ -312,13 +328,64 @@ Assigning labels isn't always easy and many times the distinction between the di
 - When assigning a `p2`, **always** add a comment that explains the workaround. If a workaround isn't provided, ping the person that assigned the label and ask them to provide one.
 - Astro has **many** features, but there are some that have a larger impact than others: development server, build command, HMR (TBD, we don't have a page that explains expectations of HMR in Astro), **evident** regressions in performance.
 - In case the number of reactions of an issue grows, the number of users affected grows, or a discussion uncovers some insights that weren't clear before, it's OK to change the priority of the issue. The maintainer **should** provide an explanation when assigning a different label.
-  As with any other contribution, triaging is voluntary and best-efforts. We welcome and appreciate all the help you're happy to give (including reading this!) and nothing more. If you are not confident about an issue, you are welcome to leave an issue untriaged for someone who would have more context, or to bring it to their attention.
+  As with any other contribution, triaging is voluntary and best-effort. We welcome and appreciate all the help you're happy to give (including reading this!) and nothing more. If you are not confident about an issue, you are welcome to leave an issue untriaged for someone who would have more context, or to bring it to their attention.
 
 ### Preview releases
 
 You can trigger a preview release **from a PR** anytime by using the label `pr preview`. Add this label, and a workflow will trigger, which at the end will add a comment with the instructions of how to install the preview release. A preview release will be created for each package that has a pending changeset.
 
 If you're in need to trigger multiple preview releases from the same PR, remove the label and add it again.
+
+## TypeScript project references
+
+The repo uses [TypeScript project references](https://www.typescriptlang.org/docs/handbook/project-references.html) so `tsc -b` only rebuilds projects that have actually changed (and their dependents). It also lets the editor "Go to Definition" jump straight to source across package boundaries, even before `pnpm build`.
+
+Run `pnpm typecheck` (which runs `tsc -b`) to incrementally typecheck. Use `pnpm typecheck --clean` to clear the build cache.
+
+### Shared configs
+
+Shared configs live under `configs/` at the repo root:
+
+- `configs/tsconfig.base.json`: base config that every other tsconfig extends from.
+- `configs/tsconfig.build.json`: builds packages. Includes `src/` and emits declarations to `dist/`.
+- `configs/tsconfig.test.json`: typechecks tests. Includes `test/`, excludes `test/fixtures/`.
+- `configs/tsconfig.language-tools.json`: variant for `packages/language-tools/` packages (targets commonjs).
+
+### Per-package layout
+
+The typical package has three tsconfig files:
+
+```jsonc
+// packages/<pkg>/tsconfig.build.json
+// Extends the shared build config. `references` declares workspace dependencies
+// and should mirror the deps in package.json (maintained manually for now).
+{
+  "extends": "../../configs/tsconfig.build.json",
+  "references": [{ "path": "../dep1/tsconfig.json" }, { "path": "../dep2/tsconfig.json" }],
+}
+```
+
+```jsonc
+// packages/<pkg>/tsconfig.test.json
+// References the package's own build so dist/ is built before tests typecheck.
+{
+  "extends": "../../configs/tsconfig.test.json",
+  "references": [{ "path": "./tsconfig.build.json" }],
+}
+```
+
+```jsonc
+// packages/<pkg>/tsconfig.json
+// Pure solution file. `"files": []` means it includes no sources of its own.
+// It only acts as the entry point that points at build + test.
+{
+  "extends": "../../configs/tsconfig.base.json",
+  "files": [],
+  "references": [{ "path": "./tsconfig.build.json" }, { "path": "./tsconfig.test.json" }],
+}
+```
+
+The repo-root `tsconfig.json` is the top-level solution file referencing every package. When adding a new package, add it to the root `references` list and wire its `tsconfig.build.json` `references` to match its workspace dependencies.
 
 ## Code Structure
 
@@ -334,6 +401,46 @@ Server-side rendering (SSR) can be complicated. The Astro package (`packages/ast
     - `server/`: Code that executes **inside Vite’s SSR.** Though this is a Node environment inside, this will be executed independently of `core/` and may have to be structured differently.
   - `vite-plugin-*/`: Any Vite plugins that Astro needs to run. For the most part, these also execute within Vite similar to `src/runtime/server/`, but it’s also helpful to think about them as independent modules. _Note: at the moment these are internal while they’re in development_
 
+### Public vs. internal API
+
+`packages/astro/package.json` declares two export maps:
+
+- `"exports"` — the monorepo view. Includes public entries plus `./_internal/*` subpaths for use by other workspace packages.
+- `"publishConfig.exports"` — the npm view. [pnpm replaces `"exports"` with this at publish time](https://pnpm.io/package_json#publishconfig), so `_internal/*` entries never ship.
+
+Other workspace packages should import internals via the subpath, not a deep relative path:
+
+```ts
+// Do this
+import { loadFixture } from 'astro/_internal/test/test-utils';
+// Not this
+import { loadFixture } from '../../../astro/test/test-utils.js';
+```
+
+**Example — public export `./foo`** (add to _both_ maps):
+
+```diff
+ "exports": {
++    "./foo": "./dist/foo.js",
+ },
+ "publishConfig": {
+   "exports": {
++    "./foo": "./dist/foo.js",
+   }
+ }
+```
+
+**Example — internal export `./_internal/foo`** (add to `"exports"` only):
+
+```diff
+ "exports": {
++    "./_internal/foo": "./dist/foo.js",
+ }
+ // publishConfig.exports unchanged
+```
+
+`packages/astro/test/exports.test.ts` will fail if the two maps drift out of sync (after stripping `./_internal/*` keys).
+
 ### Thinking about SSR
 
 There are 3 contexts in which code executes:
@@ -344,11 +451,18 @@ There are 3 contexts in which code executes:
 
 Understanding in which environment code runs, and at which stage in the process, can help clarify thinking about what Astro is doing. It also helps with debugging, for instance, if you’re working within `src/core/`, you know that your code isn’t executing within Vite, so you don’t have to debug Vite’s setup. But you will have to debug vite inside `runtime/server/`.
 
+### Deep Dives
+
+The `reference/` directory contains detailed reference docs on specific subsystems:
+
+- [`reference/optimize-deps.md`](./reference/optimize-deps.md) — Vite dep optimizer debugging playbook
+- [`reference/handlers.md`](./reference/handlers.md) — Handler pipeline, `PipelineFeatures`, and how to add feature checks for `src/app.ts`
+
 ### Making code testable
 
 To make it easier to test code, try decoupling **business logic** from **infrastructure**:
 
-- **Infrastucture** is code that depends on external systems and/or requires aspecial environment to run. For example: DB calls, file system, randomness etc...
+- **Infrastructure** is code that depends on external systems and/or requires a special environment to run. For example: DB calls, file system, randomness etc...
 - **Business logic** (or _core logic_ or _domain_) is the rest. It's pure logic that's easy to run from anywhere.
 
 That means avoiding side-effects by making external dependencies explicit. This often means passing more things as arguments.
