@@ -65,7 +65,7 @@
     "devalue": "^5.8.1",
     "prismjs": "^1.30.0",
     "tinyglobby": "^0.2.15",
-    "vitest": "4.1.10",
+    "vitest": "4.1.11",
     "wrangler": "^4.125.0"
   },
   "publishConfig": {
