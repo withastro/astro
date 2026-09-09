@@ -332,8 +332,8 @@ export default function createIntegration({
 							},
 							{
 								name: '@astrojs/cloudflare:environment',
-								config(config) {
-									const renderersPlugin = (config.plugins as any[])?.find(
+								config(viteConfig) {
+									const renderersPlugin = (viteConfig.plugins as any[])?.find(
 										(plugin) => plugin?.name === 'astro:plugin-renderers',
 									);
 									rendererServerEntries = (renderersPlugin?.renderers ?? []).map(
