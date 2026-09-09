@@ -142,6 +142,12 @@ export default function createIntegration({
 	let _buildOutput: 'server' | 'static';
 	let _originalClientDir: URL;
 
+	// Renderer server entrypoints (e.g. `@astrojs/svelte/server.js`), read from
+	// the `astro:plugin-renderers` plugin in the adapter's Vite `config` hook.
+	// Pre-bundling them up front keeps the dep optimizer from re-running
+	// mid-request, when workerd still references the previous bundle (#17921).
+	let rendererServerEntries: string[] = [];
+
 	let _routes: IntegrationResolvedRoute[];
 	let cfPluginConfig: PluginConfig;
 	let hasUserBuildImageService = false;
@@ -326,6 +332,17 @@ export default function createIntegration({
 							},
 							{
 								name: '@astrojs/cloudflare:environment',
+								config(config) {
+									const renderersPlugin = (config.plugins as any[])?.find(
+										(plugin) => plugin?.name === 'astro:plugin-renderers',
+									);
+									rendererServerEntries = (renderersPlugin?.renderers ?? []).map(
+										(renderer: { serverEntrypoint: string | URL }) =>
+											typeof renderer.serverEntrypoint === 'string'
+												? renderer.serverEntrypoint
+												: fileURLToPath(renderer.serverEntrypoint),
+									);
+								},
 								configEnvironment(environmentName, _options) {
 									// Skip dependency pre-bundling during type generation (see `isTypeGenPhase` above).
 									if (isTypeGenPhase) {
@@ -335,6 +352,11 @@ export default function createIntegration({
 										environmentName,
 									);
 									if (isServerEnvironment && !_options.optimizeDeps?.noDiscovery) {
+										// The prerender environment runs on Node when `prerenderEnvironment:
+										// 'node'`, where pre-bundling renderers would duplicate framework
+										// modules; only the workerd environments get the renderer entries.
+										const isNodePrerender =
+											prerenderEnvironment === 'node' && environmentName === 'prerender';
 										return {
 											optimizeDeps: {
 												include: [
@@ -371,6 +393,7 @@ export default function createIntegration({
 													...(prebundleContentRuntime ? (['astro/content/runtime'] as const) : []),
 													'astro/compiler-runtime',
 													'astro/jsx-runtime',
+													...(isNodePrerender ? [] : rendererServerEntries),
 													// Pre-bundled so a late discovery can't trigger a mid-request
 													// re-optimization (https://github.com/withastro/astro/issues/17921).
 													'astro/logger/console',
