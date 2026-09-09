@@ -73,14 +73,10 @@ export default function createVitePluginAstroServer({
 				return { controller, handler, loader, manifest, environment };
 			}
 
-			// Kick off the content config load and the dev server app compile as
-			// early as possible. Neither is needed until the first request, so
-			// instead of awaiting them here (which blocks server creation on the
-			// on-demand compilation of astro's own module graphs, ~400ms), install
-			// the middleware synchronously and let the request handlers await the
-			// in-flight results lazily. The dev server app compile is serialized
-			// after the content config load so the two don't contend for the main
-			// thread during startup.
+			// Kick off the content config load and dev server app compile as early
+			// as possible. Neither is needed until the first request, so install the
+			// middleware synchronously and let request handlers await the in-flight
+			// results without blocking server creation.
 			const astroEnvironment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.astro];
 			const runnableAstroEnvironment = isRunnableDevEnvironment(astroEnvironment)
 				? (astroEnvironment as RunnableDevEnvironment)
@@ -95,16 +91,16 @@ export default function createVitePluginAstroServer({
 				: Promise.resolve();
 
 			const ssrHandlerPromise = runnableSsrEnvironment
-				? contentConfigLoad.then(() => createHandler(runnableSsrEnvironment))
+				? createHandler(runnableSsrEnvironment)
 				: undefined;
 			const prerenderHandlerPromise = runnablePrerenderEnvironment
-				? contentConfigLoad.then(() => createHandler(runnablePrerenderEnvironment))
+				? createHandler(runnablePrerenderEnvironment)
 				: undefined;
 
-			// App setup uses the runnable environments' module runners. Keep shutdown
-			// from disconnecting those runners while an import is still in flight.
+			// Background setup uses the runnable environments' module runners. Keep
+			// shutdown from disconnecting those runners while an import is in flight.
 			(viteServer as any)[devServerAppReadySymbol] = Promise.allSettled(
-				[ssrHandlerPromise, prerenderHandlerPromise].filter(Boolean),
+				[contentConfigLoad, ssrHandlerPromise, prerenderHandlerPromise].filter(Boolean),
 			).then(() => undefined);
 
 			// Compile failures surface here so startup still reports them, and also
