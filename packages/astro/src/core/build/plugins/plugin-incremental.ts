@@ -396,10 +396,10 @@ function foldClientDependencies(graph: HashableModuleGraph, internals: BuildInte
 	}
 
 	if (rootsByComponent.size > 0) {
-		const graph = createEmptyDiagnosticGraph();
-		graph.modules = diagnostics.modules;
-		graph.routeRoots = Object.fromEntries(rootsByComponent);
-		internals.incrementalDiagnosticsClient = graph;
+		const clientGraph = createEmptyDiagnosticGraph();
+		clientGraph.modules = diagnostics.modules;
+		clientGraph.routeRoots = Object.fromEntries(rootsByComponent);
+		internals.incrementalDiagnosticsClient = clientGraph;
 	}
 }
 

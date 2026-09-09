@@ -18,8 +18,12 @@ const ROTATED_KEY = '7L9SkkvbK2nwAuX3pzmGk2ffANCIbINvjcjkkS9IB2E=';
 // Total paths: blog x4, sidebar x2, docs x2, index x1, plain x1, island x1.
 const TOTAL_PATHS = 11;
 
+// Built from String.fromCharCode so the literal never contains a control
+// character (eslint no-control-regex); `\[\d+m` matches ANSI SGR sequences.
+const ansiEscapePattern = new RegExp(`${String.fromCharCode(27)}\\[\\d+m`, 'g');
+
 function stripAnsi(text: string): string {
-	return text.replace(/\u001B\[\d+m/g, '');
+	return text.replace(ansiEscapePattern, '');
 }
 
 /** Replace volatile durations so exact summary lines stay stable. */

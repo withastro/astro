@@ -33,7 +33,7 @@ function formatReasonToken(reason: IncrementalPathMissReason): string {
 		case 'no-cache-key':
 			return 'no cacheKey';
 		case 'global-cache':
-			return reason.reasons.map((reason) => GLOBAL_REASON_TOKENS[reason]).join('; ');
+			return reason.reasons.map((loadReason) => GLOBAL_REASON_TOKENS[loadReason]).join('; ');
 		case 'new-route':
 			return 'new route';
 		case 'new-path':
@@ -417,7 +417,7 @@ function compactReasonToken(reason: IncrementalPathMissReason): string {
 		case 'no-cache-key':
 			return 'no cacheKey';
 		case 'global-cache':
-			return reason.reasons.map((reason) => GLOBAL_REASON_TOKENS[reason]).join('; ');
+			return reason.reasons.map((loadReason) => GLOBAL_REASON_TOKENS[loadReason]).join('; ');
 		case 'new-route':
 			return 'new route';
 		case 'new-path':
