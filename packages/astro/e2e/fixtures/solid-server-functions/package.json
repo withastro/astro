@@ -1,12 +1,13 @@
 {
-  "name": "@test/slots-solid",
+  "name": "@e2e/solid-server-functions",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/mdx": "workspace:*",
     "@astrojs/solid-js": "workspace:*",
+    "astro": "workspace:*"
+  },
+  "devDependencies": {
     "@solidjs/web": "^2.0.0-rc.5",
-    "astro": "workspace:*",
     "solid-js": "^2.0.0-rc.5"
   }
 }

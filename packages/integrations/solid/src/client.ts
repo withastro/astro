@@ -1,6 +1,5 @@
-import { Suspense } from 'solid-js';
-import { createStore, reconcile } from 'solid-js/store';
-import { createComponent, hydrate, render } from 'solid-js/web';
+import { createStore, reconcile } from 'solid-js';
+import { createComponent, hydrate, render } from '@solidjs/web';
 
 const alreadyInitializedElements = new WeakMap<Element, any>();
 
@@ -52,22 +51,12 @@ export default (element: HTMLElement) =>
 			// store the function to update the current mounted component
 			alreadyInitializedElements.set(element, setStore);
 
-			const fn = () => {
-				const inner = () => createComponent(Component, store);
+			// No boundary wrapper: the server render ships fully-settled HTML with
+			// no boundary of its own, and hydration structure must match. Async is
+			// first-class in Solid 2.0; components that want a fallback bring
+			// their own Loading boundary (present in both renders).
+			const fn = () => createComponent(Component, store);
 
-				if (isHydrate) {
-					return createComponent(Suspense, {
-						get children() {
-							return inner();
-						},
-					});
-				} else {
-					return inner();
-				}
-			};
-
-			// hydrate and render have different signatures for their third argument,
-			// so we call them separately instead of unifying into a single `bootstrap` call.
 			let dispose: () => void;
 			if (isHydrate) {
 				dispose = hydrate(fn, element, { renderId });

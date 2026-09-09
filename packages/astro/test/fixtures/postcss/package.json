@@ -6,10 +6,11 @@
     "@astrojs/solid-js": "workspace:*",
     "@astrojs/svelte": "workspace:*",
     "@astrojs/vue": "workspace:*",
+    "@solidjs/web": "^2.0.0-rc.5",
     "astro": "workspace:*",
     "autoprefixer": "^10.4.27",
     "postcss": "^8.5.8",
-    "solid-js": "^1.9.11",
+    "solid-js": "^2.0.0-rc.5",
     "svelte": "^5.54.0",
     "vue": "^3.5.30"
   },

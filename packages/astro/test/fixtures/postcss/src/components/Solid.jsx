@@ -1,4 +1,3 @@
-import { h } from 'solid-js';
 import './Solid.css';
 
 export default function Counter() {

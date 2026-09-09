@@ -37,11 +37,13 @@ export const presets = new Map<frameworkWithTSSettings, TSConfig>([
 		},
 	],
 	[
-		'solid-js', // https://www.solidjs.com/guides/typescript#configuring-typescript
+		// In Solid 2.0 renderer packages own their JSX namespaces and
+		// jsx-runtime type entries; `solid-js` no longer exports one.
+		'solid-js',
 		{
 			compilerOptions: {
 				jsx: 'preserve',
-				jsxImportSource: 'solid-js',
+				jsxImportSource: '@solidjs/web',
 			},
 		},
 	],
