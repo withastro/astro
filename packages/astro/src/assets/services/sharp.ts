@@ -8,6 +8,7 @@ import type {
 	SharpOptions,
 	WebpOptions,
 	SharpConstructor,
+	Sharp,
 } from 'sharp';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
@@ -50,6 +51,37 @@ export interface SharpImageServiceConfig {
 	 * The default encoder options passed to `sharp().avif()`.
 	 */
 	avif?: AvifOptions;
+
+	/**
+	 * If input EXIF data should be retained
+	 */
+	keepExif?: boolean;
+	/**
+	 * If input ICC profiles should be retained
+	 */
+	keepIccProfile?: boolean;
+	/**
+	 * If input XMP should be retained
+	 */
+	keepXmp?: boolean;
+	/**
+	 * If input metadata should be retained
+	 */
+	keepMetadata?: boolean;
+
+	/**
+	 * A callback that can be supplied to set custom EXIF / XMP / Metadata information
+	 * ***Example***
+	 * ```ts
+	 * resultPreprocessing( sharp ) => {
+	 *    sharp.withMetadata({ density: 96 });
+	 * }
+	 * ```
+	 */
+	resultPreprocessing?(
+		sharp: Sharp,
+		transform: Parameters<LocalImageService<SharpImageServiceConfig>['transform']>[1],
+	): void;
 }
 
 let sharp: SharpConstructor;
@@ -189,6 +221,26 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 
 		// always call rotate to adjust for EXIF data orientation
 		result.rotate();
+
+		if (typeof config.service.config.resultPreprocessing === 'function') {
+			try {
+				await config.service.config.resultPreprocessing(result, transform);
+			} catch (_e) {
+				logger.warn('Error occurred during image result preprocessing callback');
+			}
+		}
+		if (config.service.config.keepExif) {
+			result.keepExif();
+		}
+		if (config.service.config.keepIccProfile) {
+			result.keepIccProfile();
+		}
+		if (config.service.config.keepXmp) {
+			result.keepXmp();
+		}
+		if (config.service.config.keepMetadata) {
+			result.keepMetadata();
+		}
 
 		if (transform.width && transform.height) {
 			const fit: keyof FitEnum | undefined = transform.fit
