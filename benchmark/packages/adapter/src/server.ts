@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import type { SSRManifest } from 'astro';
-import { AppPipeline, BaseApp, type LogRequestPayload } from 'astro/app';
+import { BaseApp, type LogRequestPayload } from 'astro/app';
 
 class MyApp extends BaseApp {
 	#manifest: SSRManifest | undefined;
@@ -22,13 +22,6 @@ class MyApp extends BaseApp {
 		}
 
 		return super.render(request);
-	}
-
-	createPipeline(streaming: boolean) {
-		return AppPipeline.create({
-			manifest: this.manifest,
-			streaming,
-		});
 	}
 
 	logRequest(_options: LogRequestPayload) {}

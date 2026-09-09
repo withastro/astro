@@ -276,7 +276,7 @@ export async function createVite(
 					find: 'astro:middleware',
 					replacement: 'astro/virtual-modules/middleware.js',
 				},
-				// TODO: remove in Astro 7
+				// TODO: remove in Astro 8
 				{
 					find: 'astro:schema',
 					replacement: 'astro/zod',

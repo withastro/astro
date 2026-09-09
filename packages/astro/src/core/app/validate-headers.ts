@@ -31,10 +31,14 @@ interface ParsedHost {
 }
 
 /**
- * Parse a host string into hostname and port components.
+ * Parse a host string into hostname and port components. Returns `undefined`
+ * for a host that carries more than a single `hostname:port` pair (e.g.
+ * `example.com:8080:8080`), which is not a valid host and would otherwise be
+ * accepted by inspecting only the first two segments.
  */
-function parseHost(host: string): ParsedHost {
+function parseHost(host: string): ParsedHost | undefined {
 	const parts = host.split(':');
+	if (parts.length > 2) return undefined;
 	return {
 		hostname: parts[0],
 		port: parts[1],
@@ -78,7 +82,10 @@ export function validateHost(
 	const sanitized = sanitizeHost(host);
 	if (!sanitized) return undefined;
 
-	const { hostname, port } = parseHost(sanitized);
+	const parsed = parseHost(sanitized);
+	if (!parsed) return undefined;
+
+	const { hostname, port } = parsed;
 	if (matchesAllowedDomains(hostname, protocol, port, allowedDomains)) {
 		return sanitized;
 	}
@@ -145,8 +152,9 @@ export function validateForwardedHeaders(
 	if (forwardedHost && forwardedHost.length > 0 && allowedDomains && allowedDomains.length > 0) {
 		const protoForValidation = result.protocol || 'https';
 		const sanitized = sanitizeHost(forwardedHost);
-		if (sanitized) {
-			const { hostname, port: portFromHost } = parseHost(sanitized);
+		const parsed = sanitized ? parseHost(sanitized) : undefined;
+		if (sanitized && parsed) {
+			const { hostname, port: portFromHost } = parsed;
 			const portForValidation = result.port || portFromHost;
 			if (matchesAllowedDomains(hostname, protoForValidation, portForValidation, allowedDomains)) {
 				result.host = sanitized;

@@ -1,13 +1,31 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { getLocalWorkerdCompatibilityDate } from '../dist/info.js';
 import {
 	cloudflareConfigCustomizer,
 	DEFAULT_ASSETS_BINDING_NAME,
 	DEFAULT_IMAGES_BINDING_NAME,
 	DEFAULT_SESSION_KV_BINDING_NAME,
+	withNodejsAlsFlag,
 } from '../dist/wrangler.js';
 
 describe('cloudflareConfigCustomizer', () => {
+	describe('compatibility date', () => {
+		it('uses the date supported by the installed workerd', () => {
+			const customizer = cloudflareConfigCustomizer();
+			const result = customizer({});
+
+			assert.equal(result.compatibility_date, getLocalWorkerdCompatibilityDate().date);
+		});
+
+		it('preserves the user compatibility date', () => {
+			const customizer = cloudflareConfigCustomizer();
+			const result = customizer({ compatibility_date: '2025-01-01' });
+
+			assert.equal(result.compatibility_date, '2025-01-01');
+		});
+	});
+
 	describe('main entrypoint', () => {
 		it('sets main to the server entrypoint when none exists', () => {
 			const customizer = cloudflareConfigCustomizer();
@@ -279,5 +297,39 @@ describe('cloudflareConfigCustomizer', () => {
 		it('exports DEFAULT_ASSETS_BINDING_NAME as ASSETS', () => {
 			assert.equal(DEFAULT_ASSETS_BINDING_NAME, 'ASSETS');
 		});
+	});
+});
+
+// The build-time prerender worker needs AsyncLocalStorage to install the render
+// scope that attributes incremental-build metadata per concurrent request.
+describe('withNodejsAlsFlag', () => {
+	it('appends nodejs_als when no compatibility flags are configured', () => {
+		assert.deepEqual(withNodejsAlsFlag(undefined), ['nodejs_als']);
+		assert.deepEqual(withNodejsAlsFlag([]), ['nodejs_als']);
+	});
+
+	it('appends nodejs_als when only unrelated flags are configured', () => {
+		assert.deepEqual(withNodejsAlsFlag(['global_fetch_strictly_public']), [
+			'global_fetch_strictly_public',
+			'nodejs_als',
+		]);
+	});
+
+	it('leaves the flags alone when nodejs_als is already present', () => {
+		assert.deepEqual(withNodejsAlsFlag(['nodejs_als']), ['nodejs_als']);
+	});
+
+	it('leaves the flags alone when nodejs_compat is already present', () => {
+		assert.deepEqual(withNodejsAlsFlag(['nodejs_compat']), ['nodejs_compat']);
+	});
+
+	it('leaves the flags alone when nodejs_compat_v2 is already present', () => {
+		assert.deepEqual(withNodejsAlsFlag(['nodejs_compat_v2']), ['nodejs_compat_v2']);
+	});
+
+	it('does not mutate the input array when appending', () => {
+		const flags = ['global_fetch_strictly_public'];
+		withNodejsAlsFlag(flags);
+		assert.deepEqual(flags, ['global_fetch_strictly_public']);
 	});
 });

@@ -6,7 +6,7 @@ import { getSetCookiesFromResponse } from '../cookies/index.js';
  * and marks the response as sent.
  *
  * This is a pure function with no dependencies on the app; it is shared by
- * `AstroHandler` and the various error handlers.
+ * `handleRequest` and the various error handlers.
  */
 export function prepareResponse(
 	response: Response,

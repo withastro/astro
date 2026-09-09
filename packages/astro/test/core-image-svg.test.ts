@@ -237,4 +237,49 @@ describe('astro:assets - SVG Components', () => {
 			});
 		});
 	});
+
+	describe('SVGO prefixIds', () => {
+		let prefixFixture: Fixture;
+		let prefixDevServer: DevServer;
+
+		before(async () => {
+			prefixFixture = await loadFixture({
+				root: './fixtures/core-image-svg/',
+				experimental: {
+					svgOptimizer: svgoOptimizer({
+						plugins: [{ name: 'cleanupIds' }, { name: 'prefixIds' }],
+					}),
+				},
+				outDir: './dist/core-image-svg-prefix-ids/',
+			});
+
+			prefixDevServer = await prefixFixture.startDevServer();
+		});
+
+		after(async () => {
+			await prefixDevServer.stop();
+		});
+
+		it('generates unique id prefixes per file', async () => {
+			const res = await prefixFixture.fetch('/prefix-ids');
+			const html = await res.text();
+			const $ = cheerio.load(html, { xml: true });
+
+			const $one = $('#one svg');
+			const $two = $('#two svg');
+			assert.equal($one.length, 1);
+			assert.equal($two.length, 1);
+
+			const oneGradientId = $one.find('linearGradient').attr('id');
+			const twoGradientId = $two.find('linearGradient').attr('id');
+
+			assert.ok(oneGradientId, 'first SVG gradient should have an id');
+			assert.ok(twoGradientId, 'second SVG gradient should have an id');
+			assert.notEqual(
+				oneGradientId,
+				twoGradientId,
+				`gradient ids must differ across files, but both are "${oneGradientId}"`,
+			);
+		});
+	});
 });

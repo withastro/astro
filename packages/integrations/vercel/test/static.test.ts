@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
 import { before, describe, it } from 'node:test';
 import { type Fixture, loadFixture } from './test-utils.ts';
 
@@ -20,5 +21,12 @@ describe('static routing', () => {
 			dest: '/404.html',
 			status: 404,
 		});
+	});
+
+	it('does not create a serverless function', () => {
+		assert.equal(
+			existsSync(new URL('.vercel/output/functions/_render.func/', fixture.config.root)),
+			false,
+		);
 	});
 });

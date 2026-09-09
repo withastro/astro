@@ -30,7 +30,12 @@ export default {
 			realPath = url.searchParams.get(ASTRO_PATH_PARAM);
 		}
 		if (typeof realPath === 'string') {
-			url.pathname = realPath;
+			// The header carries the client's whole path, query included; the route
+			// rewrite carries only the pathname and leaves the query on this request.
+			const target = new URL(realPath, url);
+			const search = target.search || url.search;
+			url.pathname = target.pathname;
+			url.search = search;
 			// Remove the internal routing params so they never reach user code.
 			url.searchParams.delete(ASTRO_PATH_PARAM);
 			url.searchParams.delete(ASTRO_PATH_TOKEN_PARAM);

@@ -32,7 +32,7 @@ import {
 	getInjectableWebAnalyticsContent,
 	type VercelWebAnalyticsConfig,
 } from './lib/web-analytics.js';
-import { generateEdgeMiddleware } from './serverless/middleware.js';
+import { generateEdgeMiddleware, type IsrForwarding } from './serverless/middleware.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
 
 const PACKAGE_NAME = '@astrojs/vercel';
@@ -127,6 +127,7 @@ function getAdapter({
 		adapterFeatures: {
 			buildOutput,
 			middlewareMode,
+			preserveBuildServerDir: true,
 			staticHeaders,
 		},
 		supportedAstroFeatures: {
@@ -266,6 +267,7 @@ export default function vercelAdapter({
 	let _buildTempFolder: URL;
 	let _serverEntry: string;
 	let _middlewareEntryPoint: URL | undefined;
+	let _hasServerBuild = false;
 	let _routeToHeaders: RouteToHeaders | undefined = undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
@@ -295,6 +297,9 @@ export default function vercelAdapter({
 					build: {
 						format: 'directory',
 						redirects: false,
+						...(config.output === 'static'
+							? { server: new URL('./.vercel/output/server/', config.root) }
+							: {}),
 					},
 					integrations: [
 						{
@@ -393,10 +398,12 @@ export default function vercelAdapter({
 				_serverEntry = config.build.serverEntry;
 			},
 			'astro:build:start': async () => {
+				_hasServerBuild = false;
 				// Ensure to have `.vercel/output` empty.
 				await emptyDir(new URL('./.vercel/output/', _config.root));
 			},
 			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
+				_hasServerBuild = true;
 				_middlewareEntryPoint = middlewareEntryPoint;
 			},
 
@@ -405,6 +412,7 @@ export default function vercelAdapter({
 			},
 			'astro:build:done': async ({ logger }: HookParameters<'astro:build:done'>) => {
 				const outDir = new URL('./.vercel/output/', _config.root);
+
 				if (staticDir) {
 					if (existsSync(staticDir)) {
 						await emptyDir(staticDir);
@@ -428,9 +436,9 @@ export default function vercelAdapter({
 					middlewarePath?: string;
 				}> = [];
 
-				if (_buildOutput === 'server') {
+				if (_hasServerBuild) {
 					// Merge any includes from `vite.assetsInclude
-					if (_config.vite.assetsInclude) {
+					if (_buildOutput === 'server' && _config.vite.assetsInclude) {
 						const mergeGlobbedIncludes = (globPattern: unknown) => {
 							if (typeof globPattern === 'string') {
 								const entries = globSync(globPattern).map((p) => pathToFileURL(p));
@@ -460,7 +468,11 @@ export default function vercelAdapter({
 					);
 
 					const entryFile = new URL(_serverEntry, _buildTempFolder);
-					if (isr) {
+					// Routes the edge middleware forwards to `_isr` instead of `_render`.
+					const isrRoutes: string[] = [];
+					// Checked first: a dynamic ISR route can also match an excluded path.
+					const isrExcludedRoutes: string[] = [];
+					if (_buildOutput === 'server' && isr) {
 						const isrConfig = typeof isr === 'object' ? isr : {};
 						await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
 						if (isrConfig.exclude?.length) {
@@ -477,10 +489,9 @@ export default function vercelAdapter({
 							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 							for (const route of expandedExclusions) {
 								// vercel interprets src as a regex pattern, so we need to escape it
-								routeDefinitions.push({
-									src: escapeRegex(route),
-									dest,
-								});
+								const src = escapeRegex(route);
+								routeDefinitions.push({ src, dest });
+								isrExcludedRoutes.push(src);
 							}
 						}
 						await builder.buildISRFolder(entryFile, '_isr', isrConfig, _config.root);
@@ -496,15 +507,21 @@ export default function vercelAdapter({
 
 							if (!excludeRouteFromIsr) {
 								const src = route.patternRegex.source;
-								const dest =
-									src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands')
-										? NODE_PATH
-										: getIsrPath(middlewareSecret);
-								if (!route.isPrerendered)
-									routeDefinitions.push({
-										src,
-										dest,
-									});
+								const isInternal =
+									src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands');
+
+								let dest = getIsrPath(middlewareSecret);
+								if (isInternal) {
+									dest = NODE_PATH;
+								} else if (_middlewareEntryPoint) {
+									// The middleware has to run before the cache is consulted.
+									dest = MIDDLEWARE_PATH;
+								}
+
+								if (!route.isPrerendered) {
+									routeDefinitions.push({ src, dest });
+									if (!isInternal) isrRoutes.push(src);
+								}
 							}
 						}
 					} else {
@@ -524,6 +541,7 @@ export default function vercelAdapter({
 							_middlewareEntryPoint,
 							MIDDLEWARE_PATH,
 							middlewareSecret,
+							{ isrRoutes, isrExcludedRoutes },
 						);
 					}
 				}
@@ -538,7 +556,7 @@ export default function vercelAdapter({
 						continue: true,
 					},
 				];
-				if (_buildOutput === 'server') {
+				if (_hasServerBuild) {
 					finalRoutes.push(...routeDefinitions);
 				}
 
@@ -638,7 +656,7 @@ export default function vercelAdapter({
 				});
 
 				// Remove temporary folder
-				if (_buildOutput === 'server') {
+				if (_hasServerBuild) {
 					await removeDir(_buildTempFolder);
 				}
 			},
@@ -741,7 +759,12 @@ class VercelBuilder {
 		});
 	}
 
-	async buildMiddlewareFolder(entry: URL, functionName: string, middlewareSecret: string) {
+	async buildMiddlewareFolder(
+		entry: URL,
+		functionName: string,
+		middlewareSecret: string,
+		isrForwarding?: IsrForwarding,
+	) {
 		const functionFolder = new URL(`./functions/${functionName}.func/`, this.outDir);
 
 		await generateEdgeMiddleware(
@@ -751,6 +774,7 @@ class VercelBuilder {
 			new URL('./middleware.mjs', functionFolder),
 			middlewareSecret,
 			this.logger,
+			isrForwarding,
 		);
 
 		await writeJson(new URL(`./.vc-config.json`, functionFolder), {

@@ -92,9 +92,17 @@ export function vitePluginFetchable({ settings }: { settings: AstroSettings }): 
 					};
 				}
 				// No user-authored app — fall back to the built-in pipeline.
+				// `isDefaultFetchHandler` lets the dev server's per-request
+				// re-import recognize this fallback WITHOUT relying on
+				// `instanceof`: in dev the module graph containing this virtual
+				// module can be invalidated (any src change invalidates the
+				// manifest module, whose importers include the default handler),
+				// so a re-evaluation would otherwise produce a different class
+				// identity than the facade's own DefaultFetchHandler.
 				return {
 					code: `import { DefaultFetchHandler } from 'astro/app/fetch/default-handler';
-export default new DefaultFetchHandler();`,
+export default new DefaultFetchHandler();
+export const isDefaultFetchHandler = true;`,
 				};
 			},
 		},

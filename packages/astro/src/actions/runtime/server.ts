@@ -1,8 +1,9 @@
 import { stringify as devalueStringify } from 'devalue';
 import * as z from 'zod/v4/core';
-import type { Pipeline } from '../../core/base-pipeline.js';
 import { shouldAppendForwardSlash } from '../../core/build/util.js';
-import { pipelineSymbol, REDIRECT_STATUS_CODES } from '../../core/constants.js';
+import { REDIRECT_STATUS_CODES } from '../../core/constants.js';
+import { getFetchStateFromAPIContext } from '../../core/fetch/fetch-state.js';
+import { getAction } from '../load.js';
 import {
 	ActionCalledFromServerError,
 	ActionNotFoundError,
@@ -170,17 +171,17 @@ export function getActionContext(context: APIContext): AstroActionContext {
 			calledFrom: callerInfo.from,
 			name: callerInfo.name,
 			handler: async () => {
-				const pipeline: Pipeline = Reflect.get(context, pipelineSymbol);
+				const { manifest } = getFetchStateFromAPIContext(context);
 				const callerInfoName = shouldAppendForwardSlash(
-					pipeline.manifest.trailingSlash,
-					pipeline.manifest.buildFormat,
+					manifest.trailingSlash,
+					manifest.buildFormat,
 				)
 					? removeTrailingForwardSlash(callerInfo.name)
 					: callerInfo.name;
 
 				let baseAction;
 				try {
-					baseAction = await pipeline.getAction(callerInfoName);
+					baseAction = await getAction(manifest, callerInfoName);
 				} catch (error) {
 					// Check if this is an ActionNotFoundError by comparing the name property
 					// We use this approach instead of instanceof because the error might be
@@ -196,7 +197,7 @@ export function getActionContext(context: APIContext): AstroActionContext {
 					throw error;
 				}
 
-				const bodySizeLimit = pipeline.manifest.actionBodySizeLimit;
+				const bodySizeLimit = manifest.actionBodySizeLimit;
 				let input;
 				try {
 					input = await parseRequestBody(context.request, bodySizeLimit);

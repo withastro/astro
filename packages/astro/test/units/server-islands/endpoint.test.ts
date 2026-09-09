@@ -1,7 +1,25 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getRequestData } from '../../../dist/core/server-islands/endpoint.js';
+import * as cheerio from 'cheerio';
+import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
+import {
+	createEndpoint,
+	getRequestData,
+	SERVER_ISLAND_COMPONENT,
+} from '../../../dist/core/server-islands/endpoint.js';
 import type { RenderOptions } from '../../../dist/core/server-islands/endpoint.js';
+import { createKey, encryptString } from '../../../dist/core/encryption.js';
+import {
+	type AstroComponentFactory,
+	createComponent,
+	createHeadAndContent,
+	maybeRenderHead,
+	render,
+	renderComponent,
+	renderSlot,
+} from '../../../dist/runtime/server/index.js';
+import { createRouteData } from '../mocks.ts';
+import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
 
 // #region Helpers
 
@@ -288,4 +306,97 @@ describe('getRequestData', () => {
 		}
 	});
 	// #endregion
+});
+
+async function renderServerIsland(Component: AstroComponentFactory) {
+	const key = await createKey();
+	const pipeline = createBasicPipeline({
+		manifest: {
+			key: Promise.resolve(key),
+			serverIslandMappings: async () => ({
+				serverIslandMap: new Map([['ContentIsland', async () => ({ default: Component })]]),
+			}),
+		},
+	});
+	const encryptedExport = await encryptString(key, 'default', 'export:ContentIsland');
+	const url = new URL('http://example.com/_server-islands/ContentIsland');
+	url.searchParams.set('e', encryptedExport);
+	url.searchParams.set('p', '');
+	url.searchParams.set('s', '');
+	const state = new FetchState(pipeline.manifest, new Request(url));
+	state.routeData = createRouteData({
+		route: '/_server-islands/[name]',
+		component: SERVER_ISLAND_COMPONENT,
+		segments: [
+			[{ content: '_server-islands', dynamic: false, spread: false }],
+			[{ content: 'name', dynamic: true, spread: false }],
+		],
+	});
+	state.pathname = url.pathname;
+
+	const response = await renderThroughMiddleware(state, createEndpoint(pipeline.manifest));
+	return response.text();
+}
+
+describe('server island endpoint', () => {
+	it('serializes propagated head assets into the fragment response', async () => {
+		const Content = createComponent({
+			factory() {
+				return createHeadAndContent(
+					'<style>.box{color:red}</style><link rel="stylesheet" href="/content.css"><script type="module" src="/content.js"></script>',
+					render`${maybeRenderHead()}<div class="box">Island content</div>`,
+				);
+			},
+			propagation: 'self',
+		});
+		const Island = createComponent(
+			(result) => render`${renderComponent(result, 'Content', Content, {}, {})}`,
+		);
+		const $ = cheerio.load(await renderServerIsland(Island), null, false);
+
+		assert.equal($('style').length, 1);
+		assert.equal($('style').text(), '.box{color:red}');
+		assert.equal($('link[rel="stylesheet"][href="/content.css"]').length, 1);
+		assert.equal($('script[type="module"][src="/content.js"]').length, 1);
+		assert.equal($('.box').text(), 'Island content');
+		assert.equal($.root().contents().first().is('style'), true);
+	});
+
+	it('waits for async slots before serializing propagated head assets', async () => {
+		const Content = createComponent({
+			factory() {
+				return createHeadAndContent(
+					'<style>.async{color:red}</style>',
+					render`<div class="async">Async content</div>`,
+				);
+			},
+			propagation: 'self',
+		});
+		const Wrapper = createComponent({
+			factory(result, _props, slots) {
+				return render`<section>${renderSlot(result, slots.default)}</section>`;
+			},
+			propagation: 'in-tree',
+		});
+		const Island = createComponent(
+			(result) =>
+				render`${renderComponent(
+					result,
+					'Wrapper',
+					Wrapper,
+					{},
+					{
+						default: async () => {
+							await new Promise((resolve) => setTimeout(resolve, 10));
+							return render`${renderComponent(result, 'Content', Content, {}, {})}`;
+						},
+					},
+				)}`,
+		);
+		const $ = cheerio.load(await renderServerIsland(Island), null, false);
+
+		assert.equal($('style').text(), '.async{color:red}');
+		assert.equal($('.async').text(), 'Async content');
+		assert.equal($.root().contents().first().is('style'), true);
+	});
 });

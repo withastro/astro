@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { Hono } from 'hono';
 import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
-import { appSymbol } from '../../../dist/core/constants.js';
+import { setAmbientManifest } from '../../../dist/core/manifest/ambient.js';
 import { astro, getFetchState } from '../../../dist/core/hono/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createPage, createTestApp } from '../mocks.ts';
@@ -19,12 +19,10 @@ type HonoEnv = {
 };
 
 function createHonoApp(astroApp: ReturnType<typeof createTestApp>) {
-	const hono = new Hono<HonoEnv>();
-	hono.use(async (context, next) => {
-		Reflect.set(context.req.raw, appSymbol, astroApp);
-		await next();
-	});
-	return hono;
+	// The composable helpers resolve static data from the ambient manifest —
+	// there is no app handle on the request anymore.
+	setAmbientManifest(astroApp.manifest);
+	return new Hono<HonoEnv>();
 }
 
 describe('astro() Hono middleware', () => {
@@ -42,7 +40,7 @@ describe('astro() Hono middleware', () => {
 		const astroApp = createTestApp([createPage(page, { route: '/' })]);
 		const hono = createHonoApp(astroApp);
 		hono.use(async (context, next) => {
-			const state = new FetchState(astroApp.pipeline, context.req.raw);
+			const state = new FetchState(astroApp.manifest, context.req.raw);
 			state.locals = { message: 'from stashed FetchState' } as any;
 			context.set('fetchState', state);
 			await next();
