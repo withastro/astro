@@ -1,9 +1,15 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import type { AstroIntegration, HookParameters } from 'astro';
 import createIntegration from '../../dist/index.js';
 
 type UpdateConfigParam = Parameters<HookParameters<'astro:config:setup'>['updateConfig']>[0];
+
+// A real absolute file URL, valid on every platform (a Unix `/tmp/...` URL
+// would make the adapter's `fileURLToPath` throw on Windows).
+const reactServerURL = new URL('./react-server.js', import.meta.url);
+const reactServerPath = fileURLToPath(reactServerURL);
 
 const stubConfig = {
 	root: new URL('./fixtures/user-optimize-deps/', import.meta.url),
@@ -75,7 +81,7 @@ describe('@astrojs/cloudflare optimizeDeps includes', () => {
 			{
 				name: '@astrojs/react',
 				clientEntrypoint: '@astrojs/react/client.js',
-				serverEntrypoint: new URL('file:///tmp/react-server.js'),
+				serverEntrypoint: reactServerURL,
 			},
 		]);
 
@@ -105,7 +111,7 @@ describe('@astrojs/cloudflare optimizeDeps includes', () => {
 				`${environmentName} should pre-include string renderer server entrypoints, got: ${JSON.stringify(include)}`,
 			);
 			assert.ok(
-				include.includes('/tmp/react-server.js'),
+				include.includes(reactServerPath),
 				`${environmentName} should pre-include URL renderer server entrypoints, got: ${JSON.stringify(include)}`,
 			);
 		}
