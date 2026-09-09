@@ -18,14 +18,19 @@ const HANDLE_TWO = 'WPGYjwIlzWVNM1bYhOc83w';
 
 function moduleInfo(
 	id: string,
-	{ code = '', importedIds = [] as string[], importers = [] as string[] } = {},
+	{
+		code = '',
+		importedIds = [] as string[],
+		importers = [] as string[],
+		dynamicallyImportedIds = [] as string[],
+	} = {},
 ) {
 	return {
 		id,
 		code,
 		importedIds,
 		importers,
-		dynamicallyImportedIds: [],
+		dynamicallyImportedIds,
 		dynamicImporters: [] as string[],
 		meta: {},
 	};
@@ -77,6 +82,50 @@ function dependencyHash(
 	const plugin = pluginIncremental(internals, ROOT) as any;
 	plugin.generateBundle.call(pluginContext(codeByModule, fileNames, importedIds));
 	return internals.pageDependencyHashes.get(COMPONENT);
+}
+
+function diagnosticsGraph(
+	codeByModule: Record<string, string>,
+	fileNames: Record<string, string>,
+	importedIds: string[],
+	dynamicallyImportedIds: string[] = [],
+	moduleImports: Record<string, { importedIds?: string[]; dynamicallyImportedIds?: string[] }> = {},
+) {
+	const internals = { pagesByViteID: new Map([[PAGE_ID, { component: COMPONENT }]]) } as any;
+	const plugin = pluginIncremental(internals, ROOT) as any;
+	const modules = new Map([
+		[
+			PAGE_ID,
+			moduleInfo(PAGE_ID, {
+				code: 'export default page',
+				importedIds,
+				dynamicallyImportedIds,
+				importers: [VIRTUAL_PAGE_RESOLVED_MODULE_ID],
+			}),
+		],
+		...[...importedIds, ...dynamicallyImportedIds].map((id) => {
+			const overrides = moduleImports[id] ?? {};
+			return [
+				id,
+				moduleInfo(id, {
+					code: codeByModule[id],
+					importedIds: overrides.importedIds ?? [],
+					dynamicallyImportedIds: overrides.dynamicallyImportedIds ?? [],
+				}),
+			] as const;
+		}),
+	]);
+	plugin.generateBundle.call({
+		environment: { name: 'prerender' },
+		getModuleIds: () => modules.keys(),
+		getModuleInfo: (id: string) => modules.get(id) ?? null,
+		getFileName: (handle: string) => {
+			const fileName = fileNames[handle];
+			if (!fileName) throw new Error(`Unknown reference id ${handle}`);
+			return fileName;
+		},
+	});
+	return internals.incrementalDiagnosticsPrerender as Record<string, any>;
 }
 
 describe('pluginIncremental', () => {
@@ -150,6 +199,126 @@ describe('pluginIncremental', () => {
 
 				assert.equal(first, second);
 			});
+		});
+	});
+
+	describe('diagnostics graph', () => {
+		const MODULE = '/project/src/utils/format.ts';
+
+		it('records the page root and module fingerprints', () => {
+			const diagnostics = diagnosticsGraph({ [MODULE]: 'export const fmt = 1;' }, {}, [MODULE]);
+			assert.deepEqual(diagnostics.routeRoots[COMPONENT], [PAGE_ID]);
+			assert.match(diagnostics.modules[PAGE_ID].fingerprint, /^[0-9a-f]{64}$/);
+			assert.match(diagnostics.modules[MODULE].fingerprint, /^[0-9a-f]{64}$/);
+		});
+
+		it('keeps fingerprints stable across unstable asset handles', () => {
+			const first = diagnosticsGraph(
+				{ [RED]: imageCode(HANDLE_ONE), [BLUE]: imageCode(HANDLE_TWO) },
+				{ [HANDLE_ONE]: '_astro/red.aaaa.png', [HANDLE_TWO]: '_astro/blue.bbbb.png' },
+				[RED, BLUE],
+			);
+			const second = diagnosticsGraph(
+				{ [RED]: imageCode(HANDLE_TWO), [BLUE]: imageCode(HANDLE_ONE) },
+				{ [HANDLE_TWO]: '_astro/red.aaaa.png', [HANDLE_ONE]: '_astro/blue.bbbb.png' },
+				[RED, BLUE],
+			);
+			assert.equal(first.modules[RED].fingerprint, second.modules[RED].fingerprint);
+			assert.equal(first.modules[BLUE].fingerprint, second.modules[BLUE].fingerprint);
+		});
+
+		it('changes a fingerprint when the module code changes', () => {
+			const first = diagnosticsGraph({ [MODULE]: 'export const a = 1;' }, {}, [MODULE]);
+			const second = diagnosticsGraph({ [MODULE]: 'export const a = 2;' }, {}, [MODULE]);
+			assert.notEqual(first.modules[MODULE].fingerprint, second.modules[MODULE].fingerprint);
+		});
+
+		it('changes a fingerprint when an import edge changes', () => {
+			const OTHER = '/project/src/utils/other.ts';
+			const EXTRA = '/project/src/utils/extra.ts';
+			const first = diagnosticsGraph(
+				{ [MODULE]: 'x', [OTHER]: 'y', [EXTRA]: 'z' },
+				{},
+				[MODULE],
+				[],
+				{ [MODULE]: { importedIds: [OTHER] } },
+			);
+			const second = diagnosticsGraph(
+				{ [MODULE]: 'x', [OTHER]: 'y', [EXTRA]: 'z' },
+				{},
+				[MODULE],
+				[],
+				{ [MODULE]: { importedIds: [OTHER, EXTRA] } },
+			);
+			assert.notEqual(first.modules[MODULE].fingerprint, second.modules[MODULE].fingerprint);
+		});
+
+		it('captures static and dynamic import edges', () => {
+			const STATIC = '/project/src/static.ts';
+			const DYNAMIC = '/project/src/dynamic.ts';
+			const diagnostics = diagnosticsGraph(
+				{ [STATIC]: 's', [DYNAMIC]: 'd' },
+				{},
+				[STATIC],
+				[DYNAMIC],
+			);
+			assert.deepEqual(diagnostics.modules[PAGE_ID].importedIds, [STATIC]);
+			assert.deepEqual(diagnostics.modules[PAGE_ID].dynamicallyImportedIds, [DYNAMIC]);
+		});
+
+		it('records content render roots for propagated asset modules', () => {
+			const RENDER = '/project/src/content/docs/a.mdx';
+			const PROPAGATED = `${RENDER}?astroPropagatedAssets`;
+			const diagnostics = diagnosticsGraph(
+				{ [RENDER]: 'export default {};', [PROPAGATED]: 'import x from "./a.mdx";' },
+				{},
+				[RENDER, PROPAGATED],
+			);
+			assert.deepEqual(diagnostics.contentRoots['src/content/docs/a.mdx'], [RENDER]);
+		});
+
+		it('records client entrypoint roots for consuming routes', () => {
+			const internals = {
+				pagesByViteID: new Map([[PAGE_ID, { component: COMPONENT }]]),
+				pageDependencyHashes: new Map([[COMPONENT, 'base']]),
+				discoveredClientOnlyComponents: new Map([
+					['/@fs/project/src/components/Search.tsx', ['default']],
+				]),
+				pagesByClientOnly: new Map([
+					['/@fs/project/src/components/Search.tsx', new Set([{ component: COMPONENT }])],
+				]),
+				discoveredScripts: new Set(),
+				pagesByScriptId: new Map(),
+				incrementalDiagnosticsPrerender: {
+					modules: {},
+					routeRoots: {},
+					contentRoots: {},
+					routeDependencyHashes: { [COMPONENT]: 'base' },
+				},
+			} as any;
+			const plugin = pluginIncremental(internals, ROOT) as any;
+			const entryId = '/@fs/project/src/components/Search.tsx';
+			const modules = new Map([
+				[entryId, moduleInfo(entryId, { code: 'export default () => null;' })],
+			]);
+			plugin.generateBundle.call({
+				environment: { name: 'client' },
+				getModuleIds: () => modules.keys(),
+				getModuleInfo: (id: string) => modules.get(id) ?? null,
+				getFileName: (handle: string) => {
+					throw new Error(`Unknown reference id ${handle}`);
+				},
+			});
+			const client = internals.incrementalDiagnosticsClient;
+			assert.ok(client, 'client diagnostics should be recorded');
+			assert.deepEqual(client.routeRoots[COMPONENT], [entryId]);
+			assert.ok(client.modules[entryId], 'client module should be fingerprinted');
+			// The final aggregate hash is folded back into the prerender sidecar so
+			// the next build can trust the diagnostics for this route.
+			assert.notEqual(
+				internals.incrementalDiagnosticsPrerender.routeDependencyHashes[COMPONENT],
+				'base',
+			);
 		});
 	});
 });

@@ -2,6 +2,7 @@ import type { SSRResult } from '../../types/public/internal.js';
 import type { AstroEnvironmentNames } from '../constants.js';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
+import type { DiagnosticGraph } from './incremental.js';
 import type { PageBuildData, StylesheetAsset, ViteID } from './types.js';
 
 export interface BuildInternals {
@@ -163,6 +164,20 @@ export interface BuildInternals {
 	 * cache only reuses them while the encryption key is unchanged.
 	 */
 	serverIslandPageComponents?: Set<string>;
+
+	/**
+	 * Per-module fingerprints and import edges of the prerender build's module
+	 * graph, collected by the incremental plugin. Written to the diagnostics
+	 * sidecar so the next build can explain why a route's dependency hash
+	 * changed. Diagnostics never affect reuse decisions.
+	 */
+	incrementalDiagnosticsPrerender?: DiagnosticGraph;
+
+	/**
+	 * Per-module fingerprints and import edges of the client build's module
+	 * graph, plus the client-only/hoisted-script entrypoints each route consumes.
+	 */
+	incrementalDiagnosticsClient?: DiagnosticGraph;
 }
 
 /**

@@ -1,0 +1,6 @@
+---
+import { items } from './sidebar_data.ts';
+---
+<nav class="sidebar" data-version="v1">
+	{items.map((item) => <a href={`/${item.toLowerCase()}`}>{item}</a>)}
+</nav>

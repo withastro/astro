@@ -38,7 +38,17 @@ import { routeIsRedirect } from '../routing/helpers.js';
 import { getOutputFilename } from '../output-filename.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
-import { IncrementalBuildCache } from './incremental.js';
+import {
+	createEmptyDiagnosticGraph,
+	IncrementalBuildCache,
+	type IncrementalDiagnosticsFile,
+	type IncrementalPathMissReason,
+} from './incremental.js';
+import {
+	formatMissSuffix,
+	IncrementalBuildReporter,
+	logCacheLoadResult,
+} from './incremental-logging.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
@@ -101,20 +111,33 @@ export async function generatePages(
 
 	// Incremental build support
 	let cache: IncrementalBuildCache | null = null;
+	let reporter: IncrementalBuildReporter | null = null;
 	if (options.settings.config.experimental.incrementalBuild) {
 		const [configHash, lockfileHash, keyDigest] = await Promise.all([
 			computeConfigHash(options.settings.config),
 			computeLockfileHash(fileURLToPath(options.settings.config.root)),
 			options.key.then(hashCryptoKey),
 		]);
+		const diagnostics: IncrementalDiagnosticsFile | null =
+			internals.incrementalDiagnosticsPrerender || internals.incrementalDiagnosticsClient
+				? {
+						version: 1,
+						prerender: internals.incrementalDiagnosticsPrerender ?? createEmptyDiagnosticGraph(),
+						client: internals.incrementalDiagnosticsClient ?? createEmptyDiagnosticGraph(),
+					}
+				: null;
 		cache = IncrementalBuildCache.load(
 			options.settings,
 			configHash,
 			lockfileHash,
 			keyDigest,
 			internals.contentEntryRenderHashes ?? new Map(),
+			diagnostics,
 			options.force,
 		);
+		reporter = new IncrementalBuildReporter();
+		// Report global cache state before any path decisions are made.
+		logCacheLoadResult(cache.loadResult, logger);
 	}
 
 	try {
@@ -203,6 +226,7 @@ export async function generatePages(
 									logger,
 									cache,
 									cacheKey,
+									reporter,
 								),
 							),
 						);
@@ -222,6 +246,7 @@ export async function generatePages(
 						logger,
 						cache,
 						cacheKey,
+						reporter,
 					);
 				}
 			}
@@ -272,6 +297,16 @@ export async function generatePages(
 				logger.info('build', `Pruned ${pruned} stale file(s) from the incremental cache.`);
 			}
 			cache.writeManifest(options.settings);
+			// Diagnostics are optional provenance; never fail the build over them.
+			try {
+				cache.writeDiagnostics(options.settings);
+			} catch (err) {
+				logger.warn(
+					'cache',
+					`Incremental cache dependency diagnostics could not be saved; cache reuse is unaffected. (${err})`,
+				);
+			}
+			reporter?.printSummary(logger);
 		}
 
 		// Must happen before teardown since collectStaticImages fetches from the prerender server
@@ -613,6 +648,7 @@ async function generatePathWithPrerenderer(
 	logger: AstroLogger,
 	cache: IncrementalBuildCache | null,
 	cacheKey: string | undefined,
+	reporter: IncrementalBuildReporter | null,
 ): Promise<void> {
 	const timeStart = performance.now();
 	const { config } = options.settings;
@@ -630,26 +666,29 @@ async function generatePathWithPrerenderer(
 	const dependencyHash = internals.pageDependencyHashes?.get(route.component) ?? '';
 	const hasServerIsland = internals.serverIslandPageComponents?.has(route.component) ?? false;
 
-	// Incremental build: check if we can skip this path
-	if (
-		cacheKey !== undefined &&
-		cache?.canSkip(route.component, pathname, dependencyHash, cacheKey, hasServerIsland)
-	) {
+	// Incremental build: decide whether this path can be reused, and why not.
+	const decision = cache
+		? cache.checkPath(route.component, pathname, dependencyHash, cacheKey, hasServerIsland)
+		: null;
+	let missReasons: IncrementalPathMissReason[] =
+		decision && !decision.reusable ? decision.reasons : [];
+
+	if (decision?.reusable) {
 		const existsInDist = nodeFs.existsSync(outFile);
 		const restored =
-			!existsInDist && (await cache.restoreOutputFile(options.settings, relativeOutFile, outFile));
+			!existsInDist && (await cache!.restoreOutputFile(options.settings, relativeOutFile, outFile));
 
 		if (existsInDist || restored) {
 			// The page is not rendered, so its optimized-image transforms are never
 			// re-registered. Replay them into the global list so the asset pipeline
 			// still emits the images its restored HTML references.
-			const restoredImages = cache.previousStaticImages(route.component, pathname);
+			const restoredImages = cache!.previousStaticImages(route.component, pathname);
 			if (restoredImages) restoreStaticImages(restoredImages);
 
 			// Likewise, the route contributes no response headers when it is not
 			// rendered. Replay them so a `staticHeaders` adapter still writes this
 			// route into its headers file.
-			const restoredHeaders = cache.previousHeaders(route.component, pathname);
+			const restoredHeaders = cache!.previousHeaders(route.component, pathname);
 			if (restoredHeaders && options.settings.adapter?.adapterFeatures?.staticHeaders) {
 				routeToHeaders.set(pathname, {
 					headers: new Headers(restoredHeaders),
@@ -660,13 +699,13 @@ async function generatePathWithPrerenderer(
 			// Record in the new cache so orphan detection knows this path is still alive,
 			// carrying forward the content entries, image transforms, and headers the
 			// path resolved last build.
-			cache.record(
+			cache!.record(
 				route.component,
 				dependencyHash,
 				pathname,
-				cacheKey,
+				cacheKey!,
 				relativeOutFile,
-				cache.previousContentEntryKeys(route.component, pathname),
+				cache!.previousContentEntryKeys(route.component, pathname),
 				restoredImages,
 				restoredHeaders,
 			);
@@ -683,6 +722,16 @@ async function generatePathWithPrerenderer(
 				route.distURL = [outFile];
 			}
 
+			reporter?.push({
+				route: route.component,
+				pathname,
+				outputFile: relativeOutFile,
+				result: restored ? 'restored' : 'cached',
+				reasons: [],
+				elapsedMs: performance.now() - timeStart,
+				stored: true,
+			});
+
 			logger.info(null, `  ${colors.green('├─')} ${colors.dim(filePath)}`, false);
 			logger.info(
 				'SKIP_FORMAT',
@@ -690,6 +739,10 @@ async function generatePathWithPrerenderer(
 			);
 			return;
 		}
+
+		// The metadata said the path is reusable, but neither the current output
+		// nor the persistent cached copy exists, so it must be rendered anyway.
+		missReasons = [{ type: 'cached-output-missing' }];
 	}
 
 	logger.info(null, `  ${colors.blue('├─')} ${colors.dim(filePath)}`, false);
@@ -725,7 +778,17 @@ async function generatePathWithPrerenderer(
 		// otherwise be kept (the path is still keyed) and restored on a later skip,
 		// resurrecting output the path no longer emits. Leaving it unrecorded makes
 		// `findOrphanedFiles` prune that copy and forces a re-render next build.
-		logRenderTime(logger, timeStart, true);
+		reporter?.push({
+			route: route.component,
+			pathname,
+			outputFile: relativeOutFile,
+			result: 'rendered',
+			reasons: missReasons,
+			elapsedMs: performance.now() - timeStart,
+			stored: false,
+			storageNote: 'no-output',
+		});
+		logRenderTime(logger, timeStart, true, missReasons);
 		return;
 	}
 
@@ -733,6 +796,7 @@ async function generatePathWithPrerenderer(
 	await nodeFs.promises.writeFile(result.outFile, result.body);
 
 	// Without a cache key or render metadata, the path cannot be skipped safely.
+	let storageNote: 'no-cache-key' | 'metadata-unavailable' | undefined;
 	if (cache && cacheKey !== undefined && result.metadata !== undefined) {
 		await cache.writeOutputFile(options.settings, relativeOutFile, result.body);
 		cache.record(
@@ -745,19 +809,46 @@ async function generatePathWithPrerenderer(
 			staticImages,
 			headers,
 		);
+	} else if (cacheKey === undefined) {
+		storageNote = 'no-cache-key';
+	} else if (result.metadata === undefined) {
+		storageNote = 'metadata-unavailable';
 	}
 
-	logRenderTime(logger, timeStart, false);
+	reporter?.push({
+		route: route.component,
+		pathname,
+		outputFile: relativeOutFile,
+		result: 'rendered',
+		reasons: missReasons,
+		elapsedMs: performance.now() - timeStart,
+		stored: cacheKey !== undefined && result.metadata !== undefined,
+		storageNote,
+	});
+
+	logRenderTime(logger, timeStart, false, missReasons, storageNote);
 }
 
-function logRenderTime(logger: AstroLogger, timeStart: number, notCreated: boolean) {
+function logRenderTime(
+	logger: AstroLogger,
+	timeStart: number,
+	notCreated: boolean,
+	reasons: IncrementalPathMissReason[] = [],
+	storageNote?: 'no-cache-key' | 'metadata-unavailable' | 'no-output',
+) {
 	const timeEnd = performance.now();
 	const isSlow = timeEnd - timeStart > THRESHOLD_SLOW_RENDER_TIME_MS;
 	const timeIncrease = (isSlow ? colors.red : colors.dim)(`(+${getTimeStat(timeStart, timeEnd)})`);
-	const notCreatedMsg = notCreated
-		? colors.yellow('(file not created, response body was empty)')
-		: '';
-	logger.info('SKIP_FORMAT', ` ${timeIncrease} ${notCreatedMsg}`);
+	const parts = [timeIncrease];
+	const missSuffix = formatMissSuffix(reasons);
+	if (missSuffix) parts.push(missSuffix);
+	if (storageNote === 'metadata-unavailable') {
+		parts.push('(not stored: prerender metadata unavailable)');
+	}
+	if (notCreated) {
+		parts.push(colors.yellow('(file not created, response body was empty)'));
+	}
+	logger.info('SKIP_FORMAT', ` ${parts.join(' ')}`);
 }
 
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
