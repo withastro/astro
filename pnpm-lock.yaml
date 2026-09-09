@@ -1239,9 +1239,15 @@ importers:
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../../../integrations/mdx
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../../integrations/svelte
       astro:
         specifier: workspace:*
         version: link:../../..
+      svelte:
+        specifier: ^5.54.0
+        version: 5.55.3
 
   packages/astro/e2e/fixtures/csp-server-islands:
     dependencies:
