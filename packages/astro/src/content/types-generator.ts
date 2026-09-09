@@ -39,6 +39,7 @@ import {
 	getEntryType,
 	reloadContentConfigObserver,
 } from './utils.js';
+import { getContentConfigLoadPromise } from './config-prewarm.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
@@ -137,14 +138,26 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 		if (fileType === 'config') {
-			await reloadContentConfigObserver({
-				fs,
-				settings,
-				environment: viteServer.environments[
-					ASTRO_VITE_ENVIRONMENT_NAMES.astro
-				] as RunnableDevEnvironment,
-				logger,
-			});
+			const status = contentConfigObserver.get().status;
+			if (status === 'init') {
+				await reloadContentConfigObserver({
+					fs,
+					settings,
+					environment: viteServer.environments[
+						ASTRO_VITE_ENVIRONMENT_NAMES.astro
+					] as RunnableDevEnvironment,
+					logger,
+				});
+			} else {
+				// The config may already have been loaded by the dev server app
+				// setup, which kicks off the load during server creation. If it
+				// is still in flight, wait for that same load instead of
+				// re-importing (which would compile the config twice).
+				const prewarm = getContentConfigLoadPromise();
+				if (prewarm && status === 'loading') {
+					await prewarm;
+				}
+			}
 			return { shouldGenerateTypes: true };
 		}
 
