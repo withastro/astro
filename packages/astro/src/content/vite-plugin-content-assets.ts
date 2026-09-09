@@ -134,7 +134,10 @@ export function astroContentAssetPropagationPlugin({
 						}
 
 						stringifiedLinks = JSON.stringify([...urls]);
-						stringifiedStyles = JSON.stringify(styles.map((s) => s.content));
+						// ClientRouter uses Vite IDs to retain the live HMR style nodes during head swaps.
+						stringifiedStyles = JSON.stringify(
+							styles.map(({ id: styleId, content }) => ({ id: styleId, content })),
+						);
 					} else {
 						// Otherwise, use placeholders to inject styles and scripts
 						// during the production bundle step.

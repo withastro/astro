@@ -634,11 +634,13 @@ async function render({
 					scripts = '';
 				if (Array.isArray(collectedStyles)) {
 					styles = collectedStyles
-						.map((style: any) => {
-							return renderUniqueStylesheet(result, {
-								type: 'inline',
-								content: style,
-							});
+						.map((style) => {
+							const content = typeof style === 'string' ? style : style.content;
+							return renderUniqueStylesheet(
+								result,
+								{ type: 'inline', content },
+								typeof style === 'string' ? undefined : { 'data-vite-dev-id': style.id },
+							);
 						})
 						.join('');
 				}
@@ -731,10 +733,12 @@ export function createReference() {
 	};
 }
 
+type CollectedStyle = string | { id: string; content: string };
+
 type PropagatedAssetsModule = {
 	__astroPropagation: true;
 	getMod: () => Promise<any>;
-	collectedStyles: string[];
+	collectedStyles: CollectedStyle[];
 	collectedLinks: string[];
 	collectedScripts: string[];
 };
