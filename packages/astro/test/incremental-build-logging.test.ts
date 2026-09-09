@@ -15,8 +15,9 @@ const cacheFile = new URL('incremental-build.json', cacheDir);
 const FIXED_KEY = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=';
 const ROTATED_KEY = '7L9SkkvbK2nwAuX3pzmGk2ffANCIbINvjcjkkS9IB2E=';
 
-// Total paths: blog x4, sidebar x2, docs x2, index x1, plain x1, island x1.
-const TOTAL_PATHS = 11;
+// Dynamic paths only: blog x4, sidebar x2, docs x2, plain x1, island x1. The
+// static index page renders every build and is not part of incremental logging.
+const TOTAL_PATHS = 10;
 
 // Built from String.fromCharCode so the literal never contains a control
 // character (eslint no-control-regex); `\[\d+m` matches ANSI SGR sequences.
@@ -73,10 +74,11 @@ describe('experimental.incrementalBuild logging output', () => {
 	it('cold build: prints the global missing-cache line, no-key suffix, and summary', async () => {
 		const text = await build();
 		assert.ok(text.includes('Incremental cache not found; performing a full build.'));
-		assert.ok(text.includes('(not cacheable: no cacheKey)'), `missing no-key suffix in:\n${text}`);
+		// Static pages are not incremental paths, so no `no cacheKey` note appears.
+		assert.ok(!text.includes('no cacheKey'), `static page should not be logged:\n${text}`);
 		assert.ok(
 			text.includes(
-				` incremental build: ${TOTAL_PATHS} paths — 0 cached, 0 restored, ${TOTAL_PATHS} rendered (1 not stored)`,
+				` incremental build: ${TOTAL_PATHS} paths — 0 cached, 0 restored, ${TOTAL_PATHS} rendered`,
 			),
 			`missing summary in:\n${text}`,
 		);
@@ -91,7 +93,7 @@ describe('experimental.incrementalBuild logging output', () => {
 		assert.ok(!text.includes('(cache miss:'), `no misses expected:\n${text}`);
 		assert.ok(
 			text.includes(
-				` incremental build: ${TOTAL_PATHS} paths — 0 cached, 10 restored, 1 rendered (1 not stored)`,
+				` incremental build: ${TOTAL_PATHS} paths — 0 cached, ${TOTAL_PATHS} restored, 0 rendered`,
 			),
 		);
 	});
@@ -113,7 +115,7 @@ describe('experimental.incrementalBuild logging output', () => {
 			);
 			assert.ok(
 				text.includes(
-					` incremental build: ${TOTAL_PATHS} paths — 0 cached, 9 restored, 2 rendered (1 not stored)`,
+					` incremental build: ${TOTAL_PATHS} paths — 0 cached, 9 restored, 1 rendered`,
 				),
 			);
 		});
@@ -143,7 +145,7 @@ describe('experimental.incrementalBuild logging output', () => {
 			);
 			assert.ok(
 				text.includes(
-					` incremental build: ${TOTAL_PATHS} paths — 0 cached, 5 restored, 6 rendered (1 not stored)`,
+					` incremental build: ${TOTAL_PATHS} paths — 0 cached, 5 restored, 5 rendered`,
 				),
 			);
 		});
@@ -229,7 +231,7 @@ describe('experimental.incrementalBuild logging output', () => {
 		);
 		assert.ok(
 			text.includes(
-				` incremental build: ${TOTAL_PATHS} paths — 0 cached, 0 restored, ${TOTAL_PATHS} rendered (1 not stored)`,
+				` incremental build: ${TOTAL_PATHS} paths — 0 cached, 0 restored, ${TOTAL_PATHS} rendered`,
 			),
 		);
 	});
@@ -314,7 +316,7 @@ describe('experimental.incrementalBuild logging output', () => {
 		);
 		assert.ok(
 			text.includes(
-				` incremental build: ${TOTAL_PATHS} paths — 0 cached, ${TOTAL_PATHS - 1} restored, 1 rendered (1 not stored)`,
+				` incremental build: ${TOTAL_PATHS} paths — 0 cached, ${TOTAL_PATHS} restored, 0 rendered`,
 			),
 		);
 	});

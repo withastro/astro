@@ -666,10 +666,16 @@ async function generatePathWithPrerenderer(
 	const dependencyHash = internals.pageDependencyHashes?.get(route.component) ?? '';
 	const hasServerIsland = internals.serverIslandPageComponents?.has(route.component) ?? false;
 
+	// Only dynamic routes take part in the incremental cache: static pages have
+	// no cacheKey (they always render) and are never reported in the per-path
+	// lines, the summary, or the table.
+	const isDynamicRoute = route.pathname === undefined;
+
 	// Incremental build: decide whether this path can be reused, and why not.
-	const decision = cache
-		? cache.checkPath(route.component, pathname, dependencyHash, cacheKey, hasServerIsland)
-		: null;
+	const decision =
+		cache && isDynamicRoute
+			? cache.checkPath(route.component, pathname, dependencyHash, cacheKey, hasServerIsland)
+			: null;
 	let missReasons: IncrementalPathMissReason[] =
 		decision && !decision.reusable ? decision.reasons : [];
 
@@ -778,17 +784,21 @@ async function generatePathWithPrerenderer(
 		// otherwise be kept (the path is still keyed) and restored on a later skip,
 		// resurrecting output the path no longer emits. Leaving it unrecorded makes
 		// `findOrphanedFiles` prune that copy and forces a re-render next build.
-		reporter?.push({
-			route: route.component,
-			pathname,
-			outputFile: relativeOutFile,
-			result: 'rendered',
-			reasons: missReasons,
-			elapsedMs: performance.now() - timeStart,
-			stored: false,
-			storageNote: 'no-output',
-		});
-		logRenderTime(logger, timeStart, true, missReasons);
+		if (isDynamicRoute) {
+			reporter?.push({
+				route: route.component,
+				pathname,
+				outputFile: relativeOutFile,
+				result: 'rendered',
+				reasons: missReasons,
+				elapsedMs: performance.now() - timeStart,
+				stored: false,
+				storageNote: 'no-output',
+			});
+			logRenderTime(logger, timeStart, true, missReasons);
+		} else {
+			logRenderTime(logger, timeStart, true);
+		}
 		return;
 	}
 
@@ -809,24 +819,28 @@ async function generatePathWithPrerenderer(
 			staticImages,
 			headers,
 		);
-	} else if (cacheKey === undefined) {
+	} else if (cacheKey === undefined && isDynamicRoute) {
 		storageNote = 'no-cache-key';
-	} else if (result.metadata === undefined) {
+	} else if (isDynamicRoute && result.metadata === undefined) {
 		storageNote = 'metadata-unavailable';
 	}
 
-	reporter?.push({
-		route: route.component,
-		pathname,
-		outputFile: relativeOutFile,
-		result: 'rendered',
-		reasons: missReasons,
-		elapsedMs: performance.now() - timeStart,
-		stored: cacheKey !== undefined && result.metadata !== undefined,
-		storageNote,
-	});
-
-	logRenderTime(logger, timeStart, false, missReasons, storageNote);
+	if (isDynamicRoute) {
+		reporter?.push({
+			route: route.component,
+			pathname,
+			outputFile: relativeOutFile,
+			result: 'rendered',
+			reasons: missReasons,
+			elapsedMs: performance.now() - timeStart,
+			stored: cacheKey !== undefined && result.metadata !== undefined,
+			storageNote,
+		});
+		logRenderTime(logger, timeStart, false, missReasons, storageNote);
+	} else {
+		// Static pages render every build; they get a plain duration, no suffix.
+		logRenderTime(logger, timeStart, false);
+	}
 }
 
 function logRenderTime(
