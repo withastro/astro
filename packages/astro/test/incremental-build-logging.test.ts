@@ -36,9 +36,8 @@ describe('experimental.incrementalBuild logging output', () => {
 	let fixture: Fixture;
 
 	async function build(extraInlineConfig: Record<string, any> = {}): Promise<string> {
-		// A fresh array per build: stale loggers from earlier builds keep writing
-		// into their own closure, so captured output is never polluted by a
-		// previous build's late messages (e.g. prerenderer teardown).
+		// A fresh capture array per build, so an earlier build's late log
+		// messages (e.g. prerenderer teardown) cannot leak into this build's text.
 		const capture: AstroLoggerMessage[] = [];
 		const logger = new AstroLogger({
 			destination: { write: (event) => capture.push(event) },

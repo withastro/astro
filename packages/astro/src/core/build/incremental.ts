@@ -110,7 +110,7 @@ export interface IncrementalCacheLoadResult {
 /**
  * A per-module fingerprint plus its direct import edges, captured during the
  * build so a later build can explain which modules changed. Stored in the
- * diagnostics sidecar, never in the correctness-critical manifest.
+ * diagnostics file, not the manifest, so it can never affect reuse decisions.
  */
 export interface DiagnosticModule {
 	/** Hash of the module's own normalized representation plus sorted direct import ids. */
@@ -123,9 +123,8 @@ export interface DiagnosticModule {
  * The diagnostic snapshot of one build environment's module graph: per-module
  * fingerprints and edges, the roots each prerendered route and content entry
  * are seeded from, and the aggregate route hashes. The aggregate hashes are
- * duplicated from the manifest so a sidecar that does not correspond to the
- * previous manifest (e.g. after an interrupted write) can be detected and
- * ignored without affecting reuse decisions.
+ * duplicated from the manifest so a diagnostics file left by an interrupted
+ * write is detected by a hash mismatch and ignored.
  */
 export interface DiagnosticGraph {
 	modules: Record<string, DiagnosticModule>;
@@ -135,9 +134,9 @@ export interface DiagnosticGraph {
 }
 
 /**
- * On-disk shape of the incremental build diagnostics sidecar. It is
- * independently versioned and optional: a missing or mismatched sidecar only
- * suppresses detailed dependency explanations, never invalidates cached HTML.
+ * On-disk shape of the diagnostics file. Versioned separately from the cache
+ * manifest and optional: a missing or outdated file only suppresses detailed
+ * dependency explanations, never invalidates cached HTML.
  */
 export interface IncrementalDiagnosticsFile {
 	version: 1;
@@ -165,10 +164,9 @@ export interface DependencyChange {
 }
 
 /**
- * Why a single path cannot be reused from the previous build. Each reason is
- * independently testable; `checkPath` reports every applicable reason in a
- * stable order so a miss like "module dependencies changed; cacheKey changed"
- * is truthful.
+ * Why a single path cannot be reused from the previous build. `checkPath`
+ * reports every applicable reason, in a stable order, so a miss such as
+ * `module dependencies changed; cacheKey changed` names all of its causes.
  */
 export type IncrementalPathMissReason =
 	| { type: 'no-cache-key' }
@@ -180,14 +178,14 @@ export type IncrementalPathMissReason =
 			type: 'route-dependencies-changed';
 			changes?: DependencyChange[];
 			/** Why no leaf-level explanation is available, when applicable. */
-			diagnosticsUnavailable?: 'missing-sidecar' | 'unavailable';
+			diagnosticsUnavailable?: 'missing-diagnostics' | 'unavailable';
 	  }
 	| { type: 'cache-key-changed' }
 	| {
 			type: 'content-dependencies-changed';
 			entries: string[];
 			changes?: Record<string, DependencyChange[]>;
-			diagnosticsUnavailable?: 'missing-sidecar' | 'unavailable';
+			diagnosticsUnavailable?: 'missing-diagnostics' | 'unavailable';
 	  }
 	| { type: 'cached-output-missing' };
 
@@ -197,11 +195,11 @@ export type IncrementalPathDecision =
 
 type RouteExplanation =
 	| { changes: DependencyChange[] }
-	| { unavailable: 'missing-sidecar' | 'unavailable' };
+	| { unavailable: 'missing-diagnostics' | 'unavailable' };
 
 type EntryExplanation =
 	| { changes: DependencyChange[] }
-	| { unavailable: 'missing-sidecar' | 'unavailable' }
+	| { unavailable: 'missing-diagnostics' | 'unavailable' }
 	| null;
 
 interface GraphDiff {
@@ -400,9 +398,8 @@ function findLeafChains(
 	return chains;
 }
 
-// Bounded so a route whose entire dependency tree changed cannot flood the
-// diagnostics sidecar or the console. Explanations are capped per route; the
-// aggregate reason is still reported for every dropped leaf.
+// Cap explanations per route so a wholesale dependency change cannot flood the
+// console; the aggregate reason still names every dropped leaf.
 const MAX_EXPLAINED_LEAVES = 200;
 
 // Placeholder root used only when a cache was constructed without settings;
@@ -412,10 +409,9 @@ const ROOT_FALLBACK = new URL('file:///');
 /**
  * Tracks which prerendered paths can be reused from a previous build.
  *
- * The invalidation logic (`checkPath`, `record`, `findOrphanedFiles`) is pure
- * and operates on the previous and next manifests held in memory. Disk access
- * is confined to `load` (plus the lazily read diagnostics sidecar) and the
- * output-file methods.
+ * Invalidation is pure over the previous and next manifests held in memory;
+ * disk access is confined to `load` (plus the lazily read diagnostics file)
+ * and the output-file methods.
  */
 export class IncrementalBuildCache {
 	/** Tagged load outcome, used for global invalidation messages. */
@@ -426,7 +422,7 @@ export class IncrementalBuildCache {
 	readonly #createdDirs = new Set<string>();
 	readonly #settings: AstroSettings | undefined;
 	readonly #currentDiagnostics: IncrementalDiagnosticsFile | null;
-	/** Lazy-loaded previous diagnostics sidecar; `undefined` until first read. */
+	/** Previous build's diagnostics file, read lazily; `undefined` until first read. */
 	#previousDiagnostics: IncrementalDiagnosticsFile | null | undefined;
 	#graphDiff: { prerender: GraphDiff; client: GraphDiff } | null = null;
 	#routeChanges = new Map<string, RouteExplanation | null>();
@@ -467,8 +463,8 @@ export class IncrementalBuildCache {
 	 * `contentEntryHashes` is this build's map of content-entry render hashes,
 	 * used to detect when the content a path renders has changed.
 	 *
-	 * `diagnostics` is this build's per-module fingerprint snapshot, written to
-	 * the sidecar so the next build can explain dependency changes.
+	 * `diagnostics` is this build's per-module fingerprint snapshot; the next
+	 * build reads it to explain dependency changes.
 	 *
 	 * `force` ignores any existing manifest so every path is rebuilt, while still
 	 * recording a fresh cache for the next build.
@@ -577,7 +573,7 @@ export class IncrementalBuildCache {
 						{ type: 'content-dependencies-changed' }
 					> = { type: 'content-dependencies-changed', entries: changedEntries };
 					const changes: Record<string, DependencyChange[]> = {};
-					let unavailable: 'missing-sidecar' | 'unavailable' | null = null;
+					let unavailable: 'missing-diagnostics' | 'unavailable' | null = null;
 					for (const entryPath of changedEntries) {
 						const entryExplanation = this.explainContent(entryPath);
 						if (
@@ -688,7 +684,7 @@ export class IncrementalBuildCache {
 	}
 
 	/**
-	 * Write this build's diagnostics sidecar next to the manifest. A failure must
+	 * Write this build's diagnostics file next to the manifest. A failure must
 	 * not fail the build or affect cache reuse; the caller reports it as a warning.
 	 */
 	writeDiagnostics(settings: AstroSettings): void {
@@ -740,11 +736,11 @@ export class IncrementalBuildCache {
 	#explainRoute(routeComponent: string): RouteExplanation | null {
 		const current = this.#currentDiagnostics;
 		const previous = this.#loadPreviousDiagnostics();
-		if (!current || !previous) return { unavailable: 'missing-sidecar' };
+		if (!current || !previous) return { unavailable: 'missing-diagnostics' };
 		const previousRoute = this.#previous?.routes[routeComponent];
 		if (!previousRoute) return null;
-		// A sidecar from a different build (interrupted write) must not be trusted
-		// to explain this route; only the aggregate reason is reported then.
+		// An interrupted write can leave a diagnostics file that does not match
+		// this manifest; only the aggregate reason is reported then.
 		if (previous.prerender.routeDependencyHashes[routeComponent] !== previousRoute.dependencyHash) {
 			return { unavailable: 'unavailable' };
 		}
@@ -839,7 +835,7 @@ export class IncrementalBuildCache {
 	#explainContent(entryPath: string): EntryExplanation {
 		const current = this.#currentDiagnostics;
 		const previous = this.#loadPreviousDiagnostics();
-		if (!current || !previous) return { unavailable: 'missing-sidecar' };
+		if (!current || !previous) return { unavailable: 'missing-diagnostics' };
 		const diffs = this.#loadGraphDiffs(previous);
 		const root = this.#settings?.config.root ?? ROOT_FALLBACK;
 		const currentRoots = current.prerender.contentRoots[entryPath] ?? [];

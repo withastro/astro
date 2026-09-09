@@ -132,10 +132,9 @@ function hashModules(graph: ModuleGraph, sortedIds: string[]): string {
 }
 
 /**
- * Fingerprint one module for the diagnostics sidecar: its normalized own
- * representation plus its sorted direct static/dynamic import ids. This detects
- * transformed-code changes, added/removed imports, and resolution changes
- * without storing source code.
+ * Fingerprint one module for the diagnostics: its normalized own representation
+ * plus its sorted direct static and dynamic import ids. Detects
+ * transformed-code, import, and resolution changes without storing source code.
  */
 function fingerprintModule(graph: ModuleGraph, id: string): string {
 	const hasher = crypto.createHash('sha256');
@@ -279,8 +278,8 @@ function createTransitiveGraphCache(graph: HashableModuleGraph): TransitiveGraph
 		}
 	}
 
-	// Per-module fingerprints and edges for the diagnostics sidecar, mirroring
-	// the same non-excluded module set and edge filtering as the hash graph.
+	// Diagnostics cover the same modules and edges as the hash graph, so a hash
+	// change is always explainable.
 	const diagnosticModules: Record<string, DiagnosticModule> = {};
 	for (const id of modules.keys()) {
 		const info = modules.get(id);
@@ -350,12 +349,11 @@ function collectClientEntrypointHashes(
 /**
  * `client:only` components and hoisted `<script>` tags are not part of the
  * prerender module graph, so the per-route hash cannot see their transitive
- * dependencies. Each is a client-build entrypoint whose bundle, and everything it
- * imports, is emitted with a content-hashed URL (or inlined) into the page markup,
- * so a change anywhere in that graph must re-render the page. During the client
- * build we hash each entrypoint's transitive graph and fold it into the dependency
- * hash of every route that uses it, and record the entrypoint ids as the route's
- * client-graph roots for the diagnostics sidecar.
+ * dependencies. Each is a client-build entrypoint whose bundle (a content-hashed
+ * URL, or inline) is baked into the page markup, so a change anywhere in that
+ * graph must re-render the page. Fold each entrypoint's transitive hash into
+ * the dependency hash of every route that uses it, and record the entrypoint
+ * ids as the route's client-graph roots in the diagnostics.
  */
 function foldClientDependencies(graph: HashableModuleGraph, internals: BuildInternals): void {
 	const baseHashes = internals.pageDependencyHashes;
@@ -388,8 +386,8 @@ function foldClientDependencies(graph: HashableModuleGraph, internals: BuildInte
 		}
 		const finalHash = hasher.digest('hex');
 		baseHashes.set(component, finalHash);
-		// Keep the sidecar's aggregate hash aligned with the manifest so a later
-		// build can trust the diagnostics for this route.
+		// Store the same aggregate hash the manifest will, so a later build can
+		// trust these diagnostics for the route.
 		if (internals.incrementalDiagnosticsPrerender) {
 			internals.incrementalDiagnosticsPrerender.routeDependencyHashes[component] = finalHash;
 		}
@@ -408,12 +406,12 @@ function foldClientDependencies(graph: HashableModuleGraph, internals: BuildInte
  * root-relative `filePath` (matching what the content runtime reports at render
  * time). A content entry's render module (compiled MD/MDX) and the components it
  * imports are reachable only through the `content-data`-pruned bridges, so the
- * per-route hash never sees them. Seeding the traversal at each render module
- * captures them per entry, giving precise invalidation without pulling one
- * entry's graph into another route's hash.
+ * per-route hash never sees them. Hashing each render module's graph per entry
+ * keeps invalidation precise without pulling one entry's graph into another
+ * route's hash.
  *
- * `contentRoots` records each entry's render module id for the diagnostics
- * sidecar, so a later build can explain content-render-graph changes.
+ * `contentRoots` records each entry's render module id for the diagnostics,
+ * so a later build can explain content-render-graph changes.
  */
 function collectContentEntryHashes(
 	graph: HashableModuleGraph,
@@ -500,7 +498,7 @@ export function pluginIncremental(internals: BuildInternals, root: URL): VitePlu
 			);
 			internals.serverIslandPageComponents = serverIslandComponents;
 
-			// Snapshot the prerender graph for the diagnostics sidecar.
+			// Snapshot the prerender graph for the diagnostics.
 			const diagnostics = createEmptyDiagnosticGraph();
 			diagnostics.modules = transitiveGraph.diagnostics.modules;
 			diagnostics.routeRoots = Object.fromEntries(rootsByComponent);

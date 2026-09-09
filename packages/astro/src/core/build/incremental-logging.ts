@@ -9,8 +9,8 @@ import {
 import { getTimeStat } from './util.js';
 
 /**
- * The outcome of one path during generation, fed to the reporter as paths
- * complete so the post-build summary reflects exactly what happened.
+ * One path's outcome during generation, collected so the post-build summary
+ * reflects exactly what happened.
  */
 export interface IncrementalPathOutcome {
 	route: string;
@@ -158,15 +158,15 @@ function formatTime(elapsedMs: number): string {
 
 /**
  * Collects per-path outcomes during generation and prints the post-build
- * incremental summary: a one-line reuse count, a grouped route table (or
- * compact reason totals when the table would be too large), dependency-change
- * trees, and a warning when keyed renders produced no incremental metadata.
+ * summary: reuse counts, a grouped route table (compact reason totals when the
+ * table would be too large), dependency-change trees, and a warning when keyed
+ * renders produced no incremental metadata.
  */
 export class IncrementalBuildReporter {
 	readonly #outcomes: IncrementalPathOutcome[] = [];
 
-	/** Record a completed path. Synchronous by design: JavaScript mutation is
-	 * not interrupted mid-call, so concurrent path generation cannot interleave. */
+	/** Record a completed path. Pushing synchronously keeps concurrent path
+	 * generation from interleaving the summary. */
 	push(outcome: IncrementalPathOutcome): void {
 		this.#outcomes.push(outcome);
 	}
@@ -325,7 +325,7 @@ export class IncrementalBuildReporter {
 			route: string;
 			/** Display chains; each starts with a boundary node for content/client changes. */
 			chains: DependencyChange[];
-			unavailable: 'missing-sidecar' | 'unavailable' | null;
+			unavailable: 'missing-diagnostics' | 'unavailable' | null;
 		}
 		const byRoute = new Map<string, Tree>();
 		for (const outcome of this.#outcomes) {
@@ -398,7 +398,7 @@ export class IncrementalBuildReporter {
 			if (showsUnavailable) {
 				lines.push(
 					`  └─ dependency details unavailable${
-						tree.unavailable === 'missing-sidecar' ? ' (rerun once to seed diagnostics)' : ''
+						tree.unavailable === 'missing-diagnostics' ? ' (rerun once to seed diagnostics)' : ''
 					}`,
 				);
 			}

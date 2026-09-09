@@ -411,10 +411,10 @@ describe('IncrementalBuildReporter', () => {
 		assert.ok(text.includes('     └─ src/data/sidebar_data.ts (changed)'));
 	});
 
-	it('prints the rerun hint when the sidecar was missing', () => {
+	it('prints the rerun hint when the diagnostics were missing', () => {
 		const { text } = print('info', [
 			outcome(BLOG, '/blog/post-1', 'rendered', [
-				{ type: 'route-dependencies-changed', diagnosticsUnavailable: 'missing-sidecar' },
+				{ type: 'route-dependencies-changed', diagnosticsUnavailable: 'missing-diagnostics' },
 			]),
 		]);
 		assert.ok(text.includes('└─ dependency details unavailable (rerun once to seed diagnostics)'));

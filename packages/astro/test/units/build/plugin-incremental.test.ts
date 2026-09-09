@@ -313,8 +313,8 @@ describe('pluginIncremental', () => {
 			assert.ok(client, 'client diagnostics should be recorded');
 			assert.deepEqual(client.routeRoots[COMPONENT], [entryId]);
 			assert.ok(client.modules[entryId], 'client module should be fingerprinted');
-			// The final aggregate hash is folded back into the prerender sidecar so
-			// the next build can trust the diagnostics for this route.
+			// The final aggregate hash is folded back into the prerender diagnostics
+			// so the next build can trust them for this route.
 			assert.notEqual(
 				internals.incrementalDiagnosticsPrerender.routeDependencyHashes[COMPONENT],
 				'base',

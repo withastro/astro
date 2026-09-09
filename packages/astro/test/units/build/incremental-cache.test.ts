@@ -417,9 +417,9 @@ describe('IncrementalBuildCache', () => {
 			previousGraph: DiagnosticGraph,
 			currentGraph: DiagnosticGraph,
 			{
-				sidecar = previousGraph,
+				diagnostics = previousGraph,
 				previousManifestHash = HASH,
-			}: { sidecar?: DiagnosticGraph; previousManifestHash?: string } = {},
+			}: { diagnostics?: DiagnosticGraph; previousManifestHash?: string } = {},
 		): { cache: IncrementalBuildCache; temp: { cleanup: () => void } } {
 			const temp = tmpCacheDir();
 			const manifest = previousManifest(
@@ -429,7 +429,7 @@ describe('IncrementalBuildCache', () => {
 			writeFileSync(new URL('incremental-build.json', temp.dir), JSON.stringify(manifest));
 			writeFileSync(
 				new URL('incremental-build-diagnostics.json', temp.dir),
-				JSON.stringify({ version: 1, prerender: sidecar, client: emptyGraph() }),
+				JSON.stringify({ version: 1, prerender: diagnostics, client: emptyGraph() }),
 			);
 			const cache = loadedCache(manifest, {
 				currentDiagnostics: { version: 1, prerender: currentGraph, client: emptyGraph() },
@@ -604,7 +604,7 @@ describe('IncrementalBuildCache', () => {
 			temp.cleanup();
 		});
 
-		it('ignores a sidecar that does not match the manifest route hash', () => {
+		it('ignores a diagnostics file that does not match the manifest route hash', () => {
 			const current = graph(
 				{
 					[PAGE]: { fingerprint: 'page', importedIds: [SIDEBAR] },
@@ -613,7 +613,7 @@ describe('IncrementalBuildCache', () => {
 				},
 				{ routeRoots: { [ROUTE]: [PAGE] } },
 			);
-			const staleSidecar = graph(
+			const staleDiagnostics = graph(
 				{
 					[PAGE]: { fingerprint: 'page', importedIds: [SIDEBAR] },
 					[SIDEBAR]: { fingerprint: 'sidebar', importedIds: [SIDEBAR_DATA] },
@@ -621,8 +621,8 @@ describe('IncrementalBuildCache', () => {
 				},
 				{ routeRoots: { [ROUTE]: [PAGE] }, routeDependencyHashes: { [ROUTE]: 'stale-hash' } },
 			);
-			const { cache, temp } = diagnosticsCache(staleSidecar, current, {
-				sidecar: staleSidecar,
+			const { cache, temp } = diagnosticsCache(staleDiagnostics, current, {
+				diagnostics: staleDiagnostics,
 				previousManifestHash: HASH,
 			});
 			const decision = cache.checkPath(ROUTE, '/a', 'changed-hash', 'k1');
@@ -635,7 +635,7 @@ describe('IncrementalBuildCache', () => {
 			temp.cleanup();
 		});
 
-		it('reports missing-sidecar when no previous diagnostics exist', () => {
+		it('reports missing-diagnostics when no previous diagnostics exist', () => {
 			const temp = tmpCacheDir();
 			const manifest = previousManifest({
 				'/a': { cacheKey: 'k1', outputFile: 'a/index.html' },
@@ -662,7 +662,7 @@ describe('IncrementalBuildCache', () => {
 			const reason = decision.reasons.find((r) => r.type === 'route-dependencies-changed');
 			assert.ok(reason && reason.type === 'route-dependencies-changed');
 			assert.equal(reason.changes, undefined);
-			assert.equal(reason.diagnosticsUnavailable, 'missing-sidecar');
+			assert.equal(reason.diagnosticsUnavailable, 'missing-diagnostics');
 			temp.cleanup();
 		});
 	});

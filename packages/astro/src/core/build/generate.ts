@@ -136,7 +136,6 @@ export async function generatePages(
 			options.force,
 		);
 		reporter = new IncrementalBuildReporter();
-		// Report global cache state before any path decisions are made.
 		logCacheLoadResult(cache.loadResult, logger);
 	}
 
@@ -297,7 +296,7 @@ export async function generatePages(
 				logger.info('build', `Pruned ${pruned} stale file(s) from the incremental cache.`);
 			}
 			cache.writeManifest(options.settings);
-			// Diagnostics are optional provenance; never fail the build over them.
+			// Diagnostics are best-effort; never fail the build over them.
 			try {
 				cache.writeDiagnostics(options.settings);
 			} catch (err) {
@@ -667,8 +666,7 @@ async function generatePathWithPrerenderer(
 	const hasServerIsland = internals.serverIslandPageComponents?.has(route.component) ?? false;
 
 	// Only dynamic routes take part in the incremental cache: static pages have
-	// no cacheKey (they always render) and are never reported in the per-path
-	// lines, the summary, or the table.
+	// no cacheKey (they always render) and are never reported.
 	const isDynamicRoute = route.pathname === undefined;
 
 	// Incremental build: decide whether this path can be reused, and why not.

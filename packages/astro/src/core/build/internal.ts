@@ -167,9 +167,9 @@ export interface BuildInternals {
 
 	/**
 	 * Per-module fingerprints and import edges of the prerender build's module
-	 * graph, collected by the incremental plugin. Written to the diagnostics
-	 * sidecar so the next build can explain why a route's dependency hash
-	 * changed. Diagnostics never affect reuse decisions.
+	 * graph, collected by the incremental plugin. Written to the diagnostics file
+	 * so the next build can explain why a route's dependency hash changed; never
+	 * affects reuse decisions.
 	 */
 	incrementalDiagnosticsPrerender?: DiagnosticGraph;
 
