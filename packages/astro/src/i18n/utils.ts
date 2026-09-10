@@ -132,7 +132,7 @@ export function computePreferredLocaleList(request: Request, locales: Locales): 
 						}
 					} else {
 						for (const code of loopLocale.codes) {
-							if (code === browserLocale.locale) {
+							if (normalizeTheLocale(code) === normalizeTheLocale(browserLocale.locale)) {
 								result.push(code);
 							}
 						}
