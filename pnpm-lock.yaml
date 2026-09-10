@@ -324,7 +324,7 @@ importers:
     devDependencies:
       '@codspeed/vitest-plugin':
         specifier: 5.2.0
-        version: 5.2.0(tinybench@2.9.0)(vite@8.2.1)(vitest@4.1.10)
+        version: 5.2.0(tinybench@2.9.0)(vite@8.2.2)(vitest@4.1.10)
       vitest:
         specifier: ^4.1.0
         version: 4.1.10(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
@@ -498,7 +498,7 @@ importers:
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -522,13 +522,13 @@ importers:
         version: link:../../packages/integrations/preact
       '@preact/signals':
         specifier: ^2.8.1
-        version: 2.8.2(preact@10.29.8)
+        version: 2.11.2(preact@10.29.8)
       astro:
         specifier: ^7.3.2
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   examples/framework-react:
     dependencies:
@@ -672,7 +672,7 @@ importers:
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   examples/with-nanostores:
     dependencies:
@@ -690,7 +690,7 @@ importers:
         version: 1.1.1
       preact:
         specifier: ^10.28.4
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   examples/with-tailwindcss:
     dependencies:
@@ -699,7 +699,7 @@ importers:
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.2.1
-        version: 4.2.2(vite@8.2.1)
+        version: 4.2.2(vite@8.2.2)
       '@types/canvas-confetti':
         specifier: ^1.9.0
         version: 1.9.0
@@ -714,7 +714,7 @@ importers:
         version: 4.2.2
       vite:
         specifier: ^8.0.13
-        version: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
   examples/with-vitest:
     dependencies:
@@ -723,7 +723,7 @@ importers:
         version: link:../../packages/astro
       vitest:
         specifier: ^5.0.0-beta.2
-        version: 5.0.0-beta.3(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.2.1)
+        version: 5.0.0-beta.3(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.2.2)
 
   packages/astro:
     dependencies:
@@ -771,7 +771,7 @@ importers:
         version: 2.0.1
       devalue:
         specifier: ^5.8.1
-        version: 5.9.1
+        version: 5.9.2
       diff:
         specifier: ^9.0.0
         version: 9.0.0
@@ -873,10 +873,10 @@ importers:
         version: 1.17.5(@azure/identity@4.13.0)(@netlify/blobs@10.7.5)(@vercel/functions@3.9.5)
       vite:
         specifier: ^8.0.13
-        version: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       vitefu:
         specifier: ^1.1.2
-        version: 1.1.2(vite@8.2.1)
+        version: 1.1.2(vite@8.2.2)
       xxhash-wasm:
         specifier: ^1.1.0
         version: 1.1.0
@@ -1087,7 +1087,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/e2e/fixtures/astro-envs:
     dependencies:
@@ -1136,7 +1136,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -1200,7 +1200,7 @@ importers:
         version: 19.2.5(@types/react@19.2.18)
       '@vitejs/plugin-vue':
         specifier: ^6.0.5
-        version: 6.0.5(vite@8.2.1)(vue@3.5.30)
+        version: 6.0.5(vite@8.2.2)(vue@3.5.30)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -1209,7 +1209,7 @@ importers:
         version: 2.1.1
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -1301,7 +1301,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/e2e/fixtures/error-cyclic:
     dependencies:
@@ -1313,7 +1313,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/e2e/fixtures/error-sass:
     dependencies:
@@ -1346,7 +1346,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -1373,7 +1373,7 @@ importers:
         version: link:../../../../integrations/preact
       preact:
         specifier: ^10.28.2
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -1392,7 +1392,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/e2e/fixtures/i18n:
     dependencies:
@@ -1407,7 +1407,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -1447,7 +1447,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
     devDependencies:
       '@astrojs/mdx':
         specifier: workspace:*
@@ -1463,7 +1463,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -1503,7 +1503,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -1543,7 +1543,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -1583,7 +1583,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -1623,7 +1623,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -1663,7 +1663,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -1731,7 +1731,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/e2e/fixtures/preact-component:
     dependencies:
@@ -1746,7 +1746,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/e2e/fixtures/preact-lazy-component:
     dependencies:
@@ -1761,7 +1761,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/e2e/fixtures/prefetch:
     dependencies:
@@ -1791,7 +1791,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -1899,7 +1899,7 @@ importers:
     dependencies:
       '@tailwindcss/vite':
         specifier: ^4.2.2
-        version: 4.2.2(vite@8.2.1)
+        version: 4.2.2(vite@8.2.2)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -2216,7 +2216,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/test/fixtures/astro-check-errors:
     dependencies:
@@ -2264,7 +2264,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -2416,7 +2416,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/test/fixtures/astro-get-static-paths:
     dependencies:
@@ -2593,7 +2593,7 @@ importers:
     dependencies:
       '@tailwindcss/vite':
         specifier: ^4.2.2
-        version: 4.2.2(vite@8.2.1)
+        version: 4.2.2(vite@8.2.2)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -2623,7 +2623,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -2650,7 +2650,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/test/fixtures/build-assets:
     dependencies:
@@ -2662,7 +2662,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/test/fixtures/build-concurrency:
     dependencies:
@@ -2755,7 +2755,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -2770,7 +2770,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -3373,7 +3373,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       svelte:
         specifier: ^5.54.0
         version: 5.55.3
@@ -3481,7 +3481,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/test/fixtures/i18n-client-import:
     dependencies:
@@ -3613,7 +3613,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -3755,7 +3755,7 @@ importers:
     dependencies:
       '@tailwindcss/vite':
         specifier: ^4.2.2
-        version: 4.2.2(vite@8.2.1)
+        version: 4.2.2(vite@8.2.2)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -3904,7 +3904,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/test/fixtures/preact-compat-component/packages/react-lib:
     dependencies:
@@ -3925,7 +3925,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/test/fixtures/prerender-conflict-dynamic-dynamic:
     dependencies:
@@ -3992,7 +3992,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/test/fixtures/remote-css:
     dependencies:
@@ -4106,7 +4106,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/test/fixtures/slots-react:
     dependencies:
@@ -4307,7 +4307,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/test/fixtures/static-build:
     dependencies:
@@ -4322,7 +4322,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/astro/test/fixtures/static-build-code-component:
     dependencies:
@@ -4349,7 +4349,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -4408,7 +4408,7 @@ importers:
         version: link:../../../../integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.2.2
-        version: 4.2.2(vite@8.2.1)
+        version: 4.2.2(vite@8.2.2)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -4531,7 +4531,7 @@ importers:
         version: link:../../../scripts
       vite:
         specifier: ^8.0.13
-        version: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
   packages/integrations/alpinejs/test/fixtures/basics:
     dependencies:
@@ -4588,13 +4588,13 @@ importers:
         version: link:../../underscore-redirects
       '@cloudflare/vite-plugin':
         specifier: ^1.53.0
-        version: 1.53.1(vite@8.2.1)(wrangler@4.125.0)
+        version: 1.53.1(vite@8.2.2)(wrangler@4.125.0)
       piccolore:
         specifier: ^0.1.3
         version: 0.1.3
       vite:
         specifier: ^8.0.13
-        version: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^5.20260820.1
@@ -4616,7 +4616,7 @@ importers:
         version: 1.2.0
       devalue:
         specifier: ^5.8.1
-        version: 5.9.1
+        version: 5.9.2
       prismjs:
         specifier: ^1.30.0
         version: 1.30.0
@@ -4908,7 +4908,7 @@ importers:
         version: link:../../../../mdx
       '@tailwindcss/vite':
         specifier: ^4.2.1
-        version: 4.2.2(vite@8.2.1)
+        version: 4.2.2(vite@8.2.2)
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
@@ -5086,7 +5086,7 @@ importers:
         version: 19.2.5(@types/react@19.2.18)
       '@vitejs/plugin-vue':
         specifier: ^6.0.4
-        version: 6.0.5(vite@8.2.1)(vue@3.5.30)
+        version: 6.0.5(vite@8.2.2)(vue@3.5.30)
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
@@ -5238,13 +5238,13 @@ importers:
         version: link:../../../scripts
       devalue:
         specifier: ^5.9.0
-        version: 5.9.1
+        version: 5.9.2
       linkedom:
         specifier: ^0.18.13
         version: 0.18.13
       vite:
         specifier: ^8.2.1
-        version: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
   packages/integrations/markdoc/test/fixtures/content-collections:
     dependencies:
@@ -5268,7 +5268,7 @@ importers:
         version: link:../../../../../astro
       preact:
         specifier: ^10.29.8
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/integrations/markdoc/test/fixtures/headings:
     dependencies:
@@ -5400,7 +5400,7 @@ importers:
         version: link:../../../../../astro
       preact:
         specifier: ^10.29.8
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/integrations/markdoc/test/fixtures/render-with-config:
     dependencies:
@@ -5512,7 +5512,7 @@ importers:
         version: 5.1.0
       vite:
         specifier: ^8.0.13
-        version: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
   packages/integrations/mdx/test/fixtures/content-layer:
     dependencies:
@@ -5605,7 +5605,7 @@ importers:
         version: link:../../../../../astro
       preact:
         specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/integrations/mdx/test/fixtures/mdx-namespace:
     dependencies:
@@ -5713,7 +5713,7 @@ importers:
         version: 5.2.0
       '@netlify/vite-plugin':
         specifier: ^2.12.3
-        version: 2.12.3(@azure/identity@4.13.0)(@vercel/functions@3.9.5)(vite@8.2.1)
+        version: 2.12.3(@azure/identity@4.13.0)(@vercel/functions@3.9.5)(vite@8.2.2)
       '@vercel/nft':
         specifier: ^1.3.2
         version: 1.11.0
@@ -5725,7 +5725,7 @@ importers:
         version: 0.2.17
       vite:
         specifier: ^8.0.13
-        version: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
     devDependencies:
       '@types/node':
         specifier: ^22.19.0
@@ -5741,7 +5741,7 @@ importers:
         version: 1.2.0
       devalue:
         specifier: ^5.8.1
-        version: 5.9.1
+        version: 5.9.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -5878,7 +5878,7 @@ importers:
         version: 1.2.0
       devalue:
         specifier: ^5.9.1
-        version: 5.9.1
+        version: 5.9.2
       express:
         specifier: ^5.2.1
         version: 5.2.1
@@ -6085,20 +6085,20 @@ importers:
         specifier: workspace:*
         version: link:../../internal-helpers
       '@preact/preset-vite':
-        specifier: ^2.10.5
-        version: 2.10.5(@babel/core@7.29.0)(preact@10.29.8)(vite@8.2.1)
+        specifier: ^2.10.6
+        version: 2.10.6(@babel/core@7.29.0)(preact@10.29.8)(vite@8.2.2)
       '@preact/signals':
-        specifier: ^2.8.2
-        version: 2.8.2(preact@10.29.8)
+        specifier: ^2.11.2
+        version: 2.11.2(preact@10.29.8)
       devalue:
-        specifier: ^5.8.1
-        version: 5.9.1
+        specifier: ^5.9.2
+        version: 5.9.2
       preact-render-to-string:
-        specifier: ^6.6.6
-        version: 6.6.6(preact@10.29.8)
+        specifier: ^6.7.0
+        version: 6.7.0(preact@10.29.8)
       vite:
-        specifier: ^8.0.13
-        version: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        specifier: ^8.2.2
+        version: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -6107,8 +6107,8 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       preact:
-        specifier: ^10.29.0
-        version: 10.29.8(preact-render-to-string@6.6.6)
+        specifier: ^10.29.8
+        version: 10.29.8(preact-render-to-string@6.7.0)
 
   packages/integrations/react:
     dependencies:
@@ -6117,16 +6117,16 @@ importers:
         version: link:../../internal-helpers
       '@vitejs/plugin-react':
         specifier: ^5.2.0
-        version: 5.2.0(vite@8.2.1)
+        version: 5.2.0(vite@8.2.2)
       devalue:
         specifier: ^5.8.1
-        version: 5.9.1
+        version: 5.9.2
       ultrahtml:
         specifier: ^1.6.0
         version: 1.6.0
       vite:
         specifier: ^8.0.13
-        version: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
     devDependencies:
       '@types/react':
         specifier: ^18.3.28
@@ -6269,13 +6269,13 @@ importers:
     dependencies:
       vite:
         specifier: ^8.0.13
-        version: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       vite-plugin-solid:
         specifier: ^2.11.12
-        version: 2.11.12(solid-js@1.9.13)(vite@8.2.1)
+        version: 2.11.12(solid-js@1.9.13)(vite@8.2.2)
       vitefu:
         specifier: ^1.1.2
-        version: 1.1.2(vite@8.2.1)
+        version: 1.1.2(vite@8.2.2)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -6291,20 +6291,20 @@ importers:
     dependencies:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^7.1.0
-        version: 7.1.2(svelte@5.55.3)(vite@8.2.1)
+        version: 7.1.2(svelte@5.55.3)(vite@8.2.2)
       svelte2tsx:
         specifier: ^0.7.55
         version: 0.7.55(svelte@5.55.3)(typescript@6.0.3)
       vite:
         specifier: ^8.0.13
-        version: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       vitefu:
         specifier: ^1.1.2
-        version: 1.1.2(vite@8.2.1)
+        version: 1.1.2(vite@8.2.2)
     devDependencies:
       '@testing-library/svelte':
         specifier: ^5.3.1
-        version: 5.3.1(svelte@5.55.3)(vite@8.2.1)(vitest@4.1.10)
+        version: 5.3.1(svelte@5.55.3)(vite@8.2.2)(vitest@4.1.10)
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -6401,7 +6401,7 @@ importers:
         version: 1.2.0
       vite:
         specifier: ^8.0.13
-        version: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
   packages/integrations/vercel/test/fixtures/basic:
     dependencies:
@@ -6626,19 +6626,19 @@ importers:
     dependencies:
       '@vitejs/plugin-vue':
         specifier: ^6.0.5
-        version: 6.0.5(vite@8.2.1)(vue@3.5.30)
+        version: 6.0.5(vite@8.2.2)(vue@3.5.30)
       '@vitejs/plugin-vue-jsx':
         specifier: ^5.1.5
-        version: 5.1.5(vite@8.2.1)(vue@3.5.30)
+        version: 5.1.5(vite@8.2.2)(vue@3.5.30)
       '@vue/compiler-sfc':
         specifier: ^3.5.30
         version: 3.5.30
       vite:
         specifier: ^8.0.13
-        version: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+        version: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       vite-plugin-vue-devtools:
         specifier: ^8.1.0
-        version: 8.1.0(vite@8.2.1)(vue@3.5.30)
+        version: 8.1.0(vite@8.2.2)(vue@3.5.30)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -10205,14 +10205,19 @@ packages:
   '@poppinss/exception@1.2.3':
     resolution: {integrity: sha512-dCED+QRChTVatE9ibtoaxc+WkdzOSjYTKi/+uacHWIsfodVfpsueo3+DKpgU5Px8qXjgmXkSvhXvSCz3fnP9lw==}
 
-  '@preact/preset-vite@2.10.5':
-    resolution: {integrity: sha512-p0vJpxiVO7KWWazWny3LUZ+saXyZKWv6Ju0bYMWNJRp2YveufRPgSUB1C4MTqGJfz07EehMgfN+AJNwQy+w6Iw==}
+  '@preact/preset-vite@2.10.6':
+    resolution: {integrity: sha512-ZZ5RIT2ZVXg8UxRA8VZpoT8CdpDG7RFIqOT4bELqNBp85+HKvQBbgmh3gsoW1UOQXx26TLe+ZRNKI7q281Kckw==}
     peerDependencies:
       '@babel/core': 7.x
       vite: 2.x || 3.x || 4.x || 5.x || 6.x || 7.x || 8.x
 
-  '@preact/signals-core@1.14.0':
-    resolution: {integrity: sha512-AowtCcCU/33lFlh1zRFf/u+12rfrhtNakj7UpaGEsmMwUKpKWMVvcktOGcwBBNiB4lWrZWc01LhiyyzVklJyaQ==}
+  '@preact/signals-core@1.14.4':
+    resolution: {integrity: sha512-HNB6HYeYKhQbJ1aKl+YRjrS4+QWHLKX6qKoUsfS/m0vqzsVaEBiZiaKbG/e+NKk2ch5ALQr/ihWaMHxiCuuWHA==}
+
+  '@preact/signals@2.11.2':
+    resolution: {integrity: sha512-rVTRTt/T0HIRgbugwS5FigbfF/kfdEFYFtiqxa+lbpqTajepqnR0firuAS2iNdHyejWB7Yc9p9QePkVNBtTAwg==}
+    peerDependencies:
+      preact: '>= 10.25.0 || >=11.0.0-0'
 
   '@preact/signals@2.8.2':
     resolution: {integrity: sha512-gym5yoa64c+0w2kL7zRAAjY548qzWXbbuOfjsK9F1nWrEqooDwyWnih5SNdonjhQSp27zUqYh7UrxIRnkCyFCA==}
@@ -12282,8 +12287,8 @@ packages:
   dettle@1.0.5:
     resolution: {integrity: sha512-ZVyjhAJ7sCe1PNXEGveObOH9AC8QvMga3HJIghHawtG7mE4K5pW9nz/vDGAr/U7a3LWgdOzEE7ac9MURnyfaTA==}
 
-  devalue@5.9.1:
-    resolution: {integrity: sha512-+17vil3EVQRzvtDJSFuTWEb8XJRvXqAiV3qZyQWD398QeXUa6CxsUyMdD1fxzEhUrd4FojitFz7lhIHBTlV4fw==}
+  devalue@5.9.2:
+    resolution: {integrity: sha512-po4PAY5c53tw5XMocSnf8A/5OHhbbUftpr93aEN6BBoAdntUmK7vu7wOATqvt7cXO7m1Cl4gMVn6p7n6n4mj0w==}
 
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
@@ -14948,8 +14953,8 @@ packages:
     resolution: {integrity: sha512-u82N74LFzG8ca+dD8puPnplTXoGH4fTPpVGuIbt36G3qvNlkvfD0lEAZSxaly3KX8TS/L1A1gsCEmvKmBcVbkQ==}
     engines: {node: ^10 || ^12 || >=14}
 
-  preact-render-to-string@6.6.6:
-    resolution: {integrity: sha512-EfqZJytnjJldV+YaaqhthU2oXsEf5e+6rDv957p+zxAvNfFLQOPfvBOTncscQ+akzu6Wrl7s3Pa0LjUQmWJsGQ==}
+  preact-render-to-string@6.7.0:
+    resolution: {integrity: sha512-Z4WR8fmLMRpdYqJ9i7vrlXSsSrxVJydwrkEXHapexfARbWfGb7vGcnvNQnIzN0cXciMVOlz/XLoiMCi9gUsy9Q==}
     peerDependencies:
       preact: '>=10 || >= 11.0.0-0'
 
@@ -16314,13 +16319,13 @@ packages:
     peerDependencies:
       vue: '>=3.2.13'
 
-  vite@8.2.1:
-    resolution: {integrity: sha512-EU/eS7BH3XROHh2YnBefjM6DBKA6ZeMZEYQbj7NLWg5wHYlhB8B/Mayd5XsgWq+NFYccDOTemRpdETWR6Ka/lw==}
+  vite@8.2.2:
+    resolution: {integrity: sha512-cFKLV/PRgAUlIRm5WjMjJ86jrftzpqcgH+Us+DS8mI3CDNiH30Whrz8uHL3+MOLPAgqbMBAqWdAHAphOAM+z/Q==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
       '@types/node': ^22.19.0
-      '@vitejs/devtools': ^0.4.0
+      '@vitejs/devtools': ^0.4.0 || ^0.5.0
       esbuild: ^0.27.0 || ^0.28.0
       jiti: '>=1.21.0'
       less: ^4.0.0
@@ -17791,12 +17796,12 @@ snapshots:
     optionalDependencies:
       workerd: 1.20260820.1
 
-  '@cloudflare/vite-plugin@1.53.1(vite@8.2.1)(wrangler@4.125.0)':
+  '@cloudflare/vite-plugin@1.53.1(vite@8.2.2)(wrangler@4.125.0)':
     dependencies:
       '@cloudflare/unenv-preset': 2.16.1(unenv@2.0.0-rc.24)(workerd@1.20260820.1)
       miniflare: 5.20260820.0-alpha
       unenv: 2.0.0-rc.24
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       workerd: 1.20260820.1
       wrangler: 4.125.0(@cloudflare/workers-types@5.20260825.1)
       ws: 8.21.0
@@ -17860,11 +17865,11 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@codspeed/vitest-plugin@5.2.0(tinybench@2.9.0)(vite@8.2.1)(vitest@4.1.10)':
+  '@codspeed/vitest-plugin@5.2.0(tinybench@2.9.0)(vite@8.2.2)(vitest@4.1.10)':
     dependencies:
       '@codspeed/core': 5.2.0
       tinybench: 2.9.0
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       vitest: 4.1.10(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
     transitivePeerDependencies:
       - debug
@@ -19190,7 +19195,7 @@ snapshots:
   '@nanostores/preact@1.0.0(nanostores@1.1.1)(preact@10.29.8)':
     dependencies:
       nanostores: 1.1.1
-      preact: 10.29.8(preact-render-to-string@6.6.6)
+      preact: 10.29.8(preact-render-to-string@6.7.0)
 
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:
@@ -19480,12 +19485,12 @@ snapshots:
 
   '@netlify/types@2.6.0': {}
 
-  '@netlify/vite-plugin@2.12.3(@azure/identity@4.13.0)(@vercel/functions@3.9.5)(vite@8.2.1)':
+  '@netlify/vite-plugin@2.12.3(@azure/identity@4.13.0)(@vercel/functions@3.9.5)(vite@8.2.2)':
     dependencies:
       '@netlify/dev': 4.18.3(@azure/identity@4.13.0)(@vercel/functions@3.9.5)
       '@netlify/dev-utils': 4.4.3
       dedent: 1.7.1
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -19835,49 +19840,54 @@ snapshots:
 
   '@poppinss/exception@1.2.3': {}
 
-  '@preact/preset-vite@2.10.5(@babel/core@7.29.0)(preact@10.29.8)(vite@8.2.1)':
+  '@preact/preset-vite@2.10.6(@babel/core@7.29.0)(preact@10.29.8)(vite@8.2.2)':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-transform-react-jsx': 7.28.6(@babel/core@7.29.0)
       '@babel/plugin-transform-react-jsx-development': 7.27.1(@babel/core@7.29.0)
-      '@prefresh/vite': 2.4.11(preact@10.29.8)(vite@8.2.1)
+      '@prefresh/vite': 2.4.11(preact@10.29.8)(vite@8.2.2)
       '@rollup/pluginutils': 5.3.0
       babel-plugin-transform-hook-names: 1.0.2(@babel/core@7.29.0)
       debug: 4.4.3(supports-color@8.1.1)
       magic-string: 0.30.21
       picocolors: 1.1.1
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
-      vite-prerender-plugin: 0.5.12(vite@8.2.1)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite-prerender-plugin: 0.5.12(vite@8.2.2)
       zimmerframe: 1.1.4
     transitivePeerDependencies:
       - preact
       - rollup
       - supports-color
 
-  '@preact/signals-core@1.14.0': {}
+  '@preact/signals-core@1.14.4': {}
+
+  '@preact/signals@2.11.2(preact@10.29.8)':
+    dependencies:
+      '@preact/signals-core': 1.14.4
+      preact: 10.29.8(preact-render-to-string@6.7.0)
 
   '@preact/signals@2.8.2(preact@10.29.8)':
     dependencies:
-      '@preact/signals-core': 1.14.0
-      preact: 10.29.8(preact-render-to-string@6.6.6)
+      '@preact/signals-core': 1.14.4
+      preact: 10.29.8(preact-render-to-string@6.7.0)
 
   '@prefresh/babel-plugin@0.5.2': {}
 
   '@prefresh/core@1.5.9(preact@10.29.8)':
     dependencies:
-      preact: 10.29.8(preact-render-to-string@6.6.6)
+      preact: 10.29.8(preact-render-to-string@6.7.0)
 
   '@prefresh/utils@1.2.1': {}
 
-  '@prefresh/vite@2.4.11(preact@10.29.8)(vite@8.2.1)':
+  '@prefresh/vite@2.4.11(preact@10.29.8)(vite@8.2.2)':
     dependencies:
       '@babel/core': 7.29.0
       '@prefresh/babel-plugin': 0.5.2
       '@prefresh/core': 1.5.9(preact@10.29.8)
       '@prefresh/utils': 1.2.1
       '@rollup/pluginutils': 4.2.1
-      preact: 10.29.8(preact-render-to-string@6.6.6)
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      preact: 10.29.8(preact-render-to-string@6.7.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -20176,14 +20186,14 @@ snapshots:
     dependencies:
       acorn: 8.17.0
 
-  '@sveltejs/vite-plugin-svelte@7.1.2(svelte@5.55.3)(vite@8.2.1)':
+  '@sveltejs/vite-plugin-svelte@7.1.2(svelte@5.55.3)(vite@8.2.2)':
     dependencies:
       deepmerge: 4.3.1
       magic-string: 0.30.21
       obug: 2.1.1
       svelte: 5.55.3
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
-      vitefu: 1.1.2(vite@8.2.1)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vitefu: 1.1.2(vite@8.2.2)
 
   '@tailwindcss/node@4.2.2':
     dependencies:
@@ -20246,12 +20256,12 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.2.2
       '@tailwindcss/oxide-win32-x64-msvc': 4.2.2
 
-  '@tailwindcss/vite@4.2.2(vite@8.2.1)':
+  '@tailwindcss/vite@4.2.2(vite@8.2.2)':
     dependencies:
       '@tailwindcss/node': 4.2.2
       '@tailwindcss/oxide': 4.2.2
       tailwindcss: 4.2.2
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
   '@test/server-entry-fake-adapter@file:packages/astro/test/fixtures/server-entry/fake-adapter':
     dependencies:
@@ -20272,13 +20282,13 @@ snapshots:
     dependencies:
       svelte: 5.55.3
 
-  '@testing-library/svelte@5.3.1(svelte@5.55.3)(vite@8.2.1)(vitest@4.1.10)':
+  '@testing-library/svelte@5.3.1(svelte@5.55.3)(vite@8.2.2)(vitest@4.1.10)':
     dependencies:
       '@testing-library/dom': 10.4.1
       '@testing-library/svelte-core': 1.0.0(svelte@5.55.3)
       svelte: 5.55.3
     optionalDependencies:
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       vitest: 4.1.10(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
   '@textlint/ast-node-types@15.5.1': {}
@@ -20759,7 +20769,7 @@ snapshots:
     optionalDependencies:
       ajv: 6.15.0
 
-  '@vitejs/plugin-react@5.2.0(vite@8.2.1)':
+  '@vitejs/plugin-react@5.2.0(vite@8.2.2)':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.29.0)
@@ -20767,26 +20777,26 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-rc.3
       '@types/babel__core': 7.20.5
       react-refresh: 0.18.0
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue-jsx@5.1.5(vite@8.2.1)(vue@3.5.30)':
+  '@vitejs/plugin-vue-jsx@5.1.5(vite@8.2.2)(vue@3.5.30)':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-syntax-typescript': 7.28.6(@babel/core@7.29.0)
       '@babel/plugin-transform-typescript': 7.28.6(@babel/core@7.29.0)
       '@rolldown/pluginutils': 1.0.1
       '@vue/babel-plugin-jsx': 2.0.1(@babel/core@7.29.0)
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       vue: 3.5.30(typescript@6.0.3)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue@6.0.5(vite@8.2.1)(vue@3.5.30)':
+  '@vitejs/plugin-vue@6.0.5(vite@8.2.2)(vue@3.5.30)':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-rc.2
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       vue: 3.5.30(typescript@6.0.3)
 
   '@vitest/expect@4.1.10':
@@ -20798,21 +20808,21 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.10(vite@8.2.1)':
+  '@vitest/mocker@4.1.10(vite@8.2.2)':
     dependencies:
       '@vitest/spy': 4.1.10
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
-  '@vitest/mocker@5.0.0-beta.3(vite@8.2.1)':
+  '@vitest/mocker@5.0.0-beta.3(vite@8.2.2)':
     dependencies:
       '@vitest/spy': 5.0.0-beta.3
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
   '@vitest/pretty-format@4.1.10':
     dependencies:
@@ -22123,7 +22133,7 @@ snapshots:
 
   dettle@1.0.5: {}
 
-  devalue@5.9.1: {}
+  devalue@5.9.2: {}
 
   devlop@1.1.0:
     dependencies:
@@ -25395,13 +25405,13 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  preact-render-to-string@6.6.6(preact@10.29.8):
+  preact-render-to-string@6.7.0(preact@10.29.8):
     dependencies:
-      preact: 10.29.8(preact-render-to-string@6.6.6)
+      preact: 10.29.8(preact-render-to-string@6.7.0)
 
-  preact@10.29.8(preact-render-to-string@6.6.6):
+  preact@10.29.8(preact-render-to-string@6.7.0):
     optionalDependencies:
-      preact-render-to-string: 6.6.6(preact@10.29.8)
+      preact-render-to-string: 6.7.0(preact@10.29.8)
 
   prebuild-install@7.1.3:
     dependencies:
@@ -26475,7 +26485,7 @@ snapshots:
       aria-query: 5.3.1
       axobject-query: 4.1.0
       clsx: 2.1.1
-      devalue: 5.9.1
+      devalue: 5.9.2
       esm-env: 1.2.2
       esrap: 2.2.4
       is-reference: 3.0.3
@@ -26950,17 +26960,17 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-dev-rpc@1.1.0(vite@8.2.1):
+  vite-dev-rpc@1.1.0(vite@8.2.2):
     dependencies:
       birpc: 2.9.0
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
-      vite-hot-client: 2.1.0(vite@8.2.1)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite-hot-client: 2.1.0(vite@8.2.2)
 
-  vite-hot-client@2.1.0(vite@8.2.1):
+  vite-hot-client@2.1.0(vite@8.2.2):
     dependencies:
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
-  vite-plugin-inspect@11.3.3(vite@8.2.1):
+  vite-plugin-inspect@11.3.3(vite@8.2.2):
     dependencies:
       ansis: 4.2.0
       debug: 4.4.3(supports-color@8.1.1)
@@ -26970,12 +26980,12 @@ snapshots:
       perfect-debounce: 2.1.0
       sirv: 3.0.2
       unplugin-utils: 0.3.1
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
-      vite-dev-rpc: 1.1.0(vite@8.2.1)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite-dev-rpc: 1.1.0(vite@8.2.2)
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-solid@2.11.12(solid-js@1.9.13)(vite@8.2.1):
+  vite-plugin-solid@2.11.12(solid-js@1.9.13)(vite@8.2.2):
     dependencies:
       '@babel/core': 7.29.0
       '@types/babel__core': 7.20.5
@@ -26983,26 +26993,26 @@ snapshots:
       merge-anything: 5.1.7
       solid-js: 1.9.13
       solid-refresh: 0.6.3(solid-js@1.9.13)
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
-      vitefu: 1.1.2(vite@8.2.1)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vitefu: 1.1.2(vite@8.2.2)
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-vue-devtools@8.1.0(vite@8.2.1)(vue@3.5.30):
+  vite-plugin-vue-devtools@8.1.0(vite@8.2.2)(vue@3.5.30):
     dependencies:
       '@vue/devtools-core': 8.1.0(vue@3.5.30)
       '@vue/devtools-kit': 8.1.0
       '@vue/devtools-shared': 8.1.0
       sirv: 3.0.2
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
-      vite-plugin-inspect: 11.3.3(vite@8.2.1)
-      vite-plugin-vue-inspector: 5.3.2(vite@8.2.1)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite-plugin-inspect: 11.3.3(vite@8.2.2)
+      vite-plugin-vue-inspector: 5.3.2(vite@8.2.2)
     transitivePeerDependencies:
       - '@nuxt/kit'
       - supports-color
       - vue
 
-  vite-plugin-vue-inspector@5.3.2(vite@8.2.1):
+  vite-plugin-vue-inspector@5.3.2(vite@8.2.2):
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-proposal-decorators': 7.29.0(@babel/core@7.29.0)
@@ -27013,11 +27023,11 @@ snapshots:
       '@vue/compiler-dom': 3.5.30
       kolorist: 1.8.0
       magic-string: 0.30.21
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
     transitivePeerDependencies:
       - supports-color
 
-  vite-prerender-plugin@0.5.12(vite@8.2.1):
+  vite-prerender-plugin@0.5.12(vite@8.2.2):
     dependencies:
       kolorist: 1.8.0
       magic-string: 0.30.21
@@ -27025,7 +27035,7 @@ snapshots:
       simple-code-frame: 1.3.0
       source-map: 0.7.6
       stack-trace: 1.0.0-pre2
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
   vite-svg-loader@5.1.1(vue@3.5.30):
     dependencies:
@@ -27035,7 +27045,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vite@8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0):
+  vite@8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.5
@@ -27051,14 +27061,14 @@ snapshots:
       tsx: 4.22.3
       yaml: 2.9.0
 
-  vitefu@1.1.2(vite@8.2.1):
+  vitefu@1.1.2(vite@8.2.2):
     optionalDependencies:
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
 
   vitest@4.1.10(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0):
     dependencies:
       '@vitest/expect': 4.1.10
-      '@vitest/mocker': 4.1.10(vite@8.2.1)
+      '@vitest/mocker': 4.1.10(vite@8.2.2)
       '@vitest/pretty-format': 4.1.10
       '@vitest/runner': 4.1.10
       '@vitest/snapshot': 4.1.10
@@ -27075,7 +27085,7 @@ snapshots:
       tinyexec: 1.0.4
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
@@ -27094,10 +27104,10 @@ snapshots:
       - tsx
       - yaml
 
-  vitest@5.0.0-beta.3(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.2.1):
+  vitest@5.0.0-beta.3(@opentelemetry/api@1.9.0)(@types/node@22.19.19)(vite@8.2.2):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.0-beta.3(vite@8.2.1)
+      '@vitest/mocker': 5.0.0-beta.3(vite@8.2.2)
       '@vitest/pretty-format': 5.0.0-beta.3
       '@vitest/runner': 5.0.0-beta.3
       '@vitest/spy': 5.0.0-beta.3
@@ -27114,7 +27124,7 @@ snapshots:
       tinyexec: 1.0.4
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
-      vite: 8.2.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
+      vite: 8.2.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.22.3)(yaml@2.9.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
