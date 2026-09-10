@@ -88,6 +88,17 @@ describe('Trailing slash', () => {
 				assert.equal(res.headers.get('location'), '/some-base/one/?foo=bar');
 			});
 
+			it('Keeps a query string that contains a second `?` on redirect', async () => {
+				const res = await fetch(
+					`http://${server.host}:${server.port}/some-base/one?redirect=/x?y=1&z=2`,
+					{
+						redirect: 'manual',
+					},
+				);
+				assert.equal(res.status, 301);
+				assert.equal(res.headers.get('location'), '/some-base/one/?redirect=/x?y=1&z=2');
+			});
+
 			it('Can render prerendered route with query params', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/some-base/one/?foo=bar`);
 				const html = await res.text();
@@ -162,6 +173,14 @@ describe('Trailing slash', () => {
 				});
 				assert.equal(res.status, 301);
 				assert.equal(res.headers.get('location'), '/one/?foo=bar');
+			});
+
+			it('Keeps a query string that contains a second `?` on redirect', async () => {
+				const res = await fetch(`http://${server.host}:${server.port}/one?redirect=/x?y=1&z=2`, {
+					redirect: 'manual',
+				});
+				assert.equal(res.status, 301);
+				assert.equal(res.headers.get('location'), '/one/?redirect=/x?y=1&z=2');
 			});
 
 			it('Can render prerendered route with query params', async () => {
@@ -296,6 +315,18 @@ describe('Trailing slash', () => {
 				assert.equal(res.headers.get('location'), '/some-base/one?foo=bar');
 			});
 
+			it('Keeps a query string that contains a second `?` on redirect', async () => {
+				const res = await fetch(
+					`http://${server.host}:${server.port}/some-base/one/?redirect=/x?y=1&z=2`,
+					{
+						redirect: 'manual',
+					},
+				);
+
+				assert.equal(res.status, 301);
+				assert.equal(res.headers.get('location'), '/some-base/one?redirect=/x?y=1&z=2');
+			});
+
 			it('Can render prerendered route with query params', async () => {
 				const res = await fetch(`http://${server.host}:${server.port}/some-base/one?foo=bar`);
 				const html = await res.text();
@@ -352,6 +383,15 @@ describe('Trailing slash', () => {
 
 				assert.equal(res.status, 301);
 				assert.equal(res.headers.get('location'), '/one?foo=bar');
+			});
+
+			it('Keeps a query string that contains a second `?` on redirect', async () => {
+				const res = await fetch(`http://${server.host}:${server.port}/one/?redirect=/x?y=1&z=2`, {
+					redirect: 'manual',
+				});
+
+				assert.equal(res.status, 301);
+				assert.equal(res.headers.get('location'), '/one?redirect=/x?y=1&z=2');
 			});
 
 			it('Can render prerendered route and query params', async () => {

@@ -57,7 +57,10 @@ export function createStaticHandler(
 				fullUrl = fullUrl.slice(0, req.url.indexOf('#'));
 			}
 
-			const [urlPath, urlQuery] = fullUrl.split('?');
+			// Only split on the first `?` so a query string that itself contains `?` is kept intact.
+			const queryIndex = fullUrl.indexOf('?');
+			const urlPath = queryIndex === -1 ? fullUrl : fullUrl.slice(0, queryIndex);
+			const urlQuery = queryIndex === -1 ? undefined : fullUrl.slice(queryIndex + 1);
 			let fsPath = app.removeBase(urlPath);
 			try {
 				fsPath = decodeURI(fsPath);
