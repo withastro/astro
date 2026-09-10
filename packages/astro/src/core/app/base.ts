@@ -23,6 +23,7 @@ import { handleRequest } from '../routing/handler.js';
 import { getDefaultStatusCode } from '../routing/helpers.js';
 import { matchRequest } from '../routing/match-request.js';
 import { getRouteTable, matchRoute, updateRouteTable } from '../routing/route-table.js';
+import { validateAndDecodePathname } from '../util/pathname.js';
 import { setRenderOptions } from './render-options.js';
 import type { WaitUntilHook } from '../wait-until.js';
 import type { SSRManifest } from './types.js';
@@ -285,22 +286,22 @@ export abstract class BaseApp {
 	}
 
 	/**
-	 * Decodes a pathname with `decodeURI`, falling back to the raw pathname when it
-	 * contains an invalid percent-sequence (e.g. `%C0%AF`, an overlong-UTF-8 encoding of
-	 * `/` commonly sent by path-traversal scanners). A raw `decodeURI()` would throw
-	 * `URIError: URI malformed`, and because `match()` runs before `render()` that error
-	 * escapes the adapter's request handler as an uncaught exception (HTTP 500) that user
-	 * middleware can't catch.
+	 * Fully decodes a pathname, falling back to a single decode and then the raw pathname
+	 * when validation fails. Adapter matching runs before `render()`, so it must not throw
+	 * for request input that render-time validation handles.
 	 */
-	private safeDecodeURI(pathname: string): string {
+	private safeDecodePathname(pathname: string): string {
 		try {
-			return decodeURI(pathname);
+			return validateAndDecodePathname(pathname);
 		} catch (e: any) {
-			// Malformed request paths are expected client input (commonly from automated
-			// scanners) rather than a server fault, and this runs per-request on the hot
-			// path. Log at `debug` so it stays diagnosable without flooding error logs.
+			// Path decoding failures are request input rather than a server fault. Log at
+			// `debug` so they stay diagnosable without flooding error logs.
 			this.adapterLogger.debug(e.toString());
-			return pathname;
+			try {
+				return decodeURI(pathname);
+			} catch {
+				return pathname;
+			}
 		}
 	}
 
@@ -311,7 +312,7 @@ export abstract class BaseApp {
 	public getPathnameFromRequest(request: Request): string {
 		const url = new URL(request.url);
 		const pathname = prependForwardSlash(this.removeBase(url.pathname));
-		return this.safeDecodeURI(pathname);
+		return this.safeDecodePathname(pathname);
 	}
 
 	/**
@@ -398,7 +399,7 @@ export abstract class BaseApp {
 		if (!routeData) {
 			const domainPathname = this.computePathnameFromDomain(request);
 			if (domainPathname) {
-				routeData = matchRoute(this.manifest, this.safeDecodeURI(domainPathname));
+				routeData = matchRoute(this.manifest, this.safeDecodePathname(domainPathname));
 			}
 		}
 		const resolvedOptions: ResolvedRenderOptions = {

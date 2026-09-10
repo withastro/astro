@@ -73,7 +73,7 @@ export default async function createAstroServerApp(
 				const { routes: newRoutes } = await import('virtual:astro:routes');
 				updateRouteTable(
 					manifest,
-					newRoutes.map((r: RouteInfo) => r.routeData),
+					newRoutes.map((route: RouteInfo) => route.routeData),
 				);
 				actualLogger.debug('router', 'Routes updated via HMR');
 			} catch (e: any) {

@@ -49,7 +49,7 @@ export function remotePatternToRegex(
 ): string | undefined {
 	let { protocol, hostname, port, pathname } = pattern;
 
-	let regexStr = '';
+	let regexStr = '^';
 
 	if (protocol) {
 		regexStr += `${protocol}://`;
@@ -125,7 +125,7 @@ function remoteImagesFromAstroConfig(
 	const remoteImages: string[] = [];
 	// Domains get a simple regex match
 	remoteImages.push(
-		...config.image.domains.map((domain) => `https?:\/\/${escapeRegex(domain)}\/.*`),
+		...config.image.domains.map((domain) => `^https?:\/\/${escapeRegex(domain)}\/.*$`),
 	);
 	// Remote patterns need to be converted to regexes
 	remoteImages.push(

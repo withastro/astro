@@ -14,8 +14,17 @@ export type DataStoreManifest = Record<string, string[]>;
  * (build/dev) and are never imported at runtime.
  */
 export interface DataStoreWriter {
-	/** Serialize and persist the given collections. */
-	write(collections: Map<string, Map<string, any>>): Promise<void>;
+	/**
+	 * Serialize and persist the given collections.
+	 * Resolves to `true` if the data on disk changed, or `false` if the write
+	 * was skipped because the persisted data was already identical.
+	 */
+	write(collections: Map<string, Map<string, any>>): Promise<boolean>;
+	/**
+	 * The file whose write commits a store update: the store file itself, or
+	 * the manifest for chunked stores.
+	 */
+	readonly target: PathLike;
 }
 
 /**
@@ -102,17 +111,20 @@ export function chunkString(str: string, maxBytes: number): string[] {
  * partial reads. If the file already contains identical data, the write is
  * skipped. Callers are responsible for serializing concurrent writes to the
  * same file.
+ *
+ * Returns `true` if the file was written, or `false` if the write was skipped.
  */
-export async function writeFileAtomic(file: PathLike, data: string): Promise<void> {
+export async function writeFileAtomic(file: PathLike, data: string): Promise<boolean> {
 	const tempFile = file instanceof URL ? new URL(`${file.href}.tmp`) : `${file}.tmp`;
 	const oldData = await fs.readFile(file, 'utf-8').catch(() => '');
 	if (oldData === data) {
 		// If the data hasn't changed, we can skip the write.
-		return;
+		return false;
 	}
 	// Write to a temporary file first and then move it to prevent partial reads.
 	await fs.writeFile(tempFile, data);
 	await fs.rename(tempFile, file);
+	return true;
 }
 
 /**
@@ -125,8 +137,12 @@ export class FileWriter implements DataStoreWriter {
 		this.#file = file;
 	}
 
-	async write(collections: Map<string, Map<string, any>>): Promise<void> {
-		await writeFileAtomic(this.#file, serializeDataStore(collections));
+	get target(): PathLike {
+		return this.#file;
+	}
+
+	async write(collections: Map<string, Map<string, any>>): Promise<boolean> {
+		return await writeFileAtomic(this.#file, serializeDataStore(collections));
 	}
 }
 
@@ -155,7 +171,11 @@ export class ChunkedWriter implements DataStoreWriter {
 		this.#chunkSize = chunkSize;
 	}
 
-	async write(collections: Map<string, Map<string, any>>): Promise<void> {
+	get target(): PathLike {
+		return this.#manifestFile;
+	}
+
+	async write(collections: Map<string, Map<string, any>>): Promise<boolean> {
 		if (!this.#hasher) {
 			this.#hasher = await xxhash();
 		}
@@ -168,12 +188,14 @@ export class ChunkedWriter implements DataStoreWriter {
 		}
 
 		// The manifest is the commit point: every part it references already
-		// exists on disk, so a reader never sees a dangling reference.
-		await writeFileAtomic(this.#manifestFile, JSON.stringify(manifest));
+		// exists on disk, so a reader never sees a dangling reference. Parts are
+		// content-addressed, so an unchanged manifest means unchanged data.
+		const didWrite = await writeFileAtomic(this.#manifestFile, JSON.stringify(manifest));
 		this.#writtenFiles.add(DATA_STORE_MANIFEST_FILE);
 
 		// Prune files left behind by previous snapshots.
 		emptyDir(this.#dir, this.#writtenFiles);
+		return didWrite;
 	}
 
 	async #writeCollection(entries: Iterable<[string, unknown]>) {

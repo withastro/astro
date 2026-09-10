@@ -1,11 +1,12 @@
 import crypto from 'node:crypto';
+import nodeFs from 'node:fs';
 import type { Plugin as VitePlugin } from 'vite';
 import { FONTS_SERVER_ADDRESS_PLACEHOLDER } from '../../../assets/fonts/constants.js';
 import { PROPAGATED_ASSET_FLAG } from '../../../content/consts.js';
 import { hasContentFlag } from '../../../content/utils.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 import { removeQueryString } from '../../path.js';
-import { rootRelativePath } from '../../viteUtils.js';
+import { CSS_LANGS_RE, rootRelativePath } from '../../viteUtils.js';
 import { moduleIsTopLevelPage } from '../graph.js';
 import { isContentDataIncrementalModule } from '../incremental-metadata.js';
 import type { BuildInternals } from '../internal.js';
@@ -84,6 +85,10 @@ function resolveAssetPlaceholders(graph: ModuleGraph, code: string): string {
  * file on disk but still carry generated code. Emitted-asset placeholders in
  * that code are resolved to their file names first, since the handles
  * themselves are not stable between builds.
+ *
+ * CSS modules are a special case: Vite extracts their content during the
+ * prerender build, leaving `code` as an empty string. For those modules, the
+ * source file is read from disk so that CSS edits invalidate the hash.
  */
 function hashModules(graph: ModuleGraph, sortedIds: string[]): string {
 	const hasher = crypto.createHash('sha256');
@@ -91,8 +96,18 @@ function hashModules(graph: ModuleGraph, sortedIds: string[]): string {
 		hasher.update(id);
 		hasher.update('\n');
 		const code = graph.getModuleInfo(id)?.code;
-		if (code != null) {
+		if (code != null && code.length > 0) {
 			hasher.update(resolveAssetPlaceholders(graph, code));
+		} else if (CSS_LANGS_RE.test(id)) {
+			// Vite extracts CSS into separate assets, so the module's `code` in the
+			// prerender bundle is empty. Read the source file so that stylesheet
+			// changes are reflected in the dependency hash (#17704).
+			try {
+				hasher.update(nodeFs.readFileSync(removeQueryString(id), 'utf-8'));
+			} catch {
+				// Virtual CSS or unreadable file — skip. The worst case is a
+				// cache miss (re-render), never a stale hit.
+			}
 		}
 		hasher.update('\n');
 	}

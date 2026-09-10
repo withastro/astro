@@ -1,4 +1,5 @@
 import type { MiddlewareNext } from '../../types/public/common.js';
+import type { AstroRuntimeLogger } from '../../types/public/context.js';
 import type { WaitUntilHook } from '../wait-until.js';
 
 export interface CacheOptions {
@@ -33,6 +34,7 @@ export interface CacheProvider {
 			request: Request;
 			url: URL;
 			waitUntil?: WaitUntilHook;
+			logger: AstroRuntimeLogger;
 		},
 		next: MiddlewareNext,
 	): Promise<Response>;

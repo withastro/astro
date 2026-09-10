@@ -122,6 +122,15 @@ export class AstroCache implements CacheLike {
 		for (const [key, value] of headers) {
 			response.headers.set(key, value);
 		}
+		if (
+			!response.headers.has('Cache-Control') &&
+			!response.headers.has('Expires') &&
+			(response.headers.has('Last-Modified') || response.headers.has('ETag'))
+		) {
+			// `no-cache` requires revalidation before a stored response is reused.
+			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control#no-cache
+			response.headers.set('Cache-Control', 'no-cache');
+		}
 	}
 
 	/** @internal */

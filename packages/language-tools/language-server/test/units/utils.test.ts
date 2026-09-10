@@ -7,7 +7,7 @@ import * as html from 'vscode-html-languageservice';
 import { getTSXRangesAsLSPRanges, safeConvertToTSX } from '../../dist/core/astro2tsx.js';
 import { addAstroTypes } from '../../dist/core/index.js';
 import { getAstroMetadata } from '../../dist/core/parseAstro.js';
-import { patchTSX } from '../../dist/core/utils.js';
+import { patchTSX, patchTSXWithMetadata } from '../../dist/core/utils.js';
 import {
 	getAlreadyImportedAstroComponentSources,
 	rewriteAstroImportText,
@@ -253,10 +253,14 @@ export default function Image__AstroComponent_(_props: Record<string, any>): any
 
 	it('patchTSX - re-exports the component under its clean name', () => {
 		const input = `export default function Image__AstroComponent_(_props: Record<string, any>): any {}`;
+		const patched = patchTSXWithMetadata(input, 'file:///src/components/Image.astro');
 
-		assert.match(
-			patchTSX(input, 'file:///src/components/Image.astro'),
-			/export \{ ImageAstroComponent as Image \};/,
+		assert.strictEqual(
+			patched.code.slice(
+				patched.generatedComponentExport?.start,
+				patched.generatedComponentExport?.end,
+			),
+			'export { ImageAstroComponent as Image };\n',
 		);
 	});
 

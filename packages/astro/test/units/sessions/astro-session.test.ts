@@ -22,10 +22,11 @@ interface MockCookies {
 	get(key: string): { value: string } | undefined;
 }
 
+const defaultSessionId = '00000000-0000-4000-8000-000000000000';
 const defaultMockCookies: MockCookies = {
 	set: () => {},
 	delete: () => {},
-	get: () => ({ value: 'sessionid' }),
+	get: () => ({ value: defaultSessionId }),
 };
 
 const stringify = (data: unknown) => JSON.parse(devalueStringify(data));
@@ -400,7 +401,7 @@ describe('AstroSession - Sparse Data Operations', () => {
 
 	it('should persist delete as the first mutation (no prior get/set)', async () => {
 		const store = new Map<string, string>();
-		const sessionId = 'sessionid';
+		const sessionId = defaultSessionId;
 		store.set(sessionId, devalueStringify(new Map([['token', { data: 'secret' }]])));
 
 		const mockStorage = {
@@ -488,6 +489,25 @@ describe('AstroSession - Cleanup Operations', () => {
 		await session[PERSIST_SYMBOL]();
 		assert.equal(removedKeys.size, 1, `Session should be removed`);
 	});
+
+	it('should not destroy a non-UUID session cookie', async () => {
+		const removedKeys = new Set<string>();
+		const mockStorage = {
+			removeItem: async (key: string) => {
+				removedKeys.add(key);
+			},
+		} as unknown as Storage;
+		const mockCookies: MockCookies = {
+			...defaultMockCookies,
+			get: () => ({ value: 'unrelated-storage-key' }),
+		};
+		const session = createSession(defaultConfig, mockCookies, mockStorage);
+
+		session.destroy();
+		await session[PERSIST_SYMBOL]();
+
+		assert.equal(removedKeys.size, 0);
+	});
 });
 
 // #endregion
@@ -547,6 +567,25 @@ describe('AstroSession - Cookie Security', () => {
 		session.set('key', 'value');
 		assert.equal(cookieOptions?.secure, false);
 		assert.equal(cookieOptions?.sameSite, 'lax');
+	});
+
+	it('should reject a non-UUID session cookie value and generate a new ID', async () => {
+		const mockCookies: MockCookies = {
+			...defaultMockCookies,
+			get: () => ({ value: 'not-a-uuid-at-all' }),
+		};
+
+		const session = createSession(defaultConfig, mockCookies);
+		session.set('key', 'value');
+
+		const id = session.sessionID;
+		assert.ok(id, 'session ID should exist');
+		assert.notEqual(id, 'not-a-uuid-at-all', 'non-UUID cookie value should be rejected');
+		assert.match(
+			id!,
+			/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+			'session ID should be a valid UUID',
+		);
 	});
 });
 
@@ -631,7 +670,7 @@ describe('AstroSession - No-Cookie Short Circuit', () => {
 			set: () => {},
 			delete: () => {},
 			get: (name: string) => {
-				if (name === 'test-session') return { value: 'existing-session-id' };
+				if (name === 'test-session') return { value: defaultSessionId };
 				return undefined;
 			},
 		};
@@ -664,18 +703,17 @@ describe('AstroSession - No-Cookie Short Circuit', () => {
 describe('AstroSession - regenerate() error path', () => {
 	it('should route errors to logger and reset #partial flag', async () => {
 		let storageGetCount = 0;
-		// The cookie mock returns 'old-session' so that ensureData() will try to
-		// load from storage using that key and hit the corrupt data path.
+		// A valid cookie makes ensureData() load from storage and hit the corrupt data path.
 		const cookies: MockCookies = {
 			set: () => {},
 			delete: () => {},
-			get: (name: string) => (name === 'test-session' ? { value: 'old-session' } : undefined),
+			get: (name: string) => (name === 'test-session' ? { value: defaultSessionId } : undefined),
 		};
 		const spyLogger = new SpyLogger();
 		const mockStorage = {
 			async get(key: string) {
 				storageGetCount++;
-				if (key === 'old-session') {
+				if (key === defaultSessionId) {
 					// Return a string that unflatten() will parse into an Array, not a Map.
 					// This causes unflatten(raw) instanceof Map to be false, throwing an AstroError.
 					return '[1,2,3]';
@@ -707,7 +745,7 @@ describe('AstroSession - regenerate() error path', () => {
 		);
 
 		// This will trigger ensureData() under the hood.
-		// It fetches 'old-session' which returns invalid data, throwing an error.
+		// It fetches the existing session, which returns invalid data and throws an error.
 		// regenerate() catches this, should log an error, and reset #partial.
 		await session.regenerate();
 

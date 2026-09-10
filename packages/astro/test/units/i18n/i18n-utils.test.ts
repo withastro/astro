@@ -67,6 +67,20 @@ describe('computePreferredLocale', () => {
 		assert.equal(computePreferredLocale(req, locales), 'fr');
 	});
 
+	it('prefers an implicit q=1 entry over a lower explicit-q entry regardless of header order', () => {
+		const req = new Request('http://example.com/', {
+			headers: { 'Accept-Language': 'en;q=0.7, de' },
+		});
+		assert.equal(computePreferredLocale(req, ['en', 'fr', 'de']), 'de');
+	});
+
+	it('excludes a q=0 entry from winning', () => {
+		const req = new Request('http://example.com/', {
+			headers: { 'Accept-Language': 'de;q=0, en;q=0.5' },
+		});
+		assert.equal(computePreferredLocale(req, ['en', 'fr', 'de']), 'en');
+	});
+
 	it('returns undefined when no match', () => {
 		const req = new Request('http://example.com/', {
 			headers: { 'Accept-Language': 'de,ja' },

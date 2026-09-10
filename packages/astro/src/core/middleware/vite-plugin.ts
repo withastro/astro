@@ -39,8 +39,16 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 			);
 		},
 		hotUpdate: {
-			handler() {
+			handler(ctx) {
 				if (!isAstroServerEnvironment(this.environment)) return;
+
+				// A change that matched no modules in the graph can't affect the
+				// middleware or anything it imports, so there's nothing to invalidate.
+				// Writes outside the graph (e.g. `@astrojs/cloudflare`'s `.wrangler/state`)
+				// fire a hotUpdate per write and would otherwise reload the middleware
+				// on every request.
+				// https://github.com/withastro/astro/issues/17933
+				if (ctx.modules.length === 0) return;
 
 				const middlewareVirtualMod = this.environment.moduleGraph.getModuleById(
 					MIDDLEWARE_RESOLVED_MODULE_ID,

@@ -149,6 +149,13 @@ export function swapBodyElement(newElement: Element, oldElement: Element) {
 	// (Chrome 133+) for zero-detachment atomic moves.
 	const persistPairs: { old: Element; newTarget: Element }[] = [];
 	const docEl = oldElement.ownerDocument.documentElement;
+	// Media that are live right now. The only way for one of these nodes to end up in
+	// the new body is the persist transfer below (a matched `transition:persist`
+	// element moves with its whole subtree — so this also covers media inside an inner
+	// persist container that has no counterpart on the new page, and the attribute
+	// placed on the media element itself). Such nodes were never inert and must keep
+	// their identity and playback state; see reifyMediaElements().
+	const liveMedia = new Set<Element>(oldElement.querySelectorAll('video, audio'));
 
 	// moveBefore() is not yet in TypeScript's DOM lib, feature-detect and wrap.
 	const moveBefore: ((parent: Node, node: Node, child: Node | null) => void) | null =
@@ -199,7 +206,9 @@ export function swapBodyElement(newElement: Element, oldElement: Element) {
 	// retroactively initialise one, leaving controls disabled. Replacing each
 	// element with a fresh copy created via document.createElement() forces
 	// the browser to set up playback. See https://github.com/withastro/astro/issues/17601
-	reifyMediaElements(newElement);
+	// Media carried over from the previous page were never inert: they are the live
+	// nodes of the old body, and re-creating them would destroy their playback state.
+	reifyMediaElements(newElement, liveMedia);
 }
 
 /**
@@ -208,10 +217,14 @@ export function swapBodyElement(newElement: Element, oldElement: Element) {
  * never initialises the media stack, leaving controls disabled after a view-transition
  * swap. Creating a fresh element via `document.createElement()` and copying attributes
  * and children forces proper initialisation.
+ * Elements in `liveMedia` are skipped: they were already live in the old document and
+ * reached the new body through `transition:persist` — replacing them would reset
+ * `currentTime`/`paused` and drop listeners and framework refs.
  * @see https://github.com/withastro/astro/issues/17601
  */
-function reifyMediaElements(root: Element) {
+function reifyMediaElements(root: Element, liveMedia: ReadonlySet<Element>) {
 	for (const media of root.querySelectorAll<HTMLVideoElement | HTMLAudioElement>('video, audio')) {
+		if (liveMedia.has(media)) continue;
 		const fresh = document.createElement(media.localName);
 		for (const attr of media.attributes) {
 			fresh.setAttribute(attr.name, attr.value);
