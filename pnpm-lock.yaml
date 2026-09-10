@@ -7166,7 +7166,7 @@ importers:
         specifier: ^1.0.8
         version: 1.0.8
       '@types/hast':
-        specifier: ^3.0.4
+        specifier: ^3.0.5
         version: 3.0.5
       astro-scripts:
         specifier: workspace:*
