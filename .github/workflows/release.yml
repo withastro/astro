@@ -66,39 +66,43 @@ jobs:
       # On a re-run after npm already received the versions, changesets publishes nothing new
       # and its `published`/`publishedPackages` outputs are empty, so any downstream work gated
       # on them would be skipped while the run turns green. The version bumps for this release
-      # live in the release commit itself, so the cohort is reconstructed from the commit diff:
-      # it is available on every attempt and does not depend on tags or on what npm received
-      # this run.
+      # live in the release commit itself, so the cohort is rebuilt from the commit diff on
+      # retries. Only the squash-merged "[ci] release" version PR commit bumps package versions;
+      # fixture edits, manual version changes, merges, and reverts must not look like releases.
       - name: Detect release cohort
         id: release
         run: |
+          HAS_RELEASE=false
+          HAS_VSCODE=false
           COHORT=""
-          while read -r f; do
-            V_OLD=$(git show "$(git rev-parse HEAD^):$f" 2>/dev/null | jq -r .version 2>/dev/null || true)
-            V_NEW=$(git show "HEAD:$f" | jq -r .version 2>/dev/null || true)
-            PRIVATE=$(git show "HEAD:$f" | jq -r .private 2>/dev/null || true)
-            if [ -n "$V_NEW" ] && [ "$V_NEW" != "null" ] && [ "$V_OLD" != "$V_NEW" ] && [ "$PRIVATE" != "true" ]; then
-              COHORT="$COHORT{\"name\":\"$(git show "HEAD:$f" | jq -r .name)\",\"version\":\"$V_NEW\"},"
-            fi
-          done < <(git diff --name-only "$(git rev-parse HEAD^)" HEAD -- packages | grep -E '(^|/)package\.json$' | sort -u)
-          COHORT="[${COHORT%,}]"
-          if echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null \
-             || echo "$COHORT" | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null; then
-            HAS_VSCODE=true
-          else
-            HAS_VSCODE=false
-          fi
-          # On the first attempt `publishedPackages` is the ground truth for the announcement;
-          # on a retry it is empty, so the reconstructed cohort is used instead.
           if [ "${{ steps.changesets.outputs.published }}" = "true" ]; then
             PAYLOAD='${{ steps.changesets.outputs.publishedPackages }}'
             HAS_RELEASE=true
-          elif [ "$COHORT" != "[]" ]; then
-            PAYLOAD="$COHORT"
-            HAS_RELEASE=true
+          elif git log -1 --format=%s HEAD | grep -q '^\[ci\] release'; then
+            while read -r f; do
+              case "$f" in
+                *"/test/"*|*"/fixtures/"*|*"/node_modules/"*) continue ;;
+              esac
+              V_OLD=$(git show "$(git rev-parse HEAD^):$f" 2>/dev/null | jq -r .version 2>/dev/null || true)
+              V_NEW=$(git show "HEAD:$f" | jq -r .version 2>/dev/null || true)
+              PRIVATE=$(git show "HEAD:$f" | jq -r .private 2>/dev/null || true)
+              if [ -n "$V_NEW" ] && [ "$V_NEW" != "null" ] && [ "$V_OLD" != "$V_NEW" ] && [ "$PRIVATE" != "true" ]; then
+                COHORT="$COHORT{\"name\":\"$(git show "HEAD:$f" | jq -r .name)\",\"version\":\"$V_NEW\"},"
+              fi
+            done < <(git diff --name-only "$(git rev-parse HEAD^)" HEAD -- packages | grep -E '(^|/)package\.json$' | sort -u)
+            COHORT="[${COHORT%,}]"
+            if [ "$COHORT" != "[]" ]; then
+              PAYLOAD="$COHORT"
+              HAS_RELEASE=true
+            else
+              PAYLOAD=""
+            fi
           else
             PAYLOAD=""
-            HAS_RELEASE=false
+          fi
+          if echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null 2>&1 \
+             || { [ -n "$COHORT" ] && echo "$COHORT" | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null 2>&1; }; then
+            HAS_VSCODE=true
           fi
           echo "has_vscode=$HAS_VSCODE" >> "$GITHUB_OUTPUT"
           echo "has_release=$HAS_RELEASE" >> "$GITHUB_OUTPUT"
@@ -136,14 +140,29 @@ jobs:
           mv ./package.temp.json ./package.json
           pnpm install --frozen-lockfile
           
+      # Fail closed: an unverifiable marker read fails the run rather than risking a duplicate
+      # announcement; a clean "no such ref" (ls-remote exit 2) is the expected case.
       - name: Check if this release was already announced
         id: announced
         if: steps.release.outputs.has_release == 'true'
         run: |
-          if git ls-remote origin "refs/release-announced/${GITHUB_SHA}" 2>/dev/null | grep -q .; then
-            echo "already_announced=true" >> "$GITHUB_OUTPUT"
-          else
+          rc=2
+          for attempt in 1 2; do
+            set +e
+            git ls-remote --exit-code origin "refs/release-announced/${GITHUB_SHA}" >/dev/null 2>&1
+            rc=$?
+            set -e
+            if [ "$rc" -eq 0 ]; then
+              echo "already_announced=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            [ "$rc" -eq 2 ] && break
+          done
+          if [ "$rc" -eq 2 ]; then
             echo "already_announced=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Could not verify the announcement marker (git ls-remote exit $rc)"
+            exit 1
           fi
 
       - name: Generate Announcement
@@ -168,9 +187,40 @@ jobs:
         run: |
           git push origin HEAD:refs/release-announced/${GITHUB_SHA}
 
-      - name: Dispatch post-release event
+      # The dispatch gets its own marker: re-running a completed release must not dispatch again
+      # (the consumer fails on "Already up to date"), while a failed dispatch must still be
+      # retried without re-announcing.
+      - name: Check if this release was already dispatched
+        id: dispatched
         if: steps.release.outputs.has_release == 'true' && github.ref_name == 'main'
+        run: |
+          rc=2
+          for attempt in 1 2; do
+            set +e
+            git ls-remote --exit-code origin "refs/release-dispatched/${GITHUB_SHA}" >/dev/null 2>&1
+            rc=$?
+            set -e
+            if [ "$rc" -eq 0 ]; then
+              echo "already_dispatched=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            [ "$rc" -eq 2 ] && break
+          done
+          if [ "$rc" -eq 2 ]; then
+            echo "already_dispatched=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Could not verify the dispatch marker (git ls-remote exit $rc)"
+            exit 1
+          fi
+
+      - name: Dispatch post-release event
+        if: steps.dispatched.outputs.already_dispatched == 'false'
         uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
         with:
           token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
           event-type: release-published
+
+      - name: Mark release as dispatched
+        if: steps.dispatched.outputs.already_dispatched == 'false'
+        run: |
+          git push origin HEAD:refs/release-dispatched/${GITHUB_SHA}
