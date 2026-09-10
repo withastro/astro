@@ -157,8 +157,6 @@ export default function createIntegration({
 		normalizeImageServiceConfig(imageService);
 	const needsImagesBinding = runtimeService === 'cloudflare-binding';
 	const hasBuildImageService = buildService === 'compile' || buildService === 'custom';
-	// Opt-in: user explicitly requested build-time image transformation via the compound config.
-	// The string shorthand `'cloudflare-binding'` keeps the historical runtime-only behavior.
 	const isBindingBuild = transformAtBuild && buildService === 'cloudflare-binding';
 
 	return {
