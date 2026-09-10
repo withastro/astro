@@ -14,6 +14,30 @@ import type { Options, RequestHandler } from './types.js';
 
 const PRERENDERED_ROUTE_TYPES: ReadonlyArray<RouteType> = ['page', 'endpoint'];
 
+// Shared across every app handler in the process. `createAppHandler` can be
+// called multiple times (the standalone entrypoint exports a handler and also
+// starts a server), so the listener, the request context, and the aborted-error
+// registry live at module level to avoid registering duplicate listeners that
+// would log the same rejection once per handler.
+const requestContext = new AsyncLocalStorage<{ app: BaseApp; url: string }>();
+const abortedRequestErrors = new WeakSet<Error>();
+
+process.on('unhandledRejection', (reason) => {
+	// When a client disconnects mid-request, Node destroys the incoming message
+	// and the exact error object propagates through the request body stream.
+	// Those errors are tagged in `abortedRequestErrors` and are expected, so
+	// they are not reported. Genuine rejections are logged once with the URL of
+	// the request that was being rendered.
+	if (reason instanceof Error && abortedRequestErrors.has(reason)) return;
+	const context = requestContext.getStore();
+	if (!context) {
+		console.error(reason);
+		return;
+	}
+	const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
+	context.app.adapterLogger.error(`Unhandled rejection while rendering ${context.url}\n${error}`);
+});
+
 /**
  * Read a prerendered error page from disk and return it as a Response.
  * Returns undefined if the file doesn't exist or can't be read.
@@ -57,17 +81,7 @@ async function readErrorPageFromDisk(
  * Intended to be used in both standalone and middleware mode.
  */
 export function createAppHandler(app: BaseApp, options: Options): RequestHandler {
-	/**
-	 * Keep track of the current request path using AsyncLocalStorage.
-	 * Used to log unhandled rejections with a helpful message.
-	 */
-	const als = new AsyncLocalStorage<string>();
 	const logger = app.adapterLogger;
-	process.on('unhandledRejection', (reason) => {
-		const requestUrl = als.getStore();
-		logger.error(`Unhandled rejection while rendering ${requestUrl}`);
-		console.error(reason);
-	});
 
 	const client = resolveClientDir(options);
 
@@ -94,6 +108,13 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 			: options.bodySizeLimit;
 
 	return async (req, res, next, locals) => {
+		// Tag the exact error object emitted when this request's socket dies so
+		// the unhandledRejection listener can tell client disconnects apart from
+		// genuine errors that happen to carry the same code (e.g. ECONNRESET
+		// from an outbound fetch in user code).
+		req.once('error', (error: NodeJS.ErrnoException) => {
+			if (error.code === 'ECONNRESET') abortedRequestErrors.add(error);
+		});
 		let request: Request;
 		try {
 			request = createRequestFromNodeRequest(req, {
@@ -108,35 +129,45 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 			res.end('Internal Server Error');
 			return;
 		}
+		const context = { app, url: request.url };
 
-		// Include prerendered routes so static-mode redirects remain dynamic.
-		let routeData = app.match(request, true);
-		// Normal matching can select a lower-priority on-demand route when a prerendered route
-		// matches first.
-		if (routeData?.prerender && PRERENDERED_ROUTE_TYPES.includes(routeData.type)) {
-			routeData = app.match(request);
-		}
-		if (routeData) {
-			const response = await als.run(request.url, () =>
-				app.render(request, {
-					addCookieHeader: true,
-					locals,
-					routeData,
-					prerenderedErrorPageFetch,
-				}),
-			);
-			await writeResponse(response, res);
-		} else if (next) {
-			// Since we're not calling `writeResponse()`, clean up the AbortController and socket listeners
-			const cleanup = getAbortControllerCleanup(req);
-			if (cleanup) cleanup();
-			return next();
-		} else {
-			const response = await app.render(request, {
-				addCookieHeader: true,
-				prerenderedErrorPageFetch,
-			});
-			await writeResponse(response, res);
+		try {
+			// Include prerendered routes so static-mode redirects remain dynamic.
+			let routeData = app.match(request, true);
+			// Normal matching can select a lower-priority on-demand route when a prerendered route
+			// matches first.
+			if (routeData?.prerender && PRERENDERED_ROUTE_TYPES.includes(routeData.type)) {
+				routeData = app.match(request);
+			}
+			if (routeData) {
+				await requestContext.run(context, async () => {
+					const response = await app.render(request, {
+						addCookieHeader: true,
+						locals,
+						routeData,
+						prerenderedErrorPageFetch,
+					});
+					await writeResponse(response, res);
+				});
+			} else if (next) {
+				// Since we're not calling `writeResponse()`, clean up the AbortController and socket listeners
+				const cleanup = getAbortControllerCleanup(req);
+				if (cleanup) cleanup();
+				return next();
+			} else {
+				await requestContext.run(context, async () => {
+					const response = await app.render(request, {
+						addCookieHeader: true,
+						prerenderedErrorPageFetch,
+					});
+					await writeResponse(response, res);
+				});
+			}
+		} catch (err) {
+			// The client disconnected while the request was being handled and
+			// there is nobody left to respond to, so the error is dropped.
+			if (err instanceof Error && abortedRequestErrors.has(err)) return;
+			throw err;
 		}
 	};
 }

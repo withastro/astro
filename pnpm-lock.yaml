@@ -5856,6 +5856,15 @@ importers:
         specifier: ^1.18.1
         version: 1.18.1(@types/express@5.0.6)(@types/node@22.19.19)
 
+  packages/integrations/node/test/fixtures/aborted-request:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/node/test/fixtures/api-route:
     dependencies:
       '@astrojs/node':
