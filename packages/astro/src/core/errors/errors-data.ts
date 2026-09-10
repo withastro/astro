@@ -834,6 +834,7 @@ export const ResponseSentError = {
 	name: 'ResponseSentError',
 	title: 'Unable to set response.',
 	message: 'The response has already been sent to the browser and cannot be altered.',
+	hint: 'When HTML streaming is enabled, set cookies, headers, and the status code, or call `Astro.redirect()`, in the page frontmatter or in middleware before any HTML is rendered, not inside a child component. See https://docs.astro.build/en/guides/on-demand-rendering/#html-streaming for more information.',
 } satisfies ErrorData;
 
 /**
@@ -855,6 +856,7 @@ export const MiddlewareNoDataOrNextCalled = {
 	title: "The middleware didn't return a `Response`.",
 	message:
 		'Make sure your middleware returns a `Response` object, either directly or by returning the `Response` from calling the `next` function.',
+	hint: 'This usually happens when a code path in your middleware neither calls `next()` nor returns a `Response`, for example a condition that only returns in one branch. See https://docs.astro.build/en/guides/middleware/ for more information.',
 } satisfies ErrorData;
 
 /**
@@ -874,6 +876,7 @@ export const MiddlewareNotAResponse = {
 	name: 'MiddlewareNotAResponse',
 	title: 'The middleware returned something that is not a `Response` object.',
 	message: 'Any data returned from middleware must be a valid `Response` object.',
+	hint: 'To share data with your pages and endpoints, store it in `context.locals` instead of returning it. See https://docs.astro.build/en/guides/middleware/#storing-data-in-contextlocals for more information.',
 } satisfies ErrorData;
 
 /**
@@ -898,6 +901,7 @@ export const EndpointDidNotReturnAResponse = {
 	title: 'The endpoint did not return a `Response`.',
 	message:
 		'An endpoint must return either a `Response`, or a `Promise` that resolves with a `Response`.',
+	hint: 'Wrap plain values in a `Response`, for example with `Response.json()` or `new Response()`. See https://docs.astro.build/en/guides/endpoints/#server-endpoints-api-routes for more information.',
 } satisfies ErrorData;
 
 /**
@@ -1040,6 +1044,7 @@ export const AstroGlobNoMatch = {
 export const RedirectWithNoLocation = {
 	name: 'RedirectWithNoLocation',
 	title: 'A redirect must be given a location with the `Location` header.',
+	hint: 'Use `Astro.redirect()` to create redirects, or add a `Location` header to the returned `Response`. See https://docs.astro.build/en/reference/api-reference/#redirect for more information.',
 } satisfies ErrorData;
 
 /**
@@ -1398,6 +1403,7 @@ export const RewriteWithBodyUsed = {
 	title: 'Cannot use `Astro.rewrite()` after the request body has been read.',
 	message:
 		'`Astro.rewrite()` cannot be used if the request body has already been read. If you need to read the body, first clone the request.',
+	hint: 'Read the body from a clone, for example `await Astro.request.clone().formData()`, and then call `Astro.rewrite()`. See https://docs.astro.build/en/reference/api-reference/#rewrite for more information.',
 } satisfies ErrorData;
 
 /**
