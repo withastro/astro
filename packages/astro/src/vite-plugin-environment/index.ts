@@ -80,7 +80,7 @@ export function vitePluginEnvironment({
 
 				if (_options.optimizeDeps?.noDiscovery === false) {
 					finalEnvironmentOptions.optimizeDeps = {
-						entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`],
+						entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro,mdx}`],
 						include: [],
 						exclude: ['node-fetch'],
 					};
@@ -95,8 +95,13 @@ export function vitePluginEnvironment({
 						'astro/runtime/client/dev-toolbar/entrypoint.js',
 					],
 					exclude: ['astro:*', 'virtual:astro:*', 'astro/virtual-modules/prefetch.js'],
-					// Astro files can't be rendered on the client
-					entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html}`],
+					// .astro files can't be rendered on the client, but Vite's dep
+					// scanner extracts their <script> tags to discover client-side
+					// imports. Without .astro here, deps reachable only through
+					// <script> (e.g. workspace packages and their transitive deps)
+					// are missed during the initial scan, causing late re-optimization
+					// that 504s already-served modules like the dev toolbar.
+					entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro,mdx}`],
 				};
 			}
 

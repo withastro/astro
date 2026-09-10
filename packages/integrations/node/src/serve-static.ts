@@ -57,7 +57,9 @@ export function createStaticHandler(
 				fullUrl = fullUrl.slice(0, req.url.indexOf('#'));
 			}
 
-			const [urlPath, urlQuery] = fullUrl.split('?');
+			const qIndex = fullUrl.indexOf('?');
+			const urlPath = qIndex >= 0 ? fullUrl.slice(0, qIndex) : fullUrl;
+			const urlQuery = qIndex >= 0 ? fullUrl.slice(qIndex + 1) : '';
 			let fsPath = app.removeBase(urlPath);
 			try {
 				fsPath = decodeURI(fsPath);

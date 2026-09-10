@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@fastify/middie": "^9.3.3",
-    "@fastify/static": "^9.0.0",
+    "@fastify/static": "^10.0.0",
     "@types/express": "^5.0.6",
     "@types/node": "^22.10.6",
     "@types/send": "^1.2.1",
