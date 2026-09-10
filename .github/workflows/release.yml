@@ -82,17 +82,29 @@ jobs:
             # Nothing was published, so this is a re-run (or the same commit on another branch):
             # npm already has these versions, so rebuild the released-package list from the
             # version bumps in the release commit.
+            # Feed the loop the list of package.json files changed between the parent commit
+            # and this one (a release commit only changes the files it bumps).
             while read -r f; do
+              # Skip fixture/test packages: their package.json files change with tests, not releases.
               case "$f" in
                 *"/test/"*|*"/fixtures/"*|*"/node_modules/"*) continue ;;
               esac
+              # Version of this package at the parent commit. Empty when the file is new there;
+              # the `|| true` keeps a missing file or unparsable JSON from failing the step
+              # (the job runs with `set -e`).
               V_OLD=$(git show "$(git rev-parse HEAD^):$f" 2>/dev/null | jq -r .version 2>/dev/null || true)
+              # Same read at this commit.
               V_NEW=$(git show "HEAD:$f" | jq -r .version 2>/dev/null || true)
+              # `private: true` packages are never published to npm, so they are not releases.
               PRIVATE=$(git show "HEAD:$f" | jq -r .private 2>/dev/null || true)
+              # Released means: has a version, and that version differs from the parent commit.
               if [ -n "$V_NEW" ] && [ "$V_NEW" != "null" ] && [ "$V_OLD" != "$V_NEW" ] && [ "$PRIVATE" != "true" ]; then
+                # Append one {"name":"...","version":"..."} entry; the trailing comma is
+                # stripped below.
                 COHORT="$COHORT{\"name\":\"$(git show "HEAD:$f" | jq -r .name)\",\"version\":\"$V_NEW\"},"
               fi
             done < <(git diff --name-only "$(git rev-parse HEAD^)" HEAD -- packages | grep -E '(^|/)package\.json$' | sort -u)
+            # Wrap the accumulated entries in a JSON array; ${COHORT%,} drops the trailing comma.
             COHORT="[${COHORT%,}]"
             if [ "$COHORT" != "[]" ]; then
               PAYLOAD="$COHORT"
