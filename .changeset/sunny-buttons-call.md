@@ -3,4 +3,4 @@
 'astro-vscode': patch
 ---
 
-Fixes AstroComponent suffix not being removed from Svelte and Vue imports in .astro files
+Fixes the AstroComponent suffix not being removed from Svelte and Vue imports in `.astro` files.
