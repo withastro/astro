@@ -123,12 +123,15 @@ export async function handleMiddlewareWithErrorFallback(
 		});
 	} catch (err: any) {
 		if (err === nextError) throw err;
-		// User middleware threw: log the stack and render the custom 500
-		// page, the same way `handleRequest` does on the standard path.
-		state.logger.error(null, err.stack || err.message || String(err));
+		const status = err?.name === 'NotFoundError' ? 404 : 500;
+		if (status !== 404) {
+			// User middleware threw: log the stack and render the custom 500
+			// page, the same way `handleRequest` does on the standard path.
+			state.logger.error(null, err.stack || err.message || String(err));
+		}
 		return renderErrorFromState(state, state.request, {
 			...state.renderOptions,
-			status: 500,
+			status,
 			error: err,
 			pathname: state.pathname,
 		});

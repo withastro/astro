@@ -124,12 +124,15 @@ export async function handlePagesWithErrorFallback(state: FetchState): Promise<R
 	try {
 		return await handlePages(state, ctx);
 	} catch (err: any) {
-		// The header marker can't carry the error object, so render the
-		// 500 page directly to preserve `error` and the logged stack.
-		state.logger.error(null, err.stack || err.message || String(err));
+		const status = err?.name === 'NotFoundError' ? 404 : 500;
+		if (status !== 404) {
+			// The header marker can't carry the error object, so render the
+			// 500 page directly to preserve `error` and the logged stack.
+			state.logger.error(null, err.stack || err.message || String(err));
+		}
 		return renderErrorFromState(state, state.request, {
 			...state.renderOptions,
-			status: 500,
+			status,
 			error: err,
 			pathname: state.pathname,
 		});
