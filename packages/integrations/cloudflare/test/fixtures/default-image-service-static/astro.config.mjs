@@ -3,5 +3,4 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
 	adapter: cloudflare(),
-	output: 'static',
 });
