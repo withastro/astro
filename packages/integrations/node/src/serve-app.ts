@@ -117,26 +117,57 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 			routeData = app.match(request);
 		}
 		if (routeData) {
-			const response = await als.run(request.url, () =>
-				app.render(request, {
-					addCookieHeader: true,
-					locals,
-					routeData,
-					prerenderedErrorPageFetch,
-				}),
-			);
-			await writeResponse(response, res);
+			try {
+				const response = await als.run(request.url, () =>
+					app.render(request, {
+						addCookieHeader: true,
+						locals,
+						routeData,
+						prerenderedErrorPageFetch,
+					}),
+				);
+				await writeResponse(response, res);
+			} catch (err: unknown) {
+				if (isClientDisconnect(err)) return;
+				logger.error(`Error rendering ${request.url}`);
+				console.error(err);
+				if (!res.headersSent) {
+					res.statusCode = 500;
+					res.end('Internal Server Error');
+				}
+			}
 		} else if (next) {
 			// Since we're not calling `writeResponse()`, clean up the AbortController and socket listeners
 			const cleanup = getAbortControllerCleanup(req);
 			if (cleanup) cleanup();
 			return next();
 		} else {
-			const response = await app.render(request, {
-				addCookieHeader: true,
-				prerenderedErrorPageFetch,
-			});
-			await writeResponse(response, res);
+			try {
+				const response = await app.render(request, {
+					addCookieHeader: true,
+					prerenderedErrorPageFetch,
+				});
+				await writeResponse(response, res);
+			} catch (err: unknown) {
+				if (isClientDisconnect(err)) return;
+				logger.error(`Error rendering ${request.url}`);
+				console.error(err);
+				if (!res.headersSent) {
+					res.statusCode = 500;
+					res.end('Internal Server Error');
+				}
+			}
 		}
 	};
+}
+
+/**
+ * Returns true when the error represents a client disconnection
+ * (e.g. the browser closed the connection mid-request). These are
+ * normal network events, not server errors.
+ */
+function isClientDisconnect(err: unknown): boolean {
+	return (
+		err instanceof Error && 'code' in err && (err as NodeJS.ErrnoException).code === 'ECONNRESET'
+	);
 }
