@@ -4,13 +4,15 @@ import type { AstroConfig, AstroIntegrationLogger } from 'astro';
 import { normalizeImageServiceConfig, setImageConfig } from '../dist/utils/image-config.js';
 
 describe('normalizeImageServiceConfig', () => {
-	it('keeps the cloudflare-binding shorthand runtime-only', () => {
-		assert.deepEqual(normalizeImageServiceConfig('cloudflare-binding'), {
-			buildService: 'cloudflare-binding',
-			runtimeService: 'cloudflare-binding',
-			transformAtBuild: false,
+	for (const config of [undefined, 'cloudflare-binding'] as const) {
+		it(`transforms images at build time with imageService: ${config}`, () => {
+			assert.deepEqual(normalizeImageServiceConfig(config), {
+				buildService: 'cloudflare-binding',
+				runtimeService: 'cloudflare-binding',
+				transformAtBuild: true,
+			});
 		});
-	});
+	}
 
 	it('opts compound cloudflare-binding config into build-time transforms', () => {
 		assert.deepEqual(
