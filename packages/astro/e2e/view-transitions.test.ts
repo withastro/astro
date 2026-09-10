@@ -4,11 +4,52 @@ import { type DevServer, testFactory, waitForHydrate, warmupDevServer } from './
 declare global {
 	interface Window {
 		preloads: string[];
+		transitionEvents?: {
+			direction?: string;
+			name: string;
+			navigationType?: string;
+			scrollY: number;
+		}[];
 		clientSideRouterForTestsParkedHere?: (
 			url: string,
-			options?: { history?: 'auto' | 'replace' | 'push' },
-		) => void;
+			options?: { history?: 'auto' | 'replace' | 'push'; state?: any },
+		) => Promise<void>;
 	}
+}
+
+async function collectTransitionEvents(page: Page) {
+	await page.evaluate(() => {
+		window.transitionEvents = [];
+		for (const name of [
+			'astro:before-preparation',
+			'astro:after-preparation',
+			'astro:before-swap',
+			'astro:after-swap',
+			'astro:page-load',
+		]) {
+			document.addEventListener(name, (event) => {
+				const transitionEvent = event as Event & {
+					direction?: string;
+					navigationType?: string;
+				};
+				window.transitionEvents!.push({
+					name,
+					direction: transitionEvent.direction,
+					navigationType: transitionEvent.navigationType,
+					scrollY: window.scrollY,
+				});
+			});
+		}
+	});
+}
+
+function hasNavigationApi(page: Page) {
+	return page.evaluate(
+		() =>
+			typeof (window as Window & { navigation?: unknown }).navigation === 'object' &&
+			typeof (window as Window & { NavigationPrecommitController?: unknown })
+				.NavigationPrecommitController === 'function',
+	);
 }
 
 const test = testFactory(import.meta.url, { root: './fixtures/view-transitions/' });
@@ -294,6 +335,10 @@ test.describe('View Transitions', () => {
 			return document.getAnimations();
 		});
 		expect(animations.length).toEqual(1);
+		// Finish the setup animation before checking whether swap() causes a new render.
+		await page.evaluate(async () => {
+			await Promise.allSettled(document.getAnimations().map((animation) => animation.finished));
+		});
 
 		// go to page 2
 		await page.click('#totwo');
@@ -332,6 +377,22 @@ test.describe('View Transitions', () => {
 		await page.click('#click-self');
 		await expect(p, 'should have content').toHaveText('Page 1');
 		await expectLoads(1);
+	});
+
+	test('push navigation starts the destination at the top', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/long-page'));
+		await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+		expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+
+		await page.click('#click-one');
+		await expect(page.locator('#one')).toHaveText('Page 1');
+		expect(await page.evaluate(() => window.scrollY)).toBe(0);
+	});
+
+	test('cross-route fragments scroll after the destination swaps', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/one'));
+		await page.click('#click-two-bottom');
+		await expect(page.locator('#bottom')).toBeInViewport();
 	});
 
 	test('Scroll position restored on back button', async ({ page, astro }) => {
@@ -445,6 +506,264 @@ test.describe('View Transitions', () => {
 		await page.goForward();
 		locator = page.locator('#click-one-again');
 		await expect(locator).toBeInViewport();
+	});
+
+	test('reports push, back, and forward directions', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/one'));
+		await collectTransitionEvents(page);
+
+		await page.click('#click-two');
+		await expect(page.locator('#two')).toHaveText('Page 2');
+		await page.goBack();
+		await expect(page.locator('#one')).toHaveText('Page 1');
+		await page.goForward();
+		await expect(page.locator('#two')).toHaveText('Page 2');
+
+		const events = await page.evaluate(() => window.transitionEvents);
+		expect(
+			events
+				?.filter((event) => event.name === 'astro:before-preparation')
+				.map((event) => [event.direction, event.navigationType]),
+		).toEqual([
+			['forward', 'push'],
+			['back', 'traverse'],
+			['forward', 'traverse'],
+		]);
+	});
+
+	test('runs lifecycle events once and in order for one click', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/one'));
+		await collectTransitionEvents(page);
+
+		await page.click('#click-two');
+		await expect(page.locator('#two')).toHaveText('Page 2');
+		await expect.poll(() => page.evaluate(() => window.transitionEvents?.length)).toBe(5);
+
+		const events = await page.evaluate(() => window.transitionEvents);
+		expect(events?.map((event) => event.name)).toEqual([
+			'astro:before-preparation',
+			'astro:after-preparation',
+			'astro:before-swap',
+			'astro:after-swap',
+			'astro:page-load',
+		]);
+		expect(events?.filter((event) => event.name === 'astro:before-preparation')).toHaveLength(1);
+	});
+
+	test('Navigation API preserves navigate state and await completion', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/six'));
+		await expect(page.locator('#one')).toHaveText('Page 1');
+		if (!(await hasNavigationApi(page))) test.skip();
+
+		const result = await page.evaluate(async () => {
+			let swapped = false;
+			document.addEventListener('astro:after-swap', () => (swapped = true), { once: true });
+			await window.clientSideRouterForTestsParkedHere!('/two', { state: { answer: 42 } });
+			const navigation = (
+				window as Window & {
+					navigation: { currentEntry: { getState: () => unknown } };
+				}
+			).navigation;
+			return {
+				swapped,
+				pathname: location.pathname,
+				navigationState: navigation.currentEntry.getState(),
+				historyState: history.state,
+			};
+		});
+
+		expect(result).toEqual({
+			swapped: true,
+			pathname: '/two',
+			navigationState: { answer: 42 },
+			historyState: { answer: 42 },
+		});
+	});
+
+	test('Navigation API runs custom preparation loaders before committing', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/one'));
+		if (!(await hasNavigationApi(page))) test.skip();
+		const requests: string[] = [];
+		page.on('request', (request) => {
+			if (new URL(request.url()).pathname === '/three') requests.push(request.url());
+		});
+		await page.evaluate(() => {
+			document.addEventListener(
+				'astro:before-preparation',
+				(event) => {
+					const transitionEvent = event as Event & {
+						loader: () => Promise<void>;
+						newDocument: Document;
+					};
+					transitionEvent.loader = async () => {
+						const nextDocument = document.implementation.createHTMLDocument('Custom');
+						const meta = nextDocument.createElement('meta');
+						meta.setAttribute('name', 'astro-view-transitions-enabled');
+						nextDocument.head.append(meta);
+						nextDocument.body.innerHTML = '<p id="custom-loader-result">custom</p>';
+						transitionEvent.newDocument = nextDocument;
+					};
+				},
+				{ once: true },
+			);
+		});
+
+		await page.click('#click-three');
+		await expect(page.locator('#custom-loader-result')).toHaveText('custom');
+		expect(requests).toEqual([]);
+		await expect(page).toHaveURL(/\/three$/);
+	});
+
+	test('ClientRouter does not claim external Navigation API navigations with info', async ({
+		page,
+		astro,
+	}) => {
+		const expectLoads = collectLoads(page);
+		await page.goto(astro.resolveUrl('/one'));
+		await expectLoads(1);
+		if (!(await hasNavigationApi(page))) test.skip();
+		await page.evaluate((url) => {
+			(
+				window as Window & {
+					navigation: { navigate: (url: string, options?: { info?: unknown }) => unknown };
+				}
+			).navigation.navigate(url, { info: { external: true } });
+		}, astro.resolveUrl('/two'));
+		await expect(page.locator('#two')).toHaveText('Page 2');
+		await expectLoads(2);
+	});
+
+	test('ClientRouter does not intercept cross-document traversals', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/three'));
+		await page.goto(astro.resolveUrl('/one'));
+		if (!(await hasNavigationApi(page))) test.skip();
+		await page.evaluate(() => {
+			localStorage.removeItem('astro-cross-document-traverse-intercepted');
+			document.addEventListener('astro:before-preparation', () => {
+				localStorage.setItem('astro-cross-document-traverse-intercepted', 'true');
+			});
+		});
+		await page.goBack();
+		await expect(page.locator('#three')).toHaveText('Page 3');
+		expect(
+			await page.evaluate(() => localStorage.getItem('astro-cross-document-traverse-intercepted')),
+		).toBeNull();
+	});
+
+	test('falls back to History API when Navigation precommit is unavailable', async ({
+		page,
+		astro,
+	}) => {
+		await page.addInitScript(() => {
+			Object.defineProperty(window, 'NavigationPrecommitController', {
+				configurable: true,
+				value: undefined,
+			});
+		});
+		await page.goto(astro.resolveUrl('/one'));
+		expect(await page.evaluate(() => history.state?.index)).toBe(0);
+		await page.click('#click-two');
+		await expect(page.locator('#two')).toHaveText('Page 2');
+		expect(await page.evaluate(() => history.state?.index)).toBe(1);
+	});
+
+	test('Navigation API push and replace navigation use the native history entries', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/one'));
+		if (!(await hasNavigationApi(page))) test.skip();
+
+		const firstIndex = await page.evaluate(
+			() =>
+				(window as Window & { navigation: { currentEntry: { index: number } } }).navigation
+					.currentEntry.index,
+		);
+		await page.click('#click-two');
+		await expect(page.locator('#two')).toHaveText('Page 2');
+		expect(
+			await page.evaluate(
+				() =>
+					(window as Window & { navigation: { currentEntry: { index: number } } }).navigation
+						.currentEntry.index,
+			),
+		).toBeGreaterThan(firstIndex);
+
+		await page.click('#click-longpage');
+		await expect(page.locator('#longpage')).toBeVisible();
+		await page.goBack();
+		await expect(page.locator('#one')).toHaveText('Page 1');
+	});
+
+	test('Navigation API restores Astro-managed traversal scroll positions and applies fragments before after-swap', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/long-page'));
+		if (!(await hasNavigationApi(page))) test.skip();
+
+		await page.evaluate(() => {
+			window.scrollTo(0, document.documentElement.scrollHeight);
+			window.dispatchEvent(new Event('scroll'));
+		});
+		const scrollPosition = await page.evaluate(() => window.scrollY);
+		await page.evaluate(() => document.querySelector<HTMLElement>('#click-one')!.click());
+		await expect(page.locator('#one')).toHaveText('Page 1');
+		await page.goBack();
+		await expect(page.locator('#longpage')).toBeVisible();
+		expect(await page.evaluate(() => window.scrollY)).toBe(scrollPosition);
+
+		await page.click('#click-one');
+		await expect(page.locator('#one')).toHaveText('Page 1');
+		await collectTransitionEvents(page);
+		await page.click('#click-two-bottom');
+		await expect(page.locator('#bottom')).toBeInViewport();
+		const afterSwapScroll = await page.evaluate(() =>
+			window.transitionEvents?.find((event) => event.name === 'astro:after-swap'),
+		);
+		expect(afterSwapScroll?.scrollY).toBeGreaterThan(0);
+	});
+
+	test('Navigation API reports traversal direction and handles superseded navigation once', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/one'));
+		if (!(await hasNavigationApi(page))) test.skip();
+		await collectTransitionEvents(page);
+
+		await page.click('#click-two');
+		await expect(page.locator('#two')).toHaveText('Page 2');
+		await page.goBack();
+		await expect(page.locator('#one')).toHaveText('Page 1');
+		const directions = await page.evaluate(() =>
+			window.transitionEvents
+				?.filter((event) => event.name === 'astro:before-preparation')
+				.map((event) => event.direction),
+		);
+		expect(directions).toEqual(['forward', 'back']);
+
+		await page.goto(astro.resolveUrl('/abort'));
+		await expect(page.locator('#one')).toHaveText('Page 1');
+	});
+
+	test('uses the History API fallback when Navigation API is unavailable', async ({
+		page,
+		astro,
+	}) => {
+		await page.addInitScript(() => {
+			Object.defineProperty(window, 'navigation', { configurable: true, value: undefined });
+		});
+		await page.goto(astro.resolveUrl('/one'));
+		await expect(page.locator('#one')).toHaveText('Page 1');
+		expect(await page.evaluate(() => history.state?.index)).toBe(0);
+
+		await page.click('#click-two');
+		await expect(page.locator('#two')).toHaveText('Page 2');
+		expect(await page.evaluate(() => history.state?.index)).toBe(1);
 	});
 
 	test('View Transitions Rule', async ({ page, astro }) => {
@@ -1010,6 +1329,7 @@ test.describe('View Transitions', () => {
 		await page.click('#click-redirect-two');
 		p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
+		await expect(page).toHaveURL(/\/two$/);
 
 		// go back
 		await page.goBack();
@@ -1033,6 +1353,7 @@ test.describe('View Transitions', () => {
 		await page.click('#click-redirect-two-hash');
 		p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
+		await expect(page).toHaveURL(/\/two#bottom$/);
 
 		const Y = await page.evaluate(() => window.scrollY);
 		expect(Y, 'The target is further down the page').toBeGreaterThan(0);
@@ -1161,7 +1482,7 @@ test.describe('View Transitions', () => {
 		await page.evaluate(() => {
 			// get the router from its fixture park position
 			const navigate = window.clientSideRouterForTestsParkedHere!;
-			navigate('/three');
+			void navigate('/three');
 		});
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
@@ -1184,7 +1505,10 @@ test.describe('View Transitions', () => {
 		const button = page.locator('#react-client-load-navigate-button');
 
 		await expect(button, 'should have content').toHaveText('Navigate to `/two`');
-
+		await expect(
+			page.locator('astro-island:not([ssr]) #react-client-load-navigate-button'),
+			'should be hydrated',
+		).toHaveCount(1);
 		await button.click();
 
 		const p = page.locator('#two');
@@ -1240,14 +1564,14 @@ test.describe('View Transitions', () => {
 
 		// goto #2
 		await page.evaluate(() => {
-			window.clientSideRouterForTestsParkedHere!('/two', { history: 'auto' });
+			void window.clientSideRouterForTestsParkedHere!('/two', { history: 'auto' });
 		});
 		p = page.locator('#two');
 		await expect(p, 'should have content').toHaveText('Page 2');
 
 		// replace with long page
 		await page.evaluate(() => {
-			window.clientSideRouterForTestsParkedHere!('/long-page', { history: 'replace' });
+			void window.clientSideRouterForTestsParkedHere!('/long-page', { history: 'replace' });
 		});
 		let article = page.locator('#longpage');
 		await expect(article, 'should have script content').toBeVisible();
@@ -1291,6 +1615,7 @@ test.describe('View Transitions', () => {
 		await page.click('#submit');
 		const span = page.locator('#contact-name');
 		await expect(span, 'should have content').toHaveText('Testing');
+		await expect(page).toHaveURL(/\/form-response\?name=Testing$/);
 		// There should be only 1 page load. No additional loads for the form submission
 		await expectLoads(1);
 	});
@@ -1319,6 +1644,7 @@ test.describe('View Transitions', () => {
 		await page.click('#submit');
 		const span = page.locator('#contact-name');
 		await expect(span, 'should have content').toHaveText('Testing');
+		await expect(page).toHaveURL(/\/form-response\?name=Testing$/);
 		// There should be only 1 page load. No additional loads for the form submission
 		await expectLoads(1);
 	});
