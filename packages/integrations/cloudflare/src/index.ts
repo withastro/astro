@@ -214,8 +214,14 @@ export default function createIntegration({
 						experimental: {
 							prerenderWorker: {
 								config(_, { entryWorkerConfig }) {
-									const { queues, durable_objects, migrations, workflows, ...restWorkerConfig } =
-										entryWorkerConfig;
+									const {
+										queues,
+										durable_objects,
+										migrations,
+										exports: _exports,
+										workflows,
+										...restWorkerConfig
+									} = entryWorkerConfig;
 									return {
 										...restWorkerConfig,
 										name: 'prerender',
