@@ -19,7 +19,13 @@ export default {
 				),
 			);
 		}
-		if (request.method === 'POST') await request.json();
+		if (pathname === '/throw') throw new Error('intentional throw');
+		if (request.method === 'POST') {
+			// The abort test waits for this marker before destroying the socket so
+			// it knows the server started reading the body.
+			console.error('reading-json-body');
+			await request.json();
+		}
 		return new Response('ok');
 	},
 };

@@ -14,29 +14,48 @@ import type { Options, RequestHandler } from './types.js';
 
 const PRERENDERED_ROUTE_TYPES: ReadonlyArray<RouteType> = ['page', 'endpoint'];
 
-// Shared across every app handler in the process. `createAppHandler` can be
-// called multiple times (the standalone entrypoint exports a handler and also
-// starts a server), so the listener, the request context, and the aborted-error
-// registry live at module level to avoid registering duplicate listeners that
-// would log the same rejection once per handler.
-const requestContext = new AsyncLocalStorage<{ app: BaseApp; url: string }>();
-const abortedRequestErrors = new WeakSet<Error>();
+type RequestContext = { app: BaseApp; url: string };
 
-process.on('unhandledRejection', (reason) => {
-	// When a client disconnects mid-request, Node destroys the incoming message
-	// and the exact error object propagates through the request body stream.
-	// Those errors are tagged in `abortedRequestErrors` and are expected, so
-	// they are not reported. Genuine rejections are logged once with the URL of
-	// the request that was being rendered.
-	if (reason instanceof Error && abortedRequestErrors.has(reason)) return;
-	const context = requestContext.getStore();
-	if (!context) {
-		console.error(reason);
-		return;
-	}
-	const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
-	context.app.adapterLogger.error(`Unhandled rejection while rendering ${context.url}\n${error}`);
+interface SharedHandlerState {
+	requestContext: AsyncLocalStorage<RequestContext>;
+	abortedRequestErrors: WeakSet<Error>;
+	listenerInstalled: boolean;
+}
+
+// Every built standalone entry bundles its own copy of this module, and several
+// entries can be loaded into one process, so the listener, request context, and
+// aborted-error registry are shared process-wide through globalThis. Otherwise
+// each entry would register its own unhandledRejection listener and log the
+// same rejection once per entry.
+const sharedStateSymbol = Symbol.for('astro.node.appHandlerState');
+const sharedState: SharedHandlerState = ((globalThis as Record<symbol, SharedHandlerState>)[
+	sharedStateSymbol
+] ??= {
+	requestContext: new AsyncLocalStorage<RequestContext>(),
+	abortedRequestErrors: new WeakSet<Error>(),
+	listenerInstalled: false,
 });
+
+const { requestContext, abortedRequestErrors } = sharedState;
+
+if (!sharedState.listenerInstalled) {
+	sharedState.listenerInstalled = true;
+	process.on('unhandledRejection', (reason) => {
+		// When a client disconnects mid-request, Node destroys the incoming
+		// message and the exact error object propagates through the request body
+		// stream. Those errors are tagged in `abortedRequestErrors` and are
+		// expected, so they are not reported. Genuine rejections are logged once
+		// with the URL of the request that was being rendered.
+		if (reason instanceof Error && abortedRequestErrors.has(reason)) return;
+		const context = requestContext.getStore();
+		if (!context) {
+			console.error(reason);
+			return;
+		}
+		const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
+		context.app.adapterLogger.error(`Unhandled rejection while rendering ${context.url}\n${error}`);
+	});
+}
 
 /**
  * Read a prerendered error page from disk and return it as a Response.
@@ -164,10 +183,21 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 				});
 			}
 		} catch (err) {
-			// The client disconnected while the request was being handled and
-			// there is nobody left to respond to, so the error is dropped.
+			// Client disconnected mid-request: the exact error object is tagged
+			// in `abortedRequestErrors`, and there is nobody left to respond to.
 			if (err instanceof Error && abortedRequestErrors.has(err)) return;
-			throw err;
+			// Any other failure is a genuine request error. Log it with the
+			// request URL, then finish the response: a 500 while the headers are
+			// still pending, or terminate the connection once a response has
+			// already started.
+			const error = err instanceof Error ? err.stack || err.message : String(err);
+			logger.error(`Could not render ${request.url}\n${error}`);
+			if (!res.headersSent) {
+				res.statusCode = 500;
+				res.end('Internal Server Error');
+			} else {
+				res.destroy();
+			}
 		}
 	};
 }
