@@ -95,7 +95,7 @@ describe('Trailing slash', () => {
 					'/some-base/one?redirect=/x?y=1&z=2',
 				);
 				assert.match(res.statusLine, /301/);
-				const location = res.head.match(/^location:\s*(.*)$/im)?.[1]?.trim();
+				const location = /^location:(.*)$/im.exec(res.head)?.[1]?.trim();
 				assert.equal(location, '/some-base/one/?redirect=/x?y=1&z=2');
 			});
 
@@ -182,7 +182,7 @@ describe('Trailing slash', () => {
 					'/one?redirect=/x?y=1&z=2',
 				);
 				assert.match(res.statusLine, /301/);
-				const location = res.head.match(/^location:\s*(.*)$/im)?.[1]?.trim();
+				const location = /^location:(.*)$/im.exec(res.head)?.[1]?.trim();
 				assert.equal(location, '/one/?redirect=/x?y=1&z=2');
 			});
 
@@ -325,7 +325,7 @@ describe('Trailing slash', () => {
 					'/some-base/one/?redirect=/x?y=1&z=2',
 				);
 				assert.match(res.statusLine, /301/);
-				const location = res.head.match(/^location:\s*(.*)$/im)?.[1]?.trim();
+				const location = /^location:(.*)$/im.exec(res.head)?.[1]?.trim();
 				assert.equal(location, '/some-base/one?redirect=/x?y=1&z=2');
 			});
 
@@ -394,7 +394,7 @@ describe('Trailing slash', () => {
 					'/one/?redirect=/x?y=1&z=2',
 				);
 				assert.match(res.statusLine, /301/);
-				const location = res.head.match(/^location:\s*(.*)$/im)?.[1]?.trim();
+				const location = /^location:(.*)$/im.exec(res.head)?.[1]?.trim();
 				assert.equal(location, '/one?redirect=/x?y=1&z=2');
 			});
 
