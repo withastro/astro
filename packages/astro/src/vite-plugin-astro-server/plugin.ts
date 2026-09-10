@@ -76,7 +76,8 @@ export default function createVitePluginAstroServer({
 			// Kick off the content config load and dev server app compile as early
 			// as possible. Neither is needed until the first request, so install the
 			// middleware synchronously and let request handlers await the in-flight
-			// results without blocking server creation.
+			// results without blocking server creation. Serialize the app compile
+			// after the config load so they do not contend for the main thread.
 			const astroEnvironment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.astro];
 			const runnableAstroEnvironment = isRunnableDevEnvironment(astroEnvironment)
 				? (astroEnvironment as RunnableDevEnvironment)
@@ -91,10 +92,10 @@ export default function createVitePluginAstroServer({
 				: Promise.resolve();
 
 			const ssrHandlerPromise = runnableSsrEnvironment
-				? createHandler(runnableSsrEnvironment)
+				? contentConfigLoad.then(() => createHandler(runnableSsrEnvironment))
 				: undefined;
 			const prerenderHandlerPromise = runnablePrerenderEnvironment
-				? createHandler(runnablePrerenderEnvironment)
+				? contentConfigLoad.then(() => createHandler(runnablePrerenderEnvironment))
 				: undefined;
 
 			// Background setup uses the runnable environments' module runners. Keep
