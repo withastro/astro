@@ -1,16 +1,20 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import type { PluginObj } from '@babel/core';
+import babel from '@rolldown/plugin-babel';
 import { load } from 'cheerio';
 import react from '../dist/index.js';
-import { withCompilerCheck } from '../dist/compiler.js';
 import { loadFixture, type DevServer, type Fixture } from './test-utils.ts';
 
 const babelOptions = {
 	plugins: [
-		() => ({
+		(): PluginObj => ({
 			visitor: {
-				StringLiteral(path: { node: { value: string } }) {
-					if (path.node.value === 'before-babel') path.node.value = 'after-babel';
+				TSAsExpression(path) {
+					const expression = path.node.expression;
+					if (expression.type === 'StringLiteral' && expression.value === 'before-babel') {
+						expression.value = 'after-babel';
+					}
 				},
 			},
 		}),
@@ -24,9 +28,8 @@ for (const enabled of [true, false]) {
 		before(async () => {
 			fixture = await loadFixture({
 				root: new URL(`./fixtures/react-compiler${enabled ? '' : '-disabled'}/`, import.meta.url),
-				integrations: [
-					react({ compiler: enabled, babel: enabled ? () => babelOptions : babelOptions }),
-				],
+				integrations: [react({ compiler: enabled })],
+				vite: { plugins: [babel(babelOptions)] },
 			});
 		});
 		describe('dev', () => {
@@ -37,7 +40,7 @@ for (const enabled of [true, false]) {
 				await server.stop();
 			});
 			it('compiles client components only when enabled', async () => {
-				const response = await fixture.fetch('/src/components/Counter.jsx');
+				const response = await fixture.fetch('/src/components/Counter.tsx');
 				assert.equal(response.status, 200);
 				const code = await response.text();
 				assert.equal(/react[-_]compiler[-_]runtime/.test(code), enabled);
@@ -63,42 +66,17 @@ for (const enabled of [true, false]) {
 				assert.ok(component);
 				const code = await fixture.readFile(component);
 				assert.equal(code.includes('react.memo_cache_sentinel'), enabled);
+				assert.match(code, /after-babel/);
 			});
 		});
 	});
 }
 
-describe('React Compiler conflicts', () => {
-	it('rejects the Babel compiler in plugin lists and overrides', () => {
+describe('React integration migration', () => {
+	it('reports how to migrate the removed babel option', () => {
 		assert.throws(
-			() => withCompilerCheck({ plugins: ['babel-plugin-react-compiler'] }),
-			/Enable only one React Compiler/,
-		);
-		assert.throws(
-			() => withCompilerCheck({ overrides: [{ plugins: [['babel-plugin-react-compiler', {}]] }] }),
-			/Enable only one React Compiler/,
-		);
-	});
-	it('checks Babel callbacks and preserves their arguments', () => {
-		const checked = withCompilerCheck((id, options) => {
-			assert.equal(id, '/src/Counter.jsx');
-			assert.equal(options.ssr, false);
-			return { plugins: ['babel-plugin-react-compiler'] };
-		});
-		assert.ok(typeof checked === 'function');
-		assert.throws(
-			() => checked('/src/Counter.jsx', { ssr: false }),
-			/Enable only one React Compiler/,
-		);
-	});
-	it('allows a Babel compiler callback confined to SSR', () => {
-		const checked = withCompilerCheck(() => ({ plugins: ['babel-plugin-react-compiler'] }));
-		assert.ok(typeof checked === 'function');
-		assert.doesNotThrow(() => checked('/src/Counter.jsx', { ssr: true }));
-	});
-	it('allows disabled Babel compiler entries', () => {
-		assert.doesNotThrow(() =>
-			withCompilerCheck({ plugins: [['babel-plugin-react-compiler', false]] }),
+			() => Reflect.apply(react, undefined, [{ babel: {} }]),
+			/@rolldown\/plugin-babel in vite\.plugins/,
 		);
 	});
 });
