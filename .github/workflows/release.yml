@@ -29,6 +29,10 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          # The release cohort is derived from the diff against the parent commit, so the
+          # default depth-1 checkout (no parent) is not enough.
+          fetch-depth: 2
 
       - name: Setup PNPM
         uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
@@ -60,26 +64,48 @@ jobs:
           NPM_TOKEN: '' # https://github.com/changesets/changesets/issues/1152#issuecomment-3190884868
 
       # On a re-run after npm already received the versions, changesets publishes nothing new
-      # and `publishedPackages` is empty. The git tag created by the first attempt persists
-      # and points at this release commit, so it identifies astro-vscode as part of this
-      # release with marketplace publication still pending.
-      - name: Check if astro-vscode needs marketplace publishing
-        id: vscode-published
+      # and its `published`/`publishedPackages` outputs are empty, so any downstream work gated
+      # on them would be skipped while the run turns green. The version bumps for this release
+      # live in the release commit itself, so the cohort is reconstructed from the commit diff:
+      # it is available on every attempt and does not depend on tags or on what npm received
+      # this run.
+      - name: Detect release cohort
+        id: release
         run: |
-          VERSION=$(git show HEAD:packages/language-tools/vscode/package.json | jq -r .version)
-          TAG_SHA=$(git ls-remote --tags origin "astro-vscode@${VERSION}^{}" | awk '{print $1}')
-          if [ -z "$TAG_SHA" ]; then
-            TAG_SHA=$(git ls-remote --tags origin "astro-vscode@${VERSION}" | awk '{print $1}')
-          fi
+          COHORT=""
+          while read -r f; do
+            V_OLD=$(git show "$(git rev-parse HEAD^):$f" 2>/dev/null | jq -r .version 2>/dev/null || true)
+            V_NEW=$(git show "HEAD:$f" | jq -r .version 2>/dev/null || true)
+            PRIVATE=$(git show "HEAD:$f" | jq -r .private 2>/dev/null || true)
+            if [ -n "$V_NEW" ] && [ "$V_NEW" != "null" ] && [ "$V_OLD" != "$V_NEW" ] && [ "$PRIVATE" != "true" ]; then
+              COHORT="$COHORT{\"name\":\"$(git show "HEAD:$f" | jq -r .name)\",\"version\":\"$V_NEW\"},"
+            fi
+          done < <(git diff --name-only "$(git rev-parse HEAD^)" HEAD -- packages | grep -E '(^|/)package\.json$' | sort -u)
+          COHORT="[${COHORT%,}]"
           if echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null \
-             || { [ -n "$TAG_SHA" ] && [ "$TAG_SHA" = "$(git rev-parse HEAD)" ]; }; then
-            echo "published=true" >> $GITHUB_OUTPUT
+             || echo "$COHORT" | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null; then
+            HAS_VSCODE=true
           else
-            echo "published=false" >> $GITHUB_OUTPUT
+            HAS_VSCODE=false
           fi
+          # On the first attempt `publishedPackages` is the ground truth for the announcement;
+          # on a retry it is empty, so the reconstructed cohort is used instead.
+          if [ "${{ steps.changesets.outputs.published }}" = "true" ]; then
+            PAYLOAD='${{ steps.changesets.outputs.publishedPackages }}'
+            HAS_RELEASE=true
+          elif [ "$COHORT" != "[]" ]; then
+            PAYLOAD="$COHORT"
+            HAS_RELEASE=true
+          else
+            PAYLOAD=""
+            HAS_RELEASE=false
+          fi
+          echo "has_vscode=$HAS_VSCODE" >> "$GITHUB_OUTPUT"
+          echo "has_release=$HAS_RELEASE" >> "$GITHUB_OUTPUT"
+          echo "cohort=$PAYLOAD" >> "$GITHUB_OUTPUT"
 
       - name: Prepare vscode folder
-        if: steps.vscode-published.outputs.published == 'true'
+        if: steps.release.outputs.has_vscode == 'true'
         working-directory: ./packages/language-tools/vscode
         run: |
           npm run build:grammar
@@ -93,40 +119,57 @@ jobs:
           mv ./astro-ts-plugin-bundle ./node_modules/astro-ts-plugin-bundle
 
       - name: Publish to VSCode Marketplace
-        if: steps.vscode-published.outputs.published == 'true'
+        if: steps.release.outputs.has_vscode == 'true'
         working-directory: ./packages/language-tools/vscode
         run: |
           npx vsce publish -p ${{ secrets.VSCE_TOKEN }} --skip-duplicate --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
 
       - name: Publish to OpenVSX
-        if: steps.vscode-published.outputs.published == 'true'
+        if: steps.release.outputs.has_vscode == 'true'
         working-directory: ./packages/language-tools/vscode
         run: |
           npx ovsx publish -p ${{ secrets.OVSX_TOKEN }} --skip-duplicate --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
           
       - name: Restore root package.json and node_modules
-        if: steps.vscode-published.outputs.published == 'true'
+        if: steps.release.outputs.has_vscode == 'true'
         run: |
           mv ./package.temp.json ./package.json
           pnpm install --frozen-lockfile
           
+      - name: Check if this release was already announced
+        id: announced
+        if: steps.release.outputs.has_release == 'true'
+        run: |
+          if git ls-remote origin "refs/release-announced/${GITHUB_SHA}" 2>/dev/null | grep -q .; then
+            echo "already_announced=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already_announced=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Generate Announcement
         id: message
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.announced.outputs.already_announced == 'false'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        run: node .github/scripts/announce.mjs '${{ steps.changesets.outputs.publishedPackages }}'
+        run: node .github/scripts/announce.mjs '${{ steps.release.outputs.cohort }}'
 
       - name: Send message on Discord
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.announced.outputs.already_announced == 'false'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554 # 0.4.0
         with:
           args: "${{ steps.message.outputs.DISCORD_MESSAGE }}"
 
+      # Record the announcement before the dispatch so a failed dispatch can be retried without
+      # re-announcing. Re-running the same release commit then skips the announcement entirely.
+      - name: Mark release as announced
+        if: steps.announced.outputs.already_announced == 'false'
+        run: |
+          git push origin HEAD:refs/release-announced/${GITHUB_SHA}
+
       - name: Dispatch post-release event
-        if: steps.changesets.outputs.published == 'true' && github.ref_name == 'main'
+        if: steps.release.outputs.has_release == 'true' && github.ref_name == 'main'
         uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
         with:
           token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
