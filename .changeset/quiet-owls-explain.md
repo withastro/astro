@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Adds hints to the middleware, endpoint, redirect, rewrite, and response errors to explain how to fix them.
+Adds a message to the `RedirectWithNoLocation` error and hints to the `RewriteWithBodyUsed` and `ResponseSentError` errors to explain how to fix them.
