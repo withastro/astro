@@ -80,7 +80,7 @@ export function vitePluginEnvironment({
 
 				if (_options.optimizeDeps?.noDiscovery === false) {
 					finalEnvironmentOptions.optimizeDeps = {
-						entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`],
+						entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro,mdx}`],
 						include: [],
 						exclude: ['node-fetch'],
 					};
@@ -101,7 +101,7 @@ export function vitePluginEnvironment({
 					// <script> (e.g. workspace packages and their transitive deps)
 					// are missed during the initial scan, causing late re-optimization
 					// that 504s already-served modules like the dev toolbar.
-					entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`],
+					entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro,mdx}`],
 				};
 			}
 

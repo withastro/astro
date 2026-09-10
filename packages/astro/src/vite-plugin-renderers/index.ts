@@ -20,6 +20,10 @@ export default function vitePluginRenderers(options: PluginOptions): VitePlugin 
 	return {
 		name: 'astro:plugin-renderers',
 		enforce: 'pre',
+		// Internal, undocumented: lets adapters (e.g. @astrojs/cloudflare) read the
+		// registered renderers from the plugin chain to pre-bundle their server
+		// entrypoints (see https://github.com/withastro/astro/issues/17921).
+		renderers,
 
 		resolveId: {
 			filter: {
@@ -68,5 +72,5 @@ export default function vitePluginRenderers(options: PluginOptions): VitePlugin 
 				return { code: `export const renderers = [];` };
 			},
 		},
-	};
+	} as VitePlugin & { renderers: typeof renderers };
 }
