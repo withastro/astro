@@ -784,7 +784,7 @@ importers:
         specifier: ^0.28.0
         version: 0.28.1
       find-proc:
-        specifier: ^0.2.0
+        specifier: 0.2.0
         version: 0.2.0
       flattie:
         specifier: ^1.1.1
