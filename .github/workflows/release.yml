@@ -79,6 +79,9 @@ jobs:
             PAYLOAD='${{ steps.changesets.outputs.publishedPackages }}'
             HAS_RELEASE=true
           elif git log -1 --format=%s HEAD | grep -q '^\[ci\] release'; then
+            # Nothing was published, so this is a re-run (or the same commit on another branch):
+            # npm already has these versions, so rebuild the released-package list from the
+            # version bumps in the release commit.
             while read -r f; do
               case "$f" in
                 *"/test/"*|*"/fixtures/"*|*"/node_modules/"*) continue ;;
