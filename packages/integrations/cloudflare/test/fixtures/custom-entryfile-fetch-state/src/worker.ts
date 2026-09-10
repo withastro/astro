@@ -1,23 +1,28 @@
 import { astro, FetchState } from 'astro/fetch';
-import { cf } from '@astrojs/cloudflare/fetch';
+import { pages } from 'astro/hono';
+import { cf as cfFetch, finalize } from '@astrojs/cloudflare/fetch';
+import { cf as cfHono } from '@astrojs/cloudflare/hono';
+import { Hono } from 'hono';
+
+const hono = new Hono<{ Bindings: Env; Variables: { fetchState: FetchState } }>();
+hono.use('/hono', cfHono());
+hono.use('/hono-immutable', cfHono());
+hono.get('/hono-immutable', (context) => {
+	context.get('fetchState').cookies.set('hono-immutable', '1', { path: '/' });
+	return Response.redirect('https://example.com/');
+});
+hono.get('/hono', pages());
 
 // The documented "advanced" custom worker: build the request state from the
 // bare workerd request, let cf() serve static assets, and hand everything
 // else to Astro.
-export default {
-	async fetch(request, env, ctx) {
-		const state = new FetchState(request);
-		const asset = await cf(state, env, ctx);
-		if (asset) return asset;
-		const response = await astro(state);
-		// Clone response to make headers mutable, add custom header to prove this worker handled the request
-		return new Response(response.body, {
-			status: response.status,
-			statusText: response.statusText,
-			headers: {
-				...Object.fromEntries(response.headers.entries()),
-				'X-Fetch-State-Entrypoint': 'true',
-			},
-		});
-	},
-} satisfies ExportedHandler<Env>;
+hono.all('*', async (context) => {
+	const state = new FetchState(context.req.raw);
+	const asset = await cfFetch(state, context.env, context.executionCtx);
+	if (asset) return asset;
+	const response = await astro(state);
+	response.headers.set('X-Fetch-State-Entrypoint', 'true');
+	return finalize(state, response);
+});
+
+export default hono;

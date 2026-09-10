@@ -21,7 +21,7 @@ import {
 	createTestApp,
 	createMockFetchState,
 } from '../mocks.ts';
-import { dynamicPart, spreadPart } from '../routing/test-helpers.ts';
+import { dynamicPart, spreadPart, staticPart } from '../routing/test-helpers.ts';
 import { createManifest, createRouteInfo } from '../app/test-helpers.ts';
 import type { RouteInfo, SSRManifest } from '../../../dist/core/app/types.js';
 import { SpyLogger } from '../test-utils.ts';
@@ -124,6 +124,93 @@ describe('FetchState (astro/fetch)', () => {
 		assert.ok(state.routeData, 'routeData should be set');
 		assert.equal(state.routeData!.type, 'endpoint');
 		assert.equal(state.pathname, '/file.html', '.html should be preserved for endpoint routes');
+	});
+
+	it('restores the trailing slash after stripping .html when trailingSlash is always', () => {
+		// Regression test for #17726: with `build.format: 'preserve'` the build
+		// requests `/welcome.html`, and route patterns are compiled with the
+		// configured trailing slash. Stripping `.html` without restoring the `/`
+		// leaves a pathname that no longer matches its own route, so the params
+		// come back empty and `stringifyParams()` throws `Missing parameter`.
+		const app = createTestApp([createPage(simplePage, { route: '/welcome' })], {
+			trailingSlash: 'always',
+		});
+		const request = stampApp(new Request('http://example.com/welcome.html'), app);
+		const state = new FetchState(request);
+
+		assert.equal(state.pathname, '/welcome/', 'trailing slash should survive .html stripping');
+	});
+
+	it('does not add a trailing slash when trailingSlash is not always', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/welcome' })], {
+			trailingSlash: 'ignore',
+		});
+		const request = stampApp(new Request('http://example.com/welcome.html'), app);
+		const state = new FetchState(request);
+
+		assert.equal(state.pathname, '/welcome', 'pathname should be left without a trailing slash');
+	});
+
+	it('reverts .html stripping when it breaks a dynamic page route pattern match', () => {
+		// Regression test for #17827: `/index.html` matched by `[slug]` gets
+		// stripped to `/`, which no longer matches the dynamic route pattern.
+		// The stripping must be reverted so param extraction does not crash.
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(simplePage, {
+				route: '/[slug]',
+				pathname: undefined,
+				segments: [[dynamicPart('slug')]],
+			}),
+		]);
+		const request = stampApp(new Request('http://example.com/index.html'), app);
+		const state = new FetchState(request);
+
+		assert.ok(state.routeData, 'routeData should be set');
+		assert.equal(
+			state.pathname,
+			'/index.html',
+			'pathname must keep .html when stripping would break the route pattern',
+		);
+	});
+
+	it('reverts .html stripping for nested dynamic page routes', () => {
+		// Regression test for #17827: `/other/index.html` matched by
+		// `/other/[slug]` gets stripped to `/other/`, which may not
+		// match the route pattern. The stripping must be reverted.
+		const app = createTestApp([
+			createPage(simplePage, {
+				route: '/other/[slug]',
+				pathname: undefined,
+				segments: [[staticPart('other')], [dynamicPart('slug')]],
+			}),
+		]);
+		const request = stampApp(new Request('http://example.com/other/index.html'), app);
+		const state = new FetchState(request);
+
+		assert.ok(state.routeData, 'routeData should be set');
+		assert.equal(
+			state.pathname,
+			'/other/index.html',
+			'pathname must keep .html when stripping would break the route pattern',
+		);
+	});
+
+	it('still strips .html for dynamic page routes when the pattern matches after stripping', () => {
+		// `/foo.html` matched by `[slug]` strips to `/foo`, which still
+		// matches the dynamic pattern. The strip should proceed normally.
+		const app = createTestApp([
+			createPage(simplePage, {
+				route: '/[slug]',
+				pathname: undefined,
+				segments: [[dynamicPart('slug')]],
+			}),
+		]);
+		const request = stampApp(new Request('http://example.com/foo.html'), app);
+		const state = new FetchState(request);
+
+		assert.ok(state.routeData, 'routeData should be set');
+		assert.equal(state.pathname, '/foo', '.html should be stripped when the pattern still matches');
 	});
 });
 

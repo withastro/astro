@@ -1,51 +1,32 @@
-import {
-	collapseDuplicateLeadingSlashes,
-	prependForwardSlash,
-	removeTrailingForwardSlash,
-} from '@astrojs/internal-helpers/path';
+import { prependForwardSlash, stripRequestBase } from '@astrojs/internal-helpers/path';
 import type { RouteData } from '../../types/public/internal.js';
 import type { SSRManifest } from '../app/types.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
 import { AstroIntegrationLogger } from '../logger/core.js';
 import { getLogger } from '../logger/manifest-logger.js';
+import { validateAndDecodePathname } from '../util/pathname.js';
 import { matchAllRoutes, matchRoute } from './route-table.js';
 
 /**
- * Strips the manifest base from a pathname (the pure counterpart of
- * `BaseApp.removeBase`). Collapses multiple leading slashes first to prevent
- * middleware authorization bypass: without this, `//admin` would be treated as
- * starting with base `/` and sliced to `/admin` for routing, while middleware
- * still sees `//admin` in the URL.
+ * Fully decodes a pathname, falling back to a single decode and then the raw pathname
+ * when validation fails. Matching runs before `render()`, so it must not throw for
+ * request input that render-time validation handles.
  */
-function removeBase(manifest: SSRManifest, pathname: string): string {
-	pathname = collapseDuplicateLeadingSlashes(pathname);
-	if (pathname.startsWith(manifest.base)) {
-		return pathname.slice(removeTrailingForwardSlash(manifest.base).length + 1);
-	}
-	return pathname;
-}
-
-/**
- * Decodes a pathname with `decodeURI`, falling back to the raw pathname when it
- * contains an invalid percent-sequence (e.g. `%C0%AF`, an overlong-UTF-8 encoding of
- * `/` commonly sent by path-traversal scanners). A raw `decodeURI()` would throw
- * `URIError: URI malformed`, and because `match()` runs before `render()` that error
- * escapes the adapter's request handler as an uncaught exception (HTTP 500) that user
- * middleware can't catch.
- */
-function safeDecodeURI(manifest: SSRManifest, pathname: string): string {
+function safeDecodePathname(manifest: SSRManifest, pathname: string): string {
 	try {
-		return decodeURI(pathname);
+		return validateAndDecodePathname(pathname);
 	} catch (e: any) {
-		// Malformed request paths are expected client input (commonly from automated
-		// scanners) rather than a server fault, and this runs per-request on the hot
-		// path. Log at `debug` so it stays diagnosable without flooding error logs.
-		// Allocated lazily — only on the malformed branch — with the same options
-		// and label as the facade's `adapterLogger`.
+		// Path decoding failures are request input rather than a server fault. Log at
+		// `debug` so they stay diagnosable without flooding error logs. The logger is
+		// allocated lazily with the same options and label as the facade's `adapterLogger`.
 		new AstroIntegrationLogger(getLogger(manifest).options, manifest.adapterName).debug(
 			e.toString(),
 		);
-		return pathname;
+		try {
+			return decodeURI(pathname);
+		} catch {
+			return pathname;
+		}
 	}
 }
 
@@ -73,9 +54,10 @@ export function matchRequest(
 		getLogger(manifest),
 	);
 	if (!pathname) {
-		pathname = prependForwardSlash(removeBase(manifest, url.pathname));
+		pathname = prependForwardSlash(stripRequestBase(url.pathname, manifest.base));
 	}
-	const routeData = matchRoute(manifest, safeDecodeURI(manifest, pathname));
+	pathname = safeDecodePathname(manifest, pathname);
+	const routeData = matchRoute(manifest, pathname);
 	if (!routeData) return undefined;
 	if (allowPrerenderedRoutes) {
 		return routeData;
@@ -87,7 +69,7 @@ export function matchRequest(
 	// the same pattern should handle all other URLs.
 	if (routeData.prerender) {
 		if (routeData.params.length > 0) {
-			const allMatches = matchAllRoutes(manifest, safeDecodeURI(manifest, pathname));
+			const allMatches = matchAllRoutes(manifest, pathname);
 			return allMatches.find((r) => !r.prerender);
 		}
 		return undefined;

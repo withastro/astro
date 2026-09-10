@@ -1,11 +1,27 @@
 import type { MarkdownProcessor } from '@astrojs/internal-helpers/markdown';
-import type { Features, HastPluginDefinition, MdastPluginDefinition } from 'satteri';
+import type {
+	Features,
+	HastPluginEntry,
+	HastPluginList,
+	MdastPluginEntry,
+	MdastPluginList,
+} from 'satteri';
+import { createSatteriMdxProcessor } from './mdx/create-processor.js';
 import { createSatteriMarkdownProcessor } from './satteri-processor.js';
 
+export interface SatteriFeatures extends Omit<Features, 'smartPunctuation'> {
+	/**
+	 * Smart punctuation à la SmartyPants.
+	 *
+	 * Default: `true` in Astro.
+	 */
+	smartPunctuation?: Features['smartPunctuation'];
+}
+
 export interface SatteriProcessorOptions {
-	mdastPlugins?: MdastPluginDefinition[];
-	hastPlugins?: HastPluginDefinition[];
-	features?: Features;
+	mdastPlugins?: MdastPluginList;
+	hastPlugins?: HastPluginList;
+	features?: SatteriFeatures;
 }
 
 /**
@@ -13,9 +29,9 @@ export interface SatteriProcessorOptions {
  * (the factory normalises absent inputs into defaults).
  */
 export interface SatteriResolvedOptions {
-	mdastPlugins: MdastPluginDefinition[];
-	hastPlugins: HastPluginDefinition[];
-	features: Features;
+	mdastPlugins: MdastPluginEntry[];
+	hastPlugins: HastPluginEntry[];
+	features: SatteriFeatures;
 }
 
 /**
@@ -51,6 +67,9 @@ export function satteri(
 				hastPlugins: processor.options.hastPlugins,
 				features: processor.options.features,
 			});
+		},
+		async createMdxRenderer(shared, mdx) {
+			return createSatteriMdxProcessor(shared, mdx, processor.options);
 		},
 	};
 	return processor;

@@ -19,12 +19,12 @@ export function testRemoteImageService(config: TestImageServiceConfig = {}) {
 const service: Omit<LocalImageService<TestImageServiceConfig>, 'transform'> = {
 	...baseService,
 	propertiesToHash: [...(baseService.propertiesToHash ?? []), 'data-custom'],
-	getHTMLAttributes(options, serviceConfig) {
+	getHTMLAttributes(options, serviceConfig, logger) {
 		options['data-service'] = 'my-custom-service';
 		if (serviceConfig.service.config.foo) {
 			options['data-service-config'] = serviceConfig.service.config.foo;
 		}
-		return baseService.getHTMLAttributes!(options, serviceConfig);
+		return baseService.getHTMLAttributes!(options, serviceConfig, logger);
 	},
 };
 

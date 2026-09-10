@@ -10,6 +10,60 @@ import { type Fixture, loadFixture } from './test-utils.ts';
  */
 
 describe('Prerender conflicts', () => {
+	describe('same route duplicate pathname', () => {
+		let fixture: Fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/prerender-conflict-same-route/',
+				outDir: './dist/prerender-conflict-same-route/',
+			});
+		});
+
+		it('warns with the correct winning route when a route emits the same pathname twice', async () => {
+			const logs: AstroLoggerMessage[] = [];
+			const logger = new AstroLogger({
+				level: 'warn',
+				destination: {
+					write(chunk) {
+						logs.push(chunk);
+						return true;
+					},
+				},
+			});
+			await fixture.build({
+				// @ts-expect-error: `_logger` is an internal API
+				_logger: logger,
+			});
+
+			const relevantLogs = logs
+				.filter((log) => log.level === 'warn' && log.label === 'build')
+				.map((log) => log.message);
+
+			assert.deepEqual(
+				relevantLogs,
+				[
+					'Could not render `/page2` from route `/[slug]` as it conflicts with higher priority route `/[slug]`.',
+				],
+				'Should identify the same route as the winning route for duplicate pathnames, not a different route that merely matches the pattern.',
+			);
+		});
+
+		it('fails with the correct winning route when prerenderConflictBehavior is set to error', async () => {
+			let err: unknown;
+			try {
+				await fixture.build({ prerenderConflictBehavior: 'error' });
+			} catch (e) {
+				err = e;
+			}
+			assert.ok(err, 'Build should fail when prerenderConflictBehavior is set to error');
+			assert.equal(
+				String(err),
+				'PrerenderRouteConflict: Could not render `/page2` from route `/[slug]` as it conflicts with higher priority route `/[slug]`.',
+			);
+		});
+	});
+
 	describe('dynamic vs dynamic', () => {
 		let fixture: Fixture;
 

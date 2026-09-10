@@ -63,28 +63,42 @@ export function readUInt(
   return methods[methodName](input, offset)
 }
 
+const MIN_BOX_HEADER = 8
+
 function readBox(input: Uint8Array, offset: number) {
-  if (input.length - offset < 4) return
+  if (input.length - offset < MIN_BOX_HEADER) return
   const boxSize = readUInt32BE(input, offset)
+
+  // ISO BMFF: size 0 means the box extends to the end of the file
+  if (boxSize === 0) {
+    return {
+      name: toUTF8String(input, offset + 4, offset + 8),
+      offset,
+      size: input.length - offset,
+    }
+  }
+
+  // ISO BMFF: size 1 signals a 64-bit largesize box, which is not supported
+  if (boxSize === 1) return
+  if (boxSize < MIN_BOX_HEADER) return
   if (input.length - offset < boxSize) return
+
   return {
-    name: toUTF8String(input, 4 + offset, 8 + offset),
+    name: toUTF8String(input, offset + 4, offset + 8),
     offset,
     size: boxSize,
   }
 }
 
-export function findBox(
-  input: Uint8Array,
-  boxName: string,
-  currentOffset: number,
-) {
-  while (currentOffset < input.length) {
-    const box = readBox(input, currentOffset)
+export function findBox(input: Uint8Array, boxName: string, startOffset: number) {
+  let offset = startOffset
+  while (offset < input.length) {
+    const box = readBox(input, offset)
     if (!box) break
     if (box.name === boxName) return box
-    // Fix the infinite loop by ensuring offset always increases
-    // If box.size is 0, advance by at least 8 bytes (the size of the box header)
-    currentOffset += box.size > 0 ? box.size : 8
+    if (box.size < MIN_BOX_HEADER) break
+    const nextOffset = offset + box.size
+    if (nextOffset <= offset) break
+    offset = nextOffset
   }
 }

@@ -1,0 +1,166 @@
+# Lets the factory bot publish a preview release for a fix branch it has pushed.
+
+name: Factory preview release
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Fix branch to publish a preview release for
+        required: true
+      issue:
+        description: Issue number the fix belongs to
+        required: false
+
+permissions: {}
+
+concurrency:
+  group: factory-preview-${{ inputs.branch }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: true
+  ASTRO_TELEMETRY_DISABLED: true
+  # 7 GiB by default on GitHub, setting to 6 GiB
+  NODE_OPTIONS: --max-old-space-size=6144
+
+jobs:
+  publish:
+    name: Build & publish preview
+    if: github.repository_owner == 'withastro'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write # pkg.pr.new authenticates with Actions OIDC
+    outputs:
+      sha: ${{ steps.resolve.outputs.sha }}
+      packages: ${{ steps.collect.outputs.packages }}
+      conclusion: ${{ steps.collect.outputs.conclusion }}
+    steps:
+      - name: Disable git crlf
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.branch }}
+          # Diffing against the default branch needs its history.
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Resolved before anything can fail, so the report job always has a commit
+      # to attach its check run to.
+      - name: Resolve head commit
+        id: resolve
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      # Publishing every package would be far too slow, so only publish the ones
+      # the fix touched.
+      - name: Find changed packages
+        id: changed
+        env:
+          # The ref this workflow was dispatched on, i.e. the default branch.
+          BASE_REF: ${{ github.ref_name }}
+        run: |
+          git diff --name-only "origin/${BASE_REF}...HEAD" > /tmp/changed-files.txt
+          node --input-type=module -e '
+            import { appendFileSync, readFileSync } from "node:fs";
+            const files = readFileSync("/tmp/changed-files.txt", "utf8").split("\n");
+            const dirs = new Set();
+            for (const file of files) {
+              // Charset restricted because the publish step word-splits this unquoted.
+              const match = /^(packages\/(?:integrations\/)?[a-zA-Z0-9._-]+)\//.exec(file);
+              if (match) dirs.add(match[1]);
+            }
+            appendFileSync(process.env.GITHUB_OUTPUT, `dirs=${[...dirs].join(" ")}\n`);
+          '
+
+      - name: Setup PNPM
+        if: steps.changed.outputs.dirs != ''
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+
+      - name: Setup Node
+        if: steps.changed.outputs.dirs != ''
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24.15.0
+          # Explicitly disable cache — a fresh install on every run avoids
+          # the risk of a poisoned cache being used during the publish step
+          # which has access to the OIDC id-token.
+          package-manager-cache: false
+
+      # These two steps run code from the fix branch, which is why this job holds
+      # no repository secrets — not even the Turbo cache credentials.
+      - name: Install dependencies
+        if: steps.changed.outputs.dirs != ''
+        run: pnpm install
+
+      - name: Build packages
+        if: steps.changed.outputs.dirs != ''
+        run: pnpm run build
+
+      - name: Publish preview packages
+        id: publish
+        if: steps.changed.outputs.dirs != ''
+        env:
+          DIRS: ${{ steps.changed.outputs.dirs }}
+        run: |
+          # Unquoted on purpose: pkg-pr-new takes one argument per package.
+          pnpm exec pkg-pr-new publish --pnpm --compact --no-template \
+            --comment=off --json /tmp/pkg-pr-new.json $DIRS
+
+      - name: Collect published packages
+        id: collect
+        if: always()
+        env:
+          OUTCOME: ${{ steps.publish.outcome }}
+        run: |
+          node --input-type=module -e '
+            import { appendFileSync, readFileSync } from "node:fs";
+            let packages = [];
+            try {
+              const report = JSON.parse(readFileSync("/tmp/pkg-pr-new.json", "utf8"));
+              packages = (report.packages ?? []).map((entry) => ({
+                name: entry.name,
+                url: entry.url,
+              }));
+            } catch {
+              // Nothing to publish, or publishing failed; report an empty list.
+            }
+            const conclusion =
+              process.env.OUTCOME === "success" && packages.length > 0 ? "success" : "failure";
+            appendFileSync(process.env.GITHUB_OUTPUT, `packages=${JSON.stringify({ packages })}\n`);
+            appendFileSync(process.env.GITHUB_OUTPUT, `conclusion=${conclusion}\n`);
+          '
+
+  # A dispatched workflow can't return a value, so the result is posted as a check
+  # run for the factory to read. It's a separate job because it needs
+  # `checks: write`, which the job running fix-branch code must not have.
+  report:
+    name: Report preview release
+    runs-on: ubuntu-latest
+    needs: publish
+    # Report a failure too, rather than leaving the factory waiting. An empty sha
+    # means the run never got far enough to have anything to report.
+    if: always() && needs.publish.outputs.sha != ''
+    timeout-minutes: 5
+    permissions:
+      checks: write
+    steps:
+      - name: Create check run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ needs.publish.outputs.sha }}
+          PACKAGES: ${{ needs.publish.outputs.packages }}
+          CONCLUSION: ${{ needs.publish.outputs.conclusion || 'failure' }}
+        run: |
+          PAYLOAD="${PACKAGES}"
+          if [ -z "$PAYLOAD" ]; then PAYLOAD='{"packages":[]}'; fi
+          SUMMARY=$(printf '```json\n%s\n```' "$PAYLOAD")
+          gh api "repos/${GITHUB_REPOSITORY}/check-runs" \
+            -f name='factory/preview-release' \
+            -f head_sha="$HEAD_SHA" \
+            -f status=completed \
+            -f conclusion="$CONCLUSION" \
+            -f 'output[title]=Preview release' \
+            -f "output[summary]=$SUMMARY"

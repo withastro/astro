@@ -26,6 +26,7 @@ import {
 	cloudflareConfigCustomizer,
 	DEFAULT_SESSION_KV_BINDING_NAME,
 	DEFAULT_IMAGES_BINDING_NAME,
+	withNodejsAlsFlag,
 } from './wrangler.js';
 import { sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
@@ -141,6 +142,12 @@ export default function createIntegration({
 	let _buildOutput: 'server' | 'static';
 	let _originalClientDir: URL;
 
+	// Renderer server entrypoints (e.g. `@astrojs/svelte/server.js`), read from
+	// the `astro:plugin-renderers` plugin in the adapter's Vite `config` hook.
+	// Pre-bundling them up front keeps the dep optimizer from re-running
+	// mid-request, when workerd still references the previous bundle (#17921).
+	let rendererServerEntries: string[] = [];
+
 	let _routes: IntegrationResolvedRoute[];
 	let cfPluginConfig: PluginConfig;
 	let hasUserBuildImageService = false;
@@ -213,10 +220,25 @@ export default function createIntegration({
 						experimental: {
 							prerenderWorker: {
 								config(_, { entryWorkerConfig }) {
-									const { queues, ...restWorkerConfig } = entryWorkerConfig;
+									const {
+										queues,
+										durable_objects,
+										migrations,
+										exports: _exports,
+										workflows,
+										...restWorkerConfig
+									} = entryWorkerConfig;
 									return {
 										...restWorkerConfig,
 										name: 'prerender',
+										main: '@astrojs/cloudflare/entrypoints/server',
+										// Make AsyncLocalStorage available in the build-time prerender
+										// worker (the render scope in `utils/prerender-scope.ts` needs
+										// it) by auto-appending `nodejs_als` when the user's config has
+										// no ALS-capable flag. This never touches the user's deployed
+										// config; a runtime probe in `prerender-scope.ts` is the safety
+										// net should ALS still be unavailable.
+										compatibility_flags: withNodejsAlsFlag(restWorkerConfig.compatibility_flags),
 										...(queues?.producers?.length && {
 											queues: { producers: queues.producers },
 										}),
@@ -258,6 +280,7 @@ export default function createIntegration({
 				// Note: this "Failed to resolve dependency" log will not appear as long as the `@astrojs/prism` package is installed,
 				// even if it is not actually used.
 				const prismFiles = [
+					'@astrojs/prism',
 					'@astrojs/prism > prismjs',
 					'@astrojs/prism > prismjs/components.js',
 					'@astrojs/prism > prismjs/dependencies.js',
@@ -315,6 +338,17 @@ export default function createIntegration({
 							},
 							{
 								name: '@astrojs/cloudflare:environment',
+								config(viteConfig) {
+									const renderersPlugin = (viteConfig.plugins as any[])?.find(
+										(plugin) => plugin?.name === 'astro:plugin-renderers',
+									);
+									rendererServerEntries = (renderersPlugin?.renderers ?? []).map(
+										(renderer: { serverEntrypoint: string | URL }) =>
+											typeof renderer.serverEntrypoint === 'string'
+												? renderer.serverEntrypoint
+												: fileURLToPath(renderer.serverEntrypoint),
+									);
+								},
 								configEnvironment(environmentName, _options) {
 									// Skip dependency pre-bundling during type generation (see `isTypeGenPhase` above).
 									if (isTypeGenPhase) {
@@ -324,6 +358,11 @@ export default function createIntegration({
 										environmentName,
 									);
 									if (isServerEnvironment && !_options.optimizeDeps?.noDiscovery) {
+										// The prerender environment runs on Node when `prerenderEnvironment:
+										// 'node'`, where pre-bundling renderers would duplicate framework
+										// modules; only the workerd environments get the renderer entries.
+										const isNodePrerender =
+											prerenderEnvironment === 'node' && environmentName === 'prerender';
 										return {
 											optimizeDeps: {
 												include: [
@@ -345,6 +384,7 @@ export default function createIntegration({
 													'astro > piccolore',
 													'astro > picomatch',
 													'astro/app',
+													'astro/app/manifest',
 													'astro/app/fetch/default-handler',
 													'astro/fetch',
 													'astro/hono',
@@ -359,6 +399,14 @@ export default function createIntegration({
 													...(prebundleContentRuntime ? (['astro/content/runtime'] as const) : []),
 													'astro/compiler-runtime',
 													'astro/jsx-runtime',
+													...(isNodePrerender ? [] : rendererServerEntries),
+													// Pre-bundled so a late discovery can't trigger a mid-request
+													// re-optimization (https://github.com/withastro/astro/issues/17921).
+													'astro/logger/console',
+													...(config.logger?.entrypoint === 'astro/logger/json'
+														? ['astro/logger/json']
+														: []),
+													...(needsWorkerCache ? ['@astrojs/cloudflare/cache/provider'] : []),
 													'astro/app/entrypoint/dev',
 													'astro/middleware',
 													'astro/virtual-modules/middleware.js',
@@ -528,7 +576,6 @@ export default function createIntegration({
 							userImageServiceEntrypoint: hasUserBuildImageService
 								? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
 								: undefined,
-							incremental: _config.experimental?.incrementalBuild ?? false,
 							logger,
 						}),
 					);

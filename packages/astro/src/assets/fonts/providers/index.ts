@@ -113,25 +113,8 @@ function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
 		async init(context) {
 			initializedProvider = await provider(context);
 		},
-		async resolveFont({ familyName, options, ...rest }) {
-			// Workaround for https://github.com/unjs/unifont/issues/336
-			// unifont joins glyphs with .join("") instead of .join(","), producing
-			// an invalid `icon_names` query param that causes Google to return the
-			// full font. Pre-joining into a single element sidesteps the bug.
-			const patchedOptions =
-				options?.experimental?.glyphs && options.experimental.glyphs.length > 1
-					? {
-							...options,
-							experimental: {
-								...options.experimental,
-								glyphs: [options.experimental.glyphs.join(',')],
-							},
-						}
-					: options;
-			return await initializedProvider?.resolveFont(familyName, {
-				options: patchedOptions,
-				...rest,
-			});
+		async resolveFont({ familyName, ...rest }) {
+			return await initializedProvider?.resolveFont(familyName, rest);
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
@@ -178,7 +161,7 @@ function npm(
  * - [Google](https://docs.astro.build/en/reference/font-provider-reference/#google)
  * - [Google Icons](https://docs.astro.build/en/reference/font-provider-reference/#google-icons)
  * - [Local](https://docs.astro.build/en/reference/font-provider-reference/#local)
- * - [NPM](TODO:)
+ * - [NPM](https://docs.astro.build/en/reference/font-provider-reference/#npm)
  */
 export const fontProviders = {
 	adobe,

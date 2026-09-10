@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.10.11
+
+### Patch Changes
+
+- [#17668](https://github.com/withastro/astro/pull/17668) [`bef9db5`](https://github.com/withastro/astro/commit/bef9db51186d7201604fc561e1c599a0610d54b0) Thanks [@lazerg](https://github.com/lazerg)! - Fixes Astro's ambient types leaking into unrelated TypeScript projects. In a monorepo with hoisted `node_modules`, the plugin found the shared `astro` install from any project and injected `env.d.ts` and `astro-jsx.d.ts` into it, which pulled `@types/node` into projects that never asked for it. The plugin now only injects those types when the project actually depends on `astro` or has an `astro.config.*` file.
+
 ## 1.10.10
 
 ### Patch Changes

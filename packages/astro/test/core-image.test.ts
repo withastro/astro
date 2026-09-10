@@ -860,6 +860,38 @@ describe('astro:image', () => {
 			);
 		});
 
+		it('imports APNG metadata for a standard img element', async () => {
+			logs.length = 0;
+			const res = await fixture.fetch('/apng-img');
+			const html = await res.text();
+			const $ = cheerio.load(html);
+
+			assert.equal(res.status, 200);
+			assert.match($('#apng').attr('src')!, /animated\.apng/);
+			assert.equal($('#apng').attr('width'), '2');
+			assert.equal($('#apng').attr('height'), '3');
+			assert.equal($('#format').text(), 'apng');
+			assert.equal(logs.length, 0);
+		});
+
+		it('rejects APNG images in the Image component', async () => {
+			logs.length = 0;
+			const res = await fixture.fetch('/apng-image');
+			await res.text();
+
+			assert.equal(logs.length >= 1, true);
+			assert.match(logs[0].message, /Received unsupported format `apng`/);
+		});
+
+		it('rejects APNG images in the Picture component', async () => {
+			logs.length = 0;
+			const res = await fixture.fetch('/apng-picture');
+			await res.text();
+
+			assert.equal(logs.length >= 1, true);
+			assert.match(logs[0].message, /Received unsupported format `apng`/);
+		});
+
 		it('properly error image in Markdown frontmatter is not found', async () => {
 			logs.length = 0;
 			let res = await fixture.fetch('/blog/one');
@@ -1149,6 +1181,22 @@ describe('build ssg', () => {
 		});
 		assert.equal($contentImg.length, 1, 'should have one content image');
 		assert.equal($contentImg.attr('alt'), '', 'alt attribute should be empty string, not missing');
+	});
+
+	it('content collection images omit srcset when there are no candidates', async () => {
+		const html = await fixture.readFile('/blog/empty-alt/index.html');
+
+		const $ = cheerio.load(html);
+		const $contentImg = $('img').filter(function () {
+			// Find the image rendered from markdown content (not the frontmatter images)
+			return !$(this).closest('#direct-image, #nested-image').length;
+		});
+		assert.equal($contentImg.length, 1, 'should have one content image');
+		assert.equal(
+			$contentImg.attr('srcset'),
+			undefined,
+			'srcset attribute should be missing, not an empty string',
+		);
 	});
 
 	it('quality attribute produces a different file', async () => {
@@ -1494,22 +1542,18 @@ describe('prod ssr', () => {
 			let response = await app.render(request);
 			const body = await response.text();
 
-			// Most paths are malformed local paths (500), but some backslash patterns
-			// are now correctly detected as remote and get 403
 			const { isRemotePath } = await import('@astrojs/internal-helpers/path');
-			const isDetectedAsRemote = isRemotePath(path);
-			const expectedStatus = isDetectedAsRemote ? 403 : 500;
-			const expectedBodyText = isDetectedAsRemote ? 'Forbidden' : 'Internal Server Error';
+			const expectedStatuses = isRemotePath(path) ? [403] : [400, 404, 500];
 
 			assert.equal(
-				response.status,
-				expectedStatus,
-				`Path "${path}" should return ${expectedStatus}`,
+				expectedStatuses.includes(response.status),
+				true,
+				`Path "${path}" should return ${expectedStatuses.join(' or ')}`,
 			);
 			assert.equal(
-				body.includes(expectedBodyText),
+				['Invalid request', 'Forbidden', 'Not Found', 'Internal Server Error'].includes(body),
 				true,
-				`Path "${path}" body should include "${expectedBodyText}"`,
+				`Path "${path}" should return an opaque error`,
 			);
 		}
 
@@ -1517,6 +1561,28 @@ describe('prod ssr', () => {
 		let request = new Request('http://example.com/');
 		let response = await app.render(request);
 		assert.equal(response.status, 200);
+	});
+
+	it('returns 400 for local paths with parent directory segments', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const paths = ['/../../../.env', '/foo/../../../.env', '/foo\\..\\..\\.env', '/%2e%2e/.env'];
+
+		for (const path of paths) {
+			const request = new Request('http://example.com/_image?href=' + encodeURIComponent(path));
+			const response = await app.render(request);
+
+			assert.equal(response.status, 400, `Path "${path}" should return 400`);
+			assert.equal(await response.text(), 'Invalid request');
+		}
+	});
+
+	it('returns 404 when a valid local image is not found', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/_image?href=/does-not-exist.png');
+		const response = await app.render(request);
+
+		assert.equal(response.status, 404);
+		assert.equal(await response.text(), 'Not Found');
 	});
 
 	it('prerendered routes images are built', async () => {

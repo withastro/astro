@@ -1,21 +1,19 @@
 ---
 // This import statement is necessary to indicate that this code is an ECMAScript module.
 import { guard } from "../lib/index.js"
-// Un-commenting the following lines will trigger the following error:
-// `X [ERROR] No matching export in "../lib/index.ts" for import "throw"`
-// This is because 'return' is replaced with 'throw', and it's highly unlikely
-// that the source library provides an export named 'throw', leading to a name mismatch.
-//
-// import { return as ret } from "../lib/index.js"
-// console.log(ret)
 
 if (guard()) {
   return Astro.redirect("/404")
 }
 
-// Bare return (no value) — must not produce invalid `throw ;` syntax during dep scanning
+// Bare return (no value)
 const source = "hello";
 if (!source) return;
+
+// Regex literal containing a quote character — must not break dep scanning (#17697)
+function escapeHtml(value) {
+  return value.replace(/"/g, "&quot;");
+}
 
 ---
 

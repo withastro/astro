@@ -51,7 +51,7 @@ describe('shiki syntax highlighting', () => {
 		const root = hast.children[0] as Element;
 
 		assert.match(root.properties.class as string, /astro-code github-dark/);
-		assert.match(root.properties.style as string, /background-color:#24292e;color:#e1e4e8;/);
+		assert.match(root.properties.style!, /background-color:#24292e;color:#e1e4e8;/);
 	});
 
 	it('createShikiHighlighter can reuse the same instance for different languages', async () => {

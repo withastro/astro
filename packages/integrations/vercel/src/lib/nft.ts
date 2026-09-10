@@ -1,9 +1,27 @@
-import { relative as relativePath } from 'node:path';
+import { dirname, isAbsolute, relative as relativePath, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { copyFilesToFolder } from '@astrojs/internal-helpers/fs';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import type { AstroIntegrationLogger } from 'astro';
 import { searchForWorkspaceRoot } from './searchRoot.js';
+
+export function findCommonAncestor(rootPath: string, entryPath: string): string {
+	let ancestor = rootPath;
+	let relativeEntryPath = relativePath(ancestor, entryPath);
+
+	while (
+		relativeEntryPath === '..' ||
+		relativeEntryPath.startsWith(`..${sep}`) ||
+		isAbsolute(relativeEntryPath)
+	) {
+		const parent = dirname(ancestor);
+		if (parent === ancestor) break;
+		ancestor = parent;
+		relativeEntryPath = relativePath(ancestor, entryPath);
+	}
+
+	return ancestor;
+}
 
 export async function copyDependenciesToFunction(
 	{
@@ -29,8 +47,10 @@ export async function copyDependenciesToFunction(
 	const entryPath = fileURLToPath(entry);
 	logger.info(`Bundling function ${relativePath(fileURLToPath(outDir), entryPath)}`);
 
-	// Set the base to the workspace root
-	const base = pathToFileURL(appendForwardSlash(searchForWorkspaceRoot(fileURLToPath(root))));
+	// NFT only traces files within `base`, so it must encompass the project root and build output.
+	// https://github.com/withastro/astro/issues/17761
+	const searchStart = findCommonAncestor(fileURLToPath(root), entryPath);
+	const base = pathToFileURL(appendForwardSlash(searchForWorkspaceRoot(searchStart)));
 
 	// The Vite bundle includes an import to `@vercel/nft` for some reason,
 	// and that trips up `@vercel/nft` itself during the adapter build. Using a

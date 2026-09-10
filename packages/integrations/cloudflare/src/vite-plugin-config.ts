@@ -1,7 +1,15 @@
+import { fileURLToPath } from 'node:url';
 import type { PluginOption } from 'vite';
 
 const VIRTUAL_CONFIG_ID = 'virtual:astro-cloudflare:config';
 const RESOLVED_VIRTUAL_CONFIG_ID = '\0' + VIRTUAL_CONFIG_ID;
+
+/**
+ * Absolute path of the prerender-only render-scope installer, imported by the
+ * generated `loadPrerenderScope` thunk. Resolved relative to this compiled
+ * module (`dist/vite-plugin-config.js` → `dist/utils/prerender-scope.js`).
+ */
+const PRERENDER_SCOPE_PATH = fileURLToPath(new URL('./utils/prerender-scope.js', import.meta.url));
 
 export interface CompileImageConfig {
 	base: string;
@@ -40,9 +48,19 @@ export function createConfigPlugin(config: Omit<Config, 'isPrerender'>): PluginO
 				id: new RegExp(`^${RESOLVED_VIRTUAL_CONFIG_ID}$`),
 			},
 			handler() {
+				const isPrerender = this.environment?.name === 'prerender';
 				return [
 					...Object.entries(config).map(([k, v]) => `export const ${k} = ${JSON.stringify(v)};`),
-					`export const isPrerender = ${this.environment?.name === 'prerender'};`,
+					`export const isPrerender = ${isPrerender};`,
+					// The import edge to the render-scope installer — the one module with
+					// a `node:async_hooks` reference — must only exist in the prerender
+					// worker's module graph. A dynamic import in the handler, even inside
+					// the compile-time-false `isPrerender` branch, still gets emitted as a
+					// chunk of the production worker; generating the thunk per environment
+					// keeps production output free of the module entirely.
+					`export const loadPrerenderScope = ${
+						isPrerender ? `() => import(${JSON.stringify(PRERENDER_SCOPE_PATH)})` : 'undefined'
+					};`,
 				].join('\n');
 			},
 		},

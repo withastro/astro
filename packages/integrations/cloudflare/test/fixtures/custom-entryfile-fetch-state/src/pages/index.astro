@@ -1,5 +1,6 @@
 ---
 export const prerender = false;
+Astro.cookies.set('repro', '1', { path: '/' });
 ---
 <html>
 	<head>

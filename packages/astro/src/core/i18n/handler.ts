@@ -180,7 +180,15 @@ export async function finalizeI18n(
 					headers: { Location: fallbackDecision.pathname + url.search },
 				});
 			case 'rewrite':
-				return await state.rewrite(fallbackDecision.pathname + url.search);
+				try {
+					return await state.rewrite(fallbackDecision.pathname + url.search);
+				} catch {
+					// The rewrite target has no renderable page either (e.g. a
+					// prerendered dynamic route where the slug is excluded from
+					// getStaticPaths in the fallback locale too). Fall through
+					// so the original 404 response is returned. See #17778.
+					break;
+				}
 			case 'none':
 				break;
 		}
