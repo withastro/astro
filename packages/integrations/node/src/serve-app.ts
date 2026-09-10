@@ -14,49 +14,6 @@ import type { Options, RequestHandler } from './types.js';
 
 const PRERENDERED_ROUTE_TYPES: ReadonlyArray<RouteType> = ['page', 'endpoint'];
 
-type RequestContext = { app: BaseApp; url: string };
-
-interface SharedHandlerState {
-	requestContext: AsyncLocalStorage<RequestContext>;
-	abortedRequestErrors: WeakSet<Error>;
-	listenerInstalled: boolean;
-}
-
-// Every built standalone entry bundles its own copy of this module, and several
-// entries can be loaded into one process, so the listener, request context, and
-// aborted-error registry are shared process-wide through globalThis. Otherwise
-// each entry would register its own unhandledRejection listener and log the
-// same rejection once per entry.
-const sharedStateSymbol = Symbol.for('astro.node.appHandlerState');
-const sharedState: SharedHandlerState = ((globalThis as Record<symbol, SharedHandlerState>)[
-	sharedStateSymbol
-] ??= {
-	requestContext: new AsyncLocalStorage<RequestContext>(),
-	abortedRequestErrors: new WeakSet<Error>(),
-	listenerInstalled: false,
-});
-
-const { requestContext, abortedRequestErrors } = sharedState;
-
-if (!sharedState.listenerInstalled) {
-	sharedState.listenerInstalled = true;
-	process.on('unhandledRejection', (reason) => {
-		// When a client disconnects mid-request, Node destroys the incoming
-		// message and the exact error object propagates through the request body
-		// stream. Those errors are tagged in `abortedRequestErrors` and are
-		// expected, so they are not reported. Genuine rejections are logged once
-		// with the URL of the request that was being rendered.
-		if (reason instanceof Error && abortedRequestErrors.has(reason)) return;
-		const context = requestContext.getStore();
-		if (!context) {
-			console.error(reason);
-			return;
-		}
-		const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
-		context.app.adapterLogger.error(`Unhandled rejection while rendering ${context.url}\n${error}`);
-	});
-}
-
 /**
  * Read a prerendered error page from disk and return it as a Response.
  * Returns undefined if the file doesn't exist or can't be read.
@@ -101,6 +58,15 @@ async function readErrorPageFromDisk(
  */
 export function createAppHandler(app: BaseApp, options: Options): RequestHandler {
 	const logger = app.adapterLogger;
+	const requestContext = new AsyncLocalStorage<string>();
+	const abortedRequestErrors = new WeakSet<Error>();
+
+	process.on('unhandledRejection', (reason) => {
+		const requestUrl = requestContext.getStore();
+		if (!requestUrl || (reason instanceof Error && abortedRequestErrors.has(reason))) return;
+		const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
+		logger.error(`Unhandled rejection while rendering ${requestUrl}\n${error}`);
+	});
 
 	const client = resolveClientDir(options);
 
@@ -148,7 +114,6 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 			res.end('Internal Server Error');
 			return;
 		}
-		const context = { app, url: request.url };
 
 		try {
 			// Include prerendered routes so static-mode redirects remain dynamic.
@@ -159,7 +124,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 				routeData = app.match(request);
 			}
 			if (routeData) {
-				await requestContext.run(context, async () => {
+				await requestContext.run(request.url, async () => {
 					const response = await app.render(request, {
 						addCookieHeader: true,
 						locals,
@@ -174,7 +139,7 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 				if (cleanup) cleanup();
 				return next();
 			} else {
-				await requestContext.run(context, async () => {
+				await requestContext.run(request.url, async () => {
 					const response = await app.render(request, {
 						addCookieHeader: true,
 						prerenderedErrorPageFetch,
