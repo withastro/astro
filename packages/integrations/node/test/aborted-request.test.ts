@@ -207,6 +207,10 @@ describe('multiple standalone entries in one process', () => {
 			() => output.slice(startA).includes('intentional rejection'),
 			() => `Timed out waiting for server output:\n${output}`,
 		);
+		// The duplicate from a faulty multi-listener implementation could arrive
+		// in a later event-loop turn, so wait for the output to stabilize before
+		// asserting on the slice.
+		await waitForStableOutput();
 		const linesA = output.slice(startA).trim().split('\n');
 		assert.equal(linesA.length, 1, `expected one log line, got:\n${output.slice(startA)}`);
 		const logA = JSON.parse(linesA[0]);
@@ -221,6 +225,7 @@ describe('multiple standalone entries in one process', () => {
 			() => output.slice(startB).includes('intentional rejection'),
 			() => `Timed out waiting for server output:\n${output}`,
 		);
+		await waitForStableOutput();
 		const linesB = output.slice(startB).trim().split('\n');
 		assert.equal(linesB.length, 1, `expected one log line, got:\n${output.slice(startB)}`);
 		const logB = JSON.parse(linesB[0]);
