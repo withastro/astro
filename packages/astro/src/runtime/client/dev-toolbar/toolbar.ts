@@ -588,7 +588,9 @@ export class DevToolbarCanvas extends HTMLElement {
 	// each client-side navigation moves the toolbar into the new document, so
 	// connectedCallback runs again for every canvas it holds.
 	connectedCallback() {
-		if (this.hasRenderedStyles) { return };
+		if (this.hasRenderedStyles) {
+			return;
+		}
 		this.hasRenderedStyles = true;
 		this.shadowRoot.innerHTML = `
 		<style>
