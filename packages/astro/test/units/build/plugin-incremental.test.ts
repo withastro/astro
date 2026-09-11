@@ -243,6 +243,21 @@ describe('pluginIncremental', () => {
 			);
 		});
 
+		it('changes when two routes sharing a component swap their sheets', () => {
+			const first = fold([
+				page(COMPONENT, [{ depth: 0, order: 0, sheet: EXTERNAL }], { route: '/x' }),
+				page(COMPONENT, [{ depth: 0, order: 0, sheet: INLINE_RED }], { route: '/y' }),
+			]);
+			const swapped = fold([
+				page(COMPONENT, [{ depth: 0, order: 0, sheet: INLINE_RED }], { route: '/x' }),
+				page(COMPONENT, [{ depth: 0, order: 0, sheet: EXTERNAL }], { route: '/y' }),
+			]);
+			assert.notEqual(
+				first.pageDependencyHashes.get(COMPONENT),
+				swapped.pageDependencyHashes.get(COMPONENT),
+			);
+		});
+
 		it('ignores routes that are not prerendered', () => {
 			const internals = fold([
 				page(COMPONENT, [{ depth: 0, order: 0, sheet: EXTERNAL }], { prerender: false }),

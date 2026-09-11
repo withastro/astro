@@ -51,11 +51,10 @@ describe('experimental.incrementalBuild stylesheet dependencies', () => {
 		hrefAfter = await stylesheetHref(fixture);
 		existsAfter = hrefAfter ? fixture.pathExists(hrefAfter) : false;
 		cssAfter = existsAfter && hrefAfter ? await fixture.readFile(hrefAfter) : undefined;
-
-		fs.writeFileSync(tokensFile, '$brand: #ff0000;\n');
 	});
 
 	after(() => {
+		fs.writeFileSync(tokensFile, '$brand: #ff0000;\n');
 		fs.rmSync(new URL('dist/', root), { recursive: true, force: true });
 		fs.rmSync(new URL('node_modules/.astro/', root), { recursive: true, force: true });
 	});

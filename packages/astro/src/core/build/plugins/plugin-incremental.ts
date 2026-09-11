@@ -358,8 +358,10 @@ export function foldStylesheetDependencies(internals: BuildInternals, root: URL)
 			entry = { hashes: [], sheetCount: 0 };
 			stylesByComponent.set(pageData.component, entry);
 		}
-		// `headElements` sorts this array in place at render time, so never reorder it here.
-		entry.hashes.push(hashStylesheets(pageData.styles));
+		// Keyed by route: two routes sharing a component can resolve different sheets, and an
+		// unkeyed multiset would hash the same if they swapped. `headElements` sorts this array
+		// in place at render time, so never reorder it here.
+		entry.hashes.push(`${pageData.route.route}\n${hashStylesheets(pageData.styles)}`);
 		entry.sheetCount += pageData.styles.length;
 	}
 

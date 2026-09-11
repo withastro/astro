@@ -47,11 +47,10 @@ describe('experimental.incrementalBuild propagated style dependencies', () => {
 		oneAfter = contentHashes('/one');
 		twoAfter = contentHashes('/two');
 		htmlAfter = renderedStyles();
-
-		fs.writeFileSync(tokensFile, '$brand: #ff0000;\n');
 	});
 
 	after(() => {
+		fs.writeFileSync(tokensFile, '$brand: #ff0000;\n');
 		fs.rmSync(new URL('dist/', root), { recursive: true, force: true });
 		fs.rmSync(new URL('node_modules/.astro/', root), { recursive: true, force: true });
 	});
