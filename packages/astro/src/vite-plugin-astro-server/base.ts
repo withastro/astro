@@ -1,6 +1,10 @@
 import * as fs from 'node:fs';
 import path from 'node:path';
-import { appendForwardSlash, prependForwardSlash } from '@astrojs/internal-helpers/path';
+import {
+	appendForwardSlash,
+	prependForwardSlash,
+	removeTrailingForwardSlash,
+} from '@astrojs/internal-helpers/path';
 import colors from 'piccolore';
 import type * as vite from 'vite';
 import type { AstroLogger } from '../core/logger/core.js';
@@ -64,7 +68,8 @@ export function evaluateBaseRewrite(
 	devRoot: string,
 	devRootReplacement: string,
 ): BaseRewriteDecision {
-	if (pathname.startsWith(devRoot)) {
+	const devRootBase = removeTrailingForwardSlash(devRoot);
+	if (pathname === devRootBase || pathname.startsWith(devRootBase + '/')) {
 		let newUrl = url.replace(devRoot, devRootReplacement);
 		if (!newUrl.startsWith('/')) newUrl = prependForwardSlash(newUrl);
 		return { action: 'rewrite', newUrl };

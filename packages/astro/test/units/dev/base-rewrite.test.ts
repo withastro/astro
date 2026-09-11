@@ -93,6 +93,34 @@ describe('evaluateBaseRewrite — rewrite', () => {
 			assert.equal(result.newUrl, '/');
 		}
 	});
+
+	it('does not rewrite when base is a non-segment prefix of the pathname', () => {
+		// base '/s' must not match '/src/pages/index.astro' (#17973)
+		const result = evaluateBaseRewrite(
+			'/src/pages/index.astro',
+			'/src/pages/index.astro',
+			undefined,
+			'/s',
+			'',
+		);
+		assert.notEqual(result.action, 'rewrite');
+	});
+
+	it('still rewrites paths that are under a short base at a segment boundary', () => {
+		const result = evaluateBaseRewrite('/s/about', '/s/about', undefined, '/s', '');
+		assert.equal(result.action, 'rewrite');
+		if (result.action === 'rewrite') {
+			assert.equal(result.newUrl, '/about');
+		}
+	});
+
+	it('rewrites exact short base match', () => {
+		const result = evaluateBaseRewrite('/s', '/s', undefined, '/s', '');
+		assert.equal(result.action, 'rewrite');
+		if (result.action === 'rewrite') {
+			assert.equal(result.newUrl, '/');
+		}
+	});
 });
 // #endregion
 
