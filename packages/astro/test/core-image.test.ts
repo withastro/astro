@@ -1542,22 +1542,18 @@ describe('prod ssr', () => {
 			let response = await app.render(request);
 			const body = await response.text();
 
-			// Most paths are malformed local paths (500), but some backslash patterns
-			// are now correctly detected as remote and get 403
 			const { isRemotePath } = await import('@astrojs/internal-helpers/path');
-			const isDetectedAsRemote = isRemotePath(path);
-			const expectedStatus = isDetectedAsRemote ? 403 : 500;
-			const expectedBodyText = isDetectedAsRemote ? 'Forbidden' : 'Internal Server Error';
+			const expectedStatuses = isRemotePath(path) ? [403] : [400, 404, 500];
 
 			assert.equal(
-				response.status,
-				expectedStatus,
-				`Path "${path}" should return ${expectedStatus}`,
+				expectedStatuses.includes(response.status),
+				true,
+				`Path "${path}" should return ${expectedStatuses.join(' or ')}`,
 			);
 			assert.equal(
-				body.includes(expectedBodyText),
+				['Invalid request', 'Forbidden', 'Not Found', 'Internal Server Error'].includes(body),
 				true,
-				`Path "${path}" body should include "${expectedBodyText}"`,
+				`Path "${path}" should return an opaque error`,
 			);
 		}
 
@@ -1565,6 +1561,28 @@ describe('prod ssr', () => {
 		let request = new Request('http://example.com/');
 		let response = await app.render(request);
 		assert.equal(response.status, 200);
+	});
+
+	it('returns 400 for local paths with parent directory segments', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const paths = ['/../../../.env', '/foo/../../../.env', '/foo\\..\\..\\.env', '/%2e%2e/.env'];
+
+		for (const path of paths) {
+			const request = new Request('http://example.com/_image?href=' + encodeURIComponent(path));
+			const response = await app.render(request);
+
+			assert.equal(response.status, 400, `Path "${path}" should return 400`);
+			assert.equal(await response.text(), 'Invalid request');
+		}
+	});
+
+	it('returns 404 when a valid local image is not found', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/_image?href=/does-not-exist.png');
+		const response = await app.render(request);
+
+		assert.equal(response.status, 404);
+		assert.equal(await response.text(), 'Not Found');
 	});
 
 	it('prerendered routes images are built', async () => {

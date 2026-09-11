@@ -1,5 +1,5 @@
 import { strict as assert } from 'node:assert';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -511,6 +511,44 @@ describe('Glob Loader', () => {
 		await contentLayer.sync();
 
 		assert.ok(warnings.some((w) => w.includes('No files found matching')));
+	});
+
+	it('prunes stale entries when the last file in a collection is deleted', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'posts');
+		mkdirSync(contentDir, { recursive: true });
+		writeFileSync(join(contentDir, 'post.md'), '---\ntitle: Post MD\n---\nContent MD');
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			posts: defineCollection({
+				loader: glob({ pattern: '*.md', base: 'src/content/posts' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+		assert.equal(store.values('posts').length, 1);
+
+		// Delete the only file, leaving the (still existing) directory in place
+		rmSync(join(contentDir, 'post.md'));
+
+		await contentLayer.sync();
+		assert.equal(store.values('posts').length, 0);
 	});
 
 	it('throws on duplicate IDs when prerenderConflictBehavior is error', async () => {

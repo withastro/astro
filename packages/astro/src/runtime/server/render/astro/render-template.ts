@@ -6,6 +6,20 @@ import { createBufferedRenderer } from '../util.js';
 
 const renderTemplateResultSym = Symbol.for('astro.renderTemplateResult');
 
+const markedHtmlParts = new WeakMap<TemplateStringsArray, string[]>();
+
+function markHtmlParts(htmlParts: TemplateStringsArray): string[] {
+	let marked = markedHtmlParts.get(htmlParts);
+	if (marked === undefined) {
+		marked = new Array(htmlParts.length);
+		for (let i = 0; i < htmlParts.length; i++) {
+			marked[i] = htmlParts[i] ? markHTMLString(htmlParts[i]) : htmlParts[i];
+		}
+		markedHtmlParts.set(htmlParts, marked);
+	}
+	return marked;
+}
+
 // The return value when rendering a component.
 // This is the result of calling render(), should this be named to RenderResult or...?
 export class RenderTemplateResult {
@@ -13,23 +27,28 @@ export class RenderTemplateResult {
 	readonly htmlParts: TemplateStringsArray;
 	public expressions: any[];
 	private error: Error | undefined;
+	private wrapped: Set<number> | undefined;
 	constructor(htmlParts: TemplateStringsArray, expressions: unknown[]) {
 		this.htmlParts = htmlParts;
 		this.error = undefined;
-		this.expressions = expressions.map((expression) => {
-			// Wrap Promise expressions so we can catch errors
-			// There can only be 1 error that we rethrow from an Astro component,
-			// so this keeps track of whether or not we have already done so.
-			if (isPromise(expression)) {
-				return Promise.resolve(expression).catch((err) => {
-					if (!this.error) {
-						this.error = err;
-						throw err;
-					}
-				});
+		this.expressions = expressions;
+	}
+
+	catchExpressionError(index: number, expression: unknown): Promise<unknown> {
+		// Wrap Promise expressions so we can catch errors
+		// There can only be 1 error that we rethrow from an Astro component,
+		// so this keeps track of whether or not we have already done so.
+		// Re-wrapping hits the `this.error` guard and resolves, swallowing the rejection.
+		if (this.wrapped?.has(index)) return expression as Promise<unknown>;
+		const wrapped = Promise.resolve(expression).catch((err) => {
+			if (!this.error) {
+				this.error = err;
+				throw err;
 			}
-			return expression;
 		});
+		(this.wrapped ??= new Set()).add(index);
+		this.expressions[index] = wrapped;
+		return wrapped;
 	}
 
 	render(destination: RenderDestination): void | Promise<void> {
@@ -41,20 +60,22 @@ export class RenderTemplateResult {
 		//
 		// Template structure: html[0] exp[0] html[1] exp[1] ... html[N]
 		// (htmlParts.length === expressions.length + 1)
-		const { htmlParts, expressions } = this;
+		const { expressions } = this;
+		const htmlParts = markHtmlParts(this.htmlParts);
 
 		for (let i = 0; i < htmlParts.length; i++) {
 			const html = htmlParts[i];
 			if (html) {
-				destination.write(markHTMLString(html));
+				destination.write(html);
 			}
 
 			// expressions[i] doesn't exist for the last htmlPart
 			if (i >= expressions.length) break;
 
-			const exp = expressions[i];
+			let exp = expressions[i];
 			// Skip render if falsy, except the number 0
 			if (!(exp || exp === 0)) continue;
+			if (isPromise(exp)) exp = this.catchExpressionError(i, exp);
 
 			const result = renderChild(destination, exp);
 
@@ -65,7 +86,8 @@ export class RenderTemplateResult {
 				const remaining = expressions.length - startIdx;
 				const flushers = new Array(remaining);
 				for (let j = 0; j < remaining; j++) {
-					const rExp = expressions[startIdx + j];
+					let rExp = expressions[startIdx + j];
+					if (isPromise(rExp)) rExp = this.catchExpressionError(startIdx + j, rExp);
 					flushers[j] = createBufferedRenderer(destination, (bufferDestination) => {
 						if (rExp || rExp === 0) {
 							return renderChild(bufferDestination, rExp);
@@ -80,7 +102,7 @@ export class RenderTemplateResult {
 							// Write the HTML part that precedes this expression
 							const rHtml = htmlParts[startIdx + k];
 							if (rHtml) {
-								destination.write(markHTMLString(rHtml));
+								destination.write(rHtml);
 							}
 
 							const flushResult = flushers[k++].flush();
@@ -91,7 +113,7 @@ export class RenderTemplateResult {
 						// Write the final trailing HTML part
 						const lastHtml = htmlParts[htmlParts.length - 1];
 						if (lastHtml) {
-							destination.write(markHTMLString(lastHtml));
+							destination.write(lastHtml);
 						}
 					};
 					return iterate();

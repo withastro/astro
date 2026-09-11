@@ -26,7 +26,7 @@ import type { BaseApp } from './base.js';
 type ComponentPath = string;
 
 export type StylesheetAsset =
-	| { type: 'inline'; content: string }
+	| { type: 'inline'; content: string; viteDevId?: string }
 	| { type: 'external'; src: string };
 
 type ScriptAsset =

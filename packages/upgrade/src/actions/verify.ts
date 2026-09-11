@@ -2,10 +2,7 @@ import dns from 'node:dns/promises';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { color } from '@astrojs/cli-kit';
-import semverCoerce from 'semver/functions/coerce.js';
-import semverDiff from 'semver/functions/diff.js';
-import semverGt from 'semver/functions/gt.js';
-import semverParse from 'semver/functions/parse.js';
+import { coerce, difference, isGreater, tryParse } from 'verkit';
 import { bannerAbort, error, getRegistry, info, newline } from '../messages.js';
 import type { Context, PackageInfo } from './context.js';
 
@@ -81,7 +78,7 @@ function isAllowedPackage(name: string, _version: string) {
 }
 
 function isValidVersion(_name: string, version: string) {
-	return semverCoerce(version, { loose: true }) !== null;
+	return coerce(version, { loose: true }) !== null;
 }
 
 function isSupportedPackage(name: string, version: string): boolean {
@@ -149,10 +146,10 @@ export async function resolveTargetVersion(
 	const { 'dist-tags': distTags } = await packageMetadata.json();
 	let version = distTags[packageInfo.targetVersion];
 	if (version) {
-		const currentCoerced = semverCoerce(packageInfo.currentVersion);
-		const targetParsed = semverParse(version);
+		const currentCoerced = coerce(packageInfo.currentVersion);
+		const targetParsed = tryParse(version);
 		// If the dist-tag points to a version older than the installed one, fall back to latest.
-		if (currentCoerced && targetParsed && semverGt(currentCoerced, targetParsed)) {
+		if (currentCoerced && targetParsed && isGreater(currentCoerced, targetParsed)) {
 			packageInfo.targetVersion = 'latest';
 			version = distTags.latest;
 		} else {
@@ -168,10 +165,10 @@ export async function resolveTargetVersion(
 	}
 	const prefix = packageInfo.targetVersion === 'latest' ? '^' : '';
 	packageInfo.targetVersion = `${prefix}${version}`;
-	const fromVersion = semverCoerce(packageInfo.currentVersion)!;
-	const toVersion = semverParse(version)!;
-	const bump = semverDiff(fromVersion, toVersion);
-	if ((bump === 'major' && toVersion.prerelease.length === 0) || bump === 'premajor') {
+	const fromVersion = coerce(packageInfo.currentVersion)!;
+	const toVersion = tryParse(version)!;
+	const bump = difference(fromVersion, toVersion);
+	if ((bump === 'major' && (toVersion.prerelease?.length ?? 0) === 0) || bump === 'premajor') {
 		packageInfo.isMajor = true;
 		if (packageInfo.name === 'astro') {
 			const upgradeGuide = `https://docs.astro.build/en/guides/upgrade-to/v${toVersion.major}/`;
