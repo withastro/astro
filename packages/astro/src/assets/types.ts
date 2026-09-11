@@ -84,28 +84,26 @@ export type SrcSetValue = UnresolvedSrcSetValue & {
 export type UnresolvedImageTransform = Simplify<
 	OmitPreservingIndexSignature<ImageTransform, 'src'> & {
 		src: ImageMetadata | string | Promise<{ default: ImageMetadata }>;
-		inferSize?: boolean;
+		inferSize?: boolean | undefined;
 	}
 > & {
 	[isESMImport]?: never;
 };
 
+type Undefinable<T> = T extends object ? { [K in keyof T]?: T[K] | undefined } : T;
+
 /**
  * Options accepted by the image transformation service.
  */
-export type ImageTransform = {
-	src: ImageMetadata | string;
-	width?: number | undefined;
-	widths?: number[] | undefined;
-	densities?: (number | `${number}x`)[] | undefined;
-	height?: number | undefined;
-	quality?: ImageQuality | undefined;
-	format?: ImageOutputFormat | undefined;
-	fit?: ImageFit | undefined;
-	position?: string | undefined;
-	background?: string | undefined;
-	[key: string]: any;
-} & Astro.CustomImageProps;
+export type ImageTransform = Simplify<
+	Undefinable<ImageSharedProps<object>> &
+		Astro.CustomImageProps & {
+			src: ImageMetadata | string;
+			width?: number | undefined;
+			height?: number | undefined;
+			[key: string]: any;
+		}
+>;
 
 export interface GetImageResult {
 	rawOptions: ImageTransform;
