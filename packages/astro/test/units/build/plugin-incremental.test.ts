@@ -3,18 +3,21 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, describe, it } from 'node:test';
+import { pathToFileURL } from 'node:url';
 import {
 	foldStylesheetDependencies,
 	pluginIncremental,
 } from '../../../dist/core/build/plugins/plugin-incremental.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../dist/vite-plugin-pages/const.js';
 
-const ROOT = new URL('file:///project/');
-const PAGE_ID = '/project/src/pages/[slug].astro';
+// `fileURLToPath` rejects a driveless file URL on Windows.
+const PROJECT_DIR = process.platform === 'win32' ? 'C:/project/' : '/project/';
+const ROOT = pathToFileURL(PROJECT_DIR);
+const PAGE_ID = `${PROJECT_DIR}src/pages/[slug].astro`;
 const COMPONENT = 'src/pages/[slug].astro';
-const RED = '/project/src/assets/red.png';
-const BLUE = '/project/src/assets/blue.png';
-const VIDEO = '/project/src/assets/clip.mp4';
+const RED = `${PROJECT_DIR}src/assets/red.png`;
+const BLUE = `${PROJECT_DIR}src/assets/blue.png`;
+const VIDEO = `${PROJECT_DIR}src/assets/clip.mp4`;
 
 const HANDLE_ONE = 'VRAku6fjghkApIISiBWPzg';
 const HANDLE_TWO = 'WPGYjwIlzWVNM1bYhOc83w';
@@ -260,7 +263,7 @@ describe('pluginIncremental', () => {
 		});
 
 		it('folds propagated styles into the content entry render hash', () => {
-			const entryId = '/project/src/content/docs/a.mdx?astroPropagatedAssets';
+			const entryId = `${PROJECT_DIR}src/content/docs/a.mdx?astroPropagatedAssets`;
 			const first = fold([], {
 				propagated: new Map([[entryId, new Set([EXTERNAL])]]),
 			}).contentEntryRenderHashes;
