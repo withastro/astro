@@ -3,7 +3,10 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, describe, it } from 'node:test';
-import { pluginIncremental } from '../../../dist/core/build/plugins/plugin-incremental.js';
+import {
+	foldStylesheetDependencies,
+	pluginIncremental,
+} from '../../../dist/core/build/plugins/plugin-incremental.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../dist/vite-plugin-pages/const.js';
 
 const ROOT = new URL('file:///project/');
@@ -15,6 +18,8 @@ const VIDEO = '/project/src/assets/clip.mp4';
 
 const HANDLE_ONE = 'VRAku6fjghkApIISiBWPzg';
 const HANDLE_TWO = 'WPGYjwIlzWVNM1bYhOc83w';
+
+const BASE_HASH = 'base-hash';
 
 function moduleInfo(
 	id: string,
@@ -150,6 +155,122 @@ describe('pluginIncremental', () => {
 
 				assert.equal(first, second);
 			});
+		});
+	});
+
+	describe('stylesheet dependencies (#17974)', () => {
+		const EXTERNAL = { type: 'external', src: '_astro/main.aaaa.css' };
+		const EXTERNAL_RENAMED = { type: 'external', src: '_astro/main.bbbb.css' };
+		const INLINE_RED = { type: 'inline', content: 'body{color:red}' };
+		const INLINE_BLUE = { type: 'inline', content: 'body{color:blue}' };
+
+		function page(component: string, styles: any[], { route = '/x', prerender = true } = {}) {
+			return {
+				key: `${route}\u0000${component}`,
+				component,
+				moduleSpecifier: component,
+				route: { route, component, prerender },
+				styles,
+			};
+		}
+
+		function fold(pages: any[], { base = BASE_HASH, propagated = new Map() } = {}) {
+			const internals = {
+				pagesByKeys: new Map(pages.map((p) => [p.key, p])),
+				pageDependencyHashes: new Map([[COMPONENT, base]]),
+				contentEntryRenderHashes: new Map(),
+				propagatedStylesMap: propagated,
+			} as any;
+			foldStylesheetDependencies(internals, ROOT);
+			return internals;
+		}
+
+		function pageHash(styles: any[]) {
+			return fold([page(COMPONENT, styles)]).pageDependencyHashes.get(COMPONENT);
+		}
+
+		it('changes when an external stylesheet resolves to a different file name', () => {
+			assert.notEqual(
+				pageHash([{ depth: 0, order: 0, sheet: EXTERNAL }]),
+				pageHash([{ depth: 0, order: 0, sheet: EXTERNAL_RENAMED }]),
+			);
+		});
+
+		it('changes when inline stylesheet content changes', () => {
+			assert.notEqual(
+				pageHash([{ depth: 0, order: 0, sheet: INLINE_RED }]),
+				pageHash([{ depth: 0, order: 0, sheet: INLINE_BLUE }]),
+			);
+		});
+
+		it('is stable when the same sheets are appended in a different order', () => {
+			const a = { depth: -1, order: -1, sheet: EXTERNAL };
+			const b = { depth: -1, order: -1, sheet: INLINE_RED };
+			assert.equal(pageHash([a, b]), pageHash([b, a]));
+		});
+
+		it('changes when a sheet moves to a different depth or order', () => {
+			assert.notEqual(
+				pageHash([{ depth: 0, order: 0, sheet: EXTERNAL }]),
+				pageHash([{ depth: 1, order: 0, sheet: EXTERNAL }]),
+			);
+			assert.notEqual(
+				pageHash([{ depth: 0, order: 0, sheet: EXTERNAL }]),
+				pageHash([{ depth: 0, order: 1, sheet: EXTERNAL }]),
+			);
+		});
+
+		it('leaves the hash untouched for a component with no stylesheets', () => {
+			assert.equal(pageHash([]), BASE_HASH);
+		});
+
+		it('folds in every route that shares a component', () => {
+			const shared = [page(COMPONENT, [{ depth: 0, order: 0, sheet: EXTERNAL }], { route: '/x' })];
+			const first = fold([
+				...shared,
+				page(COMPONENT, [{ depth: 0, order: 0, sheet: INLINE_RED }], { route: '/y' }),
+			]);
+			const second = fold([
+				...shared,
+				page(COMPONENT, [{ depth: 0, order: 0, sheet: INLINE_BLUE }], { route: '/y' }),
+			]);
+			assert.notEqual(
+				first.pageDependencyHashes.get(COMPONENT),
+				second.pageDependencyHashes.get(COMPONENT),
+			);
+		});
+
+		it('ignores routes that are not prerendered', () => {
+			const internals = fold([
+				page(COMPONENT, [{ depth: 0, order: 0, sheet: EXTERNAL }], { prerender: false }),
+			]);
+			assert.equal(internals.pageDependencyHashes.get(COMPONENT), BASE_HASH);
+		});
+
+		it('does not reorder the styles it hashes', () => {
+			const styles = [
+				{ depth: -1, order: -1, sheet: EXTERNAL },
+				{ depth: -1, order: -1, sheet: INLINE_RED },
+			];
+			fold([page(COMPONENT, styles)]);
+			assert.deepEqual(
+				styles.map(({ sheet }) => sheet),
+				[EXTERNAL, INLINE_RED],
+			);
+		});
+
+		it('folds propagated styles into the content entry render hash', () => {
+			const entryId = '/project/src/content/docs/a.mdx?astroPropagatedAssets';
+			const first = fold([], {
+				propagated: new Map([[entryId, new Set([EXTERNAL])]]),
+			}).contentEntryRenderHashes;
+			const second = fold([], {
+				propagated: new Map([[entryId, new Set([EXTERNAL_RENAMED])]]),
+			}).contentEntryRenderHashes;
+
+			const key = 'src/content/docs/a.mdx';
+			assert.ok(first.get(key), 'entry should be keyed by its root-relative path');
+			assert.notEqual(first.get(key), second.get(key));
 		});
 	});
 });

@@ -1,0 +1,5 @@
+@use './tokens' as t;
+
+.propagated {
+	color: t.$brand;
+}
