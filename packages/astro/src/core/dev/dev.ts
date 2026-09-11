@@ -12,6 +12,7 @@ import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
+import { devContentReadySymbol } from '../constants.js';
 import * as msg from '../messages/runtime.js';
 import { newVersionAvailable } from '../messages/node.js';
 import { ensureProcessNodeEnv } from '../util.js';
@@ -89,49 +90,61 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		}
 	}
 
-	let store: MutableDataStore | undefined;
-	try {
-		const chunkSize = getDataStoreChunkSize(restart.container.settings);
-		if (chunkSize !== undefined) {
-			const dataStoreDir = getDataStoreDir(restart.container.settings, true);
-			store = await MutableDataStore.fromDir(dataStoreDir, chunkSize, logger);
-		} else {
-			const dataStoreFile = getDataStoreFile(restart.container.settings, true);
-			store = await MutableDataStore.fromFile(dataStoreFile);
+	// Binding the port does not require content, but Astro handlers must not serve
+	// until the store and generated content modules are ready.
+	const prepareContent = async () => {
+		let store: MutableDataStore | undefined;
+		try {
+			const chunkSize = getDataStoreChunkSize(restart.container.settings);
+			if (chunkSize !== undefined) {
+				const dataStoreDir = getDataStoreDir(restart.container.settings, true);
+				store = await MutableDataStore.fromDir(dataStoreDir, chunkSize, logger);
+			} else {
+				const dataStoreFile = getDataStoreFile(restart.container.settings, true);
+				store = await MutableDataStore.fromFile(dataStoreFile);
+			}
+		} catch (err: any) {
+			logger.error('content', err.message);
 		}
-	} catch (err: any) {
-		logger.error('content', err.message);
-	}
 
-	if (!store) {
-		logger.error('content', 'Failed to create data store');
-	} else {
-		// Invalidate the content virtual modules directly when the store is
-		// written, rather than relying on the file watcher to observe the write.
-		// On Windows the watcher can miss it, leaving dev serving stale content.
-		attachDataStoreInvalidation(store, restart.container.viteServer, restart.container.settings);
-	}
-	await attachContentServerListeners(restart.container);
+		if (!store) {
+			logger.error('content', 'Failed to create data store');
+		} else {
+			// Invalidate the content virtual modules directly when the store is
+			// written, rather than relying on the file watcher to observe the write.
+			// On Windows the watcher can miss it, leaving dev serving stale content.
+			attachDataStoreInvalidation(store, restart.container.viteServer, restart.container.settings);
+		}
+		await attachContentServerListeners(restart.container);
 
-	const config = globalContentConfigObserver.get();
-	if (config.status === 'error') {
-		logger.error('content', config.error.message);
-	}
-	if (config.status === 'loaded' && store) {
-		const contentLayer = globalContentLayer.init({
-			settings: restart.container.settings,
-			logger,
-			watcher: restart.container.viteServer.watcher,
-			store,
-		});
-		contentLayer.watchContentConfig();
-		await contentLayer.sync();
-	} else if (config.status !== 'does-not-exist') {
-		logger.warn('content', 'Content config not loaded');
-	}
+		const config = globalContentConfigObserver.get();
+		if (config.status === 'error') {
+			logger.error('content', config.error.message);
+		}
+		if (config.status === 'loaded' && store) {
+			const contentLayer = globalContentLayer.init({
+				settings: restart.container.settings,
+				logger,
+				watcher: restart.container.viteServer.watcher,
+				store,
+			});
+			contentLayer.watchContentConfig();
+			await contentLayer.sync();
+		} else if (config.status !== 'does-not-exist') {
+			logger.warn('content', 'Content config not loaded');
+		}
+	};
+	let startContent!: () => void;
+	const contentReady = new Promise<void>((resolve, reject) => {
+		startContent = () => void prepareContent().then(resolve, reject);
+	});
+	void contentReady.catch((error) => {
+		logger.error('content', error instanceof Error ? error.message : String(error));
+	});
+	(restart.container.viteServer as any)[devContentReadySymbol] = contentReady;
 
-	// Start listening to the port
 	const devServerAddressInfo = await startContainer(restart.container);
+	startContent();
 
 	restart.bindCLIShortcuts();
 	logger.info(

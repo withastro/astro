@@ -1,0 +1,18 @@
+---
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('posts');
+---
+<html>
+<head>
+	<title>Content deferral fixture</title>
+</head>
+<body>
+	<h1>Posts</h1>
+	<ul>
+		{posts.map((post) => (
+			<li>{post.data.title}</li>
+		))}
+	</ul>
+</body>
+</html>

@@ -20,6 +20,7 @@ import {
 	warnIfCspResourceFallbackShadowing,
 	warnIfCspWithShiki,
 } from '../messages/runtime.js';
+import { devContentReadySymbol } from '../constants.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import type { Container } from './container.js';
 import { createContainer } from './container.js';
@@ -206,6 +207,9 @@ export async function createContainerWithAutomaticRestart({
 		return async function (changedFile: string) {
 			if (shouldRestartContainer(restart.container, changedFile)) {
 				logger.info(null, (logMsg + ' Restarting...').trim());
+				// Vite replaces request handler closures during an in-place restart, so
+				// the initial content lifecycle must settle before those handlers serve.
+				await Promise.allSettled([(restart.container.viteServer as any)[devContentReadySymbol]]);
 				const result = await restartContainerInPlace(restart.container);
 				if (result instanceof Error) {
 					resolveRestart(result);

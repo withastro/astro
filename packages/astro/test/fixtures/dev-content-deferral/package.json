@@ -1,0 +1,8 @@
+{
+  "name": "@astrojs/test-dev-content-deferral",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*"
+  }
+}
