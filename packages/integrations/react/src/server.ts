@@ -84,6 +84,14 @@ async function renderToStaticMarkup(
 	}
 	const attrs: Record<string, any> = { prefix };
 
+	// The Astro compiler may pass a separate `class` prop containing the scoped
+	// style class (e.g. "astro-HASH") when using `scopedStyleStrategy: 'where'`
+	// or `'class'`. Merge it into `className` so the scope class reaches the DOM.
+	if (props['class']) {
+		props['className'] = props['className']
+			? `${props['className']} ${props['class']}`
+			: props['class'];
+	}
 	delete props['class'];
 	const slots: Record<string, any> = {};
 	for (const [key, value] of Object.entries(slotted)) {
