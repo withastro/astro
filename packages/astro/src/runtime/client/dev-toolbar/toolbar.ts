@@ -577,13 +577,19 @@ export class AstroDevToolbar extends HTMLElement {
 
 export class DevToolbarCanvas extends HTMLElement {
 	shadowRoot: ShadowRoot;
+	hasRenderedStyles = false;
 
 	constructor() {
 		super();
 		this.shadowRoot = this.attachShadow({ mode: 'open' });
 	}
 
+	// Skip re-initialization when the element reconnects. With <ClientRouter />,
+	// each client-side navigation moves the toolbar into the new document, so
+	// connectedCallback runs again for every canvas it holds.
 	connectedCallback() {
+		if (this.hasRenderedStyles) { return };
+		this.hasRenderedStyles = true;
 		this.shadowRoot.innerHTML = `
 		<style>
 			:host {
