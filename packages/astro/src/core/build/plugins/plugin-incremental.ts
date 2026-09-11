@@ -87,10 +87,17 @@ function resolveAssetPlaceholders(graph: ModuleGraph, code: string): string {
  * themselves are not stable between builds.
  *
  * CSS modules are a special case: Vite extracts their content during the
- * prerender build, leaving `code` as an empty string. For those modules, the
- * source file is read from disk so that CSS edits invalidate the hash.
+ * prerender build, leaving `code` as an empty string. For those modules the
+ * compiled CSS captured during `transform` is used instead, which reflects
+ * the full preprocessor output (including Sass partials, `additionalData`,
+ * etc.). If no compiled CSS was captured, the source file is read from disk
+ * as a last resort.
  */
-function hashModules(graph: ModuleGraph, sortedIds: string[]): string {
+function hashModules(
+	graph: ModuleGraph,
+	sortedIds: string[],
+	compiledCss: Map<string, string>,
+): string {
 	const hasher = crypto.createHash('sha256');
 	for (const id of sortedIds) {
 		hasher.update(id);
@@ -100,13 +107,20 @@ function hashModules(graph: ModuleGraph, sortedIds: string[]): string {
 			hasher.update(resolveAssetPlaceholders(graph, code));
 		} else if (CSS_LANGS_RE.test(id)) {
 			// Vite extracts CSS into separate assets, so the module's `code` in the
-			// prerender bundle is empty. Read the source file so that stylesheet
-			// changes are reflected in the dependency hash (#17704).
-			try {
-				hasher.update(nodeFs.readFileSync(removeQueryString(id), 'utf-8'));
-			} catch {
-				// Virtual CSS or unreadable file — skip. The worst case is a
-				// cache miss (re-render), never a stale hit.
+			// prerender bundle is empty. Use the compiled CSS captured during the
+			// transform hook, which includes resolved preprocessor imports (Sass
+			// partials, Less includes, etc.) and `additionalData` (#17974). Fall
+			// back to reading the source file from disk (#17704).
+			const compiled = compiledCss.get(id);
+			if (compiled != null) {
+				hasher.update(compiled);
+			} else {
+				try {
+					hasher.update(nodeFs.readFileSync(removeQueryString(id), 'utf-8'));
+				} catch {
+					// Virtual CSS or unreadable file — skip. The worst case is a
+					// cache miss (re-render), never a stale hit.
+				}
 			}
 		}
 		hasher.update('\n');
@@ -119,7 +133,10 @@ function hashModules(graph: ModuleGraph, sortedIds: string[]): string {
  * Strongly connected components collapse cycles into a DAG, whose hashes can be
  * folded into every importer without walking shared dependencies again for each root.
  */
-function createTransitiveGraphCache(graph: HashableModuleGraph): TransitiveGraphCache {
+function createTransitiveGraphCache(
+	graph: HashableModuleGraph,
+	compiledCss: Map<string, string> = new Map(),
+): TransitiveGraphCache {
 	const modules = new Map<string, HashableModuleInfo | null>();
 	const dependencies = new Map<string, string[]>();
 	const excludedModules = new Set<string>();
@@ -213,7 +230,7 @@ function createTransitiveGraphCache(graph: HashableModuleGraph): TransitiveGraph
 	const ready = unresolvedDependencies.flatMap((count, index) => (count === 0 ? [index] : []));
 	for (const componentIndex of ready) {
 		const hasher = crypto.createHash('sha256');
-		hasher.update(hashModules(graph, components[componentIndex]));
+		hasher.update(hashModules(graph, components[componentIndex], compiledCss));
 		const dependencyHashes = [...componentDependencies[componentIndex]]
 			.map((dependencyIndex) => componentHashes.get(dependencyIndex)!)
 			.sort();
@@ -357,6 +374,13 @@ function collectContentEntryHashes(
  * render modules sit behind `content-data`-pruned bridges.
  */
 export function pluginIncremental(internals: BuildInternals, root: URL): VitePlugin {
+	// Compiled CSS captured during transform, keyed by module id. Vite's CSS
+	// plugin compiles preprocessor files (Sass, Less, etc.) into plain CSS
+	// during transform, resolving partials and `additionalData`. The prerender
+	// bundle then strips the CSS code (it is extracted into separate assets).
+	// Capturing the compiled output here lets `hashModules` hash the full
+	// preprocessor result instead of just the raw entry file on disk.
+	const compiledCss = new Map<string, string>();
 	return {
 		name: '@astro/plugin-incremental',
 		applyToEnvironment(environment) {
@@ -365,13 +389,21 @@ export function pluginIncremental(internals: BuildInternals, root: URL): VitePlu
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client
 			);
 		},
+		transform: {
+			filter: { id: { include: CSS_LANGS_RE } },
+			handler(code, id) {
+				if (code.length > 0) {
+					compiledCss.set(id, code);
+				}
+			},
+		},
 		generateBundle() {
 			if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 				foldClientDependencies(this, internals);
 				return;
 			}
 
-			const transitiveGraph = createTransitiveGraphCache(this);
+			const transitiveGraph = createTransitiveGraphCache(this, compiledCss);
 			const hashes = new Map<string, string>();
 			const serverIslandComponents = new Set<string>();
 			for (const id of this.getModuleIds()) {

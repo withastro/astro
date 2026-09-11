@@ -72,9 +72,13 @@ function dependencyHash(
 	codeByModule: Record<string, string>,
 	fileNames: Record<string, string>,
 	importedIds = Object.keys(codeByModule),
+	compiledCssByModule: Record<string, string> = {},
 ) {
 	const internals = { pagesByViteID: new Map([[PAGE_ID, { component: COMPONENT }]]) } as any;
 	const plugin = pluginIncremental(internals, ROOT) as any;
+	for (const [id, code] of Object.entries(compiledCssByModule)) {
+		plugin.transform.handler(code, id);
+	}
 	plugin.generateBundle.call(pluginContext(codeByModule, fileNames, importedIds));
 	return internals.pageDependencyHashes.get(COMPONENT);
 }
@@ -148,6 +152,32 @@ describe('pluginIncremental', () => {
 				const first = dependencyHash({ [cssPath]: '' }, {});
 				const second = dependencyHash({ [cssPath]: '' }, {});
 
+				assert.equal(first, second);
+			});
+		});
+
+		describe('compiled CSS from preprocessors (#17974)', () => {
+			it('uses compiled CSS over raw source so preprocessor partial changes invalidate the hash', () => {
+				const cssPath = '/project/src/styles/global.scss';
+				// Raw source stays the same (e.g. `@use "partial"`) but compiled output changes
+				const first = dependencyHash({ [cssPath]: '' }, {}, [cssPath], {
+					[cssPath]: 'body{color:red}h1{font-weight:700}',
+				});
+				const second = dependencyHash({ [cssPath]: '' }, {}, [cssPath], {
+					[cssPath]: 'body{color:blue}h1{font-weight:700}',
+				});
+				assert.notEqual(first, second);
+			});
+
+			it('is stable when compiled CSS is unchanged', () => {
+				const cssPath = '/project/src/styles/global.scss';
+				const compiled = 'body{color:red}h1{font-weight:700}';
+				const first = dependencyHash({ [cssPath]: '' }, {}, [cssPath], {
+					[cssPath]: compiled,
+				});
+				const second = dependencyHash({ [cssPath]: '' }, {}, [cssPath], {
+					[cssPath]: compiled,
+				});
 				assert.equal(first, second);
 			});
 		});
