@@ -834,7 +834,6 @@ export const ResponseSentError = {
 	name: 'ResponseSentError',
 	title: 'Unable to set response.',
 	message: 'The response has already been sent to the browser and cannot be altered.',
-	hint: 'Set cookies, headers, and the status code, or redirect, before the page starts rendering: in the frontmatter of the page or in middleware, not inside a child component.',
 } satisfies ErrorData;
 
 /**
