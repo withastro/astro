@@ -6,6 +6,7 @@ import { isRunnableDevEnvironment, type RunnableDevEnvironment } from 'vite';
 import type { RouteInfo, SSRManifest } from '../core/app/types.js';
 import {
 	ASTRO_VITE_ENVIRONMENT_NAMES,
+	devContentReadySymbol,
 	devPrerenderMiddlewareSymbol,
 	devServerAppReadySymbol,
 } from '../core/constants.js';
@@ -196,6 +197,11 @@ export default function createVitePluginAstroServer({
 							}
 
 							try {
+								// Wait for the deferred content setup (data store load, types
+								// generation, content layer sync) before serving. Vite static
+								// and internal requests are not gated; only Astro page requests
+								// await readiness.
+								await (viteServer as any)[devContentReadySymbol];
 								const prerenderHandler = await prerenderHandlerPromise!;
 								const pathname = decodeURI(new URL(request.url, 'http://localhost').pathname);
 								const { routes } = (await prerenderHandler.environment.runner.import(
@@ -235,6 +241,7 @@ export default function createVitePluginAstroServer({
 							return;
 						}
 
+						await (viteServer as any)[devContentReadySymbol];
 						const ssrHandler = await ssrHandlerPromise!;
 						localStorage.run(request, () => {
 							ssrHandler.handler(request, response);

@@ -24,6 +24,7 @@ describe('Chunked collection storage', () => {
 	});
 
 	it('loads a multi-chunk entry in workerd development', async () => {
+		await devServer.contentReady;
 		const manifest = JSON.parse(
 			await readFile(new URL('./.astro/data-store/manifest.json', fixture.config.root), 'utf-8'),
 		) as Record<string, string[]>;

@@ -62,6 +62,9 @@ export const devPrerenderMiddlewareSymbol = Symbol.for('astro.devPrerenderMiddle
  */
 export const devServerAppReadySymbol = Symbol.for('astro.devServerAppReady');
 
+/** Deferred dev content setup awaited by Astro request handlers and server shutdown. */
+export const devContentReadySymbol = Symbol.for('astro.devContentReady');
+
 /**
  * The symbol used as a field on the request object to store a cleanup callback associated with aborting the request when the underlying socket closes.
  */
