@@ -129,7 +129,9 @@ describe('Utilities', async () => {
 
 	it('rewriteComponentImportText - strips AstroComponent suffixes from component imports', () => {
 		assert.strictEqual(
-			rewriteComponentImportText(`import ImageAstroComponent from "../components/Image.astro";\nimport CardAstroComponent from "../components/Card.vue";\nimport ChipAstroComponent from "../components/Chip.svelte";\n`),
+			rewriteComponentImportText(
+				`import ImageAstroComponent from "../components/Image.astro";\nimport CardAstroComponent from "../components/Card.vue";\nimport ChipAstroComponent from "../components/Chip.svelte";\n`,
+			),
 			`import Image from "../components/Image.astro";\nimport Card from "../components/Card.vue";\nimport Chip from "../components/Chip.svelte";\n`,
 		);
 	});
