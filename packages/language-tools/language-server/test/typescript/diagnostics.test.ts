@@ -11,6 +11,22 @@ describe('TypeScript - Diagnostics', async () => {
 
 	before(async () => (languageServer = await getLanguageServer()));
 
+	it('still type-checks a file whose markup has a syntax error', async () => {
+		// A tag left unclosed mid-typing must not blank out every TS error.
+		const document = await languageServer.openFakeDocument(
+			'---\nNotAThing\n---\n<div><Foo',
+			'astro',
+		);
+		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
+			document.uri,
+		)) as FullDocumentDiagnosticReport;
+
+		assert.ok(
+			diagnostics.items.some((item) => item.source === 'ts' && item.code === 2304),
+			`expected the frontmatter error to survive:\n${JSON.stringify(diagnostics.items, null, 1)}`,
+		);
+	});
+
 	it('Can get diagnostics in the frontmatter', async () => {
 		const document = await languageServer.openFakeDocument('---\nNotAThing\n---', 'astro');
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
