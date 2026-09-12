@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 11.1.6
+
+### Patch Changes
+
+- [#17964](https://github.com/withastro/astro/pull/17964) [`01395b8`](https://github.com/withastro/astro/commit/01395b88e37ba39550f5f48e2d8374d0fa2cac8a) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes trailing-slash redirects truncating query strings that contain a second `?` character
+
 ## 11.1.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.16.17
+
+### Patch Changes
+
+- [#17542](https://github.com/withastro/astro/pull/17542) [`fae64dd`](https://github.com/withastro/astro/commit/fae64ddfc344e2fbe4d1610465c75bbe0604ba77) Thanks [@IAmYhvr](https://github.com/IAmYhvr)! - Fixes the AstroComponent suffix not being removed from Svelte and Vue imports in `.astro` files.
+
 ## 2.16.16
 
 ### Patch Changes
