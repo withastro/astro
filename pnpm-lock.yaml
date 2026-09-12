@@ -207,6 +207,7 @@ settings:
 overrides:
   '@types/node@22': ^22.19.0
   modern-tar: '>=0.7.7'
+  docs>@lunariajs/core: https://pkg.pr.new/lunariajs/lunaria/@lunariajs/core@502ada46073a7f0b003949d78870cefb9290a54f
 
 patchedDependencies:
   '@volar/language-service@2.4.28': 09741a82cb00ac74eaaadd70420ac669b56a8df2b1b926de1cf25500a15a6b5a
