@@ -433,7 +433,14 @@ export default new Map([\n${lines.join(',\n')}]);
 				// strip the prefix so the stored data holds a plain, devalue-serializable src
 				// string. The recorded paths let read-time resolution rewrite only these fields
 				// without traversing or cloning the rest of the data.
-				forEach(data, function (ctx, val) {
+				//
+				// `ctx.update()` mutates the traversed object in place. When the user's schema
+				// uses `.readonly()`, Zod returns a frozen object (and frozen nested objects),
+				// so mutating it directly throws (issue #17793). Operate on a deep, mutable
+				// clone rather than the object returned by the user's schema. The data here is
+				// plain, devalue-serializable data, so `structuredClone` is safe.
+				const mutableData = structuredClone(data);
+				forEach(mutableData, function (ctx, val) {
 					if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
 						const src = val.replace(IMAGE_IMPORT_PREFIX, '');
 						foundAssets.add(src);
@@ -444,7 +451,7 @@ export default new Map([\n${lines.join(',\n')}]);
 
 				const entry: DataEntry = {
 					id,
-					data,
+					data: mutableData,
 				};
 				// We do it like this so we don't waste space stringifying
 				// the fields if they are not set
