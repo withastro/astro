@@ -92,6 +92,25 @@ describe('stringifyAnimation', () => {
 		assert.ok(result.includes('both'));
 	});
 
+	it('escapes CSS delimiters in animation values', () => {
+		const result = stringifyAnimation({
+			name: 'fade',
+			duration: '1ms;}custom{value',
+		});
+
+		assert.ok(result.includes('animation-duration: 1ms\\3B \\7D custom\\7B value;'));
+		assert.ok(!result.includes('}custom{'));
+	});
+
+	it('preserves CSS functions in animation values', () => {
+		const result = stringifyAnimation({
+			name: 'fade',
+			duration: 'calc(1s + var(--transition-delay, 200ms))',
+		});
+
+		assert.ok(result.includes('calc(1s + var(--transition-delay, 200ms))'));
+	});
+
 	it('accepts an array of animations', () => {
 		const result = stringifyAnimation([{ name: 'fade-in' }, { name: 'slide-in' }]);
 		assert.ok(result.includes('fade-in'));
@@ -223,5 +242,27 @@ describe('renderTransition', () => {
 		assert.equal($('head style').length, 1);
 		assert.equal($('head script').length, 0);
 		assert.ok(style.includes('\\3C /style>\\3C script>test\\3C /script>'));
+	});
+
+	it('keeps animation values inside their generated CSS declarations', () => {
+		const result = {
+			_metadata: { extraHead: [] },
+		} as unknown as SSRResult;
+		const animation = {
+			forwards: {
+				old: { name: 'fade', duration: '1ms;}custom{value' },
+				new: { name: 'fade' },
+			},
+			backwards: {
+				old: { name: 'fade' },
+				new: { name: 'fade' },
+			},
+		};
+
+		renderTransition(result, 'hash', animation, 'name');
+
+		const style = String(result._metadata.extraHead[0]);
+		assert.ok(style.includes('animation-duration: 1ms\\3B \\7D custom\\7B value;'));
+		assert.ok(!style.includes('}custom{'));
 	});
 });
