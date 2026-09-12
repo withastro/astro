@@ -6063,8 +6063,8 @@ importers:
   packages/integrations/partytown:
     dependencies:
       '@qwik.dev/partytown':
-        specifier: ^0.13.2
-        version: 0.13.2
+        specifier: ^0.14.4
+        version: 0.14.4
       mrmime:
         specifier: ^2.0.1
         version: 2.0.1
@@ -10263,8 +10263,8 @@ packages:
     resolution: {integrity: sha512-HDVTWq3H0uTXiU0eeSQntcVUTPP3GamzeXI41+x7uU9J65JgWQh3qWZHblR1i0npXfFtF+mxBiU2nJH8znxWnQ==}
     engines: {node: '>=18'}
 
-  '@qwik.dev/partytown@0.13.2':
-    resolution: {integrity: sha512-Umls4bSkuzqLVcGvf8OgwIn/OldproSAbaQ/iYGe8VPYBpl2CaOSxabWwkeC72LDFqxVL0b0q8XlI8MuChDyzg==}
+  '@qwik.dev/partytown@0.14.4':
+    resolution: {integrity: sha512-XGBgDuxgG7CsAs4PZ32GUmbD029nAeCR4VGyJRJnNp3r3uVjbZt8Dkxe8cw+f8xY6Dh8VI5cb3ygEZCqSftwtA==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -19905,9 +19905,7 @@ snapshots:
 
   '@publint/pack@0.1.4': {}
 
-  '@qwik.dev/partytown@0.13.2':
-    dependencies:
-      dotenv: 16.6.1
+  '@qwik.dev/partytown@0.14.4': {}
 
   '@rolldown/binding-android-arm64@1.2.4':
     optional: true
