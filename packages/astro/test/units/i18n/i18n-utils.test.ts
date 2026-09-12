@@ -13,6 +13,7 @@ import {
 	toCodes,
 	toPaths,
 } from '../../../dist/i18n/index.js';
+import { pathHasLocale } from '../../../dist/i18n/path.js';
 
 describe('computeCurrentLocale', () => {
 	const stringLocales = ['en', 'fr', 'es'];
@@ -39,6 +40,25 @@ describe('computeCurrentLocale', () => {
 
 	it('handles case-insensitive locale matching', () => {
 		assert.equal(computeCurrentLocale('/EN/about', stringLocales, 'en'), 'en');
+	});
+
+	// 'en' above is also the default locale, so that assertion holds whether the
+	// segment matched or the lookup fell through. These use a non-default locale
+	// so only a real match can satisfy them.
+	it('matches a non-default locale whose segment differs in case', () => {
+		assert.equal(computeCurrentLocale('/FR/about', stringLocales, 'en'), 'fr');
+	});
+
+	it('matches a locale whose segment differs in separator', () => {
+		const locales = ['en_US', 'fr'];
+		assert.equal(computeCurrentLocale('/en-us/about', locales, 'fr'), 'en_US');
+		assert.equal(computeCurrentLocale('/EN_us/about', ['en-US', 'fr'], 'fr'), 'en-US');
+	});
+
+	it('agrees with pathHasLocale', () => {
+		// The two answer the same question and must not disagree.
+		assert.equal(pathHasLocale('/FR/about', stringLocales), true);
+		assert.equal(computeCurrentLocale('/FR/about', stringLocales, 'en'), 'fr');
 	});
 
 	it('handles object locales with path', () => {
