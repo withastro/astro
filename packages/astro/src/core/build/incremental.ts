@@ -1,10 +1,14 @@
 import fs from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import type { SerializedStaticImage } from '../../assets/types.js';
+import { rootRelativePath } from '../viteUtils.js';
 import type { AstroSettings } from '../../types/astro.js';
 
 const INCREMENTAL_CACHE_FILE = 'incremental-build.json';
+const INCREMENTAL_DIAGNOSTICS_FILE = 'incremental-build-diagnostics.json';
 const INCREMENTAL_OUTPUT_DIR = 'dist/';
-const CACHE_VERSION = 1;
+export const INCREMENTAL_CACHE_VERSION = 1;
+const DIAGNOSTICS_VERSION = 1;
 
 export interface IncrementalPathEntry {
 	cacheKey: string;
@@ -65,31 +69,236 @@ export interface IncrementalManifest {
 	routes: Record<string, IncrementalRouteEntry>;
 }
 
+/**
+ * Why a previous incremental cache could not be used for this build. `loaded` is
+ * reported only for a valid, usable manifest; every other reason explains why
+ * the previous build's state was discarded or never read.
+ */
+export type IncrementalCacheLoadReason =
+	| 'loaded'
+	| 'forced'
+	| 'missing'
+	| 'invalid-manifest'
+	| 'unreadable'
+	| 'version-changed'
+	| 'config-changed'
+	| 'lockfile-changed';
+
+export interface IncrementalCacheLoadResult {
+	/**
+	 * The previous build's manifest, when it is valid and usable for reuse
+	 * decisions. `null` whenever any load reason other than `loaded` applies.
+	 */
+	previous: IncrementalManifest | null;
+	/**
+	 * All load outcomes that apply. `loaded` is mutually exclusive with the
+	 * other reasons; a parsed manifest may report several of the `*-changed`
+	 * reasons at once (e.g. config and lockfile both changed).
+	 */
+	reasons: IncrementalCacheLoadReason[];
+	/** Parsed manifest version when it differed from the current cache version. */
+	previousVersion?: unknown;
+	/** Stable Node error code (e.g. `EACCES`) when the manifest could not be read. */
+	errorCode?: string;
+	/**
+	 * Whether a valid previous manifest was written with a different
+	 * server-island encryption key digest than this build's. This is not a
+	 * global invalidation: only island routes are affected.
+	 */
+	islandKeyChanged: boolean;
+}
+
+/**
+ * A per-module fingerprint plus its direct import edges, captured during the
+ * build so a later build can explain which modules changed. Stored in the
+ * diagnostics file, not the manifest, so it can never affect reuse decisions.
+ */
+export interface DiagnosticModule {
+	/** Hash of the module's own normalized representation plus sorted direct import ids. */
+	fingerprint: string;
+	importedIds: string[];
+	dynamicallyImportedIds: string[];
+}
+
+/**
+ * The diagnostic snapshot of one build environment's module graph: per-module
+ * fingerprints and edges, the roots each prerendered route and content entry
+ * are seeded from, and the aggregate route hashes. The aggregate hashes are
+ * duplicated from the manifest so a diagnostics file left by an interrupted
+ * write is detected by a hash mismatch and ignored.
+ */
+export interface DiagnosticGraph {
+	modules: Record<string, DiagnosticModule>;
+	routeRoots: Record<string, string[]>;
+	contentRoots: Record<string, string[]>;
+	routeDependencyHashes: Record<string, string>;
+}
+
+/**
+ * On-disk shape of the diagnostics file. Versioned separately from the cache
+ * manifest and optional: a missing or outdated file only suppresses detailed
+ * dependency explanations, never invalidates cached HTML.
+ */
+export interface IncrementalDiagnosticsFile {
+	version: 1;
+	prerender: DiagnosticGraph;
+	client: DiagnosticGraph;
+}
+
+export function createEmptyDiagnosticGraph(): DiagnosticGraph {
+	return { modules: {}, routeRoots: {}, contentRoots: {}, routeDependencyHashes: {} };
+}
+
+/**
+ * One changed, added, or removed module in a route's dependency graph, with a
+ * deterministic display chain from the route root to the leaf.
+ */
+export interface DependencyChange {
+	status: 'changed' | 'added' | 'removed';
+	/**
+	 * Display nodes from the route root to the changed leaf, sanitized for
+	 * console output (root-relative paths, `virtual:` ids). A client-only or
+	 * hoisted-script change starts with a `client entry: <id>` boundary node; a
+	 * rendered-content change starts with `rendered content: <path>`.
+	 */
+	chain: string[];
+}
+
+/**
+ * Why a single path cannot be reused from the previous build. `checkPath`
+ * reports every applicable reason, in a stable order, so a miss such as
+ * `module dependencies changed; cacheKey changed` names all of its causes.
+ */
+export type IncrementalPathMissReason =
+	| { type: 'no-cache-key' }
+	| { type: 'global-cache'; reasons: IncrementalCacheLoadReason[] }
+	| { type: 'new-route' }
+	| { type: 'new-path' }
+	| { type: 'island-key-changed' }
+	| {
+			type: 'route-dependencies-changed';
+			changes?: DependencyChange[];
+			/** Why no leaf-level explanation is available, when applicable. */
+			diagnosticsUnavailable?: 'missing-diagnostics' | 'unavailable';
+	  }
+	| { type: 'cache-key-changed' }
+	| {
+			type: 'content-dependencies-changed';
+			entries: string[];
+			changes?: Record<string, DependencyChange[]>;
+			diagnosticsUnavailable?: 'missing-diagnostics' | 'unavailable';
+	  }
+	| { type: 'cached-output-missing' };
+
+export type IncrementalPathDecision =
+	| { reusable: true }
+	| { reusable: false; reasons: IncrementalPathMissReason[] };
+
+type RouteExplanation =
+	| { changes: DependencyChange[] }
+	| { unavailable: 'missing-diagnostics' | 'unavailable' };
+
+type EntryExplanation =
+	| { changes: DependencyChange[] }
+	| { unavailable: 'missing-diagnostics' | 'unavailable' }
+	| null;
+
+interface GraphDiff {
+	changed: Set<string>;
+	added: Set<string>;
+	removed: Set<string>;
+}
+
 function getManifestFile(settings: AstroSettings): URL {
 	return new URL(INCREMENTAL_CACHE_FILE, settings.config.cacheDir);
+}
+
+function getDiagnosticsFile(settings: AstroSettings): URL {
+	return new URL(INCREMENTAL_DIAGNOSTICS_FILE, settings.config.cacheDir);
 }
 
 function getCachedOutputFile(settings: AstroSettings, outputFile: string): URL {
 	return new URL(outputFile, new URL(INCREMENTAL_OUTPUT_DIR, settings.config.cacheDir));
 }
 
-function readManifest(
+/**
+ * Read the previous manifest and classify why it cannot be used, if at all.
+ * All applicable version/config/lockfile mismatches of a parsed manifest are
+ * collected before the manifest is discarded, so simultaneous changes produce
+ * multiple reasons. `--force` short-circuits before any disk access.
+ */
+function readLoadResult(
 	settings: AstroSettings,
 	expectedConfigHash: string,
 	expectedLockfileHash: string,
-): IncrementalManifest | null {
+	keyDigest: string,
+): IncrementalCacheLoadResult {
 	try {
 		const raw = fs.readFileSync(getManifestFile(settings), 'utf-8');
-		const data = JSON.parse(raw) as IncrementalManifest;
-		if (data.version !== CACHE_VERSION) {
-			return null;
+		let data: IncrementalManifest;
+		try {
+			data = JSON.parse(raw) as IncrementalManifest;
+		} catch {
+			return { previous: null, reasons: ['invalid-manifest'], islandKeyChanged: false };
 		}
-		// Output-affecting config changed since the cache was written, discard it.
-		if (data.configHash !== expectedConfigHash) {
-			return null;
+		if (
+			typeof data !== 'object' ||
+			data === null ||
+			typeof data.version !== 'number' ||
+			typeof data.configHash !== 'string' ||
+			typeof data.lockfileHash !== 'string' ||
+			typeof data.keyDigest !== 'string' ||
+			typeof data.routes !== 'object' ||
+			data.routes === null
+		) {
+			return { previous: null, reasons: ['invalid-manifest'], islandKeyChanged: false };
 		}
-		// Dependencies changed since the cache was written, discard it.
-		if (data.lockfileHash !== expectedLockfileHash) {
+		const reasons: IncrementalCacheLoadReason[] = [];
+		if (data.version !== INCREMENTAL_CACHE_VERSION) reasons.push('version-changed');
+		if (data.configHash !== expectedConfigHash) reasons.push('config-changed');
+		if (data.lockfileHash !== expectedLockfileHash) reasons.push('lockfile-changed');
+		if (reasons.length > 0) {
+			return {
+				previous: null,
+				reasons,
+				previousVersion: data.version !== INCREMENTAL_CACHE_VERSION ? data.version : undefined,
+				islandKeyChanged: false,
+			};
+		}
+		return { previous: data, reasons: ['loaded'], islandKeyChanged: data.keyDigest !== keyDigest };
+	} catch (err) {
+		const code = (err as NodeJS.ErrnoException)?.code;
+		if (code === 'ENOENT') return { previous: null, reasons: ['missing'], islandKeyChanged: false };
+		return { previous: null, reasons: ['unreadable'], errorCode: code, islandKeyChanged: false };
+	}
+}
+
+function isValidDiagnosticGraph(graph: unknown): graph is DiagnosticGraph {
+	if (typeof graph !== 'object' || graph === null) return false;
+	const candidate = graph as DiagnosticGraph;
+	return (
+		typeof candidate.modules === 'object' &&
+		candidate.modules !== null &&
+		typeof candidate.routeRoots === 'object' &&
+		candidate.routeRoots !== null &&
+		typeof candidate.contentRoots === 'object' &&
+		candidate.contentRoots !== null &&
+		typeof candidate.routeDependencyHashes === 'object' &&
+		candidate.routeDependencyHashes !== null
+	);
+}
+
+function readDiagnostics(settings: AstroSettings): IncrementalDiagnosticsFile | null {
+	try {
+		const raw = fs.readFileSync(getDiagnosticsFile(settings), 'utf-8');
+		const data = JSON.parse(raw) as IncrementalDiagnosticsFile;
+		if (
+			typeof data !== 'object' ||
+			data === null ||
+			data.version !== DIAGNOSTICS_VERSION ||
+			!isValidDiagnosticGraph(data.prerender) ||
+			!isValidDiagnosticGraph(data.client)
+		) {
 			return null;
 		}
 		return data;
@@ -98,29 +307,154 @@ function readManifest(
 	}
 }
 
+function diffGraphs(current: DiagnosticGraph, previous: DiagnosticGraph): GraphDiff {
+	const changed = new Set<string>();
+	const added = new Set<string>();
+	for (const [id, module] of Object.entries(current.modules)) {
+		const previousModule = previous.modules[id];
+		if (!previousModule) added.add(id);
+		else if (previousModule.fingerprint !== module.fingerprint) changed.add(id);
+	}
+	const removed = new Set<string>();
+	for (const id of Object.keys(previous.modules)) {
+		if (!(id in current.modules)) removed.add(id);
+	}
+	return { changed, added, removed };
+}
+
+/**
+ * Turn a raw module id into something printable: root-relative project paths,
+ * `node_modules/...` under the project root, and `virtual:` ids. The project's
+ * absolute root is never printed.
+ */
+function sanitizeModuleId(id: string, root: URL): string {
+	if (id.startsWith('\0')) return 'virtual:' + id.slice(1);
+	if (id.startsWith('/@fs/')) return sanitizeModuleId(id.slice('/@fs'.length), root);
+	return rootRelativePath(root, id, false);
+}
+
+/**
+ * Breadth-first search from a route's root modules to every changed/added leaf
+ * in `leaves`, returning one shortest deterministic chain per leaf. Roots are
+ * visited in sorted order and neighbors in sorted order, so output is stable
+ * across concurrent builds.
+ *
+ * `displayRoot` maps a root module id to its display node (e.g. a
+ * `client entry:` or `rendered content:` boundary), or `null` to drop the root
+ * from the chain (the prerender route root is the route itself and is printed
+ * by the caller).
+ */
+function findLeafChains(
+	roots: string[],
+	graph: DiagnosticGraph,
+	leaves: ReadonlySet<string>,
+	status: 'changed' | 'added' | 'removed',
+	displayRoot: (id: string) => string | null,
+	root: URL,
+): DependencyChange[] {
+	if (roots.length === 0 || leaves.size === 0) return [];
+	const parents = new Map<string, string | null>();
+	const queue: string[] = [];
+	const seen = new Set<string>();
+	for (const rootId of [...roots].sort()) {
+		parents.set(rootId, null);
+		seen.add(rootId);
+		queue.push(rootId);
+	}
+	const chains: DependencyChange[] = [];
+	let head = 0;
+	while (head < queue.length) {
+		const id = queue[head++];
+		if (leaves.has(id)) {
+			const chain: string[] = [];
+			let current: string | undefined = id;
+			while (current !== undefined) {
+				chain.push(current);
+				const parent = parents.get(current);
+				if (parent === undefined || parent === null) break;
+				current = parent;
+			}
+			chain.reverse();
+			let displayed = chain.map((nodeId) => sanitizeModuleId(nodeId, root));
+			const rootDisplay = displayRoot(chain[0]);
+			if (rootDisplay === null) {
+				displayed = displayed.slice(1);
+			} else {
+				displayed[0] = rootDisplay;
+			}
+			chains.push({ status, chain: displayed });
+			if (chains.length >= MAX_EXPLAINED_LEAVES) break;
+		}
+		const module = graph.modules[id];
+		if (!module) continue;
+		const neighbors = [...module.importedIds, ...module.dynamicallyImportedIds].sort();
+		for (const neighbor of neighbors) {
+			if (!seen.has(neighbor) && graph.modules[neighbor] !== undefined) {
+				seen.add(neighbor);
+				parents.set(neighbor, id);
+				queue.push(neighbor);
+			}
+		}
+	}
+	return chains;
+}
+
+// Cap explanations per route so a wholesale dependency change cannot flood the
+// console; the aggregate reason still names every dropped leaf.
+const MAX_EXPLAINED_LEAVES = 200;
+
+// Placeholder root used only when a cache is constructed without settings
+// (tests); production caches always pass the project root. `file:///` would be
+// an invalid file URL on Windows, so derive from the working directory instead.
+const ROOT_FALLBACK = pathToFileURL(process.cwd());
+
 /**
  * Tracks which prerendered paths can be reused from a previous build.
  *
- * The invalidation logic (`canSkip`, `record`, `findOrphanedFiles`) is pure and
- * operates on the previous and next manifests held in memory. Disk access is
- * confined to `load` and the output-file methods.
+ * Invalidation is pure over the previous and next manifests held in memory;
+ * disk access is confined to `load` (plus the lazily read diagnostics file)
+ * and the output-file methods.
  */
 export class IncrementalBuildCache {
+	/** Tagged load outcome, used for global invalidation messages. */
+	readonly loadResult: IncrementalCacheLoadResult;
 	readonly #previous: IncrementalManifest | null;
 	readonly #next: IncrementalManifest;
 	readonly #contentEntryHashes: Map<string, string>;
 	readonly #createdDirs = new Set<string>();
+	readonly #settings: AstroSettings | undefined;
+	readonly #currentDiagnostics: IncrementalDiagnosticsFile | null;
+	/** Previous build's diagnostics file, read lazily; `undefined` until first read. */
+	#previousDiagnostics: IncrementalDiagnosticsFile | null | undefined;
+	#graphDiff: { prerender: GraphDiff; client: GraphDiff } | null = null;
+	#routeChanges = new Map<string, RouteExplanation | null>();
+	#contentChanges = new Map<string, EntryExplanation>();
 
 	constructor(
 		configHash: string,
 		lockfileHash: string,
 		keyDigest: string,
 		contentEntryHashes = new Map<string, string>(),
-		previous: IncrementalManifest | null = null,
+		loadResult: IncrementalCacheLoadResult = {
+			previous: null,
+			reasons: ['missing'],
+			islandKeyChanged: false,
+		},
+		currentDiagnostics: IncrementalDiagnosticsFile | null = null,
+		settings: AstroSettings | undefined = undefined,
 	) {
-		this.#previous = previous;
+		this.loadResult = loadResult;
+		this.#previous = loadResult.previous;
 		this.#contentEntryHashes = contentEntryHashes;
-		this.#next = { version: CACHE_VERSION, configHash, lockfileHash, keyDigest, routes: {} };
+		this.#currentDiagnostics = currentDiagnostics;
+		this.#settings = settings;
+		this.#next = {
+			version: INCREMENTAL_CACHE_VERSION,
+			configHash,
+			lockfileHash,
+			keyDigest,
+			routes: {},
+		};
 	}
 
 	/**
@@ -131,6 +465,9 @@ export class IncrementalBuildCache {
 	 * `contentEntryHashes` is this build's map of content-entry render hashes,
 	 * used to detect when the content a path renders has changed.
 	 *
+	 * `diagnostics` is this build's per-module fingerprint snapshot; the next
+	 * build reads it to explain dependency changes.
+	 *
 	 * `force` ignores any existing manifest so every path is rebuilt, while still
 	 * recording a fresh cache for the next build.
 	 */
@@ -140,22 +477,33 @@ export class IncrementalBuildCache {
 		lockfileHash: string,
 		keyDigest: string,
 		contentEntryHashes = new Map<string, string>(),
+		diagnostics: IncrementalDiagnosticsFile | null = null,
 		force = false,
 	): IncrementalBuildCache {
+		const loadResult = force
+			? {
+					previous: null,
+					reasons: ['forced'] as IncrementalCacheLoadReason[],
+					islandKeyChanged: false,
+				}
+			: readLoadResult(settings, configHash, lockfileHash, keyDigest);
 		return new IncrementalBuildCache(
 			configHash,
 			lockfileHash,
 			keyDigest,
 			contentEntryHashes,
-			force ? null : readManifest(settings, configHash, lockfileHash),
+			loadResult,
+			diagnostics,
+			settings,
 		);
 	}
 
 	/**
-	 * Determine if a path can be reused from the previous build. A path is
-	 * skippable when:
+	 * Determine if a path can be reused from the previous build, and why not if
+	 * it cannot. A path is reusable only when every independently testable input
+	 * matches the previous build:
 	 * 1. It returned a cacheKey in this build.
-	 * 2. The previous cache has an entry for the route.
+	 * 2. The previous cache is valid and has an entry for the route.
 	 * 3. The route's dependency hash matches the previous build (template code is identical).
 	 * 4. The previous cache has an entry for this exact path.
 	 * 5. The path's cacheKey matches the previous build (user data is identical).
@@ -163,33 +511,92 @@ export class IncrementalBuildCache {
 	 *    render hash (imported components inside that content are unchanged).
 	 * 7. If the path renders a server island, the encryption key is unchanged, so
 	 *    the ciphertext baked into the restored HTML is still decryptable.
+	 *
+	 * All applicable miss reasons are returned in a stable order: global cache
+	 * state, island key, module dependencies, path existence, cacheKey, content
+	 * dependencies. `cached output missing` is deliberately not produced here —
+	 * only the caller knows whether current output exists or was restored.
 	 */
-	canSkip(
+	checkPath(
 		routeComponent: string,
 		pathname: string,
 		dependencyHash: string,
-		cacheKey: string,
+		cacheKey: string | undefined,
 		hasServerIsland = false,
-	): boolean {
-		const routeEntry = this.#previous?.routes[routeComponent];
-		if (!routeEntry) return false;
-
-		if (hasServerIsland && this.#previous?.keyDigest !== this.#next.keyDigest) return false;
-
-		if (routeEntry.dependencyHash !== dependencyHash) return false;
-
-		const pathEntry = routeEntry.paths[pathname];
-		if (!pathEntry) return false;
-
-		if (pathEntry.cacheKey !== cacheKey) return false;
-
-		if (pathEntry.contentHashes) {
-			for (const [entryPath, previousHash] of Object.entries(pathEntry.contentHashes)) {
-				if (this.#contentEntryHashes.get(entryPath) !== previousHash) return false;
-			}
+	): IncrementalPathDecision {
+		if (cacheKey === undefined) {
+			return { reusable: false, reasons: [{ type: 'no-cache-key' }] };
+		}
+		const loadReasons = this.loadResult.reasons.filter((reason) => reason !== 'loaded');
+		if (loadReasons.length > 0) {
+			return { reusable: false, reasons: [{ type: 'global-cache', reasons: loadReasons }] };
 		}
 
-		return true;
+		const routeEntry = this.#previous?.routes[routeComponent];
+		if (!routeEntry) {
+			return { reusable: false, reasons: [{ type: 'new-route' }] };
+		}
+
+		const reasons: IncrementalPathMissReason[] = [];
+		if (hasServerIsland && this.#previous?.keyDigest !== this.#next.keyDigest) {
+			reasons.push({ type: 'island-key-changed' });
+		}
+		if (routeEntry.dependencyHash !== dependencyHash) {
+			const explanation = this.explainRoute(routeComponent);
+			const reason: Extract<IncrementalPathMissReason, { type: 'route-dependencies-changed' }> = {
+				type: 'route-dependencies-changed',
+			};
+			if (explanation && 'changes' in explanation) {
+				if (explanation.changes.length > 0) reason.changes = explanation.changes;
+				else reason.diagnosticsUnavailable = 'unavailable';
+			} else {
+				reason.diagnosticsUnavailable =
+					explanation && 'unavailable' in explanation ? explanation.unavailable : 'unavailable';
+			}
+			reasons.push(reason);
+		}
+
+		const pathEntry = routeEntry.paths[pathname];
+		if (!pathEntry) {
+			reasons.push({ type: 'new-path' });
+		} else {
+			if (pathEntry.cacheKey !== cacheKey) {
+				reasons.push({ type: 'cache-key-changed' });
+			}
+			if (pathEntry.contentHashes) {
+				const changedEntries: string[] = [];
+				for (const [entryPath, previousHash] of Object.entries(pathEntry.contentHashes)) {
+					if (this.#contentEntryHashes.get(entryPath) !== previousHash)
+						changedEntries.push(entryPath);
+				}
+				if (changedEntries.length > 0) {
+					const reason: Extract<
+						IncrementalPathMissReason,
+						{ type: 'content-dependencies-changed' }
+					> = { type: 'content-dependencies-changed', entries: changedEntries };
+					const changes: Record<string, DependencyChange[]> = {};
+					let unavailable: 'missing-diagnostics' | 'unavailable' | null = null;
+					for (const entryPath of changedEntries) {
+						const entryExplanation = this.explainContent(entryPath);
+						if (
+							entryExplanation &&
+							'changes' in entryExplanation &&
+							entryExplanation.changes.length > 0
+						) {
+							changes[entryPath] = entryExplanation.changes;
+						} else if (entryExplanation && 'unavailable' in entryExplanation) {
+							unavailable ??= entryExplanation.unavailable;
+						} else {
+							unavailable ??= 'unavailable';
+						}
+					}
+					if (Object.keys(changes).length > 0) reason.changes = changes;
+					if (unavailable) reason.diagnosticsUnavailable = unavailable;
+					reasons.push(reason);
+				}
+			}
+		}
+		return reasons.length > 0 ? { reusable: false, reasons } : { reusable: true };
 	}
 
 	/**
@@ -278,6 +685,17 @@ export class IncrementalBuildCache {
 		fs.writeFileSync(manifestFile, JSON.stringify(this.#next, null, '\t'));
 	}
 
+	/**
+	 * Write this build's diagnostics file next to the manifest. A failure must
+	 * not fail the build or affect cache reuse; the caller reports it as a warning.
+	 */
+	writeDiagnostics(settings: AstroSettings): void {
+		if (!this.#currentDiagnostics) return;
+		const diagnosticsFile = getDiagnosticsFile(settings);
+		fs.mkdirSync(new URL('./', diagnosticsFile), { recursive: true });
+		fs.writeFileSync(diagnosticsFile, JSON.stringify(this.#currentDiagnostics));
+	}
+
 	async restoreOutputFile(
 		settings: AstroSettings,
 		outputFile: string,
@@ -303,6 +721,178 @@ export class IncrementalBuildCache {
 
 	async deleteOutputFile(settings: AstroSettings, outputFile: string): Promise<void> {
 		await fs.promises.rm(getCachedOutputFile(settings, outputFile), { force: true });
+	}
+
+	/**
+	 * Explain a route's dependency change with leaf-level chains, memoized per
+	 * route. `null` means the previous manifest had no such route or no previous
+	 * manifest exists.
+	 */
+	explainRoute(routeComponent: string): RouteExplanation | null {
+		if (this.#routeChanges.has(routeComponent)) return this.#routeChanges.get(routeComponent)!;
+		const explanation = this.#explainRoute(routeComponent);
+		this.#routeChanges.set(routeComponent, explanation);
+		return explanation;
+	}
+
+	#explainRoute(routeComponent: string): RouteExplanation | null {
+		const current = this.#currentDiagnostics;
+		const previous = this.#loadPreviousDiagnostics();
+		if (!current || !previous) return { unavailable: 'missing-diagnostics' };
+		const previousRoute = this.#previous?.routes[routeComponent];
+		if (!previousRoute) return null;
+		// An interrupted write can leave a diagnostics file that does not match
+		// this manifest; only the aggregate reason is reported then.
+		if (previous.prerender.routeDependencyHashes[routeComponent] !== previousRoute.dependencyHash) {
+			return { unavailable: 'unavailable' };
+		}
+
+		const diffs = this.#loadGraphDiffs(previous);
+		const root = this.#settings?.config.root ?? ROOT_FALLBACK;
+		const changes: DependencyChange[] = [];
+
+		const prerenderRoots = current.prerender.routeRoots[routeComponent] ?? [];
+		changes.push(
+			...findLeafChains(
+				prerenderRoots,
+				current.prerender,
+				diffs.prerender.changed,
+				'changed',
+				() => null,
+				root,
+			),
+			...findLeafChains(
+				prerenderRoots,
+				current.prerender,
+				diffs.prerender.added,
+				'added',
+				() => null,
+				root,
+			),
+		);
+		const previousPrerenderRoots = previous.prerender.routeRoots[routeComponent] ?? [];
+		changes.push(
+			...findLeafChains(
+				previousPrerenderRoots,
+				previous.prerender,
+				diffs.prerender.removed,
+				'removed',
+				() => null,
+				root,
+			),
+		);
+
+		const clientRoots = current.client.routeRoots[routeComponent] ?? [];
+		const previousClientRoots = previous.client.routeRoots[routeComponent] ?? [];
+		if (diffs.client.changed.size > 0) {
+			changes.push(
+				...findLeafChains(
+					clientRoots,
+					current.client,
+					diffs.client.changed,
+					'changed',
+					(id) => `client entry: ${sanitizeModuleId(id, root)}`,
+					root,
+				),
+			);
+		}
+		if (diffs.client.added.size > 0) {
+			changes.push(
+				...findLeafChains(
+					clientRoots,
+					current.client,
+					diffs.client.added,
+					'added',
+					(id) => `client entry: ${sanitizeModuleId(id, root)}`,
+					root,
+				),
+			);
+		}
+		const removedClientLeaves = diffs.client.removed;
+		if (removedClientLeaves.size > 0) {
+			changes.push(
+				...findLeafChains(
+					previousClientRoots,
+					previous.client,
+					removedClientLeaves,
+					'removed',
+					(id) => `client entry: ${sanitizeModuleId(id, root)}`,
+					root,
+				),
+			);
+		}
+
+		if (changes.length === 0) return { unavailable: 'unavailable' };
+		return { changes };
+	}
+
+	/** Explain a changed content entry's render-graph change, memoized per entry. */
+	explainContent(entryPath: string): EntryExplanation {
+		if (this.#contentChanges.has(entryPath)) return this.#contentChanges.get(entryPath)!;
+		const explanation = this.#explainContent(entryPath);
+		this.#contentChanges.set(entryPath, explanation);
+		return explanation;
+	}
+
+	#explainContent(entryPath: string): EntryExplanation {
+		const current = this.#currentDiagnostics;
+		const previous = this.#loadPreviousDiagnostics();
+		if (!current || !previous) return { unavailable: 'missing-diagnostics' };
+		const diffs = this.#loadGraphDiffs(previous);
+		const root = this.#settings?.config.root ?? ROOT_FALLBACK;
+		const currentRoots = current.prerender.contentRoots[entryPath] ?? [];
+		const previousRoots = previous.prerender.contentRoots[entryPath] ?? [];
+		const changes: DependencyChange[] = [];
+		changes.push(
+			...findLeafChains(
+				currentRoots,
+				current.prerender,
+				diffs.prerender.changed,
+				'changed',
+				() => `rendered content: ${entryPath}`,
+				root,
+			),
+			...findLeafChains(
+				currentRoots,
+				current.prerender,
+				diffs.prerender.added,
+				'added',
+				() => `rendered content: ${entryPath}`,
+				root,
+			),
+		);
+		changes.push(
+			...findLeafChains(
+				previousRoots,
+				previous.prerender,
+				diffs.prerender.removed,
+				'removed',
+				() => `rendered content: ${entryPath}`,
+				root,
+			),
+		);
+		return changes.length > 0 ? { changes } : { unavailable: 'unavailable' };
+	}
+
+	#loadPreviousDiagnostics(): IncrementalDiagnosticsFile | null {
+		if (this.#previousDiagnostics !== undefined) return this.#previousDiagnostics;
+		if (!this.#settings) return null;
+		this.#previousDiagnostics = readDiagnostics(this.#settings);
+		return this.#previousDiagnostics;
+	}
+
+	#loadGraphDiffs(previous: IncrementalDiagnosticsFile): {
+		prerender: GraphDiff;
+		client: GraphDiff;
+	} {
+		if (!this.#graphDiff) {
+			const current = this.#currentDiagnostics!;
+			this.#graphDiff = {
+				prerender: diffGraphs(current.prerender, previous.prerender),
+				client: diffGraphs(current.client, previous.client),
+			};
+		}
+		return this.#graphDiff;
 	}
 
 	async #ensureDir(dir: URL): Promise<void> {

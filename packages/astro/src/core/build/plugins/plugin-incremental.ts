@@ -8,6 +8,11 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 import { removeQueryString } from '../../path.js';
 import { CSS_LANGS_RE, rootRelativePath } from '../../viteUtils.js';
 import { moduleIsTopLevelPage } from '../graph.js';
+import {
+	createEmptyDiagnosticGraph,
+	type DiagnosticGraph,
+	type DiagnosticModule,
+} from '../incremental.js';
 import { isContentDataIncrementalModule } from '../incremental-metadata.js';
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID } from '../internal.js';
@@ -32,6 +37,7 @@ interface HashableModuleGraph extends ModuleGraph {
 interface TransitiveGraphCache {
 	hashes: Map<string, string>;
 	serverIslandModules: Set<string>;
+	diagnostics: DiagnosticGraph;
 }
 
 /** Each placeholder pattern paired with the token that has to be present for it to match. */
@@ -79,37 +85,71 @@ function resolveAssetPlaceholders(graph: ModuleGraph, code: string): string {
 }
 
 /**
+ * The normalized representation of one module that the aggregate and per-module
+ * hashers share: transformed code with emitted-asset handles resolved to their
+ * stable file names, or the source file for extracted CSS. Empty for modules
+ * with neither code nor a readable CSS source.
+ */
+function getModuleRepresentation(graph: ModuleGraph, id: string): string {
+	const code = graph.getModuleInfo(id)?.code;
+	if (code != null && code.length > 0) {
+		return resolveAssetPlaceholders(graph, code);
+	}
+	if (CSS_LANGS_RE.test(id)) {
+		// Vite extracts CSS into separate assets, so the module's `code` in the
+		// prerender bundle is empty. Read the source file so that stylesheet
+		// changes are reflected in the dependency hash (#17704).
+		try {
+			return nodeFs.readFileSync(removeQueryString(id), 'utf-8');
+		} catch {
+			// Virtual CSS or unreadable file — skip. The worst case is a
+			// cache miss (re-render), never a stale hit.
+		}
+	}
+	return '';
+}
+
+/**
  * Hash a sorted set of module ids together with each module's compiled output.
  * Hashing the transformed `code` from the bundle (rather than the source file on
  * disk) reflects what actually ships and covers virtual modules, which have no
  * file on disk but still carry generated code. Emitted-asset placeholders in
  * that code are resolved to their file names first, since the handles
  * themselves are not stable between builds.
- *
- * CSS modules are a special case: Vite extracts their content during the
- * prerender build, leaving `code` as an empty string. For those modules, the
- * source file is read from disk so that CSS edits invalidate the hash.
  */
 function hashModules(graph: ModuleGraph, sortedIds: string[]): string {
 	const hasher = crypto.createHash('sha256');
 	for (const id of sortedIds) {
 		hasher.update(id);
 		hasher.update('\n');
-		const code = graph.getModuleInfo(id)?.code;
-		if (code != null && code.length > 0) {
-			hasher.update(resolveAssetPlaceholders(graph, code));
-		} else if (CSS_LANGS_RE.test(id)) {
-			// Vite extracts CSS into separate assets, so the module's `code` in the
-			// prerender bundle is empty. Read the source file so that stylesheet
-			// changes are reflected in the dependency hash (#17704).
-			try {
-				hasher.update(nodeFs.readFileSync(removeQueryString(id), 'utf-8'));
-			} catch {
-				// Virtual CSS or unreadable file — skip. The worst case is a
-				// cache miss (re-render), never a stale hit.
-			}
+		const representation = getModuleRepresentation(graph, id);
+		if (representation.length > 0) {
+			hasher.update(representation);
 		}
 		hasher.update('\n');
+	}
+	return hasher.digest('hex');
+}
+
+/**
+ * Fingerprint one module for the diagnostics: its normalized own representation
+ * plus its sorted direct static and dynamic import ids. Detects
+ * transformed-code, import, and resolution changes without storing source code.
+ */
+function fingerprintModule(graph: ModuleGraph, id: string): string {
+	const hasher = crypto.createHash('sha256');
+	const representation = getModuleRepresentation(graph, id);
+	if (representation.length > 0) {
+		hasher.update(representation);
+	}
+	const info = graph.getModuleInfo(id);
+	const importedIds = [
+		...(info?.importedIds ?? []),
+		...(info?.dynamicallyImportedIds ?? []),
+	].sort();
+	for (const importedId of importedIds) {
+		hasher.update('\n');
+		hasher.update(importedId);
 	}
 	return hasher.digest('hex');
 }
@@ -238,6 +278,18 @@ function createTransitiveGraphCache(graph: HashableModuleGraph): TransitiveGraph
 		}
 	}
 
+	// Diagnostics cover the same modules and edges as the hash graph, so a hash
+	// change is always explainable.
+	const diagnosticModules: Record<string, DiagnosticModule> = {};
+	for (const id of modules.keys()) {
+		const info = modules.get(id);
+		diagnosticModules[id] = {
+			fingerprint: fingerprintModule(graph, id),
+			importedIds: [...(info?.importedIds ?? [])].sort(),
+			dynamicallyImportedIds: [...(info?.dynamicallyImportedIds ?? [])].sort(),
+		};
+	}
+
 	return {
 		hashes: new Map(
 			[...componentByModule].map(([id, componentIndex]) => [
@@ -250,18 +302,26 @@ function createTransitiveGraphCache(graph: HashableModuleGraph): TransitiveGraph
 				.filter(([, componentIndex]) => componentHasServerIsland.get(componentIndex))
 				.map(([id]) => id),
 		),
+		diagnostics: {
+			modules: diagnosticModules,
+			routeRoots: {},
+			contentRoots: {},
+			routeDependencyHashes: {},
+		},
 	};
 }
 
 /**
  * Hash the transitive graph of each client entrypoint and accumulate the result
- * against every page that uses it, keyed by page component.
+ * against every page that uses it, keyed by page component. The entrypoint ids
+ * are also recorded as the route's client-graph roots for diagnostics.
  */
 function collectClientEntrypointHashes(
 	transitiveHashes: Map<string, string>,
 	entrypointIds: Iterable<string>,
 	pagesByEntrypoint: Map<string, Set<PageBuildData>>,
 	hashesByComponent: Map<string, string[]>,
+	rootsByComponent: Map<string, string[]>,
 ): void {
 	for (const entrypointId of entrypointIds) {
 		const pages = pagesByEntrypoint.get(entrypointId);
@@ -276,6 +336,12 @@ function collectClientEntrypointHashes(
 				hashesByComponent.set(pageData.component, list);
 			}
 			list.push(hash);
+			let roots = rootsByComponent.get(pageData.component);
+			if (!roots) {
+				roots = [];
+				rootsByComponent.set(pageData.component, roots);
+			}
+			roots.push(entrypointId);
 		}
 	}
 }
@@ -283,29 +349,32 @@ function collectClientEntrypointHashes(
 /**
  * `client:only` components and hoisted `<script>` tags are not part of the
  * prerender module graph, so the per-route hash cannot see their transitive
- * dependencies. Each is a client-build entrypoint whose bundle, and everything it
- * imports, is emitted with a content-hashed URL (or inlined) into the page markup,
- * so a change anywhere in that graph must re-render the page. During the client
- * build we hash each entrypoint's transitive graph and fold it into the dependency
- * hash of every route that uses it.
+ * dependencies. Each is a client-build entrypoint whose bundle (a content-hashed
+ * URL, or inline) is baked into the page markup, so a change anywhere in that
+ * graph must re-render the page. Fold each entrypoint's transitive hash into
+ * the dependency hash of every route that uses it, and record the entrypoint
+ * ids as the route's client-graph roots in the diagnostics.
  */
 function foldClientDependencies(graph: HashableModuleGraph, internals: BuildInternals): void {
 	const baseHashes = internals.pageDependencyHashes;
 	if (!baseHashes) return;
 
-	const { hashes: transitiveHashes } = createTransitiveGraphCache(graph);
+	const { hashes: transitiveHashes, diagnostics } = createTransitiveGraphCache(graph);
 	const hashesByComponent = new Map<string, string[]>();
+	const rootsByComponent = new Map<string, string[]>();
 	collectClientEntrypointHashes(
 		transitiveHashes,
 		internals.discoveredClientOnlyComponents.keys(),
 		internals.pagesByClientOnly,
 		hashesByComponent,
+		rootsByComponent,
 	);
 	collectClientEntrypointHashes(
 		transitiveHashes,
 		internals.discoveredScripts,
 		internals.pagesByScriptId,
 		hashesByComponent,
+		rootsByComponent,
 	);
 
 	for (const [component, clientHashes] of hashesByComponent) {
@@ -315,7 +384,20 @@ function foldClientDependencies(graph: HashableModuleGraph, internals: BuildInte
 			hasher.update('\n');
 			hasher.update(hash);
 		}
-		baseHashes.set(component, hasher.digest('hex'));
+		const finalHash = hasher.digest('hex');
+		baseHashes.set(component, finalHash);
+		// Store the same aggregate hash the manifest will, so a later build can
+		// trust these diagnostics for the route.
+		if (internals.incrementalDiagnosticsPrerender) {
+			internals.incrementalDiagnosticsPrerender.routeDependencyHashes[component] = finalHash;
+		}
+	}
+
+	if (rootsByComponent.size > 0) {
+		const clientGraph = createEmptyDiagnosticGraph();
+		clientGraph.modules = diagnostics.modules;
+		clientGraph.routeRoots = Object.fromEntries(rootsByComponent);
+		internals.incrementalDiagnosticsClient = clientGraph;
 	}
 }
 
@@ -324,14 +406,18 @@ function foldClientDependencies(graph: HashableModuleGraph, internals: BuildInte
  * root-relative `filePath` (matching what the content runtime reports at render
  * time). A content entry's render module (compiled MD/MDX) and the components it
  * imports are reachable only through the `content-data`-pruned bridges, so the
- * per-route hash never sees them. Seeding the traversal at each render module
- * captures them per entry, giving precise invalidation without pulling one
- * entry's graph into another route's hash.
+ * per-route hash never sees them. Hashing each render module's graph per entry
+ * keeps invalidation precise without pulling one entry's graph into another
+ * route's hash.
+ *
+ * `contentRoots` records each entry's render module id for the diagnostics,
+ * so a later build can explain content-render-graph changes.
  */
 function collectContentEntryHashes(
 	graph: HashableModuleGraph,
 	root: URL,
 	transitiveHashes: Map<string, string>,
+	contentRoots: Record<string, string[]>,
 ): Map<string, string> {
 	const entryHashes = new Map<string, string>();
 	for (const id of graph.getModuleIds()) {
@@ -340,7 +426,10 @@ function collectContentEntryHashes(
 		const renderModuleId = removeQueryString(id);
 		const key = rootRelativePath(root, renderModuleId, false);
 		const hash = transitiveHashes.get(renderModuleId);
-		if (hash) entryHashes.set(key, hash);
+		if (hash) {
+			entryHashes.set(key, hash);
+			contentRoots[key] = [renderModuleId];
+		}
 	}
 	return entryHashes;
 }
@@ -374,6 +463,7 @@ export function pluginIncremental(internals: BuildInternals, root: URL): VitePlu
 			const transitiveGraph = createTransitiveGraphCache(this);
 			const hashes = new Map<string, string>();
 			const serverIslandComponents = new Set<string>();
+			const rootsByComponent = new Map<string, string[]>();
 			for (const id of this.getModuleIds()) {
 				const info = this.getModuleInfo(id);
 				if (!info) continue;
@@ -390,15 +480,31 @@ export function pluginIncremental(internals: BuildInternals, root: URL): VitePlu
 				if (transitiveGraph.serverIslandModules.has(info.id)) {
 					serverIslandComponents.add(pageData.component);
 				}
+				let roots = rootsByComponent.get(pageData.component);
+				if (!roots) {
+					roots = [];
+					rootsByComponent.set(pageData.component, roots);
+				}
+				roots.push(info.id);
 			}
 
 			internals.pageDependencyHashes = hashes;
+			const contentRoots: Record<string, string[]> = {};
 			internals.contentEntryRenderHashes = collectContentEntryHashes(
 				this,
 				root,
 				transitiveGraph.hashes,
+				contentRoots,
 			);
 			internals.serverIslandPageComponents = serverIslandComponents;
+
+			// Snapshot the prerender graph for the diagnostics.
+			const diagnostics = createEmptyDiagnosticGraph();
+			diagnostics.modules = transitiveGraph.diagnostics.modules;
+			diagnostics.routeRoots = Object.fromEntries(rootsByComponent);
+			diagnostics.contentRoots = contentRoots;
+			diagnostics.routeDependencyHashes = Object.fromEntries(hashes);
+			internals.incrementalDiagnosticsPrerender = diagnostics;
 		},
 	};
 }
