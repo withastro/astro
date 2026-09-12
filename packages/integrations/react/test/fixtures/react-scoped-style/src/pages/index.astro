@@ -1,0 +1,20 @@
+---
+import { Paragraph } from '../components/Paragraph';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Scoped Style Test</title>
+	</head>
+	<body>
+		<Paragraph id="with-classname" className="scoped">With className</Paragraph>
+		<Paragraph id="without-classname">Without className</Paragraph>
+	</body>
+</html>
+
+<style>
+	.scoped {
+		color: blue;
+	}
+</style>
