@@ -108,6 +108,7 @@ allowBuilds:
   '@parcel/watcher': false
   '@vscode/vsce-sign': false
   esbuild: false
+  exifreader: false
   keytar: false
   node-liblzma: false
   protobufjs: false

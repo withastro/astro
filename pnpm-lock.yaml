@@ -926,6 +926,9 @@ importers:
       eol:
         specifier: ^0.10.0
         version: 0.10.0
+      exifreader:
+        specifier: ^4.41.1
+        version: 4.44.1
       expect-type:
         specifier: ^1.3.0
         version: 1.3.0
@@ -11328,6 +11331,10 @@ packages:
     resolution: {integrity: sha512-kMwLlxUbduttIgaPdSkmEarFpP+mSY8FEm+QWMBRJwxOHWkri+cxd8KZHO9EMrB9vgUuz+5WEaCawaL5wGVoXg==}
     engines: {node: '>=18.0.0'}
 
+  '@xmldom/xmldom@0.9.12':
+    resolution: {integrity: sha512-5AXjrcMClTryPe9LgZrygpB1lj7s0S9E0+W+AHaVKAVyHanafK86iPSvG5xHVSp/jC+VH1UXu0TAEmY279xH7A==}
+    engines: {node: '>=14.6'}
+
   '@xmldom/xmldom@0.9.8':
     resolution: {integrity: sha512-p96FSY54r+WJ50FIOsCOjyj/wavs8921hG5+kVMmZgKcvIKxMXHTrjNJvRgWa/zuX3B6t2lijLNFaOyuxUH+2A==}
     engines: {node: '>=14.6'}
@@ -12637,6 +12644,10 @@ packages:
   execa@8.0.1:
     resolution: {integrity: sha512-VyhnebXciFV2DESc+p6B+y0LjSm0krU4OgJN44qFAhBY0TJ+1V61tYD2+wHusZ6F9n5K+vl8k0sTy7PEfV4qpg==}
     engines: {node: '>=16.17'}
+
+  exifreader@4.44.1:
+    resolution: {integrity: sha512-eNfF3Ph8ZKorMKYi+u5ZBKHrsPmwJV+8AkjlWUj83j3U+vcdQ9aptpFDNZhDmLBVfTvHbWYZklEgIAfQYzXzdA==}
+    hasBin: true
 
   expand-template@2.0.3:
     resolution: {integrity: sha512-XYfuKMvj4O35f/pOXLObndIRvyQ+/+6AhODh+OKWj9S9498pHHn/IMszH+gt0fBCRWMNfk1ZSp5x3AifmnI2vg==}
@@ -21217,6 +21228,9 @@ snapshots:
       '@whatwg-node/promise-helpers': 1.3.2
       tslib: 2.8.1
 
+  '@xmldom/xmldom@0.9.12':
+    optional: true
+
   '@xmldom/xmldom@0.9.8': {}
 
   abbrev@3.0.1: {}
@@ -22599,6 +22613,10 @@ snapshots:
       onetime: 6.0.0
       signal-exit: 4.1.0
       strip-final-newline: 3.0.0
+
+  exifreader@4.44.1:
+    optionalDependencies:
+      '@xmldom/xmldom': 0.9.12
 
   expand-template@2.0.3:
     optional: true
