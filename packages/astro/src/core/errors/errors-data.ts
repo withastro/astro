@@ -1040,6 +1040,8 @@ export const AstroGlobNoMatch = {
 export const RedirectWithNoLocation = {
 	name: 'RedirectWithNoLocation',
 	title: 'A redirect must be given a location with the `Location` header.',
+	message:
+		'The redirect `Response` has no `Location` header. Use `Astro.redirect()` to create redirects, or add a `Location` header to the `Response`.',
 } satisfies ErrorData;
 
 /**
@@ -1398,6 +1400,7 @@ export const RewriteWithBodyUsed = {
 	title: 'Cannot use `Astro.rewrite()` after the request body has been read.',
 	message:
 		'`Astro.rewrite()` cannot be used if the request body has already been read. If you need to read the body, first clone the request.',
+	hint: 'Read the body from `Astro.request.clone()` instead of `Astro.request`, so the original request can still be rewritten.',
 } satisfies ErrorData;
 
 /**
