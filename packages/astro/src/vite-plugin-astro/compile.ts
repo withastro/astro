@@ -1,3 +1,4 @@
+import { timeAsync } from '@astrojs/internal-helpers/timings';
 import type { Rolldown } from 'vite';
 import { type CompileProps, type CompileResult, compile } from '../core/compile/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
@@ -16,7 +17,9 @@ export async function compileAstro({
 	compileProps,
 	astroFileToCompileMetadata,
 }: CompileAstroOption): Promise<CompileAstroResult> {
-	const transformResult = await compile(compileProps);
+	const transformResult = await timeAsync('astro-compile', compileProps.filename, () =>
+		compile(compileProps),
+	);
 
 	const { fileId: file, fileUrl: url } = getFileInfo(
 		compileProps.filename,

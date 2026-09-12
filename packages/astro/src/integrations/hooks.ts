@@ -10,6 +10,7 @@ import { CONTENT_LAYER_TYPE } from '../content/consts.js';
 import { globalContentLayer } from '../content/instance.js';
 import { globalContentConfigObserver } from '../content/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
+import { getBuildTimings } from '../core/build/timings/index.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/merge.js';
@@ -86,13 +87,20 @@ async function runHookInternal<THook extends keyof BaseIntegrationHooks>({
 	const hook = integration?.hooks?.[hookName];
 	const integrationLogger = getLogger(integration, logger);
 	if (hook) {
-		await withTakingALongTimeMsg({
-			name: integration.name,
-			hookName,
-			hookFn: () => hook(Object.assign(params(), { logger: integrationLogger }) as any),
-			logger,
-			integrationLogger,
-		});
+		const start = performance.now();
+		try {
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookName,
+				hookFn: () => hook(Object.assign(params(), { logger: integrationLogger }) as any),
+				logger,
+				integrationLogger,
+			});
+		} finally {
+			getBuildTimings()?.record('integration', integration.name, performance.now() - start, {
+				hook: hookName,
+			});
+		}
 	}
 	return { integrationLogger };
 }

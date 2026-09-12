@@ -31,6 +31,7 @@ import {
 	SERVER_ISLAND_MAP_MARKER,
 	hasServerIslands,
 } from '../server-islands/vite-plugin-server-islands.js';
+import { buildPhase, getBuildTimings, instrumentViteConfig } from './timings/index.js';
 import { createViteBuildConfig } from './vite-build-config.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
@@ -191,11 +192,8 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			order: 'post',
 			async handler() {
 				// Inject manifest and content placeholders into extracted chunks
-				await runManifestInjection(
-					opts,
-					internals,
-					internals.extractedChunks ?? [],
-					buildPostHooks,
+				await buildPhase('manifest injection', 'finalize', () =>
+					runManifestInjection(opts, internals, internals.extractedChunks ?? [], buildPostHooks),
 				);
 
 				// Generation and cleanup
@@ -206,7 +204,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				if (settings.buildOutput === 'static') {
 					settings.timer.start('Static generate');
 					// Move prerender and SSR assets to client directory before cleaning up
-					await ssrMoveAssets(opts, internals, prerenderOutputDir);
+					await buildPhase('rearrange assets', 'assets', () =>
+						ssrMoveAssets(opts, internals, prerenderOutputDir),
+					);
 					// Generate the pages
 					await generatePages(opts, internals, prerenderOutputDir);
 					// Clean up prerender directory after generation
@@ -216,7 +216,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					settings.timer.start('Server generate');
 					await generatePages(opts, internals, prerenderOutputDir);
 					// Move prerender and SSR assets to client directory before cleaning up
-					await ssrMoveAssets(opts, internals, prerenderOutputDir);
+					await buildPhase('rearrange assets', 'assets', () =>
+						ssrMoveAssets(opts, internals, prerenderOutputDir),
+					);
 					// Clean up prerender directory after generation
 					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
 					settings.timer.end('Server generate');
@@ -249,7 +251,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			async buildApp(builder: vite.ViteBuilder) {
 				// Build prerender environment for static generation
 				settings.timer.start('Prerender build');
-				let prerenderOutput = await builder.build(builder.environments.prerender);
+				let prerenderOutput = await buildPhase('prerender bundle', 'bundle', () =>
+					builder.build(builder.environments.prerender),
+				);
 				settings.timer.end('Prerender build');
 
 				// Extract prerender entry filename and store in internals
@@ -264,8 +268,8 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				let ssrChunks: BuildInternals['extractedChunks'] = [];
 				if (needsServerBuild(settings, builder)) {
 					settings.timer.start('SSR build');
-					let ssrOutput = await builder.build(
-						builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr],
+					let ssrOutput = await buildPhase('ssr bundle', 'bundle', () =>
+						builder.build(builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]),
 					);
 					settings.timer.end('SSR build');
 					// Extract chunks needing injection, then release output for GC
@@ -300,7 +304,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				const sortedClientInput = Array.from(internals.clientInput).sort();
 				builder.environments.client.config.build.rolldownOptions.input = sortedClientInput;
 				settings.timer.start('Client build');
-				await builder.build(builder.environments.client);
+				await buildPhase('client bundle', 'bundle', () =>
+					builder.build(builder.environments.client),
+				);
 				settings.timer.end('Client build');
 
 				// Store extracted chunks on internals for post plugin to consume
@@ -310,13 +316,20 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		isRolldownInput,
 	});
 
-	const updatedViteBuildConfig = await runHookBuildSetup({
-		config: settings.config,
-		pages: internals.pagesByKeys,
-		vite: viteBuildConfig,
-		target: 'server',
-		logger: opts.logger,
-	});
+	let updatedViteBuildConfig = await buildPhase('astro:build:setup', 'setup', () =>
+		runHookBuildSetup({
+			config: settings.config,
+			pages: internals.pagesByKeys,
+			vite: viteBuildConfig,
+			target: 'server',
+			logger: opts.logger,
+		}),
+	);
+
+	const timings = getBuildTimings();
+	if (timings) {
+		updatedViteBuildConfig = instrumentViteConfig(timings, updatedViteBuildConfig);
+	}
 
 	const builder = await vite.createBuilder(updatedViteBuildConfig);
 	await builder.buildApp();

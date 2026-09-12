@@ -42,6 +42,7 @@ import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
+import { buildPhase, getBuildTimings } from './timings/index.js';
 import type { StaticBuildOptions } from './types.js';
 import type { AstroSettings } from '../../types/astro.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
@@ -119,7 +120,9 @@ export async function generatePages(
 
 	try {
 		// Get all static paths with their routes from the prerenderer
-		const pathsWithRoutes = await prerenderer.getStaticPaths();
+		const pathsWithRoutes = await buildPhase('static paths', 'generate', () =>
+			prerenderer.getStaticPaths(),
+		);
 
 		// Check if i18n domains are configured (incompatible with prerendering)
 		const hasI18nDomains =
@@ -181,51 +184,53 @@ export async function generatePages(
 		const generationPhases = [filteredPaths, fallbackPaths];
 
 		// Generate each path
-		if (config.build.concurrency > 1) {
-			const limit = PLimit(config.build.concurrency);
-			// Process in batches to avoid V8's Promise.all element limit, which is around ~123k items
-			//
-			// NOTE: ideally we could consider an iterator to avoid the batching limitation
-			const BATCH_SIZE = 100_000;
-			for (const paths of generationPhases) {
-				for (let i = 0; i < paths.length; i += BATCH_SIZE) {
-					const promises = paths
-						.slice(i, i + BATCH_SIZE)
-						.map(({ pathname, route, cacheKey }) =>
-							limit(() =>
-								generatePathWithPrerenderer(
-									prerenderer,
-									pathname,
-									route,
-									options,
-									internals,
-									routeToHeaders,
-									logger,
-									cache,
-									cacheKey,
+		await buildPhase('render pages', 'generate', async () => {
+			if (config.build.concurrency > 1) {
+				const limit = PLimit(config.build.concurrency);
+				// Process in batches to avoid V8's Promise.all element limit, which is around ~123k items
+				//
+				// NOTE: ideally we could consider an iterator to avoid the batching limitation
+				const BATCH_SIZE = 100_000;
+				for (const paths of generationPhases) {
+					for (let i = 0; i < paths.length; i += BATCH_SIZE) {
+						const promises = paths
+							.slice(i, i + BATCH_SIZE)
+							.map(({ pathname, route, cacheKey }) =>
+								limit(() =>
+									generatePathWithPrerenderer(
+										prerenderer,
+										pathname,
+										route,
+										options,
+										internals,
+										routeToHeaders,
+										logger,
+										cache,
+										cacheKey,
+									),
 								),
-							),
+							);
+						await Promise.all(promises);
+					}
+				}
+			} else {
+				for (const paths of generationPhases) {
+					for (const { pathname, route, cacheKey } of paths) {
+						await generatePathWithPrerenderer(
+							prerenderer,
+							pathname,
+							route,
+							options,
+							internals,
+							routeToHeaders,
+							logger,
+							cache,
+							cacheKey,
 						);
-					await Promise.all(promises);
+					}
 				}
 			}
-		} else {
-			for (const paths of generationPhases) {
-				for (const { pathname, route, cacheKey } of paths) {
-					await generatePathWithPrerenderer(
-						prerenderer,
-						pathname,
-						route,
-						options,
-						internals,
-						routeToHeaders,
-						logger,
-						cache,
-						cacheKey,
-					);
-				}
-			}
-		}
+		});
 
 		// After generation, propagate distURL from the deserialized routes (used during generation)
 		// back to the original routes in allPages. The prerenderer operates on deserialized route
@@ -387,7 +392,7 @@ export async function generatePages(
 				});
 		}
 
-		await queue.onIdle();
+		await buildPhase('optimize images', 'assets', () => queue.onIdle());
 		if (errors.length === 1) {
 			throw errors[0];
 		} else if (errors.length > 1) {
@@ -531,10 +536,12 @@ export async function renderPath({
 	// Render using the prerenderer
 	let response: Response;
 	let metadata: PrerenderResult['metadata'];
+	const renderStart = performance.now();
 	try {
 		const rendered = normalizePrerenderResult(
 			await prerenderer.render(request, { routeData: route, collectMetadata }),
 		);
+		getBuildTimings()?.record('page-render', pathname, performance.now() - renderStart);
 		response = rendered.response;
 		metadata = rendered.metadata;
 	} catch (err) {
@@ -688,6 +695,7 @@ async function generatePathWithPrerenderer(
 				'SKIP_FORMAT',
 				restored ? ` ${colors.green('(restored)')}` : ` ${colors.green('(cached)')}`,
 			);
+			recordPageTiming(pathname, route, timeStart, true);
 			return;
 		}
 	}
@@ -726,6 +734,7 @@ async function generatePathWithPrerenderer(
 		// resurrecting output the path no longer emits. Leaving it unrecorded makes
 		// `findOrphanedFiles` prune that copy and forces a re-render next build.
 		logRenderTime(logger, timeStart, true);
+		recordPageTiming(pathname, route, timeStart, false);
 		return;
 	}
 
@@ -748,6 +757,19 @@ async function generatePathWithPrerenderer(
 	}
 
 	logRenderTime(logger, timeStart, false);
+	recordPageTiming(pathname, route, timeStart, false);
+}
+
+function recordPageTiming(
+	pathname: string,
+	route: RouteData,
+	timeStart: number,
+	cached: boolean,
+): void {
+	getBuildTimings()?.record('page', pathname, performance.now() - timeStart, {
+		route: route.route,
+		cached,
+	});
 }
 
 function logRenderTime(logger: AstroLogger, timeStart: number, notCreated: boolean) {
