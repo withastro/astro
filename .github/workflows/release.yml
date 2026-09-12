@@ -29,6 +29,10 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          # The release cohort is derived from the diff against the parent commit, so the
+          # default depth-1 checkout (no parent) is not enough.
+          fetch-depth: 2
 
       - name: Setup PNPM
         uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
@@ -59,18 +63,68 @@ jobs:
           # Use OIDC for npm authentication instead of NPM_TOKEN
           NPM_TOKEN: '' # https://github.com/changesets/changesets/issues/1152#issuecomment-3190884868
 
-      - name: Check if astro-vscode was published
-        id: vscode-published
-        if: steps.changesets.outputs.published == 'true'
+      # On a re-run after npm already received the versions, changesets publishes nothing new
+      # and its `published`/`publishedPackages` outputs are empty, so any downstream work gated
+      # on them would be skipped while the run turns green. The version bumps for this release
+      # live in the release commit itself, so the cohort is rebuilt from the commit diff on
+      # retries. Only the squash-merged "[ci] release" version PR commit bumps package versions;
+      # fixture edits, manual version changes, merges, and reverts must not look like releases.
+      - name: Detect release cohort
+        id: release
         run: |
-          if echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null; then
-            echo "published=true" >> $GITHUB_OUTPUT
+          HAS_RELEASE=false
+          HAS_VSCODE=false
+          COHORT=""
+          if [ "${{ steps.changesets.outputs.published }}" = "true" ]; then
+            PAYLOAD='${{ steps.changesets.outputs.publishedPackages }}'
+            HAS_RELEASE=true
+          elif git log -1 --format=%s HEAD | grep -q '^\[ci\] release'; then
+            # Nothing was published, so this is a re-run (or the same commit on another branch):
+            # npm already has these versions, so rebuild the released-package list from the
+            # version bumps in the release commit.
+            # Feed the loop the list of package.json files changed between the parent commit
+            # and this one (a release commit only changes the files it bumps).
+            while read -r f; do
+              # Skip fixture/test packages: their package.json files change with tests, not releases.
+              case "$f" in
+                *"/test/"*|*"/fixtures/"*|*"/node_modules/"*) continue ;;
+              esac
+              # Version of this package at the parent commit. Empty when the file is new there;
+              # the `|| true` keeps a missing file or unparsable JSON from failing the step
+              # (the job runs with `set -e`).
+              V_OLD=$(git show "$(git rev-parse HEAD^):$f" 2>/dev/null | jq -r .version 2>/dev/null || true)
+              # Same read at this commit.
+              V_NEW=$(git show "HEAD:$f" | jq -r .version 2>/dev/null || true)
+              # `private: true` packages are never published to npm, so they are not releases.
+              PRIVATE=$(git show "HEAD:$f" | jq -r .private 2>/dev/null || true)
+              # Released means: has a version, and that version differs from the parent commit.
+              if [ -n "$V_NEW" ] && [ "$V_NEW" != "null" ] && [ "$V_OLD" != "$V_NEW" ] && [ "$PRIVATE" != "true" ]; then
+                # Append one {"name":"...","version":"..."} entry; the trailing comma is
+                # stripped below.
+                COHORT="$COHORT{\"name\":\"$(git show "HEAD:$f" | jq -r .name)\",\"version\":\"$V_NEW\"},"
+              fi
+            done < <(git diff --name-only "$(git rev-parse HEAD^)" HEAD -- packages | grep -E '(^|/)package\.json$' | sort -u)
+            # Wrap the accumulated entries in a JSON array; ${COHORT%,} drops the trailing comma.
+            COHORT="[${COHORT%,}]"
+            if [ "$COHORT" != "[]" ]; then
+              PAYLOAD="$COHORT"
+              HAS_RELEASE=true
+            else
+              PAYLOAD=""
+            fi
           else
-            echo "published=false" >> $GITHUB_OUTPUT
+            PAYLOAD=""
           fi
+          if echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null 2>&1 \
+             || { [ -n "$COHORT" ] && echo "$COHORT" | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null 2>&1; }; then
+            HAS_VSCODE=true
+          fi
+          echo "has_vscode=$HAS_VSCODE" >> "$GITHUB_OUTPUT"
+          echo "has_release=$HAS_RELEASE" >> "$GITHUB_OUTPUT"
+          echo "cohort=$PAYLOAD" >> "$GITHUB_OUTPUT"
 
       - name: Prepare vscode folder
-        if: steps.vscode-published.outputs.published == 'true'
+        if: steps.release.outputs.has_vscode == 'true'
         working-directory: ./packages/language-tools/vscode
         run: |
           npm run build:grammar
@@ -84,41 +138,104 @@ jobs:
           mv ./astro-ts-plugin-bundle ./node_modules/astro-ts-plugin-bundle
 
       - name: Publish to VSCode Marketplace
-        if: steps.vscode-published.outputs.published == 'true'
+        if: steps.release.outputs.has_vscode == 'true'
         working-directory: ./packages/language-tools/vscode
         run: |
-          npx vsce publish -p ${{ secrets.VSCE_TOKEN }} --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
+          npx vsce publish -p ${{ secrets.VSCE_TOKEN }} --skip-duplicate --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
 
       - name: Publish to OpenVSX
-        if: steps.vscode-published.outputs.published == 'true'
+        if: steps.release.outputs.has_vscode == 'true'
         working-directory: ./packages/language-tools/vscode
         run: |
-          npx ovsx publish -p ${{ secrets.OVSX_TOKEN }} --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
+          npx ovsx publish -p ${{ secrets.OVSX_TOKEN }} --skip-duplicate --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
           
       - name: Restore root package.json and node_modules
-        if: steps.vscode-published.outputs.published == 'true'
+        if: steps.release.outputs.has_vscode == 'true'
         run: |
           mv ./package.temp.json ./package.json
           pnpm install --frozen-lockfile
           
+      # Fail closed: an unverifiable marker read fails the run rather than risking a duplicate
+      # announcement; a clean "no such ref" (ls-remote exit 2) is the expected case.
+      - name: Check if this release was already announced
+        id: announced
+        if: steps.release.outputs.has_release == 'true'
+        run: |
+          rc=2
+          for attempt in 1 2; do
+            set +e
+            git ls-remote --exit-code origin "refs/release-announced/${GITHUB_SHA}" >/dev/null 2>&1
+            rc=$?
+            set -e
+            if [ "$rc" -eq 0 ]; then
+              echo "already_announced=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            [ "$rc" -eq 2 ] && break
+          done
+          if [ "$rc" -eq 2 ]; then
+            echo "already_announced=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Could not verify the announcement marker (git ls-remote exit $rc)"
+            exit 1
+          fi
+
       - name: Generate Announcement
         id: message
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.announced.outputs.already_announced == 'false'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        run: node .github/scripts/announce.mjs '${{ steps.changesets.outputs.publishedPackages }}'
+        run: node .github/scripts/announce.mjs '${{ steps.release.outputs.cohort }}'
 
       - name: Send message on Discord
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.announced.outputs.already_announced == 'false'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554 # 0.4.0
         with:
           args: "${{ steps.message.outputs.DISCORD_MESSAGE }}"
 
+      # Record the announcement before the dispatch so a failed dispatch can be retried without
+      # re-announcing. Re-running the same release commit then skips the announcement entirely.
+      - name: Mark release as announced
+        if: steps.announced.outputs.already_announced == 'false'
+        run: |
+          git push origin HEAD:refs/release-announced/${GITHUB_SHA}
+
+      # The dispatch gets its own marker: re-running a completed release must not dispatch again
+      # (the consumer fails on "Already up to date"), while a failed dispatch must still be
+      # retried without re-announcing.
+      - name: Check if this release was already dispatched
+        id: dispatched
+        if: steps.release.outputs.has_release == 'true' && github.ref_name == 'main'
+        run: |
+          rc=2
+          for attempt in 1 2; do
+            set +e
+            git ls-remote --exit-code origin "refs/release-dispatched/${GITHUB_SHA}" >/dev/null 2>&1
+            rc=$?
+            set -e
+            if [ "$rc" -eq 0 ]; then
+              echo "already_dispatched=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            [ "$rc" -eq 2 ] && break
+          done
+          if [ "$rc" -eq 2 ]; then
+            echo "already_dispatched=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Could not verify the dispatch marker (git ls-remote exit $rc)"
+            exit 1
+          fi
+
       - name: Dispatch post-release event
-        if: steps.changesets.outputs.published == 'true' && github.ref_name == 'main'
+        if: steps.dispatched.outputs.already_dispatched == 'false'
         uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
         with:
           token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
           event-type: release-published
+
+      - name: Mark release as dispatched
+        if: steps.dispatched.outputs.already_dispatched == 'false'
+        run: |
+          git push origin HEAD:refs/release-dispatched/${GITHUB_SHA}
