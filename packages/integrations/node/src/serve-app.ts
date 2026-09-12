@@ -57,16 +57,15 @@ async function readErrorPageFromDisk(
  * Intended to be used in both standalone and middleware mode.
  */
 export function createAppHandler(app: BaseApp, options: Options): RequestHandler {
-	/**
-	 * Keep track of the current request path using AsyncLocalStorage.
-	 * Used to log unhandled rejections with a helpful message.
-	 */
-	const als = new AsyncLocalStorage<string>();
 	const logger = app.adapterLogger;
+	const requestContext = new AsyncLocalStorage<string>();
+	const abortedRequestErrors = new WeakSet<Error>();
+
 	process.on('unhandledRejection', (reason) => {
-		const requestUrl = als.getStore();
-		logger.error(`Unhandled rejection while rendering ${requestUrl}`);
-		console.error(reason);
+		const requestUrl = requestContext.getStore();
+		if (!requestUrl || (reason instanceof Error && abortedRequestErrors.has(reason))) return;
+		const error = reason instanceof Error ? reason.stack || reason.message : String(reason);
+		logger.error(`Unhandled rejection while rendering ${requestUrl}\n${error}`);
 	});
 
 	const client = resolveClientDir(options);
@@ -94,6 +93,13 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 			: options.bodySizeLimit;
 
 	return async (req, res, next, locals) => {
+		// Tag the exact error object emitted when this request's socket dies so
+		// the unhandledRejection listener can tell client disconnects apart from
+		// genuine errors that happen to carry the same code (e.g. ECONNRESET
+		// from an outbound fetch in user code).
+		req.once('error', (error: NodeJS.ErrnoException) => {
+			if (error.code === 'ECONNRESET') abortedRequestErrors.add(error);
+		});
 		let request: Request;
 		try {
 			request = createRequestFromNodeRequest(req, {
@@ -109,34 +115,54 @@ export function createAppHandler(app: BaseApp, options: Options): RequestHandler
 			return;
 		}
 
-		// Include prerendered routes so static-mode redirects remain dynamic.
-		let routeData = app.match(request, true);
-		// Normal matching can select a lower-priority on-demand route when a prerendered route
-		// matches first.
-		if (routeData?.prerender && PRERENDERED_ROUTE_TYPES.includes(routeData.type)) {
-			routeData = app.match(request);
-		}
-		if (routeData) {
-			const response = await als.run(request.url, () =>
-				app.render(request, {
-					addCookieHeader: true,
-					locals,
-					routeData,
-					prerenderedErrorPageFetch,
-				}),
-			);
-			await writeResponse(response, res);
-		} else if (next) {
-			// Since we're not calling `writeResponse()`, clean up the AbortController and socket listeners
-			const cleanup = getAbortControllerCleanup(req);
-			if (cleanup) cleanup();
-			return next();
-		} else {
-			const response = await app.render(request, {
-				addCookieHeader: true,
-				prerenderedErrorPageFetch,
-			});
-			await writeResponse(response, res);
+		try {
+			// Include prerendered routes so static-mode redirects remain dynamic.
+			let routeData = app.match(request, true);
+			// Normal matching can select a lower-priority on-demand route when a prerendered route
+			// matches first.
+			if (routeData?.prerender && PRERENDERED_ROUTE_TYPES.includes(routeData.type)) {
+				routeData = app.match(request);
+			}
+			if (routeData) {
+				await requestContext.run(request.url, async () => {
+					const response = await app.render(request, {
+						addCookieHeader: true,
+						locals,
+						routeData,
+						prerenderedErrorPageFetch,
+					});
+					await writeResponse(response, res);
+				});
+			} else if (next) {
+				// Since we're not calling `writeResponse()`, clean up the AbortController and socket listeners
+				const cleanup = getAbortControllerCleanup(req);
+				if (cleanup) cleanup();
+				return next();
+			} else {
+				await requestContext.run(request.url, async () => {
+					const response = await app.render(request, {
+						addCookieHeader: true,
+						prerenderedErrorPageFetch,
+					});
+					await writeResponse(response, res);
+				});
+			}
+		} catch (err) {
+			// Client disconnected mid-request: the exact error object is tagged
+			// in `abortedRequestErrors`, and there is nobody left to respond to.
+			if (err instanceof Error && abortedRequestErrors.has(err)) return;
+			// Any other failure is a genuine request error. Log it with the
+			// request URL, then finish the response: a 500 while the headers are
+			// still pending, or terminate the connection once a response has
+			// already started.
+			const error = err instanceof Error ? err.stack || err.message : String(err);
+			logger.error(`Could not render ${request.url}\n${error}`);
+			if (!res.headersSent) {
+				res.statusCode = 500;
+				res.end('Internal Server Error');
+			} else {
+				res.destroy();
+			}
 		}
 	};
 }
