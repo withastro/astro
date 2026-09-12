@@ -10,6 +10,7 @@ import { filterPreloads } from '../../../../dist/assets/fonts/core/filter-preloa
 import { getOrCreateFontFamilyAssets } from '../../../../dist/assets/fonts/core/get-or-create-font-family-assets.js';
 import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
 import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-family.js';
+import { validateFamilyProperties } from '../../../../dist/assets/fonts/core/validate-family-properties.js';
 import { fontFileMiddleware } from '../../../../dist/assets/fonts/core/font-file-middleware.js';
 import type { SystemFallbacksProvider } from '../../../../dist/assets/fonts/definitions.js';
 import type {
@@ -75,6 +76,137 @@ describe('fonts core', () => {
 			assert.deepStrictEqual(family.subsets, ['latin']);
 			assert.deepStrictEqual(family.fallbacks, ['foo', 'bar']);
 			assert.deepStrictEqual(family.unicodeRange, ['abc', 'def']);
+		});
+	});
+
+	describe('validateFamilyProperties()', () => {
+		async function validate(family: ResolvedFontFamily) {
+			const logger = new SpyLogger();
+			await validateFamilyProperties({
+				family,
+				fontResolver: await PassthroughFontResolver.create({
+					families: [family],
+					hasher: new FakeHasher('xxx'),
+				}),
+				logger,
+				bold: markdownBold,
+			});
+			return logger.logs.map((log) => log.message);
+		}
+
+		function createFamily(
+			family: Partial<ResolvedFontFamily>,
+			getFontProperties?: () => unknown,
+		): ResolvedFontFamily {
+			return {
+				name: 'Test',
+				uniqueName: 'Test-xxx',
+				cssVariable: '--test',
+				...family,
+				provider: {
+					name: 'test',
+					resolveFont: () => undefined,
+					getFontProperties,
+				},
+			} as ResolvedFontFamily;
+		}
+
+		it('does nothing if the provider does not implement getFontProperties()', async () => {
+			assert.deepStrictEqual(await validate(createFamily({ weights: ['900'] })), []);
+		});
+
+		it('does nothing if the provider does not know the family', async () => {
+			assert.deepStrictEqual(
+				await validate(createFamily({ weights: ['900'] }, () => undefined)),
+				[],
+			);
+		});
+
+		it('does not check values that are not configured', async () => {
+			assert.deepStrictEqual(
+				await validate(
+					createFamily({}, () => ({
+						weights: ['700'],
+						styles: ['italic'],
+						subsets: ['cyrillic'],
+						formats: ['woff'],
+					})),
+				),
+				[],
+			);
+		});
+
+		it('does not warn if properties are not exposed by the provider', async () => {
+			assert.deepStrictEqual(
+				await validate(
+					createFamily({ weights: ['900'], subsets: ['latin'] }, () => ({ weights: [] })),
+				),
+				[],
+			);
+		});
+
+		it('warns about unsupported weights', async () => {
+			assert.deepStrictEqual(
+				await validate(
+					createFamily({ weights: ['400', '900'] }, () => ({ weights: ['400', '700'] })),
+				),
+				[
+					'The **Test** font family does not support the following weights: 900. Available weights: 400, 700. Review your configuration.',
+				],
+			);
+		});
+
+		it('handles variable weight ranges', async () => {
+			assert.deepStrictEqual(
+				await validate(
+					createFamily({ weights: ['500', '100 900', '200 1000'] }, () => ({
+						weights: ['400', '100 900'],
+					})),
+				),
+				[
+					'The **Test** font family does not support the following weights: 200 1000. Available weights: 400, 100 900. Review your configuration.',
+				],
+			);
+		});
+
+		it('handles weight keywords', async () => {
+			assert.deepStrictEqual(
+				await validate(createFamily({ weights: ['bold', 'normal'] }, () => ({ weights: ['400'] }))),
+				[
+					'The **Test** font family does not support the following weights: bold. Available weights: 400. Review your configuration.',
+				],
+			);
+		});
+
+		it('stays silent for weights it cannot interpret', async () => {
+			assert.deepStrictEqual(
+				await validate(createFamily({ weights: ['foo'] }, () => ({ weights: ['400'] }))),
+				[],
+			);
+		});
+
+		it('warns about unsupported styles, subsets and formats', async () => {
+			assert.deepStrictEqual(
+				await validate(
+					createFamily(
+						{
+							styles: ['normal', 'oblique'],
+							subsets: ['latin', 'cyrillic'],
+							formats: ['woff2', 'eot'],
+						},
+						() => ({
+							styles: ['normal', 'italic'],
+							subsets: ['latin'],
+							formats: ['woff2', 'woff'],
+						}),
+					),
+				),
+				[
+					'The **Test** font family does not support the following styles: oblique. Available styles: normal, italic. Review your configuration.',
+					'The **Test** font family does not support the following subsets: cyrillic. Available subsets: latin. Review your configuration.',
+					'The **Test** font family does not support the following formats: eot. Available formats: woff2, woff. Review your configuration.',
+				],
+			);
 		});
 	});
 

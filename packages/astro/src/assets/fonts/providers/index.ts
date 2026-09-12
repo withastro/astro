@@ -21,6 +21,9 @@ function adobe(config: AdobeProviderOptions): FontProvider {
 		name: provider._name,
 		config,
 		async init(context) {
+			// @ts-expect-error `fetch` is deliberately not part of Astro's public provider
+			// context. unifont still types it as required but does not need us to pass it.
+			// TODO: drop this once unifont makes `fetch` optional in its provider context
 			initializedProvider = await provider(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
@@ -28,6 +31,9 @@ function adobe(config: AdobeProviderOptions): FontProvider {
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
@@ -39,6 +45,9 @@ function bunny(): FontProvider {
 	return {
 		name: provider._name,
 		async init(context) {
+			// @ts-expect-error `fetch` is deliberately not part of Astro's public provider
+			// context. unifont still types it as required but does not need us to pass it.
+			// TODO: drop this once unifont makes `fetch` optional in its provider context
 			initializedProvider = await provider(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
@@ -46,6 +55,9 @@ function bunny(): FontProvider {
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
@@ -57,6 +69,9 @@ function fontshare(): FontProvider {
 	return {
 		name: provider._name,
 		async init(context) {
+			// @ts-expect-error `fetch` is deliberately not part of Astro's public provider
+			// context. unifont still types it as required but does not need us to pass it.
+			// TODO: drop this once unifont makes `fetch` optional in its provider context
 			initializedProvider = await provider(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
@@ -64,6 +79,9 @@ function fontshare(): FontProvider {
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
@@ -75,6 +93,9 @@ function fontsource(): FontProvider {
 	return {
 		name: provider._name,
 		async init(context) {
+			// @ts-expect-error `fetch` is deliberately not part of Astro's public provider
+			// context. unifont still types it as required but does not need us to pass it.
+			// TODO: drop this once unifont makes `fetch` optional in its provider context
 			initializedProvider = await provider(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
@@ -82,6 +103,9 @@ function fontsource(): FontProvider {
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
@@ -93,6 +117,9 @@ function google(): FontProvider<GoogleFamilyOptions | undefined> {
 	return {
 		name: provider._name,
 		async init(context) {
+			// @ts-expect-error `fetch` is deliberately not part of Astro's public provider
+			// context. unifont still types it as required but does not need us to pass it.
+			// TODO: drop this once unifont makes `fetch` optional in its provider context
 			initializedProvider = await provider(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
@@ -100,6 +127,9 @@ function google(): FontProvider<GoogleFamilyOptions | undefined> {
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
@@ -111,6 +141,9 @@ function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
 	return {
 		name: provider._name,
 		async init(context) {
+			// @ts-expect-error `fetch` is deliberately not part of Astro's public provider
+			// context. unifont still types it as required but does not need us to pass it.
+			// TODO: drop this once unifont makes `fetch` optional in its provider context
 			initializedProvider = await provider(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
@@ -118,6 +151,9 @@ function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
@@ -141,13 +177,21 @@ function npm(
 				...options,
 				root: fileURLToPath(context.root),
 				readFile: (path) => readFile(path, 'utf-8').catch(() => null),
-			})(context);
+			})(
+				// @ts-expect-error `fetch` is deliberately not part of Astro's public provider
+				// context. unifont still types it as required but does not need us to pass it.
+				// TODO: drop this once unifont makes `fetch` optional in its provider context
+				context,
+			);
 		},
 		async resolveFont({ familyName, ...rest }) {
 			return await initializedProvider?.resolveFont(familyName, rest);
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
