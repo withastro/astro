@@ -284,7 +284,7 @@ export function stripRequestBase(pathname: string, base: string): string {
 	return pathname;
 }
 
-const WITH_FILE_EXT = /\/[^/]+\.\w+$/;
+const WITH_FILE_EXT = /(?:^|\/)[^/]+\.\w+$/;
 
 export function hasFileExtension(path: string) {
 	return WITH_FILE_EXT.test(path);
