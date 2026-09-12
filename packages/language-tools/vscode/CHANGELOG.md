@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 2.16.21
+
+### Patch Changes
+
+- [#17916](https://github.com/withastro/astro/pull/17916) [`8eaa4f2`](https://github.com/withastro/astro/commit/8eaa4f21e001293f15957daebc3b2486a5aa681d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes organize imports across frontmatter and multiple script tags
+
+- [#17542](https://github.com/withastro/astro/pull/17542) [`fae64dd`](https://github.com/withastro/astro/commit/fae64ddfc344e2fbe4d1610465c75bbe0604ba77) Thanks [@IAmYhvr](https://github.com/IAmYhvr)! - Fixes the AstroComponent suffix not being removed from Svelte and Vue imports in `.astro` files.
+
 ## 2.16.20
 
 ### Patch Changes
