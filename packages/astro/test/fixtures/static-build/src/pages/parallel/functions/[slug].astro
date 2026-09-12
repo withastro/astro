@@ -1,0 +1,18 @@
+---
+export function getStaticPaths() {
+	return [
+		{
+			params: { slug: 'one' },
+			props: { getValue: () => 'function prop' },
+		},
+		{
+			params: { slug: 'two' },
+			props: { resource: new URL('https://astro.build/') },
+		},
+	];
+}
+
+const { getValue, resource } = Astro.props;
+---
+
+<p>{getValue?.() ?? 'URL prop'} {resource?.href}</p>

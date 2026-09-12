@@ -525,6 +525,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.incrementalBuild),
+			parallelPrerender: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.parallelPrerender),
 			svgOptimizer: SvgOptimizerSchema.optional(),
 			collectionStorage: z
 				.union([

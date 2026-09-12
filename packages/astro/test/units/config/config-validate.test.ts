@@ -709,6 +709,18 @@ describe('Config Validation', () => {
 		});
 	});
 
+	describe('experimental.parallelPrerender', () => {
+		it('defaults to false', async () => {
+			const result = await validateConfig({});
+			assert.equal(result.experimental.parallelPrerender, false);
+		});
+
+		it('accepts a boolean', async () => {
+			const result = await validateConfig({ experimental: { parallelPrerender: true } });
+			assert.equal(result.experimental.parallelPrerender, true);
+		});
+	});
+
 	describe('experimental.collectionStorage', () => {
 		it('accepts the chunked shorthand', async () => {
 			const result = await validateConfig({
