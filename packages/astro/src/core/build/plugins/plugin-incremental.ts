@@ -11,7 +11,7 @@ import { moduleIsTopLevelPage } from '../graph.js';
 import { isContentDataIncrementalModule } from '../incremental-metadata.js';
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID } from '../internal.js';
-import type { PageBuildData } from '../types.js';
+import type { PageBuildData, StylesheetAsset } from '../types.js';
 
 interface HashableModuleInfo {
 	code?: string | null;
@@ -309,13 +309,76 @@ function foldClientDependencies(graph: HashableModuleGraph, internals: BuildInte
 	);
 
 	for (const [component, clientHashes] of hashesByComponent) {
-		const hasher = crypto.createHash('sha256');
-		hasher.update(baseHashes.get(component) ?? '');
-		for (const hash of clientHashes.sort()) {
-			hasher.update('\n');
-			hasher.update(hash);
+		baseHashes.set(component, foldHashes(baseHashes.get(component), clientHashes));
+	}
+}
+
+function foldHashes(base: string | undefined, hashes: string[]): string {
+	const hasher = crypto.createHash('sha256');
+	hasher.update(base ?? '');
+	for (const hash of hashes.sort()) {
+		hasher.update('\n');
+		hasher.update(hash);
+	}
+	return hasher.digest('hex');
+}
+
+/**
+ * Hash a page's stylesheets in a canonical order. The rendered order is not used: `cssOrder` never
+ * returns 0, so sorting a list of `depth: -1` sheets with it can oscillate between two orders.
+ */
+function hashStylesheets(styles: PageBuildData['styles']): string {
+	const keys = styles.map(({ depth, order, sheet }) =>
+		sheet.type === 'external'
+			? `${order}\t${depth}\texternal\t${sheet.src}`
+			: `${order}\t${depth}\tinline\t${crypto.createHash('sha256').update(sheet.content).digest('hex')}`,
+	);
+	const hasher = crypto.createHash('sha256');
+	for (const key of keys.sort()) {
+		hasher.update(key);
+		hasher.update('\n');
+	}
+	return hasher.digest('hex');
+}
+
+/**
+ * Fold each page's resolved stylesheets into its dependency hash, and each content entry's
+ * propagated stylesheets into its render hash. Not idempotent: the build calls this once.
+ *
+ * Preprocessor partials never become bundler modules, and CSS chunks can be regrouped by a change
+ * in an unrelated page, so only the emitted sheets reflect what the page's `<head>` links (#17974).
+ */
+export function foldStylesheetDependencies(internals: BuildInternals, root: URL): void {
+	const stylesByComponent = new Map<string, { hashes: string[]; sheetCount: number }>();
+	for (const pageData of internals.pagesByKeys.values()) {
+		if (!pageData.route.prerender) continue;
+
+		let entry = stylesByComponent.get(pageData.component);
+		if (!entry) {
+			entry = { hashes: [], sheetCount: 0 };
+			stylesByComponent.set(pageData.component, entry);
 		}
-		baseHashes.set(component, hasher.digest('hex'));
+		// Keyed by route: two routes sharing a component can resolve different sheets, and an
+		// unkeyed multiset would hash the same if they swapped. `headElements` sorts this array
+		// in place at render time, so never reorder it here.
+		entry.hashes.push(`${pageData.route.route}\n${hashStylesheets(pageData.styles)}`);
+		entry.sheetCount += pageData.styles.length;
+	}
+
+	const pageHashes = (internals.pageDependencyHashes ??= new Map());
+	for (const [component, { hashes, sheetCount }] of stylesByComponent) {
+		// Leaving a sheetless component's hash alone keeps it reusable from older caches.
+		if (sheetCount === 0) continue;
+		pageHashes.set(component, foldHashes(pageHashes.get(component), hashes));
+	}
+
+	const entryHashes = (internals.contentEntryRenderHashes ??= new Map());
+	for (const [moduleId, sheets] of internals.propagatedStylesMap) {
+		if (sheets.size === 0) continue;
+		const styles = [...sheets].map((sheet: StylesheetAsset) => ({ depth: 0, order: 0, sheet }));
+		// Same key shape as `collectContentEntryHashes`.
+		const key = rootRelativePath(root, removeQueryString(moduleId), false);
+		entryHashes.set(key, foldHashes(entryHashes.get(key), [hashStylesheets(styles)]));
 	}
 }
 
