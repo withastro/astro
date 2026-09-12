@@ -157,8 +157,6 @@ export function computeCurrentLocale(
 	for (const segment of pathname.split('/').map(normalizeThePath)) {
 		for (const locale of locales) {
 			if (typeof locale === 'string') {
-				// we skip ta locale that isn't present in the current segment
-				if (!segment.includes(locale)) continue;
 				if (normalizeTheLocale(locale) === normalizeTheLocale(segment)) {
 					return locale;
 				}
