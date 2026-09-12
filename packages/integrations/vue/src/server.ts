@@ -7,7 +7,10 @@ import StaticHtml from './static-html.js';
 import type { RendererContext } from './types.js';
 
 async function check(Component: any) {
-	return !!Component['ssrRender'] || !!Component['__ssrInlineRender'];
+	if (typeof Component !== 'object' || Component === null) return false;
+	// ssrRender / __ssrInlineRender are present on template-compiled SFCs.
+	// setup is present on render-function components via defineComponent().
+	return !!Component['ssrRender'] || !!Component['__ssrInlineRender'] || typeof Component.setup === 'function';
 }
 
 async function renderToStaticMarkup(
