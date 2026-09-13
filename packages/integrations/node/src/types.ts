@@ -30,6 +30,42 @@ export interface UserOptions {
 	 * @default {1073741824} 1GB
 	 */
 	bodySizeLimit?: number;
+
+	/**
+	 * Controls graceful shutdown of the standalone server on `SIGTERM`/`SIGINT`.
+	 * The server stops accepting new connections but gives in-flight requests
+	 * time to finish before closing. Set `timeout: 0` to force-close immediately
+	 * instead.
+	 *
+	 * @default {{ timeout: 10000, exit: false }}
+	 */
+	shutdown?: ShutdownOptions;
+}
+
+export interface ShutdownOptions {
+	/**
+	 * How long, in milliseconds, to wait for in-flight requests to finish after
+	 * receiving `SIGTERM`/`SIGINT` before force-closing any remaining connections.
+	 *
+	 * Set to `0` to force-close immediately, or `Infinity` to wait indefinitely
+	 * for in-flight requests to finish.
+	 *
+	 * @default {10000} 10 seconds
+	 */
+	timeout?: number;
+
+	/**
+	 * Whether to call `process.exit()` once shutdown completes.
+	 *
+	 * By default, the adapter lets the process exit naturally once the event loop is
+	 * empty, so any other `SIGTERM`/`SIGINT` listeners your app has registered (for
+	 * example, to close a database connection) get a chance to finish first. Enable
+	 * this only if you want a guaranteed exit even when something else in the
+	 * process (a timer, an open connection) would otherwise keep it running.
+	 *
+	 * @default {false}
+	 */
+	exit?: boolean;
 }
 
 export interface Options extends UserOptions {
@@ -39,6 +75,7 @@ export interface Options extends UserOptions {
 	client: string;
 	staticHeaders: boolean;
 	bodySizeLimit: number;
+	shutdown: Required<ShutdownOptions>;
 }
 
 export type RequestHandler = (...args: RequestHandlerParams) => void | Promise<void>;

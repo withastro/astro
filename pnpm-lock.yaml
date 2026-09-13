@@ -5834,6 +5834,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/node/test/fixtures/graceful-shutdown:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/node/test/fixtures/headers:
     dependencies:
       '@astrojs/node':
@@ -7118,12 +7127,6 @@ importers:
       tsx:
         specifier: ^4.22.0
         version: 4.22.3
-
-  triage/gh-17624:
-    dependencies:
-      astro:
-        specifier: ^7.2.0
-        version: link:../../packages/astro
 
 packages:
 
