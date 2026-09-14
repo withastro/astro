@@ -10,7 +10,11 @@ async function check(Component: any) {
 	if (typeof Component !== 'object' || Component === null) return false;
 	// ssrRender / __ssrInlineRender are present on template-compiled SFCs.
 	// setup is present on render-function components via defineComponent().
-	return !!Component['ssrRender'] || !!Component['__ssrInlineRender'] || typeof Component.setup === 'function';
+	return (
+		!!Component['ssrRender'] ||
+		!!Component['__ssrInlineRender'] ||
+		typeof Component.setup === 'function'
+	);
 }
 
 async function renderToStaticMarkup(
