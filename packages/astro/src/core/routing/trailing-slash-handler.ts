@@ -30,17 +30,18 @@ export function handleTrailingSlash(state: FetchState): Response | undefined {
 
 	const addCookieHeader = state.renderOptions.addCookieHeader;
 	const status = state.request.method === 'GET' ? 301 : 308;
+	const location = redirect + url.search;
 	const response = new Response(
 		redirectTemplate({
 			status,
-			relativeLocation: url.pathname,
+			relativeLocation: location,
 			absoluteLocation: redirect,
 			from: state.request.url,
 		}),
 		{
 			status,
 			headers: {
-				location: redirect + url.search,
+				location,
 			},
 		},
 	);

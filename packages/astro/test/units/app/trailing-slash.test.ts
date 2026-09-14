@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
 import { App } from '../../../dist/core/app/app.js';
 import type { SSRManifest } from '../../../dist/core/app/types.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
@@ -146,6 +147,14 @@ describe('Redirecting trailing slashes in SSR', () => {
 			assert.equal(response.headers.get('Location'), '/another/?foo=bar');
 		});
 
+		it('Points the redirect page at the new location', async () => {
+			const request = new Request('http://example.com/another?foo=bar');
+			const response = await app.render(request);
+			const $ = cheerio.load(await response.text());
+			assert.equal($('meta[http-equiv="refresh"]').attr('content'), '0;url=/another/?foo=bar');
+			assert.equal($('a').attr('href'), '/another/?foo=bar');
+		});
+
 		it('Does not redirect with query params when trailing slash is present', async () => {
 			const request = new Request('http://example.com/another/?foo=bar');
 			const response = await app.render(request);
@@ -217,6 +226,14 @@ describe('Redirecting trailing slashes in SSR', () => {
 			const response = await app.render(request);
 			assert.equal(response.status, 301);
 			assert.equal(response.headers.get('Location'), '/another');
+		});
+
+		it('Points the redirect page at the new location', async () => {
+			const request = new Request('http://example.com/another/');
+			const response = await app.render(request);
+			const $ = cheerio.load(await response.text());
+			assert.equal($('meta[http-equiv="refresh"]').attr('content'), '0;url=/another');
+			assert.equal($('a').attr('href'), '/another');
 		});
 
 		it('Redirects to collapse multiple trailing slashes', async () => {
