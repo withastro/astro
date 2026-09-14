@@ -60,7 +60,7 @@ export interface FontProvider<
 export interface FamilyProperties {
 	/**
 	 * Defines [how a font displays](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display) based on when it is downloaded and ready for use.
-	 * 
+	 *
 	 * @default "swap"
 	 */
 	display?: Display | undefined;
@@ -140,25 +140,25 @@ export type FontFamily<TFontProvider extends FontProvider = FontProvider> = Fami
 		 * ```js
 		 * weight: "100 900"
 		 * ```
-		 * 
+		 *
 		 * @default [400]
 		 */
 		weights?: [Weight, ...Array<Weight>] | undefined;
 		/**
 		 * An array of [font styles](https://developer.mozilla.org/en-US/docs/Web/CSS/font-style).
-		 * 
+		 *
 		 * @default ["normal", "italic"]
 		 */
 		styles?: [Style, ...Array<Style>] | undefined;
 		/**
 		 * Defines a list of [font subsets](https://knaap.dev/posts/font-subsetting/).
-		 * 
+		 *
 		 * @default ["latin"]
 		 */
 		subsets?: [string, ...Array<string>] | undefined;
 		/**
 		 * An array of [font formats](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/src#font_formats).
-		 * 
+		 *
 		 * @default ["woff2"]
 		 */
 		formats?: [FontType, ...Array<FontType>] | undefined;
@@ -177,13 +177,13 @@ export type FontFamily<TFontProvider extends FontProvider = FontProvider> = Fami
 		 *
 		 * If the last font in the `fallbacks` array is a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name), Astro will attempt to
 		 * generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics will be generated. To disable this optimization, set `optimizedFallbacks` to false.
-		 * 
+		 *
 		 * @default ["sans-serif"]
 		 */
 		fallbacks?: Array<string> | undefined;
 		/**
 		 * Whether or not to enable Astro's default optimization when generating fallback fonts. You may disable this default optimization to have full control over how `fallbacks` are generated.
-		 * 
+		 *
 		 * @default true
 		 */
 		optimizedFallbacks?: boolean | undefined;
