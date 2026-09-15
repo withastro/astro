@@ -49,7 +49,7 @@ describe('astro2tsx - virtual code mappings', () => {
 		const generated = virtualCode.snapshot.getText(0, virtualCode.snapshot.getLength());
 		for (const needle of ['unquoted', 'go()']) {
 			const source = sourceOffsetOf(generated.indexOf(needle));
-			assert.notEqual(source, null, `${needle} is unmapped`);
+			assert.ok(source !== null, `${needle} is unmapped`);
 			assert.equal(input.slice(source, source + needle.length), needle);
 		}
 
