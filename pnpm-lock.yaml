@@ -7282,6 +7282,15 @@ importers:
         specifier: ^4.22.0
         version: 4.22.3
 
+  triage/gh-17974:
+    dependencies:
+      astro:
+        specifier: ^7.3.2
+        version: link:../../packages/astro
+      sass:
+        specifier: '*'
+        version: 1.98.0
+
 packages:
 
   '@anthropic-ai/sdk@0.91.1':
