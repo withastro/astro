@@ -5,6 +5,28 @@ import { dropAttributes } from '../runtime.js';
 import type { ImageMetadata } from '../types.js';
 import type { SvgOptimizer } from './types.js';
 
+/**
+ * Recursively walk the SVG node tree and return the text content of every
+ * `<style>` element found, regardless of nesting depth.
+ */
+function collectStyleTexts(nodes: any[]): string[] {
+	const styles: string[] = [];
+	for (const node of nodes) {
+		if (node.type === ELEMENT_NODE && node.name === 'style') {
+			const textContent = node.children
+				?.filter((c: { type: number }) => c.type === TEXT_NODE)
+				.map((c: { value: string }) => c.value)
+				.join('');
+			if (textContent) {
+				styles.push(textContent);
+			}
+		} else if (node.children) {
+			styles.push(...collectStyleTexts(node.children));
+		}
+	}
+	return styles;
+}
+
 async function parseSvg({
 	path,
 	contents,
@@ -38,19 +60,10 @@ async function parseSvg({
 	const { attributes, children } = svgNode;
 	const body = renderSync({ ...root, children });
 
-	// Collect text content of <style> elements for head propagation and CSP hashing
-	const styles: string[] = [];
-	for (const child of children) {
-		if (child.type === ELEMENT_NODE && child.name === 'style') {
-			const textContent = child.children
-				?.filter((c: { type: number }) => c.type === TEXT_NODE)
-				.map((c: { value: string }) => c.value)
-				.join('');
-			if (textContent) {
-				styles.push(textContent);
-			}
-		}
-	}
+	// Collect text content of all <style> elements for head propagation and CSP
+	// hashing. The search is recursive so that styles nested inside <defs> or
+	// other container elements are included (#17996).
+	const styles = collectStyleTexts(children);
 
 	return { attributes, body, styles };
 }
