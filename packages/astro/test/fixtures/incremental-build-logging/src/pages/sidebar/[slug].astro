@@ -1,0 +1,18 @@
+---
+import Sidebar from '../../components/Sidebar.astro';
+
+export async function getStaticPaths() {
+	return [
+		{ params: { slug: 'a' }, props: {}, cacheKey: 'v1' },
+		{ params: { slug: 'b' }, props: {}, cacheKey: 'v1' },
+	];
+}
+---
+<html>
+<head>
+	<title>Sidebar page</title>
+</head>
+<body>
+	<Sidebar />
+</body>
+</html>

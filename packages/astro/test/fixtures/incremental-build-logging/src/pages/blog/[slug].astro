@@ -1,0 +1,18 @@
+---
+import data from '../../data/blog-data.json';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+	return data.posts.map((post) => ({
+		params: { slug: post.slug },
+		props: { title: post.title },
+		cacheKey: post.digest,
+	}));
+}
+
+const { title } = Astro.props;
+---
+<Layout title={title}>
+	<h1>{title}</h1>
+	<p>Slug: {Astro.params.slug}</p>
+</Layout>
