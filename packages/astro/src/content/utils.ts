@@ -19,6 +19,7 @@ import {
 	type CONTENT_FLAGS,
 	CONTENT_LAYER_TYPE,
 	CONTENT_MODULE_FLAG,
+	CONTENT_SOURCE_TYPE,
 	DEFERRED_MODULE,
 	IMAGE_IMPORT_PREFIX,
 	LIVE_CONTENT_TYPE,
@@ -116,6 +117,12 @@ function contentConfigParser(logger: AstroLogger) {
 								.optional(),
 						}),
 					]),
+				}),
+				z.object({
+					type: z.literal(CONTENT_SOURCE_TYPE),
+					schema: z.any().optional(),
+					loader: z.never().optional(),
+					source: z.literal('adapter'),
 				}),
 				z.object({
 					type: z.literal(LIVE_CONTENT_TYPE).optional().default(LIVE_CONTENT_TYPE),
@@ -573,7 +580,11 @@ async function autogenerateCollections({
 	for (const collectionName of Object.keys(collections)) {
 		const collection = collections[collectionName];
 
-		if (collection?.type === CONTENT_LAYER_TYPE || collection?.type === LIVE_CONTENT_TYPE) {
+		if (
+			collection?.type === CONTENT_LAYER_TYPE ||
+			collection?.type === CONTENT_SOURCE_TYPE ||
+			collection?.type === LIVE_CONTENT_TYPE
+		) {
 			usesContentLayer = true;
 			continue;
 		}

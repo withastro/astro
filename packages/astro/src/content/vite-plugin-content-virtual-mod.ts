@@ -15,6 +15,8 @@ import {
 	ASSET_IMPORTS_VIRTUAL_ID,
 	CONTENT_MODULE_FLAG,
 	CONTENT_RENDER_FLAG,
+	CONTENT_SOURCE_REGISTRY_VIRTUAL_ID,
+	CONTENT_SOURCE_TYPE,
 	DATA_STORE_CHUNK_FILE_NAME_PATTERN,
 	DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX,
 	DATA_STORE_MANIFEST_FILE,
@@ -25,12 +27,13 @@ import {
 	RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX,
 	RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_SUFFIX,
 	RESOLVED_DATA_STORE_VIRTUAL_ID,
+	RESOLVED_CONTENT_SOURCE_REGISTRY_VIRTUAL_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from './paths.js';
-import { getContentPaths, isDeferredModule } from './utils.js';
+import { getContentPaths, globalContentConfigObserver, isDeferredModule } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -188,7 +191,7 @@ export function astroContentVirtualModPlugin({
 		resolveId: {
 			filter: {
 				id: new RegExp(
-					`^(${VIRTUAL_MODULE_ID}|${DATA_STORE_VIRTUAL_ID}|${MODULES_MJS_ID}|${ASSET_IMPORTS_VIRTUAL_ID})$|^${DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}|(?:\\?|&)${CONTENT_MODULE_FLAG}(?:&|=|$)`,
+					`^(${VIRTUAL_MODULE_ID}|${DATA_STORE_VIRTUAL_ID}|${CONTENT_SOURCE_REGISTRY_VIRTUAL_ID}|${MODULES_MJS_ID}|${ASSET_IMPORTS_VIRTUAL_ID})$|^${DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}|(?:\\?|&)${CONTENT_MODULE_FLAG}(?:&|=|$)`,
 				),
 			},
 			async handler(id, importer) {
@@ -205,6 +208,9 @@ export function astroContentVirtualModPlugin({
 				}
 				if (id === DATA_STORE_VIRTUAL_ID) {
 					return RESOLVED_DATA_STORE_VIRTUAL_ID;
+				}
+				if (id === CONTENT_SOURCE_REGISTRY_VIRTUAL_ID) {
+					return RESOLVED_CONTENT_SOURCE_REGISTRY_VIRTUAL_ID;
 				}
 				if (id.startsWith(DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX)) {
 					const fileName = id.slice(DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX.length);
@@ -253,7 +259,7 @@ export function astroContentVirtualModPlugin({
 		load: {
 			filter: {
 				id: new RegExp(
-					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_DATA_STORE_VIRTUAL_ID}|${ASSET_IMPORTS_RESOLVED_STUB_ID}|${MODULES_MJS_VIRTUAL_ID})$|^${RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}`,
+					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_DATA_STORE_VIRTUAL_ID}|${RESOLVED_CONTENT_SOURCE_REGISTRY_VIRTUAL_ID}|${ASSET_IMPORTS_RESOLVED_STUB_ID}|${MODULES_MJS_VIRTUAL_ID})$|^${RESOLVED_DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX}`,
 				),
 			},
 			async handler(id) {
@@ -294,6 +300,34 @@ export function astroContentVirtualModPlugin({
 							astro,
 						} satisfies AstroPluginMetadata,
 					};
+				}
+				if (id === RESOLVED_CONTENT_SOURCE_REGISTRY_VIRTUAL_ID) {
+					const contentConfig = globalContentConfigObserver.get();
+					const collections =
+						contentConfig.status === 'loaded'
+							? Object.entries(contentConfig.config.collections)
+									.filter(([, collection]) => collection.type === CONTENT_SOURCE_TYPE)
+									.map(([name]) => name)
+							: [];
+					if (collections.length === 0) {
+						return { code: 'export default undefined', map: { mappings: '' } };
+					}
+
+					const provider = settings.adapter?.contentCollectionSource;
+					if (!provider) {
+						this.error(
+							`Collections using \`source: 'adapter'\` require an adapter that provides a content collection source.`,
+						);
+					}
+					const entrypoint = provider.entrypoint.toString();
+					const code = `
+						export default {
+							collections: ${JSON.stringify(collections)},
+							config: ${JSON.stringify(provider.config)},
+							load: () => import(${JSON.stringify(entrypoint)}).then((module) => module.default),
+						};
+					`;
+					return { code, map: { mappings: '' } };
 				}
 				if (id === RESOLVED_DATA_STORE_VIRTUAL_ID) {
 					if (!fs.existsSync(dataStoreFile)) {

@@ -4,6 +4,7 @@ import { describe, it, mock } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { getDataStoreFile } from '../../../dist/content/paths.js';
+import { globalContentConfigObserver } from '../../../dist/content/utils.js';
 import {
 	astroContentVirtualModPlugin,
 	attachDataStoreInvalidation,
@@ -71,6 +72,72 @@ function countClientReloads(server: ReturnType<typeof createMockViteDevServer>) 
 }
 
 describe('astroContentVirtualModPlugin', () => {
+	it('generates an adapter content source registry', async (t) => {
+		const previousConfig = globalContentConfigObserver.get();
+		t.after(() => globalContentConfigObserver.set(previousConfig));
+		globalContentConfigObserver.set({
+			status: 'loaded',
+			config: {
+				collections: {
+					posts: { type: 'content_source', source: 'adapter' },
+					docs: { type: 'content_layer', loader: () => [] },
+				},
+			},
+		});
+		const root = createTempDir('content-source-registry-test-');
+		const settings = createMinimalSettings(root, {
+			adapter: {
+				contentCollectionSource: {
+					entrypoint: 'virtual:test-content-source',
+					config: { binding: 'CONTENT' },
+				},
+			},
+			config: { legacy: {} },
+		});
+		const plugin = astroContentVirtualModPlugin({ settings, fs: nodeFs });
+		// @ts-expect-error - mock args are sufficient for this test
+		plugin.config?.({}, { command: 'serve' });
+		assert.ok(plugin.load && typeof plugin.load === 'object');
+
+		// @ts-expect-error - the load hook does not use its plugin context on this path
+		const result = await plugin.load.handler('\0astro:content-source-registry');
+		assert.ok(result && typeof result === 'object' && 'code' in result);
+		assert.match(result.code, /import\("virtual:test-content-source"\)/);
+		assert.match(result.code, /\["posts"\]/);
+		assert.match(result.code, /"binding":"CONTENT"/);
+		assert.doesNotMatch(result.code, /docs/);
+	});
+
+	it('rejects source-backed collections without an adapter provider', async (t) => {
+		const previousConfig = globalContentConfigObserver.get();
+		t.after(() => globalContentConfigObserver.set(previousConfig));
+		globalContentConfigObserver.set({
+			status: 'loaded',
+			config: {
+				collections: {
+					posts: { type: 'content_source', source: 'adapter' },
+				},
+			},
+		});
+		const root = createTempDir('content-source-registry-missing-provider-test-');
+		const settings = createMinimalSettings(root, { config: { legacy: {} } });
+		const plugin = astroContentVirtualModPlugin({ settings, fs: nodeFs });
+		// @ts-expect-error - mock args are sufficient for this test
+		plugin.config?.({}, { command: 'serve' });
+		assert.ok(plugin.load && typeof plugin.load === 'object');
+		const context = {
+			error(error: string | { message?: string }) {
+				throw new Error(typeof error === 'string' ? error : error.message);
+			},
+		};
+
+		await assert.rejects(
+			// @ts-expect-error - mock context supplies the hook behavior this path uses
+			plugin.load.handler.call(context, '\0astro:content-source-registry'),
+			/require an adapter that provides a content collection source/,
+		);
+	});
+
 	it('loads chunk files through validated virtual modules', async () => {
 		const root = createTempDir('content-virtual-mod-chunks-test-');
 		const dataStoreDir = new URL('./.astro/data-store/', root);

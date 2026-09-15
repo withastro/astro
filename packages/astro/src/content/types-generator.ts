@@ -20,8 +20,10 @@ import type { InjectedType } from '../types/public/integrations.js';
 import {
 	COLLECTIONS_DIR,
 	CONTENT_LAYER_TYPE,
+	type CONTENT_SOURCE_TYPE,
 	CONTENT_TYPES_FILE,
 	type LIVE_CONTENT_TYPE,
+	RESOLVED_CONTENT_SOURCE_REGISTRY_VIRTUAL_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import {
@@ -58,7 +60,7 @@ type CollectionEntryMap = {
 				entries: Record<string, ContentEntryMetadata>;
 		  }
 		| {
-				type: 'data' | typeof CONTENT_LAYER_TYPE;
+				type: 'data' | typeof CONTENT_LAYER_TYPE | typeof CONTENT_SOURCE_TYPE;
 				entries: Record<string, DataEntryMetadata>;
 		  }
 		| {
@@ -339,10 +341,18 @@ export async function createContentTypesGenerator({
 // The virtual module contains a lookup map from slugs to content imports.
 // Invalidate whenever content types change.
 function invalidateVirtualMod(environment: DevEnvironment) {
-	const virtualMod = environment.moduleGraph.getModuleById('\0' + VIRTUAL_MODULE_ID);
-	if (!virtualMod) return;
-
-	environment.moduleGraph.invalidateModule(virtualMod);
+	for (const id of ['\0' + VIRTUAL_MODULE_ID, RESOLVED_CONTENT_SOURCE_REGISTRY_VIRTUAL_ID]) {
+		const virtualMod = environment.moduleGraph.getModuleById(id);
+		if (virtualMod) {
+			environment.moduleGraph.invalidateModule(virtualMod, undefined, Date.now(), true);
+		}
+		if (isRunnableDevEnvironment(environment)) {
+			const evaluatedModule = environment.runner.evaluatedModules.getModuleById(id);
+			if (evaluatedModule) {
+				environment.runner.evaluatedModules.invalidateModule(evaluatedModule);
+			}
+		}
+	}
 }
 
 /**

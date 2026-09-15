@@ -12,14 +12,18 @@ import type { DataEntry, ImmutableDataStore } from './data-store.js';
  */
 export interface DataStoreSource {
 	hasCollection(collection: string): Promise<boolean> | boolean;
-	get<T = DataEntry>(collection: string, key: string): Promise<T | undefined> | T | undefined;
-	entries<T = DataEntry>(
-		collection: string,
-	): Promise<Array<[id: string, T]>> | Array<[id: string, T]>;
-	values<T = DataEntry>(collection: string): Promise<Array<T>> | Array<T>;
-	keys(collection: string): Promise<Array<string>> | Array<string>;
-	has(collection: string, key: string): Promise<boolean> | boolean;
-	collections(): Promise<Map<string, Map<string, any>>> | Map<string, Map<string, any>>;
+	get(collection: string, key: string): Promise<DataEntry | undefined> | DataEntry | undefined;
+	values(collection: string): Promise<DataEntry[]> | DataEntry[];
+}
+
+export type DataStoreSourceFactory<
+	TConfig extends Record<string, unknown> = Record<string, unknown>,
+> = (config: TConfig | undefined) => DataStoreSource | Promise<DataStoreSource>;
+
+export interface DataStoreSourceRegistry {
+	collections: string[];
+	config: Record<string, unknown> | undefined;
+	load: () => Promise<DataStoreSourceFactory>;
 }
 
 /**
@@ -38,27 +42,48 @@ export class InMemorySource implements DataStoreSource {
 		return this.#store.hasCollection(collection);
 	}
 
-	get<T = DataEntry>(collection: string, key: string): T | undefined {
-		return this.#store.get<T>(collection, key);
+	get(collection: string, key: string): DataEntry | undefined {
+		return this.#store.get(collection, key);
 	}
 
-	entries<T = DataEntry>(collection: string): Array<[id: string, T]> {
-		return this.#store.entries<T>(collection);
+	values(collection: string): DataEntry[] {
+		return this.#store.values(collection);
+	}
+}
+
+export class RoutedDataStoreSource implements DataStoreSource {
+	#collections: Set<string>;
+	#source: DataStoreSource;
+	#fallbackFactory: () => Promise<DataStoreSource>;
+	#fallback: Promise<DataStoreSource> | undefined;
+
+	constructor(
+		collections: Iterable<string>,
+		source: DataStoreSource,
+		fallbackFactory: () => Promise<DataStoreSource>,
+	) {
+		this.#collections = new Set(collections);
+		this.#source = source;
+		this.#fallbackFactory = fallbackFactory;
 	}
 
-	values<T = DataEntry>(collection: string): Array<T> {
-		return this.#store.values<T>(collection);
+	async #getSource(collection: string) {
+		if (this.#collections.has(collection)) {
+			return this.#source;
+		}
+		this.#fallback ??= this.#fallbackFactory();
+		return this.#fallback;
 	}
 
-	keys(collection: string): Array<string> {
-		return this.#store.keys(collection);
+	async hasCollection(collection: string) {
+		return (await this.#getSource(collection)).hasCollection(collection);
 	}
 
-	has(collection: string, key: string): boolean {
-		return this.#store.has(collection, key);
+	async get(collection: string, key: string) {
+		return (await this.#getSource(collection)).get(collection, key);
 	}
 
-	collections(): Map<string, Map<string, any>> {
-		return this.#store.collections();
+	async values(collection: string) {
+		return (await this.#getSource(collection)).values(collection);
 	}
 }

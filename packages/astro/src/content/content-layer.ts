@@ -13,6 +13,7 @@ import {
 	ASSET_IMPORTS_FILE,
 	COLLECTIONS_MANIFEST_FILE,
 	CONTENT_LAYER_TYPE,
+	CONTENT_SOURCE_TYPE,
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
 import type { RenderedContent } from './data-store.js';
@@ -367,7 +368,11 @@ export class ContentLayer {
 	 * This replaces the inline Zod validation that was removed in the Zod 4 upgrade.
 	 */
 	#validateReferences(collections: Record<string, any>, logger: { error(message: string): void }) {
-		const collectionNames = new Set(Object.keys(collections));
+		const collectionNames = new Set(
+			Object.entries(collections)
+				.filter(([, collection]) => collection.type !== CONTENT_SOURCE_TYPE)
+				.map(([name]) => name),
+		);
 		for (const collectionName of collectionNames) {
 			for (const entry of this.#store.values(collectionName)) {
 				if (entry?.data) {

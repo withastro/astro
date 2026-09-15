@@ -117,7 +117,7 @@ export function createGetCollection({
 			const { default: imageAssetMap } = await import('astro:asset-imports');
 
 			const result = [];
-			for (const rawEntry of await store.values<DataEntry>(collection)) {
+			for (const rawEntry of await store.values(collection)) {
 				const data = resolveEntryData(rawEntry, imageAssetMap);
 
 				let entry = {
@@ -210,7 +210,7 @@ export function createGetEntry({
 		const store = await globalDataStore.get();
 
 		if (await store.hasCollection(collection)) {
-			const entry = await store.get<DataEntry>(collection, lookupId);
+			const entry = await store.get(collection, lookupId);
 			if (!entry) {
 				logger.warn('content', `Entry ${collection} → ${lookupId} was not found.`);
 				return;

@@ -10,6 +10,9 @@ export const VIRTUAL_MODULE_ID = 'astro:content';
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 export const DATA_STORE_VIRTUAL_ID = 'astro:data-layer-content';
 export const RESOLVED_DATA_STORE_VIRTUAL_ID = '\0' + DATA_STORE_VIRTUAL_ID;
+export const CONTENT_SOURCE_REGISTRY_VIRTUAL_ID = 'astro:content-source-registry';
+export const RESOLVED_CONTENT_SOURCE_REGISTRY_VIRTUAL_ID =
+	'\0' + CONTENT_SOURCE_REGISTRY_VIRTUAL_ID;
 
 // Used by the content layer to create a virtual module that loads the `modules.mjs`, a file created by the content layer
 // to map modules that are renderer at runtime
@@ -44,6 +47,7 @@ export const COLLECTIONS_MANIFEST_FILE = 'collections/collections.json';
 export const COLLECTIONS_DIR = 'collections/';
 
 export const CONTENT_LAYER_TYPE = 'content_layer';
+export const CONTENT_SOURCE_TYPE = 'content_source';
 export const LIVE_CONTENT_TYPE = 'live';
 
 export const DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX = `${DATA_STORE_VIRTUAL_ID}-chunk:`;

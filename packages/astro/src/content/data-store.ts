@@ -1,6 +1,11 @@
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import * as devalue from 'devalue';
-import { type DataStoreSource, InMemorySource } from './data-store-source.js';
+import {
+	type DataStoreSource,
+	type DataStoreSourceRegistry,
+	InMemorySource,
+	RoutedDataStoreSource,
+} from './data-store-source.js';
 
 export interface RenderedContent {
 	/** Rendered HTML string. If present then `render(entry)` will return a component that renders this HTML. */
@@ -179,16 +184,39 @@ export class ImmutableDataStore {
 
 function dataStoreSingleton() {
 	let instance: Promise<DataStoreSource> | DataStoreSource | undefined = undefined;
+	const loadEmbeddedSource = (): Promise<DataStoreSource> =>
+		ImmutableDataStore.fromModule().then((store) => new InMemorySource(store));
 	return {
 		get: async (): Promise<DataStoreSource> => {
 			if (!instance) {
-				instance = ImmutableDataStore.fromModule().then((store) => new InMemorySource(store));
+				// @ts-expect-error This module is provided by the content Vite plugin.
+				instance = import('astro:content-source-registry')
+					.then(({ default: registry }) => registry as DataStoreSourceRegistry | undefined)
+					.catch((error: NodeJS.ErrnoException) => {
+						if (
+							error.code === 'ERR_MODULE_NOT_FOUND' &&
+							error.message.includes('astro:content-source-registry')
+						) {
+							return undefined;
+						}
+						throw error;
+					})
+					.then(async (registry) => {
+						if (!registry) {
+							return loadEmbeddedSource();
+						}
+						const createSource = await registry.load();
+						const source = await createSource(registry.config);
+						return new RoutedDataStoreSource(registry.collections, source, loadEmbeddedSource);
+					});
 			}
 			return instance;
 		},
-		// Note: currently unused, but kept for API stability.
-		set: (store: ImmutableDataStore) => {
-			instance = new InMemorySource(store);
+		set: (source: DataStoreSource | ImmutableDataStore) => {
+			instance = source instanceof ImmutableDataStore ? new InMemorySource(source) : source;
+		},
+		reset: () => {
+			instance = undefined;
 		},
 	};
 }

@@ -239,7 +239,19 @@ export type AstroAdapter = {
 	 * A configuration object for Astro's client-side code.
 	 */
 	client?: AstroAdapterClientConfig;
+
+	/**
+	 * Configures the server-side source for collections that declare `source: 'adapter'`.
+	 */
+	contentCollectionSource?: ContentCollectionSourceConfig;
 } & (AdapterExplicitProperties | AdapterAutoProperties);
+
+export interface ContentCollectionSourceConfig {
+	/** URL or package import for a module whose default export is a content source factory. */
+	entrypoint: string | URL;
+	/** Serializable options passed to the content source factory. */
+	config?: Record<string, unknown>;
+}
 
 /**
  * A pathname with its associated route, used for prerendering.
