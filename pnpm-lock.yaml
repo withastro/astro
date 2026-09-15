@@ -4045,6 +4045,18 @@ importers:
         specifier: workspace:*
         version: link:../../../..
 
+  packages/astro/test/fixtures/server-islands/custom-fetch:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../../../integrations/svelte
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
+      svelte:
+        specifier: ^5.54.0
+        version: 5.55.3
+
   packages/astro/test/fixtures/server-islands/hybrid:
     dependencies:
       '@astrojs/svelte':
@@ -7272,27 +7284,6 @@ importers:
       tsx:
         specifier: ^4.22.0
         version: 4.22.3
-
-  triage/gh-17983:
-    dependencies:
-      '@astrojs/react':
-        specifier: workspace:*
-        version: link:../../packages/integrations/react
-      '@astrojs/vue':
-        specifier: workspace:*
-        version: link:../../packages/integrations/vue
-      astro:
-        specifier: workspace:*
-        version: link:../../packages/astro
-      react:
-        specifier: ^19.0.0
-        version: 19.2.4
-      react-dom:
-        specifier: ^19.0.0
-        version: 19.2.4(react@19.2.4)
-      vue:
-        specifier: ^3.5.0
-        version: 3.5.30(typescript@6.0.3)
 
 packages:
 
