@@ -44,11 +44,19 @@ import { getFirstForwardedValue, validateForwardedHeaders } from '../app/validat
 import type { SSRManifest } from '../app/types.js';
 import { getEnvironment, type RequestLogPayload } from '../environment/index.js';
 import { getLogger } from '../logger/manifest-logger.js';
-import type { AstroLogger } from '../logger/core.js';
+import { astroToRuntimeLogger, type AstroLogger } from '../logger/core.js';
 import { getSite } from '../manifest/derived.js';
 import { getRouteCache } from '../render/route-cache.js';
 import { getRouteTable, matchAllRoutes, matchRoute } from '../routing/route-table.js';
 import { getServerIslands } from '../server-islands/mappings.js';
+
+const slotValuesSymbol = Symbol('astro.slotValues');
+
+type AstroSlotValues = {
+	[slotValuesSymbol]: Record<string, any> | null;
+};
+
+type AstroComponentPartial = Omit<AstroGlobal, 'self' | 'slots'> & Partial<AstroSlotValues>;
 
 /**
  * Per-render facade inputs passed by `BaseApp.render`'s fast path to the
@@ -358,7 +366,7 @@ export class FetchState implements AstroFetchState {
 		this.clientAddress = options?.clientAddress;
 		this.locals = (options?.locals ?? {}) as App.Locals;
 		this.url = url;
-		this.cookies = new AstroCookies(request);
+		this.cookies = new AstroCookies(request, this.logger);
 
 		// Apply X-Forwarded-* headers only when the user has configured
 		// allowedDomains — without it, forwarded headers are never trusted
@@ -539,20 +547,15 @@ export class FetchState implements AstroFetchState {
 		}
 		this.#astroPagePartial ??= this.createAstroPagePartial(result, apiContext);
 		astroPagePartial = this.#astroPagePartial;
-		const astroComponentPartial = { props, self: null };
-		const Astro: Omit<AstroGlobal, 'self' | 'slots'> = Object.assign(
-			Object.create(astroPagePartial),
-			astroComponentPartial,
-		);
-
-		let _slots: AstroGlobal['slots'];
-		Object.defineProperty(Astro, 'slots', {
-			get: () => {
-				if (!_slots) {
-					_slots = new Slots(result, slotValues, this.logger) as unknown as AstroGlobal['slots'];
-				}
-				return _slots;
-			},
+		const Astro: AstroComponentPartial = Object.assign(Object.create(astroPagePartial), {
+			props,
+			self: null,
+		});
+		Object.defineProperty(Astro, slotValuesSymbol, {
+			value: slotValues,
+			writable: true,
+			configurable: true,
+			enumerable: false,
 		});
 
 		return Astro as AstroGlobal;
@@ -588,6 +591,19 @@ export class FetchState implements AstroFetchState {
 			routePattern: this.routeData!.route,
 			isPrerendered: this.routeData!.prerender,
 			cookies,
+			get slots(): Slots {
+				const slotsByAstro = (result._metadata.slotsByAstro ??= new WeakMap());
+				let slots = slotsByAstro.get(this);
+				if (slots === undefined) {
+					slots = new Slots(
+						result,
+						(this as Partial<AstroSlotValues>)[slotValuesSymbol] ?? null,
+						logger,
+					);
+					slotsByAstro.set(this, slots);
+				}
+				return slots;
+			},
 			get clientAddress() {
 				return state.getClientAddress();
 			},
@@ -619,17 +635,7 @@ export class FetchState implements AstroFetchState {
 				return state.getCsp();
 			},
 			get logger(): APIContext['logger'] {
-				return {
-					info(msg: string) {
-						logger.info(null, msg);
-					},
-					warn(msg: string) {
-						logger.warn(null, msg);
-					},
-					error(msg: string) {
-						logger.error(null, msg);
-					},
-				};
+				return astroToRuntimeLogger(logger);
 			},
 		};
 
@@ -1204,17 +1210,7 @@ export class FetchState implements AstroFetchState {
 				return state.getCsp();
 			},
 			get logger(): APIContext['logger'] {
-				return {
-					info(msg: string) {
-						state.logger.info(null, msg);
-					},
-					warn(msg: string) {
-						state.logger.warn(null, msg);
-					},
-					error(msg: string) {
-						state.logger.error(null, msg);
-					},
-				};
+				return astroToRuntimeLogger(state.logger);
 			},
 		};
 

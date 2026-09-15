@@ -22,6 +22,7 @@ import { remarkCollectImages } from '../remark-collect-images.js';
 import type { UnifiedResolvedOptions } from '../processor.js';
 import { getAstroMetadata, rehypeAnalyzeAstroMetadata } from './rehype-analyze-astro-metadata.js';
 import { rehypeApplyFrontmatterExport } from './rehype-apply-frontmatter-export.js';
+import { rehypeCollapseScriptStyle } from './rehype-collapse-script-style.js';
 import { rehypeInjectHeadingsExport } from './rehype-inject-headings-export.js';
 import { rehypeImageToComponent } from './rehype-images-to-component.js';
 import rehypeMetaString from './rehype-meta-string.js';
@@ -158,7 +159,11 @@ function getRehypePlugins(mdxOptions: UnifiedMdxOptions): PluggableList {
 		}
 	}
 
-	rehypePlugins.push(...mdxOptions.rehypePlugins, rehypeImageToComponent);
+	rehypePlugins.push(
+		...mdxOptions.rehypePlugins,
+		rehypeImageToComponent,
+		rehypeCollapseScriptStyle,
+	);
 
 	if (!isPerformanceBenchmark) {
 		// getHeadings() is guaranteed by TS, so this must be included.

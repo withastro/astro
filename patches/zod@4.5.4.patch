@@ -1,8 +1,8 @@
 diff --git a/v4/core/parse.cjs b/v4/core/parse.cjs
-index b3fc27ec55243af1a95cea3866486e316c8814d6..da23a268fd3dc8f17cf9b3aef9e0c4284804d1b9 100644
+index 807fcaf..15fa035 100644
 --- a/v4/core/parse.cjs
 +++ b/v4/core/parse.cjs
-@@ -60,7 +60,12 @@ const _safeParse = (_Err) => (schema, value, _ctx) => {
+@@ -70,7 +70,12 @@ const _safeParse = (_Err) => (schema, value, _ctx) => {
      const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
      const result = schema._zod.run({ value, issues: [] }, ctx);
      if (result instanceof Promise) {
@@ -17,10 +17,10 @@ index b3fc27ec55243af1a95cea3866486e316c8814d6..da23a268fd3dc8f17cf9b3aef9e0c428
      return result.issues.length
          ? {
 diff --git a/v4/core/parse.js b/v4/core/parse.js
-index 42c36d96e0a7146ec4894e3bf225837bd3bd81ee..bd591c13d797b37d6989758681d7cc1274b991bf 100644
+index 4838136..80f7f24 100644
 --- a/v4/core/parse.js
 +++ b/v4/core/parse.js
-@@ -32,7 +32,12 @@ export const _safeParse = (_Err) => (schema, value, _ctx) => {
+@@ -42,7 +42,12 @@ export const _safeParse = (_Err) => (schema, value, _ctx) => {
      const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
      const result = schema._zod.run({ value, issues: [] }, ctx);
      if (result instanceof Promise) {
@@ -35,19 +35,18 @@ index 42c36d96e0a7146ec4894e3bf225837bd3bd81ee..bd591c13d797b37d6989758681d7cc12
      return result.issues.length
          ? {
 diff --git a/v4/core/schemas.cjs b/v4/core/schemas.cjs
-index 8444c1fa122b0502f56b141ffa2939906b49baf9..615a69a6413085b833a37a867f3220999750feb1 100644
+index f50d3ea..aa257b1 100644
 --- a/v4/core/schemas.cjs
 +++ b/v4/core/schemas.cjs
-@@ -146,10 +146,23 @@ exports.$ZodType = core.$constructor("$ZodType", (inst, def) => {
-     util.defineLazy(inst, "~standard", () => ({
+@@ -173,9 +173,22 @@ function standardProps(inst) {
+     return {
          validate: (value) => {
              try {
--                const r = (0, parse_js_1.safeParse)(inst, value);
+-                return toStandardResult((0, parse_js_1.safeParse)(inst, value));
 +                // `jitless` keeps this attempt off the compiled fastpass, which is hard-coded
 +                // synchronous and throws a bare TypeError the moment a member returns a
 +                // promise — losing both the error's meaning and the promise itself.
-+                const r = (0, parse_js_1.safeParse)(inst, value, { jitless: true });
-                 return r.success ? { value: r.data } : { issues: r.error?.issues };
++                return toStandardResult((0, parse_js_1.safeParse)(inst, value, { jitless: true }));
              }
 -            catch (_) {
 +            catch (err) {
@@ -61,23 +60,22 @@ index 8444c1fa122b0502f56b141ffa2939906b49baf9..615a69a6413085b833a37a867f322099
 +                        ? { issues: result.issues.map((iss) => util.finalizeIssue(iss, { async: true }, core.config())) }
 +                        : { value: result.value }));
 +                }
-                 return (0, parse_js_1.safeParseAsync)(inst, value).then((r) => (r.success ? { value: r.data } : { issues: r.error?.issues }));
+                 return (0, parse_js_1.safeParseAsync)(inst, value).then(toStandardResult);
              }
          },
 diff --git a/v4/core/schemas.js b/v4/core/schemas.js
-index 29c61bc5fcf2ca90c2bb0121b7f02e16fdf19f11..8b7b1b5041fd094874ca504ffd13437b65b6cd0d 100644
+index b6834cb..d35c8b5 100644
 --- a/v4/core/schemas.js
 +++ b/v4/core/schemas.js
-@@ -116,10 +116,23 @@ export const $ZodType = /*@__PURE__*/ core.$constructor("$ZodType", (inst, def)
-     util.defineLazy(inst, "~standard", () => ({
+@@ -133,9 +133,22 @@ export function standardProps(inst) {
+     return {
          validate: (value) => {
              try {
--                const r = safeParse(inst, value);
+-                return toStandardResult(safeParse(inst, value));
 +                // `jitless` keeps this attempt off the compiled fastpass, which is hard-coded
 +                // synchronous and throws a bare TypeError the moment a member returns a
 +                // promise — losing both the error's meaning and the promise itself.
-+                const r = safeParse(inst, value, { jitless: true });
-                 return r.success ? { value: r.data } : { issues: r.error?.issues };
++                return toStandardResult(safeParse(inst, value, { jitless: true }));
              }
 -            catch (_) {
 +            catch (err) {
@@ -91,6 +89,6 @@ index 29c61bc5fcf2ca90c2bb0121b7f02e16fdf19f11..8b7b1b5041fd094874ca504ffd13437b
 +                        ? { issues: result.issues.map((iss) => util.finalizeIssue(iss, { async: true }, core.config())) }
 +                        : { value: result.value }));
 +                }
-                 return safeParseAsync(inst, value).then((r) => (r.success ? { value: r.data } : { issues: r.error?.issues }));
+                 return safeParseAsync(inst, value).then(toStandardResult);
              }
          },

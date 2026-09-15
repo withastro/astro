@@ -1,6 +1,7 @@
 import type { SerializeOptions } from 'cookie';
 import { parseCookie, stringifySetCookie } from 'cookie';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import type { AstroLogger } from '../logger/core.js';
 
 export type AstroCookieSetOptions = Pick<
 	SerializeOptions,
@@ -71,11 +72,13 @@ class AstroCookies implements AstroCookiesInterface {
 	#requestValues: Record<string, string | undefined> | null;
 	#outgoing: Map<string, [string, string, boolean]> | null;
 	#consumed: boolean;
-	constructor(request: Request) {
+	#logger: Pick<AstroLogger, 'warn'>;
+	constructor(request: Request, logger: Pick<AstroLogger, 'warn'>) {
 		this.#request = request;
 		this.#requestValues = null;
 		this.#outgoing = null;
 		this.#consumed = false;
+		this.#logger = logger;
 	}
 
 	/**
@@ -167,13 +170,12 @@ class AstroCookies implements AstroCookiesInterface {
 	 */
 	set(key: string, value: string | Record<string, any>, options?: AstroCookieSetOptions): void {
 		if (this.#consumed) {
-			const warning = new Error(
+			this.#logger.warn(
+				'SKIP_FORMAT',
 				'Astro.cookies.set() was called after the cookies had already been sent to the browser.\n' +
 					'This may have happened if this method was called in an imported component.\n' +
 					'Please make sure that Astro.cookies.set() is only called in the frontmatter of the main page.',
 			);
-			warning.name = 'Warning';
-			console.warn(warning);
 		}
 		let serializedValue: string;
 		if (typeof value === 'string') {

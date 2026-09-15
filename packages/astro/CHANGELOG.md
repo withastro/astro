@@ -1,5 +1,85 @@
 # astro
 
+## 7.3.2
+
+### Patch Changes
+
+- [#17896](https://github.com/withastro/astro/pull/17896) [`a548223`](https://github.com/withastro/astro/commit/a548223607b9bb146d5d90ddda495343f9a2a739) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `<script>`/`<style>` rendering in MDX so that only literal content (including content injected by remark/rehype plugins) is treated as trusted markup. A dynamic value passed as a `<script>`/`<style>` child (e.g. `<script>{value}</script>`) is now escaped like any other element's content instead of being rendered raw. Use `set:html` to explicitly opt a dynamic value back into raw rendering.
+
+- [#17931](https://github.com/withastro/astro/pull/17931) [`c1a6a89`](https://github.com/withastro/astro/commit/c1a6a89efa577b8388f04c4b42d655913bb4b886) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the dev toolbar returning a 504 "Outdated Optimize Dep" error when a workspace-linked package imports a dependency that Vite's initial scan did not discover
+
+- [#17908](https://github.com/withastro/astro/pull/17908) [`42e9188`](https://github.com/withastro/astro/commit/42e9188c4ba7360e5ab8ea4cd7f13d6abcf31879) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes i18n fallback routing replacing the first substring match instead of the actual locale segment, which mangled paths like `/energy/en/about` into `/esergy/en/about`
+
+- [#17936](https://github.com/withastro/astro/pull/17936) [`4b92ddc`](https://github.com/withastro/astro/commit/4b92ddc6ab0795ac78c30aedfe43b081dcf5b6b0) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes sessions breaking in dev mode with the Cloudflare adapter when middleware is present
+
+- Updated dependencies [[`a548223`](https://github.com/withastro/astro/commit/a548223607b9bb146d5d90ddda495343f9a2a739)]:
+  - @astrojs/markdown-satteri@0.4.1
+
+## 7.3.1
+
+### Patch Changes
+
+- [#17899](https://github.com/withastro/astro/pull/17899) [`0389640`](https://github.com/withastro/astro/commit/03896405717471f7d6ff54986ed6beaec0cac94f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an error that prevented projects using `astro:assets` from starting or building
+
+## 7.3.0
+
+### Minor Changes
+
+- [#17767](https://github.com/withastro/astro/pull/17767) [`ce7c91f`](https://github.com/withastro/astro/commit/ce7c91f77dbd7be03c04bc13f87af9d01fef6cef) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Adds `--ignore-lock` flag to `astro preview`, allowing multiple preview servers to run simultaneously on different ports. This is useful for E2E testing workflows (e.g., Playwright) that need to run several preview servers at once.
+
+- [#17818](https://github.com/withastro/astro/pull/17818) [`c0b6581`](https://github.com/withastro/astro/commit/c0b65811dfa0dafa1aa04b7d6d67fd09250ff8c1) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a `logger` parameter to image services hooks
+
+  Custom image services now receive Astro's runtime logger as an extra argument. Messages logged with it are routed through the destination configured in `logger` and respect your log level, instead of being written straight to the console:
+
+  ```ts
+  import type { LocalImageService } from 'astro';
+
+  const service: LocalImageService = {
+    // ...
+    async transform(inputBuffer, transform, imageConfig, logger) {
+      logger.warn(`Could not optimize "${transform.src}". Passing it through unchanged.`);
+      return { data: inputBuffer, format: 'png' };
+    },
+  };
+  ```
+
+  Astro's built-in Sharp service now uses this logger for the warnings it emits when it encounters an unexpected or unsupported source format.
+
+- [#17818](https://github.com/withastro/astro/pull/17818) [`c0b6581`](https://github.com/withastro/astro/commit/c0b65811dfa0dafa1aa04b7d6d67fd09250ff8c1) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds `logger` to the context object passed to cache providers
+
+  Custom cache providers now receive Astro's runtime logger on the context passed to `onRequest()`. Messages logged with it are routed through the destination configured in `logger` and respect your log level, instead of being written straight to the console:
+
+  ```ts
+  import type { CacheProvider } from 'astro';
+
+  const provider: CacheProvider = {
+    name: 'my-cache',
+    async onRequest({ request, url, logger }, next) {
+      logger.warn(`Skipping cache for ${url.pathname} because the response sets a cookie.`);
+      return next();
+    },
+    // ...
+  };
+  ```
+
+  Astro's built-in `memoryCache()` provider now uses this logger for the warnings it emits when it skips caching a response that sets cookies, and when a background revalidation fails.
+
+### Patch Changes
+
+- [#17818](https://github.com/withastro/astro/pull/17818) [`c0b6581`](https://github.com/withastro/astro/commit/c0b65811dfa0dafa1aa04b7d6d67fd09250ff8c1) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates Astro's remaining internal warnings and errors to be written through the configured logger instead of directly to the console, when possible
+
+- [#17886](https://github.com/withastro/astro/pull/17886) [`e747cba`](https://github.com/withastro/astro/commit/e747cba07fcd2b9e7fb03c02ed42abfe2079daa2) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the memory cache provider to skip responses with `Vary: Cookie` or `Vary: *`
+
+- [#17885](https://github.com/withastro/astro/pull/17885) [`916b738`](https://github.com/withastro/astro/commit/916b738b0447728f1c274e32677c9bac09be78f6) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Improves build performance for sites with a large number of pages coming from a large amount of different modules.
+
+- [#17795](https://github.com/withastro/astro/pull/17795) [`15e2deb`](https://github.com/withastro/astro/commit/15e2debc7e81d353410ff76a76c3bf75b7fb3070) Thanks [@matthewp](https://github.com/matthewp)! - Adds concurrent rendering support for `experimental.incrementalBuild`, including when using `@astrojs/cloudflare`
+
+  Incremental builds no longer disable caching when `build.concurrency` is greater than `1`. Projects that set `build.concurrency: 1` to keep the cache enabled can remove that workaround. Cloudflare builds also reduce serialization overhead for large prerendered pages.
+
+- [#17879](https://github.com/withastro/astro/pull/17879) [`21c34a6`](https://github.com/withastro/astro/commit/21c34a6816372220157ff7e6b697275360d3e367) Thanks [@matthewp](https://github.com/matthewp)! - Fixes missing styles, links, and scripts from content collection entries rendered inside server islands
+
+- [#17861](https://github.com/withastro/astro/pull/17861) [`3193988`](https://github.com/withastro/astro/commit/3193988d0566f53ecd10b03cd18669dcf230c8d6) Thanks [@ethanstoner](https://github.com/ethanstoner)! - Fixes i18n fallback routes being generated with a corrupted path when the locale code also appears at the start of a later path segment. A page such as `src/pages/en/enterprise.astro` with `fallback: { es: 'en' }` produced the route `/es/esterprise` instead of `/es/enterprise`, so the fallback never matched the intended URL. Only the leading locale segment is rewritten now.
+
 ## 7.2.10
 
 ### Patch Changes

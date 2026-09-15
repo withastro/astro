@@ -30,6 +30,10 @@ import {
 } from '../satteri-processor.js';
 import { shouldAddCharset } from './charset.js';
 import { createAstroMetadataPlugin } from './hast-astro-metadata.js';
+import {
+	collapseScriptStyleText,
+	literalizeScriptStyleExpression,
+} from './hast-collapse-script-style.js';
 import { createImageToComponentPlugin, type ImageImportInfo } from './hast-images-to-component.js';
 
 type HighlightFn = (code: string, lang: string, meta?: string) => Promise<HastNode>;
@@ -98,7 +102,13 @@ export function createSatteriMdxProcessor(
 			if (satteriOptions.hastPlugins.length) {
 				hastPlugins.push(...satteriOptions.hastPlugins);
 			}
-			hastPlugins.push(imageToComponent, headingIds, astroMeta);
+			hastPlugins.push(
+				imageToComponent,
+				headingIds,
+				astroMeta,
+				literalizeScriptStyleExpression,
+				collapseScriptStyleText,
+			);
 
 			let optimizeStatic: MdxCompileOptions['optimizeStatic'];
 			if (mdx.optimize) {

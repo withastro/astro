@@ -37,6 +37,19 @@ describe('Skew Protection', { timeout: 120000 }, () => {
 		);
 	});
 
+	it('skew-protection.json includes the assets directory pattern', async () => {
+		const skewProtectionPath = new URL(
+			'./fixtures/skew-protection/.netlify/v1/skew-protection.json',
+			import.meta.url,
+		);
+		const contents = await readFile(skewProtectionPath, 'utf-8');
+		const config = JSON.parse(contents);
+		assert.ok(
+			config.patterns.includes('/_astro/.*'),
+			'skew-protection.json patterns should include /_astro/.* to pin build assets',
+		);
+	});
+
 	it('Manifest contains internalFetchHeaders', async () => {
 		// The manifest is embedded in the build output. Rolldown (Vite 8) may inline it
 		// into entry.mjs instead of placing it in a separate chunk, so scan both locations.

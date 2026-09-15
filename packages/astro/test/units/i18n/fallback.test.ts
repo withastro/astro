@@ -428,6 +428,48 @@ describe('computeFallbackRoute', () => {
 			assert.equal((result as Extract<FallbackRouteResult, { type: 'redirect' }>).pathname, '/en');
 		});
 
+		it('replaces only the locale segment when an earlier segment contains the locale as a substring', () => {
+			const result: FallbackRouteResult = computeFallbackRoute(
+				makeFallbackOptions({
+					pathname: '/energy/en/about',
+					responseStatus: 404,
+					currentLocale: 'en',
+					locales: ['en', 'es'],
+					defaultLocale: 'es',
+					fallback: { en: 'es' },
+					fallbackType: 'rewrite',
+					strategy: 'pathname-prefix-always',
+				}),
+			);
+
+			assert.equal(result.type, 'rewrite');
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'rewrite' }>).pathname,
+				'/energy/es/about',
+			);
+		});
+
+		it('removes only the locale segment for prefix-other-locales when an earlier segment contains the locale as a substring', () => {
+			const result: FallbackRouteResult = computeFallbackRoute(
+				makeFallbackOptions({
+					pathname: '/espresso/es/about',
+					responseStatus: 404,
+					currentLocale: 'es',
+					locales: ['en', 'es'],
+					defaultLocale: 'en',
+					fallback: { es: 'en' },
+					fallbackType: 'rewrite',
+					strategy: 'pathname-prefix-other-locales',
+				}),
+			);
+
+			assert.equal(result.type, 'rewrite');
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'rewrite' }>).pathname,
+				'/espresso/about',
+			);
+		});
+
 		it('preserves trailing content after locale replacement', () => {
 			const result: FallbackRouteResult = computeFallbackRoute(
 				makeFallbackOptions({

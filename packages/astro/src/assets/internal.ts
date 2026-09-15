@@ -2,6 +2,7 @@ import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroConfig } from '../types/public/config.js';
+import type { AstroRuntimeLogger } from '../types/public/context.js';
 import type { AstroAdapterClientConfig } from '../types/public/integrations.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';
 import {
@@ -48,6 +49,7 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 export async function getImage(
 	options: UnresolvedImageTransform,
 	imageConfig: AstroConfig['image'] & AstroAdapterClientConfig,
+	logger: AstroRuntimeLogger,
 ): Promise<GetImageResult> {
 	if (!options || typeof options !== 'object') {
 		throw new AstroError({
@@ -94,7 +96,7 @@ export async function getImage(
 			}
 
 			const getRemoteSize = (url: string) =>
-				service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSize(url, imageConfig);
+				service.getRemoteSize?.(url, imageConfig, logger) ?? inferRemoteSize(url, imageConfig);
 			const result = await getRemoteSize(resolvedOptions.src); // Directly probe the image URL
 			resolvedOptions.width ??= result.width;
 			resolvedOptions.height ??= result.height;
@@ -183,18 +185,19 @@ export async function getImage(
 	}
 
 	const validatedOptions = service.validateOptions
-		? await service.validateOptions(resolvedOptions, imageConfig)
+		? await service.validateOptions(resolvedOptions, imageConfig, logger)
 		: resolvedOptions;
 
 	validatedOptions.format ??= await peekRemoteFormatForStaticEmit(
 		validatedOptions,
 		imageConfig,
 		service,
+		logger,
 	);
 
 	// Get all the options for the different srcSets
 	const srcSetTransforms = service.getSrcSet
-		? await service.getSrcSet(validatedOptions, imageConfig)
+		? await service.getSrcSet(validatedOptions, imageConfig, logger)
 		: [];
 
 	// In the Picture component, the optimized original-sized image is typically not used when `widths` is set.
@@ -204,7 +207,7 @@ export async function getImage(
 		let cached: string | null = null;
 		return () => (cached ??= getValue());
 	};
-	const initialImageURL = await service.getURL(validatedOptions, imageConfig);
+	const initialImageURL = await service.getURL(validatedOptions, imageConfig, logger);
 	let lazyImageURL = lazyImageURLFactory(() => initialImageURL);
 
 	const matchesValidatedTransform = (transform: ImageTransform) =>
@@ -218,7 +221,7 @@ export async function getImage(
 				transform: srcSet.transform,
 				url: matchesValidatedTransform(srcSet.transform)
 					? initialImageURL
-					: await service.getURL(srcSet.transform, imageConfig),
+					: await service.getURL(srcSet.transform, imageConfig, logger),
 				descriptor: srcSet.descriptor,
 				attributes: srcSet.attributes,
 			};
@@ -276,7 +279,7 @@ export async function getImage(
 		},
 		attributes:
 			service.getHTMLAttributes !== undefined
-				? await service.getHTMLAttributes(validatedOptions, imageConfig)
+				? await service.getHTMLAttributes(validatedOptions, imageConfig, logger)
 				: {},
 	};
 }
@@ -291,6 +294,7 @@ async function peekRemoteFormatForStaticEmit(
 	options: ImageTransform,
 	imageConfig: AstroConfig['image'] & AstroAdapterClientConfig,
 	service: ImageService,
+	logger: AstroRuntimeLogger,
 ): Promise<string | undefined> {
 	if (
 		!isRemoteImage(options.src) ||
@@ -303,7 +307,7 @@ async function peekRemoteFormatForStaticEmit(
 	}
 
 	try {
-		const probed = await service.getRemoteSize(options.src, imageConfig);
+		const probed = await service.getRemoteSize(options.src, imageConfig, logger);
 		return resolveDefaultOutputFormat(probed.format);
 	} catch {
 		return undefined;

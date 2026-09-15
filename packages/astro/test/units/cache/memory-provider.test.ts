@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { describe, it, mock } from 'node:test';
 import type { CacheProvider } from '../../../dist/core/cache/types.js';
 import type { MemoryCacheProviderOptions } from '../../../dist/core/cache/memory-provider.js';
 import memoryProvider from '../../../dist/core/cache/memory-provider.js';
@@ -16,6 +16,17 @@ function createProvider(config?: MemoryCacheProviderOptions): CacheProvider {
  */
 function makeRequest(url: string, headers: Record<string, string> = {}): Request {
 	return new Request(url, { headers });
+}
+
+/**
+ * Helper: create the context passed to `onRequest`, with a no-op logger.
+ */
+function makeContext(request: Request, warn: (message: string) => void = () => {}) {
+	return {
+		request,
+		url: new URL(request.url),
+		logger: { info() {}, warn, error() {} },
+	};
 }
 
 /**
@@ -53,7 +64,7 @@ describe('memory-provider onRequest', () => {
 	it('passes through when no cache headers on response', async () => {
 		const provider = createProvider();
 		const req = makeRequest('http://localhost/page');
-		const res = await provider.onRequest!({ request: req, url: new URL(req.url) }, makeNext());
+		const res = await provider.onRequest!(makeContext(req), makeNext());
 		assert.equal(await res.text(), 'ok');
 		assert.equal(res.headers.has('X-Astro-Cache'), false);
 	});
@@ -61,10 +72,7 @@ describe('memory-provider onRequest', () => {
 	it('returns MISS on first cacheable request', async () => {
 		const provider = createProvider();
 		const req = makeRequest('http://localhost/page');
-		const res = await provider.onRequest!(
-			{ request: req, url: new URL(req.url) },
-			makeNext({ maxAge: 60 }),
-		);
+		const res = await provider.onRequest!(makeContext(req), makeNext({ maxAge: 60 }));
 		assert.equal(res.headers.get('X-Astro-Cache'), 'MISS');
 		assert.equal(await res.text(), 'ok');
 	});
@@ -75,15 +83,12 @@ describe('memory-provider onRequest', () => {
 
 		// First request — MISS
 		const req1 = makeRequest(url);
-		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
-			makeNext({ maxAge: 60, body: 'first' }),
-		);
+		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'first' }));
 
 		// Second request — HIT
 		const req2 = makeRequest(url);
 		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
+			makeContext(req2),
 			makeNext({ maxAge: 60, body: 'second' }),
 		);
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
@@ -94,7 +99,7 @@ describe('memory-provider onRequest', () => {
 		const provider = createProvider();
 		const req = new Request('http://localhost/page', { method: 'POST' });
 		let called = false;
-		const res = await provider.onRequest!({ request: req, url: new URL(req.url) }, async () => {
+		const res = await provider.onRequest!(makeContext(req), async () => {
 			called = true;
 			return new Response('posted');
 		});
@@ -110,14 +115,14 @@ describe('memory-provider onRequest', () => {
 		// First request — has Set-Cookie, should not cache
 		const req1 = makeRequest(url);
 		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
+			makeContext(req1),
 			makeNext({ maxAge: 60, headers: { 'Set-Cookie': 'session=abc' } }),
 		);
 
 		// Second request — should be a miss (not cached)
 		const req2 = makeRequest(url);
 		let nextCalled = false;
-		await provider.onRequest!({ request: req2, url: new URL(req2.url) }, async () => {
+		await provider.onRequest!(makeContext(req2), async () => {
 			nextCalled = true;
 			const h = new Headers({ 'CDN-Cache-Control': 'max-age=60' });
 			return new Response('fresh', { headers: h });
@@ -135,14 +140,11 @@ describe('memory-provider host-aware cache keys', () => {
 		const provider = createProvider();
 
 		const req1 = makeRequest('http://host-a.com/page');
-		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
-			makeNext({ maxAge: 60, body: 'host-a' }),
-		);
+		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'host-a' }));
 
 		const req2 = makeRequest('http://host-b.com/page');
 		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
+			makeContext(req2),
 			makeNext({ maxAge: 60, body: 'host-b' }),
 		);
 		// Should be a MISS because different host
@@ -160,15 +162,12 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider();
 
 		const req1 = makeRequest('http://localhost/page?b=2&a=1');
-		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
-			makeNext({ maxAge: 60, body: 'first' }),
-		);
+		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'first' }));
 
 		// Same params, different order — should HIT
 		const req2 = makeRequest('http://localhost/page?a=1&b=2');
 		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
+			makeContext(req2),
 			makeNext({ maxAge: 60, body: 'second' }),
 		);
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
@@ -178,14 +177,11 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider();
 
 		const req1 = makeRequest('http://localhost/page');
-		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
-			makeNext({ maxAge: 60, body: 'first' }),
-		);
+		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'first' }));
 
 		const req2 = makeRequest('http://localhost/page?utm_source=twitter&utm_medium=social');
 		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
+			makeContext(req2),
 			makeNext({ maxAge: 60, body: 'second' }),
 		);
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
@@ -195,14 +191,11 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider();
 
 		const req1 = makeRequest('http://localhost/page?page=2');
-		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
-			makeNext({ maxAge: 60, body: 'page-2' }),
-		);
+		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'page-2' }));
 
 		const req2 = makeRequest('http://localhost/page?page=2&fbclid=abc123');
 		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
+			makeContext(req2),
 			makeNext({ maxAge: 60, body: 'should-not-see' }),
 		);
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
@@ -212,14 +205,11 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider();
 
 		const req1 = makeRequest('http://localhost/page?page=3');
-		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
-			makeNext({ maxAge: 60, body: 'page-3' }),
-		);
+		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'page-3' }));
 
 		const req2 = makeRequest('http://localhost/page?page=3&gclid=xyz789');
 		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
+			makeContext(req2),
 			makeNext({ maxAge: 60, body: 'should-not-see' }),
 		);
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
@@ -229,14 +219,11 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider();
 
 		const req1 = makeRequest('http://localhost/page');
-		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
-			makeNext({ maxAge: 60, body: 'no-params' }),
-		);
+		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'no-params' }));
 
 		const req2 = makeRequest('http://localhost/page?utm_source=twitter&fbclid=abc&gclid=xyz');
 		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
+			makeContext(req2),
 			makeNext({ maxAge: 60, body: 'should-not-see' }),
 		);
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
@@ -246,14 +233,11 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider();
 
 		const req1 = makeRequest('http://localhost/page?id=1');
-		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
-			makeNext({ maxAge: 60, body: 'id-1' }),
-		);
+		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'id-1' }));
 
 		const req2 = makeRequest('http://localhost/page?id=2');
 		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
+			makeContext(req2),
 			makeNext({ maxAge: 60, body: 'id-2' }),
 		);
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'MISS');
@@ -263,15 +247,12 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider({ query: { include: ['page'] } });
 
 		const req1 = makeRequest('http://localhost/list?page=1&sort=name');
-		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
-			makeNext({ maxAge: 60, body: 'page-1' }),
-		);
+		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'page-1' }));
 
 		// Different sort but same page — should HIT (sort not in include list)
 		const req2 = makeRequest('http://localhost/list?page=1&sort=date');
 		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
+			makeContext(req2),
 			makeNext({ maxAge: 60, body: 'page-1-date' }),
 		);
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
@@ -281,14 +262,11 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider({ query: { include: ['page'] } });
 
 		const req1 = makeRequest('http://localhost/list');
-		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
-			makeNext({ maxAge: 60, body: 'no-params' }),
-		);
+		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'no-params' }));
 
 		const req2 = makeRequest('http://localhost/list?sort=name&filter=active');
 		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
+			makeContext(req2),
 			makeNext({ maxAge: 60, body: 'should-not-see' }),
 		);
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
@@ -298,14 +276,11 @@ describe('memory-provider query parameters', () => {
 		const provider = createProvider({ query: { exclude: ['session_*'] } });
 
 		const req1 = makeRequest('http://localhost/page?id=1');
-		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
-			makeNext({ maxAge: 60, body: 'first' }),
-		);
+		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body: 'first' }));
 
 		const req2 = makeRequest('http://localhost/page?id=1&session_id=abc');
 		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
+			makeContext(req2),
 			makeNext({ maxAge: 60, body: 'second' }),
 		);
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
@@ -330,14 +305,14 @@ describe('memory-provider Vary header', () => {
 		// First request: Accept-Language: en
 		const req1 = makeRequest(url, { 'Accept-Language': 'en' });
 		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
+			makeContext(req1),
 			makeNext({ maxAge: 60, body: 'english', headers: { Vary: 'Accept-Language' } }),
 		);
 
 		// Second request: Accept-Language: fr — should MISS
 		const req2 = makeRequest(url, { 'Accept-Language': 'fr' });
 		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
+			makeContext(req2),
 			makeNext({ maxAge: 60, body: 'french', headers: { Vary: 'Accept-Language' } }),
 		);
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'MISS');
@@ -346,30 +321,38 @@ describe('memory-provider Vary header', () => {
 		// Third request: Accept-Language: en — should HIT from first
 		const req3 = makeRequest(url, { 'Accept-Language': 'en' });
 		const res3 = await provider.onRequest!(
-			{ request: req3, url: new URL(req3.url) },
+			makeContext(req3),
 			makeNext({ maxAge: 60, body: 'should-not-see' }),
 		);
 		assert.equal(res3.headers.get('X-Astro-Cache'), 'HIT');
 		assert.equal(await res3.text(), 'english');
 	});
 
-	it('ignores Cookie in Vary header', async () => {
-		const provider = createProvider();
-		const url = 'http://localhost/page';
+	it('does not cache responses when Vary contains Cookie or *', async () => {
+		for (const [vary, header] of [
+			['Cookie', 'Cookie'],
+			['*', '*'],
+			['Accept-Language, Cookie', 'Cookie'],
+		] as const) {
+			const provider = createProvider();
+			const url = 'http://localhost/page';
+			const req1 = makeRequest(url, { Cookie: 'user=a' });
+			const warn = mock.fn<(message: string) => void>();
+			const res1 = await provider.onRequest!(
+				makeContext(req1, warn),
+				makeNext({ maxAge: 60, body: 'first', headers: { Vary: vary } }),
+			);
+			assert.equal(res1.headers.has('X-Astro-Cache'), false);
+			assert.equal(warn.mock.callCount(), 1);
+			assert.equal(
+				warn.mock.calls[0].arguments[0],
+				`Skipping cache for /page because response includes Vary: ${header}.`,
+			);
 
-		const req1 = makeRequest(url, { Cookie: 'user=a' });
-		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
-			makeNext({ maxAge: 60, body: 'first', headers: { Vary: 'Cookie' } }),
-		);
-
-		// Different cookie — should still HIT (Cookie is ignored in Vary)
-		const req2 = makeRequest(url, { Cookie: 'user=b' });
-		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
-			makeNext({ maxAge: 60, body: 'second' }),
-		);
-		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
+			const req2 = makeRequest(url, { Cookie: 'user=b' });
+			const res2 = await provider.onRequest!(makeContext(req2), makeNext({ body: 'second' }));
+			assert.equal(await res2.text(), 'second');
+		}
 	});
 });
 
@@ -384,23 +367,17 @@ describe('memory-provider LRU eviction', () => {
 		// Fill cache with 2 entries
 		for (const path of ['/a', '/b']) {
 			const req = makeRequest(`http://localhost${path}`);
-			await provider.onRequest!(
-				{ request: req, url: new URL(req.url) },
-				makeNext({ maxAge: 60, body: path }),
-			);
+			await provider.onRequest!(makeContext(req), makeNext({ maxAge: 60, body: path }));
 		}
 
 		// Add a third — should evict /a (oldest)
 		const req3 = makeRequest('http://localhost/c');
-		await provider.onRequest!(
-			{ request: req3, url: new URL(req3.url) },
-			makeNext({ maxAge: 60, body: '/c' }),
-		);
+		await provider.onRequest!(makeContext(req3), makeNext({ maxAge: 60, body: '/c' }));
 
 		// /b should still be cached (HIT)
 		const reqB = makeRequest('http://localhost/b');
 		const resB = await provider.onRequest!(
-			{ request: reqB, url: new URL(reqB.url) },
+			makeContext(reqB),
 			makeNext({ maxAge: 60, body: '/b-new' }),
 		);
 		assert.equal(resB.headers.get('X-Astro-Cache'), 'HIT');
@@ -408,7 +385,7 @@ describe('memory-provider LRU eviction', () => {
 		// /c should still be cached (HIT)
 		const reqC = makeRequest('http://localhost/c');
 		const resC = await provider.onRequest!(
-			{ request: reqC, url: new URL(reqC.url) },
+			makeContext(reqC),
 			makeNext({ maxAge: 60, body: '/c-new' }),
 		);
 		assert.equal(resC.headers.get('X-Astro-Cache'), 'HIT');
@@ -416,10 +393,7 @@ describe('memory-provider LRU eviction', () => {
 		// /a should have been evicted (MISS) — check without caching the result
 		// by using a next() that returns no cache headers
 		const reqA = makeRequest('http://localhost/a');
-		const resA = await provider.onRequest!(
-			{ request: reqA, url: new URL(reqA.url) },
-			makeNext({ body: '/a-evicted' }),
-		);
+		const resA = await provider.onRequest!(makeContext(reqA), makeNext({ body: '/a-evicted' }));
 		assert.equal(resA.headers.has('X-Astro-Cache'), false);
 	});
 });
@@ -435,17 +409,11 @@ describe('memory-provider invalidate', () => {
 
 		// Cache an entry with tags
 		const req1 = makeRequest(url);
-		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
-			makeNext({ maxAge: 60, tags: ['product'] }),
-		);
+		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, tags: ['product'] }));
 
 		// Verify cached
 		const req2 = makeRequest(url);
-		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
-			makeNext({ maxAge: 60 }),
-		);
+		const res2 = await provider.onRequest!(makeContext(req2), makeNext({ maxAge: 60 }));
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
 
 		// Invalidate
@@ -454,7 +422,7 @@ describe('memory-provider invalidate', () => {
 		// Should be MISS now
 		const req3 = makeRequest(url);
 		const res3 = await provider.onRequest!(
-			{ request: req3, url: new URL(req3.url) },
+			makeContext(req3),
 			makeNext({ maxAge: 60, body: 'fresh' }),
 		);
 		assert.equal(res3.headers.get('X-Astro-Cache'), 'MISS');
@@ -466,10 +434,7 @@ describe('memory-provider invalidate', () => {
 		// Cache two entries
 		for (const path of ['/a', '/b']) {
 			const req = makeRequest(`http://localhost${path}`);
-			await provider.onRequest!(
-				{ request: req, url: new URL(req.url) },
-				makeNext({ maxAge: 60, body: path }),
-			);
+			await provider.onRequest!(makeContext(req), makeNext({ maxAge: 60, body: path }));
 		}
 
 		// Invalidate only /a
@@ -478,7 +443,7 @@ describe('memory-provider invalidate', () => {
 		// /a should miss
 		const reqA = makeRequest('http://localhost/a');
 		const resA = await provider.onRequest!(
-			{ request: reqA, url: new URL(reqA.url) },
+			makeContext(reqA),
 			makeNext({ maxAge: 60, body: 'a-new' }),
 		);
 		assert.equal(resA.headers.get('X-Astro-Cache'), 'MISS');
@@ -486,7 +451,7 @@ describe('memory-provider invalidate', () => {
 		// /b should still hit
 		const reqB = makeRequest('http://localhost/b');
 		const resB = await provider.onRequest!(
-			{ request: reqB, url: new URL(reqB.url) },
+			makeContext(reqB),
 			makeNext({ maxAge: 60, body: 'b-new' }),
 		);
 		assert.equal(resB.headers.get('X-Astro-Cache'), 'HIT');
@@ -497,18 +462,12 @@ describe('memory-provider invalidate', () => {
 		const url = 'http://localhost/page';
 
 		const req1 = makeRequest(url);
-		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
-			makeNext({ maxAge: 60, tags: ['product'] }),
-		);
+		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, tags: ['product'] }));
 
 		await provider.invalidate({ tags: ['blog'] });
 
 		const req2 = makeRequest(url);
-		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
-			makeNext({ maxAge: 60 }),
-		);
+		const res2 = await provider.onRequest!(makeContext(req2), makeNext({ maxAge: 60 }));
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'HIT');
 	});
 });
@@ -527,7 +486,7 @@ describe('memory-provider SWR', () => {
 		// Instead, seed with maxAge=1, swr=60, then wait briefly.
 		const req1 = makeRequest(url);
 		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
+			makeContext(req1),
 			makeNext({ maxAge: 1, swr: 60, body: 'stale-body' }),
 		);
 
@@ -537,7 +496,7 @@ describe('memory-provider SWR', () => {
 		// Second request should get STALE
 		const req2 = makeRequest(url);
 		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
+			makeContext(req2),
 			makeNext({ maxAge: 60, swr: 60, body: 'fresh-body' }),
 		);
 		assert.equal(res2.headers.get('X-Astro-Cache'), 'STALE');
@@ -549,10 +508,42 @@ describe('memory-provider SWR', () => {
 		// Third request should now get HIT with the fresh content
 		const req3 = makeRequest(url);
 		const res3 = await provider.onRequest!(
-			{ request: req3, url: new URL(req3.url) },
+			makeContext(req3),
 			makeNext({ maxAge: 60, body: 'should-not-see' }),
 		);
 		assert.equal(res3.headers.get('X-Astro-Cache'), 'HIT');
+		assert.equal(await res3.text(), 'fresh-body');
+	});
+
+	it('removes stale entries when revalidation returns an uncacheable Vary header', async (t) => {
+		t.mock.timers.enable({ apis: ['Date'], now: 1_000 });
+		t.after(() => mock.timers.reset());
+		const provider = createProvider();
+		const url = 'http://localhost/page';
+		const req1 = makeRequest(url);
+		await provider.onRequest!(
+			makeContext(req1),
+			makeNext({ maxAge: 1, swr: 60, body: 'stale-body' }),
+		);
+
+		t.mock.timers.tick(2_000);
+		const req2 = makeRequest(url);
+		const warn = mock.fn<(message: string) => void>();
+		const res2 = await provider.onRequest!(
+			makeContext(req2, warn),
+			makeNext({ maxAge: 60, body: 'uncached-body', headers: { Vary: 'Cookie' } }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'STALE');
+		await Promise.resolve();
+		assert.equal(warn.mock.callCount(), 1);
+		assert.equal(
+			warn.mock.calls[0].arguments[0],
+			'Skipping cache for /page because response includes Vary: Cookie.',
+		);
+
+		const req3 = makeRequest(url);
+		const res3 = await provider.onRequest!(makeContext(req3), makeNext({ body: 'fresh-body' }));
+		assert.equal(res3.headers.has('X-Astro-Cache'), false);
 		assert.equal(await res3.text(), 'fresh-body');
 	});
 });
@@ -568,14 +559,11 @@ describe('memory-provider response body', () => {
 		const body = JSON.stringify({ data: [1, 2, 3], nested: { key: 'value' } });
 
 		const req1 = makeRequest(url);
-		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
-			makeNext({ maxAge: 60, body }),
-		);
+		await provider.onRequest!(makeContext(req1), makeNext({ maxAge: 60, body }));
 
 		const req2 = makeRequest(url);
 		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
+			makeContext(req2),
 			makeNext({ maxAge: 60, body: 'wrong' }),
 		);
 		assert.equal(await res2.text(), body);
@@ -587,15 +575,12 @@ describe('memory-provider response body', () => {
 
 		const req1 = makeRequest(url);
 		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
+			makeContext(req1),
 			makeNext({ maxAge: 60, status: 201, body: 'created' }),
 		);
 
 		const req2 = makeRequest(url);
-		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
-			makeNext({ maxAge: 60 }),
-		);
+		const res2 = await provider.onRequest!(makeContext(req2), makeNext({ maxAge: 60 }));
 		assert.equal(res2.status, 201);
 	});
 
@@ -605,7 +590,7 @@ describe('memory-provider response body', () => {
 
 		const req1 = makeRequest(url);
 		await provider.onRequest!(
-			{ request: req1, url: new URL(req1.url) },
+			makeContext(req1),
 			makeNext({
 				maxAge: 60,
 				headers: { 'Content-Type': 'application/json', 'X-Custom': 'hello' },
@@ -613,10 +598,7 @@ describe('memory-provider response body', () => {
 		);
 
 		const req2 = makeRequest(url);
-		const res2 = await provider.onRequest!(
-			{ request: req2, url: new URL(req2.url) },
-			makeNext({ maxAge: 60 }),
-		);
+		const res2 = await provider.onRequest!(makeContext(req2), makeNext({ maxAge: 60 }));
 		assert.equal(res2.headers.get('Content-Type'), 'application/json');
 		assert.equal(res2.headers.get('X-Custom'), 'hello');
 	});

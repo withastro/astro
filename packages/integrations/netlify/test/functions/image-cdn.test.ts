@@ -3,7 +3,9 @@ import { after, before, describe, it } from 'node:test';
 import { remotePatternToRegex } from '@astrojs/netlify';
 import imageService from '../../dist/image-service.js';
 import { loadFixture, SpyLogger } from '../test-utils.ts';
-import type { ImageTransform } from 'astro';
+import type { AstroRuntimeLogger, ImageTransform } from 'astro';
+
+const noopLogger: AstroRuntimeLogger = { info() {}, warn() {}, error() {} };
 
 async function getURL(options: ImageTransform) {
 	return await imageService.getURL(
@@ -12,6 +14,7 @@ async function getURL(options: ImageTransform) {
 		// implementation of `imageService.getURL`, but we need to pass it
 		// to satisfy the type signature.
 		{},
+		noopLogger,
 	);
 }
 
