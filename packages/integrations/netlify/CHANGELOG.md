@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 8.2.6
+
+### Patch Changes
+
+- [#17978](https://github.com/withastro/astro/pull/17978) [`7a698ca`](https://github.com/withastro/astro/commit/7a698ca6e70d778343786cbf8fedd5f49d169ea4) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes skew protection to include the build assets directory (`/_astro/` by default) in `skew-protection.json` patterns, preventing lazy-hydrated islands from loading duplicate framework instances after a redeploy
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 8.2.5
 
 ### Patch Changes

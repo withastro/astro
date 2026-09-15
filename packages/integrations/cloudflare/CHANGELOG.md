@@ -1,5 +1,18 @@
 # @astrojs/cloudflare
 
+## 14.3.2
+
+### Patch Changes
+
+- [#17958](https://github.com/withastro/astro/pull/17958) [`b95c574`](https://github.com/withastro/astro/commit/b95c574b2ef5ab5541888a860aad5bf2d3a765ea) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a build failure when the wrangler config uses the `exports` field to declare Durable Object classes
+
+- [#17842](https://github.com/withastro/astro/pull/17842) [`d68db73`](https://github.com/withastro/astro/commit/d68db7311132083dabee85e87a323542249f5228) Thanks [@adamchal](https://github.com/adamchal)! - Fixes broken images on static sites by transforming prerendered images at build time with the default Cloudflare Images binding
+
+- [#17945](https://github.com/withastro/astro/pull/17945) [`750b4db`](https://github.com/withastro/astro/commit/750b4dbe238f2a2b979503ffd780f46d19174ccb) Thanks [@matthewp](https://github.com/matthewp)! - Pre-bundles renderer server entrypoints and the default console logger during dev so they are included in the initial optimization pass, preventing a mid-request re-optimization that could crash the dev server on Cloudflare (workerd).
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.3.1
 
 ### Patch Changes
