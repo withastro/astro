@@ -1,4 +1,4 @@
-import type { FSWatcher } from 'vite';
+import type { FSWatcher, ViteDevServer } from 'vite';
 import { ContentLayer } from './content-layer.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -9,6 +9,8 @@ interface ContentLayerOptions {
 	settings: AstroSettings;
 	logger: AstroLogger;
 	watcher?: FSWatcher;
+	/** Used to resolve image sources (Vite aliases included) while parsing entries. */
+	viteServer?: ViteDevServer;
 }
 
 function contentLayerSingleton() {

@@ -2,7 +2,7 @@
 title: "First post"
 description: "Lorem ipsum dolor sit amet"
 pubDate: "Jul 08 2022"
-heroImage: "/placeholder-hero.jpg"
+heroImage: "./placeholder-hero.png"
 ---
 
 > First post loaded: yes!

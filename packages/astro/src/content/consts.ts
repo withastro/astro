@@ -24,6 +24,10 @@ export const ASSET_IMPORTS_RESOLVED_STUB_ID = '\0' + ASSET_IMPORTS_VIRTUAL_ID;
 export const LINKS_PLACEHOLDER = '@@ASTRO-LINKS@@';
 export const STYLES_PLACEHOLDER = '@@ASTRO-STYLES@@';
 export const IMAGE_IMPORT_PREFIX = '__ASTRO_IMAGE_';
+// Marks an object produced by `image()` during sync. The object carries the real
+// dimensions (probed from the file) plus a prefixed `src` that is only resolved to
+// a final URL at read time. The marker is stripped when the entry is stored.
+export const IMAGE_FIELD_MARKER = '__astro_image_field__';
 
 export const CONTENT_FLAGS = [
 	CONTENT_FLAG,
