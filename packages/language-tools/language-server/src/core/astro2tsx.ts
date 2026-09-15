@@ -8,7 +8,6 @@ import {
 import type { CodeMapping, VirtualCode } from '@volar/language-core';
 import { Range } from '@volar/language-server';
 import { TextDocument } from 'vscode-html-languageservice';
-import { patchTSXWithMetadata } from './utils.js';
 
 export interface LSPTSXRanges {
 	frontmatter: Range;
@@ -70,7 +69,7 @@ export function getTSXRangesAsLSPRanges(tsx: ConvertToTsxResult): LSPTSXRanges {
 
 export function astro2tsx(input: string, fileName: string) {
 	const tsx = safeConvertToTSX(input, { filename: fileName });
-	const { virtualCode, generatedComponentExport } = getVirtualCodeTSX(tsx, fileName);
+	const { virtualCode, generatedComponentExport } = getVirtualCodeTSX(tsx);
 
 	return {
 		virtualCode,
@@ -81,10 +80,8 @@ export function astro2tsx(input: string, fileName: string) {
 	};
 }
 
-function getVirtualCodeTSX(tsx: ConvertToTsxResult, fileName: string) {
-	// Only the trailing scaffolding is rewritten, so mapped offsets keep their meaning.
-	const patched = patchTSXWithMetadata(tsx.code, fileName);
-	const code = patched.code;
+function getVirtualCodeTSX(tsx: ConvertToTsxResult) {
+	const code = tsx.code;
 	const mapped = tsx.mappings
 		.filter(([, generatedLength, , sourceLength]) => generatedLength > 0 && sourceLength > 0)
 		.map(([generatedOffset, generatedLength, sourceOffset, sourceLength]) => ({
@@ -122,12 +119,7 @@ function getVirtualCodeTSX(tsx: ConvertToTsxResult, fileName: string) {
 			mappings,
 			embeddedCodes: [],
 		} satisfies VirtualCode,
-		generatedComponentExport: patched.generatedComponentExport
-			? Range.create(
-					genDoc.positionAt(patched.generatedComponentExport.start),
-					genDoc.positionAt(patched.generatedComponentExport.end),
-				)
-			: tsx.generatedComponentExport
+		generatedComponentExport: tsx.generatedComponentExport
 				? Range.create(
 					genDoc.positionAt(tsx.generatedComponentExport.start),
 					genDoc.positionAt(tsx.generatedComponentExport.end),
