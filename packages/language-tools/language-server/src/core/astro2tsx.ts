@@ -24,7 +24,7 @@ export function safeConvertToTSX(
 ): ConvertToTsxResult {
 	const fileName = options.filename ?? '';
 	try {
-		return convertToTsx(content, { filename: fileName, sourcemap: false });
+		return convertToTsx(content, { filename: fileName });
 	} catch (e) {
 		console.error(
 			`There was an error transforming ${fileName} to TSX. An empty file will be returned instead. Please create an issue: https://github.com/withastro/astro/issues\nError: ${e}.`,
@@ -32,9 +32,7 @@ export function safeConvertToTSX(
 
 		return {
 			code: '',
-			generatedOffsets: new Uint32Array(),
-			sourceOffsets: new Uint32Array(),
-			lengths: new Uint32Array(),
+			mappings: [],
 			frontmatter: { start: 0, end: 0 },
 			body: { start: 0, end: 0 },
 			frontmatterStatus: AstroFrontmatterStatus.DoesntExist,
@@ -87,11 +85,18 @@ function getVirtualCodeTSX(tsx: ConvertToTsxResult, fileName: string) {
 	// Only the trailing scaffolding is rewritten, so mapped offsets keep their meaning.
 	const patched = patchTSXWithMetadata(tsx.code, fileName);
 	const code = patched.code;
+	const mapped = tsx.mappings
+		.filter(([, generatedLength, , sourceLength]) => generatedLength > 0 && sourceLength > 0)
+		.map(([generatedOffset, generatedLength, sourceOffset, sourceLength]) => ({
+			generatedOffset,
+			sourceOffset,
+			length: Math.min(generatedLength, sourceLength),
+		}));
 	const mappings: CodeMapping[] = [
 		{
-			sourceOffsets: Array.from(tsx.sourceOffsets),
-			generatedOffsets: Array.from(tsx.generatedOffsets),
-			lengths: Array.from(tsx.lengths),
+			sourceOffsets: mapped.map(({ sourceOffset }) => sourceOffset),
+			generatedOffsets: mapped.map(({ generatedOffset }) => generatedOffset),
+			lengths: mapped.map(({ length }) => length),
 			data: {
 				verification: true,
 				completion: true,
@@ -122,6 +127,11 @@ function getVirtualCodeTSX(tsx: ConvertToTsxResult, fileName: string) {
 					genDoc.positionAt(patched.generatedComponentExport.start),
 					genDoc.positionAt(patched.generatedComponentExport.end),
 				)
-			: undefined,
+			: tsx.generatedComponentExport
+				? Range.create(
+					genDoc.positionAt(tsx.generatedComponentExport.start),
+					genDoc.positionAt(tsx.generatedComponentExport.end),
+				)
+				: undefined,
 	};
 }
