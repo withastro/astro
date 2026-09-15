@@ -76,6 +76,10 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 								port: _config.server.port,
 								staticHeaders: userOptions.staticHeaders ?? false,
 								bodySizeLimit: userOptions.bodySizeLimit ?? 1024 * 1024 * 1024,
+								shutdown: {
+									timeout: userOptions.shutdown?.timeout ?? 10_000,
+									exit: userOptions.shutdown?.exit ?? false,
+								},
 								experimentalDisableStreaming: userOptions.experimentalDisableStreaming ?? false,
 							}),
 						],

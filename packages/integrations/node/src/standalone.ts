@@ -1,8 +1,8 @@
+import type { AstroIntegrationLogger, PreviewServer } from 'astro';
+import type { BaseApp } from 'astro/app';
 import fs from 'node:fs';
 import http from 'node:http';
 import https from 'node:https';
-import type { PreviewServer } from 'astro';
-import type { BaseApp } from 'astro/app';
 import enableDestroy from 'server-destroy';
 import { logListeningOn } from './log-listening-on.js';
 import { createAppHandler } from './serve-app.js';
@@ -40,9 +40,77 @@ export default function standalone(
 	server.server.on('close', () => {
 		app.logger.close();
 	});
+
+	// A server-level error before 'listening' fires (e.g. EADDRINUSE) is a
+	// fatal startup failure; after that it's a transient accept-time error
+	// (e.g. EMFILE) the server can keep running through, so only log it.
+	let listening = false;
+	server.server.once('listening', () => (listening = true));
+	server.server.on('error', (err: any) => {
+		if (!listening) {
+			app.adapterLogger.error(`Failed to start server: ${err.message}`);
+			process.exit(1);
+		}
+
+		app.adapterLogger.error(`Server error: ${err.message}`);
+	});
+
+	addShutdownHandlers(options, server, app.adapterLogger);
+
 	return {
 		server,
 		done: server.closed(),
+	};
+}
+
+function addShutdownHandlers(
+	options: Options,
+	server: ReturnType<typeof createServer>,
+	logger: AstroIntegrationLogger,
+) {
+	process.once('SIGTERM', () => shutdown('SIGTERM'));
+	process.once('SIGINT', () => shutdown('SIGINT'));
+
+	const finish = async () => {
+		await server.closed();
+		if (options.shutdown.exit) {
+			process.exit(0);
+		}
+	};
+
+	let shuttingDown = false;
+	const shutdown = async (signal: string) => {
+		if (shuttingDown) {
+			return;
+		}
+
+		shuttingDown = true;
+
+		const timeoutMs = options.shutdown.timeout;
+		if (timeoutMs === 0) {
+			logger.info(`Received ${signal}, shutting down immediately.`);
+			server.server.destroy();
+			await finish();
+			return;
+		}
+
+		logger.info(`Received ${signal}, shutting down gracefully.`);
+		server.server.close();
+
+		if (timeoutMs === Number.POSITIVE_INFINITY) {
+			await finish();
+			return;
+		}
+
+		// Force-destroy remaining connections if drain takes too long.
+		const timeout = setTimeout(() => {
+			logger.warn(`Graceful shutdown timed out after ${timeoutMs}ms, forcing close.`);
+			server.server.destroy();
+			finish();
+		}, timeoutMs);
+
+		await finish();
+		clearTimeout(timeout);
 	};
 }
 
@@ -85,10 +153,8 @@ export function createServer(listener: http.RequestListener, host: string, port:
 	enableDestroy(httpServer);
 
 	// Resolves once the server is closed
-	const closed = new Promise<void>((resolve, reject) => {
-		httpServer.addListener('close', resolve);
-		httpServer.addListener('error', reject);
-	});
+	// Close is always emitted when server.destroy() or server.close() is called
+	const closed = new Promise<void>((resolve) => httpServer.once('close', resolve));
 
 	const previewable = {
 		host,
