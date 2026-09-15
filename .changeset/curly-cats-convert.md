@@ -3,8 +3,8 @@
 'astro-vscode': minor
 ---
 
-Improves type checking and editor support for `.astro` files with the dedicated Astro-to-TSX converter
+Improves type checking and editor support for `.astro` files.
 
-The language server now uses `@astrojs/astro2tsx` to generate virtual TypeScript for Astro components. This removes duplicate compiler work and provides more precise generated types, including generic component props that were previously weakened during conversion.
+The language server now uses our all-new Biome powered `astro2tsx` implementation. This new version has much better support for incomplete syntax, generic types and various edge cases. 
 
-Recoverable Astro syntax errors now preserve the generated virtual file, allowing TypeScript diagnostics and editor features to continue working alongside parser diagnostics instead of being disabled for the entire document.
+In the vast majority of cases, no changes should be required to your code, and any change should be the result of more accurate types or behavior.
