@@ -5,14 +5,7 @@ import picomatch from 'picomatch';
 import type * as vite from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
-import {
-	appendForwardSlash,
-	joinPaths,
-	prependForwardSlash,
-	removeBase,
-	removeQueryString,
-} from '../core/path.js';
-import { recordStaticImage } from '../core/render-scope/record.js';
+import { appendForwardSlash, removeQueryString } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
@@ -29,104 +22,16 @@ import {
 } from './consts.js';
 import { RUNTIME_VIRTUAL_MODULE_ID } from './fonts/constants.js';
 import { fontsPlugin } from './fonts/vite-plugin-fonts.js';
-import type { ImageTransform } from './types.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
-import { isESMImportedImage } from './utils/index.js';
 import { emitClientAsset } from './utils/assets.js';
-import { hashTransform, propsToFilename } from './utils/hash.js';
 import { emitImageMetadata } from './utils/node.js';
 import { CONTENT_IMAGE_FLAG } from '../content/consts.js';
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent, parseSvgComponentData } from './svg/utils.js';
-import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
+import { addStaticImageFactory } from './build/add-static-image.js';
 
 const assetRegex = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})`, 'i');
 const assetRegexEnds = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})$`, 'i');
-const addStaticImageFactory = (
-	settings: AstroSettings,
-): typeof globalThis.astroAsset.addStaticImage => {
-	return (options, hashProperties, originalFSPath) => {
-		if (!globalThis.astroAsset.staticImages) {
-			globalThis.astroAsset.staticImages = new Map<
-				string,
-				{
-					originalSrcPath: string;
-					transforms: Map<string, { finalPath: string; transform: ImageTransform }>;
-				}
-			>();
-		}
-
-		// Rolldown will copy the file to the output directory, as such this is the path in the output directory, including the asset prefix / base
-		const ESMImportedImageSrc = isESMImportedImage(options.src) ? options.src.src : options.src;
-		const fileExtension = extname(ESMImportedImageSrc);
-		const assetPrefix = getAssetsPrefix(fileExtension, settings.config.build.assetsPrefix);
-
-		// This is the path to the original image, from the dist root, without the base or the asset prefix (e.g. /_astro/image.hash.png)
-		const finalOriginalPath = removeBase(
-			removeBase(ESMImportedImageSrc, settings.config.base),
-			assetPrefix,
-		);
-
-		const hash = hashTransform(options, settings.config.image.service.entrypoint, hashProperties);
-
-		let finalFilePath: string;
-		let transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalPath);
-		const transformForHash = transformsForPath?.transforms.get(hash);
-
-		// If the same image has already been transformed with the same options, we'll reuse the final path
-		if (transformsForPath && transformForHash) {
-			finalFilePath = transformForHash.finalPath;
-		} else {
-			finalFilePath = prependForwardSlash(
-				joinPaths(
-					isESMImportedImage(options.src) ? '' : settings.config.build.assets,
-					prependForwardSlash(propsToFilename(finalOriginalPath, options, hash)),
-				),
-			);
-
-			if (!transformsForPath) {
-				globalThis.astroAsset.staticImages.set(finalOriginalPath, {
-					originalSrcPath: originalFSPath,
-					transforms: new Map(),
-				});
-				transformsForPath = globalThis.astroAsset.staticImages.get(finalOriginalPath)!;
-			}
-
-			transformsForPath.transforms.set(hash, {
-				finalPath: finalFilePath,
-				transform: options,
-			});
-		}
-
-		// Report every resolved transform (dedup hits included) so the incremental
-		// build cache can attribute it to the page currently rendering.
-		recordStaticImage({
-			originalPath: finalOriginalPath,
-			hash,
-			finalPath: finalFilePath,
-			originalSrcPath: originalFSPath,
-			transform: options,
-		});
-
-		// The paths here are used for URLs, so we need to make sure they have the proper format for an URL
-		// (leading slash, prefixed with the base / assets prefix, encoded, etc)
-		// Create URL object to safely manipulate and append assetQueryParams if available (for adapter-level tracking like skew protection)
-		const url = createPlaceholderURL(
-			settings.config.build.assetsPrefix
-				? encodeURI(joinPaths(assetPrefix, finalFilePath))
-				: encodeURI(prependForwardSlash(joinPaths(settings.config.base, finalFilePath))),
-		);
-		const assetQueryParams = settings.adapter?.client?.assetQueryParams;
-		if (assetQueryParams) {
-			assetQueryParams.forEach((value, key) => {
-				url.searchParams.set(key, value);
-			});
-		}
-
-		return stringifyPlaceholderURL(url);
-	};
-};
-
 /**
  * Emitted into the `astro:assets` virtual modules: the `AstroRuntimeLogger` handed to the
  * image service hooks called by `getImage()` and `inferRemoteSize()`.

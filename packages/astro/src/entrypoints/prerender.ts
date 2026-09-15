@@ -13,4 +13,13 @@ const buildEnv = createBuildEnvironment();
 setEnvironment(manifest, buildEnv.env);
 const app = new BuildApp(manifest, buildEnv);
 
-export { app, manifest };
+async function loadImageService() {
+	return (
+		await import(
+			// @ts-expect-error `virtual:image-service` is provided by the assets Vite plugin.
+			'virtual:image-service'
+		)
+	).default;
+}
+
+export { app, loadImageService, manifest };
