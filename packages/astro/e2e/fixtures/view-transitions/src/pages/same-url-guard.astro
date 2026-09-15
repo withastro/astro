@@ -1,0 +1,15 @@
+---
+import Layout from '../components/Layout.astro';
+---
+<Layout>
+	<p id="guard-test">Guard Test Page</p>
+	<script>
+		document.addEventListener('astro:before-preparation', (e) => {
+			if (e.from.pathname === e.to.pathname) {
+				e.preventDefault();
+			}
+		});
+		// Fake an external navigation so originalLocation goes stale on back
+		history.pushState({}, '', location.pathname + '?fake=1');
+	</script>
+</Layout>
