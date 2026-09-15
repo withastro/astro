@@ -1,5 +1,11 @@
 # @astrojs/upgrade
 
+## 0.7.5
+
+### Patch Changes
+
+- [#17651](https://github.com/withastro/astro/pull/17651) [`504333c`](https://github.com/withastro/astro/commit/504333c2a0c7da3ca06e39ce37eee832192ba8ea) Thanks [@sxzz](https://github.com/sxzz)! - Refactors internal version handling to use a smaller, ESM-native dependency
+
 ## 0.7.4
 
 ### Patch Changes
