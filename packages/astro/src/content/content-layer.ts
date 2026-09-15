@@ -26,7 +26,7 @@ import {
 	loaderReturnSchema,
 	safeStringify,
 } from './utils.js';
-import { createViteImageSourceResolver } from './image.js';
+import { createViteImageSourceResolver, withContentImageResolver } from './image.js';
 import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
 
 export interface ContentLayerOptions {
@@ -193,19 +193,22 @@ export class ContentLayer {
 
 	async #doSync(options: RefreshContentOptions) {
 		// Let `image()` resolve aliases and root-absolute sources the way read time does, for
-		// as long as this sync is running. Global rather than passed down because
+		// as long as this sync is running. Ambient rather than passed down because
 		// `content.config.ts` imports `astro/content/image` through Vite while this module is
-		// loaded by Node, so the two do not share module instances.
-		globalThis.astroAsset ??= {};
-		const previousResolver = globalThis.astroAsset.contentImageResolver;
-		if (this.#viteServer) {
-			globalThis.astroAsset.contentImageResolver = createViteImageSourceResolver(this.#viteServer);
-		}
-		try {
+		// loaded by Node, so the two do not share module instances — threading it through the
+		// loader context instead would mean exposing it on the public `LoaderContext`.
+		//
+		// Reentrancy: `sync()` funnels every job through `#queue` (concurrency 1), so one
+		// `ContentLayer` never has two syncs in flight. Separate instances in the same process
+		// (parallel in-process tests, mainly) can still overlap; `withContentImageResolver`
+		// keeps that from leaving a resolver installed after its sync ends, but the slot holds
+		// a single resolver, so while two syncs overlap both see the one that started last.
+		if (!this.#viteServer) {
 			return await this.#doSyncInner(options);
-		} finally {
-			globalThis.astroAsset.contentImageResolver = previousResolver;
 		}
+		return await withContentImageResolver(createViteImageSourceResolver(this.#viteServer), () =>
+			this.#doSyncInner(options),
+		);
 	}
 
 	async #doSyncInner(options: RefreshContentOptions) {
