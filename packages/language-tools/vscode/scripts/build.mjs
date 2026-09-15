@@ -26,7 +26,7 @@ export default async function build() {
 		metafile: metaFile,
 		sourcemap: isDev,
 		outdir: '.',
-		external: ['vscode', '@astrojs/compiler', 'prettier', 'prettier-plugin-astro'],
+		external: ['vscode', '@astrojs/astro2tsx', 'prettier', 'prettier-plugin-astro'],
 		format: 'cjs',
 		platform: 'node',
 		tsconfig: './tsconfig.json',
