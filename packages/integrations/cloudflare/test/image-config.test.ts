@@ -29,22 +29,59 @@ describe('normalizeImageServiceConfig', () => {
 	});
 });
 
+function makeLogger() {
+	const warnings: string[] = [];
+	return {
+		warnings,
+		logger: { warn: (msg: string) => warnings.push(msg) } as unknown as AstroIntegrationLogger,
+	};
+}
+
+function makeImageConfig(serviceEntrypoint: string, endpointEntrypoint?: string) {
+	return {
+		service: { entrypoint: serviceEntrypoint, config: {} },
+		endpoint: { route: '/_image', entrypoint: endpointEntrypoint },
+	} as unknown as AstroConfig['image'];
+}
+
+describe('setImageConfig compile mode', () => {
+	it('uses the generic endpoint in dev when a user image service is configured', () => {
+		const { logger } = makeLogger();
+		const result = setImageConfig('compile', makeImageConfig('my-service'), 'dev', logger);
+		assert.equal(result.endpoint?.entrypoint, 'astro/assets/endpoint/generic');
+		assert.equal(result.service.entrypoint, 'my-service');
+	});
+
+	it('uses the Cloudflare transform endpoint in dev without a user image service', () => {
+		const { logger } = makeLogger();
+		const result = setImageConfig(
+			'compile',
+			makeImageConfig('astro/assets/services/sharp'),
+			'dev',
+			logger,
+		);
+		assert.equal(result.endpoint?.entrypoint, '@astrojs/cloudflare/image-transform-endpoint');
+	});
+
+	it('uses the passthrough endpoint at build time without cloudflare-binding runtime', () => {
+		const { logger } = makeLogger();
+		const result = setImageConfig('compile', makeImageConfig('my-service'), 'build', logger);
+		assert.equal(result.endpoint?.entrypoint, '@astrojs/cloudflare/image-passthrough-endpoint');
+	});
+
+	it('uses the Cloudflare transform endpoint at build time with cloudflare-binding runtime', () => {
+		const { logger } = makeLogger();
+		const result = setImageConfig(
+			{ build: 'compile', runtime: 'cloudflare-binding' },
+			makeImageConfig('my-service'),
+			'build',
+			logger,
+		);
+		assert.equal(result.endpoint?.entrypoint, '@astrojs/cloudflare/image-transform-endpoint');
+	});
+});
+
 describe('setImageConfig custom mode', () => {
-	function makeLogger() {
-		const warnings: string[] = [];
-		return {
-			warnings,
-			logger: { warn: (msg: string) => warnings.push(msg) } as unknown as AstroIntegrationLogger,
-		};
-	}
-
-	function makeImageConfig(serviceEntrypoint: string, endpointEntrypoint?: string) {
-		return {
-			service: { entrypoint: serviceEntrypoint, config: {} },
-			endpoint: { route: '/_image', entrypoint: endpointEntrypoint },
-		} as unknown as AstroConfig['image'];
-	}
-
 	it('uses the generic endpoint in dev', () => {
 		const { logger } = makeLogger();
 		const result = setImageConfig('custom', makeImageConfig('my-service'), 'dev', logger);
