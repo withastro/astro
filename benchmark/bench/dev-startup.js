@@ -11,7 +11,7 @@ const READY_TIMEOUT_MS = 30_000;
 const URL_TIMEOUT_MS = 2_000;
 const STOP_TIMEOUT_MS = 5_000;
 
-const URL_REGEX = /http:\/\/(?:127\.0\.0\.1|localhost):(\d+)/;
+const URL_REGEX = /http:\/\/(?:127\.0\.0\.1|localhost):\d+/;
 
 /**
  * Start `astro dev` on `root` and wait until the server prints its ready
