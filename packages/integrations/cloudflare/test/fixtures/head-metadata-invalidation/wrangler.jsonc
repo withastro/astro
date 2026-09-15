@@ -1,0 +1,5 @@
+{
+  "name": "head-metadata-invalidation",
+  "compatibility_date": "2026-01-28",
+  "main": "@astrojs/cloudflare/entrypoints/server"
+}
