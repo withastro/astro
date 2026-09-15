@@ -92,14 +92,14 @@ describe('TypeScript - Completions', async () => {
 		assert.strictEqual(edits?.additionalTextEdits?.[0].range.start.line, 0);
 	});
 
-	it('strips AstroComponent suffixes from Astro component auto-import completions', async () => {
+	it('adds frontmatter for Astro component auto-import completions', async () => {
 		const document = await languageServer.handle.openTextDocument(
 			path.join(fixtureDir, 'src/pages/componentAutoImport.astro'),
 			'astro',
 		);
 		const completions = await languageServer.handle.sendCompletionRequest(
 			document.uri,
-			Position.create(3, 4),
+			Position.create(0, 4),
 		);
 
 		const imageCompletions = completions?.items.filter(
@@ -114,13 +114,16 @@ describe('TypeScript - Completions', async () => {
 
 		const edits = await languageServer.handle.sendCompletionResolveRequest(imageCompletion!);
 		assert.ok(edits);
-		assert.strictEqual(
-			edits?.additionalTextEdits?.[0].newText.includes(
-				`import Image from "../components/Image.astro";`,
-			),
-			true,
-		);
-		assert.strictEqual(edits?.additionalTextEdits?.[0].newText.includes('AstroComponent'), false);
+		const importEdit = edits.additionalTextEdits?.[0];
+		assert.ok(importEdit);
+		assert.deepStrictEqual(importEdit, {
+			newText: `---\nimport Image from "../components/Image.astro";\n---\n\n`,
+			range: {
+				start: { line: 0, character: 0 },
+				end: { line: 0, character: 0 },
+			},
+		});
+		assert.strictEqual(importEdit.newText.includes('AstroComponent'), false);
 	});
 
 	it('does not keep offering the same Astro component as an auto-import after it is already imported', async () => {

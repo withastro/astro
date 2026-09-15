@@ -104,6 +104,17 @@ function getVirtualCodeTSX(tsx: ConvertToTsxResult) {
 			},
 		},
 	];
+	if (tsx.frontmatterStatus === AstroFrontmatterStatus.DoesntExist) {
+		// TypeScript inserts auto-imports into the synthetic newline before the template. Map it
+		// to the start of the Astro file so completion edits can create a frontmatter section.
+		mappings.push({
+			sourceOffsets: [0],
+			generatedOffsets: [tsx.frontmatter.start - 1],
+			lengths: [0],
+			generatedLengths: [1],
+			data: { completion: true },
+		});
+	}
 
 	const genDoc = TextDocument.create('', 'typescriptreact', 0, code);
 
