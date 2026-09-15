@@ -203,6 +203,7 @@
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
     "eol": "^0.10.0",
+    "exifreader": "^4.41.1",
     "expect-type": "^1.3.0",
     "fs-fixture": "^2.13.0",
     "hono": "^4.12.14",
