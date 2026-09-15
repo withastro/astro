@@ -13,7 +13,6 @@ import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../manifest/serialized.js';
 import { getPrerenderOutputDirectory, getServerOutputDirectory } from '../../prerender/utils.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { routeIsRedirect } from '../routing/helpers.js';
 
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
@@ -86,10 +85,6 @@ function extractRelevantChunks(
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
 
-	// The pages to be built for rendering purposes.
-	// (comment above may be outdated ?)
-	const pageInput = new Set<string>();
-
 	// Build internals needed by the CSS plugin
 	const internals = createBuildInternals();
 
@@ -99,10 +94,6 @@ export async function viteBuild(opts: StaticBuildOptions) {
 
 		// Track the page data in internals
 		trackPageData(internals, pageData.component, pageData, astroModuleId, astroModuleURL);
-
-		if (!routeIsRedirect(pageData.route)) {
-			pageInput.add(astroModuleId);
-		}
 	}
 
 	// Empty out the dist folder, if needed. Vite has a config for doing this
