@@ -33,7 +33,7 @@ import { hashCryptoKey } from '../encryption.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getRedirectLocationOrThrow } from '../redirects/index.js';
 import { createRequest } from '../request.js';
-import { redirectTemplate } from '../routing/3xx.js';
+import { hasMetaRefreshTo, redirectTemplate } from '../routing/3xx.js';
 import { routeIsRedirect } from '../routing/helpers.js';
 import { getOutputFilename } from '../output-filename.js';
 import { getOutFile, getOutFolder } from './common.js';
@@ -558,14 +558,27 @@ export async function renderPath({
 		const siteURL = config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(request.url).pathname;
-		body = redirectTemplate({
-			status: response.status,
-			absoluteLocation: location,
-			relativeLocation: locationSite,
-			from: fromPath,
-		});
-		if (config.compressHTML) {
-			body = body.replaceAll('\n', '');
+		// A body on a redirect means `src/pages/3xx.astro` rendered one
+		// (`experimental.redirectPage`); it already honors `compressHTML` through
+		// the normal page renderer.
+		if (response.body) {
+			body = await response.text();
+			if (!hasMetaRefreshTo(body, locationSite)) {
+				logger.warn(
+					'redirects',
+					`\`src/pages/3xx.astro\` rendered the redirect from \`${fromPath}\` to \`${locationSite}\` without a matching \`<meta http-equiv="refresh" content="...;url=${locationSite}">\` tag. A static build sends no \`Location\` header, so visitors will not be redirected.`,
+				);
+			}
+		} else {
+			body = redirectTemplate({
+				status: response.status,
+				absoluteLocation: location,
+				relativeLocation: locationSite,
+				from: fromPath,
+			});
+			if (config.compressHTML) {
+				body = body.replaceAll('\n', '');
+			}
 		}
 		if (route.type !== 'redirect') {
 			route.redirect = location.toString();

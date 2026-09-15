@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { redirectTemplate } from '../../../dist/core/routing/3xx.js';
+import { hasMetaRefreshTo, redirectTemplate } from '../../../dist/core/routing/3xx.js';
 
 describe('redirects/template', () => {
 	it('generates correct HTML structure', () => {
@@ -153,5 +153,52 @@ describe('redirects/template', () => {
 
 		// Should convert URL object to string
 		assert.equal($('link[rel="canonical"]').attr('href'), 'https://example.com/page');
+	});
+});
+
+describe('redirects/hasMetaRefreshTo', () => {
+	it('accepts the tag emitted by the built-in template', () => {
+		const html = redirectTemplate({
+			status: 301,
+			absoluteLocation: 'https://example.com/new-page',
+			relativeLocation: '/new-page',
+		});
+
+		assert.equal(hasMetaRefreshTo(html, '/new-page'), true);
+	});
+
+	it('accepts single quotes, extra whitespace and reordered attributes', () => {
+		assert.equal(
+			hasMetaRefreshTo(`<meta content='0; url = /new' http-equiv='refresh'>`, '/new'),
+			true,
+		);
+	});
+
+	it('rejects a tag pointing somewhere else', () => {
+		assert.equal(
+			hasMetaRefreshTo('<meta http-equiv="refresh" content="0;url=/other">', '/new'),
+			false,
+		);
+	});
+
+	it('rejects a document with no refresh tag', () => {
+		assert.equal(
+			hasMetaRefreshTo('<html><body><a href="/new">Go</a></body></html>', '/new'),
+			false,
+		);
+	});
+
+	it('ignores non-refresh meta tags with a matching content value', () => {
+		assert.equal(hasMetaRefreshTo('<meta name="robots" content="0;url=/new">', '/new'), false);
+	});
+
+	it('finds the tag among several meta tags', () => {
+		const html = [
+			'<meta charset="utf-8">',
+			'<meta http-equiv="refresh" content="2;url=/new">',
+			'<meta name="robots" content="noindex">',
+		].join('\n');
+
+		assert.equal(hasMetaRefreshTo(html, '/new'), true);
 	});
 });

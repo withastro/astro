@@ -119,8 +119,8 @@ export class I18nRouter {
 	 * Check if i18n processing should be skipped for this request
 	 */
 	private shouldSkipProcessing(pathname: string, context: I18nRouterContext): boolean {
-		// Skip 404/500 pages
-		if (pathname.includes('/404') || pathname.includes('/500')) {
+		// Skip 404/500 pages and the redirect page
+		if (pathname.includes('/404') || pathname.includes('/500') || pathname.includes('/3xx')) {
 			return true;
 		}
 

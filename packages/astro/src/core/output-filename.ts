@@ -2,7 +2,7 @@ import type { AstroConfig } from '../types/public/config.js';
 import type { RouteData } from '../types/public/internal.js';
 import { removeTrailingForwardSlash } from './path.js';
 
-const STATUS_CODE_PAGES = new Set(['/404', '/500']);
+const STATUS_CODE_PAGES = new Set(['/404', '/500', '/3xx']);
 
 export function getOutputFilename(
 	buildFormat: NonNullable<AstroConfig['build']>['format'],

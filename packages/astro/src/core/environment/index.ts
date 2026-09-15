@@ -82,6 +82,14 @@ export interface RenderEnvironment {
 	getRenderers(manifest: SSRManifest): SSRLoadedRenderer[];
 	/** Which error-page strategy `renderErrorPage` dispatches to. */
 	readonly errorStrategy: 'default' | 'dev' | 'build';
+	/**
+	 * Whether a redirect response with no body should be given one by rendering
+	 * the project's `src/pages/3xx.astro`. Only the build environment answers
+	 * `true`, and only under `experimental.redirectPage`: a static site sends no
+	 * `Location` header, so the HTML body *is* the redirect. Every other
+	 * environment sends a real header and the body goes unread.
+	 */
+	rendersRedirectPage?(): boolean;
 	/** Dev-only CSP meta-tag injection flag for error pages. */
 	readonly injectCspMetaTagsOnErrorPages: boolean;
 	/**
