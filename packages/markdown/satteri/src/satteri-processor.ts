@@ -197,7 +197,13 @@ export function createHighlightPlugin(
 				) as HastNode | undefined;
 				if (!codeChild || codeChild.type !== 'element') return;
 
-				const lang = (codeChild.data as any)?.lang ?? 'plaintext';
+				const languageClass = Array.isArray(codeChild.properties?.className)
+					? codeChild.properties.className.find(
+							(className) => typeof className === 'string' && className.startsWith('language-'),
+						)
+					: undefined;
+				const lang =
+					(codeChild.data as any)?.lang ?? languageClass?.slice('language-'.length) ?? 'plaintext';
 				const meta = (codeChild.data as any)?.meta ?? undefined;
 
 				if (
