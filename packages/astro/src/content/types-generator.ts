@@ -361,7 +361,7 @@ function normalizeConfigPath(from: string, to: string) {
 	// on windows `path.relative` will use backslashes, these must be replaced with forward slashes
 	const normalizedPath = configPath.replaceAll('\\', '/');
 
-	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
+	return `"${isRelativePath(normalizedPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
 const createSchemaResultCache = new Map<string, { schema: StandardSchemaV1; types: string }>();
