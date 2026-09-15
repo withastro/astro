@@ -4,7 +4,7 @@
 
 Adds support for any [Standard Schema](https://standardschema.dev) validator in the `input` of JSON actions
 
-Actions that accept JSON, the default, can now validate their payload with any validator implementing [Standard Schema](https://standardschema.dev) — Zod, Valibot, ArkType, and others — instead of only Zod. The handler receives its parsed output, typed by the validator:
+The `input` of an action that accepts JSON, the default, is no longer required to be a Zod schema. Any validator implementing Standard Schema — Zod, Valibot, ArkType, and others — can now be used:
 
 ```ts
 // src/actions/index.ts
@@ -20,5 +20,3 @@ export const server = {
   }),
 };
 ```
-
-Existing Zod schemas keep working unchanged.

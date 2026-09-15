@@ -23,4 +23,6 @@ const blog = defineCollection({
 export const collections = { blog };
 ```
 
-Existing Zod schemas keep working unchanged. Validators that also describe themselves as JSON Schema continue to generate the `.schema.json` files used for editor autocompletion in data collections; validators that do not simply skip that step.
+Existing Zod schemas keep working unchanged, including the `schema: (context) => ...` function form.
+
+Data collections still get the `.schema.json` file that gives them autocompletion and validation in your editor, as long as the validator can also describe itself as [JSON Schema](https://standardschema.dev/json-schema). When it cannot, the file is skipped and Astro logs a warning naming the collection.
