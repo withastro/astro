@@ -270,6 +270,21 @@ describe('astro:image:layout', () => {
 					assert.ok($picture.attr('class')!.includes('picture-comp'));
 				});
 
+				it('forwards class to picture element', () => {
+					const $picture = $('#picture-class-forwarded picture');
+					assert.ok($picture.attr('class')!.includes('my-class'));
+					const $img = $('#picture-class-forwarded img');
+					assert.ok($img.attr('class')!.includes('my-class'));
+				});
+
+				it('merges class with pictureAttributes class on picture element', () => {
+					const $picture = $('#picture-class-merged picture');
+					assert.ok($picture.attr('class')!.includes('pic-class'));
+					assert.ok($picture.attr('class')!.includes('my-class'));
+					const $img = $('#picture-class-merged img');
+					assert.ok($img.attr('class')!.includes('my-class'));
+				});
+
 				it('adds data attributes instead of inline styles', () => {
 					const $img = $('#picture-attributes img');
 					// Should have data attributes for CSP compliance
