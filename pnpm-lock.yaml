@@ -6806,9 +6806,9 @@ importers:
 
   packages/language-tools/vscode:
     dependencies:
-      '@astrojs/compiler':
-        specifier: ^2.13.1
-        version: 2.13.1
+      '@astrojs/astro2tsx':
+        specifier: ^0.1.0
+        version: 0.1.0(@emnapi/runtime@1.11.3)
       prettier:
         specifier: ^3.9.0
         version: 3.9.0
