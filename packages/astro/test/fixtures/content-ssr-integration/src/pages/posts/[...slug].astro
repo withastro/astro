@@ -25,6 +25,12 @@ const { Content } = await render(post);
   </head>
   <body>
     <h1>{post.data.title}</h1>
+    <div
+      id="hero"
+      data-width={post.data.heroImage?.width}
+      data-height={post.data.heroImage?.height}
+      data-format={post.data.heroImage?.format}
+    />
 		<Content />
   </body>
 </html>
