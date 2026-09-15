@@ -34,6 +34,10 @@ import {
 } from './lib/web-analytics.js';
 import { generateEdgeMiddleware, type IsrForwarding } from './serverless/middleware.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
+import {
+	createInstrumentationPlugin,
+	findInstrumentationFile,
+} from './vite-plugin-instrumentation.js';
 
 const PACKAGE_NAME = '@astrojs/vercel';
 
@@ -175,6 +179,9 @@ export interface VercelServerlessConfig {
 	/** Allows you to configure which image service to use in development when imageService is enabled. */
 	devImageService?: DevImageService;
 
+	/** Whether to load an `instrumentation.*` file and propagate inbound OpenTelemetry context in Serverless Functions. */
+	instrumentation?: boolean;
+
 	/**
 	 * Controls when and how middleware executes.
 	 * - 'classic' (default): Middleware runs for prerendered pages at build time, and for SSR pages at request time.
@@ -240,6 +247,7 @@ export default function vercelAdapter({
 	imageService,
 	imagesConfig,
 	devImageService = 'sharp',
+	instrumentation = false,
 	middlewareMode,
 	edgeMiddleware,
 	maxDuration,
@@ -283,6 +291,10 @@ export default function vercelAdapter({
 		name: PACKAGE_NAME,
 		hooks: {
 			'astro:config:setup': async ({ command, config, updateConfig, injectScript, logger }) => {
+				const instrumentationFile = instrumentation
+					? findInstrumentationFile([config.root, config.srcDir])
+					: undefined;
+
 				if (webAnalytics?.enabled) {
 					injectScript(
 						'head-inline',
@@ -325,6 +337,7 @@ export default function vercelAdapter({
 								middlewareSecret,
 								skewProtection,
 							}),
+							createInstrumentationPlugin(instrumentationFile),
 						],
 					},
 					...getAstroImageConfig(
