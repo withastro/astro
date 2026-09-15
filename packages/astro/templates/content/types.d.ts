@@ -2,9 +2,9 @@ declare module 'astro:content' {
 	export type ContentConfig = '@@CONTENT_CONFIG_TYPE@@';
 	export type LiveContentConfig = '@@LIVE_CONTENT_CONFIG_TYPE@@';
 
-	interface DataMap {
+	export interface DataMap {
 		// @@DATA_MAP@@
 	}
 
-	interface LiveDataMap /* @@LIVE_DATA_MAP_BASE@@ */ {}
+	export interface LiveDataMap /* @@LIVE_DATA_MAP_BASE@@ */ {}
 }
