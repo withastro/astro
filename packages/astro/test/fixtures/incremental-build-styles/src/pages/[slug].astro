@@ -1,0 +1,16 @@
+---
+import '../styles/main.scss';
+
+export function getStaticPaths() {
+	return [{ params: { slug: 'a' }, props: {}, cacheKey: 'v1' }];
+}
+---
+
+<html>
+	<head>
+		<title>Styles</title>
+	</head>
+	<body>
+		<h1>Styles</h1>
+	</body>
+</html>

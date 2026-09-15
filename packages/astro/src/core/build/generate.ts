@@ -42,6 +42,7 @@ import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
+import { foldStylesheetDependencies } from './plugins/plugin-incremental.js';
 import type { StaticBuildOptions } from './types.js';
 import type { AstroSettings } from '../../types/astro.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
@@ -102,6 +103,9 @@ export async function generatePages(
 	// Incremental build support
 	let cache: IncrementalBuildCache | null = null;
 	if (options.settings.config.experimental.incrementalBuild) {
+		// Only complete once every environment build has run, and read by the cache below.
+		foldStylesheetDependencies(internals, options.settings.config.root);
+
 		const [configHash, lockfileHash, keyDigest] = await Promise.all([
 			computeConfigHash(options.settings.config),
 			computeLockfileHash(fileURLToPath(options.settings.config.root)),

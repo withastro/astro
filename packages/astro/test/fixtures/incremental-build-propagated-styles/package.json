@@ -1,0 +1,10 @@
+{
+	"name": "@test/incremental-build-propagated-styles",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"@astrojs/mdx": "workspace:*",
+		"astro": "workspace:*"
+	}
+}

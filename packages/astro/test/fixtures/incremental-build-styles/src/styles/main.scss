@@ -1,0 +1,5 @@
+@use './tokens' as t;
+
+body {
+	color: t.$brand;
+}
