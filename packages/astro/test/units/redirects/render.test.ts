@@ -241,6 +241,21 @@ describe('resolveRedirectTarget', () => {
 		);
 	});
 
+	it('substitutes a param value containing replacement patterns literally', () => {
+		assert.equal(
+			resolveRedirectTarget({ slug: 'a$&b' }, '/new/[slug]', undefined, 'ignore'),
+			'/new/a$&b',
+		);
+		assert.equal(
+			resolveRedirectTarget({ slug: 'x$`y' }, '/new/[slug]', undefined, 'ignore'),
+			'/new/x$`y',
+		);
+		assert.equal(
+			resolveRedirectTarget({ slug: "a$'b" }, '/new/[slug]', undefined, 'ignore'),
+			"/new/a$'b",
+		);
+	});
+
 	it('returns the string as-is when there are no params', () => {
 		assert.equal(resolveRedirectTarget({}, '/destination', undefined, 'ignore'), '/destination');
 	});
