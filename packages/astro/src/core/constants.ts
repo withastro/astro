@@ -57,6 +57,12 @@ export const fetchStateSymbol = Symbol.for('astro.fetchState');
 export const devPrerenderMiddlewareSymbol = Symbol.for('astro.devPrerenderMiddleware');
 
 /**
+ * A promise for background dev server app setup that must settle before Vite's
+ * runnable environments are closed.
+ */
+export const devServerAppReadySymbol = Symbol.for('astro.devServerAppReady');
+
+/**
  * The symbol used as a field on the request object to store a cleanup callback associated with aborting the request when the underlying socket closes.
  */
 export const nodeRequestAbortControllerCleanupSymbol = Symbol.for(
