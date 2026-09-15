@@ -276,6 +276,10 @@ export async function createVite(
 					find: 'astro:middleware',
 					replacement: 'astro/virtual-modules/middleware.js',
 				},
+				{
+					find: 'astro:navigation',
+					replacement: 'astro/virtual-modules/navigation.js',
+				},
 				// TODO: remove in Astro 8
 				{
 					find: 'astro:schema',
