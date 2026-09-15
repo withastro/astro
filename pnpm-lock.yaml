@@ -6844,8 +6844,8 @@ importers:
   packages/language-tools/language-server:
     dependencies:
       '@astrojs/astro2tsx':
-        specifier: link:/home/erika/worktrees/compiler-rs/feat-biome-tsx/crates/astro2tsx
-        version: link:../../../../../compiler-rs/feat-biome-tsx/crates/astro2tsx
+        specifier: ^0.1.0
+        version: 0.1.0
       '@astrojs/yaml2ts':
         specifier: ^0.2.4
         version: link:../yaml2ts
@@ -7414,6 +7414,10 @@ packages:
   '@astrojs/compiler-rs@0.4.0':
     resolution: {integrity: sha512-koVikeon1kreEy+/JzLQRy3vzHHQVOjycs4degg4vFufKApZOwMZvSSAEztYNhmcQVfNVsVZZI4cEge3cexAbQ==}
     engines: {node: '>=22.12.0'}
+
+  '@astrojs/astro2tsx@0.1.0':
+    resolution: {integrity: sha512-tgprkax8mcF+BiHJQBdoQ+REqtvvnLlYzV0yCeLMdcv3pJIutdlinWNHUzN1jMOT5VRlYTtMmDdaoPrtd3cBAQ==}
+    engines: {node: ^20.19.0 || >=22.12.0}
 
   '@astrojs/compiler@2.13.1':
     resolution: {integrity: sha512-f3FN83d2G/v32ipNClRKgYv30onQlMZX1vCeZMjPsMMPl1mDpmbl0+N5BYo4S/ofzqJyS5hvwacEo0CCVDn/Qg==}
@@ -16994,6 +16998,8 @@ snapshots:
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
+
+  '@astrojs/astro2tsx@0.1.0': {}
 
   '@astrojs/compiler@2.13.1': {}
 
