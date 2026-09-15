@@ -124,3 +124,74 @@ describe('createI18nFallbackRoutes — no fallback config', () => {
 		assert.equal(routes.length, 1);
 	});
 });
+
+describe('createI18nFallbackRoutes — locale code appearing inside a path segment', () => {
+	it('rewrites only the leading locale segment when falling back to a non-default locale', () => {
+		const esRoute = createRouteData({
+			route: '/es/estudio',
+			pathname: '/es/estudio',
+			type: 'page',
+		});
+		const routes = [esRoute];
+
+		createI18nFallbackRoutes(
+			routes,
+			makeI18n({
+				locales: ['en', 'es', 'fr'],
+				fallback: { fr: 'es' },
+			}),
+			BASE_CONFIG,
+		);
+
+		const fallback = esRoute.fallbackRoutes.find((r) => r.type === 'fallback');
+		assert.ok(fallback, 'expected a fallback route for the fr locale');
+		assert.equal(fallback.route, '/fr/estudio');
+		assert.equal(fallback.pathname, '/fr/estudio');
+	});
+
+	it('rewrites only the leading locale segment under prefix-always', () => {
+		const enRoute = createRouteData({
+			route: '/en/enterprise',
+			pathname: '/en/enterprise',
+			type: 'page',
+		});
+		const routes = [enRoute];
+
+		createI18nFallbackRoutes(
+			routes,
+			makeI18n({
+				routing: { prefixDefaultLocale: true },
+				fallback: { es: 'en' },
+			}),
+			BASE_CONFIG,
+		);
+
+		const fallback = enRoute.fallbackRoutes.find((r) => r.type === 'fallback');
+		assert.ok(fallback, 'expected a fallback route for the es locale');
+		assert.equal(fallback.route, '/es/enterprise');
+		assert.equal(fallback.pathname, '/es/enterprise');
+	});
+
+	it('leaves a locale code in a deeper segment untouched', () => {
+		const enRoute = createRouteData({
+			route: '/en/blog/entry',
+			pathname: '/en/blog/entry',
+			type: 'page',
+		});
+		const routes = [enRoute];
+
+		createI18nFallbackRoutes(
+			routes,
+			makeI18n({
+				routing: { prefixDefaultLocale: true },
+				fallback: { es: 'en' },
+			}),
+			BASE_CONFIG,
+		);
+
+		const fallback = enRoute.fallbackRoutes.find((r) => r.type === 'fallback');
+		assert.ok(fallback, 'expected a fallback route for the es locale');
+		assert.equal(fallback.route, '/es/blog/entry');
+		assert.equal(fallback.pathname, '/es/blog/entry');
+	});
+});

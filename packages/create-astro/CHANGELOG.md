@@ -1,5 +1,11 @@
 # create-astro
 
+## 5.2.4
+
+### Patch Changes
+
+- [#17756](https://github.com/withastro/astro/pull/17756) [`f88c875`](https://github.com/withastro/astro/commit/f88c875c2c89af3b8cbb9f9eebdcddde6e0645c8) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `npm install` warnings on npm v11+ about esbuild's install scripts not being covered by `allowScripts`. Adds `ensureNpmScriptsAllowed()` to pre-approve esbuild in `package.json` before running `npm install`, matching the existing pnpm v11 compatibility fix.
+
 ## 5.2.3
 
 ### Patch Changes

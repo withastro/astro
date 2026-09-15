@@ -12,6 +12,7 @@ export const PERSIST_SYMBOL = Symbol();
 
 const DEFAULT_COOKIE_NAME = 'astro-session';
 const VALID_COOKIE_REGEX = /^[\w-]+$/;
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 interface SessionEntry {
 	data: any;
@@ -223,7 +224,9 @@ export class AstroSession {
 	 */
 	destroy() {
 		// We don't use #ensureSessionID here because we don't want to create a new session ID if it doesn't exist.
-		const sessionId = this.#sessionID ?? this.#cookies.get(this.#cookieName)?.value;
+		const cookieValue = this.#cookies.get(this.#cookieName)?.value;
+		const sessionId =
+			this.#sessionID ?? (cookieValue && UUID_REGEX.test(cookieValue) ? cookieValue : undefined);
 		if (sessionId) {
 			this.#toDestroy.add(sessionId);
 		}
@@ -432,7 +435,7 @@ export class AstroSession {
 	#ensureSessionID() {
 		if (!this.#sessionID) {
 			const cookieValue = this.#cookies.get(this.#cookieName)?.value;
-			if (cookieValue) {
+			if (cookieValue && UUID_REGEX.test(cookieValue)) {
 				this.#sessionID = cookieValue;
 				this.#sessionIDFromCookie = true;
 			} else {

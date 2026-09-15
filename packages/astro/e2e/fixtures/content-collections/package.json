@@ -4,6 +4,8 @@
   "private": true,
   "dependencies": {
     "@astrojs/mdx": "workspace:*",
-    "astro": "workspace:*"
+    "@astrojs/svelte": "workspace:*",
+    "astro": "workspace:*",
+    "svelte": "^5.54.0"
   }
 }

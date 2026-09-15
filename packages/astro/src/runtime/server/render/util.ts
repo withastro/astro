@@ -24,22 +24,26 @@ const toIdent = (k: string) =>
 		return index === 0 ? match : match.toUpperCase();
 	});
 
-export const toAttributeString = (value: any, shouldEscape = true) =>
-	shouldEscape
-		? String(value).replace(AMPERSAND_REGEX, '&amp;').replace(DOUBLE_QUOTE_REGEX, '&quot;')
-		: value;
+export const toAttributeString = (value: any, shouldEscape = true) => {
+	if (!shouldEscape) return value;
+	const str = String(value);
+	if (!str.includes('&') && !str.includes('"')) return str;
+	return str.replace(AMPERSAND_REGEX, '&amp;').replace(DOUBLE_QUOTE_REGEX, '&quot;');
+};
 
 const kebab = (k: string) =>
 	k.toLowerCase() === k ? k : k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
 
-export const toStyleString = (obj: Record<string, any>) =>
-	Object.entries(obj)
-		.filter(([_, v]) => (typeof v === 'string' && v.trim()) || typeof v === 'number')
-		.map(([k, v]) => {
-			if (k[0] !== '-' && k[1] !== '-') return `${kebab(k)}:${v}`;
-			return `${k}:${v}`;
-		})
-		.join(';');
+export const toStyleString = (obj: Record<string, any>) => {
+	let output = '';
+	for (const key of Object.keys(obj)) {
+		const value = obj[key];
+		if (!((typeof value === 'string' && value.trim()) || typeof value === 'number')) continue;
+		if (output) output += ';';
+		output += key[0] !== '-' && key[1] !== '-' ? `${kebab(key)}:${value}` : `${key}:${value}`;
+	}
+	return output;
+};
 
 // Adds variables to an inline script.
 export function defineScriptVars(vars: Record<any, any>) {
@@ -83,6 +87,33 @@ function handleBooleanAttribute(
 	return markHTMLString(value ? ` ${key}` : '');
 }
 
+const ATTRIBUTE_KIND = {
+	ORDINARY: 0,
+	INVALID_NAME: 1,
+	STATIC_DIRECTIVE: 2,
+	CLASS_LIST: 3,
+	STYLE: 4,
+	CLASS_NAME: 5,
+	BOOLEAN: 6,
+	BOOLEAN_IF_BOOLEAN: 7,
+} as const;
+
+type AttributeKind = (typeof ATTRIBUTE_KIND)[keyof typeof ATTRIBUTE_KIND];
+
+function classifyAttribute(key: string): AttributeKind {
+	if (INVALID_ATTR_NAME_CHAR.test(key)) return ATTRIBUTE_KIND.INVALID_NAME;
+	if (STATIC_DIRECTIVES.has(key)) return ATTRIBUTE_KIND.STATIC_DIRECTIVE;
+	if (key === 'class:list') return ATTRIBUTE_KIND.CLASS_LIST;
+	if (key === 'style') return ATTRIBUTE_KIND.STYLE;
+	if (key === 'className') return ATTRIBUTE_KIND.CLASS_NAME;
+	if (htmlBooleanAttributes.test(key)) return ATTRIBUTE_KIND.BOOLEAN;
+	// We cannot add it to htmlBooleanAttributes because it can be: boolean | "auto" | "manual"
+	if (key === 'popover' || key === 'download' || key === 'hidden') {
+		return ATTRIBUTE_KIND.BOOLEAN_IF_BOOLEAN;
+	}
+	return ATTRIBUTE_KIND.ORDINARY;
+}
+
 // A helper used to turn expressions into attribute key/value
 // In the compiler, addAttribute is only printed to process attributes of elements
 // that may contain dynamic values. We don't need to pass tagName to addAttribute
@@ -92,48 +123,63 @@ export function addAttribute(value: any, key: string, shouldEscape = true, tagNa
 		return '';
 	}
 
-	// Reject attribute names with characters that could break out of the attribute context.
-	if (INVALID_ATTR_NAME_CHAR.test(key)) {
-		return '';
-	}
+	const kind = classifyAttribute(key);
+	switch (kind) {
+		// Reject attribute names with characters that could break out of the attribute context.
+		case ATTRIBUTE_KIND.INVALID_NAME:
+			return '';
 
-	// compiler directives cannot be applied dynamically, log a warning and ignore.
-	if (STATIC_DIRECTIVES.has(key)) {
-		console.warn(`[astro] The "${key}" directive cannot be applied dynamically at runtime. It will not be rendered as an attribute.
+		// compiler directives cannot be applied dynamically, log a warning and ignore.
+		case ATTRIBUTE_KIND.STATIC_DIRECTIVE:
+			console.warn(`[astro] The "${key}" directive cannot be applied dynamically at runtime. It will not be rendered as an attribute.
 
 Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the dynamic spread syntax (\`{...{ "${key}": value }}\`).`);
-		return '';
-	}
-
-	// support "class" from an expression passed into an element (#782)
-	if (key === 'class:list') {
-		const listValue = toAttributeString(clsx(value), shouldEscape);
-		if (listValue === '') {
 			return '';
-		}
-		return markHTMLString(` ${key.slice(0, -5)}="${listValue}"`);
-	}
 
-	// support object styles for better JSX compat
-	if (key === 'style' && !(value instanceof HTMLString)) {
-		if (Array.isArray(value) && value.length === 2) {
-			return markHTMLString(
-				` ${key}="${toAttributeString(`${toStyleString(value[0])};${value[1]}`, shouldEscape)}"`,
-			);
+		// support "class" from an expression passed into an element (#782)
+		case ATTRIBUTE_KIND.CLASS_LIST: {
+			const listValue = toAttributeString(clsx(value), shouldEscape);
+			if (listValue === '') {
+				return '';
+			}
+			return markHTMLString(` class="${listValue}"`);
 		}
-		if (typeof value === 'object') {
-			return markHTMLString(` ${key}="${toAttributeString(toStyleString(value), shouldEscape)}"`);
-		}
-	}
 
-	// support `className` for better JSX compat
-	if (key === 'className') {
-		return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
-	}
+		// support object styles for better JSX compat
+		case ATTRIBUTE_KIND.STYLE:
+			if (!(value instanceof HTMLString)) {
+				if (Array.isArray(value) && value.length === 2) {
+					return markHTMLString(
+						` style="${toAttributeString(`${toStyleString(value[0])};${value[1]}`, shouldEscape)}"`,
+					);
+				}
+				if (typeof value === 'object') {
+					return markHTMLString(
+						` style="${toAttributeString(toStyleString(value), shouldEscape)}"`,
+					);
+				}
+			}
+			break;
 
-	// Boolean values only need the key
-	if (htmlBooleanAttributes.test(key)) {
-		return handleBooleanAttribute(key, value, shouldEscape, tagName);
+		// support `className` for better JSX compat
+		case ATTRIBUTE_KIND.CLASS_NAME:
+			return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
+
+		// Boolean values only need the key
+		case ATTRIBUTE_KIND.BOOLEAN:
+			return handleBooleanAttribute(key, value, shouldEscape, tagName);
+
+		case ATTRIBUTE_KIND.BOOLEAN_IF_BOOLEAN:
+			if (typeof value === 'boolean') {
+				return handleBooleanAttribute(key, value, shouldEscape, tagName);
+			}
+			break;
+
+		case ATTRIBUTE_KIND.ORDINARY:
+			break;
+
+		default:
+			kind satisfies never;
 	}
 
 	// Other attributes with an empty string value can omit rendering the value
@@ -141,18 +187,16 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		return markHTMLString(` ${key}`);
 	}
 
-	// We cannot add it to htmlBooleanAttributes because it can be: boolean | "auto" | "manual"
-	if (key === 'popover' && typeof value === 'boolean') {
-		return handleBooleanAttribute(key, value, shouldEscape, tagName);
-	}
-	if (key === 'download' && typeof value === 'boolean') {
-		return handleBooleanAttribute(key, value, shouldEscape, tagName);
-	}
-	if (key === 'hidden' && typeof value === 'boolean') {
-		return handleBooleanAttribute(key, value, shouldEscape, tagName);
-	}
-
 	return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
+}
+
+export function spreadElementAttributes(values: Record<string, any>): string {
+	let output = '';
+	for (const key of Object.keys(values)) {
+		if (key === 'children') continue;
+		output += addAttribute(values[key], key, true);
+	}
+	return output;
 }
 
 // Adds support for `<Component {...value} />
@@ -162,8 +206,8 @@ export function internalSpreadAttributes(
 	tagName: string,
 ) {
 	let output = '';
-	for (const [key, value] of Object.entries(values)) {
-		output += addAttribute(value, key, shouldEscape, tagName);
+	for (const key of Object.keys(values)) {
+		output += addAttribute(values[key], key, shouldEscape, tagName);
 	}
 	return markHTMLString(output);
 }

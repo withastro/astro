@@ -5,7 +5,10 @@ import type { RoutingStrategies } from '../../../dist/core/app/common.js';
 import { createI18nMiddleware } from '../../../dist/i18n/middleware.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import type { Locales } from '../../../dist/types/public/config.js';
-import { createPage, createTestApp } from '../mocks.ts';
+import { createPage, createTestApp, createRouteData } from '../mocks.ts';
+import { createManifest, createRouteInfo } from '../app/test-helpers.ts';
+import { App } from '../../../dist/core/app/app.js';
+import type { SSRManifest, RouteInfo } from '../../../dist/core/app/types.js';
 import { dynamicPart, spreadPart, staticPart } from '../routing/test-helpers.ts';
 
 interface I18nConfigOverrides {
@@ -664,5 +667,62 @@ describe('i18n via AstroHandler (no middleware) - prefix-always (#16800)', () =>
 		const app = createHandlerApp();
 		const res = await app.render(new Request('http://example.com/about'));
 		assert.equal(res.status, 404);
+	});
+});
+
+// #17778: i18n fallback rewrite returns 404 (not 500) when the fallback target
+// is a prerendered route whose component is not available at runtime.
+describe('i18n fallback rewrite with prerendered routes not in pageMap', () => {
+	it('returns 404 when fallback rewrite targets a prerendered route with no runtime component', async () => {
+		const i18n = makeI18nConfig({
+			defaultLocale: 'en',
+			locales: ['en', 'es'],
+			strategy: 'pathname-prefix-other-locales' as RoutingStrategies,
+			fallbackType: 'rewrite',
+			fallback: { es: 'en' },
+		});
+
+		// Build a manifest where the prerendered blog routes appear in
+		// manifest.routes (so findRouteToRewrite can match them) but NOT
+		// in pageMap (simulating the production runtime where prerendered
+		// components are not bundled into the server entry).
+		const indexPage = createPage(localePage, {
+			route: '/',
+			component: 'src/pages/index.astro',
+		});
+		const enBlogRoute = createRouteData({
+			route: '/blog/[...slug]',
+			component: 'src/pages/blog/[...slug].astro',
+			prerender: true,
+			pathname: undefined,
+			segments: [[staticPart('blog')], [spreadPart('slug')]],
+		});
+		const esBlogRoute = createRouteData({
+			route: '/es/blog/[...slug]',
+			component: 'src/pages/es/blog/[...slug].astro',
+			prerender: true,
+			pathname: undefined,
+			segments: [[staticPart('es')], [staticPart('blog')], [spreadPart('slug')]],
+		});
+
+		const routes: RouteInfo[] = [
+			createRouteInfo(indexPage.routeData) as RouteInfo,
+			createRouteInfo(enBlogRoute) as RouteInfo,
+			createRouteInfo(esBlogRoute) as RouteInfo,
+		];
+		// Only the SSR index page goes into pageMap; prerendered routes
+		// are excluded, matching real production behavior.
+		const pageMap = new Map<string, () => Promise<Record<string, unknown>>>();
+		pageMap.set(indexPage.routeData.component, indexPage.module);
+
+		const manifest = createManifest({
+			routes,
+			pageMap: pageMap as unknown as SSRManifest['pageMap'],
+			i18n,
+		});
+
+		const app = new App(manifest as unknown as SSRManifest);
+		const res = await app.render(new Request('http://example.com/es/blog/missing-post'));
+		assert.equal(res.status, 404, 'should return 404, not 500');
 	});
 });

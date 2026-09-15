@@ -49,7 +49,7 @@ export function remotePatternToRegex(
 ): string | undefined {
 	let { protocol, hostname, port, pathname } = pattern;
 
-	let regexStr = '';
+	let regexStr = '^';
 
 	if (protocol) {
 		regexStr += `${protocol}://`;
@@ -125,7 +125,7 @@ function remoteImagesFromAstroConfig(
 	const remoteImages: string[] = [];
 	// Domains get a simple regex match
 	remoteImages.push(
-		...config.image.domains.map((domain) => `https?:\/\/${escapeRegex(domain)}\/.*`),
+		...config.image.domains.map((domain) => `^https?:\/\/${escapeRegex(domain)}\/.*$`),
 	);
 	// Remote patterns need to be converted to regexes
 	remoteImages.push(
@@ -188,12 +188,17 @@ async function writeSkewProtectionConfig(config: AstroConfig) {
 		return; // Skip if not deploying to Netlify
 	}
 
+	const patterns = ['/_actions/.*', '/_server-islands/.*', '.*\\.(html)$'];
+	if (!config.build.assetsPrefix) {
+		patterns.push(`/${config.build.assets}/.*`);
+	}
+
 	const deployConfigDir = new URL('.netlify/v1/', config.root);
 	await mkdir(deployConfigDir, { recursive: true });
 	await writeFile(
 		new URL('./skew-protection.json', deployConfigDir),
 		JSON.stringify({
-			patterns: ['/_actions/.*', '/_server-islands/.*', '.*\\.(html)$'],
+			patterns,
 			sources: [
 				{ type: 'header', name: 'X-Netlify-Deploy-ID' },
 				{ type: 'query', name: 'dpl' },

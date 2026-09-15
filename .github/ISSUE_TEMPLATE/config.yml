@@ -2,7 +2,10 @@ blank_issues_enabled: false
 contact_links:
   - name: 💁 Support
     url: https://astro.build/chat
-    about: 'This issue tracker is not for support questions. Join us on Discord for assistance!'
+    about: This issue tracker is not for support questions. Join us on Discord for assistance!
+  - name: 💁 Support (GitHub)
+    url: https://github.com/withastro/community-support/discussions
+    about: No Discord account? Open a discussion on GitHub for assistance.
   - name: 📘 Documentation
     url: https://github.com/withastro/docs
     about: File an issue or make an improvement to the docs website.

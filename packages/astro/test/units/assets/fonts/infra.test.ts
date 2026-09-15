@@ -783,7 +783,7 @@ describe('fonts infra', () => {
 				address: { address: '127.0.0.1', family: 'IPv4', port: 3000 },
 			});
 
-			assert.equal(resolver.resolve('/_astro/fonts/bar.woff2'), null);
+			assert.equal(resolver.resolve('/_astro/fonts/bar.woff2', undefined), null);
 		});
 
 		it('works with ipv4', () => {
@@ -793,7 +793,7 @@ describe('fonts infra', () => {
 			});
 
 			assert.equal(
-				resolver.resolve('/test/_astro/fonts/foo.woff2'),
+				resolver.resolve('/test/_astro/fonts/foo.woff2', undefined),
 				'http://127.0.0.1:3000/test/_astro/fonts/foo.woff2',
 			);
 		});
@@ -805,7 +805,7 @@ describe('fonts infra', () => {
 			});
 
 			assert.equal(
-				resolver.resolve('/_astro/fonts/foo.woff2'),
+				resolver.resolve('/_astro/fonts/foo.woff2', undefined),
 				'http://[::]:3000/_astro/fonts/foo.woff2',
 			);
 		});
@@ -817,8 +817,32 @@ describe('fonts infra', () => {
 			});
 
 			assert.equal(
-				resolver.resolve('http://cdn.example.com/_astro/fonts/foo.woff2'),
+				resolver.resolve('http://cdn.example.com/_astro/fonts/foo.woff2', undefined),
 				'http://127.0.0.1:3000/_astro/fonts/foo.woff2',
+			);
+		});
+
+		it('falls back to requestUrl when address is null', () => {
+			const resolver = new RemoteRuntimeFontFileUrlResolver({
+				urls: new Set(['/_astro/fonts/foo.woff2']),
+				address: null,
+			});
+
+			assert.equal(
+				resolver.resolve('/_astro/fonts/foo.woff2', new URL('http://localhost:4321/og.png')),
+				'http://localhost:4321/_astro/fonts/foo.woff2',
+			);
+		});
+
+		it('returns full url directly when address is null and url is absolute (assetsPrefix)', () => {
+			const resolver = new RemoteRuntimeFontFileUrlResolver({
+				urls: new Set(['http://cdn.example.com/_astro/fonts/foo.woff2']),
+				address: null,
+			});
+
+			assert.equal(
+				resolver.resolve('http://cdn.example.com/_astro/fonts/foo.woff2', undefined),
+				'http://cdn.example.com/_astro/fonts/foo.woff2',
 			);
 		});
 	});

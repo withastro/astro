@@ -5,6 +5,6 @@ import { optimize, type Config } from 'svgo';
 export function svgoOptimizer(config?: Config): SvgOptimizer {
 	return {
 		name: 'svgo',
-		optimize: (contents) => optimize(contents, config).data,
+		optimize: (contents, path) => optimize(contents, { ...config, path }).data,
 	};
 }

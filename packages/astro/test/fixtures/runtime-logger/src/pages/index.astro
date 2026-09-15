@@ -1,0 +1,11 @@
+---
+import { getEntry } from 'astro:content';
+
+// Request scope, for contrast with the module-level lookup in `src/middleware.ts`.
+await getEntry('blog', 'missing-from-page');
+---
+
+<html>
+	<head><title>Runtime logger</title></head>
+	<body><h1>Runtime logger</h1></body>
+</html>

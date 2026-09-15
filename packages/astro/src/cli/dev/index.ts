@@ -25,23 +25,18 @@ export function isIgnoreLock(flags: Flags): boolean {
 }
 
 /**
- * `--ignore-lock` skips the lock file entirely, so a background dev server started with it
- * could never be found by `astro dev stop`/`status`/`logs`. Returns an error message if
- * background mode (explicit `--background`, or implied by AI agent detection) is combined
- * with `--ignore-lock`, or `null` if there's no conflict.
+ * Returns an error message when `--ignore-lock` is combined with an explicit `--background`,
+ * or `null` otherwise. A background server started with `--ignore-lock` could never be found
+ * by `astro dev stop`/`status`/`logs` because the flag skips the lock file entirely.
+ * Background implied by AI agent detection never reaches this check: the CLI drops it
+ * whenever `--ignore-lock` is set.
  */
-export function getBackgroundIgnoreLockConflict(
-	flags: Flags,
-	wantsBackground: boolean,
-): string | null {
-	if (!wantsBackground) {
+export function getBackgroundIgnoreLockConflict(flags: Flags): string | null {
+	if (!flags.background) {
 		return null;
 	}
-	const reason = flags.background
-		? '`--background`'
-		: 'an auto-detected AI agent environment, which runs the dev server in the background automatically';
 	return [
-		`\`--ignore-lock\` cannot be used together with ${reason}.`,
+		'`--ignore-lock` cannot be used together with `--background`.',
 		'',
 		'Background dev servers rely on the lock file so `astro dev stop`, `astro dev status`, and `astro dev logs` can find them.',
 		'Run the dev server in the foreground to use --ignore-lock.',
@@ -130,7 +125,10 @@ export async function dev({ flags }: DevOptions) {
 	}
 
 	const ignoreLock = isIgnoreLock(flags);
-	const wantsBackground = !!flags.background || agentDetected;
+	// Agent-inferred background yields to `--ignore-lock`: the flag means a one-off
+	// foreground server that `stop`/`status`/`logs` won't track.
+	// https://github.com/withastro/astro/issues/17903
+	const wantsBackground = !!flags.background || (agentDetected && !ignoreLock);
 
 	const logger = createLoggerFromFlags(flags);
 	const subcommand = flags._[3]?.toString();
@@ -158,8 +156,7 @@ export async function dev({ flags }: DevOptions) {
 
 	// Reject conflicting flag combinations up front, before starting anything.
 	if (ignoreLock) {
-		const conflict =
-			getBackgroundIgnoreLockConflict(flags, wantsBackground) ?? getForceIgnoreLockConflict(flags);
+		const conflict = getBackgroundIgnoreLockConflict(flags) ?? getForceIgnoreLockConflict(flags);
 		if (conflict) {
 			throw new Error(conflict);
 		}

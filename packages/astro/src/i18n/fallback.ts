@@ -43,16 +43,8 @@ export interface ComputeFallbackRouteOptions {
  * to a fallback locale based on the i18n configuration.
  */
 export function computeFallbackRoute(options: ComputeFallbackRouteOptions): FallbackRouteResult {
-	const {
-		pathname,
-		responseStatus,
-		fallback,
-		fallbackType,
-		locales,
-		defaultLocale,
-		strategy,
-		base,
-	} = options;
+	const { pathname, responseStatus, fallback, fallbackType, locales, defaultLocale, strategy } =
+		options;
 
 	// Only apply fallback for 404 status codes (page not found in this locale)
 	if (responseStatus !== 404) {
@@ -96,19 +88,20 @@ export function computeFallbackRoute(options: ComputeFallbackRouteOptions): Fall
 	// Get the path for the fallback locale (handles granular locales)
 	const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
 
+	// Replace the locale segment by index so that earlier segments whose text
+	// happens to contain the locale code as a substring are left alone (#17907).
+	const localeIndex = segments.indexOf(urlLocale);
 	let newPathname: string;
 
 	// If fallback is to the default locale and strategy is prefix-other-locales,
 	// remove the locale prefix (default locale has no prefix)
 	if (pathFallbackLocale === defaultLocale && strategy === 'pathname-prefix-other-locales') {
-		if (pathname.includes(`${base}`)) {
-			newPathname = pathname.replace(`/${urlLocale}`, ``);
-		} else {
-			newPathname = pathname.replace(`/${urlLocale}`, `/`);
-		}
+		segments.splice(localeIndex, 1);
+		newPathname = segments.join('/') || '/';
 	} else {
 		// Replace the current locale with the fallback locale
-		newPathname = pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
+		segments[localeIndex] = pathFallbackLocale;
+		newPathname = segments.join('/');
 	}
 
 	return {

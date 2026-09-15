@@ -1,5 +1,17 @@
 # @astrojs/internal-helpers
 
+## 0.11.0
+
+### Minor Changes
+
+- [#17262](https://github.com/withastro/astro/pull/17262) [`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds an `@astrojs/internal-helpers/mdx` entrypoint with the shared helpers the Markdown processor packages use to render `.mdx` files.
+
+## 0.10.4
+
+### Patch Changes
+
+- [#17701](https://github.com/withastro/astro/pull/17701) [`05763a0`](https://github.com/withastro/astro/commit/05763a0884aabb1da78a2749d5bb9d41ae620527) Thanks [@matthewp](https://github.com/matthewp)! - Fixes base path stripping to respect path-segment boundaries. With a configured `base` such as `/docs`, a request like `/docs-archive/page` is no longer treated as being under the base, so routing and `context.url.pathname` now agree on the same pathname.
+
 ## 0.10.3
 
 ### Patch Changes

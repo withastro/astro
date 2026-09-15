@@ -77,6 +77,24 @@ export function serializedManifestPlugin({
 	return {
 		name: SERIALIZED_MANIFEST_ID,
 		enforce: 'pre',
+		// Dependency optimization runs as a nested Rolldown build that cannot load Vite virtual
+		// modules. Keep this import external so the server module graph resolves it below.
+		configEnvironment(environmentName) {
+			if (
+				command === 'dev' &&
+				(environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
+					environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+					environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender)
+			) {
+				return {
+					optimizeDeps: {
+						rolldownOptions: {
+							external: [AMBIENT_MANIFEST_SPECIFIER],
+						},
+					},
+				};
+			}
+		},
 		configureServer(server) {
 			server.watcher.on('add', (path) => reloadManifest(path, server));
 			server.watcher.on('unlink', (path) => reloadManifest(path, server));

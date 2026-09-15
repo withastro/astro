@@ -262,6 +262,28 @@ export function removeBase(path: string, base: string) {
 	return path;
 }
 
+/**
+ * Strips a configured request `base` from a pathname, only when the pathname is
+ * the base itself or lies under it at a path-segment boundary. `stripRequestBase('/appX/admin', '/app')`
+ * leaves the pathname untouched, whereas `stripRequestBase('/app/admin', '/app')` returns `/admin`.
+ *
+ * Leading slashes are collapsed first so `//admin` cannot pose as being under a
+ * `/` base. Route matching and `context.url.pathname` derive from separate
+ * copies of the request path, so a mismatch here lets a request reach a route
+ * whose base-prefixed pathname middleware never observes.
+ */
+export function stripRequestBase(pathname: string, base: string): string {
+	pathname = collapseDuplicateLeadingSlashes(pathname);
+	const baseWithoutTrailingSlash = removeTrailingForwardSlash(base);
+	if (pathname === baseWithoutTrailingSlash) {
+		return '/';
+	}
+	if (pathname.startsWith(baseWithoutTrailingSlash + '/')) {
+		return pathname.slice(baseWithoutTrailingSlash.length);
+	}
+	return pathname;
+}
+
 const WITH_FILE_EXT = /\/[^/]+\.\w+$/;
 
 export function hasFileExtension(path: string) {

@@ -1,9 +1,9 @@
 import {
 	appendForwardSlash,
-	collapseDuplicateLeadingSlashes,
 	joinPaths,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
+	stripRequestBase,
 } from '@astrojs/internal-helpers/path';
 import { normalizeTheLocale } from '../../i18n/path.js';
 import type { SSRManifest } from '../app/types.js';
@@ -72,13 +72,13 @@ export function computePathnameFromDomain(
 				}
 
 				if (locale) {
-					const requestPathname = pathnameFromRequest ?? removeBase(url.pathname, base);
+					const requestPathname = pathnameFromRequest ?? stripRequestBase(url.pathname, base);
 					pathname = prependForwardSlash(joinPaths(normalizeTheLocale(locale), requestPathname));
 					if (trailingSlash === 'always') {
 						pathname = appendForwardSlash(pathname);
 					} else if (trailingSlash === 'never') {
 						pathname = removeTrailingForwardSlash(pathname);
-					} else if (requestPathname.endsWith('/')) {
+					} else if (url.pathname.endsWith('/')) {
 						// trailingSlash === 'ignore': preserve the original trailing slash
 						pathname = appendForwardSlash(pathname);
 					}
@@ -91,19 +91,6 @@ export function computePathnameFromDomain(
 				logger.error('router', `Error: ${e}`);
 			}
 		}
-	}
-	return pathname;
-}
-
-/**
- * Mirror of `BaseApp.removeBase`, including the
- * `collapseDuplicateLeadingSlashes` fix that prevents middleware
- * authorization bypass when the URL starts with `//`.
- */
-function removeBase(pathname: string, base: string): string {
-	pathname = collapseDuplicateLeadingSlashes(pathname);
-	if (pathname.startsWith(base)) {
-		return pathname.slice(removeTrailingForwardSlash(base).length + 1);
 	}
 	return pathname;
 }

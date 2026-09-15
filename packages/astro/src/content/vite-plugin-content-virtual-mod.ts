@@ -28,6 +28,7 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
+import type { MutableDataStore } from './mutable-data-store.js';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from './paths.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
 
@@ -90,6 +91,57 @@ function invalidateDataStore(viteServer: ViteDevServer, { notifyClient = true } 
 			path: '*',
 		});
 	}
+}
+
+// Timestamps of direct (write-driven) invalidations, keyed by file path. The
+// file watcher usually observes the same write shortly afterwards; watcher
+// events inside this window are echoes of an invalidation that has already
+// happened and are skipped so clients don't get two full reloads for one change.
+const directInvalidations = new Map<string, number>();
+const DIRECT_INVALIDATION_ECHO_MS = 1000;
+
+function markDirectInvalidation(path: string) {
+	directInvalidations.set(path, Date.now());
+}
+
+function isDirectInvalidationEcho(path: string) {
+	const time = directInvalidations.get(path);
+	return time !== undefined && Date.now() - time < DIRECT_INVALIDATION_ECHO_MS;
+}
+
+/** The file whose write commits a data store update during dev. */
+function getDevDataStoreFile(settings: AstroSettings): URL {
+	if (getDataStoreChunkSize(settings) !== undefined) {
+		return new URL(DATA_STORE_MANIFEST_FILE, getDataStoreDir(settings, true));
+	}
+	return getDataStoreFile(settings, true);
+}
+
+/**
+ * Invalidates the content virtual modules directly whenever the given store
+ * writes to disk. The watcher listeners in `configureServer` cover writes from
+ * other processes, but the watcher can miss the atomic rename that commits a
+ * write on some platforms (notably Windows, see #17335), leaving dev serving
+ * stale content until a restart. Subscribing to the store's own write
+ * notifications makes invalidation of this process's writes deterministic.
+ */
+export function attachDataStoreInvalidation(
+	store: MutableDataStore,
+	server: ViteDevServer,
+	settings: AstroSettings,
+) {
+	const dataStorePath = fileURLToPath(getDevDataStoreFile(settings));
+	const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
+	store.onFileWritten((path) => {
+		if (path === dataStorePath) {
+			markDirectInvalidation(dataStorePath);
+			invalidateDataStore(server);
+			invalidateAssetImports(server, assetImportsPath);
+		} else if (path === assetImportsPath) {
+			markDirectInvalidation(assetImportsPath);
+			invalidateAssetImports(server, assetImportsPath);
+		}
+	});
 }
 
 export function astroContentVirtualModPlugin({
@@ -335,7 +387,7 @@ export function astroContentVirtualModPlugin({
 			const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
 
 			server.watcher.on('add', (addedPath) => {
-				if (addedPath === dataStorePath) {
+				if (addedPath === dataStorePath && !isDirectInvalidationEcho(dataStorePath)) {
 					invalidateDataStore(server);
 					invalidateAssetImports(server, assetImportsPath);
 				}
@@ -343,9 +395,15 @@ export function astroContentVirtualModPlugin({
 
 			server.watcher.on('change', (changedPath) => {
 				if (changedPath === dataStorePath) {
+					if (isDirectInvalidationEcho(dataStorePath)) {
+						return;
+					}
 					invalidateDataStore(server);
 					invalidateAssetImports(server, assetImportsPath);
-				} else if (changedPath === assetImportsPath) {
+				} else if (
+					changedPath === assetImportsPath &&
+					!isDirectInvalidationEcho(assetImportsPath)
+				) {
 					invalidateAssetImports(server, assetImportsPath);
 				}
 			});

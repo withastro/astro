@@ -8,7 +8,7 @@ import { type ASTNode, builders, generateCode, loadFile, type ProxifiedModule } 
 import { getDefaultExportOptions } from 'magicast/helpers';
 import { detect, resolveCommand } from 'package-manager-detector';
 import colors from 'piccolore';
-import maxSatisfying from 'semver/ranges/max-satisfying.js';
+import { findMaxSatisfying } from 'verkit';
 import type yargsParser from 'yargs-parser';
 import {
 	loadTSConfig,
@@ -31,6 +31,7 @@ import { eventCliSession, telemetry } from '../../events/index.js';
 import { exec } from '../exec.js';
 import { createLoggerFromFlags, type Flags, flagsToAstroInlineConfig } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
+import { getCloudflareCompatibilityDate } from './cloudflare.js';
 
 const { bold, cyan, dim, green, magenta, red, yellow } = colors;
 
@@ -200,7 +201,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 					if (await askToContinue({ flags, logger })) {
 						const data = await getPackageJson();
-						let compatibilityDate = new Date().toISOString().slice(0, 10);
+						const compatibilityDate = await getCloudflareCompatibilityDate(root);
 
 						await fs.writeFile(
 							wranglerConfigURL,
@@ -740,7 +741,7 @@ async function resolveRangeToInstallSpecifier(name: string, range: string): Prom
 	if (versions instanceof Error) return name;
 	// Filter out any prerelease versions, but fallback if there are no stable versions
 	const stableVersions = versions.filter((v) => !v.includes('-'));
-	const maxStable = maxSatisfying(stableVersions, range) ?? maxSatisfying(versions, range);
+	const maxStable = findMaxSatisfying(stableVersions, range) ?? findMaxSatisfying(versions, range);
 	if (!maxStable) return name;
 	return `${name}@^${maxStable}`;
 }
@@ -828,7 +829,7 @@ async function tryToInstallIntegrations({
 			spinner.error('Error installing dependencies.');
 			logger.debug('add', 'Error installing dependencies', err);
 			// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
-			console.error('\n', err.stdout || err.message, '\n');
+			logger.error('add', `\n${err.stdout || err.message}\n`);
 			return 'failure';
 		}
 	} else {

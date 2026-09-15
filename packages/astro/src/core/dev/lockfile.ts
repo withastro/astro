@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, unlinkSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import findProcess from 'find-process';
+import findProcess from 'find-proc';
 import type { ResolvedServerUrls } from 'vite';
 
 export type ServerCommand = 'dev' | 'preview';
@@ -124,6 +124,14 @@ export async function isLockFileProcessAlive(
 	data: LockFileData,
 	find: ProcessLookup = findProcess,
 ): Promise<boolean> {
+	// The current process cannot be the server recorded in the lock file — it hasn't
+	// started one yet. In Docker containers the PID namespace resets on restart, so the
+	// new `astro dev` process often inherits the same PID the old one had. Without this
+	// guard, the process detects itself as the "already running" server. (#17744)
+	if (data.pid === process.pid) {
+		return false;
+	}
+
 	if (!isProcessAlive(data.pid)) {
 		return false;
 	}

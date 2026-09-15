@@ -5,7 +5,16 @@ import {
 	syntaxHighlightDefaults,
 } from '@astrojs/internal-helpers/markdown';
 import Slugger from 'github-slugger';
-import type { Features, HastNode, HastPluginDefinition, MdastPluginDefinition } from 'satteri';
+import type {
+	Features,
+	HastNode,
+	HastPluginDefinition,
+	HastPluginEntry,
+	HastPluginList,
+	MdastPluginDefinition,
+	MdastPluginEntry,
+	MdastPluginList,
+} from 'satteri';
 import { createShikiHighlighter } from '@astrojs/internal-helpers/shiki';
 import type {
 	AstroMarkdownOptions,
@@ -206,8 +215,8 @@ export function createHighlightPlugin(
 }
 
 export interface SatteriMarkdownProcessorOptions extends AstroMarkdownOptions {
-	mdastPlugins?: MdastPluginDefinition[];
-	hastPlugins?: HastPluginDefinition[];
+	mdastPlugins?: MdastPluginList;
+	hastPlugins?: HastPluginList;
 	features?: Features;
 }
 
@@ -291,12 +300,12 @@ export async function createSatteriMarkdownProcessor(
 			};
 
 			// Collect last so image-URL rewrites by user plugins are captured.
-			const allMdastPlugins: MdastPluginDefinition[] = [
+			const allMdastPlugins: MdastPluginEntry[] = [
 				...userMdastPlugins,
 				createCollectImagesPlugin(opts?.image),
 			];
 
-			const hastPlugins: HastPluginDefinition[] = [];
+			const hastPlugins: HastPluginEntry[] = [];
 			if (highlightFn) {
 				hastPlugins.push(createHighlightPlugin(highlightFn, syntaxHighlightExcludeLangs));
 			}

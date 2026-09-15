@@ -20,6 +20,7 @@ review:
 triage:
   enabled: true
   skill: .agents/skills/triage
+  prWriterSkill: .agents/skills/astro-pr-writer
   model: anthropic/claude-opus-4-6
   verificationModel: anthropic/claude-sonnet-4-6
   autoPrOnFix: false
@@ -29,3 +30,11 @@ triage:
   buildCommand: pnpm build
   previewRelease:
     workflow: factory-preview.yml
+    
+adversary:
+  trigger:
+    label: "pr: adversary"
+  blueTeam:
+    skill: .agents/skills/astro-adversary-blue
+  purpleTeam:
+    skill: .agents/skills/astro-adversary-purple

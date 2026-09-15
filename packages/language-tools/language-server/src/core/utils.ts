@@ -73,6 +73,10 @@ export function classNameFromFilename(filename: string): string {
 
 // TODO: Patch the upstream packages with these changes
 export function patchTSX(code: string, filePath: string) {
+	return patchTSXWithMetadata(code, filePath).code;
+}
+
+export function patchTSXWithMetadata(code: string, filePath: string) {
 	const url = URI.parse(filePath);
 	const basename = Utils.basename(url).slice(0, -Utils.extname(url).length);
 	const isDynamic = basename.startsWith('[') && basename.endsWith(']');
@@ -93,8 +97,15 @@ export function patchTSX(code: string, filePath: string) {
 	// TypeScript matches auto-imports against export names, so the suffixed name is never offered for `<Component />`
 	const cleanName = classNameFromFilename(filePath);
 	if (!componentNames.has(cleanName)) {
-		return patched;
+		return { code: patched };
 	}
 
-	return `${patched}\nexport { ${cleanName}AstroComponent as ${cleanName} };\n`;
+	const generatedComponentExport = `export { ${cleanName}AstroComponent as ${cleanName} };\n`;
+	return {
+		code: `${patched}\n${generatedComponentExport}`,
+		generatedComponentExport: {
+			start: patched.length + 1,
+			end: patched.length + 1 + generatedComponentExport.length,
+		},
+	};
 }

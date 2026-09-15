@@ -17,7 +17,7 @@ async function parseSvg({
 	let processedContents = contents;
 	if (svgOptimizer) {
 		try {
-			processedContents = await svgOptimizer.optimize(contents);
+			processedContents = await svgOptimizer.optimize(contents, path);
 		} catch (cause) {
 			throw new AstroError(
 				{

@@ -65,6 +65,27 @@ export function mergeSlotInstructions(
 	return target;
 }
 
+export class SlotRenderInstance implements RenderInstance {
+	private readonly result: SSRResult;
+	private readonly slotted: ComponentSlotValue | RenderTemplateResult;
+
+	constructor(result: SSRResult, slotted: ComponentSlotValue | RenderTemplateResult) {
+		this.result = result;
+		this.slotted = slotted;
+	}
+
+	/** Must be called at most once per instance. */
+	evaluate(): unknown {
+		const { slotted } = this;
+		return typeof slotted === 'function' ? slotted(this.result) : slotted;
+	}
+
+	// Not `async`: that would return a promise even for sync slots, forcing the enclosing template to buffer.
+	render(destination: RenderDestination): void | Promise<void> {
+		return renderChild(destination, this.evaluate());
+	}
+}
+
 export function renderSlot(
 	result: SSRResult,
 	slotted: ComponentSlotValue | RenderTemplateResult,
@@ -73,11 +94,7 @@ export function renderSlot(
 	if (!slotted && fallback) {
 		return renderSlot(result, fallback);
 	}
-	return {
-		async render(destination) {
-			await renderChild(destination, typeof slotted === 'function' ? slotted(result) : slotted);
-		},
-	};
+	return new SlotRenderInstance(result, slotted);
 }
 
 export async function renderSlotToString(

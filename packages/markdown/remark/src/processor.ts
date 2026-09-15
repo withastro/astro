@@ -1,5 +1,7 @@
+import { createUnifiedMdxProcessor } from '#mdx-processor';
 import type {
 	MarkdownProcessor,
+	PluggableList,
 	RehypePlugins,
 	RemarkPlugins,
 	RemarkRehype,
@@ -10,6 +12,8 @@ export interface UnifiedProcessorOptions {
 	remarkPlugins?: RemarkPlugins;
 	rehypePlugins?: RehypePlugins;
 	remarkRehype?: RemarkRehype;
+	/** recma (estree/JSX) plugins for the MDX compiler. Only affect `.mdx` files when using the `@astrojs/mdx` integration */
+	recmaPlugins?: PluggableList;
 	/** Enable GitHub-Flavored Markdown. Defaults to `true`. */
 	gfm?: boolean;
 	/** Enable SmartyPants typography. Defaults to `true`; pass an object to configure it. */
@@ -24,6 +28,7 @@ export interface UnifiedResolvedOptions {
 	remarkPlugins: RemarkPlugins;
 	rehypePlugins: RehypePlugins;
 	remarkRehype: RemarkRehype;
+	recmaPlugins: PluggableList;
 	gfm?: boolean;
 	smartypants?: boolean | Smartypants;
 }
@@ -52,6 +57,7 @@ export function unified(
 			remarkPlugins: [...(opts.remarkPlugins ?? [])],
 			rehypePlugins: [...(opts.rehypePlugins ?? [])],
 			remarkRehype: { ...opts.remarkRehype },
+			recmaPlugins: [...(opts.recmaPlugins ?? [])],
 			gfm: opts.gfm,
 			smartypants: opts.smartypants,
 		},
@@ -68,6 +74,9 @@ export function unified(
 				gfm: processor.options.gfm ?? shared.gfm,
 				smartypants: processor.options.smartypants ?? shared.smartypants,
 			});
+		},
+		async createMdxRenderer(shared, mdx) {
+			return createUnifiedMdxProcessor(shared, mdx, processor.options);
 		},
 	};
 	return processor;

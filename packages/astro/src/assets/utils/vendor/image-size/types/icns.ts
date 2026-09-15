@@ -11,6 +11,7 @@ import { readUInt32BE, toUTF8String } from './utils.js'
  */
 const SIZE_HEADER = 4 + 4 // 8
 const FILE_LENGTH_OFFSET = 4 // MSB => BIG ENDIAN
+const MIN_ENTRY_LENGTH = 8
 
 /**
  * Image Entry
@@ -92,10 +93,20 @@ export const ICNS: IImage = {
     const images: ISize[] = []
 
     while (imageOffset < fileLength && imageOffset < inputLength) {
+      if (inputLength - imageOffset < MIN_ENTRY_LENGTH) break
+
       const imageHeader = readImageHeader(input, imageOffset)
+      const entryLength = imageHeader[1]
+      if (entryLength < MIN_ENTRY_LENGTH) break
+
       const imageSize = getImageSize(imageHeader[0])
-      images.push(imageSize)
-      imageOffset += imageHeader[1]
+      if (imageSize.width && imageSize.height) {
+        images.push(imageSize)
+      }
+
+      const nextOffset = imageOffset + entryLength
+      if (nextOffset <= imageOffset) break
+      imageOffset = nextOffset
     }
 
     if (images.length === 0) {

@@ -38,7 +38,7 @@ describe('Top-level Return', () => {
 		});
 	});
 
-	it('should avoid esbuild top-level return error by replacing with void', async () => {
+	it('should support top-level return statements during dependency scanning', async () => {
 		const topLevelReturnErrorLog = logs.find(
 			(log) =>
 				log.message &&

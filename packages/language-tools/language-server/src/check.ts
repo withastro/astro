@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as kit from '@volar/kit';
 import { Diagnostic, DiagnosticSeverity } from '@volar/language-server';
@@ -152,13 +152,17 @@ export class AstroCheck {
 
 		if (tsconfigPath) {
 			const includeProjectReference = true;
+			const extraFileExtensions = languagePlugins.flatMap(
+				(plugin) => plugin.typescript?.extraFileExtensions ?? [],
+			);
+			const allExtraFileNames: string[] = [];
 			this.linter = kit.createTypeScriptChecker(
 				languagePlugins,
 				services,
 				tsconfigPath,
 				includeProjectReference,
 				({ project }) => {
-					const { languageServiceHost } = project.typescript!;
+					const { configFileName, languageServiceHost } = project.typescript!;
 					const astroInstall = getAstroInstall([this.workspacePath]);
 
 					addAstroTypes(
@@ -166,8 +170,33 @@ export class AstroCheck {
 						this.ts,
 						languageServiceHost,
 					);
+
+					const extraFileNames = this.getExtraFileNamesFromReferences(
+						configFileName,
+						extraFileExtensions,
+					);
+					if (extraFileNames.length > 0) {
+						allExtraFileNames.push(...extraFileNames);
+
+						const originalGetScriptFileNames =
+							languageServiceHost.getScriptFileNames.bind(languageServiceHost);
+						languageServiceHost.getScriptFileNames = () => [
+							...new Set([...originalGetScriptFileNames(), ...extraFileNames]),
+						];
+					}
 				},
 			);
+
+			// `getRootFileNames()` (used by `lint()` to enumerate the whole project when no
+			// explicit file list is given) reads project references' file lists from an
+			// internal host that the per-project `languageServiceHost` patch above can't reach,
+			// so it needs its own, separate merge here.
+			if (allExtraFileNames.length > 0) {
+				const originalGetRootFileNames = this.linter.getRootFileNames.bind(this.linter);
+				this.linter.getRootFileNames = () => [
+					...new Set([...originalGetRootFileNames(), ...allExtraFileNames]),
+				];
+			}
 		} else {
 			this.linter = kit.createTypeScriptInferredChecker(
 				languagePlugins,
@@ -213,6 +242,37 @@ export class AstroCheck {
 					`See https://github.com/withastro/roadmap/discussions/1321 to track support.`,
 			);
 		}
+	}
+
+	/**
+	 * `@volar/kit`'s `createTypeScriptChecker` re-parses the root tsconfig with the language
+	 * plugins' `extraFileExtensions` (so `.astro` files are included), but for project
+	 * references it reuses TypeScript's own resolved `commandLine`, which never includes
+	 * extra extensions. That silently drops `.astro`/`.vue`/`.svelte` files that are only
+	 * reachable through a referenced tsconfig. `setup` is invoked once per project (the root
+	 * and each reference), so this re-parses that project's own tsconfig the same way the
+	 * root one already is, and returns the extra file names found, for the caller to merge
+	 * into the language service host's root file list.
+	 */
+	private getExtraFileNamesFromReferences(
+		configFileName: string | undefined,
+		extraFileExtensions: import('typescript').FileExtensionInfo[],
+	): string[] {
+		if (!configFileName || extraFileExtensions.length === 0) {
+			return [];
+		}
+
+		const commandLine = this.ts.parseJsonSourceFileConfigFileContent(
+			this.ts.readJsonConfigFile(configFileName, this.ts.sys.readFile),
+			this.ts.sys,
+			dirname(configFileName),
+			undefined,
+			configFileName,
+			undefined,
+			extraFileExtensions,
+		);
+
+		return commandLine.fileNames;
 	}
 
 	private getTsconfig() {

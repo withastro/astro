@@ -77,22 +77,15 @@ The result (`astroPkgsConfig`) is passed to `vitePluginEnvironment`.
 
 ### The Cloudflare adapter's `configEnvironment`
 
-`@astrojs/cloudflare` also implements `configEnvironment`. For the `ssr` environment, it sets an explicit `optimizeDeps.include` list (things that need to be pre-bundled unconditionally). It also registers `astroFrontmatterScanPlugin` as an esbuild plugin in `optimizeDeps.esbuildOptions.plugins`.
+`@astrojs/cloudflare` also implements `configEnvironment`. For its server environments, it sets an explicit `optimizeDeps.include` list (things that need to be pre-bundled unconditionally). It also registers `rolldownAstroFrontmatterScanPlugin` in `optimizeDeps.rolldownOptions.plugins`.
 
-`astroFrontmatterScanPlugin` (`packages/integrations/cloudflare/src/esbuild-plugin-astro-frontmatter.ts`) handles `.astro` files during the dep scan: it reads the frontmatter (`---` block) and returns it as TypeScript for esbuild to process. This allows esbuild to see imports declared in `.astro` frontmatter and discover their deps.
+`rolldownAstroFrontmatterScanPlugin` (`packages/integrations/cloudflare/src/rolldown-plugin-astro-frontmatter.ts`) handles `.astro` files during the dep scan: it reads the frontmatter (`---` block) and returns it as TypeScript for Rolldown to process. This allows Rolldown to see imports declared in `.astro` frontmatter and discover their deps.
 
 ---
 
 ## How non-JS files are handled in the scan
 
-Vite's `esbuildScanPlugin` (inside `vite/dist/node/chunks/config.js`) routes files through different handlers based on type:
-
-- Files matching `htmlTypesRE` (`.html`, `.vue`, `.svelte`, `.astro`, `.imba`) → `html` namespace
-- JS/TS files → loaded directly and scanned for imports
-
-For files in the `html` namespace, `htmlTypeOnLoadCallback` reads the file, looks for `<script>` tags, and re-emits their contents as virtual modules that esbuild can scan. **But `.astro` frontmatter is not a `<script>` tag** — it's between `---` markers. So Vite's built-in handler produces empty output for `.astro` files unless a custom esbuild plugin (like `astroFrontmatterScanPlugin`) intercepts them.
-
-**Important subtlety:** `shouldExternalizeDep` in Vite returns `true` when `resolved === rawId` (i.e. the file was passed as an absolute path entry). This means absolute-path entries that match `htmlTypesRE` may be treated as external rather than loaded via the `html` namespace — preventing their imports from being scanned. The fix is to check if the file is in the `entries` list before externalizing it. This may be a Vite bug worth reporting upstream.
+Vite's dependency scanner does not understand Astro frontmatter. For Cloudflare's Vite 8 environments, `rolldownAstroFrontmatterScanPlugin` loads `.astro` files, extracts the frontmatter, and returns it as TypeScript. Static imports remain at module scope so Rolldown can discover their dependencies.
 
 ---
 
@@ -141,16 +134,15 @@ if (isOptimizable(resolved, optimizeDepsOptions)) {
 
 ### Step 4: Check if `.astro` entries are being scanned
 
-Add logging to `astroFrontmatterScanPlugin`:
+Add logging to `rolldownAstroFrontmatterScanPlugin`:
 
 ```js
-build.onLoad({ filter: /\.astro$/ }, async (args) => {
-  console.log('[astro-frontmatter-scan] scanning:', args.path, 'namespace:', args.namespace);
-  // ...
-});
+async load(id) {
+	if (id.endsWith('.astro')) console.log('[astro-frontmatter-scan] scanning:', id);
+}
 ```
 
-If the plugin fires but the dep still isn't discovered, the problem is downstream (e.g. `resolveDir` missing, or the dep itself is being excluded).
+If the plugin fires but the dep still isn't discovered, the problem is downstream in dependency resolution or optimization.
 
 ### Step 5: Check vitefu exclusions
 
@@ -233,10 +225,10 @@ Without `resolveDir`, esbuild won't know where to resolve imports from the retur
 
 ## Key files
 
-| File                                                                       | Role                                                                                                                 |
-| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `packages/astro/src/vite-plugin-environment/index.ts`                      | Sets `optimizeDeps.entries`, `include`, `exclude`, `noExternal`, `external` per environment                          |
-| `packages/astro/src/core/create-vite.ts`                                   | Calls `crawlFrameworkPkgs`, wires up all Vite plugins                                                                |
-| `packages/integrations/cloudflare/src/index.ts`                            | Cloudflare adapter `configEnvironment` — sets explicit `include` list, registers `astroFrontmatterScanPlugin`        |
-| `packages/integrations/cloudflare/src/esbuild-plugin-astro-frontmatter.ts` | esbuild plugin that extracts frontmatter from `.astro` files during dep scan                                         |
-| `vite/dist/node/chunks/config.js` (in node_modules)                        | Contains `esbuildScanPlugin`, `computeEntries`, `globEntries`, `runOptimizeDeps` — the core optimizer implementation |
+| File                                                                        | Role                                                                                                                  |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `packages/astro/src/vite-plugin-environment/index.ts`                       | Sets `optimizeDeps.entries`, `include`, `exclude`, `noExternal`, `external` per environment                           |
+| `packages/astro/src/core/create-vite.ts`                                    | Calls `crawlFrameworkPkgs`, wires up all Vite plugins                                                                 |
+| `packages/integrations/cloudflare/src/index.ts`                             | Cloudflare adapter `configEnvironment` — sets explicit `include` list, registers `rolldownAstroFrontmatterScanPlugin` |
+| `packages/integrations/cloudflare/src/rolldown-plugin-astro-frontmatter.ts` | Rolldown plugin that extracts frontmatter from `.astro` files during dep scan                                         |
+| `vite/dist/node/chunks/config.js` (in node_modules)                         | Contains Vite's dependency scanner and optimizer implementation                                                       |

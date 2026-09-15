@@ -8,6 +8,7 @@ import { createSafeError } from '../core/errors/index.js';
 import { setLogger } from '../core/logger/manifest-logger.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { createRequest } from '../core/request.js';
+import { validateAndDecodePathname } from '../core/util/pathname.js';
 import { SERIALIZED_MANIFEST_ID } from '../manifest/serialized.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { SSRManifest } from '../types/public/index.js';
@@ -114,8 +115,12 @@ export async function handleDevRequest(
 		pathname = '';
 	} else {
 		// We already have a middleware that checks if there's an incoming URL that has invalid URI, so it's safe
-		// to not handle the error: packages/astro/src/vite-plugin-astro-server/base.ts
-		pathname = decodeURI(url.pathname);
+		// to only handle paths that exceed the supported decoding depth here.
+		try {
+			pathname = validateAndDecodePathname(url.pathname);
+		} catch {
+			pathname = decodeURI(url.pathname);
+		}
 	}
 
 	// Add config.base back to url before passing it to SSR

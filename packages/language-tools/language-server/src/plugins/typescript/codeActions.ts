@@ -1,4 +1,4 @@
-import { TextDocumentEdit } from '@volar/language-server';
+import { type Range, TextDocumentEdit } from '@volar/language-server';
 import type { CodeAction, LanguageServiceContext } from '@volar/language-service';
 import { URI } from 'vscode-uri';
 import { AstroVirtualCode } from '../../core/index.js';
@@ -23,19 +23,46 @@ export function enhancedResolveCodeAction(codeAction: CodeAction, context: Langu
 function mapCodeAction(codeAction: CodeAction, context: LanguageServiceContext) {
 	if (!codeAction.edit || !codeAction.edit.documentChanges) return codeAction;
 
-	codeAction.edit.documentChanges = codeAction.edit.documentChanges.map((change) => {
+	codeAction.edit.documentChanges = codeAction.edit.documentChanges.flatMap((change) => {
 		if (TextDocumentEdit.is(change)) {
 			const decoded = context.decodeEmbeddedDocumentUri(URI.parse(change.textDocument.uri));
 			const sourceScript = decoded && context.language.scripts.get(decoded[0]);
 			const virtualCode = decoded && sourceScript?.generated?.embeddedCodes.get(decoded[1]);
 			const root = sourceScript?.generated?.root;
-			if (!virtualCode || !(root instanceof AstroVirtualCode)) return change;
+			if (!virtualCode || !(root instanceof AstroVirtualCode)) return [change];
+
+			const hadEdits = change.edits.length > 0;
+			if (virtualCode.id === 'tsx') {
+				const generatedComponentExport = root.astroMeta.tsxRanges.generatedComponentExport;
+				if (generatedComponentExport) {
+					change.edits = change.edits.filter(
+						(edit) => !rangesOverlap(edit.range, generatedComponentExport),
+					);
+				}
+			}
+			if (hadEdits && change.edits.length === 0) return [];
 
 			change.edits = change.edits.map((edit) => mapEdit(edit, root, virtualCode.languageId));
 		}
 
-		return change;
+		return [change];
 	});
 
 	return codeAction;
+}
+
+function rangesOverlap(a: Range, b: Range) {
+	const aIsEmpty = comparePositions(a.start, a.end) === 0;
+	if (aIsEmpty) {
+		return comparePositions(a.start, b.start) >= 0 && comparePositions(a.start, b.end) < 0;
+	}
+
+	return comparePositions(a.start, b.end) < 0 && comparePositions(a.end, b.start) > 0;
+}
+
+function comparePositions(
+	a: { line: number; character: number },
+	b: { line: number; character: number },
+) {
+	return a.line === b.line ? a.character - b.character : a.line - b.line;
 }

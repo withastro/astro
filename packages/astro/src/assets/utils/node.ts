@@ -130,6 +130,9 @@ export async function emitImageMetadata(
 	}
 
 	const fileMetadata = await imageMetadata(fileData, id);
+	if (path.extname(id).toLowerCase() === '.apng') {
+		fileMetadata.format = 'apng';
+	}
 
 	const emittedImage: Omit<ImageMetadataWithContents, 'fsPath'> = {
 		src: '',

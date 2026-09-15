@@ -3,7 +3,12 @@ import { describe, it } from 'node:test';
 import { writeFile, mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { fileURLToPath } from 'node:url';
 import { emitImageMetadata } from '../../../dist/assets/utils/node.js';
+
+const APNG_FIXTURE = fileURLToPath(
+	new URL('../../fixtures/core-image-errors/src/images/animated.apng', import.meta.url),
+);
 
 // Minimal valid 1×1 JPEG
 const TINY_JPEG = Buffer.from([
@@ -44,5 +49,13 @@ describe('emitImageMetadata', () => {
 		} finally {
 			await rm(dir, { recursive: true, force: true });
 		}
+	});
+
+	it('returns APNG metadata with dimensions', async () => {
+		const result = await emitImageMetadata(APNG_FIXTURE);
+		assert.ok(result, 'expected metadata to be returned');
+		assert.equal(result.width, 2);
+		assert.equal(result.height, 3);
+		assert.equal(result.format, 'apng');
 	});
 });

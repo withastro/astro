@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { after, describe, it } from 'node:test';
 import { pluginIncremental } from '../../../dist/core/build/plugins/plugin-incremental.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../dist/vite-plugin-pages/const.js';
 
@@ -121,6 +124,32 @@ describe('pluginIncremental', () => {
 			const second = dependencyHash(code, {});
 			assert.equal(first, second);
 			assert.match(first, /^[0-9a-f]{64}$/);
+		});
+
+		describe('CSS modules (#17704)', () => {
+			const tmpDir = mkdtempSync(join(tmpdir(), 'astro-css-test-'));
+			after(() => rmSync(tmpDir, { recursive: true, force: true }));
+
+			it('changes when a CSS file on disk is modified', () => {
+				const cssPath = join(tmpDir, 'global.css');
+				writeFileSync(cssPath, 'body { color: red; }');
+				const first = dependencyHash({ [cssPath]: '' }, {});
+
+				writeFileSync(cssPath, 'body { color: blue; }');
+				const second = dependencyHash({ [cssPath]: '' }, {});
+
+				assert.notEqual(first, second);
+			});
+
+			it('is stable for an unchanged CSS file', () => {
+				const cssPath = join(tmpDir, 'styles.css');
+				writeFileSync(cssPath, 'body { color: green; }');
+
+				const first = dependencyHash({ [cssPath]: '' }, {});
+				const second = dependencyHash({ [cssPath]: '' }, {});
+
+				assert.equal(first, second);
+			});
 		});
 	});
 });

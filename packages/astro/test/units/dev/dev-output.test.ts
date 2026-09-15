@@ -213,6 +213,47 @@ describe('shared server utilities', () => {
 		);
 	});
 
+	it('forwards --mode, --site, --base, --out-dir, --verbose, --silent, and --open', () => {
+		assert.deepEqual(
+			buildBackgroundArgs('dev', {
+				_: [],
+				mode: 'staging',
+				site: 'https://example.com',
+				base: '/app',
+				outDir: 'build',
+				verbose: true,
+				silent: false,
+				open: '/dashboard',
+			}),
+			[
+				'dev',
+				'--mode',
+				'staging',
+				'--site',
+				'https://example.com',
+				'--base',
+				'/app',
+				'--out-dir',
+				'build',
+				'--verbose',
+				'--open',
+				'/dashboard',
+			],
+		);
+	});
+
+	it('forwards boolean --open without a value', () => {
+		assert.deepEqual(buildBackgroundArgs('dev', { _: [], open: true }), ['dev', '--open']);
+	});
+
+	it('does not forward --open when false', () => {
+		assert.deepEqual(buildBackgroundArgs('dev', { _: [], open: false }), ['dev']);
+	});
+
+	it('forwards --silent', () => {
+		assert.deepEqual(buildBackgroundArgs('dev', { _: [], silent: true }), ['dev', '--silent']);
+	});
+
 	it('uses separate dev and preview log files', () => {
 		const root = new URL('file:///project/');
 		assert.equal(getLogFileURL(root).href, 'file:///project/.astro/dev.log');

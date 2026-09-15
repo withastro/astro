@@ -1,5 +1,17 @@
 # astro-vscode
 
+## 2.16.20
+
+### Patch Changes
+
+- [#17792](https://github.com/withastro/astro/pull/17792) [`6a46994`](https://github.com/withastro/astro/commit/6a469946a844651fd726ebf9231a519d58ad9189) Thanks [@matthewp](https://github.com/matthewp)! - Fixes syntax highlighting for multiline `<script>` and `<style>` tags with a `lang` or `type` attribute
+
+## 2.16.19
+
+### Patch Changes
+
+- [#17791](https://github.com/withastro/astro/pull/17791) [`426eaa1`](https://github.com/withastro/astro/commit/426eaa17530f27f65a366e7f19a86279178bbc92) Thanks [@matthewp](https://github.com/matthewp)! - Fixes missing Vue template auto-import completions when the Astro extension loads first
+
 ## 2.16.18
 
 ### Patch Changes

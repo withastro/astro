@@ -1,4 +1,4 @@
-import { Fragment, markHTMLString, Renderer } from '../runtime/server/index.js';
+import { escapeHTML, Fragment, markHTMLString, Renderer } from '../runtime/server/index.js';
 
 const AstroJSX = 'astro:jsx';
 const Empty = Symbol('empty');
@@ -65,7 +65,8 @@ function transformSetDirectives(vnode: AstroVNode) {
 		return;
 	}
 	if ('set:text' in vnode.props) {
-		const children = vnode.props['set:text'];
+		const value = vnode.props['set:text'];
+		const children = typeof value === 'string' ? markHTMLString(escapeHTML(value)) : value;
 		delete vnode.props['set:text'];
 		Object.assign(vnode.props, { children });
 		return;

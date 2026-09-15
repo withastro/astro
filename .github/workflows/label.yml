@@ -7,7 +7,7 @@ on:
 
 jobs:
   triage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     if: github.repository_owner == 'withastro'
     steps:
     - uses: actions/labeler@ac9175f8a1f3625fd0d4fb234536d26811351594 # v4.3.0
