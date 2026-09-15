@@ -13,6 +13,9 @@ const _FontProviderSchema = z.strictObject({
 	init: z.custom<FontProvider['init']>((v) => typeof v === 'function').optional(),
 	resolveFont: z.custom<FontProvider['resolveFont']>((v) => typeof v === 'function'),
 	listFonts: z.custom<FontProvider['listFonts']>((v) => typeof v === 'function').optional(),
+	getFontProperties: z
+		.custom<FontProvider['getFontProperties']>((v) => typeof v === 'function')
+		.optional(),
 });
 
 // Using z.object directly makes zod remap the input, preventing
