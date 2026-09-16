@@ -262,6 +262,8 @@ export interface PrerenderRenderMetadata {
 	contentEntryKeys: string[];
 	/** Optimized-image transforms the page resolved, or an empty array. */
 	staticImages: SerializedStaticImage[];
+	/** Absolute source paths of images the page referenced without a transform. */
+	referencedImages: string[];
 }
 
 /**
