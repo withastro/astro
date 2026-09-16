@@ -115,16 +115,31 @@ export function setImageConfig(
 			};
 
 		case 'compile': {
-			// Dev: IMAGES binding (via Cloudflare Vite plugin) for real transforms.
-			// Build: endpoint depends on runtime - `cloudflare-binding` uses IMAGES, `passthrough` uses generic.
-			const endpoint =
-				command === 'dev' || runtimeService === 'cloudflare-binding'
-					? { entrypoint: '@astrojs/cloudflare/image-transform-endpoint' }
-					: CLOUDFLARE_PASSTHROUGH_ENDPOINT;
+			if (hasUserImageService(config)) {
+				// The user's image service takes precedence over the Cloudflare transform
+				// endpoint, which requires format parameters and bindings the user service
+				// may not provide. Use the generic fetch-based endpoint in dev, and the
+				// passthrough endpoint at runtime.
+				if (runtimeService === 'cloudflare-binding') {
+					logger.warn(
+						`A custom image service is configured alongside 'cloudflare-binding' runtime. The custom service takes precedence; the IMAGES binding will not be used at runtime. To silence this warning, use imageService: 'compile' (without 'cloudflare-binding' runtime) or imageService: 'custom'.`,
+					);
+				}
+				return {
+					...config,
+					endpoint: command === 'dev' ? GENERIC_ENDPOINT : CLOUDFLARE_PASSTHROUGH_ENDPOINT,
+				};
+			}
+			// Default: IMAGES binding (via Cloudflare Vite plugin) for real transforms in
+			// dev. At runtime, `cloudflare-binding` uses IMAGES; `passthrough` serves
+			// pre-compiled static assets.
 			return {
 				...config,
-				service: hasUserImageService(config) ? config.service : WORKERD_IMAGE_SERVICE,
-				endpoint,
+				service: WORKERD_IMAGE_SERVICE,
+				endpoint:
+					command === 'dev' || runtimeService === 'cloudflare-binding'
+						? { entrypoint: '@astrojs/cloudflare/image-transform-endpoint' }
+						: CLOUDFLARE_PASSTHROUGH_ENDPOINT,
 			};
 		}
 

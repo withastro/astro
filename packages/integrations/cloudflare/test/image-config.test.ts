@@ -29,6 +29,76 @@ describe('normalizeImageServiceConfig', () => {
 	});
 });
 
+describe('setImageConfig compile mode', () => {
+	function makeLogger() {
+		const warnings: string[] = [];
+		return {
+			warnings,
+			logger: { warn: (msg: string) => warnings.push(msg) } as unknown as AstroIntegrationLogger,
+		};
+	}
+
+	function makeImageConfig(serviceEntrypoint: string) {
+		return {
+			service: { entrypoint: serviceEntrypoint, config: {} },
+			endpoint: { route: '/_image' },
+		} as unknown as AstroConfig['image'];
+	}
+
+	it('uses the generic endpoint in dev when a user service is configured', () => {
+		const { logger } = makeLogger();
+		const result = setImageConfig('compile', makeImageConfig('my-service'), 'dev', logger);
+		assert.equal(result.endpoint?.entrypoint, 'astro/assets/endpoint/generic');
+	});
+
+	it('preserves user service in dev', () => {
+		const { logger } = makeLogger();
+		const result = setImageConfig('compile', makeImageConfig('my-service'), 'dev', logger);
+		assert.equal(result.service.entrypoint, 'my-service');
+	});
+
+	it('uses the transform endpoint in dev without a user service', () => {
+		const { logger } = makeLogger();
+		const result = setImageConfig(
+			'compile',
+			makeImageConfig('astro/assets/services/sharp'),
+			'dev',
+			logger,
+		);
+		assert.equal(result.endpoint?.entrypoint, '@astrojs/cloudflare/image-transform-endpoint');
+	});
+
+	it('uses passthrough endpoint at build with a user service', () => {
+		const { logger } = makeLogger();
+		const result = setImageConfig('compile', makeImageConfig('my-service'), 'build', logger);
+		assert.equal(result.endpoint?.entrypoint, '@astrojs/cloudflare/image-passthrough-endpoint');
+	});
+
+	it('warns when cloudflare-binding runtime is combined with a user service', () => {
+		const { logger, warnings } = makeLogger();
+		setImageConfig(
+			{ build: 'compile', runtime: 'cloudflare-binding' },
+			makeImageConfig('my-service'),
+			'build',
+			logger,
+		);
+		assert.equal(warnings.length, 1);
+		assert.ok(warnings[0].includes('custom image service'));
+		assert.ok(warnings[0].includes('IMAGES binding will not be used'));
+	});
+
+	it('does not warn when cloudflare-binding runtime is used without a user service', () => {
+		const { logger, warnings } = makeLogger();
+		setImageConfig(
+			{ build: 'compile', runtime: 'cloudflare-binding' },
+			makeImageConfig('astro/assets/services/sharp'),
+			'build',
+			logger,
+		);
+		assert.equal(warnings.length, 0);
+	});
+});
+
 describe('setImageConfig custom mode', () => {
 	function makeLogger() {
 		const warnings: string[] = [];
