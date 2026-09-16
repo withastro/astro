@@ -50,7 +50,7 @@ describe('collectPrerenderMetadata', () => {
 		ensureAsyncRenderScope();
 		const { value, metadata } = await collectPrerenderMetadata(async () => 42, defaultLogger);
 		assert.equal(value, 42);
-		assert.deepEqual(metadata, { contentEntryKeys: [], staticImages: [] });
+		assert.deepEqual(metadata, { contentEntryKeys: [], staticImages: [], referencedImages: [] });
 	});
 
 	it('attributes concurrent runs exactly, shared keys included', async () => {
