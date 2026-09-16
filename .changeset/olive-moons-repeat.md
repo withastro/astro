@@ -8,7 +8,7 @@ A static site has no server to send an HTTP `Location` header, so Astro generate
 
 - Your [`redirects`](https://docs.astro.build/en/reference/configuration-reference/#redirects) entries
 - `Astro.redirect()` calls in prerendered pages
-- i18n redirects.
+- i18n redirects
 
 That page's markup, wording, and refresh delay were fixed, so you could not brand or translate it.
 
