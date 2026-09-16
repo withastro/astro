@@ -29,7 +29,7 @@ export default {
 			// the request is served as `/_isr`.
 			realPath = url.searchParams.get(ASTRO_PATH_PARAM);
 		}
-		if (typeof realPath === 'string') {
+		if (typeof realPath === 'string' && realPath.startsWith('/')) {
 			// The header carries the client's whole path, query included; the route
 			// rewrite carries only the pathname and leaves the query on this request.
 			const target = new URL(realPath, url);

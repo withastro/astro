@@ -239,7 +239,7 @@ describe('ISR with edge middleware requested but no middleware file', () => {
 
 	it('routes straight to the ISR function', { timeout: 30000 }, async () => {
 		const { routes } = await getVercelConfig(fixture);
-		assert.match(destOf(routes, '^/$') ?? '', /^\/_isr\?/);
+		assert.match(destOf(routes, '^(/)$') ?? '', /^\/_isr\?/);
 	});
 
 	it('builds no middleware function', { timeout: 30000 }, async () => {

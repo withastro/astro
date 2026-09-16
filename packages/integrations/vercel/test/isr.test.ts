@@ -68,12 +68,12 @@ describe('ISR', () => {
 				dest: '_render',
 			},
 			{
-				src: '^/one/?$',
-				dest: '/_isr?x_astro_path=$0&x_astro_path_token=$TOKEN',
+				src: '^(/one/?)$',
+				dest: '/_isr?x_astro_path=$1&x_astro_path_token=$TOKEN',
 			},
 			{
-				src: '^/404/?$',
-				dest: '/_isr?x_astro_path=$0&x_astro_path_token=$TOKEN',
+				src: '^(/404/?)$',
+				dest: '/_isr?x_astro_path=$1&x_astro_path_token=$TOKEN',
 			},
 			{
 				dest: '_render',
@@ -155,5 +155,39 @@ describe('ISR', () => {
 		);
 		assert.equal(response.status, 200);
 		assert.equal((await response.text()).includes('<h1>One</h1>'), true);
+	});
+
+	it('ignores x_astro_path that does not start with /', { timeout: 30000 }, async () => {
+		const isrFunction = await loadIsrFunction();
+		const token = await readPathToken();
+		// Simulates what happens when Vercel fails to substitute the $1 capture
+		// group reference: the literal "$1" arrives as x_astro_path.
+		const response = await isrFunction.default.fetch(
+			new Request(`https://example.com/_isr?x_astro_path=$1&x_astro_path_token=${token}`),
+		);
+		assert.equal(response.status, 404);
+		assert.equal((await response.text()).includes('<h1>One</h1>'), false);
+	});
+
+	it('uses $1 (not $0) in ISR route dest', { timeout: 30000 }, async () => {
+		const deploymentConfig = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
+		const isrRoutes = deploymentConfig.routes.filter(
+			(route: { dest?: string }) =>
+				typeof route.dest === 'string' && route.dest.startsWith('/_isr?'),
+		);
+		for (const route of isrRoutes) {
+			assert.ok(
+				route.dest.includes('x_astro_path=$1'),
+				`ISR dest must reference $1, got: ${route.dest}`,
+			);
+			assert.ok(
+				!route.dest.includes('x_astro_path=$0'),
+				`ISR dest must not reference $0, got: ${route.dest}`,
+			);
+			assert.ok(
+				route.src.startsWith('^('),
+				`ISR src must wrap the pattern in a capture group, got: ${route.src}`,
+			);
+		}
 	});
 });
