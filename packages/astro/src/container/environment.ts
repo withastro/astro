@@ -152,6 +152,7 @@ export function createContainerEnvironment({
 		},
 
 		errorStrategy: 'default',
+		rendersRedirectPage: () => false,
 		injectCspMetaTagsOnErrorPages: false,
 		logRequest() {},
 	};

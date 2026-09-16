@@ -60,7 +60,7 @@ async function withRedirectPageBody(state: FetchState, response: Response): Prom
 	if (status < 300 || status >= 400 || response.body !== null) {
 		return response;
 	}
-	if (!getEnvironment(state.manifest).rendersRedirectPage?.()) {
+	if (!getEnvironment(state.manifest).rendersRedirectPage()) {
 		return response;
 	}
 	const to = response.headers.get('location');

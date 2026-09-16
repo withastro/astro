@@ -89,7 +89,7 @@ export interface RenderEnvironment {
 	 * `Location` header, so the HTML body *is* the redirect. Every other
 	 * environment sends a real header and the body goes unread.
 	 */
-	rendersRedirectPage?(): boolean;
+	rendersRedirectPage(): boolean;
 	/** Dev-only CSP meta-tag injection flag for error pages. */
 	readonly injectCspMetaTagsOnErrorPages: boolean;
 	/**
