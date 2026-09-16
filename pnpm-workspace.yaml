@@ -45,6 +45,8 @@ minimumReleaseAgeExclude:
   - '@flue/*'
   - '@astrojs/*'
   - '@cloudflare/*'
+  # Docs smoke test (smoke/docs) installs @lunariajs/core from withastro/docs
+  - '@lunariajs/*'
   - workerd
   - miniflare
   - wrangler

@@ -38,13 +38,13 @@ if (props.alt === undefined || props.alt === null) {
 	throw new AstroError(AstroErrorData.ImageMissingAlt);
 }
 
-// Picture attribute inherit scoped styles from class and attributes
-const scopedStyleClass = props.class?.match(/\bastro-\w{8}\b/)?.[0];
-if (scopedStyleClass) {
+// Forward the user's class to <picture> so layout-affecting CSS (z-index, order, etc.)
+// applies to the flex/grid item. The class is also kept on <img> for visual styling.
+if (props.class) {
 	if (pictureAttributes.class) {
-		pictureAttributes.class = `${pictureAttributes.class} ${scopedStyleClass}`;
+		pictureAttributes.class = `${pictureAttributes.class} ${props.class}`;
 	} else {
-		pictureAttributes.class = scopedStyleClass;
+		pictureAttributes.class = props.class;
 	}
 }
 
