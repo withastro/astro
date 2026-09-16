@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -179,11 +179,30 @@ export async function spawnWindowsBackgroundChild(
 			],
 			{ windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] },
 		);
+		let stderr = '';
+		powershell.stderr.on('data', (chunk) => {
+			stderr += chunk.toString();
+		});
+		const start = Date.now();
 		const exitCode = await new Promise<number>((resolve) => {
-			powershell.once('exit', (code) => resolve(code ?? -1));
-			powershell.once('error', () => resolve(-1));
+			const timer = setTimeout(() => {
+				powershell.kill();
+				resolve(-1);
+			}, 30_000);
+			powershell.once('exit', (code) => {
+				clearTimeout(timer);
+				resolve(code ?? -1);
+			});
+			powershell.once('error', () => {
+				clearTimeout(timer);
+				resolve(-1);
+			});
 		});
 		if (exitCode !== 0) {
+			appendFileSync(
+				options.logFile,
+				`\n[astro] WMI background spawn failed (exit ${exitCode}, ${Date.now() - start}ms): ${stderr.trim()}\n`,
+			);
 			return null;
 		}
 
@@ -194,10 +213,16 @@ export async function spawnWindowsBackgroundChild(
 		while (Date.now() < deadline) {
 			if (existsSync(pidPath)) {
 				const pid = Number.parseInt(readFileSync(pidPath, 'utf8').trim(), 10);
-				return Number.isInteger(pid) && pid > 0 ? pid : null;
+				if (Number.isInteger(pid) && pid > 0) {
+					return pid;
+				}
 			}
 			await new Promise((r) => setTimeout(r, 200));
 		}
+		appendFileSync(
+			options.logFile,
+			`\n[astro] WMI background spawn: launcher reported no PID within 15s (${Date.now() - start}ms). stderr: ${stderr.trim()}\n`,
+		);
 		return null;
 	} finally {
 		for (const file of [launcherPath, scriptPath, configPath, pidPath]) {

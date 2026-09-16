@@ -137,6 +137,12 @@ describe('spawnWindowsBackgroundChild (Windows)', { skip: process.platform !== '
 			// caller's Job Object, so KILL_ON_JOB_CLOSE cannot touch it.
 			const inJob = processInJob(pid);
 			assert.equal(inJob, 'not-in-job', 'expected the escaped child to be outside any Job Object');
+		} catch (err) {
+			// Surface the escape diagnostics written to the log file.
+			if (existsSync(logFile)) {
+				console.info(`[diagnostic] child.log:\n${readFileSync(logFile, 'utf8')}`);
+			}
+			throw err;
 		} finally {
 			if (pid !== null) {
 				try {
