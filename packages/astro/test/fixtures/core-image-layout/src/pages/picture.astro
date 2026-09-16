@@ -50,6 +50,14 @@ import myImage from "../assets/penguin.jpg";
 	}}/>
 </div>
 
+<div id="picture-class-forwarded">
+  <Picture src={myImage} fallbackFormat="jpeg" alt="A penguin" class="my-class" />
+</div>
+
+<div id="picture-class-merged">
+  <Picture src={myImage} fallbackFormat="jpeg" alt="A penguin" class="my-class" pictureAttributes={{ class: 'pic-class' }} />
+</div>
+
 
 <style>
   .img-comp {
