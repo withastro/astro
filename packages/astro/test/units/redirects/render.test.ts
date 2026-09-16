@@ -254,6 +254,10 @@ describe('resolveRedirectTarget', () => {
 			resolveRedirectTarget({ slug: "a$'b" }, '/new/[slug]', undefined, 'ignore'),
 			"/new/a$'b",
 		);
+		assert.equal(
+			resolveRedirectTarget({ rest: 'x$&y/z' }, '/new/[...rest]', undefined, 'ignore'),
+			'/new/x$&y/z',
+		);
 	});
 
 	it('returns the string as-is when there are no params', () => {

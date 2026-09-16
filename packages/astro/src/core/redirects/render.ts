@@ -58,7 +58,7 @@ export function resolveRedirectTarget(
 			let target = redirect;
 			for (const param of Object.keys(params)) {
 				const paramValue = params[param]!;
-				// Pass a replacer so `$`-prefixed sequences in the param value are inserted literally
+				// Pass a replacer so `$`-prefixed sequences in the param value are inserted literally (#18010)
 				target = target
 					.replace(`[${param}]`, () => paramValue)
 					.replace(`[...${param}]`, () => paramValue);
