@@ -131,10 +131,10 @@ function getVirtualCodeTSX(tsx: ConvertToTsxResult) {
 			embeddedCodes: [],
 		} satisfies VirtualCode,
 		generatedComponentExport: tsx.generatedComponentExport
-				? Range.create(
+			? Range.create(
 					genDoc.positionAt(tsx.generatedComponentExport.start),
 					genDoc.positionAt(tsx.generatedComponentExport.end),
 				)
-				: undefined,
+			: undefined,
 	};
 }
