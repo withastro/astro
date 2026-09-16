@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { SpanMapFeature, SpanMapKind } from '../dist/protocol.js';
 import { transform } from '../dist/transform.js';
+
+const VERBATIM = 0;
+const ATOM = 1;
+const DEFINITION = 1 << 3;
 
 function transformAstro(content: string, fileName = 'Card.astro') {
 	return transform({ content, fileName, projectHandle: 'test' });
@@ -36,7 +39,7 @@ describe('span mappings', () => {
 			originalLength,
 			kind,
 		] of result.mappings!) {
-			if (kind !== SpanMapKind.Verbatim) continue;
+			if (kind !== VERBATIM) continue;
 
 			assert.equal(
 				virtualLength,
@@ -70,11 +73,11 @@ describe('span mappings', () => {
 		);
 
 		assert.ok(anchor, 'expected a zero-length anchor for the generated export');
-		assert.equal(anchor[4], SpanMapKind.Atom);
-		assert.ok((anchor[5]! & SpanMapFeature.Definition) !== 0);
+		assert.equal(anchor[4], ATOM);
+		assert.ok((anchor[5]! & DEFINITION) !== 0);
 		assert.equal(
 			result.text.slice(anchor[0], anchor[0] + anchor[1]),
-			'Card__AstroComponent_',
+			'CardAstroComponent',
 			'the anchor should cover the generated component identifier',
 		);
 	});
@@ -90,7 +93,7 @@ describe('span mappings', () => {
 			originalLength,
 			kind,
 		] of result.mappings!) {
-			if (kind !== SpanMapKind.Verbatim) continue;
+			if (kind !== VERBATIM) continue;
 			assert.equal(
 				result.text.slice(virtualStart, virtualStart + virtualLength),
 				content.slice(originalStart, originalStart + originalLength),

@@ -1,6 +1,15 @@
-import { type ConvertToTsxResult, DiagnosticSeverity, convertToTsx } from '@astrojs/astro2tsx';
-import { toSpanMappings } from './mappings.js';
-import type { MapperDiagnostic, TransformParams, TransformResult } from './protocol.js';
+import {
+	type ConvertToTsxResult,
+	DiagnosticSeverity,
+	ExtractedScriptType,
+	convertToTsx,
+} from '@astrojs/astro2tsx';
+import type {
+	MapperDiagnostic,
+	SupplementalOutput,
+	TransformParams,
+	TransformResult,
+} from './protocol.js';
 
 const VIRTUAL_EXTENSION = '.tsx';
 
@@ -9,6 +18,64 @@ export const INTERNAL_ERROR_CODE = 1001;
 
 /** Importers of a broken component still resolve a default export, so their errors stay local. */
 const FALLBACK_TSX = 'export default function (_props: Record<string, any>): any {}\n';
+
+function toSupplementalScripts(tsx: ConvertToTsxResult): SupplementalOutput[] {
+	const modules = tsx.scripts.flatMap<SupplementalOutput>((script) => {
+		let extension: SupplementalOutput['extension'];
+
+		switch (script.type) {
+			case ExtractedScriptType.ProcessedModule:
+				extension = '.mts';
+				break;
+			case ExtractedScriptType.Module:
+				extension = '.mjs';
+				break;
+			case ExtractedScriptType.Inline:
+			case ExtractedScriptType.EventAttribute:
+			case ExtractedScriptType.Json:
+			case ExtractedScriptType.Raw:
+			case ExtractedScriptType.Unknown:
+				return [];
+		}
+
+		return [
+			{
+				text: script.content,
+				extension,
+				mappings: [
+					[0, script.content.length, script.position.start, script.content.length, 0],
+				],
+			},
+		];
+	});
+
+	const inlineScripts = tsx.scripts
+		.filter(
+			(script) =>
+				script.type === ExtractedScriptType.Inline ||
+				script.type === ExtractedScriptType.EventAttribute ||
+				script.type === ExtractedScriptType.Unknown,
+		)
+		.sort((a, b) => a.position.start - b.position.start);
+
+	if (inlineScripts.length === 0) return modules;
+
+	let text = '';
+	const mappings: SupplementalOutput['mappings'] = [];
+	for (const script of inlineScripts) {
+		mappings.push([
+			text.length,
+			script.content.length,
+			script.position.start,
+			script.content.length,
+			0,
+		]);
+		// Keep errors in one inline context from spreading into the next one.
+		text += `${script.content};`;
+	}
+
+	return [...modules, { text, extension: '.mjs', mappings }];
+}
 
 function toMapperDiagnostics(tsx: ConvertToTsxResult, source: string): MapperDiagnostic[] {
 	const diagnostics: MapperDiagnostic[] = [];
@@ -34,7 +101,6 @@ export function transform({ content, fileName }: TransformParams): TransformResu
 	try {
 		const tsx = convertToTsx(content, {
 			filename: fileName,
-			sourcemap: false,
 			// No language server injects globals here, so the TSX has to declare its own.
 			ambientTypes: true,
 		});
@@ -42,8 +108,9 @@ export function transform({ content, fileName }: TransformParams): TransformResu
 		return {
 			text: tsx.code,
 			extension: VIRTUAL_EXTENSION,
-			mappings: toSpanMappings(content, tsx),
+			mappings: tsx.mappings,
 			diagnostics: toMapperDiagnostics(tsx, content),
+			supplemental: toSupplementalScripts(tsx),
 		};
 	} catch (error) {
 		return {

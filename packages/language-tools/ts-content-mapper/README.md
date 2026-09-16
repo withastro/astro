@@ -44,7 +44,8 @@ TypeScript spawns this package as a subprocess and speaks JSON-RPC to it over st
 
 - the generated TSX as virtual `.tsx` text,
 - a span map relating ranges of that text back to the original component,
-- any parse errors, positioned against the original source.
+- any parse errors, positioned against the original source,
+- script contents as supplemental virtual modules.
 
 Span offsets are UTF-16 code units, matching what `astro2tsx` emits.
 
@@ -53,5 +54,5 @@ Regions of the generated file that came verbatim from the source are reported as
 ## Limitations
 
 - `<style>` blocks are not type-checked; CSS support stays with the Astro language server.
-- `<script>` blocks are not yet emitted as supplemental virtual files, so their contents are not type-checked.
+- Data and raw `<script>` blocks are not type-checked.
 - Diagnostics cannot be filtered by code, so every error TypeScript finds in the generated TSX reaches the user.

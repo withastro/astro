@@ -2,6 +2,7 @@
   "extends": "../../../configs/tsconfig.language-tools.json",
   "compilerOptions": {
     "emitDeclarationOnly": false,
+    "module": "ESNext",
     "sourceMap": true
   }
 }
