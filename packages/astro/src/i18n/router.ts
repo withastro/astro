@@ -1,5 +1,6 @@
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
+import { STATUS_CODE_PAGES } from '../core/constants.js';
 import type { Locales, ValidRedirectStatus } from '../types/public/config.js';
 import type { APIContext } from '../types/public/context.js';
 import { normalizeTheLocale, pathHasLocale } from './path.js';
@@ -119,9 +120,11 @@ export class I18nRouter {
 	 * Check if i18n processing should be skipped for this request
 	 */
 	private shouldSkipProcessing(pathname: string, context: I18nRouterContext): boolean {
-		// Skip 404/500 pages and the redirect page
-		if (pathname.includes('/404') || pathname.includes('/500') || pathname.includes('/3xx')) {
-			return true;
+		// Skip status pages (404/500 and the redirect page)
+		for (const page of STATUS_CODE_PAGES) {
+			if (pathname.includes(page)) {
+				return true;
+			}
 		}
 
 		// Skip server islands

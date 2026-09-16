@@ -9,6 +9,7 @@ import {
 } from '../app/origin-check.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
 import { renderErrorFromState } from '../errors/handler.js';
+import { isRoute404, isRoute500 } from '../routing/internal/route-errors.js';
 
 // Shared empty-slots object so we don't allocate `{}` on every render for
 // requests that don't come from the container API. Safe to share because
@@ -67,7 +68,7 @@ export async function handlePages(state: FetchState, ctx: APIContext): Promise<R
 			// Signal to the i18n middleware to maybe act on this response
 			state.responseRouteType = 'page';
 			// Signal to the error-page-rerouting infra to let this response pass through to avoid loops
-			if (state.routeData!.route === '/404' || state.routeData!.route === '/500') {
+			if (isRoute404(state.routeData!.route) || isRoute500(state.routeData!.route)) {
 				state.skipErrorReroute = true;
 			}
 			break;

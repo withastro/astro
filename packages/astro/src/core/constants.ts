@@ -26,10 +26,12 @@ export const REDIRECT_STATUS_CODES = [301, 302, 303, 307, 308, 300, 304] as cons
 export const REROUTABLE_STATUS_CODES = [404, 500];
 
 /**
- * Routes that are always written as `<name>.html`, never as
- * `<name>/index.html`, whatever `build.format` says. A host serves these by
- * status code rather than by URL, so they have to sit at a predictable file
- * path.
+ * Pages Astro serves for an HTTP status rather than for their own URL.
+ *
+ * They are always written as `<name>.html`, never as `<name>/index.html`,
+ * whatever `build.format` says, because a host reaches them by status code and
+ * needs them at a predictable file path. Being status pages rather than site
+ * content, they are also skipped by i18n routing.
  */
 export const STATUS_CODE_PAGES = new Set(['/404', '/500', '/3xx']);
 
