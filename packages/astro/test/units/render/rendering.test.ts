@@ -247,6 +247,18 @@ describe('rendering', () => {
 			'root/last',
 		]);
 	});
+
+	it('awaits thenables that also have a render method', async () => {
+		const thenable = Object.assign(Promise.resolve('expected'), {
+			render(destination: RenderDestination) {
+				destination.write('unexpected');
+			},
+		});
+
+		const result = await renderToString(renderTemplate`${[thenable]}`);
+
+		assert.equal(result, 'expected');
+	});
 });
 
 function renderToString(item: any): string | Promise<string> {

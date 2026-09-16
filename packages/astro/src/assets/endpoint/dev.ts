@@ -4,13 +4,13 @@ import { readFile } from 'node:fs/promises';
 import os from 'node:os';
 import { type AnymatchFn, isFileLoadingAllowed, type ResolvedConfig } from 'vite';
 import type { APIRoute } from '../../types/public/common.js';
-import { handleImageRequest, loadRemoteImage } from './shared.js';
+import { handleImageRequest, type LocalImageLoadResult, loadRemoteImage } from './shared.js';
 
 function replaceFileSystemReferences(src: string) {
 	return os.platform().includes('win32') ? src.replace(/^\/@fs\//, '') : src.replace(/^\/@fs/, '');
 }
 
-async function loadLocalImage(src: string, url: URL) {
+async function loadLocalImage(src: string, url: URL): Promise<LocalImageLoadResult> {
 	let returnValue: Buffer | undefined;
 	let fsPath: string | undefined;
 
@@ -55,12 +55,13 @@ async function loadLocalImage(src: string, url: URL) {
 		const sourceUrl = new URL(src, url.origin);
 		// This is only allowed if this is the same origin
 		if (sourceUrl.origin !== url.origin) {
-			return undefined;
+			return { kind: 'invalid-path' };
 		}
-		return loadRemoteImage(sourceUrl);
+		const buffer = await loadRemoteImage(sourceUrl);
+		return buffer ? { kind: 'loaded', buffer } : { kind: 'failed' };
 	}
 
-	return returnValue;
+	return returnValue ? { kind: 'loaded', buffer: returnValue } : { kind: 'failed' };
 }
 
 /**

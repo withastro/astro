@@ -20,8 +20,8 @@ export type ImageServiceConfig =
 	  };
 
 /** Normalize string | compound config into separate build/runtime modes.
- *  `transformAtBuild` is true when the compound config is used; this opts the user
- *  in to build-time image optimization. The string form preserves runtime-only behavior. */
+ *  `transformAtBuild` is true for compound config and for the `compile` and
+ *  `cloudflare-binding` string modes, including the default. */
 export function normalizeImageServiceConfig(config: ImageServiceConfig | undefined): {
 	buildService: ImageServiceMode;
 	runtimeService: ImageServiceMode;
@@ -33,9 +33,7 @@ export function normalizeImageServiceConfig(config: ImageServiceConfig | undefin
 		return {
 			buildService: mode,
 			runtimeService: mode === 'compile' ? 'passthrough' : mode,
-			// Only `compile` opts in to build-time transforms via the string shorthand.
-			// String `cloudflare-binding` preserves the historical runtime-only behavior.
-			transformAtBuild: mode === 'compile',
+			transformAtBuild: mode === 'compile' || mode === 'cloudflare-binding',
 		};
 	}
 	// Compound config: user explicitly opts in to build-time transforms.

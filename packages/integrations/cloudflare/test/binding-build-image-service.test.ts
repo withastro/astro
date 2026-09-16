@@ -15,18 +15,14 @@ import { loadFixture } from './test-utils.ts';
 describe('BindingBuildImageService build-time image generation', () => {
 	const FALLBACK_WARNING = 'Falling back to the local image service';
 
-	async function buildFixture(outDirName: string) {
+	async function buildFixture(outDirName: string, imageService: string) {
 		const fixture = await loadFixture({
 			root: './fixtures/compile-custom-image-service/',
 			outDir: `./dist/binding-build-image-service-${outDirName}/`,
 		});
 		const resetConfig = await fixture.editFile(
 			'astro.config.mjs',
-			(contents) =>
-				contents.replace(
-					"imageService: 'compile'",
-					"imageService: { build: 'cloudflare-binding', runtime: 'cloudflare-binding' }",
-				),
+			(contents) => contents.replace("imageService: 'compile',", imageService),
 			false,
 		);
 
@@ -48,21 +44,31 @@ describe('BindingBuildImageService build-time image generation', () => {
 		}
 	}
 
-	it('streams IMAGES-binding output into the client directory instead of falling back', async () => {
-		const { fixture, html, log } = await buildFixture('binding');
+	for (const [name, imageService] of [
+		['default', ''],
+		['shorthand', "imageService: 'cloudflare-binding',"],
+		['compound', "imageService: { build: 'cloudflare-binding', runtime: 'cloudflare-binding' },"],
+	]) {
+		it(`streams IMAGES-binding output without falling back with ${name} config`, async () => {
+			const { fixture, html, log } = await buildFixture(name, imageService);
 
-		// The binding handled every transform: nothing fell through to the Node side.
-		assert.ok(
-			!log.includes(FALLBACK_WARNING),
-			`expected the IMAGES binding to transform every image, but the build fell back:\n${log}`,
-		);
+			// The binding handled every transform: nothing fell through to the Node side.
+			assert.ok(
+				!log.includes(FALLBACK_WARNING),
+				`expected the IMAGES binding to transform every image, but the build fell back:\n${log}`,
+			);
 
-		const src = cheerio.load(html)('img').attr('src');
-		assert.match(src ?? '', /^\/_astro\/.+\.webp$/, 'expected a hashed .webp asset in the markup');
+			const src = cheerio.load(html)('img').attr('src');
+			assert.match(
+				src ?? '',
+				/^\/_astro\/.+\.webp$/,
+				'expected a hashed .webp asset in the markup',
+			);
 
-		// The streamed bytes landed on disk as an intact WEBP container.
-		const data = (await fixture.readFile(`client${src}`, null)) as unknown as Buffer;
-		assert.equal(data.subarray(0, 4).toString('utf8'), 'RIFF');
-		assert.equal(data.subarray(8, 12).toString('utf8'), 'WEBP');
-	});
+			// The streamed bytes landed on disk as an intact WEBP container.
+			const data = (await fixture.readFile(`client${src}`, null)) as unknown as Buffer;
+			assert.equal(data.subarray(0, 4).toString('utf8'), 'RIFF');
+			assert.equal(data.subarray(8, 12).toString('utf8'), 'WEBP');
+		});
+	}
 });

@@ -690,9 +690,12 @@ async function render({
 				if (Array.isArray(collectedStyles)) {
 					styles = collectedStyles
 						.map((style: any) => {
+							const content = typeof style === 'string' ? style : style.content;
+							const viteDevId = typeof style === 'object' && style.id ? style.id : undefined;
 							return renderUniqueStylesheet(result, {
 								type: 'inline',
-								content: style,
+								content,
+								viteDevId,
 							});
 						})
 						.join('');

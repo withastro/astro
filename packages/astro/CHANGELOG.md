@@ -1,5 +1,20 @@
 # astro
 
+## 7.3.2
+
+### Patch Changes
+
+- [#17896](https://github.com/withastro/astro/pull/17896) [`a548223`](https://github.com/withastro/astro/commit/a548223607b9bb146d5d90ddda495343f9a2a739) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `<script>`/`<style>` rendering in MDX so that only literal content (including content injected by remark/rehype plugins) is treated as trusted markup. A dynamic value passed as a `<script>`/`<style>` child (e.g. `<script>{value}</script>`) is now escaped like any other element's content instead of being rendered raw. Use `set:html` to explicitly opt a dynamic value back into raw rendering.
+
+- [#17931](https://github.com/withastro/astro/pull/17931) [`c1a6a89`](https://github.com/withastro/astro/commit/c1a6a89efa577b8388f04c4b42d655913bb4b886) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the dev toolbar returning a 504 "Outdated Optimize Dep" error when a workspace-linked package imports a dependency that Vite's initial scan did not discover
+
+- [#17908](https://github.com/withastro/astro/pull/17908) [`42e9188`](https://github.com/withastro/astro/commit/42e9188c4ba7360e5ab8ea4cd7f13d6abcf31879) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes i18n fallback routing replacing the first substring match instead of the actual locale segment, which mangled paths like `/energy/en/about` into `/esergy/en/about`
+
+- [#17936](https://github.com/withastro/astro/pull/17936) [`4b92ddc`](https://github.com/withastro/astro/commit/4b92ddc6ab0795ac78c30aedfe43b081dcf5b6b0) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes sessions breaking in dev mode with the Cloudflare adapter when middleware is present
+
+- Updated dependencies [[`a548223`](https://github.com/withastro/astro/commit/a548223607b9bb146d5d90ddda495343f9a2a739)]:
+  - @astrojs/markdown-satteri@0.4.1
+
 ## 7.3.1
 
 ### Patch Changes

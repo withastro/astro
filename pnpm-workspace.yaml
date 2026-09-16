@@ -55,6 +55,8 @@ minimumReleaseAgeExclude:
   - '@tybys/wasm-util@0.10.3'
   # modern-tar 0.7.7 fixes Unicode NFC/NFD path normalization on Linux (issue #17381)
   - 'modern-tar@0.7.7'
+  # Renovate security update: @fastify/static@10.1.2
+  - '@fastify/static@10.1.2'
 peerDependencyRules:
   allowAny:
     - 'astro'
@@ -113,4 +115,5 @@ allowBuilds:
   workerd: false
 
 patchedDependencies:
+  '@volar/language-service@2.4.28': patches/@volar__language-service@2.4.28.patch
   '@volar/typescript@2.4.28': patches/@volar__typescript@2.4.28.patch

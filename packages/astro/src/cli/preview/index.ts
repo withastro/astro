@@ -54,7 +54,10 @@ export async function preview({ flags }: PreviewOptions) {
 	}
 
 	const ignoreLock = isIgnoreLock(flags);
-	const wantsBackground = !!flags.background || agentDetected;
+	// Agent-inferred background yields to `--ignore-lock`: the flag means a one-off
+	// foreground server that `stop`/`status`/`logs` won't track.
+	// https://github.com/withastro/astro/issues/17903
+	const wantsBackground = !!flags.background || (agentDetected && !ignoreLock);
 
 	const logger = createLoggerFromFlags(flags);
 	const subcommand = flags._[3]?.toString();
@@ -87,13 +90,10 @@ export async function preview({ flags }: PreviewOptions) {
 		}
 	}
 
-	if (ignoreLock && wantsBackground) {
-		const reason = flags.background
-			? '`--background`'
-			: 'an auto-detected AI agent environment, which runs the preview server in the background automatically';
+	if (ignoreLock && flags.background) {
 		throw new Error(
 			[
-				`\`--ignore-lock\` cannot be used together with ${reason}.`,
+				'`--ignore-lock` cannot be used together with `--background`.',
 				'',
 				'Background preview servers rely on the lock file so `astro preview stop`, `astro preview status`, and `astro preview logs` can find them.',
 				'Run the preview server in the foreground to use --ignore-lock.',
