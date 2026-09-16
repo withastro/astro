@@ -1,9 +1,15 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as z from 'zod/v4';
-import { formDataToObject } from '../../../dist/actions/runtime/server.js';
+import zodHandler from '../dist/vendors/zod.js';
 
-describe('formDataToObject', () => {
+const toFormInput = await zodHandler();
+
+/** Runs the Zod handler's `FormData` coercion, without the validation that follows it. */
+const formDataToObject = (formData: FormData, schema: z.core.$ZodType) =>
+	toFormInput(schema, formData) as Record<string, any>;
+
+describe('zod handler', () => {
 	it('should handle strings', () => {
 		const formData = new FormData();
 		formData.set('name', 'Ben');

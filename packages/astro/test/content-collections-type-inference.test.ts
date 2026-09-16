@@ -23,31 +23,60 @@ describe('Content collection type inference', () => {
 		await fixture.sync({ root: fixtureRoot });
 	});
 
-	it('generates content.d.ts with ExtractLoaderConfig type utility', async () => {
+	it('generates a content.d.ts that only points at the config', async () => {
 		const contentDts = fs.readFileSync(
 			new URL('./.astro/content.d.ts', fixture.config.root),
 			'utf-8',
 		);
 		assert.ok(
-			contentDts.includes('ExtractLoaderConfig'),
-			'Generated content.d.ts should contain ExtractLoaderConfig type utility',
+			contentDts.includes('typeof import("../src/content.config.js")'),
+			'Generated content.d.ts should point `ContentConfig` at the config module',
 		);
-		assert.ok(
-			contentDts.includes('InferLoaderSchema'),
-			'Generated content.d.ts should contain InferLoaderSchema type utility',
-		);
+		// The `astro:content` API itself ships with Astro, so none of it is written per project.
+		for (const shouldNotBeGenerated of ['getCollection', 'CollectionEntry', 'RenderedContent']) {
+			assert.ok(
+				!contentDts.includes(shouldNotBeGenerated),
+				`Generated content.d.ts should not declare ${shouldNotBeGenerated}`,
+			);
+		}
 	});
 
-	it('generates correct DataEntryMap with all three collection types', async () => {
+	it('infers the data of collections the config describes', async () => {
 		const contentDts = fs.readFileSync(
 			new URL('./.astro/content.d.ts', fixture.config.root),
 			'utf-8',
 		);
-		assert.ok(contentDts.includes('"blog"'), 'DataEntryMap should include "blog" collection');
-		assert.ok(contentDts.includes('"legacy"'), 'DataEntryMap should include "legacy" collection');
+		// A collection is named so that `keyof DataMap` is known without resolving the config,
+		// but its data is inferred rather than written out — whether the schema is on the
+		// collection, on its loader, or missing entirely.
+		for (const collection of ['blog', 'legacy', 'schemaless', 'standard', 'referencing']) {
+			assert.ok(
+				contentDts.includes(
+					`"${collection}": InferCollectionData<ContentConfig, "${collection}">;`,
+				),
+				`${collection} should be inferred from the config`,
+			);
+		}
+	});
+
+	it('writes out the types of a loader that builds its schema while loading', async () => {
+		const contentDts = fs.readFileSync(
+			new URL('./.astro/content.d.ts', fixture.config.root),
+			'utf-8',
+		);
+		// A `createSchema()` loader has nothing in the config to infer from, so its types are
+		// generated into a file of their own and the collection points at it.
 		assert.ok(
-			contentDts.includes('"schemaless"'),
-			'DataEntryMap should include "schemaless" collection',
+			contentDts.includes('"dynamic": import("./loaders/dynamic.js").Entry;'),
+			'The dynamic collection should point at its generated types',
+		);
+		const loaderTypes = fs.readFileSync(
+			new URL('./.astro/loaders/dynamic.ts', fixture.config.root),
+			'utf-8',
+		);
+		assert.ok(
+			loaderTypes.includes('export interface Entry'),
+			'The loader types the collection points at should be generated',
 		);
 	});
 
