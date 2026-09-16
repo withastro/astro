@@ -41,12 +41,33 @@ describe('Head metadata invalidation in dev', () => {
 		assert.equal(await transformInvalidations(), baseline);
 	});
 
-	it('serves updated head content after a layout edit', async () => {
+	it('refreshes propagated head metadata after a layout adds a head', async () => {
 		await fixture.editFile('./src/layouts/Layout.astro', (content) =>
-			content.replace('content="original"', 'content="edited"'),
+			content
+				.replace(
+					'const { title } = Astro.props;',
+					"import ThemeIcons from '../components/ThemeIcons.astro';\nconst { title } = Astro.props;",
+				)
+				.replace(
+					'\t<!-- head-placeholder -->',
+					`\t<head>
+		<meta charset="utf-8" />
+		<title>{title}</title>
+		<ThemeIcons />
+	</head>`,
+				),
 		);
 
 		const html = await (await fixture.fetch('/')).text();
-		assert.match(html, /<meta name="head-marker" content="edited"/);
+		const templateOpen = html.indexOf('<template id="theme-icons">');
+		const templateClose = html.indexOf('</template>');
+		assert.ok(templateOpen !== -1 && templateClose > templateOpen);
+
+		assert.match(html, /<style data-vite-dev-id=/);
+		assert.doesNotMatch(
+			html.slice(templateOpen, templateClose),
+			/<style data-vite-dev-id=/,
+			'fresh containsHead metadata must keep injected styles outside an inert template',
+		);
 	});
 });
