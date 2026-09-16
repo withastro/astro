@@ -58,7 +58,9 @@ export function resolveRedirectTarget(
 			let target = redirect;
 			for (const param of Object.keys(params)) {
 				const paramValue = params[param]!;
-				target = target.replace(`[${param}]`, paramValue).replace(`[...${param}]`, paramValue);
+				target = target
+					.replace(`[${param}]`, () => paramValue)
+					.replace(`[...${param}]`, () => paramValue);
 			}
 			return target;
 		}

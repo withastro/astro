@@ -262,4 +262,30 @@ describe('resolveRedirectTarget', () => {
 			'https://example.com/page',
 		);
 	});
+
+	it('inserts param values containing $ replacement patterns literally', () => {
+		assert.equal(
+			resolveRedirectTarget({ slug: 'a$&b' }, '/moved/[slug]', undefined, 'ignore'),
+			'/moved/a$&b',
+		);
+		assert.equal(
+			resolveRedirectTarget({ slug: 'x$`y' }, '/moved/[slug]', undefined, 'ignore'),
+			'/moved/x$`y',
+		);
+		assert.equal(
+			resolveRedirectTarget({ slug: "a$'b" }, '/moved/[slug]', undefined, 'ignore'),
+			"/moved/a$'b",
+		);
+		assert.equal(
+			resolveRedirectTarget({ slug: 'a$$b' }, '/moved/[slug]', undefined, 'ignore'),
+			'/moved/a$$b',
+		);
+	});
+
+	it('inserts spread param values containing $ replacement patterns literally', () => {
+		assert.equal(
+			resolveRedirectTarget({ rest: 'a$&b/c' }, '/moved/[...rest]', undefined, 'ignore'),
+			'/moved/a$&b/c',
+		);
+	});
 });
