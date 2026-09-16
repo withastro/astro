@@ -5,6 +5,7 @@ import { getInstalledRenderScope, type RenderCollectors } from './scope.js';
 export interface CollectedPrerenderMetadata {
 	contentEntryKeys: string[];
 	staticImages: SerializedStaticImage[];
+	referencedImages: string[];
 }
 
 let warnedNoScope = false;
@@ -40,13 +41,18 @@ export async function collectPrerenderMetadata<T>(
 		}
 		return { value: await fn(), metadata: undefined };
 	}
-	const store: RenderCollectors = { contentEntries: new Set(), staticImages: [] };
+	const store: RenderCollectors = {
+		contentEntries: new Set(),
+		staticImages: [],
+		referencedImages: new Set(),
+	};
 	const value = await scope.run(store, fn);
 	return {
 		value,
 		metadata: {
 			contentEntryKeys: [...store.contentEntries!],
 			staticImages: [...store.staticImages!],
+			referencedImages: [...store.referencedImages!],
 		},
 	};
 }

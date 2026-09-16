@@ -20,3 +20,8 @@ export function recordContentEntryRender(filePath: string | undefined): void {
 export function recordStaticImage(image: SerializedStaticImage): void {
 	getInstalledRenderScope()?.getStore()?.staticImages?.push(image);
 }
+
+/** Records an untransformed image reference against the active render. */
+export function recordReferencedImage(fsPath: string): void {
+	getInstalledRenderScope()?.getStore()?.referencedImages?.add(fsPath);
+}
