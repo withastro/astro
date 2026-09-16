@@ -111,6 +111,8 @@ export interface BuildInternals {
 
 	manifestFileName?: string;
 	prerenderEntryFileName?: string;
+	prerenderImageServiceFileName?: string;
+	prerenderRouteUniqueBytes?: Map<string, number>;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;
 	loggerEntryPoint: URL | undefined;

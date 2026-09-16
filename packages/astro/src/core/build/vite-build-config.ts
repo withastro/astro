@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
+import { VIRTUAL_SERVICE_ID } from '../../assets/consts.js';
 import type { RouteData } from '../../types/public/internal.js';
 import type { AstroSettings } from '../../types/astro.js';
 import {
@@ -20,6 +21,7 @@ import { cleanChunkName } from './util.js';
 import { makeAstroPageEntryPointFileName } from './static-build.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
+const PRERENDER_IMAGE_SERVICE_FILENAME_PREFIX = 'prerender-image-service';
 
 export interface CreateViteBuildConfigOptions {
 	/** The resolved Astro settings. */
@@ -169,9 +171,20 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 						// AND provides a custom prerenderer. Otherwise, use the default.
 						...(!legacyAdapter && settings.prerenderer
 							? {}
-							: { input: 'astro/entrypoints/prerender' }),
+							: {
+									input:
+										settings.config.experimental.parallelPrerender && !settings.prerenderer
+											? {
+													[PRERENDER_ENTRY_FILENAME_PREFIX]: 'astro/entrypoints/prerender',
+													[PRERENDER_IMAGE_SERVICE_FILENAME_PREFIX]: VIRTUAL_SERVICE_ID,
+												}
+											: 'astro/entrypoints/prerender',
+								}),
 						output: {
-							entryFileNames: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
+							entryFileNames:
+								settings.config.experimental.parallelPrerender && !settings.prerenderer
+									? '[name].[hash].mjs'
+									: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
 							format: 'esm',
 							...userPrerender?.build?.rolldownOptions?.output,
 						},
