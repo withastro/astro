@@ -2,11 +2,17 @@
 'astro': minor
 ---
 
-Adds experimental support for a custom redirect page via the `redirectPage` flag
+Adds `experimental.redirectPage`, letting you provide your own `src/pages/3xx.astro` in place of the redirect page Astro generates in static builds.
 
-A static site cannot send an HTTP `Location` header, so Astro writes a small HTML page containing a `<meta http-equiv="refresh">` tag for every redirect a static build produces: entries in [`redirects`](https://docs.astro.build/en/reference/configuration-reference/#redirects), `Astro.redirect()` calls in prerendered pages, and i18n redirects. Until now that page's markup, wording, and refresh delay were fixed.
+A static site has no server to send an HTTP `Location` header, so Astro generates a small HTML page with a `<meta http-equiv="refresh">` tag for each redirect it builds:
 
-To enable this feature, add the experimental flag `redirectPage` to your Astro config:
+- Your [`redirects`](https://docs.astro.build/en/reference/configuration-reference/#redirects) entries
+- `Astro.redirect()` calls in prerendered pages
+- i18n redirects.
+
+That page's markup, wording, and refresh delay were fixed, so you could not brand or translate it.
+
+To enable this feature, add the experimental flag to your Astro config:
 
 ```js
 // astro.config.mjs
@@ -19,7 +25,7 @@ export default defineConfig({
 });
 ```
 
-Then create `src/pages/3xx.astro`. Astro renders it in place of the built-in page, passing the details of each redirect as props:
+Then create `src/pages/3xx.astro`. Astro renders it once per redirect, passing that redirect's details as props:
 
 ```astro
 ---
