@@ -134,7 +134,7 @@ function hashModules(
  */
 function createTransitiveGraphCache(
 	graph: HashableModuleGraph,
-	compiledCss: Map<string, string> = new Map(),
+	compiledCss: Map<string, string> = new Map<string, string>(),
 ): TransitiveGraphCache {
 	const modules = new Map<string, HashableModuleInfo | null>();
 	const dependencies = new Map<string, string[]>();
