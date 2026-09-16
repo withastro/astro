@@ -4886,6 +4886,15 @@ importers:
 
   packages/integrations/cloudflare/test/fixtures/prerender-node-env/fake-svelte-pkg: {}
 
+  packages/integrations/cloudflare/test/fixtures/prerender-nodejs-compat:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/cloudflare/test/fixtures/prerender-queue-consumers:
     dependencies:
       '@astrojs/cloudflare':
@@ -7281,6 +7290,15 @@ importers:
       tsx:
         specifier: ^4.22.0
         version: 4.22.3
+
+  triage/gh-18009:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../packages/integrations/cloudflare
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
 
 packages:
 
