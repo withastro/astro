@@ -73,7 +73,20 @@ export async function renderRedirectPage(
 		);
 		return undefined;
 	} finally {
-		const finalize = state.finalizeAll();
-		if (finalize) await finalize;
+		// Swallow a rejecting finalizer rather than let it replace the `undefined`
+		// returned above: the caller reads that as "fall back to the built-in
+		// redirect page", and a failure to clean up should not turn a broken
+		// custom page into a failed build.
+		try {
+			const finalize = state.finalizeAll();
+			if (finalize) await finalize;
+		} catch (err) {
+			state.logger.error(
+				'redirects',
+				`Failed to finalize the \`src/pages/3xx.astro\` render for the redirect from \`${props.from}\` to \`${props.to}\`.\n${
+					err instanceof Error ? (err.stack ?? err.message) : String(err)
+				}`,
+			);
+		}
 	}
 }

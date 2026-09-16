@@ -192,6 +192,40 @@ describe('redirects/hasMetaRefreshTo', () => {
 		assert.equal(hasMetaRefreshTo('<meta name="robots" content="0;url=/new">', '/new'), false);
 	});
 
+	it('matches a destination whose escaped entities differ from the raw location', () => {
+		// Both Astro's renderer and `redirectTemplate` escape attribute values, so
+		// `&` reaches the parser as `&amp;`. See PR #18015 review.
+		const to = '/new?a=1&b=2';
+		const html = redirectTemplate({
+			status: 301,
+			absoluteLocation: `https://example.com${to}`,
+			relativeLocation: to,
+		});
+
+		assert.match(html, /content="0;url=\/new\?a=1&amp;b=2"/);
+		assert.equal(hasMetaRefreshTo(html, to), true);
+	});
+
+	it('decodes the other entities Astro escapes', () => {
+		assert.equal(
+			hasMetaRefreshTo(
+				`<meta http-equiv="refresh" content="0;url=/a?q=&#39;x&#39;&amp;b=&quot;y&quot;">`,
+				`/a?q='x'&b="y"`,
+			),
+			true,
+		);
+	});
+
+	it('still rejects a destination that only looks similar once decoded', () => {
+		assert.equal(
+			hasMetaRefreshTo(
+				'<meta http-equiv="refresh" content="0;url=/new?a=1&amp;b=2">',
+				'/new?a=1&b=3',
+			),
+			false,
+		);
+	});
+
 	it('finds the tag among several meta tags', () => {
 		const html = [
 			'<meta charset="utf-8">',

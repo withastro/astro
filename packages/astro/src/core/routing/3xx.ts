@@ -1,4 +1,4 @@
-import { escape } from 'html-escaper';
+import { escape, unescape } from 'html-escaper';
 
 type RedirectTemplate = {
 	from?: string;
@@ -35,12 +35,18 @@ export function redirectTemplate({
 /** Every `<meta …>` tag in a document. */
 const META_TAG_RE = /<meta\s[^>]*>/gi;
 
-/** An attribute's value, quoted with `"`, with `'`, or bare. */
+/**
+ * An attribute's value, quoted with `"`, with `'`, or bare, decoded back to the
+ * text it stands for. Both Astro's renderer and `redirectTemplate` escape
+ * attribute values, so a destination like `/new?a=1&b=2` reaches us written as
+ * `/new?a=1&amp;b=2`.
+ */
 function attributeValue(tag: string, name: string): string | undefined {
 	const pattern = new RegExp(`\\s${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, 'i');
 	const match = pattern.exec(tag);
 	if (!match) return undefined;
-	return match[1] ?? match[2] ?? match[3];
+	const value = match[1] ?? match[2] ?? match[3];
+	return value === undefined ? undefined : unescape(value);
 }
 
 /**
