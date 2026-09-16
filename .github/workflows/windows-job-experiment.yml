@@ -1,0 +1,37 @@
+# TEMPORARY experiment workflow for issue #18019 (Windows Job Object behavior).
+# Will be removed once the fix is validated.
+name: Windows Job Experiment (temp)
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  experiment:
+    name: Job-object escape experiment
+    runs-on: windows-2025
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Step 1 - spawn plain + WMI-escaped children, then exit
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          node scripts/windows-job-exp/spawn.js
+          if ($LASTEXITCODE -ne 0) { throw "spawn.js failed with $LASTEXITCODE" }
+          Get-Content .win-exp/*.txt | Out-String | Write-Host
+
+      - name: Wait for the step boundary to pass
+        shell: pwsh
+        run: |
+          Start-Sleep -Seconds 15
+
+      - name: Step 2 - check which children survived
+        shell: pwsh
+        run: |
+          node scripts/windows-job-exp/check.js
+          Get-Content .win-exp/*.txt | Out-String | Write-Host
