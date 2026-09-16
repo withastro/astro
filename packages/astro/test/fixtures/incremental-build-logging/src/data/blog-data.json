@@ -1,0 +1,8 @@
+{
+	"posts": [
+		{ "slug": "post-1", "title": "Post 1", "digest": "v1" },
+		{ "slug": "post-2", "title": "Post 2", "digest": "v1" },
+		{ "slug": "post-3", "title": "Post 3", "digest": "v1" },
+		{ "slug": "post-4", "title": "Post 4", "digest": "v1" }
+	]
+}
