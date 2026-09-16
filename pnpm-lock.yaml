@@ -5886,6 +5886,15 @@ importers:
         specifier: ^1.18.1
         version: 1.18.1(@types/express@5.0.6)(@types/node@22.19.19)
 
+  packages/integrations/node/test/fixtures/aborted-request:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/node/test/fixtures/api-route:
     dependencies:
       '@astrojs/node':
@@ -6733,6 +6742,24 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
+
+  packages/integrations/vue/test/fixtures/multi-renderer:
+    dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../react
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
 
   packages/integrations/vue/test/fixtures/prop-types:
     dependencies:
