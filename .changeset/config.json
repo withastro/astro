@@ -1,0 +1,24 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@4.0.0/schema.json",
+  "changelog": ["@changesets/changelog-github", { "repo": "withastro/astro" }],
+  "commit": false,
+  "linked": [],
+  "access": "public",
+  "baseBranch": "origin/main",
+  "updateInternalDependencies": "patch",
+  "ignore": [
+    "@test/*",
+    "@e2e/*",
+    "@example/*",
+    "@fixture/*",
+    "benchmark-build-*",
+    "fake-svelte-pkg",
+    "async-rendering",
+    "conditional-rendering",
+    "svelte-prop-types",
+    "vue-prop-types"
+  ],
+  "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
+    "onlyUpdatePeerDependentsWhenOutOfRange": true
+  }
+}

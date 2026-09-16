@@ -1,0 +1,48 @@
+{
+  "skill_name": "astro-pr-writer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Draft a proposed Astro PR title and body from the context below. This is an isolated evaluation: do not inspect the repository, create files, run commands, or contact GitHub. Return only `Title: <title>` followed by the Markdown body.\n\nChange context:\n- With `trailingSlash: 'always'`, redirects between `/docs` and `/docs/` can exhaust the redirect limit because loop detection records the raw pathname.\n- The implementation canonicalizes each pathname before adding it to the visited-path set.\n- `packages/astro/test/core/redirects.test.js` adds a regression case for the two pathname forms.\n- `.changeset/quiet-paths.md` already exists and bumps `'astro'` as a patch.\n- `pnpm -C packages/astro exec astro-scripts test test/core/redirects.test.js` passed 18 tests.\n- No docs update is needed because no public API or configuration changed.",
+      "expected_output": "A concise, plain-language title and a PR body with Changes, Testing, and Docs sections. Behavior and implementation appear under Changes, the regression test appears under Testing, and command results and changeset process details are omitted.",
+      "files": [],
+      "assertions": [
+        "The output contains exactly one line beginning with `Title: `.",
+        "The title describes preventing trailing-slash redirect loops and does not begin with a conventional-commit prefix such as `fix:`, `feat:`, or `fix(scope):`.",
+        "The body contains exactly the headings `## Changes`, `## Testing`, and `## Docs` in that order, with no additional level-two headings.",
+        "The Changes section explains both pathname canonicalization and its redirect-loop impact, using no more than two bullets.",
+        "The Changes section does not mention the test file, test command, passing tests, or the changeset.",
+        "The Testing section identifies the added regression case and what behavior it covers, but does not contain `pnpm`, `passed`, or `18 tests`.",
+        "The Docs section explicitly says no docs update is needed because the public API and configuration are unchanged."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Write a proposed title and body for an Astro pull request using only the supplied context. Do not inspect files, run commands, create a PR, or modify the repository. Return only `Title: <title>` and the Markdown body.\n\nContext:\n- `@astrojs/node` gains an optional `gracefulShutdownTimeout` adapter option.\n- On `SIGTERM`, the standalone server waits up to the configured number of milliseconds for active requests before exiting. Omitting the option preserves existing behavior.\n- The schema, public type, and shutdown handler were updated.\n- `packages/integrations/node/test/graceful-shutdown.test.js` adds fake-timer cases for the configured timeout and the unchanged default.\n- A minor changeset already exists.\n- The documentation is covered by https://github.com/withastro/docs/pull/9999.\n- The focused tests and type checks passed locally.",
+      "expected_output": "A reviewer-friendly feature title and a short body using the required three sections. It explains the new option, describes test-code coverage without reporting test execution, and links the docs PR.",
+      "files": [],
+      "assertions": [
+        "The title names the configurable graceful-shutdown timeout and does not use a conventional-commit prefix or scope.",
+        "The body contains exactly `## Changes`, `## Testing`, and `## Docs` in that order.",
+        "The Changes section names `gracefulShutdownTimeout`, explains what users can configure, and notes that omitted configuration preserves existing behavior.",
+        "The Changes section does not mention the changeset, test file, local commands, or passing checks.",
+        "The Testing section names or clearly identifies `graceful-shutdown.test.js` and describes both timeout and default-behavior cases.",
+        "The Testing section does not claim that tests or type checks passed and does not list commands.",
+        "The Docs section contains the exact URL `https://github.com/withastro/docs/pull/9999`."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me only a replacement PR title as one plain-text line. Do not write a PR body, create files, discuss process requirements, or contact GitHub.\n\nThe current title is `fix(examples): sort RSS posts`. This PR changes only `examples/blog/src/pages/rss.xml.js` so RSS entries are ordered newest-first by publication date. No package files are modified.",
+      "expected_output": "One concise title describing the RSS ordering outcome, without a conventional-commit prefix or any additional PR content.",
+      "files": [],
+      "assertions": [
+        "The output contains exactly one non-empty plain-text line.",
+        "The line does not begin with `fix:`, `fix(`, `feat:`, `docs:`, `Title:`, a Markdown heading, or a code fence.",
+        "The title states that blog RSS entries are sorted by publication date or newest-first.",
+        "The output contains no PR body headings and does not mention tests, changesets, or the examples exemption.",
+        "No files are created or modified."
+      ]
+    }
+  ]
+}

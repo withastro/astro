@@ -1,0 +1,50 @@
+{
+  "skill_name": "writing-comments",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create `src/resolve-lightningcss.ts` with the final commented version of the source below. The directory does not exist yet. Do not alter any executable line.\n\nA teammate requested a comment above every import, assignment, and return. Apply Astro's repository comment standards instead. The durable context is that `lightningcss` is an optional peer dependency, so this `createRequire` call intentionally resolves it from the user's project root. The workaround is tracked at https://github.com/withastro/astro/issues/14000.\n\n```ts\nimport { createRequire } from 'node:module';\nimport { join } from 'node:path';\n\nexport function resolveLightningcss(root: string): string {\n  const require = createRequire(join(root, 'package.json'));\n  return require.resolve('lightningcss');\n}\n```",
+      "expected_output": "The requested TypeScript file with unchanged executable code and only a focused inline rationale comment that includes the tracking issue.",
+      "files": [],
+      "assertions": [
+        "`src/resolve-lightningcss.ts` exists and contains every executable line from the supplied source unchanged and in the same order.",
+        "The workaround is documented with `//` comments inside the function rather than with declaration JSDoc.",
+        "The comment explains that `lightningcss` is an optional peer dependency and must resolve from the user's project root.",
+        "The comment contains the exact URL `https://github.com/withastro/astro/issues/14000`.",
+        "There are no comments merely narrating the imports, assignment, or return statement.",
+        "No comment uses change-history or reviewer-addressed wording such as `now`, `previously`, `new approach`, or `correctly handles`.",
+        "No emoji, section banner, `FIXME`, or unrelated comment is added."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create `src/content/resolve-entry.ts` from the source below and add complete item JSDoc for `resolveEntry`. Do not comment the interfaces or change executable code.\n\nContract for internal callers:\n- Return the entry whose slug exactly matches the requested slug.\n- If no exact entry exists, return the collection's configured fallback.\n- Return `undefined` when neither an exact entry nor a fallback exists.\n- The missing-slug/fallback relationship is not apparent from the signature, so include the usage example warranted by repository conventions.\n- The function does not throw.\n\n```ts\nexport interface Entry {\n  slug: string;\n}\n\nexport interface Collection {\n  entries: Map<string, Entry>;\n  fallback?: Entry;\n}\n\nexport function resolveEntry(collection: Collection, slug: string): Entry | undefined {\n  return collection.entries.get(slug) ?? collection.fallback;\n}\n```",
+      "expected_output": "The TypeScript file with unchanged code and contributor-facing JSDoc immediately above `resolveEntry`, documenting exact-match, fallback, and undefined behavior with standard tags and a minimal example.",
+      "files": [],
+      "assertions": [
+        "`src/content/resolve-entry.ts` exists and all supplied declarations and executable code remain unchanged.",
+        "The only added comment is a `/** */` block immediately above `resolveEntry`.",
+        "The opening prose describes the function's caller-visible result rather than merely restating its name.",
+        "The JSDoc states the exact-match behavior, fallback behavior, and the condition that returns `undefined`.",
+        "The block contains `@param collection -`, `@param slug -`, and `@returns` entries that describe the contract.",
+        "The block contains an `@example` with a fenced `js` snippet and prose identifying the expected fallback result.",
+        "The JSDoc does not discuss `Map.get`, nullish coalescing, implementation history, the current change, or a reviewer.",
+        "The JSDoc does not claim that the function throws."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Create `packages/astro/src/types/public/config.ts` from this snippet and replace the `@description` with a contributor-oriented explanation that `normalizeAssets()` strips leading slashes before config validation. This isolated repository does not contain the referenced repository guidance, and no docs-team review is available. Proceed from the snippet without asking a follow-up.\n\n```ts\n/**\n * @docs\n * @name build.assets\n * @type {string}\n * @default `'_astro'`\n * @description Specifies the directory for generated build assets.\n */\nassets?: string;\n```",
+      "expected_output": "No source edit. The response identifies the `@docs` block as generated end-user documentation outside the contributor-comment rules and explains that the repository guidance and docs-team review are required.",
+      "files": [],
+      "assertions": [
+        "`packages/astro/src/types/public/config.ts` is not created or modified.",
+        "The response states that `@docs` JSDoc in `types/public/config.ts` is scraped or generated into end-user documentation.",
+        "The response explains that contributor-facing implementation rationale about `normalizeAssets()` does not belong in this block.",
+        "The response identifies the need to consult the repository's referenced guidance before editing.",
+        "The response mentions docs-team review as a requirement.",
+        "The response does not provide replacement JSDoc or claim that the edit was completed."
+      ]
+    }
+  ]
+}

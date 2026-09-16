@@ -1,0 +1,15 @@
+{
+	"name": "test-preview-remote-bindings",
+	"compatibility_date": "2026-01-28",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS"
+	},
+	"kv_namespaces": [
+		{
+			"binding": "REMOTE_KV",
+			"id": "abcdef0123456789abcdef0123456789",
+			"remote": true
+		}
+	]
+}

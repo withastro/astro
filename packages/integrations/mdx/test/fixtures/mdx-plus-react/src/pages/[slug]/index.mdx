@@ -1,0 +1,16 @@
+import SlotWrapper from '../../components/SlotWrapper.astro'
+import Component from '../../components/Component.jsx'
+
+export function getStaticPaths() {
+  return [
+    { params: { slug: 'foo' } },
+    { params: { slug: 'bar' } },
+  ];
+}
+
+# Slot Render Test
+
+<SlotWrapper>
+  <Component slot="foo" client:load />
+  <Component slot="bar" client:load />
+</SlotWrapper>

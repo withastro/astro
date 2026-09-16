@@ -1,0 +1,16 @@
+---
+import { Prism } from '@astrojs/prism';
+---
+<html>
+<head>
+	<title>Prism Component Test</title>
+</head>
+<body>
+<h1>Testing Prism Component</h1>
+<Prism code={`:root { color: red; }`} lang="css" />
+<Prism code={`const hello = "world";`} lang="js" />
+<!-- To verify that Prism is loading the language data correctly, we use `ts` and `rust` here -->
+<Prism code={`const hello: string = "world";`} lang="ts" />
+<Prism code={`const HELLO: &str = "world";`} lang="rust" />
+</body>
+</html>

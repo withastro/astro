@@ -1,0 +1,10 @@
+scripts
+src
+tsconfig.json
+tsconfig.tsbuildinfo
+.turbo
+test
+.vscode-test
+
+syntaxes/astro.tmLanguage.src.yaml
+node_modules/prettier/esm
