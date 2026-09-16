@@ -391,6 +391,7 @@ export default function createIntegration({
 													'astro/actions/runtime/entrypoints/server.js',
 													'astro/actions/runtime/entrypoints/route.js',
 													'astro/assets',
+													'astro/assets/services/noop',
 													'astro/assets/runtime',
 													'astro/assets/utils/inferRemoteSize.js',
 													'astro/assets/fonts/runtime.js',

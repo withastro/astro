@@ -8,7 +8,12 @@ const HASH = 'deadbeef';
 function previousManifest(
 	paths: Record<
 		string,
-		{ cacheKey: string; outputFile: string; contentHashes?: Record<string, string> }
+		{
+			cacheKey: string;
+			outputFile: string;
+			contentHashes?: Record<string, string>;
+			referencedImages?: string[];
+		}
 	>,
 	{ dependencyHash = HASH, route = ROUTE, keyDigest = 'key' } = {},
 ) {
@@ -101,6 +106,30 @@ describe('IncrementalBuildCache', () => {
 			assert.equal(cache.canSkip(ROUTE, '/a', HASH, 'k1', true), false);
 			// A page without an island is unaffected by the key change.
 			assert.equal(cache.canSkip(ROUTE, '/a', HASH, 'k1', false), true);
+		});
+	});
+
+	describe('previousReferencedImages', () => {
+		it('returns references recorded by the previous path', () => {
+			const previous = previousManifest({
+				'/a': {
+					cacheKey: 'k1',
+					outputFile: 'a/index.html',
+					referencedImages: ['/project/src/assets/shared.png'],
+				},
+			});
+			const cache = new IncrementalBuildCache('cfg', 'lock', 'key', new Map(), previous);
+
+			assert.deepEqual(cache.previousReferencedImages(ROUTE, '/a'), [
+				'/project/src/assets/shared.png',
+			]);
+		});
+
+		it('returns undefined when the previous path has no references', () => {
+			const previous = previousManifest({ '/a': { cacheKey: 'k1', outputFile: 'a/index.html' } });
+			const cache = new IncrementalBuildCache('cfg', 'lock', 'key', new Map(), previous);
+
+			assert.equal(cache.previousReferencedImages(ROUTE, '/a'), undefined);
 		});
 	});
 
