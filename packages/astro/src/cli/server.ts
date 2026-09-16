@@ -24,6 +24,7 @@ import {
 } from '../core/dev/lockfile.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import type { Flags } from './flags.js';
+import { spawnWindowsBackgroundChild } from './windows-background.js';
 
 const require = createRequire(import.meta.url);
 
@@ -209,17 +210,47 @@ export async function background({
 	// `detached: true` maps to DETACHED_PROCESS, so the child has no console and
 	// any console-subsystem grandchild it spawns (e.g. workerd.exe) gets a brand
 	// new, visible, focus-stealing window allocated by Windows Terminal.
-	const child = spawn(process.execPath, [astroBin, ...args], {
-		detached: true,
-		windowsHide: true,
-		stdio: ['ignore', logFd, logFd],
-		cwd: rootPath,
-		env: { ...process.env, [config.envVar]: '1' },
-	});
+	//
+	// On Windows, the plain detached spawn below does not remove the child from
+	// the caller's Job Object: agent runners and CI systems place the whole
+	// process tree in a job with JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE, so the
+	// "background" child is terminated the moment the runner closes the job
+	// (right after this parent exits). Ask the WMI provider to create the child
+	// instead — the provider runs outside the caller's job, so the child outlives
+	// it. Fall back to the plain spawn when WMI is unavailable, which still
+	// works when the caller is not inside a job.
+	let childPid: number | null | undefined = null;
+	if (process.platform === 'win32') {
+		childPid = await spawnWindowsBackgroundChild({
+			nodePath: process.execPath,
+			binPath: astroBin,
+			args,
+			cwd: rootPath,
+			logFile: logFilePath,
+			env: { ...process.env, [config.envVar]: '1' },
+		});
+		if (childPid === null) {
+			logger.warn(
+				'SKIP_FORMAT',
+				`Could not start the background ${config.command} server outside the current process tree; it may not survive the parent process exiting.`,
+			);
+		}
+	}
 
-	child.unref();
+	if (childPid === null || childPid === undefined) {
+		const child = spawn(process.execPath, [astroBin, ...args], {
+			detached: true,
+			windowsHide: true,
+			stdio: ['ignore', logFd, logFd],
+			cwd: rootPath,
+			env: { ...process.env, [config.envVar]: '1' },
+		});
 
-	const childPid = child.pid;
+		child.unref();
+
+		childPid = child.pid;
+	}
+
 	if (!childPid) {
 		logger.error('SKIP_FORMAT', `Failed to spawn background ${config.command} server process.`);
 		process.exit(1);
