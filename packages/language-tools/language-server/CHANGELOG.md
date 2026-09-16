@@ -1,5 +1,19 @@
 # @astrojs/language-server
 
+## 2.17.0
+
+### Minor Changes
+
+- [#17676](https://github.com/withastro/astro/pull/17676) [`49d4294`](https://github.com/withastro/astro/commit/49d429480c7399bcebcb3b24fd37893403cfbf1b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Improves type checking and editor support for `.astro` files.
+  
+  The language server now uses our all-new Biome powered `astro2tsx` implementation. This new version has much better support for incomplete syntax, generic types and various edge cases.
+  
+  In the vast majority of cases, no changes should be required to your code, and any change should be the result of more accurate types or behavior.
+
+### Patch Changes
+
+- [#17542](https://github.com/withastro/astro/pull/17542) [`fae64dd`](https://github.com/withastro/astro/commit/fae64ddfc344e2fbe4d1610465c75bbe0604ba77) Thanks [@IAmYhvr](https://github.com/IAmYhvr)! - Fixes the AstroComponent suffix not being removed from Svelte and Vue imports in `.astro` files.
+
 ## 2.16.16
 
 ### Patch Changes
