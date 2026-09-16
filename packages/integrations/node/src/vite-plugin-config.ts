@@ -1,4 +1,5 @@
 import type { AstroConfig } from 'astro';
+import { uneval } from 'devalue';
 import type { Options } from './types.js';
 
 const VIRTUAL_CONFIG_ID = 'virtual:astro-node:config';
@@ -34,7 +35,7 @@ export function createConfigPlugin(
 			},
 			handler() {
 				return Object.entries(config)
-					.map(([k, v]) => `export const ${k} = ${JSON.stringify(v)};`)
+					.map(([k, v]) => `export const ${k} = ${uneval(v)};`)
 					.join('\n');
 			},
 		},

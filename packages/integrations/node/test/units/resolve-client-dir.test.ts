@@ -17,20 +17,8 @@ describe('resolveClientDir', () => {
 		// the while loop should terminate and throw instead of looping forever.
 		// This simulates what happens when the entry point is bundled with esbuild
 		// into a path that lacks the expected "server" directory segment.
-		assert.throws(
-			() =>
-				resolveClientDir({
-					client,
-					server,
-					mode: 'middleware',
-					host: false,
-					port: 4321,
-					staticHeaders: false,
-					bodySizeLimit: 0,
-				}),
-			{
-				message: /Could not find the server directory "server".*bundled into a single file/,
-			},
-		);
+		assert.throws(() => resolveClientDir({ client, server }), {
+			message: /Could not find the server directory "server".*bundled into a single file/,
+		});
 	});
 });

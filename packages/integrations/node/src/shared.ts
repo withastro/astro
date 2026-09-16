@@ -1,7 +1,7 @@
+import { appendForwardSlash } from '@astrojs/internal-helpers/path';
+import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
-import fs from 'node:fs';
-import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import type { NodeAppHeadersJson, Options } from './types.js';
 
 export const STATIC_HEADERS_FILE = '_headers.json';
@@ -16,7 +16,7 @@ export const STATIC_HEADERS_FILE = '_headers.json';
  *
  * It throws an error if it can't find the directory while walking the parent directories.
  */
-export function resolveClientDir(options: Options) {
+export function resolveClientDir(options: Pick<Options, 'client' | 'server'>) {
 	// options.client and options.server are file:// URLs set at build time
 	// e.g., "file:///project/dist/client/" and "file:///project/dist/server/"
 	const clientURLRaw = new URL(options.client);
