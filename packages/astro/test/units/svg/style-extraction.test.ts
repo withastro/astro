@@ -11,7 +11,7 @@ function meta(fsPath: string) {
 function extractStyles(moduleSource: string): string[] {
 	// The module exports `createSvgComponent({...props...})`.
 	// We eval just the JSON argument to read the `styles` property.
-	const match = moduleSource.match(/createSvgComponent\((.+)\)$/s);
+	const match = /createSvgComponent\((.+)\)$/s.exec(moduleSource);
 	assert.ok(match, 'expected createSvgComponent call in module source');
 	const props = JSON.parse(match[1]);
 	return props.styles;
