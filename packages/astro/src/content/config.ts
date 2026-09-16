@@ -1,7 +1,7 @@
 import type * as zCore from 'zod/v4/core';
 import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
-import { CONTENT_LAYER_TYPE, CONTENT_SOURCE_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
+import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
 import type { LiveLoader, Loader } from './loaders/types.js';
 
 function getImporterFilename() {
@@ -100,13 +100,6 @@ type ContentCollectionConfig<S extends BaseSchema> = {
 	loader?: never;
 };
 
-type ContentSourceCollectionConfig<S extends BaseSchema> = {
-	type?: typeof CONTENT_SOURCE_TYPE;
-	schema?: S | ((context: SchemaContext) => S);
-	loader?: never;
-	source: 'adapter';
-};
-
 export type LiveCollectionConfig<
 	L extends LiveLoader,
 	S extends BaseSchema | undefined = undefined,
@@ -119,11 +112,7 @@ export type LiveCollectionConfig<
 export type CollectionConfig<
 	S extends BaseSchema,
 	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
-> =
-	| ContentCollectionConfig<S>
-	| DataCollectionConfig<S>
-	| ContentLayerConfig<S, TLoader>
-	| ContentSourceCollectionConfig<S>;
+> = ContentCollectionConfig<S> | DataCollectionConfig<S> | ContentLayerConfig<S, TLoader>;
 
 export function defineLiveCollection<
 	L extends LiveLoader,
@@ -201,14 +190,7 @@ export function defineCollection<
 		});
 	}
 
-	if ('source' in config) {
-		if (config.type && config.type !== CONTENT_SOURCE_TYPE) {
-			throw new AstroUserError(
-				`A source-backed content collection must not set a different collection type. Check the collection definition in ${importerFilename ?? 'your content config file'}.`,
-			);
-		}
-		config.type = CONTENT_SOURCE_TYPE;
-	} else if ('loader' in config) {
+	if ('loader' in config) {
 		if (config.type && config.type !== CONTENT_LAYER_TYPE) {
 			throw new AstroUserError(
 				`A content collection is defined with legacy features (e.g. missing a \`loader\` or has a \`type\`). Check your collection definitions in ${importerFilename ?? 'your content config file'} to ensure that all collections are defined using the current properties.`,

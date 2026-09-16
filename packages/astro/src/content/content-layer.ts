@@ -13,12 +13,15 @@ import {
 	ASSET_IMPORTS_FILE,
 	COLLECTIONS_MANIFEST_FILE,
 	CONTENT_LAYER_TYPE,
-	CONTENT_SOURCE_TYPE,
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
 import type { RenderedContent } from './data-store.js';
 import type { LoaderContext, RenderMarkdownOptions } from './loaders/types.js';
 import type { MutableDataStore } from './mutable-data-store.js';
+import type {
+	ContentCollectionStorageWriter,
+	ContentCollectionStorageWriterFactory,
+} from './storage.js';
 import {
 	type ContentObservable,
 	getEntryConfigByExtMap,
@@ -53,6 +56,7 @@ export class ContentLayer {
 	#markdownRenderer?: MarkdownRenderer;
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 	#contentConfigObserver: ContentObservable;
+	#storageWriter?: Promise<ContentCollectionStorageWriter>;
 
 	#queue: PQueue;
 
@@ -232,6 +236,14 @@ export class ContentLayer {
 		}
 
 		logger.info('Syncing content');
+		const storageProvider = this.#settings.adapter?.contentCollectionStorage?.writer;
+		if (storageProvider && !this.#storageWriter) {
+			this.#storageWriter = import(storageProvider.entrypoint.toString()).then(async (module) => {
+				const createWriter = module.default as ContentCollectionStorageWriterFactory;
+				return createWriter(storageProvider.config);
+			});
+			this.#store.setStorageWriter(await this.#storageWriter);
+		}
 		const {
 			vite: _vite,
 			integrations: _integrations,
@@ -284,6 +296,7 @@ export class ContentLayer {
 		const backwardsCompatEnabled =
 			this.#settings.config.legacy?.collectionsBackwardsCompat ?? false;
 
+		this.#store.deferStorageWrites();
 		await Promise.all(
 			Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
 				// Skip non-content_layer collections unless backwards compat is enabled
@@ -356,6 +369,7 @@ export class ContentLayer {
 		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
 		await this.#store.writeModuleImports(modulesImportsFile);
 		await this.#store.waitUntilSaveComplete();
+		await this.#store.commitStorageWrites();
 		logger.info('Synced content');
 		if (this.#settings.config.experimental.contentIntellisense) {
 			await this.regenerateCollectionFileManifest();
@@ -368,11 +382,7 @@ export class ContentLayer {
 	 * This replaces the inline Zod validation that was removed in the Zod 4 upgrade.
 	 */
 	#validateReferences(collections: Record<string, any>, logger: { error(message: string): void }) {
-		const collectionNames = new Set(
-			Object.entries(collections)
-				.filter(([, collection]) => collection.type !== CONTENT_SOURCE_TYPE)
-				.map(([name]) => name),
-		);
+		const collectionNames = new Set(Object.keys(collections));
 		for (const collectionName of collectionNames) {
 			for (const entry of this.#store.values(collectionName)) {
 				if (entry?.data) {

@@ -1,0 +1,45 @@
+{
+  "name": "@astrojs/content-source-sqlite",
+  "description": "SQLite storage for Astro content collections",
+  "version": "0.0.1",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/content-source-sqlite"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "exports": {
+    ".": "./dist/index.js",
+    "./reader": "./dist/reader.js",
+    "./writer": "./dist/writer.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/units/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.0",
+    "devalue": "^5.9.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "astro": "workspace:*",
+    "astro-scripts": "workspace:*",
+    "@types/node": "^22.10.6"
+  },
+  "peerDependencies": {
+    "astro": "^7.2.1"
+  },
+  "publishConfig": {
+    "provenance": true
+  }
+}

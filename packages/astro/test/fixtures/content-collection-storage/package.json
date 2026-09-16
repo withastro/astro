@@ -1,0 +1,9 @@
+{
+  "name": "@test/content-collection-storage",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/content-source-sqlite": "workspace:*",
+    "astro": "workspace:*"
+  }
+}

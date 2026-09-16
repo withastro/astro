@@ -47,7 +47,6 @@ export const COLLECTIONS_MANIFEST_FILE = 'collections/collections.json';
 export const COLLECTIONS_DIR = 'collections/';
 
 export const CONTENT_LAYER_TYPE = 'content_layer';
-export const CONTENT_SOURCE_TYPE = 'content_source';
 export const LIVE_CONTENT_TYPE = 'live';
 
 export const DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX = `${DATA_STORE_VIRTUAL_ID}-chunk:`;

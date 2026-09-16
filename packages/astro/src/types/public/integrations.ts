@@ -240,17 +240,36 @@ export type AstroAdapter = {
 	 */
 	client?: AstroAdapterClientConfig;
 
-	/**
-	 * Configures the server-side source for collections that declare `source: 'adapter'`.
-	 */
-	contentCollectionSource?: ContentCollectionSourceConfig;
+	/** Configures build-time persistence and runtime access for content collections. */
+	contentCollectionStorage?: ContentCollectionStorageConfig;
 } & (AdapterExplicitProperties | AdapterAutoProperties);
 
-export interface ContentCollectionSourceConfig {
-	/** URL or package import for a module whose default export is a content source factory. */
+export interface ContentCollectionStorageProvider {
+	/** URL or package import for a module whose default export creates the storage provider. */
 	entrypoint: string | URL;
-	/** Serializable options passed to the content source factory. */
+	/** Serializable options passed to the storage provider. */
 	config?: Record<string, unknown>;
+}
+
+/**
+ * Configures external persistence for content collections owned by an adapter.
+ *
+ * The reader and writer must connect to the same storage backend. Astro writes
+ * a complete content snapshot after each successful sync, then uses the reader
+ * to serve standard content APIs such as `getEntry()` and `getCollection()`.
+ */
+export interface ContentCollectionStorageConfig {
+	/**
+	 * Creates the storage reader used while rendering pages. It retrieves
+	 * collections and entries from the backend instead of Astro's embedded data
+	 * store.
+	 */
+	reader: ContentCollectionStorageProvider;
+	/**
+	 * Creates the storage writer used during builds and development. Each
+	 * successful content sync replaces the backend's complete content snapshot.
+	 */
+	writer: ContentCollectionStorageProvider;
 }
 
 /**

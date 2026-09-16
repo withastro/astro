@@ -16,7 +16,6 @@ import {
 	CONTENT_MODULE_FLAG,
 	CONTENT_RENDER_FLAG,
 	CONTENT_SOURCE_REGISTRY_VIRTUAL_ID,
-	CONTENT_SOURCE_TYPE,
 	DATA_STORE_CHUNK_FILE_NAME_PATTERN,
 	DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX,
 	DATA_STORE_MANIFEST_FILE,
@@ -33,7 +32,7 @@ import {
 } from './consts.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from './paths.js';
-import { getContentPaths, globalContentConfigObserver, isDeferredModule } from './utils.js';
+import { getContentPaths, isDeferredModule } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -135,8 +134,15 @@ export function attachDataStoreInvalidation(
 ) {
 	const dataStorePath = fileURLToPath(getDevDataStoreFile(settings));
 	const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
+	const usesStorageBackend = Boolean(settings.adapter?.contentCollectionStorage);
+	if (usesStorageBackend) {
+		store.onStorageWritten(() => {
+			invalidateDataStore(server);
+			invalidateAssetImports(server, assetImportsPath);
+		});
+	}
 	store.onFileWritten((path) => {
-		if (path === dataStorePath) {
+		if (path === dataStorePath && !usesStorageBackend) {
 			markDirectInvalidation(dataStorePath);
 			invalidateDataStore(server);
 			invalidateAssetImports(server, assetImportsPath);
@@ -302,27 +308,14 @@ export function astroContentVirtualModPlugin({
 					};
 				}
 				if (id === RESOLVED_CONTENT_SOURCE_REGISTRY_VIRTUAL_ID) {
-					const contentConfig = globalContentConfigObserver.get();
-					const collections =
-						contentConfig.status === 'loaded'
-							? Object.entries(contentConfig.config.collections)
-									.filter(([, collection]) => collection.type === CONTENT_SOURCE_TYPE)
-									.map(([name]) => name)
-							: [];
-					if (collections.length === 0) {
+					const provider = settings.adapter?.contentCollectionStorage?.reader;
+					if (!provider) {
 						return { code: 'export default undefined', map: { mappings: '' } };
 					}
 
-					const provider = settings.adapter?.contentCollectionSource;
-					if (!provider) {
-						this.error(
-							`Collections using \`source: 'adapter'\` require an adapter that provides a content collection source.`,
-						);
-					}
 					const entrypoint = provider.entrypoint.toString();
 					const code = `
 						export default {
-							collections: ${JSON.stringify(collections)},
 							config: ${JSON.stringify(provider.config)},
 							load: () => import(${JSON.stringify(entrypoint)}).then((module) => module.default),
 						};
@@ -330,6 +323,12 @@ export function astroContentVirtualModPlugin({
 					return { code, map: { mappings: '' } };
 				}
 				if (id === RESOLVED_DATA_STORE_VIRTUAL_ID) {
+					if (settings.adapter?.contentCollectionStorage) {
+						return {
+							code: 'export default new Map()',
+							meta: createContentDataIncrementalMetadata(),
+						};
+					}
 					if (!fs.existsSync(dataStoreFile)) {
 						return {
 							code: 'export default new Map()',
@@ -419,16 +418,21 @@ export function astroContentVirtualModPlugin({
 			devServer = server;
 			const dataStorePath = fileURLToPath(dataStoreFile);
 			const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
+			const usesStorageBackend = Boolean(settings.adapter?.contentCollectionStorage);
 
 			server.watcher.on('add', (addedPath) => {
-				if (addedPath === dataStorePath && !isDirectInvalidationEcho(dataStorePath)) {
+				if (
+					!usesStorageBackend &&
+					addedPath === dataStorePath &&
+					!isDirectInvalidationEcho(dataStorePath)
+				) {
 					invalidateDataStore(server);
 					invalidateAssetImports(server, assetImportsPath);
 				}
 			});
 
 			server.watcher.on('change', (changedPath) => {
-				if (changedPath === dataStorePath) {
+				if (!usesStorageBackend && changedPath === dataStorePath) {
 					if (isDirectInvalidationEcho(dataStorePath)) {
 						return;
 					}

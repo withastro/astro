@@ -2845,8 +2845,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/content-collection-source:
+  packages/astro/test/fixtures/content-collection-storage:
     dependencies:
+      '@astrojs/content-source-sqlite':
+        specifier: workspace:*
+        version: link:../../../../content-source-sqlite
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -4499,6 +4502,28 @@ importers:
       vue:
         specifier: ^3.5.30
         version: 3.5.30(typescript@6.0.3)
+
+  packages/content-source-sqlite:
+    dependencies:
+      '@libsql/client':
+        specifier: ^0.17.0
+        version: 0.17.4
+      devalue:
+        specifier: ^5.9.1
+        version: 5.9.2
+      zod:
+        specifier: ^4.3.6
+        version: 4.5.4
+    devDependencies:
+      '@types/node':
+        specifier: ^22.19.0
+        version: 22.19.19
+      astro:
+        specifier: workspace:*
+        version: link:../astro
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../scripts
 
   packages/create-astro:
     dependencies:
@@ -7288,27 +7313,6 @@ importers:
         specifier: ^4.22.0
         version: 4.22.3
 
-  triage/gh-17983:
-    dependencies:
-      '@astrojs/react':
-        specifier: workspace:*
-        version: link:../../packages/integrations/react
-      '@astrojs/vue':
-        specifier: workspace:*
-        version: link:../../packages/integrations/vue
-      astro:
-        specifier: workspace:*
-        version: link:../../packages/astro
-      react:
-        specifier: ^19.0.0
-        version: 19.2.4
-      react-dom:
-        specifier: ^19.0.0
-        version: 19.2.4(react@19.2.4)
-      vue:
-        specifier: ^3.5.0
-        version: 3.5.30(typescript@6.0.3)
-
 packages:
 
   '@anthropic-ai/sdk@0.91.1':
@@ -9672,6 +9676,63 @@ packages:
     resolution: {integrity: sha512-n5JEf16Wr4mdkRMZ8wMP/wN9/sHmTjRPbouXjJH371mZ2LEGDl72t8tEsMRNFerQN/QJtivOxqK1frdGa4QK5Q==}
     engines: {node: '>=10'}
 
+  '@libsql/client@0.17.4':
+    resolution: {integrity: sha512-lYayFWasDV78A+TjlEhr6ubb3odBV6OHjb+wdp8VQcyWWAEIjuwbCHaraEUS4m4yWoo0BvZo96It4VdzZRmRWw==}
+
+  '@libsql/core@0.17.4':
+    resolution: {integrity: sha512-LqF9gIvnJ38nmAH1y/ChizHqDO/MO1wLgA96XrraulEEbqXxLjleSH92YWTolbuJKgPUmGu4aJk9W3UnAcxLOQ==}
+
+  '@libsql/darwin-arm64@0.5.29':
+    resolution: {integrity: sha512-K+2RIB1OGFPYQbfay48GakLhqf3ArcbHqPFu7EZiaUcRgFcdw8RoltsMyvbj5ix2fY0HV3Q3Ioa/ByvQdaSM0A==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@libsql/darwin-x64@0.5.29':
+    resolution: {integrity: sha512-OtT+KFHsKFy1R5FVadr8FJ2Bb1mghtXTyJkxv0trocq7NuHntSki1eUbxpO5ezJesDvBlqFjnWaYYY516QNLhQ==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@libsql/hrana-client@0.10.0':
+    resolution: {integrity: sha512-OoA4EMqRAC7kn7V2P6EQqRcpZf2W+AjsNIyCizBg339Tq/aMC7sRnzs3SklderhmQWAqEzvv8A2vhxVmWpkVvw==}
+
+  '@libsql/isomorphic-ws@0.1.5':
+    resolution: {integrity: sha512-DtLWIH29onUYR00i0GlQ3UdcTRC6EP4u9w/h9LxpUZJWRMARk6dQwZ6Jkd+QdwVpuAOrdxt18v0K2uIYR3fwFg==}
+
+  '@libsql/linux-arm-gnueabihf@0.5.29':
+    resolution: {integrity: sha512-CD4n4zj7SJTHso4nf5cuMoWoMSS7asn5hHygsDuhRl8jjjCTT3yE+xdUvI4J7zsyb53VO5ISh4cwwOtf6k2UhQ==}
+    cpu: [arm]
+    os: [linux]
+
+  '@libsql/linux-arm-musleabihf@0.5.29':
+    resolution: {integrity: sha512-2Z9qBVpEJV7OeflzIR3+l5yAd4uTOLxklScYTwpZnkm2vDSGlC1PRlueLaufc4EFITkLKXK2MWBpexuNJfMVcg==}
+    cpu: [arm]
+    os: [linux]
+
+  '@libsql/linux-arm64-gnu@0.5.29':
+    resolution: {integrity: sha512-gURBqaiXIGGwFNEaUj8Ldk7Hps4STtG+31aEidCk5evMMdtsdfL3HPCpvys+ZF/tkOs2MWlRWoSq7SOuCE9k3w==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@libsql/linux-arm64-musl@0.5.29':
+    resolution: {integrity: sha512-fwgYZ0H8mUkyVqXZHF3mT/92iIh1N94Owi/f66cPVNsk9BdGKq5gVpoKO+7UxaNzuEH1roJp2QEwsCZMvBLpqg==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@libsql/linux-x64-gnu@0.5.29':
+    resolution: {integrity: sha512-y14V0vY0nmMC6G0pHeJcEarcnGU2H6cm21ZceRkacWHvQAEhAG0latQkCtoS2njFOXiYIg+JYPfAoWKbi82rkg==}
+    cpu: [x64]
+    os: [linux]
+
+  '@libsql/linux-x64-musl@0.5.29':
+    resolution: {integrity: sha512-gquqwA/39tH4pFl+J9n3SOMSymjX+6kZ3kWgY3b94nXFTwac9bnFNMffIomgvlFaC4ArVqMnOZD3nuJ3H3VO1w==}
+    cpu: [x64]
+    os: [linux]
+
+  '@libsql/win32-x64-msvc@0.5.29':
+    resolution: {integrity: sha512-4/0CvEdhi6+KjMxMaVbFM2n2Z44escBRoEYpR+gZg64DdetzGnYm8mcNLcoySaDJZNaBd6wz5DNdgRmcI4hXcg==}
+    cpu: [x64]
+    os: [win32]
+
   '@lukeed/ms@2.0.2':
     resolution: {integrity: sha512-9I2Zn6+NJLfaGoz9jN3lpwDgAYvfGeNYdbAIjJOqzs4Tpc+VU3Jqq4IofSUBKajiDS8k9fZIg18/z13mpk1bsA==}
     engines: {node: '>=8'}
@@ -9737,6 +9798,9 @@ packages:
     peerDependencies:
       '@emnapi/core': ^1.7.1 || ^2.0.0-alpha.4
       '@emnapi/runtime': ^1.7.1 || ^2.0.0-alpha.4
+
+  '@neon-rs/load@0.0.4':
+    resolution: {integrity: sha512-kTPhdZyTQxB+2wpiRcFWrDcejc4JI6tkPuS7UZCG4l6Zvc5kU/gGQ/ozvHTh1XR5tS+UlfAfGuPajjzQjCiHCw==}
 
   '@netlify/ai@0.4.1':
     resolution: {integrity: sha512-ETLtV/9taYrcGhszwO+BLFgFJJ2MCnJp8BwxfwV6Z/+z3SsaUG4ExC8x4xzNCdB2GPWxXrXkvR2LFNsPFSLcRA==}
@@ -10954,6 +11018,9 @@ packages:
 
   '@types/vscode@1.109.0':
     resolution: {integrity: sha512-0Pf95rnwEIwDbmXGC08r0B4TQhAbsHQ5UyTIgVgoieDe4cOnf92usuR5dEczb6bTKEp7ziZH4TV1TRGPPCExtw==}
+
+  '@types/ws@8.18.1':
+    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
   '@types/xml2js@0.4.14':
     resolution: {integrity: sha512-4YnrRemBShWRO2QjvUin8ESA41rH+9nQGLUGZV/1IDhi3SL9OhdpNC/MrulTWuptXKwhx/aDxE7toV0f/ypIXQ==}
@@ -12276,6 +12343,10 @@ packages:
     resolution: {integrity: sha512-reYkTUJAZb9gUuZ2RvVCNhVHdg62RHnJ7WJl8ftMi4diZ6NWlciOzQN88pUhSELEwflJht4oQDv0F0BMlwaYtA==}
     engines: {node: '>=8'}
 
+  detect-libc@2.0.2:
+    resolution: {integrity: sha512-UX6sGumvvqSaXgdKGUsgZWqcUyIXZ/vZTrlRT/iobiKhGL0zL4d3osHj3uqllWJK+i+sixDS/3COVEOFbupFyw==}
+    engines: {node: '>=8'}
+
   detect-libc@2.1.2:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
@@ -13513,6 +13584,9 @@ packages:
   jpeg-js@0.4.4:
     resolution: {integrity: sha512-WZzeDOEtTOBK4Mdsar0IqEU5sMr3vSV2RqkAIzUEV2BHnUfKGyswWFPFwK5EeDo93K3FohSHbLAjj0s1Wzd+dg==}
 
+  js-base64@3.9.3:
+    resolution: {integrity: sha512-uwYQp+VJ38FVvtim6qNbit6e9uT6dwWQ4Y1+H9TxhW5hcHjpHwoxlR0nMpqUmIFOmu4VqMxwdJA88gIVuZJQ/g==}
+
   js-image-generator@1.0.4:
     resolution: {integrity: sha512-ckb7kyVojGAnArouVR+5lBIuwU1fcrn7E/YYSd0FK7oIngAkMmRvHASLro9Zt5SQdWToaI66NybG+OGxPw/HlQ==}
 
@@ -13651,6 +13725,11 @@ packages:
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
+
+  libsql@0.5.29:
+    resolution: {integrity: sha512-8lMP8iMgiBzzoNbAPQ59qdVcj6UaE/Vnm+fiwX4doX4Narook0a4GPKWBEv+CR8a1OwbfkgL18uBfBjWdF0Fzg==}
+    cpu: [x64, arm64, wasm32, arm]
+    os: [darwin, linux, win32]
 
   lie@3.3.0:
     resolution: {integrity: sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==}
@@ -15070,6 +15149,9 @@ packages:
   progress@2.0.3:
     resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
     engines: {node: '>=0.4.0'}
+
+  promise-limit@2.7.0:
+    resolution: {integrity: sha512-7nJ6v5lnJsXwGprnGXga4wx6d1POjvi5Qmf1ivTRxTjH4Z/9Czja/UCMLVmB9N93GeWOU93XaFaEt6jbuoagNw==}
 
   property-information@7.1.0:
     resolution: {integrity: sha512-TwEZ+X+yCJmYfL7TPUOcvBZ4QfoT5YenQiJuX//0th53DE6w0xxLEtfK3iyryQFddXuvkIk51EEgrJQ0WJkOmQ==}
@@ -19137,6 +19219,64 @@ snapshots:
 
   '@jsdevtools/rehype-toc@3.0.2': {}
 
+  '@libsql/client@0.17.4':
+    dependencies:
+      '@libsql/core': 0.17.4
+      '@libsql/hrana-client': 0.10.0
+      js-base64: 3.9.3
+      libsql: 0.5.29
+      promise-limit: 2.7.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  '@libsql/core@0.17.4':
+    dependencies:
+      js-base64: 3.9.3
+
+  '@libsql/darwin-arm64@0.5.29':
+    optional: true
+
+  '@libsql/darwin-x64@0.5.29':
+    optional: true
+
+  '@libsql/hrana-client@0.10.0':
+    dependencies:
+      '@libsql/isomorphic-ws': 0.1.5
+      js-base64: 3.9.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  '@libsql/isomorphic-ws@0.1.5':
+    dependencies:
+      '@types/ws': 8.18.1
+      ws: 8.21.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  '@libsql/linux-arm-gnueabihf@0.5.29':
+    optional: true
+
+  '@libsql/linux-arm-musleabihf@0.5.29':
+    optional: true
+
+  '@libsql/linux-arm64-gnu@0.5.29':
+    optional: true
+
+  '@libsql/linux-arm64-musl@0.5.29':
+    optional: true
+
+  '@libsql/linux-x64-gnu@0.5.29':
+    optional: true
+
+  '@libsql/linux-x64-musl@0.5.29':
+    optional: true
+
+  '@libsql/win32-x64-msvc@0.5.29':
+    optional: true
+
   '@lukeed/ms@2.0.2': {}
 
   '@manypkg/find-root@1.1.0':
@@ -19260,6 +19400,8 @@ snapshots:
       '@emnapi/runtime': 1.11.3
       '@tybys/wasm-util': 0.10.3
     optional: true
+
+  '@neon-rs/load@0.0.4': {}
 
   '@netlify/ai@0.4.1':
     dependencies:
@@ -20581,6 +20723,10 @@ snapshots:
   '@types/unist@3.0.3': {}
 
   '@types/vscode@1.109.0': {}
+
+  '@types/ws@8.18.1':
+    dependencies:
+      '@types/node': 22.19.19
 
   '@types/xml2js@0.4.14':
     dependencies:
@@ -22114,6 +22260,8 @@ snapshots:
 
   detect-indent@6.1.0: {}
 
+  detect-libc@2.0.2: {}
+
   detect-libc@2.1.2: {}
 
   detective-amd@6.0.1:
@@ -23631,6 +23779,8 @@ snapshots:
 
   jpeg-js@0.4.4: {}
 
+  js-base64@3.9.3: {}
+
   js-image-generator@1.0.4:
     dependencies:
       jpeg-js: 0.4.4
@@ -23786,6 +23936,21 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
+
+  libsql@0.5.29:
+    dependencies:
+      '@neon-rs/load': 0.0.4
+      detect-libc: 2.0.2
+    optionalDependencies:
+      '@libsql/darwin-arm64': 0.5.29
+      '@libsql/darwin-x64': 0.5.29
+      '@libsql/linux-arm-gnueabihf': 0.5.29
+      '@libsql/linux-arm-musleabihf': 0.5.29
+      '@libsql/linux-arm64-gnu': 0.5.29
+      '@libsql/linux-arm64-musl': 0.5.29
+      '@libsql/linux-x64-gnu': 0.5.29
+      '@libsql/linux-x64-musl': 0.5.29
+      '@libsql/win32-x64-msvc': 0.5.29
 
   lie@3.3.0:
     dependencies:
@@ -25525,6 +25690,8 @@ snapshots:
   process@0.11.10: {}
 
   progress@2.0.3: {}
+
+  promise-limit@2.7.0: {}
 
   property-information@7.1.0: {}
 

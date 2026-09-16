@@ -17,6 +17,7 @@
     { "path": "./packages/telemetry/tsconfig.json" },
     { "path": "./packages/astro-prism/tsconfig.json" },
     { "path": "./packages/astro-rss/tsconfig.json" },
+    { "path": "./packages/content-source-sqlite/tsconfig.json" },
     { "path": "./packages/markdown/remark/tsconfig.json" },
     { "path": "./packages/astro/tsconfig.json" },
     { "path": "./packages/underscore-redirects/tsconfig.json" },

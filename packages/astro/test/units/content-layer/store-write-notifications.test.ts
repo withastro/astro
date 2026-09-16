@@ -100,4 +100,97 @@ describe('MutableDataStore - write notifications', () => {
 		await store.waitUntilSaveComplete();
 		assert.equal(written.length, 1);
 	});
+
+	it('commits deferred storage writes as one complete snapshot', async () => {
+		const tempDir = createTempDir();
+		const store = await MutableDataStore.fromFile(new URL('./data-store.json', tempDir));
+		const snapshots: string[][] = [];
+		store.setStorageWriter({
+			async write(collections) {
+				snapshots.push([...collections.get('dogs')!.keys()]);
+			},
+		});
+
+		store.deferStorageWrites();
+		store.set('dogs', 'beagle', { id: 'beagle', data: { breed: 'Beagle' } });
+		await store.waitUntilSaveComplete();
+		store.set('dogs', 'poodle', { id: 'poodle', data: { breed: 'Poodle' } });
+		await store.waitUntilSaveComplete();
+
+		assert.deepEqual(snapshots, []);
+		await store.commitStorageWrites();
+		assert.deepEqual(snapshots, [['beagle', 'poodle']]);
+	});
+
+	it('includes updates made while a storage commit is pending', async () => {
+		const tempDir = createTempDir();
+		const store = await MutableDataStore.fromFile(new URL('./data-store.json', tempDir));
+		const snapshots: string[][] = [];
+		let startFirstWrite: () => void;
+		const firstWriteStarted = new Promise<void>((resolve) => {
+			startFirstWrite = resolve;
+		});
+		let finishFirstWrite: (() => void) | undefined;
+		const firstWriteFinished = new Promise<void>((resolve) => {
+			finishFirstWrite = resolve;
+		});
+		store.setStorageWriter({
+			async write(collections) {
+				snapshots.push([...collections.get('dogs')!.keys()]);
+				if (snapshots.length === 1) {
+					startFirstWrite();
+					await firstWriteFinished;
+				}
+			},
+		});
+		const notifications: number[] = [];
+		store.onStorageWritten(() => notifications.push(snapshots.length));
+
+		store.deferStorageWrites();
+		store.set('dogs', 'beagle', { id: 'beagle', data: { breed: 'Beagle' } });
+		await store.waitUntilSaveComplete();
+		const commit = store.commitStorageWrites();
+		await firstWriteStarted;
+		store.set('dogs', 'poodle', { id: 'poodle', data: { breed: 'Poodle' } });
+		assert.ok(finishFirstWrite);
+		finishFirstWrite();
+		await commit;
+		await store.waitUntilSaveComplete();
+
+		assert.deepEqual(snapshots, [['beagle'], ['beagle', 'poodle']]);
+		assert.deepEqual(notifications, [2]);
+	});
+
+	it('does not include deferred updates in an active storage write', async () => {
+		const tempDir = createTempDir();
+		const store = await MutableDataStore.fromFile(new URL('./data-store.json', tempDir));
+		const snapshots: string[][] = [];
+		let startFirstWrite: () => void;
+		const firstWriteStarted = new Promise<void>((resolve) => {
+			startFirstWrite = resolve;
+		});
+		let finishFirstWrite: (() => void) | undefined;
+		const firstWriteFinished = new Promise<void>((resolve) => {
+			finishFirstWrite = resolve;
+		});
+		store.setStorageWriter({
+			async write(collections) {
+				snapshots.push([...collections.get('dogs')!.keys()]);
+				startFirstWrite();
+				await firstWriteFinished;
+			},
+		});
+
+		store.set('dogs', 'beagle', { id: 'beagle', data: { breed: 'Beagle' } });
+		const write = store.waitUntilSaveComplete();
+		await firstWriteStarted;
+		store.deferStorageWrites();
+		store.set('dogs', 'poodle', { id: 'poodle', data: { breed: 'Poodle' } });
+		assert.ok(finishFirstWrite);
+		finishFirstWrite();
+		await write;
+		await store.waitUntilSaveComplete();
+
+		assert.deepEqual(snapshots, [['beagle']]);
+	});
 });

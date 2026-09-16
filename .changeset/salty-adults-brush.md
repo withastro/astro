@@ -1,5 +1,6 @@
 ---
+'@astrojs/content-source-sqlite': minor
 'astro': minor
 ---
 
-Adds adapter-provided data sources for regular content collections configured with `source: 'adapter'`
+Adds adapter-provided storage backends for content collections and introduces `@astrojs/content-source-sqlite` for SQLite-backed deployments

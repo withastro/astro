@@ -4,7 +4,6 @@ import {
 	type DataStoreSource,
 	type DataStoreSourceRegistry,
 	InMemorySource,
-	RoutedDataStoreSource,
 } from './data-store-source.js';
 
 export interface RenderedContent {
@@ -206,8 +205,7 @@ function dataStoreSingleton() {
 							return loadEmbeddedSource();
 						}
 						const createSource = await registry.load();
-						const source = await createSource(registry.config);
-						return new RoutedDataStoreSource(registry.collections, source, loadEmbeddedSource);
+						return createSource(registry.config);
 					});
 			}
 			return instance;

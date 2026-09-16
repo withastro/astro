@@ -1,8 +1,9 @@
 import { defineCollection } from 'astro:content';
+import { file } from 'astro/loaders';
 import { z } from 'astro/zod';
 
 const databasePosts = defineCollection({
-	source: 'adapter',
+	loader: file('src/database-posts.json'),
 	schema: z.object({
 		title: z.string(),
 		order: z.number(),

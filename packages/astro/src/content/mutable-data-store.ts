@@ -14,6 +14,7 @@ import {
 	serializeDataStore,
 } from './data-store-writer.js';
 import { ChunkedCollectionParser, type DataEntry, ImmutableDataStore } from './data-store.js';
+import type { ContentCollectionStorageWriter } from './storage.js';
 import { contentModuleToId } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
@@ -26,6 +27,10 @@ const MAX_DEPTH = 10;
  */
 export class MutableDataStore extends ImmutableDataStore {
 	#writer?: DataStoreWriter;
+	#storageWriter?: ContentCollectionStorageWriter;
+	#storageWritesDeferred = false;
+	#storageDirty = false;
+	#storageWritePromise?: Promise<void>;
 
 	#assetsFile?: PathLike;
 	#modulesFile?: PathLike;
@@ -48,6 +53,7 @@ export class MutableDataStore extends ImmutableDataStore {
 	#writeQueued = false;
 
 	#fileWrittenListeners = new Set<(path: string) => void>();
+	#storageWrittenListeners = new Set<() => void>();
 
 	/**
 	 * Registers a listener called with the file path whenever this store writes a
@@ -64,6 +70,69 @@ export class MutableDataStore extends ImmutableDataStore {
 		return () => {
 			this.#fileWrittenListeners.delete(listener);
 		};
+	}
+
+	onStorageWritten(listener: () => void): () => void {
+		this.#storageWrittenListeners.add(listener);
+		return () => {
+			this.#storageWrittenListeners.delete(listener);
+		};
+	}
+
+	setStorageWriter(writer: ContentCollectionStorageWriter) {
+		this.#storageWriter = writer;
+		this.#storageDirty = true;
+	}
+
+	deferStorageWrites() {
+		this.#storageWritesDeferred = true;
+	}
+
+	async commitStorageWrites() {
+		this.#storageWritesDeferred = false;
+		this.#storageDirty = true;
+		await this.#writeStorage();
+	}
+
+	async #writeStorage() {
+		if (!this.#storageWriter || (!this.#storageDirty && !this.#storageWritePromise)) {
+			return;
+		}
+		if (!this.#storageWritePromise) {
+			const writer = this.#storageWriter;
+			this.#storageWritePromise = (async () => {
+				try {
+					while (this.#storageDirty && !this.#storageWritesDeferred) {
+						this.#storageDirty = false;
+						const collections = new Map(
+							[...this._collections].map(([name, entries]) => [name, new Map(entries)]),
+						);
+						await writer.write(collections);
+					}
+					this.#notifyStorageWritten();
+				} catch (error) {
+					this.#storageDirty = true;
+					throw error;
+				}
+			})();
+		}
+		const writePromise = this.#storageWritePromise;
+		try {
+			await writePromise;
+		} finally {
+			if (this.#storageWritePromise === writePromise) {
+				this.#storageWritePromise = undefined;
+			}
+		}
+		if (this.#storageDirty && !this.#storageWritesDeferred) {
+			await this.#writeStorage();
+		}
+	}
+
+	#notifyStorageWritten() {
+		for (const listener of this.#storageWrittenListeners) {
+			listener();
+		}
 	}
 
 	#notifyFileWritten(path: PathLike) {
@@ -326,6 +395,7 @@ export default new Map([\n${lines.join(',\n')}]);
 
 	#saveToDiskDebounced() {
 		this.#dirty = true;
+		this.#storageDirty = true;
 		if (this.#saveTimeout) {
 			clearTimeout(this.#saveTimeout);
 		}
@@ -543,6 +613,9 @@ export default new Map([\n${lines.join(',\n')}]);
 			const didWrite = await this.#writer.write(this._collections);
 			if (didWrite) {
 				this.#notifyFileWritten(this.#writer.target);
+			}
+			if (!this.#storageWritesDeferred) {
+				await this.#writeStorage();
 			}
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
