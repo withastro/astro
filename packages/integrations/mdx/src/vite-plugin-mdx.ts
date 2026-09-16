@@ -100,7 +100,7 @@ const BUILT_IN_PROCESSOR_PACKAGES: Record<string, string> = {
 function mdxUnsupportedMessage(name: string): string {
 	const pkg = BUILT_IN_PROCESSOR_PACKAGES[name];
 	if (pkg) {
-		return `\`${pkg}\` is too old to render \`.mdx\` files. Update it to the latest version — a \`^\` range on an older version will not pick it up:\n  npm install ${pkg}@latest`;
+		return `\`${pkg}\` is too old to render \`.mdx\` files. Update \`astro\` (which bundles it) and the processor package to the latest version:\n  npm install astro@latest ${pkg}@latest`;
 	}
 	return `The markdown processor "${name}" does not provide MDX support. Implement \`createMdxRenderer\` on the processor to enable MDX rendering.`;
 }
