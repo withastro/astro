@@ -6,7 +6,7 @@ This **[Astro integration][astro-integration]** enables server-side rendering an
 
 Read the [`@astrojs/react` docs][docs]
 
-## React Compiler (experimental)
+## React Compiler
 
 Install the optional Oxc compiler:
 
