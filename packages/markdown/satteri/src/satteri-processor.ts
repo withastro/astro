@@ -115,30 +115,33 @@ export function collectHastText(
 	return text;
 }
 
-export function createHeadingIdsPlugin(): HastPluginDefinition {
+export function createHeadingIdsPlugin(): HastPluginEntry {
 	const slugger = new Slugger();
-	// Collect headings in a separate array so we can make this idempotent
-	const headings: MarkdownHeading[] = [];
-	return {
-		name: 'heading-ids',
-		element: {
-			filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-			visit(node, ctx) {
-				const astro = ctx.data.astro;
-				const rawText = ctx.textContent(node);
-				const text = rawText.includes('frontmatter')
-					? collectHastText(node, astro?.frontmatter ?? {})
-					: rawText;
-				const existingId = node.properties?.id;
-				const slug = typeof existingId === 'string' ? existingId : slugger.slug(text);
-				const depth = Number.parseInt(node.tagName[1], 10);
-				headings.push({ depth, slug, text });
-				if (astro) astro.headings = headings;
-				if (typeof existingId !== 'string') {
-					ctx.setProperty(node, 'id', slug);
-				}
+	return () => {
+		slugger.reset();
+		// Collect headings in a separate array so we can make this idempotent
+		const headings: MarkdownHeading[] = [];
+		return {
+			name: 'heading-ids',
+			element: {
+				filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+				visit(node, ctx) {
+					const astro = ctx.data.astro;
+					const rawText = ctx.textContent(node);
+					const text = rawText.includes('frontmatter')
+						? collectHastText(node, astro?.frontmatter ?? {})
+						: rawText;
+					const existingId = node.properties?.id;
+					const slug = typeof existingId === 'string' ? existingId : slugger.slug(text);
+					const depth = Number.parseInt(node.tagName[1], 10);
+					headings.push({ depth, slug, text });
+					if (astro) astro.headings = headings;
+					if (typeof existingId !== 'string') {
+						ctx.setProperty(node, 'id', slug);
+					}
+				},
 			},
-		},
+		};
 	};
 }
 
