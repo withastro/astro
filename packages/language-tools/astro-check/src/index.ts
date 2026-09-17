@@ -21,6 +21,8 @@ export async function check(flags: Partial<Flags> & { watch: false }): Promise<b
 export async function check(flags: Partial<Flags>): Promise<boolean | void>;
 /**
  * Print diagnostics according to the given flags, and return whether or not the program should exit with an error code.
+ *
+ * @deprecated Use TypeScript 7.1+ with `@astrojs/ts-content-mapper` instead.
  */
 export async function check(flags: Partial<Flags>): Promise<boolean | void> {
 	const workspaceRoot = path.resolve(flags.root ?? process.cwd());

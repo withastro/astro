@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { ensureProcessNodeEnv } from '../../core/util.js';
 import { createLoggerFromFlags, type Flags, flagsToAstroInlineConfig } from '../flags.js';
-import { getPackage } from '../install-package.js';
+import { getPackage, getPackageVersion } from '../install-package.js';
 
 export async function check(flags: Flags): Promise<boolean | void> {
 	ensureProcessNodeEnv('production');
@@ -10,6 +10,24 @@ export async function check(flags: Flags): Promise<boolean | void> {
 		skipAsk: !!flags.yes || !!flags.y,
 		cwd: flags.root,
 	};
+	const typescriptVersion = await getPackageVersion('typescript', flags.root);
+	const typescriptMajor = Number.parseInt(typescriptVersion?.split('.')[0] ?? '', 10);
+
+	if (typescriptMajor >= 7) {
+		logger.error(
+			'check',
+			`astro check is deprecated and does not support TypeScript ${typescriptVersion}. ` +
+				'To type-check Astro files, use TypeScript 7.1 or later with `@astrojs/ts-content-mapper`, then run `astro sync && tsc --noEmit --runExternalCode`. ' +
+				'See https://github.com/withastro/astro/tree/main/packages/language-tools/ts-content-mapper#usage',
+		);
+		return true;
+	}
+
+	logger.warn(
+		'deprecated',
+		'`astro check` is deprecated and will be removed in a future major release. Migrate to TypeScript 7.1 or later and `@astrojs/ts-content-mapper`. See https://github.com/withastro/astro/tree/main/packages/language-tools/ts-content-mapper#usage',
+	);
+
 	// @ts-ignore For some unknown reason, in CI TS isn't able to get the type here even though it works locally.
 	const checkPackage = await getPackage<typeof import('@astrojs/check')>(
 		'@astrojs/check',

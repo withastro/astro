@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { promises as fs, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
 import { describe, it } from 'node:test';
@@ -86,6 +87,7 @@ describe('astro cli', () => {
 		).getResult();
 
 		assert.equal(result.stdout.includes('0 errors'), true);
+		assert.match(result.stdout, /`astro check` is deprecated/);
 	});
 
 	it('astro check has errors', {
@@ -102,5 +104,31 @@ describe('astro cli', () => {
 		).getResult();
 
 		assert.equal(result.stdout.includes('1 error'), true);
+	});
+
+	it('astro check directs TypeScript 7 users to the content mapper', async () => {
+		const projectRoot = await fs.mkdtemp(join(tmpdir(), 'astro-check-ts7-'));
+		const typescriptRoot = join(projectRoot, 'node_modules', 'typescript');
+
+		try {
+			await fs.mkdir(typescriptRoot, { recursive: true });
+			await fs.writeFile(
+				join(typescriptRoot, 'package.json'),
+				JSON.stringify({
+					name: 'typescript',
+					version: '7.1.0',
+					type: 'module',
+					exports: { './package.json': './package.json' },
+				}),
+			);
+
+			const result = await cli('check', '--root', projectRoot, '--noSync').getResult();
+
+			assert.equal(result.exitCode, 1);
+			assert.match(result.stderr, /astro check is deprecated/);
+			assert.match(result.stderr, /astro sync && tsc --noEmit --runExternalCode/);
+		} finally {
+			await fs.rm(projectRoot, { recursive: true, force: true });
+		}
 	});
 });

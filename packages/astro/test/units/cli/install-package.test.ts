@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { getPackage } from '../../../dist/cli/install-package.js';
+import { getPackage, getPackageVersion } from '../../../dist/cli/install-package.js';
 import { defaultLogger } from '../test-utils.ts';
 
 describe('getPackage', () => {
@@ -33,6 +33,28 @@ describe('getPackage', () => {
 
 			assert.ok(result, 'Expected getPackage to find the package in the project cwd');
 			assert.equal(result.loaded, true, 'Expected the loaded export to be true');
+		} finally {
+			await rm(projectDir, { recursive: true, force: true });
+		}
+	});
+
+	it('reads the version of a package without a root export', async () => {
+		const projectDir = join(tmpdir(), `astro-test-package-version-${Date.now()}`);
+		const pkgDir = join(projectDir, 'node_modules', 'fake-version-pkg');
+
+		try {
+			await mkdir(pkgDir, { recursive: true });
+			await writeFile(
+				join(pkgDir, 'package.json'),
+				JSON.stringify({
+					name: 'fake-version-pkg',
+					version: '7.1.0',
+					type: 'module',
+					exports: { './package.json': './package.json' },
+				}),
+			);
+
+			assert.equal(await getPackageVersion('fake-version-pkg', projectDir), '7.1.0');
 		} finally {
 			await rm(projectDir, { recursive: true, force: true });
 		}

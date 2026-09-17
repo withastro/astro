@@ -15,6 +15,7 @@ describe('astro-check - binary', async () => {
 		});
 
 		assert.strictEqual(childProcess.status, 1);
+		assert.ok(childProcess.stderr.toString().includes('`astro-check` is deprecated'));
 		assert.ok(childProcess.stdout.toString().includes('Getting diagnostics for Astro files in'));
 		assert.ok(childProcess.stdout.toString().includes('1 error'));
 		assert.ok(childProcess.stdout.toString().includes('1 warning'));

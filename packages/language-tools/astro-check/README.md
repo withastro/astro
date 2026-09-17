@@ -1,5 +1,8 @@
 # @astrojs/check ✅
 
+> [!WARNING]
+> `@astrojs/check` and `astro check` are deprecated and will be removed in a future major release. For type checking, migrate to TypeScript 7.1+ and [`@astrojs/ts-content-mapper`](https://github.com/withastro/astro/tree/main/packages/language-tools/ts-content-mapper#usage).
+
 This package powers the `astro check` CLI command for running type checking and diagnostics in Astro projects.
 
 This package's internal logic is powered by [the Astro language server](https://github.com/withastro/astro/blob/main/packages/language-tools/language-server/src/check.ts).
