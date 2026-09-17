@@ -12,6 +12,7 @@ export async function next(
 		bun: 'bun run dev',
 		yarn: 'yarn dev',
 		pnpm: 'pnpm dev',
+		nub: 'nub run dev',
 	};
 
 	const devCmd = commandMap[ctx.packageManager as keyof typeof commandMap] || 'npm run dev';
