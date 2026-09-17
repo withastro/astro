@@ -242,6 +242,97 @@ describe('ISR with edge middleware requested but no middleware file', () => {
 		assert.match(destOf(routes, '^(/)$') ?? '', /^\/_isr\?/);
 	});
 
+	it('wraps spread-route patterns in the capture group $1 references', {
+		timeout: 30000,
+	}, async () => {
+		const { routes } = await getVercelConfig(fixture);
+		assert.match(destOf(routes, '^((?:/(.*?))?/?)$') ?? '', /^\/_isr\?/);
+	});
+
+	it('captures the full pathname as group 1 of the emitted root and spread patterns', {
+		timeout: 30000,
+	}, async () => {
+		const { routes } = await getVercelConfig(fixture);
+		const emitted = new Set(routes.map((route) => route.src));
+		const shapes: Array<[src: string, pathname: string]> = [
+			['^(/)$', '/'],
+			['^((?:/(.*?))?/?)$', '/a/b'],
+		];
+		for (const [src, pathname] of shapes) {
+			assert.ok(emitted.has(src), `expected the config to emit ${src}`);
+			const match = new RegExp(src).exec(pathname);
+			assert.ok(match, `${src} must match ${pathname}`);
+			assert.equal(match[1], pathname, `group 1 of ${src} on ${pathname}`);
+		}
+	});
+
+	/** The build's path token, read back out of an ISR route rewrite. */
+	async function readPathToken(): Promise<string> {
+		const { routes } = await getVercelConfig(fixture);
+		const isrRoute = routes.find(
+			(route: { dest?: string }) =>
+				typeof route.dest === 'string' && route.dest.startsWith('/_isr?'),
+		);
+		return new URL(isrRoute!.dest, 'https://example.com').searchParams.get('x_astro_path_token')!;
+	}
+
+	async function isrFetch(path: string): Promise<Response> {
+		const functionConfig = JSON.parse(
+			await fixture.readFile('../.vercel/output/functions/_isr.func/.vc-config.json'),
+		);
+		const entry = new URL(
+			`../.vercel/output/functions/_isr.func/${functionConfig.handler}`,
+			fixture.config.outDir,
+		);
+		const module = await import(entry.href);
+		return module.default.fetch(new Request(`https://example.com${path}`));
+	}
+
+	// The fixture's catch-all ([...slug].astro) renders every pathname, so a
+	// trusted override that is ignored falls through to `/_isr` and would return
+	// 200 here. These are the regression tests for the fail-closed guard: a
+	// trusted but malformed override must 404, not render the catch-all.
+	it('returns 404 for a trusted override that does not start with /', {
+		timeout: 30000,
+	}, async () => {
+		const token = await readPathToken();
+		// $0 is the reported failure value (issue #18028); $1 is what a failing
+		// substitution leaves after the root fix; `relative` is any other
+		// non-absolute value.
+		for (const badPath of ['$0', '$1', 'relative', '']) {
+			const response = await isrFetch(`/_isr?x_astro_path=${badPath}&x_astro_path_token=${token}`);
+			assert.equal(response.status, 404, `expected 404 for x_astro_path=${badPath}`);
+			assert.equal(
+				response.headers.get('location'),
+				null,
+				`no redirect for x_astro_path=${badPath}`,
+			);
+			assert.equal(
+				(await response.text()).includes('Slug:'),
+				false,
+				`catch-all must not render for x_astro_path=${badPath}`,
+			);
+		}
+	});
+
+	it('returns 404 for a trusted override with no path at all', {
+		timeout: 30000,
+	}, async () => {
+		const token = await readPathToken();
+		const response = await isrFetch(`/_isr?x_astro_path_token=${token}`);
+		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('location'), null);
+	});
+
+	it('still renders a valid trusted override on the catch-all fixture', {
+		timeout: 30000,
+	}, async () => {
+		const token = await readPathToken();
+		const response = await isrFetch(`/_isr?x_astro_path=/cached/42&x_astro_path_token=${token}`);
+		assert.equal(response.status, 200);
+		assert.equal((await response.text()).includes('Slug: cached/42'), true);
+	});
+
 	it('builds no middleware function', { timeout: 30000 }, async () => {
 		await assert.rejects(() =>
 			fixture.readFile('../.vercel/output/functions/_middleware.func/.vc-config.json'),

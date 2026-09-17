@@ -19,17 +19,30 @@ export default {
 		const url = new URL(request.url);
 		const middlewareSecretHeader = request.headers.get(ASTRO_MIDDLEWARE_SECRET_HEADER);
 		const hasValidMiddlewareSecret = middlewareSecretHeader === middlewareSecret;
-		let realPath = undefined;
+		let realPath: string | null = null;
+		let overrideTrusted = false;
 		if (hasValidMiddlewareSecret) {
+			overrideTrusted = true;
 			realPath = request.headers.get(ASTRO_PATH_HEADER);
 		} else if (url.searchParams.get(ASTRO_PATH_TOKEN_PARAM) === middlewareSecret) {
 			// ISR functions only receive the target path via the URL, so the route
 			// rewrite carries the build's path token alongside it. Only honor the
 			// override when that token matches, otherwise the path is ignored and
 			// the request is served as `/_isr`.
+			overrideTrusted = true;
 			realPath = url.searchParams.get(ASTRO_PATH_PARAM);
 		}
-		if (typeof realPath === 'string' && realPath.startsWith('/')) {
+		// A trusted override must carry an absolute path: every route pattern is
+		// anchored on `^\/` and the edge middleware forwards `request.url` minus
+		// its origin. When Vercel fails to substitute the `$1` reference in an ISR
+		// rewrite, the literal `$1` lands here; resolving it would render a
+		// nonsense pathname, and with a catch-all page the internal `/_isr` URL
+		// itself would render as a 200. Fail closed with an explicit 404 instead
+		// of falling through to `/_isr`. https://github.com/withastro/astro/issues/18028
+		if (overrideTrusted && (realPath === null || !realPath.startsWith('/'))) {
+			return new Response('Not Found', { status: 404 });
+		}
+		if (typeof realPath === 'string') {
 			// The header carries the client's whole path, query included; the route
 			// rewrite carries only the pathname and leaves the query on this request.
 			const target = new URL(realPath, url);

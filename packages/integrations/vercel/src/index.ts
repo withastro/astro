@@ -67,9 +67,11 @@ export const NODE_PATH = '_render';
 const MIDDLEWARE_PATH = '_middleware';
 
 // Unlike serverless and edge functions, ISR functions are not passed the
-// original path. The route rewrite's `dest` carries it via a regex capture
-// group reference. We wrap each ISR route's `src` pattern in an outer group
-// (see `wrapPatternInCaptureGroup`) and reference it as `$1` here.
+// original path, so the route rewrite's `dest` carries it via a regex capture
+// group reference. Vercel's router substitutes `$1`–`$9` and `$<letters>`, but
+// not `$0`, so each ISR route's `src` pattern is wrapped in an outer capture
+// group (see `wrapPatternInCaptureGroup`) and referenced as `$1` here. See
+// https://github.com/withastro/astro/issues/18028 for the `$0` failure mode.
 // The path token is appended so the entrypoint can verify the rewrite
 // originated from this build's route table and not from an external caller.
 const getIsrPath = (pathToken: string) =>
@@ -529,8 +531,8 @@ export default function vercelAdapter({
 									// The middleware has to run before the cache is consulted.
 									dest = MIDDLEWARE_PATH;
 								} else {
-									// ISR dest references $1; wrap src so the full
-									// match is captured in group 1.
+									// `dest` references `$1`, so wrap `src` to make the full
+									// match the first capture group.
 									src = wrapPatternInCaptureGroup(src);
 								}
 
