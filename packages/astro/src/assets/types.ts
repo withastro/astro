@@ -39,6 +39,7 @@ declare global {
 			| undefined;
 		staticImages?: AssetsGlobalStaticImagesList;
 		referencedImages?: Set<string>;
+		recordReferencedImage?: ((fsPath: string) => void) | undefined;
 	};
 }
 

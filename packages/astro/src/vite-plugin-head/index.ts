@@ -183,6 +183,16 @@ export default function configHeadVitePlugin(): vite.Plugin {
 			}
 		},
 		transform(_source, id) {
+			if (id === RESOLVED_VIRTUAL_COMPONENT_METADATA) {
+				// The virtual module only reports metadata that other modules own, so
+				// transforming it cannot change what it emits. Invalidating it here
+				// would make every evaluation schedule the next one: the invalidation
+				// reaches the dev app entrypoint that imports it, the runner
+				// re-evaluates that chain on the next request, re-fetches this module,
+				// and arrives back here. https://github.com/withastro/astro/issues/17995
+				return;
+			}
+
 			let info = this.getModuleInfo(id);
 			if (info && getAstroMetadata(info)?.containsHead) {
 				// Keep bubbling `containsHead` when this module was already marked earlier.
