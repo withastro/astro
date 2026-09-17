@@ -6122,6 +6122,31 @@ importers:
         specifier: ^1.9.13
         version: 1.9.13
 
+  packages/integrations/sqlite:
+    dependencies:
+      devalue:
+        specifier: ^5.9.0
+        version: 5.9.2
+    devDependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../astro
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
+      vite:
+        specifier: ^8.2.1
+        version: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
+
+  packages/integrations/sqlite/test/fixtures/basic:
+    dependencies:
+      '@astrojs/sqlite':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/svelte:
     dependencies:
       '@sveltejs/vite-plugin-svelte':

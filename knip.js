@@ -111,6 +111,12 @@ export default {
 			// never imports by name
 			ignoreDependencies: ['@netlify/blobs'],
 		},
+		'packages/integrations/sqlite': {
+			entry: [srcEntry, dtsEntry, testEntry],
+			project,
+			// False positive because of cloudflare:workers
+			ignoreDependencies: ['cloudflare'],
+		},
 		'packages/integrations/solid': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			project,

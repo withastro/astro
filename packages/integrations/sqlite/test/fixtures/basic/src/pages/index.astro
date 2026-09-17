@@ -1,0 +1,23 @@
+---
+import { getLiveCollection, getLiveEntry, render } from 'astro:content';
+
+const posts = await getLiveCollection('posts', { where: { draft: false }, orderBy: { pubDate: 'asc' } });
+if (!posts.entries) throw posts.error;
+
+const hello = await getLiveEntry('posts', 'hello-world');
+if (!hello.entry) throw hello.error;
+const { Content } = await render(hello.entry);
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>SQLite collections</title>
+	</head>
+	<body>
+		<ul id="posts">
+			{posts.entries.map((post) => <li data-id={post.id}>{post.data.title} ({post.data.pubDate.getFullYear()})</li>)}
+		</ul>
+		<article id="hello"><Content /></article>
+	</body>
+</html>

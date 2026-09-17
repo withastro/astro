@@ -1,0 +1,10 @@
+{
+  "name": "@test/sqlite-basic",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "dependencies": {
+    "@astrojs/sqlite": "workspace:*",
+    "astro": "workspace:*"
+  }
+}
