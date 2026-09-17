@@ -116,9 +116,8 @@ export function collectHastText(
 }
 
 export function createHeadingIdsPlugin(): HastPluginEntry {
-	const slugger = new Slugger();
 	return () => {
-		slugger.reset();
+		const slugger = new Slugger();
 		// Collect headings in a separate array so we can make this idempotent
 		const headings: MarkdownHeading[] = [];
 		return {
