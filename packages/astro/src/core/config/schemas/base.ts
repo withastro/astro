@@ -432,7 +432,6 @@ export const AstroConfigSchema = z.object({
 							fallbackType: z.enum(['redirect', 'rewrite']).optional().default('redirect'),
 						}),
 					)
-					.optional()
 					.prefault({}),
 			})
 			.optional(),
