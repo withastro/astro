@@ -38,16 +38,14 @@ if (props.alt === undefined || props.alt === null) {
 	throw new AstroError(AstroErrorData.ImageMissingAlt);
 }
 
-// Only the scoped style class is forwarded to <picture>; the user's class stays on
-// <img>. To style the <picture> element, pass a class via `pictureAttributes`. Forwarding
-// the user's class here too would break existing CSS that targets it on <picture>:
-// https://github.com/withastro/astro/pull/18004
-const scopedStyleClass = props.class?.match(/\bastro-\w{8}\b/)?.[0];
-if (scopedStyleClass) {
+// Forward the user's class to <picture> so layout-affecting CSS (z-index, order, margin,
+// etc.) applies to the actual flex/grid item. The class is also kept on <img> for visual
+// styling. See https://github.com/withastro/astro/issues/18049
+if (props.class) {
 	if (pictureAttributes.class) {
-		pictureAttributes.class = `${pictureAttributes.class} ${scopedStyleClass}`;
+		pictureAttributes.class = `${pictureAttributes.class} ${props.class}`;
 	} else {
-		pictureAttributes.class = scopedStyleClass;
+		pictureAttributes.class = props.class;
 	}
 }
 

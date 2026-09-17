@@ -40,6 +40,14 @@ import myImage from "../assets/penguin.jpg";
   <Picture src={myImage} layout="full-width" alt="A penguin" />
 </div>
 
+<div id="picture-class-forwarded">
+  <Picture src={myImage} fallbackFormat="jpeg" alt="A penguin" class="my-class" />
+</div>
+
+<div id="picture-class-merged">
+  <Picture src={myImage} fallbackFormat="jpeg" alt="A penguin" class="my-class" pictureAttributes={{ class: 'pic-class' }} />
+</div>
+
 <div id="picture-style">
 	<Picture src={myImage} alt="a penguin" width={300} height={400} style="border: 2px red solid"/>
 </div>
