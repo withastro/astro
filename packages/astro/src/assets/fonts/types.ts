@@ -55,6 +55,47 @@ export interface FontProvider<
 	 * Optional callback, used to return the list of available font names.
 	 */
 	listFonts?: (() => Awaitable<Array<string> | undefined>) | undefined;
+	/**
+	 * Optional callback, used to return the properties available for a given font family.
+	 * It allows Astro to warn about configured values a provider cannot serve. Return
+	 * `undefined` when the family is unknown to the provider.
+	 */
+	getFontProperties?:
+		| ((options: GetFontPropertiesOptions) => Awaitable<FontProperties | undefined>)
+		| undefined;
+}
+
+export interface GetFontPropertiesOptions {
+	/**
+	 * The font family name, as identified by the font provider.
+	 */
+	familyName: string;
+}
+
+/**
+ * Describes what a provider can actually serve for a given font family. Any
+ * `undefined` property means the provider does not expose that information,
+ * not that nothing is available.
+ */
+export interface FontProperties {
+	/**
+	 * Weights available for the font family. Values are either discrete weights (`"400"`)
+	 * or variable ranges expressed as `"<min> <max>"` (`"100 900"`).
+	 */
+	weights?: Array<string> | undefined;
+	/**
+	 * Styles available for the font family.
+	 */
+	styles?: Array<Style> | undefined;
+	/**
+	 * Subsets available for the font family.
+	 */
+	subsets?: Array<string> | undefined;
+	/**
+	 * Formats the provider can serve. This reflects provider capability rather than
+	 * per-family availability, so some formats may not exist for every family.
+	 */
+	formats?: Array<FontType> | undefined;
 }
 
 export interface FamilyProperties {

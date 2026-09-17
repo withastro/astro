@@ -33,6 +33,7 @@ import { filterAndTransformFontFaces } from './core/filter-and-transform-font-fa
 import { getOrCreateFontFamilyAssets } from './core/get-or-create-font-family-assets.js';
 import { optimizeFallbacks } from './core/optimize-fallbacks.js';
 import { resolveFamily } from './core/resolve-family.js';
+import { validateFamilyProperties } from './core/validate-family-properties.js';
 import type { FontFetcher, FontTypeExtractor } from './definitions.js';
 import { BuildFontFileIdGenerator } from './infra/build-font-file-id-generator.js';
 import { BuildUrlResolver } from './infra/build-url-resolver.js';
@@ -140,18 +141,26 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				settings.config.fonts?.map((family) =>
 					resolveFamily({ family: family as FontFamily, hasher }),
 				) ?? [];
+			const fontResolver = await UnifontFontResolver.create({
+				families: resolvedFamilies,
+				hasher,
+				storage,
+				root,
+			});
+			// Providers know what they can actually serve, so we can tell the user about
+			// values configured for a family that won't be honored
+			await Promise.all(
+				resolvedFamilies.map((family) =>
+					validateFamilyProperties({ family, fontResolver, logger, bold }),
+				),
+			);
 			const { fontFamilyAssets, fontFileById: _fontFileById } = await computeFontFamiliesAssets({
 				resolvedFamilies,
 				defaults,
 				bold,
 				logger,
 				stringMatcher,
-				fontResolver: await UnifontFontResolver.create({
-					families: resolvedFamilies,
-					hasher,
-					storage,
-					root,
-				}),
+				fontResolver,
 				getOrCreateFontFamilyAssets: ({ family, fontFamilyAssetsByUniqueKey }) =>
 					getOrCreateFontFamilyAssets({
 						family,
