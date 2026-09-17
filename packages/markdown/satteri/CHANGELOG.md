@@ -1,5 +1,11 @@
 # @astrojs/markdown-satteri
 
+## 0.4.2
+
+### Patch Changes
+
+- [#18046](https://github.com/withastro/astro/pull/18046) [`8358d59`](https://github.com/withastro/astro/commit/8358d59cba754480c7d830c473837a0d7100ac7e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `satteriHeadingIdsPlugin` sharing Slugger state across documents when reused as a user hast plugin, which caused headings with the same text in different posts to receive incorrect numeric suffixes
+
 ## 0.4.1
 
 ### Patch Changes
