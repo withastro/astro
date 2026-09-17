@@ -260,15 +260,15 @@
     "esbuild-plugin-copy": "^2.1.1",
     "js-yaml": "^4.3.0",
     "kleur": "^4.1.5",
-    "mocha": "^11.7.5",
+    "mocha": "^11.8.0",
     "ovsx": "^1.2.0",
-    "tsx": "^4.22.0",
+    "tsx": "^4.23.13",
     "vscode-languageclient": "^9.0.1",
     "vscode-tmgrammar-test": "^0.1.3"
   },
   "dependencies": {
     "@astrojs/astro2tsx": "^0.1.0",
-    "prettier": "^3.9.0",
+    "prettier": "^3.9.6",
     "prettier-plugin-astro": "^0.14.1"
   }
 }

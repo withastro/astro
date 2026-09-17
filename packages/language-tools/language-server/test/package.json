@@ -9,6 +9,6 @@
     "svelte": "^5.55.3"
   },
   "devDependencies": {
-    "tinyglobby": "^0.2.16"
+    "tinyglobby": "^0.2.17"
   }
 }
