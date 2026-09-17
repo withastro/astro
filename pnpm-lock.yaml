@@ -3852,6 +3852,18 @@ importers:
         specifier: workspace:*
         version: link:../../../..
 
+  packages/astro/test/fixtures/server-islands/custom-fetch:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../../../integrations/svelte
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
+      svelte:
+        specifier: ^5.54.0
+        version: 5.55.3
+
   packages/astro/test/fixtures/server-islands/hybrid:
     dependencies:
       '@astrojs/svelte':
