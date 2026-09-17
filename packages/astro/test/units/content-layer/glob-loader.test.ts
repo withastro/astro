@@ -690,4 +690,44 @@ describe('Glob Loader', () => {
 		assert.ok(colonEntry, 'Entry with colon in filename should be loaded');
 		assert.ok(colonEntry.body?.includes('colon in its filename'));
 	});
+
+	it('propagates eager rendering errors so the build fails', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'posts');
+		mkdirSync(contentDir, { recursive: true });
+		writeFileSync(join(contentDir, 'broken.md'), '---\ntitle: Broken\n---\nSome content');
+
+		const failingEntryType = {
+			...createMarkdownEntryType(),
+			getRenderFunction: async () => async () => {
+				throw new Error('render plugin exploded');
+			},
+		};
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [failingEntryType],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			posts: defineCollection({
+				loader: glob({ pattern: '*.md', base: 'src/content/posts' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await assert.rejects(() => contentLayer.sync(), {
+			message: 'render plugin exploded',
+		});
+	});
 });
