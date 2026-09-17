@@ -1,13 +1,12 @@
 import {
-	AstroFrontmatterStatus,
+	type AstroFrontmatterStatus,
 	type ConvertToTsxResult,
 	type ExtractedScript,
 	type ExtractedStyle,
 	convertToTsx,
 } from '@astrojs/astro2tsx';
 import type { CodeMapping, VirtualCode } from '@volar/language-core';
-import { Range } from '@volar/language-server';
-import { TextDocument } from 'vscode-html-languageservice';
+import { Range, TextDocument } from '@volar/language-server';
 
 export interface LSPTSXRanges {
 	frontmatter: Range;
@@ -34,7 +33,8 @@ export function safeConvertToTSX(
 			mappings: [],
 			frontmatter: { start: 0, end: 0 },
 			body: { start: 0, end: 0 },
-			frontmatterStatus: AstroFrontmatterStatus.DoesntExist,
+			// `AstroFrontmatterStatus` is an ambient const enum, which `verbatimModuleSyntax` forbids reading.
+			frontmatterStatus: 'doesnt-exist' as AstroFrontmatterStatus,
 			frontmatterSource: { start: 0, end: 0 },
 			scripts: [],
 			styles: [],
@@ -104,7 +104,7 @@ function getVirtualCodeTSX(tsx: ConvertToTsxResult) {
 			},
 		},
 	];
-	if (tsx.frontmatterStatus === AstroFrontmatterStatus.DoesntExist) {
+	if (tsx.frontmatterStatus === 'doesnt-exist') {
 		// TypeScript inserts auto-imports into the synthetic newline before the template. Map it
 		// to the start of the Astro file so completion edits can create a frontmatter section.
 		mappings.push({

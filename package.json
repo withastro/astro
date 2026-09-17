@@ -51,7 +51,8 @@
     "lint:fix": "biome lint --write --unsafe",
     "knip": "knip && knip --production",
     "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail exec publint",
-    "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format"
+    "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",
+    "test:language-tools:artifacts": "node --test packages/language-tools/test/*.test.mjs"
   },
   "workspaces": [
     "packages/markdown/*",

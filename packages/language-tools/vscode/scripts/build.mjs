@@ -10,6 +10,17 @@ const require = createRequire(import.meta.url);
 export default async function build() {
 	const isDev = process.argv.includes('--watch');
 	const metaFile = process.argv.includes('--metafile');
+	const pluginDir = 'node_modules/astro-ts-plugin-bundle';
+	fs.mkdirSync(pluginDir, { recursive: true });
+	fs.writeFileSync(
+		`${pluginDir}/package.json`,
+		JSON.stringify({
+			name: 'astro-ts-plugin-bundle',
+			private: true,
+			type: 'module',
+			main: './index.js',
+		}),
+	);
 
 	/**
 	 * @satisfies {import('esbuild').BuildOptions}
@@ -17,7 +28,7 @@ export default async function build() {
 	const config = {
 		entryPoints: {
 			'dist/node/client': './src/client.ts',
-			'dist/node/server': './node_modules/@astrojs/language-server/bin/nodeServer.js',
+			'dist/node/server': './node_modules/@astrojs/language-server/dist/nodeServer.js',
 			// We need to generate this inside node_modules so VS Code can resolve it
 			'node_modules/astro-ts-plugin-bundle/index':
 				'./node_modules/@astrojs/ts-plugin/dist/index.js',
@@ -26,9 +37,26 @@ export default async function build() {
 		metafile: metaFile,
 		sourcemap: isDev,
 		outdir: '.',
-		external: ['vscode', '@astrojs/astro2tsx', 'prettier', 'prettier-plugin-astro'],
-		format: 'cjs',
+		external: [
+			'vscode',
+			'@astrojs/astro2tsx',
+			'@astrojs/compiler',
+			'prettier',
+			'prettier-plugin-astro',
+		],
+		format: 'esm',
+		target: 'node22.12',
 		platform: 'node',
+		banner: {
+			js: [
+				"import { createRequire as __astroCreateRequire } from 'node:module';",
+				"import { fileURLToPath as __astroFileURLToPath } from 'node:url';",
+				"import { dirname as __astroDirname } from 'node:path';",
+				'const require = __astroCreateRequire(import.meta.url);',
+				'const __filename = __astroFileURLToPath(import.meta.url);',
+				'const __dirname = __astroDirname(__filename);',
+			].join('\n'),
+		},
 		tsconfig: './tsconfig.json',
 		define: { 'process.env.NODE_ENV': '"production"' },
 		minify: process.argv.includes('--minify'),

@@ -50,6 +50,11 @@ jobs:
           filters: |
             language-tools:
               - 'packages/language-tools/**'
+              - 'configs/tsconfig*.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'package.json'
+              - 'turbo.json'
             astro-types:
               - 'packages/astro/types/**'
               - 'packages/astro/astro-jsx.d.ts'
@@ -270,6 +275,22 @@ jobs:
           pnpm run test:language-tools:no-vs
           cd packages/language-tools/vscode
           xvfb-run -a pnpm test
+
+      - name: Test installed language-tool artifacts
+        run: pnpm run test:language-tools:artifacts
+
+      - name: Test minimum VS Code
+        if: runner.os == 'Linux' && matrix.node_version == '22.22.2'
+        env:
+          VSCODE_TEST_VERSION: 1.101.0
+        run: xvfb-run -a pnpm -C packages/language-tools/vscode test:vscode
+
+      - name: Test Node compatibility floor
+        if: runner.os == 'Linux' && matrix.node_version == '22.22.2'
+        run: |
+          for version in 20.19.0 22.12.0; do
+            LANGUAGE_TOOLS_NODE=$(pnpm --silent dlx node@$version -p process.execPath) pnpm run test:language-tools:artifacts
+          done
 
       - name: Test ts-plugin (Linux, flaky)
         if: runner.os == 'Linux'

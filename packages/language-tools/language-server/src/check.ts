@@ -1,4 +1,5 @@
 import { existsSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { homedir } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -12,6 +13,8 @@ import { getVueLanguagePlugin } from './core/vue.js';
 import { create as createAstroService } from './plugins/astro.js';
 import { create as createTypeScriptServices } from './plugins/typescript/index.js';
 import { getAstroInstall } from './utils.js';
+
+const require = createRequire(import.meta.url);
 
 // Export those for downstream consumers
 export { Diagnostic, DiagnosticSeverity };

@@ -3,7 +3,7 @@
   "version": "1.10.12",
   "description": "A TypeScript Plugin providing Astro intellisense",
   "main": "dist/index.js",
-  "type": "commonjs",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/withastro/astro.git",
@@ -44,5 +44,8 @@
     "tsx": "^4.22.0",
     "typescript": "^6.0.3",
     "vscode-uri": "^3.2.0"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
   }
 }

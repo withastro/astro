@@ -1,6 +1,6 @@
 import type { VirtualCode } from '@volar/language-core';
 import { URI, Utils } from 'vscode-uri';
-import { importSvelteIntegration, importVueIntegration } from '../importPackage';
+import { importSvelteIntegration, importVueIntegration } from '../importPackage.js';
 
 export function framework2tsx(
 	filePath: string,

@@ -144,8 +144,7 @@ const configs = [
 		files: [
 			'packages/language-tools/ts-plugin/**/*',
 			'packages/language-tools/vscode/**/*',
-			// The language server is distributed as CJS in the VS Code extension, despite being written as ESM.
-			// As such, sometimes require are required.
+			// Workspace TypeScript, formatters, and editor integrations are loaded synchronously.
 			'packages/language-tools/language-server/**/*',
 		],
 		rules: {

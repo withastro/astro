@@ -1,10 +1,14 @@
 {
-  "extends": "../../../configs/tsconfig.language-tools.json",
+  "extends": "../../../configs/tsconfig.build.json",
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ES2022",
     "emitDeclarationOnly": false,
-    "sourceMap": true
+    "sourceMap": true,
+    "lib": ["WebWorker", "ES2021"]
   },
-  "references": [{ "path": "../language-server/tsconfig.json" }]
+  "references": [
+    {
+      "path": "../language-server/tsconfig.json"
+    }
+  ]
 }

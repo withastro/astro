@@ -1,6 +1,6 @@
 import 'mocha';
 import assert from 'node:assert';
-import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as vscode from 'vscode';
 
 suite('Extension Test Suite', () => {
@@ -26,7 +26,7 @@ suite('Extension Test Suite', () => {
 
 	test('can find references inside Astro files', async () => {
 		const doc = await vscode.workspace.openTextDocument(
-			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts')),
+			vscode.Uri.file(fileURLToPath(new URL('../fixtures/script.ts', import.meta.url))),
 		);
 
 		const references = await waitForTS<vscode.Location[]>(
@@ -41,7 +41,7 @@ suite('Extension Test Suite', () => {
 
 	test('can get completions for Astro components', async () => {
 		const doc = await vscode.workspace.openTextDocument(
-			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts')),
+			vscode.Uri.file(fileURLToPath(new URL('../fixtures/script.ts', import.meta.url))),
 		);
 
 		const completions = await waitForTS<vscode.CompletionList>(
@@ -58,7 +58,7 @@ suite('Extension Test Suite', () => {
 
 	test('can get implementations inside Astro files', async () => {
 		const doc = await vscode.workspace.openTextDocument(
-			vscode.Uri.file(path.join(__dirname, '../fixtures/script.ts')),
+			vscode.Uri.file(fileURLToPath(new URL('../fixtures/script.ts', import.meta.url))),
 		);
 
 		const implementations = await waitForTS<vscode.Location[]>(
