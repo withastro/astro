@@ -341,6 +341,26 @@ describe('generateImageStylesCSS', () => {
 		assert.ok(!css.includes('[data-astro-image-pos="center-center"]'));
 	});
 
+	it('does not emit invalid same-axis position pairs', () => {
+		const css = generateImageStylesCSS();
+		assert.ok(
+			!css.includes('[data-astro-image-pos="top-bottom"]'),
+			'top-bottom is invalid (both vertical)',
+		);
+		assert.ok(
+			!css.includes('[data-astro-image-pos="bottom-top"]'),
+			'bottom-top is invalid (both vertical)',
+		);
+		assert.ok(
+			!css.includes('[data-astro-image-pos="left-right"]'),
+			'left-right is invalid (both horizontal)',
+		);
+		assert.ok(
+			!css.includes('[data-astro-image-pos="right-left"]'),
+			'right-left is invalid (both horizontal)',
+		);
+	});
+
 	it('includes default position fallback when configured', () => {
 		const css = generateImageStylesCSS(undefined, 'center');
 		assert.ok(css.includes(':where([data-astro-image]:not([data-astro-image-pos]))'));
