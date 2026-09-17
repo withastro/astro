@@ -565,15 +565,7 @@ export default function vercelAdapter({
 				}
 				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
 				const vercelConfigJson = new URL('./.vercel/output/config.json', _config.root);
-				const finalRoutes: Route[] = [
-					{
-						src: `^/${_config.build.assets}/(.*)$`,
-						headers: {
-							'cache-control': 'public, max-age=31536000, immutable',
-						},
-						continue: true,
-					},
-				];
+				const finalRoutes: Route[] = [];
 				if (_hasServerBuild) {
 					finalRoutes.push(...routeDefinitions);
 				}
@@ -609,11 +601,17 @@ export default function vercelAdapter({
 					trailingSlash = _config.trailingSlash === 'always';
 				}
 
-				const { routes: redirects = [], error } = getTransformedRoutes({
+				// `headers` are emitted before the `filesystem` handle, which hashed assets always hit.
+				const { routes: transformedRoutes, error } = getTransformedRoutes({
 					trailingSlash,
 					rewrites: [],
 					redirects: getRedirects(routes, _config),
-					headers: [],
+					headers: [
+						{
+							source: `/${_config.build.assets}/(.*)`,
+							headers: [{ key: 'cache-control', value: 'public, max-age=31536000, immutable' }],
+						},
+					],
 				});
 				if (error) {
 					throw new AstroError(
@@ -642,7 +640,7 @@ export default function vercelAdapter({
 					images = getDefaultImageConfig(_config.image);
 				}
 
-				const normalized = normalizeRoutes([...(redirects ?? []), ...finalRoutes]);
+				const normalized = normalizeRoutes([...(transformedRoutes ?? []), ...finalRoutes]);
 				if (normalized.error) {
 					throw new AstroError(
 						`Error generating routes: ${normalized.error.message}`,
