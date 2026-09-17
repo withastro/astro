@@ -42,9 +42,7 @@ function toSupplementalScripts(tsx: ConvertToTsxResult): SupplementalOutput[] {
 			{
 				text: script.content,
 				extension,
-				mappings: [
-					[0, script.content.length, script.position.start, script.content.length, 0],
-				],
+				mappings: [[0, script.content.length, script.position.start, script.content.length, 0]],
 			},
 		];
 	});
