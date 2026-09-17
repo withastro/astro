@@ -71,7 +71,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 	const shouldDisableAutoImportCache =
 		vscode.workspace.getConfiguration('astro').get('auto-import-cache.enabled') === false;
 
-	const contentMapperEnabled = await registerContentMapper(context);
+	const tsgoEnabled = isTsgoEnabled();
+	const astroContentMapperRegistered = await registerContentMapper(context);
 
 	const initializationOptions = {
 		typescript: {
@@ -79,7 +80,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 		},
 		contentIntellisense: hasContentIntellisense,
 		disableAutoImportCache: shouldDisableAutoImportCache,
-		contentMapperEnabled,
+		astroContentMapperRegistered,
 	} satisfies InitOptions;
 
 	const clientOptions = {
@@ -96,19 +97,15 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 
 	// support for auto close tag
 	activateAutoInsertion('astro', client);
+	activateFindFileReferences('astro.findFileReferences', client);
 	activateReloadProjects('astro.reloadProjects', client);
 	activateTsConfigStatusItem('astro', 'astro.openTsConfig', client);
-
-	// TypeScript serves these itself once the content mapper owns `.astro`.
-	if (!contentMapperEnabled) {
-		activateFindFileReferences('astro.findFileReferences', client);
-		activateTsVersionStatusItem('astro', 'astro.selectTypescriptVersion', context, (text) => text);
-	}
+	activateTsVersionStatusItem('astro', 'astro.selectTypescriptVersion', context, (text) => text);
 
 	context.subscriptions.push(
 		vscode.workspace.onDidChangeConfiguration(async (event) => {
 			if (!useTsgoSections.some((section) => event.affectsConfiguration(section))) return;
-			if (isTsgoEnabled() === contentMapperEnabled) return;
+			if (isTsgoEnabled() === tsgoEnabled) return;
 
 			const reload = 'Reload Window';
 			const result = await vscode.window.showInformationMessage(

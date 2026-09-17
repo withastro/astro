@@ -95,7 +95,7 @@ function resolveMapperManifest(context: vscode.ExtensionContext): ContentMapperM
 	};
 }
 
-/** Hands `.astro` to TypeScript 7's content mapper, returning whether it took over type-checking. */
+/** Registers Astro's TypeScript 7 contribution. Configured-project ownership is decided separately. */
 export async function registerContentMapper(context: vscode.ExtensionContext): Promise<boolean> {
 	if (!isTsgoEnabled()) {
 		return false;
