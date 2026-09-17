@@ -225,7 +225,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		},
 	});
 
-	function isRolldownInput(moduleName: string | undefined): boolean {
+	function isRolldownInput(moduleName: string | null | undefined): boolean {
 		if (!currentRolldownInput || !moduleName) {
 			return false;
 		}
