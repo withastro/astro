@@ -6849,6 +6849,28 @@ importers:
         specifier: workspace:*
         version: link:../../../../astro
 
+  packages/language-tools/ts-content-mapper:
+    dependencies:
+      '@astrojs/astro2tsx':
+        specifier: ^0.1.0
+        version: 0.1.0(@emnapi/runtime@1.11.3)
+      vscode-jsonrpc:
+        specifier: ^9.0.1
+        version: 9.0.2
+    devDependencies:
+      '@types/node':
+        specifier: ^22.19.0
+        version: 22.19.19
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
+      tsx:
+        specifier: ^4.22.0
+        version: 4.23.13
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
   packages/language-tools/ts-plugin:
     dependencies:
       '@astrojs/compiler':
