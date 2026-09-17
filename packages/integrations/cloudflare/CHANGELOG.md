@@ -1,5 +1,13 @@
 # @astrojs/cloudflare
 
+## 14.3.3
+
+### Patch Changes
+
+- [#18032](https://github.com/withastro/astro/pull/18032) [`f7dbc6a`](https://github.com/withastro/astro/commit/f7dbc6a2b736bb26ef286c3bbcf66d19bf6b215f) Thanks [@adamchal](https://github.com/adamchal)! - Fixes image requests when using `imageService: 'compile'` with `passthroughImageService()`.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.3.2
 
 ### Patch Changes

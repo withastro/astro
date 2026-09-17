@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 11.0.11
+
+### Patch Changes
+
+- [#18044](https://github.com/withastro/astro/pull/18044) [`98c07e1`](https://github.com/withastro/astro/commit/98c07e1735b2c9e075ad31aeafa5af7db4bf0563) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a rare issue where ISR pages on Vercel could intermittently be served a cached redirect to a nonsense URL (such as `/$0/`) instead of the page itself. Pages now render correctly, and requests that can't be resolved to a valid path return a `404` instead of a redirect.
+
 ## 11.0.10
 
 ### Patch Changes
