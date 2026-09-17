@@ -1,5 +1,5 @@
 import { ErrorCodes, ResponseError, createMessageConnection } from 'vscode-jsonrpc';
-import { StreamMessageReader, StreamMessageWriter } from 'vscode-jsonrpc/node.js';
+import { StreamMessageReader, StreamMessageWriter } from 'vscode-jsonrpc/node';
 import type { InitializeParams, InitializeResult } from './protocol.js';
 import { transform } from './transform.js';
 
