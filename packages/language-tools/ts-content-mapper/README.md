@@ -1,19 +1,15 @@
 # @astrojs/ts-content-mapper
 
-A [TypeScript content mapper](https://github.com/microsoft/TypeScript/pull/63936) for `.astro` files. It lets `tsc` parse and type-check Astro components directly, without a language server plugin, by transforming each component to TSX and reporting the position mappings back to TypeScript.
-
-> [!WARNING]
-> Content mappers are experimental. They landed after TypeScript 7.0 and are not in any 7.0.x release, so a `typescript@next` 7.1 nightly is required. The protocol changed once shortly after it landed and has no version negotiation, so prefer a recent nightly and expect breakage between them.
+A [TypeScript content mapper](https://github.com/microsoft/TypeScript/pull/63936) for `.astro` files. It lets TypeScript 7.1+ (`tsc`) parse and type-check Astro components directly, without needing to use a different language server or CLI Tool.
 
 ## Usage
 
-Install the package, then register it in your `tsconfig.json`. `contentMappers` is a top-level key, a sibling of `compilerOptions` rather than a member of it:
+Install the package, then register it in your `tsconfig.json` for `.astro` files:
 
 ```json
 {
   "compilerOptions": {
-    "jsx": "preserve",
-    "jsxImportSource": "astro"
+    // ...
   },
   "contentMappers": [
     {
@@ -29,30 +25,3 @@ Content mappers run arbitrary code from `node_modules` during compilation, so Ty
 ```sh
 tsc --noEmit --runExternalCode
 ```
-
-The flag is command-line only and cannot be set in `tsconfig.json`. Without it, TypeScript reports an error and ignores the mapper entirely, which makes `.astro` files look like unknown foreign files.
-
-Imports of Astro components must include the extension, since `.astro` is not a native TypeScript extension:
-
-```ts
-import Card from './Card.astro';
-```
-
-## How it works
-
-TypeScript spawns this package as a subprocess and speaks JSON-RPC to it over stdin/stdout, calling `initialize`, `openProject`, `transform` and `closeProject`. For each `.astro` file, `transform` runs the Rust `astro2tsx` compiler and returns:
-
-- the generated TSX as virtual `.tsx` text,
-- a span map relating ranges of that text back to the original component,
-- any parse errors, positioned against the original source,
-- script contents as supplemental virtual modules.
-
-Span offsets are UTF-16 code units, matching what `astro2tsx` emits.
-
-Regions of the generated file that came verbatim from the source are reported as `Verbatim` spans, which are the only kind TypeScript will write edits back through, so renames and code actions apply to the frontmatter and to expressions in the template. Scaffolding that has no counterpart in the source is left unmapped and treated as synthesized. The generated component export is anchored to a zero-length range at the top of the file so that "go to definition" on a component import resolves.
-
-## Limitations
-
-- `<style>` blocks are not type-checked; CSS support stays with the Astro language server.
-- Data and raw `<script>` blocks are not type-checked.
-- Diagnostics cannot be filtered by code, so every error TypeScript finds in the generated TSX reaches the user.
