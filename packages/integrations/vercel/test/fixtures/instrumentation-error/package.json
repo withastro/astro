@@ -1,0 +1,10 @@
+{
+  "name": "@test/astro-vercel-instrumentation-error",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/vercel": "workspace:*",
+    "@opentelemetry/api": "^1.9.0",
+    "astro": "workspace:*"
+  }
+}
