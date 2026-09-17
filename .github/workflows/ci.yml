@@ -277,6 +277,8 @@ jobs:
           xvfb-run -a pnpm test
 
       - name: Test installed language-tool artifacts
+        env:
+          LANGUAGE_TOOLS_PACKAGE_EXTENSION: 1
         run: pnpm run test:language-tools:artifacts
 
       - name: Test minimum VS Code

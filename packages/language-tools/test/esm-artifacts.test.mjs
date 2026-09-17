@@ -8,10 +8,12 @@ import { after, before, describe, it } from 'node:test';
 import { setTimeout } from 'node:timers/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { startProtocolProcess } from './process.mjs';
+import { packageExtension } from './package-extension.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const runtime = process.env.LANGUAGE_TOOLS_NODE ?? process.execPath;
 const packages = ['yaml2ts', 'language-server', 'ts-plugin', 'astro-check'];
+let extension = path.join(root, 'vscode');
 let temporary;
 let consumer;
 let require;
@@ -63,8 +65,10 @@ before(
 			},
 		);
 		require = createRequire(path.join(consumer, 'package.json'));
+		if (process.env.LANGUAGE_TOOLS_PACKAGE_EXTENSION)
+			extension = await packageExtension(extension, temporary);
 	},
-	{ timeout: 300000 },
+	{ timeout: 600000 },
 );
 
 after(async () => {
@@ -114,7 +118,7 @@ for (const bundled of [false, true]) {
 				const project = path.join(consumer, `plugin-${bundled}-${mode}`);
 				await fs.mkdir(project);
 				const name = bundled ? 'astro-ts-plugin-bundle' : '@astrojs/ts-plugin';
-				const probe = bundled ? path.join(root, 'vscode') : consumer;
+				const probe = bundled ? extension : consumer;
 				await fs.writeFile(
 					path.join(project, 'tsconfig.json'),
 					JSON.stringify({
@@ -133,7 +137,7 @@ for (const bundled of [false, true]) {
 				if (bundled) {
 					await fs.mkdir(path.join(project, 'node_modules'));
 					await fs.symlink(
-						path.join(root, 'vscode/node_modules/astro-ts-plugin-bundle'),
+						path.join(extension, 'node_modules/astro-ts-plugin-bundle'),
 						path.join(project, 'node_modules', name),
 						'junction',
 					);
@@ -176,7 +180,7 @@ for (const bundled of [false, true]) {
 			const file = path.join(project, 'index.astro');
 			await fs.writeFile(file, source);
 			const entry = bundled
-				? path.join(root, 'vscode/dist/node/server.js')
+				? path.join(extension, 'dist/node/server.js')
 				: require.resolve('@astrojs/language-server/bin/nodeServer.js');
 			const server = startProtocolProcess(t, [entry, '--stdio'], project, 'lsp');
 			const folder = pathToFileURL(project).href;
