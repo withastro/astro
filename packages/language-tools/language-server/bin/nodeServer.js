@@ -1,7 +1,12 @@
 #!/usr/bin/env node
+import { createRequire } from 'node:module';
+
 if (process.argv.includes('--version')) {
-	const pkgJSON = require('../package.json');
-	console.info(`${pkgJSON['version']}`);
+	const { version } = createRequire(import.meta.url)('../package.json');
+	console.info(`${version}`);
 } else {
-	require('../dist/nodeServer.js');
+	import('../dist/nodeServer.js').catch((error) => {
+		console.error(error);
+		process.exitCode = 1;
+	});
 }

@@ -61,6 +61,24 @@
     "test:hosted": {
       "cache": false,
       "outputLogs": "new-only"
+    },
+    "astro-vscode#build": {
+      "dependsOn": ["^build", "prebuild"],
+      "inputs": [
+        "**/*",
+        "!test/**/*",
+        "!e2e/**/*",
+        "!performance/**/*",
+        "!.astro/**/*",
+        "!.cache/**/*",
+        "!.turbo/**/*",
+        "!mod.js",
+        "!mod.js.map"
+      ],
+      "outputs": ["dist/**/*", "node_modules/astro-ts-plugin-bundle/**"],
+      "outputLogs": "new-only",
+      "passThroughEnv": ["SKIP_OG", "PUBLIC_TWO_LANG"]
     }
-  }
+  },
+  "globalDependencies": ["configs/tsconfig*.json"]
 }

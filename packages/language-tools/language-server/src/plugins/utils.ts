@@ -1,5 +1,5 @@
 import type { HTMLDocument, Node, TextEdit } from 'vscode-html-languageservice';
-import { Range } from 'vscode-html-languageservice';
+import { Range } from '@volar/language-server';
 import type { AstroMetadata, FrontmatterStatus } from '../core/parseAstro.js';
 
 export function isJSDocument(languageId: string) {

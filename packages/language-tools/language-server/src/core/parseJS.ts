@@ -1,18 +1,14 @@
-import { ExtractedScriptType, type ExtractedScript } from '@astrojs/astro2tsx';
+import type { ExtractedScript } from '@astrojs/astro2tsx';
 import type { CodeInformation, VirtualCode } from '@volar/language-core';
 import type { Segment } from 'muggle-string';
 import { toString } from 'muggle-string';
-import { buildMappings } from '../buildMappings';
+import { buildMappings } from '../buildMappings.js';
 
 export function extractScriptTags(scripts: ExtractedScript[]): VirtualCode[] {
 	const embeddedJSCodes: VirtualCode[] = [];
 
 	const moduleScripts = scripts
-		.filter(
-			(script) =>
-				script.type === ExtractedScriptType.Module ||
-				script.type === ExtractedScriptType.ProcessedModule,
-		)
+		.filter((script) => script.type === 'module' || script.type === 'processed-module')
 		.map(moduleScriptToVirtualCode) satisfies VirtualCode[];
 
 	const inlineScripts = scripts
@@ -21,9 +17,7 @@ export function extractScriptTags(scripts: ExtractedScript[]): VirtualCode[] {
 				// TODO: Change this at some point so that unknown scripts are not included
 				// We can't guarantee that they are JavaScript, so we shouldn't treat them as such, even if it might work in some cases
 				// Perhaps we should make it so that the user has to specify the language of the script if it's not a known type (ex: lang="js"), not sure.
-				script.type === ExtractedScriptType.EventAttribute ||
-				script.type === ExtractedScriptType.Inline ||
-				script.type === ExtractedScriptType.Unknown,
+				script.type === 'event-attribute' || script.type === 'inline' || script.type === 'unknown',
 		)
 		.sort((a, b) => a.position.start - b.position.start);
 
@@ -34,7 +28,7 @@ export function extractScriptTags(scripts: ExtractedScript[]): VirtualCode[] {
 	}
 
 	const JSONScripts = scripts
-		.filter((script) => script.type === ExtractedScriptType.Json)
+		.filter((script) => script.type === 'json')
 		.map(jsonScriptToVirtualCode) satisfies VirtualCode[];
 	embeddedJSCodes.push(...JSONScripts);
 
@@ -44,7 +38,7 @@ export function extractScriptTags(scripts: ExtractedScript[]): VirtualCode[] {
 function moduleScriptToVirtualCode(script: ExtractedScript, index: number): VirtualCode {
 	let extension = 'mts';
 	let languageId = 'typescript';
-	if (script.type === ExtractedScriptType.Module) {
+	if (script.type === 'module') {
 		extension = 'mjs';
 		languageId = 'javascript';
 	}

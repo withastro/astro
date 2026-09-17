@@ -349,7 +349,6 @@ Shared configs live under `configs/` at the repo root:
 - `configs/tsconfig.base.json`: base config that every other tsconfig extends from.
 - `configs/tsconfig.build.json`: builds packages. Includes `src/` and emits declarations to `dist/`.
 - `configs/tsconfig.test.json`: typechecks tests. Includes `test/`, excludes `test/fixtures/`.
-- `configs/tsconfig.language-tools.json`: variant for `packages/language-tools/` packages (targets commonjs).
 
 ### Per-package layout
 

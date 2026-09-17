@@ -1,8 +1,15 @@
 {
-  "extends": "../../../configs/tsconfig.language-tools.json",
+  "extends": "../../../configs/tsconfig.build.json",
   "compilerOptions": {
     "emitDeclarationOnly": false,
-    "sourceMap": true
+    "sourceMap": true,
+    "target": "ES2021",
+    "lib": ["WebWorker", "ES2021"],
+    "erasableSyntaxOnly": false
   },
-  "references": [{ "path": "../yaml2ts/tsconfig.json" }]
+  "references": [
+    {
+      "path": "../yaml2ts/tsconfig.json"
+    }
+  ]
 }

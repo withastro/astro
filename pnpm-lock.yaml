@@ -6828,6 +6828,9 @@ importers:
       '@astrojs/astro2tsx':
         specifier: ^0.1.0
         version: 0.1.0(@emnapi/runtime@1.11.3)
+      '@astrojs/compiler':
+        specifier: ^2.13.1
+        version: 2.13.1
       prettier:
         specifier: ^3.9.0
         version: 3.9.0
@@ -6867,7 +6870,7 @@ importers:
         version: 3.1.0
       '@vscode/vsce':
         specifier: ^3.9.2
-        version: 3.9.2
+        version: 3.9.2(supports-color@8.1.1)
       esbuild:
         specifier: ^0.17.19
         version: 0.17.19
@@ -21119,7 +21122,7 @@ snapshots:
       '@vscode/vsce-sign-win32-arm64': 2.0.6
       '@vscode/vsce-sign-win32-x64': 2.0.6
 
-  '@vscode/vsce@3.9.2':
+  '@vscode/vsce@3.9.2(supports-color@8.1.1)':
     dependencies:
       '@azure/identity': 4.13.0
       '@secretlint/node': 10.2.2
@@ -21142,7 +21145,7 @@ snapshots:
       minimatch: 10.2.6
       parse-semver: 1.1.1
       read: 1.0.7
-      secretlint: 10.2.2
+      secretlint: 10.2.2(supports-color@8.1.1)
       semver: 7.8.5
       tmp: 0.2.5
       typed-rest-client: 1.8.11
@@ -24931,7 +24934,7 @@ snapshots:
   ovsx@1.2.0(@types/node@22.19.19):
     dependencies:
       '@inquirer/prompts': 7.10.1(@types/node@22.19.19)
-      '@vscode/vsce': 3.9.2
+      '@vscode/vsce': 3.9.2(supports-color@8.1.1)
       commander: 6.2.1
       cross-keychain: 1.1.0(@types/node@22.19.19)
       follow-redirects: 1.16.0
@@ -26038,7 +26041,7 @@ snapshots:
 
   scule@1.3.0: {}
 
-  secretlint@10.2.2:
+  secretlint@10.2.2(supports-color@8.1.1):
     dependencies:
       '@secretlint/config-creator': 10.2.2
       '@secretlint/formatter': 10.2.2

@@ -11,7 +11,7 @@
     "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/language-tools/yaml2ts"
   },
-  "type": "commonjs",
+  "type": "module",
   "main": "dist/index.js",
   "files": [
     "dist/**/*.js",
@@ -26,5 +26,8 @@
   "devDependencies": {
     "@volar/language-core": "~2.4.28",
     "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
   }
 }
