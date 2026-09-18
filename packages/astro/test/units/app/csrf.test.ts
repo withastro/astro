@@ -72,7 +72,11 @@ describe('CSRF - createOriginCheckMiddleware', () => {
 		const res = await callCSRF({
 			method: 'GET',
 			url: 'http://example.com/api/',
-			headers: { origin: 'http://evil.com', 'content-type': 'multipart/form-data' },
+			headers: {
+				origin: 'http://evil.com',
+				'content-type': 'multipart/form-data',
+				'sec-fetch-site': 'cross-site',
+			},
 		});
 		assert.equal(res.status, 200);
 	});
@@ -99,7 +103,11 @@ describe('CSRF - createOriginCheckMiddleware', () => {
 		const res = await callCSRF({
 			method: 'POST',
 			url: 'http://example.com/api/',
-			headers: { origin: 'http://evil.com', 'content-type': 'multipart/form-data' },
+			headers: {
+				origin: 'http://evil.com',
+				'content-type': 'multipart/form-data',
+				'sec-fetch-site': 'cross-site',
+			},
 			isPrerendered: true,
 		});
 		assert.equal(res.status, 200);
@@ -144,6 +152,37 @@ describe('CSRF - createOriginCheckMiddleware', () => {
 		assert.equal(res.status, 200);
 	});
 
+	for (const secFetchSite of ['same-origin', 'none']) {
+		it(`allows unsafe requests with Sec-Fetch-Site: ${secFetchSite}`, async () => {
+			for (const method of ['POST', 'PUT', 'DELETE', 'PATCH']) {
+				const res = await callCSRF({
+					method,
+					url: 'http://example.com/api/',
+					headers: {
+						'content-type': 'multipart/form-data',
+						'sec-fetch-site': secFetchSite,
+					},
+				});
+				assert.equal(res.status, 200);
+			}
+		});
+	}
+
+	for (const secFetchSite of ['same-site', 'cross-site', 'invalid']) {
+		it(`blocks form submissions with Sec-Fetch-Site: ${secFetchSite}`, async () => {
+			const res = await callCSRF({
+				method: 'POST',
+				url: 'http://example.com/api/',
+				headers: {
+					origin: 'http://example.com',
+					'content-type': 'multipart/form-data',
+					'sec-fetch-site': secFetchSite,
+				},
+			});
+			assert.equal(res.status, 403);
+		});
+	}
+
 	for (const method of ['POST', 'PUT', 'DELETE', 'PATCH']) {
 		it(`blocks cross-origin ${method} with multipart/form-data`, async () => {
 			const res = await callCSRF({
@@ -185,11 +224,59 @@ describe('CSRF - createOriginCheckMiddleware', () => {
 		assert.equal(res.status, 403);
 	});
 
+	it('blocks cross-site POST with no content-type', async () => {
+		const res = await callCSRF({
+			method: 'POST',
+			url: 'http://example.com/api/',
+			headers: { 'sec-fetch-site': 'cross-site' },
+		});
+		assert.equal(res.status, 403);
+	});
+
+	it('allows requests without browser origin headers', async () => {
+		const res = await callCSRF({
+			method: 'POST',
+			url: 'http://example.com/api/',
+		});
+		assert.equal(res.status, 200);
+	});
+
+	it('falls back to matching the full Origin', async () => {
+		const res = await callCSRF({
+			method: 'POST',
+			url: 'https://example.com/api/',
+			headers: { origin: 'https://example.com', 'content-type': 'multipart/form-data' },
+		});
+		assert.equal(res.status, 200);
+	});
+
+	it('blocks a fallback Origin with a different scheme', async () => {
+		const res = await callCSRF({
+			method: 'POST',
+			url: 'https://example.com/api/',
+			headers: { origin: 'http://example.com', 'content-type': 'multipart/form-data' },
+		});
+		assert.equal(res.status, 403);
+	});
+
+	it('blocks a malformed Origin fallback', async () => {
+		const res = await callCSRF({
+			method: 'POST',
+			url: 'https://example.com/api/',
+			headers: { origin: 'null', 'content-type': 'multipart/form-data' },
+		});
+		assert.equal(res.status, 403);
+	});
+
 	it('allows cross-origin POST with application/json', async () => {
 		const res = await callCSRF({
 			method: 'POST',
 			url: 'http://example.com/api/',
-			headers: { origin: 'http://evil.com', 'content-type': 'application/json' },
+			headers: {
+				origin: 'http://evil.com',
+				'content-type': 'application/json',
+				'sec-fetch-site': 'cross-site',
+			},
 		});
 		assert.equal(res.status, 200);
 	});
