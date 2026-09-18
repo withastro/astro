@@ -60,8 +60,6 @@ minimumReleaseAgeExclude:
   - 'modern-tar@0.7.7'
   # Renovate security update: @fastify/static@10.1.2
   - '@fastify/static@10.1.2'
-  # Renovate security update: @babel/core@7.29.6
-  - '@babel/core@7.29.6'
 peerDependencyRules:
   allowAny:
     - 'astro'
