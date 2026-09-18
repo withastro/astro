@@ -9,6 +9,7 @@ import {
 	generateImagesForPath,
 	getStaticImageList,
 	prepareAssetsGenerationEnv,
+	restoreReferencedImages,
 	restoreStaticImages,
 } from '../../assets/build/generate.js';
 import {
@@ -646,6 +647,9 @@ async function generatePathWithPrerenderer(
 			const restoredImages = cache.previousStaticImages(route.component, pathname);
 			if (restoredImages) restoreStaticImages(restoredImages);
 
+			const restoredReferencedImages = cache.previousReferencedImages(route.component, pathname);
+			if (restoredReferencedImages) restoreReferencedImages(restoredReferencedImages);
+
 			// Likewise, the route contributes no response headers when it is not
 			// rendered. Replay them so a `staticHeaders` adapter still writes this
 			// route into its headers file.
@@ -658,8 +662,8 @@ async function generatePathWithPrerenderer(
 			}
 
 			// Record in the new cache so orphan detection knows this path is still alive,
-			// carrying forward the content entries, image transforms, and headers the
-			// path resolved last build.
+			// carrying forward the content entries, image metadata, and headers the path
+			// resolved last build.
 			cache.record(
 				route.component,
 				dependencyHash,
@@ -668,6 +672,7 @@ async function generatePathWithPrerenderer(
 				relativeOutFile,
 				cache.previousContentEntryKeys(route.component, pathname),
 				restoredImages,
+				restoredReferencedImages,
 				restoredHeaders,
 			);
 
@@ -715,6 +720,7 @@ async function generatePathWithPrerenderer(
 	});
 	const contentEntryKeys = result?.metadata?.contentEntryKeys;
 	const staticImages = result?.metadata?.staticImages;
+	const referencedImages = result?.metadata?.referencedImages;
 	// Headers are collected only for `staticHeaders` adapters (see `renderPath`).
 	// Persist them so a skipped path can replay its route into the headers file.
 	const headers = cache ? [...(routeToHeaders.get(pathname)?.headers ?? [])] : undefined;
@@ -743,6 +749,7 @@ async function generatePathWithPrerenderer(
 			relativeOutFile,
 			contentEntryKeys,
 			staticImages,
+			referencedImages,
 			headers,
 		);
 	}

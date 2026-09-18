@@ -9,6 +9,6 @@
     "astro": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "svelte": "^5.54.0"
+    "svelte": "^5.55.7"
   }
 }

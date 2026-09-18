@@ -28,7 +28,7 @@ import {
 	DEFAULT_IMAGES_BINDING_NAME,
 	withNodejsAlsFlag,
 } from './wrangler.js';
-import { sessionDrivers } from 'astro/config';
+import { passthroughImageService, sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
 import cfPrismPlugin from './vite-plugin-prism.js';
 import { loadWranglerEnv } from './utils/wrangler-config.js';
@@ -157,8 +157,6 @@ export default function createIntegration({
 		normalizeImageServiceConfig(imageService);
 	const needsImagesBinding = runtimeService === 'cloudflare-binding';
 	const hasBuildImageService = buildService === 'compile' || buildService === 'custom';
-	// Opt-in: user explicitly requested build-time image transformation via the compound config.
-	// The string shorthand `'cloudflare-binding'` keeps the historical runtime-only behavior.
 	const isBindingBuild = transformAtBuild && buildService === 'cloudflare-binding';
 
 	return {
@@ -393,6 +391,7 @@ export default function createIntegration({
 													'astro/actions/runtime/entrypoints/server.js',
 													'astro/actions/runtime/entrypoints/route.js',
 													'astro/assets',
+													'astro/assets/services/noop',
 													'astro/assets/runtime',
 													'astro/assets/utils/inferRemoteSize.js',
 													'astro/assets/fonts/runtime.js',
@@ -562,6 +561,16 @@ export default function createIntegration({
 				loadWranglerEnv(config.root, cloudflareOptions.configPath, logger);
 			},
 			'astro:build:start': ({ setPrerenderer, logger }) => {
+				if (
+					buildService === 'compile' &&
+					runtimeService === 'cloudflare-binding' &&
+					_config.image.service.entrypoint === passthroughImageService().entrypoint
+				) {
+					logger.warn(
+						`passthroughImageService() overrides runtime: 'cloudflare-binding'. Images remain untransformed at build time and are served unchanged on demand. Set imageService: 'compile' or runtime: 'passthrough' to make this configuration explicit, or remove passthroughImageService() to enable image transformation.`,
+					);
+				}
+
 				if (prerenderEnvironment === 'workerd') {
 					setPrerenderer(
 						createCloudflarePrerenderer({

@@ -87,7 +87,6 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 					.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
 				concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
 			})
-			.optional()
 			.prefault({}),
 		server: z
 			.preprocess(
