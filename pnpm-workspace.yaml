@@ -61,6 +61,8 @@ minimumReleaseAgeExclude:
   - '@fastify/static@10.1.2'
   # Renovate security update: @babel/core@7.29.6
   - '@babel/core@7.29.6'
+  # Renovate security update: hono@4.13.5
+  - hono@4.13.5
 peerDependencyRules:
   allowAny:
     - 'astro'
