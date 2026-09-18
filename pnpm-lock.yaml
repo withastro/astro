@@ -646,8 +646,8 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2
       smol-toml:
-        specifier: ^1.6.0
-        version: 1.6.1
+        specifier: ^1.8.0
+        version: 1.8.0
       svgo:
         specifier: ^4.0.2
         version: 4.0.2
@@ -6698,8 +6698,8 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2
       smol-toml:
-        specifier: ^1.6.0
-        version: 1.6.1
+        specifier: ^1.8.0
+        version: 1.8.0
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -15541,8 +15541,8 @@ packages:
     resolution: {integrity: sha512-TzobUYoEft/xBtb2voRPryAUIvYguG0V7Tt3de79I1WfXgCwelqVsGuZSnu3GFGRZhXR90AeEYIM+icuB/S06Q==}
     hasBin: true
 
-  smol-toml@1.6.1:
-    resolution: {integrity: sha512-dWUG8F5sIIARXih1DTaQAX4SsiTXhInKf1buxdY9DIg4ZYPZK5nGM1VRIYmEbDbsHt7USo99xSLFu5Q1IqTmsg==}
+  smol-toml@1.8.0:
+    resolution: {integrity: sha512-kCZr2V3ch9i00x8zXRhjUNVcjG9ijES5dDudkXvUVCT5QlJNQWElSJdZqyPemffHoLNUYwOcou0Fy+ojN0uHSQ==}
     engines: {node: '>= 18'}
 
   solid-js@1.9.13:
@@ -19216,7 +19216,7 @@ snapshots:
       p-locate: 6.0.0
       path-type: 6.0.0
       read-package-up: 11.0.0
-      smol-toml: 1.6.1
+      smol-toml: 1.8.0
       tomlify-j0.4: 3.0.0
       validate-npm-package-name: 5.0.1
       yaml: 2.9.1
@@ -19367,7 +19367,7 @@ snapshots:
   '@netlify/headers-parser@10.1.1':
     dependencies:
       escape-string-regexp: 5.0.0
-      smol-toml: 1.6.1
+      smol-toml: 1.8.0
 
   '@netlify/headers@2.1.13':
     dependencies:
@@ -19412,7 +19412,7 @@ snapshots:
   '@netlify/redirect-parser@16.1.1':
     dependencies:
       fast-safe-stringify: 2.1.1
-      smol-toml: 1.6.1
+      smol-toml: 1.8.0
 
   '@netlify/redirects@3.1.15':
     dependencies:
@@ -23635,7 +23635,7 @@ snapshots:
       oxc-resolver: 11.17.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)
       picocolors: 1.1.1
       picomatch: 4.0.7
-      smol-toml: 1.6.1
+      smol-toml: 1.8.0
       strip-json-comments: 5.0.3
       typescript: 6.0.3
       zod: 4.6.5
@@ -26201,7 +26201,7 @@ snapshots:
 
   smartypants@0.2.2: {}
 
-  smol-toml@1.6.1: {}
+  smol-toml@1.8.0: {}
 
   solid-js@1.9.13:
     dependencies:
