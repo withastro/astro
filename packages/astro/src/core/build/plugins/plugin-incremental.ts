@@ -38,6 +38,7 @@ interface TransitiveGraphCache {
 const ASSET_PLACEHOLDERS = [
 	{ token: '__ASTRO_ASSET_IMAGE__', pattern: /__ASTRO_ASSET_IMAGE__([\w$]+)__(?:_(.*?)__)?/g },
 	{ token: '__VITE_ASSET__', pattern: /__VITE_ASSET__([\w$]+)__(?:\$_(.*?)__)?/g },
+	{ token: 'import.meta.ROLLDOWN_FILE_URL_', pattern: /import\.meta\.ROLLDOWN_FILE_URL_([\w$]+)/g },
 ];
 
 /**
@@ -112,7 +113,7 @@ function hashModules(
 			// did not see (e.g. virtual CSS modules).
 			const compiled = compiledCss.get(id);
 			if (compiled != null) {
-				hasher.update(compiled);
+				hasher.update(resolveAssetPlaceholders(graph, compiled));
 			} else {
 				try {
 					hasher.update(nodeFs.readFileSync(removeQueryString(id), 'utf-8'));
