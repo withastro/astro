@@ -40,6 +40,7 @@ export {
 	renderTemplate,
 	renderToString,
 	renderUniqueStylesheet,
+	setComponentAssets,
 	voidElementNames,
 } from './render/index.js';
 export type { ServerIslandComponent } from './render/server-islands.js';
