@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "7.3.2",
+  "version": "7.3.3",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -165,7 +165,7 @@
     "shiki": "^4.0.2",
     "smol-toml": "^1.6.0",
     "svgo": "^4.0.2",
-    "tinyclip": "^0.1.12",
+    "tinyclip": "^1.0.1",
     "tinyexec": "^1.0.4",
     "tinyglobby": "^0.2.15",
     "ultrahtml": "^1.6.0",

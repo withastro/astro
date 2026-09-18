@@ -388,6 +388,17 @@ export function restoreStaticImages(images: SerializedStaticImage[]): void {
 	}
 }
 
+/** Preserve originals referenced without transforms by skipped pages. */
+export function restoreReferencedImages(fsPaths: string[]): void {
+	if (!globalThis.astroAsset) {
+		globalThis.astroAsset = { referencedImages: new Set() };
+	}
+	const referencedImages = (globalThis.astroAsset.referencedImages ??= new Set());
+	for (const fsPath of fsPaths) {
+		referencedImages.add(fsPath);
+	}
+}
+
 async function loadImage(path: string, env: AssetEnv): Promise<ImageData> {
 	if (isRemotePath(path)) {
 		return await loadRemoteImage(path, undefined, env.imageConfig);

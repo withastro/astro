@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import * as clack from '@clack/prompts';
@@ -15,6 +16,19 @@ type GetPackageOptions = {
 	optional?: boolean;
 	cwd?: string;
 };
+
+export async function getPackageVersion(
+	packageName: string,
+	cwd = process.cwd(),
+): Promise<string | undefined> {
+	try {
+		const packageJsonPath = require.resolve(`${packageName}/package.json`, { paths: [cwd] });
+		const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf-8'));
+		return typeof packageJson.version === 'string' ? packageJson.version : undefined;
+	} catch {
+		return undefined;
+	}
+}
 
 export async function getPackage<T>(
 	packageName: string,

@@ -15,6 +15,8 @@ export interface RenderCollectors {
 	 * duplicates preserved.
 	 */
 	staticImages?: SerializedStaticImage[];
+	/** Absolute source paths of images referenced without a transform. */
+	referencedImages?: Set<string>;
 }
 
 /**
