@@ -61,6 +61,8 @@ minimumReleaseAgeExclude:
   - '@fastify/static@10.1.2'
   # Renovate security update: svgo@4.1.0
   - svgo@4.1.0
+  # Renovate security update: @babel/core@7.29.6
+  - '@babel/core@7.29.6'
 peerDependencyRules:
   allowAny:
     - 'astro'
@@ -75,7 +77,7 @@ trustPolicyExclude:
   # TODO: Remove once trusted publishing is enabled. Netlify are working on it.
   - '@netlify/edge-bundler@14.10.2||14.10.1'
   - '@netlify/zip-it-and-ship-it@14.5.6'
-  - '@netlify/serverless-functions-api@2.15.1'
+  - '@netlify/serverless-functions-api@2.18.0'
   # Vercel packages that do not have trusted publishing enabled on npm
   # TODO: Remove once trusted publishing is enabled.
   - '@vercel/functions@3.9.5'

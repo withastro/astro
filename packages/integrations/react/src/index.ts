@@ -17,7 +17,7 @@ import * as devalue from 'devalue';
 
 export type ReactIntegrationOptions = Pick<
 	ViteReactPluginOptions,
-	'include' | 'exclude' | 'babel'
+	'include' | 'exclude' | 'compiler'
 > & {
 	experimentalReactChildren?: boolean;
 	/**
@@ -74,7 +74,7 @@ function getViteConfiguration(
 	{
 		include,
 		exclude,
-		babel,
+		compiler,
 		experimentalReactChildren,
 		experimentalDisableStreaming,
 	}: ReactIntegrationOptions = {},
@@ -85,16 +85,16 @@ function getViteConfiguration(
 	// Without excluding .astro, the filter matches .astro virtual module scripts (e.g.
 	// Foo.astro?astro&type=script&index=0&lang.ts) and forces lang to 'js', causing OXC
 	// to fail parsing TypeScript syntax like `import type`.
-	const astroExclude = /\.astro$/;
+	const defaultExclude = [/\.astro$/, /\/node_modules\//];
 	const mergedExclude = exclude
 		? Array.isArray(exclude)
-			? [...exclude, astroExclude]
-			: [exclude, astroExclude]
-		: astroExclude;
+			? [...exclude, ...defaultExclude]
+			: [exclude, ...defaultExclude]
+		: defaultExclude;
 
 	return {
 		plugins: [
-			react({ include, exclude: mergedExclude, babel }),
+			react({ include, exclude: mergedExclude, compiler }),
 			optionsPlugin({
 				include,
 				exclude,
@@ -164,18 +164,23 @@ function configEnvironmentPlugin(reactConfig: ReactVersionConfig): vite.Plugin {
 	};
 }
 
-export default function ({
-	include,
-	exclude,
-	babel,
-	experimentalReactChildren,
-	experimentalDisableStreaming,
-}: ReactIntegrationOptions = {}): AstroIntegration {
+export default function (options: ReactIntegrationOptions = {}): AstroIntegration {
+	if ('babel' in options) {
+		throw new Error(
+			'The @astrojs/react babel option has been removed. Configure @rolldown/plugin-babel in vite.plugins for custom Babel transforms.',
+		);
+	}
+	const { include, exclude, compiler, experimentalReactChildren, experimentalDisableStreaming } =
+		options;
 	const majorVersion = getReactMajorVersion();
 	if (!isSupportedReactVersion(majorVersion)) {
 		throw new Error(`Unsupported React version: ${majorVersion}.`);
 	}
 	const versionConfig = versionsConfig[majorVersion];
+	const compilerOptions = compiler && {
+		target: `${majorVersion}` as const,
+		...(typeof compiler === 'object' ? compiler : {}),
+	};
 
 	return {
 		name: '@astrojs/react',
@@ -184,7 +189,13 @@ export default function ({
 				addRenderer(getRenderer(versionConfig));
 				updateConfig({
 					vite: getViteConfiguration(
-						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming },
+						{
+							include,
+							exclude,
+							compiler: compilerOptions,
+							experimentalReactChildren,
+							experimentalDisableStreaming,
+						},
 						versionConfig,
 					),
 				});
