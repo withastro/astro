@@ -1,0 +1,9 @@
+---
+// Reading `astro:config/server` is the trigger: it transitively imports
+// virtual:astro:manifest -> virtual:astro:pages, which fans out into every page.
+import { trailingSlash } from 'astro:config/server';
+---
+
+<header>
+	<a href="/docs/">Docs ({trailingSlash})</a>
+</header>
