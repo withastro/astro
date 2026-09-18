@@ -218,7 +218,14 @@ export function createCloudflarePrerenderer({
 
 			const address = previewServer.httpServer.address();
 			if (address && typeof address === 'object') {
-				serverUrl = `http://localhost:${address.port}`;
+				// Derive the URL from the address we ACTUALLY bound — never by re-stating
+				// "localhost". That hostname would be resolved a second time, independently
+				// of the resolution `listen()` just used, and nothing makes the two agree:
+				// on some Linux hosts `listen()` binds ::1 while `fetch()` dials 127.0.0.1,
+				// and every prerender request fails with ECONNREFUSED on a random port.
+				// Using the bound address makes bind and connect agree by construction.
+				const host = address.family === 'IPv6' ? `[${address.address}]` : address.address;
+				serverUrl = `http://${host}:${address.port}`;
 			} else {
 				throw new Error(
 					'Failed to start the Cloudflare prerender server. The preview server did not return a valid address. ' +
