@@ -30,6 +30,7 @@ import {
 	IMAGE_TRANSFORM_ENDPOINT,
 } from './utils/prerender-constants.js';
 import { readFramedPrerenderResponse } from './utils/prerender-response.js';
+import { buildServerUrl } from './utils/server-url.js';
 
 /**
  * How many images to request from the prerender worker at once. Each response streams
@@ -223,9 +224,7 @@ export function createCloudflarePrerenderer({
 				// of the resolution `listen()` just used, and nothing makes the two agree:
 				// on some Linux hosts `listen()` binds ::1 while `fetch()` dials 127.0.0.1,
 				// and every prerender request fails with ECONNREFUSED on a random port.
-				// Using the bound address makes bind and connect agree by construction.
-				const host = address.family === 'IPv6' ? `[${address.address}]` : address.address;
-				serverUrl = `http://${host}:${address.port}`;
+				serverUrl = buildServerUrl(address);
 			} else {
 				throw new Error(
 					'Failed to start the Cloudflare prerender server. The preview server did not return a valid address. ' +
