@@ -12,6 +12,8 @@ const qualityTable: Record<ImageQualityPreset, number> = {
 	max: 100,
 };
 
+const defaultQuality = 80;
+
 /**
  * Transforms an already-resolved image stream. Split out from `transform` so the build
  * can hand over source bytes it read itself: during the build the original image lives
@@ -50,7 +52,7 @@ export async function transformStream(
 				quality: params.get('q')
 					? (qualityTable[params.get('q') as ImageQualityPreset] ??
 						Number.parseInt(params.get('q')!))
-					: undefined,
+					: defaultQuality,
 				format: outputFormat,
 			})
 	).response();
