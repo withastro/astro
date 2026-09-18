@@ -218,7 +218,13 @@ export function createCloudflarePrerenderer({
 
 			const address = previewServer.httpServer.address();
 			if (address && typeof address === 'object') {
-				serverUrl = `http://localhost:${address.port}`;
+				// Use the actual bound address rather than re-resolving "localhost".
+				// listen() and fetch() resolve the name independently and can pick
+				// different address families (e.g. ::1 vs 127.0.0.1), causing
+				// ECONNREFUSED on IPv6-first hosts. See #18056.
+				const host =
+					address.family === 'IPv6' ? `[${address.address}]` : address.address;
+				serverUrl = `http://${host}:${address.port}`;
 			} else {
 				throw new Error(
 					'Failed to start the Cloudflare prerender server. The preview server did not return a valid address. ' +
