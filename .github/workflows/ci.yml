@@ -362,7 +362,10 @@ jobs:
           ref: ${{ (github.ref_name == 'next' || github.base_ref == 'next') && 'v7' || 'main' }}
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        # trust-policy is disabled because this also installs the cloned docs repo (smoke/docs),
+        # whose dependencies (e.g. algoliasearch via @docsearch/react) fail the no-downgrade check
+        # and can't be covered by trustPolicyExclude since they aren't in this repo's lockfile
+        run: pnpm install --no-frozen-lockfile --trust-policy=off
 
       - name: Build Packages
         run: pnpm run build
