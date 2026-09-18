@@ -32,6 +32,7 @@ overrides:
   '@types/node@22': '^22.19.0'
   # Force modern-tar to 0.7.7 which fixes Unicode NFC/NFD path normalization on Linux (issue #17381)
   'modern-tar': '>=0.7.7'
+  'docs>@lunariajs/core': 'https://pkg.pr.new/lunariajs/lunaria/@lunariajs/core@502ada46073a7f0b003949d78870cefb9290a54f'
 
 # Wait until three days after release to install new versions of packages
 minimumReleaseAge: 4320
