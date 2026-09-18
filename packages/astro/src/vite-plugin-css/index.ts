@@ -75,8 +75,8 @@ async function ensureModulesLoaded(
 		// Don't descend into the pages-manifest virtual module. It dynamically imports
 		// *every* page in the app (so Astro's router can dispatch to any of them), which
 		// makes it a fan-out point, not a real dependency of whichever route happened to
-		// reach it — any route that imports something which itself needs the routing
-		// manifest (e.g. `astro:config/server`, `astro:i18n`) would otherwise have every
+		// reach it — any route that imports something which itself needs
+		// `virtual:astro:manifest` (e.g. `astro:config/server`) would otherwise have every
 		// other page's modules (and their CSS) pulled into its own graph walk. This mirrors
 		// the equivalent boundary already enforced for the production build's CSS graph walk
 		// (`isBuildCssBoundary` in core/build/plugins/plugin-css.ts).
@@ -121,7 +121,7 @@ function* collectCSSWithOrder(
 	// Stop traversing at the pages-manifest virtual module for the same reason
 	// `ensureModulesLoaded` skips it above: it fans out into every page in the app, so
 	// continuing through it would attribute unrelated pages' CSS to whichever route's graph
-	// walk happened to reach it (e.g. via `astro:config/server` or `astro:i18n`).
+	// walk happened to reach `virtual:astro:manifest` (e.g. via `astro:config/server`).
 	if (id === VIRTUAL_PAGES_RESOLVED_MODULE_ID) {
 		return;
 	}
