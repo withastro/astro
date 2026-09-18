@@ -240,6 +240,41 @@ describe('Glob Loader', () => {
 		assert.equal(columbia.deferredRender, undefined);
 	});
 
+	it('fails sync when eager rendering throws, so builds cannot exit 0 with missing output', async () => {
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(root, {
+			contentEntryTypes: [
+				{
+					...createRenderableMarkdownEntryType(),
+					getRenderFunction: async () => async () => {
+						throw new Error('Cannot resolve image: /missing.png');
+					},
+				},
+			],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+
+		const collections = {
+			spacecraft: defineCollection({
+				loader: glob({ pattern: '*.md', base: 'src/content/space' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		// Like deferRender, a render failure must surface instead of resolving
+		// with an entry whose rendered output is silently missing.
+		await assert.rejects(contentLayer.sync(), /Cannot resolve image/);
+	});
+
 	it('defers rendering of renderable entries when deferRender is true', async () => {
 		const store = new MutableDataStore();
 		const settings = createMinimalSettings(root, {
