@@ -5,6 +5,7 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { wrapId } from '../core/util.js';
 import type { ImportedDevStyle, RoutesList } from '../types/astro.js';
 import { inlineRE, isBuildableCSSRequest, rawRE } from '../vite-plugin-astro-server/util.js';
+import { VIRTUAL_PAGES_RESOLVED_MODULE_ID } from '../vite-plugin-pages/pages.js';
 import { getVirtualModulePageNameForComponent } from '../vite-plugin-pages/util.js';
 import { getDevCSSModuleName } from './util.js';
 import { CSS_LANGS_RE } from '../core/viteUtils.js';
@@ -71,6 +72,15 @@ async function ensureModulesLoaded(
 			imp.id.startsWith(RESOLVED_MODULE_DEV_CSS_PREFIX)
 		)
 			continue;
+		// Don't descend into the pages-manifest virtual module. It dynamically imports
+		// *every* page in the app (so Astro's router can dispatch to any of them), which
+		// makes it a fan-out point, not a real dependency of whichever route happened to
+		// reach it — any route that imports something which itself needs the routing
+		// manifest (e.g. `astro:config/server`, `astro:i18n`) would otherwise have every
+		// other page's modules (and their CSS) pulled into its own graph walk. This mirrors
+		// the equivalent boundary already enforced for the production build's CSS graph walk
+		// (`isBuildCssBoundary` in core/build/plugins/plugin-css.ts).
+		if (imp.id === VIRTUAL_PAGES_RESOLVED_MODULE_ID) continue;
 
 		// If this module hasn't been transformed yet, fetch it to populate its importedModules
 		if (!imp.transformResult) {
@@ -105,6 +115,14 @@ function* collectCSSWithOrder(
 	// `astro:content` and thus potentially adding multiple content collection entry assets to the
 	// module graph.
 	if (id.includes(PROPAGATED_ASSET_QUERY_PARAM)) {
+		return;
+	}
+
+	// Stop traversing at the pages-manifest virtual module for the same reason
+	// `ensureModulesLoaded` skips it above: it fans out into every page in the app, so
+	// continuing through it would attribute unrelated pages' CSS to whichever route's graph
+	// walk happened to reach it (e.g. via `astro:config/server` or `astro:i18n`).
+	if (id === VIRTUAL_PAGES_RESOLVED_MODULE_ID) {
 		return;
 	}
 
