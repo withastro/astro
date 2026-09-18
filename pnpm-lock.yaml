@@ -649,7 +649,7 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0
       svgo:
-        specifier: ^4.0.2
+        specifier: ^4.1.0
         version: 4.1.0
       tinyclip:
         specifier: ^1.0.1
