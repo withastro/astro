@@ -47,7 +47,7 @@
     "picomatch": "^4.0.4",
     "retext-smartypants": "^6.2.0",
     "shiki": "^4.0.2",
-    "smol-toml": "^1.6.0",
+    "smol-toml": "^1.8.0",
     "unified": "^11.0.5"
   },
   "devDependencies": {
