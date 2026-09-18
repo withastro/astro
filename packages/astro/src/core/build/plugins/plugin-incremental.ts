@@ -112,7 +112,7 @@ function hashModules(
 			// did not see (e.g. virtual CSS modules).
 			const compiled = compiledCss.get(id);
 			if (compiled != null) {
-				hasher.update(compiled);
+				hasher.update(resolveAssetPlaceholders(graph, compiled));
 			} else {
 				try {
 					hasher.update(nodeFs.readFileSync(removeQueryString(id), 'utf-8'));

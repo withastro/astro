@@ -157,6 +157,50 @@ describe('pluginIncremental', () => {
 			});
 		});
 
+		describe('compiled CSS with asset placeholders (#18058)', () => {
+			it('is stable when compiled CSS contains asset placeholders with different handles', () => {
+				const cssId = '/project/src/styles/global.css';
+				const first = dependencyHash(
+					{ [cssId]: '' },
+					{ [HANDLE_ONE]: '_astro/font.Ab1xYz.woff2' },
+					[cssId],
+					{
+						transforms: { [cssId]: `@font-face { src: url('__VITE_ASSET__${HANDLE_ONE}__'); }` },
+					},
+				);
+				const second = dependencyHash(
+					{ [cssId]: '' },
+					{ [HANDLE_TWO]: '_astro/font.Ab1xYz.woff2' },
+					[cssId],
+					{
+						transforms: { [cssId]: `@font-face { src: url('__VITE_ASSET__${HANDLE_TWO}__'); }` },
+					},
+				);
+				assert.equal(first, second);
+			});
+
+			it('changes when a compiled CSS asset resolves to a different file name', () => {
+				const cssId = '/project/src/styles/global.css';
+				const first = dependencyHash(
+					{ [cssId]: '' },
+					{ [HANDLE_ONE]: '_astro/font.Ab1xYz.woff2' },
+					[cssId],
+					{
+						transforms: { [cssId]: `@font-face { src: url('__VITE_ASSET__${HANDLE_ONE}__'); }` },
+					},
+				);
+				const second = dependencyHash(
+					{ [cssId]: '' },
+					{ [HANDLE_ONE]: '_astro/font.Zz9wVu.woff2' },
+					[cssId],
+					{
+						transforms: { [cssId]: `@font-face { src: url('__VITE_ASSET__${HANDLE_ONE}__'); }` },
+					},
+				);
+				assert.notEqual(first, second);
+			});
+		});
+
 		describe('CSS preprocessor partials (#17974)', () => {
 			it('changes when compiled CSS output changes even if entry file is unchanged', () => {
 				const scssId = '/project/src/styles/global.scss';
