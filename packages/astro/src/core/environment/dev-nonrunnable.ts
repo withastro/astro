@@ -209,6 +209,7 @@ export function createNonRunnableEnvironment(): RenderEnvironment {
 		},
 
 		errorStrategy: 'dev',
+		rendersRedirectPage: () => false,
 		injectCspMetaTagsOnErrorPages: false,
 
 		logRequest(manifest: SSRManifest, payload: RequestLogPayload): void {

@@ -3594,6 +3594,50 @@ export interface AstroUserConfig<
 		 * See the [experimental incremental static builds](https://docs.astro.build/en/reference/experimental-flags/incremental-build/) for more information.
 		 */
 		incrementalBuild?: boolean;
+
+		/**
+		 * @name experimental.redirectPage
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 7.4
+		 * @description
+		 *
+		 * Enables a custom redirect page: a `src/pages/3xx.astro` that Astro renders in place of its
+		 * built-in redirect page for every redirect a static build generates.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     redirectPage: true,
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * Astro renders the page once per redirect, passing that redirect's details as props:
+		 *
+		 * ```astro
+		 * ---
+		 * // src/pages/3xx.astro
+		 * const { from, to, status, delay } = Astro.props;
+		 * ---
+		 * <meta http-equiv="refresh" content={`${delay};url=${to}`} />
+		 * <p>This page has moved. <a href={to}>Continue to {to}</a>.</p>
+		 * ```
+		 *
+		 * - `from`: the pathname being redirected away from.
+		 * - `to`: the redirect destination.
+		 * - `status`: the redirect's HTTP status code, such as `301` or `302`.
+		 * - `delay`: how many seconds to wait before refreshing; `2` for a `302` and `0` otherwise.
+		 *
+		 * Your page must include a `<meta http-equiv="refresh">` tag pointing at `to`, because in a
+		 * static build that tag is the redirect. Astro warns during the build when it is missing.
+		 *
+		 * See the [experimental redirect page documentation](https://docs.astro.build/en/reference/experimental-flags/redirect-page/) for more information.
+		 */
+		redirectPage?: boolean;
 	};
 }
 
