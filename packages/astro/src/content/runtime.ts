@@ -478,8 +478,13 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 			// Markdown processors disagree on which character references to emit when
 			// serialising attribute values: remark uses the numeric forms (`&#x22;` / `&#x27;`),
 			// satteri uses the named forms (`&quot;` / `&apos;`). Decode both before JSON.parse.
+			// `&amp;`/`&#x26;` must be decoded last so that `&amp;quot;` becomes the
+			// literal text `&quot;` rather than a double-decoded quotation mark.
 			const decodedImagePath = JSON.parse(
-				imagePath.replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'"),
+				imagePath
+					.replace(/&(?:#x22|quot);/g, '"')
+					.replace(/&(?:#x27|apos);/g, "'")
+					.replace(/&(?:#x26|amp);/g, '&'),
 			);
 
 			let image: GetImageResult;

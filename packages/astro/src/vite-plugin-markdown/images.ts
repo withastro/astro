@@ -23,7 +23,7 @@ export function getMarkdownCodeForImages(
 											)} + '[^"]*)"', 'g');
 											let match;
 											while ((match = regex.exec(html)) !== null) {
-													const imageProps = JSON.parse(match[1].replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'"));
+													const imageProps = JSON.parse(match[1].replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'").replace(/&(?:#x26|amp);/g, '&'));
 													const { src, ...props } = imageProps;
 													// Key on the decoded src so it lines up with the lookup in updateImageReferences,
 													// which JSON-parses the attribute too (so its key uses the decoded path).
@@ -42,7 +42,7 @@ export function getMarkdownCodeForImages(
 											)} + '[^"]*)"', 'g');
 											let match;
 											while ((match = regex.exec(html)) !== null) {
-													const props = JSON.parse(match[1].replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'"));
+													const props = JSON.parse(match[1].replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'").replace(/&(?:#x26|amp);/g, '&'));
 													imageSources[props.src + '_' + props.index] = await getImage(props);
 											}
 									}`;
@@ -56,8 +56,10 @@ export function getMarkdownCodeForImages(
 
 			return html.replaceAll(/__ASTRO_IMAGE_="([^"]+)"/gm, (full, imagePath) => {
 				// Markdown processors disagree on character-reference style — remark emits
-				// \`&#x22;\`/\`&#x27;\`, satteri emits \`&quot;\`/\`&apos;\`. Decode both before JSON.parse.
-				const decodedImagePath = JSON.parse(imagePath.replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'"));
+				// \`&#x22;\`/\`&#x27;\`, satteri emits \`&quot;\`/\`&apos;\`. Decode all before JSON.parse.
+				// \`&amp;\`/\`&#x26;\` must be decoded last so \`&amp;quot;\` becomes the
+				// literal text \`&quot;\` rather than a double-decoded quotation mark.
+				const decodedImagePath = JSON.parse(imagePath.replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'").replace(/&(?:#x26|amp);/g, '&'));
 
 				// Use the 'index' property for each image occurrence
 				const srcKey = decodedImagePath.src + '_' + decodedImagePath.index;
