@@ -62,8 +62,6 @@ minimumReleaseAgeExclude:
   - '@fastify/static@10.1.2'
   # Renovate security update: @babel/core@7.29.6
   - '@babel/core@7.29.6'
-  # Renovate security update: js-yaml@4.3.2
-  - js-yaml@4.3.2
 peerDependencyRules:
   allowAny:
     - 'astro'
