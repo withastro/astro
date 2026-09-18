@@ -51,8 +51,6 @@ minimumReleaseAgeExclude:
   - wrangler
   - 'satteri'
   - '@bruits/*'
-  # Renovate security update: smol-toml@1.7.1
-  - smol-toml@1.7.1
 peerDependencyRules:
   allowAny:
     - 'astro'

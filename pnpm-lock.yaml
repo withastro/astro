@@ -646,7 +646,7 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2
       smol-toml:
-        specifier: ^1.6.0
+        specifier: ^1.8.0
         version: 1.8.0
       svgo:
         specifier: ^4.0.2
@@ -6698,7 +6698,7 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2
       smol-toml:
-        specifier: ^1.6.0
+        specifier: ^1.8.0
         version: 1.8.0
       unified:
         specifier: ^11.0.5
