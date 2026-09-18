@@ -60,7 +60,7 @@ peerDependencyRules:
 
 # Prevent installation of packages where trust level decreases
 trustPolicy: 'no-downgrade'
-trustPolicyExcludePrune: true
+trustPolicyExcludePrune: false
 trustPolicyExclude:
   # Netlify dependency they need to update: https://github.com/netlify/primitives/pull/585
   - 'chokidar@4.0.3'
@@ -79,6 +79,20 @@ trustPolicyExclude:
   # Old dependency of @types/node@22
   # TODO: Remove when dropping support for Node 22
   - undici-types@6.21.0
+  # Dependencies in the docs repo that gets cloned for smoke tests.
+  # These must not be pruned: they are absent from this repo's lockfile and are
+  # only resolved when smoke/docs is installed, so trustPolicyExcludePrune would
+  # strip them on any regular install.
+  - 'undici@5.29.0'
+  - 'algoliasearch@4.27.0'
+  - '@algolia/client-analytics@4.27.0'
+  - '@algolia/recommend@4.27.0'
+  - '@algolia/client-search@4.27.0'
+  - '@algolia/requester-browser-xhr@4.27.0'
+  - '@algolia/requester-node-http@4.27.0'
+  - '@algolia/client-common@4.27.0'
+  - '@algolia/logger-console@4.27.0'
+  - '@algolia/client-personalization@4.27.0'
 
 # Control whether packages can run postinstall scripts. We disallow this to avoid the security risk
 # of running third-party code on install.
