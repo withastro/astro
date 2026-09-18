@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+	hasFileExtension,
 	isInternalPath,
 	isParentDirectory,
 	isRemotePath,
@@ -876,5 +877,32 @@ describe('isInternalPath', () => {
 	it('does not flag paths that are only slashes', () => {
 		assert.equal(isInternalPath('//'), false);
 		assert.equal(isInternalPath('///'), false);
+	});
+});
+
+describe('hasFileExtension', () => {
+	it('detects an extension on a path with directory segments', () => {
+		assert.equal(hasFileExtension('/foo/bar.js'), true);
+		assert.equal(hasFileExtension('/a/b/c.png'), true);
+	});
+
+	it('detects an extension on a bare filename without a leading slash', () => {
+		assert.equal(hasFileExtension('about.html'), true);
+		assert.equal(hasFileExtension('rss.xml'), true);
+		assert.equal(hasFileExtension('favicon.ico'), true);
+	});
+
+	it('uses the last dot in a multi-dot filename', () => {
+		assert.equal(hasFileExtension('foo.bar.js'), true);
+	});
+
+	it('returns false for paths without a file extension', () => {
+		assert.equal(hasFileExtension('/blog'), false);
+		assert.equal(hasFileExtension('/blog/'), false);
+		assert.equal(hasFileExtension('index'), false);
+	});
+
+	it('returns false for a trailing dot with no extension', () => {
+		assert.equal(hasFileExtension('file.'), false);
 	});
 });
