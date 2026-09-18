@@ -198,7 +198,7 @@ importers:
         specifier: ^7.3.3
         version: link:../../packages/astro
       hono:
-        specifier: ^4.12.14
+        specifier: ^4.13.7
         version: 4.13.7
 
   examples/basics:
@@ -4577,7 +4577,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       hono:
-        specifier: ^4.12.14
+        specifier: ^4.13.7
         version: 4.13.7
       wrangler:
         specifier: ^4.83.0
