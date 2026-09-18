@@ -85,6 +85,6 @@
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.59.1",
     "valibot": "^1.2.0",
-    "vitest": "^4.1.0"
+    "vitest": "^5.0.0"
   }
 }
