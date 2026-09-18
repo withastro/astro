@@ -61,6 +61,8 @@ minimumReleaseAgeExclude:
   - '@fastify/static@10.1.2'
   # Renovate security update: @babel/core@7.29.6
   - '@babel/core@7.29.6'
+  # Renovate security update: smol-toml@1.7.1
+  - smol-toml@1.7.1
 peerDependencyRules:
   allowAny:
     - 'astro'
