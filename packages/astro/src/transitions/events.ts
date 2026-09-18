@@ -136,6 +136,7 @@ export async function doPreparation(
 	signal: AbortSignal,
 	formData: FormData | undefined,
 	defaultLoader: (event: TransitionBeforePreparationEvent) => Promise<void>,
+	shouldSaveScroll = true,
 ) {
 	const event = new TransitionBeforePreparationEvent(
 		from,
@@ -153,7 +154,7 @@ export async function doPreparation(
 		await event.loader();
 		if (!event.defaultPrevented) {
 			triggerEvent('astro:after-preparation');
-			if (event.navigationType !== 'traverse') {
+			if (shouldSaveScroll && event.navigationType !== 'traverse') {
 				// save the current scroll position before we change the DOM and transition to the new page
 				updateScrollPosition({ scrollX, scrollY });
 			}
