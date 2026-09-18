@@ -199,8 +199,8 @@ importers:
         specifier: ^7.3.3
         version: link:../../packages/astro
       hono:
-        specifier: ^4.12.14
-        version: 4.12.18
+        specifier: ^4.13.7
+        version: 4.13.7
 
   examples/basics:
     dependencies:
@@ -736,7 +736,7 @@ importers:
         version: 2.13.0
       hono:
         specifier: ^4.12.14
-        version: 4.12.18
+        version: 4.13.7
       node-mocks-http:
         specifier: ^1.17.2
         version: 1.18.1(@types/express@5.0.6)(@types/node@22.19.19)
@@ -4578,8 +4578,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       hono:
-        specifier: ^4.12.14
-        version: 4.12.18
+        specifier: ^4.13.7
+        version: 4.13.7
       wrangler:
         specifier: ^4.83.0
         version: 4.125.0(@cloudflare/workers-types@5.20260825.1)
@@ -13130,8 +13130,8 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
-  hono@4.12.18:
-    resolution: {integrity: sha512-RWzP96k/yv0PQfyXnWjs6zot20TqfpfsNXhOnev8d1InAxubW93L11/oNUc3tQqn2G0bSdAOBpX+2uDFHV7kdQ==}
+  hono@4.13.7:
+    resolution: {integrity: sha512-c8/gF9ac8Y78/agExVocyLevgR+JlpNB444Py0FSX8pJoPdYUfUzRcXtYEYGwt6l19qIlVZPN5Mfsw9jFShmQQ==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -18477,10 +18477,10 @@ snapshots:
     dependencies:
       '@earendil-works/pi-agent-core': 0.83.0(supports-color@10.2.2)(ws@8.21.0)(zod@4.6.5)
       '@earendil-works/pi-ai': 0.83.0(supports-color@10.2.2)(ws@8.21.0)(zod@4.6.5)
-      '@hono/node-server': 2.0.4(hono@4.12.18)
+      '@hono/node-server': 2.0.4(hono@4.13.7)
       '@modelcontextprotocol/client': 2.0.0
       '@valibot/to-json-schema': 1.5.0(valibot@1.4.2)
-      hono: 4.12.18
+      hono: 4.13.7
       js-yaml: 5.2.3
       ulidx: 2.4.1
       valibot: 1.4.2(typescript@6.0.3)
@@ -18508,9 +18508,9 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@hono/node-server@2.0.4(hono@4.12.18)':
+  '@hono/node-server@2.0.4(hono@4.13.7)':
     dependencies:
-      hono: 4.12.18
+      hono: 4.13.7
 
   '@humanfs/core@0.19.1': {}
 
@@ -23216,7 +23216,7 @@ snapshots:
 
   he@1.2.0: {}
 
-  hono@4.12.18: {}
+  hono@4.13.7: {}
 
   hookable@5.5.3: {}
 
