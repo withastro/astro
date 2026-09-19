@@ -1,5 +1,6 @@
 import type * as vite from 'vite';
 import type { DevEnvironment } from 'vite';
+import { normalizePath } from 'vite';
 import {
 	buildImporterGraphFromModuleInfo,
 	computeInTreeAncestors,
@@ -26,7 +27,8 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
  * directly, which traverses the live Vite module graph and produces more accurate per-request data.
  *
  * The virtual module is invalidated whenever metadata propagation runs (on transform, resolveId)
- * and on file add/unlink, ensuring it stays fresh during HMR.
+ * and when a watched file that belongs to one of these module graphs changes, ensuring it stays
+ * fresh during HMR.
  */
 const VIRTUAL_COMPONENT_METADATA = 'virtual:astro:component-metadata';
 const RESOLVED_VIRTUAL_COMPONENT_METADATA = `\0${VIRTUAL_COMPONENT_METADATA}`;
@@ -120,9 +122,25 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				devServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr],
 				devServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.prerender],
 			].filter((e): e is DevEnvironment => !!e);
-			devServer.watcher.on('add', invalidateComponentMetadataModule);
-			devServer.watcher.on('unlink', invalidateComponentMetadataModule);
-			devServer.watcher.on('change', invalidateComponentMetadataModule);
+			// This module is imported by the dev app entrypoint, so invalidating it
+			// also invalidates that whole import chain. Only a file that belongs to one
+			// of these module graphs can have changed the metadata reported here;
+			// unrelated writes under the project root - Cloudflare's `.wrangler/state`
+			// sqlite files are rewritten while dev requests run - would otherwise make
+			// the runner re-evaluate the entire server graph on every request.
+			// https://github.com/withastro/astro/issues/18065
+			const invalidateForWatchedFile = (file: string) => {
+				// Module graph lookups use normalized paths; the watcher reports
+				// OS-native ones.
+				const normalized = normalizePath(file);
+				if (!environments.some((env) => env.moduleGraph.getModulesByFile(normalized)?.size)) {
+					return;
+				}
+				invalidateComponentMetadataModule();
+			};
+			devServer.watcher.on('add', invalidateForWatchedFile);
+			devServer.watcher.on('unlink', invalidateForWatchedFile);
+			devServer.watcher.on('change', invalidateForWatchedFile);
 		},
 		load(id) {
 			if (id !== RESOLVED_VIRTUAL_COMPONENT_METADATA) {
