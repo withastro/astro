@@ -57,6 +57,11 @@ export async function handleHotUpdate(
 			return query.astro && query.type === 'style' && !query.inline;
 		});
 	}
+
+	// When non-style content changed (markup, frontmatter, scripts), Vite's default HMR
+	// invalidates the affected modules in its module graph. Clear the compile metadata so
+	// the load hook recompiles from disk on the next request instead of serving stale CSS.
+	astroFileToCompileMetadata.delete(ctx.file);
 }
 
 // Disable eslint as we're not sure how to improve this regex yet
