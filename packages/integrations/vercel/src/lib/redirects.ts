@@ -118,13 +118,42 @@ export function escapeRegex(content: string) {
 	return `^/${getMatchRegex(segments)}$`;
 }
 
+/**
+ * When `trailingSlash` is `'always'`, Vercel's trailing-slash normalization routes
+ * (emitted by `@vercel/routing-utils`) run before redirect routes, so extensionless
+ * paths arrive with a trailing slash already appended. Spread routes and paths with
+ * file extensions are exempt because normalization does not alter them.
+ */
+function adjustSourceForTrailingSlash(
+	source: string,
+	segments: RoutePart[][],
+	trailingSlash: AstroConfig['trailingSlash'],
+): string {
+	if (trailingSlash !== 'always') return source;
+	if (source === '/') return source;
+
+	const hasSpread = segments.some((seg) => seg.some((part) => part.spread));
+	if (hasSpread) return source;
+
+	const lastSegment = segments[segments.length - 1];
+	const hasExtension = lastSegment?.some((part) => !part.dynamic && part.content.includes('.'));
+	if (hasExtension) return source;
+
+	return source.endsWith('/') ? source : source + '/';
+}
+
 export function getRedirects(routes: IntegrationResolvedRoute[], config: AstroConfig): Redirect[] {
 	const redirects: Redirect[] = [];
 
 	for (const route of routes) {
 		if (route.type === 'redirect') {
+			const source = adjustSourceForTrailingSlash(
+				config.base + getMatchPattern(route.segments),
+				route.segments,
+				config.trailingSlash,
+			);
 			redirects.push({
-				source: config.base + getMatchPattern(route.segments),
+				source,
 				destination: getRedirectLocation(route, config),
 				statusCode: getRedirectStatus(route),
 			});
