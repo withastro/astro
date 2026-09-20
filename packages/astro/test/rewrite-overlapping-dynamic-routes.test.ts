@@ -38,3 +38,29 @@ describe('rewriting to a path owned by a later dynamic route', () => {
 		assert.equal($('h1').text(), 'Slug alpha');
 	});
 });
+
+// A build populates `distURL`, so it takes the pre-existing fast path rather
+// than the new validation. This pins that the fast path still resolves the same
+// route, so the dev fix cannot quietly change build output.
+describe('building the same overlapping routes', () => {
+	let fixture: Fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-overlapping-dynamic-routes/',
+			outDir: './dist/rewrite-overlapping-dynamic-routes-build/',
+			cacheDir: './node_modules/.astro-test/rewrite-overlapping-dynamic-routes-build/',
+		});
+		await fixture.build();
+	});
+
+	it('emits the page the catch-all owns', async () => {
+		const $ = cheerio.load(await fixture.readFile('/alpha/index.html'));
+		assert.equal($('h1').text(), 'Slug alpha');
+	});
+
+	it('resolves the rewrite to that same page', async () => {
+		const $ = cheerio.load(await fixture.readFile('/rewrite-me/index.html'));
+		assert.equal($('h1').text(), 'Slug alpha');
+	});
+});
