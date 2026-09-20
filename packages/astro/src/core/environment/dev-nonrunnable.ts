@@ -16,6 +16,7 @@ import { req } from '../messages/runtime.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../render/ssr-element.js';
 import { getDefaultRoutes } from '../routing/default.js';
+import { createRewriteRouteValidator } from '../routing/rewrite-validate.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import { getRouteTable } from '../routing/route-table.js';
 import type { HeadElements, RenderEnvironment, TryRewriteResult } from './index.js';
@@ -188,7 +189,7 @@ export function createNonRunnableEnvironment(): RenderEnvironment {
 			payload: RewritePayload,
 			request: Request,
 		): Promise<TryRewriteResult> {
-			const { newUrl, pathname, routeData } = findRouteToRewrite({
+			const { newUrl, pathname, routeData } = await findRouteToRewrite({
 				payload,
 				request,
 				// The single fresh route table: HMR route updates are visible
@@ -198,6 +199,7 @@ export function createNonRunnableEnvironment(): RenderEnvironment {
 				buildFormat: manifest.buildFormat,
 				base: manifest.base,
 				outDir: manifest.serverLike ? manifest.buildClientDir : manifest.outDir,
+				validate: createRewriteRouteValidator(manifest, getComponentByRoute),
 			});
 
 			const componentInstance = await getComponentByRoute(manifest, routeData);
