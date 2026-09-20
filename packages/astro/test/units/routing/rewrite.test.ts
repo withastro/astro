@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+	findRouteToRewrite,
 	normalizeRewritePathname,
 	setOriginPathname,
 	getOriginPathname,
@@ -195,5 +196,90 @@ describe('setOriginPathname / getOriginPathname', () => {
 		const req = new Request('http://example.com/');
 		setOriginPathname(req, '/café', 'never', 'file');
 		assert.equal(getOriginPathname(req), '/café');
+	});
+});
+
+describe('findRouteToRewrite candidate selection', () => {
+	/** A dynamic route with no `distURL`, as `astro dev` and on-demand routes have. */
+	function dynamicRoute(route: string, pattern: RegExp) {
+		return { route, pattern, params: ['p'], component: `${route}.astro`, distURL: [] } as any;
+	}
+
+	const request = new Request('http://example.com/source');
+	const base = {
+		request,
+		trailingSlash: 'ignore' as const,
+		buildFormat: 'directory' as const,
+		base: '/',
+		outDir: 'file:///out/',
+	};
+	// `/[category]` sorts ahead of `/[...slug]` and matches the same path.
+	const shadowing = dynamicRoute('/[category]', /^\/([^/]+)\/?$/);
+	const owner = dynamicRoute('/[...slug]', /^\/(.+)$/);
+
+	it('skips a matching route that does not own the pathname', async () => {
+		const result = await findRouteToRewrite({
+			...base,
+			payload: '/alpha',
+			routes: [shadowing, owner],
+			validate: async (route: any) => route.route === '/[...slug]',
+		});
+		assert.equal(result.routeData.route, '/[...slug]');
+	});
+
+	it('keeps the first match when it owns the pathname', async () => {
+		const result = await findRouteToRewrite({
+			...base,
+			payload: '/alpha',
+			routes: [shadowing, owner],
+			validate: async () => true,
+		});
+		assert.equal(result.routeData.route, '/[category]');
+	});
+
+	it('falls back to 404 when no candidate owns the pathname', async () => {
+		const result = await findRouteToRewrite({
+			...base,
+			payload: '/alpha',
+			routes: [shadowing, owner],
+			validate: async () => false,
+		});
+		assert.equal(result.routeData.route, '/404');
+	});
+
+	it('lets a later route win even when an earlier one throws', async () => {
+		const result = await findRouteToRewrite({
+			...base,
+			payload: '/alpha',
+			routes: [shadowing, owner],
+			validate: async (route: any) => {
+				if (route.route === '/[category]') throw new Error('getStaticPaths blew up');
+				return true;
+			},
+		});
+		assert.equal(result.routeData.route, '/[...slug]');
+	});
+
+	it('surfaces a getStaticPaths failure when nothing else owns the pathname', async () => {
+		await assert.rejects(
+			findRouteToRewrite({
+				...base,
+				payload: '/alpha',
+				routes: [shadowing],
+				validate: async () => {
+					throw new Error('getStaticPaths blew up');
+				},
+			}),
+			/getStaticPaths blew up/,
+		);
+	});
+
+	it('preserves the legacy first-match behaviour with no validator', async () => {
+		const result = await findRouteToRewrite({
+			...base,
+			payload: '/alpha',
+			routes: [shadowing, owner],
+		});
+		assert.equal(result.routeData.route, '/[category]');
 	});
 });
