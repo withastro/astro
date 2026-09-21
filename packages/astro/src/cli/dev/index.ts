@@ -10,7 +10,7 @@ import {
 } from '../../core/dev/lockfile.js';
 import { resolveRoot } from '../../core/config/config.js';
 import { printHelp } from '../../core/messages/runtime.js';
-import { isRunByAgent } from '../agent.js';
+import { isRunByAgent, supportsAgentAutoBackgrounding } from '../agent.js';
 import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface DevOptions {
@@ -118,7 +118,6 @@ export async function dev({ flags }: DevOptions) {
 		return;
 	}
 
-	// When an AI coding agent is detected, enable background mode and JSON logging automatically.
 	const agentDetected = !process.env.ASTRO_DEV_BACKGROUND && isRunByAgent();
 	if (agentDetected) {
 		flags.json = true;
@@ -128,7 +127,9 @@ export async function dev({ flags }: DevOptions) {
 	// Agent-inferred background yields to `--ignore-lock`: the flag means a one-off
 	// foreground server that `stop`/`status`/`logs` won't track.
 	// https://github.com/withastro/astro/issues/17903
-	const wantsBackground = !!flags.background || (agentDetected && !ignoreLock);
+	const wantsBackground =
+		!!flags.background ||
+		(supportsAgentAutoBackgrounding(process.platform) && agentDetected && !ignoreLock);
 
 	const logger = createLoggerFromFlags(flags);
 	const subcommand = flags._[3]?.toString();
@@ -162,9 +163,6 @@ export async function dev({ flags }: DevOptions) {
 		}
 	}
 
-	// Handle `astro dev --background` or auto-enable when an AI coding agent is detected.
-	// Skip if ASTRO_DEV_BACKGROUND is set — this means we're the spawned child process
-	// and should run the foreground dev server, not recurse into background mode.
 	if (wantsBackground) {
 		const { background } = await import('./background.js');
 		await background({ flags, logger });

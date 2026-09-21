@@ -66,13 +66,27 @@ export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
 export const NODE_PATH = '_render';
 const MIDDLEWARE_PATH = '_middleware';
 
-// This isn't documented by vercel anywhere, but unlike serverless
-// and edge functions, isr functions are not passed the original path.
-// Instead, we have to use $0 to refer to the regex match from "src".
+// Unlike serverless and edge functions, ISR functions are not passed the
+// original path, so the route rewrite's `dest` carries it via a regex capture
+// group reference. Vercel's router substitutes `$1`–`$9` and `$<letters>`, but
+// not `$0`, so each ISR route's `src` pattern is wrapped in an outer capture
+// group (see `wrapPatternInCaptureGroup`) and referenced as `$1` here. See
+// https://github.com/withastro/astro/issues/18028 for the `$0` failure mode.
 // The path token is appended so the entrypoint can verify the rewrite
 // originated from this build's route table and not from an external caller.
 const getIsrPath = (pathToken: string) =>
-	`/_isr?${ASTRO_PATH_PARAM}=$0&${ASTRO_PATH_TOKEN_PARAM}=${pathToken}`;
+	`/_isr?${ASTRO_PATH_PARAM}=$1&${ASTRO_PATH_TOKEN_PARAM}=${pathToken}`;
+
+/**
+ * Wraps a route regex source in an outer capture group so the full match is
+ * available as `$1` in Vercel's route `dest` substitution. Inner groups shift
+ * to `$2`, `$3`, etc., but `dest` only references `$1`.
+ *
+ * `^\/one\/?$` → `^(\/one\/?)$`
+ */
+function wrapPatternInCaptureGroup(source: string): string {
+	return source.replace(/^\^(.*)\$$/, '^($1)$');
+}
 
 // https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/node-js#node.js-version
 const SUPPORTED_NODE_VERSIONS: Record<
@@ -506,7 +520,7 @@ export default function vercelAdapter({
 							});
 
 							if (!excludeRouteFromIsr) {
-								const src = route.patternRegex.source;
+								let src = route.patternRegex.source;
 								const isInternal =
 									src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands');
 
@@ -516,6 +530,10 @@ export default function vercelAdapter({
 								} else if (_middlewareEntryPoint) {
 									// The middleware has to run before the cache is consulted.
 									dest = MIDDLEWARE_PATH;
+								} else {
+									// `dest` references `$1`, so wrap `src` to make the full
+									// match the first capture group.
+									src = wrapPatternInCaptureGroup(src);
 								}
 
 								if (!route.isPrerendered) {
@@ -547,15 +565,7 @@ export default function vercelAdapter({
 				}
 				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
 				const vercelConfigJson = new URL('./.vercel/output/config.json', _config.root);
-				const finalRoutes: Route[] = [
-					{
-						src: `^/${_config.build.assets}/(.*)$`,
-						headers: {
-							'cache-control': 'public, max-age=31536000, immutable',
-						},
-						continue: true,
-					},
-				];
+				const finalRoutes: Route[] = [];
 				if (_hasServerBuild) {
 					finalRoutes.push(...routeDefinitions);
 				}
@@ -591,11 +601,17 @@ export default function vercelAdapter({
 					trailingSlash = _config.trailingSlash === 'always';
 				}
 
-				const { routes: redirects = [], error } = getTransformedRoutes({
+				// `headers` are emitted before the `filesystem` handle, which hashed assets always hit.
+				const { routes: transformedRoutes, error } = getTransformedRoutes({
 					trailingSlash,
 					rewrites: [],
 					redirects: getRedirects(routes, _config),
-					headers: [],
+					headers: [
+						{
+							source: `/${_config.build.assets}/(.*)`,
+							headers: [{ key: 'cache-control', value: 'public, max-age=31536000, immutable' }],
+						},
+					],
 				});
 				if (error) {
 					throw new AstroError(
@@ -624,7 +640,7 @@ export default function vercelAdapter({
 					images = getDefaultImageConfig(_config.image);
 				}
 
-				const normalized = normalizeRoutes([...(redirects ?? []), ...finalRoutes]);
+				const normalized = normalizeRoutes([...(transformedRoutes ?? []), ...finalRoutes]);
 				if (normalized.error) {
 					throw new AstroError(
 						`Error generating routes: ${normalized.error.message}`,

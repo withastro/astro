@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { promises as fs, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
 import { describe, it } from 'node:test';
@@ -102,5 +103,29 @@ describe('astro cli', () => {
 		).getResult();
 
 		assert.equal(result.stdout.includes('1 error'), true);
+	});
+
+	it('astro check explains TypeScript 7 support', async () => {
+		const projectRoot = await fs.mkdtemp(join(tmpdir(), 'astro-check-ts7-'));
+		const typescriptRoot = join(projectRoot, 'node_modules', 'typescript');
+
+		try {
+			await fs.mkdir(typescriptRoot, { recursive: true });
+			await fs.writeFile(
+				join(typescriptRoot, 'package.json'),
+				JSON.stringify({
+					name: 'typescript',
+					version: '7.0.2',
+					type: 'module',
+					exports: { './package.json': './package.json' },
+				}),
+			);
+
+			const result = await cli('check', '--root', projectRoot, '--noSync').getResult();
+
+			assert.match(result.stderr, /does not currently support TypeScript 7\.0/);
+		} finally {
+			await fs.rm(projectRoot, { recursive: true, force: true });
+		}
 	});
 });

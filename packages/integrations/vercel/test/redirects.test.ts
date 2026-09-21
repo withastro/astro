@@ -64,6 +64,22 @@ describe('Redirects', () => {
 		assert.equal(blogRoute.status, 301);
 	});
 
+	it('emits the assets cache rule after redirects and before the filesystem handle', async () => {
+		const config = await getVercelConfig(fixture);
+
+		const cacheIndex = config.routes.findIndex(
+			(r) => r.headers?.['cache-control'] === 'public, max-age=31536000, immutable',
+		);
+		const handleIndex = config.routes.findIndex((r) => r.handle === 'filesystem');
+		const lastRedirectIndex = config.routes.findLastIndex(
+			(r) => r.status === 301 || r.status === 308,
+		);
+		assert.notEqual(cacheIndex, -1);
+		assert.notEqual(handleIndex, -1);
+		assert.notEqual(lastRedirectIndex, -1);
+		assert.ok(lastRedirectIndex < cacheIndex && cacheIndex < handleIndex);
+	});
+
 	it('throws an error for invalid redirects', { timeout: 30000 }, async () => {
 		const fails = await loadFixture({
 			root: './fixtures/redirects/',
