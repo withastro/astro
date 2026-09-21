@@ -34,21 +34,24 @@ interface FindRouteToRewriteResult {
 	pathname: string;
 }
 
+interface FindAllRouteCandidatesResult {
+	candidates: RouteData[];
+	newUrl: URL;
+	pathname: string;
+}
+
 /**
- * Shared logic to retrieve the rewritten route. It returns a tuple that represents:
- * 1. The new `Request` object. It contains `base`
- * 2.
+ * Resolves a rewrite payload into a normalized URL and decoded pathname.
+ * Shared by `findRouteToRewrite` and `findAllRouteCandidatesToRewrite`.
  */
-export function findRouteToRewrite({
-	payload,
-	routes,
-	request,
-	trailingSlash,
-	buildFormat,
-	base,
-	outDir,
-}: FindRouteToRewrite): FindRouteToRewriteResult {
-	let newUrl: URL | undefined = undefined;
+function resolveRewritePayload(
+	payload: RewritePayload,
+	request: Request,
+	base: AstroConfig['base'],
+	trailingSlash: AstroConfig['trailingSlash'],
+	buildFormat: AstroConfig['build']['format'],
+): { newUrl: URL; pathname: string; decodedPathname: string } {
+	let newUrl: URL;
 	if (payload instanceof URL) {
 		newUrl = payload;
 	} else if (payload instanceof Request) {
@@ -72,6 +75,31 @@ export function findRouteToRewrite({
 	// still reach a protected route. For an already-decoded path this changes
 	// nothing.
 	const decodedPathname = validateAndDecodePathname(pathname);
+
+	return { newUrl, pathname, decodedPathname };
+}
+
+/**
+ * Shared logic to retrieve the rewritten route. It returns a tuple that represents:
+ * 1. The new `Request` object. It contains `base`
+ * 2.
+ */
+export function findRouteToRewrite({
+	payload,
+	routes,
+	request,
+	trailingSlash,
+	buildFormat,
+	base,
+	outDir,
+}: FindRouteToRewrite): FindRouteToRewriteResult {
+	const { newUrl, pathname, decodedPathname } = resolveRewritePayload(
+		payload,
+		request,
+		base,
+		trailingSlash,
+		buildFormat,
+	);
 
 	// Error pages (404/500) take precedence over dynamic routes that might
 	// capture the same path (e.g. [locale] matching /404). See #15098.
@@ -131,6 +159,55 @@ export function findRouteToRewrite({
 			return { routeData: DEFAULT_404_ROUTE, newUrl, pathname };
 		}
 	}
+}
+
+/**
+ * Returns all route candidates matching a rewrite target, ordered by
+ * route priority. Used in dev where `distURL` is unavailable and the
+ * caller validates candidates via `getStaticPaths()` instead. See #18089.
+ */
+export function findAllRouteCandidatesToRewrite({
+	payload,
+	routes,
+	request,
+	trailingSlash,
+	buildFormat,
+	base,
+}: Omit<FindRouteToRewrite, 'outDir'>): FindAllRouteCandidatesResult {
+	const { newUrl, pathname, decodedPathname } = resolveRewritePayload(
+		payload,
+		request,
+		base,
+		trailingSlash,
+		buildFormat,
+	);
+
+	// Error pages (404/500) take precedence over dynamic routes that might
+	// capture the same path (e.g. [locale] matching /404). See #15098.
+	if (isRoute404(decodedPathname)) {
+		const errorRoute = routes.find((route) => route.route === '/404');
+		if (errorRoute) {
+			return { candidates: [errorRoute], newUrl, pathname: decodedPathname };
+		}
+	}
+	if (isRoute500(decodedPathname)) {
+		const errorRoute = routes.find((route) => route.route === '/500');
+		if (errorRoute) {
+			return { candidates: [errorRoute], newUrl, pathname: decodedPathname };
+		}
+	}
+
+	const candidates = routes.filter((route) => route.pattern.test(decodedPathname));
+
+	if (candidates.length > 0) {
+		return { candidates, newUrl, pathname: decodedPathname };
+	}
+
+	const custom404 = routes.find((route) => route.route === '/404');
+	if (custom404) {
+		return { candidates: [custom404], newUrl, pathname };
+	}
+	return { candidates: [DEFAULT_404_ROUTE], newUrl, pathname };
 }
 
 /**

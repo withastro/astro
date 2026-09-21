@@ -8,6 +8,8 @@ import type { RequestLogPayload } from '../core/environment/index.js';
 import type { SinglePageBuiltModule } from '../core/build/types.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
+import { NoMatchingStaticPathFound } from '../core/errors/errors-data.js';
+import { isAstroError } from '../core/errors/errors.js';
 import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
 import { getLogger } from '../core/logger/manifest-logger.js';
 import { req } from '../core/messages/runtime.js';
@@ -16,10 +18,11 @@ import {
 	RedirectComponentInstance,
 	RedirectSinglePageBuiltModule,
 } from '../core/redirects/index.js';
-import { loadRenderer } from '../core/render/index.js';
+import { getProps, loadRenderer } from '../core/render/index.js';
+import { getRouteCache } from '../core/render/route-cache.js';
 import { getDefaultRoutes } from '../core/routing/default.js';
 import { routeIsRedirect } from '../core/routing/helpers.js';
-import { findRouteToRewrite } from '../core/routing/rewrite.js';
+import { findAllRouteCandidatesToRewrite } from '../core/routing/rewrite.js';
 import { getRouteTable } from '../core/routing/route-table.js';
 import { isPage } from '../core/util.js';
 import { resolveIdToUrl } from '../core/viteUtils.js';
@@ -252,7 +255,7 @@ export function createRunnableEnvironment({
 			payload: RewritePayload,
 			request: Request,
 		): Promise<TryRewriteResult> {
-			const { routeData, pathname, newUrl } = findRouteToRewrite({
+			const { candidates, pathname, newUrl } = findAllRouteCandidatesToRewrite({
 				payload,
 				request,
 				// The single fresh route table: HMR route updates are visible
@@ -261,9 +264,39 @@ export function createRunnableEnvironment({
 				trailingSlash: manifest.trailingSlash,
 				buildFormat: manifest.buildFormat,
 				base: manifest.base,
-				outDir: manifest.outDir,
 			});
 
+			// In dev, `distURL` is empty so pattern-only matching can select
+			// a dynamic route that doesn't produce this path. Iterate all
+			// candidates and validate via `getStaticPaths()`, mirroring the
+			// direct-request path in `matchRoute` (dev.ts). See #18089.
+			const logger = getLogger(manifest);
+			const routeCache = getRouteCache(manifest);
+			for (const routeData of candidates) {
+				try {
+					const componentInstance = await getComponentByRoute(manifest, routeData);
+					await getProps({
+						mod: componentInstance,
+						routeData,
+						routeCache,
+						pathname,
+						logger,
+						serverLike: manifest.serverLike,
+						base: manifest.base,
+						trailingSlash: manifest.trailingSlash,
+					});
+					return { newUrl, pathname, componentInstance, routeData };
+				} catch (e) {
+					if (isAstroError(e) && e.title === NoMatchingStaticPathFound.title) {
+						continue;
+					}
+					throw e;
+				}
+			}
+
+			// All candidates exhausted — fall back to the last candidate
+			// (typically the 404 route appended by findAllRouteCandidatesToRewrite).
+			const routeData = candidates[candidates.length - 1];
 			const componentInstance = await getComponentByRoute(manifest, routeData);
 			return { newUrl, pathname, componentInstance, routeData };
 		},

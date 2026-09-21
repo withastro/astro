@@ -16,7 +16,11 @@ import { req } from '../messages/runtime.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../render/ssr-element.js';
 import { getDefaultRoutes } from '../routing/default.js';
-import { findRouteToRewrite } from '../routing/rewrite.js';
+import { NoMatchingStaticPathFound } from '../errors/errors-data.js';
+import { isAstroError } from '../errors/errors.js';
+import { getProps } from '../render/index.js';
+import { getRouteCache } from '../render/route-cache.js';
+import { findAllRouteCandidatesToRewrite } from '../routing/rewrite.js';
 import { getRouteTable } from '../routing/route-table.js';
 import type { HeadElements, RenderEnvironment, TryRewriteResult } from './index.js';
 
@@ -188,7 +192,7 @@ export function createNonRunnableEnvironment(): RenderEnvironment {
 			payload: RewritePayload,
 			request: Request,
 		): Promise<TryRewriteResult> {
-			const { newUrl, pathname, routeData } = findRouteToRewrite({
+			const { candidates, pathname, newUrl } = findAllRouteCandidatesToRewrite({
 				payload,
 				request,
 				// The single fresh route table: HMR route updates are visible
@@ -197,9 +201,39 @@ export function createNonRunnableEnvironment(): RenderEnvironment {
 				trailingSlash: manifest.trailingSlash,
 				buildFormat: manifest.buildFormat,
 				base: manifest.base,
-				outDir: manifest.serverLike ? manifest.buildClientDir : manifest.outDir,
 			});
 
+			// In dev, `distURL` is empty so pattern-only matching can select
+			// a dynamic route that doesn't produce this path. Iterate all
+			// candidates and validate via `getStaticPaths()`, mirroring the
+			// direct-request path in `matchRoute` (dev.ts). See #18089.
+			const logger = getLogger(manifest);
+			const routeCache = getRouteCache(manifest);
+			for (const routeData of candidates) {
+				try {
+					const componentInstance = await getComponentByRoute(manifest, routeData);
+					await getProps({
+						mod: componentInstance,
+						routeData,
+						routeCache,
+						pathname,
+						logger,
+						serverLike: manifest.serverLike,
+						base: manifest.base,
+						trailingSlash: manifest.trailingSlash,
+					});
+					return { newUrl, pathname, componentInstance, routeData };
+				} catch (e) {
+					if (isAstroError(e) && e.title === NoMatchingStaticPathFound.title) {
+						continue;
+					}
+					throw e;
+				}
+			}
+
+			// All candidates exhausted — fall back to the last candidate
+			// (typically the 404 route appended by findAllRouteCandidatesToRewrite).
+			const routeData = candidates[candidates.length - 1];
 			const componentInstance = await getComponentByRoute(manifest, routeData);
 			return { newUrl, pathname, componentInstance, routeData };
 		},
