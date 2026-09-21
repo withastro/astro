@@ -367,7 +367,7 @@ export default function createIntegration({
 													'@astrojs/cloudflare/image-service-workerd',
 													'@astrojs/cloudflare/entrypoints/server',
 													'astro',
-													'astro/runtime/**',
+													'astro/runtime/**/*.js',
 													'astro > html-escaper',
 													'astro > mrmime',
 													'astro > zod/v4',
