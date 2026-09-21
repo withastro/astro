@@ -2,4 +2,4 @@
 '@astrojs/cloudflare': patch
 ---
 
-Use a non-maximum default quality for Cloudflare Images transformations when Astro does not specify one.
+Fixes image transforms without a specified quality outputting an higher quality than expected on certain formats
