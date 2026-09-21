@@ -481,7 +481,10 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 			// each before JSON.parse, ampersands last — see the same chain in
 			// `vite-plugin-markdown/images.ts` for why the order matters.
 			const decodedImagePath = JSON.parse(
-				imagePath.replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'").replace(/&(?:amp|#x26|#38);/g, '&'),
+				imagePath
+					.replace(/&(?:#x22|quot);/g, '"')
+					.replace(/&(?:#x27|apos);/g, "'")
+					.replace(/&(?:amp|#x26|#38);/g, '&'),
 			);
 
 			let image: GetImageResult;
