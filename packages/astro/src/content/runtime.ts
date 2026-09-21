@@ -476,10 +476,12 @@ async function updateImageReferencesInBody(html: string, fileName: string) {
 	for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
 		try {
 			// Markdown processors disagree on which character references to emit when
-			// serialising attribute values: remark uses the numeric forms (`&#x22;` / `&#x27;`),
-			// satteri uses the named forms (`&quot;` / `&apos;`). Decode both before JSON.parse.
+			// serialising attribute values: remark uses the numeric forms (`&#x22;` / `&#x27;` / `&#x26;`),
+			// satteri uses the named forms (`&quot;` / `&apos;` / `&amp;`). Decode both styles of
+			// each before JSON.parse, ampersands last — see the same chain in
+			// `vite-plugin-markdown/images.ts` for why the order matters.
 			const decodedImagePath = JSON.parse(
-				imagePath.replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'"),
+				imagePath.replace(/&(?:#x22|quot);/g, '"').replace(/&(?:#x27|apos);/g, "'").replace(/&(?:amp|#x26|#38);/g, '&'),
 			);
 
 			let image: GetImageResult;
