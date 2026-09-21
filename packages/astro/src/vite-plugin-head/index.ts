@@ -223,7 +223,7 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 			const moduleIds = new Set<string>();
 			// Explicit runtime entries (`createComponent({ propagation: 'self' })`).
 			const selfPropagationSeeds = new Set<string>();
-			// Head propagation hint seeds (`"use astro:head-inject"` directive in source).
+			// Head propagation hint seeds (content render entries with ?astroPropagatedAssets).
 			const commentPropagationSeeds = new Set<string>();
 			function getOrCreateMetadata(id: string): SSRComponentMetadata {
 				if (map.has(id)) return map.get(id)!;
