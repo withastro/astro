@@ -68,11 +68,12 @@ function addShutdownHandlers(
 	server: ReturnType<typeof createServer>,
 	logger: AstroIntegrationLogger,
 ) {
-	process.once('SIGTERM', () => shutdown('SIGTERM'));
-	process.once('SIGINT', () => shutdown('SIGINT'));
+	process.on('SIGINT', () => shutdown('SIGINT'));
+	process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 	const finish = async () => {
 		await server.closed();
+		logger.info('Shutdown complete.');
 		if (options.shutdown.exit) {
 			process.exit(0);
 		}

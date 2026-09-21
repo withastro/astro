@@ -32,10 +32,10 @@ export interface UserOptions {
 	bodySizeLimit?: number;
 
 	/**
-	 * Controls graceful shutdown of the standalone server on `SIGTERM`/`SIGINT`.
-	 * The server stops accepting new connections but gives in-flight requests
-	 * time to finish before closing. Set `timeout: 0` to force-close immediately
-	 * instead.
+	 * Controls graceful shutdown behavior of the standalone server when it
+	 * receives a `SIGTERM` or `SIGINT` signal (e.g. when a host stops or
+	 * restarts the process). The server stops accepting new connections but
+	 * waits for active requests to finish before closing.
 	 *
 	 * @default {{ timeout: 10000, exit: false }}
 	 */
@@ -44,24 +44,20 @@ export interface UserOptions {
 
 export interface ShutdownOptions {
 	/**
-	 * How long, in milliseconds, to wait for in-flight requests to finish after
-	 * receiving `SIGTERM`/`SIGINT` before force-closing any remaining connections.
-	 *
-	 * Set to `0` to force-close immediately, or `Infinity` to wait indefinitely
-	 * for in-flight requests to finish.
+	 * The duration in milliseconds to wait for active requests to finish
+	 * before force-closing remaining connections. Set to `0` to force-close
+	 * immediately, or `Infinity` to wait indefinitely.
 	 *
 	 * @default {10000} 10 seconds
 	 */
 	timeout?: number;
 
 	/**
-	 * Whether to call `process.exit()` once shutdown completes.
-	 *
-	 * By default, the adapter lets the process exit naturally once the event loop is
-	 * empty, so any other `SIGTERM`/`SIGINT` listeners your app has registered (for
-	 * example, to close a database connection) get a chance to finish first. Enable
-	 * this only if you want a guaranteed exit even when something else in the
-	 * process (a timer, an open connection) would otherwise keep it running.
+	 * Controls whether to call `process.exit()` once shutdown completes. By
+	 * default, the process exits naturally when the event loop is empty,
+	 * allowing other signal listeners (e.g. database disconnect handlers) to
+	 * finish before closing. Set to `true` to force the process to exit even
+	 * if open timers or connections remain.
 	 *
 	 * @default {false}
 	 */
