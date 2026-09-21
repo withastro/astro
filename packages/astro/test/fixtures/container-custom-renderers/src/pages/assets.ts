@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { experimental_AstroContainer } from 'astro/container';
-import Component from '../components/Assets.astro';
+import Component from '../components/Assets.astro?container';
 
 export const GET: APIRoute = async () => {
 	const container = await experimental_AstroContainer.create();

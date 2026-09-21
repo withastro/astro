@@ -1,14 +1,5 @@
-export type {
-	AstroContainerAssets,
-	AstroComponentFactory,
-	AstroComponentInstance,
-} from './astro/index.js';
-export {
-	createHeadAndContent,
-	renderTemplate,
-	renderToString,
-	setComponentAssets,
-} from './astro/index.js';
+export type { AstroComponentFactory, AstroComponentInstance } from './astro/index.js';
+export { createHeadAndContent, renderTemplate, renderToString } from './astro/index.js';
 export { chunkToByteArray, chunkToString, Fragment, Renderer } from './common.js';
 export { renderComponent, renderComponentToString } from './component.js';
 export { renderHTMLElement } from './dom.js';

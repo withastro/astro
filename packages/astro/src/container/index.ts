@@ -6,17 +6,10 @@ import { handleMiddleware } from '../core/middleware/astro-middleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { handlePages } from '../core/pages/handler.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
-
 import { getParts } from '../core/routing/parts.js';
 import { getPattern } from '../core/routing/pattern.js';
 import { validateSegment } from '../core/routing/segment.js';
-import {
-	createComponent,
-	renderComponent as renderAstroComponent,
-	renderScript,
-	renderTemplate,
-	type AstroComponentFactory,
-} from '../runtime/server/index.js';
+import type { AstroComponentFactory } from '../runtime/server/index.js';
 import { SlotString } from '../runtime/server/render/slot.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { AstroMiddlewareInstance, MiddlewareHandler, Props } from '../types/public/common.js';
@@ -551,38 +544,33 @@ export class experimental_AstroContainer {
 	}
 
 	/**
-	 * Renders an Astro component with its direct styles prepended and direct scripts appended.
+	 * Renders an Astro component to an HTML string.
+	 *
+	 * Import the component with the `?container` query to prepend its direct styles and append its
+	 * hoisted scripts. A component imported without this query renders like {@link renderToString}.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+	 * import Card from '../components/Card.astro?container';
+	 *
+	 * const container = await AstroContainer.create();
+	 * const html = await container.renderComponent(Card, {
+	 *   props: { title: 'Hello' },
+	 *   slots: { default: 'Card content' },
+	 * });
+	 * ```
+	 *
+	 * @param component - The Astro component to render.
+	 * @param options - Props, slots, and request context used to render the component.
+	 * @returns The rendered component HTML.
 	 */
 	public async renderComponent(
 		component: AstroComponentFactory,
 		options: Omit<ContainerRenderOptions, 'routeType'> = {},
 	): Promise<string> {
-		const assets = component.containerAssets ?? { styles: [], scripts: [] };
-		let scripts = '';
-		const Wrapper = createComponent(async (result, props, slots) => {
-			const renderedScripts = await Promise.all(
-				assets.scripts.map((id) => renderScript(result, id)),
-			);
-			scripts = renderedScripts.map((script) => script.content).join('');
-			for (const script of renderedScripts) {
-				result._metadata.renderedScripts.add(script.id);
-			}
-			const componentSlots = Object.fromEntries(
-				Object.entries(slots).map(([name, slot]) => [name, () => renderTemplate`${slot}`]),
-			);
-			return renderTemplate`${renderAstroComponent(
-				result,
-				component.name,
-				component,
-				props,
-				componentSlots,
-			)}`;
-		});
-		const html = await this.renderToString(Wrapper, options);
-		const styles = assets.styles
-			.map((style) => `<style>${style.replace(/<\/style(?=[\t\n\f\r />])/gi, '<\\/style')}</style>`)
-			.join('');
-		return styles + html + scripts;
+		return this.renderToString(component, options);
 	}
 
 	/**

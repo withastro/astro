@@ -6,6 +6,7 @@ interface AstroQuery {
 	lang?: string;
 	raw?: boolean;
 	inline?: boolean;
+	container?: boolean;
 }
 
 interface ParsedRequestResult {
@@ -33,6 +34,9 @@ export function parseAstroRequest(id: string): ParsedRequestResult {
 	}
 	if (query.inline != null) {
 		query.inline = true;
+	}
+	if (query.container != null) {
+		query.container = true;
 	}
 	return {
 		filename,
