@@ -21,11 +21,7 @@ describe('Cloudflare Images binding transforms', () => {
 			},
 		} as unknown as ImagesBinding;
 
-		await transformStream(
-			new ReadableStream(),
-			new URLSearchParams('f=webp'),
-			images,
-		);
+		await transformStream(new ReadableStream(), new URLSearchParams('f=webp'), images);
 
 		assert.equal(outputOptions?.quality, 85);
 	});
