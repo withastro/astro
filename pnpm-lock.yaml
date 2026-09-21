@@ -572,7 +572,7 @@ importers:
         version: 2.0.1
       devalue:
         specifier: ^5.8.1
-        version: 5.9.2
+        version: 5.9.4
       diff:
         specifier: ^9.0.0
         version: 9.0.0
@@ -4441,7 +4441,7 @@ importers:
         version: 1.2.0
       devalue:
         specifier: ^5.8.1
-        version: 5.9.2
+        version: 5.9.4
       prismjs:
         specifier: ^1.30.0
         version: 1.30.0
@@ -5062,8 +5062,8 @@ importers:
         specifier: workspace:*
         version: link:../../astro-prism
       '@markdoc/markdoc':
-        specifier: ^0.5.9
-        version: 0.5.9(@types/react@19.2.18)(react@19.3.0)
+        specifier: ^0.5.10
+        version: 0.5.10(@types/react@19.2.18)(react@19.3.0)
       esbuild:
         specifier: ^0.28.0
         version: 0.28.1
@@ -5075,8 +5075,8 @@ importers:
         version: 12.0.0
     devDependencies:
       '@types/markdown-it':
-        specifier: ^14.1.2
-        version: 14.1.2
+        specifier: ^14.2.0
+        version: 14.2.0
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -5084,13 +5084,13 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       devalue:
-        specifier: ^5.9.0
-        version: 5.9.2
+        specifier: ^5.9.4
+        version: 5.9.4
       linkedom:
         specifier: ^0.18.13
         version: 0.18.13
       vite:
-        specifier: ^8.2.1
+        specifier: ^8.3.0
         version: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
 
   packages/integrations/markdoc/test/fixtures/content-collections:
@@ -5588,7 +5588,7 @@ importers:
         version: 1.2.0
       devalue:
         specifier: ^5.9.2
-        version: 5.9.2
+        version: 5.9.4
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -5725,7 +5725,7 @@ importers:
         version: 1.2.0
       devalue:
         specifier: ^5.9.2
-        version: 5.9.2
+        version: 5.9.4
       express:
         specifier: ^5.2.1
         version: 5.2.1(supports-color@10.2.2)
@@ -5948,7 +5948,7 @@ importers:
         version: 2.11.2(preact@10.29.8)
       devalue:
         specifier: ^5.9.2
-        version: 5.9.2
+        version: 5.9.4
       preact-render-to-string:
         specifier: ^6.7.0
         version: 6.7.0(preact@10.29.8)
@@ -5976,7 +5976,7 @@ importers:
         version: 6.1.1(@rolldown/plugin-babel@0.2.4)(oxc-transform-react@0.145.0)(vite@8.3.0)
       devalue:
         specifier: ^5.9.2
-        version: 5.9.2
+        version: 5.9.4
       ultrahtml:
         specifier: ^1.7.0
         version: 1.7.0
@@ -9407,8 +9407,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@markdoc/markdoc@0.5.9':
-    resolution: {integrity: sha512-req3Wpi1xXIs7C+n2nsKv7oGeC0xREkpd+D+JRGZ/pIMXEuQSlT+s/I760fqdmiysvkx10EC3MGlScokRRcaSQ==}
+  '@markdoc/markdoc@0.5.10':
+    resolution: {integrity: sha512-5HwkG2cLG/ivffeJlxGmraJ9erYfsaYz9rjG1KCf46PLy+yhrBQWw26h69GewNUHbyKNW6FrXuDYgbl2kvIYdA==}
     engines: {node: '>=14.7.0'}
     peerDependencies:
       '@types/react': '*'
@@ -10817,8 +10817,8 @@ packages:
   '@types/markdown-it@12.2.3':
     resolution: {integrity: sha512-GKMHFfv3458yYy+v/N8gjufHO6MSZKCOXpZc5GXIWWy8uldwfmPn98vp81gZ5f9SVw8YYBctgfJ22a2d7AOMeQ==}
 
-  '@types/markdown-it@14.1.2':
-    resolution: {integrity: sha512-promo4eFwuiW+TfGxhi+0x3czqTYJkG8qB17ZUJiVF10Xm7NLVRSLUsfRTU/6h1e24VvRnXCx+hG7li58lkzog==}
+  '@types/markdown-it@14.2.0':
+    resolution: {integrity: sha512-NoQ2yGlLWj4wpxMs+TYmRKk3thDrQ97agr7sFqfLsAlvoS8SNQuTrlObhFqG9iugdTtgOE9jpJ6FNM4ZGsa5xQ==}
 
   '@types/mathjax@0.0.40':
     resolution: {integrity: sha512-rHusx08LCg92WJxrsM3SPjvLTSvK5C+gealtSuhKbEOcUZfWlwigaFoPLf6Dfxhg4oryN5qP9Sj7zOQ4HYXINw==}
@@ -12316,8 +12316,8 @@ packages:
   dettle@1.0.5:
     resolution: {integrity: sha512-ZVyjhAJ7sCe1PNXEGveObOH9AC8QvMga3HJIghHawtG7mE4K5pW9nz/vDGAr/U7a3LWgdOzEE7ac9MURnyfaTA==}
 
-  devalue@5.9.2:
-    resolution: {integrity: sha512-po4PAY5c53tw5XMocSnf8A/5OHhbbUftpr93aEN6BBoAdntUmK7vu7wOATqvt7cXO7m1Cl4gMVn6p7n6n4mj0w==}
+  devalue@5.9.4:
+    resolution: {integrity: sha512-sPAT4pztbu6586/hrhOnMKS17IJrvg12mXiSPSS3W5qDeN2RGgvZ0diZCm31dBbnevfVmujNO3IM2wrS4Y2Rhg==}
 
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
@@ -19035,7 +19035,7 @@ snapshots:
       - encoding
       - supports-color
 
-  '@markdoc/markdoc@0.5.9(@types/react@19.2.18)(react@19.3.0)':
+  '@markdoc/markdoc@0.5.10(@types/react@19.2.18)(react@19.3.0)':
     optionalDependencies:
       '@types/linkify-it': 3.0.5
       '@types/markdown-it': 12.2.3
@@ -20489,7 +20489,7 @@ snapshots:
       '@types/mdurl': 2.0.0
     optional: true
 
-  '@types/markdown-it@14.1.2':
+  '@types/markdown-it@14.2.0':
     dependencies:
       '@types/linkify-it': 5.0.0
       '@types/mdurl': 2.0.0
@@ -22159,7 +22159,7 @@ snapshots:
 
   dettle@1.0.5: {}
 
-  devalue@5.9.2: {}
+  devalue@5.9.4: {}
 
   devlop@1.1.0:
     dependencies:
@@ -26429,7 +26429,7 @@ snapshots:
       aria-query: 5.3.1
       axobject-query: 4.1.0
       clsx: 2.1.1
-      devalue: 5.9.2
+      devalue: 5.9.4
       esm-env: 1.2.2
       esrap: 2.2.4
       is-reference: 3.0.3
