@@ -1,5 +1,27 @@
 # astro
 
+## 7.3.4
+
+### Patch Changes
+
+- [#18063](https://github.com/withastro/astro/pull/18063) [`40896ac`](https://github.com/withastro/astro/commit/40896acb744988d9d3c2015e810c57de26390b3f) Thanks [@adamchal](https://github.com/adamchal)! - Fixes incremental builds repeatedly rendering unchanged pages when modules or compiled CSS reference bundled assets.
+
+- [#18053](https://github.com/withastro/astro/pull/18053) [`cf5d72f`](https://github.com/withastro/astro/commit/cf5d72f286c3c1185b7d39692b8ca8e789c16e02) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Improves the `astro check` error shown for TypeScript 7. The command now explains that TypeScript 7 is not currently supported and provides instructions for experimentally type-checking Astro files with TypeScript 7.1 and `@astrojs/ts-content-mapper`.
+
+- [#18086](https://github.com/withastro/astro/pull/18086) [`795a7e4`](https://github.com/withastro/astro/commit/795a7e44640e7ad513a590a362dc0d3259de7771) Thanks [@ump45nose](https://github.com/ump45nose)! - Fix double-escaped ampersands in Markdown image `alt` and `title` attributes. The `__ASTRO_IMAGE_` round-trip now decodes the numeric (`&#x26;`) and named (`&amp;`) character references the Markdown processors emit, so an `&` in an alt or title is escaped exactly once in the final HTML instead of twice.
+
+- [#18074](https://github.com/withastro/astro/pull/18074) [`0429805`](https://github.com/withastro/astro/commit/042980585a75a12f3b0d63377483af98ef80e0f9) Thanks [@SurefireStudios](https://github.com/SurefireStudios)! - Fix three error names that did not match their documented reference. `MissingLocale`, `MissingIndexForInternationalization` and `NoManifestAvailable` reported names ending in `Error` in the dev overlay, while their error reference pages are published under the unsuffixed names, so the name shown to users could not be found in the docs.
+
+- [#18007](https://github.com/withastro/astro/pull/18007) [`2245837`](https://github.com/withastro/astro/commit/22458379f5f258ac1df225f5af644b98b1b8237b) Thanks [@L4XB](https://github.com/L4XB)! - Fixes the dev server re-evaluating the whole server module graph on every request. The `astro:head-metadata` plugin invalidated its component metadata virtual module from its own `transform` hook, so each evaluation of that module scheduled the next one. Adapters that run requests outside Vite's module runner, such as `@astrojs/cloudflare`, paid for a full re-evaluation of the server graph on every request for the lifetime of the process.
+
+- [#18096](https://github.com/withastro/astro/pull/18096) [`43657c4`](https://github.com/withastro/astro/commit/43657c4612f04cecf6e34d288eed1811c6508b74) Thanks [@matthewp](https://github.com/matthewp)! - Fixes domain-based i18n routing to respect `security.allowedDomains` when selecting a locale from request host headers
+
+- [#18043](https://github.com/withastro/astro/pull/18043) [`8a53a8b`](https://github.com/withastro/astro/commit/8a53a8b70f964e7bc127d6991cc9aca21e87750f) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `image.responsiveStyles` emitting invalid `object-position` CSS values for same-axis keyword pairs (`top bottom`, `left right`, etc.)
+
+- [#18029](https://github.com/withastro/astro/pull/18029) [`c08252d`](https://github.com/withastro/astro/commit/c08252d6803d4af2890b4bd1c69e4b4fc49e2d04) Thanks [@matthewp](https://github.com/matthewp)! - Runs `astro dev` and `astro preview` in the foreground when an AI agent is detected on Windows, allowing the agent to manage the process lifetime. Pass `--background` explicitly to request an Astro-managed background process. Agent-inferred backgrounding remains enabled on other platforms.
+- Updated dependencies [[`3fd16ee`](https://github.com/withastro/astro/commit/3fd16eeb5cd096a6ceb8cc3e70b89ed30d6fcd4d), [`8358d59`](https://github.com/withastro/astro/commit/8358d59cba754480c7d830c473837a0d7100ac7e)]:
+  - @astrojs/markdown-satteri@0.4.2
+
 ## 7.3.3
 
 ### Patch Changes
