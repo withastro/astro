@@ -26,6 +26,6 @@
   },
   "devDependencies": {
     "@codspeed/vitest-plugin": "5.2.0",
-    "vitest": "^5.0.0"
+    "vitest": "^4.1.11"
   }
 }

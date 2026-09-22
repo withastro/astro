@@ -81,8 +81,8 @@ importers:
         specifier: ^1.2.0
         version: 1.4.2(typescript@6.0.3)
       vitest:
-        specifier: ^5.0.0
-        version: 5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
 
   benchmark:
     dependencies:
@@ -125,10 +125,10 @@ importers:
     devDependencies:
       '@codspeed/vitest-plugin':
         specifier: 5.2.0
-        version: 5.2.0(debug@4.4.3)(tinybench@6.1.4)(vite@8.3.0)(vitest@5.0.0)
+        version: 5.2.0(debug@4.4.3)(tinybench@6.1.4)(vitest@4.1.11)
       vitest:
-        specifier: ^5.0.0
-        version: 5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
 
   benchmark/packages/adapter:
     dependencies:
@@ -764,8 +764,8 @@ importers:
         specifier: ^7.22.0
         version: 7.29.0
       vitest:
-        specifier: ^5.0.0
-        version: 5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
     optionalDependencies:
       sharp:
         specifier: ^0.35.4
@@ -4289,8 +4289,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       vitest:
-        specifier: ^5.0.0
-        version: 5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
 
   packages/astro/test/fixtures/vue-component:
     dependencies:
@@ -4450,7 +4450,7 @@ importers:
         version: 0.2.17
       vitest:
         specifier: 4.1.11
-        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
       wrangler:
         specifier: ^4.125.0
         version: 4.125.0(@cloudflare/workers-types@5.20260825.1)
@@ -4970,7 +4970,7 @@ importers:
         version: 4.1.11
       vitest:
         specifier: 4.1.11
-        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
 
   packages/integrations/cloudflare/test/fixtures/with-base:
     dependencies:
@@ -6214,7 +6214,7 @@ importers:
     devDependencies:
       '@testing-library/svelte':
         specifier: ^5.3.1
-        version: 5.3.1(svelte@5.55.7)(vite@8.3.0)(vitest@5.0.0)
+        version: 5.3.1(svelte@5.55.7)(vite@8.3.0)(vitest@4.1.11)
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -16356,7 +16356,6 @@ packages:
       '@vitest/ui': 4.1.11
       happy-dom: '*'
       jsdom: '*'
-      vite: ^6.0.0 || ^7.0.0 || ^8.0.0
     peerDependenciesMeta:
       '@edge-runtime/vm':
         optional: true
@@ -17766,7 +17765,7 @@ snapshots:
       cjs-module-lexer: 1.2.3
       esbuild: 0.28.1
       miniflare: 5.20260921.0-alpha(@types/node@22.19.19)
-      vitest: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+      vitest: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
       wrangler: 4.136.2(@types/node@22.19.19)
       zod: 4.4.3
     transitivePeerDependencies:
@@ -17816,12 +17815,11 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@codspeed/vitest-plugin@5.2.0(debug@4.4.3)(tinybench@6.1.4)(vite@8.3.0)(vitest@5.0.0)':
+  '@codspeed/vitest-plugin@5.2.0(debug@4.4.3)(tinybench@6.1.4)(vitest@4.1.11)':
     dependencies:
       '@codspeed/core': 5.2.0(debug@4.4.3)
       tinybench: 6.1.4
-      vite: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
-      vitest: 5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+      vitest: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
     transitivePeerDependencies:
       - debug
 
@@ -20340,14 +20338,14 @@ snapshots:
     dependencies:
       svelte: 5.55.7
 
-  '@testing-library/svelte@5.3.1(svelte@5.55.7)(vite@8.3.0)(vitest@5.0.0)':
+  '@testing-library/svelte@5.3.1(svelte@5.55.7)(vite@8.3.0)(vitest@4.1.11)':
     dependencies:
       '@testing-library/dom': 10.4.1
       '@testing-library/svelte-core': 1.0.0(svelte@5.55.7)
       svelte: 5.55.7
     optionalDependencies:
       vite: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
-      vitest: 5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+      vitest: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
 
   '@textlint/ast-node-types@15.5.1': {}
 
@@ -26998,7 +26996,7 @@ snapshots:
     optionalDependencies:
       vite: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
 
-  vitest@4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0):
+  vitest@4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1):
     dependencies:
       '@vitest/expect': 4.1.11
       '@vitest/mocker': 4.1.11(vite@8.3.0)
@@ -27024,7 +27022,18 @@ snapshots:
       '@opentelemetry/api': 1.9.1
       '@types/node': 22.19.19
     transitivePeerDependencies:
+      - '@vitejs/devtools'
+      - esbuild
+      - jiti
+      - less
       - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - terser
+      - tsx
+      - yaml
 
   vitest@5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0):
     dependencies:
