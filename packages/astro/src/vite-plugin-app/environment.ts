@@ -115,14 +115,8 @@ export function createRunnableEnvironment({
 
 		const filePath = new URL(`${routeData.component}`, manifest.rootDir);
 
-		// First check built-in routes
-		for (const route of getDefaultRoutes(manifest)) {
-			if (route.matchesComponent(filePath)) {
-				return route.instance;
-			}
-		}
-
-		// Important: This needs to happen first, in case a renderer provides polyfills.
+		// Load renderers before anything else so built-in routes (e.g. server
+		// islands) that render framework components find them in the manifest.
 		if (settings) {
 			const renderers__ = settings.renderers.map((r) => loadRenderer(r, loader));
 			const renderers_ = await Promise.all(renderers__);
@@ -130,6 +124,13 @@ export function createRunnableEnvironment({
 				manifest,
 				renderers_.filter((r): r is SSRLoadedRenderer => Boolean(r)),
 			);
+		}
+
+		// Check built-in routes
+		for (const route of getDefaultRoutes(manifest)) {
+			if (route.matchesComponent(filePath)) {
+				return route.instance;
+			}
 		}
 
 		try {
