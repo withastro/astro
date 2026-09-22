@@ -308,7 +308,7 @@ importers:
         version: 18.3.1(react@18.3.1)
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
       svelte:
         specifier: ^5.55.7
         version: 5.55.7
@@ -362,7 +362,7 @@ importers:
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
 
   examples/framework-svelte:
     dependencies:
@@ -677,7 +677,7 @@ importers:
         version: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
       vitefu:
         specifier: ^1.1.2
-        version: 1.1.2(vite@8.3.0)
+        version: 1.1.3(vite@8.3.0)
       xxhash-wasm:
         specifier: ^1.1.0
         version: 1.1.0
@@ -943,7 +943,7 @@ importers:
         version: 19.3.0(react@19.3.0)
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
       svelte:
         specifier: ^5.55.7
         version: 5.55.7
@@ -1156,7 +1156,7 @@ importers:
         version: 1.98.0
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
       svelte:
         specifier: ^5.55.7
         version: 5.55.7
@@ -1214,7 +1214,7 @@ importers:
         version: 19.3.0(react@19.3.0)
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
       svelte:
         specifier: ^5.55.7
         version: 5.55.7
@@ -1270,7 +1270,7 @@ importers:
         version: 19.3.0(react@19.3.0)
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
       svelte:
         specifier: ^5.55.7
         version: 5.55.7
@@ -1310,7 +1310,7 @@ importers:
         version: 19.3.0(react@19.3.0)
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
       svelte:
         specifier: ^5.55.7
         version: 5.55.7
@@ -1350,7 +1350,7 @@ importers:
         version: 19.3.0(react@19.3.0)
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
       svelte:
         specifier: ^5.55.7
         version: 5.55.7
@@ -1390,7 +1390,7 @@ importers:
         version: 19.3.0(react@19.3.0)
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
       svelte:
         specifier: ^5.55.7
         version: 5.55.7
@@ -1430,7 +1430,7 @@ importers:
         version: 19.3.0(react@19.3.0)
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
       svelte:
         specifier: ^5.55.7
         version: 5.55.7
@@ -1470,7 +1470,7 @@ importers:
         version: 19.3.0(react@19.3.0)
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
       svelte:
         specifier: ^5.55.7
         version: 5.55.7
@@ -1669,7 +1669,7 @@ importers:
     devDependencies:
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
 
   packages/astro/e2e/fixtures/solid-component:
     dependencies:
@@ -1684,7 +1684,7 @@ importers:
         version: link:../../..
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
 
   packages/astro/e2e/fixtures/solid-recurse:
     dependencies:
@@ -1697,7 +1697,7 @@ importers:
     devDependencies:
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
 
   packages/astro/e2e/fixtures/svelte-component:
     dependencies:
@@ -1769,7 +1769,7 @@ importers:
         version: 19.3.0(react@19.3.0)
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
       svelte:
         specifier: ^5.55.7
         version: 5.55.7
@@ -2451,7 +2451,7 @@ importers:
         version: 19.3.0(react@19.3.0)
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
       svelte:
         specifier: ^5.55.7
         version: 5.55.7
@@ -3447,7 +3447,7 @@ importers:
         version: 19.3.0(react@19.3.0)
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
       svelte:
         specifier: ^5.55.7
         version: 5.55.7
@@ -3496,7 +3496,7 @@ importers:
         version: link:../../..
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
 
   packages/astro/test/fixtures/lazy-layout:
     dependencies:
@@ -3704,7 +3704,7 @@ importers:
         version: 8.5.28
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
       svelte:
         specifier: ^5.55.7
         version: 5.55.7
@@ -3789,7 +3789,7 @@ importers:
         version: 19.3.0(react@19.3.0)
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
 
   packages/astro/test/fixtures/react-jsx-export:
     dependencies:
@@ -3964,7 +3964,7 @@ importers:
         version: link:../../..
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
 
   packages/astro/test/fixtures/slots-svelte:
     dependencies:
@@ -4003,7 +4003,7 @@ importers:
         version: link:../../../../integrations/solid
       '@solidjs/router':
         specifier: ^0.16.1
-        version: 0.16.1(solid-js@1.9.13)
+        version: 0.16.1(solid-js@1.9.15)
       '@test/solid-jsx-component':
         specifier: file:./deps/solid-jsx-component
         version: link:deps/solid-jsx-component
@@ -4012,13 +4012,13 @@ importers:
         version: link:../../..
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
 
   packages/astro/test/fixtures/solid-component/deps/solid-jsx-component:
     dependencies:
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
 
   packages/astro/test/fixtures/sourcemap:
     dependencies:
@@ -4825,7 +4825,7 @@ importers:
         version: link:../../../../../astro
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
 
   packages/integrations/cloudflare/test/fixtures/sessions:
     dependencies:
@@ -5012,7 +5012,7 @@ importers:
         version: link:../../../../../astro
       solid-js:
         specifier: ^1.9.11
-        version: 1.9.13
+        version: 1.9.15
 
   packages/integrations/cloudflare/test/fixtures/with-svelte:
     dependencies:
@@ -6178,14 +6178,14 @@ importers:
   packages/integrations/solid:
     dependencies:
       vite:
-        specifier: ^8.0.13
+        specifier: ^8.3.0
         version: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
       vite-plugin-solid:
-        specifier: ^2.11.12
-        version: 2.11.12(solid-js@1.9.13)(supports-color@10.2.2)(vite@8.3.0)
+        specifier: ^2.11.14
+        version: 2.11.14(solid-js@1.9.15)(supports-color@10.2.2)(vite@8.3.0)
       vitefu:
-        specifier: ^1.1.2
-        version: 1.1.2(vite@8.3.0)
+        specifier: ^1.1.3
+        version: 1.1.3(vite@8.3.0)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -6194,8 +6194,8 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       solid-js:
-        specifier: ^1.9.13
-        version: 1.9.13
+        specifier: ^1.9.15
+        version: 1.9.15
 
   packages/integrations/svelte:
     dependencies:
@@ -6210,7 +6210,7 @@ importers:
         version: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
       vitefu:
         specifier: ^1.1.2
-        version: 1.1.2(vite@8.3.0)
+        version: 1.1.3(vite@8.3.0)
     devDependencies:
       '@testing-library/svelte':
         specifier: ^5.3.1
@@ -15412,14 +15412,14 @@ packages:
   serialize-javascript@6.0.2:
     resolution: {integrity: sha512-Saa1xPByTTq2gdeFZYLLo+RFE35NHZkAbqZeWNd3BpzppeVisAqpDjcp8dyf6uIvEqJRd46jemmyA4iFIeVk8g==}
 
-  seroval-plugins@1.5.0:
-    resolution: {integrity: sha512-EAHqADIQondwRZIdeW2I636zgsODzoBDwb3PT/+7TLDWyw1Dy/Xv7iGUIEXXav7usHDE9HVhOU61irI3EnyyHA==}
+  seroval-plugins@1.5.6:
+    resolution: {integrity: sha512-HXuLAX2pu/UByPpaeo/TaMfvMIi+1QqIoPJYCcAtU8QkVNwgR6MPlGuCQTErV1JwraaMbYaWVIBX7mppzGLATQ==}
     engines: {node: '>=10'}
     peerDependencies:
       seroval: ^1.0
 
-  seroval@1.5.0:
-    resolution: {integrity: sha512-OE4cvmJ1uSPrKorFIH9/w/Qwuvi/IMcGbv5RKgcJ/zjA/IohDLU6SVaxFN9FwajbP7nsX0dQqMDes1whk3y+yw==}
+  seroval@1.5.6:
+    resolution: {integrity: sha512-rVQVWjjSvlINzaQPZH5JFqsqEsIWdTxY3iJZCnTL/5gQbXIRooVZKI60tVCkOVfzcRPejboxO2t0P89dg5mQaA==}
     engines: {node: '>=10'}
 
   serve-static@2.2.1:
@@ -15552,8 +15552,8 @@ packages:
     resolution: {integrity: sha512-kCZr2V3ch9i00x8zXRhjUNVcjG9ijES5dDudkXvUVCT5QlJNQWElSJdZqyPemffHoLNUYwOcou0Fy+ojN0uHSQ==}
     engines: {node: '>= 18'}
 
-  solid-js@1.9.13:
-    resolution: {integrity: sha512-6hJeJMOcEX8ktqjpDoJZEmld3ijvcvWBDtiXBm7f4332SiFN66QeAQI1REQshvyUoISsSeJ4PHDauKYbwao9JQ==}
+  solid-js@1.9.15:
+    resolution: {integrity: sha512-EeiY2xfpZJqPLjXspVEKjAII4yv8NyG//NxZ3IpOFHdUNnnTyL0uJOeS9LWGvA7cFCz5y94cjFwYlmw5Luncsg==}
 
   solid-refresh@0.6.3:
     resolution: {integrity: sha512-F3aPsX6hVw9ttm5LYlth8Q15x6MlI/J3Dn+o3EQyRTtTxidepSTwAYdozt01/YA+7ObcciagGEyXIopGZzQtbA==}
@@ -16252,12 +16252,12 @@ packages:
       '@nuxt/kit':
         optional: true
 
-  vite-plugin-solid@2.11.12:
-    resolution: {integrity: sha512-FgjPcx2OwX9h6f28jli7A4bG7PP3te8uyakE5iqsmpq3Jqi1TWLgSroC9N6cMfGRU2zXsl4Q6ISvTr2VL0QHpA==}
+  vite-plugin-solid@2.11.14:
+    resolution: {integrity: sha512-7ZVBt8rpoyqmlwin2kRIUveaHoF6/kulY7gsnD+qFh4nS29V4OPAnw+ojoAspXIjObiL9o1xh9a/nTuYHm02Rw==}
     peerDependencies:
-      '@testing-library/jest-dom': ^5.16.6 || ^5.17.0 || ^6.*
+      '@testing-library/jest-dom': ^5.16.6 || ^5.17.0 || ^6.0.0 || ^7.0.0
       solid-js: ^1.7.2
-      vite: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
+      vite: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
     peerDependenciesMeta:
       '@testing-library/jest-dom':
         optional: true
@@ -16327,10 +16327,10 @@ packages:
       yaml:
         optional: true
 
-  vitefu@1.1.2:
-    resolution: {integrity: sha512-zpKATdUbzbsycPFBN71nS2uzBUQiVnFoOrr2rvqv34S1lcAgMKKkjWleLGeiJlZ8lwCXvtWaRn7R3ZC16SYRuw==}
+  vitefu@1.1.3:
+    resolution: {integrity: sha512-ub4okH7Z5KLjb6hDyjqrGXqWtWvoYdU3IGm/NorpgHncKoLTCfRIbvlhBm7r0YstIaQRYlp4yEbFqDcKSzXSSg==}
     peerDependencies:
-      vite: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-beta.0
+      vite: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
     peerDependenciesMeta:
       vite:
         optional: true
@@ -20224,9 +20224,9 @@ snapshots:
       color: 5.0.3
       text-hex: 1.0.0
 
-  '@solidjs/router@0.16.1(solid-js@1.9.13)':
+  '@solidjs/router@0.16.1(solid-js@1.9.15)':
     dependencies:
-      solid-js: 1.9.13
+      solid-js: 1.9.15
 
   '@speed-highlight/core@1.2.14': {}
 
@@ -20243,7 +20243,7 @@ snapshots:
       obug: 2.1.1
       svelte: 5.55.7
       vite: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
-      vitefu: 1.1.2(vite@8.3.0)
+      vitefu: 1.1.3(vite@8.3.0)
 
   '@tailwindcss/node@4.2.2':
     dependencies:
@@ -21491,12 +21491,12 @@ snapshots:
     dependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
 
-  babel-preset-solid@1.9.10(@babel/core@7.29.7)(solid-js@1.9.13):
+  babel-preset-solid@1.9.10(@babel/core@7.29.7)(solid-js@1.9.15):
     dependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
       babel-plugin-jsx-dom-expressions: 0.40.3(@babel/core@7.29.7)
     optionalDependencies:
-      solid-js: 1.9.13
+      solid-js: 1.9.15
 
   bail@2.0.2: {}
 
@@ -25994,11 +25994,11 @@ snapshots:
     dependencies:
       randombytes: 2.1.0
 
-  seroval-plugins@1.5.0(seroval@1.5.0):
+  seroval-plugins@1.5.6(seroval@1.5.6):
     dependencies:
-      seroval: 1.5.0
+      seroval: 1.5.6
 
-  seroval@1.5.0: {}
+  seroval@1.5.6: {}
 
   serve-static@2.2.1(supports-color@10.2.2):
     dependencies:
@@ -26220,18 +26220,18 @@ snapshots:
 
   smol-toml@1.8.0: {}
 
-  solid-js@1.9.13:
+  solid-js@1.9.15:
     dependencies:
       csstype: 3.2.3
-      seroval: 1.5.0
-      seroval-plugins: 1.5.0(seroval@1.5.0)
+      seroval: 1.5.6
+      seroval-plugins: 1.5.6(seroval@1.5.6)
 
-  solid-refresh@0.6.3(solid-js@1.9.13)(supports-color@10.2.2):
+  solid-refresh@0.6.3(solid-js@1.9.15)(supports-color@10.2.2):
     dependencies:
       '@babel/generator': 7.29.8
       '@babel/helper-module-imports': 7.29.7(supports-color@10.2.2)
       '@babel/types': 7.29.8
-      solid-js: 1.9.13
+      solid-js: 1.9.15
     transitivePeerDependencies:
       - supports-color
 
@@ -26921,16 +26921,16 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-solid@2.11.12(solid-js@1.9.13)(supports-color@10.2.2)(vite@8.3.0):
+  vite-plugin-solid@2.11.14(solid-js@1.9.15)(supports-color@10.2.2)(vite@8.3.0):
     dependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
       '@types/babel__core': 7.20.5
-      babel-preset-solid: 1.9.10(@babel/core@7.29.7)(solid-js@1.9.13)
+      babel-preset-solid: 1.9.10(@babel/core@7.29.7)(solid-js@1.9.15)
       merge-anything: 5.1.7
-      solid-js: 1.9.13
-      solid-refresh: 0.6.3(solid-js@1.9.13)(supports-color@10.2.2)
+      solid-js: 1.9.15
+      solid-refresh: 0.6.3(solid-js@1.9.15)(supports-color@10.2.2)
       vite: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
-      vitefu: 1.1.2(vite@8.3.0)
+      vitefu: 1.1.3(vite@8.3.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -26997,7 +26997,7 @@ snapshots:
       tsx: 4.23.13
       yaml: 2.9.1
 
-  vitefu@1.1.2(vite@8.3.0):
+  vitefu@1.1.3(vite@8.3.0):
     optionalDependencies:
       vite: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
 
