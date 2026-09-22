@@ -14,8 +14,8 @@
     "test": "vitest"
   },
   "dependencies": {
-    "astro": "^7.3.2",
-    "vitest": "^5.0.0-beta.2"
+    "astro": "^7.3.3",
+    "vitest": "^5.0.0"
   },
   "allowScripts": {
     "esbuild": true
