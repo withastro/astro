@@ -523,7 +523,7 @@ importers:
         specifier: ^7.3.3
         version: link:../../packages/astro
       vitest:
-        specifier: ^5.0.0-beta.2
+        specifier: ^5.0.0
         version: 5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
 
   packages/astro:
@@ -4449,7 +4449,7 @@ importers:
         specifier: ^0.2.15
         version: 0.2.17
       vitest:
-        specifier: 5.0.0
+        specifier: ^5.0.0
         version: 5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
       wrangler:
         specifier: ^4.125.0
@@ -4969,7 +4969,7 @@ importers:
         specifier: 4.1.10
         version: 4.1.10
       vitest:
-        specifier: 5.0.0
+        specifier: ^5.0.0
         version: 5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
 
   packages/integrations/cloudflare/test/fixtures/with-base:

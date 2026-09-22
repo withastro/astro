@@ -51,8 +51,6 @@ minimumReleaseAgeExclude:
   - wrangler
   - 'satteri'
   - '@bruits/*'
-  # Renovate security update: vitest@5.0.0 || 5.0.0-rc.2
-  - vitest@5.0.0 || 5.0.0-rc.2
 peerDependencyRules:
   allowAny:
     - 'astro'
