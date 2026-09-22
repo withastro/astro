@@ -5947,13 +5947,13 @@ importers:
         specifier: ^2.11.2
         version: 2.11.2(preact@10.29.8)
       devalue:
-        specifier: ^5.9.2
+        specifier: ^5.9.4
         version: 5.9.4
       preact-render-to-string:
         specifier: ^6.7.0
         version: 6.7.0(preact@10.29.8)
       vite:
-        specifier: ^8.2.2
+        specifier: ^8.3.0
         version: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
     devDependencies:
       astro:
