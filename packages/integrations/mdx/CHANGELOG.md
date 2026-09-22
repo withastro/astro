@@ -1,5 +1,13 @@
 # @astrojs/mdx
 
+## 8.0.2
+
+### Patch Changes
+
+- [#18036](https://github.com/withastro/astro/pull/18036) [`f4444eb`](https://github.com/withastro/astro/commit/f4444ebcc17e37680e159d1801b79fa357f16461) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes an incompatibility where `@astrojs/mdx` v8 could be installed with `astro` versions that bundle an older `@astrojs/markdown-satteri` lacking MDX support. Also improves the error message when the processor is too old to suggest updating `astro` itself.
+- Updated dependencies [[`3fd16ee`](https://github.com/withastro/astro/commit/3fd16eeb5cd096a6ceb8cc3e70b89ed30d6fcd4d), [`8358d59`](https://github.com/withastro/astro/commit/8358d59cba754480c7d830c473837a0d7100ac7e)]:
+  - @astrojs/markdown-satteri@0.4.2
+
 ## 8.0.1
 
 ### Patch Changes
