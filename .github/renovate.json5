@@ -48,6 +48,7 @@
       "matchUpdateTypes": ["minor", "patch"],
       "matchFileNames": [
         "packages/markdown/remark/**",
+        "packages/markdown/satteri/**",
         "packages/integrations/mdx/**"
       ]
     },
@@ -161,6 +162,26 @@
     },
     //#endregion
 
+    //#region Repo-level tooling and examples
+    {
+      "groupName": "repo tooling",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": [
+        "package.json",
+        "pnpm-workspace.yaml",
+        "scripts/**",
+        "benchmark/**"
+      ]
+    },
+    {
+      "groupName": "examples",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["examples/**"]
+    },
+    //#endregion
+
     //#region Minor packages (few external deps, rarely trigger updates)
     {
       "groupName": "minor packages",
@@ -181,6 +202,8 @@
     "@biomejs/biome",
     "knip",
     "@types/node",
+    // pnpm override key in pnpm-workspace.yaml, extracted as its own dep name
+    "@types/node@22",
     "@types/vscode",
 
     // TODO: investigate upgrade (has type issues)
