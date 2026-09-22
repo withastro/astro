@@ -132,6 +132,48 @@ describe('TypeScript - Organize & Sort Imports', () => {
 		assert.ok(returnedText.some((text) => text.includes('helperOne, helperTwo')));
 	});
 
+	it('does not duplicate the last import when frontmatter ends with an import', async () => {
+		const document = await languageServer.openFakeDocument(
+			`---
+import Hello from '../components/Hello.astro'
+import Layout from '../layouts/Layout.astro'
+---
+
+<Layout title="Demo">
+  <Hello />
+</Layout>
+`,
+			'astro',
+		);
+		const organizeActions = await languageServer.handle.sendCodeActionsRequest(
+			document.uri,
+			Range.create(0, 0, document.lineCount - 1, 0),
+			{
+				diagnostics: [],
+				only: ['source.organizeImports'],
+				triggerKind: 2,
+			},
+		);
+		const organizeEdits = await Promise.all(
+			(organizeActions as CodeAction[]).map((action) =>
+				languageServer.handle.sendCodeActionResolveRequest(action),
+			),
+		);
+		const edits = getTextEdits(organizeEdits);
+
+		// The delete edit for the second import must not be dropped.
+		// Without the fix, only the replace edit survives and the last
+		// import gets duplicated on every organize-imports run.
+		assert.ok(
+			edits.length >= 2,
+			`Expected at least 2 edits (replace + delete), got ${edits.length}`,
+		);
+		assert.ok(
+			edits.some((edit) => edit.newText === ''),
+			'Expected a delete edit (empty newText) to remove the old import line',
+		);
+	});
+
 	it('organizes imports in every TypeScript region for full-document actions', async () => {
 		const document = await languageServer.openFakeDocument(
 			`---

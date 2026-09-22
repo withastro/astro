@@ -115,6 +115,24 @@ function getVirtualCodeTSX(tsx: ConvertToTsxResult) {
 			data: { completion: true },
 		});
 	}
+	if (
+		tsx.frontmatterStatus === AstroFrontmatterStatus.Closed &&
+		tsx.body.start > tsx.frontmatter.end
+	) {
+		// The generated TSX has a gap of unmapped text (e.g. `;{};<Fragment>\n`) between
+		// the frontmatter and the body. Map it to a zero-length point at the closing `---`
+		// so that edits whose range extends into the gap (such as TypeScript's organize
+		// imports delete edits) can still be resolved back to the source.
+		// See https://github.com/withastro/astro/issues/18102
+		const closingFenceOffset = tsx.frontmatterSource.end - '---'.length;
+		mappings.push({
+			sourceOffsets: [closingFenceOffset],
+			generatedOffsets: [tsx.frontmatter.end],
+			lengths: [0],
+			generatedLengths: [tsx.body.start - tsx.frontmatter.end],
+			data: { navigation: true },
+		});
+	}
 
 	const genDoc = TextDocument.create('', 'typescriptreact', 0, code);
 
