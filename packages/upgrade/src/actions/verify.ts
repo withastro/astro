@@ -2,7 +2,7 @@ import dns from 'node:dns/promises';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { color } from '@astrojs/cli-kit';
-import { coerce, difference, isGreater, tryParse } from 'verkit';
+import { coerce, difference, isGreaterThan, tryParse } from 'verkit';
 import { bannerAbort, error, getRegistry, info, newline } from '../messages.js';
 import type { Context, PackageInfo } from './context.js';
 
@@ -149,7 +149,7 @@ export async function resolveTargetVersion(
 		const currentCoerced = coerce(packageInfo.currentVersion);
 		const targetParsed = tryParse(version);
 		// If the dist-tag points to a version older than the installed one, fall back to latest.
-		if (currentCoerced && targetParsed && isGreater(currentCoerced, targetParsed)) {
+		if (currentCoerced && targetParsed && isGreaterThan(currentCoerced, targetParsed)) {
 			packageInfo.targetVersion = 'latest';
 			version = distTags.latest;
 		} else {
