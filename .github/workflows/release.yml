@@ -59,15 +59,11 @@ jobs:
           pr-title: "[ci] release"
           github-token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
 
-      # The released-package cohort is rebuilt from the version bumps in the release commit
-      # (diff vs parent), not from the changesets action's published-packages output:
-      # changesets/action v2 renamed that output to `published-packages`, and referencing it
-      # as `steps.changesets.outputs["published-packages"]` is rejected by the workflow
-      # validator (expressions only accept single-quoted keys). The commit diff is available on
-      # every attempt (first publish and retries), so announcement, VS Code/OpenVSX publishing,
-      # and dispatch stay idempotent. Only the squash-merged "[ci] release" version PR commit
-      # bumps package versions; fixture edits, manual version changes, merges, and reverts
-      # must not look like releases.
+      # Derives the released-package cohort from the package.json version bumps in the
+      # "[ci] release" commit (diff vs its parent). The result is the same on every run of
+      # that commit, and drives the announcement, VS Code/OpenVSX publishing, and dispatch
+      # steps below. Commits with any other subject produce no cohort, so fixture edits,
+      # manual version changes, merges, and reverts are not treated as releases.
       - name: Detect release cohort
         id: release
         run: |
@@ -76,8 +72,6 @@ jobs:
           COHORT=""
           PAYLOAD=""
           if git log -1 --format=%s HEAD | grep -q '^\[ci\] release'; then
-            # This is a release commit (first attempt or a re-run of the same commit):
-            # rebuild the released-package list from the version bumps in the commit.
             # Feed the loop the list of package.json files changed between the parent commit
             # and this one (a release commit only changes the files it bumps).
             while read -r f; do
@@ -106,9 +100,7 @@ jobs:
               PAYLOAD="$COHORT"
               HAS_RELEASE=true
             fi
-            # The rebuilt cohort also drives VS Code/OpenVSX publishing (has_vscode), so a
-            # release that includes astro-vscode reaches the marketplaces on the first attempt
-            # and on retries (see #17956).
+            # A cohort that includes astro-vscode enables VS Code/OpenVSX publishing.
             if echo "$COHORT" | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null 2>&1; then
               HAS_VSCODE=true
             fi
