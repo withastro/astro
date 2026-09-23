@@ -195,7 +195,7 @@ importers:
         specifier: ^11.1.6
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
       hono:
         specifier: ^4.13.7
@@ -204,13 +204,13 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
 
   examples/blog:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^8.0.1
+        specifier: ^8.0.2
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
         specifier: ^4.0.19
@@ -219,7 +219,7 @@ importers:
         specifier: ^3.7.4
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
       sharp:
         specifier: ^0.35.0
@@ -228,16 +228,16 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
 
   examples/container-with-vitest:
     dependencies:
       '@astrojs/react':
-        specifier: ^6.0.6
+        specifier: ^7.0.0
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -268,7 +268,7 @@ importers:
         specifier: ^3.15.8
         version: 3.15.8
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
 
   examples/framework-multiple:
@@ -277,7 +277,7 @@ importers:
         specifier: ^6.0.5
         version: link:../../packages/integrations/preact
       '@astrojs/react':
-        specifier: ^6.0.6
+        specifier: ^7.0.0
         version: link:../../packages/integrations/react
       '@astrojs/solid-js':
         specifier: ^7.0.2
@@ -295,7 +295,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.31)
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -325,7 +325,7 @@ importers:
         specifier: ^2.8.1
         version: 2.11.2(preact@10.29.8)
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -334,7 +334,7 @@ importers:
   examples/framework-react:
     dependencies:
       '@astrojs/react':
-        specifier: ^6.0.6
+        specifier: ^7.0.0
         version: link:../../packages/integrations/react
       '@types/react':
         specifier: ^18.3.28
@@ -343,7 +343,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.31)
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -358,7 +358,7 @@ importers:
         specifier: ^7.0.2
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.11
@@ -370,7 +370,7 @@ importers:
         specifier: ^9.0.1
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
       svelte:
         specifier: ^5.55.7
@@ -382,7 +382,7 @@ importers:
         specifier: ^7.0.3
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.29
@@ -394,25 +394,25 @@ importers:
         specifier: ^11.1.6
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
 
   examples/ssr:
@@ -424,7 +424,7 @@ importers:
         specifier: ^9.0.1
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
       svelte:
         specifier: ^5.55.7
@@ -433,7 +433,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
       sass:
         specifier: ^1.97.3
@@ -448,7 +448,7 @@ importers:
         specifier: ^22.19.0
         version: 22.19.19
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -457,19 +457,19 @@ importers:
         specifier: ^2.0.9
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
 
   examples/with-mdx:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^8.0.1
+        specifier: ^8.0.2
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
         specifier: ^6.0.5
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.4
@@ -484,7 +484,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(nanostores@1.1.1)(preact@10.29.8)
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
       nanostores:
         specifier: ^1.1.1
@@ -496,7 +496,7 @@ importers:
   examples/with-tailwindcss:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^8.0.1
+        specifier: ^8.0.2
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.2.1
@@ -505,7 +505,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -520,7 +520,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^7.3.3
+        specifier: ^7.3.4
         version: link:../../packages/astro
       vitest:
         specifier: ^5.0.0
@@ -625,8 +625,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       obug:
-        specifier: ^2.1.1
-        version: 2.2.1
+        specifier: ^3.0.0
+        version: 3.0.0
       p-limit:
         specifier: ^7.3.0
         version: 7.3.0
@@ -668,7 +668,7 @@ importers:
         version: 0.7.5
       unstorage:
         specifier: ^1.17.5
-        version: 1.17.5(@azure/identity@4.13.0)(@netlify/blobs@10.7.13)(@vercel/functions@3.9.5)
+        version: 1.17.5(@azure/identity@4.13.0)(@netlify/blobs@10.7.13)(@vercel/functions@3.9.8)
       verkit:
         specifier: ^0.4.0
         version: 0.4.0
@@ -5560,7 +5560,7 @@ importers:
         version: 5.3.0
       '@netlify/vite-plugin':
         specifier: ^2.12.9
-        version: 2.12.9(@azure/identity@4.13.0)(@vercel/functions@3.9.5)(supports-color@10.2.2)(vite@8.3.0)
+        version: 2.12.9(@azure/identity@4.13.0)(@vercel/functions@3.9.8)(supports-color@10.2.2)(vite@8.3.0)
       '@vercel/nft':
         specifier: ^1.11.0
         version: 1.11.0(supports-color@10.2.2)
@@ -5947,13 +5947,13 @@ importers:
         specifier: ^2.11.2
         version: 2.11.2(preact@10.29.8)
       devalue:
-        specifier: ^5.9.2
+        specifier: ^5.9.4
         version: 5.9.4
       preact-render-to-string:
         specifier: ^6.7.0
         version: 6.7.0(preact@10.29.8)
       vite:
-        specifier: ^8.2.2
+        specifier: ^8.3.0
         version: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
     devDependencies:
       astro:
@@ -6285,19 +6285,19 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1(react@19.3.0)(svelte@5.55.7)(vue@3.5.43)
       '@vercel/functions':
-        specifier: ^3.7.5
-        version: 3.9.5(@aws-sdk/credential-provider-web-identity@3.972.49)(ws@8.21.0)
+        specifier: ^3.9.8
+        version: 3.9.8(@aws-sdk/credential-provider-web-identity@3.972.49)(ws@8.21.0)
       '@vercel/nft':
-        specifier: ^1.10.2
+        specifier: ^1.11.0
         version: 1.11.0(supports-color@10.2.2)
       '@vercel/routing-utils':
-        specifier: ^6.4.0
-        version: 6.5.0
+        specifier: ^6.6.0
+        version: 6.6.0
       esbuild:
         specifier: ^0.28.0
         version: 0.28.1
       tinyglobby:
-        specifier: ^0.2.15
+        specifier: ^0.2.17
         version: 0.2.17
     devDependencies:
       astro:
@@ -6310,7 +6310,7 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       vite:
-        specifier: ^8.0.13
+        specifier: ^8.3.0
         version: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
 
   packages/integrations/vercel/test/fixtures/basic:
@@ -7168,14 +7168,14 @@ importers:
         specifier: ^0.4.1
         version: 0.4.1
       package-manager-detector:
-        specifier: ^1.6.0
+        specifier: ^1.8.0
         version: 1.8.0
       terminal-link:
         specifier: ^5.0.0
         version: 5.0.0
       verkit:
-        specifier: ^0.4.0
-        version: 0.4.0
+        specifier: ^0.5.0
+        version: 0.5.0
     devDependencies:
       arg:
         specifier: ^5.0.2
@@ -11169,15 +11169,15 @@ packages:
       vue-router:
         optional: true
 
-  '@vercel/cli-config@0.2.4':
-    resolution: {integrity: sha512-kZ5SojbrV06GHoU6QIWGwDXLov+s9rWZ7QqdqKfJfBGCNUieGfgaCjeeenNy8Y+QC0bwC0dZ2B4l5Hvdmrgpdw==}
+  '@vercel/cli-config@0.2.7':
+    resolution: {integrity: sha512-KeSN2HBp8puZrj7kVjSEneDi9yBqW4nAD9AnhGhdYjGNpHl7IkXZVb3HnNe0WWc5+20RlUtmAGWNPQ8qP5QBhQ==}
 
   '@vercel/cli-exec@1.0.1':
     resolution: {integrity: sha512-g9XerViJ/paZujufXYcu5XYI2vU2rtB4sgdpjUHde5RnOkdmpu0ngH46LCFGHoPXO/C+qDPSczIHIRN+8Q2YKQ==}
     engines: {node: '>= 18'}
 
-  '@vercel/functions@3.9.5':
-    resolution: {integrity: sha512-EUfqlb7AzoEh7URlMNAO4jbJiLWz9grDBHvfjKTDvEP9c8y3DqX3SWPvfaQkUjtkm3b83flhaUUMuewdHa+qmw==}
+  '@vercel/functions@3.9.8':
+    resolution: {integrity: sha512-ISnh/3ACFkWZhtwvRz7H1uG+A/7nr6lY1H9bd7s1SQv9GU0aBpBraI5hnmylUumperdwL+9QGme2s4L06VRw9g==}
     engines: {node: '>= 20'}
     peerDependencies:
       '@aws-sdk/credential-provider-web-identity': '*'
@@ -11198,12 +11198,12 @@ packages:
     engines: {node: '>=20'}
     hasBin: true
 
-  '@vercel/oidc@3.8.5':
-    resolution: {integrity: sha512-RwXYtnt6za+5UO4IaLywN/6B95AlLqynPRUWRJxeJ/qufwkcLUbZNUxYtzT0uMpuraWhlNcGqPNGkTnZr4BGBw==}
+  '@vercel/oidc@3.8.8':
+    resolution: {integrity: sha512-aeq4/sgVh80zO6j2H+7FRfsG6NOXBrvzV1EEO8IdXPEJgwHIPakP+BFq3QmprsEQ18bIimds07kvaYhm2lehtg==}
     engines: {node: '>= 20'}
 
-  '@vercel/routing-utils@6.5.0':
-    resolution: {integrity: sha512-2PXgATJyJYEaIuDEhljZ+sfOfJEsBl6OEzD+jHhy6NAb0k2mHdbTjcK3zTBNnYq0nebrXpq5ZGiwOxBFoUwB3A==}
+  '@vercel/routing-utils@6.6.0':
+    resolution: {integrity: sha512-Z74zwk1ixcIsMN7Sp788SsZuOEqmJZ4N36WHusr6Vtck5eFAcjyD4oBpjDYRhkxovsh8t13s0L+uVbJYxUPa5w==}
 
   '@vitejs/plugin-react@6.1.1':
     resolution: {integrity: sha512-yxLaQV9gkhS8ezJqCM6+ndU7mDY6gqAg75NQ+0IjwEI8IYOmQCgkRwHKVSfWXW076DsqMo0Dk+0FK1U+M5RgFw==}
@@ -14546,6 +14546,10 @@ packages:
     resolution: {integrity: sha512-XrsrhT5sybtKI6wakr2SPOlGZWWYbUXZ7a0jT8/QOeAPau+1X/bSegNe5YR75oJmEZQbKningirmGOEJCIk61Q==}
     engines: {node: '>=12.20.0'}
 
+  obug@3.0.0:
+    resolution: {integrity: sha512-5vvB5+W7ePv+p3uqxi+RcW1XAzLW0/hxt3/4X4Lc4qHudzOhmBiBwOY6DRob4WnanAEGvNcLjF+KNOufrUoEQw==}
+    engines: {node: '>=12.20.0'}
+
   ofetch@1.5.1:
     resolution: {integrity: sha512-2W4oUZlVaqAPAil6FUg/difl6YhqhUR7x2eZY4bQCko22UXg3hptq9KLQdqFClV+Wu85UX7hNtdGTngi/1BxcA==}
 
@@ -16345,6 +16349,10 @@ packages:
 
   verkit@0.4.0:
     resolution: {integrity: sha512-sXMwN6DMHeouPfCxkxWkKAmxphWKEenHYY5H1nIBzU3PmDsmJp6kBXJdshjVdpMZuWCmL9SH7KFRx29AylpP6g==}
+    engines: {node: '>=18.12.0'}
+
+  verkit@0.5.0:
+    resolution: {integrity: sha512-u4J1hr6Y+C/hit34GwL3eIcUf3wngT8TlYUjK7tk0jxydKLAq3sYvifjdTDA6U3KCKRcQCQDGf/srjxfZF3l7g==}
     engines: {node: '>=18.12.0'}
 
   version-range@4.15.0:
@@ -19385,7 +19393,7 @@ snapshots:
       parse-gitignore: 2.0.0
       semver: 7.8.5
 
-  '@netlify/dev@4.18.13(@azure/identity@4.13.0)(@vercel/functions@3.9.5)(supports-color@10.2.2)':
+  '@netlify/dev@4.18.13(@azure/identity@4.13.0)(@vercel/functions@3.9.8)(supports-color@10.2.2)':
     dependencies:
       '@netlify/ai': 0.4.4
       '@netlify/blobs': 10.7.13(supports-color@10.2.2)
@@ -19395,7 +19403,7 @@ snapshots:
       '@netlify/edge-functions-dev': 1.0.24
       '@netlify/functions-dev': 1.3.5(supports-color@10.2.2)
       '@netlify/headers': 2.1.13
-      '@netlify/images': 1.3.12(@azure/identity@4.13.0)(@netlify/blobs@10.7.13)(@vercel/functions@3.9.5)
+      '@netlify/images': 1.3.12(@azure/identity@4.13.0)(@netlify/blobs@10.7.13)(@vercel/functions@3.9.8)
       '@netlify/redirects': 3.1.15
       '@netlify/runtime': 4.1.29(supports-color@10.2.2)
       '@netlify/static': 3.1.12
@@ -19499,9 +19507,9 @@ snapshots:
     dependencies:
       '@netlify/headers-parser': 10.1.1
 
-  '@netlify/images@1.3.12(@azure/identity@4.13.0)(@netlify/blobs@10.7.13)(@vercel/functions@3.9.5)':
+  '@netlify/images@1.3.12(@azure/identity@4.13.0)(@netlify/blobs@10.7.13)(@vercel/functions@3.9.8)':
     dependencies:
-      ipx: 3.1.1(@azure/identity@4.13.0)(@netlify/blobs@10.7.13)(@vercel/functions@3.9.5)
+      ipx: 3.1.1(@azure/identity@4.13.0)(@netlify/blobs@10.7.13)(@vercel/functions@3.9.8)
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -19569,9 +19577,9 @@ snapshots:
 
   '@netlify/types@2.8.0': {}
 
-  '@netlify/vite-plugin@2.12.9(@azure/identity@4.13.0)(@vercel/functions@3.9.5)(supports-color@10.2.2)(vite@8.3.0)':
+  '@netlify/vite-plugin@2.12.9(@azure/identity@4.13.0)(@vercel/functions@3.9.8)(supports-color@10.2.2)(vite@8.3.0)':
     dependencies:
-      '@netlify/dev': 4.18.13(@azure/identity@4.13.0)(@vercel/functions@3.9.5)(supports-color@10.2.2)
+      '@netlify/dev': 4.18.13(@azure/identity@4.13.0)(@vercel/functions@3.9.8)(supports-color@10.2.2)
       '@netlify/dev-utils': 4.4.7
       dedent: 1.7.2
       vite: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
@@ -20921,7 +20929,7 @@ snapshots:
       svelte: 5.55.7
       vue: 3.5.43(typescript@6.0.3)
 
-  '@vercel/cli-config@0.2.4':
+  '@vercel/cli-config@0.2.7':
     dependencies:
       xdg-app-paths: 5.5.1
       zod: 4.1.11
@@ -20930,9 +20938,9 @@ snapshots:
     dependencies:
       execa: 5.1.1
 
-  '@vercel/functions@3.9.5(@aws-sdk/credential-provider-web-identity@3.972.49)(ws@8.21.0)':
+  '@vercel/functions@3.9.8(@aws-sdk/credential-provider-web-identity@3.972.49)(ws@8.21.0)':
     dependencies:
-      '@vercel/oidc': 3.8.5
+      '@vercel/oidc': 3.8.8
     optionalDependencies:
       '@aws-sdk/credential-provider-web-identity': 3.972.49
       ws: 8.21.0
@@ -20975,13 +20983,13 @@ snapshots:
       - rollup
       - supports-color
 
-  '@vercel/oidc@3.8.5':
+  '@vercel/oidc@3.8.8':
     dependencies:
-      '@vercel/cli-config': 0.2.4
+      '@vercel/cli-config': 0.2.7
       '@vercel/cli-exec': 1.0.1
       jose: 5.10.0
 
-  '@vercel/routing-utils@6.5.0':
+  '@vercel/routing-utils@6.6.0':
     dependencies:
       path-to-regexp: 6.1.0
       path-to-regexp-updated: path-to-regexp@6.3.0
@@ -23519,7 +23527,7 @@ snapshots:
 
   ipaddr.js@2.3.0: {}
 
-  ipx@3.1.1(@azure/identity@4.13.0)(@netlify/blobs@10.7.13)(@vercel/functions@3.9.5):
+  ipx@3.1.1(@azure/identity@4.13.0)(@netlify/blobs@10.7.13)(@vercel/functions@3.9.8):
     dependencies:
       '@fastify/accept-negotiator': 2.0.1
       citty: 0.1.6
@@ -23535,7 +23543,7 @@ snapshots:
       sharp: 0.34.5
       svgo: 4.1.0
       ufo: 1.6.3
-      unstorage: 1.17.5(@azure/identity@4.13.0)(@netlify/blobs@10.7.13)(@vercel/functions@3.9.5)
+      unstorage: 1.17.5(@azure/identity@4.13.0)(@netlify/blobs@10.7.13)(@vercel/functions@3.9.8)
       xss: 1.0.15
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -24891,6 +24899,8 @@ snapshots:
   object-keys@1.1.1: {}
 
   obug@2.2.1: {}
+
+  obug@3.0.0: {}
 
   ofetch@1.5.1:
     dependencies:
@@ -26998,7 +27008,7 @@ snapshots:
       pathe: 2.0.3
       picomatch: 4.0.7
 
-  unstorage@1.17.5(@azure/identity@4.13.0)(@netlify/blobs@10.7.13)(@vercel/functions@3.9.5):
+  unstorage@1.17.5(@azure/identity@4.13.0)(@netlify/blobs@10.7.13)(@vercel/functions@3.9.8):
     dependencies:
       anymatch: 3.1.3
       chokidar: 5.0.0
@@ -27011,7 +27021,7 @@ snapshots:
     optionalDependencies:
       '@azure/identity': 4.13.0(supports-color@10.2.2)
       '@netlify/blobs': 10.7.13(supports-color@10.2.2)
-      '@vercel/functions': 3.9.5(@aws-sdk/credential-provider-web-identity@3.972.49)(ws@8.21.0)
+      '@vercel/functions': 3.9.8(@aws-sdk/credential-provider-web-identity@3.972.49)(ws@8.21.0)
 
   untun@0.1.3:
     dependencies:
@@ -27063,6 +27073,8 @@ snapshots:
   vary@1.1.2: {}
 
   verkit@0.4.0: {}
+
+  verkit@0.5.0: {}
 
   version-range@4.15.0: {}
 
