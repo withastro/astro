@@ -7168,14 +7168,14 @@ importers:
         specifier: ^0.4.1
         version: 0.4.1
       package-manager-detector:
-        specifier: ^1.6.0
+        specifier: ^1.8.0
         version: 1.8.0
       terminal-link:
         specifier: ^5.0.0
         version: 5.0.0
       verkit:
-        specifier: ^0.4.0
-        version: 0.4.0
+        specifier: ^0.5.0
+        version: 0.5.0
     devDependencies:
       arg:
         specifier: ^5.0.2
@@ -16349,6 +16349,10 @@ packages:
 
   verkit@0.4.0:
     resolution: {integrity: sha512-sXMwN6DMHeouPfCxkxWkKAmxphWKEenHYY5H1nIBzU3PmDsmJp6kBXJdshjVdpMZuWCmL9SH7KFRx29AylpP6g==}
+    engines: {node: '>=18.12.0'}
+
+  verkit@0.5.0:
+    resolution: {integrity: sha512-u4J1hr6Y+C/hit34GwL3eIcUf3wngT8TlYUjK7tk0jxydKLAq3sYvifjdTDA6U3KCKRcQCQDGf/srjxfZF3l7g==}
     engines: {node: '>=18.12.0'}
 
   version-range@4.15.0:
@@ -27069,6 +27073,8 @@ snapshots:
   vary@1.1.2: {}
 
   verkit@0.4.0: {}
+
+  verkit@0.5.0: {}
 
   version-range@4.15.0: {}
 
