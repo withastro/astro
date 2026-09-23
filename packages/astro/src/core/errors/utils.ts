@@ -78,10 +78,13 @@ export function isYAMLException(err: unknown): err is YAMLException {
 
 /** Format YAML exceptions as Vite errors */
 export function formatYAMLException(e: YAMLException): ViteErrorPayload['err'] {
+	const mark = e.mark;
 	return {
 		name: e.name,
-		id: e.mark.name,
-		loc: { file: e.mark.name, line: e.mark.line + 1, column: e.mark.column },
+		id: mark?.name ?? undefined,
+		loc: mark
+			? { file: mark.name ?? undefined, line: mark.line + 1, column: mark.column }
+			: undefined,
 		message: e.reason,
 		stack: e.stack ?? '',
 	};
