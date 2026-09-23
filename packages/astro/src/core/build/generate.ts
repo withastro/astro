@@ -646,7 +646,7 @@ async function generatePathWithPrerenderer(
 		routeData: route,
 	});
 	const outFile = getOutFile(config.build.format, outFolder, encodedPath, route);
-	// Relative path from outDir for cache storage
+	// Relative path from the resolved client output directory for cache storage
 	const relativeOutFile = outFile.href.slice(options.outputDirectories.client.href.length);
 
 	// Look up the dependency hash for this route
