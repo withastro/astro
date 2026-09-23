@@ -414,11 +414,14 @@ function safeParseFrontmatter(fileContents: string, filePath: string) {
 		// because markdoc struggles with spaces
 		return parseFrontmatter(fileContents, { frontmatter: 'empty-with-lines' });
 	} catch (e: any) {
-		if (e.name === 'YAMLException') {
+		if (e.name === 'YAMLParseError') {
 			const err: Error & ViteErrorPayload['err'] = e;
 			err.id = filePath;
-			err.loc = { file: e.id, line: e.mark.line + 1, column: e.mark.column };
-			err.message = e.reason;
+			const position = e.linePos?.[0];
+			if (position) {
+				err.loc = { file: filePath, line: position.line, column: position.col - 1 };
+			}
+			err.message = e.message;
 			throw err;
 		} else {
 			throw e;

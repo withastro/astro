@@ -1,5 +1,5 @@
 ---
-'@astrojs/internal-helpers': patch
+'@astrojs/internal-helpers': minor
 ---
 
-Updates `js-yaml` to v5 and preserves YAML date and merge key parsing for Astro frontmatter and data files
+Adds an `@astrojs/internal-helpers/yaml` entrypoint with `parseYaml()` and `YAMLParseError` for parsing YAML with timestamp and merge key support

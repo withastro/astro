@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { parseFrontmatter } from '../dist/frontmatter.js';
-import { yamlLoad } from '../dist/yaml.js';
+import { parseYaml } from '../dist/yaml.js';
 
 describe('parseFrontmatter', () => {
 	it('parses YAML frontmatter', () => {
@@ -56,25 +56,25 @@ describe('parseFrontmatter', () => {
 	});
 });
 
-describe('yamlLoad', () => {
+describe('parseYaml', () => {
 	it('parses a YAML document', () => {
-		assert.deepEqual(yamlLoad('a: 1\nb: true'), { a: 1, b: true });
+		assert.deepEqual(parseYaml('a: 1\nb: true'), { a: 1, b: true });
 	});
 
 	it('parses unquoted dates as Date objects', () => {
-		const data = yamlLoad('date: 2022-01-01') as Record<string, unknown>;
+		const data = parseYaml('date: 2022-01-01') as Record<string, unknown>;
 		assert.ok(data.date instanceof Date);
 	});
 
 	it('returns undefined for empty input', () => {
-		assert.equal(yamlLoad(''), undefined);
+		assert.equal(parseYaml(''), undefined);
 	});
 
 	it('returns undefined for comment-only input', () => {
-		assert.equal(yamlLoad('# just a comment'), undefined);
+		assert.equal(parseYaml('# just a comment'), undefined);
 	});
 
 	it('throws on multi-document input', () => {
-		assert.throws(() => yamlLoad('a: 1\n---\nb: 2'), /single document/);
+		assert.throws(() => parseYaml('a: 1\n---\nb: 2'), /multiple documents/);
 	});
 });

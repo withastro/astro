@@ -47,11 +47,14 @@ export function safeParseFrontmatter(code: string, id: string) {
 	try {
 		return parseFrontmatter(code, { frontmatter: 'empty-with-spaces' });
 	} catch (e: any) {
-		if (e.name === 'YAMLException') {
+		if (e.name === 'YAMLParseError') {
 			const err: SSRError = e;
 			err.id = id;
-			err.loc = { file: e.id, line: e.mark.line + 1, column: e.mark.column };
-			err.message = e.reason;
+			const position = e.linePos?.[0];
+			if (position) {
+				err.loc = { file: id, line: position.line, column: position.col - 1 };
+			}
+			err.message = e.message;
 			throw err;
 		} else {
 			throw e;

@@ -44,7 +44,7 @@
   "dependencies": {
     "@types/hast": "^3.0.4",
     "@types/mdast": "^4.0.4",
-    "js-yaml": "^5.4.2",
+    "yaml": "^2.9.1",
     "picomatch": "^4.0.4",
     "retext-smartypants": "^6.2.0",
     "shiki": "^4.0.2",
