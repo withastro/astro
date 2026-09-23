@@ -85,7 +85,9 @@ export async function generatePages(
 			options,
 			prerenderOutputDir,
 		});
-		prerenderer = settingsPrerenderer(defaultPrerenderer);
+		prerenderer = settingsPrerenderer(defaultPrerenderer, {
+			outputDirectories: options.outputDirectories,
+		});
 	} else {
 		// Direct prerenderer object - use as-is
 		prerenderer = settingsPrerenderer;

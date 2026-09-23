@@ -19,6 +19,7 @@ describe('Build: resolved Vite output directories', () => {
 		let generatedDir: URL | undefined;
 		let doneDir: URL | undefined;
 		let manifest: { buildClientDir: string; buildServerDir: string } | undefined;
+		let prerendererDirectories: typeof outputDirectories | undefined;
 
 		const resolvedOutputPlugin: Plugin = {
 			name: 'test:resolved-output-directories',
@@ -47,6 +48,15 @@ describe('Build: resolved Vite output directories', () => {
 				{
 					name: 'test:resolved-output-hooks',
 					hooks: {
+						'astro:build:start': ({ setPrerenderer }) => {
+							setPrerenderer((defaultPrerenderer, context) => ({
+								...defaultPrerenderer,
+								async setup() {
+									prerendererDirectories = context.outputDirectories;
+									await defaultPrerenderer.setup?.();
+								},
+							}));
+						},
 						'astro:build:generated': ({ dir }) => {
 							generatedDir = dir;
 						},
@@ -67,6 +77,9 @@ describe('Build: resolved Vite output directories', () => {
 		assert.equal(doneDir?.href, outputDirectories.client.href);
 		assert.equal(manifest?.buildClientDir, outputDirectories.client.href);
 		assert.equal(manifest?.buildServerDir, outputDirectories.server.href);
+		assert.equal(prerendererDirectories?.client.href, outputDirectories.client.href);
+		assert.equal(prerendererDirectories?.server.href, outputDirectories.server.href);
+		assert.equal(prerendererDirectories?.prerender.href, outputDirectories.prerender.href);
 		assert.equal(existsSync(new URL('static/index.html', outputDirectories.client)), true);
 		assert.equal(existsSync(new URL('entry.mjs', outputDirectories.server)), true);
 		assert.equal(

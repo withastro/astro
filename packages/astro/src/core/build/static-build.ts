@@ -11,6 +11,7 @@ import { prependForwardSlash } from '../../core/path.js';
 import { runHookBuildSetup } from '../../integrations/hooks.js';
 import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../manifest/serialized.js';
 import type { RouteData } from '../../types/public/internal.js';
+import type { AstroBuildOutputDirectories } from '../../types/public/integrations.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 
 import { generatePages } from './generate.js';
@@ -20,11 +21,7 @@ import { getAllBuildPlugins } from './plugins/index.js';
 import { manifestBuildPostHook } from './plugins/plugin-manifest.js';
 
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
-import type {
-	BuildOutputDirectories,
-	StaticBuildOptions,
-	StaticBuildOptionsInput,
-} from './types.js';
+import type { StaticBuildOptions, StaticBuildOptionsInput } from './types.js';
 import { getTimeStat, viteBuildReturnToRolldownOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
@@ -323,7 +320,7 @@ async function buildEnvironments(opts: StaticBuildOptionsInput, internals: Build
 	return getResolvedOutputDirectories(builder);
 }
 
-function getResolvedOutputDirectories(builder: vite.ViteBuilder): BuildOutputDirectories {
+function getResolvedOutputDirectories(builder: vite.ViteBuilder): AstroBuildOutputDirectories {
 	const environments = builder.environments;
 	return {
 		client: pathToDirectoryURL(

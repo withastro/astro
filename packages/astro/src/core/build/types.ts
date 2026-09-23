@@ -4,6 +4,7 @@ import type { AstroSettings, ComponentInstance, RoutesList } from '../../types/a
 import type { MiddlewareHandler } from '../../types/public/common.js';
 import type { RuntimeMode } from '../../types/public/config.js';
 import type { RouteData } from '../../types/public/internal.js';
+import type { AstroBuildOutputDirectories } from '../../types/public/integrations.js';
 import type { AstroLogger } from '../logger/core.js';
 
 type ComponentPath = string;
@@ -24,12 +25,6 @@ export interface PageBuildData {
 
 export type AllPagesData = Record<ComponentPath, PageBuildData>;
 
-export interface BuildOutputDirectories {
-	client: URL;
-	server: URL;
-	prerender: URL;
-}
-
 /** Inputs available before Vite resolves its build environments. */
 export interface StaticBuildOptionsInput {
 	allPages: AllPagesData;
@@ -47,7 +42,7 @@ export interface StaticBuildOptionsInput {
 
 /** Options for build operations that require Vite's resolved output directories. */
 export interface StaticBuildOptions extends StaticBuildOptionsInput {
-	outputDirectories: BuildOutputDirectories;
+	outputDirectories: AstroBuildOutputDirectories;
 }
 
 type ImportComponentInstance = () => Promise<ComponentInstance>;
