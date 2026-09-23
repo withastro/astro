@@ -240,7 +240,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			async buildApp(builder: vite.ViteBuilder) {
 				// Build prerender environment for static generation
 				settings.timer.start('Prerender build');
+				const endPrerenderBuild = settings.buildProfile?.phase('Vite build: prerender');
 				let prerenderOutput = await builder.build(builder.environments.prerender);
+				endPrerenderBuild?.();
 				settings.timer.end('Prerender build');
 
 				// Extract prerender entry filename and store in internals
@@ -255,9 +257,11 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				let ssrChunks: BuildInternals['extractedChunks'] = [];
 				if (needsServerBuild(settings, builder)) {
 					settings.timer.start('SSR build');
+					const endSsrBuild = settings.buildProfile?.phase('Vite build: ssr');
 					let ssrOutput = await builder.build(
 						builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr],
 					);
+					endSsrBuild?.();
 					settings.timer.end('SSR build');
 					// Extract chunks needing injection, then release output for GC
 					const ssrOutputs = viteBuildReturnToRolldownOutputs(ssrOutput);
@@ -291,7 +295,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				const sortedClientInput = Array.from(internals.clientInput).sort();
 				builder.environments.client.config.build.rolldownOptions.input = sortedClientInput;
 				settings.timer.start('Client build');
+				const endClientBuild = settings.buildProfile?.phase('Vite build: client');
 				await builder.build(builder.environments.client);
+				endClientBuild?.();
 				settings.timer.end('Client build');
 
 				// Store extracted chunks on internals for post plugin to consume
@@ -307,6 +313,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		vite: viteBuildConfig,
 		target: 'server',
 		logger: opts.logger,
+		profile: settings.buildProfile,
 	});
 
 	const builder = await vite.createBuilder(updatedViteBuildConfig);

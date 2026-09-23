@@ -46,6 +46,7 @@ import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { AstroSettings } from '../../types/astro.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import type { PageStatus } from './profile.js';
 
 export async function generatePages(
 	options: StaticBuildOptions,
@@ -92,8 +93,12 @@ export async function generatePages(
 		prerenderer = settingsPrerenderer;
 	}
 
+	const profile = options.settings.buildProfile;
+
 	// Set up the prerenderer
+	const endPrerendererSetup = profile?.phase('Prerenderer setup');
 	await prerenderer.setup?.();
+	endPrerendererSetup?.();
 
 	const verb = ssr ? 'prerendering' : 'generating';
 	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);
@@ -120,7 +125,9 @@ export async function generatePages(
 
 	try {
 		// Get all static paths with their routes from the prerenderer
+		const endGetStaticPaths = profile?.phase('getStaticPaths');
 		const pathsWithRoutes = await prerenderer.getStaticPaths();
+		endGetStaticPaths?.();
 
 		// Check if i18n domains are configured (incompatible with prerendering)
 		const hasI18nDomains =
@@ -182,6 +189,7 @@ export async function generatePages(
 		const generationPhases = [filteredPaths, fallbackPaths];
 
 		// Generate each path
+		const endRenderPages = profile?.phase('Render pages');
 		if (config.build.concurrency > 1) {
 			const limit = PLimit(config.build.concurrency);
 			// Process in batches to avoid V8's Promise.all element limit, which is around ~123k items
@@ -247,6 +255,8 @@ export async function generatePages(
 				}
 			}
 		}
+
+		endRenderPages?.();
 
 		// Incremental build: prune stale cache copies and write the new manifest.
 		// dist/ is regenerated in full each build, so a file in the output directory
@@ -317,6 +327,7 @@ export async function generatePages(
 		const errors: Error[] = [];
 
 		const assetsTimer = performance.now();
+		const endOptimizeImages = profile?.phase('Optimize images');
 		for (const [originalPath, transforms] of staticImageList) {
 			// Process each source image in parallel based on the queue’s concurrency
 			// (`cpuCount`). Process each transform for a source image sequentially.
@@ -381,7 +392,15 @@ export async function generatePages(
 			// * Create a proper performance benchmark for asset transformations of
 			//   projects in varying sizes of source images and transforms.
 			queue
-				.add(() => generateImagesForPath(originalPath, transforms, assetsCreationPipeline))
+				.add(async () => {
+					const imageStart = performance.now();
+					await generateImagesForPath(originalPath, transforms, assetsCreationPipeline);
+					profile?.recordImage({
+						src: originalPath,
+						transforms: transforms.transforms.size,
+						durationMs: performance.now() - imageStart,
+					});
+				})
 				.catch((e) => {
 					logger.warn('build', `Unable to generate optimized image for ${originalPath}: ${e}`);
 					errors.push(new Error(`Error generating image for ${originalPath}: ${e}`, { cause: e }));
@@ -389,6 +408,7 @@ export async function generatePages(
 		}
 
 		await queue.onIdle();
+		endOptimizeImages?.();
 		if (errors.length === 1) {
 			throw errors[0];
 		} else if (errors.length > 1) {
@@ -693,6 +713,7 @@ async function generatePathWithPrerenderer(
 				'SKIP_FORMAT',
 				restored ? ` ${colors.green('(restored)')}` : ` ${colors.green('(cached)')}`,
 			);
+			recordPage(options, pathname, route, restored ? 'restored' : 'cached', timeStart);
 			return;
 		}
 	}
@@ -732,6 +753,7 @@ async function generatePathWithPrerenderer(
 		// resurrecting output the path no longer emits. Leaving it unrecorded makes
 		// `findOrphanedFiles` prune that copy and forces a re-render next build.
 		logRenderTime(logger, timeStart, true);
+		recordPage(options, pathname, route, 'empty', timeStart);
 		return;
 	}
 
@@ -755,6 +777,23 @@ async function generatePathWithPrerenderer(
 	}
 
 	logRenderTime(logger, timeStart, false);
+	recordPage(options, pathname, route, 'rendered', timeStart);
+}
+
+function recordPage(
+	options: StaticBuildOptions,
+	pathname: string,
+	route: RouteData,
+	status: PageStatus,
+	timeStart: number,
+) {
+	options.settings.buildProfile?.recordPage({
+		pathname,
+		route: route.route,
+		component: route.component,
+		status,
+		durationMs: performance.now() - timeStart,
+	});
 }
 
 function logRenderTime(logger: AstroLogger, timeStart: number, notCreated: boolean) {

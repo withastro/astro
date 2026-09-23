@@ -1,5 +1,6 @@
 import type { Server } from 'node:http';
 import type { CspHash } from '../core/csp/config.js';
+import type { BuildProfile } from '../core/build/profile.js';
 import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
 import type { AstroLogger, AstroLoggerLevel } from '../core/logger/core.js';
@@ -58,6 +59,8 @@ export interface AstroSettings {
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
 	timer: AstroTimer;
+	/** Set when running `astro build --profile`. */
+	buildProfile?: BuildProfile;
 	dotAstroDir: URL;
 	/**
 	 * Latest version of Astro, will be undefined if:

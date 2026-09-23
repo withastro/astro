@@ -94,6 +94,7 @@ export async function manifestBuildPostHook(
 			config: options.settings.config,
 			manifest,
 			logger: options.logger,
+			profile: options.settings.buildProfile,
 			middlewareEntryPoint: shouldPassMiddlewareEntryPoint
 				? internals.middlewareEntryPoint
 				: undefined,

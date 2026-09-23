@@ -10,6 +10,7 @@ import { CONTENT_LAYER_TYPE } from '../content/consts.js';
 import { globalContentLayer } from '../content/instance.js';
 import { globalContentConfigObserver } from '../content/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
+import type { BuildProfile } from '../core/build/profile.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/merge.js';
@@ -77,15 +78,18 @@ async function runHookInternal<THook extends keyof BaseIntegrationHooks>({
 	hookName,
 	logger,
 	params,
+	profile,
 }: {
 	integration: AstroIntegration;
 	hookName: THook;
 	logger: AstroLogger;
 	params: () => Omit<HookParameters<NoInfer<THook>>, 'logger'>;
+	profile?: BuildProfile;
 }) {
 	const hook = integration?.hooks?.[hookName];
 	const integrationLogger = getLogger(integration, logger);
 	if (hook) {
+		const start = performance.now();
 		await withTakingALongTimeMsg({
 			name: integration.name,
 			hookName,
@@ -93,6 +97,7 @@ async function runHookInternal<THook extends keyof BaseIntegrationHooks>({
 			logger,
 			integrationLogger,
 		});
+		profile?.recordHook(integration.name, hookName, performance.now() - start);
 	}
 	return { integrationLogger };
 }
@@ -219,6 +224,7 @@ export async function runHookConfigSetup({
 			integration,
 			hookName: 'astro:config:setup',
 			logger,
+			profile: settings.buildProfile,
 			params: () => {
 				const hooks: Omit<HookParameters<'astro:config:setup'>, 'logger'> = {
 					config: updatedConfig,
@@ -385,6 +391,7 @@ export async function runHookConfigDone({
 			integration,
 			hookName: 'astro:config:done',
 			logger,
+			profile: settings.buildProfile,
 			params: () => ({
 				config: settings.config,
 				setAdapter(adapter) {
@@ -518,6 +525,7 @@ export async function runHookBuildStart({
 			integration,
 			hookName: 'astro:build:start',
 			logger,
+			profile: settings.buildProfile,
 			params: () => ({
 				setPrerenderer(prerenderer) {
 					settings.prerenderer = prerenderer;
@@ -533,12 +541,14 @@ export async function runHookBuildSetup({
 	pages,
 	target,
 	logger,
+	profile,
 }: {
 	config: AstroConfig;
 	vite: InlineConfig;
 	pages: Map<string, PageBuildData>;
 	target: 'server' | 'client';
 	logger: AstroLogger;
+	profile?: BuildProfile;
 }): Promise<InlineConfig> {
 	let updatedConfig = vite;
 
@@ -547,6 +557,7 @@ export async function runHookBuildSetup({
 			integration,
 			hookName: 'astro:build:setup',
 			logger,
+			profile,
 			params: () => ({
 				vite,
 				pages,
@@ -567,6 +578,7 @@ type RunHookBuildSsr = {
 	manifest: SerializedSSRManifest;
 	logger: AstroLogger;
 	middlewareEntryPoint: URL | undefined;
+	profile?: BuildProfile;
 };
 
 export async function runHookBuildSsr({
@@ -574,12 +586,14 @@ export async function runHookBuildSsr({
 	manifest,
 	logger,
 	middlewareEntryPoint,
+	profile,
 }: RunHookBuildSsr) {
 	for (const integration of config.integrations) {
 		await runHookInternal({
 			integration,
 			hookName: 'astro:build:ssr',
 			logger,
+			profile,
 			params: () => ({
 				manifest,
 				middlewareEntryPoint,
@@ -608,6 +622,7 @@ export async function runHookBuildGenerated({
 			integration,
 			hookName: 'astro:build:generated',
 			logger,
+			profile: settings.buildProfile,
 			params: () => ({ dir, routeToHeaders }),
 		});
 	}
@@ -629,6 +644,7 @@ export async function runHookBuildDone({ settings, pages, routes, logger }: RunH
 			integration,
 			hookName: 'astro:build:done',
 			logger,
+			profile: settings.buildProfile,
 			params: () => ({
 				pages: pages.map((p) => ({ pathname: p })),
 				dir,
@@ -657,6 +673,7 @@ export async function runHookRouteSetup({
 			integration,
 			hookName: 'astro:route:setup',
 			logger,
+			profile: settings.buildProfile,
 			params: () => ({ route }),
 		});
 		if (route.prerender !== originalRoute.prerender) {
@@ -687,6 +704,7 @@ export async function runHookRoutesResolved({
 			integration,
 			hookName: 'astro:routes:resolved',
 			logger,
+			profile: settings.buildProfile,
 			params: () => ({
 				routes: routes.map((route) =>
 					toIntegrationResolvedRoute(route, settings.config.trailingSlash),

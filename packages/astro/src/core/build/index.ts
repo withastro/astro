@@ -29,6 +29,8 @@ import { collectPagesData } from './page-data.js';
 import { viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
+import { BuildProfile, printBuildProfileSummary, writeBuildProfile } from './profile.js';
+import { ASTRO_VERSION } from '../constants.js';
 import { warnIfCspResourceFallbackShadowing, warnIfCspWithShiki } from '../messages/runtime.js';
 
 interface BuildOptions {
@@ -39,6 +41,12 @@ interface BuildOptions {
 	 * @default false
 	 */
 	devOutput?: boolean;
+	/**
+	 * Record build timings, print a summary, and write them to `.astro/build-profile.json`.
+	 *
+	 * @default false
+	 */
+	profile?: boolean;
 }
 
 /**
@@ -52,6 +60,8 @@ export default async function build(
 	options: BuildOptions = {},
 ): Promise<void> {
 	ensureProcessNodeEnv(options.devOutput ? 'development' : 'production');
+	const profile = options.profile ? new BuildProfile() : undefined;
+	const endLoadConfig = profile?.phase('Load config');
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	const logger = await loadOrCreateNodeLogger(astroConfig, inlineConfig ?? {});
 	telemetry.record(eventCliSession('build', userConfig));
@@ -64,6 +74,8 @@ export default async function build(
 		inlineConfig.logLevel,
 		fileURLToPath(astroConfig.root),
 	);
+	settings.buildProfile = profile;
+	endLoadConfig?.();
 
 	if (inlineConfig.force) {
 		// isDev is always false, because it's interested in the build command, not the output type
@@ -128,6 +140,7 @@ export class AstroBuilder {
 		this.logger.debug('build', 'Initial setup...');
 		const { logger } = this;
 		this.timer.init = performance.now();
+		const endConfigSetup = this.settings.buildProfile?.phase('Config setup and routes');
 		this.settings = await runHookConfigSetup({
 			settings: this.settings,
 			command: 'build',
@@ -141,6 +154,7 @@ export class AstroBuilder {
 		}
 
 		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
+		endConfigSetup?.();
 
 		// If we're building for the server, we need to ensure that an adapter is installed.
 		// If the adapter installed does not support a server output, an error will be thrown when the adapter is added, so no need to check here.
@@ -148,6 +162,7 @@ export class AstroBuilder {
 			throw new AstroError(AstroErrorData.NoAdapterInstalled);
 		}
 
+		const endCreateVite = this.settings.buildProfile?.phase('Create Vite config');
 		const viteConfig = await createVite(
 			{
 				server: {
@@ -165,7 +180,10 @@ export class AstroBuilder {
 			},
 		);
 
+		endCreateVite?.();
+
 		if (this.sync) {
+			const endSync = this.settings.buildProfile?.phase('Sync content and types');
 			const { syncInternal } = await import('../sync/index.js');
 			await syncInternal({
 				mode: this.mode,
@@ -174,6 +192,7 @@ export class AstroBuilder {
 				fs,
 				command: 'build',
 			});
+			endSync?.();
 		}
 
 		return { viteConfig };
@@ -257,6 +276,7 @@ export class AstroBuilder {
 		}
 
 		// You're done! Time to clean up.
+		const endBuildDone = this.settings.buildProfile?.phase('astro:build:done');
 		await runHookBuildDone({
 			settings: this.settings,
 			pages: pageNames,
@@ -265,6 +285,7 @@ export class AstroBuilder {
 				.map((pageData) => pageData.route),
 			logger: this.logger,
 		});
+		endBuildDone?.();
 
 		if (this.logger.level && levels[this.logger.level()] <= levels['info']) {
 			await this.printStats({
@@ -290,6 +311,26 @@ export class AstroBuilder {
 			// Benchmark results
 			this.settings.timer.writeStats();
 		}
+		this.writeProfile();
+	}
+
+	private writeProfile() {
+		const { buildProfile, config, adapter, prerenderer, buildOutput, dotAstroDir } = this.settings;
+		if (!buildProfile) return;
+		const report = buildProfile.toReport({
+			astroVersion: ASTRO_VERSION,
+			buildOutput,
+			adapter: adapter?.name,
+			prerenderer:
+				prerenderer === undefined
+					? 'astro:default'
+					: typeof prerenderer === 'function'
+						? 'custom (wraps astro:default)'
+						: prerenderer.name,
+			concurrency: config.build.concurrency,
+		});
+		const file = writeBuildProfile(report, dotAstroDir);
+		printBuildProfileSummary(report, file, this.logger);
 	}
 
 	private validateConfig() {

@@ -23,6 +23,10 @@ export async function build({ flags }: BuildOptions) {
 						'--force',
 						'Clear the content layer and content collection cache, forcing a full rebuild.',
 					],
+					[
+						'--profile',
+						'Record build timings, print a summary, and write them to `.astro/build-profile.json`.',
+					],
 					['--help (-h)', 'See all available flags.'],
 				],
 			},
@@ -33,5 +37,5 @@ export async function build({ flags }: BuildOptions) {
 
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 
-	await _build(inlineConfig, { devOutput: !!flags.devOutput });
+	await _build(inlineConfig, { devOutput: !!flags.devOutput, profile: !!flags.profile });
 }
