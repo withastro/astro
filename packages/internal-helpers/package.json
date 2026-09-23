@@ -51,7 +51,6 @@
     "unified": "^11.0.5"
   },
   "devDependencies": {
-    "@types/js-yaml": "^4.0.9",
     "@types/picomatch": "^4.0.2",
     "astro-scripts": "workspace:*"
   },
