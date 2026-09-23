@@ -1,5 +1,10 @@
 import { fileURLToPath } from 'node:url';
-import { preprocessStyles, transform, type TransformResult } from '@astrojs/compiler-rs';
+import {
+	preprocessStyles,
+	transform,
+	type TransformOptions,
+	type TransformResult,
+} from '@astrojs/compiler-rs';
 import type { ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroError } from '../errors/errors.js';
@@ -15,6 +20,7 @@ export interface CompileProps {
 	toolbarEnabled: boolean;
 	filename: string;
 	source: string;
+	inlineComponentAssets?: boolean;
 }
 
 export interface CompileResult extends Omit<TransformResult, 'css'> {
@@ -27,6 +33,7 @@ export async function compile({
 	toolbarEnabled,
 	filename,
 	source,
+	inlineComponentAssets,
 }: CompileProps): Promise<CompileResult> {
 	const cssPartialCompileResults: PartialCompileCssResult[] = [];
 	const cssTransformErrors: AstroError[] = [];
@@ -44,9 +51,10 @@ export async function compile({
 			}),
 		);
 
-		transformResult = transform(source, {
+		const transformOptions: TransformOptions & { inlineComponentAssets?: boolean } = {
 			compact: astroConfig.compressHTML,
 			filename,
+			inlineComponentAssets,
 			normalizedFilename: normalizeFilename(filename, astroConfig.root),
 			sourcemap: 'both',
 			internalURL: 'astro/compiler-runtime',
@@ -64,7 +72,8 @@ export async function compile({
 			resolvePath(specifier) {
 				return resolvePath(specifier, filename);
 			},
-		});
+		};
+		transformResult = transform(source, transformOptions);
 	} catch (err: any) {
 		// The compiler should be able to handle errors by itself, however
 		// for the rare cases where it can't let's directly throw here with as much info as possible
