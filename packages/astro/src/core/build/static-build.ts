@@ -32,6 +32,7 @@ import {
 	hasServerIslands,
 } from '../server-islands/vite-plugin-server-islands.js';
 import { createViteBuildConfig } from './vite-build-config.js';
+import { removeViteManifestDirectories } from './vite-plugin-ssr-assets.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -186,37 +187,40 @@ async function buildEnvironments(opts: StaticBuildOptionsInput, internals: Build
 					...opts,
 					outputDirectories: getResolvedOutputDirectories(builder),
 				};
+				try {
+					// Inject manifest and content placeholders into extracted chunks
+					await runManifestInjection(
+						resolvedOpts,
+						internals,
+						internals.extractedChunks ?? [],
+						buildPostHooks,
+					);
 
-				// Inject manifest and content placeholders into extracted chunks
-				await runManifestInjection(
-					resolvedOpts,
-					internals,
-					internals.extractedChunks ?? [],
-					buildPostHooks,
-				);
+					// Generation and cleanup
+					const prerenderOutputDir = resolvedOpts.outputDirectories.prerender;
 
-				// Generation and cleanup
-				const prerenderOutputDir = resolvedOpts.outputDirectories.prerender;
-
-				// TODO: The `static` and `server` branches below are nearly identical now.
-				// Consider refactoring to remove the else-if and unify the logic.
-				if (settings.buildOutput === 'static') {
-					settings.timer.start('Static generate');
-					// Move prerender and SSR assets to client directory before cleaning up
-					await ssrMoveAssets(resolvedOpts, internals);
-					// Generate the pages
-					await generatePages(resolvedOpts, internals, prerenderOutputDir);
-					// Clean up prerender directory after generation
-					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
-					settings.timer.end('Static generate');
-				} else if (settings.buildOutput === 'server') {
-					settings.timer.start('Server generate');
-					await generatePages(resolvedOpts, internals, prerenderOutputDir);
-					// Move prerender and SSR assets to client directory before cleaning up
-					await ssrMoveAssets(resolvedOpts, internals);
-					// Clean up prerender directory after generation
-					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
-					settings.timer.end('Server generate');
+					// TODO: The `static` and `server` branches below are nearly identical now.
+					// Consider refactoring to remove the else-if and unify the logic.
+					if (settings.buildOutput === 'static') {
+						settings.timer.start('Static generate');
+						// Move prerender and SSR assets to client directory before cleaning up
+						await ssrMoveAssets(resolvedOpts, internals);
+						// Generate the pages
+						await generatePages(resolvedOpts, internals, prerenderOutputDir);
+						// Clean up prerender directory after generation
+						await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
+						settings.timer.end('Static generate');
+					} else if (settings.buildOutput === 'server') {
+						settings.timer.start('Server generate');
+						await generatePages(resolvedOpts, internals, prerenderOutputDir);
+						// Move prerender and SSR assets to client directory before cleaning up
+						await ssrMoveAssets(resolvedOpts, internals);
+						// Clean up prerender directory after generation
+						await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
+						settings.timer.end('Server generate');
+					}
+				} finally {
+					await removeViteManifestDirectories(Object.values(resolvedOpts.outputDirectories));
 				}
 			},
 		},

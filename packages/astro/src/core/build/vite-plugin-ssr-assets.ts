@@ -7,7 +7,7 @@ import { pathToDirectoryURL } from './common.js';
 import { getOrCreateSSRAssets, type BuildInternals } from './internal.js';
 
 /**
- * Vite plugin that tracks emitted assets and handles cleanup of manifest files.
+ * Vite plugin that tracks emitted assets.
  * This plugin coordinates with emitClientAsset() to track which assets should
  * be moved to the client directory. The resolved filenames are stored in
  * BuildInternals.ssrAssetsPerEnvironment during generateBundle.
@@ -82,9 +82,6 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 						}
 					}
 				}
-
-				// Clean up the .vite folder after the bundle is written
-				await deleteViteFolder(env.config.build.outDir);
 			},
 		},
 	};
@@ -131,10 +128,16 @@ function collectAssetsFromManifest(manifest: vite.Manifest): Set<string> {
 	return assets;
 }
 
-/** Deletes the .vite folder from a directory if it exists. */
-async function deleteViteFolder(directory: string): Promise<void> {
-	const viteFolder = new URL('.vite/', pathToDirectoryURL(directory));
-	if (fs.existsSync(viteFolder)) {
-		await fs.promises.rm(viteFolder, { recursive: true, force: true });
-	}
+/**
+ * Deletes the .vite folder from a directory if it exists.
+ */
+export async function removeViteManifestDirectories(directories: Iterable<URL>): Promise<void> {
+	const viteFolders = new Set(
+		Array.from(directories, (directory) => new URL('.vite/', directory).href),
+	);
+	await Promise.all(
+		Array.from(viteFolders, (viteFolder) =>
+			fs.promises.rm(new URL(viteFolder), { recursive: true, force: true }),
+		),
+	);
 }

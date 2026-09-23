@@ -18,6 +18,7 @@ describe('Build: resolved Vite output directories', () => {
 		};
 		let generatedDir: URL | undefined;
 		let doneDir: URL | undefined;
+		let manifestsAvailableToPlatformPlugin = false;
 		let manifest: { buildClientDir: string; buildServerDir: string } | undefined;
 		let prerendererDirectories: typeof outputDirectories | undefined;
 
@@ -31,6 +32,15 @@ describe('Build: resolved Vite output directories', () => {
 				client.build.outDir = fileURLToPath(outputDirectories.client);
 				ssr.build.outDir = fileURLToPath(outputDirectories.server);
 				prerender.build.outDir = fileURLToPath(outputDirectories.prerender);
+			},
+			buildApp: {
+				order: 'post',
+				async handler() {
+					manifestsAvailableToPlatformPlugin = [
+						outputDirectories.server,
+						outputDirectories.prerender,
+					].every((directory) => existsSync(new URL('.vite/manifest.json', directory)));
+				},
 			},
 		};
 
@@ -80,6 +90,7 @@ describe('Build: resolved Vite output directories', () => {
 		assert.equal(prerendererDirectories?.client.href, outputDirectories.client.href);
 		assert.equal(prerendererDirectories?.server.href, outputDirectories.server.href);
 		assert.equal(prerendererDirectories?.prerender.href, outputDirectories.prerender.href);
+		assert.equal(manifestsAvailableToPlatformPlugin, true);
 		assert.equal(existsSync(new URL('static/index.html', outputDirectories.client)), true);
 		assert.equal(existsSync(new URL('entry.mjs', outputDirectories.server)), true);
 		assert.equal(
