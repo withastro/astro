@@ -36,7 +36,7 @@ for (const grammarFile of grammarFiles) {
  * @param {URL} grammarFile
  */
 function buildGrammar(grammarFile) {
-	const grammar = yaml.load(fs.readFileSync(grammarFile, 'utf8'));
+	const grammar = yaml.load(fs.readFileSync(grammarFile, 'utf8'), { schema: yaml.JSON_SCHEMA });
 	const finalPath = fileURLToPath(grammarFile).replace('.src.yaml', '.json');
 	fs.writeFileSync(finalPath, JSON.stringify(grammar, null, 2));
 

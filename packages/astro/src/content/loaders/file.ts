@@ -1,6 +1,6 @@
 import { existsSync, promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import * as yaml from 'js-yaml';
+import { yamlLoad } from '@astrojs/internal-helpers/yaml';
 import * as toml from 'smol-toml';
 import {
 	DuplicateContentEntrySlugError,
@@ -38,7 +38,7 @@ export function file(fileName: string, options?: FileOptions): Loader {
 		parse = JSON.parse;
 	} else if (ext === 'yml' || ext === 'yaml') {
 		parse = (text) =>
-			yaml.load(text, {
+			yamlLoad(text, {
 				filename: fileName,
 			});
 	} else if (ext === 'toml') {
