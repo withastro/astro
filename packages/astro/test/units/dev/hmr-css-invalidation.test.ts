@@ -447,4 +447,38 @@ describe('astro:hmr-reload CSS invalidation', () => {
 		assert.deepEqual(result, []);
 		assert.equal(invalidatedModuleGraphIds.length, 0);
 	});
+
+	it('forces full-reload and invalidates dev-css modules for CSS Module file changes', () => {
+		const devCssId = '\0virtual:astro:dev-css:src/pages/index@_@astro';
+		const { environment, server, invalidatedModuleGraphIds, wsMessages } = createMockContext({
+			modules: [{ id: '/src/components/Card.module.css', file: '/src/components/Card.module.css' }],
+			moduleGraphEntries: [[devCssId, { id: devCssId }]],
+			clientModuleIds: ['/src/components/Card.module.css'],
+		});
+
+		const hotUpdate = getHotUpdateHandler();
+
+		const result = hotUpdate.call(
+			{ environment },
+			{
+				modules: [
+					{ id: '/src/components/Card.module.css', file: '/src/components/Card.module.css' },
+				],
+				server,
+				timestamp: Date.now(),
+				file: '/src/components/Card.module.css',
+			},
+		);
+
+		assert.deepEqual(result, []);
+		assert.ok(
+			invalidatedModuleGraphIds.includes('/src/components/Card.module.css'),
+			'CSS Module file should be invalidated through the SSR path',
+		);
+		assert.ok(
+			invalidatedModuleGraphIds.includes(devCssId),
+			'dev-css module should be invalidated when a CSS Module forces a reload',
+		);
+		assert.deepEqual(wsMessages, [{ type: 'full-reload' }]);
+	});
 });
