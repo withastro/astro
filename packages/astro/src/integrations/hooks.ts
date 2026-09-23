@@ -17,7 +17,6 @@ import { validateConfigRefined } from '../core/config/validate.js';
 import { validateSetAdapter } from '../core/dev/adapter-validation.js';
 import type { AstroIntegrationLogger, AstroLogger } from '../core/logger/core.js';
 import { getRouteGenerator } from '../core/routing/generator.js';
-import { getClientOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type {
@@ -592,17 +591,13 @@ export async function runHookBuildGenerated({
 	settings,
 	logger,
 	routeToHeaders,
+	dir,
 }: {
 	settings: AstroSettings;
 	logger: AstroLogger;
 	routeToHeaders: RouteToHeaders;
+	dir: URL;
 }) {
-	const preserveStructure = settings.adapter?.adapterFeatures?.preserveBuildClientDir;
-	const dir =
-		settings.buildOutput === 'server' || preserveStructure
-			? settings.config.build.client
-			: settings.config.outDir;
-
 	for (const integration of settings.config.integrations) {
 		await runHookInternal({
 			integration,
@@ -615,13 +610,13 @@ export async function runHookBuildGenerated({
 
 type RunHookBuildDone = {
 	settings: AstroSettings;
+	dir: URL;
 	pages: string[];
 	routes: RouteData[];
 	logger: AstroLogger;
 };
 
-export async function runHookBuildDone({ settings, pages, routes, logger }: RunHookBuildDone) {
-	const dir = getClientOutputDirectory(settings);
+export async function runHookBuildDone({ settings, dir, pages, routes, logger }: RunHookBuildDone) {
 	await fsMod.promises.mkdir(dir, { recursive: true });
 
 	for (const integration of settings.config.integrations) {

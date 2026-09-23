@@ -24,8 +24,14 @@ export interface PageBuildData {
 
 export type AllPagesData = Record<ComponentPath, PageBuildData>;
 
-/** Options for the static build */
-export interface StaticBuildOptions {
+export interface BuildOutputDirectories {
+	client: URL;
+	server: URL;
+	prerender: URL;
+}
+
+/** Inputs available before Vite resolves its build environments. */
+export interface StaticBuildOptionsInput {
 	allPages: AllPagesData;
 	settings: AstroSettings;
 	logger: AstroLogger;
@@ -37,6 +43,11 @@ export interface StaticBuildOptions {
 	key: Promise<CryptoKey>;
 	/** Set by `astro build --force` to rebuild every page and ignore the incremental cache. */
 	force: boolean;
+}
+
+/** Options for build operations that require Vite's resolved output directories. */
+export interface StaticBuildOptions extends StaticBuildOptionsInput {
+	outputDirectories: BuildOutputDirectories;
 }
 
 type ImportComponentInstance = () => Promise<ComponentInstance>;

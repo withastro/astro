@@ -442,12 +442,14 @@ export interface BaseIntegrationHooks {
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
 	'astro:build:generated': (options: {
+		/** The resolved Vite client output directory for this build. */
 		dir: URL;
 		logger: AstroIntegrationLogger;
 		routeToHeaders: RouteToHeaders;
 	}) => void | Promise<void>;
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];
+		/** The resolved Vite client output directory for this build. */
 		dir: URL;
 		assets: Map<string, URL[]>;
 		logger: AstroIntegrationLogger;

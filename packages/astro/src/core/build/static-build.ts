@@ -7,20 +7,24 @@ import { LINKS_PLACEHOLDER } from '../../content/consts.js';
 import { contentAssetsBuildPostHook } from '../../content/vite-plugin-content-assets.js';
 import { type BuildInternals, createBuildInternals } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
-import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
+import { prependForwardSlash } from '../../core/path.js';
 import { runHookBuildSetup } from '../../integrations/hooks.js';
 import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../manifest/serialized.js';
-import { getPrerenderOutputDirectory, getServerOutputDirectory } from '../../prerender/utils.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 
 import { generatePages } from './generate.js';
+import { pathToDirectoryURL } from './common.js';
 import { trackPageData } from './internal.js';
 import { getAllBuildPlugins } from './plugins/index.js';
 import { manifestBuildPostHook } from './plugins/plugin-manifest.js';
 
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
-import type { StaticBuildOptions } from './types.js';
+import type {
+	BuildOutputDirectories,
+	StaticBuildOptions,
+	StaticBuildOptionsInput,
+} from './types.js';
 import { getTimeStat, viteBuildReturnToRolldownOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
@@ -82,7 +86,7 @@ function extractRelevantChunks(
 	return extracted;
 }
 
-export async function viteBuild(opts: StaticBuildOptions) {
+export async function viteBuild(opts: StaticBuildOptionsInput) {
 	const { allPages, settings } = opts;
 
 	// Build internals needed by the CSS plugin
@@ -106,13 +110,13 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrTime = performance.now();
 	opts.logger.info('build', `Building ${settings.buildOutput} entrypoints...`);
-	await buildEnvironments(opts, internals);
+	const outputDirectories = await buildEnvironments(opts, internals);
 	opts.logger.info(
 		'build',
 		colors.green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`),
 	);
 
-	return { internals };
+	return { internals, outputDirectories };
 }
 
 /**
@@ -145,7 +149,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
  *
  * Returns outputs from each environment for post-build processing (manifest injection, etc).
  */
-async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInternals) {
+async function buildEnvironments(opts: StaticBuildOptionsInput, internals: BuildInternals) {
 	const { allPages, settings, viteConfig } = opts;
 	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
 
@@ -180,34 +184,39 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		enforce: 'post',
 		buildApp: {
 			order: 'post',
-			async handler() {
+			async handler(builder) {
+				const resolvedOpts: StaticBuildOptions = {
+					...opts,
+					outputDirectories: getResolvedOutputDirectories(builder),
+				};
+
 				// Inject manifest and content placeholders into extracted chunks
 				await runManifestInjection(
-					opts,
+					resolvedOpts,
 					internals,
 					internals.extractedChunks ?? [],
 					buildPostHooks,
 				);
 
 				// Generation and cleanup
-				const prerenderOutputDir = getPrerenderOutputDirectory(settings);
+				const prerenderOutputDir = resolvedOpts.outputDirectories.prerender;
 
 				// TODO: The `static` and `server` branches below are nearly identical now.
 				// Consider refactoring to remove the else-if and unify the logic.
 				if (settings.buildOutput === 'static') {
 					settings.timer.start('Static generate');
 					// Move prerender and SSR assets to client directory before cleaning up
-					await ssrMoveAssets(opts, internals, prerenderOutputDir);
+					await ssrMoveAssets(resolvedOpts, internals);
 					// Generate the pages
-					await generatePages(opts, internals, prerenderOutputDir);
+					await generatePages(resolvedOpts, internals, prerenderOutputDir);
 					// Clean up prerender directory after generation
 					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
 					settings.timer.end('Static generate');
 				} else if (settings.buildOutput === 'server') {
 					settings.timer.start('Server generate');
-					await generatePages(opts, internals, prerenderOutputDir);
+					await generatePages(resolvedOpts, internals, prerenderOutputDir);
 					// Move prerender and SSR assets to client directory before cleaning up
-					await ssrMoveAssets(opts, internals, prerenderOutputDir);
+					await ssrMoveAssets(resolvedOpts, internals);
 					// Clean up prerender directory after generation
 					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
 					settings.timer.end('Server generate');
@@ -311,6 +320,20 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 
 	const builder = await vite.createBuilder(updatedViteBuildConfig);
 	await builder.buildApp();
+	return getResolvedOutputDirectories(builder);
+}
+
+function getResolvedOutputDirectories(builder: vite.ViteBuilder): BuildOutputDirectories {
+	const environments = builder.environments;
+	return {
+		client: pathToDirectoryURL(
+			environments[ASTRO_VITE_ENVIRONMENT_NAMES.client].config.build.outDir,
+		),
+		server: pathToDirectoryURL(environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr].config.build.outDir),
+		prerender: pathToDirectoryURL(
+			environments[ASTRO_VITE_ENVIRONMENT_NAMES.prerender].config.build.outDir,
+		),
+	};
 }
 
 /**
@@ -391,16 +414,14 @@ async function writeMutatedChunks(
 	opts: StaticBuildOptions,
 	mutations: Map<string, { code: string; prerender: boolean }>,
 ) {
-	const { settings } = opts;
-
 	for (const [fileName, mutation] of mutations) {
 		let root: URL;
 
 		if (mutation.prerender) {
 			// Write to prerender directory
-			root = getPrerenderOutputDirectory(settings);
+			root = opts.outputDirectories.prerender;
 		} else {
-			root = getServerOutputDirectory(settings);
+			root = opts.outputDirectories.server;
 		}
 
 		const fullPath = path.join(fileURLToPath(root), fileName);
@@ -417,27 +438,20 @@ async function writeMutatedChunks(
  * Reads asset filenames from internals.ssrAssetsPerEnvironment which is populated
  * by vitePluginSSRAssets during the build.
  */
-async function ssrMoveAssets(
-	opts: StaticBuildOptions,
-	internals: BuildInternals,
-	prerenderOutputDir: URL,
-) {
+async function ssrMoveAssets(opts: StaticBuildOptions, internals: BuildInternals) {
 	opts.logger.info('build', 'Rearranging server assets...');
 	const isFullyStaticSite = opts.settings.buildOutput === 'static';
-	const preserveStructure = opts.settings.adapter?.adapterFeatures?.preserveBuildClientDir;
-	const serverRoot = opts.settings.config.build.server;
-	const clientRoot =
-		isFullyStaticSite && !preserveStructure
-			? opts.settings.config.outDir
-			: opts.settings.config.build.client;
+	const serverRoot = opts.outputDirectories.server;
+	const clientRoot = opts.outputDirectories.client;
+	const prerenderOutputDir = opts.outputDirectories.prerender;
 
 	// Move prerender assets
 	const prerenderAssetsToMove = getSSRAssets(internals, ASTRO_VITE_ENVIRONMENT_NAMES.prerender);
 	if (prerenderAssetsToMove.size > 0) {
 		await Promise.all(
 			Array.from(prerenderAssetsToMove).map(async function moveAsset(filename) {
-				const currentUrl = new URL(filename, appendForwardSlash(prerenderOutputDir.toString()));
-				const clientUrl = new URL(filename, appendForwardSlash(clientRoot.toString()));
+				const currentUrl = new URL(filename, prerenderOutputDir);
+				const clientUrl = new URL(filename, clientRoot);
 				if (!fs.existsSync(currentUrl)) return;
 				const dir = new URL(path.parse(clientUrl.href).dir);
 				if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
@@ -456,8 +470,8 @@ async function ssrMoveAssets(
 	if (ssrAssetsToMove.size > 0) {
 		await Promise.all(
 			Array.from(ssrAssetsToMove).map(async function moveAsset(filename) {
-				const currentUrl = new URL(filename, appendForwardSlash(serverRoot.toString()));
-				const clientUrl = new URL(filename, appendForwardSlash(clientRoot.toString()));
+				const currentUrl = new URL(filename, serverRoot);
+				const clientUrl = new URL(filename, clientRoot);
 				if (!fs.existsSync(currentUrl)) return;
 				const dir = new URL(path.parse(clientUrl.href).dir);
 				if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
