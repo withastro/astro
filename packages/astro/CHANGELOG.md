@@ -1,5 +1,22 @@
 # astro
 
+## 7.3.5
+
+### Patch Changes
+
+- [#17736](https://github.com/withastro/astro/pull/17736) [`2b8b2e8`](https://github.com/withastro/astro/commit/2b8b2e80169da0ab19055166438291c46fcfe320) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new container function called `renderComponent()`, which renders Astro components with inlined styles and scripts.
+  
+  Users must import the component with the new `?container` query string:
+  
+  ```js
+  import { experimental_AstroContainer } from "astro/container";
+  import TodoList from "../components/TodoList.astro?container";
+  
+  const container = await experimental_AstroContainer.create();
+  
+  const _string = container.renderComponent(TodoList);
+  ```
+
 ## 7.3.4
 
 ### Patch Changes
