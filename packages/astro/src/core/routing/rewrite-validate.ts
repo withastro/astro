@@ -9,11 +9,10 @@ import { getRouteCache } from '../render/route-cache.js';
 import type { ValidateRouteForRewrite } from './rewrite.js';
 
 /**
- * Builds the candidate check that `findRouteToRewrite` uses when a route's
- * `distURL` is unavailable, which is the case in `astro dev` and for on-demand
- * routes in a server build. It mirrors what `matchRoute` already does for an
- * ordinary request: ask the route whether `getStaticPaths()` actually produces
- * this pathname, and move on to the next candidate when it does not.
+ * Creates the check `findRouteToRewrite` runs on a dynamic route whose
+ * `distURL` is empty. Returns `true` when `getStaticPaths()` produces the
+ * pathname, `false` when it throws `NoMatchingStaticPathFound`, and rethrows
+ * any other error so a broken `getStaticPaths()` is not hidden as a 404.
  */
 export function createRewriteRouteValidator(
 	manifest: SSRManifest,
@@ -33,9 +32,6 @@ export function createRewriteRouteValidator(
 			});
 			return true;
 		} catch (e) {
-			// Only "this route does not own the path" rejects a candidate. A
-			// genuine `getStaticPaths()` failure must keep surfacing to the user
-			// rather than degrading into a silent 404.
 			if (isAstroError(e) && e.title === NoMatchingStaticPathFound.title) {
 				return false;
 			}

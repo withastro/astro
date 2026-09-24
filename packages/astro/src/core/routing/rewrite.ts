@@ -19,9 +19,7 @@ import { DEFAULT_404_ROUTE } from './internal/astro-designed-error-pages.js';
 import { isRoute404, isRoute500 } from './internal/route-errors.js';
 
 /**
- * Answers whether `route` actually produces `pathname`. Used when `distURL` is
- * unavailable, so a route that merely matches the pattern cannot be selected
- * without owning the path. See `createRewriteRouteValidator`.
+ * Answers whether `route` produces `pathname`. See `createRewriteRouteValidator`.
  */
 export type ValidateRouteForRewrite = (route: RouteData, pathname: string) => Promise<boolean>;
 
@@ -33,7 +31,7 @@ type FindRouteToRewrite = {
 	buildFormat: AstroConfig['build']['format'];
 	base: AstroConfig['base'];
 	outDir: URL | string;
-	validate?: ValidateRouteForRewrite;
+	validate: ValidateRouteForRewrite;
 };
 
 interface FindRouteToRewriteResult {
@@ -98,9 +96,8 @@ export async function findRouteToRewrite({
 	}
 
 	let foundRoute;
-	// Mirrors `matchRoute`: a candidate whose `getStaticPaths()` throws is skipped
-	// rather than allowed to hide the route that owns the path, and the error is
-	// only surfaced when no candidate matched at all.
+	// A candidate whose `getStaticPaths()` throws is skipped, and the error is
+	// surfaced only when no candidate owns the path. Same rules as `matchRoute`.
 	let firstValidationError: unknown = null;
 	for (const route of routes) {
 		if (route.pattern.test(decodedPathname)) {
@@ -120,13 +117,9 @@ export async function findRouteToRewrite({
 					) {
 						continue;
 					}
-				} else if (validate) {
-					// `distURL` is only populated while a build writes files, so the
-					// check above cannot run in `astro dev` or for on-demand routes.
-					// Without it this loop committed to the first pattern match, which
-					// picked the wrong route whenever two dynamic patterns overlap and
-					// the one sorted first does not own the path. Ask the candidate
-					// instead, exactly as `matchRoute` does for an ordinary request.
+				} else {
+					// `distURL` is empty outside a build, so ask the route whether
+					// `getStaticPaths()` produces this pathname, as `matchRoute` does.
 					let ownsPathname: boolean;
 					try {
 						ownsPathname = await validate(route, decodedPathname);
