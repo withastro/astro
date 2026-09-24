@@ -2,13 +2,10 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseEnv } from 'node:util';
 import type { PluginConfig } from '@cloudflare/vite-plugin';
-import { getLocalWorkerdCompatibilityDate } from './info.js';
 
 export const DEFAULT_SESSION_KV_BINDING_NAME = 'SESSION';
 export const DEFAULT_IMAGES_BINDING_NAME = 'IMAGES';
 export const DEFAULT_ASSETS_BINDING_NAME = 'ASSETS';
-
-const DEFAULT_COMPATIBILITY_DATE = getLocalWorkerdCompatibilityDate().date;
 
 /**
  * Compatibility flags that make `AsyncLocalStorage` (`node:async_hooks`)
@@ -105,7 +102,6 @@ export function cloudflareConfigCustomizer(
 			(binding) => binding.type === 'assets',
 		);
 		return {
-			compatibilityDate: config.compatibilityDate ?? DEFAULT_COMPATIBILITY_DATE,
 			entrypoint: config.entrypoint ?? '@astrojs/cloudflare/entrypoints/server',
 			env: {
 				...(!needsSessionKVBinding || config.env?.[sessionKVBindingName]
