@@ -1,0 +1,10 @@
+---
+export async function getStaticPaths() {
+	return [{ params: { slug: 'a' }, props: {}, cacheKey: 'v1' }];
+}
+---
+<html>
+	<body>
+		<h1>Toggle A</h1>
+	</body>
+</html>

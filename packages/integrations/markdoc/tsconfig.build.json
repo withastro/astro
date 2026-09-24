@@ -1,0 +1,9 @@
+{
+  "extends": "../../../configs/tsconfig.build.json",
+  "references": [
+    { "path": "../../astro/tsconfig.json" },
+    { "path": "../../internal-helpers/tsconfig.json" },
+    { "path": "../../markdown/remark/tsconfig.json" },
+    { "path": "../../astro-prism/tsconfig.json" }
+  ]
+}

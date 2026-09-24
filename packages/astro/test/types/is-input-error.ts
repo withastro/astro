@@ -1,0 +1,32 @@
+import { describe, it } from 'node:test';
+import { expectTypeOf } from 'expect-type';
+import { isInputError } from '../../dist/actions/runtime/client.js';
+import { defineAction } from '../../dist/actions/runtime/server.js';
+import { z } from '../../dist/zod.js';
+
+const exampleAction = defineAction({
+	input: z.object({
+		name: z.string(),
+	}),
+	handler: () => {},
+});
+
+const result = await exampleAction({ name: 'Alice' });
+
+describe('isInputError', () => {
+	it('isInputError narrows unknown error types', async () => {
+		try {
+			await exampleAction({ name: 'Alice' });
+		} catch (e) {
+			if (isInputError(e)) {
+				expectTypeOf(e.fields).toEqualTypeOf<Record<string, string[] | undefined>>();
+			}
+		}
+	});
+
+	it('`isInputError` preserves `fields` object type for ActionError objects', async () => {
+		if (isInputError(result.error)) {
+			expectTypeOf(result.error.fields).toEqualTypeOf<{ name?: string[] }>();
+		}
+	});
+});

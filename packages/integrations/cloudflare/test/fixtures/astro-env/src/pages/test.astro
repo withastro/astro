@@ -1,0 +1,6 @@
+---
+import { actions } from "astro:actions";
+const { data } = await Astro.callAction(actions.getSecret, {});
+---
+
+<span id="secret">{data?.secret}</span>

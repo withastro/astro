@@ -1,0 +1,59 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ServerInfo from '../components/ServerInfo.astro';
+
+const timestamp = new Date().toISOString();
+const randomValue = Math.random();
+const stats = {
+	activeUsers: Math.floor(Math.random() * 1000),
+	revenue: (Math.random() * 100000).toFixed(2),
+	orders: Math.floor(Math.random() * 500),
+	conversion: (Math.random() * 10).toFixed(2),
+};
+---
+
+<BaseLayout title="Dashboard - Server Site">
+	<ServerInfo />
+	<h1>Dashboard (Server-Rendered)</h1>
+	<p>This page is rendered on-demand for each request.</p>
+	<dl>
+		<dt>Server Time:</dt>
+		<dd>{timestamp}</dd>
+		<dt>Random Value:</dt>
+		<dd>{randomValue}</dd>
+	</dl>
+	<section>
+		<h2>Real-time Stats</h2>
+		<div class="stats-grid">
+			<div class="stat">
+				<h3>Active Users</h3>
+				<p>{stats.activeUsers}</p>
+			</div>
+			<div class="stat">
+				<h3>Revenue</h3>
+				<p>${stats.revenue}</p>
+			</div>
+			<div class="stat">
+				<h3>Orders</h3>
+				<p>{stats.orders}</p>
+			</div>
+			<div class="stat">
+				<h3>Conversion Rate</h3>
+				<p>{stats.conversion}%</p>
+			</div>
+		</div>
+	</section>
+	<section>
+		<h2>Recent Activity</h2>
+		<ul>
+			{
+				Array.from({ length: 20 }, (_, i) => (
+					<li>
+						Activity {i + 1}: User {Math.floor(Math.random() * 1000)} performed action at{' '}
+						{new Date(Date.now() - Math.random() * 3600000).toISOString()}
+					</li>
+				))
+			}
+		</ul>
+	</section>
+</BaseLayout>

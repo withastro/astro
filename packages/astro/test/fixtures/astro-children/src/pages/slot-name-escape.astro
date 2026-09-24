@@ -1,0 +1,12 @@
+---
+import PreactComponent from '../components/NoRender.jsx';
+const maliciousSlotName = 'abc"><img src=x onerror=alert(1)><x y="';
+---
+<html>
+<head><title>Slot Name Escape</title></head>
+<body>
+  <PreactComponent id="escaped-slot" client:load>
+    <h1 slot={maliciousSlotName}>content</h1>
+  </PreactComponent>
+</body>
+</html>

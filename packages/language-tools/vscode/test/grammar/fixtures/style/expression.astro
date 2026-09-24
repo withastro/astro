@@ -1,0 +1,11 @@
+---
+const view = 'Gallery';
+---
+
+{view === 'Gallery' ? (
+  <style>
+    .gallery { display: grid; }
+  </style>
+) : null}
+
+{view === 'Gallery' && <style>.inline { color: red; }</style>}

@@ -1,0 +1,18 @@
+---
+import { Image } from 'astro:assets';
+import penguin from '../assets/penguin.jpg';
+---
+
+<html lang="en">
+<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width"/>
+	<title>Image Position CSP Test</title>
+</head>
+<body>
+<main>
+	<h1>Image with custom position and layout</h1>
+	<Image src={penguin} alt="A penguin" layout="responsive" position="top" />
+</main>
+</body>
+</html>

@@ -1,0 +1,24 @@
+---
+import { getEntry, render } from 'astro:content';
+
+export function getStaticPaths() {
+	return [
+		{ params: { slug: 'one' }, cacheKey: 'v1' },
+		{ params: { slug: 'two' }, cacheKey: 'v1' },
+	];
+}
+
+const { slug } = Astro.params;
+const entry = await getEntry('docs', slug);
+const { Content } = await render(entry);
+// An entry rendered by both /docs/one and /docs/two: each path must attribute it.
+const shared = await getEntry('docs', 'shared');
+const { Content: SharedContent } = await render(shared);
+---
+
+<html>
+	<body>
+		<main><Content /></main>
+		<aside><SharedContent /></aside>
+	</body>
+</html>

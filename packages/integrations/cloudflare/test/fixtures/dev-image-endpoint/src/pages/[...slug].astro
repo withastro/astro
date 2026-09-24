@@ -1,0 +1,17 @@
+---
+export const prerender = true;
+
+export function getStaticPaths() {
+	return [{ params: { slug: 'catch-all-page' } }];
+}
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Catch-all Page</title>
+	</head>
+	<body>
+		<h1 id="catch-all">Catch-all page</h1>
+	</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "@test/sitemap-ssr",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/node": "workspace:*",
+    "@astrojs/sitemap": "workspace:*"
+  }
+}

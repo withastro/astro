@@ -1,0 +1,5 @@
+{
+  "extends": "../../configs/tsconfig.base.json",
+  "files": ["./upgrade.mjs"],
+  "references": [{ "path": "./tsconfig.build.json" }, { "path": "./tsconfig.test.json" }]
+}

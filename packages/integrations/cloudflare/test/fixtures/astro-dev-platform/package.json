@@ -1,0 +1,13 @@
+{
+  "name": "@test/astro-cloudflare-astro-dev-platform",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/cloudflare": "workspace:*",
+    "@astrojs/prism": "workspace:*",
+    "astro": "workspace:*"
+  },
+  "devDependencies": {
+    "wrangler": "^4.83.0"
+  }
+}
