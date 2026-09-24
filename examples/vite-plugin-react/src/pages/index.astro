@@ -1,0 +1,19 @@
+---
+import Counter from '../components/Counter';
+const title = 'Astro as a Vite plugin';
+---
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>{title}</title>
+		<style>
+			h1 { color: rebeccapurple; }
+		</style>
+	</head>
+	<body>
+		<h1>{title}</h1>
+		<p>No astro.config.mjs, no Astro CLI.</p>
+		<Counter client:load />
+		<a href="/about/">About</a>
+	</body>
+</html>

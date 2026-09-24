@@ -26,7 +26,7 @@ export type ReactIntegrationOptions = Pick<
 	experimentalDisableStreaming?: boolean;
 };
 
-const FAST_REFRESH_PREAMBLE = react.preambleCode;
+export const FAST_REFRESH_PREAMBLE = react.preambleCode;
 
 function optionsPlugin({
 	include,
@@ -70,7 +70,7 @@ function optionsPlugin({
 	};
 }
 
-function getViteConfiguration(
+export function getViteConfiguration(
 	{
 		include,
 		exclude,
