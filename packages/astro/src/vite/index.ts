@@ -3,6 +3,7 @@ import type { AddressInfo } from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
+import { notify } from '../cli/telemetry/index.js';
 import { setupDevContent } from '../content/dev-setup.js';
 import { collectPagesData } from '../core/build/page-data.js';
 import {
@@ -30,6 +31,7 @@ import {
 	runHookServerDone,
 	runHookServerStart,
 } from '../integrations/hooks.js';
+import { eventCliSession, telemetry } from '../events/index.js';
 import { getClientOutputDirectory, getPrerenderDefault } from '../prerender/utils.js';
 import type { AstroUserConfig } from '../types/public/config.js';
 
@@ -95,6 +97,14 @@ async function setup(
 	startedRoots.add(root);
 
 	const logger = createNodeLoggerFromFlags({});
+
+	// Recorded from the hooks where Vite starts a session rather than when `astro()` is called:
+	// Vite evaluates the config far more often than it starts servers or builds (once per build
+	// environment, on restarts, and in tools that only read the config).
+	async function recordSession(cliCommand: 'dev' | 'build' | 'preview') {
+		await notify(logger);
+		telemetry.record(eventCliSession(cliCommand, userConfig, undefined, 'vite-plugin'));
+	}
 	const config = await validateConfig({ ...userConfig }, root, command);
 	let settings = await createSettings(config, undefined, root);
 	settings = await runHookConfigSetup({ settings, command, logger, isRestart });
@@ -159,6 +169,7 @@ async function setup(
 					order: 'pre',
 					async handler() {
 						buildSetups.delete(root);
+						await recordSession('build');
 						// Content layer sync and type generation, as `astro build` runs before building.
 						await syncInternal({ mode, settings, logger, fs: nodeFs, command: 'build' });
 						emptyDir(settings.config.outDir, new Set(['.git']));
@@ -209,7 +220,11 @@ async function setup(
 				mode = viteEnv.mode;
 				return viteConfig;
 			},
+			async configurePreviewServer() {
+				await recordSession('preview');
+			},
 			async configureServer(server) {
+				await recordSession('dev');
 				// Blocks server startup until content is synced, as `astro dev` does.
 				await syncInternal({
 					mode,
