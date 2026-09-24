@@ -21,7 +21,6 @@
   "exports": {
     ".": "./dist/index.js",
     "./container-renderer": "./dist/container-renderer.js",
-    "./vite": "./dist/vite.js",
     "./actions": "./dist/actions.js",
     "./client.js": "./dist/client.js",
     "./client-v17.js": "./dist/client-v17.js",
