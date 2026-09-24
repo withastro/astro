@@ -606,9 +606,6 @@ importers:
       http-cache-semantics:
         specifier: ^4.2.0
         version: 4.2.0
-      js-yaml:
-        specifier: ^4.3.2
-        version: 4.3.2
       jsonc-parser:
         specifier: ^3.3.1
         version: 3.3.1
@@ -709,9 +706,6 @@ importers:
       '@types/http-cache-semantics':
         specifier: ^4.2.0
         version: 4.2.0
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
       '@types/parse-srcset':
         specifier: ^1.0.0
         version: 1.0.0
@@ -6688,9 +6682,6 @@ importers:
       '@types/mdast':
         specifier: ^4.0.4
         version: 4.0.4
-      js-yaml:
-        specifier: ^4.3.2
-        version: 4.3.2
       picomatch:
         specifier: ^4.0.4
         version: 4.0.7
@@ -6706,10 +6697,10 @@ importers:
       unified:
         specifier: ^11.0.5
         version: 11.0.5
+      yaml:
+        specifier: ^2.9.1
+        version: 2.9.1
     devDependencies:
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
       '@types/picomatch':
         specifier: ^4.0.2
         version: 4.0.2
@@ -6941,9 +6932,6 @@ importers:
       '@astrojs/ts-plugin':
         specifier: ^1.10.12
         version: link:../ts-plugin
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
       '@types/mocha':
         specifier: ^10.0.10
         version: 10.0.10
@@ -6974,9 +6962,6 @@ importers:
       esbuild-plugin-copy:
         specifier: ^2.1.1
         version: 2.1.1(esbuild@0.17.19)
-      js-yaml:
-        specifier: ^4.3.2
-        version: 4.3.2
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
@@ -6995,6 +6980,9 @@ importers:
       vscode-tmgrammar-test:
         specifier: ^0.1.3
         version: 0.1.3
+      yaml:
+        specifier: ^2.9.1
+        version: 2.9.1
 
   packages/language-tools/yaml2ts:
     dependencies:
@@ -10936,9 +10924,6 @@ packages:
   '@types/istanbul-lib-coverage@2.0.6':
     resolution: {integrity: sha512-2QF/t/auWm0lsy8XtKVPG19v3sSOQlJe/YHZgfjb/KBBHOGSV+J2q/S671rcq9uTBrLAXmZpqJiaQbMT+zNU1w==}
 
-  '@types/js-yaml@4.0.9':
-    resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
-
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
@@ -13610,8 +13595,8 @@ packages:
     resolution: {integrity: sha512-SFNOvSJ+Dgf/9An904Yx+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3/TP3O+wzWuiTFl4sqbltzA==}
     hasBin: true
 
-  js-yaml@5.2.3:
-    resolution: {integrity: sha512-n+mUVyUX5bVv7G/G2zyIHOhdxfuU1dY2NOFzTQUWiMUbFss8b57NFlgCCaggU78wSw5KVS9cllzeLyzyR+n5nw==}
+  js-yaml@5.4.2:
+    resolution: {integrity: sha512-m+aqu+LwO1O6sIopafj8HUVl5aawITwZQe/yHpMCKjaWBaA/d07B/QdMb3529REftiU+RMMHL3Vlsw3hON7vWg==}
     hasBin: true
 
   jsdoc-type-pratt-parser@7.1.1:
@@ -18632,7 +18617,7 @@ snapshots:
       '@modelcontextprotocol/client': 2.0.0
       '@valibot/to-json-schema': 1.5.0(valibot@1.4.2)
       hono: 4.13.7
-      js-yaml: 5.2.3
+      js-yaml: 5.4.2
       ulidx: 2.4.1
       valibot: 1.4.2(typescript@6.0.3)
     transitivePeerDependencies:
@@ -20671,8 +20656,6 @@ snapshots:
   '@types/http-errors@2.0.5': {}
 
   '@types/istanbul-lib-coverage@2.0.6': {}
-
-  '@types/js-yaml@4.0.9': {}
 
   '@types/json-schema@7.0.15': {}
 
@@ -23732,7 +23715,7 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
-  js-yaml@5.2.3:
+  js-yaml@5.4.2:
     dependencies:
       argparse: 2.0.1
 
@@ -24785,7 +24768,7 @@ snapshots:
       glob: 13.0.6
       is-path-inside: 4.0.0
       is-unicode-supported: 0.1.0
-      js-yaml: 5.2.3
+      js-yaml: 5.4.2
       minimatch: 10.2.6
       ms: 2.1.3
       picocolors: 1.1.1
