@@ -259,7 +259,7 @@
     "esbuild-plugin-copy": "^2.1.1",
     "yaml": "^2.9.1",
     "kleur": "^4.1.5",
-    "mocha": "^11.8.0",
+    "mocha": "^12.0.2",
     "ovsx": "^1.2.0",
     "tsx": "^4.23.13",
     "vscode-languageclient": "^9.0.1",

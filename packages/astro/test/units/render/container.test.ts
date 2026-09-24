@@ -277,6 +277,20 @@ describe('Container', () => {
 		assert.match(result, /Is open/);
 	});
 
+	it('Renders a component to a string', async () => {
+		const Page = createComponent(
+			(result, props, slots) =>
+				render`<div>${props.message}${renderSlot(result, slots.default)}</div>`,
+		);
+		const container = await experimental_AstroContainer.create();
+		const result = await container.renderComponent(Page, {
+			props: { message: 'Hello ' },
+			slots: { default: 'World' },
+		});
+
+		assert.equal(result, '<div>Hello World</div>');
+	});
+
 	it('Astro.site reflects astroConfig.site', async () => {
 		const $Astro = createAstro('https://example.com');
 		const SitePage = createComponent((result, props, slots) => {

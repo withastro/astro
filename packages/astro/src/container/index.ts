@@ -6,7 +6,6 @@ import { handleMiddleware } from '../core/middleware/astro-middleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { handlePages } from '../core/pages/handler.js';
 import { removeLeadingForwardSlash } from '../core/path.js';
-
 import { getParts } from '../core/routing/parts.js';
 import { getPattern } from '../core/routing/pattern.js';
 import { validateSegment } from '../core/routing/segment.js';
@@ -542,6 +541,36 @@ export class experimental_AstroContainer {
 
 		const response = await this.renderToResponse(component, options);
 		return await response.text();
+	}
+
+	/**
+	 * Renders an Astro component to an HTML string.
+	 *
+	 * Import the component with the `?container` query to prepend its direct styles and append its
+	 * hoisted scripts. A component imported without this query renders like {@link renderToString}.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+	 * import Card from '../components/Card.astro?container';
+	 *
+	 * const container = await AstroContainer.create();
+	 * const html = await container.renderComponent(Card, {
+	 *   props: { title: 'Hello' },
+	 *   slots: { default: 'Card content' },
+	 * });
+	 * ```
+	 *
+	 * @param component - The Astro component to render.
+	 * @param options - Props, slots, and request context used to render the component.
+	 * @returns The rendered component HTML.
+	 */
+	public async renderComponent(
+		component: AstroComponentFactory,
+		options: Omit<ContainerRenderOptions, 'routeType'> = {},
+	): Promise<string> {
+		return this.renderToString(component, options);
 	}
 
 	/**

@@ -53,4 +53,15 @@ describe('Container with renderers', () => {
 		assert.match(html, /I am a react button/);
 		assert.doesNotMatch(html, /<!DOCTYPE html>/);
 	});
+
+	it('renders direct assets around compiled component HTML', async () => {
+		const request = new Request('https://example.com/assets');
+		const response = await app.render(request);
+		const html = await response.text();
+
+		assert.match(html, /^<style>[\s\S]*\.asset[\s\S]*<\/style>/);
+		assert.match(html, /<style>\s*\.inline \{\s*color: blue;\s*\}\s*<\/style>/);
+		assert.match(html, /<span>Child<\/span><script type="module" src="[^"]+"><\/script><\/div>/);
+		assert.match(html, /<script type="module" src="[^"]+"><\/script>$/);
+	});
 });
