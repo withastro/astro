@@ -1,7 +1,9 @@
+import nodeFs from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
+import { setupDevContent } from '../content/dev-setup.js';
 import { collectPagesData } from '../core/build/page-data.js';
 import {
 	createBuildEnvironmentsConfig,
@@ -18,6 +20,7 @@ import { emptyDir } from '../core/fs/index.js';
 import { createNodeLoggerFromFlags } from '../core/logger/impls/node.js';
 import { vitePluginAstroPreview } from '../core/preview/vite-plugin-astro-preview.js';
 import { createRoutesList } from '../core/routing/create-manifest.js';
+import { syncInternal } from '../core/sync/index.js';
 import {
 	runHookBuildDone,
 	runHookBuildSetup,
@@ -151,11 +154,13 @@ async function setup(
 		plugins = [
 			buildPlugins,
 			{
-				name: 'astro:vite:empty-out-dir',
+				name: 'astro:vite:build-setup',
 				buildApp: {
 					order: 'pre',
 					async handler() {
 						buildSetups.delete(root);
+						// Content layer sync and type generation, as `astro build` runs before building.
+						await syncInternal({ mode, settings, logger, fs: nodeFs, command: 'build' });
 						emptyDir(settings.config.outDir, new Set(['.git']));
 					},
 				},
@@ -204,7 +209,18 @@ async function setup(
 				mode = viteEnv.mode;
 				return viteConfig;
 			},
-			configureServer(server) {
+			async configureServer(server) {
+				// Blocks server startup until content is synced, as `astro dev` does.
+				await syncInternal({
+					mode,
+					settings,
+					logger,
+					fs: nodeFs,
+					skip: { content: true, cleanup: true },
+					command: 'dev',
+					watcher: server.watcher,
+				});
+				await setupDevContent({ settings, logger, fs: nodeFs, viteServer: server });
 				server.httpServer?.once('listening', () => {
 					runHookServerStart({
 						config: settings.config,

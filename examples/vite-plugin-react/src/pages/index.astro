@@ -1,5 +1,7 @@
 ---
+import { getCollection } from 'astro:content';
 import Counter from '../components/Counter';
+const posts = await getCollection('posts');
 const title = 'Astro as a Vite plugin';
 ---
 <html lang="en">
@@ -14,6 +16,9 @@ const title = 'Astro as a Vite plugin';
 		<h1>{title}</h1>
 		<p>No astro.config.mjs, no Astro CLI. Real @astrojs/react integration.</p>
 		<Counter client:load />
+		<ul id="posts">
+			{posts.map((post) => <li><a href={`/posts/${post.id}/`}>{post.data.title}</a></li>)}
+		</ul>
 		<a href="/about/">About</a>
 	</body>
 </html>
