@@ -23,7 +23,8 @@
     "./mdx": "./dist/mdx.js",
     "./frontmatter": "./dist/frontmatter.js",
     "./shiki": "./dist/shiki.js",
-    "./yaml": "./dist/yaml.js"
+    "./yaml": "./dist/yaml.js",
+    "./yaml-error": "./dist/yaml-error.js"
   },
   "imports": {
     "#shiki-engine": {

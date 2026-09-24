@@ -1,4 +1,5 @@
 import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
+import { isYAMLParseError } from '@astrojs/internal-helpers/yaml-error';
 import type { AstroConfig, SSRError } from 'astro';
 
 export function appendForwardSlash(path: string) {
@@ -47,8 +48,9 @@ export function safeParseFrontmatter(code: string, id: string) {
 	try {
 		return parseFrontmatter(code, { frontmatter: 'empty-with-spaces' });
 	} catch (e: any) {
-		if (e.name === 'YAMLParseError') {
-			const err: SSRError = e;
+		if (isYAMLParseError(e)) {
+			const err = e as SSRError;
+			err.stack ??= '';
 			err.id = id;
 			const position = e.linePos?.[0];
 			if (position) {

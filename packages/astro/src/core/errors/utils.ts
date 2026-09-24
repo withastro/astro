@@ -3,6 +3,8 @@ import type { TomlError } from 'smol-toml';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 import type { SSRError } from '../../types/public/internal.js';
 
+export { isYAMLParseError } from '@astrojs/internal-helpers/yaml-error';
+
 /**
  * Get the line and character based on the offset
  * @param offset The index of the position
@@ -70,10 +72,6 @@ function getLineOffsets(text: string) {
 	}
 
 	return lineOffsets;
-}
-
-export function isYAMLParseError(err: unknown): err is YAMLParseError {
-	return err instanceof Error && err.name === 'YAMLParseError';
 }
 
 /** Format YAML exceptions as Vite errors */

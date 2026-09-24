@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
+import { isYAMLParseError } from '@astrojs/internal-helpers/yaml-error';
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
@@ -414,8 +415,9 @@ function safeParseFrontmatter(fileContents: string, filePath: string) {
 		// because markdoc struggles with spaces
 		return parseFrontmatter(fileContents, { frontmatter: 'empty-with-lines' });
 	} catch (e: any) {
-		if (e.name === 'YAMLParseError') {
-			const err: Error & ViteErrorPayload['err'] = e;
+		if (isYAMLParseError(e)) {
+			const err = e as Error & ViteErrorPayload['err'];
+			err.stack ??= '';
 			err.id = filePath;
 			const position = e.linePos?.[0];
 			if (position) {

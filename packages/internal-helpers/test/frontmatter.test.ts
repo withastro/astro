@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { parseFrontmatter } from '../dist/frontmatter.js';
 import { parseYaml } from '../dist/yaml.js';
+import { isYAMLParseError } from '../dist/yaml-error.js';
 
 describe('parseFrontmatter', () => {
 	it('parses YAML frontmatter', () => {
@@ -76,5 +77,13 @@ describe('parseYaml', () => {
 
 	it('throws on multi-document input', () => {
 		assert.throws(() => parseYaml('a: 1\n---\nb: 2'), /multiple documents/);
+	});
+
+	it('identifies YAML parse errors', () => {
+		assert.equal(isYAMLParseError(new Error('invalid YAML')), false);
+		assert.throws(
+			() => parseYaml('a: ['),
+			(error) => isYAMLParseError(error),
+		);
 	});
 });
