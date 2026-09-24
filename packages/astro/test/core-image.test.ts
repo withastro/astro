@@ -1704,6 +1704,63 @@ describe('prod ssr - SVG format validation', () => {
 	});
 });
 
+describe('prod ssr - generic endpoint SVG format validation', () => {
+	let fixture: Fixture;
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/core-image-ssr/',
+			output: 'server',
+			outDir: './dist/server-prod-generic-svg-validation',
+			adapter: testAdapter(),
+			image: {
+				service: testImageService(),
+				remotePatterns: [{ protocol: 'data' }],
+			},
+		});
+		await fixture.build();
+	});
+
+	it('rejects f=svg for a non-SVG data: URI', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const pngDataUri =
+			'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+		const request = new Request(
+			'http://example.com/_image?href=' + encodeURIComponent(pngDataUri) + '&f=svg',
+		);
+		const response = await app.render(request);
+		assert.equal(response.status, 403, 'should reject f=svg for a data:image/png source');
+		const body = await response.text();
+		assert.ok(
+			body.includes('Cannot convert non-SVG source to SVG format'),
+			'should include descriptive error message',
+		);
+	});
+
+	it('allows f=svg for an actual SVG data: URI', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const svgDataUri =
+			'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiLz48L3N2Zz4=';
+		const request = new Request(
+			'http://example.com/_image?href=' + encodeURIComponent(svgDataUri) + '&f=svg',
+		);
+		const response = await app.render(request);
+		assert.equal(response.status, 200, 'should allow f=svg for a data:image/svg+xml source');
+		assert.equal(response.headers.get('content-type'), 'image/svg+xml');
+	});
+
+	it('allows f=svg for SVG bytes whose data: URI does not declare an SVG media type', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const svgDataUri =
+			'data:application/octet-stream;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiLz48L3N2Zz4=';
+		const request = new Request(
+			'http://example.com/_image?href=' + encodeURIComponent(svgDataUri) + '&f=svg',
+		);
+		const response = await app.render(request);
+		assert.equal(response.status, 200, 'should decide by the bytes, not the declared type');
+		assert.equal(response.headers.get('content-type'), 'image/svg+xml');
+	});
+});
+
 describe('trailing slash on the endpoint', () => {
 	let fixture: Fixture;
 	let devServer: DevServer;
