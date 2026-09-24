@@ -26,7 +26,7 @@ describe('Prerendered page styles', () => {
 		});
 
 		it('includes Tailwind styles in prerendered page', async () => {
-			// With cloudflare adapter, prerendered pages are in dist/client/
+			// With the Cloudflare adapter, prerendered pages are in the Build Output assets directory.
 			const html = await fixture.readFile('/client/index.html');
 			// Tailwind CSS is emitted as an external stylesheet linked from the HTML.
 			// Verify the HTML references a stylesheet and that the stylesheet contains the expected class.

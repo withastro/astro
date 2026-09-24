@@ -1,5 +1,6 @@
 import type {
 	AstroConfig,
+	AstroBuildOutputDirectories,
 	AstroIntegrationLogger,
 	AstroPrerenderer,
 	AssetsGlobalStaticImagesList,
@@ -51,8 +52,7 @@ const IMAGE_TRANSFORM_PARAMS: Record<string, string> = {
 
 interface CloudflarePrerendererOptions {
 	root: AstroConfig['root'];
-	serverDir: AstroConfig['build']['server'];
-	clientDir: AstroConfig['build']['client'];
+	outputDirectories: AstroBuildOutputDirectories;
 	base: AstroConfig['base'];
 	trailingSlash: AstroConfig['trailingSlash'];
 	cfPluginConfig: PluginConfig;
@@ -102,14 +102,19 @@ function createImageTransformUrl(
  * directory the worker's ASSETS binding serves. Falls back to the source file, which
  * Astro records for images imported from `src`.
  */
-function findOriginalImage(
-	serverDir: URL,
-	clientDir: URL,
-	originalPath: string,
-	originalSrcPath: string | undefined,
-): string | undefined {
+function findOriginalImage({
+	prerenderDir,
+	clientDir,
+	originalPath,
+	originalSrcPath,
+}: {
+	prerenderDir: URL;
+	clientDir: URL;
+	originalPath: string;
+	originalSrcPath: string | undefined;
+}): string | undefined {
 	const candidates = [
-		join(fileURLToPath(new URL('.prerender/', serverDir)), originalPath),
+		join(fileURLToPath(prerenderDir), originalPath),
 		join(fileURLToPath(clientDir), originalPath),
 		...(originalSrcPath ? [originalSrcPath] : []),
 	];
@@ -121,14 +126,21 @@ function findOriginalImage(
  * directly into the client output directory. The original is streamed up as the request
  * body, so neither side ever holds a whole image in memory.
  */
-async function writeTransformedImage(
-	serverUrl: string,
-	clientDir: URL,
-	originalPath: string,
-	finalPath: string,
-	transform: Record<string, any>,
-	sourcePath: string | undefined,
-): Promise<void> {
+async function writeTransformedImage({
+	serverUrl,
+	clientDir,
+	originalPath,
+	finalPath,
+	transform,
+	sourcePath,
+}: {
+	serverUrl: string;
+	clientDir: URL;
+	originalPath: string;
+	finalPath: string;
+	transform: Record<string, any>;
+	sourcePath: string | undefined;
+}): Promise<void> {
 	const response = await fetch(createImageTransformUrl(serverUrl, originalPath, transform), {
 		method: 'POST',
 		// Remote images have no local original; the worker fetches those itself.
@@ -164,8 +176,7 @@ async function writeTransformedImage(
  */
 export function createCloudflarePrerenderer({
 	root,
-	serverDir,
-	clientDir,
+	outputDirectories,
 	base,
 	trailingSlash,
 	cfPluginConfig,
@@ -176,6 +187,8 @@ export function createCloudflarePrerenderer({
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
 	let serverUrl: string;
+	const clientDir = outputDirectories.client;
+	const prerenderDir = outputDirectories.prerender;
 
 	return {
 		name: '@astrojs/cloudflare:prerenderer',
@@ -204,7 +217,7 @@ export function createCloudflarePrerenderer({
 				base,
 				appType: 'mpa',
 				build: {
-					outDir: fileURLToPath(serverDir),
+					outDir: fileURLToPath(prerenderDir),
 				},
 				root: fileURLToPath(root),
 				customLogger,
@@ -325,12 +338,12 @@ export function createCloudflarePrerenderer({
 							const jobs = entries.flatMap((entry) => {
 								const sourcePath = isRemotePath(entry.originalPath)
 									? undefined
-									: findOriginalImage(
-											serverDir,
+									: findOriginalImage({
+											prerenderDir,
 											clientDir,
-											entry.originalPath,
-											entry.originalSrcPath,
-										);
+											originalPath: entry.originalPath,
+											originalSrcPath: entry.originalSrcPath,
+										});
 								return entry.transforms.map((t) => ({ entry, t, sourcePath }));
 							});
 							await forEachWithConcurrency(
@@ -338,14 +351,14 @@ export function createCloudflarePrerenderer({
 								IMAGE_TRANSFORM_CONCURRENCY,
 								async ({ entry, t, sourcePath }) => {
 									try {
-										await writeTransformedImage(
+										await writeTransformedImage({
 											serverUrl,
 											clientDir,
-											entry.originalPath,
-											t.finalPath,
-											t.transform,
+											originalPath: entry.originalPath,
+											finalPath: t.finalPath,
+											transform: t.transform,
 											sourcePath,
-										);
+										});
 									} catch (err) {
 										const message = err instanceof Error ? err.message : String(err);
 										logger.warn(
