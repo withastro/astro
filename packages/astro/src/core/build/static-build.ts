@@ -106,10 +106,12 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	return { internals };
 }
 
-/** Creates build internals with every page from `opts.allPages` tracked. */
-export function createTrackedBuildInternals(opts: StaticBuildOptions): BuildInternals {
+/** Tracks every page from `opts.allPages` in `internals`. */
+export function createTrackedBuildInternals(
+	opts: StaticBuildOptions,
+	internals: BuildInternals = createBuildInternals(),
+): BuildInternals {
 	const { allPages, settings } = opts;
-	const internals = createBuildInternals();
 
 	for (const pageData of Object.values(allPages)) {
 		const astroModuleURL = new URL('./' + pageData.component, settings.config.root);
@@ -175,8 +177,7 @@ export function createBuildEnvironmentsConfig(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 ): vite.InlineConfig {
-	const { allPages, settings, viteConfig } = opts;
-	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
+	const { settings, viteConfig } = opts;
 
 	const buildPlugins = getAllBuildPlugins(internals, opts);
 	const flatPlugins = buildPlugins.flat().filter(Boolean);
@@ -261,7 +262,10 @@ export function createBuildEnvironmentsConfig(
 	const viteBuildConfig = createViteBuildConfig({
 		settings,
 		viteConfig,
-		routes,
+		// `astro/vite` fills `allPages` after this config is created.
+		get routes() {
+			return Object.values(opts.allPages).flatMap((pageData) => pageData.route);
+		},
 		plugins,
 		// Top-level buildApp for framework build orchestration
 		// This takes precedence over platform plugin fallbacks (e.g., Cloudflare)

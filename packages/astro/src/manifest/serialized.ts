@@ -46,13 +46,15 @@ export const AMBIENT_MANIFEST_SPECIFIER = '#astro-internal/ambient-manifest';
 
 export function serializedManifestPlugin({
 	settings,
-	command,
+	command: fixedCommand,
 	sync,
 }: {
 	settings: AstroSettings;
-	command: 'dev' | 'build';
+	/** Defaults to Vite's command. */
+	command?: 'dev' | 'build';
 	sync: boolean;
 }): Plugin {
+	let command: 'dev' | 'build' = fixedCommand ?? 'dev';
 	const normalizedSrcDir = normalizePath(fileURLToPath(settings.config.srcDir));
 	let encodedKeyPromise: Promise<string> | undefined;
 
@@ -77,6 +79,9 @@ export function serializedManifestPlugin({
 	return {
 		name: SERIALIZED_MANIFEST_ID,
 		enforce: 'pre',
+		config(_, env) {
+			command = fixedCommand ?? (env.command === 'serve' ? 'dev' : 'build');
+		},
 		// Dependency optimization runs as a nested Rolldown build that cannot load Vite virtual
 		// modules. Keep this import external so the server module graph resolves it below.
 		configEnvironment(environmentName) {

@@ -26,8 +26,8 @@ export interface CreateViteBuildConfigOptions {
 	settings: AstroSettings;
 	/** The base Vite config produced by createVite(). */
 	viteConfig: vite.InlineConfig;
-	/** All routes to be built. */
-	routes: RouteData[];
+	/** All routes to be built. Read when output file names are generated. */
+	readonly routes: RouteData[];
 	/** Assembled Vite plugins (build plugins + user plugins). */
 	plugins: vite.PluginOption[];
 	/** The buildApp callback for the Vite builder. */
@@ -47,7 +47,7 @@ export interface CreateViteBuildConfigOptions {
  * merging behavior (e.g. user rollup output overrides).
  */
 export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.InlineConfig {
-	const { settings, viteConfig, routes, plugins, builder, isRolldownInput } = opts;
+	const { settings, viteConfig, plugins, builder, isRolldownInput } = opts;
 	const legacyAdapter = !settings.adapter || isLegacyAdapter(settings.adapter);
 
 	// Separate Astro-managed environment keys from user-defined ones so that the
@@ -130,7 +130,7 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 							return makeAstroPageEntryPointFileName(
 								VIRTUAL_PAGE_RESOLVED_MODULE_ID,
 								chunkInfo.facadeModuleId,
-								routes,
+								opts.routes,
 							);
 						} else if (
 							chunkInfo.facadeModuleId === RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE ||
