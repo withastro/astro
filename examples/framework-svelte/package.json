@@ -14,8 +14,8 @@
   },
   "dependencies": {
     "@astrojs/svelte": "^9.0.1",
-    "astro": "^7.3.3",
-    "svelte": "^5.53.5"
+    "astro": "^7.3.5",
+    "svelte": "^5.55.7"
   },
   "allowScripts": {
     "esbuild": true

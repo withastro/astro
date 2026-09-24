@@ -246,7 +246,7 @@ export function createBuildEnvironmentsConfig(
 		},
 	});
 
-	function isRolldownInput(moduleName: string | undefined): boolean {
+	function isRolldownInput(moduleName: string | null | undefined): boolean {
 		if (!currentRolldownInput || !moduleName) {
 			return false;
 		}

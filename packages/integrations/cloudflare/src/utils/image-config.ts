@@ -115,6 +115,10 @@ export function setImageConfig(
 			};
 
 		case 'compile': {
+			// A user-defined passthroughImageService() disables the incompatible Cloudflare image service.
+			if (config.service.entrypoint === passthroughImageService().entrypoint) {
+				return { ...config, endpoint: CLOUDFLARE_PASSTHROUGH_ENDPOINT };
+			}
 			// Dev: IMAGES binding (via Cloudflare Vite plugin) for real transforms.
 			// Build: endpoint depends on runtime - `cloudflare-binding` uses IMAGES, `passthrough` uses generic.
 			const endpoint =

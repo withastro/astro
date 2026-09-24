@@ -1,5 +1,11 @@
 # @astrojs/partytown
 
+## 2.1.8
+
+### Patch Changes
+
+- [#17986](https://github.com/withastro/astro/pull/17986) [`b1f9088`](https://github.com/withastro/astro/commit/b1f908874c8e1521abae0cf6945f2980a4d7e005) Thanks [@hanford](https://github.com/hanford)! - Updates `@qwik.dev/partytown` from 0.13.2 to 0.14.4, bringing fixes for analytics event forwarding and iframe loading, support for Google Tag Manager's Tag Assistant preview, and automatic execution of scripts added after client-side navigation.
+
 ## 2.1.7
 
 ### Patch Changes

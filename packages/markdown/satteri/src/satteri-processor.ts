@@ -115,30 +115,32 @@ export function collectHastText(
 	return text;
 }
 
-export function createHeadingIdsPlugin(): HastPluginDefinition {
-	const slugger = new Slugger();
-	// Collect headings in a separate array so we can make this idempotent
-	const headings: MarkdownHeading[] = [];
-	return {
-		name: 'heading-ids',
-		element: {
-			filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-			visit(node, ctx) {
-				const astro = ctx.data.astro;
-				const rawText = ctx.textContent(node);
-				const text = rawText.includes('frontmatter')
-					? collectHastText(node, astro?.frontmatter ?? {})
-					: rawText;
-				const existingId = node.properties?.id;
-				const slug = typeof existingId === 'string' ? existingId : slugger.slug(text);
-				const depth = Number.parseInt(node.tagName[1], 10);
-				headings.push({ depth, slug, text });
-				if (astro) astro.headings = headings;
-				if (typeof existingId !== 'string') {
-					ctx.setProperty(node, 'id', slug);
-				}
+export function createHeadingIdsPlugin(): HastPluginEntry {
+	return () => {
+		const slugger = new Slugger();
+		// Collect headings in a separate array so we can make this idempotent
+		const headings: MarkdownHeading[] = [];
+		return {
+			name: 'heading-ids',
+			element: {
+				filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+				visit(node, ctx) {
+					const astro = ctx.data.astro;
+					const rawText = ctx.textContent(node);
+					const text = rawText.includes('frontmatter')
+						? collectHastText(node, astro?.frontmatter ?? {})
+						: rawText;
+					const existingId = node.properties?.id;
+					const slug = typeof existingId === 'string' ? existingId : slugger.slug(text);
+					const depth = Number.parseInt(node.tagName[1], 10);
+					headings.push({ depth, slug, text });
+					if (astro) astro.headings = headings;
+					if (typeof existingId !== 'string') {
+						ctx.setProperty(node, 'id', slug);
+					}
+				},
 			},
-		},
+		};
 	};
 }
 
@@ -197,7 +199,13 @@ export function createHighlightPlugin(
 				) as HastNode | undefined;
 				if (!codeChild || codeChild.type !== 'element') return;
 
-				const lang = (codeChild.data as any)?.lang ?? 'plaintext';
+				const languageClass = Array.isArray(codeChild.properties?.className)
+					? codeChild.properties.className.find(
+							(className) => typeof className === 'string' && className.startsWith('language-'),
+						)
+					: undefined;
+				const lang =
+					(codeChild.data as any)?.lang ?? languageClass?.slice('language-'.length) ?? 'plaintext';
 				const meta = (codeChild.data as any)?.meta ?? undefined;
 
 				if (
