@@ -1,4 +1,5 @@
 import react from '@astrojs/react';
+import tailwindcss from '@tailwindcss/vite';
 import type { AstroIntegration } from 'astro';
 import { astro } from 'astro/vite';
 import { defineConfig } from 'vite';
@@ -26,5 +27,5 @@ const hookLogger: AstroIntegration = {
 };
 
 export default defineConfig({
-	plugins: [astro({ integrations: [react(), hookLogger] })],
+	plugins: [astro({ integrations: [react(), hookLogger] }), tailwindcss()],
 });

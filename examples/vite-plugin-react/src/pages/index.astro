@@ -1,24 +1,65 @@
 ---
 import { getCollection } from 'astro:content';
 import Counter from '../components/Counter';
+import Layout from '../layouts/Layout.astro';
+
 const posts = await getCollection('posts');
-const title = 'Astro as a Vite plugin';
+const features = [
+	{ title: 'No astro.config', body: 'The Astro config is passed inline to astro() in vite.config.ts.' },
+	{ title: 'No Astro CLI', body: 'vite, vite build, and vite preview run everything.' },
+	{ title: 'Real integrations', body: '@astrojs/react runs through the standard integration hooks.' },
+];
 ---
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>{title}</title>
-		<style>
-			h1 { color: rebeccapurple; }
-		</style>
-	</head>
-	<body>
-		<h1>{title}</h1>
-		<p>No astro.config.mjs, no Astro CLI. Real @astrojs/react integration.</p>
-		<Counter client:load />
-		<ul id="posts">
-			{posts.map((post) => <li><a href={`/posts/${post.id}/`}>{post.data.title}</a></li>)}
-		</ul>
-		<a href="/about/">About</a>
-	</body>
-</html>
+<Layout title="Astro as a Vite plugin">
+	<section class="py-12">
+		<p class="text-sm font-medium text-violet-400">Spike</p>
+		<h1 class="mt-2 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+			Astro as a Vite plugin
+		</h1>
+		<p class="mt-4 max-w-xl text-lg text-slate-400">
+			This page is rendered by Astro, styled by Tailwind, and served by plain Vite.
+		</p>
+		<pre
+			class="mt-8 overflow-x-auto rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-slate-300"><code>{`export default defineConfig({
+  plugins: [astro({ integrations: [react()] }), tailwindcss()],
+});`}</code></pre>
+	</section>
+
+	<section class="grid gap-4 sm:grid-cols-3">
+		{
+			features.map(({ title, body }) => (
+				<div class="rounded-xl border border-white/10 bg-white/5 p-5">
+					<h2 class="font-semibold text-white">{title}</h2>
+					<p class="mt-1 text-sm text-slate-400">{body}</p>
+				</div>
+			))
+		}
+	</section>
+
+	<section class="mt-12 grid gap-4 sm:grid-cols-2">
+		<div class="rounded-xl border border-white/10 bg-white/5 p-6">
+			<h2 class="text-sm font-medium text-slate-400">React island</h2>
+			<Counter client:load />
+		</div>
+		<div class="rounded-xl border border-white/10 bg-white/5 p-6">
+			<h2 class="text-sm font-medium text-slate-400">Content collection</h2>
+			<ul id="posts" class="mt-4 space-y-2">
+				{
+					posts.map((post) => (
+						<li>
+							<a
+								href={`/posts/${post.id}/`}
+								class="group flex items-center justify-between rounded-lg px-3 py-2 hover:bg-white/5"
+							>
+								<span class="text-white">{post.data.title}</span>
+								<span class="text-slate-500 transition-transform group-hover:translate-x-0.5">
+									→
+								</span>
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+	</section>
+</Layout>

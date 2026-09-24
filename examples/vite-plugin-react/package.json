@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "@astrojs/react": "workspace:*",
+    "@tailwindcss/vite": "^4.2.1",
     "astro": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "tailwindcss": "^4.2.1",
     "vite": "^8.0.13"
   },
   "devDependencies": {

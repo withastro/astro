@@ -4,13 +4,16 @@ No `astro.config.mjs` and no Astro CLI. The Astro config, including integrations
 
 ```ts
 import react from '@astrojs/react';
+import tailwindcss from '@tailwindcss/vite';
 import { astro } from 'astro/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-	plugins: [astro({ integrations: [react()] })],
+	plugins: [astro({ integrations: [react()] }), tailwindcss()],
 });
 ```
+
+Other Vite plugins, such as Tailwind here, sit next to `astro()` in the same `plugins` array.
 
 - `pnpm dev` → `vite`
 - `pnpm build` → `vite build`
