@@ -87,6 +87,9 @@ export default {
 				// Optional peer dep: dynamically imported in config validation for the legacy
 				// remark/rehype pipeline. Knip flags it because it's referenced from source.
 				'@astrojs/markdown-remark',
+				// Not imported directly: pins a minimum version of Vite's rolldown dependency
+				// (>=1.2.10 fixes WebContainers). Remove once Vite requires it.
+				'rolldown',
 			],
 		},
 		'packages/astro-prism': {

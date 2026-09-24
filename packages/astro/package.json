@@ -162,6 +162,7 @@
     "package-manager-detector": "^1.6.0",
     "piccolore": "^0.1.3",
     "picomatch": "^4.0.4",
+    "rolldown": "^1.2.10",
     "shiki": "^4.0.2",
     "smol-toml": "^1.8.0",
     "svgo": "^4.1.0",
