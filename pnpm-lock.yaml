@@ -82,7 +82,7 @@ importers:
         version: 1.4.2(typescript@6.0.3)
       vitest:
         specifier: ^4.1.11
-        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
 
   benchmark:
     dependencies:
@@ -125,10 +125,10 @@ importers:
     devDependencies:
       '@codspeed/vitest-plugin':
         specifier: 5.2.0
-        version: 5.2.0(debug@4.4.3)(tinybench@6.1.4)(vite@8.3.0)(vitest@4.1.11)
+        version: 5.2.0(debug@4.4.3)(tinybench@6.1.4)(vitest@4.1.11)
       vitest:
         specifier: ^4.1.11
-        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
 
   benchmark/packages/adapter:
     dependencies:
@@ -765,7 +765,7 @@ importers:
         version: 7.29.0
       vitest:
         specifier: ^4.1.11
-        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
     optionalDependencies:
       sharp:
         specifier: ^0.35.4
@@ -4294,7 +4294,7 @@ importers:
         version: link:../../..
       vitest:
         specifier: ^4.1.11
-        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
 
   packages/astro/test/fixtures/vue-component:
     dependencies:
@@ -4416,8 +4416,8 @@ importers:
         specifier: workspace:*
         version: link:../../underscore-redirects
       '@cloudflare/vite-plugin':
-        specifier: 2.0.0-beta.sha-be282d7ee
-        version: 2.0.0-beta.sha-be282d7ee(@types/node@22.19.19)(vite@8.3.0)
+        specifier: 2.0.0-beta.sha-238e489d5
+        version: 2.0.0-beta.sha-238e489d5(@types/node@22.19.19)(vite@8.3.0)
       piccolore:
         specifier: ^0.1.3
         version: 0.1.3
@@ -4454,7 +4454,7 @@ importers:
         version: 0.2.17
       vitest:
         specifier: 4.1.11
-        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
 
   packages/integrations/cloudflare/test/fixtures/allowed-hosts:
     dependencies:
@@ -4535,6 +4535,19 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/cloudflare/test/fixtures/client-address:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+    devDependencies:
+      cf:
+        specifier: 0.13.0
+        version: 0.13.0(@types/node@22.19.19)
+
+  packages/integrations/cloudflare/test/fixtures/cloudflare-preview-platform:
     dependencies:
       '@astrojs/cloudflare':
         specifier: workspace:*
@@ -4712,15 +4725,6 @@ importers:
       cf:
         specifier: 0.13.0
         version: 0.13.0(@types/node@22.19.19)
-
-  packages/integrations/cloudflare/test/fixtures/prerender-durable-object-exports:
-    dependencies:
-      '@astrojs/cloudflare':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
 
   packages/integrations/cloudflare/test/fixtures/prerender-node-env:
     dependencies:
@@ -5006,7 +5010,7 @@ importers:
         version: 4.1.11
       vitest:
         specifier: 4.1.11
-        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
 
   packages/integrations/cloudflare/test/fixtures/with-base:
     dependencies:
@@ -5079,19 +5083,6 @@ importers:
       vue:
         specifier: ^3.5.29
         version: 3.5.43(typescript@6.0.3)
-
-  packages/integrations/cloudflare/test/fixtures/cloudflare-preview-platform:
-    dependencies:
-      '@astrojs/cloudflare':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-    devDependencies:
-      cf:
-        specifier: 0.13.0
-        version: 0.13.0(@types/node@22.19.19)
 
   packages/integrations/markdoc:
     dependencies:
@@ -7905,8 +7896,8 @@ packages:
     resolution: {integrity: sha512-y7/yvZ2TPAnR9+jnc00klvNNLkJiXFFrQA/hlLCcxA9a2A4zQIOimyFQ9XfwYKiGD1fb5GY8vbKIIgO8d5Tb2A==}
     engines: {node: '>= 20.12.0'}
 
-  '@cloudflare/config@0.17.0':
-    resolution: {integrity: sha512-x7qxjLdeM7zR49UZypK4bMI/MlVyDQOpjKfePQbl+eNBnnw/aURwp0Nr8CyTNE2k8rPJKiUUTykBcNYdO/EhtA==}
+  '@cloudflare/config@0.18.0':
+    resolution: {integrity: sha512-FsIXvhDdtdGn3yXAITHLaacDHrzl8FpAkPaLbR5WDpkNa9OQ4VGTSuUPy5iq5uPp5zaRenavz+MsLjtymc3KYA==}
 
   '@cloudflare/kv-asset-handler@0.5.0':
     resolution: {integrity: sha512-jxQYkj8dSIzc0cD6cMMNdOc1UVjqSqu8BZdor5s8cGjW2I8BjODt/kWPVdY+u9zj3ms75Q5qaZgnxUad83+eAg==}
@@ -7921,8 +7912,8 @@ packages:
       workerd:
         optional: true
 
-  '@cloudflare/vite-plugin@2.0.0-beta.sha-be282d7ee':
-    resolution: {integrity: sha512-lkUsIpqlsXe034G4KLcb5kgPTrMuekDSpf4frqh/EvgjkZt6Yw9Yjbli5BYw21aJz2LR5LsQbAYuKwYBtJ9IXA==}
+  '@cloudflare/vite-plugin@2.0.0-beta.sha-238e489d5':
+    resolution: {integrity: sha512-C0YOH8AkT+pdzSQZP9YHszJGcdJSb+MUa9JwgL6ZxCJ3BR3G1UG7EVnsd0T3bHUzXl1hiErOotH0mVKOXehtmw==}
     hasBin: true
     peerDependencies:
       vite: ^7.0.0 || ^8.0.0
@@ -7946,6 +7937,12 @@ packages:
     cpu: [x64]
     os: [darwin]
 
+  '@cloudflare/workerd-darwin-64@1.20260923.1':
+    resolution: {integrity: sha512-sFMyHjABspfVxAf9bmcRdYWm3rO5Vrmhb3fLboMB5Lt+Eo+X1Fj4n/3hgMYmXb6P+zW+cjWjZdH1ilE+Ad5kDw==}
+    engines: {node: '>=16'}
+    cpu: [x64]
+    os: [darwin]
+
   '@cloudflare/workerd-darwin-arm64@1.20260918.1':
     resolution: {integrity: sha512-CR9JRZEQo93fNgBVF4Df2H2/VYO4n7rxSseSwCVv3bJQEb0huADUSCj2FK4ipxar8ToOEB4wawyw0vJo5U/rQQ==}
     engines: {node: '>=16'}
@@ -7954,6 +7951,12 @@ packages:
 
   '@cloudflare/workerd-darwin-arm64@1.20260921.1':
     resolution: {integrity: sha512-FpqVR7IQXVBmGtajyonEmhmb5UAsmV7dTaIkpemmHZXHEw7uYpkhkzKPjc4BOPhNQy8iwt2p+RZBPMY3Y7/bvQ==}
+    engines: {node: '>=16'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@cloudflare/workerd-darwin-arm64@1.20260923.1':
+    resolution: {integrity: sha512-t/O1jcuag+JO5VnFblf20B960FU/WSmn/n2Lcy021cBUhWnhApO9yx1VjJ7I4KhS09yXLgC2shHTzB9EnbSQpg==}
     engines: {node: '>=16'}
     cpu: [arm64]
     os: [darwin]
@@ -7970,6 +7973,12 @@ packages:
     cpu: [x64]
     os: [linux]
 
+  '@cloudflare/workerd-linux-64@1.20260923.1':
+    resolution: {integrity: sha512-6X9fp5vFBJG0BXrjOcB4yqyqZRtZ/Jx4KRAmEp5FPxuNUbf3n6ogzZvD2s0YS+DC2zNKb0gd1lIiOye7AaGnvA==}
+    engines: {node: '>=16'}
+    cpu: [x64]
+    os: [linux]
+
   '@cloudflare/workerd-linux-arm64@1.20260918.1':
     resolution: {integrity: sha512-4rib51MaLNWweUIUxM/Xj558M5QmyZoBSf0ffv+lYah5VTrvwnez3XGxX72pElnBKHROvAPOi5msQ5Ts8JSI0A==}
     engines: {node: '>=16'}
@@ -7982,6 +7991,12 @@ packages:
     cpu: [arm64]
     os: [linux]
 
+  '@cloudflare/workerd-linux-arm64@1.20260923.1':
+    resolution: {integrity: sha512-esOXfxhDp2YPjZmMrO3OLa/9qAfa/uXQGwFGDyUWNF3aXkwE8fc6oauZS01UDk8YwuYlxsyjLQIKjJOrzJ2N+g==}
+    engines: {node: '>=16'}
+    cpu: [arm64]
+    os: [linux]
+
   '@cloudflare/workerd-windows-64@1.20260918.1':
     resolution: {integrity: sha512-sATrMx5ShYYgmgUGrcTmvsFSJBFuN95NEkX3xwb1qk8w1A6h5N11sea7yN2IeibwPyPmXKjWNjXOno0hZAM71Q==}
     engines: {node: '>=16'}
@@ -7990,6 +8005,12 @@ packages:
 
   '@cloudflare/workerd-windows-64@1.20260921.1':
     resolution: {integrity: sha512-VgNcRPstoZMb1G94JTrx+jU24GtkkazNfox0gnF/2fkuXpcfW/M0e0xvdMovYfwt8ZxG5AB2ZNvanD6ufBwiuQ==}
+    engines: {node: '>=16'}
+    cpu: [x64]
+    os: [win32]
+
+  '@cloudflare/workerd-windows-64@1.20260923.1':
+    resolution: {integrity: sha512-Hlda2apkBcRtPQD4NnEZiEqKLIhR7au+8skF+tBHBa1jsX1/GfuYEdIR0HJ6He1qkSNkxD/Y0VXo+TNgUc1EUg==}
     engines: {node: '>=16'}
     cpu: [x64]
     os: [win32]
@@ -14206,6 +14227,10 @@ packages:
     resolution: {integrity: sha512-vHH/unOYvV2jA1Q9SdkmzrQhhMoksdwg5jegu6ZeKaaRzgxZhVbt1NdTpQjHF2VTgiBjgP8SiUlUMfruB3N3SQ==}
     engines: {node: '>=22.0.0'}
 
+  miniflare@5.20260923.0-alpha:
+    resolution: {integrity: sha512-tmICPUd2P+/4WNa2A9kE22SPZexlu+Dw8nZIvaXCzRj2OVu62hc751Xq4S1P4HEscT5viDle3zxyHyxT2XY3Fw==}
+    engines: {node: '>=22.0.0'}
+
   minimatch@10.2.6:
     resolution: {integrity: sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A==}
     engines: {node: 18 || 20 || >=22}
@@ -16374,7 +16399,6 @@ packages:
       '@vitest/ui': 4.1.11
       happy-dom: '*'
       jsdom: '*'
-      vite: ^6.0.0 || ^7.0.0 || ^8.0.0
     peerDependenciesMeta:
       '@edge-runtime/vm':
         optional: true
@@ -16634,6 +16658,11 @@ packages:
 
   workerd@1.20260921.1:
     resolution: {integrity: sha512-4HyG7G1W4ksa6tUZ8bV2jxDRWuL5PXnHm9+Z1sjFPb9OZNoYtXz4y7QQRh4ibi0BF/lOmlAVjbhkUqsAVZuUKA==}
+    engines: {node: '>=16'}
+    hasBin: true
+
+  workerd@1.20260923.1:
+    resolution: {integrity: sha512-1xynegnJJqkgk/zuhNVcOFzAJXzsJ4UxazfThUe0K80eZXKpsRIXI2sHcT4trswLfeHCc+3uWTBvtSWLFRozbQ==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -17740,7 +17769,7 @@ snapshots:
       fast-wrap-ansi: 0.2.2
       sisteransi: 1.0.5
 
-  '@cloudflare/config@0.17.0':
+  '@cloudflare/config@0.18.0':
     dependencies:
       zod: 4.4.3
 
@@ -17758,11 +17787,11 @@ snapshots:
     optionalDependencies:
       workerd: 1.20260921.1
 
-  '@cloudflare/vite-plugin@2.0.0-beta.sha-be282d7ee(@types/node@22.19.19)(vite@8.3.0)':
+  '@cloudflare/vite-plugin@2.0.0-beta.sha-238e489d5(@types/node@22.19.19)(vite@8.3.0)':
     dependencies:
-      '@cloudflare/config': 0.17.0
+      '@cloudflare/config': 0.18.0
       '@cloudflare/unenv-preset': 2.16.2(unenv@2.0.0-rc.24)(workerd@1.20260918.1)
-      miniflare: 5.20260921.0-alpha(@types/node@22.19.19)
+      miniflare: 5.20260923.0-alpha(@types/node@22.19.19)
       unenv: 2.0.0-rc.24
       vite: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
       workerd: 1.20260918.1
@@ -17779,7 +17808,7 @@ snapshots:
       cjs-module-lexer: 1.2.3
       esbuild: 0.28.1
       miniflare: 5.20260921.0-alpha(@types/node@22.19.19)
-      vitest: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+      vitest: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
       wrangler: 4.136.2(@types/node@22.19.19)
       zod: 4.4.3
     transitivePeerDependencies:
@@ -17794,10 +17823,16 @@ snapshots:
   '@cloudflare/workerd-darwin-64@1.20260921.1':
     optional: true
 
+  '@cloudflare/workerd-darwin-64@1.20260923.1':
+    optional: true
+
   '@cloudflare/workerd-darwin-arm64@1.20260918.1':
     optional: true
 
   '@cloudflare/workerd-darwin-arm64@1.20260921.1':
+    optional: true
+
+  '@cloudflare/workerd-darwin-arm64@1.20260923.1':
     optional: true
 
   '@cloudflare/workerd-linux-64@1.20260918.1':
@@ -17806,16 +17841,25 @@ snapshots:
   '@cloudflare/workerd-linux-64@1.20260921.1':
     optional: true
 
+  '@cloudflare/workerd-linux-64@1.20260923.1':
+    optional: true
+
   '@cloudflare/workerd-linux-arm64@1.20260918.1':
     optional: true
 
   '@cloudflare/workerd-linux-arm64@1.20260921.1':
     optional: true
 
+  '@cloudflare/workerd-linux-arm64@1.20260923.1':
+    optional: true
+
   '@cloudflare/workerd-windows-64@1.20260918.1':
     optional: true
 
   '@cloudflare/workerd-windows-64@1.20260921.1':
+    optional: true
+
+  '@cloudflare/workerd-windows-64@1.20260923.1':
     optional: true
 
   '@cloudflare/workers-types@5.20260825.1': {}
@@ -17829,12 +17873,11 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@codspeed/vitest-plugin@5.2.0(debug@4.4.3)(tinybench@6.1.4)(vite@8.3.0)(vitest@4.1.11)':
+  '@codspeed/vitest-plugin@5.2.0(debug@4.4.3)(tinybench@6.1.4)(vitest@4.1.11)':
     dependencies:
       '@codspeed/core': 5.2.0(debug@4.4.3)
       tinybench: 6.1.4
-      vite: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
-      vitest: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+      vitest: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
     transitivePeerDependencies:
       - debug
 
@@ -20311,7 +20354,7 @@ snapshots:
       svelte: 5.55.7
     optionalDependencies:
       vite: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
-      vitest: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0)
+      vitest: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
 
   '@textlint/ast-node-types@15.5.1': {}
 
@@ -24484,6 +24527,19 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
+  miniflare@5.20260923.0-alpha(@types/node@22.19.19):
+    dependencies:
+      '@cspotcode/source-map-support': 0.8.1
+      sharp: 0.35.4(@types/node@22.19.19)
+      undici: 7.29.0
+      workerd: 1.20260923.1
+      ws: 8.21.0
+      youch: 4.1.0-beta.10
+    transitivePeerDependencies:
+      - '@types/node'
+      - bufferutil
+      - utf-8-validate
+
   minimatch@10.2.6:
     dependencies:
       brace-expansion: 5.0.9
@@ -26974,7 +27030,7 @@ snapshots:
     optionalDependencies:
       vite: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
 
-  vitest@4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0):
+  vitest@4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1):
     dependencies:
       '@vitest/expect': 4.1.11
       '@vitest/mocker': 4.1.11(vite@8.3.0)
@@ -27000,7 +27056,18 @@ snapshots:
       '@opentelemetry/api': 1.9.1
       '@types/node': 22.19.19
     transitivePeerDependencies:
+      - '@vitejs/devtools'
+      - esbuild
+      - jiti
+      - less
       - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - terser
+      - tsx
+      - yaml
 
   vitest@5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.0):
     dependencies:
@@ -27233,6 +27300,14 @@ snapshots:
       '@cloudflare/workerd-linux-64': 1.20260921.1
       '@cloudflare/workerd-linux-arm64': 1.20260921.1
       '@cloudflare/workerd-windows-64': 1.20260921.1
+
+  workerd@1.20260923.1:
+    optionalDependencies:
+      '@cloudflare/workerd-darwin-64': 1.20260923.1
+      '@cloudflare/workerd-darwin-arm64': 1.20260923.1
+      '@cloudflare/workerd-linux-64': 1.20260923.1
+      '@cloudflare/workerd-linux-arm64': 1.20260923.1
+      '@cloudflare/workerd-windows-64': 1.20260923.1
 
   workerpool@10.0.3: {}
 
