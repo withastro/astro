@@ -19653,7 +19653,7 @@ snapshots:
       decache: 4.6.2
       dettle: 1.0.5
       dot-prop: 9.0.0
-      empathic: 2.0.0
+      empathic: 2.1.0
       env-paths: 3.0.0
       parse-gitignore: 2.0.0
       semver: 7.8.5
