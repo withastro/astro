@@ -652,9 +652,9 @@ export interface AstroUserConfig<
 	 *
 	 * These features only exist for pages rendered on demand (SSR) using `server` mode or pages that opt out of prerendering in `static` mode.
 	 *
-	 * By default, Astro will automatically check that the “origin” header
-	 * matches the URL sent by each request in on-demand rendered pages. You can
-	 * disable this behavior by setting `checkOrigin` to `false`:
+	 * By default, Astro checks browser request metadata to ensure that form submissions
+	 * to on-demand rendered pages come from the same origin. You can disable this
+	 * behavior by setting `checkOrigin` to `false`:
 	 *
 	 * ```js
 	 * // astro.config.mjs
@@ -678,12 +678,13 @@ export interface AstroUserConfig<
 		 * @version 4.9.0
 		 * @description
 		 *
-		 * Performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
+		 * Checks the `Sec-Fetch-Site` header provided by modern browsers, falling back to the `Origin` header when unavailable. This is used to provide Cross-Site Request Forgery (CSRF) protection.
 		 *
-		 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST`, `PATCH`, `DELETE` and `PUT` with
-		 * one of the following `content-type` headers: `'application/x-www-form-urlencoded'`, `'multipart/form-data'`, `'text/plain'`.
+		 * The check is executed only for pages rendered on demand, and only for unsafe requests such as `POST`, `PATCH`, `DELETE`, and `PUT` with no `content-type` header or one of the following values: `'application/x-www-form-urlencoded'`, `'multipart/form-data'`, `'text/plain'`.
 		 *
-		 * If the "origin" header doesn't match the `pathname` of the request, Astro will return a 403 status code and will not render the page.
+		 * Requests with other `content-type` values are not checked because browsers require a CORS preflight before sending them cross-origin. These requests rely on your application's CORS policy, which should not allow credentialed requests from untrusted origins. Requests without either `Sec-Fetch-Site` or `Origin` are treated as non-browser requests and are also allowed.
+		 *
+		 * If the request is identified as cross-origin, Astro will return a 403 status code and will not render the page.
 		 */
 
 		checkOrigin?: boolean;
