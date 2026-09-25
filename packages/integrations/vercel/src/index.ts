@@ -579,7 +579,13 @@ export default function vercelAdapter({
 								: _middlewareEntryPoint
 									? MIDDLEWARE_PATH
 									: NODE_PATH,
-							status: 404,
+							// Only a statically rendered 404 page needs the platform to
+							// force the status. When the 404 page is server-rendered,
+							// forward to the render function without a forced status:
+							// Astro returns 404 for genuinely unmatched paths, but
+							// middleware may rewrite a path to a valid route (e.g.
+							// locale-prefixed i18n URLs) that must keep its own status.
+							...(fourOhFourRoute.isPrerendered ? { status: 404 } : {}),
 						});
 					} else {
 						finalRoutes.push({
