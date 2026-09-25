@@ -27,7 +27,7 @@ import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
 import { viteBuild } from './static-build.js';
-import type { StaticBuildOptions } from './types.js';
+import type { StaticBuildOptionsInput } from './types.js';
 import { getTimeStat } from './util.js';
 import { warnIfCspResourceFallbackShadowing, warnIfCspWithShiki } from '../messages/runtime.js';
 
@@ -217,7 +217,7 @@ export class AstroBuilder {
 		const hasKey = hasEnvironmentKey();
 		const keyPromise = hasKey ? getEnvironmentKey() : createKey();
 
-		const opts: StaticBuildOptions = {
+		const opts: StaticBuildOptionsInput = {
 			allPages,
 			settings: this.settings,
 			logger: this.logger,
@@ -230,7 +230,7 @@ export class AstroBuilder {
 			force: this.force,
 		};
 
-		await viteBuild(opts);
+		const { outputDirectories } = await viteBuild(opts);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();
@@ -259,6 +259,7 @@ export class AstroBuilder {
 		// You're done! Time to clean up.
 		await runHookBuildDone({
 			settings: this.settings,
+			dir: outputDirectories.client,
 			pages: pageNames,
 			routes: Object.values(allPages)
 				.flat()

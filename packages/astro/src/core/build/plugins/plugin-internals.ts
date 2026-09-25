@@ -1,6 +1,6 @@
 import type { EnvironmentOptions, Plugin as VitePlugin, Rollup } from 'vite';
 import type { BuildInternals } from '../internal.js';
-import type { StaticBuildOptions } from '../types.js';
+import type { StaticBuildOptionsInput } from '../types.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
@@ -17,7 +17,7 @@ function getRollupInputAsSet(rollupInput: Rollup.InputOption | undefined): Set<s
 }
 
 export function pluginInternals(
-	options: StaticBuildOptions,
+	options: StaticBuildOptionsInput,
 	internals: BuildInternals,
 ): VitePlugin {
 	return {

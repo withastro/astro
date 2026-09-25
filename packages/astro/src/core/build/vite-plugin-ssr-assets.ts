@@ -1,13 +1,13 @@
 import fs from 'node:fs';
 import type { EnvironmentOptions, Plugin } from 'vite';
 import type * as vite from 'vite';
-import { appendForwardSlash } from '../path.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import { getHandles, resetHandles } from '../../assets/utils/assets.js';
+import { pathToDirectoryURL } from './common.js';
 import { getOrCreateSSRAssets, type BuildInternals } from './internal.js';
 
 /**
- * Vite plugin that tracks emitted assets and handles cleanup of manifest files.
+ * Vite plugin that tracks emitted assets.
  * This plugin coordinates with emitClientAsset() to track which assets should
  * be moved to the client directory. The resolved filenames are stored in
  * BuildInternals.ssrAssetsPerEnvironment during generateBundle.
@@ -70,7 +70,7 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 
 				// Add CSS and assets from manifest (these are always client assets)
 				// Must be done in writeBundle because the manifest is written during the bundle write phase
-				const manifestDir = new URL(appendForwardSlash(`file://${env.config.build.outDir}`));
+				const manifestDir = pathToDirectoryURL(env.config.build.outDir);
 				const manifest = loadViteManifest(manifestDir);
 				if (manifest) {
 					const manifestAssets = collectAssetsFromManifest(manifest);
@@ -82,9 +82,6 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 						}
 					}
 				}
-
-				// Clean up the .vite folder after the bundle is written
-				await deleteViteFolder(env.config.build.outDir);
 			},
 		},
 	};
@@ -94,7 +91,7 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
  * Loads a Vite manifest from a directory if it exists.
  */
 function loadViteManifest(directory: URL): vite.Manifest | null {
-	const manifestPath = new URL('.vite/manifest.json', appendForwardSlash(directory.toString()));
+	const manifestPath = new URL('.vite/manifest.json', directory);
 	if (!fs.existsSync(manifestPath)) {
 		return null;
 	}
@@ -134,9 +131,13 @@ function collectAssetsFromManifest(manifest: vite.Manifest): Set<string> {
 /**
  * Deletes the .vite folder from a directory if it exists.
  */
-async function deleteViteFolder(directory: string): Promise<void> {
-	const viteFolder = new URL('.vite/', appendForwardSlash(`file://${directory}`));
-	if (fs.existsSync(viteFolder)) {
-		await fs.promises.rm(viteFolder, { recursive: true, force: true });
-	}
+export async function removeViteManifestDirectories(directories: Iterable<URL>): Promise<void> {
+	const viteFolders = new Set(
+		Array.from(directories, (directory) => new URL('.vite/', directory).href),
+	);
+	await Promise.all(
+		Array.from(viteFolders, (viteFolder) =>
+			fs.promises.rm(new URL(viteFolder), { recursive: true, force: true }),
+		),
+	);
 }

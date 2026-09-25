@@ -1,7 +1,7 @@
 import { init, type ImportSpecifier, parse } from 'es-module-lexer';
 import type { Plugin as VitePlugin } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
-import type { StaticBuildOptions } from '../types.js';
+import type { StaticBuildOptionsInput } from '../types.js';
 
 /**
  * Returns the static module specifier of an import, or `undefined` if it can't
@@ -41,7 +41,7 @@ function getImportSpecifier(code: string, imp: ImportSpecifier): string | undefi
  * the appended query params would break Vite's regex-based CSS chunk cleanup,
  * leaving dangling imports to deleted chunks that 404 at runtime.
  */
-export function pluginChunkImports(options: StaticBuildOptions): VitePlugin | undefined {
+export function pluginChunkImports(options: StaticBuildOptionsInput): VitePlugin | undefined {
 	const assetQueryParams = options.settings.adapter?.client?.assetQueryParams;
 	if (!assetQueryParams || assetQueryParams.toString() === '') {
 		return undefined;

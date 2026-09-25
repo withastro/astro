@@ -156,6 +156,11 @@ export async function createStaticBuildOptions({
 			config: resolvedConfig,
 		},
 		logger: { info() {}, warn() {}, error() {}, debug() {} },
+		outputDirectories: {
+			client: resolvedConfig.outDir,
+			server: resolvedConfig.build.server,
+			prerender: new URL('.prerender/', resolvedConfig.build.server),
+		},
 	} as unknown as StaticBuildOptions;
 
 	return options;

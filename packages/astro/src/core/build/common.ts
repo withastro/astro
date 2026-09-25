@@ -1,29 +1,27 @@
 import npath from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { appendForwardSlash } from '../../core/path.js';
-import type { AstroSettings } from '../../types/astro.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { RouteData } from '../../types/public/internal.js';
 
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 const FALLBACK_OUT_DIR_NAME = './.astro/';
 
-function getOutRoot(astroSettings: AstroSettings): URL {
-	const preserveStructure = astroSettings.adapter?.adapterFeatures?.preserveBuildClientDir;
-
-	if (astroSettings.buildOutput === 'static' && !preserveStructure) {
-		return new URL('./', astroSettings.config.outDir);
-	} else {
-		return new URL('./', astroSettings.config.build.client);
-	}
+export function pathToDirectoryURL(path: string): URL {
+	return new URL(appendForwardSlash(pathToFileURL(path).href));
 }
 
-export function getOutFolder(
-	astroSettings: AstroSettings,
-	pathname: string,
-	routeData: RouteData,
-): URL {
-	const outRoot = getOutRoot(astroSettings);
+export function getOutFolder({
+	outRoot,
+	buildFormat,
+	pathname,
+	routeData,
+}: {
+	outRoot: URL;
+	buildFormat: NonNullable<AstroConfig['build']>['format'];
+	pathname: string;
+	routeData: RouteData;
+}): URL {
 	const routeType = routeData.type;
 
 	// This is the root folder to write to.
@@ -33,7 +31,7 @@ export function getOutFolder(
 		case 'fallback':
 		case 'page':
 		case 'redirect':
-			switch (astroSettings.config.build.format) {
+			switch (buildFormat) {
 				case 'directory': {
 					if (STATUS_CODE_PAGES.has(pathname)) {
 						return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
