@@ -40,8 +40,9 @@ export async function transform(
 		content = await assets.fetch(imageSrc);
 	}
 
-	if (!content.body) {
-		return new Response(null, { status: 404 });
+	// An error page is not an image; the Images binding would throw on it.
+	if (!content.ok || !content.body) {
+		return new Response('Not Found', { status: 404 });
 	}
 
 	return transformStream(content.body, url.searchParams, images);

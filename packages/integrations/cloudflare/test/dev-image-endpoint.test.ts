@@ -34,6 +34,11 @@ describe('Dev image endpoint', () => {
 		assert.ok(text.includes('Unsupported format'));
 	});
 
+	it('returns 404 for missing local images', async () => {
+		const res = await fixture.fetch('/_image?href=/missing.jpg&f=webp&w=100');
+		assert.equal(res.status, 404);
+	});
+
 	it('transforms local images to png', async () => {
 		const res = await fixture.fetch('/_image?href=/placeholder.jpg&f=png&w=100');
 		assert.equal(res.status, 200);
