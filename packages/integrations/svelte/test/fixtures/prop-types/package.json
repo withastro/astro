@@ -1,7 +1,7 @@
 {
   "name": "svelte-prop-types",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -11,6 +11,6 @@
   "dependencies": {
     "@astrojs/svelte": "workspace:*",
     "astro": "workspace:*",
-    "svelte": "^5.54.1"
+    "svelte": "^5.55.7"
   }
 }

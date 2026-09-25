@@ -6,7 +6,7 @@ import { encoder } from './common.js';
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
 import { renderCspContent } from './csp.js';
 import type { AstroComponentFactory } from './index.js';
-import { isDeno, isNode } from './util.js';
+import { isDeno, isNode, isWorkerd } from './util.js';
 import { isAstroComponentFactory } from './astro/factory.js';
 
 export async function renderPage(
@@ -69,8 +69,11 @@ export async function renderPage(
 
 	let body: BodyInit | Response;
 	if (streaming) {
-		// isNode is true in Deno node-compat mode but response construction from
-		// async iterables is not supported, so we fall back to ReadableStream if isDeno is true.
+		// isNode is true in Deno's and workerd's node-compat modes, but their
+		// Response constructors do not accept AsyncIterable bodies (a non-standard
+		// Node.js extension). Deno falls back to ReadableStream entirely; workerd
+		// keeps the faster AsyncIterable render path and wraps the result with
+		// ReadableStream.from() so the Response constructor receives a standard type.
 		if (isNode && !isDeno) {
 			const nodeBody = await renderToAsyncIterable(
 				result,
@@ -80,9 +83,15 @@ export async function renderPage(
 				true,
 				route,
 			);
-			// Node.js allows passing in an AsyncIterable to the Response constructor.
-			// This is non-standard so using `any` here to preserve types everywhere else.
-			body = nodeBody as any;
+			if (isWorkerd && !(nodeBody instanceof Response)) {
+				// ReadableStream.from() is available in Node >= 20.6 and workerd but
+				// is not yet in TypeScript's built-in DOM lib types.
+				body = (ReadableStream as any).from(nodeBody);
+			} else {
+				// Node.js allows passing in an AsyncIterable to the Response constructor.
+				// This is non-standard so using `any` here to preserve types everywhere else.
+				body = nodeBody as any;
+			}
 		} else {
 			body = await renderToReadableStream(result, componentFactory, props, children, true, route);
 		}

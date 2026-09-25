@@ -30,8 +30,7 @@ overrides:
   # with `@types/node@22`, one with `@types/node@25`, etc.. By adding this override, we force
   # pnpm to only keep one installation of `vite@7.3.2` with `@types/node@22`.
   '@types/node@22': '^22.19.0'
-  # Force modern-tar to 0.7.7 which fixes Unicode NFC/NFD path normalization on Linux (issue #17381)
-  'modern-tar': '>=0.7.7'
+  'docs>@lunariajs/core': 'https://pkg.pr.new/lunariajs/lunaria/@lunariajs/core@502ada46073a7f0b003949d78870cefb9290a54f'
 
 # Wait until three days after release to install new versions of packages
 minimumReleaseAge: 4320
@@ -45,18 +44,16 @@ minimumReleaseAgeExclude:
   - '@flue/*'
   - '@astrojs/*'
   - '@cloudflare/*'
+  - rolldown
+  - '@rolldown/*'
+  - '@oxc-project/types'
+  # Docs smoke test (smoke/docs) installs @lunariajs/core from withastro/docs
+  - '@lunariajs/*'
   - workerd
   - miniflare
   - wrangler
   - 'satteri'
   - '@bruits/*'
-  - vite@8.1.0
-  - '@napi-rs/wasm-runtime@1.1.6 || 1.2.0'
-  - '@tybys/wasm-util@0.10.3'
-  # modern-tar 0.7.7 fixes Unicode NFC/NFD path normalization on Linux (issue #17381)
-  - 'modern-tar@0.7.7'
-  # Renovate security update: @fastify/static@10.1.2
-  - '@fastify/static@10.1.2'
 peerDependencyRules:
   allowAny:
     - 'astro'
@@ -71,15 +68,15 @@ trustPolicyExclude:
   # TODO: Remove once trusted publishing is enabled. Netlify are working on it.
   - '@netlify/edge-bundler@14.10.2||14.10.1'
   - '@netlify/zip-it-and-ship-it@14.5.6'
-  - '@netlify/serverless-functions-api@2.15.1'
+  - '@netlify/serverless-functions-api@2.18.0'
   # Vercel packages that do not have trusted publishing enabled on npm
   # TODO: Remove once trusted publishing is enabled.
-  - '@vercel/functions@3.9.5'
-  - '@vercel/routing-utils@6.5.0'
+  - '@vercel/functions@3.9.8'
+  - '@vercel/routing-utils@6.6.0'
   # Transitive dependencies of '@vercel/functions'
-  - '@vercel/oidc@3.8.5'
+  - '@vercel/oidc@3.8.8'
   - '@vercel/cli-exec@1.0.1'
-  - '@vercel/cli-config@0.2.4'
+  - '@vercel/cli-config@0.2.7'
   # Outdated dependencies of @vitejs/plugin-react@^5 and @vscode/vsce
   # TODO: Update the Vite plugin to ^6 in Astro v7 and remove this
   - 'semver@6.3.1 || 5.7.2'

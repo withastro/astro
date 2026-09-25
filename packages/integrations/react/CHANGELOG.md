@@ -1,5 +1,73 @@
 # @astrojs/react
 
+## 7.0.0
+
+### Major Changes
+
+- [#17951](https://github.com/withastro/astro/pull/17951) [`e5b0ac4`](https://github.com/withastro/astro/commit/e5b0ac4b26fa7c9b74b62fbe3dfdcde1f418d92d) Thanks [@hanford](https://github.com/hanford)! - Migrates the React integration to `@vitejs/plugin-react` v6, using Oxc for JSX and Fast Refresh. Removes the `babel` integration option; projects with custom Babel transforms must configure `@rolldown/plugin-babel` under `vite.plugins` instead.
+  
+  Adds an opt-in `compiler` option for the Oxc-based React Compiler. Install `oxc-transform-react` and enable it in your Astro config:
+  
+  ```js
+  import react from '@astrojs/react';
+  
+  export default {
+    integrations: [react({ compiler: true })],
+  };
+  ```
+  
+  The compiler memoizes client components and hooks. Server rendering is not compiled. The target defaults to the installed React major version; React 17 and 18 projects also need `react-compiler-runtime` installed. Pass an options object to configure the compiler, for example `compiler: { compilationMode: 'annotation' }`. The integration's `include` and `exclude` options apply, and dependencies and Astro files are excluded.
+  
+  ## Migrating custom Babel transforms
+  
+  The integration uses `@vitejs/plugin-react` v6 and Oxc for JSX and Fast Refresh. The `babel` integration option has been removed in this major release.
+  
+  If you use custom Babel transforms, install `@rolldown/plugin-babel` and `@babel/core`, keeping your existing Babel plugins and presets installed:
+  
+  ```sh
+  pnpm add -D @rolldown/plugin-babel @babel/core
+  ```
+  
+  Move your Babel plugins and presets from `react({ babel: ... })` to `babel()` in `vite.plugins`. For example, migrate a project using `babel-plugin-styled-components` from:
+  
+  ```js
+  import react from '@astrojs/react';
+  import { defineConfig } from 'astro/config';
+  
+  export default defineConfig({
+    integrations: [react({ babel: { plugins: ['babel-plugin-styled-components'] } })],
+  });
+  ```
+  
+  To:
+  
+  ```js
+  import react from '@astrojs/react';
+  import babel from '@rolldown/plugin-babel';
+  import { defineConfig } from 'astro/config';
+  
+  export default defineConfig({
+    integrations: [react()],
+    vite: {
+      plugins: [
+        babel({
+          plugins: ['babel-plugin-styled-components'],
+        }),
+      ],
+    },
+  });
+  ```
+  
+  This also works with `react({ compiler: true })`. Babel runs before Oxc transforms TypeScript and JSX. The Babel plugin automatically enables parsing for `.jsx`, `.ts`, and `.tsx` files. It does not load `babel.config.js` or `.babelrc` files; pass the options directly to `babel()`. The old `babel` callback is not supported; use the plugin's [`overrides` and preset hooks](https://github.com/rolldown/plugins/tree/main/packages/babel#options) for conditional transforms.
+  
+  Do not enable `babel-plugin-react-compiler` on the same components as the Oxc compiler.
+
+## 6.0.6
+
+### Patch Changes
+
+- [#17985](https://github.com/withastro/astro/pull/17985) [`7a6e7f7`](https://github.com/withastro/astro/commit/7a6e7f7174147e38731e39378e6f5b294834d207) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes Vue render-function components failing to build when `@astrojs/react` is also enabled. React's renderer `check` no longer crashes on non-React object components, and Vue's `check` now recognizes `defineComponent()` components that use a `setup` function returning a render function.
+
 ## 6.0.5
 
 ### Patch Changes

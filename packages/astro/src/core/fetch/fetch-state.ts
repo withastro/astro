@@ -353,6 +353,7 @@ export class FetchState implements AstroFetchState {
 			manifest.i18n,
 			manifest.base,
 			manifest.trailingSlash,
+			manifest.allowedDomains,
 			this.logger,
 			pathname,
 		);
