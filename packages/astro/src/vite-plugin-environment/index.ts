@@ -80,7 +80,11 @@ export function vitePluginEnvironment({
 
 				if (_options.optimizeDeps?.noDiscovery === false) {
 					finalEnvironmentOptions.optimizeDeps = {
-						entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro,mdx}`],
+						// Server-side code lives in .ts/.js files (actions, middleware,
+						// utilities) as well as component formats. Include them so the
+						// dep scanner discovers npm imports up front and avoids a
+						// mid-request re-optimization that would reload workerd modules.
+						entries: [`${srcDirPattern}**/*.{ts,js,jsx,tsx,vue,svelte,html,astro,mdx}`],
 						include: [],
 						exclude: ['node-fetch'],
 					};
