@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import type { PluginObj } from '@babel/core';
+import type { PluginObject } from '@babel/core';
 import babel from '@rolldown/plugin-babel';
 import { load } from 'cheerio';
 import react from '../dist/index.js';
@@ -8,7 +8,7 @@ import { loadFixture, type DevServer, type Fixture } from './test-utils.ts';
 
 const babelOptions = {
 	plugins: [
-		(): PluginObj => ({
+		(): PluginObject => ({
 			visitor: {
 				TSAsExpression(path) {
 					const expression = path.node.expression;
