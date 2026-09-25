@@ -9,6 +9,8 @@ import type { CodeMapping, VirtualCode } from '@volar/language-core';
 import { Range } from '@volar/language-server';
 import { TextDocument } from 'vscode-html-languageservice';
 
+const SPAN_MAP_KIND_ATOM = 1;
+
 export interface LSPTSXRanges {
 	frontmatter: Range;
 	body: Range;
@@ -104,6 +106,34 @@ function getVirtualCodeTSX(tsx: ConvertToTsxResult) {
 			},
 		},
 	];
+	for (const [generatedOffset, generatedLength, sourceOffset, sourceLength, kind, features] of tsx.mappings) {
+		if (
+			generatedLength === 0 ||
+			sourceLength !== 0 ||
+			kind !== SPAN_MAP_KIND_ATOM ||
+			features !== undefined
+		) {
+			continue;
+		}
+
+		const previous = [...mapped].reverse().find(
+			(mapping) =>
+				mapping.sourceOffset + mapping.length === sourceOffset &&
+				mapping.generatedOffset + mapping.length <= generatedOffset,
+		);
+		if (!previous) continue;
+
+		// Include the preceding source-backed run so edits spanning into generated-only
+		// text map as one range, ending at the atom's zero-width source anchor.
+		mappings.push({
+			sourceOffsets: [previous.sourceOffset],
+			generatedOffsets: [previous.generatedOffset],
+			lengths: [previous.length],
+			generatedLengths: [generatedOffset + generatedLength - previous.generatedOffset],
+			// Volar uses verification for code actions and navigation when mapping their edits.
+			data: { verification: true, navigation: true },
+		});
+	}
 	if (tsx.frontmatterStatus === AstroFrontmatterStatus.DoesntExist) {
 		// TypeScript inserts auto-imports into the synthetic newline before the template. Map it
 		// to the start of the Astro file so completion edits can create a frontmatter section.
