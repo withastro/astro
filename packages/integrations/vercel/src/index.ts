@@ -585,6 +585,7 @@ export default function vercelAdapter({
 							// Astro returns 404 for genuinely unmatched paths, but
 							// middleware may rewrite a path to a valid route (e.g.
 							// locale-prefixed i18n URLs) that must keep its own status.
+							// https://github.com/withastro/astro/issues/18134
 							...(fourOhFourRoute.isPrerendered ? { status: 404 } : {}),
 						});
 					} else {
