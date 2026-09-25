@@ -7,47 +7,6 @@ import {
 import { callMiddleware } from '../../../dist/core/middleware/callMiddleware.js';
 import { createMockAPIContext, createResponseFunction } from '../mocks.ts';
 
-describe('CSRF - hasFormLikeHeader', () => {
-	it('returns true for multipart/form-data', () => {
-		assert.equal(hasFormLikeHeader('multipart/form-data'), true);
-	});
-
-	it('returns true for application/x-www-form-urlencoded', () => {
-		assert.equal(hasFormLikeHeader('application/x-www-form-urlencoded'), true);
-	});
-
-	it('returns true for text/plain', () => {
-		assert.equal(hasFormLikeHeader('text/plain'), true);
-	});
-
-	it('is case-insensitive', () => {
-		assert.equal(hasFormLikeHeader('MULTIPART/FORM-DATA'), true);
-		assert.equal(hasFormLikeHeader('Application/X-WWW-FORM-URLENCODED'), true);
-		assert.equal(hasFormLikeHeader('TEXT/PLAIN'), true);
-	});
-
-	it('matches when content-type includes extra parameters', () => {
-		assert.equal(hasFormLikeHeader('application/x-www-form-urlencoded; charset=utf-8'), true);
-		assert.equal(hasFormLikeHeader('multipart/form-data; boundary=something'), true);
-	});
-
-	it('returns false for application/json', () => {
-		assert.equal(hasFormLikeHeader('application/json'), false);
-	});
-
-	it('returns false for application/octet-stream', () => {
-		assert.equal(hasFormLikeHeader('application/octet-stream'), false);
-	});
-
-	it('returns false for null', () => {
-		assert.equal(hasFormLikeHeader(null), false);
-	});
-
-	it('returns false for empty string', () => {
-		assert.equal(hasFormLikeHeader(''), false);
-	});
-});
-
 describe('CSRF - createOriginCheckMiddleware', () => {
 	const middleware = createOriginCheckMiddleware();
 	const responseFn = createResponseFunction('ok');

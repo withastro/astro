@@ -47,11 +47,6 @@ export function isForbiddenCrossOriginRequest(
 		return false;
 	}
 
-	const contentType = request.headers.get('content-type');
-	if (contentType !== null && !hasFormLikeHeader(contentType)) {
-		return false;
-	}
-
 	switch (request.headers.get('sec-fetch-site')) {
 		case '':
 		case null:
