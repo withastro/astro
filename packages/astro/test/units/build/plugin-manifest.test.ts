@@ -41,6 +41,102 @@ function enableSsrMinification(): Plugin {
 }
 
 describe('Build: Manifest injection', () => {
+	it('serializes manifest assets in sorted order', async () => {
+		const root = new URL('./_temp-fixtures/', import.meta.url);
+		const rootPath = fileURLToPath(root);
+
+		// Create public files in multiple directories to seed the assets array
+		const publicDir = path.join(rootPath, 'public');
+		for (const dir of ['zeta', 'alpha', 'mu']) {
+			const dirPath = path.join(publicDir, dir);
+			await fs.mkdir(dirPath, { recursive: true });
+			for (let i = 1; i <= 3; i++) {
+				await fs.writeFile(path.join(dirPath, `f${i}.txt`), `${dir} ${i}`);
+			}
+		}
+
+		const settings = await createBasicSettings({
+			root: rootPath,
+			output: 'server',
+			adapter: {
+				name: 'test-adapter',
+				hooks: {
+					'astro:config:done': ({ setAdapter }) => {
+						setAdapter({
+							name: 'test-adapter',
+							serverEntrypoint: 'astro/app',
+							exports: ['manifest', 'createApp'],
+							supportedAstroFeatures: {
+								serverOutput: 'stable',
+							},
+							adapterFeatures: {
+								buildOutput: 'server',
+							},
+						});
+					},
+				},
+			},
+			vite: {
+				plugins: [
+					virtualAstroModules(root, {
+						'src/pages/index.astro': [
+							'---',
+							'---',
+							'<html>',
+							'<head><title>Test</title></head>',
+							'<body><h1>Hello</h1></body>',
+							'</html>',
+						].join('\n'),
+					}),
+				],
+			},
+		});
+
+		const routesList = {
+			routes: [
+				parseRoute('index.astro', settings, {
+					component: 'src/pages/index.astro',
+					prerender: false,
+				}),
+			],
+		};
+
+		process.env.ASTRO_KEY = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=';
+
+		try {
+			const builder = new AstroBuilder(settings, {
+				logger: defaultLogger,
+				mode: 'production',
+				runtimeMode: 'production',
+				routesList,
+				sync: false,
+			});
+			await builder.run();
+		} finally {
+			delete process.env.ASTRO_KEY;
+			// Clean up the public files
+			await fs.rm(publicDir, { recursive: true, force: true });
+		}
+
+		const serverOutputDir = fileURLToPath(settings.config.build.server);
+		const outputFiles = await readFilesRecursive(serverOutputDir);
+
+		let assets: string[] | null = null;
+		for (const file of outputFiles) {
+			if (!file.endsWith('.mjs') && !file.endsWith('.js')) continue;
+			const content = await fs.readFile(file, 'utf-8');
+			const match = content.match(/"assets":\[([^\]]*)\]/);
+			if (match) {
+				assets = JSON.parse(`[${match[1]}]`);
+				break;
+			}
+		}
+
+		assert.ok(assets, 'Should find the assets array in the manifest chunk');
+		const sorted = [...assets].sort();
+		assert.deepEqual(assets, sorted, 'Manifest assets should be in sorted order');
+	});
+
 	it('replaces manifest placeholder when server build is minified', async () => {
 		const root = new URL('./_temp-fixtures/', import.meta.url);
 
