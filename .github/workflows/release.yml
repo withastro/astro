@@ -59,25 +59,19 @@ jobs:
           pr-title: "[ci] release"
           github-token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
 
-      # On a re-run after npm already received the versions, changesets publishes nothing new
-      # and its `published`/`publishedPackages` outputs are empty, so any downstream work gated
-      # on them would be skipped while the run turns green. The version bumps for this release
-      # live in the release commit itself, so the cohort is rebuilt from the commit diff on
-      # retries. Only the squash-merged "[ci] release" version PR commit bumps package versions;
-      # fixture edits, manual version changes, merges, and reverts must not look like releases.
+      # Derives the released-package cohort from the package.json version bumps in the
+      # "[ci] release" commit (diff vs its parent). The result is the same on every run of
+      # that commit, and drives the announcement, VS Code/OpenVSX publishing, and dispatch
+      # steps below. Commits with any other subject produce no cohort, so fixture edits,
+      # manual version changes, merges, and reverts are not treated as releases.
       - name: Detect release cohort
         id: release
         run: |
           HAS_RELEASE=false
           HAS_VSCODE=false
           COHORT=""
-          if [ "${{ steps.changesets.outputs.published }}" = "true" ]; then
-            PAYLOAD='${{ steps.changesets.outputs.publishedPackages }}'
-            HAS_RELEASE=true
-          elif git log -1 --format=%s HEAD | grep -q '^\[ci\] release'; then
-            # Nothing was published, so this is a re-run (or the same commit on another branch):
-            # npm already has these versions, so rebuild the released-package list from the
-            # version bumps in the release commit.
+          PAYLOAD=""
+          if git log -1 --format=%s HEAD | grep -q '^\[ci\] release'; then
             # Feed the loop the list of package.json files changed between the parent commit
             # and this one (a release commit only changes the files it bumps).
             while read -r f; do
@@ -105,15 +99,17 @@ jobs:
             if [ "$COHORT" != "[]" ]; then
               PAYLOAD="$COHORT"
               HAS_RELEASE=true
-            else
-              PAYLOAD=""
             fi
-          else
-            PAYLOAD=""
+            # A cohort that includes astro-vscode enables VS Code/OpenVSX publishing.
+            if echo "$COHORT" | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null 2>&1; then
+              HAS_VSCODE=true
+            fi
           fi
-          if echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null 2>&1 \
-             || { [ -n "$COHORT" ] && echo "$COHORT" | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null 2>&1; }; then
-            HAS_VSCODE=true
+          # Fail loudly if a release was detected but the cohort is unusable, instead of
+          # letting announce.mjs fail later with an opaque JSON parse error.
+          if [ "$HAS_RELEASE" = "true" ] && ! echo "$PAYLOAD" | jq -e . > /dev/null 2>&1; then
+            echo "::error::has_release is true but the release cohort is empty or not valid JSON"
+            exit 1
           fi
           echo "has_vscode=$HAS_VSCODE" >> "$GITHUB_OUTPUT"
           echo "has_release=$HAS_RELEASE" >> "$GITHUB_OUTPUT"
