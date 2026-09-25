@@ -3,6 +3,7 @@ import { extname } from 'node:path';
 import MagicString from 'magic-string';
 import picomatch from 'picomatch';
 import type * as vite from 'vite';
+import { pathToDirectoryURL } from '../core/build/common.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import {
@@ -305,14 +306,12 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					// To prevent this, we mark the URL construction as pure,
 					// so that it's tree-shaken away for all platforms that don't need it.
 					export const outDir = /* #__PURE__ */ new URL(${JSON.stringify(
-						new URL(
-							settings.buildOutput === 'server'
-								? settings.config.build.client
-								: settings.config.outDir,
-						),
+						pathToDirectoryURL(resolvedConfig.environments.client.build.outDir),
 					)});
 					export const serverDir = /* #__PURE__ */ new URL(${JSON.stringify(
-						new URL(settings.config.build.server),
+						pathToDirectoryURL(
+							resolvedConfig.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr].build.outDir,
+						),
 					)});
 					${getImageExport}
 				`,

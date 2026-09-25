@@ -1,9 +1,12 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
-import type { StaticBuildOptions } from '../types.js';
+import type { StaticBuildOptionsInput } from '../types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
-export function pluginPrerender(_opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
+export function pluginPrerender(
+	_opts: StaticBuildOptionsInput,
+	internals: BuildInternals,
+): VitePlugin {
 	return {
 		name: 'astro:rolldown-plugin-prerender',
 

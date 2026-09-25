@@ -10,13 +10,16 @@ import {
 } from '../graph.js';
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../internal.js';
-import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
+import type { PageBuildData, StaticBuildOptionsInput, StylesheetAsset } from '../types.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
 import { shouldInlineAsset } from './util.js';
 
 /***** ASTRO PLUGIN *****/
 
-export function pluginCSS(options: StaticBuildOptions, internals: BuildInternals): VitePlugin[] {
+export function pluginCSS(
+	options: StaticBuildOptionsInput,
+	internals: BuildInternals,
+): VitePlugin[] {
 	return rollupPluginAstroBuildCSS({
 		buildOptions: options,
 		internals,
@@ -27,7 +30,7 @@ export function pluginCSS(options: StaticBuildOptions, internals: BuildInternals
 
 interface PluginOptions {
 	internals: BuildInternals;
-	buildOptions: StaticBuildOptions;
+	buildOptions: StaticBuildOptionsInput;
 }
 
 function isBuildCssBoundary(id: string, ctx: { getModuleInfo: Rolldown.GetModuleInfo }): boolean {
