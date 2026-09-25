@@ -1,5 +1,12 @@
 # @astrojs/svelte
 
+## 9.0.2-beta.0
+
+### Patch Changes
+
+- Updated dependencies [[`c68d737`](https://github.com/withastro/astro/commit/c68d737f2de8ef8d3c1c0ba455dccbf2563fa7da), [`c68d737`](https://github.com/withastro/astro/commit/c68d737f2de8ef8d3c1c0ba455dccbf2563fa7da)]:
+  - astro@7.4.0-beta.0
+
 ## 9.0.1
 
 ### Patch Changes

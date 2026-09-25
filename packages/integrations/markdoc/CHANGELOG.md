@@ -1,5 +1,12 @@
 # @astrojs/markdoc
 
+## 2.0.10-beta.0
+
+### Patch Changes
+
+- Updated dependencies [[`c68d737`](https://github.com/withastro/astro/commit/c68d737f2de8ef8d3c1c0ba455dccbf2563fa7da), [`c68d737`](https://github.com/withastro/astro/commit/c68d737f2de8ef8d3c1c0ba455dccbf2563fa7da)]:
+  - astro@7.4.0-beta.0
+
 ## 2.0.9
 
 ### Patch Changes
