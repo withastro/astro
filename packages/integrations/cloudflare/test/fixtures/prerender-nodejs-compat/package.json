@@ -2,8 +2,12 @@
   "name": "@test/astro-cloudflare-prerender-nodejs-compat",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@astrojs/cloudflare": "workspace:*",
     "astro": "workspace:*"
+  },
+  "devDependencies": {
+    "cf": "0.13.0"
   }
 }

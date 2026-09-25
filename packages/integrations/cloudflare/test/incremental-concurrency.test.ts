@@ -66,9 +66,9 @@ describe('experimental.incrementalBuild with build.concurrency > 1 (workerd)', (
 		);
 	});
 
-	it('preserves arbitrary non-2xx response bytes', () => {
+	it('preserves arbitrary non-2xx response bytes', async () => {
 		assert.deepEqual(
-			fs.readFileSync(new URL('dist/client/status/not-found.bin', root)),
+			await fixture.readFile('client/status/not-found.bin', null),
 			Buffer.from([0, 255, 128, 65]),
 		);
 	});

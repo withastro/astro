@@ -5,7 +5,10 @@ import { join } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import cloudflare from '../dist/index.js';
-import { cloudflareConfigCustomizer, DEFAULT_SESSION_KV_BINDING_NAME } from '../dist/wrangler.js';
+import {
+	cloudflareConfigCustomizer,
+	DEFAULT_SESSION_KV_BINDING_NAME,
+} from '../dist/cloudflare-config.js';
 
 let tempRoot: string;
 
@@ -81,23 +84,14 @@ describe('@astrojs/cloudflare session: false', () => {
 	});
 
 	describe('KV binding resource', () => {
-		const sessionBindings = (config: Record<string, any>) =>
-			[...(config.kv_namespaces ?? []), ...(config.previews?.kv_namespaces ?? [])].filter(
-				(kv) => kv.binding === DEFAULT_SESSION_KV_BINDING_NAME,
-			);
-
 		it('provisions no session KV namespace when the driver is not needed', () => {
 			const customize = cloudflareConfigCustomizer({ needsSessionKVBinding: false });
-			assert.deepEqual(sessionBindings(customize({})), []);
+			assert.equal(customize({}).env?.[DEFAULT_SESSION_KV_BINDING_NAME], undefined);
 		});
 
 		it('provisions the session KV namespace when the driver is needed', () => {
 			const customize = cloudflareConfigCustomizer({ needsSessionKVBinding: true });
-			assert.notEqual(
-				sessionBindings(customize({})).length,
-				0,
-				'expected the session KV binding to be provisioned',
-			);
+			assert.deepEqual(customize({}).env?.[DEFAULT_SESSION_KV_BINDING_NAME], { type: 'kv' });
 		});
 	});
 });

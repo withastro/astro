@@ -1,8 +1,6 @@
 import { describe, it } from 'node:test';
 import { type Fixture, loadFixture } from './test-utils.ts';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 
 describe('Server entry', () => {
 	let fixture: Fixture;
@@ -14,8 +12,6 @@ describe('Server entry', () => {
 
 		await fixture.build();
 
-		const itExits = existsSync(fileURLToPath(new URL('server/custom.mjs', fixture.config.outDir)));
-
-		assert.ok(itExits);
+		assert.ok(fixture.pathExists('server/custom.mjs'));
 	});
 });
