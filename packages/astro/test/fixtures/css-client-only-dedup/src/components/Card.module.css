@@ -1,0 +1,6 @@
+.card {
+  border: 3px solid rebeccapurple;
+  padding: 17px;
+  color: darkslateblue;
+  --card-css-marker: 123456;
+}

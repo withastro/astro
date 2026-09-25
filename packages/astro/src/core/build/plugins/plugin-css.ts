@@ -53,6 +53,10 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const pagesToCss: Record<string, Record<string, { order: number; depth: number }>> = {};
 	// Map of module Ids (usually something like `/Users/...blog.mdx?astroPropagatedAssets`) to its imported CSS
 	const moduleIdToPropagatedCss: Record<string, Set<string>> = {};
+	// CSS module IDs assigned to each page during SSR/prerender builds, keyed by page
+	// moduleSpecifier. Used by the client build to avoid adding duplicate CSS for
+	// client:only components whose styles are already on the page from SSR (#18123).
+	const ssrPageCssModules: Record<string, Set<string>> = {};
 
 	const cssBuildPlugin: VitePlugin = {
 		name: 'astro:rollup-plugin-build-css',
@@ -207,6 +211,10 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						// modules that have no CSS dependency.
 						if (!isCSSRequest(id)) continue;
 						for (const pageData of getParentClientOnlys(id, this, internals)) {
+							// Skip if this CSS module was already added to this page during
+							// SSR/prerender — the page's SSR stylesheet already contains these
+							// styles, so adding the client:only copy would duplicate them.
+							if (ssrPageCssModules[pageData.moduleSpecifier]?.has(id)) continue;
 							for (const importedCssImport of meta.importedCss) {
 								const cssToInfoRecord = (pagesToCss[pageData.moduleSpecifier] ??= {});
 								cssToInfoRecord[importedCssImport] = { depth: -1, order: -1 };
@@ -350,6 +358,9 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							const pageData = getPageDataByViteID(internals, pageViteID);
 							if (pageData) {
 								appendCSSToPage(pageData, meta, pagesToCss, depth, order, this.environment?.name);
+								if (this.environment?.name !== ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+									(ssrPageCssModules[pageData.moduleSpecifier] ??= new Set()).add(id);
+								}
 							}
 						} else if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 							// For scripts, walk parents until you find a page, and add the CSS to that page.

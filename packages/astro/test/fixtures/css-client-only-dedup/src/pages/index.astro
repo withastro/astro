@@ -1,0 +1,13 @@
+---
+import Card from '../components/Card.jsx';
+---
+<html lang="en">
+  <head><title>CSS client:only dedup</title></head>
+  <body>
+    <Card label="Static" />
+    <Card label="Client only" client:only="react" />
+  </body>
+</html>
+<style>
+  body { margin: 23px; }
+</style>

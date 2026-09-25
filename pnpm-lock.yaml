@@ -2948,6 +2948,21 @@ importers:
 
   packages/astro/test/fixtures/css-assets/packages/font-awesome: {}
 
+  packages/astro/test/fixtures/css-client-only-dedup:
+    dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      react:
+        specifier: ^19.0.0
+        version: 19.3.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.3.0(react@19.3.0)
+
   packages/astro/test/fixtures/css-dangling-references:
     dependencies:
       '@astrojs/svelte':
@@ -7207,6 +7222,24 @@ importers:
       tsx:
         specifier: ^4.22.0
         version: 4.23.13
+
+  triage/gh-18123:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../packages/integrations/node
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../packages/integrations/react
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
+      react:
+        specifier: ^19.0.0
+        version: 19.3.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.3.0(react@19.3.0)
 
 packages:
 
@@ -19653,7 +19686,7 @@ snapshots:
       decache: 4.6.2
       dettle: 1.0.5
       dot-prop: 9.0.0
-      empathic: 2.0.0
+      empathic: 2.1.0
       env-paths: 3.0.0
       parse-gitignore: 2.0.0
       semver: 7.8.5
