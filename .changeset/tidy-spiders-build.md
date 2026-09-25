@@ -2,4 +2,19 @@
 'astro': minor
 ---
 
-Astro now treats Vite's resolved `outDir` values as the source of truth for build output. Generated assets, build hook `dir` values, and SSR manifest paths use the resolved client, server, and prerender directories. Custom prerenderer factories also receive these directories through a new context argument.
+Allows integrations to control where Astro writes client, server, and prerender build output.
+
+Custom prerenderers can access the final output locations through the new `outputDirectories` context:
+
+```ts
+setPrerenderer((defaultPrerenderer, { outputDirectories }) => {
+  const { client, server, prerender } = outputDirectories
+
+  return createPrerenderer({
+    defaultPrerenderer,
+    client,
+    server,
+    prerender,
+  })
+})
+```
