@@ -40,21 +40,17 @@ export async function projectName(
 		});
 
 		ctx.cwd = name!.trim();
-		ctx.projectName = toValidName(name!);
 		if (ctx.dryRun) {
+			ctx.projectName = toValidName(name!);
 			await info('--dry-run', 'Skipping project naming');
 			return;
 		}
+	}
+
+	if (ctx.cwd.startsWith('@') && ctx.cwd.includes('/')) {
+		ctx.projectName = toValidName(ctx.cwd);
 	} else {
-		let name = ctx.cwd;
-		if (name === '.' || name === './') {
-			const parts = process.cwd().split(path.sep);
-			name = parts[parts.length - 1];
-		} else if (name.startsWith('./') || name.startsWith('../')) {
-			const parts = name.split('/');
-			name = parts[parts.length - 1];
-		}
-		ctx.projectName = toValidName(name);
+		ctx.projectName = toValidName(path.basename(path.resolve(ctx.cwd)));
 	}
 
 	if (!ctx.cwd) {
