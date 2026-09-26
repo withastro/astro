@@ -19,6 +19,7 @@ import {
 import { loadRenderer } from '../core/render/index.js';
 import { getDefaultRoutes } from '../core/routing/default.js';
 import { routeIsRedirect } from '../core/routing/helpers.js';
+import { createRewriteRouteValidator } from '../core/routing/rewrite-validate.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import { getRouteTable } from '../core/routing/route-table.js';
 import { isPage } from '../core/util.js';
@@ -252,7 +253,7 @@ export function createRunnableEnvironment({
 			payload: RewritePayload,
 			request: Request,
 		): Promise<TryRewriteResult> {
-			const { routeData, pathname, newUrl } = findRouteToRewrite({
+			const { routeData, pathname, newUrl } = await findRouteToRewrite({
 				payload,
 				request,
 				// The single fresh route table: HMR route updates are visible
@@ -262,6 +263,7 @@ export function createRunnableEnvironment({
 				buildFormat: manifest.buildFormat,
 				base: manifest.base,
 				outDir: manifest.outDir,
+				validate: createRewriteRouteValidator(manifest, getComponentByRoute),
 			});
 
 			const componentInstance = await getComponentByRoute(manifest, routeData);

@@ -21,8 +21,9 @@ export function loader(config:PostLoaderConfig): Loader {
 					return;
 			}
 
-			const posts = await fetch(config.url)
-				.then((res) => res.json());
+			const posts = await fetch(config.url, {
+				headers: { 'accept-encoding': 'identity' },
+			}).then((res) => res.json());
 
 			store.clear();
 

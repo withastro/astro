@@ -72,7 +72,7 @@ jobs:
           HAS_VSCODE=false
           COHORT=""
           if [ "${{ steps.changesets.outputs.published }}" = "true" ]; then
-            PAYLOAD='${{ steps.changesets.outputs["published-packages"] }}'
+            PAYLOAD='${{ steps.changesets.outputs.publishedPackages }}'
             HAS_RELEASE=true
           elif git log -1 --format=%s HEAD | grep -q '^\[ci\] release'; then
             # Nothing was published, so this is a re-run (or the same commit on another branch):
@@ -111,7 +111,7 @@ jobs:
           else
             PAYLOAD=""
           fi
-          if echo '${{ steps.changesets.outputs["published-packages"] }}' | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null 2>&1 \
+          if echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null 2>&1 \
              || { [ -n "$COHORT" ] && echo "$COHORT" | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null 2>&1; }; then
             HAS_VSCODE=true
           fi
