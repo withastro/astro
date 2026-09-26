@@ -755,3 +755,39 @@ describe('Actions routing options', () => {
 });
 
 // #endregion
+
+// #region Malformed request handling
+
+describe('Actions malformed request handling', () => {
+	const app = createActionsApp({
+		greet: defineAction({
+			accept: 'form',
+			input: z.object({ name: z.string() }),
+			handler: async ({ name }) => `Hello, ${name}!`,
+		}),
+	});
+
+	it('returns 400 for malformed JSON body', async () => {
+		const req = new Request('http://example.com/_actions/greet', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: 'a=b',
+		});
+		const res = await app.render(req);
+		assert.equal(res.status, 400);
+		const body = await res.json();
+		assert.equal(body.code, 'BAD_REQUEST');
+	});
+
+	it('returns 404 for undecodable action name', async () => {
+		const req = new Request('http://example.com/_actions/%25', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: '{}',
+		});
+		const res = await app.render(req);
+		assert.equal(res.status, 404);
+	});
+});
+
+// #endregion
