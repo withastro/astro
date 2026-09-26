@@ -4,9 +4,10 @@ import { defineConfig, fontProviders } from 'astro/config';
 export default defineConfig({
 	fonts: [
 		{
-			provider: fontProviders.google(),
+			provider: fontProviders.fontsource(),
 			name: 'Roboto',
-			cssVariable: '--font-test'
-		}
-	]
+			cssVariable: '--font-test',
+			weights: [700],
+		},
+	],
 });

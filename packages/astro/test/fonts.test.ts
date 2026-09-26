@@ -2,10 +2,16 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
-import { fontProviders } from 'astro/config';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.ts';
+import {
+	setupFontsourceFixtureServer,
+	teardownFontsourceFixtureServer,
+} from './fontsource-fixture-server.ts';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+
+before(setupFontsourceFixtureServer);
+after(teardownFontsourceFixtureServer);
 
 describe('astro fonts', () => {
 	let fixture: Fixture;
@@ -17,14 +23,6 @@ describe('astro fonts', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					root: './fixtures/fonts/',
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
 					outDir: './dist/fonts-shared/',
 					cacheDir: './node_modules/.astro-test/fonts-shared/',
 				});
@@ -128,14 +126,6 @@ describe('astro fonts', () => {
 						assets: '_custom',
 						assetsPrefix: 'https://cdn.example.com',
 					},
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
 					outDir: './dist/fonts-respects-config-to-build-links/',
 					cacheDir: './node_modules/.astro-test/fonts-respects-config-to-build-links/',
 				});
@@ -162,14 +152,6 @@ describe('astro fonts', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					root: './fixtures/fonts/',
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
 					outDir: './dist/fonts-shared/',
 					cacheDir: './node_modules/.astro-test/fonts-shared/',
 				});
@@ -236,14 +218,6 @@ describe('astro fonts', () => {
 						assets: '_custom',
 						assetsPrefix: 'https://cdn.example.com',
 					},
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
 					outDir: './dist/fonts-respects-config-to-build-links/',
 					cacheDir: './node_modules/.astro-test/fonts-respects-config-to-build-links/',
 				});
@@ -279,14 +253,6 @@ describe('astro fonts', () => {
 				root: './fixtures/fonts/',
 				output: 'server',
 				adapter: testAdapter(),
-				fonts: [
-					{
-						name: 'Poppins',
-						cssVariable: '--font-test',
-						provider: fontProviders.fontsource(),
-						weights: [400, 500],
-					},
-				],
 				outDir: './dist/fonts-ssr/',
 				cacheDir: './node_modules/.astro-test/fonts-ssr/',
 			});
