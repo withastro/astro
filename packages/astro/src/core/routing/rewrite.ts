@@ -18,6 +18,11 @@ import { validateAndDecodePathname } from '../util/pathname.js';
 import { DEFAULT_404_ROUTE } from './internal/astro-designed-error-pages.js';
 import { isRoute404, isRoute500 } from './internal/route-errors.js';
 
+/**
+ * Answers whether `route` produces `pathname`. See `createRewriteRouteValidator`.
+ */
+export type ValidateRouteForRewrite = (route: RouteData, pathname: string) => Promise<boolean>;
+
 type FindRouteToRewrite = {
 	payload: RewritePayload;
 	routes: RouteData[];
@@ -26,6 +31,7 @@ type FindRouteToRewrite = {
 	buildFormat: AstroConfig['build']['format'];
 	base: AstroConfig['base'];
 	outDir: URL | string;
+	validate: ValidateRouteForRewrite;
 };
 
 interface FindRouteToRewriteResult {
@@ -39,7 +45,7 @@ interface FindRouteToRewriteResult {
  * 1. The new `Request` object. It contains `base`
  * 2.
  */
-export function findRouteToRewrite({
+export async function findRouteToRewrite({
 	payload,
 	routes,
 	request,
@@ -47,7 +53,8 @@ export function findRouteToRewrite({
 	buildFormat,
 	base,
 	outDir,
-}: FindRouteToRewrite): FindRouteToRewriteResult {
+	validate,
+}: FindRouteToRewrite): Promise<FindRouteToRewriteResult> {
 	let newUrl: URL | undefined = undefined;
 	if (payload instanceof URL) {
 		newUrl = payload;
@@ -89,27 +96,38 @@ export function findRouteToRewrite({
 	}
 
 	let foundRoute;
+	// A candidate whose `getStaticPaths()` throws is skipped, and the error is
+	// surfaced only when no candidate owns the path. Same rules as `matchRoute`.
+	let firstValidationError: unknown = null;
 	for (const route of routes) {
 		if (route.pattern.test(decodedPathname)) {
 			// If it's a dynamic route, make sure it actually generates the pathname
 			// Checking for params to make sure it's a dynamic route
-			if (
-				route.params &&
-				route.params.length !== 0 &&
-				route.distURL &&
-				route.distURL.length !== 0
-			) {
-				// Remove outDir from beginning of distURL
-				// Remove /index.html or .html from end of distURL and compare with pathname
-				// Use pathname (encoded) instead of decodedPathname because url.href is encoded
-				if (
-					!route.distURL.find(
-						(url) =>
-							url.href.replace(outDir.toString(), '').replace(/(?:\/index\.html|\.html)$/, '') ===
-							trimSlashes(pathname),
-					)
-				) {
-					continue;
+			if (route.params && route.params.length !== 0) {
+				if (route.distURL && route.distURL.length !== 0) {
+					// Remove outDir from beginning of distURL
+					// Remove /index.html or .html from end of distURL and compare with pathname
+					// Use pathname (encoded) instead of decodedPathname because url.href is encoded
+					if (
+						!route.distURL.find(
+							(url) =>
+								url.href.replace(outDir.toString(), '').replace(/(?:\/index\.html|\.html)$/, '') ===
+								trimSlashes(pathname),
+						)
+					) {
+						continue;
+					}
+				} else {
+					// `distURL` is empty outside a build, so ask the route whether
+					// `getStaticPaths()` produces this pathname, as `matchRoute` does.
+					let ownsPathname: boolean;
+					try {
+						ownsPathname = await validate(route, decodedPathname);
+					} catch (error) {
+						firstValidationError ??= error;
+						continue;
+					}
+					if (!ownsPathname) continue;
 				}
 			}
 			foundRoute = route;
@@ -123,6 +141,8 @@ export function findRouteToRewrite({
 			newUrl,
 			pathname: decodedPathname,
 		};
+	} else if (firstValidationError) {
+		throw firstValidationError;
 	} else {
 		const custom404 = routes.find((route) => route.route === '/404');
 		if (custom404) {
