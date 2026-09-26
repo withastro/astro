@@ -5,7 +5,8 @@ const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
 
 // Matches static import declarations (single-line and multiline).
 // Used to hoist imports to module scope when wrapping frontmatter in a function.
-const IMPORT_STMT_RE = /^\s*import\b[\s\S]*?(?:from\s+['"][^'"]*['"]|['"][^'"]*['"]);?\s*$/gm;
+const IMPORT_STMT_RE =
+	/^\s*import\b(?!\s*[.(])[\s\S]*?(?:from\s+['"][^'"]*['"]|['"][^'"]*['"]);?\s*$/gm;
 
 /**
  * Wraps frontmatter code in an async function so that top-level `return`

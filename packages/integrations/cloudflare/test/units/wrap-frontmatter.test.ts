@@ -88,4 +88,35 @@ describe('wrapFrontmatter', () => {
 		const result = wrapFrontmatter(input);
 		assert.ok(result.startsWith('import type { Foo } from "pkg";'));
 	});
+
+	it('does not hoist import.meta at start of line with string literals (#18144)', () => {
+		const input = [
+			'import { something } from "astro";',
+			'const assetBase =',
+			'  import.meta.env.BASE_URL.replace(/\\/$/, "") + "/assets/dir";',
+			'const label = "repro";',
+		].join('\n');
+		const result = wrapFrontmatter(input);
+		const funcStart = result.indexOf('async function __astro__()');
+		const metaPos = result.indexOf('import.meta.env');
+		assert.ok(metaPos > funcStart, 'import.meta.env should be inside the function body');
+		assert.ok(
+			result.includes('const assetBase =\n  import.meta.env'),
+			'assignment and import.meta expression should stay together',
+		);
+	});
+
+	it('does not hoist dynamic import() expressions (#18144)', () => {
+		const input = [
+			'import { something } from "astro";',
+			'const mod = await',
+			'  import("./dynamic-module");',
+			'const label = "repro";',
+		].join('\n');
+		const result = wrapFrontmatter(input);
+		const funcStart = result.indexOf('async function __astro__()');
+		const importCallPos = result.indexOf('import("./dynamic-module")');
+		assert.ok(importCallPos > funcStart, 'dynamic import() should be inside the function body');
+		assert.ok(result.includes('const label = "repro"'), 'subsequent code should not be swallowed');
+	});
 });
