@@ -1,0 +1,23 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+	const posts = await getCollection('posts');
+	return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+<Layout title={post.data.title}>
+	<article class="py-12">
+		<a href="/" class="text-sm text-slate-400 hover:text-white">← All posts</a>
+		<h1 class="mt-4 text-4xl font-bold tracking-tight text-white">{post.data.title}</h1>
+		<div
+			class="mt-6 space-y-4 text-lg leading-relaxed text-slate-300 [&_a]:text-violet-300 [&_strong]:text-white"
+		>
+			<Content />
+		</div>
+	</article>
+</Layout>

@@ -1,8 +1,6 @@
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
-import type { CrawlFrameworkPkgsResult } from 'vitefu';
-import { crawlFrameworkPkgs } from 'vitefu';
 import { vitePluginActions } from '../actions/vite-plugin-actions.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
@@ -54,6 +52,9 @@ import { vitePluginSessionDriver, vitePluginSessionProvider } from './session/vi
 import { vitePluginLogger } from './logger/vite-plugin.js';
 import { isObject } from './util-runtime.js';
 import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
+import { getAstroPkgsConfig } from '../vite-plugin-environment/crawl.js';
+
+export { clearCrawlCache } from '../vite-plugin-environment/crawl.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
 import { vitePluginChromedevtools } from '../vite-plugin-chromedevtools/index.js';
 import { vitePluginDevStatus } from '../vite-plugin-dev-status/index.js';
@@ -62,44 +63,17 @@ import { vitePluginAstroServerClient } from '../vite-plugin-overlay/index.js';
 type CreateViteOptions = {
 	settings: AstroSettings;
 	logger: AstroLogger;
-	mode: string;
+	/** A getter is read lazily, for when the mode is only known once Vite resolves its config. */
+	mode: string | (() => string);
 	fs?: typeof nodeFs;
 	routesList: RoutesList;
 	sync: boolean;
-} & (
-	| {
-			command: 'dev';
-	  }
-	| {
-			command: 'build';
-	  }
-);
-
-// In-process cache for crawlFrameworkPkgs results. The crawl walks the entire
-// node_modules tree reading package.json files, which is expensive and produces
-// the same result for a given (root, isBuild) pair within a single process lifetime.
-const _crawlCache = new Map<string, CrawlFrameworkPkgsResult>();
-
-function cloneCrawlResult(result: CrawlFrameworkPkgsResult): CrawlFrameworkPkgsResult {
-	return {
-		optimizeDeps: {
-			include: [...result.optimizeDeps.include],
-			exclude: [...result.optimizeDeps.exclude],
-		},
-		ssr: {
-			noExternal: [...result.ssr.noExternal],
-			external: [...result.ssr.external],
-		},
-	};
-}
-
-/**
- * Clear the crawlFrameworkPkgs cache. Call this when node_modules may have
- * changed (e.g. after a dev server restart triggered by config/lockfile change).
- */
-export function clearCrawlCache(): void {
-	_crawlCache.clear();
-}
+	/**
+	 * When omitted (`astro/vite`), plugins read the command from Vite and the returned
+	 * config works for both `serve` and `build`.
+	 */
+	command?: 'dev' | 'build';
+};
 
 /** Return a base vite config as a common starting point for all Vite commands. */
 export async function createVite(
@@ -108,49 +82,13 @@ export async function createVite(
 ): Promise<vite.InlineConfig> {
 	const root = fileURLToPath(settings.config.root);
 	const isBuild = command === 'build';
-	const crawlCacheKey = `${root}:${isBuild}`;
 
-	let astroPkgsConfig = _crawlCache.get(crawlCacheKey);
-	if (!astroPkgsConfig) {
-		astroPkgsConfig = await crawlFrameworkPkgs({
-			root,
-			isBuild,
-			viteUserConfig: settings.config.vite,
-			isFrameworkPkgByJson(pkgJson) {
-				// Certain packages will trigger the checks below, but need to be external. A common example are SSR adapters
-				// for node-based platforms, as we need to control the order of the import paths to make sure polyfills are applied in time.
-				if (pkgJson?.astro?.external === true) {
-					return false;
-				}
-
-				return (
-					// Attempt: package relies on `astro`. ✅ Definitely an Astro package
-					pkgJson.peerDependencies?.astro ||
-					pkgJson.dependencies?.astro ||
-					// Attempt: package is tagged with `astro` or `astro-component`. ✅ Likely a community package
-					pkgJson.keywords?.includes('astro') ||
-					pkgJson.keywords?.includes('astro-component') ||
-					// Attempt: package is named `astro-something` or `@scope/astro-something`. ✅ Likely a community package
-					/^(?:@[^/]+\/)?astro-/.test(pkgJson.name)
-				);
-			},
-			isFrameworkPkgByName(pkgName) {
-				const isNotAstroPkg = isCommonNotAstro(pkgName);
-				if (isNotAstroPkg) {
-					return false;
-				} else {
-					return undefined;
-				}
-			},
-		});
-		_crawlCache.set(crawlCacheKey, astroPkgsConfig);
-	}
-
-	// Return a clone so consumers can't mutate the cached result
-	astroPkgsConfig = cloneCrawlResult(astroPkgsConfig);
+	const astroPkgsConfig = command
+		? await getAstroPkgsConfig({ root, isBuild, viteUserConfig: settings.config.vite })
+		: undefined;
 
 	const envLoader = createEnvLoader({
-		mode,
+		mode: typeof mode === 'function' ? mode : () => mode,
 		config: settings.config,
 	});
 	const serverIslandsState = new ServerIslandsState();
@@ -167,7 +105,7 @@ export async function createVite(
 	const commonConfig: vite.InlineConfig = {
 		// Tell Vite not to combine config from vite.config.js with our provided inline config
 		configFile: false,
-		mode,
+		mode: typeof mode === 'string' ? mode : undefined,
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', settings.config.root)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
 		customLogger: createViteLogger(logger, settings.config.vite.logLevel),
@@ -191,7 +129,7 @@ export async function createVite(
 				settings,
 				routesList,
 				serverIslandsState,
-				command: command === 'dev' ? 'serve' : 'build',
+				command: command && (command === 'dev' ? 'serve' : 'build'),
 			}),
 			vitePluginStaticPaths(),
 			await astroPluginRoutes({ routesList, settings, logger, fsMod: fs, command }),
@@ -207,8 +145,8 @@ export async function createVite(
 			// the build to run very slow as the filewatcher is triggered often.
 			vitePluginApp(),
 			vitePluginFetchable({ settings }),
-			command === 'dev' && vitePluginAstroServer({ settings, logger }),
-			command === 'dev' && vitePluginAstroServerClient(),
+			command !== 'build' && vitePluginAstroServer({ settings, logger }),
+			command !== 'build' && vitePluginAstroServerClient(),
 			astroDevCssPlugin({ routesList, command, cssContentCache }),
 			importMetaEnv({ envLoader }),
 			astroEnv({ settings, sync, envLoader }),
@@ -237,7 +175,7 @@ export async function createVite(
 			astroContainer(),
 			astroHmrReloadPlugin(),
 			vitePluginChromedevtools({ settings }),
-			command === 'dev' && vitePluginDevStatus(),
+			command !== 'build' && vitePluginDevStatus(),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
@@ -329,8 +267,8 @@ export async function createVite(
 		let { plugins, ...rest } = settings.config.vite;
 		const applyToFilter = command === 'build' ? 'serve' : 'build';
 		const applyArgs = [
-			{ ...settings.config.vite, mode },
-			{ command: command === 'dev' ? 'serve' : command, mode },
+			{ ...settings.config.vite, mode: mode as string },
+			{ command: command === 'dev' ? 'serve' : command, mode: mode as string },
 		];
 		// @ts-expect-error ignore TS2589: Type instantiation is excessively deep and possibly infinite.
 		plugins = plugins.flat(Number.POSITIVE_INFINITY).filter((p) => {
@@ -351,61 +289,6 @@ export async function createVite(
 	result = vite.mergeConfig(result, commandConfig);
 
 	return result;
-}
-
-const COMMON_DEPENDENCIES_NOT_ASTRO = [
-	'autoprefixer',
-	'react',
-	'react-dom',
-	'preact',
-	'preact-render-to-string',
-	'vue',
-	'svelte',
-	'solid-js',
-	'lit',
-	'cookie',
-	'dotenv',
-	'esbuild',
-	'eslint',
-	'jest',
-	'postcss',
-	'prettier',
-	'astro',
-	'tslib',
-	'typescript',
-	'vite',
-];
-
-const COMMON_PREFIXES_NOT_ASTRO = [
-	'@webcomponents/',
-	'@fontsource/',
-	'@postcss-plugins/',
-	'@rolldown/',
-	'@rollup/',
-	'@astrojs/renderer-',
-	'@types/',
-	'@typescript-eslint/',
-	'eslint-',
-	'jest-',
-	'postcss-plugin-',
-	'prettier-plugin-',
-	'remark-',
-	'rehype-',
-	'rolldown-plugin-',
-	'rollup-plugin-',
-	'vite-plugin-',
-];
-
-function isCommonNotAstro(dep: string): boolean {
-	return (
-		COMMON_DEPENDENCIES_NOT_ASTRO.includes(dep) ||
-		COMMON_PREFIXES_NOT_ASTRO.some(
-			(prefix) =>
-				prefix.startsWith('@')
-					? dep.startsWith(prefix)
-					: dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix), // check prefix omitting @scope/
-		)
-	);
 }
 
 function stringifyForDefine(value: string | undefined | object): string {

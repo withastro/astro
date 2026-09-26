@@ -21,7 +21,8 @@ import {
 
 interface AstroVitePluginOptions {
 	routesList: RoutesList;
-	command: 'dev' | 'build';
+	/** Defaults to Vite's command. */
+	command?: 'dev' | 'build';
 	/** Shared cache of CSS content by module ID. Populated by the transform hook and
 	 *  consumed by the content asset propagation plugin to avoid re-processing CSS
 	 *  modules with `?inline` (which can produce different scoped-name hashes with
@@ -146,10 +147,11 @@ function* collectCSSWithOrder(
  */
 export function astroDevCssPlugin({
 	routesList,
-	command,
+	command: fixedCommand,
 	cssContentCache,
 }: AstroVitePluginOptions): Plugin[] {
 	let server: vite.ViteDevServer | undefined;
+	let command = fixedCommand;
 
 	function getCurrentEnvironment(pluginEnv?: DevEnvironment): DevEnvironment | undefined {
 		return (
@@ -161,6 +163,10 @@ export function astroDevCssPlugin({
 	return [
 		{
 			name: MODULE_DEV_CSS,
+
+			config(_, env) {
+				command = fixedCommand ?? (env.command === 'serve' ? 'dev' : 'build');
+			},
 
 			async configureServer(viteServer) {
 				server = viteServer;

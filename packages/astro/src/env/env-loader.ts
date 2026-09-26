@@ -69,12 +69,12 @@ function getPrivateEnv({
 }
 
 interface EnvLoaderOptions {
-	mode: string;
+	mode: () => string;
 	config: AstroConfig;
 }
 
 function getEnv({ mode, config }: EnvLoaderOptions) {
-	const loaded = loadEnv(mode, config.vite.envDir ?? fileURLToPath(config.root), '');
+	const loaded = loadEnv(mode(), config.vite.envDir ?? fileURLToPath(config.root), '');
 	const privateEnv = getPrivateEnv({
 		fullEnv: loaded,
 		viteConfig: config.vite,
@@ -85,15 +85,17 @@ function getEnv({ mode, config }: EnvLoaderOptions) {
 }
 
 export const createEnvLoader = (options: EnvLoaderOptions) => {
-	let { loaded, privateEnv } = getEnv(options);
+	// Loaded on first use, since `mode` may not be known when the loader is created.
+	let privateEnv: Record<string, string> | undefined;
 	return {
 		get: () => {
 			// We refresh the env we have in case process.env has been updated since creating
 			// the env loader. That can happen in eg. integrations
+			let loaded: Record<string, string>;
 			({ loaded, privateEnv } = getEnv(options));
 			return loaded;
 		},
-		getPrivateEnv: () => privateEnv,
+		getPrivateEnv: () => (privateEnv ??= getEnv(options).privateEnv),
 	};
 };
 

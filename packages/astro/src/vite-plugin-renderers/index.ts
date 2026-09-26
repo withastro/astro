@@ -11,11 +11,13 @@ interface PluginOptions {
 	settings: AstroSettings;
 	routesList: RoutesList;
 	serverIslandsState: ServerIslandsState;
-	command: ConfigEnv['command'];
+	/** Defaults to Vite's command. */
+	command?: ConfigEnv['command'];
 }
 
 export default function vitePluginRenderers(options: PluginOptions): VitePlugin {
 	const renderers = options.settings.renderers;
+	let command = options.command;
 
 	return {
 		name: 'astro:plugin-renderers',
@@ -24,6 +26,10 @@ export default function vitePluginRenderers(options: PluginOptions): VitePlugin 
 		// registered renderers from the plugin chain to pre-bundle their server
 		// entrypoints (see https://github.com/withastro/astro/issues/17921).
 		renderers,
+
+		config(_, env) {
+			command = options.command ?? env.command;
+		},
 
 		resolveId: {
 			filter: {
@@ -40,7 +46,7 @@ export default function vitePluginRenderers(options: PluginOptions): VitePlugin 
 			},
 			handler() {
 				if (
-					options.command === 'build' &&
+					command === 'build' &&
 					this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr &&
 					renderers.length > 0 &&
 					!options.serverIslandsState.hasIslands() &&
