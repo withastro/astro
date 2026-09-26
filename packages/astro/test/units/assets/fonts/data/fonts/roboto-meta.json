@@ -1,0 +1,25 @@
+[
+  {
+    "id": "roboto",
+    "family": "Roboto",
+    "subsets": [
+      "cyrillic",
+      "cyrillic-ext",
+      "greek",
+      "greek-ext",
+      "latin",
+      "latin-ext",
+      "math",
+      "symbols",
+      "vietnamese"
+    ],
+    "weights": [100, 200, 300, 400, 500, 600, 700, 800, 900],
+    "styles": ["italic", "normal"],
+    "defSubset": "latin",
+    "variable": true,
+    "lastModified": "2026-02-19",
+    "category": "sans-serif",
+    "license": "OFL-1.1",
+    "type": "google"
+  }
+]
