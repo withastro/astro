@@ -17,7 +17,11 @@ describe('prerenderer server URL construction', () => {
 	});
 
 	it('leaves IPv4 literals bare', () => {
-		const url = buildServerUrl({ address: '127.0.0.1', family: 'IPv4', port: 12345 } as AddressInfo);
+		const url = buildServerUrl({
+			address: '127.0.0.1',
+			family: 'IPv4',
+			port: 12345,
+		} as AddressInfo);
 		assert.equal(url, 'http://127.0.0.1:12345');
 	});
 
