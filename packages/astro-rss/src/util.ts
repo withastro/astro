@@ -6,8 +6,13 @@ export function createCanonicalURL(
 	trailingSlash?: RSSOptions['trailingSlash'],
 	base?: string,
 ): string {
-	let pathname = url.replace(/\/index.html$/, ''); // index.html is not canonical
-	if (!getUrlExtension(url)) {
+	// Only the path is normalized: a slash appended after a query string or hash would change its value
+	const suffixIndex = url.search(/[?#]/);
+	const suffix = suffixIndex === -1 ? '' : url.slice(suffixIndex);
+	let pathname = suffixIndex === -1 ? url : url.slice(0, suffixIndex);
+
+	pathname = pathname.replace(/\/index.html$/, ''); // index.html is not canonical
+	if (!getUrlExtension(pathname)) {
 		// add trailing slash if there’s no extension or `trailingSlash` is true
 		pathname = pathname.replace(/\/*$/, '/');
 	}
@@ -17,9 +22,9 @@ export function createCanonicalURL(
 	const canonicalUrl = new URL(pathname, base).href;
 	if (trailingSlash === false) {
 		// remove the trailing slash
-		return canonicalUrl.replace(/\/*$/, '');
+		return canonicalUrl.replace(/\/*$/, '') + suffix;
 	}
-	return canonicalUrl;
+	return canonicalUrl + suffix;
 }
 
 /** Check if a URL is already valid */
