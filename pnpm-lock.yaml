@@ -3119,6 +3119,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/dev-css-manifest-leak-basic:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/dev-render:
     dependencies:
       astro:
