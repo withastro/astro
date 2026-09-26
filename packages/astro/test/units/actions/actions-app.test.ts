@@ -168,6 +168,73 @@ describe('Actions via App', () => {
 		assert.equal(calls, 0);
 	});
 
+	it('returns 404 for an action name with a malformed escape (RPC)', async () => {
+		// `%25` decodes to a lone `%`, which `decodeURIComponent` rejects.
+		const req = new Request('http://example.com/_actions/%25', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({}),
+		});
+		const res = await app.render(req);
+		assert.equal(res.status, 404);
+	});
+
+	it('returns 404 for an action name with a malformed escape (form action)', async () => {
+		const req = new Request('http://example.com/test?_action=%25', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({}),
+		});
+		const res = await app.render(req);
+		assert.equal(res.status, 404);
+	});
+
+	it('returns 404 for an action name that points to a group of actions', async () => {
+		const groupApp = createActionsApp({
+			user: {
+				getName: defineAction({ handler: async () => 'Houston' }),
+			},
+		} as any);
+
+		const req = new Request('http://example.com/_actions/user', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({}),
+		});
+		const res = await groupApp.render(req);
+		assert.equal(res.status, 404);
+	});
+
+	it('returns 400 for a malformed JSON body (streamed)', async () => {
+		const req = new Request('http://example.com/_actions/subscribe', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: 'not json',
+		});
+		const res = await app.render(req);
+		assert.equal(res.status, 400);
+	});
+
+	it('returns 400 for a malformed JSON body (with Content-Length)', async () => {
+		const req = new Request('http://example.com/_actions/subscribe', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json', 'Content-Length': '8' },
+			body: 'not json',
+		});
+		const res = await app.render(req);
+		assert.equal(res.status, 400);
+	});
+
+	it('returns 400 for a malformed JSON body (form action)', async () => {
+		const req = new Request('http://example.com/test?_action=subscribe', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: 'not json',
+		});
+		const res = await app.render(req);
+		assert.equal(res.status, 400);
+	});
+
 	it('returns 404 for GET requests', async () => {
 		const req = new Request('http://example.com/_actions/subscribe', {
 			method: 'GET',

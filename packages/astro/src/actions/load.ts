@@ -29,7 +29,17 @@ export async function getAction(
 	manifest: SSRManifest,
 	path: string,
 ): Promise<ActionClient<unknown, ActionAccept, $ZodType>> {
-	const pathKeys = path.split('.').map((key) => decodeURIComponent(key));
+	const pathKeys = path.split('.').map((key) => {
+		try {
+			return decodeURIComponent(key);
+		} catch {
+			// A malformed escape (e.g. a lone `%`) can't name an action.
+			throw new AstroError({
+				...ActionNotFoundError,
+				message: ActionNotFoundError.message(path),
+			});
+		}
+	});
 	let { server } = await getActions(manifest);
 
 	if (!server || !(typeof server === 'object')) {
@@ -61,6 +71,13 @@ export async function getAction(
 		}
 		// @ts-expect-error we are doing a recursion... it's ugly
 		server = server[key];
+	}
+	// A path that stops at a group of actions names no action.
+	if (typeof server === 'object' && server !== null) {
+		throw new AstroError({
+			...ActionNotFoundError,
+			message: ActionNotFoundError.message(pathKeys.join('.')),
+		});
 	}
 	if (typeof server !== 'function') {
 		throw new TypeError(
