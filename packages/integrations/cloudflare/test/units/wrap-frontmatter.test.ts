@@ -119,4 +119,32 @@ describe('wrapFrontmatter', () => {
 		assert.ok(importCallPos > funcStart, 'dynamic import() should be inside the function body');
 		assert.ok(result.includes('const label = "repro"'), 'subsequent code should not be swallowed');
 	});
+
+	it('does not hoist import.meta expressions separated by comments (#18144)', () => {
+		for (const expression of [
+			'import /* comment */.meta.url.replace("file:", "");',
+			'import // comment\n  .meta.url.replace("file:", "");',
+		]) {
+			const input = ['const url =', `  ${expression}`, 'const label = "repro";'].join('\n');
+			const result = wrapFrontmatter(input);
+			assert.ok(
+				result.includes(`const url =\n  ${expression}`),
+				'import.meta expression should stay with its assignment',
+			);
+		}
+	});
+
+	it('does not hoist dynamic import() expressions separated by comments (#18144)', () => {
+		for (const expression of [
+			'import /* comment */ ("./dynamic-module");',
+			'import // comment\n  ("./dynamic-module");',
+		]) {
+			const input = ['const mod = await', `  ${expression}`, 'const label = "repro";'].join('\n');
+			const result = wrapFrontmatter(input);
+			assert.ok(
+				result.includes(`const mod = await\n  ${expression}`),
+				'dynamic import() expression should stay with its assignment',
+			);
+		}
+	});
 });

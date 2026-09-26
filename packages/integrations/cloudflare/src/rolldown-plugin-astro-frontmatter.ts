@@ -5,8 +5,31 @@ const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
 
 // Matches static import declarations (single-line and multiline).
 // Used to hoist imports to module scope when wrapping frontmatter in a function.
-const IMPORT_STMT_RE =
-	/^\s*import\b(?!\s*[.(])[\s\S]*?(?:from\s+['"][^'"]*['"]|['"][^'"]*['"]);?\s*$/gm;
+const IMPORT_STMT_RE = /^\s*import\b[\s\S]*?(?:from\s+['"][^'"]*['"]|['"][^'"]*['"]);?\s*$/gm;
+
+function isImportExpression(code: string): boolean {
+	let index = code.indexOf('import') + 'import'.length;
+	while (index < code.length) {
+		if (/\s/.test(code[index])) {
+			index++;
+			continue;
+		}
+		if (code.startsWith('/*', index)) {
+			const commentEnd = code.indexOf('*/', index + 2);
+			if (commentEnd === -1) return true;
+			index = commentEnd + 2;
+			continue;
+		}
+		if (code.startsWith('//', index)) {
+			const lineBreak = code.slice(index + 2).search(/[\r\n]/);
+			if (lineBreak === -1) return true;
+			index += lineBreak + 3;
+			continue;
+		}
+		return code[index] === '.' || code[index] === '(';
+	}
+	return true;
+}
 
 /**
  * Wraps frontmatter code in an async function so that top-level `return`
@@ -17,6 +40,7 @@ const IMPORT_STMT_RE =
 export function wrapFrontmatter(code: string): string {
 	const imports: string[] = [];
 	const body = code.replace(IMPORT_STMT_RE, (match) => {
+		if (isImportExpression(match)) return match;
 		imports.push(match.trim());
 		return '';
 	});
