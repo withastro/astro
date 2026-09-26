@@ -22,7 +22,8 @@
     "./markdown": "./dist/markdown.js",
     "./mdx": "./dist/mdx.js",
     "./frontmatter": "./dist/frontmatter.js",
-    "./shiki": "./dist/shiki.js"
+    "./shiki": "./dist/shiki.js",
+    "./timings": "./dist/timings.js"
   },
   "imports": {
     "#shiki-engine": {

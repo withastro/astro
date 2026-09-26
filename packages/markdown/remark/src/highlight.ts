@@ -1,4 +1,5 @@
 import { defaultExcludeLanguages } from '@astrojs/internal-helpers/markdown';
+import { timeAsync } from '@astrojs/internal-helpers/timings';
 import type { Element, Parent, Root } from 'hast';
 import { fromHtml } from 'hast-util-from-html';
 import { toText } from 'hast-util-to-text';
@@ -82,7 +83,12 @@ export async function highlightCodeBlocks(
 	for (const { node, language, grandParent, parent } of nodes) {
 		const meta = (node.data as any)?.meta ?? node.properties.metastring ?? undefined;
 		const code = toText(node, { whitespace: 'pre' });
-		const result = await highlighter(code, language, { meta });
+		const result = await timeAsync(
+			'highlight',
+			language,
+			() => highlighter(code, language, { meta }),
+			{ chars: code.length },
+		);
 
 		let replacement: Element;
 		if (typeof result === 'string') {
