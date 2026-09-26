@@ -80,7 +80,12 @@ export function vitePluginEnvironment({
 
 				if (_options.optimizeDeps?.noDiscovery === false) {
 					finalEnvironmentOptions.optimizeDeps = {
-						entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro,mdx}`],
+						// Server modules must be scanned before a request starts because late dependency
+						// optimization reloads workerd modules during the request.
+						// https://github.com/withastro/astro/issues/18130
+						entries: [`${srcDirPattern}**/*.{ts,js,mjs,mts,jsx,tsx,vue,svelte,html,astro,mdx}`],
+						// Vite does not classify .mts files as scannable unless the extension is explicit.
+						extensions: ['.mts'],
 						include: [],
 						exclude: ['node-fetch'],
 					};
