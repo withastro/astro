@@ -1,54 +1,71 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type * as vite from 'vite';
+import { optimizeDeps, resolveConfig, type Plugin } from 'vite';
 import { vitePluginEnvironment } from '../../../dist/vite-plugin-environment/index.js';
-import { createBasicSettings } from '../test-utils.ts';
+import { createBasicSettings, createFixture } from '../test-utils.ts';
 
-function getConfigEnvironmentHook(plugin: vite.Plugin) {
+function getConfigEnvironmentHook(plugin: Plugin) {
 	const hook = plugin.configEnvironment;
 	return typeof hook === 'function' ? hook : hook?.handler;
 }
 
+const serverModuleExtensions = ['ts', 'js', 'mjs', 'mts'];
+const dependencyNames = serverModuleExtensions.map((extension) => `scan-${extension}`);
+
 describe('vite-plugin-environment server entries', () => {
-	it('includes .ts and .js files in server optimizeDeps.entries when noDiscovery is false', async () => {
-		const settings = await createBasicSettings();
-		const plugin = vitePluginEnvironment({
-			command: 'dev',
-			settings,
-			astroPkgsConfig: {
-				optimizeDeps: { include: [], exclude: [] },
-				ssr: { noExternal: [], external: [] },
-			},
+	it('discovers dependencies imported from supported server module extensions', async () => {
+		const fixture = await createFixture({
+			src: Object.fromEntries(
+				serverModuleExtensions.map((extension) => [
+					`entry.${extension}`,
+					`import 'scan-${extension}';`,
+				]),
+			),
+			node_modules: Object.fromEntries(
+				dependencyNames.map((name) => [
+					name,
+					{
+						'package.json': JSON.stringify({ name, version: '1.0.0', exports: './index.js' }),
+						'index.js': 'export default true;',
+					},
+				]),
+			),
 		});
 
-		const configEnvironment = getConfigEnvironmentHook(plugin);
-		assert.ok(configEnvironment, 'configEnvironment hook should exist');
+		try {
+			const settings = await createBasicSettings({ root: fixture.path });
+			const plugin = vitePluginEnvironment({
+				command: 'dev',
+				settings,
+				astroPkgsConfig: {
+					optimizeDeps: { include: [], exclude: [] },
+					ssr: { noExternal: [], external: [] },
+				},
+			});
 
-		// Simulate the Cloudflare adapter setting noDiscovery: false
-		const options = {
-			optimizeDeps: { noDiscovery: false },
-		} as vite.EnvironmentOptions;
+			const configEnvironment = getConfigEnvironmentHook(plugin);
+			assert.ok(configEnvironment, 'configEnvironment hook should exist');
 
-		const result = await configEnvironment!.call({} as any, 'ssr', options, {} as any);
+			const result = await configEnvironment.call(
+				{} as never,
+				'ssr',
+				{ optimizeDeps: { noDiscovery: false } },
+				{} as never,
+			);
+			const config = await resolveConfig(
+				{
+					root: fixture.path,
+					logLevel: 'silent',
+					optimizeDeps: { ...result?.optimizeDeps, force: true },
+				},
+				'serve',
+			);
+			const metadata = await optimizeDeps(config, true);
 
-		const entries = (result as vite.EnvironmentOptions)?.optimizeDeps?.entries;
-		assert.ok(
-			entries,
-			'server environment should have optimizeDeps.entries when noDiscovery is false',
-		);
-		assert.ok(Array.isArray(entries), 'entries should be an array');
-
-		const entryPattern = entries[0];
-		assert.match(
-			entryPattern,
-			/\{[^}]*\bts\b[^}]*\}/,
-			`server entries glob should include "ts" in its extension list, got: ${entryPattern}`,
-		);
-		assert.match(
-			entryPattern,
-			/\{[^}]*\bjs\b[^}]*\}/,
-			`server entries glob should include "js" in its extension list, got: ${entryPattern}`,
-		);
+			assert.deepEqual(Object.keys(metadata.optimized).sort(), dependencyNames.sort());
+		} finally {
+			await fixture.rm();
+		}
 	});
 
 	it('does not set entries when noDiscovery is not false', async () => {
@@ -65,9 +82,9 @@ describe('vite-plugin-environment server entries', () => {
 		const configEnvironment = getConfigEnvironmentHook(plugin);
 		assert.ok(configEnvironment, 'configEnvironment hook should exist');
 
-		const result = await configEnvironment!.call({} as any, 'ssr', {} as any, {} as any);
+		const result = await configEnvironment.call({} as never, 'ssr', {}, {} as never);
 
-		const entries = (result as vite.EnvironmentOptions)?.optimizeDeps?.entries;
+		const entries = result?.optimizeDeps?.entries;
 		assert.equal(
 			entries,
 			undefined,

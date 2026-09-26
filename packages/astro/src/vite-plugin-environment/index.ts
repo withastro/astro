@@ -80,11 +80,12 @@ export function vitePluginEnvironment({
 
 				if (_options.optimizeDeps?.noDiscovery === false) {
 					finalEnvironmentOptions.optimizeDeps = {
-						// Server-side code lives in .ts/.js files (actions, middleware,
-						// utilities) as well as component formats. Include them so the
-						// dep scanner discovers npm imports up front and avoids a
-						// mid-request re-optimization that would reload workerd modules.
-						entries: [`${srcDirPattern}**/*.{ts,js,jsx,tsx,vue,svelte,html,astro,mdx}`],
+						// Server modules must be scanned before a request starts because late dependency
+						// optimization reloads workerd modules during the request.
+						// https://github.com/withastro/astro/issues/18130
+						entries: [`${srcDirPattern}**/*.{ts,js,mjs,mts,jsx,tsx,vue,svelte,html,astro,mdx}`],
+						// Vite does not classify .mts files as scannable unless the extension is explicit.
+						extensions: ['.mts'],
 						include: [],
 						exclude: ['node-fetch'],
 					};
