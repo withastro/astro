@@ -3,9 +3,6 @@ import { describe, it } from 'node:test';
 import { handleHotUpdate, isStyleOnlyChanged } from '../../../dist/vite-plugin-astro/hmr.js';
 import { defaultLogger } from '../test-utils.ts';
 
-/**
- * Creates minimal mock objects for handleHotUpdate tests.
- */
 function createHmrTestContext({
 	file,
 	newCode,
@@ -21,13 +18,7 @@ function createHmrTestContext({
 		modules,
 	};
 
-	const compiledCodes: string[] = [];
-	const compile = async (code: string, _filename: string) => {
-		compiledCodes.push(code);
-		return {};
-	};
-
-	return { ctx, compile, compiledCodes };
+	return ctx;
 }
 
 describe('handleHotUpdate', () => {
@@ -43,11 +34,11 @@ describe('handleHotUpdate', () => {
 			scripts: [],
 		});
 
-		const { ctx, compile } = createHmrTestContext({ file, newCode });
+		const ctx = createHmrTestContext({ file, newCode });
 
 		const result = await handleHotUpdate(ctx as any, {
 			logger: defaultLogger,
-			compile: compile as any,
+			compile: async () => ({}) as any,
 			astroFileToCompileMetadata,
 		});
 
@@ -70,11 +61,15 @@ describe('handleHotUpdate', () => {
 		});
 
 		const styleModule = { id: file + '?astro&type=style&index=0&lang.css' };
-		const { ctx, compile, compiledCodes } = createHmrTestContext({
-			file,
-			newCode,
-			modules: [styleModule],
-		});
+		const ctx = createHmrTestContext({ file, newCode, modules: [styleModule] });
+		const compile = async (code: string, filename: string) => {
+			astroFileToCompileMetadata.set(filename, {
+				originalCode: code,
+				css: [{ code: '.t { --gen: 1; }' }],
+				scripts: [],
+			});
+			return {};
+		};
 
 		const result = await handleHotUpdate(ctx as any, {
 			logger: defaultLogger,
@@ -86,9 +81,11 @@ describe('handleHotUpdate', () => {
 		assert.ok(Array.isArray(result));
 		assert.equal(result.length, 1);
 		assert.equal(result[0], styleModule);
-		// Eagerly recompiled with the new code
-		assert.equal(compiledCodes.length, 1);
-		assert.equal(compiledCodes[0], newCode);
+		assert.deepEqual(astroFileToCompileMetadata.get(file), {
+			originalCode: newCode,
+			css: [{ code: '.t { --gen: 1; }' }],
+			scripts: [],
+		});
 	});
 
 	it('deletes compile metadata when only frontmatter changes', async () => {
@@ -103,11 +100,11 @@ describe('handleHotUpdate', () => {
 			scripts: [],
 		});
 
-		const { ctx, compile } = createHmrTestContext({ file, newCode });
+		const ctx = createHmrTestContext({ file, newCode });
 
 		await handleHotUpdate(ctx as any, {
 			logger: defaultLogger,
-			compile: compile as any,
+			compile: async () => ({}) as any,
 			astroFileToCompileMetadata,
 		});
 
