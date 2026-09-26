@@ -1,16 +1,14 @@
 import { isRunnableDevEnvironment, type EnvironmentModuleNode, type Plugin } from 'vite';
+import { getAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
 import { RESOLVED_MODULE_DEV_CSS_PREFIX } from '../vite-plugin-css/const.js';
 import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css/util.js';
 import { isAstroServerEnvironment } from '../environments.js';
+import { cleanUrl } from '../vite-plugin-utils/index.js';
 
 const STYLE_EXT_REGEX = /\.(?:css|less|sass|scss|styl|stylus|pcss|postcss|sss)$/i;
 const STYLE_COMPONENT_EXT_REGEX = /\.(astro|svelte|vue)$/i;
 const RAW_QUERY_REGEX = /(?:\?|&)raw(?:&|$)/;
-// CSS Modules (*.module.css, *.module.scss, etc.) export JS class-name mappings
-// whose hashes change with file content. Unlike regular CSS where client-side HMR
-// can update the stylesheet in place, CSS Module changes also invalidate the JS
-// bindings baked into server-rendered HTML, requiring a full page reload.
 const CSS_MODULES_RE = /\.module\.(?:css|less|sass|scss|styl|stylus|pcss|postcss|sss)$/i;
 
 function hasStyleExtension(id: string): boolean {
@@ -21,6 +19,45 @@ function hasStyleExtension(id: string): boolean {
 function isCSSModuleFile(mod: EnvironmentModuleNode): boolean {
 	if (mod.file && CSS_MODULES_RE.test(mod.file)) return true;
 	return mod.id != null && CSS_MODULES_RE.test(mod.id.split('?')[0]);
+}
+
+function normalizeModuleId(id: string): string {
+	try {
+		return decodeURI(cleanUrl(id));
+	} catch {
+		return cleanUrl(id);
+	}
+}
+
+function hasNonHydratedImporter(mod: EnvironmentModuleNode): boolean {
+	const visit = (
+		current: EnvironmentModuleNode,
+		dependencyIds: Set<string>,
+		seen: Set<EnvironmentModuleNode>,
+		distanceFromStyle: number,
+	): boolean => {
+		if (seen.has(current)) return false;
+		const nextSeen = new Set(seen).add(current);
+		const nextDependencyIds = new Set(dependencyIds);
+		if (current.id) nextDependencyIds.add(normalizeModuleId(current.id));
+
+		const astro = current.info ? getAstroMetadata(current.info) : undefined;
+		if (astro) {
+			if (distanceFromStyle === 1) return true;
+			if (
+				astro.nonHydratedComponentPaths.some((id) => nextDependencyIds.has(normalizeModuleId(id)))
+			) {
+				return true;
+			}
+		}
+
+		for (const importer of current.importers) {
+			if (visit(importer, nextDependencyIds, nextSeen, distanceFromStyle + 1)) return true;
+		}
+		return false;
+	};
+
+	return visit(mod, new Set(), new Set(), 0);
 }
 
 function isComponentStyleModule(id: string): boolean {
@@ -91,11 +128,7 @@ export default function hmrReload(): Plugin {
 					const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
 					if (styleType) {
 						hasStyleModules = true;
-						// CSS Modules export JS class-name bindings that are baked into
-						// server-rendered HTML. When file content changes, the scoped hashes
-						// change too, so client-side CSS HMR alone leaves non-hydrated
-						// components with stale class names. Force a full page reload.
-						if (isCSSModuleFile(mod)) {
+						if (isCSSModuleFile(mod) && hasNonHydratedImporter(mod)) {
 							this.environment.moduleGraph.invalidateModule(
 								mod,
 								invalidatedModules,

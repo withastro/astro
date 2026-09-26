@@ -13,6 +13,7 @@ export interface PluginMetadata {
 		hydratedComponents: TransformResult['hydratedComponents'];
 		clientOnlyComponents: TransformResult['clientOnlyComponents'];
 		serverComponents: TransformResult['serverComponents'];
+		nonHydratedComponentPaths: string[];
 		scripts: TransformResult['scripts'];
 		containsHead: TransformResult['containsHead'];
 		propagation: PropagationHint;

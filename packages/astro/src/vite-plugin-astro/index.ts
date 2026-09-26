@@ -288,6 +288,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						clientOnlyComponents: transformResult.clientOnlyComponents.filter(notAstroComponent),
 						hydratedComponents: transformResult.hydratedComponents.filter(notAstroComponent),
 						serverComponents: transformResult.serverComponents,
+						nonHydratedComponentPaths: transformResult.nonHydratedComponentPaths,
 						scripts: transformResult.scripts,
 						containsHead: transformResult.containsHead,
 						propagation: transformResult.propagation ? 'self' : 'none',

@@ -7,6 +7,7 @@ import { AggregateError, CompilerError } from '../errors/errors.js';
 import { AstroErrorData } from '../errors/index.js';
 import { normalizePath, resolvePath } from '../viteUtils.js';
 import { createStylePreprocessor, type PartialCompileCssResult } from './style.js';
+import { getNonHydratedComponentPaths } from './component-metadata.js';
 import type { CompileCssResult } from './types.js';
 
 export interface CompileProps {
@@ -19,6 +20,7 @@ export interface CompileProps {
 
 export interface CompileResult extends Omit<TransformResult, 'css'> {
 	css: CompileCssResult[];
+	nonHydratedComponentPaths: string[];
 }
 
 export async function compile({
@@ -86,6 +88,10 @@ export async function compile({
 			...cssPartialCompileResults[i],
 			code,
 		})),
+		nonHydratedComponentPaths:
+			viteConfig.command === 'serve'
+				? getNonHydratedComponentPaths(source, (specifier) => resolvePath(specifier, filename))
+				: [],
 	};
 }
 

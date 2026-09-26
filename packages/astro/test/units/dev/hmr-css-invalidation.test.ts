@@ -450,8 +450,23 @@ describe('astro:hmr-reload CSS invalidation', () => {
 
 	it('forces full-reload and invalidates dev-css modules for CSS Module file changes', () => {
 		const devCssId = '\0virtual:astro:dev-css:src/pages/index@_@astro';
+		const cssModule = {
+			id: '/src/components/Card.module.css',
+			file: '/src/components/Card.module.css',
+			importers: new Set<unknown>(),
+		};
+		const component = { id: '/src/components/Card.tsx', importers: new Set<unknown>() };
+		const page = {
+			id: '/src/pages/index.astro',
+			importers: new Set<unknown>(),
+			info: {
+				meta: { astro: { nonHydratedComponentPaths: ['/src/components/Card.tsx'] } },
+			},
+		};
+		cssModule.importers.add(component);
+		component.importers.add(page);
 		const { environment, server, invalidatedModuleGraphIds, wsMessages } = createMockContext({
-			modules: [{ id: '/src/components/Card.module.css', file: '/src/components/Card.module.css' }],
+			modules: [cssModule],
 			moduleGraphEntries: [[devCssId, { id: devCssId }]],
 			clientModuleIds: ['/src/components/Card.module.css'],
 		});
@@ -461,9 +476,7 @@ describe('astro:hmr-reload CSS invalidation', () => {
 		const result = hotUpdate.call(
 			{ environment },
 			{
-				modules: [
-					{ id: '/src/components/Card.module.css', file: '/src/components/Card.module.css' },
-				],
+				modules: [cssModule],
 				server,
 				timestamp: Date.now(),
 				file: '/src/components/Card.module.css',

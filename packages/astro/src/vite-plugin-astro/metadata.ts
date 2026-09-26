@@ -13,6 +13,7 @@ export function createDefaultAstroMetadata(): PluginMetadata['astro'] {
 		hydratedComponents: [],
 		clientOnlyComponents: [],
 		serverComponents: [],
+		nonHydratedComponentPaths: [],
 		scripts: [],
 		propagation: 'none',
 		containsHead: false,

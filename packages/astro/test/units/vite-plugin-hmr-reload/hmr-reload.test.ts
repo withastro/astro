@@ -267,11 +267,18 @@ describe('astro:hmr-reload', () => {
 		assert.equal(ctx.wsSent[0].type, 'full-reload');
 	});
 
-	it('sends full-reload for CSS module files even when a client module exists', () => {
+	it('sends full-reload for CSS modules used by a non-hydrated component', () => {
 		const mod = createMockModule(
 			'/src/components/Card.module.css',
 			'/src/components/Card.module.css',
 		);
+		const component = createMockModule('/src/components/Card.tsx');
+		const page = createMockModule('/src/pages/index.astro');
+		(page as any).info = {
+			meta: { astro: { nonHydratedComponentPaths: ['/src/components/Card.tsx'] } },
+		};
+		mod.importers.add(component as any);
+		component.importers.add(page as any);
 		const ctx = createMockContext({
 			environmentName: 'ssr',
 			modules: [mod],
@@ -288,11 +295,14 @@ describe('astro:hmr-reload', () => {
 		assert.equal(ctx.invalidated[0], mod);
 	});
 
-	it('sends full-reload for SCSS module files even when a client module exists', () => {
+	it('sends full-reload for SCSS modules imported directly by an Astro component', () => {
 		const mod = createMockModule(
 			'/src/components/Card.module.scss',
 			'/src/components/Card.module.scss',
 		);
+		const page = createMockModule('/src/pages/index.astro');
+		(page as any).info = { meta: { astro: { nonHydratedComponentPaths: [] } } };
+		mod.importers.add(page as any);
 		const ctx = createMockContext({
 			environmentName: 'ssr',
 			modules: [mod],
@@ -305,6 +315,29 @@ describe('astro:hmr-reload', () => {
 		assert.equal(result.length, 0, 'should return empty array');
 		assert.equal(ctx.wsSent.length, 1, 'should send full-reload for SCSS module');
 		assert.deepEqual(ctx.wsSent[0], { type: 'full-reload' });
+	});
+
+	it('does not send full-reload for CSS modules used only by a hydrated component', () => {
+		const mod = createMockModule(
+			'/src/components/Card.module.css',
+			'/src/components/Card.module.css',
+		);
+		const component = createMockModule('/src/components/Card.tsx');
+		const page = createMockModule('/src/pages/index.astro');
+		(page as any).info = { meta: { astro: { nonHydratedComponentPaths: [] } } };
+		mod.importers.add(component as any);
+		component.importers.add(page as any);
+		const ctx = createMockContext({
+			environmentName: 'ssr',
+			modules: [mod],
+			clientModuleIds: ['/src/components/Card.module.css'],
+		});
+
+		const result = ctx.call();
+
+		assert.deepEqual(result, []);
+		assert.equal(ctx.wsSent.length, 0, 'should NOT reload hydrated-only CSS modules');
+		assert.equal(ctx.invalidated.length, 0);
 	});
 
 	it('does not send full-reload for regular CSS files with a client module', () => {

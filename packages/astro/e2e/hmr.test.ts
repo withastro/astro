@@ -110,8 +110,32 @@ test.describe('Styles', () => {
 		await expect(h).toHaveCSS('color', 'rgb(255, 0, 0)');
 	});
 
+	test('mixed server and hydrated SCSS modules refresh with HMR', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/scss-module-mixed'));
+		await waitForViteToSettle(page);
+
+		const serverHeading = page.locator('#server');
+		const hydratedHeading = page.locator('#hydrated');
+		await expect(serverHeading).toHaveCSS('color', 'rgb(0, 0, 255)');
+		await expect(hydratedHeading).toHaveCSS('color', 'rgb(0, 0, 255)');
+		const originalClass = await serverHeading.getAttribute('class');
+
+		await astro.editFile('./src/styles/scss-module.module.scss', (original) =>
+			original.replace('blue', 'red'),
+		);
+
+		await expect(serverHeading).toHaveCSS('color', 'rgb(255, 0, 0)');
+		await expect(hydratedHeading).toHaveCSS('color', 'rgb(255, 0, 0)');
+		await expect(serverHeading).not.toHaveAttribute('class', originalClass!);
+		await expect(hydratedHeading).toHaveAttribute(
+			'class',
+			(await serverHeading.getAttribute('class'))!,
+		);
+	});
+
 	test('external SCSS refresh with HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/scss-external'));
+		await waitForViteToSettle(page);
 
 		page.once('load', throwPageShouldNotReload);
 
