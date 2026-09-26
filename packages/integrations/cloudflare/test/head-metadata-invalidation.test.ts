@@ -1,6 +1,27 @@
 import * as assert from 'node:assert/strict';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+
+/**
+ * Resolves once the dev server's watcher reports the given file, so a test can
+ * wait for the write to be observed instead of guessing a duration. Comparisons
+ * use forward slashes on both sides: the watcher may report OS-native paths.
+ */
+function waitForWatcherEvent(watcher: DevServer['watcher'], file: URL): Promise<void> {
+	const target = fileURLToPath(file).replaceAll('\\', '/');
+	return new Promise<void>((resolve) => {
+		const onEvent = (changed: string) => {
+			if (changed.replaceAll('\\', '/') !== target) return;
+			watcher.off('add', onEvent);
+			watcher.off('change', onEvent);
+			resolve();
+		};
+		watcher.on('add', onEvent);
+		watcher.on('change', onEvent);
+	});
+}
 
 // Regression test for https://github.com/withastro/astro/issues/17995
 //
@@ -15,6 +36,11 @@ describe('Head metadata invalidation in dev', () => {
 
 	async function transformInvalidations() {
 		const res = await fixture.fetch('/__transform-invalidations');
+		return Number(await res.text());
+	}
+
+	async function watcherInvalidations() {
+		const res = await fixture.fetch('/__watcher-invalidations');
 		return Number(await res.text());
 	}
 
@@ -39,6 +65,33 @@ describe('Head metadata invalidation in dev', () => {
 		await fixture.fetch('/');
 		await fixture.fetch('/');
 		assert.equal(await transformInvalidations(), baseline);
+	});
+
+	// Regression test for https://github.com/withastro/astro/issues/18065
+	//
+	// The Cloudflare dev runtime rewrites files under `.wrangler/state` while a
+	// request is served, and the dev server watches the project root. Those files
+	// are not part of any module graph, so they cannot have changed component
+	// metadata; invalidating the metadata module for them invalidated the dev app
+	// entrypoint that imports it, making the runner re-evaluate the server graph
+	// on the next request.
+	it('ignores writes to files outside the module graph', { timeout: 20_000 }, async () => {
+		await fixture.fetch('/');
+		const baseline = await watcherInvalidations();
+
+		const unrelated = new URL('.wrangler/state/repro-unrelated-write', fixture.config.root);
+		await mkdir(new URL('./', unrelated), { recursive: true });
+		try {
+			// The plugin's listener runs before this one during the same dispatch, so
+			// the count is settled by the time this resolves.
+			const watched = waitForWatcherEvent(devServer.watcher, unrelated);
+			await writeFile(unrelated, 'unrelated');
+			await watched;
+
+			assert.equal(await watcherInvalidations(), baseline);
+		} finally {
+			await rm(unrelated, { force: true });
+		}
 	});
 
 	it('refreshes propagated head metadata after a layout adds a head', async () => {
