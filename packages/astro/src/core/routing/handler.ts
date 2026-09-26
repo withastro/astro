@@ -11,6 +11,7 @@ import { getResolvedLogger } from '../logger/manifest-logger.js';
 import { handleMiddleware } from '../middleware/astro-middleware.js';
 import { handlePages } from '../pages/handler.js';
 import { renderRedirect } from '../redirects/render.js';
+import { redirectDelayFor, renderRedirectPage } from './redirect-page.js';
 import { provideSession } from '../session/provider.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
@@ -43,6 +44,43 @@ function actionsAndPages(state: FetchState, ctx: APIContext): Promise<Response> 
 		}
 	}
 	return handlePages(state, ctx);
+}
+
+/**
+ * Swaps a bodiless redirect response for one carrying the project's rendered
+ * `src/pages/3xx.astro`.
+ *
+ * Only the build environment opts in (see `RenderEnvironment.rendersRedirectPage`):
+ * a static site has no `Location` header to follow, so the HTML body is the
+ * redirect. Responses that already carry a body — the trailing-slash
+ * normalizer's, or a page that rendered its own — are left alone.
+ */
+async function withRedirectPageBody(state: FetchState, response: Response): Promise<Response> {
+	const status = response.status;
+	if (status < 300 || status >= 400 || response.body !== null) {
+		return response;
+	}
+	if (!getEnvironment(state.manifest).rendersRedirectPage()) {
+		return response;
+	}
+	const to = response.headers.get('location');
+	if (!to) {
+		return response;
+	}
+	const html = await renderRedirectPage(state.manifest, state.request, {
+		from: state.pathname,
+		to,
+		status,
+		delay: redirectDelayFor(status),
+	});
+	if (html === undefined) {
+		return response;
+	}
+	const headers = new Headers(response.headers);
+	if (!headers.has('content-type')) {
+		headers.set('content-type', 'text/html');
+	}
+	return new Response(html, { status, statusText: response.statusText, headers });
 }
 
 /**
@@ -118,7 +156,7 @@ async function render(state: FetchState): Promise<Response> {
 		// page dispatch, no i18n post-processing. Inline routeData.type
 		// check to avoid a per-request function call + object overhead.
 		if (routeData.type === 'redirect') {
-			const redirectResponse = await renderRedirect(state);
+			const redirectResponse = await withRedirectPageBody(state, await renderRedirect(state));
 			logRequestFromState(state, {
 				pathname,
 				method: request.method,
@@ -212,6 +250,7 @@ async function render(state: FetchState): Promise<Response> {
 		});
 	}
 
+	response = await withRedirectPageBody(state, response);
 	prepareResponse(response, { addCookieHeader });
 	state.logger.flush();
 	return response;

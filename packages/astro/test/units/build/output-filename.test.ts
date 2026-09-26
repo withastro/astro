@@ -30,6 +30,7 @@ describe('getOutputFilename', () => {
 	it('uses html files for status code pages', () => {
 		assert.equal(getOutputFilename('directory', '/404', route({ type: 'page' })), '/404.html');
 		assert.equal(getOutputFilename('directory', '/500', route({ type: 'page' })), '/500.html');
+		assert.equal(getOutputFilename('directory', '/3xx', route({ type: 'page' })), '/3xx.html');
 	});
 
 	it('uses html files for non-index routes when build format is preserve', () => {

@@ -83,13 +83,13 @@ export async function findRouteToRewrite({
 	// Error pages (404/500) take precedence over dynamic routes that might
 	// capture the same path (e.g. [locale] matching /404). See #15098.
 	if (isRoute404(decodedPathname)) {
-		const errorRoute = routes.find((route) => route.route === '/404');
+		const errorRoute = routes.find((route) => isRoute404(route.route));
 		if (errorRoute) {
 			return { routeData: errorRoute, newUrl, pathname: decodedPathname };
 		}
 	}
 	if (isRoute500(decodedPathname)) {
-		const errorRoute = routes.find((route) => route.route === '/500');
+		const errorRoute = routes.find((route) => isRoute500(route.route));
 		if (errorRoute) {
 			return { routeData: errorRoute, newUrl, pathname: decodedPathname };
 		}
@@ -144,7 +144,7 @@ export async function findRouteToRewrite({
 	} else if (firstValidationError) {
 		throw firstValidationError;
 	} else {
-		const custom404 = routes.find((route) => route.route === '/404');
+		const custom404 = routes.find((route) => isRoute404(route.route));
 		if (custom404) {
 			return { routeData: custom404, newUrl, pathname };
 		} else {
