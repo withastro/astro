@@ -1,5 +1,13 @@
 # astro
 
+## 7.3.6
+
+### Patch Changes
+
+- [#18078](https://github.com/withastro/astro/pull/18078) [`0a2ab10`](https://github.com/withastro/astro/commit/0a2ab102a91c141f42b6d7da9810db74f61d1fa0) Thanks [@manuelgruber](https://github.com/manuelgruber)! - Fixes `Astro.rewrite()` and `context.rewrite()` selecting the wrong route in `astro dev` when two dynamic routes match the same path
+
+- [#18114](https://github.com/withastro/astro/pull/18114) [`c17d920`](https://github.com/withastro/astro/commit/c17d9209bef385ea88b6fee36e91ad4e635f4a86) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Astro on StackBlitz and other WebContainer environments
+
 ## 7.3.5
 
 ### Patch Changes
