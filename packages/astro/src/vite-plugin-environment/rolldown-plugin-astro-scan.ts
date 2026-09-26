@@ -1,33 +1,49 @@
 import { readFile } from 'node:fs/promises';
 import type { Plugin } from 'vite';
 
-// Matches the frontmatter block (--- ... ---) at the start of an .astro file.
-const FRONTMATTER_RE = /^---(.*?)^---/ms;
-// Matches HTML comments.
+const FRONTMATTER_RE = /^---\r?$[\s\S]+?^---\r?$/m;
 const COMMENT_RE = /<!--.*?-->/gs;
-// Matches <script> tags and captures the opening tag + inner content.
-// Uses the `s` flag so `.` matches newlines (multi-line scripts).
 const SCRIPT_RE =
 	/(<script(?:\s+[a-z_:][-\w:]*(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^"'<>=\s]+))?)*\s*>)(.*?)<\/script>/gis;
 const SRC_RE = /\bsrc\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s'">]+))/i;
 const TYPE_RE = /\btype\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s'">]+))/i;
+const LANG_RE = /\blang\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s'">]+))/i;
+const MULTILINE_COMMENTS_RE = /\/\*[^*]*\*+(?:[^/*][^*]*\*+)*\//g;
+const SINGLELINE_COMMENTS_RE = /\/\/.*/g;
+const IMPORTS_RE =
+	/(?<!\/\/.*)(?<=^|;|\*\/)\s*import(?!\s+type)(?:[\w*{}\n\r\t, ]+from)?\s*("[^"]+"|'[^']+')\s*(?=$|;|\/\/|\/\*)/gm;
 
-/**
- * Extracts `<script>` tag contents from an .astro file body (after
- * stripping the frontmatter block).  Returns JS code containing the
- * inline script bodies and `import` statements for `src` scripts.
- */
-export function extractScripts(raw: string): string {
-	// Strip frontmatter to prevent false <script> matches from text
-	// like `<script src="">` inside JS comments (see #18068).
-	let body = raw.replace(FRONTMATTER_RE, (m) => m.replace(/[^\n]/g, ' '));
+type ScriptLoader = 'js' | 'jsx' | 'ts' | 'tsx';
+
+interface InlineScript {
+	content: string;
+	loader: ScriptLoader;
+}
+
+interface ExtractedScripts {
+	imports: string[];
+	inline: InlineScript[];
+}
+
+/** Preserves scan edges when TypeScript removes imports used only in type positions. */
+function extractImportPaths(code: string): string {
+	code = code.replace(MULTILINE_COMMENTS_RE, '/* */').replace(SINGLELINE_COMMENTS_RE, '');
+	let imports = '';
+	let match: RegExpExecArray | null;
+	IMPORTS_RE.lastIndex = 0;
+	while ((match = IMPORTS_RE.exec(code)) !== null) imports += `\nimport ${match[1]}`;
+	return imports;
+}
+
+/** Returns external and inline client scripts after removing frontmatter and HTML comments. */
+export function extractScripts(raw: string): ExtractedScripts {
+	let body = raw.replace(FRONTMATTER_RE, (match) => match.replace(/[^\n]/g, ' '));
 	body = body.replace(COMMENT_RE, '<!---->');
 
-	let js = '';
+	const scripts: ExtractedScripts = { imports: [], inline: [] };
 	for (const [, openTag, content] of body.matchAll(SCRIPT_RE)) {
 		const typeMatch = TYPE_RE.exec(openTag);
 		const type = typeMatch && (typeMatch[1] || typeMatch[2] || typeMatch[3]);
-		// Skip non-JS script types (e.g. application/json, application/ld+json)
 		if (
 			type &&
 			!(type.includes('javascript') || type.includes('ecmascript') || type === 'module')
@@ -37,42 +53,76 @@ export function extractScripts(raw: string): string {
 
 		const srcMatch = SRC_RE.exec(openTag);
 		if (srcMatch) {
-			js += `import ${JSON.stringify(srcMatch[1] || srcMatch[2] || srcMatch[3])}\n`;
+			scripts.imports.push(srcMatch[1] || srcMatch[2] || srcMatch[3]);
 		} else if (content.trim()) {
-			js += content + '\n';
+			const langMatch = LANG_RE.exec(openTag);
+			const lang = langMatch && (langMatch[1] || langMatch[2] || langMatch[3]);
+			const loader = lang === 'jsx' || lang === 'tsx' || lang === 'ts' ? lang : 'ts';
+			scripts.inline.push({
+				content: content + (loader.startsWith('ts') ? extractImportPaths(content) : ''),
+				loader,
+			});
 		}
 	}
 
-	return js;
+	return scripts;
+}
+
+interface ScanScript extends InlineScript {
+	importer: string;
 }
 
 /**
- * Rolldown plugin for the client dep scan that correctly handles .astro
- * files. Vite's built-in HTML-type scanner matches `<script` tags with
- * a naive regex that does not understand Astro frontmatter fences, so a
- * `<script` string inside a JS comment in the frontmatter is treated as
- * a real script tag. This plugin intercepts .astro loads, strips the
- * frontmatter first, then extracts only the real `<script>` tags.
+ * Intercepts `.astro` dependency-scan entries because Vite's HTML scanner treats script-like
+ * frontmatter text as markup. Each inline script remains a separate module so its scope and loader
+ * match Vite's scan behavior.
+ *
+ * @see https://github.com/withastro/astro/issues/18068
  */
 export function rolldownAstroClientScanPlugin(): Plugin {
+	const scripts = new Map<string, ScanScript>();
+	const scriptsByFile = new Map<string, string[]>();
+
 	return {
 		name: 'astro:client-dep-scan',
-		load: {
-			filter: { id: /\.astro$/ },
-			async handler(id) {
-				let raw: string;
-				try {
-					raw = await readFile(id, 'utf-8');
-				} catch {
-					return { code: 'export default {}', moduleType: 'ts' };
-				}
+		async resolveId(source, importer) {
+			if (scripts.has(source)) return source;
 
-				const js = extractScripts(raw);
-				return {
-					code: js + '\nexport default {}',
-					moduleType: 'ts',
-				};
-			},
+			const parentScript = importer && scripts.get(importer);
+			if (parentScript) {
+				return this.resolve(source, parentScript.importer, { skipSelf: true });
+			}
+		},
+		async load(id) {
+			const script = scripts.get(id);
+			if (script) {
+				return { code: script.content, moduleType: script.loader };
+			}
+			if (!id.endsWith('.astro')) return;
+
+			let raw: string;
+			try {
+				raw = await readFile(id, 'utf-8');
+			} catch {
+				return { code: 'export default {}', moduleType: 'ts' };
+			}
+
+			for (const scriptId of scriptsByFile.get(id) ?? []) scripts.delete(scriptId);
+
+			const extracted = extractScripts(raw);
+			const scriptIds = extracted.inline.map((inlineScript, index) => {
+				const scriptId = `${id}?astro-client-dep-scan=${index}&lang.${inlineScript.loader}`;
+				scripts.set(scriptId, { ...inlineScript, importer: id });
+				return scriptId;
+			});
+			scriptsByFile.set(id, scriptIds);
+
+			const code = [
+				...extracted.imports.map((source) => `import ${JSON.stringify(source)}`),
+				...scriptIds.map((scriptId) => `export * from ${JSON.stringify(scriptId)}`),
+				'export default {}',
+			].join('\n');
+			return { code, moduleType: 'ts' };
 		},
 	};
 }
