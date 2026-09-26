@@ -82,7 +82,6 @@ describe('ISR', () => {
 			{
 				dest: '_render',
 				src: '^/.*$',
-				status: 404,
 			},
 		]);
 	});
