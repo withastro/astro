@@ -13,6 +13,8 @@ import { type LocalFamilyOptions, LocalFontProvider } from './local.js';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 
+const VARIABLE_SUFFIX_RE = / Variable$/;
+
 /** [Adobe](https://docs.astro.build/en/reference/font-provider-reference/#adobe) */
 function adobe(config: AdobeProviderOptions): FontProvider {
 	const provider = providers.adobe(config);
@@ -78,6 +80,14 @@ function fontsource(): FontProvider {
 			initializedProvider = await provider(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
+			// fontsource API uses family names without a "Variable" suffix,
+			// but fontsource's website and fonts used in npm packages use "Inter Variable" for variable fonts.
+			if (familyName.endsWith(' Variable')) {
+				const availableFamilies = await initializedProvider?.listFonts?.();
+				if (availableFamilies && !availableFamilies.includes(familyName)) {
+					familyName = familyName.replace(VARIABLE_SUFFIX_RE, '');
+				}
+			}
 			return await initializedProvider?.resolveFont(familyName, rest);
 		},
 		async listFonts() {
