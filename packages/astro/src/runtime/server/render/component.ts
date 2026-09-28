@@ -563,7 +563,8 @@ export async function renderComponentToString(
 			// Initialize the server island directly to avoid re-entering head
 			// collection while the outer pass is draining pending slot evaluations.
 			// The outer pass still collects any head parts produced by the island's
-			// slot pre-renders because it iterates the propagators set live.
+			// slot pre-renders because it drains pending slot evaluations and
+			// iterates the propagators set live.
 			await (renderInstance as ServerIslandComponent).init();
 			// When rendering outside of an active head-collection pass (for example
 			// the island endpoint or a Container render), run collection normally
