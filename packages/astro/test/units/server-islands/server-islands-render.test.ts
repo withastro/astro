@@ -67,6 +67,7 @@ async function createStubResult(overrides: Partial<SSRResult> = {}): Promise<SSR
 			propagators: new Set(),
 			routeHasPropagation: false,
 			pendingSlotEvaluations: [],
+			collectingHead: false,
 			templateDepth: 0,
 		},
 		shouldInjectCspMetaTags: false,

@@ -495,6 +495,7 @@ export class FetchState implements AstroFetchState {
 				propagators: new Set(),
 				routeHasPropagation: false,
 				pendingSlotEvaluations: [],
+				collectingHead: false,
 				templateDepth: 0,
 			},
 			cspDestination: manifest.csp?.cspDestination ?? (routeData.prerender ? 'meta' : 'header'),

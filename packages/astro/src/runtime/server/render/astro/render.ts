@@ -373,7 +373,19 @@ async function callComponentAsTemplateResultOrResponse(
 // Recursively calls component instances that might have head content
 // to be propagated up.
 export async function bufferHeadContent(result: SSRResult) {
-	await bufferPropagatedHead(result);
+	// Avoid re-entering head collection while we are already in the middle of
+	// collecting it. Re-entering would await the pending slot evaluation that is
+	// currently awaiting this render, which can deadlock. The outer collection pass
+	// is still iterating, so it will pick up any propagators registered here.
+	if (result._metadata.collectingHead) {
+		return;
+	}
+	result._metadata.collectingHead = true;
+	try {
+		await bufferPropagatedHead(result);
+	} finally {
+		result._metadata.collectingHead = false;
+	}
 }
 
 export async function renderToAsyncIterable(
