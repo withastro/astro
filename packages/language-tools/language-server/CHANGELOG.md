@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.17.1
+
+### Patch Changes
+
+- [#17578](https://github.com/withastro/astro/pull/17578) [`7cc0b00`](https://github.com/withastro/astro/commit/7cc0b0076e9630e3ced20e44950eee1a9ce6fb5a) Thanks [@renovate](https://github.com/apps/renovate)! - Fixes a case where rich content diagnostics and snippet edits would not work
+
 ## 2.17.0
 
 ### Minor Changes

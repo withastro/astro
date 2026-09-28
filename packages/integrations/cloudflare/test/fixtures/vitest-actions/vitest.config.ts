@@ -1,6 +1,6 @@
 /// <reference types="vitest/config" />
 
-import { cloudflareTest } from '@cloudflare/vitest-pool-workers';
+import { cloudflareTest } from '@cloudflare/vitest-plugin';
 import { getViteConfig } from 'astro/config';
 
 export default getViteConfig(

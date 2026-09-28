@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@astrojs/node": "^11.1.6",
-    "astro": "^7.3.3"
+    "astro": "^7.3.5"
   },
   "allowScripts": {
     "esbuild": true
