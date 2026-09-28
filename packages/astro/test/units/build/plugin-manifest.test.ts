@@ -125,7 +125,7 @@ describe('Build: Manifest injection', () => {
 		for (const file of outputFiles) {
 			if (!file.endsWith('.mjs') && !file.endsWith('.js')) continue;
 			const content = await fs.readFile(file, 'utf-8');
-			const match = content.match(/"assets":\[([^\]]*)\]/);
+			const match = /"assets":\[([^\]]*)\]/.exec(content);
 			if (match) {
 				assets = JSON.parse(`[${match[1]}]`);
 				break;
