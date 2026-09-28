@@ -169,7 +169,8 @@ describe('Actions via App', () => {
 	});
 
 	it('returns 404 for an action name with a malformed escape (RPC)', async () => {
-		// `%25` decodes to a lone `%`, which `decodeURIComponent` rejects.
+		// The request pipeline decodes the pathname first, so `getAction`
+		// receives a lone `%`, which `decodeURIComponent` rejects.
 		const req = new Request('http://example.com/_actions/%25', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
