@@ -61,6 +61,21 @@ describe('Client only components', () => {
 		assert.equal($('link[rel=stylesheet]').length, 1);
 	});
 
+	it('Includes CSS modules once when a component is rendered statically and client:only', async () => {
+		const html = await fixture.readFile('/css-modules-static-and-client-only/index.html');
+		const $ = cheerioLoad(html);
+		const stylesheets = await Promise.all(
+			$('link[rel=stylesheet]').map((_, el) => fixture.readFile(el.attribs.href)),
+		);
+		const inlineStyles = $('style')
+			.map((_, el) => $(el).text())
+			.get();
+		const sheetsWithModuleClass = [...stylesheets, ...inlineStyles].filter((css) =>
+			/\._red_/.test(css),
+		);
+		assert.equal(sheetsWithModuleClass.length, 1);
+	});
+
 	it('Includes CSS from package components', async () => {
 		const html = await fixture.readFile('/pkg/index.html');
 		const $ = cheerioLoad(html);
