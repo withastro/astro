@@ -322,15 +322,6 @@ export interface SSRMetadata {
 	 * head content is flushed. Only populated when `routeHasPropagation` is true.
 	 */
 	pendingSlotEvaluations: Promise<unknown>[];
-	/**
-	 * Set to `true` while `bufferHeadContent` is actively collecting propagators,
-	 * so recursive calls (for example from a component inside a pending slot
-	 * pre-render) can no-op. This prevents a re-entrant wait on the same slot
-	 * evaluation from deadlocking. The outer collection pass still visits any
-	 * propagators registered by the recursive render because it iterates the
-	 * `propagators` set.
-	 */
-	collectingHead: boolean;
 	slotsByAstro?: WeakMap<object, Slots>;
 	/**
 	 * Tracks nesting depth of HTML `<template>` elements during rendering.

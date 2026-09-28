@@ -12,7 +12,13 @@ import type {
 	RenderDestinationChunk,
 } from '../../../dist/runtime/server/render/common.js';
 import type { ComponentSlotValue } from '../../../dist/runtime/server/render/slot.js';
-import { renderTemplate } from '../../../dist/runtime/server/index.js';
+import {
+	createComponent,
+	createHeadAndContent,
+	renderComponent,
+	renderTemplate,
+} from '../../../dist/runtime/server/index.js';
+import { renderComponentToString } from '../../../dist/runtime/server/render/component.js';
 
 // #region Helpers
 
@@ -67,7 +73,6 @@ async function createStubResult(overrides: Partial<SSRResult> = {}): Promise<SSR
 			propagators: new Set(),
 			routeHasPropagation: false,
 			pendingSlotEvaluations: [],
-			collectingHead: false,
 			templateDepth: 0,
 		},
 		shouldInjectCspMetaTags: false,
@@ -310,6 +315,18 @@ describe('ServerIslandComponent', () => {
 	});
 	// #endregion
 
+	// #region init()
+	describe('init()', () => {
+		it('records CSP script hashes once when called repeatedly', async () => {
+			const result = await createStubResult();
+			const component = new ServerIslandComponent(result, islandProps(), {}, 'Island');
+			await component.init();
+			await component.init();
+			assert.equal(result._metadata.extraScriptHashes.length, 2);
+		});
+	});
+	// #endregion
+
 	// #region render()
 	describe('render()', () => {
 		it('emits the server-island-start HTML comment marker', async () => {
@@ -391,6 +408,79 @@ describe('ServerIslandComponent', () => {
 		});
 	});
 	// #endregion
+});
+
+// #endregion
+
+// #region renderComponentToString
+
+describe('renderComponentToString() with a server island', () => {
+	// The factory body is never invoked: server islands short-circuit to a
+	// `ServerIslandComponent` before the component itself is rendered.
+	const Island = createComponent(() => renderTemplate`<p>island</p>`);
+
+	/** A propagating component whose head content must reach `extraHead`. */
+	const StyledContent = createComponent({
+		factory: () =>
+			createHeadAndContent(
+				'<style>.nested-content{}</style>' as any,
+				renderTemplate`<p>styled content</p>`,
+			),
+		propagation: 'self',
+	});
+
+	function withTimeout<T>(promise: Promise<T>, ms = 2000): Promise<T> {
+		return Promise.race([
+			promise,
+			new Promise<never>((_, reject) =>
+				setTimeout(() => reject(new Error(`timed out after ${ms}ms (deadlock)`)), ms),
+			),
+		]);
+	}
+
+	it('does not deadlock when rendered inside a pending slot evaluation', async () => {
+		// Models an MDX island inside an Astro component slot on a propagation
+		// route (#18156): the enclosing slot pre-render is queued in
+		// `pendingSlotEvaluations` and is itself awaiting the island render.
+		const result = await createStubResult();
+		result._metadata.routeHasPropagation = true;
+		const enclosingSlot = Promise.resolve().then(() =>
+			renderComponentToString(result, 'Island', Island, islandProps()),
+		);
+		result._metadata.pendingSlotEvaluations.push(enclosingSlot);
+
+		const html = await withTimeout(enclosingSlot);
+		assert.ok(html.includes('data-island-id'), `expected island script, got: ${html}`);
+	});
+
+	it('collects head content from propagating components inside the island slots', async () => {
+		const result = await createStubResult();
+		result._metadata.routeHasPropagation = true;
+		const slots = {
+			default: () => renderTemplate`${renderComponent(result, 'StyledContent', StyledContent, {})}`,
+		};
+		const enclosingSlot = Promise.resolve().then(() =>
+			renderComponentToString(result, 'Island', Island, islandProps(), slots),
+		);
+		result._metadata.pendingSlotEvaluations.push(enclosingSlot);
+
+		await withTimeout(enclosingSlot);
+		assert.ok(
+			result._metadata.extraHead.includes('<style>.nested-content{}</style>'),
+			`expected nested head content in extraHead, got: ${JSON.stringify(result._metadata.extraHead)}`,
+		);
+	});
+
+	it('initializes each island once, producing one set of CSP script hashes per island', async () => {
+		const result = await createStubResult();
+		await renderComponentToString(result, 'Island', Island, islandProps());
+		assert.equal(result._metadata.extraScriptHashes.length, 2);
+
+		// A later island render re-runs head collection over every registered
+		// propagator, including the first island.
+		await renderComponentToString(result, 'Island', Island, islandProps());
+		assert.equal(result._metadata.extraScriptHashes.length, 4);
+	});
 });
 
 // #endregion
