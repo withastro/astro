@@ -580,8 +580,8 @@ importers:
         specifier: ^3.1.4
         version: 3.1.4
       es-module-lexer:
-        specifier: ^2.0.0
-        version: 2.3.2
+        specifier: ^3.0.2
+        version: 3.0.2
       esbuild:
         specifier: ^0.28.0
         version: 0.28.1
@@ -5300,8 +5300,8 @@ importers:
         specifier: workspace:*
         version: link:../../markdown/satteri
       es-module-lexer:
-        specifier: ^2.0.0
-        version: 2.3.2
+        specifier: ^3.0.2
+        version: 3.0.2
     devDependencies:
       '@astrojs/markdown-remark':
         specifier: workspace:*
@@ -12735,6 +12735,9 @@ packages:
 
   es-module-lexer@2.3.2:
     resolution: {integrity: sha512-poHGpORABojJJucnV9KbOavETW8lBVnphkW77ER5/BQ5Fz7oXSoCNek7IH3vR5nRjdsEz926ibFYX8KtLQmdyw==}
+
+  es-module-lexer@3.0.2:
+    resolution: {integrity: sha512-BuIB67FngDSyQ/dpQNOZybwdEBDUGJQvOqwWr4ha/ufYiqzuEwPkKO2zLhRAgay28tStRIHUeWmszZAJo3GCOg==}
 
   es-object-atoms@1.1.1:
     resolution: {integrity: sha512-FGgH2h8zKNim9ljj7dankFPcICIK9Cp5bm+c2gQSYePhpaG5+esrLODihIorn+Pe6FGJzWhXQotPv73jTaldXA==}
@@ -22795,6 +22798,8 @@ snapshots:
   es-module-lexer@1.7.0: {}
 
   es-module-lexer@2.3.2: {}
+
+  es-module-lexer@3.0.2: {}
 
   es-object-atoms@1.1.1:
     dependencies:

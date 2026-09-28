@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { init, parse } from 'es-module-lexer';
+import { init, parse } from 'es-module-lexer/minimal';
 
 const distRoot = fileURLToPath(new URL('../../../dist/', import.meta.url));
 const srcRoot = fileURLToPath(new URL('../../../src/', import.meta.url));
@@ -13,7 +13,7 @@ const srcRoot = fileURLToPath(new URL('../../../src/', import.meta.url));
  * specifiers, and return every visited file.
  */
 async function collectModuleGraph(entry: string): Promise<Map<string, string>> {
-	await init;
+	await init();
 	const visited = new Map<string, string>();
 	const queue = [entry];
 	while (queue.length > 0) {
