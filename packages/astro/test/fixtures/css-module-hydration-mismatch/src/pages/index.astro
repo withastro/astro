@@ -1,0 +1,17 @@
+---
+import Card from '../components/Card.jsx';
+---
+
+<html>
+	<head>
+		<title>CSS Module hydration mismatch</title>
+	</head>
+	<body>
+		<div id="non-hydrated">
+			<Card />
+		</div>
+		<div id="hydrated">
+			<Card client:load />
+		</div>
+	</body>
+</html>
