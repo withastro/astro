@@ -22,7 +22,9 @@
     "./markdown": "./dist/markdown.js",
     "./mdx": "./dist/mdx.js",
     "./frontmatter": "./dist/frontmatter.js",
-    "./shiki": "./dist/shiki.js"
+    "./shiki": "./dist/shiki.js",
+    "./yaml": "./dist/yaml.js",
+    "./yaml-error": "./dist/yaml-error.js"
   },
   "imports": {
     "#shiki-engine": {
@@ -43,7 +45,7 @@
   "dependencies": {
     "@types/hast": "^3.0.4",
     "@types/mdast": "^4.0.4",
-    "js-yaml": "^4.3.2",
+    "yaml": "^2.9.1",
     "picomatch": "^4.0.4",
     "retext-smartypants": "^6.2.0",
     "shiki": "^4.0.2",
@@ -51,7 +53,6 @@
     "unified": "^11.0.5"
   },
   "devDependencies": {
-    "@types/js-yaml": "^4.0.9",
     "@types/picomatch": "^4.0.2",
     "astro-scripts": "workspace:*"
   },
