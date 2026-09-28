@@ -4,6 +4,8 @@ review:
   trigger:
     label: "pr: astro-review"
   skill: .agents/skills/astro-code-review
+  model: anthropic/claude-opus-5-5
+  thinkingLevel: medium
   severity: [critical, high, medium, low, optional]
   areas:
     - design
@@ -39,3 +41,8 @@ adversary:
     skill: .agents/skills/astro-adversary-blue
   purpleTeam:
     skill: .agents/skills/astro-adversary-purple
+
+personas:
+  author:
+    model: anthropic/claude-opus-5-5
+    thinkingLevel: medium
