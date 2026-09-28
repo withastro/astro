@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes dev server dependency scan failure when an `.astro` frontmatter comment contains a literal `<script` string
+Fixes a dev server dependency scan failure when an `.astro` file contains a literal `<script` in frontmatter or a template expression

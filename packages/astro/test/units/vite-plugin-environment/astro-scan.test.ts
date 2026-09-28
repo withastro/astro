@@ -1,7 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createLogger, createServer, type EnvironmentOptions, type Plugin } from 'vite';
-import { extractScripts } from '../../../dist/vite-plugin-environment/rolldown-plugin-astro-scan.js';
 import { vitePluginEnvironment } from '../../../dist/vite-plugin-environment/index.js';
 import { createBasicSettings, createFixture } from '../test-utils.ts';
 
@@ -63,104 +62,6 @@ function assertScanSucceeded(messages: string[]) {
 	);
 }
 
-describe('extractScripts', () => {
-	it('extracts inline script content from an .astro file', () => {
-		const raw = `---
-const x = 1;
----
-<div>hello</div>
-<script>
-  import { greet } from '../lib/greet';
-  greet();
-</script>`;
-
-		const scripts = extractScripts(raw);
-		assert.equal(scripts.inline.length, 1);
-		assert.ok(
-			scripts.inline[0].content.includes("import { greet } from '../lib/greet'"),
-			'should contain the import',
-		);
-		assert.ok(scripts.inline[0].content.includes('greet()'), 'should contain the function call');
-	});
-
-	it('ignores <script in frontmatter JS comments (#18068)', () => {
-		const raw = `---
-// emits \`<script src="">\`; see notes.ts
-const label = 'hello';
----
-<p>{label}</p>
-
-<style>
-  .widget { color: rebeccapurple; }
-</style>
-
-<script>
-  import { greet } from '../lib/greet';
-  greet();
-</script>`;
-
-		const scripts = extractScripts(raw);
-		assert.equal(scripts.inline.length, 1);
-		const js = scripts.inline[0].content;
-		assert.ok(!js.includes('.widget'), 'should not contain CSS rules');
-		assert.ok(!js.includes('const label'), 'should not contain frontmatter code');
-		assert.ok(!js.includes('notes.ts'), 'should not contain frontmatter comment text');
-		assert.ok(
-			js.includes("import { greet } from '../lib/greet'"),
-			'should contain the real import',
-		);
-	});
-
-	it('extracts src attribute from external scripts', () => {
-		const raw = `---
-const x = 1;
----
-<script src="./my-script.ts"></script>`;
-
-		const scripts = extractScripts(raw);
-		assert.deepEqual(scripts.imports, ['./my-script.ts']);
-	});
-
-	it('skips non-JS script types', () => {
-		const raw = `<script type="application/ld+json">{"name": "test"}</script>
-<script>console.log("hello")</script>`;
-
-		const scripts = extractScripts(raw);
-		assert.equal(scripts.inline.length, 1);
-		assert.ok(scripts.inline[0].content.includes('console.log'));
-	});
-
-	it('preserves supported script loaders', () => {
-		const scripts = extractScripts(`<script lang="jsx">const jsx = <div />;</script>
-<script lang="tsx">const tsx: unknown = <div />;</script>
-<script lang="ts">const ts: string = 'value';</script>`);
-
-		assert.deepEqual(
-			scripts.inline.map((script) => script.loader),
-			['jsx', 'tsx', 'ts'],
-		);
-	});
-
-	it('handles files with no frontmatter', () => {
-		const scripts = extractScripts(`<div>hello</div>
-<script>
-  import foo from 'bar';
-</script>`);
-
-		assert.equal(scripts.inline.length, 1);
-		assert.ok(scripts.inline[0].content.includes("import foo from 'bar'"));
-	});
-
-	it('handles files with no scripts', () => {
-		const scripts = extractScripts(`---
-const x = 1;
----
-<div>hello</div>`);
-
-		assert.deepEqual(scripts, { imports: [], inline: [] });
-	});
-});
-
 describe('rolldownAstroClientScanPlugin', () => {
 	it('is included in client optimizeDeps plugins', async () => {
 		const settings = await createBasicSettings();
@@ -190,32 +91,69 @@ describe('rolldownAstroClientScanPlugin', () => {
 		assert.ok(result.dependencies.has('html-escaper'));
 	});
 
-	it('keeps separate inline script scopes during a cold scan', async () => {
+	it('completes a cold scan when a template expression contains a script tag', async () => {
 		const result = await runColdDependencyScan({
-			'src/pages/index.astro': `<script is:inline>
-const duplicate = 1;
-console.log(duplicate);
-</script>
-<script is:inline>
-const duplicate = 2;
-console.log(duplicate);
-</script>`,
-		});
-
-		assertScanSucceeded(result.messages);
-	});
-
-	it('scans import.meta.glob from scripts with explicit loaders', async () => {
-		const result = await runColdDependencyScan({
-			'src/pages/index.astro': `<script lang="tsx">
-const element: HTMLElement | undefined = undefined;
-const modules = import.meta.glob('../modules/*.ts');
-console.log(element, modules);
-</script>`,
-			'src/modules/dependency.ts': `import 'html-escaper';`,
+			'src/pages/index.astro': `<p>{'<script src="">'}</p>
+<style>/* \` */ p { color: red; }</style>
+<script>import 'html-escaper';</script>`,
 		});
 
 		assertScanSucceeded(result.messages);
 		assert.ok(result.dependencies.has('html-escaper'));
+	});
+
+	it('keeps separate script scopes during a cold scan', async () => {
+		const result = await runColdDependencyScan({
+			'src/pages/index.astro': `<script>
+import escape from 'html-escaper';
+const duplicate = 1;
+console.log(duplicate, escape);
+</script>
+<script>
+import escape from 'html-escaper';
+const duplicate = 2;
+console.log(duplicate, escape);
+</script>`,
+		});
+
+		assertScanSucceeded(result.messages);
+		assert.ok(result.dependencies.has('html-escaper'));
+	});
+
+	it('scans external scripts and import.meta.glob', async () => {
+		const result = await runColdDependencyScan({
+			'src/pages/index.astro': `<script src="../lib/external.ts"></script>
+<script>
+const element: HTMLElement | null = null;
+const modules = import.meta.glob('../modules/*.ts');
+console.log(element, modules);
+</script>`,
+			'src/lib/external.ts': `import 'clsx';`,
+			'src/modules/dependency.ts': `import 'html-escaper';`,
+		});
+
+		assertScanSucceeded(result.messages);
+		assert.ok(result.dependencies.has('clsx'));
+		assert.ok(result.dependencies.has('html-escaper'));
+	});
+
+	it('keeps imports that TypeScript would remove as unused', async () => {
+		const result = await runColdDependencyScan({
+			'src/pages/index.astro': `<script>import { clsx } from 'clsx';</script>`,
+		});
+
+		assertScanSucceeded(result.messages);
+		assert.ok(result.dependencies.has('clsx'));
+	});
+
+	it('skips scripts that Astro renders inline', async () => {
+		const result = await runColdDependencyScan({
+			'src/pages/index.astro': `<script is:inline>import 'clsx';</script>
+<script lang="tsx">import 'html-escaper';</script>`,
+		});
+
+		assertScanSucceeded(result.messages);
+		assert.equal(result.dependencies.has('clsx'), false);
+		assert.equal(result.dependencies.has('html-escaper'), false);
 	});
 });
