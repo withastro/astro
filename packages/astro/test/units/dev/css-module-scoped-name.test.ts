@@ -3,6 +3,8 @@ import { describe, it } from 'node:test';
 import { createVite } from '../../../dist/core/create-vite.js';
 import { createBasicSettings, defaultLogger } from '../test-utils.ts';
 
+type GenerateScopedName = (name: string, filename: string, css?: string) => string;
+
 describe('CSS module scoped name in dev', () => {
 	it('provides a stable generateScopedName in dev mode', async () => {
 		const settings = await createBasicSettings();
@@ -20,7 +22,7 @@ describe('CSS module scoped name in dev', () => {
 		);
 
 		const generateScopedName = config.css?.modules
-			? (config.css.modules as { generateScopedName?: Function }).generateScopedName
+			? (config.css.modules as { generateScopedName?: GenerateScopedName }).generateScopedName
 			: undefined;
 
 		assert.ok(
@@ -68,7 +70,7 @@ describe('CSS module scoped name in dev', () => {
 
 		const modules = config.css?.modules;
 		const generateScopedName = modules
-			? (modules as { generateScopedName?: Function }).generateScopedName
+			? (modules as { generateScopedName?: GenerateScopedName }).generateScopedName
 			: undefined;
 
 		assert.equal(
