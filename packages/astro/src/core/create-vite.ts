@@ -289,14 +289,11 @@ export async function createVite(
 			],
 		},
 		build: { assetsDir: settings.config.build.assets },
-		css: !isBuild
+		css: command === 'dev'
 			? {
 					modules: {
-						// Vite's default postcss-modules scoped-name generator hashes the CSS
-						// *content*, so every declaration edit changes class names. In dev this
-						// breaks HMR for server-rendered HTML because the DOM still references
-						// the previous names. Use a path-based hash instead so selectors stay
-						// stable and Vite's CSS HMR can swap rules without a full page reload.
+						// Use path-based hashes instead of content-based ones to keep selectors stable,
+						// preventing SSR HMR from breaking when CSS declarations are edited.
 						generateScopedName(name, filename) {
 							const hash = createHash('sha256')
 								.update(filename + '\0' + name)
