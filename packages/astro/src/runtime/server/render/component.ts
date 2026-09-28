@@ -14,7 +14,6 @@ import { isPromise } from '../util.js';
 import { type AstroComponentFactory, isAstroComponentFactory } from './astro/factory.js';
 import { renderTemplate } from './astro/index.js';
 import { createAstroComponentInstance } from './astro/instance.js';
-import { bufferHeadContent } from './astro/render.js';
 import {
 	chunkToString,
 	Fragment,
@@ -560,7 +559,14 @@ export async function renderComponentToString(
 
 		const renderInstance = await renderComponent(result, displayName, Component, props, slots);
 		if (containsServerDirective(props)) {
-			await bufferHeadContent(result);
+			// Initialize the server island directly instead of calling
+			// bufferHeadContent(), which re-enters collectPropagatedHeadParts()
+			// and drains pendingSlotEvaluations. When this render is itself
+			// inside one of those evaluations the drain awaits the slot promise
+			// that is awaiting *this* render, deadlocking. Calling init()
+			// directly still generates CSP hashes and pre-renders island slots
+			// without touching the propagation machinery. See #18156.
+			await (renderInstance as ServerIslandComponent).init();
 		}
 		await renderInstance.render(destination);
 	} catch (e) {
