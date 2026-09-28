@@ -394,6 +394,7 @@ describe('CSS', function () {
 
 		after(async () => {
 			await devServer.stop();
+			fixture.resetAllFiles();
 		});
 
 		it('resolves CSS in public/', async () => {
@@ -478,6 +479,66 @@ describe('CSS', function () {
 		it('.css?raw return a string', () => {
 			const el = $('#css-raw');
 			assert.equal(el.text(), '.foo {color: red;}');
+		});
+
+		it('keeps CSS Module class names stable for SSR and hydrated island after style edits', async () => {
+			const initialRes = await fixture.fetch('/css-module-hmr');
+			assert.equal(initialRes.status, 200);
+			const initialHtml = await initialRes.text();
+			const $initial = cheerio.load(initialHtml);
+
+			const ssrClass = $initial('#ssr h1').attr('class');
+			const islandClass = $initial('#island h1').attr('class');
+
+			assert.ok(ssrClass, 'SSR instance should have a generated class name');
+			assert.equal(
+				ssrClass,
+				islandClass,
+				'SSR and hydrated island should use the same generated class name',
+			);
+
+			const initialStyles = $initial('style').text();
+			assert.match(
+				initialStyles,
+				/font-family:\s*fantasy/,
+				'initial inline styles should contain the original declaration',
+			);
+
+			await fixture.editFile('/src/components/CssModuleHmr.module.css', (contents) =>
+				contents.replace('font-family: fantasy', 'font-family: monospace'),
+			);
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			const updatedRes = await fixture.fetch('/css-module-hmr');
+			assert.equal(updatedRes.status, 200);
+			const updatedHtml = await updatedRes.text();
+			const $updated = cheerio.load(updatedHtml);
+
+			const ssrClassAfter = $updated('#ssr h1').attr('class');
+			const islandClassAfter = $updated('#island h1').attr('class');
+
+			assert.equal(
+				ssrClassAfter,
+				ssrClass,
+				'SSR class name should stay stable after the CSS edit',
+			);
+			assert.equal(
+				islandClassAfter,
+				ssrClass,
+				'hydrated island class name should stay stable after the CSS edit',
+			);
+
+			const updatedStyles = $updated('style').text();
+			assert.doesNotMatch(
+				updatedStyles,
+				/font-family:\s*fantasy/,
+				'updated inline styles should no longer contain the original declaration',
+			);
+			assert.match(
+				updatedStyles,
+				/font-family:\s*monospace/,
+				'updated inline styles should contain the new declaration',
+			);
 		});
 	});
 });
