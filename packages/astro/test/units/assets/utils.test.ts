@@ -326,19 +326,58 @@ describe('generateImageStylesCSS', () => {
 
 	it('emits position rules for two-keyword combinations', () => {
 		const css = generateImageStylesCSS();
-		// Spot-check several common combinations
-		assert.ok(css.includes('[data-astro-image-pos="top-left"]'));
-		assert.ok(css.includes('object-position: top left'));
-		assert.ok(css.includes('[data-astro-image-pos="bottom-right"]'));
-		assert.ok(css.includes('object-position: bottom right'));
-		assert.ok(css.includes('[data-astro-image-pos="center-top"]'));
-		assert.ok(css.includes('object-position: center top'));
+		// Every two-keyword <position> must use one keyword per axis. `center` can
+		// pair with a keyword from either axis, so all 16 ordered pairs below are
+		// valid, in both keyword orders.
+		const vertical = ['top', 'bottom'];
+		const horizontal = ['left', 'right'];
+		for (const v of [...vertical, 'center']) {
+			for (const h of [...horizontal, 'center']) {
+				if (v === 'center' && h === 'center') continue;
+				for (const [a, b] of [
+					[v, h],
+					[h, v],
+				]) {
+					const dataAttr = `${a}-${b}`;
+					assert.ok(
+						css.includes(`[data-astro-image-pos="${dataAttr}"]`),
+						`missing rule for pos="${dataAttr}"`,
+					);
+					assert.ok(
+						css.includes(`object-position: ${a} ${b}`),
+						`missing object-position: ${a} ${b}`,
+					);
+				}
+			}
+		}
 	});
 
 	it('does not emit duplicate single-keyword combinations (e.g. top-top)', () => {
 		const css = generateImageStylesCSS();
 		assert.ok(!css.includes('[data-astro-image-pos="top-top"]'));
 		assert.ok(!css.includes('[data-astro-image-pos="center-center"]'));
+	});
+
+	it('does not emit invalid same-axis position pairs', () => {
+		const css = generateImageStylesCSS();
+		// Two-keyword <position> values must use one keyword per axis, so
+		// same-axis pairs are invalid and must not be emitted.
+		for (const [a, b] of [
+			['top', 'bottom'],
+			['bottom', 'top'],
+			['left', 'right'],
+			['right', 'left'],
+		]) {
+			const dataAttr = `${a}-${b}`;
+			assert.ok(
+				!css.includes(`[data-astro-image-pos="${dataAttr}"]`),
+				`${dataAttr} is invalid (same axis)`,
+			);
+			assert.ok(
+				!css.includes(`object-position: ${a} ${b}`),
+				`object-position: ${a} ${b} is invalid (same axis)`,
+			);
+		}
 	});
 
 	it('includes default position fallback when configured', () => {

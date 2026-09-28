@@ -1,7 +1,8 @@
 import assert from 'node:assert';
 import path from 'node:path';
 import { before, describe, it } from 'node:test';
-import { type CodeAction, Range, TextDocumentEdit } from '@volar/language-server';
+// Imported from the node entry so the types line up with the `@volar/test-utils` handle
+import { type CodeAction, Range, TextDocumentEdit } from '@volar/language-server/node.js';
 import { getLanguageServer, type LanguageServer } from '../server.ts';
 import { fixtureDir } from '../test-utils.ts';
 

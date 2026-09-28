@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { computePathnameFromDomain } from '../../../dist/core/i18n/domain.js';
-import type { SSRManifestI18n } from '../../../dist/core/app/types.js';
+import type { SSRManifest, SSRManifestI18n } from '../../../dist/core/app/types.js';
 import type { RoutingStrategies } from '../../../dist/core/app/common.js';
 import type { Locales } from '../../../dist/types/public/config.js';
-import { defaultLogger, SpyLogger } from '../test-utils.ts';
+import { defaultLogger } from '../test-utils.ts';
 
 interface I18nOverrides {
 	strategy?: RoutingStrategies;
@@ -38,6 +38,7 @@ function run(
 		i18n?: SSRManifestI18n | undefined;
 		base?: string;
 		trailingSlash?: 'always' | 'never' | 'ignore';
+		allowedDomains?: SSRManifest['allowedDomains'];
 		logger?: typeof defaultLogger;
 	} = {},
 ) {
@@ -46,9 +47,18 @@ function run(
 	const i18n = 'i18n' in opts ? opts.i18n : makeI18n();
 	const base = opts.base ?? '/';
 	const trailingSlash = opts.trailingSlash ?? 'ignore';
+	const allowedDomains = opts.allowedDomains ?? [{ hostname: 'example.fr' }];
 	const logger = opts.logger ?? defaultLogger;
 	const [request, parsedUrl] = reqAndUrl(url, headers);
-	return computePathnameFromDomain(request, parsedUrl, i18n, base, trailingSlash, logger);
+	return computePathnameFromDomain(
+		request,
+		parsedUrl,
+		i18n,
+		base,
+		trailingSlash,
+		allowedDomains,
+		logger,
+	);
 }
 
 describe('computePathnameFromDomain', () => {
@@ -90,8 +100,58 @@ describe('computePathnameFromDomain', () => {
 		);
 	});
 
+	it('ignores X-Forwarded-Host when allowedDomains is not configured', () => {
+		assert.equal(
+			run(
+				'https://example.com/about',
+				{ Host: 'example.com', 'X-Forwarded-Host': 'example.fr' },
+				{ allowedDomains: [] },
+			),
+			undefined,
+		);
+	});
+
+	it('ignores X-Forwarded-Host when it does not match allowedDomains', () => {
+		assert.equal(
+			run(
+				'https://example.com/about',
+				{ Host: 'example.com', 'X-Forwarded-Host': 'example.fr' },
+				{ allowedDomains: [{ hostname: 'example.com' }] },
+			),
+			undefined,
+		);
+	});
+
 	it('falls back to the Host header when X-Forwarded-Host is absent', () => {
 		assert.equal(run('https://example.fr/about', { Host: 'example.fr' }), '/fr/about');
+	});
+
+	it('ignores the Host header when it does not match configured allowedDomains', () => {
+		assert.equal(
+			run(
+				'https://example.fr/about',
+				{ Host: 'example.fr' },
+				{ allowedDomains: [{ hostname: 'example.com' }] },
+			),
+			undefined,
+		);
+	});
+
+	it('uses the Host header without validation when allowedDomains is not configured', () => {
+		assert.equal(
+			run('https://example.fr/about', { Host: 'example.fr' }, { allowedDomains: [] }),
+			'/fr/about',
+		);
+	});
+
+	it('uses the first value from a comma-separated X-Forwarded-Host header', () => {
+		assert.equal(
+			run('https://example.fr/about', {
+				'X-Forwarded-Host': 'example.fr, proxy.internal',
+				'X-Forwarded-Proto': 'https, http',
+			}),
+			'/fr/about',
+		);
 	});
 
 	it('strips a port from the forwarded host before matching', () => {
@@ -186,13 +246,7 @@ describe('computePathnameFromDomain', () => {
 		);
 	});
 
-	it('logs an error and returns undefined when the host cannot be parsed as a URL', () => {
-		const logger = new SpyLogger();
-		const result = run('https://example.fr/about', { 'X-Forwarded-Host': '[' }, { logger });
-		assert.equal(result, undefined);
-		assert.ok(
-			logger.logs.some((entry) => entry.level === 'error' && entry.label === 'router'),
-			'expected a router error to be logged',
-		);
+	it('ignores a forwarded host that cannot be parsed as a URL', () => {
+		assert.equal(run('https://example.fr/about', { 'X-Forwarded-Host': '[' }), undefined);
 	});
 });

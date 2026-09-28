@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { init, parse } from 'es-module-lexer';
+import { init, parse } from 'es-module-lexer/minimal';
 import {
 	annotateContentExport,
 	injectMetadataExports,
@@ -9,7 +9,7 @@ import {
 	transformContentExport,
 } from '../../dist/vite-plugin-mdx-postprocess.js';
 
-await init;
+await init();
 
 /**
  * Helper: parse code with es-module-lexer and return [imports, exports]

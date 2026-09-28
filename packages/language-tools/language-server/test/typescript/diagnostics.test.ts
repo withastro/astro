@@ -1,8 +1,9 @@
 import assert from 'node:assert';
 import * as path from 'node:path';
 import { before, describe, it } from 'node:test';
-import type { FullDocumentDiagnosticReport } from '@volar/language-server';
-import { type Diagnostic, DiagnosticSeverity, Range } from '@volar/language-server';
+// Imported from the node entry so the types line up with the `@volar/test-utils` handle
+import type { FullDocumentDiagnosticReport } from '@volar/language-server/node.js';
+import { type Diagnostic, DiagnosticSeverity, Range } from '@volar/language-server/node.js';
 import { getLanguageServer, type LanguageServer } from '../server.ts';
 import { fixtureDir } from '../test-utils.ts';
 

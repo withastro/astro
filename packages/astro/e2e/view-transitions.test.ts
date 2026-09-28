@@ -1184,6 +1184,7 @@ test.describe('View Transitions', () => {
 		const button = page.locator('#react-client-load-navigate-button');
 
 		await expect(button, 'should have content').toHaveText('Navigate to `/two`');
+		await waitForHydrate(page, button);
 
 		await button.click();
 

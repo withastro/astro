@@ -19,6 +19,7 @@ import {
 	createStylesheetElementSet,
 } from '../core/render/ssr-element.js';
 import { getDefaultRoutes } from '../core/routing/default.js';
+import { createRewriteRouteValidator } from '../core/routing/rewrite-validate.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 
 export interface ContainerEnvironmentOptions {
@@ -129,7 +130,7 @@ export function createContainerEnvironment({
 			payload: RewritePayload,
 			request: Request,
 		): Promise<TryRewriteResult> {
-			const { newUrl, pathname, routeData } = findRouteToRewrite({
+			const { newUrl, pathname, routeData } = await findRouteToRewrite({
 				payload,
 				request,
 				// PER-CALL scan of the live manifest routes: the container inserts
@@ -141,6 +142,7 @@ export function createContainerEnvironment({
 				buildFormat: manifest.buildFormat,
 				base: manifest.base,
 				outDir: manifest.outDir,
+				validate: createRewriteRouteValidator(manifest, getComponentByRoute),
 			});
 
 			const componentInstance = await getComponentByRoute(manifest, routeData);
