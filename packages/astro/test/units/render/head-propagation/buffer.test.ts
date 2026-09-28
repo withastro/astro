@@ -112,6 +112,26 @@ describe('head propagation buffer', () => {
 		assert.equal(result._metadata.pendingSlotEvaluations.length, 0);
 	});
 
+	it('leaves pending slot pre-renders untouched when awaitPendingSlots is false', async () => {
+		// A slot pre-render that never settles, like the enclosing slot of an
+		// island that is collecting head content from inside that slot.
+		const neverSettles = new Promise<void>(() => {});
+		const result = createResult([neverSettles]);
+		const propagators = new Set<HeadPropagator>([
+			{ init: () => createHeadAndContentLike('<style>.a{}</style>') },
+		]);
+
+		const collected = await collectPropagatedHeadParts({
+			propagators,
+			result,
+			isHeadAndContent,
+			awaitPendingSlots: false,
+		});
+
+		assert.deepEqual(collected, ['<style>.a{}</style>']);
+		assert.deepEqual(result._metadata.pendingSlotEvaluations, [neverSettles]);
+	});
+
 	it('drains nested async slot pre-renders queued while collecting', async () => {
 		const propagators = new Set<HeadPropagator>();
 		const result = createResult();
