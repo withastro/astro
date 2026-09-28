@@ -615,6 +615,21 @@ test.describe('View Transitions', () => {
 		await expect(page.locator('#nested-placeholder')).toHaveCount(0);
 	});
 
+	test('reified <video muted> preserves the muted IDL property after navigation', async ({
+		page,
+		astro,
+	}) => {
+		// Regression for #18152: reifyMediaElements() copies the muted content attribute
+		// via setAttribute(), but Chrome does not sync it to video.muted on script-created
+		// elements. The fix explicitly sets the property after cloning attributes.
+		await page.goto(astro.resolveUrl('/one'));
+		await page.click('#click-video-muted');
+		const vid = page.locator('#muted-vid');
+		await expect(vid).toBeVisible();
+		const muted = await vid.evaluate((el) => (el as HTMLVideoElement).muted);
+		expect(muted).toBe(true);
+	});
+
 	test('React Islands can persist using transition:persist', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/island-one'));

@@ -280,6 +280,40 @@ describe('Server islands', () => {
 		});
 	});
 
+	describe('custom fetch handler', () => {
+		let fixture: Fixture;
+		let devServer: DevServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/server-islands/custom-fetch',
+				adapter: testAdapter(),
+				outDir: './dist/server-islands-custom-fetch/',
+				cacheDir: './node_modules/.astro-test/server-islands-custom-fetch/',
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('renders framework components in an island requested after the page in dev', async () => {
+			const res = await fixture.fetch('/');
+			assert.equal(res.status, 200);
+			const html = await res.text();
+			const urlMatch = /fetch\(["'](\/_server-islands\/Island\?[^"']+)["']/.exec(html)!;
+			assert.ok(urlMatch, 'should have a server island fetch URL');
+			const islandRes = await fixture.fetch(urlMatch[1]);
+			assert.equal(islandRes.status, 200);
+			const islandHtml = await islandRes.text();
+			assert.ok(
+				islandHtml.includes('Rendered by Svelte'),
+				'island response should include the Svelte component HTML',
+			);
+		});
+	});
+
 	describe('Hybrid mode', () => {
 		let fixture: Fixture;
 		before(async () => {
