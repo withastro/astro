@@ -39,6 +39,10 @@ function assetCode(handle: string) {
 	return `export default "__VITE_ASSET__${handle}__"`;
 }
 
+function rolldownAssetCode(handle: string) {
+	return `export default import.meta.ROLLDOWN_FILE_URL_${handle}`;
+}
+
 function pluginContext(
 	codeByModule: Record<string, string>,
 	fileNames: Record<string, string>,
@@ -110,6 +114,18 @@ describe('pluginIncremental', () => {
 			assert.equal(first, second);
 		});
 
+		it('is stable when Rolldown emits the same assets with different handles', () => {
+			const first = dependencyHash(
+				{ [RED]: rolldownAssetCode(HANDLE_ONE), [VIDEO]: rolldownAssetCode(HANDLE_TWO) },
+				{ [HANDLE_ONE]: '_astro/red.aaaa.png', [HANDLE_TWO]: '_astro/clip.cccc.mp4' },
+			);
+			const second = dependencyHash(
+				{ [RED]: rolldownAssetCode(HANDLE_TWO), [VIDEO]: rolldownAssetCode(HANDLE_ONE) },
+				{ [HANDLE_TWO]: '_astro/red.aaaa.png', [HANDLE_ONE]: '_astro/clip.cccc.mp4' },
+			);
+			assert.equal(first, second);
+		});
+
 		it('changes when an imported image resolves to a different file name', () => {
 			const code = { [RED]: imageCode(HANDLE_ONE), [BLUE]: imageCode(HANDLE_TWO) };
 			const first = dependencyHash(code, {
@@ -158,6 +174,27 @@ describe('pluginIncremental', () => {
 		});
 
 		describe('CSS preprocessor partials (#17974)', () => {
+			it('is stable when compiled CSS assets are emitted with different handles', () => {
+				const cssId = '/project/src/styles/global.css';
+				const first = dependencyHash(
+					{ [cssId]: '' },
+					{ [HANDLE_ONE]: '_astro/red.aaaa.png' },
+					[cssId],
+					{
+						transforms: { [cssId]: `body { background: url(__VITE_ASSET__${HANDLE_ONE}__); }` },
+					},
+				);
+				const second = dependencyHash(
+					{ [cssId]: '' },
+					{ [HANDLE_TWO]: '_astro/red.aaaa.png' },
+					[cssId],
+					{
+						transforms: { [cssId]: `body { background: url(__VITE_ASSET__${HANDLE_TWO}__); }` },
+					},
+				);
+				assert.equal(first, second);
+			});
+
 			it('changes when compiled CSS output changes even if entry file is unchanged', () => {
 				const scssId = '/project/src/styles/global.scss';
 				// The entry file stays the same between builds; only the

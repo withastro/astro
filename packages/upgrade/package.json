@@ -31,9 +31,9 @@
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {
     "@astrojs/cli-kit": "^0.4.1",
-    "package-manager-detector": "^1.6.0",
+    "package-manager-detector": "^1.8.0",
     "terminal-link": "^5.0.0",
-    "verkit": "^0.4.0"
+    "verkit": "^0.5.0"
   },
   "devDependencies": {
     "arg": "^5.0.2",

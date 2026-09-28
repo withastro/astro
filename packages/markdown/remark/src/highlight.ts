@@ -11,7 +11,7 @@ type Highlighter = (
 	options?: { meta?: string },
 ) => Promise<Root | string>;
 
-const languagePattern = /\blanguage-(\S+)\b/;
+const languagePattern = /\blanguage-(\S+)/;
 
 /**
  * A hast utility to syntax highlight code blocks with a given syntax highlighter.

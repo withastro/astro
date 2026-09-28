@@ -1,5 +1,6 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types.js';
+import { removeQueryString } from '../../path.js';
 import { getTopLevelPageModuleInfos } from '../graph.js';
 import type { BuildInternals } from '../internal.js';
 import {
@@ -82,8 +83,9 @@ export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 				// each script module is its own entrypoint, so we directly assign each script modules to
 				// `discoveredScripts` here, which will eventually be passed as inputs of the client build.
 				if (astro.scripts.length) {
+					const filename = removeQueryString(id.replace('/@fs', ''));
 					const scriptIds = astro.scripts.map(
-						(_, i) => `${id.replace('/@fs', '')}?astro&type=script&index=${i}&lang.ts`,
+						(_, i) => `${filename}?astro&type=script&index=${i}&lang.ts`,
 					);
 
 					// Assign as entrypoints for the client bundle
