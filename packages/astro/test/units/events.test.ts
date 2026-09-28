@@ -8,6 +8,16 @@ import type { AstroUserConfig } from '../../dist/types/public/config.js';
 
 describe('Events', () => {
 	describe('eventCliSession()', () => {
+		it('source defaults to "cli"', () => {
+			const [{ payload }] = events.eventCliSession('dev', {});
+			assert.equal(payload.source, 'cli');
+		});
+
+		it('source can be set to "vite-plugin"', () => {
+			const [{ payload }] = events.eventCliSession('build', {}, undefined, 'vite-plugin');
+			assert.equal(payload.source, 'vite-plugin');
+		});
+
 		it('string literal "build.format" is included', () => {
 			const config: AstroUserConfig = {
 				srcDir: '1',

@@ -3,6 +3,7 @@ import type { Plugin } from 'vite';
 export function vitePluginDevStatus(): Plugin {
 	return {
 		name: 'astro:dev-status',
+		apply: 'serve',
 		configureServer(viteServer) {
 			viteServer.middlewares.use(function devStatusHandler(req, res, next) {
 				if (req.url !== '/_astro/status') return next();

@@ -24,7 +24,8 @@ type Payload = {
 	logger: AstroLogger;
 	fsMod?: typeof fsMod;
 	routesList: RoutesList;
-	command: 'dev' | 'build';
+	/** Defaults to Vite's command. */
+	command?: 'dev' | 'build';
 };
 
 export const ASTRO_ROUTES_MODULE_ID = 'virtual:astro:routes';
@@ -63,12 +64,15 @@ export default async function astroPluginRoutes({
 	logger,
 	fsMod,
 	routesList: initialRoutesList,
-	command,
+	command: fixedCommand,
 }: Payload): Promise<Plugin> {
 	logger.debug('update', 'Re-calculate routes');
 
-	let serializedRouteInfo: SerializedRouteInfo[] = initialRoutesList.routes.map(
-		(r): SerializedRouteInfo => {
+	let command: 'dev' | 'build' = fixedCommand ?? 'dev';
+	// Computed on first load, once `command` and the routes list are final.
+	let serializedRouteInfo: SerializedRouteInfo[] | null = null;
+	function getSerializedRouteInfo(): SerializedRouteInfo[] {
+		serializedRouteInfo ??= initialRoutesList.routes.map((r): SerializedRouteInfo => {
 			return {
 				file: '',
 				links: [],
@@ -76,8 +80,9 @@ export default async function astroPluginRoutes({
 				styles: [],
 				routeData: serializeRouteData(r, settings.config.trailingSlash),
 			};
-		},
-	);
+		});
+		return serializedRouteInfo;
+	}
 
 	const normalizedSrcDir = normalizePath(fileURLToPath(settings.config.srcDir));
 
@@ -168,6 +173,9 @@ export default async function astroPluginRoutes({
 	}
 	return {
 		name: 'astro:routes',
+		config(_, env) {
+			command = fixedCommand ?? (env.command === 'serve' ? 'dev' : 'build');
+		},
 		configureServer(server) {
 			server.watcher.on('add', (path) => rebuildRoutes(path, server));
 			server.watcher.on('unlink', (path) => rebuildRoutes(path, server));
@@ -197,7 +205,7 @@ export default async function astroPluginRoutes({
 			},
 			handler() {
 				const environmentName = this.environment.name;
-				const filteredRoutes = serializedRouteInfo.filter((routeInfo) => {
+				const filteredRoutes = getSerializedRouteInfo().filter((routeInfo) => {
 					if (command === 'build') {
 						// In prerender, filter to only the routes that need prerendering.
 						if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {

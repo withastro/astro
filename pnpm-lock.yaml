@@ -451,6 +451,37 @@ importers:
         specifier: ^7.3.5
         version: link:../../packages/astro
 
+  examples/vite-plugin-react:
+    dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../packages/integrations/react
+      '@tailwindcss/vite':
+        specifier: ^4.2.1
+        version: 4.2.2(vite@8.3.0)
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      tailwindcss:
+        specifier: ^4.2.1
+        version: 4.2.2
+      vite:
+        specifier: ^8.0.13
+        version: 8.3.0(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.6.1)(sass@1.98.0)(tsx@4.23.13)(yaml@2.9.1)
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.28
+        version: 18.3.31
+      '@types/react-dom':
+        specifier: ^18.3.7
+        version: 18.3.7(@types/react@18.3.31)
+
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':

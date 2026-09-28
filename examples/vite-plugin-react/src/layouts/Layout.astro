@@ -1,0 +1,52 @@
+---
+import '../styles/global.css';
+
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+const path = Astro.url.pathname;
+const links = [
+	{ href: '/', label: 'Home' },
+	{ href: '/about/', label: 'About' },
+];
+---
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{title}</title>
+	</head>
+	<body class="min-h-screen bg-slate-950 text-slate-200 antialiased">
+		<div
+			class="pointer-events-none fixed inset-x-0 top-0 -z-10 h-96 bg-gradient-to-b from-violet-600/20 to-transparent"
+		>
+		</div>
+		<header class="mx-auto flex max-w-3xl items-center justify-between px-6 py-6">
+			<a href="/" class="font-semibold tracking-tight text-white">
+				astro<span class="text-violet-400">/vite</span>
+			</a>
+			<nav class="flex gap-1 text-sm">
+				{
+					links.map(({ href, label }) => (
+						<a
+							href={href}
+							class:list={[
+								'rounded-md px-3 py-1.5 transition-colors',
+								path === href
+									? 'bg-white/10 text-white'
+									: 'text-slate-400 hover:bg-white/5 hover:text-white',
+							]}
+						>
+							{label}
+						</a>
+					))
+				}
+			</nav>
+		</header>
+		<main class="mx-auto max-w-3xl px-6 pb-24">
+			<slot />
+		</main>
+	</body>
+</html>

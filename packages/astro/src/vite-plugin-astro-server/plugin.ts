@@ -37,6 +37,7 @@ export default function createVitePluginAstroServer({
 }: AstroPluginOptions): vite.Plugin {
 	return {
 		name: 'astro:server',
+		apply: 'serve',
 		applyToEnvironment(environment) {
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},

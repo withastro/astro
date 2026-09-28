@@ -83,18 +83,9 @@ function extractRelevantChunks(
 }
 
 export async function viteBuild(opts: StaticBuildOptions) {
-	const { allPages, settings } = opts;
+	const { settings } = opts;
 
-	// Build internals needed by the CSS plugin
-	const internals = createBuildInternals();
-
-	for (const pageData of Object.values(allPages)) {
-		const astroModuleURL = new URL('./' + pageData.component, settings.config.root);
-		const astroModuleId = prependForwardSlash(pageData.component);
-
-		// Track the page data in internals
-		trackPageData(internals, pageData.component, pageData, astroModuleId, astroModuleURL);
-	}
+	const internals = createTrackedBuildInternals(opts);
 
 	// Empty out the dist folder, if needed. Vite has a config for doing this
 	// but because we are running 2 vite builds in parallel, that would cause a race
@@ -113,6 +104,24 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	);
 
 	return { internals };
+}
+
+/** Tracks every page from `opts.allPages` in `internals`. */
+export function createTrackedBuildInternals(
+	opts: StaticBuildOptions,
+	internals: BuildInternals = createBuildInternals(),
+): BuildInternals {
+	const { allPages, settings } = opts;
+
+	for (const pageData of Object.values(allPages)) {
+		const astroModuleURL = new URL('./' + pageData.component, settings.config.root);
+		const astroModuleId = prependForwardSlash(pageData.component);
+
+		// Track the page data in internals
+		trackPageData(internals, pageData.component, pageData, astroModuleId, astroModuleURL);
+	}
+
+	return internals;
 }
 
 /**
@@ -146,8 +155,29 @@ export async function viteBuild(opts: StaticBuildOptions) {
  * Returns outputs from each environment for post-build processing (manifest injection, etc).
  */
 async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInternals) {
-	const { allPages, settings, viteConfig } = opts;
-	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
+	const viteBuildConfig = createBuildEnvironmentsConfig(opts, internals);
+
+	const updatedViteBuildConfig = await runHookBuildSetup({
+		config: opts.settings.config,
+		pages: internals.pagesByKeys,
+		vite: viteBuildConfig,
+		target: 'server',
+		logger: opts.logger,
+	});
+
+	const builder = await vite.createBuilder(updatedViteBuildConfig);
+	await builder.buildApp();
+}
+
+/**
+ * Creates the multi-environment Vite build config (build plugins, environments,
+ * and the `buildApp` orchestration) without running the build.
+ */
+export function createBuildEnvironmentsConfig(
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+): vite.InlineConfig {
+	const { settings, viteConfig } = opts;
 
 	const buildPlugins = getAllBuildPlugins(internals, opts);
 	const flatPlugins = buildPlugins.flat().filter(Boolean);
@@ -232,7 +262,10 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	const viteBuildConfig = createViteBuildConfig({
 		settings,
 		viteConfig,
-		routes,
+		// `astro/vite` fills `allPages` after this config is created.
+		get routes() {
+			return Object.values(opts.allPages).flatMap((pageData) => pageData.route);
+		},
 		plugins,
 		// Top-level buildApp for framework build orchestration
 		// This takes precedence over platform plugin fallbacks (e.g., Cloudflare)
@@ -301,16 +334,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		isRolldownInput,
 	});
 
-	const updatedViteBuildConfig = await runHookBuildSetup({
-		config: settings.config,
-		pages: internals.pagesByKeys,
-		vite: viteBuildConfig,
-		target: 'server',
-		logger: opts.logger,
-	});
-
-	const builder = await vite.createBuilder(updatedViteBuildConfig);
-	await builder.buildApp();
+	return viteBuildConfig;
 }
 
 /**

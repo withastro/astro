@@ -19,6 +19,11 @@ interface EventPayload {
 	agentName?: string;
 	/** Type of agentic environment: "agent", "interactive", or "hybrid". */
 	agentType?: string;
+	/**
+	 * How Astro was started: `cli` for the Astro CLI and its JavaScript API (`dev()`, `build()`, ...),
+	 * `vite-plugin` for the `astro()` plugin from `astro/vite`.
+	 */
+	source: 'cli' | 'vite-plugin';
 }
 
 type ConfigInfoValue = string | boolean | string[] | undefined;
@@ -137,6 +142,7 @@ export function eventCliSession(
 	cliCommand: string,
 	userConfig: AstroUserConfig,
 	flags?: Record<string, any>,
+	source: 'cli' | 'vite-plugin' = 'cli',
 ): { eventName: string; payload: EventPayload }[] {
 	// Filter out yargs default `_` flag which is the cli command
 	const cliFlags = flags ? Object.keys(flags).filter((name) => name !== '_') : undefined;
@@ -145,6 +151,7 @@ export function eventCliSession(
 		cliCommand,
 		config: createAnonymousConfigInfo(userConfig),
 		flags: cliFlags,
+		source,
 	};
 
 	// Detect AI coding agent environment

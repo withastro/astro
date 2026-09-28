@@ -5,6 +5,7 @@ import type { EnvironmentOptions } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { convertPathToPattern } from 'tinyglobby';
 import { fileURLToPath } from 'node:url';
+import { getAstroPkgsConfig } from './crawl.js';
 
 // These specifiers are usually dependencies written in CJS, but loaded through Vite's transform
 // pipeline, which Vite doesn't support in development time. This hardcoded list temporarily
@@ -32,9 +33,11 @@ const ALWAYS_NOEXTERNAL = [
 ];
 
 interface Payload {
-	command: 'dev' | 'build';
+	/** Defaults to Vite's command. */
+	command?: 'dev' | 'build';
 	settings: AstroSettings;
-	astroPkgsConfig: CrawlFrameworkPkgsResult;
+	/** Crawled from the Vite config in the `config` hook when omitted. */
+	astroPkgsConfig?: CrawlFrameworkPkgsResult;
 }
 /**
  * This plugin is responsible of setting up the environments of the vite server, such as
@@ -42,14 +45,26 @@ interface Payload {
  *
  */
 export function vitePluginEnvironment({
-	command,
+	command: fixedCommand,
 	settings,
-	astroPkgsConfig,
+	astroPkgsConfig: fixedAstroPkgsConfig,
 }: Payload): vite.Plugin {
 	const srcDirPattern = convertPathToPattern(fileURLToPath(settings.config.srcDir));
+	let command = fixedCommand;
+	let astroPkgsConfig = fixedAstroPkgsConfig;
 
 	return {
 		name: 'astro:environment',
+		async config(userConfig, env) {
+			command = fixedCommand ?? (env.command === 'serve' ? 'dev' : 'build');
+			astroPkgsConfig =
+				fixedAstroPkgsConfig ??
+				(await getAstroPkgsConfig({
+					root: fileURLToPath(settings.config.root),
+					isBuild: command === 'build',
+					viteUserConfig: userConfig,
+				}));
+		},
 		configEnvironment(environmentName, _options): EnvironmentOptions {
 			const finalEnvironmentOptions: EnvironmentOptions = {
 				optimizeDeps: {
@@ -70,11 +85,11 @@ export function vitePluginEnvironment({
 				if (_options.resolve?.noExternal !== true) {
 					finalEnvironmentOptions.resolve!.noExternal = [
 						...ALWAYS_NOEXTERNAL,
-						...astroPkgsConfig.ssr.noExternal,
+						...astroPkgsConfig!.ssr.noExternal,
 					];
 					finalEnvironmentOptions.resolve!.external = [
 						...(command === 'dev' ? ONLY_DEV_EXTERNAL : []),
-						...astroPkgsConfig.ssr.external,
+						...astroPkgsConfig!.ssr.external,
 					];
 				}
 

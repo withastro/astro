@@ -5,6 +5,7 @@ import { patchOverlay } from '../core/errors/overlay.js';
 export function vitePluginAstroServerClient(): Plugin {
 	return {
 		name: 'astro:server-client',
+		apply: 'serve',
 		applyToEnvironment(environment) {
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
 		},
