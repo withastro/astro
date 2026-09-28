@@ -174,6 +174,10 @@ describe('redirects/hasMetaRefreshTo', () => {
 		);
 	});
 
+	it('accepts unquoted attribute values', () => {
+		assert.equal(hasMetaRefreshTo('<meta http-equiv=refresh content=0;url=/new>', '/new'), true);
+	});
+
 	it('rejects a tag pointing somewhere else', () => {
 		assert.equal(
 			hasMetaRefreshTo('<meta http-equiv="refresh" content="0;url=/other">', '/new'),

@@ -38,8 +38,11 @@ const FailingRedirectPage = createComponent(() => {
  * Builds an app whose environment opts into redirect-page rendering, the way
  * the build environment does under `experimental.redirectPage`.
  */
-function createRedirectPageApp(pages: Parameters<typeof createTestApp>[0]) {
-	const app = createTestApp(pages);
+function createRedirectPageApp(
+	pages: Parameters<typeof createTestApp>[0],
+	manifestOverrides: Parameters<typeof createTestApp>[1] = {},
+) {
+	const app = createTestApp(pages, manifestOverrides);
 	const manifest = (app as any).manifest;
 	setEnvironment(manifest, {
 		...getEnvironment(manifest),
@@ -62,7 +65,9 @@ describe('redirects/3xx.astro', () => {
 		const html = await response.text();
 		assert.match(html, /<meta http-equiv="refresh" content="0;url=\/new">/);
 		assert.match(html, /data-from="\/old"/);
+		assert.match(html, /data-to="\/new"/);
 		assert.match(html, /data-status="301"/);
+		assert.match(html, /data-delay="0"/);
 	});
 
 	it('uses a 2 second delay for 302 redirects', async () => {
@@ -106,6 +111,37 @@ describe('redirects/3xx.astro', () => {
 
 		assert.equal(response.status, 301);
 		assert.equal(response.body, null);
+	});
+
+	it('skips middleware during the internal render and preserves the redirect response', async () => {
+		let middlewareCalls = 0;
+		const app = createRedirectPageApp(
+			[createPage(RedirectPage, { route: '/old' }), createPage(RedirectPage, { route: '/3xx' })],
+			{
+				middleware: () => ({
+					onRequest: async () => {
+						middlewareCalls++;
+						return new Response(null, {
+							status: 307,
+							headers: {
+								location: '/new',
+								'content-type': 'text/plain',
+								'x-original-response': 'preserved',
+							},
+						});
+					},
+				}),
+			},
+		);
+
+		const response = await app.render(new Request('https://example.com/old'));
+
+		assert.equal(middlewareCalls, 1);
+		assert.equal(response.status, 307);
+		assert.equal(response.headers.get('location'), '/new');
+		assert.equal(response.headers.get('content-type'), 'text/plain');
+		assert.equal(response.headers.get('x-original-response'), 'preserved');
+		assert.match(await response.text(), /data-to="\/new"/);
 	});
 
 	it('falls back to a bodiless redirect when 3xx.astro throws', async () => {
