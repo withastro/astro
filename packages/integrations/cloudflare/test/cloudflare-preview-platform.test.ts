@@ -3,12 +3,12 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
-describe('WranglerPreviewPlatform', () => {
+describe('Cloudflare preview platform', () => {
 	let fixture: Fixture;
 	let previewServer: PreviewServer;
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/wrangler-preview-platform/',
+			root: './fixtures/cloudflare-preview-platform/',
 		});
 		await fixture.build();
 		previewServer = await fixture.preview();

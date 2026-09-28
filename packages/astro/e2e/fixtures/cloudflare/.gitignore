@@ -1,1 +1,2 @@
-worker-configuration.d.ts
+.cloudflare
+.wrangler

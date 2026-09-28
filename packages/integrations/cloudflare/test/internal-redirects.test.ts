@@ -1,8 +1,6 @@
 import { describe, it } from 'node:test';
 import { type Fixture, loadFixture } from './test-utils.ts';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 
 describe('Internal Redirects', () => {
 	let fixture: Fixture;
@@ -14,8 +12,7 @@ describe('Internal Redirects', () => {
 		await fixture.build();
 
 		// Check that the redirect file was created and contains the redirect
-		const redirectsPath = fileURLToPath(new URL('client/_redirects', fixture.config.outDir));
-		const redirectsContent = readFileSync(redirectsPath, 'utf-8');
+		const redirectsContent = await fixture.readFile('client/_redirects');
 		assert.match(
 			redirectsContent,
 			/\/redirect\s+\/page2\s+301/,
@@ -23,11 +20,8 @@ describe('Internal Redirects', () => {
 		);
 
 		// Check that the destination was not prerendered
-		const prerenderedPath = fileURLToPath(
-			new URL('client/redirect/index.html', fixture.config.outDir),
-		);
 		assert.ok(
-			!existsSync(prerenderedPath),
+			!fixture.pathExists('client/redirect/index.html'),
 			'Should not create prerendered file for internal redirect destination',
 		);
 	});

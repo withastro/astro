@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { before, describe, it } from 'node:test';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import { getBuildOutputDirectory, type Fixture, loadFixture } from './test-utils.ts';
 
 // Edge-safety scan: incremental metadata collection is scoped with
 // AsyncLocalStorage, but the only `node:async_hooks` reference in the adapter
@@ -39,15 +39,15 @@ describe('production worker async_hooks scan', () => {
 			'the incremental manifest should be written',
 		);
 		assert.ok(
-			fs.existsSync(new URL('dist/client/prerendered/index.html', root)),
+			fixture.pathExists('client/prerendered/index.html'),
 			'the prerendered page should be emitted',
 		);
 	});
 
 	it('emits a production worker with zero occurrences of async_hooks', () => {
-		const serverDir = fileURLToPath(new URL('dist/server/', root));
+		const serverDir = fileURLToPath(getBuildOutputDirectory(root, 'server'));
 		const files = walk(serverDir).filter((file) => /\.(?:m?js|cjs)$/.test(file));
-		assert.ok(files.length > 0, 'expected production worker JS output in dist/server/');
+		assert.ok(files.length > 0, 'expected production worker JS output');
 		for (const file of files) {
 			const source = fs.readFileSync(file, 'utf-8');
 			assert.ok(
@@ -57,18 +57,14 @@ describe('production worker async_hooks scan', () => {
 		}
 	});
 
-	it('does not append nodejs_als to the deployed wrangler config', () => {
+	it('does not append nodejs_als to the deployed Cloudflare config', () => {
 		// The auto-appended flag shapes only the transient build-time prerender
 		// worker; the user's deployable config must be untouched.
-		const distDir = fileURLToPath(new URL('dist/', root));
-		const wranglerConfigs = walk(distDir).filter((file) => file.endsWith('wrangler.json'));
-		assert.ok(wranglerConfigs.length > 0, 'expected an emitted wrangler.json in dist/');
-		for (const file of wranglerConfigs) {
-			const config = JSON.parse(fs.readFileSync(file, 'utf-8'));
-			assert.ok(
-				!(config.compatibility_flags ?? []).includes('nodejs_als'),
-				`deployed config ${file} must not gain the nodejs_als flag`,
-			);
-		}
+		const configPath = new URL('.cloudflare/output/v0/workers/default/worker.config.json', root);
+		const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+		assert.ok(
+			!(config.compatibilityFlags ?? []).includes('nodejs_als'),
+			'deployed config must not gain the nodejs_als flag',
+		);
 	});
 });

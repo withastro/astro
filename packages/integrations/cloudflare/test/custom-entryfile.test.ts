@@ -1,13 +1,10 @@
 import * as assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
 import { after, before, describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 describe('Custom entry file', () => {
 	let fixture: Fixture;
 	let previewServer: PreviewServer;
-	const root = new URL('./fixtures/custom-entryfile/', import.meta.url);
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -22,9 +19,7 @@ describe('Custom entry file', () => {
 	});
 
 	it('filters out duplicate "default" export and builds', async () => {
-		const filePath = fileURLToPath(new URL('dist/server', root));
-		const hasBuilt = existsSync(filePath);
-		assert.equal(hasBuilt, true, `Expected ${filePath} to exist after build`);
+		assert.equal(fixture.pathExists('server'), true, 'Expected the server output to exist');
 	});
 
 	it('uses custom entrypoint', async () => {

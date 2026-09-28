@@ -1,8 +1,7 @@
 import { createReadStream, existsSync } from 'node:fs';
 import { appendFile, readFile, rename, stat, unlink, writeFile } from 'node:fs/promises';
-import { relative } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { normalizePath } from 'vite';
+import { resolve, sep } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createInterface } from 'node:readline/promises';
 import {
 	removeLeadingForwardSlash,
@@ -27,11 +26,10 @@ import {
 	DEFAULT_SESSION_KV_BINDING_NAME,
 	DEFAULT_IMAGES_BINDING_NAME,
 	withNodejsAlsFlag,
-} from './wrangler.js';
+} from './cloudflare-config.js';
 import { passthroughImageService, sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
 import cfPrismPlugin from './vite-plugin-prism.js';
-import { loadWranglerEnv } from './utils/wrangler-config.js';
 
 const CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT = sessionDrivers.cloudflareKVBinding().entrypoint;
 const CONTENT_CHUNK_SIZE = 1024 * 1024;
@@ -90,7 +88,7 @@ function resolveImageServiceEntrypoint(entrypoint: string, root: URL): string {
 export interface Options
 	extends Pick<
 		PluginConfig,
-		'auxiliaryWorkers' | 'configPath' | 'inspectorPort' | 'persistState' | 'remoteBindings'
+		'auxiliaryWorkers' | 'inspectorPort' | 'persistState' | 'remoteBindings'
 	> {
 	/** Options for handling images. */
 	imageService?: ImageServiceConfig;
@@ -100,9 +98,7 @@ export interface Options
 	 * will be automatically provisioned when you deploy.
 	 *
 	 * By default, the binding is named `SESSION`, but you can override this by providing a different name here.
-	 * If you define the binding manually in your wrangler config, Astro will use your configuration instead.
-	 *
-	 * See https://developers.cloudflare.com/workers/wrangler/configuration/#automatic-provisioning for more details.
+	 * If you define the binding manually in your Cloudflare config, Astro will use your configuration instead.
 	 */
 	sessionKVBindingName?: string;
 
@@ -111,7 +107,7 @@ export interface Options
 	 * to transform images. The binding will be automatically configured for you.
 	 *
 	 * By default, the binding is named `IMAGES`, but you can override this by providing a different name here.
-	 * If you define the binding manually in your wrangler config, Astro will use your configuration instead.
+	 * If you define the binding manually in your Cloudflare config, Astro will use your configuration instead.
 	 *
 	 * See https://developers.cloudflare.com/images/transform-images/bindings/ for more details.
 	 */
@@ -162,7 +158,7 @@ export default function createIntegration({
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
-			'astro:config:setup': async ({ command, config, updateConfig, logger, addWatchFile }) => {
+			'astro:config:setup': async ({ command, config, updateConfig, logger }) => {
 				if (!!process.versions.webcontainer) {
 					throw new Error('`workerd` does not run on Stackblitz.');
 				}
@@ -208,6 +204,11 @@ export default function createIntegration({
 
 				const adapterPluginConfig: Partial<PluginConfig> = {
 					config: cloudflareConfigCustomizer({
+						envDir:
+							config.vite.envDir === false
+								? undefined
+								: resolve(fileURLToPath(config.root), config.vite.envDir ?? '.'),
+						mode: config.vite.mode ?? (command === 'dev' ? 'development' : 'production'),
 						needsSessionKVBinding,
 						sessionKVBindingName,
 						imagesBindingName:
@@ -215,47 +216,43 @@ export default function createIntegration({
 						needsWorkerCache,
 					}),
 					...(prerenderEnvironment === 'workerd' && {
-						experimental: {
-							prerenderWorker: {
-								config(_, { entryWorkerConfig }) {
-									const {
-										queues,
-										durable_objects,
-										migrations,
-										exports: _exports,
-										workflows,
-										...restWorkerConfig
-									} = entryWorkerConfig;
-									return {
-										...restWorkerConfig,
-										name: 'prerender',
-										main: '@astrojs/cloudflare/entrypoints/server',
-										// Make AsyncLocalStorage available in the build-time prerender
-										// worker (the render scope in `utils/prerender-scope.ts` needs
-										// it) by auto-appending `nodejs_als` when the user's config has
-										// no ALS-capable flag. This never touches the user's deployed
-										// config; a runtime probe in `prerender-scope.ts` is the safety
-										// net should ALS still be unavailable.
-										compatibility_flags: withNodejsAlsFlag(restWorkerConfig.compatibility_flags),
-										...(queues?.producers?.length && {
-											queues: { producers: queues.producers },
-										}),
-										// `isBindingBuild` needs the IMAGES binding in the prerender
-										// worker even when the runtime service is `passthrough`.
-										...((needsImagesBinding || isBindingBuild) &&
-											!restWorkerConfig.images && {
-												images: { binding: imagesBindingName },
-											}),
-									};
-								},
+						prerenderWorker: {
+							config({ entryWorkerConfig }) {
+								const {
+									assets: _assets,
+									env,
+									exports: _exports,
+									triggers,
+									...restWorkerConfig
+								} = entryWorkerConfig;
+								return {
+									...restWorkerConfig,
+									name: 'prerender',
+									entrypoint: '@astrojs/cloudflare/entrypoints/server',
+									// TODO: Filter Workflow bindings when the Cloudflare config API supports them.
+									env: Object.fromEntries(
+										Object.entries(env ?? {}).filter(
+											([, binding]) =>
+												binding.type !== 'assets' && binding.type !== 'durable-object',
+										),
+									),
+									triggers: triggers?.filter((trigger) => trigger.type !== 'queue'),
+									// Make AsyncLocalStorage available in the build-time prerender
+									// worker (the render scope in `utils/prerender-scope.ts` needs
+									// it) by auto-appending `nodejs_als` when the user's config has
+									// no ALS-capable flag. This never touches the user's deployed
+									// config; a runtime probe in `prerender-scope.ts` is the safety
+									// net should ALS still be unavailable.
+									compatibilityFlags: withNodejsAlsFlag(restWorkerConfig.compatibilityFlags),
+								};
 							},
 						},
 					}),
 				};
 				// Resolve the full `@cloudflare/vite-plugin` config exactly once by merging
 				// the user's `cloudflare({...})` options (e.g. `remoteBindings`,
-				// `inspectorPort`, `persistState`, `configPath`, `auxiliaryWorkers`) with
-				// the adapter's computed bindings/wrangler wiring. Downstream call sites
+				// `inspectorPort`, `persistState`, `auxiliaryWorkers`) with
+				// the adapter's computed bindings and Worker config. Downstream call sites
 				// (the dev/build plugin instance, the prerenderer's preview server, and
 				// the `astro preview` entrypoint) then just spread `cfPluginConfig` and
 				// cannot accidentally drop user options (see #16705 and related CHANGELOG
@@ -322,6 +319,25 @@ export default function createIntegration({
 								? [createNodePrerenderPlugin()]
 								: []),
 							cloudflareVitePlugins,
+							{
+								name: '@astrojs/cloudflare:base-output-directory',
+								enforce: 'post',
+								apply: 'build',
+								configResolved(viteConfig) {
+									const client = viteConfig.environments.client;
+									if (!client) return;
+									_originalClientDir = pathToFileURL(
+										`${resolve(viteConfig.root, client.build.outDir)}${sep}`,
+									);
+									if (_config.base === '/') return;
+									// TODO: Remove this mutation once the Cloudflare Vite plugin supports base paths natively.
+									client.build.outDir = resolve(
+										viteConfig.root,
+										client.build.outDir,
+										removeLeadingForwardSlash(removeTrailingForwardSlash(_config.base)),
+									);
+								},
+							},
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
@@ -490,22 +506,13 @@ export default function createIntegration({
 					},
 					image: setImageConfig(imageService, config.image, command, logger),
 				});
-
-				if (cloudflareOptions.configPath) {
-					addWatchFile(new URL(cloudflareOptions.configPath, config.root));
-				}
-
-				addWatchFile(new URL('./wrangler.toml', config.root));
-				addWatchFile(new URL('./wrangler.json', config.root));
-				addWatchFile(new URL('./wrangler.jsonc', config.root));
 			},
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
 			},
-			'astro:config:done': ({ setAdapter, config, injectTypes, logger, buildOutput }) => {
+			'astro:config:done': ({ setAdapter, config, injectTypes, buildOutput }) => {
 				_config = config;
 				_buildOutput = buildOutput;
-				_originalClientDir = new URL(config.build.client.href);
 
 				// Resolve the custom image service against the FINAL config: the adapter's
 				// `astro:config:setup` runs before every user integration (Astro unshifts
@@ -514,14 +521,6 @@ export default function createIntegration({
 				hasUserBuildImageService = hasBuildImageService && hasUserImageService(config.image);
 				if (compileImageConfig && hasUserBuildImageService) {
 					compileImageConfig.imageServiceEntrypoint = config.image.service.entrypoint;
-				}
-
-				// When a base path is configured, nest the client output directory under
-				// the base so that on-disk paths match the URLs Astro writes into HTML.
-				// Cloudflare Workers' static-asset binding resolves request URLs literally
-				// against the client directory, so the files must live under the base prefix.
-				if (config.base !== '/') {
-					config.build.client = new URL('.' + config.base + '/', config.build.client);
 				}
 
 				injectTypes({
@@ -554,11 +553,6 @@ export default function createIntegration({
 						envGetSecret: 'stable',
 					},
 				});
-
-				// Assign the Wrangler config's effective env (`vars` merged with
-				// `.dev.vars`/`.env` overrides) to process.env so astro:env can find
-				// these variables at build time.
-				loadWranglerEnv(config.root, cloudflareOptions.configPath, logger);
 			},
 			'astro:build:start': ({ setPrerenderer, logger }) => {
 				if (
@@ -572,11 +566,10 @@ export default function createIntegration({
 				}
 
 				if (prerenderEnvironment === 'workerd') {
-					setPrerenderer(
+					setPrerenderer((_defaultPrerenderer, { outputDirectories }) =>
 						createCloudflarePrerenderer({
 							root: _config.root,
-							serverDir: _config.build.server,
-							clientDir: _config.build.client,
+							outputDirectories,
 							base: _config.base,
 							trailingSlash: _config.trailingSlash,
 							cfPluginConfig,
@@ -678,38 +671,15 @@ export default function createIntegration({
 				}
 			},
 			'astro:build:done': async ({ dir, logger, assets }) => {
-				// Move platform files from the base-prefixed client dir to the
-				// original client root, since Cloudflare reads them from there.
+				// Vite writes all client files beneath the base prefix. Cloudflare's platform
+				// files apply to the entire asset directory, so keep those at its root.
 				if (_config.base !== '/') {
 					for (const file of ['.assetsignore', '_headers', '_redirects']) {
 						try {
-							await rename(
-								new URL(`./${file}`, _config.build.client),
-								new URL(`./${file}`, _originalClientDir),
-							);
+							await rename(new URL(`./${file}`, dir), new URL(`./${file}`, _originalClientDir));
 						} catch {
 							// File may not exist — that's fine
 						}
-					}
-					// The @cloudflare/vite-plugin computes assets.directory from the
-					// modified client outDir which includes the base prefix. However,
-					// Cloudflare's asset binding resolves the full request URL path
-					// (including the base) against the directory, so it must point to
-					// the original un-prefixed client root.
-					// Note: this patches the generated build-output wrangler.json (in
-					// dist/server/), not the project's source wrangler.json.
-					try {
-						const wranglerJsonUrl = new URL('./wrangler.json', _config.build.server);
-						const raw = await readFile(wranglerJsonUrl, 'utf-8');
-						const wranglerConfig = JSON.parse(raw);
-						if (wranglerConfig.assets?.directory) {
-							wranglerConfig.assets.directory = normalizePath(
-								relative(fileURLToPath(_config.build.server), fileURLToPath(_originalClientDir)),
-							);
-							await writeFile(wranglerJsonUrl, JSON.stringify(wranglerConfig));
-						}
-					} catch {
-						// wrangler.json may not exist or may contain invalid JSON
 					}
 				}
 

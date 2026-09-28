@@ -139,7 +139,7 @@ describe('sessions with custom binding name', () => {
 	});
 });
 
-describe('session wrangler config', () => {
+describe('session Cloudflare config', () => {
 	it('does not include the SESSION KV binding when sessions are disabled', async () => {
 		const fixture = await loadFixture({
 			root: './fixtures/static/',
@@ -155,13 +155,12 @@ describe('session wrangler config', () => {
 		};
 		await fixture.build(config);
 
-		const wrangler = JSON.parse(await fixture.readFile('/client/wrangler.json')) as {
-			kv_namespaces?: Array<{ binding: string }>;
+		const cloudflareConfig = JSON.parse(
+			await fixture.readFile('../.cloudflare/output/v0/workers/default/worker.config.json'),
+		) as {
+			env?: Record<string, { type: string }>;
 		};
-		assert.equal(
-			wrangler.kv_namespaces?.some(({ binding }) => binding === 'SESSION'),
-			false,
-		);
+		assert.equal(cloudflareConfig.env?.SESSION, undefined);
 	});
 
 	it('includes the SESSION KV binding when Cloudflare KV is configured explicitly', async () => {
@@ -179,9 +178,11 @@ describe('session wrangler config', () => {
 		};
 		await fixture.build(config);
 
-		const wrangler = JSON.parse(await fixture.readFile('/client/wrangler.json')) as {
-			kv_namespaces?: Array<{ binding: string }>;
+		const cloudflareConfig = JSON.parse(
+			await fixture.readFile('../.cloudflare/output/v0/workers/default/worker.config.json'),
+		) as {
+			env?: Record<string, { type: string }>;
 		};
-		assert.deepEqual(wrangler.kv_namespaces, [{ binding: 'SESSION' }]);
+		assert.deepEqual(cloudflareConfig.env?.SESSION, { type: 'kv' });
 	});
 });

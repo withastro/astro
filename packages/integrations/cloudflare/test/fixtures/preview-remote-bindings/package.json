@@ -1,9 +1,13 @@
 {
-  "name": "@test/astro-cloudflare-wrangler-preview-platform",
+  "name": "@test/astro-cloudflare-preview-remote-bindings",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@astrojs/cloudflare": "workspace:*",
     "astro": "workspace:*"
+  },
+  "devDependencies": {
+    "cf": "0.13.0"
   }
 }

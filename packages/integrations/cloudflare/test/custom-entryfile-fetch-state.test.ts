@@ -20,7 +20,10 @@ describe('Custom entry file using astro/fetch', () => {
 		});
 		await fixture.build();
 		await writeFile(
-			new URL('./fixtures/custom-entryfile-fetch-state/dist/client/stray.txt', import.meta.url),
+			new URL(
+				'./fixtures/custom-entryfile-fetch-state/.cloudflare/output/v0/workers/default/assets/stray.txt',
+				import.meta.url,
+			),
 			'stray file body',
 		);
 		previewServer = await fixture.preview();

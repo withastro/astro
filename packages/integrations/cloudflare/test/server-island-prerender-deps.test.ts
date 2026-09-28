@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { loadFixture } from './test-utils.ts';
+import { getBuildOutputDirectory, loadFixture } from './test-utils.ts';
 
 async function readFilesRecursive(dir: string): Promise<string[]> {
 	const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -27,7 +27,7 @@ describe('Cloudflare server island prerender dependencies', () => {
 
 		await fixture.build();
 
-		const serverOutputDir = fileURLToPath(fixture.config.build.server);
+		const serverOutputDir = fileURLToPath(getBuildOutputDirectory(fixture.config.root, 'server'));
 		const outputFiles = await readFilesRecursive(serverOutputDir);
 		const islandChunkPath = outputFiles.find((file) => {
 			const normalized = file.replaceAll(path.sep, '/');

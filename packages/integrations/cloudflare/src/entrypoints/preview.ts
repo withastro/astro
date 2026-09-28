@@ -1,5 +1,4 @@
 import { existsSync } from 'node:fs';
-import { resolve as resolvePath } from 'node:path';
 import type { CreatePreviewServer } from 'astro';
 import {
 	preview,
@@ -24,8 +23,8 @@ const createPreviewServer: CreatePreviewServer = async ({
 	allowedHosts,
 	root,
 }) => {
-	const wranglerConfigPath = resolvePath(fileURLToPath(root), '.wrangler/deploy/config.json');
-	if (!existsSync(wranglerConfigPath)) {
+	const buildOutputConfigPath = new URL('./.cloudflare/output/v0/config.json', root);
+	if (!existsSync(buildOutputConfigPath)) {
 		logger.error('No build output found. Run `astro build` before running `astro preview`.');
 		process.exit(1);
 	}

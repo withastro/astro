@@ -1,4 +1,5 @@
 import * as assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import cloudflare from '../dist/index.js';
@@ -127,8 +128,16 @@ for (const output of ['server', undefined] as const) {
 		});
 
 		it('provisions the Images binding', async () => {
-			const wrangler = JSON.parse(await fixture.readFile('server/wrangler.json'));
-			assert.deepEqual(wrangler.images, { binding: 'IMAGES' });
+			const config = JSON.parse(
+				await readFile(
+					new URL(
+						'./.cloudflare/output/v0/workers/default/worker.config.json',
+						fixture.config.root,
+					),
+					'utf-8',
+				),
+			);
+			assert.deepEqual(config.env.IMAGES, { type: 'images' });
 		});
 
 		it('keeps Sharp out of the worker bundle', async () => {
