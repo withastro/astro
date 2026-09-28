@@ -277,6 +277,21 @@ describe('Server islands', () => {
 				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
+
+			it('renders server island inside a slot in an MDX content collection entry', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const request = new Request('http://example.com/content-collection-island-slot/');
+				const res = await app.render(request);
+				assert.equal(res.status, 200);
+				const html = await res.text();
+				const $ = cheerio.load(html);
+				assert.equal($('#default-wrapper').length, 1, 'wrapper element should be present');
+				assert.equal(
+					$('#default-wrapper script[data-island-id]').length,
+					1,
+					'server island script should be inside the wrapper',
+				);
+			});
 		});
 	});
 

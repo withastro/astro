@@ -182,6 +182,7 @@ The report must include all information needed for a final GitHub comment to be 
    - Debug code, `console.log`s, or temporary test files
    - Changes outside `packages/` that were only needed for diagnosis/reproduction
    - Build artifacts that shouldn't be committed
+   - `pnpm-lock.yaml` — the triage workspace (`triage/*` in `pnpm-workspace.yaml`) causes `pnpm install` to add importer entries for the reproduction project. Always run `git checkout -- pnpm-lock.yaml` to restore it.
 3. Use `git checkout -- <file>` to discard unwanted changes
 4. Confirm with a final `git status` that only the intended fix files remain, and that they include a new `.changeset/*.md` file. If the fix modified a package but no changeset is present, go back and create it before finishing.
 5. DO NOT commit or push anything yet! The user will handle that at a later step.
