@@ -141,7 +141,7 @@
     "devalue": "^5.8.1",
     "diff": "^9.0.0",
     "dset": "^3.1.4",
-    "es-module-lexer": "^2.0.0",
+    "es-module-lexer": "^3.0.2",
     "esbuild": "^0.28.0",
     "find-proc": "0.2.0",
     "flattie": "^1.1.1",
