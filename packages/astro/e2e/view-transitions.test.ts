@@ -1065,7 +1065,7 @@ test.describe('View Transitions', () => {
 		// go to external page
 		await page.click('#click-redirect-external');
 		await page.waitForURL('https://example.com/', { waitUntil: 'commit', timeout: 5000 });
-		await expect(page.locator('h1'), 'should have content').toHaveText('Example Domain');
+		await expect(page, 'should have content').toHaveTitle('Example Domain');
 		await expectLoads(2);
 	});
 
