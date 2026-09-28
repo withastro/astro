@@ -30,6 +30,8 @@ Then create `src/pages/3xx.astro`. Astro renders it once per redirect, passing t
 ```astro
 ---
 // src/pages/3xx.astro
+import type { RedirectPageProps as Props } from 'astro';
+
 const { from, to, status, delay } = Astro.props;
 ---
 
