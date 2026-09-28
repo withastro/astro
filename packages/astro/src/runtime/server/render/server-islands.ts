@@ -49,6 +49,7 @@ export class ServerIslandComponent {
 	componentPath: string | undefined;
 	componentExport: string | undefined;
 	componentId: string | undefined;
+	private initialized = false;
 	constructor(
 		result: SSRResult,
 		props: Record<string | number, any>,
@@ -62,6 +63,10 @@ export class ServerIslandComponent {
 	}
 
 	async init(): Promise<ThinHead> {
+		if (this.initialized) {
+			return createThinHead();
+		}
+
 		const content = await this.getIslandContent();
 
 		if (this.result.cspDestination) {
@@ -72,6 +77,7 @@ export class ServerIslandComponent {
 			this.result._metadata.extraScriptHashes.push(contentDigest);
 		}
 
+		this.initialized = true;
 		return createThinHead();
 	}
 	async render(destination: RenderDestination) {

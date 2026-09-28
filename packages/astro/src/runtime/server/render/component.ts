@@ -14,7 +14,6 @@ import { isPromise } from '../util.js';
 import { type AstroComponentFactory, isAstroComponentFactory } from './astro/factory.js';
 import { renderTemplate } from './astro/index.js';
 import { createAstroComponentInstance } from './astro/instance.js';
-import { bufferHeadContent } from './astro/render.js';
 import {
 	chunkToString,
 	Fragment,
@@ -560,18 +559,14 @@ export async function renderComponentToString(
 
 		const renderInstance = await renderComponent(result, displayName, Component, props, slots);
 		if (containsServerDirective(props)) {
-			// Initialize the server island directly to avoid re-entering head
-			// collection while the outer pass is draining pending slot evaluations.
-			// The outer pass still collects any head parts produced by the island's
-			// slot pre-renders because it drains pending slot evaluations and
-			// iterates the propagators set live.
+			// Initialize the server island directly instead of calling
+			// bufferHeadContent(), which re-enters collectPropagatedHeadParts()
+			// and drains pendingSlotEvaluations. When this render is itself
+			// inside one of those evaluations the drain awaits the slot promise
+			// that is awaiting *this* render, deadlocking. Calling init()
+			// directly still generates CSP hashes and pre-renders island slots
+			// without touching the propagation machinery. See #18156.
 			await (renderInstance as ServerIslandComponent).init();
-			// When rendering outside of an active head-collection pass (for example
-			// the island endpoint or a Container render), run collection normally
-			// so nested propagated components still contribute their head content.
-			if (!result._metadata.collectingHead) {
-				await bufferHeadContent(result);
-			}
 		}
 		await renderInstance.render(destination);
 	} catch (e) {
