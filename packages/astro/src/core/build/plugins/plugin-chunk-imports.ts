@@ -1,4 +1,4 @@
-import { init, type ImportSpecifier, parse } from 'es-module-lexer';
+import { init, type ImportSpecifier, parse } from 'es-module-lexer/minimal';
 import type { Plugin as VitePlugin } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 import type { StaticBuildOptions } from '../types.js';
@@ -57,7 +57,7 @@ export function pluginChunkImports(options: StaticBuildOptions): VitePlugin | un
 		},
 
 		async generateBundle(_options, bundle) {
-			await init;
+			await init();
 
 			for (const [, chunk] of Object.entries(bundle)) {
 				if (chunk.type !== 'chunk') continue;

@@ -130,8 +130,16 @@ export function vitePluginServerIslands({
 				if (serverIslandsState.hasIslands()) {
 					for (const env of serverEnvironments) {
 						const mod = env.moduleGraph.getModuleById(RESOLVED_SERVER_ISLAND_MANIFEST);
-						if (mod) {
-							env.moduleGraph.invalidateModule(mod);
+						// Clear only the transform result so the next dynamic import()
+						// re-runs load/transform. A full invalidateModule() would cascade
+						// to all importers, which in pre-bundled environments (e.g.
+						// Cloudflare) includes the entire SSR module graph — causing
+						// concurrent requests to observe partially-initialized modules.
+						// See https://github.com/withastro/astro/issues/18132
+						if (mod?.transformResult) {
+							const etag = mod.transformResult.etag;
+							if (etag) env.moduleGraph.etagToModuleMap.delete(etag);
+							mod.transformResult = null;
 						}
 					}
 				}
