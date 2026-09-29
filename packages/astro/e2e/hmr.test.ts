@@ -110,7 +110,10 @@ test.describe('Styles', () => {
 		await expect(h).toHaveCSS('color', 'rgb(255, 0, 0)');
 	});
 
-	test('SCSS modules shared by SSR and hydrated island refresh with HMR', async ({ page, astro }) => {
+	test('SCSS modules shared by SSR and hydrated island refresh with HMR', async ({
+		page,
+		astro,
+	}) => {
 		await page.goto(astro.resolveUrl('/scss-module-ssr-and-island'));
 		await waitForViteToSettle(page);
 

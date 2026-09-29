@@ -517,11 +517,7 @@ describe('CSS', function () {
 			const ssrClassAfter = $updated('#ssr h1').attr('class');
 			const islandClassAfter = $updated('#island h1').attr('class');
 
-			assert.equal(
-				ssrClassAfter,
-				ssrClass,
-				'SSR class name should stay stable after the CSS edit',
-			);
+			assert.equal(ssrClassAfter, ssrClass, 'SSR class name should stay stable after the CSS edit');
 			assert.equal(
 				islandClassAfter,
 				ssrClass,
