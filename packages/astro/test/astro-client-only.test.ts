@@ -72,7 +72,7 @@ describe('Client only components', () => {
 			.map((_, el) => $(el).text())
 			.get();
 		const sheetsWithModuleClass = [...stylesheets, ...inlineStyles].filter((css) =>
-			/\._red_/.test(css),
+			css.includes('._red_'),
 		);
 		assert.equal(sheetsWithModuleClass.length, 1);
 	});
@@ -112,7 +112,7 @@ describe('Client only components with server output', () => {
 			.map((_, el) => $(el).text())
 			.get();
 		const sheetsWithModuleClass = [...stylesheets, ...inlineStyles].filter((css) =>
-			/\._red_/.test(css),
+			css.includes('._red_'),
 		);
 		assert.equal(sheetsWithModuleClass.length, 1);
 	});
