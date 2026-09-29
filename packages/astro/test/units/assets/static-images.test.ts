@@ -96,7 +96,7 @@ describe('createImageAsset', () => {
 	});
 
 	it('records reads of src against the rendering page', () => {
-		const scope = ensureAsyncRenderScope()!;
+		const scope = ensureAsyncRenderScope();
 		const image = createImageAsset(metadata, fsPath, true);
 		const store = newStore();
 		scope.run(store, () => {
@@ -187,7 +187,7 @@ describe('getImage static images', () => {
 	});
 
 	it('resolves static files and reports them against the rendering page', async () => {
-		const scope = ensureAsyncRenderScope({ staticImages: { base: '/', assetsDir: '_astro' } })!;
+		const scope = ensureAsyncRenderScope({ staticImages: { base: '/', assetsDir: '_astro' } });
 		const image = createImageAsset(metadata, fsPath, true);
 		const store = newStore();
 		// `src` resolves lazily, when the page reads it.

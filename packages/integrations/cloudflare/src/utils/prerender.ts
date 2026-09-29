@@ -10,8 +10,6 @@
  * - `/__astro_prerender`: Renders a specific page given its URL and route data.
  *   The prerenderer calls this for each path to generate the static HTML.
  *
- * - `/__astro_static_images`: Returns the image records made outside of page renders.
- *
  * These endpoints are only active during the prerender build phase and are not
  * available in production or development.
  */
@@ -111,9 +109,17 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 		method: 'GET',
 		headers,
 	});
+	// Buffer the full body to catch streaming errors before the HTTP layer
+	// commits a 200 status.
 	try {
-		// A length-prefixed JSON header carries the metadata before the raw response bytes.
-		const { response, metadata } = await renderForPrerender(app, prerenderRequest, { routeData });
+		// `renderForPrerender` collects the content entries
+		// and image transforms resolved during this render — scoped to this
+		// request's async context, so concurrent prerender requests attribute
+		// correctly. A length-prefixed JSON header carries the metadata before the
+		// raw response bytes without requiring cross-request state.
+		const { response, metadata } = await renderForPrerender(app, prerenderRequest, {
+			routeData,
+		});
 		return createFramedPrerenderResponse(response, metadata);
 	} catch (err: unknown) {
 		const message = err instanceof Error ? err.message : String(err);
@@ -140,6 +146,7 @@ export function isImageTransformRequest(request: Request): boolean {
 	return pathname === IMAGE_TRANSFORM_ENDPOINT && request.method === 'POST';
 }
 
+/** Serializes the images recorded in workerd outside of page renders back to the Node-side build. */
 export function handleStaticImagesRequest(): Response {
 	return new Response(JSON.stringify(drainAmbientCollectors()), {
 		headers: { 'Content-Type': 'application/json' },

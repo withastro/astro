@@ -579,9 +579,12 @@ export default function createIntegration({
 						}),
 					);
 				} else if (hasBuildImageService) {
+					// When prerenderEnvironment is 'node', prerendering runs in the same
+					// Node process using the workerd-safe image service stub (which is a
+					// passthrough). We need to use the real image service (sharp or
+					// the user's custom service) for the image generation pipeline.
 					setPrerenderer((defaultPrerenderer) => ({
 						...defaultPrerenderer,
-						// Without a user service, the prerender bundle has the passthrough workerd stub.
 						getImageService: hasUserBuildImageService
 							? defaultPrerenderer.getImageService
 							: async () => (await import('astro/assets/services/sharp')).default,
@@ -591,10 +594,10 @@ export default function createIntegration({
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
 					// When prerenderEnvironment is 'node' and we used setPrerenderer
-					// to pick the build-time image service, the prerender entrypoint
-					// gets skipped (because settings.prerenderer is truthy). Restore the
-					// default entrypoint since we're still using the default Node-based
-					// prerenderer — we only wrapped it.
+					// to add getImageService for compile-time image optimization,
+					// the prerender entrypoint gets skipped (because settings.prerenderer
+					// is truthy). Restore the default entrypoint since we're still using
+					// the default Node-based prerenderer — we only wrapped it.
 					//
 					// NOTE: the entrypoint specifier and config shape below mirror the
 					// skip logic in packages/astro/src/core/build/vite-build-config.ts

@@ -668,7 +668,7 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 		assert.equal(result.options.format, 'png');
 	});
 
-	it('does not peek when not resolving static images (not prerendering)', async () => {
+	it('does not peek when not running at build time (no static image config)', async () => {
 		probedFormat = 'svg';
 		uninstallRenderScope();
 		const result = await getImage(

@@ -33,7 +33,6 @@ export const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
 
 let configuredImageService: ImageService | undefined;
 
-// `virtual:image-service` only resolves in Vite-bundled code.
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!configuredImageService) {
 		const { default: service }: { default: ImageService } = await import(
@@ -122,7 +121,8 @@ export async function getImage(
 		? resolvedOptions.src.fsPath
 		: undefined; // Only set for ESM imports, where we do have a file path
 
-	// Optimizing an image must not count as using its original file.
+	// Clone the `src` object if it's an ESM import so that we don't refer to any properties of the original object
+	// Causing our generate step to think the image is used outside of the image optimization pipeline
 	const clonedSrc = getUntrackedImage(resolvedOptions.src);
 
 	if (isESMImportedImage(clonedSrc)) {
@@ -205,7 +205,8 @@ export async function getImage(
 		: [];
 
 	// In the Picture component, the optimized original-sized image is typically not used when `widths` is set.
-	// Lazy: resolving a static image registers it for generation.
+	// Since resolving a static image registers it for generation immediately,
+	// we fetch it lazily to avoid creating unnecessary assets.
 	const lazyImageURLFactory = (getValue: () => string) => {
 		let cached: string | null = null;
 		return () => (cached ??= getValue());
@@ -244,6 +245,8 @@ export async function getImage(
 				serviceEntrypoint: imageConfig.service.entrypoint,
 				assetQueryParams: imageConfig.assetQueryParams,
 			});
+			// Report every resolved transform (dedup hits included) so the build
+			// can attribute it to the page currently rendering.
 			recordStaticImage(image);
 			return url;
 		};
@@ -259,6 +262,7 @@ export async function getImage(
 			};
 		});
 	} else if (imageConfig.assetQueryParams) {
+		// For SSR-rendered images, append assetQueryParams manually
 		const imageURLObj = createPlaceholderURL(initialImageURL);
 		imageConfig.assetQueryParams.forEach((value, key) => {
 			imageURLObj.searchParams.set(key, value);

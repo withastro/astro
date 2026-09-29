@@ -19,7 +19,11 @@ import { join, dirname } from 'node:path';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
-import type { StaticPathsResponse, PrerenderRequest } from './prerender-types.js';
+import type {
+	StaticPathsResponse,
+	PrerenderRequest,
+	SerializedStaticImageEntry,
+} from './prerender-types.js';
 import {
 	STATIC_PATHS_ENDPOINT,
 	PRERENDER_ENDPOINT,
@@ -280,9 +284,9 @@ export function createCloudflarePrerenderer({
 			return readFramedPrerenderResponse(response);
 		},
 
-		...(hasBuildImageService || hasBindingImageService
-			? {
-					async collectUnattributedMetadata(): Promise<PrerenderUnattributedMetadata> {
+		collectUnattributedMetadata:
+			hasBuildImageService || hasBindingImageService
+				? async (): Promise<PrerenderUnattributedMetadata> => {
 						const response = await fetch(`${serverUrl}${STATIC_IMAGES_ENDPOINT}`, {
 							method: 'POST',
 							headers: { 'Content-Type': 'application/json' },
@@ -297,82 +301,101 @@ export function createCloudflarePrerenderer({
 						}
 
 						return response.json();
-					},
+					}
+				: undefined,
 
-					async getImageService(): Promise<ImageService> {
+		generateImages:
+			hasBuildImageService || hasBindingImageService
+				? async (images: AssetsGlobalStaticImagesList): Promise<AssetsGlobalStaticImagesList> => {
+						const entries: SerializedStaticImageEntry[] = [...images].map(
+							([originalPath, { originalSrcPath, transforms }]) => ({
+								originalPath,
+								originalSrcPath,
+								transforms: [...transforms].map(([hash, { finalPath, transform }]) => ({
+									hash,
+									finalPath,
+									transform,
+								})),
+							}),
+						);
+
+						// Transforms left in this map fall through to the Node-side image
+						// service (the user-configured service, or Sharp).
+						const staticImages: AssetsGlobalStaticImagesList = new Map();
+						const deferToNodeImageService = (
+							entry: SerializedStaticImageEntry,
+							t: SerializedStaticImageEntry['transforms'][number],
+						) => {
+							let existing = staticImages.get(entry.originalPath);
+							if (!existing) {
+								existing = { originalSrcPath: entry.originalSrcPath, transforms: new Map() };
+								staticImages.set(entry.originalPath, existing);
+							}
+							existing.transforms.set(t.hash, {
+								finalPath: t.finalPath,
+								transform: t.transform as ImageTransform,
+							});
+						};
+
+						if (hasBindingImageService) {
+							// Pull each optimized image out of workerd on its own request so the
+							// bytes stream to disk instead of being buffered into one response.
+							const jobs = entries.flatMap((entry) => {
+								const sourcePath = isRemotePath(entry.originalPath)
+									? undefined
+									: findOriginalImage(
+											serverDir,
+											clientDir,
+											entry.originalPath,
+											entry.originalSrcPath,
+										);
+								return entry.transforms.map((t) => ({ entry, t, sourcePath }));
+							});
+							await forEachWithConcurrency(
+								jobs,
+								IMAGE_TRANSFORM_CONCURRENCY,
+								async ({ entry, t, sourcePath }) => {
+									try {
+										await writeTransformedImage(
+											serverUrl,
+											clientDir,
+											entry.originalPath,
+											t.finalPath,
+											t.transform,
+											sourcePath,
+										);
+									} catch (err) {
+										const message = err instanceof Error ? err.message : String(err);
+										logger.warn(
+											`Could not optimize "${entry.originalPath}" with the Cloudflare IMAGES binding (${message}). Falling back to the local image service.`,
+										);
+										deferToNodeImageService(entry, t);
+									}
+								},
+							);
+						} else {
+							for (const entry of entries) {
+								for (const t of entry.transforms) {
+									deferToNodeImageService(entry, t);
+								}
+							}
+						}
+
+						return staticImages;
+					}
+				: undefined,
+
+		getImageService:
+			hasBuildImageService || hasBindingImageService
+				? async (): Promise<ImageService> => {
 						if (userImageServiceEntrypoint) {
 							const mod = await import(userImageServiceEntrypoint);
 							return mod.default ?? mod;
 						}
 						const { default: sharpService } = await import('astro/assets/services/sharp');
 						return sharpService;
-					},
-				}
-			: {}),
-
-		...(hasBindingImageService
-			? {
-					async generateImages(
-						images: AssetsGlobalStaticImagesList,
-					): Promise<AssetsGlobalStaticImagesList> {
-						// Transforms left in this map fall through to the Node-side image
-						// service (the user-configured service, or Sharp).
-						const remaining: AssetsGlobalStaticImagesList = new Map();
-						const deferToNodeImageService = (
-							originalPath: string,
-							originalSrcPath: string | undefined,
-							hash: string,
-							transform: { finalPath: string; transform: ImageTransform },
-						) => {
-							let existing = remaining.get(originalPath);
-							if (!existing) {
-								existing = { originalSrcPath, transforms: new Map() };
-								remaining.set(originalPath, existing);
-							}
-							existing.transforms.set(hash, transform);
-						};
-
-						// One request per image, so the bytes stream to disk instead of buffering.
-						const jobs = [...images].flatMap(([originalPath, entry]) => {
-							const sourcePath = isRemotePath(originalPath)
-								? undefined
-								: findOriginalImage(serverDir, clientDir, originalPath, entry.originalSrcPath);
-							return [...entry.transforms].map(([hash, transform]) => ({
-								originalPath,
-								originalSrcPath: entry.originalSrcPath,
-								hash,
-								transform,
-								sourcePath,
-							}));
-						});
-						await forEachWithConcurrency(jobs, IMAGE_TRANSFORM_CONCURRENCY, async (job) => {
-							try {
-								await writeTransformedImage(
-									serverUrl,
-									clientDir,
-									job.originalPath,
-									job.transform.finalPath,
-									job.transform.transform,
-									job.sourcePath,
-								);
-							} catch (err) {
-								const message = err instanceof Error ? err.message : String(err);
-								logger.warn(
-									`Could not optimize "${job.originalPath}" with the Cloudflare IMAGES binding (${message}). Falling back to the local image service.`,
-								);
-								deferToNodeImageService(
-									job.originalPath,
-									job.originalSrcPath,
-									job.hash,
-									job.transform,
-								);
-							}
-						});
-
-						return remaining;
-					},
-				}
-			: {}),
+					}
+				: undefined,
 
 		async teardown() {
 			if (previewServer) {
