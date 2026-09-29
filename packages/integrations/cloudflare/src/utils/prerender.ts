@@ -20,11 +20,7 @@ import type { BaseApp, RenderErrorOptions } from 'astro/app';
 import { drainAmbientCollectors, renderForPrerender } from 'astro/app';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import { StaticPaths } from 'astro:static-paths';
-import type {
-	StaticPathsResponse,
-	PrerenderRequest,
-	StaticImagesResponse,
-} from '../prerender-types.js';
+import type { StaticPathsResponse, PrerenderRequest } from '../prerender-types.js';
 import {
 	STATIC_PATHS_ENDPOINT,
 	PRERENDER_ENDPOINT,
@@ -115,29 +111,10 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 		method: 'GET',
 		headers,
 	});
-	// Buffer the full body to catch streaming errors before the HTTP layer
-	// commits a 200 status.
 	try {
-		// For incremental builds, `renderForPrerender` collects the content entries
-		// and image transforms resolved during this render — scoped to this
-		// request's async context, so concurrent prerender requests attribute
-		// correctly. A length-prefixed JSON header carries the metadata before the
-		// raw response bytes without requiring cross-request state.
-		const { response, metadata } = await renderForPrerender(app, prerenderRequest, {
-			routeData,
-			collectMetadata: body.collectMetadata,
-		});
-		if (body.collectMetadata) {
-			return createFramedPrerenderResponse(response, metadata);
-		}
-		// Non-collecting branch: buffer here so streaming errors are still caught
-		// before the HTTP layer commits a 200.
-		const bufferedBody = await response.arrayBuffer();
-		return new Response(bufferedBody, {
-			status: response.status,
-			statusText: response.statusText,
-			headers: response.headers,
-		});
+		// A length-prefixed JSON header carries the metadata before the raw response bytes.
+		const { response, metadata } = await renderForPrerender(app, prerenderRequest, { routeData });
+		return createFramedPrerenderResponse(response, metadata);
 	} catch (err: unknown) {
 		const message = err instanceof Error ? err.message : String(err);
 		// Sanitize newlines and other control characters from the error message
@@ -164,8 +141,7 @@ export function isImageTransformRequest(request: Request): boolean {
 }
 
 export function handleStaticImagesRequest(): Response {
-	const body: StaticImagesResponse = drainAmbientCollectors();
-	return new Response(JSON.stringify(body), {
+	return new Response(JSON.stringify(drainAmbientCollectors()), {
 		headers: { 'Content-Type': 'application/json' },
 	});
 }

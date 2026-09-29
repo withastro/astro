@@ -6,6 +6,7 @@ import type {
 	ImageService,
 	ImageTransform,
 	PathWithRoute,
+	PrerenderUnattributedMetadata,
 } from 'astro';
 import { preview, createLogger, type PreviewServer as VitePreviewServer } from 'vite';
 import { fileURLToPath } from 'node:url';
@@ -18,11 +19,7 @@ import { join, dirname } from 'node:path';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
-import type {
-	StaticPathsResponse,
-	PrerenderRequest,
-	StaticImagesResponse,
-} from './prerender-types.js';
+import type { StaticPathsResponse, PrerenderRequest } from './prerender-types.js';
 import {
 	STATIC_PATHS_ENDPOINT,
 	PRERENDER_ENDPOINT,
@@ -258,11 +255,10 @@ export function createCloudflarePrerenderer({
 			}));
 		},
 
-		async render(request, { routeData, collectMetadata }) {
+		async render(request, { routeData }) {
 			const body: PrerenderRequest = {
 				url: request.url,
 				routeData: serializeRouteData(routeData, trailingSlash),
-				collectMetadata,
 			};
 
 			const response = await fetch(`${serverUrl}${PRERENDER_ENDPOINT}`, {
@@ -281,16 +277,12 @@ export function createCloudflarePrerenderer({
 				throw new Error(`Failed to prerender ${request.url}: ${prerenderError}`);
 			}
 
-			if (collectMetadata) {
-				return readFramedPrerenderResponse(response);
-			}
-
-			return response;
+			return readFramedPrerenderResponse(response);
 		},
 
 		...(hasBuildImageService || hasBindingImageService
 			? {
-					async collectUnattributedMetadata(): Promise<StaticImagesResponse> {
+					async collectUnattributedMetadata(): Promise<PrerenderUnattributedMetadata> {
 						const response = await fetch(`${serverUrl}${STATIC_IMAGES_ENDPOINT}`, {
 							method: 'POST',
 							headers: { 'Content-Type': 'application/json' },

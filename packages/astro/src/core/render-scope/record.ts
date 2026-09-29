@@ -7,7 +7,6 @@ export function recordContentEntryRender(filePath: string | undefined): void {
 	getRecordTarget()?.contentEntries?.add(filePath);
 }
 
-// An array, not a set: replay depends on every record arriving.
 export function recordStaticImage(image: SerializedStaticImage): void {
 	getRecordTarget()?.staticImages?.push(image);
 }

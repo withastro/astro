@@ -51,4 +51,10 @@ describe('experimental.incrementalBuild optimized images', () => {
 			'optimized image referenced by the skipped page should still be emitted',
 		);
 	});
+
+	it('generates the images of skipped pages when the image cache is cold', async () => {
+		fs.rmSync(new URL('node_modules/.astro/assets/', root), { recursive: true, force: true });
+		await fixture.build();
+		assert.ok(optimizedPath && fixture.pathExists(optimizedPath));
+	});
 });

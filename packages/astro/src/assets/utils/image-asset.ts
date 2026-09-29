@@ -2,9 +2,9 @@
 import { recordReferencedImage } from '../../core/render-scope/record.js';
 import type { ImageMetadata } from '../types.js';
 
-const UNTRACKED = Symbol.for('astro:image-asset:untracked');
+const RAW_SRC = Symbol.for('astro:image-asset:raw-src');
 
-type ImageAsset = ImageMetadata & { [UNTRACKED]?: ImageMetadata };
+type ImageAsset = ImageMetadata & { readonly [RAW_SRC]: string };
 
 // The build keeps an original image only if its `src` is read outside of image optimization.
 export function createImageAsset<T extends Omit<ImageMetadata, 'fsPath'>>(
@@ -12,18 +12,13 @@ export function createImageAsset<T extends Omit<ImageMetadata, 'fsPath'>>(
 	fsPath: string,
 	track: boolean,
 ): T & ImageMetadata {
-	const untracked = { ...metadata } as unknown as ImageMetadata;
-	if (!Object.hasOwn(untracked, 'fsPath')) {
-		Object.defineProperty(untracked, 'fsPath', { value: fsPath, enumerable: false });
-	}
-
-	const asset = { ...untracked } as ImageAsset;
+	const asset = { ...metadata } as unknown as ImageAsset;
 	if (!Object.hasOwn(asset, 'fsPath')) {
 		Object.defineProperty(asset, 'fsPath', { value: fsPath, enumerable: false });
 	}
-	Object.defineProperty(asset, UNTRACKED, { value: untracked, enumerable: false });
 	if (track) {
-		const src = metadata.src;
+		let src = metadata.src;
+		Object.defineProperty(asset, RAW_SRC, { get: () => src });
 		Object.defineProperty(asset, 'src', {
 			enumerable: true,
 			configurable: true,
@@ -31,14 +26,27 @@ export function createImageAsset<T extends Omit<ImageMetadata, 'fsPath'>>(
 				recordReferencedImage(fsPath);
 				return src;
 			},
+			set(value: string) {
+				src = value;
+			},
 		});
+	} else {
+		Object.defineProperty(asset, RAW_SRC, { get: () => asset.src });
 	}
-	return asset as T & ImageMetadata;
+	return asset as unknown as T & ImageMetadata;
 }
 
 export function getUntrackedImage<T>(image: T): T {
-	if (typeof image === 'object' && image !== null) {
-		return ((image as Partial<ImageAsset>)[UNTRACKED] as T | undefined) ?? image;
+	if (typeof image !== 'object' || image === null || !(RAW_SRC in image)) {
+		return image;
 	}
-	return image;
+	const asset = image as unknown as ImageAsset;
+	const copy: Record<string, unknown> = {};
+	for (const key of Object.keys(asset)) {
+		copy[key] = key === 'src' ? asset[RAW_SRC] : asset[key as keyof ImageMetadata];
+	}
+	if (!Object.hasOwn(copy, 'fsPath')) {
+		Object.defineProperty(copy, 'fsPath', { value: asset.fsPath, enumerable: false });
+	}
+	return copy as T;
 }

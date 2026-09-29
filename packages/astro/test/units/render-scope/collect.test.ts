@@ -38,7 +38,7 @@ describe('collectPrerenderMetadata', () => {
 		assert.equal(first.metadata, undefined);
 		assert.equal(logger.logs.length, 1);
 		assert.equal(logger.logs[0].label, 'build');
-		assert.match(logger.logs[0].message, /no render scope is installed/);
+		assert.match(logger.logs[0].message, /No render scope is installed/);
 
 		const second = await collect(async () => 'second', logger);
 		assert.equal(second.value, 'second');
@@ -80,6 +80,19 @@ describe('collectPrerenderMetadata', () => {
 				[`img-${i}`, 'img-shared'],
 			);
 		}
+	});
+
+	it('reports each image transform once', async () => {
+		ensureAsyncRenderScope();
+		const { metadata } = await collectPrerenderMetadata(async () => {
+			recordStaticImage(image('a'));
+			recordStaticImage(image('b'));
+			recordStaticImage(image('a'));
+		}, defaultLogger);
+		assert.deepEqual(
+			metadata?.staticImages.map((img) => img.hash),
+			['a', 'b'],
+		);
 	});
 
 	it('the returned snapshot is immune to post-resolve records', async () => {

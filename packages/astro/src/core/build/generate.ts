@@ -1,6 +1,7 @@
 import nodeFs from 'node:fs';
 import os from 'node:os';
-import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
@@ -64,6 +65,7 @@ export async function generatePages(
 	}
 
 	const { config } = options.settings;
+	// The build owns the channel; one left installed by an earlier build in this process is stale.
 	uninstallRenderScope();
 	ensureAsyncRenderScope({
 		staticImages: {
@@ -92,17 +94,18 @@ async function generatePagesWithRenderScope(
 
 	// Get or create the prerenderer
 	let prerenderer: DefaultPrerenderer;
+	let defaultPrerenderer: DefaultPrerenderer | undefined;
 	const settingsPrerenderer = options.settings.prerenderer;
 	if (!settingsPrerenderer) {
 		// No custom prerenderer - create default
-		prerenderer = createDefaultPrerenderer({
+		prerenderer = defaultPrerenderer = createDefaultPrerenderer({
 			internals,
 			options,
 			prerenderOutputDir,
 		});
 	} else if (typeof settingsPrerenderer === 'function') {
 		// Factory function - create default and pass it
-		const defaultPrerenderer = createDefaultPrerenderer({
+		defaultPrerenderer = createDefaultPrerenderer({
 			internals,
 			options,
 			prerenderOutputDir,
@@ -120,7 +123,6 @@ async function generatePagesWithRenderScope(
 	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);
 	const routeToHeaders: RouteToHeaders = new Map();
 	let imagesToGenerate: AssetsGlobalStaticImagesList = new Map();
-	let imageService: LocalImageService | undefined;
 
 	// Incremental build support
 	let cache: IncrementalBuildCache | null = null;
@@ -312,9 +314,6 @@ async function generatePagesWithRenderScope(
 		if (imagesToGenerate.size && prerenderer.generateImages) {
 			imagesToGenerate = await prerenderer.generateImages(imagesToGenerate);
 		}
-		if (imagesToGenerate.size) {
-			imageService = await loadImageService(prerenderer, options);
-		}
 	} finally {
 		// Always teardown to avoid leaking adapter resources when generation fails.
 		await prerenderer.teardown?.();
@@ -326,15 +325,18 @@ async function generatePagesWithRenderScope(
 	);
 
 	// Default pipeline always runs
-	if (imagesToGenerate.size && imageService) {
+	if (imagesToGenerate.size) {
 		logger.info('SKIP_FORMAT', `${colors.bgGreen(colors.black(` generating optimized images `))}`);
 
 		const totalCount = Array.from(imagesToGenerate.values())
 			.map((x) => x.transforms.size)
 			.reduce((a, b) => a + b, 0);
 		const cpuCount = os.availableParallelism();
+		const getImageService = prerenderer.getImageService
+			? () => prerenderer.getImageService!()
+			: defaultPrerenderer?.getImageService;
 		const assetsCreationPipeline = await prepareAssetsGenerationEnv(options, totalCount, {
-			imageService,
+			loadImageService: () => loadImageService(getImageService, options),
 			referencedImages: images.referencedImages,
 		});
 		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
@@ -431,19 +433,17 @@ async function generatePagesWithRenderScope(
 }
 
 async function loadImageService(
-	prerenderer: AstroPrerenderer,
+	getImageService: AstroPrerenderer['getImageService'],
 	options: StaticBuildOptions,
 ): Promise<LocalImageService> {
 	let service;
-	if (prerenderer.getImageService) {
-		service = await prerenderer.getImageService();
+	if (getImageService) {
+		service = await getImageService();
 	} else {
-		const { entrypoint } = options.settings.config.image.service;
-		const specifier = entrypoint.startsWith('.')
-			? new URL(entrypoint, options.settings.config.root).href
-			: entrypoint;
+		const { config } = options.settings;
 		try {
-			const mod = await import(specifier);
+			const resolved = createRequire(config.root).resolve(config.image.service.entrypoint);
+			const mod = await import(pathToFileURL(resolved).href);
 			service = mod.default ?? mod;
 		} catch (cause) {
 			throw new AstroError(AstroErrorData.InvalidImageService, { cause });
@@ -486,7 +486,6 @@ interface RenderToPathPayload {
 	options: StaticBuildOptions;
 	routeToHeaders?: RouteToHeaders;
 	logger: AstroLogger;
-	collectMetadata?: boolean;
 	images?: StaticImageRegistry;
 }
 
@@ -521,7 +520,6 @@ export async function renderPath({
 	options,
 	routeToHeaders = new Map(),
 	logger,
-	collectMetadata,
 	images,
 }: RenderToPathPayload): Promise<RenderPathResult | null> {
 	const { config } = options.settings;
@@ -582,7 +580,7 @@ export async function renderPath({
 	let metadata: PrerenderResult['metadata'];
 	try {
 		const rendered = normalizePrerenderResult(
-			await prerenderer.render(request, { routeData: route, collectMetadata }),
+			await prerenderer.render(request, { routeData: route, collectMetadata: true }),
 		);
 		response = rendered.response;
 		metadata = rendered.metadata;
@@ -760,7 +758,6 @@ async function generatePathWithPrerenderer(
 		options,
 		routeToHeaders,
 		logger,
-		collectMetadata: true,
 		images,
 	});
 	const contentEntryKeys = result?.metadata?.contentEntryKeys;

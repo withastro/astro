@@ -392,6 +392,7 @@ export default function createIntegration({
 													'astro/assets',
 													'astro/assets/services/noop',
 													'astro/assets/runtime',
+													'astro/assets/image-asset',
 													'astro/assets/utils/inferRemoteSize.js',
 													'astro/assets/fonts/runtime.js',
 													...(prebundleContentRuntime ? (['astro/content/runtime'] as const) : []),
@@ -578,35 +579,22 @@ export default function createIntegration({
 						}),
 					);
 				} else if (hasBuildImageService) {
-					// Node prerendering bundles the passthrough workerd stub, so generate with the real service.
-					const entrypoint = hasUserBuildImageService
-						? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
-						: undefined;
 					setPrerenderer((defaultPrerenderer) => ({
 						...defaultPrerenderer,
-						async getImageService() {
-							if (entrypoint) {
-								// The raw entrypoint import can fail where the bundled one works (e.g. untranspiled TypeScript).
-								try {
-									return await defaultPrerenderer.getImageService!();
-								} catch {
-									const mod = await import(entrypoint);
-									return mod.default ?? mod;
-								}
-							}
-							const { default: sharpService } = await import('astro/assets/services/sharp');
-							return sharpService;
-						},
+						// Without a user service, the prerender bundle has the passthrough workerd stub.
+						getImageService: hasUserBuildImageService
+							? defaultPrerenderer.getImageService
+							: async () => (await import('astro/assets/services/sharp')).default,
 					}));
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
 					// When prerenderEnvironment is 'node' and we used setPrerenderer
-					// to add collectStaticImages for compile-time image optimization,
-					// the prerender entrypoint gets skipped (because settings.prerenderer
-					// is truthy). Restore the default entrypoint since we're still using
-					// the default Node-based prerenderer — we only wrapped it.
+					// to pick the build-time image service, the prerender entrypoint
+					// gets skipped (because settings.prerenderer is truthy). Restore the
+					// default entrypoint since we're still using the default Node-based
+					// prerenderer — we only wrapped it.
 					//
 					// NOTE: the entrypoint specifier and config shape below mirror the
 					// skip logic in packages/astro/src/core/build/vite-build-config.ts

@@ -43,16 +43,15 @@ describe('resolveStaticImage', () => {
 		assert.equal(image.originalSrcPath, fsPath);
 	});
 
-	it('is deterministic, and hashes the transform', () => {
-		const resolve = (width: number) =>
-			resolveStaticImage(
-				{ src: getUntrackedImage(esmImage), width, format: 'webp' },
-				['src', 'width', 'format'],
-				fsPath,
-				options,
-			).image;
-		assert.deepEqual(resolve(200), resolve(200));
-		assert.notEqual(resolve(200).hash, resolve(300).hash);
+	it('keeps the file names of earlier releases', () => {
+		const { image } = resolveStaticImage(
+			{ src: getUntrackedImage(esmImage), width: 200, format: 'webp' },
+			['src', 'width', 'format'],
+			fsPath,
+			options,
+		);
+		assert.equal(image.hash, '15opUF');
+		assert.equal(image.finalPath, '/_astro/photo.abc123_15opUF.webp');
 	});
 
 	it('resolves string sources in the assets directory', () => {
@@ -97,7 +96,7 @@ describe('createImageAsset', () => {
 	});
 
 	it('records reads of src against the rendering page', () => {
-		const scope = ensureAsyncRenderScope();
+		const scope = ensureAsyncRenderScope()!;
 		const image = createImageAsset(metadata, fsPath, true);
 		const store = newStore();
 		scope.run(store, () => {
@@ -132,10 +131,25 @@ describe('createImageAsset', () => {
 		assert.equal((getUntrackedImage(image) as any).fsPath, fsPath);
 	});
 
-	it('is detected as an ESM image, unless its metadata carries fsPath (content images)', () => {
+	it('is detected as an ESM image', () => {
 		assert.equal(isImageMetadata(createImageAsset(metadata, fsPath, true)), true);
-		assert.equal(isImageMetadata(createImageAsset({ ...metadata, fsPath }, fsPath, true)), false);
 		assert.equal(isImageMetadata({ ...metadata }), false);
+	});
+
+	it('allows assigning src', () => {
+		const image = createImageAsset(metadata, fsPath, true);
+		image.src = '/other.png';
+		assert.equal(image.src, '/other.png');
+		assert.equal(getUntrackedImage(image).src, '/other.png');
+	});
+
+	it('returns a fresh untracked copy that reflects changes to the image', () => {
+		const image = createImageAsset(metadata, fsPath, true);
+		image.width = 5;
+		const copy = getUntrackedImage(image);
+		assert.equal(copy.width, 5);
+		copy.width = 10;
+		assert.equal(getUntrackedImage(image).width, 5);
 	});
 });
 
@@ -173,7 +187,7 @@ describe('getImage static images', () => {
 	});
 
 	it('resolves static files and reports them against the rendering page', async () => {
-		const scope = ensureAsyncRenderScope({ staticImages: { base: '/', assetsDir: '_astro' } });
+		const scope = ensureAsyncRenderScope({ staticImages: { base: '/', assetsDir: '_astro' } })!;
 		const image = createImageAsset(metadata, fsPath, true);
 		const store = newStore();
 		// `src` resolves lazily, when the page reads it.

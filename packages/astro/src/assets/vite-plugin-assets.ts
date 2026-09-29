@@ -23,7 +23,7 @@ import {
 import { RUNTIME_VIRTUAL_MODULE_ID } from './fonts/constants.js';
 import { fontsPlugin } from './fonts/vite-plugin-fonts.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
-import { emitClientAsset } from './utils/assets.js';
+import { ASSETS_ESM_PLUGIN_NAME, type AssetsPluginApi, emitClientAsset } from './utils/assets.js';
 import { emitImageMetadata } from './utils/node.js';
 import { CONTENT_IMAGE_FLAG } from '../content/consts.js';
 import { getImageAssetModule } from './utils/image-asset-code.js';
@@ -70,19 +70,6 @@ interface Options {
 	sync: boolean;
 	logger: AstroLogger;
 	fs: typeof fsMod;
-}
-
-export const ASSETS_ESM_PLUGIN_NAME = 'astro:assets:esm';
-
-export interface AssetsPluginApi {
-	markReferenced(fsPath: string): void;
-	readonly referencedImages: ReadonlySet<string>;
-}
-
-export function getAssetsPluginApi(
-	plugins: readonly vite.Plugin[] | undefined,
-): AssetsPluginApi | undefined {
-	return plugins?.find((plugin) => plugin.name === ASSETS_ESM_PLUGIN_NAME)?.api;
 }
 
 export default function assets({ fs, settings, sync, logger }: Options): vite.Plugin[] {
@@ -359,13 +346,14 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							const metadataWithSvg = { ...imageMetadata, __svgData: svgData };
 							return {
 								code: getImageAssetModule(
-									metadataWithSvg as typeof imageMetadata,
+									metadataWithSvg,
+									imageMetadata.fsPath,
 									!isSSROnlyEnvironment,
 								),
 							};
 						}
 						return {
-							code: getImageAssetModule(imageMetadata, !isSSROnlyEnvironment),
+							code: getImageAssetModule(imageMetadata, imageMetadata.fsPath, !isSSROnlyEnvironment),
 						};
 					} else {
 						referencedImages.add(imageMetadata.fsPath);
