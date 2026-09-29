@@ -51,7 +51,7 @@ describe('astro:assets - delete images that are unused', () => {
 		it('should generate images optimized in getStaticPaths', async () => {
 			const $ = cheerio.load(await fixture.readFile('/paths/one/index.html'));
 			const src = $('#from-paths').attr('src')!;
-			assert.match(src, /^\/_astro\/staticPaths\.\w+_\w+\.webp$/);
+			assert.match(src, /^\/_astro\/staticPaths\.[^_/]+_[^_/]+\.webp$/);
 			assert.ok(fixture.pathExists(src));
 			assert.equal((await fixture.glob('_astro/staticPaths.*.*')).length, 1);
 		});
