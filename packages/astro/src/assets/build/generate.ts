@@ -365,26 +365,61 @@ async function writeCacheMetaFile(
 	}
 }
 
-/**
- * Adds image transforms to the static image list, so the asset pipeline emits
- * their optimized images. Existing transforms (already added by another page
- * that shares the image) are left untouched.
- */
-export function addStaticImages(
-	staticImages: AssetsGlobalStaticImagesList,
-	images: SerializedStaticImage[],
-): void {
-	for (const image of images) {
-		let transformsForPath = staticImages.get(image.originalPath);
-		if (!transformsForPath) {
-			transformsForPath = { originalSrcPath: image.originalSrcPath, transforms: new Map() };
-			staticImages.set(image.originalPath, transformsForPath);
+export class StaticImageRegistry {
+	readonly images: AssetsGlobalStaticImagesList = new Map();
+	readonly referencedImages = new Set<string>();
+
+	/**
+	 * Adds image transforms to the static image list, so the asset pipeline emits
+	 * their optimized images. Existing transforms (already added by another page
+	 * that shares the image) are left untouched.
+	 */
+	addStaticImages(images: Iterable<SerializedStaticImage> | undefined): void {
+		if (!images) return;
+		for (const image of images) {
+			let transformsForPath = this.images.get(image.originalPath);
+			if (!transformsForPath) {
+				transformsForPath = { originalSrcPath: image.originalSrcPath, transforms: new Map() };
+				this.images.set(image.originalPath, transformsForPath);
+			}
+			if (!transformsForPath.transforms.has(image.hash)) {
+				transformsForPath.transforms.set(image.hash, {
+					finalPath: image.finalPath,
+					transform: image.transform,
+				});
+			}
 		}
-		if (!transformsForPath.transforms.has(image.hash)) {
-			transformsForPath.transforms.set(image.hash, {
-				finalPath: image.finalPath,
-				transform: image.transform,
-			});
+	}
+
+	addReferencedImages(fsPaths: Iterable<string> | undefined): void {
+		if (!fsPaths) return;
+		for (const fsPath of fsPaths) {
+			this.referencedImages.add(fsPath);
+		}
+	}
+
+	addMetadata(
+		metadata: { staticImages?: SerializedStaticImage[]; referencedImages?: string[] } | undefined,
+	): void {
+		this.addStaticImages(metadata?.staticImages);
+		this.addReferencedImages(metadata?.referencedImages);
+	}
+
+	addStaticImageList(list: AssetsGlobalStaticImagesList): void {
+		for (const [originalPath, entry] of list) {
+			const existing = this.images.get(originalPath);
+			if (!existing) {
+				this.images.set(originalPath, {
+					originalSrcPath: entry.originalSrcPath,
+					transforms: new Map(entry.transforms),
+				});
+				continue;
+			}
+			for (const [hash, transform] of entry.transforms) {
+				if (!existing.transforms.has(hash)) {
+					existing.transforms.set(hash, transform);
+				}
+			}
 		}
 	}
 }

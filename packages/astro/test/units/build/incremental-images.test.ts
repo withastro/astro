@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { addStaticImages } from '../../../dist/assets/build/generate.js';
+import { StaticImageRegistry } from '../../../dist/assets/build/generate.js';
 import type { AssetsGlobalStaticImagesList } from '../../../dist/assets/types.js';
 
 describe('collectStaticImages merge with restored incremental images', () => {
@@ -14,8 +14,8 @@ describe('collectStaticImages merge with restored incremental images', () => {
 		const originalPath = '/_astro/photo.abc123.png';
 
 		// Step 1: Restore cached page's image transform
-		const staticImageList: AssetsGlobalStaticImagesList = new Map();
-		addStaticImages(staticImageList, [
+		const images = new StaticImageRegistry();
+		images.addStaticImages([
 			{
 				originalPath,
 				originalSrcPath: '/src/assets/photo.png',
@@ -29,8 +29,8 @@ describe('collectStaticImages merge with restored incremental images', () => {
 			},
 		]);
 
-		assert.equal(staticImageList.get(originalPath)?.transforms.size, 1);
-		assert.ok(staticImageList.get(originalPath)?.transforms.has('hash200'));
+		assert.equal(images.images.get(originalPath)?.transforms.size, 1);
+		assert.ok(images.images.get(originalPath)?.transforms.has('hash200'));
 
 		// Step 2: Simulate adapter returning images for only the rendered page
 		const adapterImages: AssetsGlobalStaticImagesList = new Map([
@@ -55,22 +55,11 @@ describe('collectStaticImages merge with restored incremental images', () => {
 			],
 		]);
 
-		// Step 3: Merge using the fixed logic (same as generatePages)
-		for (const [path, entry] of adapterImages) {
-			const existing = staticImageList.get(path);
-			if (existing) {
-				for (const [hash, transform] of entry.transforms) {
-					if (!existing.transforms.has(hash)) {
-						existing.transforms.set(hash, transform);
-					}
-				}
-			} else {
-				staticImageList.set(path, entry);
-			}
-		}
+		// Step 3: Merge the adapter images
+		images.addStaticImageList(adapterImages);
 
 		// Both transforms should be present
-		const entry = staticImageList.get(originalPath);
+		const entry = images.images.get(originalPath);
 		assert.ok(entry, 'entry for original path should exist');
 		assert.equal(entry.transforms.size, 2, 'both transforms should be preserved');
 		assert.ok(entry.transforms.has('hash200'), 'restored 200px transform should be kept');
@@ -102,21 +91,10 @@ describe('collectStaticImages merge with restored incremental images', () => {
 			],
 		]);
 
-		const staticImageList: AssetsGlobalStaticImagesList = new Map();
-		for (const [path, entry] of adapterImages) {
-			const existing = staticImageList.get(path);
-			if (existing) {
-				for (const [hash, transform] of entry.transforms) {
-					if (!existing.transforms.has(hash)) {
-						existing.transforms.set(hash, transform);
-					}
-				}
-			} else {
-				staticImageList.set(path, entry);
-			}
-		}
+		const images = new StaticImageRegistry();
+		images.addStaticImageList(adapterImages);
 
-		const entry = staticImageList.get(originalPath);
+		const entry = images.images.get(originalPath);
 		assert.ok(entry, 'new entry should be added');
 		assert.equal(entry.transforms.size, 1);
 		assert.ok(entry.transforms.has('hashA'));
