@@ -1,4 +1,9 @@
-import { joinPaths, prependForwardSlash, removeBase } from '@astrojs/internal-helpers/path';
+import {
+	fileExtension,
+	joinPaths,
+	prependForwardSlash,
+	removeBase,
+} from '@astrojs/internal-helpers/path';
 import type { StaticImageConfig } from '../../core/render-scope/scope.js';
 import type { ImageTransform, SerializedStaticImage } from '../types.js';
 import { getAssetsPrefix } from './getAssetsPrefix.js';
@@ -11,13 +16,6 @@ export interface ResolveStaticImageOptions extends StaticImageConfig {
 	assetQueryParams?: URLSearchParams;
 }
 
-// Also runs in workerd, where `node:path` may be unavailable.
-function extname(filePath: string): string {
-	const base = filePath.slice(filePath.lastIndexOf('/') + 1);
-	const dot = base.lastIndexOf('.');
-	return dot <= 0 ? '' : base.slice(dot);
-}
-
 // Must stay deterministic: each runtime resolves images on its own and the build dedupes by hash.
 export function resolveStaticImage(
 	transform: ImageTransform,
@@ -26,7 +24,7 @@ export function resolveStaticImage(
 	options: ResolveStaticImageOptions,
 ): { url: string; image: SerializedStaticImage } {
 	const src = isESMImportedImage(transform.src) ? transform.src.src : transform.src;
-	const assetsPrefix = getAssetsPrefix(extname(src), options.assetsPrefix);
+	const assetsPrefix = getAssetsPrefix(fileExtension(src), options.assetsPrefix);
 
 	const originalPath = removeBase(removeBase(src, options.base), assetsPrefix);
 	const hash = hashTransform(transform, options.serviceEntrypoint, hashProperties);
