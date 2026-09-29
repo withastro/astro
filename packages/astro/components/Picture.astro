@@ -96,8 +96,7 @@ const optimizedImages: GetImageResult[] = await Promise.all(
 	),
 );
 
-// Read the ESM import through an untracked copy, so that optimizing an image doesn't make
-// the build think its original file is used outside of the image optimization pipeline
+// Optimizing an image must not count as using its original file.
 const clonedSrc = getUntrackedImage(originalSrc);
 
 let resultFallbackFormat = fallbackFormat ?? defaultFallbackFormat;

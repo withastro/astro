@@ -74,18 +74,11 @@ interface Options {
 
 export const ASSETS_ESM_PLUGIN_NAME = 'astro:assets:esm';
 
-/** API exposed by the `astro:assets:esm` plugin to other plugins. */
 export interface AssetsPluginApi {
-	/**
-	 * Marks an image's original file as used outside of image optimization, so the build keeps it
-	 * in the output even when it also generates optimized versions of it.
-	 */
 	markReferenced(fsPath: string): void;
-	/** Images marked as referenced while bundling. */
 	readonly referencedImages: ReadonlySet<string>;
 }
 
-/** Finds the API of the `astro:assets:esm` plugin in a list of resolved plugins. */
 export function getAssetsPluginApi(
 	plugins: readonly vite.Plugin[] | undefined,
 ): AssetsPluginApi | undefined {
@@ -96,9 +89,6 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 	let resolvedConfig: vite.ResolvedConfig;
 	let shouldEmitFile = false;
 
-	// Images known to be used outside of image optimization while bundling: imported on the
-	// client, imported with a query, or reachable from on-demand rendered pages. References made
-	// while prerendering are reported per page by the prerenderer instead.
 	const referencedImages = new Set<string>();
 	const api: AssetsPluginApi = {
 		markReferenced(fsPath) {

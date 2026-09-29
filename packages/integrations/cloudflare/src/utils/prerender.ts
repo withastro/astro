@@ -10,8 +10,7 @@
  * - `/__astro_prerender`: Renders a specific page given its URL and route data.
  *   The prerenderer calls this for each path to generate the static HTML.
  *
- * - `/__astro_static_images`: Returns the image records made outside of a page
- *   render, once every path is rendered.
+ * - `/__astro_static_images`: Returns the image records made outside of page renders.
  *
  * These endpoints are only active during the prerender build phase and are not
  * available in production or development.
@@ -164,10 +163,6 @@ export function isImageTransformRequest(request: Request): boolean {
 	return pathname === IMAGE_TRANSFORM_ENDPOINT && request.method === 'POST';
 }
 
-/**
- * Returns the image records made in workerd outside of any prerender request's render scope
- * (e.g. `getImage()` in `getStaticPaths()`), and empties them.
- */
 export function handleStaticImagesRequest(): Response {
 	const body: StaticImagesResponse = drainAmbientCollectors();
 	return new Response(JSON.stringify(body), {

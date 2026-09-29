@@ -54,7 +54,6 @@ export function pluginInternals(
 		},
 
 		async generateBundle(_options, bundle) {
-			// Image references known while bundling, shared by every environment.
 			const assetsApi = getAssetsPluginApi(this.environment?.config.plugins);
 			if (assetsApi) {
 				internals.referencedImages = assetsApi.referencedImages;

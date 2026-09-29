@@ -33,11 +33,7 @@ export const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
 
 let configuredImageService: ImageService | undefined;
 
-/**
- * Loads the image service configured for this bundle (`virtual:image-service`).
- * Only resolvable from code bundled by Vite: the build loads it through the
- * prerender entrypoint (see `AstroPrerenderer.getImageService`).
- */
+// `virtual:image-service` only resolves in Vite-bundled code.
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!configuredImageService) {
 		const { default: service }: { default: ImageService } = await import(
@@ -54,7 +50,6 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 	return configuredImageService;
 }
 
-/** Overrides the service returned by `getConfiguredImageService()`. Used by tests. */
 export function setConfiguredImageService(service: ImageService | undefined): void {
 	configuredImageService = service;
 }
@@ -127,8 +122,7 @@ export async function getImage(
 		? resolvedOptions.src.fsPath
 		: undefined; // Only set for ESM imports, where we do have a file path
 
-	// Read the ESM import through an untracked copy, so that optimizing an image doesn't make
-	// the build think its original file is used outside of the image optimization pipeline
+	// Optimizing an image must not count as using its original file.
 	const clonedSrc = getUntrackedImage(resolvedOptions.src);
 
 	if (isESMImportedImage(clonedSrc)) {
@@ -211,8 +205,7 @@ export async function getImage(
 		: [];
 
 	// In the Picture component, the optimized original-sized image is typically not used when `widths` is set.
-	// Since resolving a static image registers it for generation,
-	// we fetch it lazily to avoid creating unnecessary assets.
+	// Lazy: resolving a static image registers it for generation.
 	const lazyImageURLFactory = (getValue: () => string) => {
 		let cached: string | null = null;
 		return () => (cached ??= getValue());
@@ -251,8 +244,6 @@ export async function getImage(
 				serviceEntrypoint: imageConfig.service.entrypoint,
 				assetQueryParams: imageConfig.assetQueryParams,
 			});
-			// Report every resolved transform (dedup hits included) against the page rendering,
-			// the build generates the files from these records.
 			recordStaticImage(image);
 			return url;
 		};
@@ -268,7 +259,6 @@ export async function getImage(
 			};
 		});
 	} else if (imageConfig.assetQueryParams) {
-		// For images resolved on demand, append assetQueryParams manually
 		const imageURLObj = createPlaceholderURL(initialImageURL);
 		imageConfig.assetQueryParams.forEach((value, key) => {
 			imageURLObj.searchParams.set(key, value);

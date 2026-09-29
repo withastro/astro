@@ -17,13 +17,12 @@ import { setupConfig } from './runtime.js';
 import { getMarkdocTokenizer } from './tokenizer.js';
 import { isComponentConfig, isValidUrl, MarkdocError, prependForwardSlash } from './utils.js';
 
-/** The API of Astro's `astro:assets:esm` Vite plugin. */
 interface AssetsPluginApi {
 	markReferenced(fsPath: string): void;
 }
 
 function getAssetsPluginApi(pluginContext: Rolldown.PluginContext): AssetsPluginApi | undefined {
-	// Vite exposes the environment on the context of plugin hooks.
+	// Rolldown's context type lacks the `environment` Vite adds.
 	const { environment } = pluginContext as {
 		environment?: { config: { plugins: readonly { name: string; api?: unknown }[] } };
 	};

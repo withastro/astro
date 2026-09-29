@@ -609,7 +609,6 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 		probeCalls = 0;
 		probeError = undefined;
 		setConfiguredImageService(localServiceWithProbe as any);
-		// Resolve images to static files, as when prerendering.
 		installRenderScope(undefined, { staticImages: { base: '/', assetsDir: '_astro' } });
 	});
 

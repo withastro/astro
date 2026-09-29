@@ -37,7 +37,6 @@ type GenerationData = GenerationDataUncached | GenerationDataCached;
 type AssetEnv = {
 	logger: AstroLogger;
 	imageService: LocalImageService;
-	/** Originals used outside of image optimization, never deleted. */
 	referencedImages: ReadonlySet<string>;
 	isSSR: boolean;
 	count: { total: number; current: number };
@@ -362,19 +361,10 @@ async function writeCacheMetaFile(
 	}
 }
 
-/**
- * The images the build generates, aggregated in the build process from what
- * the prerenderer reports: per-page render metadata (fresh or replayed from the
- * incremental cache), records made outside of a render, and references known
- * while bundling.
- */
 export class StaticImageRegistry {
-	/** Transforms to generate, keyed by original path, then by transform hash. */
 	readonly images: AssetsGlobalStaticImagesList = new Map();
-	/** Source paths of originals used outside of image optimization, kept in the output. */
 	readonly referencedImages = new Set<string>();
 
-	/** Adds transforms. A transform already registered for the same hash is kept. */
 	addStaticImages(images: Iterable<SerializedStaticImage> | undefined): void {
 		if (!images) return;
 		for (const image of images) {
@@ -406,7 +396,6 @@ export class StaticImageRegistry {
 		this.addReferencedImages(metadata?.referencedImages);
 	}
 
-	/** Merges a nested image list. Transforms already registered for the same hash are kept. */
 	addStaticImageList(list: AssetsGlobalStaticImagesList): void {
 		for (const [originalPath, entry] of list) {
 			const existing = this.images.get(originalPath);

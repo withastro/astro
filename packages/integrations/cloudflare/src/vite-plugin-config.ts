@@ -13,7 +13,6 @@ const RESOLVED_VIRTUAL_CONFIG_ID = '\0' + VIRTUAL_CONFIG_ID;
 const PRERENDER_SCOPE_PATH = fileURLToPath(new URL('./utils/prerender-scope.js', import.meta.url));
 
 export interface CompileImageConfig {
-	/** How the prerender worker resolves image transforms to files emitted at build time. */
 	staticImages: StaticImageConfig;
 	transformWithBinding: boolean;
 }

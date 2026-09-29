@@ -43,7 +43,6 @@ describe('render scope record helpers', () => {
 			staticImages: [image('h1')],
 			referencedImages: ['/project/src/assets/penguin.png'],
 		});
-		// Draining empties the store.
 		assert.deepEqual(drainAmbientCollectors(), { staticImages: [], referencedImages: [] });
 	});
 

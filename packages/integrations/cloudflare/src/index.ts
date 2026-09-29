@@ -578,11 +578,7 @@ export default function createIntegration({
 						}),
 					);
 				} else if (hasBuildImageService) {
-					// When prerenderEnvironment is 'node', prerendering runs in the same
-					// Node process using the workerd-safe image service stub (which is a
-					// passthrough). Generate the optimized images with the real image
-					// service (sharp or the user's custom service) instead, like the
-					// workerd prerenderer does.
+					// Node prerendering bundles the passthrough workerd stub, so generate with the real service.
 					const entrypoint = hasUserBuildImageService
 						? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
 						: undefined;
@@ -590,10 +586,7 @@ export default function createIntegration({
 						...defaultPrerenderer,
 						async getImageService() {
 							if (entrypoint) {
-								// With a user-configured image.service, the prerender bundle already
-								// contains the user service. Prefer it: the raw entrypoint import can
-								// fail where the bundled service works (e.g. TypeScript entrypoints
-								// on Node versions without type stripping).
+								// The raw entrypoint import can fail where the bundled one works (e.g. untranspiled TypeScript).
 								try {
 									return await defaultPrerenderer.getImageService!();
 								} catch {

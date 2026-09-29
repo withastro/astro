@@ -16,12 +16,6 @@ export type AssetsGlobalStaticImagesList = Map<
 	}
 >;
 
-/**
- * A single image transform resolved while rendering, as reported by the
- * prerenderer and persisted in the incremental build cache.
- * `AssetsGlobalStaticImagesList` nests transforms under their original path;
- * this carries the original path and transform hash inline.
- */
 export interface SerializedStaticImage {
 	originalPath: string;
 	hash: string;

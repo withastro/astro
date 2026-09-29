@@ -22,7 +22,6 @@ export interface DefaultPrerenderer extends AstroPrerenderer {
 
 interface PrerenderEntry {
 	app: BuildApp;
-	/** Missing from prerender entrypoints that don't re-export it. */
 	getImageService?: () => Promise<ImageService>;
 }
 
@@ -63,9 +62,6 @@ export function createDefaultPrerenderer({
 		},
 
 		async render(request, { routeData, collectMetadata }) {
-			// The render scope is installed by the build (see `generate.ts`); records
-			// originating in the bundled prerender runtime reach it through the
-			// `Symbol.for('astro:render-scope')` channel.
 			return renderForPrerender(prerenderer.app!, request, { routeData, collectMetadata });
 		},
 

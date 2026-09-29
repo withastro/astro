@@ -14,6 +14,5 @@ setEnvironment(manifest, buildEnv.env);
 const app = new BuildApp(manifest, buildEnv);
 
 export { app, manifest };
-// The image service can only be resolved from inside the bundle (`virtual:image-service`): the
-// build loads it through here to generate optimized images.
+// `virtual:image-service` only resolves inside the bundle.
 export { getConfiguredImageService as getImageService } from '../assets/internal.js';

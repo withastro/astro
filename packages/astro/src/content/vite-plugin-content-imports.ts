@@ -431,7 +431,6 @@ function stringifyEntryData(data: Record<string, any>, isSSR: boolean): string {
 				return `new URL(${JSON.stringify(value.href)})`;
 			}
 
-			// For Astro assets, track references to the original file
 			if (typeof value === 'object' && 'ASTRO_ASSET' in value) {
 				const { ASTRO_ASSET, ...asset } = value;
 				asset.fsPath = ASTRO_ASSET;
