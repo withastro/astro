@@ -1,23 +1,40 @@
 import { installRenderScope, type BaseApp, type StaticImageConfig } from 'astro/app';
 
+/**
+ * Installs the AsyncLocalStorage-backed render scope for the workerd prerender
+ * worker, so each concurrent prerender request collects its incremental
+ * metadata in its own per-render store.
+ *
+ * This module is prerender-only: it is loaded via a dynamic import behind the
+ * compile-time `isPrerender` const (see `handler.ts`), so its `node:` reference
+ * never reaches production worker bundles. `node:async_hooks` itself is
+ * imported dynamically as a runtime probe: the prerender worker gets the
+ * `nodejs_als` compatibility flag auto-appended by the adapter when no
+ * ALS-capable flag is configured, but if AsyncLocalStorage is still unavailable
+ * we warn once and install the channel without a scope — collection then
+ * degrades to "not tracked" (`metadata: undefined`), never wrong attribution.
+ *
+ * `installRenderScope` is first-wins, so calling this per request is
+ * idempotent.
+ */
+
 let warned = false;
 
 export async function ensurePrerenderScope(
 	logger: BaseApp['logger'],
 	staticImages: StaticImageConfig | undefined,
 ): Promise<void> {
-	let AsyncLocalStorage: typeof import('node:async_hooks').AsyncLocalStorage | undefined;
-	// Dynamic import as a probe: the worker may lack the `nodejs_als` flag.
 	try {
-		({ AsyncLocalStorage } = await import('node:async_hooks'));
+		const { AsyncLocalStorage } = await import('node:async_hooks');
+		installRenderScope(new AsyncLocalStorage(), { staticImages });
 	} catch {
+		installRenderScope(undefined, { staticImages });
 		if (!warned) {
 			warned = true;
 			logger.warn(
 				'build',
-				'AsyncLocalStorage is unavailable in this worker, so incremental builds will re-render every prerendered page. Enable the nodejs_als or nodejs_compat compatibility flag.',
+				'AsyncLocalStorage is unavailable in this worker; incremental metadata will not be collected for prerendered paths. Enable the nodejs_als or nodejs_compat compatibility flag.',
 			);
 		}
 	}
-	installRenderScope(AsyncLocalStorage ? new AsyncLocalStorage() : undefined, { staticImages });
 }

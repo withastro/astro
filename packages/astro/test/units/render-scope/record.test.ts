@@ -53,7 +53,7 @@ describe('render scope record helpers', () => {
 	});
 
 	it('never records into the ambient store while a render is in scope', () => {
-		const scope = ensureAsyncRenderScope()!;
+		const scope = ensureAsyncRenderScope();
 		const store: RenderCollectors = { staticImages: [], referencedImages: new Set() };
 		scope.run(store, () => {
 			recordStaticImage(image('h1'));
@@ -65,7 +65,7 @@ describe('render scope record helpers', () => {
 	});
 
 	it('tolerates a store lacking a field (version skew), recording nothing', () => {
-		const scope = ensureAsyncRenderScope()!;
+		const scope = ensureAsyncRenderScope();
 		const store: RenderCollectors = {};
 		scope.run(store, () => {
 			recordContentEntryRender('src/content/docs/one.mdx');
@@ -75,7 +75,7 @@ describe('render scope record helpers', () => {
 	});
 
 	it('records into the active store', () => {
-		const scope = ensureAsyncRenderScope()!;
+		const scope = ensureAsyncRenderScope();
 		const store: RenderCollectors = { contentEntries: new Set(), staticImages: [] };
 		scope.run(store, () => {
 			recordContentEntryRender('src/content/docs/one.mdx');
@@ -90,7 +90,7 @@ describe('render scope record helpers', () => {
 	});
 
 	it('never cross-records between interleaved async flows', async () => {
-		const scope = ensureAsyncRenderScope()!;
+		const scope = ensureAsyncRenderScope();
 		const storeA: RenderCollectors = { contentEntries: new Set(), staticImages: [] };
 		const storeB: RenderCollectors = { contentEntries: new Set(), staticImages: [] };
 

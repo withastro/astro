@@ -1,16 +1,27 @@
 import type { SerializedStaticImage } from '../../assets/types.js';
 import { getRecordTarget } from './scope.js';
 
-// Content entries only matter per page, so the ambient store has no collector for them.
+/**
+ * Records that a content entry was rendered, keyed by its root-relative
+ * `filePath`. No-op when no scope is installed (dev, production SSR,
+ * non-incremental builds) or no render is in scope (`getStaticPaths`, module
+ * top-level).
+ */
 export function recordContentEntryRender(filePath: string | undefined): void {
 	if (!filePath) return;
 	getRecordTarget()?.contentEntries?.add(filePath);
 }
 
+/**
+ * Records a resolved image transform, dedup hits included, preserving
+ * duplicates (array push, not a set — replay depends on every record
+ * arriving).
+ */
 export function recordStaticImage(image: SerializedStaticImage): void {
 	getRecordTarget()?.staticImages?.push(image);
 }
 
+/** Records an untransformed image reference against the active render. */
 export function recordReferencedImage(fsPath: string): void {
 	getRecordTarget()?.referencedImages?.add(fsPath);
 }

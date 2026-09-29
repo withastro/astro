@@ -252,8 +252,11 @@ export interface PathWithRoute {
 }
 
 /**
- * Data a prerenderer collects while rendering a page: the images the page uses,
- * and what lets the incremental build replay the page without re-rendering it.
+ * Incremental-build data a prerenderer collects while rendering a page,
+ * reported back to the build orchestrator so skipped pages can be tracked and
+ * replayed without a re-render. This is the only attribution channel: every
+ * prerenderer — in-process and out-of-process — collects in its own rendering
+ * runtime and reports the result by value here.
  */
 export interface PrerenderRenderMetadata {
 	/** Root-relative `filePath`s of the content entries the page rendered, or an empty array. */
@@ -272,8 +275,9 @@ export type PrerenderUnattributedMetadata = Pick<
 
 /**
  * The richer result a prerenderer's `render()` may return instead of a bare
- * `Response`, pairing the rendered response with the metadata collected for that
- * page. `metadata` is `undefined` when the prerenderer could not collect it.
+ * `Response`, pairing the rendered response with the incremental-build metadata
+ * collected for that page. `metadata` is `undefined` when the page was not
+ * tracked (the prerenderer could not collect).
  */
 export interface PrerenderResult {
 	response: Response;
@@ -308,7 +312,14 @@ export interface AstroPrerenderer {
 	 * @param options - Render options
 	 * @param options.routeData - The matched route for this path
 	 * @param options.collectMetadata - Deprecated, always `true`.
-	 * @returns A `Response`, or a {@link PrerenderResult} pairing the response with its metadata.
+	 *   The prerenderer should collect the page's per-render
+	 *   incremental metadata in its rendering runtime and report it on a
+	 *   {@link PrerenderResult}. A prerenderer that cannot collect may ignore the
+	 *   flag and return a bare `Response`; its paths are then recorded as
+	 *   "not tracked".
+	 * @returns A `Response`, or a {@link PrerenderResult} pairing the response with
+	 *   the incremental-build metadata the page resolved. Metadata is the only
+	 *   attribution channel for all prerenderers.
 	 */
 	render: (
 		request: Request,

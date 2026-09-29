@@ -325,7 +325,8 @@ async function emitOptimizedImages(
 					const fsPath = resolved.id;
 
 					if (src) {
-						// Markdoc can't track reads of the image's `src`, so assume the original is used.
+						// We cannot track images in Markdoc, Markdoc rendering always strips out the tracking. As such, we'll always
+						// assume that the image is referenced elsewhere, to be on safer side.
 						if (ctx.astroConfig.output === 'static') {
 							markImageReferenced(ctx.pluginContext, fsPath);
 						}

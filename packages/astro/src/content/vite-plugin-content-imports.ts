@@ -429,6 +429,7 @@ function stringifyEntryData(
 				return `new URL(${JSON.stringify(value.href)})`;
 			}
 
+			// For Astro assets, track references to their `src`
 			if (typeof value === 'object' && 'ASTRO_ASSET' in value) {
 				const { ASTRO_ASSET, ...asset } = value;
 				asset.fsPath = ASTRO_ASSET;

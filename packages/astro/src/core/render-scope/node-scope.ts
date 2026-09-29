@@ -4,14 +4,12 @@ import type { RenderCollectors, RenderCollectorScope, RenderScopeOptions } from 
 
 /**
  * Installs (first-wins) an AsyncLocalStorage-backed render scope and returns
- * the installed scope, which is `undefined` if an earlier install had none.
+ * the installed scope.
  *
  * This module is the ONE static `node:async_hooks` import in core and must be
- * imported ONLY by orchestrator-only build code (`core/build/generate.ts`)
- * that is never bundled into prerender, server, or adapter output.
+ * imported ONLY by `core/build/generate.ts` — orchestrator-only
+ * code that is never bundled into prerender, server, or adapter output.
  */
-export function ensureAsyncRenderScope(
-	options?: RenderScopeOptions,
-): RenderCollectorScope | undefined {
-	return installRenderScope(new AsyncLocalStorage<RenderCollectors>(), options);
+export function ensureAsyncRenderScope(options?: RenderScopeOptions): RenderCollectorScope {
+	return installRenderScope(new AsyncLocalStorage<RenderCollectors>(), options)!;
 }

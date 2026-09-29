@@ -78,14 +78,14 @@ describe('render scope channel', () => {
 	});
 
 	it('ensureAsyncRenderScope installs an AsyncLocalStorage-backed scope first-wins', () => {
-		const scope = ensureAsyncRenderScope()!;
+		const scope = ensureAsyncRenderScope();
 		assert.ok(scope instanceof AsyncLocalStorage);
 		assert.equal(ensureAsyncRenderScope(), scope);
 		assert.equal(getInstalledRenderScope(), scope);
 	});
 
 	it('getRenderCollectors returns the store entered through the scope', () => {
-		const scope = ensureAsyncRenderScope()!;
+		const scope = ensureAsyncRenderScope();
 		const store: RenderCollectors = { contentEntries: new Set(), staticImages: [] };
 		scope.run(store, () => {
 			assert.equal(getRenderCollectors(), store);
@@ -102,7 +102,7 @@ describe('render scope channel', () => {
 			copyBSpecifier
 		)) as typeof import('../../../dist/core/render-scope/scope.js');
 
-		const scope = ensureAsyncRenderScope()!;
+		const scope = ensureAsyncRenderScope();
 		assert.equal(copyB.getInstalledRenderScope(), scope);
 		assert.equal(copyB.installRenderScope(fakeScope()), scope);
 

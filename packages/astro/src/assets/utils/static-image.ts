@@ -18,34 +18,49 @@ export interface ResolveStaticImageOptions extends StaticImageConfig {
 
 // Must stay deterministic: each runtime resolves images on its own and the build dedupes by hash.
 export function resolveStaticImage(
-	transform: ImageTransform,
+	options: ImageTransform,
 	hashProperties: string[],
-	originalSrcPath: string | undefined,
-	options: ResolveStaticImageOptions,
+	originalFSPath: string | undefined,
+	config: ResolveStaticImageOptions,
 ): { url: string; image: SerializedStaticImage } {
-	const src = isESMImportedImage(transform.src) ? transform.src.src : transform.src;
-	const assetsPrefix = getAssetsPrefix(fileExtension(src), options.assetsPrefix);
+	// Rolldown will copy the file to the output directory, as such this is the path in the output directory, including the asset prefix / base
+	const ESMImportedImageSrc = isESMImportedImage(options.src) ? options.src.src : options.src;
+	const assetPrefix = getAssetsPrefix(fileExtension(ESMImportedImageSrc), config.assetsPrefix);
 
-	const originalPath = removeBase(removeBase(src, options.base), assetsPrefix);
-	const hash = hashTransform(transform, options.serviceEntrypoint, hashProperties);
-	const finalPath = prependForwardSlash(
+	// This is the path to the original image, from the dist root, without the base or the asset prefix (e.g. /_astro/image.hash.png)
+	const finalOriginalPath = removeBase(removeBase(ESMImportedImageSrc, config.base), assetPrefix);
+
+	const hash = hashTransform(options, config.serviceEntrypoint, hashProperties);
+
+	const finalFilePath = prependForwardSlash(
 		joinPaths(
-			isESMImportedImage(transform.src) ? '' : options.assetsDir,
-			prependForwardSlash(propsToFilename(originalPath, transform, hash)),
+			isESMImportedImage(options.src) ? '' : config.assetsDir,
+			prependForwardSlash(propsToFilename(finalOriginalPath, options, hash)),
 		),
 	);
 
+	// The paths here are used for URLs, so we need to make sure they have the proper format for an URL
+	// (leading slash, prefixed with the base / assets prefix, encoded, etc)
+	// Create URL object to safely manipulate and append assetQueryParams if available (for adapter-level tracking like skew protection)
 	const url = createPlaceholderURL(
-		options.assetsPrefix
-			? encodeURI(joinPaths(assetsPrefix, finalPath))
-			: encodeURI(prependForwardSlash(joinPaths(options.base, finalPath))),
+		config.assetsPrefix
+			? encodeURI(joinPaths(assetPrefix, finalFilePath))
+			: encodeURI(prependForwardSlash(joinPaths(config.base, finalFilePath))),
 	);
-	options.assetQueryParams?.forEach((value, key) => {
-		url.searchParams.set(key, value);
-	});
+	if (config.assetQueryParams) {
+		config.assetQueryParams.forEach((value, key) => {
+			url.searchParams.set(key, value);
+		});
+	}
 
 	return {
 		url: stringifyPlaceholderURL(url),
-		image: { originalPath, hash, finalPath, originalSrcPath, transform },
+		image: {
+			originalPath: finalOriginalPath,
+			hash,
+			finalPath: finalFilePath,
+			originalSrcPath: originalFSPath,
+			transform: options,
+		},
 	};
 }

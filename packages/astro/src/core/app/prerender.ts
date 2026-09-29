@@ -10,12 +10,27 @@ export interface PrerenderableApp {
 
 export interface PrerenderRenderOptions {
 	routeData?: RouteData;
+	/** @deprecated Metadata is always collected. */
+	collectMetadata?: boolean;
 }
 
 /** Statuses the `Response` constructor rejects a body for. */
 const NULL_BODY_STATUSES = [101, 204, 205, 304];
 
-/** Renders a prerendered path with its metadata, which is `undefined` if no render scope is installed. */
+/**
+ * Renders a single prerendered path through `app.render`, collecting the
+ * per-render metadata (content entries rendered, image transforms resolved)
+ * and returning it by value on the result.
+ *
+ * The response body is fully buffered *inside* the render scope so
+ * lazily-driven rendering work records before the metadata snapshot; the
+ * returned response is a reconstruction carrying the buffered body with
+ * status/statusText/headers and body-nullness preserved.
+ *
+ * This function performs no scope installation; installing a render scope for
+ * the rendering runtime is the caller's responsibility. When no scope is
+ * installed, `metadata` is `undefined` ("not tracked").
+ */
 export async function renderForPrerender(
 	app: PrerenderableApp,
 	request: Request,
@@ -23,7 +38,6 @@ export async function renderForPrerender(
 ): Promise<PrerenderResult> {
 	const routeData = options?.routeData;
 	const { value: response, metadata } = await collectPrerenderMetadata(async () => {
-		// Buffer inside the scope so lazily streamed rendering records before the snapshot.
 		const rendered = await app.render(request, { routeData });
 		const bytes = rendered.body === null ? null : await rendered.arrayBuffer();
 		const nullBody = bytes === null || NULL_BODY_STATUSES.includes(rendered.status);

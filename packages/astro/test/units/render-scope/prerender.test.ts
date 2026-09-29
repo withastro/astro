@@ -46,7 +46,9 @@ describe('renderForPrerender', () => {
 			});
 			return new Response(stream, { status: 200, headers: { 'X-Test': 'yes' } });
 		});
-		const { response, metadata } = await renderForPrerender(app, request());
+		const { response, metadata } = await renderForPrerender(app, request(), {
+			collectMetadata: true,
+		});
 		assert.deepEqual(metadata?.contentEntryKeys, ['at-render', 'during-body-pull']);
 		assert.deepEqual(
 			metadata?.staticImages?.map((img) => img.hash),
@@ -60,7 +62,9 @@ describe('renderForPrerender', () => {
 	it('preserves body-nullness for null-body responses', async () => {
 		ensureAsyncRenderScope();
 		const app = appOf(async () => new Response(null, { status: 204, statusText: 'No Content' }));
-		const { response, metadata } = await renderForPrerender(app, request());
+		const { response, metadata } = await renderForPrerender(app, request(), {
+			collectMetadata: true,
+		});
 		assert.equal(response.body, null);
 		assert.equal(response.status, 204);
 		assert.equal(response.statusText, 'No Content');
@@ -72,7 +76,7 @@ describe('renderForPrerender', () => {
 		const app = appOf(
 			async () => new Response(null, { status: 302, headers: { Location: '/elsewhere/' } }),
 		);
-		const { response } = await renderForPrerender(app, request());
+		const { response } = await renderForPrerender(app, request(), { collectMetadata: true });
 		assert.equal(response.status, 302);
 		assert.equal(response.headers.get('Location'), '/elsewhere/');
 		assert.equal(response.body, null);
@@ -84,19 +88,21 @@ describe('renderForPrerender', () => {
 			recordContentEntryRender('doomed');
 			throw new Error('boom');
 		});
-		await assert.rejects(renderForPrerender(failing, request()), /boom/);
+		await assert.rejects(renderForPrerender(failing, request(), { collectMetadata: true }), /boom/);
 
 		const app = appOf(async () => {
 			recordContentEntryRender('clean');
 			return new Response('ok');
 		});
-		const { metadata } = await renderForPrerender(app, request());
+		const { metadata } = await renderForPrerender(app, request(), { collectMetadata: true });
 		assert.deepEqual(metadata?.contentEntryKeys, ['clean']);
 	});
 
-	it('degrades to metadata undefined without an installed scope', async () => {
+	it('degrades to metadata undefined when collecting without an installed scope', async () => {
 		const app = appOf(async () => new Response('ok'));
-		const { response, metadata } = await renderForPrerender(app, request());
+		const { response, metadata } = await renderForPrerender(app, request(), {
+			collectMetadata: true,
+		});
 		assert.equal(metadata, undefined);
 		assert.equal(await response.text(), 'ok');
 	});
