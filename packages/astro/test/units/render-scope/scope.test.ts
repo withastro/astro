@@ -4,6 +4,7 @@ import { afterEach, describe, it } from 'node:test';
 import {
 	getInstalledRenderScope,
 	getRenderCollectors,
+	getStaticImageConfig,
 	installRenderScope,
 	uninstallRenderScope,
 	type RenderCollectors,
@@ -49,6 +50,25 @@ describe('render scope channel', () => {
 		]);
 		assert.equal(a, b);
 		assert.equal(getInstalledRenderScope(), a);
+	});
+
+	it('carries the static image config of the first install', () => {
+		assert.equal(getStaticImageConfig(), undefined);
+		installRenderScope(fakeScope(), {
+			staticImages: { base: '/docs/', assetsDir: '_astro' },
+		});
+		installRenderScope(fakeScope(), { staticImages: { base: '/', assetsDir: 'other' } });
+		assert.deepEqual(getStaticImageConfig(), { base: '/docs/', assetsDir: '_astro' });
+	});
+
+	it('installs without an async context scope', () => {
+		assert.equal(
+			installRenderScope(undefined, { staticImages: { base: '/', assetsDir: '_a' } }),
+			undefined,
+		);
+		assert.equal(getInstalledRenderScope(), undefined);
+		assert.equal(getRenderCollectors(), undefined);
+		assert.deepEqual(getStaticImageConfig(), { base: '/', assetsDir: '_a' });
 	});
 
 	it('uninstallRenderScope resets the channel', () => {

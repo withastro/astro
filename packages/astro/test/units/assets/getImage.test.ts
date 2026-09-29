@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
 import { baseService } from '../../../dist/assets/services/service.js';
 import type { GetImageResult, UnresolvedImageTransform } from '../../../dist/assets/types.js';
-import { getImage } from '../../../dist/assets/internal.js';
+import { getImage, setConfiguredImageService } from '../../../dist/assets/internal.js';
+import { installRenderScope, uninstallRenderScope } from '../../../dist/core/render-scope/scope.js';
 import { installImageService, mockRuntimeLogger } from '../mocks.ts';
 
 describe('getImage', () => {
@@ -607,14 +608,14 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 		probedFormat = undefined;
 		probeCalls = 0;
 		probeError = undefined;
-		(globalThis as any).astroAsset = {
-			imageService: localServiceWithProbe,
-			addStaticImage: () => '/_astro/peeked.hash.png',
-		};
+		setConfiguredImageService(localServiceWithProbe as any);
+		// Resolve images to static files, as when prerendering.
+		installRenderScope(undefined, { staticImages: { base: '/', assetsDir: '_astro' } });
 	});
 
 	afterEach(() => {
-		(globalThis as any).astroAsset = undefined;
+		setConfiguredImageService(undefined);
+		uninstallRenderScope();
 	});
 
 	it('commits the probed format when the URL has no detectable extension', async () => {
@@ -668,9 +669,9 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 		assert.equal(result.options.format, 'png');
 	});
 
-	it('does not peek when not running at build time (no addStaticImage)', async () => {
+	it('does not peek when not resolving static images (not prerendering)', async () => {
 		probedFormat = 'svg';
-		(globalThis as any).astroAsset = { imageService: localServiceWithProbe };
+		uninstallRenderScope();
 		const result = await getImage(
 			{ src: 'https://example.com/api/avatar', width: 64, height: 64, alt: 'ssr' },
 			imageConfig,
@@ -701,10 +702,7 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 				return { format: 'svg', width: 100, height: 100 };
 			},
 		};
-		(globalThis as any).astroAsset = {
-			imageService: externalService,
-			addStaticImage: () => '/_astro/peeked.hash.png',
-		};
+		setConfiguredImageService(externalService as any);
 		const result = await getImage(
 			{ src: 'https://example.com/api/avatar', width: 64, height: 64, alt: 'external' },
 			imageConfig,

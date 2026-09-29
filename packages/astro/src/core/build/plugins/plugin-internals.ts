@@ -3,6 +3,7 @@ import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
+import { getAssetsPluginApi } from '../../../assets/vite-plugin-assets.js';
 
 function getRollupInputAsSet(rollupInput: Rollup.InputOption | undefined): Set<string> {
 	if (Array.isArray(rollupInput)) {
@@ -53,6 +54,12 @@ export function pluginInternals(
 		},
 
 		async generateBundle(_options, bundle) {
+			// Image references known while bundling, shared by every environment.
+			const assetsApi = getAssetsPluginApi(this.environment?.config.plugins);
+			if (assetsApi) {
+				internals.referencedImages = assetsApi.referencedImages;
+			}
+
 			// Read the rollup input directly from the current environment's config rather than
 			// relying on a closure variable from configResolved. With Vite's per-environment config
 			// resolution, a shared closure variable would be overwritten by the last environment's

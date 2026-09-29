@@ -16,10 +16,13 @@ export {
 	serializeRouteInfo,
 } from '../manifest.js';
 export {
+	drainAmbientCollectors,
 	getInstalledRenderScope,
 	installRenderScope,
 	type RenderCollectors,
 	type RenderCollectorScope,
+	type RenderScopeOptions,
+	type StaticImageConfig,
 } from '../../render-scope/scope.js';
 export { recordStaticImage } from '../../render-scope/record.js';
 export {

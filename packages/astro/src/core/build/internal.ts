@@ -163,6 +163,13 @@ export interface BuildInternals {
 	 * cache only reuses them while the encryption key is unchanged.
 	 */
 	serverIslandPageComponents?: Set<string>;
+
+	/**
+	 * Source paths of images known while bundling to be used outside of image
+	 * optimization (imported on the client, imported with a query, reachable
+	 * from on-demand rendered pages). Their originals are kept in the output.
+	 */
+	referencedImages: ReadonlySet<string>;
 }
 
 /**
@@ -193,6 +200,7 @@ export function createBuildInternals(): BuildInternals {
 		loggerEntryPoint: undefined,
 		clientChunksAndAssets: new Set(),
 		ssrAssetsPerEnvironment: new Map(),
+		referencedImages: new Set(),
 	};
 }
 

@@ -3,6 +3,7 @@ import type {
 	AstroIntegrationLogger,
 	AstroPrerenderer,
 	AssetsGlobalStaticImagesList,
+	ImageService,
 	ImageTransform,
 	PathWithRoute,
 } from 'astro';
@@ -20,7 +21,6 @@ import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import type {
 	StaticPathsResponse,
 	PrerenderRequest,
-	SerializedStaticImageEntry,
 	StaticImagesResponse,
 } from './prerender-types.js';
 import {
@@ -288,9 +288,9 @@ export function createCloudflarePrerenderer({
 			return response;
 		},
 
-		collectStaticImages:
-			hasBuildImageService || hasBindingImageService
-				? async (): Promise<AssetsGlobalStaticImagesList> => {
+		...(hasBuildImageService || hasBindingImageService
+			? {
+					async collectUnattributedMetadata(): Promise<StaticImagesResponse> {
 						const response = await fetch(`${serverUrl}${STATIC_IMAGES_ENDPOINT}`, {
 							method: 'POST',
 							headers: { 'Content-Type': 'application/json' },
@@ -304,86 +304,84 @@ export function createCloudflarePrerenderer({
 							);
 						}
 
-						const entries: StaticImagesResponse = await response.json();
+						return response.json();
+					},
 
+					async getImageService(): Promise<ImageService> {
+						if (userImageServiceEntrypoint) {
+							const mod = await import(userImageServiceEntrypoint);
+							return mod.default ?? mod;
+						}
+						const { default: sharpService } = await import('astro/assets/services/sharp');
+						return sharpService;
+					},
+				}
+			: {}),
+
+		...(hasBindingImageService
+			? {
+					async generateImages(
+						images: AssetsGlobalStaticImagesList,
+					): Promise<AssetsGlobalStaticImagesList> {
 						// Transforms left in this map fall through to the Node-side image
 						// service (the user-configured service, or Sharp).
-						const staticImages: AssetsGlobalStaticImagesList = new Map();
+						const remaining: AssetsGlobalStaticImagesList = new Map();
 						const deferToNodeImageService = (
-							entry: SerializedStaticImageEntry,
-							t: SerializedStaticImageEntry['transforms'][number],
+							originalPath: string,
+							originalSrcPath: string | undefined,
+							hash: string,
+							transform: { finalPath: string; transform: ImageTransform },
 						) => {
-							let existing = staticImages.get(entry.originalPath);
+							let existing = remaining.get(originalPath);
 							if (!existing) {
-								existing = { originalSrcPath: entry.originalSrcPath, transforms: new Map() };
-								staticImages.set(entry.originalPath, existing);
+								existing = { originalSrcPath, transforms: new Map() };
+								remaining.set(originalPath, existing);
 							}
-							existing.transforms.set(t.hash, {
-								finalPath: t.finalPath,
-								// Serialized over HTTP, so it arrives as a plain object.
-								transform: t.transform as ImageTransform,
-							});
+							existing.transforms.set(hash, transform);
 						};
 
-						if (hasBindingImageService) {
-							// Pull each optimized image out of workerd on its own request so the
-							// bytes stream to disk instead of being buffered into one response.
-							const jobs = entries.flatMap((entry) => {
-								const sourcePath = isRemotePath(entry.originalPath)
-									? undefined
-									: findOriginalImage(
-											serverDir,
-											clientDir,
-											entry.originalPath,
-											entry.originalSrcPath,
-										);
-								return entry.transforms.map((t) => ({ entry, t, sourcePath }));
-							});
-							await forEachWithConcurrency(
-								jobs,
-								IMAGE_TRANSFORM_CONCURRENCY,
-								async ({ entry, t, sourcePath }) => {
-									try {
-										await writeTransformedImage(
-											serverUrl,
-											clientDir,
-											entry.originalPath,
-											t.finalPath,
-											t.transform,
-											sourcePath,
-										);
-									} catch (err) {
-										const message = err instanceof Error ? err.message : String(err);
-										logger.warn(
-											`Could not optimize "${entry.originalPath}" with the Cloudflare IMAGES binding (${message}). Falling back to the local image service.`,
-										);
-										deferToNodeImageService(entry, t);
-									}
-								},
-							);
-						} else {
-							for (const entry of entries) {
-								for (const t of entry.transforms) {
-									deferToNodeImageService(entry, t);
-								}
+						// Pull each optimized image out of workerd on its own request so the
+						// bytes stream to disk instead of being buffered into one response.
+						const jobs = [...images].flatMap(([originalPath, entry]) => {
+							const sourcePath = isRemotePath(originalPath)
+								? undefined
+								: findOriginalImage(serverDir, clientDir, originalPath, entry.originalSrcPath);
+							return [...entry.transforms].map(([hash, transform]) => ({
+								originalPath,
+								originalSrcPath: entry.originalSrcPath,
+								hash,
+								transform,
+								sourcePath,
+							}));
+						});
+						await forEachWithConcurrency(jobs, IMAGE_TRANSFORM_CONCURRENCY, async (job) => {
+							try {
+								await writeTransformedImage(
+									serverUrl,
+									clientDir,
+									job.originalPath,
+									job.transform.finalPath,
+									job.transform.transform,
+									job.sourcePath,
+								);
+							} catch (err) {
+								const message = err instanceof Error ? err.message : String(err);
+								logger.warn(
+									`Could not optimize "${job.originalPath}" with the Cloudflare IMAGES binding (${message}). Falling back to the local image service.`,
+								);
+								deferToNodeImageService(
+									job.originalPath,
+									job.originalSrcPath,
+									job.hash,
+									job.transform,
+								);
 							}
-						}
+						});
 
-						// Only load the Node-side image service if some transforms still need it.
-						if (staticImages.size > 0) {
-							globalThis.astroAsset ??= {};
-							if (userImageServiceEntrypoint) {
-								const mod = await import(userImageServiceEntrypoint);
-								globalThis.astroAsset.imageService = mod.default ?? mod;
-							} else {
-								const { default: sharpService } = await import('astro/assets/services/sharp');
-								globalThis.astroAsset.imageService = sharpService;
-							}
-						}
-
-						return staticImages;
-					}
-				: undefined,
+						return remaining;
+					},
+				}
+			: {}),
 
 		async teardown() {
 			if (previewServer) {
