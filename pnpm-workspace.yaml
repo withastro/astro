@@ -54,6 +54,8 @@ minimumReleaseAgeExclude:
   - wrangler
   - 'satteri'
   - '@bruits/*'
+  # Renovate security update: undici@7.29.1
+  - undici@7.29.1
 peerDependencyRules:
   allowAny:
     - 'astro'
