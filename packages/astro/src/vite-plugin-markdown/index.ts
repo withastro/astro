@@ -3,7 +3,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isFrontmatterValid } from '@astrojs/internal-helpers/frontmatter';
 import type { MarkdownRenderer } from '@astrojs/internal-helpers/markdown';
 import type { Plugin } from 'vite';
-import { safeParseFrontmatter } from '../content/utils.js';
+import { MARKDOWN_CONTENT_ENTRY_FLAG } from '../content/consts.js';
+import { hasContentFlag, safeParseFrontmatter } from '../content/utils.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { isMarkdownFile, isPage } from '../core/util.js';
@@ -119,7 +120,10 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 					});
 				}
 
-				const { layout } = frontmatter;
+				// Content collection entries ignore `layout`, see https://docs.astro.build/en/basics/layouts/#markdown-layouts
+				const layout = hasContentFlag(id, MARKDOWN_CONTENT_ENTRY_FLAG)
+					? undefined
+					: frontmatter.layout;
 
 				if (frontmatter.setup) {
 					logger.warn(

@@ -5,6 +5,8 @@ export const CONTENT_FLAG = 'astroContentCollectionEntry';
 export const DATA_FLAG = 'astroDataCollectionEntry';
 export const CONTENT_IMAGE_FLAG = 'astroContentImageFlag';
 export const CONTENT_MODULE_FLAG = 'astroContentModuleFlag';
+// Marks a Markdown module imported to render a content collection entry, where the `layout` frontmatter property is not applied.
+export const MARKDOWN_CONTENT_ENTRY_FLAG = 'astroMarkdownContentEntry';
 
 export const VIRTUAL_MODULE_ID = 'astro:content';
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
@@ -32,6 +34,7 @@ export const CONTENT_FLAGS = [
 	PROPAGATED_ASSET_FLAG,
 	CONTENT_IMAGE_FLAG,
 	CONTENT_MODULE_FLAG,
+	MARKDOWN_CONTENT_ENTRY_FLAG,
 ] as const;
 
 export const CONTENT_TYPES_FILE = 'content.d.ts';
