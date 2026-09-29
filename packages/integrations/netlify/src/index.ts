@@ -83,9 +83,11 @@ export function remotePatternToRegex(
 
 	if (pathname) {
 		if (pathname.endsWith('/**')) {
-			// Match any path. Escape the literal prefix so metacharacters
-			// (e.g. `.`) match verbatim instead of acting as wildcards.
-			regexStr += `(${escapeRegex(pathname.replace('/**', ''))}.*)`;
+			// Match any path below the prefix directory, keeping the `/` separator so
+			// sibling paths that share the prefix (e.g. `/public-assets` for `/public/**`)
+			// don't match. Escape the literal prefix so metacharacters (e.g. `.`) match
+			// verbatim instead of acting as wildcards.
+			regexStr += `(${escapeRegex(pathname.slice(0, -3))}\/[^?#]+)`;
 		} else if (pathname.endsWith('/*')) {
 			// Match one level of path
 			regexStr += `(${escapeRegex(pathname.replace('/*', ''))}\/[^/?#]+)\/?`;
