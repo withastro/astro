@@ -772,4 +772,47 @@ describe('Content Layer - Schema Validation', () => {
 			);
 		});
 	});
+
+	describe('Zod async transforms', () => {
+		it('runs an async transform once', async () => {
+			const store = new MutableDataStore();
+			const settings = createMinimalSettings(root);
+			const logger = new AstroLogger({
+				destination: { write: () => true },
+				level: 'silent',
+			});
+
+			let calls = 0;
+			const collections = {
+				posts: defineCollection({
+					loader: {
+						name: 'async-transform-loader',
+						load: async (context: any) => {
+							const data = await context.parseData({ id: 'one', data: { title: 'shouty' } });
+							await context.store.set({ id: 'one', data });
+						},
+					},
+					schema: z.object({
+						title: z.string().transform(async (value) => {
+							calls++;
+							return value.toUpperCase();
+						}),
+					}),
+				}),
+			};
+
+			const contentLayer = new ContentLayer({
+				settings,
+				logger,
+				store,
+				contentConfigObserver: createTestConfigObserver(collections),
+			});
+
+			await contentLayer.sync();
+
+			const entry: any = store.get('posts', 'one');
+			assert.equal(entry.data.title, 'SHOUTY');
+			assert.equal(calls, 1);
+		});
+	});
 });

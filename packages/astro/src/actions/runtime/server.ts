@@ -1,4 +1,4 @@
-import { parseFormData } from '@standard-community/standard-form';
+import { parseFormData } from '../../preview-release/form/index.js';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import { stringify as devalueStringify } from 'devalue';
 import type * as z from 'zod/v4/core';
@@ -15,6 +15,7 @@ import {
 import { AstroError } from '../../core/errors/errors.js';
 import { isStandardSchema } from '../../core/errors/standard-schema.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
+import { patchZodStandardSchema } from '../../preview-release/zod.js';
 import { BodySizeLimitError, readBodyWithLimit } from '../../core/request-body.js';
 import type { APIContext } from '../../types/public/index.js';
 import { ACTION_QUERY_PARAMS, ACTION_RPC_ROUTE_PATTERN } from '../consts.js';
@@ -68,7 +69,7 @@ export function defineAction<
 	 * the validator of your choice:
 	 *
 	 * ```ts
-	 * import { parseFormData } from '@standard-community/standard-form';
+	 * import { parseFormData } from 'astro/preview-release/form';
 	 *
 	 * defineAction({
 	 * 	accept: 'form',
@@ -202,6 +203,7 @@ function getFormServerHandler<TOutput, TInputSchema extends z.$ZodType>(
 
 		if (!inputSchema) return await handler(unparsedInput, context);
 
+		patchZodStandardSchema(inputSchema);
 		const parsed = await parseFormData(inputSchema, unparsedInput);
 
 		if (parsed.issues) {
@@ -224,6 +226,7 @@ function getJsonServerHandler<TOutput, TInputSchema extends StandardSchemaV1>(
 		}
 
 		if (!inputSchema) return await handler(unparsedInput, context);
+		patchZodStandardSchema(inputSchema);
 		const parsed = await inputSchema['~standard'].validate(unparsedInput);
 		if (parsed.issues) {
 			throw new ActionInputError(parsed.issues);

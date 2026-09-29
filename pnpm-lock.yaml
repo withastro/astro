@@ -12,7 +12,6 @@ overrides:
 patchedDependencies:
   '@volar/language-service@2.4.28': 09741a82cb00ac74eaaadd70420ac669b56a8df2b1b926de1cf25500a15a6b5a
   '@volar/typescript@2.4.28': 08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad
-  zod@4.6.5: 73d7f5d95ffd09793bb9df9a049636e31920634d2007dabac736c6ea289187a4
 
 importers:
 
@@ -550,9 +549,6 @@ importers:
       '@oslojs/encoding':
         specifier: ^1.1.0
         version: 1.1.0
-      '@standard-community/standard-form':
-        specifier: workspace:*
-        version: link:../standard-form
       '@standard-schema/spec':
         specifier: ^1.1.0
         version: 1.1.0
@@ -693,7 +689,7 @@ importers:
         version: 22.0.0
       zod:
         specifier: ^4.5.4
-        version: 4.6.5(patch_hash=73d7f5d95ffd09793bb9df9a049636e31920634d2007dabac736c6ea289187a4)
+        version: 4.6.5
     devDependencies:
       '@astrojs/check':
         specifier: workspace:*
@@ -798,7 +794,7 @@ importers:
         version: 0.1.3
       zod:
         specifier: ^4.5.4
-        version: 4.6.5(patch_hash=73d7f5d95ffd09793bb9df9a049636e31920634d2007dabac736c6ea289187a4)
+        version: 4.6.5
     devDependencies:
       '@types/xml2js':
         specifier: ^0.4.14
@@ -2729,7 +2725,7 @@ importers:
         version: link:../../..
       zod:
         specifier: ^4.5.4
-        version: 4.6.5(patch_hash=73d7f5d95ffd09793bb9df9a049636e31920634d2007dabac736c6ea289187a4)
+        version: 4.6.5
 
   packages/astro/test/fixtures/content-collections-type-inference:
     dependencies:
@@ -6131,7 +6127,7 @@ importers:
         version: 9.0.1
       zod:
         specifier: ^4.6.5
-        version: 4.6.5(patch_hash=73d7f5d95ffd09793bb9df9a049636e31920634d2007dabac736c6ea289187a4)
+        version: 4.6.5
     devDependencies:
       '@types/xml2js':
         specifier: ^0.4.14
@@ -7164,7 +7160,7 @@ importers:
         version: link:../../scripts
       zod:
         specifier: ^4.3.6
-        version: 4.6.5(patch_hash=73d7f5d95ffd09793bb9df9a049636e31920634d2007dabac736c6ea289187a4)
+        version: 4.6.5
 
   packages/telemetry:
     dependencies:
@@ -17073,7 +17069,7 @@ snapshots:
     dependencies:
       json-schema-to-ts: 3.1.1
     optionalDependencies:
-      zod: 4.6.5(patch_hash=73d7f5d95ffd09793bb9df9a049636e31920634d2007dabac736c6ea289187a4)
+      zod: 4.6.5
 
   '@assemblyscript/loader@0.19.23': {}
 
@@ -19408,7 +19404,7 @@ snapshots:
     dependencies:
       '@opentelemetry/semantic-conventions': 1.40.0
       ws: 8.21.0
-      zod: 4.6.5(patch_hash=73d7f5d95ffd09793bb9df9a049636e31920634d2007dabac736c6ea289187a4)
+      zod: 4.6.5
       zod-to-json-schema: 3.25.2(zod@4.6.5)
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
@@ -19424,11 +19420,11 @@ snapshots:
       eventsource-parser: 3.0.8
       jose: 6.2.3
       pkce-challenge: 5.0.1
-      zod: 4.6.5(patch_hash=73d7f5d95ffd09793bb9df9a049636e31920634d2007dabac736c6ea289187a4)
+      zod: 4.6.5
 
   '@modelcontextprotocol/core@2.0.0':
     dependencies:
-      zod: 4.6.5(patch_hash=73d7f5d95ffd09793bb9df9a049636e31920634d2007dabac736c6ea289187a4)
+      zod: 4.6.5
 
   '@nanostores/preact@1.0.0(nanostores@1.1.1)(preact@10.29.8)':
     dependencies:
@@ -19556,7 +19552,7 @@ snapshots:
       validate-npm-package-name: 5.0.1
       yaml: 2.9.1
       yargs: 17.7.2
-      zod: 4.6.5(patch_hash=73d7f5d95ffd09793bb9df9a049636e31920634d2007dabac736c6ea289187a4)
+      zod: 4.6.5
 
   '@netlify/database-dev@1.0.1':
     dependencies:
@@ -19836,7 +19832,7 @@ snapshots:
       unixify: 1.0.0
       urlpattern-polyfill: 8.0.2
       yargs: 17.7.2
-      zod: 4.6.5(patch_hash=73d7f5d95ffd09793bb9df9a049636e31920634d2007dabac736c6ea289187a4)
+      zod: 4.6.5
     transitivePeerDependencies:
       - bare-abort-controller
       - encoding
@@ -23987,7 +23983,7 @@ snapshots:
       smol-toml: 1.8.0
       strip-json-comments: 5.0.3
       typescript: 6.0.3
-      zod: 4.6.5(patch_hash=73d7f5d95ffd09793bb9df9a049636e31920634d2007dabac736c6ea289187a4)
+      zod: 4.6.5
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
@@ -25145,7 +25141,7 @@ snapshots:
   openai@6.26.0(ws@8.21.0)(zod@4.6.5):
     optionalDependencies:
       ws: 8.21.0
-      zod: 4.6.5(patch_hash=73d7f5d95ffd09793bb9df9a049636e31920634d2007dabac736c6ea289187a4)
+      zod: 4.6.5
 
   optionator@0.9.4:
     dependencies:
@@ -27888,12 +27884,12 @@ snapshots:
 
   zod-to-json-schema@3.25.2(zod@4.6.5):
     dependencies:
-      zod: 4.6.5(patch_hash=73d7f5d95ffd09793bb9df9a049636e31920634d2007dabac736c6ea289187a4)
+      zod: 4.6.5
 
   zod@4.1.11: {}
 
   zod@4.4.3: {}
 
-  zod@4.6.5(patch_hash=73d7f5d95ffd09793bb9df9a049636e31920634d2007dabac736c6ea289187a4): {}
+  zod@4.6.5: {}
 
   zwitch@2.0.4: {}

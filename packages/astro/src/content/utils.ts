@@ -20,6 +20,7 @@ import { isYAMLParseError } from '../core/errors/utils.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
+import { patchZodStandardSchema } from '../preview-release/zod.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
@@ -209,6 +210,7 @@ export async function getEntryData<
 			});
 		}
 		// `validate()` may return a promise, which is what allows async transforms
+		patchZodStandardSchema(schema);
 		const result = await schema['~standard'].validate(data);
 		if (result.issues) {
 			throw new AstroError({
