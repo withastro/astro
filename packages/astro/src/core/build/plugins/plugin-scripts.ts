@@ -10,12 +10,18 @@ export type ScriptChunkInfo = Pick<
 	'code' | 'facadeModuleId' | 'fileName' | 'imports' | 'dynamicImports' | 'moduleIds'
 >;
 
+const VITE_PRELOAD_HELPER_ID = '\0vite/preload-helper.js';
+
 export function chunkHasDynamicImports(
 	output: Pick<ScriptChunkInfo, 'dynamicImports' | 'moduleIds'>,
 	getModuleInfo: GetModuleInfo,
 ) {
 	return (
 		output.dynamicImports.length > 0 ||
+		// Rolldown records no dynamic import metadata for `/* @vite-ignore */` imports, but Vite
+		// still wraps them with its preload helper and a `__VITE_PRELOAD__` marker that is only
+		// replaced in emitted chunks (#18181).
+		output.moduleIds.includes(VITE_PRELOAD_HELPER_ID) ||
 		output.moduleIds.some((id) => (getModuleInfo(id)?.dynamicallyImportedIds.length ?? 0) > 0)
 	);
 }

@@ -52,6 +52,24 @@ describe('pluginScripts', () => {
 		);
 	});
 
+	it('does not inline script chunks using the preload helper without dynamic import metadata', () => {
+		// `/* @vite-ignore */` imports leave no dynamic import metadata but pull in the preload helper
+		const chunk = createChunk({
+			moduleIds: ['\0vite/preload-helper.js', scriptModuleId],
+		});
+
+		assert.equal(chunkHasDynamicImports(chunk, createGetModuleInfo()), true);
+		assert.equal(
+			shouldInlineScriptChunk(chunk, {
+				discoveredScripts: new Set([scriptModuleId]),
+				importedIds: new Set(),
+				assetInlineLimit: 4096,
+				getModuleInfo: createGetModuleInfo(),
+			}),
+			false,
+		);
+	});
+
 	it('inlines discovered script chunks that are unimported and have no imports', () => {
 		assert.equal(
 			shouldInlineScriptChunk(createChunk(), {
