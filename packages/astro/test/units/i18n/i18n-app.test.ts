@@ -183,9 +183,12 @@ describe('i18n via App - domains-prefix-always', () => {
 
 	const middleware = createI18nMiddleware(i18n, '/', 'ignore', 'directory');
 
-	function createDomainApp() {
+	function createDomainApp(
+		allowedDomains = [{ hostname: 'example.pt' }, { hostname: 'it.example.com' }],
+	) {
 		return createTestApp([localeCatchAll('en'), localeCatchAll('pt'), localeCatchAll('it')], {
 			i18n,
+			allowedDomains,
 			middleware: () => ({ onRequest: middleware }),
 		});
 	}
@@ -207,6 +210,22 @@ describe('i18n via App - domains-prefix-always', () => {
 		const res = await app.render(
 			new Request('https://it.example.com/about', {
 				headers: { 'X-Forwarded-Host': 'it.example.com', 'X-Forwarded-Proto': 'https' },
+			}),
+		);
+		assert.equal(res.status, 200);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#locale').text(), 'it');
+	});
+
+	it('ignores a locale domain in X-Forwarded-Host when it is not allowed', async () => {
+		const app = createDomainApp([{ hostname: 'it.example.com' }]);
+		const res = await app.render(
+			new Request('https://it.example.com/about', {
+				headers: {
+					Host: 'it.example.com',
+					'X-Forwarded-Host': 'example.pt',
+					'X-Forwarded-Proto': 'https',
+				},
 			}),
 		);
 		assert.equal(res.status, 200);
@@ -320,6 +339,7 @@ describe('i18n via App - domains-prefix-always with trailingSlash: never', () =>
 	function createDomainApp() {
 		return createTestApp([localeSpreadCatchAll('fi'), localeSpreadCatchAll('en')], {
 			i18n,
+			allowedDomains: [{ hostname: 'example.com' }, { hostname: 'example.fi' }],
 			trailingSlash: 'never',
 			middleware: () => ({ onRequest: middleware }),
 		});
@@ -395,7 +415,11 @@ describe('i18n via App - domains-prefix-other-locales', () => {
 				}),
 				localeCatchAll('pt'),
 			],
-			{ i18n, middleware: () => ({ onRequest: middleware }) },
+			{
+				i18n,
+				allowedDomains: [{ hostname: 'example.pt' }],
+				middleware: () => ({ onRequest: middleware }),
+			},
 		);
 	}
 
@@ -455,6 +479,7 @@ describe('i18n via App - domains-prefix-other-locales with dynamic params (#1685
 		enPage.routeData.pathname = undefined;
 		return createTestApp([fiPage, enPage], {
 			i18n,
+			allowedDomains: [{ hostname: 'en.example.com' }],
 			middleware: () => ({ onRequest: middleware }),
 		});
 	}
@@ -588,7 +613,11 @@ describe('i18n via App - domain with localhost and ports (#12385)', () => {
 				}),
 				localeCatchAll('zh'),
 			],
-			{ i18n, middleware: () => ({ onRequest: middleware }) },
+			{
+				i18n,
+				allowedDomains: [{ hostname: 'zh.test' }],
+				middleware: () => ({ onRequest: middleware }),
+			},
 		);
 	}
 

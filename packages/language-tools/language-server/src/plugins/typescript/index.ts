@@ -83,8 +83,7 @@ export const create = (
 
 							let tsxLineCount = undefined;
 							if (root instanceof AstroVirtualCode && decoded?.[1] === 'tsx') {
-								// If we have compiler errors, our TSX isn't valid so don't bother showing TS errors
-								if (root.hasCompilationErrors) return null;
+								if (!root.hasUsableTSX) return null;
 
 								// We'll use this to filter out diagnostics that are outside the mapped range of the TSX
 								tsxLineCount = root.astroMeta.tsxRanges.body.end.line;

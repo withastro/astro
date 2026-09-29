@@ -1,0 +1,13 @@
+{
+  "name": "@e2e/react-compiler",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/react": "workspace:*",
+    "astro": "workspace:*",
+    "oxc-transform-react": "^0.145.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-compiler-runtime": "^1.0.0"
+  }
+}

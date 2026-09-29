@@ -1,5 +1,31 @@
 # @astrojs/cloudflare
 
+## 14.3.3
+
+### Patch Changes
+
+- [#18059](https://github.com/withastro/astro/pull/18059) [`30cb32e`](https://github.com/withastro/astro/commit/30cb32e82b68a09c776f5bd205b07db8e1c9285c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes image transforms without a specified quality outputting an higher quality than expected on certain formats
+
+- [#18091](https://github.com/withastro/astro/pull/18091) [`28d59a9`](https://github.com/withastro/astro/commit/28d59a92f99f6b1acbafb98e6b1e2f22bb74c71f) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `optimizeDeps.include` glob `astro/runtime/**` matching `.d.ts` files, which caused 83 unnecessary optimizer entries and empty output chunks per environment during dev
+
+- [#18032](https://github.com/withastro/astro/pull/18032) [`f7dbc6a`](https://github.com/withastro/astro/commit/f7dbc6a2b736bb26ef286c3bbcf66d19bf6b215f) Thanks [@adamchal](https://github.com/adamchal)! - Fixes image requests when using `imageService: 'compile'` with `passthroughImageService()`.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.3.2
+
+### Patch Changes
+
+- [#17958](https://github.com/withastro/astro/pull/17958) [`b95c574`](https://github.com/withastro/astro/commit/b95c574b2ef5ab5541888a860aad5bf2d3a765ea) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a build failure when the wrangler config uses the `exports` field to declare Durable Object classes
+
+- [#18022](https://github.com/withastro/astro/pull/18022) [`24946f7`](https://github.com/withastro/astro/commit/24946f745a6fc1e85b8ae271322a1a35b24a4857) Thanks [@matthewp](https://github.com/matthewp)! - Fixes cold `astro dev` crashes when using the passthrough image service
+
+- [#17842](https://github.com/withastro/astro/pull/17842) [`d68db73`](https://github.com/withastro/astro/commit/d68db7311132083dabee85e87a323542249f5228) Thanks [@adamchal](https://github.com/adamchal)! - Fixes broken images on static sites by transforming prerendered images at build time with the default Cloudflare Images binding
+
+- [#17945](https://github.com/withastro/astro/pull/17945) [`750b4db`](https://github.com/withastro/astro/commit/750b4dbe238f2a2b979503ffd780f46d19174ccb) Thanks [@matthewp](https://github.com/matthewp)! - Pre-bundles renderer server entrypoints and the default console logger during dev so they are included in the initial optimization pass, preventing a mid-request re-optimization that could crash the dev server on Cloudflare (workerd).
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.3.1
 
 ### Patch Changes

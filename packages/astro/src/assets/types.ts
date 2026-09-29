@@ -39,6 +39,7 @@ declare global {
 			| undefined;
 		staticImages?: AssetsGlobalStaticImagesList;
 		referencedImages?: Set<string>;
+		recordReferencedImage?: ((fsPath: string) => void) | undefined;
 		/**
 		 * Resolves a content collection image source to an absolute path, the way read time
 		 * does. Installed by the content layer for the duration of a sync, and read by

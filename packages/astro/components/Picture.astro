@@ -38,7 +38,10 @@ if (props.alt === undefined || props.alt === null) {
 	throw new AstroError(AstroErrorData.ImageMissingAlt);
 }
 
-// Picture attribute inherit scoped styles from class and attributes
+// Only the scoped style class is forwarded to <picture>; the user's class stays on
+// <img>. To style the <picture> element, pass a class via `pictureAttributes`. Forwarding
+// the user's class here too would break existing CSS that targets it on <picture>:
+// https://github.com/withastro/astro/pull/18004
 const scopedStyleClass = props.class?.match(/\bastro-\w{8}\b/)?.[0];
 if (scopedStyleClass) {
 	if (pictureAttributes.class) {

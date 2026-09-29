@@ -129,6 +129,12 @@ describe('type generation phase (build and sync)', () => {
 			assert.ok(include.includes('astro/app/manifest'));
 		});
 
+		it('prebundles the passthrough image service for server environments', async () => {
+			const { configEnvironment } = await runConfigSetup('dev');
+			const include = configEnvironment('ssr', {})?.optimizeDeps?.include ?? [];
+			assert.ok(include.includes('astro/assets/services/noop'));
+		});
+
 		it('only prebundles the cache provider when Workers Caching is enabled', async () => {
 			const withoutCache = await runConfigSetup('dev');
 			const withoutCacheInclude =

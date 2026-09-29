@@ -12,7 +12,7 @@ import {
 	removeBase,
 	removeQueryString,
 } from '../core/path.js';
-import { recordStaticImage } from '../core/render-scope/record.js';
+import { recordReferencedImage, recordStaticImage } from '../core/render-scope/record.js';
 import { normalizePath } from '../core/viteUtils.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
@@ -322,6 +322,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 			buildStart() {
 				if (!isBuild) return;
 				globalThis.astroAsset.addStaticImage = addStaticImageFactory(settings);
+				globalThis.astroAsset.recordReferencedImage = recordReferencedImage;
 			},
 			// In build, rewrite paths to ESM imported images in code to their final location
 			async renderChunk(code) {

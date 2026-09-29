@@ -1,6 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { AstroConfig, AstroIntegrationLogger } from 'astro';
+import { passthroughImageService } from 'astro/config';
 import { normalizeImageServiceConfig, setImageConfig } from '../dist/utils/image-config.js';
 
 describe('normalizeImageServiceConfig', () => {
@@ -27,6 +28,22 @@ describe('normalizeImageServiceConfig', () => {
 			},
 		);
 	});
+});
+
+describe('setImageConfig compile mode', () => {
+	for (const command of ['dev', 'build'] as const) {
+		it(`gives passthrough precedence over the binding runtime during ${command}`, () => {
+			const service = passthroughImageService();
+			const result = setImageConfig(
+				{ build: 'compile', runtime: 'cloudflare-binding' },
+				{ service, endpoint: { route: '/_image' } } as AstroConfig['image'],
+				command,
+				{ warn() {} } as unknown as AstroIntegrationLogger,
+			);
+			assert.deepEqual(result.service, service);
+			assert.equal(result.endpoint?.entrypoint, '@astrojs/cloudflare/image-passthrough-endpoint');
+		});
+	}
 });
 
 describe('setImageConfig custom mode', () => {

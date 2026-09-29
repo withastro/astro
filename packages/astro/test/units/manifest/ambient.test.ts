@@ -20,7 +20,7 @@ describe('ambient manifest', () => {
 			() => getAmbientManifest(),
 			(error: unknown) => {
 				assert.ok(error instanceof Error);
-				assert.equal(error.name, 'NoManifestAvailableError');
+				assert.equal(error.name, 'NoManifestAvailable');
 				assert.match(error.message, /outside of an Astro server/);
 				return true;
 			},

@@ -36,7 +36,7 @@ export interface CreateViteBuildConfigOptions {
 	 * A function that checks whether a given module name is a rollup input.
 	 * Used by entryFileNames to determine the server entry.
 	 */
-	isRolldownInput: (moduleName: string | undefined) => boolean;
+	isRolldownInput: (moduleName: string | null | undefined) => boolean;
 }
 
 /**

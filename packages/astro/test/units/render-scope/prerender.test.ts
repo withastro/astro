@@ -79,7 +79,7 @@ describe('renderForPrerender', () => {
 		assert.equal(response.body, null);
 		assert.equal(response.status, 204);
 		assert.equal(response.statusText, 'No Content');
-		assert.deepEqual(metadata, { contentEntryKeys: [], staticImages: [] });
+		assert.deepEqual(metadata, { contentEntryKeys: [], staticImages: [], referencedImages: [] });
 	});
 
 	it('round-trips a redirect response with status, headers, and null body', async () => {

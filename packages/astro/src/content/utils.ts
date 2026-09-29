@@ -16,7 +16,7 @@ import {
 	isStandardSchema,
 	MarkdownError,
 } from '../core/errors/index.js';
-import { isYAMLException } from '../core/errors/utils.js';
+import { isYAMLParseError } from '../core/errors/utils.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
@@ -449,14 +449,17 @@ export function safeParseFrontmatter(source: string, id?: string) {
 				: undefined,
 		});
 
-		if (isYAMLException(err)) {
-			markdownError.setLocation({
-				file: id,
-				line: err.mark.line,
-				column: err.mark.column,
-			});
+		if (isYAMLParseError(err)) {
+			const position = err.linePos?.[0];
+			if (position) {
+				markdownError.setLocation({
+					file: id,
+					line: position.line - 1,
+					column: position.col - 1,
+				});
+			}
 
-			markdownError.setMessage(err.reason);
+			markdownError.setMessage(err.message);
 		}
 
 		throw markdownError;

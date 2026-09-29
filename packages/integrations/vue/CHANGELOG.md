@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 7.0.3
+
+### Patch Changes
+
+- [#17985](https://github.com/withastro/astro/pull/17985) [`7a6e7f7`](https://github.com/withastro/astro/commit/7a6e7f7174147e38731e39378e6f5b294834d207) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes Vue render-function components failing to build when `@astrojs/react` is also enabled. React's renderer `check` no longer crashes on non-React object components, and Vue's `check` now recognizes `defineComponent()` components that use a `setup` function returning a render function.
+
 ## 7.0.2
 
 ### Patch Changes

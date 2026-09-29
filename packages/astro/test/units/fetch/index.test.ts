@@ -256,6 +256,43 @@ describe('trailingSlash()', () => {
 		assert.equal(result.status, 301);
 		assert.equal(result.headers.get('location'), '/about');
 	});
+
+	it('includes the redirect target (not the incoming path) in the response body', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			trailingSlash: 'always',
+		});
+		const request = stampApp(new Request('http://example.com/about'), app);
+		const state = new FetchState(request);
+
+		const result = trailingSlash(state);
+		assert.ok(result instanceof Response);
+		const body = await result.text();
+		assert.ok(
+			body.includes('/about/'),
+			'body should contain the redirect target with trailing slash',
+		);
+		assert.ok(
+			!body.includes('url=/about"'),
+			'meta refresh should not point to the incoming path without trailing slash',
+		);
+	});
+
+	it('preserves query string in the redirect response body', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })], {
+			trailingSlash: 'always',
+		});
+		const request = stampApp(new Request('http://example.com/about?ref=nav'), app);
+		const state = new FetchState(request);
+
+		const result = trailingSlash(state);
+		assert.ok(result instanceof Response);
+		assert.equal(result.headers.get('location'), '/about/?ref=nav');
+		const body = await result.text();
+		assert.ok(
+			body.includes('/about/?ref=nav'),
+			'body should include the full redirect target with query string',
+		);
+	});
 });
 
 // #endregion
