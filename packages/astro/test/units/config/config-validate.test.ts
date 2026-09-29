@@ -719,6 +719,18 @@ describe('Config Validation', () => {
 			const result = await validateConfig({ experimental: { parallelPrerender: true } });
 			assert.equal(result.experimental.parallelPrerender, true);
 		});
+
+		it('accepts a worker count', async () => {
+			const result = await validateConfig({ experimental: { parallelPrerender: { workers: 4 } } });
+			assert.deepEqual(result.experimental.parallelPrerender, { workers: 4 });
+		});
+
+		it('rejects an invalid worker count', async () => {
+			await assert.rejects(validateConfig({ experimental: { parallelPrerender: { workers: 0 } } }));
+			await assert.rejects(
+				validateConfig({ experimental: { parallelPrerender: { workers: 1.5 } } }),
+			);
+		});
 	});
 
 	describe('experimental.collectionStorage', () => {

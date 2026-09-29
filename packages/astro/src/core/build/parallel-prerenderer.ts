@@ -1,3 +1,4 @@
+import os from 'node:os';
 import { Worker } from 'node:worker_threads';
 import type { AssetsGlobalStaticImagesList } from '../../assets/types.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -95,6 +96,7 @@ interface DiscoveredPath {
 
 type WorkerMessage =
 	| { type: 'ready' }
+	| { type: 'logs'; logs: AstroLoggerMessage[] }
 	| { type: 'startup-error'; error: SerializedWorkerError }
 	| {
 			type: 'paths';
@@ -130,7 +132,9 @@ interface RenderJob {
 interface WorkerState {
 	index: number;
 	worker: Worker;
-	idle: boolean;
+	ready: boolean;
+	/** Number of requests currently being processed by this worker. */
+	active: number;
 	failed: boolean;
 	routes: Set<number>;
 }
@@ -165,6 +169,19 @@ interface CompletedResponse {
 }
 
 const AFFINITY_FALLBACK_MS = 100;
+
+/**
+ * Resolves the number of worker threads for `experimental.parallelPrerender`.
+ * Defaults to one per available CPU core, leaving one for the main thread.
+ */
+export function resolveParallelPrerenderWorkers(
+	parallelPrerender: AstroSettings['config']['experimental']['parallelPrerender'],
+): number {
+	if (typeof parallelPrerender === 'object' && parallelPrerender.workers !== undefined) {
+		return Math.max(1, Math.floor(parallelPrerender.workers));
+	}
+	return Math.max(1, os.availableParallelism() - 1);
+}
 const completedResponses = new WeakMap<Response, CompletedResponse>();
 
 export function takeCompletedResponse(response: Response): CompletedResponse | undefined {
@@ -204,15 +221,18 @@ class PrerenderWorkerPool {
 	#fallbackTimer: ReturnType<typeof setTimeout> | undefined;
 	#closing = false;
 	private readonly workerCount: number;
+	private readonly workerConcurrency: number;
 	private readonly workerData: ParallelPrerenderWorkerData;
 	private readonly destination: StaticBuildOptions['logger']['options']['destination'];
 
 	constructor(
 		workerCount: number,
+		workerConcurrency: number,
 		workerData: ParallelPrerenderWorkerData,
 		destination: StaticBuildOptions['logger']['options']['destination'],
 	) {
 		this.workerCount = workerCount;
+		this.workerConcurrency = workerConcurrency;
 		this.workerData = workerData;
 		this.destination = destination;
 	}
@@ -233,7 +253,7 @@ class PrerenderWorkerPool {
 		const result = await new Promise<Extract<WorkerMessage, { type: 'paths' }>>(
 			(resolve, reject) => {
 				const id = this.#nextId++;
-				state.idle = false;
+				state.active++;
 				this.#inFlight.set(id, { worker: state, resolve, reject });
 				state.worker.postMessage({ type: 'discover', id } satisfies DiscoverWorkerRequest);
 			},
@@ -337,7 +357,14 @@ class PrerenderWorkerPool {
 		const worker = new Worker(new URL('./prerender-worker.js', import.meta.url), {
 			workerData: this.workerData,
 		});
-		const state: WorkerState = { index, worker, idle: false, failed: false, routes: new Set() };
+		const state: WorkerState = {
+			index,
+			worker,
+			ready: false,
+			active: 0,
+			failed: false,
+			routes: new Set(),
+		};
 		this.#workers.push(state);
 
 		await new Promise<void>((resolve, reject) => {
@@ -345,7 +372,7 @@ class PrerenderWorkerPool {
 			worker.on('message', (message: WorkerMessage) => {
 				if (message.type === 'ready') {
 					starting = false;
-					state.idle = true;
+					state.ready = true;
 					resolve();
 					this.#pump();
 					return;
@@ -382,10 +409,14 @@ class PrerenderWorkerPool {
 
 	#handleMessage(state: WorkerState, message: WorkerMessage) {
 		if (message.type === 'ready' || message.type === 'startup-error') return;
+		if (message.type === 'logs') {
+			for (const log of message.logs) this.destination.write(log);
+			return;
+		}
 		const request = this.#inFlight.get(message.id);
 		if (!request) return;
 		this.#inFlight.delete(message.id);
-		state.idle = true;
+		state.active--;
 		if (message.type === 'render-error') {
 			for (const log of message.logs) this.destination.write(log);
 			request.reject(deserializeError(message.error));
@@ -407,7 +438,6 @@ class PrerenderWorkerPool {
 	#failWorker(state: WorkerState, error: Error) {
 		if (state.failed) return;
 		state.failed = true;
-		state.idle = false;
 		for (const [id, request] of this.#inFlight) {
 			if (request.worker !== state) continue;
 			this.#inFlight.delete(id);
@@ -426,47 +456,19 @@ class PrerenderWorkerPool {
 			this.#fallbackTimer = undefined;
 		}
 
-		for (const state of this.#workers) {
-			if (!state.idle || state.failed) continue;
-			let jobIndex = this.#queue.findIndex(
-				(job) => !job.eligibleWorkers || job.eligibleWorkers.has(state.index),
-			);
-			if (jobIndex === -1) {
-				jobIndex = this.#queue.findIndex(
-					(job) => !job.localOnly && performance.now() - job.queuedAt >= AFFINITY_FALLBACK_MS,
-				);
+		// Fill free slots round-robin so work spreads across workers before any
+		// single worker is saturated up to `workerConcurrency`.
+		let assigned = true;
+		while (assigned && this.#queue.length > 0) {
+			assigned = false;
+			for (const state of this.#workers) {
+				if (!this.#hasCapacity(state)) continue;
+				if (this.#assignJob(state)) assigned = true;
 			}
-			if (jobIndex === -1) continue;
-
-			const [job] = this.#queue.splice(jobIndex, 1);
-			const id = this.#nextId++;
-			const message: RenderWorkerRequest = { ...job.request, id };
-			if (state.routes.has(message.routeId)) delete message.routeData;
-			try {
-				state.worker.postMessage(message);
-			} catch (error) {
-				if (message.staticPath === undefined || !isDataCloneError(error)) {
-					job.reject(error instanceof Error ? error : new Error(String(error)));
-					continue;
-				}
-				const messageWithoutStaticPath = { ...message };
-				delete messageWithoutStaticPath.staticPath;
-				try {
-					state.worker.postMessage(messageWithoutStaticPath);
-				} catch (fallbackError) {
-					job.reject(
-						fallbackError instanceof Error ? fallbackError : new Error(String(fallbackError)),
-					);
-					continue;
-				}
-			}
-			state.routes.add(message.routeId);
-			state.idle = false;
-			this.#inFlight.set(id, { worker: state, resolve: job.resolve, reject: job.reject });
 		}
 
 		const fallbackJobs = this.#queue.filter((job) => !job.localOnly);
-		if (fallbackJobs.length > 0 && this.#workers.some((worker) => worker.idle && !worker.failed)) {
+		if (fallbackJobs.length > 0 && this.#workers.some((worker) => this.#hasCapacity(worker))) {
 			const wait = Math.max(
 				0,
 				Math.min(
@@ -477,10 +479,54 @@ class PrerenderWorkerPool {
 		}
 	}
 
+	#hasCapacity(state: WorkerState): boolean {
+		return state.ready && !state.failed && state.active < this.workerConcurrency;
+	}
+
+	/** Sends the next job this worker may take. Returns whether a job was consumed. */
+	#assignJob(state: WorkerState): boolean {
+		let jobIndex = this.#queue.findIndex(
+			(job) => !job.eligibleWorkers || job.eligibleWorkers.has(state.index),
+		);
+		if (jobIndex === -1) {
+			jobIndex = this.#queue.findIndex(
+				(job) => !job.localOnly && performance.now() - job.queuedAt >= AFFINITY_FALLBACK_MS,
+			);
+		}
+		if (jobIndex === -1) return false;
+
+		const [job] = this.#queue.splice(jobIndex, 1);
+		const id = this.#nextId++;
+		const message: RenderWorkerRequest = { ...job.request, id };
+		if (state.routes.has(message.routeId)) delete message.routeData;
+		try {
+			state.worker.postMessage(message);
+		} catch (error) {
+			if (message.staticPath === undefined || !isDataCloneError(error)) {
+				job.reject(error instanceof Error ? error : new Error(String(error)));
+				return true;
+			}
+			const messageWithoutStaticPath = { ...message };
+			delete messageWithoutStaticPath.staticPath;
+			try {
+				state.worker.postMessage(messageWithoutStaticPath);
+			} catch (fallbackError) {
+				job.reject(
+					fallbackError instanceof Error ? fallbackError : new Error(String(fallbackError)),
+				);
+				return true;
+			}
+		}
+		state.routes.add(message.routeId);
+		state.active++;
+		this.#inFlight.set(id, { worker: state, resolve: job.resolve, reject: job.reject });
+		return true;
+	}
+
 	#collectImages(state: WorkerState): Promise<AssetsGlobalStaticImagesList> {
 		return new Promise((resolve, reject) => {
 			const id = this.#nextId++;
-			state.idle = false;
+			state.active++;
 			this.#inFlight.set(id, { worker: state, resolve, reject });
 			state.worker.postMessage({ type: 'collect-images', id } satisfies CollectImagesWorkerRequest);
 		});
@@ -499,12 +545,15 @@ export function createParallelPrerenderer({
 		name: 'astro:parallel',
 		async setup() {
 			const entryFileName = internals.prerenderEntryFileName!;
-			const workerCount = Math.max(1, Math.floor(options.settings.config.build.concurrency));
+			const { config } = options.settings;
+			const workerCount = resolveParallelPrerenderWorkers(config.experimental.parallelPrerender);
+			const workerConcurrency = Math.max(1, Math.floor(config.build.concurrency));
 			pool = new PrerenderWorkerPool(
 				workerCount,
+				workerConcurrency,
 				{
 					entryUrl: new URL(entryFileName, prerenderOutputDir).toString(),
-					discoveryConcurrency: workerCount,
+					discoveryConcurrency: workerConcurrency,
 					pagesByKeys: [...internals.pagesByKeys].map(([key, page]) => [
 						key,
 						{ styles: page.styles },

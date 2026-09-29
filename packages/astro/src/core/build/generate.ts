@@ -40,6 +40,7 @@ import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-pre
 import {
 	createParallelPrerenderer,
 	isParallelPrerenderer,
+	resolveParallelPrerenderWorkers,
 	takeCompletedResponse,
 } from './parallel-prerenderer.js';
 import { IncrementalBuildCache } from './incremental.js';
@@ -193,11 +194,15 @@ export async function generatePages(
 		}
 		const generationPhases = [filteredPaths, fallbackPaths];
 
-		// Generate each path
-		if (config.build.concurrency > 1) {
-			const generationConcurrency = usesParallelPrerenderer
-				? config.build.concurrency * 2
-				: config.build.concurrency;
+		// Generate each path. With worker threads, `build.concurrency` applies per worker,
+		// and twice the pool's capacity is kept in flight so workers never wait on the
+		// main thread to queue their next page.
+		const generationConcurrency = usesParallelPrerenderer
+			? resolveParallelPrerenderWorkers(config.experimental.parallelPrerender) *
+				config.build.concurrency *
+				2
+			: config.build.concurrency;
+		if (generationConcurrency > 1) {
 			for (const paths of generationPhases) {
 				let nextPath = 0;
 				let failed = false;

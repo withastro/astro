@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import fs from 'node:fs';
 import { parentPort, workerData } from 'node:worker_threads';
 import { addStaticImageFactory } from '../../assets/build/add-static-image.js';
@@ -80,10 +81,15 @@ function serializeError(error: unknown): SerializedWorkerError {
 async function start() {
 	const entry = await import(data.entryUrl);
 	const app = entry.app as BuildApp;
-	let logs: AstroLoggerMessage[] = [];
+	// A worker processes up to `build.concurrency` requests at once, so logs are
+	// attributed to the request whose async context emitted them. Logs emitted
+	// outside any request (e.g. from detached timers) are forwarded immediately.
+	const logStore = new AsyncLocalStorage<AstroLoggerMessage[]>();
 	const destination = {
 		write(message: AstroLoggerMessage) {
-			logs.push(message);
+			const logs = logStore.getStore();
+			if (logs) logs.push(message);
+			else port.postMessage({ type: 'logs', logs: [message] });
 		},
 	};
 	const internals = {
@@ -116,9 +122,17 @@ async function start() {
 	app.setOptions(options);
 	const routes = new Map<number, RouteData>();
 
-	port.on('message', async (message: PrerenderWorkerRequest) => {
+	port.on('message', (message: PrerenderWorkerRequest) => {
+		if (message.type === 'collect-images') {
+			port.postMessage({ type: 'images', id: message.id, images: getStaticImageList() });
+			return;
+		}
+		const logs: AstroLoggerMessage[] = [];
+		void logStore.run(logs, () => handleMessage(message, logs));
+	});
+
+	async function handleMessage(message: PrerenderWorkerRequest, logs: AstroLoggerMessage[]) {
 		if (message.type === 'discover') {
-			logs = [];
 			try {
 				const paths = await new StaticPaths(app).getAll(data.discoveryConcurrency);
 				const routeIds = new WeakMap<RouteData, number>();
@@ -173,13 +187,8 @@ async function start() {
 			}
 			return;
 		}
-		if (message.type === 'collect-images') {
-			port.postMessage({ type: 'images', id: message.id, images: getStaticImageList() });
-			return;
-		}
 		if (message.type !== 'render') return;
 
-		logs = [];
 		try {
 			if (message.routeData !== undefined) {
 				routes.set(message.routeId, deserializeRouteData(JSON.parse(message.routeData)));
@@ -272,7 +281,7 @@ async function start() {
 				logs,
 			});
 		}
-	});
+	}
 
 	port.postMessage({ type: 'ready' });
 }

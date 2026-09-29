@@ -11,7 +11,7 @@ describe('experimental.parallelPrerender', () => {
 		fixture = await loadFixture({
 			root: './fixtures/static-build/',
 			build: { concurrency: 2, inlineStylesheets: 'never' },
-			experimental: { parallelPrerender: true },
+			experimental: { parallelPrerender: { workers: 2 } },
 			outDir: './dist/parallel-prerender/',
 		});
 		await fixture.build();
@@ -37,8 +37,7 @@ describe('parallel prerender integrations', () => {
 	it('renders framework components', async () => {
 		const fixture = await loadFixture({
 			root: './fixtures/static-build-frameworks/',
-			build: { concurrency: 2 },
-			experimental: { parallelPrerender: true },
+			experimental: { parallelPrerender: { workers: 2 } },
 			outDir: './dist/parallel-prerender-frameworks/',
 		});
 		await fixture.build();
@@ -52,7 +51,7 @@ describe('parallel prerender integrations', () => {
 			root: './fixtures/incremental-build-images/',
 			build: { concurrency: 2 },
 			cacheDir: './node_modules/.astro/parallel-prerender/',
-			experimental: { incrementalBuild: true, parallelPrerender: true },
+			experimental: { incrementalBuild: true, parallelPrerender: { workers: 2 } },
 			outDir: './dist/parallel-prerender-images/',
 		});
 		await fixture.build({ force: true });
@@ -76,8 +75,7 @@ describe('parallel prerender static paths', () => {
 		process.env.ASTRO_PARALLEL_PRERENDER_COUNTER = fileURLToPath(counterFile);
 		const fixture = await loadFixture({
 			root,
-			build: { concurrency: 2 },
-			experimental: { parallelPrerender: true },
+			experimental: { parallelPrerender: { workers: 2 } },
 			outDir: './dist/parallel-prerender-static-paths/',
 		});
 
@@ -110,7 +108,7 @@ describe('parallel prerender errors', () => {
 		const fixture = await loadFixture({
 			root: './fixtures/build-concurrency/',
 			build: { concurrency: 2 },
-			experimental: { parallelPrerender: true },
+			experimental: { parallelPrerender: { workers: 2 } },
 			outDir: './dist/parallel-prerender-errors/',
 		});
 
