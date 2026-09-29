@@ -23,10 +23,6 @@ export interface StaticPathsResponse {
 export interface PrerenderRequest {
 	url: string;
 	routeData: SerializedRouteData;
-	/**
-	 * When true, the worker collects the page's metadata (images, content entries)
-	 * during the render and includes it in the framed response.
-	 */
 	collectMetadata?: boolean;
 }
 
@@ -43,8 +39,4 @@ export interface PrerenderResponseMetadata {
 	metadata?: PrerenderRenderMetadata;
 }
 
-/**
- * Response from the /__astro_static_images endpoint: the image records made
- * outside of a page render.
- */
 export type StaticImagesResponse = PrerenderUnattributedMetadata;

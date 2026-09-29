@@ -63,9 +63,6 @@ export async function generatePages(
 		return;
 	}
 
-	// Rendering in this process (the default prerenderer) reports through the render scope:
-	// `getImage()` resolves transforms to static files, and every image record lands in the
-	// rendering page's metadata, or the ambient store when no page is rendering.
 	const { config } = options.settings;
 	uninstallRenderScope();
 	ensureAsyncRenderScope({
@@ -302,9 +299,7 @@ async function generatePagesWithRenderScope(
 			cache.writeManifest(options.settings);
 		}
 
-		// Images recorded outside of a page render (e.g. `getImage()` in `getStaticPaths()`), in
-		// this process and in the prerenderer's runtime. Must happen before teardown, since the
-		// prerenderer may fetch them from its runtime.
+		// Must happen before teardown: the prerenderer may fetch these from its runtime.
 		images.addMetadata(drainAmbientCollectors());
 		if (prerenderer.collectUnattributedMetadata) {
 			images.addMetadata(await prerenderer.collectUnattributedMetadata());
@@ -435,10 +430,6 @@ async function generatePagesWithRenderScope(
 	});
 }
 
-/**
- * The image service generating optimized images: the prerenderer's, else the configured
- * service imported in this process.
- */
 async function loadImageService(
 	prerenderer: AstroPrerenderer,
 	options: StaticBuildOptions,
@@ -495,9 +486,7 @@ interface RenderToPathPayload {
 	options: StaticBuildOptions;
 	routeToHeaders?: RouteToHeaders;
 	logger: AstroLogger;
-	/** Ask the prerenderer to collect and report per-render metadata. */
 	collectMetadata?: boolean;
-	/** Receives the images the page reported, whether or not it produces output. */
 	images?: StaticImageRegistry;
 }
 
@@ -524,7 +513,6 @@ interface RenderToPathPayload {
  *                                the adapter requests static-header tracking. Callers that do
  *                                not need to inspect the headers after the call can omit this.
  * @param params.logger         - Logger instance.
- * @param [params.images]       - Registry receiving the images the page reported.
  */
 export async function renderPath({
 	prerenderer,
@@ -703,9 +691,7 @@ async function generatePathWithPrerenderer(
 			!existsInDist && (await cache.restoreOutputFile(options.settings, relativeOutFile, outFile));
 
 		if (existsInDist || restored) {
-			// The page is not rendered, so it reports no images. Replay the ones it
-			// reported last build, so the asset pipeline still emits the images its
-			// restored HTML references and keeps the originals it uses.
+			// Skipped pages report nothing, but their restored HTML still needs last build's images.
 			const restoredImages = cache.previousStaticImages(route.component, pathname);
 			const restoredReferencedImages = cache.previousReferencedImages(route.component, pathname);
 			images.addMetadata({
@@ -767,11 +753,6 @@ async function generatePathWithPrerenderer(
 		addPageName(pathname, options);
 	}
 
-	// The prerenderer collects the images and content entries resolved while
-	// rendering this path in its own runtime and reports them on the render's
-	// metadata: the images are generated after rendering, and when the
-	// incremental cache is active everything is folded into the path's cache
-	// entry and replayed when the path is skipped on a later build.
 	const result = await renderPath({
 		prerenderer,
 		pathname,

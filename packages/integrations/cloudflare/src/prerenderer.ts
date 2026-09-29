@@ -340,8 +340,7 @@ export function createCloudflarePrerenderer({
 							existing.transforms.set(hash, transform);
 						};
 
-						// Pull each optimized image out of workerd on its own request so the
-						// bytes stream to disk instead of being buffered into one response.
+						// One request per image, so the bytes stream to disk instead of buffering.
 						const jobs = [...images].flatMap(([originalPath, entry]) => {
 							const sourcePath = isRemotePath(originalPath)
 								? undefined

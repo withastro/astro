@@ -37,7 +37,6 @@ describe('StaticImageRegistry', () => {
 
 	it('merges metadata from rendered and skipped pages', () => {
 		const registry = new StaticImageRegistry();
-		// A rendered page, then a page replayed from the incremental cache sharing the image.
 		registry.addMetadata({
 			staticImages: [image('hash100', 100)],
 			referencedImages: ['/src/assets/rendered.png'],

@@ -164,11 +164,6 @@ export interface BuildInternals {
 	 */
 	serverIslandPageComponents?: Set<string>;
 
-	/**
-	 * Source paths of images known while bundling to be used outside of image
-	 * optimization (imported on the client, imported with a query, reachable
-	 * from on-demand rendered pages). Their originals are kept in the output.
-	 */
 	referencedImages: ReadonlySet<string>;
 }
 

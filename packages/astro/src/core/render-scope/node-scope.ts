@@ -3,7 +3,7 @@ import { installRenderScope } from './scope.js';
 import type { RenderCollectors, RenderCollectorScope, RenderScopeOptions } from './scope.js';
 
 /**
- * Installs (first-wins) an AsyncLocalStorage-backed render channel and returns
+ * Installs (first-wins) an AsyncLocalStorage-backed render scope and returns
  * the installed scope.
  *
  * This module is the ONE static `node:async_hooks` import in core and must be
