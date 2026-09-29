@@ -6,6 +6,7 @@ import { App } from '../../dist/core/app/app.js';
 import { FetchState } from '../../dist/core/fetch/fetch-state.js';
 import { fetchStateSymbol } from '../../dist/core/constants.js';
 import { baseService } from '../../dist/assets/services/service.js';
+import { setConfiguredImageService } from '../../dist/assets/internal.js';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import {
 	createComponent,
@@ -338,7 +339,7 @@ interface ImageServiceOverrides {
 }
 
 /**
- * Installs the unit test image service on globalThis so that getImage()
+ * Installs the unit test image service so that getImage()
  * can resolve it without the virtual:image-service Vite module.
  * Returns the imageConfig object to pass to getImage(), and a cleanup function.
  *
@@ -355,7 +356,7 @@ export function installImageService(overrides: ImageServiceOverrides = {}): {
 	};
 	cleanup: () => void;
 } {
-	(globalThis as any).astroAsset = { imageService: unitTestImageService };
+	setConfiguredImageService(unitTestImageService as any);
 
 	const imageConfig = {
 		service: { entrypoint: 'test', config: {} as Record<string, never> },
@@ -369,7 +370,7 @@ export function installImageService(overrides: ImageServiceOverrides = {}): {
 	return {
 		imageConfig,
 		cleanup() {
-			(globalThis as any).astroAsset = undefined;
+			setConfiguredImageService(undefined);
 		},
 	};
 }

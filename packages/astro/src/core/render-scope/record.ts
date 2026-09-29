@@ -1,27 +1,30 @@
 import type { SerializedStaticImage } from '../../assets/types.js';
-import { getInstalledRenderScope } from './scope.js';
+import { getRecordTarget } from './scope.js';
 
 /**
  * Records that a content entry was rendered, keyed by its root-relative
- * `filePath`. No-op when no scope is installed (dev, production SSR,
- * non-incremental builds) or no render is in scope (`getStaticPaths`, module
- * top-level).
+ * `filePath`. No-op when no render is in scope (dev, production SSR,
+ * `getStaticPaths`, module top-level): content entries only matter per page.
  */
 export function recordContentEntryRender(filePath: string | undefined): void {
 	if (!filePath) return;
-	getInstalledRenderScope()?.getStore()?.contentEntries?.add(filePath);
+	getRecordTarget()?.contentEntries?.add(filePath);
 }
 
 /**
  * Records a resolved image transform, dedup hits included, preserving
  * duplicates (array push, not a set — replay depends on every record
- * arriving).
+ * arriving). Lands in the ambient store when no render is in scope.
  */
 export function recordStaticImage(image: SerializedStaticImage): void {
-	getInstalledRenderScope()?.getStore()?.staticImages?.push(image);
+	getRecordTarget()?.staticImages?.push(image);
 }
 
-/** Records an untransformed image reference against the active render. */
+/**
+ * Records that an image's original file is referenced outside of image
+ * optimization (e.g. `<img src={img.src}>`). Lands in the ambient store when
+ * no render is in scope.
+ */
 export function recordReferencedImage(fsPath: string): void {
-	getInstalledRenderScope()?.getStore()?.referencedImages?.add(fsPath);
+	getRecordTarget()?.referencedImages?.add(fsPath);
 }

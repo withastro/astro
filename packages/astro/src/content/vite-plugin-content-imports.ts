@@ -3,7 +3,11 @@ import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as devalue from 'devalue';
 import type { Plugin, Rolldown, RunnableDevEnvironment } from 'vite';
-import { getProxyCode } from '../assets/utils/proxy.js';
+import {
+	getImageAssetCode,
+	IMAGE_ASSET_IMPORT,
+	usesImageAsset,
+} from '../assets/utils/image-asset-code.js';
 import { createContentDataIncrementalMetadata } from '../core/build/incremental-metadata.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { AstroError } from '../core/errors/errors.js';
@@ -120,7 +124,7 @@ export function astroContentImportPlugin({
 							shouldEmitFile,
 						});
 
-						const code = `
+						const code = withImageAssetImport(`
 export const id = ${JSON.stringify(id)};
 export const collection = ${JSON.stringify(collection)};
 export const data = ${stringifyEntryData(data, settings.buildOutput === 'server')};
@@ -129,7 +133,7 @@ export const _internal = {
 	filePath: ${JSON.stringify(_internal.filePath)},
 	rawData: ${JSON.stringify(_internal.rawData)},
 };
-`;
+`);
 						return {
 							code,
 							map: { mappings: '' },
@@ -147,7 +151,7 @@ export const _internal = {
 							shouldEmitFile,
 						});
 
-						const code = `
+						const code = withImageAssetImport(`
 						export const id = ${JSON.stringify(id)};
 						export const collection = ${JSON.stringify(collection)};
 						export const slug = ${JSON.stringify(slug)};
@@ -157,7 +161,7 @@ export const _internal = {
 							type: 'content',
 							filePath: ${JSON.stringify(_internal.filePath)},
 							rawData: ${JSON.stringify(_internal.rawData)},
-						};`;
+						};`);
 
 						return {
 							code,
@@ -414,6 +418,10 @@ async function getContentConfigFromGlobal() {
 	return contentConfig;
 }
 
+function withImageAssetImport(code: string): string {
+	return usesImageAsset(code) ? `${IMAGE_ASSET_IMPORT}\n${code}` : code;
+}
+
 /** Stringify entry `data` at build time to be used as a Vite module */
 function stringifyEntryData(data: Record<string, any>, isSSR: boolean): string {
 	try {
@@ -423,11 +431,11 @@ function stringifyEntryData(data: Record<string, any>, isSSR: boolean): string {
 				return `new URL(${JSON.stringify(value.href)})`;
 			}
 
-			// For Astro assets, add a proxy to track references
+			// For Astro assets, track references to the original file
 			if (typeof value === 'object' && 'ASTRO_ASSET' in value) {
 				const { ASTRO_ASSET, ...asset } = value;
 				asset.fsPath = ASTRO_ASSET;
-				return getProxyCode(asset, isSSR);
+				return getImageAssetCode(asset, !isSSR);
 			}
 		});
 	} catch (e) {

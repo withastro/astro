@@ -17,6 +17,21 @@ import { setupConfig } from './runtime.js';
 import { getMarkdocTokenizer } from './tokenizer.js';
 import { isComponentConfig, isValidUrl, MarkdocError, prependForwardSlash } from './utils.js';
 
+/** The API of Astro's `astro:assets:esm` Vite plugin. */
+interface AssetsPluginApi {
+	markReferenced(fsPath: string): void;
+}
+
+function getAssetsPluginApi(pluginContext: Rolldown.PluginContext): AssetsPluginApi | undefined {
+	// Vite exposes the environment on the context of plugin hooks.
+	const { environment } = pluginContext as {
+		environment?: { config: { plugins: readonly { name: string; api?: unknown }[] } };
+	};
+	return environment?.config.plugins.find((plugin) => plugin.name === 'astro:assets:esm')?.api as
+		| AssetsPluginApi
+		| undefined;
+}
+
 export async function getContentEntryType({
 	markdocConfigResult,
 	astroConfig,
@@ -328,8 +343,7 @@ async function emitOptimizedImages(
 						// We cannot track images in Markdoc, Markdoc rendering always strips out the proxy. As such, we'll always
 						// assume that the image is referenced elsewhere, to be on safer side.
 						if (ctx.astroConfig.output === 'static') {
-							if (globalThis.astroAsset.referencedImages)
-								globalThis.astroAsset.referencedImages.add(fsPath);
+							getAssetsPluginApi(ctx.pluginContext)?.markReferenced(fsPath);
 						}
 
 						node.attributes[attributeName] = { ...src, fsPath };

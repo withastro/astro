@@ -7,6 +7,7 @@ import {
 	type RemoteImageProps,
 } from 'astro:assets';
 import * as mime from 'mrmime';
+import { getUntrackedImage } from '../dist/assets/utils/image-asset.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from '../dist/assets/utils/imageKind.js';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 import type {
@@ -95,12 +96,9 @@ const optimizedImages: GetImageResult[] = await Promise.all(
 	),
 );
 
-// Clone the `src` object if it's an ESM import so that we don't refer to any properties of the original object
-// Causing our generate step to think the image is used outside of the image optimization pipeline
-const clonedSrc = isESMImportedImage(originalSrc)
-	? // @ts-expect-error - clone is a private, hidden prop
-		(originalSrc.clone ?? originalSrc)
-	: originalSrc;
+// Read the ESM import through an untracked copy, so that optimizing an image doesn't make
+// the build think its original file is used outside of the image optimization pipeline
+const clonedSrc = getUntrackedImage(originalSrc);
 
 let resultFallbackFormat = fallbackFormat ?? defaultFallbackFormat;
 if (

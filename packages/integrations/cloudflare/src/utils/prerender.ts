@@ -10,18 +10,20 @@
  * - `/__astro_prerender`: Renders a specific page given its URL and route data.
  *   The prerenderer calls this for each path to generate the static HTML.
  *
+ * - `/__astro_static_images`: Returns the image records made outside of a page
+ *   render, once every path is rendered.
+ *
  * These endpoints are only active during the prerender build phase and are not
  * available in production or development.
  */
 
 import type { BaseApp, RenderErrorOptions } from 'astro/app';
-import { renderForPrerender } from 'astro/app';
+import { drainAmbientCollectors, renderForPrerender } from 'astro/app';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import { StaticPaths } from 'astro:static-paths';
 import type {
 	StaticPathsResponse,
 	PrerenderRequest,
-	SerializedStaticImageEntry,
 	StaticImagesResponse,
 } from '../prerender-types.js';
 import {
@@ -162,29 +164,13 @@ export function isImageTransformRequest(request: Request): boolean {
 	return pathname === IMAGE_TRANSFORM_ENDPOINT && request.method === 'POST';
 }
 
-/** Serializes the global staticImages map collected in workerd back to the Node-side build. */
+/**
+ * Returns the image records made in workerd outside of any prerender request's render scope
+ * (e.g. `getImage()` in `getStaticPaths()`), and empties them.
+ */
 export function handleStaticImagesRequest(): Response {
-	const staticImages = globalThis.astroAsset?.staticImages;
-	if (!staticImages || staticImages.size === 0) {
-		return new Response('[]', {
-			headers: { 'Content-Type': 'application/json' },
-		});
-	}
-
-	const entries: StaticImagesResponse = [];
-	for (const [originalPath, { originalSrcPath, transforms }] of staticImages) {
-		const serializedTransforms: SerializedStaticImageEntry['transforms'] = [];
-		for (const [hash, { finalPath, transform }] of transforms) {
-			serializedTransforms.push({
-				hash,
-				finalPath,
-				transform: transform as Record<string, any>,
-			});
-		}
-		entries.push({ originalPath, originalSrcPath, transforms: serializedTransforms });
-	}
-
-	return new Response(JSON.stringify(entries), {
+	const body: StaticImagesResponse = drainAmbientCollectors();
+	return new Response(JSON.stringify(body), {
 		headers: { 'Content-Type': 'application/json' },
 	});
 }

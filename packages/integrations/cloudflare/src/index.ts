@@ -20,7 +20,7 @@ import {
 	normalizeImageServiceConfig,
 	setImageConfig,
 } from './utils/image-config.js';
-import { createConfigPlugin, type CompileImageConfig } from './vite-plugin-config.js';
+import { createConfigPlugin } from './vite-plugin-config.js';
 import { createNodePrerenderPlugin } from './vite-plugin-dev-server-prerender-middleware.js';
 import {
 	cloudflareConfigCustomizer,
@@ -151,7 +151,6 @@ export default function createIntegration({
 	let _routes: IntegrationResolvedRoute[];
 	let cfPluginConfig: PluginConfig;
 	let hasUserBuildImageService = false;
-	let compileImageConfig: CompileImageConfig | null = null;
 
 	const { buildService, runtimeService, transformAtBuild } =
 		normalizeImageServiceConfig(imageService);
@@ -465,23 +464,16 @@ export default function createIntegration({
 							},
 							createConfigPlugin({
 								sessionKVBindingName,
-								// `imageServiceEntrypoint` is finalized in `astro:config:done`:
-								// integrations may set `image.service` via `updateConfig()` after
-								// this hook runs (the adapter always runs first), so the service
-								// cannot be resolved yet. The plugin serializes this object lazily
-								// at load time, after the mutation below has happened.
 								compileImageConfig:
 									(hasBuildImageService || isBindingBuild) && command !== 'dev'
-										? (compileImageConfig = {
-												base: config.base,
-												assetsPrefix:
-													typeof config.build.assetsPrefix === 'string'
-														? config.build.assetsPrefix
-														: undefined,
-												imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
-												buildAssets: config.build.assets ?? '_astro',
+										? {
+												staticImages: {
+													base: config.base,
+													assetsPrefix: config.build.assetsPrefix,
+													assetsDir: config.build.assets ?? '_astro',
+												},
 												transformWithBinding: isBindingBuild,
-											})
+											}
 										: null,
 								cacheProviderEnabled: needsWorkerCache,
 							}),
@@ -512,9 +504,6 @@ export default function createIntegration({
 				// the adapter onto the integrations list), so a service registered by an
 				// integration via `updateConfig()` is only visible here.
 				hasUserBuildImageService = hasBuildImageService && hasUserImageService(config.image);
-				if (compileImageConfig && hasUserBuildImageService) {
-					compileImageConfig.imageServiceEntrypoint = config.image.service.entrypoint;
-				}
 
 				// When a base path is configured, nest the client output directory under
 				// the base so that on-disk paths match the URLs Astro writes into HTML.
@@ -591,42 +580,29 @@ export default function createIntegration({
 				} else if (hasBuildImageService) {
 					// When prerenderEnvironment is 'node', prerendering runs in the same
 					// Node process using the workerd-safe image service stub (which is a
-					// passthrough). We need to install the real image service (sharp or
-					// the user's custom service) before the image generation pipeline runs.
-					// This mirrors what collectStaticImages does in the workerd prerenderer.
+					// passthrough). Generate the optimized images with the real image
+					// service (sharp or the user's custom service) instead, like the
+					// workerd prerenderer does.
 					const entrypoint = hasUserBuildImageService
 						? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
 						: undefined;
 					setPrerenderer((defaultPrerenderer) => ({
 						...defaultPrerenderer,
-						async collectStaticImages() {
-							globalThis.astroAsset ??= {};
+						async getImageService() {
 							if (entrypoint) {
-								// Belt-and-braces rather than load-bearing: with a user-configured
-								// image.service, the Node prerender bundle already loads the user
-								// service via virtual:image-service and caches it here whenever a
-								// page renders an image, so this re-import only exists for symmetry
-								// with the workerd prerenderer's collectStaticImages. Guard it: the
-								// raw entrypoint import can fail where the bundled service works
-								// (e.g. TypeScript entrypoints on Node versions without type
-								// stripping), and an empty cache means no image was rendered, so
-								// the service is never used by the generation pipeline anyway.
-								if (!globalThis.astroAsset.imageService) {
-									try {
-										const mod = await import(entrypoint);
-										globalThis.astroAsset.imageService = mod.default ?? mod;
-									} catch {
-										// Unused when no images were rendered — never fail the build.
-									}
+								// With a user-configured image.service, the prerender bundle already
+								// contains the user service. Prefer it: the raw entrypoint import can
+								// fail where the bundled service works (e.g. TypeScript entrypoints
+								// on Node versions without type stripping).
+								try {
+									return await defaultPrerenderer.getImageService!();
+								} catch {
+									const mod = await import(entrypoint);
+									return mod.default ?? mod;
 								}
-							} else {
-								const { default: sharpService } = await import('astro/assets/services/sharp');
-								globalThis.astroAsset.imageService = sharpService;
 							}
-							// Static images are already in globalThis.astroAsset.staticImages
-							// from the Node-side prerendering. Return an empty map since
-							// there are no additional images to merge from a separate runtime.
-							return new Map();
+							const { default: sharpService } = await import('astro/assets/services/sharp');
+							return sharpService;
 						},
 					}));
 				}

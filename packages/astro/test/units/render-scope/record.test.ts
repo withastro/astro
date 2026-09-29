@@ -2,12 +2,15 @@ import assert from 'node:assert/strict';
 import { afterEach, describe, it } from 'node:test';
 import type { SerializedStaticImage } from '../../../dist/assets/types.js';
 import {
+	drainAmbientCollectors,
+	installRenderScope,
 	uninstallRenderScope,
 	type RenderCollectors,
 } from '../../../dist/core/render-scope/scope.js';
 import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
 import {
 	recordContentEntryRender,
+	recordReferencedImage,
 	recordStaticImage,
 } from '../../../dist/core/render-scope/record.js';
 
@@ -31,10 +34,35 @@ describe('render scope record helpers', () => {
 		recordStaticImage(image('h1'));
 	});
 
-	it('no-op with a scope installed but no store in scope', () => {
+	it('records images into the ambient store when no render is in scope', () => {
 		ensureAsyncRenderScope();
 		recordContentEntryRender('src/content/docs/one.mdx');
 		recordStaticImage(image('h1'));
+		recordReferencedImage('/project/src/assets/penguin.png');
+		assert.deepEqual(drainAmbientCollectors(), {
+			staticImages: [image('h1')],
+			referencedImages: ['/project/src/assets/penguin.png'],
+		});
+		// Draining empties the store.
+		assert.deepEqual(drainAmbientCollectors(), { staticImages: [], referencedImages: [] });
+	});
+
+	it('records images into the ambient store when the runtime has no async context', () => {
+		installRenderScope(undefined);
+		recordStaticImage(image('h1'));
+		assert.equal(drainAmbientCollectors().staticImages.length, 1);
+	});
+
+	it('never records into the ambient store while a render is in scope', () => {
+		const scope = ensureAsyncRenderScope();
+		const store: RenderCollectors = { staticImages: [], referencedImages: new Set() };
+		scope.run(store, () => {
+			recordStaticImage(image('h1'));
+			recordReferencedImage('/project/src/assets/penguin.png');
+		});
+		assert.equal(store.staticImages!.length, 1);
+		assert.deepEqual([...store.referencedImages!], ['/project/src/assets/penguin.png']);
+		assert.deepEqual(drainAmbientCollectors(), { staticImages: [], referencedImages: [] });
 	});
 
 	it('tolerates a store lacking a field (version skew), recording nothing', () => {
