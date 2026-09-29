@@ -61,8 +61,8 @@ export function createDefaultPrerenderer({
 			return staticPaths.getAll();
 		},
 
-		async render(request, { routeData, collectMetadata }) {
-			return renderForPrerender(prerenderer.app!, request, { routeData, collectMetadata });
+		async render(request, { routeData }) {
+			return renderForPrerender(prerenderer.app!, request, { routeData });
 		},
 
 		async getImageService() {

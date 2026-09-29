@@ -36,7 +36,7 @@ type GenerationData = GenerationDataUncached | GenerationDataCached;
 
 type AssetEnv = {
 	logger: AstroLogger;
-	imageService: LocalImageService;
+	getImageService: () => Promise<LocalImageService>;
 	referencedImages: ReadonlySet<string>;
 	isSSR: boolean;
 	count: { total: number; current: number };
@@ -59,9 +59,12 @@ export async function prepareAssetsGenerationEnv(
 	options: StaticBuildOptions,
 	totalCount: number,
 	{
-		imageService,
+		loadImageService,
 		referencedImages,
-	}: { imageService: LocalImageService; referencedImages: ReadonlySet<string> },
+	}: {
+		loadImageService: () => Promise<LocalImageService>;
+		referencedImages: ReadonlySet<string>;
+	},
 ): Promise<AssetEnv> {
 	const { settings, logger } = options;
 	let useCache = true;
@@ -93,9 +96,10 @@ export async function prepareAssetsGenerationEnv(
 		clientRoot = clientOutputDir;
 	}
 
+	let imageService: Promise<LocalImageService> | undefined;
 	return {
 		logger,
-		imageService,
+		getImageService: () => (imageService ??= loadImageService()),
 		referencedImages,
 		isSSR: isServerOutput,
 		count,
@@ -279,7 +283,7 @@ export async function generateImagesForPath(
 			lastModified: originalImage.lastModified,
 		};
 
-		const imageService = env.imageService;
+		const imageService = await env.getImageService();
 
 		try {
 			resultData.data = (

@@ -272,9 +272,8 @@ export type PrerenderUnattributedMetadata = Pick<
 
 /**
  * The richer result a prerenderer's `render()` may return instead of a bare
- * `Response`, pairing the rendered response with the incremental-build metadata
- * collected for that page. `metadata` is `undefined` when the page was not
- * tracked (collection was not requested, or the prerenderer could not collect).
+ * `Response`, pairing the rendered response with the metadata collected for that
+ * page. `metadata` is `undefined` when the prerenderer could not collect it.
  */
 export interface PrerenderResult {
 	response: Response;
@@ -284,6 +283,11 @@ export interface PrerenderResult {
 /**
  * Custom prerenderer that adapters can provide to control how pages are prerendered.
  * Allows non-Node runtimes (e.g., workerd) to handle prerendering.
+ *
+ * A prerenderer that renders outside of Astro's build process must call `installRenderScope()`
+ * from `astro/app` in its runtime, passing the `staticImages` config, for `getImage()` to resolve
+ * build-time image URLs. It then reports each page's images on a {@link PrerenderResult}, and the
+ * images recorded outside of renders (`drainAmbientCollectors()`) from `collectUnattributedMetadata()`.
  */
 export interface AstroPrerenderer {
 	name: string;
@@ -303,9 +307,7 @@ export interface AstroPrerenderer {
 	 *   use the `pathname` from the `PathWithRoute` entry returned by `getStaticPaths`.
 	 * @param options - Render options
 	 * @param options.routeData - The matched route for this path
-	 * @param options.collectMetadata - Report the page's metadata on a {@link PrerenderResult}.
-	 *   A prerenderer that returns a bare `Response` instead must report its images through
-	 *   `collectUnattributedMetadata()`.
+	 * @param options.collectMetadata - Deprecated, always `true`.
 	 * @returns A `Response`, or a {@link PrerenderResult} pairing the response with its metadata.
 	 */
 	render: (
@@ -316,11 +318,12 @@ export interface AstroPrerenderer {
 	collectUnattributedMetadata?: () => Promise<PrerenderUnattributedMetadata>;
 	/** Generates images in the prerenderer's runtime, returning those Astro should still generate. */
 	generateImages?: (images: AssetsGlobalStaticImagesList) => Promise<AssetsGlobalStaticImagesList>;
-	/** Returns the image service Astro generates the remaining images with. */
+	/** Returns the image service for the remaining images. Called after `teardown()`, on the first cache miss. */
 	getImageService?: () => Promise<ImageService>;
 	/**
 	 * Returns images collected in the adapter's runtime (e.g. workerd) to be merged
 	 * into the Node-side static image list. The default Sharp pipeline runs after.
+	 * Images are only recorded through the render scope (see {@link AstroPrerenderer}).
 	 *
 	 * @deprecated Use `collectUnattributedMetadata()`, `generateImages()` and `getImageService()`.
 	 */

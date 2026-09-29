@@ -31,17 +31,6 @@ describe('renderForPrerender', () => {
 		uninstallRenderScope();
 	});
 
-	it('short-circuits when not collecting: metadata undefined, response unbuffered', async () => {
-		ensureAsyncRenderScope();
-		const appResponse = new Response('<html></html>');
-		const app = appOf(async () => appResponse);
-		const result = await renderForPrerender(app, request());
-		assert.equal(result.metadata, undefined);
-		// The response object is the app's own — no buffering, no reconstruction.
-		assert.equal(result.response, appResponse);
-		assert.equal(result.response.bodyUsed, false);
-	});
-
 	it('captures records fired during body pull (the scope spans buffering)', async () => {
 		ensureAsyncRenderScope();
 		const app = appOf(async () => {
@@ -57,9 +46,7 @@ describe('renderForPrerender', () => {
 			});
 			return new Response(stream, { status: 200, headers: { 'X-Test': 'yes' } });
 		});
-		const { response, metadata } = await renderForPrerender(app, request(), {
-			collectMetadata: true,
-		});
+		const { response, metadata } = await renderForPrerender(app, request());
 		assert.deepEqual(metadata?.contentEntryKeys, ['at-render', 'during-body-pull']);
 		assert.deepEqual(
 			metadata?.staticImages?.map((img) => img.hash),
@@ -73,9 +60,7 @@ describe('renderForPrerender', () => {
 	it('preserves body-nullness for null-body responses', async () => {
 		ensureAsyncRenderScope();
 		const app = appOf(async () => new Response(null, { status: 204, statusText: 'No Content' }));
-		const { response, metadata } = await renderForPrerender(app, request(), {
-			collectMetadata: true,
-		});
+		const { response, metadata } = await renderForPrerender(app, request());
 		assert.equal(response.body, null);
 		assert.equal(response.status, 204);
 		assert.equal(response.statusText, 'No Content');
@@ -87,7 +72,7 @@ describe('renderForPrerender', () => {
 		const app = appOf(
 			async () => new Response(null, { status: 302, headers: { Location: '/elsewhere/' } }),
 		);
-		const { response } = await renderForPrerender(app, request(), { collectMetadata: true });
+		const { response } = await renderForPrerender(app, request());
 		assert.equal(response.status, 302);
 		assert.equal(response.headers.get('Location'), '/elsewhere/');
 		assert.equal(response.body, null);
@@ -99,21 +84,19 @@ describe('renderForPrerender', () => {
 			recordContentEntryRender('doomed');
 			throw new Error('boom');
 		});
-		await assert.rejects(renderForPrerender(failing, request(), { collectMetadata: true }), /boom/);
+		await assert.rejects(renderForPrerender(failing, request()), /boom/);
 
 		const app = appOf(async () => {
 			recordContentEntryRender('clean');
 			return new Response('ok');
 		});
-		const { metadata } = await renderForPrerender(app, request(), { collectMetadata: true });
+		const { metadata } = await renderForPrerender(app, request());
 		assert.deepEqual(metadata?.contentEntryKeys, ['clean']);
 	});
 
-	it('degrades to metadata undefined when collecting without an installed scope', async () => {
+	it('degrades to metadata undefined without an installed scope', async () => {
 		const app = appOf(async () => new Response('ok'));
-		const { response, metadata } = await renderForPrerender(app, request(), {
-			collectMetadata: true,
-		});
+		const { response, metadata } = await renderForPrerender(app, request());
 		assert.equal(metadata, undefined);
 		assert.equal(await response.text(), 'ok');
 	});

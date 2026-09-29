@@ -1,0 +1,13 @@
+---
+import { getImage } from 'astro:assets';
+import fromPaths from '../../assets/paths.jpg';
+
+export async function getStaticPaths() {
+	const image = await getImage({ src: fromPaths, width: 20, format: 'webp' });
+	return [{ params: { slug: 'one' }, props: { src: image.src } }];
+}
+
+const { src } = Astro.props;
+---
+
+<img src={src} alt="optimized in getStaticPaths" />

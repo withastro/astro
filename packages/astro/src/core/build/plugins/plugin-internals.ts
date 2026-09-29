@@ -3,7 +3,7 @@ import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
-import { getAssetsPluginApi } from '../../../assets/vite-plugin-assets.js';
+import { getAssetsPluginApi } from '../../../assets/utils/assets.js';
 
 function getRollupInputAsSet(rollupInput: Rollup.InputOption | undefined): Set<string> {
 	if (Array.isArray(rollupInput)) {
@@ -55,6 +55,7 @@ export function pluginInternals(
 
 		async generateBundle(_options, bundle) {
 			const assetsApi = getAssetsPluginApi(this.environment?.config.plugins);
+			// A live set shared by every environment, read once all builds are done.
 			if (assetsApi) {
 				internals.referencedImages = assetsApi.referencedImages;
 			}

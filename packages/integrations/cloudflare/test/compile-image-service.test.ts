@@ -241,6 +241,15 @@ describe('CompileImageService build-time image generation', () => {
 					assert.match(serverBundle, /astro\/dist\/assets\/endpoint\/generic\.js/);
 					assert.doesNotMatch(serverBundle, /image-passthrough-endpoint/);
 				}
+
+				const pathsHtml = await fixture.readFile('client/paths/one/index.html');
+				const pathsSrc = cheerio.load(pathsHtml)('img').attr('src');
+				assert.match(pathsSrc ?? '', /^\/_astro\/paths\..+\.webp$/, 'getImage() in getStaticPaths');
+				assert.ok(fixture.pathExists(`client${pathsSrc}`));
+				assert.equal((await fixture.glob('client/_astro/paths.*')).length, 1);
+
+				// The page reads `kept.src`, so the original must survive next to the optimized copy.
+				assert.equal((await fixture.glob('client/_astro/kept.*')).length, 2);
 			});
 
 			it('with a Sharp-backed user image.service: generates assets, respects its markup, and bundles the Sharp chain', {

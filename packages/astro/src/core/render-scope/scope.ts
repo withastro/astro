@@ -1,5 +1,6 @@
 import type { SerializedStaticImage } from '../../assets/types.js';
 import type { AssetsPrefix } from '../app/types.js';
+import type { PrerenderUnattributedMetadata } from '../../types/public/integrations.js';
 
 /**
  * The per-render store. One instance is created per collecting render and is
@@ -11,10 +12,7 @@ import type { AssetsPrefix } from '../app/types.js';
 export interface RenderCollectors {
 	/** Root-relative `filePath`s of the content entries rendered. */
 	contentEntries?: Set<string>;
-	/**
-	 * Every image transform resolved, dedup hits included; array push,
-	 * duplicates preserved.
-	 */
+	/** Image transforms resolved, possibly with duplicates. */
 	staticImages?: SerializedStaticImage[];
 	/** Absolute source paths of images referenced without a transform. */
 	referencedImages?: Set<string>;
@@ -84,6 +82,10 @@ export function installRenderScope(
 	return scope;
 }
 
+export function hasRenderChannel(): boolean {
+	return getChannel() !== undefined;
+}
+
 export function getInstalledRenderScope(): RenderCollectorScope | undefined {
 	return getChannel()?.scope;
 }
@@ -106,10 +108,7 @@ export function getRecordTarget(): RenderCollectors | undefined {
 	return channel.scope?.getStore() ?? channel.ambient;
 }
 
-export function drainAmbientCollectors(): {
-	staticImages: SerializedStaticImage[];
-	referencedImages: string[];
-} {
+export function drainAmbientCollectors(): PrerenderUnattributedMetadata {
 	const ambient = getChannel()?.ambient;
 	if (!ambient) return { staticImages: [], referencedImages: [] };
 	const drained = {

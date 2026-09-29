@@ -24,7 +24,6 @@ export {
 	type RenderScopeOptions,
 	type StaticImageConfig,
 } from '../../render-scope/scope.js';
-export { recordStaticImage } from '../../render-scope/record.js';
 export {
 	collectPrerenderMetadata,
 	type CollectedPrerenderMetadata,

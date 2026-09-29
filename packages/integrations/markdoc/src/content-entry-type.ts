@@ -7,7 +7,7 @@ import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
 import { emitClientAsset } from 'astro/assets/utils';
-import { emitImageMetadata } from 'astro/assets/utils/node';
+import { emitImageMetadata, markImageReferenced } from 'astro/assets/utils/node';
 import type { Rolldown, ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
@@ -16,20 +16,6 @@ import type { MarkdocIntegrationOptions } from './options.js';
 import { setupConfig } from './runtime.js';
 import { getMarkdocTokenizer } from './tokenizer.js';
 import { isComponentConfig, isValidUrl, MarkdocError, prependForwardSlash } from './utils.js';
-
-interface AssetsPluginApi {
-	markReferenced(fsPath: string): void;
-}
-
-function getAssetsPluginApi(pluginContext: Rolldown.PluginContext): AssetsPluginApi | undefined {
-	// Rolldown's context type lacks the `environment` Vite adds.
-	const { environment } = pluginContext as {
-		environment?: { config: { plugins: readonly { name: string; api?: unknown }[] } };
-	};
-	return environment?.config.plugins.find((plugin) => plugin.name === 'astro:assets:esm')?.api as
-		| AssetsPluginApi
-		| undefined;
-}
 
 export async function getContentEntryType({
 	markdocConfigResult,
@@ -339,10 +325,9 @@ async function emitOptimizedImages(
 					const fsPath = resolved.id;
 
 					if (src) {
-						// We cannot track images in Markdoc, Markdoc rendering always strips out the proxy. As such, we'll always
-						// assume that the image is referenced elsewhere, to be on safer side.
+						// Markdoc can't track reads of the image's `src`, so assume the original is used.
 						if (ctx.astroConfig.output === 'static') {
-							getAssetsPluginApi(ctx.pluginContext)?.markReferenced(fsPath);
+							markImageReferenced(ctx.pluginContext, fsPath);
 						}
 
 						node.attributes[attributeName] = { ...src, fsPath };

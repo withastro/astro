@@ -7,7 +7,6 @@ import {
 	type RemoteImageProps,
 } from 'astro:assets';
 import * as mime from 'mrmime';
-import { getUntrackedImage } from '../dist/assets/utils/image-asset.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from '../dist/assets/utils/imageKind.js';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 import type {
@@ -96,16 +95,13 @@ const optimizedImages: GetImageResult[] = await Promise.all(
 	),
 );
 
-// Optimizing an image must not count as using its original file.
-const clonedSrc = getUntrackedImage(originalSrc);
-
 let resultFallbackFormat = fallbackFormat ?? defaultFallbackFormat;
 if (
 	!fallbackFormat &&
-	isESMImportedImage(clonedSrc) &&
-	(specialFormatsFallback as ReadonlyArray<string>).includes(clonedSrc.format)
+	isESMImportedImage(originalSrc) &&
+	(specialFormatsFallback as ReadonlyArray<string>).includes(originalSrc.format)
 ) {
-	resultFallbackFormat = clonedSrc.format;
+	resultFallbackFormat = originalSrc.format;
 }
 
 const fallbackImage = await getImage({

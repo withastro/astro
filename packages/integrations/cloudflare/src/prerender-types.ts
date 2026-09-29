@@ -1,4 +1,4 @@
-import type { PrerenderRenderMetadata, PrerenderUnattributedMetadata } from 'astro';
+import type { PrerenderRenderMetadata } from 'astro';
 import type { SerializedRouteData } from 'astro/app/manifest';
 
 /**
@@ -23,7 +23,6 @@ export interface StaticPathsResponse {
 export interface PrerenderRequest {
 	url: string;
 	routeData: SerializedRouteData;
-	collectMetadata?: boolean;
 }
 
 export interface PrerenderResponseMetadata {
@@ -38,5 +37,3 @@ export interface PrerenderResponseMetadata {
 	 */
 	metadata?: PrerenderRenderMetadata;
 }
-
-export type StaticImagesResponse = PrerenderUnattributedMetadata;
