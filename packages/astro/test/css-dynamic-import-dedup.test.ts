@@ -15,16 +15,13 @@ async function getPreloadedCss(fixture: Fixture) {
 	const preloaded = new Map<string, string | undefined>();
 	for (const fileName of assets.filter((f) => f.endsWith('.js'))) {
 		const code = await fixture.readFile(`/_astro/${fileName}`);
-		for (const [, deps] of code.matchAll(/__vite__mapDeps=.*?\[([^\]]*)\]/g)) {
-			for (const [, dep] of deps.matchAll(/"([^"]+\.css)"/g)) {
-				const cssFileName = dep.split('/').pop()!;
-				preloaded.set(
-					dep,
-					assets.includes(cssFileName)
-						? await fixture.readFile(`/_astro/${cssFileName}`)
-						: undefined,
-				);
-			}
+		// Vite writes the preload dependencies as quoted file names, e.g. "_astro/Grid.abc.css"
+		for (const [, dep] of code.matchAll(/"([^"]+\.css)"/g)) {
+			const cssFileName = dep.split('/').pop()!;
+			preloaded.set(
+				dep,
+				assets.includes(cssFileName) ? await fixture.readFile(`/_astro/${cssFileName}`) : undefined,
+			);
 		}
 	}
 	return preloaded;
