@@ -165,7 +165,7 @@ export default function createVitePluginAstroServer({
 				});
 				viteServer.middlewares.stack.unshift({
 					route: '',
-					handle: trailingSlashMiddleware(settings),
+					handle: trailingSlashMiddleware(settings, viteServer.config.server.proxy),
 				});
 				// Prevent serving files outside srcDir/publicDir (e.g., /README.md at project root)
 				viteServer.middlewares.stack.unshift({

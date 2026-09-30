@@ -59,10 +59,36 @@ export function evaluateTrailingSlash(
 	return { action: 'next' };
 }
 
-export function trailingSlashMiddleware(settings: AstroSettings): vite.Connect.NextHandleFunction {
+/**
+ * Returns a predicate that tells whether a request URL is handled by Vite's
+ * `server.proxy`, using the same key matching as Vite: keys starting with `^`
+ * are regular expressions, all other keys are URL prefixes.
+ */
+export function createProxyMatcher(
+	proxy: Record<string, unknown> | undefined,
+): (url: string) => boolean {
+	const matchers = Object.keys(proxy ?? {}).map((context) => {
+		if (context[0] === '^') {
+			const regex = new RegExp(context);
+			return (url: string) => regex.test(url);
+		}
+		return (url: string) => url.startsWith(context);
+	});
+	return (url) => matchers.some((match) => match(url));
+}
+
+export function trailingSlashMiddleware(
+	settings: AstroSettings,
+	proxy?: Record<string, unknown>,
+): vite.Connect.NextHandleFunction {
 	const { trailingSlash } = settings.config;
+	const isProxied = createProxyMatcher(proxy);
 
 	return function devTrailingSlash(req, res, next) {
+		// Proxied requests are not Astro routes; let Vite's proxy middleware forward them as-is.
+		if (req.url && isProxied(req.url)) {
+			return next();
+		}
 		const url = new URL(`http://localhost${req.url}`);
 		let pathname: string;
 		try {
