@@ -385,6 +385,18 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					}
 				}
 			}
+
+			// Vite builds the preload list of dynamic imports from `importedCss`, so a
+			// deleted asset left there is requested at runtime and 404s.
+			// https://github.com/withastro/astro/issues/18191
+			for (const cssId of deletedCssAssets.keys()) {
+				if (bundle[cssId]) continue;
+				for (const chunk of Object.values(bundle)) {
+					if (chunk.type === 'chunk') {
+						chunk.viteMetadata?.importedCss?.delete(cssId);
+					}
+				}
+			}
 		},
 	};
 
