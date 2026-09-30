@@ -181,4 +181,39 @@ describe('generateHydrateScript', () => {
 		);
 		assert.ok(!html.includes(`data-astro-transition-persist="${payload}"`));
 	});
+
+	it('coerces renderer attributes before escaping them', async () => {
+		const payload = '"><img src=x onerror=alert(1)>';
+		let coercions = 0;
+		const value = {
+			toString() {
+				coercions++;
+				return coercions === 1 ? 'safe' : payload;
+			},
+		};
+		const island = await generateHydrateScript(
+			{
+				renderer: {
+					clientEntrypoint: 'renderer.js',
+				} as any,
+				result: {
+					resolve: async (path: string) => path,
+				} as any,
+				astroId: 'abc123',
+				props: {},
+				attrs: { 'data-renderer': value } as any,
+			},
+			{
+				hydrate: 'load',
+				componentUrl: 'component.jsx',
+				componentExport: { value: 'default' },
+				displayName: 'Island',
+			} as any,
+		);
+		const html = renderElement('astro-island', island, false);
+
+		assert.equal(coercions, 1);
+		assert.ok(html.includes('data-renderer="safe"'));
+		assert.ok(!html.includes(payload));
+	});
 });

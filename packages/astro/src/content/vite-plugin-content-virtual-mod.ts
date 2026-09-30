@@ -28,6 +28,7 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
+import type { MutableDataStore } from './mutable-data-store.js';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from './paths.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
 
@@ -57,29 +58,41 @@ function invalidateAssetImports(viteServer: ViteDevServer, filePath: string) {
 }
 
 function invalidateDataStore(viteServer: ViteDevServer, { notifyClient = true } = {}) {
-	const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
-	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
-	if (module) {
-		const timestamp = Date.now();
-		// Pass `true` to mark this as HMR invalidation so Vite drops cached SSR results.
-		environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
-	}
-	// Also invalidate the module in the SSR module runner's evaluation cache.
-	// Server-side invalidation only clears `transformResult`, but the runner
-	// may still hold a stale evaluated result. When the runner's `fetchModule`
-	// call triggers a fresh server transform, the transform re-populates
-	// `transformResult` before the runner checks it, causing a false cache hit.
-	if (isRunnableDevEnvironment(environment)) {
-		const runnerModule = environment.runner.evaluatedModules.getModuleById(
-			RESOLVED_DATA_STORE_VIRTUAL_ID,
-		);
-		if (runnerModule) {
-			environment.runner.evaluatedModules.invalidateModule(runnerModule);
+	const timestamp = Date.now();
+	// Invalidate both the ssr and prerender environments. When an adapter
+	// enables a separate prerender environment (e.g. Cloudflare with
+	// `prerenderEnvironment: 'node'`), prerendered pages are served by that
+	// environment's own module runner and route cache. Skipping it would
+	// leave the prerender environment serving stale content after edits.
+	for (const name of [
+		ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
+		ASTRO_VITE_ENVIRONMENT_NAMES.prerender,
+	] as const) {
+		const environment = viteServer.environments[name];
+		if (!environment) continue;
+
+		const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
+		if (module) {
+			// Pass `true` to mark this as HMR invalidation so Vite drops cached SSR results.
+			environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
 		}
+		// Also invalidate the module in the runner's evaluation cache.
+		// Server-side invalidation only clears `transformResult`, but the runner
+		// may still hold a stale evaluated result. When the runner's `fetchModule`
+		// call triggers a fresh server transform, the transform re-populates
+		// `transformResult` before the runner checks it, causing a false cache hit.
+		if (isRunnableDevEnvironment(environment)) {
+			const runnerModule = environment.runner.evaluatedModules.getModuleById(
+				RESOLVED_DATA_STORE_VIRTUAL_ID,
+			);
+			if (runnerModule) {
+				environment.runner.evaluatedModules.invalidateModule(runnerModule);
+			}
+		}
+		// Signal the runner to clear its route cache so that getStaticPaths()
+		// is re-evaluated with the updated content collection data.
+		environment.hot.send('astro:content-changed', {});
 	}
-	// Signal the SSR runner to clear its route cache so that getStaticPaths()
-	// is re-evaluated with the updated content collection data.
-	environment.hot.send('astro:content-changed', {});
 	// Only notify the client to reload when data has actually changed at runtime.
 	// During initial startup (buildStart), no client has loaded content yet, so
 	// sending a full-reload would just cause a spurious page reload for the first
@@ -90,6 +103,57 @@ function invalidateDataStore(viteServer: ViteDevServer, { notifyClient = true } 
 			path: '*',
 		});
 	}
+}
+
+// Timestamps of direct (write-driven) invalidations, keyed by file path. The
+// file watcher usually observes the same write shortly afterwards; watcher
+// events inside this window are echoes of an invalidation that has already
+// happened and are skipped so clients don't get two full reloads for one change.
+const directInvalidations = new Map<string, number>();
+const DIRECT_INVALIDATION_ECHO_MS = 1000;
+
+function markDirectInvalidation(path: string) {
+	directInvalidations.set(path, Date.now());
+}
+
+function isDirectInvalidationEcho(path: string) {
+	const time = directInvalidations.get(path);
+	return time !== undefined && Date.now() - time < DIRECT_INVALIDATION_ECHO_MS;
+}
+
+/** The file whose write commits a data store update during dev. */
+function getDevDataStoreFile(settings: AstroSettings): URL {
+	if (getDataStoreChunkSize(settings) !== undefined) {
+		return new URL(DATA_STORE_MANIFEST_FILE, getDataStoreDir(settings, true));
+	}
+	return getDataStoreFile(settings, true);
+}
+
+/**
+ * Invalidates the content virtual modules directly whenever the given store
+ * writes to disk. The watcher listeners in `configureServer` cover writes from
+ * other processes, but the watcher can miss the atomic rename that commits a
+ * write on some platforms (notably Windows, see #17335), leaving dev serving
+ * stale content until a restart. Subscribing to the store's own write
+ * notifications makes invalidation of this process's writes deterministic.
+ */
+export function attachDataStoreInvalidation(
+	store: MutableDataStore,
+	server: ViteDevServer,
+	settings: AstroSettings,
+) {
+	const dataStorePath = fileURLToPath(getDevDataStoreFile(settings));
+	const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
+	store.onFileWritten((path) => {
+		if (path === dataStorePath) {
+			markDirectInvalidation(dataStorePath);
+			invalidateDataStore(server);
+			invalidateAssetImports(server, assetImportsPath);
+		} else if (path === assetImportsPath) {
+			markDirectInvalidation(assetImportsPath);
+			invalidateAssetImports(server, assetImportsPath);
+		}
+	});
 }
 
 export function astroContentVirtualModPlugin({
@@ -335,7 +399,7 @@ export function astroContentVirtualModPlugin({
 			const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
 
 			server.watcher.on('add', (addedPath) => {
-				if (addedPath === dataStorePath) {
+				if (addedPath === dataStorePath && !isDirectInvalidationEcho(dataStorePath)) {
 					invalidateDataStore(server);
 					invalidateAssetImports(server, assetImportsPath);
 				}
@@ -343,9 +407,15 @@ export function astroContentVirtualModPlugin({
 
 			server.watcher.on('change', (changedPath) => {
 				if (changedPath === dataStorePath) {
+					if (isDirectInvalidationEcho(dataStorePath)) {
+						return;
+					}
 					invalidateDataStore(server);
 					invalidateAssetImports(server, assetImportsPath);
-				} else if (changedPath === assetImportsPath) {
+				} else if (
+					changedPath === assetImportsPath &&
+					!isDirectInvalidationEcho(assetImportsPath)
+				) {
 					invalidateAssetImports(server, assetImportsPath);
 				}
 			});

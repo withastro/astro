@@ -11,9 +11,10 @@ import { writeHtmlResponse } from './response.js';
 /**
  * Outcome of the base-URL evaluation for a dev-server request.
  *
- * - **`rewrite`** — The request URL starts with the configured `base` path.
- *   Strip the base prefix so downstream handlers see a root-relative URL
- *   (e.g. `/docs/about` → `/about` when `base: '/docs'`).
+ * - **`rewrite`** — The request URL is the configured `base` path or lies
+ *   under it at a path-segment boundary. Strip the base prefix so downstream
+ *   handlers see a root-relative URL (e.g. `/docs/about` → `/about` when
+ *   `base: '/docs'`).
  * - **`not-found-subpath`** — The user navigated to `/` or `/index.html` but
  *   the project has a non-root `base`. Respond with a 404 explaining that the
  *   site lives under the base path, so the developer knows to update the URL.
@@ -52,10 +53,10 @@ export function resolveDevRoot(base: string, site?: string) {
 /**
  * Pure decision function for base-URL dev-server rewriting.
  *
- * Evaluates whether the incoming `url` starts with the project's `base` path
- * and returns the action the middleware should take. The async `fs.stat` branch
- * (checking `publicDir`) is represented as `check-public` and must be handled
- * by the caller.
+ * Evaluates whether the incoming `url` is the project's `base` path or lies
+ * under it at a path-segment boundary, and returns the action the middleware
+ * should take. The async `fs.stat` branch (checking `publicDir`) is
+ * represented as `check-public` and must be handled by the caller.
  */
 export function evaluateBaseRewrite(
 	url: string,
@@ -64,7 +65,9 @@ export function evaluateBaseRewrite(
 	devRoot: string,
 	devRootReplacement: string,
 ): BaseRewriteDecision {
-	if (pathname.startsWith(devRoot)) {
+	// Match only at path-segment boundaries so a base like `/s` doesn't
+	// swallow unrelated requests such as `/src/...` (same policy as #17701).
+	if (pathname === devRoot || pathname.startsWith(appendForwardSlash(devRoot))) {
 		let newUrl = url.replace(devRoot, devRootReplacement);
 		if (!newUrl.startsWith('/')) newUrl = prependForwardSlash(newUrl);
 		return { action: 'rewrite', newUrl };

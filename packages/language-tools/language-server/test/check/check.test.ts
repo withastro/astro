@@ -74,11 +74,19 @@ describe('AstroCheck with project references', async () => {
 	});
 
 	it('Finds files from referenced projects', async () => {
-		assert.ok(result.fileChecked > 0, 'Expected at least one file to be checked');
+		assert.strictEqual(result.fileChecked, 2);
 	});
 
 	it('Reports errors from referenced projects', async () => {
-		assert.strictEqual(result.errors, 1);
+		assert.strictEqual(result.errors, 2);
+	});
+
+	it('Includes .astro files from referenced projects', async () => {
+		const rootFileNames = checker.linter.getRootFileNames();
+		assert.ok(
+			rootFileNames.some((fileName) => fileName.endsWith('hasError.astro')),
+			'Expected the referenced project file list to include the .astro file',
+		);
 	});
 });
 

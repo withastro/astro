@@ -152,7 +152,7 @@ export async function syncInternal({
 				const chunkSize = getDataStoreChunkSize(settings);
 				if (chunkSize !== undefined) {
 					const dataStoreDir = getDataStoreDir(settings, isDev);
-					store = await MutableDataStore.fromDir(dataStoreDir, chunkSize);
+					store = await MutableDataStore.fromDir(dataStoreDir, chunkSize, logger);
 				} else {
 					const dataStoreFile = getDataStoreFile(settings, isDev);
 					store = await MutableDataStore.fromFile(dataStoreFile);

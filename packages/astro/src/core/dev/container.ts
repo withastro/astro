@@ -10,6 +10,7 @@ import {
 } from '../../integrations/hooks.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
+import { devServerAppReadySymbol } from '../constants.js';
 import { createVite } from '../create-vite.js';
 import type { AstroLogger } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
@@ -152,6 +153,10 @@ export async function createContainer({
 }
 
 async function closeContainer({ viteServer, settings, logger }: Container) {
+	// Background app setup uses the runnable environment's module runner. Let it
+	// settle before Vite disconnects that runner so shutdown cannot strand an
+	// in-flight module import.
+	await (viteServer as any)[devServerAppReadySymbol];
 	await viteServer.close();
 	await runHookServerDone({
 		config: settings.config,

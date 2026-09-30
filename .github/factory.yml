@@ -4,6 +4,8 @@ review:
   trigger:
     label: "pr: astro-review"
   skill: .agents/skills/astro-code-review
+  model: anthropic/claude-opus-5-5
+  thinkingLevel: medium
   severity: [critical, high, medium, low, optional]
   areas:
     - design
@@ -20,7 +22,9 @@ review:
 triage:
   enabled: true
   skill: .agents/skills/triage
-  model: anthropic/claude-opus-4-6
+  prWriterSkill: .agents/skills/astro-pr-writer
+  model: anthropic/claude-opus-5-5
+  thinkingLevel: medium
   verificationModel: anthropic/claude-sonnet-4-6
   autoPrOnFix: false
   installCommand:
@@ -29,3 +33,16 @@ triage:
   buildCommand: pnpm build
   previewRelease:
     workflow: factory-preview.yml
+    
+adversary:
+  trigger:
+    label: "pr: adversary"
+  blueTeam:
+    skill: .agents/skills/astro-adversary-blue
+  purpleTeam:
+    skill: .agents/skills/astro-adversary-purple
+
+personas:
+  author:
+    model: anthropic/claude-opus-5-5
+    thinkingLevel: medium

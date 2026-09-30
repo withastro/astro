@@ -1,5 +1,3 @@
-import type fsMod from 'node:fs';
-import * as eslexer from 'es-module-lexer';
 import type { APIContext } from '../types/public/context.js';
 import { deserializeActionResult, getActionQueryString } from './runtime/client.js';
 import { ACTION_API_CONTEXT_SYMBOL } from './runtime/server.js';
@@ -27,55 +25,4 @@ export function createCallAction(context: ActionAPIContext): APIContext['callAct
 		const action = baseAction.bind(context);
 		return action(input) as any;
 	};
-}
-
-let didInitLexer = false;
-
-/**
- * Check whether the Actions config file is present.
- */
-export async function isActionsFilePresent(fs: typeof fsMod, srcDir: URL) {
-	if (!didInitLexer) await eslexer.init;
-
-	const actionsFile = search(fs, srcDir);
-	if (!actionsFile) return false;
-
-	let contents: string;
-	try {
-		contents = fs.readFileSync(actionsFile.url, 'utf-8');
-	} catch {
-		return false;
-	}
-
-	// Check if `server` export is present.
-	// If not, the user may have an empty `actions` file,
-	// or may be using the `actions` file for another purpose
-	// (possible since actions are non-breaking for v4.X).
-	const [, exports] = eslexer.parse(contents, actionsFile.url.pathname);
-	for (const exp of exports) {
-		if (exp.n === 'server') {
-			return actionsFile.filename;
-		}
-	}
-	return false;
-}
-
-function search(fs: typeof fsMod, srcDir: URL) {
-	const filenames = [
-		'actions.mjs',
-		'actions.js',
-		'actions.mts',
-		'actions.ts',
-		'actions/index.mjs',
-		'actions/index.js',
-		'actions/index.mts',
-		'actions/index.ts',
-	];
-	for (const filename of filenames) {
-		const url = new URL(filename, srcDir);
-		if (fs.existsSync(url)) {
-			return { filename, url };
-		}
-	}
-	return undefined;
 }

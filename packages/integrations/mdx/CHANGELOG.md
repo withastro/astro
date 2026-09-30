@@ -1,5 +1,46 @@
 # @astrojs/mdx
 
+## 8.0.2
+
+### Patch Changes
+
+- [#18036](https://github.com/withastro/astro/pull/18036) [`f4444eb`](https://github.com/withastro/astro/commit/f4444ebcc17e37680e159d1801b79fa357f16461) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes an incompatibility where `@astrojs/mdx` v8 could be installed with `astro` versions that bundle an older `@astrojs/markdown-satteri` lacking MDX support. Also improves the error message when the processor is too old to suggest updating `astro` itself.
+- Updated dependencies [[`3fd16ee`](https://github.com/withastro/astro/commit/3fd16eeb5cd096a6ceb8cc3e70b89ed30d6fcd4d), [`8358d59`](https://github.com/withastro/astro/commit/8358d59cba754480c7d830c473837a0d7100ac7e)]:
+  - @astrojs/markdown-satteri@0.4.2
+
+## 8.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`a548223`](https://github.com/withastro/astro/commit/a548223607b9bb146d5d90ddda495343f9a2a739)]:
+  - @astrojs/markdown-satteri@0.4.1
+
+## 8.0.0
+
+### Major Changes
+
+- [#17262](https://github.com/withastro/astro/pull/17262) [`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Moves MDX file processing to the Markdown processors.
+
+  '@astrojs/mdx' is still required to add MDX support to your project. However, it now delegates the MDX files processing to Markdown processors.
+
+  #### What should I do?
+
+  If you haven't explicitly installed a Markdown processor, you don't need to do anything.
+
+  Otherwise, ensure that your configured Markdown processor uses the following version:
+  - `@astrojs/markdown-satteri` 0.4.0 or later if you use `satteri()`
+  - `@astrojs/markdown-remark` 7.3.0 or later if you use `unified()`
+
+### Patch Changes
+
+- [#17262](https://github.com/withastro/astro/pull/17262) [`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `.mdx` files still using `markdown.processor` when `extendMarkdownConfig` is `false`. They now use a clean default processor instead; pass `mdx({ processor })` to choose one explicitly.
+
+- [#17262](https://github.com/withastro/astro/pull/17262) [`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a warning when the deprecated `remarkPlugins`, `rehypePlugins`, `recmaPlugins` and `remarkRehype` options are ignored because your Markdown processor does not run them. They still apply when your processor is `unified()`, and were previously dropped silently otherwise.
+
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40), [`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+  - @astrojs/markdown-satteri@0.4.0
+
 ## 7.0.8
 
 ### Patch Changes

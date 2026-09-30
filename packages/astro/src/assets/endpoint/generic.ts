@@ -11,7 +11,7 @@ import { loadImage } from './loadImage.js';
 /**
  * Endpoint used in dev and SSR to serve optimized images by the base image services
  */
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, logger }) => {
 	try {
 		const imageService = await getConfiguredImageService();
 
@@ -20,7 +20,7 @@ export const GET: APIRoute = async ({ request }) => {
 		}
 
 		const url = new URL(request.url);
-		const transform = await imageService.parseURL(url, imageConfig);
+		const transform = await imageService.parseURL(url, imageConfig, logger);
 
 		if (!transform?.src) {
 			throw new Error('Incorrect transform returned by `parseURL`');
@@ -56,6 +56,7 @@ export const GET: APIRoute = async ({ request }) => {
 			new Uint8Array(inputBuffer),
 			transform,
 			imageConfig,
+			logger,
 		);
 
 		return new Response(data as Uint8Array<ArrayBuffer>, {
@@ -68,7 +69,7 @@ export const GET: APIRoute = async ({ request }) => {
 			},
 		});
 	} catch (err: unknown) {
-		console.error('Could not process image request:', err);
+		logger.error(`Could not process image request: ${err}`);
 		return new Response('Internal Server Error', { status: 500 });
 	}
 };

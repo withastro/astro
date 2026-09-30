@@ -11,7 +11,7 @@
     "url": "git+https://github.com/withastro/astro.git",
     "directory": "packages/astro-prism"
   },
-  "homepage": "https://docs.astro.build/en/reference/api-reference/#prism-",
+  "homepage": "https://docs.astro.build/en/guides/syntax-highlighting/#prism-",
   "main": "dist/index.js",
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",

@@ -8,6 +8,13 @@ const FIXTURE_IMAGE = new URL('./600x400.jpg', import.meta.url);
 const ORIGINAL_WIDTH = 600;
 const ORIGINAL_HEIGHT = 400;
 
+// The image service logs through the runtime logger; tests don't assert on output.
+const noopLogger = {
+	info: () => {},
+	warn: () => {},
+	error: () => {},
+};
+
 describe('sharp encoder options', async () => {
 	const { resolveSharpEncoderOptions } = await import('../../../dist/assets/services/sharp.js');
 
@@ -101,6 +108,7 @@ describe('sharp image service', async () => {
 			inputBuffer,
 			{ src: 'penguin.jpg', format: 'webp', ...opts },
 			config,
+			noopLogger,
 		);
 		return probe(data);
 	}
@@ -172,7 +180,12 @@ describe('sharp image service SVG handling', async () => {
 
 	it('rejects SVG sources that would be rasterized without dangerouslyProcessSVG', async () => {
 		await assert.rejects(
-			sharpService.transform(SVG_BUFFER, { src: 'icon.svg', format: 'webp' } as any, makeConfig()),
+			sharpService.transform(
+				SVG_BUFFER,
+				{ src: 'icon.svg', format: 'webp' } as any,
+				makeConfig(),
+				noopLogger,
+			),
 			/SVG image processing is disabled/,
 		);
 	});
@@ -182,6 +195,7 @@ describe('sharp image service SVG handling', async () => {
 			SVG_BUFFER,
 			{ src: 'icon.svg', format: 'svg' } as any,
 			makeConfig(),
+			noopLogger,
 		);
 		assert.equal(format, 'svg');
 		assert.equal(data, SVG_BUFFER);
@@ -192,6 +206,7 @@ describe('sharp image service SVG handling', async () => {
 			SVG_BUFFER,
 			{ src: 'icon.svg', format: 'png' } as any,
 			makeConfig({ dangerouslyProcessSVG: true }),
+			noopLogger,
 		);
 		assert.equal(format, 'png');
 	});
@@ -201,6 +216,7 @@ describe('sharp image service SVG handling', async () => {
 			SVG_BUFFER,
 			{ src: 'https://example.com/api/icon' } as any,
 			makeConfig(),
+			noopLogger,
 		);
 		assert.equal(format, 'svg');
 		assert.equal(data, SVG_BUFFER);
@@ -219,6 +235,7 @@ describe('sharp image service SVG handling', async () => {
 				PADDED_SVG,
 				{ src: 'https://example.com/icon', format: 'webp' } as any,
 				makeConfig(),
+				noopLogger,
 			),
 			/Could not process image metadata/,
 		);
@@ -234,6 +251,7 @@ describe('sharp image service SVG handling', async () => {
 			PADDED_SVG,
 			{ src: 'https://example.com/icon', format: 'svg' } as any,
 			makeConfig(),
+			noopLogger,
 		);
 		assert.equal(format, 'svg');
 		assert.equal(data, PADDED_SVG);

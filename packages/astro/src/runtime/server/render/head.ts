@@ -89,8 +89,15 @@ export function renderAllHeadContent(result: SSRResult) {
 	return markHTMLString(content);
 }
 
+const HEAD_INSTRUCTION = Object.freeze(
+	createRenderInstruction({ type: 'head' } as RenderHeadInstruction),
+);
+const MAYBE_HEAD_INSTRUCTION = Object.freeze(
+	createRenderInstruction({ type: 'maybe-head' } as MaybeRenderHeadInstruction),
+);
+
 export function renderHead(): RenderHeadInstruction {
-	return createRenderInstruction({ type: 'head' });
+	return HEAD_INSTRUCTION;
 }
 
 // This function is called by Astro components that do not contain a <head> component
@@ -100,5 +107,5 @@ export function renderHead(): RenderHeadInstruction {
 export function maybeRenderHead(): MaybeRenderHeadInstruction {
 	// This is an instruction informing the page rendering that head might need rendering.
 	// This allows the page to deduplicate head injections.
-	return createRenderInstruction({ type: 'maybe-head' });
+	return MAYBE_HEAD_INSTRUCTION;
 }

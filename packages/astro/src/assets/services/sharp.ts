@@ -146,7 +146,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 	getHTMLAttributes: baseService.getHTMLAttributes,
 	getSrcSet: baseService.getSrcSet,
 	getRemoteSize: baseService.getRemoteSize,
-	async transform(inputBuffer, transformOptions, config) {
+	async transform(inputBuffer, transformOptions, config, logger) {
 		if (!sharp) sharp = await loadSharp();
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
 		const kernel = config.service.config.kernel;
@@ -158,8 +158,8 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		// TODO: Sharp has some support for SVGs, we could probably support this once Sharp is the default and only service.
 		if (outputFormat === 'svg') {
 			if (bufferFormat && bufferFormat !== 'svg') {
-				console.warn(
-					`⚠️  Astro expected an SVG for "${transform.src}" but the source is ${bufferFormat}. Passing it through as ${bufferFormat} instead.`,
+				logger.warn(
+					`Astro expected an SVG for "${transform.src}" but the source is ${bufferFormat}. Passing it through as ${bufferFormat} instead.`,
 				);
 				return { data: inputBuffer, format: bufferFormat as ImageOutputFormat };
 			}
@@ -250,8 +250,8 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 			// Sharp cannot decode this image (e.g. animated AVIF sequences).
 			// Pass it through unmodified rather than crashing the build. When Sharp adds support for these
 			// formats, the image will be optimized automatically without code changes.
-			console.warn(
-				`⚠️  Astro could not optimize image "${transform.src}". Sharp doesn't support this format. The image will be used unoptimized. Consider converting to WebP or placing in the public/ folder.`,
+			logger.warn(
+				`Astro could not optimize image "${transform.src}". Sharp doesn't support this format. The image will be used unoptimized. Consider converting to WebP or placing in the public/ folder.`,
 			);
 			return { data: inputBuffer, format: bufferFormat as ImageOutputFormat };
 		}

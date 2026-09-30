@@ -16,8 +16,3 @@ type Astro = import('./dist/types/public/context.js').AstroGlobal;
 declare const Astro: Readonly<Astro>;
 
 declare const Fragment: any;
-
-declare module '*.html' {
-	const Component: (opts?: { slots?: Record<string, string> }) => string;
-	export default Component;
-}

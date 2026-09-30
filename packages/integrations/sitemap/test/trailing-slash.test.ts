@@ -44,7 +44,7 @@ describe('Trailing slash', () => {
 				const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 				const urls = data.urlset.url;
 
-				assert.equal(urls[0].loc[0], 'http://example.com');
+				assert.equal(urls[0].loc[0], 'http://example.com/');
 				assert.equal(urls[1].loc[0], 'http://example.com/one');
 				assert.equal(urls[2].loc[0], 'http://example.com/two');
 			});
@@ -64,7 +64,7 @@ describe('Trailing slash', () => {
 			const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 			const urls = data.urlset.url;
 
-			assert.equal(urls[0].loc[0], 'http://example.com');
+			assert.equal(urls[0].loc[0], 'http://example.com/');
 			assert.equal(urls[1].loc[0], 'http://example.com/one');
 			assert.equal(urls[2].loc[0], 'http://example.com/two');
 		});
@@ -81,7 +81,7 @@ describe('Trailing slash', () => {
 			it('URLs do not end with trailing slash', async () => {
 				const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 				const urls = data.urlset.url;
-				assert.equal(urls[0].loc[0], 'http://example.com/base');
+				assert.equal(urls[0].loc[0], 'http://example.com/base/');
 				assert.equal(urls[1].loc[0], 'http://example.com/base/one');
 				assert.equal(urls[2].loc[0], 'http://example.com/base/two');
 			});

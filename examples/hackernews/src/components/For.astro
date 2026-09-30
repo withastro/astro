@@ -2,7 +2,7 @@
 import Show from './Show.astro';
 
 interface Props<T> {
-	each: Iterable<T>;
+	each: T[];
 }
 
 const { each } = Astro.props;

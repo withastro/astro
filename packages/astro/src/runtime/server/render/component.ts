@@ -14,7 +14,6 @@ import { isPromise } from '../util.js';
 import { type AstroComponentFactory, isAstroComponentFactory } from './astro/factory.js';
 import { renderTemplate } from './astro/index.js';
 import { createAstroComponentInstance } from './astro/instance.js';
-import { bufferHeadContent } from './astro/render.js';
 import {
 	chunkToString,
 	Fragment,
@@ -25,6 +24,7 @@ import {
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { maybeRenderHead } from './head.js';
 import { createRenderInstruction } from './instruction.js';
+import { bufferPropagatedHead } from './head-propagation/runtime.js';
 import { containsServerDirective, ServerIslandComponent } from './server-islands.js';
 import { renderChild } from './any.js';
 import { type ComponentSlots, renderSlots, renderSlotToString } from './slot.js';
@@ -321,9 +321,11 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 				if (isPage || renderer?.name === 'astro:jsx') {
 					destination.write(html);
 				} else if (html && html.length > 0) {
-					destination.write(
-						markHTMLString(removeStaticAstroSlot(html, renderer?.ssr?.supportsAstroStaticSlot)),
-					);
+					// Only renderer output can carry `<astro-static-slot>`; Astro's own markup never does.
+					const output = renderer
+						? removeStaticAstroSlot(html, renderer.ssr?.supportsAstroStaticSlot)
+						: html;
+					destination.write(markHTMLString(output));
 				}
 			},
 		};
@@ -461,16 +463,7 @@ function renderAstroComponent(
 		return serverIslandComponent;
 	}
 
-	const instance = createAstroComponentInstance(result, displayName, Component, props, slots);
-
-	return {
-		render(destination: RenderDestination): Promise<void> | void {
-			// NOTE: This render call can't be pre-invoked outside of this function as it'll also initialize the slots
-			// recursively, which causes each Astro components in the tree to be called bottom-up, and is incorrect.
-			// The slots are initialized eagerly for head propagation.
-			return instance.render(destination);
-		},
-	};
+	return createAstroComponentInstance(result, displayName, Component, props, slots);
 }
 
 export function renderComponent(
@@ -480,6 +473,10 @@ export function renderComponent(
 	props: Record<string | number, any>,
 	slots: ComponentSlots = {},
 ): RenderInstance | Promise<RenderInstance> {
+	if (isAstroComponentFactory(Component)) {
+		return renderAstroComponent(result, displayName, Component, normalizeProps(props), slots);
+	}
+
 	if (isPromise(Component)) {
 		return Component.catch(handleCancellation).then((x) => {
 			return renderComponent(result, displayName, x, props, slots);
@@ -496,10 +493,6 @@ export function renderComponent(
 	// .html components
 	if (isHTMLComponent(Component)) {
 		return renderHTMLComponent(result, Component, props, slots).catch(handleCancellation);
-	}
-
-	if (isAstroComponentFactory(Component)) {
-		return renderAstroComponent(result, displayName, Component, props, slots);
 	}
 
 	return renderFrameworkComponent(result, displayName, Component, props, slots).catch(
@@ -567,7 +560,11 @@ export async function renderComponentToString(
 
 		const renderInstance = await renderComponent(result, displayName, Component, props, slots);
 		if (containsServerDirective(props)) {
-			await bufferHeadContent(result);
+			// This render may be one of the pending slot pre-renders (an island in a
+			// component slot in MDX), so awaiting them would wait on itself (#18156).
+			// The island's own slots are fully rendered by its `init()`, so their
+			// propagators are still collected.
+			await bufferPropagatedHead(result, { awaitPendingSlots: false });
 		}
 		await renderInstance.render(destination);
 	} catch (e) {

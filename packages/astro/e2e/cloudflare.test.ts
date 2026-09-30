@@ -132,11 +132,14 @@ function sharedTests(testRunner: AstroTest, infoLogs: LogEntry[] | null = null) 
 		// Test for https://github.com/vitejs/vite/issues/20867
 		// When using a linked package with client:only, the first page load can trigger
 		// Vite's dep optimizer mid-request, causing client scripts to fail with 504.
-		// The fix sets `ignoreOutdatedRequests: true` on the client environment.
+		// The fix sets `ignoreOutdatedRequests: true` on the client environment, which
+		// holds the request until re-optimization finishes. That wait can exceed the
+		// default assertion timeout on slow CI runners, so the first hydration check
+		// gets a generous timeout.
 		testRunner('linked package with client:only hydrates', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl('/linked-package'));
 			const button = page.locator('#counter');
-			await expect(button).toBeVisible();
+			await expect(button).toBeVisible({ timeout: 30_000 });
 			await expect(button).toContainText('Count: 0');
 			await button.click();
 			await expect(button).toContainText('Count: 1');

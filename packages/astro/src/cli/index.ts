@@ -205,7 +205,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	}
 
 	const { notify } = await import('./telemetry/index.js');
-	await notify();
+	await notify(logger);
 
 	// These commands uses the logging and user config. All commands are assumed to have been handled
 	// by the end of this switch statement.
@@ -240,10 +240,12 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'check': {
 			const { check } = await import('./check/index.js');
 			const checkServer = await check(flags);
-			if (flags.watch) {
+			if (typeof checkServer === 'boolean') {
+				return process.exit(checkServer ? 1 : 0);
+			} else if (flags.watch) {
 				return await new Promise(() => {}); // lives forever
 			} else {
-				return process.exit(typeof checkServer === 'boolean' && checkServer ? 1 : 0);
+				return process.exit(0);
 			}
 		}
 	}

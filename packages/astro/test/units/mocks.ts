@@ -1,6 +1,7 @@
 import { createBasicPipeline } from './test-utils.ts';
 import { makeRoute, staticPart } from './routing/test-helpers.ts';
 import { AstroCookies } from '../../dist/core/cookies/index.js';
+import { mockLogger } from './cookies/test-helpers.ts';
 import { App } from '../../dist/core/app/app.js';
 import { FetchState } from '../../dist/core/fetch/fetch-state.js';
 import { fetchStateSymbol } from '../../dist/core/constants.js';
@@ -20,6 +21,7 @@ import type { APIContext } from '../../dist/types/public/context.js';
 import type { SSRManifest, RouteInfo } from '../../dist/core/app/types.js';
 import type { AstroComponentFactory } from '../../dist/runtime/server/render/index.js';
 import type { ImageTransform } from '../../dist/assets/types.js';
+import type { AstroRuntimeLogger } from '../../dist/types/public/context.js';
 
 /**
  * Mock utilities for unit tests.
@@ -92,7 +94,7 @@ export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): A
 	const url =
 		overrides.url instanceof URL ? overrides.url : new URL(overrides.url ?? 'http://localhost/');
 	const request = overrides.request ?? new Request(url);
-	const cookies = overrides.cookies ?? new AstroCookies(request);
+	const cookies = overrides.cookies ?? new AstroCookies(request, mockLogger);
 
 	const rewrite =
 		overrides.rewrite ??
@@ -318,6 +320,16 @@ const unitTestImageService = {
 		if (options.position) params.set('pos', options.position);
 		return '/_image?' + params.toString();
 	},
+};
+
+/**
+ * Minimal `AstroRuntimeLogger` stub for the arguments image service hooks
+ * receive, which the unit test service never logs through.
+ */
+export const mockRuntimeLogger: AstroRuntimeLogger = {
+	info() {},
+	warn() {},
+	error() {},
 };
 
 interface ImageServiceOverrides {

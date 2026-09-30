@@ -72,7 +72,7 @@ export function applyRewriteToState(
 	}
 	state.url = createNormalizedUrl(state.request.url);
 	if (mergeCookies) {
-		const newCookies = new AstroCookies(state.request);
+		const newCookies = new AstroCookies(state.request, state.logger);
 		if (state.cookies) {
 			newCookies.merge(state.cookies);
 		}

@@ -20,7 +20,6 @@ import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import type {
 	StaticPathsResponse,
 	PrerenderRequest,
-	PrerenderEnvelope,
 	SerializedStaticImageEntry,
 	StaticImagesResponse,
 } from './prerender-types.js';
@@ -30,6 +29,8 @@ import {
 	STATIC_IMAGES_ENDPOINT,
 	IMAGE_TRANSFORM_ENDPOINT,
 } from './utils/prerender-constants.js';
+import { readFramedPrerenderResponse } from './utils/prerender-response.js';
+import { buildServerUrl } from './utils/server-url.js';
 
 /**
  * How many images to request from the prerender worker at once. Each response streams
@@ -60,7 +61,6 @@ interface CloudflarePrerendererOptions {
 	/** When true, images are optimized by the IMAGES binding in workerd during the build. */
 	hasBindingImageService: boolean;
 	userImageServiceEntrypoint?: string;
-	incremental: boolean;
 	logger: AstroIntegrationLogger;
 }
 
@@ -173,7 +173,6 @@ export function createCloudflarePrerenderer({
 	hasBuildImageService,
 	hasBindingImageService,
 	userImageServiceEntrypoint,
-	incremental,
 	logger,
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
@@ -220,7 +219,12 @@ export function createCloudflarePrerenderer({
 
 			const address = previewServer.httpServer.address();
 			if (address && typeof address === 'object') {
-				serverUrl = `http://localhost:${address.port}`;
+				// Derive the URL from the address we ACTUALLY bound — never by re-stating
+				// "localhost". That hostname would be resolved a second time, independently
+				// of the resolution `listen()` just used, and nothing makes the two agree:
+				// on some Linux hosts `listen()` binds ::1 while `fetch()` dials 127.0.0.1,
+				// and every prerender request fails with ECONNREFUSED on a random port.
+				serverUrl = buildServerUrl(address);
 			} else {
 				throw new Error(
 					'Failed to start the Cloudflare prerender server. The preview server did not return a valid address. ' +
@@ -254,12 +258,11 @@ export function createCloudflarePrerenderer({
 			}));
 		},
 
-		async render(request, { routeData }) {
-			// Serialize routeData and send to workerd
+		async render(request, { routeData, collectMetadata }) {
 			const body: PrerenderRequest = {
 				url: request.url,
 				routeData: serializeRouteData(routeData, trailingSlash),
-				incremental,
+				collectMetadata,
 			};
 
 			const response = await fetch(`${serverUrl}${PRERENDER_ENDPOINT}`, {
@@ -278,18 +281,8 @@ export function createCloudflarePrerenderer({
 				throw new Error(`Failed to prerender ${request.url}: ${prerenderError}`);
 			}
 
-			// Incremental builds receive a `PrerenderEnvelope` wrapping the response
-			// alongside the metadata collected in workerd, since a raw response
-			// cannot carry it. Reconstruct the response and return it paired with
-			// the metadata for the build to record.
-			if (incremental) {
-				const envelope: PrerenderEnvelope = await response.json();
-				const reconstructed = new Response(Buffer.from(envelope.body, 'base64'), {
-					status: envelope.status,
-					statusText: envelope.statusText,
-					headers: envelope.headers,
-				});
-				return { response: reconstructed, metadata: envelope.metadata };
+			if (collectMetadata) {
+				return readFramedPrerenderResponse(response);
 			}
 
 			return response;

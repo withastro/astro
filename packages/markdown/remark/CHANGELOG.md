@@ -1,5 +1,26 @@
 # @astrojs/markdown-remark
 
+## 7.3.1
+
+### Patch Changes
+
+- [#17896](https://github.com/withastro/astro/pull/17896) [`a548223`](https://github.com/withastro/astro/commit/a548223607b9bb146d5d90ddda495343f9a2a739) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `<script>`/`<style>` rendering in MDX so that only literal content (including content injected by remark/rehype plugins) is treated as trusted markup. A dynamic value passed as a `<script>`/`<style>` child (e.g. `<script>{value}</script>`) is now escaped like any other element's content instead of being rendered raw. Use `set:html` to explicitly opt a dynamic value back into raw rendering.
+
+## 7.3.0
+
+### Minor Changes
+
+- [#17262](https://github.com/withastro/astro/pull/17262) [`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds MDX rendering to the `unified()` and `satteri()` processors.
+
+  Both processors now compile `.mdx` files themselves. You still need to install `@astrojs/mdx` to add MDX support to your project.
+
+- [#17262](https://github.com/withastro/astro/pull/17262) [`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a `recmaPlugins` option to `unified()` for adding recma (estree/JSX) plugins to the MDX compiler.
+
+### Patch Changes
+
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+
 ## 7.2.4
 
 ### Patch Changes

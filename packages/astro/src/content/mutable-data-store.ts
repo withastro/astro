@@ -4,6 +4,7 @@ import * as devalue from 'devalue';
 import { forEach } from 'neotraverse';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import type { AstroLogger } from '../core/logger/core.js';
 import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
 import {
 	ChunkedWriter,
@@ -45,6 +46,35 @@ export class MutableDataStore extends ImmutableDataStore {
 
 	#writeInProgress = false;
 	#writeQueued = false;
+
+	#fileWrittenListeners = new Set<(path: string) => void>();
+
+	/**
+	 * Registers a listener called with the file path whenever this store writes a
+	 * file to disk (the data store itself, or the asset/module import files).
+	 * Writes that are skipped because the data on disk is already identical do
+	 * not notify. The dev server uses this to invalidate the content virtual
+	 * modules deterministically, instead of relying on the file watcher to
+	 * observe the write — on some platforms (notably Windows) the watcher can
+	 * miss the atomic rename that commits it.
+	 * Returns a function that removes the listener.
+	 */
+	onFileWritten(listener: (path: string) => void): () => void {
+		this.#fileWrittenListeners.add(listener);
+		return () => {
+			this.#fileWrittenListeners.delete(listener);
+		};
+	}
+
+	#notifyFileWritten(path: PathLike) {
+		if (this.#fileWrittenListeners.size === 0) {
+			return;
+		}
+		const normalized = path instanceof URL ? fileURLToPath(path) : path.toString();
+		for (const listener of this.#fileWrittenListeners) {
+			listener(normalized);
+		}
+	}
 
 	set(collectionName: string, key: string, value: unknown) {
 		const collection = this._collections.get(collectionName) ?? new Map();
@@ -344,6 +374,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			// Write it to a temporary file first and then move it to prevent partial reads.
 			await fs.writeFile(tempFile, data);
 			await fs.rename(tempFile, filePath);
+			this.#notifyFileWritten(filePath);
 		} finally {
 			// We're done writing. Unflag the file and check if there are any pending writes for this file.
 			this.#writing.delete(fileKey);
@@ -509,7 +540,10 @@ export default new Map([\n${lines.join(',\n')}]);
 			// Mark as clean before writing to disk so that it catches any changes that happen during the write
 			this.#dirty = false;
 			this.#writeInProgress = true;
-			await this.#writer.write(this._collections);
+			const didWrite = await this.#writer.write(this._collections);
+			if (didWrite) {
+				this.#notifyFileWritten(this.#writer.target);
+			}
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		} finally {
@@ -571,7 +605,7 @@ export default new Map([\n${lines.join(',\n')}]);
 	 * manifest exists but can't be read (corrupt cache), it warns and starts
 	 * empty so loaders rebuild it, rather than failing the sync.
 	 */
-	static async fromDir(dirPath: URL, chunkSize: number) {
+	static async fromDir(dirPath: URL, chunkSize: number, logger: Pick<AstroLogger, 'warn'>) {
 		const manifestFile = new URL(`./${DATA_STORE_MANIFEST_FILE}`, dirPath);
 		if (existsSync(manifestFile)) {
 			try {
@@ -594,9 +628,9 @@ export default new Map([\n${lines.join(',\n')}]);
 				// The manifest exists but couldn't be read/parsed, or a referenced
 				// part is missing: the chunked cache is corrupt. Warn loudly and fall
 				// through to a fresh store so loaders rebuild it.
-				console.warn(
-					`[content] Could not read the chunked data store at ${fileURLToPath(dirPath)}, rebuilding from scratch.`,
-					err,
+				logger.warn(
+					'content',
+					`Could not read the chunked data store at ${fileURLToPath(dirPath)}, rebuilding from scratch. ${err instanceof Error ? err.message : err}`,
 				);
 			}
 		}

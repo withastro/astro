@@ -20,12 +20,12 @@ export function testImageService(config: TestImageServiceConfig = {}) {
 const service: LocalImageService<TestImageServiceConfig> = {
 	...baseService,
 	propertiesToHash: [...(baseService.propertiesToHash ?? []), 'data-custom'],
-	getHTMLAttributes(options, serviceConfig) {
+	getHTMLAttributes(options, serviceConfig, logger) {
 		options['data-service'] = 'my-custom-service';
 		if (serviceConfig.service.config.foo) {
 			options['data-service-config'] = serviceConfig.service.config.foo;
 		}
-		return baseService.getHTMLAttributes!(options, serviceConfig);
+		return baseService.getHTMLAttributes!(options, serviceConfig, logger);
 	},
 	async transform(buffer, transform) {
 		return {
@@ -33,8 +33,8 @@ const service: LocalImageService<TestImageServiceConfig> = {
 			format: transform.format,
 		};
 	},
-	async getRemoteSize(url, serviceConfig) {
-		const baseSize = await baseService.getRemoteSize!(url, serviceConfig);
+	async getRemoteSize(url, serviceConfig, logger) {
+		const baseSize = await baseService.getRemoteSize!(url, serviceConfig, logger);
 
 		if (serviceConfig.service.config.transform?.path === url) {
 			const scale = serviceConfig.service.config.transform.scale;

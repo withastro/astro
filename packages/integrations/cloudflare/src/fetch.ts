@@ -5,14 +5,14 @@
  *
  * ```ts
  * import { astro, FetchState } from 'astro/fetch';
- * import { cf } from '@astrojs/cloudflare/fetch';
+ * import { cf, finalize } from '@astrojs/cloudflare/fetch';
  *
  * export default {
  *   async fetch(request: Request) {
  *     const state = new FetchState(request);
  *     const asset = await cf(state, env, ctx);
  *     if (asset) return asset;
- *     return astro(state);
+ *     return finalize(state, await astro(state));
  *   }
  * }
  * ```
@@ -21,7 +21,9 @@ import { env as globalEnv } from 'cloudflare:workers';
 import type { FetchState } from 'astro/fetch';
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
+import { cacheProviderEnabled } from 'virtual:astro-cloudflare:config';
 import { createGetEnv } from './utils/env.js';
+import { applyCloudflareResponseHeaders } from './utils/response.js';
 import {
 	injectSessionBinding,
 	matchStaticAsset,
@@ -42,6 +44,18 @@ function ensureInitialized() {
 		setGetEnv(createGetEnv(globalEnv));
 		app = createApp();
 	}
+}
+
+function hasMatchingRoute(state: FetchState): boolean {
+	// When no Astro route matches, routeData can contain the fallback 404 route.
+	// Comparing its pattern to the original pathname distinguishes that fallback
+	// from a real match so the ASSETS binding gets a chance to handle the request.
+	return state.routeData?.pattern.test(state.pathname) ?? false;
+}
+
+/** Applies cookies and Cloudflare CDN cache defaults to an Astro response. */
+export function finalize(state: FetchState, response: Response): Response {
+	return applyCloudflareResponseHeaders(response, state.cookies.consume(), cacheProviderEnabled);
 }
 
 /**
@@ -65,7 +79,7 @@ export async function cf(
 	const staticAsset = matchStaticAsset(app!.manifest, state.request.url, env);
 	if (staticAsset) return staticAsset;
 
-	if (!state.routeData) {
+	if (!hasMatchingRoute(state)) {
 		const asset = await fallbackToAssets(state.request.url, env);
 		if (asset) return asset;
 	}

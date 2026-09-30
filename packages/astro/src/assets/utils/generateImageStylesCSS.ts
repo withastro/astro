@@ -5,9 +5,16 @@ import { cssFitValues } from '../internal.js';
 // data-attribute-driven CSS rules so that no inline styles are needed (CSP-safe).
 const POSITION_KEYWORDS = ['top', 'bottom', 'left', 'right', 'center'];
 
+// CSS <position> two-value syntax requires one keyword per axis.
+// Same-axis pairs like `top bottom` or `left right` are invalid.
+const VERTICAL_ONLY = new Set(['top', 'bottom']);
+const HORIZONTAL_ONLY = new Set(['left', 'right']);
+
 /**
- * Builds every 1- and 2-keyword combination of object-position values:
+ * Builds every valid 1- and 2-keyword combination of object-position values:
  * center, top, bottom, left, right, top left, top center, top right, etc.
+ * Same-axis pairs (e.g. `top bottom`, `left right`) are excluded because
+ * the CSS `<position>` grammar forbids two keywords on the same axis.
  * Returns entries as `[dataAttrValue, cssValue]` pairs where the data-attr
  * value has spaces replaced with dashes (matching the normalisation in internal.ts).
  */
@@ -19,10 +26,12 @@ function getPositionEntries(): Array<[dataAttr: string, cssValue: string]> {
 		entries.push([kw, kw]);
 	}
 
-	// Two-keyword combinations
+	// Two-keyword combinations (cross-axis only)
 	for (const a of POSITION_KEYWORDS) {
 		for (const b of POSITION_KEYWORDS) {
 			if (a === b) continue;
+			if (VERTICAL_ONLY.has(a) && VERTICAL_ONLY.has(b)) continue;
+			if (HORIZONTAL_ONLY.has(a) && HORIZONTAL_ONLY.has(b)) continue;
 			const cssValue = `${a} ${b}`;
 			const dataAttr = `${a}-${b}`;
 			entries.push([dataAttr, cssValue]);

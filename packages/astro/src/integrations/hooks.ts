@@ -5,7 +5,7 @@ import colors from 'piccolore';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import astroIntegrationActionsRouteHandler from '../actions/integration.js';
-import { isActionsFilePresent } from '../actions/utils.js';
+import { isActionsFilePresent } from '../actions/actions-file.js';
 import { CONTENT_LAYER_TYPE } from '../content/consts.js';
 import { globalContentLayer } from '../content/instance.js';
 import { globalContentConfigObserver } from '../content/utils.js';

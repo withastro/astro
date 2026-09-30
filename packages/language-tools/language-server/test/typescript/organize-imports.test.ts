@@ -1,7 +1,8 @@
 import assert from 'node:assert';
 import path from 'node:path';
 import { before, describe, it } from 'node:test';
-import { type CodeAction, Range, TextDocumentEdit } from '@volar/language-server';
+// Imported from the node entry so the types line up with the `@volar/test-utils` handle
+import { type CodeAction, Range, TextDocumentEdit } from '@volar/language-server/node.js';
 import { getLanguageServer, type LanguageServer } from '../server.ts';
 import { fixtureDir } from '../test-utils.ts';
 
@@ -129,5 +130,51 @@ describe('TypeScript - Organize & Sort Imports', () => {
 		const returnedText = getTextEdits(organizeEdits).map((edit) => edit.newText);
 
 		assert.ok(returnedText.some((text) => text.includes('helperOne, helperTwo')));
+	});
+
+	it('organizes imports in every TypeScript region for full-document actions', async () => {
+		const document = await languageServer.openFakeDocument(
+			`---
+import { serverTwo, serverOne } from './server';
+
+serverOne();
+serverTwo();
+---
+
+<script>
+	import { clientTwo, clientOne } from './client';
+
+	clientOne();
+	clientTwo();
+</script>
+
+<script>
+	import { otherTwo, otherOne } from './other';
+
+	otherOne();
+	otherTwo();
+</script>
+`,
+			'astro',
+		);
+		const organizeActions = await languageServer.handle.sendCodeActionsRequest(
+			document.uri,
+			Range.create(0, 0, document.lineCount - 1, 0),
+			{
+				diagnostics: [],
+				only: ['source.organizeImports'],
+				triggerKind: 2,
+			},
+		);
+		const organizeEdits = await Promise.all(
+			(organizeActions as CodeAction[]).map((action) =>
+				languageServer.handle.sendCodeActionResolveRequest(action),
+			),
+		);
+		const returnedText = getTextEdits(organizeEdits).map((edit) => edit.newText);
+
+		assert.ok(returnedText.some((text) => text.includes('serverOne, serverTwo')));
+		assert.ok(returnedText.some((text) => text.includes('clientOne, clientTwo')));
+		assert.ok(returnedText.some((text) => text.includes('otherOne, otherTwo')));
 	});
 });

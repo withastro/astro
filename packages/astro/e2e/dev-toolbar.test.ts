@@ -358,6 +358,30 @@ test.describe('Dev Toolbar', () => {
 		await expect(myAppWindow).not.toBeVisible();
 	});
 
+	test('third-party app content survives a client-side navigation', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/view-transition-a'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="my-plugin"]');
+		await appButton.click();
+
+		const myAppCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="my-plugin"]');
+		const myAppWindow = myAppCanvas.locator('astro-dev-toolbar-window');
+		await expect(myAppWindow).toHaveCount(1);
+
+		await page.click('#go-to-b');
+
+		// Wait for content that only exists on the second page, so the swap has
+		// definitely finished before the canvas is inspected.
+		await expect(page.locator('#go-to-a')).toBeVisible();
+
+		// Navigating re-appends the toolbar into the swapped body, which reconnects
+		// every app canvas. The app rendered its content once in `init()` and is
+		// never initialized again, so the canvas must not discard it.
+		await expect(myAppWindow).toHaveCount(1);
+		await expect(myAppWindow).toBeVisible();
+	});
+
 	test('islands include their server and client render time', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 

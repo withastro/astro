@@ -87,6 +87,9 @@ export default {
 				// Optional peer dep: dynamically imported in config validation for the legacy
 				// remark/rehype pipeline. Knip flags it because it's referenced from source.
 				'@astrojs/markdown-remark',
+				// Not imported directly: pins a minimum version of Vite's rolldown dependency
+				// (>=1.2.10 fixes WebContainers). Remove once Vite requires it.
+				'rolldown',
 			],
 		},
 		'packages/astro-prism': {
@@ -126,9 +129,8 @@ export default {
 		'packages/integrations/mdx': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			project,
-			// Optional peer dep: type-only imports for narrowing the `satteri()` processor.
-			// Knip flags it because the peer is referenced from source; the runtime stays gated by name-check.
-			ignoreDependencies: ['@astrojs/markdown-satteri'],
+			// Optional peer dep: dynamically imported for the deprecated remark/rehype options.
+			ignoreDependencies: ['@astrojs/markdown-remark'],
 		},
 		'packages/markdown/remark': {
 			entry: [srcEntry, dtsEntry, testEntry],
@@ -137,6 +139,8 @@ export default {
 		'packages/markdown/satteri': {
 			entry: [srcEntry, dtsEntry, testEntry],
 			project,
+			// Only referenced by a `declare module 'hast'` augmentation, which knip doesn't count.
+			ignoreDependencies: ['@types/hast'],
 		},
 		'packages/upgrade': {
 			entry: ['src/index.ts!', testEntry],

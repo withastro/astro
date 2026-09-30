@@ -1,0 +1,15 @@
+{
+  "name": "@test/astro-cloudflare-vitest-actions",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "astro": "workspace:*"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "1.2.2",
+    "@vitest/runner": "4.1.11",
+    "@vitest/snapshot": "4.1.11",
+    "vitest": "4.1.11"
+  }
+}

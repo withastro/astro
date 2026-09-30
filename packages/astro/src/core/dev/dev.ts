@@ -3,11 +3,11 @@ import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { performance } from 'node:perf_hooks';
 import colors from 'piccolore';
-import { gt, major, minor, patch } from 'semver';
+import { getMajor, getMinor, getPatch, isGreater } from 'verkit';
 import type * as vite from 'vite';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from '../../content/paths.js';
 import { globalContentLayer } from '../../content/instance.js';
-import { attachContentServerListeners } from '../../content/index.js';
+import { attachContentServerListeners, attachDataStoreInvalidation } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
@@ -59,14 +59,14 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 					if (shouldCheck) {
 						const version = await fetchLatestAstroVersion(restart.container.settings.preferences);
 
-						if (gt(version, currentVersion)) {
+						if (isGreater(version, currentVersion)) {
 							// Only update the latestAstroVersion if the latest version is greater than the current version, that way we don't need to check that again
 							// whenever we check for the latest version elsewhere
 							restart.container.settings.latestAstroVersion = version;
 
-							const sameMajor = major(version) === major(currentVersion);
-							const sameMinor = minor(version) === minor(currentVersion);
-							const patchDistance = patch(version) - patch(currentVersion);
+							const sameMajor = getMajor(version) === getMajor(currentVersion);
+							const sameMinor = getMinor(version) === getMinor(currentVersion);
+							const patchDistance = getPatch(version) - getPatch(currentVersion);
 
 							if (sameMajor && sameMinor && patchDistance < MAX_PATCH_DISTANCE) {
 								// Don't bother the user with a log if they're only a few patch versions behind
@@ -94,7 +94,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		const chunkSize = getDataStoreChunkSize(restart.container.settings);
 		if (chunkSize !== undefined) {
 			const dataStoreDir = getDataStoreDir(restart.container.settings, true);
-			store = await MutableDataStore.fromDir(dataStoreDir, chunkSize);
+			store = await MutableDataStore.fromDir(dataStoreDir, chunkSize, logger);
 		} else {
 			const dataStoreFile = getDataStoreFile(restart.container.settings, true);
 			store = await MutableDataStore.fromFile(dataStoreFile);
@@ -105,6 +105,11 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	if (!store) {
 		logger.error('content', 'Failed to create data store');
+	} else {
+		// Invalidate the content virtual modules directly when the store is
+		// written, rather than relying on the file watcher to observe the write.
+		// On Windows the watcher can miss it, leaving dev serving stale content.
+		attachDataStoreInvalidation(store, restart.container.viteServer, restart.container.settings);
 	}
 	await attachContentServerListeners(restart.container);
 

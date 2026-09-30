@@ -1,4 +1,4 @@
-import fetchable from 'virtual:astro:fetchable';
+import fetchable, { isDefaultFetchHandler } from 'virtual:astro:fetchable';
 import { manifest } from 'virtual:astro:manifest';
 import { clearActions } from '../../../../actions/load.js';
 import { createNonRunnableEnvironment } from '../../../environment/dev-nonrunnable.js';
@@ -21,10 +21,15 @@ let hmrWired = false;
 export const createApp: CreateApp = ({ streaming } = {}) => {
 	// Composition order: logger → environment → facade ctor
 	// (which warms the route table) → fetch handler → HMR wiring.
-	setLogger(manifest, createConsoleLogger(manifest.logLevel));
+	setLogger(manifest, createConsoleLogger({ level: manifest.logLevel }));
 	setEnvironment(manifest, createNonRunnableEnvironment());
 	const app = new DevFacadeApp(manifest, streaming);
-	app.setFetchHandler(fetchable);
+	// Keep the facade's own DefaultFetchHandler when the virtual module is the
+	// built-in fallback: `instanceof` can't recognize the fallback in dev, where
+	// its class identity is unstable. https://github.com/withastro/astro/issues/17927
+	if (!isDefaultFetchHandler) {
+		app.setFetchHandler(fetchable);
+	}
 
 	// The HMR listeners target the MANIFEST via the functional core: one
 	// atomic route-table replacement is visible to every consumer — matcher,
@@ -38,7 +43,7 @@ export const createApp: CreateApp = ({ streaming } = {}) => {
 				const { routes: newRoutes } = await import('virtual:astro:routes');
 				updateRouteTable(
 					manifest,
-					newRoutes.map((r: RouteInfo) => r.routeData),
+					newRoutes.map((route: RouteInfo) => route.routeData),
 				);
 			} catch (e: any) {
 				// Log error but don't crash - route updates are non-critical

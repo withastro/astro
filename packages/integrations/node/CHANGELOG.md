@@ -1,5 +1,20 @@
 # @astrojs/node
 
+## 11.1.6
+
+### Patch Changes
+
+- [#17971](https://github.com/withastro/astro/pull/17971) [`0037c1a`](https://github.com/withastro/astro/commit/0037c1a958a33dbf9d07d72e69b97dce910f9452) Thanks [@matthewp](https://github.com/matthewp)! - Fixes aborted request bodies causing duplicate unhandled rejection logs in standalone mode when using `src/fetch.ts`
+
+- [#17964](https://github.com/withastro/astro/pull/17964) [`01395b8`](https://github.com/withastro/astro/commit/01395b88e37ba39550f5f48e2d8374d0fa2cac8a) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes trailing-slash redirects truncating query strings that contain a second `?` character
+
+## 11.1.5
+
+### Patch Changes
+
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+
 ## 11.1.4
 
 ### Patch Changes

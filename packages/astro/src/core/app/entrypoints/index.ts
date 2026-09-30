@@ -16,11 +16,18 @@ export {
 	serializeRouteInfo,
 } from '../manifest.js';
 export {
-	beginContentEntryCollection,
-	endContentEntryCollection,
-} from '../../build/incremental-content-collector.js';
+	getInstalledRenderScope,
+	installRenderScope,
+	type RenderCollectors,
+	type RenderCollectorScope,
+} from '../../render-scope/scope.js';
+export { recordStaticImage } from '../../render-scope/record.js';
 export {
-	beginImageCollection,
-	endImageCollection,
-	recordStaticImage,
-} from '../../build/incremental-image-collector.js';
+	collectPrerenderMetadata,
+	type CollectedPrerenderMetadata,
+} from '../../render-scope/collect.js';
+export {
+	renderForPrerender,
+	type PrerenderableApp,
+	type PrerenderRenderOptions,
+} from '../prerender.js';

@@ -176,7 +176,9 @@ export class ViewTransitionStyleSheet {
 				? `[data-astro-transition=back]`
 				: direction === 'forwards'
 					? ''
-					: `[data-astro-transition=${direction}]`;
+					: // Quote custom direction names so values that are not valid CSS identifiers
+						// (e.g. names starting with a digit or containing spaces) still match.
+						`[data-astro-transition=${cssesc(direction, { quotes: 'double', wrap: true })}]`;
 		this.addRule('modern', `${prefix}::view-transition-${image}(${name}) { ${animation} }`);
 		this.addRule(
 			'fallback',
@@ -191,12 +193,22 @@ type AnimationBuilder = {
 	[key: string]: string[] | ((k: string) => string);
 };
 
+// Keep animation values within their declaration while preserving valid CSS functions and strings.
+const CSS_VALUE_DELIMITERS = /[;{}]/g;
+
+function escapeCSSValue(value: string | number) {
+	return value.toString().replace(CSS_VALUE_DELIMITERS, (character) => {
+		return `\\${character.charCodeAt(0).toString(16).toUpperCase()} `;
+	});
+}
+
 function addAnimationProperty(builder: AnimationBuilder, prop: string, value: string | number) {
+	const escapedValue = escapeCSSValue(value);
 	let arr = builder[prop];
 	if (Array.isArray(arr)) {
-		arr.push(value.toString());
+		arr.push(escapedValue);
 	} else {
-		builder[prop] = [value.toString()];
+		builder[prop] = [escapedValue];
 	}
 }
 

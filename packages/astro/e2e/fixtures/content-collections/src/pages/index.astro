@@ -1,8 +1,17 @@
 ---
 import { getEntry, render } from 'astro:content'
+import { ClientRouter } from 'astro:transitions'
 
 const post = await getEntry('posts', 'post-1')
 const { Content } = await render(post);
 ---
 
-<Content/>
+<html>
+	<head>
+		<ClientRouter />
+	</head>
+	<body>
+		<a id="away" href="/away">Away</a>
+		<Content />
+	</body>
+</html>

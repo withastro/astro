@@ -1,5 +1,88 @@
 # @astrojs/cloudflare
 
+## 14.3.3
+
+### Patch Changes
+
+- [#18059](https://github.com/withastro/astro/pull/18059) [`30cb32e`](https://github.com/withastro/astro/commit/30cb32e82b68a09c776f5bd205b07db8e1c9285c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes image transforms without a specified quality outputting an higher quality than expected on certain formats
+
+- [#18091](https://github.com/withastro/astro/pull/18091) [`28d59a9`](https://github.com/withastro/astro/commit/28d59a92f99f6b1acbafb98e6b1e2f22bb74c71f) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `optimizeDeps.include` glob `astro/runtime/**` matching `.d.ts` files, which caused 83 unnecessary optimizer entries and empty output chunks per environment during dev
+
+- [#18032](https://github.com/withastro/astro/pull/18032) [`f7dbc6a`](https://github.com/withastro/astro/commit/f7dbc6a2b736bb26ef286c3bbcf66d19bf6b215f) Thanks [@adamchal](https://github.com/adamchal)! - Fixes image requests when using `imageService: 'compile'` with `passthroughImageService()`.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.3.2
+
+### Patch Changes
+
+- [#17958](https://github.com/withastro/astro/pull/17958) [`b95c574`](https://github.com/withastro/astro/commit/b95c574b2ef5ab5541888a860aad5bf2d3a765ea) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a build failure when the wrangler config uses the `exports` field to declare Durable Object classes
+
+- [#18022](https://github.com/withastro/astro/pull/18022) [`24946f7`](https://github.com/withastro/astro/commit/24946f745a6fc1e85b8ae271322a1a35b24a4857) Thanks [@matthewp](https://github.com/matthewp)! - Fixes cold `astro dev` crashes when using the passthrough image service
+
+- [#17842](https://github.com/withastro/astro/pull/17842) [`d68db73`](https://github.com/withastro/astro/commit/d68db7311132083dabee85e87a323542249f5228) Thanks [@adamchal](https://github.com/adamchal)! - Fixes broken images on static sites by transforming prerendered images at build time with the default Cloudflare Images binding
+
+- [#17945](https://github.com/withastro/astro/pull/17945) [`750b4db`](https://github.com/withastro/astro/commit/750b4dbe238f2a2b979503ffd780f46d19174ccb) Thanks [@matthewp](https://github.com/matthewp)! - Pre-bundles renderer server entrypoints and the default console logger during dev so they are included in the initial optimization pass, preventing a mid-request re-optimization that could crash the dev server on Cloudflare (workerd).
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.3.1
+
+### Patch Changes
+
+- [#17914](https://github.com/withastro/astro/pull/17914) [`a400504`](https://github.com/withastro/astro/commit/a40050476598ee856cd44cee6976a5d63c81db86) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a build crash when a custom worker entrypoint exports Durable Object classes alongside prerendered pages. The prerender worker no longer inherits `durable_objects`, `migrations`, or `workflows` from the entry worker config.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.3.0
+
+### Minor Changes
+
+- [#17795](https://github.com/withastro/astro/pull/17795) [`15e2deb`](https://github.com/withastro/astro/commit/15e2debc7e81d353410ff76a76c3bf75b7fb3070) Thanks [@matthewp](https://github.com/matthewp)! - Adds concurrent rendering support for `experimental.incrementalBuild`, including when using `@astrojs/cloudflare`
+
+  Incremental builds no longer disable caching when `build.concurrency` is greater than `1`. Projects that set `build.concurrency: 1` to keep the cache enabled can remove that workaround. Cloudflare builds also reduce serialization overhead for large prerendered pages.
+
+- [#17887](https://github.com/withastro/astro/pull/17887) [`35aa62e`](https://github.com/withastro/astro/commit/35aa62e60226d81cda281d0b9355abcfa29d889d) Thanks [@matthewp](https://github.com/matthewp)! - Adds a Cloudflare `finalize()` response handler for custom request handlers
+
+  Call `finalize()` to apply cookies and Cloudflare CDN cache defaults to the response from an `astro/fetch` pipeline:
+
+  ```ts
+  import { astro, FetchState } from 'astro/fetch';
+  import { cf, finalize } from '@astrojs/cloudflare/fetch';
+
+  export default {
+    async fetch(request: Request, env: Env, context: ExecutionContext) {
+      const state = new FetchState(request);
+      const asset = await cf(state, env, context);
+      if (asset) return asset;
+
+      return finalize(state, await astro(state));
+    },
+  };
+  ```
+
+  The `@astrojs/cloudflare/hono` middleware applies these response headers automatically. Cloudflare custom entrypoints also fall back to static assets when no Astro route matches and use the default server entrypoint when prerendering through workerd.
+
+### Patch Changes
+
+- [#17895](https://github.com/withastro/astro/pull/17895) [`41b88ac`](https://github.com/withastro/astro/commit/41b88ac0b14719bf46fc3c842ec9a71dd3c9a6af) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes cold `astro dev` crashes by adding `astro/app/manifest` and `@astrojs/cloudflare/cache/provider` to the `optimizeDeps.include` list
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.2.6
+
+### Patch Changes
+
+- [#17854](https://github.com/withastro/astro/pull/17854) [`07b919f`](https://github.com/withastro/astro/commit/07b919f23e3041c4cc9c4f33004a19a32a5294b3) Thanks [@ematipico](https://github.com/ematipico)! - Added `@astrojs/prism` to the list of dependencies to optimise. The dev server is now faster for sites that use Prism as code highlighter.
+
+- [#17850](https://github.com/withastro/astro/pull/17850) [`1301c37`](https://github.com/withastro/astro/commit/1301c374435897654bf52d80d91d0947b72cf1a1) Thanks [@matthewp](https://github.com/matthewp)! - Fixes React SSR failures on the first Cloudflare dev request when JSON logging is enabled
+
+- Updated dependencies [[`f8e9458`](https://github.com/withastro/astro/commit/f8e94585ab6c38e2702ee1e2e540858f72058a40)]:
+  - @astrojs/internal-helpers@0.11.0
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.2.5
 
 ### Patch Changes

@@ -5,9 +5,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isParentDirectory } from '@astrojs/internal-helpers/path';
 import type { APIRoute } from '../../types/public/common.js';
-import { handleImageRequest } from './shared.js';
+import { handleImageRequest, type LocalImageLoadResult } from './shared.js';
 
-async function loadLocalImage(src: string, url: URL) {
+async function loadLocalImage(src: string, url: URL): Promise<LocalImageLoadResult> {
 	const outDirURL = resolveOutDir();
 	// If the _image segment isn't at the start of the path, we have a base
 	const idx = url.pathname.indexOf('/_image');
@@ -15,32 +15,45 @@ async function loadLocalImage(src: string, url: URL) {
 		// Remove the base path
 		src = src.slice(idx);
 	}
-	if (!URL.canParse('.' + src, outDirURL)) {
-		return undefined;
-	}
-	const fileUrl = new URL('.' + src, outDirURL);
-	if (fileUrl.protocol !== 'file:') {
-		return undefined;
-	}
-	if (!isParentDirectory(fileURLToPath(outDirURL), fileURLToPath(fileUrl))) {
-		return undefined;
+
+	let fileUrl: URL;
+	try {
+		if (!URL.canParse('.' + src, outDirURL)) {
+			return { kind: 'invalid-path' };
+		}
+		fileUrl = new URL('.' + src, outDirURL);
+		if (
+			fileUrl.protocol !== 'file:' ||
+			!isParentDirectory(fileURLToPath(outDirURL), fileURLToPath(fileUrl))
+		) {
+			return { kind: 'invalid-path' };
+		}
+	} catch {
+		return { kind: 'invalid-path' };
 	}
 
 	try {
-		return await readFile(fileUrl);
-	} catch {
-		return undefined;
+		return { kind: 'loaded', buffer: await readFile(fileUrl) };
+	} catch (error) {
+		if (
+			error instanceof Error &&
+			'code' in error &&
+			(error.code === 'ENOENT' || error.code === 'ENOTDIR' || error.code === 'EISDIR')
+		) {
+			return { kind: 'not-found' };
+		}
+		return { kind: 'failed' };
 	}
 }
 
 /**
  * Endpoint used in dev and SSR to serve optimized images by the base image services
  */
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, logger }) => {
 	try {
-		return await handleImageRequest({ request, loadLocalImage });
+		return await handleImageRequest({ request, loadLocalImage, logger });
 	} catch (err: unknown) {
-		console.error('Could not process image request:', err);
+		logger.error(`Could not process image request: ${err}`);
 		return new Response('Internal Server Error', {
 			status: 500,
 		});

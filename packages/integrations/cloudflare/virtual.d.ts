@@ -6,6 +6,14 @@ declare module 'virtual:astro-cloudflare:config' {
 	export const compileImageConfig: import('./src/vite-plugin-config.js').CompileImageConfig | null;
 	export const isPrerender: boolean;
 	export const cacheProviderEnabled: boolean;
+	/**
+	 * Prerender-environment-only loader for the render-scope installer; the
+	 * import edge (and its `node:async_hooks` reference) exists only in the
+	 * prerender worker's module graph. `undefined` in production builds.
+	 */
+	export const loadPrerenderScope:
+		| (() => Promise<typeof import('./src/utils/prerender-scope.js')>)
+		| undefined;
 }
 
 declare namespace Cloudflare {
