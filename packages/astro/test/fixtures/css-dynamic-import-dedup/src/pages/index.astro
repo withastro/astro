@@ -1,11 +1,12 @@
 ---
+// Grid is on the page and lazily loaded on the same page, so the page already has its styles.
 import Grid from '../components/Grid.jsx';
-import Opener from '../components/Opener.jsx';
+import GridOpener from '../components/GridOpener.jsx';
 ---
 <html>
-	<head><title>Dynamic import CSS</title></head>
+	<head><title>Styles already on the page</title></head>
 	<body>
 		<Grid client:load />
-		<Opener client:load />
+		<GridOpener client:load />
 	</body>
 </html>

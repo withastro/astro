@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
-export default function Opener() {
+export default function GridOpener() {
 	const [Modal, setModal] = useState(null);
 	const open = async () => {
-		const mod = await import('./LazyModal.jsx');
+		const mod = await import('./GridModal.jsx');
 		setModal(() => mod.default);
 	};
 	return (
