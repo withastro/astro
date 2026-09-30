@@ -37,13 +37,3 @@ export interface PrerenderResponseMetadata {
 	 */
 	metadata?: PrerenderRenderMetadata;
 }
-
-export interface SerializedStaticImageEntry {
-	originalPath: string;
-	originalSrcPath: string | undefined;
-	transforms: Array<{
-		hash: string;
-		finalPath: string;
-		transform: Record<string, any>;
-	}>;
-}

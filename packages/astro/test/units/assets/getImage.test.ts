@@ -3,7 +3,7 @@ import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
 import { baseService } from '../../../dist/assets/services/service.js';
 import type { GetImageResult, UnresolvedImageTransform } from '../../../dist/assets/types.js';
 import { getImage, setConfiguredImageService } from '../../../dist/assets/internal.js';
-import { installRenderScope, uninstallRenderScope } from '../../../dist/core/render-scope/scope.js';
+import { setStaticImageConfig } from '../../../dist/assets/utils/static-image.js';
 import { installImageService, mockRuntimeLogger } from '../mocks.ts';
 
 describe('getImage', () => {
@@ -609,12 +609,12 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 		probeCalls = 0;
 		probeError = undefined;
 		setConfiguredImageService(localServiceWithProbe as any);
-		installRenderScope(undefined, { staticImages: { base: '/', assetsDir: '_astro' } });
+		setStaticImageConfig({ base: '/', assetsDir: '_astro' });
 	});
 
 	afterEach(() => {
 		setConfiguredImageService(undefined);
-		uninstallRenderScope();
+		setStaticImageConfig(undefined);
 	});
 
 	it('commits the probed format when the URL has no detectable extension', async () => {
@@ -670,7 +670,7 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 
 	it('does not peek when not running at build time (no static image config)', async () => {
 		probedFormat = 'svg';
-		uninstallRenderScope();
+		setStaticImageConfig(undefined);
 		const result = await getImage(
 			{ src: 'https://example.com/api/avatar', width: 64, height: 64, alt: 'ssr' },
 			imageConfig,

@@ -12,7 +12,6 @@ import {
 	StaticImageRegistry,
 } from '../../assets/build/generate.js';
 import { isLocalService, type LocalImageService } from '../../assets/services/service.js';
-import type { AssetsGlobalStaticImagesList } from '../../assets/types.js';
 import {
 	appendForwardSlash,
 	collapseDuplicateTrailingSlashes,
@@ -64,16 +63,9 @@ export async function generatePages(
 		return;
 	}
 
-	const { config } = options.settings;
 	// The build owns the channel; one left installed by an earlier build in this process is stale.
 	uninstallRenderScope();
-	ensureAsyncRenderScope({
-		staticImages: {
-			base: config.base,
-			assetsPrefix: config.build.assetsPrefix,
-			assetsDir: config.build.assets,
-		},
-	});
+	ensureAsyncRenderScope();
 	try {
 		await generatePagesWithRenderScope(options, internals, prerenderOutputDir, generatePagesTimer);
 	} finally {
@@ -122,7 +114,7 @@ async function generatePagesWithRenderScope(
 	const verb = ssr ? 'prerendering' : 'generating';
 	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);
 	const routeToHeaders: RouteToHeaders = new Map();
-	let imagesToGenerate: AssetsGlobalStaticImagesList = new Map();
+	const staticImageList = images.images;
 
 	// Incremental build support
 	let cache: IncrementalBuildCache | null = null;
@@ -310,119 +302,123 @@ async function generatePagesWithRenderScope(
 			images.addStaticImageList(await prerenderer.collectStaticImages());
 		}
 
-		imagesToGenerate = images.images;
-		if (imagesToGenerate.size && prerenderer.generateImages) {
-			imagesToGenerate = await prerenderer.generateImages(imagesToGenerate);
+		logger.info(
+			null,
+			colors.green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
+		);
+
+		// Default pipeline always runs
+		if (staticImageList.size) {
+			logger.info(
+				'SKIP_FORMAT',
+				`${colors.bgGreen(colors.black(` generating optimized images `))}`,
+			);
+
+			const totalCount = Array.from(staticImageList.values())
+				.map((x) => x.transforms.size)
+				.reduce((a, b) => a + b, 0);
+			const cpuCount = os.availableParallelism();
+			const assetsCreationPipeline = await prepareAssetsGenerationEnv(options, totalCount, {
+				loadImageService: () =>
+					loadImageService(prerenderer.getImageService ? prerenderer : defaultPrerenderer, options),
+				referencedImages: images.referencedImages,
+			});
+			const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
+			const errors: Error[] = [];
+
+			const assetsTimer = performance.now();
+			for (const [originalPath, transforms] of staticImageList) {
+				// Process each source image in parallel based on the queue’s concurrency
+				// (`cpuCount`). Process each transform for a source image sequentially.
+				//
+				// # Design Decision:
+				// We have 3 source images (A.png, B.png, C.png) and 3 transforms for
+				// each:
+				// ```
+				// A1.png A2.png A3.png
+				// B1.png B2.png B3.png
+				// C1.png C2.png C3.png
+				// ```
+				//
+				// ## Option 1
+				// Enqueue all transforms indiscriminantly
+				// ```
+				// |_A1.png   |_B2.png   |_C1.png
+				// |_B3.png   |_A2.png   |_C3.png
+				// |_C2.png   |_A3.png   |_B1.png
+				// ```
+				// * Advantage: Maximum parallelism, saturate CPU
+				// * Disadvantage: Spike in context switching
+				//
+				// ## Option 2
+				// Enqueue all transforms, but constrain processing order by source image
+				// ```
+				// |_A3.png   |_B1.png   |_C2.png
+				// |_A1.png   |_B3.png   |_C1.png
+				// |_A2.png   |_B2.png   |_C3.png
+				// ```
+				// * Advantage: Maximum parallelism, saturate CPU (same as Option 1) in
+				//   hope to avoid context switching
+				// * Disadvantage: Context switching still occurs and performance still
+				//   suffers
+				//
+				// ## Option 3
+				// Enqueue each source image, but perform the transforms for that source
+				// image sequentially
+				// ```
+				// \_A1.png   \_B1.png   \_C1.png
+				//  \_A2.png   \_B2.png   \_C2.png
+				//   \_A3.png   \_B3.png   \_C3.png
+				// ```
+				// * Advantage: Less context switching
+				// * Disadvantage: If you have a low number of source images with high
+				//   number of transforms then this is suboptimal.
+				//
+				// ## BEST OPTION:
+				// **Option 3**. Most projects will have a higher number of source images
+				// with a few transforms on each. Even though Option 2 should be faster
+				// and _should_ prevent context switching, this was not observed in
+				// nascent tests. Context switching was high and the overall performance
+				// was half of Option 3.
+				//
+				// If looking to optimize further, please consider the following:
+				// * Avoid `queue.add()` in an async for loop. Notice the `await
+				//   queue.onIdle();` after this loop. We do not want to create a scenario
+				//   where tasks are added to the queue after the queue.onIdle() resolves.
+				//   This can break tests and create annoying race conditions.
+				// * Exposing a concurrency property in `astro.config.mjs` to allow users
+				//   to override Node’s os.availableParallelism() default.
+				// * Create a proper performance benchmark for asset transformations of
+				//   projects in varying sizes of source images and transforms.
+				queue
+					.add(() => generateImagesForPath(originalPath, transforms, assetsCreationPipeline))
+					.catch((e) => {
+						logger.warn('build', `Unable to generate optimized image for ${originalPath}: ${e}`);
+						errors.push(
+							new Error(`Error generating image for ${originalPath}: ${e}`, { cause: e }),
+						);
+					});
+			}
+
+			await queue.onIdle();
+			if (errors.length === 1) {
+				throw errors[0];
+			} else if (errors.length > 1) {
+				throw new AggregateError(
+					errors,
+					`${errors.length} errors occurred during asset generation`,
+				);
+			}
+
+			const assetsTimeEnd = performance.now();
+			logger.info(
+				null,
+				colors.green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`),
+			);
 		}
 	} finally {
 		// Always teardown to avoid leaking adapter resources when generation fails.
 		await prerenderer.teardown?.();
-	}
-
-	logger.info(
-		null,
-		colors.green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
-	);
-
-	// Default pipeline always runs
-	if (imagesToGenerate.size) {
-		logger.info('SKIP_FORMAT', `${colors.bgGreen(colors.black(` generating optimized images `))}`);
-
-		const totalCount = Array.from(imagesToGenerate.values())
-			.map((x) => x.transforms.size)
-			.reduce((a, b) => a + b, 0);
-		const cpuCount = os.availableParallelism();
-		const getImageService = prerenderer.getImageService
-			? () => prerenderer.getImageService!()
-			: defaultPrerenderer?.getImageService;
-		const assetsCreationPipeline = await prepareAssetsGenerationEnv(options, totalCount, {
-			loadImageService: () => loadImageService(getImageService, options),
-			referencedImages: images.referencedImages,
-		});
-		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
-		const errors: Error[] = [];
-
-		const assetsTimer = performance.now();
-		for (const [originalPath, transforms] of imagesToGenerate) {
-			// Process each source image in parallel based on the queue’s concurrency
-			// (`cpuCount`). Process each transform for a source image sequentially.
-			//
-			// # Design Decision:
-			// We have 3 source images (A.png, B.png, C.png) and 3 transforms for
-			// each:
-			// ```
-			// A1.png A2.png A3.png
-			// B1.png B2.png B3.png
-			// C1.png C2.png C3.png
-			// ```
-			//
-			// ## Option 1
-			// Enqueue all transforms indiscriminantly
-			// ```
-			// |_A1.png   |_B2.png   |_C1.png
-			// |_B3.png   |_A2.png   |_C3.png
-			// |_C2.png   |_A3.png   |_B1.png
-			// ```
-			// * Advantage: Maximum parallelism, saturate CPU
-			// * Disadvantage: Spike in context switching
-			//
-			// ## Option 2
-			// Enqueue all transforms, but constrain processing order by source image
-			// ```
-			// |_A3.png   |_B1.png   |_C2.png
-			// |_A1.png   |_B3.png   |_C1.png
-			// |_A2.png   |_B2.png   |_C3.png
-			// ```
-			// * Advantage: Maximum parallelism, saturate CPU (same as Option 1) in
-			//   hope to avoid context switching
-			// * Disadvantage: Context switching still occurs and performance still
-			//   suffers
-			//
-			// ## Option 3
-			// Enqueue each source image, but perform the transforms for that source
-			// image sequentially
-			// ```
-			// \_A1.png   \_B1.png   \_C1.png
-			//  \_A2.png   \_B2.png   \_C2.png
-			//   \_A3.png   \_B3.png   \_C3.png
-			// ```
-			// * Advantage: Less context switching
-			// * Disadvantage: If you have a low number of source images with high
-			//   number of transforms then this is suboptimal.
-			//
-			// ## BEST OPTION:
-			// **Option 3**. Most projects will have a higher number of source images
-			// with a few transforms on each. Even though Option 2 should be faster
-			// and _should_ prevent context switching, this was not observed in
-			// nascent tests. Context switching was high and the overall performance
-			// was half of Option 3.
-			//
-			// If looking to optimize further, please consider the following:
-			// * Avoid `queue.add()` in an async for loop. Notice the `await
-			//   queue.onIdle();` after this loop. We do not want to create a scenario
-			//   where tasks are added to the queue after the queue.onIdle() resolves.
-			//   This can break tests and create annoying race conditions.
-			// * Exposing a concurrency property in `astro.config.mjs` to allow users
-			//   to override Node’s os.availableParallelism() default.
-			// * Create a proper performance benchmark for asset transformations of
-			//   projects in varying sizes of source images and transforms.
-			queue
-				.add(() => generateImagesForPath(originalPath, transforms, assetsCreationPipeline))
-				.catch((e) => {
-					logger.warn('build', `Unable to generate optimized image for ${originalPath}: ${e}`);
-					errors.push(new Error(`Error generating image for ${originalPath}: ${e}`, { cause: e }));
-				});
-		}
-
-		await queue.onIdle();
-		if (errors.length === 1) {
-			throw errors[0];
-		} else if (errors.length > 1) {
-			throw new AggregateError(errors, `${errors.length} errors occurred during asset generation`);
-		}
-
-		const assetsTimeEnd = performance.now();
-		logger.info(null, colors.green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
 	}
 
 	await runHookBuildGenerated({
@@ -433,12 +429,12 @@ async function generatePagesWithRenderScope(
 }
 
 async function loadImageService(
-	getImageService: AstroPrerenderer['getImageService'],
+	prerenderer: AstroPrerenderer | undefined,
 	options: StaticBuildOptions,
 ): Promise<LocalImageService> {
 	let service;
-	if (getImageService) {
-		service = await getImageService();
+	if (prerenderer?.getImageService) {
+		service = await prerenderer.getImageService();
 	} else {
 		const { config } = options.settings;
 		try {

@@ -2,7 +2,6 @@ import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { recordStaticImage } from '../core/render-scope/record.js';
-import { getStaticImageConfig } from '../core/render-scope/scope.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { AstroRuntimeLogger } from '../types/public/context.js';
 import type { AstroAdapterClientConfig } from '../types/public/integrations.js';
@@ -25,7 +24,7 @@ import { getUntrackedImage } from './utils/image-asset.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { resolveDefaultOutputFormat } from './utils/inferSourceFormat.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
-import { resolveStaticImage } from './utils/static-image.js';
+import { getStaticImageConfig, resolveStaticImage } from './utils/static-image.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
 
 export { verifyOptions } from './services/service.js';
