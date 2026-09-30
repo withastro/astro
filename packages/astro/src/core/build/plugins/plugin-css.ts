@@ -147,6 +147,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 			// Remove CSS files from client bundle that were already bundled with pages during SSR
 			if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+				// Vite lists these in dynamic import preload dependencies, so they must stay emitted
+				const dynamicImportCss = getDynamicImportPreloadedCss(bundle);
 				for (const [, item] of Object.entries(bundle)) {
 					if (item.type !== 'chunk') continue;
 
@@ -180,6 +182,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 						if (allCssInSSR && shouldDeleteCSSChunk(allModules, internals)) {
 							for (const cssId of meta.importedCss) {
+								if (dynamicImportCss.has(cssId)) continue;
 								if (bundle[cssId]) {
 									deletedCssAssets.set(cssId, bundle[cssId]);
 								}
@@ -605,6 +608,30 @@ function shouldDeleteCSSChunk(allModules: string[], internals: BuildInternals): 
 	}
 
 	return true;
+}
+
+/**
+ * Collect the CSS that Vite will preload for dynamic imports in this bundle: the
+ * `importedCss` of every dynamically imported chunk and of the chunks it statically imports.
+ */
+function getDynamicImportPreloadedCss(bundle: Rolldown.OutputBundle): Set<string> {
+	const css = new Set<string>();
+	const visited = new Set<string>();
+	const queue: string[] = [];
+	for (const item of Object.values(bundle)) {
+		if (item.type === 'chunk') queue.push(...item.dynamicImports);
+	}
+	while (queue.length > 0) {
+		const fileName = queue.pop()!;
+		if (visited.has(fileName)) continue;
+		visited.add(fileName);
+		const chunk = bundle[fileName];
+		if (chunk?.type !== 'chunk') continue;
+		const meta = chunk.viteMetadata as ViteMetadata | undefined;
+		for (const cssId of meta?.importedCss ?? []) css.add(cssId);
+		queue.push(...chunk.imports);
+	}
+	return css;
 }
 
 function* getParentClientOnlys(
