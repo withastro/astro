@@ -30,7 +30,7 @@ export async function ensurePrerenderScope(logger: BaseApp['logger']): Promise<v
 			warned = true;
 			logger.warn(
 				'build',
-				'AsyncLocalStorage is unavailable in this worker; incremental metadata will not be collected for prerendered paths. Enable the nodejs_als or nodejs_compat compatibility flag.',
+				'AsyncLocalStorage is unavailable in this worker; incremental metadata and optimized images will not be collected for prerendered pages. Enable the nodejs_als or nodejs_compat compatibility flag.',
 			);
 		}
 	}
