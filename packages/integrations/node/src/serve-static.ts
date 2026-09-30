@@ -81,10 +81,14 @@ export function createStaticHandler(
 				if (routeData && routeData.prerender) {
 					// Headers are stored keyed by base-less route paths (e.g. "/one"), so we
 					// must strip config.base from the incoming URL before matching, just as
-					// we do for filesystem access above.
-					const baselessPathname = prependForwardSlash(app.removeBase(urlPath));
-					const matchedRoute = headersMap.find((header) =>
-						header.pathname.includes(baselessPathname),
+					// we do for filesystem access above. Both sides are compared without a
+					// trailing slash: `/one` and `/one/` serve the same page, and the stored
+					// paths keep one for some routes and not for others.
+					const baselessPathname = removeTrailingSlash(
+						prependForwardSlash(app.removeBase(urlPath)),
+					);
+					const matchedRoute = headersMap.find(
+						(header) => removeTrailingSlash(header.pathname) === baselessPathname,
 					);
 					if (matchedRoute) {
 						for (const header of matchedRoute.headers) {
@@ -183,4 +187,8 @@ export function createStaticHandler(
 
 function prependForwardSlash(pth: string) {
 	return pth.startsWith('/') ? pth : '/' + pth;
+}
+
+function removeTrailingSlash(pth: string) {
+	return pth.length > 1 && pth.endsWith('/') ? pth.slice(0, -1) : pth;
 }
