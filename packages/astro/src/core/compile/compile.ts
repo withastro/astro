@@ -53,6 +53,7 @@ export async function compile({
 			transitionsAnimationURL: 'astro/components/viewtransitions.css',
 			annotateSourceFile:
 				viteConfig.command === 'serve' &&
+				viteConfig.mode !== 'test' &&
 				astroConfig.devToolbar &&
 				astroConfig.devToolbar.enabled &&
 				toolbarEnabled,
