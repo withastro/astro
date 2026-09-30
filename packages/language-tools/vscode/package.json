@@ -262,7 +262,7 @@
     "mocha": "^12.0.2",
     "ovsx": "^1.2.0",
     "tsx": "^4.23.13",
-    "vscode-languageclient": "^9.0.1",
+    "vscode-languageclient": "^10.1.2",
     "vscode-tmgrammar-test": "^0.1.3"
   },
   "dependencies": {
