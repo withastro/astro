@@ -63,7 +63,7 @@ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-const fixWinEPERMSync = (p: string, options: fs.RmDirOptions, er: any) => {
+export const fixWinEPERMSync = (p: string, options: fs.RmOptions, er: any) => {
 	try {
 		fs.chmodSync(p, 0o666);
 	} catch (er2: any) {
@@ -86,7 +86,8 @@ const fixWinEPERMSync = (p: string, options: fs.RmDirOptions, er: any) => {
 	}
 
 	if (stats.isDirectory()) {
-		fs.rmdirSync(p, options);
+		// rmdirSync stopped accepting `recursive` in Node.js 26; rmSync takes the same options.
+		fs.rmSync(p, options);
 	} else {
 		fs.unlinkSync(p);
 	}
