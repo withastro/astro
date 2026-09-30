@@ -140,14 +140,21 @@ export function createRedirectsFromAstroRoutes({
 			// route formatted with *s in place of the Astro dynamic/spread syntax.
 			const pattern = generateDynamicPattern(route);
 
-			// This route was prerendered and should be forwarded to the HTML file.
 			if (distURL) {
 				const targetRoute = route.redirectRoute ?? route;
-				let target = generateDynamicPattern(targetRoute);
-				if (config.build.format === 'directory') {
-					target = pathJoin(target, 'index.html');
+				let target: string;
+				if (route.type === 'redirect') {
+					// A redirect sends the browser to the destination page. In a target, hosts only
+					// substitute a splat written as `:splat`; a `*` there is kept literally.
+					target = generateDynamicPattern(targetRoute, ':splat');
 				} else {
-					target += '.html';
+					// This route was prerendered and should be forwarded to the HTML file.
+					target = generateDynamicPattern(targetRoute);
+					if (config.build.format === 'directory') {
+						target = pathJoin(target, 'index.html');
+					} else {
+						target += '.html';
+					}
 				}
 				redirects.add({
 					dynamic: true,
@@ -176,7 +183,7 @@ export function createRedirectsFromAstroRoutes({
  * /team/articles/*
  * With stars replacing spread and :id syntax replacing [id]
  */
-function generateDynamicPattern(route: IntegrationResolvedRoute) {
+function generateDynamicPattern(route: IntegrationResolvedRoute, spread = '*') {
 	return (
 		'/' +
 		route.segments
@@ -184,7 +191,7 @@ function generateDynamicPattern(route: IntegrationResolvedRoute) {
 				//(part.dynamic ? '*' : part.content)
 				if (part.dynamic) {
 					if (part.spread) {
-						return '*';
+						return spread;
 					} else {
 						return ':' + part.content;
 					}
