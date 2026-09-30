@@ -267,11 +267,17 @@ export interface PrerenderRenderMetadata {
 	referencedImages?: string[];
 }
 
-/** Image data recorded outside of any page render, e.g. by `getImage()` in `getStaticPaths()`. */
-export type PrerenderUnattributedMetadata = Pick<
-	PrerenderRenderMetadata,
-	'staticImages' | 'referencedImages'
->;
+/** Image data recorded while computing static paths, e.g. by `getImage()` in `getStaticPaths()`. */
+export type StaticPathsMetadata = Pick<PrerenderRenderMetadata, 'staticImages' | 'referencedImages'>;
+
+/**
+ * The richer result a prerenderer's `getStaticPaths()` may return instead of a bare
+ * array, pairing the paths with the images recorded while computing them.
+ */
+export interface StaticPathsResult {
+	paths: PathWithRoute[];
+	metadata?: StaticPathsMetadata;
+}
 
 /**
  * The richer result a prerenderer's `render()` may return instead of a bare
@@ -290,8 +296,8 @@ export interface PrerenderResult {
  *
  * A prerenderer that renders outside of Astro's build process must call `setStaticImageConfig()`
  * and `installRenderScope()` from `astro/app` in its runtime for `getImage()` to resolve build-time
- * image URLs. It then reports each page's images on a {@link PrerenderResult}, and the images
- * recorded outside of renders (`drainAmbientCollectors()`) from `collectUnattributedMetadata()`.
+ * image URLs. It then reports the images recorded while computing paths on a {@link StaticPathsResult}
+ * (see `StaticPaths.getAllWithMetadata()`), and each page's images on a {@link PrerenderResult}.
  */
 export interface AstroPrerenderer {
 	name: string;
@@ -303,7 +309,7 @@ export interface AstroPrerenderer {
 	 * Returns pathnames with their routes to prerender. The route is included to avoid
 	 * needing to re-match routes later, which can be incorrect due to route priority.
 	 */
-	getStaticPaths: () => Promise<PathWithRoute[]>;
+	getStaticPaths: () => Promise<PathWithRoute[] | StaticPathsResult>;
 	/**
 	 * Renders a single page. Called by Astro for each path returned by getStaticPaths.
 	 * @param request - The request to render. The URL reflects the build format
@@ -325,8 +331,6 @@ export interface AstroPrerenderer {
 		request: Request,
 		options: { routeData: RouteData; collectMetadata?: boolean },
 	) => Promise<Response | PrerenderResult>;
-	/** Returns the image data recorded outside of page renders. Called once, before `teardown()`. */
-	collectUnattributedMetadata?: () => Promise<PrerenderUnattributedMetadata>;
 	/** Returns the image service that generates the build's images. Called before `teardown()`, on the first cache miss. */
 	getImageService?: () => Promise<ImageService>;
 	/**
@@ -334,7 +338,7 @@ export interface AstroPrerenderer {
 	 * into the Node-side static image list. The default Sharp pipeline runs after.
 	 * Images are only recorded through the render scope (see {@link AstroPrerenderer}).
 	 *
-	 * @deprecated Use `collectUnattributedMetadata()` and `getImageService()`.
+	 * @deprecated Report images from `getStaticPaths()` and `render()`, and use `getImageService()`.
 	 */
 	collectStaticImages?: () => Promise<AssetsGlobalStaticImagesList>;
 	/**

@@ -15,8 +15,6 @@ import {
 	isPrerenderRequest,
 	handleStaticPathsRequest,
 	handlePrerenderRequest,
-	isStaticImagesRequest,
-	handleStaticImagesRequest,
 	isImageTransformRequest,
 	handleImageTransformRequest,
 	installPrerenderErrorPropagation,
@@ -74,9 +72,6 @@ export async function handle(
 		}
 		if (isPrerenderRequest(request)) {
 			return handlePrerenderRequest(app, request) as unknown as CfResponse;
-		}
-		if (isStaticImagesRequest(request)) {
-			return handleStaticImagesRequest() as unknown as CfResponse;
 		}
 		if (isImageTransformRequest(request)) {
 			const imagesBindingName = globalThis.__ASTRO_IMAGES_BINDING_NAME;

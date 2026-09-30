@@ -136,7 +136,13 @@ async function generatePagesWithRenderScope(
 
 	try {
 		// Get all static paths with their routes from the prerenderer
-		const pathsWithRoutes = await prerenderer.getStaticPaths();
+		const staticPathsResult = await prerenderer.getStaticPaths();
+		const pathsWithRoutes = Array.isArray(staticPathsResult)
+			? staticPathsResult
+			: staticPathsResult.paths;
+		if (!Array.isArray(staticPathsResult) && staticPathsResult.metadata) {
+			images.addMetadata(staticPathsResult.metadata);
+		}
 
 		// Check if i18n domains are configured (incompatible with prerendering)
 		const hasI18nDomains =
@@ -295,9 +301,6 @@ async function generatePagesWithRenderScope(
 
 		// Must happen before teardown since collectStaticImages fetches from the prerender server
 		images.addMetadata(drainAmbientCollectors());
-		if (prerenderer.collectUnattributedMetadata) {
-			images.addMetadata(await prerenderer.collectUnattributedMetadata());
-		}
 		if (prerenderer.collectStaticImages) {
 			images.addStaticImageList(await prerenderer.collectStaticImages());
 		}

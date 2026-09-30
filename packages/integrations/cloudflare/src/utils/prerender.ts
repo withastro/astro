@@ -15,14 +15,13 @@
  */
 
 import type { BaseApp, RenderErrorOptions } from 'astro/app';
-import { drainAmbientCollectors, renderForPrerender, setStaticImageConfig } from 'astro/app';
+import { renderForPrerender, setStaticImageConfig } from 'astro/app';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import { StaticPaths } from 'astro:static-paths';
 import type { StaticPathsResponse, PrerenderRequest } from '../prerender-types.js';
 import {
 	STATIC_PATHS_ENDPOINT,
 	PRERENDER_ENDPOINT,
-	STATIC_IMAGES_ENDPOINT,
 	IMAGE_TRANSFORM_ENDPOINT,
 } from './prerender-constants.js';
 import { transformStream as transformStreamWithImagesBinding } from './image-binding-transform.js';
@@ -81,13 +80,14 @@ export function isPrerenderRequest(request: Request): boolean {
  */
 export async function handleStaticPathsRequest(app: BaseApp): Promise<Response> {
 	const staticPaths = new StaticPaths(app);
-	const paths = await staticPaths.getAll();
+	const { paths, metadata } = await staticPaths.getAllWithMetadata();
 	const response: StaticPathsResponse = {
 		paths: paths.map(({ pathname, route, cacheKey }) => ({
 			pathname,
 			route: serializeRouteData(route, app.manifest.trailingSlash),
 			cacheKey,
 		})),
+		metadata,
 	};
 	return new Response(JSON.stringify(response), {
 		headers: { 'Content-Type': 'application/json' },
@@ -141,21 +141,9 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 	}
 }
 
-export function isStaticImagesRequest(request: Request): boolean {
-	const { pathname } = new URL(request.url);
-	return pathname === STATIC_IMAGES_ENDPOINT && request.method === 'POST';
-}
-
 export function isImageTransformRequest(request: Request): boolean {
 	const { pathname } = new URL(request.url);
 	return pathname === IMAGE_TRANSFORM_ENDPOINT && request.method === 'POST';
-}
-
-/** Serializes the images recorded in workerd outside of page renders back to the Node-side build. */
-export function handleStaticImagesRequest(): Response {
-	return new Response(JSON.stringify(drainAmbientCollectors()), {
-		headers: { 'Content-Type': 'application/json' },
-	});
 }
 
 interface ImageTransformOptions {

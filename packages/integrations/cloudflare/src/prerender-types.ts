@@ -1,4 +1,4 @@
-import type { PrerenderRenderMetadata } from 'astro';
+import type { PrerenderRenderMetadata, StaticPathsMetadata } from 'astro';
 import type { SerializedRouteData } from 'astro/app/manifest';
 
 /**
@@ -15,6 +15,7 @@ interface SerializedPathWithRoute {
  */
 export interface StaticPathsResponse {
 	paths: SerializedPathWithRoute[];
+	metadata?: StaticPathsMetadata;
 }
 
 /**

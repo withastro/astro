@@ -68,12 +68,11 @@ describe('astro:assets - delete images that are unused', () => {
 						setPrerenderer((defaultPrerenderer) => ({
 							name: 'wrapping-prerenderer',
 							setup: () => defaultPrerenderer.setup!(),
-							getStaticPaths: () => defaultPrerenderer.getStaticPaths(),
-							render: (request, options) => defaultPrerenderer.render(request, options),
-							async collectUnattributedMetadata() {
-								hookCalls.push('collectUnattributedMetadata');
-								return { staticImages: [], referencedImages: [] };
+							async getStaticPaths() {
+								const result = await defaultPrerenderer.getStaticPaths();
+								return { paths: Array.isArray(result) ? result : result.paths };
 							},
+							render: (request, options) => defaultPrerenderer.render(request, options),
 							async collectStaticImages() {
 								hookCalls.push('collectStaticImages');
 								return new Map();
@@ -100,16 +99,16 @@ describe('astro:assets - delete images that are unused', () => {
 		});
 
 		it('calls the image hooks in order', () => {
-			assert.deepEqual(hookCalls, [
-				'collectUnattributedMetadata',
-				'collectStaticImages',
-				'teardown',
-			]);
+			assert.deepEqual(hookCalls, ['collectStaticImages', 'teardown']);
 		});
 
 		it("generates images with the default prerenderer's image service", async () => {
 			assert.equal((await fixture.glob('_astro/onlyone.*.webp')).length, 1);
 			assert.equal((await fixture.glob('_astro/onlyone.*.*')).length, 1);
+		});
+
+		it('generates images from getImage() in getStaticPaths()', async () => {
+			assert.equal((await fixture.glob('_astro/staticPaths.*.*')).length, 1);
 		});
 	});
 

@@ -4,6 +4,9 @@ import { setEnvironment } from '../../../dist/core/environment/index.js';
 import { productionEnvironment } from '../../../dist/core/environment/production.js';
 import { StaticPaths } from '../../../dist/runtime/prerender/static-paths.js';
 import type { StaticPathsApp } from '../../../dist/runtime/prerender/static-paths.js';
+import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
+import { recordReferencedImage } from '../../../dist/core/render-scope/record.js';
+import { uninstallRenderScope } from '../../../dist/core/render-scope/scope.js';
 
 interface MockRouteData {
 	route: string;
@@ -256,6 +259,39 @@ describe('StaticPaths', () => {
 			const paths = await staticPaths.getAll();
 
 			assert.equal(paths.length, staticCount + dynamicCount);
+		});
+	});
+
+	describe('getAllWithMetadata()', () => {
+		it('returns the images recorded while computing the paths', async () => {
+			uninstallRenderScope();
+			ensureAsyncRenderScope();
+			try {
+				recordReferencedImage('/stale.png');
+				const mockGetStaticPaths = () => {
+					recordReferencedImage('/hero.png');
+					return [{ params: { slug: 'post-1' } }];
+				};
+				const routes = [
+					createMockRoute({ pathname: undefined, route: '/blog/[slug]', mockGetStaticPaths }),
+				];
+				const staticPaths = new StaticPaths(createMockApp({ routes }));
+
+				const first = await staticPaths.getAllWithMetadata();
+				assert.deepEqual(
+					first.paths.map((p) => p.pathname),
+					['/blog/post-1'],
+				);
+				assert.deepEqual(first.metadata, {
+					staticImages: [],
+					referencedImages: ['/stale.png', '/hero.png'],
+				});
+
+				const second = await new StaticPaths(createMockApp({ routes: [] })).getAllWithMetadata();
+				assert.deepEqual(second.metadata, { staticImages: [], referencedImages: [] });
+			} finally {
+				uninstallRenderScope();
+			}
 		});
 	});
 });
