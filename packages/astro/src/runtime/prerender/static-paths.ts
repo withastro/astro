@@ -1,12 +1,13 @@
 import type { ComponentInstance } from '../../types/astro.js';
 import type { SSRManifest } from '../../core/app/types.js';
-import type { PathWithRoute } from '../../types/public/integrations.js';
+import type { PathWithRoute, StaticPathsResult } from '../../types/public/integrations.js';
 import type { RouteData } from '../../types/public/internal.js';
 import type { RouteCache } from '../../core/render/route-cache.js';
 import { getEnvironment } from '../../core/environment/index.js';
 import { stringifyParams } from '../../core/routing/params.js';
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../../core/routing/helpers.js';
 import { callGetStaticPaths, getRouteCache } from '../../core/render/route-cache.js';
+import { drainAmbientCollectors } from '../../core/render-scope/scope.js';
 
 export type { PathWithRoute } from '../../types/public/integrations.js';
 
@@ -86,6 +87,12 @@ export class StaticPaths {
 		}
 
 		return allPaths;
+	}
+
+	/** Like `getAll()`, but also returns the images recorded while computing the paths. */
+	async getAllWithMetadata(): Promise<StaticPathsResult> {
+		const paths = await this.getAll();
+		return { paths, metadata: drainAmbientCollectors() };
 	}
 
 	/**

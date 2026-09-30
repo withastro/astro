@@ -16,7 +16,6 @@ export {
 	serializeRouteInfo,
 } from '../manifest.js';
 export {
-	drainAmbientCollectors,
 	getInstalledRenderScope,
 	installRenderScope,
 	type RenderCollectors,

@@ -4,8 +4,7 @@ import type {
 	AstroPrerenderer,
 	ImageService,
 	LocalImageService,
-	PathWithRoute,
-	PrerenderUnattributedMetadata,
+	StaticPathsResult,
 } from 'astro';
 import { preview, createLogger, type PreviewServer as VitePreviewServer } from 'vite';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +15,6 @@ import type { StaticPathsResponse, PrerenderRequest } from './prerender-types.js
 import {
 	STATIC_PATHS_ENDPOINT,
 	PRERENDER_ENDPOINT,
-	STATIC_IMAGES_ENDPOINT,
 	IMAGE_TRANSFORM_ENDPOINT,
 } from './utils/prerender-constants.js';
 import { readFramedPrerenderResponse } from './utils/prerender-response.js';
@@ -172,7 +170,7 @@ export function createCloudflarePrerenderer({
 			}
 		},
 
-		async getStaticPaths(): Promise<PathWithRoute[]> {
+		async getStaticPaths(): Promise<StaticPathsResult> {
 			// Call the workerd endpoint to get static paths
 			const response = await fetch(`${serverUrl}${STATIC_PATHS_ENDPOINT}`, {
 				method: 'POST',
@@ -190,11 +188,12 @@ export function createCloudflarePrerenderer({
 			const data: StaticPathsResponse = await response.json();
 
 			// Deserialize the routes
-			return data.paths.map(({ pathname, route, cacheKey }) => ({
+			const paths = data.paths.map(({ pathname, route, cacheKey }) => ({
 				pathname,
 				route: deserializeRouteData(route),
 				cacheKey,
 			}));
+			return { paths, metadata: data.metadata };
 		},
 
 		async render(request, { routeData }) {
@@ -221,26 +220,6 @@ export function createCloudflarePrerenderer({
 
 			return readFramedPrerenderResponse(response);
 		},
-
-		collectUnattributedMetadata:
-			hasBuildImageService || hasBindingImageService
-				? async (): Promise<PrerenderUnattributedMetadata> => {
-						const response = await fetch(`${serverUrl}${STATIC_IMAGES_ENDPOINT}`, {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-						});
-
-						if (!response.ok) {
-							const body = await response.text();
-							const details = body ? `\n${body}` : '';
-							throw new Error(
-								`Failed to get static images from the Cloudflare prerender server (${response.status}: ${response.statusText}).${details}`,
-							);
-						}
-
-						return response.json();
-					}
-				: undefined,
 
 		getImageService:
 			hasBuildImageService || hasBindingImageService

@@ -1,5 +1,5 @@
 import type { SerializedStaticImage } from '../../assets/types.js';
-import type { PrerenderUnattributedMetadata } from '../../types/public/integrations.js';
+import type { StaticPathsMetadata } from '../../types/public/integrations.js';
 
 /**
  * The per-render store. One instance is created per collecting render and is
@@ -110,7 +110,7 @@ export function getRecordTarget(): RenderCollectors | undefined {
 	return channel.scope?.getStore() ?? channel.ambient;
 }
 
-export function drainAmbientCollectors(): PrerenderUnattributedMetadata {
+export function drainAmbientCollectors(): StaticPathsMetadata {
 	const ambient = getChannel()?.ambient;
 	if (!ambient) return { staticImages: [], referencedImages: [] };
 	const drained = {
