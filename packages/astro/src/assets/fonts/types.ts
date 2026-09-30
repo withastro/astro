@@ -23,6 +23,11 @@ export interface FontProviderInitContext {
 	 * The project root, useful for resolving local files paths.
 	 */
 	root: URL;
+	/**
+	 * Requests a provider API, retrying transient failures. Requests are routed through a
+	 * proxy if one is configured, so providers should always request the upstream URL.
+	 */
+	fetch: (url: string, init?: RequestInit) => Promise<Response>;
 }
 
 type Awaitable<T> = T | Promise<T>;
