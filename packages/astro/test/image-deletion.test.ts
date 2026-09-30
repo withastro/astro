@@ -78,10 +78,6 @@ describe('astro:assets - delete images that are unused', () => {
 								hookCalls.push('collectStaticImages');
 								return new Map();
 							},
-							async generateImages(images) {
-								hookCalls.push('generateImages');
-								return images;
-							},
 							async teardown() {
 								hookCalls.push('teardown');
 							},
@@ -107,7 +103,6 @@ describe('astro:assets - delete images that are unused', () => {
 			assert.deepEqual(hookCalls, [
 				'collectUnattributedMetadata',
 				'collectStaticImages',
-				'generateImages',
 				'teardown',
 			]);
 		});

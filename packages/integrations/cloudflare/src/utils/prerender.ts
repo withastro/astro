@@ -15,7 +15,7 @@
  */
 
 import type { BaseApp, RenderErrorOptions } from 'astro/app';
-import { drainAmbientCollectors, renderForPrerender } from 'astro/app';
+import { drainAmbientCollectors, renderForPrerender, setStaticImageConfig } from 'astro/app';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import { StaticPaths } from 'astro:static-paths';
 import type { StaticPathsResponse, PrerenderRequest } from '../prerender-types.js';
@@ -25,10 +25,7 @@ import {
 	STATIC_IMAGES_ENDPOINT,
 	IMAGE_TRANSFORM_ENDPOINT,
 } from './prerender-constants.js';
-import {
-	transform as transformWithImagesBinding,
-	transformStream as transformStreamWithImagesBinding,
-} from './image-binding-transform.js';
+import { transformStream as transformStreamWithImagesBinding } from './image-binding-transform.js';
 import { createFramedPrerenderResponse } from './prerender-response.js';
 
 /**
@@ -40,6 +37,14 @@ import { createFramedPrerenderResponse } from './prerender-response.js';
  * surface it to the build process, while intentional non-2xx responses
  * (e.g. a custom 404 page) still render through the default error handler.
  */
+export function installStaticImageConfig(app: BaseApp): void {
+	setStaticImageConfig({
+		base: app.manifest.base,
+		assetsPrefix: app.manifest.assetsPrefix,
+		assetsDir: app.manifest.assetsDir,
+	});
+}
+
 export function installPrerenderErrorPropagation(app: BaseApp): void {
 	const originalRenderError = app.renderError.bind(app);
 	app.renderError = async (request: Request, options: RenderErrorOptions): Promise<Response> => {
@@ -156,8 +161,6 @@ export function handleStaticImagesRequest(): Response {
 interface ImageTransformOptions {
 	/** The Cloudflare IMAGES binding for image transformation. */
 	images?: ImagesBinding;
-	/** The Cloudflare ASSETS fetcher for loading local images. */
-	assets?: Fetcher;
 }
 
 /**
@@ -169,14 +172,11 @@ interface ImageTransformOptions {
  * a single variant rather than to the whole image set, since neither the request body
  * nor the response body is ever buffered in the isolate.
  *
- * Local originals are uploaded as the request body: at this point in the build they live
- * in Astro's intermediate output, not in the client directory the ASSETS binding serves,
- * so the worker cannot fetch them itself. Remote images have no body and are resolved
- * here, exactly as the runtime `image-transform-endpoint` does.
+ * The original is uploaded as the request body, since the build has already loaded it.
  */
 export async function handleImageTransformRequest(
 	request: Request,
-	{ images, assets }: ImageTransformOptions,
+	{ images }: ImageTransformOptions,
 ): Promise<Response> {
 	if (!images) {
 		return new Response('The Cloudflare IMAGES binding is not available in the prerender worker.', {
@@ -184,18 +184,8 @@ export async function handleImageTransformRequest(
 		});
 	}
 
-	if (request.body) {
-		return transformStreamWithImagesBinding(
-			request.body,
-			new URL(request.url).searchParams,
-			images,
-		);
+	if (!request.body) {
+		return new Response('The image transform request has no body.', { status: 400 });
 	}
-
-	if (!assets) {
-		return new Response('The Cloudflare ASSETS binding is not available in the prerender worker.', {
-			status: 503,
-		});
-	}
-	return transformWithImagesBinding(request.url, images, assets);
+	return transformStreamWithImagesBinding(request.body, new URL(request.url).searchParams, images);
 }

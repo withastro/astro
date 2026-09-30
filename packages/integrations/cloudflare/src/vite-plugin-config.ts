@@ -1,5 +1,4 @@
 import { fileURLToPath } from 'node:url';
-import type { StaticImageConfig } from 'astro/app';
 import type { PluginOption } from 'vite';
 
 const VIRTUAL_CONFIG_ID = 'virtual:astro-cloudflare:config';
@@ -13,7 +12,6 @@ const RESOLVED_VIRTUAL_CONFIG_ID = '\0' + VIRTUAL_CONFIG_ID;
 const PRERENDER_SCOPE_PATH = fileURLToPath(new URL('./utils/prerender-scope.js', import.meta.url));
 
 export interface CompileImageConfig {
-	staticImages: StaticImageConfig;
 	transformWithBinding: boolean;
 }
 

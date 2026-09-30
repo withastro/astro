@@ -20,6 +20,7 @@ import {
 	isImageTransformRequest,
 	handleImageTransformRequest,
 	installPrerenderErrorPropagation,
+	installStaticImageConfig,
 } from './prerender.js';
 import {
 	type Runtime,
@@ -47,6 +48,7 @@ const app = createApp();
 
 if (isPrerender) {
 	installPrerenderErrorPropagation(app);
+	if (compileImageConfig) installStaticImageConfig(app);
 }
 
 export async function handle(
@@ -64,10 +66,7 @@ export async function handle(
 			// prerender environment, keeping the module — and its `node:async_hooks`
 			// reference — out of production worker output entirely; the install
 			// itself is first-wins, making the per-request call idempotent.
-			await (await loadPrerenderScope?.())?.ensurePrerenderScope(
-				app.logger,
-				compileImageConfig?.staticImages,
-			);
+			await (await loadPrerenderScope?.())?.ensurePrerenderScope(app.logger);
 		}
 
 		if (isStaticPathsRequest(request)) {
@@ -86,7 +85,6 @@ export async function handle(
 					compileImageConfig?.transformWithBinding && imagesBindingName
 						? (env as Record<string, any>)[imagesBindingName]
 						: undefined,
-				assets: compileImageConfig?.transformWithBinding ? env.ASSETS : undefined,
 			}) as unknown as CfResponse;
 		}
 	}

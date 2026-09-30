@@ -1,5 +1,4 @@
 import type { SerializedStaticImage } from '../../assets/types.js';
-import type { AssetsPrefix } from '../app/types.js';
 import type { PrerenderUnattributedMetadata } from '../../types/public/integrations.js';
 
 /**
@@ -30,16 +29,6 @@ export interface RenderCollectorScope {
 	getStore(): RenderCollectors | undefined;
 }
 
-export interface StaticImageConfig {
-	base: string;
-	assetsPrefix?: AssetsPrefix;
-	assetsDir: string;
-}
-
-export interface RenderScopeOptions {
-	staticImages?: StaticImageConfig;
-}
-
 export interface AmbientCollectors {
 	staticImages: SerializedStaticImage[];
 	referencedImages: Set<string>;
@@ -47,7 +36,6 @@ export interface AmbientCollectors {
 
 interface RenderChannel {
 	scope: RenderCollectorScope | undefined;
-	staticImages: StaticImageConfig | undefined;
 	/** Receives records made outside of any render, e.g. by `getImage()` in `getStaticPaths()`. */
 	ambient: AmbientCollectors;
 }
@@ -75,17 +63,16 @@ function getChannel(): RenderChannel | undefined {
  * scope. First-wins: when a scope is already installed (possibly by another
  * module instance), the existing scope is returned and the argument discarded,
  * so callers that both awaited an import converge on one scope.
+ * Without a scope (no AsyncLocalStorage), every record is unattributed.
  */
 export function installRenderScope(
 	scope: RenderCollectorScope | undefined,
-	options: RenderScopeOptions = {},
 ): RenderCollectorScope | undefined {
 	const host = globalThis as ScopeGlobal;
 	const existing = host[SCOPE_KEY];
 	if (existing) return existing.scope;
 	const channel: RenderChannel = Object.freeze({
 		scope,
-		staticImages: options.staticImages ? { ...options.staticImages } : undefined,
 		ambient: { staticImages: [], referencedImages: new Set<string>() },
 	});
 	Object.defineProperty(host, SCOPE_KEY, {
@@ -104,10 +91,6 @@ export function hasRenderChannel(): boolean {
 /** The installed render scope, or `undefined` when none was installed. */
 export function getInstalledRenderScope(): RenderCollectorScope | undefined {
 	return getChannel()?.scope;
-}
-
-export function getStaticImageConfig(): StaticImageConfig | undefined {
-	return getChannel()?.staticImages;
 }
 
 /** Remove the installed scope so the channel can be reset. */

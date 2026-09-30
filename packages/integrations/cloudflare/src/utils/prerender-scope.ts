@@ -1,4 +1,4 @@
-import { installRenderScope, type BaseApp, type StaticImageConfig } from 'astro/app';
+import { installRenderScope, type BaseApp } from 'astro/app';
 
 /**
  * Installs the AsyncLocalStorage-backed render scope for the workerd prerender
@@ -20,15 +20,12 @@ import { installRenderScope, type BaseApp, type StaticImageConfig } from 'astro/
 
 let warned = false;
 
-export async function ensurePrerenderScope(
-	logger: BaseApp['logger'],
-	staticImages: StaticImageConfig | undefined,
-): Promise<void> {
+export async function ensurePrerenderScope(logger: BaseApp['logger']): Promise<void> {
 	try {
 		const { AsyncLocalStorage } = await import('node:async_hooks');
-		installRenderScope(new AsyncLocalStorage(), { staticImages });
+		installRenderScope(new AsyncLocalStorage());
 	} catch {
-		installRenderScope(undefined, { staticImages });
+		installRenderScope(undefined);
 		if (!warned) {
 			warned = true;
 			logger.warn(

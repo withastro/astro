@@ -21,9 +21,11 @@ export {
 	installRenderScope,
 	type RenderCollectors,
 	type RenderCollectorScope,
-	type RenderScopeOptions,
-	type StaticImageConfig,
 } from '../../render-scope/scope.js';
+export {
+	setStaticImageConfig,
+	type StaticImageConfig,
+} from '../../../assets/utils/static-image.js';
 export {
 	collectPrerenderMetadata,
 	type CollectedPrerenderMetadata,

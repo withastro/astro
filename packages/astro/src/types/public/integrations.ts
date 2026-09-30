@@ -288,10 +288,10 @@ export interface PrerenderResult {
  * Custom prerenderer that adapters can provide to control how pages are prerendered.
  * Allows non-Node runtimes (e.g., workerd) to handle prerendering.
  *
- * A prerenderer that renders outside of Astro's build process must call `installRenderScope()`
- * from `astro/app` in its runtime, passing the `staticImages` config, for `getImage()` to resolve
- * build-time image URLs. It then reports each page's images on a {@link PrerenderResult}, and the
- * images recorded outside of renders (`drainAmbientCollectors()`) from `collectUnattributedMetadata()`.
+ * A prerenderer that renders outside of Astro's build process must call `setStaticImageConfig()`
+ * and `installRenderScope()` from `astro/app` in its runtime for `getImage()` to resolve build-time
+ * image URLs. It then reports each page's images on a {@link PrerenderResult}, and the images
+ * recorded outside of renders (`drainAmbientCollectors()`) from `collectUnattributedMetadata()`.
  */
 export interface AstroPrerenderer {
 	name: string;
@@ -327,20 +327,18 @@ export interface AstroPrerenderer {
 	) => Promise<Response | PrerenderResult>;
 	/** Returns the image data recorded outside of page renders. Called once, before `teardown()`. */
 	collectUnattributedMetadata?: () => Promise<PrerenderUnattributedMetadata>;
-	/** Generates images in the prerenderer's runtime, returning those Astro should still generate. */
-	generateImages?: (images: AssetsGlobalStaticImagesList) => Promise<AssetsGlobalStaticImagesList>;
-	/** Returns the image service for the remaining images. Called after `teardown()`, on the first cache miss. */
+	/** Returns the image service that generates the build's images. Called before `teardown()`, on the first cache miss. */
 	getImageService?: () => Promise<ImageService>;
 	/**
 	 * Returns images collected in the adapter's runtime (e.g. workerd) to be merged
 	 * into the Node-side static image list. The default Sharp pipeline runs after.
 	 * Images are only recorded through the render scope (see {@link AstroPrerenderer}).
 	 *
-	 * @deprecated Use `collectUnattributedMetadata()`, `generateImages()` and `getImageService()`.
+	 * @deprecated Use `collectUnattributedMetadata()` and `getImageService()`.
 	 */
 	collectStaticImages?: () => Promise<AssetsGlobalStaticImagesList>;
 	/**
-	 * Called after all pages are prerendered. Use for cleanup like stopping a preview server.
+	 * Called after all pages are prerendered and images are generated. Use for cleanup like stopping a preview server.
 	 */
 	teardown?: () => Promise<void>;
 }

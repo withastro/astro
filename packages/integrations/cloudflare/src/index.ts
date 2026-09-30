@@ -467,14 +467,7 @@ export default function createIntegration({
 								sessionKVBindingName,
 								compileImageConfig:
 									(hasBuildImageService || isBindingBuild) && command !== 'dev'
-										? {
-												staticImages: {
-													base: config.base,
-													assetsPrefix: config.build.assetsPrefix,
-													assetsDir: config.build.assets ?? '_astro',
-												},
-												transformWithBinding: isBindingBuild,
-											}
+										? { transformWithBinding: isBindingBuild }
 										: null,
 								cacheProviderEnabled: needsWorkerCache,
 							}),

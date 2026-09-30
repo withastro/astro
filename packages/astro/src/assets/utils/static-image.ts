@@ -4,12 +4,29 @@ import {
 	prependForwardSlash,
 	removeBase,
 } from '@astrojs/internal-helpers/path';
-import type { StaticImageConfig } from '../../core/render-scope/scope.js';
+import type { AssetsPrefix } from '../../core/app/types.js';
 import type { ImageTransform, SerializedStaticImage } from '../types.js';
 import { getAssetsPrefix } from './getAssetsPrefix.js';
 import { hashTransform, propsToFilename } from './hash.js';
 import { isESMImportedImage } from './imageKind.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './url.js';
+
+export interface StaticImageConfig {
+	base: string;
+	assetsPrefix?: AssetsPrefix;
+	assetsDir: string;
+}
+
+let staticImageConfig: StaticImageConfig | undefined;
+
+// Set only in build-time prerender runtimes, whose images the build generates.
+export function setStaticImageConfig(config: StaticImageConfig | undefined): void {
+	staticImageConfig = config;
+}
+
+export function getStaticImageConfig(): StaticImageConfig | undefined {
+	return staticImageConfig;
+}
 
 export interface ResolveStaticImageOptions extends StaticImageConfig {
 	serviceEntrypoint: string;

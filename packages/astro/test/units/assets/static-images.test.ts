@@ -5,7 +5,10 @@ import { baseService } from '../../../dist/assets/services/service.js';
 import { isImageMetadata } from '../../../dist/assets/types.js';
 import type { ImageMetadata } from '../../../dist/assets/types.js';
 import { createImageAsset, getUntrackedImage } from '../../../dist/assets/utils/image-asset.js';
-import { resolveStaticImage } from '../../../dist/assets/utils/static-image.js';
+import {
+	resolveStaticImage,
+	setStaticImageConfig,
+} from '../../../dist/assets/utils/static-image.js';
 import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
 import {
 	drainAmbientCollectors,
@@ -177,6 +180,7 @@ describe('getImage static images', () => {
 
 	afterEach(() => {
 		setConfiguredImageService(undefined);
+		setStaticImageConfig(undefined);
 		uninstallRenderScope();
 	});
 
@@ -187,7 +191,8 @@ describe('getImage static images', () => {
 	});
 
 	it('resolves static files and reports them against the rendering page', async () => {
-		const scope = ensureAsyncRenderScope({ staticImages: { base: '/', assetsDir: '_astro' } });
+		setStaticImageConfig({ base: '/', assetsDir: '_astro' });
+		const scope = ensureAsyncRenderScope();
 		const image = createImageAsset(metadata, fsPath, true);
 		const store = newStore();
 		// `src` resolves lazily, when the page reads it.
@@ -207,7 +212,8 @@ describe('getImage static images', () => {
 	});
 
 	it('reports static files resolved outside of a render into the ambient store', async () => {
-		ensureAsyncRenderScope({ staticImages: { base: '/', assetsDir: '_astro' } });
+		setStaticImageConfig({ base: '/', assetsDir: '_astro' });
+		ensureAsyncRenderScope();
 		const image = createImageAsset(metadata, fsPath, true);
 		const { src } = await getImage({ src: image, width: 200 }, imageConfig, mockRuntimeLogger);
 		const { staticImages, referencedImages } = drainAmbientCollectors();
