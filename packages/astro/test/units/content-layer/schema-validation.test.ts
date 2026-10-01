@@ -814,5 +814,51 @@ describe('Content Layer - Schema Validation', () => {
 			assert.equal(entry.data.title, 'SHOUTY');
 			assert.equal(calls, 1);
 		});
+
+		it('runs an async transform once for a schema with no safeParseAsync method', async () => {
+			const store = new MutableDataStore();
+			const settings = createMinimalSettings(root);
+			const logger = new AstroLogger({
+				destination: { write: () => true },
+				level: 'silent',
+			});
+
+			// The core entrypoint puts no `safeParseAsync` on the schema, so the patch takes a
+			// different path there. Shadow the method to exercise it.
+			let calls = 0;
+			const schema = z.object({
+				title: z.string().transform(async (value) => {
+					calls++;
+					return value.toUpperCase();
+				}),
+			});
+			Object.defineProperty(schema, 'safeParseAsync', { value: undefined, configurable: true });
+
+			const collections = {
+				posts: defineCollection({
+					loader: {
+						name: 'core-async-transform-loader',
+						load: async (context: any) => {
+							const data = await context.parseData({ id: 'one', data: { title: 'shouty' } });
+							await context.store.set({ id: 'one', data });
+						},
+					},
+					schema,
+				}),
+			};
+
+			const contentLayer = new ContentLayer({
+				settings,
+				logger,
+				store,
+				contentConfigObserver: createTestConfigObserver(collections),
+			});
+
+			await contentLayer.sync();
+
+			const entry: any = store.get('posts', 'one');
+			assert.equal(entry.data.title, 'SHOUTY');
+			assert.equal(calls, 1);
+		});
 	});
 });
