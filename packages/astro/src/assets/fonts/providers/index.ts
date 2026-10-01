@@ -29,6 +29,9 @@ function adobe(config: AdobeProviderOptions): FontProvider {
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
 		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
+		},
 	};
 }
 
@@ -46,6 +49,9 @@ function bunny(): FontProvider {
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
@@ -65,6 +71,9 @@ function fontshare(): FontProvider {
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
 		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
+		},
 	};
 }
 
@@ -82,6 +91,9 @@ function fontsource(): FontProvider {
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
@@ -101,6 +113,9 @@ function google(): FontProvider<GoogleFamilyOptions | undefined> {
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
 		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
+		},
 	};
 }
 
@@ -118,6 +133,9 @@ function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
@@ -148,6 +166,9 @@ function npm(
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
