@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Use `Sec-Fetch-Site` request metadata for CSRF protection, falling back to the `Origin` header for older browsers
+Improves CSRF protection by taking modern browsers headers into account
