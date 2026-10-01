@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { mkdtempSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { unified } from '@astrojs/markdown-remark';
+import type { ContentStorageDriver, SerializedEntry } from '../../../dist/content/storage.js';
 
 /**
  * Creates a temporary directory for tests
@@ -67,6 +68,66 @@ export function createMinimalSettings(root: URL, overrides: Record<string, any> 
 	});
 
 	return settings;
+}
+
+/**
+ * Creates a content storage driver that keeps entries and meta values in memory.
+ * `entries` and `meta` expose what the driver holds, and `writes` counts the `set()` calls.
+ */
+export function createMemoryStorageDriver() {
+	const entries = new Map<string, Map<string, SerializedEntry>>();
+	const meta = new Map<string, Map<string, string>>();
+	const collection = <T>(maps: Map<string, Map<string, T>>, name: string) => {
+		let map = maps.get(name);
+		if (!map) {
+			map = new Map();
+			maps.set(name, map);
+		}
+		return map;
+	};
+	const withoutContent = ({ id, metadata }: SerializedEntry): SerializedEntry => ({ id, metadata });
+	const driver = {
+		entries,
+		meta,
+		writes: 0,
+		async hasCollection(name: string) {
+			return (entries.get(name)?.size ?? 0) > 0;
+		},
+		async get(name: string, id: string, { content }: { content: boolean }) {
+			const entry = entries.get(name)?.get(id);
+			return entry && (content ? entry : withoutContent(entry));
+		},
+		async keys(name: string) {
+			return [...(entries.get(name)?.keys() ?? [])];
+		},
+		async values(name: string, { content }: { content: boolean }) {
+			const values = [...(entries.get(name)?.values() ?? [])];
+			return content ? values : values.map(withoutContent);
+		},
+		async set(name: string, entry: SerializedEntry) {
+			driver.writes++;
+			collection(entries, name).set(entry.id, entry);
+		},
+		async delete(name: string, id: string) {
+			entries.get(name)?.delete(id);
+		},
+		async clear(name: string) {
+			entries.delete(name);
+		},
+		async getMeta(name: string, key: string) {
+			return meta.get(name)?.get(key);
+		},
+		async setMeta(name: string, key: string, value: string) {
+			collection(meta, name).set(key, value);
+		},
+		async deleteMeta(name: string, key: string) {
+			meta.get(name)?.delete(key);
+		},
+		async clearMeta(name: string) {
+			meta.delete(name);
+		},
+	} satisfies ContentStorageDriver & Record<string, unknown>;
+	return driver;
 }
 
 /**
