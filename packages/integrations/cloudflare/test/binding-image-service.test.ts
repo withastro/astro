@@ -6,23 +6,29 @@ import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 describe('BindingImageService', () => {
 	let fixture: Fixture;
 	let previewServer: PreviewServer;
-	let redirectServer: Server;
-	let redirectServerPort: number;
+	let remoteServer: Server;
+	let remoteServerPort: number;
 
 	before(async () => {
-		// Start a local HTTP server that always responds with a 302 redirect.
-		// Used to test that the image transform endpoint does not follow redirects.
-		redirectServer = createServer((_req, res) => {
+		// Start a local HTTP server that stands in for a remote image host.
+		// `/missing.jpg` responds with an HTML 404 page, and every other path
+		// with a 302 redirect, to test that the endpoint does not follow redirects.
+		remoteServer = createServer((req, res) => {
+			if (req.url === '/missing.jpg') {
+				res.writeHead(404, { 'Content-Type': 'text/html' });
+				res.end('<h1>Not Found</h1>');
+				return;
+			}
 			res.writeHead(302, { Location: 'http://example.com/secret' });
 			res.end();
 		});
 		await new Promise<void>((resolve) => {
-			redirectServer.listen(0, () => {
-				const address = redirectServer.address();
+			remoteServer.listen(0, () => {
+				const address = remoteServer.address();
 				if (typeof address === 'string' || !address) {
 					throw new TypeError('Unexpected address for testing');
 				}
-				redirectServerPort = address.port;
+				remoteServerPort = address.port;
 				resolve();
 			});
 		});
@@ -36,7 +42,7 @@ describe('BindingImageService', () => {
 
 	after(async () => {
 		await previewServer.stop();
-		await new Promise((resolve) => redirectServer.close(resolve));
+		await new Promise((resolve) => remoteServer.close(resolve));
 	});
 
 	it('returns 403 for missing href parameter', async () => {
@@ -74,8 +80,19 @@ describe('BindingImageService', () => {
 		assert.equal(res.headers.get('content-type'), 'image/avif');
 	});
 
+	it('returns 404 for missing local images', async () => {
+		const res = await fixture.fetch('/_image?href=/missing.jpg&f=webp&w=100');
+		assert.equal(res.status, 404);
+	});
+
+	it('returns 404 for remote images that respond with an error', async () => {
+		const href = `http://localhost:${remoteServerPort}/missing.jpg`;
+		const res = await fixture.fetch(`/_image?href=${encodeURIComponent(href)}&f=webp`);
+		assert.equal(res.status, 404);
+	});
+
 	it('does not follow redirects for remote images', async () => {
-		const href = `http://localhost:${redirectServerPort}/image.jpg`;
+		const href = `http://localhost:${remoteServerPort}/image.jpg`;
 		const res = await fixture.fetch(`/_image?href=${encodeURIComponent(href)}&f=webp`);
 		assert.equal(res.status, 404);
 	});
