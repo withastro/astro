@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "astro": "workspace:",
-    "@astrojs/netlify": "workspace:",
+    "astro": "workspace:7.4.0-beta.0",
+    "@astrojs/netlify": "workspace:8.2.7-beta.0",
     "sharp": "^0.35.0"
   }
 }

@@ -1,5 +1,30 @@
 # astro
 
+## 7.4.0-beta.0
+
+### Minor Changes
+
+- [#18112](https://github.com/withastro/astro/pull/18112) [`c68d737`](https://github.com/withastro/astro/commit/c68d737f2de8ef8d3c1c0ba455dccbf2563fa7da) Thanks [@jamesopstad](https://github.com/jamesopstad)! - Allows integrations to control where Astro writes client, server, and prerender build output.
+  
+  Custom prerenderers can access the final output locations through the new `outputDirectories` context:
+  
+  ```ts
+  setPrerenderer((defaultPrerenderer, { outputDirectories }) => {
+    const { client, server, prerender } = outputDirectories
+  
+    return createPrerenderer({
+      defaultPrerenderer,
+      client,
+      server,
+      prerender,
+    })
+  })
+  ```
+
+### Patch Changes
+
+- [#18112](https://github.com/withastro/astro/pull/18112) [`c68d737`](https://github.com/withastro/astro/commit/c68d737f2de8ef8d3c1c0ba455dccbf2563fa7da) Thanks [@jamesopstad](https://github.com/jamesopstad)! - Fixes deployment integrations being unable to use Vite manifests when preparing build output
+
 ## 7.3.5
 
 ### Patch Changes

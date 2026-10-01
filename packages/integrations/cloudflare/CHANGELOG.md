@@ -1,5 +1,22 @@
 # @astrojs/cloudflare
 
+## 15.0.0-beta.0
+
+### Major Changes
+
+- [#18119](https://github.com/withastro/astro/pull/18119) [`b02f436`](https://github.com/withastro/astro/commit/b02f43602dd3b81ea4716aea484622c3dd26e17f) Thanks [@jamesopstad](https://github.com/jamesopstad)! - Updates the adapter to use v2 of `@cloudflare/vite-plugin` and support deployment with `cf`.
+  
+  Projects should replace Wrangler configuration with `cloudflare.config.ts`, importing configuration utilities from `cf/config`. `cf` should also be used in place of Wrangler for deployment.
+  
+  The adapter’s `configPath` option has been removed. Configuration is always loaded from a `cloudflare.config.ts` file in the project root.
+  
+  `wrangler` is no longer a peer dependency of `@astrojs/cloudflare`.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.3.3
 
 ### Patch Changes

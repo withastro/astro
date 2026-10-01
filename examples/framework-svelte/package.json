@@ -13,8 +13,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/svelte": "^9.0.1",
-    "astro": "^7.3.5",
+    "@astrojs/svelte": "^9.0.2-beta.0",
+    "astro": "^7.4.0-beta.0",
     "svelte": "^5.55.7"
   },
   "allowScripts": {

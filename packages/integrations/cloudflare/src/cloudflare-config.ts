@@ -110,9 +110,7 @@ export function cloudflareConfigCustomizer(
 				...(!imagesBindingName || hasImagesBinding
 					? {}
 					: { [imagesBindingName]: { type: 'images' } }),
-				...(hasAssetsBinding
-					? {}
-					: { [DEFAULT_ASSETS_BINDING_NAME]: { type: 'assets' } }),
+				...(hasAssetsBinding ? {} : { [DEFAULT_ASSETS_BINDING_NAME]: { type: 'assets' } }),
 			},
 			// Enable the Worker caching layer when a Cloudflare cache provider is configured
 			cache:
