@@ -533,6 +533,15 @@ export const AstroConfigSchema = z.object({
 						type: z.literal('chunked'),
 						chunkSize: z.number().int().positive(),
 					}),
+					z.strictObject({
+						type: z.literal('external'),
+						driver: z
+							.object({
+								entrypoint: z.union([z.string(), z.instanceof(URL)]),
+								config: z.record(z.string(), z.any()).optional(),
+							})
+							.optional(),
+					}),
 				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.collectionStorage),

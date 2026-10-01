@@ -742,5 +742,40 @@ describe('Config Validation', () => {
 				assert.equal(configError instanceof z.ZodError, true);
 			}
 		});
+
+		it('accepts external storage with a driver', async () => {
+			const entrypoint = new URL('file:///driver.js');
+			const result = await validateConfig({
+				experimental: {
+					collectionStorage: {
+						type: 'external',
+						driver: { entrypoint, config: { url: 'file:content.db' } },
+					},
+				},
+			});
+
+			assert.deepEqual(result.experimental.collectionStorage, {
+				type: 'external',
+				driver: { entrypoint, config: { url: 'file:content.db' } },
+			});
+		});
+
+		it('accepts external storage without a driver', async () => {
+			const result = await validateConfig({
+				experimental: { collectionStorage: { type: 'external' } },
+			});
+
+			assert.deepEqual(result.experimental.collectionStorage, { type: 'external' });
+		});
+
+		it('rejects an external driver without an entrypoint', async () => {
+			const configError = await validateConfig({
+				experimental: {
+					collectionStorage: { type: 'external', driver: { config: {} } },
+				},
+			}).catch((error) => error);
+
+			assert.equal(configError instanceof z.ZodError, true);
+		});
 	});
 });
