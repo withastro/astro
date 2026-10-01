@@ -678,7 +678,7 @@ export interface AstroUserConfig<
 		 * @version 4.9.0
 		 * @description
 		 *
-		 * Checks the `Sec-Fetch-Site` header provided by modern browsers, falling back to the `Origin` header when unavailable. This is used to provide Cross-Site Request Forgery (CSRF) protection.
+		 * Provides [Cross-Site Request Forgery (CSRF)](https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/CSRF) protection by checking the header sent by browsers against the `Request` URL. This uses the `Sec-Fetch-Site` header for modern browsers and falls back to the `Origin` header when unavailable.
 		 *
 		 * The check is executed only for pages rendered on demand, and only for unsafe requests such as `POST`, `PATCH`, `DELETE`, and `PUT` with no `content-type` header or one of the following values: `'application/x-www-form-urlencoded'`, `'multipart/form-data'`, `'text/plain'`.
 		 *
