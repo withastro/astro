@@ -35,6 +35,9 @@ describe('emptyDir', () => {
 			}
 			return realRmSync(p, options);
 		});
+		// On POSIX, `chmodSync(dir, 0o666)` drops the execute bit and makes the directory untraversable;
+		// on Windows it only toggles the read-only flag, so skip it to mirror Windows behavior.
+		mock.method(fs, 'chmodSync', () => {});
 		// Node.js 25+ throws when `fs.rmdirSync` receives `recursive`.
 		const realRmdirSync = fs.rmdirSync;
 		mock.method(fs, 'rmdirSync', (p: fs.PathLike, options?: { recursive?: boolean }) => {
