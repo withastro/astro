@@ -1,4 +1,4 @@
-import type * as z from 'zod/v4/core';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { APIContext } from '../../types/public/index.js';
 import type { ActionError, codeToStatusMap } from './client.js';
 
@@ -6,8 +6,11 @@ export type ActionErrorCode = keyof typeof codeToStatusMap;
 
 export type ActionAccept = 'form' | 'json';
 
-export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.$ZodType
-	? (input: z.infer<TInputSchema>, context: ActionAPIContext) => MaybePromise<TOutput>
+export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends StandardSchemaV1
+	? (
+			input: StandardSchemaV1.InferOutput<TInputSchema>,
+			context: ActionAPIContext,
+		) => MaybePromise<TOutput>
 	: (input: any, context: ActionAPIContext) => MaybePromise<TOutput>;
 
 export type ActionReturnType<T extends ActionHandler<any, any>> = Awaited<ReturnType<T>>;
@@ -15,7 +18,7 @@ export type ActionReturnType<T extends ActionHandler<any, any>> = Awaited<Return
 type InferKey = '__internalInfer';
 
 /**
- * Infers the type of an action's input based on its Zod schema
+ * Infers the type of an action's input based on its schema
  *
  * @see https://docs.astro.build/en/reference/modules/astro-actions/#actioninputschema
  */
@@ -28,21 +31,21 @@ export type ActionInputSchema<T extends ActionClient<any, any, any>> = T extends
 export type ActionClient<
 	TOutput,
 	TAccept extends ActionAccept | undefined,
-	TInputSchema extends z.$ZodType | undefined,
-> = TInputSchema extends z.$ZodType
+	TInputSchema extends StandardSchemaV1 | undefined,
+> = TInputSchema extends StandardSchemaV1
 	? ((
-			input: TAccept extends 'form' ? FormData : z.input<TInputSchema>,
+			input: TAccept extends 'form' ? FormData : StandardSchemaV1.InferInput<TInputSchema>,
 		) => Promise<
 			SafeResult<
-				z.input<TInputSchema> extends ErrorInferenceObject
-					? z.input<TInputSchema>
+				StandardSchemaV1.InferInput<TInputSchema> extends ErrorInferenceObject
+					? StandardSchemaV1.InferInput<TInputSchema>
 					: ErrorInferenceObject,
 				Awaited<TOutput>
 			>
 		>) & {
 			queryString: string;
 			orThrow: (
-				input: TAccept extends 'form' ? FormData : z.input<TInputSchema>,
+				input: TAccept extends 'form' ? FormData : StandardSchemaV1.InferInput<TInputSchema>,
 			) => Promise<Awaited<TOutput>>;
 		} & {
 			[key in InferKey]: TInputSchema;

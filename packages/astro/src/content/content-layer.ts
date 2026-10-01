@@ -2,7 +2,7 @@ import { existsSync, promises as fs } from 'node:fs';
 import { parseFrontmatter } from '@astrojs/internal-helpers/frontmatter';
 import type { MarkdownRenderer } from '@astrojs/internal-helpers/markdown';
 import PQueue from 'p-queue';
-import type { FSWatcher } from 'vite';
+import type { FSWatcher, ViteDevServer } from 'vite';
 import xxhash from 'xxhash-wasm';
 import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -26,6 +26,7 @@ import {
 	loaderReturnSchema,
 	safeStringify,
 } from './utils.js';
+import { createViteImageSourceResolver, withContentImageResolver } from './image.js';
 import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
 
 export interface ContentLayerOptions {
@@ -34,6 +35,8 @@ export interface ContentLayerOptions {
 	logger: AstroLogger;
 	watcher?: FSWatcher;
 	contentConfigObserver?: ContentObservable;
+	/** Used to resolve image sources (Vite aliases included) while parsing entries. */
+	viteServer?: ViteDevServer;
 }
 
 type CollectionLoader<TData> = () =>
@@ -52,6 +55,7 @@ export class ContentLayer {
 	#markdownRenderer?: MarkdownRenderer;
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 	#contentConfigObserver: ContentObservable;
+	#viteServer?: ViteDevServer;
 
 	#queue: PQueue;
 
@@ -60,12 +64,14 @@ export class ContentLayer {
 		logger,
 		store,
 		watcher,
+		viteServer,
 		contentConfigObserver = globalContentConfigObserver,
 	}: ContentLayerOptions) {
 		this.#logger = logger;
 		this.#store = store;
 		this.#settings = settings;
 		this.#contentConfigObserver = contentConfigObserver;
+		this.#viteServer = viteServer;
 		if (watcher) {
 			this.#watcher = createWatcherWrapper(watcher);
 		}
@@ -186,6 +192,26 @@ export class ContentLayer {
 	}
 
 	async #doSync(options: RefreshContentOptions) {
+		// Let `image()` resolve aliases and root-absolute sources the way read time does, for
+		// as long as this sync is running. Ambient rather than passed down because
+		// `content.config.ts` imports `astro/content/image` through Vite while this module is
+		// loaded by Node, so the two do not share module instances — threading it through the
+		// loader context instead would mean exposing it on the public `LoaderContext`.
+		//
+		// Reentrancy: `sync()` funnels every job through `#queue` (concurrency 1), so one
+		// `ContentLayer` never has two syncs in flight. Separate instances in the same process
+		// (parallel in-process tests, mainly) can still overlap; `withContentImageResolver`
+		// keeps that from leaving a resolver installed after its sync ends, but the slot holds
+		// a single resolver, so while two syncs overlap both see the one that started last.
+		if (!this.#viteServer) {
+			return await this.#doSyncInner(options);
+		}
+		return await withContentImageResolver(createViteImageSourceResolver(this.#viteServer), () =>
+			this.#doSyncInner(options),
+		);
+	}
+
+	async #doSyncInner(options: RefreshContentOptions) {
 		let contentConfig = this.#contentConfigObserver.get();
 		const logger = this.#logger.forkIntegrationLogger('content');
 

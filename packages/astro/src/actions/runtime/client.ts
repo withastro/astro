@@ -1,5 +1,6 @@
 // It's safe to import this file on both server and client
 
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import { parse as devalueParse } from 'devalue';
 import type * as z from 'zod/v4/core';
 import { ACTION_QUERY_PARAMS } from '../consts.js';
@@ -131,24 +132,64 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 	// Not all properties will serialize from server to client,
 	// and we don't want to import the full ZodError object into the client.
 
+	// TODO: type as `StandardSchemaV1.Issue[]` in Astro 8
 	issues: z.$ZodIssue[];
 	fields: { [P in keyof T]?: string[] | undefined };
 
-	constructor(issues: z.$ZodIssue[]) {
+	// TODO: type as `StandardSchemaV1.Issue[]` in Astro 8
+	constructor(issues: ReadonlyArray<z.$ZodIssue | StandardSchemaV1.Issue>) {
+		const zodIssues = issues.map(toZodIssue);
 		super({
-			message: `Failed to validate: ${JSON.stringify(issues, null, 2)}`,
+			message: `Failed to validate: ${JSON.stringify(zodIssues, null, 2)}`,
 			code: 'BAD_REQUEST',
 		});
-		this.issues = issues;
+		this.issues = zodIssues;
 		this.fields = {};
-		for (const issue of issues) {
-			if (issue.path.length > 0) {
-				const key = issue.path[0].toString() as keyof typeof this.fields;
-				this.fields[key] ??= [];
-				this.fields[key]?.push(issue.message);
-			}
+		for (const issue of issues.map(toStandardSchemaIssue)) {
+			const segment = issue.path?.[0];
+			if (segment === undefined) continue;
+			// A segment is either a key or a `{ key }` object, depending on the validator.
+			const key = String(
+				typeof segment === 'object' ? segment.key : segment,
+			) as keyof typeof this.fields;
+			this.fields[key] ??= [];
+			this.fields[key]?.push(issue.message);
 		}
 	}
+}
+
+/** A Zod issue is what a bare Standard Schema issue is not: coded. */
+function isZodIssue(issue: z.$ZodIssue | StandardSchemaV1.Issue): issue is z.$ZodIssue {
+	return 'code' in issue && typeof issue.code === 'string';
+}
+
+/**
+ * Describes an issue as the Zod issue that `ActionInputError#issues` is still typed as.
+ * A validator other than Zod only guarantees `message` and `path`, and none of the rest of
+ * a Zod issue can be invented, so it becomes `custom` — Zod's own code for an issue no
+ * built-in check produced.
+ */
+// TODO: remove in Astro 8, when `ActionInputError#issues` becomes `StandardSchemaV1.Issue[]`
+function toZodIssue(issue: z.$ZodIssue | StandardSchemaV1.Issue): z.$ZodIssue {
+	if (isZodIssue(issue)) return issue;
+	return {
+		code: 'custom',
+		message: issue.message,
+		path: (issue.path ?? []).map((segment) =>
+			typeof segment === 'object' ? segment.key : segment,
+		),
+	} satisfies z.$ZodIssueCustom;
+}
+
+/**
+ * Describes an issue as the Standard Schema issue that `fields` is built from. A Zod issue
+ * already is one — it carries a `message` and a `path` of plain keys — so this only drops
+ * the properties the spec does not describe.
+ */
+function toStandardSchemaIssue(
+	issue: z.$ZodIssue | StandardSchemaV1.Issue,
+): StandardSchemaV1.Issue {
+	return { message: issue.message, path: issue.path };
 }
 
 export function deserializeActionResult(res: SerializedActionResult): SafeResult<any, any> {

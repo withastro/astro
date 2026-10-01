@@ -1,0 +1,49 @@
+{
+  "name": "@standard-community/standard-form",
+  "description": "Parse FormData with any Standard Schema validator.",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/standard-form"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "exports": {
+    ".": "./dist/index.js",
+    "./zod": "./dist/vendors/zod.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepublish": "pnpm build",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@standard-schema/spec": "^1.1.0"
+  },
+  "peerDependencies": {
+    "zod": "^4.3.6"
+  },
+  "peerDependenciesMeta": {
+    "zod": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "astro-scripts": "workspace:*",
+    "zod": "^4.3.6"
+  },
+  "keywords": [
+    "standard-schema",
+    "formdata",
+    "form"
+  ]
+}

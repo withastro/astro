@@ -157,7 +157,7 @@ declare module 'astro:components' {
 /**
  * @deprecated
  * `import { z } from 'astro:schema'` is deprecated and will be removed
- * in Astro 8. Use `import { z } from 'astro/zod'` instead.
+ * in Astro 8. Install `zod` and use `import { z } from 'zod'` instead.
  */
 declare module 'astro:schema' {
 	export * from 'astro/zod';
@@ -166,7 +166,7 @@ declare module 'astro:schema' {
 	/**
 	 * @deprecated
 	 * `import { z } from 'astro:schema'` is deprecated and will be removed
-	 * in Astro 8. Use `import { z } from 'astro/zod'` instead.
+	 * in Astro 8. Install `zod` and use `import { z } from 'zod'` instead.
 	 */
 	export const z = zod.z;
 }

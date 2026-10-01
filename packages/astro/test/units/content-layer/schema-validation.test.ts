@@ -615,4 +615,250 @@ describe('Content Layer - Schema Validation', () => {
 		assert.deepEqual(minimalEntry.data.tags, []); // Default value
 		assert.equal(minimalEntry.data.rating, 0); // Default value
 	});
+	describe('Standard Schema validators other than Zod', () => {
+		// A minimal validator implementing https://standardschema.dev, standing in for
+		// Valibot/ArkType/etc. so the tests do not depend on a second validation library.
+		function stringField(field: string) {
+			return {
+				'~standard': {
+					version: 1 as const,
+					vendor: 'test-validator',
+					validate(value: unknown) {
+						if (typeof value !== 'object' || value === null) {
+							return { issues: [{ message: 'Expected an object' }] };
+						}
+						const received = (value as Record<string, unknown>)[field];
+						if (typeof received !== 'string') {
+							return {
+								issues: [{ message: `Expected a string, got ${typeof received}`, path: [field] }],
+							};
+						}
+						return { value: { ...(value as Record<string, unknown>), [field]: received.trim() } };
+					},
+				},
+			};
+		}
+
+		function setup() {
+			const store = new MutableDataStore();
+			const settings = createMinimalSettings(root);
+			const logger = new AstroLogger({
+				destination: { write: () => true },
+				level: 'silent',
+			});
+			return { store, settings, logger };
+		}
+
+		function loaderFor(entries: Array<Record<string, unknown>>) {
+			return {
+				name: 'standard-schema-loader',
+				load: async (context: any) => {
+					for (const entry of entries) {
+						const data = await context.parseData({ id: entry.id, data: entry });
+						await context.store.set({ id: entry.id as string, data });
+					}
+				},
+			};
+		}
+
+		it('validates and transforms entries', async () => {
+			const { store, settings, logger } = setup();
+
+			const collections = {
+				posts: defineCollection({
+					loader: loaderFor([{ id: 'one', title: '  Padded title  ' }]),
+					schema: stringField('title'),
+				}),
+			};
+
+			const contentLayer = new ContentLayer({
+				settings,
+				logger,
+				store,
+				contentConfigObserver: createTestConfigObserver(collections),
+			});
+
+			await contentLayer.sync();
+
+			const entry: any = store.get('posts', 'one');
+			assert.equal(entry.data.title, 'Padded title');
+		});
+
+		it("reports the validator's own issues", async () => {
+			const { store, settings, logger } = setup();
+
+			const collections = {
+				posts: defineCollection({
+					loader: loaderFor([{ id: 'one', title: 42 }]),
+					schema: stringField('title'),
+				}),
+			};
+
+			const contentLayer = new ContentLayer({
+				settings,
+				logger,
+				store,
+				contentConfigObserver: createTestConfigObserver(collections),
+			});
+
+			await assert.rejects(
+				() => contentLayer.sync(),
+				(error: Error) => {
+					assert.match(error.message, /\*\*posts → one\*\* data does not match collection schema/);
+					assert.match(error.message, /\*\*title\*\*: Expected a string, got number/);
+					return true;
+				},
+			);
+		});
+
+		it('awaits asynchronous validation', async () => {
+			const { store, settings, logger } = setup();
+
+			const asyncSchema = {
+				'~standard': {
+					version: 1 as const,
+					vendor: 'test-validator',
+					async validate(value: any) {
+						await Promise.resolve();
+						return { value: { ...value, title: value.title.toUpperCase() } };
+					},
+				},
+			};
+
+			const collections = {
+				posts: defineCollection({
+					loader: loaderFor([{ id: 'one', title: 'shouty' }]),
+					schema: asyncSchema,
+				}),
+			};
+
+			const contentLayer = new ContentLayer({
+				settings,
+				logger,
+				store,
+				contentConfigObserver: createTestConfigObserver(collections),
+			});
+
+			await contentLayer.sync();
+
+			const entry: any = store.get('posts', 'one');
+			assert.equal(entry.data.title, 'SHOUTY');
+		});
+
+		it('rejects a schema that is not a Standard Schema validator', async () => {
+			const { store, settings, logger } = setup();
+
+			const collections = {
+				posts: defineCollection({
+					loader: loaderFor([{ id: 'one', title: 'A title' }]),
+					// A plain object, e.g. someone passing a schema definition rather than a schema
+					schema: { title: 'string' } as any,
+				}),
+			};
+
+			const contentLayer = new ContentLayer({
+				settings,
+				logger,
+				store,
+				contentConfigObserver: createTestConfigObserver(collections),
+			});
+
+			await assert.rejects(
+				() => contentLayer.sync(),
+				(error: Error) => {
+					assert.match(error.message, /is not a valid schema/);
+					return true;
+				},
+			);
+		});
+	});
+
+	describe('Zod async transforms', () => {
+		it('runs an async transform once', async () => {
+			const store = new MutableDataStore();
+			const settings = createMinimalSettings(root);
+			const logger = new AstroLogger({
+				destination: { write: () => true },
+				level: 'silent',
+			});
+
+			let calls = 0;
+			const collections = {
+				posts: defineCollection({
+					loader: {
+						name: 'async-transform-loader',
+						load: async (context: any) => {
+							const data = await context.parseData({ id: 'one', data: { title: 'shouty' } });
+							await context.store.set({ id: 'one', data });
+						},
+					},
+					schema: z.object({
+						title: z.string().transform(async (value) => {
+							calls++;
+							return value.toUpperCase();
+						}),
+					}),
+				}),
+			};
+
+			const contentLayer = new ContentLayer({
+				settings,
+				logger,
+				store,
+				contentConfigObserver: createTestConfigObserver(collections),
+			});
+
+			await contentLayer.sync();
+
+			const entry: any = store.get('posts', 'one');
+			assert.equal(entry.data.title, 'SHOUTY');
+			assert.equal(calls, 1);
+		});
+
+		it('runs an async transform once for a schema with no safeParseAsync method', async () => {
+			const store = new MutableDataStore();
+			const settings = createMinimalSettings(root);
+			const logger = new AstroLogger({
+				destination: { write: () => true },
+				level: 'silent',
+			});
+
+			// The core entrypoint puts no `safeParseAsync` on the schema, so the patch takes a
+			// different path there. Shadow the method to exercise it.
+			let calls = 0;
+			const schema = z.object({
+				title: z.string().transform(async (value) => {
+					calls++;
+					return value.toUpperCase();
+				}),
+			});
+			Object.defineProperty(schema, 'safeParseAsync', { value: undefined, configurable: true });
+
+			const collections = {
+				posts: defineCollection({
+					loader: {
+						name: 'core-async-transform-loader',
+						load: async (context: any) => {
+							const data = await context.parseData({ id: 'one', data: { title: 'shouty' } });
+							await context.store.set({ id: 'one', data });
+						},
+					},
+					schema,
+				}),
+			};
+
+			const contentLayer = new ContentLayer({
+				settings,
+				logger,
+				store,
+				contentConfigObserver: createTestConfigObserver(collections),
+			});
+
+			await contentLayer.sync();
+
+			const entry: any = store.get('posts', 'one');
+			assert.equal(entry.data.title, 'SHOUTY');
+			assert.equal(calls, 1);
+		});
+	});
 });
