@@ -68,32 +68,38 @@ function createBindingImageService(
 	localService: LocalImageService,
 	logger: AstroIntegrationLogger,
 ): LocalImageService {
-	return {
-		...localService,
-		async transform(inputBuffer, transform, imageConfig, runtimeLogger) {
-			try {
-				const response = await fetch(
-					createImageTransformUrl(getServerUrl(), transform.src, transform),
-					{ method: 'POST', body: inputBuffer as Uint8Array<ArrayBuffer> },
+	let warnedFallback = false;
+	// Inherit from the local service rather than spreading it, so class-based services keep their prototype methods.
+	const service: LocalImageService = Object.create(localService);
+	service.transform = async (inputBuffer, transform, imageConfig, runtimeLogger) => {
+		try {
+			const response = await fetch(
+				createImageTransformUrl(getServerUrl(), transform.src, transform),
+				{ method: 'POST', body: inputBuffer as Uint8Array<ArrayBuffer> },
+			);
+			if (!response.ok) {
+				// The body can be a full error page, so keep only enough of it to be useful.
+				const body = (await response.text().catch(() => '')).replace(/\s+/g, ' ').trim();
+				const details = body ? `: ${body.slice(0, 200)}` : '';
+				throw new Error(
+					`the prerender server responded ${response.status} ${response.statusText}${details}`,
 				);
-				if (!response.ok) {
-					// The body can be a full error page, so keep only enough of it to be useful.
-					const body = (await response.text().catch(() => '')).replace(/\s+/g, ' ').trim();
-					const details = body ? `: ${body.slice(0, 200)}` : '';
-					throw new Error(
-						`the prerender server responded ${response.status} ${response.statusText}${details}`,
-					);
-				}
-				return { data: new Uint8Array(await response.arrayBuffer()), format: transform.format };
-			} catch (err) {
-				const message = err instanceof Error ? err.message : String(err);
-				logger.warn(
-					`Could not optimize "${transform.src}" with the Cloudflare IMAGES binding (${message}). Falling back to the local image service.`,
-				);
-				return localService.transform(inputBuffer, transform, imageConfig, runtimeLogger);
 			}
-		},
+			return { data: new Uint8Array(await response.arrayBuffer()), format: transform.format };
+		} catch (err) {
+			const message = err instanceof Error ? err.message : String(err);
+			const log = `Could not optimize "${transform.src}" with the Cloudflare IMAGES binding (${message}). Falling back to the local image service.`;
+			// A missing or broken binding fails every image the same way: warn once.
+			if (warnedFallback) {
+				logger.debug(log);
+			} else {
+				warnedFallback = true;
+				logger.warn(log);
+			}
+			return localService.transform(inputBuffer, transform, imageConfig, runtimeLogger);
+		}
 	};
+	return service;
 }
 
 /**

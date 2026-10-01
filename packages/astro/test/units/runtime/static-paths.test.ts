@@ -267,6 +267,7 @@ describe('StaticPaths', () => {
 			uninstallRenderScope();
 			ensureAsyncRenderScope();
 			try {
+				// Outside of `getAllWithMetadata()`, nothing collects the record.
 				recordReferencedImage('/stale.png');
 				const mockGetStaticPaths = () => {
 					recordReferencedImage('/hero.png');
@@ -284,7 +285,7 @@ describe('StaticPaths', () => {
 				);
 				assert.deepEqual(first.metadata, {
 					staticImages: [],
-					referencedImages: ['/stale.png', '/hero.png'],
+					referencedImages: ['/hero.png'],
 				});
 
 				const second = await new StaticPaths(createMockApp({ routes: [] })).getAllWithMetadata();

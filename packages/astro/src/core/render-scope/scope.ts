@@ -1,5 +1,4 @@
 import type { SerializedStaticImage } from '../../assets/types.js';
-import type { StaticPathsMetadata } from '../../types/public/integrations.js';
 
 /**
  * The per-render store. One instance is created per collecting render and is
@@ -29,33 +28,20 @@ export interface RenderCollectorScope {
 	getStore(): RenderCollectors | undefined;
 }
 
-export interface AmbientCollectors {
-	staticImages: SerializedStaticImage[];
-	referencedImages: Set<string>;
-}
-
-interface RenderChannel {
-	scope: RenderCollectorScope | undefined;
-	/** Receives records made outside of any render, e.g. by `getImage()` in `getStaticPaths()`. */
-	ambient: AmbientCollectors;
-}
-
 /**
  * The channel is a write-once immutable *conduit* shared so every compiled copy
  * of this module resolves the same AsyncLocalStorage instance (the prerender
  * runtime is bundled, so the build orchestrator and the bundled runtime hold
  * different module instances of this file); all mutable per-render state lives
  * in stores reachable only through async execution context. Never installed in
- * dev or production SSR.
+ * dev or production SSR runtimes. Once installed it stays installed: it holds no
+ * state outside of a store, so concurrent and successive builds in one process
+ * can share it.
  */
 const SCOPE_KEY = Symbol.for('astro:render-scope');
 
 interface ScopeGlobal {
-	[SCOPE_KEY]?: RenderChannel;
-}
-
-function getChannel(): RenderChannel | undefined {
-	return (globalThis as ScopeGlobal)[SCOPE_KEY];
+	[SCOPE_KEY]?: RenderCollectorScope;
 }
 
 /**
@@ -63,20 +49,13 @@ function getChannel(): RenderChannel | undefined {
  * scope. First-wins: when a scope is already installed (possibly by another
  * module instance), the existing scope is returned and the argument discarded,
  * so callers that both awaited an import converge on one scope.
- * Without a scope (no AsyncLocalStorage), every record is unattributed.
  */
-export function installRenderScope(
-	scope: RenderCollectorScope | undefined,
-): RenderCollectorScope | undefined {
+export function installRenderScope(scope: RenderCollectorScope): RenderCollectorScope {
 	const host = globalThis as ScopeGlobal;
 	const existing = host[SCOPE_KEY];
-	if (existing) return existing.scope;
-	const channel: RenderChannel = Object.freeze({
-		scope,
-		ambient: { staticImages: [], referencedImages: new Set<string>() },
-	});
+	if (existing) return existing;
 	Object.defineProperty(host, SCOPE_KEY, {
-		value: channel,
+		value: scope,
 		configurable: true,
 		writable: false,
 		enumerable: false,
@@ -84,16 +63,12 @@ export function installRenderScope(
 	return scope;
 }
 
-export function hasRenderChannel(): boolean {
-	return getChannel() !== undefined;
-}
-
 /** The installed render scope, or `undefined` when none was installed. */
 export function getInstalledRenderScope(): RenderCollectorScope | undefined {
-	return getChannel()?.scope;
+	return (globalThis as ScopeGlobal)[SCOPE_KEY];
 }
 
-/** Remove the installed scope so the channel can be reset. */
+/** Test-only: remove the installed scope so unit tests can reset the channel. */
 export function uninstallRenderScope(): void {
 	delete (globalThis as ScopeGlobal)[SCOPE_KEY];
 }
@@ -101,22 +76,4 @@ export function uninstallRenderScope(): void {
 /** The current render's collectors store, or `undefined` when not collecting. */
 export function getRenderCollectors(): RenderCollectors | undefined {
 	return getInstalledRenderScope()?.getStore();
-}
-
-/** The current render's store, or the ambient store outside of renders. */
-export function getRecordTarget(): RenderCollectors | undefined {
-	const channel = getChannel();
-	if (!channel) return undefined;
-	return channel.scope?.getStore() ?? channel.ambient;
-}
-
-export function drainAmbientCollectors(): StaticPathsMetadata {
-	const ambient = getChannel()?.ambient;
-	if (!ambient) return { staticImages: [], referencedImages: [] };
-	const drained = {
-		staticImages: ambient.staticImages.splice(0),
-		referencedImages: [...ambient.referencedImages],
-	};
-	ambient.referencedImages.clear();
-	return drained;
 }

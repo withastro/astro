@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { afterEach, describe, it } from 'node:test';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 import { renderForPrerender, type PrerenderableApp } from '../../../dist/core/app/prerender.js';
 import { uninstallRenderScope } from '../../../dist/core/render-scope/scope.js';
 import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
@@ -27,6 +27,9 @@ function appOf(render: PrerenderableApp['render']): PrerenderableApp {
 const request = () => new Request('https://example.com/page/');
 
 describe('renderForPrerender', () => {
+	beforeEach(() => {
+		uninstallRenderScope();
+	});
 	afterEach(() => {
 		uninstallRenderScope();
 	});

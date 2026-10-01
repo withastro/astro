@@ -11,21 +11,11 @@ import { hashTransform, propsToFilename } from './hash.js';
 import { isESMImportedImage } from './imageKind.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './url.js';
 
+/** Where build-time images are written, attached to the runtime `imageConfig` as `staticImageConfig`. */
 export interface StaticImageConfig {
 	base: string;
 	assetsPrefix?: AssetsPrefix;
 	assetsDir: string;
-}
-
-let staticImageConfig: StaticImageConfig | undefined;
-
-// Set only in build-time prerender runtimes, whose images the build generates.
-export function setStaticImageConfig(config: StaticImageConfig | undefined): void {
-	staticImageConfig = config;
-}
-
-export function getStaticImageConfig(): StaticImageConfig | undefined {
-	return staticImageConfig;
 }
 
 export interface ResolveStaticImageOptions extends StaticImageConfig {

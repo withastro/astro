@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
-import { afterEach, describe, it } from 'node:test';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 import { collectPrerenderMetadata } from '../../../dist/core/render-scope/collect.js';
 import { uninstallRenderScope } from '../../../dist/core/render-scope/scope.js';
 import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
 import {
+	isCollectingStaticImages,
 	recordContentEntryRender,
 	recordStaticImage,
 } from '../../../dist/core/render-scope/record.js';
@@ -21,6 +22,10 @@ function image(hash: string): SerializedStaticImage {
 }
 
 describe('collectPrerenderMetadata', () => {
+	// Builds leave their scope installed, and unit tests share one process.
+	beforeEach(() => {
+		uninstallRenderScope();
+	});
 	afterEach(() => {
 		uninstallRenderScope();
 	});
@@ -93,6 +98,21 @@ describe('collectPrerenderMetadata', () => {
 			metadata?.staticImages.map((img) => img.hash),
 			['a', 'b'],
 		);
+	});
+
+	it('does not collect static images when disabled', async () => {
+		ensureAsyncRenderScope();
+		const { metadata } = await collectPrerenderMetadata(
+			async () => {
+				assert.equal(isCollectingStaticImages(), false);
+				recordStaticImage(image('a'));
+				recordContentEntryRender('entry');
+			},
+			defaultLogger,
+			{ staticImages: false },
+		);
+		assert.deepEqual(metadata?.staticImages, []);
+		assert.deepEqual(metadata?.contentEntryKeys, ['entry']);
 	});
 
 	it('the returned snapshot is immune to post-resolve records', async () => {

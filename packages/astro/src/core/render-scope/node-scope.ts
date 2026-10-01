@@ -6,12 +6,10 @@ import type { RenderCollectors, RenderCollectorScope } from './scope.js';
  * Installs (first-wins) an AsyncLocalStorage-backed render scope and returns
  * the installed scope.
  *
- * This module is the ONE static `node:async_hooks` import in core and must be
- * imported ONLY by `core/build/generate.ts` — orchestrator-only
- * code that is never bundled into prerender, server, or adapter output.
+ * This module is the ONE static `node:async_hooks` import in core and must only
+ * be imported by Node-only build code in `core/build/` — never by code that is
+ * bundled into prerender, server, or adapter output.
  */
 export function ensureAsyncRenderScope(): RenderCollectorScope {
-	const scope = installRenderScope(new AsyncLocalStorage<RenderCollectors>());
-	if (!scope) throw new Error('A render channel without a scope is already installed.');
-	return scope;
+	return installRenderScope(new AsyncLocalStorage<RenderCollectors>());
 }

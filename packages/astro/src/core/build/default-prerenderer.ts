@@ -1,4 +1,4 @@
-import type { AstroPrerenderer, PathWithRoute } from '../../types/public/integrations.js';
+import type { AstroPrerenderer } from '../../types/public/integrations.js';
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { BuildApp } from './app.js';
@@ -22,7 +22,7 @@ export interface DefaultPrerenderer extends AstroPrerenderer {
 
 interface PrerenderEntry {
 	app: BuildApp;
-	getImageService?: () => Promise<ImageService>;
+	getImageService: () => Promise<ImageService>;
 }
 
 /**
@@ -34,31 +34,36 @@ export function createDefaultPrerenderer({
 	options,
 	prerenderOutputDir,
 }: DefaultPrerendererOptions): DefaultPrerenderer {
-	let prerenderEntry: PrerenderEntry | undefined;
+	let prerenderEntry: Promise<PrerenderEntry> | undefined;
+	// Also used by `getImageService()`, which a wrapping prerenderer may call without `setup()`.
+	const importPrerenderEntry = () => {
+		const prerenderEntryFileName = internals.prerenderEntryFileName;
+		if (!prerenderEntryFileName) {
+			throw new Error(
+				`Prerender entry filename not found in build internals. This is likely a bug in Astro.`,
+			);
+		}
+		const prerenderEntryUrl = new URL(prerenderEntryFileName, prerenderOutputDir);
+		return (prerenderEntry ??= import(prerenderEntryUrl.toString()));
+	};
 	const prerenderer: DefaultPrerenderer = {
 		name: 'astro:default',
 
 		async setup() {
-			// Import the prerender entry bundle
-			const prerenderEntryFileName = internals.prerenderEntryFileName;
-			if (!prerenderEntryFileName) {
-				throw new Error(
-					`Prerender entry filename not found in build internals. This is likely a bug in Astro.`,
-				);
-			}
-			const prerenderEntryUrl = new URL(prerenderEntryFileName, prerenderOutputDir);
-			prerenderEntry = (await import(prerenderEntryUrl.toString())) as PrerenderEntry;
-
 			// Get the app and configure it
-			const app = prerenderEntry.app as BuildApp;
+			const { app } = await importPrerenderEntry();
 			app.setInternals(internals);
 			app.setOptions(options);
+			// A later build in the same process with identical output reuses the cached
+			// prerender module, and with it the route cache. Recompute static paths, so
+			// `getStaticPaths()` sees fresh data and its images are collected again.
+			app.routeCache.clearAll();
 			prerenderer.app = app;
 		},
 
-		async getStaticPaths(): Promise<PathWithRoute[]> {
+		async getStaticPaths() {
 			const staticPaths = new StaticPaths(prerenderer.app!);
-			return staticPaths.getAll();
+			return staticPaths.getAllWithMetadata();
 		},
 
 		async render(request, { routeData }) {
@@ -66,12 +71,7 @@ export function createDefaultPrerenderer({
 		},
 
 		async getImageService() {
-			if (!prerenderEntry?.getImageService) {
-				throw new Error(
-					`The prerender entrypoint does not export \`getImageService\`. This is likely a bug in Astro.`,
-				);
-			}
-			return prerenderEntry.getImageService();
+			return (await importPrerenderEntry()).getImageService();
 		},
 
 		async teardown() {

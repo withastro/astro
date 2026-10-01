@@ -13,9 +13,7 @@ export function createImageAsset<T extends Omit<ImageMetadata, 'fsPath'>>(
 	track: boolean,
 ): T & ImageMetadata {
 	const asset = { ...metadata } as unknown as ImageAsset;
-	if (!Object.hasOwn(asset, 'fsPath')) {
-		Object.defineProperty(asset, 'fsPath', { value: fsPath, enumerable: false });
-	}
+	Object.defineProperty(asset, 'fsPath', { value: fsPath, enumerable: false });
 	if (track) {
 		let src = metadata.src;
 		Object.defineProperty(asset, RAW_SRC, { get: () => src });
@@ -45,8 +43,6 @@ export function getUntrackedImage<T>(image: T): T {
 	for (const key of Object.keys(asset)) {
 		copy[key] = key === 'src' ? asset[RAW_SRC] : asset[key as keyof ImageMetadata];
 	}
-	if (!Object.hasOwn(copy, 'fsPath')) {
-		Object.defineProperty(copy, 'fsPath', { value: asset.fsPath, enumerable: false });
-	}
+	Object.defineProperty(copy, 'fsPath', { value: asset.fsPath, enumerable: false });
 	return copy as T;
 }

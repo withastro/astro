@@ -1,7 +1,6 @@
 import nodeFs from 'node:fs';
 import os from 'node:os';
-import { createRequire } from 'node:module';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
@@ -26,13 +25,14 @@ import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroLogger } from '../logger/core.js';
 import type {
 	AstroPrerenderer,
+	PathWithRoute,
 	PrerenderResult,
 	RouteToHeaders,
+	StaticPathsResult,
 } from '../../types/public/index.js';
 import type { RouteData, RouteType, SSRError } from '../../types/public/internal.js';
 import { hashCryptoKey } from '../encryption.js';
 import { ensureAsyncRenderScope } from '../render-scope/node-scope.js';
-import { drainAmbientCollectors, uninstallRenderScope } from '../render-scope/scope.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getRedirectLocationOrThrow } from '../redirects/index.js';
 import { createRequest } from '../request.js';
@@ -63,22 +63,10 @@ export async function generatePages(
 		return;
 	}
 
-	// The build owns the channel; one left installed by an earlier build in this process is stale.
-	uninstallRenderScope();
+	// Records from the bundled prerender runtime reach this build's per-render stores through
+	// the `Symbol.for('astro:render-scope')` channel.
 	ensureAsyncRenderScope();
-	try {
-		await generatePagesWithRenderScope(options, internals, prerenderOutputDir, generatePagesTimer);
-	} finally {
-		uninstallRenderScope();
-	}
-}
 
-async function generatePagesWithRenderScope(
-	options: StaticBuildOptions,
-	internals: BuildInternals,
-	prerenderOutputDir: URL,
-	generatePagesTimer: number,
-) {
 	const ssr = options.settings.buildOutput === 'server';
 	const logger = options.logger;
 	const images = new StaticImageRegistry();
@@ -114,7 +102,6 @@ async function generatePagesWithRenderScope(
 	const verb = ssr ? 'prerendering' : 'generating';
 	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);
 	const routeToHeaders: RouteToHeaders = new Map();
-	const staticImageList = images.images;
 
 	// Incremental build support
 	let cache: IncrementalBuildCache | null = null;
@@ -136,13 +123,10 @@ async function generatePagesWithRenderScope(
 
 	try {
 		// Get all static paths with their routes from the prerenderer
-		const staticPathsResult = await prerenderer.getStaticPaths();
-		const pathsWithRoutes = Array.isArray(staticPathsResult)
-			? staticPathsResult
-			: staticPathsResult.paths;
-		if (!Array.isArray(staticPathsResult) && staticPathsResult.metadata) {
-			images.addMetadata(staticPathsResult.metadata);
-		}
+		const { paths: pathsWithRoutes, metadata: staticPathsMetadata } = normalizeStaticPathsResult(
+			await prerenderer.getStaticPaths(),
+		);
+		images.addMetadata(staticPathsMetadata);
 
 		// Check if i18n domains are configured (incompatible with prerendering)
 		const hasI18nDomains =
@@ -300,7 +284,6 @@ async function generatePagesWithRenderScope(
 		}
 
 		// Must happen before teardown since collectStaticImages fetches from the prerender server
-		images.addMetadata(drainAmbientCollectors());
 		if (prerenderer.collectStaticImages) {
 			images.addStaticImageList(await prerenderer.collectStaticImages());
 		}
@@ -311,6 +294,7 @@ async function generatePagesWithRenderScope(
 		);
 
 		// Default pipeline always runs
+		const staticImageList = images.images;
 		if (staticImageList.size) {
 			logger.info(
 				'SKIP_FORMAT',
@@ -323,7 +307,12 @@ async function generatePagesWithRenderScope(
 			const cpuCount = os.availableParallelism();
 			const assetsCreationPipeline = await prepareAssetsGenerationEnv(options, totalCount, {
 				loadImageService: () =>
-					loadImageService(prerenderer.getImageService ? prerenderer : defaultPrerenderer, options),
+					loadImageService(
+						prerenderer.getImageService
+							? prerenderer
+							: (defaultPrerenderer ??
+									createDefaultPrerenderer({ internals, options, prerenderOutputDir })),
+					),
 				referencedImages: images.referencedImages,
 			});
 			const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
@@ -431,22 +420,18 @@ async function generatePagesWithRenderScope(
 	});
 }
 
-async function loadImageService(
-	prerenderer: AstroPrerenderer | undefined,
-	options: StaticBuildOptions,
-): Promise<LocalImageService> {
+async function loadImageService(prerenderer: AstroPrerenderer): Promise<LocalImageService> {
 	let service;
-	if (prerenderer?.getImageService) {
-		service = await prerenderer.getImageService();
-	} else {
-		const { config } = options.settings;
-		try {
-			const resolved = createRequire(config.root).resolve(config.image.service.entrypoint);
-			const mod = await import(pathToFileURL(resolved).href);
-			service = mod.default ?? mod;
-		} catch (cause) {
-			throw new AstroError(AstroErrorData.InvalidImageService, { cause });
-		}
+	try {
+		service = await prerenderer.getImageService!();
+	} catch (cause) {
+		throw new AstroError(
+			{
+				...AstroErrorData.InvalidImageService,
+				hint: `The prerenderer \`${prerenderer.name}\` could not load the image service. A prerenderer that renders outside of Astro's build must implement \`getImageService()\`. If it comes from an adapter, make sure the adapter is up to date.`,
+			},
+			{ cause },
+		);
 	}
 	if (!isLocalService(service)) {
 		throw new AstroError(AstroErrorData.InvalidImageService);
@@ -476,6 +461,13 @@ export interface RenderPathResult {
  */
 function normalizePrerenderResult(result: Response | PrerenderResult): PrerenderResult {
 	return result instanceof Response ? { response: result } : result;
+}
+
+/** Same as {@link normalizePrerenderResult}, for a prerenderer's `getStaticPaths()` return value. */
+function normalizeStaticPathsResult(
+	result: PathWithRoute[] | StaticPathsResult,
+): StaticPathsResult {
+	return Array.isArray(result) ? { paths: result } : result;
 }
 
 interface RenderToPathPayload {

@@ -7,7 +7,10 @@ import { getEnvironment } from '../../core/environment/index.js';
 import { stringifyParams } from '../../core/routing/params.js';
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../../core/routing/helpers.js';
 import { callGetStaticPaths, getRouteCache } from '../../core/render/route-cache.js';
-import { drainAmbientCollectors } from '../../core/render-scope/scope.js';
+import {
+	collectPrerenderMetadata,
+	type CollectPrerenderMetadataOptions,
+} from '../../core/render-scope/collect.js';
 
 export type { PathWithRoute } from '../../types/public/integrations.js';
 
@@ -89,10 +92,26 @@ export class StaticPaths {
 		return allPaths;
 	}
 
-	/** Like `getAll()`, but also returns the images recorded while computing the paths. */
-	async getAllWithMetadata(): Promise<StaticPathsResult> {
-		const paths = await this.getAll();
-		return { paths, metadata: drainAmbientCollectors() };
+	/**
+	 * Like `getAll()`, but collects the images resolved while computing the paths
+	 * (e.g. by `getImage()` in `getStaticPaths()`) and returns them with the paths.
+	 * Images are only collected when a render scope is installed.
+	 */
+	async getAllWithMetadata(
+		options: CollectPrerenderMetadataOptions = {},
+	): Promise<StaticPathsResult> {
+		const { value: paths, metadata } = await collectPrerenderMetadata(
+			() => this.getAll(),
+			undefined,
+			options,
+		);
+		return {
+			paths,
+			metadata: metadata && {
+				staticImages: metadata.staticImages,
+				referencedImages: metadata.referencedImages,
+			},
+		};
 	}
 
 	/**

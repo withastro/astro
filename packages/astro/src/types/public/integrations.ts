@@ -268,7 +268,10 @@ export interface PrerenderRenderMetadata {
 }
 
 /** Image data recorded while computing static paths, e.g. by `getImage()` in `getStaticPaths()`. */
-export type StaticPathsMetadata = Pick<PrerenderRenderMetadata, 'staticImages' | 'referencedImages'>;
+export type StaticPathsMetadata = Pick<
+	PrerenderRenderMetadata,
+	'staticImages' | 'referencedImages'
+>;
 
 /**
  * The richer result a prerenderer's `getStaticPaths()` may return instead of a bare
@@ -294,10 +297,11 @@ export interface PrerenderResult {
  * Custom prerenderer that adapters can provide to control how pages are prerendered.
  * Allows non-Node runtimes (e.g., workerd) to handle prerendering.
  *
- * A prerenderer that renders outside of Astro's build process must call `setStaticImageConfig()`
- * and `installRenderScope()` from `astro/app` in its runtime for `getImage()` to resolve build-time
- * image URLs. It then reports the images recorded while computing paths on a {@link StaticPathsResult}
- * (see `StaticPaths.getAllWithMetadata()`), and each page's images on a {@link PrerenderResult}.
+ * A prerenderer that renders outside of Astro's build process installs a render scope with
+ * `installRenderScope()` from `astro/app` in its runtime, then computes paths with
+ * `StaticPaths.getAllWithMetadata()` and renders pages with `renderForPrerender()`. While these
+ * run, `getImage()` resolves build-time image URLs and collects them; the prerenderer reports them
+ * on a {@link StaticPathsResult} and a {@link PrerenderResult}, and Astro generates the images.
  */
 export interface AstroPrerenderer {
 	name: string;
@@ -331,12 +335,15 @@ export interface AstroPrerenderer {
 		request: Request,
 		options: { routeData: RouteData; collectMetadata?: boolean },
 	) => Promise<Response | PrerenderResult>;
-	/** Returns the image service that generates the build's images. Called before `teardown()`, on the first cache miss. */
+	/**
+	 * Returns the image service that generates the build's images, called before `teardown()`
+	 * on the first image that is not cached. Defaults to loading the configured image service
+	 * from the default prerender bundle, so a prerenderer that doesn't build it must implement this.
+	 */
 	getImageService?: () => Promise<ImageService>;
 	/**
 	 * Returns images collected in the adapter's runtime (e.g. workerd) to be merged
 	 * into the Node-side static image list. The default Sharp pipeline runs after.
-	 * Images are only recorded through the render scope (see {@link AstroPrerenderer}).
 	 *
 	 * @deprecated Report images from `getStaticPaths()` and `render()`, and use `getImageService()`.
 	 */
