@@ -16,9 +16,15 @@ import {
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
 import type { RenderedContent } from './data-store.js';
-import type { LoaderContext, RenderMarkdownOptions } from './loaders/types.js';
+import type { ExternalDataStore } from './external-data-store.js';
+import type {
+	ExternalLoaderContext,
+	LoaderContext,
+	RenderMarkdownOptions,
+} from './loaders/types.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import {
+	type ContentConfig,
 	type ContentObservable,
 	getEntryConfigByExtMap,
 	getEntryData,
@@ -30,10 +36,17 @@ import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
 
 export interface ContentLayerOptions {
 	store: MutableDataStore;
+	/**
+	 * The store of the collections defined with `storage: 'external'`.
+	 * It's closed when the content layer is disposed.
+	 */
+	externalStore?: ExternalDataStore;
 	settings: AstroSettings;
 	logger: AstroLogger;
 	watcher?: FSWatcher;
 	contentConfigObserver?: ContentObservable;
+	/** Clears the collections defined with `storage: 'external'` in the first sync. */
+	force?: boolean;
 }
 
 type CollectionLoader<TData> = () =>
@@ -42,9 +55,20 @@ type CollectionLoader<TData> = () =>
 	| Record<string, Record<string, unknown>>
 	| Promise<Record<string, Record<string, unknown>>>;
 
+/** The collection under which Astro saves its own meta values in the external store */
+const EXTERNAL_STORE_META_COLLECTION = ':meta';
+
+const EXTERNAL_WRITES_DEBOUNCE_MS = 500;
+
 export class ContentLayer {
 	#logger: AstroLogger;
 	#store: MutableDataStore;
+	#externalStore?: ExternalDataStore;
+	#externalCollectionNames: Array<string> = [];
+	#externalWritesPending = false;
+	#externalWritesTimeout: NodeJS.Timeout | undefined;
+	#unsubscribeExternalWrites?: () => void;
+	#force: boolean;
 	#settings: AstroSettings;
 	#watcher?: WrappedWatcher;
 	#lastConfigDigest?: string;
@@ -59,17 +83,24 @@ export class ContentLayer {
 		settings,
 		logger,
 		store,
+		externalStore,
 		watcher,
 		contentConfigObserver = globalContentConfigObserver,
+		force = false,
 	}: ContentLayerOptions) {
 		this.#logger = logger;
 		this.#store = store;
+		this.#externalStore = externalStore;
+		this.#force = force;
 		this.#settings = settings;
 		this.#contentConfigObserver = contentConfigObserver;
 		if (watcher) {
 			this.#watcher = createWatcherWrapper(watcher);
 		}
 		this.#queue = new PQueue({ concurrency: 1 });
+		this.#unsubscribeExternalWrites = externalStore?.onWrite(() =>
+			this.#saveExternalWritesDebounced(),
+		);
 	}
 
 	/**
@@ -99,6 +130,39 @@ export class ContentLayer {
 		this.#queue.clear();
 		this.#unsubscribe?.();
 		this.#watcher?.removeAllTrackedListeners();
+		clearTimeout(this.#externalWritesTimeout);
+		this.#unsubscribeExternalWrites?.();
+		const externalStore = this.#externalStore;
+		if (externalStore) {
+			// A running sync may still be using the store
+			this.#queue
+				.onIdle()
+				.then(() => externalStore.close())
+				.catch((error) => {
+					this.#logger.error('content', `Failed to close the external content storage.\n${error}`);
+				});
+		}
+	}
+
+	// Loaders can save entries in the external store outside of a sync, for example when the
+	// watcher reports a change. Once they stop saving for a moment, the changes are committed
+	// like at the end of a sync.
+	#saveExternalWritesDebounced() {
+		this.#externalWritesPending = true;
+		clearTimeout(this.#externalWritesTimeout);
+		this.#externalWritesTimeout = setTimeout(() => {
+			this.#externalWritesTimeout = undefined;
+			this.#queue
+				.add(async () => {
+					// A sync that ran after the writes has already committed them
+					if (this.#externalWritesPending) {
+						await this.#saveStores();
+					}
+				})
+				.catch((error) => {
+					this.#logger.error('content', `Failed to save content changes.\n${error}`);
+				});
+		}, EXTERNAL_WRITES_DEBOUNCE_MS);
 	}
 
 	async #getGenerateDigest() {
@@ -230,6 +294,11 @@ export class ContentLayer {
 				return;
 		}
 
+		const externalCollectionNames = this.#getExternalCollectionNames(
+			contentConfig.config.collections,
+		);
+		this.#externalCollectionNames = externalCollectionNames;
+
 		logger.info('Syncing content');
 		const {
 			vite: _vite,
@@ -273,6 +342,27 @@ export class ContentLayer {
 		}
 		if (astroConfigDigest) {
 			this.#store.metaStore().set('astro-config-digest', astroConfigDigest);
+		}
+
+		if (this.#externalStore && externalCollectionNames.length > 0) {
+			// The external store can outlive the data store on disk, for example when a build
+			// starts without a cache, so it's checked against its own digest.
+			const generateDigest = await this.#getGenerateDigest();
+			const digest = generateDigest({
+				astroVersion: process.env.ASTRO_VERSION,
+				contentConfigDigest: currentConfigDigest,
+				astroConfigDigest,
+			});
+			const externalMeta = this.#externalStore.metaStore(EXTERNAL_STORE_META_COLLECTION);
+			const previousDigest = await externalMeta.get('digest');
+			if (this.#force || (previousDigest && previousDigest !== digest)) {
+				logger.info('Clearing external content storage');
+				await this.#externalStore.clearCollections(externalCollectionNames);
+			}
+			this.#force = false;
+			if (previousDigest !== digest) {
+				await externalMeta.set('digest', digest);
+			}
 		}
 
 		if (!options?.loaders?.length) {
@@ -335,26 +425,36 @@ export class ContentLayer {
 				});
 
 				if ('loader' in collection) {
+					const externalStore = externalCollectionNames.includes(name)
+						? this.#externalStore
+						: undefined;
+					const externalContext: ExternalLoaderContext | undefined = externalStore && {
+						...context,
+						storage: 'external',
+						store: externalStore.scopedStore(name),
+						meta: externalStore.metaStore(name),
+					};
+
 					if (typeof collection.loader === 'function') {
-						return simpleLoader(collection.loader as CollectionLoader<{ id: string }>, context);
+						const handler = collection.loader as CollectionLoader<{ id: string }>;
+						return externalContext
+							? externalSimpleLoader(handler, externalContext)
+							: simpleLoader(handler, context);
 					}
 
 					if (!collection.loader?.load) {
 						throw new Error(`Collection loader for ${name} does not have a load method`);
 					}
 
-					return collection.loader.load(context);
+					// `#getExternalCollectionNames()` checked that the loader accepts this context
+					return collection.loader.load(
+						externalContext ? (externalContext as unknown as LoaderContext) : context,
+					);
 				}
 			}),
 		);
-		this.#validateReferences(contentConfig.config.collections, logger);
-		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
-		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
-		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
-		await this.#store.writeAssetImports(assetImportsFile);
-		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
-		await this.#store.writeModuleImports(modulesImportsFile);
-		await this.#store.waitUntilSaveComplete();
+		await this.#validateReferences(contentConfig.config.collections, logger);
+		await this.#saveStores();
 		logger.info('Synced content');
 		if (this.#settings.config.experimental.contentIntellisense) {
 			await this.regenerateCollectionFileManifest();
@@ -362,18 +462,91 @@ export class ContentLayer {
 	}
 
 	/**
+	 * Returns the names of the collections defined with `storage: 'external'`.
+	 *
+	 * @throws {AstroError} `ContentStorageDriverMissing` when there's no external store, or
+	 * `ContentLoaderExternalStorageUnsupported` when the loader of one of these collections
+	 * doesn't set `supportsExternalStorage`.
+	 */
+	#getExternalCollectionNames(collections: ContentConfig['collections']): Array<string> {
+		const names: Array<string> = [];
+		for (const [name, collection] of Object.entries(collections)) {
+			if (collection.type !== CONTENT_LAYER_TYPE || collection.storage !== 'external') {
+				continue;
+			}
+			if (!this.#externalStore) {
+				throw new AstroError({
+					...AstroErrorData.ContentStorageDriverMissing,
+					message: AstroErrorData.ContentStorageDriverMissing.message(name),
+				});
+			}
+			if (typeof collection.loader === 'object' && !collection.loader.supportsExternalStorage) {
+				throw new AstroError({
+					...AstroErrorData.ContentLoaderExternalStorageUnsupported,
+					message: AstroErrorData.ContentLoaderExternalStorageUnsupported.message(
+						name,
+						collection.loader.name,
+					),
+				});
+			}
+			names.push(name);
+		}
+		return names;
+	}
+
+	/**
+	 * Writes the import files for the entries of both stores, then waits until both stores
+	 * have saved their changes.
+	 */
+	async #saveStores() {
+		if (this.#externalStore) {
+			this.#externalWritesPending = false;
+			const { assetImports, moduleImports } = await this.#externalStore.collectImports(
+				this.#externalCollectionNames,
+			);
+			this.#store.setExternalImports(assetImports, moduleImports);
+		}
+		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
+		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
+		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
+		await this.#store.writeAssetImports(assetImportsFile);
+		const modulesImportsFile = new URL(MODULES_IMPORTS_FILE, this.#settings.dotAstroDir);
+		await this.#store.writeModuleImports(modulesImportsFile);
+		await this.#store.waitUntilSaveComplete();
+		// The dev server reloads content when the external store is flushed, so the import
+		// files must be written first.
+		await this.#externalStore?.flush();
+	}
+
+	/**
 	 * After all loaders complete, walks every entry's data to find reference objects
 	 * (`{ id, collection }`) and checks that the referenced entry exists in the store.
 	 * This replaces the inline Zod validation that was removed in the Zod 4 upgrade.
 	 */
-	#validateReferences(collections: Record<string, any>, logger: { error(message: string): void }) {
+	async #validateReferences(
+		collections: Record<string, any>,
+		logger: { error(message: string): void },
+	) {
 		const collectionNames = new Set(Object.keys(collections));
+		// The IDs of external collections are read once, instead of asking the driver for each reference
+		const externalIds = new Map<string, Set<string>>();
+		for (const collectionName of this.#externalCollectionNames) {
+			const ids = await this.#externalStore?.scopedStore(collectionName).keys();
+			externalIds.set(collectionName, new Set(ids));
+		}
+		const hasEntry = (collectionName: string, id: string) =>
+			externalIds.get(collectionName)?.has(id) ?? this.#store.has(collectionName, id);
 		for (const collectionName of collectionNames) {
-			for (const entry of this.#store.values(collectionName)) {
+			const entries =
+				this.#externalStore && externalIds.has(collectionName)
+					? this.#externalStore.scopedStore(collectionName).values({ content: false })
+					: this.#store.values(collectionName);
+			for await (const entry of entries) {
 				if (entry?.data) {
 					this.#findInvalidReferences(
 						entry.data,
 						collectionNames,
+						hasEntry,
 						collectionName,
 						entry.id,
 						logger,
@@ -387,6 +560,7 @@ export class ContentLayer {
 	#findInvalidReferences(
 		value: unknown,
 		collectionNames: Set<string>,
+		hasEntry: (collectionName: string, id: string) => boolean,
 		ownerCollection: string,
 		ownerId: string,
 		logger: { error(message: string): void },
@@ -399,6 +573,7 @@ export class ContentLayer {
 				this.#findInvalidReferences(
 					value[i],
 					collectionNames,
+					hasEntry,
 					ownerCollection,
 					ownerId,
 					logger,
@@ -413,7 +588,7 @@ export class ContentLayer {
 		if (typeof obj.collection === 'string' && collectionNames.has(obj.collection)) {
 			const refId =
 				typeof obj.id === 'string' ? obj.id : typeof obj.slug === 'string' ? obj.slug : undefined;
-			if (refId !== undefined && !this.#store.has(obj.collection, refId)) {
+			if (refId !== undefined && !hasEntry(obj.collection, refId)) {
 				const fieldPath = path ? ` (field: ${path})` : '';
 				logger.error(
 					`Invalid content reference: entry "${ownerId}" in collection "${ownerCollection}"${fieldPath} references "${refId}" in collection "${obj.collection}", but that entry does not exist.`,
@@ -426,6 +601,7 @@ export class ContentLayer {
 			this.#findInvalidReferences(
 				val,
 				collectionNames,
+				hasEntry,
 				ownerCollection,
 				ownerId,
 				logger,
@@ -445,6 +621,18 @@ export class ContentLayer {
 
 				for (const { hasSchema, name } of collectionsJson.collections) {
 					if (!hasSchema) {
+						continue;
+					}
+					if (this.#externalStore && this.#externalCollectionNames.includes(name)) {
+						const externalEntries = this.#externalStore
+							.scopedStore(name)
+							.values({ content: false });
+						for await (const { filePath } of externalEntries) {
+							if (filePath) {
+								const key = new URL(filePath, this.#settings.config.root).href.toLowerCase();
+								collectionsJson.entries[key] = name;
+							}
+						}
 						continue;
 					}
 					const entries = this.#store.values(name);
@@ -472,6 +660,42 @@ async function simpleLoader<TData extends { id: string }>(
 	handler: CollectionLoader<TData>,
 	context: LoaderContext,
 ) {
+	const data = await loadSimpleLoaderData(handler, context.collection);
+	context.store.clear();
+	for await (const entry of parseSimpleLoaderEntries(data, context)) {
+		context.store.set(entry);
+	}
+}
+
+/**
+ * Saves the entries returned by the inline loader of a collection defined with
+ * `storage: 'external'`. Instead of clearing the collection first, it removes the entries
+ * that weren't returned, so the collection stays readable while it's loaded.
+ */
+async function externalSimpleLoader<TData extends { id: string }>(
+	handler: CollectionLoader<TData>,
+	context: ExternalLoaderContext,
+) {
+	const data = await loadSimpleLoaderData(handler, context.collection);
+	const removedIds = new Set(await context.store.keys());
+	for await (const entry of parseSimpleLoaderEntries(data, context)) {
+		removedIds.delete(entry.id);
+		await context.store.set(entry);
+	}
+	for (const id of removedIds) {
+		await context.store.delete(id);
+	}
+}
+
+/**
+ * Calls the inline loader of a collection and checks the shape of what it returns.
+ *
+ * @throws {AstroError} `ContentLoaderReturnsInvalidId` when an entry has an invalid ID.
+ */
+async function loadSimpleLoaderData<TData extends { id: string }>(
+	handler: CollectionLoader<TData>,
+	collection: string,
+) {
 	const unsafeData = await handler();
 	const parsedData = loaderReturnSchema.safeParse(unsafeData);
 
@@ -491,14 +715,23 @@ async function simpleLoader<TData extends { id: string }>(
 
 		throw new AstroError({
 			...AstroErrorData.ContentLoaderReturnsInvalidId,
-			message: AstroErrorData.ContentLoaderReturnsInvalidId.message(context.collection, entry),
+			message: AstroErrorData.ContentLoaderReturnsInvalidId.message(collection, entry),
 		});
 	}
 
-	const data = parsedData.data;
+	return parsedData.data;
+}
 
-	context.store.clear();
-
+/**
+ * Validates and parses, one at a time, the entries returned by the inline loader of a collection.
+ *
+ * @throws {AstroError} `ContentLoaderInvalidDataError` when an entry has no ID, or an ID that
+ * doesn't match its key.
+ */
+async function* parseSimpleLoaderEntries(
+	data: z.infer<typeof loaderReturnSchema>,
+	context: Pick<LoaderContext, 'collection' | 'parseData'>,
+) {
 	if (Array.isArray(data)) {
 		for (const raw of data) {
 			if (!raw.id) {
@@ -511,7 +744,7 @@ async function simpleLoader<TData extends { id: string }>(
 				});
 			}
 			const item = await context.parseData({ id: raw.id, data: raw });
-			context.store.set({ id: raw.id, data: item });
+			yield { id: raw.id, data: item };
 		}
 		return;
 	}
@@ -527,7 +760,7 @@ async function simpleLoader<TData extends { id: string }>(
 				});
 			}
 			const item = await context.parseData({ id, data: raw });
-			context.store.set({ id, data: item });
+			yield { id, data: item };
 		}
 		return;
 	}

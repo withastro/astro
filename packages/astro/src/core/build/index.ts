@@ -23,7 +23,6 @@ import type { AstroLogger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import { getPrerenderDefault } from '../../prerender/utils.js';
-import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
 import { viteBuild } from './static-build.js';
@@ -64,11 +63,6 @@ export default async function build(
 		inlineConfig.logLevel,
 		fileURLToPath(astroConfig.root),
 	);
-
-	if (inlineConfig.force) {
-		// isDev is always false, because it's interested in the build command, not the output type
-		await clearContentLayerCache({ settings, logger, fs, isDev: false });
-	}
 
 	const builder = new AstroBuilder(settings, {
 		...options,
@@ -172,6 +166,7 @@ export class AstroBuilder {
 				settings: this.settings,
 				logger,
 				fs,
+				force: this.force,
 				command: 'build',
 			});
 		}

@@ -2115,6 +2115,42 @@ export const FileGlobNotSupported = {
 
 /**
  * @docs
+ * @description
+ * A collection is defined with `storage: 'external'`, but no content storage driver is configured to save it. Configure a driver with the `experimental.collectionStorage` option.
+ */
+export const ContentStorageDriverMissing = {
+	name: 'ContentStorageDriverMissing',
+	title: 'Content storage driver is missing.',
+	message: (collection: string) =>
+		`The collection \`${collection}\` is defined with \`storage: 'external'\`, but no content storage driver is configured. Set \`experimental.collectionStorage\` to \`{ type: 'external', driver }\` in your Astro config.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Astro couldn't load the content storage driver configured in `experimental.collectionStorage`. The `entrypoint` of the driver must be a module whose default export creates the driver.
+ */
+export const ContentStorageDriverNotFound = {
+	name: 'ContentStorageDriverNotFound',
+	title: 'Content storage driver not found.',
+	message: (entrypoint: string) =>
+		`Could not load the content storage driver \`${entrypoint}\`. Check that its package is installed, and that the module exports a function that creates the driver as default.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * A collection is defined with `storage: 'external'`, but its loader can't load collections that are saved by a content storage driver.
+ */
+export const ContentLoaderExternalStorageUnsupported = {
+	name: 'ContentLoaderExternalStorageUnsupported',
+	title: "Content loader doesn't support external storage.",
+	message: (collection: string, loader: string) =>
+		`The collection \`${collection}\` is defined with \`storage: 'external'\`, but its loader \`${loader}\` doesn't support it. Remove \`storage: 'external'\` from the collection, or use a loader that supports external storage.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name Action Errors
  */

@@ -5,6 +5,7 @@ import { performance } from 'node:perf_hooks';
 import colors from 'piccolore';
 import { getMajor, getMinor, getPatch, isGreater } from 'verkit';
 import type * as vite from 'vite';
+import { createExternalDataStore } from '../../content/external-data-store.js';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from '../../content/paths.js';
 import { globalContentLayer } from '../../content/instance.js';
 import { attachContentServerListeners, attachDataStoreInvalidation } from '../../content/index.js';
@@ -12,6 +13,7 @@ import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import * as msg from '../messages/runtime.js';
 import { newVersionAvailable } from '../messages/node.js';
 import { ensureProcessNodeEnv } from '../util.js';
@@ -103,13 +105,25 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		logger.error('content', err.message);
 	}
 
+	const externalStore = await createExternalDataStore(
+		restart.container.settings,
+		restart.container.viteServer.environments[
+			ASTRO_VITE_ENVIRONMENT_NAMES.astro
+		] as vite.RunnableDevEnvironment,
+	);
+
 	if (!store) {
 		logger.error('content', 'Failed to create data store');
 	} else {
 		// Invalidate the content virtual modules directly when the store is
 		// written, rather than relying on the file watcher to observe the write.
 		// On Windows the watcher can miss it, leaving dev serving stale content.
-		attachDataStoreInvalidation(store, restart.container.viteServer, restart.container.settings);
+		attachDataStoreInvalidation(
+			store,
+			restart.container.viteServer,
+			restart.container.settings,
+			externalStore,
+		);
 	}
 	await attachContentServerListeners(restart.container);
 
@@ -123,6 +137,8 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			logger,
 			watcher: restart.container.viteServer.watcher,
 			store,
+			externalStore,
+			force: restart.container.inlineConfig.force,
 		});
 		contentLayer.watchContentConfig();
 		await contentLayer.sync();

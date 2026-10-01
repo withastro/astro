@@ -3,9 +3,16 @@ import { dirname, relative } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import colors from 'piccolore';
-import { createServer, type FSWatcher, type HotPayload, type ViteDevServer } from 'vite';
+import {
+	createServer,
+	type FSWatcher,
+	type HotPayload,
+	type RunnableDevEnvironment,
+	type ViteDevServer,
+} from 'vite';
 import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
+import { createExternalDataStore } from '../../content/external-data-store.js';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from '../../content/paths.js';
 import { globalContentLayer } from '../../content/instance.js';
 import { createContentTypesGenerator } from '../../content/index.js';
@@ -21,6 +28,7 @@ import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
 import { loadOrCreateNodeLogger } from '../logger/load.js';
 import { createSettings } from '../config/settings.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import { createVite } from '../create-vite.js';
 import {
 	AstroError,
@@ -165,11 +173,17 @@ export async function syncInternal({
 				return;
 			}
 
+			const externalStore = await createExternalDataStore(
+				settings,
+				tempViteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.astro] as RunnableDevEnvironment,
+			);
 			const contentLayer = globalContentLayer.init({
 				settings,
 				logger,
 				store,
+				externalStore,
 				watcher,
+				force,
 			});
 			if (watcher) {
 				contentLayer.watchContentConfig();
@@ -177,7 +191,7 @@ export async function syncInternal({
 			await contentLayer.sync();
 			if (!skip?.cleanup) {
 				// Free up memory (usually in builds since we only need to use this once)
-				contentLayer.dispose();
+				globalContentLayer.dispose();
 			}
 			settings.timer.end('Sync content layer');
 		} finally {
