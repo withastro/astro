@@ -61,18 +61,13 @@ export async function collectPrerenderMetadata<T>(
 		value,
 		metadata: {
 			contentEntryKeys: [...store.contentEntries!],
-			staticImages: dedupeStaticImages(store.staticImages ?? []),
+			// The same transform resolved more than once in a render is generated once.
+			staticImages: [
+				...new Map(
+					store.staticImages?.map((image) => [`${image.originalPath}\0${image.hash}`, image]),
+				).values(),
+			],
 			referencedImages: [...store.referencedImages!],
 		},
 	};
-}
-
-function dedupeStaticImages(images: SerializedStaticImage[]): SerializedStaticImage[] {
-	const seen = new Set<string>();
-	return images.filter((image) => {
-		const key = `${image.originalPath}\0${image.hash}`;
-		if (seen.has(key)) return false;
-		seen.add(key);
-		return true;
-	});
 }
