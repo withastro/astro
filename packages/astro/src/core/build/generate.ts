@@ -25,10 +25,8 @@ import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroLogger } from '../logger/core.js';
 import type {
 	AstroPrerenderer,
-	PathWithRoute,
 	PrerenderResult,
 	RouteToHeaders,
-	StaticPathsResult,
 } from '../../types/public/index.js';
 import type { RouteData, RouteType, SSRError } from '../../types/public/internal.js';
 import { hashCryptoKey } from '../encryption.js';
@@ -123,10 +121,9 @@ export async function generatePages(
 
 	try {
 		// Get all static paths with their routes from the prerenderer
-		const { paths: pathsWithRoutes, metadata: staticPathsMetadata } = normalizeStaticPathsResult(
-			await prerenderer.getStaticPaths(),
-		);
-		images.addMetadata(staticPathsMetadata);
+		const staticPaths = await prerenderer.getStaticPaths();
+		const pathsWithRoutes = Array.isArray(staticPaths) ? staticPaths : staticPaths.paths;
+		if (!Array.isArray(staticPaths)) images.addMetadata(staticPaths.metadata);
 
 		// Check if i18n domains are configured (incompatible with prerendering)
 		const hasI18nDomains =
@@ -461,13 +458,6 @@ export interface RenderPathResult {
  */
 function normalizePrerenderResult(result: Response | PrerenderResult): PrerenderResult {
 	return result instanceof Response ? { response: result } : result;
-}
-
-/** Same as {@link normalizePrerenderResult}, for a prerenderer's `getStaticPaths()` return value. */
-function normalizeStaticPathsResult(
-	result: PathWithRoute[] | StaticPathsResult,
-): StaticPathsResult {
-	return Array.isArray(result) ? { paths: result } : result;
 }
 
 interface RenderToPathPayload {
