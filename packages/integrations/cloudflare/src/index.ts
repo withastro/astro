@@ -22,6 +22,7 @@ import {
 import { createConfigPlugin, type CompileImageConfig } from './vite-plugin-config.js';
 import { createNodePrerenderPlugin } from './vite-plugin-dev-server-prerender-middleware.js';
 import {
+	assertWranglerConfigMigrated,
 	cloudflareConfigCustomizer,
 	DEFAULT_SESSION_KV_BINDING_NAME,
 	DEFAULT_IMAGES_BINDING_NAME,
@@ -162,6 +163,8 @@ export default function createIntegration({
 				if (!!process.versions.webcontainer) {
 					throw new Error('`workerd` does not run on Stackblitz.');
 				}
+
+				assertWranglerConfigMigrated(fileURLToPath(config.root));
 
 				let session = config.session;
 				const isCompile = buildService === 'compile';

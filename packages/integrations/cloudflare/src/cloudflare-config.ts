@@ -32,6 +32,22 @@ export function withNodejsAlsFlag(compatibilityFlags: string[] | undefined): str
 	return [...flags, 'nodejs_als'];
 }
 
+const WRANGLER_CONFIG_FILENAMES = ['wrangler.json', 'wrangler.jsonc', 'wrangler.toml'];
+
+/**
+ * Throws when the project still has a Wrangler config but no `cloudflare.config.ts`.
+ * The Cloudflare Vite plugin only reads `cloudflare.config.ts`, so without this check
+ * the build succeeds with the Wrangler name, bindings, and entrypoint silently dropped.
+ */
+export function assertWranglerConfigMigrated(root: string): void {
+	if (existsSync(join(root, 'cloudflare.config.ts'))) return;
+	const wranglerConfig = WRANGLER_CONFIG_FILENAMES.find((file) => existsSync(join(root, file)));
+	if (!wranglerConfig) return;
+	throw new Error(
+		`Found \`${wranglerConfig}\` but no \`cloudflare.config.ts\`. @astrojs/cloudflare no longer reads Wrangler configuration files, so its Worker name, bindings, and entrypoint would be ignored. Run \`npx cf migrate --bundler vite\` to generate \`cloudflare.config.ts\`.`,
+	);
+}
+
 interface CloudflareConfigOptions {
 	envDir?: string;
 	mode?: string;
