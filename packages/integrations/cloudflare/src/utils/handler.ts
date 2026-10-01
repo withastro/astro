@@ -18,7 +18,6 @@ import {
 	isImageTransformRequest,
 	handleImageTransformRequest,
 	installPrerenderErrorPropagation,
-	installStaticImageConfig,
 } from './prerender.js';
 import {
 	type Runtime,
@@ -46,7 +45,6 @@ const app = createApp();
 
 if (isPrerender) {
 	installPrerenderErrorPropagation(app);
-	if (compileImageConfig) installStaticImageConfig(app);
 }
 
 export async function handle(
@@ -56,22 +54,21 @@ export async function handle(
 ): Promise<CfResponse> {
 	// Handle prerender endpoints (only active during build prerender phase)
 	if (isPrerender) {
-		if (isStaticPathsRequest(request) || isPrerenderRequest(request)) {
+		const isStaticPaths = isStaticPathsRequest(request);
+		if (isStaticPaths || isPrerenderRequest(request)) {
 			await app.getLogger();
 			// Install the isolate's render scope so concurrent prerender requests
-			// each collect incremental metadata in their own per-render store. The
+			// each collect their metadata in their own per-render store. The
 			// loader thunk is generated into the virtual config module only for the
 			// prerender environment, keeping the module — and its `node:async_hooks`
-			// reference — out of production worker output entirely; the install
+			// import — out of production worker output entirely; the install
 			// itself is first-wins, making the per-request call idempotent.
-			await (await loadPrerenderScope?.())?.ensurePrerenderScope(app.logger);
-		}
-
-		if (isStaticPathsRequest(request)) {
-			return handleStaticPathsRequest(app) as unknown as CfResponse;
-		}
-		if (isPrerenderRequest(request)) {
-			return handlePrerenderRequest(app, request) as unknown as CfResponse;
+			(await loadPrerenderScope?.())?.ensurePrerenderScope();
+			// Without build-time image optimization, prerendered pages keep the runtime image URLs.
+			const options = { staticImages: compileImageConfig !== null };
+			return (isStaticPaths
+				? handleStaticPathsRequest(app, options)
+				: handlePrerenderRequest(app, request, options)) as unknown as CfResponse;
 		}
 		if (isImageTransformRequest(request)) {
 			const imagesBindingName = globalThis.__ASTRO_IMAGES_BINDING_NAME;

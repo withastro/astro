@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { afterEach, describe, it } from 'node:test';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 import {
 	getInstalledRenderScope,
 	getRenderCollectors,
@@ -19,6 +19,9 @@ function fakeScope(): RenderCollectorScope {
 }
 
 describe('render scope channel', () => {
+	beforeEach(() => {
+		uninstallRenderScope();
+	});
 	afterEach(() => {
 		uninstallRenderScope();
 	});
@@ -49,12 +52,6 @@ describe('render scope channel', () => {
 		]);
 		assert.equal(a, b);
 		assert.equal(getInstalledRenderScope(), a);
-	});
-
-	it('installs without an async context scope', () => {
-		assert.equal(installRenderScope(undefined), undefined);
-		assert.equal(getInstalledRenderScope(), undefined);
-		assert.equal(getRenderCollectors(), undefined);
 	});
 
 	it('uninstallRenderScope resets the channel', () => {

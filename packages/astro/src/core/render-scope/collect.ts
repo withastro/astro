@@ -1,11 +1,20 @@
 import type { SerializedStaticImage } from '../../assets/types.js';
 import type { AstroLogger } from '../logger/core.js';
-import { getInstalledRenderScope, hasRenderChannel, type RenderCollectors } from './scope.js';
+import { getInstalledRenderScope, type RenderCollectors } from './scope.js';
 
 export interface CollectedPrerenderMetadata {
 	contentEntryKeys: string[];
 	staticImages: SerializedStaticImage[];
 	referencedImages: string[];
+}
+
+export interface CollectPrerenderMetadataOptions {
+	/**
+	 * Whether `getImage()` resolves build-time image URLs and collects their
+	 * transforms, for the build to generate. Disable it when prerendered pages
+	 * should keep the image service's runtime URLs. Default `true`.
+	 */
+	staticImages?: boolean;
 }
 
 let warnedNoScope = false;
@@ -15,8 +24,8 @@ let warnedNoScope = false;
  * together with a snapshot of everything recorded while it ran.
  *
  * When no render scope is installed, collection degrades to *not collecting*:
- * warn once per process, run `fn` bare, and return `metadata: undefined`
- * ("not tracked") — never wrong attribution.
+ * warn once per process (when a `logger` is given), run `fn` bare, and return
+ * `metadata: undefined` ("not tracked") — never wrong attribution.
  *
  * Invariant: `fn` must not resolve until all recordable work is done — in
  * practice, until the response body is fully buffered inside `fn`. The
@@ -26,25 +35,25 @@ let warnedNoScope = false;
  */
 export async function collectPrerenderMetadata<T>(
 	fn: () => Promise<T>,
-	logger: AstroLogger,
+	logger?: AstroLogger,
+	options: CollectPrerenderMetadataOptions = {},
 ): Promise<{ value: T; metadata: CollectedPrerenderMetadata | undefined }> {
 	const scope = getInstalledRenderScope();
 	if (!scope) {
-		// A channel without a scope was installed on purpose, by a runtime that warns on its own.
-		if (!warnedNoScope && !hasRenderChannel()) {
+		if (logger && !warnedNoScope) {
 			warnedNoScope = true;
 			logger.warn(
 				'build',
 				'A prerenderer requested metadata collection but no render scope is installed; ' +
-					'install one with `installRenderScope` from `astro/app` — images and incremental ' +
-					'metadata will not be collected for prerendered paths.',
+					'install one with `installRenderScope` from `astro/app` — optimized images and ' +
+					'incremental metadata will not be collected for prerendered paths.',
 			);
 		}
 		return { value: await fn(), metadata: undefined };
 	}
 	const store: RenderCollectors = {
 		contentEntries: new Set(),
-		staticImages: [],
+		staticImages: options.staticImages === false ? undefined : [],
 		referencedImages: new Set(),
 	};
 	const value = await scope.run(store, fn);
@@ -52,7 +61,7 @@ export async function collectPrerenderMetadata<T>(
 		value,
 		metadata: {
 			contentEntryKeys: [...store.contentEntries!],
-			staticImages: dedupeStaticImages(store.staticImages!),
+			staticImages: dedupeStaticImages(store.staticImages ?? []),
 			referencedImages: [...store.referencedImages!],
 		},
 	};

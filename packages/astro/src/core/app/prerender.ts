@@ -2,7 +2,10 @@ import type { PrerenderResult } from '../../types/public/integrations.js';
 import type { RouteData } from '../../types/public/internal.js';
 import type { AstroLogger } from '../logger/core.js';
 import { getEnvironment, setEnvironment } from '../environment/index.js';
-import { collectPrerenderMetadata } from '../render-scope/collect.js';
+import {
+	collectPrerenderMetadata,
+	type CollectPrerenderMetadataOptions,
+} from '../render-scope/collect.js';
 import type { SSRManifest } from './types.js';
 
 export interface PrerenderableApp {
@@ -19,6 +22,8 @@ export interface PrerenderRenderOptions {
 	routeData?: RouteData;
 	/** @deprecated Metadata is always collected. */
 	collectMetadata?: boolean;
+	/** See {@link CollectPrerenderMetadataOptions.staticImages}. Default `true`. */
+	staticImages?: boolean;
 }
 
 /**
@@ -68,15 +73,19 @@ export async function renderForPrerender(
 		useBuildErrorStrategy(app.manifest);
 	}
 	const routeData = options?.routeData;
-	const { value: response, metadata } = await collectPrerenderMetadata(async () => {
-		const rendered = await app.render(request, { routeData });
-		const bytes = rendered.body === null ? null : await rendered.arrayBuffer();
-		const nullBody = bytes === null || NULL_BODY_STATUSES.includes(rendered.status);
-		return new Response(nullBody ? null : bytes, {
-			status: rendered.status,
-			statusText: rendered.statusText,
-			headers: rendered.headers,
-		});
-	}, app.logger);
+	const { value: response, metadata } = await collectPrerenderMetadata(
+		async () => {
+			const rendered = await app.render(request, { routeData });
+			const bytes = rendered.body === null ? null : await rendered.arrayBuffer();
+			const nullBody = bytes === null || NULL_BODY_STATUSES.includes(rendered.status);
+			return new Response(nullBody ? null : bytes, {
+				status: rendered.status,
+				statusText: rendered.statusText,
+				headers: rendered.headers,
+			});
+		},
+		app.logger,
+		{ staticImages: options?.staticImages },
+	);
 	return { response, metadata };
 }

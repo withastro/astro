@@ -58,3 +58,75 @@ describe('experimental.incrementalBuild optimized images', () => {
 		assert.ok(optimizedPath && fixture.pathExists(optimizedPath));
 	});
 });
+
+describe('experimental.incrementalBuild images resolved in getStaticPaths', () => {
+	const root = new URL('./fixtures/incremental-build-images/', import.meta.url);
+	const cacheFile = new URL('node_modules/.astro/incremental-build.json', root);
+	const cachedPage = new URL('node_modules/.astro/dist/gsp/a/index.html', root);
+	let fixture: Fixture;
+	let optimizedSrc: string | undefined;
+	let originalSrc: string | undefined;
+
+	before(async () => {
+		fs.rmSync(new URL('dist/', root), { recursive: true, force: true });
+		fs.rmSync(new URL('node_modules/.astro/', root), { recursive: true, force: true });
+		fixture = await loadFixture({
+			root,
+			output: 'static',
+			experimental: {
+				incrementalBuild: true,
+			},
+		});
+
+		await fixture.build();
+		const $ = cheerio.load(await fixture.readFile('/gsp/a/index.html'));
+		optimizedSrc = $('#optimized').attr('src');
+		originalSrc = $('#original').attr('href');
+	});
+
+	it('emits the images on the first build', () => {
+		assert.ok(
+			optimizedSrc?.startsWith('/_astro/'),
+			`expected an optimized src, got ${optimizedSrc}`,
+		);
+		assert.ok(originalSrc?.startsWith('/_astro/'), `expected an original src, got ${originalSrc}`);
+		assert.notEqual(optimizedSrc, originalSrc);
+		assert.ok(fixture.pathExists(optimizedSrc!), 'optimized image should be generated');
+		assert.ok(fixture.pathExists(originalSrc!), 'original image should be kept');
+	});
+
+	it('does not record them against the path', () => {
+		const cache = JSON.parse(fs.readFileSync(cacheFile, 'utf-8'));
+		const pathEntry = cache.routes['src/pages/gsp/[slug].astro'].paths['/gsp/a'];
+		assert.ok(!pathEntry.staticImages?.length, 'the render itself resolves no image');
+		assert.ok(!pathEntry.referencedImages?.length, 'the render itself reads no image src');
+	});
+
+	describe('rebuild with no changes', () => {
+		before(async () => {
+			// Astro empties dist/ each build, so a skipped path is restored from its
+			// cached copy. A sentinel there proves the path was skipped: a re-render
+			// would overwrite it.
+			fs.writeFileSync(cachedPage, 'cached gsp sentinel');
+			await fixture.build();
+		});
+
+		it('skips the path', async () => {
+			assert.equal(await fixture.readFile('/gsp/a/index.html'), 'cached gsp sentinel');
+		});
+
+		it('still generates the optimized image resolved in getStaticPaths', () => {
+			assert.ok(
+				fixture.pathExists(optimizedSrc!),
+				`${optimizedSrc} is referenced by the restored page and must still be generated`,
+			);
+		});
+
+		it('still keeps the original image whose src getStaticPaths read', () => {
+			assert.ok(
+				fixture.pathExists(originalSrc!),
+				`${originalSrc} is referenced by the restored page and must not be deleted`,
+			);
+		});
+	});
+});

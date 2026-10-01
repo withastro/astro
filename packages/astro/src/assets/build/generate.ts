@@ -406,20 +406,16 @@ export class StaticImageRegistry {
 	}
 
 	addStaticImageList(list: AssetsGlobalStaticImagesList): void {
-		for (const [originalPath, entry] of list) {
-			const existing = this.images.get(originalPath);
-			if (!existing) {
-				this.images.set(originalPath, {
-					originalSrcPath: entry.originalSrcPath,
-					transforms: new Map(entry.transforms),
-				});
-				continue;
-			}
-			for (const [hash, transform] of entry.transforms) {
-				if (!existing.transforms.has(hash)) {
-					existing.transforms.set(hash, transform);
-				}
-			}
+		for (const [originalPath, { originalSrcPath, transforms }] of list) {
+			this.addStaticImages(
+				Array.from(transforms, ([hash, { finalPath, transform }]) => ({
+					originalPath,
+					originalSrcPath,
+					hash,
+					finalPath,
+					transform,
+				})),
+			);
 		}
 	}
 }

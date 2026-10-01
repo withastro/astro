@@ -27,6 +27,7 @@ import { ASSETS_ESM_PLUGIN_NAME, type AssetsPluginApi, emitClientAsset } from '.
 import { emitImageMetadata } from './utils/node.js';
 import { CONTENT_IMAGE_FLAG } from '../content/consts.js';
 import { getImageAssetModule } from './utils/image-asset-code.js';
+import type { StaticImageConfig } from './utils/static-image.js';
 import { makeSvgComponent, parseSvgComponentData } from './svg/utils.js';
 
 const assetRegex = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})`, 'i');
@@ -64,6 +65,35 @@ const CLIENT_RUNTIME_LOGGER_SETUP = `
 		error: (message) => console.error(message),
 	};
 `;
+
+/**
+ * The `imageConfig` exported by the `astro:assets` virtual modules. Adapter asset query
+ * params and the build output layout ride along as non-enumerable properties, so image
+ * services that serialize the config never see them.
+ */
+function getImageConfigCode(settings: AstroSettings): string {
+	const assetQueryParams = settings.adapter?.client?.assetQueryParams
+		? `new URLSearchParams(${JSON.stringify(
+				Array.from(settings.adapter.client.assetQueryParams.entries()),
+			)})`
+		: 'undefined';
+	const staticImageConfig: StaticImageConfig = {
+		base: settings.config.base,
+		assetsPrefix: settings.config.build.assetsPrefix,
+		assetsDir: settings.config.build.assets,
+	};
+	return `
+		export const imageConfig = ${JSON.stringify(settings.config.image)};
+		Object.defineProperties(imageConfig, {
+			assetQueryParams: { value: ${assetQueryParams}, enumerable: false, configurable: true },
+			staticImageConfig: {
+				value: ${JSON.stringify(staticImageConfig)},
+				enumerable: false,
+				configurable: true,
+			},
+		});
+	`;
+}
 
 interface Options {
 	settings: AstroSettings;
@@ -131,20 +161,9 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 									);
 								};`;
 
-						const assetQueryParams = settings.adapter?.client?.assetQueryParams
-							? `new URLSearchParams(${JSON.stringify(
-									Array.from(settings.adapter.client.assetQueryParams.entries()),
-								)})`
-							: 'undefined';
-
 						return {
 							code: `
-								export const imageConfig = ${JSON.stringify(settings.config.image)};
-								Object.defineProperty(imageConfig, 'assetQueryParams', {
-									value: ${assetQueryParams},
-									enumerable: false,
-									configurable: true,
-								});
+								${getImageConfigCode(settings)}
 								${getImageExport}
 							`,
 						};
@@ -185,19 +204,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 
 					export const fsDenyGlob = ${serializeFsDenyGlob(resolvedConfig.server.fs?.deny ?? [])};
 
-					const assetQueryParams = ${
-						settings.adapter?.client?.assetQueryParams
-							? `new URLSearchParams(${JSON.stringify(
-									Array.from(settings.adapter.client.assetQueryParams.entries()),
-								)})`
-							: 'undefined'
-					};
-					export const imageConfig = ${JSON.stringify(settings.config.image)};
-					Object.defineProperty(imageConfig, 'assetQueryParams', {
-						value: assetQueryParams,
-						enumerable: false,
-						configurable: true,
-					});
+					${getImageConfigCode(settings)}
 					export const inferRemoteSize = async (url) => {
 						const service = await _getConfiguredImageService();
 						return service.getRemoteSize?.(url, imageConfig, _runtimeLogger) ?? inferRemoteSizeInternal(url, imageConfig);

@@ -5,13 +5,9 @@ import { baseService } from '../../../dist/assets/services/service.js';
 import { isImageMetadata } from '../../../dist/assets/types.js';
 import type { ImageMetadata } from '../../../dist/assets/types.js';
 import { createImageAsset, getUntrackedImage } from '../../../dist/assets/utils/image-asset.js';
-import {
-	resolveStaticImage,
-	setStaticImageConfig,
-} from '../../../dist/assets/utils/static-image.js';
+import { resolveStaticImage } from '../../../dist/assets/utils/static-image.js';
 import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
 import {
-	drainAmbientCollectors,
 	type RenderCollectors,
 	uninstallRenderScope,
 } from '../../../dist/core/render-scope/scope.js';
@@ -111,18 +107,12 @@ describe('createImageAsset', () => {
 		assert.deepEqual([...store.referencedImages!], [fsPath]);
 	});
 
-	it('records reads of src outside of a render into the ambient store', () => {
-		ensureAsyncRenderScope();
-		const image = createImageAsset(metadata, fsPath, true);
-		void image.src;
-		assert.deepEqual(drainAmbientCollectors().referencedImages, [fsPath]);
-	});
-
 	it('does not record when untracked', () => {
-		ensureAsyncRenderScope();
+		const scope = ensureAsyncRenderScope();
 		const image = createImageAsset(metadata, fsPath, false);
-		void image.src;
-		assert.deepEqual(drainAmbientCollectors().referencedImages, []);
+		const store = newStore();
+		scope.run(store, () => void image.src);
+		assert.deepEqual([...store.referencedImages!], []);
 	});
 
 	it('is a plain value: can be cloned and serialized, without its fsPath', () => {
@@ -172,6 +162,7 @@ describe('getImage static images', () => {
 		endpoint: { route: '/_image' },
 		dangerouslyProcessSVG: false,
 		responsiveStyles: false,
+		staticImageConfig: { base: '/', assetsDir: '_astro' },
 	} as any;
 
 	beforeEach(() => {
@@ -180,7 +171,6 @@ describe('getImage static images', () => {
 
 	afterEach(() => {
 		setConfiguredImageService(undefined);
-		setStaticImageConfig(undefined);
 		uninstallRenderScope();
 	});
 
@@ -191,7 +181,6 @@ describe('getImage static images', () => {
 	});
 
 	it('resolves static files and reports them against the rendering page', async () => {
-		setStaticImageConfig({ base: '/', assetsDir: '_astro' });
 		const scope = ensureAsyncRenderScope();
 		const image = createImageAsset(metadata, fsPath, true);
 		const store = newStore();
@@ -211,16 +200,21 @@ describe('getImage static images', () => {
 		);
 	});
 
-	it('reports static files resolved outside of a render into the ambient store', async () => {
-		setStaticImageConfig({ base: '/', assetsDir: '_astro' });
+	it('returns on-demand URLs outside of a collecting render', async () => {
 		ensureAsyncRenderScope();
 		const image = createImageAsset(metadata, fsPath, true);
 		const { src } = await getImage({ src: image, width: 200 }, imageConfig, mockRuntimeLogger);
-		const { staticImages, referencedImages } = drainAmbientCollectors();
-		assert.deepEqual(
-			staticImages.map((i) => i.finalPath),
-			[src],
-		);
-		assert.deepEqual(referencedImages, []);
+		assert.ok(src.startsWith('/_image'));
+	});
+
+	it('returns on-demand URLs when the render does not collect static images', async () => {
+		const scope = ensureAsyncRenderScope();
+		const image = createImageAsset(metadata, fsPath, true);
+		const store: RenderCollectors = { contentEntries: new Set(), referencedImages: new Set() };
+		const src = await scope.run(store, async () => {
+			const result = await getImage({ src: image, width: 200 }, imageConfig, mockRuntimeLogger);
+			return result.src;
+		});
+		assert.ok(src.startsWith('/_image'));
 	});
 });

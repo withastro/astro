@@ -15,7 +15,7 @@
  */
 
 import type { BaseApp, RenderErrorOptions } from 'astro/app';
-import { renderForPrerender, setStaticImageConfig } from 'astro/app';
+import { renderForPrerender } from 'astro/app';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import { StaticPaths } from 'astro:static-paths';
 import type { StaticPathsResponse, PrerenderRequest } from '../prerender-types.js';
@@ -36,14 +36,6 @@ import { createFramedPrerenderResponse } from './prerender-response.js';
  * surface it to the build process, while intentional non-2xx responses
  * (e.g. a custom 404 page) still render through the default error handler.
  */
-export function installStaticImageConfig(app: BaseApp): void {
-	setStaticImageConfig({
-		base: app.manifest.base,
-		assetsPrefix: app.manifest.assetsPrefix,
-		assetsDir: app.manifest.assetsDir,
-	});
-}
-
 export function installPrerenderErrorPropagation(app: BaseApp): void {
 	const originalRenderError = app.renderError.bind(app);
 	app.renderError = async (request: Request, options: RenderErrorOptions): Promise<Response> => {
@@ -75,12 +67,20 @@ export function isPrerenderRequest(request: Request): boolean {
 	return pathname === PRERENDER_ENDPOINT && request.method === 'POST';
 }
 
+interface PrerenderOptions {
+	/** Whether prerendered pages get build-time image URLs, for the build to generate. */
+	staticImages: boolean;
+}
+
 /**
  * Handles the static paths request, returning all paths that need prerendering.
  */
-export async function handleStaticPathsRequest(app: BaseApp): Promise<Response> {
+export async function handleStaticPathsRequest(
+	app: BaseApp,
+	{ staticImages }: PrerenderOptions,
+): Promise<Response> {
 	const staticPaths = new StaticPaths(app);
-	const { paths, metadata } = await staticPaths.getAllWithMetadata();
+	const { paths, metadata } = await staticPaths.getAllWithMetadata({ staticImages });
 	const response: StaticPathsResponse = {
 		paths: paths.map(({ pathname, route, cacheKey }) => ({
 			pathname,
@@ -103,7 +103,11 @@ export async function handleStaticPathsRequest(app: BaseApp): Promise<Response> 
  * status 200 before the stream completes, and a mid-stream error silently
  * truncates the HTML output.
  */
-export async function handlePrerenderRequest(app: BaseApp, request: Request): Promise<Response> {
+export async function handlePrerenderRequest(
+	app: BaseApp,
+	request: Request,
+	{ staticImages }: PrerenderOptions,
+): Promise<Response> {
 	const headers = new Headers();
 	for (const [key, value] of request.headers.entries()) {
 		headers.append(key, value);
@@ -124,6 +128,7 @@ export async function handlePrerenderRequest(app: BaseApp, request: Request): Pr
 		// raw response bytes without requiring cross-request state.
 		const { response, metadata } = await renderForPrerender(app, prerenderRequest, {
 			routeData,
+			staticImages,
 		});
 		return createFramedPrerenderResponse(response, metadata);
 	} catch (err: unknown) {
@@ -155,12 +160,11 @@ interface ImageTransformOptions {
  * Transforms a single image with the Cloudflare IMAGES binding and streams the raw
  * bytes back to the Node-side build.
  *
- * The transform parameters arrive as query parameters on the request URL, in the same
+ * The original is uploaded as the request body, since the build has already loaded it,
+ * and the transform parameters arrive as query parameters on the request URL, in the same
  * shape `/_image` uses. Handling one image per request keeps peak memory proportional to
- * a single variant rather than to the whole image set, since neither the request body
- * nor the response body is ever buffered in the isolate.
- *
- * The original is uploaded as the request body, since the build has already loaded it.
+ * a single variant rather than to the whole image set; neither body is buffered in the
+ * isolate.
  */
 export async function handleImageTransformRequest(
 	request: Request,

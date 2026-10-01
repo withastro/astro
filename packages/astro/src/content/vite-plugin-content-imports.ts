@@ -431,8 +431,8 @@ function stringifyEntryData(
 
 			// For Astro assets, track references to their `src`
 			if (typeof value === 'object' && 'ASTRO_ASSET' in value) {
-				const { ASTRO_ASSET, ...asset } = value;
-				asset.fsPath = ASTRO_ASSET;
+				// `createImageAsset` defines a non-enumerable `fsPath`, as for imported images.
+				const { ASTRO_ASSET, fsPath: _fsPath, ...asset } = value;
 				hasImageAsset = true;
 				return getImageAssetCode(asset, ASTRO_ASSET, !isSSR);
 			}

@@ -2,7 +2,6 @@ import { manifest } from 'virtual:astro:manifest';
 import { createBuildEnvironment } from '../core/build/environment.js';
 import { BuildApp } from '../core/build/app.js';
 import { setEnvironment } from '../core/environment/index.js';
-import { setStaticImageConfig } from '../assets/utils/static-image.js';
 
 // Composition: the build environment record and its
 // mutable `internals`/`options` closure slots live at module scope INSIDE the
@@ -13,11 +12,6 @@ import { setStaticImageConfig } from '../assets/utils/static-image.js';
 const buildEnv = createBuildEnvironment();
 setEnvironment(manifest, buildEnv.env);
 const app = new BuildApp(manifest, buildEnv);
-setStaticImageConfig({
-	base: manifest.base,
-	assetsPrefix: manifest.assetsPrefix,
-	assetsDir: manifest.assetsDir,
-});
 
 export { app, manifest };
 // `virtual:image-service` only resolves inside the bundle.
