@@ -653,8 +653,8 @@ export interface AstroUserConfig<
 	 * These features only exist for pages rendered on demand (SSR) using `server` mode or pages that opt out of prerendering in `static` mode.
 	 *
 	 * By default, Astro checks browser request metadata to ensure that form submissions
-	 * to on-demand rendered pages come from the same origin. You can disable this
-	 * behavior by setting `checkOrigin` to `false`:
+	 * to on-demand rendered pages come from the same origin. To disable this
+	 * behavior set `checkOrigin` to `false`:
 	 *
 	 * ```js
 	 * // astro.config.mjs
