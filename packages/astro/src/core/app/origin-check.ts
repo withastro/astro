@@ -46,14 +46,23 @@ export function isForbiddenCrossOriginRequest(
 	if (SAFE_METHODS.includes(request.method)) {
 		return false;
 	}
-	const isSameOrigin = request.headers.get('origin') === url.origin;
 
-	const hasContentType = request.headers.has('content-type');
-	if (hasContentType) {
-		const formLikeHeader = hasFormLikeHeader(request.headers.get('content-type'));
-		return formLikeHeader && !isSameOrigin;
+	switch (request.headers.get('sec-fetch-site')) {
+		case '':
+		case null:
+			break;
+		case 'same-origin':
+		case 'none':
+			return false;
+		default:
+			return true;
 	}
-	return !isSameOrigin;
+
+	const origin = request.headers.get('origin');
+	if (!origin) {
+		return false;
+	}
+	return origin !== url.origin;
 }
 
 /**
@@ -68,7 +77,7 @@ export function createCrossOriginForbiddenResponse(request: Request): Response {
 }
 
 /**
- * Returns a middleware function in charge to check the `origin` header.
+ * Returns middleware that rejects cross-origin form submissions.
  *
  * @private
  */
