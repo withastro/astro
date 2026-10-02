@@ -137,6 +137,23 @@ describe('URL', () => {
 		assert.equal($('body').text().trim(), 'https://legitimate.example.com/');
 	});
 
+	it('rejects Host when it does not match allowedDomains', async () => {
+		const handler = await fixture.loadNodeAdapterHandler();
+		const { req, res, text } = createRequestAndResponse({
+			headers: { Host: 'attacker.example.net' },
+			url: '/',
+		});
+
+		handler(req, res);
+		req.send();
+
+		const html = await text();
+		const $ = cheerio.load(html);
+		const url = new URL($('body').text().trim());
+
+		assert.equal(url.hostname, 'localhost');
+	});
+
 	it('rejects port in forwarded host when port not in allowedDomains', async () => {
 		const handler = await fixture.loadNodeAdapterHandler();
 		const { req, res, text } = createRequestAndResponse({

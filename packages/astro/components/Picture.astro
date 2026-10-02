@@ -134,21 +134,19 @@ const { class: className, ...attributes } = {
 ---
 
 <picture {...pictureAttributes}>
-	{
-		Object.entries(optimizedImages).map(([_, image]) => {
-			const srcsetAttribute =
-				props.densities || (!props.densities && !props.widths && !useResponsive)
-					? `${image.src}${image.srcSet.values.length > 0 ? ', ' + image.srcSet.attribute : ''}`
-					: image.srcSet.attribute;
-			return (
-				<source
-					srcset={srcsetAttribute}
-					type={mime.lookup(image.options.format ?? image.src) ?? `image/${image.options.format}`}
-					{...sourceAdditionalAttributes}
-				/>
-			);
-		})
-	}
+	{Object.entries(optimizedImages).map(([_, image]) => {
+		const srcsetAttribute =
+			props.densities || (!props.densities && !props.widths && !useResponsive)
+				? `${image.src}${image.srcSet.values.length > 0 ? ', ' + image.srcSet.attribute : ''}`
+				: image.srcSet.attribute;
+		return (
+			<source
+				srcset={srcsetAttribute}
+				type={mime.lookup(image.options.format ?? image.src) ?? `image/${image.options.format}`}
+				{...sourceAdditionalAttributes}
+			/>
+		);
+	})}
 	{/* Applying class outside of the spread prevents it from applying unnecessary astro-* classes */}
 	<img src={fallbackImage.src} {...attributes} class={className} />
 </picture>
