@@ -298,6 +298,12 @@ async function parseRequestBody(request: Request, bodySizeLimit: number) {
 				message: `Request body exceeds ${bodySizeLimit} bytes`,
 			});
 		}
+		if (e instanceof SyntaxError && hasContentType(contentType, ['application/json'])) {
+			throw new ActionError({
+				code: 'BAD_REQUEST',
+				message: 'Request body is not valid JSON.',
+			});
+		}
 		throw e;
 	}
 	throw new TypeError('Unsupported content type');
