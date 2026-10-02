@@ -47,7 +47,7 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
-    "@cloudflare/vite-plugin": "2.0.0-beta.sha-238e489d5",
+    "@cloudflare/vite-plugin": "2.0.0-beta.sha-ad79608dd",
     "piccolore": "^0.1.3",
     "vite": "^8.0.13"
   },
