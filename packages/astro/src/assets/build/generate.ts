@@ -10,7 +10,6 @@ import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { MapValue } from '../../type-utils.js';
 import type { AstroConfig } from '../../types/public/config.js';
-import { getConfiguredImageService } from '../internal.js';
 import type { LocalImageService } from '../services/service.js';
 import type {
 	AssetsGlobalStaticImagesList,
@@ -37,6 +36,8 @@ type GenerationData = GenerationDataUncached | GenerationDataCached;
 
 type AssetEnv = {
 	logger: AstroLogger;
+	getImageService: () => Promise<LocalImageService>;
+	referencedImages: ReadonlySet<string>;
 	isSSR: boolean;
 	count: { total: number; current: number };
 	useCache: boolean;
@@ -57,6 +58,13 @@ type ImageData = {
 export async function prepareAssetsGenerationEnv(
 	options: StaticBuildOptions,
 	totalCount: number,
+	{
+		loadImageService,
+		referencedImages,
+	}: {
+		loadImageService: () => Promise<LocalImageService>;
+		referencedImages: ReadonlySet<string>;
+	},
 ): Promise<AssetEnv> {
 	const { settings, logger } = options;
 	let useCache = true;
@@ -88,8 +96,11 @@ export async function prepareAssetsGenerationEnv(
 		clientRoot = clientOutputDir;
 	}
 
+	let imageService: Promise<LocalImageService> | undefined;
 	return {
 		logger,
+		getImageService: () => (imageService ??= loadImageService()),
+		referencedImages,
 		isSSR: isServerOutput,
 		count,
 		useCache,
@@ -120,7 +131,7 @@ export async function generateImagesForPath(
 	// The referencedImages set tracks images that were used via raw `src` access (e.g., <img src={img.src}>).
 	if (
 		transformsAndPath.originalSrcPath &&
-		!globalThis.astroAsset.referencedImages?.has(transformsAndPath.originalSrcPath)
+		!env.referencedImages.has(transformsAndPath.originalSrcPath)
 	) {
 		try {
 			if (transformsAndPath.originalSrcPath) {
@@ -272,7 +283,7 @@ export async function generateImagesForPath(
 			lastModified: originalImage.lastModified,
 		};
 
-		const imageService = (await getConfiguredImageService()) as LocalImageService;
+		const imageService = await env.getImageService();
 
 		try {
 			resultData.data = (
@@ -354,48 +365,58 @@ async function writeCacheMetaFile(
 	}
 }
 
-export function getStaticImageList(): AssetsGlobalStaticImagesList {
-	if (!globalThis?.astroAsset?.staticImages) {
-		return new Map();
-	}
+export class StaticImageRegistry {
+	readonly images: AssetsGlobalStaticImagesList = new Map();
+	readonly referencedImages = new Set<string>();
 
-	return globalThis.astroAsset.staticImages;
-}
-
-/**
- * Replay transforms attributed to a skipped page back into the global list, so
- * the asset pipeline emits its optimized images even though the page was not
- * rendered this build. Existing transforms (already added by a rendered page
- * that shares the image) are left untouched.
- */
-export function restoreStaticImages(images: SerializedStaticImage[]): void {
-	if (!globalThis.astroAsset) {
-		globalThis.astroAsset = { referencedImages: new Set() };
-	}
-	const staticImages = (globalThis.astroAsset.staticImages ??= new Map());
-	for (const image of images) {
-		let transformsForPath = staticImages.get(image.originalPath);
-		if (!transformsForPath) {
-			transformsForPath = { originalSrcPath: image.originalSrcPath, transforms: new Map() };
-			staticImages.set(image.originalPath, transformsForPath);
-		}
-		if (!transformsForPath.transforms.has(image.hash)) {
-			transformsForPath.transforms.set(image.hash, {
-				finalPath: image.finalPath,
-				transform: image.transform,
-			});
+	/**
+	 * Adds image transforms to the static image list, so the asset pipeline emits
+	 * their optimized images. Existing transforms (already added by another page
+	 * that shares the image) are left untouched.
+	 */
+	addStaticImages(images: Iterable<SerializedStaticImage> | undefined): void {
+		if (!images) return;
+		for (const image of images) {
+			let transformsForPath = this.images.get(image.originalPath);
+			if (!transformsForPath) {
+				transformsForPath = { originalSrcPath: image.originalSrcPath, transforms: new Map() };
+				this.images.set(image.originalPath, transformsForPath);
+			}
+			if (!transformsForPath.transforms.has(image.hash)) {
+				transformsForPath.transforms.set(image.hash, {
+					finalPath: image.finalPath,
+					transform: image.transform,
+				});
+			}
 		}
 	}
-}
 
-/** Preserve originals referenced without transforms by skipped pages. */
-export function restoreReferencedImages(fsPaths: string[]): void {
-	if (!globalThis.astroAsset) {
-		globalThis.astroAsset = { referencedImages: new Set() };
+	addReferencedImages(fsPaths: Iterable<string> | undefined): void {
+		if (!fsPaths) return;
+		for (const fsPath of fsPaths) {
+			this.referencedImages.add(fsPath);
+		}
 	}
-	const referencedImages = (globalThis.astroAsset.referencedImages ??= new Set());
-	for (const fsPath of fsPaths) {
-		referencedImages.add(fsPath);
+
+	addMetadata(
+		metadata: { staticImages?: SerializedStaticImage[]; referencedImages?: string[] } | undefined,
+	): void {
+		this.addStaticImages(metadata?.staticImages);
+		this.addReferencedImages(metadata?.referencedImages);
+	}
+
+	addStaticImageList(list: AssetsGlobalStaticImagesList): void {
+		for (const [originalPath, { originalSrcPath, transforms }] of list) {
+			this.addStaticImages(
+				Array.from(transforms, ([hash, { finalPath, transform }]) => ({
+					originalPath,
+					originalSrcPath,
+					hash,
+					finalPath,
+					transform,
+				})),
+			);
+		}
 	}
 }
 

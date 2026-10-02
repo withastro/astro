@@ -6,6 +6,7 @@ interface Callbacks {
 	onGetStaticPaths?: () => void;
 	onRender?: (request: Request, routeData: RouteData) => void;
 	onTeardown?: () => void;
+	omitMetadata?: boolean;
 }
 
 /**
@@ -56,7 +57,9 @@ export default function createTestPrerenderer(callbacks: Callbacks = {}): {
 						renderedPaths.push(url.pathname);
 						callbacks.onRender?.(request, routeData);
 						// Delegate to the default prerenderer
-						return defaultPrerenderer.render(request, { routeData });
+						const result = await defaultPrerenderer.render(request, { routeData });
+						if (callbacks.omitMetadata && !(result instanceof Response)) return result.response;
+						return result;
 					},
 
 					async teardown() {

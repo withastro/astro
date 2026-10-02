@@ -163,6 +163,8 @@ export interface BuildInternals {
 	 * cache only reuses them while the encryption key is unchanged.
 	 */
 	serverIslandPageComponents?: Set<string>;
+
+	referencedImages: ReadonlySet<string>;
 }
 
 /**
@@ -193,6 +195,7 @@ export function createBuildInternals(): BuildInternals {
 		loggerEntryPoint: undefined,
 		clientChunksAndAssets: new Set(),
 		ssrAssetsPerEnvironment: new Map(),
+		referencedImages: new Set(),
 	};
 }
 

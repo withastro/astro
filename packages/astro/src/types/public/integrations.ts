@@ -1,6 +1,7 @@
 import type { AddressInfo } from 'node:net';
 import type { ViteDevServer, InlineConfig } from 'vite';
 import type { SerializedSSRManifest } from '../../core/app/types.js';
+import type { ImageService } from '../../assets/services/service.js';
 import type { AssetsGlobalStaticImagesList, SerializedStaticImage } from '../../assets/types.js';
 import type { PageBuildData } from '../../core/build/types.js';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
@@ -266,11 +267,26 @@ export interface PrerenderRenderMetadata {
 	referencedImages?: string[];
 }
 
+/** Image data recorded while computing static paths, e.g. by `getImage()` in `getStaticPaths()`. */
+export type StaticPathsMetadata = Pick<
+	PrerenderRenderMetadata,
+	'staticImages' | 'referencedImages'
+>;
+
+/**
+ * The richer result a prerenderer's `getStaticPaths()` may return instead of a bare
+ * array, pairing the paths with the images recorded while computing them.
+ */
+export interface StaticPathsResult {
+	paths: PathWithRoute[];
+	metadata?: StaticPathsMetadata;
+}
+
 /**
  * The richer result a prerenderer's `render()` may return instead of a bare
  * `Response`, pairing the rendered response with the incremental-build metadata
  * collected for that page. `metadata` is `undefined` when the page was not
- * tracked (collection was not requested, or the prerenderer could not collect).
+ * tracked (the prerenderer could not collect).
  */
 export interface PrerenderResult {
 	response: Response;
@@ -280,6 +296,12 @@ export interface PrerenderResult {
 /**
  * Custom prerenderer that adapters can provide to control how pages are prerendered.
  * Allows non-Node runtimes (e.g., workerd) to handle prerendering.
+ *
+ * A prerenderer that renders outside of Astro's build process installs a render scope with
+ * `installRenderScope()` from `astro/app` in its runtime, then computes paths with
+ * `StaticPaths.getAllWithMetadata()` and renders pages with `renderForPrerender()`. While these
+ * run, `getImage()` resolves build-time image URLs and collects them; the prerenderer reports them
+ * on a {@link StaticPathsResult} and a {@link PrerenderResult}, and Astro generates the images.
  */
 export interface AstroPrerenderer {
 	name: string;
@@ -290,8 +312,11 @@ export interface AstroPrerenderer {
 	/**
 	 * Returns pathnames with their routes to prerender. The route is included to avoid
 	 * needing to re-match routes later, which can be incorrect due to route priority.
+	 *
+	 * Return a {@link StaticPathsResult} so Astro can generate the images resolved while
+	 * computing the paths. Returning a bare array is deprecated but still supported.
 	 */
-	getStaticPaths: () => Promise<PathWithRoute[]>;
+	getStaticPaths: () => Promise<PathWithRoute[] | StaticPathsResult>;
 	/**
 	 * Renders a single page. Called by Astro for each path returned by getStaticPaths.
 	 * @param request - The request to render. The URL reflects the build format
@@ -299,27 +324,36 @@ export interface AstroPrerenderer {
 	 *   use the `pathname` from the `PathWithRoute` entry returned by `getStaticPaths`.
 	 * @param options - Render options
 	 * @param options.routeData - The matched route for this path
-	 * @param options.collectMetadata - True exactly when the incremental build
-	 *   cache is active. The prerenderer should collect the page's per-render
+	 * @param options.collectMetadata - Deprecated, always `true`.
+	 *   The prerenderer should collect the page's per-render
 	 *   incremental metadata in its rendering runtime and report it on a
 	 *   {@link PrerenderResult}. A prerenderer that cannot collect may ignore the
 	 *   flag and return a bare `Response`; its paths are then recorded as
 	 *   "not tracked".
-	 * @returns A `Response`, or a {@link PrerenderResult} pairing the response with
-	 *   the incremental-build metadata the page resolved. Metadata is the only
-	 *   attribution channel for all prerenderers.
+	 * @returns A {@link PrerenderResult} pairing the response with the metadata the page
+	 *   resolved. Metadata is the only attribution channel for all prerenderers, and it is
+	 *   how Astro learns which images to generate. Returning a bare `Response` is deprecated
+	 *   but still supported.
 	 */
 	render: (
 		request: Request,
 		options: { routeData: RouteData; collectMetadata?: boolean },
 	) => Promise<Response | PrerenderResult>;
 	/**
+	 * Returns the image service that generates the build's images, called before `teardown()`
+	 * on the first image that is not cached. Defaults to loading the configured image service
+	 * from the default prerender bundle, so a prerenderer that doesn't build it must implement this.
+	 */
+	getImageService?: () => Promise<ImageService>;
+	/**
 	 * Returns images collected in the adapter's runtime (e.g. workerd) to be merged
 	 * into the Node-side static image list. The default Sharp pipeline runs after.
+	 *
+	 * @deprecated Report images from `getStaticPaths()` and `render()`, and use `getImageService()`.
 	 */
 	collectStaticImages?: () => Promise<AssetsGlobalStaticImagesList>;
 	/**
-	 * Called after all pages are prerendered. Use for cleanup like stopping a preview server.
+	 * Called after all pages are prerendered and images are generated. Use for cleanup like stopping a preview server.
 	 */
 	teardown?: () => Promise<void>;
 }

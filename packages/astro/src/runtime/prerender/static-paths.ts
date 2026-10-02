@@ -1,12 +1,16 @@
 import type { ComponentInstance } from '../../types/astro.js';
 import type { SSRManifest } from '../../core/app/types.js';
-import type { PathWithRoute } from '../../types/public/integrations.js';
+import type { PathWithRoute, StaticPathsResult } from '../../types/public/integrations.js';
 import type { RouteData } from '../../types/public/internal.js';
 import type { RouteCache } from '../../core/render/route-cache.js';
 import { getEnvironment } from '../../core/environment/index.js';
 import { stringifyParams } from '../../core/routing/params.js';
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../../core/routing/helpers.js';
 import { callGetStaticPaths, getRouteCache } from '../../core/render/route-cache.js';
+import {
+	collectPrerenderMetadata,
+	type CollectPrerenderMetadataOptions,
+} from '../../core/render-scope/collect.js';
 
 export type { PathWithRoute } from '../../types/public/integrations.js';
 
@@ -86,6 +90,28 @@ export class StaticPaths {
 		}
 
 		return allPaths;
+	}
+
+	/**
+	 * Like `getAll()`, but collects the images resolved while computing the paths
+	 * (e.g. by `getImage()` in `getStaticPaths()`) and returns them with the paths.
+	 * Images are only collected when a render scope is installed.
+	 */
+	async getAllWithMetadata(
+		options: CollectPrerenderMetadataOptions = {},
+	): Promise<StaticPathsResult> {
+		const { value: paths, metadata } = await collectPrerenderMetadata(
+			() => this.getAll(),
+			undefined,
+			options,
+		);
+		return {
+			paths,
+			metadata: metadata && {
+				staticImages: metadata.staticImages,
+				referencedImages: metadata.referencedImages,
+			},
+		};
 	}
 
 	/**
