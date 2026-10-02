@@ -199,7 +199,7 @@ importers:
         specifier: ^7.3.5
         version: link:../../packages/astro
       hono:
-        specifier: ^4.13.7
+        specifier: ^4.13.11
         version: 4.13.11
 
   examples/basics:
@@ -247,11 +247,11 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       vitest:
-        specifier: ^5.0.0
-        version: 5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.1)
+        specifier: ^5.0.2
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.1)
     devDependencies:
       '@types/react':
-        specifier: ^18.3.28
+        specifier: ^18.3.31
         version: 18.3.31
       '@types/react-dom':
         specifier: ^18.3.7
@@ -263,11 +263,11 @@ importers:
         specifier: ^1.0.0
         version: link:../../packages/integrations/alpinejs
       '@types/alpinejs':
-        specifier: ^3.13.11
-        version: 3.13.11
+        specifier: ^3.17.0
+        version: 3.17.0
       alpinejs:
-        specifier: ^3.15.8
-        version: 3.15.8
+        specifier: ^3.17.4
+        version: 3.17.4
       astro:
         specifier: ^7.3.5
         version: link:../../packages/astro
@@ -290,7 +290,7 @@ importers:
         specifier: ^7.0.3
         version: link:../../packages/integrations/vue
       '@types/react':
-        specifier: ^18.3.28
+        specifier: ^18.3.31
         version: 18.3.31
       '@types/react-dom':
         specifier: ^18.3.7
@@ -299,7 +299,7 @@ importers:
         specifier: ^7.3.5
         version: link:../../packages/astro
       preact:
-        specifier: ^10.28.4
+        specifier: ^10.29.8
         version: 10.29.8(preact-render-to-string@6.7.0)
       react:
         specifier: ^18.3.1
@@ -308,13 +308,13 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       solid-js:
-        specifier: ^1.9.11
+        specifier: ^1.9.15
         version: 1.9.15
       svelte:
-        specifier: ^5.55.7
+        specifier: ^5.57.1
         version: 5.57.1(@typescript-eslint/types@8.59.2)
       vue:
-        specifier: ^3.5.29
+        specifier: ^3.5.43
         version: 3.5.43(typescript@6.0.3)
 
   examples/framework-preact:
@@ -323,13 +323,13 @@ importers:
         specifier: ^6.0.5
         version: link:../../packages/integrations/preact
       '@preact/signals':
-        specifier: ^2.8.1
+        specifier: ^2.11.2
         version: 2.11.2(preact@10.29.8)
       astro:
         specifier: ^7.3.5
         version: link:../../packages/astro
       preact:
-        specifier: ^10.28.4
+        specifier: ^10.29.8
         version: 10.29.8(preact-render-to-string@6.7.0)
 
   examples/framework-react:
@@ -338,7 +338,7 @@ importers:
         specifier: ^7.0.0
         version: link:../../packages/integrations/react
       '@types/react':
-        specifier: ^18.3.28
+        specifier: ^18.3.31
         version: 18.3.31
       '@types/react-dom':
         specifier: ^18.3.7
@@ -362,7 +362,7 @@ importers:
         specifier: ^7.3.5
         version: link:../../packages/astro
       solid-js:
-        specifier: ^1.9.11
+        specifier: ^1.9.15
         version: 1.9.15
 
   examples/framework-svelte:
@@ -374,7 +374,7 @@ importers:
         specifier: ^7.3.5
         version: link:../../packages/astro
       svelte:
-        specifier: ^5.55.7
+        specifier: ^5.57.1
         version: 5.57.1(@typescript-eslint/types@8.59.2)
 
   examples/framework-vue:
@@ -386,7 +386,7 @@ importers:
         specifier: ^7.3.5
         version: link:../../packages/astro
       vue:
-        specifier: ^3.5.29
+        specifier: ^3.5.43
         version: 3.5.43(typescript@6.0.3)
 
   examples/hackernews:
@@ -428,7 +428,7 @@ importers:
         specifier: ^7.3.5
         version: link:../../packages/astro
       svelte:
-        specifier: ^5.55.7
+        specifier: ^5.57.1
         version: 5.57.1(@typescript-eslint/types@8.59.2)
 
   examples/starlog:
@@ -437,7 +437,7 @@ importers:
         specifier: ^7.3.5
         version: link:../../packages/astro
       sass:
-        specifier: ^1.97.3
+        specifier: ^1.105.0
         version: 1.105.0
       sharp:
         specifier: ^0.35.0
@@ -473,7 +473,7 @@ importers:
         specifier: ^7.3.5
         version: link:../../packages/astro
       preact:
-        specifier: ^10.28.4
+        specifier: ^10.29.8
         version: 10.29.8(preact-render-to-string@6.7.0)
 
   examples/with-nanostores:
@@ -482,16 +482,16 @@ importers:
         specifier: ^6.0.5
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
-        specifier: ^1.0.0
-        version: 1.0.0(nanostores@1.1.1)(preact@10.29.8)
+        specifier: ^1.1.0
+        version: 1.1.0(nanostores@1.5.4)(preact@10.29.8)
       astro:
         specifier: ^7.3.5
         version: link:../../packages/astro
       nanostores:
-        specifier: ^1.1.1
-        version: 1.1.1
+        specifier: ^1.5.4
+        version: 1.5.4
       preact:
-        specifier: ^10.28.4
+        specifier: ^10.29.8
         version: 10.29.8(preact-render-to-string@6.7.0)
 
   examples/with-tailwindcss:
@@ -500,7 +500,7 @@ importers:
         specifier: ^8.0.2
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
-        specifier: ^4.2.1
+        specifier: ^4.3.3
         version: 4.3.3(vite@8.3.1)
       '@types/canvas-confetti':
         specifier: ^1.9.0
@@ -512,10 +512,10 @@ importers:
         specifier: ^1.9.4
         version: 1.9.4
       tailwindcss:
-        specifier: ^4.2.1
+        specifier: ^4.3.3
         version: 4.3.3
       vite:
-        specifier: ^8.0.13
+        specifier: ^8.3.1
         version: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
 
   examples/with-vitest:
@@ -524,8 +524,8 @@ importers:
         specifier: ^7.3.5
         version: link:../../packages/astro
       vitest:
-        specifier: ^5.0.0
-        version: 5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.1)
+        specifier: ^5.0.2
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.1)
 
   packages/astro:
     dependencies:
@@ -4381,10 +4381,10 @@ importers:
         version: link:../../..
       '@types/alpinejs':
         specifier: ^3.13.11
-        version: 3.13.11
+        version: 3.17.0
       alpinejs:
         specifier: ^3.15.8
-        version: 3.15.8
+        version: 3.17.4
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
@@ -4396,10 +4396,10 @@ importers:
         version: link:../../..
       '@types/alpinejs':
         specifier: ^3.13.11
-        version: 3.13.11
+        version: 3.17.0
       alpinejs:
         specifier: ^3.15.8
-        version: 3.15.8
+        version: 3.17.4
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
@@ -4411,10 +4411,10 @@ importers:
         version: link:../../..
       '@types/alpinejs':
         specifier: ^3.13.11
-        version: 3.13.11
+        version: 3.17.0
       alpinejs:
         specifier: ^3.15.8
-        version: 3.15.8
+        version: 3.17.4
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
@@ -9625,11 +9625,11 @@ packages:
     resolution: {integrity: sha512-pJCEwGG7Lfr/+PQp9ZTwKXNeO5wzbfKL7H3MYpCorM4oFBoQrdjnBgEoqG+RjhsvS1FKrDbKux+M1HhlnGWqcA==}
     engines: {node: '>=20'}
 
-  '@nanostores/preact@1.0.0':
-    resolution: {integrity: sha512-woHYvSwau1YtO9AEnGsh/jRPU2u5DTfNSrDHtKMZOeDUWV6EJfvyv7dJ7AaMps2I9uJcY6OlqXKkA9qTctEjyw==}
+  '@nanostores/preact@1.1.0':
+    resolution: {integrity: sha512-oiu9z85AiZlBTKJ8YsfAs8TALpDij70LmmKuRkeF22rS9zUBhVtYDWXEvV1qUUStNNwSFdhTMkwzOYL/IsA+UA==}
     engines: {node: ^20.0.0 || >=22.0.0}
     peerDependencies:
-      nanostores: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^1.0.0
+      nanostores: ^1.2.0
       preact: '>=10.0.0'
 
   '@napi-rs/keyring-darwin-arm64@1.3.0':
@@ -11060,8 +11060,8 @@ packages:
   '@tybys/wasm-util@0.10.3':
     resolution: {integrity: sha512-F3fo1MYrRJYL3zER0OUOmkutjr1Vp23m7OsSgp7nq4SP6OqX6C/56XFIPAl5bt3zaBRjmW7SGz3u/6LwFpYcOg==}
 
-  '@types/alpinejs@3.13.11':
-    resolution: {integrity: sha512-3KhGkDixCPiLdL3Z/ok1GxHwLxEWqQOKJccgaQL01wc0EVM2tCTaqlC3NIedmxAXkVzt/V6VTM8qPgnOHKJ1MA==}
+  '@types/alpinejs@3.17.0':
+    resolution: {integrity: sha512-sVgCM7bI/tUiHZVpDTsx/UBhcck3WSed21CeraITFDL16nGJI/wCVEGCYu7QWtI9+/D2Ripx9wGXoSzQSDog6A==}
 
   '@types/aria-query@5.0.4':
     resolution: {integrity: sha512-rfT93uj5s0PRL7EzccGMs3brplhcrghnDoV26NqKhCAS1hVo+WdNsPvE/yb6ilfr5hi2MEk6d5EWJTKdxg8jVw==}
@@ -11445,8 +11445,8 @@ packages:
       vite:
         optional: true
 
-  '@vitest/mocker@5.0.0':
-    resolution: {integrity: sha512-66PGTMIiVJP3t4a5yxU9qPtf7MdTBs8jmToMvy+HVflB3Yy13WJZTtPePdvU+wjRV02SKK5doLbSA6o9pwOmiA==}
+  '@vitest/mocker@5.0.2':
+    resolution: {integrity: sha512-Z5FS00Q1SJHkB35xATsmWGdQ5WA1/0MV3CDjqyv7GavHv1OfOj145MNfHOlHk7QLes21dKFDHr8EO2zvL+9WGA==}
     peerDependencies:
       msw: ^2.4.9
       vite: ^6.0.0 || ^7.0.0 || ^8.0.0
@@ -11468,8 +11468,8 @@ packages:
   '@vitest/spy@4.1.11':
     resolution: {integrity: sha512-apNa/prQy2qCeywhnixOHPRCgGNhvg7T4Dapfl1GahLp/R+uhBm5cPyFoNVyqsNd2h1nJxL6BqqdIjiABL60YA==}
 
-  '@vitest/spy@5.0.0':
-    resolution: {integrity: sha512-uy+luWBAPw9XfthoHi5AkfHUnuPYEESjl0p/r+meoBnU8bxg5GDQ3Ey8MjcJ6sqahkL4PFyrvfMJJBw7LbU06g==}
+  '@vitest/spy@5.0.2':
+    resolution: {integrity: sha512-Ijc7T1nT9efNb5LxvjaBrEqw3f/QwUv5EE0nKqZxgqsaV/FxAAZ8baGylA8X/Z2oS4Lp+K74Jr6dTJsDKxJDeg==}
 
   '@vitest/utils@4.1.11':
     resolution: {integrity: sha512-zTCVGpyFsGWBhllOyKlTw/vnr6D9qxsfSDyfbyZmTyjHw5N/VuvzHpHoQjm2ZJzn4RJgx5w4r7V0er69CmLgPQ==}
@@ -11643,9 +11643,6 @@ packages:
   '@vue/devtools-shared@8.2.1':
     resolution: {integrity: sha512-Fkac7lUdGReh6pVOi3AYPRGe82LQqRmAfThW7RRligOAP0ZA/Z1z9XLHDM9dv34pV2HRc79DK8uKPeG2fLnA/g==}
 
-  '@vue/reactivity@3.1.5':
-    resolution: {integrity: sha512-1tdfLmNjWG6t/CsPldh+foumYFo3cpyCHgBYQ34ylaMsJ+SNHQ1kApMIa8jN+i593zQuaw3AdWH0nJTARzCFhg==}
-
   '@vue/reactivity@3.5.43':
     resolution: {integrity: sha512-G/c9GyOZNI2jVaaS6OX1EF1SSFSv7H0ERqNTl4+DTFMlZmB5eVAB53aLQNam/7NL2NPtaDD7RdVrzf8uJzMuOA==}
 
@@ -11657,9 +11654,6 @@ packages:
 
   '@vue/server-renderer@3.5.43':
     resolution: {integrity: sha512-l2Ygjv9NehV94PSBxNWsAHC0j/eIIKbn92mBuWXAPGLnn6HfJ6MH5ubsd+Nk0YoZ5FRuxWI1P2VSoh+dbPQhCQ==}
-
-  '@vue/shared@3.1.5':
-    resolution: {integrity: sha512-oJ4F3TnvpXaQwZJNF3ZK+kLPHKarDmJjJ6jyzVNDKH9md1dptjC7lWR//jrGuLdek/U6iltWxqAnYOu8gCiOvA==}
 
   '@vue/shared@3.5.43':
     resolution: {integrity: sha512-uksS7YGMR5NZyr4JNq0Rp+QyLns0ueaz20KwzIPW9R0LH1Vnt4E+XUM29PNseEbf1www2gOuhuDi5AKOIXag9Q==}
@@ -11754,8 +11748,8 @@ packages:
   ajv@8.20.0:
     resolution: {integrity: sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==}
 
-  alpinejs@3.15.8:
-    resolution: {integrity: sha512-zxIfCRTBGvF1CCLIOMQOxAyBuqibxSEwS6Jm1a3HGA9rgrJVcjEWlwLcQTVGAWGS8YhAsTRLVrtQ5a5QT9bSSQ==}
+  alpinejs@3.17.4:
+    resolution: {integrity: sha512-N2gsr+58XVUt7OAPKnUGiKPDtkd+xbSGTae8C8IJxeRdkkhBJPIautkJ+qcwb7lcjJ/QK3/CPVIbN20JPvtK7A==}
 
   am-i-vibing@0.5.0:
     resolution: {integrity: sha512-KLcsDhqf1XRrJmJr+9I/C0EX2K+sGrAGZFgkmd84c8TJO9zJBu+/kFInjazu1KfJWFhWDKdRWkpBzEs7s35DVA==}
@@ -14595,8 +14589,8 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  nanostores@1.1.1:
-    resolution: {integrity: sha512-EYJqS25r2iBeTtGQCHidXl1VfZ1jXM7Q04zXJOrMlxVVmD0ptxJaNux92n1mJ7c5lN3zTq12MhH/8x59nP+qmg==}
+  nanostores@1.5.4:
+    resolution: {integrity: sha512-4UXY7OAJEK0Y6V3SudBU7cXjAzTDc189R78dDOh0Xbm19gpKYto6WizSg58LJf12lTsRxKSLGyE117OiLpM4DQ==}
     engines: {node: ^20.0.0 || >=22.0.0}
 
   napi-build-utils@2.0.0:
@@ -16174,10 +16168,6 @@ packages:
     resolution: {integrity: sha512-nTv2raKFMzGG6JJp0lpNDsRPdfFE6UHlu2rVEjXo8vkx1ZS3LW2CVXqIaLu8xZlu+6tbFs9V58Qc/Jmk/Ii7wA==}
     engines: {node: ^16.14.0 || >= 17.3.0}
 
-  tinyexec@1.3.0:
-    resolution: {integrity: sha512-QKAl9m8gWWGHV8jZcPeym6j+XULi6tOf1mT83WYJ4Lk2ytW/uwAWkrP0uFsdoYMdueVJ0qs26wZ+23xeB4ibNQ==}
-    engines: {node: '>=18'}
-
   tinyexec@1.3.1:
     resolution: {integrity: sha512-GCvB3aoys96IuDFBMcTB46JOR6mdMtAToqwiW8JlWhsoh1mhHi/xn9ss/Dg7N555GiJyEt2qzoG/NHCwM6h1EA==}
     engines: {node: '>=18'}
@@ -16739,20 +16729,20 @@ packages:
       jsdom:
         optional: true
 
-  vitest@5.0.0:
-    resolution: {integrity: sha512-gpsMNoRhMjMktVxPtstOH4/PJuPyovVaMDr4oDilXaGH1EcqM2OE96SoHT2VIQ6fTGtTjqmHDrEu2X9RQiXf8Q==}
+  vitest@5.0.2:
+    resolution: {integrity: sha512-7MQrx9pDv5aHiUcovIb/70Ys3tgtkUVgCtledvKdCmEO+/1Dicq5ZqoSxOW034m03oqC+oHOKui2dM6qtMLoJg==}
     engines: {node: ^22.12.0 || ^24.0.0 || >=26.0.0}
     hasBin: true
     peerDependencies:
       '@edge-runtime/vm': '*'
       '@opentelemetry/api': ^1.9.0
       '@types/node': ^22.19.0
-      '@vitest/browser-playwright': 5.0.0
-      '@vitest/browser-preview': 5.0.0
+      '@vitest/browser-playwright': 5.0.2
+      '@vitest/browser-preview': 5.0.2
       '@vitest/browser-webdriverio': ^5.0.0-beta.5 || >=5.0.0
-      '@vitest/coverage-istanbul': 5.0.0
-      '@vitest/coverage-v8': 5.0.0
-      '@vitest/ui': 5.0.0
+      '@vitest/coverage-istanbul': 5.0.2
+      '@vitest/coverage-v8': 5.0.2
+      '@vitest/ui': 5.0.2
       happy-dom: '*'
       jsdom: '*'
       vite: ^6.4.0 || ^7.0.0 || ^8.0.0
@@ -16950,6 +16940,11 @@ packages:
   why-is-node-running@2.3.0:
     resolution: {integrity: sha512-hUrmaWBdVDcxvYqnyh09zunKzROWjbZTiNy8dBEjkS7ehEDQibXJ7XvlmtbwuTclUiIyN+CyXQD4Vmko8fNm8w==}
     engines: {node: '>=8'}
+    hasBin: true
+
+  why-is-node-running@3.2.2:
+    resolution: {integrity: sha512-NKUzAelcoCXhXL4dJzKIwXeR8iEVqsA0Lq6Vnd0UXvgaKbzVo4ZTHROF2Jidrv+SgxOQ03fMinnNhzZATxOD3A==}
+    engines: {node: '>=20.11'}
     hasBin: true
 
   wicked-good-xpath@1.3.0:
@@ -19623,9 +19618,9 @@ snapshots:
     dependencies:
       zod: 4.6.5
 
-  '@nanostores/preact@1.0.0(nanostores@1.1.1)(preact@10.29.8)':
+  '@nanostores/preact@1.1.0(nanostores@1.5.4)(preact@10.29.8)':
     dependencies:
-      nanostores: 1.1.1
+      nanostores: 1.5.4
       preact: 10.29.8(preact-render-to-string@6.7.0)
 
   '@napi-rs/keyring-darwin-arm64@1.3.0':
@@ -20987,7 +20982,7 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@types/alpinejs@3.13.11': {}
+  '@types/alpinejs@3.17.0': {}
 
   '@types/aria-query@5.0.4': {}
 
@@ -21447,10 +21442,10 @@ snapshots:
     optionalDependencies:
       vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
 
-  '@vitest/mocker@5.0.0(vite@8.3.1)':
+  '@vitest/mocker@5.0.2(vite@8.3.1)':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
-      '@vitest/spy': 5.0.0
+      '@vitest/spy': 5.0.2
       estree-walker: 3.0.3
       magic-string: 1.4.2
     optionalDependencies:
@@ -21474,7 +21469,7 @@ snapshots:
 
   '@vitest/spy@4.1.11': {}
 
-  '@vitest/spy@5.0.0': {}
+  '@vitest/spy@5.0.2': {}
 
   '@vitest/utils@4.1.11':
     dependencies:
@@ -21786,10 +21781,6 @@ snapshots:
 
   '@vue/devtools-shared@8.2.1': {}
 
-  '@vue/reactivity@3.1.5':
-    dependencies:
-      '@vue/shared': 3.1.5
-
   '@vue/reactivity@3.5.43':
     dependencies:
       '@vue/shared': 3.5.43
@@ -21811,8 +21802,6 @@ snapshots:
       '@vue/compiler-ssr': 3.5.43
       '@vue/runtime-dom': 3.5.43
       '@vue/shared': 3.5.43
-
-  '@vue/shared@3.1.5': {}
 
   '@vue/shared@3.5.43': {}
 
@@ -21907,9 +21896,9 @@ snapshots:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
-  alpinejs@3.15.8:
+  alpinejs@3.17.4:
     dependencies:
-      '@vue/reactivity': 3.1.5
+      '@vue/reactivity': 3.5.43
 
   am-i-vibing@0.5.0:
     dependencies:
@@ -25215,7 +25204,7 @@ snapshots:
 
   nanoid@3.3.18: {}
 
-  nanostores@1.1.1: {}
+  nanostores@1.5.4: {}
 
   napi-build-utils@2.0.0:
     optional: true
@@ -27215,8 +27204,6 @@ snapshots:
 
   tinyclip@1.0.3: {}
 
-  tinyexec@1.3.0: {}
-
   tinyexec@1.3.1: {}
 
   tinyglobby@0.2.17:
@@ -27720,10 +27707,10 @@ snapshots:
       - tsx
       - yaml
 
-  vitest@5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.1):
+  vitest@5.0.2(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.1):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.0(vite@8.3.1)
+      '@vitest/mocker': 5.0.2(vite@8.3.1)
       chai: 6.2.2
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
@@ -27732,10 +27719,10 @@ snapshots:
       picomatch: 4.0.7
       std-env: 4.2.0
       tinybench: 6.1.4
-      tinyexec: 1.3.0
+      tinyexec: 1.3.1
       tinyglobby: 0.2.17
       vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
-      why-is-node-running: 2.3.0
+      why-is-node-running: 3.2.2
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
       '@types/node': 22.19.19
@@ -27912,6 +27899,8 @@ snapshots:
     dependencies:
       siginfo: 2.0.0
       stackback: 0.0.2
+
+  why-is-node-running@3.2.2: {}
 
   wicked-good-xpath@1.3.0: {}
 
