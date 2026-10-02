@@ -13,6 +13,7 @@ import {
 	ASSET_IMPORTS_FILE,
 	COLLECTIONS_MANIFEST_FILE,
 	CONTENT_LAYER_TYPE,
+	EXTERNAL_COLLECTIONS_META_KEY,
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
 import type { RenderedContent } from './data-store.js';
@@ -342,6 +343,14 @@ export class ContentLayer {
 		}
 		if (astroConfigDigest) {
 			this.#store.metaStore().set('astro-config-digest', astroConfigDigest);
+		}
+
+		if (externalCollectionNames.length > 0) {
+			this.#store
+				.metaStore()
+				.set(EXTERNAL_COLLECTIONS_META_KEY, JSON.stringify(externalCollectionNames));
+		} else if (this.#store.metaStore().has(EXTERNAL_COLLECTIONS_META_KEY)) {
+			this.#store.metaStore().delete(EXTERNAL_COLLECTIONS_META_KEY);
 		}
 
 		if (this.#externalStore && externalCollectionNames.length > 0) {

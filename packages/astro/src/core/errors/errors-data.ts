@@ -2128,13 +2128,13 @@ export const ContentStorageDriverMissing = {
 /**
  * @docs
  * @description
- * Astro couldn't load the content storage driver configured in `experimental.collectionStorage`. The `entrypoint` of the driver must be a module whose default export creates the driver.
+ * Astro couldn't find the content storage driver configured in `experimental.collectionStorage`. The `entrypoint` of the driver must be a package import, or the URL of a module whose default export creates the driver.
  */
 export const ContentStorageDriverNotFound = {
 	name: 'ContentStorageDriverNotFound',
 	title: 'Content storage driver not found.',
 	message: (entrypoint: string) =>
-		`Could not load the content storage driver \`${entrypoint}\`. Check that its package is installed, and that the module exports a function that creates the driver as default.`,
+		`Could not resolve the content storage driver \`${entrypoint}\`. Make sure the package is installed.`,
 } satisfies ErrorData;
 
 /**
@@ -2147,6 +2147,18 @@ export const ContentLoaderExternalStorageUnsupported = {
 	title: "Content loader doesn't support external storage.",
 	message: (collection: string, loader: string) =>
 		`The collection \`${collection}\` is defined with \`storage: 'external'\`, but its loader \`${loader}\` doesn't support it. Remove \`storage: 'external'\` from the collection, or use a loader that supports external storage.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * `getCollectionMetadata()` returns entries without their body and rendered content, so they can't be rendered. Get the entry with `getEntry()` to render it.
+ */
+export const RenderMetadataEntryError = {
+	name: 'RenderMetadataEntryError',
+	title: 'Attempted to render an entry returned by `getCollectionMetadata()`.',
+	message: (collection: string, id: string) =>
+		`The entry \`${id}\` of the collection \`${collection}\` was returned by \`getCollectionMetadata()\`, which doesn't include the content needed to render it. Pass the entry returned by \`getEntry('${collection}', '${id}')\` to \`render()\` instead.`,
 } satisfies ErrorData;
 
 /**

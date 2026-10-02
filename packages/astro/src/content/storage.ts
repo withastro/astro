@@ -43,6 +43,10 @@ export interface SerializedEntry {
  * Once a write finishes, reads must return the written data. A driver may delay saving
  * writes until {@link ContentStorageDriver.flush} is called, but it must still return
  * them when they're read.
+ *
+ * Astro can create several drivers with the same config, for example one that saves the
+ * collections and one that reads them to render pages. After a flush, every driver must
+ * read the saved data, so a driver can't keep its own copy of the entries in memory.
  */
 export interface ContentStorageDriver {
 	/** Returns whether the collection has at least one entry. */

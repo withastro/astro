@@ -18,6 +18,14 @@ export const MODULES_MJS_VIRTUAL_ID = '\0' + MODULES_MJS_ID;
 
 export const DEFERRED_MODULE = 'astro:content-layer-deferred-module';
 
+// Exports a function that returns the driver configured in `experimental.collectionStorage`
+export const CONTENT_STORAGE_DRIVER_VIRTUAL_ID = 'virtual:astro:content-storage-driver';
+export const RESOLVED_CONTENT_STORAGE_DRIVER_VIRTUAL_ID = '\0' + CONTENT_STORAGE_DRIVER_VIRTUAL_ID;
+
+// The key under which the data store saves the names of the collections defined with
+// `storage: 'external'`, so the runtime knows which collections to read from the driver
+export const EXTERNAL_COLLECTIONS_META_KEY = 'external-collections';
+
 // Used by the content layer to create a virtual module that loads the `assets.mjs`
 export const ASSET_IMPORTS_VIRTUAL_ID = 'astro:asset-imports';
 export const ASSET_IMPORTS_RESOLVED_STUB_ID = '\0' + ASSET_IMPORTS_VIRTUAL_ID;

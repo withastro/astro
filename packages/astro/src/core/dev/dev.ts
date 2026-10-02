@@ -106,7 +106,6 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	}
 
 	const externalStore = await createExternalDataStore(
-		restart.container.settings,
 		restart.container.viteServer.environments[
 			ASTRO_VITE_ENVIRONMENT_NAMES.astro
 		] as vite.RunnableDevEnvironment,
