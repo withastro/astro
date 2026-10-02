@@ -1,5 +1,11 @@
 # astro
 
+## 7.4.0-beta.1
+
+### Minor Changes
+
+- [#18206](https://github.com/withastro/astro/pull/18206) [`db00242`](https://github.com/withastro/astro/commit/db002427d62b50be924ef23972645174a5e921ee) Thanks [@edmundhung](https://github.com/edmundhung)! - Updates `astro add @astrojs/cloudflare@beta` to install `cf`, scaffold `cloudflare.config.ts`, and generate types with `cf`
+
 ## 7.4.0-beta.0
 
 ### Minor Changes

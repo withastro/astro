@@ -1,5 +1,13 @@
 # @astrojs/cloudflare
 
+## 15.0.0-beta.1
+
+### Patch Changes
+
+- [#18205](https://github.com/withastro/astro/pull/18205) [`7a519a7`](https://github.com/withastro/astro/commit/7a519a70d3a0518b35104dd4fb8268e284e1c73d) Thanks [@ematipico](https://github.com/ematipico)! - Upgrades the `@cloudflare/vite-plugin` to the latest.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 15.0.0-beta.0
 
 ### Major Changes

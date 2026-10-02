@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@astrojs/node": "^11.1.7-beta.0",
-    "astro": "^7.4.0-beta.0",
+    "astro": "^7.4.0-beta.1",
     "hono": "^4.13.7"
   },
   "allowScripts": {
