@@ -312,6 +312,9 @@ export interface AstroPrerenderer {
 	/**
 	 * Returns pathnames with their routes to prerender. The route is included to avoid
 	 * needing to re-match routes later, which can be incorrect due to route priority.
+	 *
+	 * Return a {@link StaticPathsResult} so Astro can generate the images resolved while
+	 * computing the paths. Returning a bare array is deprecated but still supported.
 	 */
 	getStaticPaths: () => Promise<PathWithRoute[] | StaticPathsResult>;
 	/**
@@ -327,9 +330,10 @@ export interface AstroPrerenderer {
 	 *   {@link PrerenderResult}. A prerenderer that cannot collect may ignore the
 	 *   flag and return a bare `Response`; its paths are then recorded as
 	 *   "not tracked".
-	 * @returns A `Response`, or a {@link PrerenderResult} pairing the response with
-	 *   the incremental-build metadata the page resolved. Metadata is the only
-	 *   attribution channel for all prerenderers.
+	 * @returns A {@link PrerenderResult} pairing the response with the metadata the page
+	 *   resolved. Metadata is the only attribution channel for all prerenderers, and it is
+	 *   how Astro learns which images to generate. Returning a bare `Response` is deprecated
+	 *   but still supported.
 	 */
 	render: (
 		request: Request,
@@ -352,6 +356,19 @@ export interface AstroPrerenderer {
 	 * Called after all pages are prerendered and images are generated. Use for cleanup like stopping a preview server.
 	 */
 	teardown?: () => Promise<void>;
+}
+
+/**
+ * Astro's default prerenderer, as passed to a `setPrerenderer()` factory. It always returns
+ * the object forms, so a wrapper can read `paths` and `response` without narrowing. A wrapper
+ * should pass `metadata` through, or the images it lists are not generated.
+ */
+export interface DefaultAstroPrerenderer extends AstroPrerenderer {
+	getStaticPaths: () => Promise<StaticPathsResult>;
+	render: (
+		request: Request,
+		options: { routeData: RouteData; collectMetadata?: boolean },
+	) => Promise<PrerenderResult>;
 }
 
 export type AstroAdapterFeatureMap = {
@@ -461,7 +478,9 @@ export interface BaseIntegrationHooks {
 	'astro:build:start': (options: {
 		logger: AstroIntegrationLogger;
 		setPrerenderer: (
-			prerenderer: AstroPrerenderer | ((defaultPrerenderer: AstroPrerenderer) => AstroPrerenderer),
+			prerenderer:
+				| AstroPrerenderer
+				| ((defaultPrerenderer: DefaultAstroPrerenderer) => AstroPrerenderer),
 		) => void;
 	}) => void | Promise<void>;
 	'astro:build:setup': (options: {

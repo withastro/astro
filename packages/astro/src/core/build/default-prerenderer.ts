@@ -1,4 +1,7 @@
-import type { AstroPrerenderer } from '../../types/public/integrations.js';
+import type {
+	DefaultAstroPrerenderer,
+	PrerenderRenderMetadata,
+} from '../../types/public/integrations.js';
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { BuildApp } from './app.js';
@@ -15,9 +18,19 @@ interface DefaultPrerendererOptions {
 /**
  * Default prerenderer with access to the BuildApp for assets generation.
  */
-export interface DefaultPrerenderer extends AstroPrerenderer {
+export interface DefaultPrerenderer extends DefaultAstroPrerenderer {
 	/** The BuildApp instance, available after setup() is called */
 	app?: BuildApp;
+	/**
+	 * How many `render()` results recorded images. Astro compares this with the results it
+	 * received, to warn when a wrapping prerenderer drops the metadata.
+	 */
+	rendersWithImages: number;
+}
+
+/** Whether render metadata recorded images that Astro has to generate or keep. */
+export function hasRecordedImages(metadata: PrerenderRenderMetadata | undefined): boolean {
+	return !!(metadata?.staticImages?.length || metadata?.referencedImages?.length);
 }
 
 interface PrerenderEntry {
@@ -48,6 +61,7 @@ export function createDefaultPrerenderer({
 	};
 	const prerenderer: DefaultPrerenderer = {
 		name: 'astro:default',
+		rendersWithImages: 0,
 
 		async setup() {
 			// Get the app and configure it
@@ -67,7 +81,9 @@ export function createDefaultPrerenderer({
 		},
 
 		async render(request, { routeData }) {
-			return renderForPrerender(prerenderer.app!, request, { routeData });
+			const result = await renderForPrerender(prerenderer.app!, request, { routeData });
+			if (hasRecordedImages(result.metadata)) prerenderer.rendersWithImages++;
+			return result;
 		},
 
 		async getImageService() {

@@ -38,7 +38,11 @@ import { redirectTemplate } from '../routing/3xx.js';
 import { routeIsRedirect } from '../routing/helpers.js';
 import { getOutputFilename } from '../output-filename.js';
 import { getOutFile, getOutFolder } from './common.js';
-import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
+import {
+	createDefaultPrerenderer,
+	hasRecordedImages,
+	type DefaultPrerenderer,
+} from './default-prerenderer.js';
 import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
@@ -69,9 +73,11 @@ export async function generatePages(
 	const logger = options.logger;
 	const images = new StaticImageRegistry();
 	images.addReferencedImages(internals.referencedImages);
+	// Render results that reached Astro with images, compared with the default prerenderer's count.
+	const received = { rendersWithImages: 0 };
 
 	// Get or create the prerenderer
-	let prerenderer: DefaultPrerenderer;
+	let prerenderer: AstroPrerenderer;
 	let defaultPrerenderer: DefaultPrerenderer | undefined;
 	const settingsPrerenderer = options.settings.prerenderer;
 	if (!settingsPrerenderer) {
@@ -208,6 +214,7 @@ export async function generatePages(
 									cache,
 									cacheKey,
 									images,
+									received,
 								),
 							),
 						);
@@ -228,6 +235,7 @@ export async function generatePages(
 						cache,
 						cacheKey,
 						images,
+						received,
 					);
 				}
 			}
@@ -278,6 +286,17 @@ export async function generatePages(
 				logger.info('build', `Pruned ${pruned} stale file(s) from the incremental cache.`);
 			}
 			cache.writeManifest(options.settings);
+		}
+
+		// A wrapping prerenderer that returns a bare `Response` from the default `render()`
+		// drops the images that page lists, so they would be missing from the output.
+		const droppedRenders =
+			(defaultPrerenderer?.rendersWithImages ?? 0) - received.rendersWithImages;
+		if (prerenderer !== defaultPrerenderer && droppedRenders > 0) {
+			logger.warn(
+				'build',
+				`The \`${prerenderer.name}\` prerenderer dropped the metadata of ${droppedRenders} page(s) rendered by Astro's default prerenderer, so images on those pages may be missing. Return the \`{ response, metadata }\` result of \`render()\` instead of a bare \`Response\`.`,
+			);
 		}
 
 		// Must happen before teardown since collectStaticImages fetches from the prerender server
@@ -467,6 +486,8 @@ interface RenderToPathPayload {
 	options: StaticBuildOptions;
 	routeToHeaders?: RouteToHeaders;
 	logger: AstroLogger;
+	/** Counts the render results that recorded images, including those that produce no file. */
+	received?: { rendersWithImages: number };
 }
 
 /**
@@ -492,6 +513,7 @@ interface RenderToPathPayload {
  *                                the adapter requests static-header tracking. Callers that do
  *                                not need to inspect the headers after the call can omit this.
  * @param params.logger         - Logger instance.
+ * @param [params.received]     - Counts the render results that recorded images.
  */
 export async function renderPath({
 	prerenderer,
@@ -500,6 +522,7 @@ export async function renderPath({
 	options,
 	routeToHeaders = new Map(),
 	logger,
+	received,
 }: RenderToPathPayload): Promise<RenderPathResult | null> {
 	const { config } = options.settings;
 
@@ -563,6 +586,7 @@ export async function renderPath({
 		);
 		response = rendered.response;
 		metadata = rendered.metadata;
+		if (received && hasRecordedImages(metadata)) received.rendersWithImages++;
 	} catch (err) {
 		logger.error('build', `Caught error rendering ${pathname}: ${err}`);
 		if (err && !AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
@@ -640,6 +664,7 @@ async function generatePathWithPrerenderer(
 	cache: IncrementalBuildCache | null,
 	cacheKey: string | undefined,
 	images: StaticImageRegistry,
+	received: { rendersWithImages: number },
 ): Promise<void> {
 	const timeStart = performance.now();
 	const { config } = options.settings;
@@ -743,6 +768,7 @@ async function generatePathWithPrerenderer(
 		options,
 		routeToHeaders,
 		logger,
+		received,
 	});
 	images.addMetadata(result?.metadata);
 	const contentEntryKeys = result?.metadata?.contentEntryKeys;
