@@ -2,11 +2,10 @@
 import { imageConfig } from 'astro:assets';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
-import * as mime from 'mrmime';
 import type { APIRoute } from '../../types/public/common.js';
 import { getConfiguredImageService } from '../internal.js';
-import { etag } from '../utils/etag.js';
 import { loadImage } from './loadImage.js';
+import { createImageResponse } from './response.js';
 
 /**
  * Endpoint used in dev and SSR to serve optimized images by the base image services
@@ -59,15 +58,7 @@ export const GET: APIRoute = async ({ request, logger }) => {
 			logger,
 		);
 
-		return new Response(data as Uint8Array<ArrayBuffer>, {
-			status: 200,
-			headers: {
-				'Content-Type': mime.lookup(format) ?? `image/${format}`,
-				'Cache-Control': 'public, max-age=31536000',
-				ETag: etag(data.toString()),
-				Date: new Date().toUTCString(),
-			},
-		});
+		return createImageResponse(data, format);
 	} catch (err: unknown) {
 		logger.error(`Could not process image request: ${err}`);
 		return new Response('Internal Server Error', { status: 500 });
