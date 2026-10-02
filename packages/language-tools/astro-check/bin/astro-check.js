@@ -3,7 +3,7 @@
 import path from 'node:path';
 import { check, parseArgsAsCheckConfig } from '../dist/index.js';
 
-const args = parseArgsAsCheckConfig(process.argv.slice(2));
+const args = parseArgsAsCheckConfig(process.argv);
 
 console.info(`Getting diagnostics for Astro files in ${path.resolve(args.root)}...`);
 

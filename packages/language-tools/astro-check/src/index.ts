@@ -8,10 +8,11 @@ import { hideBin } from 'yargs/helpers';
 import { options } from './options.js';
 
 /**
- * Given a list of arguments from the command line (such as `process.argv`), return parsed and processed options
+ * Given a full `process.argv`, return parsed and processed options. The node binary and the script
+ * path are skipped, so the arguments must not be sliced beforehand.
  */
-export function parseArgsAsCheckConfig(args: string[]) {
-	return yargs(hideBin(args)).options(options).parseSync();
+export function parseArgsAsCheckConfig(argv: string[]) {
+	return yargs(hideBin(argv)).options(options).parseSync();
 }
 
 export type Flags = Pick<ReturnType<typeof parseArgsAsCheckConfig>, keyof typeof options>;
@@ -33,7 +34,8 @@ export async function check(flags: Partial<Flags>): Promise<boolean | void> {
 		function createWatcher(rootPath: string, extensions: string[]) {
 			return watch(rootPath, {
 				ignored(pathStr, stats) {
-					if (pathStr.includes('node_modules') || pathStr.includes('.git')) return true;
+					const segments = path.relative(rootPath, pathStr).split(path.sep);
+					if (segments.includes('node_modules') || segments.includes('.git')) return true;
 					if (stats?.isFile() && !extensions.includes(path.extname(pathStr))) return true;
 					return false;
 				},
@@ -78,6 +80,8 @@ export async function check(flags: Partial<Flags>): Promise<boolean | void> {
 			},
 			cancel: isCanceled,
 		});
+		if (result.status === 'cancelled') return;
+
 		console.info(
 			[
 				bold(`Result (${result.fileChecked} file${result.fileChecked === 1 ? '' : 's'}): `),
