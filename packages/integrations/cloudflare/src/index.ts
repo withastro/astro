@@ -31,7 +31,7 @@ import {
 import { passthroughImageService, sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
 import cfPrismPlugin from './vite-plugin-prism.js';
-import { loadWranglerEnv } from './utils/wrangler-config.js';
+import { hasCustomWorkerEntrypoint, loadWranglerEnv } from './utils/wrangler-config.js';
 
 const CLOUDFLARE_KV_SESSION_DRIVER_ENTRYPOINT = sessionDrivers.cloudflareKVBinding().entrypoint;
 const CONTENT_CHUNK_SIZE = 1024 * 1024;
@@ -504,6 +504,12 @@ export default function createIntegration({
 			},
 			'astro:config:done': ({ setAdapter, config, injectTypes, logger, buildOutput }) => {
 				_config = config;
+				// A custom Worker entrypoint carries user code (routes, Durable Objects,
+				// etc.) that must be deployed even when every page is prerendered, so it
+				// always needs a server build (#18201).
+				if (hasCustomWorkerEntrypoint(config.root, cloudflareOptions.configPath)) {
+					buildOutput = 'server';
+				}
 				_buildOutput = buildOutput;
 				_originalClientDir = new URL(config.build.client.href);
 

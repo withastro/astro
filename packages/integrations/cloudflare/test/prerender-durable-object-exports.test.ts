@@ -1,5 +1,5 @@
 import * as assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { type Fixture, loadFixture } from './test-utils.ts';
@@ -21,5 +21,11 @@ describe('Prerender with durable objects (exports field)', () => {
 		// (which does not export user DO classes) can start without errors.
 		const distPath = fileURLToPath(new URL('dist/client/', root));
 		assert.ok(existsSync(distPath), `Expected ${distPath} to exist after build`);
+	});
+
+	it('ships the custom Worker entrypoint with its Durable Object exports', () => {
+		const entryPath = fileURLToPath(new URL('dist/server/entry.mjs', root));
+		assert.ok(existsSync(entryPath), `Expected ${entryPath} to exist after build`);
+		assert.match(readFileSync(entryPath, 'utf-8'), /export\s*\{[^}]*\bExampleDO\b/);
 	});
 });
