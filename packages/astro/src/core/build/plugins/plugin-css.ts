@@ -144,9 +144,12 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			// also adds deleted CSS IDs to pagesToCss, but those represent CSS that
 			// is already on the page from the SSR build.
 			const cssScopeToAddedCss = new Set<string>();
+			// Deleted CSS assets that Vite would otherwise preload for a dynamic import
+			const preloadedDeletedCss = new Set<string>();
 
 			// Remove CSS files from client bundle that were already bundled with pages during SSR
 			if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+				const dynamicImportCss = getDynamicImportPreloadedCss(bundle);
 				for (const [, item] of Object.entries(bundle)) {
 					if (item.type !== 'chunk') continue;
 
@@ -180,6 +183,14 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 						if (allCssInSSR && shouldDeleteCSSChunk(allModules, internals)) {
 							for (const cssId of meta.importedCss) {
+								// Vite preloads a dynamic import's CSS. Keep the file when a page
+								// that can load it may not have these styles from the server build.
+								if (dynamicImportCss.has(cssId)) {
+									if (!pagesHaveServerCss(cssModules, this, internals, pageToSsrCssModules)) {
+										continue;
+									}
+									preloadedDeletedCss.add(cssId);
+								}
 								if (bundle[cssId]) {
 									deletedCssAssets.set(cssId, bundle[cssId]);
 								}
@@ -382,6 +393,18 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				for (const cssId of cssScopeToAddedCss) {
 					if (deletedCssAssets.has(cssId) && !bundle[cssId]) {
 						bundle[cssId] = deletedCssAssets.get(cssId)!;
+					}
+				}
+			}
+
+			// Vite preloads a dynamic import's CSS from `importedCss`, so a deleted asset left
+			// there is requested and 404s. Every page that can load these already has the
+			// styles from the server build, so stop Vite from preloading them.
+			for (const cssId of preloadedDeletedCss) {
+				if (bundle[cssId]) continue;
+				for (const chunk of Object.values(bundle)) {
+					if (chunk.type === 'chunk') {
+						(chunk.viteMetadata as ViteMetadata | undefined)?.importedCss.delete(cssId);
 					}
 				}
 			}
@@ -604,6 +627,64 @@ function shouldDeleteCSSChunk(allModules: string[], internals: BuildInternals): 
 		}
 	}
 
+	return true;
+}
+
+/**
+ * Collect the CSS that Vite will preload for dynamic imports in this bundle: the
+ * `importedCss` of every dynamically imported chunk and of the chunks it statically imports.
+ */
+function getDynamicImportPreloadedCss(bundle: Rolldown.OutputBundle): Set<string> {
+	const css = new Set<string>();
+	const visited = new Set<string>();
+	const queue: string[] = [];
+	for (const item of Object.values(bundle)) {
+		if (item.type === 'chunk') queue.push(...item.dynamicImports);
+	}
+	while (queue.length > 0) {
+		const fileName = queue.pop()!;
+		if (visited.has(fileName)) continue;
+		visited.add(fileName);
+		const chunk = bundle[fileName];
+		if (chunk?.type !== 'chunk') continue;
+		const meta = chunk.viteMetadata as ViteMetadata | undefined;
+		for (const cssId of meta?.importedCss ?? []) css.add(cssId);
+		queue.push(...chunk.imports);
+	}
+	return css;
+}
+
+/**
+ * Whether every page that can load these CSS modules on the client already has them
+ * from the server build. Walks up from each CSS module to its client entries (islands,
+ * client:only components and scripts) and checks the pages those entries are used on.
+ * Returns false when an entry can't be matched to a page.
+ */
+function pagesHaveServerCss(
+	cssModules: string[],
+	ctx: { getModuleInfo: Rolldown.GetModuleInfo },
+	internals: BuildInternals,
+	pageToSsrCssModules: Record<string, Set<string>>,
+): boolean {
+	const pages = new Set<PageBuildData>();
+	for (const cssModule of cssModules) {
+		for (const info of getParentModuleInfos(cssModule, ctx)) {
+			if (!info.isEntry) continue;
+			const entryId = normalizeEntryId(info.id);
+			const entryPages = [
+				...(internals.pagesByHydratedComponent.get(entryId) ?? []),
+				...getPageDatasByClientOnlyID(internals, entryId),
+				...(internals.pagesByScriptId.get(info.id) ?? []),
+			];
+			if (entryPages.length === 0) return false;
+			for (const pageData of entryPages) pages.add(pageData);
+		}
+	}
+	if (pages.size === 0) return false;
+	for (const pageData of pages) {
+		const ssrCssModules = pageToSsrCssModules[pageData.moduleSpecifier];
+		if (!ssrCssModules || !cssModules.every((m) => ssrCssModules.has(m))) return false;
+	}
 	return true;
 }
 
