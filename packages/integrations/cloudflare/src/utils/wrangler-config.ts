@@ -73,6 +73,14 @@ export function loadWranglerEnv(
 }
 
 /**
+ * Returns `true` when `main` (as resolved by Wrangler to an absolute OS path)
+ * points to the adapter's default server entrypoint.
+ */
+export function isDefaultServerEntrypoint(main: string): boolean {
+	return main.replaceAll('\\', '/').endsWith('@astrojs/cloudflare/entrypoints/server');
+}
+
+/**
  * Returns `true` when the project's Wrangler config sets `main` to a Worker
  * entrypoint other than the adapter's default server entrypoint.
  */
@@ -87,7 +95,7 @@ export function hasCustomWorkerEntrypoint(root: URL, configPath: string | undefi
 			{ config: resolvedConfigPath, env: process.env.CLOUDFLARE_ENV },
 			{ hideWarnings: true },
 		);
-		return !!config.main && !config.main.endsWith('@astrojs/cloudflare/entrypoints/server');
+		return !!config.main && !isDefaultServerEntrypoint(config.main);
 	} catch {
 		return false;
 	}
