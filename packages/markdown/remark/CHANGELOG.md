@@ -1,5 +1,15 @@
 # @astrojs/markdown-remark
 
+## 7.3.2
+
+### Patch Changes
+
+- [#18099](https://github.com/withastro/astro/pull/18099) [`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb) Thanks [@renovate](https://github.com/apps/renovate)! - Adds YAML parsing with timestamp and merge key support, and formats YAML errors consistently across Astro, Markdown, MDX, and Markdoc.
+
+- [#18139](https://github.com/withastro/astro/pull/18139) [`d047b5c`](https://github.com/withastro/astro/commit/d047b5c23c273d993470258a84bf71852889c76e) Thanks [@breken-ai](https://github.com/breken-ai)! - Fixes Markdown code blocks with languages ending in a symbol, such as `c#`, `c++`, and `f#`, being highlighted as `c` or `f`
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb)]:
+  - @astrojs/internal-helpers@0.12.0
+
 ## 7.3.1
 
 ### Patch Changes

@@ -1,5 +1,22 @@
 # @astrojs/cloudflare
 
+## 14.3.4
+
+### Patch Changes
+
+- [#18145](https://github.com/withastro/astro/pull/18145) [`02246c9`](https://github.com/withastro/astro/commit/02246c9047d8a54b1be1ccc176f88cd873ff0380) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes dev dependency scan failing when a frontmatter line starts with `import.meta` or `import(`
+
+- [#17677](https://github.com/withastro/astro/pull/17677) [`4f85749`](https://github.com/withastro/astro/commit/4f85749fc09865cb143e65fd10d42c80e8b21c60) Thanks [@andreialba](https://github.com/andreialba)! - Fixes remote images without a file extension failing with `400 Unsupported format: null` when using the `cloudflare-binding` image service
+  
+  Astro only adds the `f` (format) parameter to `/_image` URLs when it can infer a format from the source, and otherwise leaves it off so the image service resolves the format from the source itself. Extensionless remote images, such as GitHub avatars like `https://avatars.githubusercontent.com/u/1234`, take that path. The image transform endpoint now falls back to the source's media type when `f` is absent, passing SVG sources through unchanged and encoding everything else as WebP. This also fixes SVG images, which are requested as `f=svg` and previously failed the same way.
+
+- [#18057](https://github.com/withastro/astro/pull/18057) [`8db3024`](https://github.com/withastro/astro/commit/8db30243661f490003c8e38037b41d26d21a1f37) Thanks [@asqar](https://github.com/asqar)! - Fixes `astro build` failing with `fetch failed` / `connect ECONNREFUSED 127.0.0.1:<port>` during prerendering on hosts where `localhost` resolves to IPv6
+  
+  The prerenderer started its Vite preview server with `host: 'localhost'` and then built the fetch URL by re-stating that same hostname. `localhost` was therefore resolved twice, independently — once by `listen()` to pick a bind address and once by `fetch()` to pick a connect address — with nothing making the two agree. On hosts where those resolutions land on different families, the preview server listens on `::1` while `fetch` dials `127.0.0.1`, and every prerender request is refused. The URL is now derived from the address actually bound, so bind and connect agree by construction.
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb)]:
+  - @astrojs/internal-helpers@0.12.0
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.3.3
 
 ### Patch Changes

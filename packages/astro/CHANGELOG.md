@@ -1,5 +1,44 @@
 # astro
 
+## 7.3.6
+
+### Patch Changes
+
+- [#18166](https://github.com/withastro/astro/pull/18166) [`5134d0f`](https://github.com/withastro/astro/commit/5134d0f9e7478f23b1a590fa2416a2469c62ee23) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes an intermittent dev server crash when using `astro:actions` inside a server island with adapters that use a pre-bundled SSR environment (e.g. `@astrojs/cloudflare`)
+
+- [#18000](https://github.com/withastro/astro/pull/18000) [`6724575`](https://github.com/withastro/astro/commit/67245751e02fb94223266d3c55cc7d7ac65ab060) Thanks [@barclayd](https://github.com/barclayd)! - Fixes a bug where server islands containing framework components rendered empty in the dev server when using a custom `src/fetch.ts`
+
+- [#18164](https://github.com/withastro/astro/pull/18164) [`1a6997f`](https://github.com/withastro/astro/commit/1a6997f280529650e4f1dacf0388e8fe07d05a1a) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes CSS Module HMR in dev when a component is rendered both with and without hydration on the same page. Astro now uses path-based class name hashing in dev mode so that editing CSS declarations no longer changes the generated selectors, allowing Vite's CSS HMR to update styles without a full page reload.
+
+- [#18133](https://github.com/withastro/astro/pull/18133) [`faac481`](https://github.com/withastro/astro/commit/faac481dc86efdd2e4987069a7298f2aea3f1c6c) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes lost request state when Vite discovers server dependencies during a request in Cloudflare dev mode
+
+- [#18146](https://github.com/withastro/astro/pull/18146) [`2af4516`](https://github.com/withastro/astro/commit/2af45163fb7757a533bdf929874278e0a7483cfc) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes CSS imported from an `injectScript('page')` script being dropped during build
+
+- [#18159](https://github.com/withastro/astro/pull/18159) [`e5f8fe0`](https://github.com/withastro/astro/commit/e5f8fe0fcfd1c1845ae425cbf874864ce5ab5a37) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a hang when a `server:defer` component is inside a slot of another component in an MDX content collection entry
+
+- [#18155](https://github.com/withastro/astro/pull/18155) [`37ab0e4`](https://github.com/withastro/astro/commit/37ab0e47ff53a688b667b6197807717bc4454e1b) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes nondeterministic ordering of the server manifest's `assets` array, ensuring builds with identical inputs produce byte-identical output
+
+- [#18099](https://github.com/withastro/astro/pull/18099) [`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb) Thanks [@renovate](https://github.com/apps/renovate)! - Adds YAML parsing with timestamp and merge key support, and formats YAML errors consistently across Astro, Markdown, MDX, and Markdoc.
+
+- [#15595](https://github.com/withastro/astro/pull/15595) [`64e4039`](https://github.com/withastro/astro/commit/64e40396dc7e955986fd6d7bbd195f72556933d5) Thanks [@qzio](https://github.com/qzio)! - Improves CSRF protection by taking modern browsers headers into account
+
+- [#18179](https://github.com/withastro/astro/pull/18179) [`6caa659`](https://github.com/withastro/astro/commit/6caa6594afb557177e885077028db37506c409b7) Thanks [@matthewp](https://github.com/matthewp)! - Fixes custom View Transition direction names that are not valid CSS identifiers, such as names starting with a digit or containing spaces. These directions now match their animations correctly.
+
+- [#18176](https://github.com/withastro/astro/pull/18176) [`7c9d00d`](https://github.com/withastro/astro/commit/7c9d00d251e42b577ed298879fe9e68a345bd776) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes duplicate CSS in production builds when a component is both server-rendered and used with `client:only` on the same page
+
+- [#18078](https://github.com/withastro/astro/pull/18078) [`0a2ab10`](https://github.com/withastro/astro/commit/0a2ab102a91c141f42b6d7da9810db74f61d1fa0) Thanks [@manuelgruber](https://github.com/manuelgruber)! - Fixes `Astro.rewrite()` and `context.rewrite()` selecting the wrong route in `astro dev` when two dynamic routes match the same path
+
+- [#18069](https://github.com/withastro/astro/pull/18069) [`d39eb97`](https://github.com/withastro/astro/commit/d39eb97752ea6f5d02c82e6fe35fdbfb8d9f8982) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a dev server dependency scan failure when an `.astro` file contains a literal `<script` in frontmatter or a template expression
+
+- [#18114](https://github.com/withastro/astro/pull/18114) [`c17d920`](https://github.com/withastro/astro/commit/c17d9209bef385ea88b6fee36e91ad4e635f4a86) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Astro on StackBlitz and other WebContainer environments
+
+- [`1d9e910`](https://github.com/withastro/astro/commit/1d9e910a0308ef9699694a2871b3d71b6f5c3383) Thanks [@matthewp](https://github.com/matthewp)! - Validates the `Host` header against `security.allowedDomains` when using the Node adapter
+
+- [#18163](https://github.com/withastro/astro/pull/18163) [`e48da9d`](https://github.com/withastro/astro/commit/e48da9d4f6f293d8708bd8de9ae235429272f556) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `<video muted>` losing its muted state after a ClientRouter navigation in Chrome
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb)]:
+  - @astrojs/internal-helpers@0.12.0
+  - @astrojs/markdown-satteri@0.4.3
+
 ## 7.3.5
 
 ### Patch Changes
