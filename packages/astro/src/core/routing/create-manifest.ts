@@ -1,7 +1,8 @@
 import nodeFs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { resolve as importMetaResolve } from 'import-meta-resolve';
 import pLimit from 'p-limit';
 import colors from 'piccolore';
 import { injectImageEndpoint } from '../../assets/endpoint/config.js';
@@ -987,11 +988,20 @@ export function createI18nFallbackRoutes(
  * Resolve a route entrypoint to an absolute component path.
  */
 export function resolveInjectedRoute(entrypoint: string, root: URL, cwd?: string) {
+	const base = cwd || fileURLToPath(root);
 	let resolved;
 	try {
-		resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(root)] });
+		resolved = require.resolve(entrypoint, { paths: [base] });
 	} catch {
-		resolved = fileURLToPath(new URL(entrypoint, root));
+		try {
+			// CommonJS resolution can't see packages whose `exports` only define an
+			// `import` condition, so resolve those as ES modules from the project root (#18185).
+			resolved = fileURLToPath(
+				importMetaResolve(entrypoint, pathToFileURL(path.join(base, '/')).href),
+			);
+		} catch {
+			resolved = fileURLToPath(new URL(entrypoint, root));
+		}
 	}
 
 	return {
