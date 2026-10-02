@@ -25,6 +25,7 @@ import {
 	cloudflareConfigCustomizer,
 	DEFAULT_SESSION_KV_BINDING_NAME,
 	DEFAULT_IMAGES_BINDING_NAME,
+	hasCustomWorkerEntrypoint,
 	withNodejsAlsFlag,
 } from './cloudflare-config.js';
 import { passthroughImageService, sessionDrivers } from 'astro/config';
@@ -136,6 +137,7 @@ export default function createIntegration({
 }: Options = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildOutput: 'server' | 'static';
+	let _hasCustomWorkerEntrypoint = false;
 	let _originalClientDir: URL;
 
 	// Renderer server entrypoints (e.g. `@astrojs/svelte/server.js`), read from
@@ -202,13 +204,19 @@ export default function createIntegration({
 
 				const needsWorkerCache = config.cache?.provider?.name === 'cloudflare';
 
+				const mode = config.vite.mode ?? (command === 'dev' ? 'development' : 'production');
+
+				// Read before `astro:config:done`, where the build output is settled: an
+				// assets-only output would drop the user's Worker (#18208).
+				_hasCustomWorkerEntrypoint = await hasCustomWorkerEntrypoint(config.root, mode);
+
 				const adapterPluginConfig: Partial<PluginConfig> = {
 					config: cloudflareConfigCustomizer({
 						envDir:
 							config.vite.envDir === false
 								? undefined
 								: resolve(fileURLToPath(config.root), config.vite.envDir ?? '.'),
-						mode: config.vite.mode ?? (command === 'dev' ? 'development' : 'production'),
+						mode,
 						needsSessionKVBinding,
 						sessionKVBindingName,
 						imagesBindingName:
@@ -512,7 +520,9 @@ export default function createIntegration({
 			},
 			'astro:config:done': ({ setAdapter, config, injectTypes, buildOutput }) => {
 				_config = config;
-				_buildOutput = buildOutput;
+				// A custom Worker entrypoint needs a server output so its bundle is
+				// emitted, even when every page is prerendered.
+				_buildOutput = _hasCustomWorkerEntrypoint ? 'server' : buildOutput;
 
 				// Resolve the custom image service against the FINAL config: the adapter's
 				// `astro:config:setup` runs before every user integration (Astro unshifts
@@ -531,7 +541,7 @@ export default function createIntegration({
 				setAdapter({
 					name: '@astrojs/cloudflare',
 					adapterFeatures: {
-						buildOutput,
+						buildOutput: _buildOutput,
 						middlewareMode: 'classic',
 						preserveBuildClientDir: true,
 						preserveBuildServerDir: true,
