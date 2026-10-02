@@ -19,4 +19,16 @@ describe('Prerender with durable objects', () => {
 		// (which does not export the user's Durable Object classes).
 		assert.ok(fixture.pathExists('client'), 'Expected the client output to exist after build');
 	});
+
+	it('emits the custom Worker bundle with its Durable Object export when every page is prerendered', async () => {
+		const workerConfig = JSON.parse(
+			await fixture.readFile('../.cloudflare/output/v0/workers/default/worker.config.json'),
+		) as { manifest?: { mainModule: string } };
+		assert.ok(workerConfig.manifest, 'Expected worker.config.json to have a manifest');
+
+		const entry = await fixture.readFile(
+			`../.cloudflare/output/v0/workers/default/bundle/${workerConfig.manifest.mainModule}`,
+		);
+		assert.match(entry, /export\s*\{[^}]*\bExampleDO\b/);
+	});
 });

@@ -4415,6 +4415,9 @@ importers:
       '@astrojs/underscore-redirects':
         specifier: workspace:*
         version: link:../../underscore-redirects
+      '@cloudflare/config':
+        specifier: 0.22.0
+        version: 0.22.0
       '@cloudflare/vite-plugin':
         specifier: 2.0.0-beta.sha-52b0dc0e9
         version: 2.0.0-beta.sha-52b0dc0e9(@types/node@22.19.19)(vite@8.3.0)(workerd@1.20260930.2)
