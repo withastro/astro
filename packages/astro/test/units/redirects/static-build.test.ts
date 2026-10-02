@@ -368,6 +368,28 @@ describe('static redirects — invalid redirect destination throws', () => {
 	});
 });
 
+describe('static redirects — dynamic destination with a trailing slash', () => {
+	it('resolves the destination route', async () => {
+		const options = await createStaticBuildOptions({
+			pages: {
+				'src/pages/articles/[slug].astro':
+					'---\nexport function getStaticPaths(){return[{params:{slug:"one"}}]}\n---\n<p>{Astro.params.slug}</p>',
+			},
+			inlineConfig: {
+				trailingSlash: 'always',
+				redirects: {
+					'/blog/[slug]/': '/articles/[slug]/',
+				},
+			},
+		});
+
+		const route = (options.routesList as { routes: RouteData[] }).routes.find(
+			(r) => r.type === 'redirect',
+		);
+		assert.equal(route?.redirectRoute?.route, '/articles/[slug]');
+	});
+});
+
 describe('Astro.redirect() in a page component — build.redirects = false', () => {
 	it('renders redirect HTML for a page that calls Astro.redirect() even when build.redirects is false', async () => {
 		// /secret calls Astro.redirect('/login') in frontmatter.
