@@ -118,13 +118,50 @@ export function escapeRegex(content: string) {
 	return `^/${getMatchRegex(segments)}$`;
 }
 
+/**
+ * Adjust a Vercel redirect source for the Astro `trailingSlash` config.
+ * With `trailingSlash: 'always'` Vercel normalizes `/old` to `/old/` before
+ * redirects run, so an unslashed source can never match. Append a slash except
+ * for the root, spread routes, and file-extension paths (which Vercel
+ * normalizes without a slash even when `trailingSlash` is enabled).
+ */
+export function adjustSourceForTrailingSlash(
+	source: string,
+	route: IntegrationResolvedRoute,
+	trailingSlash: AstroConfig['trailingSlash'],
+): string {
+	if (trailingSlash === 'always') {
+		if (source === '/' || source.endsWith('/')) {
+			return source;
+		}
+		if (route.segments.some((segment) => segment.some((part) => part.spread))) {
+			return source;
+		}
+		if (source.slice(source.lastIndexOf('/') + 1).includes('.')) {
+			return source;
+		}
+		return `${source}/`;
+	}
+	if (trailingSlash === 'never') {
+		if (source.length > 1 && source.endsWith('/')) {
+			return source.slice(0, -1);
+		}
+		return source;
+	}
+	return source;
+}
+
 export function getRedirects(routes: IntegrationResolvedRoute[], config: AstroConfig): Redirect[] {
 	const redirects: Redirect[] = [];
 
 	for (const route of routes) {
 		if (route.type === 'redirect') {
 			redirects.push({
-				source: config.base + getMatchPattern(route.segments),
+				source: adjustSourceForTrailingSlash(
+					config.base + getMatchPattern(route.segments),
+					route,
+					config.trailingSlash,
+				),
 				destination: getRedirectLocation(route, config),
 				statusCode: getRedirectStatus(route),
 			});
