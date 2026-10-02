@@ -1,5 +1,13 @@
 # @astrojs/node
 
+## 11.1.7
+
+### Patch Changes
+
+- [`1d9e910`](https://github.com/withastro/astro/commit/1d9e910a0308ef9699694a2871b3d71b6f5c3383) Thanks [@matthewp](https://github.com/matthewp)! - Validates the `Host` header against `security.allowedDomains` when using the Node adapter
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb)]:
+  - @astrojs/internal-helpers@0.12.0
+
 ## 11.1.6
 
 ### Patch Changes

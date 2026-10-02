@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.12.0
+
+### Minor Changes
+
+- [#18099](https://github.com/withastro/astro/pull/18099) [`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb) Thanks [@renovate](https://github.com/apps/renovate)! - Adds YAML parsing with timestamp and merge key support, and formats YAML errors consistently across Astro, Markdown, MDX, and Markdoc.
+
 ## 0.11.0
 
 ### Minor Changes

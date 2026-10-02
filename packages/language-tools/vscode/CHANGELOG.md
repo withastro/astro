@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.17.1
+
+### Patch Changes
+
+- [#18187](https://github.com/withastro/astro/pull/18187) [`8f5e7b5`](https://github.com/withastro/astro/commit/8f5e7b5071d4b5e7af2b207ff3fe27e1b22d3329) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `prettier-plugin-astro` to 1.1.0
+
 ## 2.17.0
 
 ### Minor Changes
