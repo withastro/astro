@@ -48,7 +48,7 @@
     "preact": "^10.29.8"
   },
   "peerDependencies": {
-    "preact": "^10.6.5"
+    "preact": "^10.6.5 || ^11.0.0"
   },
   "engines": {
     "node": ">=22.12.0"
