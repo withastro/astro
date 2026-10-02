@@ -1,4 +1,4 @@
-import type { DefaultAstroPrerenderer } from '../../types/public/integrations.js';
+import type { AstroPrerenderer } from '../../types/public/integrations.js';
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { BuildApp } from './app.js';
@@ -15,7 +15,7 @@ interface DefaultPrerendererOptions {
 /**
  * Default prerenderer with access to the BuildApp for assets generation.
  */
-export interface DefaultPrerenderer extends DefaultAstroPrerenderer {
+export interface DefaultPrerenderer extends AstroPrerenderer {
 	/** The BuildApp instance, available after setup() is called */
 	app?: BuildApp;
 }
