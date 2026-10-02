@@ -358,19 +358,6 @@ export interface AstroPrerenderer {
 	teardown?: () => Promise<void>;
 }
 
-/**
- * Astro's default prerenderer, as passed to a `setPrerenderer()` factory. It always returns
- * the object forms, so a wrapper can read `paths` and `response` without narrowing. A wrapper
- * should pass `metadata` through, or the images it lists are not generated.
- */
-export interface DefaultAstroPrerenderer extends AstroPrerenderer {
-	getStaticPaths: () => Promise<StaticPathsResult>;
-	render: (
-		request: Request,
-		options: { routeData: RouteData; collectMetadata?: boolean },
-	) => Promise<PrerenderResult>;
-}
-
 export type AstroAdapterFeatureMap = {
 	/**
 	 * Defines whether the adapter is able to serve static pages.
@@ -478,9 +465,7 @@ export interface BaseIntegrationHooks {
 	'astro:build:start': (options: {
 		logger: AstroIntegrationLogger;
 		setPrerenderer: (
-			prerenderer:
-				| AstroPrerenderer
-				| ((defaultPrerenderer: DefaultAstroPrerenderer) => AstroPrerenderer),
+			prerenderer: AstroPrerenderer | ((defaultPrerenderer: AstroPrerenderer) => AstroPrerenderer),
 		) => void;
 	}) => void | Promise<void>;
 	'astro:build:setup': (options: {

@@ -70,7 +70,9 @@ describe('astro:assets - delete images that are unused', () => {
 							setup: () => defaultPrerenderer.setup!(),
 							async getStaticPaths() {
 								// Wrappers can work on the paths, as long as they pass `metadata` through.
-								const { paths, metadata } = await defaultPrerenderer.getStaticPaths();
+								const result = await defaultPrerenderer.getStaticPaths();
+								if (Array.isArray(result)) throw new Error('Expected { paths, metadata }');
+								const { paths, metadata } = result;
 								return { paths: paths.filter((path) => path.pathname !== '/skipped'), metadata };
 							},
 							render: (request, options) => defaultPrerenderer.render(request, options),

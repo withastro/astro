@@ -11,7 +11,6 @@ import type { ContentEntryType, DataEntryType } from './public/content.js';
 import type {
 	AstroAdapter,
 	AstroPrerenderer,
-	DefaultAstroPrerenderer,
 	AstroRenderer,
 	InjectedScriptStage,
 	InjectedType,
@@ -36,7 +35,7 @@ export interface AstroSettings {
 	adapter: AstroAdapter | undefined;
 	prerenderer:
 		| AstroPrerenderer
-		| ((defaultPrerenderer: DefaultAstroPrerenderer) => AstroPrerenderer)
+		| ((defaultPrerenderer: AstroPrerenderer) => AstroPrerenderer)
 		| undefined;
 	preferences: AstroPreferences;
 	injectedRoutes: InternalInjectedRoute[];
