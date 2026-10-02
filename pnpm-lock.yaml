@@ -665,8 +665,8 @@ importers:
         specifier: ^1.7.0
         version: 1.7.0
       unifont:
-        specifier: ~0.8.3
-        version: 0.8.3
+        specifier: ~0.7.5
+        version: 0.7.5
       unstorage:
         specifier: ^1.17.5
         version: 1.17.5(@azure/identity@4.13.3)(@netlify/blobs@11.1.1)(@vercel/functions@3.9.9)
@@ -16413,8 +16413,8 @@ packages:
   unified@11.0.5:
     resolution: {integrity: sha512-xKvGhPWw3k84Qjh8bI3ZeJjqnyadK+GEFtazSfZv/rKeTkTjOJho6mFqh2SM96iIcZokxiOpg78GazTSg8+KHA==}
 
-  unifont@0.8.3:
-    resolution: {integrity: sha512-+hGqF94yv3YVzQv8U5Mvbw4DoYJCiAvp/SURYEHdoM4c7LmpprWtR9Ev1BbHo/4nz7Mws6P6VHr8LjkfOHCPCg==}
+  unifont@0.7.5:
+    resolution: {integrity: sha512-ULe/Cs+ZIsq+dcFofNkhqielCrUJnb5mr+Yc4EBM2VlL+6OZR6+cjtI2mT1bJvRBrVncqHAbLURxmPLcCXzWMg==}
 
   unist-util-find-after@5.0.0:
     resolution: {integrity: sha512-amQa0Ep2m6hE2g72AugUItjbuM8X8cGQnFoHk0pGfrFeT9GZhzN5SW8nRsiGKK7Aif4CrACPENkA6P/Lw6fHGQ==}
@@ -27443,11 +27443,10 @@ snapshots:
       trough: 2.2.0
       vfile: 6.0.3
 
-  unifont@0.8.3:
+  unifont@0.7.5:
     dependencies:
       css-tree: 3.2.1
       ohash: 2.0.11
-      std-env: 4.2.0
       undici: 8.11.0
 
   unist-util-find-after@5.0.0:
