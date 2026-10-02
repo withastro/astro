@@ -2,12 +2,6 @@
 'astro': minor
 ---
 
-Reworks how prerendered images are tracked during the build, so optimized images and their originals are now reported per page instead of through a global
+Stops copying original images to the build output when a page only reads their `width` or `height`
 
-Reading only an imported image's `width` or `height` no longer keeps its original file in the build output. Reading its `src` still does.
-
-Adapters that provide a custom prerenderer can use a new optional `getImageService()` hook on `AstroPrerenderer`, and `getStaticPaths()` can now return `{ paths, metadata }` to report the images resolved while computing paths. `teardown()` now runs after images are generated.
-
-The default prerenderer passed to a `setPrerenderer()` factory now always returns the object forms: `getStaticPaths()` returns `{ paths, metadata }` and `render()` returns `{ response, metadata }`. Wrappers that read these results should use `paths` and `response`, and return `metadata` along with them so Astro still generates the images those pages use. Astro warns when a wrapper drops it. Returning a bare array from `getStaticPaths()` or a bare `Response` from `render()` is deprecated but still supported.
-
-A prerenderer that renders outside of Astro's build process gets build-time image URLs from `getImage()` while it collects metadata: install a render scope with `installRenderScope()` from `astro/app`, render pages with `renderForPrerender()`, and compute paths with `StaticPaths.getAllWithMetadata()` from `astro:static-paths`. Both accept `staticImages: false` to keep the image service's runtime URLs in prerendered pages. `collectStaticImages()` and `recordStaticImage()` are deprecated, and `globalThis.astroAsset` is no longer populated.
+Adapter authors with a custom prerenderer: return `{ paths, metadata }` from `getStaticPaths()` and `{ response, metadata }` from `render()` so Astro knows which images to generate. Returning a plain array or `Response` still works but is deprecated. `globalThis.astroAsset` is no longer set.

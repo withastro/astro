@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { AstroLogger } from '../dist/core/logger/core.js';
 import type { AstroIntegration } from '../dist/types/public/integrations.js';
 import testAdapter from './test-adapter.ts';
 import { testImageService } from './test-image-service.ts';
@@ -115,57 +114,6 @@ describe('astro:assets - delete images that are unused', () => {
 			assert.match(src, /^\/_astro\/staticPaths\.[^_/]+_[^_/]+\.webp$/);
 			assert.ok(fixture.pathExists(src));
 			assert.equal((await fixture.glob('_astro/staticPaths.*.*')).length, 1);
-		});
-	});
-
-	describe('build ssg with a wrapping prerenderer that returns a bare Response', () => {
-		const warnings: string[] = [];
-
-		before(async () => {
-			const integration: AstroIntegration = {
-				name: 'bare-response-prerenderer',
-				hooks: {
-					'astro:build:start': ({ setPrerenderer }) => {
-						setPrerenderer((defaultPrerenderer) => ({
-							name: 'bare-response-prerenderer',
-							setup: () => defaultPrerenderer.setup!(),
-							getStaticPaths: () => defaultPrerenderer.getStaticPaths(),
-							async render(request, options) {
-								const { response } = await defaultPrerenderer.render(request, options);
-								return new Response(await response.arrayBuffer(), response);
-							},
-						}));
-					},
-				},
-			};
-			fixture = await loadFixture({
-				root: './fixtures/core-image-deletion/',
-				integrations: [integration],
-				image: {
-					service: testImageService(),
-				},
-				outDir: './dist/image-deletion-build-ssg-bare-response/',
-				cacheDir: './node_modules/.astro-test/image-deletion-build-ssg-bare-response/',
-			});
-			await fs.promises.rm(new URL(fixture.config.cacheDir), { recursive: true, force: true });
-
-			const logger = new AstroLogger({
-				level: 'warn',
-				destination: {
-					write(chunk) {
-						if (chunk.level === 'warn' && chunk.label === 'build') warnings.push(chunk.message);
-						return true;
-					},
-				},
-			});
-			// @ts-expect-error: `_logger` is an internal API
-			await fixture.build({ _logger: logger });
-		});
-
-		it('warns that the prerenderer dropped the images of rendered pages', () => {
-			const warning = warnings.find((message) => message.includes('bare-response-prerenderer'));
-			assert.ok(warning, `expected a dropped-metadata warning, got: ${warnings.join('\n')}`);
-			assert.match(warning, /dropped the metadata of \d+ page\(s\)/);
 		});
 	});
 
