@@ -77,7 +77,7 @@ export function loadWranglerEnv(
  * points to the adapter's default server entrypoint.
  */
 export function isDefaultServerEntrypoint(main: string): boolean {
-	return main.replaceAll('\\', '/').endsWith('@astrojs/cloudflare/entrypoints/server');
+	return /@astrojs\/cloudflare\/entrypoints\/server(\.js)?$/.test(main.replaceAll('\\', '/'));
 }
 
 /**

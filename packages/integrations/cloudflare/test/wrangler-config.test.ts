@@ -17,6 +17,17 @@ describe('isDefaultServerEntrypoint', () => {
 		);
 	});
 
+	it('matches the default entrypoint with a .js extension', () => {
+		assert.equal(
+			isDefaultServerEntrypoint('/project/@astrojs/cloudflare/entrypoints/server.js'),
+			true,
+		);
+		assert.equal(
+			isDefaultServerEntrypoint('C:\\project\\@astrojs\\cloudflare\\entrypoints\\server.js'),
+			true,
+		);
+	});
+
 	it('does not match a custom entrypoint', () => {
 		assert.equal(isDefaultServerEntrypoint('C:\\project\\src\\worker.ts'), false);
 		assert.equal(isDefaultServerEntrypoint('/project/src/worker.ts'), false);

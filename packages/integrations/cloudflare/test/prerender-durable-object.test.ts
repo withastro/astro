@@ -29,4 +29,10 @@ describe('Prerender with durable objects', () => {
 		assert.ok(existsSync(entryPath), `Expected ${entryPath} to exist after build`);
 		assert.match(readFileSync(entryPath, 'utf-8'), /export\s*\{[^}]*\bExampleDO\b/);
 	});
+
+	it('points the generated wrangler.json main at the emitted entry', () => {
+		const wranglerPath = fileURLToPath(new URL('dist/server/wrangler.json', root));
+		const wranglerConfig = JSON.parse(readFileSync(wranglerPath, 'utf-8'));
+		assert.equal(wranglerConfig.main, 'entry.mjs');
+	});
 });
