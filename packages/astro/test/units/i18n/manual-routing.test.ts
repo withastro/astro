@@ -831,6 +831,41 @@ describe('redirectToFallback', () => {
 			assert.equal(response.headers.get('Location'), '/blog/post');
 		});
 
+		it('should only remove the locale segment when the base contains the locale code', async () => {
+			const payload = createMiddlewarePayload({
+				base: '/estore',
+				locales: ['en', 'es'],
+				defaultLocale: 'en',
+				strategy: 'pathname-prefix-other-locales',
+				fallback: { es: 'en' },
+				fallbackType: 'redirect',
+			});
+			const fallbackFn = redirectToFallback(payload);
+			const context = createManualRoutingContext({ pathname: '/estore/es/about' });
+			const originalResponse = new Response(null, { status: 404 });
+
+			const response = await fallbackFn(context, originalResponse);
+
+			assert.equal(response.headers.get('Location'), '/estore/about');
+		});
+
+		it('should only swap the locale segment when the base contains the locale code', async () => {
+			const payload = createMiddlewarePayload({
+				base: '/estore',
+				locales: ['en', 'es', 'fr'],
+				defaultLocale: 'en',
+				fallback: { es: 'fr' },
+				fallbackType: 'redirect',
+			});
+			const fallbackFn = redirectToFallback(payload);
+			const context = createManualRoutingContext({ pathname: '/estore/es/about' });
+			const originalResponse = new Response(null, { status: 404 });
+
+			const response = await fallbackFn(context, originalResponse);
+
+			assert.equal(response.headers.get('Location'), '/estore/fr/about');
+		});
+
 		it('should preserve query string', async () => {
 			const payload = createMiddlewarePayload({
 				locales: ['en', 'es'],
@@ -1037,8 +1072,7 @@ describe('redirectToFallback', () => {
 
 			const response = await fallbackFn(context, originalResponse);
 
-			// When replacing /es with empty string, we get empty path
-			assert.equal(response.headers.get('Location'), '');
+			assert.equal(response.headers.get('Location'), '/');
 		});
 
 		it('should handle deep nested paths', async () => {

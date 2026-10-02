@@ -173,17 +173,15 @@ export class I18nRouter {
 	 */
 	private matchPrefixOtherLocales(pathname: string, _context: I18nRouterContext): I18nRouterMatch {
 		// Check if pathname contains the default locale as a segment
-		let pathnameContainsDefaultLocale = false;
-		for (const segment of pathname.split('/')) {
-			if (normalizeTheLocale(segment) === normalizeTheLocale(this.#defaultLocale)) {
-				pathnameContainsDefaultLocale = true;
-				break;
-			}
-		}
+		const segments = pathname.split('/');
+		const defaultLocaleIndex = segments.findIndex(
+			(segment) => normalizeTheLocale(segment) === normalizeTheLocale(this.#defaultLocale),
+		);
 
-		if (pathnameContainsDefaultLocale) {
+		if (defaultLocaleIndex !== -1) {
 			// Default locale should not have a prefix - return 404 with Location header
-			const newLocation = pathname.replace(`/${this.#defaultLocale}`, '');
+			segments.splice(defaultLocaleIndex, 1);
+			const newLocation = segments.join('/');
 			return {
 				type: 'notFound',
 				location: newLocation,
