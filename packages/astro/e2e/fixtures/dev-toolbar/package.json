@@ -2,6 +2,7 @@
   "name": "@e2e/dev-toolbar",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@astrojs/preact": "workspace:*",
     "astro": "workspace:*",
