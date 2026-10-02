@@ -98,6 +98,8 @@ trustPolicyExclude:
   - '@algolia/client-common@4.27.0'
   - '@algolia/logger-console@4.27.0'
   - '@algolia/client-personalization@4.27.0'
+  # Used by Vitest, see https://github.com/mafintosh/why-is-node-running/issues/90
+  - 'why-is-node-running@3.2.2'
 
 # Control whether packages can run postinstall scripts. We disallow this to avoid the security risk
 # of running third-party code on install.
