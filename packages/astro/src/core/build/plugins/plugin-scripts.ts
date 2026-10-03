@@ -5,6 +5,8 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
 type GetModuleInfo = (moduleId: string) => Rollup.ModuleInfo | null;
 
+const PRELOAD_HELPER_ID = '\0vite/preload-helper.js';
+
 export type ScriptChunkInfo = Pick<
 	Rollup.OutputChunk,
 	'code' | 'facadeModuleId' | 'fileName' | 'imports' | 'dynamicImports' | 'moduleIds'
@@ -16,6 +18,11 @@ export function chunkHasDynamicImports(
 ) {
 	return (
 		output.dynamicImports.length > 0 ||
+		// Vite injects its preload helper when the chunk has a dynamic import,
+		// and it stays in the chunk even for an import annotated with
+		// `/* @vite-ignore */`, for which Rolldown reports no dynamic import at
+		// all in either source above.
+		output.moduleIds.includes(PRELOAD_HELPER_ID) ||
 		output.moduleIds.some((id) => (getModuleInfo(id)?.dynamicallyImportedIds.length ?? 0) > 0)
 	);
 }
