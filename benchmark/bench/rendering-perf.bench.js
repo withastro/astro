@@ -41,47 +41,45 @@ beforeAll(async () => {
 	nonStreamingApp = createApp(false);
 }, 900000);
 
+// A streaming response resolves before its body is produced, so the body must be read.
+async function render(app, pathname) {
+	const response = await app.render(new Request(new URL(pathname, 'http://example.com')));
+	await response.text();
+}
+
 // Non-streaming (prerender path) — this is the primary target for most optimizations
 // since it's the path where all the overhead is synchronous and measurable.
 describe('Rendering perf (non-streaming)', () => {
 	bench('many-components (markHTMLString, isHTMLString, validateProps)', async () => {
-		const request = new Request(new URL('http://example.com/many-components'));
-		await nonStreamingApp.render(request);
+		await render(nonStreamingApp, '/many-components');
 	});
 
 	bench('many-expressions (renderChild dispatch, escapeHTML)', async () => {
-		const request = new Request(new URL('http://example.com/many-expressions'));
-		await nonStreamingApp.render(request);
+		await render(nonStreamingApp, '/many-expressions');
 	});
 
 	bench('many-head-elements (head dedup)', async () => {
-		const request = new Request(new URL('http://example.com/many-head-elements'));
-		await nonStreamingApp.render(request);
+		await render(nonStreamingApp, '/many-head-elements');
 	});
 
 	bench('many-slots (eager slot prerendering)', async () => {
-		const request = new Request(new URL('http://example.com/many-slots'));
-		await nonStreamingApp.render(request);
+		await render(nonStreamingApp, '/many-slots');
 	});
 
 	bench('large-array (BufferedRenderer per child)', async () => {
-		const request = new Request(new URL('http://example.com/large-array'));
-		await nonStreamingApp.render(request);
+		await render(nonStreamingApp, '/large-array');
 	});
 
 	bench('static-heavy (markHTMLString baseline)', async () => {
-		const request = new Request(new URL('http://example.com/static-heavy'));
-		await nonStreamingApp.render(request);
+		await render(nonStreamingApp, '/static-heavy');
 	});
 
 	bench('head-propagation-1000 (propagator collection)', async () => {
-		const request = new Request(new URL('http://example.com/head-propagation-1000'));
-		await nonStreamingApp.render(request);
+		await render(nonStreamingApp, '/head-propagation-1000');
 	});
 
 	bench('head-propagation-2000 (propagator collection, 2x scale)', async () => {
-		const request = new Request(new URL('http://example.com/head-propagation-2000'));
-		await nonStreamingApp.render(request);
+		await render(nonStreamingApp, '/head-propagation-2000');
 	});
 });
 
@@ -90,22 +88,18 @@ describe('Rendering perf (non-streaming)', () => {
 // slot prerendering (#9) may behave differently.
 describe('Rendering perf (streaming)', () => {
 	bench('many-components [streaming]', async () => {
-		const request = new Request(new URL('http://example.com/many-components'));
-		await streamingApp.render(request);
+		await render(streamingApp, '/many-components');
 	});
 
 	bench('many-expressions [streaming]', async () => {
-		const request = new Request(new URL('http://example.com/many-expressions'));
-		await streamingApp.render(request);
+		await render(streamingApp, '/many-expressions');
 	});
 
 	bench('large-array [streaming]', async () => {
-		const request = new Request(new URL('http://example.com/large-array'));
-		await streamingApp.render(request);
+		await render(streamingApp, '/large-array');
 	});
 
 	bench('head-propagation-2000 [streaming]', async () => {
-		const request = new Request(new URL('http://example.com/head-propagation-2000'));
-		await streamingApp.render(request);
+		await render(streamingApp, '/head-propagation-2000');
 	});
 });
