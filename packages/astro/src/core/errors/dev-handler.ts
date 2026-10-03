@@ -87,7 +87,7 @@ export async function renderDevError(
 				);
 			}
 
-			if (error) {
+			if (error && status !== 404) {
 				// Log useful information that the custom 500 page may not display unlike the default error overlay
 				getLogger(manifest).error(
 					'router',

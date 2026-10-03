@@ -165,10 +165,13 @@ async function render(state: FetchState): Promise<Response> {
 			timeStart: state.timeStart,
 		});
 	} catch (err: any) {
-		state.logger.error(null, err.stack || err.message || String(err));
+		const status = err?.name === 'NotFoundError' ? 404 : 500;
+		if (status !== 404) {
+			state.logger.error(null, err.stack || err.message || String(err));
+		}
 		return renderErrorFromState(state, request, {
 			...state.renderOptions,
-			status: 500,
+			status,
 			error: err,
 			pathname: state.pathname,
 		});
