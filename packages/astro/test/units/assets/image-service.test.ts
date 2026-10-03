@@ -166,6 +166,16 @@ describe('sharp image service', async () => {
 		assert.equal(width, ORIGINAL_WIDTH);
 		assert.equal(height, ORIGINAL_HEIGHT);
 	});
+
+	it('returns avif as the format for avif output', async () => {
+		const { format } = await sharpService.transform(
+			inputBuffer,
+			{ src: 'penguin.jpg', format: 'avif', width: 50 },
+			config,
+			noopLogger,
+		);
+		assert.equal(format, 'avif');
+	});
 });
 
 describe('sharp image service SVG handling', async () => {

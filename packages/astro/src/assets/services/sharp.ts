@@ -243,9 +243,8 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		}
 
 		let data: Uint8Array;
-		let info: { format: string };
 		try {
-			({ data, info } = await result.toBuffer({ resolveWithObject: true }));
+			data = await result.toBuffer();
 		} catch {
 			// Sharp cannot decode this image (e.g. animated AVIF sequences).
 			// Pass it through unmodified rather than crashing the build. When Sharp adds support for these
@@ -262,7 +261,8 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 
 		return {
 			data: needsCopy ? new Uint8Array(data) : data,
-			format: info.format as ImageOutputFormat,
+			// Sharp labels AVIF output as `heif` in its output info, so report the requested format instead.
+			format: outputFormat,
 		};
 	},
 };
