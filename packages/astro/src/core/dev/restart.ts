@@ -212,6 +212,19 @@ export async function createContainerWithAutomaticRestart({
 				} else {
 					setupContainer();
 					await attachContentServerListeners(restart.container);
+					// Vite replaced its watcher during the restart, so the content layer must be
+					// rebuilt on the new watcher and settings, or loaders stop seeing file changes.
+					const previousContentLayer = globalContentLayer.get();
+					if (previousContentLayer) {
+						const contentLayer = globalContentLayer.init({
+							settings: restart.container.settings,
+							logger,
+							watcher: restart.container.viteServer.watcher,
+							store: previousContentLayer.store,
+						});
+						contentLayer.watchContentConfig();
+						await contentLayer.sync();
+					}
 					resolveRestart(null);
 				}
 				restartComplete = new Promise<Error | null>((resolve) => {
