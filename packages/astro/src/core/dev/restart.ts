@@ -212,6 +212,7 @@ export async function createContainerWithAutomaticRestart({
 				} else {
 					setupContainer();
 					await attachContentServerListeners(restart.container);
+					await restartContentLayer();
 					resolveRestart(null);
 				}
 				restartComplete = new Promise<Error | null>((resolve) => {
@@ -219,6 +220,21 @@ export async function createContainerWithAutomaticRestart({
 				});
 			}
 		};
+	}
+
+	// Vite's in-place restart closes the old file watcher, so loaders must be
+	// re-registered on the new one, using the new settings.
+	async function restartContentLayer() {
+		const previousContentLayer = globalContentLayer.get();
+		if (!previousContentLayer) return;
+		const contentLayer = globalContentLayer.init({
+			settings: restart.container.settings,
+			logger,
+			watcher: restart.container.viteServer.watcher,
+			store: previousContentLayer.store,
+		});
+		contentLayer.watchContentConfig();
+		await contentLayer.sync();
 	}
 
 	let changeHandler: (file: string) => void;
