@@ -40,7 +40,7 @@ This results in fewer JSX nodes, less compiled JS output, and less parsed AST, w
 
 To achieve this, we use an algorithm to detect `hast` subtrees that are entirely static (containing no JSX) to be inlined as `set:html` to the root of the subtree.
 
-The next section explains the algorithm, which you can follow along by pairing with the [source code](./rehype-optimize-static.ts). To analyze the `hast`, you can paste the MDX code into https://mdxjs.com/playground.
+The next section explains the algorithm, which you can follow along by pairing with the [source code](../../../markdown/remark/src/mdx/rehype-optimize-static.ts). To analyze the `hast`, you can paste the MDX code into https://mdxjs.com/playground.
 
 ### How it works
 
