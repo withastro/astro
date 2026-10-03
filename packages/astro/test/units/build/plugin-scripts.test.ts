@@ -7,6 +7,7 @@ import {
 } from '../../../dist/core/build/plugins/plugin-scripts.js';
 
 const scriptModuleId = '/src/Component.astro?astro&type=script&index=0&lang.ts';
+const preloadHelperId = '\0vite/preload-helper.js';
 
 function createChunk(overrides: Partial<ScriptChunkInfo> = {}): ScriptChunkInfo {
 	return {
@@ -27,7 +28,7 @@ function createGetModuleInfo(dynamicImportsById: Record<string, string[]> = {}) 
 describe('pluginScripts', () => {
 	it('detects external dynamic imports from module info when output dynamicImports is empty', () => {
 		const chunk = createChunk({
-			moduleIds: ['\0vite/preload-helper.js', scriptModuleId],
+			moduleIds: [preloadHelperId, scriptModuleId],
 		});
 
 		assert.equal(
@@ -38,7 +39,7 @@ describe('pluginScripts', () => {
 
 	it('does not inline discovered script chunks with dynamic imports in module info', () => {
 		const chunk = createChunk({
-			moduleIds: ['\0vite/preload-helper.js', scriptModuleId],
+			moduleIds: [preloadHelperId, scriptModuleId],
 		});
 
 		assert.equal(
@@ -61,6 +62,27 @@ describe('pluginScripts', () => {
 				getModuleInfo: createGetModuleInfo(),
 			}),
 			true,
+		);
+	});
+
+	it('detects dynamic imports skipped by `/* @vite-ignore */`', () => {
+		// Rolldown records neither `dynamicImports` nor `dynamicallyImportedIds`
+		// for an import annotated with `@vite-ignore`, so the only trace it leaves
+		// is the preload helper module that Vite pulls into the chunk.
+		const chunk = createChunk({
+			moduleIds: [preloadHelperId, scriptModuleId],
+		});
+
+		assert.equal(chunkHasDynamicImports(chunk, createGetModuleInfo()), true);
+
+		assert.equal(
+			shouldInlineScriptChunk(chunk, {
+				discoveredScripts: new Set([scriptModuleId]),
+				importedIds: new Set(),
+				assetInlineLimit: 4096,
+				getModuleInfo: createGetModuleInfo(),
+			}),
+			false,
 		);
 	});
 });
