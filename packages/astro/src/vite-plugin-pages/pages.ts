@@ -8,7 +8,10 @@ import { getVirtualModulePageName } from './util.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 export const VIRTUAL_PAGES_MODULE_ID = 'virtual:astro:pages';
-const VIRTUAL_PAGES_RESOLVED_MODULE_ID = '\0' + VIRTUAL_PAGES_MODULE_ID;
+// Exported so the dev CSS graph walk (vite-plugin-css) can treat this module as a
+// traversal boundary — it dynamically imports every page's virtual module (see the
+// `load` handler below), which is a fan-out point, not a real content dependency.
+export const VIRTUAL_PAGES_RESOLVED_MODULE_ID = '\0' + VIRTUAL_PAGES_MODULE_ID;
 
 interface PagesPluginOptions {
 	routesList: RoutesList;
