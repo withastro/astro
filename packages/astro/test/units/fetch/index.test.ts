@@ -830,6 +830,47 @@ describe('Composed pipeline', () => {
 	});
 });
 
+describe('Composed pipeline with an over-encoded path', () => {
+	// Encoded more times than `validateAndDecodePathname` decodes.
+	const overEncodedUrl = 'http://example.com/api/%2525252525252525252561dmin';
+
+	function createOverEncodedState(onMiddleware?: () => void) {
+		const app = createTestApp([createPage(simplePage, { route: '/api/admin' })], {
+			trailingSlash: 'always',
+			middleware: async () => ({
+				onRequest: async (_ctx: any, next: any) => {
+					onMiddleware?.();
+					return next();
+				},
+			}),
+		});
+		return new FetchState(stampApp(new Request(overEncodedUrl), app));
+	}
+
+	it('trailingSlash() returns 400 instead of a redirect', async () => {
+		const response = trailingSlash(createOverEncodedState());
+		assert.equal(response?.status, 400);
+		assert.equal(await response?.text(), '');
+	});
+
+	it('middleware() returns 400 without running user middleware', async () => {
+		let middlewareRan = false;
+		const state = createOverEncodedState(() => {
+			middlewareRan = true;
+		});
+		const response = await middleware(state, () => pages(state));
+		assert.equal(response.status, 400);
+		assert.equal(await response.text(), '');
+		assert.equal(middlewareRan, false, 'user middleware should not run');
+	});
+
+	it('pages() returns 400', async () => {
+		const response = await pages(createOverEncodedState());
+		assert.equal(response.status, 400);
+		assert.equal(await response.text(), '');
+	});
+});
+
 // #endregion
 
 // #region state.response
