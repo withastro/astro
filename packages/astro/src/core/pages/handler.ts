@@ -9,6 +9,7 @@ import {
 } from '../app/origin-check.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
 import { renderErrorFromState } from '../errors/handler.js';
+import { getDefaultStatusCode } from '../routing/helpers.js';
 
 // Shared empty-slots object so we don't allocate `{}` on every render for
 // requests that don't come from the container API. Safe to share because
@@ -121,6 +122,7 @@ export async function handlePagesWithErrorFallback(state: FetchState): Promise<R
 	) {
 		return createCrossOriginForbiddenResponse(ctx.request);
 	}
+	state.status = getDefaultStatusCode(state.manifest, state.routeData, state.pathname);
 	try {
 		return await handlePages(state, ctx);
 	} catch (err: any) {
