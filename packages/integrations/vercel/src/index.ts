@@ -218,6 +218,13 @@ export interface VercelServerlessConfig {
 	 * - The CSP header of the static pages is added when CSP support is enabled.
 	 */
 	staticHeaders?: boolean;
+
+	/**
+	 * Which [Serverless Function](https://vercel.com/docs/concepts/functions/serverless-functions) runtime to use (`'nodejs22.x'`, `'nodejs24.x'`, `'bun1.x'`, `'bun1.4.x'`).
+	 *
+	 * @default Same as the build environment
+	 */
+	runtime?: Runtime;
 }
 
 interface VercelISRConfig {
@@ -260,6 +267,7 @@ export default function vercelAdapter({
 	isr = false,
 	skewProtection = process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1',
 	staticHeaders = false,
+	runtime,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	// Resolve middleware mode with backward compatibility
 	const resolvedMiddlewareMode = middlewareMode ?? (edgeMiddleware ? 'edge' : 'classic');
@@ -479,6 +487,7 @@ export default function vercelAdapter({
 						logger,
 						outDir,
 						maxDuration,
+						runtime,
 					);
 
 					const entryFile = new URL(_serverEntry, _buildTempFolder);
@@ -693,7 +702,7 @@ function isAcceptedPattern(pattern: any): pattern is RemotePattern {
 	return true;
 }
 
-type Runtime = `nodejs${string}.x`;
+type Runtime = `nodejs${string}.x` | `bun${string}.x`;
 
 class VercelBuilder {
 	readonly NTF_CACHE = {};
@@ -712,7 +721,7 @@ class VercelBuilder {
 		logger: AstroIntegrationLogger,
 		outDir: URL,
 		maxDuration?: number,
-		runtime = getRuntime(process, logger),
+		runtimeOption?: Runtime,
 	) {
 		this.config = config;
 		this.excludeFiles = excludeFiles;
@@ -720,7 +729,7 @@ class VercelBuilder {
 		this.logger = logger;
 		this.outDir = outDir;
 		this.maxDuration = maxDuration;
-		this.runtime = runtime;
+		this.runtime = getRuntime(process, logger, runtimeOption);
 	}
 
 	async buildServerlessFolder(entry: URL, functionName: string, root: URL) {
@@ -800,7 +809,46 @@ class VercelBuilder {
 	}
 }
 
-function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Runtime {
+const VALID_RUNTIMES: Runtime[] = ['nodejs22.x', 'nodejs24.x', 'bun1.x', 'bun1.4.x'];
+
+function assertValidRuntime(runtime: string): void {
+	if (!VALID_RUNTIMES.includes(runtime as Runtime)) {
+		throw new Error(
+			`Unsupported runtime: ${runtime}. Supported runtimes are: ${VALID_RUNTIMES.join(', ')}.`,
+		);
+	}
+}
+
+function getRuntime(
+	process: NodeJS.Process,
+	logger: AstroIntegrationLogger,
+	runtimeOption?: Runtime,
+): Runtime {
+	if (runtimeOption) {
+		assertValidRuntime(runtimeOption);
+		return runtimeOption;
+	}
+
+	// if the user ran e.g. `bunx --bun astro build`, infer that they want to
+	// run the app in Bun
+	const bunVersion = (process.versions as NodeJS.ProcessVersions & { bun?: string })
+		.bun;
+	if (bunVersion) {
+		const [major, minor] = bunVersion.split('.');
+		if (major !== '1') {
+			throw new Error(
+				`Unsupported Bun version: ${major}. Please use Bun 1.x to build your project.`,
+			);
+		}
+
+		// pin the minor when Vercel can resolve it specifically (e.g. `bun1.4.x`),
+		// otherwise fall back to `bun1.x` so a newer Bun still builds
+		const candidate = minor ? `bun${major}.${minor}.x` : `bun${major}.x`;
+		return VALID_RUNTIMES.includes(candidate as Runtime)
+			? (candidate as Runtime)
+			: `bun${major}.x`;
+	}
+
 	const version = process.version.slice(1); // 'v18.19.0' --> '18.19.0'
 	const major = version.split('.')[0]; // '18.19.0' --> '18'
 	const support = SUPPORTED_NODE_VERSIONS[major];
