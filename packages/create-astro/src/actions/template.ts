@@ -212,19 +212,9 @@ async function copyTemplate(tmpl: string, ctx: Context) {
 		}
 
 		if (ctx.ai) {
-			// Generate AGENTS.md for AI coding agents, with a CLAUDE.md link
+			// Generate AGENTS.md for AI coding agents
 			const agentsPath = path.resolve(ctx.cwd, 'AGENTS.md');
-			const claudePath = path.resolve(ctx.cwd, 'CLAUDE.md');
 			fs.writeFileSync(agentsPath, generateAgentsMd());
-			try {
-				fs.symlinkSync('AGENTS.md', claudePath);
-			} catch {
-				try {
-					fs.linkSync(agentsPath, claudePath);
-				} catch {
-					// Link creation failed; AGENTS.md still exists
-				}
-			}
 		}
 
 		// Post-process in parallel
