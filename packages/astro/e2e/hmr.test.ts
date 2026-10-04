@@ -110,6 +110,38 @@ test.describe('Styles', () => {
 		await expect(h).toHaveCSS('color', 'rgb(255, 0, 0)');
 	});
 
+	test('SCSS modules shared by SSR and hydrated island refresh with HMR', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/scss-module-ssr-and-island'));
+		await waitForViteToSettle(page);
+
+		page.once('load', throwPageShouldNotReload);
+
+		const ssr = page.locator('#ssr h1');
+		const island = page.locator('#island h1');
+
+		await expect(ssr).toHaveCSS('color', 'rgb(0, 0, 255)');
+		await expect(island).toHaveCSS('color', 'rgb(0, 0, 255)');
+
+		const ssrClass = await ssr.getAttribute('class');
+		const islandClass = await island.getAttribute('class');
+		expect(ssrClass).toBe(islandClass);
+
+		await astro.editFile('./src/styles/scss-module.module.scss', (original) =>
+			original.replace('blue', 'red'),
+		);
+
+		await expect(ssr).toHaveCSS('color', 'rgb(255, 0, 0)');
+		await expect(island).toHaveCSS('color', 'rgb(255, 0, 0)');
+
+		const ssrClassAfter = await ssr.getAttribute('class');
+		const islandClassAfter = await island.getAttribute('class');
+		expect(ssrClassAfter).toBe(ssrClass);
+		expect(islandClassAfter).toBe(islandClass);
+	});
+
 	test('external SCSS refresh with HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/scss-external'));
 

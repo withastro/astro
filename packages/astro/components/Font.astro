@@ -23,8 +23,6 @@ const filteredPreloadData = filterPreloads(data.preloads, preload);
 ---
 
 <style set:html={data.css}></style>
-{
-	filteredPreloadData?.map(({ url, type }) => (
-		<link rel="preload" href={url} as="font" type={`font/${type}`} crossorigin />
-	))
-}
+{filteredPreloadData?.map(({ url, type }) => (
+	<link rel="preload" href={url} as="font" type={`font/${type}`} crossorigin />
+))}
