@@ -111,6 +111,28 @@ describe('createI18nMiddleware', () => {
 			assert.equal(await result.text(), 'en page');
 		});
 
+		it('passes through a non-locale-prefixed path for a route injected by an integration', async () => {
+			const ctx = createMockAPIContext({ url: 'http://localhost/_admin/settings' });
+			getFetchStateFromAPIContext(ctx).routeData!.origin = 'external';
+			const next = async () => makePageResponse('admin page');
+
+			const result = await callHandler(handler, ctx, next);
+
+			assert.equal(result.status, 200);
+			assert.equal(await result.text(), 'admin page');
+		});
+
+		it('returns null-body 404 for a non-locale-prefixed path of a project route', async () => {
+			const ctx = createMockAPIContext({ url: 'http://localhost/_admin/settings' });
+			getFetchStateFromAPIContext(ctx).routeData!.origin = 'project';
+			const next = async () => makePageResponse('should not render');
+
+			const result = await callHandler(handler, ctx, next);
+
+			assert.equal(result.status, 404);
+			assert.equal(result.body, null);
+		});
+
 		it('redirects root / to /{defaultLocale}/', async () => {
 			const ctx = createMockAPIContext({ url: 'http://localhost/' });
 			const next = async () => makePageResponse('root');
