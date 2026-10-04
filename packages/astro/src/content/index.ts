@@ -3,6 +3,7 @@ export { createContentTypesGenerator } from './types-generator.js';
 export { getContentPaths } from './utils.js';
 export { astroContentAssetPropagationPlugin } from './vite-plugin-content-assets.js';
 export { astroContentImportPlugin } from './vite-plugin-content-imports.js';
+export { astroContentLayerWatcherPlugin } from './vite-plugin-content-layer-watcher.js';
 export {
 	astroContentVirtualModPlugin,
 	attachDataStoreInvalidation,
