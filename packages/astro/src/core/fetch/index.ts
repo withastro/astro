@@ -15,9 +15,8 @@ import { finalizeI18n, getI18n } from '../i18n/handler.js';
 import { getAmbientManifest } from '../manifest/ambient.js';
 import { handleMiddlewareWithErrorFallback } from '../middleware/astro-middleware.js';
 import { handlePagesWithErrorFallback } from '../pages/handler.js';
-import { renderRedirect } from '../redirects/render.js';
+import { handleRedirects } from '../redirects/render.js';
 import { handleRequest } from '../routing/handler.js';
-import { rejectInvalidEncoding } from '../routing/invalid-encoding.js';
 import { provideSession } from '../session/provider.js';
 import { handleTrailingSlash } from '../routing/trailing-slash-handler.js';
 
@@ -92,14 +91,7 @@ export function sessions(state: FetchState): Promise<void> | void {
  * `state.routeData` must be set before calling this.
  */
 export function redirects(state: FetchState): Promise<Response> | undefined {
-	const invalidEncodingResponse = rejectInvalidEncoding(state);
-	if (invalidEncodingResponse) {
-		return Promise.resolve(invalidEncodingResponse);
-	}
-	if (state.routeData?.type === 'redirect') {
-		return renderRedirect(state);
-	}
-	return undefined;
+	return handleRedirects(state);
 }
 
 /**
