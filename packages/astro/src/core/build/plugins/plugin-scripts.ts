@@ -5,8 +5,6 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
 type GetModuleInfo = (moduleId: string) => Rollup.ModuleInfo | null;
 
-const PRELOAD_HELPER_ID = '\0vite/preload-helper.js';
-
 export type ScriptChunkInfo = Pick<
 	Rollup.OutputChunk,
 	'code' | 'facadeModuleId' | 'fileName' | 'imports' | 'dynamicImports' | 'moduleIds'
@@ -18,11 +16,6 @@ export function chunkHasDynamicImports(
 ) {
 	return (
 		output.dynamicImports.length > 0 ||
-		// Vite injects its preload helper when the chunk has a dynamic import,
-		// and it stays in the chunk even for an import annotated with
-		// `/* @vite-ignore */`, for which Rolldown reports no dynamic import at
-		// all in either source above.
-		output.moduleIds.includes(PRELOAD_HELPER_ID) ||
 		output.moduleIds.some((id) => (getModuleInfo(id)?.dynamicallyImportedIds.length ?? 0) > 0)
 	);
 }
@@ -70,35 +63,39 @@ export function pluginScripts(internals: BuildInternals): VitePlugin {
 			assetInlineLimit = config.build.assetsInlineLimit;
 		},
 
-		async generateBundle(_options, bundle) {
-			const outputs = Object.values(bundle);
+		generateBundle: {
+			// Let Vite replace preload markers before copying chunk code into HTML.
+			order: 'post',
+			async handler(_options, bundle) {
+				const outputs = Object.values(bundle);
 
-			// Track ids that are imported by chunks so we don't inline scripts that are imported
-			const importedIds = new Set<string>();
-			for (const output of outputs) {
-				if (output.type === 'chunk') {
-					for (const id of output.imports) {
-						importedIds.add(id);
+				// Track ids that are imported by chunks so we don't inline scripts that are imported
+				const importedIds = new Set<string>();
+				for (const output of outputs) {
+					if (output.type === 'chunk') {
+						for (const id of output.imports) {
+							importedIds.add(id);
+						}
 					}
 				}
-			}
 
-			const getModuleInfo = this.getModuleInfo.bind(this);
-			for (const output of outputs) {
-				// Try to inline scripts that don't import anything as is within the inline limit
-				if (
-					output.type === 'chunk' &&
-					shouldInlineScriptChunk(output, {
-						discoveredScripts: internals.discoveredScripts,
-						importedIds,
-						assetInlineLimit,
-						getModuleInfo,
-					})
-				) {
-					internals.inlinedScripts.set(output.facadeModuleId!, output.code.trim());
-					delete bundle[output.fileName];
+				const getModuleInfo = this.getModuleInfo.bind(this);
+				for (const output of outputs) {
+					// Try to inline scripts that don't import anything as is within the inline limit
+					if (
+						output.type === 'chunk' &&
+						shouldInlineScriptChunk(output, {
+							discoveredScripts: internals.discoveredScripts,
+							importedIds,
+							assetInlineLimit,
+							getModuleInfo,
+						})
+					) {
+						internals.inlinedScripts.set(output.facadeModuleId!, output.code.trim());
+						delete bundle[output.fileName];
+					}
 				}
-			}
+			},
 		},
 	};
 }
