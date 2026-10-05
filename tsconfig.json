@@ -19,6 +19,7 @@
     { "path": "./packages/astro-rss/tsconfig.json" },
     { "path": "./packages/markdown/remark/tsconfig.json" },
     { "path": "./packages/astro/tsconfig.json" },
+    { "path": "./packages/content-store-sqlite/tsconfig.json" },
     { "path": "./packages/underscore-redirects/tsconfig.json" },
     { "path": "./packages/integrations/alpinejs/tsconfig.json" },
     { "path": "./packages/integrations/cloudflare/tsconfig.json" },
