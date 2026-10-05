@@ -661,12 +661,23 @@ export default function createIntegration({
 
 					vite.build ||= {};
 					vite.build.rolldownOptions ||= {};
-					vite.build.rolldownOptions.output ||= {};
 					vite.build.rolldownOptions.external = ['sharp'];
 
+					// Scoped to the server environments: top-level `build` options are inherited by the
+					// client environment, which must not ship this shim to browsers. See https://github.com/withastro/astro/issues/18182
+					// A user-provided top-level banner takes precedence and is inherited by the server environments as-is.
 					// @ts-expect-error
-					vite.build.rolldownOptions.output.banner ||=
-						'globalThis.process ??= {}; globalThis.process.env ??= {};';
+					if (!vite.build.rolldownOptions.output?.banner) {
+						for (const name of ['ssr', 'prerender']) {
+							vite.environments ??= {};
+							const environment = (vite.environments[name] ??= {}) as Record<string, any>;
+							environment.build ??= {};
+							environment.build.rolldownOptions ??= {};
+							environment.build.rolldownOptions.output ??= {};
+							environment.build.rolldownOptions.output.banner ||=
+								'globalThis.process ??= {}; globalThis.process.env ??= {};';
+						}
+					}
 
 					// Cloudflare env is only available per request. This isn't feasible for code that access env vars
 					// in a global way, so we shim their access as `process.env.*`. This is not the recommended way for users to access environment variables. But we'll add this for compatibility for chosen variables. Mainly to support `@astrojs/db`
