@@ -126,6 +126,7 @@ export async function handlePagesWithErrorFallback(state: FetchState): Promise<R
 	) {
 		return createCrossOriginForbiddenResponse(ctx.request);
 	}
+	state.applyDefaultStatus();
 	try {
 		await state.getProps();
 		return await handlePages(state, state.getAPIContext());

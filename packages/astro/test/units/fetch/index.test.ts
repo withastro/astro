@@ -559,6 +559,71 @@ describe('pages()', () => {
 		assert.match(text, /<h1>my custom 500<\/h1>/);
 	});
 
+	it('renders a localized 404 route with a 404 status', async () => {
+		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Não encontrado</h1>`;
+		});
+		const app = createTestApp(
+			[createPage(simplePage, { route: '/' }), createPage(notFoundPage, { route: '/pt/404' })],
+			{
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'pt'],
+					strategy: 'manual',
+					fallbackType: 'rewrite',
+					fallback: {},
+					domains: {},
+					domainLookupTable: {},
+				},
+			},
+		);
+		const request = stampApp(new Request('http://example.com/pt/404'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 404);
+		const text = await response.text();
+		assert.match(text, /<h1>Não encontrado<\/h1>/);
+	});
+
+	it('renders a localized 500 route with a 500 status', async () => {
+		const errorPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Erro</h1>`;
+		});
+		const app = createTestApp(
+			[createPage(simplePage, { route: '/' }), createPage(errorPage, { route: '/pt/500' })],
+			{
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'pt'],
+					strategy: 'manual',
+					fallbackType: 'rewrite',
+					fallback: {},
+					domains: {},
+					domainLookupTable: {},
+				},
+			},
+		);
+		const request = stampApp(new Request('http://example.com/pt/500'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 500);
+	});
+
+	it('honors a status set on the state before rendering', async () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+		state.status = 503;
+
+		const response = await pages(state);
+
+		assert.equal(response.status, 503);
+	});
+
 	it('returns a marked 404 for the app post-check when the custom 404 route is prerendered', async () => {
 		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
 			return render`<h1>Not Found</h1>`;
