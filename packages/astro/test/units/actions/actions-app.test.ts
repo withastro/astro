@@ -777,6 +777,7 @@ describe('Actions malformed request handling', () => {
 		assert.equal(res.status, 400);
 		const body = await res.json();
 		assert.equal(body.code, 'BAD_REQUEST');
+		assert.equal(body.message, 'Invalid JSON request body');
 	});
 
 	it('returns 404 for undecodable action name', async () => {
@@ -784,6 +785,17 @@ describe('Actions malformed request handling', () => {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: '{}',
+		});
+		const res = await app.render(req);
+		assert.equal(res.status, 404);
+	});
+
+	it('returns 404 for undecodable form action name', async () => {
+		const formData = new FormData();
+		formData.append('name', 'Astro');
+		const req = new Request('http://example.com/test?_action=%25', {
+			method: 'POST',
+			body: formData,
 		});
 		const res = await app.render(req);
 		assert.equal(res.status, 404);

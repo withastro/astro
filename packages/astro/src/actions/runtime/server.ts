@@ -216,7 +216,7 @@ export function getActionContext(context: APIContext): AstroActionContext {
 					if (e instanceof SyntaxError) {
 						return {
 							data: undefined,
-							error: new ActionError({ code: 'BAD_REQUEST', message: e.message }),
+							error: new ActionError({ code: 'BAD_REQUEST', message: 'Invalid JSON request body' }),
 						};
 					}
 					throw e;
