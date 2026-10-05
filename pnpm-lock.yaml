@@ -6761,8 +6761,8 @@ importers:
   packages/language-tools/language-server:
     dependencies:
       '@astrojs/astro2tsx':
-        specifier: ^0.1.0
-        version: 0.1.0(@emnapi/runtime@1.11.3)
+        specifier: ^0.1.2
+        version: 0.1.2(@emnapi/runtime@1.11.3)
       '@astrojs/yaml2ts':
         specifier: ^0.2.4
         version: link:../yaml2ts
@@ -6865,8 +6865,8 @@ importers:
   packages/language-tools/ts-content-mapper:
     dependencies:
       '@astrojs/astro2tsx':
-        specifier: ^0.1.0
-        version: 0.1.0(@emnapi/runtime@1.11.3)
+        specifier: ^0.1.2
+        version: 0.1.2(@emnapi/runtime@1.11.3)
       vscode-jsonrpc:
         specifier: ^9.0.1
         version: 9.0.3
@@ -6936,8 +6936,8 @@ importers:
   packages/language-tools/vscode:
     dependencies:
       '@astrojs/astro2tsx':
-        specifier: ^0.1.0
-        version: 0.1.0(@emnapi/runtime@1.11.3)
+        specifier: ^0.1.2
+        version: 0.1.2(@emnapi/runtime@1.11.3)
       prettier:
         specifier: ^3.9.6
         version: 3.9.6
@@ -7261,8 +7261,8 @@ packages:
   '@astro-community/astro-embed-youtube@0.5.10':
     resolution: {integrity: sha512-hVlx77KQLjKzElVQnrU5znQ5/E60keVSAPrhuWvQQHuqva5auJtt8YBpOThkwDMuEKXjQybEF1/3C07RZ8MAOQ==}
 
-  '@astrojs/astro2tsx@0.1.0':
-    resolution: {integrity: sha512-tgprkax8mcF+BiHJQBdoQ+REqtvvnLlYzV0yCeLMdcv3pJIutdlinWNHUzN1jMOT5VRlYTtMmDdaoPrtd3cBAQ==}
+  '@astrojs/astro2tsx@0.1.2':
+    resolution: {integrity: sha512-Uj/M9zbrhu5cIZEvWAGTbQJRKSxXWJ/E59BZwt7F+chrKhbfttW+9rkS/l+1QxoJP1KU3UnpM62M7yszfAI0WA==}
     engines: {node: ^20.19.0 || >=22.12.0}
 
   '@astrojs/cli-kit@0.4.1':
@@ -17240,7 +17240,7 @@ snapshots:
     dependencies:
       lite-youtube-embed: 0.3.4
 
-  '@astrojs/astro2tsx@0.1.0(@emnapi/runtime@1.11.3)':
+  '@astrojs/astro2tsx@0.1.2(@emnapi/runtime@1.11.3)':
     dependencies:
       '@emnapi/core': 1.11.3
       '@napi-rs/wasm-runtime': 1.2.4(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)
