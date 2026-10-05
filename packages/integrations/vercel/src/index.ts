@@ -572,6 +572,11 @@ export default function vercelAdapter({
 
 				if (fourOhFourRoute) {
 					if (_buildOutput === 'server') {
+						// When the 404 page is prerendered, serve /404.html with a
+						// forced 404 status.  When it is server-rendered, forward to
+						// the function without forcing a status so middleware rewrites
+						// to valid routes can return 200.  Genuinely unmatched paths
+						// still get 404 from the server-rendered 404.astro page.
 						finalRoutes.push({
 							src: '/.*',
 							dest: fourOhFourRoute.isPrerendered
@@ -579,7 +584,7 @@ export default function vercelAdapter({
 								: _middlewareEntryPoint
 									? MIDDLEWARE_PATH
 									: NODE_PATH,
-							status: 404,
+							...(fourOhFourRoute.isPrerendered && { status: 404 }),
 						});
 					} else {
 						finalRoutes.push({
