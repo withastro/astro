@@ -37,7 +37,11 @@ import { MultiLevelEncodingError, validateAndDecodePathname } from '../util/path
 import { setPathname } from '../util/normalized-url.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
-import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
+import {
+	getCustom404Route,
+	getDefaultStatusCode,
+	routeHasHtmlExtension,
+} from '../routing/helpers.js';
 import type { RenderErrorOptions, ResolvedRenderOptions } from '../app/base.js';
 import { getRenderOptions } from '../app/render-options.js';
 import { getFirstForwardedValue, validateForwardedHeaders } from '../app/validate-headers.js';
@@ -221,12 +225,29 @@ export class FetchState implements AstroFetchState {
 	 * rendering or middleware completes.
 	 */
 	response: Response | undefined;
+	/** Explicitly assigned status; `undefined` until a caller sets one. */
+	#status: number | undefined;
 	/**
 	 * Default HTTP status for the rendered response. Callers override
 	 * before rendering runs (e.g. `handleRequest` sets this from
 	 * `BaseApp.getDefaultStatusCode`; error handlers set `404` / `500`).
+	 * Reads `200` until assigned.
 	 */
-	status = 200;
+	get status(): number {
+		return this.#status ?? 200;
+	}
+	set status(value: number) {
+		this.#status = value;
+	}
+	/**
+	 * Sets `status` from the matched route (see `getDefaultStatusCode`)
+	 * unless a caller already assigned one.
+	 */
+	applyDefaultStatus(): void {
+		if (this.#status === undefined && this.routeData) {
+			this.#status = getDefaultStatusCode(this.manifest, this.routeData, this.pathname);
+		}
+	}
 	/** Whether user middleware should be skipped for this request. */
 	skipMiddleware = false;
 	/**
@@ -1228,8 +1249,10 @@ export class FetchState implements AstroFetchState {
 	 * Returns the `APIContext` for this render, creating it lazily from
 	 * the memoized props + action context.
 	 *
-	 * Callers must ensure `getProps()` has resolved at least once before
-	 * calling this.
+	 * Called before `getProps()` has resolved, the context carries
+	 * `props: null` and is not memoized; the next call after `getProps()`
+	 * fills in `props` on the same object. Callers that read `props`
+	 * must await `getProps()` first.
 	 */
 	getAPIContext(): APIContext {
 		if (this.apiContext !== null) return this.apiContext;
@@ -1246,14 +1269,18 @@ export class FetchState implements AstroFetchState {
 
 		(actionApiContext as any)[fetchStateSymbol] = this;
 
-		this.apiContext = Object.assign(actionApiContext, {
+		const apiContext = Object.assign(actionApiContext, {
 			props: this.props!,
 			redirect,
 			rewrite,
 			getActionResult: createGetActionResult(actionApiContext.locals),
 			callAction: createCallAction(actionApiContext),
 		});
-		return this.apiContext;
+		// A composable handler such as `actions()` can run before anything has
+		// awaited `getProps()`. Memoizing only resolved props lets the next call
+		// copy them onto the same context object (#18229).
+		if (this.props !== null) this.apiContext = apiContext;
+		return apiContext;
 	}
 
 	/**
