@@ -690,4 +690,153 @@ describe('Glob Loader', () => {
 		assert.ok(colonEntry, 'Entry with colon in filename should be loaded');
 		assert.ok(colonEntry.body?.includes('colon in its filename'));
 	});
+
+	it('loads files and folders whose names contain a hash', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'posts');
+		mkdirSync(join(contentDir, 'f#'), { recursive: true });
+		writeFileSync(
+			join(contentDir, 'c#-basics.md'),
+			'---\ntitle: C# basics\n---\n\nPattern matching in C#.',
+		);
+		writeFileSync(
+			join(contentDir, 'f#', 'intro.md'),
+			'---\ntitle: F# intro\n---\n\nPipelines in F#.',
+		);
+
+		const store = new MutableDataStore();
+		const errors: string[] = [];
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					if (msg.level === 'error') {
+						errors.push(msg.message);
+					}
+					return true;
+				},
+			},
+			level: 'info',
+		});
+
+		const collections = {
+			posts: defineCollection({
+				loader: glob({ pattern: '**/*.md', base: 'src/content/posts' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		assert.deepEqual(errors, []);
+		const entries = store.values('posts');
+		assert.ok(entries.find((e) => e.id === 'c-basics')?.body?.includes('Pattern matching'));
+		assert.ok(entries.find((e) => e.id === 'f/intro')?.body?.includes('Pipelines'));
+	});
+
+	// Question marks are reserved in Windows filenames, so the file under test cannot be created there.
+	it('loads files whose names contain a question mark', {
+		skip: process.platform === 'win32',
+	}, async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'posts');
+		mkdirSync(contentDir, { recursive: true });
+		writeFileSync(
+			join(contentDir, 'why-astro?.md'),
+			'---\ntitle: Why Astro\n---\n\nA document with a question mark in its filename.',
+		);
+
+		const store = new MutableDataStore();
+		const errors: string[] = [];
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					if (msg.level === 'error') {
+						errors.push(msg.message);
+					}
+					return true;
+				},
+			},
+			level: 'info',
+		});
+
+		const collections = {
+			posts: defineCollection({
+				loader: glob({ pattern: '*.md', base: 'src/content/posts' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		assert.deepEqual(errors, []);
+		const entry = store.values('posts').find((e) => e.id === 'why-astro');
+		assert.ok(entry?.body?.includes('question mark in its filename'));
+	});
+
+	it('skips module-backed entries whose names contain a hash', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'posts');
+		mkdirSync(contentDir, { recursive: true });
+		writeFileSync(join(contentDir, 'c#-basics.mdx'), '---\ntitle: C# basics\n---\n\nContent MDX');
+
+		const store = new MutableDataStore();
+		const errors: string[] = [];
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [
+				{
+					extensions: ['.mdx'],
+					getEntryInfo: createMarkdownEntryType().getEntryInfo,
+					contentModuleTypes: '',
+				},
+			],
+		});
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					if (msg.level === 'error') {
+						errors.push(msg.message);
+					}
+					return true;
+				},
+			},
+			level: 'info',
+		});
+
+		const collections = {
+			posts: defineCollection({
+				loader: glob({ pattern: '*.mdx', base: 'src/content/posts' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		// Vite cannot import a module whose path contains `#`, so the entry is skipped with an error
+		assert.equal(store.values('posts').length, 0);
+		assert.ok(errors.some((e) => e.includes('c#-basics.mdx') && e.includes('Rename the file')));
+	});
 });

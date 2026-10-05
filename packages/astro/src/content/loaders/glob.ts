@@ -51,7 +51,7 @@ function generateIdDefault({ entry, base, data }: GenerateIdOptions, isLegacy?: 
 	if (data.slug) {
 		return String(data.slug);
 	}
-	const entryURL = new URL('./' + encodeURI(entry), base);
+	const entryURL = new URL('./' + encodeURI(entry).replace(/[?#]/g, encodeURIComponent), base);
 	if (isLegacy) {
 		// Legacy behavior: use ID based on path, not slug
 		const { id } = getContentEntryIdAndSlug({
@@ -132,7 +132,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					logger.warn(`No entry type found for ${entry}`);
 					return;
 				}
-				const fileUrl = new URL('./' + encodeURI(entry), base);
+				const fileUrl = new URL('./' + encodeURI(entry).replace(/[?#]/g, encodeURIComponent), base);
 				const contents = await fs.readFile(fileUrl, 'utf-8').catch((err) => {
 					logger.error(`Error reading ${entry}: ${err.message}`);
 					return;
@@ -240,6 +240,14 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					(entryType.getRenderFunction && globOptions.deferRender) ||
 					'contentModuleTypes' in entryType
 				) {
+					// Deferred entries are imported as modules, and Vite treats `#` and `?` in a module
+					// path as the start of a hash or query, so these files cannot be resolved.
+					if (/[#?]/.test(entry)) {
+						logger.error(
+							`Skipping ${entry}: paths containing "#" or "?" are not supported for MDX, Markdoc, or \`deferRender\` entries. Rename the file or folder to load it.`,
+						);
+						return;
+					}
 					store.set({
 						id,
 						data: parsedData,
@@ -313,7 +321,10 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 			);
 
 			function isConfigFile(file: string) {
-				const fileUrl = new URL('./' + encodeURI(file), baseDir);
+				const fileUrl = new URL(
+					'./' + encodeURI(file).replace(/[?#]/g, encodeURIComponent),
+					baseDir,
+				);
 				return configFiles.has(fileUrl.href);
 			}
 
