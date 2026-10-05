@@ -2764,6 +2764,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/content-layer-dev-restart:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/content-layer-loader-schema-function:
     dependencies:
       astro:

@@ -72,6 +72,10 @@ export class ContentLayer {
 		this.#queue = new PQueue({ concurrency: 1 });
 	}
 
+	get store(): MutableDataStore {
+		return this.#store;
+	}
+
 	/**
 	 * Whether the content layer is currently loading content
 	 */
