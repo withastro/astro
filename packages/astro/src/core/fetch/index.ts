@@ -11,7 +11,8 @@ import { FetchState as BaseFetchState } from './fetch-state.js';
 import type { AstroFetchState } from './fetch-state.js';
 export type { AstroFetchState };
 import { handleCache } from '../cache/handler.js';
-import { finalizeI18n, getI18n } from '../i18n/handler.js';
+import { handleI18nWithErrorFallback } from '../i18n/error-fallback.js';
+import { getI18n } from '../i18n/handler.js';
 import { getAmbientManifest } from '../manifest/ambient.js';
 import { handleMiddlewareWithErrorFallback } from '../middleware/astro-middleware.js';
 import { handlePagesWithErrorFallback } from '../pages/handler.js';
@@ -109,13 +110,14 @@ export function actions(state: FetchState): Promise<Response | undefined> | unde
 /**
  * Post-processes a response against the manifest's i18n configuration.
  * Handles locale redirects, 404s for invalid locales, and fallback
- * routing. Returns the response unmodified if i18n is not configured
- * (or the routing strategy is `manual`).
+ * routing. A null-body 404 produced for an invalid locale path renders
+ * the 404 error page. Returns the response unmodified if i18n is not
+ * configured (or the routing strategy is `manual`).
  */
 export function i18n(state: FetchState, response: Response): Promise<Response> {
 	const compiled = getI18n(state.manifest);
 	if (!compiled) return Promise.resolve(response);
-	return finalizeI18n(compiled, state, response);
+	return handleI18nWithErrorFallback(compiled, state, response);
 }
 
 /**
