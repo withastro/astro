@@ -248,7 +248,7 @@ importers:
         version: 18.3.1(react@18.3.1)
       vitest:
         specifier: ^5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.1)
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.2)
     devDependencies:
       '@types/react':
         specifier: ^18.3.31
@@ -501,7 +501,7 @@ importers:
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.3.3
-        version: 4.3.3(vite@8.3.1)
+        version: 4.3.3(vite@8.3.2)
       '@types/canvas-confetti':
         specifier: ^1.9.0
         version: 1.9.0
@@ -516,7 +516,7 @@ importers:
         version: 4.3.3
       vite:
         specifier: ^8.3.1
-        version: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+        version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
 
   examples/with-vitest:
     dependencies:
@@ -525,7 +525,7 @@ importers:
         version: link:../../packages/astro
       vitest:
         specifier: ^5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.1)
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.2)
 
   packages/astro:
     dependencies:
@@ -675,10 +675,10 @@ importers:
         version: 0.5.0
       vite:
         specifier: ^8.3.1
-        version: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+        version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
       vitefu:
         specifier: ^1.1.3
-        version: 1.1.3(vite@8.3.1)
+        version: 1.1.3(vite@8.3.2)
       xxhash-wasm:
         specifier: ^1.1.0
         version: 1.1.0
@@ -996,7 +996,7 @@ importers:
         version: 19.3.0(@types/react@19.3.0)
       '@vitejs/plugin-vue':
         specifier: ^6.0.9
-        version: 6.0.9(vite@8.3.1)(vue@3.5.43)
+        version: 6.0.9(vite@8.3.2)(vue@3.5.43)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -1716,7 +1716,7 @@ importers:
     dependencies:
       '@tailwindcss/vite':
         specifier: ^4.3.3
-        version: 4.3.3(vite@8.3.1)
+        version: 4.3.3(vite@8.3.2)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -2410,7 +2410,7 @@ importers:
     dependencies:
       '@tailwindcss/vite':
         specifier: ^4.3.3
-        version: 4.3.3(vite@8.3.1)
+        version: 4.3.3(vite@8.3.2)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -3584,7 +3584,7 @@ importers:
     dependencies:
       '@tailwindcss/vite':
         specifier: ^4.3.3
-        version: 4.3.3(vite@8.3.1)
+        version: 4.3.3(vite@8.3.2)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -4249,7 +4249,7 @@ importers:
         version: link:../../../../integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.3.3
-        version: 4.3.3(vite@8.3.1)
+        version: 4.3.3(vite@8.3.2)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -4371,8 +4371,8 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       vite:
-        specifier: ^8.0.13
-        version: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+        specifier: ^8.3.2
+        version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
 
   packages/integrations/alpinejs/test/fixtures/basics:
     dependencies:
@@ -4380,10 +4380,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       '@types/alpinejs':
-        specifier: ^3.13.11
+        specifier: ^3.17.0
         version: 3.17.0
       alpinejs:
-        specifier: ^3.15.8
+        specifier: ^3.17.4
         version: 3.17.4
       astro:
         specifier: workspace:*
@@ -4395,10 +4395,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       '@types/alpinejs':
-        specifier: ^3.13.11
+        specifier: ^3.17.0
         version: 3.17.0
       alpinejs:
-        specifier: ^3.15.8
+        specifier: ^3.17.4
         version: 3.17.4
       astro:
         specifier: workspace:*
@@ -4410,10 +4410,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       '@types/alpinejs':
-        specifier: ^3.13.11
+        specifier: ^3.17.0
         version: 3.17.0
       alpinejs:
-        specifier: ^3.15.8
+        specifier: ^3.17.4
         version: 3.17.4
       astro:
         specifier: workspace:*
@@ -4429,13 +4429,13 @@ importers:
         version: link:../../underscore-redirects
       '@cloudflare/vite-plugin':
         specifier: ^1.53.0
-        version: 1.53.1(vite@8.3.1)(wrangler@4.136.2)
+        version: 1.53.1(vite@8.3.2)(wrangler@4.136.2)
       piccolore:
         specifier: ^0.1.3
         version: 0.1.3
       vite:
         specifier: ^8.0.13
-        version: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+        version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^5.20260820.1
@@ -4771,7 +4771,7 @@ importers:
         version: link:../../../../mdx
       '@tailwindcss/vite':
         specifier: ^4.2.1
-        version: 4.3.3(vite@8.3.1)
+        version: 4.3.3(vite@8.3.2)
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
@@ -4949,7 +4949,7 @@ importers:
         version: 19.3.0(@types/react@19.3.0)
       '@vitejs/plugin-vue':
         specifier: ^6.0.4
-        version: 6.0.9(vite@8.3.1)(vue@3.5.43)
+        version: 6.0.9(vite@8.3.2)(vue@3.5.43)
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
@@ -5107,7 +5107,7 @@ importers:
         version: 0.18.13
       vite:
         specifier: ^8.3.0
-        version: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+        version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
 
   packages/integrations/markdoc/test/fixtures/content-collections:
     dependencies:
@@ -5375,7 +5375,7 @@ importers:
         version: 5.1.0
       vite:
         specifier: ^8.0.13
-        version: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+        version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
 
   packages/integrations/mdx/test/fixtures/content-layer:
     dependencies:
@@ -5576,7 +5576,7 @@ importers:
         version: 6.0.0
       '@netlify/vite-plugin':
         specifier: ^3.0.1
-        version: 3.0.1(@azure/identity@4.13.3)(@vercel/functions@3.9.9)(supports-color@10.2.2)(vite@8.3.1)
+        version: 3.0.1(@azure/identity@4.13.3)(@vercel/functions@3.9.9)(supports-color@10.2.2)(vite@8.3.2)
       '@vercel/nft':
         specifier: ^1.11.0
         version: 1.11.0(supports-color@10.2.2)
@@ -5588,7 +5588,7 @@ importers:
         version: 0.2.17
       vite:
         specifier: ^8.3.1
-        version: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+        version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
     devDependencies:
       '@types/node':
         specifier: ^22.19.0
@@ -5958,7 +5958,7 @@ importers:
         version: link:../../internal-helpers
       '@preact/preset-vite':
         specifier: ^2.10.6
-        version: 2.10.6(@babel/core@7.29.7)(preact@10.29.8)(supports-color@10.2.2)(vite@8.3.1)
+        version: 2.10.6(@babel/core@7.29.7)(preact@10.29.8)(supports-color@10.2.2)(vite@8.3.2)
       '@preact/signals':
         specifier: ^2.11.2
         version: 2.11.2(preact@10.29.8)
@@ -5970,7 +5970,7 @@ importers:
         version: 6.7.0(preact@10.29.8)
       vite:
         specifier: ^8.3.0
-        version: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+        version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -5989,7 +5989,7 @@ importers:
         version: link:../../internal-helpers
       '@vitejs/plugin-react':
         specifier: ^6.1.1
-        version: 6.1.1(@rolldown/plugin-babel@0.2.4)(oxc-transform-react@0.150.0)(vite@8.3.1)
+        version: 6.1.1(@rolldown/plugin-babel@0.2.4)(oxc-transform-react@0.150.0)(vite@8.3.2)
       devalue:
         specifier: ^5.9.4
         version: 5.9.4
@@ -5998,14 +5998,14 @@ importers:
         version: 1.7.0
       vite:
         specifier: ^8.3.0
-        version: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+        version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
     devDependencies:
       '@babel/core':
         specifier: ^8.0.6
         version: 8.0.6
       '@rolldown/plugin-babel':
         specifier: ^0.2.4
-        version: 0.2.4(@babel/core@8.0.6)(@babel/runtime@7.28.6)(rolldown@1.2.12)(vite@8.3.1)
+        version: 0.2.4(@babel/core@8.0.6)(@babel/runtime@7.28.6)(rolldown@1.2.12)(vite@8.3.2)
       '@types/babel__core':
         specifier: ^7.20.5
         version: 7.20.5
@@ -6195,13 +6195,13 @@ importers:
     dependencies:
       vite:
         specifier: ^8.3.0
-        version: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+        version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
       vite-plugin-solid:
         specifier: ^2.11.14
-        version: 2.11.14(solid-js@1.9.15)(supports-color@10.2.2)(vite@8.3.1)
+        version: 2.11.14(solid-js@1.9.15)(supports-color@10.2.2)(vite@8.3.2)
       vitefu:
         specifier: ^1.1.3
-        version: 1.1.3(vite@8.3.1)
+        version: 1.1.3(vite@8.3.2)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -6217,20 +6217,20 @@ importers:
     dependencies:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^7.1.0
-        version: 7.1.2(svelte@5.57.1)(vite@8.3.1)
+        version: 7.1.2(svelte@5.57.1)(vite@8.3.2)
       svelte2tsx:
         specifier: ^0.7.55
         version: 0.7.55(svelte@5.57.1)(typescript@6.0.3)
       vite:
         specifier: ^8.0.13
-        version: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+        version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
       vitefu:
         specifier: ^1.1.2
-        version: 1.1.3(vite@8.3.1)
+        version: 1.1.3(vite@8.3.2)
     devDependencies:
       '@testing-library/svelte':
         specifier: ^5.3.1
-        version: 5.3.1(svelte@5.57.1)(vite@8.3.1)(vitest@4.1.11)
+        version: 5.3.1(svelte@5.57.1)(vite@8.3.2)(vitest@4.1.11)
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -6327,7 +6327,7 @@ importers:
         version: 1.2.0
       vite:
         specifier: ^8.3.1
-        version: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+        version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
 
   packages/integrations/vercel/test/fixtures/basic:
     dependencies:
@@ -6552,19 +6552,19 @@ importers:
     dependencies:
       '@vitejs/plugin-vue':
         specifier: ^6.0.9
-        version: 6.0.9(vite@8.3.1)(vue@3.5.43)
+        version: 6.0.9(vite@8.3.2)(vue@3.5.43)
       '@vitejs/plugin-vue-jsx':
         specifier: ^5.1.6
-        version: 5.1.6(supports-color@10.2.2)(vite@8.3.1)(vue@3.5.43)
+        version: 5.1.6(supports-color@10.2.2)(vite@8.3.2)(vue@3.5.43)
       '@vue/compiler-sfc':
         specifier: ^3.5.43
         version: 3.5.43
       vite:
         specifier: ^8.3.0
-        version: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+        version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
       vite-plugin-vue-devtools:
         specifier: ^8.2.1
-        version: 8.2.1(supports-color@10.2.2)(vite@8.3.1)(vue@3.5.43)
+        version: 8.2.1(supports-color@10.2.2)(vite@8.3.2)(vue@3.5.43)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -16638,8 +16638,8 @@ packages:
     peerDependencies:
       vue: '>=3.2.13'
 
-  vite@8.3.1:
-    resolution: {integrity: sha512-/bvH9E9tmCXRGp2uXY3WbOldqpTwFkbha/8ANaEQ6VkxhH60KyqLwgZq6lG2y+4uT55x9+9eUHMpQ7uGnOCKjA==}
+  vite@8.3.2:
+    resolution: {integrity: sha512-SQr1x6W5vVSbROg7vsyXIaxK9b0G7zsT68acdWWRmnBUsgDieLCRG+Rep9WdZgcposvv/GSnr4GUUBqB3vXq6w==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -18227,12 +18227,12 @@ snapshots:
     optionalDependencies:
       workerd: 1.20260921.1
 
-  '@cloudflare/vite-plugin@1.53.1(vite@8.3.1)(wrangler@4.136.2)':
+  '@cloudflare/vite-plugin@1.53.1(vite@8.3.2)(wrangler@4.136.2)':
     dependencies:
       '@cloudflare/unenv-preset': 2.16.1(unenv@2.0.0-rc.24)(workerd@1.20260820.1)
       miniflare: 5.20260820.0-alpha
       unenv: 2.0.0-rc.24
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
       workerd: 1.20260820.1
       wrangler: 4.136.2(@cloudflare/workers-types@5.20260825.1)(@types/node@22.19.19)
       ws: 8.21.0
@@ -19957,12 +19957,12 @@ snapshots:
 
   '@netlify/types@3.0.0': {}
 
-  '@netlify/vite-plugin@3.0.1(@azure/identity@4.13.3)(@vercel/functions@3.9.9)(supports-color@10.2.2)(vite@8.3.1)':
+  '@netlify/vite-plugin@3.0.1(@azure/identity@4.13.3)(@vercel/functions@3.9.9)(supports-color@10.2.2)(vite@8.3.2)':
     dependencies:
       '@netlify/dev': 5.1.3(@azure/identity@4.13.3)(@vercel/functions@3.9.9)(supports-color@10.2.2)
       '@netlify/dev-utils': 6.0.1
       dedent: 1.7.2
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -20439,19 +20439,19 @@ snapshots:
 
   '@poppinss/exception@1.2.3': {}
 
-  '@preact/preset-vite@2.10.6(@babel/core@7.29.7)(preact@10.29.8)(supports-color@10.2.2)(vite@8.3.1)':
+  '@preact/preset-vite@2.10.6(@babel/core@7.29.7)(preact@10.29.8)(supports-color@10.2.2)(vite@8.3.2)':
     dependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
       '@babel/plugin-transform-react-jsx': 7.28.6(@babel/core@7.29.7)(supports-color@10.2.2)
       '@babel/plugin-transform-react-jsx-development': 7.27.1(@babel/core@7.29.7)(supports-color@10.2.2)
-      '@prefresh/vite': 2.4.11(preact@10.29.8)(supports-color@10.2.2)(vite@8.3.1)
+      '@prefresh/vite': 2.4.11(preact@10.29.8)(supports-color@10.2.2)(vite@8.3.2)
       '@rollup/pluginutils': 5.3.0
       babel-plugin-transform-hook-names: 1.0.2(@babel/core@7.29.7)
       debug: 4.4.3(supports-color@10.2.2)
       magic-string: 0.30.21
       picocolors: 1.1.1
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
-      vite-prerender-plugin: 0.5.12(vite@8.3.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite-prerender-plugin: 0.5.12(vite@8.3.2)
       zimmerframe: 1.1.4
     transitivePeerDependencies:
       - preact
@@ -20473,7 +20473,7 @@ snapshots:
 
   '@prefresh/utils@1.2.1': {}
 
-  '@prefresh/vite@2.4.11(preact@10.29.8)(supports-color@10.2.2)(vite@8.3.1)':
+  '@prefresh/vite@2.4.11(preact@10.29.8)(supports-color@10.2.2)(vite@8.3.2)':
     dependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
       '@prefresh/babel-plugin': 0.5.2
@@ -20481,7 +20481,7 @@ snapshots:
       '@prefresh/utils': 1.2.1
       '@rollup/pluginutils': 4.2.1
       preact: 10.29.8(preact-render-to-string@6.7.0)
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -20559,14 +20559,14 @@ snapshots:
   '@rolldown/binding-win32-x64-msvc@1.2.12':
     optional: true
 
-  '@rolldown/plugin-babel@0.2.4(@babel/core@8.0.6)(@babel/runtime@7.28.6)(rolldown@1.2.12)(vite@8.3.1)':
+  '@rolldown/plugin-babel@0.2.4(@babel/core@8.0.6)(@babel/runtime@7.28.6)(rolldown@1.2.12)(vite@8.3.2)':
     dependencies:
       '@babel/core': 8.0.6
       picomatch: 4.0.7
       rolldown: 1.2.12
     optionalDependencies:
       '@babel/runtime': 7.28.6
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
 
   '@rolldown/pluginutils@1.0.1': {}
 
@@ -20826,14 +20826,14 @@ snapshots:
     dependencies:
       acorn: 8.18.0
 
-  '@sveltejs/vite-plugin-svelte@7.1.2(svelte@5.57.1)(vite@8.3.1)':
+  '@sveltejs/vite-plugin-svelte@7.1.2(svelte@5.57.1)(vite@8.3.2)':
     dependencies:
       deepmerge: 4.3.1
       magic-string: 0.30.21
       obug: 2.2.1
       svelte: 5.57.1(@typescript-eslint/types@8.59.2)
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
-      vitefu: 1.1.3(vite@8.3.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vitefu: 1.1.3(vite@8.3.2)
 
   '@tailwindcss/node@4.3.3':
     dependencies:
@@ -20896,12 +20896,12 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.3.3
       '@tailwindcss/oxide-win32-x64-msvc': 4.3.3
 
-  '@tailwindcss/vite@4.3.3(vite@8.3.1)':
+  '@tailwindcss/vite@4.3.3(vite@8.3.2)':
     dependencies:
       '@tailwindcss/node': 4.3.3
       '@tailwindcss/oxide': 4.3.3
       tailwindcss: 4.3.3
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
 
   '@test/server-entry-fake-adapter@file:packages/astro/test/fixtures/server-entry/fake-adapter':
     dependencies:
@@ -20922,13 +20922,13 @@ snapshots:
     dependencies:
       svelte: 5.57.1(@typescript-eslint/types@8.59.2)
 
-  '@testing-library/svelte@5.3.1(svelte@5.57.1)(vite@8.3.1)(vitest@4.1.11)':
+  '@testing-library/svelte@5.3.1(svelte@5.57.1)(vite@8.3.2)(vitest@4.1.11)':
     dependencies:
       '@testing-library/dom': 10.4.1
       '@testing-library/svelte-core': 1.0.0(svelte@5.57.1)
       svelte: 5.57.1(@typescript-eslint/types@8.59.2)
     optionalDependencies:
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
       vitest: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
 
   '@textlint/ast-node-types@15.5.1': {}
@@ -21399,30 +21399,30 @@ snapshots:
     optionalDependencies:
       ajv: 6.15.0
 
-  '@vitejs/plugin-react@6.1.1(@rolldown/plugin-babel@0.2.4)(oxc-transform-react@0.150.0)(vite@8.3.1)':
+  '@vitejs/plugin-react@6.1.1(@rolldown/plugin-babel@0.2.4)(oxc-transform-react@0.150.0)(vite@8.3.2)':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
     optionalDependencies:
-      '@rolldown/plugin-babel': 0.2.4(@babel/core@8.0.6)(@babel/runtime@7.28.6)(rolldown@1.2.12)(vite@8.3.1)
+      '@rolldown/plugin-babel': 0.2.4(@babel/core@8.0.6)(@babel/runtime@7.28.6)(rolldown@1.2.12)(vite@8.3.2)
       oxc-transform-react: 0.150.0
 
-  '@vitejs/plugin-vue-jsx@5.1.6(supports-color@10.2.2)(vite@8.3.1)(vue@3.5.43)':
+  '@vitejs/plugin-vue-jsx@5.1.6(supports-color@10.2.2)(vite@8.3.2)(vue@3.5.43)':
     dependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
       '@babel/plugin-syntax-typescript': 7.29.7(@babel/core@7.29.7)
       '@babel/plugin-transform-typescript': 7.29.9(@babel/core@7.29.7)(supports-color@10.2.2)
       '@rolldown/pluginutils': 1.0.1
       '@vue/babel-plugin-jsx': 2.0.1(@babel/core@7.29.7)(supports-color@10.2.2)
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
       vue: 3.5.43(typescript@6.0.3)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue@6.0.9(vite@8.3.1)(vue@3.5.43)':
+  '@vitejs/plugin-vue@6.0.9(vite@8.3.2)(vue@3.5.43)':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
       vue: 3.5.43(typescript@6.0.3)
 
   '@vitest/expect@4.1.11':
@@ -21434,22 +21434,22 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.11(vite@8.3.1)':
+  '@vitest/mocker@4.1.11(vite@8.3.2)':
     dependencies:
       '@vitest/spy': 4.1.11
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
 
-  '@vitest/mocker@5.0.2(vite@8.3.1)':
+  '@vitest/mocker@5.0.2(vite@8.3.2)':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@vitest/spy': 5.0.2
       estree-walker: 3.0.3
       magic-string: 1.4.2
     optionalDependencies:
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
 
   '@vitest/pretty-format@4.1.11':
     dependencies:
@@ -27563,17 +27563,17 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-dev-rpc@1.1.0(vite@8.3.1):
+  vite-dev-rpc@1.1.0(vite@8.3.2):
     dependencies:
       birpc: 2.9.0
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
-      vite-hot-client: 2.1.0(vite@8.3.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite-hot-client: 2.1.0(vite@8.3.2)
 
-  vite-hot-client@2.1.0(vite@8.3.1):
+  vite-hot-client@2.1.0(vite@8.3.2):
     dependencies:
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
 
-  vite-plugin-inspect@11.3.3(supports-color@10.2.2)(vite@8.3.1):
+  vite-plugin-inspect@11.3.3(supports-color@10.2.2)(vite@8.3.2):
     dependencies:
       ansis: 4.2.0
       debug: 4.4.3(supports-color@10.2.2)
@@ -27583,12 +27583,12 @@ snapshots:
       perfect-debounce: 2.1.0
       sirv: 3.0.2
       unplugin-utils: 0.3.1
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
-      vite-dev-rpc: 1.1.0(vite@8.3.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite-dev-rpc: 1.1.0(vite@8.3.2)
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-solid@2.11.14(solid-js@1.9.15)(supports-color@10.2.2)(vite@8.3.1):
+  vite-plugin-solid@2.11.14(solid-js@1.9.15)(supports-color@10.2.2)(vite@8.3.2):
     dependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
       '@types/babel__core': 7.20.5
@@ -27596,26 +27596,26 @@ snapshots:
       merge-anything: 5.1.7
       solid-js: 1.9.15
       solid-refresh: 0.6.3(solid-js@1.9.15)(supports-color@10.2.2)
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
-      vitefu: 1.1.3(vite@8.3.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vitefu: 1.1.3(vite@8.3.2)
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-vue-devtools@8.2.1(supports-color@10.2.2)(vite@8.3.1)(vue@3.5.43):
+  vite-plugin-vue-devtools@8.2.1(supports-color@10.2.2)(vite@8.3.2)(vue@3.5.43):
     dependencies:
       '@vue/devtools-core': 8.2.1(vue@3.5.43)
       '@vue/devtools-kit': 8.2.1
       '@vue/devtools-shared': 8.2.1
       sirv: 3.0.2
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
-      vite-plugin-inspect: 11.3.3(supports-color@10.2.2)(vite@8.3.1)
-      vite-plugin-vue-inspector: 6.0.0(supports-color@10.2.2)(vite@8.3.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite-plugin-inspect: 11.3.3(supports-color@10.2.2)(vite@8.3.2)
+      vite-plugin-vue-inspector: 6.0.0(supports-color@10.2.2)(vite@8.3.2)
       vue: 3.5.43(typescript@6.0.3)
     transitivePeerDependencies:
       - '@nuxt/kit'
       - supports-color
 
-  vite-plugin-vue-inspector@6.0.0(supports-color@10.2.2)(vite@8.3.1):
+  vite-plugin-vue-inspector@6.0.0(supports-color@10.2.2)(vite@8.3.2):
     dependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
       '@babel/plugin-proposal-decorators': 7.29.0(@babel/core@7.29.7)(supports-color@10.2.2)
@@ -27626,11 +27626,11 @@ snapshots:
       '@vue/compiler-dom': 3.5.43
       kolorist: 1.8.0
       magic-string: 0.30.21
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
     transitivePeerDependencies:
       - supports-color
 
-  vite-prerender-plugin@0.5.12(vite@8.3.1):
+  vite-prerender-plugin@0.5.12(vite@8.3.2):
     dependencies:
       kolorist: 1.8.0
       magic-string: 0.30.21
@@ -27638,7 +27638,7 @@ snapshots:
       simple-code-frame: 1.3.0
       source-map: 0.7.6
       stack-trace: 1.0.0-pre2
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
 
   vite-svg-loader@5.1.3(supports-color@10.2.2)(vue@3.5.43):
     dependencies:
@@ -27648,7 +27648,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vite@8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1):
+  vite@8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.7
@@ -27664,14 +27664,14 @@ snapshots:
       tsx: 4.23.13
       yaml: 2.9.1
 
-  vitefu@1.1.3(vite@8.3.1):
+  vitefu@1.1.3(vite@8.3.2):
     optionalDependencies:
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
 
   vitest@4.1.11(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1):
     dependencies:
       '@vitest/expect': 4.1.11
-      '@vitest/mocker': 4.1.11(vite@8.3.1)
+      '@vitest/mocker': 4.1.11(vite@8.3.2)
       '@vitest/pretty-format': 4.1.11
       '@vitest/runner': 4.1.11
       '@vitest/snapshot': 4.1.11
@@ -27688,7 +27688,7 @@ snapshots:
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
@@ -27707,10 +27707,10 @@ snapshots:
       - tsx
       - yaml
 
-  vitest@5.0.2(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.1):
+  vitest@5.0.2(@opentelemetry/api@1.9.1)(@types/node@22.19.19)(vite@8.3.2):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.2(vite@8.3.1)
+      '@vitest/mocker': 5.0.2(vite@8.3.2)
       chai: 6.2.2
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
@@ -27721,7 +27721,7 @@ snapshots:
       tinybench: 6.1.4
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
-      vite: 8.3.1(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
       why-is-node-running: 3.2.2
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
