@@ -122,6 +122,35 @@ describe('createI18nMiddleware', () => {
 			assert.equal(await result.text(), 'admin page');
 		});
 
+		it('returns null-body 404 for an invalid locale on an injected [locale] route', async () => {
+			const ctx = createMockAPIContext({ url: 'http://localhost/xx/page' });
+			const state = getFetchStateFromAPIContext(ctx);
+			state.routeData!.origin = 'external';
+			state.routeData!.segments = [
+				[{ content: 'locale', dynamic: true, spread: false }],
+				[{ content: 'page', dynamic: false, spread: false }],
+			];
+			const next = async () => makePageResponse('should not render');
+
+			const result = await callHandler(handler, ctx, next);
+
+			assert.equal(result.status, 404);
+			assert.equal(result.body, null);
+		});
+
+		it('redirects root / to /{defaultLocale}/ for an injected route', async () => {
+			const ctx = createMockAPIContext({ url: 'http://localhost/' });
+			const state = getFetchStateFromAPIContext(ctx);
+			state.routeData!.origin = 'external';
+			state.routeData!.segments = [];
+			const next = async () => makePageResponse('root');
+
+			const result = await callHandler(handler, ctx, next);
+
+			assert.equal(result.status, 302);
+			assert.ok(result.headers.get('Location')?.includes('/en'));
+		});
+
 		it('returns null-body 404 for a non-locale-prefixed path of a project route', async () => {
 			const ctx = createMockAPIContext({ url: 'http://localhost/_admin/settings' });
 			getFetchStateFromAPIContext(ctx).routeData!.origin = 'project';

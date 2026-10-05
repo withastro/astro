@@ -1,6 +1,6 @@
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import { computeFallbackRoute } from '../../i18n/fallback.js';
-import { I18nRouter, type I18nRouterContext, type I18nRouterMatch } from '../../i18n/router.js';
+import { I18nRouter, type I18nRouterContext } from '../../i18n/router.js';
 import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
 import type { SSRManifest } from '../app/types.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
@@ -102,7 +102,8 @@ export async function finalizeI18n(
 	// raw request URL again, so locale checks use the same path as routing.
 	const url = state.url;
 	const currentLocale = state.computeCurrentLocale();
-	const isPrerendered = state.routeData!.prerender;
+	const routeData = state.routeData!;
+	const isPrerendered = routeData.prerender;
 
 	// Build context for router (responseRouteType is guaranteed to be 'page' | 'fallback' here)
 	const routerContext: I18nRouterContext = {
@@ -110,15 +111,16 @@ export async function finalizeI18n(
 		currentDomain: url.hostname,
 		routeType: state.responseRouteType,
 		isReroute: false,
+		// Routes injected by integrations live in a URL space the site author
+		// can't move under a locale prefix (#18223). Injected routes whose first
+		// segment is dynamic (e.g. `/[locale]/...`) are treated as locale-aware
+		// and still have their locale validated.
+		allowUnprefixedPath:
+			routeData.origin === 'external' && !routeData.segments?.[0]?.some((part) => part.dynamic),
 	};
 
-	// Step 1: Apply routing strategy. Routes injected by integrations live in a
-	// URL space the site author can't move under a locale prefix, so they are
-	// exempt from locale-prefix checks. See #18223.
-	const routeDecision: I18nRouterMatch =
-		state.routeData?.origin === 'external'
-			? { type: 'continue' }
-			: compiled.router.match(url.pathname, routerContext);
+	// Step 1: Apply routing strategy
+	const routeDecision = compiled.router.match(url.pathname, routerContext);
 
 	switch (routeDecision.type) {
 		case 'redirect': {
