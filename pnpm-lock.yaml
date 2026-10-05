@@ -3116,6 +3116,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/dev-css-page-boundary:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/dev-render:
     dependencies:
       astro:
@@ -7204,15 +7210,6 @@ importers:
       tsx:
         specifier: ^4.22.0
         version: 4.23.13
-
-  triage/gh-18060:
-    dependencies:
-      '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../packages/integrations/node
-      astro:
-        specifier: workspace:*
-        version: link:../../packages/astro
 
 packages:
 
