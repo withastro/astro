@@ -65,21 +65,25 @@ export default {
 # Lit libraries are required to be hoisted due to dependency issues.
 public-hoist-pattern[]=*lit*
 `,
-	CLOUDFLARE_WRANGLER_CONFIG: (name: string, compatibilityDate: string) => `\
-{
-	"$schema": "./node_modules/wrangler/config-schema.json",
-	"compatibility_date": ${JSON.stringify(compatibilityDate)},
-	"compatibility_flags": ["global_fetch_strictly_public"],
-	"name": ${JSON.stringify(name)},
-	"main": "@astrojs/cloudflare/entrypoints/server",
-	"assets": {
-		"directory": "./dist",
-		"binding": "ASSETS"
+	CLOUDFLARE_CONFIG: (name: string, compatibilityDate: string) => `\
+import { bindings, defineConfig } from 'cf/config';
+import * as entrypoint from '@astrojs/cloudflare/entrypoints/server' with { type: 'cf-worker' };
+
+export default defineConfig({
+	worker: {
+		name: ${JSON.stringify(name)},
+		compatibilityDate: ${JSON.stringify(compatibilityDate)},
+		compatibilityFlags: ['global_fetch_strictly_public'],
+		entrypoint,
+		env: {
+			ASSETS: bindings.assets(),
+		},
+		observability: {
+			enabled: true,
+		},
 	},
-	"observability": {
-		"enabled": true
-	}
-}`,
+});
+`,
 };
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
@@ -139,7 +143,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames, flags, logger);
 	const hasCloudflareIntegration = integrations.some(
-		(integration) => integration.id === 'cloudflare',
+		(integration) => integration.packageName === '@astrojs/cloudflare',
 	);
 	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logger });
 	const rootPath = resolveRoot(cwd);
@@ -192,11 +196,11 @@ export async function add(names: string[], { flags }: AddOptions) {
 	switch (installResult) {
 		case 'updated': {
 			if (hasCloudflareIntegration) {
-				const wranglerConfigURL = new URL('./wrangler.jsonc', configURL);
-				if (!existsSync(wranglerConfigURL)) {
+				const cloudflareConfigURL = new URL('./cloudflare.config.ts', configURL);
+				if (!existsSync(cloudflareConfigURL)) {
 					logger.info(
 						'SKIP_FORMAT',
-						`\n  ${magenta(`Astro will scaffold ${green('./wrangler.jsonc')}.`)}\n`,
+						`\n  ${magenta(`Astro will scaffold ${green('./cloudflare.config.ts')}.`)}\n`,
 					);
 
 					if (await askToContinue({ flags, logger })) {
@@ -204,20 +208,20 @@ export async function add(names: string[], { flags }: AddOptions) {
 						const compatibilityDate = await getCloudflareCompatibilityDate(root);
 
 						await fs.writeFile(
-							wranglerConfigURL,
-							STUBS.CLOUDFLARE_WRANGLER_CONFIG(data?.name ?? 'example', compatibilityDate),
+							cloudflareConfigURL,
+							STUBS.CLOUDFLARE_CONFIG(data?.name ?? 'example', compatibilityDate),
 							'utf-8',
 						);
 					}
 				} else {
-					logger.debug('add', 'Using existing wrangler configuration');
+					logger.debug('add', 'Using existing Cloudflare configuration');
 				}
 
 				await updatePackageJsonScripts({
 					configURL,
 					flags,
 					logger,
-					scripts: { 'generate-types': 'wrangler types' },
+					scripts: { 'generate-types': 'cf workers types' },
 				});
 			}
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
@@ -448,7 +452,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 	}
 
 	const updateTSConfigResult = await updateTSConfig(cwd, logger, integrations, flags, {
-		addIncludes: hasCloudflareIntegration ? ['./worker-configuration.d.ts'] : [],
+		addIncludes: hasCloudflareIntegration ? ['./.cloudflare/types/index.d.ts'] : [],
 	});
 
 	switch (updateTSConfigResult) {
@@ -911,6 +915,14 @@ async function validateIntegrations(
 							dependencies.push([peer, pkgJson['peerDependencies'][peer]]);
 						}
 					}
+				}
+
+				if (packageName === '@astrojs/cloudflare') {
+					const cfPackageJson = await fetchPackageJson(undefined, 'cf', 'latest');
+					if (cfPackageJson instanceof Error) {
+						throw new Error(`Unable to fetch ${bold('cf')}. Does the package exist?`);
+					}
+					dependencies.push([cfPackageJson['name'], `^${cfPackageJson['version']}`]);
 				}
 
 				let integrationType: IntegrationInfo['type'];
