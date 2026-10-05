@@ -1,5 +1,6 @@
 ---
-import { componentDataByCssVariable } from '../dist/assets/fonts/component-data.js';
+// @ts-ignore-error This virtual module is resolved by Astro at runtime and declared in dev-only.d.ts.
+import { componentDataByCssVariable } from 'virtual:astro:assets/fonts/internal';
 import { filterPreloads } from '../dist/assets/fonts/core/filter-preloads.js';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 
