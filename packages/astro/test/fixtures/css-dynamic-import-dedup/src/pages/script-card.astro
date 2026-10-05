@@ -1,0 +1,14 @@
+---
+// Card is only loaded by a script here, so the server build doesn't add its styles to this page.
+---
+<html>
+	<head><title>Card loaded by a script</title></head>
+	<body>
+		<button id="open">Open</button>
+		<script>
+			document.querySelector('#open')?.addEventListener('click', () => {
+				import('../components/CardModal.jsx');
+			});
+		</script>
+	</body>
+</html>
