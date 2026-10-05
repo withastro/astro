@@ -36,6 +36,11 @@ export interface ContentLayerOptions {
 	contentConfigObserver?: ContentObservable;
 }
 
+export interface ContentLayerRewatchOptions {
+	settings: AstroSettings;
+	watcher: FSWatcher;
+}
+
 type CollectionLoader<TData> = () =>
 	| Array<TData>
 	| Promise<Array<TData>>
@@ -93,6 +98,24 @@ export class ContentLayer {
 
 	unwatchContentConfig() {
 		this.#unsubscribe?.();
+	}
+
+	/**
+	 * Moves loaders to a new file watcher and settings, e.g. after the dev server restarted,
+	 * then re-syncs. The data store stays the same. Runs after any sync in progress.
+	 * Does nothing when not watching (e.g. in builds).
+	 */
+	rewatch({ settings, watcher }: ContentLayerRewatchOptions): Promise<void> {
+		return this.#queue.add(async () => {
+			if (!this.#watcher) {
+				return;
+			}
+			this.#watcher.removeAllTrackedListeners();
+			this.#watcher = createWatcherWrapper(watcher);
+			this.#settings = settings;
+			this.#markdownRenderer = undefined;
+			await this.#doSync({});
+		});
 	}
 
 	dispose() {

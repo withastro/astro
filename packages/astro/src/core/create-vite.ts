@@ -11,6 +11,7 @@ import astroContainer from '../container/vite-plugin-container.js';
 import {
 	astroContentAssetPropagationPlugin,
 	astroContentImportPlugin,
+	astroContentLayerWatcherPlugin,
 	astroContentVirtualModPlugin,
 } from '../content/index.js';
 import { createEnvLoader } from '../env/env-loader.js';
@@ -221,6 +222,7 @@ export async function createVite(
 			astroHeadPlugin(),
 			astroContentVirtualModPlugin({ fs, settings }),
 			astroContentImportPlugin({ fs, settings, logger }),
+			command === 'dev' && astroContentLayerWatcherPlugin({ settings, logger }),
 			astroContentAssetPropagationPlugin({ settings, cssContentCache }),
 			vitePluginMiddleware({ settings }),
 			astroAssetsPlugin({ fs, settings, sync, logger }),

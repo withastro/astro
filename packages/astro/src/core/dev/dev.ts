@@ -5,6 +5,7 @@ import { performance } from 'node:perf_hooks';
 import colors from 'piccolore';
 import { getMajor, getMinor, getPatch, isGreaterThan } from 'verkit';
 import type * as vite from 'vite';
+import type { ContentLayer } from '../../content/content-layer.js';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from '../../content/paths.js';
 import { globalContentLayer } from '../../content/instance.js';
 import { attachContentServerListeners, attachDataStoreInvalidation } from '../../content/index.js';
@@ -117,8 +118,9 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	if (config.status === 'error') {
 		logger.error('content', config.error.message);
 	}
+	let contentLayer: ContentLayer | undefined;
 	if (config.status === 'loaded' && store) {
-		const contentLayer = globalContentLayer.init({
+		contentLayer = globalContentLayer.init({
 			settings: restart.container.settings,
 			logger,
 			watcher: restart.container.viteServer.watcher,
@@ -167,6 +169,10 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 			return restart.container.handle(req, res);
 		},
 		async stop() {
+			// The content layer is process-wide, so it must not outlive the server that created it.
+			if (contentLayer && globalContentLayer.get() === contentLayer) {
+				globalContentLayer.dispose();
+			}
 			await restart.container.close();
 		},
 	};
