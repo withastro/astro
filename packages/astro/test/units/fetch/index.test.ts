@@ -864,6 +864,18 @@ describe('Composed pipeline with an over-encoded path', () => {
 		assert.equal(middlewareRan, false, 'user middleware should not run');
 	});
 
+	it('redirects() returns 400', async () => {
+		const response = await redirects(createOverEncodedState());
+		assert.equal(response?.status, 400);
+		assert.equal(await response?.text(), '');
+	});
+
+	it('actions() returns 400', async () => {
+		const response = await actions(createOverEncodedState());
+		assert.equal(response?.status, 400);
+		assert.equal(await response?.text(), '');
+	});
+
 	it('pages() returns 400', async () => {
 		const response = await pages(createOverEncodedState());
 		assert.equal(response.status, 400);

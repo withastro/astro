@@ -17,6 +17,7 @@ import { handleMiddlewareWithErrorFallback } from '../middleware/astro-middlewar
 import { handlePagesWithErrorFallback } from '../pages/handler.js';
 import { renderRedirect } from '../redirects/render.js';
 import { handleRequest } from '../routing/handler.js';
+import { rejectInvalidEncoding } from '../routing/invalid-encoding.js';
 import { provideSession } from '../session/provider.js';
 import { handleTrailingSlash } from '../routing/trailing-slash-handler.js';
 
@@ -86,10 +87,15 @@ export function sessions(state: FetchState): Promise<void> | void {
 /**
  * Checks if the matched route is a redirect and returns the redirect
  * `Response` if so. Returns `undefined` when the route is not a
- * redirect and the caller should continue processing.
+ * redirect and the caller should continue processing. Returns an empty
+ * `400` when the request path is over-encoded.
  * `state.routeData` must be set before calling this.
  */
 export function redirects(state: FetchState): Promise<Response> | undefined {
+	const invalidEncodingResponse = rejectInvalidEncoding(state);
+	if (invalidEncodingResponse) {
+		return Promise.resolve(invalidEncodingResponse);
+	}
 	if (state.routeData?.type === 'redirect') {
 		return renderRedirect(state);
 	}
@@ -100,7 +106,8 @@ export function redirects(state: FetchState): Promise<Response> | undefined {
  * Handles Astro Action requests (RPC + form). Returns a `Response` for
  * RPC actions, or `undefined` for form actions / non-action requests
  * (the caller should continue to page rendering). Lazily creates
- * the render context if needed.
+ * the render context if needed. Returns an empty `400` when the request
+ * path is over-encoded, without running any action.
  */
 export function actions(state: FetchState): Promise<Response | undefined> | undefined {
 	return handleAction(state.getAPIContext(), state);
