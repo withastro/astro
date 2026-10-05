@@ -26,10 +26,11 @@ app.use(actions());
 // User middleware from src/middleware.ts (calls next Hono handler internally).
 app.use(middleware());
 
+// i18n post-processing (locale redirects, fallback routing). Mounted before
+// pages() because pages() returns the response without calling next().
+app.use(i18n());
+
 // Page rendering (endpoints, pages, fallbacks).
 app.use(pages());
-
-// i18n post-processing (locale redirects, fallback routing).
-app.use(i18n());
 
 export default app;

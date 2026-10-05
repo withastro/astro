@@ -13,8 +13,8 @@
  * app.use(cf());
  * app.use(actions());
  * app.use(middleware());
- * app.use(pages());
  * app.use(i18n());
+ * app.use(pages());
  *
  * export default app;
  * ```
