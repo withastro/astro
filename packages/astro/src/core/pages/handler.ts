@@ -122,7 +122,8 @@ export async function handlePagesWithErrorFallback(state: FetchState): Promise<R
 		return createCrossOriginForbiddenResponse(ctx.request);
 	}
 	try {
-		return await handlePages(state, ctx);
+		await state.getProps();
+		return await handlePages(state, state.getAPIContext());
 	} catch (err: any) {
 		// The header marker can't carry the error object, so render the
 		// 500 page directly to preserve `error` and the logged stack.

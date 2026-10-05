@@ -828,6 +828,41 @@ describe('Composed pipeline', () => {
 		assert.equal(final.status, 200);
 		assert.match(await final.text(), /<h1>Hello<\/h1>/);
 	});
+
+	it('passes resolved props to middleware and endpoints when actions() runs before middleware()', async () => {
+		let middlewareProps: unknown;
+		const app = createTestApp(
+			[createEndpoint({ GET: ({ props }: any) => Response.json(props) }, { route: '/echo' })],
+			{
+				middleware: async () => ({
+					onRequest: async (ctx: any, next: any) => {
+						middlewareProps = ctx.props;
+						return next();
+					},
+				}),
+			},
+		);
+		const request = stampApp(new Request('http://example.com/echo'), app);
+		const state = new FetchState(request);
+
+		assert.equal(await actions(state), undefined);
+		const response = await middleware(state, () => pages(state));
+
+		assert.deepEqual(middlewareProps, {});
+		assert.deepEqual(await response.json(), {});
+	});
+
+	it('passes resolved props to endpoints when pages() runs without middleware()', async () => {
+		const app = createTestApp([
+			createEndpoint({ GET: ({ props }: any) => Response.json(props) }, { route: '/echo' }),
+		]);
+		const request = stampApp(new Request('http://example.com/echo'), app);
+		const state = new FetchState(request);
+
+		const response = await pages(state);
+
+		assert.deepEqual(await response.json(), {});
+	});
 });
 
 // #endregion

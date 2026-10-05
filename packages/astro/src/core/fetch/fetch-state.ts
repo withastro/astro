@@ -1228,8 +1228,10 @@ export class FetchState implements AstroFetchState {
 	 * Returns the `APIContext` for this render, creating it lazily from
 	 * the memoized props + action context.
 	 *
-	 * Callers must ensure `getProps()` has resolved at least once before
-	 * calling this.
+	 * Called before `getProps()` has resolved, the context carries
+	 * `props: null` and is not memoized; the next call after `getProps()`
+	 * fills in `props` on the same object. Callers that read `props`
+	 * must await `getProps()` first.
 	 */
 	getAPIContext(): APIContext {
 		if (this.apiContext !== null) return this.apiContext;
@@ -1246,14 +1248,18 @@ export class FetchState implements AstroFetchState {
 
 		(actionApiContext as any)[fetchStateSymbol] = this;
 
-		this.apiContext = Object.assign(actionApiContext, {
+		const apiContext = Object.assign(actionApiContext, {
 			props: this.props!,
 			redirect,
 			rewrite,
 			getActionResult: createGetActionResult(actionApiContext.locals),
 			callAction: createCallAction(actionApiContext),
 		});
-		return this.apiContext;
+		// A composable handler such as `actions()` can run before anything has
+		// awaited `getProps()`. Memoizing only resolved props lets the next call
+		// copy them onto the same context object (#18229).
+		if (this.props !== null) this.apiContext = apiContext;
+		return apiContext;
 	}
 
 	/**
