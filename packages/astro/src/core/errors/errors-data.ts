@@ -2163,6 +2163,18 @@ export const RenderMetadataEntryError = {
 
 /**
  * @docs
+ * @description
+ * The `externalGlob()` and `externalFile()` loaders can only load collections defined with `storage: 'external'`. Use the `glob()` and `file()` loaders for other collections.
+ */
+export const ContentLoaderRequiresExternalStorage = {
+	name: 'ContentLoaderRequiresExternalStorage',
+	title: 'Content loader requires external storage.',
+	message: (collection: string, loader: string) =>
+		`The collection \`${collection}\` uses the \`${loader}\` loader, which can only load collections defined with \`storage: 'external'\`. Add \`storage: 'external'\` to the collection, or use a loader for other collections, such as \`glob()\` or \`file()\`.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name Action Errors
  */

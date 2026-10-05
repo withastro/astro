@@ -22,7 +22,7 @@ interface GenerateIdOptions {
 	data: Record<string, unknown>;
 }
 
-interface GlobOptions {
+export interface GlobOptions {
 	/** The glob pattern to match files, relative to the base directory */
 	pattern: string | Array<string>;
 	/** The base directory to resolve the glob pattern from. Relative to the root directory, or an absolute file URL. Defaults to `.` */
@@ -47,7 +47,10 @@ interface GlobOptions {
 	deferRender?: boolean;
 }
 
-function generateIdDefault({ entry, base, data }: GenerateIdOptions, isLegacy?: boolean): string {
+export function generateIdDefault(
+	{ entry, base, data }: GenerateIdOptions,
+	isLegacy?: boolean,
+): string {
 	if (data.slug) {
 		return String(data.slug);
 	}
