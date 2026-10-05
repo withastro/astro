@@ -37,7 +37,11 @@ import { MultiLevelEncodingError, validateAndDecodePathname } from '../util/path
 import { setPathname } from '../util/normalized-url.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
-import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
+import {
+	getCustom404Route,
+	getDefaultStatusCode,
+	routeHasHtmlExtension,
+} from '../routing/helpers.js';
 import type { RenderErrorOptions, ResolvedRenderOptions } from '../app/base.js';
 import { getRenderOptions } from '../app/render-options.js';
 import { getFirstForwardedValue, validateForwardedHeaders } from '../app/validate-headers.js';
@@ -221,12 +225,29 @@ export class FetchState implements AstroFetchState {
 	 * rendering or middleware completes.
 	 */
 	response: Response | undefined;
+	/** Explicitly assigned status; `undefined` until a caller sets one. */
+	#status: number | undefined;
 	/**
 	 * Default HTTP status for the rendered response. Callers override
 	 * before rendering runs (e.g. `handleRequest` sets this from
 	 * `BaseApp.getDefaultStatusCode`; error handlers set `404` / `500`).
+	 * Reads `200` until assigned.
 	 */
-	status = 200;
+	get status(): number {
+		return this.#status ?? 200;
+	}
+	set status(value: number) {
+		this.#status = value;
+	}
+	/**
+	 * Sets `status` from the matched route (see `getDefaultStatusCode`)
+	 * unless a caller already assigned one.
+	 */
+	applyDefaultStatus(): void {
+		if (this.#status === undefined && this.routeData) {
+			this.#status = getDefaultStatusCode(this.manifest, this.routeData, this.pathname);
+		}
+	}
 	/** Whether user middleware should be skipped for this request. */
 	skipMiddleware = false;
 	/**
