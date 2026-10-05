@@ -2,6 +2,7 @@ import { handleAction } from '../../actions/handler.js';
 import type { APIContext } from '../../types/public/context.js';
 import { REROUTABLE_STATUS_CODES } from '../constants.js';
 import { handleTrailingSlash } from './trailing-slash-handler.js';
+import { rejectInvalidEncoding } from './invalid-encoding.js';
 import { handleCache, provideCache } from '../cache/handler.js';
 import { getEnvironment, type RequestLogPayload } from '../environment/index.js';
 import { renderErrorFromState } from '../errors/handler.js';
@@ -62,12 +63,9 @@ export async function handleRequest(state: FetchState): Promise<Response> {
 	// forget to include anything.
 	markFeatureUsed(state.manifest, ALL_FETCH_FEATURES);
 
-	// Reject paths that were encoded too many times to fully decode, before
-	// any routing or middleware runs. If we let them through, middleware
-	// could check one path while a later decode turns it into a different
-	// route.
-	if (state.invalidEncoding) {
-		return new Response(null, { status: 400, statusText: 'Bad Request' });
+	const invalidEncodingResponse = rejectInvalidEncoding(state);
+	if (invalidEncodingResponse) {
+		return invalidEncodingResponse;
 	}
 
 	const trailingSlashRedirect = handleTrailingSlash(state);

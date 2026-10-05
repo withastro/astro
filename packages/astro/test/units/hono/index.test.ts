@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { Hono } from 'hono';
 import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import { setAmbientManifest } from '../../../dist/core/manifest/ambient.js';
-import { astro, getFetchState } from '../../../dist/core/hono/index.js';
+import { astro, getFetchState, i18n, pages } from '../../../dist/core/hono/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createPage, createTestApp } from '../mocks.ts';
 
@@ -103,5 +103,38 @@ describe('getFetchState()', () => {
 
 		assert.equal(response.status, 200);
 		assert.match(await response.text(), /<h1>set via getFetchState<\/h1>/);
+	});
+});
+
+describe('i18n() Hono middleware', () => {
+	it('renders the custom 404 page for a path without a locale under pathname-prefix-always', async () => {
+		const notFoundPage = createComponent(() => render`<h1>Custom 404</h1>`);
+		const hono = createHonoApp(
+			createTestApp(
+				[
+					createPage(page, { route: '/' }),
+					createPage(page, { route: '/about' }),
+					createPage(notFoundPage, { route: '/404' }),
+				],
+				{
+					i18n: {
+						defaultLocale: 'en',
+						locales: ['en', 'fr'],
+						strategy: 'pathname-prefix-always',
+						fallbackType: 'rewrite',
+						fallback: undefined,
+						domains: {},
+						domainLookupTable: {},
+					},
+				},
+			),
+		);
+		hono.use(i18n());
+		hono.use(pages());
+
+		const response = await hono.fetch(new Request('http://example.com/about'));
+
+		assert.equal(response.status, 404);
+		assert.match(await response.text(), /<h1>Custom 404<\/h1>/);
 	});
 });

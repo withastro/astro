@@ -3,7 +3,7 @@ import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { performance } from 'node:perf_hooks';
 import colors from 'piccolore';
-import { getMajor, getMinor, getPatch, isGreater } from 'verkit';
+import { getMajor, getMinor, getPatch, isGreaterThan } from 'verkit';
 import type * as vite from 'vite';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from '../../content/paths.js';
 import { globalContentLayer } from '../../content/instance.js';
@@ -59,7 +59,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 					if (shouldCheck) {
 						const version = await fetchLatestAstroVersion(restart.container.settings.preferences);
 
-						if (isGreater(version, currentVersion)) {
+						if (isGreaterThan(version, currentVersion)) {
 							// Only update the latestAstroVersion if the latest version is greater than the current version, that way we don't need to check that again
 							// whenever we check for the latest version elsewhere
 							restart.container.settings.latestAstroVersion = version;

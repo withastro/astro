@@ -22,20 +22,14 @@ const story = (await fetchAPI(`item/${id}`)) as IStory;
 			</Show>
 			<p class="meta">
 				{story.points} points | by
-				<a href={`/users/${story.user}`}>
-					{story.user}
-				</a>
+				<a href={`/users/${story.user}`}>{story.user}</a>
 				&nbsp;{story.time_ago}
 			</p>
 		</header>
 		<main>
-			<p>
-				{story.comments_count ? story.comments_count + ' comments' : 'No comments yet.'}
-			</p>
+			<p>{story.comments_count ? story.comments_count + ' comments' : 'No comments yet.'}</p>
 			<ul class="comment-children">
-				<For each={story.comments}>
-					{(comment: IComment) => <Comment comment={comment} />}
-				</For>
+				<For each={story.comments}>{(comment: IComment) => <Comment comment={comment} />}</For>
 			</ul>
 		</main>
 	</div>

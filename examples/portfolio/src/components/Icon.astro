@@ -29,22 +29,20 @@ const gradientId = 'icon-gradient-' + Math.round(Math.random() * 10e12).toString
 	{...attrs}
 >
 	<g set:html={iconPath} />
-	{
-		gradient && (
-			<linearGradient
-				id={gradientId}
-				x1="23"
-				x2="235"
-				y1="43"
-				y2="202"
-				gradientUnits="userSpaceOnUse"
-			>
-				<stop stop-color="var(--gradient-stop-1)" />
-				<stop offset=".5" stop-color="var(--gradient-stop-2)" />
-				<stop offset="1" stop-color="var(--gradient-stop-3)" />
-			</linearGradient>
-		)
-	}
+	{gradient && (
+		<linearGradient
+			id={gradientId}
+			x1="23"
+			x2="235"
+			y1="43"
+			y2="202"
+			gradientUnits="userSpaceOnUse"
+		>
+			<stop stop-color="var(--gradient-stop-1)" />
+			<stop offset=".5" stop-color="var(--gradient-stop-2)" />
+			<stop offset="1" stop-color="var(--gradient-stop-3)" />
+		</linearGradient>
+	)}
 </svg>
 
 <style>

@@ -14,10 +14,10 @@
   },
   "dependencies": {
     "@astrojs/preact": "^6.0.5",
-    "@nanostores/preact": "^1.0.0",
+    "@nanostores/preact": "^1.1.0",
     "astro": "^7.3.5",
-    "nanostores": "^1.1.1",
-    "preact": "^10.28.4"
+    "nanostores": "^1.5.4",
+    "preact": "^10.29.8"
   },
   "allowScripts": {
     "esbuild": true
