@@ -234,7 +234,13 @@ export async function createContainerWithAutomaticRestart({
 			store: previousContentLayer.store,
 		});
 		contentLayer.watchContentConfig();
-		await contentLayer.sync();
+		// A loader error must not reject the watcher callback that triggered the
+		// restart, or `restarted()` would never resolve.
+		try {
+			await contentLayer.sync();
+		} catch (err) {
+			logger.error('content', err instanceof Error ? err.message : String(err));
+		}
 	}
 
 	let changeHandler: (file: string) => void;
