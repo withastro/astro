@@ -176,7 +176,9 @@ export class ViewTransitionStyleSheet {
 				? `[data-astro-transition=back]`
 				: direction === 'forwards'
 					? ''
-					: `[data-astro-transition=${direction}]`;
+					: // Quote custom direction names so values that are not valid CSS identifiers
+						// (e.g. names starting with a digit or containing spaces) still match.
+						`[data-astro-transition=${cssesc(direction, { quotes: 'double', wrap: true })}]`;
 		this.addRule('modern', `${prefix}::view-transition-${image}(${name}) { ${animation} }`);
 		this.addRule(
 			'fallback',

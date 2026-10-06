@@ -13,8 +13,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/react": "^7.0.0",
-    "@types/react": "^18.3.28",
+    "@astrojs/react": "^7.0.1",
+    "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
     "astro": "^7.4.0-beta.1",
     "react": "^18.3.1",

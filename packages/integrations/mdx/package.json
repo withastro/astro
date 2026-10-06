@@ -36,7 +36,7 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-satteri": "workspace:*",
-    "es-module-lexer": "^2.0.0"
+    "es-module-lexer": "^3.0.2"
   },
   "peerDependencies": {
     "@astrojs/markdown-remark": "^7.3.0",

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as vite from 'vite';
@@ -288,6 +289,24 @@ export async function createVite(
 			],
 		},
 		build: { assetsDir: settings.config.build.assets },
+		css: !isBuild
+			? {
+					modules: {
+						// Vite's default postcss-modules scoped-name generator hashes the CSS
+						// *content*, so every declaration edit changes class names. In dev this
+						// breaks HMR for server-rendered HTML because the DOM still references
+						// the previous names. Use a path-based hash instead so selectors stay
+						// stable and Vite's CSS HMR can swap rules without a full page reload.
+						generateScopedName(name, filename) {
+							const hash = createHash('sha256')
+								.update(filename + '\0' + name)
+								.digest('base64url')
+								.substring(0, 5);
+							return `_${name}_${hash}`;
+						},
+					},
+				}
+			: undefined,
 		environments: {
 			[ASTRO_VITE_ENVIRONMENT_NAMES.astro]: {
 				// This is all that's needed to create a new RunnableDevEnvironment

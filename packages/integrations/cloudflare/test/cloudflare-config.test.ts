@@ -1,6 +1,10 @@
 import * as assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 import {
+	assertWranglerConfigMigrated,
 	cloudflareConfigCustomizer,
 	DEFAULT_ASSETS_BINDING_NAME,
 	DEFAULT_IMAGES_BINDING_NAME,
@@ -184,5 +188,36 @@ describe('withNodejsAlsFlag', () => {
 		const flags = ['global_fetch_strictly_public'];
 		withNodejsAlsFlag(flags);
 		assert.deepEqual(flags, ['global_fetch_strictly_public']);
+	});
+});
+
+describe('assertWranglerConfigMigrated', () => {
+	let root: string;
+
+	beforeEach(() => {
+		root = mkdtempSync(join(realpathSync(tmpdir()), 'astro-cloudflare-wrangler-'));
+	});
+
+	afterEach(() => {
+		rmSync(root, { recursive: true, force: true });
+	});
+
+	for (const file of ['wrangler.json', 'wrangler.jsonc', 'wrangler.toml']) {
+		it(`throws when ${file} exists without cloudflare.config.ts`, () => {
+			writeFileSync(join(root, file), '');
+
+			assert.throws(() => assertWranglerConfigMigrated(root), /cf migrate --bundler vite/);
+		});
+	}
+
+	it('passes when cloudflare.config.ts exists next to a Wrangler config', () => {
+		writeFileSync(join(root, 'wrangler.jsonc'), '');
+		writeFileSync(join(root, 'cloudflare.config.ts'), '');
+
+		assert.doesNotThrow(() => assertWranglerConfigMigrated(root));
+	});
+
+	it('passes when there is no Wrangler config', () => {
+		assert.doesNotThrow(() => assertWranglerConfigMigrated(root));
 	});
 });
