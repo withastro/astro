@@ -424,8 +424,10 @@ async function generatePagesInBuildScope(
 }
 
 /**
- * Loads the `build` image service in Node. The prerender bundle already resolves it when it
- * runs in Node. Otherwise (e.g. a prerenderer rendering in `workerd`), Vite loads its entrypoint.
+ * Loads the `build` image service in Node. When pages are rendered by Astro's default
+ * prerenderer, the prerender bundle runs in Node and already resolves it. A prerenderer set
+ * as an object renders elsewhere (e.g. in `workerd`, where the bundle can't be imported in
+ * Node), so Vite loads the entrypoint instead.
  */
 async function loadImageService(
 	settings: AstroSettings,
@@ -435,7 +437,7 @@ async function loadImageService(
 	const { entrypoint } = getImageServiceConfig(settings.config.image.service, 'build');
 	let service;
 	try {
-		if (internals.prerenderEntryFileName) {
+		if (typeof settings.prerenderer !== 'object' && internals.prerenderEntryFileName) {
 			const prerenderEntryUrl = new URL(internals.prerenderEntryFileName, prerenderOutputDir);
 			const { getImageService } = await import(prerenderEntryUrl.toString());
 			service = await getImageService();
