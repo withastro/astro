@@ -51,12 +51,19 @@ export function registerIfPropagating(
 	}
 }
 
-export async function bufferPropagatedHead(result: SSRResult): Promise<void> {
-	// Initialize potential propagators, then append all emitted head parts.
+/**
+ * Initializes all registered propagators and appends the head parts they emit
+ * to `extraHead`. See `collectPropagatedHeadParts` for `awaitPendingSlots`.
+ */
+export async function bufferPropagatedHead(
+	result: SSRResult,
+	options: { awaitPendingSlots?: boolean } = {},
+): Promise<void> {
 	const collected = await collectPropagatedHeadParts({
 		propagators: result._metadata.propagators,
 		result,
 		isHeadAndContent,
+		awaitPendingSlots: options.awaitPendingSlots,
 	});
 	result._metadata.extraHead.push(...collected);
 }

@@ -4,6 +4,7 @@ import type { RouteData } from '../../types/public/internal.js';
 import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { getRouteGenerator } from '../routing/generator.js';
+import { rejectInvalidEncoding } from '../routing/invalid-encoding.js';
 
 function isExternalURL(url: string): boolean {
 	return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//');
@@ -89,4 +90,20 @@ export async function renderRedirect(state: FetchState) {
 		}
 	}
 	return new Response(null, { status, headers });
+}
+
+/**
+ * Renders the redirect `Response` when the matched route is a redirect, or
+ * returns `undefined` so the caller continues processing. Returns an empty
+ * `400` when the request path is over-encoded.
+ */
+export function handleRedirects(state: FetchState): Promise<Response> | undefined {
+	const invalidEncodingResponse = rejectInvalidEncoding(state);
+	if (invalidEncodingResponse) {
+		return Promise.resolve(invalidEncodingResponse);
+	}
+	if (state.routeData?.type === 'redirect') {
+		return renderRedirect(state);
+	}
+	return undefined;
 }

@@ -203,6 +203,31 @@ describe('ViewTransitionStyleSheet', () => {
 		);
 	});
 
+	it('addAnimationPair() quotes custom direction names in the selector', () => {
+		const sheet = new ViewTransitionStyleSheet('astro-xyz-1', 'banner');
+		sheet.addAnimationPair('downward', 'old', { name: 'slide-out' });
+		const css = sheet.toString();
+		assert.ok(
+			css.includes('[data-astro-transition="downward"]::view-transition-old(banner)'),
+			`expected quoted custom direction prefix: ${css}`,
+		);
+	});
+
+	it('addAnimationPair() supports custom direction names that are not CSS identifiers', () => {
+		const sheet = new ViewTransitionStyleSheet('astro-xyz-1', 'banner');
+		sheet.addAnimationPair('2nd step', 'new', { name: 'slide-in' });
+		sheet.addAnimationPair('a"b]c{d}', 'old', { name: 'slide-out' });
+		const css = sheet.toString();
+		assert.ok(
+			css.includes('[data-astro-transition="2nd step"]::view-transition-new(banner)'),
+			`expected quoted custom direction prefix: ${css}`,
+		);
+		assert.ok(
+			css.includes('[data-astro-transition="a\\"b]c{d}"]::view-transition-old(banner)'),
+			`expected punctuation in custom direction to be escaped: ${css}`,
+		);
+	});
+
 	it('addAnimationRaw() adds same rule to both modern and fallback', () => {
 		const sheet = new ViewTransitionStyleSheet('astro-abc-1', 'hero');
 		sheet.addAnimationRaw('new', 'animation: none; mix-blend-mode: normal;');

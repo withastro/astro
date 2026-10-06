@@ -13,11 +13,11 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/preact": "^6.0.5",
-    "@nanostores/preact": "^1.0.0",
+    "@astrojs/preact": "^6.0.6",
+    "@nanostores/preact": "^1.1.0",
     "astro": "^7.4.0-beta.1",
-    "nanostores": "^1.1.1",
-    "preact": "^10.28.4"
+    "nanostores": "^1.5.4",
+    "preact": "^10.29.8"
   },
   "allowScripts": {
     "esbuild": true

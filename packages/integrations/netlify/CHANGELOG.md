@@ -6,6 +6,13 @@
 
 - Updated dependencies [[`c68d737`](https://github.com/withastro/astro/commit/c68d737f2de8ef8d3c1c0ba455dccbf2563fa7da), [`c68d737`](https://github.com/withastro/astro/commit/c68d737f2de8ef8d3c1c0ba455dccbf2563fa7da)]:
   - astro@7.4.0-beta.0
+
+## 8.2.7
+
+### Patch Changes
+
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb), [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d)]:
+  - @astrojs/internal-helpers@0.12.0
   - @astrojs/underscore-redirects@1.0.4
 
 ## 8.2.6
