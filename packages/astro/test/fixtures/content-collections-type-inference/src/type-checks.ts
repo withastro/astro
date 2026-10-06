@@ -10,7 +10,12 @@
  * If the patch in templates/content/types.d.ts regresses, tsc will fail here
  * because a @ts-expect-error will become unused (the type collapsed to `any`).
  */
-import type { CollectionEntry, InferLoaderSchema } from 'astro:content';
+import {
+	type CollectionEntry,
+	type CollectionMetadataEntry,
+	getCollectionMetadata,
+	type InferLoaderSchema,
+} from 'astro:content';
 
 // ============================================================================
 // Case 1: Loader with schema on the loader object ("blog" collection)
@@ -54,3 +59,18 @@ type SchemalessData = InferLoaderSchema<'schemaless'>;
 // So we verify `any` by checking that arbitrary property access works:
 const _schemalessValue: SchemalessData = { anything: 'goes', count: 42 };
 const _schemalessAccess: string = _schemalessValue.nonExistentProp;
+
+// ============================================================================
+// Case 4: Entries returned by getCollectionMetadata() ("blog" collection)
+// They have the collection's data type, without `body` and `rendered`.
+// ============================================================================
+
+type BlogMetadataEntry = CollectionMetadataEntry<'blog'>;
+
+const _metadataEntries: Promise<BlogMetadataEntry[]> = getCollectionMetadata('blog');
+// @ts-expect-error - `test` is string, not number
+const _metadataDataCheck: BlogMetadataEntry['data'] = { test: 123 };
+// @ts-expect-error - metadata entries have no `body`
+type _MetadataBody = BlogMetadataEntry['body'];
+// @ts-expect-error - metadata entries have no `rendered`
+type _MetadataRendered = BlogMetadataEntry['rendered'];

@@ -1,0 +1,19 @@
+---
+import { getCollectionMetadata, getEntry, render } from 'astro:content';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+	const posts = await getCollectionMetadata('posts');
+	return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const entry = await getEntry('posts', post.id);
+const author = await getEntry(post.data.author);
+const { Content } = await render(entry!);
+---
+
+<h1 id="title">{post.data.title}</h1>
+<p id="author">{author?.data.name}</p>
+<Content />
