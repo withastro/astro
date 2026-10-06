@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { Hono } from 'hono';
 import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import { setAmbientManifest } from '../../../dist/core/manifest/ambient.js';
-import { astro, getFetchState, i18n, pages } from '../../../dist/core/hono/index.js';
+import { astro, getFetchState, i18n, notFound, pages } from '../../../dist/core/hono/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createPage, createTestApp } from '../mocks.ts';
 
@@ -136,5 +136,33 @@ describe('i18n() Hono middleware', () => {
 
 		assert.equal(response.status, 404);
 		assert.match(await response.text(), /<h1>Custom 404<\/h1>/);
+	});
+});
+
+describe('notFound() Hono middleware', () => {
+	it('serves the prerendered 404 page instead of a marked empty 404 from pages()', async () => {
+		const notFoundPage = createComponent(() => render`<h1>Custom 404</h1>`);
+		const hono = createHonoApp(
+			createTestApp([
+				createPage(page, { route: '/' }),
+				createPage(notFoundPage, { route: '/404', prerender: true }),
+			]),
+		);
+		hono.use(async (context, next) => {
+			getFetchState(context).renderOptions.prerenderedErrorPageFetch = async () =>
+				new Response('<h1>Prerendered 404</h1>', { headers: { 'Content-Type': 'text/html' } });
+			await next();
+		});
+		hono.use(notFound());
+		hono.use(pages());
+
+		const missing = await hono.fetch(new Request('http://example.com/missing'));
+		assert.equal(missing.status, 404);
+		assert.equal(missing.headers.get('X-Astro-Error'), null);
+		assert.equal(await missing.text(), '<h1>Prerendered 404</h1>');
+
+		const index = await hono.fetch(new Request('http://example.com/'));
+		assert.equal(index.status, 200);
+		assert.match(await index.text(), /<h1>Hello from Hono<\/h1>/);
 	});
 });

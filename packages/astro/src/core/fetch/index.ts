@@ -14,6 +14,7 @@ import { handleCache } from '../cache/handler.js';
 import { handleI18nWithErrorFallback } from '../i18n/error-fallback.js';
 import { getI18n } from '../i18n/handler.js';
 import { getAmbientManifest } from '../manifest/ambient.js';
+import { handleNotFound } from '../errors/not-found.js';
 import { handleMiddlewareWithErrorFallback } from '../middleware/astro-middleware.js';
 import { handlePagesWithErrorFallback } from '../pages/handler.js';
 import { handleRedirects } from '../redirects/render.js';
@@ -49,8 +50,10 @@ export function trailingSlash(state: FetchState): Response | undefined {
 /**
  * Runs Astro's middleware chain for the given state, calling `next` at
  * the bottom of the chain to produce the response. Lazily creates the
- * render context if needed. Unmatched routes render the 404 error page;
- * errors thrown by user middleware are logged and render the 500 error
+ * render context if needed. Unmatched routes return a null-body 404 marked
+ * for `App.render` to replace with the 404 error page; pipelines that do
+ * not run inside `App.render` call `notFound()` first. Errors thrown by
+ * user middleware are logged and render the 500 error
  * page; errors surfaced through `next` (the host framework's downstream
  * chain) propagate to the host instead.
  */
@@ -64,8 +67,10 @@ export function middleware(
 /**
  * Dispatches the request to the matched route (endpoint, page, redirect,
  * or fallback). Lazily creates the render context if needed. Unmatched
- * routes render the 404 error page; render-time errors are logged and
- * render the 500 error page.
+ * routes return a null-body 404 marked for `App.render` to replace with
+ * the 404 error page; pipelines that do not run inside `App.render` call
+ * `notFound()` first. Render-time errors are logged and render the 500
+ * error page.
  */
 export function pages(state: FetchState): Promise<Response> {
 	return handlePagesWithErrorFallback(state);
@@ -93,6 +98,19 @@ export function sessions(state: FetchState): Promise<void> | void {
  */
 export function redirects(state: FetchState): Promise<Response> | undefined {
 	return handleRedirects(state);
+}
+
+/**
+ * Renders the 404 error page when no route matched the request, including a
+ * prerendered `404.astro` (served through
+ * `renderOptions.prerenderedErrorPageFetch` in production). Returns
+ * `undefined` when a route matched and the caller should continue
+ * processing. Returns an empty `400` when the request path is
+ * over-encoded. Call this before `middleware()` and `pages()` in a
+ * pipeline that does not run inside `App.render`.
+ */
+export function notFound(state: FetchState): Promise<Response> | undefined {
+	return handleNotFound(state);
 }
 
 /**
