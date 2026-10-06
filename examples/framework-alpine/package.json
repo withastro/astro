@@ -17,8 +17,5 @@
     "@types/alpinejs": "^3.17.0",
     "alpinejs": "^3.17.4",
     "astro": "^7.3.5"
-  },
-  "allowScripts": {
-    "esbuild": true
   }
 }

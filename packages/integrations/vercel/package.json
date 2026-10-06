@@ -43,7 +43,7 @@
     "@vercel/functions": "^3.9.9",
     "@vercel/nft": "^1.11.0",
     "@vercel/routing-utils": "^6.6.0",
-    "esbuild": "^0.28.0",
+    "rolldown": "^1.2.11",
     "tinyglobby": "^0.2.17"
   },
   "peerDependencies": {

@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { builtinModules } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroIntegrationLogger } from 'astro';
+import { rolldown } from 'rolldown';
 import {
 	ASTRO_LOCALS_HEADER,
 	ASTRO_MIDDLEWARE_SECRET_HEADER,
@@ -23,7 +24,7 @@ export interface IsrForwarding {
  *
  * It creates a temporary file, the edge middleware, with some dynamic info.
  *
- * Then this file gets bundled with esbuild. The bundle phase will inline the Astro middleware code.
+ * Then this file gets bundled with rolldown. The bundle phase will inline the Astro middleware code.
  *
  * @param astroMiddlewareEntryPointPath
  * @param root
@@ -52,44 +53,52 @@ export async function generateEdgeMiddleware(
 	);
 	// https://vercel.com/docs/concepts/functions/edge-middleware#create-edge-middleware
 	const bundledFilePath = fileURLToPath(outPath);
-	const esbuild = await import('esbuild');
-	try {
-		await esbuild.build({
-			stdin: {
-				contents: code,
-				resolveDir: fileURLToPath(root),
-			},
+	const virtualEntryId = fileURLToPath(new URL('__vercel_edge_middleware__.js', root));
+	const bundle = await rolldown({
+		input: virtualEntryId,
+		cwd: fileURLToPath(root),
+		platform: 'browser',
+		resolve: {
+			// Rolldown conditions take priority over the platform defaults.
+			// https://runtime-keys.proposal.wintercg.org/#edge-light
+			conditionNames: ['edge-light', 'workerd', 'worker', 'browser', 'import', 'default'],
+		},
+		transform: {
 			// Vercel Edge runtime targets ESNext, because Cloudflare Workers update v8 weekly
 			// https://github.com/vercel/vercel/blob/1006f2ae9d67ea4b3cbb1073e79d14d063d42436/packages/next/scripts/build-edge-function-template.js
 			target: 'esnext',
-			platform: 'browser',
-			// esbuild automatically adds the browser, import and default conditions
-			// https://esbuild.github.io/api/#conditions
-			// https://runtime-keys.proposal.wintercg.org/#edge-light
-			conditions: ['edge-light', 'workerd', 'worker'],
-			outfile: bundledFilePath,
-			allowOverwrite: true,
-			format: 'esm',
-			bundle: true,
-			minify: false,
-			// ensure node built-in modules are namespaced with `node:`
-			plugins: [
-				{
-					name: 'esbuild-namespace-node-built-in-modules',
-					setup(build) {
-						const filter = new RegExp(builtinModules.map((mod) => `(^${mod}$)`).join('|'));
-						build.onResolve(
-							{
-								filter,
-							},
-							(args) => ({
-								path: 'node:' + args.path,
-								external: true,
-							}),
-						);
-					},
+		},
+		plugins: [
+			{
+				name: 'vercel:edge-middleware',
+				resolveId(source) {
+					if (source === virtualEntryId) {
+						return virtualEntryId;
+					}
 				},
-			],
+				load(source) {
+					if (source === virtualEntryId) {
+						return code;
+					}
+				},
+			},
+			{
+				name: 'rolldown-namespace-node-built-in-modules',
+				resolveId(source) {
+					if (builtinModules.includes(source)) {
+						// Ensure node built-in modules are namespaced with `node:`.
+						return { id: `node:${source}`, external: true };
+					}
+				},
+			},
+		],
+	});
+
+	try {
+		await bundle.write({
+			file: bundledFilePath,
+			format: 'esm',
+			minify: false,
 		});
 	} catch (err) {
 		if ((err as Error).message.includes('Could not resolve "node:')) {
@@ -99,6 +108,8 @@ export async function generateEdgeMiddleware(
 		}
 
 		throw err;
+	} finally {
+		await bundle.close();
 	}
 	return pathToFileURL(bundledFilePath);
 }

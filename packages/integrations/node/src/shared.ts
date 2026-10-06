@@ -37,7 +37,7 @@ export function resolveClientDir(options: Options) {
 			throw new Error(
 				`[@astrojs/node] Could not find the server directory "${serverFolder}" ` +
 					`by walking up from "${import.meta.url}". This can happen when the server ` +
-					`entry point is bundled into a single file (e.g. with esbuild) so that ` +
+					`entry point is bundled into a single file (e.g. with a bundler) so that ` +
 					`import.meta.url no longer contains the original "${serverFolder}" path segment. ` +
 					`When bundling the server entry, make sure the output path contains a ` +
 					`"${serverFolder}" directory segment, or avoid bundling the server entry entirely.`,

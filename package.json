@@ -80,6 +80,7 @@
     "prettier": "^3.9.0",
     "prettier-plugin-astro": "^1.1.0",
     "publint": "^0.3.17",
+    "rolldown": "^1.2.11",
     "tinyglobby": "^0.2.16",
     "turbo": "^2.10.2",
     "typescript": "~6.0.3",

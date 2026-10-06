@@ -18,8 +18,5 @@
     "@astrojs/svelte": "^9.0.1",
     "astro": "^7.3.5",
     "svelte": "^5.57.1"
-  },
-  "allowScripts": {
-    "esbuild": true
   }
 }

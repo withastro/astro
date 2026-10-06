@@ -1,6 +1,5 @@
-import { transform } from 'esbuild';
 import MagicString from 'magic-string';
-import type * as vite from 'vite';
+import { transformWithOxc, type Plugin, type ResolvedConfig } from 'vite';
 import type { EnvLoader } from './env-loader.js';
 import { CSS_LANGS_RE } from '../core/viteUtils.js';
 import { isAstroClientEnvironment } from '../environments.js';
@@ -23,21 +22,21 @@ function getReferencedPrivateKeys(source: string, privateEnv: Record<string, any
 }
 
 /**
- * Use esbuild to perform replacements like Vite
+ * Use `transformWithOxc` to perform replacements like Vite
  * https://github.com/vitejs/vite/blob/5ea9edbc9ceb991e85f893fe62d68ed028677451/packages/vite/src/node/plugins/define.ts#L130
  */
 async function replaceDefine(
 	code: string,
 	id: string,
 	define: Record<string, string>,
-	config: vite.ResolvedConfig,
-): Promise<{ code: string; map: string | null }> {
-	// Since esbuild doesn't support replacing complex expressions, we replace `import.meta.env`
+	config: ResolvedConfig,
+) {
+	// Since Oxc doesn't support replacing complex expressions, we replace `import.meta.env`
 	// with a marker string first, then postprocess and apply the `Object.assign` code.
 	const replacementMarkers: Record<string, string> = {};
 	const env = define['import.meta.env'];
 	if (env) {
-		// Compute the marker from the length of the replaced code. We do this so that esbuild generates
+		// Compute the marker from the length of the replaced code. We do this so that Oxc generates
 		// the sourcemap with the right column offset when we do the postprocessing.
 		const marker = `__astro_import_meta_env${'_'.repeat(
 			env.length - 23 /* length of preceding string */,
@@ -46,14 +45,9 @@ async function replaceDefine(
 		define = { ...define, 'import.meta.env': marker };
 	}
 
-	const esbuildOptions = config.esbuild || {};
-
-	const result = await transform(code, {
-		loader: 'js',
-		charset: esbuildOptions.charset ?? 'utf8',
-		platform: 'neutral',
+	const result = await transformWithOxc(code, id, {
+		lang: 'js',
 		define,
-		sourcefile: id,
 		sourcemap: config.command === 'build' ? !!config.build.sourcemap : true,
 	});
 
@@ -67,12 +61,12 @@ async function replaceDefine(
 	};
 }
 
-export function importMetaEnv({ envLoader }: EnvPluginOptions): vite.Plugin {
+export function importMetaEnv({ envLoader }: EnvPluginOptions): Plugin {
 	let privateEnv: Record<string, string>;
 	let defaultDefines: Record<string, string>;
 	let isDev: boolean;
 	let devImportMetaEnvPrepend: string;
-	let viteConfig: vite.ResolvedConfig;
+	let viteConfig: ResolvedConfig;
 	return {
 		name: 'astro:vite-plugin-env',
 		config(_, { command }) {
@@ -134,7 +128,7 @@ export function importMetaEnv({ envLoader }: EnvPluginOptions): vite.Plugin {
 					};
 				}
 
-				// In build, use esbuild to perform replacements. Compute the default defines for esbuild here as a
+				// In build, use Oxc to perform replacements. Compute the default defines for Oxc here as a
 				// separate object as it could be extended by `import.meta.env` later.
 				if (!defaultDefines) {
 					defaultDefines = {};

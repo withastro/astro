@@ -214,8 +214,7 @@
     "actions/labeler",
 
     // follow vite deps version
-    "postcss-load-config",
-    "esbuild"
+    "postcss-load-config"
   ],
   "minimumReleaseAge": "3 days"
 }

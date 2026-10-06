@@ -66,10 +66,10 @@
     "@types/mdast": "^4.0.4",
     "@types/unist": "^3.0.3",
     "astro-scripts": "workspace:*",
-    "esbuild": "^0.28.0",
     "mdast-util-mdx": "^3.0.0",
     "mdast-util-mdx-expression": "^2.0.1",
     "mdast-util-mdx-jsx": "^3.2.0",
+    "rolldown": "^1.2.11",
     "shiki": "^4.0.0"
   },
   "publishConfig": {

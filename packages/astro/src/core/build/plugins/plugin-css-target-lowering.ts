@@ -2,7 +2,7 @@ import { createRequire } from 'node:module';
 import type { Plugin as VitePlugin, ResolvedConfig } from 'vite';
 
 /**
- * Browser name mapping from esbuild/Vite target format to lightningcss target format.
+ * Browser name mapping from Vite target format to lightningcss target format.
  * Matches Vite's internal `map` object in `convertTargets`.
  */
 const BROWSER_MAP: Record<string, string | false> = {
@@ -21,15 +21,15 @@ const BROWSER_MAP: Record<string, string | false> = {
 const VERSION_RE = /\d/;
 
 /**
- * Converts esbuild/Vite target strings (e.g. `["safari15", "chrome100"]`) to
+ * Converts Vite target strings (e.g. `["safari15", "chrome100"]`) to
  * lightningcss target format (e.g. `{ safari: 983040, chrome: 6553600 }`).
  *
  * This replicates Vite's internal `convertTargets` function, which is not exported.
  */
-function convertTargets(esbuildTarget: string | string[] | undefined): Record<string, number> {
-	if (!esbuildTarget) return {};
+function convertTargets(target: string | string[] | undefined): Record<string, number> {
+	if (!target) return {};
 	const targets: Record<string, number> = {};
-	const entries = Array.isArray(esbuildTarget) ? esbuildTarget : [esbuildTarget];
+	const entries = Array.isArray(target) ? target : [target];
 	for (const entry of entries) {
 		if (entry === 'esnext') continue;
 		const index = entry.search(VERSION_RE);
