@@ -35,10 +35,24 @@ export default function createVitePluginAstroServer({
 	settings,
 	logger,
 }: AstroPluginOptions): vite.Plugin {
+	// Disposers for the per-server state created in `configureServer`, keyed by the SSR
+	// environment they belong to. A server restart creates the new server (and calls
+	// `configureServer` again) before the old one is closed, so state must be tracked
+	// per environment rather than in a single variable.
+	const disposers = new WeakMap<vite.Environment, () => void>();
+
 	return {
 		name: 'astro:server',
 		applyToEnvironment(environment) {
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
+		},
+		closeBundle() {
+			// Called when the SSR environment closes (server restart or shutdown).
+			const dispose = disposers.get(this.environment);
+			if (dispose) {
+				disposers.delete(this.environment);
+				dispose();
+			}
 		},
 		async configureServer(viteServer) {
 			// Skip Astro dev server setup when running inside Vitest. The dev server
@@ -91,10 +105,14 @@ export default function createVitePluginAstroServer({
 					})
 				: Promise.resolve();
 
-			const ssrHandlerPromise = runnableSsrEnvironment
+			// `let` so they can be released on dispose: every closure created in this function
+			// (middlewares, listeners) shares one scope, and Vite can keep a closed server and its
+			// middlewares reachable after a restart. Clearing these drops the reference to the
+			// dev app and all SSR modules loaded by this server generation.
+			let ssrHandlerPromise = runnableSsrEnvironment
 				? contentConfigLoad.then(() => createHandler(runnableSsrEnvironment))
 				: undefined;
-			const prerenderHandlerPromise = runnablePrerenderEnvironment
+			let prerenderHandlerPromise = runnablePrerenderEnvironment
 				? contentConfigLoad.then(() => createHandler(runnablePrerenderEnvironment))
 				: undefined;
 
@@ -147,8 +165,13 @@ export default function createVitePluginAstroServer({
 
 			if (runnableSsrEnvironment || runnablePrerenderEnvironment) {
 				process.on('unhandledRejection', handleUnhandledRejection);
-				viteServer.httpServer?.on('close', () => {
+			}
+
+			if (ssrEnvironment) {
+				disposers.set(ssrEnvironment, () => {
 					process.off('unhandledRejection', handleUnhandledRejection);
+					ssrHandlerPromise = undefined;
+					prerenderHandlerPromise = undefined;
 				});
 			}
 
@@ -195,8 +218,14 @@ export default function createVitePluginAstroServer({
 								return next();
 							}
 
+							// Read at request time: the handler is released once this server is closed.
+							const currentPrerenderHandlerPromise = prerenderHandlerPromise;
+							if (!currentPrerenderHandlerPromise) {
+								return next();
+							}
+
 							try {
-								const prerenderHandler = await prerenderHandlerPromise!;
+								const prerenderHandler = await currentPrerenderHandlerPromise;
 								const pathname = decodeURI(new URL(request.url, 'http://localhost').pathname);
 								const { routes } = (await prerenderHandler.environment.runner.import(
 									'virtual:astro:routes',
@@ -228,14 +257,20 @@ export default function createVitePluginAstroServer({
 
 				if (runnableSsrEnvironment) {
 					// Note that this function has a name so other middleware can find it.
-					viteServer.middlewares.use(async function astroDevHandler(request, response) {
+					viteServer.middlewares.use(async function astroDevHandler(request, response, next) {
 						if (request.url === undefined || !request.method) {
 							response.writeHead(500, 'Incomplete request');
 							response.end();
 							return;
 						}
 
-						const ssrHandler = await ssrHandlerPromise!;
+						// Read at request time: the handler is released once this server is closed.
+						const currentSsrHandlerPromise = ssrHandlerPromise;
+						if (!currentSsrHandlerPromise) {
+							return next();
+						}
+
+						const ssrHandler = await currentSsrHandlerPromise;
 						localStorage.run(request, () => {
 							ssrHandler.handler(request, response);
 						});
