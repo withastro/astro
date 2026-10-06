@@ -55,6 +55,14 @@ describe('astro:assets - delete images that are unused', () => {
 			assert.ok(fixture.pathExists(src));
 			assert.equal((await fixture.glob('_astro/staticPaths.*.*')).length, 1);
 		});
+
+		it('should generate images optimized outside of a render', async () => {
+			const $ = cheerio.load(await fixture.readFile('/outside-render/index.html'));
+			const src = $('#outside-render').attr('src')!;
+			assert.match(src, /^\/_astro\/outsideRender\.[^_/]+_[^_/]+\.webp$/);
+			assert.ok(fixture.pathExists(src));
+			assert.equal((await fixture.glob('_astro/outsideRender.*.*')).length, 1);
+		});
 	});
 
 	describe('build ssg with a prerenderer wrapping the default one', () => {
