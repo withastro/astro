@@ -189,6 +189,32 @@ describe('CSRF - createOriginCheckMiddleware', () => {
 		assert.equal(res.status, 403);
 	});
 
+	for (const contentType of ['application/json', 'application/octet-stream']) {
+		it(`allows cross-origin POST with ${contentType}`, async () => {
+			const res = await callCSRF({
+				method: 'POST',
+				url: 'http://example.com/api/',
+				headers: { origin: 'http://evil.com', 'content-type': contentType },
+			});
+			assert.equal(res.status, 200);
+		});
+
+		for (const secFetchSite of ['same-site', 'cross-site']) {
+			it(`allows POST with ${contentType} and Sec-Fetch-Site: ${secFetchSite}`, async () => {
+				const res = await callCSRF({
+					method: 'POST',
+					url: 'https://api.example.com/submit',
+					headers: {
+						origin: 'https://example.com',
+						'content-type': contentType,
+						'sec-fetch-site': secFetchSite,
+					},
+				});
+				assert.equal(res.status, 200);
+			});
+		}
+	}
+
 	it('allows requests without browser origin headers', async () => {
 		const res = await callCSRF({
 			method: 'POST',
