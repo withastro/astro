@@ -31,6 +31,7 @@ import type {
 import type { RouteData, RouteType, SSRError } from '../../types/public/internal.js';
 import { hashCryptoKey } from '../encryption.js';
 import { ensureAsyncRenderScope } from '../render-scope/node-scope.js';
+import type { RenderCollectors } from '../render-scope/scope.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getRedirectLocationOrThrow } from '../redirects/index.js';
 import { createRequest } from '../request.js';
@@ -52,6 +53,22 @@ export async function generatePages(
 	internals: BuildInternals,
 	prerenderOutputDir: URL,
 ) {
+	// Records from the bundled prerender runtime reach this build's stores through the
+	// `Symbol.for('astro:render-scope')` channel. Each render gets its own store; this one
+	// catches images resolved anywhere else during the build, such as in a module evaluated
+	// outside of a render, so they are generated too.
+	const buildCollectors: RenderCollectors = { staticImages: [], referencedImages: new Set() };
+	return ensureAsyncRenderScope().run(buildCollectors, () =>
+		generatePagesInBuildScope(options, internals, prerenderOutputDir, buildCollectors),
+	);
+}
+
+async function generatePagesInBuildScope(
+	options: StaticBuildOptions,
+	internals: BuildInternals,
+	prerenderOutputDir: URL,
+	buildCollectors: RenderCollectors,
+) {
 	const generatePagesTimer = performance.now();
 	const hasPagesToGenerate = hasPrerenderedPages(internals);
 
@@ -60,10 +77,6 @@ export async function generatePages(
 	if (!hasPagesToGenerate) {
 		return;
 	}
-
-	// Records from the bundled prerender runtime reach this build's per-render stores through
-	// the `Symbol.for('astro:render-scope')` channel.
-	ensureAsyncRenderScope();
 
 	const ssr = options.settings.buildOutput === 'server';
 	const logger = options.logger;
@@ -279,6 +292,11 @@ export async function generatePages(
 			}
 			cache.writeManifest(options.settings);
 		}
+
+		images.addMetadata({
+			staticImages: buildCollectors.staticImages,
+			referencedImages: [...buildCollectors.referencedImages!],
+		});
 
 		// Must happen before teardown since collectStaticImages fetches from the prerender server
 		if (prerenderer.collectStaticImages) {

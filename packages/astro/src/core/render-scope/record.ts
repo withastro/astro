@@ -12,10 +12,11 @@ export function recordContentEntryRender(filePath: string | undefined): void {
 }
 
 /**
- * Whether the current render collects static images. `getImage()` only resolves
- * build-time image URLs when it does: the build generates exactly the images it
- * collected, so a static URL resolved outside of a collecting render would point
- * at a file that is never written.
+ * Whether static images are collected in the current context: during a build,
+ * by the current render or, outside of one, by the build itself. `getImage()`
+ * only resolves build-time image URLs when they are: the build generates exactly
+ * the images it collected, so a static URL resolved anywhere else (dev, SSR, a
+ * prerenderer opting out) would point at a file that is never written.
  */
 export function isCollectingStaticImages(): boolean {
 	return getRenderCollectors()?.staticImages !== undefined;
