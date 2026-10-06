@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 15.0.0-beta.2
+
+### Patch Changes
+
+- [#18196](https://github.com/withastro/astro/pull/18196) [`e6a2e90`](https://github.com/withastro/astro/commit/e6a2e90254599f0e8cb3af429ac6f8828c858e51) Thanks [@swissky](https://github.com/swissky)! - Fails the build with a migration hint when a project has a `wrangler.json`, `wrangler.jsonc`, or `wrangler.toml` file but no `cloudflare.config.ts`. Previously the build succeeded and the Worker name, bindings, and entrypoint from the Wrangler file were silently ignored. Run `npx cf migrate --bundler vite` to generate `cloudflare.config.ts` from your existing Wrangler configuration.
+
 ## 15.0.0-beta.1
 
 ### Patch Changes
