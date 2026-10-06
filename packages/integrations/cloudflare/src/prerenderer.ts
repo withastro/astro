@@ -1,11 +1,4 @@
-import type {
-	AstroConfig,
-	AstroIntegrationLogger,
-	AstroPrerenderer,
-	ImageService,
-	LocalImageService,
-	StaticPathsResult,
-} from 'astro';
+import type { AstroConfig, AstroPrerenderer, StaticPathsResult } from 'astro';
 import { preview, createLogger, type PreviewServer as VitePreviewServer } from 'vite';
 import { fileURLToPath } from 'node:url';
 import { mkdir } from 'node:fs/promises';
@@ -15,21 +8,10 @@ import type { StaticPathsResponse, PrerenderRequest } from './prerender-types.js
 import {
 	STATIC_PATHS_ENDPOINT,
 	PRERENDER_ENDPOINT,
-	IMAGE_TRANSFORM_ENDPOINT,
+	PRERENDER_SERVER_URL_KEY,
 } from './utils/prerender-constants.js';
 import { readFramedPrerenderResponse } from './utils/prerender-response.js';
 import { buildServerUrl } from './utils/server-url.js';
-
-/** Maps Astro's transform options onto the query parameters `/_image` expects. */
-const IMAGE_TRANSFORM_PARAMS: Record<string, string> = {
-	w: 'width',
-	h: 'height',
-	q: 'quality',
-	f: 'format',
-	fit: 'fit',
-	position: 'position',
-	background: 'background',
-};
 
 interface CloudflarePrerendererOptions {
 	root: AstroConfig['root'];
@@ -38,68 +20,6 @@ interface CloudflarePrerendererOptions {
 	base: AstroConfig['base'];
 	trailingSlash: AstroConfig['trailingSlash'];
 	cfPluginConfig: PluginConfig;
-	hasBuildImageService: boolean;
-	/** When true, images are optimized by the IMAGES binding in workerd during the build. */
-	hasBindingImageService: boolean;
-	userImageServiceEntrypoint?: string;
-	logger: AstroIntegrationLogger;
-}
-
-function createImageTransformUrl(
-	serverUrl: string,
-	originalPath: string,
-	transform: Record<string, any>,
-): string {
-	const url = new URL(IMAGE_TRANSFORM_ENDPOINT, serverUrl);
-	url.searchParams.set('href', originalPath);
-
-	for (const [param, key] of Object.entries(IMAGE_TRANSFORM_PARAMS)) {
-		const value = transform[key];
-		if (value) {
-			url.searchParams.set(param, value.toString());
-		}
-	}
-
-	return url.toString();
-}
-
-function createBindingImageService(
-	getServerUrl: () => string,
-	localService: LocalImageService,
-	logger: AstroIntegrationLogger,
-): LocalImageService {
-	let warnedFallback = false;
-	// Inherit from the local service rather than spreading it, so class-based services keep their prototype methods.
-	const service: LocalImageService = Object.create(localService);
-	service.transform = async (inputBuffer, transform, imageConfig, runtimeLogger) => {
-		try {
-			const response = await fetch(
-				createImageTransformUrl(getServerUrl(), transform.src, transform),
-				{ method: 'POST', body: inputBuffer as Uint8Array<ArrayBuffer> },
-			);
-			if (!response.ok) {
-				// The body can be a full error page, so keep only enough of it to be useful.
-				const body = (await response.text().catch(() => '')).replace(/\s+/g, ' ').trim();
-				const details = body ? `: ${body.slice(0, 200)}` : '';
-				throw new Error(
-					`the prerender server responded ${response.status} ${response.statusText}${details}`,
-				);
-			}
-			return { data: new Uint8Array(await response.arrayBuffer()), format: transform.format };
-		} catch (err) {
-			const message = err instanceof Error ? err.message : String(err);
-			const log = `Could not optimize "${transform.src}" with the Cloudflare IMAGES binding (${message}). Falling back to the local image service.`;
-			// A missing or broken binding fails every image the same way: warn once.
-			if (warnedFallback) {
-				logger.debug(log);
-			} else {
-				warnedFallback = true;
-				logger.warn(log);
-			}
-			return localService.transform(inputBuffer, transform, imageConfig, runtimeLogger);
-		}
-	};
-	return service;
 }
 
 /**
@@ -113,10 +33,6 @@ export function createCloudflarePrerenderer({
 	base,
 	trailingSlash,
 	cfPluginConfig,
-	hasBuildImageService,
-	hasBindingImageService,
-	userImageServiceEntrypoint,
-	logger,
 }: CloudflarePrerendererOptions): AstroPrerenderer {
 	let previewServer: VitePreviewServer | undefined;
 	let serverUrl: string;
@@ -168,6 +84,8 @@ export function createCloudflarePrerenderer({
 				// on some Linux hosts `listen()` binds ::1 while `fetch()` dials 127.0.0.1,
 				// and every prerender request fails with ECONNREFUSED on a random port.
 				serverUrl = buildServerUrl(address);
+				// The `cloudflare-binding` build image service sends images to this server.
+				(globalThis as Record<symbol, unknown>)[PRERENDER_SERVER_URL_KEY] = serverUrl;
 			} else {
 				throw new Error(
 					'Failed to start the Cloudflare prerender server. The preview server did not return a valid address. ' +
@@ -227,24 +145,8 @@ export function createCloudflarePrerenderer({
 			return readFramedPrerenderResponse(response);
 		},
 
-		getImageService:
-			hasBuildImageService || hasBindingImageService
-				? async (): Promise<ImageService> => {
-						let localService: LocalImageService;
-						if (userImageServiceEntrypoint) {
-							const mod = await import(userImageServiceEntrypoint);
-							localService = mod.default ?? mod;
-						} else {
-							const { default: sharpService } = await import('astro/assets/services/sharp');
-							localService = sharpService;
-						}
-						return hasBindingImageService
-							? createBindingImageService(() => serverUrl, localService, logger)
-							: localService;
-					}
-				: undefined,
-
 		async teardown() {
+			delete (globalThis as Record<symbol, unknown>)[PRERENDER_SERVER_URL_KEY];
 			if (previewServer) {
 				await previewServer.close();
 				// Release reference to allow garbage collection

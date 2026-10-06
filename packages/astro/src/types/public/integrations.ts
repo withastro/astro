@@ -1,7 +1,6 @@
 import type { AddressInfo } from 'node:net';
 import type { ViteDevServer, InlineConfig } from 'vite';
 import type { SerializedSSRManifest } from '../../core/app/types.js';
-import type { ImageService } from '../../assets/services/service.js';
 import type { AssetsGlobalStaticImagesList, SerializedStaticImage } from '../../assets/types.js';
 import type { PageBuildData } from '../../core/build/types.js';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
@@ -340,16 +339,10 @@ export interface AstroPrerenderer {
 		options: { routeData: RouteData; collectMetadata?: boolean },
 	) => Promise<Response | PrerenderResult>;
 	/**
-	 * Returns the image service that generates the build's images, called before `teardown()`
-	 * on the first image that is not cached. Defaults to loading the configured image service
-	 * from the default prerender bundle, so a prerenderer that doesn't build it must implement this.
-	 */
-	getImageService?: () => Promise<ImageService>;
-	/**
 	 * Returns images collected in the adapter's runtime (e.g. workerd) to be merged
 	 * into the Node-side static image list. The default Sharp pipeline runs after.
 	 *
-	 * @deprecated Report images from `getStaticPaths()` and `render()`, and use `getImageService()`.
+	 * @deprecated Report images from `getStaticPaths()` and `render()`, and set the `build` image service with `image.service`.
 	 */
 	collectStaticImages?: () => Promise<AssetsGlobalStaticImagesList>;
 	/**

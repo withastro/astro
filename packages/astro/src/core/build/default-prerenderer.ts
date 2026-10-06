@@ -2,7 +2,6 @@ import type { AstroPrerenderer } from '../../types/public/integrations.js';
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { BuildApp } from './app.js';
-import type { ImageService } from '../../assets/services/service.js';
 import { renderForPrerender } from '../app/prerender.js';
 import { StaticPaths } from '../../runtime/prerender/static-paths.js';
 
@@ -20,11 +19,6 @@ export interface DefaultPrerenderer extends AstroPrerenderer {
 	app?: BuildApp;
 }
 
-interface PrerenderEntry {
-	app: BuildApp;
-	getImageService: () => Promise<ImageService>;
-}
-
 /**
  * Creates the default prerenderer that uses Node to import the bundle and render pages.
  * This is used when no custom prerenderer is set by an adapter.
@@ -34,24 +28,21 @@ export function createDefaultPrerenderer({
 	options,
 	prerenderOutputDir,
 }: DefaultPrerendererOptions): DefaultPrerenderer {
-	let prerenderEntry: Promise<PrerenderEntry> | undefined;
-	// Also used by `getImageService()`, which a wrapping prerenderer may call without `setup()`.
-	const importPrerenderEntry = () => {
-		const prerenderEntryFileName = internals.prerenderEntryFileName;
-		if (!prerenderEntryFileName) {
-			throw new Error(
-				`Prerender entry filename not found in build internals. This is likely a bug in Astro.`,
-			);
-		}
-		const prerenderEntryUrl = new URL(prerenderEntryFileName, prerenderOutputDir);
-		return (prerenderEntry ??= import(prerenderEntryUrl.toString()));
-	};
 	const prerenderer: DefaultPrerenderer = {
 		name: 'astro:default',
 
 		async setup() {
-			// Get the app and configure it
-			const { app } = await importPrerenderEntry();
+			// Import the prerender entry bundle
+			const prerenderEntryFileName = internals.prerenderEntryFileName;
+			if (!prerenderEntryFileName) {
+				throw new Error(
+					`Prerender entry filename not found in build internals. This is likely a bug in Astro.`,
+				);
+			}
+			const prerenderEntryUrl = new URL(prerenderEntryFileName, prerenderOutputDir);
+			const { app }: { app: BuildApp } = await import(prerenderEntryUrl.toString());
+
+			// Configure the app
 			app.setInternals(internals);
 			app.setOptions(options);
 			// A later build in the same process with identical output reuses the cached
@@ -68,10 +59,6 @@ export function createDefaultPrerenderer({
 
 		async render(request, { routeData }) {
 			return renderForPrerender(prerenderer.app!, request, { routeData });
-		},
-
-		async getImageService() {
-			return (await importPrerenderEntry()).getImageService();
 		},
 
 		async teardown() {

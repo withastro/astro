@@ -27,6 +27,7 @@ import { ASSETS_ESM_PLUGIN_NAME, type AssetsPluginApi, emitClientAsset } from '.
 import { emitImageMetadata } from './utils/node.js';
 import { CONTENT_IMAGE_FLAG } from '../content/consts.js';
 import { getImageAssetModule } from './utils/image-asset-code.js';
+import { getImageConfigFor, getImageServiceConfig } from './utils/service-config.js';
 import type { StaticImageConfig } from './utils/static-image.js';
 import { makeSvgComponent, parseSvgComponentData } from './svg/utils.js';
 
@@ -71,7 +72,18 @@ const CLIENT_RUNTIME_LOGGER_SETUP = `
  * params and the build output layout ride along as non-enumerable properties, so image
  * services that serialize the config never see them.
  */
-function getImageConfigCode(settings: AstroSettings): string {
+/**
+ * Prerendered pages use the `build` image service during a build. Everything else, including
+ * the dev server, uses the `runtime` service.
+ */
+function getImageServiceTarget(environment: vite.Environment): 'build' | 'runtime' {
+	return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender &&
+		environment.config.command === 'build'
+		? 'build'
+		: 'runtime';
+}
+
+function getImageConfigCode(settings: AstroSettings, environment: vite.Environment): string {
 	const assetQueryParams = settings.adapter?.client?.assetQueryParams
 		? `new URLSearchParams(${JSON.stringify(
 				Array.from(settings.adapter.client.assetQueryParams.entries()),
@@ -83,7 +95,9 @@ function getImageConfigCode(settings: AstroSettings): string {
 		assetsDir: settings.config.build.assets,
 	};
 	return `
-		export const imageConfig = ${JSON.stringify(settings.config.image)};
+		export const imageConfig = ${JSON.stringify(
+			getImageConfigFor(settings.config.image, getImageServiceTarget(environment)),
+		)};
 		Object.defineProperties(imageConfig, {
 			assetQueryParams: { value: ${assetQueryParams}, enumerable: false, configurable: true },
 			staticImageConfig: {
@@ -126,7 +140,10 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 				async handler(id) {
 					if (id === VIRTUAL_SERVICE_ID) {
 						if (isAstroServerEnvironment(this.environment)) {
-							return await this.resolve(settings.config.image.service.entrypoint);
+							const target = getImageServiceTarget(this.environment);
+							return await this.resolve(
+								getImageServiceConfig(settings.config.image.service, target).entrypoint,
+							);
 						}
 						return await this.resolve('astro/assets/services/noop');
 					}
@@ -163,7 +180,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 
 						return {
 							code: `
-								${getImageConfigCode(settings)}
+								${getImageConfigCode(settings, this.environment)}
 								${getImageExport}
 							`,
 						};
@@ -204,7 +221,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 
 					export const fsDenyGlob = ${serializeFsDenyGlob(resolvedConfig.server.fs?.deny ?? [])};
 
-					${getImageConfigCode(settings)}
+					${getImageConfigCode(settings, this.environment)}
 					export const inferRemoteSize = async (url) => {
 						const service = await _getConfiguredImageService();
 						return service.getRemoteSize?.(url, imageConfig, _runtimeLogger) ?? inferRemoteSizeInternal(url, imageConfig);
