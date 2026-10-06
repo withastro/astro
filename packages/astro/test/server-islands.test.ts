@@ -277,6 +277,55 @@ describe('Server islands', () => {
 				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
+
+			it('renders server island inside a slot in an MDX content collection entry', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const request = new Request('http://example.com/content-collection-island-slot/');
+				const res = await app.render(request);
+				assert.equal(res.status, 200);
+				const html = await res.text();
+				const $ = cheerio.load(html);
+				assert.equal($('#default-wrapper').length, 1, 'wrapper element should be present');
+				assert.equal(
+					$('#default-wrapper script[data-island-id]').length,
+					1,
+					'server island script should be inside the wrapper',
+				);
+			});
+		});
+	});
+
+	describe('custom fetch handler', () => {
+		let fixture: Fixture;
+		let devServer: DevServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/server-islands/custom-fetch',
+				adapter: testAdapter(),
+				outDir: './dist/server-islands-custom-fetch/',
+				cacheDir: './node_modules/.astro-test/server-islands-custom-fetch/',
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('renders framework components in an island requested after the page in dev', async () => {
+			const res = await fixture.fetch('/');
+			assert.equal(res.status, 200);
+			const html = await res.text();
+			const urlMatch = /fetch\(["'](\/_server-islands\/Island\?[^"']+)["']/.exec(html)!;
+			assert.ok(urlMatch, 'should have a server island fetch URL');
+			const islandRes = await fixture.fetch(urlMatch[1]);
+			assert.equal(islandRes.status, 200);
+			const islandHtml = await islandRes.text();
+			assert.ok(
+				islandHtml.includes('Rendered by Svelte'),
+				'island response should include the Svelte component HTML',
+			);
 		});
 	});
 

@@ -8,14 +8,20 @@ import {
 import type { FetchState } from '../fetch/fetch-state.js';
 import { prepareResponse } from '../app/prepare-response.js';
 import { redirectTemplate } from './3xx.js';
+import { rejectInvalidEncoding } from './invalid-encoding.js';
 
 /**
  * Handles trailing-slash normalization for incoming requests. If the
  * request's pathname does not match the manifest's configured
  * `trailingSlash` policy, a redirect `Response` is returned. Otherwise,
  * returns `undefined` so the caller can continue processing the request.
+ * Paths encoded too many times to decode get a 400 instead of a redirect.
  */
 export function handleTrailingSlash(state: FetchState): Response | undefined {
+	const invalidEncodingResponse = rejectInvalidEncoding(state);
+	if (invalidEncodingResponse) {
+		return invalidEncodingResponse;
+	}
 	// Use a fresh URL parse from the raw request so we see the
 	// un-normalized pathname (e.g. duplicate slashes like `///`).
 	// state.url has already been normalized by the FetchState

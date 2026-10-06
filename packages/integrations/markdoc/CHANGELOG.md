@@ -7,6 +7,14 @@
 - Updated dependencies [[`c68d737`](https://github.com/withastro/astro/commit/c68d737f2de8ef8d3c1c0ba455dccbf2563fa7da), [`c68d737`](https://github.com/withastro/astro/commit/c68d737f2de8ef8d3c1c0ba455dccbf2563fa7da)]:
   - astro@7.4.0-beta.0
 
+## 2.0.10
+
+### Patch Changes
+
+- [#18099](https://github.com/withastro/astro/pull/18099) [`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb) Thanks [@renovate](https://github.com/apps/renovate)! - Adds YAML parsing with timestamp and merge key support, and formats YAML errors consistently across Astro, Markdown, MDX, and Markdoc.
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb), [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d)]:
+  - @astrojs/internal-helpers@0.12.0
+
 ## 2.0.9
 
 ### Patch Changes
