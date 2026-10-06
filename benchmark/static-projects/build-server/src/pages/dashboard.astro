@@ -46,14 +46,12 @@ const stats = {
 	<section>
 		<h2>Recent Activity</h2>
 		<ul>
-			{
-				Array.from({ length: 20 }, (_, i) => (
-					<li>
-						Activity {i + 1}: User {Math.floor(Math.random() * 1000)} performed action at{' '}
-						{new Date(Date.now() - Math.random() * 3600000).toISOString()}
-					</li>
-				))
-			}
+			{Array.from({ length: 20 }, (_, i) => (
+				<li>
+					Activity {i + 1}: User {Math.floor(Math.random() * 1000)} performed action at{' '}
+					{new Date(Date.now() - Math.random() * 3600000).toISOString()}
+				</li>
+			))}
 		</ul>
 	</section>
 </BaseLayout>

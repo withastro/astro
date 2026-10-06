@@ -78,7 +78,7 @@
     "knip": "5.82.1",
     "pkg-pr-new": "^0.0.71",
     "prettier": "^3.9.0",
-    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-astro": "^1.1.0",
     "publint": "^0.3.17",
     "tinyglobby": "^0.2.16",
     "turbo": "^2.10.2",

@@ -690,4 +690,67 @@ describe('Glob Loader', () => {
 		assert.ok(colonEntry, 'Entry with colon in filename should be loaded');
 		assert.ok(colonEntry.body?.includes('colon in its filename'));
 	});
+
+	it('loads files whose paths contain # or ?', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'blog');
+		mkdirSync(join(contentDir, 'f#'), { recursive: true });
+		writeFileSync(
+			join(contentDir, 'c#-basics.md'),
+			'---\ntitle: C# basics\n---\n\nPattern matching in C#.',
+		);
+		writeFileSync(join(contentDir, 'f#', 'intro.md'), '---\ntitle: F# intro\n---\n\nIntro to F#.');
+		// `?` is reserved in Windows filenames.
+		if (process.platform !== 'win32') {
+			writeFileSync(join(contentDir, 'why?.md'), '---\ntitle: Why\n---\n\nA question.');
+		}
+
+		const store = new MutableDataStore();
+		const errors: string[] = [];
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					if (msg.level === 'error') {
+						errors.push(msg.message);
+					}
+					return true;
+				},
+			},
+			level: 'info',
+		});
+
+		const collections = {
+			blog: defineCollection({
+				loader: glob({ pattern: '**/*.md', base: 'src/content/blog' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		assert.deepEqual(errors, []);
+		const entries = store.values('blog');
+		const csharp = entries.find((e) => e.id === 'c-basics');
+		assert.ok(csharp, 'Entry with # in filename should be loaded');
+		assert.ok(csharp.body?.includes('Pattern matching in C#.'));
+		assert.ok(
+			entries.find((e) => e.id === 'f/intro'),
+			'Entry inside a directory with # should be loaded',
+		);
+		if (process.platform !== 'win32') {
+			assert.ok(
+				entries.find((e) => e.id === 'why'),
+				'Entry with ? in filename should be loaded',
+			);
+		}
+	});
 });

@@ -7,6 +7,14 @@
 - Updated dependencies [[`c68d737`](https://github.com/withastro/astro/commit/c68d737f2de8ef8d3c1c0ba455dccbf2563fa7da), [`c68d737`](https://github.com/withastro/astro/commit/c68d737f2de8ef8d3c1c0ba455dccbf2563fa7da)]:
   - astro@7.4.0-beta.0
 
+## 11.1.7
+
+### Patch Changes
+
+- [`1d9e910`](https://github.com/withastro/astro/commit/1d9e910a0308ef9699694a2871b3d71b6f5c3383) Thanks [@matthewp](https://github.com/matthewp)! - Validates the `Host` header against `security.allowedDomains` when using the Node adapter
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb), [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d)]:
+  - @astrojs/internal-helpers@0.12.0
+
 ## 11.1.6
 
 ### Patch Changes

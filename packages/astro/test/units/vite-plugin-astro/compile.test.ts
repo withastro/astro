@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
-import { init, parse } from 'es-module-lexer';
+import { init, parse } from 'es-module-lexer/minimal';
 import { resolveConfig } from 'vite';
 import type { InlineConfig } from 'vite';
 import { compileAstro } from '../../../dist/vite-plugin-astro/compile.js';
@@ -91,7 +91,7 @@ const name = 'world
 
 	it('has file and url exports for markdown compat', async () => {
 		const result = await compile(`<h1>Hello World</h1>`, '/src/components/index.astro');
-		await init;
+		await init();
 		const [, exports] = parse(result.code);
 		const names = exports.map((e) => e.n);
 		assert.equal(names.includes('default'), true);
