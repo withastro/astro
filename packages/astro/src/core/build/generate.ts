@@ -5,12 +5,14 @@ import { fileURLToPath } from 'node:url';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
 import colors from 'piccolore';
+import { runnerImport } from 'vite';
 import {
 	generateImagesForPath,
 	prepareAssetsGenerationEnv,
 	StaticImageRegistry,
 } from '../../assets/build/generate.js';
 import { isLocalService, type LocalImageService } from '../../assets/services/service.js';
+import { getImageServiceConfig } from '../../assets/utils/service-config.js';
 import {
 	appendForwardSlash,
 	collapseDuplicateTrailingSlashes,
@@ -39,7 +41,7 @@ import { redirectTemplate } from '../routing/3xx.js';
 import { routeIsRedirect } from '../routing/helpers.js';
 import { getOutputFilename } from '../output-filename.js';
 import { getOutFile, getOutFolder } from './common.js';
-import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
+import { createDefaultPrerenderer } from './default-prerenderer.js';
 import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
@@ -85,23 +87,15 @@ async function generatePagesInBuildScope(
 
 	// Get or create the prerenderer
 	let prerenderer: AstroPrerenderer;
-	let defaultPrerenderer: DefaultPrerenderer | undefined;
 	const settingsPrerenderer = options.settings.prerenderer;
 	if (!settingsPrerenderer) {
 		// No custom prerenderer - create default
-		prerenderer = defaultPrerenderer = createDefaultPrerenderer({
-			internals,
-			options,
-			prerenderOutputDir,
-		});
+		prerenderer = createDefaultPrerenderer({ internals, options, prerenderOutputDir });
 	} else if (typeof settingsPrerenderer === 'function') {
 		// Factory function - create default and pass it
-		defaultPrerenderer = createDefaultPrerenderer({
-			internals,
-			options,
-			prerenderOutputDir,
-		});
-		prerenderer = settingsPrerenderer(defaultPrerenderer);
+		prerenderer = settingsPrerenderer(
+			createDefaultPrerenderer({ internals, options, prerenderOutputDir }),
+		);
 	} else {
 		// Direct prerenderer object - use as-is
 		prerenderer = settingsPrerenderer;
@@ -321,13 +315,7 @@ async function generatePagesInBuildScope(
 				.reduce((a, b) => a + b, 0);
 			const cpuCount = os.availableParallelism();
 			const assetsCreationPipeline = await prepareAssetsGenerationEnv(options, totalCount, {
-				loadImageService: () =>
-					loadImageService(
-						prerenderer.getImageService
-							? prerenderer
-							: (defaultPrerenderer ??
-									createDefaultPrerenderer({ internals, options, prerenderOutputDir })),
-					),
+				loadImageService: () => loadImageService(options.settings, internals, prerenderOutputDir),
 				referencedImages: images.referencedImages,
 			});
 			const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
@@ -435,21 +423,45 @@ async function generatePagesInBuildScope(
 	});
 }
 
-async function loadImageService(prerenderer: AstroPrerenderer): Promise<LocalImageService> {
+/**
+ * Loads the `build` image service in Node. The prerender bundle already resolves it when it
+ * runs in Node. Otherwise (e.g. a prerenderer rendering in `workerd`), Vite loads its entrypoint.
+ */
+async function loadImageService(
+	settings: AstroSettings,
+	internals: BuildInternals,
+	prerenderOutputDir: URL,
+): Promise<LocalImageService> {
+	const { entrypoint } = getImageServiceConfig(settings.config.image.service, 'build');
 	let service;
 	try {
-		service = await prerenderer.getImageService!();
+		if (internals.prerenderEntryFileName) {
+			const prerenderEntryUrl = new URL(internals.prerenderEntryFileName, prerenderOutputDir);
+			const { getImageService } = await import(prerenderEntryUrl.toString());
+			service = await getImageService();
+		} else {
+			const { module } = await runnerImport<{ default: unknown }>(entrypoint, {
+				root: fileURLToPath(settings.config.root),
+				configFile: false,
+				logLevel: 'silent',
+				resolve: { alias: settings.config.vite.resolve?.alias },
+			});
+			service = module.default;
+		}
 	} catch (cause) {
 		throw new AstroError(
 			{
 				...AstroErrorData.InvalidImageService,
-				hint: `The prerenderer \`${prerenderer.name}\` could not load the image service. A prerenderer that renders outside of Astro's build must implement \`getImageService()\`. If it comes from an adapter, make sure the adapter is up to date.`,
+				message: `Could not load the image service \`${entrypoint}\` to generate images in Node.`,
 			},
 			{ cause },
 		);
 	}
 	if (!isLocalService(service)) {
-		throw new AstroError(AstroErrorData.InvalidImageService);
+		throw new AstroError({
+			...AstroErrorData.InvalidImageService,
+			message: `The image service \`${entrypoint}\` generates prerendered images during the build, but it is not a local service: it doesn't implement \`transform()\`.`,
+		});
 	}
 	return service;
 }

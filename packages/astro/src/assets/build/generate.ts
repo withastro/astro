@@ -18,6 +18,7 @@ import type {
 	SerializedStaticImage,
 } from '../types.js';
 import { isESMImportedImage } from '../utils/imageKind.js';
+import { getImageConfigFor } from '../utils/service-config.js';
 import { loadRemoteImage, type RemoteCacheEntry, revalidateRemoteImage } from './remote.js';
 
 interface GenerationDataUncached {
@@ -107,7 +108,7 @@ export async function prepareAssetsGenerationEnv(
 		assetsCacheDir,
 		serverRoot,
 		clientRoot,
-		imageConfig: settings.config.image,
+		imageConfig: getImageConfigFor(settings.config.image, 'build'),
 		assetsFolder: settings.config.build.assets,
 	};
 }

@@ -65,6 +65,15 @@ export interface ImageServiceConfig<T extends Record<string, any> = Record<strin
 	config?: T;
 }
 
+/**
+ * Separate image services for prerendered pages (`build`) and for on-demand pages and the
+ * image endpoint (`runtime`).
+ */
+export interface ImageServiceTargets {
+	build: ImageServiceConfig;
+	runtime: ImageServiceConfig;
+}
+
 export type RuntimeMode = 'development' | 'production';
 
 export type ValidRedirectStatus = (typeof REDIRECT_STATUS_CODES)[number];
@@ -2099,7 +2108,7 @@ export interface AstroUserConfig<
 		/**
 		 * @docs
 		 * @name image.service
-		 * @type {{entrypoint: 'astro/assets/services/sharp' | string, config: Record<string, any>}}
+		 * @type {{entrypoint: 'astro/assets/services/sharp' | string, config: Record<string, any>} | {build: ImageServiceConfig, runtime: ImageServiceConfig}}
 		 * @default `{entrypoint: 'astro/assets/services/sharp', config?: {}}`
 		 * @version 2.1.0
 		 * @description
@@ -2132,8 +2141,28 @@ export interface AstroUserConfig<
 		 *   },
 		 * });
 		 * ```
+		 *
+		 * To use a different service for prerendered pages, pass `build` and `runtime` services instead. The `build` service handles images on prerendered pages and generates them during the build. The `runtime` service handles on-demand pages, the image endpoint, and the dev server. For example, to optimize images on prerendered pages with Sharp, and use an image CDN for on-demand pages:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   image: {
+		 *     service: {
+		 *       build: { entrypoint: 'astro/assets/services/sharp' },
+		 *       runtime: { entrypoint: 'my-image-cdn-service' },
+		 *     },
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * The `build` service is also loaded in the runtime that prerenders your pages, which may not be Node (e.g. `workerd`), to generate image URLs. Its `transform()` only runs in Node.
+		 *
+		 * In the resolved config available to integrations, `image.service` is the `runtime` service, and `image.service.build` holds the `build` service when one is set.
 		 */
-		service?: ImageServiceConfig;
+		service?: ImageServiceConfig | ImageServiceTargets;
 		/**
 		 * @docs
 		 * @name image.service.config.limitInputPixels

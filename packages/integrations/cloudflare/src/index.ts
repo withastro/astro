@@ -16,7 +16,7 @@ import { getParts } from './utils/generate-routes-json.js';
 import { buildAssetsHeadersContent } from './utils/headers.js';
 import {
 	type ImageServiceConfig,
-	hasUserImageService,
+	useIntegrationImageService,
 	normalizeImageServiceConfig,
 	setImageConfig,
 } from './utils/image-config.js';
@@ -78,13 +78,6 @@ function hasContentCollectionsConfig(srcDir: URL) {
 	];
 
 	return contentConfigPaths.some((configPath) => existsSync(new URL(`./${configPath}`, srcDir)));
-}
-
-function resolveImageServiceEntrypoint(entrypoint: string, root: URL): string {
-	if (entrypoint.startsWith('.')) {
-		return new URL(entrypoint, root).href;
-	}
-	return entrypoint;
 }
 
 export interface Options
@@ -150,7 +143,8 @@ export default function createIntegration({
 
 	let _routes: IntegrationResolvedRoute[];
 	let cfPluginConfig: PluginConfig;
-	let hasUserBuildImageService = false;
+	// Whether the adapter set the `build` image service to its Sharp default for `compile`.
+	let addedBuildImageService = false;
 
 	const { buildService, runtimeService, transformAtBuild } =
 		normalizeImageServiceConfig(imageService);
@@ -305,6 +299,8 @@ export default function createIntegration({
 					}
 				}
 
+				const image = setImageConfig(imageService, config.image, command, logger);
+				addedBuildImageService = 'build' in image.service && !config.image.service.build;
 				updateConfig({
 					...(config.experimental.collectionStorage === 'chunked' && {
 						experimental: {
@@ -474,7 +470,7 @@ export default function createIntegration({
 							cfPrismPlugin(),
 						],
 					},
-					image: setImageConfig(imageService, config.image, command, logger),
+					image,
 				});
 
 				if (cloudflareOptions.configPath) {
@@ -493,11 +489,9 @@ export default function createIntegration({
 				_buildOutput = buildOutput;
 				_originalClientDir = new URL(config.build.client.href);
 
-				// Resolve the custom image service against the FINAL config: the adapter's
-				// `astro:config:setup` runs before every user integration (Astro unshifts
-				// the adapter onto the integrations list), so a service registered by an
-				// integration via `updateConfig()` is only visible here.
-				hasUserBuildImageService = hasBuildImageService && hasUserImageService(config.image);
+				if (addedBuildImageService) {
+					useIntegrationImageService(config.image);
+				}
 
 				// When a base path is configured, nest the client output directory under
 				// the base so that on-disk paths match the URLs Astro writes into HTML.
@@ -563,50 +557,12 @@ export default function createIntegration({
 							base: _config.base,
 							trailingSlash: _config.trailingSlash,
 							cfPluginConfig,
-							hasBuildImageService,
-							hasBindingImageService: isBindingBuild,
-							userImageServiceEntrypoint: hasUserBuildImageService
-								? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
-								: undefined,
-							logger,
 						}),
 					);
-				} else if (hasBuildImageService) {
-					// When prerenderEnvironment is 'node', prerendering runs in the same
-					// Node process using the workerd-safe image service stub (which is a
-					// passthrough). We need to use the real image service (sharp or
-					// the user's custom service) for the image generation pipeline.
-					setPrerenderer((defaultPrerenderer) => ({
-						...defaultPrerenderer,
-						getImageService: hasUserBuildImageService
-							? defaultPrerenderer.getImageService
-							: async () => (await import('astro/assets/services/sharp')).default,
-					}));
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
-					// When prerenderEnvironment is 'node' and we used setPrerenderer
-					// to add getImageService for compile-time image optimization,
-					// the prerender entrypoint gets skipped (because settings.prerenderer
-					// is truthy). Restore the default entrypoint since we're still using
-					// the default Node-based prerenderer — we only wrapped it.
-					//
-					// NOTE: the entrypoint specifier and config shape below mirror the
-					// skip logic in packages/astro/src/core/build/vite-build-config.ts
-					// (the `rolldownOptions.input` handling for the prerender
-					// environment). If core renames 'astro/entrypoints/prerender' or
-					// reshapes that config, this must be updated in lockstep — otherwise
-					// builds silently degrade back to unoptimized image output.
-					if (prerenderEnvironment === 'node' && hasBuildImageService) {
-						vite.environments ??= {};
-						vite.environments.prerender ??= {};
-						(vite.environments.prerender as Record<string, any>).build ??= {};
-						(vite.environments.prerender as Record<string, any>).build.rolldownOptions ??= {};
-						(vite.environments.prerender as Record<string, any>).build.rolldownOptions.input =
-							'astro/entrypoints/prerender';
-					}
-
 					vite.resolve ||= {};
 					vite.resolve.alias ||= {};
 					vite.ssr ||= {};

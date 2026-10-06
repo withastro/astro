@@ -14,3 +14,9 @@ export const PRERENDER_ENDPOINT = '/__astro_prerender';
  * the optimized bytes back, one image per request.
  */
 export const IMAGE_TRANSFORM_ENDPOINT = '/__astro_image_transform';
+
+/**
+ * Where the prerenderer publishes its server URL, so the build image service of
+ * `cloudflare-binding` builds can reach the IMAGES binding. Both run in the build's Node process.
+ */
+export const PRERENDER_SERVER_URL_KEY = Symbol.for('@astrojs/cloudflare:prerender-server-url');
