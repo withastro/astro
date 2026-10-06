@@ -10,7 +10,7 @@ import { handleAction } from '../../actions/handler.js';
 import { FetchState as BaseFetchState } from './fetch-state.js';
 import type { AstroFetchState } from './fetch-state.js';
 export type { AstroFetchState };
-import { handleCache } from '../cache/handler.js';
+import { provideAndHandleCache } from '../cache/handler.js';
 import { handleI18nWithErrorFallback } from '../i18n/error-fallback.js';
 import { getI18n } from '../i18n/handler.js';
 import { getAmbientManifest } from '../manifest/ambient.js';
@@ -123,8 +123,9 @@ export function i18n(state: FetchState, response: Response): Promise<Response> {
  * Wraps a render callback with cache provider logic. Handles runtime
  * caching (onRequest), CDN-based providers (headers only), and the
  * no-cache case transparently. Cache headers are applied and stripped
- * internally.
+ * internally. Registers the cache provider on the state before calling
+ * `next`, so `ctx.cache` / `Astro.cache` are available downstream.
  */
 export function cache(state: FetchState, next: () => Promise<Response>): Promise<Response> {
-	return handleCache(state, next);
+	return provideAndHandleCache(state, next);
 }
