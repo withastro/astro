@@ -21,5 +21,11 @@ export const handler =
 export const startServer = () => _startServer(app, options, headersMap);
 
 if (options.mode === 'standalone' && process.env.ASTRO_NODE_AUTOSTART !== 'disabled') {
-	startServer();
+	startServer().done.catch((error) => {
+		// The server's `error` event (e.g. EADDRINUSE) rejects `done`. Report it and exit
+		// non-zero, because the adapter's `unhandledRejection` listener would otherwise
+		// swallow it and let the process exit cleanly. See #18282.
+		app.adapterLogger.error(error instanceof Error ? error.stack || error.message : String(error));
+		process.exitCode = 1;
+	});
 }
