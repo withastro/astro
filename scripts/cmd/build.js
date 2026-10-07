@@ -121,11 +121,16 @@ export default async function build(...args) {
 	// `--bundle` and `--force-cjs` both need a real bundle pass. `--force-cjs`
 	// additionally converts ESM to CJS, which the per-file transform can't do.
 	if (bundle || forceCJS) {
+		const dependencyNames = Object.keys(dependencies);
 		const inputOptions = {
 			input: entryPoints,
 			cwd: process.cwd(),
 			platform: 'node',
-			external: bundle ? Object.keys(dependencies) : () => true,
+			// Rolldown matches string externals exactly. Match each dependency and
+			// its subpaths so imports like `pkg/sub` stay external too.
+			external: bundle
+				? (id) => dependencyNames.some((name) => id === name || id.startsWith(`${name}/`))
+				: () => true,
 			treeshake: false,
 			transform: {
 				target: 'node20',

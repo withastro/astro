@@ -61,8 +61,10 @@ async function bundleConfigFile({
 		input: fileURLToPath(markdocConfigUrl),
 		cwd: fileURLToPath(astroConfig.root),
 		platform: 'node',
-		// Treat every bare import as external.
-		external: (id) => !id.startsWith('.') && !isAbsolute(id),
+		// Treat every bare import as external, so the config's dependencies are
+		// loaded at runtime. `.astro` ids stay resolvable so the `stub-astro-imports`
+		// plugin can turn them into the friendly error below.
+		external: (id) => !id.endsWith('.astro') && !id.startsWith('.') && !isAbsolute(id),
 		transform: {
 			target: 'node16',
 		},

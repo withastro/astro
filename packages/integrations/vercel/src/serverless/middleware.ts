@@ -54,6 +54,7 @@ export async function generateEdgeMiddleware(
 	// https://vercel.com/docs/concepts/functions/edge-middleware#create-edge-middleware
 	const bundledFilePath = fileURLToPath(outPath);
 	const virtualEntryId = fileURLToPath(new URL('__vercel_edge_middleware__.js', root));
+	const nodeBuiltinImports = new Set<string>();
 	const bundle = await rolldown({
 		input: virtualEntryId,
 		cwd: fileURLToPath(root),
@@ -67,6 +68,15 @@ export async function generateEdgeMiddleware(
 			// Vercel Edge runtime targets ESNext, because Cloudflare Workers update v8 weekly
 			// https://github.com/vercel/vercel/blob/1006f2ae9d67ea4b3cbb1073e79d14d063d42436/packages/next/scripts/build-edge-function-template.js
 			target: 'esnext',
+		},
+		// Rolldown reports unresolved imports as warnings and keeps them external,
+		// so collect Node.js built-ins from the logs to fail with a helpful hint.
+		onLog(level, log, defaultHandler) {
+			if (log.code === 'UNRESOLVED_IMPORT' && log.exporter && isNodeBuiltin(log.exporter)) {
+				nodeBuiltinImports.add(log.exporter);
+				return;
+			}
+			defaultHandler(level, log);
 		},
 		plugins: [
 			{
@@ -100,18 +110,28 @@ export async function generateEdgeMiddleware(
 			format: 'esm',
 			minify: false,
 		});
-	} catch (err) {
-		if ((err as Error).message.includes('Could not resolve "node:')) {
-			logger.error(
-				`Vercel does not allow the use of Node.js built-ins in edge functions. Please ensure your middleware code and 3rd-party packages don’t use Node built-ins.`,
-			);
-		}
-
-		throw err;
 	} finally {
 		await bundle.close();
 	}
+
+	if (nodeBuiltinImports.size > 0) {
+		logger.error(
+			`Vercel does not allow the use of Node.js built-ins in edge functions. Please ensure your middleware code and 3rd-party packages don’t use Node built-ins.`,
+		);
+		throw new Error(
+			`Vercel does not allow the use of Node.js built-ins in edge functions: ${[...nodeBuiltinImports].join(', ')}.`,
+		);
+	}
+
 	return pathToFileURL(bundledFilePath);
+}
+
+/**
+ * Whether `id` is a Node.js built-in, with or without the `node:` prefix.
+ */
+function isNodeBuiltin(id: string): boolean {
+	const name = id.startsWith('node:') ? id.slice('node:'.length) : id;
+	return builtinModules.includes(name);
 }
 
 function edgeMiddlewareTemplate(
