@@ -6234,21 +6234,21 @@ importers:
   packages/integrations/svelte:
     dependencies:
       '@sveltejs/vite-plugin-svelte':
-        specifier: ^7.1.0
-        version: 7.1.2(svelte@5.57.1)(vite@8.3.2)
+        specifier: ^7.3.1
+        version: 7.3.1(svelte@5.57.1)(vite@8.3.2)
       svelte2tsx:
-        specifier: ^0.7.55
-        version: 0.7.55(svelte@5.57.1)(typescript@6.0.3)
+        specifier: ^0.7.61
+        version: 0.7.61(svelte@5.57.1)(typescript@6.0.3)
       vite:
-        specifier: ^8.0.13
+        specifier: ^8.3.2
         version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
       vitefu:
-        specifier: ^1.1.2
+        specifier: ^1.1.3
         version: 1.1.3(vite@8.3.2)
     devDependencies:
       '@testing-library/svelte':
-        specifier: ^5.3.1
-        version: 5.3.1(svelte@5.57.1)(vite@8.3.2)(vitest@4.1.11)
+        specifier: ^5.4.2
+        version: 5.4.2(svelte@5.57.1)(vite@8.3.2)(vitest@4.1.11)
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -6259,7 +6259,7 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       svelte:
-        specifier: ^5.55.7
+        specifier: ^5.57.1
         version: 5.57.1(@typescript-eslint/types@8.59.2)
 
   packages/integrations/svelte/test/fixtures/async-rendering:
@@ -6271,7 +6271,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.55.7
+        specifier: ^5.57.1
         version: 5.57.1(@typescript-eslint/types@8.59.2)
 
   packages/integrations/svelte/test/fixtures/conditional-rendering:
@@ -6283,7 +6283,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.55.7
+        specifier: ^5.57.1
         version: 5.57.1(@typescript-eslint/types@8.59.2)
 
   packages/integrations/svelte/test/fixtures/empty-class:
@@ -6295,7 +6295,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.55.7
+        specifier: ^5.57.1
         version: 5.57.1(@typescript-eslint/types@8.59.2)
 
   packages/integrations/svelte/test/fixtures/prop-types:
@@ -6307,7 +6307,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.55.7
+        specifier: ^5.57.1
         version: 5.57.1(@typescript-eslint/types@8.59.2)
 
   packages/integrations/vercel:
@@ -10928,8 +10928,8 @@ packages:
     peerDependencies:
       acorn: ^8.9.0
 
-  '@sveltejs/vite-plugin-svelte@7.1.2':
-    resolution: {integrity: sha512-DrUBA2UXRfDmUX/ZTiEopd3X40yavsJF1FX2RygcuIScHL7o5YX1fMvoYnDhjeJQC4weCOklirpNWlcb2NiSeA==}
+  '@sveltejs/vite-plugin-svelte@7.3.1':
+    resolution: {integrity: sha512-ZPsLN8B1e/En+Ak5s4V7srFDT532oS0qieLsQwu63NGKsS+iAjoO2Js1BochlHlglcU+Pt7WAO3C5Ee+4f6gVA==}
     engines: {node: ^20.19 || ^22.12 || >=24}
     peerDependencies:
       svelte: ^5.46.4
@@ -11036,14 +11036,14 @@ packages:
     resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}
     engines: {node: '>=18'}
 
-  '@testing-library/svelte-core@1.0.0':
-    resolution: {integrity: sha512-VkUePoLV6oOYwSUvX6ShA8KLnJqZiYMIbP2JW2t0GLWLkJxKGvuH5qrrZBV/X7cXFnLGuFQEC7RheYiZOW68KQ==}
+  '@testing-library/svelte-core@1.1.3':
+    resolution: {integrity: sha512-KkMAvXeWorxN2Yn0kdC1lfoAItxpoj4uOWzxK5leDrNxonLvS5nwBFvztrroyTszQ0Wf/EU6iLT8JhY5qcn22g==}
     engines: {node: '>=16'}
     peerDependencies:
       svelte: ^3 || ^4 || ^5 || ^5.0.0-next.0
 
-  '@testing-library/svelte@5.3.1':
-    resolution: {integrity: sha512-8Ez7ZOqW5geRf9PF5rkuopODe5RGy3I9XR+kc7zHh26gBiktLaxTfKmhlGaSHYUOTQE7wFsLMN9xCJVCszw47w==}
+  '@testing-library/svelte@5.4.2':
+    resolution: {integrity: sha512-4o31E4HGo5BU5KwPkulNRocEden+7Tt9JYm9uhln5ajF7DULeyFA46BBWVfKJ8Ms9B3JmOFPTIiVamH7n3KpuQ==}
     engines: {node: '>= 10'}
     peerDependencies:
       svelte: ^3 || ^4 || ^5 || ^5.0.0-next.0
@@ -16111,8 +16111,8 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  svelte2tsx@0.7.55:
-    resolution: {integrity: sha512-JWzgeM3lqySRNfqcsesvVEh8LhTWBxQJ9RMjzJ+VepdmXtVnNd0SbtGctG6+/fbHq0N6mhwSd823gszw9JHeGQ==}
+  svelte2tsx@0.7.61:
+    resolution: {integrity: sha512-EpQ/+UHITBULeUojx/LLD3uTYasZXcX1BrqlrzfLUnT9vdUhaOWK59a3ryWcFU8L0sY1SP+gRhJ2Beiis98+qw==}
     peerDependencies:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0 || ^6.0.0
@@ -20897,10 +20897,10 @@ snapshots:
     dependencies:
       acorn: 8.18.0
 
-  '@sveltejs/vite-plugin-svelte@7.1.2(svelte@5.57.1)(vite@8.3.2)':
+  '@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2)':
     dependencies:
       deepmerge: 4.3.1
-      magic-string: 0.30.21
+      magic-string: 1.4.2
       obug: 2.2.1
       svelte: 5.57.1(@typescript-eslint/types@8.59.2)
       vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
@@ -20989,14 +20989,14 @@ snapshots:
       picocolors: 1.1.1
       pretty-format: 27.5.1
 
-  '@testing-library/svelte-core@1.0.0(svelte@5.57.1)':
+  '@testing-library/svelte-core@1.1.3(svelte@5.57.1)':
     dependencies:
       svelte: 5.57.1(@typescript-eslint/types@8.59.2)
 
-  '@testing-library/svelte@5.3.1(svelte@5.57.1)(vite@8.3.2)(vitest@4.1.11)':
+  '@testing-library/svelte@5.4.2(svelte@5.57.1)(vite@8.3.2)(vitest@4.1.11)':
     dependencies:
       '@testing-library/dom': 10.4.1
-      '@testing-library/svelte-core': 1.0.0(svelte@5.57.1)
+      '@testing-library/svelte-core': 1.1.3(svelte@5.57.1)
       svelte: 5.57.1(@typescript-eslint/types@8.59.2)
     optionalDependencies:
       vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
@@ -27134,7 +27134,7 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte2tsx@0.7.55(svelte@5.57.1)(typescript@6.0.3):
+  svelte2tsx@0.7.61(svelte@5.57.1)(typescript@6.0.3):
     dependencies:
       dedent-js: 1.0.1
       scule: 1.3.0
