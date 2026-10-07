@@ -132,8 +132,8 @@ function getVirtualCodeTSX(tsx: ConvertToTsxResult) {
 			);
 		if (!previous) continue;
 
-		// Include the preceding source-backed run so edits spanning into generated-only
-		// text map as one range, ending at the atom's zero-width source anchor.
+		// The terminator exists only in generated TSX. Extend the preceding mapping over it
+		// so edits that include it still map back to the end of the Astro frontmatter.
 		mappings.push({
 			sourceOffsets: [previous.sourceOffset],
 			generatedOffsets: [previous.generatedOffset],
