@@ -213,6 +213,9 @@
     // manually bumping workflow actions
     "actions/labeler",
 
+    // pinned in .github/workflows/ci.yml while Deno 2.9.6 breaks @netlify/edge-functions-dev
+    "deno",
+
     // follow vite deps version
     "postcss-load-config",
     "esbuild"
