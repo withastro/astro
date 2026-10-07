@@ -196,10 +196,10 @@ importers:
   examples/advanced-routing:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.1.6
+        specifier: ^11.1.7
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
       hono:
         specifier: ^4.13.11
@@ -208,13 +208,13 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
 
   examples/blog:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^8.0.2
+        specifier: ^8.0.3
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
         specifier: ^4.0.19
@@ -223,7 +223,7 @@ importers:
         specifier: ^3.7.4
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
       sharp:
         specifier: ^0.35.0
@@ -232,16 +232,16 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
 
   examples/container-with-vitest:
     dependencies:
       '@astrojs/react':
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -272,16 +272,16 @@ importers:
         specifier: ^3.17.4
         version: 3.17.4
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
 
   examples/framework-multiple:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.0.5
+        specifier: ^6.0.6
         version: link:../../packages/integrations/preact
       '@astrojs/react':
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/integrations/react
       '@astrojs/solid-js':
         specifier: ^7.0.2
@@ -299,7 +299,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.31)
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
       preact:
         specifier: ^10.29.8
@@ -323,13 +323,13 @@ importers:
   examples/framework-preact:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.0.5
+        specifier: ^6.0.6
         version: link:../../packages/integrations/preact
       '@preact/signals':
         specifier: ^2.11.2
         version: 2.11.2(preact@10.29.8)
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
       preact:
         specifier: ^10.29.8
@@ -338,7 +338,7 @@ importers:
   examples/framework-react:
     dependencies:
       '@astrojs/react':
-        specifier: ^7.0.0
+        specifier: ^7.0.1
         version: link:../../packages/integrations/react
       '@types/react':
         specifier: ^18.3.31
@@ -347,7 +347,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.31)
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -362,7 +362,7 @@ importers:
         specifier: ^7.0.2
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.15
@@ -374,7 +374,7 @@ importers:
         specifier: ^9.0.1
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
       svelte:
         specifier: ^5.57.1
@@ -386,7 +386,7 @@ importers:
         specifier: ^7.0.3
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.43
@@ -395,40 +395,40 @@ importers:
   examples/hackernews:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.1.6
+        specifier: ^11.1.7
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
 
   examples/ssr:
     dependencies:
       '@astrojs/node':
-        specifier: ^11.1.6
+        specifier: ^11.1.7
         version: link:../../packages/integrations/node
       '@astrojs/svelte':
         specifier: ^9.0.1
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
       svelte:
         specifier: ^5.57.1
@@ -437,7 +437,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
       sass:
         specifier: ^1.105.0
@@ -452,28 +452,28 @@ importers:
         specifier: ^22.19.0
         version: 22.19.19
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
 
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
-        specifier: ^2.0.9
+        specifier: ^2.0.10
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
 
   examples/with-mdx:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^8.0.2
+        specifier: ^8.0.3
         version: link:../../packages/integrations/mdx
       '@astrojs/preact':
-        specifier: ^6.0.5
+        specifier: ^6.0.6
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
       preact:
         specifier: ^10.29.8
@@ -482,13 +482,13 @@ importers:
   examples/with-nanostores:
     dependencies:
       '@astrojs/preact':
-        specifier: ^6.0.5
+        specifier: ^6.0.6
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
         specifier: ^1.1.0
         version: 1.1.0(nanostores@1.5.4)(preact@10.29.8)
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
       nanostores:
         specifier: ^1.5.4
@@ -500,7 +500,7 @@ importers:
   examples/with-tailwindcss:
     dependencies:
       '@astrojs/mdx':
-        specifier: ^8.0.2
+        specifier: ^8.0.3
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
         specifier: ^4.3.3
@@ -509,7 +509,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -524,7 +524,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^7.3.5
+        specifier: ^7.3.6
         version: link:../../packages/astro
       vitest:
         specifier: ^5.0.2
@@ -5587,11 +5587,11 @@ importers:
         specifier: workspace:*
         version: link:../../underscore-redirects
       '@netlify/blobs':
-        specifier: ^11.1.1
-        version: 11.1.1(supports-color@10.2.2)
+        specifier: ^11.1.3
+        version: 11.1.3(supports-color@10.2.2)
       '@netlify/functions':
-        specifier: ^6.0.0
-        version: 6.0.0
+        specifier: ^6.0.2
+        version: 6.0.2
       '@netlify/vite-plugin':
         specifier: ^3.0.1
         version: 3.0.1(@azure/identity@4.13.3)(@vercel/functions@3.9.9)(supports-color@10.2.2)(vite@8.3.2)
@@ -5605,7 +5605,7 @@ importers:
         specifier: ^0.2.17
         version: 0.2.17
       vite:
-        specifier: ^8.3.1
+        specifier: ^8.3.2
         version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
     devDependencies:
       '@types/node':
@@ -6234,21 +6234,21 @@ importers:
   packages/integrations/svelte:
     dependencies:
       '@sveltejs/vite-plugin-svelte':
-        specifier: ^7.1.0
-        version: 7.1.2(svelte@5.57.1)(vite@8.3.2)
+        specifier: ^7.3.1
+        version: 7.3.1(svelte@5.57.1)(vite@8.3.2)
       svelte2tsx:
-        specifier: ^0.7.55
-        version: 0.7.55(svelte@5.57.1)(typescript@6.0.3)
+        specifier: ^0.7.61
+        version: 0.7.61(svelte@5.57.1)(typescript@6.0.3)
       vite:
-        specifier: ^8.0.13
+        specifier: ^8.3.2
         version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
       vitefu:
-        specifier: ^1.1.2
+        specifier: ^1.1.3
         version: 1.1.3(vite@8.3.2)
     devDependencies:
       '@testing-library/svelte':
-        specifier: ^5.3.1
-        version: 5.3.1(svelte@5.57.1)(vite@8.3.2)(vitest@4.1.11)
+        specifier: ^5.4.2
+        version: 5.4.2(svelte@5.57.1)(vite@8.3.2)(vitest@4.1.11)
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -6259,7 +6259,7 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       svelte:
-        specifier: ^5.55.7
+        specifier: ^5.57.1
         version: 5.57.1(@typescript-eslint/types@8.59.2)
 
   packages/integrations/svelte/test/fixtures/async-rendering:
@@ -6271,7 +6271,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.55.7
+        specifier: ^5.57.1
         version: 5.57.1(@typescript-eslint/types@8.59.2)
 
   packages/integrations/svelte/test/fixtures/conditional-rendering:
@@ -6283,7 +6283,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.55.7
+        specifier: ^5.57.1
         version: 5.57.1(@typescript-eslint/types@8.59.2)
 
   packages/integrations/svelte/test/fixtures/empty-class:
@@ -6295,7 +6295,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.55.7
+        specifier: ^5.57.1
         version: 5.57.1(@typescript-eslint/types@8.59.2)
 
   packages/integrations/svelte/test/fixtures/prop-types:
@@ -6307,7 +6307,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.55.7
+        specifier: ^5.57.1
         version: 5.57.1(@typescript-eslint/types@8.59.2)
 
   packages/integrations/vercel:
@@ -9630,6 +9630,10 @@ packages:
     resolution: {integrity: sha512-99H0BJlieiWLkTYQ4ACbw5aGlkbpgyJ3TYF1Hb76wU43eO57LnnP/m3cnMZWNWeAwXhiTEjvUTH7ghJTBoSjFQ==}
     engines: {node: '>=22.12.0'}
 
+  '@netlify/blobs@11.1.3':
+    resolution: {integrity: sha512-epr7eGb13LugY+0WUDl91dYmypOfbrJ6MYf07M3Zoey5WBYRD2rqDrOhDskfAlEaJ2MoWGaPWrVxltIxfI5LoQ==}
+    engines: {node: '>=22.12.0'}
+
   '@netlify/cache@4.0.0':
     resolution: {integrity: sha512-tRWkLmO6pyqZetFkhYgtX6LH1umqaJAZN5mRNOJubca/+Mqm0VTUyl51FeS0UbVfetLwiwgpzbGmABpc5gGHyg==}
     engines: {node: '>=22.12.0'}
@@ -9645,6 +9649,10 @@ packages:
 
   '@netlify/dev-utils@6.0.1':
     resolution: {integrity: sha512-q5g70dO3q/M/XTBQz7uIECJxVlJoS8UBlzpjf22DV6q61UzXa8EONTPXPmvisrFcUi1I3AUKplPcHGQYZZj+Vw==}
+    engines: {node: '>=22.12.0'}
+
+  '@netlify/dev-utils@6.0.3':
+    resolution: {integrity: sha512-p+M9a8mI0H0rRohY7Z4TkblvJMwsl5nfNKzmmhz1XBgSLBoDcgwf1TroHvM0TyK5sRiD8LViXe1wuJbzYlilUQ==}
     engines: {node: '>=22.12.0'}
 
   '@netlify/dev@5.1.3':
@@ -9674,6 +9682,10 @@ packages:
     resolution: {integrity: sha512-Pee+FoFnAtdejTkl62a7mZxj6Wx4eqVNuYyDc5T4XPJN9GaAWaUf4cZQFlf2m4Fqq0HoghjtcPKo+BZviVPPKA==}
     engines: {node: '>=22.12.0'}
 
+  '@netlify/functions@6.0.2':
+    resolution: {integrity: sha512-JqbPgAOt2GAwzCEitdEWAHOn6AkZ0Rna401wdAyuDIBiDv9M03b3Cu5mGH7/eHOmIXfZIcN1pG35flHjfu6asQ==}
+    engines: {node: '>=22.12.0'}
+
   '@netlify/headers-parser@10.1.1':
     resolution: {integrity: sha512-ooiSc/eN/ktuugZmY4GVPh6nBYz2um0zpemokDvTLLQPF12QyXil8N6fr82wdLi03WNowwiL98eultZkTyHlyw==}
     engines: {node: '>=22.12.0'}
@@ -9690,8 +9702,8 @@ packages:
     resolution: {integrity: sha512-4YKcf35SKDp8N1JPw5cN/P0n/rJmVg8igL3UQUtAPIA9lBea6IigUknWRAXZEHhmXHAyR2ptiejSuQk+YFmlEA==}
     engines: {node: '>=14.8.0'}
 
-  '@netlify/otel@7.0.2':
-    resolution: {integrity: sha512-MHEsRJTZtOCrLa2fR+Y3GN51rvgxUHazuRVxuWuG7R1qzwynXAZB20Ufwp7BxKSTKcp7LNVEnKAZ/k2ytVmYvQ==}
+  '@netlify/otel@7.0.4':
+    resolution: {integrity: sha512-HrGxXgauSZEzSd2mKu5YlqCvHpaNjQzf/yvwBdVXstZLRWWvbWIZBanrbXG0poyq70PBuiL+zVp3lU48aWnRNg==}
     engines: {node: '>=22.12.0'}
 
   '@netlify/redirect-parser@16.1.1':
@@ -9732,6 +9744,10 @@ packages:
 
   '@netlify/types@3.0.0':
     resolution: {integrity: sha512-zRCidsQgI4CZWrZB/kmwdPf0QbSNljakfNSLizFvrsSA3UcUrTWSBNMVKmZnob92/8ESeUN0ewXLOlffJU+ATQ==}
+    engines: {node: '>=22.12.0'}
+
+  '@netlify/types@3.2.0':
+    resolution: {integrity: sha512-PVvY1EEN9i2Er0LQoiyNG7i/BnwnttLuZqIkBnhL2Jrcj3P5N/NcGkv1i20MJ2ngNGSPQcT7tagDmF3V6BsdWg==}
     engines: {node: '>=22.12.0'}
 
   '@netlify/vite-plugin@3.0.1':
@@ -10777,8 +10793,8 @@ packages:
     peerDependencies:
       acorn: ^8.9.0
 
-  '@sveltejs/vite-plugin-svelte@7.1.2':
-    resolution: {integrity: sha512-DrUBA2UXRfDmUX/ZTiEopd3X40yavsJF1FX2RygcuIScHL7o5YX1fMvoYnDhjeJQC4weCOklirpNWlcb2NiSeA==}
+  '@sveltejs/vite-plugin-svelte@7.3.1':
+    resolution: {integrity: sha512-ZPsLN8B1e/En+Ak5s4V7srFDT532oS0qieLsQwu63NGKsS+iAjoO2Js1BochlHlglcU+Pt7WAO3C5Ee+4f6gVA==}
     engines: {node: ^20.19 || ^22.12 || >=24}
     peerDependencies:
       svelte: ^5.46.4
@@ -10885,14 +10901,14 @@ packages:
     resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}
     engines: {node: '>=18'}
 
-  '@testing-library/svelte-core@1.0.0':
-    resolution: {integrity: sha512-VkUePoLV6oOYwSUvX6ShA8KLnJqZiYMIbP2JW2t0GLWLkJxKGvuH5qrrZBV/X7cXFnLGuFQEC7RheYiZOW68KQ==}
+  '@testing-library/svelte-core@1.1.3':
+    resolution: {integrity: sha512-KkMAvXeWorxN2Yn0kdC1lfoAItxpoj4uOWzxK5leDrNxonLvS5nwBFvztrroyTszQ0Wf/EU6iLT8JhY5qcn22g==}
     engines: {node: '>=16'}
     peerDependencies:
       svelte: ^3 || ^4 || ^5 || ^5.0.0-next.0
 
-  '@testing-library/svelte@5.3.1':
-    resolution: {integrity: sha512-8Ez7ZOqW5geRf9PF5rkuopODe5RGy3I9XR+kc7zHh26gBiktLaxTfKmhlGaSHYUOTQE7wFsLMN9xCJVCszw47w==}
+  '@testing-library/svelte@5.4.2':
+    resolution: {integrity: sha512-4o31E4HGo5BU5KwPkulNRocEden+7Tt9JYm9uhln5ajF7DULeyFA46BBWVfKJ8Ms9B3JmOFPTIiVamH7n3KpuQ==}
     engines: {node: '>= 10'}
     peerDependencies:
       svelte: ^3 || ^4 || ^5 || ^5.0.0-next.0
@@ -15910,8 +15926,8 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  svelte2tsx@0.7.55:
-    resolution: {integrity: sha512-JWzgeM3lqySRNfqcsesvVEh8LhTWBxQJ9RMjzJ+VepdmXtVnNd0SbtGctG6+/fbHq0N6mhwSd823gszw9JHeGQ==}
+  svelte2tsx@0.7.61:
+    resolution: {integrity: sha512-EpQ/+UHITBULeUojx/LLD3uTYasZXcX1BrqlrzfLUnT9vdUhaOWK59a3ryWcFU8L0sY1SP+gRhJ2Beiis98+qw==}
     peerDependencies:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0 || ^6.0.0
@@ -19485,7 +19501,15 @@ snapshots:
   '@netlify/blobs@11.1.1(supports-color@10.2.2)':
     dependencies:
       '@netlify/dev-utils': 6.0.1
-      '@netlify/otel': 7.0.2(supports-color@10.2.2)
+      '@netlify/otel': 7.0.4(supports-color@10.2.2)
+      '@netlify/runtime-utils': 3.0.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@netlify/blobs@11.1.3(supports-color@10.2.2)':
+    dependencies:
+      '@netlify/dev-utils': 6.0.3
+      '@netlify/otel': 7.0.4(supports-color@10.2.2)
       '@netlify/runtime-utils': 3.0.0
     transitivePeerDependencies:
       - supports-color
@@ -19527,6 +19551,20 @@ snapshots:
       pg-gateway: 0.3.0-beta.4
 
   '@netlify/dev-utils@6.0.1':
+    dependencies:
+      '@whatwg-node/server': 0.11.0
+      ansis: 4.2.0
+      atomically: 2.1.1
+      chokidar: 5.0.0
+      decache: 4.6.2
+      dettle: 1.0.5
+      dot-prop: 9.0.0
+      empathic: 2.1.0
+      env-paths: 3.0.0
+      parse-gitignore: 2.0.0
+      semver: 7.8.5
+
+  '@netlify/dev-utils@6.0.3':
     dependencies:
       '@whatwg-node/server': 0.11.0
       ansis: 4.2.0
@@ -19642,6 +19680,10 @@ snapshots:
     dependencies:
       '@netlify/types': 3.0.0
 
+  '@netlify/functions@6.0.2':
+    dependencies:
+      '@netlify/types': 3.2.0
+
   '@netlify/headers-parser@10.1.1':
     dependencies:
       escape-string-regexp: 5.0.0
@@ -19677,7 +19719,7 @@ snapshots:
 
   '@netlify/open-api@2.57.1': {}
 
-  '@netlify/otel@7.0.2(supports-color@10.2.2)':
+  '@netlify/otel@7.0.4(supports-color@10.2.2)':
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/core': 2.10.0(@opentelemetry/api@1.9.1)
@@ -19704,7 +19746,7 @@ snapshots:
 
   '@netlify/runtime@5.0.5(supports-color@10.2.2)':
     dependencies:
-      '@netlify/blobs': 11.1.1(supports-color@10.2.2)
+      '@netlify/blobs': 11.1.3(supports-color@10.2.2)
       '@netlify/cache': 4.0.0
       '@netlify/runtime-utils': 3.0.0
       '@netlify/types': 3.0.0
@@ -19733,10 +19775,12 @@ snapshots:
 
   '@netlify/types@3.0.0': {}
 
+  '@netlify/types@3.2.0': {}
+
   '@netlify/vite-plugin@3.0.1(@azure/identity@4.13.3)(@vercel/functions@3.9.9)(supports-color@10.2.2)(vite@8.3.2)':
     dependencies:
       '@netlify/dev': 5.1.3(@azure/identity@4.13.3)(@vercel/functions@3.9.9)(supports-color@10.2.2)
-      '@netlify/dev-utils': 6.0.1
+      '@netlify/dev-utils': 6.0.3
       dedent: 1.7.2
       vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
     transitivePeerDependencies:
@@ -20602,10 +20646,10 @@ snapshots:
     dependencies:
       acorn: 8.18.0
 
-  '@sveltejs/vite-plugin-svelte@7.1.2(svelte@5.57.1)(vite@8.3.2)':
+  '@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2)':
     dependencies:
       deepmerge: 4.3.1
-      magic-string: 0.30.21
+      magic-string: 1.4.2
       obug: 2.2.1
       svelte: 5.57.1(@typescript-eslint/types@8.59.2)
       vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
@@ -20694,14 +20738,14 @@ snapshots:
       picocolors: 1.1.1
       pretty-format: 27.5.1
 
-  '@testing-library/svelte-core@1.0.0(svelte@5.57.1)':
+  '@testing-library/svelte-core@1.1.3(svelte@5.57.1)':
     dependencies:
       svelte: 5.57.1(@typescript-eslint/types@8.59.2)
 
-  '@testing-library/svelte@5.3.1(svelte@5.57.1)(vite@8.3.2)(vitest@4.1.11)':
+  '@testing-library/svelte@5.4.2(svelte@5.57.1)(vite@8.3.2)(vitest@4.1.11)':
     dependencies:
       '@testing-library/dom': 10.4.1
-      '@testing-library/svelte-core': 1.0.0(svelte@5.57.1)
+      '@testing-library/svelte-core': 1.1.3(svelte@5.57.1)
       svelte: 5.57.1(@typescript-eslint/types@8.59.2)
     optionalDependencies:
       vite: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
@@ -26759,7 +26803,7 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte2tsx@0.7.55(svelte@5.57.1)(typescript@6.0.3):
+  svelte2tsx@0.7.61(svelte@5.57.1)(typescript@6.0.3):
     dependencies:
       dedent-js: 1.0.1
       scule: 1.3.0

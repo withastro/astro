@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { Hono } from 'hono';
 import { FetchState } from '../../../dist/core/fetch/fetch-state.js';
 import { setAmbientManifest } from '../../../dist/core/manifest/ambient.js';
-import { astro, getFetchState, i18n, pages } from '../../../dist/core/hono/index.js';
+import { astro, cache, getFetchState, i18n, pages } from '../../../dist/core/hono/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createPage, createTestApp } from '../mocks.ts';
 
@@ -103,6 +103,33 @@ describe('getFetchState()', () => {
 
 		assert.equal(response.status, 200);
 		assert.match(await response.text(), /<h1>set via getFetchState<\/h1>/);
+	});
+});
+
+describe('cache() Hono middleware', () => {
+	const cachedPage = createComponent((result: any, props: any, slots: any) => {
+		const Astro = result.createAstro(props, slots);
+		Astro.cache.set({ maxAge: 300 });
+		return render`<h1>Cached</h1>`;
+	});
+
+	it('registers the cache provider before pages() when a CDN provider is configured', async () => {
+		const hono = createHonoApp(
+			createTestApp([createPage(cachedPage, { route: '/' })], {
+				cacheProvider: async () => ({
+					default: () => ({ name: 'mock-cdn-cache', async invalidate() {} }),
+				}),
+				cacheConfig: { provider: 'mock-cdn' },
+			}),
+		);
+		hono.use(cache());
+		hono.use(pages());
+
+		const response = await hono.fetch(new Request('http://example.com/'));
+
+		assert.equal(response.status, 200);
+		assert.match(await response.text(), /<h1>Cached<\/h1>/);
+		assert.match(response.headers.get('CDN-Cache-Control') ?? '', /max-age=300/);
 	});
 });
 

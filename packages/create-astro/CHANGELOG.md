@@ -1,5 +1,11 @@
 # create-astro
 
+## 5.2.5
+
+### Patch Changes
+
+- [#18210](https://github.com/withastro/astro/pull/18210) [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d) Thanks [@edmundhung](https://github.com/edmundhung)! - Allows Astro CLI commands to install tagged package versions
+
 ## 5.2.4
 
 ### Patch Changes
