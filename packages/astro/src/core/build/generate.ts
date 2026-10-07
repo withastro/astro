@@ -1,11 +1,12 @@
 import nodeFs from 'node:fs';
 import os from 'node:os';
-import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
 import colors from 'piccolore';
-import { runnerImport } from 'vite';
 import {
 	generateImagesForPath,
 	prepareAssetsGenerationEnv,
@@ -424,10 +425,10 @@ async function generatePagesInBuildScope(
 }
 
 /**
- * Loads the `build` image service in Node. When pages are rendered by Astro's default
- * prerenderer, the prerender bundle runs in Node and already resolves it. A prerenderer set
- * as an object renders elsewhere (e.g. in `workerd`, where the bundle can't be imported in
- * Node), so Vite loads the entrypoint instead.
+ * Loads the `build` image service in Node. Packages are imported directly, resolved from the
+ * project root, so they find their own dependencies (e.g. `sharp`). A local file may need Vite
+ * (TypeScript, aliases), so it's taken from the prerender bundle when Astro's default
+ * prerenderer runs that bundle in Node.
  */
 async function loadImageService(
 	settings: AstroSettings,
@@ -435,20 +436,22 @@ async function loadImageService(
 	prerenderOutputDir: URL,
 ): Promise<LocalImageService> {
 	const { entrypoint } = getImageServiceConfig(settings.config.image.service, 'build');
+	const isLocalFile = entrypoint.startsWith('.') || path.isAbsolute(entrypoint);
 	let service;
 	try {
-		if (typeof settings.prerenderer !== 'object' && internals.prerenderEntryFileName) {
+		if (
+			isLocalFile &&
+			typeof settings.prerenderer !== 'object' &&
+			internals.prerenderEntryFileName
+		) {
 			const prerenderEntryUrl = new URL(internals.prerenderEntryFileName, prerenderOutputDir);
 			const { getImageService } = await import(prerenderEntryUrl.toString());
 			service = await getImageService();
 		} else {
-			const { module } = await runnerImport<{ default: unknown }>(entrypoint, {
-				root: fileURLToPath(settings.config.root),
-				configFile: false,
-				logLevel: 'silent',
-				resolve: { alias: settings.config.vite.resolve?.alias },
-			});
-			service = module.default;
+			const resolved = entrypoint.startsWith('.')
+				? new URL(entrypoint, settings.config.root)
+				: pathToFileURL(createRequire(settings.config.root).resolve(entrypoint));
+			service = (await import(resolved.href)).default;
 		}
 	} catch (cause) {
 		throw new AstroError(
