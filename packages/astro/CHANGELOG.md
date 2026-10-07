@@ -1,5 +1,19 @@
 # astro
 
+## 7.3.7
+
+### Patch Changes
+
+- [#18266](https://github.com/withastro/astro/pull/18266) [`cba76cc`](https://github.com/withastro/astro/commit/cba76cc8200890186acf26444d473ebac0fc2623) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a build error when a Markdown content collection entry loaded with `glob({ deferRender: true })` has a `layout` frontmatter property. `layout` is now ignored for content collection entries, as documented.
+
+- [#18287](https://github.com/withastro/astro/pull/18287) [`38f6793`](https://github.com/withastro/astro/commit/38f6793291ea01a13cf4e51a83aeb16966a5a495) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `astro add cloudflare` failing to install dependencies with pnpm v11+ by approving the `workerd` build script, and shows the package manager's error output when `astro add` fails to install dependencies
+
+- [#18222](https://github.com/withastro/astro/pull/18222) [`fcf6ed6`](https://github.com/withastro/astro/commit/fcf6ed6d4915eed6c18a20658b73372d074c4832) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Fixes an issue where AVIF images were served as `image/heif` instead of `image/avif` in the dev server.
+
+- [#18240](https://github.com/withastro/astro/pull/18240) [`de4df06`](https://github.com/withastro/astro/commit/de4df060306ea4ad78db8438e06bc4640df60ef2) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the `cache()` handler from `astro/hono` and `astro/fetch` throwing a `TypeError` when a cache provider is configured. It now registers the cache provider before rendering, so `Astro.cache` is available to downstream handlers like `pages()`.
+
+- [#18268](https://github.com/withastro/astro/pull/18268) [`547b572`](https://github.com/withastro/astro/commit/547b572c65238e20a2fc1b03f6a8a5700035abc0) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `security.checkOrigin` rejecting cross-origin requests with non-form content types such as `application/json`. As documented, the check only applies to unsafe requests that have no `content-type` header or one of `application/x-www-form-urlencoded`, `multipart/form-data`, or `text/plain`.
+
 ## 7.3.6
 
 ### Patch Changes
