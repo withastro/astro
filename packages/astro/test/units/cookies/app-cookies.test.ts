@@ -194,6 +194,50 @@ describe('Astro.cookies', () => {
 		assert.equal(value!.startsWith('admin=true; Expires='), true);
 	});
 
+	it('app.render can include the cookie in the Set-Cookie header of a Response.redirect()', async () => {
+		const app = createTestApp([
+			createEndpoint(
+				{
+					GET: (ctx: APIContext) => {
+						ctx.cookies.set('session', 'abc');
+						ctx.cookies.set('theme', 'dark');
+						return Response.redirect(new URL('/dashboard', ctx.url), 302);
+					},
+				},
+				{ route: '/login' },
+			),
+		]);
+		const response = await app.render(new Request('http://example.com/login'), {
+			addCookieHeader: true,
+		});
+
+		assert.equal(response.status, 302);
+		assert.equal(response.headers.get('Location'), 'http://example.com/dashboard');
+		assert.deepEqual(response.headers.getSetCookie(), ['session=abc', 'theme=dark']);
+	});
+
+	it('app.render can include the cookie in the Set-Cookie header of a fetch() response', async () => {
+		const app = createTestApp([
+			createEndpoint(
+				{
+					GET: (ctx: APIContext) => {
+						ctx.cookies.set('session', 'abc');
+						return fetch('data:text/plain,proxied');
+					},
+				},
+				{ route: '/proxy' },
+			),
+		]);
+		const response = await app.render(new Request('http://example.com/proxy'), {
+			addCookieHeader: true,
+		});
+
+		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('Content-Type'), 'text/plain');
+		assert.equal(response.headers.get('Set-Cookie'), 'session=abc');
+		assert.equal(await response.text(), 'proxied');
+	});
+
 	it('app.render can exclude the cookie from the Set-Cookie header', async () => {
 		const app = createTestApp([setValueEndpoint()]);
 		const request = new Request('http://example.com/set-value', { method: 'POST' });

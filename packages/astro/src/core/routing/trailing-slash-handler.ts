@@ -51,8 +51,7 @@ export function handleTrailingSlash(state: FetchState): Response | undefined {
 			},
 		},
 	);
-	prepareResponse(response, { addCookieHeader });
-	return response;
+	return prepareResponse(response, { addCookieHeader });
 }
 
 function redirectTrailingSlash(

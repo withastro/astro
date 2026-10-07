@@ -124,9 +124,9 @@ async function render(state: FetchState): Promise<Response> {
 				isRewrite: false,
 				timeStart: state.timeStart,
 			});
-			prepareResponse(redirectResponse, { addCookieHeader });
+			const preparedResponse = prepareResponse(redirectResponse, { addCookieHeader });
 			state.logger.flush();
-			return redirectResponse;
+			return preparedResponse;
 		}
 
 		// `null` when i18n is unset or the strategy is `manual` — for the
@@ -210,7 +210,7 @@ async function render(state: FetchState): Promise<Response> {
 		});
 	}
 
-	prepareResponse(response, { addCookieHeader });
+	const preparedResponse = prepareResponse(response, { addCookieHeader });
 	state.logger.flush();
-	return response;
+	return preparedResponse;
 }

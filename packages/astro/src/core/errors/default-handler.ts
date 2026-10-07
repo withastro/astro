@@ -90,14 +90,12 @@ export async function renderDefaultError(
 					const override = { status, removeContentEncodingHeaders: true };
 
 					const newResponse = mergeResponses(response, originalResponse, override);
-					prepareResponse(newResponse, resolvedRenderOptions);
-					return newResponse;
+					return prepareResponse(newResponse, resolvedRenderOptions);
 				} catch {
 					// If the error page fetch fails (e.g. connection refused), fall
 					// through to the plain error response below.
 					const response = mergeResponses(new Response(null, { status }), originalResponse);
-					prepareResponse(response, resolvedRenderOptions);
-					return response;
+					return prepareResponse(response, resolvedRenderOptions);
 				}
 			}
 		}
@@ -135,8 +133,7 @@ export async function renderDefaultError(
 				});
 			}
 			const newResponse = mergeResponses(response, originalResponse);
-			prepareResponse(newResponse, resolvedRenderOptions);
-			return newResponse;
+			return prepareResponse(newResponse, resolvedRenderOptions);
 		} catch {
 			// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
 			if (skipMiddleware === false) {
@@ -155,8 +152,7 @@ export async function renderDefaultError(
 	}
 
 	const response = mergeResponses(new Response(null, { status }), originalResponse);
-	prepareResponse(response, resolvedRenderOptions);
-	return response;
+	return prepareResponse(response, resolvedRenderOptions);
 }
 
 function mergeResponses(
