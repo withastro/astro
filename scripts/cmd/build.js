@@ -47,7 +47,7 @@ function getEntryPoints(patterns) {
 		patterns.map((pattern) =>
 			glob(pattern, { filesOnly: true, expandDirectories: false, absolute: true }),
 		),
-	).then((results) => [].concat(...results));
+	).then((results) => [].concat(...results).map((entryPoint) => path.normalize(entryPoint)));
 }
 
 function getLang(filepath) {
