@@ -302,7 +302,7 @@ export default function createIntegration({
 
 				isDev = command === 'dev';
 				const image = setImageConfig(imageService, config.image, command, logger);
-				addedBuildImageService = 'build' in image.service && !config.image.service.build;
+				addedBuildImageService = 'build' in image.service && !config.image?.service?.build;
 				updateConfig({
 					...(config.experimental.collectionStorage === 'chunked' && {
 						experimental: {
