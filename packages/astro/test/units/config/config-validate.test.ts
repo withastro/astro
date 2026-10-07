@@ -709,6 +709,30 @@ describe('Config Validation', () => {
 		});
 	});
 
+	describe('experimental.parallelPrerender', () => {
+		it('defaults to false', async () => {
+			const result = await validateConfig({});
+			assert.equal(result.experimental.parallelPrerender, false);
+		});
+
+		it('accepts a boolean', async () => {
+			const result = await validateConfig({ experimental: { parallelPrerender: true } });
+			assert.equal(result.experimental.parallelPrerender, true);
+		});
+
+		it('accepts a worker count', async () => {
+			const result = await validateConfig({ experimental: { parallelPrerender: { workers: 4 } } });
+			assert.deepEqual(result.experimental.parallelPrerender, { workers: 4 });
+		});
+
+		it('rejects an invalid worker count', async () => {
+			await assert.rejects(validateConfig({ experimental: { parallelPrerender: { workers: 0 } } }));
+			await assert.rejects(
+				validateConfig({ experimental: { parallelPrerender: { workers: 1.5 } } }),
+			);
+		});
+	});
+
 	describe('experimental.collectionStorage', () => {
 		it('accepts the chunked shorthand', async () => {
 			const result = await validateConfig({
