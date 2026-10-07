@@ -113,6 +113,7 @@ export interface BuildInternals {
 	prerenderEntryFileName?: string;
 	/** The prerender chunk exporting the build image service, emitted for Astro's default prerenderer. */
 	prerenderImageServiceFileName?: string;
+	prerenderRouteUniqueBytes?: Map<string, number>;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;
 	loggerEntryPoint: URL | undefined;

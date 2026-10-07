@@ -3623,6 +3623,37 @@ export interface AstroUserConfig<
 		 * See the [experimental incremental static builds](https://docs.astro.build/en/reference/experimental-flags/incremental-build/) for more information.
 		 */
 		incrementalBuild?: boolean;
+
+		/**
+		 * @name experimental.parallelPrerender
+		 * @type {boolean | { workers?: number }}
+		 * @default `false`
+		 * @version 7.4
+		 * @description
+		 *
+		 * Renders static pages in a pool of Node.js worker threads during `astro build`.
+		 * Each worker evaluates its own copy of the server bundle, which can improve
+		 * rendering throughput for CPU-bound pages at the cost of additional memory.
+		 *
+		 * By default, one worker is started per available CPU core, minus one for the main thread.
+		 * Set `workers` to control the size of the pool. Start with a small value and measure
+		 * build time and peak memory for your project.
+		 *
+		 * [`build.concurrency`](#buildconcurrency) keeps its meaning: the number of pages
+		 * rendered at once *within each worker*. Raising it can help when pages spend time waiting
+		 * on I/O (e.g. `fetch()` calls), so the maximum number of pages in flight is
+		 * `workers × build.concurrency`.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: { parallelPrerender: { workers: 4 } },
+		 * });
+		 * ```
+		 */
+		parallelPrerender?: boolean | { workers?: number };
 	};
 }
 

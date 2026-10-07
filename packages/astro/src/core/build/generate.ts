@@ -3,7 +3,6 @@ import os from 'node:os';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import PLimit from 'p-limit';
 import PQueue from 'p-queue';
 import colors from 'piccolore';
 import {
@@ -42,6 +41,12 @@ import { routeIsRedirect } from '../routing/helpers.js';
 import { getOutputFilename } from '../output-filename.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { createDefaultPrerenderer } from './default-prerenderer.js';
+import {
+	createParallelPrerenderer,
+	isParallelPrerenderer,
+	resolveParallelPrerenderWorkers,
+	takeCompletedResponse,
+} from './parallel-prerenderer.js';
 import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
@@ -87,10 +92,15 @@ async function generatePagesInBuildScope(
 
 	// Get or create the prerenderer
 	let prerenderer: AstroPrerenderer;
+	let usesParallelPrerenderer = false;
 	const settingsPrerenderer = options.settings.prerenderer;
 	if (!settingsPrerenderer) {
-		// No custom prerenderer - create default
-		prerenderer = createDefaultPrerenderer({ internals, options, prerenderOutputDir });
+		if (options.settings.config.experimental.parallelPrerender) {
+			usesParallelPrerenderer = true;
+			prerenderer = createParallelPrerenderer({ internals, options, prerenderOutputDir });
+		} else {
+			prerenderer = createDefaultPrerenderer({ internals, options, prerenderOutputDir });
+		}
 	} else if (typeof settingsPrerenderer === 'function') {
 		// Factory function - create default and pass it
 		prerenderer = settingsPrerenderer(
@@ -191,35 +201,45 @@ async function generatePagesInBuildScope(
 		}
 		const generationPhases = [filteredPaths, fallbackPaths];
 
-		// Generate each path
-		if (config.build.concurrency > 1) {
-			const limit = PLimit(config.build.concurrency);
-			// Process in batches to avoid V8's Promise.all element limit, which is around ~123k items
-			//
-			// NOTE: ideally we could consider an iterator to avoid the batching limitation
-			const BATCH_SIZE = 100_000;
+		// Generate each path. With worker threads, `build.concurrency` applies per worker,
+		// and twice the pool's capacity is kept in flight so workers never wait on the
+		// main thread to queue their next page.
+		const generationConcurrency = usesParallelPrerenderer
+			? resolveParallelPrerenderWorkers(config.experimental.parallelPrerender) *
+				config.build.concurrency *
+				2
+			: config.build.concurrency;
+		if (generationConcurrency > 1) {
 			for (const paths of generationPhases) {
-				for (let i = 0; i < paths.length; i += BATCH_SIZE) {
-					const promises = paths
-						.slice(i, i + BATCH_SIZE)
-						.map(({ pathname, route, cacheKey }) =>
-							limit(() =>
-								generatePathWithPrerenderer(
+				let nextPath = 0;
+				let failed = false;
+				let failure: unknown;
+				await Promise.all(
+					Array.from({ length: Math.min(generationConcurrency, paths.length) }, async () => {
+						while (!failed) {
+							const pathWithRoute = paths[nextPath++];
+							if (!pathWithRoute) return;
+							try {
+								await generatePathWithPrerenderer(
 									prerenderer,
-									pathname,
-									route,
+									pathWithRoute.pathname,
+									pathWithRoute.route,
 									options,
 									internals,
 									routeToHeaders,
 									logger,
 									cache,
-									cacheKey,
+									pathWithRoute.cacheKey,
 									images,
-								),
-							),
-						);
-					await Promise.all(promises);
-				}
+								);
+							} catch (error) {
+								failed = true;
+								failure = error;
+							}
+						}
+					}),
+				);
+				if (failed) throw failure;
 			}
 		} else {
 			for (const paths of generationPhases) {
@@ -238,6 +258,12 @@ async function generatePagesInBuildScope(
 					);
 				}
 			}
+		}
+
+		// Every page is rendered: stop the workers before generating images, and collect
+		// the images they resolved outside of a render.
+		if (isParallelPrerenderer(prerenderer)) {
+			images.addMetadata(await prerenderer.finish());
 		}
 
 		// After generation, propagate distURL from the deserialized routes (used during generation)
@@ -486,6 +512,8 @@ export interface RenderPathResult {
 	body: string | Uint8Array;
 	outFile: URL;
 	outFolder: URL;
+	/** Whether the prerenderer persisted the body at `outFile`. */
+	outputWritten: boolean;
 	/** Incremental-build metadata the prerenderer reported for this page, if any. */
 	metadata?: PrerenderResult['metadata'];
 }
@@ -574,6 +602,14 @@ export async function renderPath({
 		}
 	}
 
+	const encodedPath = encodeURI(pathname);
+	const outFolder = getOutFolder(options.settings, encodedPath, route);
+	const outFile = getOutFile(config.build.format, outFolder, encodedPath, route);
+	const parallelPrerenderer = isParallelPrerenderer(prerenderer);
+	if (parallelPrerenderer && checkPublicConflict(outFile, route, options.settings, logger)) {
+		return null;
+	}
+
 	// Build the request URL
 	const url = getUrlForPath(
 		pathname,
@@ -598,7 +634,13 @@ export async function renderPath({
 	let metadata: PrerenderResult['metadata'];
 	try {
 		const rendered = normalizePrerenderResult(
-			await prerenderer.render(request, { routeData: route, collectMetadata: true }),
+			parallelPrerenderer
+				? await prerenderer.renderToFile(request, {
+						routeData: route,
+						pathname,
+						outFile,
+					})
+				: await prerenderer.render(request, { routeData: route, collectMetadata: true }),
 		);
 		response = rendered.response;
 		metadata = rendered.metadata;
@@ -612,6 +654,7 @@ export async function renderPath({
 
 	// Handle the response
 	let body: string | Uint8Array;
+	let outputWritten = false;
 	const responseHeaders = response.headers;
 
 	if (response.status >= 300 && response.status < 400) {
@@ -636,16 +679,16 @@ export async function renderPath({
 			route.redirect = location.toString();
 		}
 	} else {
-		if (!response.body) {
-			return null;
+		const completed = takeCompletedResponse(response);
+		if (completed?.written) {
+			body = new Uint8Array();
+			outputWritten = true;
+		} else {
+			if (!response.body && completed?.body === undefined) return null;
+			body = Buffer.from(completed?.body ?? (await response.arrayBuffer()));
 		}
-		body = Buffer.from(await response.arrayBuffer());
 	}
 
-	// Compute output paths
-	const encodedPath = encodeURI(pathname);
-	const outFolder = getOutFolder(options.settings, encodedPath, route);
-	const outFile = getOutFile(config.build.format, outFolder, encodedPath, route);
 	if (route.distURL) {
 		route.distURL.push(outFile);
 	} else {
@@ -659,9 +702,10 @@ export async function renderPath({
 	}
 
 	// Public files take priority over generated routes
-	if (checkPublicConflict(outFile, route, options.settings, logger)) return null;
+	if (!parallelPrerenderer && checkPublicConflict(outFile, route, options.settings, logger))
+		return null;
 
-	return { body, outFile, outFolder, metadata };
+	return { body, outFile, outFolder, metadata, outputWritten };
 }
 
 /**
@@ -801,12 +845,18 @@ async function generatePathWithPrerenderer(
 		return;
 	}
 
-	await nodeFs.promises.mkdir(result.outFolder, { recursive: true });
-	await nodeFs.promises.writeFile(result.outFile, result.body);
+	if (!result.outputWritten) {
+		await nodeFs.promises.mkdir(result.outFolder, { recursive: true });
+		await nodeFs.promises.writeFile(result.outFile, result.body);
+	}
 
 	// Without a cache key or render metadata, the path cannot be skipped safely.
 	if (cache && cacheKey !== undefined && result.metadata !== undefined) {
-		await cache.writeOutputFile(options.settings, relativeOutFile, result.body);
+		if (result.outputWritten) {
+			await cache.copyOutputFile(options.settings, relativeOutFile, result.outFile);
+		} else {
+			await cache.writeOutputFile(options.settings, relativeOutFile, result.body);
+		}
 		cache.record(
 			route.component,
 			dependencyHash,
