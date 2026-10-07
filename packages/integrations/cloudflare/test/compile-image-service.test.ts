@@ -1,6 +1,8 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import { passthroughImageService } from 'astro/config';
 import * as cheerio from 'cheerio';
+import cloudflare from '../dist/index.js';
 import { type DevServer, type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 // Tests that generate assets with Astro's real Sharp native binary at build time
@@ -85,6 +87,40 @@ describe('CompileImageService', () => {
 			const blob = await res.blob();
 			assert.equal(blob.type, 'image/jpeg');
 		});
+	});
+});
+
+describe('Separate build and runtime image services in dev', () => {
+	let fixture: Fixture;
+	let devServer: DevServer;
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/compile-image-service/',
+			adapter: cloudflare({ imageService: 'custom' }),
+			image: {
+				service: {
+					build: { entrypoint: 'astro/assets/services/sharp' },
+					runtime: passthroughImageService(),
+				},
+			},
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	// Dev renders and serves /_image in workerd, where the Sharp build service can't run.
+	it('uses the runtime service', async () => {
+		const html = await fixture.fetch('/blog/post').then((res) => res.text());
+		const src = cheerio.load(html)('img').attr('src')!;
+		assert.ok(
+			src.startsWith('/_image'),
+			`Expected image src to route through /_image, got: ${src}`,
+		);
+		const res = await fixture.fetch(src);
+		assert.equal(res.status, 200);
 	});
 });
 

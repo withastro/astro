@@ -73,14 +73,13 @@ const CLIENT_RUNTIME_LOGGER_SETUP = `
  * services that serialize the config never see them.
  */
 /**
- * Prerendered pages use the `build` image service during a build. Everything else, including
- * the dev server, uses the `runtime` service.
+ * During a build, prerendered pages use the `build` image service and everything else uses the
+ * `runtime` service. The dev server uses the `build` service everywhere, as it's the one that
+ * can transform images locally.
  */
 function getImageServiceTarget(environment: vite.Environment): 'build' | 'runtime' {
-	return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender &&
-		environment.config.command === 'build'
-		? 'build'
-		: 'runtime';
+	if (environment.config.command === 'serve') return 'build';
+	return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ? 'build' : 'runtime';
 }
 
 function getImageConfigCode(settings: AstroSettings, environment: vite.Environment): string {

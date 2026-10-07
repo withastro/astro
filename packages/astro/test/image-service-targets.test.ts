@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.ts';
 import { testImageService } from './test-image-service.ts';
-import { type App, type Fixture, loadFixture } from './test-utils.ts';
+import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('astro:assets - separate build and runtime image services', () => {
 	let fixture: Fixture;
@@ -43,4 +43,44 @@ describe('astro:assets - separate build and runtime image services', () => {
 		assert.equal($img.attr('data-service-config'), 'runtime');
 		assert.ok($img.attr('src')!.startsWith('/_image?'));
 	});
+});
+
+describe('astro:assets - separate build and runtime image services in dev', () => {
+	let fixture: Fixture;
+	let devServer: DevServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/core-image-ssr/',
+			output: 'server',
+			adapter: testAdapter(),
+			image: {
+				service: {
+					build: testImageService({ foo: 'build' }),
+					runtime: testImageService({ foo: 'runtime' }),
+				},
+				domains: ['avatars.githubusercontent.com'],
+			},
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	for (const [name, path] of [
+		['prerendered', '/prerender'],
+		['on-demand', '/'],
+	]) {
+		it(`uses the build service for ${name} pages and the image endpoint`, async () => {
+			const $ = cheerio.load(await (await fixture.fetch(path)).text());
+			const $img = $('#local img');
+			assert.equal($img.attr('data-service-config'), 'build');
+			const src = $img.attr('src')!;
+			assert.ok(src.startsWith('/_image?'));
+			const image = await fixture.fetch(src);
+			assert.equal(image.status, 200);
+		});
+	}
 });
