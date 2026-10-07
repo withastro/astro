@@ -1,5 +1,13 @@
 # @astrojs/netlify
 
+## 8.2.8
+
+### Patch Changes
+
+- [#18180](https://github.com/withastro/astro/pull/18180) [`6fb83da`](https://github.com/withastro/astro/commit/6fb83dafb81c6751dcddaf7471d5aa8c6bcb6bb9) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Netlify Image CDN patterns generated from `image.remotePatterns` pathnames ending in `/**` so they only match paths below that directory, consistent with Astro's own pattern matching. Previously, a pattern like `/public/**` also matched sibling paths sharing the prefix, such as `/public-assets/`.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 8.2.7
 
 ### Patch Changes
