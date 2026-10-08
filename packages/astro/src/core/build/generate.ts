@@ -424,10 +424,11 @@ async function generatePagesInBuildScope(
 }
 
 /**
- * Loads the `build` image service in Node. When Astro's default prerenderer ran the build, the
- * service comes from its own chunk in the prerender bundle, resolved by Vite. Otherwise the
- * bundle may target another runtime, so the entrypoint is imported directly, resolved from the
- * project root.
+ * Loads the `build` image service in Node. A package that Node can resolve from the project root
+ * is imported directly, so its own dependencies (e.g. `sharp` for Astro's service) resolve from
+ * the package, even when an adapter bundles every dependency. Anything else (relative files,
+ * aliases, packages Node can't import) comes from its own chunk in the prerender bundle, resolved
+ * by Vite, when Astro's default prerenderer ran the build.
  */
 async function loadImageService(
 	settings: AstroSettings,
@@ -437,14 +438,14 @@ async function loadImageService(
 	const { entrypoint } = getImageServiceConfig(settings.config.image.service, 'build');
 	let service;
 	try {
-		if (internals.prerenderImageServiceFileName) {
+		const packageUrl = resolvePackageEntrypoint(entrypoint, settings.config.root);
+		if (packageUrl) {
+			service = (await import(packageUrl.href)).default;
+		} else if (internals.prerenderImageServiceFileName) {
 			const url = new URL(internals.prerenderImageServiceFileName, prerenderOutputDir);
 			service = (await import(url.href)).default;
 		} else {
-			const resolved = entrypoint.startsWith('.')
-				? new URL(entrypoint, settings.config.root)
-				: pathToFileURL(createRequire(settings.config.root).resolve(entrypoint));
-			service = (await import(resolved.href)).default;
+			service = (await import(new URL(entrypoint, settings.config.root).href)).default;
 		}
 	} catch (cause) {
 		throw new AstroError(
@@ -462,6 +463,16 @@ async function loadImageService(
 		});
 	}
 	return service;
+}
+
+/** Resolves a bare package specifier from `root`, or returns `undefined` if Node can't. */
+function resolvePackageEntrypoint(entrypoint: string, root: URL): URL | undefined {
+	if (entrypoint.startsWith('.') || entrypoint.startsWith('/')) return undefined;
+	try {
+		return pathToFileURL(createRequire(root).resolve(entrypoint));
+	} catch {
+		return undefined;
+	}
 }
 
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
