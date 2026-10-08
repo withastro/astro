@@ -68,7 +68,7 @@
     "@biomejs/biome": "2.5.3",
     "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^3.0.3",
-    "@earendil-works/pi-ai": "^0.99.2",
+    "@earendil-works/pi-ai": "^0.87.1",
     "@flue/runtime": "^2.2.2",
     "@types/node": "^22.10.6",
     "astro-benchmark": "workspace:*",
