@@ -5599,7 +5599,7 @@ importers:
         specifier: ^1.11.0
         version: 1.11.0(supports-color@10.2.2)
       rolldown:
-        specifier: ^1.2.11
+        specifier: ^1.2.12
         version: 1.2.12
       tinyglobby:
         specifier: ^0.2.17
