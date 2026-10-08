@@ -31,12 +31,12 @@
   },
   "dependencies": {
     "@astrojs/astro2tsx": "^0.1.2",
-    "vscode-jsonrpc": "^9.0.1"
+    "vscode-jsonrpc": "^9.0.3"
   },
   "devDependencies": {
     "@types/node": "^22.10.6",
     "astro-scripts": "workspace:*",
-    "tsx": "^4.22.0",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.3"
   }
 }
