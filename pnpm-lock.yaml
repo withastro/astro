@@ -6766,8 +6766,8 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5
       yargs:
-        specifier: ^18.1.0
-        version: 18.1.0
+        specifier: ^18.2.0
+        version: 18.2.0
     devDependencies:
       '@types/node':
         specifier: ^22.19.0
@@ -6782,7 +6782,7 @@ importers:
         specifier: ^0.2.17
         version: 0.2.17
       tsx:
-        specifier: ^4.23.13
+        specifier: ^4.23.15
         version: 4.23.15
 
   packages/language-tools/language-server:
@@ -6852,16 +6852,16 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       tsx:
-        specifier: ^4.23.13
+        specifier: ^4.23.15
         version: 4.23.15
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
       vscode-languageserver-protocol:
-        specifier: ^3.18.3
+        specifier: ^3.18.4
         version: 3.18.4
       vscode-languageserver-textdocument:
-        specifier: ^1.0.14
+        specifier: ^1.0.15
         version: 1.0.15
 
   packages/language-tools/language-server/test:
@@ -6876,7 +6876,7 @@ importers:
         specifier: workspace:*
         version: link:../../../astro
       svelte:
-        specifier: ^5.55.7
+        specifier: ^5.57.1
         version: 5.57.1(@typescript-eslint/types@8.71.0)
     devDependencies:
       tinyglobby:
@@ -6895,7 +6895,7 @@ importers:
         specifier: ^0.1.2
         version: 0.1.2(@emnapi/runtime@1.11.3)
       vscode-jsonrpc:
-        specifier: ^9.0.1
+        specifier: ^9.0.3
         version: 9.0.3
     devDependencies:
       '@types/node':
@@ -6905,7 +6905,7 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       tsx:
-        specifier: ^4.22.0
+        specifier: ^4.23.15
         version: 4.23.15
       typescript:
         specifier: ^6.0.3
@@ -6929,7 +6929,7 @@ importers:
         specifier: ~2.4.28
         version: 2.4.28(patch_hash=08646e153f568c63dc1e7a3dae0333806b3d8395c5ffbad47fa695f7c26bacad)(typescript@6.0.3)
       vscode-languageserver-textdocument:
-        specifier: ^1.0.14
+        specifier: ^1.0.15
         version: 1.0.15
     devDependencies:
       '@types/mocha':
@@ -6948,10 +6948,10 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0(supports-color@10.2.2)
       mocha:
-        specifier: ^12.0.2
-        version: 12.0.2
+        specifier: ^12.0.3
+        version: 12.0.3
       tsx:
-        specifier: ^4.23.13
+        specifier: ^4.23.15
         version: 4.23.15
       typescript:
         specifier: ^6.0.3
@@ -6966,7 +6966,7 @@ importers:
         specifier: ^0.1.2
         version: 0.1.2(@emnapi/runtime@1.11.3)
       prettier:
-        specifier: ^3.9.6
+        specifier: ^3.9.9
         version: 3.9.9
       prettier-plugin-astro:
         specifier: ^1.1.0
@@ -7006,16 +7006,16 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5
       mocha:
-        specifier: ^12.0.2
-        version: 12.0.2
+        specifier: ^12.0.3
+        version: 12.0.3
       ovsx:
         specifier: ^1.2.0
         version: 1.2.0(@types/node@22.19.19)(debug@4.4.3)(supports-color@10.2.2)
       rolldown:
-        specifier: ^1.2.11
+        specifier: ^1.2.12
         version: 1.2.12
       tsx:
-        specifier: ^4.23.13
+        specifier: ^4.23.15
         version: 4.23.15
       vscode-languageclient:
         specifier: ^10.1.2
@@ -14392,8 +14392,8 @@ packages:
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     hasBin: true
 
-  mocha@12.0.2:
-    resolution: {integrity: sha512-SjAulGHxlMJLCD1bhvJBAiYwYxglydRzA9PDQ5MALq1oLRMMtIhxSQJ0olCFgA7c9YbTdxC0KOV0wl8JEDYVhA==}
+  mocha@12.0.3:
+    resolution: {integrity: sha512-beammieDdiWdkjANWeWPpkxUROYGi5FN88fPOkLiticz7HTg3Y+Pho3EYE6SUdcuWnZ3h2WD8EXCA55JF4o6wg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
 
@@ -16977,8 +16977,8 @@ packages:
     resolution: {integrity: sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w==}
     engines: {node: '>=12'}
 
-  yargs@18.1.0:
-    resolution: {integrity: sha512-2rAgRKu54VsHkqI0/tYkmluGXHD4KW7yZoycuqDQ15QOTnc2VVfy0nN/1eMhnQLO00A+dwtK20xuCnc1YGeUyg==}
+  yargs@18.2.0:
+    resolution: {integrity: sha512-9OpKOLeaoNFecEp7P6iYbzze/5CqWoH7N3SMs/6y1XF4nMvFMspEGZzJ6uFi9MmQwXhyzqYoSEKO3tvA3Z/o2w==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=23}
 
   yauzl-promise@4.0.0:
@@ -21283,7 +21283,7 @@ snapshots:
       minimatch: 10.2.6
       mocha: 11.8.0
       supports-color: 10.2.2
-      yargs: 18.1.0
+      yargs: 18.2.0
     transitivePeerDependencies:
       - monocart-coverage-reports
 
@@ -24883,7 +24883,7 @@ snapshots:
       yargs-parser: 21.1.1
       yargs-unparser: 2.0.0
 
-  mocha@12.0.2:
+  mocha@12.0.3:
     dependencies:
       browser-stdout: 1.3.1
       chokidar: 5.0.0
@@ -27804,7 +27804,7 @@ snapshots:
       y18n: 5.0.8
       yargs-parser: 21.1.1
 
-  yargs@18.1.0:
+  yargs@18.2.0:
     dependencies:
       cliui: 9.0.1
       escalade: 3.2.0
