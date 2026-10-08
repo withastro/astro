@@ -64,13 +64,25 @@ jobs:
         run: |
           git diff --name-only "origin/${BASE_REF}...HEAD" > /tmp/changed-files.txt
           node --input-type=module -e '
-            import { appendFileSync, readFileSync } from "node:fs";
+            import { appendFileSync, existsSync, readFileSync } from "node:fs";
+            import { dirname, join } from "node:path";
             const files = readFileSync("/tmp/changed-files.txt", "utf8").split("\n");
             const dirs = new Set();
             for (const file of files) {
+              if (!file.startsWith("packages/")) continue;
+              // Packages are nested at varying depths (packages/astro,
+              // packages/integrations/react, packages/language-tools/language-server),
+              // so walk up to the nearest package.json instead of assuming a layout.
+              let dir = dirname(file);
+              while (dir !== "packages" && dir !== "." && !existsSync(join(dir, "package.json"))) {
+                dir = dirname(dir);
+              }
+              if (dir === "packages" || dir === ".") continue;
+              // Skips test fixtures and other packages that are never published.
+              if (JSON.parse(readFileSync(join(dir, "package.json"), "utf8")).private) continue;
               // Charset restricted because the publish step word-splits this unquoted.
-              const match = /^(packages\/(?:integrations\/)?[a-zA-Z0-9._-]+)\//.exec(file);
-              if (match) dirs.add(match[1]);
+              if (!/^packages\/[a-zA-Z0-9._\/-]+$/.test(dir)) continue;
+              dirs.add(dir);
             }
             appendFileSync(process.env.GITHUB_OUTPUT, `dirs=${[...dirs].join(" ")}\n`);
           '
