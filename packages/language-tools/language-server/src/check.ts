@@ -1,4 +1,5 @@
 import { existsSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { homedir } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -88,7 +89,7 @@ export class AstroCheck {
 				result.status = 'cancelled';
 				return result;
 			}
-			const fileDiagnostics = await this.linter.check(file);
+			const fileDiagnostics = await this.checkFile(file);
 
 			// Filter diagnostics based on the logErrors level
 			const fileDiagnosticsToPrint = fileDiagnostics.filter((diag) => {
@@ -136,6 +137,27 @@ export class AstroCheck {
 
 		result.status = 'completed';
 		return result;
+	}
+
+	/**
+	 * Checks a single file with `@volar/language-service`'s cancellation polling disabled.
+	 */
+	private async checkFile(file: string) {
+		// Before each diagnostics plugin, Volar's `provideDiagnostics` sleeps 10 ms so an LSP server
+		// can notice cancelled requests. `@volar/kit`'s checker never passes a cancellation token,
+		// so here the sleep only adds ~10 ms per file. Volar has no option to turn it off, so its
+		// internal `sleep` helper is swapped out for the duration of the check.
+		// https://github.com/withastro/astro/issues/18310
+		const volarCommon = createRequire(require.resolve('@volar/kit'))(
+			'@volar/language-service/lib/utils/common.js',
+		);
+		const originalSleep = volarCommon.sleep;
+		volarCommon.sleep = () => Promise.resolve();
+		try {
+			return await this.linter.check(file);
+		} finally {
+			volarCommon.sleep = originalSleep;
+		}
 	}
 
 	private initialize() {
