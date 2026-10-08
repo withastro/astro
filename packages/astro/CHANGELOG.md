@@ -1,5 +1,17 @@
 # astro
 
+## 7.3.8
+
+### Patch Changes
+
+- [#18293](https://github.com/withastro/astro/pull/18293) [`28e7410`](https://github.com/withastro/astro/commit/28e74103fe3d999a56ae3404b5fe67a1ad6d8013) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `Astro.cache` being `undefined` when a custom 404 or 500 page is rendered by the error handler, for example after a request to an API route with an HTTP method the route doesn't export
+
+- [#18298](https://github.com/withastro/astro/pull/18298) [`0e9e857`](https://github.com/withastro/astro/commit/0e9e85728999907127e817287dc0a0e3accdbe8e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro add` removing existing `allowBuilds` approvals from `pnpm-workspace.yaml` with pnpm v11.0–v11.22
+
+- [#18263](https://github.com/withastro/astro/pull/18263) [`882dd98`](https://github.com/withastro/astro/commit/882dd98cd9f11c4e7bd0b812d37f865dfca75d3d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Refactors internal bundling and code transforms to use Vite's Oxc-based `transformWithOxc` and Rolldown instead of esbuild. These packages no longer depend on esbuild directly.
+
+- [#18290](https://github.com/withastro/astro/pull/18290) [`31f13c3`](https://github.com/withastro/astro/commit/31f13c3710f2c128d3e1684100e44022a598ffcf) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the `glob()` loader not reloading changed files in dev when the pattern starts with an extglob such as `!(drafts)/**/*.md`
+
 ## 7.3.7
 
 ### Patch Changes
