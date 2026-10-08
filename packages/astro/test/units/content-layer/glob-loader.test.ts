@@ -1,4 +1,5 @@
 import { strict as assert } from 'node:assert';
+import { EventEmitter } from 'node:events';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
@@ -689,5 +690,123 @@ describe('Glob Loader', () => {
 		const colonEntry = entries.find((e) => e.id === 'guide-architecture');
 		assert.ok(colonEntry, 'Entry with colon in filename should be loaded');
 		assert.ok(colonEntry.body?.includes('colon in its filename'));
+	});
+
+	it('loads files whose paths contain # or ?', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content', 'blog');
+		mkdirSync(join(contentDir, 'f#'), { recursive: true });
+		writeFileSync(
+			join(contentDir, 'c#-basics.md'),
+			'---\ntitle: C# basics\n---\n\nPattern matching in C#.',
+		);
+		writeFileSync(join(contentDir, 'f#', 'intro.md'), '---\ntitle: F# intro\n---\n\nIntro to F#.');
+		// `?` is reserved in Windows filenames.
+		if (process.platform !== 'win32') {
+			writeFileSync(join(contentDir, 'why?.md'), '---\ntitle: Why\n---\n\nA question.');
+		}
+
+		const store = new MutableDataStore();
+		const errors: string[] = [];
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: {
+				write: (msg: any) => {
+					if (msg.level === 'error') {
+						errors.push(msg.message);
+					}
+					return true;
+				},
+			},
+			level: 'info',
+		});
+
+		const collections = {
+			blog: defineCollection({
+				loader: glob({ pattern: '**/*.md', base: 'src/content/blog' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+		});
+
+		await contentLayer.sync();
+
+		assert.deepEqual(errors, []);
+		const entries = store.values('blog');
+		const csharp = entries.find((e) => e.id === 'c-basics');
+		assert.ok(csharp, 'Entry with # in filename should be loaded');
+		assert.ok(csharp.body?.includes('Pattern matching in C#.'));
+		assert.ok(
+			entries.find((e) => e.id === 'f/intro'),
+			'Entry inside a directory with # should be loaded',
+		);
+		if (process.platform !== 'win32') {
+			assert.ok(
+				entries.find((e) => e.id === 'why'),
+				'Entry with ? in filename should be loaded',
+			);
+		}
+	});
+});
+
+describe('Glob Loader watcher', () => {
+	it('reloads changed files matched by a leading extglob pattern', async () => {
+		const tempDir = createTempDir();
+		const contentDir = join(fileURLToPath(tempDir), 'src', 'content');
+		mkdirSync(join(contentDir, 'blog'), { recursive: true });
+		mkdirSync(join(contentDir, 'hidden'), { recursive: true });
+		const postPath = join(contentDir, 'blog', 'post.md');
+		const hiddenPath = join(contentDir, 'hidden', 'secret.md');
+		writeFileSync(postPath, '---\ntitle: Post\n---\nOriginal');
+		writeFileSync(hiddenPath, '---\ntitle: Secret\n---\nHidden');
+
+		const store = new MutableDataStore();
+		const settings = createMinimalSettings(tempDir, {
+			contentEntryTypes: [createMarkdownEntryType()],
+		});
+		const logger = new AstroLogger({
+			destination: { write: () => true },
+			level: 'silent',
+		});
+		const watcher = Object.assign(new EventEmitter(), { add: () => {} });
+
+		const collections = {
+			blog: defineCollection({
+				loader: glob({ pattern: '!(hidden)/**/*.md', base: 'src/content' }),
+			}),
+		};
+
+		const contentLayer = new ContentLayer({
+			settings,
+			logger,
+			store,
+			contentConfigObserver: createTestConfigObserver(collections),
+			watcher: watcher as any,
+		});
+
+		await contentLayer.sync();
+		assert.deepEqual(
+			store.values('blog').map((e) => e.id),
+			['blog/post'],
+		);
+
+		writeFileSync(postPath, '---\ntitle: Post\n---\nUpdated');
+		watcher.emit('change', postPath);
+		watcher.emit('change', hiddenPath);
+		await new Promise((resolve) => setTimeout(resolve, 100));
+
+		const entries = store.values('blog');
+		assert.deepEqual(
+			entries.map((e) => e.id),
+			['blog/post'],
+		);
+		assert.equal(entries[0].body?.trim(), 'Updated');
 	});
 });

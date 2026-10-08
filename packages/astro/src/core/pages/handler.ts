@@ -3,6 +3,7 @@ import { renderPage } from '../../runtime/server/index.js';
 import type { APIContext } from '../../types/public/context.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { ASTRO_ERROR_HEADER } from '../constants.js';
+import { rejectInvalidEncoding } from '../routing/invalid-encoding.js';
 import {
 	createCrossOriginForbiddenResponse,
 	isForbiddenCrossOriginRequest,
@@ -102,6 +103,10 @@ export async function handlePages(state: FetchState, ctx: APIContext): Promise<R
  * there is no surrounding `handleRequest` to supply this fallback.
  */
 export async function handlePagesWithErrorFallback(state: FetchState): Promise<Response> {
+	const invalidEncodingResponse = rejectInvalidEncoding(state);
+	if (invalidEncodingResponse) {
+		return invalidEncodingResponse;
+	}
 	// `FetchState` falls back to an SSR 404 route when nothing matches,
 	// so routeData is only missing when the custom 404 page is
 	// prerendered (or absent). Return a marked 404 and let the app's
@@ -121,8 +126,10 @@ export async function handlePagesWithErrorFallback(state: FetchState): Promise<R
 	) {
 		return createCrossOriginForbiddenResponse(ctx.request);
 	}
+	state.applyDefaultStatus();
 	try {
-		return await handlePages(state, ctx);
+		await state.getProps();
+		return await handlePages(state, state.getAPIContext());
 	} catch (err: any) {
 		// The header marker can't carry the error object, so render the
 		// 500 page directly to preserve `error` and the logged stack.

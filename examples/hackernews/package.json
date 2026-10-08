@@ -13,8 +13,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/node": "^11.1.6",
-    "astro": "^7.3.5"
+    "@astrojs/node": "^11.1.7",
+    "astro": "^7.3.7"
   },
   "allowScripts": {
     "esbuild": true

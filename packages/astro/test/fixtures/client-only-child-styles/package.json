@@ -5,6 +5,6 @@
   "dependencies": {
     "astro": "workspace:*",
     "@astrojs/vue": "workspace:*",
-    "vue": "^3.5.0"
+    "vue": "^3.5.43"
   }
 }

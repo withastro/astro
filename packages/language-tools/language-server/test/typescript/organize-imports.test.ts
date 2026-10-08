@@ -3,6 +3,7 @@ import path from 'node:path';
 import { before, describe, it } from 'node:test';
 // Imported from the node entry so the types line up with the `@volar/test-utils` handle
 import { type CodeAction, Range, TextDocumentEdit } from '@volar/language-server/node.js';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import { getLanguageServer, type LanguageServer } from '../server.ts';
 import { fixtureDir } from '../test-utils.ts';
 
@@ -49,6 +50,59 @@ describe('TypeScript - Organize & Sort Imports', () => {
 				range: Range.create(4, 0, 5, 0),
 			},
 		]);
+	});
+
+	it('maps organize-import edits across generated frontmatter text', async () => {
+		const content = [
+			'---',
+			"import Hello from '../components/Hello.astro'",
+			"import Layout from '../layouts/Layout.astro'",
+			'---',
+			'<Layout><Hello /></Layout>',
+		].join('\n');
+		const getOrganizeEdits = async (source: string) => {
+			const document = await languageServer.openFakeDocument(source, 'astro');
+			const actions = await languageServer.handle.sendCodeActionsRequest(
+				document.uri,
+				Range.create(1, 0, 1, 0),
+				{
+					diagnostics: [],
+					only: ['source.organizeImports'],
+					triggerKind: 1,
+				},
+			);
+			const resolved = await Promise.all(
+				(actions as CodeAction[]).map((action) =>
+					languageServer.handle.sendCodeActionResolveRequest(action),
+				),
+			);
+			return { document, edits: getTextEdits(resolved) };
+		};
+
+		const { document, edits } = await getOrganizeEdits(content);
+		assert.deepStrictEqual(edits, [
+			{
+				newText:
+					"import Hello from '../components/Hello.astro';\nimport Layout from '../layouts/Layout.astro';\n",
+				range: Range.create(1, 0, 2, 0),
+			},
+			{
+				newText: '',
+				range: Range.create(2, 0, 3, 0),
+			},
+		]);
+
+		const updated = TextDocument.applyEdits(document, edits);
+		assert.equal(
+			updated,
+			`---\nimport Hello from '../components/Hello.astro';\nimport Layout from '../layouts/Layout.astro';\n---\n<Layout><Hello /></Layout>`,
+		);
+		const repeated = await getOrganizeEdits(updated);
+		assert.equal(
+			TextDocument.applyEdits(repeated.document, repeated.edits),
+			updated,
+			'repeated organize-imports passes should not duplicate or remove imports',
+		);
 	});
 
 	it('Can organize imports in files using CRLF', async () => {

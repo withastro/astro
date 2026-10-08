@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.17.2
+
+### Patch Changes
+
+- [#18110](https://github.com/withastro/astro/pull/18110) [`ffdf774`](https://github.com/withastro/astro/commit/ffdf774b6fe5d39b196aef268b1d1e1c11c52cc0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix organize imports for Astro files whose frontmatter ends with imports.
+
 ## 2.17.1
 
 ### Patch Changes

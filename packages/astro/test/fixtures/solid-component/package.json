@@ -7,6 +7,6 @@
     "@solidjs/router": "^1.0.0",
     "@test/solid-jsx-component": "file:./deps/solid-jsx-component",
     "astro": "workspace:*",
-    "solid-js": "^1.9.11"
+    "solid-js": "^1.9.15"
   }
 }
