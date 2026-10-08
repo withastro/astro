@@ -26,4 +26,4 @@ setPrerenderer((defaultPrerenderer) => ({
 }));
 ```
 
-Returning a plain array from `getStaticPaths()` or a plain `Response` from `render()` still works, but is deprecated: images used on those pages are not generated. `collectStaticImages()` is also deprecated, and `globalThis.astroAsset` is no longer set.
+Returning a plain array from `getStaticPaths()` or a plain `Response` from `render()` still works, but is deprecated: images used on those pages are not generated.
