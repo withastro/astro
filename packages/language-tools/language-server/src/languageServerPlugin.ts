@@ -1,3 +1,5 @@
+import { createRequire } from 'node:module';
+import * as path from 'node:path';
 import {
 	type Connection,
 	type InitializeParams,
@@ -39,15 +41,23 @@ export function getLanguageServicePlugins(
 	collectionConfig: CollectionConfig,
 	initializeParams?: InitializeParams,
 ) {
+	// Extension contributions only apply to inferred projects. A configured project owns Astro
+	// files only when its effective config explicitly contains an Astro content mapper.
+	const typeScriptHandledElsewhere = isTypeScriptHandledByContentMapper(ts, initializeParams);
+
 	const LanguageServicePlugins = [
 		createHtmlService(),
 		createCssService(),
 		createEmmetService(),
-		...createTypeScriptServices(ts, {
-			disableAutoImportCache: initializeParams?.initializationOptions?.disableAutoImportCache,
-		}),
-		createTypeScriptTwoSlashService(ts),
-		createTypeScriptAddonsService(),
+		...(typeScriptHandledElsewhere
+			? []
+			: [
+					...createTypeScriptServices(ts, {
+						disableAutoImportCache: initializeParams?.initializationOptions?.disableAutoImportCache,
+					}),
+					createTypeScriptTwoSlashService(ts),
+					createTypeScriptAddonsService(),
+				]),
 		createAstroService(),
 		getPrettierService(),
 		createYAMLService(collectionConfig),
@@ -141,5 +151,89 @@ export function getLanguageServicePlugins(
 				},
 			},
 		);
+	}
+}
+
+export function isTypeScriptHandledByContentMapper(
+	ts: typeof import('typescript'),
+	initializeParams?: InitializeParams,
+): boolean {
+	if (initializeParams?.initializationOptions?.astroContentMapperRegistered !== true) {
+		return false;
+	}
+
+	const workspaceFolders =
+		initializeParams.workspaceFolders?.map(({ uri }) => URI.parse(uri)) ??
+		(initializeParams.rootUri ? [URI.parse(initializeParams.rootUri)] : []);
+	for (const workspaceFolder of workspaceFolders) {
+		if (workspaceFolder.scheme !== 'file') continue;
+
+		const configFiles = ts.sys.readDirectory(
+			workspaceFolder.fsPath,
+			['.json'],
+			['node_modules'],
+			['**/tsconfig.json', '**/jsconfig.json'],
+		);
+
+		for (const configFile of configFiles) {
+			const contentMappers = getEffectiveContentMappers(ts, configFile);
+			const hasAstroMapper = contentMappers?.some(
+				(mapper) => Array.isArray(mapper?.extensions) && mapper.extensions.includes('.astro'),
+			);
+
+			// Be conservative in mixed workspaces: keep the language server's TypeScript support
+			// if any configured project would not receive TypeScript's inferred contribution.
+			if (!hasAstroMapper) return false;
+		}
+	}
+
+	// With no config, TypeScript uses the extension-provided inferred mapper. If every config
+	// explicitly owns `.astro`, TypeScript uses those user-configured mappers instead.
+	return true;
+}
+
+function getEffectiveContentMappers(
+	ts: typeof import('typescript'),
+	configFile: string,
+	seen = new Set<string>(),
+): any[] | undefined {
+	configFile = path.resolve(configFile);
+	if (seen.has(configFile)) return undefined;
+	seen.add(configFile);
+
+	const config = ts.readConfigFile(configFile, ts.sys.readFile).config;
+	if (!config || typeof config !== 'object') return undefined;
+	if (Object.prototype.hasOwnProperty.call(config, 'contentMappers')) {
+		return Array.isArray(config.contentMappers) ? config.contentMappers : undefined;
+	}
+
+	const extendedConfigs = Array.isArray(config.extends) ? config.extends : [config.extends];
+	let inherited: any[] | undefined;
+	for (const extendedConfig of extendedConfigs) {
+		if (typeof extendedConfig !== 'string') continue;
+		const extendedConfigFile = resolveExtendedConfig(ts, configFile, extendedConfig);
+		if (!extendedConfigFile) continue;
+		inherited = getEffectiveContentMappers(ts, extendedConfigFile, seen) ?? inherited;
+	}
+	return inherited;
+}
+
+function resolveExtendedConfig(
+	ts: typeof import('typescript'),
+	configFile: string,
+	extendedConfig: string,
+): string | undefined {
+	if (extendedConfig.startsWith('.') || path.isAbsolute(extendedConfig)) {
+		const candidate = path.resolve(path.dirname(configFile), extendedConfig);
+		for (const fileName of [candidate, `${candidate}.json`, path.join(candidate, 'tsconfig.json')]) {
+			if (ts.sys.fileExists(fileName)) return fileName;
+		}
+		return undefined;
+	}
+
+	try {
+		return createRequire(configFile).resolve(extendedConfig);
+	} catch {
+		return undefined;
 	}
 }
