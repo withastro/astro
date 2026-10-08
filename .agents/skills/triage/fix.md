@@ -57,7 +57,7 @@ This "breadcrumb" approach is more useful to maintainers than a wrong fix.
 
 Consider your potential fixes and verify that any modern features you plan to use are supported:
 
-- **Node.js:** When writing code for the runtime (server, build logic, integrations, etc.), target Node.js version `>=22.12.0`.
+- **Node.js:** When writing code for the runtime (server, build logic, integrations, etc.), target Node.js version `>=22.22.0`.
 - **Browsers:** If your fix relies on browser support for any web platform feature, check the browser compatibility table on MDN to confirm it is supported across our browser targets. Do not treat specification compliance as proof of browser support. If the feature lacks sufficient support, choose a different approach.
 
 ## Step 3: Implement the Fix

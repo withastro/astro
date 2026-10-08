@@ -60,7 +60,7 @@
     "packages/language-tools/*"
   ],
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.22.0"
   },
   "packageManager": "pnpm@11.27.0",
   "devDependencies": {

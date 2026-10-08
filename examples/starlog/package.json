@@ -14,7 +14,7 @@
     "sharp": "^0.35.0"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.22.0"
   },
   "allowScripts": {
     "esbuild": true
