@@ -45,6 +45,40 @@ describe('astro:assets - separate build and runtime image services', () => {
 	});
 });
 
+describe('astro:assets - build image service resolved by Vite', () => {
+	let fixture: Fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/core-image-ssr/',
+			output: 'server',
+			outDir: './dist/image-service-vite/',
+			// Skip the shared asset cache so the service is loaded to generate the image.
+			cacheDir: './node_modules/.astro-image-service-vite/',
+			adapter: testAdapter(),
+			image: {
+				service: { entrypoint: '~/aliased-image-service' },
+				domains: ['avatars.githubusercontent.com'],
+			},
+			vite: {
+				resolve: {
+					alias: { '~': new URL('./fixtures/core-image-ssr/src', import.meta.url).pathname },
+				},
+			},
+		});
+		await fixture.build();
+	});
+
+	it('generates images with an aliased TypeScript service that reads import.meta.env', async () => {
+		const $ = cheerio.load(await fixture.readFile('/client/prerender/index.html'));
+		const $img = $('#local img');
+		assert.equal($img.attr('data-service-base'), '/');
+		const src = $img.attr('src')!;
+		assert.match(src, /^\/_astro\/penguin2\..+\.webp$/);
+		assert.ok(fixture.pathExists(`/client${src}`));
+	});
+});
+
 describe('astro:assets - separate build and runtime image services in dev', () => {
 	let fixture: Fixture;
 	let devServer: DevServer;

@@ -14,5 +14,3 @@ setEnvironment(manifest, buildEnv.env);
 const app = new BuildApp(manifest, buildEnv);
 
 export { app, manifest };
-// `virtual:image-service` only resolves inside the bundle.
-export { getConfiguredImageService as getImageService } from '../assets/internal.js';

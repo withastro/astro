@@ -1,7 +1,6 @@
 import nodeFs from 'node:fs';
 import os from 'node:os';
 import { createRequire } from 'node:module';
-import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import PLimit from 'p-limit';
@@ -425,10 +424,10 @@ async function generatePagesInBuildScope(
 }
 
 /**
- * Loads the `build` image service in Node. Packages are imported directly, resolved from the
- * project root, so they find their own dependencies (e.g. `sharp`). A local file may need Vite
- * (TypeScript, aliases), so it's taken from the prerender bundle when Astro's default
- * prerenderer runs that bundle in Node.
+ * Loads the `build` image service in Node. When Astro's default prerenderer ran the build, the
+ * service comes from its own chunk in the prerender bundle, resolved by Vite. Otherwise the
+ * bundle may target another runtime, so the entrypoint is imported directly, resolved from the
+ * project root.
  */
 async function loadImageService(
 	settings: AstroSettings,
@@ -436,17 +435,11 @@ async function loadImageService(
 	prerenderOutputDir: URL,
 ): Promise<LocalImageService> {
 	const { entrypoint } = getImageServiceConfig(settings.config.image.service, 'build');
-	const isLocalFile = entrypoint.startsWith('.') || path.isAbsolute(entrypoint);
 	let service;
 	try {
-		if (
-			isLocalFile &&
-			typeof settings.prerenderer !== 'object' &&
-			internals.prerenderEntryFileName
-		) {
-			const prerenderEntryUrl = new URL(internals.prerenderEntryFileName, prerenderOutputDir);
-			const { getImageService } = await import(prerenderEntryUrl.toString());
-			service = await getImageService();
+		if (internals.prerenderImageServiceFileName) {
+			const url = new URL(internals.prerenderImageServiceFileName, prerenderOutputDir);
+			service = (await import(url.href)).default;
 		} else {
 			const resolved = entrypoint.startsWith('.')
 				? new URL(entrypoint, settings.config.root)
