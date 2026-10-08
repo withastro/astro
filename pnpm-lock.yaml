@@ -5124,7 +5124,7 @@ importers:
         specifier: ^0.18.13
         version: 0.18.13
       vite:
-        specifier: ^8.3.0
+        specifier: ^8.3.2
         version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
 
   packages/integrations/markdoc/test/fixtures/content-collections:
