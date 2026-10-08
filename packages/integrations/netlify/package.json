@@ -46,7 +46,7 @@
     "@netlify/functions": "^6.0.2",
     "@netlify/vite-plugin": "^3.0.1",
     "@vercel/nft": "^1.11.0",
-    "rolldown": "^1.2.11",
+    "rolldown": "^1.2.12",
     "tinyglobby": "^0.2.17",
     "vite": "^8.3.2"
   },
