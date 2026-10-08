@@ -20,4 +20,3 @@ export default defineConfig({
 });
 ```
 
-A single service is still used everywhere. In the resolved config available to integrations, `image.service` is the `runtime` service, and `image.service.build` holds the `build` service when one is set.
