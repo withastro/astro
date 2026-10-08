@@ -32,7 +32,7 @@ import { exec } from '../exec.js';
 import { createLoggerFromFlags, type Flags, flagsToAstroInlineConfig } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
 import { getCloudflareCompatibilityDate } from './cloudflare.js';
-import { getPnpmAllowBuildFlags, getPnpmVersion } from './pnpm.js';
+import { getPnpmBuildApproval, getPnpmVersion, type PnpmBuildApproval, runPnpmIn } from './pnpm.js';
 
 const { bold, cyan, dim, green, magenta, red, yellow } = colors;
 
@@ -790,17 +790,18 @@ async function tryToInstallIntegrations({
 		.filter(Boolean)
 		.flat() as string[];
 
-	const allowBuildFlags =
+	const buildApproval: PnpmBuildApproval =
 		packageManager.name === 'pnpm'
-			? await getPnpmAllowBuildFlags(
+			? await getPnpmBuildApproval(
 					integrations.map((integration) => integration.id),
 					() => getPnpmVersion(cwd),
+					runPnpmIn(cwd),
 				)
-			: [];
+			: { flags: [] };
 
 	const installCommand = resolveCommand(packageManager?.agent ?? 'npm', 'add', [
 		...inheritedFlags,
-		...allowBuildFlags,
+		...buildApproval.flags,
 	]);
 	if (!installCommand) return 'none';
 
@@ -828,6 +829,14 @@ async function tryToInstallIntegrations({
 		const spinner = clack.spinner({ withGuide: false });
 		spinner.start('Installing dependencies...');
 		try {
+			if (buildApproval.approve) {
+				try {
+					await buildApproval.approve();
+				} catch (err) {
+					// Best effort: if this fails, `pnpm add` reports the unapproved build scripts itself.
+					logger.debug('add', 'Error approving pnpm build scripts', err);
+				}
+			}
 			await exec(installCommand.command, [...installCommand.args, ...installSpecifiers], {
 				nodeOptions: {
 					cwd,
