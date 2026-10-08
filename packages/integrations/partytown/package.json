@@ -31,7 +31,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@qwik.dev/partytown": "^0.14.4",
+    "@qwik.dev/partytown": "^0.14.5",
     "mrmime": "^2.0.1"
   },
   "devDependencies": {
