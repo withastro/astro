@@ -7202,7 +7202,7 @@ importers:
         specifier: ^0.4.1
         version: 0.4.1
       package-manager-detector:
-        specifier: ^1.8.0
+        specifier: ^1.9.0
         version: 1.9.0
       terminal-link:
         specifier: ^5.0.0
