@@ -32,6 +32,7 @@ import { exec } from '../exec.js';
 import { createLoggerFromFlags, type Flags, flagsToAstroInlineConfig } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
 import { getCloudflareCompatibilityDate } from './cloudflare.js';
+import { getPnpmAllowBuildFlags, getPnpmVersion } from './pnpm.js';
 
 const { bold, cyan, dim, green, magenta, red, yellow } = colors;
 
@@ -789,7 +790,18 @@ async function tryToInstallIntegrations({
 		.filter(Boolean)
 		.flat() as string[];
 
-	const installCommand = resolveCommand(packageManager?.agent ?? 'npm', 'add', inheritedFlags);
+	const allowBuildFlags =
+		packageManager.name === 'pnpm'
+			? await getPnpmAllowBuildFlags(
+					integrations.map((integration) => integration.id),
+					() => getPnpmVersion(cwd),
+				)
+			: [];
+
+	const installCommand = resolveCommand(packageManager?.agent ?? 'npm', 'add', [
+		...inheritedFlags,
+		...allowBuildFlags,
+	]);
 	if (!installCommand) return 'none';
 
 	const installSpecifiers = await convertIntegrationsToInstallSpecifiers(integrations).then(
@@ -829,7 +841,10 @@ async function tryToInstallIntegrations({
 			spinner.error('Error installing dependencies.');
 			logger.debug('add', 'Error installing dependencies', err);
 			// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
-			logger.error('add', `\n${err.stdout || err.message}\n`);
+			logger.error(
+				'add',
+				`\n${[err.stdout, err.stderr].filter(Boolean).join('\n') || err.message}\n`,
+			);
 			return 'failure';
 		}
 	} else {

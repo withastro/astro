@@ -370,11 +370,13 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 			// Split negation patterns out and pass them as picomatch's `ignore` option
 			// so watcher filtering matches tinyglobby's semantics (set subtraction),
 			// not picomatch's default (any-match union). See #17484.
+			// A leading `!(` is an extglob ("anything except"), not a negation (#18289).
 			const patterns = Array.isArray(globOptions.pattern)
 				? globOptions.pattern
 				: [globOptions.pattern];
-			const positivePatterns = patterns.filter((p) => !p.startsWith('!'));
-			const negationPatterns = patterns.filter((p) => p.startsWith('!')).map((p) => p.slice(1));
+			const isNegation = (p: string) => p.startsWith('!') && !p.startsWith('!(');
+			const positivePatterns = patterns.filter((p) => !isNegation(p));
+			const negationPatterns = patterns.filter(isNegation).map((p) => p.slice(1));
 			const matchesGlob = (entry: string) =>
 				!entry.startsWith('../') &&
 				picomatch.isMatch(entry, positivePatterns, {
