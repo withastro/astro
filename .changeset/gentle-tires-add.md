@@ -4,7 +4,7 @@
 
 Adds a `fetch()` function to the font provider `init()` context
 
-This function requests a provider API, retrying transient failures and routing requests through a proxy when one is configured. It lets providers that wrap a 3rd-party unifont provider pass the context to it directly:
+This function requests a provider API, retrying transient failures and more. It lets providers that wrap a 3rd-party unifont provider pass the context to it directly:
 
 ```ts
 import type { FontProvider } from 'astro';
