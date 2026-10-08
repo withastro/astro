@@ -6212,7 +6212,7 @@ importers:
   packages/integrations/solid:
     dependencies:
       vite:
-        specifier: ^8.3.0
+        specifier: ^8.3.2
         version: 8.3.2(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.105.0)(tsx@4.23.13)(yaml@2.9.1)
       vite-plugin-solid:
         specifier: ^2.11.14
