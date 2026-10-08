@@ -126,7 +126,7 @@ const FILES_TO_UPDATE = {
  * resolve the newest version old enough to qualify.
  */
 export function widenCaretRange(range: string): string {
-	const match = /^\^(\d+)\.(\d+)\.(\d+)$/.exec(range);
+	const match = /^\^(\d+)\.(\d+)\.\d+$/.exec(range);
 	if (!match) return range;
 	const [, major, minor] = match;
 	if (major !== '0') return `^${major}.0.0`;
