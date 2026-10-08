@@ -19,7 +19,12 @@ import {
 } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
-import { hasFileExtension, removeLeadingForwardSlash, slash } from '../path.js';
+import {
+	hasFileExtension,
+	removeLeadingForwardSlash,
+	removeTrailingForwardSlash,
+	slash,
+} from '../path.js';
 import { injectServerIslandRoute } from '../server-islands/endpoint.js';
 import { resolvePages } from '../util.js';
 import { ensure404Route } from './astro-designed-error-pages.js';
@@ -545,7 +550,12 @@ function createRedirectRoutes(
 			});
 		}
 
-		const redirectRoute = routeMap.get(destination);
+		// Routes are keyed without a trailing slash. A dynamic destination has to resolve to
+		// one of them, so it may be written with a trailing slash, as `trailingSlash: 'always'`
+		// projects do everywhere else.
+		const redirectRoute =
+			routeMap.get(destination) ??
+			(params.length > 0 ? routeMap.get(removeTrailingForwardSlash(destination)) : undefined);
 
 		// If the source has dynamic params and the redirect will be prerendered,
 		// we need a valid redirectRoute to map them. Without it, the build will fail
