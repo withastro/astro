@@ -16,6 +16,7 @@ import {
 	RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE,
 } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
+import { PRERENDER_IMAGE_SERVICE_CHUNK_NAME } from './plugins/plugin-image-service.js';
 import { cleanChunkName } from './util.js';
 import { makeAstroPageEntryPointFileName } from './static-build.js';
 
@@ -171,7 +172,10 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 							? {}
 							: { input: 'astro/entrypoints/prerender' }),
 						output: {
-							entryFileNames: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
+							entryFileNames: (chunkInfo) =>
+								chunkInfo.name === PRERENDER_IMAGE_SERVICE_CHUNK_NAME
+									? `${PRERENDER_IMAGE_SERVICE_CHUNK_NAME}.[hash].mjs`
+									: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
 							format: 'esm',
 							...userPrerender?.build?.rolldownOptions?.output,
 						},
