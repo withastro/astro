@@ -23,8 +23,5 @@
   "devDependencies": {
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7"
-  },
-  "allowScripts": {
-    "esbuild": true
   }
 }

@@ -18,8 +18,5 @@
     "astro": "^7.3.7",
     "nanostores": "^1.5.4",
     "preact": "^10.29.8"
-  },
-  "allowScripts": {
-    "esbuild": true
   }
 }

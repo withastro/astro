@@ -16,8 +16,5 @@
     "@astrojs/solid-js": "^7.0.2",
     "astro": "^7.3.7",
     "solid-js": "^1.9.15"
-  },
-  "allowScripts": {
-    "esbuild": true
   }
 }

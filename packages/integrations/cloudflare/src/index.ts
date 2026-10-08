@@ -288,7 +288,7 @@ export default function createIntegration({
 				// Capture user's top-level optimizeDeps before Vite scopes it to the
 				// client environment only (Vite 6 Environment API design). We forward
 				// these settings into server environments so that user-provided exclude,
-				// include, and esbuildOptions (e.g. loader) entries are respected.
+				// include, and rolldownOptions (e.g. loader) entries are respected.
 				const userOptimizeDeps = config.vite?.optimizeDeps;
 
 				const cloudflareVitePlugins = cfVitePlugin({
