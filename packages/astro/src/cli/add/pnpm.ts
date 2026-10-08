@@ -27,6 +27,11 @@ export interface PnpmBuildApproval {
  *   into it, so the packages are merged into the existing map via `pnpm config set` instead.
  * - Older or unknown versions: nothing. They don't fail on unapproved builds and may not support
  *   the flag (pnpm v9 rejects it as an unknown option).
+ *
+ * @see https://pnpm.io/settings/build#strictdepbuilds
+ * @see https://pnpm.io/settings/build#allowbuilds
+ * @see https://pnpm.io/cli/add#--allow-build
+ * @see https://github.com/pnpm/pnpm/issues/13872 (`--allow-build` merges since v11.23.0)
  */
 export async function getPnpmBuildApproval(
 	integrationIds: string[],
@@ -48,6 +53,8 @@ async function mergeAllowBuildsConfig(packages: string[], runPnpm: RunPnpm): Pro
 	// `allowBuilds` lives in the workspace root's `pnpm-workspace.yaml`. `--workspace-root` targets
 	// it from nested packages, but errors outside a workspace. In that case, pnpm creates
 	// `pnpm-workspace.yaml` in the current directory.
+	// - `pnpm config get/set`: https://pnpm.io/cli/config
+	// - `--workspace-root`: https://pnpm.io/pnpm-cli#-w---workspace-root
 	let scope: string[] = ['--workspace-root'];
 	let current: string;
 	try {
