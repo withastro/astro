@@ -1,5 +1,6 @@
 {
   "$schema": "https://turborepo.org/schema.json",
+  "agentGuidance": false,
   "tasks": {
     "prebuild": {
       "dependsOn": ["^prebuild"],
