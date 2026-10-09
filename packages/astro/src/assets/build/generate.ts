@@ -10,7 +10,7 @@ import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { MapValue } from '../../type-utils.js';
 import type { AstroConfig } from '../../types/public/config.js';
-import type { LocalImageService } from '../services/service.js';
+import type { ImageConfig, LocalImageService } from '../services/service.js';
 import type {
 	AssetsGlobalStaticImagesList,
 	ImageMetadata,
@@ -45,9 +45,7 @@ type AssetEnv = {
 	assetsCacheDir: URL;
 	serverRoot: URL;
 	clientRoot: URL;
-	imageConfig: Omit<AstroConfig['image'], 'service'> & {
-		service: ReturnType<typeof getImageServiceConfig>;
-	};
+	imageConfig: ImageConfig;
 	assetsFolder: AstroConfig['build']['assets'];
 };
 
