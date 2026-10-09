@@ -7,7 +7,6 @@ import { AstroError } from '../../core/errors/errors.js';
 import { AstroErrorData } from '../../core/errors/index.js';
 import { astroToRuntimeLogger, type AstroLogger } from '../../core/logger/core.js';
 import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
-import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { MapValue } from '../../type-utils.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import { getConfiguredImageService } from '../internal.js';
@@ -77,15 +76,13 @@ export async function prepareAssetsGenerationEnv(
 	const isServerOutput = settings.buildOutput === 'server';
 	let serverRoot: URL, clientRoot: URL;
 	if (isServerOutput) {
-		// Images are collected during prerender, which outputs to .prerender/ subdirectory
-		serverRoot = new URL('.prerender/', settings.config.build.server);
-		clientRoot = settings.config.build.client;
+		// Read source images from prerender output and write optimized images to client output.
+		serverRoot = options.outputDirectories.prerender;
+		clientRoot = options.outputDirectories.client;
 	} else {
-		// For static builds, images have already been moved to the client output directory
-		// by ssrMoveAssets. Use getClientOutputDirectory to respect preserveBuildClientDir.
-		const clientOutputDir = getClientOutputDirectory(settings);
-		serverRoot = clientOutputDir;
-		clientRoot = clientOutputDir;
+		// Static builds move source images to client output before image generation.
+		serverRoot = options.outputDirectories.client;
+		clientRoot = options.outputDirectories.client;
 	}
 
 	return {

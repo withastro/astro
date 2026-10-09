@@ -265,7 +265,7 @@ describe('renderPath()', () => {
 		assert.ok(result !== null);
 		// generatePathWithPrerenderer writes result.outFile to disk — verify the URL
 		// points inside the temp dir and the body matches.
-		assert.ok(result.outFile.href.startsWith(options.settings.config.outDir.href));
+		assert.ok(result.outFile.href.startsWith(options.outputDirectories.client.href));
 		assert.equal(result.body.toString(), html);
 	});
 });

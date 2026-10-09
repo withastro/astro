@@ -277,6 +277,27 @@ export interface PrerenderResult {
 	metadata?: PrerenderRenderMetadata;
 }
 
+/** The output directories resolved by Vite for each Astro build environment. */
+export interface AstroBuildOutputDirectories {
+	/** The resolved Vite client output directory. */
+	client: URL;
+	/** The resolved Vite SSR output directory. */
+	server: URL;
+	/** The resolved Vite prerender output directory. */
+	prerender: URL;
+}
+
+/** Values available when Astro creates a custom prerenderer. */
+export interface AstroPrerendererFactoryContext {
+	outputDirectories: AstroBuildOutputDirectories;
+}
+
+/** Creates a custom prerenderer after Vite has resolved its build environments. */
+export type AstroPrerendererFactory = (
+	defaultPrerenderer: AstroPrerenderer,
+	context: AstroPrerendererFactoryContext,
+) => AstroPrerenderer;
+
 /**
  * Custom prerenderer that adapters can provide to control how pages are prerendered.
  * Allows non-Node runtimes (e.g., workerd) to handle prerendering.
@@ -430,9 +451,7 @@ export interface BaseIntegrationHooks {
 	}) => void | Promise<void>;
 	'astro:build:start': (options: {
 		logger: AstroIntegrationLogger;
-		setPrerenderer: (
-			prerenderer: AstroPrerenderer | ((defaultPrerenderer: AstroPrerenderer) => AstroPrerenderer),
-		) => void;
+		setPrerenderer: (prerenderer: AstroPrerenderer | AstroPrerendererFactory) => void;
 	}) => void | Promise<void>;
 	'astro:build:setup': (options: {
 		vite: InlineConfig;
@@ -442,12 +461,14 @@ export interface BaseIntegrationHooks {
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
 	'astro:build:generated': (options: {
+		/** The resolved Vite client output directory for this build. */
 		dir: URL;
 		logger: AstroIntegrationLogger;
 		routeToHeaders: RouteToHeaders;
 	}) => void | Promise<void>;
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];
+		/** The resolved Vite client output directory for this build. */
 		dir: URL;
 		assets: Map<string, URL[]>;
 		logger: AstroIntegrationLogger;

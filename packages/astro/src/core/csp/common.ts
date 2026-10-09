@@ -92,11 +92,19 @@ export function getStrictDynamic(csp: EnabledCsp): boolean {
 	return csp.scriptDirective?.strictDynamic ?? false;
 }
 
-export async function trackStyleHashes(
-	internals: BuildInternals,
-	settings: AstroSettings,
-	algorithm: CspAlgorithm,
-): Promise<CspHash[]> {
+interface TrackCspHashesOptions {
+	internals: BuildInternals;
+	settings: AstroSettings;
+	algorithm: CspAlgorithm;
+	clientRoot: URL;
+}
+
+export async function trackStyleHashes({
+	internals,
+	settings,
+	algorithm,
+	clientRoot,
+}: TrackCspHashesOptions): Promise<CspHash[]> {
 	const clientStyleHashes: CspHash[] = [];
 	for (const [_, page] of internals.pagesByViteID.entries()) {
 		for (const style of page.styles) {
@@ -107,10 +115,7 @@ export async function trackStyleHashes(
 	}
 
 	for (const clientAsset in internals.clientChunksAndAssets) {
-		const contents = readFileSync(
-			fileURLToPath(new URL(clientAsset, settings.config.build.client)),
-			'utf-8',
-		);
+		const contents = readFileSync(fileURLToPath(new URL(clientAsset, clientRoot)), 'utf-8');
 		if (clientAsset.endsWith('.css') || clientAsset.endsWith('.css')) {
 			clientStyleHashes.push(await generateCspDigest(contents, algorithm));
 		}
@@ -123,11 +128,12 @@ export async function trackStyleHashes(
 	return clientStyleHashes;
 }
 
-export async function trackScriptHashes(
-	internals: BuildInternals,
-	settings: AstroSettings,
-	algorithm: CspAlgorithm,
-): Promise<CspHash[]> {
+export async function trackScriptHashes({
+	internals,
+	settings,
+	algorithm,
+	clientRoot,
+}: TrackCspHashesOptions): Promise<CspHash[]> {
 	const clientScriptHashes: CspHash[] = [];
 
 	for (const script of internals.inlinedScripts.values()) {
@@ -139,10 +145,7 @@ export async function trackScriptHashes(
 	}
 
 	for (const clientAsset in internals.clientChunksAndAssets) {
-		const contents = readFileSync(
-			fileURLToPath(new URL(clientAsset, settings.config.build.client)),
-			'utf-8',
-		);
+		const contents = readFileSync(fileURLToPath(new URL(clientAsset, clientRoot)), 'utf-8');
 		if (clientAsset.endsWith('.js') || clientAsset.endsWith('.mjs')) {
 			clientScriptHashes.push(await generateCspDigest(contents, algorithm));
 		}
