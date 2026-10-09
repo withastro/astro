@@ -2,9 +2,7 @@ import type { AstroConfig } from '../../types/public/config.js';
 
 type ResolvedImageService = AstroConfig['image']['service'];
 type ResolvedImageServiceConfig = Extract<ResolvedImageService, { entrypoint: string }>;
-
-/** `image` config with `service` narrowed to a single target's service. */
-export type TargetImageConfig = Omit<AstroConfig['image'], 'service'> & {
+type ImageConfigWithSingleService = Omit<AstroConfig['image'], 'service'> & {
 	service: ResolvedImageServiceConfig;
 };
 
@@ -20,6 +18,6 @@ export function getImageServiceConfig(
 export function getImageConfigFor(
 	image: AstroConfig['image'],
 	target: 'build' | 'runtime',
-): TargetImageConfig {
+): ImageConfigWithSingleService {
 	return { ...image, service: getImageServiceConfig(image.service, target) };
 }
