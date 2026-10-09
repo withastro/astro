@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { PORTABLE_SESSION_BASE_FLAG, resolveSessionBase } from '../../dist/shared.js';
 
-const rootDir = new URL('file:///deploy/app/');
+// Build the URL from a platform-valid root: `fileURLToPath` requires a drive letter on Windows,
+// so a POSIX-style `file:///deploy/app/` URL would throw before the assertions run.
+const rootDir = new URL('deploy/app/', pathToFileURL('/'));
 
 describe('resolveSessionBase', () => {
 	it('resolves the adapter-injected base against the root directory', () => {

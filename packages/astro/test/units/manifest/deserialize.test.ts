@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { normalizePath } from 'vite';
 import { deserializeManifest } from '../../../dist/core/app/manifest.js';
 import {
 	adjustManifestPathsForChunk,
@@ -156,17 +158,22 @@ describe('adjustManifestPathsForChunk', () => {
 });
 
 describe('toPortableManifest', () => {
-	function createSettings(outDir = new URL('file:///project/dist/')) {
+	// Build file URLs from a platform-valid root: `fileURLToPath`, which `toPortableManifest`
+	// calls, requires a drive letter on Windows, so a POSIX-style `file:///project/` URL would
+	// throw before the assertions run.
+	const root = pathToFileURL('/');
+
+	function createSettings(outDir = new URL('project/dist/', root)) {
 		return {
 			config: {
-				root: new URL('file:///project/'),
-				cacheDir: new URL('file:///project/node_modules/.astro/'),
+				root: new URL('project/', root),
+				cacheDir: new URL('project/node_modules/.astro/', root),
 				outDir,
-				srcDir: new URL('file:///project/src/'),
-				publicDir: new URL('file:///project/public/'),
+				srcDir: new URL('project/src/', root),
+				publicDir: new URL('project/public/', root),
 				build: {
-					server: new URL('file:///project/dist/server/'),
-					client: new URL('file:///project/dist/client/'),
+					server: new URL('project/dist/server/', root),
+					client: new URL('project/dist/client/', root),
 				},
 			},
 			renderers: [],
@@ -174,7 +181,7 @@ describe('toPortableManifest', () => {
 	}
 
 	it('serializes a directory equal to the server directory as ./', () => {
-		const settings = createSettings(new URL('file:///project/dist/server/'));
+		const settings = createSettings(new URL('project/dist/server/', root));
 		const result = toPortableManifest(createSerializedManifest(), settings);
 
 		assert.equal(result.outDir, './');
@@ -191,7 +198,7 @@ describe('toPortableManifest', () => {
 	});
 
 	it('resolves the serialized server directory back to the server entry directory', () => {
-		const settings = createSettings(new URL('file:///project/dist/server/'));
+		const settings = createSettings(new URL('project/dist/server/', root));
 		const serialized = toPortableManifest(createSerializedManifest(), settings);
 
 		const manifest = deserializeManifest(
@@ -206,15 +213,22 @@ describe('toPortableManifest', () => {
 
 describe('relativizeManifestKeys', () => {
 	// Only `config.root` and `renderers` are read, so a minimal settings object is enough.
-	const settings = { config: { root: new URL('file:///project/') }, renderers: [] } as never;
+	// Build the root from a platform-valid URL: `fileURLToPath`, which `relativizeManifestKeys`
+	// calls, requires a drive letter on Windows, so a POSIX-style `file:///project/` URL would
+	// throw before the assertions run.
+	const projectRoot = new URL('project/', pathToFileURL('/'));
+	const projectBase = normalizePath(fileURLToPath(projectRoot));
+	/** A project-absolute path with the current platform's root prefix. */
+	const projectKey = (relative: string) => projectBase + relative;
+	const settings = { config: { root: projectRoot }, renderers: [] } as never;
 
 	it('relativizes keys inside the project root', () => {
 		const manifest = createSerializedManifest({
 			componentMetadata: [
-				['/project/src/pages/index.astro', { propagation: 'none', containsHead: false }],
+				[projectKey('src/pages/index.astro'), { propagation: 'none', containsHead: false }],
 			],
-			inlinedScripts: [['/project/src/pages/index.astro?astro&type=script&index=0', 'code']],
-			entryModules: { '/project/src/components/Foo.astro': 'chunk.mjs' },
+			inlinedScripts: [[projectKey('src/pages/index.astro?astro&type=script&index=0'), 'code']],
+			entryModules: { [projectKey('src/components/Foo.astro')]: 'chunk.mjs' },
 		});
 
 		const result = relativizeManifestKeys(manifest, settings);
@@ -248,22 +262,22 @@ describe('relativizeManifestKeys', () => {
 	it('keeps renderer entrypoints inside the project root absolute', () => {
 		// The runtime resolves renderer entrypoints from the renderer config, which is not
 		// rewritten, so their manifest keys must match the absolute specifier.
-		const clientEntrypoint = '/project/node_modules/my-renderer/client.js';
+		const clientEntrypoint = projectKey('node_modules/my-renderer/client.js');
 		const settingsWithRenderer = {
-			config: { root: new URL('file:///project/') },
+			config: { root: projectRoot },
 			renderers: [{ name: 'my-renderer', clientEntrypoint }],
 		} as never;
 		const manifest = createSerializedManifest({
 			entryModules: {
-				'/project/node_modules/my-renderer/client.js': 'renderer.mjs',
-				'/project/src/components/Foo.astro': 'chunk.mjs',
+				[clientEntrypoint]: 'renderer.mjs',
+				[projectKey('src/components/Foo.astro')]: 'chunk.mjs',
 			},
 		});
 
 		const result = relativizeManifestKeys(manifest, settingsWithRenderer);
 
 		assert.deepEqual(result.entryModules, {
-			'/project/node_modules/my-renderer/client.js': 'renderer.mjs',
+			[clientEntrypoint]: 'renderer.mjs',
 			'/src/components/Foo.astro': 'chunk.mjs',
 		});
 	});
