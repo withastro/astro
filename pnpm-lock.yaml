@@ -4456,7 +4456,7 @@ importers:
         version: 8.3.3(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1)
     devDependencies:
       '@cloudflare/workers-types':
-        specifier: ^5.20261005.1
+        specifier: ^5.20261006.1
         version: 5.20261008.1
       '@types/node':
         specifier: ^22.19.0
