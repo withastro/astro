@@ -68,6 +68,13 @@ const CLIENT_RUNTIME_LOGGER_SETUP = `
 	};
 `;
 
+/** Astro's server environments, plus the one that builds the image service for image generation. */
+function isServerEnvironment(environment: vite.Environment): boolean {
+	return (
+		isAstroServerEnvironment(environment) || environment.name === IMAGE_SERVICE_ENVIRONMENT_NAME
+	);
+}
+
 /**
  * During a build, prerendered pages use the `build` image service and everything else uses the
  * `runtime` service. The dev server uses the `build` service everywhere, as it's the one that
@@ -142,7 +149,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 				},
 				async handler(id) {
 					if (id === VIRTUAL_SERVICE_ID) {
-						if (isAstroServerEnvironment(this.environment)) {
+						if (isServerEnvironment(this.environment)) {
 							const target = getImageServiceTarget(this.environment);
 							return await this.resolve(
 								getImageServiceConfig(settings.config.image.service, target).entrypoint,
@@ -168,8 +175,8 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						// No component references (Image, Picture, Font) to avoid TDZ
 						// errors when the content runtime and component pages are
 						// bundled into the same prerender chunk (see #16036).
-						const isServerEnvironment = isAstroServerEnvironment(this.environment);
-						const getImageExport = isServerEnvironment
+						const isServer = isServerEnvironment(this.environment);
+						const getImageExport = isServer
 							? `${RUNTIME_LOGGER_SETUP}
 								import { getImage as getImageInternal } from "astro/assets";
 								export const getImage = async (options) => await getImageInternal(options, imageConfig, _runtimeLogger);`
@@ -188,8 +195,8 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							`,
 						};
 					}
-					const isServerEnvironment = isAstroServerEnvironment(this.environment);
-					const getImageExport = isServerEnvironment
+					const isServer = isServerEnvironment(this.environment);
+					const getImageExport = isServer
 						? `import { getImage as getImageInternal } from "astro/assets";
 							export const getImage = async (options) => await getImageInternal(options, imageConfig, _runtimeLogger);`
 						: `import { AstroError, AstroErrorData } from "astro/errors";
@@ -202,7 +209,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 
 					return {
 						code: `
-				${isServerEnvironment ? RUNTIME_LOGGER_SETUP : CLIENT_RUNTIME_LOGGER_SETUP}
+				${isServer ? RUNTIME_LOGGER_SETUP : CLIENT_RUNTIME_LOGGER_SETUP}
 				import { getConfiguredImageService as _getConfiguredImageService } from "astro/assets";
 				export { isLocalService } from "astro/assets";
 				${settings.config.image.responsiveStyles ? `import "${VIRTUAL_IMAGE_STYLES_ID}";` : ''}
@@ -331,7 +338,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.
 					// Since you cannot use image optimization on the client anyway, it's safe to assume that if the user imported
 					// an image on the client, it should be present in the final build.
-					if (isAstroServerEnvironment(this.environment)) {
+					if (isServerEnvironment(this.environment)) {
 						// For SVGs imported directly (not via content collections), create a full
 						// component that can be rendered inline. For content collection SVGs, the
 						// component is reconstructed later in content/runtime.ts from __svgData

@@ -20,3 +20,4 @@ export default defineConfig({
 });
 ```
 
+The resolved config keeps the shape you used. Integrations that read `config.image.service` should handle `{ build, runtime }` as well as a single service.

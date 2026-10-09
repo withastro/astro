@@ -16,7 +16,7 @@ import { getParts } from './utils/generate-routes-json.js';
 import { buildAssetsHeadersContent } from './utils/headers.js';
 import {
 	type ImageServiceConfig,
-	useIntegrationImageService,
+	getRuntimeImageService,
 	normalizeImageServiceConfig,
 	setImageConfig,
 } from './utils/image-config.js';
@@ -144,7 +144,6 @@ export default function createIntegration({
 	let _routes: IntegrationResolvedRoute[];
 	let cfPluginConfig: PluginConfig;
 	// Whether the adapter set the `build` image service to its Sharp default for `compile`.
-	let addedBuildImageService = false;
 	let isDev = false;
 
 	const { buildService, runtimeService, transformAtBuild } =
@@ -302,7 +301,6 @@ export default function createIntegration({
 
 				isDev = command === 'dev';
 				const image = setImageConfig(imageService, config.image, command, logger);
-				addedBuildImageService = 'build' in image.service && !config.image?.service?.build;
 				updateConfig({
 					...(config.experimental.collectionStorage === 'chunked' && {
 						experimental: {
@@ -495,9 +493,7 @@ export default function createIntegration({
 					// Astro's dev server uses the `build` image service, but Cloudflare renders pages and
 					// serves `/_image` in workerd, where `build` services (Sharp, the binding forwarder)
 					// can't load. Dev uses the `runtime` service, with transforms going to the IMAGES binding.
-					delete config.image.service.build;
-				} else if (addedBuildImageService) {
-					useIntegrationImageService(config.image);
+					config.image.service = getRuntimeImageService(config.image.service);
 				}
 
 				// When a base path is configured, nest the client output directory under
@@ -548,7 +544,8 @@ export default function createIntegration({
 				if (
 					buildService === 'compile' &&
 					runtimeService === 'cloudflare-binding' &&
-					_config.image.service.entrypoint === passthroughImageService().entrypoint
+					getRuntimeImageService(_config.image.service).entrypoint ===
+						passthroughImageService().entrypoint
 				) {
 					logger.warn(
 						`passthroughImageService() overrides runtime: 'cloudflare-binding'. Images remain untransformed at build time and are served unchanged on demand. Set imageService: 'compile' or runtime: 'passthrough' to make this configuration explicit, or remove passthroughImageService() to enable image transformation.`,

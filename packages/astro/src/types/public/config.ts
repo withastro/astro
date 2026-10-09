@@ -2160,7 +2160,7 @@ export interface AstroUserConfig<
 		 *
 		 * The `build` service is also loaded in the runtime that prerenders your pages, which may not be Node (e.g. `workerd`), to generate image URLs. Its `transform()` only runs in Node.
 		 *
-		 * In the resolved config available to integrations, `image.service` is the `runtime` service, and `image.service.build` holds the `build` service when one is set.
+		 * The resolved config available to integrations keeps the shape you used, so integrations that read `image.service` should handle both a single service and `{ build, runtime }`. When an integration sets a service with `updateConfig()` in the other shape, it replaces the existing one.
 		 */
 		service?: ImageServiceConfig | ImageServiceTargets;
 		/**

@@ -1,6 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { validateConfig as _validateConfig } from '../../../dist/core/config/validate.js';
+import { getImageServiceConfig } from '../../../dist/assets/utils/service-config.js';
 import { runHookConfigSetup } from '../../../dist/integrations/hooks.js';
 import type { AstroSettings } from '../../../dist/types/astro.js';
 import { defaultLogger } from '../test-utils.ts';
@@ -35,13 +36,24 @@ async function setupWithIntegration(
 	return settings.config.image.service;
 }
 
+function resolveTargets(service: Parameters<typeof getImageServiceConfig>[0]) {
+	return {
+		build: getImageServiceConfig(service, 'build'),
+		runtime: getImageServiceConfig(service, 'runtime'),
+	};
+}
+
 describe('image.service build and runtime services', () => {
-	it('resolves a single service without a build service', async () => {
+	it('uses a single service for both targets', async () => {
 		const config = await validateConfig({ image: { service: { entrypoint: 'my-service' } } });
 		assert.deepEqual(config.image.service, { entrypoint: 'my-service', config: {} });
+		assert.deepEqual(resolveTargets(config.image.service), {
+			build: { entrypoint: 'my-service', config: {} },
+			runtime: { entrypoint: 'my-service', config: {} },
+		});
 	});
 
-	it('resolves { build, runtime } to the runtime service with a build service', async () => {
+	it('keeps { build, runtime } as written', async () => {
 		const config = await validateConfig({
 			image: {
 				service: {
@@ -51,41 +63,50 @@ describe('image.service build and runtime services', () => {
 			},
 		});
 		assert.deepEqual(config.image.service, {
-			entrypoint: 'my-cdn',
-			config: { a: 1 },
 			build: { entrypoint: SHARP, config: {} },
+			runtime: { entrypoint: 'my-cdn', config: { a: 1 } },
 		});
+		assert.deepEqual(resolveTargets(config.image.service), config.image.service);
 	});
 
-	it('keeps the build service when an integration replaces the runtime service', async () => {
+	it('replaces { build, runtime } with a single service set by an integration', async () => {
 		const service = await setupWithIntegration(
 			{ image: { service: { build: { entrypoint: SHARP }, runtime: { entrypoint: 'a' } } } },
 			{ image: { service: { entrypoint: 'my-cdn' } } },
 		);
-		assert.deepEqual(service, {
-			entrypoint: 'my-cdn',
-			config: {},
-			build: { entrypoint: SHARP, config: {} },
+		assert.deepEqual(resolveTargets(service), {
+			build: { entrypoint: 'my-cdn', config: {} },
+			runtime: { entrypoint: 'my-cdn', config: {} },
 		});
 	});
 
-	it('resolves { build, runtime } set by an integration', async () => {
+	it('replaces a single service with { build, runtime } set by an integration', async () => {
 		const service = await setupWithIntegration(
-			{},
+			{ image: { service: { entrypoint: 'a', config: { a: 1 } } } },
 			{ image: { service: { build: { entrypoint: SHARP }, runtime: { entrypoint: 'my-cdn' } } } },
 		);
-		assert.deepEqual(service, {
-			entrypoint: 'my-cdn',
-			config: {},
+		assert.deepEqual(resolveTargets(service), {
 			build: { entrypoint: SHARP, config: {} },
+			runtime: { entrypoint: 'my-cdn', config: {} },
 		});
 	});
 
-	it('resolves a runtime service set by an integration', async () => {
+	it('merges a single service set by an integration into a single service', async () => {
 		const service = await setupWithIntegration(
-			{},
+			{ image: { service: { entrypoint: 'a', config: { a: 1 } } } },
+			{ image: { service: { entrypoint: 'my-cdn' } } },
+		);
+		assert.deepEqual(service, { entrypoint: 'my-cdn', config: { a: 1 } });
+	});
+
+	it('merges { build, runtime } set by an integration into { build, runtime }', async () => {
+		const service = await setupWithIntegration(
+			{ image: { service: { build: { entrypoint: SHARP }, runtime: { entrypoint: 'a' } } } },
 			{ image: { service: { runtime: { entrypoint: 'my-cdn' } } } },
 		);
-		assert.deepEqual(service, { entrypoint: 'my-cdn', config: {} });
+		assert.deepEqual(resolveTargets(service), {
+			build: { entrypoint: SHARP, config: {} },
+			runtime: { entrypoint: 'my-cdn', config: {} },
+		});
 	});
 });

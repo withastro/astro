@@ -14,7 +14,6 @@ import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/merge.js';
 import { validateConfigRefined } from '../core/config/validate.js';
-import { normalizeImageServiceInput } from '../assets/utils/service-config.js';
 import { validateSetAdapter } from '../core/dev/adapter-validation.js';
 import type { AstroIntegrationLogger, AstroLogger } from '../core/logger/core.js';
 import { getRouteGenerator } from '../core/routing/generator.js';
@@ -253,12 +252,6 @@ export async function runHookConfigSetup({
 							isLoggerUpdated = true;
 						}
 						updatedConfig = mergeConfig(updatedConfig, newConfig);
-						if (newConfig.image?.service) {
-							// The base schema doesn't run again, so resolve `{ build, runtime }` here.
-							updatedConfig.image.service = normalizeImageServiceInput(
-								updatedConfig.image.service,
-							) as AstroConfig['image']['service'];
-						}
 						return { ...updatedConfig };
 					},
 					injectRoute: (injectRoute) => {
