@@ -31,8 +31,7 @@ function mergeConfigRecursively(
 			merged[key] = mergeViteConfig(existing, value);
 			continue;
 		}
-		// `image.service` is one service or `{ build, runtime }`. Merging one shape into the other
-		// would mix them, so a service of the other shape replaces it.
+		// Merging a single service with `{ build, runtime }` would mix the shapes.
 		if (
 			key === 'service' &&
 			rootPath === 'image' &&

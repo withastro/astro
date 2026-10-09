@@ -48,18 +48,14 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 	return configuredImageService;
 }
 
-/**
- * Build-time image URLs are only resolved while the build collects them: the
- * build generates exactly the images it collected. The output layout is
- * attached to the runtime `imageConfig` by `astro:assets`.
- */
+// The build only writes the images it collected, so static URLs anywhere else would 404.
 function getStaticImageConfig(
 	imageConfig: TargetImageConfig & { staticImageConfig?: StaticImageConfig },
 ): StaticImageConfig | undefined {
 	return isCollectingStaticImages() ? imageConfig.staticImageConfig : undefined;
 }
 
-/** Test-only, not public API: override the image service `getImage()` uses. */
+/** Test-only: override the image service `getImage()` uses. */
 export function setConfiguredImageService(service: ImageService | undefined): void {
 	configuredImageService = service;
 }
@@ -132,8 +128,7 @@ export async function getImage(
 		? resolvedOptions.src.fsPath
 		: undefined; // Only set for ESM imports, where we do have a file path
 
-	// Image services read `src` freely. Reading `src` on an ESM-imported image marks the original as
-	// used, so the build would keep it even when only its optimized versions are on the page.
+	// Services reading `src` must not keep the original in the build output.
 	const clonedSrc = getUntrackedImage(resolvedOptions.src);
 
 	if (isESMImportedImage(clonedSrc)) {
@@ -256,8 +251,7 @@ export async function getImage(
 				serviceEntrypoint: imageConfig.service.entrypoint,
 				assetQueryParams: imageConfig.assetQueryParams,
 			});
-			// Report every resolved transform (dedup hits included) so the build
-			// can attribute it to the page currently rendering.
+			// Record dedup hits too: every page using the image needs it attributed.
 			recordStaticImage(image);
 			return url;
 		};

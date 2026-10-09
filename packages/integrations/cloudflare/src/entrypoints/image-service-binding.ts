@@ -28,14 +28,9 @@ function createImageTransformUrl(serverUrl: string, transform: Record<string, an
 	return url.toString();
 }
 
-/** The prerender server already warned about, so each build warns once. */
 let warnedServerUrl: string | undefined;
 
-/**
- * Build image service of `cloudflare-binding` builds. Prerendered pages get Sharp's URLs, and
- * `transform()` sends each image to the IMAGES binding of the prerender server, falling back
- * to Sharp when the binding fails.
- */
+/** Sharp, with transforms sent to the prerender server's IMAGES binding. */
 const service: LocalImageService = {
 	...sharpService,
 

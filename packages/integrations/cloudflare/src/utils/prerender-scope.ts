@@ -8,9 +8,8 @@ import { installRenderScope } from 'astro/app';
  *
  * This module is prerender-only: it is loaded via a dynamic import behind the
  * compile-time `isPrerender` const (see `handler.ts`), so its `node:` import
- * never reaches production worker bundles. AsyncLocalStorage is always
- * available here, because the adapter appends the `nodejs_als` compatibility
- * flag to the prerender worker when no ALS-capable flag is configured.
+ * never reaches production worker bundles. The adapter ensures the prerender
+ * worker has an ALS-capable compatibility flag.
  *
  * `installRenderScope` is first-wins, so calling this per request is
  * idempotent.

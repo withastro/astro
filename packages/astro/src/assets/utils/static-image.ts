@@ -11,7 +11,7 @@ import { hashTransform, propsToFilename } from './hash.js';
 import { isESMImportedImage } from './imageKind.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './url.js';
 
-/** Where build-time images are written, attached to the runtime `imageConfig` as `staticImageConfig`. */
+/** Output layout of build-time images. */
 export interface StaticImageConfig {
 	base: string;
 	assetsPrefix?: AssetsPrefix;

@@ -9,11 +9,7 @@ export interface CollectedPrerenderMetadata {
 }
 
 export interface CollectPrerenderMetadataOptions {
-	/**
-	 * Whether `getImage()` resolves build-time image URLs and collects their
-	 * transforms, for the build to generate. Disable it when prerendered pages
-	 * should keep the image service's runtime URLs. Default `true`.
-	 */
+	/** Resolve build-time image URLs and collect them for generation. Default `true`. */
 	staticImages?: boolean;
 }
 
@@ -61,7 +57,6 @@ export async function collectPrerenderMetadata<T>(
 		value,
 		metadata: {
 			contentEntryKeys: [...store.contentEntries!],
-			// The same transform resolved more than once in a render is generated once.
 			staticImages: [
 				...new Map(
 					store.staticImages?.map((image) => [`${image.originalPath}\0${image.hash}`, image]),

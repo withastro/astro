@@ -92,11 +92,7 @@ export class StaticPaths {
 		return allPaths;
 	}
 
-	/**
-	 * Like `getAll()`, but collects the images resolved while computing the paths
-	 * (e.g. by `getImage()` in `getStaticPaths()`) and returns them with the paths.
-	 * Images are only collected when a render scope is installed.
-	 */
+	/** Like `getAll()`, plus the images resolved while computing the paths. */
 	async getAllWithMetadata(
 		options: CollectPrerenderMetadataOptions = {},
 	): Promise<StaticPathsResult> {

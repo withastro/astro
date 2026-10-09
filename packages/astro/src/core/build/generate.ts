@@ -56,10 +56,7 @@ export async function generatePages(
 	prerenderOutputDir: URL,
 	builder: ViteBuilder,
 ) {
-	// Records from the bundled prerender runtime reach this build's stores through the
-	// `Symbol.for('astro:render-scope')` channel. Each render gets its own store; this one
-	// catches images resolved anywhere else during the build, such as in a module evaluated
-	// outside of a render, so they are generated too.
+	// Collects images resolved outside of any render, e.g. at module top level.
 	const buildCollectors: RenderCollectors = { staticImages: [], referencedImages: new Set() };
 	return ensureAsyncRenderScope().run(buildCollectors, () =>
 		generatePagesInBuildScope(options, internals, prerenderOutputDir, builder, buildCollectors),

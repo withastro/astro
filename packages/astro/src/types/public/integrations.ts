@@ -272,10 +272,7 @@ export type StaticPathsMetadata = Pick<
 	'staticImages' | 'referencedImages'
 >;
 
-/**
- * The richer result a prerenderer's `getStaticPaths()` may return instead of a bare
- * array, pairing the paths with the images recorded while computing them.
- */
+/** The paths a prerenderer's `getStaticPaths()` returns, with the images they resolved. */
 export interface StaticPathsResult {
 	paths: PathWithRoute[];
 	metadata?: StaticPathsMetadata;
@@ -296,11 +293,8 @@ export interface PrerenderResult {
  * Custom prerenderer that adapters can provide to control how pages are prerendered.
  * Allows non-Node runtimes (e.g., workerd) to handle prerendering.
  *
- * A prerenderer that renders outside of Astro's build process installs a render scope with
- * `installRenderScope()` from `astro/app` in its runtime, then computes paths with
- * `StaticPaths.getAllWithMetadata()` and renders pages with `renderForPrerender()`. While these
- * run, `getImage()` resolves build-time image URLs and collects them; the prerenderer reports them
- * on a {@link StaticPathsResult} and a {@link PrerenderResult}, and Astro generates the images.
+ * A prerenderer running outside of Astro's process calls `installRenderScope()`, then
+ * `StaticPaths.getAllWithMetadata()` and `renderForPrerender()` so images are collected.
  */
 export interface AstroPrerenderer {
 	name: string;
@@ -312,8 +306,7 @@ export interface AstroPrerenderer {
 	 * Returns pathnames with their routes to prerender. The route is included to avoid
 	 * needing to re-match routes later, which can be incorrect due to route priority.
 	 *
-	 * Return a {@link StaticPathsResult} so Astro can generate the images resolved while
-	 * computing the paths. Returning a bare array is deprecated but still supported.
+	 * Returning a bare array instead of a {@link StaticPathsResult} is deprecated.
 	 */
 	getStaticPaths: () => Promise<PathWithRoute[] | StaticPathsResult>;
 	/**
@@ -329,10 +322,8 @@ export interface AstroPrerenderer {
 	 *   {@link PrerenderResult}. A prerenderer that cannot collect may ignore the
 	 *   flag and return a bare `Response`; its paths are then recorded as
 	 *   "not tracked".
-	 * @returns A {@link PrerenderResult} pairing the response with the metadata the page
-	 *   resolved. Metadata is the only attribution channel for all prerenderers, and it is
-	 *   how Astro learns which images to generate. Returning a bare `Response` is deprecated
-	 *   but still supported.
+	 * @returns A {@link PrerenderResult}, whose metadata tells Astro which images to generate.
+	 *   Returning a bare `Response` is deprecated.
 	 */
 	render: (
 		request: Request,

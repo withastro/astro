@@ -47,8 +47,6 @@ describe('astro:assets - separate build and runtime image services', () => {
 	});
 });
 
-// A prerenderer that wraps the default one still renders in Node, but the service must not
-// depend on which prerenderer ran the build.
 const wrappingPrerenderer: AstroIntegration = {
 	name: 'wrapping-prerenderer',
 	hooks: {

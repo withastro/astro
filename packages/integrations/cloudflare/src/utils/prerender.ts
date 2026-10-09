@@ -160,11 +160,8 @@ interface ImageTransformOptions {
  * Transforms a single image with the Cloudflare IMAGES binding and streams the raw
  * bytes back to the Node-side build.
  *
- * The original is uploaded as the request body, since the build has already loaded it,
- * and the transform parameters arrive as query parameters on the request URL, in the same
- * shape `/_image` uses. Handling one image per request keeps peak memory proportional to
- * a single variant rather than to the whole image set; neither body is buffered in the
- * isolate.
+ * The original is the request body and the transform is in `/_image`-style query params.
+ * One image per request keeps memory bounded to a single variant.
  */
 export async function handleImageTransformRequest(
 	request: Request,

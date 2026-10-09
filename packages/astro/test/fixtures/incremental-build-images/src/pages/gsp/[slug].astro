@@ -2,8 +2,7 @@
 import { getImage } from 'astro:assets';
 import penguin from '../../assets/penguin.jpg';
 
-// Images resolved here belong to no rendered page, so they are not recorded in
-// a path's incremental cache entry.
+// Images resolved here belong to no path's incremental cache entry.
 export async function getStaticPaths() {
 	const optimized = await getImage({ src: penguin, width: 60, format: 'webp' });
 	return [

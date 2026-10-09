@@ -65,10 +65,7 @@ export interface ImageServiceConfig<T extends Record<string, any> = Record<strin
 	config?: T;
 }
 
-/**
- * Separate image services for prerendered pages (`build`) and for on-demand pages and the
- * image endpoint (`runtime`).
- */
+/** Image services for prerendered pages (`build`) and on-demand pages (`runtime`). */
 export interface ImageServiceTargets {
 	build: ImageServiceConfig;
 	runtime: ImageServiceConfig;

@@ -44,9 +44,7 @@ export function createDefaultPrerenderer({
 
 			app.setInternals(internals);
 			app.setOptions(options);
-			// A later build in the same process with identical output reuses the cached
-			// prerender module, and with it the route cache. Recompute static paths, so
-			// `getStaticPaths()` sees fresh data and its images are collected again.
+			// Rebuilds in one process reuse the cached module, and its stale static paths.
 			app.routeCache.clearAll();
 			prerenderer.app = app;
 		},

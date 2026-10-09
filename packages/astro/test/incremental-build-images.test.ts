@@ -104,9 +104,7 @@ describe('experimental.incrementalBuild images resolved in getStaticPaths', () =
 
 	describe('rebuild with no changes', () => {
 		before(async () => {
-			// Astro empties dist/ each build, so a skipped path is restored from its
-			// cached copy. A sentinel there proves the path was skipped: a re-render
-			// would overwrite it.
+			// A re-render would overwrite this sentinel.
 			fs.writeFileSync(cachedPage, 'cached gsp sentinel');
 			await fixture.build();
 		});
