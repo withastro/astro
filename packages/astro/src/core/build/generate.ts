@@ -306,7 +306,6 @@ async function generatePagesInBuildScope(
 			colors.green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
 		);
 
-		// Default pipeline always runs
 		const staticImageList = images.images;
 		if (staticImageList.size) {
 			logger.info(

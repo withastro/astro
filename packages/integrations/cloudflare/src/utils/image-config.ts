@@ -80,7 +80,6 @@ export function setImageConfig(
 	logger: AstroIntegrationLogger,
 ) {
 	const { buildService, runtimeService } = normalizeImageServiceConfig(service);
-	// Tests pass partial configs.
 	const runtimeEntrypoint = config?.service && getRuntimeImageService(config.service).entrypoint;
 
 	switch (buildService) {
@@ -131,7 +130,6 @@ export function setImageConfig(
 				command === 'dev' || runtimeService === 'cloudflare-binding'
 					? { entrypoint: '@astrojs/cloudflare/image-transform-endpoint' }
 					: CLOUDFLARE_PASSTHROUGH_ENDPOINT;
-			// The user's image service runs everywhere, as it would without the adapter.
 			if (hasUserImageService(config)) {
 				return { ...config, endpoint };
 			}
