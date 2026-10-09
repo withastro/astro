@@ -234,6 +234,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 						});
 					} catch (error: any) {
 						logger.error(`Error rendering ${entry}: ${error.message}`);
+						throw error;
 					}
 
 					store.set({
