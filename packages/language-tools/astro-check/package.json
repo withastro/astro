@@ -31,7 +31,7 @@
     "test": "astro-scripts test \"**/*.test.ts\"  --tsx true"
   },
   "dependencies": {
-    "@astrojs/language-server": "^2.16.7",
+    "@astrojs/language-server": "^2.17.1",
     "chokidar": "^5.0.0",
     "kleur": "^4.1.5",
     "yargs": "^18.2.0"
