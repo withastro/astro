@@ -46,7 +46,7 @@ describe('experimental.incrementalBuild', () => {
 			assert.ok(fs.existsSync(cacheFile), 'Cache manifest should exist');
 
 			const cache = JSON.parse(fs.readFileSync(cacheFile, 'utf-8'));
-			assert.equal(cache.version, 1);
+			assert.equal(cache.version, 2);
 
 			// The blog route should be tracked
 			const blogRoute = cache.routes['src/pages/blog/[slug].astro'];
