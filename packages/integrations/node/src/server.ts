@@ -1,25 +1,15 @@
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import * as options from 'virtual:astro-node:config';
 import createMiddleware from './middleware.js';
-import { readHeadersJson } from './shared.js';
+import { readHeadersJson, resolveSessionBase } from './shared.js';
 import _startServer, { createStandaloneHandler } from './standalone.js';
 
 setGetEnv((key) => process.env[key]);
 
 const app = createApp({ streaming: !options.experimentalDisableStreaming });
 
-// Resolve the root-relative session base against the runtime manifest location.
-if (
-	app.manifest.sessionConfig?.options?.base &&
-	!path.isAbsolute(app.manifest.sessionConfig.options.base)
-) {
-	app.manifest.sessionConfig.options.base = fileURLToPath(
-		new URL(app.manifest.sessionConfig.options.base, app.manifest.rootDir),
-	);
-}
+resolveSessionBase(app.manifest.sessionConfig, app.manifest.rootDir);
 
 const headersMap = options.staticHeaders ? readHeadersJson(app.manifest.outDir) : undefined;
 

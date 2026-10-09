@@ -7,6 +7,30 @@ import type { NodeAppHeadersJson, Options } from './types.js';
 export const STATIC_HEADERS_FILE = '_headers.json';
 
 /**
+ * Marks the session base the adapter injects. The adapter stores it relative to the project root,
+ * so the runtime resolves it against `rootDir`. Drivers configured by the user are left untouched
+ * because their `base` is driver-specific, such as a key prefix for key-value stores.
+ */
+export const PORTABLE_SESSION_BASE_FLAG = '__astroPortableSessionBase';
+
+/**
+ * Resolves the adapter-injected session base against the runtime `rootDir`. Only a base marked with
+ * `PORTABLE_SESSION_BASE_FLAG` is resolved; any other driver's `base` is left untouched.
+ */
+export function resolveSessionBase(
+	sessionConfig: { driver: string; options?: Record<string, any> | undefined } | undefined,
+	rootDir: URL,
+): void {
+	const options = sessionConfig?.options;
+	const base = options?.base;
+	if (!options?.[PORTABLE_SESSION_BASE_FLAG] || typeof base !== 'string' || path.isAbsolute(base)) {
+		return;
+	}
+	options.base = url.fileURLToPath(new URL(base, rootDir));
+	delete options[PORTABLE_SESSION_BASE_FLAG];
+}
+
+/**
  * Resolves the client directory path at runtime.
  *
  * At build time, we know the relative path between server and client directories.
@@ -17,8 +41,9 @@ export const STATIC_HEADERS_FILE = '_headers.json';
  * It throws an error if it can't find the directory while walking the parent directories.
  */
 export function resolveClientDir(options: Options) {
-	// options.client and options.server are folder names, such as "client" and "server".
-	const rel = path.relative(options.server, options.client);
+	// options.client is the relative path from the server directory to the client directory,
+	// such as "../client". options.server is the server directory basename, used below.
+	const rel = options.client;
 	const serverFolder = options.server;
 	let serverEntryFolderURL = path.dirname(import.meta.url);
 	let previous = '';

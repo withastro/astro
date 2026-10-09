@@ -39,6 +39,16 @@ export async function compile({
 	const cssTransformErrors: AstroError[] = [];
 	let transformResult: TransformResult;
 
+	// In builds, the compiler emits the filename as string literals (the component
+	// `moduleId`, `createMetadata` argument, and script/style ids) that are looked up in
+	// the manifest, whose keys are stored relative to the project root. Passing a
+	// root-relative filename makes those literals match, while leaving user-authored
+	// strings untouched. The `file` and `url` exports and the component `resolvedPath`
+	// metadata stay absolute: the former is a public value, the latter keys runtime
+	// lookups against the build module graph.
+	const isBuild = viteConfig.command === 'build';
+	const emittedFilename = isBuild ? normalizeFilename(filename, astroConfig.root) : filename;
+
 	try {
 		const preprocessedStyles = await preprocessStyles(
 			source,
@@ -53,7 +63,7 @@ export async function compile({
 
 		const transformOptions: TransformOptions & { inlineComponentAssets?: boolean } = {
 			compact: astroConfig.compressHTML,
-			filename,
+			filename: emittedFilename,
 			inlineComponentAssets,
 			normalizedFilename: normalizeFilename(filename, astroConfig.root),
 			sourcemap: 'both',

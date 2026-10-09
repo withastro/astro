@@ -27,6 +27,35 @@ interface AstroPluginOptions {
 
 const astroFileToCompileMetadataWeakMap = new WeakMap<AstroConfig, Map<string, CompileMetadata>>();
 
+/**
+ * Rewrites the component paths the compiler embedded in the transformed code (the
+ * `client:component-path` / `server:component-path` props) so they match the relativized
+ * manifest keys. The returned metadata keeps absolute paths because it keys build-time module
+ * graph lookups, such as the incremental build's client dependency hashing.
+ */
+function relativizeComponentPaths(transformResult: CompileAstroResult, root: URL): string {
+	const normalizedRoot = normalizePath(fileURLToPath(root));
+	const relativize = (resolvedPath: string) => {
+		const normalized = normalizePath(resolvedPath);
+		return normalized.startsWith(normalizedRoot)
+			? normalized.slice(normalizedRoot.length - 1)
+			: resolvedPath;
+	};
+
+	let code = transformResult.code;
+	for (const component of [
+		...transformResult.hydratedComponents,
+		...transformResult.clientOnlyComponents,
+		...transformResult.serverComponents,
+	]) {
+		const resolvedPath = relativize(component.resolvedPath);
+		if (resolvedPath !== component.resolvedPath) {
+			code = code.replaceAll(JSON.stringify(component.resolvedPath), JSON.stringify(resolvedPath));
+		}
+	}
+	return code;
+}
+
 /** Transform .astro files for Vite */
 export default function astro({ settings, logger }: AstroPluginOptions): vite.Plugin[] {
 	const { config } = settings;
@@ -293,40 +322,16 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						}
 					}
 
-					// The compiler embeds the absolute filename in generated string literals,
-					// which must match the relativized manifest keys.
-					const isBuild = this.environment.config.command === 'build';
-					if (isBuild) {
-						const normalizedRoot = normalizePath(fileURLToPath(config.root));
-						if (filename.startsWith(normalizedRoot)) {
-							const escaped = normalizedRoot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-							const re = new RegExp(`(["'])${escaped}`, 'g');
-							transformResult.code = transformResult.code.replace(re, '$1/');
-						}
+					if (this.environment.config.command === 'build') {
+						transformResult.code = relativizeComponentPaths(transformResult, config.root);
 					}
-
-					const normalizeResolvedPath = (
-						comp: (typeof transformResult.serverComponents)[number],
-					) => {
-						if (isBuild) {
-							const nr = normalizePath(fileURLToPath(config.root));
-							if (comp.resolvedPath.startsWith(nr)) {
-								return { ...comp, resolvedPath: comp.resolvedPath.slice(nr.length - 1) };
-							}
-						}
-						return comp;
-					};
 
 					const astroMetadata: AstroPluginMetadata['astro'] = {
 						// Remove Astro components that have been mistakenly given client directives
 						// We'll warn the user about this later, but for now we'll prevent them from breaking the build
-						clientOnlyComponents: transformResult.clientOnlyComponents
-							.filter(notAstroComponent)
-							.map(normalizeResolvedPath),
-						hydratedComponents: transformResult.hydratedComponents
-							.filter(notAstroComponent)
-							.map(normalizeResolvedPath),
-						serverComponents: transformResult.serverComponents.map(normalizeResolvedPath),
+						clientOnlyComponents: transformResult.clientOnlyComponents.filter(notAstroComponent),
+						hydratedComponents: transformResult.hydratedComponents.filter(notAstroComponent),
+						serverComponents: transformResult.serverComponents,
 						scripts: transformResult.scripts,
 						containsHead: transformResult.containsHead,
 						propagation: transformResult.propagation ? 'self' : 'none',

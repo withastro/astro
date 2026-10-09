@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { writeJson } from '@astrojs/internal-helpers/fs';
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteToHeaders } from 'astro';
 import { AstroError } from 'astro/errors';
-import { STATIC_HEADERS_FILE } from './shared.js';
+import { PORTABLE_SESSION_BASE_FLAG, STATIC_HEADERS_FILE } from './shared.js';
 import type { NodeAppHeadersJson, Options, UserOptions } from './types.js';
 import { sessionDrivers } from 'astro/config';
 import { createConfigPlugin } from './vite-plugin-config.js';
@@ -48,14 +48,20 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 					// Stored relative to the project root and resolved at runtime.
 					const absBase = fileURLToPath(new URL('sessions', config.cacheDir));
 					const rootBase = path.relative(fileURLToPath(config.root), absBase);
+					const driver = sessionDrivers.fsLite({
+						base: rootBase.split(path.sep).join('/'),
+					});
+					driver.config = { ...driver.config, [PORTABLE_SESSION_BASE_FLAG]: true };
 					session = {
-						driver: sessionDrivers.fsLite({
-							base: rootBase.split(path.sep).join('/'),
-						}),
+						driver,
 						cookie: session?.cookie,
 						ttl: session?.ttl,
 					};
 				}
+
+				const serverDir = fileURLToPath(config.build.server);
+				const clientDir = fileURLToPath(config.build.client);
+				const clientRelative = path.relative(serverDir, clientDir).split(path.sep).join('/');
 
 				updateConfig({
 					build: {
@@ -74,8 +80,9 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 						plugins: [
 							createConfigPlugin({
 								...userOptions,
-								client: path.basename(fileURLToPath(_config.build.client)),
-								server: path.basename(fileURLToPath(_config.build.server)),
+								// Relative path from the server output directory to the client output directory.
+								client: clientRelative || '.',
+								server: path.basename(serverDir),
 								host: _config.server.host,
 								port: _config.server.port,
 								staticHeaders: userOptions.staticHeaders ?? false,

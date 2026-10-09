@@ -163,14 +163,20 @@ async function createManifest(
  * Rewrites absolute module keys to be relative to the project root, matching the paths
  * embedded in the compiled output.
  */
-function relativizeManifestKeys(
+export function relativizeManifestKeys(
 	manifest: SerializedSSRManifest,
 	settings: StaticBuildOptions['settings'],
 ): SerializedSSRManifest {
 	const normalizedRoot = normalizePath(fileURLToPath(settings.config.root));
 	const relativeKey = (key: string) => {
 		const nk = normalizePath(key);
-		return nk.startsWith(normalizedRoot) ? nk.slice(normalizedRoot.length - 1) : nk;
+		if (!nk.startsWith(normalizedRoot)) {
+			// Keys outside the project (e.g. `file://` renderer entrypoints, virtual
+			// modules, dependencies) are kept verbatim so normalization cannot change
+			// a value that the compiled output still references unchanged.
+			return key;
+		}
+		return nk.slice(normalizedRoot.length - 1);
 	};
 
 	return {
@@ -214,7 +220,7 @@ function toPortableManifest(
 }
 
 /** Prepends `../` segments so relative manifest paths resolve from a nested chunk. */
-function adjustManifestPathsForChunk(
+export function adjustManifestPathsForChunk(
 	manifest: SerializedSSRManifest,
 	chunkFileName: string,
 ): SerializedSSRManifest {
