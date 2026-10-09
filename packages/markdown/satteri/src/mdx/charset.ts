@@ -19,7 +19,7 @@ export function shouldAddCharset(
 	// `@astrojs/mdx` 7.0.x never passes `srcDir`, so the `src/pages` check below cannot run.
 	if (!srcDir) return false;
 	const srcDirPath = fileURLToPath(srcDir).replace(/\\/g, '/');
-	const pagesDir = path.posix.join(srcDirPath, 'pages');
+	const pagesDir = `${path.posix.join(srcDirPath, 'pages')}/`;
 	const normalizedFilePath = filePath.replace(/\\/g, '/');
 	if (!normalizedFilePath.startsWith(pagesDir)) return false;
 
