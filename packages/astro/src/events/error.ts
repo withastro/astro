@@ -87,9 +87,7 @@ function getSafeErrorMessage(message: string | Function): string {
 	if (typeof message === 'string') {
 		return message;
 	} else {
-		return String.raw({
-			raw: extractStringFromFunction(message.toString()),
-		});
+		return extractStringFromFunction(message.toString());
 	}
 
 	function extractStringFromFunction(func: string) {
