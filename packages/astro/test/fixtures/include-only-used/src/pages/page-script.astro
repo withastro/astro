@@ -1,0 +1,18 @@
+---
+import A from '../components/A.astro';
+---
+
+<html>
+	<head>
+		<title>Page script</title>
+	</head>
+	<body>
+		<p class="page-only">page</p>
+		<A />
+	</body>
+</html>
+
+<script>
+	import './page-script.css';
+	console.log('page script');
+</script>

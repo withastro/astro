@@ -55,6 +55,12 @@ describe('experimental.treeShakeComponents', () => {
 			assert.match(css, /\.page-only/, 'page frontmatter CSS should be included');
 		});
 
+		it('keeps CSS imported by a page script', async () => {
+			const html = await fixture.readFile('/page-script/index.html');
+			const css = await collectCss(fixture, html);
+			assert.match(css, /\.page-script-style/, 'page script CSS should be included');
+		});
+
 		it('prunes the script chunks of unrendered components', async () => {
 			const files = await fixture.readdir('./_astro');
 			assert.ok(

@@ -223,7 +223,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					const meta = chunk.viteMetadata as ViteMetadata;
 					if (meta.importedCss.size < 1) continue;
 
-					const owners = getChunkComponentOwners(chunk, this);
+					const owners = getChunkComponentOwners(chunk, this, internals);
 					if (!owners) continue;
 
 					for (const cssId of meta.importedCss) {
@@ -708,13 +708,14 @@ function* getParentClientOnlys(
 function getChunkComponentOwners(
 	chunk: Rolldown.OutputChunk,
 	ctx: { getModuleInfo: Rolldown.GetModuleInfo },
+	internals: BuildInternals,
 ): Set<string> | undefined {
 	const cssModules = Object.keys(chunk.modules).filter((id) => isCSSRequest(id));
 	if (cssModules.length === 0) return undefined;
 
 	const owners = new Set<string>();
 	for (const cssModule of cssModules) {
-		const moduleOwners = getCssModuleComponentOwners(cssModule, ctx);
+		const moduleOwners = getCssModuleComponentOwners(cssModule, ctx, internals);
 		// An unattributable module makes the whole asset unowned, so a stylesheet
 		// that also carries page-level styles is never dropped.
 		if (moduleOwners.size === 0) return undefined;
@@ -736,6 +737,7 @@ function getChunkComponentOwners(
 function getCssModuleComponentOwners(
 	id: string,
 	ctx: { getModuleInfo: Rolldown.GetModuleInfo },
+	internals: BuildInternals,
 ): Set<string> {
 	const owners = new Set<string>();
 	const seen = new Set<string>([id]);
@@ -758,8 +760,15 @@ function getCssModuleComponentOwners(
 
 				const componentInfo = ctx.getModuleInfo(pathname);
 				// A page reached through non-component modules only owns this stylesheet
-				// as page-level CSS, which is always kept.
-				if (componentInfo && moduleIsTopLevelPage(componentInfo)) return new Set();
+				// as page-level CSS, which is always kept. The client graph contains a
+				// page's `<script>` entry rather than the bare page module, so also
+				// detect pages by their vite id.
+				if (
+					getPageDataByViteID(internals, pathname) ||
+					(componentInfo && moduleIsTopLevelPage(componentInfo))
+				) {
+					return new Set();
+				}
 				owners.add(pathname);
 			}
 		}
