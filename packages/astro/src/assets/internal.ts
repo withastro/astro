@@ -2,7 +2,7 @@ import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { isCollectingStaticImages, recordStaticImage } from '../core/render-scope/record.js';
-import type { getImageConfigFor } from './utils/service-config.js';
+import type { ImageConfigWithSingleService } from './utils/service-config.js';
 import type { AstroRuntimeLogger } from '../types/public/context.js';
 import type { AstroAdapterClientConfig } from '../types/public/integrations.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';
@@ -50,7 +50,7 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 
 // The build only writes the images it collected, so static URLs anywhere else would 404.
 function getStaticImageConfig(
-	imageConfig: ReturnType<typeof getImageConfigFor> & { staticImageConfig?: StaticImageConfig },
+	imageConfig: ImageConfigWithSingleService & { staticImageConfig?: StaticImageConfig },
 ): StaticImageConfig | undefined {
 	return isCollectingStaticImages() ? imageConfig.staticImageConfig : undefined;
 }
@@ -62,7 +62,7 @@ export function setConfiguredImageService(service: ImageService | undefined): vo
 
 export async function getImage(
 	options: UnresolvedImageTransform,
-	imageConfig: ReturnType<typeof getImageConfigFor> & AstroAdapterClientConfig,
+	imageConfig: ImageConfigWithSingleService & AstroAdapterClientConfig,
 	logger: AstroRuntimeLogger,
 ): Promise<GetImageResult> {
 	if (!options || typeof options !== 'object') {
@@ -311,7 +311,7 @@ export async function getImage(
  */
 async function peekRemoteFormatForStaticEmit(
 	options: ImageTransform,
-	imageConfig: ReturnType<typeof getImageConfigFor> & AstroAdapterClientConfig,
+	imageConfig: ImageConfigWithSingleService & AstroAdapterClientConfig,
 	service: ImageService,
 	logger: AstroRuntimeLogger,
 ): Promise<string | undefined> {
