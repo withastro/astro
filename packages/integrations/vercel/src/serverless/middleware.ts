@@ -10,7 +10,7 @@ import {
 	ASTRO_PATH_PARAM,
 	ASTRO_PATH_TOKEN_PARAM,
 	NODE_PATH,
-} from '../index.js';
+} from './constants.js';
 
 export interface IsrForwarding {
 	/** Route patterns backed by the ISR function. */

@@ -28,6 +28,13 @@ describe('Serverless prerender', () => {
 		}
 	});
 
+	it('server entry does not import build-time dependencies', { timeout: 30000 }, async () => {
+		const [file] = await fixture.glob('../.vercel/output/functions/_render.func/**/entry.mjs');
+		const entry = await fixture.readFile(file);
+		assert.doesNotMatch(entry, /["']rolldown["']/);
+		assert.doesNotMatch(entry, /["']@vercel\/routing-utils["']/);
+	});
+
 	// TODO: The path here seems to be inconsistent?
 	it.skip('includeFiles work', { timeout: 30000 }, async () => {
 		assert.ok(

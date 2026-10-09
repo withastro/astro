@@ -34,36 +34,23 @@ import {
 } from './lib/web-analytics.js';
 import { generateEdgeMiddleware, type IsrForwarding } from './serverless/middleware.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
+import { ASTRO_PATH_PARAM, ASTRO_PATH_TOKEN_PARAM, NODE_PATH } from './serverless/constants.js';
+
+export {
+	ASTRO_LOCALS_HEADER,
+	ASTRO_MIDDLEWARE_SECRET_HEADER,
+	ASTRO_PATH_HEADER,
+	ASTRO_PATH_PARAM,
+	ASTRO_PATH_TOKEN_PARAM,
+	NODE_PATH,
+} from './serverless/constants.js';
 
 const PACKAGE_NAME = '@astrojs/vercel';
 
-/**
- * The edge function calls the node server at /_render,
- * with the original path as the value of this header.
- */
-export const ASTRO_PATH_HEADER = 'x-astro-path';
-export const ASTRO_PATH_PARAM = 'x_astro_path';
-
-/**
- * ISR functions receive the target path through the `x_astro_path` query
- * parameter instead of a header. Because that parameter travels on the URL, it
- * is accompanied by this token so the entrypoint can confirm the path override
- * came from Astro's own build-time route rewrite rather than from an arbitrary
- * caller. The value is the per-build `middlewareSecret`.
- */
-export const ASTRO_PATH_TOKEN_PARAM = 'x_astro_path_token';
-
-/**
- * The edge function calls the node server at /_render,
- * with the locals serialized into this header.
- */
-export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
-export const ASTRO_MIDDLEWARE_SECRET_HEADER = 'x-astro-middleware-secret';
 export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
 
 // Vercel routes the folder names to a path on the deployed website.
 // We attempt to avoid interfering by prefixing with an underscore.
-export const NODE_PATH = '_render';
 const MIDDLEWARE_PATH = '_middleware';
 
 // Unlike serverless and edge functions, ISR functions are not passed the
