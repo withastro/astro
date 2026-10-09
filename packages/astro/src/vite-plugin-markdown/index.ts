@@ -132,6 +132,9 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 					);
 				}
 
+				// The generated `file` export is the public `MarkdownInstance.file`, so it keeps the
+				// absolute source path and embeds the build machine's path in the output.
+				// TODO: make `file` relative to the project root in Astro 8
 				const code = `
 				import { unescapeHTML, spreadAttributes, createComponent, render, renderComponent, maybeRenderHead } from ${JSON.stringify(
 					astroServerRuntimeModulePath,

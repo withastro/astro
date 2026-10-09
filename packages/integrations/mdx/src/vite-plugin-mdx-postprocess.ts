@@ -111,6 +111,9 @@ export function injectMetadataExports(
 	if (!exports.some(({ n }) => n === 'url')) {
 		code += `\nexport const url = ${JSON.stringify(fileInfo.fileUrl)};`;
 	}
+	// The `file` export is the public `MarkdownInstance.file`, so it keeps the absolute source
+	// path and embeds the build machine's path in the output.
+	// TODO: make `file` relative to the project root in Astro 8
 	if (!exports.some(({ n }) => n === 'file')) {
 		code += `\nexport const file = ${JSON.stringify(fileInfo.fileId)};`;
 	}
