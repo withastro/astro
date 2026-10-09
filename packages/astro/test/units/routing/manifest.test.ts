@@ -584,4 +584,47 @@ describe('routing - createRoutesList', () => {
 			{ type: 'page', route: '/a-[b]' },
 		]);
 	});
+
+	it('skips injected routes with a missing entrypoint in dev. issues#18325', async () => {
+		const fixture = await createFixture({
+			'/src/pages/index.astro': `<h1>test</h1>`,
+		});
+		const settings = await createBasicSettings({
+			root: fixture.path,
+			integrations: [],
+		});
+		settings.injectedRoutes = [
+			{
+				pattern: '/injected',
+				entrypoint: 'src/routes/injected.astro',
+				origin: 'external',
+			},
+		];
+		const { logger, logs } = getLogger();
+
+		const manifest = await createRoutesList({ cwd: fixture.path, settings }, logger, {
+			dev: true,
+		});
+
+		assert.equal(
+			manifest.routes.some((route) => route.route === '/injected'),
+			false,
+		);
+		assert.equal(
+			manifest.routes.some((route) => route.route === '/'),
+			true,
+		);
+		assert.deepEqual(
+			logs.filter((log) => log.level === 'warn'),
+			[
+				{
+					label: 'router',
+					level: 'warn',
+					message:
+						'Skipping the injected route "/injected" because its entrypoint "src/routes/injected.astro" does not exist.',
+					newLine: true,
+				},
+			],
+		);
+	});
 });

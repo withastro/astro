@@ -711,7 +711,21 @@ export async function createRoutesList(
 		routeMap.set(route.route, route);
 	}
 
-	const injectedRoutes = createInjectedRoutes(params);
+	let injectedRoutes = createInjectedRoutes(params);
+	if (dev) {
+		// `settings.injectedRoutes` only refreshes on restart, so an entrypoint deleted while the
+		// dev server runs would otherwise fail the whole routes rebuild.
+		// https://github.com/withastro/astro/issues/18325
+		const localFs = params.fsMod ?? nodeFs;
+		injectedRoutes = injectedRoutes.filter((route) => {
+			if (localFs.existsSync(new URL(route.component, config.root))) return true;
+			logger.warn(
+				'router',
+				`Skipping the injected route "${route.route}" because its entrypoint "${route.component}" does not exist.`,
+			);
+			return false;
+		});
+	}
 	for (const route of injectedRoutes) {
 		routeMap.set(route.route, route);
 	}

@@ -169,9 +169,15 @@ export default async function astroPluginRoutes({
 	return {
 		name: 'astro:routes',
 		configureServer(server) {
-			server.watcher.on('add', (path) => rebuildRoutes(path, server));
-			server.watcher.on('unlink', (path) => rebuildRoutes(path, server));
-			server.watcher.on('change', (path) => rebuildRoutes(path, server));
+			// Astro's `unhandledRejection` handler isn't installed for non-runnable environments
+			// (e.g. workerd), so a rejection here would exit the dev server.
+			const onFileChange = (path: string) =>
+				rebuildRoutes(path, server).catch((err) => {
+					logger.error('router', err instanceof Error ? err.message : String(err));
+				});
+			server.watcher.on('add', onFileChange);
+			server.watcher.on('unlink', onFileChange);
+			server.watcher.on('change', onFileChange);
 		},
 
 		applyToEnvironment(environment) {
