@@ -28,6 +28,7 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
+import type { ExternalDataStore } from './external-data-store.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from './paths.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
@@ -136,12 +137,17 @@ function getDevDataStoreFile(settings: AstroSettings): URL {
  * write on some platforms (notably Windows, see #17335), leaving dev serving
  * stale content until a restart. Subscribing to the store's own write
  * notifications makes invalidation of this process's writes deterministic.
+ * Flushes of `externalStore` that saved changes invalidate the data store too.
  */
 export function attachDataStoreInvalidation(
 	store: MutableDataStore,
 	server: ViteDevServer,
 	settings: AstroSettings,
+	externalStore?: ExternalDataStore,
 ) {
+	// NOTE: this causes a double refresh when a sync changes both the external store and the
+	// data store. If that becomes a problem, the two refreshes need to be merged.
+	externalStore?.onFlush(() => invalidateDataStore(server));
 	const dataStorePath = fileURLToPath(getDevDataStoreFile(settings));
 	const assetImportsPath = fileURLToPath(new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir));
 	store.onFileWritten((path) => {
