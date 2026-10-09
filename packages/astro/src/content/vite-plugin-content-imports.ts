@@ -1,6 +1,6 @@
 import type fsMod from 'node:fs';
-import { extname } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { extname, relative, sep } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as devalue from 'devalue';
 import type { Plugin, Rolldown, RunnableDevEnvironment } from 'vite';
 import { getProxyCode } from '../assets/utils/proxy.js';
@@ -100,6 +100,13 @@ export function astroContentImportPlugin({
 					id: new RegExp(`(?:\\?|&)(?:${DATA_FLAG}|${CONTENT_FLAG})(?:&|=|$)`),
 				},
 				async handler(_, viteId) {
+					// The deployed server never reads the source file at request time, so content
+					// image proxies store a project-relative path instead of the absolute one.
+					const fsPathRelativeTo =
+						settings.buildOutput === 'server' &&
+						this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr
+							? settings.config.root
+							: undefined;
 					if (hasContentFlag(viteId, DATA_FLAG)) {
 						// By default, Vite will resolve symlinks to their targets. We need to reverse this for
 						// content entries, so we can get the path relative to the content directory.
@@ -123,7 +130,7 @@ export function astroContentImportPlugin({
 						const code = `
 export const id = ${JSON.stringify(id)};
 export const collection = ${JSON.stringify(collection)};
-export const data = ${stringifyEntryData(data, settings.buildOutput === 'server')};
+export const data = ${stringifyEntryData(data, settings.buildOutput === 'server', fsPathRelativeTo)};
 export const _internal = {
 	type: 'data',
 	filePath: ${JSON.stringify(_internal.filePath)},
@@ -152,7 +159,7 @@ export const _internal = {
 						export const collection = ${JSON.stringify(collection)};
 						export const slug = ${JSON.stringify(slug)};
 						export const body = ${JSON.stringify(body)};
-						export const data = ${stringifyEntryData(data, settings.buildOutput === 'server')};
+						export const data = ${stringifyEntryData(data, settings.buildOutput === 'server', fsPathRelativeTo)};
 						export const _internal = {
 							type: 'content',
 							filePath: ${JSON.stringify(_internal.filePath)},
@@ -415,7 +422,11 @@ async function getContentConfigFromGlobal() {
 }
 
 /** Stringify entry `data` at build time to be used as a Vite module */
-function stringifyEntryData(data: Record<string, any>, isSSR: boolean): string {
+function stringifyEntryData(
+	data: Record<string, any>,
+	isSSR: boolean,
+	fsPathRelativeTo: URL | undefined,
+): string {
 	try {
 		return devalue.uneval(data, (value) => {
 			// Add support for URL objects
@@ -426,7 +437,9 @@ function stringifyEntryData(data: Record<string, any>, isSSR: boolean): string {
 			// For Astro assets, add a proxy to track references
 			if (typeof value === 'object' && 'ASTRO_ASSET' in value) {
 				const { ASTRO_ASSET, ...asset } = value;
-				asset.fsPath = ASTRO_ASSET;
+				asset.fsPath = fsPathRelativeTo
+					? relative(fileURLToPath(fsPathRelativeTo), ASTRO_ASSET).split(sep).join('/')
+					: ASTRO_ASSET;
 				return getProxyCode(asset, isSSR);
 			}
 		});

@@ -1,7 +1,11 @@
 import type { ImageMetadata } from '../types.js';
 
-export function getProxyCode(options: ImageMetadata, isSSR: boolean): string {
-	const stringifiedFSPath = JSON.stringify(options.fsPath);
+export function getProxyCode(
+	options: ImageMetadata,
+	isSSR: boolean,
+	fsPath: string | undefined = options.fsPath,
+): string {
+	const stringifiedFSPath = JSON.stringify(fsPath);
 	return `
 						new Proxy(${JSON.stringify(options)}, {
 						get(target, name, receiver) {
