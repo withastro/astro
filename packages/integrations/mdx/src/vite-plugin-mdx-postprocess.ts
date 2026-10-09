@@ -1,6 +1,8 @@
+import { fileURLToPath } from 'node:url';
 import type { AstroConfig } from 'astro';
 import { type ExportSpecifier, type ImportSpecifier, parse } from 'es-module-lexer/minimal';
-import type { Plugin } from 'vite';
+import { normalizePath, type Plugin } from 'vite';
+import type { AstroMetadata } from '@astrojs/internal-helpers/markdown';
 import {
 	ASTRO_IMAGE_ELEMENT,
 	ASTRO_IMAGE_IMPORT,
@@ -22,24 +24,71 @@ export function vitePluginMdxPostprocess(astroConfig: AstroConfig): Plugin {
 			handler(code, id) {
 				const fileInfo = getFileInfo(id, astroConfig);
 				const [imports, exports] = parse(code);
+				const isBuild = this.environment.config.command === 'build';
 
 				// Call a series of functions that transform the code
 				code = injectUnderscoreFragmentImport(code, imports);
 				code = injectMetadataExports(code, exports, fileInfo);
 				code = transformContentExport(code, exports);
+				// `moduleId` and island component paths are looked up in the manifest, whose keys are
+				// stored relative to the project root in builds. The `file` export stays absolute.
 				code = annotateContentExport(
 					code,
-					id,
+					isBuild ? relativizeToRoot(id, astroConfig) : id,
 					this.environment.name === 'ssr' || this.environment.name === 'prerender',
 					imports,
 				);
+				if (isBuild) {
+					const astro = this.getModuleInfo(id)?.meta?.astro as AstroMetadata | undefined;
+					code = relativizeComponentPaths(code, astro, astroConfig);
+				}
 
-				// The code transformations above are append-only, so the line/column mappings are the same
-				// and we can omit the sourcemap for performance.
+				// `transformContentExport` and `relativizeComponentPaths` replace substrings in
+				// place with shorter ones, shifting columns on the affected lines. Returning
+				// `null` keeps the previous map, so those lines keep approximate column mappings.
 				return { code, map: null };
 			},
 		},
 	};
+}
+
+/**
+ * Rewrites a project-internal absolute path to be relative to the project root, matching the
+ * module keys stored in the manifest. Paths outside the root and module ids with a query string
+ * are handled the same way the manifest serializer handles them.
+ */
+function relativizeToRoot(id: string, astroConfig: AstroConfig): string {
+	const normalizedRoot = normalizePath(fileURLToPath(astroConfig.root));
+	const normalizedId = normalizePath(id);
+	return normalizedId.startsWith(normalizedRoot)
+		? normalizedId.slice(normalizedRoot.length - 1)
+		: id;
+}
+
+/**
+ * Rewrites the island component paths emitted into the compiled MDX code so they match the
+ * relativized manifest keys. Only the paths discovered by the MDX processor are touched, which
+ * leaves user-authored strings and the public `file` export untouched. The metadata keeps
+ * absolute paths because it keys build-time module graph lookups.
+ */
+function relativizeComponentPaths(
+	code: string,
+	astro: AstroMetadata | undefined,
+	astroConfig: AstroConfig,
+): string {
+	if (!astro) return code;
+	const components = [
+		...astro.hydratedComponents,
+		...astro.clientOnlyComponents,
+		...astro.serverComponents,
+	];
+	for (const component of components) {
+		const resolvedPath = relativizeToRoot(component.resolvedPath, astroConfig);
+		if (resolvedPath !== component.resolvedPath) {
+			code = code.replaceAll(JSON.stringify(component.resolvedPath), JSON.stringify(resolvedPath));
+		}
+	}
+	return code;
 }
 
 /**
@@ -63,6 +112,9 @@ export function injectMetadataExports(
 	if (!exports.some(({ n }) => n === 'url')) {
 		code += `\nexport const url = ${JSON.stringify(fileInfo.fileUrl)};`;
 	}
+	// The `file` export is the public `MarkdownInstance.file`, so it keeps the absolute source
+	// path and embeds the build machine's path in the output.
+	// TODO: make `file` relative to the project root in Astro 8
 	if (!exports.some(({ n }) => n === 'file')) {
 		code += `\nexport const file = ${JSON.stringify(fileInfo.fileId)};`;
 	}

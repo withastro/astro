@@ -1,5 +1,6 @@
 import type * as fsMod from 'node:fs';
-import { extname } from 'node:path';
+import { basename, extname, isAbsolute, relative, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import MagicString from 'magic-string';
 import picomatch from 'picomatch';
 import type * as vite from 'vite';
@@ -42,6 +43,28 @@ import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
 
 const assetRegex = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})`, 'i');
 const assetRegexEnds = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})$`, 'i');
+
+/**
+ * Serializes an output directory relative to the server directory so the image endpoint can
+ * resolve it at runtime. Directories on a different Windows drive have no relative path, so
+ * the absolute `file://` URL is kept instead.
+ */
+function toRelativeDir(serverDirPath: string, dir: URL): string {
+	const rel = relative(serverDirPath, fileURLToPath(dir));
+	if (isAbsolute(rel)) {
+		return dir.href;
+	}
+	if (rel === '') {
+		return './';
+	}
+	return rel.split(sep).join('/') + '/';
+}
+
+/** Serializes a project file path relative to the project root, so it stays portable. */
+function toRelativeFsPath(root: URL, fsPath: string): string {
+	return relative(fileURLToPath(root), fsPath).split(sep).join('/');
+}
+
 const addStaticImageFactory = (
 	settings: AstroSettings,
 ): typeof globalThis.astroAsset.addStaticImage => {
@@ -178,6 +201,11 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 	};
 
 	const imageComponentPrefix = settings.config.image.responsiveStyles ? 'Responsive' : '';
+	const serverDirPath = fileURLToPath(settings.config.build.server);
+	const imageOutDir =
+		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
+	const imageOutDirRelative = toRelativeDir(serverDirPath, imageOutDir);
+	const serverDirName = basename(serverDirPath);
 	return [
 		// Expose the components and different utilities from `astro:assets`
 		{
@@ -299,21 +327,11 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						return service.getRemoteSize?.(url, imageConfig, _runtimeLogger) ?? inferRemoteSizeInternal(url, imageConfig);
 					}
 					// This is used by the @astrojs/node integration to locate images.
-					// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
-					// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
-					// in the Lambda bundle, which would bloat the bundle with images.
-					// To prevent this, we mark the URL construction as pure,
-					// so that it's tree-shaken away for all platforms that don't need it.
-					export const outDir = /* #__PURE__ */ new URL(${JSON.stringify(
-						new URL(
-							settings.buildOutput === 'server'
-								? settings.config.build.client
-								: settings.config.outDir,
-						),
-					)});
-					export const serverDir = /* #__PURE__ */ new URL(${JSON.stringify(
-						new URL(settings.config.build.server),
-					)});
+					// The client directory is stored relative to the server directory, or as an
+					// absolute file URL when the two share no relative path, so the built
+					// output works from any location.
+					export const outDirRelative = ${JSON.stringify(imageOutDirRelative)};
+					export const serverDirName = ${JSON.stringify(serverDirName)};
 					${getImageExport}
 				`,
 					};
@@ -431,6 +449,11 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						const isSSROnlyEnvironment =
 							settings.buildOutput === 'server' &&
 							this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
+						// The deployed server never reads the source file at request time, so
+						// store a project-relative path instead of the build machine's absolute one.
+						const fsPath = isSSROnlyEnvironment
+							? toRelativeFsPath(settings.config.root, imageMetadata.fsPath)
+							: undefined;
 						if (isSSROnlyEnvironment) {
 							globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);
 						}
@@ -448,11 +471,11 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							);
 							const metadataWithSvg = { ...imageMetadata, __svgData: svgData };
 							return {
-								code: `export default ${getProxyCode(metadataWithSvg as typeof imageMetadata, isSSROnlyEnvironment)}`,
+								code: `export default ${getProxyCode(metadataWithSvg as typeof imageMetadata, isSSROnlyEnvironment, fsPath)}`,
 							};
 						}
 						return {
-							code: `export default ${getProxyCode(imageMetadata, isSSROnlyEnvironment)}`,
+							code: `export default ${getProxyCode(imageMetadata, isSSROnlyEnvironment, fsPath)}`,
 						};
 					} else {
 						globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);

@@ -23,6 +23,9 @@ export async function compileAstro({
 		compileProps.astroConfig,
 	);
 
+	// The `file` export is the public `AstroInstance.file`, so it keeps the absolute source
+	// path and embeds the build machine's path in the output.
+	// TODO: make `file` relative to the project root in Astro 8
 	let SUFFIX = '';
 	SUFFIX += `\nconst $$file = ${JSON.stringify(file)};\nconst $$url = ${JSON.stringify(
 		url,
