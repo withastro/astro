@@ -370,7 +370,6 @@ export class StaticImageRegistry {
 	readonly images: AssetsGlobalStaticImagesList = new Map();
 	readonly referencedImages = new Set<string>();
 
-	/** The first page to add a transform wins. */
 	addStaticImages(images: Iterable<SerializedStaticImage> | undefined): void {
 		if (!images) return;
 		for (const image of images) {
