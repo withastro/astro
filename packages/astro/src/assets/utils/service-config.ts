@@ -1,15 +1,17 @@
-import type { AstroConfig } from '../../types/public/config.js';
+import type {
+	AstroConfig,
+	ImageServiceConfig,
+	ImageServiceTargets,
+} from '../../types/public/config.js';
 
-type ResolvedImageService = AstroConfig['image']['service'];
-type ResolvedImageServiceConfig = Extract<ResolvedImageService, { entrypoint: string }>;
 export type ImageConfigWithSingleService = Omit<AstroConfig['image'], 'service'> & {
-	service: ResolvedImageServiceConfig;
+	service: ImageServiceConfig & { config: Record<string, any> };
 };
 
 export function getImageServiceConfig(
-	service: ResolvedImageService,
+	service: ImageServiceConfig | ImageServiceTargets,
 	target: 'build' | 'runtime',
-): ResolvedImageServiceConfig {
+): ImageServiceConfig & { config: Record<string, any> } {
 	const resolved = 'runtime' in service ? service[target] : service;
 	// The schema defaults `config` once, so a service set by an integration may not have it.
 	return { ...resolved, config: resolved.config ?? {} };
