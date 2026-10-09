@@ -19,6 +19,7 @@ import {
 	VIRTUAL_IMAGE_STYLES_ID,
 	VIRTUAL_MODULE_ID,
 	VIRTUAL_SERVICE_ID,
+	IMAGE_SERVICE_ENVIRONMENT_NAME,
 } from './consts.js';
 import { RUNTIME_VIRTUAL_MODULE_ID } from './fonts/constants.js';
 import { fontsPlugin } from './fonts/vite-plugin-fonts.js';
@@ -68,20 +69,23 @@ const CLIENT_RUNTIME_LOGGER_SETUP = `
 `;
 
 /**
- * The `imageConfig` exported by the `astro:assets` virtual modules. Adapter asset query
- * params and the build output layout ride along as non-enumerable properties, so image
- * services that serialize the config never see them.
- */
-/**
  * During a build, prerendered pages use the `build` image service and everything else uses the
  * `runtime` service. The dev server uses the `build` service everywhere, as it's the one that
  * can transform images locally.
  */
 function getImageServiceTarget(environment: vite.Environment): 'build' | 'runtime' {
 	if (environment.config.command === 'serve') return 'build';
-	return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ? 'build' : 'runtime';
+	return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
+		environment.name === IMAGE_SERVICE_ENVIRONMENT_NAME
+		? 'build'
+		: 'runtime';
 }
 
+/**
+ * The `imageConfig` exported by the `astro:assets` virtual modules. Adapter asset query
+ * params and the build output layout ride along as non-enumerable properties, so image
+ * services that serialize the config never see them.
+ */
 function getImageConfigCode(settings: AstroSettings, environment: vite.Environment): string {
 	const assetQueryParams = settings.adapter?.client?.assetQueryParams
 		? `new URLSearchParams(${JSON.stringify(

@@ -59,7 +59,7 @@ function getStaticImageConfig(
 	return isCollectingStaticImages() ? imageConfig.staticImageConfig : undefined;
 }
 
-/** Test-only: override the image service `getImage()` uses. */
+/** Test-only, not public API: override the image service `getImage()` uses. */
 export function setConfiguredImageService(service: ImageService | undefined): void {
 	configuredImageService = service;
 }
@@ -132,8 +132,8 @@ export async function getImage(
 		? resolvedOptions.src.fsPath
 		: undefined; // Only set for ESM imports, where we do have a file path
 
-	// Clone the `src` object if it's an ESM import so that we don't refer to any properties of the original object
-	// Causing our generate step to think the image is used outside of the image optimization pipeline
+	// Image services read `src` freely. Reading `src` on an ESM-imported image marks the original as
+	// used, so the build would keep it even when only its optimized versions are on the page.
 	const clonedSrc = getUntrackedImage(resolvedOptions.src);
 
 	if (isESMImportedImage(clonedSrc)) {

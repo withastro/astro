@@ -62,8 +62,11 @@ describe('image.service build and runtime services', () => {
 			{ image: { service: { build: { entrypoint: SHARP }, runtime: { entrypoint: 'a' } } } },
 			{ image: { service: { entrypoint: 'my-cdn' } } },
 		);
-		assert.equal(service.entrypoint, 'my-cdn');
-		assert.equal(service.build?.entrypoint, SHARP);
+		assert.deepEqual(service, {
+			entrypoint: 'my-cdn',
+			config: {},
+			build: { entrypoint: SHARP, config: {} },
+		});
 	});
 
 	it('resolves { build, runtime } set by an integration', async () => {
@@ -71,8 +74,18 @@ describe('image.service build and runtime services', () => {
 			{},
 			{ image: { service: { build: { entrypoint: SHARP }, runtime: { entrypoint: 'my-cdn' } } } },
 		);
-		assert.equal(service.entrypoint, 'my-cdn');
-		assert.equal(service.build?.entrypoint, SHARP);
-		assert.equal('runtime' in service, false);
+		assert.deepEqual(service, {
+			entrypoint: 'my-cdn',
+			config: {},
+			build: { entrypoint: SHARP, config: {} },
+		});
+	});
+
+	it('resolves a runtime service set by an integration', async () => {
+		const service = await setupWithIntegration(
+			{},
+			{ image: { service: { runtime: { entrypoint: 'my-cdn' } } } },
+		);
+		assert.deepEqual(service, { entrypoint: 'my-cdn', config: {} });
 	});
 });

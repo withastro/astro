@@ -12,7 +12,8 @@ export function normalizeImageServiceInput(value: unknown): unknown {
 	if (!value || typeof value !== 'object') return value;
 	let service = value as Record<string, any>;
 	if ('runtime' in service) {
-		service = { ...service.runtime, build: service.build };
+		// The schema defaults `config` only once, so it is not there for an integration's service.
+		service = { config: {}, ...service.runtime, build: service.build };
 	}
 	if (service.build) {
 		service = { ...service, build: { config: {}, ...service.build } };

@@ -1,18 +1,16 @@
 import nodeFs from 'node:fs';
 import os from 'node:os';
-import { createRequire } from 'node:module';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
 import colors from 'piccolore';
+import type { ViteBuilder } from 'vite';
 import {
 	generateImagesForPath,
 	prepareAssetsGenerationEnv,
 	StaticImageRegistry,
 } from '../../assets/build/generate.js';
-import { isLocalService, type LocalImageService } from '../../assets/services/service.js';
-import { getImageServiceConfig } from '../../assets/utils/service-config.js';
 import {
 	appendForwardSlash,
 	collapseDuplicateTrailingSlashes,
@@ -27,6 +25,7 @@ import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroLogger } from '../logger/core.js';
 import type {
 	AstroPrerenderer,
+	PathWithRoute,
 	PrerenderResult,
 	RouteToHeaders,
 } from '../../types/public/index.js';
@@ -42,6 +41,7 @@ import { routeIsRedirect } from '../routing/helpers.js';
 import { getOutputFilename } from '../output-filename.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { createDefaultPrerenderer } from './default-prerenderer.js';
+import { loadBuildImageService } from './image-service.js';
 import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
@@ -54,6 +54,7 @@ export async function generatePages(
 	options: StaticBuildOptions,
 	internals: BuildInternals,
 	prerenderOutputDir: URL,
+	builder: ViteBuilder,
 ) {
 	// Records from the bundled prerender runtime reach this build's stores through the
 	// `Symbol.for('astro:render-scope')` channel. Each render gets its own store; this one
@@ -61,7 +62,7 @@ export async function generatePages(
 	// outside of a render, so they are generated too.
 	const buildCollectors: RenderCollectors = { staticImages: [], referencedImages: new Set() };
 	return ensureAsyncRenderScope().run(buildCollectors, () =>
-		generatePagesInBuildScope(options, internals, prerenderOutputDir, buildCollectors),
+		generatePagesInBuildScope(options, internals, prerenderOutputDir, builder, buildCollectors),
 	);
 }
 
@@ -69,6 +70,7 @@ async function generatePagesInBuildScope(
 	options: StaticBuildOptions,
 	internals: BuildInternals,
 	prerenderOutputDir: URL,
+	builder: ViteBuilder,
 	buildCollectors: RenderCollectors,
 ) {
 	const generatePagesTimer = performance.now();
@@ -129,8 +131,13 @@ async function generatePagesInBuildScope(
 	try {
 		// Get all static paths with their routes from the prerenderer
 		const staticPaths = await prerenderer.getStaticPaths();
-		const pathsWithRoutes = Array.isArray(staticPaths) ? staticPaths : staticPaths.paths;
-		if (!Array.isArray(staticPaths)) images.addMetadata(staticPaths.metadata);
+		let pathsWithRoutes: PathWithRoute[];
+		if (Array.isArray(staticPaths)) {
+			pathsWithRoutes = staticPaths;
+		} else {
+			pathsWithRoutes = staticPaths.paths;
+			images.addMetadata(staticPaths.metadata);
+		}
 
 		// Check if i18n domains are configured (incompatible with prerendering)
 		const hasI18nDomains =
@@ -315,7 +322,7 @@ async function generatePagesInBuildScope(
 				.reduce((a, b) => a + b, 0);
 			const cpuCount = os.availableParallelism();
 			const assetsCreationPipeline = await prepareAssetsGenerationEnv(options, totalCount, {
-				loadImageService: () => loadImageService(options.settings, internals, prerenderOutputDir),
+				loadImageService: () => loadBuildImageService(builder, options.settings),
 				referencedImages: images.referencedImages,
 			});
 			const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
@@ -421,58 +428,6 @@ async function generatePagesInBuildScope(
 		logger,
 		routeToHeaders,
 	});
-}
-
-/**
- * Loads the `build` image service in Node. A package that Node can resolve from the project root
- * is imported directly, so its own dependencies (e.g. `sharp` for Astro's service) resolve from
- * the package, even when an adapter bundles every dependency. Anything else (relative files,
- * aliases, packages Node can't import) comes from its own chunk in the prerender bundle, resolved
- * by Vite, when Astro's default prerenderer ran the build.
- */
-async function loadImageService(
-	settings: AstroSettings,
-	internals: BuildInternals,
-	prerenderOutputDir: URL,
-): Promise<LocalImageService> {
-	const { entrypoint } = getImageServiceConfig(settings.config.image.service, 'build');
-	let service;
-	try {
-		const packageUrl = resolvePackageEntrypoint(entrypoint, settings.config.root);
-		if (packageUrl) {
-			service = (await import(packageUrl.href)).default;
-		} else if (internals.prerenderImageServiceFileName) {
-			const url = new URL(internals.prerenderImageServiceFileName, prerenderOutputDir);
-			service = (await import(url.href)).default;
-		} else {
-			service = (await import(new URL(entrypoint, settings.config.root).href)).default;
-		}
-	} catch (cause) {
-		throw new AstroError(
-			{
-				...AstroErrorData.InvalidImageService,
-				message: `Could not load the image service \`${entrypoint}\` to generate images in Node.`,
-			},
-			{ cause },
-		);
-	}
-	if (!isLocalService(service)) {
-		throw new AstroError({
-			...AstroErrorData.InvalidImageService,
-			message: `The image service \`${entrypoint}\` generates prerendered images during the build, but it is not a local service: it doesn't implement \`transform()\`.`,
-		});
-	}
-	return service;
-}
-
-/** Resolves a bare package specifier from `root`, or returns `undefined` if Node can't. */
-function resolvePackageEntrypoint(entrypoint: string, root: URL): URL | undefined {
-	if (entrypoint.startsWith('.') || entrypoint.startsWith('/')) return undefined;
-	try {
-		return pathToFileURL(createRequire(root).resolve(entrypoint));
-	} catch {
-		return undefined;
-	}
 }
 
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;

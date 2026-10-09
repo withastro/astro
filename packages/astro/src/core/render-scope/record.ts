@@ -23,9 +23,8 @@ export function isCollectingStaticImages(): boolean {
 }
 
 /**
- * Records a resolved image transform, dedup hits included, preserving
- * duplicates (array push, not a set — replay depends on every record
- * arriving).
+ * Records a resolved image transform against the active render, including repeats of the
+ * same transform. `collectPrerenderMetadata()` dedupes them in the page's metadata.
  */
 export function recordStaticImage(image: SerializedStaticImage): void {
 	getRenderCollectors()?.staticImages?.push(image);

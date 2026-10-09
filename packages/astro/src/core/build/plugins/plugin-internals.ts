@@ -54,11 +54,10 @@ export function pluginInternals(
 		},
 
 		async generateBundle(_options, bundle) {
-			const assetsApi = getAssetsPluginApi(this.environment?.config.plugins);
 			// A live set shared by every environment, read once all builds are done.
-			if (assetsApi) {
-				internals.referencedImages = assetsApi.referencedImages;
-			}
+			internals.referencedImages ??= getAssetsPluginApi(
+				this.environment?.config.plugins,
+			)?.referencedImages;
 
 			// Read the rollup input directly from the current environment's config rather than
 			// relying on a closure variable from configResolved. With Vite's per-environment config
