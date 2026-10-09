@@ -23,4 +23,12 @@ describe('getDataStoreChunkSize', () => {
 
 		assert.equal(getDataStoreChunkSize(settings), 1024);
 	});
+
+	it('uses a single file for external storage', () => {
+		const settings = createMinimalSettings(createTempDir(), {
+			config: { experimental: { collectionStorage: { type: 'external' } } },
+		});
+
+		assert.equal(getDataStoreChunkSize(settings), undefined);
+	});
 });
