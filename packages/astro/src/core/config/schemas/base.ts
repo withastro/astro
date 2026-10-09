@@ -536,6 +536,10 @@ export const AstroConfigSchema = z.object({
 				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.collectionStorage),
+			treeShakeComponents: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.treeShakeComponents),
 		})
 		.prefault({}),
 	legacy: z

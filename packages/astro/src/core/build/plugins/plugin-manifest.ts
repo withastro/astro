@@ -35,7 +35,7 @@ import { DEFAULT_COMPONENTS } from '../../routing/default.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import type { BuildInternals } from '../internal.js';
 import { cssOrder, mergeInlineCss } from '../runtime.js';
-import type { StaticBuildOptions } from '../types.js';
+import type { StaticBuildOptions, StylesheetAsset } from '../types.js';
 import { makePageDataKey } from './util.js';
 import { cacheConfigToManifest } from '../../cache/utils.js';
 import { sessionConfigToManifest } from '../../session/utils.js';
@@ -271,8 +271,29 @@ async function buildManifest(
 		const styles = pageData.styles
 			.sort(cssOrder)
 			.map(({ sheet }) => sheet)
-			.map((s) => (s.type === 'external' ? { ...s, src: appendAssetQuery(s.src) } : s))
-			.reduce(mergeInlineCss, []);
+			.map((s): StylesheetAsset => {
+				const owners = settings.config.experimental?.treeShakeComponents
+					? internals.componentStyleOwners.get(
+							s.type === 'external' ? s.src : `inline:${s.content}`,
+						)
+					: undefined;
+				const withOwners: StylesheetAsset = owners ? { ...s, owners: [...owners] } : s;
+				return withOwners.type === 'external'
+					? { ...withOwners, src: appendAssetQuery(withOwners.src) }
+					: withOwners;
+			})
+			// When tree-shaking components, keep each stylesheet separate so the
+			// styles of an unrendered component can be removed individually. Merging
+			// inline stylesheets would make that impossible.
+			.reduce(
+				settings.config.experimental?.treeShakeComponents
+					? (acc: StylesheetAsset[], current: StylesheetAsset) => {
+							acc.push(current);
+							return acc;
+						}
+					: mergeInlineCss,
+				[],
+			);
 
 		routes.push({
 			file: '',
@@ -422,6 +443,7 @@ async function buildManifest(
 		trailingSlash: settings.config.trailingSlash,
 		compressHTML: settings.config.compressHTML,
 		assetsPrefix: settings.config.build.assetsPrefix,
+		treeShakeComponents: settings.config.experimental?.treeShakeComponents,
 		componentMetadata: Array.from(internals.componentMetadata),
 		renderers: [],
 		clientDirectives: Array.from(settings.clientDirectives),

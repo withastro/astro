@@ -190,6 +190,35 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				}
 			}
 
+			// Track which Astro component owns each emitted CSS asset, so the styles of
+			// components a prerendered page imports but never renders can be dropped.
+			if (
+				settings.config.experimental?.treeShakeComponents &&
+				(this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
+					this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+					this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client)
+			) {
+				for (const [, chunk] of Object.entries(bundle)) {
+					if (chunk.type !== 'chunk') continue;
+					if ('viteMetadata' in chunk === false) continue;
+					const meta = chunk.viteMetadata as ViteMetadata;
+					if (meta.importedCss.size < 1) continue;
+
+					const owner = getChunkComponentOwner(chunk, this);
+					if (!owner) continue;
+
+					for (const cssId of meta.importedCss) {
+						let owners = internals.componentStyleOwners.get(cssId);
+						if (!owners) {
+							owners = new Set();
+							internals.componentStyleOwners.set(cssId, owners);
+						}
+						owners.add(owner);
+						internals.componentOwnedFiles.add(cssId);
+					}
+				}
+			}
+
 			for (const [, chunk] of Object.entries(bundle)) {
 				if (chunk.type !== 'chunk') continue;
 				if ('viteMetadata' in chunk === false) continue;
@@ -474,6 +503,21 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					? { type: 'inline', content: stylesheet.source }
 					: { type: 'external', src: stylesheet.fileName };
 
+				// Re-key the component owner from the CSS asset file name to the inline
+				// content so it can be matched once the stylesheet is inlined.
+				if (settings.config.experimental?.treeShakeComponents && sheet.type === 'inline') {
+					const owners = internals.componentStyleOwners.get(id);
+					if (owners) {
+						const key = `inline:${sheet.content}`;
+						const existing = internals.componentStyleOwners.get(key);
+						if (existing) {
+							for (const owner of owners) existing.add(owner);
+						} else {
+							internals.componentStyleOwners.set(key, new Set(owners));
+						}
+					}
+				}
+
 				let sheetAddedToPage = false;
 
 				internals.pagesByKeys.forEach((pageData) => {
@@ -627,6 +671,31 @@ function* getParentClientOnlys(
 	for (const info of getParentModuleInfos(id, ctx)) {
 		yield* getPageDatasByClientOnlyID(internals, info.id);
 	}
+}
+
+/**
+ * Returns the Astro component module id whose styles a chunk emits, or
+ * `undefined` when the chunk is not a single non-page component (for example the
+ * shared client runtime, a page entry, or a chunk bundling several components).
+ */
+function getChunkComponentOwner(
+	chunk: Rolldown.OutputChunk,
+	ctx: { getModuleInfo: Rolldown.GetModuleInfo },
+): string | undefined {
+	for (const id of chunk.moduleIds) {
+		const isComponent = id.endsWith('.astro');
+		const isScript = id.includes('.astro?astro&type=script&');
+		if (!isComponent && !isScript) continue;
+
+		const queryIndex = id.indexOf('?');
+		const moduleId = queryIndex === -1 ? id : id.slice(0, queryIndex);
+		const info = ctx.getModuleInfo(moduleId);
+		// Page-level styles are always needed, so they never get an owner.
+		if (info && moduleIsTopLevelPage(info)) continue;
+
+		return moduleId;
+	}
+	return undefined;
 }
 
 type ViteMetadata = {

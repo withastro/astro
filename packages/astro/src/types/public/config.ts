@@ -3594,6 +3594,44 @@ export interface AstroUserConfig<
 		 * See the [experimental incremental static builds](https://docs.astro.build/en/reference/experimental-flags/incremental-build/) for more information.
 		 */
 		incrementalBuild?: boolean;
+
+		/**
+		 * @name experimental.treeShakeComponents
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 7.4
+		 * @description
+		 *
+		 * Excludes the styles and scripts of Astro components that are imported but
+		 * never rendered from prerendered pages.
+		 *
+		 * When building with `output: 'static'`, a page sometimes imports a set of
+		 * components and selects which one to render at runtime, for example when
+		 * composing pages from CMS data (the "page builder" pattern). Astro cannot
+		 * know which components are used during bundling, so their styles are
+		 * included even when unused.
+		 *
+		 * When enabled, Astro records which components are actually rendered while
+		 * generating each page, and only writes the styles of the components that
+		 * were used. This can significantly reduce the CSS shipped to the browser
+		 * for pages that only render a subset of their imported components.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     treeShakeComponents: true,
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * This flag only affects prerendered pages. It has no effect on
+		 * on-demand server-rendered pages, where streaming requires all possible
+		 * styles to be known up front.
+		 */
+		treeShakeComponents?: boolean;
 	};
 }
 

@@ -10,6 +10,7 @@ import {
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import { CHUNKS_PATH } from './consts.js';
+import { moduleIsTopLevelPage } from './graph.js';
 import {
 	isLegacyAdapter,
 	LEGACY_SSR_ENTRY_VIRTUAL_MODULE,
@@ -20,6 +21,39 @@ import { cleanChunkName } from './util.js';
 import { makeAstroPageEntryPointFileName } from './static-build.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
+
+/**
+ * FNV-1a hash used to derive filesystem-safe, collision-resistant chunk names
+ * for Astro components.
+ */
+function hashPath(value: string): string {
+	let hash = 0x811c9dc5;
+	for (let i = 0; i < value.length; i++) {
+		hash ^= value.charCodeAt(i);
+		hash = Math.imul(hash, 0x01000193);
+	}
+	return (hash >>> 0).toString(36);
+}
+
+/**
+ * Isolates each Astro component into its own chunk when
+ * `experimental.treeShakeComponents` is enabled. This makes Vite emit the
+ * component's styles as a separate CSS asset, so a prerendered page that never
+ * renders the component can omit that asset.
+ *
+ * Page components are skipped: they are entries, and isolating them would merge
+ * with the page's own styles, which are always needed.
+ */
+function componentManualChunks(
+	id: string,
+	meta: { getModuleInfo: (id: string) => vite.Rolldown.ModuleInfo | null },
+): string | undefined {
+	const [pathname] = id.split('?');
+	if (!pathname.endsWith('.astro')) return undefined;
+	const info = meta.getModuleInfo(pathname);
+	if (info && moduleIsTopLevelPage(info)) return undefined;
+	return `astro-component-${hashPath(pathname)}`;
+}
 
 export interface CreateViteBuildConfigOptions {
 	/** The resolved Astro settings. */
@@ -173,6 +207,9 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 						output: {
 							entryFileNames: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
 							format: 'esm',
+							...(settings.config.experimental?.treeShakeComponents
+								? { manualChunks: componentManualChunks }
+								: {}),
 							...userPrerender?.build?.rolldownOptions?.output,
 						},
 					},
@@ -212,6 +249,9 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 								}
 								return `${settings.config.build.assets}/[name].[hash][extname]`;
 							},
+							...(settings.config.experimental?.treeShakeComponents
+								? { manualChunks: componentManualChunks }
+								: {}),
 							...userClient?.build?.rolldownOptions?.output,
 						},
 					},
@@ -223,6 +263,9 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 					outDir: fileURLToPath(getServerOutputDirectory(settings)),
 					rolldownOptions: {
 						output: {
+							...(settings.config.experimental?.treeShakeComponents
+								? { manualChunks: componentManualChunks }
+								: {}),
 							...userSsr?.build?.rolldownOptions?.output,
 						},
 					},

@@ -89,6 +89,14 @@ export function pluginInternals(
 					for (const specifier of specifiers) {
 						const normalizedId = normalizeEntryId(specifier);
 						internals.entrySpecifierToBundleMap.set(normalizedId, chunk.fileName);
+						// Track component script chunks so unused ones can be pruned.
+						if (
+							options.settings.config.experimental?.treeShakeComponents &&
+							this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client &&
+							specifier.includes('?astro&type=script&')
+						) {
+							internals.componentOwnedFiles.add(chunk.fileName);
+						}
 						if (isPrerender) {
 							internals.prerenderOnlyEntrySpecifiers.add(normalizedId);
 						} else {

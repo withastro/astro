@@ -193,6 +193,12 @@ export interface SSRLoadedRenderer extends Pick<AstroRenderer, 'name' | 'clientE
 export interface SSRElement {
 	props: Record<string, any>;
 	children: string;
+	/**
+	 * Module ids of the Astro components this element's stylesheet belongs to.
+	 * Only set for stylesheets owned by a single non-page component; used by
+	 * `experimental.treeShakeComponents`.
+	 */
+	owners?: string[];
 }
 
 export interface SSRResult {
@@ -292,6 +298,24 @@ export interface SSRMetadata {
 	 * so we only render each once.
 	 */
 	renderedScripts: Set<string>;
+	/**
+	 * Module ids of the Astro components rendered on the current page. Used by
+	 * `experimental.treeShakeComponents` to drop the styles of components a page
+	 * imports but never renders.
+	 */
+	renderedComponents: Set<string>;
+	/**
+	 * When `true`, the head renderer records the rendered `<link>`/`<style>`
+	 * tags of stylesheets that belong to a component so they can be removed after
+	 * rendering if that component never rendered.
+	 */
+	treeShakeComponents: boolean;
+	/**
+	 * Style tags emitted for the current page, paired with the component module
+	 * ids that own them. Populated during head rendering when
+	 * {@link treeShakeComponents} is enabled and consumed by `renderPage`.
+	 */
+	componentStyleTags: Array<{ tag: string; owners: string[] }>;
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	hasRenderedServerIslandRuntime: boolean;
