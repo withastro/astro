@@ -9,8 +9,9 @@ machine or directory and run with `node dist/server/entry.mjs` without rebuildin
 
 Astro stores directory paths in the SSR manifest relative to the server entry and resolves
 them at runtime, so the built output no longer embeds the build machine's absolute directory
-and image paths. Public `file` exports, such as `AstroInstance.file` and
-`MarkdownInstance.file`, remain absolute.
+and image paths. Two absolute values remain: the manifest records the build-time server
+directory as a fallback for runtimes without a filesystem, and public `file` exports such as
+`AstroInstance.file` and `MarkdownInstance.file` stay absolute.
 
 `@astrojs/node` stores the session base relative to the project root and resolves it at
 runtime, and locates the client directory relative to the server entry. `@astrojs/mdx`

@@ -6,8 +6,10 @@ export function getProxyCode(
 	fsPath: string | undefined = options.fsPath,
 ): string {
 	const stringifiedFSPath = JSON.stringify(fsPath);
+	// Serialize the resolved `fsPath` into the proxy target, so reads, `clone` and the
+	// getter all agree when `fsPath` overrides the metadata's own value.
 	return `
-						new Proxy(${JSON.stringify(options)}, {
+						new Proxy(${JSON.stringify({ ...options, fsPath })}, {
 						get(target, name, receiver) {
 							if (name === 'clone') {
 								return structuredClone(target);
