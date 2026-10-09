@@ -18,10 +18,7 @@ import type {
 	SerializedStaticImage,
 } from '../types.js';
 import { isESMImportedImage } from '../utils/imageKind.js';
-import {
-	getImageServiceConfig,
-	type ImageConfigWithSingleService,
-} from '../utils/service-config.js';
+import { getImageServiceConfig } from '../utils/service-config.js';
 import { loadRemoteImage, type RemoteCacheEntry, revalidateRemoteImage } from './remote.js';
 
 interface GenerationDataUncached {
@@ -48,7 +45,9 @@ type AssetEnv = {
 	assetsCacheDir: URL;
 	serverRoot: URL;
 	clientRoot: URL;
-	imageConfig: ImageConfigWithSingleService;
+	imageConfig: Omit<AstroConfig['image'], 'service'> & {
+		service: ReturnType<typeof getImageServiceConfig>;
+	};
 	assetsFolder: AstroConfig['build']['assets'];
 };
 

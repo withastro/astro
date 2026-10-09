@@ -1,12 +1,4 @@
-import type {
-	AstroConfig,
-	ImageServiceConfig,
-	ImageServiceTargets,
-} from '../../types/public/config.js';
-
-export type ImageConfigWithSingleService = Omit<AstroConfig['image'], 'service'> & {
-	service: ImageServiceConfig & { config: Record<string, any> };
-};
+import type { ImageServiceConfig, ImageServiceTargets } from '../../types/public/config.js';
 
 export function getImageServiceConfig(
 	service: ImageServiceConfig | ImageServiceTargets,
