@@ -12,10 +12,41 @@ import type {
 
 export type { SerializedRouteData } from '../../types/astro.js';
 
+/**
+ * Returns the directory that contains the server entry, or `undefined` when the entry URL
+ * cannot act as a base. Opaque URLs such as `blob:` or `data:` parse successfully but throw
+ * when a relative URL resolves against them, which happens on runtimes like workerd.
+ */
+function getServerBaseUrl(serverEntryUrl?: string): URL | undefined {
+	if (!serverEntryUrl) return undefined;
+	try {
+		return new URL('./', serverEntryUrl);
+	} catch {
+		return undefined;
+	}
+}
+
+/**
+ * When `serverEntryUrl` is provided, relative directory paths in the manifest resolve
+ * against it so the build output can run from any location.
+ */
 export function deserializeManifest(
 	serializedManifest: SerializedSSRManifest,
 	routesList?: RoutesList,
+	serverEntryUrl?: string,
 ): SSRManifest {
+	const serverBaseUrl = getServerBaseUrl(serverEntryUrl);
+	const resolveDir = (relativePath: string): URL => {
+		if (serverBaseUrl) {
+			return new URL(relativePath, serverBaseUrl);
+		}
+		if (URL.canParse(relativePath)) {
+			return new URL(relativePath);
+		}
+		// Non-filesystem runtimes such as Cloudflare Workers don't read these paths.
+		return new URL('file:///');
+	};
+
 	const routes: RouteInfo[] = [];
 	if (serializedManifest.routes) {
 		for (const serializedRoute of serializedManifest.routes) {
@@ -49,13 +80,13 @@ export function deserializeManifest(
 		},
 
 		...serializedManifest,
-		rootDir: new URL(serializedManifest.rootDir),
-		srcDir: new URL(serializedManifest.srcDir),
-		publicDir: new URL(serializedManifest.publicDir),
-		outDir: new URL(serializedManifest.outDir),
-		cacheDir: new URL(serializedManifest.cacheDir),
-		buildClientDir: new URL(serializedManifest.buildClientDir),
-		buildServerDir: new URL(serializedManifest.buildServerDir),
+		rootDir: resolveDir(serializedManifest.rootDir),
+		srcDir: resolveDir(serializedManifest.srcDir),
+		publicDir: resolveDir(serializedManifest.publicDir),
+		outDir: resolveDir(serializedManifest.outDir),
+		cacheDir: resolveDir(serializedManifest.cacheDir),
+		buildClientDir: resolveDir(serializedManifest.buildClientDir),
+		buildServerDir: resolveDir(serializedManifest.buildServerDir),
 		assets,
 		componentMetadata,
 		inlinedScripts,

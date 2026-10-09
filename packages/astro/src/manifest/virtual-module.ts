@@ -116,17 +116,17 @@ if (manifest.image) {
 
 const base = manifest.base;
 const build = {
-  server: new URL(manifest.buildServerDir),
-  client: new URL(manifest.buildClientDir),
+  server: manifest.buildServerDir,
+  client: manifest.buildClientDir,
   format: manifest.buildFormat,
   assetsPrefix: manifest.assetsPrefix,
 };
 
-const cacheDir = new URL(manifest.cacheDir);
-const outDir = new URL(manifest.outDir);
-const publicDir = new URL(manifest.publicDir);
-const srcDir = new URL(manifest.srcDir);
-const root = new URL(manifest.rootDir);
+const cacheDir = manifest.cacheDir;
+const outDir = manifest.outDir;
+const publicDir = manifest.publicDir;
+const srcDir = manifest.srcDir;
+const root = manifest.rootDir;
 const trailingSlash = manifest.trailingSlash;
 const site = manifest.site;
 const compressHTML = manifest.compressHTML;

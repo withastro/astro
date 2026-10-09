@@ -1,5 +1,7 @@
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { glob } from 'tinyglobby';
+import { normalizePath } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/path.js';
 import { resolveMiddlewareMode } from '../../../integrations/adapter-utils.js';
@@ -104,7 +106,12 @@ export async function manifestBuildPostHook(
 		// Cloudflare Workers that re-parse it on every cold isolate start.
 		let ssrManifest = stripPrerenderedRouteStyles(manifest);
 		ssrManifest = stripPrerenderOnlyEntryModules(ssrManifest, internals);
-		const code = injectManifest(ssrManifest, ssrManifestChunk.code);
+		const portableManifest = toPortableManifest(ssrManifest, options.settings);
+		const finalSsrManifest = adjustManifestPathsForChunk(
+			portableManifest,
+			ssrManifestChunk.fileName,
+		);
+		const code = injectManifest(finalSsrManifest, ssrManifestChunk.code);
 		mutate(ssrManifestChunk.fileName, code, false);
 	}
 
@@ -114,7 +121,9 @@ export async function manifestBuildPostHook(
 	);
 
 	if (prerenderManifestChunk) {
-		const code = injectManifest(manifest, prerenderManifestChunk.code);
+		// Keys must match the compiled output, but directories stay absolute for build-time access.
+		const prerenderManifest = relativizeManifestKeys(manifest, options.settings);
+		const code = injectManifest(prerenderManifest, prerenderManifestChunk.code);
 		mutate(prerenderManifestChunk.fileName, code, true);
 	}
 }
@@ -148,6 +157,84 @@ async function createManifest(
 	const encodedKey = await encodeKey(await buildOpts.key);
 	const manifest = await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
 	return manifest;
+}
+
+/**
+ * Rewrites absolute module keys to be relative to the project root, matching the paths
+ * embedded in the compiled output.
+ */
+function relativizeManifestKeys(
+	manifest: SerializedSSRManifest,
+	settings: StaticBuildOptions['settings'],
+): SerializedSSRManifest {
+	const normalizedRoot = normalizePath(fileURLToPath(settings.config.root));
+	const relativeKey = (key: string) => {
+		const nk = normalizePath(key);
+		return nk.startsWith(normalizedRoot) ? nk.slice(normalizedRoot.length - 1) : nk;
+	};
+
+	return {
+		...manifest,
+		componentMetadata: manifest.componentMetadata.map(
+			([key, value]) => [relativeKey(key), value] as [string, typeof value],
+		),
+		inlinedScripts: manifest.inlinedScripts.map(
+			([key, value]) => [relativeKey(key), value] as [string, typeof value],
+		),
+		entryModules: Object.fromEntries(
+			Object.entries(manifest.entryModules).map(([key, value]) => [relativeKey(key), value]),
+		),
+	};
+}
+
+/**
+ * Rewrites the manifest for the deployed server: relative module keys and directory paths
+ * relative to the server entry directory, so the built output works from any location.
+ */
+function toPortableManifest(
+	manifest: SerializedSSRManifest,
+	settings: StaticBuildOptions['settings'],
+): SerializedSSRManifest {
+	const serverDir = fileURLToPath(settings.config.build.server);
+	const dirToString = (dir: URL) => {
+		const rel = path.relative(serverDir, fileURLToPath(dir));
+		return rel.split(path.sep).join('/') + '/';
+	};
+
+	return {
+		...relativizeManifestKeys(manifest, settings),
+		rootDir: dirToString(settings.config.root),
+		cacheDir: dirToString(settings.config.cacheDir),
+		outDir: dirToString(settings.config.outDir),
+		srcDir: dirToString(settings.config.srcDir),
+		publicDir: dirToString(settings.config.publicDir),
+		buildClientDir: dirToString(settings.config.build.client),
+		buildServerDir: './',
+	};
+}
+
+/** Prepends `../` segments so relative manifest paths resolve from a nested chunk. */
+function adjustManifestPathsForChunk(
+	manifest: SerializedSSRManifest,
+	chunkFileName: string,
+): SerializedSSRManifest {
+	const chunkDir = path.posix.dirname(chunkFileName);
+	if (chunkDir === '.' || chunkDir === '') {
+		return manifest;
+	}
+	const depth = chunkDir.split('/').length;
+	const prefix = '../'.repeat(depth);
+
+	return {
+		...manifest,
+		rootDir: prefix + manifest.rootDir,
+		cacheDir: prefix + manifest.cacheDir,
+		outDir: prefix + manifest.outDir,
+		srcDir: prefix + manifest.srcDir,
+		publicDir: prefix + manifest.publicDir,
+		buildClientDir: prefix + manifest.buildClientDir,
+		buildServerDir: prefix + manifest.buildServerDir,
+	};
 }
 
 /**

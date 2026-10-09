@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { writeJson } from '@astrojs/internal-helpers/fs';
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteToHeaders } from 'astro';
@@ -44,9 +45,12 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 				_config = config;
 				if (session !== false && !session?.driver) {
 					logger.info('Enabling sessions with filesystem storage');
+					// Stored relative to the project root and resolved at runtime.
+					const absBase = fileURLToPath(new URL('sessions', config.cacheDir));
+					const rootBase = path.relative(fileURLToPath(config.root), absBase);
 					session = {
 						driver: sessionDrivers.fsLite({
-							base: fileURLToPath(new URL('sessions', config.cacheDir)),
+							base: rootBase.split(path.sep).join('/'),
 						}),
 						cookie: session?.cookie,
 						ttl: session?.ttl,
@@ -70,8 +74,8 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 						plugins: [
 							createConfigPlugin({
 								...userOptions,
-								client: _config.build.client?.toString(),
-								server: _config.build.server?.toString(),
+								client: path.basename(fileURLToPath(_config.build.client)),
+								server: path.basename(fileURLToPath(_config.build.server)),
 								host: _config.server.host,
 								port: _config.server.port,
 								staticHeaders: userOptions.staticHeaders ?? false,

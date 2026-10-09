@@ -1,6 +1,7 @@
+import { fileURLToPath } from 'node:url';
 import type { AstroConfig } from 'astro';
 import { type ExportSpecifier, type ImportSpecifier, parse } from 'es-module-lexer/minimal';
-import type { Plugin } from 'vite';
+import { normalizePath, type Plugin } from 'vite';
 import {
 	ASTRO_IMAGE_ELEMENT,
 	ASTRO_IMAGE_IMPORT,
@@ -33,6 +34,16 @@ export function vitePluginMdxPostprocess(astroConfig: AstroConfig): Plugin {
 					this.environment.name === 'ssr' || this.environment.name === 'prerender',
 					imports,
 				);
+
+				// Match the root-relative paths used in the manifest keys.
+				if (this.environment.config.command === 'build') {
+					const normalizedRoot = normalizePath(fileURLToPath(astroConfig.root));
+					if (id.startsWith(normalizedRoot)) {
+						const escaped = normalizedRoot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+						const re = new RegExp(`(["'])${escaped}`, 'g');
+						code = code.replace(re, '$1/');
+					}
+				}
 
 				// The code transformations above are append-only, so the line/column mappings are the same
 				// and we can omit the sourcemap for performance.
