@@ -11,7 +11,12 @@ const service: LocalImageService = {
 		return baseService.getHTMLAttributes!(options, imageConfig, logger);
 	},
 	async transform(buffer, transform) {
-		return { data: buffer, format: transform.format };
+		// Marks the output, so tests can tell this service generated the image.
+		const marker = new TextEncoder().encode('ALIASED_TRANSFORM');
+		const data = new Uint8Array(marker.length + buffer.length);
+		data.set(marker);
+		data.set(buffer, marker.length);
+		return { data, format: transform.format };
 	},
 };
 

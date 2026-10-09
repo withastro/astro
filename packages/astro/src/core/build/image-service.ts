@@ -9,32 +9,55 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { viteBuildReturnToRolldownOutputs } from './util.js';
 
 const IMAGE_SERVICE_ENTRY_NAME = 'image-service';
+const IMAGE_SERVICE_ENTRY_ID = 'virtual:astro:image-service-entry';
+const RESOLVED_IMAGE_SERVICE_ENTRY_ID = '\0' + IMAGE_SERVICE_ENTRY_ID;
 
 function getImageServiceOutputDirectory(settings: AstroSettings): URL {
 	return new URL(`${IMAGE_SERVICE_ENTRY_NAME}/`, getPrerenderOutputDirectory(settings));
 }
 
 /**
- * A Node environment that bundles only the `build` image service. Images are always generated in
+ * A Node environment that builds only the `build` image service. Images are always generated in
  * Node, whatever runtime the adapter prerenders pages in, so the service is built separately
- * from the prerender bundle. It goes through the same plugins (aliases, TypeScript, ...), while
- * its dependencies stay external and resolve from `node_modules` (e.g. `sharp`).
+ * from the prerender bundle. Local files go through the same plugins (aliases, TypeScript, ...)
+ * and get bundled. Packages stay external, even linked ones, so their dependencies resolve from
+ * the package (e.g. `sharp` from `astro`), unless their entrypoint needs compiling (e.g. `.ts`).
  */
 export function getImageServiceEnvironmentOptions(
 	settings: AstroSettings,
 ): vite.EnvironmentOptions {
 	return {
 		consumer: 'server',
+		resolve: { external: true },
 		build: {
 			outDir: fileURLToPath(getImageServiceOutputDirectory(settings)),
 			emitAssets: false,
 			ssr: true,
 			rolldownOptions: {
 				// A string, so it replaces any shared `input` instead of being merged with it.
-				input: VIRTUAL_SERVICE_ID,
+				input: IMAGE_SERVICE_ENTRY_ID,
 				// Hashed, so a rebuild in the same process doesn't import a cached module.
 				output: { entryFileNames: `${IMAGE_SERVICE_ENTRY_NAME}.[hash].mjs`, format: 'esm' },
 			},
+		},
+	};
+}
+
+/**
+ * The entry of the image service environment. It re-exports the service, as an entry can't be
+ * external.
+ */
+export function pluginImageServiceEntry(): vite.Plugin {
+	return {
+		name: '@astro/plugin-image-service-entry',
+		applyToEnvironment: (environment) => environment.name === IMAGE_SERVICE_ENVIRONMENT_NAME,
+		resolveId: {
+			filter: { id: new RegExp(`^${IMAGE_SERVICE_ENTRY_ID}$`) },
+			handler: () => RESOLVED_IMAGE_SERVICE_ENTRY_ID,
+		},
+		load: {
+			filter: { id: new RegExp(`^${RESOLVED_IMAGE_SERVICE_ENTRY_ID}$`) },
+			handler: () => `export { default } from ${JSON.stringify(VIRTUAL_SERVICE_ID)};`,
 		},
 	};
 }

@@ -13,7 +13,6 @@ import { type BuiltinTheme, bundledThemes } from 'shiki';
 import * as z from 'zod/v4';
 import { FontFamilySchema } from '../../../assets/fonts/config.js';
 import { SvgOptimizerSchema } from '../../../assets/svg/config.js';
-import { normalizeImageServiceInput } from '../../../assets/utils/service-config.js';
 import { EnvSchema } from '../../../env/schema.js';
 import type { ViteUserConfig } from '../../../types/public/config.js';
 import { CacheSchema, RouteRulesSchema } from '../../cache/config.js';
@@ -253,10 +252,10 @@ export const AstroConfigSchema = z.object({
 				})
 				.default(ASTRO_CONFIG_DEFAULTS.image.endpoint),
 			service: z
-				.preprocess(
-					normalizeImageServiceInput,
-					imageServiceSchema.extend({ build: imageServiceSchema.optional() }),
-				)
+				.union([
+					z.object({ build: imageServiceSchema, runtime: imageServiceSchema }),
+					imageServiceSchema,
+				])
 				.default(ASTRO_CONFIG_DEFAULTS.image.service),
 			dangerouslyProcessSVG: z.boolean().default(ASTRO_CONFIG_DEFAULTS.image.dangerouslyProcessSVG),
 			domains: z.array(z.string()).default([]),

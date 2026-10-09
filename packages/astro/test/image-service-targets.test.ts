@@ -99,7 +99,8 @@ for (const [name, integrations] of [
 			assert.equal($img.attr('data-service-base'), '/');
 			const src = $img.attr('src')!;
 			assert.match(src, /^\/_astro\/penguin2\..+\.webp$/);
-			assert.ok(fixture.pathExists(`/client${src}`));
+			const data = (await fixture.readFile(`/client${src}`, null)) as unknown as Buffer;
+			assert.equal(Buffer.from(data.subarray(0, 17)).toString('utf8'), 'ALIASED_TRANSFORM');
 		});
 	});
 }
