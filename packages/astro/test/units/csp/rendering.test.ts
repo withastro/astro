@@ -8,7 +8,7 @@ import {
 	render,
 	renderHead,
 } from '../../../dist/runtime/server/index.js';
-import type { SSRManifestCSP } from '../../../dist/types/public/internal.js';
+import type { SSRManifest, SSRManifestCSP } from '../../../dist/types/public/internal.js';
 import type { TestPipeline } from '../test-utils.ts';
 import type { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createBasicPipeline, renderThroughMiddleware, SpyLogger } from '../test-utils.ts';
@@ -20,7 +20,7 @@ import { createBasicPipeline, renderThroughMiddleware, SpyLogger } from '../test
  * `kind`-scoped entries; a `-elem`/`-attr` directive is emitted only when it has such entries.
  */
 type CspTestConfig = {
-	shouldInjectCspMetaTags?: boolean;
+	shouldInjectCspMetaTags?: SSRManifest['shouldInjectCspMetaTags'];
 	cspDestination?: SSRManifestCSP['cspDestination'];
 	algorithm?: SSRManifestCSP['algorithm'];
 	directives?: SSRManifestCSP['directives'];
