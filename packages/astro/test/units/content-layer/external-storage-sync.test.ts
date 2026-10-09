@@ -140,6 +140,30 @@ describe('Content layer with external storage', () => {
 		assert.equal(calls.flush, 1);
 	});
 
+	it('records the names of external collections in the data store for the runtime', async () => {
+		const { driver } = createDriver();
+		const externalStore = new ExternalDataStore(driver);
+		const store = new MutableDataStore();
+		const loader = () => [{ id: 'a' }];
+
+		await createLayer({
+			store,
+			externalStore,
+			collections: {
+				posts: defineCollection({ storage: 'external', loader }),
+				authors: defineCollection({ loader }),
+			},
+		}).contentLayer.sync();
+		assert.equal(store.metaStore().get('external-collections'), '["posts"]');
+
+		await createLayer({
+			store,
+			externalStore,
+			collections: { posts: defineCollection({ loader }) },
+		}).contentLayer.sync();
+		assert.equal(store.metaStore().has('external-collections'), false);
+	});
+
 	it('updates external collections of inline loaders without clearing them', async () => {
 		const { driver, entries, calls } = createDriver();
 		const externalStore = new ExternalDataStore(driver);
@@ -320,64 +344,32 @@ describe('Content layer with external storage', () => {
 });
 
 describe('createExternalDataStore', () => {
-	function createSettings(collectionStorage: unknown) {
-		return createMinimalSettings(createTempDir(), {
-			config: { experimental: { collectionStorage } },
-		});
-	}
-
-	function createEnvironment(load: (specifier: string) => Promise<unknown>) {
-		return { runner: { import: load } } as any;
+	function createEnvironment(module: unknown) {
+		const imported: Array<string> = [];
+		const environment = {
+			runner: {
+				import: async (id: string) => {
+					imported.push(id);
+					return module;
+				},
+			},
+		} as any;
+		return { environment, imported };
 	}
 
 	it('returns undefined when no driver is configured', async () => {
-		const environment = createEnvironment(async () => assert.fail('should not import'));
-		assert.equal(await createExternalDataStore(createSettings(undefined), environment), undefined);
-		assert.equal(
-			await createExternalDataStore(createSettings({ type: 'external' }), environment),
-			undefined,
-		);
+		const { environment } = createEnvironment({ default: undefined });
+		assert.equal(await createExternalDataStore(environment), undefined);
 	});
 
-	it('creates the driver with its config', async () => {
-		let received: unknown;
-		const settings = createSettings({
-			type: 'external',
-			driver: { entrypoint: 'my-driver', config: { url: 'file:test.db' } },
-		});
-		const environment = createEnvironment(async (specifier) => {
-			assert.equal(specifier, 'my-driver');
-			return {
-				default: (config: unknown) => {
-					received = config;
-					return createMemoryStorageDriver();
-				},
-			};
+	it('creates the store with the driver of the virtual module', async () => {
+		const { environment, imported } = createEnvironment({
+			default: async () => createMemoryStorageDriver(),
 		});
 
-		const store = await createExternalDataStore(settings, environment);
+		const store = await createExternalDataStore(environment);
 
 		assert.ok(store instanceof ExternalDataStore);
-		assert.deepEqual(received, { url: 'file:test.db' });
-	});
-
-	it('throws when the driver cannot be loaded', async () => {
-		const settings = createSettings({ type: 'external', driver: { entrypoint: 'missing' } });
-		await assert.rejects(
-			createExternalDataStore(
-				settings,
-				createEnvironment(async () => {
-					throw new Error('Cannot find module');
-				}),
-			),
-			{ name: 'ContentStorageDriverNotFound' },
-		);
-		await assert.rejects(
-			createExternalDataStore(
-				settings,
-				createEnvironment(async () => ({ default: 'not a function' })),
-			),
-			{ name: 'ContentStorageDriverNotFound' },
-		);
+		assert.deepEqual(imported, ['virtual:astro:content-storage-driver']);
 	});
 });
