@@ -5,6 +5,7 @@ import type {
 	FallbackVariant,
 	FontFaceMetrics,
 	FontFileData,
+	FontProperties,
 	FontProvider,
 	FontType,
 	GenericFallbackName,
@@ -88,6 +89,10 @@ export interface FontResolver {
 		options: ResolveFontOptions<Record<string, any>> & { provider: FontProvider },
 	) => Promise<Array<unifont.FontFaceData>>;
 	listFonts: (options: { provider: FontProvider }) => Promise<string[] | undefined>;
+	getFontProperties: (options: {
+		familyName: string;
+		provider: FontProvider;
+	}) => Promise<FontProperties | undefined>;
 }
 
 export interface RuntimeFontFileUrlResolver {
