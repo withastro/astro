@@ -82,7 +82,9 @@ function createPortableEntryModules(entryModules: Record<string, string>): Recor
 class PortableKeyedMap<Value> extends Map<string, Value> {
 	override get(key: string): Value | undefined {
 		const direct = super.get(key);
-		if (direct !== undefined) {
+		// Callers such as `renderPage` probe `componentMetadata` with an optional `moduleId`,
+		// so the wrapper must keep `Map`'s behavior for non-string keys instead of walking them.
+		if (direct !== undefined || typeof key !== 'string') {
 			return direct;
 		}
 		const found = resolvePortableKey((candidate) => super.has(candidate), key);
@@ -90,6 +92,9 @@ class PortableKeyedMap<Value> extends Map<string, Value> {
 	}
 
 	override has(key: string): boolean {
+		if (typeof key !== 'string') {
+			return super.has(key);
+		}
 		return (
 			super.has(key) || resolvePortableKey((candidate) => super.has(candidate), key) !== undefined
 		);
