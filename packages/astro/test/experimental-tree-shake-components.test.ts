@@ -86,6 +86,26 @@ describe('experimental.treeShakeComponents', () => {
 			assert.match(css, /\.d-from-frontmatter/, 'D frontmatter CSS should be included');
 			assert.match(css, /\.comp\[[^\]]+\]\.d p/, 'D scoped style should be included');
 		});
+
+		it('keeps a stylesheet shared by the page and an unrendered component', async () => {
+			const html = await fixture.readFile('/shared-page/index.html');
+			const css = await collectCss(fixture, html);
+			assert.match(css, /\.shared-style/, 'page-level shared CSS should be kept');
+		});
+
+		it('keeps CSS a rendered component loads with a dynamic import', async () => {
+			const files = await fixture.readdir('./_astro');
+			let found = false;
+			for (const file of files) {
+				if (!file.endsWith('.css')) continue;
+				const content = await fixture.readFile(`/_astro/${file}`);
+				if (content.includes('.f-from-dynamic-script')) {
+					found = true;
+					break;
+				}
+			}
+			assert.ok(found, 'dynamically imported CSS should not be pruned');
+		});
 	});
 
 	describe('prerendered (static) with incremental builds', () => {
@@ -161,6 +181,15 @@ describe('experimental.treeShakeComponents', () => {
 			const css = $('style').text();
 			assertOnlyAUsed(css);
 			assert.match(css, /\.page-only/, 'page frontmatter CSS should be included');
+		});
+
+		it('keeps the styles of components rendered by a server island', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const response = await app.render(new Request('http://example.com/island'));
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			const css = $('style').text();
+			assert.match(css, /\.card-from-frontmatter/, 'island child CSS should be kept');
 		});
 	});
 });

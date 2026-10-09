@@ -153,10 +153,15 @@ export async function renderPage(
  * known once the whole page has been rendered. The head renderer records the
  * exact tags it emitted together with their owner component module ids; this
  * runs afterwards, when the response is buffered, and drops the unused ones.
+ *
+ * Pages with a server island keep every style: the island renders in a separate
+ * request, so the components it renders never appear in the page's set of
+ * rendered components.
  */
 function removeUnusedComponentStyles(result: SSRResult, html: string): string {
 	const tags = result._metadata.componentStyleTags;
 	if (tags.length === 0) return html;
+	if (result._metadata.hasServerIsland) return html;
 
 	const rendered = result._metadata.renderedComponents;
 	let output = html;

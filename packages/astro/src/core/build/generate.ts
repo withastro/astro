@@ -461,6 +461,27 @@ function collectReferencedAssets(html: string, assetsDir: string, into: Set<stri
 }
 
 /**
+ * Expands the assets referenced by generated pages with everything those assets
+ * load at runtime, following the client chunk graph. Pruning uses this so assets
+ * that a page loads from JavaScript, rather than from the HTML, are not deleted.
+ */
+function collectReachableAssets(internals: BuildInternals): Set<string> {
+	const reachable = new Set(internals.referencedAssetFiles);
+	const queue = [...reachable];
+	while (queue.length > 0) {
+		const file = queue.pop()!;
+		const references = internals.clientChunkReferences.get(file);
+		if (!references) continue;
+		for (const reference of references) {
+			if (reachable.has(reference)) continue;
+			reachable.add(reference);
+			queue.push(reference);
+		}
+	}
+	return reachable;
+}
+
+/**
  * Deletes the emitted script and CSS files of Astro components that were never
  * rendered by any generated page. Only runs for static builds, where every page
  * is generated in the same pass and nothing is served on demand.
@@ -473,9 +494,10 @@ async function pruneUnusedComponentAssets(
 	if (!settings.config.experimental?.treeShakeComponents) return;
 	if (settings.buildOutput !== 'static') return;
 
+	const reachable = collectReachableAssets(internals);
 	const clientDir = getClientOutputDirectory(settings);
 	for (const file of internals.componentOwnedFiles) {
-		if (internals.referencedAssetFiles.has(file)) continue;
+		if (reachable.has(file)) continue;
 		try {
 			await nodeFs.promises.rm(new URL(file, clientDir), { force: true });
 			internals.clientChunksAndAssets.delete(file);

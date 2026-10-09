@@ -316,6 +316,12 @@ export interface SSRMetadata {
 	 * {@link treeShakeComponents} is enabled and consumed by `renderPage`.
 	 */
 	componentStyleTags: Array<{ tag: string; owners: string[] }>;
+	/**
+	 * When `true`, the page includes a server island. Because the island renders in
+	 * a separate request, the components it renders are unknown while the host page
+	 * is rendered, so `experimental.treeShakeComponents` keeps every style.
+	 */
+	hasServerIsland: boolean;
 	hasDirectives: Set<string>;
 	hasRenderedHead: boolean;
 	hasRenderedServerIslandRuntime: boolean;

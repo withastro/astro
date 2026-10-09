@@ -67,6 +67,7 @@ async function createStubResult(overrides: Partial<SSRResult> = {}): Promise<SSR
 			renderedComponents: new Set<string>(),
 			treeShakeComponents: false,
 			componentStyleTags: [],
+			hasServerIsland: false,
 			hasDirectives: new Set<string>(),
 			hasRenderedServerIslandRuntime: false,
 			headInTree: false,

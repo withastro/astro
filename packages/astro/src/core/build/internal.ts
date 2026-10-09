@@ -168,6 +168,14 @@ export interface BuildInternals {
 	referencedAssetFiles: Set<string>;
 
 	/**
+	 * Maps a client chunk file name to the client files it loads at runtime: its
+	 * static and dynamic imports plus its imported CSS. Used by
+	 * `experimental.treeShakeComponents` so pruning keeps assets a page references
+	 * indirectly, such as CSS a component's script imports dynamically.
+	 */
+	clientChunkReferences: Map<string, string[]>;
+
+	/**
 	 * Map of page component path -> dependency hash for incremental builds.
 	 * Populated during the prerender Rolldown build by the incremental plugin.
 	 */
@@ -221,6 +229,7 @@ export function createBuildInternals(): BuildInternals {
 		componentStyleOwners: new Map(),
 		componentOwnedFiles: new Set(),
 		referencedAssetFiles: new Set(),
+		clientChunkReferences: new Map(),
 	};
 }
 

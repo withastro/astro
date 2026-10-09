@@ -190,6 +190,25 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				}
 			}
 
+			// Record the client files each chunk can load at runtime. Pruning keeps
+			// component assets a page loads indirectly through the chunk graph, such as
+			// CSS a hydrated component imports dynamically.
+			if (
+				settings.config.experimental?.treeShakeComponents &&
+				this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client
+			) {
+				for (const [, chunk] of Object.entries(bundle)) {
+					if (chunk.type !== 'chunk') continue;
+					const importedCss =
+						'viteMetadata' in chunk ? (chunk.viteMetadata as ViteMetadata).importedCss : undefined;
+					internals.clientChunkReferences.set(chunk.fileName, [
+						...chunk.imports,
+						...chunk.dynamicImports,
+						...(importedCss ?? []),
+					]);
+				}
+			}
+
 			// Track which Astro components own each emitted CSS asset, so the styles of
 			// components a prerendered page imports but never renders can be dropped.
 			if (
@@ -706,9 +725,13 @@ function getChunkComponentOwners(
 
 /**
  * Walks up the module graph from a CSS module to the nearest non-page `.astro`
- * components that import it. Stops at the first level that reaches a component,
- * so a stylesheet shared by several components is credited to all of them while a
- * component's own stylesheet is credited to that component alone.
+ * components that import it, without passing through another component. A
+ * stylesheet imported by several components is credited to all of them, so it is
+ * dropped only when none of them render.
+ *
+ * Returns an empty set when the stylesheet is reachable from a top-level page
+ * without passing through a component. Those styles are page-level, so they must
+ * always be kept even when a component also imports them.
  */
 function getCssModuleComponentOwners(
 	id: string,
@@ -718,7 +741,7 @@ function getCssModuleComponentOwners(
 	const seen = new Set<string>([id]);
 	let frontier = [id];
 
-	while (frontier.length > 0 && owners.size === 0) {
+	while (frontier.length > 0) {
 		const next: string[] = [];
 		for (const current of frontier) {
 			const info = ctx.getModuleInfo(current);
@@ -734,8 +757,9 @@ function getCssModuleComponentOwners(
 				}
 
 				const componentInfo = ctx.getModuleInfo(pathname);
-				// Page-level styles are always needed, so they never get an owner.
-				if (componentInfo && moduleIsTopLevelPage(componentInfo)) continue;
+				// A page reached through non-component modules only owns this stylesheet
+				// as page-level CSS, which is always kept.
+				if (componentInfo && moduleIsTopLevelPage(componentInfo)) return new Set();
 				owners.add(pathname);
 			}
 		}

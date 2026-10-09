@@ -510,6 +510,7 @@ export class FetchState implements AstroFetchState {
 				renderedComponents: new Set(),
 				treeShakeComponents: manifest.treeShakeComponents ?? false,
 				componentStyleTags: [],
+				hasServerIsland: false,
 				hasDirectives: new Set(),
 				hasRenderedServerIslandRuntime: false,
 				headInTree: false,
