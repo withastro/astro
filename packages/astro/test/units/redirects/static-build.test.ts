@@ -3,6 +3,7 @@ import { before, describe, it } from 'node:test';
 import { renderPath } from '../../../dist/core/build/generate.js';
 import { createMockPrerenderer, createStaticBuildOptions } from '../build/test-helpers.ts';
 import { createTestApp, createPage } from '../mocks.ts';
+import { SpyLogger } from '../test-utils.ts';
 import { createComponent, render, renderComponent } from '../../../dist/runtime/server/index.js';
 
 import type { StaticBuildOptions } from '../../../dist/core/build/types.js';
@@ -442,5 +443,95 @@ describe('output: "server"', () => {
 				'The response has already been sent to the browser and cannot be altered.',
 			);
 		}
+	});
+});
+
+describe('static redirects — custom 3xx.astro output', () => {
+	let options: StaticBuildOptions;
+
+	before(async () => {
+		options = await createStaticBuildOptions({
+			pages: { 'src/pages/test.astro': TARGET_PAGE },
+			inlineConfig: {
+				redirects: { '/old': '/test' },
+				experimental: { redirectPage: true },
+			},
+		});
+	});
+
+	function redirectRoute(): RouteData {
+		const route = (options.routesList as { routes: RouteData[] }).routes.find(
+			(r) => r.route === '/old' && r.type === 'redirect',
+		);
+		assert.ok(route, 'expected /old redirect route');
+		return route;
+	}
+
+	/**
+	 * A redirect response that already carries a body, as the pipeline produces
+	 * once `src/pages/3xx.astro` has rendered.
+	 */
+	function renderedRedirect(html: string): Response {
+		return new Response(html, { status: 301, headers: { location: '/test' } });
+	}
+
+	it('writes the rendered page instead of the built-in template', async () => {
+		const logger = new SpyLogger();
+		const result = await renderPath({
+			prerenderer: createMockPrerenderer({
+				'/old': renderedRedirect(
+					'<html><head><meta http-equiv="refresh" content="0;url=/test"></head><body>Custom</body></html>',
+				),
+			}),
+			pathname: '/old',
+			route: redirectRoute(),
+			options,
+			logger,
+		});
+
+		assert.ok(result !== null);
+		const body = result.body.toString();
+		assert.ok(body.includes('Custom'));
+		assert.ok(!body.includes('Redirecting to:'));
+		assert.equal(
+			logger.logs.filter((entry) => entry.level === 'warn').length,
+			0,
+			'a page with a matching meta refresh should not warn',
+		);
+	});
+
+	it('warns when the rendered page has no matching meta refresh', async () => {
+		const logger = new SpyLogger();
+		const result = await renderPath({
+			prerenderer: createMockPrerenderer({
+				'/old': renderedRedirect('<html><body>No refresh tag here</body></html>'),
+			}),
+			pathname: '/old',
+			route: redirectRoute(),
+			options,
+			logger,
+		});
+
+		assert.ok(result !== null);
+		assert.ok(result.body.toString().includes('No refresh tag here'));
+		const warning = logger.logs.find((entry) => entry.level === 'warn');
+		assert.ok(warning, 'expected a warning');
+		assert.equal(warning.label, 'redirects');
+		assert.match(warning.message, /url=\/test/);
+	});
+
+	it('falls back to the built-in template when the redirect has no body', async () => {
+		const result = await renderPath({
+			prerenderer: createMockPrerenderer({
+				'/old': new Response(null, { status: 301, headers: { location: '/test' } }),
+			}),
+			pathname: '/old',
+			route: redirectRoute(),
+			options,
+			logger: options.logger,
+		});
+
+		assert.ok(result !== null);
+		assert.ok(result.body.toString().includes('Redirecting to:'));
 	});
 });

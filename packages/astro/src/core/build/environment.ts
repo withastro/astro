@@ -206,6 +206,9 @@ export function createBuildEnvironment(): BuildEnvironmentSlots {
 		},
 
 		errorStrategy: 'build',
+		rendersRedirectPage() {
+			return getSettings().config.experimental.redirectPage;
+		},
 		injectCspMetaTagsOnErrorPages: false,
 		logRequest() {},
 	};
