@@ -6,6 +6,7 @@ import { rejectInvalidEncoding } from './invalid-encoding.js';
 import { handleCache, provideCache } from '../cache/handler.js';
 import { getEnvironment, type RequestLogPayload } from '../environment/index.js';
 import { renderErrorFromState } from '../errors/handler.js';
+import { handleNotFound } from '../errors/not-found.js';
 import { ALL_FETCH_FEATURES, markFeatureUsed, FetchFeatures } from '../fetch/features.js';
 import { finalizeI18n, getI18n } from '../i18n/handler.js';
 import { getResolvedLogger } from '../logger/manifest-logger.js';
@@ -73,12 +74,9 @@ export async function handleRequest(state: FetchState): Promise<Response> {
 		return trailingSlashRedirect;
 	}
 
-	if (!state.routeData) {
-		return renderErrorFromState(state, state.request, {
-			...state.renderOptions,
-			status: 404,
-			pathname: state.pathname,
-		});
+	const notFoundResponse = handleNotFound(state);
+	if (notFoundResponse) {
+		return notFoundResponse;
 	}
 
 	return render(state);
