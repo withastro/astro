@@ -10,6 +10,7 @@ import { type Fixture, loadFixture } from './test-utils.ts';
 const fixtureDir = new URL('./fixtures/relocated-dist/', import.meta.url);
 const distDir = new URL('./fixtures/relocated-dist/dist/', import.meta.url);
 const relocatedDir = new URL('./fixtures/relocated-dist/relocated/', import.meta.url);
+const relocatedDistDir = new URL('./dist/', relocatedDir);
 
 describe('relocated build output', () => {
 	let fixture: Fixture;
@@ -25,21 +26,27 @@ describe('relocated build output', () => {
 		});
 		await fixture.build();
 
-		// Move the build output to a different directory before running it.
+		// Move the build output under a new root. The manifest directories and the session base
+		// now resolve from the relocated location instead of the build directory.
 		fs.rmSync(relocatedDir, { recursive: true, force: true });
-		fs.renameSync(distDir, relocatedDir);
+		fs.mkdirSync(relocatedDir, { recursive: true });
+		fs.renameSync(distDir, relocatedDistDir);
 
 		port = await getAvailablePort();
-		server = spawn(process.execPath, [fileURLToPath(new URL('./server/entry.mjs', relocatedDir))], {
-			cwd: fileURLToPath(fixtureDir),
-			env: {
-				...process.env,
-				ASTRO_NODE_AUTOSTART: 'enabled',
-				ASTRO_NODE_LOGGING: 'disabled',
-				HOST: '127.0.0.1',
-				PORT: String(port),
+		server = spawn(
+			process.execPath,
+			[fileURLToPath(new URL('./server/entry.mjs', relocatedDistDir))],
+			{
+				cwd: fileURLToPath(fixtureDir),
+				env: {
+					...process.env,
+					ASTRO_NODE_AUTOSTART: 'enabled',
+					ASTRO_NODE_LOGGING: 'disabled',
+					HOST: '127.0.0.1',
+					PORT: String(port),
+				},
 			},
-		});
+		);
 		server.stdout.setEncoding('utf8');
 		server.stderr.setEncoding('utf8');
 		server.stdout.on('data', (data) => (output += data));
@@ -77,6 +84,18 @@ describe('relocated build output', () => {
 		const response = await fetch(`http://127.0.0.1:${port}/hello.txt`);
 		assert.equal(response.status, 200);
 		assert.equal((await response.text()).trim(), 'hello from public');
+	});
+
+	it('resolves the session base from the relocated root', async () => {
+		const response = await fetch(`http://127.0.0.1:${port}/session`);
+		assert.equal(response.status, 200);
+		await response.json();
+
+		const sessionsDir = fileURLToPath(new URL('./node_modules/.astro/sessions/', relocatedDir));
+		await waitFor(
+			() => fs.existsSync(sessionsDir) && fs.readdirSync(sessionsDir).length > 0,
+			() => `Timed out waiting for a session file in ${sessionsDir}`,
+		);
 	});
 });
 

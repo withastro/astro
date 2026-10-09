@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { normalizePath } from 'vite';
-import { deserializeManifest } from '../../../dist/core/app/manifest.js';
+import { deserializeManifest, resolvePortableKey } from '../../../dist/core/app/manifest.js';
 import {
 	adjustManifestPathsForChunk,
 	relativizeManifestKeys,
@@ -280,5 +280,95 @@ describe('relativizeManifestKeys', () => {
 			[clientEntrypoint]: 'renderer.mjs',
 			'/src/components/Foo.astro': 'chunk.mjs',
 		});
+	});
+});
+
+describe('resolvePortableKey', () => {
+	const keys = new Set(['/src/components/Foo.astro', '/src/pages/index.astro?astro&type=script']);
+	const has = (key: string) => keys.has(key);
+
+	it('finds a root-relative key from an absolute specifier', () => {
+		assert.equal(
+			resolvePortableKey(has, '/home/user/project/src/components/Foo.astro'),
+			'/src/components/Foo.astro',
+		);
+	});
+
+	it('finds a root-relative key from a Windows specifier', () => {
+		assert.equal(
+			resolvePortableKey(has, 'C:\\build\\project\\src\\components\\Foo.astro'),
+			'/src/components/Foo.astro',
+		);
+	});
+
+	it('keeps the query string when matching a key', () => {
+		assert.equal(
+			resolvePortableKey(has, '/home/user/project/src/pages/index.astro?astro&type=script'),
+			'/src/pages/index.astro?astro&type=script',
+		);
+	});
+
+	it('returns undefined for a specifier that is not an absolute path', () => {
+		assert.equal(resolvePortableKey(has, 'react'), undefined);
+		assert.equal(resolvePortableKey(has, 'file:///project/src/components/Foo.astro'), undefined);
+	});
+
+	it('returns undefined when no key matches', () => {
+		assert.equal(resolvePortableKey(has, '/home/user/project/src/other/Bar.astro'), undefined);
+	});
+});
+
+describe('deserializeManifest - portable key fallback', () => {
+	it('resolves an absolute specifier from an older integration', () => {
+		const manifest = deserializeManifest(
+			createSerializedManifest({
+				entryModules: { '/src/components/Foo.jsx': 'foo.mjs' },
+				componentMetadata: [
+					['/src/components/Foo.astro', { propagation: 'self', containsHead: false }],
+				],
+				inlinedScripts: [['/src/pages/index.astro?astro&type=script&index=0', 'code']],
+			}),
+			undefined,
+			'file:///deploy/dist/server/entry.mjs',
+		);
+
+		assert.equal(manifest.entryModules['/build/old/project/src/components/Foo.jsx'], 'foo.mjs');
+		assert.ok('/build/old/project/src/components/Foo.jsx' in manifest.entryModules);
+		assert.equal(
+			manifest.componentMetadata.get('/build/old/project/src/components/Foo.astro')?.propagation,
+			'self',
+		);
+		assert.equal(
+			manifest.inlinedScripts.get(
+				'/build/old/project/src/pages/index.astro?astro&type=script&index=0',
+			),
+			'code',
+		);
+	});
+
+	it('prefers an exact key over a suffix match', () => {
+		const manifest = deserializeManifest(
+			createSerializedManifest({
+				entryModules: {
+					'/src/components/Foo.jsx': 'exact.mjs',
+					'/components/Foo.jsx': 'suffix.mjs',
+				},
+			}),
+			undefined,
+			'file:///deploy/dist/server/entry.mjs',
+		);
+
+		assert.equal(manifest.entryModules['/src/components/Foo.jsx'], 'exact.mjs');
+	});
+
+	it('leaves non-path specifiers unresolved', () => {
+		const manifest = deserializeManifest(
+			createSerializedManifest({ entryModules: { '/src/components/Foo.jsx': 'foo.mjs' } }),
+			undefined,
+			'file:///deploy/dist/server/entry.mjs',
+		);
+
+		assert.equal(manifest.entryModules['react'], undefined);
+		assert.equal('react' in manifest.entryModules, false);
 	});
 });
