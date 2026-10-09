@@ -4,7 +4,7 @@ import type { AstroSettings } from '../../types/astro.js';
 
 const INCREMENTAL_CACHE_FILE = 'incremental-build.json';
 const INCREMENTAL_OUTPUT_DIR = 'dist/';
-const CACHE_VERSION = 1;
+const CACHE_VERSION = 2;
 
 export interface IncrementalPathEntry {
 	cacheKey: string;
@@ -36,6 +36,13 @@ export interface IncrementalPathEntry {
 	 * so a skipped path replays them to keep its route in that file.
 	 */
 	headers?: [string, string][];
+	/**
+	 * Output-relative client asset paths (`_astro/…`) the restored HTML of this
+	 * path references. Replaying these for a skipped path prevents
+	 * `experimental.treeShakeComponents` from deleting component assets the
+	 * restored HTML still links.
+	 */
+	referencedAssets?: string[];
 }
 
 export interface IncrementalRouteEntry {
@@ -231,6 +238,15 @@ export class IncrementalBuildCache {
 		return this.#previous?.routes[routeComponent]?.paths[pathname]?.headers;
 	}
 
+	/**
+	 * The client assets a path's restored HTML referenced in the previous build, so
+	 * a skipped path can replay them and `experimental.treeShakeComponents` does
+	 * not delete files the restored HTML still links.
+	 */
+	previousReferencedAssets(routeComponent: string, pathname: string): string[] | undefined {
+		return this.#previous?.routes[routeComponent]?.paths[pathname]?.referencedAssets;
+	}
+
 	/** Record a path in the next manifest so a later build can skip or prune it. */
 	record(
 		routeComponent: string,
@@ -242,6 +258,7 @@ export class IncrementalBuildCache {
 		staticImages?: SerializedStaticImage[],
 		referencedImages?: string[],
 		headers?: [string, string][],
+		referencedAssets?: string[],
 	): void {
 		let routeEntry = this.#next.routes[routeComponent];
 		if (!routeEntry) {
@@ -264,6 +281,9 @@ export class IncrementalBuildCache {
 			pathEntry.referencedImages = referencedImages;
 		}
 		if (headers && headers.length > 0) pathEntry.headers = headers;
+		if (referencedAssets && referencedAssets.length > 0) {
+			pathEntry.referencedAssets = referencedAssets;
+		}
 		routeEntry.paths[pathname] = pathEntry;
 	}
 

@@ -190,7 +190,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				}
 			}
 
-			// Track which Astro component owns each emitted CSS asset, so the styles of
+			// Track which Astro components own each emitted CSS asset, so the styles of
 			// components a prerendered page imports but never renders can be dropped.
 			if (
 				settings.config.experimental?.treeShakeComponents &&
@@ -204,16 +204,16 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					const meta = chunk.viteMetadata as ViteMetadata;
 					if (meta.importedCss.size < 1) continue;
 
-					const owner = getChunkComponentOwner(chunk, this);
-					if (!owner) continue;
+					const owners = getChunkComponentOwners(chunk, this);
+					if (!owners) continue;
 
 					for (const cssId of meta.importedCss) {
-						let owners = internals.componentStyleOwners.get(cssId);
-						if (!owners) {
-							owners = new Set();
-							internals.componentStyleOwners.set(cssId, owners);
+						let existing = internals.componentStyleOwners.get(cssId);
+						if (!existing) {
+							existing = new Set();
+							internals.componentStyleOwners.set(cssId, existing);
 						}
-						owners.add(owner);
+						for (const owner of owners) existing.add(owner);
 						internals.componentOwnedFiles.add(cssId);
 					}
 				}
@@ -674,28 +674,75 @@ function* getParentClientOnlys(
 }
 
 /**
- * Returns the Astro component module id whose styles a chunk emits, or
- * `undefined` when the chunk is not a single non-page component (for example the
- * shared client runtime, a page entry, or a chunk bundling several components).
+ * Returns the Astro component module ids that own the CSS emitted by a chunk.
+ *
+ * Ownership is derived from the module graph rather than the chunk layout. For
+ * every CSS module the chunk emits, the nearest non-page `.astro` modules that
+ * import it become owners. A stylesheet imported by several components therefore
+ * gets every one of them as an owner, so it is dropped only when all of them are
+ * unrendered.
+ *
+ * Returns `undefined` when the chunk's CSS cannot be attributed precisely (it has
+ * no CSS modules, or a CSS module that no non-page Astro component imports, such
+ * as page-level styles). Those stylesheets are treated as always needed.
  */
-function getChunkComponentOwner(
+function getChunkComponentOwners(
 	chunk: Rolldown.OutputChunk,
 	ctx: { getModuleInfo: Rolldown.GetModuleInfo },
-): string | undefined {
-	for (const id of chunk.moduleIds) {
-		const isComponent = id.endsWith('.astro');
-		const isScript = id.includes('.astro?astro&type=script&');
-		if (!isComponent && !isScript) continue;
+): Set<string> | undefined {
+	const cssModules = Object.keys(chunk.modules).filter((id) => isCSSRequest(id));
+	if (cssModules.length === 0) return undefined;
 
-		const queryIndex = id.indexOf('?');
-		const moduleId = queryIndex === -1 ? id : id.slice(0, queryIndex);
-		const info = ctx.getModuleInfo(moduleId);
-		// Page-level styles are always needed, so they never get an owner.
-		if (info && moduleIsTopLevelPage(info)) continue;
-
-		return moduleId;
+	const owners = new Set<string>();
+	for (const cssModule of cssModules) {
+		const moduleOwners = getCssModuleComponentOwners(cssModule, ctx);
+		// An unattributable module makes the whole asset unowned, so a stylesheet
+		// that also carries page-level styles is never dropped.
+		if (moduleOwners.size === 0) return undefined;
+		for (const owner of moduleOwners) owners.add(owner);
 	}
-	return undefined;
+	return owners;
+}
+
+/**
+ * Walks up the module graph from a CSS module to the nearest non-page `.astro`
+ * components that import it. Stops at the first level that reaches a component,
+ * so a stylesheet shared by several components is credited to all of them while a
+ * component's own stylesheet is credited to that component alone.
+ */
+function getCssModuleComponentOwners(
+	id: string,
+	ctx: { getModuleInfo: Rolldown.GetModuleInfo },
+): Set<string> {
+	const owners = new Set<string>();
+	const seen = new Set<string>([id]);
+	let frontier = [id];
+
+	while (frontier.length > 0 && owners.size === 0) {
+		const next: string[] = [];
+		for (const current of frontier) {
+			const info = ctx.getModuleInfo(current);
+			if (!info) continue;
+			for (const importer of info.importers.concat(info.dynamicImporters)) {
+				if (seen.has(importer)) continue;
+				seen.add(importer);
+
+				const [pathname] = importer.split('?');
+				if (!pathname.endsWith('.astro')) {
+					next.push(importer);
+					continue;
+				}
+
+				const componentInfo = ctx.getModuleInfo(pathname);
+				// Page-level styles are always needed, so they never get an owner.
+				if (componentInfo && moduleIsTopLevelPage(componentInfo)) continue;
+				owners.add(pathname);
+			}
+		}
+		frontier = next;
+	}
+
+	return owners;
 }
 
 type ViteMetadata = {

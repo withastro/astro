@@ -230,8 +230,10 @@ export async function generatePages(
 		}
 
 		// Remove the script and CSS files of components that no generated page
-		// referenced. Only safe for static builds, where every page was just
-		// generated in this run.
+		// referenced. Only safe for static builds, where every page is present in
+		// the output: pages are either rendered in this run or restored from the
+		// incremental cache, and skipped pages replay the assets their restored
+		// HTML references.
 		await pruneUnusedComponentAssets(options, internals);
 
 		// After generation, propagate distURL from the deserialized routes (used during generation)
@@ -427,6 +429,12 @@ export interface RenderPathResult {
 	outFolder: URL;
 	/** Incremental-build metadata the prerenderer reported for this page, if any. */
 	metadata?: PrerenderResult['metadata'];
+	/**
+	 * Output-relative client asset paths (`_astro/…`) this page's HTML references.
+	 * Only collected when `experimental.treeShakeComponents` is enabled in a static
+	 * build, where it drives pruning of unused component script and CSS files.
+	 */
+	referencedAssets?: string[];
 }
 
 /**
@@ -483,7 +491,6 @@ interface RenderToPathPayload {
 	pathname: string;
 	route: RouteData;
 	options: StaticBuildOptions;
-	internals?: BuildInternals;
 	routeToHeaders?: RouteToHeaders;
 	logger: AstroLogger;
 	/** Ask the prerenderer to collect and report per-render incremental metadata. */
@@ -519,7 +526,6 @@ export async function renderPath({
 	pathname,
 	route,
 	options,
-	internals,
 	routeToHeaders = new Map(),
 	logger,
 	collectMetadata,
@@ -626,15 +632,17 @@ export async function renderPath({
 		body = Buffer.from(await response.arrayBuffer());
 	}
 
-	// When tree-shaking components in a static build, remember which component
+	// When tree-shaking components in a static build, collect the component
 	// assets this page references so unused script/CSS files can be pruned later.
+	let referencedAssets: string[] | undefined;
 	if (
 		options.settings.config.experimental?.treeShakeComponents &&
-		options.settings.buildOutput === 'static' &&
-		internals
+		options.settings.buildOutput === 'static'
 	) {
 		const html = typeof body === 'string' ? body : Buffer.from(body).toString('utf8');
-		collectReferencedAssets(html, config.build.assets, internals.referencedAssetFiles);
+		const collected = new Set<string>();
+		collectReferencedAssets(html, config.build.assets, collected);
+		referencedAssets = [...collected];
 	}
 
 	// Compute output paths
@@ -656,7 +664,7 @@ export async function renderPath({
 	// Public files take priority over generated routes
 	if (checkPublicConflict(outFile, route, options.settings, logger)) return null;
 
-	return { body, outFile, outFolder, metadata };
+	return { body, outFile, outFolder, metadata, referencedAssets };
 }
 
 /**
@@ -709,6 +717,14 @@ async function generatePathWithPrerenderer(
 			const restoredReferencedImages = cache.previousReferencedImages(route.component, pathname);
 			if (restoredReferencedImages) restoreReferencedImages(restoredReferencedImages);
 
+			// The page is not rendered, so the component assets its restored HTML
+			// references are never collected from the HTML. Replay them so
+			// `experimental.treeShakeComponents` keeps the files it links.
+			const restoredReferencedAssets = cache.previousReferencedAssets(route.component, pathname);
+			if (restoredReferencedAssets) {
+				for (const asset of restoredReferencedAssets) internals.referencedAssetFiles.add(asset);
+			}
+
 			// Likewise, the route contributes no response headers when it is not
 			// rendered. Replay them so a `staticHeaders` adapter still writes this
 			// route into its headers file.
@@ -733,6 +749,7 @@ async function generatePathWithPrerenderer(
 				restoredImages,
 				restoredReferencedImages,
 				restoredHeaders,
+				restoredReferencedAssets,
 			);
 
 			// Track page name for stats even when skipped
@@ -773,7 +790,6 @@ async function generatePathWithPrerenderer(
 		pathname,
 		route,
 		options,
-		internals,
 		routeToHeaders,
 		logger,
 		collectMetadata: cache !== null,
@@ -784,6 +800,10 @@ async function generatePathWithPrerenderer(
 	// Headers are collected only for `staticHeaders` adapters (see `renderPath`).
 	// Persist them so a skipped path can replay its route into the headers file.
 	const headers = cache ? [...(routeToHeaders.get(pathname)?.headers ?? [])] : undefined;
+	const referencedAssets = result?.referencedAssets;
+	if (referencedAssets) {
+		for (const asset of referencedAssets) internals.referencedAssetFiles.add(asset);
+	}
 
 	if (!result) {
 		// A path that produced no output this build is deliberately not recorded.
@@ -811,6 +831,7 @@ async function generatePathWithPrerenderer(
 			staticImages,
 			referencedImages,
 			headers,
+			referencedAssets,
 		);
 	}
 
