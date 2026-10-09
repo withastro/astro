@@ -57,22 +57,18 @@ const CLOUDFLARE_PASSTHROUGH_ENDPOINT = {
 // Used by both `compile` and `cloudflare-binding` for URL generation in workerd.
 const WORKERD_IMAGE_SERVICE = { entrypoint: '@astrojs/cloudflare/image-service-workerd' };
 
-// Build image service of `cloudflare-binding`: Sharp, with transforms sent to the IMAGES binding.
 const BINDING_BUILD_IMAGE_SERVICE = { entrypoint: '@astrojs/cloudflare/image-service-binding' };
 
 const SHARP_IMAGE_SERVICE = 'astro/assets/services/sharp';
 
-// Build image service of `compile` when the user didn't configure one.
 const COMPILE_BUILD_IMAGE_SERVICE = { entrypoint: SHARP_IMAGE_SERVICE };
 
-/** The service that renders on-demand pages: `image.service` is one service or `{ build, runtime }`. */
 export function getRuntimeImageService(
 	service: AstroConfig['image']['service'],
 ): Extract<AstroConfig['image']['service'], { entrypoint: string }> {
 	return 'runtime' in service ? service.runtime : service;
 }
 
-// Whether `image.service` was configured by the user, rather than being Astro's default Sharp service.
 function hasUserImageService(config: AstroConfig['image']): boolean {
 	return 'runtime' in config.service || config.service.entrypoint !== SHARP_IMAGE_SERVICE;
 }
@@ -84,7 +80,7 @@ export function setImageConfig(
 	logger: AstroIntegrationLogger,
 ) {
 	const { buildService, runtimeService } = normalizeImageServiceConfig(service);
-	// Some callers (e.g. tests) pass a partial config without a service.
+	// Tests pass partial configs.
 	const runtimeEntrypoint = config?.service && getRuntimeImageService(config.service).entrypoint;
 
 	switch (buildService) {
@@ -139,8 +135,6 @@ export function setImageConfig(
 			if (hasUserImageService(config)) {
 				return { ...config, endpoint };
 			}
-			// Otherwise, pages render with the workerd stub, and prerendered images are generated
-			// in Node with Sharp.
 			return {
 				...config,
 				service: { build: COMPILE_BUILD_IMAGE_SERVICE, runtime: WORKERD_IMAGE_SERVICE },

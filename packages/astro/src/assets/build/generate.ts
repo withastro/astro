@@ -370,11 +370,7 @@ export class StaticImageRegistry {
 	readonly images: AssetsGlobalStaticImagesList = new Map();
 	readonly referencedImages = new Set<string>();
 
-	/**
-	 * Adds image transforms to the static image list, so the asset pipeline emits
-	 * their optimized images. Existing transforms (already added by another page
-	 * that shares the image) are left untouched.
-	 */
+	/** The first page to add a transform wins. */
 	addStaticImages(images: Iterable<SerializedStaticImage> | undefined): void {
 		if (!images) return;
 		for (const image of images) {

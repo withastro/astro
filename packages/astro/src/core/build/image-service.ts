@@ -16,18 +16,12 @@ function getImageServiceOutputDirectory(settings: AstroSettings): URL {
 	return new URL(`${IMAGE_SERVICE_ENTRY_NAME}/`, getPrerenderOutputDirectory(settings));
 }
 
-/**
- * A Node environment that builds only the `build` image service. Images are always generated in
- * Node, whatever runtime the adapter prerenders pages in, so the service is built separately
- * from the prerender bundle. Local files go through the same plugins (aliases, TypeScript, ...)
- * and get bundled. Packages stay external, even linked ones, so their dependencies resolve from
- * the package (e.g. `sharp` from `astro`), unless their entrypoint needs compiling (e.g. `.ts`).
- */
 export function getImageServiceEnvironmentOptions(
 	settings: AstroSettings,
 ): vite.EnvironmentOptions {
 	return {
 		consumer: 'server',
+		// Keeps linked packages external too, so `sharp` resolves from `astro`.
 		resolve: { external: true },
 		build: {
 			outDir: fileURLToPath(getImageServiceOutputDirectory(settings)),
@@ -43,10 +37,7 @@ export function getImageServiceEnvironmentOptions(
 	};
 }
 
-/**
- * The entry of the image service environment. It re-exports the service, as an entry can't be
- * external.
- */
+// An entry can't be external, so this one re-exports the service.
 export function pluginImageServiceEntry(): vite.Plugin {
 	return {
 		name: '@astro/plugin-image-service-entry',
@@ -62,10 +53,6 @@ export function pluginImageServiceEntry(): vite.Plugin {
 	};
 }
 
-/**
- * Builds the image service environment and imports the `build` image service in Node. Only
- * called when there are images to generate.
- */
 export async function loadBuildImageService(
 	builder: vite.ViteBuilder,
 	settings: AstroSettings,

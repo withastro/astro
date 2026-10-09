@@ -3,16 +3,11 @@ import type { AstroConfig } from '../../types/public/config.js';
 type ResolvedImageService = AstroConfig['image']['service'];
 type ResolvedImageServiceConfig = Extract<ResolvedImageService, { entrypoint: string }>;
 
-/** The image config as seen by one image service: `service` is that service. */
+/** `image` config with `service` narrowed to a single target's service. */
 export type TargetImageConfig = Omit<AstroConfig['image'], 'service'> & {
 	service: ResolvedImageServiceConfig;
 };
 
-/**
- * The image service used by prerendered pages (`'build'`) or by on-demand pages and the
- * image endpoint (`'runtime'`). `image.service` is either one service for both, or
- * `{ build, runtime }`.
- */
 export function getImageServiceConfig(
 	service: ResolvedImageService,
 	target: 'build' | 'runtime',
@@ -22,7 +17,6 @@ export function getImageServiceConfig(
 	return { ...resolved, config: resolved.config ?? {} };
 }
 
-/** The image config as seen by the image service of `target`. */
 export function getImageConfigFor(
 	image: AstroConfig['image'],
 	target: 'build' | 'runtime',

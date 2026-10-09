@@ -164,10 +164,7 @@ export interface BuildInternals {
 	 */
 	serverIslandPageComponents?: Set<string>;
 
-	/**
-	 * Absolute paths of images imported anywhere in the build, so they're kept in the output even
-	 * without a transform. The assets plugin's live set, read once every environment is built.
-	 */
+	/** Images kept in the output even without a transform. */
 	referencedImages?: ReadonlySet<string>;
 }
 

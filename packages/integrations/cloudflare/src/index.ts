@@ -143,7 +143,6 @@ export default function createIntegration({
 
 	let _routes: IntegrationResolvedRoute[];
 	let cfPluginConfig: PluginConfig;
-	// Whether the adapter set the `build` image service to its Sharp default for `compile`.
 	let isDev = false;
 
 	const { buildService, runtimeService, transformAtBuild } =
@@ -490,9 +489,7 @@ export default function createIntegration({
 				_originalClientDir = new URL(config.build.client.href);
 
 				if (isDev) {
-					// Astro's dev server uses the `build` image service, but Cloudflare renders pages and
-					// serves `/_image` in workerd, where `build` services (Sharp, the binding forwarder)
-					// can't load. Dev uses the `runtime` service, with transforms going to the IMAGES binding.
+					// Dev renders in workerd, where `build` services like Sharp can't load.
 					config.image.service = getRuntimeImageService(config.image.service);
 				}
 

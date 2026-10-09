@@ -68,18 +68,13 @@ const CLIENT_RUNTIME_LOGGER_SETUP = `
 	};
 `;
 
-/** Astro's server environments, plus the one that builds the image service for image generation. */
 function isServerEnvironment(environment: vite.Environment): boolean {
 	return (
 		isAstroServerEnvironment(environment) || environment.name === IMAGE_SERVICE_ENVIRONMENT_NAME
 	);
 }
 
-/**
- * During a build, prerendered pages use the `build` image service and everything else uses the
- * `runtime` service. The dev server uses the `build` service everywhere, as it's the one that
- * can transform images locally.
- */
+// Dev uses the `build` service everywhere, as it's the one that can transform images locally.
 function getImageServiceTarget(environment: vite.Environment): 'build' | 'runtime' {
 	if (environment.config.command === 'serve') return 'build';
 	return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
@@ -88,11 +83,7 @@ function getImageServiceTarget(environment: vite.Environment): 'build' | 'runtim
 		: 'runtime';
 }
 
-/**
- * The `imageConfig` exported by the `astro:assets` virtual modules. Adapter asset query
- * params and the build output layout ride along as non-enumerable properties, so image
- * services that serialize the config never see them.
- */
+// Extras are non-enumerable so image services that serialize the config never see them.
 function getImageConfigCode(settings: AstroSettings, environment: vite.Environment): string {
 	const assetQueryParams = settings.adapter?.client?.assetQueryParams
 		? `new URLSearchParams(${JSON.stringify(

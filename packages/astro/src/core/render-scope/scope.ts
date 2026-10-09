@@ -10,10 +10,7 @@ import type { SerializedStaticImage } from '../../assets/types.js';
 export interface RenderCollectors {
 	/** Root-relative `filePath`s of the content entries rendered. */
 	contentEntries?: Set<string>;
-	/**
-	 * Every image transform resolved, including repeats of the same transform.
-	 * `collectPrerenderMetadata()` dedupes them in the page's metadata.
-	 */
+	/** Every image transform resolved, repeats included. */
 	staticImages?: SerializedStaticImage[];
 	/** Absolute source paths of images referenced without a transform. */
 	referencedImages?: Set<string>;
@@ -34,9 +31,7 @@ export interface RenderCollectorScope {
  * runtime is bundled, so the build orchestrator and the bundled runtime hold
  * different module instances of this file); all mutable per-render state lives
  * in stores reachable only through async execution context. Never installed in
- * dev or production SSR runtimes. Once installed it stays installed: it holds no
- * state outside of a store, so concurrent and successive builds in one process
- * can share it.
+ * dev or production SSR runtimes. It holds no state, so it stays installed across builds.
  */
 const SCOPE_KEY = Symbol.for('astro:render-scope');
 
