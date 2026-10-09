@@ -28,7 +28,7 @@ import { ASSETS_ESM_PLUGIN_NAME, type AssetsPluginApi, emitClientAsset } from '.
 import { emitImageMetadata } from './utils/node.js';
 import { CONTENT_IMAGE_FLAG } from '../content/consts.js';
 import { getImageAssetModule } from './utils/image-asset-code.js';
-import { getImageConfigFor, getImageServiceConfig } from './utils/service-config.js';
+import { getImageServiceConfig } from './utils/service-config.js';
 import type { StaticImageConfig } from './utils/static-image.js';
 import { makeSvgComponent, parseSvgComponentData } from './svg/utils.js';
 
@@ -96,9 +96,10 @@ function getImageConfigCode(settings: AstroSettings, environment: vite.Environme
 		assetsDir: settings.config.build.assets,
 	};
 	return `
-		export const imageConfig = ${JSON.stringify(
-			getImageConfigFor(settings.config.image, getImageServiceTarget(environment)),
-		)};
+		export const imageConfig = ${JSON.stringify({
+			...settings.config.image,
+			service: getImageServiceConfig(settings.config.image.service, getImageServiceTarget(environment)),
+		})};
 		Object.defineProperties(imageConfig, {
 			assetQueryParams: { value: ${assetQueryParams}, enumerable: false, configurable: true },
 			staticImageConfig: {
