@@ -197,13 +197,22 @@ export function relativizeManifestKeys(
  * Rewrites the manifest for the deployed server: relative module keys and directory paths
  * relative to the server entry directory, so the built output works from any location.
  */
-function toPortableManifest(
+export function toPortableManifest(
 	manifest: SerializedSSRManifest,
 	settings: StaticBuildOptions['settings'],
 ): SerializedSSRManifest {
 	const serverDir = fileURLToPath(settings.config.build.server);
 	const dirToString = (dir: URL) => {
 		const rel = path.relative(serverDir, fileURLToPath(dir));
+		// Directories on a different Windows drive have no relative path, so `path.relative`
+		// returns an absolute one. The absolute `file://` URL resolves from any location.
+		if (path.isAbsolute(rel)) {
+			return dir.href;
+		}
+		// A directory equal to the server directory would otherwise serialize to `/`.
+		if (rel === '') {
+			return './';
+		}
 		return rel.split(path.sep).join('/') + '/';
 	};
 
@@ -230,16 +239,18 @@ export function adjustManifestPathsForChunk(
 	}
 	const depth = chunkDir.split('/').length;
 	const prefix = '../'.repeat(depth);
+	// Absolute `file://` URLs resolve from any chunk location, so leave them unchanged.
+	const prepend = (value: string) => (URL.canParse(value) ? value : prefix + value);
 
 	return {
 		...manifest,
-		rootDir: prefix + manifest.rootDir,
-		cacheDir: prefix + manifest.cacheDir,
-		outDir: prefix + manifest.outDir,
-		srcDir: prefix + manifest.srcDir,
-		publicDir: prefix + manifest.publicDir,
-		buildClientDir: prefix + manifest.buildClientDir,
-		buildServerDir: prefix + manifest.buildServerDir,
+		rootDir: prepend(manifest.rootDir),
+		cacheDir: prepend(manifest.cacheDir),
+		outDir: prepend(manifest.outDir),
+		srcDir: prepend(manifest.srcDir),
+		publicDir: prepend(manifest.publicDir),
+		buildClientDir: prepend(manifest.buildClientDir),
+		buildServerDir: prepend(manifest.buildServerDir),
 	};
 }
 

@@ -45,13 +45,20 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 				_config = config;
 				if (session !== false && !session?.driver) {
 					logger.info('Enabling sessions with filesystem storage');
-					// Stored relative to the project root and resolved at runtime.
 					const absBase = fileURLToPath(new URL('sessions', config.cacheDir));
-					const rootBase = path.relative(fileURLToPath(config.root), absBase);
-					const driver = sessionDrivers.fsLite({
-						base: rootBase.split(path.sep).join('/'),
-					});
-					driver.config = { ...driver.config, [PORTABLE_SESSION_BASE_FLAG]: true };
+					let driver;
+					if (command === 'dev') {
+						// The dev server resolves a relative base against the working directory, not
+						// the project root, so keep the absolute path.
+						driver = sessionDrivers.fsLite({ base: absBase });
+					} else {
+						// Stored relative to the project root and resolved at runtime by `server.ts`.
+						const rootBase = path.relative(fileURLToPath(config.root), absBase);
+						driver = sessionDrivers.fsLite({
+							base: rootBase.split(path.sep).join('/'),
+						});
+						driver.config = { ...driver.config, [PORTABLE_SESSION_BASE_FLAG]: true };
+					}
 					session = {
 						driver,
 						cookie: session?.cookie,

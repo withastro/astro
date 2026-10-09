@@ -4,6 +4,7 @@ import { deserializeManifest } from '../../../dist/core/app/manifest.js';
 import {
 	adjustManifestPathsForChunk,
 	relativizeManifestKeys,
+	toPortableManifest,
 } from '../../../dist/core/build/plugins/plugin-manifest.js';
 import type { SerializedSSRManifest } from '../../../dist/core/app/types.js';
 
@@ -143,6 +144,62 @@ describe('adjustManifestPathsForChunk', () => {
 		assert.equal(adjusted.buildClientDir, '../' + manifest.buildClientDir);
 		assert.equal(adjusted.rootDir, '../' + manifest.rootDir);
 		assert.equal(adjusted.buildServerDir, '../' + manifest.buildServerDir);
+	});
+
+	it('keeps absolute file URLs unchanged', () => {
+		const manifest = createSerializedManifest({ buildClientDir: 'file:///absolute/client/' });
+		const adjusted = adjustManifestPathsForChunk(manifest, 'chunks/_manifest.mjs');
+
+		assert.equal(adjusted.buildClientDir, 'file:///absolute/client/');
+		assert.equal(adjusted.rootDir, '../' + manifest.rootDir);
+	});
+});
+
+describe('toPortableManifest', () => {
+	function createSettings(outDir = new URL('file:///project/dist/')) {
+		return {
+			config: {
+				root: new URL('file:///project/'),
+				cacheDir: new URL('file:///project/node_modules/.astro/'),
+				outDir,
+				srcDir: new URL('file:///project/src/'),
+				publicDir: new URL('file:///project/public/'),
+				build: {
+					server: new URL('file:///project/dist/server/'),
+					client: new URL('file:///project/dist/client/'),
+				},
+			},
+		} as never;
+	}
+
+	it('serializes a directory equal to the server directory as ./', () => {
+		const settings = createSettings(new URL('file:///project/dist/server/'));
+		const result = toPortableManifest(createSerializedManifest(), settings);
+
+		assert.equal(result.outDir, './');
+		assert.equal(result.buildServerDir, './');
+	});
+
+	it('serializes sibling and parent directories relative to the server directory', () => {
+		const result = toPortableManifest(createSerializedManifest(), createSettings());
+
+		assert.equal(result.buildClientDir, '../client/');
+		assert.equal(result.rootDir, '../../');
+		assert.equal(result.srcDir, '../../src/');
+		assert.equal(result.cacheDir, '../../node_modules/.astro/');
+	});
+
+	it('resolves the serialized server directory back to the server entry directory', () => {
+		const settings = createSettings(new URL('file:///project/dist/server/'));
+		const serialized = toPortableManifest(createSerializedManifest(), settings);
+
+		const manifest = deserializeManifest(
+			serialized,
+			undefined,
+			'file:///project/dist/server/entry.mjs',
+		);
+
+		assert.equal(manifest.outDir.href, 'file:///project/dist/server/');
 	});
 });
 
