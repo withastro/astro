@@ -194,6 +194,14 @@
         "packages/telemetry/**",
         "packages/underscore-redirects/**"
       ]
+    },
+    //#endregion
+
+    //#region Shared dependency groups
+    {
+      "groupName": "vite",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["vite"]
     }
     //#endregion
   ],
