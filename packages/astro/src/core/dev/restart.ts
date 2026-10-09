@@ -113,7 +113,13 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 		// onto the existing server so Vite's restartServer() uses the new plugins.
 		container.viteServer.config = await vite.resolveConfig(newViteConfig, 'serve');
 
+		const previousEnvironments = container.viteServer.environments;
 		await container.viteServer.restart();
+		// Vite logs and swallows restart errors, keeping the old server running. Only release
+		// the previous environments if they were actually replaced.
+		if (container.viteServer.environments !== previousEnvironments) {
+			releasePreviousEnvironments(previousEnvironments);
+		}
 
 		container.settings = settings;
 		return settings;
@@ -133,6 +139,33 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 		return error;
 	} finally {
 		container.restartInFlight = false;
+	}
+}
+
+/**
+ * Empty the module graphs of environments from a server that has been replaced by a restart.
+ *
+ * Vite (and rolldown's native plugins) can keep closed environments reachable after
+ * `server.restart()`, so each restart would otherwise retain the full module graph of the
+ * previous server, including transform results and source maps. The environments are
+ * already closed at this point and never used again, so emptying their graphs is safe and
+ * leaves only the (small) environment objects themselves.
+ *
+ * @see https://github.com/withastro/astro/issues/18178
+ */
+function releasePreviousEnvironments(environments: Record<string, vite.Environment>) {
+	for (const environment of Object.values(environments)) {
+		if (environment.mode !== 'dev') continue;
+		const { moduleGraph } = environment as vite.DevEnvironment;
+		moduleGraph.urlToModuleMap.clear();
+		moduleGraph.idToModuleMap.clear();
+		moduleGraph.etagToModuleMap.clear();
+		moduleGraph.fileToModulesMap.clear();
+		// Internal Vite map (not typed) that also references module nodes; most of the
+		// retained memory goes through it, so it must be cleared too.
+		(
+			moduleGraph as unknown as { _unresolvedUrlToModuleMap?: Map<unknown, unknown> }
+		)._unresolvedUrlToModuleMap?.clear();
 	}
 }
 
