@@ -56,7 +56,7 @@
     "wrangler": "^4.125.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20261005.1",
+    "@cloudflare/workers-types": "^5.20261006.1",
     "@types/node": "^22.10.6",
     "@types/prismjs": "1.26.6",
     "astro": "workspace:*",
