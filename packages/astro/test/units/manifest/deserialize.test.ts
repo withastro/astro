@@ -93,6 +93,20 @@ describe('deserializeManifest - portable directories', () => {
 		assert.equal(manifest.buildClientDir.href, 'file:///deploy/dist/client/');
 	});
 
+	it('resolves paths from a nested manifest chunk on a runtime with an opaque entry URL', () => {
+		const serialized = adjustManifestPathsForChunk(
+			createSerializedManifest(),
+			'chunks/_manifest.mjs',
+		);
+
+		const manifest = deserializeManifest(serialized, undefined, 'blob:https://example.com/abc');
+
+		assert.equal(manifest.rootDir.href, 'file:///build/project/');
+		assert.equal(manifest.outDir.href, 'file:///build/project/dist/server/');
+		assert.equal(manifest.buildClientDir.href, 'file:///build/project/dist/client/');
+		assert.equal(manifest.buildServerDir.href, 'file:///build/project/dist/server/');
+	});
+
 	it('keeps absolute file URLs from the prerender manifest', () => {
 		const manifest = deserializeManifest(
 			createSerializedManifest({ buildClientDir: 'file:///absolute/client/' }),
@@ -167,6 +181,15 @@ describe('adjustManifestPathsForChunk', () => {
 
 		assert.equal(adjusted.buildClientDir, 'file:///absolute/client/');
 		assert.equal(adjusted.rootDir, '../' + manifest.rootDir);
+	});
+
+	it('moves the absolute server fallback to the chunk directory', () => {
+		const adjusted = adjustManifestPathsForChunk(
+			createSerializedManifest(),
+			'chunks/_manifest.mjs',
+		);
+
+		assert.equal(adjusted.absoluteServerDir, 'file:///build/project/dist/server/chunks/');
 	});
 });
 

@@ -253,6 +253,11 @@ export function adjustManifestPathsForChunk(
 	const prefix = '../'.repeat(depth);
 	// Absolute `file://` URLs resolve from any chunk location, so leave them unchanged.
 	const prepend = (value: string) => (URL.canParse(value) ? value : prefix + value);
+	// The runtimes that use `absoluteServerDir` resolve the prefixed paths above against it, so it
+	// must point at the chunk directory, not the server directory the manifest was built for.
+	const absoluteServerDir = manifest.absoluteServerDir
+		? new URL(`${chunkDir}/`, manifest.absoluteServerDir).href
+		: manifest.absoluteServerDir;
 
 	return {
 		...manifest,
@@ -263,6 +268,7 @@ export function adjustManifestPathsForChunk(
 		publicDir: prepend(manifest.publicDir),
 		buildClientDir: prepend(manifest.buildClientDir),
 		buildServerDir: prepend(manifest.buildServerDir),
+		absoluteServerDir,
 	};
 }
 

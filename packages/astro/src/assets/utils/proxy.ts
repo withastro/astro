@@ -6,10 +6,13 @@ export function getProxyCode(
 	fsPath: string | undefined = options.fsPath,
 ): string {
 	const stringifiedFSPath = JSON.stringify(fsPath);
-	// Serialize the resolved `fsPath` into the proxy target, so reads, `clone` and the
-	// getter all agree when `fsPath` overrides the metadata's own value.
+	// `isImageMetadata` identifies an ESM-imported image as a proxy that exposes `fsPath` only
+	// through the getter below. Keep `fsPath` out of the serialized target so the metadata is not
+	// mistaken for a plain options object.
+	const serializable: Record<string, unknown> = { ...options };
+	delete serializable.fsPath;
 	return `
-						new Proxy(${JSON.stringify({ ...options, fsPath })}, {
+						new Proxy(${JSON.stringify(serializable)}, {
 						get(target, name, receiver) {
 							if (name === 'clone') {
 								return structuredClone(target);
