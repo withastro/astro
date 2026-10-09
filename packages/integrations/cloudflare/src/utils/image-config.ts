@@ -84,7 +84,8 @@ export function setImageConfig(
 	logger: AstroIntegrationLogger,
 ) {
 	const { buildService, runtimeService } = normalizeImageServiceConfig(service);
-	const runtimeEntrypoint = config.service && getRuntimeImageService(config.service).entrypoint;
+	// Some callers (e.g. tests) pass a partial config without a service.
+	const runtimeEntrypoint = config?.service && getRuntimeImageService(config.service).entrypoint;
 
 	switch (buildService) {
 		case 'passthrough':
