@@ -1,0 +1,24 @@
+---
+// Nested arrays and complex structures
+const matrix = [
+	[1, 2, 3],
+	[4, 5, 6],
+	[7, 8, 9]
+];
+---
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Nested JSX Test</title>
+</head>
+<body>
+	<h1>Nested Arrays</h1>
+	<div class="matrix">
+		{matrix.map(row => (
+			<div class="row">
+				{row.map(cell => <span class="cell">{cell}</span>)}
+			</div>
+		))}
+	</div>
+</body>
+</html>

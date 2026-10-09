@@ -1,0 +1,66 @@
+{
+  "name": "@astrojs/internal-helpers",
+  "description": "Internal helpers used by core Astro packages.",
+  "version": "0.12.0",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/internal-helpers"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "exports": {
+    "./path": "./dist/path.js",
+    "./remote": "./dist/remote.js",
+    "./fs": "./dist/fs.js",
+    "./cli": "./dist/cli.js",
+    "./create-filter": "./dist/create-filter.js",
+    "./request": "./dist/request.js",
+    "./object": "./dist/object.js",
+    "./markdown": "./dist/markdown.js",
+    "./mdx": "./dist/mdx.js",
+    "./frontmatter": "./dist/frontmatter.js",
+    "./shiki": "./dist/shiki.js",
+    "./yaml": "./dist/yaml.js",
+    "./yaml-error": "./dist/yaml-error.js"
+  },
+  "imports": {
+    "#shiki-engine": {
+      "workerd": "./dist/shiki-engine-workerd.js",
+      "default": "./dist/shiki-engine-default.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepublish": "pnpm build",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@types/hast": "^3.0.5",
+    "@types/mdast": "^4.0.4",
+    "picomatch": "^4.0.7",
+    "retext-smartypants": "^6.2.0",
+    "shiki": "^4.5.0",
+    "smol-toml": "^1.9.0",
+    "unified": "^11.0.5",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@types/picomatch": "^4.0.3",
+    "astro-scripts": "workspace:*"
+  },
+  "keywords": [
+    "astro",
+    "astro-component"
+  ],
+  "publishConfig": {
+    "provenance": true
+  }
+}

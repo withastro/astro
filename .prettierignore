@@ -1,0 +1,34 @@
+# Benchmark artifacts
+benchmark/projects/
+benchmark/results/
+
+# Deep Directories
+**/dist
+**/smoke
+**/node_modules
+**/fixtures
+**/fixture
+**/vendor
+**/.vercel
+**/.vscode-test
+
+# Directories
+.github
+.changeset
+
+# Files
+pnpm-lock.yaml
+
+# Formatted by Biome
+**/*.json
+**/*.jsonc
+**/*.js
+**/*.ts
+**/*.tsx
+**/*.jsx
+**/*.mjs
+**/*.cjs
+**/*.css
+**/*.code-snippets
+
+CHANGELOG.md

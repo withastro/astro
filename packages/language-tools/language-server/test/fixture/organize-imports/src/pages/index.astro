@@ -1,0 +1,21 @@
+---
+import Gamma from '../components/gamma.astro'
+import { helperTwo, helperOne } from '../lib'
+import Alpha from '../components/alpha.astro'
+import Beta from '../components/beta.astro'
+
+const total = helperOne() + helperTwo()
+const UserAstroComponent = () => null
+export { UserAstroComponent as User };
+---
+
+<script>
+	import { helperTwo, helperOne } from '../lib'
+
+	console.log(helperOne(), helperTwo())
+</script>
+
+<Alpha />
+<Beta />
+<Gamma />
+<p>{total}</p>

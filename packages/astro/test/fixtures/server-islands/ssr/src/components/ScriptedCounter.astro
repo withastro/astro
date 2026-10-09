@@ -1,0 +1,17 @@
+---
+---
+<div class="counter">
+  <span data-count>0</span>
+  <button data-increment>Increment</button>
+</div>
+
+<script>
+  document.querySelectorAll("[data-increment]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const countEl = btn.previousElementSibling;
+      if (countEl) {
+        countEl.textContent = String(Number(countEl.textContent) + 1);
+      }
+    });
+  });
+</script>

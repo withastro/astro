@@ -1,0 +1,9 @@
+---
+import { getCollection, render } from "astro:content";
+const files = await getCollection("files");
+
+const { Content } = await render(files[0]);
+---
+
+<Content />
+

@@ -1,0 +1,31 @@
+[crown]
+name = "Crown"
+artists = ["kendrick-lamar"]
+
+[nikes-on-my-feet]
+name = "Nikes on My Feet"
+artists = ["mac-miller"]
+
+[stars]
+name = "Stars"
+artists = ["jid", "yasiin-bey"]
+
+[never-let-me-down]
+name = "Never Let Me Down"
+artists = ["kanye-west", "jay-z", "j-ivy"]
+
+[no-church-in-the-wild]
+name = "No Church In The Wild"
+artists = ["jay-z", "kanye-west", "frank-ocean", "the-dream"]
+
+[family-ties]
+name = "family ties"
+artists = ["kendrick-lamar", "baby-keem"]
+
+[somebody]
+name = "Somebody"
+artists = ["jid"]
+
+[honest]
+name = "HONEST"
+artists = ["baby-keem"]

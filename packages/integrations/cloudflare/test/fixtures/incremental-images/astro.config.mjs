@@ -1,0 +1,17 @@
+import cloudflare from '@astrojs/cloudflare';
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+	adapter: cloudflare({
+		imageService: 'compile',
+	}),
+	output: 'static',
+	image: {
+		service: {
+			entrypoint: './src/image-service.ts',
+		},
+	},
+	experimental: {
+		incrementalBuild: true,
+	},
+});

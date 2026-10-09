@@ -1,0 +1,22 @@
+---
+type Props = {
+	items: unknown[];
+};
+
+const { items, ...attrs } = Astro.props;
+---
+
+<ul {...attrs}>
+	{
+		items.map((item, index, list) => (
+			<li set:html={Astro.slots.render("default", [item, index, list])} />
+		))
+	}
+</ul>
+
+<style>
+	ul {
+		margin: 0;
+		font-size: 0.5rem;
+	}
+</style>

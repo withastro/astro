@@ -1,0 +1,9 @@
+{
+  "name": "image-missing-dimention",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/netlify": "workspace:*"
+  }
+}

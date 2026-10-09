@@ -1,0 +1,12 @@
+---
+import { Picture } from 'astro:assets';
+import testImage from '../assets/test-image.png';
+---
+<html>
+  <head>
+    <title>Picture Page</title>
+  </head>
+  <body>
+    <Picture class="hero" src={testImage} alt="Test image" formats={['webp']} />
+  </body>
+</html>

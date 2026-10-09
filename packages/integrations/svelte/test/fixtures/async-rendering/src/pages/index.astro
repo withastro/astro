@@ -1,0 +1,22 @@
+---
+import Counter from '../components/Counter.svelte';
+import Waiter from '../components/Waiter.svelte';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro</title>
+	</head>
+	<body>
+		<h1>Astro</h1>
+		<section>
+			<Counter client:visible>
+				<h1>Hello, Svelte!</h1>
+			</Counter>		
+		</section>
+			<Waiter />
+	</body>
+</html>

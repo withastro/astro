@@ -1,0 +1,12 @@
+---
+import {Code} from 'astro:components';
+
+const code = `<script setup lang="tsx">
+const Text = ({ text }: { text: string }) => <div>{text}</div>;
+</script>
+
+<template>
+  <Text text="hello world" />
+</template>`
+---
+<Code {code} lang="vue" embeddedLangs={["tsx"]} />

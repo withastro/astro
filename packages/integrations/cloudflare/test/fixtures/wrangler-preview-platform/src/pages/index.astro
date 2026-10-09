@@ -1,0 +1,17 @@
+---
+import { env } from 'cloudflare:workers';
+
+const cfContext = Astro.locals.cfContext;
+---
+<html>
+	<head>
+		<title>Testing</title>
+	</head>
+	<body>
+		<h1>Testing</h1>
+		<div id="hasRuntime">{!!cfContext}</div>
+		<div id="hasENV">{!!env?.COOL}</div>
+		<div id="hasCF">{!!Astro.request.cf?.colo}</div>
+		<div id="hasCACHES">{!!caches}</div>
+	</body>
+</html>

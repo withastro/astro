@@ -1,0 +1,35 @@
+name: Close issues
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  close-issues:
+    if: github.repository == 'withastro/astro'
+    runs-on: ubuntu-slim
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.21.0
+
+      - name: Find stale issues
+        id: find-stale
+        run: echo "issues=$(node --experimental-strip-types .github/scripts/stale-issues.ts --token ${{ secrets.GITHUB_TOKEN }})" >> "$GITHUB_OUTPUT"
+
+      - name: Close stale issues
+        if: steps.find-stale.outputs.issues != '[]'
+        env:
+          GH_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
+        run: |
+          echo '${{ steps.find-stale.outputs.issues }}' | jq -r '.[]' | while read -r issue; do
+            gh issue comment "$issue" --repo ${{ github.repository }} --body "This issue has been automatically closed because it has been inactive for more than 3 days and it does not have a minimal reproduction."
+            gh issue close "$issue" --repo ${{ github.repository }} --reason "not planned"
+            echo "Closed issue #$issue"
+          done

@@ -1,0 +1,13 @@
+---
+export function getStaticPaths() {
+	return [
+		{
+			params: { slug: 'about' },
+		},
+	];
+}
+
+const { slug } = Astro.params;
+---
+
+<h1>Catch-all page: {slug}</h1>

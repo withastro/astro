@@ -1,0 +1,6 @@
+---
+const another = new URL('./another/', Astro.url);
+const url = Astro.url;
+---
+<a id="another" href={another.pathname}></a>
+<p id="url">{url.pathname}</p>

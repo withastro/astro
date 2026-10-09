@@ -1,0 +1,33 @@
+import * as assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
+import * as cheerio from 'cheerio';
+import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+
+describe('core/render chunk', () => {
+	let fixture: Fixture;
+	let devServer: DevServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/dev-render/',
+			logLevel: 'silent',
+			outDir: './dist/dev-render-chunk/',
+			cacheDir: './node_modules/.astro-test/dev-render-chunk/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('does not throw on user object with type', async () => {
+		const res = await fixture.fetch('/chunk');
+		const html = await res.text();
+		const $ = cheerio.load(html);
+		const target = $('#chunk');
+
+		assert.ok(target);
+		assert.equal(target.text(), '[object Object]');
+	});
+});

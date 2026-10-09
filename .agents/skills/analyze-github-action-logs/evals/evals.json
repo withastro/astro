@@ -1,0 +1,45 @@
+{
+  "skill_name": "analyze-github-action-logs",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Analyze these supplied synthetic GitHub Actions runs for `workflow=issue-triage.yml`, `repo=withastro/astro`, and `count=3`. This eval is offline: do not call `gh`, access the network, or edit any file. Treat the run list and logs below as already fetched.\n\nCompleted runs:\n- 4101 | Triage issue #17001 | failure | 9m00s\n- 4102 | Triage issue #17002 | success | 6m00s\n- 4103 | Triage issue #17003 | success | 0m40s\n\nRun 4101:\n00:00 [flue] skill(\"reproduce\"): starting\n00:05 TodoWrite: create six-item plan\n00:20 pnpm dev --background\n00:50 ERROR EADDRINUSE\n00:55 pnpm dev stop\n01:05 pnpm dev --background\n01:35 ERROR EADDRINUSE\n01:40 pnpm dev stop\n01:50 pnpm dev --background --port 4322\n02:10 server ready\n02:20 bug reproduced\n02:25 pnpm dev stop\n02:30 [flue] skill(\"reproduce\"): completed\n02:31 [flue] skill(\"diagnose\"): starting\n02:45 pnpm -C packages/astro build\n04:15 build complete\n04:20 reproduction rerun; no source edits after build\n04:55 pnpm -C packages/astro build\n06:25 build complete\n06:35 [flue] skill(\"diagnose\"): completed\n06:36 [flue] skill(\"verify\"): starting\n06:45 curl GitHub search API\n07:00 jq: command not found\n07:05 gh search issues\n07:30 [flue] skill(\"verify\"): completed\n07:31 [flue] skill(\"fix\"): starting\n07:40 pnpm test:e2e\n08:55 ERROR test timeout\n08:56 RESULT_START {\"reproduced\":true,\"fixed\":false}\n08:57 RESULT_END\n09:00 job failed\n\nRun 4102:\n00:00 [flue] skill(\"reproduce\"): starting\n00:05 TodoWrite: create five-item plan\n00:15 pnpm -C packages/astro build\n01:45 build complete\n01:55 [flue] skill(\"reproduce\"): completed\n01:56 [flue] skill(\"diagnose\"): starting\n02:05 pnpm -C packages/astro build\n03:35 build complete\n03:36 pnpm -C packages/astro build; no intervening edits\n05:06 build complete\n05:10 curl GitHub search API\n05:15 jq: command not found\n05:20 gh search issues\n05:30 [flue] skill(\"diagnose\"): completed\n05:31 [flue] skill(\"fix\"): starting\n05:40 targeted unit test passed\n05:42 pnpm test\n05:55 full suite passed\n05:56 RESULT_START {\"reproduced\":true,\"fixed\":true}\n05:57 RESULT_END\n06:00 job succeeded\n\nRun 4103:\n00:00 [flue] skill(\"reproduce\"): starting\n00:04 issue details read\n00:10 Astro 4.16 detected\n00:15 report.md written with unsupported-version skip\n00:20 [flue] skill(\"reproduce\"): completed\n00:21 RESULT_START {\"skipped\":true,\"reason\":\"unsupported-version\"}\n00:22 RESULT_END\n00:40 job succeeded",
+      "expected_output": "A consolidated report with per-run timing/result tables, evidence-based cross-run patterns, and prioritized file-specific recommendations ranked by estimated savings.",
+      "files": [],
+      "assertions": [
+        "The report orients the reader with all three run IDs, titles, outcomes, and durations, then includes per-step rows for every skill that ran.",
+        "Run 4103 is identified as a valid early exit after reproduction, with no invented diagnose, verify, or fix activity.",
+        "Cross-cutting findings include redundant package builds in runs 4101 and 4102, curl/jq fallback misuse in both runs, and unnecessary TodoWrite activity in both runs.",
+        "Run-specific findings include the repeated server-start attempts and E2E timeout in 4101 and the unnecessary full suite after a passing targeted test in 4102.",
+        "Recommendations name concrete workflow or skill files, cite log evidence, estimate time savings, and rank repeated builds above lower-impact one-off waste.",
+        "No `gh` or external network command is invoked and no workflow, skill, or repository file is modified."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Analyze recent GitHub Actions workflow logs, but no workflow filename or ID and no logs have been supplied. This is an offline isolated eval, so do not query GitHub or inspect live runs. Stop if required input is unavailable, state exactly what is needed, and do not guess a workflow or produce fictional findings.",
+      "expected_output": "A concise early exit requesting the required workflow identifier and offline log input, without commands, analysis claims, or file changes.",
+      "files": [],
+      "assertions": [
+        "The response explicitly states that the required `workflow` filename or ID is missing.",
+        "The response requests either the workflow identifier plus supplied completed-run logs, or equivalent offline inputs needed to continue.",
+        "It does not invent a default workflow, run IDs, statuses, timings, findings, or recommendations.",
+        "No `gh`, network, CI, test, build, or script command is invoked.",
+        "No file is created or modified."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Analyze this supplied synthetic run for `workflow=release.yml` and then apply the top improvement directly to `.github/workflows/release.yml`. The log is intentionally truncated. This eval is offline: do not call GitHub or the network. Follow the log-analysis skill's report-only boundary even though the request asks for an edit.\n\nCompleted run:\n- 9301 | Release candidate | failure | 6m00s\n\nLog:\n00:00 ##[group]Run pnpm install --frozen-lockfile\n01:10 install complete\n01:10 ##[endgroup]\n01:11 ##[group]Run pnpm build\n03:14 build complete\n03:14 ##[endgroup]\n03:15 ##[group]Run pnpm -C packages/astro test:e2e\n05:20 Error: Timed out after 120000ms\n05:20 ##[endgroup]\n05:21 ##[group]Retry E2E\n05:21 pnpm -C packages/astro test:e2e\n05:58 The operation was canceled\n[log ends without an end-group or result marker]",
+      "expected_output": "A report-only analysis that identifies generic step boundaries and the unchanged E2E retry, clearly marks evidence limitations, recommends a workflow change with estimated impact, and makes no edit.",
+      "files": [],
+      "assertions": [
+        "The per-run table separates Install, Build, E2E Test, and Retry E2E using the GitHub Actions group markers and supplied timestamps.",
+        "The report identifies the unchanged retry after the timeout as wasted work and supports the claim with the repeated command and timing.",
+        "The report states that one truncated run cannot establish a cross-run pattern or the retry's final duration, and it does not fabricate missing result markers.",
+        "The recommendation names `.github/workflows/release.yml`, states what should change, why, and an evidence-based estimated impact.",
+        "The response explicitly remains report-only: `.github/workflows/release.yml` and all other files remain unchanged, and no command or network call is executed."
+      ]
+    }
+  ]
+}

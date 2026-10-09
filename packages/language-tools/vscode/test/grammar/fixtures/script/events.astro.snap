@@ -1,0 +1,30 @@
+><button onclick="(hello) => {console.log('hello')};">Click Me!</button>
+#^ source.astro meta.scope.tag.button.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^^ source.astro meta.scope.tag.button.astro meta.tag.start.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.button.astro meta.tag.start.astro
+#        ^^^^^^^ source.astro meta.scope.tag.button.astro meta.tag.start.astro meta.attribute.onclick.astro entity.other.attribute-name.astro
+#               ^ source.astro meta.scope.tag.button.astro meta.tag.start.astro meta.attribute.onclick.astro punctuation.separator.key-value.astro
+#                ^ source.astro meta.scope.tag.button.astro meta.tag.start.astro meta.attribute.onclick.astro meta.embedded.line.js string.quoted.astro punctuation.definition.string.begin.astro
+#                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.button.astro meta.tag.start.astro meta.attribute.onclick.astro meta.embedded.line.js string.quoted.astro
+#                                                   ^ source.astro meta.scope.tag.button.astro meta.tag.start.astro meta.attribute.onclick.astro meta.embedded.line.js string.quoted.astro punctuation.definition.string.end.astro
+#                                                    ^ source.astro meta.scope.tag.button.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+#                                                     ^^^^^^^^^ source.astro text.astro
+#                                                              ^^ source.astro meta.scope.tag.button.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#                                                                ^^^^^^ source.astro meta.scope.tag.button.astro meta.tag.end.astro entity.name.tag.astro
+#                                                                      ^ source.astro meta.scope.tag.button.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
+><button onclick='(hello) => {console.log("hello")};'>Click Me!</button>
+#^ source.astro meta.scope.tag.button.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^^ source.astro meta.scope.tag.button.astro meta.tag.start.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.button.astro meta.tag.start.astro
+#        ^^^^^^^ source.astro meta.scope.tag.button.astro meta.tag.start.astro meta.attribute.onclick.astro entity.other.attribute-name.astro
+#               ^ source.astro meta.scope.tag.button.astro meta.tag.start.astro meta.attribute.onclick.astro punctuation.separator.key-value.astro
+#                ^ source.astro meta.scope.tag.button.astro meta.tag.start.astro meta.attribute.onclick.astro meta.embedded.line.js string.quoted.astro punctuation.definition.string.begin.astro
+#                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.button.astro meta.tag.start.astro meta.attribute.onclick.astro meta.embedded.line.js string.quoted.astro
+#                                                   ^ source.astro meta.scope.tag.button.astro meta.tag.start.astro meta.attribute.onclick.astro meta.embedded.line.js string.quoted.astro punctuation.definition.string.end.astro
+#                                                    ^ source.astro meta.scope.tag.button.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+#                                                     ^^^^^^^^^ source.astro text.astro
+#                                                              ^^ source.astro meta.scope.tag.button.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#                                                                ^^^^^^ source.astro meta.scope.tag.button.astro meta.tag.end.astro entity.name.tag.astro
+#                                                                      ^ source.astro meta.scope.tag.button.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
