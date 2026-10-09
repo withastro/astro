@@ -34,7 +34,9 @@ export interface RenderCollectorScope {
  * runtime is bundled, so the build orchestrator and the bundled runtime hold
  * different module instances of this file); all mutable per-render state lives
  * in stores reachable only through async execution context. Never installed in
- * dev or production SSR.
+ * dev or production SSR runtimes. Once installed it stays installed: it holds no
+ * state outside of a store, so concurrent and successive builds in one process
+ * can share it.
  */
 const SCOPE_KEY = Symbol.for('astro:render-scope');
 

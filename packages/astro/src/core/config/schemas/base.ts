@@ -13,6 +13,7 @@ import { type BuiltinTheme, bundledThemes } from 'shiki';
 import * as z from 'zod/v4';
 import { FontFamilySchema } from '../../../assets/fonts/config.js';
 import { SvgOptimizerSchema } from '../../../assets/svg/config.js';
+import { normalizeImageServiceInput } from '../../../assets/utils/service-config.js';
 import { EnvSchema } from '../../../env/schema.js';
 import type { ViteUserConfig } from '../../../types/public/config.js';
 import { CacheSchema, RouteRulesSchema } from '../../cache/config.js';
@@ -65,6 +66,13 @@ export type Smartypants = ComplexifyWithOmit<_Smartypants>;
 // directly without pulling in the full Zod schema and its heavy dependencies.
 import { ASTRO_CONFIG_DEFAULTS } from './defaults.js';
 export { ASTRO_CONFIG_DEFAULTS };
+
+const imageServiceSchema = z.object({
+	entrypoint: z
+		.union([z.literal('astro/assets/services/sharp'), z.string()])
+		.default(ASTRO_CONFIG_DEFAULTS.image.service.entrypoint),
+	config: z.record(z.string(), z.any()).default({}),
+});
 
 const highlighterTypesSchema = z
 	.union([z.literal('shiki'), z.literal('prism')])
@@ -245,12 +253,10 @@ export const AstroConfigSchema = z.object({
 				})
 				.default(ASTRO_CONFIG_DEFAULTS.image.endpoint),
 			service: z
-				.object({
-					entrypoint: z
-						.union([z.literal('astro/assets/services/sharp'), z.string()])
-						.default(ASTRO_CONFIG_DEFAULTS.image.service.entrypoint),
-					config: z.record(z.string(), z.any()).default({}),
-				})
+				.preprocess(
+					normalizeImageServiceInput,
+					imageServiceSchema.extend({ build: imageServiceSchema.optional() }),
+				)
 				.default(ASTRO_CONFIG_DEFAULTS.image.service),
 			dangerouslyProcessSVG: z.boolean().default(ASTRO_CONFIG_DEFAULTS.image.dangerouslyProcessSVG),
 			domains: z.array(z.string()).default([]),
@@ -524,6 +530,15 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.incrementalBuild),
+			parallelPrerender: z
+				.union([
+					z.boolean(),
+					z.object({
+						workers: z.number().int().min(1).optional(),
+					}),
+				])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.parallelPrerender),
 			svgOptimizer: SvgOptimizerSchema.optional(),
 			collectionStorage: z
 				.union([

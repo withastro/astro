@@ -57,7 +57,13 @@ const CLOUDFLARE_PASSTHROUGH_ENDPOINT = {
 // Used by both `compile` and `cloudflare-binding` for URL generation in workerd.
 const WORKERD_IMAGE_SERVICE = { entrypoint: '@astrojs/cloudflare/image-service-workerd' };
 
+// Build image service of `cloudflare-binding`: Sharp, with transforms sent to the IMAGES binding.
+const BINDING_BUILD_IMAGE_SERVICE = { entrypoint: '@astrojs/cloudflare/image-service-binding' };
+
 const SHARP_IMAGE_SERVICE = 'astro/assets/services/sharp';
+
+// Build image service of `compile` when the user didn't configure one.
+const COMPILE_BUILD_IMAGE_SERVICE = { entrypoint: SHARP_IMAGE_SERVICE };
 
 // Whether `image.service` was configured by the user or an integration, rather than being
 // Astro's default Sharp service or the workerd stub this adapter writes for `compile` mode.
@@ -107,7 +113,7 @@ export function setImageConfig(
 			// original images instead of transforming on demand.
 			return {
 				...config,
-				service: WORKERD_IMAGE_SERVICE,
+				service: { ...WORKERD_IMAGE_SERVICE, build: BINDING_BUILD_IMAGE_SERVICE },
 				endpoint:
 					command === 'dev' || runtimeService === 'cloudflare-binding'
 						? { entrypoint: '@astrojs/cloudflare/image-transform-endpoint' }
@@ -125,9 +131,15 @@ export function setImageConfig(
 				command === 'dev' || runtimeService === 'cloudflare-binding'
 					? { entrypoint: '@astrojs/cloudflare/image-transform-endpoint' }
 					: CLOUDFLARE_PASSTHROUGH_ENDPOINT;
+			// The user's image service runs everywhere, as it would without the adapter.
+			if (hasUserImageService(config)) {
+				return { ...config, endpoint };
+			}
+			// Otherwise, pages render with the workerd stub, and prerendered images are generated
+			// in Node with Sharp.
 			return {
 				...config,
-				service: hasUserImageService(config) ? config.service : WORKERD_IMAGE_SERVICE,
+				service: { ...WORKERD_IMAGE_SERVICE, build: COMPILE_BUILD_IMAGE_SERVICE },
 				endpoint,
 			};
 		}
@@ -163,5 +175,20 @@ export function setImageConfig(
 				...config,
 				...(command === 'dev' && !config.endpoint?.entrypoint && { endpoint: GENERIC_ENDPOINT }),
 			};
+	}
+}
+
+/**
+ * The adapter's `astro:config:setup` runs before every other integration, so an image service
+ * registered by an integration only replaces the workerd stub, and the build would keep the
+ * adapter's Sharp default. In `compile` mode, that service then also handles prerendered pages,
+ * as one set in `image.service` does.
+ */
+export function useIntegrationImageService(config: AstroConfig['image']): void {
+	if (
+		config.service.build?.entrypoint === COMPILE_BUILD_IMAGE_SERVICE.entrypoint &&
+		hasUserImageService(config)
+	) {
+		delete config.service.build;
 	}
 }

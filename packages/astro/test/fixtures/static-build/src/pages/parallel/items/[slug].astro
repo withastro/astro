@@ -1,0 +1,18 @@
+---
+import fs from 'node:fs';
+
+export function getStaticPaths() {
+	const counterFile = process.env.ASTRO_PARALLEL_PRERENDER_COUNTER;
+	const count = counterFile
+		? fs.existsSync(counterFile)
+			? Number(fs.readFileSync(counterFile, 'utf8')) + 1
+			: 1
+		: 1;
+	if (counterFile) fs.writeFileSync(counterFile, String(count));
+	return [{ params: { slug: 'one' }, props: { count } }];
+}
+
+const { count } = Astro.props;
+---
+
+<p id="static-path-count">{count}</p>

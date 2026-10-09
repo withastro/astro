@@ -21,10 +21,15 @@ export {
 	type RenderCollectors,
 	type RenderCollectorScope,
 } from '../../render-scope/scope.js';
+/**
+ * @deprecated `getImage()` records the images it resolves on its own. Kept for adapters
+ * built against older versions of Astro.
+ */
 export { recordStaticImage } from '../../render-scope/record.js';
 export {
 	collectPrerenderMetadata,
 	type CollectedPrerenderMetadata,
+	type CollectPrerenderMetadataOptions,
 } from '../../render-scope/collect.js';
 export {
 	renderForPrerender,

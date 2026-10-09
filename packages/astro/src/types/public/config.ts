@@ -65,6 +65,15 @@ export interface ImageServiceConfig<T extends Record<string, any> = Record<strin
 	config?: T;
 }
 
+/**
+ * Separate image services for prerendered pages (`build`) and for on-demand pages and the
+ * image endpoint (`runtime`).
+ */
+export interface ImageServiceTargets {
+	build: ImageServiceConfig;
+	runtime: ImageServiceConfig;
+}
+
 export type RuntimeMode = 'development' | 'production';
 
 export type ValidRedirectStatus = (typeof REDIRECT_STATUS_CODES)[number];
@@ -2099,7 +2108,7 @@ export interface AstroUserConfig<
 		/**
 		 * @docs
 		 * @name image.service
-		 * @type {{entrypoint: 'astro/assets/services/sharp' | string, config: Record<string, any>}}
+		 * @type {{entrypoint: 'astro/assets/services/sharp' | string, config: Record<string, any>} | {build: ImageServiceConfig, runtime: ImageServiceConfig}}
 		 * @default `{entrypoint: 'astro/assets/services/sharp', config?: {}}`
 		 * @version 2.1.0
 		 * @description
@@ -2132,8 +2141,28 @@ export interface AstroUserConfig<
 		 *   },
 		 * });
 		 * ```
+		 *
+		 * To use a different service for prerendered pages, pass `build` and `runtime` services instead. The `build` service handles images on prerendered pages, generates them during the build, and is used by the dev server. The `runtime` service handles on-demand pages and the image endpoint in production. For example, to optimize images on prerendered pages with Sharp, and use an image CDN for on-demand pages:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   image: {
+		 *     service: {
+		 *       build: { entrypoint: 'astro/assets/services/sharp' },
+		 *       runtime: { entrypoint: 'my-image-cdn-service' },
+		 *     },
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * The `build` service is also loaded in the runtime that prerenders your pages, which may not be Node (e.g. `workerd`), to generate image URLs. Its `transform()` only runs in Node.
+		 *
+		 * In the resolved config available to integrations, `image.service` is the `runtime` service, and `image.service.build` holds the `build` service when one is set.
 		 */
-		service?: ImageServiceConfig;
+		service?: ImageServiceConfig | ImageServiceTargets;
 		/**
 		 * @docs
 		 * @name image.service.config.limitInputPixels
@@ -3594,6 +3623,37 @@ export interface AstroUserConfig<
 		 * See the [experimental incremental static builds](https://docs.astro.build/en/reference/experimental-flags/incremental-build/) for more information.
 		 */
 		incrementalBuild?: boolean;
+
+		/**
+		 * @name experimental.parallelPrerender
+		 * @type {boolean | { workers?: number }}
+		 * @default `false`
+		 * @version 7.4
+		 * @description
+		 *
+		 * Renders static pages in a pool of Node.js worker threads during `astro build`.
+		 * Each worker evaluates its own copy of the server bundle, which can improve
+		 * rendering throughput for CPU-bound pages at the cost of additional memory.
+		 *
+		 * By default, one worker is started per available CPU core, minus one for the main thread.
+		 * Set `workers` to control the size of the pool. Start with a small value and measure
+		 * build time and peak memory for your project.
+		 *
+		 * [`build.concurrency`](#buildconcurrency) keeps its meaning: the number of pages
+		 * rendered at once *within each worker*. Raising it can help when pages spend time waiting
+		 * on I/O (e.g. `fetch()` calls), so the maximum number of pages in flight is
+		 * `workers × build.concurrency`.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: { parallelPrerender: { workers: 4 } },
+		 * });
+		 * ```
+		 */
+		parallelPrerender?: boolean | { workers?: number };
 	};
 }
 
