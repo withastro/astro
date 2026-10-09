@@ -29,19 +29,19 @@ describe('Redirects', () => {
 
 	it('define static routes', { timeout: 30000 }, async () => {
 		const config = await getVercelConfig(fixture);
-		const oneRoute = config.routes.find((r) => r.src === '^/one$')!;
+		const oneRoute = config.routes.find((r) => r.src === '^/one/$')!;
 		assert.equal(oneRoute.headers['Location'], '/');
 		assert.equal(oneRoute.status, 301);
 
-		const twoRoute = config.routes.find((r) => r.src === '^/two$')!;
+		const twoRoute = config.routes.find((r) => r.src === '^/two/$')!;
 		assert.equal(twoRoute.headers['Location'], '/');
 		assert.equal(twoRoute.status, 301);
 
-		const threeRoute = config.routes.find((r) => r.src === '^/three$')!;
+		const threeRoute = config.routes.find((r) => r.src === '^/three/$')!;
 		assert.equal(threeRoute.headers['Location'], '/');
 		assert.equal(threeRoute.status, 302);
 
-		const fourRoute = config.routes.find((r) => r.src === '^/four$')!;
+		const fourRoute = config.routes.find((r) => r.src === '^/four/$')!;
 		assert.equal(fourRoute.headers['Location'], 'http://example.com');
 		assert.equal(fourRoute.status, 302);
 	});
