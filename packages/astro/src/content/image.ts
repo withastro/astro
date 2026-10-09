@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import fsMod from 'node:fs';
 import path from 'node:path';
 import type { ViteDevServer } from 'vite';
@@ -60,37 +61,20 @@ export function createViteImageSourceResolver(server: ViteDevServer): ImageSourc
 }
 
 /**
- * Syncs that are in flight, innermost last. The ambient resolver is always the last entry's,
- * and `baseResolver` is whatever occupied the slot before the first of them started.
+ * Holds the resolver of the parse in progress. Shared through `Symbol.for` because
+ * `content.config.ts` loads this module through Vite while the content layer loads it through
+ * Node, and each instance must read what the other installs.
  */
-const activeResolvers: Array<{ resolver: ImageSourceResolver }> = [];
-let baseResolver: ImageSourceResolver | undefined;
+const resolverStorage: AsyncLocalStorage<ImageSourceResolver> = ((globalThis as any)[
+	Symbol.for('astro.content.imageResolver')
+] ??= new AsyncLocalStorage());
 
-/**
- * Installs `resolver` as the ambient resolver `image()` reads, for the duration of `run()`.
- *
- * The slot is process-wide (see `ContentLayer#doSync` for why it has to be), and syncs
- * belonging to different `ContentLayer` instances can overlap, so the installs are tracked in
- * a stack instead of each sync restoring whatever it happened to find: one finishing after
- * another started would otherwise leave that other sync's resolver installed for good.
- */
-export async function withContentImageResolver<T>(
+/** Makes `resolver` the one `image()` uses, for the duration of `run()`. */
+export function withContentImageResolver<T>(
 	resolver: ImageSourceResolver,
 	run: () => Promise<T>,
 ): Promise<T> {
-	globalThis.astroAsset ??= {};
-	if (activeResolvers.length === 0) {
-		baseResolver = globalThis.astroAsset.contentImageResolver;
-	}
-	const entry = { resolver };
-	activeResolvers.push(entry);
-	globalThis.astroAsset.contentImageResolver = resolver;
-	try {
-		return await run();
-	} finally {
-		activeResolvers.splice(activeResolvers.indexOf(entry), 1);
-		globalThis.astroAsset.contentImageResolver = activeResolvers.at(-1)?.resolver ?? baseResolver;
-	}
+	return resolverStorage.run(resolver, run);
 }
 
 function imageNotFound(src: string): never {
@@ -189,7 +173,7 @@ export async function image(
 	// Aliases, root-absolute paths, and bare specifiers with no sibling file: only Vite
 	// knows how to resolve these. Without a resolver — a loader running outside a sync, for
 	// instance — defer to read time as before rather than reporting a false negative.
-	const resolveSource = globalThis.astroAsset?.contentImageResolver;
+	const resolveSource = resolverStorage.getStore();
 	if (!resolveSource) {
 		return marker(rawSrc);
 	}

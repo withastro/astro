@@ -1,22 +1,57 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
+import { image } from '../../../dist/content/image.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createMinimalSettings, createTempDir, createTestConfigObserver } from './test-helpers.ts';
 
 /**
- * `image()` reads its resolver off `globalThis.astroAsset`, because `content.config.ts` loads
- * `astro/content/image` through Vite while `ContentLayer` is loaded by Node. These cover the
- * lifetime of that ambient slot: a sync must not be able to leave a resolver behind, including
- * when syncs from separate `ContentLayer` instances overlap.
+ * `image()` resolves aliases with the resolver of the `ContentLayer` running it. These
+ * cover that a parse only ever sees its own layer's resolver, including when parses from
+ * separate layers overlap or a loader reparses an entry after the sync, and that nothing is
+ * left behind outside a parse.
  */
 
-/** Only `resolveId` is ever reached, and only if a loader actually resolves an image. */
-const fakeViteServer: any = {
-	environments: { ssr: { pluginContainer: { resolveId: async () => null } } },
+const realImage = fileURLToPath(
+	new URL(
+		'../../fixtures/content-collection-picture-render/src/assets/test-image.png',
+		import.meta.url,
+	),
+);
+const context = { filePath: realImage };
+
+/** A server whose resolver finds every source at `resolved`, or none with `null`. */
+function fakeViteServer(resolved: string | null): any {
+	return {
+		environments: {
+			ssr: { pluginContainer: { resolveId: async () => resolved && { id: resolved } } },
+		},
+	};
+}
+
+/** What `image()` makes of an alias: resolved with dimensions, not found, or deferred. */
+async function resolveAlias() {
+	try {
+		const field = await image(context, { src: '~/cover.png' });
+		return field.width ? 'resolved' : 'deferred';
+	} catch {
+		return 'not found';
+	}
+}
+
+/** A schema that reports what `image()` made of an alias while the entry was parsed. */
+const schema = {
+	'~standard': {
+		version: 1,
+		vendor: 'test',
+		validate: async () => ({ value: { cover: await resolveAlias() } }),
+	},
 };
+
+type Parse = () => Promise<string>;
 
 function deferred() {
 	let resolve!: () => void;
@@ -26,107 +61,83 @@ function deferred() {
 	return { promise, resolve };
 }
 
-function currentResolver() {
-	return (globalThis as any).astroAsset?.contentImageResolver;
-}
-
-function createLayer(load: () => Promise<void>, viteServer?: any) {
+function createLayer(load: (parse: Parse) => Promise<void>, viteServer?: any) {
 	return new ContentLayer({
 		settings: createMinimalSettings(createTempDir()),
 		logger: new AstroLogger({ destination: { write: () => true }, level: 'silent' }),
 		store: new MutableDataStore(),
 		contentConfigObserver: createTestConfigObserver({
-			posts: defineCollection({ loader: { name: 'test', load } }),
+			posts: defineCollection({
+				loader: {
+					name: 'test',
+					load: ({ parseData }: any) =>
+						load(async () => (await parseData({ id: 'post', data: {} })).cover),
+				},
+				schema: schema as any,
+			}),
 		}),
 		viteServer,
 	});
 }
 
-/** Runs `fn` with a recognisable resolver already in the slot, and puts it back afterwards. */
-async function withSentinel(fn: (sentinel: any) => Promise<void>) {
-	const sentinel = async () => undefined;
-	(globalThis as any).astroAsset ??= {};
-	const previous = currentResolver();
-	(globalThis as any).astroAsset.contentImageResolver = sentinel;
-	try {
-		await fn(sentinel);
-	} finally {
-		(globalThis as any).astroAsset.contentImageResolver = previous;
-	}
-}
-
 describe('Content Layer - image resolver scope', () => {
-	it('installs a resolver for the duration of a sync, then restores the slot', async () => {
-		await withSentinel(async (sentinel) => {
-			let duringSync: unknown;
-			const layer = createLayer(async () => {
-				duringSync = currentResolver();
-			}, fakeViteServer);
+	it('uses the resolver while an entry is parsed only', async () => {
+		let parsed: string | undefined;
+		await createLayer(async (parse) => {
+			parsed = await parse();
+		}, fakeViteServer(realImage)).sync();
 
-			await layer.sync();
-
-			assert.equal(typeof duringSync, 'function', 'loader must see a resolver');
-			assert.notEqual(duringSync, sentinel, 'the sync must install its own resolver');
-			assert.equal(currentResolver(), sentinel, 'the slot must be restored after the sync');
-		});
+		assert.equal(parsed, 'resolved');
+		assert.equal(await resolveAlias(), 'deferred');
 	});
 
-	it('leaves the slot untouched when there is no vite server', async () => {
-		await withSentinel(async (sentinel) => {
-			let duringSync: unknown;
-			const layer = createLayer(async () => {
-				duringSync = currentResolver();
-			});
+	it('uses the resolver when a loader reparses an entry after the sync', async () => {
+		let reparse: Parse | undefined;
+		await createLayer(async (parse) => {
+			reparse = parse;
+		}, fakeViteServer(realImage)).sync();
 
-			await layer.sync();
-
-			assert.equal(duringSync, sentinel);
-			assert.equal(currentResolver(), sentinel);
-		});
+		assert.equal(await reparse?.(), 'resolved');
 	});
 
-	it('restores the slot when overlapping syncs finish out of order', async () => {
-		await withSentinel(async (sentinel) => {
-			const firstStarted = deferred();
-			const secondStarted = deferred();
-			const firstFinished = deferred();
-			let firstResolver: unknown;
-			let secondResolverAtStart: unknown;
-			let secondResolverAtEnd: unknown;
+	it('uses the resolver when a loader calls image() itself', async () => {
+		let direct: string | undefined;
+		await createLayer(async () => {
+			direct = await resolveAlias();
+		}, fakeViteServer(realImage)).sync();
 
-			// Starts first, finishes first — while the second sync is still running.
-			const first = createLayer(async () => {
-				firstResolver = currentResolver();
-				firstStarted.resolve();
-				await secondStarted.promise;
-			}, fakeViteServer);
+		assert.equal(direct, 'resolved');
+	});
 
-			const second = createLayer(async () => {
-				secondResolverAtStart = currentResolver();
-				secondStarted.resolve();
-				await firstFinished.promise;
-				secondResolverAtEnd = currentResolver();
-			}, fakeViteServer);
+	it('defers resolution when there is no vite server', async () => {
+		let parsed: string | undefined;
+		await createLayer(async (parse) => {
+			parsed = await parse();
+		}).sync();
 
-			const firstSync = first.sync().then(() => firstFinished.resolve());
-			// Only start the second sync once the first is inside its loader, so the two are
-			// known to overlap and the second is unambiguously the one that started last.
-			await firstStarted.promise;
-			const secondSync = second.sync();
-			await Promise.all([firstSync, secondSync]);
+		assert.equal(parsed, 'deferred');
+	});
 
-			assert.equal(typeof secondResolverAtStart, 'function');
-			assert.notEqual(
-				secondResolverAtStart,
-				firstResolver,
-				'the second sync must install its own resolver over the first one',
-			);
-			assert.equal(
-				secondResolverAtEnd,
-				secondResolverAtStart,
-				'an overlapping sync finishing first must not pull the resolver out from under this one',
-			);
-			assert.equal(currentResolver(), sentinel, 'neither sync may leave a resolver installed');
-		});
+	it('keeps overlapping parses on their own resolvers', async () => {
+		const firstStarted = deferred();
+		const secondStarted = deferred();
+		let first: string | undefined;
+		let second: string | undefined;
+
+		const firstSync = createLayer(async (parse) => {
+			firstStarted.resolve();
+			await secondStarted.promise;
+			first = await parse();
+		}, fakeViteServer(realImage)).sync();
+		// Only start the second sync once the first is inside its loader, so the two overlap.
+		await firstStarted.promise;
+		const secondSync = createLayer(async (parse) => {
+			secondStarted.resolve();
+			second = await parse();
+		}, fakeViteServer(null)).sync();
+		await Promise.all([firstSync, secondSync]);
+
+		assert.equal(first, 'resolved');
+		assert.equal(second, 'not found');
 	});
 });

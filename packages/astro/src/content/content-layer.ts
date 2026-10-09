@@ -26,7 +26,11 @@ import {
 	loaderReturnSchema,
 	safeStringify,
 } from './utils.js';
-import { createViteImageSourceResolver, withContentImageResolver } from './image.js';
+import {
+	createViteImageSourceResolver,
+	type ImageSourceResolver,
+	withContentImageResolver,
+} from './image.js';
 import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
 
 export interface ContentLayerOptions {
@@ -56,6 +60,7 @@ export class ContentLayer {
 	#generateDigest?: (data: Record<string, unknown> | string) => string;
 	#contentConfigObserver: ContentObservable;
 	#viteServer?: ViteDevServer;
+	#imageResolver?: ImageSourceResolver;
 
 	#queue: PQueue;
 
@@ -191,27 +196,20 @@ export class ContentLayer {
 		return this.#queue.add(() => this.#doSync(options));
 	}
 
-	async #doSync(options: RefreshContentOptions) {
-		// Let `image()` resolve aliases and root-absolute sources the way read time does, for
-		// as long as this sync is running. Ambient rather than passed down because
-		// `content.config.ts` imports `astro/content/image` through Vite while this module is
-		// loaded by Node, so the two do not share module instances — threading it through the
-		// loader context instead would mean exposing it on the public `LoaderContext`.
-		//
-		// Reentrancy: `sync()` funnels every job through `#queue` (concurrency 1), so one
-		// `ContentLayer` never has two syncs in flight. Separate instances in the same process
-		// (parallel in-process tests, mainly) can still overlap; `withContentImageResolver`
-		// keeps that from leaving a resolver installed after its sync ends, but the slot holds
-		// a single resolver, so while two syncs overlap both see the one that started last.
+	/**
+	 * Lets `image()` resolve aliases and root-absolute sources the way read time does, for the
+	 * duration of `run()`: a loader's `load()`, and each `parseData` call, which loaders also
+	 * make on their own after the sync, as the glob loader does on file change.
+	 */
+	async #withImageResolver<T>(run: () => Promise<T>): Promise<T> {
 		if (!this.#viteServer) {
-			return await this.#doSyncInner(options);
+			return await run();
 		}
-		return await withContentImageResolver(createViteImageSourceResolver(this.#viteServer), () =>
-			this.#doSyncInner(options),
-		);
+		this.#imageResolver ??= createViteImageSourceResolver(this.#viteServer);
+		return await withContentImageResolver(this.#imageResolver, run);
 	}
 
-	async #doSyncInner(options: RefreshContentOptions) {
+	async #doSync(options: RefreshContentOptions) {
 		let contentConfig = this.#contentConfigObserver.get();
 		const logger = this.#logger.forkIntegrationLogger('content');
 
@@ -343,18 +341,20 @@ export class ContentLayer {
 				const context = await this.#getLoaderContext({
 					collectionName: name,
 					parseData: ({ id, data, filePath = '' }) =>
-						getEntryData(
-							{
-								id,
-								collection: name,
-								unvalidatedData: data,
-								_internal: {
-									rawData: undefined,
-									filePath,
+						this.#withImageResolver(() =>
+							getEntryData(
+								{
+									id,
+									collection: name,
+									unvalidatedData: data,
+									_internal: {
+										rawData: undefined,
+										filePath,
+									},
 								},
-							},
-							{ ...collection, schema },
-							false,
+								{ ...collection, schema },
+								false,
+							),
 						),
 					loaderName,
 					refreshContextData: options?.context,
@@ -362,14 +362,17 @@ export class ContentLayer {
 
 				if ('loader' in collection) {
 					if (typeof collection.loader === 'function') {
-						return simpleLoader(collection.loader as CollectionLoader<{ id: string }>, context);
+						return this.#withImageResolver(() =>
+							simpleLoader(collection.loader as CollectionLoader<{ id: string }>, context),
+						);
 					}
 
 					if (!collection.loader?.load) {
 						throw new Error(`Collection loader for ${name} does not have a load method`);
 					}
 
-					return collection.loader.load(context);
+					const loader = collection.loader;
+					return this.#withImageResolver(async () => loader.load(context));
 				}
 			}),
 		);
