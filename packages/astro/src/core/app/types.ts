@@ -240,6 +240,11 @@ export type SerializedSSRManifest = Omit<
 	publicDir: string;
 	buildClientDir: string;
 	buildServerDir: string;
+	/**
+	 * Build-time absolute `file://` URL of the server directory, used to resolve the relative
+	 * directory paths when the runtime server entry URL cannot act as a base, such as on workerd.
+	 */
+	absoluteServerDir?: string;
 	routes: SerializedRouteInfo[];
 	assets: string[];
 	componentMetadata: [string, SSRComponentMetadata][];

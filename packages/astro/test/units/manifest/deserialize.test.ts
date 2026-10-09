@@ -36,6 +36,7 @@ function createSerializedManifest(
 		cacheDir: '../../node_modules/.astro/',
 		buildClientDir: '../client/',
 		buildServerDir: './',
+		absoluteServerDir: 'file:///build/project/dist/server/',
 		...overrides,
 	} as unknown as SerializedSSRManifest;
 }
@@ -102,9 +103,21 @@ describe('deserializeManifest - portable directories', () => {
 		assert.equal(manifest.buildClientDir.href, 'file:///absolute/client/');
 	});
 
-	it('falls back to file:/// for relative paths when the server entry URL is opaque', () => {
+	it('resolves relative directories against the build server directory when the server entry URL is opaque', () => {
 		const manifest = deserializeManifest(
 			createSerializedManifest(),
+			undefined,
+			'blob:https://example.com/abc',
+		);
+
+		assert.equal(manifest.rootDir.href, 'file:///build/project/');
+		assert.equal(manifest.buildClientDir.href, 'file:///build/project/dist/client/');
+		assert.equal(manifest.buildServerDir.href, 'file:///build/project/dist/server/');
+	});
+
+	it('falls back to file:/// when the entry URL is opaque and the manifest records no absolute server directory', () => {
+		const manifest = deserializeManifest(
+			createSerializedManifest({ absoluteServerDir: undefined }),
 			undefined,
 			'blob:https://example.com/abc',
 		);
@@ -123,13 +136,13 @@ describe('deserializeManifest - portable directories', () => {
 		assert.equal(manifest.buildClientDir.href, 'file:///absolute/client/');
 	});
 
-	it('resolves absolute paths without a server entry URL', () => {
+	it('resolves relative directories against the build server directory without a server entry URL', () => {
 		const manifest = deserializeManifest(
 			createSerializedManifest({ buildClientDir: 'file:///absolute/client/' }),
 		);
 
 		assert.equal(manifest.buildClientDir.href, 'file:///absolute/client/');
-		assert.equal(manifest.rootDir.href, 'file:///');
+		assert.equal(manifest.rootDir.href, 'file:///build/project/');
 	});
 });
 
@@ -195,6 +208,23 @@ describe('toPortableManifest', () => {
 		assert.equal(result.rootDir, '../../');
 		assert.equal(result.srcDir, '../../src/');
 		assert.equal(result.cacheDir, '../../node_modules/.astro/');
+	});
+
+	it('records the absolute build server directory as a fallback', () => {
+		const result = toPortableManifest(createSerializedManifest(), createSettings());
+
+		assert.equal(result.absoluteServerDir, new URL('project/dist/server/', root).href);
+	});
+
+	it('recovers the configured directories on a runtime with an opaque entry URL', () => {
+		const serialized = toPortableManifest(createSerializedManifest(), createSettings());
+		const manifest = deserializeManifest(serialized, undefined, 'blob:https://example.com/abc');
+
+		assert.equal(manifest.rootDir.href, new URL('project/', root).href);
+		assert.equal(manifest.srcDir.href, new URL('project/src/', root).href);
+		assert.equal(manifest.outDir.href, new URL('project/dist/', root).href);
+		assert.equal(manifest.cacheDir.href, new URL('project/node_modules/.astro/', root).href);
+		assert.equal(manifest.buildClientDir.href, new URL('project/dist/client/', root).href);
 	});
 
 	it('resolves the serialized server directory back to the server entry directory', () => {

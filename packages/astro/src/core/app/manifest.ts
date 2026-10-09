@@ -110,16 +110,26 @@ function getServerBaseUrl(serverEntryUrl?: string): URL | undefined {
 	}
 }
 
+/** Parses an absolute URL string, returning `undefined` when it is missing or not absolute. */
+function parseAbsoluteDir(href?: string): URL | undefined {
+	if (!href || !URL.canParse(href)) return undefined;
+	return new URL(href);
+}
+
 /**
  * When `serverEntryUrl` is provided, relative directory paths in the manifest resolve
- * against it so the build output can run from any location.
+ * against it so the build output can run from any location. When the entry URL cannot act
+ * as a base, the build-time absolute server directory recorded in the manifest serves as a
+ * fallback so the resolved directories keep their configured values on runtimes such as
+ * workerd.
  */
 export function deserializeManifest(
 	serializedManifest: SerializedSSRManifest,
 	routesList?: RoutesList,
 	serverEntryUrl?: string,
 ): SSRManifest {
-	const serverBaseUrl = getServerBaseUrl(serverEntryUrl);
+	const serverBaseUrl =
+		getServerBaseUrl(serverEntryUrl) ?? parseAbsoluteDir(serializedManifest.absoluteServerDir);
 	const resolveDir = (relativePath: string): URL => {
 		if (serverBaseUrl) {
 			return new URL(relativePath, serverBaseUrl);
@@ -127,7 +137,8 @@ export function deserializeManifest(
 		if (URL.canParse(relativePath)) {
 			return new URL(relativePath);
 		}
-		// Non-filesystem runtimes such as Cloudflare Workers don't read these paths.
+		// Older manifests don't record `absoluteServerDir`. Non-filesystem runtimes such as
+		// Cloudflare Workers don't read these paths anyway.
 		return new URL('file:///');
 	};
 

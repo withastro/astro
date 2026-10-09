@@ -236,6 +236,7 @@ export function toPortableManifest(
 		publicDir: dirToString(settings.config.publicDir),
 		buildClientDir: dirToString(settings.config.build.client),
 		buildServerDir: './',
+		absoluteServerDir: settings.config.build.server.href,
 	};
 }
 
