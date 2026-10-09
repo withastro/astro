@@ -1,7 +1,7 @@
 ---
 'astro': minor
-'@astrojs/node': patch
-'@astrojs/mdx': patch
+'@astrojs/node': minor
+'@astrojs/mdx': minor
 ---
 
 Adds support for portable build output. The `dist/` directory can be moved to a different
@@ -12,6 +12,9 @@ resolves them at runtime, so the built output no longer embeds the build machine
 absolute directory and image paths. Public `file` exports, such as `AstroInstance.file`
 and `MarkdownInstance.file`, stay absolute. `@astrojs/node` and `@astrojs/mdx` are updated
 to support this.
+
+Because the manifest key format changed, `@astrojs/mdx` requires the matching Astro
+version.
 
 This enables building in CI and deploying the artifact elsewhere, cross-platform builds
 (for example, build on Windows and deploy on Linux), and caching build outputs across CI

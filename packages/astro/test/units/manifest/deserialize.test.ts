@@ -169,6 +169,7 @@ describe('toPortableManifest', () => {
 					client: new URL('file:///project/dist/client/'),
 				},
 			},
+			renderers: [],
 		} as never;
 	}
 
@@ -204,8 +205,8 @@ describe('toPortableManifest', () => {
 });
 
 describe('relativizeManifestKeys', () => {
-	// Only `config.root` is read, so a minimal settings object is enough.
-	const settings = { config: { root: new URL('file:///project/') } } as never;
+	// Only `config.root` and `renderers` are read, so a minimal settings object is enough.
+	const settings = { config: { root: new URL('file:///project/') }, renderers: [] } as never;
 
 	it('relativizes keys inside the project root', () => {
 		const manifest = createSerializedManifest({
@@ -242,5 +243,28 @@ describe('relativizeManifestKeys', () => {
 		const result = relativizeManifestKeys(manifest, settings);
 
 		assert.deepEqual(result.entryModules, manifest.entryModules);
+	});
+
+	it('keeps renderer entrypoints inside the project root absolute', () => {
+		// The runtime resolves renderer entrypoints from the renderer config, which is not
+		// rewritten, so their manifest keys must match the absolute specifier.
+		const clientEntrypoint = '/project/node_modules/my-renderer/client.js';
+		const settingsWithRenderer = {
+			config: { root: new URL('file:///project/') },
+			renderers: [{ name: 'my-renderer', clientEntrypoint }],
+		} as never;
+		const manifest = createSerializedManifest({
+			entryModules: {
+				'/project/node_modules/my-renderer/client.js': 'renderer.mjs',
+				'/project/src/components/Foo.astro': 'chunk.mjs',
+			},
+		});
+
+		const result = relativizeManifestKeys(manifest, settingsWithRenderer);
+
+		assert.deepEqual(result.entryModules, {
+			'/project/node_modules/my-renderer/client.js': 'renderer.mjs',
+			'/src/components/Foo.astro': 'chunk.mjs',
+		});
 	});
 });

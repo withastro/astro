@@ -323,6 +323,8 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					}
 
 					if (this.environment.config.command === 'build') {
+						// Shortening the embedded component paths in place shifts columns on those
+						// lines; the compiler's sourcemap is returned unchanged.
 						transformResult.code = relativizeComponentPaths(transformResult, config.root);
 					}
 

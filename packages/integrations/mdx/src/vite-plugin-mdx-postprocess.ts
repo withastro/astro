@@ -43,8 +43,9 @@ export function vitePluginMdxPostprocess(astroConfig: AstroConfig): Plugin {
 					code = relativizeComponentPaths(code, astro, astroConfig);
 				}
 
-				// The code transformations above are append-only, so the line/column mappings are the same
-				// and we can omit the sourcemap for performance.
+				// `transformContentExport` and `relativizeComponentPaths` replace substrings in
+				// place with shorter ones, shifting columns on the affected lines. Returning
+				// `null` keeps the previous map, so those lines keep approximate column mappings.
 				return { code, map: null };
 			},
 		},

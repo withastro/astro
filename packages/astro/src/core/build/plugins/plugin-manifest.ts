@@ -161,16 +161,27 @@ async function createManifest(
 
 /**
  * Rewrites absolute module keys to be relative to the project root, matching the paths
- * embedded in the compiled output.
+ * embedded in the compiled output. Integrations that emit their own `moduleId` or island
+ * component paths must also emit them relative to the project root in builds, or the runtime
+ * lookups against these keys will miss.
  */
 export function relativizeManifestKeys(
 	manifest: SerializedSSRManifest,
 	settings: StaticBuildOptions['settings'],
 ): SerializedSSRManifest {
 	const normalizedRoot = normalizePath(fileURLToPath(settings.config.root));
+	// Renderer entrypoints are looked up at runtime from the renderer config, which still holds
+	// the specifier unchanged, so their manifest keys must stay verbatim even when they point
+	// inside the project root.
+	const rendererEntrypoints = new Set(
+		settings.renderers
+			.map((renderer) => renderer.clientEntrypoint)
+			.filter((entrypoint): entrypoint is string => typeof entrypoint === 'string')
+			.map((entrypoint) => normalizePath(entrypoint)),
+	);
 	const relativeKey = (key: string) => {
 		const nk = normalizePath(key);
-		if (!nk.startsWith(normalizedRoot)) {
+		if (rendererEntrypoints.has(nk) || !nk.startsWith(normalizedRoot)) {
 			// Keys outside the project (e.g. `file://` renderer entrypoints, virtual
 			// modules, dependencies) are kept verbatim so normalization cannot change
 			// a value that the compiled output still references unchanged.
