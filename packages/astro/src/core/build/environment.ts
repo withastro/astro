@@ -11,7 +11,7 @@ import { createRewriteRouteValidator } from '../routing/rewrite-validate.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import type { BuildInternals } from './internal.js';
 import { cssOrder, getPageData, mergeInlineCss } from './runtime.js';
-import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
+import type { SinglePageBuiltModule, StaticBuildOptions, StylesheetAsset } from './types.js';
 
 /**
  * The build / prerender environment record and its mutable closure slots.
@@ -145,7 +145,24 @@ export function createBuildEnvironment(): BuildEnvironmentSlots {
 			const sortedCssAssets = pageBuildData?.styles
 				.sort(cssOrder)
 				.map(({ sheet }) => sheet)
-				.reduce(mergeInlineCss, []);
+				.map((s): StylesheetAsset => {
+					if (!settings.config.experimental?.treeShakeComponents) return s;
+					const owners = buildInternals.componentStyleOwners.get(
+						s.type === 'external' ? s.src : `inline:${s.content}`,
+					);
+					return owners ? { ...s, owners: [...owners] } : s;
+				})
+				// Keep each stylesheet separate when tree-shaking so unused component
+				// styles can be removed individually.
+				.reduce(
+					settings.config.experimental?.treeShakeComponents
+						? (acc: StylesheetAsset[], current: StylesheetAsset) => {
+								acc.push(current);
+								return acc;
+							}
+						: mergeInlineCss,
+					[],
+				);
 			const styles = createStylesheetElementSet(sortedCssAssets ?? [], base, assetsPrefix);
 
 			if (settings.scripts.some((script) => script.stage === 'page')) {

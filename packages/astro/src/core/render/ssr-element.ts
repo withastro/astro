@@ -59,20 +59,24 @@ function createStylesheetElement(
 	assetsPrefix?: AssetsPrefix,
 	queryParams?: URLSearchParams,
 ): SSRElement {
-	if (stylesheet.type === 'inline') {
-		return {
-			props: {},
-			children: stylesheet.content,
-		};
-	} else {
-		return {
-			props: {
-				rel: 'stylesheet',
-				href: createAssetLink(stylesheet.src, base, assetsPrefix, queryParams),
-			},
-			children: '',
-		};
+	const owners = (stylesheet as { owners?: string[] }).owners;
+	const element: SSRElement =
+		stylesheet.type === 'inline'
+			? {
+					props: {},
+					children: stylesheet.content,
+				}
+			: {
+					props: {
+						rel: 'stylesheet',
+						href: createAssetLink(stylesheet.src, base, assetsPrefix, queryParams),
+					},
+					children: '',
+				};
+	if (owners) {
+		element.owners = owners;
 	}
+	return element;
 }
 
 export function createStylesheetElementSet(

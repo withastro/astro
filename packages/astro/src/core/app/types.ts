@@ -26,8 +26,8 @@ import type { BaseApp } from './base.js';
 type ComponentPath = string;
 
 export type StylesheetAsset =
-	| { type: 'inline'; content: string; viteDevId?: string }
-	| { type: 'external'; src: string };
+	| { type: 'inline'; content: string; viteDevId?: string; owners?: string[] }
+	| { type: 'external'; src: string; owners?: string[] };
 
 type ScriptAsset =
 	| { children: string; stage: string }
@@ -76,6 +76,12 @@ export type SSRManifest = {
 	buildFormat: NonNullable<AstroConfig['build']>['format'];
 	compressHTML: boolean | 'jsx';
 	assetsPrefix?: AssetsPrefix;
+	/**
+	 * When `true`, the runtime only emits the styles of Astro components that are
+	 * actually rendered, which requires buffering the response instead of
+	 * streaming it. Set from `experimental.treeShakeComponents`.
+	 */
+	treeShakeComponents?: boolean;
 	renderers: SSRLoadedRenderer[];
 	/**
 	 * Based on Astro config's `output` option, `true` if "server" or "hybrid".

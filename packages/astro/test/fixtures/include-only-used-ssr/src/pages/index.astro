@@ -1,0 +1,19 @@
+---
+import A from '../components/A.astro';
+import B from '../components/B.astro';
+import C from '../components/C.astro';
+import './page.css';
+
+const components = { header: A, cards: B, benefits: C };
+const Component = components['header'];
+---
+
+<html>
+	<head>
+		<title>Include only used</title>
+	</head>
+	<body>
+		<p class="page-only">page</p>
+		<Component />
+	</body>
+</html>

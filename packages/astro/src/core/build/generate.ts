@@ -39,6 +39,7 @@ import { routeIsRedirect } from '../routing/helpers.js';
 import { getOutputFilename } from '../output-filename.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
+import { getClientOutputDirectory } from '../../prerender/utils.js';
 import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
@@ -227,6 +228,13 @@ export async function generatePages(
 				}
 			}
 		}
+
+		// Remove the script and CSS files of components that no generated page
+		// referenced. Only safe for static builds, where every page is present in
+		// the output: pages are either rendered in this run or restored from the
+		// incremental cache, and skipped pages replay the assets their restored
+		// HTML references.
+		await pruneUnusedComponentAssets(options, internals);
 
 		// After generation, propagate distURL from the deserialized routes (used during generation)
 		// back to the original routes in allPages. The prerenderer operates on deserialized route
@@ -421,6 +429,12 @@ export interface RenderPathResult {
 	outFolder: URL;
 	/** Incremental-build metadata the prerenderer reported for this page, if any. */
 	metadata?: PrerenderResult['metadata'];
+	/**
+	 * Output-relative client asset paths (`_astro/…`) this page's HTML references.
+	 * Only collected when `experimental.treeShakeComponents` is enabled in a static
+	 * build, where it drives pruning of unused component script and CSS files.
+	 */
+	referencedAssets?: string[];
 }
 
 /**
@@ -430,6 +444,68 @@ export interface RenderPathResult {
  */
 function normalizePrerenderResult(result: Response | PrerenderResult): PrerenderResult {
 	return result instanceof Response ? { response: result } : result;
+}
+
+/**
+ * Adds every client asset (JS/CSS) referenced by `html` to `into`, keyed by its
+ * path relative to the output directory (for example `_astro/A.abc123.js`).
+ * Used by `experimental.treeShakeComponents` to know which component assets a
+ * generated page actually uses.
+ */
+function collectReferencedAssets(html: string, assetsDir: string, into: Set<string>): void {
+	const escapedDir = assetsDir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	const re = new RegExp(`${escapedDir}/[^"'?\\s>]+?\\.(?:js|css)`, 'g');
+	for (const match of html.matchAll(re)) {
+		into.add(match[0]);
+	}
+}
+
+/**
+ * Expands the assets referenced by generated pages with everything those assets
+ * load at runtime, following the client chunk graph. Pruning uses this so assets
+ * that a page loads from JavaScript, rather than from the HTML, are not deleted.
+ */
+function collectReachableAssets(internals: BuildInternals): Set<string> {
+	const reachable = new Set(internals.referencedAssetFiles);
+	const queue = [...reachable];
+	while (queue.length > 0) {
+		const file = queue.pop()!;
+		const references = internals.clientChunkReferences.get(file);
+		if (!references) continue;
+		for (const reference of references) {
+			if (reachable.has(reference)) continue;
+			reachable.add(reference);
+			queue.push(reference);
+		}
+	}
+	return reachable;
+}
+
+/**
+ * Deletes the emitted script and CSS files of Astro components that were never
+ * rendered by any generated page. Only runs for static builds, where every page
+ * is generated in the same pass and nothing is served on demand.
+ */
+async function pruneUnusedComponentAssets(
+	options: StaticBuildOptions,
+	internals: BuildInternals,
+): Promise<void> {
+	const { settings } = options;
+	if (!settings.config.experimental?.treeShakeComponents) return;
+	if (settings.buildOutput !== 'static') return;
+
+	const reachable = collectReachableAssets(internals);
+	const clientDir = getClientOutputDirectory(settings);
+	for (const file of internals.componentOwnedFiles) {
+		if (reachable.has(file)) continue;
+		try {
+			await nodeFs.promises.rm(new URL(file, clientDir), { force: true });
+			internals.clientChunksAndAssets.delete(file);
+			internals.staticFiles.delete(file);
+		} catch (err) {
+			options.logger.warn('build', `Could not prune unused component asset ${file}: ${err}`);
+		}
+	}
 }
 
 interface RenderToPathPayload {
@@ -578,6 +654,19 @@ export async function renderPath({
 		body = Buffer.from(await response.arrayBuffer());
 	}
 
+	// When tree-shaking components in a static build, collect the component
+	// assets this page references so unused script/CSS files can be pruned later.
+	let referencedAssets: string[] | undefined;
+	if (
+		options.settings.config.experimental?.treeShakeComponents &&
+		options.settings.buildOutput === 'static'
+	) {
+		const html = typeof body === 'string' ? body : Buffer.from(body).toString('utf8');
+		const collected = new Set<string>();
+		collectReferencedAssets(html, config.build.assets, collected);
+		referencedAssets = [...collected];
+	}
+
 	// Compute output paths
 	const encodedPath = encodeURI(pathname);
 	const outFolder = getOutFolder(options.settings, encodedPath, route);
@@ -597,7 +686,7 @@ export async function renderPath({
 	// Public files take priority over generated routes
 	if (checkPublicConflict(outFile, route, options.settings, logger)) return null;
 
-	return { body, outFile, outFolder, metadata };
+	return { body, outFile, outFolder, metadata, referencedAssets };
 }
 
 /**
@@ -650,6 +739,14 @@ async function generatePathWithPrerenderer(
 			const restoredReferencedImages = cache.previousReferencedImages(route.component, pathname);
 			if (restoredReferencedImages) restoreReferencedImages(restoredReferencedImages);
 
+			// The page is not rendered, so the component assets its restored HTML
+			// references are never collected from the HTML. Replay them so
+			// `experimental.treeShakeComponents` keeps the files it links.
+			const restoredReferencedAssets = cache.previousReferencedAssets(route.component, pathname);
+			if (restoredReferencedAssets) {
+				for (const asset of restoredReferencedAssets) internals.referencedAssetFiles.add(asset);
+			}
+
 			// Likewise, the route contributes no response headers when it is not
 			// rendered. Replay them so a `staticHeaders` adapter still writes this
 			// route into its headers file.
@@ -674,6 +771,7 @@ async function generatePathWithPrerenderer(
 				restoredImages,
 				restoredReferencedImages,
 				restoredHeaders,
+				restoredReferencedAssets,
 			);
 
 			// Track page name for stats even when skipped
@@ -724,6 +822,10 @@ async function generatePathWithPrerenderer(
 	// Headers are collected only for `staticHeaders` adapters (see `renderPath`).
 	// Persist them so a skipped path can replay its route into the headers file.
 	const headers = cache ? [...(routeToHeaders.get(pathname)?.headers ?? [])] : undefined;
+	const referencedAssets = result?.referencedAssets;
+	if (referencedAssets) {
+		for (const asset of referencedAssets) internals.referencedAssetFiles.add(asset);
+	}
 
 	if (!result) {
 		// A path that produced no output this build is deliberately not recorded.
@@ -751,6 +853,7 @@ async function generatePathWithPrerenderer(
 			staticImages,
 			referencedImages,
 			headers,
+			referencedAssets,
 		);
 	}
 

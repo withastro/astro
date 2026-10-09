@@ -1,0 +1,20 @@
+---
+import A from '../components/A.astro';
+import B from '../components/B.astro';
+
+export function getStaticPaths() {
+	return [{ params: { slug: 'page' }, props: {}, cacheKey: 'v1' }];
+}
+
+const components = { a: A, b: B };
+const Component = components['a'];
+---
+
+<html>
+	<head>
+		<title>Incremental tree shake</title>
+	</head>
+	<body>
+		<Component />
+	</body>
+</html>

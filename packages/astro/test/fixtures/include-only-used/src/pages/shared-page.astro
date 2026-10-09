@@ -1,0 +1,17 @@
+---
+import A from '../components/A.astro';
+import D from '../components/D.astro';
+import '../components/shared.css';
+
+const components = { a: A, d: D };
+const Component = components['a'];
+---
+
+<html>
+	<head>
+		<title>Page and component shared styles</title>
+	</head>
+	<body>
+		<Component />
+	</body>
+</html>

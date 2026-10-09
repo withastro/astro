@@ -143,6 +143,39 @@ export interface BuildInternals {
 	ssrRenderedExports?: Map<string, Set<string>>;
 
 	/**
+	 * Maps a stylesheet identity to the Astro component module ids that own it,
+	 * used by `experimental.treeShakeComponents` to drop the styles of components
+	 * a prerendered page imports but never renders.
+	 *
+	 * Keys are the emitted CSS asset file name for external stylesheets and
+	 * `` `inline:${content}` `` for inlined stylesheets.
+	 */
+	componentStyleOwners: Map<string, Set<string>>;
+
+	/**
+	 * Client output files (relative to the output directory) that belong to a
+	 * single Astro component: its emitted script chunks and its external CSS
+	 * assets. Used by `experimental.treeShakeComponents` to delete the files of
+	 * components that no generated page references.
+	 */
+	componentOwnedFiles: Set<string>;
+
+	/**
+	 * Client output files referenced by at least one generated page, collected
+	 * while prerendering. Filled from the rendered HTML so that script/CSS files
+	 * of unused components can be pruned afterwards.
+	 */
+	referencedAssetFiles: Set<string>;
+
+	/**
+	 * Maps a client chunk file name to the client files it loads at runtime: its
+	 * static and dynamic imports plus its imported CSS. Used by
+	 * `experimental.treeShakeComponents` so pruning keeps assets a page references
+	 * indirectly, such as CSS a component's script imports dynamically.
+	 */
+	clientChunkReferences: Map<string, string[]>;
+
+	/**
 	 * Map of page component path -> dependency hash for incremental builds.
 	 * Populated during the prerender Rolldown build by the incremental plugin.
 	 */
@@ -193,6 +226,10 @@ export function createBuildInternals(): BuildInternals {
 		loggerEntryPoint: undefined,
 		clientChunksAndAssets: new Set(),
 		ssrAssetsPerEnvironment: new Map(),
+		componentStyleOwners: new Map(),
+		componentOwnedFiles: new Set(),
+		referencedAssetFiles: new Set(),
+		clientChunkReferences: new Map(),
 	};
 }
 

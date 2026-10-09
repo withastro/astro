@@ -10,8 +10,8 @@ type ComponentPath = string;
 export type ViteID = string;
 
 export type StylesheetAsset =
-	| { type: 'inline'; content: string }
-	| { type: 'external'; src: string };
+	| { type: 'inline'; content: string; owners?: string[] }
+	| { type: 'external'; src: string; owners?: string[] };
 
 /** Public type exposed through the `astro:build:setup` integration hook */
 export interface PageBuildData {

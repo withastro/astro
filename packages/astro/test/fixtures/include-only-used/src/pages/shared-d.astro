@@ -1,0 +1,16 @@
+---
+import D from '../components/D.astro';
+import E from '../components/E.astro';
+
+const components = { d: D, e: E };
+const Component = components['d'];
+---
+
+<html>
+	<head>
+		<title>Shared styles (D)</title>
+	</head>
+	<body>
+		<Component />
+	</body>
+</html>
