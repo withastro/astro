@@ -111,8 +111,6 @@ export interface BuildInternals {
 
 	manifestFileName?: string;
 	prerenderEntryFileName?: string;
-	/** The prerender chunk exporting the build image service, emitted for Astro's default prerenderer. */
-	prerenderImageServiceFileName?: string;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;
 	loggerEntryPoint: URL | undefined;
@@ -166,7 +164,11 @@ export interface BuildInternals {
 	 */
 	serverIslandPageComponents?: Set<string>;
 
-	referencedImages: ReadonlySet<string>;
+	/**
+	 * Absolute paths of images imported anywhere in the build, so they're kept in the output even
+	 * without a transform. The assets plugin's live set, read once every environment is built.
+	 */
+	referencedImages?: ReadonlySet<string>;
 }
 
 /**
@@ -197,7 +199,6 @@ export function createBuildInternals(): BuildInternals {
 		loggerEntryPoint: undefined,
 		clientChunksAndAssets: new Set(),
 		ssrAssetsPerEnvironment: new Map(),
-		referencedImages: new Set(),
 	};
 }
 

@@ -7,7 +7,6 @@ import { pluginAnalyzer } from './plugin-analyzer.js';
 import { pluginComponentEntry } from './plugin-component-entry.js';
 import { pluginCSS } from './plugin-css.js';
 import { pluginCssTargetLowering } from './plugin-css-target-lowering.js';
-import { pluginImageService } from './plugin-image-service.js';
 import { pluginInternals } from './plugin-internals.js';
 import { pluginMiddleware } from './plugin-middleware.js';
 import { pluginPrerender } from './plugin-prerender.js';
@@ -32,7 +31,6 @@ export function getAllBuildPlugins(
 		...pluginCSS(options, internals),
 		astroHeadBuildPlugin(internals),
 		pluginPrerender(options, internals),
-		pluginImageService(options, internals),
 		pluginScripts(internals),
 		...pluginSSR(options, internals),
 		pluginNoop(),

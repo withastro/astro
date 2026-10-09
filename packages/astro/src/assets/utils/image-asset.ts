@@ -1,4 +1,5 @@
-// Imported by every generated image module: keep it free of `node:` and server runtime imports.
+// Imported by every generated image module as `astro/assets/image-asset`. Not public API: it can
+// change in any release. Keep it free of `node:` and server runtime imports.
 import { recordReferencedImage } from '../../core/render-scope/record.js';
 import type { ImageMetadata } from '../types.js';
 

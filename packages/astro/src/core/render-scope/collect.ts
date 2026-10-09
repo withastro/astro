@@ -44,7 +44,7 @@ export async function collectPrerenderMetadata<T>(
 			warnedNoScope = true;
 			logger.warn(
 				'build',
-				'A prerenderer requested metadata collection but no render scope is installed; ' +
+				'A prerenderer collected metadata but no render scope is installed; ' +
 					'install one with `installRenderScope` from `astro/app` — optimized images and ' +
 					'incremental metadata will not be collected for prerendered paths.',
 			);

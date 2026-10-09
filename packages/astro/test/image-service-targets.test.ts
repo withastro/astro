@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
+import type { AstroIntegration } from '../dist/types/public/integrations.js';
 import testAdapter from './test-adapter.ts';
 import { testImageService } from './test-image-service.ts';
 import { type App, type DevServer, type Fixture, loadFixture } from './test-utils.ts';
@@ -45,39 +47,62 @@ describe('astro:assets - separate build and runtime image services', () => {
 	});
 });
 
-describe('astro:assets - build image service resolved by Vite', () => {
-	let fixture: Fixture;
+// A prerenderer that wraps the default one still renders in Node, but the service must not
+// depend on which prerenderer ran the build.
+const wrappingPrerenderer: AstroIntegration = {
+	name: 'wrapping-prerenderer',
+	hooks: {
+		'astro:build:start': ({ setPrerenderer }) => {
+			setPrerenderer((defaultPrerenderer) => ({ ...defaultPrerenderer, name: 'wrapping' }));
+		},
+	},
+};
 
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/core-image-ssr/',
-			output: 'server',
-			outDir: './dist/image-service-vite/',
-			// Skip the shared asset cache so the service is loaded to generate the image.
-			cacheDir: './node_modules/.astro-image-service-vite/',
-			adapter: testAdapter(),
-			image: {
-				service: { entrypoint: '~/aliased-image-service' },
-				domains: ['avatars.githubusercontent.com'],
-			},
-			vite: {
-				resolve: {
-					alias: { '~': new URL('./fixtures/core-image-ssr/src', import.meta.url).pathname },
+for (const [name, integrations] of [
+	['default prerenderer', []],
+	['wrapping prerenderer', [wrappingPrerenderer]],
+] as const) {
+	describe(`astro:assets - build image service resolved by Vite (${name})`, () => {
+		let fixture: Fixture;
+
+		before(async () => {
+			const id = name.replace(' ', '-');
+			// A fresh asset cache, so the image is generated with the service on every run.
+			const cacheDir = `./node_modules/.astro-image-service-vite-${id}/`;
+			await fs.rm(new URL(`./fixtures/core-image-ssr/${cacheDir}`, import.meta.url), {
+				recursive: true,
+				force: true,
+			});
+			fixture = await loadFixture({
+				root: './fixtures/core-image-ssr/',
+				output: 'server',
+				outDir: `./dist/image-service-vite-${id}/`,
+				cacheDir,
+				adapter: testAdapter(),
+				integrations: [...integrations],
+				image: {
+					service: { entrypoint: '~/aliased-image-service' },
+					domains: ['avatars.githubusercontent.com'],
 				},
-			},
+				vite: {
+					resolve: {
+						alias: { '~': new URL('./fixtures/core-image-ssr/src', import.meta.url).pathname },
+					},
+				},
+			});
+			await fixture.build();
 		});
-		await fixture.build();
-	});
 
-	it('generates images with an aliased TypeScript service that reads import.meta.env', async () => {
-		const $ = cheerio.load(await fixture.readFile('/client/prerender/index.html'));
-		const $img = $('#local img');
-		assert.equal($img.attr('data-service-base'), '/');
-		const src = $img.attr('src')!;
-		assert.match(src, /^\/_astro\/penguin2\..+\.webp$/);
-		assert.ok(fixture.pathExists(`/client${src}`));
+		it('generates images with an aliased TypeScript service that reads import.meta.env', async () => {
+			const $ = cheerio.load(await fixture.readFile('/client/prerender/index.html'));
+			const $img = $('#local img');
+			assert.equal($img.attr('data-service-base'), '/');
+			const src = $img.attr('src')!;
+			assert.match(src, /^\/_astro\/penguin2\..+\.webp$/);
+			assert.ok(fixture.pathExists(`/client${src}`));
+		});
 	});
-});
+}
 
 describe('astro:assets - separate build and runtime image services in dev', () => {
 	let fixture: Fixture;

@@ -11,8 +11,8 @@ export interface RenderCollectors {
 	/** Root-relative `filePath`s of the content entries rendered. */
 	contentEntries?: Set<string>;
 	/**
-	 * Every image transform resolved, dedup hits included; array push,
-	 * duplicates preserved.
+	 * Every image transform resolved, including repeats of the same transform.
+	 * `collectPrerenderMetadata()` dedupes them in the page's metadata.
 	 */
 	staticImages?: SerializedStaticImage[];
 	/** Absolute source paths of images referenced without a transform. */

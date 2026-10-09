@@ -42,7 +42,6 @@ export function createDefaultPrerenderer({
 			const prerenderEntryUrl = new URL(prerenderEntryFileName, prerenderOutputDir);
 			const { app }: { app: BuildApp } = await import(prerenderEntryUrl.toString());
 
-			// Configure the app
 			app.setInternals(internals);
 			app.setOptions(options);
 			// A later build in the same process with identical output reuses the cached

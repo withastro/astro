@@ -66,7 +66,7 @@ describe('astro:assets - delete images that are unused', () => {
 	});
 
 	describe('build ssg with a prerenderer wrapping the default one', () => {
-		const hookCalls: string[] = [];
+		let imagesAtTeardown: string[] | undefined;
 
 		before(async () => {
 			const integration: AstroIntegration = {
@@ -81,15 +81,15 @@ describe('astro:assets - delete images that are unused', () => {
 								const result = await defaultPrerenderer.getStaticPaths();
 								if (Array.isArray(result)) throw new Error('Expected { paths, metadata }');
 								const { paths, metadata } = result;
-								return { paths: paths.filter((path) => path.pathname !== '/skipped'), metadata };
+								return {
+									paths: paths.filter((path) => path.pathname !== '/outside-render'),
+									metadata,
+								};
 							},
 							render: (request, options) => defaultPrerenderer.render(request, options),
-							async collectStaticImages() {
-								hookCalls.push('collectStaticImages');
-								return new Map();
-							},
 							async teardown() {
-								hookCalls.push('teardown');
+								imagesAtTeardown = await fixture.glob('_astro/onlyone.*.webp');
+								await defaultPrerenderer.teardown?.();
 							},
 						}));
 					},
@@ -109,8 +109,13 @@ describe('astro:assets - delete images that are unused', () => {
 			await fixture.build();
 		});
 
-		it('calls the image hooks in order', () => {
-			assert.deepEqual(hookCalls, ['collectStaticImages', 'teardown']);
+		it('generates images before teardown', () => {
+			assert.equal(imagesAtTeardown?.length, 1);
+		});
+
+		it('builds only the paths the wrapper returns', () => {
+			assert.equal(fixture.pathExists('/outside-render/index.html'), false);
+			assert.equal(fixture.pathExists('/index.html'), true);
 		});
 
 		it("generates images with the default prerenderer's image service", async () => {

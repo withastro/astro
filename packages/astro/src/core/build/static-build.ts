@@ -180,7 +180,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		enforce: 'post',
 		buildApp: {
 			order: 'post',
-			async handler() {
+			async handler(builder) {
 				// Inject manifest and content placeholders into extracted chunks
 				await runManifestInjection(
 					opts,
@@ -199,13 +199,13 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					// Move prerender and SSR assets to client directory before cleaning up
 					await ssrMoveAssets(opts, internals, prerenderOutputDir);
 					// Generate the pages
-					await generatePages(opts, internals, prerenderOutputDir);
+					await generatePages(opts, internals, prerenderOutputDir, builder);
 					// Clean up prerender directory after generation
 					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
 					settings.timer.end('Static generate');
 				} else if (settings.buildOutput === 'server') {
 					settings.timer.start('Server generate');
-					await generatePages(opts, internals, prerenderOutputDir);
+					await generatePages(opts, internals, prerenderOutputDir, builder);
 					// Move prerender and SSR assets to client directory before cleaning up
 					await ssrMoveAssets(opts, internals, prerenderOutputDir);
 					// Clean up prerender directory after generation
@@ -319,9 +319,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
  */
 function getPrerenderEntryFileName(
 	prerenderOutput:
-		| vite.Rolldown.RolldownOutput
-		| vite.Rolldown.RolldownOutput[]
-		| vite.Rolldown.RolldownWatcher,
+		vite.Rolldown.RolldownOutput | vite.Rolldown.RolldownOutput[] | vite.Rolldown.RolldownWatcher,
 ): string {
 	const outputs = viteBuildReturnToRolldownOutputs(prerenderOutput);
 
@@ -348,9 +346,7 @@ function getPrerenderEntryFileName(
 function extractPrerenderEntryFileName(
 	internals: BuildInternals,
 	prerenderOutput:
-		| vite.Rolldown.RolldownOutput
-		| vite.Rolldown.RolldownOutput[]
-		| vite.Rolldown.RolldownWatcher,
+		vite.Rolldown.RolldownOutput | vite.Rolldown.RolldownOutput[] | vite.Rolldown.RolldownWatcher,
 ) {
 	internals.prerenderEntryFileName = getPrerenderEntryFileName(prerenderOutput);
 }
