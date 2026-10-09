@@ -94,16 +94,45 @@ export async function template(
 // some files are only needed for online editors when using astro.new. Remove for create-astro installs.
 const FILES_TO_REMOVE = ['CHANGELOG.md', '.codesandbox'];
 const FILES_TO_UPDATE = {
-	'package.json': (file: string, overrides: { name: string }) =>
+	'package.json': (file: string, overrides: { name: string; widenRanges: boolean }) =>
 		fs.promises.readFile(file, 'utf-8').then((value) => {
 			// Match first indent in the file or fall back to `\t`
 			const indent = /(^\s+)/m.exec(value)?.[1] ?? '\t';
 			const packageJson = JSON.parse(value);
 			packageJson.name = overrides.name;
 			delete packageJson.private;
+			if (overrides.widenRanges) {
+				for (const field of ['dependencies', 'devDependencies']) {
+					const deps: Record<string, string> | undefined = packageJson[field];
+					if (!deps) continue;
+					for (const [name, range] of Object.entries(deps)) {
+						deps[name] = widenCaretRange(range);
+					}
+				}
+			}
 			return fs.promises.writeFile(file, JSON.stringify(packageJson, null, indent), 'utf-8');
 		}),
 };
+
+/**
+ * Lowers the floor of a caret range to the start of its compatible range
+ * (`^7.3.8` → `^7.0.0`, `^0.35.2` → `^0.35.0`), leaving the upper bound unchanged.
+ * `^0.0.x` ranges (which match a single version) and ranges in any other form,
+ * including prereleases, are returned as-is.
+ *
+ * Official templates are synced with dependency floors at the versions just released.
+ * A package manager enforcing a minimum release age (e.g. pnpm `minimumReleaseAge`)
+ * cannot satisfy such a floor on release day, so the floor is lowered to let it
+ * resolve the newest version old enough to qualify.
+ */
+export function widenCaretRange(range: string): string {
+	const match = /^\^(\d+)\.(\d+)\.\d+$/.exec(range);
+	if (!match) return range;
+	const [, major, minor] = match;
+	if (major !== '0') return `^${major}.0.0`;
+	if (minor !== '0') return `^0.${minor}.0`;
+	return range;
+}
 
 export function generateAgentsMd(): string {
 	return `## Development
@@ -237,7 +266,10 @@ async function copyTemplate(tmpl: string, ctx: Context) {
 		const updateFiles = Object.entries(FILES_TO_UPDATE).map(async ([file, update]) => {
 			const fileLoc = path.resolve(path.join(ctx.cwd, file));
 			if (fs.existsSync(fileLoc)) {
-				return update(fileLoc, { name: ctx.projectName! });
+				return update(fileLoc, {
+					name: ctx.projectName!,
+					widenRanges: !isThirdPartyTemplate(tmpl),
+				});
 			}
 		});
 
