@@ -15,8 +15,6 @@ import {
 	isPrerenderRequest,
 	handleStaticPathsRequest,
 	handlePrerenderRequest,
-	isStaticImagesRequest,
-	handleStaticImagesRequest,
 	isImageTransformRequest,
 	handleImageTransformRequest,
 	installPrerenderErrorPropagation,
@@ -56,27 +54,21 @@ export async function handle(
 ): Promise<CfResponse> {
 	// Handle prerender endpoints (only active during build prerender phase)
 	if (isPrerender) {
-		if (compileImageConfig) {
-			const { installAddStaticImage } = await import('./static-image-collection.js');
-			installAddStaticImage(compileImageConfig);
-		}
-
-		if (isStaticPathsRequest(request)) {
-			return handleStaticPathsRequest(app) as unknown as CfResponse;
-		}
-		if (isPrerenderRequest(request)) {
+		const isStaticPaths = isStaticPathsRequest(request);
+		if (isStaticPaths || isPrerenderRequest(request)) {
 			await app.getLogger();
 			// Install the isolate's render scope so concurrent prerender requests
-			// each collect incremental metadata in their own per-render store. The
+			// each collect their metadata in their own per-render store. The
 			// loader thunk is generated into the virtual config module only for the
 			// prerender environment, keeping the module — and its `node:async_hooks`
-			// reference — out of production worker output entirely; the install
+			// import — out of production worker output entirely; the install
 			// itself is first-wins, making the per-request call idempotent.
-			await (await loadPrerenderScope?.())?.ensurePrerenderScope(app.logger);
-			return handlePrerenderRequest(app, request) as unknown as CfResponse;
-		}
-		if (isStaticImagesRequest(request)) {
-			return handleStaticImagesRequest() as unknown as CfResponse;
+			(await loadPrerenderScope?.())?.ensurePrerenderScope();
+			// Without build-time image optimization, prerendered pages keep the runtime image URLs.
+			const options = { staticImages: compileImageConfig !== null };
+			return (isStaticPaths
+				? handleStaticPathsRequest(app, options)
+				: handlePrerenderRequest(app, request, options)) as unknown as CfResponse;
 		}
 		if (isImageTransformRequest(request)) {
 			const imagesBindingName = globalThis.__ASTRO_IMAGES_BINDING_NAME;
@@ -85,7 +77,6 @@ export async function handle(
 					compileImageConfig?.transformWithBinding && imagesBindingName
 						? (env as Record<string, any>)[imagesBindingName]
 						: undefined,
-				assets: compileImageConfig?.transformWithBinding ? env.ASSETS : undefined,
 			}) as unknown as CfResponse;
 		}
 	}

@@ -90,7 +90,7 @@ describe('setImageConfig custom mode', () => {
 		assert.equal(warnings.length, 1);
 		assert.ok(warnings[0].includes('Sharp image service cannot run inside the workerd runtime'));
 		// The service is left untouched; only the endpoint is swapped.
-		assert.equal(result.service.entrypoint, 'astro/assets/services/sharp');
+		assert.deepEqual(result.service, { entrypoint: 'astro/assets/services/sharp', config: {} });
 	});
 
 	it('does not warn in dev for a non-Sharp service', () => {

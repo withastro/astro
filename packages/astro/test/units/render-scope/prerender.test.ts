@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { afterEach, describe, it } from 'node:test';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 import { renderForPrerender, type PrerenderableApp } from '../../../dist/core/app/prerender.js';
 import { uninstallRenderScope } from '../../../dist/core/render-scope/scope.js';
 import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
@@ -27,19 +27,11 @@ function appOf(render: PrerenderableApp['render']): PrerenderableApp {
 const request = () => new Request('https://example.com/page/');
 
 describe('renderForPrerender', () => {
-	afterEach(() => {
+	beforeEach(() => {
 		uninstallRenderScope();
 	});
-
-	it('short-circuits when not collecting: metadata undefined, response unbuffered', async () => {
-		ensureAsyncRenderScope();
-		const appResponse = new Response('<html></html>');
-		const app = appOf(async () => appResponse);
-		const result = await renderForPrerender(app, request());
-		assert.equal(result.metadata, undefined);
-		// The response object is the app's own — no buffering, no reconstruction.
-		assert.equal(result.response, appResponse);
-		assert.equal(result.response.bodyUsed, false);
+	afterEach(() => {
+		uninstallRenderScope();
 	});
 
 	it('captures records fired during body pull (the scope spans buffering)', async () => {

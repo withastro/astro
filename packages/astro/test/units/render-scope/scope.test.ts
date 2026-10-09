@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { afterEach, describe, it } from 'node:test';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 import {
 	getInstalledRenderScope,
 	getRenderCollectors,
@@ -19,6 +19,9 @@ function fakeScope(): RenderCollectorScope {
 }
 
 describe('render scope channel', () => {
+	beforeEach(() => {
+		uninstallRenderScope();
+	});
 	afterEach(() => {
 		uninstallRenderScope();
 	});

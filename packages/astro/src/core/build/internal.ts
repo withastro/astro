@@ -163,6 +163,9 @@ export interface BuildInternals {
 	 * cache only reuses them while the encryption key is unchanged.
 	 */
 	serverIslandPageComponents?: Set<string>;
+
+	/** Images kept in the output even without a transform. */
+	referencedImages?: ReadonlySet<string>;
 }
 
 /**

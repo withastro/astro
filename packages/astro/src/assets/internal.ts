@@ -1,7 +1,7 @@
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import type { AstroConfig } from '../types/public/config.js';
+import { isCollectingStaticImages, recordStaticImage } from '../core/render-scope/record.js';
 import type { AstroRuntimeLogger } from '../types/public/context.js';
 import type { AstroAdapterClientConfig } from '../types/public/integrations.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';
@@ -11,7 +11,7 @@ import {
 	getWidths,
 	LIMITED_RESOLUTIONS,
 } from './layout.js';
-import { type ImageService, isLocalService } from './services/service.js';
+import { type ImageConfig, type ImageService, isLocalService } from './services/service.js';
 import {
 	type GetImageResult,
 	type ImageTransform,
@@ -19,16 +19,20 @@ import {
 	type SrcSetValue,
 	type UnresolvedImageTransform,
 } from './types.js';
+import { getUntrackedImage } from './utils/image-asset.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { resolveDefaultOutputFormat } from './utils/inferSourceFormat.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
+import { resolveStaticImage, type StaticImageConfig } from './utils/static-image.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
 
 export { verifyOptions } from './services/service.js';
 export const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
 
+let configuredImageService: ImageService | undefined;
+
 export async function getConfiguredImageService(): Promise<ImageService> {
-	if (!globalThis?.astroAsset?.imageService) {
+	if (!configuredImageService) {
 		const { default: service }: { default: ImageService } = await import(
 			// @ts-expect-error
 			'virtual:image-service'
@@ -37,18 +41,27 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 			error.cause = e;
 			throw error;
 		});
-
-		if (!globalThis.astroAsset) globalThis.astroAsset = {};
-		globalThis.astroAsset.imageService = service;
-		return service;
+		configuredImageService = service;
 	}
 
-	return globalThis.astroAsset.imageService;
+	return configuredImageService;
+}
+
+// The build only writes the images it collected, so static URLs anywhere else would 404.
+function getStaticImageConfig(
+	imageConfig: ImageConfig & { staticImageConfig?: StaticImageConfig },
+): StaticImageConfig | undefined {
+	return isCollectingStaticImages() ? imageConfig.staticImageConfig : undefined;
+}
+
+/** Test-only: override the image service `getImage()` uses. */
+export function setConfiguredImageService(service: ImageService | undefined): void {
+	configuredImageService = service;
 }
 
 export async function getImage(
 	options: UnresolvedImageTransform,
-	imageConfig: AstroConfig['image'] & AstroAdapterClientConfig,
+	imageConfig: ImageConfig & AstroAdapterClientConfig,
 	logger: AstroRuntimeLogger,
 ): Promise<GetImageResult> {
 	if (!options || typeof options !== 'object') {
@@ -114,12 +127,8 @@ export async function getImage(
 		? resolvedOptions.src.fsPath
 		: undefined; // Only set for ESM imports, where we do have a file path
 
-	// Clone the `src` object if it's an ESM import so that we don't refer to any properties of the original object
-	// Causing our generate step to think the image is used outside of the image optimization pipeline
-	const clonedSrc = isESMImportedImage(resolvedOptions.src)
-		? // @ts-expect-error - clone is a private, hidden prop
-			(resolvedOptions.src.clone ?? resolvedOptions.src)
-		: resolvedOptions.src;
+	// Services reading `src` must not keep the original in the build output.
+	const clonedSrc = getUntrackedImage(resolvedOptions.src);
 
 	if (isESMImportedImage(clonedSrc)) {
 		originalWidth = clonedSrc.width;
@@ -201,7 +210,7 @@ export async function getImage(
 		: [];
 
 	// In the Picture component, the optimized original-sized image is typically not used when `widths` is set.
-	// Since `globalThis.astroAsset.addStaticImage()` triggers image generation immediately,
+	// Since resolving a static image registers it for generation immediately,
 	// we fetch it lazily to avoid creating unnecessary assets.
 	const lazyImageURLFactory = (getValue: () => string) => {
 		let cached: string | null = null;
@@ -228,27 +237,36 @@ export async function getImage(
 		}),
 	);
 
+	const staticImageConfig = getStaticImageConfig(imageConfig);
 	if (
 		isLocalService(service) &&
-		globalThis.astroAsset.addStaticImage &&
+		staticImageConfig &&
 		!(isRemoteImage(validatedOptions.src) && initialImageURL === validatedOptions.src)
 	) {
 		const propsToHash = service.propertiesToHash ?? DEFAULT_HASH_PROPS;
-		lazyImageURL = lazyImageURLFactory(() =>
-			globalThis.astroAsset.addStaticImage!(validatedOptions, propsToHash, originalFilePath),
-		);
+		const addStaticImage = (transform: ImageTransform) => {
+			const { url, image } = resolveStaticImage(transform, propsToHash, originalFilePath, {
+				...staticImageConfig,
+				serviceEntrypoint: imageConfig.service.entrypoint,
+				assetQueryParams: imageConfig.assetQueryParams,
+			});
+			// Record dedup hits too: every page using the image needs it attributed.
+			recordStaticImage(image);
+			return url;
+		};
+		lazyImageURL = lazyImageURLFactory(() => addStaticImage(validatedOptions));
 		srcSets = srcSetTransforms.map((srcSet) => {
 			return {
 				transform: srcSet.transform,
 				url: matchesValidatedTransform(srcSet.transform)
 					? lazyImageURL()
-					: globalThis.astroAsset.addStaticImage!(srcSet.transform, propsToHash, originalFilePath),
+					: addStaticImage(srcSet.transform),
 				descriptor: srcSet.descriptor,
 				attributes: srcSet.attributes,
 			};
 		});
 	} else if (imageConfig.assetQueryParams) {
-		// For SSR-rendered images without addStaticImage, append assetQueryParams manually
+		// For SSR-rendered images, append assetQueryParams manually
 		const imageURLObj = createPlaceholderURL(initialImageURL);
 		imageConfig.assetQueryParams.forEach((value, key) => {
 			imageURLObj.searchParams.set(key, value);
@@ -292,14 +310,14 @@ export async function getImage(
  */
 async function peekRemoteFormatForStaticEmit(
 	options: ImageTransform,
-	imageConfig: AstroConfig['image'] & AstroAdapterClientConfig,
+	imageConfig: ImageConfig & AstroAdapterClientConfig,
 	service: ImageService,
 	logger: AstroRuntimeLogger,
 ): Promise<string | undefined> {
 	if (
 		!isRemoteImage(options.src) ||
 		!isRemoteAllowed(options.src, imageConfig) ||
-		!globalThis.astroAsset?.addStaticImage ||
+		!getStaticImageConfig(imageConfig) ||
 		!isLocalService(service) ||
 		!service.getRemoteSize
 	) {

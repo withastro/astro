@@ -3,7 +3,7 @@ import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as devalue from 'devalue';
 import type { Plugin, Rolldown, RunnableDevEnvironment } from 'vite';
-import { getProxyCode } from '../assets/utils/proxy.js';
+import { getImageAssetCode, IMAGE_ASSET_IMPORT } from '../assets/utils/image-asset-code.js';
 import { createContentDataIncrementalMetadata } from '../core/build/incremental-metadata.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { AstroError } from '../core/errors/errors.js';
@@ -120,10 +120,11 @@ export function astroContentImportPlugin({
 							shouldEmitFile,
 						});
 
-						const code = `
+						const entryData = stringifyEntryData(data, settings.buildOutput === 'server');
+						const code = `${entryData.imports}
 export const id = ${JSON.stringify(id)};
 export const collection = ${JSON.stringify(collection)};
-export const data = ${stringifyEntryData(data, settings.buildOutput === 'server')};
+export const data = ${entryData.code};
 export const _internal = {
 	type: 'data',
 	filePath: ${JSON.stringify(_internal.filePath)},
@@ -147,12 +148,13 @@ export const _internal = {
 							shouldEmitFile,
 						});
 
-						const code = `
+						const entryData = stringifyEntryData(data, settings.buildOutput === 'server');
+						const code = `${entryData.imports}
 						export const id = ${JSON.stringify(id)};
 						export const collection = ${JSON.stringify(collection)};
 						export const slug = ${JSON.stringify(slug)};
 						export const body = ${JSON.stringify(body)};
-						export const data = ${stringifyEntryData(data, settings.buildOutput === 'server')};
+						export const data = ${entryData.code};
 						export const _internal = {
 							type: 'content',
 							filePath: ${JSON.stringify(_internal.filePath)},
@@ -415,21 +417,27 @@ async function getContentConfigFromGlobal() {
 }
 
 /** Stringify entry `data` at build time to be used as a Vite module */
-function stringifyEntryData(data: Record<string, any>, isSSR: boolean): string {
+function stringifyEntryData(
+	data: Record<string, any>,
+	isSSR: boolean,
+): { imports: string; code: string } {
+	let hasImageAsset = false;
 	try {
-		return devalue.uneval(data, (value) => {
+		const code = devalue.uneval(data, (value) => {
 			// Add support for URL objects
 			if (value instanceof URL) {
 				return `new URL(${JSON.stringify(value.href)})`;
 			}
 
-			// For Astro assets, add a proxy to track references
+			// For Astro assets, track references to their `src`
 			if (typeof value === 'object' && 'ASTRO_ASSET' in value) {
-				const { ASTRO_ASSET, ...asset } = value;
-				asset.fsPath = ASTRO_ASSET;
-				return getProxyCode(asset, isSSR);
+				// `createImageAsset` defines a non-enumerable `fsPath`, as for imported images.
+				const { ASTRO_ASSET, fsPath: _fsPath, ...asset } = value;
+				hasImageAsset = true;
+				return getImageAssetCode(asset, ASTRO_ASSET, !isSSR);
 			}
 		});
+		return { imports: hasImageAsset ? IMAGE_ASSET_IMPORT : '', code };
 	} catch (e) {
 		if (e instanceof Error) {
 			throw new AstroError({

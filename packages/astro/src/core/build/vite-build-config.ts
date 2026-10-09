@@ -16,6 +16,8 @@ import {
 	RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE,
 } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
+import { getImageServiceEnvironmentOptions } from './image-service.js';
+import { IMAGE_SERVICE_ENVIRONMENT_NAME } from '../../assets/consts.js';
 import { cleanChunkName } from './util.js';
 import { makeAstroPageEntryPointFileName } from './static-build.js';
 
@@ -159,6 +161,7 @@ export function createViteBuildConfig(opts: CreateViteBuildConfigOptions): vite.
 		base: settings.config.base,
 		environments: {
 			...userEnvironments,
+			[IMAGE_SERVICE_ENVIRONMENT_NAME]: getImageServiceEnvironmentOptions(settings),
 			[ASTRO_VITE_ENVIRONMENT_NAMES.prerender]: {
 				...userPrerender,
 				build: {

@@ -21,10 +21,12 @@ export {
 	type RenderCollectors,
 	type RenderCollectorScope,
 } from '../../render-scope/scope.js';
+/** @deprecated `getImage()` records the images it resolves. */
 export { recordStaticImage } from '../../render-scope/record.js';
 export {
 	collectPrerenderMetadata,
 	type CollectedPrerenderMetadata,
+	type CollectPrerenderMetadataOptions,
 } from '../../render-scope/collect.js';
 export {
 	renderForPrerender,

@@ -8,6 +8,11 @@ export interface CollectedPrerenderMetadata {
 	referencedImages: string[];
 }
 
+export interface CollectPrerenderMetadataOptions {
+	/** Resolve build-time image URLs and collect them for generation. Default `true`. */
+	staticImages?: boolean;
+}
+
 let warnedNoScope = false;
 
 /**
@@ -15,8 +20,8 @@ let warnedNoScope = false;
  * together with a snapshot of everything recorded while it ran.
  *
  * When no render scope is installed, collection degrades to *not collecting*:
- * warn once per process, run `fn` bare, and return `metadata: undefined`
- * ("not tracked") — never wrong attribution.
+ * warn once per process (when a `logger` is given), run `fn` bare, and return
+ * `metadata: undefined` ("not tracked") — never wrong attribution.
  *
  * Invariant: `fn` must not resolve until all recordable work is done — in
  * practice, until the response body is fully buffered inside `fn`. The
@@ -26,24 +31,25 @@ let warnedNoScope = false;
  */
 export async function collectPrerenderMetadata<T>(
 	fn: () => Promise<T>,
-	logger: AstroLogger,
+	logger?: AstroLogger,
+	options: CollectPrerenderMetadataOptions = {},
 ): Promise<{ value: T; metadata: CollectedPrerenderMetadata | undefined }> {
 	const scope = getInstalledRenderScope();
 	if (!scope) {
-		if (!warnedNoScope) {
+		if (logger && !warnedNoScope) {
 			warnedNoScope = true;
 			logger.warn(
 				'build',
-				'A prerenderer requested metadata collection but no render scope is installed; ' +
-					'install one with `installRenderScope` from `astro/app` — incremental metadata will ' +
-					'not be collected for prerendered paths.',
+				'A prerenderer collected metadata but no render scope is installed; ' +
+					'install one with `installRenderScope` from `astro/app` — optimized images and ' +
+					'incremental metadata will not be collected for prerendered paths.',
 			);
 		}
 		return { value: await fn(), metadata: undefined };
 	}
 	const store: RenderCollectors = {
 		contentEntries: new Set(),
-		staticImages: [],
+		staticImages: options.staticImages === false ? undefined : [],
 		referencedImages: new Set(),
 	};
 	const value = await scope.run(store, fn);
@@ -51,7 +57,11 @@ export async function collectPrerenderMetadata<T>(
 		value,
 		metadata: {
 			contentEntryKeys: [...store.contentEntries!],
-			staticImages: [...store.staticImages!],
+			staticImages: [
+				...new Map(
+					store.staticImages?.map((image) => [`${image.originalPath}\0${image.hash}`, image]),
+				).values(),
+			],
 			referencedImages: [...store.referencedImages!],
 		},
 	};

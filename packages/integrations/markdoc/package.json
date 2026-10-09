@@ -47,7 +47,7 @@
     "rolldown": "^1.2.12"
   },
   "peerDependencies": {
-    "astro": "^7.0.0"
+    "astro": "^7.4.0"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.2.0",
