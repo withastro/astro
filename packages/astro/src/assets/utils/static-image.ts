@@ -30,11 +30,9 @@ export function resolveStaticImage(
 	originalFSPath: string | undefined,
 	config: ResolveStaticImageOptions,
 ): { url: string; image: SerializedStaticImage } {
-	// Rolldown will copy the file to the output directory, as such this is the path in the output directory, including the asset prefix / base
 	const ESMImportedImageSrc = isESMImportedImage(options.src) ? options.src.src : options.src;
 	const assetPrefix = getAssetsPrefix(fileExtension(ESMImportedImageSrc), config.assetsPrefix);
 
-	// This is the path to the original image, from the dist root, without the base or the asset prefix (e.g. /_astro/image.hash.png)
 	const finalOriginalPath = removeBase(removeBase(ESMImportedImageSrc, config.base), assetPrefix);
 
 	const hash = hashTransform(options, config.serviceEntrypoint, hashProperties);
@@ -46,9 +44,6 @@ export function resolveStaticImage(
 		),
 	);
 
-	// The paths here are used for URLs, so we need to make sure they have the proper format for an URL
-	// (leading slash, prefixed with the base / assets prefix, encoded, etc)
-	// Create URL object to safely manipulate and append assetQueryParams if available (for adapter-level tracking like skew protection)
 	const url = createPlaceholderURL(
 		config.assetsPrefix
 			? encodeURI(joinPaths(assetPrefix, finalFilePath))

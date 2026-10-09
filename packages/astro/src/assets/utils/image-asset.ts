@@ -6,7 +6,6 @@ const RAW_SRC = Symbol.for('astro:image-asset:raw-src');
 
 type ImageAsset = ImageMetadata & { readonly [RAW_SRC]: string };
 
-// The build keeps an original image only if its `src` is read outside of image optimization.
 export function createImageAsset<T extends Omit<ImageMetadata, 'fsPath'>>(
 	metadata: T,
 	fsPath: string,
