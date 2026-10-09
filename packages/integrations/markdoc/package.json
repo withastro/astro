@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/markdoc",
   "description": "Add support for Markdoc in your Astro site",
-  "version": "2.0.9",
+  "version": "2.0.11",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -42,9 +42,9 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/prism": "workspace:*",
     "@markdoc/markdoc": "^0.5.10",
-    "esbuild": "^0.28.0",
     "github-slugger": "^2.0.0",
-    "htmlparser2": "^12.0.0"
+    "htmlparser2": "^12.0.0",
+    "rolldown": "^1.2.12"
   },
   "peerDependencies": {
     "astro": "^7.4.0"
@@ -55,7 +55,7 @@
     "astro-scripts": "workspace:*",
     "devalue": "^5.9.4",
     "linkedom": "^0.18.13",
-    "vite": "^8.3.0"
+    "vite": "^8.3.3"
   },
   "engines": {
     "node": ">=22.12.0"

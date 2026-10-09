@@ -47,11 +47,20 @@ interface GlobOptions {
 	deferRender?: boolean;
 }
 
+/**
+ * Resolves a glob entry path, relative to `base`, to a file URL.
+ */
+function resolveEntryUrl(entry: string, base: URL): URL {
+	// The `./` prefix keeps a leading `name:` from being parsed as a URL scheme (#17762).
+	// `encodeURI` leaves `#` and `?` as-is, which would start a hash or query (#18199).
+	return new URL('./' + encodeURI(entry).replace(/[#?]/g, encodeURIComponent), base);
+}
+
 function generateIdDefault({ entry, base, data }: GenerateIdOptions, isLegacy?: boolean): string {
 	if (data.slug) {
 		return String(data.slug);
 	}
-	const entryURL = new URL('./' + encodeURI(entry), base);
+	const entryURL = resolveEntryUrl(entry, base);
 	if (isLegacy) {
 		// Legacy behavior: use ID based on path, not slug
 		const { id } = getContentEntryIdAndSlug({
@@ -132,7 +141,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 					logger.warn(`No entry type found for ${entry}`);
 					return;
 				}
-				const fileUrl = new URL('./' + encodeURI(entry), base);
+				const fileUrl = resolveEntryUrl(entry, base);
 				const contents = await fs.readFile(fileUrl, 'utf-8').catch((err) => {
 					logger.error(`Error reading ${entry}: ${err.message}`);
 					return;
@@ -313,7 +322,7 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 			);
 
 			function isConfigFile(file: string) {
-				const fileUrl = new URL('./' + encodeURI(file), baseDir);
+				const fileUrl = resolveEntryUrl(file, baseDir);
 				return configFiles.has(fileUrl.href);
 			}
 
@@ -361,11 +370,13 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }
 			// Split negation patterns out and pass them as picomatch's `ignore` option
 			// so watcher filtering matches tinyglobby's semantics (set subtraction),
 			// not picomatch's default (any-match union). See #17484.
+			// A leading `!(` is an extglob ("anything except"), not a negation (#18289).
 			const patterns = Array.isArray(globOptions.pattern)
 				? globOptions.pattern
 				: [globOptions.pattern];
-			const positivePatterns = patterns.filter((p) => !p.startsWith('!'));
-			const negationPatterns = patterns.filter((p) => p.startsWith('!')).map((p) => p.slice(1));
+			const isNegation = (p: string) => p.startsWith('!') && !p.startsWith('!(');
+			const positivePatterns = patterns.filter((p) => !isNegation(p));
+			const negationPatterns = patterns.filter(isNegation).map((p) => p.slice(1));
 			const matchesGlob = (entry: string) =>
 				!entry.startsWith('../') &&
 				picomatch.isMatch(entry, positivePatterns, {

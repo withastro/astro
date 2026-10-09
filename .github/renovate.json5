@@ -194,6 +194,14 @@
         "packages/telemetry/**",
         "packages/underscore-redirects/**"
       ]
+    },
+    //#endregion
+
+    //#region Shared dependency groups
+    {
+      "groupName": "vite",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["vite"]
     }
     //#endregion
   ],
@@ -207,15 +215,13 @@
     "@types/vscode",
 
     // TODO: investigate upgrade (has type issues)
-    "drizzle-orm",
     "sharp",
 
     // manually bumping workflow actions
     "actions/labeler",
 
-    // follow vite deps version
-    "postcss-load-config",
-    "esbuild"
+    // pinned in .github/workflows/ci.yml while Deno 2.9.6 breaks @netlify/edge-functions-dev
+    "deno"
   ],
   "minimumReleaseAge": "3 days"
 }

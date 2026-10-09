@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { builtinModules } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroIntegrationLogger } from 'astro';
+import { rolldown } from 'rolldown';
 import {
 	ASTRO_LOCALS_HEADER,
 	ASTRO_MIDDLEWARE_SECRET_HEADER,
@@ -23,7 +24,7 @@ export interface IsrForwarding {
  *
  * It creates a temporary file, the edge middleware, with some dynamic info.
  *
- * Then this file gets bundled with esbuild. The bundle phase will inline the Astro middleware code.
+ * Then this file gets bundled with rolldown. The bundle phase will inline the Astro middleware code.
  *
  * @param astroMiddlewareEntryPointPath
  * @param root
@@ -52,55 +53,85 @@ export async function generateEdgeMiddleware(
 	);
 	// https://vercel.com/docs/concepts/functions/edge-middleware#create-edge-middleware
 	const bundledFilePath = fileURLToPath(outPath);
-	const esbuild = await import('esbuild');
-	try {
-		await esbuild.build({
-			stdin: {
-				contents: code,
-				resolveDir: fileURLToPath(root),
-			},
+	const virtualEntryId = fileURLToPath(new URL('__vercel_edge_middleware__.js', root));
+	const nodeBuiltinImports = new Set<string>();
+	const bundle = await rolldown({
+		input: virtualEntryId,
+		cwd: fileURLToPath(root),
+		platform: 'browser',
+		resolve: {
+			// Rolldown conditions take priority over the platform defaults.
+			// https://runtime-keys.proposal.wintercg.org/#edge-light
+			conditionNames: ['edge-light', 'workerd', 'worker', 'browser', 'import', 'default'],
+		},
+		transform: {
 			// Vercel Edge runtime targets ESNext, because Cloudflare Workers update v8 weekly
 			// https://github.com/vercel/vercel/blob/1006f2ae9d67ea4b3cbb1073e79d14d063d42436/packages/next/scripts/build-edge-function-template.js
 			target: 'esnext',
-			platform: 'browser',
-			// esbuild automatically adds the browser, import and default conditions
-			// https://esbuild.github.io/api/#conditions
-			// https://runtime-keys.proposal.wintercg.org/#edge-light
-			conditions: ['edge-light', 'workerd', 'worker'],
-			outfile: bundledFilePath,
-			allowOverwrite: true,
-			format: 'esm',
-			bundle: true,
-			minify: false,
-			// ensure node built-in modules are namespaced with `node:`
-			plugins: [
-				{
-					name: 'esbuild-namespace-node-built-in-modules',
-					setup(build) {
-						const filter = new RegExp(builtinModules.map((mod) => `(^${mod}$)`).join('|'));
-						build.onResolve(
-							{
-								filter,
-							},
-							(args) => ({
-								path: 'node:' + args.path,
-								external: true,
-							}),
-						);
-					},
+		},
+		// Rolldown reports unresolved imports as warnings and keeps them external,
+		// so collect Node.js built-ins from the logs to fail with a helpful hint.
+		onLog(level, log, defaultHandler) {
+			if (log.code === 'UNRESOLVED_IMPORT' && log.exporter && isNodeBuiltin(log.exporter)) {
+				nodeBuiltinImports.add(log.exporter);
+				return;
+			}
+			defaultHandler(level, log);
+		},
+		plugins: [
+			{
+				name: 'vercel:edge-middleware',
+				resolveId(source) {
+					if (source === virtualEntryId) {
+						return virtualEntryId;
+					}
 				},
-			],
-		});
-	} catch (err) {
-		if ((err as Error).message.includes('Could not resolve "node:')) {
-			logger.error(
-				`Vercel does not allow the use of Node.js built-ins in edge functions. Please ensure your middleware code and 3rd-party packages don’t use Node built-ins.`,
-			);
-		}
+				load(source) {
+					if (source === virtualEntryId) {
+						return code;
+					}
+				},
+			},
+			{
+				name: 'rolldown-namespace-node-built-in-modules',
+				resolveId(source) {
+					if (builtinModules.includes(source)) {
+						// Ensure node built-in modules are namespaced with `node:`.
+						return { id: `node:${source}`, external: true };
+					}
+				},
+			},
+		],
+	});
 
-		throw err;
+	try {
+		await bundle.write({
+			file: bundledFilePath,
+			format: 'esm',
+			minify: false,
+		});
+	} finally {
+		await bundle.close();
 	}
+
+	if (nodeBuiltinImports.size > 0) {
+		logger.error(
+			`Vercel does not allow the use of Node.js built-ins in edge functions. Please ensure your middleware code and 3rd-party packages don’t use Node built-ins.`,
+		);
+		throw new Error(
+			`Vercel does not allow the use of Node.js built-ins in edge functions: ${[...nodeBuiltinImports].join(', ')}.`,
+		);
+	}
+
 	return pathToFileURL(bundledFilePath);
+}
+
+/**
+ * Whether `id` is a Node.js built-in, with or without the `node:` prefix.
+ */
+function isNodeBuiltin(id: string): boolean {
+	const name = id.startsWith('node:') ? id.slice('node:'.length) : id;
+	return builtinModules.includes(name);
 }
 
 function edgeMiddlewareTemplate(

@@ -70,7 +70,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL): ErrorWithMetadat
 		// Generic error (probably from Vite, and already formatted)
 		error.hint = generateHint(error);
 
-		// Strip ANSI for `message` property. Note that ESBuild errors may not have the property,
+		// Strip ANSI for `message` property. Note that Oxc errors may not have the property,
 		// but it will be handled and added below, which is already ANSI-free
 		if (error.message) {
 			try {
@@ -81,13 +81,13 @@ export function collectErrorMetadata(e: any, rootFolder?: URL): ErrorWithMetadat
 		}
 	});
 
-	// If we received an array of errors and it's not from us, it's most likely from ESBuild, try to extract info for Vite to display
-	// NOTE: We still need to be defensive here, because it might not necessarily be from ESBuild, it's just fairly likely.
+	// If we received an array of errors and it's not from us, it's most likely from Oxc, try to extract info for Vite to display
+	// NOTE: We still need to be defensive here, because it might not necessarily be from Oxc, it's just fairly likely.
 	if (!AggregateError.is(e) && Array.isArray(e.errors)) {
 		(e.errors as OxcMessage[]).forEach((buildError, i) => {
 			const { loc: location, plugin: pluginName, message: text } = buildError;
 
-			// ESBuild can give us a slightly better error message than the one in the error, so let's use it
+			// Oxc can give us a slightly better error message than the one in the error, so let's use it
 			if (text) {
 				try {
 					err[i].message = text;
@@ -99,7 +99,7 @@ export function collectErrorMetadata(e: any, rootFolder?: URL): ErrorWithMetadat
 				err[i].id = err[0].id || location?.file;
 			}
 
-			// Vite adds the error message to the frame for ESBuild errors, we don't want that
+			// Vite adds the error message to the frame for Oxc errors, we don't want that
 			if (err[i].frame) {
 				const errorLines = err[i].frame?.trim().split('\n');
 

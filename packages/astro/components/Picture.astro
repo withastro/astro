@@ -75,9 +75,9 @@ const originalSrc = await resolveSrc(props.src);
 // When inferSize is set for a remote image, resolve dimensions once and thread them through
 // to all getImage() calls. This avoids multiple redundant HTTP requests to the same URL,
 // which can trigger rate-limiting (HTTP 429) on servers like Wikimedia.
-if (props.inferSize && isRemoteImage(originalSrc)) {
+if ('inferSize' in props && props.inferSize && isRemoteImage(originalSrc)) {
 	const remoteSize = await inferRemoteSize(originalSrc);
-	delete props.inferSize;
+	delete (props as { inferSize?: boolean }).inferSize;
 	props.width ??= remoteSize.width;
 	props.height ??= remoteSize.height;
 }

@@ -381,4 +381,35 @@ describe('Fonts E2E', () => {
 			]),
 		});
 	});
+
+	it('resolves fontsource fonts with "Variable" suffix (#18143)', async () => {
+		const result = await run({
+			fonts: [
+				{
+					name: 'Inter Variable',
+					cssVariable: '--font-inter',
+					provider: fontProviders.fontsource(),
+					weights: ['100 900'],
+					styles: ['normal'],
+					subsets: ['latin'],
+				},
+			],
+		});
+
+		const fontEntries = Array.from(result.fontFileById.entries());
+		assert.equal(fontEntries.length, 1, 'Expected one font file');
+		const [fontId, fontFile] = fontEntries[0]!;
+		assert.match(fontId, /^font-inter/, 'Font ID should reference Inter');
+		assert.match(
+			fontFile.url,
+			/fontsource\/fonts\/inter:vf@latest\//,
+			'URL should reference the variable font',
+		);
+
+		const fontData = result.fontDataByCssVariable['--font-inter'];
+		assert.ok(fontData, 'Font data should exist for --font-inter');
+		assert.equal(fontData.length, 1, 'Expected one font face');
+		assert.equal(fontData[0]!.weight, '100 900', 'Weight should be a variable range');
+		assert.equal(fontData[0]!.style, 'normal');
+	});
 });

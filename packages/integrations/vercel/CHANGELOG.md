@@ -1,5 +1,19 @@
 # @astrojs/vercel
 
+## 11.0.13
+
+### Patch Changes
+
+- [#18263](https://github.com/withastro/astro/pull/18263) [`882dd98`](https://github.com/withastro/astro/commit/882dd98cd9f11c4e7bd0b812d37f865dfca75d3d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Refactors internal bundling and code transforms to use Vite's Oxc-based `transformWithOxc` and Rolldown instead of esbuild. These packages no longer depend on esbuild directly.
+
+## 11.0.12
+
+### Patch Changes
+
+- [#18254](https://github.com/withastro/astro/pull/18254) [`36f3a0c`](https://github.com/withastro/astro/commit/36f3a0cef5e92de5fc4581f998e039024caf7f7c) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes middleware rewrites returning 404 instead of 200 when the 404 page is server-rendered
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb), [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d)]:
+  - @astrojs/internal-helpers@0.12.0
+
 ## 11.0.11
 
 ### Patch Changes

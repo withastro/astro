@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/node",
   "description": "Deploy your site to a Node.js server",
-  "version": "11.1.6",
+  "version": "11.1.7",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@fastify/middie": "^9.3.4",
-    "@fastify/static": "^10.1.4",
+    "@fastify/static": "^10.1.5",
     "@types/express": "^5.0.6",
     "@types/node": "^22.10.6",
     "@types/send": "^1.2.1",

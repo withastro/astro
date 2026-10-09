@@ -5,7 +5,7 @@
   "dependencies": {
     "@astrojs/cloudflare": "workspace:*",
     "astro": "workspace:*",
-    "hono": "^4.13.7",
-    "wrangler": "^4.83.0"
+    "hono": "^4.13.13",
+    "wrangler": "^4.147.0"
   }
 }

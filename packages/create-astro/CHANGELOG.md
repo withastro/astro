@@ -1,5 +1,17 @@
 # create-astro
 
+## 5.2.6
+
+### Patch Changes
+
+- [#18263](https://github.com/withastro/astro/pull/18263) [`882dd98`](https://github.com/withastro/astro/commit/882dd98cd9f11c4e7bd0b812d37f865dfca75d3d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the automatic `allowScripts` and `allowBuilds` pre-approval from generated projects. Astro's dependencies no longer run install scripts, so the workaround is no longer needed.
+
+## 5.2.5
+
+### Patch Changes
+
+- [#18210](https://github.com/withastro/astro/pull/18210) [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d) Thanks [@edmundhung](https://github.com/edmundhung)! - Allows Astro CLI commands to install tagged package versions
+
 ## 5.2.4
 
 ### Patch Changes
