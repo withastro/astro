@@ -53,12 +53,6 @@
     "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail exec publint",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format"
   },
-  "workspaces": [
-    "packages/markdown/*",
-    "packages/integrations/*",
-    "packages/*",
-    "packages/language-tools/*"
-  ],
   "engines": {
     "node": ">=22.12.0"
   },
