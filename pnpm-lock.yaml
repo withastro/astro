@@ -669,7 +669,7 @@ importers:
         version: 0.7.5
       unstorage:
         specifier: ^1.17.5
-        version: 1.17.5(@azure/identity@4.13.3)(@netlify/blobs@11.1.1)(@vercel/functions@3.9.9)
+        version: 1.17.5(@azure/identity@4.13.3)(@netlify/blobs@11.1.1)(@vercel/functions@3.9.11)
       verkit:
         specifier: ^0.5.0
         version: 0.5.0
@@ -5594,7 +5594,7 @@ importers:
         version: 6.0.2
       '@netlify/vite-plugin':
         specifier: ^3.0.1
-        version: 3.0.1(@azure/identity@4.13.3)(@vercel/functions@3.9.9)(supports-color@10.2.2)(vite@8.3.3)
+        version: 3.0.1(@azure/identity@4.13.3)(@vercel/functions@3.9.11)(supports-color@10.2.2)(vite@8.3.3)
       '@vercel/nft':
         specifier: ^1.11.0
         version: 1.11.0(supports-color@10.2.2)
@@ -6319,8 +6319,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1(react@19.3.0)(svelte@5.57.1)(vue@3.5.43)
       '@vercel/functions':
-        specifier: ^3.9.9
-        version: 3.9.9(@aws-sdk/credential-provider-web-identity@3.972.78)(ws@8.21.0)
+        specifier: ^3.9.11
+        version: 3.9.11(@aws-sdk/credential-provider-web-identity@3.972.78)(ws@8.21.0)
       '@vercel/nft':
         specifier: ^1.11.0
         version: 1.11.0(supports-color@10.2.2)
@@ -6328,7 +6328,7 @@ importers:
         specifier: ^6.6.0
         version: 6.6.0
       rolldown:
-        specifier: ^1.2.11
+        specifier: ^1.2.12
         version: 1.2.12
       tinyglobby:
         specifier: ^0.2.17
@@ -6344,7 +6344,7 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       vite:
-        specifier: ^8.3.1
+        specifier: ^8.3.3
         version: 8.3.3(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1)
 
   packages/integrations/vercel/test/fixtures/basic:
@@ -11208,15 +11208,15 @@ packages:
       vue-router:
         optional: true
 
-  '@vercel/cli-config@0.3.0':
-    resolution: {integrity: sha512-kQLt5Pm8wKd7/imzDY9/9u0tf8OuRkAuXI+s7j057FSUrXapAmumJSKwDqnR4ZZqdWoUcNLlFAgVIAdiwcGTcw==}
+  '@vercel/cli-config@0.3.1':
+    resolution: {integrity: sha512-sISbygqlFXYb8qfPu/+2Cf/A8IjrlAuZePdag3EDQr2PRA455s7UZtl9Ro674CWsB/saBRmz3jEkw0YsQs8OoQ==}
 
   '@vercel/cli-exec@1.0.1':
     resolution: {integrity: sha512-g9XerViJ/paZujufXYcu5XYI2vU2rtB4sgdpjUHde5RnOkdmpu0ngH46LCFGHoPXO/C+qDPSczIHIRN+8Q2YKQ==}
     engines: {node: '>= 18'}
 
-  '@vercel/functions@3.9.9':
-    resolution: {integrity: sha512-ocN/BNsIswReoyqfU1huilNyBM9tvY9kFXgYj0LlyPRATC1dt35gj2jN5hs9+Nag/CRyVQOX58L2FEhvL+0sSA==}
+  '@vercel/functions@3.9.11':
+    resolution: {integrity: sha512-DbqKqcbUHGBTYgHZieSNDuF1/L2iSPZV0OGm0Xkm/t+s61lFk4VX8yGQ22Og3WYGxypW1l4Elx1NP8BL928u8Q==}
     engines: {node: '>= 20'}
     peerDependencies:
       '@aws-sdk/credential-provider-web-identity': '*'
@@ -11237,8 +11237,8 @@ packages:
     engines: {node: '>=20'}
     hasBin: true
 
-  '@vercel/oidc@3.8.9':
-    resolution: {integrity: sha512-TcbdH3YtGS2KU98T99dN4sbf+E4vbJZsJTRN97wKQ7QWQ0BR7U02QX3KN4+5GHxBtKTj1c5CnvTTitc2ZRad0A==}
+  '@vercel/oidc@4.0.0':
+    resolution: {integrity: sha512-ko6ATeRUlHZMB5hLFdC7+/Q1dI2f3NX3gZHxtpALdkxurwjD5HFHGWYF+4o+4SF0E47jg6KzcHknmRpHcKgJ5A==}
     engines: {node: '>= 20'}
 
   '@vercel/routing-utils@6.6.0':
@@ -19504,7 +19504,7 @@ snapshots:
       parse-gitignore: 2.0.0
       semver: 7.8.5
 
-  '@netlify/dev@5.1.3(@azure/identity@4.13.3)(@vercel/functions@3.9.9)(supports-color@10.2.2)':
+  '@netlify/dev@5.1.3(@azure/identity@4.13.3)(@vercel/functions@3.9.11)(supports-color@10.2.2)':
     dependencies:
       '@netlify/ai': 1.0.1
       '@netlify/blobs': 11.1.1(supports-color@10.2.2)
@@ -19514,7 +19514,7 @@ snapshots:
       '@netlify/edge-functions-dev': 2.0.1
       '@netlify/functions-dev': 2.0.8(supports-color@10.2.2)
       '@netlify/headers': 3.0.1
-      '@netlify/images': 2.0.1(@azure/identity@4.13.3)(@netlify/blobs@11.1.1)(@vercel/functions@3.9.9)
+      '@netlify/images': 2.0.1(@azure/identity@4.13.3)(@netlify/blobs@11.1.1)(@vercel/functions@3.9.11)
       '@netlify/redirects': 4.0.2
       '@netlify/runtime': 5.0.5(supports-color@10.2.2)
       '@netlify/server-dev': 0.1.1
@@ -19619,9 +19619,9 @@ snapshots:
     dependencies:
       '@netlify/headers-parser': 10.1.1
 
-  '@netlify/images@2.0.1(@azure/identity@4.13.3)(@netlify/blobs@11.1.1)(@vercel/functions@3.9.9)':
+  '@netlify/images@2.0.1(@azure/identity@4.13.3)(@netlify/blobs@11.1.1)(@vercel/functions@3.9.11)':
     dependencies:
-      ipx: 3.1.1(@azure/identity@4.13.3)(@netlify/blobs@11.1.1)(@vercel/functions@3.9.9)
+      ipx: 3.1.1(@azure/identity@4.13.3)(@netlify/blobs@11.1.1)(@vercel/functions@3.9.11)
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -19703,9 +19703,9 @@ snapshots:
 
   '@netlify/types@3.2.0': {}
 
-  '@netlify/vite-plugin@3.0.1(@azure/identity@4.13.3)(@vercel/functions@3.9.9)(supports-color@10.2.2)(vite@8.3.3)':
+  '@netlify/vite-plugin@3.0.1(@azure/identity@4.13.3)(@vercel/functions@3.9.11)(supports-color@10.2.2)(vite@8.3.3)':
     dependencies:
-      '@netlify/dev': 5.1.3(@azure/identity@4.13.3)(@vercel/functions@3.9.9)(supports-color@10.2.2)
+      '@netlify/dev': 5.1.3(@azure/identity@4.13.3)(@vercel/functions@3.9.11)(supports-color@10.2.2)
       '@netlify/dev-utils': 6.0.3
       dedent: 1.7.2
       vite: 8.3.3(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1)
@@ -21019,7 +21019,7 @@ snapshots:
       svelte: 5.57.1(@typescript-eslint/types@8.71.0)
       vue: 3.5.43(typescript@6.0.3)
 
-  '@vercel/cli-config@0.3.0':
+  '@vercel/cli-config@0.3.1':
     dependencies:
       xdg-app-paths: 5.5.1
       zod: 4.1.11
@@ -21028,9 +21028,9 @@ snapshots:
     dependencies:
       execa: 5.1.1
 
-  '@vercel/functions@3.9.9(@aws-sdk/credential-provider-web-identity@3.972.78)(ws@8.21.0)':
+  '@vercel/functions@3.9.11(@aws-sdk/credential-provider-web-identity@3.972.78)(ws@8.21.0)':
     dependencies:
-      '@vercel/oidc': 3.8.9
+      '@vercel/oidc': 4.0.0
     optionalDependencies:
       '@aws-sdk/credential-provider-web-identity': 3.972.78
       ws: 8.21.0
@@ -21073,9 +21073,9 @@ snapshots:
       - rollup
       - supports-color
 
-  '@vercel/oidc@3.8.9':
+  '@vercel/oidc@4.0.0':
     dependencies:
-      '@vercel/cli-config': 0.3.0
+      '@vercel/cli-config': 0.3.1
       '@vercel/cli-exec': 1.0.1
       jose: 5.10.0
 
@@ -23621,7 +23621,7 @@ snapshots:
 
   ipaddr.js@2.3.0: {}
 
-  ipx@3.1.1(@azure/identity@4.13.3)(@netlify/blobs@11.1.1)(@vercel/functions@3.9.9):
+  ipx@3.1.1(@azure/identity@4.13.3)(@netlify/blobs@11.1.1)(@vercel/functions@3.9.11):
     dependencies:
       '@fastify/accept-negotiator': 2.0.1
       citty: 0.1.6
@@ -23637,7 +23637,7 @@ snapshots:
       sharp: 0.34.5
       svgo: 4.1.0
       ufo: 1.6.3
-      unstorage: 1.17.5(@azure/identity@4.13.3)(@netlify/blobs@11.1.1)(@vercel/functions@3.9.9)
+      unstorage: 1.17.5(@azure/identity@4.13.3)(@netlify/blobs@11.1.1)(@vercel/functions@3.9.11)
       xss: 1.0.15
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -27109,7 +27109,7 @@ snapshots:
       pathe: 2.0.3
       picomatch: 4.0.7
 
-  unstorage@1.17.5(@azure/identity@4.13.3)(@netlify/blobs@11.1.1)(@vercel/functions@3.9.9):
+  unstorage@1.17.5(@azure/identity@4.13.3)(@netlify/blobs@11.1.1)(@vercel/functions@3.9.11):
     dependencies:
       anymatch: 3.1.3
       chokidar: 5.0.0
@@ -27122,7 +27122,7 @@ snapshots:
     optionalDependencies:
       '@azure/identity': 4.13.3(supports-color@10.2.2)
       '@netlify/blobs': 11.1.1(supports-color@10.2.2)
-      '@vercel/functions': 3.9.9(@aws-sdk/credential-provider-web-identity@3.972.78)(ws@8.21.0)
+      '@vercel/functions': 3.9.11(@aws-sdk/credential-provider-web-identity@3.972.78)(ws@8.21.0)
 
   untun@0.1.3:
     dependencies:
