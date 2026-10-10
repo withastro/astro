@@ -4,15 +4,7 @@ export interface AstroComponentDirectives extends Astro.ClientDirectives {
 	'server:defer'?: boolean;
 }
 
-export interface AstroClientDirectives {
-	'client:load'?: boolean;
-	'client:idle'?: IdleRequestOptions | boolean;
-	'client:media'?: string;
-	'client:visible'?: ClientVisibleOptions | boolean;
-	'client:only'?: boolean | string;
-}
-
-export type ClientVisibleOptions = Pick<IntersectionObserverInit, 'rootMargin'>;
+export type { AstroClientDirectives, ClientVisibleOptions } from '@astrojs/vite-plugin-astro';
 
 export interface AstroBuiltinAttributes {
 	'class:list'?:
