@@ -1,7 +1,7 @@
 import colors from 'piccolore';
 import { REROUTABLE_STATUS_CODES } from '../../core/constants.js';
-import { AstroError } from '../../core/errors/errors.js';
-import { EndpointDidNotReturnAResponse } from '../../core/errors/errors-data.js';
+import { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
+import { EndpointDidNotReturnAResponse } from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
 import type { FetchState } from '../../core/fetch/fetch-state.js';
 import type { AstroLogger } from '../../core/logger/core.js';
 import type { APIRoute } from '../../types/public/common.js';

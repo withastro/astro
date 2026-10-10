@@ -8,7 +8,7 @@ import {
 	renderComponent,
 	renderTemplate,
 } from '../../../dist/runtime/server/index.js';
-import type { RenderDestination } from '../../../dist/runtime/server/render/common.js';
+import type { RenderDestination } from '@astrojs/vite-plugin-astro/internal/runtime/server/render/common.js';
 
 const DEFAULT_RESULT = {
 	clientDirectives: new Map(),

@@ -10,8 +10,8 @@ import {
 	type ViteDevServer,
 } from 'vite';
 import * as z from 'zod/v4';
-import { AstroError } from '../core/errors/errors.js';
-import { AstroErrorData } from '../core/errors/index.js';
+import { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
+import { AstroErrorData } from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';

@@ -1,3 +1,7 @@
 {
-  "extends": "../../configs/tsconfig.build.json"
+  "extends": "../../configs/tsconfig.build.json",
+  "compilerOptions": {
+    "types": ["node", "vite/client"]
+  },
+  "references": [{ "path": "../internal-helpers/tsconfig.json" }]
 }

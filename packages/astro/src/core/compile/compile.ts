@@ -7,12 +7,15 @@ import {
 } from '@astrojs/compiler-rs';
 import type { ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../types/public/config.js';
-import type { AstroError } from '../errors/errors.js';
-import { AggregateError, CompilerError } from '../errors/errors.js';
-import { AstroErrorData } from '../errors/index.js';
+import type { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
+import {
+	AggregateError,
+	CompilerError,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
+import { AstroErrorData } from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import { normalizePath, resolvePath } from '../viteUtils.js';
 import { createStylePreprocessor, type PartialCompileCssResult } from './style.js';
-import type { CompileCssResult } from './types.js';
+import type { CompileCssResult } from '@astrojs/vite-plugin-astro/internal/core/compile/types.js';
 
 export interface CompileProps {
 	astroConfig: AstroConfig;

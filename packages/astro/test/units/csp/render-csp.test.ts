@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { renderCspContent } from '../../../dist/runtime/server/render/csp.js';
+import { renderCspContent } from '@astrojs/vite-plugin-astro/internal/runtime/server/render/csp.js';
 import type { SSRResult } from '../../../dist/types/public/internal.js';
 
 /**

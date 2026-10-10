@@ -7,7 +7,7 @@ import {
 	encodeKey,
 	encryptString,
 	generateCspDigest,
-} from '../../../dist/core/encryption.js';
+} from '@astrojs/vite-plugin-astro/internal/core/encryption.js';
 
 describe('encryption', () => {
 	// #region encryptString / decryptString

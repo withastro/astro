@@ -1,1 +1,3 @@
-export const SERVER_ISLAND_START = '[if astro]>server-island-start<![endif]';
+// NOTE: Although this entrypoint is exported, it is internal API and may change at any time.
+
+export * from '@astrojs/vite-plugin-astro/internal/runtime/server/render/server-islands-shared.js';

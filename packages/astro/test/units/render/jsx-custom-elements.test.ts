@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { renderJSX } from '../../../dist/runtime/server/jsx.js';
-import { getDefaultClientDirectives } from '../../../dist/core/client-directive/index.js';
+import { renderJSX } from '@astrojs/vite-plugin-astro/internal/runtime/server/jsx.js';
+import { getDefaultClientDirectives } from '@astrojs/vite-plugin-astro/internal/core/client-directive/index.js';
 import type { SSRResult } from '../../../dist/types/public/internal.js';
 
 /**

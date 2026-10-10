@@ -1,1 +1,1 @@
-export * from '../transitions/swap-functions.js';
+export * from '@astrojs/vite-plugin-astro/internal/transitions/swap-functions.js';

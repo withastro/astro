@@ -5,9 +5,15 @@ import { codeToHtml, createCssVariablesTheme } from 'shiki';
 import type { ErrorPayload } from 'vite';
 import type { SSRLoadedRenderer } from '../../../types/public/internal.js';
 import type { ModuleLoader } from '../../module-loader/index.js';
-import { AstroError, type ErrorWithMetadata } from '../errors.js';
-import { FailedToLoadModuleSSR, MdxIntegrationMissingError } from '../errors-data.js';
-import { createSafeError } from '../utils.js';
+import {
+	AstroError,
+	type ErrorWithMetadata,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
+import {
+	FailedToLoadModuleSSR,
+	MdxIntegrationMissingError,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
+import { createSafeError } from '@astrojs/vite-plugin-astro/internal/core/errors/utils.js';
 import { getDocsForError, renderErrorMarkdown } from './runtime.js';
 
 export function enhanceViteSSRError({

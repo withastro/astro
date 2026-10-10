@@ -1,7 +1,10 @@
 import type { ComponentInstance } from '../../types/astro.js';
 import type { GetStaticPathsResult } from '../../types/public/common.js';
 import type { RouteData } from '../../types/public/internal.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import {
+	AstroError,
+	AstroErrorData,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 
 /** Error for deprecated or malformed route components */
 export function validateDynamicRouteModule(

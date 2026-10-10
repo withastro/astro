@@ -2,9 +2,13 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import { preprocessCSS, type ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../types/public/config.js';
-import { AstroErrorData, CSSError, positionAt } from '../errors/index.js';
+import {
+	AstroErrorData,
+	CSSError,
+	positionAt,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import { normalizePath } from '../viteUtils.js';
-import type { CompileCssResult } from './types.js';
+import type { CompileCssResult } from '@astrojs/vite-plugin-astro/internal/core/compile/types.js';
 
 export type PartialCompileCssResult = Pick<CompileCssResult, 'isGlobal' | 'dependencies'>;
 

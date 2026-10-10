@@ -1,6 +1,9 @@
 import { escape } from 'html-escaper';
 import colors from 'piccolore';
-import { AstroErrorData, type ErrorWithMetadata } from '../index.js';
+import {
+	AstroErrorData,
+	type ErrorWithMetadata,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 
 /**
  * The docs has kebab-case urls for errors, so we need to convert the error name

@@ -13,10 +13,10 @@ import type {
 	AstroComponent,
 	PluginMetadata as AstroPluginMetadata,
 	CompileMetadata,
-} from './types.js';
+} from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/types.js';
 import { loadId } from './utils.js';
 
-export { getAstroMetadata } from './metadata.js';
+export { getAstroMetadata } from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/metadata.js';
 export type { AstroPluginMetadata };
 
 interface AstroPluginOptions {

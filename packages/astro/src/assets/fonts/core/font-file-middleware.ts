@@ -1,7 +1,7 @@
 import type { AstroLogger } from '../../../core/logger/core.js';
 import type { FontFetcher, FontTypeExtractor } from '../definitions.js';
 import type { FontFileById } from '../types.js';
-import { isAstroError } from '../../../core/errors/errors.js';
+import { isAstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
 import { formatErrorMessage } from '../../../core/messages/runtime.js';
 import { collectErrorMetadata } from '../../../core/errors/dev/utils.js';
 import type { ServerResponse } from 'node:http';

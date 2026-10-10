@@ -1,8 +1,11 @@
 import { stringify as rawStringify, unflatten as rawUnflatten } from 'devalue';
 import type { RuntimeMode } from '../../types/public/config.js';
 import type { AstroCookieSetOptions, AstroCookies } from '../cookies/cookies.js';
-import { SessionStorageInitError, SessionStorageSaveError } from '../errors/errors-data.js';
-import { AstroError } from '../errors/index.js';
+import {
+	SessionStorageInitError,
+	SessionStorageSaveError,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 import type { SessionDriverFactory } from './types.js';
 import type { SSRManifestSession } from '../app/types.js';

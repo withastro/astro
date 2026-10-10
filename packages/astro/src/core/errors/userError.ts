@@ -1,2 +1,1 @@
-export { AstroUserError as AstroError } from './errors.js';
-export * as AstroErrorData from './errors-data.js';
+export * from '@astrojs/vite-plugin-astro/internal/core/errors/userError.js';

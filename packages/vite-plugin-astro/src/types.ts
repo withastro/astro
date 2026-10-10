@@ -19,6 +19,18 @@
  * same names and constraints.
  */
 
+import type {
+	CspAlgorithm,
+	CspDirective,
+	CspHashEntry,
+	CspResourceEntry,
+} from './core/csp/sources.js';
+import type { Slots } from './core/render/slots.js';
+import type { AstroComponentInstance } from './runtime/server/render/astro/instance.js';
+import type { HeadAndContent, ThinHead } from './runtime/server/render/astro/head-and-content.js';
+import type { RenderTemplateResult } from './runtime/server/render/astro/render-template.js';
+import type { ServerIslandComponent } from './runtime/server/render/server-islands.js';
+
 /* Client Directives */
 type DirectiveHydrate = () => Promise<void>;
 type DirectiveLoad = () => Promise<DirectiveHydrate>;
@@ -116,6 +128,23 @@ export interface SSRElement {
 }
 
 /**
+ * A stylesheet a rendered page needs: inline CSS, or a URL to link. `viteDevId` is the Vite module
+ * id the CSS came from in dev, used to keep it in sync with HMR.
+ */
+export type StylesheetAsset =
+	| { type: 'inline'; content: string; viteDevId?: string }
+	| { type: 'external'; src: string };
+
+/**
+ * The route fields the render runtime reads when rendering a page: `route` decides the 404/500
+ * response status and `component` is used in error messages.
+ */
+export interface RenderRouteInfo {
+	route: string;
+	component: string;
+}
+
+/**
  * A hint on whether the Astro runtime needs to wait on a component to render head
  * content. The meanings:
  *
@@ -132,22 +161,7 @@ export type SSRComponentMetadata = {
 	containsHead: boolean;
 };
 
-/**
- * Registry of render-runtime class types that the types in this module reference but that are
- * implemented outside this package. The implementing package registers them through declaration
- * merging; unregistered keys resolve to `unknown`.
- *
- * - `factoryReturnValue`: non-`Response` values a component factory returns.
- * - `headPropagator`: components registered in `SSRMetadata.propagators`.
- * - `slots`: the `Astro.slots` implementation cached in `SSRMetadata.slotsByAstro`.
- */
-export interface RenderRuntimeTypes {}
-
-type RenderRuntimeType<K extends string> = RenderRuntimeTypes extends { [P in K]: infer T }
-	? T
-	: unknown;
-
-export type AstroFactoryReturnValue = Response | RenderRuntimeType<'factoryReturnValue'>;
+export type AstroFactoryReturnValue = Response | RenderTemplateResult | HeadAndContent | ThinHead;
 
 // The callback passed to $$createComponent
 export interface AstroComponentFactory {
@@ -195,7 +209,7 @@ export interface SSRMetadata {
 	 * non-streaming page renders, so hashes inserted by components rendered after the head are included.
 	 */
 	cspMetaPlaceholder?: string;
-	propagators: Set<RenderRuntimeType<'headPropagator'>>;
+	propagators: Set<AstroComponentInstance | ServerIslandComponent>;
 	/**
 	 * `true` when the page being rendered is on a head-propagation path (its
 	 * component metadata hint is `in-tree`/`self`). Only then do we await async
@@ -210,7 +224,7 @@ export interface SSRMetadata {
 	 * head content is flushed. Only populated when `routeHasPropagation` is true.
 	 */
 	pendingSlotEvaluations: Promise<unknown>[];
-	slotsByAstro?: WeakMap<object, RenderRuntimeType<'slots'>>;
+	slotsByAstro?: WeakMap<object, Slots>;
 	/**
 	 * Tracks nesting depth of HTML `<template>` elements during rendering.
 	 * Scripts rendered inside `<template>` tags should not be deduplicated,
@@ -250,6 +264,44 @@ export interface SSRResult extends SSRResultExtensions {
 	compressHTML: boolean | 'jsx';
 	partial: boolean;
 	_metadata: SSRMetadata;
+
+	// Request-level values read by the render runtime. The host that creates the result (such as
+	// `@astrojs/vite-plugin-pages`) supplies them.
+
+	/**
+	 * Only used for logging
+	 */
+	pathname: string;
+	response: ResponseInit & {
+		readonly headers: Headers;
+	};
+	/** Server island component names keyed by component path; used to build island URLs. */
+	getServerIslandNameMap: () => Promise<Map<string, string>>;
+	trailingSlash: 'always' | 'never' | 'ignore';
+	/** Encrypts server island props and slots. */
+	key: Promise<CryptoKey>;
+	/**
+	 * `cspDestination`:
+	 * - `header`: `<meta>` for static pages, response header for dynamic pages
+	 * - `meta`: `<meta>` for all pages
+	 * - `adapter`: nothing for static pages (the adapter does this), response header for dynamic pages
+	 */
+	cspDestination: 'adapter' | 'meta' | 'header';
+	shouldInjectCspMetaTags: boolean;
+	cspAlgorithm: CspAlgorithm;
+	directives: CspDirective[];
+	scriptDirective: {
+		resources: CspResourceEntry[];
+		hashes: CspHashEntry[];
+		strictDynamic: boolean;
+	};
+	styleDirective: {
+		resources: CspResourceEntry[];
+		hashes: CspHashEntry[];
+	};
+	/** Static speculation rules JSON to inject in the head when CSP + clientPrerender are both enabled. */
+	speculationRulesContent?: string;
+	internalFetchHeaders?: Record<string, string>;
 }
 
 /**

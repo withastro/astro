@@ -41,4 +41,4 @@
 
 'docs pr':
 - packages/astro/src/types/public/**
-- packages/astro/src/core/errors/errors-data.ts
+- packages/vite-plugin-astro/src/core/errors/errors-data.ts

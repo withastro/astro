@@ -1,8 +1,4 @@
-import type { ClientDirective } from '../../types/public/integrations.js';
+// NOTE: Although this entrypoint is exported, it is internal API and may change at any time.
 
-const loadDirective: ClientDirective = async (load) => {
-	const hydrate = await load();
-	await hydrate();
-};
-
-export default loadDirective;
+export * from '@astrojs/vite-plugin-astro/internal/runtime/client/load.js';
+export { default } from '@astrojs/vite-plugin-astro/internal/runtime/client/load.js';

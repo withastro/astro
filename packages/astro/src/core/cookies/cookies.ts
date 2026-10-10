@@ -1,6 +1,9 @@
 import type { SerializeOptions } from 'cookie';
 import { parseCookie, stringifySetCookie } from 'cookie';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import {
+	AstroError,
+	AstroErrorData,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 
 export type AstroCookieSetOptions = Pick<

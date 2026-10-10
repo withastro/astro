@@ -1,5 +1,8 @@
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import {
+	AstroError,
+	AstroErrorData,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { ImageMetadata } from '../types.js';
 import { imageMetadata } from './metadata.js';

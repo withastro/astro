@@ -16,14 +16,14 @@ import {
 	InvalidRedirectDestination,
 	MissingIndexForInternationalization,
 	UnsupportedExternalRedirect,
-} from '../errors/errors-data.js';
-import { AstroError } from '../errors/index.js';
+} from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 import { hasFileExtension, removeLeadingForwardSlash, slash } from '../path.js';
 import { injectServerIslandRoute } from '../server-islands/endpoint.js';
 import { resolvePages } from '../util.js';
 import { ensure404Route } from './astro-designed-error-pages.js';
-import { isRoute3xx } from './internal/route-errors.js';
+import { isRoute3xx } from '@astrojs/vite-plugin-astro/internal/core/routing/internal/route-errors.js';
 import { routeComparator } from './priority.js';
 import { getPattern } from './pattern.js';
 import { getRoutePrerenderOption } from './prerender.js';

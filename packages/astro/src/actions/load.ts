@@ -1,7 +1,7 @@
 import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
 import type { $ZodType } from 'zod/v4/core';
-import { ActionNotFoundError } from '../core/errors/errors-data.js';
-import { AstroError } from '../core/errors/index.js';
+import { ActionNotFoundError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import { createAsyncManifestMemo } from '../core/manifest/memo.js';
 import type { SSRActions, SSRManifest } from '../types/public/internal.js';
 import { NOOP_ACTIONS_MOD } from './noop-actions.js';

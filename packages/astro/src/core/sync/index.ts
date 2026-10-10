@@ -29,7 +29,7 @@ import {
 	createSafeError,
 	type ErrorWithMetadata,
 	isAstroError,
-} from '../errors/index.js';
+} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';
 import { ensureProcessNodeEnv } from '../util.js';

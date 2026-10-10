@@ -1,4 +1,7 @@
-import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import {
+	AstroError,
+	AstroErrorData,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import type { ImageInputFormat, ImageMetadata } from '../types.js';
 import { lookup as probe } from '../utils/vendor/image-size/lookup.js';
 

@@ -1,4 +1,7 @@
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import {
+	AstroError,
+	AstroErrorData,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import { invalidVariablesToError } from './errors.js';
 import type { ValidationResultInvalid } from './validators.js';
 

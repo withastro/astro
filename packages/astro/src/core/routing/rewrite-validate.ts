@@ -1,8 +1,8 @@
 import type { ComponentInstance } from '../../types/astro.js';
 import type { RouteData } from '../../types/public/internal.js';
 import type { SSRManifest } from '../app/types.js';
-import { NoMatchingStaticPathFound } from '../errors/errors-data.js';
-import { isAstroError } from '../errors/errors.js';
+import { NoMatchingStaticPathFound } from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
+import { isAstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
 import { getLogger } from '../logger/manifest-logger.js';
 import { getProps } from '../render/params-and-props.js';
 import { getRouteCache } from '../render/route-cache.js';

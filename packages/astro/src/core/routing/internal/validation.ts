@@ -1,4 +1,7 @@
-import { AstroError, AstroErrorData } from '../../errors/index.js';
+import {
+	AstroError,
+	AstroErrorData,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 
 const VALID_PARAM_TYPES = ['string', 'undefined'];
 

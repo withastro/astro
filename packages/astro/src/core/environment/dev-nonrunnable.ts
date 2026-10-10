@@ -7,7 +7,7 @@ import type {
 	SSRElement,
 	SSRManifest,
 } from '../../types/public/internal.js';
-import { stringifyForScript } from '../../runtime/server/escape.js';
+import { stringifyForScript } from '@astrojs/vite-plugin-astro/internal/runtime/server/escape.js';
 import type { RequestLogPayload } from './index.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import { ASTRO_VERSION } from '../constants.js';

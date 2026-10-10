@@ -1,5 +1,8 @@
 import { isAbsolute } from 'node:path';
-import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
+import {
+	AstroError,
+	AstroErrorData,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import type { FontFetcher, Storage } from '../definitions.js';
 import type { FontFileData } from '../types.js';
 

@@ -29,7 +29,10 @@ import {
 } from '../../csp/common.js';
 import { partitionByKind } from '../../csp/runtime.js';
 import { generateSpeculationRulesContent } from '../../../prefetch/speculation-rules.js';
-import { encodeKey, generateCspDigest } from '../../encryption.js';
+import {
+	encodeKey,
+	generateCspDigest,
+} from '@astrojs/vite-plugin-astro/internal/core/encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
 import { getOutFile, getOutFolder } from '../common.js';
