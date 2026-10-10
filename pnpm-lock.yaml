@@ -7293,6 +7293,19 @@ importers:
         specifier: workspace:*
         version: link:../../scripts
 
+  packages/vite-plugin-astro:
+    dependencies:
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
+    devDependencies:
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../scripts
+      vite:
+        specifier: ^8.3.3
+        version: 8.3.3(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1)
+
   scripts:
     dependencies:
       jsonc-parser:
