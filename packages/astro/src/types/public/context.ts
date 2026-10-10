@@ -3,131 +3,33 @@ import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { CspDirective, CspHashEntry, CspResourceEntry } from '../../core/csp/config.js';
 import type { CacheLike } from '../../core/cache/runtime/cache.js';
 import type { AstroSession } from '../../core/session/runtime.js';
-import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';
 
-/**
- * Astro global available in all contexts in .astro files
- *
- * [Astro reference](https://docs.astro.build/en/reference/api-reference/)
- */
-export interface AstroGlobal<
-	Props extends Record<string, any> = Record<string, any>,
-	Self = AstroComponentFactory,
-	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
-> extends APIContext<Props, Params> {
-	/**
-	 * A standard [ResponseInit](https://developer.mozilla.org/en-US/docs/Web/API/Response/Response#init) object describing the outgoing response.
-	 *
-	 * ## Example
-	 *
-	 * You can change the status code by assigning a value to this property:
-	 * ```typescript
-	 * Astro.response.status = 404;
-	 * ```
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#response)
-	 */
-	response: ResponseInit & {
-		readonly headers: Headers;
-	};
-
-	/**
-	 * Allows a component to be recursively called.
-	 *
-	 * This is useful when you need to render an Astro component from within
-	 * itself. `Astro.self` accepts the same properties as the component itself.
-	 *
-	 * ## Example
-	 *
-	 * ```astro
-	 * ---
-	 * const { items } = Astro.props;
-	 * ---
-	 * <ul>
-	 *   {items.map((item) => (
-	 *     <li>
-	 *       {Array.isArray(item) ? (
-	 *         <Astro.self items={item} />
-	 *       ) : (
-	 *         item
-	 *       )}
-	 *     </li>
-	 *   ))}
-	 * </ul>
-	 * ```
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/astro-syntax/#astroself)
-	 */
-	self: Self;
-
-	/**
-	 * An object containing utility functions for modifying an Astro component’s
-	 * slotted children.
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/astro-syntax/#astroslots)
-	 */
-	slots: Record<string, true | undefined> & {
+declare module '@astrojs/vite-plugin-astro' {
+	interface AstroGlobalExtensions<
+		Props extends Record<string, any>,
+		Params extends Record<string, string | undefined>,
+	> extends APIContext<Props, Params> {
 		/**
-		 * Check whether content for this slot name exists
-		 *
-		 * @param {string} slotName - The name of the slot to check.
-		 * @returns {boolean} Whether the slot exists.
+		 * A standard [ResponseInit](https://developer.mozilla.org/en-US/docs/Web/API/Response/Response#init) object describing the outgoing response.
 		 *
 		 * ## Example
 		 *
-		 * ```astro
-		 * ---
-		 * ---
-		 * <slot />
-		 * {Astro.slots.has('more') && (
-		 *   // Do something...
-		 * }
+		 * You can change the status code by assigning a value to this property:
+		 * ```typescript
+		 * Astro.response.status = 404;
 		 * ```
 		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/astro-syntax/#astroslotshas)
+		 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#response)
 		 */
-		has(slotName: string): boolean;
-
-		/**
-		 * Asynchronously renders the contents of a slot to a string of HTML.
-		 *
-		 * @param {string} slotName - The name of the slot to render.
-		 * @param {any[]} [args] - The additional arguments to pass to the callback.
-		 * @returns {Promise<string>} The rendered slot as HTML string.
-		 *
-		 * ## Examples
-		 *
-		 * ```astro
-		 * ---
-		 * let html: string = '';
-		 * if (Astro.slots.has('default')) {
-		 *   html = await Astro.slots.render('default')
-		 * }
-		 * ---
-		 * <Fragment set:html={html} />
-		 * ```
-		 *
-		 * A second parameter can be used to pass arguments to a slotted callback
-		 *
-		 * ```astro
-		 * ---
-		 * html = await Astro.slots.render('default', ["Hello", "World"])
-		 * ---
-		 * ```
-		 * Each item in the array will be passed as an argument that you can use like so:
-		 * ```astro
-		 * <Component>
-		 *		{(hello, world) => <div>{hello}, {world}!</div>}
-		 * </Component>
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/astro-syntax/#astroslotsrender)
-		 */
-		render(slotName: string, args?: any[]): Promise<string>;
-	};
+		response: ResponseInit & {
+			readonly headers: Headers;
+		};
+	}
 }
+
+export type { AstroGlobal } from '@astrojs/vite-plugin-astro';
 
 /**
  * A type containing functions for logging messages.

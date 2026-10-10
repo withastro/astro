@@ -544,6 +544,9 @@ importers:
       '@astrojs/telemetry':
         specifier: workspace:*
         version: link:../telemetry
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../vite-plugin-astro
       '@capsizecss/unpack':
         specifier: ^4.0.1
         version: 4.0.1
