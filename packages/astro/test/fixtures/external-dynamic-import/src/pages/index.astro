@@ -1,0 +1,17 @@
+---
+---
+<html>
+	<head>
+		<title>External dynamic import</title>
+	</head>
+	<body>
+		<h1>External dynamic import</h1>
+		<script>
+			// `/external.js` is not bundled by Rolldown, so this is an *external*
+			// dynamic import. It must keep working at runtime (no raw
+			// `__VITE_PRELOAD__` marker). See https://github.com/withastro/astro/issues/17265
+			const mod = await import('/external.js');
+			console.log(mod);
+		</script>
+	</body>
+</html>

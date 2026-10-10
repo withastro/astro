@@ -4,6 +4,17 @@ import { shouldInlineAsset } from './util.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
 /**
+ * Vite's preload-helper virtual module. It appears in a chunk's `moduleIds`
+ * whenever `__vitePreload` wraps a dynamic import — including *external* dynamic
+ * imports, which Rolldown (Vite 8) omits from `chunk.dynamicImports` (unlike
+ * Rollup/Vite 7). Inlining and deleting such a chunk before Vite's
+ * import-analysis pass runs would leave a raw `__VITE_PRELOAD__` marker in the
+ * HTML, causing a runtime `ReferenceError`.
+ * @see https://github.com/withastro/astro/issues/17265
+ */
+const VITE_PRELOAD_HELPER_ID = '\0vite/preload-helper.js';
+
+/**
  * Inline scripts from Astro files directly into the HTML.
  */
 export function pluginScripts(internals: BuildInternals): VitePlugin {
@@ -42,6 +53,10 @@ export function pluginScripts(internals: BuildInternals): VitePlugin {
 					!importedIds.has(output.fileName) &&
 					output.imports.length === 0 &&
 					output.dynamicImports.length === 0 &&
+					// Don't inline chunks that still rely on Vite's preload helper (i.e.
+					// contain an external dynamic import). Rolldown excludes external
+					// modules from `dynamicImports`, so the checks above miss them.
+					!output.moduleIds.includes(VITE_PRELOAD_HELPER_ID) &&
 					shouldInlineAsset(output.code, output.fileName, assetInlineLimit)
 				) {
 					internals.inlinedScripts.set(output.facadeModuleId, output.code.trim());
