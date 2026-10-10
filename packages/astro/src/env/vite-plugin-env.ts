@@ -199,9 +199,10 @@ function getTemplates({
 		onSetGetEnv += `${key} = _internalGetSecret(${JSON.stringify(key)});\n`;
 	}
 
-	server = server.replace('// @@ON_SET_GET_ENV@@', onSetGetEnv);
+	// Function replacers keep `$` sequences (e.g. `$&`, "$`") in keys and env values literal
+	server = server.replace('// @@ON_SET_GET_ENV@@', () => onSetGetEnv);
 	if (loadedEnv) {
-		server = server.replace('// @@GET_ENV@@', `return (${JSON.stringify(loadedEnv)})[key];`);
+		server = server.replace('// @@GET_ENV@@', () => `return (${JSON.stringify(loadedEnv)})[key];`);
 	} else {
 		server = server.replace('// @@GET_ENV@@', 'return _getEnv(key);');
 	}
