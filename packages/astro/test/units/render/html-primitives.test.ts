@@ -9,7 +9,7 @@ import {
 	renderElement,
 	toAttributeString,
 	toStyleString,
-} from '../../../dist/runtime/server/render/util.js';
+} from '@astrojs/vite-plugin-astro/internal/runtime/server/render/util.js';
 import {
 	createComponent,
 	Fragment,

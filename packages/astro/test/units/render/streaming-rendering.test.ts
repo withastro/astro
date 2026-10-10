@@ -10,7 +10,7 @@ import {
 } from '../../../dist/runtime/server/index.js';
 import { createPage, createTestApp } from '../mocks.ts';
 
-import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
+import type { AstroComponentFactory } from '@astrojs/vite-plugin-astro/internal/runtime/server/render/index.js';
 
 // #region Helpers
 

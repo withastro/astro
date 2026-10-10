@@ -8,7 +8,7 @@ import {
 	SERVER_ISLAND_COMPONENT,
 } from '../../../dist/core/server-islands/endpoint.js';
 import type { RenderOptions } from '../../../dist/core/server-islands/endpoint.js';
-import { createKey, encryptString } from '../../../dist/core/encryption.js';
+import { createKey, encryptString } from '@astrojs/vite-plugin-astro/internal/core/encryption.js';
 import {
 	type AstroComponentFactory,
 	createComponent,

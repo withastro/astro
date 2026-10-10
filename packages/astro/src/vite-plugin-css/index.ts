@@ -19,7 +19,7 @@ import {
 	RESOLVED_MODULE_DEV_CSS,
 	RESOLVED_MODULE_DEV_CSS_ALL,
 	RESOLVED_MODULE_DEV_CSS_PREFIX,
-} from './const.js';
+} from '@astrojs/vite-plugin-astro/internal/vite-plugin-css/const.js';
 
 interface AstroVitePluginOptions {
 	routesList: RoutesList;

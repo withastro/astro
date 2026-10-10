@@ -2,7 +2,10 @@
 // @ts-ignore-error The types for this are only present at dev time, but this file might get type checked by end users through tsc
 import { componentDataByCssVariable } from 'virtual:astro:assets/fonts/internal';
 import { filterPreloads } from '../dist/assets/fonts/core/filter-preloads.js';
-import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
+import {
+	AstroError,
+	AstroErrorData,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 
 interface Props {
 	/** The `cssVariable` registered in your Astro configuration. */

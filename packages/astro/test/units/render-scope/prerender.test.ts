@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { renderForPrerender, type PrerenderableApp } from '../../../dist/core/app/prerender.js';
-import { uninstallRenderScope } from '../../../dist/core/render-scope/scope.js';
-import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
+import { uninstallRenderScope } from '@astrojs/vite-plugin-astro/internal/core/render-scope/scope.js';
+import { ensureAsyncRenderScope } from '@astrojs/vite-plugin-astro/internal/core/render-scope/node-scope.js';
 import {
 	recordContentEntryRender,
 	recordStaticImage,
-} from '../../../dist/core/render-scope/record.js';
+} from '@astrojs/vite-plugin-astro/internal/core/render-scope/record.js';
 import type { SerializedStaticImage } from '../../../dist/assets/types.js';
 import { getEnvironment, setEnvironment } from '../../../dist/core/environment/index.js';
 import { productionEnvironment } from '../../../dist/core/environment/production.js';

@@ -1,6 +1,9 @@
 import { readFileSync } from 'node:fs';
 import type { Plugin } from 'vite';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import {
+	AstroError,
+	AstroErrorData,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import { isAstroClientEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import {

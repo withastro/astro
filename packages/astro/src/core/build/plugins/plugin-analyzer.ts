@@ -1,5 +1,5 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types.js';
+import type { PluginMetadata as AstroPluginMetadata } from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/types.js';
 import { removeQueryString } from '../../path.js';
 import { getTopLevelPageModuleInfos } from '../graph.js';
 import type { BuildInternals } from '../internal.js';

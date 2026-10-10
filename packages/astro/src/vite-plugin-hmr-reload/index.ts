@@ -1,6 +1,6 @@
 import { isRunnableDevEnvironment, type EnvironmentModuleNode, type Plugin } from 'vite';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
-import { RESOLVED_MODULE_DEV_CSS_PREFIX } from '../vite-plugin-css/const.js';
+import { RESOLVED_MODULE_DEV_CSS_PREFIX } from '@astrojs/vite-plugin-astro/internal/vite-plugin-css/const.js';
 import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css/util.js';
 import { isAstroServerEnvironment } from '../environments.js';
 

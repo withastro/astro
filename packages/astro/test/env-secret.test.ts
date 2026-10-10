@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import type { AstroError } from '../dist/core/errors/errors.js';
+import type { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
 import testAdapter from './test-adapter.ts';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
 

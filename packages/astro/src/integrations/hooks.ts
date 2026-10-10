@@ -12,7 +12,7 @@ import { globalContentLayer } from '../content/instance.js';
 import { globalContentConfigObserver } from '../content/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
-import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
+import { buildClientDirectiveEntrypoint } from '@astrojs/vite-plugin-astro/internal/core/client-directive/index.js';
 import { mergeConfig } from '../core/config/merge.js';
 import { validateConfigRefined } from '../core/config/validate.js';
 import { validateSetAdapter } from '../core/dev/adapter-validation.js';

@@ -1,4 +1,4 @@
-import type { TransitionAnimationValue } from './view-transitions.js';
+import type { TransitionAnimationValue } from '@astrojs/vite-plugin-astro/internal/types/public/view-transitions.js';
 
 export interface AstroComponentDirectives extends Astro.ClientDirectives {
 	'server:defer'?: boolean;

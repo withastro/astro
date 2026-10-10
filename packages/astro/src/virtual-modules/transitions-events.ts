@@ -1,1 +1,1 @@
-export * from '../transitions/events.js';
+export * from '@astrojs/vite-plugin-astro/internal/transitions/events.js';

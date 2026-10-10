@@ -1,5 +1,5 @@
 import type { AstroConfig, AstroUserConfig } from '../../types/public/config.js';
-import { errorMap } from '../errors/index.js';
+import { errorMap } from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import { AstroConfigRefinedSchema, createRelativeSchema } from './schemas/index.js';
 
 /** Turn raw config values into normalized values */

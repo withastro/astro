@@ -1,19 +1,3 @@
-import type { SSRResult } from '../../../types/public/internal.js';
-import { createRenderInstruction } from './instruction.js';
+// NOTE: Although this entrypoint is exported, it is internal API and may change at any time.
 
-const TEMPLATE_ENTER = Object.freeze(createRenderInstruction({ type: 'template-enter' } as const));
-const TEMPLATE_EXIT = Object.freeze(createRenderInstruction({ type: 'template-exit' } as const));
-
-/**
- * Emitted by the compiler when entering an HTML `<template>` element.
- */
-export function templateEnter(_result: SSRResult) {
-	return TEMPLATE_ENTER;
-}
-
-/**
- * Emitted by the compiler when exiting an HTML `<template>` element.
- */
-export function templateExit(_result: SSRResult) {
-	return TEMPLATE_EXIT;
-}
+export * from '@astrojs/vite-plugin-astro/internal/runtime/server/render/template-depth.js';

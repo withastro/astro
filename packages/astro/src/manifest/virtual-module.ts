@@ -1,5 +1,8 @@
 import type { Plugin } from 'vite';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import {
+	AstroError,
+	AstroErrorData,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import { SERIALIZED_MANIFEST_ID } from './serialized.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { fromRoutingStrategy, toFallbackType, toRoutingStrategy } from '../core/app/common.js';

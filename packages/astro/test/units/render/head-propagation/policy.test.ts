@@ -4,7 +4,7 @@ import {
 	shouldRenderHeadInstruction,
 	shouldRenderInstruction,
 	shouldRenderMaybeHeadInstruction,
-} from '../../../../dist/core/head-propagation/policy.js';
+} from '@astrojs/vite-plugin-astro/internal/core/head-propagation/policy.js';
 
 describe('head propagation policy', () => {
 	it('renders head instruction when head not rendered and not partial', () => {

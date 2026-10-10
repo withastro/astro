@@ -1,6 +1,6 @@
-import { getDefaultClientDirectives } from '../core/client-directive/default.js';
+import { getDefaultClientDirectives } from '@astrojs/vite-plugin-astro/internal/core/client-directive/default.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schemas/defaults.js';
-import { createKey } from '../core/encryption.js';
+import { createKey } from '@astrojs/vite-plugin-astro/internal/core/encryption.js';
 import { FetchState } from '../core/fetch/fetch-state.js';
 import { handleMiddleware } from '../core/middleware/astro-middleware.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
@@ -10,7 +10,7 @@ import { getParts } from '../core/routing/parts.js';
 import { getPattern } from '../core/routing/pattern.js';
 import { validateSegment } from '../core/routing/segment.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
-import { SlotString } from '../runtime/server/render/slot.js';
+import { SlotString } from '@astrojs/vite-plugin-astro/internal/runtime/server/render/slot.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { AstroMiddlewareInstance, MiddlewareHandler, Props } from '../types/public/common.js';
 import type { AstroUserConfig } from '../types/public/config.js';

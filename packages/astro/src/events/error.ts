@@ -1,6 +1,10 @@
 import type { $ZodError } from 'zod/v4/core';
-import type { ErrorData } from '../core/errors/errors-data.js';
-import { AstroError, AstroErrorData, type ErrorWithMetadata } from '../core/errors/index.js';
+import type { ErrorData } from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
+import {
+	AstroError,
+	AstroErrorData,
+	type ErrorWithMetadata,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 
 const EVENT_ERROR = 'ASTRO_CLI_ERROR';
 

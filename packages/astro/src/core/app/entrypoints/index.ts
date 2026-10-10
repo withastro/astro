@@ -1,3 +1,10 @@
+import type { CollectedPrerenderMetadata as BaseCollectedPrerenderMetadata } from '@astrojs/vite-plugin-astro/internal/core/render-scope/collect.js';
+import type {
+	RenderCollectorScope as BaseRenderCollectorScope,
+	RenderCollectors as BaseRenderCollectors,
+} from '@astrojs/vite-plugin-astro/internal/core/render-scope/scope.js';
+import type { SerializedStaticImage } from '../../../assets/types.js';
+
 export type { RoutesList } from '../../../types/astro.js';
 export { App } from '../app.js';
 export {
@@ -18,16 +25,16 @@ export {
 export {
 	getInstalledRenderScope,
 	installRenderScope,
-	type RenderCollectors,
-	type RenderCollectorScope,
-} from '../../render-scope/scope.js';
+} from '@astrojs/vite-plugin-astro/internal/core/render-scope/scope.js';
+export type RenderCollectors = BaseRenderCollectors<SerializedStaticImage>;
+export type RenderCollectorScope = BaseRenderCollectorScope<SerializedStaticImage>;
 /** @deprecated `getImage()` records the images it resolves. */
-export { recordStaticImage } from '../../render-scope/record.js';
+export { recordStaticImage } from '@astrojs/vite-plugin-astro/internal/core/render-scope/record.js';
 export {
 	collectPrerenderMetadata,
-	type CollectedPrerenderMetadata,
 	type CollectPrerenderMetadataOptions,
-} from '../../render-scope/collect.js';
+} from '@astrojs/vite-plugin-astro/internal/core/render-scope/collect.js';
+export type CollectedPrerenderMetadata = BaseCollectedPrerenderMetadata<SerializedStaticImage>;
 export {
 	renderForPrerender,
 	type PrerenderableApp,

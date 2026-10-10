@@ -9,7 +9,7 @@ import {
 	InternalError,
 	isAstroError,
 	MarkdownError,
-} from '../../../dist/core/errors/errors.js';
+} from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
 
 describe('Error type checking', () => {
 	describe('AstroError.is()', () => {

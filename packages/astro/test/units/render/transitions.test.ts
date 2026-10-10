@@ -8,7 +8,7 @@ import {
 	stringifyAnimation,
 	stringifyAnimations,
 	toTimeValue,
-} from '../../../dist/runtime/server/transition.js';
+} from '@astrojs/vite-plugin-astro/internal/runtime/server/transition.js';
 import type { SSRResult } from '../../../dist/types/public/internal.js';
 
 describe('reEncode', () => {

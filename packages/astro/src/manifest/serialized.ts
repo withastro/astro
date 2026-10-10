@@ -16,7 +16,12 @@ import {
 	shouldTrackCspHashes,
 } from '../core/csp/common.js';
 import { partitionByKind } from '../core/csp/runtime.js';
-import { createKey, encodeKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
+import {
+	createKey,
+	encodeKey,
+	getEnvironmentKey,
+	hasEnvironmentKey,
+} from '@astrojs/vite-plugin-astro/internal/core/encryption.js';
 import { MIDDLEWARE_MODULE_ID } from '../core/middleware/vite-plugin.js';
 import { SERVER_ISLAND_MANIFEST } from '../core/server-islands/vite-plugin-server-islands.js';
 import { VIRTUAL_CACHE_PROVIDER_ID } from '../core/cache/vite-plugin.js';

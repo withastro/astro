@@ -10,7 +10,10 @@ import {
 } from '../app/origin-check.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
 import { renderErrorFromState } from '../errors/handler.js';
-import { isRoute404, isRoute500 } from '../routing/internal/route-errors.js';
+import {
+	isRoute404,
+	isRoute500,
+} from '@astrojs/vite-plugin-astro/internal/core/routing/internal/route-errors.js';
 
 // Shared empty-slots object so we don't allocate `{}` on every render for
 // requests that don't come from the container API. Safe to share because

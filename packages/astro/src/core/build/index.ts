@@ -17,8 +17,15 @@ import { resolveConfig } from '../config/config.js';
 import { loadOrCreateNodeLogger } from '../logger/load.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
-import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import {
+	createKey,
+	getEnvironmentKey,
+	hasEnvironmentKey,
+} from '@astrojs/vite-plugin-astro/internal/core/encryption.js';
+import {
+	AstroError,
+	AstroErrorData,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';

@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
 import type { LogLevel, Rolldown, Logger as ViteLogger } from 'vite';
-import { isAstroError } from '../errors/errors.js';
+import { isAstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
 import { serverShortcuts as formatServerShortcuts } from '../messages/runtime.js';
 import { type AstroLogger as AstroLogger, isLogLevelEnabled } from './core.js';
 

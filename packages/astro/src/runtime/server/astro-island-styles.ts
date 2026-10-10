@@ -1,1 +1,3 @@
-export const ISLAND_STYLES = 'astro-island,astro-slot,astro-static-slot{display:contents}';
+// NOTE: Although this entrypoint is exported, it is internal API and may change at any time.
+
+export * from '@astrojs/vite-plugin-astro/internal/runtime/server/astro-island-styles.js';

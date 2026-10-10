@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { errorMap } from '../dist/core/errors/zod-error-map.js';
+import { errorMap } from '@astrojs/vite-plugin-astro/internal/core/errors/zod-error-map.js';
 import { z } from '../dist/zod.js';
 import { fixLineEndings } from './test-utils.ts';
 

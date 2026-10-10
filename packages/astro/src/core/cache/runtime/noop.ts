@@ -1,5 +1,5 @@
-import { AstroError } from '../../errors/errors.js';
-import { CacheNotEnabled } from '../../errors/errors-data.js';
+import { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
+import { CacheNotEnabled } from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
 import type { CacheLike } from './cache.js';
 import type { CacheOptions } from '../types.js';
 import type { AstroLogger } from '../../logger/core.js';

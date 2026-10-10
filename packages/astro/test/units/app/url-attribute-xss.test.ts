@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { addAttribute } from '../../../dist/runtime/server/render/util.js';
+import { addAttribute } from '@astrojs/vite-plugin-astro/internal/runtime/server/render/util.js';
 
 describe('addAttribute URL XSS', () => {
 	it('escapes double quotes in HTTP URLs containing &', () => {

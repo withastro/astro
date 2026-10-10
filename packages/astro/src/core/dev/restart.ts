@@ -12,8 +12,8 @@ import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createSettings, resolveConfig } from '../config/index.js';
 import { clearCrawlCache, createVite } from '../create-vite.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
-import { isAstroConfigZodError } from '../errors/errors.js';
-import { createSafeError } from '../errors/index.js';
+import { isAstroConfigZodError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
+import { createSafeError } from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import { loadOrCreateNodeLogger } from '../logger/load.js';
 import {
 	formatErrorMessage,

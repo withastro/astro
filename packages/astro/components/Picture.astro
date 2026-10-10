@@ -8,7 +8,10 @@ import {
 } from 'astro:assets';
 import * as mime from 'mrmime';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from '../dist/assets/utils/imageKind.js';
-import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
+import {
+	AstroError,
+	AstroErrorData,
+} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
 import type {
 	GetImageResult,
 	ImageOutputFormat,

@@ -15,7 +15,7 @@ import {
 	renderUniqueStylesheet,
 	unescapeHTML,
 } from '../../../dist/runtime/server/index.js';
-import type { AstroComponentFactory } from '../../../dist/runtime/server/render/index.js';
+import type { AstroComponentFactory } from '@astrojs/vite-plugin-astro/internal/runtime/server/render/index.js';
 import type { TestPipeline } from '../test-utils.ts';
 import { createBasicPipeline, renderThroughMiddleware } from '../test-utils.ts';
 
