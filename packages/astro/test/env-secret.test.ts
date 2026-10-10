@@ -14,6 +14,9 @@ describe('astro:env secret variables', () => {
 		if (process.env.KNOWN_SECRET) {
 			delete process.env.KNOWN_SECRET;
 		}
+		if (process.env.HOSTILE_VAR) {
+			delete process.env.HOSTILE_VAR;
+		}
 	});
 
 	it('works in dev', async () => {
@@ -68,6 +71,21 @@ describe('astro:env secret variables', () => {
 
 		assert.equal(data.KNOWN_SECRET, 123456);
 		assert.equal(data.UNKNOWN_SECRET, 'abc');
+	});
+
+	it('works in dev when an env variable contains `$` replacement patterns', async () => {
+		// `$``, `$&`, `$'` and `$1` are special patterns in `String.replace`
+		// and must be treated as literal text when inlining env variables.
+		// See https://github.com/withastro/astro/issues/18329
+		process.env.KNOWN_SECRET = '5';
+		process.env.HOSTILE_VAR = 'a$`b$&c$\'d$1e';
+		fixture = await loadFixture({
+			root: './fixtures/astro-env-server-secret/',
+			outDir: './dist/env-secret-hostile-env-variable/',
+		});
+		devServer = await fixture.startDevServer();
+		const response = await fixture.fetch('/');
+		assert.equal(response.status, 200);
 	});
 
 	it('fails if validateSecrets is enabled and secret is not set', async () => {
