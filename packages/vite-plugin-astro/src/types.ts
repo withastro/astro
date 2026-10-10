@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 /**
  * Types of the Astro component language: compiled component factories, renderers, client
  * directives, the per-render `SSRResult`, and the `Astro` global.
