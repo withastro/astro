@@ -7,6 +7,8 @@ interface AstroQuery {
 	raw?: boolean;
 	inline?: boolean;
 	container?: boolean;
+	/** Set on style requests that must not be scoped to their component (see `cssScopeTo`). */
+	astroUnscoped?: boolean;
 }
 
 interface ParsedRequestResult {
@@ -37,6 +39,9 @@ export function parseAstroRequest(id: string): ParsedRequestResult {
 	}
 	if (query.container != null) {
 		query.container = true;
+	}
+	if (query.astroUnscoped != null) {
+		query.astroUnscoped = true;
 	}
 	return {
 		filename,

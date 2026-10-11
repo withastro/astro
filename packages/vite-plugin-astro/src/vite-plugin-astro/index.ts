@@ -36,6 +36,10 @@ export interface AstroCompilePluginOptions {
 	 * only emitted when this and `config.devToolbar.enabled` are true.
 	 */
 	toolbarEnabled: () => boolean | Promise<boolean>;
+	/** See `CompileProps.internalURL`. */
+	internalURL?: string;
+	/** See `CompileProps.transitionsAnimationURL`. */
+	transitionsAnimationURL?: string;
 }
 
 const astroFileToCompileMetadataWeakMap = new WeakMap<
@@ -48,6 +52,8 @@ export default function astro({
 	config,
 	logger,
 	toolbarEnabled: getToolbarEnabled,
+	internalURL,
+	transitionsAnimationURL,
 }: AstroCompilePluginOptions): vite.Plugin[] {
 	let server: vite.ViteDevServer | undefined;
 	let compile: (
@@ -62,8 +68,11 @@ export default function astro({
 	let astroFileToCompileMetadata = new Map<string, CompileMetadata>();
 
 	// Variables for determining if an id starts with /src...
-	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
-	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb) && srcRootWeb !== '/';
+	// `config` may be filled in after the plugin is created, so read it on use.
+	const isBrowserPath = (path: string) => {
+		const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
+		return path.startsWith(srcRootWeb) && srcRootWeb !== '/';
+	};
 	const notAstroComponent = (component: AstroComponent) =>
 		!component.resolvedPath.endsWith('.astro');
 
@@ -129,6 +138,8 @@ export default function astro({
 							filename,
 							source: code,
 							inlineComponentAssets,
+							internalURL,
+							transitionsAnimationURL,
 						},
 						astroFileToCompileMetadata,
 					});
@@ -203,14 +214,17 @@ export default function astro({
 							return {
 								code: result.code,
 								// `vite.cssScopeTo` is a Vite feature that allows this CSS to be treeshaken
-								// if the Astro component's default export is not used
-								meta: result.isGlobal
-									? undefined
-									: {
-											vite: {
-												cssScopeTo: [filename, 'default'],
+								// if the Astro component's default export is not used. Unscoped requests come
+								// from builds where the component itself is never imported, such as the
+								// client build that emits a server-rendered component's stylesheets.
+								meta:
+									result.isGlobal || query.astroUnscoped
+										? undefined
+										: {
+												vite: {
+													cssScopeTo: [filename, 'default'],
+												},
 											},
-										},
 							};
 						}
 						case 'script': {
