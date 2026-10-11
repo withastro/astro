@@ -28,7 +28,7 @@ describe('Standalone EADDRINUSE error handling', () => {
 		const port = address.port;
 
 		try {
-			const env = {
+			const env: Record<string, string | undefined> = {
 				...process.env,
 				HOST: '127.0.0.1',
 				PORT: String(port),
