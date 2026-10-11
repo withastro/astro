@@ -2,7 +2,7 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { AstroGlobal } from '../../types.js';
 
 // Matches `ASTRO_GENERATOR` in `astro`; `process.env.ASTRO_VERSION` is replaced at build time.
-const ASTRO_GENERATOR = `Astro v${process.env.ASTRO_VERSION ?? 'development'}`;
+export const ASTRO_GENERATOR = `Astro v${process.env.ASTRO_VERSION ?? 'development'}`;
 
 function createError(name: string) {
 	return new AstroError({

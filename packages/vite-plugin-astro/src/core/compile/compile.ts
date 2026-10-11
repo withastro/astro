@@ -33,6 +33,18 @@ export interface CompileProps {
 	filename: string;
 	source: string;
 	inlineComponentAssets?: boolean;
+	/**
+	 * Module that compiled components import their runtime from.
+	 *
+	 * @default '@astrojs/vite-plugin-astro/compiler-runtime'
+	 */
+	internalURL?: string;
+	/**
+	 * Stylesheet imported by components that use built-in `transition:animate` animations.
+	 *
+	 * @default '@astrojs/vite-plugin-astro/components/viewtransitions.css'
+	 */
+	transitionsAnimationURL?: string;
 }
 
 export interface CompileResult extends Omit<TransformResult, 'css'> {
@@ -46,6 +58,8 @@ export async function compile({
 	filename,
 	source,
 	inlineComponentAssets,
+	internalURL = '@astrojs/vite-plugin-astro/compiler-runtime',
+	transitionsAnimationURL = '@astrojs/vite-plugin-astro/components/viewtransitions.css',
 }: CompileProps): Promise<CompileResult> {
 	const cssPartialCompileResults: PartialCompileCssResult[] = [];
 	const cssTransformErrors: AstroError[] = [];
@@ -69,12 +83,12 @@ export async function compile({
 			inlineComponentAssets,
 			normalizedFilename: normalizeFilename(filename, astroConfig.root),
 			sourcemap: 'both',
-			internalURL: 'astro/compiler-runtime',
+			internalURL,
 			// TODO: remove in Astro v8
 			astroGlobalArgs: JSON.stringify(astroConfig.site),
 			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
 			resultScopedSlot: true,
-			transitionsAnimationURL: 'astro/components/viewtransitions.css',
+			transitionsAnimationURL,
 			// Source annotations only serve the dev toolbar. Vitest also runs Vite in `serve`,
 			// so skip them in `test` mode to keep rendered markup (e.g. from the Container API)
 			// free of machine-specific paths. See https://github.com/withastro/astro/issues/18162

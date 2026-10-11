@@ -208,6 +208,9 @@ export async function createVite(
 				config: settings.config,
 				logger,
 				toolbarEnabled: () => settings.preferences.get('devToolbar.enabled'),
+				// User projects depend on `astro`, not on the package, and adapters pre-bundle these ids.
+				internalURL: 'astro/compiler-runtime',
+				transitionsAnimationURL: 'astro/components/viewtransitions.css',
 			}),
 			astroScriptsPlugin({ scripts: settings.scripts }),
 			// The server plugin is for dev only and having it run during the build causes

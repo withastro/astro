@@ -1,0 +1,15 @@
+---
+import Card from './Card.astro';
+import './global.css';
+
+const { title } = Astro.props;
+---
+<html lang="en">
+	<head>
+		<title>{title}</title>
+	</head>
+	<body>
+		<h1>{title}</h1>
+		<Card />
+	</body>
+</html>

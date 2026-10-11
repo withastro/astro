@@ -7333,6 +7333,24 @@ importers:
         specifier: ^8.3.3
         version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1)
 
+  packages/vite-plugin-astro/test/fixtures/standalone:
+    dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../..
+      react:
+        specifier: ^19.3.0
+        version: 19.3.0
+      react-dom:
+        specifier: ^19.3.0
+        version: 19.3.0(react@19.3.0)
+      vite:
+        specifier: ^8.3.3
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1)
+
   scripts:
     dependencies:
       jsonc-parser:
