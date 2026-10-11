@@ -1,6 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { handleHotUpdate, isStyleOnlyChanged } from '../../../dist/vite-plugin-astro/hmr.js';
+import {
+	handleHotUpdate,
+	isStyleOnlyChanged,
+} from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/hmr.js';
 import { defaultLogger } from '../test-utils.ts';
 
 function createHmrTestContext({

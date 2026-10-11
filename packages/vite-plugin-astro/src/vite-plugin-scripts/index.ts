@@ -3,14 +3,23 @@ import {
 	PAGE_SCRIPT_ID,
 	PAGE_SSR_SCRIPT_ID,
 	SCRIPT_ID_PREFIX,
-} from '@astrojs/vite-plugin-astro/internal/vite-plugin-scripts/const.js';
-import type { Plugin as VitePlugin, ConfigEnv } from 'vite';
-import type { AstroSettings } from '../types/astro.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+} from './const.js';
+import type { ConfigEnv, Plugin as VitePlugin } from 'vite';
 
 export { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID, PAGE_SSR_SCRIPT_ID };
 
-export default function astroScriptsPlugin({ settings }: { settings: AstroSettings }): VitePlugin {
+/** A script added to every page, such as by an integration's `injectScript()`. */
+export interface InjectedScript {
+	stage: 'head-inline' | 'before-hydration' | 'page' | 'page-ssr';
+	content: string;
+}
+
+export interface ScriptsPluginOptions {
+	/** Read on every load, so scripts added after the plugin is created are included. */
+	scripts: readonly InjectedScript[];
+}
+
+export default function astroScriptsPlugin({ scripts }: ScriptsPluginOptions): VitePlugin {
 	let command: 'build' | 'serve';
 	return {
 		name: 'astro:scripts',
@@ -34,7 +43,7 @@ export default function astroScriptsPlugin({ settings }: { settings: AstroSettin
 			handler(id) {
 				if (id === BEFORE_HYDRATION_SCRIPT_ID) {
 					return {
-						code: settings.scripts
+						code: scripts
 							.filter((s) => s.stage === 'before-hydration')
 							.map((s) => s.content)
 							.join('\n'),
@@ -42,7 +51,7 @@ export default function astroScriptsPlugin({ settings }: { settings: AstroSettin
 				}
 				if (id === PAGE_SCRIPT_ID) {
 					return {
-						code: settings.scripts
+						code: scripts
 							.filter((s) => s.stage === 'page')
 							.map((s) => s.content)
 							.join('\n'),
@@ -50,7 +59,7 @@ export default function astroScriptsPlugin({ settings }: { settings: AstroSettin
 				}
 				if (id === PAGE_SSR_SCRIPT_ID) {
 					return {
-						code: settings.scripts
+						code: scripts
 							.filter((s) => s.stage === 'page-ssr')
 							.map((s) => s.content)
 							.join('\n'),
@@ -60,12 +69,11 @@ export default function astroScriptsPlugin({ settings }: { settings: AstroSettin
 		},
 		buildStart() {
 			if (command === 'serve') return;
-			const hasHydrationScripts = settings.scripts.some((s) => s.stage === 'before-hydration');
+			const hasHydrationScripts = scripts.some((s) => s.stage === 'before-hydration');
 			if (
 				hasHydrationScripts &&
-				(this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
-					this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
-					this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr)
+				(this.environment.config.consumer === 'client' ||
+					this.environment.config.consumer === 'server')
 			) {
 				this.emitFile({
 					type: 'chunk',

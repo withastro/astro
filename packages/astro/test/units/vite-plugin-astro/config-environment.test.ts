@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type * as vite from 'vite';
 import { defaultClientConditions } from 'vite';
-import astro from '../../../dist/vite-plugin-astro/index.js';
+import astro from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/index.js';
 import { createBasicSettings, defaultLogger } from '../test-utils.ts';
 
 function getConfigEnvironmentHook(plugins: vite.Plugin[]) {
@@ -14,7 +14,13 @@ function getConfigEnvironmentHook(plugins: vite.Plugin[]) {
 describe('vite-plugin-astro configEnvironment', () => {
 	it('adds the `astro` resolve condition exactly once across repeated calls', async () => {
 		const settings = await createBasicSettings();
-		const configEnvironment = getConfigEnvironmentHook(astro({ settings, logger: defaultLogger }));
+		const configEnvironment = getConfigEnvironmentHook(
+			astro({
+				config: settings.config,
+				logger: defaultLogger,
+				toolbarEnabled: () => false,
+			}),
+		);
 		assert.equal(typeof configEnvironment, 'function');
 
 		// On dev server restart, `configEnvironment` runs again and the resolved

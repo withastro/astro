@@ -15,7 +15,10 @@ import { normalizePath } from '../core/viteUtils.js';
 import { shorthash } from '@astrojs/vite-plugin-astro/internal/runtime/server/shorthash.js';
 import type { AstroSettings } from '../types/astro.js';
 import { createDefaultAstroMetadata } from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/metadata.js';
-import { getFileInfo, specialQueriesRE } from '../vite-plugin-utils/index.js';
+import {
+	getFileInfo,
+	specialQueriesRE,
+} from '@astrojs/vite-plugin-astro/internal/vite-plugin-utils/index.js';
 import { getMarkdownCodeForImages, type MarkdownImagePath } from './images.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../core/constants.js';
 

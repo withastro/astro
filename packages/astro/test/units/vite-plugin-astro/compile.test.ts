@@ -4,9 +4,9 @@ import { pathToFileURL } from 'node:url';
 import { init, parse } from 'es-module-lexer/minimal';
 import { resolveConfig } from 'vite';
 import type { InlineConfig } from 'vite';
-import { compileAstro } from '../../../dist/vite-plugin-astro/compile.js';
+import { compileAstro } from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/compile.js';
 import type { AstroConfig } from '../../../dist/types/public/config.js';
-import type { CompileProps } from '../../../dist/core/compile/compile.js';
+import type { CompileProps } from '@astrojs/vite-plugin-astro/internal/core/compile/compile.js';
 
 // #region Helpers
 

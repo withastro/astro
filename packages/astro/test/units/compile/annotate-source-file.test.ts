@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { resolveConfig } from 'vite';
-import { compile } from '../../../dist/core/compile/index.js';
+import { compile } from '@astrojs/vite-plugin-astro/internal/core/compile/index.js';
 import type { AstroConfig } from '../../../dist/types/public/config.js';
 
 async function compileInMode(mode: string) {

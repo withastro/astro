@@ -1,22 +1,25 @@
 import MagicString from 'magic-string';
 import { normalizePath, type Plugin as VitePlugin } from 'vite';
-import { isPage } from '../core/util.js';
-import type { AstroSettings } from '../types/astro.js';
-import { PAGE_SSR_SCRIPT_ID } from './index.js';
-import { isAstroServerEnvironment } from '../environments.js';
+import { PAGE_SSR_SCRIPT_ID } from './const.js';
+import type { InjectedScript } from './index.js';
+
+export interface ScriptsPageSsrPluginOptions {
+	scripts: readonly InjectedScript[];
+	/** Whether a module is a page, which receives the `page-ssr` scripts. */
+	isPage: (file: URL) => boolean;
+}
 
 export default function astroScriptsPostPlugin({
-	settings,
-}: {
-	settings: AstroSettings;
-}): VitePlugin {
+	scripts,
+	isPage,
+}: ScriptsPageSsrPluginOptions): VitePlugin {
 	return {
 		name: 'astro:scripts:page-ssr',
 		enforce: 'post',
 		transform(this, code, id) {
-			if (!isAstroServerEnvironment(this.environment)) return;
+			if (this.environment.config.consumer !== 'server') return;
 
-			const hasInjectedScript = settings.scripts.some((s) => s.stage === 'page-ssr');
+			const hasInjectedScript = scripts.some((s) => s.stage === 'page-ssr');
 			if (!hasInjectedScript) return;
 
 			const filename = normalizePath(id);
@@ -28,7 +31,7 @@ export default function astroScriptsPostPlugin({
 				return;
 			}
 
-			const fileIsPage = isPage(fileURL, settings);
+			const fileIsPage = isPage(fileURL);
 			if (!fileIsPage) return;
 
 			const s = new MagicString(code, { filename });

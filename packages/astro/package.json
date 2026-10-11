@@ -136,7 +136,6 @@
     "aria-query": "^5.3.2",
     "axobject-query": "^4.1.0",
     "ci-info": "^4.4.0",
-    "common-ancestor-path": "^2.0.0",
     "cookie": "^2.0.1",
     "devalue": "^6.0.2",
     "diff": "^9.0.0",

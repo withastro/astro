@@ -39,7 +39,7 @@ import type {
 	SSRManifest,
 } from '../types/public/internal.js';
 import { getComponentMetadata } from '../vite-plugin-astro-server/metadata.js';
-import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
+import { PAGE_SCRIPT_ID } from '@astrojs/vite-plugin-astro/internal/vite-plugin-scripts/index.js';
 
 /**
  * Per-manifest slot for the runnable dev server's renderers. Unlike every
