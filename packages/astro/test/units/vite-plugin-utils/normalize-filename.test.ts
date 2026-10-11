@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import * as path from 'node:path';
 import { describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
-import { normalizeFilename } from '../../../dist/vite-plugin-utils/index.js';
+import { normalizeFilename } from '@astrojs/vite-plugin-astro/internal/vite-plugin-utils/index.js';
 
 // Build a fixture path that is absolute on both POSIX and Windows. On POSIX,
 // `path.resolve('/Users/me/project')` is `/Users/me/project`; on Windows it

@@ -6,7 +6,10 @@ import { resolveMiddlewareMode } from '../../../integrations/adapter-utils.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../../manifest/serialized.js';
 import type { ExtractedChunk } from '../static-build.js';
-import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
+import {
+	BEFORE_HYDRATION_SCRIPT_ID,
+	PAGE_SCRIPT_ID,
+} from '@astrojs/vite-plugin-astro/internal/vite-plugin-scripts/index.js';
 import { toFallbackType } from '../../app/common.js';
 import { serializeRouteData, toRoutingStrategy } from '../../app/entrypoints/index.js';
 import type {

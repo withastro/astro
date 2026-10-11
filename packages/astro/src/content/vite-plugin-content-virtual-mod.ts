@@ -10,7 +10,7 @@ import {
 import { rootRelativePath } from '../core/viteUtils.js';
 import { isAstroClientEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
-import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
+import type { AstroPluginMetadata } from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/index.js';
 import { createDefaultAstroMetadata } from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/metadata.js';
 import {
 	ASSET_IMPORTS_FILE,

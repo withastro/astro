@@ -1,9 +1,15 @@
-import { fileURLToPath } from 'node:url';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
-import { hasSpecialQueries } from '../vite-plugin-utils/index.js';
+import { hasSpecialQueries } from '@astrojs/vite-plugin-astro/internal/vite-plugin-utils/index.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
-import { removeQueryString, slash } from './path.js';
+import { removeQueryString } from './path.js';
+
+export {
+	unwrapId,
+	VALID_ID_PREFIX,
+	viteID,
+	wrapId,
+} from '@astrojs/vite-plugin-astro/internal/core/vite-id.js';
 
 /** Check if a file is a markdown file based on its extension */
 export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
@@ -50,27 +56,6 @@ export function parseNpmName(
  *   Linux/Mac:  /Users/astro/code/my-project/src/pages/index.astro
  *   Windows:    C:/Users/astro/code/my-project/src/pages/index.astro
  */
-export function viteID(filePath: URL): string {
-	return slash(fileURLToPath(filePath) + filePath.search);
-}
-
-export const VALID_ID_PREFIX = `/@id/`;
-const NULL_BYTE_PLACEHOLDER = `__x00__`;
-const NULL_BYTE_REGEX = /^\0/;
-
-// Strip valid id prefix and replace null byte placeholder. Both are prepended to resolved ids
-// as they are not valid browser import specifiers (by the Vite's importAnalysis plugin)
-export function unwrapId(id: string): string {
-	return id.startsWith(VALID_ID_PREFIX)
-		? id.slice(VALID_ID_PREFIX.length).replace(NULL_BYTE_PLACEHOLDER, '\0')
-		: id;
-}
-
-// Reverses `unwrapId` function
-export function wrapId(id: string): string {
-	return id.replace(NULL_BYTE_REGEX, `${VALID_ID_PREFIX}${NULL_BYTE_PLACEHOLDER}`);
-}
-
 export function resolvePages(config: AstroConfig) {
 	return new URL('./pages', config.srcDir);
 }

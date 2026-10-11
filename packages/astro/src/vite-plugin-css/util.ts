@@ -22,3 +22,10 @@ export function getDevCssModuleNameFromPageVirtualModuleName(
 		RESOLVED_MODULE_DEV_CSS_PREFIX,
 	);
 }
+
+/** The dev CSS module of a page virtual module, or `undefined` for other modules. */
+export function getDevCssModuleIdForInvalidatedModule(moduleId: string): string | undefined {
+	return moduleId.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)
+		? getDevCssModuleNameFromPageVirtualModuleName(moduleId)
+		: undefined;
+}

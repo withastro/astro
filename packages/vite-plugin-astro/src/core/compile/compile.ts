@@ -6,19 +6,28 @@ import {
 	type TransformResult,
 } from '@astrojs/compiler-rs';
 import type { ResolvedConfig } from 'vite';
-import type { AstroConfig } from '../../types/public/config.js';
-import type { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
-import {
-	AggregateError,
-	CompilerError,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
-import { AstroErrorData } from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
-import { normalizePath, resolvePath } from '../viteUtils.js';
+import type { AstroError } from '../errors/errors.js';
+import { AggregateError, CompilerError } from '../errors/errors.js';
+import { AstroErrorData } from '../errors/index.js';
+import { resolvePath } from '@astrojs/internal-helpers/mdx';
+import { normalizePath } from '../vite-id.js';
 import { createStylePreprocessor, type PartialCompileCssResult } from './style.js';
-import type { CompileCssResult } from '@astrojs/vite-plugin-astro/internal/core/compile/types.js';
+import type { CompileCssResult } from './types.js';
+
+/**
+ * The project configuration the compiler reads. `AstroConfig` satisfies it.
+ */
+export interface CompileConfig {
+	root: URL;
+	site?: string;
+	base: string;
+	compressHTML: boolean | 'jsx';
+	scopedStyleStrategy: 'where' | 'class' | 'attribute';
+	devToolbar: { enabled: boolean };
+}
 
 export interface CompileProps {
-	astroConfig: AstroConfig;
+	astroConfig: CompileConfig;
 	viteConfig: ResolvedConfig;
 	toolbarEnabled: boolean;
 	filename: string;

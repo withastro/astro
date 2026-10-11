@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import configHeadVitePlugin from '../../../dist/vite-plugin-head/index.js';
+import configHeadVitePlugin from '@astrojs/vite-plugin-astro/internal/vite-plugin-head/index.js';
 
 const METADATA_ID = '\0virtual:astro:component-metadata';
 const PAGE_ID = '/src/pages/index.astro';
@@ -18,7 +18,7 @@ function createMockModule(id: string, hasTransformResult = false) {
  * `invalidateModule` call the plugin makes against the metadata module.
  */
 function setupPlugin(moduleIds: string[], { withTransformResults = false } = {}) {
-	const plugin = configHeadVitePlugin() as any;
+	const plugin = configHeadVitePlugin({ environments: ['ssr', 'prerender'] }) as any;
 	const invalidated: string[] = [];
 	const modules = new Map(moduleIds.map((id) => [id, createMockModule(id, withTransformResults)]));
 	const deletedEtags: string[] = [];

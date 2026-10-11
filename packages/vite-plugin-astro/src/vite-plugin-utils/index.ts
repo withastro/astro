@@ -4,11 +4,18 @@ import {
 	appendExtension,
 	appendForwardSlash,
 	removeLeadingForwardSlashWindows,
-} from '../core/path.js';
-import { viteID } from '../core/util.js';
-import type { AstroConfig } from '../types/public/config.js';
+} from '@astrojs/internal-helpers/path';
+import { viteID } from '../core/vite-id.js';
 
-export function getFileInfo(id: string, config: AstroConfig) {
+/** The config fields `getFileInfo` reads to compute a page module's URL. */
+export interface FileInfoConfig {
+	site?: string;
+	base: string;
+	trailingSlash: 'always' | 'never' | 'ignore';
+	build: { format: 'file' | 'directory' | 'preserve' };
+}
+
+export function getFileInfo(id: string, config: FileInfoConfig) {
 	const sitePathname = appendForwardSlash(
 		config.site ? new URL(config.base, config.site).pathname : config.base,
 	);

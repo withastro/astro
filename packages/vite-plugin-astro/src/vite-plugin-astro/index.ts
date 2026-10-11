@@ -1,34 +1,54 @@
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
-import type { AstroLogger } from '../core/logger/core.js';
-import { isAstroServerEnvironment } from '../environments.js';
-import type { AstroSettings } from '../types/astro.js';
-import type { AstroConfig } from '../types/public/config.js';
-import { normalizeFilename, specialQueriesRE } from '../vite-plugin-utils/index.js';
+import type { CompileConfig } from '../core/compile/index.js';
+import {
+	type FileInfoConfig,
+	normalizeFilename,
+	specialQueriesRE,
+} from '../vite-plugin-utils/index.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
-import { handleHotUpdate } from './hmr.js';
+import { type HmrLogger, handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
 import type {
 	AstroComponent,
 	PluginMetadata as AstroPluginMetadata,
 	CompileMetadata,
-} from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/types.js';
+} from './types.js';
 import { loadId } from './utils.js';
 
-export { getAstroMetadata } from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/metadata.js';
+export { getAstroMetadata } from './metadata.js';
 export type { AstroPluginMetadata };
 
-interface AstroPluginOptions {
-	settings: AstroSettings;
-	logger: AstroLogger;
+/** The project configuration the `.astro` compile plugin reads. `AstroConfig` satisfies it. */
+export interface AstroCompileConfig extends CompileConfig, FileInfoConfig {
+	srcDir: URL;
+	publicDir: URL;
 }
 
-const astroFileToCompileMetadataWeakMap = new WeakMap<AstroConfig, Map<string, CompileMetadata>>();
+export interface AstroCompilePluginOptions {
+	/**
+	 * Project configuration. Compile metadata is shared between builds that use the same object.
+	 */
+	config: AstroCompileConfig;
+	logger: HmrLogger;
+	/**
+	 * Whether the user enabled the dev toolbar in their preferences. Source file annotations are
+	 * only emitted when this and `config.devToolbar.enabled` are true.
+	 */
+	toolbarEnabled: () => boolean | Promise<boolean>;
+}
+
+const astroFileToCompileMetadataWeakMap = new WeakMap<
+	AstroCompileConfig,
+	Map<string, CompileMetadata>
+>();
 
 /** Transform .astro files for Vite */
-export default function astro({ settings, logger }: AstroPluginOptions): vite.Plugin[] {
-	const { config } = settings;
+export default function astro({
+	config,
+	logger,
+	toolbarEnabled: getToolbarEnabled,
+}: AstroCompilePluginOptions): vite.Plugin[] {
 	let server: vite.ViteDevServer | undefined;
 	let compile: (
 		code: string,
@@ -52,7 +72,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			name: 'astro:build:css-hmr',
 			enforce: 'pre',
 			applyToEnvironment(environment) {
-				return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
+				return environment.config.consumer === 'client';
 			},
 			transform: {
 				filter: {
@@ -98,7 +118,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				}
 			},
 			async configResolved(viteConfig) {
-				const toolbarEnabled = await settings.preferences.get('devToolbar.enabled');
+				const toolbarEnabled = await getToolbarEnabled();
 				// Initialize `compile` function to simplify usage later
 				compile = (code, filename, inlineComponentAssets) => {
 					return compileAstro({
@@ -198,7 +218,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 								throw new Error(`Requests for scripts must include an index`);
 							}
 							// SSR script only exists to make them appear in the module graph.
-							if (isAstroServerEnvironment(this.environment)) {
+							if (this.environment.config.consumer === 'server') {
 								return {
 									code: `/* client script, empty in SSR: ${id} */`,
 									moduleType: 'ts',
@@ -271,7 +291,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 					// If an Astro component is imported in code used on the client, we return an empty
 					// module so that Vite doesn’t bundle the server-side Astro code for the client.
-					if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+					if (this.environment.config.consumer === 'client') {
 						return {
 							code: `export default import.meta.env.DEV
 									? () => {

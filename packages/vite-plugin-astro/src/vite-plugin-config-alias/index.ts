@@ -1,9 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { CompilerOptions } from 'typescript';
 import { normalizePath, type Plugin as VitePlugin } from 'vite';
 
-import type { AstroSettings } from '../types/astro.js';
+/** The project's parsed tsconfig, whose `compilerOptions.paths`/`baseUrl` become aliases. */
+export interface ConfigAliasOptions {
+	tsConfig: { compilerOptions?: object } | undefined;
+	tsConfigPath: string | undefined;
+}
 
 type Alias = {
 	find: RegExp;
@@ -11,11 +14,13 @@ type Alias = {
 };
 
 /** Returns a list of compiled aliases. */
-const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
-	const { tsConfig, tsConfigPath } = settings;
+const getConfigAlias = ({ tsConfig, tsConfigPath }: ConfigAliasOptions): Alias[] | null => {
 	if (!tsConfig || !tsConfigPath || !tsConfig.compilerOptions) return null;
 
-	const { baseUrl, paths } = tsConfig.compilerOptions as CompilerOptions;
+	const { baseUrl, paths } = tsConfig.compilerOptions as {
+		baseUrl?: string;
+		paths?: Record<string, string[]>;
+	};
 
 	// If paths exist but baseUrl doesn't, default to "." (tsconfig directory)
 	const effectiveBaseUrl = baseUrl ?? (paths ? '.' : undefined);
@@ -115,12 +120,10 @@ const cssUrlRE = /(?<!@import\s+)url\(\s*['"]([^'"]+)['"]\s*\)/g;
  * @deprecated This fallback will be removed in a future Astro version once Vite
  * handles these remaining alias paths.
  */
-export default function configAliasVitePlugin({
-	settings,
-}: {
-	settings: AstroSettings;
-}): VitePlugin[] | null {
-	const configAlias = getConfigAlias(settings);
+export default function configAliasVitePlugin(
+	aliasOptions: ConfigAliasOptions,
+): VitePlugin[] | null {
+	const configAlias = getConfigAlias(aliasOptions);
 	if (!configAlias) return null;
 
 	return [

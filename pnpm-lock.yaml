@@ -568,9 +568,6 @@ importers:
       ci-info:
         specifier: ^4.4.0
         version: 4.4.0
-      common-ancestor-path:
-        specifier: ^2.0.0
-        version: 2.0.0
       cookie:
         specifier: ^2.0.1
         version: 2.0.1
@@ -7310,12 +7307,21 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      common-ancestor-path:
+        specifier: ^2.0.0
+        version: 2.0.0
+      magic-string:
+        specifier: ^1.4.2
+        version: 1.4.3
       rolldown:
         specifier: ^1.2.11
         version: 1.2.15
       smol-toml:
         specifier: ^1.9.0
         version: 1.9.1
+      ultrahtml:
+        specifier: ^1.7.0
+        version: 1.7.0
       zod:
         specifier: ^4.6.5
         version: 4.6.5

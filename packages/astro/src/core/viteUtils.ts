@@ -1,19 +1,13 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { prependForwardSlash, slash } from '../core/path.js';
+import { prependForwardSlash } from '../core/path.js';
 import type { ModuleLoader } from './module-loader/index.js';
 import { unwrapId, VALID_ID_PREFIX, viteID } from './util.js';
 
 export { resolvePath } from '@astrojs/internal-helpers/mdx';
+import { normalizePath } from '@astrojs/vite-plugin-astro/internal/core/vite-id.js';
 
-const isWindows = typeof process !== 'undefined' && process.platform === 'win32';
-
-/**
- * Re-implementation of Vite's normalizePath that can be used without Vite
- */
-export function normalizePath(id: string) {
-	return path.posix.normalize(isWindows ? slash(id) : id);
-}
+export { CSS_LANGS_RE, normalizePath } from '@astrojs/vite-plugin-astro/internal/core/vite-id.js';
 
 export function rootRelativePath(
 	root: URL,
@@ -58,7 +52,3 @@ export async function resolveIdToUrl(loader: ModuleLoader, id: string, root?: UR
 	}
 	return VALID_ID_PREFIX + resultId;
 }
-
-// https://github.com/vitejs/vite/blob/2f9428d1ffd988e30cb253d5bb84844fb1654e86/packages/vite/src/node/constants.ts#L108
-// Used by isCSSRequest() under the hood
-export const CSS_LANGS_RE = /\.(css|less|sass|scss|styl|stylus|pcss|postcss|sss)(?:$|\?)/;

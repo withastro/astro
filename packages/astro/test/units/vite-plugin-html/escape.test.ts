@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { transform } from '../../../dist/vite-plugin-html/transform/index.js';
+import { transform } from '@astrojs/vite-plugin-astro/internal/vite-plugin-html/transform/index.js';
 import {
 	escapeTemplateLiteralCharacters,
 	needsEscape,
-} from '../../../dist/vite-plugin-html/transform/utils.js';
+} from '@astrojs/vite-plugin-astro/internal/vite-plugin-html/transform/utils.js';
 
 describe('vite-plugin-html: escape utilities', () => {
 	describe('needsEscape', () => {

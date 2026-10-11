@@ -27,23 +27,23 @@ import type { AstroSettings, RoutesList } from '../types/astro.js';
 import { vitePluginAdapterConfig } from '../vite-plugin-adapter-config/index.js';
 import { vitePluginApp } from '../vite-plugin-app/index.js';
 import { vitePluginFetchable } from './fetch/vite-plugin.js';
-import astroVitePlugin from '../vite-plugin-astro/index.js';
+import astroVitePlugin from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
-import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
+import configAliasVitePlugin from '@astrojs/vite-plugin-astro/internal/vite-plugin-config-alias/index.js';
 import { astroDevCssContentCachePlugin, astroDevCssPlugin } from '../vite-plugin-css/index.js';
-import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
-import astroHeadPlugin from '../vite-plugin-head/index.js';
-import astroHmrReloadPlugin from '../vite-plugin-hmr-reload/index.js';
-import htmlVitePlugin from '../vite-plugin-html/index.js';
+import vitePluginFileURL from '@astrojs/vite-plugin-astro/internal/vite-plugin-fileurl/index.js';
+import astroHeadPlugin from '@astrojs/vite-plugin-astro/internal/vite-plugin-head/index.js';
+import astroHmrReloadPlugin from '@astrojs/vite-plugin-astro/internal/vite-plugin-hmr-reload/index.js';
+import htmlVitePlugin from '@astrojs/vite-plugin-astro/internal/vite-plugin-html/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
-import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
+import astroLoadFallbackPlugin from '@astrojs/vite-plugin-astro/internal/vite-plugin-load-fallback/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import { pluginPage, pluginPages } from '../vite-plugin-pages/index.js';
 import vitePluginRenderers from '../vite-plugin-renderers/index.js';
 import astroPluginRoutes from '../vite-plugin-routes/index.js';
 import vitePluginStaticPaths from '../vite-plugin-static-paths/index.js';
-import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
-import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
+import astroScriptsPlugin from '@astrojs/vite-plugin-astro/internal/vite-plugin-scripts/index.js';
+import astroScriptsPageSSRPlugin from '@astrojs/vite-plugin-astro/internal/vite-plugin-scripts/page-ssr.js';
 import type { AstroLogger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
@@ -54,6 +54,8 @@ import { vitePluginCacheProvider } from './cache/vite-plugin.js';
 import { vitePluginSessionDriver, vitePluginSessionProvider } from './session/vite-plugin.js';
 import { vitePluginLogger } from './logger/vite-plugin.js';
 import { isObject } from './util-runtime.js';
+import { isPage } from './util.js';
+import { getDevCssModuleIdForInvalidatedModule } from '../vite-plugin-css/util.js';
 import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
 import { vitePluginChromedevtools } from '../vite-plugin-chromedevtools/index.js';
@@ -200,10 +202,14 @@ export async function createVite(
 			vitePluginEnvironment({ settings, astroPkgsConfig, command }),
 			pluginPage({ routesList }),
 			pluginPages({ routesList }),
-			configAliasVitePlugin({ settings }),
+			configAliasVitePlugin({ tsConfig: settings.tsConfig, tsConfigPath: settings.tsConfigPath }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
-			astroVitePlugin({ settings, logger }),
-			astroScriptsPlugin({ settings }),
+			astroVitePlugin({
+				config: settings.config,
+				logger,
+				toolbarEnabled: () => settings.preferences.get('devToolbar.enabled'),
+			}),
+			astroScriptsPlugin({ scripts: settings.scripts }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
 			vitePluginApp(),
@@ -217,8 +223,13 @@ export async function createVite(
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
 			astroIntegrationsContainerPlugin({ settings, logger }),
-			astroScriptsPageSSRPlugin({ settings }),
-			astroHeadPlugin(),
+			astroScriptsPageSSRPlugin({
+				scripts: settings.scripts,
+				isPage: (file) => isPage(file, settings),
+			}),
+			astroHeadPlugin({
+				environments: [ASTRO_VITE_ENVIRONMENT_NAMES.ssr, ASTRO_VITE_ENVIRONMENT_NAMES.prerender],
+			}),
 			astroContentVirtualModPlugin({ fs, settings }),
 			astroContentImportPlugin({ fs, settings, logger }),
 			astroContentAssetPropagationPlugin({ settings, cssContentCache }),
@@ -236,7 +247,7 @@ export async function createVite(
 			vitePluginCacheProvider({ settings }),
 			vitePluginLogger({ settings }),
 			astroContainer(),
-			astroHmrReloadPlugin(),
+			astroHmrReloadPlugin({ getDevCssModuleId: getDevCssModuleIdForInvalidatedModule }),
 			vitePluginChromedevtools({ settings }),
 			command === 'dev' && vitePluginDevStatus(),
 		],

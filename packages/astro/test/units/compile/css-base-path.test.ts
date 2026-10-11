@@ -2,9 +2,9 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { resolveConfig } from 'vite';
-import { compileAstro } from '../../../dist/vite-plugin-astro/compile.js';
+import { compileAstro } from '@astrojs/vite-plugin-astro/internal/vite-plugin-astro/compile.js';
 import type { AstroConfig } from '../../../dist/types/public/config.js';
-import type { CompileProps } from '../../../dist/core/compile/compile.js';
+import type { CompileProps } from '@astrojs/vite-plugin-astro/internal/core/compile/compile.js';
 
 /** Compile Astro source with a given base path. */
 async function compileWithBase(source: string, base = '/') {

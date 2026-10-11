@@ -1,8 +1,5 @@
 import { isRunnableDevEnvironment, type EnvironmentModuleNode, type Plugin } from 'vite';
-import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
-import { RESOLVED_MODULE_DEV_CSS_PREFIX } from '@astrojs/vite-plugin-astro/internal/vite-plugin-css/const.js';
-import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css/util.js';
-import { isAstroServerEnvironment } from '../environments.js';
+import { RESOLVED_MODULE_DEV_CSS_PREFIX } from '../vite-plugin-css/const.js';
 
 const STYLE_EXT_REGEX = /\.(?:css|less|sass|scss|styl|stylus|pcss|postcss|sss)$/i;
 const STYLE_COMPONENT_EXT_REGEX = /\.(astro|svelte|vue)$/i;
@@ -61,14 +58,22 @@ function hasClientStyleModuleByFile(
  * which will require a full page reload. This mimics the behaviour of Vite 5 where
  * it used to unconditionally reload for us.
  */
-export default function hmrReload(): Plugin {
+export interface HmrReloadPluginOptions {
+	/**
+	 * Returns the id of the dev CSS module collected for an invalidated module (such as a page), so
+	 * it is invalidated too.
+	 */
+	getDevCssModuleId?: (invalidatedModuleId: string) => string | undefined;
+}
+
+export default function hmrReload({ getDevCssModuleId }: HmrReloadPluginOptions = {}): Plugin {
 	return {
 		name: 'astro:hmr-reload',
 		enforce: 'post',
 		hotUpdate: {
 			order: 'post',
 			handler({ modules, server, timestamp, file }) {
-				if (!isAstroServerEnvironment(this.environment)) return;
+				if (this.environment.config.consumer !== 'server') return;
 
 				let hasSsrOnlyModules = false;
 				let hasStyleModules = false;
@@ -119,13 +124,12 @@ export default function hmrReload(): Plugin {
 					}
 				};
 
-				// If any invalidated modules are virtual modules for pages, also invalidate their
-				// associated dev CSS modules, if any.
+				// If any invalidated modules have associated dev CSS modules, invalidate those too.
 				for (const invalidatedModule of invalidatedModules) {
-					if (invalidatedModule.id?.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) {
-						const cssMod = this.environment.moduleGraph.getModuleById(
-							getDevCssModuleNameFromPageVirtualModuleName(invalidatedModule.id),
-						);
+					const devCssModuleId =
+						invalidatedModule.id != null ? getDevCssModuleId?.(invalidatedModule.id) : undefined;
+					if (devCssModuleId) {
+						const cssMod = this.environment.moduleGraph.getModuleById(devCssModuleId);
 						if (!cssMod || cssMod.id == null) continue;
 						this.environment.moduleGraph.invalidateModule(cssMod, undefined, timestamp, true);
 					}
