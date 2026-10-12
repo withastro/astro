@@ -11,6 +11,8 @@ describe('experimental.parallelPrerender', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/parallel-prerender/',
+			// Enough capacity that the second worker never fills up, so scheduling is deterministic.
+			build: { concurrency: 16 },
 			experimental: { parallelPrerender: { workers: 2 } },
 		});
 		await fixture.build();
@@ -31,16 +33,18 @@ describe('experimental.parallelPrerender', () => {
 		assert.ok(Number(renderedIn) > 0, 'expected a worker thread id');
 	});
 
-	it('calls getStaticPaths once and renders its paths in several workers', async () => {
+	it('calls getStaticPaths once and renders its paths in another worker', async () => {
 		const pages = await Promise.all(
 			['one', 'two', 'three', 'four', 'five', 'six'].map((slug) =>
 				read(`/items/${slug}/index.html`),
 			),
 		);
-		const discoveryThreads = new Set(pages.map((page) => page.discoveredIn));
-		assert.equal(discoveryThreads.size, 1, 'expected every item from one getStaticPaths call');
-		assert.ok(new Set(pages.map((page) => page.renderedIn)).size > 1);
-		for (const page of pages) assert.equal(page.date, new Date(0).toISOString());
+		const [{ discoveredIn }] = pages;
+		for (const page of pages) {
+			assert.equal(page.discoveredIn, discoveredIn);
+			assert.notEqual(page.renderedIn, discoveredIn);
+			assert.equal(page.date, new Date(0).toISOString());
+		}
 	});
 
 	it('renders paths with props that cannot be cloned in the discovery worker', async () => {

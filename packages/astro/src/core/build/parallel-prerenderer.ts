@@ -349,22 +349,31 @@ class PrerenderWorkerPool {
 	}
 
 	#pump() {
-		let assigned = true;
-		while (!this.#closing && assigned && this.#queue.length > 0) {
-			assigned = false;
-			for (const state of this.#workers) {
-				if (!state.ready || state.failed || state.active >= this.#workerConcurrency) continue;
-				const isDiscoveryWorker = state === this.#workers[0];
-				const index = this.#queue.findIndex((job) => isDiscoveryWorker || !job.discoveryWorkerOnly);
-				if (index === -1) continue;
-				const [job] = this.#queue.splice(index, 1);
-				this.#assign(state, job, isDiscoveryWorker);
-				assigned = true;
-			}
-		}
+		if (this.#closing) return;
+		this.#queue = this.#queue.filter((job) => {
+			const state = this.#pickWorker(job);
+			if (!state) return true;
+			this.#assign(state, job);
+			return false;
+		});
 	}
 
-	#assign(state: WorkerState, job: RenderJob, isDiscoveryWorker: boolean) {
+	#pickWorker(job: RenderJob): WorkerState | undefined {
+		const [discoveryWorker, ...renderWorkers] = this.#workers;
+		const available = (state: WorkerState) =>
+			state.ready && !state.failed && state.active < this.#workerConcurrency;
+		if (!job.discoveryWorkerOnly) {
+			let best: WorkerState | undefined;
+			for (const state of renderWorkers) {
+				if (available(state) && (!best || state.active < best.active)) best = state;
+			}
+			if (best) return best;
+		}
+		return available(discoveryWorker) ? discoveryWorker : undefined;
+	}
+
+	#assign(state: WorkerState, job: RenderJob) {
+		const isDiscoveryWorker = state === this.#workers[0];
 		const request: WithoutId<RenderWorkerRequest> = {
 			type: 'render',
 			url: job.url,
