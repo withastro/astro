@@ -62,7 +62,7 @@ importers:
         version: 3.9.9
       prettier-plugin-astro:
         specifier: ^1.1.0
-        version: 1.1.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9)
+        version: 1.1.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9)
       publint:
         specifier: ^0.3.25
         version: 0.3.25
@@ -6757,7 +6757,7 @@ importers:
   packages/language-tools/astro-check:
     dependencies:
       '@astrojs/language-server':
-        specifier: ^2.17.1
+        specifier: ^2.17.2
         version: link:../language-server
       chokidar:
         specifier: ^5.0.0
@@ -6876,7 +6876,7 @@ importers:
         specifier: workspace:*
         version: link:../../../astro
       svelte:
-        specifier: ^5.57.1
+        specifier: ^5.57.2
         version: 5.57.2(@typescript-eslint/types@8.71.0)
     devDependencies:
       tinyglobby:
@@ -6969,11 +6969,11 @@ importers:
         specifier: ^3.9.9
         version: 3.9.9
       prettier-plugin-astro:
-        specifier: ^1.1.0
-        version: 1.1.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9)
+        specifier: ^1.1.1
+        version: 1.1.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9)
     devDependencies:
       '@astrojs/language-server':
-        specifier: ^2.17.1
+        specifier: ^2.17.2
         version: link:../language-server
       '@astrojs/ts-plugin':
         specifier: ^1.10.12
@@ -7012,7 +7012,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(@types/node@22.19.19)(debug@4.4.3)(supports-color@10.2.2)
       rolldown:
-        specifier: ^1.2.12
+        specifier: ^1.2.13
         version: 1.2.13
       tsx:
         specifier: ^4.23.15
@@ -15059,8 +15059,8 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
-  prettier-plugin-astro@1.1.0:
-    resolution: {integrity: sha512-ujJ1VX+iin4eYJPHVCEbmXHzrEVsi1SaVehHtbAteTZv8VTrZyBiZPmYc6Ud6+fkr/UBMXuEu3N3+d49h7YfKw==}
+  prettier-plugin-astro@1.1.1:
+    resolution: {integrity: sha512-ykymNFOinCFXY4z4yF0978GgAvg6GRtrzCYg3+R1Nv/dndACwuEsSrUpHkJohER9FiwYMPKuYT38FbjCLmwu9A==}
     engines: {node: '>=22.12.0'}
     peerDependencies:
       prettier: ^3.5.3
@@ -25598,7 +25598,7 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier-plugin-astro@1.1.0(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9):
+  prettier-plugin-astro@1.1.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(prettier@3.9.9):
     dependencies:
       '@astrojs/compiler-rs': 0.4.1(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)
       '@prettier/parse-srcset': 3.1.0
