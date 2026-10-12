@@ -55,7 +55,11 @@ describe('Standalone EADDRINUSE error handling', () => {
 
 			// In unpatched Astro, the process silently exits with code 0.
 			// The expected behavior is that it exits with code 1 and outputs an error.
-			assert.notEqual(exitCode, 0, `Expected non-zero exit code, but got ${exitCode}. Output: ${stdout}\nStderr: ${stderr}`);
+			assert.notEqual(
+				exitCode,
+				0,
+				`Expected non-zero exit code, but got ${exitCode}. Output: ${stdout}\nStderr: ${stderr}`,
+			);
 			assert.equal(exitCode, 1);
 			assert.match(stderr + stdout, /EADDRINUSE/);
 		} finally {
