@@ -8,6 +8,7 @@ import { vitePluginActions } from '../actions/vite-plugin-actions.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
 import astroContainer from '../container/vite-plugin-container.js';
+import astroDynamic from '../dynamic/vite-plugin-dynamic.js';
 import {
 	astroContentAssetPropagationPlugin,
 	astroContentImportPlugin,
@@ -236,6 +237,7 @@ export async function createVite(
 			vitePluginCacheProvider({ settings }),
 			vitePluginLogger({ settings }),
 			astroContainer(),
+			astroDynamic({ enabled: settings.config.experimental?.dynamicComponents ?? false }),
 			astroHmrReloadPlugin(),
 			vitePluginChromedevtools({ settings }),
 			command === 'dev' && vitePluginDevStatus(),

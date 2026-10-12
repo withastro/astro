@@ -3638,6 +3638,55 @@ export interface AstroUserConfig<
 		 * were used. This can noticeably change response timing.
 		 */
 		treeShakeComponents?: boolean;
+
+		/**
+		 * @name experimental.dynamicComponents
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 7.4
+		 * @description
+		 *
+		 * Enables the `astro:dynamic` module, which renders a component chosen at
+		 * runtime together with only its own styles and links.
+		 *
+		 * A page sometimes selects which component to render from data, for example
+		 * when composing pages from CMS content (the "page builder" pattern). When a
+		 * page imports every candidate, Astro adds the styles of all of them to the
+		 * page even though only one renders.
+		 *
+		 * Import the candidate component with the `?assets` query through `dynamic()`
+		 * to keep it out of the page's own asset graph. The component's styles and
+		 * scripts are then added only when it renders.
+		 *
+		 * ```astro
+		 * ---
+		 * import { dynamic } from 'astro:dynamic';
+		 *
+		 * const loaders = {
+		 *   hero: () => import('../components/Hero.astro?assets'),
+		 *   cards: () => import('../components/Cards.astro?assets'),
+		 * };
+		 *
+		 * const Render = await dynamic(loaders[view.component]);
+		 * ---
+		 * <Render {...view.props} />
+		 * ```
+		 *
+		 * This works for prerendered and on-demand rendered pages, and adds the
+		 * styles through head propagation so streaming is preserved.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     dynamicComponents: true,
+		 *   },
+		 * });
+		 * ```
+		 */
+		dynamicComponents?: boolean;
 	};
 }
 

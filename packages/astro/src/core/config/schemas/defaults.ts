@@ -62,6 +62,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		incrementalBuild: false,
 		collectionStorage: 'single-file',
 		treeShakeComponents: false,
+		dynamicComponents: false,
 	},
 } satisfies AstroUserConfig & {
 	server: { open: boolean };
