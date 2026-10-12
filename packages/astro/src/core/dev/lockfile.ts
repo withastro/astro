@@ -140,7 +140,11 @@ export async function isLockFileProcessAlive(
 		const processInfo = (await find('pid', data.pid, { logLevel: 'error' })).find(
 			({ pid }) => pid === data.pid,
 		);
-		return processInfo?.cmd === undefined || isAstroCommand(processInfo.cmd);
+		// kill(pid, 0) also accepts a thread id on Linux, which ps does not list: not a running server.
+		if (processInfo === undefined) {
+			return false;
+		}
+		return processInfo.cmd === undefined || isAstroCommand(processInfo.cmd);
 	} catch {
 		return true;
 	}

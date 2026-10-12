@@ -277,10 +277,24 @@ describe('isLockFileProcessAlive', () => {
 		assert.equal(await isLockFileProcessAlive(data, findProcess), false);
 	});
 
-	it('keeps the PID-only result when the command cannot be inspected', async () => {
+	it('returns false when process lookup does not list the PID (e.g. Linux thread ID)', async () => {
 		const data = { ...validData, pid: childPid };
 
-		assert.equal(await isLockFileProcessAlive(data, async () => []), true);
+		assert.equal(await isLockFileProcessAlive(data, async () => []), false);
+	});
+
+	it('keeps the PID-only result when the process exists but its command cannot be inspected', async () => {
+		const data = { ...validData, pid: childPid };
+
+		assert.equal(
+			await isLockFileProcessAlive(data, async () => [
+				{
+					pid: childPid,
+					cmd: undefined,
+				},
+			]),
+			true,
+		);
 		assert.equal(
 			await isLockFileProcessAlive(data, async () => {
 				throw new Error('Process lookup failed');
