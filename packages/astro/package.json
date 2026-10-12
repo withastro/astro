@@ -191,7 +191,7 @@
   "devDependencies": {
     "@astrojs/check": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
-    "@playwright/test": "1.63.0",
+    "@playwright/test": "1.64.0",
     "@types/aria-query": "^5.0.4",
     "@types/html-escaper": "3.0.4",
     "@types/http-cache-semantics": "^4.2.0",
