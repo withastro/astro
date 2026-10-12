@@ -1,7 +1,9 @@
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AstroConfig } from 'astro';
 import { type ExportSpecifier, type ImportSpecifier, parse } from 'es-module-lexer/minimal';
-import { normalizePath, type Plugin } from 'vite';
+import type { Plugin } from 'vite';
+import { slash } from '@astrojs/internal-helpers/path';
 import type { AstroMetadata } from '@astrojs/internal-helpers/markdown';
 import {
 	ASTRO_IMAGE_ELEMENT,
@@ -12,6 +14,13 @@ import { type FileInfo, getFileInfo } from './utils.js';
 
 const underscoreFragmentImportRegex = /[\s,{]_Fragment[\s,}]/;
 const astroTagComponentImportRegex = /[\s,{]__astro_tag_component__[\s,}]/;
+
+const isWindows = typeof process !== 'undefined' && process.platform === 'win32';
+
+/** Matches Vite's `normalizePath` so manifest keys line up without a runtime `vite` import. */
+function normalizePath(id: string) {
+	return path.posix.normalize(isWindows ? slash(id) : id);
+}
 
 // These transforms must happen *after* JSX runtime transformations
 export function vitePluginMdxPostprocess(astroConfig: AstroConfig): Plugin {
