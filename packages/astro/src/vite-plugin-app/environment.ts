@@ -19,6 +19,7 @@ import {
 import { loadRenderer } from '../core/render/index.js';
 import { getDefaultRoutes } from '../core/routing/default.js';
 import { routeIsRedirect } from '../core/routing/helpers.js';
+import { createRewriteRouteValidator } from '../core/routing/rewrite-validate.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import { getRouteTable } from '../core/routing/route-table.js';
 import { isPage } from '../core/util.js';
@@ -113,15 +114,6 @@ export function createRunnableEnvironment({
 			return RedirectComponentInstance;
 		}
 
-		const filePath = new URL(`${routeData.component}`, manifest.rootDir);
-
-		// First check built-in routes
-		for (const route of getDefaultRoutes(manifest)) {
-			if (route.matchesComponent(filePath)) {
-				return route.instance;
-			}
-		}
-
 		// Important: This needs to happen first, in case a renderer provides polyfills.
 		if (settings) {
 			const renderers__ = settings.renderers.map((r) => loadRenderer(r, loader));
@@ -130,6 +122,15 @@ export function createRunnableEnvironment({
 				manifest,
 				renderers_.filter((r): r is SSRLoadedRenderer => Boolean(r)),
 			);
+		}
+
+		const filePath = new URL(`${routeData.component}`, manifest.rootDir);
+
+		// Check built-in routes
+		for (const route of getDefaultRoutes(manifest)) {
+			if (route.matchesComponent(filePath)) {
+				return route.instance;
+			}
 		}
 
 		try {
@@ -252,7 +253,7 @@ export function createRunnableEnvironment({
 			payload: RewritePayload,
 			request: Request,
 		): Promise<TryRewriteResult> {
-			const { routeData, pathname, newUrl } = findRouteToRewrite({
+			const { routeData, pathname, newUrl } = await findRouteToRewrite({
 				payload,
 				request,
 				// The single fresh route table: HMR route updates are visible
@@ -262,6 +263,7 @@ export function createRunnableEnvironment({
 				buildFormat: manifest.buildFormat,
 				base: manifest.base,
 				outDir: manifest.outDir,
+				validate: createRewriteRouteValidator(manifest, getComponentByRoute),
 			});
 
 			const componentInstance = await getComponentByRoute(manifest, routeData);

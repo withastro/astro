@@ -14,7 +14,6 @@ import { isPromise } from '../util.js';
 import { type AstroComponentFactory, isAstroComponentFactory } from './astro/factory.js';
 import { renderTemplate } from './astro/index.js';
 import { createAstroComponentInstance } from './astro/instance.js';
-import { bufferHeadContent } from './astro/render.js';
 import {
 	chunkToString,
 	Fragment,
@@ -25,6 +24,7 @@ import {
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { maybeRenderHead } from './head.js';
 import { createRenderInstruction } from './instruction.js';
+import { bufferPropagatedHead } from './head-propagation/runtime.js';
 import { containsServerDirective, ServerIslandComponent } from './server-islands.js';
 import { renderChild } from './any.js';
 import { type ComponentSlots, renderSlots, renderSlotToString } from './slot.js';
@@ -560,7 +560,11 @@ export async function renderComponentToString(
 
 		const renderInstance = await renderComponent(result, displayName, Component, props, slots);
 		if (containsServerDirective(props)) {
-			await bufferHeadContent(result);
+			// This render may be one of the pending slot pre-renders (an island in a
+			// component slot in MDX), so awaiting them would wait on itself (#18156).
+			// The island's own slots are fully rendered by its `init()`, so their
+			// propagators are still collected.
+			await bufferPropagatedHead(result, { awaitPendingSlots: false });
 		}
 		await renderInstance.render(destination);
 	} catch (e) {

@@ -10,6 +10,7 @@ import {
 } from '../render/ssr-element.js';
 import { getDefaultRoutes } from '../routing/default.js';
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
+import { createRewriteRouteValidator } from '../routing/rewrite-validate.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import type { HeadElements, RenderEnvironment, TryRewriteResult } from './index.js';
 
@@ -119,7 +120,7 @@ export const productionEnvironment: RenderEnvironment = {
 		payload: RewritePayload,
 		request: Request,
 	): Promise<TryRewriteResult> {
-		const { newUrl, pathname, routeData } = findRouteToRewrite({
+		const { newUrl, pathname, routeData } = await findRouteToRewrite({
 			payload,
 			request,
 			// RAW manifest routes, NOT the derived route table: production
@@ -136,6 +137,7 @@ export const productionEnvironment: RenderEnvironment = {
 			buildFormat: manifest.buildFormat,
 			base: manifest.base,
 			outDir: manifest.serverLike ? manifest.buildClientDir : manifest.outDir,
+			validate: createRewriteRouteValidator(manifest, getComponentByRoute),
 		});
 
 		const componentInstance = await getComponentByRoute(manifest, routeData);

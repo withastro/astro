@@ -9,7 +9,7 @@ const fixtureRoot = fileURLToPath(new URL('./fixtures/vitest-actions/', import.m
 describe('astro:actions in the Cloudflare vitest pool', () => {
 	it('imports without unhandled WebAssembly errors in workerd', () => {
 		// Reproduces https://github.com/withastro/astro/issues/17906: importing
-		// `astro:actions` under `@cloudflare/vitest-pool-workers` used to load
+		// `astro:actions` under `@cloudflare/vitest-plugin` used to load
 		// `es-module-lexer`, whose WebAssembly init is disallowed by workerd,
 		// surfacing as an unhandled rejection that failed the test run.
 		try {

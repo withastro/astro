@@ -40,9 +40,20 @@ describe('Static Assets', () => {
 		const config = await getVercelConfig(fixture);
 		const theAssets = assets ?? (await getAssets());
 
-		const route = config.routes.find((r) => r.src === `^/${theAssets}/(.*)$`);
-		assert.equal(route!.headers['cache-control'], VALID_CACHE_CONTROL);
-		assert.equal(route!.continue, true);
+		const routeIndex = config.routes.findIndex(
+			(r) => r.headers?.['cache-control'] === VALID_CACHE_CONTROL,
+		);
+		assert.notEqual(routeIndex, -1, 'expected a cache-control rule for hashed assets');
+		const route = config.routes[routeIndex];
+		assert.equal(route.src, `^/${theAssets.replaceAll('.', '\\.')}(?:/(.*))$`);
+		assert.equal(route.continue, true);
+
+		const handleIndex = config.routes.findIndex((r) => r.handle === 'filesystem');
+		assert.notEqual(handleIndex, -1, 'expected a filesystem handle');
+		assert.ok(
+			routeIndex < handleIndex,
+			`expected the cache-control rule (index ${routeIndex}) before the filesystem handle (index ${handleIndex})`,
+		);
 	}
 
 	describe('static adapter', () => {

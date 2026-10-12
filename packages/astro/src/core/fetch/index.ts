@@ -10,12 +10,13 @@ import { handleAction } from '../../actions/handler.js';
 import { FetchState as BaseFetchState } from './fetch-state.js';
 import type { AstroFetchState } from './fetch-state.js';
 export type { AstroFetchState };
-import { handleCache } from '../cache/handler.js';
-import { finalizeI18n, getI18n } from '../i18n/handler.js';
+import { provideAndHandleCache } from '../cache/handler.js';
+import { handleI18nWithErrorFallback } from '../i18n/error-fallback.js';
+import { getI18n } from '../i18n/handler.js';
 import { getAmbientManifest } from '../manifest/ambient.js';
 import { handleMiddlewareWithErrorFallback } from '../middleware/astro-middleware.js';
 import { handlePagesWithErrorFallback } from '../pages/handler.js';
-import { renderRedirect } from '../redirects/render.js';
+import { handleRedirects } from '../redirects/render.js';
 import { handleRequest } from '../routing/handler.js';
 import { provideSession } from '../session/provider.js';
 import { handleTrailingSlash } from '../routing/trailing-slash-handler.js';
@@ -86,21 +87,20 @@ export function sessions(state: FetchState): Promise<void> | void {
 /**
  * Checks if the matched route is a redirect and returns the redirect
  * `Response` if so. Returns `undefined` when the route is not a
- * redirect and the caller should continue processing.
+ * redirect and the caller should continue processing. Returns an empty
+ * `400` when the request path is over-encoded.
  * `state.routeData` must be set before calling this.
  */
 export function redirects(state: FetchState): Promise<Response> | undefined {
-	if (state.routeData?.type === 'redirect') {
-		return renderRedirect(state);
-	}
-	return undefined;
+	return handleRedirects(state);
 }
 
 /**
  * Handles Astro Action requests (RPC + form). Returns a `Response` for
  * RPC actions, or `undefined` for form actions / non-action requests
  * (the caller should continue to page rendering). Lazily creates
- * the render context if needed.
+ * the render context if needed. Returns an empty `400` when the request
+ * path is over-encoded, without running any action.
  */
 export function actions(state: FetchState): Promise<Response | undefined> | undefined {
 	return handleAction(state.getAPIContext(), state);
@@ -109,21 +109,23 @@ export function actions(state: FetchState): Promise<Response | undefined> | unde
 /**
  * Post-processes a response against the manifest's i18n configuration.
  * Handles locale redirects, 404s for invalid locales, and fallback
- * routing. Returns the response unmodified if i18n is not configured
- * (or the routing strategy is `manual`).
+ * routing. A null-body 404 produced for an invalid locale path renders
+ * the 404 error page. Returns the response unmodified if i18n is not
+ * configured (or the routing strategy is `manual`).
  */
 export function i18n(state: FetchState, response: Response): Promise<Response> {
 	const compiled = getI18n(state.manifest);
 	if (!compiled) return Promise.resolve(response);
-	return finalizeI18n(compiled, state, response);
+	return handleI18nWithErrorFallback(compiled, state, response);
 }
 
 /**
  * Wraps a render callback with cache provider logic. Handles runtime
  * caching (onRequest), CDN-based providers (headers only), and the
  * no-cache case transparently. Cache headers are applied and stripped
- * internally.
+ * internally. Registers the cache provider on the state before calling
+ * `next`, so `ctx.cache` / `Astro.cache` are available downstream.
  */
 export function cache(state: FetchState, next: () => Promise<Response>): Promise<Response> {
-	return handleCache(state, next);
+	return provideAndHandleCache(state, next);
 }

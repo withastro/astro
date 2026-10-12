@@ -32,38 +32,28 @@ import {
 	getInjectableWebAnalyticsContent,
 	type VercelWebAnalyticsConfig,
 } from './lib/web-analytics.js';
+import {
+	ASTRO_LOCALS_HEADER,
+	ASTRO_MIDDLEWARE_SECRET_HEADER,
+	ASTRO_PATH_HEADER,
+	ASTRO_PATH_PARAM,
+	ASTRO_PATH_TOKEN_PARAM,
+	NODE_PATH,
+} from './serverless/constants.js';
 import { generateEdgeMiddleware, type IsrForwarding } from './serverless/middleware.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
 
 const PACKAGE_NAME = '@astrojs/vercel';
 
-/**
- * The edge function calls the node server at /_render,
- * with the original path as the value of this header.
- */
-export const ASTRO_PATH_HEADER = 'x-astro-path';
-export const ASTRO_PATH_PARAM = 'x_astro_path';
-
-/**
- * ISR functions receive the target path through the `x_astro_path` query
- * parameter instead of a header. Because that parameter travels on the URL, it
- * is accompanied by this token so the entrypoint can confirm the path override
- * came from Astro's own build-time route rewrite rather than from an arbitrary
- * caller. The value is the per-build `middlewareSecret`.
- */
-export const ASTRO_PATH_TOKEN_PARAM = 'x_astro_path_token';
-
-/**
- * The edge function calls the node server at /_render,
- * with the locals serialized into this header.
- */
-export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
-export const ASTRO_MIDDLEWARE_SECRET_HEADER = 'x-astro-middleware-secret';
+export {
+	ASTRO_LOCALS_HEADER,
+	ASTRO_MIDDLEWARE_SECRET_HEADER,
+	ASTRO_PATH_HEADER,
+	ASTRO_PATH_PARAM,
+	ASTRO_PATH_TOKEN_PARAM,
+	NODE_PATH,
+};
 export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
-
-// Vercel routes the folder names to a path on the deployed website.
-// We attempt to avoid interfering by prefixing with an underscore.
-export const NODE_PATH = '_render';
 const MIDDLEWARE_PATH = '_middleware';
 
 // Unlike serverless and edge functions, ISR functions are not passed the
@@ -565,21 +555,18 @@ export default function vercelAdapter({
 				}
 				const fourOhFourRoute = routes.find((route) => route.pathname === '/404');
 				const vercelConfigJson = new URL('./.vercel/output/config.json', _config.root);
-				const finalRoutes: Route[] = [
-					{
-						src: `^/${_config.build.assets}/(.*)$`,
-						headers: {
-							'cache-control': 'public, max-age=31536000, immutable',
-						},
-						continue: true,
-					},
-				];
+				const finalRoutes: Route[] = [];
 				if (_hasServerBuild) {
 					finalRoutes.push(...routeDefinitions);
 				}
 
 				if (fourOhFourRoute) {
 					if (_buildOutput === 'server') {
+						// When the 404 page is prerendered, serve /404.html with a
+						// forced 404 status.  When it is server-rendered, forward to
+						// the function without forcing a status so middleware rewrites
+						// to valid routes can return 200.  Genuinely unmatched paths
+						// still get 404 from the server-rendered 404.astro page.
 						finalRoutes.push({
 							src: '/.*',
 							dest: fourOhFourRoute.isPrerendered
@@ -587,7 +574,7 @@ export default function vercelAdapter({
 								: _middlewareEntryPoint
 									? MIDDLEWARE_PATH
 									: NODE_PATH,
-							status: 404,
+							...(fourOhFourRoute.isPrerendered && { status: 404 }),
 						});
 					} else {
 						finalRoutes.push({
@@ -609,11 +596,17 @@ export default function vercelAdapter({
 					trailingSlash = _config.trailingSlash === 'always';
 				}
 
-				const { routes: redirects = [], error } = getTransformedRoutes({
+				// `headers` are emitted before the `filesystem` handle, which hashed assets always hit.
+				const { routes: transformedRoutes, error } = getTransformedRoutes({
 					trailingSlash,
 					rewrites: [],
 					redirects: getRedirects(routes, _config),
-					headers: [],
+					headers: [
+						{
+							source: `/${_config.build.assets}/(.*)`,
+							headers: [{ key: 'cache-control', value: 'public, max-age=31536000, immutable' }],
+						},
+					],
 				});
 				if (error) {
 					throw new AstroError(
@@ -642,7 +635,7 @@ export default function vercelAdapter({
 					images = getDefaultImageConfig(_config.image);
 				}
 
-				const normalized = normalizeRoutes([...(redirects ?? []), ...finalRoutes]);
+				const normalized = normalizeRoutes([...(transformedRoutes ?? []), ...finalRoutes]);
 				if (normalized.error) {
 					throw new AstroError(
 						`Error generating routes: ${normalized.error.message}`,

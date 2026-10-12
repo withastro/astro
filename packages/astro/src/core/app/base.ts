@@ -346,6 +346,7 @@ export abstract class BaseApp {
 			this.manifest.i18n,
 			this.manifest.base,
 			this.manifest.trailingSlash,
+			this.manifest.allowedDomains,
 			this.logger,
 		);
 	}

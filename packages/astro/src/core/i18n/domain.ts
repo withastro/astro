@@ -7,6 +7,11 @@ import {
 } from '@astrojs/internal-helpers/path';
 import { normalizeTheLocale } from '../../i18n/path.js';
 import type { SSRManifest } from '../app/types.js';
+import {
+	getFirstForwardedValue,
+	validateForwardedHeaders,
+	validateHost,
+} from '../app/validate-headers.js';
 import type { AstroLogger } from '../logger/core.js';
 
 /**
@@ -24,6 +29,7 @@ export function computePathnameFromDomain(
 	i18n: SSRManifest['i18n'],
 	base: SSRManifest['base'],
 	trailingSlash: SSRManifest['trailingSlash'],
+	allowedDomains: SSRManifest['allowedDomains'],
 	logger: AstroLogger,
 	pathnameFromRequest?: string,
 ): string | undefined {
@@ -35,21 +41,19 @@ export function computePathnameFromDomain(
 			i18n.strategy === 'domains-prefix-other-locales' ||
 			i18n.strategy === 'domains-prefix-always-no-redirect')
 	) {
-		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
-		let host = request.headers.get('X-Forwarded-Host');
-		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto
-		let protocol = request.headers.get('X-Forwarded-Proto');
-		if (protocol) {
-			// this header doesn't have a colon at the end, so we add to be in line with URL#protocol, which does have it
-			protocol = protocol + ':';
-		} else {
-			// we fall back to the protocol of the request
-			protocol = url.protocol;
-		}
-		if (!host) {
-			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Host
-			host = request.headers.get('Host');
-		}
+		const validated = validateForwardedHeaders(
+			getFirstForwardedValue(request.headers.get('X-Forwarded-Proto') ?? undefined),
+			getFirstForwardedValue(request.headers.get('X-Forwarded-Host') ?? undefined),
+			getFirstForwardedValue(request.headers.get('X-Forwarded-Port') ?? undefined),
+			allowedDomains,
+		);
+		const protocol = validated.protocol ? `${validated.protocol}:` : url.protocol;
+		const requestHost = request.headers.get('Host') ?? undefined;
+		const validatedRequestHost = allowedDomains?.length
+			? validateHost(requestHost, protocol.slice(0, -1), allowedDomains)
+			: requestHost;
+		// Forwarded and original hosts are validated against security.allowedDomains when configured.
+		let host = validated.host ?? validatedRequestHost;
 		// If we don't have a host and a protocol, it's impossible to proceed
 		if (host && protocol) {
 			// The header might have a port in their name, so we remove it

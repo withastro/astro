@@ -37,6 +37,7 @@ export default {
 			ignoreDependencies: [
 				'@astrojs/check', // Used by the build script but not as a standard module import
 				'bgproc', // Used by agents, documented in the AGENTS.md file
+				'rolldown', // Used by the bundle-size GitHub Action script in `.github/scripts`
 			],
 			// In smoke tests, we checkout to the docs repo so those binaries are not present in this project
 			// vsce and ovsx are only used in CI for publishing, and due to how we have to publish the VS Code extension have

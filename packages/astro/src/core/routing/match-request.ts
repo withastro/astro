@@ -51,6 +51,7 @@ export function matchRequest(
 		manifest.i18n,
 		manifest.base,
 		manifest.trailingSlash,
+		manifest.allowedDomains,
 		getLogger(manifest),
 	);
 	if (!pathname) {

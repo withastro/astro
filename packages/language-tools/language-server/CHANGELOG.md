@@ -1,5 +1,17 @@
 # @astrojs/language-server
 
+## 2.17.2
+
+### Patch Changes
+
+- [#18110](https://github.com/withastro/astro/pull/18110) [`ffdf774`](https://github.com/withastro/astro/commit/ffdf774b6fe5d39b196aef268b1d1e1c11c52cc0) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix organize imports for Astro files whose frontmatter ends with imports.
+
+## 2.17.1
+
+### Patch Changes
+
+- [#17578](https://github.com/withastro/astro/pull/17578) [`7cc0b00`](https://github.com/withastro/astro/commit/7cc0b0076e9630e3ced20e44950eee1a9ce6fb5a) Thanks [@renovate](https://github.com/apps/renovate)! - Fixes a case where rich content diagnostics and snippet edits would not work
+
 ## 2.17.0
 
 ### Minor Changes

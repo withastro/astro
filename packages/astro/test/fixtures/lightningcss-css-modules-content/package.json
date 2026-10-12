@@ -6,8 +6,8 @@
     "astro": "workspace:*",
     "@astrojs/mdx": "workspace:*",
     "@astrojs/react": "workspace:*",
-    "lightningcss": "^1.32.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "lightningcss": "^1.33.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
   }
 }

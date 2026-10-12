@@ -344,7 +344,7 @@ export async function runHookConfigSetup({
 			},
 		});
 
-		// Add custom client directives to settings, waiting for compiled code by esbuild
+		// Add custom client directives to settings, waiting for compiled code by rolldown
 		for (const [name, compiled] of addedClientDirectives) {
 			updatedSettings.clientDirectives.set(name, await compiled);
 		}

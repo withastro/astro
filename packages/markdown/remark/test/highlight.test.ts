@@ -16,6 +16,14 @@ describe('highlight', () => {
 		assert.ok(!code.includes('background-color:'));
 	});
 
+	it('keeps symbols at the end of the code block language', async () => {
+		const processor = await createMarkdownProcessor();
+		for (const lang of ['c#', 'c++', 'f#']) {
+			const { code } = await processor.render(`\`\`\`${lang}\nint x;\n\`\`\``);
+			assert.ok(code.includes(`data-language="${lang}"`), `expected data-language="${lang}"`);
+		}
+	});
+
 	it('highlights using prism', async () => {
 		const processor = await createMarkdownProcessor({
 			syntaxHighlight: {

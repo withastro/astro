@@ -32,9 +32,15 @@ const projects = (await getCollection('work'))
 					align="start"
 				>
 					<div class="roles">
-						<Pill><Icon icon="code" size="1.33em" /> Developer</Pill>
-						<Pill><Icon icon="microphone-stage" size="1.33em" /> Speaker</Pill>
-						<Pill><Icon icon="pencil-line" size="1.33em" /> Writer</Pill>
+						<Pill>
+							<Icon icon="code" size="1.33em" /> Developer
+						</Pill>
+						<Pill>
+							<Icon icon="microphone-stage" size="1.33em" /> Speaker
+						</Pill>
+						<Pill>
+							<Icon icon="pencil-line" size="1.33em" /> Writer
+						</Pill>
 					</div>
 				</Hero>
 
@@ -58,13 +64,11 @@ const projects = (await getCollection('work'))
 
 				<div class="gallery">
 					<Grid variant="offset">
-						{
-							projects.map((project) => (
-								<li>
-									<PortfolioPreview project={project} />
-								</li>
-							))
-						}
+						{projects.map((project) => (
+							<li>
+								<PortfolioPreview project={project} />
+							</li>
+						))}
 					</Grid>
 				</div>
 
@@ -87,13 +91,11 @@ const projects = (await getCollection('work'))
 
 				<div class="gallery">
 					<Grid variant="small">
-						{
-							['Medium', 'BuzzFeed', 'The Next Web', 'awwwards.', 'TechCrunch'].map((brand) => (
-								<li class="mention-card">
-									<p>{brand}</p>
-								</li>
-							))
-						}
+						{['Medium', 'BuzzFeed', 'The Next Web', 'awwwards.', 'TechCrunch'].map((brand) => (
+							<li class="mention-card">
+								<p>{brand}</p>
+							</li>
+						))}
 					</Grid>
 				</div>
 			</section>

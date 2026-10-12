@@ -1,5 +1,20 @@
 # @astrojs/markdown-satteri
 
+## 0.4.3
+
+### Patch Changes
+
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb), [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d)]:
+  - @astrojs/internal-helpers@0.12.0
+
+## 0.4.2
+
+### Patch Changes
+
+- [#17946](https://github.com/withastro/astro/pull/17946) [`3fd16ee`](https://github.com/withastro/astro/commit/3fd16eeb5cd096a6ceb8cc3e70b89ed30d6fcd4d) Thanks [@odysseus0](https://github.com/odysseus0)! - Fix syntax highlighting for fenced code blocks when raw HTML is enabled.
+
+- [#18046](https://github.com/withastro/astro/pull/18046) [`8358d59`](https://github.com/withastro/astro/commit/8358d59cba754480c7d830c473837a0d7100ac7e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `satteriHeadingIdsPlugin` sharing Slugger state across documents when reused as a user hast plugin, which caused headings with the same text in different posts to receive incorrect numeric suffixes
+
 ## 0.4.1
 
 ### Patch Changes

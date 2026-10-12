@@ -49,6 +49,7 @@ export class ServerIslandComponent {
 	componentPath: string | undefined;
 	componentExport: string | undefined;
 	componentId: string | undefined;
+	private initPromise: Promise<ThinHead> | undefined;
 	constructor(
 		result: SSRResult,
 		props: Record<string | number, any>,
@@ -61,7 +62,17 @@ export class ServerIslandComponent {
 		this.displayName = displayName;
 	}
 
-	async init(): Promise<ThinHead> {
+	/**
+	 * Pre-renders the island slots and records its CSP script hashes. Runs once;
+	 * later calls (every head-collection pass revisits all propagators) return
+	 * the first result.
+	 */
+	init(): Promise<ThinHead> {
+		this.initPromise ??= this.initImpl();
+		return this.initPromise;
+	}
+
+	private async initImpl(): Promise<ThinHead> {
 		const content = await this.getIslandContent();
 
 		if (this.result.cspDestination) {

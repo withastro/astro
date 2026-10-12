@@ -63,35 +63,39 @@ export function pluginScripts(internals: BuildInternals): VitePlugin {
 			assetInlineLimit = config.build.assetsInlineLimit;
 		},
 
-		async generateBundle(_options, bundle) {
-			const outputs = Object.values(bundle);
+		generateBundle: {
+			// Let Vite replace preload markers before copying chunk code into HTML.
+			order: 'post',
+			async handler(_options, bundle) {
+				const outputs = Object.values(bundle);
 
-			// Track ids that are imported by chunks so we don't inline scripts that are imported
-			const importedIds = new Set<string>();
-			for (const output of outputs) {
-				if (output.type === 'chunk') {
-					for (const id of output.imports) {
-						importedIds.add(id);
+				// Track ids that are imported by chunks so we don't inline scripts that are imported
+				const importedIds = new Set<string>();
+				for (const output of outputs) {
+					if (output.type === 'chunk') {
+						for (const id of output.imports) {
+							importedIds.add(id);
+						}
 					}
 				}
-			}
 
-			const getModuleInfo = this.getModuleInfo.bind(this);
-			for (const output of outputs) {
-				// Try to inline scripts that don't import anything as is within the inline limit
-				if (
-					output.type === 'chunk' &&
-					shouldInlineScriptChunk(output, {
-						discoveredScripts: internals.discoveredScripts,
-						importedIds,
-						assetInlineLimit,
-						getModuleInfo,
-					})
-				) {
-					internals.inlinedScripts.set(output.facadeModuleId!, output.code.trim());
-					delete bundle[output.fileName];
+				const getModuleInfo = this.getModuleInfo.bind(this);
+				for (const output of outputs) {
+					// Try to inline scripts that don't import anything as is within the inline limit
+					if (
+						output.type === 'chunk' &&
+						shouldInlineScriptChunk(output, {
+							discoveredScripts: internals.discoveredScripts,
+							importedIds,
+							assetInlineLimit,
+							getModuleInfo,
+						})
+					) {
+						internals.inlinedScripts.set(output.facadeModuleId!, output.code.trim());
+						delete bundle[output.fileName];
+					}
 				}
-			}
+			},
 		},
 	};
 }

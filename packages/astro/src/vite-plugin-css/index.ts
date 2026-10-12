@@ -9,6 +9,7 @@ import { getVirtualModulePageNameForComponent } from '../vite-plugin-pages/util.
 import { getDevCSSModuleName } from './util.js';
 import { CSS_LANGS_RE } from '../core/viteUtils.js';
 import { PROPAGATED_ASSET_QUERY_PARAM } from '../content/consts.js';
+import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
 import {
 	ASTRO_CSS_EXTENSION_POST_PATTERN,
 	MODULE_DEV_CSS,
@@ -60,6 +61,12 @@ async function ensureModulesLoaded(
 		// Mirror the stopping point used by collectCSSWithOrder — don't descend into propagated
 		// asset modules, as the CSS walk intentionally stops there too.
 		if (imp.id.includes(PROPAGATED_ASSET_QUERY_PARAM)) continue;
+		// Stop at page virtual module boundaries. When a page imports something that
+		// transitively pulls in virtual:astro:pages (e.g. via astro:config/server →
+		// virtual:astro:manifest), the walk would otherwise descend into every other
+		// page's module graph, fetching their CSS dependencies. This is the dev-mode
+		// counterpart of isBuildCssBoundary in plugin-css.ts. See #18060, #16116.
+		if (imp.id.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) continue;
 		// Skip virtual dev-css modules to prevent circular deadlocks with the Cloudflare adapter.
 		// The dev-css-all module statically imports all per-route dev-css:* modules, and those
 		// modules' load handlers may already be running (waiting on ensureModulesLoaded), causing
@@ -129,6 +136,9 @@ function* collectCSSWithOrder(
 	// Recursively walk imported modules (depth-first)
 	for (const imp of imported) {
 		if (imp.id && !seen.has(imp?.id)) {
+			// Stop at page virtual module boundaries to prevent CSS from other pages
+			// leaking in when the graph passes through virtual:astro:pages. See #18060.
+			if (imp.id.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) continue;
 			yield* collectCSSWithOrder(imp.id, imp, seen);
 		}
 	}

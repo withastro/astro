@@ -66,14 +66,31 @@ export function createRequestFromNodeRequest(
 
 	const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
 	const protocol = isEncrypted ? 'https' : 'http';
-	const hostname =
+	const untrustedHostname =
 		typeof req.headers.host === 'string'
 			? req.headers.host
 			: typeof req.headers[':authority'] === 'string'
 				? req.headers[':authority']
-				: serverPort
-					? `localhost:${serverPort}`
-					: 'localhost';
+				: undefined;
+
+	// Forwarded headers are applied later by FetchState, but the forwarded protocol is
+	// needed here to validate Host against protocol-specific allowedDomains patterns.
+	const validatedForwardedHeaders = validateForwardedHeaders(
+		getFirstForwardedValue(req.headers['x-forwarded-proto']),
+		getFirstForwardedValue(req.headers['x-forwarded-host']),
+		getFirstForwardedValue(req.headers['x-forwarded-port']),
+		allowedDomains,
+	);
+	const validatedHostname = validateHost(
+		untrustedHostname,
+		validatedForwardedHeaders.protocol ?? protocol,
+		allowedDomains,
+	);
+
+	// Only a Host matching allowedDomains may control Request.url. Otherwise, fall back
+	// to an origin controlled by the server, matching createRequest's security posture.
+	const fallbackHostname = serverPort ? `localhost:${serverPort}` : 'localhost';
+	const hostname = validatedHostname ?? fallbackHostname;
 
 	const url = buildRequestUrl(protocol, hostname, req.url, serverPort);
 
@@ -93,22 +110,8 @@ export function createRequestFromNodeRequest(
 
 	// Resolve client address. Trust X-Forwarded-For only when the Host
 	// header is validated against allowedDomains (same rule as createRequest).
-	const untrustedHostname = req.headers.host ?? req.headers[':authority'];
-	const validatedHostname = validateHost(
-		typeof untrustedHostname === 'string' ? untrustedHostname : undefined,
-		protocol,
-		allowedDomains,
-	);
-	// Only treat X-Forwarded-Host as trusted when it actually matches
-	// allowedDomains, mirroring `createRequest`. Checking that the header
-	// is merely present would accept any value.
-	const validatedForwardedHost = validateForwardedHeaders(
-		undefined,
-		getFirstForwardedValue(req.headers['x-forwarded-host']),
-		undefined,
-		allowedDomains,
-	).host;
-	const hostValidated = validatedHostname !== undefined || validatedForwardedHost !== undefined;
+	const hostValidated =
+		validatedHostname !== undefined || validatedForwardedHeaders.host !== undefined;
 	const forwardedClientIp = hostValidated
 		? getFirstForwardedValue(req.headers['x-forwarded-for'])
 		: undefined;

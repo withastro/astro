@@ -7,6 +7,7 @@ import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { createAssetLink, createStylesheetElementSet } from '../render/ssr-element.js';
 import { getDefaultRoutes } from '../routing/default.js';
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
+import { createRewriteRouteValidator } from '../routing/rewrite-validate.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import type { BuildInternals } from './internal.js';
 import { cssOrder, getPageData, mergeInlineCss } from './runtime.js';
@@ -182,7 +183,7 @@ export function createBuildEnvironment(): BuildEnvironmentSlots {
 			payload: RewritePayload,
 			request: Request,
 		): Promise<TryRewriteResult> {
-			const { routeData, pathname, newUrl } = findRouteToRewrite({
+			const { routeData, pathname, newUrl } = await findRouteToRewrite({
 				payload,
 				request,
 				// RAW manifest routes, exactly like `BuildPipeline.tryRewrite` — see
@@ -193,6 +194,7 @@ export function createBuildEnvironment(): BuildEnvironmentSlots {
 				buildFormat: manifest.buildFormat,
 				base: manifest.base,
 				outDir: manifest.serverLike ? manifest.buildClientDir : manifest.outDir,
+				validate: createRewriteRouteValidator(manifest, getComponentByRoute),
 			});
 
 			const componentInstance = await getComponentByRoute(manifest, routeData);

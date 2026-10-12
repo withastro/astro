@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
-import { init, parse } from 'es-module-lexer';
+import { init, parse } from 'es-module-lexer/minimal';
 import { resolveConfig } from 'vite';
 import type { InlineConfig } from 'vite';
 import { compileAstro } from '../../../dist/vite-plugin-astro/compile.js';
@@ -20,7 +20,12 @@ function makeAstroConfig(overrides: Partial<AstroConfig> = {}): AstroConfig {
 	} as AstroConfig;
 }
 
-async function compile(source: string, id: string, inlineConfig: InlineConfig = {}) {
+async function compile(
+	source: string,
+	id: string,
+	inlineConfig: InlineConfig = {},
+	inlineComponentAssets = false,
+) {
 	const viteConfig = await resolveConfig({ configFile: false, ...inlineConfig }, 'serve');
 	// compileAstro's CompileAstroOption traces back to src/AstroConfig via rewriteRelativeImportExtensions,
 	// but we import from dist/. The types are structurally identical at runtime; cast to bridge the gap.
@@ -30,6 +35,7 @@ async function compile(source: string, id: string, inlineConfig: InlineConfig = 
 		toolbarEnabled: false,
 		filename: id,
 		source,
+		inlineComponentAssets,
 	};
 	return (
 		compileAstro as (opts: {
@@ -85,12 +91,29 @@ const name = 'world
 
 	it('has file and url exports for markdown compat', async () => {
 		const result = await compile(`<h1>Hello World</h1>`, '/src/components/index.astro');
-		await init;
+		await init();
 		const [, exports] = parse(result.code);
 		const names = exports.map((e) => e.n);
 		assert.equal(names.includes('default'), true);
 		assert.equal(names.includes('file'), true);
 		assert.equal(names.includes('url'), true);
+	});
+
+	it('inlines direct styles and scripts for container imports', async () => {
+		const source = `<style>h1 { color: red; }</style><h1>Hello World</h1><script>console.log('hello')</script>`;
+		const id = '/src/components/index.astro';
+		const normalResult = await compile(source, id);
+		const result = await compile(source, id, {}, true);
+
+		assert.match(normalResult.code, /index\.astro\?astro&type=style/);
+		assert.doesNotMatch(result.code, /index\.astro\?astro&type=style/);
+		assert.match(result.code, /h1:where\(.astro-/);
+		assert.match(
+			result.code,
+			/\/src\/components\/index\.astro\?astro&type=script&index=0&lang\.ts/,
+		);
+		assert.ok(result.code.indexOf('<style>') < result.code.indexOf('<h1'));
+		assert.ok(result.code.indexOf('<h1') < result.code.lastIndexOf('$$renderScript'));
 	});
 });
 

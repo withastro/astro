@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import type { PluginObj } from '@babel/core';
+import type { PluginObject } from '@babel/core';
 import babel from '@rolldown/plugin-babel';
 import { load } from 'cheerio';
 import react from '../dist/index.js';
@@ -8,7 +8,7 @@ import { loadFixture, type DevServer, type Fixture } from './test-utils.ts';
 
 const babelOptions = {
 	plugins: [
-		(): PluginObj => ({
+		(): PluginObject => ({
 			visitor: {
 				TSAsExpression(path) {
 					const expression = path.node.expression;
@@ -65,7 +65,12 @@ for (const enabled of [true, false]) {
 				const component = $('astro-island').attr('component-url');
 				assert.ok(component);
 				const code = await fixture.readFile(component);
-				assert.equal(code.includes('react.memo_cache_sentinel'), enabled);
+				// React 18 inlines the compiler runtime sentinel into the component.
+				// React 19 delegates to `useMemoCache`, which the component bundle references instead.
+				assert.equal(
+					code.includes('memo_cache_sentinel') || code.includes('useMemoCache'),
+					enabled,
+				);
 				assert.match(code, /after-babel/);
 			});
 		});
