@@ -2,6 +2,7 @@ import nodeFs from 'node:fs';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 
+import PLimit from 'p-limit';
 import PQueue from 'p-queue';
 import colors from 'piccolore';
 import type { ViteBuilder } from 'vite';
@@ -10,17 +11,8 @@ import {
 	prepareAssetsGenerationEnv,
 	StaticImageRegistry,
 } from '../../assets/build/generate.js';
-import {
-	appendForwardSlash,
-	collapseDuplicateTrailingSlashes,
-	hasFileExtension,
-	joinPaths,
-	removeLeadingForwardSlash,
-	removeTrailingForwardSlash,
-	trimSlashes,
-} from '../../core/path.js';
+import { removeTrailingForwardSlash, trimSlashes } from '../../core/path.js';
 import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
-import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroLogger } from '../logger/core.js';
 import type {
 	AstroPrerenderer,
@@ -28,7 +20,7 @@ import type {
 	PrerenderResult,
 	RouteToHeaders,
 } from '../../types/public/index.js';
-import type { RouteData, RouteType, SSRError } from '../../types/public/internal.js';
+import type { RouteData, SSRError } from '../../types/public/internal.js';
 import { hashCryptoKey } from '../encryption.js';
 import { ensureAsyncRenderScope } from '../render-scope/node-scope.js';
 import type { RenderCollectors } from '../render-scope/scope.js';
@@ -38,15 +30,10 @@ import { createRequest } from '../request.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { routeIsRedirect } from '../routing/helpers.js';
 import { getOutputFilename } from '../output-filename.js';
-import { getOutFile, getOutFolder } from './common.js';
+import { getOutFile, getOutFolder, getUrlForPath } from './common.js';
 import { createDefaultPrerenderer } from './default-prerenderer.js';
 import { loadBuildImageService } from './image-service.js';
-import {
-	createParallelPrerenderer,
-	isParallelPrerenderer,
-	resolveParallelPrerenderWorkers,
-	takeCompletedResponse,
-} from './parallel-prerenderer.js';
+import { createParallelPrerenderer, type ParallelPrerenderer } from './parallel-prerenderer.js';
 import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
@@ -91,15 +78,17 @@ async function generatePagesInBuildScope(
 
 	// Get or create the prerenderer
 	let prerenderer: AstroPrerenderer;
-	let usesParallelPrerenderer = false;
+	let parallelPrerenderer: ParallelPrerenderer | undefined;
 	const settingsPrerenderer = options.settings.prerenderer;
-	if (!settingsPrerenderer) {
-		if (options.settings.config.experimental.parallelPrerender) {
-			usesParallelPrerenderer = true;
-			prerenderer = createParallelPrerenderer({ internals, options, prerenderOutputDir });
-		} else {
-			prerenderer = createDefaultPrerenderer({ internals, options, prerenderOutputDir });
-		}
+	if (!settingsPrerenderer && options.settings.config.experimental.parallelPrerender) {
+		prerenderer = parallelPrerenderer = createParallelPrerenderer({
+			internals,
+			options,
+			prerenderOutputDir,
+		});
+	} else if (!settingsPrerenderer) {
+		// No custom prerenderer - create default
+		prerenderer = createDefaultPrerenderer({ internals, options, prerenderOutputDir });
 	} else if (typeof settingsPrerenderer === 'function') {
 		// Factory function - create default and pass it
 		prerenderer = settingsPrerenderer(
@@ -205,45 +194,38 @@ async function generatePagesInBuildScope(
 		}
 		const generationPhases = [filteredPaths, fallbackPaths];
 
-		// Generate each path. With worker threads, `build.concurrency` applies per worker,
-		// and twice the pool's capacity is kept in flight so workers never wait on the
-		// main thread to queue their next page.
-		const generationConcurrency = usesParallelPrerenderer
-			? resolveParallelPrerenderWorkers(config.experimental.parallelPrerender) *
-				config.build.concurrency *
-				2
+		// Generate each path
+		const generationConcurrency = parallelPrerenderer
+			? parallelPrerenderer.workerCount * config.build.concurrency
 			: config.build.concurrency;
 		if (generationConcurrency > 1) {
+			const limit = PLimit(generationConcurrency);
+			// Process in batches to avoid V8's Promise.all element limit, which is around ~123k items
+			//
+			// NOTE: ideally we could consider an iterator to avoid the batching limitation
+			const BATCH_SIZE = 100_000;
 			for (const paths of generationPhases) {
-				let nextPath = 0;
-				let failed = false;
-				let failure: unknown;
-				await Promise.all(
-					Array.from({ length: Math.min(generationConcurrency, paths.length) }, async () => {
-						while (!failed) {
-							const pathWithRoute = paths[nextPath++];
-							if (!pathWithRoute) return;
-							try {
-								await generatePathWithPrerenderer(
+				for (let i = 0; i < paths.length; i += BATCH_SIZE) {
+					const promises = paths
+						.slice(i, i + BATCH_SIZE)
+						.map(({ pathname, route, cacheKey }) =>
+							limit(() =>
+								generatePathWithPrerenderer(
 									prerenderer,
-									pathWithRoute.pathname,
-									pathWithRoute.route,
+									pathname,
+									route,
 									options,
 									internals,
 									routeToHeaders,
 									logger,
 									cache,
-									pathWithRoute.cacheKey,
+									cacheKey,
 									images,
-								);
-							} catch (error) {
-								failed = true;
-								failure = error;
-							}
-						}
-					}),
-				);
-				if (failed) throw failure;
+								),
+							),
+						);
+					await Promise.all(promises);
+				}
 			}
 		} else {
 			for (const paths of generationPhases) {
@@ -264,10 +246,8 @@ async function generatePagesInBuildScope(
 			}
 		}
 
-		// Every page is rendered: stop the workers before generating images, and collect
-		// the images they resolved outside of a render.
-		if (isParallelPrerenderer(prerenderer)) {
-			images.addMetadata(await prerenderer.finish());
+		if (parallelPrerenderer) {
+			images.addMetadata(await parallelPrerenderer.finish());
 		}
 
 		// After generation, propagate distURL from the deserialized routes (used during generation)
@@ -463,8 +443,6 @@ export interface RenderPathResult {
 	body: string | Uint8Array;
 	outFile: URL;
 	outFolder: URL;
-	/** Whether the prerenderer persisted the body at `outFile`. */
-	outputWritten: boolean;
 	/** Incremental-build metadata the prerenderer reported for this page, if any. */
 	metadata?: PrerenderResult['metadata'];
 }
@@ -553,14 +531,6 @@ export async function renderPath({
 		}
 	}
 
-	const encodedPath = encodeURI(pathname);
-	const outFolder = getOutFolder(options.settings, encodedPath, route);
-	const outFile = getOutFile(config.build.format, outFolder, encodedPath, route);
-	const parallelPrerenderer = isParallelPrerenderer(prerenderer);
-	if (parallelPrerenderer && checkPublicConflict(outFile, route, options.settings, logger)) {
-		return null;
-	}
-
 	// Build the request URL
 	const url = getUrlForPath(
 		pathname,
@@ -585,13 +555,7 @@ export async function renderPath({
 	let metadata: PrerenderResult['metadata'];
 	try {
 		const rendered = normalizePrerenderResult(
-			parallelPrerenderer
-				? await prerenderer.renderToFile(request, {
-						routeData: route,
-						pathname,
-						outFile,
-					})
-				: await prerenderer.render(request, { routeData: route, collectMetadata: true }),
+			await prerenderer.render(request, { routeData: route, collectMetadata: true }),
 		);
 		response = rendered.response;
 		metadata = rendered.metadata;
@@ -605,7 +569,6 @@ export async function renderPath({
 
 	// Handle the response
 	let body: string | Uint8Array;
-	let outputWritten = false;
 	const responseHeaders = response.headers;
 
 	if (response.status >= 300 && response.status < 400) {
@@ -630,16 +593,16 @@ export async function renderPath({
 			route.redirect = location.toString();
 		}
 	} else {
-		const completed = takeCompletedResponse(response);
-		if (completed?.written) {
-			body = new Uint8Array();
-			outputWritten = true;
-		} else {
-			if (!response.body && completed?.body === undefined) return null;
-			body = Buffer.from(completed?.body ?? (await response.arrayBuffer()));
+		if (!response.body) {
+			return null;
 		}
+		body = Buffer.from(await response.arrayBuffer());
 	}
 
+	// Compute output paths
+	const encodedPath = encodeURI(pathname);
+	const outFolder = getOutFolder(options.settings, encodedPath, route);
+	const outFile = getOutFile(config.build.format, outFolder, encodedPath, route);
 	if (route.distURL) {
 		route.distURL.push(outFile);
 	} else {
@@ -653,10 +616,9 @@ export async function renderPath({
 	}
 
 	// Public files take priority over generated routes
-	if (!parallelPrerenderer && checkPublicConflict(outFile, route, options.settings, logger))
-		return null;
+	if (checkPublicConflict(outFile, route, options.settings, logger)) return null;
 
-	return { body, outFile, outFolder, metadata, outputWritten };
+	return { body, outFile, outFolder, metadata };
 }
 
 /**
@@ -796,18 +758,12 @@ async function generatePathWithPrerenderer(
 		return;
 	}
 
-	if (!result.outputWritten) {
-		await nodeFs.promises.mkdir(result.outFolder, { recursive: true });
-		await nodeFs.promises.writeFile(result.outFile, result.body);
-	}
+	await nodeFs.promises.mkdir(result.outFolder, { recursive: true });
+	await nodeFs.promises.writeFile(result.outFile, result.body);
 
 	// Without a cache key or render metadata, the path cannot be skipped safely.
 	if (cache && cacheKey !== undefined && result.metadata !== undefined) {
-		if (result.outputWritten) {
-			await cache.copyOutputFile(options.settings, relativeOutFile, result.outFile);
-		} else {
-			await cache.writeOutputFile(options.settings, relativeOutFile, result.body);
-		}
+		await cache.writeOutputFile(options.settings, relativeOutFile, result.body);
 		cache.record(
 			route.component,
 			dependencyHash,
@@ -841,60 +797,6 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 		? pathname.replace(/\/?$/, '/').replace(/^\//, '')
 		: pathname.replace(/^\//, '');
 	opts.pageNames.push(pageName);
-}
-
-function getUrlForPath(
-	pathname: string,
-	base: string,
-	origin: string,
-	format: AstroConfig['build']['format'],
-	trailingSlash: AstroConfig['trailingSlash'],
-	routeType: RouteType,
-	isIndex: boolean,
-): URL {
-	/**
-	 * Examples:
-	 * pathname: /, /foo
-	 * base: /
-	 */
-
-	let ending: string;
-	// For `preserve`, non-index routes output as flat `.html` files (like `file`),
-	// while index routes output as `dir/index.html` (like `directory`).
-	const effectiveFormat = format === 'preserve' ? (isIndex ? 'directory' : 'file') : format;
-	switch (effectiveFormat) {
-		case 'directory': {
-			ending = trailingSlash === 'never' ? '' : '/';
-			break;
-		}
-		case 'file':
-		default: {
-			ending = '.html';
-			break;
-		}
-	}
-	let buildPathname: string;
-	if (pathname === '/' || pathname === '') {
-		if (effectiveFormat === 'file') {
-			buildPathname = joinPaths(base, 'index.html');
-		} else {
-			buildPathname = collapseDuplicateTrailingSlashes(base + ending, trailingSlash !== 'never');
-		}
-	} else if (routeType === 'endpoint') {
-		const buildPathRelative = removeLeadingForwardSlash(pathname);
-		let endpointPathname = joinPaths(base, buildPathRelative);
-		if (trailingSlash === 'always' && !hasFileExtension(pathname)) {
-			endpointPathname = appendForwardSlash(endpointPathname);
-		} else if (trailingSlash === 'never') {
-			endpointPathname = removeTrailingForwardSlash(endpointPathname);
-		}
-		buildPathname = endpointPathname;
-	} else {
-		const buildPathRelative =
-			removeTrailingForwardSlash(removeLeadingForwardSlash(pathname)) + ending;
-		buildPathname = joinPaths(base, buildPathRelative);
-	}
-	return new URL(buildPathname, origin);
 }
 
 /**

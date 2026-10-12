@@ -1,0 +1,16 @@
+---
+import { threadId } from 'node:worker_threads';
+
+export function getStaticPaths() {
+	return ['one', 'two', 'three', 'four', 'five', 'six'].map((slug) => ({
+		params: { slug },
+		props: { discoveredIn: threadId, date: new Date(0) },
+	}));
+}
+
+const { discoveredIn, date } = Astro.props;
+---
+
+<p id="discovered-in">{discoveredIn}</p>
+<p id="rendered-in">{threadId}</p>
+<p id="date">{date?.toISOString()}</p>

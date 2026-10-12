@@ -3636,10 +3636,15 @@ export interface AstroUserConfig<
 		 * Set `workers` to control the size of the pool. Start with a small value and measure
 		 * build time and peak memory for your project.
 		 *
-		 * [`build.concurrency`](#buildconcurrency) keeps its meaning: the number of pages
-		 * rendered at once *within each worker*. Raising it can help when pages spend time waiting
-		 * on I/O (e.g. `fetch()` calls), so the maximum number of pages in flight is
-		 * `workers × build.concurrency`.
+		 * [`build.concurrency`](#buildconcurrency) sets the number of pages rendered at once
+		 * *within each worker*, so the maximum number of pages in flight is
+		 * `workers × build.concurrency`. Raising it can help when pages spend time waiting on I/O
+		 * (e.g. `fetch()` calls).
+		 *
+		 * Each `getStaticPaths()` function is called once per build, by the first worker,
+		 * which passes the props of each path to the worker rendering it. Props that can't be fully
+		 * copied with [structured cloning](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm),
+		 * such as functions or class instances, keep their pages on the first worker.
 		 *
 		 * ```js
 		 * // astro.config.mjs

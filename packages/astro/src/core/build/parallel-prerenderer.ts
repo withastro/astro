@@ -1,13 +1,11 @@
 import os from 'node:os';
 import { Worker } from 'node:worker_threads';
-import type { SerializedStaticImage } from '../../assets/types.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { GetStaticPathsItem } from '../../types/public/common.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type {
 	AstroPrerenderer,
-	PathWithRoute,
 	PrerenderRenderMetadata,
 	PrerenderResult,
 	StaticPathsMetadata,
@@ -15,18 +13,14 @@ import type {
 } from '../../types/public/integrations.js';
 import { deserializeRouteData, serializeRouteData } from '../app/manifest.js';
 import type { AstroLoggerMessage } from '../logger/core.js';
-import { removeBase } from '../path.js';
-import { getParams } from '../render/params-and-props.js';
-import { stringifyParams } from '../routing/params.js';
+import { getUrlForPath } from './common.js';
 import type { BuildInternals } from './internal.js';
-import { assignRouteWorkers } from './parallel-prerender-affinity.js';
-import type { StaticBuildOptions } from './types.js';
+import type { PageBuildData, StaticBuildOptions } from './types.js';
 
 export interface ParallelPrerenderWorkerData {
 	entryUrl: string;
-	discoveryConcurrency: number;
-	pagesByKeys: Array<[string, { styles: unknown[] }]>;
-	pageScript?: string;
+	pagesByKeys: Array<[string, Pick<PageBuildData, 'styles'>]>;
+	pageScript: string | undefined;
 	scripts: AstroSettings['scripts'];
 }
 
@@ -46,7 +40,6 @@ interface RenderWorkerRequest {
 	type: 'render';
 	id: number;
 	url: string;
-	outFile?: string;
 	routeId: number;
 	routeData?: string;
 	staticPath?: GetStaticPathsItem;
@@ -59,85 +52,72 @@ interface DiscoverWorkerRequest {
 
 export type PrerenderWorkerRequest = RenderWorkerRequest | DiscoverWorkerRequest;
 
-interface SerializedResponse {
-	body: ArrayBuffer | null;
-	written: boolean;
-	status: number;
-	statusText: string;
-	headers: [string, string][];
-}
+type WithoutId<T> = T extends unknown ? Omit<T, 'id'> : never;
 
-interface DiscoveredRoute {
-	id: number;
-	data: string;
-}
-
-interface DiscoveredPath {
+export interface DiscoveredPath {
 	pathname: string;
 	routeId: number;
 	cacheKey?: string;
 	staticPath?: GetStaticPathsItem;
-	localStaticPath: boolean;
 }
 
-/**
- * Images a worker resolved outside of a render or path discovery, e.g. while evaluating a
- * page module before rendering it. Drained into the next message the worker sends.
- */
-export interface WorkerBuildMetadata {
+export type WorkerMessage = {
 	buildMetadata?: StaticPathsMetadata;
-}
+} & (
+	| { type: 'ready' }
+	| { type: 'logs'; logs: AstroLoggerMessage[] }
+	| { type: 'startup-error'; error: SerializedWorkerError }
+	| {
+			type: 'paths';
+			id: number;
+			paths: DiscoveredPath[];
+			routes: Array<{ id: number; data: string }>;
+			metadata?: StaticPathsMetadata;
+			logs: AstroLoggerMessage[];
+	  }
+	| {
+			type: 'result';
+			id: number;
+			response: {
+				body: ArrayBuffer | null;
+				status: number;
+				statusText: string;
+				headers: [string, string][];
+			};
+			metadata?: PrerenderRenderMetadata;
+			logs: AstroLoggerMessage[];
+	  }
+	| {
+			type: 'error';
+			id: number;
+			error: SerializedWorkerError;
+			logs: AstroLoggerMessage[];
+	  }
+);
 
-export type WorkerMessage = WorkerBuildMetadata &
-	(
-		| { type: 'ready' }
-		| { type: 'logs'; logs: AstroLoggerMessage[] }
-		| { type: 'startup-error'; error: SerializedWorkerError }
-		| {
-				type: 'paths';
-				id: number;
-				paths: DiscoveredPath[];
-				routes: DiscoveredRoute[];
-				metadata?: StaticPathsMetadata;
-				logs: AstroLoggerMessage[];
-		  }
-		| {
-				type: 'result';
-				id: number;
-				response: SerializedResponse;
-				metadata?: PrerenderRenderMetadata;
-				logs: AstroLoggerMessage[];
-		  }
-		| {
-				type: 'render-error';
-				id: number;
-				error: SerializedWorkerError;
-				logs: AstroLoggerMessage[];
-		  }
-	);
+type WorkerResponse = Extract<WorkerMessage, { id: number }>;
 
 interface RenderJob {
-	request: Omit<RenderWorkerRequest, 'id'>;
-	eligibleWorkers?: Set<number>;
-	localOnly: boolean;
-	queuedAt: number;
+	url: string;
+	route: RouteData;
+	routeId: number;
+	staticPath: GetStaticPathsItem | undefined;
+	discoveryWorkerOnly: boolean;
 	resolve: (result: PrerenderResult) => void;
 	reject: (error: Error) => void;
 }
 
 interface WorkerState {
-	index: number;
 	worker: Worker;
 	ready: boolean;
-	/** Number of requests currently being processed by this worker. */
-	active: number;
 	failed: boolean;
-	routes: Set<number>;
+	active: number;
+	knownRouteIds: Set<number>;
 }
 
 interface InFlightRequest {
 	worker: WorkerState;
-	resolve: (value: any) => void;
+	resolve: (message: WorkerResponse) => void;
 	reject: (error: Error) => void;
 }
 
@@ -148,105 +128,58 @@ interface ParallelPrerendererOptions {
 }
 
 export interface ParallelPrerenderer extends AstroPrerenderer {
-	renderToFile: (
-		request: Request,
-		options: {
-			routeData: RouteData;
-			pathname: string;
-			outFile: URL;
-		},
-	) => Promise<PrerenderResult>;
-	/**
-	 * Stops the workers once every page is rendered, so their memory is released before
-	 * images are generated. Returns the images workers resolved outside of a render.
-	 */
+	workerCount: number;
 	finish: () => Promise<StaticPathsMetadata>;
 }
 
-interface CompletedResponse {
-	body?: ArrayBuffer;
-	written: boolean;
-}
-
-const AFFINITY_FALLBACK_MS = 100;
-
-/**
- * Resolves the number of worker threads for `experimental.parallelPrerender`.
- * Defaults to one per available CPU core, leaving one for the main thread.
- */
 export function resolveParallelPrerenderWorkers(
 	parallelPrerender: AstroSettings['config']['experimental']['parallelPrerender'],
 ): number {
 	if (typeof parallelPrerender === 'object' && parallelPrerender.workers !== undefined) {
-		return Math.max(1, Math.floor(parallelPrerender.workers));
+		return parallelPrerender.workers;
 	}
 	return Math.max(1, os.availableParallelism() - 1);
 }
-const completedResponses = new WeakMap<Response, CompletedResponse>();
-
-export function takeCompletedResponse(response: Response): CompletedResponse | undefined {
-	const completed = completedResponses.get(response);
-	completedResponses.delete(response);
-	return completed;
-}
-
-export function isParallelPrerenderer(
-	prerenderer: AstroPrerenderer,
-): prerenderer is ParallelPrerenderer {
-	return (
-		typeof Reflect.get(prerenderer, 'renderToFile') === 'function' &&
-		typeof Reflect.get(prerenderer, 'finish') === 'function'
-	);
-}
 
 function deserializeError(serialized: SerializedWorkerError): Error {
-	const error = new Error(serialized.message);
-	Object.assign(error, serialized);
-	return error;
-}
-
-function isDataCloneError(error: unknown): boolean {
-	return (
-		typeof error === 'object' && error !== null && Reflect.get(error, 'name') === 'DataCloneError'
-	);
+	return Object.assign(new Error(serialized.message), serialized);
 }
 
 class PrerenderWorkerPool {
 	#workers: WorkerState[] = [];
 	#queue: RenderJob[] = [];
 	#inFlight = new Map<number, InFlightRequest>();
-	#nextId = 1;
+	#nextRequestId = 1;
 	#nextRouteId = 1;
-	#routeIds = new Map<string, number>();
-	#routeWorkers = new Map<string, Set<number>>();
-	#staticPaths = new Map<string, GetStaticPathsItem>();
-	#localStaticPaths = new Set<string>();
-	#fallbackTimer: ReturnType<typeof setTimeout> | undefined;
+	#routeIds = new WeakMap<RouteData, number>();
+	#serializedRoutes = new WeakMap<RouteData, string>();
+	#staticPathsByRequest = new Map<string, GetStaticPathsItem>();
 	#closing = false;
-	#buildImages: SerializedStaticImage[] = [];
-	#buildReferencedImages = new Set<string>();
-	private readonly workerCount: number;
-	private readonly workerConcurrency: number;
-	private readonly workerData: ParallelPrerenderWorkerData;
-	private readonly destination: StaticBuildOptions['logger']['options']['destination'];
+	#buildMetadata: Required<StaticPathsMetadata> = { staticImages: [], referencedImages: [] };
+	readonly #workerConcurrency: number;
+	readonly #workerData: ParallelPrerenderWorkerData;
+	readonly #options: StaticBuildOptions;
 
 	constructor(
-		workerCount: number,
 		workerConcurrency: number,
 		workerData: ParallelPrerenderWorkerData,
-		destination: StaticBuildOptions['logger']['options']['destination'],
+		options: StaticBuildOptions,
 	) {
-		this.workerCount = workerCount;
-		this.workerConcurrency = workerConcurrency;
-		this.workerData = workerData;
-		this.destination = destination;
+		this.#workerConcurrency = workerConcurrency;
+		this.#workerData = workerData;
+		this.#options = options;
 	}
 
-	async start() {
+	get buildMetadata(): StaticPathsMetadata {
+		return {
+			staticImages: this.#buildMetadata.staticImages,
+			referencedImages: [...new Set(this.#buildMetadata.referencedImages)],
+		};
+	}
+
+	async start(workerCount: number) {
 		try {
-			await Promise.all(
-				Array.from({ length: this.workerCount }, (_, index) => this.#startWorker(index)),
-			);
+			await Promise.all(Array.from({ length: workerCount }, () => this.#startWorker()));
 		} catch (error) {
 			await this.close();
 			throw error;
@@ -254,70 +187,54 @@ class PrerenderWorkerPool {
 	}
 
 	async getStaticPaths(): Promise<StaticPathsResult> {
-		const state = this.#workers[0];
-		const result = await new Promise<Extract<WorkerMessage, { type: 'paths' }>>(
-			(resolve, reject) => {
-				const id = this.#nextId++;
-				state.active++;
-				this.#inFlight.set(id, { worker: state, resolve, reject });
-				state.worker.postMessage({ type: 'discover', id } satisfies DiscoverWorkerRequest);
-			},
-		);
+		const discoveryWorker = this.#workers[0];
+		const result = await this.#send(discoveryWorker, { type: 'discover' });
+		if (result.type !== 'paths') throw new Error(`Unexpected worker message: ${result.type}`);
+
 		const routes = new Map<number, RouteData>();
-		for (const serialized of result.routes) {
-			const route = deserializeRouteData(JSON.parse(serialized.data));
-			routes.set(serialized.id, route);
-			this.#routeIds.set(serialized.data, serialized.id);
-			this.#nextRouteId = Math.max(this.#nextRouteId, serialized.id + 1);
-			state.routes.add(serialized.id);
+		for (const { id, data } of result.routes) {
+			const route = deserializeRouteData(JSON.parse(data));
+			routes.set(id, route);
+			this.#routeIds.set(route, id);
+			this.#nextRouteId = Math.max(this.#nextRouteId, id + 1);
+			discoveryWorker.knownRouteIds.add(id);
 		}
+		const { config } = this.#options.settings;
 		const paths = result.paths.map((path) => {
-			const key = `${path.routeId}:${path.pathname}`;
-			if (path.staticPath) this.#staticPaths.set(key, path.staticPath);
-			if (path.localStaticPath) this.#localStaticPaths.add(key);
-			return {
-				pathname: path.pathname,
-				route: routes.get(path.routeId)!,
-				cacheKey: path.cacheKey,
-			};
+			const route = routes.get(path.routeId)!;
+			if (path.staticPath) {
+				const url = getUrlForPath(
+					path.pathname,
+					config.base,
+					this.#options.origin,
+					config.build.format,
+					config.trailingSlash,
+					route.type,
+					route.isIndex,
+				);
+				this.#staticPathsByRequest.set(`${path.routeId}:${url.href}`, path.staticPath);
+			}
+			return { pathname: path.pathname, route, cacheKey: path.cacheKey };
 		});
 		return { paths, metadata: result.metadata };
 	}
 
-	setRoutes(paths: PathWithRoute[], routeUniqueBytes: Map<string, number>) {
-		this.#routeWorkers = assignRouteWorkers(paths, routeUniqueBytes, this.workerCount);
-	}
-
-	render(
-		request: Request,
-		routeData: string,
-		component: string,
-		pathname: string,
-		outFile?: URL,
-	): Promise<PrerenderResult> {
+	render(request: Request, routeData: RouteData): Promise<PrerenderResult> {
 		let routeId = this.#routeIds.get(routeData);
 		if (routeId === undefined) {
 			routeId = this.#nextRouteId++;
 			this.#routeIds.set(routeData, routeId);
 		}
-		const staticPathKey = `${routeId}:${pathname}`;
-		const staticPath = this.#staticPaths.get(staticPathKey);
-		const localOnly = this.#localStaticPaths.has(staticPathKey);
-		this.#staticPaths.delete(staticPathKey);
-		this.#localStaticPaths.delete(staticPathKey);
+		const key = `${routeId}:${request.url}`;
+		const staticPath = this.#staticPathsByRequest.get(key);
+		this.#staticPathsByRequest.delete(key);
 		return new Promise((resolve, reject) => {
 			this.#queue.push({
-				request: {
-					type: 'render',
-					url: request.url,
-					outFile: outFile?.href,
-					routeId,
-					routeData,
-					staticPath,
-				},
-				eligibleWorkers: localOnly ? new Set([0]) : this.#routeWorkers.get(component),
-				localOnly,
-				queuedAt: performance.now(),
+				url: request.url,
+				route: routeData,
+				routeId,
+				staticPath,
+				discoveryWorkerOnly: !routeData.pathname && !staticPath,
 				resolve,
 				reject,
 			});
@@ -325,17 +242,8 @@ class PrerenderWorkerPool {
 		});
 	}
 
-	/** Images reported by workers outside of a render, see {@link WorkerBuildMetadata}. */
-	get buildMetadata(): StaticPathsMetadata {
-		return {
-			staticImages: this.#buildImages,
-			referencedImages: [...this.#buildReferencedImages],
-		};
-	}
-
 	async close() {
 		this.#closing = true;
-		if (this.#fallbackTimer) clearTimeout(this.#fallbackTimer);
 		const error = new Error('The parallel prerender worker pool was closed');
 		for (const job of this.#queue.splice(0)) job.reject(error);
 		for (const request of this.#inFlight.values()) request.reject(error);
@@ -344,95 +252,82 @@ class PrerenderWorkerPool {
 		this.#workers = [];
 	}
 
-	async #startWorker(index: number) {
+	async #startWorker() {
 		const worker = new Worker(new URL('./prerender-worker.js', import.meta.url), {
-			workerData: this.workerData,
+			workerData: this.#workerData,
 		});
 		const state: WorkerState = {
-			index,
 			worker,
 			ready: false,
-			active: 0,
 			failed: false,
-			routes: new Set(),
+			active: 0,
+			knownRouteIds: new Set(),
 		};
 		this.#workers.push(state);
 
 		await new Promise<void>((resolve, reject) => {
-			let starting = true;
 			worker.on('message', (message: WorkerMessage) => {
 				this.#addBuildMetadata(message.buildMetadata);
-				if (message.type === 'ready') {
-					starting = false;
-					state.ready = true;
-					resolve();
-					this.#pump();
-					return;
+				switch (message.type) {
+					case 'ready':
+						state.ready = true;
+						resolve();
+						this.#pump();
+						return;
+					case 'startup-error':
+						state.failed = true;
+						reject(deserializeError(message.error));
+						return;
+					case 'logs':
+						this.#writeLogs(message.logs);
+						return;
+					case 'paths':
+					case 'result':
+					case 'error':
+						this.#writeLogs(message.logs);
+						this.#settle(state, message);
 				}
-				if (message.type === 'startup-error') {
-					starting = false;
-					state.failed = true;
-					reject(deserializeError(message.error));
-					return;
-				}
-				this.#handleMessage(state, message);
 			});
 			worker.on('error', (error) => {
-				if (starting) {
-					starting = false;
-					reject(error);
-				}
+				reject(error);
 				this.#failWorker(state, error);
 			});
 			worker.on('exit', (code) => {
-				if (starting) {
-					starting = false;
-					reject(new Error(`Parallel prerender worker exited during setup with code ${code}`));
-				}
-				if (!this.#closing) {
-					this.#failWorker(
-						state,
-						new Error(`Parallel prerender worker exited unexpectedly with code ${code}`),
-					);
-				}
+				const error = new Error(`Parallel prerender worker exited unexpectedly with code ${code}`);
+				reject(error);
+				if (!this.#closing) this.#failWorker(state, error);
 			});
 		});
 	}
 
-	#addBuildMetadata(metadata: StaticPathsMetadata | undefined) {
-		if (!metadata) return;
-		if (metadata.staticImages) {
-			for (const image of metadata.staticImages) this.#buildImages.push(image);
-		}
-		if (metadata.referencedImages) {
-			for (const fsPath of metadata.referencedImages) this.#buildReferencedImages.add(fsPath);
-		}
-	}
-
-	#handleMessage(state: WorkerState, message: WorkerMessage) {
-		if (message.type === 'ready' || message.type === 'startup-error') return;
-		if (message.type === 'logs') {
-			for (const log of message.logs) this.destination.write(log);
-			return;
-		}
+	#settle(state: WorkerState, message: WorkerResponse) {
 		const request = this.#inFlight.get(message.id);
 		if (!request) return;
 		this.#inFlight.delete(message.id);
 		state.active--;
-		if (message.type === 'render-error') {
-			for (const log of message.logs) this.destination.write(log);
-			request.reject(deserializeError(message.error));
-		} else if (message.type === 'paths') {
-			for (const log of message.logs) this.destination.write(log);
-			request.resolve(message);
-		} else {
-			for (const log of message.logs) this.destination.write(log);
-			const { body, written, ...init } = message.response;
-			const response = new Response(null, init);
-			completedResponses.set(response, { body: body ?? undefined, written });
-			request.resolve({ response, metadata: message.metadata });
-		}
+		if (message.type === 'error') request.reject(deserializeError(message.error));
+		else request.resolve(message);
 		this.#pump();
+	}
+
+	#send(state: WorkerState, request: WithoutId<PrerenderWorkerRequest>): Promise<WorkerResponse> {
+		const id = this.#nextRequestId++;
+		return new Promise((resolve, reject) => {
+			state.worker.postMessage({ ...request, id });
+			state.active++;
+			this.#inFlight.set(id, { worker: state, resolve, reject });
+		});
+	}
+
+	#writeLogs(logs: AstroLoggerMessage[]) {
+		for (const log of logs) this.#options.logger.options.destination.write(log);
+	}
+
+	#addBuildMetadata(metadata: StaticPathsMetadata | undefined) {
+		if (metadata?.staticImages) this.#buildMetadata.staticImages.push(...metadata.staticImages);
+		if (metadata?.referencedImages) {
+			this.#buildMetadata.referencedImages.push(...metadata.referencedImages);
+		}
 	}
 
 	#failWorker(state: WorkerState, error: Error) {
@@ -443,84 +338,60 @@ class PrerenderWorkerPool {
 			this.#inFlight.delete(id);
 			request.reject(error);
 		}
-		if (this.#workers.every((worker) => worker.failed)) {
-			for (const job of this.#queue.splice(0)) job.reject(error);
-		}
+		const discoveryWorkerFailed = state === this.#workers[0];
+		const allFailed = this.#workers.every((worker) => worker.failed);
+		this.#queue = this.#queue.filter((job) => {
+			if (!allFailed && !(discoveryWorkerFailed && job.discoveryWorkerOnly)) return true;
+			job.reject(error);
+			return false;
+		});
 		this.#pump();
 	}
 
 	#pump() {
-		if (this.#closing || this.#queue.length === 0) return;
-		if (this.#fallbackTimer) {
-			clearTimeout(this.#fallbackTimer);
-			this.#fallbackTimer = undefined;
-		}
-
-		// Fill free slots round-robin so work spreads across workers before any
-		// single worker is saturated up to `workerConcurrency`.
 		let assigned = true;
-		while (assigned && this.#queue.length > 0) {
+		while (!this.#closing && assigned && this.#queue.length > 0) {
 			assigned = false;
 			for (const state of this.#workers) {
-				if (!this.#hasCapacity(state)) continue;
-				if (this.#assignJob(state)) assigned = true;
+				if (!state.ready || state.failed || state.active >= this.#workerConcurrency) continue;
+				const isDiscoveryWorker = state === this.#workers[0];
+				const index = this.#queue.findIndex((job) => isDiscoveryWorker || !job.discoveryWorkerOnly);
+				if (index === -1) continue;
+				const [job] = this.#queue.splice(index, 1);
+				this.#assign(state, job, isDiscoveryWorker);
+				assigned = true;
 			}
-		}
-
-		const fallbackJobs = this.#queue.filter((job) => !job.localOnly);
-		if (fallbackJobs.length > 0 && this.#workers.some((worker) => this.#hasCapacity(worker))) {
-			const wait = Math.max(
-				0,
-				Math.min(
-					...fallbackJobs.map((job) => AFFINITY_FALLBACK_MS - (performance.now() - job.queuedAt)),
-				),
-			);
-			this.#fallbackTimer = setTimeout(() => this.#pump(), wait);
 		}
 	}
 
-	#hasCapacity(state: WorkerState): boolean {
-		return state.ready && !state.failed && state.active < this.workerConcurrency;
+	#assign(state: WorkerState, job: RenderJob, isDiscoveryWorker: boolean) {
+		const request: WithoutId<RenderWorkerRequest> = {
+			type: 'render',
+			url: job.url,
+			routeId: job.routeId,
+			routeData: state.knownRouteIds.has(job.routeId) ? undefined : this.#serializeRoute(job.route),
+			// The discovery worker already holds every item in its route cache.
+			staticPath: isDiscoveryWorker ? undefined : job.staticPath,
+		};
+		state.knownRouteIds.add(job.routeId);
+		this.#send(state, request)
+			.then((message) => {
+				if (message.type !== 'result')
+					throw new Error(`Unexpected worker message: ${message.type}`);
+				const { body, ...init } = message.response;
+				job.resolve({ response: new Response(body, init), metadata: message.metadata });
+			})
+			.catch(job.reject);
 	}
 
-	/** Sends the next job this worker may take. Returns whether a job was consumed. */
-	#assignJob(state: WorkerState): boolean {
-		let jobIndex = this.#queue.findIndex(
-			(job) => !job.eligibleWorkers || job.eligibleWorkers.has(state.index),
-		);
-		if (jobIndex === -1) {
-			jobIndex = this.#queue.findIndex(
-				(job) => !job.localOnly && performance.now() - job.queuedAt >= AFFINITY_FALLBACK_MS,
-			);
+	#serializeRoute(route: RouteData): string {
+		let serialized = this.#serializedRoutes.get(route);
+		if (serialized === undefined) {
+			const { trailingSlash } = this.#options.settings.config;
+			serialized = JSON.stringify(serializeRouteData(route, trailingSlash));
+			this.#serializedRoutes.set(route, serialized);
 		}
-		if (jobIndex === -1) return false;
-
-		const [job] = this.#queue.splice(jobIndex, 1);
-		const id = this.#nextId++;
-		const message: RenderWorkerRequest = { ...job.request, id };
-		if (state.routes.has(message.routeId)) delete message.routeData;
-		try {
-			state.worker.postMessage(message);
-		} catch (error) {
-			if (message.staticPath === undefined || !isDataCloneError(error)) {
-				job.reject(error instanceof Error ? error : new Error(String(error)));
-				return true;
-			}
-			const messageWithoutStaticPath = { ...message };
-			delete messageWithoutStaticPath.staticPath;
-			try {
-				state.worker.postMessage(messageWithoutStaticPath);
-			} catch (fallbackError) {
-				job.reject(
-					fallbackError instanceof Error ? fallbackError : new Error(String(fallbackError)),
-				);
-				return true;
-			}
-		}
-		state.routes.add(message.routeId);
-		state.active++;
-		this.#inFlight.set(id, { worker: state, resolve: job.resolve, reject: job.reject });
-		return true;
+		return serialized;
 	}
 }
 
@@ -529,31 +400,17 @@ export function createParallelPrerenderer({
 	options,
 	prerenderOutputDir,
 }: ParallelPrerendererOptions): ParallelPrerenderer {
+	const { config } = options.settings;
+	const workerCount = resolveParallelPrerenderWorkers(config.experimental.parallelPrerender);
 	let pool: PrerenderWorkerPool | undefined;
-	const serializedRoutes = new WeakMap<object, string>();
-	const serializeRoute = (routeData: RouteData) => {
-		let serializedRoute = serializedRoutes.get(routeData);
-		if (serializedRoute === undefined) {
-			serializedRoute = JSON.stringify(
-				serializeRouteData(routeData, options.settings.config.trailingSlash),
-			);
-			serializedRoutes.set(routeData, serializedRoute);
-		}
-		return serializedRoute;
-	};
 	return {
 		name: 'astro:parallel',
+		workerCount,
 		async setup() {
-			const entryFileName = internals.prerenderEntryFileName!;
-			const { config } = options.settings;
-			const workerCount = resolveParallelPrerenderWorkers(config.experimental.parallelPrerender);
-			const workerConcurrency = Math.max(1, Math.floor(config.build.concurrency));
 			pool = new PrerenderWorkerPool(
-				workerCount,
-				workerConcurrency,
+				config.build.concurrency,
 				{
-					entryUrl: new URL(entryFileName, prerenderOutputDir).toString(),
-					discoveryConcurrency: workerConcurrency,
+					entryUrl: new URL(internals.prerenderEntryFileName!, prerenderOutputDir).toString(),
 					pagesByKeys: [...internals.pagesByKeys].map(([key, page]) => [
 						key,
 						{ styles: page.styles },
@@ -561,35 +418,15 @@ export function createParallelPrerenderer({
 					pageScript: internals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID),
 					scripts: options.settings.scripts,
 				},
-				options.logger.options.destination,
+				options,
 			);
-			await pool.start();
+			await pool.start(workerCount);
 		},
-		async getStaticPaths() {
-			const result = await pool!.getStaticPaths();
-			pool!.setRoutes(result.paths, internals.prerenderRouteUniqueBytes ?? new Map());
-			return result;
+		getStaticPaths() {
+			return pool!.getStaticPaths();
 		},
-
-		async render(request, { routeData }) {
-			const pathname = stringifyParams(
-				getParams(
-					routeData,
-					removeBase(new URL(request.url).pathname, options.settings.config.base),
-				),
-				routeData,
-				options.settings.config.trailingSlash,
-			);
-			return pool!.render(request, serializeRoute(routeData), routeData.component, pathname);
-		},
-		async renderToFile(request, { routeData, pathname, outFile }) {
-			return pool!.render(
-				request,
-				serializeRoute(routeData),
-				routeData.component,
-				pathname,
-				outFile,
-			);
+		render(request, { routeData }) {
+			return pool!.render(request, routeData);
 		},
 		async finish() {
 			if (!pool) return { staticImages: [], referencedImages: [] };

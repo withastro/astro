@@ -2,14 +2,16 @@ import { BaseApp } from '../app/entrypoints/index.js';
 import type { LogRequestPayload } from '../app/base.js';
 import type { SSRManifest } from '../app/types.js';
 import type { ComponentInstance } from '../../types/astro.js';
-import type { GetStaticPathsItem, GetStaticPathsResultKeyed } from '../../types/public/common.js';
+import type { GetStaticPathsItem } from '../../types/public/common.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { getEnvironment } from '../environment/index.js';
 import { getRouteCache, type RouteCache } from '../render/route-cache.js';
 import { stringifyParams } from '../routing/params.js';
-import type { BuildEnvironmentSlots } from './environment.js';
-import type { BuildInternals } from './internal.js';
-import type { StaticBuildOptions } from './types.js';
+import type {
+	BuildEnvironmentInternals,
+	BuildEnvironmentOptions,
+	BuildEnvironmentSlots,
+} from './environment.js';
 
 /**
  * The build / prerender facade: a thin shell over the
@@ -42,22 +44,14 @@ export class BuildApp extends BaseApp {
 		return undefined;
 	}
 
-	public setInternals(internals: BuildInternals) {
+	public setInternals(internals: BuildEnvironmentInternals) {
 		this.#buildEnv.setInternals(internals);
 	}
 
-	public setOptions(options: StaticBuildOptions) {
+	public setOptions(options: BuildEnvironmentOptions) {
 		this.#buildEnv.setOptions(options);
 		this.logger.setDestination(options.logger.options.destination);
 		this.resetAdapterLogger();
-	}
-
-	public getOptions() {
-		return this.#buildEnv.getOptions();
-	}
-
-	public getSettings() {
-		return this.#buildEnv.getSettings();
 	}
 
 	/**
@@ -75,53 +69,18 @@ export class BuildApp extends BaseApp {
 		return getEnvironment(this.manifest).getComponentByRoute(this.manifest, routeData);
 	}
 
-	async setStaticPath(routeData: RouteData, item: GetStaticPathsItem) {
+	async addStaticPath(routeData: RouteData, item: GetStaticPathsItem): Promise<void> {
 		const mod = await this.getComponentByRoute(routeData);
-		const cached = this.routeCache.get(routeData);
 		const key = stringifyParams(item.params, routeData, this.manifest.trailingSlash);
+		const cached = this.routeCache.get(routeData);
 		if (cached?.mod === mod) {
-			const previous = cached.staticPaths.keyed.get(key);
-			if (!previous) cached.staticPaths.push(item);
+			if (cached.staticPaths.keyed.has(key)) return;
+			cached.staticPaths.push(item);
 			cached.staticPaths.keyed.set(key, item);
-			return previous;
-		}
-		const staticPaths = Object.assign([item], {
-			keyed: new Map([[key, item]]),
-		}) as GetStaticPathsResultKeyed;
-		this.routeCache.set(routeData, { mod, staticPaths });
-	}
-
-	deleteStaticPaths(routeData: RouteData, items: Set<GetStaticPathsItem>) {
-		const cached = this.routeCache.get(routeData);
-		if (!cached) return;
-		let nextIndex = 0;
-		for (const item of cached.staticPaths) {
-			if (items.has(item)) {
-				const key = stringifyParams(item.params, routeData, this.manifest.trailingSlash);
-				if (cached.staticPaths.keyed.get(key) === item) cached.staticPaths.keyed.delete(key);
-			} else {
-				cached.staticPaths[nextIndex++] = item;
-			}
-		}
-		cached.staticPaths.length = nextIndex;
-	}
-
-	deleteStaticPath(
-		routeData: RouteData,
-		item: GetStaticPathsItem,
-		previous: GetStaticPathsItem | undefined,
-	) {
-		const cached = this.routeCache.get(routeData);
-		if (!cached) return;
-		const key = stringifyParams(item.params, routeData, this.manifest.trailingSlash);
-		if (cached.staticPaths.keyed.get(key) !== item) return;
-		if (previous) {
-			cached.staticPaths.keyed.set(key, previous);
 			return;
 		}
-		cached.staticPaths.keyed.delete(key);
-		const index = cached.staticPaths.indexOf(item);
-		if (index !== -1) cached.staticPaths.splice(index, 1);
+		const staticPaths = Object.assign([item], { keyed: new Map([[key, item]]) });
+		this.routeCache.set(routeData, { mod, staticPaths });
 	}
 
 	logRequest(_options: LogRequestPayload) {}

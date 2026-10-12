@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { testImageService } from './test-image-service.ts';
@@ -11,31 +10,64 @@ describe('experimental.parallelPrerender', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/static-build/',
-			build: { concurrency: 2, inlineStylesheets: 'never' },
+			root: './fixtures/parallel-prerender/',
 			experimental: { parallelPrerender: { workers: 2 } },
-			outDir: './dist/parallel-prerender/',
 		});
 		await fixture.build();
 	});
 
+	async function read(path: string) {
+		const $ = cheerio.load(await fixture.readFile(path));
+		return {
+			discoveredIn: $('#discovered-in').text(),
+			renderedIn: $('#rendered-in').text(),
+			value: $('#value').text(),
+			date: $('#date').text(),
+		};
+	}
+
 	it('renders pages in worker threads', async () => {
-		assert.match(await fixture.readFile('/index.html'), /<html/);
-		assert.match(await fixture.readFile('/posts/thoughts/index.html'), /Testing here/);
-		assert.equal((await fixture.readFile('/parallel/large.txt')).length, 300 * 1024);
-		assert.equal(await fixture.readFile('/parallel/public.txt'), 'public\n');
+		const { renderedIn } = await read('/index.html');
+		assert.ok(Number(renderedIn) > 0, 'expected a worker thread id');
 	});
 
-	it('preserves redirects and endpoint responses', async () => {
+	it('calls getStaticPaths once and renders its paths in several workers', async () => {
+		const pages = await Promise.all(
+			['one', 'two', 'three', 'four', 'five', 'six'].map((slug) =>
+				read(`/items/${slug}/index.html`),
+			),
+		);
+		const discoveryThreads = new Set(pages.map((page) => page.discoveredIn));
+		assert.equal(discoveryThreads.size, 1, 'expected every item from one getStaticPaths call');
+		assert.ok(new Set(pages.map((page) => page.renderedIn)).size > 1);
+		for (const page of pages) assert.equal(page.date, new Date(0).toISOString());
+	});
+
+	it('renders paths with props that cannot be cloned in the discovery worker', async () => {
+		const { discoveredIn } = await read('/items/one/index.html');
+		for (const value of ['function', 'url', 'symbol']) {
+			const page = await read(`/local/${value}/index.html`);
+			assert.equal(page.discoveredIn, discoveredIn);
+			assert.equal(page.renderedIn, discoveredIn);
+		}
+		assert.equal((await read('/local/function/index.html')).value, 'function');
+		assert.equal((await read('/local/url/index.html')).value, 'https://astro.build/');
+		assert.equal((await read('/local/symbol/index.html')).value, 'symbol');
+	});
+
+	it('renders i18n fallback routes', async () => {
+		assert.ok(fixture.pathExists('/fr/items/one/index.html'));
+		assert.ok(fixture.pathExists('/fr/local/function/index.html'));
+	});
+
+	it('preserves redirects, endpoints and public files', async () => {
 		assert.match(await fixture.readFile('/old/index.html'), /Redirecting/);
-		assert.deepEqual(JSON.parse(await fixture.readFile('/company.json')), {
-			name: 'Astro Technology Company',
-			url: 'https://astro.build/',
-		});
+		assert.deepEqual(JSON.parse(await fixture.readFile('/company.json')), { name: 'Astro' });
+		assert.equal(await fixture.readFile('/public.txt'), 'public\n');
 	});
 });
 
-describe('parallel prerender integrations', () => {
+describe('parallel prerender with framework components', () => {
 	it('renders framework components', async () => {
 		const fixture = await loadFixture({
 			root: './fixtures/static-build-frameworks/',
@@ -47,7 +79,9 @@ describe('parallel prerender integrations', () => {
 		assert.match(await fixture.readFile('/react/index.html'), /<h1>Testing<\/h1>/);
 		assert.match(await fixture.readFile('/preact/index.html'), /<h1>Testing<\/h1>/);
 	});
+});
 
+describe('parallel prerender with incremental builds', () => {
 	it('collects optimized images with incremental metadata', async () => {
 		const fixture = await loadFixture({
 			root: './fixtures/incremental-build-images/',
@@ -129,42 +163,6 @@ describe('parallel prerender images', () => {
 	});
 });
 
-describe('parallel prerender static paths', () => {
-	it('transfers serializable props and renders every build', async () => {
-		const root = new URL('./fixtures/static-build/', import.meta.url);
-		const counterFile = new URL('gsp-count.txt', root);
-		fs.rmSync(counterFile, { force: true });
-		process.env.ASTRO_PARALLEL_PRERENDER_COUNTER = fileURLToPath(counterFile);
-		const fixture = await loadFixture({
-			root,
-			experimental: { parallelPrerender: { workers: 2 } },
-			outDir: './dist/parallel-prerender-static-paths/',
-		});
-
-		try {
-			await fixture.build();
-			const firstRandom = await fixture.readFile('/parallel/random/index.html');
-			assert.equal(fs.readFileSync(counterFile, 'utf8'), '1');
-			assert.match(await fixture.readFile('/parallel/items/one/index.html'), />1<\/p>/);
-			assert.match(
-				await fixture.readFile('/parallel/functions/one/index.html'),
-				/>function prop <\/p>/,
-			);
-			assert.match(
-				await fixture.readFile('/parallel/functions/two/index.html'),
-				/>URL prop https:\/\/astro\.build\/<\/p>/,
-			);
-
-			await fixture.build();
-			assert.equal(fs.readFileSync(counterFile, 'utf8'), '2');
-			assert.notEqual(await fixture.readFile('/parallel/random/index.html'), firstRandom);
-		} finally {
-			delete process.env.ASTRO_PARALLEL_PRERENDER_COUNTER;
-			fs.rmSync(counterFile, { force: true });
-		}
-	});
-});
-
 describe('parallel prerender errors', () => {
 	it('propagates render errors without hanging', async () => {
 		const fixture = await loadFixture({
@@ -175,5 +173,14 @@ describe('parallel prerender errors', () => {
 		});
 
 		await assert.rejects(fixture.build(), /This is a test/);
+	});
+
+	it('fails the build when a worker exits', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/parallel-prerender-crash/',
+			experimental: { parallelPrerender: { workers: 2 } },
+		});
+
+		await assert.rejects(fixture.build(), /worker exited unexpectedly with code 3/);
 	});
 });
