@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 11.0.14
+
+### Patch Changes
+
+- [#18339](https://github.com/withastro/astro/pull/18339) [`fcc050c`](https://github.com/withastro/astro/commit/fcc050cdc60e03b3594f19f6e5418c94f2e40774) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes on-demand routes failing with "Cannot find native binding" on Vercel, caused by the serverless function loading `rolldown` at runtime
+
 ## 11.0.13
 
 ### Patch Changes
