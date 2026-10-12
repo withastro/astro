@@ -311,10 +311,10 @@ importers:
         specifier: ^19.3.0
         version: 19.3.0(react@19.3.0)
       solid-js:
-        specifier: ^1.9.15
+        specifier: ^1.9.17
         version: 1.9.17
       svelte:
-        specifier: ^5.57.1
+        specifier: ^5.57.2
         version: 5.57.2(@typescript-eslint/types@8.71.0)
       vue:
         specifier: ^3.5.43
@@ -365,7 +365,7 @@ importers:
         specifier: ^7.3.8
         version: link:../../packages/astro
       solid-js:
-        specifier: ^1.9.15
+        specifier: ^1.9.17
         version: 1.9.17
 
   examples/framework-svelte:
@@ -377,7 +377,7 @@ importers:
         specifier: ^7.3.8
         version: link:../../packages/astro
       svelte:
-        specifier: ^5.57.1
+        specifier: ^5.57.2
         version: 5.57.2(@typescript-eslint/types@8.71.0)
 
   examples/framework-vue:
@@ -431,7 +431,7 @@ importers:
         specifier: ^7.3.8
         version: link:../../packages/astro
       svelte:
-        specifier: ^5.57.1
+        specifier: ^5.57.2
         version: 5.57.2(@typescript-eslint/types@8.71.0)
 
   examples/starlog:
@@ -486,13 +486,13 @@ importers:
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
         specifier: ^1.1.1
-        version: 1.1.1(nanostores@1.5.4)(preact@10.29.8)
+        version: 1.1.1(nanostores@1.5.5)(preact@10.29.8)
       astro:
         specifier: ^7.3.8
         version: link:../../packages/astro
       nanostores:
-        specifier: ^1.5.4
-        version: 1.5.4
+        specifier: ^1.5.5
+        version: 1.5.5
       preact:
         specifier: ^10.29.8
         version: 10.29.8(preact-render-to-string@6.8.0)
@@ -14384,8 +14384,8 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  nanostores@1.5.4:
-    resolution: {integrity: sha512-4UXY7OAJEK0Y6V3SudBU7cXjAzTDc189R78dDOh0Xbm19gpKYto6WizSg58LJf12lTsRxKSLGyE117OiLpM4DQ==}
+  nanostores@1.5.5:
+    resolution: {integrity: sha512-FixtE239Gl6Gz0ZGCK0WzvNwObNCIwVT+L7zQcf1QgcA6AzBxblzqe9OT88qiucNkhsjSOqiogSaF5jVbJiqSA==}
     engines: {node: ^20.0.0 || >=22.0.0}
 
   napi-build-utils@2.0.0:
@@ -19259,9 +19259,9 @@ snapshots:
     dependencies:
       zod: 4.6.5
 
-  '@nanostores/preact@1.1.1(nanostores@1.5.4)(preact@10.29.8)':
+  '@nanostores/preact@1.1.1(nanostores@1.5.5)(preact@10.29.8)':
     dependencies:
-      nanostores: 1.5.4
+      nanostores: 1.5.5
       preact: 10.29.8(preact-render-to-string@6.8.0)
 
   '@napi-rs/keyring-darwin-arm64@1.3.0':
@@ -24793,7 +24793,7 @@ snapshots:
 
   nanoid@3.3.18: {}
 
-  nanostores@1.5.4: {}
+  nanostores@1.5.5: {}
 
   napi-build-utils@2.0.0:
     optional: true
