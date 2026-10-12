@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -275,6 +275,23 @@ describe('isLockFileProcessAlive', () => {
 		];
 
 		assert.equal(await isLockFileProcessAlive(data, findProcess), false);
+	});
+
+	it('returns false when the PID is a thread of another process', {
+		skip: process.platform !== 'linux',
+	}, async () => {
+		// Node starts its worker threads shortly after the process itself.
+		let threadId: string | undefined;
+		for (let attempt = 0; attempt < 50 && threadId === undefined; attempt++) {
+			threadId = readdirSync(`/proc/${childPid}/task`).find((id) => id !== String(childPid));
+			if (threadId === undefined) await new Promise((resolve) => setTimeout(resolve, 20));
+		}
+		const tid = Number(threadId);
+		assert.ok(isProcessAlive(tid));
+
+		// `ps -p <tid>` lists nothing, which find-proc reports as an empty result.
+		const data = { ...validData, pid: tid };
+		assert.equal(await isLockFileProcessAlive(data, async () => []), false);
 	});
 
 	it('keeps the PID-only result when the command cannot be inspected', async () => {

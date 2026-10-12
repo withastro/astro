@@ -105,6 +105,22 @@ export function isAstroCommand(command: string): boolean {
 	return ASTRO_COMMAND_PATTERN.test(command);
 }
 
+/**
+ * Check whether a live ID is a Linux thread that is not the main thread of its process.
+ * Returns false on other platforms or when `/proc` cannot be read.
+ */
+function isLinuxThreadId(pid: number): boolean {
+	if (process.platform !== 'linux') {
+		return false;
+	}
+	try {
+		const tgid = /^Tgid:\s*(\d+)$/m.exec(readFileSync(`/proc/${pid}/status`, 'utf-8'))?.[1];
+		return tgid !== undefined && Number(tgid) !== pid;
+	} catch {
+		return false;
+	}
+}
+
 interface ProcessInfo {
 	pid: number;
 	cmd?: string;
@@ -133,6 +149,13 @@ export async function isLockFileProcessAlive(
 	}
 
 	if (!isProcessAlive(data.pid)) {
+		return false;
+	}
+
+	// On Linux, `kill(tid, 0)` succeeds for a thread id, but `ps` does not list it, so the
+	// command lookup below cannot tell it apart from an uninspectable process. After a
+	// container restart the recorded PID is often a thread of an unrelated process. (#18343)
+	if (isLinuxThreadId(data.pid)) {
 		return false;
 	}
 
