@@ -3646,6 +3646,8 @@ export interface AstroUserConfig<
 		 * copied with [structured cloning](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm),
 		 * such as functions or class instances, keep their pages on the first worker.
 		 *
+		 * This option has no effect when an adapter or integration provides its own prerenderer.
+		 *
 		 * ```js
 		 * // astro.config.mjs
 		 * import { defineConfig } from 'astro/config';

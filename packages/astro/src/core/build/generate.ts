@@ -98,6 +98,12 @@ async function generatePagesInBuildScope(
 		// Direct prerenderer object - use as-is
 		prerenderer = settingsPrerenderer;
 	}
+	if (settingsPrerenderer && options.settings.config.experimental.parallelPrerender) {
+		logger.warn(
+			'build',
+			`\`experimental.parallelPrerender\` is not supported by the "${prerenderer.name}" prerenderer and will be ignored.`,
+		);
+	}
 
 	// Set up the prerenderer
 	await prerenderer.setup?.();
