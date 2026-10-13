@@ -172,6 +172,14 @@ export function vitePluginServerIslands({
 		renderChunk(code, chunk) {
 			if (!code.includes(SERVER_ISLAND_MAP_MARKER)) return;
 
+			// Do not replace placeholders in chunks bundling the server-islands plugin itself
+			// (e.g. create-vite bundling astro/config). Also ensure the chunk actually includes
+			// the resolved server island manifest virtual module before replacing placeholders.
+			if (code.includes('serverIslandPlaceholderMap')) return;
+			if (chunk.moduleIds && !chunk.moduleIds.includes(RESOLVED_SERVER_ISLAND_MANIFEST)) {
+				return;
+			}
+
 			if (command === 'build') {
 				const envName = this.environment?.name;
 				let mapSource: string;
