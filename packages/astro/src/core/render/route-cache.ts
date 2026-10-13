@@ -90,6 +90,8 @@ export async function callGetStaticPaths({
 interface RouteCacheEntry {
 	mod: ComponentInstance;
 	staticPaths: GetStaticPathsResultKeyed;
+	/** Holds only some of the route's items, so a miss doesn't mean the path doesn't exist. */
+	partial?: boolean;
 }
 
 /**
@@ -130,6 +132,10 @@ export class RouteCache {
 
 	get(route: RouteData): RouteCacheEntry | undefined {
 		return this.cache[this.key(route)];
+	}
+
+	delete(route: RouteData): void {
+		delete this.cache[this.key(route)];
 	}
 
 	key(route: RouteData) {

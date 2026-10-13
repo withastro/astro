@@ -80,7 +80,7 @@ export class BuildApp extends BaseApp {
 			return;
 		}
 		const staticPaths = Object.assign([item], { keyed: new Map([[key, item]]) });
-		this.routeCache.set(routeData, { mod, staticPaths });
+		this.routeCache.set(routeData, { mod, staticPaths, partial: true });
 	}
 
 	logRequest(_options: LogRequestPayload) {}
