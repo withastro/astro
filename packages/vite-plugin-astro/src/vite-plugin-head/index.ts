@@ -1,11 +1,11 @@
 import type * as vite from 'vite';
 import type { DevEnvironment } from 'vite';
-import { PROPAGATED_ASSET_FLAG } from '../core/head-propagation/boundary.js';
+import { PROPAGATED_ASSET_FLAG } from '@astrojs/runtime/internal/core/head-propagation/boundary.js';
 import {
 	buildImporterGraphFromModuleInfo,
 	computeInTreeAncestors,
-} from '../core/head-propagation/graph.js';
-import type { SSRComponentMetadata } from '../types.js';
+} from '@astrojs/runtime/internal/core/head-propagation/graph.js';
+import type { SSRComponentMetadata } from '@astrojs/runtime/types';
 import { getAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { RESOLVED_VIRTUAL_COMPONENT_METADATA, VIRTUAL_COMPONENT_METADATA } from './const.js';

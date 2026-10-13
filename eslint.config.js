@@ -132,7 +132,7 @@ const configs = [
 		},
 	},
 	{
-		files: ['packages/vite-plugin-astro/src/core/errors/errors-data.ts'],
+		files: ['packages/runtime/src/core/errors/errors-data.ts'],
 		rules: {
 			// This file is used for docs generation, as such the code need to be in a certain format, we can somewhat ensure this with these rules
 			'object-shorthand': ['error', 'methods', { avoidExplicitReturnArrows: true }],

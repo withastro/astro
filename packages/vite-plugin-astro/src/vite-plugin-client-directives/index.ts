@@ -1,6 +1,6 @@
 import type { Plugin } from 'vite';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/build.js';
-import type { ClientDirectiveConfig } from '../types.js';
+import type { ClientDirectiveConfig } from '@astrojs/runtime/types';
 
 export const CLIENT_DIRECTIVES_MODULE_ID = 'virtual:astro:client-directives';
 const RESOLVED_CLIENT_DIRECTIVES_MODULE_ID = `\0${CLIENT_DIRECTIVES_MODULE_ID}`;

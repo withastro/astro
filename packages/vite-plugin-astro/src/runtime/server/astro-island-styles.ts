@@ -1,1 +1,1 @@
-export const ISLAND_STYLES = 'astro-island,astro-slot,astro-static-slot{display:contents}';
+export * from '@astrojs/runtime/internal/server/astro-island-styles.js';

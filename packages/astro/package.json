@@ -127,6 +127,7 @@
     "@astrojs/compiler-rs": "^0.5.1",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-satteri": "workspace:*",
+    "@astrojs/runtime": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
     "@astrojs/vite-plugin-astro": "workspace:*",
     "@capsizecss/unpack": "^4.0.1",

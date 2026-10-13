@@ -1,7 +1,11 @@
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import { preprocessCSS, type ResolvedConfig } from 'vite';
-import { AstroErrorData, CSSError, positionAt } from '../errors/index.js';
+import {
+	AstroErrorData,
+	CSSError,
+	positionAt,
+} from '@astrojs/runtime/internal/core/errors/index.js';
 import { normalizePath } from '../vite-id.js';
 import type { CompileConfig } from './compile.js';
 import type { CompileCssResult } from './types.js';

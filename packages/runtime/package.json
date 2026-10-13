@@ -1,0 +1,51 @@
+{
+  "name": "@astrojs/runtime",
+  "description": "The render runtime of Astro components.",
+  "version": "0.0.0",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/runtime"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
+  "exports": {
+    ".": "./dist/index.js",
+    "./server": "./dist/server/index.js",
+    "./client/*": "./dist/client/*",
+    "./jsx-runtime": "./dist/jsx-runtime/index.js",
+    "./render": "./dist/render.js",
+    "./compiler-runtime": "./dist/compiler/index.js",
+    "./types": "./dist/types.js",
+    "./internal/*": "./dist/*"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepublish": "pnpm build",
+    "prebuild": "astro-scripts prebuild --to-string \"src/server/astro-island.ts\" \"src/client/{idle,load,media,only,visible}.ts\"",
+    "build": "pnpm run prebuild && astro-scripts build \"src/**/*.ts\" && tsc -b",
+    "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev --prebuild \"src/server/astro-island.ts\" --prebuild \"src/client/{idle,load,media,only,visible}.ts\" \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@oslojs/encoding": "^1.1.0",
+    "clsx": "^2.1.1"
+  },
+  "devDependencies": {
+    "@astrojs/compiler-rs": "^0.5.1",
+    "astro-scripts": "workspace:*"
+  },
+  "keywords": [
+    "astro",
+    "withastro"
+  ],
+  "publishConfig": {
+    "provenance": true
+  }
+}

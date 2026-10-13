@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type * as z from 'zod/v4';
 import { type AstroPluginOptions, AstroPluginOptionsSchema } from './options.js';
-import type { AstroRenderer, ClientDirectiveConfig } from './types.js';
+import type { AstroRenderer, ClientDirectiveConfig } from '@astrojs/runtime/types';
 import compilePlugins, { type AstroCompileConfig } from './vite-plugin-astro/index.js';
 import clientDirectivesPlugin from './vite-plugin-client-directives/index.js';
 import componentAssetsPlugin from './vite-plugin-component-assets/index.js';

@@ -1,4 +1,4 @@
-import type { SSRComponentMetadata, StylesheetAsset } from '../types.js';
+import type { SSRComponentMetadata, StylesheetAsset } from '@astrojs/runtime/types';
 
 /** What rendering one component tree needs from the build or the dev server. */
 export interface ComponentAssets {

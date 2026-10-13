@@ -1,4 +1,4 @@
 // NOTE: Although this entrypoint is exported, it is internal API and may change at any time.
 
-export * from '@astrojs/vite-plugin-astro/internal/runtime/client/idle.js';
-export { default } from '@astrojs/vite-plugin-astro/internal/runtime/client/idle.js';
+export * from '@astrojs/runtime/internal/client/idle.js';
+export { default } from '@astrojs/runtime/internal/client/idle.js';

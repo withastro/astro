@@ -1,6 +1,6 @@
 import * as z from 'zod/v4';
 import { ASTRO_PLUGIN_DEFAULTS } from './defaults.js';
-import type { AstroRenderer, ClientDirectiveConfig } from './types.js';
+import type { AstroRenderer, ClientDirectiveConfig } from '@astrojs/runtime/types';
 
 const EntrypointSchema = z.union([z.string(), z.instanceof(URL)]);
 

@@ -1,6 +1,6 @@
 import type { HoistedScript, TransformResult } from '@astrojs/compiler-rs';
 import type { CompileCssResult } from '../core/compile/types.js';
-import type { PropagationHint } from '../types.js';
+import type { PropagationHint } from '@astrojs/runtime/types';
 
 interface PageOptions {
 	prerender?: boolean;

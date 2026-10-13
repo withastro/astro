@@ -1,11 +1,11 @@
 import { clientDirectives } from 'virtual:astro:client-directives';
 import { getComponentAssets, renderConfig } from 'virtual:astro:component-assets';
 import { renderers } from 'virtual:astro:renderers';
-import { Slots } from '../core/render/slots.js';
-import { ASTRO_GENERATOR } from '../runtime/server/astro-global.js';
-import { type AstroComponentFactory, renderPage } from '../runtime/server/index.js';
-import { SlotString } from '../runtime/server/render/slot.js';
-import type { AstroGlobal, SSRElement, SSRResult, StylesheetAsset } from '../types.js';
+import { Slots } from '@astrojs/runtime/internal/core/render/slots.js';
+import { ASTRO_GENERATOR } from '@astrojs/runtime/internal/server/astro-global.js';
+import { type AstroComponentFactory, renderPage } from '@astrojs/runtime/server';
+import { SlotString } from '@astrojs/runtime/internal/server/render/slot.js';
+import type { AstroGlobal, SSRElement, SSRResult, StylesheetAsset } from '@astrojs/runtime/types';
 
 export interface RenderOptions {
 	/** Props passed to the component. */
