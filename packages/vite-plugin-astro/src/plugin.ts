@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type * as z from 'zod/v4';
 import { type AstroPluginOptions, AstroPluginOptionsSchema } from './options.js';
@@ -49,6 +49,7 @@ export interface AstroPluginApi {
 }
 
 const PLUGIN_NAME = '@astrojs/vite-plugin-astro';
+const RUNTIME_NAME = '@astrojs/runtime';
 
 /**
  * Compiles `.astro` components and serves what `@astrojs/vite-plugin-astro/render` needs to render
@@ -101,8 +102,20 @@ export default function astro(options: AstroPluginOptions = {}): Plugin[] {
 				const consumer = environmentOptions.consumer ?? (name === 'client' ? 'client' : 'server');
 				if (consumer !== 'server') return;
 				// The render API imports virtual modules, so Vite must process the package rather than
-				// externalize it. This also keeps one copy of the runtime for compiled components.
-				return { resolve: { noExternal: [PLUGIN_NAME] } };
+				// externalize it. The runtime is processed too, so that compiled components and the
+				// render API share one copy of it, resolved by the hook below.
+				return { resolve: { noExternal: [PLUGIN_NAME, RUNTIME_NAME] } };
+			},
+			resolveId: {
+				filter: { id: /^@astrojs\/runtime(?:\/|$)/ },
+				handler(id, _importer, resolveOptions) {
+					// Compiled components import `@astrojs/runtime`, which a project that depends only on
+					// this package cannot resolve itself.
+					return this.resolve(id, fileURLToPath(import.meta.url), {
+						...resolveOptions,
+						skipSelf: true,
+					});
+				},
 			},
 		},
 		...compilePlugins({

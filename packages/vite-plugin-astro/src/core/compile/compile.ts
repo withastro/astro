@@ -36,7 +36,7 @@ export interface CompileProps {
 	/**
 	 * Module that compiled components import their runtime from.
 	 *
-	 * @default '@astrojs/vite-plugin-astro/compiler-runtime'
+	 * @default '@astrojs/runtime/compiler-runtime'
 	 */
 	internalURL?: string;
 	/**
@@ -58,7 +58,7 @@ export async function compile({
 	filename,
 	source,
 	inlineComponentAssets,
-	internalURL = '@astrojs/vite-plugin-astro/compiler-runtime',
+	internalURL = '@astrojs/runtime/compiler-runtime',
 	transitionsAnimationURL = '@astrojs/vite-plugin-astro/components/viewtransitions.css',
 }: CompileProps): Promise<CompileResult> {
 	const cssPartialCompileResults: PartialCompileCssResult[] = [];
