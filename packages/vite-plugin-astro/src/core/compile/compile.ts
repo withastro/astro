@@ -6,9 +6,9 @@ import {
 	type TransformResult,
 } from '@astrojs/compiler-rs';
 import type { ResolvedConfig } from 'vite';
-import type { AstroError } from '../errors/errors.js';
-import { AggregateError, CompilerError } from '../errors/errors.js';
-import { AstroErrorData } from '../errors/index.js';
+import type { AstroError } from '@astrojs/runtime/internal/core/errors/errors.js';
+import { AggregateError, CompilerError } from '@astrojs/runtime/internal/core/errors/errors.js';
+import { AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import { resolvePath } from '@astrojs/internal-helpers/mdx';
 import { normalizePath } from '../vite-id.js';
 import { createStylePreprocessor, type PartialCompileCssResult } from './style.js';

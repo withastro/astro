@@ -11,13 +11,13 @@ import {
 	type Rolldown,
 	type ViteBuilder,
 } from 'vite';
-import { PROPAGATED_ASSET_FLAG } from '../core/head-propagation/boundary.js';
+import { PROPAGATED_ASSET_FLAG } from '@astrojs/runtime/internal/core/head-propagation/boundary.js';
 import {
 	buildImporterGraphFromModuleInfo,
 	computeInTreeAncestors,
-} from '../core/head-propagation/graph.js';
+} from '@astrojs/runtime/internal/core/head-propagation/graph.js';
 import { CSS_LANGS_RE, normalizePath } from '../core/vite-id.js';
-import type { AstroRenderer, SSRComponentMetadata } from '../types.js';
+import type { AstroRenderer, SSRComponentMetadata } from '@astrojs/runtime/types';
 import { getAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import {

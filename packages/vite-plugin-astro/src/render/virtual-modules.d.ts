@@ -9,6 +9,6 @@ declare module 'virtual:astro:component-assets' {
 }
 
 declare module 'virtual:astro:renderers' {
-	import type { SSRLoadedRenderer } from '../types.js';
+	import type { SSRLoadedRenderer } from '@astrojs/runtime/types';
 	export const renderers: SSRLoadedRenderer[];
 }

@@ -1,6 +1,6 @@
 # Errors
 
-> Interested in the technical details? See the comments in [errors-data.ts.](../../../../vite-plugin-astro/src/core/errors/errors-data.ts)
+> Interested in the technical details? See the comments in [errors-data.ts.](../../../../runtime/src/core/errors/errors-data.ts)
 
 ## Writing error messages for Astro
 

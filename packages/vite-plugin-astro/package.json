@@ -26,17 +26,15 @@
   ],
   "scripts": {
     "prepublish": "pnpm build",
-    "prebuild": "astro-scripts prebuild --to-string \"src/runtime/server/astro-island.ts\" \"src/runtime/client/{idle,load,media,only,visible}.ts\"",
-    "build": "pnpm run prebuild && astro-scripts build \"src/**/*.ts\" && tsc -b",
-    "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.ts\"",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "astro-scripts test \"test/**/*.test.ts\""
   },
   "dependencies": {
     "@astrojs/compiler-rs": "^0.5.1",
     "@astrojs/internal-helpers": "workspace:*",
-    "@oslojs/encoding": "^1.1.0",
-    "clsx": "^2.1.1",
+    "@astrojs/runtime": "workspace:*",
     "common-ancestor-path": "^2.0.0",
     "magic-string": "^1.4.2",
     "rolldown": "^1.2.11",

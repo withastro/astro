@@ -5,4 +5,4 @@ export {
 	getAstroApi,
 	type ResolvedSharedConfig,
 } from './plugin.js';
-export type * from './types.js';
+export type * from '@astrojs/runtime/types';

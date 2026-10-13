@@ -541,6 +541,9 @@ importers:
       '@astrojs/markdown-satteri':
         specifier: workspace:*
         version: link:../markdown/satteri
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../runtime
       '@astrojs/telemetry':
         specifier: workspace:*
         version: link:../telemetry
@@ -7240,6 +7243,22 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
 
+  packages/runtime:
+    dependencies:
+      '@oslojs/encoding':
+        specifier: ^1.1.0
+        version: 1.1.0
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+    devDependencies:
+      '@astrojs/compiler-rs':
+        specifier: ^0.5.1
+        version: 0.5.1
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../scripts
+
   packages/telemetry:
     dependencies:
       ci-info:
@@ -7301,12 +7320,9 @@ importers:
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
-      '@oslojs/encoding':
-        specifier: ^1.1.0
-        version: 1.1.0
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../runtime
       common-ancestor-path:
         specifier: ^2.0.0
         version: 2.0.0

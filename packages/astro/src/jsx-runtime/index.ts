@@ -1,1 +1,1 @@
-export * from '@astrojs/vite-plugin-astro/internal/jsx-runtime/index.js';
+export * from '@astrojs/runtime/jsx-runtime';

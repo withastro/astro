@@ -8,6 +8,7 @@
     { "path": "../internal-helpers/tsconfig.json" },
     { "path": "../telemetry/tsconfig.json" },
     { "path": "../markdown/remark/tsconfig.json" },
+    { "path": "../runtime/tsconfig.json" },
     { "path": "../vite-plugin-astro/tsconfig.json" }
   ]
 }

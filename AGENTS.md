@@ -75,7 +75,7 @@ These rules apply to **every** comment you write, including ones added incidenta
 - Deletion test: a comment must state something the reader cannot recover from the code. If names or types already carry it, don't write it.
 - `/** */` docs state the contract (behavior, params, returns, throws); `//` comments carry rationale only. Anchor a workaround to the GitHub issue or PR that motivates it.
 - When your change alters documented behavior, extend or correct the existing prose — never replace specific docs with generic text.
-- Exception: `@docs`-tagged JSDoc in `packages/astro/src/types/public/config.ts` and `packages/vite-plugin-astro/src/core/errors/errors-data.ts` is end-user documentation generated to the website; these rules don't apply there.
+- Exception: `@docs`-tagged JSDoc in `packages/astro/src/types/public/config.ts` and `packages/runtime/src/core/errors/errors-data.ts` is end-user documentation generated to the website; these rules don't apply there.
 
 # Environment Guide
 

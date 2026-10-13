@@ -1,5 +1,5 @@
 import type { Environment, Plugin as VitePlugin } from 'vite';
-import type { AstroRenderer } from '../types.js';
+import type { AstroRenderer } from '@astrojs/runtime/types';
 import { ASTRO_RENDERERS_MODULE_ID, RESOLVED_ASTRO_RENDERERS_MODULE_ID } from './const.js';
 
 export { ASTRO_RENDERERS_MODULE_ID };

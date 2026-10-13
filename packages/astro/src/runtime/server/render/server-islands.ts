@@ -1,3 +1,3 @@
 // NOTE: Although this entrypoint is exported, it is internal API and may change at any time.
 
-export * from '@astrojs/vite-plugin-astro/internal/runtime/server/render/server-islands.js';
+export * from '@astrojs/runtime/internal/server/render/server-islands.js';

@@ -1,6 +1,6 @@
 import { prependForwardSlash } from '@astrojs/internal-helpers/path';
 import { type DevEnvironment, type EnvironmentModuleNode, isCSSRequest } from 'vite';
-import { PROPAGATED_ASSET_FLAG } from '../core/head-propagation/boundary.js';
+import { PROPAGATED_ASSET_FLAG } from '@astrojs/runtime/internal/core/head-propagation/boundary.js';
 import { wrapId } from '../core/vite-id.js';
 import {
 	RESOLVED_MODULE_DEV_CSS,
