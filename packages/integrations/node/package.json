@@ -40,8 +40,8 @@
     "astro": "^7.2.1"
   },
   "devDependencies": {
-    "@fastify/middie": "^9.3.4",
-    "@fastify/static": "^10.1.5",
+    "@fastify/middie": "^9.3.5",
+    "@fastify/static": "^10.1.6",
     "@types/express": "^5.0.6",
     "@types/node": "^22.10.6",
     "@types/send": "^1.2.1",
@@ -50,7 +50,7 @@
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
     "devalue": "^5.9.4",
-    "express": "^5.2.1",
+    "express": "^5.3.0",
     "fastify": "^5.12.5",
     "node-mocks-http": "^1.18.1"
   },
