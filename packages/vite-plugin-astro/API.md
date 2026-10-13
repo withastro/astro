@@ -54,6 +54,8 @@ export const render = (props) => renderToString(Page, { props });
 
 The standalone `Astro` global has `props`, `self`, `slots`, `request`, `url`, `site` and `generator`. Request-level APIs (`cookies`, `params`, `redirect`, `locals`, actions, sessions, i18n) and server islands belong to `@astrojs/vite-plugin-pages` and are not available.
 
+`@astrojs/vite-plugin-astro/render` is `createRenderer()` from `@astrojs/runtime` bound to the virtual modules of `astro()`. To render components compiled ahead of time without Vite, use `createRenderer()` directly (see [`@astrojs/runtime`'s API.md](../runtime/API.md#rendering-without-vite)); `@astrojs/vite-plugin-astro/render/core` re-exports it.
+
 ### Assets
 
 The render API reads a component tree's assets from `virtual:astro:component-assets` (`vite-plugin-component-assets`):
@@ -69,7 +71,7 @@ Standalone settings that have no option yet: `scopedStyleStrategy` is `'attribut
 
 Pass renderers in `options.renderers`; there are no integrations in plugin mode. A renderer package that reads a virtual module its integration normally provides needs that module from another plugin. For `@astrojs/react`, provide `astro:react:opts` and add `@astrojs/react` to `ssr.noExternal` (see `test/fixtures/standalone/vite.config.js`). The framework's own Vite plugin (for example `@vitejs/plugin-react`) is optional.
 
-`astro()` adds `@astrojs/vite-plugin-astro` to `resolve.noExternal` in server environments: the render API imports virtual modules, and compiled components must share its copy of the runtime.
+Compiled components import `@astrojs/runtime/compiler-runtime`. `astro()` resolves `@astrojs/runtime` from its own location, so a project does not need to depend on it, and adds `@astrojs/vite-plugin-astro` and `@astrojs/runtime` to `resolve.noExternal` in server environments: the render API imports virtual modules, and compiled components must share its copy of the runtime.
 
 ## `api.astro`
 
@@ -110,7 +112,7 @@ The plugin is located by name (`@astrojs/vite-plugin-astro`). Never pass `AstroS
 
 ## Types
 
-Exported from the package root and re-exported unchanged from `astro`:
+Defined in `@astrojs/runtime`, exported from the package root and re-exported unchanged from `astro`:
 
 - Renderers: `AstroRenderer`, `SSRLoadedRenderer`, `SSRLoadedRendererValue`, `NamedSSRLoadedRendererValue`, `AsyncRendererComponentFn`, `AstroComponentMetadata`
 - Directives: `ClientDirective`, `ClientDirectiveConfig`, `AstroClientDirectives`, `ClientVisibleOptions`
@@ -153,6 +155,8 @@ What `astro` merges in today:
 
 `./internal/*` maps to `./dist/*`. It is for `astro` and `@astrojs/vite-plugin-pages` only: no stability guarantee. Import with the `.js` path of the source file under `src/`.
 
+The runtime lives in `@astrojs/runtime` (see [its API.md](../runtime/API.md#internal-modules-astrojsruntimeinternal)). The `runtime/**`, `jsx-runtime`, `core/{client-directive/default,render/slots,head-propagation,render-scope,csp,encryption,routing}`, `transitions` and `types/public` entries below, and `./compiler-runtime` and `./render/core`, are compatibility re-exports of it: `internal/runtime/server/*` and `internal/runtime/client/*` are `@astrojs/runtime/internal/server/*` and `internal/client/*`, and the other paths are the same in both packages. Only the modules that `astro` and the packages built on this one import are re-exported; new code imports `@astrojs/runtime`. `core/errors/*` re-exports the runtime's errors and adds the helpers that need zod, Vite or YAML/TOML parsers (`errorMap`, `isAstroConfigZodError`, `trackAstroConfigZodError`, `formatYAMLParseError`, `formatTOMLError`, `isTOMLError`, `isYAMLParseError`). `core/client-directive/index.js` adds `buildClientDirectiveEntrypoint()`, which bundles with Rolldown.
+
 | Module                                                                                         | Contents                                                                                                                                                                                                                                                                                                                     |
 | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `runtime/server/index.js` (+ `runtime/server/**`)                                              | The render runtime: `renderComponent`, `renderPage`, `renderTemplate`, `renderSlot`, escape helpers, `createAstro`, server island rendering, `ISLAND_STYLES`, `astro-island.prebuilt.js` / `astro-island.prebuilt-dev.js` (CSP hashes). `renderEndpoint` stays in `astro` (`astro/runtime/server/index.js` re-exports both). |
@@ -179,4 +183,4 @@ What `astro` merges in today:
 | `vite-plugin-client-directives/index.js`                                                       | `virtual:astro:client-directives` (built-in plus custom directive scripts). Standalone only.                                                                                                                                                                                                                                 |
 | `vite-plugin-component-assets/index.js`                                                        | `virtual:astro:component-assets` (see [Assets](#assets)). Standalone only.                                                                                                                                                                                                                                                   |
 | `vite-plugin-css/collect.js`                                                                   | `ensureModulesLoaded`, `collectCSSWithOrder` (dev module graph walk for stylesheets, with an `isBoundary` option), `isBuildableCSSRequest`.                                                                                                                                                                                  |
-| `runtime/compiler/index.js`                                                                    | The compiled-component runtime, also exported as `@astrojs/vite-plugin-astro/compiler-runtime` (re-exported by `astro/compiler-runtime`).                                                                                                                                                                                    |
+| `runtime/compiler/index.js`                                                                    | The compiled-component runtime, also exported as `@astrojs/vite-plugin-astro/compiler-runtime`. `astro/compiler-runtime` re-exports `@astrojs/runtime/compiler-runtime`.                                                                                                                                                     |
