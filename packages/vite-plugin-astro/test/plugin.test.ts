@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { type ResolvedConfig, resolveConfig } from 'vite';
+import { createServer, type ResolvedConfig, resolveConfig } from 'vite';
 import astro, { getAstroApi } from '../dist/index.js';
 
 const root = new URL('./fixtures/', import.meta.url);
@@ -59,6 +62,26 @@ describe('astro()', () => {
 		const [plugin] = astro({ renderers: [renderer], clientDirectives: [directive] });
 		assert.deepEqual(plugin.api.astro.renderers, [renderer]);
 		assert.deepEqual(plugin.api.astro.clientDirectives, [directive]);
+	});
+
+	it('resolves the runtime for components in a project that does not depend on it', async () => {
+		// Outside this package, so the project's own module resolution cannot find `@astrojs/runtime`.
+		const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'vite-plugin-astro-'));
+		await fs.writeFile(path.join(projectRoot, 'Page.astro'), '<h1>Hello</h1>');
+		const server = await createServer({
+			configFile: false,
+			logLevel: 'silent',
+			root: projectRoot,
+			server: { middlewareMode: true, ws: false },
+			plugins: [astro()],
+		});
+		try {
+			const mod = await server.ssrLoadModule('/Page.astro');
+			assert.equal(mod.default.isAstroComponentFactory, true);
+		} finally {
+			await server.close();
+			await fs.rm(projectRoot, { recursive: true, force: true });
+		}
 	});
 
 	it('throws when the config is read before Vite resolves it', () => {
