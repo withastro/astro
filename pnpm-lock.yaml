@@ -6268,7 +6268,7 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       svelte:
-        specifier: ^5.57.1
+        specifier: ^5.57.2
         version: 5.57.2(@typescript-eslint/types@8.71.0)
 
   packages/integrations/svelte/test/fixtures/async-rendering:
@@ -6280,7 +6280,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.57.1
+        specifier: ^5.57.2
         version: 5.57.2(@typescript-eslint/types@8.71.0)
 
   packages/integrations/svelte/test/fixtures/conditional-rendering:
@@ -6292,7 +6292,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.57.1
+        specifier: ^5.57.2
         version: 5.57.2(@typescript-eslint/types@8.71.0)
 
   packages/integrations/svelte/test/fixtures/empty-class:
@@ -6304,7 +6304,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.57.1
+        specifier: ^5.57.2
         version: 5.57.2(@typescript-eslint/types@8.71.0)
 
   packages/integrations/svelte/test/fixtures/prop-types:
@@ -6316,7 +6316,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.57.1
+        specifier: ^5.57.2
         version: 5.57.2(@typescript-eslint/types@8.71.0)
 
   packages/integrations/vercel:
