@@ -143,5 +143,17 @@ describe('generateSitemap', () => {
 			assert.equal(items[7].url, `${site}/fr/b`);
 			assert.deepEqual(items[7].links, bLinks);
 		});
+
+		it('does not treat Object.prototype keys as locales', () => {
+			const items = generateSitemap([`${site}/`, `${site}/constructor/`, `${site}/es/`], site, {
+				i18n: { defaultLocale: 'en', locales: { en: 'en-US', es: 'es-ES' } },
+			});
+
+			assert.deepEqual(items[0].links, [
+				{ url: `${site}/`, lang: 'en-US' },
+				{ url: `${site}/es/`, lang: 'es-ES' },
+			]);
+			assert.equal(items[1].links, undefined);
+		});
 	});
 });
