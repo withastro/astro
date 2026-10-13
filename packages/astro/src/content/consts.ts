@@ -5,6 +5,8 @@ export const CONTENT_FLAG = 'astroContentCollectionEntry';
 export const DATA_FLAG = 'astroDataCollectionEntry';
 export const CONTENT_IMAGE_FLAG = 'astroContentImageFlag';
 export const CONTENT_MODULE_FLAG = 'astroContentModuleFlag';
+// Marks the content config module imported by the server runtime, which keeps only the live collections.
+export const LIVE_COLLECTIONS_FLAG = 'astroLiveCollections';
 // Marks a Markdown module imported to render a content collection entry, so that page-only
 // frontmatter such as `layout` is ignored. See https://github.com/withastro/astro/issues/18169
 export const MARKDOWN_CONTENT_ENTRY_FLAG = 'astroMarkdownContentEntry';

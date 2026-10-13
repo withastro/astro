@@ -21,6 +21,7 @@ import {
 	CONTENT_MODULE_FLAG,
 	DEFERRED_MODULE,
 	IMAGE_IMPORT_PREFIX,
+	LIVE_COLLECTIONS_FLAG,
 	LIVE_CONTENT_TYPE,
 } from './consts.js';
 import { glob, secretLegacyFlag } from './loaders/glob.js';
@@ -118,9 +119,12 @@ function contentConfigParser(logger: AstroLogger) {
 					]),
 				}),
 				z.object({
-					type: z.literal(LIVE_CONTENT_TYPE).optional().default(LIVE_CONTENT_TYPE),
+					type: z.literal(LIVE_CONTENT_TYPE),
 					schema: z.any().optional(),
-					loader: z.function(),
+					loader: z.looseObject({
+						loadCollection: z.custom<Function>((v) => typeof v === 'function'),
+						loadEntry: z.custom<Function>((v) => typeof v === 'function'),
+					}),
 				}),
 			]),
 		),
@@ -490,6 +494,11 @@ export function hasContentFlag(viteId: string, flag: (typeof CONTENT_FLAGS)[numb
 	return flags.has(flag);
 }
 
+export function hasLiveCollectionsFlag(viteId: string): boolean {
+	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
+	return flags.has(LIVE_COLLECTIONS_FLAG);
+}
+
 export function isDeferredModule(viteId: string): boolean {
 	const flags = new URLSearchParams(viteId.split('?')[1] ?? '');
 	return flags.has(CONTENT_MODULE_FLAG);
@@ -528,18 +537,6 @@ async function loadContentConfig({
 			.map((issue) => `  → ${colors.green(issue.path.join('.'))}: ${colors.red(issue.message)}`)
 			.join('\n');
 		logger.error('content', `There was a problem with your content config:\n\n${message}\n`);
-		const liveCollections = Object.entries(unparsedConfig.collections ?? {}).filter(
-			([, collection]: [string, any]) => collection?.type === LIVE_CONTENT_TYPE,
-		);
-		if (liveCollections.length > 0) {
-			throw new AstroError({
-				...AstroErrorData.LiveContentConfigError,
-				message: AstroErrorData.LiveContentConfigError.message(
-					'Live collections must be defined in a `src/live.config.ts` file.',
-					path.relative(fileURLToPath(settings.config.root), configPathname),
-				),
-			});
-		}
 		return undefined;
 	}
 }

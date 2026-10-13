@@ -7,3 +7,4 @@ export {
 	astroContentVirtualModPlugin,
 	attachDataStoreInvalidation,
 } from './vite-plugin-content-virtual-mod.js';
+export { astroLiveCollectionsPlugin } from './vite-plugin-live-collections.js';
