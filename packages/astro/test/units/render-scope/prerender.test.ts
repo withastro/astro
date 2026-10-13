@@ -8,6 +8,9 @@ import {
 	recordStaticImage,
 } from '../../../dist/core/render-scope/record.js';
 import type { SerializedStaticImage } from '../../../dist/assets/types.js';
+import { getEnvironment, setEnvironment } from '../../../dist/core/environment/index.js';
+import { productionEnvironment } from '../../../dist/core/environment/production.js';
+import { createManifest } from '../app/test-helpers.ts';
 import { defaultLogger } from '../test-utils.ts';
 
 function image(hash: string): SerializedStaticImage {
@@ -127,5 +130,34 @@ describe('renderForPrerender', () => {
 		});
 		await renderForPrerender(app, request(), { routeData });
 		assert.equal(received, routeData);
+	});
+
+	it('switches a production app manifest to the build error strategy', async () => {
+		const manifest = createManifest();
+		assert.equal(getEnvironment(manifest).errorStrategy, 'default');
+		let strategyDuringRender: string | undefined;
+		const app: PrerenderableApp = {
+			logger: defaultLogger,
+			manifest,
+			render: async () => {
+				strategyDuringRender = getEnvironment(manifest).errorStrategy;
+				return new Response('ok');
+			},
+		};
+		await renderForPrerender(app, request());
+		assert.equal(strategyDuringRender, 'build');
+		// Other environment behavior is preserved.
+		assert.equal(getEnvironment(manifest).resolve, productionEnvironment.resolve);
+	});
+
+	it('does not override a dev error strategy', async () => {
+		const manifest = createManifest();
+		const devEnvironment = { ...productionEnvironment, errorStrategy: 'dev' as const };
+		setEnvironment(manifest, devEnvironment);
+		await renderForPrerender(
+			{ logger: defaultLogger, manifest, render: async () => new Response('ok') },
+			request(),
+		);
+		assert.equal(getEnvironment(manifest), devEnvironment);
 	});
 });
