@@ -320,6 +320,23 @@ test.describe('View Transitions', () => {
 		await expect(p, 'should have content').toHaveText('Page 1');
 	});
 
+	test('Back after external pushState with same URL guard does not reload', async ({ page, astro }) => {
+		const expectLoads = collectLoads(page);
+
+		await page.goto(astro.resolveUrl('/same-url-guard'));
+		const p = page.locator('#guard-test');
+		await expect(p, 'should have content').toHaveText('Guard Test Page');
+		await expectLoads(1);
+
+		// The page script already pushed ?fake=1 into history.
+		// Pressing back goes to the original URL, making from === to inside transition().
+		await page.goBack();
+		await expect(p, 'should have content').toHaveText('Guard Test Page');
+
+		// Still only one page load — no reload triggered.
+		await expectLoads(1);
+	});
+
 	test('click self link (w/o hash) does not do navigation', async ({ page, astro }) => {
 		const expectLoads = collectLoads(page);
 
