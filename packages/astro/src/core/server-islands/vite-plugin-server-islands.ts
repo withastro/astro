@@ -171,6 +171,10 @@ export function vitePluginServerIslands({
 
 		renderChunk(code, chunk) {
 			if (!code.includes(SERVER_ISLAND_MAP_MARKER)) return;
+			// This plugin's own source also contains the marker and can be bundled into user
+			// output (e.g. via `getViteConfig` in `astro/config`), so only rewrite the manifest.
+			// See https://github.com/withastro/astro/issues/18364
+			if (!chunk.moduleIds.includes(RESOLVED_SERVER_ISLAND_MANIFEST)) return;
 
 			if (command === 'build') {
 				const envName = this.environment?.name;
