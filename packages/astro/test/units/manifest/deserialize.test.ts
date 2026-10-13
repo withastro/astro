@@ -424,4 +424,33 @@ describe('deserializeManifest - portable key fallback', () => {
 		assert.equal(manifest.entryModules['react'], undefined);
 		assert.equal('react' in manifest.entryModules, false);
 	});
+
+	it('resolves a key added after a miss was cached', () => {
+		const manifest = deserializeManifest(
+			createSerializedManifest({
+				componentMetadata: [
+					['/src/pages/index.astro', { propagation: 'self', containsHead: false }],
+				],
+			}),
+			undefined,
+			'file:///deploy/dist/server/entry.mjs',
+		);
+
+		// Prime the alias cache with a miss before the entry exists.
+		assert.equal(
+			manifest.componentMetadata.get('/build/old/project/src/components/Bar.astro'),
+			undefined,
+		);
+
+		// Adapters such as `dev-nonrunnable` hydrate the map after construction.
+		manifest.componentMetadata.set('/src/components/Bar.astro', {
+			propagation: 'in-tree',
+			containsHead: false,
+		});
+
+		assert.equal(
+			manifest.componentMetadata.get('/build/old/project/src/components/Bar.astro')?.propagation,
+			'in-tree',
+		);
+	});
 });

@@ -80,6 +80,20 @@ function createPortableEntryModules(entryModules: Record<string, string>): Recor
  * TODO(v8): remove this compatibility class alongside `resolvePortableKey`.
  */
 class PortableKeyedMap<Value> extends Map<string, Value> {
+	// The hot render path probes `componentMetadata` once per component instance, and the common
+	// case is a miss (the map only holds pages with `<head>` and propagating components). Caching
+	// each resolved alias, misses included, keeps that path from re-walking the specifier.
+	#aliases = new Map<string, string | undefined>();
+
+	#resolve(key: string): string | undefined {
+		if (this.#aliases.has(key)) {
+			return this.#aliases.get(key);
+		}
+		const found = resolvePortableKey((candidate) => super.has(candidate), key);
+		this.#aliases.set(key, found);
+		return found;
+	}
+
 	override get(key: string): Value | undefined {
 		const direct = super.get(key);
 		// Callers such as `renderPage` probe `componentMetadata` with an optional `moduleId`,
@@ -87,7 +101,7 @@ class PortableKeyedMap<Value> extends Map<string, Value> {
 		if (direct !== undefined || typeof key !== 'string') {
 			return direct;
 		}
-		const found = resolvePortableKey((candidate) => super.has(candidate), key);
+		const found = this.#resolve(key);
 		return found === undefined ? undefined : super.get(found);
 	}
 
@@ -95,9 +109,27 @@ class PortableKeyedMap<Value> extends Map<string, Value> {
 		if (typeof key !== 'string') {
 			return super.has(key);
 		}
-		return (
-			super.has(key) || resolvePortableKey((candidate) => super.has(candidate), key) !== undefined
-		);
+		return super.has(key) || this.#resolve(key) !== undefined;
+	}
+
+	// Environments such as `dev-nonrunnable` hydrate the map after construction, so a mutation
+	// has to drop the cached aliases. `Map`'s constructor calls `set()` before class fields
+	// exist, hence the `#aliases in this` guard.
+	override set(key: string, value: Value): this {
+		if (#aliases in this) {
+			this.#aliases.clear();
+		}
+		return super.set(key, value);
+	}
+
+	override delete(key: string): boolean {
+		this.#aliases.clear();
+		return super.delete(key);
+	}
+
+	override clear(): void {
+		this.#aliases.clear();
+		super.clear();
 	}
 }
 
