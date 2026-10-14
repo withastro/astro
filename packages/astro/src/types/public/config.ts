@@ -2158,8 +2158,6 @@ export interface AstroUserConfig<
 		 * ```
 		 *
 		 * Images on prerendered pages are always generated in Node during the build, so you can use Sharp as the `build` service even if your adapter prerenders pages in another runtime (e.g. Cloudflare's `workerd`).
-		 *
-		 * Integrations reading `image.service` receive it in the shape it was configured with, and should handle both a single service and `build` and `runtime` services. Setting `image.service` with `updateConfig()` in the other shape replaces the existing service instead of merging with it.
 		 */
 		service?: ImageServiceConfig | ImageServiceTargets;
 		/**
