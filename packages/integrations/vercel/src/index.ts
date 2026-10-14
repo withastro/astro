@@ -113,6 +113,11 @@ const SUPPORTED_NODE_VERSIONS: Record<
 	},
 };
 
+const SUPPORTED_BUN_VERSIONS: Record<string, { status: 'available' } | { status: 'default' }> = {
+	'1.x': { status: 'available' },
+	'1.4.x': { status: 'default' },
+};
+
 function getAdapter({
 	middlewareMode,
 	skewProtection,
@@ -688,7 +693,7 @@ function isAcceptedPattern(pattern: any): pattern is RemotePattern {
 	return true;
 }
 
-type Runtime = `nodejs${string}.x`;
+type Runtime = `nodejs${string}.x` | `bun${string}.x`;
 
 class VercelBuilder {
 	readonly NTF_CACHE = {};
@@ -796,6 +801,19 @@ class VercelBuilder {
 }
 
 function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Runtime {
+	const bunVersion = (process.versions as NodeJS.ProcessVersions & { bun?: string }).bun;
+	if (bunVersion) {
+		const [major, minor] = bunVersion.split('.');
+		if (major !== '1') {
+			throw new Error(`Unsupported Bun version: ${major}. Please use Bun 1.x to build your project.`);
+		}
+		const versionKey = minor ? `${major}.${minor}.x` : `${major}.x`;
+		const support = SUPPORTED_BUN_VERSIONS[versionKey];
+		if (support === undefined) {
+			return `bun${major}.x`;
+		}
+		return `bun${versionKey}`;
+	}
 	const version = process.version.slice(1); // 'v18.19.0' --> '18.19.0'
 	const major = version.split('.')[0]; // '18.19.0' --> '18'
 	const support = SUPPORTED_NODE_VERSIONS[major];
