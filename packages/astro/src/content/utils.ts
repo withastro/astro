@@ -70,10 +70,12 @@ function contentConfigParser(logger: AstroLogger) {
 				z.object({
 					type: z.literal(CONTENT_LAYER_TYPE),
 					schema: z.any().optional(),
+					storage: z.literal('external').optional(),
 					loader: z.union([
 						z.function(),
 						z.object({
 							name: z.string(),
+							supportsExternalStorage: z.boolean().optional(),
 							load: z.function({
 								input: [z.custom<LoaderContext>()],
 								output: z.custom<{

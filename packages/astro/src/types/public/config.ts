@@ -34,6 +34,7 @@ import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
 import type { SvgOptimizer } from '../../assets/svg/types.js';
 import type { LoggerHandlerConfig } from '../../core/logger/config.js';
+import type { ContentStorageDriverConfig } from '../../content/storage.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
@@ -3510,7 +3511,7 @@ export interface AstroUserConfig<
 
 		/**
 		 * @name experimental.collectionStorage
-		 * @type {'single-file' | 'chunked' | { type: 'chunked', chunkSize: number }}
+		 * @type {'single-file' | 'chunked' | { type: 'chunked', chunkSize: number } | { type: 'external', driver?: ContentStorageDriverConfig }}
 		 * @default `'single-file'`
 		 * @version 7.1.0
 		 * @description
@@ -3540,6 +3541,28 @@ export interface AstroUserConfig<
 		 * });
 		 * ```
 		 *
+		 * When set to an object with `type: 'external'`, collections defined with
+		 * `storage: 'external'` are persisted by the configured `driver` instead of
+		 * being bundled with your site, and are queried from the driver when pages
+		 * are rendered. Adapters may provide a `driver` when you don't set one.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 * import { createContentCollectionStorage } from '@astrojs/content-store-sqlite';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     collectionStorage: {
+		 *       type: 'external',
+		 *       driver: createContentCollectionStorage({
+		 *         url: 'file:.astro/content.db',
+		 *       }),
+		 *     },
+		 *   },
+		 * });
+		 * ```
+		 *
 		 * See the [experimental data store chunking documentation](https://docs.astro.build/en/reference/experimental-flags/collection-storage/) for more information.
 		 */
 		collectionStorage?:
@@ -3549,6 +3572,11 @@ export interface AstroUserConfig<
 					type: 'chunked';
 					/** Maximum UTF-8 byte size of each data store chunk. */
 					chunkSize: number;
+			  }
+			| {
+					type: 'external';
+					/** The driver that persists and queries collections defined with `storage: 'external'`. */
+					driver?: ContentStorageDriverConfig;
 			  };
 
 		/**
