@@ -20,7 +20,7 @@ export interface BuildEnvironmentInternals {
 }
 
 export interface BuildEnvironmentOptions {
-	settings: Pick<AstroSettings, 'scripts'>;
+	settings: Pick<AstroSettings, 'scripts'> & { redirectPage: boolean };
 	logger: { options: { destination: AstroLoggerDestination } };
 }
 
@@ -217,6 +217,9 @@ export function createBuildEnvironment(): BuildEnvironmentSlots {
 		},
 
 		errorStrategy: 'build',
+		rendersRedirectPage() {
+			return getSettings().redirectPage;
+		},
 		injectCspMetaTagsOnErrorPages: false,
 		logRequest() {},
 	};

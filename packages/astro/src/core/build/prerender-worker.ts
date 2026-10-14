@@ -71,7 +71,7 @@ async function start() {
 		),
 	});
 	app.setOptions({
-		settings: { scripts: data.scripts },
+		settings: { scripts: data.scripts, redirectPage: data.redirectPage },
 		logger: {
 			options: {
 				destination: {

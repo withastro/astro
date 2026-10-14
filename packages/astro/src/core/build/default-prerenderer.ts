@@ -43,7 +43,13 @@ export function createDefaultPrerenderer({
 			const { app }: { app: BuildApp } = await import(prerenderEntryUrl.toString());
 
 			app.setInternals(internals);
-			app.setOptions(options);
+			app.setOptions({
+				settings: {
+					scripts: options.settings.scripts,
+					redirectPage: options.settings.config.experimental.redirectPage,
+				},
+				logger: options.logger,
+			});
 			// Rebuilds in one process reuse the cached module, and its stale static paths.
 			app.routeCache.clearAll();
 			prerenderer.app = app;

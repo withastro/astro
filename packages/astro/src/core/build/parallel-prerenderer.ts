@@ -21,6 +21,7 @@ export interface ParallelPrerenderWorkerData {
 	pagesByKeys: Array<[string, Pick<PageBuildData, 'styles'>]>;
 	pageScript: string | undefined;
 	scripts: AstroSettings['scripts'];
+	redirectPage: boolean;
 }
 
 export interface SerializedWorkerError {
@@ -404,6 +405,7 @@ export function createParallelPrerenderer({
 					]),
 					pageScript: internals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID),
 					scripts: options.settings.scripts,
+					redirectPage: config.experimental.redirectPage,
 				},
 				options,
 			);

@@ -11,8 +11,8 @@ import {
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { RouteData, RouteType } from '../../types/public/internal.js';
+import { STATUS_CODE_PAGES } from '../constants.js';
 
-const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 const FALLBACK_OUT_DIR_NAME = './.astro/';
 
 function getOutRoot(astroSettings: AstroSettings): URL {
