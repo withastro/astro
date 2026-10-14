@@ -168,11 +168,11 @@ describe('createViteBuildConfig', () => {
 				settings,
 				viteConfig: {
 					build: { minify: false },
-					environments: { client: { build: { minify: 'esbuild' } } },
+					environments: { client: { build: { minify: 'oxc' } } },
 				},
 			});
 			const clientEnv = config.environments?.client as Record<string, any>;
-			assert.equal(clientEnv.build.minify, 'esbuild');
+			assert.equal(clientEnv.build.minify, 'oxc');
 		});
 
 		it('defaults sourcemap to false when not set', async () => {

@@ -1,5 +1,31 @@
 # astro
 
+## 7.3.8
+
+### Patch Changes
+
+- [#18293](https://github.com/withastro/astro/pull/18293) [`28e7410`](https://github.com/withastro/astro/commit/28e74103fe3d999a56ae3404b5fe67a1ad6d8013) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `Astro.cache` being `undefined` when a custom 404 or 500 page is rendered by the error handler, for example after a request to an API route with an HTTP method the route doesn't export
+
+- [#18298](https://github.com/withastro/astro/pull/18298) [`0e9e857`](https://github.com/withastro/astro/commit/0e9e85728999907127e817287dc0a0e3accdbe8e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro add` removing existing `allowBuilds` approvals from `pnpm-workspace.yaml` with pnpm v11.0–v11.22
+
+- [#18263](https://github.com/withastro/astro/pull/18263) [`882dd98`](https://github.com/withastro/astro/commit/882dd98cd9f11c4e7bd0b812d37f865dfca75d3d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Refactors internal bundling and code transforms to use Vite's Oxc-based `transformWithOxc` and Rolldown instead of esbuild. These packages no longer depend on esbuild directly.
+
+- [#18290](https://github.com/withastro/astro/pull/18290) [`31f13c3`](https://github.com/withastro/astro/commit/31f13c3710f2c128d3e1684100e44022a598ffcf) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the `glob()` loader not reloading changed files in dev when the pattern starts with an extglob such as `!(drafts)/**/*.md`
+
+## 7.3.7
+
+### Patch Changes
+
+- [#18266](https://github.com/withastro/astro/pull/18266) [`cba76cc`](https://github.com/withastro/astro/commit/cba76cc8200890186acf26444d473ebac0fc2623) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a build error when a Markdown content collection entry loaded with `glob({ deferRender: true })` has a `layout` frontmatter property. `layout` is now ignored for content collection entries, as documented.
+
+- [#18287](https://github.com/withastro/astro/pull/18287) [`38f6793`](https://github.com/withastro/astro/commit/38f6793291ea01a13cf4e51a83aeb16966a5a495) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `astro add cloudflare` failing to install dependencies with pnpm v11+ by approving the `workerd` build script, and shows the package manager's error output when `astro add` fails to install dependencies
+
+- [#18222](https://github.com/withastro/astro/pull/18222) [`fcf6ed6`](https://github.com/withastro/astro/commit/fcf6ed6d4915eed6c18a20658b73372d074c4832) Thanks [@mingjunlu](https://github.com/mingjunlu)! - Fixes an issue where AVIF images were served as `image/heif` instead of `image/avif` in the dev server.
+
+- [#18240](https://github.com/withastro/astro/pull/18240) [`de4df06`](https://github.com/withastro/astro/commit/de4df060306ea4ad78db8438e06bc4640df60ef2) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the `cache()` handler from `astro/hono` and `astro/fetch` throwing a `TypeError` when a cache provider is configured. It now registers the cache provider before rendering, so `Astro.cache` is available to downstream handlers like `pages()`.
+
+- [#18268](https://github.com/withastro/astro/pull/18268) [`547b572`](https://github.com/withastro/astro/commit/547b572c65238e20a2fc1b03f6a8a5700035abc0) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `security.checkOrigin` rejecting cross-origin requests with non-form content types such as `application/json`. As documented, the check only applies to unsafe requests that have no `content-type` header or one of `application/x-www-form-urlencoded`, `multipart/form-data`, or `text/plain`.
+
 ## 7.3.6
 
 ### Patch Changes

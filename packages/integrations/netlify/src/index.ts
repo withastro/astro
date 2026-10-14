@@ -15,7 +15,7 @@ import type {
 	MiddlewareMode,
 	RouteToHeaders,
 } from 'astro';
-import { build } from 'esbuild';
+import { rolldown } from 'rolldown';
 import { glob, globSync } from 'tinyglobby';
 import { copyDependenciesToFunction } from './lib/nft.js';
 import { sessionDrivers } from 'astro/config';
@@ -83,9 +83,11 @@ export function remotePatternToRegex(
 
 	if (pathname) {
 		if (pathname.endsWith('/**')) {
-			// Match any path. Escape the literal prefix so metacharacters
-			// (e.g. `.`) match verbatim instead of acting as wildcards.
-			regexStr += `(${escapeRegex(pathname.replace('/**', ''))}.*)`;
+			// Match any path below the prefix directory, keeping the `/` separator so
+			// sibling paths that share the prefix (e.g. `/public-assets` for `/public/**`)
+			// don't match. Escape the literal prefix so metacharacters (e.g. `.`) match
+			// verbatim instead of acting as wildcards.
+			regexStr += `(${escapeRegex(pathname.slice(0, -3))}\/[^?#]+)`;
 		} else if (pathname.endsWith('/*')) {
 			// Match one level of path
 			regexStr += `(${escapeRegex(pathname.replace('/*', ''))}\/[^/?#]+)\/?`;
@@ -516,34 +518,39 @@ export default function netlifyIntegration(
 		);
 
 		// taking over bundling, because Netlify bundling trips over NPM modules
-		await build({
-			entryPoints: [fileURLToPath(new URL(`./${serverEntry}`, middlewareOutputDir()))],
-			// allow `node:` prefixed imports, which are valid in netlify's deno edge runtime
+		const bundle = await rolldown({
+			input: fileURLToPath(new URL(`./${serverEntry}`, middlewareOutputDir())),
+			platform: 'neutral',
+			resolve: {
+				mainFields: ['module', 'main'],
+			},
+			transform: {
+				target: 'es2022',
+			},
+			external: ['sharp'],
 			plugins: [
 				{
 					name: 'allowNodePrefixedImports',
-					setup(pluginBuild) {
-						pluginBuild.onResolve({ filter: /^node:.*$/ }, (args) => ({
-							path: args.path,
-							external: true,
-						}));
+					resolveId(source) {
+						// allow `node:` prefixed imports, which are valid in netlify's deno edge runtime
+						if (source.startsWith('node:')) {
+							return { id: source, external: true };
+						}
 					},
 				},
 			],
-			target: 'es2022',
-			platform: 'neutral',
-			mainFields: ['module', 'main'],
-			outfile: fileURLToPath(new URL('./middleware.mjs', middlewareOutputDir())),
-			allowOverwrite: true,
-			format: 'esm',
-			bundle: true,
-			minify: false,
-			external: ['sharp'],
-			banner: {
-				// Import Deno polyfill for `process.env` at the top of the file
-				js: 'import process from "node:process";',
-			},
 		});
+
+		try {
+			await bundle.write({
+				file: fileURLToPath(new URL('./middleware.mjs', middlewareOutputDir())),
+				format: 'esm',
+				minify: false,
+				banner: 'import process from "node:process";',
+			});
+		} finally {
+			await bundle.close();
+		}
 	}
 
 	function getLocalDevNetlifyContext(req: IncomingMessage): Context {

@@ -1,5 +1,6 @@
 import type { RenderErrorOptions } from '../app/base.js';
 import type { SSRManifest } from '../app/types.js';
+import { provideCache } from '../cache/handler.js';
 import { getEnvironment } from '../environment/index.js';
 import { FetchState } from '../fetch/fetch-state.js';
 import type { RouteData } from '../../types/public/index.js';
@@ -66,6 +67,7 @@ export async function renderDevError(
 			errorState.componentInstance = preloadedComponent;
 			errorState.locals = resolvedRenderOptions.locals ?? ({} as App.Locals);
 			errorState.initialProps = { error };
+			await provideCache(errorState);
 			const response = await handleMiddleware(errorState, handlePages);
 
 			// A middleware rewrite issued while rendering the error page swaps the
