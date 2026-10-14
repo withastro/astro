@@ -1,8 +1,12 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { pathToFileURL } from 'node:url';
 import type { AstroLoggerMessage } from '../../../dist/core/logger/core.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
-import { createRoutesList } from '../../../dist/core/routing/create-manifest.js';
+import {
+	createRoutesList,
+	resolveInjectedRoute,
+} from '../../../dist/core/routing/create-manifest.js';
 import type { RouteData } from '../../../dist/types/public/internal.js';
 import { createBasicSettings, createFixture, defaultLogger } from '../test-utils.ts';
 
@@ -63,6 +67,56 @@ describe('routing - createRoutesList', () => {
 		const [{ pattern }] = manifest.routes;
 		assert.equal(pattern.test('/'), true);
 		assert.equal(pattern.test(''), false);
+	});
+
+	it('resolves an injected entrypoint from a package that only exports an import condition', async () => {
+		const fixture = await createFixture({
+			'/node_modules/esm-only-routes/package.json': JSON.stringify({
+				name: 'esm-only-routes',
+				type: 'module',
+				exports: { './page': { import: './page.astro' } },
+			}),
+			'/node_modules/esm-only-routes/page.astro': `<h1>test</h1>`,
+		});
+		const settings = await createBasicSettings({
+			root: fixture.path,
+		});
+
+		settings.injectedRoutes = [
+			{
+				pattern: '/esm-only',
+				entrypoint: 'esm-only-routes/page',
+				origin: 'external',
+			},
+		];
+
+		const manifest = await createRoutesList(
+			{
+				cwd: fixture.path,
+				settings,
+			},
+			defaultLogger,
+		);
+
+		const route = manifest.routes.find((r) => r.route === '/esm-only');
+		assert.equal(route?.component, 'node_modules/esm-only-routes/page.astro');
+	});
+
+	it('keeps the CommonJS target when a package exports both import and default', async () => {
+		const fixture = await createFixture({
+			'/node_modules/dual-routes/package.json': JSON.stringify({
+				name: 'dual-routes',
+				exports: { './page': { import: './esm.astro', default: './cjs.astro' } },
+			}),
+			'/node_modules/dual-routes/esm.astro': `<h1>esm</h1>`,
+			'/node_modules/dual-routes/cjs.astro': `<h1>cjs</h1>`,
+		});
+
+		const { component } = resolveInjectedRoute(
+			'dual-routes/page',
+			pathToFileURL(`${fixture.path}/`),
+		);
+		assert.equal(component, 'node_modules/dual-routes/cjs.astro');
 	});
 
 	it('endpoint routes are sorted before page routes', async () => {
