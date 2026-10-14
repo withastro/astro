@@ -19,6 +19,9 @@
     "astro": "^7.3.8"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.22.0"
+  },
+  "allowScripts": {
+    "esbuild": true
   }
 }

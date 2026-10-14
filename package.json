@@ -54,7 +54,7 @@
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.22.0"
   },
   "packageManager": "pnpm@11.28.4",
   "devDependencies": {
