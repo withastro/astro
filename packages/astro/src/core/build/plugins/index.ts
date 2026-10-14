@@ -2,7 +2,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import { vitePluginActionsBuild } from '../../../actions/vite-plugin-actions.js';
 import { astroHeadBuildPlugin } from '../../../vite-plugin-head/index.js';
 import type { BuildInternals } from '../internal.js';
-import type { StaticBuildOptions } from '../types.js';
+import type { StaticBuildOptionsInput } from '../types.js';
 import { pluginAnalyzer } from './plugin-analyzer.js';
 import { pluginComponentEntry } from './plugin-component-entry.js';
 import { pluginCSS } from './plugin-css.js';
@@ -20,14 +20,14 @@ import { pluginImageServiceEntry } from '../image-service.js';
 
 export function getAllBuildPlugins(
 	internals: BuildInternals,
-	options: StaticBuildOptions,
+	options: StaticBuildOptionsInput,
 ): Array<VitePlugin | VitePlugin[] | undefined> {
 	return [
 		pluginComponentEntry(internals),
 		pluginAnalyzer(internals),
 		pluginInternals(options, internals),
-		pluginMiddleware(options, internals),
-		vitePluginActionsBuild(options, internals),
+		pluginMiddleware(internals),
+		vitePluginActionsBuild(internals),
 		pluginCssTargetLowering(),
 		...pluginCSS(options, internals),
 		astroHeadBuildPlugin(internals),
