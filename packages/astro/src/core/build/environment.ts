@@ -9,9 +9,20 @@ import { getDefaultRoutes } from '../routing/default.js';
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import { createRewriteRouteValidator } from '../routing/rewrite-validate.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
+import type { AstroLoggerDestination } from '../logger/core.js';
 import type { BuildInternals } from './internal.js';
 import { cssOrder, getPageData, mergeInlineCss } from './runtime.js';
-import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
+import type { PageBuildData, SinglePageBuiltModule } from './types.js';
+
+export interface BuildEnvironmentInternals {
+	pagesByKeys: Map<string, Pick<PageBuildData, 'styles'>>;
+	entrySpecifierToBundleMap: BuildInternals['entrySpecifierToBundleMap'];
+}
+
+export interface BuildEnvironmentOptions {
+	settings: Pick<AstroSettings, 'scripts'> & { redirectPage: boolean };
+	logger: { options: { destination: AstroLoggerDestination } };
+}
 
 /**
  * The build / prerender environment record and its mutable closure slots.
@@ -24,14 +35,14 @@ import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 export interface BuildEnvironmentSlots {
 	/** The build `RenderEnvironment`; its functions close over the slots below. */
 	env: RenderEnvironment;
-	setInternals(internals: BuildInternals): void;
-	setOptions(options: StaticBuildOptions): void;
+	setInternals(internals: BuildEnvironmentInternals): void;
+	setOptions(options: BuildEnvironmentOptions): void;
 	/** Throws `No internals defined` before injection. */
-	getInternals(): BuildInternals;
+	getInternals(): BuildEnvironmentInternals;
 	/** Throws `No options defined` before injection. */
-	getOptions(): StaticBuildOptions;
+	getOptions(): BuildEnvironmentOptions;
 	/** Throws `No options defined` before injection. */
-	getSettings(): AstroSettings;
+	getSettings(): BuildEnvironmentOptions['settings'];
 }
 
 // Identical to the production implementation: redirect + i18n-fallback
@@ -84,24 +95,24 @@ async function getComponentByRoute(
 }
 
 export function createBuildEnvironment(): BuildEnvironmentSlots {
-	let internals: BuildInternals | undefined;
-	let options: StaticBuildOptions | undefined;
+	let internals: BuildEnvironmentInternals | undefined;
+	let options: BuildEnvironmentOptions | undefined;
 
-	function getInternals(): BuildInternals {
+	function getInternals(): BuildEnvironmentInternals {
 		if (!internals) {
 			throw new Error('No internals defined');
 		}
 		return internals;
 	}
 
-	function getOptions(): StaticBuildOptions {
+	function getOptions(): BuildEnvironmentOptions {
 		if (!options) {
 			throw new Error('No options defined');
 		}
 		return options;
 	}
 
-	function getSettings(): AstroSettings {
+	function getSettings(): BuildEnvironmentOptions['settings'] {
 		return getOptions().settings;
 	}
 
@@ -207,7 +218,7 @@ export function createBuildEnvironment(): BuildEnvironmentSlots {
 
 		errorStrategy: 'build',
 		rendersRedirectPage() {
-			return getSettings().config.experimental.redirectPage;
+			return getSettings().redirectPage;
 		},
 		injectCspMetaTagsOnErrorPages: false,
 		logRequest() {},

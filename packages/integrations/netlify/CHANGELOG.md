@@ -1,5 +1,29 @@
 # @astrojs/netlify
 
+## 8.2.9
+
+### Patch Changes
+
+- [#18263](https://github.com/withastro/astro/pull/18263) [`882dd98`](https://github.com/withastro/astro/commit/882dd98cd9f11c4e7bd0b812d37f865dfca75d3d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Refactors internal bundling and code transforms to use Vite's Oxc-based `transformWithOxc` and Rolldown instead of esbuild. These packages no longer depend on esbuild directly.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.8
+
+### Patch Changes
+
+- [#18180](https://github.com/withastro/astro/pull/18180) [`6fb83da`](https://github.com/withastro/astro/commit/6fb83dafb81c6751dcddaf7471d5aa8c6bcb6bb9) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Netlify Image CDN patterns generated from `image.remotePatterns` pathnames ending in `/**` so they only match paths below that directory, consistent with Astro's own pattern matching. Previously, a pattern like `/public/**` also matched sibling paths sharing the prefix, such as `/public-assets/`.
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 8.2.7
+
+### Patch Changes
+
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb), [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d)]:
+  - @astrojs/internal-helpers@0.12.0
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 8.2.6
 
 ### Patch Changes

@@ -114,15 +114,6 @@ export function createRunnableEnvironment({
 			return RedirectComponentInstance;
 		}
 
-		const filePath = new URL(`${routeData.component}`, manifest.rootDir);
-
-		// First check built-in routes
-		for (const route of getDefaultRoutes(manifest)) {
-			if (route.matchesComponent(filePath)) {
-				return route.instance;
-			}
-		}
-
 		// Important: This needs to happen first, in case a renderer provides polyfills.
 		if (settings) {
 			const renderers__ = settings.renderers.map((r) => loadRenderer(r, loader));
@@ -131,6 +122,15 @@ export function createRunnableEnvironment({
 				manifest,
 				renderers_.filter((r): r is SSRLoadedRenderer => Boolean(r)),
 			);
+		}
+
+		const filePath = new URL(`${routeData.component}`, manifest.rootDir);
+
+		// Check built-in routes
+		for (const route of getDefaultRoutes(manifest)) {
+			if (route.matchesComponent(filePath)) {
+				return route.instance;
+			}
 		}
 
 		try {

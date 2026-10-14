@@ -31,8 +31,8 @@
     "xml2js": "0.6.2"
   },
   "dependencies": {
-    "fast-xml-parser": "^5.5.7",
+    "fast-xml-parser": "^5.11.2",
     "piccolore": "^0.1.3",
-    "zod": "^4.5.4"
+    "zod": "^4.6.5"
   }
 }

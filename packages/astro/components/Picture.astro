@@ -75,9 +75,9 @@ const originalSrc = await resolveSrc(props.src);
 // When inferSize is set for a remote image, resolve dimensions once and thread them through
 // to all getImage() calls. This avoids multiple redundant HTTP requests to the same URL,
 // which can trigger rate-limiting (HTTP 429) on servers like Wikimedia.
-if (props.inferSize && isRemoteImage(originalSrc)) {
+if ('inferSize' in props && props.inferSize && isRemoteImage(originalSrc)) {
 	const remoteSize = await inferRemoteSize(originalSrc);
-	delete props.inferSize;
+	delete (props as { inferSize?: boolean }).inferSize;
 	props.width ??= remoteSize.width;
 	props.height ??= remoteSize.height;
 }
@@ -95,20 +95,13 @@ const optimizedImages: GetImageResult[] = await Promise.all(
 	),
 );
 
-// Clone the `src` object if it's an ESM import so that we don't refer to any properties of the original object
-// Causing our generate step to think the image is used outside of the image optimization pipeline
-const clonedSrc = isESMImportedImage(originalSrc)
-	? // @ts-expect-error - clone is a private, hidden prop
-		(originalSrc.clone ?? originalSrc)
-	: originalSrc;
-
 let resultFallbackFormat = fallbackFormat ?? defaultFallbackFormat;
 if (
 	!fallbackFormat &&
-	isESMImportedImage(clonedSrc) &&
-	(specialFormatsFallback as ReadonlyArray<string>).includes(clonedSrc.format)
+	isESMImportedImage(originalSrc) &&
+	(specialFormatsFallback as ReadonlyArray<string>).includes(originalSrc.format)
 ) {
-	resultFallbackFormat = clonedSrc.format;
+	resultFallbackFormat = originalSrc.format;
 }
 
 const fallbackImage = await getImage({
@@ -141,21 +134,19 @@ const { class: className, ...attributes } = {
 ---
 
 <picture {...pictureAttributes}>
-	{
-		Object.entries(optimizedImages).map(([_, image]) => {
-			const srcsetAttribute =
-				props.densities || (!props.densities && !props.widths && !useResponsive)
-					? `${image.src}${image.srcSet.values.length > 0 ? ', ' + image.srcSet.attribute : ''}`
-					: image.srcSet.attribute;
-			return (
-				<source
-					srcset={srcsetAttribute}
-					type={mime.lookup(image.options.format ?? image.src) ?? `image/${image.options.format}`}
-					{...sourceAdditionalAttributes}
-				/>
-			);
-		})
-	}
+	{Object.entries(optimizedImages).map(([_, image]) => {
+		const srcsetAttribute =
+			props.densities || (!props.densities && !props.widths && !useResponsive)
+				? `${image.src}${image.srcSet.values.length > 0 ? ', ' + image.srcSet.attribute : ''}`
+				: image.srcSet.attribute;
+		return (
+			<source
+				srcset={srcsetAttribute}
+				type={mime.lookup(image.options.format ?? image.src) ?? `image/${image.options.format}`}
+				{...sourceAdditionalAttributes}
+			/>
+		);
+	})}
 	{/* Applying class outside of the spread prevents it from applying unnecessary astro-* classes */}
 	<img src={fallbackImage.src} {...attributes} class={className} />
 </picture>

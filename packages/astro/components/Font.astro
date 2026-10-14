@@ -1,4 +1,5 @@
 ---
+// @ts-ignore-error The types for this are only present at dev time, but this file might get type checked by end users through tsc
 import { componentDataByCssVariable } from 'virtual:astro:assets/fonts/internal';
 import { filterPreloads } from '../dist/assets/fonts/core/filter-preloads.js';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
@@ -23,8 +24,6 @@ const filteredPreloadData = filterPreloads(data.preloads, preload);
 ---
 
 <style set:html={data.css}></style>
-{
-	filteredPreloadData?.map(({ url, type }) => (
-		<link rel="preload" href={url} as="font" type={`font/${type}`} crossorigin />
-	))
-}
+{filteredPreloadData?.map(({ url, type }) => (
+	<link rel="preload" href={url} as="font" type={`font/${type}`} crossorigin />
+))}

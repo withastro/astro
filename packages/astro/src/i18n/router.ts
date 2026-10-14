@@ -44,6 +44,11 @@ export interface I18nRouterContext {
 	routeType?: 'page' | 'fallback';
 	/** Whether this is a reroute from response headers */
 	isReroute: boolean;
+	/**
+	 * Whether a non-root path without a locale segment is served instead of
+	 * returning 404 under the `prefix-always` strategies.
+	 */
+	allowUnprefixedPath?: boolean;
 }
 
 /**
@@ -149,7 +154,7 @@ export class I18nRouter {
 	 * Strategy: pathname-prefix-always
 	 * All locales must have a prefix, including the default locale.
 	 */
-	private matchPrefixAlways(pathname: string, _context: I18nRouterContext): I18nRouterMatch {
+	private matchPrefixAlways(pathname: string, context: I18nRouterContext): I18nRouterMatch {
 		const isRoot = pathname === this.#base + '/' || pathname === this.#base;
 
 		if (isRoot) {
@@ -163,7 +168,7 @@ export class I18nRouter {
 		}
 
 		// Check if pathname has a locale
-		if (!pathHasLocale(pathname, this.#locales)) {
+		if (!context.allowUnprefixedPath && !pathHasLocale(pathname, this.#locales)) {
 			return { type: 'notFound' };
 		}
 
@@ -202,7 +207,7 @@ export class I18nRouter {
 	 */
 	private matchPrefixAlwaysNoRedirect(
 		pathname: string,
-		_context: I18nRouterContext,
+		context: I18nRouterContext,
 	): I18nRouterMatch {
 		const isRoot = pathname === this.#base + '/' || pathname === this.#base;
 
@@ -212,7 +217,7 @@ export class I18nRouter {
 		}
 
 		// Non-root paths must have a locale
-		if (!pathHasLocale(pathname, this.#locales)) {
+		if (!context.allowUnprefixedPath && !pathHasLocale(pathname, this.#locales)) {
 			return { type: 'notFound' };
 		}
 

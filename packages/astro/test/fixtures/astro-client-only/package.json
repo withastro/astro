@@ -7,8 +7,8 @@
     "@astrojs/svelte": "workspace:*",
     "@test/astro-client-only-pkg": "file:./pkg",
     "astro": "workspace:*",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "svelte": "^5.55.7"
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "svelte": "^5.57.1"
   }
 }

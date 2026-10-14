@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "7.3.1",
+  "version": "7.3.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -40,7 +40,7 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/prism": "workspace:*",
     "@mdx-js/mdx": "^3.1.1",
-    "acorn": "^8.16.0",
+    "acorn": "^8.19.0",
     "estree-util-visit": "^2.0.0",
     "github-slugger": "^2.0.0",
     "hast-util-from-html": "^2.0.3",
@@ -52,8 +52,8 @@
     "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
-    "remark-smartypants": "^3.0.2",
-    "source-map": "^0.7.6",
+    "remark-smartypants": "^3.0.3",
+    "source-map": "^0.8.0",
     "unified": "^11.0.5",
     "unist-util-remove-position": "^5.0.0",
     "unist-util-visit": "^5.1.0",
@@ -61,16 +61,16 @@
     "vfile": "^6.0.3"
   },
   "devDependencies": {
-    "@types/estree": "^1.0.8",
-    "@types/hast": "^3.0.4",
+    "@types/estree": "^1.0.9",
+    "@types/hast": "^3.0.5",
     "@types/mdast": "^4.0.4",
     "@types/unist": "^3.0.3",
     "astro-scripts": "workspace:*",
-    "esbuild": "^0.28.0",
     "mdast-util-mdx": "^3.0.0",
     "mdast-util-mdx-expression": "^2.0.1",
     "mdast-util-mdx-jsx": "^3.2.0",
-    "shiki": "^4.0.0"
+    "rolldown": "^1.2.12",
+    "shiki": "^4.5.0"
   },
   "publishConfig": {
     "provenance": true

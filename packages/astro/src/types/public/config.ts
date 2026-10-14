@@ -65,6 +65,12 @@ export interface ImageServiceConfig<T extends Record<string, any> = Record<strin
 	config?: T;
 }
 
+/** Image services for prerendered pages (`build`) and on-demand pages (`runtime`). */
+export interface ImageServiceTargets {
+	build: ImageServiceConfig;
+	runtime: ImageServiceConfig;
+}
+
 export type RuntimeMode = 'development' | 'production';
 
 export type ValidRedirectStatus = (typeof REDIRECT_STATUS_CODES)[number];
@@ -652,9 +658,9 @@ export interface AstroUserConfig<
 	 *
 	 * These features only exist for pages rendered on demand (SSR) using `server` mode or pages that opt out of prerendering in `static` mode.
 	 *
-	 * By default, Astro will automatically check that the “origin” header
-	 * matches the URL sent by each request in on-demand rendered pages. You can
-	 * disable this behavior by setting `checkOrigin` to `false`:
+	 * By default, Astro checks browser request metadata to ensure that form submissions
+	 * to on-demand rendered pages come from the same origin. To disable this
+	 * behavior set `checkOrigin` to `false`:
 	 *
 	 * ```js
 	 * // astro.config.mjs
@@ -678,12 +684,12 @@ export interface AstroUserConfig<
 		 * @version 4.9.0
 		 * @description
 		 *
-		 * Performs a check that the "origin" header, automatically passed by all modern browsers, matches the URL sent by each `Request`. This is used to provide Cross-Site Request Forgery (CSRF) protection.
+		 * Provides [Cross-Site Request Forgery (CSRF)](https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/CSRF) protection by checking the header sent by browsers against the `Request` URL. This uses the `Sec-Fetch-Site` header for modern browsers and falls back to the `Origin` header when unavailable.
 		 *
-		 * The "origin" check is executed only for pages rendered on demand, and only for the requests `POST`, `PATCH`, `DELETE` and `PUT` with
-		 * one of the following `content-type` headers: `'application/x-www-form-urlencoded'`, `'multipart/form-data'`, `'text/plain'`.
+		 * The check is executed only for pages rendered on demand, and only for unsafe requests such as `POST`, `PATCH`, `DELETE`, and `PUT` with no `content-type` header or one of the following values: `'application/x-www-form-urlencoded'`, `'multipart/form-data'`, `'text/plain'`.
 		 *
-		 * If the "origin" header doesn't match the `pathname` of the request, Astro will return a 403 status code and will not render the page.
+		 *
+		 * If the request is identified as cross-origin, Astro will return a 403 status code and will not render the page.
 		 */
 
 		checkOrigin?: boolean;
@@ -2099,7 +2105,7 @@ export interface AstroUserConfig<
 		/**
 		 * @docs
 		 * @name image.service
-		 * @type {{entrypoint: 'astro/assets/services/sharp' | string, config: Record<string, any>}}
+		 * @type {{entrypoint: 'astro/assets/services/sharp' | string, config: Record<string, any>} | {build: ImageServiceConfig, runtime: ImageServiceConfig}}
 		 * @default `{entrypoint: 'astro/assets/services/sharp', config?: {}}`
 		 * @version 2.1.0
 		 * @description
@@ -2132,8 +2138,28 @@ export interface AstroUserConfig<
 		 *   },
 		 * });
 		 * ```
+		 *
+		 * Since Astro v7.4, you can also configure different `build` and `runtime` services. The `build` service optimizes images on prerendered pages when you build your site, and is also used during development. The `runtime` service handles images on on-demand rendered pages and the [image endpoint](#imageendpoint) of your deployed site.
+		 *
+		 * The following example uses Sharp to optimize images on prerendered pages, and an image CDN for on-demand rendered pages:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   image: {
+		 *     service: {
+		 *       build: { entrypoint: 'astro/assets/services/sharp' },
+		 *       runtime: { entrypoint: 'my-image-cdn-service' },
+		 *     },
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * Images on prerendered pages are always generated in Node during the build, so you can use Sharp as the `build` service even if your adapter prerenders pages in another runtime (e.g. Cloudflare's `workerd`).
 		 */
-		service?: ImageServiceConfig;
+		service?: ImageServiceConfig | ImageServiceTargets;
 		/**
 		 * @docs
 		 * @name image.service.config.limitInputPixels
@@ -3638,6 +3664,32 @@ export interface AstroUserConfig<
 		 * See the [experimental redirect page documentation](https://docs.astro.build/en/reference/experimental-flags/redirect-page/) for more information.
 		 */
 		redirectPage?: boolean;
+
+		/**
+		 * @name experimental.parallelPrerender
+		 * @type {boolean | { workers?: number }}
+		 * @default `false`
+		 * @version 7.4
+		 * @description
+		 *
+		 * Renders static pages on multiple CPU cores during `astro build`. This can make builds of large
+		 * sites faster, but uses more memory.
+		 *
+		 * By default, Astro uses all available CPU cores but one. Set `workers` to use fewer, for example
+		 * if your build runs out of memory.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: { parallelPrerender: { workers: 4 } },
+		 * });
+		 * ```
+		 *
+		 * See the [experimental parallel prerendering docs](https://docs.astro.build/en/reference/experimental-flags/parallel-prerender/) for more information.
+		 */
+		parallelPrerender?: boolean | { workers?: number };
 	};
 }
 
