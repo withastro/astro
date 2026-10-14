@@ -1,11 +1,11 @@
 ---
 import { threadId } from 'node:worker_threads';
 
-class Value {
-	text = 'class';
-}
-
 export function getStaticPaths() {
+	class Value {
+		text = 'class';
+	}
+
 	return [
 		{ params: { slug: 'function' }, props: { discoveredIn: threadId, value: () => 'function' } },
 		{ params: { slug: 'class' }, props: { discoveredIn: threadId, value: new Value() } },
