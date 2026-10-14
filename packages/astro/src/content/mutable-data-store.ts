@@ -44,6 +44,9 @@ export class MutableDataStore extends ImmutableDataStore {
 	#assetImports = new Set<string>();
 	#moduleImports = new Map<string, string>();
 
+	#externalAssetImports = new Set<string>();
+	#externalModuleImports = new Map<string, string>();
+
 	#writeInProgress = false;
 	#writeQueued = false;
 
@@ -122,6 +125,18 @@ export class MutableDataStore extends ImmutableDataStore {
 		assets.forEach((asset) => this.addAssetImport(asset, filePath));
 	}
 
+	/**
+	 * Sets the import IDs used by the entries of collections defined with `storage: 'external'`,
+	 * which aren't kept in this store. They're written to the import files with the imports of
+	 * this store's entries, replacing the IDs from the previous call.
+	 */
+	setExternalImports(assetImports: Set<string>, moduleImports: Map<string, string>) {
+		this.#externalAssetImports = assetImports;
+		this.#externalModuleImports = moduleImports;
+		this.#assetsDirty = true;
+		this.#modulesDirty = true;
+	}
+
 	addModuleImport(fileName: string) {
 		const id = contentModuleToId(fileName);
 		if (id) {
@@ -134,13 +149,13 @@ export class MutableDataStore extends ImmutableDataStore {
 	}
 
 	/**
-	 * Rebuilds #assetImports from the current entries in _collections.
-	 * This ensures stale import IDs are removed when entries are updated or deleted,
+	 * Rebuilds #assetImports from the current entries in _collections and the IDs
+	 * set with setExternalImports(). This ensures stale import IDs are removed when entries are updated or deleted,
 	 * preventing unrecoverable ImageNotFound errors in astro dev after a content entry's
 	 * image path is temporarily set to an invalid value and then restored.
 	 */
 	#rebuildAssetImports() {
-		this.#assetImports.clear();
+		this.#assetImports = new Set(this.#externalAssetImports);
 		for (const collection of this._collections.values()) {
 			for (const entry of collection.values()) {
 				const typedEntry = entry as DataEntry;
@@ -157,13 +172,13 @@ export class MutableDataStore extends ImmutableDataStore {
 	}
 
 	/**
-	 * Rebuilds #moduleImports from the current entries in _collections.
-	 * This ensures stale module entries are removed when content files are
+	 * Rebuilds #moduleImports from the current entries in _collections and the IDs
+	 * set with setExternalImports(). This ensures stale module entries are removed when content files are
 	 * deleted or renamed, preventing Vite from attempting to resolve
 	 * non-existent files listed in content-modules.mjs.
 	 */
 	#rebuildModuleImports() {
-		this.#moduleImports.clear();
+		this.#moduleImports = new Map(this.#externalModuleImports);
 		for (const collection of this._collections.values()) {
 			for (const entry of collection.values()) {
 				const typedEntry = entry as DataEntry;
