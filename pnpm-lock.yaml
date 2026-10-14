@@ -6237,7 +6237,7 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       solid-js:
-        specifier: ^1.9.15
+        specifier: ^1.9.17
         version: 1.9.17
 
   packages/integrations/svelte:
