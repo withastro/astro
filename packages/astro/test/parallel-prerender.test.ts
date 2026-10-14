@@ -25,6 +25,7 @@ describe('experimental.parallelPrerender', () => {
 			renderedIn: $('#rendered-in').text(),
 			value: $('#value').text(),
 			date: $('#date').text(),
+			url: $('#url').text(),
 		};
 	}
 
@@ -44,18 +45,19 @@ describe('experimental.parallelPrerender', () => {
 			assert.equal(page.discoveredIn, discoveredIn);
 			assert.notEqual(page.renderedIn, discoveredIn);
 			assert.equal(page.date, new Date(0).toISOString());
+			assert.equal(page.url, 'https://astro.build/');
 		}
 	});
 
-	it('renders paths with props that cannot be cloned in the discovery worker', async () => {
+	it('renders paths with props that cannot be serialized in the discovery worker', async () => {
 		const { discoveredIn } = await read('/items/one/index.html');
-		for (const value of ['function', 'url', 'symbol']) {
+		for (const value of ['function', 'class', 'symbol']) {
 			const page = await read(`/local/${value}/index.html`);
 			assert.equal(page.discoveredIn, discoveredIn);
 			assert.equal(page.renderedIn, discoveredIn);
 		}
 		assert.equal((await read('/local/function/index.html')).value, 'function');
-		assert.equal((await read('/local/url/index.html')).value, 'https://astro.build/');
+		assert.equal((await read('/local/class/index.html')).value, 'class');
 		assert.equal((await read('/local/symbol/index.html')).value, 'symbol');
 	});
 

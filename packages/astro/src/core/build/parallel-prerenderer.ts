@@ -1,7 +1,6 @@
 import os from 'node:os';
 import { Worker } from 'node:worker_threads';
 import type { AstroSettings } from '../../types/astro.js';
-import type { GetStaticPathsItem } from '../../types/public/common.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type {
@@ -42,7 +41,7 @@ interface RenderWorkerRequest {
 	url: string;
 	routeId: number;
 	routeData?: string;
-	staticPath?: GetStaticPathsItem;
+	staticPath?: string;
 }
 
 interface DiscoverWorkerRequest {
@@ -58,7 +57,7 @@ export interface DiscoveredPath {
 	pathname: string;
 	routeId: number;
 	cacheKey?: string;
-	staticPath?: GetStaticPathsItem;
+	staticPath?: string;
 }
 
 export type WorkerMessage = {
@@ -101,7 +100,7 @@ interface RenderJob {
 	url: string;
 	route: RouteData;
 	routeId: number;
-	staticPath: GetStaticPathsItem | undefined;
+	staticPath: string | undefined;
 	discoveryWorkerOnly: boolean;
 	resolve: (result: PrerenderResult) => void;
 	reject: (error: Error) => void;
@@ -153,7 +152,7 @@ class PrerenderWorkerPool {
 	#nextRouteId = 1;
 	#routeIds = new WeakMap<RouteData, number>();
 	#serializedRoutes = new WeakMap<RouteData, string>();
-	#staticPathsByRequest = new Map<string, GetStaticPathsItem>();
+	#staticPathsByRequest = new Map<string, string>();
 	#closing = false;
 	#buildMetadata: Required<StaticPathsMetadata> = { staticImages: [], referencedImages: [] };
 	readonly #workerConcurrency: number;

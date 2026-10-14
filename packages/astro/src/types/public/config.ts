@@ -3642,9 +3642,9 @@ export interface AstroUserConfig<
 		 * (e.g. `fetch()` calls).
 		 *
 		 * Each `getStaticPaths()` function is called once per build, by the first worker,
-		 * which passes the props of each path to the worker rendering it. Props that can't be fully
-		 * copied with [structured cloning](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm),
-		 * such as functions or class instances, keep their pages on the first worker.
+		 * which passes the props of each path to the worker rendering it. Props that can't be serialized
+		 * with [devalue](https://github.com/sveltejs/devalue), such as functions or class instances,
+		 * keep their pages on the first worker.
 		 *
 		 * This option has no effect when an adapter or integration provides its own prerenderer.
 		 *

@@ -1,16 +1,20 @@
 ---
 import { threadId } from 'node:worker_threads';
 
+class Value {
+	text = 'class';
+}
+
 export function getStaticPaths() {
 	return [
 		{ params: { slug: 'function' }, props: { discoveredIn: threadId, value: () => 'function' } },
-		{ params: { slug: 'url' }, props: { discoveredIn: threadId, value: new URL('https://astro.build/') } },
+		{ params: { slug: 'class' }, props: { discoveredIn: threadId, value: new Value() } },
 		{ params: { slug: 'symbol' }, props: { discoveredIn: threadId, [Symbol.for('value')]: 'symbol' } },
 	];
 }
 
 const { discoveredIn, value } = Astro.props;
-const rendered = typeof value === 'function' ? value() : (value?.href ?? Astro.props[Symbol.for('value')]);
+const rendered = typeof value === 'function' ? value() : (value?.text ?? Astro.props[Symbol.for('value')]);
 ---
 
 <p id="discovered-in">{discoveredIn}</p>

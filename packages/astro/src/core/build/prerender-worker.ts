@@ -1,6 +1,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import type { SerializedStaticImage } from '../../assets/types.js';
 import { parentPort, workerData } from 'node:worker_threads';
+import { parse, stringify } from 'devalue';
 import type { RouteData } from '../../types/public/internal.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { AstroLoggerMessage } from '../logger/core.js';
@@ -38,40 +39,12 @@ function postMessage(message: WorkerMessage, transfer: ArrayBuffer[] = []) {
 	port.postMessage(message, transfer);
 }
 
-/** Structured cloning silently drops symbol keys, non-enumerable properties and prototypes. */
-function isCloneable(value: unknown, seen = new WeakSet<object>()): boolean {
-	if (typeof value === 'function' || typeof value === 'symbol') return false;
-	if (value === null || typeof value !== 'object') return true;
-	if (seen.has(value)) return true;
-	seen.add(value);
-	for (const key of Reflect.ownKeys(value)) {
-		if (typeof key === 'symbol') return false;
-		if (Array.isArray(value) && key === 'length') continue;
-		if (!Object.prototype.propertyIsEnumerable.call(value, key)) return false;
+function serialize(value: unknown): string | undefined {
+	try {
+		return stringify(value);
+	} catch {
+		return undefined;
 	}
-	if (
-		value instanceof Date ||
-		value instanceof RegExp ||
-		value instanceof ArrayBuffer ||
-		ArrayBuffer.isView(value)
-	) {
-		return true;
-	}
-	if (value instanceof Map) {
-		for (const [key, entry] of value) {
-			if (!isCloneable(key, seen) || !isCloneable(entry, seen)) return false;
-		}
-		return true;
-	}
-	if (value instanceof Set) {
-		for (const entry of value) {
-			if (!isCloneable(entry, seen)) return false;
-		}
-		return true;
-	}
-	const prototype = Object.getPrototypeOf(value);
-	if (!Array.isArray(value) && prototype !== Object.prototype && prototype !== null) return false;
-	return Object.values(value).every((entry) => isCloneable(entry, seen));
 }
 
 function serializeError(error: unknown): SerializedWorkerError {
@@ -135,7 +108,7 @@ async function start() {
 				pathname,
 				routeId,
 				cacheKey,
-				staticPath: staticPath && isCloneable(staticPath) ? staticPath : undefined,
+				staticPath: staticPath && serialize(staticPath),
 			};
 		});
 		postMessage({
@@ -160,7 +133,7 @@ async function start() {
 	) {
 		if (routeData !== undefined) routes.set(routeId, deserializeRouteData(JSON.parse(routeData)));
 		const route = routes.get(routeId)!;
-		if (staticPath) await app.addStaticPath(route, staticPath);
+		if (staticPath) await app.addStaticPath(route, parse(staticPath));
 		const request = createRequest({
 			url,
 			headers: {},
