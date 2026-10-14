@@ -1,19 +1,20 @@
-import type { SerializedStaticImage } from '../../assets/types.js';
 import { parentPort, workerData } from 'node:worker_threads';
 import { parse, stringify } from 'devalue';
+import type { SerializedStaticImage } from '../../assets/types.js';
+import { StaticPaths } from '../../runtime/prerender/static-paths.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { deserializeRouteData, serializeRouteData } from '../app/manifest.js';
 import { renderForPrerender } from '../app/prerender.js';
-import { createRequest } from '../request.js';
 import { ensureAsyncRenderScope } from '../render-scope/node-scope.js';
 import type { RenderCollectors } from '../render-scope/scope.js';
+import { createRequest } from '../request.js';
 import type { BuildApp } from './app.js';
-import { StaticPaths } from '../../runtime/prerender/static-paths.js';
 import type {
 	DiscoveredPath,
 	ParallelPrerenderWorkerData,
 	PrerenderWorkerRequest,
+	SerializedRoute,
 	SerializedWorkerError,
 	WorkerMessage,
 } from './parallel-prerenderer.js';
@@ -86,7 +87,7 @@ async function start() {
 	async function discover(id: number) {
 		const { paths, metadata } = await new StaticPaths(app).getAllWithMetadata();
 		const routeIds = new Map<RouteData, number>();
-		const discoveredRoutes: Array<{ id: number; data: string }> = [];
+		const discoveredRoutes: SerializedRoute[] = [];
 		const discoveredPaths = paths.map(({ pathname, route, cacheKey }): DiscoveredPath => {
 			let routeId = routeIds.get(route);
 			if (routeId === undefined) {

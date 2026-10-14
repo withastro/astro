@@ -51,6 +51,11 @@ interface DiscoverWorkerRequest {
 
 export type PrerenderWorkerRequest = RenderWorkerRequest | DiscoverWorkerRequest;
 
+export interface SerializedRoute {
+	id: number;
+	data: string;
+}
+
 type WithoutId<T> = T extends unknown ? Omit<T, 'id'> : never;
 
 export interface DiscoveredPath {
@@ -70,7 +75,7 @@ export type WorkerMessage = {
 			type: 'paths';
 			id: number;
 			paths: DiscoveredPath[];
-			routes: Array<{ id: number; data: string }>;
+			routes: SerializedRoute[];
 			metadata?: StaticPathsMetadata;
 	  }
 	| {
@@ -107,11 +112,6 @@ interface WorkerState {
 	failed: boolean;
 	active: number;
 	knownRouteIds: Set<number>;
-}
-
-interface SerializedRoute {
-	id: number;
-	data: string;
 }
 
 interface InFlightRequest {
