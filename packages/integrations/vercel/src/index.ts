@@ -805,7 +805,7 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 	if (bunVersion) {
 		const [major, minor] = bunVersion.split('.');
 		if (major !== '1') {
-			// Fall back to Vercel's default Bun runtime instead of failing the build.
+			logger.warn(`Unsupported Bun version (${major}) detected. Using Bun 1.4.x as the runtime instead.`);
 			return 'bun1.4.x';
 		}
 		const versionKey = minor ? `${major}.${minor}.x` : `${major}.x`;
