@@ -26,6 +26,4 @@ setPrerenderer((defaultPrerenderer) => ({
 }));
 ```
 
-If your prerenderer doesn't use Astro's default one, use `StaticPaths.getAllWithMetadata()` from `astro:static-paths` in `getStaticPaths()`, and `renderForPrerender()` from `astro/app` in `render()`, to collect this information. When pages are prerendered outside of Astro's process (e.g. in `workerd`), first call `installRenderScope(new AsyncLocalStorage())` from `astro/app` in that runtime.
-
 Returning a plain array from `getStaticPaths()` or a plain `Response` from `render()` still works, but is deprecated: images used on those pages are not generated.
