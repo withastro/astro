@@ -2,6 +2,7 @@ import nodeFs from 'node:fs';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 
+import { recordTiming, time } from '@astrojs/internal-helpers/timings';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
 import colors from 'piccolore';
@@ -38,6 +39,7 @@ import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
+import { buildPhase } from './timings/index.js';
 import type { StaticBuildOptions } from './types.js';
 import type { AstroSettings } from '../../types/astro.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
@@ -106,7 +108,7 @@ async function generatePagesInBuildScope(
 	}
 
 	// Set up the prerenderer
-	await prerenderer.setup?.();
+	await buildPhase('prerenderer setup', async () => prerenderer.setup?.());
 
 	const verb = ssr ? 'prerendering' : 'generating';
 	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);
@@ -132,7 +134,7 @@ async function generatePagesInBuildScope(
 
 	try {
 		// Get all static paths with their routes from the prerenderer
-		const staticPaths = await prerenderer.getStaticPaths();
+		const staticPaths = await buildPhase('static paths', () => prerenderer.getStaticPaths());
 		let pathsWithRoutes: PathWithRoute[];
 		if (Array.isArray(staticPaths)) {
 			pathsWithRoutes = staticPaths;
@@ -561,7 +563,9 @@ export async function renderPath({
 	let metadata: PrerenderResult['metadata'];
 	try {
 		const rendered = normalizePrerenderResult(
-			await prerenderer.render(request, { routeData: route, collectMetadata: true }),
+			await time('page-render', pathname, () =>
+				prerenderer.render(request, { routeData: route, collectMetadata: true }),
+			),
 		);
 		response = rendered.response;
 		metadata = rendered.metadata;
@@ -722,6 +726,7 @@ async function generatePathWithPrerenderer(
 				'SKIP_FORMAT',
 				restored ? ` ${colors.green('(restored)')}` : ` ${colors.green('(cached)')}`,
 			);
+			recordPageTiming(pathname, route, timeStart, true);
 			return;
 		}
 	}
@@ -761,6 +766,7 @@ async function generatePathWithPrerenderer(
 		// resurrecting output the path no longer emits. Leaving it unrecorded makes
 		// `findOrphanedFiles` prune that copy and forces a re-render next build.
 		logRenderTime(logger, timeStart, true);
+		recordPageTiming(pathname, route, timeStart, false);
 		return;
 	}
 
@@ -784,6 +790,11 @@ async function generatePathWithPrerenderer(
 	}
 
 	logRenderTime(logger, timeStart, false);
+	recordPageTiming(pathname, route, timeStart, false);
+}
+
+function recordPageTiming(pathname: string, route: RouteData, timeStart: number, cached: boolean) {
+	recordTiming('page', pathname, performance.now() - timeStart, { route: route.route, cached });
 }
 
 function logRenderTime(logger: AstroLogger, timeStart: number, notCreated: boolean) {
