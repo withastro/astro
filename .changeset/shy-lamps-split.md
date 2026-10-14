@@ -20,3 +20,22 @@ export default defineConfig({
 });
 ```
 
+#### Changes for integration authors
+
+The resolved `config.image.service` can now be either shape and keeps the shape the user configured. When a project sets `build` and `runtime` services, `config.image.service.entrypoint` and `config.image.service.config` are `undefined`.
+
+If your integration reads `image.service`, check for the `runtime` property to get the service you need:
+
+```ts
+'astro:config:done': ({ config }) => {
+  const { service } = config.image;
+  const runtimeService = 'runtime' in service ? service.runtime : service;
+
+  if (runtimeService.entrypoint === 'astro/assets/services/sharp') {
+    // ...
+  }
+},
+```
+
+Using `updateConfig()` to define `image.service` replaces the existing service instead of merging with it when the two use different shapes. For example, setting a single service in a project that uses `build` and `runtime` services will replace them both.
+
