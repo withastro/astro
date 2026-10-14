@@ -1,10 +1,8 @@
-import { AsyncLocalStorage } from 'node:async_hooks';
 import type { SerializedStaticImage } from '../../assets/types.js';
 import { parentPort, workerData } from 'node:worker_threads';
 import { parse, stringify } from 'devalue';
 import type { RouteData } from '../../types/public/internal.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import type { AstroLoggerMessage } from '../logger/core.js';
 import { deserializeRouteData, serializeRouteData } from '../app/manifest.js';
 import { renderForPrerender } from '../app/prerender.js';
 import { createRequest } from '../request.js';
@@ -65,7 +63,6 @@ function serializeError(error: unknown): SerializedWorkerError {
 
 async function start() {
 	const { app } = (await import(data.entryUrl)) as { app: BuildApp };
-	const logStore = new AsyncLocalStorage<AstroLoggerMessage[]>();
 	app.setInternals({
 		pagesByKeys: new Map(data.pagesByKeys),
 		entrySpecifierToBundleMap: new Map(
@@ -77,10 +74,8 @@ async function start() {
 		logger: {
 			options: {
 				destination: {
-					write(message) {
-						const logs = logStore.getStore();
-						if (logs) logs.push(message);
-						else postMessage({ type: 'logs', logs: [message] });
+					write(log) {
+						postMessage({ type: 'log', log });
 					},
 				},
 			},
@@ -88,7 +83,7 @@ async function start() {
 	});
 	const routes = new Map<number, RouteData>();
 
-	async function discover(id: number, logs: AstroLoggerMessage[]) {
+	async function discover(id: number) {
 		const { paths, metadata } = await new StaticPaths(app).getAllWithMetadata();
 		const routeIds = new Map<RouteData, number>();
 		const discoveredRoutes: Array<{ id: number; data: string }> = [];
@@ -117,20 +112,16 @@ async function start() {
 			paths: discoveredPaths,
 			routes: discoveredRoutes,
 			metadata,
-			logs,
 		});
 	}
 
-	async function render(
-		{
-			id,
-			url,
-			routeId,
-			routeData,
-			staticPath,
-		}: Extract<PrerenderWorkerRequest, { type: 'render' }>,
-		logs: AstroLoggerMessage[],
-	) {
+	async function render({
+		id,
+		url,
+		routeId,
+		routeData,
+		staticPath,
+	}: Extract<PrerenderWorkerRequest, { type: 'render' }>) {
 		if (routeData !== undefined) routes.set(routeId, deserializeRouteData(JSON.parse(routeData)));
 		const route = routes.get(routeId)!;
 		if (staticPath) await app.addStaticPath(route, parse(staticPath));
@@ -154,24 +145,22 @@ async function start() {
 					headers: [...response.headers],
 				},
 				metadata,
-				logs,
 			},
 			body ? [body] : [],
 		);
 	}
 
-	async function handle(message: PrerenderWorkerRequest, logs: AstroLoggerMessage[]) {
+	async function handle(message: PrerenderWorkerRequest) {
 		try {
-			if (message.type === 'discover') await discover(message.id, logs);
-			else await render(message, logs);
+			if (message.type === 'discover') await discover(message.id);
+			else await render(message);
 		} catch (error) {
-			postMessage({ type: 'error', id: message.id, error: serializeError(error), logs });
+			postMessage({ type: 'error', id: message.id, error: serializeError(error) });
 		}
 	}
 
 	port.on('message', (message: PrerenderWorkerRequest) => {
-		const logs: AstroLoggerMessage[] = [];
-		void renderScope.run(workerCollectors, () => logStore.run(logs, () => handle(message, logs)));
+		void renderScope.run(workerCollectors, () => handle(message));
 	});
 	postMessage({ type: 'ready' });
 }
