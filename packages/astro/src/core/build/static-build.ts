@@ -319,7 +319,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
  */
 function getPrerenderEntryFileName(
 	prerenderOutput:
-		vite.Rolldown.RolldownOutput | vite.Rolldown.RolldownOutput[] | vite.Rolldown.RolldownWatcher,
+		| vite.Rolldown.RolldownOutput
+		| vite.Rolldown.RolldownOutput[]
+		| vite.Rolldown.RolldownWatcher,
 ): string {
 	const outputs = viteBuildReturnToRolldownOutputs(prerenderOutput);
 
@@ -346,7 +348,9 @@ function getPrerenderEntryFileName(
 function extractPrerenderEntryFileName(
 	internals: BuildInternals,
 	prerenderOutput:
-		vite.Rolldown.RolldownOutput | vite.Rolldown.RolldownOutput[] | vite.Rolldown.RolldownWatcher,
+		| vite.Rolldown.RolldownOutput
+		| vite.Rolldown.RolldownOutput[]
+		| vite.Rolldown.RolldownWatcher,
 ) {
 	internals.prerenderEntryFileName = getPrerenderEntryFileName(prerenderOutput);
 }

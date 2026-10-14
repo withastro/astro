@@ -98,7 +98,10 @@ function getImageConfigCode(settings: AstroSettings, environment: vite.Environme
 	return `
 		export const imageConfig = ${JSON.stringify({
 			...settings.config.image,
-			service: getImageServiceConfig(settings.config.image.service, getImageServiceTarget(environment)),
+			service: getImageServiceConfig(
+				settings.config.image.service,
+				getImageServiceTarget(environment),
+			),
 		})};
 		Object.defineProperties(imageConfig, {
 			assetQueryParams: { value: ${assetQueryParams}, enumerable: false, configurable: true },
