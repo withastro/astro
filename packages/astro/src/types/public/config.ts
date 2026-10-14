@@ -3628,25 +3628,11 @@ export interface AstroUserConfig<
 		 * @version 7.4
 		 * @description
 		 *
-		 * Renders static pages in a pool of Node.js worker threads during `astro build`.
-		 * Each worker evaluates its own copy of the server bundle, which can improve
-		 * rendering throughput for CPU-bound pages at the cost of additional memory.
+		 * Renders static pages on multiple CPU cores during `astro build`. This can make builds of large
+		 * sites faster, but uses more memory.
 		 *
-		 * By default, one worker is started per available CPU core, minus one for the main thread.
-		 * Set `workers` to control the size of the pool. Start with a small value and measure
-		 * build time and peak memory for your project.
-		 *
-		 * [`build.concurrency`](#buildconcurrency) sets the number of pages rendered at once
-		 * *within each worker*, so the maximum number of pages in flight is
-		 * `workers × build.concurrency`. Raising it can help when pages spend time waiting on I/O
-		 * (e.g. `fetch()` calls).
-		 *
-		 * Each `getStaticPaths()` function is called once per build, by the first worker,
-		 * which passes the props of each path to the worker rendering it. Props that can't be serialized
-		 * with [devalue](https://github.com/sveltejs/devalue), such as functions or class instances,
-		 * keep their pages on the first worker.
-		 *
-		 * This option has no effect when an adapter or integration provides its own prerenderer.
+		 * By default, Astro uses all available CPU cores but one. Set `workers` to use fewer, for example
+		 * if your build runs out of memory.
 		 *
 		 * ```js
 		 * // astro.config.mjs
@@ -3656,6 +3642,8 @@ export interface AstroUserConfig<
 		 *   experimental: { parallelPrerender: { workers: 4 } },
 		 * });
 		 * ```
+		 *
+		 * See the [experimental parallel prerendering docs](https://docs.astro.build/en/reference/experimental-flags/parallel-prerender/) for more information.
 		 */
 		parallelPrerender?: boolean | { workers?: number };
 	};
