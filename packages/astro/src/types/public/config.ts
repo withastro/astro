@@ -65,6 +65,12 @@ export interface ImageServiceConfig<T extends Record<string, any> = Record<strin
 	config?: T;
 }
 
+/** Image services for prerendered pages (`build`) and on-demand pages (`runtime`). */
+export interface ImageServiceTargets {
+	build: ImageServiceConfig;
+	runtime: ImageServiceConfig;
+}
+
 export type RuntimeMode = 'development' | 'production';
 
 export type ValidRedirectStatus = (typeof REDIRECT_STATUS_CODES)[number];
@@ -2099,7 +2105,7 @@ export interface AstroUserConfig<
 		/**
 		 * @docs
 		 * @name image.service
-		 * @type {{entrypoint: 'astro/assets/services/sharp' | string, config: Record<string, any>}}
+		 * @type {{entrypoint: 'astro/assets/services/sharp' | string, config: Record<string, any>} | {build: ImageServiceConfig, runtime: ImageServiceConfig}}
 		 * @default `{entrypoint: 'astro/assets/services/sharp', config?: {}}`
 		 * @version 2.1.0
 		 * @description
@@ -2132,8 +2138,28 @@ export interface AstroUserConfig<
 		 *   },
 		 * });
 		 * ```
+		 *
+		 * Since Astro v7.4, you can also configure different `build` and `runtime` services. The `build` service optimizes images on prerendered pages when you build your site, and is also used during development. The `runtime` service handles images on on-demand rendered pages and the [image endpoint](#imageendpoint) of your deployed site.
+		 *
+		 * The following example uses Sharp to optimize images on prerendered pages, and an image CDN for on-demand rendered pages:
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   image: {
+		 *     service: {
+		 *       build: { entrypoint: 'astro/assets/services/sharp' },
+		 *       runtime: { entrypoint: 'my-image-cdn-service' },
+		 *     },
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * Images on prerendered pages are always generated in Node during the build, so you can use Sharp as the `build` service even if your adapter prerenders pages in another runtime (e.g. Cloudflare's `workerd`).
 		 */
-		service?: ImageServiceConfig;
+		service?: ImageServiceConfig | ImageServiceTargets;
 		/**
 		 * @docs
 		 * @name image.service.config.limitInputPixels

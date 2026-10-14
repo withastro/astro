@@ -1,9 +1,8 @@
-import type { AstroPrerenderer, PathWithRoute } from '../../types/public/integrations.js';
+import type { AstroPrerenderer } from '../../types/public/integrations.js';
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { BuildApp } from './app.js';
 import { renderForPrerender } from '../app/prerender.js';
-import { ensureAsyncRenderScope } from '../render-scope/node-scope.js';
 import { StaticPaths } from '../../runtime/prerender/static-paths.js';
 
 interface DefaultPrerendererOptions {
@@ -41,26 +40,22 @@ export function createDefaultPrerenderer({
 				);
 			}
 			const prerenderEntryUrl = new URL(prerenderEntryFileName, prerenderOutputDir);
-			const prerenderEntry = await import(prerenderEntryUrl.toString());
+			const { app }: { app: BuildApp } = await import(prerenderEntryUrl.toString());
 
-			// Get the app and configure it
-			const app = prerenderEntry.app as BuildApp;
 			app.setInternals(internals);
 			app.setOptions(options);
+			// Rebuilds in one process reuse the cached module, and its stale static paths.
+			app.routeCache.clearAll();
 			prerenderer.app = app;
 		},
 
-		async getStaticPaths(): Promise<PathWithRoute[]> {
+		async getStaticPaths() {
 			const staticPaths = new StaticPaths(prerenderer.app!);
-			return staticPaths.getAll();
+			return staticPaths.getAllWithMetadata();
 		},
 
-		async render(request, { routeData, collectMetadata }) {
-			// The scope is installed in the orchestrator's module instance; records
-			// originating in the bundled prerender runtime reach it through the
-			// `Symbol.for('astro:render-scope')` channel.
-			if (collectMetadata) ensureAsyncRenderScope();
-			return renderForPrerender(prerenderer.app!, request, { routeData, collectMetadata });
+		async render(request, { routeData }) {
+			return renderForPrerender(prerenderer.app!, request, { routeData });
 		},
 
 		async teardown() {

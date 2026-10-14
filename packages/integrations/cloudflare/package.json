@@ -26,6 +26,7 @@
     "./image-transform-endpoint": "./dist/entrypoints/image-transform-endpoint.js",
     "./image-passthrough-endpoint": "./dist/entrypoints/image-passthrough-endpoint.js",
     "./image-service-workerd": "./dist/entrypoints/image-service-workerd.js",
+    "./image-service-binding": "./dist/entrypoints/image-service-binding.js",
     "./cache": "./dist/cache/index.js",
     "./cache/provider": "./dist/cache/provider.js",
     "./handler": "./dist/utils/handler.js",
@@ -52,7 +53,7 @@
     "vite": "^8.3.3"
   },
   "peerDependencies": {
-    "astro": "^7.2.0",
+    "astro": "^7.4.0",
     "wrangler": "^4.125.0"
   },
   "devDependencies": {
