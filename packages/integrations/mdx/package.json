@@ -66,10 +66,10 @@
     "shiki": "^4.5.0",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.1.0",
-    "vite": "^8.3.2"
+    "vite": "^8.3.3"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.22.0"
   },
   "publishConfig": {
     "provenance": true

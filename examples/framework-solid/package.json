@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.22.0"
   },
   "scripts": {
     "dev": "astro dev",
@@ -15,6 +15,6 @@
   "dependencies": {
     "@astrojs/solid-js": "^7.0.2",
     "astro": "^7.3.8",
-    "solid-js": "^1.9.15"
+    "solid-js": "^1.9.17"
   }
 }

@@ -149,6 +149,7 @@ export const productionEnvironment: RenderEnvironment = {
 	},
 
 	errorStrategy: 'default',
+	rendersRedirectPage: () => false,
 	injectCspMetaTagsOnErrorPages: false,
 	logRequest() {},
 };

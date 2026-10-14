@@ -16,6 +16,7 @@ import { pluginChunkImports } from './plugin-chunk-imports.js';
 import { pluginIncremental } from './plugin-incremental.js';
 import { pluginNoop } from './plugin-noop.js';
 import { vitePluginSSRAssets } from '../vite-plugin-ssr-assets.js';
+import { pluginImageServiceEntry } from '../image-service.js';
 
 export function getAllBuildPlugins(
 	internals: BuildInternals,
@@ -36,6 +37,7 @@ export function getAllBuildPlugins(
 		pluginNoop(),
 		vitePluginSSRAssets(internals),
 		pluginChunkImports(options),
+		pluginImageServiceEntry(),
 		options.settings.config.experimental.incrementalBuild
 			? pluginIncremental(internals, options.settings.config.root)
 			: undefined,
