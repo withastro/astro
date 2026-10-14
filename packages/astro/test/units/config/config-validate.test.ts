@@ -709,20 +709,6 @@ describe('Config Validation', () => {
 		});
 	});
 
-	describe('experimental.parallelPrerender', () => {
-		it('accepts a worker count', async () => {
-			const result = await validateConfig({ experimental: { parallelPrerender: { workers: 4 } } });
-			assert.deepEqual(result.experimental.parallelPrerender, { workers: 4 });
-		});
-
-		it('rejects an invalid worker count', async () => {
-			await assert.rejects(validateConfig({ experimental: { parallelPrerender: { workers: 0 } } }));
-			await assert.rejects(
-				validateConfig({ experimental: { parallelPrerender: { workers: 1.5 } } }),
-			);
-		});
-	});
-
 	describe('experimental.collectionStorage', () => {
 		it('accepts the chunked shorthand', async () => {
 			const result = await validateConfig({

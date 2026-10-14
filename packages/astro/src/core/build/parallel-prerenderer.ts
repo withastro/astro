@@ -131,7 +131,7 @@ export interface ParallelPrerenderer extends AstroPrerenderer {
 	finish: () => Promise<StaticPathsMetadata>;
 }
 
-export function resolveParallelPrerenderWorkers(
+function resolveParallelPrerenderWorkers(
 	parallelPrerender: AstroSettings['config']['experimental']['parallelPrerender'],
 ): number {
 	if (typeof parallelPrerender === 'object' && parallelPrerender.workers !== undefined) {

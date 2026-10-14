@@ -54,6 +54,14 @@ export class BuildApp extends BaseApp {
 		this.resetAdapterLogger();
 	}
 
+	public getOptions() {
+		return this.#buildEnv.getOptions();
+	}
+
+	public getSettings() {
+		return this.#buildEnv.getSettings();
+	}
+
 	/**
 	 * Route cache and component loader for `StaticPaths`. Defined on the app
 	 * (rather than reached through the functional core at the call site) so
