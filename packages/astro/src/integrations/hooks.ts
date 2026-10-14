@@ -1,6 +1,7 @@
 import fsMod from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
+import { time } from '@astrojs/internal-helpers/timings';
 import colors from 'piccolore';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
@@ -86,13 +87,19 @@ async function runHookInternal<THook extends keyof BaseIntegrationHooks>({
 	const hook = integration?.hooks?.[hookName];
 	const integrationLogger = getLogger(integration, logger);
 	if (hook) {
-		await withTakingALongTimeMsg({
-			name: integration.name,
-			hookName,
-			hookFn: () => hook(Object.assign(params(), { logger: integrationLogger }) as any),
-			logger,
-			integrationLogger,
-		});
+		await time(
+			'integration',
+			integration.name,
+			() =>
+				withTakingALongTimeMsg({
+					name: integration.name,
+					hookName,
+					hookFn: () => hook(Object.assign(params(), { logger: integrationLogger }) as any),
+					logger,
+					integrationLogger,
+				}),
+			{ hook: hookName },
+		);
 	}
 	return { integrationLogger };
 }

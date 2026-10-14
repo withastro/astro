@@ -1,5 +1,6 @@
 import fs, { readFileSync } from 'node:fs';
 import { basename } from 'node:path/posix';
+import { recordTiming } from '@astrojs/internal-helpers/timings';
 import colors from 'piccolore';
 import type { StaticBuildOptions } from '../../core/build/types.js';
 import { getTimeStat } from '../../core/build/util.js';
@@ -168,6 +169,9 @@ export async function generateImagesForPath(
 			null,
 			`  ${colors.green('▶')} ${filepath} ${colors.dim(statsText)} ${colors.dim(timeIncrease)} ${colors.dim(count)}`,
 		);
+		recordTiming('image', filepath, timeEnd - timeStart, {
+			cached: generationData.cached !== 'miss',
+		});
 		env.count.current++;
 	}
 
