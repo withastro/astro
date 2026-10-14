@@ -92,7 +92,12 @@ export class StaticPaths {
 		return allPaths;
 	}
 
-	/** Like `getAll()`, plus the images resolved while computing the paths. */
+	/**
+	 * Like `getAll()`, but also returns the images used while computing the paths
+	 * (e.g. by calling `getImage()` in `getStaticPaths()`), so Astro can generate them.
+	 *
+	 * A custom prerenderer can return this result from its own `getStaticPaths()`.
+	 */
 	async getAllWithMetadata(
 		options: CollectPrerenderMetadataOptions = {},
 	): Promise<StaticPathsResult> {

@@ -2139,7 +2139,9 @@ export interface AstroUserConfig<
 		 * });
 		 * ```
 		 *
-		 * To use a different service for prerendered pages, pass `build` and `runtime` services instead. The `build` service handles images on prerendered pages, generates them during the build, and is used by the dev server. The `runtime` service handles on-demand pages and the image endpoint in production. For example, to optimize images on prerendered pages with Sharp, and use an image CDN for on-demand pages:
+		 * Since Astro v7.4, you can also configure different `build` and `runtime` services. The `build` service optimizes images on prerendered pages when you build your site, and is also used during development. The `runtime` service handles images on on-demand rendered pages and the [image endpoint](#imageendpoint) of your deployed site.
+		 *
+		 * The following example uses Sharp to optimize images on prerendered pages, and an image CDN for on-demand rendered pages:
 		 *
 		 * ```js
 		 * // astro.config.mjs
@@ -2155,9 +2157,9 @@ export interface AstroUserConfig<
 		 * });
 		 * ```
 		 *
-		 * The `build` service is also loaded in the runtime that prerenders your pages, which may not be Node (e.g. `workerd`), to generate image URLs. Its `transform()` only runs in Node.
+		 * Images on prerendered pages are always generated in Node during the build, so you can use Sharp as the `build` service even if your adapter prerenders pages in another runtime (e.g. Cloudflare's `workerd`).
 		 *
-		 * The resolved config available to integrations keeps the shape you used, so integrations that read `image.service` should handle both a single service and `{ build, runtime }`. When an integration sets a service with `updateConfig()` in the other shape, it replaces the existing one.
+		 * Integrations reading `image.service` receive it in the shape it was configured with, and should handle both a single service and `build` and `runtime` services. Setting `image.service` with `updateConfig()` in the other shape replaces the existing service instead of merging with it.
 		 */
 		service?: ImageServiceConfig | ImageServiceTargets;
 		/**
