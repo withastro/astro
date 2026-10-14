@@ -238,7 +238,9 @@ export type SerializedSSRManifest = Omit<
 	cacheDir: string;
 	outDir: string;
 	publicDir: string;
+	/** The resolved Vite client output directory for this build. */
 	buildClientDir: string;
+	/** The resolved Vite SSR output directory for this build. */
 	buildServerDir: string;
 	routes: SerializedRouteInfo[];
 	assets: string[];
