@@ -41,7 +41,6 @@ import { computeLockfileHash } from './lockfile/index.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import { buildPhase } from './timings/index.js';
 import type { StaticBuildOptions } from './types.js';
-import type { AstroSettings } from '../../types/astro.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
 export async function generatePages(
@@ -93,9 +92,14 @@ async function generatePagesInBuildScope(
 		prerenderer = createDefaultPrerenderer({ internals, options, prerenderOutputDir });
 	} else if (typeof settingsPrerenderer === 'function') {
 		// Factory function - create default and pass it
-		prerenderer = settingsPrerenderer(
-			createDefaultPrerenderer({ internals, options, prerenderOutputDir }),
-		);
+		const defaultPrerenderer = createDefaultPrerenderer({
+			internals,
+			options,
+			prerenderOutputDir,
+		});
+		prerenderer = settingsPrerenderer(defaultPrerenderer, {
+			outputDirectories: options.outputDirectories,
+		});
 	} else {
 		// Direct prerenderer object - use as-is
 		prerenderer = settingsPrerenderer;
@@ -437,6 +441,7 @@ async function generatePagesInBuildScope(
 		settings: options.settings,
 		logger,
 		routeToHeaders,
+		dir: options.outputDirectories.client,
 	});
 }
 
@@ -521,7 +526,7 @@ export async function renderPath({
 							!routeData.distURL.find(
 								(url) =>
 									url.href
-										.replace(config.outDir.toString(), '')
+										.replace(options.outputDirectories.client.toString(), '')
 										.replace(/(?:\/index\.html|\.html)$/, '') === trimSlashes(pathname),
 							)
 						) {
@@ -624,7 +629,12 @@ export async function renderPath({
 
 	// Compute output paths
 	const encodedPath = encodeURI(pathname);
-	const outFolder = getOutFolder(options.settings, encodedPath, route);
+	const outFolder = getOutFolder({
+		outRoot: options.outputDirectories.client,
+		buildFormat: config.build.format,
+		pathname: encodedPath,
+		routeData: route,
+	});
 	const outFile = getOutFile(config.build.format, outFolder, encodedPath, route);
 	if (route.distURL) {
 		route.distURL.push(outFile);
@@ -639,7 +649,17 @@ export async function renderPath({
 	}
 
 	// Public files take priority over generated routes
-	if (checkPublicConflict(outFile, route, options.settings, logger)) return null;
+	if (
+		checkPublicConflict({
+			outFile,
+			route,
+			outRoot: options.outputDirectories.client,
+			publicDir: config.publicDir,
+			logger,
+		})
+	) {
+		return null;
+	}
 
 	return { body, outFile, outFolder, metadata };
 }
@@ -667,10 +687,15 @@ async function generatePathWithPrerenderer(
 
 	// Compute the output file path (needed for both skip check and recording)
 	const encodedPath = encodeURI(pathname);
-	const outFolder = getOutFolder(options.settings, encodedPath, route);
+	const outFolder = getOutFolder({
+		outRoot: options.outputDirectories.client,
+		buildFormat: config.build.format,
+		pathname: encodedPath,
+		routeData: route,
+	});
 	const outFile = getOutFile(config.build.format, outFolder, encodedPath, route);
-	// Relative path from outDir for cache storage
-	const relativeOutFile = outFile.href.slice(config.outDir.href.length);
+	// Relative path from the resolved client output directory for cache storage
+	const relativeOutFile = outFile.href.slice(options.outputDirectories.client.href.length);
 
 	// Look up the dependency hash for this route
 	const dependencyHash = internals.pageDependencyHashes?.get(route.component) ?? '';
@@ -833,21 +858,23 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
  * Check if a file exists in the public directory that would conflict with the output file.
  * Public files take priority over generated routes. Returns true if there's a conflict.
  */
-function checkPublicConflict(
-	outFile: URL,
-	route: RouteData,
-	settings: AstroSettings,
-	logger: AstroLogger,
-): boolean {
-	const outRoot =
-		settings.buildOutput === 'static' && !settings.adapter?.adapterFeatures?.preserveBuildClientDir
-			? settings.config.outDir
-			: settings.config.build.client;
-
+function checkPublicConflict({
+	outFile,
+	route,
+	outRoot,
+	publicDir,
+	logger,
+}: {
+	outFile: URL;
+	route: RouteData;
+	outRoot: URL;
+	publicDir: URL;
+	logger: AstroLogger;
+}): boolean {
 	// Compute the relative path by comparing URL hrefs directly to avoid
 	// fileURLToPath issues with encoded characters like %2F.
 	const relativePath = outFile.href.slice(outRoot.href.length);
-	const publicFileUrl = new URL(relativePath, settings.config.publicDir);
+	const publicFileUrl = new URL(relativePath, publicDir);
 	if (nodeFs.existsSync(publicFileUrl)) {
 		logger.warn(
 			'build',
