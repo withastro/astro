@@ -113,7 +113,7 @@ const SUPPORTED_NODE_VERSIONS: Record<
 	},
 };
 
-const SUPPORTED_BUN_VERSIONS: Record<string, { status: string }> = {
+const SUPPORTED_BUN_VERSIONS: Record<string, { status: 'available' } | { status: 'default' }> = {
 	'1.x': { status: 'available' },
 	'1.4.x': { status: 'default' },
 };
