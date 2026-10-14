@@ -7,7 +7,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 import { routeHasHtmlExtension, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import type { RouteCache } from './route-cache.js';
-import { callGetStaticPaths, findPathItemByKey } from './route-cache.js';
+import { callGetStaticPaths, completeStaticPaths, findPathItemByKey } from './route-cache.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance | undefined;
@@ -56,10 +56,11 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 	// the ones expected from the users
 	const params = getParams(route, pathname);
 	let matchedStaticPath = findPathItemByKey(staticPaths, params, route, logger, trailingSlash);
-	if (!matchedStaticPath && routeCache.get(route)?.partial) {
-		routeCache.delete(route);
-		const allStaticPaths = await callGetStaticPaths(getStaticPathsOptions);
-		matchedStaticPath = findPathItemByKey(allStaticPaths, params, route, logger, trailingSlash);
+	if (!matchedStaticPath) {
+		const allStaticPaths = await completeStaticPaths(getStaticPathsOptions);
+		if (allStaticPaths) {
+			matchedStaticPath = findPathItemByKey(allStaticPaths, params, route, logger, trailingSlash);
+		}
 	}
 	if (!matchedStaticPath && route.origin !== 'internal' && (serverLike ? route.prerender : true)) {
 		throw new AstroError({

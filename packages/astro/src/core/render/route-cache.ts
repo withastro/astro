@@ -58,6 +58,35 @@ export async function callGetStaticPaths({
 		return entry;
 	}
 
+	const keyedStaticPaths = await computeStaticPaths(mod, route, base, trailingSlash);
+	routeCache.set(route, { mod, staticPaths: keyedStaticPaths });
+	return keyedStaticPaths;
+}
+
+/** Replaces a partial entry with the full result, sharing one `getStaticPaths()` call between concurrent misses. */
+export function completeStaticPaths({
+	route,
+	routeCache,
+	base,
+	trailingSlash,
+}: CallGetStaticPathsOptions): Promise<GetStaticPathsResultKeyed> | undefined {
+	const cached = routeCache.get(route);
+	if (!cached?.partial) return undefined;
+	cached.complete ??= computeStaticPaths(cached.mod, route, base, trailingSlash).then(
+		(staticPaths) => {
+			routeCache.set(route, { mod: cached.mod, staticPaths });
+			return staticPaths;
+		},
+	);
+	return cached.complete;
+}
+
+async function computeStaticPaths(
+	mod: ComponentInstance,
+	route: RouteData,
+	base: AstroConfig['base'],
+	trailingSlash: AstroConfig['trailingSlash'],
+): Promise<GetStaticPathsResultKeyed> {
 	let staticPaths: GetStaticPathsResult = [];
 	// Add a check here to make TypeScript happy.
 	// This is already checked in validateDynamicRouteModule().
@@ -83,7 +112,6 @@ export async function callGetStaticPaths({
 		keyedStaticPaths.keyed.set(paramsKey, sp);
 	}
 
-	routeCache.set(route, { ...cached, mod, staticPaths: keyedStaticPaths });
 	return keyedStaticPaths;
 }
 
@@ -92,6 +120,7 @@ interface RouteCacheEntry {
 	staticPaths: GetStaticPathsResultKeyed;
 	/** Holds only some of the route's items, so a miss doesn't mean the path doesn't exist. */
 	partial?: boolean;
+	complete?: Promise<GetStaticPathsResultKeyed>;
 }
 
 /**
@@ -124,7 +153,8 @@ export class RouteCache {
 		// NOTE: This shouldn't be called on an already-cached component.
 		// Warn here so that an unexpected double-call of getStaticPaths()
 		// isn't invisible and developer can track down the issue.
-		if (this.runtimeMode === 'production' && this.cache[key]?.staticPaths) {
+		const existing = this.cache[key];
+		if (this.runtimeMode === 'production' && existing?.staticPaths && !existing.partial) {
 			this.logger.warn(null, `Internal Warning: route cache overwritten. (${key})`);
 		}
 		this.cache[key] = entry;
@@ -132,10 +162,6 @@ export class RouteCache {
 
 	get(route: RouteData): RouteCacheEntry | undefined {
 		return this.cache[this.key(route)];
-	}
-
-	delete(route: RouteData): void {
-		delete this.cache[this.key(route)];
 	}
 
 	key(route: RouteData) {

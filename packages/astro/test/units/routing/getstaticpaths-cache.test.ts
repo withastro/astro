@@ -225,7 +225,7 @@ describe('getStaticPaths caching behavior', () => {
 		);
 	});
 
-	it('calls getStaticPaths when a partial cache entry misses the requested path', async () => {
+	it('calls getStaticPaths once when a partial cache entry misses the requested paths', async () => {
 		const route = makeRoute({
 			segments: [[dynamicPart('param')]],
 			trailingSlash: 'never',
@@ -240,6 +240,7 @@ describe('getStaticPaths caching behavior', () => {
 				return [
 					{ params: { param: 'a' }, props: { name: 'a' } },
 					{ params: { param: 'b' }, props: { name: 'b' } },
+					{ params: { param: 'c' }, props: { name: 'c' } },
 				];
 			},
 		});
@@ -264,7 +265,12 @@ describe('getStaticPaths caching behavior', () => {
 		assert.deepEqual(await getProps({ ...options, pathname: '/a' }), { name: 'a' });
 		assert.equal(callCount, 0);
 
-		assert.deepEqual(await getProps({ ...options, pathname: '/b' }), { name: 'b' });
+		const [b, c] = await Promise.all([
+			getProps({ ...options, pathname: '/b' }),
+			getProps({ ...options, pathname: '/c' }),
+		]);
+		assert.deepEqual(b, { name: 'b' });
+		assert.deepEqual(c, { name: 'c' });
 		assert.equal(callCount, 1);
 		assert.equal(routeCache.get(route)?.partial, undefined);
 		assert.equal(
