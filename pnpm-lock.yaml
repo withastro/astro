@@ -6337,7 +6337,7 @@ importers:
         specifier: ^6.6.0
         version: 6.6.0
       rolldown:
-        specifier: ^1.2.12
+        specifier: ^1.2.13
         version: 1.2.13
       tinyglobby:
         specifier: ^0.2.17
