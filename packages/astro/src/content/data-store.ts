@@ -1,6 +1,13 @@
 import type { MarkdownHeading } from '@astrojs/internal-helpers/markdown';
 import * as devalue from 'devalue';
-import { type DataStoreSource, InMemorySource } from './data-store-source.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { EXTERNAL_COLLECTIONS_META_KEY } from './consts.js';
+import {
+	CompositeSource,
+	type DataStoreSource,
+	ExternalSource,
+	InMemorySource,
+} from './data-store-source.js';
 
 export interface RenderedContent {
 	/** Rendered HTML string. If present then `render(entry)` will return a component that renders this HTML. */
@@ -177,12 +184,39 @@ export class ImmutableDataStore {
 	}
 }
 
+/**
+ * Creates the source for the data store in the virtual module. When the data store lists
+ * collections defined with `storage: 'external'`, those are read from the configured driver.
+ *
+ * @throws {AstroError} `ContentStorageDriverMissing` when there are external collections,
+ * but no driver is configured.
+ */
+async function createDataStoreSource(): Promise<DataStoreSource> {
+	const store = await ImmutableDataStore.fromModule();
+	const source = new InMemorySource(store);
+	// Astro's own meta values are saved in the `meta::meta` collection
+	const externalCollections = store.get<string>('meta::meta', EXTERNAL_COLLECTIONS_META_KEY);
+	if (!externalCollections) {
+		return source;
+	}
+	const collectionNames: Array<string> = JSON.parse(externalCollections);
+	// @ts-expect-error	virtual module
+	const { default: getDriver } = await import('virtual:astro:content-storage-driver');
+	if (!getDriver) {
+		throw new AstroError({
+			...AstroErrorData.ContentStorageDriverMissing,
+			message: AstroErrorData.ContentStorageDriverMissing.message(collectionNames[0]),
+		});
+	}
+	return new CompositeSource(source, new ExternalSource(await getDriver()), collectionNames);
+}
+
 function dataStoreSingleton() {
 	let instance: Promise<DataStoreSource> | DataStoreSource | undefined = undefined;
 	return {
 		get: async (): Promise<DataStoreSource> => {
 			if (!instance) {
-				instance = ImmutableDataStore.fromModule().then((store) => new InMemorySource(store));
+				instance = createDataStoreSource();
 			}
 			return instance;
 		},

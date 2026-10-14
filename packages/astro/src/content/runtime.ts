@@ -144,6 +144,51 @@ export function createGetCollection({
 	};
 }
 
+/** Marks the entries returned by `getCollectionMetadata()`, which `render()` rejects */
+const METADATA_ENTRY = Symbol.for('astro:content-metadata-entry');
+
+export function createGetCollectionMetadata({
+	liveCollections,
+	logger,
+}: {
+	liveCollections: LiveCollectionConfigMap;
+	logger: AstroLogger;
+}) {
+	return async function getCollectionMetadata(collection: string) {
+		if (collection in liveCollections) {
+			throw new AstroError({
+				...AstroErrorData.UnknownContentCollectionError,
+				message: `Collection "${collection}" is a live collection. Use getLiveCollection() instead of getCollectionMetadata().`,
+			});
+		}
+
+		const store = await globalDataStore.get();
+		if (!(await store.hasCollection(collection))) {
+			logger.warn(
+				'content',
+				`The collection ${JSON.stringify(
+					collection,
+				)} does not exist or is empty. Please check your content config file for errors.`,
+			);
+			return [];
+		}
+		// @ts-expect-error	virtual module
+		const { default: imageAssetMap } = await import('astro:asset-imports');
+		const result = [];
+		for (const rawEntry of await store.metadata<DataEntry>(collection)) {
+			const entry = {
+				...rawEntry,
+				data: resolveEntryData(rawEntry, imageAssetMap),
+				collection,
+			};
+			// Not enumerable, so it isn't listed or serialized with the entry
+			Object.defineProperty(entry, METADATA_ENTRY, { value: true });
+			result.push(entry);
+		}
+		return result;
+	};
+}
+
 type ContentEntryResult = {
 	id: string;
 	slug: string;
@@ -629,6 +674,13 @@ export function createRenderEntry({ logger }: { logger: AstroLogger }) {
 	return async function renderEntry(entry: DataEntry) {
 		if (!entry) {
 			throw new AstroError(AstroErrorData.RenderUndefinedEntryError);
+		}
+		if (METADATA_ENTRY in entry) {
+			const { collection } = entry as unknown as { collection: string };
+			throw new AstroError({
+				...AstroErrorData.RenderMetadataEntryError,
+				message: AstroErrorData.RenderMetadataEntryError.message(collection, entry.id),
+			});
 		}
 		recordContentEntryRender(entry.filePath);
 

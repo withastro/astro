@@ -1,53 +1,25 @@
-import { fileURLToPath } from 'node:url';
 import type { RunnableDevEnvironment } from 'vite';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import type { AstroSettings } from '../types/astro.js';
+import { CONTENT_STORAGE_DRIVER_VIRTUAL_ID } from './consts.js';
 import { createDataEntry } from './data-entry.js';
 import type { DataEntry } from './data-store.js';
-import {
-	type ContentStorageDriver,
-	type ContentStorageDriverFactory,
-	deserializeEntry,
-	serializeEntry,
-} from './storage.js';
+import { type ContentStorageDriver, deserializeEntry, serializeEntry } from './storage.js';
 import { contentModuleToId } from './utils.js';
 
 /**
  * Creates the store for the driver configured in `experimental.collectionStorage`, importing
- * the driver's `entrypoint` with `environment`. Returns `undefined` when no driver is configured.
+ * the driver with `environment` the same way the runtime does. Returns `undefined` when no
+ * driver is configured.
  *
- * @throws {AstroError} `ContentStorageDriverNotFound` when the `entrypoint` can't be imported,
- * or when its default export isn't a function.
+ * @throws {AstroError} `ContentStorageDriverNotFound` when the driver's `entrypoint` can't be resolved.
  */
 export async function createExternalDataStore(
-	settings: AstroSettings,
 	environment: RunnableDevEnvironment,
 ): Promise<ExternalDataStore | undefined> {
-	const storage = settings.config.experimental.collectionStorage;
-	if (typeof storage !== 'object' || storage.type !== 'external' || !storage.driver) {
-		return undefined;
-	}
-	const { entrypoint, config } = storage.driver;
-	const specifier = entrypoint instanceof URL ? fileURLToPath(entrypoint) : entrypoint;
-	const notFound = (cause?: unknown) =>
-		new AstroError(
-			{
-				...AstroErrorData.ContentStorageDriverNotFound,
-				message: AstroErrorData.ContentStorageDriverNotFound.message(specifier),
-			},
-			{ cause },
-		);
-	let createDriver: unknown;
-	try {
-		({ default: createDriver } = await environment.runner.import(specifier));
-	} catch (error) {
-		throw notFound(error);
-	}
-	if (typeof createDriver !== 'function') {
-		throw notFound();
-	}
-	return new ExternalDataStore(await (createDriver as ContentStorageDriverFactory)(config));
+	const { default: getDriver } = await environment.runner.import<{
+		default?: () => Promise<ContentStorageDriver>;
+	}>(CONTENT_STORAGE_DRIVER_VIRTUAL_ID);
+	return getDriver && new ExternalDataStore(await getDriver());
 }
 
 /**

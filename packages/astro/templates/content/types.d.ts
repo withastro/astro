@@ -20,6 +20,11 @@ declare module 'astro:content' {
 
 	export type CollectionKey = keyof DataEntryMap;
 	export type CollectionEntry<C extends CollectionKey> = Flatten<DataEntryMap[C]>;
+	/** An entry returned by `getCollectionMetadata()`, without its `body` and `rendered` fields */
+	export type CollectionMetadataEntry<C extends CollectionKey> = Omit<
+		CollectionEntry<C>,
+		'body' | 'rendered'
+	>;
 
 	type AllValuesOf<T> = T extends any ? T[keyof T] : never;
 
@@ -44,6 +49,14 @@ declare module 'astro:content' {
 		collection: C,
 		filter?: (entry: CollectionEntry<C>) => unknown,
 	): Promise<CollectionEntry<C>[]>;
+
+	/**
+	 * Returns all the entries of a collection without their `body` and `rendered` fields, which
+	 * are usually the largest. The entries can't be passed to `render()`.
+	 */
+	export function getCollectionMetadata<C extends keyof DataEntryMap>(
+		collection: C,
+	): Promise<CollectionMetadataEntry<C>[]>;
 
 	export function getLiveCollection<C extends keyof LiveContentConfig['collections']>(
 		collection: C,

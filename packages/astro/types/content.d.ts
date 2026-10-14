@@ -25,6 +25,8 @@ declare module 'astro:content' {
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export const getCollection: (...args: any[]) => any;
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
+	export const getCollectionMetadata: (...args: any[]) => any;
+	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export const getEntry: (...args: any[]) => any;
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export const getEntries: (...args: any[]) => any;
@@ -34,6 +36,8 @@ declare module 'astro:content' {
 	export type CollectionKey = any;
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export type CollectionEntry<C> = any;
+	/** Run `astro dev` or `astro sync` to generate high fidelity types */
+	export type CollectionMetadataEntry<C> = any;
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export type ContentCollectionKey = any;
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */

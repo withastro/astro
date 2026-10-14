@@ -12,6 +12,7 @@ import {
 	astroContentAssetPropagationPlugin,
 	astroContentImportPlugin,
 	astroContentVirtualModPlugin,
+	vitePluginContentStorageDriver,
 } from '../content/index.js';
 import { createEnvLoader } from '../env/env-loader.js';
 import { validateEnvPrefixAgainstSchema } from '../env/validators.js';
@@ -222,6 +223,7 @@ export async function createVite(
 			astroContentVirtualModPlugin({ fs, settings }),
 			astroContentImportPlugin({ fs, settings, logger }),
 			astroContentAssetPropagationPlugin({ settings, cssContentCache }),
+			vitePluginContentStorageDriver({ settings }),
 			vitePluginMiddleware({ settings }),
 			astroAssetsPlugin({ fs, settings, sync, logger }),
 			astroPrefetch({ settings }),

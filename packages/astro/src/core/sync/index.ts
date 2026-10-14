@@ -174,7 +174,6 @@ export async function syncInternal({
 			}
 
 			const externalStore = await createExternalDataStore(
-				settings,
 				tempViteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.astro] as RunnableDevEnvironment,
 			);
 			const contentLayer = globalContentLayer.init({

@@ -2,13 +2,14 @@ import assert from 'node:assert/strict';
 import nodeFs from 'node:fs';
 import { describe, it, mock } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { ExternalDataStore } from '../../../dist/content/external-data-store.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
 import { getDataStoreFile } from '../../../dist/content/paths.js';
 import {
 	astroContentVirtualModPlugin,
 	attachDataStoreInvalidation,
 } from '../../../dist/content/vite-plugin-content-virtual-mod.js';
-import { createMinimalSettings, createTempDir } from './test-helpers.ts';
+import { createMemoryStorageDriver, createMinimalSettings, createTempDir } from './test-helpers.ts';
 
 /**
  * Creates a minimal mock environment module graph.
@@ -281,5 +282,25 @@ describe('attachDataStoreInvalidation', () => {
 			(msg) => msg.channel === 'ssr' && msg.type === 'astro:content-changed',
 		);
 		assert.equal(ssrChanged.length, 1, 'the SSR environment should also receive the signal');
+	});
+
+	it('invalidates when a flush of the external store saved changes', async () => {
+		const settings = createMinimalSettings(createTempDir(), { config: { legacy: {} } });
+		const mockServer = createMockViteDevServer();
+		const store = await MutableDataStore.fromFile(getDataStoreFile(settings, true));
+		const externalStore = new ExternalDataStore(createMemoryStorageDriver());
+		// @ts-expect-error - mock server has enough structure for this test
+		attachDataStoreInvalidation(store, mockServer, settings, externalStore);
+
+		await externalStore.flush();
+		assert.equal(countClientReloads(mockServer), 0, 'a flush without changes should not reload');
+
+		await externalStore.scopedStore('dogs').set({ id: 'beagle', data: {} });
+		await externalStore.flush();
+		assert.equal(countClientReloads(mockServer), 1, 'a flush with changes should reload');
+		const contentChanged = mockServer.sentMessages.filter(
+			(msg) => msg.channel === 'ssr' && msg.type === 'astro:content-changed',
+		);
+		assert.equal(contentChanged.length, 1, 'the SSR runner should be told content changed');
 	});
 });
