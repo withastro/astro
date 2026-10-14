@@ -20,12 +20,24 @@ async function collectCss(fixture: Fixture, html: string): Promise<string> {
 function assertOnlyBlockUsed(css: string) {
 	assert.match(css, /\.block-from-frontmatter/, 'the rendered component CSS should be included');
 	assert.match(css, /\.block\[[^\]]+\] p/, 'the rendered scoped style should be included');
+	assert.match(css, /letter-spacing:\s*7\.7px/, 'the rendered CSS module should be included');
+	assert.match(css, /letter-spacing:\s*9\.9px/, 'the rendered inline style should be included');
 	assert.doesNotMatch(
 		css,
 		/\.other-from-frontmatter/,
 		'the unrendered component CSS should be excluded',
 	);
 	assert.doesNotMatch(css, /\.other\[[^\]]+\] p/, 'the unrendered scoped style should be excluded');
+	assert.doesNotMatch(
+		css,
+		/letter-spacing:\s*8\.8px/,
+		'the unrendered CSS module should be excluded',
+	);
+	assert.doesNotMatch(
+		css,
+		/letter-spacing:\s*6\.6px/,
+		'the unrendered inline style should be excluded',
+	);
 }
 
 describe('experimental.dynamicComponents', () => {
@@ -56,10 +68,22 @@ describe('experimental.dynamicComponents', () => {
 			const css = await collectCss(fixture, html);
 			assert.match(css, /\.other-from-frontmatter/, 'the other component CSS should be included');
 			assert.match(css, /\.other\[[^\]]+\] p/, 'the other scoped style should be included');
+			assert.match(css, /letter-spacing:\s*8\.8px/, 'the other CSS module should be included');
+			assert.match(css, /letter-spacing:\s*6\.6px/, 'the other inline style should be included');
 			assert.doesNotMatch(
 				css,
 				/\.block-from-frontmatter/,
 				'the block component CSS should be excluded',
+			);
+			assert.doesNotMatch(
+				css,
+				/letter-spacing:\s*7\.7px/,
+				'the block CSS module should be excluded',
+			);
+			assert.doesNotMatch(
+				css,
+				/letter-spacing:\s*9\.9px/,
+				'the block inline style should be excluded',
 			);
 		});
 
@@ -116,10 +140,22 @@ describe('experimental.dynamicComponents', () => {
 			const html = await response.text();
 			const css = await collectCss(fixture, html);
 			assert.match(css, /\.other-from-frontmatter/, 'the other component CSS should be included');
+			assert.match(css, /letter-spacing:\s*8\.8px/, 'the other CSS module should be included');
+			assert.match(css, /letter-spacing:\s*6\.6px/, 'the other inline style should be included');
 			assert.doesNotMatch(
 				css,
 				/\.block-from-frontmatter/,
 				'the block component CSS should be excluded',
+			);
+			assert.doesNotMatch(
+				css,
+				/letter-spacing:\s*7\.7px/,
+				'the block CSS module should be excluded',
+			);
+			assert.doesNotMatch(
+				css,
+				/letter-spacing:\s*9\.9px/,
+				'the block inline style should be excluded',
 			);
 		});
 

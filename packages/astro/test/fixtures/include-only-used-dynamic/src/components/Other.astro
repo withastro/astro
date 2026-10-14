@@ -1,14 +1,21 @@
 ---
 import './other.css';
+import styles from './other.module.css';
 ---
 
-<div class="other">
+<div class:list={['other', styles.otherModule]}>
 	<p>Other</p>
 </div>
 
 <style>
 	.other p {
 		color: blue;
+	}
+</style>
+
+<style is:inline>
+	.other-inline {
+		letter-spacing: 6.6px;
 	}
 </style>
 
