@@ -5965,8 +5965,8 @@ importers:
   packages/integrations/partytown:
     dependencies:
       '@qwik.dev/partytown':
-        specifier: ^0.14.5
-        version: 0.14.5
+        specifier: ^0.15.0
+        version: 0.15.0
       mrmime:
         specifier: ^2.0.1
         version: 2.0.1
@@ -10439,8 +10439,8 @@ packages:
     resolution: {integrity: sha512-4EDEmvxWtgsCnnVeBvtFIFZtUhPPt1+bA9JrSwU4Sa//6oKtzCSlGGXYJr44OD9aGISymbieJ4mCKHUygUDU+g==}
     engines: {node: '>=18'}
 
-  '@qwik.dev/partytown@0.14.5':
-    resolution: {integrity: sha512-DxVGNgz2oWZvNT76LmMwxSroN1+r8rHqH/55fLGpO7tiVbYtC8PoXICyS1vGwL2mvmvfQhccqbudKrDnQO1mgg==}
+  '@qwik.dev/partytown@0.15.0':
+    resolution: {integrity: sha512-S4e5QtZ76VLk/UPkA7Zk7zZ2WGpYjjDfZog5TiGhlpb58S9Mt3ntuyTorolQApTA5H3fK2ZsZvtRzA70C76brg==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -20195,7 +20195,7 @@ snapshots:
     dependencies:
       tinyexec: 1.3.1
 
-  '@qwik.dev/partytown@0.14.5': {}
+  '@qwik.dev/partytown@0.15.0': {}
 
   '@rolldown/binding-android-arm-eabi@1.2.13':
     optional: true
