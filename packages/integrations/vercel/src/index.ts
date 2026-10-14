@@ -811,9 +811,9 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 		const versionKey = minor ? `${major}.${minor}.x` : `${major}.x`;
 		const support = SUPPORTED_BUN_VERSIONS[versionKey];
 		if (support === undefined) {
-			return `bun${major}.x`;
+			return `bun${major}.x` as Runtime;
 		}
-		return `bun${versionKey}`;
+		return `bun${versionKey}` as Runtime;
 	}
 	const version = process.version.slice(1); // 'v18.19.0' --> '18.19.0'
 	const major = version.split('.')[0]; // '18.19.0' --> '18'
