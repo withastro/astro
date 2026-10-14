@@ -3620,6 +3620,32 @@ export interface AstroUserConfig<
 		 * See the [experimental incremental static builds](https://docs.astro.build/en/reference/experimental-flags/incremental-build/) for more information.
 		 */
 		incrementalBuild?: boolean;
+
+		/**
+		 * @name experimental.parallelPrerender
+		 * @type {boolean | { workers?: number }}
+		 * @default `false`
+		 * @version 7.4
+		 * @description
+		 *
+		 * Renders static pages on multiple CPU cores during `astro build`. This can make builds of large
+		 * sites faster, but uses more memory.
+		 *
+		 * By default, Astro uses all available CPU cores but one. Set `workers` to use fewer, for example
+		 * if your build runs out of memory.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: { parallelPrerender: { workers: 4 } },
+		 * });
+		 * ```
+		 *
+		 * See the [experimental parallel prerendering docs](https://docs.astro.build/en/reference/experimental-flags/parallel-prerender/) for more information.
+		 */
+		parallelPrerender?: boolean | { workers?: number };
 	};
 }
 

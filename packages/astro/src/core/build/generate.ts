@@ -11,17 +11,8 @@ import {
 	prepareAssetsGenerationEnv,
 	StaticImageRegistry,
 } from '../../assets/build/generate.js';
-import {
-	appendForwardSlash,
-	collapseDuplicateTrailingSlashes,
-	hasFileExtension,
-	joinPaths,
-	removeLeadingForwardSlash,
-	removeTrailingForwardSlash,
-	trimSlashes,
-} from '../../core/path.js';
+import { removeTrailingForwardSlash, trimSlashes } from '../../core/path.js';
 import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
-import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroLogger } from '../logger/core.js';
 import type {
 	AstroPrerenderer,
@@ -29,7 +20,7 @@ import type {
 	PrerenderResult,
 	RouteToHeaders,
 } from '../../types/public/index.js';
-import type { RouteData, RouteType, SSRError } from '../../types/public/internal.js';
+import type { RouteData, SSRError } from '../../types/public/internal.js';
 import { hashCryptoKey } from '../encryption.js';
 import { ensureAsyncRenderScope } from '../render-scope/node-scope.js';
 import type { RenderCollectors } from '../render-scope/scope.js';
@@ -39,9 +30,10 @@ import { createRequest } from '../request.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { routeIsRedirect } from '../routing/helpers.js';
 import { getOutputFilename } from '../output-filename.js';
-import { getOutFile, getOutFolder } from './common.js';
+import { getOutFile, getOutFolder, getUrlForPath } from './common.js';
 import { createDefaultPrerenderer } from './default-prerenderer.js';
 import { loadBuildImageService } from './image-service.js';
+import { createParallelPrerenderer, type ParallelPrerenderer } from './parallel-prerenderer.js';
 import { IncrementalBuildCache } from './incremental.js';
 import { computeConfigHash } from './config-hash/index.js';
 import { computeLockfileHash } from './lockfile/index.js';
@@ -86,8 +78,15 @@ async function generatePagesInBuildScope(
 
 	// Get or create the prerenderer
 	let prerenderer: AstroPrerenderer;
+	let parallelPrerenderer: ParallelPrerenderer | undefined;
 	const settingsPrerenderer = options.settings.prerenderer;
-	if (!settingsPrerenderer) {
+	if (!settingsPrerenderer && options.settings.config.experimental.parallelPrerender) {
+		prerenderer = parallelPrerenderer = createParallelPrerenderer({
+			internals,
+			options,
+			prerenderOutputDir,
+		});
+	} else if (!settingsPrerenderer) {
 		// No custom prerenderer - create default
 		prerenderer = createDefaultPrerenderer({ internals, options, prerenderOutputDir });
 	} else if (typeof settingsPrerenderer === 'function') {
@@ -98,6 +97,12 @@ async function generatePagesInBuildScope(
 	} else {
 		// Direct prerenderer object - use as-is
 		prerenderer = settingsPrerenderer;
+	}
+	if (settingsPrerenderer && options.settings.config.experimental.parallelPrerender) {
+		logger.warn(
+			'build',
+			`\`experimental.parallelPrerender\` is not supported by the "${prerenderer.name}" prerenderer and will be ignored.`,
+		);
 	}
 
 	// Set up the prerenderer
@@ -196,8 +201,11 @@ async function generatePagesInBuildScope(
 		const generationPhases = [filteredPaths, fallbackPaths];
 
 		// Generate each path
-		if (config.build.concurrency > 1) {
-			const limit = PLimit(config.build.concurrency);
+		const generationConcurrency = parallelPrerenderer
+			? parallelPrerenderer.workerCount * config.build.concurrency
+			: config.build.concurrency;
+		if (generationConcurrency > 1) {
+			const limit = PLimit(generationConcurrency);
 			// Process in batches to avoid V8's Promise.all element limit, which is around ~123k items
 			//
 			// NOTE: ideally we could consider an iterator to avoid the batching limitation
@@ -242,6 +250,10 @@ async function generatePagesInBuildScope(
 					);
 				}
 			}
+		}
+
+		if (parallelPrerenderer) {
+			images.addMetadata(await parallelPrerenderer.finish());
 		}
 
 		// After generation, propagate distURL from the deserialized routes (used during generation)
@@ -791,60 +803,6 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 		? pathname.replace(/\/?$/, '/').replace(/^\//, '')
 		: pathname.replace(/^\//, '');
 	opts.pageNames.push(pageName);
-}
-
-function getUrlForPath(
-	pathname: string,
-	base: string,
-	origin: string,
-	format: AstroConfig['build']['format'],
-	trailingSlash: AstroConfig['trailingSlash'],
-	routeType: RouteType,
-	isIndex: boolean,
-): URL {
-	/**
-	 * Examples:
-	 * pathname: /, /foo
-	 * base: /
-	 */
-
-	let ending: string;
-	// For `preserve`, non-index routes output as flat `.html` files (like `file`),
-	// while index routes output as `dir/index.html` (like `directory`).
-	const effectiveFormat = format === 'preserve' ? (isIndex ? 'directory' : 'file') : format;
-	switch (effectiveFormat) {
-		case 'directory': {
-			ending = trailingSlash === 'never' ? '' : '/';
-			break;
-		}
-		case 'file':
-		default: {
-			ending = '.html';
-			break;
-		}
-	}
-	let buildPathname: string;
-	if (pathname === '/' || pathname === '') {
-		if (effectiveFormat === 'file') {
-			buildPathname = joinPaths(base, 'index.html');
-		} else {
-			buildPathname = collapseDuplicateTrailingSlashes(base + ending, trailingSlash !== 'never');
-		}
-	} else if (routeType === 'endpoint') {
-		const buildPathRelative = removeLeadingForwardSlash(pathname);
-		let endpointPathname = joinPaths(base, buildPathRelative);
-		if (trailingSlash === 'always' && !hasFileExtension(pathname)) {
-			endpointPathname = appendForwardSlash(endpointPathname);
-		} else if (trailingSlash === 'never') {
-			endpointPathname = removeTrailingForwardSlash(endpointPathname);
-		}
-		buildPathname = endpointPathname;
-	} else {
-		const buildPathRelative =
-			removeTrailingForwardSlash(removeLeadingForwardSlash(pathname)) + ending;
-		buildPathname = joinPaths(base, buildPathRelative);
-	}
-	return new URL(buildPathname, origin);
 }
 
 /**
