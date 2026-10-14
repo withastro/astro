@@ -3345,12 +3345,6 @@ importers:
         specifier: ^19.3.0
         version: 19.3.0(react@19.3.0)
 
-  packages/astro/test/fixtures/include-only-used:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/include-only-used-dynamic:
     dependencies:
       astro:
@@ -3358,18 +3352,6 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/include-only-used-dynamic-ssr:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/include-only-used-incremental:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/include-only-used-ssr:
     dependencies:
       astro:
         specifier: workspace:*

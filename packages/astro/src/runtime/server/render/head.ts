@@ -46,16 +46,9 @@ export function renderAllHeadContent(result: SSRResult) {
 			false,
 		);
 	}
-	const styles = deduplicateElements(Array.from(result.styles)).map((style) => {
-		const tag =
-			style.props.rel === 'stylesheet'
-				? renderElement('link', style)
-				: renderElement('style', style);
-		if (result._metadata.treeShakeComponents && style.owners?.length) {
-			result._metadata.componentStyleTags.push({ tag, owners: style.owners });
-		}
-		return tag;
-	});
+	const styles = deduplicateElements(Array.from(result.styles)).map((style) =>
+		style.props.rel === 'stylesheet' ? renderElement('link', style) : renderElement('style', style),
+	);
 	// Clear result.styles so that any new styles added will be inlined.
 	result.styles.clear();
 	const scripts = deduplicateElements(Array.from(result.scripts)).map((script) => {

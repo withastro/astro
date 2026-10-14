@@ -61,7 +61,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		chromeDevtoolsWorkspace: false,
 		incrementalBuild: false,
 		collectionStorage: 'single-file',
-		treeShakeComponents: false,
 		dynamicComponents: false,
 	},
 } satisfies AstroUserConfig & {

@@ -457,11 +457,7 @@ function renderAstroComponent(
 	props: Record<string | number, any>,
 	slots: any = {},
 ): RenderInstance {
-	if (Component.moduleId) {
-		result._metadata.renderedComponents.add(Component.moduleId);
-	}
 	if (containsServerDirective(props)) {
-		result._metadata.hasServerIsland = true;
 		const serverIslandComponent = new ServerIslandComponent(result, props, slots, displayName);
 		result._metadata.propagators.add(serverIslandComponent);
 		return serverIslandComponent;

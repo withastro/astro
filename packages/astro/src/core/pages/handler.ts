@@ -55,9 +55,7 @@ export async function handlePages(state: FetchState, ctx: APIContext): Promise<R
 					componentInstance?.default as any,
 					props,
 					state.slots ?? EMPTY_SLOTS,
-					// `experimental.treeShakeComponents` needs the full page to know
-					// which components rendered, so it opts out of streaming.
-					streaming && !state.manifest.treeShakeComponents,
+					streaming,
 					state.routeData!,
 				);
 			} catch (e) {

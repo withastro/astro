@@ -40,10 +40,7 @@ export async function renderPage(
 			route,
 		);
 
-		const filtered = result._metadata.treeShakeComponents
-			? removeUnusedComponentStyles(result, str)
-			: str;
-		const bytes = encoder.encode(filtered);
+		const bytes = encoder.encode(str);
 		const headers = new Headers([
 			['Content-Type', 'text/html'],
 			['Content-Length', bytes.byteLength.toString()],
@@ -117,9 +114,6 @@ export async function renderPage(
 
 	// For non-streaming, convert string to byte array to calculate Content-Length
 	if (!streaming && typeof body === 'string') {
-		if (result._metadata.treeShakeComponents) {
-			body = removeUnusedComponentStyles(result, body);
-		}
 		body = encoder.encode(body);
 		headers.set('Content-Length', body.byteLength.toString());
 	}
@@ -143,34 +137,4 @@ export async function renderPage(
 	} else {
 		return new Response(body, { ...init, headers });
 	}
-}
-
-/**
- * Removes the `<link>`/`<style>` tags of stylesheets owned exclusively by
- * components that did not render, implementing `experimental.treeShakeComponents`.
- *
- * The head is emitted before the body, so the set of rendered components is only
- * known once the whole page has been rendered. The head renderer records the
- * exact tags it emitted together with their owner component module ids; this
- * runs afterwards, when the response is buffered, and drops the unused ones.
- *
- * Pages with a server island keep every style: the island renders in a separate
- * request, so the components it renders never appear in the page's set of
- * rendered components.
- */
-function removeUnusedComponentStyles(result: SSRResult, html: string): string {
-	const tags = result._metadata.componentStyleTags;
-	if (tags.length === 0) return html;
-	if (result._metadata.hasServerIsland) return html;
-
-	const rendered = result._metadata.renderedComponents;
-	let output = html;
-	for (const { tag, owners } of tags) {
-		if (owners.some((owner) => rendered.has(owner))) continue;
-		const index = output.indexOf(tag);
-		if (index !== -1) {
-			output = output.slice(0, index) + output.slice(index + tag.length);
-		}
-	}
-	return output;
 }
