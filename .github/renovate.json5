@@ -202,6 +202,13 @@
       "groupName": "vite",
       "matchManagers": ["npm"],
       "matchPackageNames": ["vite"]
+    },
+    // Must be updated in all packages at once: loading two different @playwright/test versions in
+    // the same process throws, which breaks `knip` when it loads the Playwright configs.
+    {
+      "groupName": "@playwright/test",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["@playwright/test"]
     }
     //#endregion
   ],
