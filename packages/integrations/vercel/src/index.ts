@@ -805,8 +805,8 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 	if (bunVersion) {
 		const [major, minor] = bunVersion.split('.');
 		if (major !== '1') {
-			logger.warn(`Unsupported Bun version (${major}) detected. Using Bun 1.4.x as the runtime instead.`);
-			return 'bun1.4.x';
+			logger.warn(`Unsupported Bun version (${major}) detected. Using Bun 1.x as the runtime instead.`);
+			return 'bun1.x';
 		}
 		const versionKey = minor ? `${major}.${minor}.x` : `${major}.x`;
 		const support = SUPPORTED_BUN_VERSIONS[versionKey];
