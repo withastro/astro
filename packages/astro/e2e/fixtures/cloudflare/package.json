@@ -18,7 +18,7 @@
 		"preact": "^11.0.1",
 		"@test/e2e-my-lib": "workspace:*",
 		"vue": "^3.5.43",
-		"@vitejs/plugin-vue": "^6.0.9",
+		"@vitejs/plugin-vue": "^6.0.10",
 		"@types/react": "^19.3.0",
 		"@types/react-dom": "^19.3.0",
 		"astro": "workspace:*",
