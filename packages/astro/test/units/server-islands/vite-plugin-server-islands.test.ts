@@ -74,3 +74,45 @@ describe('astro:server-islands invalidation', () => {
 		);
 	});
 });
+
+describe('astro:server-islands renderChunk', () => {
+	function createBuildPlugin() {
+		const plugin = vitePluginServerIslands({
+			settings: { adapter: { name: 'test' } } as any,
+			serverIslandsState: new ServerIslandsState(),
+		} as any) as any;
+		plugin.config({}, { command: 'build' });
+		return plugin;
+	}
+
+	const context = { environment: { name: 'prerender' } };
+
+	// Regression test for https://github.com/withastro/astro/issues/18400
+	it('leaves chunks without the manifest module untouched', () => {
+		const plugin = createBuildPlugin();
+		const code = `var serverIslandPlaceholderMap = "'$$server-islands-map$$'";`;
+
+		const result = plugin.renderChunk.call(context, code, {
+			isEntry: false,
+			moduleIds: ['/node_modules/astro/dist/core/server-islands/vite-plugin-server-islands.js'],
+		});
+
+		assert.equal(result, undefined);
+	});
+
+	it('replaces placeholders in the chunk containing the manifest module', () => {
+		const plugin = createBuildPlugin();
+		const code =
+			'const serverIslandMap = "$$server-islands-map$$";\nconst serverIslandNameMap = "$$server-islands-name-map$$";';
+
+		const result = plugin.renderChunk.call(context, code, {
+			isEntry: false,
+			moduleIds: [RESOLVED_MANIFEST_ID],
+		});
+
+		assert.equal(
+			result.code,
+			'const serverIslandMap = new Map([\n\n]);\nconst serverIslandNameMap = new Map([]);',
+		);
+	});
+});

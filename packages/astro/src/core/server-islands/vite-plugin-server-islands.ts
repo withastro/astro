@@ -170,6 +170,10 @@ export function vitePluginServerIslands({
 		},
 
 		renderChunk(code, chunk) {
+			// Only the manifest module's placeholders should be replaced. Other chunks can contain the
+			// marker too, e.g. when Astro's own source gets bundled through an `astro.config.mjs` import.
+			// See https://github.com/withastro/astro/issues/18400
+			if (!chunk.moduleIds.includes(RESOLVED_SERVER_ISLAND_MANIFEST)) return;
 			if (!code.includes(SERVER_ISLAND_MAP_MARKER)) return;
 
 			if (command === 'build') {
