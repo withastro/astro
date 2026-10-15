@@ -102,6 +102,23 @@ describe('astro:server-islands renderChunk', () => {
 		assert.ok(!result.code.includes('$$server-islands-name-map$$'));
 	});
 
+	// Regression test for https://github.com/withastro/astro/issues/18400
+	it('replaces double-quoted placeholders in the chunk containing the manifest module', () => {
+		const plugin = createBuildPlugin();
+		const code =
+			'const serverIslandMap = "$$server-islands-map$$";\nconst serverIslandNameMap = "$$server-islands-name-map$$";';
+
+		const result = plugin.renderChunk.call(context, code, {
+			isEntry: false,
+			moduleIds: [RESOLVED_MANIFEST_ID],
+		});
+
+		assert.equal(
+			result.code,
+			'const serverIslandMap = new Map([\n\n]);\nconst serverIslandNameMap = new Map([]);',
+		);
+	});
+
 	// Regression test for https://github.com/withastro/astro/issues/18364
 	it('does not rewrite chunks that do not contain the server island manifest', () => {
 		const plugin = createBuildPlugin();
