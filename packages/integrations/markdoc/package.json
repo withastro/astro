@@ -53,12 +53,12 @@
     "@types/markdown-it": "^14.2.0",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "devalue": "^5.9.4",
+    "devalue": "^6.0.2",
     "linkedom": "^0.18.13",
     "vite": "^8.3.3"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.22.0"
   },
   "publishConfig": {
     "provenance": true

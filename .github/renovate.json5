@@ -203,6 +203,11 @@
       "matchManagers": ["npm"],
       "matchPackageNames": ["vite"]
     },
+    {
+      "groupName": "rolldown",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["rolldown"]
+    },
     // Must be updated in all packages at once: loading two different @playwright/test versions in
     // the same process throws, which breaks `knip` when it loads the Playwright configs.
     {

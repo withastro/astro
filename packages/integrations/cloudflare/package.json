@@ -63,7 +63,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.2.0",
-    "devalue": "^5.9.4",
+    "devalue": "^6.0.2",
     "prismjs": "^1.30.0",
     "tinyglobby": "^0.2.17",
     "vitest": "4.1.11",
