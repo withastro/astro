@@ -8,9 +8,10 @@ import type {
 	LiveDataEntry,
 } from '../../types/public/content.js';
 import type { RenderedContent } from '../data-store.js';
+import type { AsyncDataStore, AsyncMetaStore, ReadEntryOptions } from '../external-data-store.js';
 import type { DataStore, MetaStore } from '../mutable-data-store.js';
 
-export type { DataStore, MetaStore };
+export type { AsyncDataStore, AsyncMetaStore, DataStore, MetaStore, ReadEntryOptions };
 
 export interface RenderMarkdownOptions {
 	/** The file URL of the markdown file being rendered */
@@ -54,6 +55,19 @@ export interface LoaderContext {
 	entryTypes: Map<string, ContentEntryType>;
 }
 
+/**
+ * The context that a loader receives for a collection defined with `storage: 'external'`.
+ * It has the same properties as {@link LoaderContext}, but the methods of `store` and `meta`
+ * return promises.
+ */
+export interface ExternalLoaderContext extends Omit<LoaderContext, 'store' | 'meta'> {
+	storage: 'external';
+	/** A database to store the actual data */
+	store: AsyncDataStore;
+	/** Saves strings between syncs, such as the time of the last sync */
+	meta: AsyncMetaStore;
+}
+
 export type Loader = {
 	/** Unique name of the loader, e.g. the npm package name */
 	name: string;
@@ -78,6 +92,16 @@ export type Loader = {
 			}>;
 	  }
 );
+
+/**
+ * A loader that can load collections defined with `storage: 'external'`.
+ * Its `load()` receives an {@link ExternalLoaderContext} for those collections, and a
+ * {@link LoaderContext} for the others. Use `isExternalLoaderContext()` to tell them apart.
+ */
+export type ExternalStorageLoader = Loader & {
+	supportsExternalStorage: true;
+	load: (context: LoaderContext | ExternalLoaderContext) => Promise<void>;
+};
 
 export interface LoadEntryContext<TEntryFilter = never> {
 	filter: TEntryFilter extends never ? { id: string } : TEntryFilter;
