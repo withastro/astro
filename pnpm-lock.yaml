@@ -586,9 +586,6 @@ importers:
       es-module-lexer:
         specifier: ^3.0.2
         version: 3.0.3
-      find-proc:
-        specifier: 0.2.0
-        version: 0.2.0
       flattie:
         specifier: ^1.1.1
         version: 1.1.1
@@ -661,6 +658,9 @@ importers:
       tinyglobby:
         specifier: ^0.2.17
         version: 0.2.17
+      tinyps:
+        specifier: ^0.5.0
+        version: 0.5.0
       ultrahtml:
         specifier: ^1.7.0
         version: 1.7.0
@@ -12937,10 +12937,6 @@ packages:
     resolution: {integrity: sha512-JtyUgATO7qxRp2zKhrmWof74Mqxc1ikbwpwMY97p8ipuTj2QtreA4gK2JNAF6SOqqHnYYkwMUvsgQVi2AJxIyw==}
     engines: {node: '>=20'}
 
-  find-proc@0.2.0:
-    resolution: {integrity: sha512-a6h2nTrgB3g5Wrn4au9Ux4kMk7IJtyF6oA8uGn+mk3weLZssUtc1cp6meHIzzuW2o1srrBAxzkmXLbqjRkgB6w==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-
   find-up-simple@1.0.1:
     resolution: {integrity: sha512-afd4O7zpqHeRyg4PfDQsXmlDe2PfdHtJt6Akt8jOWaApLOZk5JXs6VMR29lz03pRe9mpykrRCYIYxaJYcfpncQ==}
     engines: {node: '>=18'}
@@ -15982,6 +15978,9 @@ packages:
   tinyglobby@0.2.17:
     resolution: {integrity: sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==}
     engines: {node: '>=12.0.0'}
+
+  tinyps@0.5.0:
+    resolution: {integrity: sha512-Llu7nEtVOGHh7jok32l6+udlu+4Np5vsYVB7zeTK614coSsro2qjwte7MFt/ouLM/h4kXqbGXktSMMvMsttSDw==}
 
   tinyrainbow@3.1.0:
     resolution: {integrity: sha512-Bf+ILmBgretUrdJxzXM0SgXLZ3XfiaUuOj/IKQHuTXip+05Xn+uyEYdVg0kYDipTBcLrCVyUzAPz7QmArb0mmw==}
@@ -22979,8 +22978,6 @@ snapshots:
       fast-querystring: 1.1.2
       safe-regex2: 5.1.1
 
-  find-proc@0.2.0: {}
-
   find-up-simple@1.0.1: {}
 
   find-up@4.1.0:
@@ -26773,6 +26770,8 @@ snapshots:
     dependencies:
       fdir: 6.5.0(picomatch@4.0.7)
       picomatch: 4.0.7
+
+  tinyps@0.5.0: {}
 
   tinyrainbow@3.1.0: {}
 
