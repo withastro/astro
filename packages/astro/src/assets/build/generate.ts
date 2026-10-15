@@ -177,7 +177,7 @@ export async function generateImagesForPath(
 		const copyCachedFile = async () => {
 			const sourceStats = fs.promises.stat(cachedFileURL);
 			await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
-			await fs.promises.utime(finalFileURL, sourceStats.atime, sourceStats.mtime)
+			await fs.promises.utimes(finalFileURL, sourceStats.atime, sourceStats.mtime)
 		}
 
 		// Check if we have a cached entry first
