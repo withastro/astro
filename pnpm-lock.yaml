@@ -6157,7 +6157,7 @@ importers:
         specifier: ^9.0.1
         version: 9.0.1
       zod:
-        specifier: ^4.6.5
+        specifier: ^4.6.6
         version: 4.6.6
     devDependencies:
       '@types/xml2js':
