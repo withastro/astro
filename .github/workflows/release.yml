@@ -63,7 +63,8 @@ jobs:
       # "[ci] release" commit (diff vs its parent). The result is the same on every run of
       # that commit, and drives the announcement, VS Code/OpenVSX publishing, and dispatch
       # steps below. Commits with any other subject produce no cohort, so fixture edits,
-      # manual version changes, merges, and reverts are not treated as releases.
+      # Outputs a list of package.json version bumps in commits with the "[ci] release"
+      # commit message for use in subsequent steps.
       - name: Detect release cohort
         id: release
         run: |
