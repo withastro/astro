@@ -47,6 +47,7 @@ export type {
 	CacheOptions,
 	InvalidateOptions,
 } from '../../core/cache/types.js';
+export type { ContentStorageDriverConfig } from '../../content/storage.js';
 export type * from './common.js';
 export type * from './config.js';
 export type * from './content.js';

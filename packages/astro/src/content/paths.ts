@@ -21,6 +21,10 @@ export function getDataStoreChunkSize(settings: AstroSettings) {
 		// Defaults to 20MB
 		return 20 * 1024 * 1024;
 	}
+	// Astro's own data store isn't chunked when external storage is used
+	if (storage.type === 'external') {
+		return undefined;
+	}
 	// This is the object variant. `chunkSize` is mandatory.
 	return storage.chunkSize;
 }
