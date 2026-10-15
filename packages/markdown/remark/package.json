@@ -69,7 +69,7 @@
     "mdast-util-mdx": "^3.0.0",
     "mdast-util-mdx-expression": "^2.0.1",
     "mdast-util-mdx-jsx": "^3.2.0",
-    "rolldown": "^1.2.12",
+    "rolldown": "^1.2.13",
     "shiki": "^4.5.0"
   },
   "publishConfig": {
