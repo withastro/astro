@@ -67,7 +67,7 @@ importers:
         specifier: ^0.3.25
         version: 0.3.25
       rolldown:
-        specifier: ^1.2.12
+        specifier: ^1.2.13
         version: 1.2.13
       tinyglobby:
         specifier: ^0.2.17
@@ -641,7 +641,7 @@ importers:
         specifier: ^4.0.7
         version: 4.0.7
       rolldown:
-        specifier: ^1.2.11
+        specifier: ^1.2.13
         version: 1.2.13
       shiki:
         specifier: ^4.4.3
@@ -7251,7 +7251,7 @@ importers:
         specifier: ^0.1.3
         version: 0.1.3
       rolldown:
-        specifier: ^1.2.12
+        specifier: ^1.2.13
         version: 1.2.13
       tinyglobby:
         specifier: ^0.2.17
