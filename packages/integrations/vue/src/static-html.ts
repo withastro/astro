@@ -18,7 +18,11 @@ const StaticHtml = defineComponent({
 	setup({ name, value, hydrate }) {
 		if (!value) return () => null;
 		let tagName = hydrate ? 'astro-slot' : 'astro-static-slot';
-		return () => h(tagName, { name, innerHTML: value });
+		// Astro passes slots as `SlotString` objects (a `String` subclass). Vue's SSR buffer
+		// treats non-primitive items as nested buffers and concatenates them char by char,
+		// so `innerHTML` must be a primitive string. See https://github.com/withastro/astro/issues/18392
+		const html = String(value);
+		return () => h(tagName, { name, innerHTML: html });
 	},
 });
 
