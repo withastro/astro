@@ -1,0 +1,26 @@
+---
+import { getImage } from 'astro:assets';
+import penguin from '../../assets/penguin.jpg';
+
+// Images resolved here belong to no path's incremental cache entry.
+export async function getStaticPaths() {
+	const optimized = await getImage({ src: penguin, width: 60, format: 'webp' });
+	return [
+		{
+			params: { slug: 'a' },
+			// Reading the import's `src` keeps the original image in the output.
+			props: { optimizedSrc: optimized.src, originalSrc: penguin.src },
+			cacheKey: 'v1',
+		},
+	];
+}
+
+const { optimizedSrc, originalSrc } = Astro.props;
+---
+<html>
+	<head><title>getStaticPaths images</title></head>
+	<body>
+		<img id="optimized" src={optimizedSrc} alt="An optimized penguin" />
+		<a id="original" href={originalSrc}>Original</a>
+	</body>
+</html>

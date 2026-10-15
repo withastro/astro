@@ -23,6 +23,7 @@
     "./mdx": "./dist/mdx.js",
     "./frontmatter": "./dist/frontmatter.js",
     "./shiki": "./dist/shiki.js",
+    "./timings": "./dist/timings.js",
     "./yaml": "./dist/yaml.js",
     "./yaml-error": "./dist/yaml-error.js"
   },
@@ -48,7 +49,7 @@
     "picomatch": "^4.0.7",
     "retext-smartypants": "^6.2.0",
     "shiki": "^4.5.0",
-    "smol-toml": "^1.9.0",
+    "smol-toml": "^1.9.1",
     "unified": "^11.0.5",
     "yaml": "^2.9.1"
   },

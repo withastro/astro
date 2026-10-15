@@ -14,7 +14,7 @@ export const DEFAULT_HELP_PAYLOAD: HelpPayload = {
 			['docs', 'Open documentation in your web browser.'],
 			['info', 'List info about your current Astro setup.'],
 			['preview', 'Preview your build locally.'],
-			['sync', 'Generate content collection types.'],
+			['sync', 'Generate TypeScript types for all Astro modules.'],
 			['preferences', 'Configure user preferences.'],
 			['telemetry', 'Configure telemetry settings.'],
 		],

@@ -46,7 +46,7 @@
     "vite": "^8.3.3"
   },
   "devDependencies": {
-    "@babel/core": "^8.0.6",
+    "@babel/core": "^8.0.7",
     "@rolldown/plugin-babel": "^0.2.4",
     "@types/babel__core": "^7.20.5",
     "@types/react": "^19.3.0",
@@ -66,7 +66,7 @@
     "react-dom": "^17.0.2 || ^18.0.0 || ^19.0.0"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.22.0"
   },
   "publishConfig": {
     "provenance": true
