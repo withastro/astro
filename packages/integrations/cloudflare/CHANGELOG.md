@@ -1,5 +1,19 @@
 # @astrojs/cloudflare
 
+## 14.4.0
+
+### Minor Changes
+
+- [#18177](https://github.com/withastro/astro/pull/18177) [`7d814e5`](https://github.com/withastro/astro/commit/7d814e5ac3e7c84b4e4fd4e6c7cc6820f553742c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Reworks image processing on prerendered pages to use Astro's built-in image pipeline. Requires `astro@^7.4.0`
+  
+  Images on prerendered pages now behave the same as on other adapters. Images optimized with the Cloudflare Images binding are now properly cached between builds, and image options such as `assetQueryParams` and `build.assetsPrefix` are applied the same way as everywhere else.
+
+### Patch Changes
+
+- Updated dependencies [[`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8)]:
+  - @astrojs/internal-helpers@0.13.0
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.3.4
 
 ### Patch Changes
