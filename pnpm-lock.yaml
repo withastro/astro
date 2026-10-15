@@ -3925,6 +3925,12 @@ importers:
         specifier: ^5.57.2
         version: 5.57.2(@typescript-eslint/types@8.71.0)
 
+  packages/astro/test/fixtures/server-islands/late-discovery:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
+
   packages/astro/test/fixtures/server-islands/ssr:
     dependencies:
       '@astrojs/mdx':
