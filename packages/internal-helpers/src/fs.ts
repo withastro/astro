@@ -84,7 +84,7 @@ export async function copyFilesToFolder(
 		} else if (!isDir) {
 			await fs.copyFile(origin, dest);
 			// Preserve accessed and modified timestamps to aid synchronization
-			await fs.utimesSync(dest, stats.atime, stats.mtime);
+			await fs.utimes(dest, stats.atime, stats.mtime);
 		}
 	}
 
