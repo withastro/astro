@@ -1,5 +1,13 @@
 # @astrojs/netlify
 
+## 8.2.10
+
+### Patch Changes
+
+- Updated dependencies [[`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8)]:
+  - @astrojs/internal-helpers@0.13.0
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 8.2.9
 
 ### Patch Changes

@@ -1,5 +1,273 @@
 # astro
 
+## 7.4.0
+
+### Minor Changes
+
+- [#17894](https://github.com/withastro/astro/pull/17894) [`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a new `--timings` flag to `astro build` to help you find what slows down your builds
+  
+  When a build takes longer than expected, it can be hard to tell whether the cause is an integration, a Markdown processor plugin, image processing, or even syntax highlighting. Add the `--timings` flag to your build command to print a summary once the build finishes:
+  
+  ```sh
+  astro build --timings
+  ```
+  
+  This is helpful to decide what to optimize first, or to compare build times before and after a change to your project.
+
+- [#17830](https://github.com/withastro/astro/pull/17830) [`a937b0d`](https://github.com/withastro/astro/commit/a937b0d3ec236c8dd1c62a7a4da7c65b2fdbb7c1) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new optional `getFontProperties()` callback to font providers
+  
+  Font providers can now expose the weights, styles, subsets and formats a font family actually has. Astro uses it when resolving your font configuration to warn about values a provider cannot serve, for example a weight a font family does not offer.
+  
+  All built-in providers implement it. If you maintain a custom font provider, implementing this callback is optional for now but it will be required in Astro 8:
+  
+  ```ts
+  import type { FontProvider } from 'astro';
+  
+  const provider: FontProvider = {
+  	name: 'my-provider',
+  	resolveFont: ({ familyName }) => {
+  		// ...
+  	},
+  	getFontProperties: ({ familyName }) => ({
+  		weights: ['400', '700'],
+  		styles: ['normal', 'italic'],
+  		subsets: ['latin'],
+  		formats: ['woff2'],
+  	}),
+  };
+  ```
+
+- [#17830](https://github.com/withastro/astro/pull/17830) [`a937b0d`](https://github.com/withastro/astro/commit/a937b0d3ec236c8dd1c62a7a4da7c65b2fdbb7c1) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a `fetch()` function to the font provider `init()` context
+  
+  This function requests a provider API, retrying transient failures and more. It lets providers that wrap a 3rd-party unifont provider pass the context to it directly:
+  
+  ```ts
+  import type { FontProvider } from 'astro';
+  import type { InitializedProvider } from 'unifont';
+  import { acmeProvider } from '@acme/unifont-provider';
+  
+  export function acmeFontProvider(): FontProvider {
+  	const provider = acmeProvider();
+  	let initializedProvider: InitializedProvider | undefined;
+  	return {
+  		name: provider._name,
+  		async init(context) {
+  			initializedProvider = await provider(context);
+  		},
+  		// ...
+  	};
+  }
+  ```
+
+- [#18015](https://github.com/withastro/astro/pull/18015) [`0b30239`](https://github.com/withastro/astro/commit/0b302391059dbc4f8ece24d7b44599c7ec9fef24) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds `experimental.redirectPage`, letting you provide your own `src/pages/3xx.astro` in place of the redirect page Astro generates in static builds.
+  
+  A static site has no server to send an HTTP `Location` header, so Astro generates a small HTML page with a `<meta http-equiv="refresh">` tag for each redirect it builds:
+  
+  - Your [`redirects`](https://docs.astro.build/en/reference/configuration-reference/#redirects) entries
+  - `Astro.redirect()` calls in prerendered pages
+  - i18n redirects
+  
+  That page's markup, wording, and refresh delay were fixed, so you could not brand or translate it.
+  
+  To enable this feature, add the experimental flag to your Astro config:
+  
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  
+  export default defineConfig({
+    experimental: {
+      redirectPage: true,
+    },
+  });
+  ```
+  
+  Then create `src/pages/3xx.astro`. Astro renders it once per redirect, passing that redirect's details as props:
+  
+  ```astro
+  ---
+  // src/pages/3xx.astro
+  import type { RedirectPageProps as Props } from 'astro';
+  
+  const { from, to, status, delay } = Astro.props;
+  ---
+  
+  <html lang="en">
+    <head>
+      <meta http-equiv="refresh" content={`${delay};url=${to}`} />
+      <meta name="robots" content="noindex" />
+      <title>Redirecting…</title>
+    </head>
+    <body>
+      <p>This page has moved. <a href={to}>Continue to {to}</a>.</p>
+    </body>
+  </html>
+  ```
+  
+  Your page must render a `<meta http-equiv="refresh">` tag pointing at `to`, because in a static build that tag is the redirect. Astro logs a warning during the build if it is missing.
+  
+  See the [experimental redirect page documentation](https://docs.astro.build/en/reference/experimental-flags/redirect-page/) for more information.
+
+- [#18265](https://github.com/withastro/astro/pull/18265) [`910ee69`](https://github.com/withastro/astro/commit/910ee69147c4c2460f2b31a294bc70c5269f44d4) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Adds a `notFound()` handler to `astro/fetch` and `astro/hono` that renders the custom 404 page when no route matches, including a prerendered `404.astro`
+  
+  Add it before `pages()` in a custom worker or server entrypoint that does not run inside `App.render`, such as a Hono app used directly as a Cloudflare worker. Without it, `pages()` and `middleware()` return an empty 404 with an internal `X-Astro-Error` header for unmatched routes. `astro()` already includes this handling.
+  
+  ```ts
+  import { Hono } from 'hono';
+  import { notFound, pages } from 'astro/hono';
+  import { cf } from '@astrojs/cloudflare/hono';
+  
+  const app = new Hono();
+  app.use(cf());
+  app.use(notFound());
+  app.use(pages());
+  export default app;
+  ```
+
+- [#18177](https://github.com/withastro/astro/pull/18177) [`7d814e5`](https://github.com/withastro/astro/commit/7d814e5ac3e7c84b4e4fd4e6c7cc6820f553742c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds support for separate `build` and `runtime` image services
+  
+  `image.service` now also accepts a `build` and a `runtime` service. The `build` service optimizes images on prerendered pages when you build your site, and is also used during development. The `runtime` service handles images on on-demand rendered pages and the image endpoint of your deployed site.
+  
+  The following example uses Sharp to optimize images on prerendered pages, and an image CDN for on-demand rendered pages:
+  
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  
+  export default defineConfig({
+    image: {
+      service: {
+        build: { entrypoint: 'astro/assets/services/sharp' },
+        runtime: { entrypoint: 'my-image-cdn-service' },
+      },
+    },
+  });
+  ```
+  
+  #### Changes for integration authors
+  
+  `config.image.service` keeps the shape the user configured it with. When a project sets `build` and `runtime` services, `config.image.service.entrypoint` and `config.image.service.config` are `undefined`.
+  
+  If your integration reads `image.service`, check for the `runtime` property to get the service you need:
+  
+  ```ts
+  'astro:config:done': ({ config }) => {
+    const { service } = config.image;
+    const runtimeService = 'runtime' in service ? service.runtime : service;
+  
+    if (runtimeService.entrypoint === 'astro/assets/services/sharp') {
+      // ...
+    }
+  },
+  ```
+  
+  Setting `image.service` with `updateConfig()` replaces the existing service instead of merging with it when the two use different shapes. For example, setting a single service in a project that uses `build` and `runtime` services replaces both.
+
+- [#18277](https://github.com/withastro/astro/pull/18277) [`2715958`](https://github.com/withastro/astro/commit/2715958666b0a706b069d0592da3a070b3796a9b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases the minimum Node.js version to 22.22.0
+  
+  The minimum supported Node.js version is now 22.22.0, the latest Node.js 22 release supported by StackBlitz. This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+
+- [#18313](https://github.com/withastro/astro/pull/18313) [`71e2b24`](https://github.com/withastro/astro/commit/71e2b24bb365e5a8809fc0432716f91ecc6d8ab5) Thanks [@matthewp](https://github.com/matthewp)! - Allows integrations to control where Astro writes client, server, and prerender build output.
+  
+  Custom prerenderers can access the final output locations through the new `outputDirectories` context:
+  
+  ```ts
+  setPrerenderer((defaultPrerenderer, { outputDirectories }) => {
+    const { client, server, prerender } = outputDirectories
+  
+    return createPrerenderer({
+      defaultPrerenderer,
+      client,
+      server,
+      prerender,
+    })
+  })
+  ```
+
+- [#18177](https://github.com/withastro/astro/pull/18177) [`7d814e5`](https://github.com/withastro/astro/commit/7d814e5ac3e7c84b4e4fd4e6c7cc6820f553742c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Lets custom prerenderers report the images used on prerendered pages
+  
+  Astro now generates images on prerendered pages from the image information that a prerenderer's `getStaticPaths()` and `render()` return. If your prerenderer wraps Astro's default one, pass this information through:
+  
+  ```js
+  setPrerenderer((defaultPrerenderer) => ({
+    name: 'my-prerenderer',
+    async setup() {
+      await defaultPrerenderer.setup?.();
+    },
+    async getStaticPaths() {
+      const result = await defaultPrerenderer.getStaticPaths();
+      const { paths, metadata } = Array.isArray(result) ? { paths: result } : result;
+      return { paths: paths.filter(({ pathname }) => !pathname.startsWith('/drafts')), metadata };
+    },
+    render(request, options) {
+      return defaultPrerenderer.render(request, options);
+    },
+    async teardown() {
+      await defaultPrerenderer.teardown?.();
+    },
+  }));
+  ```
+  
+  Returning a plain array from `getStaticPaths()` or a plain `Response` from `render()` still works, but is deprecated: images used on those pages are not generated.
+
+- [#17932](https://github.com/withastro/astro/pull/17932) [`b905ff1`](https://github.com/withastro/astro/commit/b905ff1a8649b7a9a9056d9b05ca25ae7b3c07a1) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds support for experimental parallel prerendering
+  
+  This experimental feature makes `astro build` render your static pages in parallel, using multiple CPU cores at once instead of one. On sites with many pages, this can significantly reduce build times, at the cost of higher memory usage.
+  
+  To enable this feature, add the experimental flag in your Astro config:
+  
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  
+  export default defineConfig({
+    experimental: {
+      parallelPrerender: true,
+    },
+  });
+  ```
+  
+  By default, Astro uses all available CPU cores but one. Each additional worker increases the memory used by your build. If your build runs out of memory, or does not get faster, set `workers` to a lower number:
+  
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  
+  export default defineConfig({
+    experimental: {
+      parallelPrerender: {
+        workers: 4,
+      },
+    },
+  });
+  ```
+  
+  Each worker renders as many pages at once as your [`build.concurrency`](https://docs.astro.build/en/reference/configuration-reference/#buildconcurrency) setting allows.
+  
+  This feature has no effect when your adapter provides its own way of prerendering pages. Among official adapters, this only applies to `@astrojs/cloudflare`. Astro logs a warning during the build when the flag is ignored.
+  
+  For more information on enabling and using this feature in your project, see the [experimental parallel prerendering docs](https://docs.astro.build/en/reference/experimental-flags/parallel-prerender/).
+
+### Patch Changes
+
+- [#18313](https://github.com/withastro/astro/pull/18313) [`71e2b24`](https://github.com/withastro/astro/commit/71e2b24bb365e5a8809fc0432716f91ecc6d8ab5) Thanks [@matthewp](https://github.com/matthewp)! - Fixes deployment integrations being unable to use Vite manifests when preparing build output
+
+- [#18270](https://github.com/withastro/astro/pull/18270) [`0c3bf11`](https://github.com/withastro/astro/commit/0c3bf116ee70aae4772313fc167a372c7d54869e) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes the JSDoc for CSP utilities to point to the render context reference in docs.
+
+- [#18368](https://github.com/withastro/astro/pull/18368) [`1f04637`](https://github.com/withastro/astro/commit/1f04637a6ca23b59e8982424248ead47d6a3ec31) Thanks [@43081j](https://github.com/43081j)! - Replaces internal use of `find-proc` with `tinyps`.
+
+- [#18355](https://github.com/withastro/astro/pull/18355) [`59b9cc0`](https://github.com/withastro/astro/commit/59b9cc00726495bb45f5c4b000dbbb7b5a19d662) Thanks [@matthewp](https://github.com/matthewp)! - Fixes prerender errors being silently swallowed when using a custom `src/fetch.ts` with an adapter that prerenders in its own runtime, such as `@astrojs/cloudflare`. Previously, a page that threw during prerendering was written as an empty HTML file and the build succeeded. The build now fails with the underlying error.
+
+- [#18177](https://github.com/withastro/astro/pull/18177) [`7d814e5`](https://github.com/withastro/astro/commit/7d814e5ac3e7c84b4e4fd4e6c7cc6820f553742c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes original images being kept despite only `width` or `height` being read.
+
+- [#18353](https://github.com/withastro/astro/pull/18353) [`af54bfa`](https://github.com/withastro/astro/commit/af54bfaebff9180cb96822c0da11737b4b26e65a) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `glob()` loader swallowing rendering errors during content sync, which allowed `astro build` to exit successfully (code 0) even when a remark/rehype plugin threw an error
+
+- [#18271](https://github.com/withastro/astro/pull/18271) [`23e8e28`](https://github.com/withastro/astro/commit/23e8e28c22effe006fe19abb193802e2fec8eaab) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes the `sync` command description in `astro help`, which only mentioned content collections.
+- Updated dependencies [[`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8), [`2715958`](https://github.com/withastro/astro/commit/2715958666b0a706b069d0592da3a070b3796a9b)]:
+  - @astrojs/internal-helpers@0.13.0
+  - @astrojs/markdown-satteri@0.4.4
+  - @astrojs/telemetry@3.4.0
+
 ## 7.3.8
 
 ### Patch Changes
