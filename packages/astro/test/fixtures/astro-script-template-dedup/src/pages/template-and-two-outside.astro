@@ -1,0 +1,14 @@
+---
+import Counter from '../components/Counter.astro';
+---
+
+<html>
+	<head><title>Template and two outside</title></head>
+	<body>
+		<template id="counter-template">
+			<Counter />
+		</template>
+		<Counter />
+		<Counter />
+	</body>
+</html>

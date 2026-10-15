@@ -1,0 +1,5 @@
+{
+  "extends": "../../../configs/tsconfig.test.json",
+  "files": ["./test/fixtures/static/deps.mjs"],
+  "references": [{ "path": "./tsconfig.build.json" }]
+}

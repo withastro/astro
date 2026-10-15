@@ -1,0 +1,21 @@
+{
+  "comment": "CSS TextMate grammar for testing. Includes a minimal selector pattern that simulates VS Code's real CSS grammar behavior where < in @property's syntax descriptor triggers a selector scope.",
+  "scopeName": "source.css",
+  "patterns": [
+    {
+      "name": "meta.selector.css",
+      "begin": "\\s*(?=[\\w.<])",
+      "end": "(?=\\{)",
+      "patterns": [
+        {
+          "name": "entity.name.tag.css",
+          "match": "[a-zA-Z][\\w-]*"
+        },
+        {
+          "name": "keyword.operator.combinator.css",
+          "match": "[>+~]"
+        }
+      ]
+    }
+  ]
+}

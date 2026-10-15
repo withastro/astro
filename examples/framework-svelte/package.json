@@ -1,0 +1,20 @@
+{
+  "name": "@example/framework-svelte",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/svelte": "^9.1.0",
+    "astro": "^7.4.0",
+    "svelte": "^5.57.2"
+  }
+}

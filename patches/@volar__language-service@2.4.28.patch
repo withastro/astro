@@ -1,0 +1,11 @@
+diff --git a/lib/utils/dedupe.js b/lib/utils/dedupe.js
+--- a/lib/utils/dedupe.js
++++ b/lib/utils/dedupe.js
+@@ -39,6 +39,7 @@ function createLocationSet() {
+ function withCodeAction(items) {
+     return dedupe(items, item => [
+         item.title,
++        JSON.stringify(item.data),
+     ].join(':'));
+ }
+ function withTextEdits(items) {

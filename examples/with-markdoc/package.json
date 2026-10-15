@@ -1,0 +1,19 @@
+{
+  "name": "@example/with-markdoc",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/markdoc": "^2.1.0",
+    "astro": "^7.4.0"
+  }
+}

@@ -1,0 +1,18 @@
+---
+import SlotRenderWrapper from '../components/SlotRenderWrapper.astro'
+import ScriptWithContent from '../components/ScriptWithContent.astro'
+---
+<html lang="en">
+    <head>
+        <title>Script Position in Slot Render</title>
+    </head>
+    <body>
+        <SlotRenderWrapper>
+            <ol>
+                <li>Item before</li>
+                <li><ScriptWithContent /></li>
+                <li>Item after</li>
+            </ol>
+        </SlotRenderWrapper>
+    </body>
+</html>

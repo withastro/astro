@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💁 Support
+    url: https://astro.build/chat
+    about: This issue tracker is not for support questions. Join us on Discord for assistance!
+  - name: 💁 Support (GitHub)
+    url: https://github.com/withastro/community-support/discussions
+    about: No Discord account? Open a discussion on GitHub for assistance.
+  - name: 📘 Documentation
+    url: https://github.com/withastro/docs
+    about: File an issue or make an improvement to the docs website.
+  - name: 💡 Ideas for New Features, Improvements and RFCs
+    url: https://github.com/withastro/roadmap/discussions
+    about: Propose and discuss future improvements to Astro
+  - name: 👾 Chat
+    url: https://astro.build/chat
+    about: Our Discord server is active, come join us!
