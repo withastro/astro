@@ -175,7 +175,7 @@ export async function generateImagesForPath(
 
 		// Preserve last accessed and modified timestamps on all systems when copying from cache for ease of comparison (COPYFILE_FICLONE only preserves these on MacOS)
 		const copyCachedFile = async () => {
-			const sourceStats = fs.promises.stat(cachedFileURL);
+			const sourceStats = await fs.promises.stat(cachedFileURL);
 			await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
 			await fs.promises.utimes(finalFileURL, sourceStats.atime, sourceStats.mtime)
 		}

@@ -304,8 +304,8 @@ export class IncrementalBuildCache {
 		await this.#ensureDir(new URL('./', destination));
 		await fs.promises.copyFile(cachedOutputFile, destination);
 
-		const cachedOutputFileStats = fs.promises.stat(cachedOutputFile);
-		await fs.promises.utime(destination, cachedOutputFileStats.atime, cachedOutputFileStats.mtime)
+		const cachedOutputFileStats = await fs.promises.stat(cachedOutputFile);
+		await fs.promises.utimes(destination, cachedOutputFileStats.atime, cachedOutputFileStats.mtime)
 		
 		return true;
 	}
