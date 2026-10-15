@@ -173,10 +173,17 @@ export async function generateImagesForPath(
 		const cacheMetaFile = cacheFile + '.json';
 		const cachedMetaFileURL = new URL(cacheMetaFile, env.assetsCacheDir);
 
+		// Preserve last accessed and modified timestamps on all systems when copying from cache for ease of comparison (COPYFILE_FICLONE only preserves these on MacOS)
+		const copyCachedFile = async () => {
+			const sourceStats = fs.promises.stat(cachedFileURL);
+			await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
+			await fs.promises.utime(finalFileURL, sourceStats.atime, sourceStats.mtime)
+		}
+
 		// Check if we have a cached entry first
 		try {
 			if (isLocalImage) {
-				await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
+				await copyCachedFile();
 
 				return {
 					cached: 'hit',
@@ -207,7 +214,7 @@ export async function generateImagesForPath(
 
 				// If the cache entry is not expired, use it
 				if (JSONData.expires > Date.now()) {
-					await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
+					await copyCachedFile();
 
 					return { cached: 'hit' };
 				}
@@ -227,7 +234,7 @@ export async function generateImagesForPath(
 							// Freshen cache on disk and output cached image
 							await Promise.all([
 								writeCacheMetaFile(cachedMetaFileURL, revalidatedData, env),
-								fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE),
+								copyCachedFile(),
 							]);
 
 							return { cached: 'revalidated' };
@@ -239,7 +246,7 @@ export async function generateImagesForPath(
 							`An error was encountered while revalidating a cached remote asset. Proceeding with stale cache. ${e}`,
 						);
 
-						await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
+						await copyCachedFile();
 						return { cached: 'hit' };
 					}
 				}
