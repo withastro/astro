@@ -575,8 +575,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1
       devalue:
-        specifier: ^5.9.4
-        version: 5.9.4
+        specifier: ^6.0.2
+        version: 6.0.2
       diff:
         specifier: ^9.0.0
         version: 9.0.0
@@ -4486,8 +4486,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       devalue:
-        specifier: ^5.9.4
-        version: 5.9.4
+        specifier: ^6.0.2
+        version: 6.0.2
       prismjs:
         specifier: ^1.30.0
         version: 1.30.0
@@ -5139,8 +5139,8 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       devalue:
-        specifier: ^5.9.4
-        version: 5.9.4
+        specifier: ^6.0.2
+        version: 6.0.2
       linkedom:
         specifier: ^0.18.13
         version: 0.18.13
@@ -5642,8 +5642,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       devalue:
-        specifier: ^5.9.4
-        version: 5.9.4
+        specifier: ^6.0.2
+        version: 6.0.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -5779,8 +5779,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       devalue:
-        specifier: ^5.9.4
-        version: 5.9.4
+        specifier: ^6.0.2
+        version: 6.0.2
       express:
         specifier: ^5.3.0
         version: 5.3.0(supports-color@10.2.2)
@@ -6002,8 +6002,8 @@ importers:
         specifier: ^2.11.3
         version: 2.11.3(preact@10.29.8)
       devalue:
-        specifier: ^5.9.4
-        version: 5.9.4
+        specifier: ^6.0.2
+        version: 6.0.2
       preact-render-to-string:
         specifier: ^6.8.0
         version: 6.8.0(preact@10.29.8)
@@ -6030,8 +6030,8 @@ importers:
         specifier: ^6.1.2
         version: 6.1.2(@rolldown/plugin-babel@0.2.4)(oxc-transform-react@0.153.0)(vite@8.3.3)
       devalue:
-        specifier: ^5.9.4
-        version: 5.9.4
+        specifier: ^6.0.2
+        version: 6.0.2
       ultrahtml:
         specifier: ^1.7.0
         version: 1.7.0
@@ -12457,6 +12457,10 @@ packages:
 
   devalue@5.9.4:
     resolution: {integrity: sha512-sPAT4pztbu6586/hrhOnMKS17IJrvg12mXiSPSS3W5qDeN2RGgvZ0diZCm31dBbnevfVmujNO3IM2wrS4Y2Rhg==}
+
+  devalue@6.0.2:
+    resolution: {integrity: sha512-6V1HzU4to74skg//ScZR2mp9bdz+rESC9jQzVIIG/ha0HYgymHcXIQQCjH0+ivRaSuY82fa9fZ7Ro6QZT4s4uw==}
+    engines: {node: '>=22.17'}
 
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
@@ -22375,6 +22379,8 @@ snapshots:
   dettle@1.0.5: {}
 
   devalue@5.9.4: {}
+
+  devalue@6.0.2: {}
 
   devlop@1.1.0:
     dependencies:

@@ -139,7 +139,7 @@
     "clsx": "^2.1.1",
     "common-ancestor-path": "^2.0.0",
     "cookie": "^2.0.1",
-    "devalue": "^5.9.4",
+    "devalue": "^6.0.2",
     "diff": "^9.0.0",
     "dset": "^3.1.4",
     "es-module-lexer": "^3.0.2",
