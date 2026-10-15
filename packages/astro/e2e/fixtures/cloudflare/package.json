@@ -15,7 +15,7 @@
 		"@astrojs/preact": "workspace:*",
 		"@astrojs/react": "workspace:*",
 		"@astrojs/vue": "workspace:*",
-		"preact": "^10.29.8",
+		"preact": "^11.0.1",
 		"@test/e2e-my-lib": "workspace:*",
 		"vue": "^3.5.43",
 		"@vitejs/plugin-vue": "^6.0.9",
