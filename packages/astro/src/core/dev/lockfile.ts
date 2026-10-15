@@ -140,7 +140,11 @@ export async function isLockFileProcessAlive(
 		const processInfo = (await find('pid', data.pid, { logLevel: 'error' })).find(
 			({ pid }) => pid === data.pid,
 		);
-		return processInfo?.cmd === undefined || isAstroCommand(processInfo.cmd);
+		// On Linux, process.kill(pid, 0) succeeds for thread-ids, but `ps -p <tid>`
+		// returns no row. Treat a missing row as stale rather than alive.
+		// See https://github.com/withastro/astro/issues/18343
+		if (processInfo === undefined) return false;
+		return isAstroCommand(processInfo.cmd);
 	} catch {
 		return true;
 	}
