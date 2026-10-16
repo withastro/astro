@@ -1,8 +1,9 @@
 import assert from 'node:assert';
+import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import type { CheckResult } from '../../dist/check.js';
 import { AstroCheck } from '../../dist/check.js';
@@ -106,5 +107,41 @@ describe('AstroCheck with an incompatible TypeScript', () => {
 				return true;
 			},
 		);
+	});
+});
+
+describe('AstroCheck without a tsconfig', () => {
+	let workspaceDir: string;
+
+	before(() => {
+		workspaceDir = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-check-inferred-'));
+		fs.mkdirSync(path.join(workspaceDir, 'packages/app/node_modules/a-dependency'), {
+			recursive: true,
+		});
+		fs.writeFileSync(path.join(workspaceDir, 'packages/app/index.astro'), '---\n---\n');
+		fs.writeFileSync(
+			path.join(workspaceDir, 'packages/app/node_modules/a-dependency/index.astro'),
+			'---\n---\n',
+		);
+	});
+
+	after(() => {
+		fs.rmSync(workspaceDir, { recursive: true, force: true });
+	});
+
+	it('Ignores .astro files inside nested node_modules directories', () => {
+		const checker = new AstroCheck(
+			workspaceDir,
+			require.resolve('typescript/lib/typescript.js'),
+			undefined,
+		);
+
+		const rootFileNames = checker.linter.getRootFileNames();
+
+		assert.deepStrictEqual(
+			rootFileNames.filter((fileName) => fileName.includes('node_modules')),
+			[],
+		);
+		assert.strictEqual(rootFileNames.length, 1);
 	});
 });
