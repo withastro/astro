@@ -84,12 +84,12 @@ describe('resolveTargetVersion', () => {
 		globalThis.fetch = originalFetch;
 	});
 
-	function mockFetch(distTags: Record<string, string>) {
+	function mockFetch(distTags: Record<string, string>, versions: Record<string, unknown> = {}) {
 		globalThis.fetch = mock.fn(
 			async () =>
 				({
 					status: 200,
-					json: async () => ({ 'dist-tags': distTags }),
+					json: async () => ({ 'dist-tags': distTags, versions }),
 				}) as unknown as Response,
 		);
 	}
@@ -120,6 +120,29 @@ describe('resolveTargetVersion', () => {
 		await resolveTargetVersion(packageInfo, 'https://registry.npmjs.org');
 		assert.equal(packageInfo.targetVersion, '7.0.0-beta.3');
 		assert.equal(packageInfo.tag, 'beta');
+	});
+
+	it('uses an exact version when it is published', async () => {
+		mockFetch({ latest: '7.4.0' }, { '7.3.2': {}, '7.3.8': {}, '7.4.0': {} });
+		const packageInfo: PackageInfo = {
+			name: 'astro',
+			currentVersion: '^7.3.2',
+			targetVersion: '7.3.8',
+		};
+		await resolveTargetVersion(packageInfo, 'https://registry.npmjs.org');
+		assert.equal(packageInfo.targetVersion, '7.3.8');
+		assert.equal(packageInfo.tag, undefined);
+	});
+
+	it('falls back to latest when exact version is not published', async () => {
+		mockFetch({ latest: '3.7.4' }, { '3.7.3': {}, '3.7.4': {} });
+		const packageInfo: PackageInfo = {
+			name: '@astrojs/sitemap',
+			currentVersion: '^3.7.3',
+			targetVersion: '7.3.8',
+		};
+		await resolveTargetVersion(packageInfo, 'https://registry.npmjs.org');
+		assert.equal(packageInfo.targetVersion, '^3.7.4');
 	});
 
 	it('falls back to latest when dist-tag does not exist', async () => {
