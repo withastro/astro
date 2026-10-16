@@ -38,6 +38,18 @@ describe('serialize', () => {
 		const output = `{"a":[1,[[0,0]]]}`;
 		assert.equal(serializeProps(input), output);
 	});
+	it('serializes sparse array holes as undefined', () => {
+		const input = { a: new Array<string>(3) };
+		input.a[1] = 'middle';
+		const output = `{"a":[1,[[0],[0,"middle"],[0]]]}`;
+		assert.equal(serializeProps(input), output);
+	});
+	it('serializes nested sparse array holes as undefined', () => {
+		const input = { a: [new Array<string>(2)] };
+		input.a[0][1] = 'tail';
+		const output = `{"a":[1,[[1,[[0],[0,"tail"]]]]]}`;
+		assert.equal(serializeProps(input), output);
+	});
 	it('can serialize deeply nested data without quadratic quote escaping', () => {
 		const input = { a: [{ b: [{ c: [{ d: [{ e: [{ f: [{ g: ['leaf'] }] }] }] }] }] }] };
 		const output =
