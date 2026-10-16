@@ -1,5 +1,17 @@
 # create-astro
 
+## 5.3.0
+
+### Minor Changes
+
+- [#18277](https://github.com/withastro/astro/pull/18277) [`2715958`](https://github.com/withastro/astro/commit/2715958666b0a706b069d0592da3a070b3796a9b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases the minimum Node.js version to 22.22.0
+  
+  The minimum supported Node.js version is now 22.22.0, the latest Node.js 22 release supported by StackBlitz. This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+
+### Patch Changes
+
+- [#18218](https://github.com/withastro/astro/pull/18218) [`acc0460`](https://github.com/withastro/astro/commit/acc0460886e43b467852696cf710b04de558503b) Thanks [@KTrain5169](https://github.com/KTrain5169)! - `create-astro` no longer places a `CLAUDE.md` in projects, as Claude Code now supports `AGENTS.md`.
+
 ## 5.2.6
 
 ### Patch Changes

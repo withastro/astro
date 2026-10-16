@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.13.0
+
+### Minor Changes
+
+- [#17894](https://github.com/withastro/astro/pull/17894) [`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds the measurements that `astro build --timings` reports for Markdown processing and syntax highlighting.
+
 ## 0.12.0
 
 ### Minor Changes

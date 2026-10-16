@@ -6,7 +6,7 @@
     "@astrojs/preact": "workspace:*",
     "@astrojs/react": "workspace:*",
     "astro": "workspace:*",
-    "preact": "^10.29.8",
+    "preact": "^11.0.1",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   }
