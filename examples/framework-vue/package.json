@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.22.0"
   },
   "scripts": {
     "dev": "astro dev",
@@ -13,11 +13,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/vue": "^7.0.3",
-    "astro": "^7.3.6",
+    "@astrojs/vue": "^7.1.0",
+    "astro": "^7.4.0",
     "vue": "^3.5.43"
-  },
-  "allowScripts": {
-    "esbuild": true
   }
 }

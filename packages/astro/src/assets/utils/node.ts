@@ -7,6 +7,7 @@ import { prependForwardSlash, slash } from '../../core/path.js';
 import type { ImageMetadata } from '../types.js';
 import { imageMetadata } from './metadata.js';
 
+export { markImageReferenced } from './assets.js';
 export { hashTransform, propsToFilename } from './hash.js';
 
 type FileEmitter = (opts: Parameters<Rolldown.PluginContext['emitFile']>[0]) => string;

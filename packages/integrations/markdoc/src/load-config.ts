@@ -1,7 +1,8 @@
 import * as fs from 'node:fs';
+import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AstroConfig } from 'astro';
-import { build as esbuild } from 'esbuild';
+import { rolldown } from 'rolldown';
 import type { AstroMarkdocConfig } from './config.js';
 import { MarkdocError } from './utils.js';
 
@@ -53,27 +54,26 @@ async function bundleConfigFile({
 }: {
 	markdocConfigUrl: URL;
 	astroConfig: Pick<AstroConfig, 'root'>;
-}): Promise<{ code: string; dependencies: string[] }> {
+}): Promise<{ code: string }> {
 	let markdocError: MarkdocError | undefined;
 
-	const result = await esbuild({
-		absWorkingDir: fileURLToPath(astroConfig.root),
-		entryPoints: [fileURLToPath(markdocConfigUrl)],
-		outfile: 'out.js',
-		write: false,
-		target: ['node16'],
+	const bundle = await rolldown({
+		input: fileURLToPath(markdocConfigUrl),
+		cwd: fileURLToPath(astroConfig.root),
 		platform: 'node',
-		packages: 'external',
-		bundle: true,
-		format: 'esm',
-		sourcemap: 'inline',
-		metafile: true,
+		// Treat every bare import as external, so the config's dependencies are
+		// loaded at runtime. `.astro` ids stay resolvable so the `stub-astro-imports`
+		// plugin can turn them into the friendly error below.
+		external: (id) => !id.endsWith('.astro') && !id.startsWith('.') && !isAbsolute(id),
+		transform: {
+			target: 'node16',
+		},
 		plugins: [
 			{
 				name: 'stub-astro-imports',
-				setup(build) {
-					build.onResolve({ filter: /.*\.astro$/ }, () => {
-						// Avoid throwing within esbuild.
+				resolveId(source) {
+					if (source.endsWith('.astro')) {
+						// Avoid throwing within rolldown.
 						// This swallows the `hint` and blows up the stacktrace.
 						markdocError = new MarkdocError({
 							message: '`.astro` files are no longer supported in the Markdoc config.',
@@ -81,20 +81,23 @@ async function bundleConfigFile({
 						});
 						return {
 							// Stub with an unused default export.
-							path: 'data:text/javascript,export default true',
+							id: 'data:text/javascript,export default true',
 							external: true,
 						};
-					});
+					}
 				},
 			},
 		],
 	});
-	if (markdocError) throw markdocError;
-	const { text } = result.outputFiles[0];
-	return {
-		code: text,
-		dependencies: result.metafile ? Object.keys(result.metafile.inputs) : [],
-	};
+
+	try {
+		const output = await bundle.generate({ format: 'esm', sourcemap: 'inline' });
+		if (markdocError) throw markdocError;
+		const chunk = output.output.find((item) => item.type === 'chunk');
+		return { code: chunk?.code ?? '' };
+	} finally {
+		await bundle.close();
+	}
 }
 
 /**

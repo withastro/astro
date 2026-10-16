@@ -46,6 +46,14 @@ export function isForbiddenCrossOriginRequest(
 	if (SAFE_METHODS.includes(request.method)) {
 		return false;
 	}
+	// Only requests a cross-site HTML form can send are checked. Other content
+	// types (e.g. `application/json`) trigger a CORS preflight in browsers.
+	// TODO: remove in Astro 8, so every unsafe request goes through the
+	// `Sec-Fetch-Site`/`Origin` check below. https://github.com/withastro/astro/issues/18267
+	const contentType = request.headers.get('content-type');
+	if (contentType && !hasFormLikeHeader(contentType)) {
+		return false;
+	}
 
 	switch (request.headers.get('sec-fetch-site')) {
 		case '':

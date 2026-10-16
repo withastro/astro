@@ -88,7 +88,7 @@ export function vitePluginFetchable({ settings }: { settings: AstroSettings }): 
 					// Re-export the user's default export (expected to be a
 					// `{ fetch }` object, per the web Fetch API convention).
 					return {
-						code: `export { default } from '${resolvedUserAppId}';`,
+						code: `export { default } from ${JSON.stringify(resolvedUserAppId)};`,
 					};
 				}
 				// No user-authored app — fall back to the built-in pipeline.

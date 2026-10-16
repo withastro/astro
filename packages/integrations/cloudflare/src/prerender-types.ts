@@ -1,4 +1,4 @@
-import type { PrerenderRenderMetadata } from 'astro';
+import type { PrerenderRenderMetadata, StaticPathsMetadata } from 'astro';
 import type { SerializedRouteData } from 'astro/app/manifest';
 
 /**
@@ -15,6 +15,7 @@ interface SerializedPathWithRoute {
  */
 export interface StaticPathsResponse {
 	paths: SerializedPathWithRoute[];
+	metadata?: StaticPathsMetadata;
 }
 
 /**
@@ -23,11 +24,6 @@ export interface StaticPathsResponse {
 export interface PrerenderRequest {
 	url: string;
 	routeData: SerializedRouteData;
-	/**
-	 * When true, the worker collects incremental-build metadata during the render
-	 * and includes it in the framed response.
-	 */
-	collectMetadata?: boolean;
 }
 
 export interface PrerenderResponseMetadata {
@@ -42,15 +38,3 @@ export interface PrerenderResponseMetadata {
 	 */
 	metadata?: PrerenderRenderMetadata;
 }
-
-export interface SerializedStaticImageEntry {
-	originalPath: string;
-	originalSrcPath: string | undefined;
-	transforms: Array<{
-		hash: string;
-		finalPath: string;
-		transform: Record<string, any>;
-	}>;
-}
-
-export type StaticImagesResponse = SerializedStaticImageEntry[];

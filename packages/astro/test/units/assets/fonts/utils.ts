@@ -6,6 +6,7 @@ import type {
 	StringMatcher,
 } from '../../../../dist/assets/fonts/definitions.js';
 import type {
+	FontProperties,
 	FontProvider,
 	ResolvedFontFamily,
 	ResolveFontOptions,
@@ -101,7 +102,7 @@ export class PassthroughFontResolver implements FontResolver {
 		const storage = new SpyStorage();
 		await Promise.all(
 			Array.from(providers.values()).map(async (provider) => {
-				await provider.init?.({ storage, root: new URL(import.meta.url) });
+				await provider.init?.({ storage, root: new URL(import.meta.url), fetch });
 			}),
 		);
 		return new PassthroughFontResolver(providers);
@@ -119,6 +120,16 @@ export class PassthroughFontResolver implements FontResolver {
 
 	async listFonts({ provider }: { provider: FontProvider }): Promise<string[] | undefined> {
 		return await this.#providers.get(provider.name)?.listFonts?.();
+	}
+
+	async getFontProperties({
+		familyName,
+		provider,
+	}: {
+		familyName: string;
+		provider: FontProvider;
+	}): Promise<FontProperties | undefined> {
+		return await this.#providers.get(provider.name)?.getFontProperties?.({ familyName });
 	}
 }
 

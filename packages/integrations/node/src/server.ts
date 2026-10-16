@@ -21,5 +21,9 @@ export const handler =
 export const startServer = () => _startServer(app, options, headersMap);
 
 if (options.mode === 'standalone' && process.env.ASTRO_NODE_AUTOSTART !== 'disabled') {
-	startServer();
+	const { done } = startServer();
+	done.catch((err) => {
+		console.error(err);
+		process.exit(1);
+	});
 }

@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/telemetry",
-  "version": "3.3.3",
+  "version": "3.4.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -28,14 +28,14 @@
     "ci-info": "^4.4.0",
     "dset": "^3.1.4",
     "is-docker": "^4.0.0",
-    "package-manager-detector": "^1.6.0"
+    "package-manager-detector": "^1.9.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.6",
     "astro-scripts": "workspace:*"
   },
   "engines": {
-    "node": "18.20.8 || ^20.3.0 || >=22.0.0"
+    "node": ">=22.22.0"
   },
   "publishConfig": {
     "provenance": true

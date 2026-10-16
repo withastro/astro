@@ -383,7 +383,7 @@ export interface APIContext<
 	props: Props;
 
 	/**
-	 * Create a response that redirects to another page.
+	 * Creates a response that redirects to another page.
 	 *
 	 * This accepts a custom status code when redirecting for on-demand rendered routes only.
 	 *
@@ -513,14 +513,14 @@ export interface APIContext<
 	isPrerendered: boolean;
 
 	/**
-	 * It exposes utilities to control CSP headers
+	 * Exposes utilities to control CSP headers from your pages, endpoints, and middleware.
 	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#csp)
 	 */
 	csp:
 		| {
 				/**
-				 * It adds a specific CSP directive to the route being rendered.
+				 * Adds a specific CSP directive to the route being rendered.
 				 *
 				 * @param {CspDirective} directive - The directive to add to the current page.
 				 *
@@ -530,12 +530,12 @@ export interface APIContext<
 				 * ctx.insertDirective("default-src 'self' 'unsafe-inline' https://example.com")
 				 * ```
 				 *
-				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertdirective)
+				 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#cspinsertdirective)
 				 */
 				insertDirective: (directive: CspDirective) => void;
 
 				/**
-				 * It sets the resource for the `style-src` family of directives in the route being rendered. It overrides Astro's default.
+				 * Sets the resource for the `style-src` family of directives in the route being rendered. It overrides Astro's default.
 				 *
 				 * Pass a bare string to add the source to `style-src`, or an object with a `kind` to scope it:
 				 * `"element"` → `style-src-elem`, `"attribute"` → `style-src-attr`, `"default"` → `style-src`.
@@ -549,12 +549,12 @@ export interface APIContext<
 				 * ctx.insertStyleResource({ resource: "'unsafe-inline'", kind: "attribute" })
 				 * ```
 				 *
-				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstyleresource)
+				 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#cspinsertstyleresource)
 				 */
 				insertStyleResource: (payload: CspResourceEntry) => void;
 
 				/**
-				 * Insert a single style hash to the route being rendered.
+				 * Inserts a single style hash to the route being rendered.
 				 *
 				 * Pass a bare hash to add it to `style-src`, or an object with a `kind` to scope it:
 				 * `"element"` → `style-src-elem`, `"attribute"` → `style-src-attr`, `"default"` → `style-src`.
@@ -568,12 +568,12 @@ export interface APIContext<
 				 * ctx.insertStyleHash({ hash: "sha256-1234567890abcdef1234567890", kind: "element" })
 				 * ```
 				 *
-				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstylehash)
+				 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#cspinsertstylehash)
 				 */
 				insertStyleHash: (payload: CspHashEntry) => void;
 
 				/**
-				 * It sets the resource for the `script-src` family of directives in the route being rendered.
+				 * Sets the resource for the `script-src` family of directives in the route being rendered.
 				 *
 				 * Pass a bare string to add the source to `script-src`, or an object with a `kind` to scope it:
 				 * `"element"` → `script-src-elem`, `"attribute"` → `script-src-attr`, `"default"` → `script-src`.
@@ -587,12 +587,12 @@ export interface APIContext<
 				 * ctx.insertScriptResource({ resource: "https://scripts.cdn.example.com/", kind: "element" })
 				 * ```
 				 *
-				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscriptresource)
+				 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#cspinsertscriptresource)
 				 */
 				insertScriptResource: (payload: CspResourceEntry) => void;
 
 				/**
-				 * Insert a single script hash to the route being rendered.
+				 * Inserts a single script hash to the route being rendered.
 				 *
 				 * Pass a bare hash to add it to `script-src`, or an object with a `kind` to scope it:
 				 * `"element"` → `script-src-elem`, `"attribute"` → `script-src-attr`, `"default"` → `script-src`.
@@ -606,7 +606,7 @@ export interface APIContext<
 				 * ctx.insertScriptHash({ hash: "sha256-1234567890abcdef1234567890", kind: "element" })
 				 * ```
 				 *
-				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscripthash)
+				 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#cspinsertscripthash)
 				 */
 				insertScriptHash: (payload: CspHashEntry) => void;
 		  }

@@ -66,6 +66,13 @@ export type Smartypants = ComplexifyWithOmit<_Smartypants>;
 import { ASTRO_CONFIG_DEFAULTS } from './defaults.js';
 export { ASTRO_CONFIG_DEFAULTS };
 
+const imageServiceSchema = z.object({
+	entrypoint: z
+		.union([z.literal('astro/assets/services/sharp'), z.string()])
+		.default(ASTRO_CONFIG_DEFAULTS.image.service.entrypoint),
+	config: z.record(z.string(), z.any()).default({}),
+});
+
 const highlighterTypesSchema = z
 	.union([z.literal('shiki'), z.literal('prism')])
 	.default(syntaxHighlightDefaults.type);
@@ -245,12 +252,10 @@ export const AstroConfigSchema = z.object({
 				})
 				.default(ASTRO_CONFIG_DEFAULTS.image.endpoint),
 			service: z
-				.object({
-					entrypoint: z
-						.union([z.literal('astro/assets/services/sharp'), z.string()])
-						.default(ASTRO_CONFIG_DEFAULTS.image.service.entrypoint),
-					config: z.record(z.string(), z.any()).default({}),
-				})
+				.union([
+					z.object({ build: imageServiceSchema, runtime: imageServiceSchema }),
+					imageServiceSchema,
+				])
 				.default(ASTRO_CONFIG_DEFAULTS.image.service),
 			dangerouslyProcessSVG: z.boolean().default(ASTRO_CONFIG_DEFAULTS.image.dangerouslyProcessSVG),
 			domains: z.array(z.string()).default([]),
@@ -524,6 +529,16 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.incrementalBuild),
+			redirectPage: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.redirectPage),
+			parallelPrerender: z
+				.union([
+					z.boolean(),
+					z.object({
+						workers: z.number().int().min(1).optional(),
+					}),
+				])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.parallelPrerender),
 			svgOptimizer: SvgOptimizerSchema.optional(),
 			collectionStorage: z
 				.union([

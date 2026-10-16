@@ -1,5 +1,24 @@
 # @astrojs/vercel
 
+## 11.0.15
+
+### Patch Changes
+
+- Updated dependencies [[`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8)]:
+  - @astrojs/internal-helpers@0.13.0
+
+## 11.0.14
+
+### Patch Changes
+
+- [#18339](https://github.com/withastro/astro/pull/18339) [`fcc050c`](https://github.com/withastro/astro/commit/fcc050cdc60e03b3594f19f6e5418c94f2e40774) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes on-demand routes failing with "Cannot find native binding" on Vercel, caused by the serverless function loading `rolldown` at runtime
+
+## 11.0.13
+
+### Patch Changes
+
+- [#18263](https://github.com/withastro/astro/pull/18263) [`882dd98`](https://github.com/withastro/astro/commit/882dd98cd9f11c4e7bd0b812d37f865dfca75d3d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Refactors internal bundling and code transforms to use Vite's Oxc-based `transformWithOxc` and Rolldown instead of esbuild. These packages no longer depend on esbuild directly.
+
 ## 11.0.12
 
 ### Patch Changes
