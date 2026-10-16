@@ -26,7 +26,13 @@ it('disposes only the closing generation when server configurations overlap', as
 			configFile: false,
 			logLevel: 'silent',
 			server: { middlewareMode: true },
-			environments: { ssr: { dev: { createEnvironment: createRunnableDevEnvironment } } },
+			environments: {
+				ssr: {
+					dev: {
+						createEnvironment: (name, config) => createRunnableDevEnvironment(name, config),
+					},
+				},
+			},
 		});
 		t.after(() => server.close());
 		const environment = server.environments.ssr as RunnableDevEnvironment;
