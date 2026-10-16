@@ -5,6 +5,7 @@ import colors from 'piccolore';
 import type { StaticBuildOptions } from '../../core/build/types.js';
 import { getTimeStat } from '../../core/build/util.js';
 import { AstroError } from '../../core/errors/errors.js';
+import { copyCachedFile } from '../../core/fs/index.js';
 import { AstroErrorData } from '../../core/errors/index.js';
 import { astroToRuntimeLogger, type AstroLogger } from '../../core/logger/core.js';
 import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
@@ -192,7 +193,7 @@ export async function generateImagesForPath(
 		// Check if we have a cached entry first
 		try {
 			if (isLocalImage) {
-				await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
+				await copyCachedFile(cachedFileURL, finalFileURL);
 
 				return {
 					cached: 'hit',
@@ -223,7 +224,7 @@ export async function generateImagesForPath(
 
 				// If the cache entry is not expired, use it
 				if (JSONData.expires > Date.now()) {
-					await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
+					await copyCachedFile(cachedFileURL, finalFileURL);
 
 					return { cached: 'hit' };
 				}
@@ -243,7 +244,7 @@ export async function generateImagesForPath(
 							// Freshen cache on disk and output cached image
 							await Promise.all([
 								writeCacheMetaFile(cachedMetaFileURL, revalidatedData, env),
-								fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE),
+								copyCachedFile(cachedFileURL, finalFileURL),
 							]);
 
 							return { cached: 'revalidated' };
@@ -255,7 +256,7 @@ export async function generateImagesForPath(
 							`An error was encountered while revalidating a cached remote asset. Proceeding with stale cache. ${e}`,
 						);
 
-						await fs.promises.copyFile(cachedFileURL, finalFileURL, fs.constants.COPYFILE_FICLONE);
+						await copyCachedFile(cachedFileURL, finalFileURL);
 						return { cached: 'hit' };
 					}
 				}
