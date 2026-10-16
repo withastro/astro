@@ -1,0 +1,18 @@
+---
+import { dynamic } from 'astro:dynamic';
+
+const loaders = [
+	() => import('../components/Block.astro?assets'),
+	() => import('../components/Other.astro?assets'),
+];
+const Render = await dynamic(loaders[1]);
+---
+
+<html>
+	<head>
+		<title>Dynamic components</title>
+	</head>
+	<body>
+		<Render />
+	</body>
+</html>

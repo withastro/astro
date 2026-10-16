@@ -1,0 +1,24 @@
+---
+import './block.css';
+import styles from './block.module.css';
+---
+
+<div class:list={['block', styles.blockModule]}>
+	<p>Block</p>
+</div>
+
+<style>
+	.block p {
+		color: red;
+	}
+</style>
+
+<style is:inline>
+	.block-inline {
+		letter-spacing: 9.9px;
+	}
+</style>
+
+<script>
+	console.log('block script');
+</script>
