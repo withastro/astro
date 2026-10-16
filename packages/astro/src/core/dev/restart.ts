@@ -115,8 +115,7 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 
 		const previousEnvironments = container.viteServer.environments;
 		await container.viteServer.restart();
-		// Vite logs and swallows restart errors, keeping the old server running. Only release
-		// the previous environments if they were actually replaced.
+		// Vite swallows restart errors and keeps the previous environments running.
 		if (container.viteServer.environments !== previousEnvironments) {
 			releasePreviousEnvironments(previousEnvironments);
 		}
@@ -142,17 +141,7 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 	}
 }
 
-/**
- * Empty the module graphs of environments from a server that has been replaced by a restart.
- *
- * Vite (and rolldown's native plugins) can keep closed environments reachable after
- * `server.restart()`, so each restart would otherwise retain the full module graph of the
- * previous server, including transform results and source maps. The environments are
- * already closed at this point and never used again, so emptying their graphs is safe and
- * leaves only the (small) environment objects themselves.
- *
- * @see https://github.com/withastro/astro/issues/18178
- */
+// Rolldown's native callbacks can retain closed environments and their module graphs.
 function releasePreviousEnvironments(environments: Record<string, vite.Environment>) {
 	for (const environment of Object.values(environments)) {
 		if (environment.mode !== 'dev') continue;
@@ -161,8 +150,6 @@ function releasePreviousEnvironments(environments: Record<string, vite.Environme
 		moduleGraph.idToModuleMap.clear();
 		moduleGraph.etagToModuleMap.clear();
 		moduleGraph.fileToModulesMap.clear();
-		// Internal Vite map (not typed) that also references module nodes; most of the
-		// retained memory goes through it, so it must be cleared too.
 		(
 			moduleGraph as unknown as { _unresolvedUrlToModuleMap?: Map<unknown, unknown> }
 		)._unresolvedUrlToModuleMap?.clear();

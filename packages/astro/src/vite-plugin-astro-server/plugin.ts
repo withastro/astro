@@ -35,10 +35,7 @@ export default function createVitePluginAstroServer({
 	settings,
 	logger,
 }: AstroPluginOptions): vite.Plugin {
-	// Disposers for the per-server state created in `configureServer`, keyed by the SSR
-	// environment they belong to. A server restart creates the new server (and calls
-	// `configureServer` again) before the old one is closed, so state must be tracked
-	// per environment rather than in a single variable.
+	// Vite configures the replacement server before closing the previous environment.
 	const disposers = new WeakMap<vite.Environment, () => void>();
 
 	return {
@@ -47,7 +44,6 @@ export default function createVitePluginAstroServer({
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
 		closeBundle() {
-			// Called when the SSR environment closes (server restart or shutdown).
 			const dispose = disposers.get(this.environment);
 			if (dispose) {
 				disposers.delete(this.environment);
@@ -105,10 +101,7 @@ export default function createVitePluginAstroServer({
 					})
 				: Promise.resolve();
 
-			// `let` so they can be released on dispose: every closure created in this function
-			// (middlewares, listeners) shares one scope, and Vite can keep a closed server and its
-			// middlewares reachable after a restart. Clearing these drops the reference to the
-			// dev app and all SSR modules loaded by this server generation.
+			// Retained middleware must not keep the retired app's module graph alive.
 			let ssrHandlerPromise = runnableSsrEnvironment
 				? contentConfigLoad.then(() => createHandler(runnableSsrEnvironment))
 				: undefined;
@@ -218,7 +211,6 @@ export default function createVitePluginAstroServer({
 								return next();
 							}
 
-							// Read at request time: the handler is released once this server is closed.
 							const currentPrerenderHandlerPromise = prerenderHandlerPromise;
 							if (!currentPrerenderHandlerPromise) {
 								return next();
@@ -264,7 +256,6 @@ export default function createVitePluginAstroServer({
 							return;
 						}
 
-						// Read at request time: the handler is released once this server is closed.
 						const currentSsrHandlerPromise = ssrHandlerPromise;
 						if (!currentSsrHandlerPromise) {
 							return next();
