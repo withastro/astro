@@ -55,8 +55,6 @@ export function serializeDataStore(collections: Map<string, Map<string, any>>): 
 	return devalue.stringify(sortCollections(collections));
 }
 
-const ENCODER = new TextEncoder();
-
 /**
  * Finds the end of the largest UTF-8-safe slice beginning at `startIndex` that
  * fits within `maxBytes`. A code point larger than `maxBytes` is returned on
@@ -68,7 +66,8 @@ function getChunkEnd(str: string, startIndex: number, maxBytes: number) {
 	while (index < str.length) {
 		const codePoint = str.codePointAt(index)!;
 		const charLength = codePoint > 0xffff ? 2 : 1;
-		const charBytes = ENCODER.encode(str.slice(index, index + charLength)).length;
+		// A lone surrogate (0xD800-0xDFFF) is encoded as U+FFFD, which is also 3 bytes.
+		const charBytes = codePoint < 0x80 ? 1 : codePoint < 0x800 ? 2 : codePoint < 0x10000 ? 3 : 4;
 		if (bytes + charBytes > maxBytes && index > startIndex) {
 			break;
 		}

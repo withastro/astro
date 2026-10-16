@@ -90,6 +90,23 @@ describe('Content Layer - chunkString', () => {
 		assert.equal(parts.map(decodeAndEncode).join(''), family);
 	});
 
+	it('budgets lone surrogates and UTF-8 width boundaries like TextEncoder', () => {
+		const str = 'a\uD800b\uDFFFc\u007F\u0080\u07FF\u0800\uFFFF\uFFFD\uDE00\uD83D';
+		// Every code point here is at most 3 bytes, so no part may exceed the limit.
+		for (let maxBytes = 3; maxBytes <= utf8ByteLength(str) + 1; maxBytes++) {
+			const parts = chunkString(str, maxBytes);
+			for (const part of parts) {
+				assert.ok(utf8ByteLength(part) <= maxBytes);
+			}
+			assert.equal(parts.join(''), str);
+			// Each part is as large as possible: adding the next code point would exceed the limit.
+			for (let i = 0; i < parts.length - 1; i++) {
+				const next = String.fromCodePoint(parts[i + 1].codePointAt(0)!);
+				assert.ok(utf8ByteLength(parts[i] + next) > maxBytes);
+			}
+		}
+	});
+
 	it('emits a single code point that exceeds the limit as its own part', () => {
 		const parts = chunkString('😀', 1);
 		assert.deepEqual(parts, ['😀']);
