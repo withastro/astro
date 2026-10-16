@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes memory growth when restarting the dev server after configuration changes by releasing retired module graphs and server handlers
+Fixes increasing memory usage when editing the Astro configuration while the dev server is running
