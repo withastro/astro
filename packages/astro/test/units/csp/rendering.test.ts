@@ -8,7 +8,7 @@ import {
 	render,
 	renderHead,
 } from '../../../dist/runtime/server/index.js';
-import type { SSRManifestCSP } from '../../../dist/types/public/internal.js';
+import type { SSRManifest, SSRManifestCSP } from '../../../dist/types/public/internal.js';
 import type { TestPipeline } from '../test-utils.ts';
 import type { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createBasicPipeline, renderThroughMiddleware, SpyLogger } from '../test-utils.ts';
@@ -20,6 +20,7 @@ import { createBasicPipeline, renderThroughMiddleware, SpyLogger } from '../test
  * `kind`-scoped entries; a `-elem`/`-attr` directive is emitted only when it has such entries.
  */
 type CspTestConfig = {
+	shouldInjectCspMetaTags?: SSRManifest['shouldInjectCspMetaTags'];
 	cspDestination?: SSRManifestCSP['cspDestination'];
 	algorithm?: SSRManifestCSP['algorithm'];
 	directives?: SSRManifestCSP['directives'];
@@ -55,7 +56,7 @@ function createCspPipeline(config: CspTestConfig = {}, logger?: AstroLogger): Te
 	return createBasicPipeline({
 		...(logger ? { logger } : {}),
 		manifest: {
-			shouldInjectCspMetaTags: true,
+			shouldInjectCspMetaTags: config.shouldInjectCspMetaTags ?? true,
 			csp: {
 				cspDestination: config.cspDestination,
 				algorithm: config.algorithm || 'SHA-256',
@@ -455,6 +456,30 @@ describe('CSP Rendering', () => {
 
 			const meta = $('meta[http-equiv="Content-Security-Policy"]');
 			assert.equal(meta.attr('content'), undefined, 'Should not have CSP meta tag');
+		});
+
+		it('should serve CSP via headers when the adapter handles them', async () => {
+			const pipeline = createCspPipeline({
+				cspDestination: 'adapter',
+				styleHashes: ['sha256-test123'],
+			});
+
+			const { response } = await renderPage(SimplePage, pipeline, false);
+
+			const header = response.headers.get('content-security-policy');
+			assert.ok(header?.includes('sha256-test123'), 'Should have CSP header');
+		});
+
+		it('should not serve CSP headers when CSP is not injected, as in dev', async () => {
+			const pipeline = createCspPipeline({
+				shouldInjectCspMetaTags: false,
+				cspDestination: 'adapter',
+				styleHashes: ['sha256-test123'],
+			});
+
+			const { response } = await renderPage(SimplePage, pipeline, false);
+
+			assert.equal(response.headers.get('content-security-policy'), null);
 		});
 	});
 

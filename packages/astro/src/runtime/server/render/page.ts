@@ -106,8 +106,8 @@ export async function renderPage(
 	const init = result.response;
 	const headers = new Headers(init.headers);
 	if (
-		(result.shouldInjectCspMetaTags && result.cspDestination === 'header') ||
-		result.cspDestination === 'adapter'
+		result.shouldInjectCspMetaTags &&
+		(result.cspDestination === 'header' || result.cspDestination === 'adapter')
 	) {
 		headers.set('content-security-policy', renderCspContent(result));
 	}
