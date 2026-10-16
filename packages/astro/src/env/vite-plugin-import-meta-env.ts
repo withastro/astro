@@ -49,6 +49,9 @@ async function replaceDefine(
 		lang: 'js',
 		define,
 		sourcemap: config.command === 'build' ? !!config.build.sourcemap : true,
+		// Define replacement doesn't depend on tsconfig, and per-file discovery can reach
+		// unrelated tsconfigs that fail to load (https://github.com/withastro/astro/issues/18404)
+		tsconfig: false,
 	});
 
 	for (const marker in replacementMarkers) {
