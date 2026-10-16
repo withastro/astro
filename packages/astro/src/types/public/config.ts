@@ -3378,30 +3378,45 @@ export interface AstroUserConfig<
 	routeRules?: RouteRules;
 
 	/**
-	 *
+	 * @docs
 	 * @kind heading
-	 * @name Legacy Flags
+	 * @name legacy
 	 * @description
 	 * To help some users migrate between versions of Astro, we occasionally introduce `legacy` flags.
+	 *
 	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
-	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
+	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases until you are able to fully update your project code.
 	 */
 	legacy?: {
 		/**
-		 * Enable backwards compatibility for v4 content collections.
+		 * @docs
+		 * @name legacy.collectionsBackwardsCompat
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 6.0.0
+		 * @description
+		 * Provides temporary backwards compatibility for projects unable to migrate to the Content Layer API introduced in v5.0.
 		 *
-		 * When enabled, restores the following v4 behaviors:
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from "astro/config";
+		 *
+		 * export default defineConfig({
+		 *   legacy: {
+		 *     collectionsBackwardsCompat: true,
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * When enabled, this preserves the following legacy v4 content collections features:
+		 *
 		 * - Allows legacy config file location: `src/content/config.ts`
 		 * - Allows collections without explicit loaders (automatically wraps with glob loader)
 		 * - Supports `type: 'content'` and `type: 'data'` without loaders
 		 * - Preserves legacy entry API: `entry.slug` and `entry.render()`
 		 * - Uses path-based entry IDs instead of slug-based IDs
 		 *
-		 * This is a temporary migration helper for projects upgrading to v6.
-		 * Migrate collections to the Content Layer API, then disable this flag.
-		 *
-		 * @type {boolean}
-		 * @default false
+		 * This is a temporary migration helper. Migrate collections to the Content Layer API, then disable this flag.
 		 */
 		collectionsBackwardsCompat?: boolean;
 	};
