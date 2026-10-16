@@ -11,6 +11,7 @@ import { AstroLogger, type AstroLoggerMessage } from '../dist/core/logger/core.j
 import testAdapter from './test-adapter.ts';
 import { testImageService } from './test-image-service.ts';
 import { type DevServer, type Fixture, loadFixture } from './test-utils.ts';
+import fs from 'node:fs/promises';
 
 describe('astro:image', () => {
 	let fixture: Fixture;
@@ -1260,6 +1261,21 @@ describe('build ssg', () => {
 			'Expected all images to be reused from cache but found the following logs: ' +
 				JSON.stringify(imageLogs, null, 2),
 		);
+	});
+
+	it('preserves last modified date of copied cache entries', async () => {
+		await fixture.build({});
+
+		const cachedImageMtimes = await Promise.all(
+			(await fixture.glob('../../node_modules/.astro/assets/**/*.webp'))
+			.sort()
+			.map(async (path) => (await fs.stat(new URL(path, fixture.config.outDir))).mtime));
+
+		const generatedImageMtimes = await Promise.all((await fixture.glob('./_astro/**/*.webp'))
+			.sort()
+			.map(async (path) => (await fs.stat(new URL(path, fixture.config.outDir))).mtime));
+
+		assert.deepEqual(generatedImageMtimes, cachedImageMtimes);
 	});
 
 	it('writes remote image cache metadata', async () => {

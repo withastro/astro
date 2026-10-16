@@ -62,7 +62,8 @@ export async function copyFilesToFolder(
 
 		const realpath = await fs.realpath(origin);
 		const isSymlink = realpath !== origin;
-		const isDir = (await fs.stat(origin)).isDirectory();
+		const stats = await fs.stat(origin);
+		const isDir = stats.isDirectory();
 
 		// Create directories recursively
 		if (isDir && !isSymlink) {
@@ -82,6 +83,8 @@ export async function copyFilesToFolder(
 			}
 		} else if (!isDir) {
 			await fs.copyFile(origin, dest);
+			// Preserve accessed and modified timestamps to aid synchronization
+			await fs.utimes(dest, stats.atime, stats.mtime);
 		}
 	}
 
