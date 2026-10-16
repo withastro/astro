@@ -423,10 +423,10 @@ function stringifyEntryData(
 ): { imports: string; code: string } {
 	let hasImageAsset = false;
 	try {
-		const code = devalue.uneval(data, (value) => {
+		const code = devalue.uneval(data, (value: any, js: devalue.JavaScriptTag) => {
 			// Add support for URL objects
 			if (value instanceof URL) {
-				return `new URL(${JSON.stringify(value.href)})`;
+				return js`new URL(${value.href})`;
 			}
 
 			// For Astro assets, track references to their `src`
@@ -434,7 +434,7 @@ function stringifyEntryData(
 				// `createImageAsset` defines a non-enumerable `fsPath`, as for imported images.
 				const { ASTRO_ASSET, fsPath: _fsPath, ...asset } = value;
 				hasImageAsset = true;
-				return getImageAssetCode(asset, ASTRO_ASSET, !isSSR);
+				return getImageAssetCode(js, asset, ASTRO_ASSET, !isSSR);
 			}
 		});
 		return { imports: hasImageAsset ? IMAGE_ASSET_IMPORT : '', code };
