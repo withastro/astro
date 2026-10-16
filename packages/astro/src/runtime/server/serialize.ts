@@ -27,7 +27,7 @@ function serializeArray(
 Cyclic references cannot be safely serialized for client-side usage. Please remove the cyclic reference.`);
 	}
 	parents.add(value);
-	const serialized = value.map((v) => {
+	const serialized = Array.from(value, (v) => {
 		return convertToSerializedForm(v, metadata, parents);
 	});
 	parents.delete(value);
