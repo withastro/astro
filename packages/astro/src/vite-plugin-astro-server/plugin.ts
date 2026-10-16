@@ -35,7 +35,6 @@ export default function createVitePluginAstroServer({
 	settings,
 	logger,
 }: AstroPluginOptions): vite.Plugin {
-	// Vite configures the replacement server before closing the previous environment.
 	const disposers = new WeakMap<vite.Environment, () => void>();
 
 	return {
@@ -101,7 +100,6 @@ export default function createVitePluginAstroServer({
 					})
 				: Promise.resolve();
 
-			// Retained middleware must not keep the retired app's module graph alive.
 			let ssrHandlerPromise = runnableSsrEnvironment
 				? contentConfigLoad.then(() => createHandler(runnableSsrEnvironment))
 				: undefined;

@@ -115,7 +115,6 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 
 		const previousEnvironments = container.viteServer.environments;
 		await container.viteServer.restart();
-		// Vite swallows restart errors and keeps the previous environments running.
 		if (container.viteServer.environments !== previousEnvironments) {
 			releasePreviousEnvironments(previousEnvironments);
 		}
@@ -141,7 +140,6 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 	}
 }
 
-// Rolldown's native callbacks can retain closed environments and their module graphs.
 function releasePreviousEnvironments(environments: Record<string, vite.Environment>) {
 	for (const environment of Object.values(environments)) {
 		if (environment.mode !== 'dev') continue;
