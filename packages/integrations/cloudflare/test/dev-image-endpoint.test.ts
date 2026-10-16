@@ -34,6 +34,16 @@ describe('Dev image endpoint', () => {
 		assert.ok(text.includes('Unsupported format'));
 	});
 
+	it('returns 404 when a local href does not exist', async () => {
+		const res = await fixture.fetch('/_image?href=/does-not-exist.png&f=webp&w=100');
+		assert.equal(res.status, 404);
+	});
+
+	it('returns 400 when a local href is not an image', async () => {
+		const res = await fixture.fetch('/_image?href=/not-an-image.txt&f=webp&w=100');
+		assert.equal(res.status, 400);
+	});
+
 	it('transforms local images to png', async () => {
 		const res = await fixture.fetch('/_image?href=/placeholder.jpg&f=png&w=100');
 		assert.equal(res.status, 200);

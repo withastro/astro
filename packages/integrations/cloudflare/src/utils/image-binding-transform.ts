@@ -40,7 +40,7 @@ export async function transform(
 		content = await assets.fetch(imageSrc);
 	}
 
-	if (!content.body) {
+	if (!content.ok || !content.body) {
 		return new Response(null, { status: 404 });
 	}
 

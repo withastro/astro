@@ -24,6 +24,8 @@ const SVG_CONTENT_TYPE = 'image/svg+xml';
  * `https://avatars.githubusercontent.com/u/1234` are the common case. Core leaves the
  * format undefined there on purpose, expecting the image service to determine it from the
  * source itself, as the Sharp service does. See withastro/astro.build#2610.
+ *
+ * Responds with 400 when `f` is unsupported or when the binding cannot transform the source.
  */
 export async function transformStream(
 	body: ReadableStream,
@@ -66,14 +68,21 @@ export async function transformStream(
 			? undefined
 			: defaultQuality;
 
-	return (
-		await images
-			.input(body)
-			.transform({
-				width: params.has('w') ? Number.parseInt(params.get('w')!) : undefined,
-				height: params.has('h') ? Number.parseInt(params.get('h')!) : undefined,
-				fit: params.get('fit') as ImageTransform['fit'],
-			})
-			.output({ quality, format: outputFormat })
-	).response();
+	try {
+		return (
+			await images
+				.input(body)
+				.transform({
+					width: params.has('w') ? Number.parseInt(params.get('w')!) : undefined,
+					height: params.has('h') ? Number.parseInt(params.get('h')!) : undefined,
+					fit: params.get('fit') as ImageTransform['fit'],
+				})
+				.output({ quality, format: outputFormat })
+		).response();
+	} catch {
+		// The binding rejects sources it cannot decode (e.g. `IMAGES_TRANSFORM_ERROR 9412` for a
+		// non-image). `/_image` is public and the client picks the source, so this is a bad
+		// request, not a server error. See withastro/astro#18421.
+		return new Response('The source is not an image that can be transformed.', { status: 400 });
+	}
 }

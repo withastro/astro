@@ -47,4 +47,31 @@ describe('Cloudflare Images binding transforms', () => {
 
 		assert.equal(outputOptions?.quality, undefined);
 	});
+
+	it('responds with 400 when the binding cannot transform the source', async () => {
+		const images = {
+			input() {
+				return {
+					transform() {
+						return {
+							async output() {
+								throw new Error(
+									'IMAGES_TRANSFORM_ERROR 9412: Could not resize the image: The requested file is not an image.',
+								);
+							},
+						};
+					},
+				};
+			},
+		} as unknown as ImagesBinding;
+
+		const response = await transformStream(
+			new ReadableStream(),
+			new URLSearchParams('w=100&f=webp'),
+			images,
+			'text/plain',
+		);
+
+		assert.equal(response.status, 400);
+	});
 });
