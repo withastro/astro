@@ -11,7 +11,12 @@ export async function logListeningOn(
 	server: http.Server | https.Server,
 	configuredHost: string | boolean | undefined,
 ) {
-	await new Promise<void>((resolve) => server.once('listening', resolve));
+	// Callers may attach this after `listen()` and an async step, by which time
+	// 'listening' can already have fired (e.g. IP-literal hosts skip DNS lookup).
+	// See https://github.com/withastro/astro/issues/18381
+	if (!server.listening) {
+		await new Promise<void>((resolve) => server.once('listening', resolve));
+	}
 	const protocol = server instanceof https.Server ? 'https' : 'http';
 	// Allow to provide host value at runtime
 	const host = getResolvedHostForHttpServer(configuredHost);
