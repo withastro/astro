@@ -1,36 +1,54 @@
 import assert from 'node:assert/strict';
+import path from 'node:path';
 import { describe, it } from 'node:test';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { resolveClientDir } from '../../dist/shared.js';
+
+const baseOptions = {
+	mode: 'middleware' as const,
+	host: false as const,
+	port: 4321,
+	staticHeaders: false,
+	bodySizeLimit: 0,
+};
+
+// `resolveClientDir` walks up from the location of `dist/shared.js`, so using its
+// own directory as the server folder lets the resolution run without a full build.
+const sharedDir = path.dirname(fileURLToPath(new URL('../../dist/shared.js', import.meta.url)));
+const serverFolder = path.basename(sharedDir);
 
 describe('resolveClientDir', () => {
 	it('throws a descriptive error when the server folder is not found in the path', () => {
-		// Use pathToFileURL to build platform-valid file:// URLs. On Windows,
-		// file URLs require a drive letter (e.g. file:///C:/…); bare
-		// file:///project/… would cause fileURLToPath() to throw before the
-		// loop guard is reached.
-		const root = new URL('project/dist/', pathToFileURL('/'));
-		const client = new URL('client/', root).href;
-		const server = new URL('server/', root).href;
-
-		// When import.meta.url (of shared.js) does not contain a "server" segment,
-		// the while loop should terminate and throw instead of looping forever.
-		// This simulates what happens when the entry point is bundled into a single file
-		// at a path that lacks the expected "server" directory segment.
 		assert.throws(
 			() =>
 				resolveClientDir({
-					client,
-					server,
-					mode: 'middleware',
-					host: false,
-					port: 4321,
-					staticHeaders: false,
-					bodySizeLimit: 0,
+					...baseOptions,
+					client: 'client',
+					server: 'server',
 				}),
 			{
 				message: /Could not find the server directory "server".*bundled into a single file/,
 			},
 		);
+	});
+
+	it('resolves the client directory from the relative path', () => {
+		const resolved = resolveClientDir({
+			...baseOptions,
+			client: '../client',
+			server: serverFolder,
+		});
+
+		assert.equal(path.resolve(resolved), path.resolve(sharedDir, '../client'));
+	});
+
+	it('honors a relative path for non-sibling client and server directories', () => {
+		const resolved = resolveClientDir({
+			...baseOptions,
+			client: '../assets/client',
+			server: serverFolder,
+		});
+
+		assert.equal(path.resolve(resolved), path.resolve(sharedDir, '../assets/client'));
 	});
 });

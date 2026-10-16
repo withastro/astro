@@ -303,6 +303,21 @@ describe('ServerIslandComponent', () => {
 			assert.ok('userProp' in component.props, 'user prop should still be present');
 		});
 
+		it('resolves the island name from a root-relative key for an absolute path', async () => {
+			const result = await createStubResult({
+				getServerIslandNameMap: async () => new Map([['/src/components/Island.astro', 'Island']]),
+			});
+			const props = islandProps({
+				'server:component-path': '/build/project/src/components/Island.astro',
+			});
+			const component = new ServerIslandComponent(result, props, {}, 'Island');
+			const content = await component.getIslandContent();
+			assert.ok(
+				content.includes('/_server-islands/Island'),
+				`island URL should use the resolved name, got: ${content}`,
+			);
+		});
+
 		it('throws when the component path is not in serverIslandNameMap', async () => {
 			const result = await createStubResult();
 			const props = islandProps({ 'server:component-path': 'src/components/Unknown.astro' });

@@ -134,6 +134,8 @@ export function serializedManifestPlugin({
 					const serialized = await createSerializedManifest(settings, await getEncodedKey());
 					manifestData = JSON.stringify(serialized);
 				}
+				// Dev and sync manifests use absolute paths, so only built manifests need a base URL.
+				const deserializeArgs = command === 'build' && !sync ? ', undefined, import.meta.url' : '';
 				const hasCacheConfig = !!settings.config.cache?.provider;
 				const cacheProviderLine = hasCacheConfig
 					? `cacheProvider: () => import('${VIRTUAL_CACHE_PROVIDER_ID}'),`
@@ -152,7 +154,7 @@ export function serializedManifestPlugin({
 					import { routes } from '${ASTRO_ROUTES_MODULE_ID}';
 					import { pageMap } from '${VIRTUAL_PAGES_MODULE_ID}';
 
-					const _manifest = _deserializeManifest((${manifestData}));
+					const _manifest = _deserializeManifest((${manifestData})${deserializeArgs});
 
 				  // _manifest.routes contains enriched route info with scripts and styles,
 				  // TODO port this info over to virtual:astro:routes to prevent the need to

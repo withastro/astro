@@ -2,12 +2,14 @@ import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import * as options from 'virtual:astro-node:config';
 import createMiddleware from './middleware.js';
-import { readHeadersJson } from './shared.js';
+import { readHeadersJson, resolveSessionBase } from './shared.js';
 import _startServer, { createStandaloneHandler } from './standalone.js';
 
 setGetEnv((key) => process.env[key]);
 
 const app = createApp({ streaming: !options.experimentalDisableStreaming });
+
+resolveSessionBase(app.manifest.sessionConfig, app.manifest.rootDir);
 
 const headersMap = options.staticHeaders ? readHeadersJson(app.manifest.outDir) : undefined;
 
