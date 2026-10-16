@@ -186,7 +186,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								if (bundle[cssId]) {
 									deletedCssAssets.set(cssId, bundle[cssId]);
 								}
-								delete bundle[cssId];
 							}
 						}
 					}
@@ -377,15 +376,14 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				}
 			}
 
-			// Restore deleted CSS assets that the cssScopeTo recovery code added to
-			// pages. Only assets explicitly flagged by cssScopeToAddedCss are restored
-			// — CSS added by the normal parent walk represents styles already present
-			// on the page from the SSR build and should stay deleted.
-			if (cssScopeToAddedCss.size > 0) {
-				for (const cssId of cssScopeToAddedCss) {
-					if (deletedCssAssets.has(cssId) && !bundle[cssId]) {
-						bundle[cssId] = deletedCssAssets.get(cssId)!;
-					}
+			// Delete CSS assets from the client bundle that were already bundled with
+			// pages during SSR, except those explicitly marked for restoration by
+			// cssScopeToAddedCss for conditionally rendered components. Deleting only
+			// at the end avoids assigning to the bundle object (bundle[cssId] = ...),
+			// which Rolldown does not support and silently ignores.
+			for (const cssId of deletedCssAssets.keys()) {
+				if (!cssScopeToAddedCss.has(cssId)) {
+					delete bundle[cssId];
 				}
 			}
 
