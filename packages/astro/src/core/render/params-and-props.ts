@@ -7,7 +7,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 import { routeHasHtmlExtension, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import type { RouteCache } from './route-cache.js';
-import { callGetStaticPaths, findPathItemByKey } from './route-cache.js';
+import { callGetStaticPaths, completeStaticPaths, findPathItemByKey } from './route-cache.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance | undefined;
@@ -48,20 +48,20 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 
 	// During build, the route cache should already be populated.
 	// During development, the route cache is filled on-demand and may be empty.
-	const staticPaths = await callGetStaticPaths({
-		mod,
-		route,
-		routeCache,
-		ssr: serverLike,
-		base,
-		trailingSlash,
-	});
+	const getStaticPathsOptions = { mod, route, routeCache, ssr: serverLike, base, trailingSlash };
+	const staticPaths = await callGetStaticPaths(getStaticPathsOptions);
 
 	// The pathname used here comes from the server, which already encoded.
 	// Since we decided to not mess up with encoding anymore, we need to decode them back so the parameters can match
 	// the ones expected from the users
 	const params = getParams(route, pathname);
-	const matchedStaticPath = findPathItemByKey(staticPaths, params, route, logger, trailingSlash);
+	let matchedStaticPath = findPathItemByKey(staticPaths, params, route, logger, trailingSlash);
+	if (!matchedStaticPath) {
+		const allStaticPaths = await completeStaticPaths(getStaticPathsOptions);
+		if (allStaticPaths) {
+			matchedStaticPath = findPathItemByKey(allStaticPaths, params, route, logger, trailingSlash);
+		}
+	}
 	if (!matchedStaticPath && route.origin !== 'internal' && (serverLike ? route.prerender : true)) {
 		throw new AstroError({
 			...AstroErrorData.NoMatchingStaticPathFound,

@@ -23,6 +23,7 @@ import { hasFileExtension, removeLeadingForwardSlash, slash } from '../path.js';
 import { injectServerIslandRoute } from '../server-islands/endpoint.js';
 import { resolvePages } from '../util.js';
 import { ensure404Route } from './astro-designed-error-pages.js';
+import { isRoute3xx } from './internal/route-errors.js';
 import { routeComparator } from './priority.js';
 import { getPattern } from './pattern.js';
 import { getRoutePrerenderOption } from './prerender.js';
@@ -827,7 +828,9 @@ export function createI18nFallbackRoutes(
 
 	// Group page routes by locale
 	const routesByLocale = new Map<string, RouteData[]>();
-	const setRoutes = new Set(routes.filter((route) => route.type === 'page'));
+	const setRoutes = new Set(
+		routes.filter((route) => route.type === 'page' && !isRoute3xx(route.route)),
+	);
 
 	const filteredLocales = i18n.locales
 		.filter((loc) => {

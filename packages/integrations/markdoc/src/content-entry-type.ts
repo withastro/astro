@@ -7,7 +7,7 @@ import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
 import { emitClientAsset } from 'astro/assets/utils';
-import { emitImageMetadata } from 'astro/assets/utils/node';
+import { emitImageMetadata, markImageReferenced } from 'astro/assets/utils/node';
 import type { Rolldown, ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
@@ -325,11 +325,10 @@ async function emitOptimizedImages(
 					const fsPath = resolved.id;
 
 					if (src) {
-						// We cannot track images in Markdoc, Markdoc rendering always strips out the proxy. As such, we'll always
+						// We cannot track images in Markdoc, Markdoc rendering always strips out the tracking. As such, we'll always
 						// assume that the image is referenced elsewhere, to be on safer side.
 						if (ctx.astroConfig.output === 'static') {
-							if (globalThis.astroAsset.referencedImages)
-								globalThis.astroAsset.referencedImages.add(fsPath);
+							markImageReferenced(ctx.pluginContext, fsPath);
 						}
 
 						node.attributes[attributeName] = { ...src, fsPath };

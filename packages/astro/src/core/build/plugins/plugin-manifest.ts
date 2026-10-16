@@ -106,7 +106,7 @@ export async function manifestBuildPostHook(
 		// Cloudflare Workers that re-parse it on every cold isolate start.
 		let ssrManifest = stripPrerenderedRouteStyles(manifest);
 		ssrManifest = stripPrerenderOnlyEntryModules(ssrManifest, internals);
-		const portableManifest = toPortableManifest(ssrManifest, options.settings);
+		const portableManifest = toPortableManifest(ssrManifest, options);
 		const finalSsrManifest = adjustManifestPathsForChunk(
 			portableManifest,
 			ssrManifestChunk.fileName,
@@ -135,7 +135,7 @@ async function createManifest(
 	// Add assets from the client build.
 	const clientStatics = new Set(
 		await glob('**/*', {
-			cwd: fileURLToPath(buildOpts.settings.config.build.client),
+			cwd: fileURLToPath(buildOpts.outputDirectories.client),
 		}),
 	);
 	for (const file of clientStatics) {
@@ -210,9 +210,10 @@ export function relativizeManifestKeys(
  */
 export function toPortableManifest(
 	manifest: SerializedSSRManifest,
-	settings: StaticBuildOptions['settings'],
+	options: StaticBuildOptions,
 ): SerializedSSRManifest {
-	const serverDir = fileURLToPath(settings.config.build.server);
+	const { settings, outputDirectories } = options;
+	const serverDir = fileURLToPath(outputDirectories.server);
 	const dirToString = (dir: URL) => {
 		const rel = path.relative(serverDir, fileURLToPath(dir));
 		// Directories on a different Windows drive have no relative path, so `path.relative`
@@ -234,9 +235,9 @@ export function toPortableManifest(
 		outDir: dirToString(settings.config.outDir),
 		srcDir: dirToString(settings.config.srcDir),
 		publicDir: dirToString(settings.config.publicDir),
-		buildClientDir: dirToString(settings.config.build.client),
+		buildClientDir: dirToString(outputDirectories.client),
 		buildServerDir: './',
-		absoluteServerDir: settings.config.build.server.href,
+		absoluteServerDir: outputDirectories.server.href,
 	};
 }
 
@@ -411,14 +412,19 @@ async function buildManifest(
 
 		// Add the built .html file as a staticFile
 		if (route.prerender && route.pathname) {
-			const outFolder = getOutFolder(opts.settings, route.pathname, route);
+			const outFolder = getOutFolder({
+				outRoot: opts.outputDirectories.client,
+				buildFormat: opts.settings.config.build.format,
+				pathname: route.pathname,
+				routeData: route,
+			});
 			const outFile = getOutFile(
 				opts.settings.config.build.format,
 				outFolder,
 				route.pathname,
 				route,
 			);
-			const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
+			const file = outFile.toString().replace(opts.outputDirectories.client.toString(), '');
 			staticFiles.push(file);
 		}
 	}
@@ -461,12 +467,22 @@ async function buildManifest(
 		// folded into the `-elem` directives at render time.
 		const scriptHashes = [
 			...getScriptHashes(cspConfig),
-			...(await trackScriptHashes(internals, settings, algorithm)),
+			...(await trackScriptHashes({
+				internals,
+				settings,
+				algorithm,
+				clientRoot: opts.outputDirectories.client,
+			})),
 		];
 		const styleHashes = [
 			...getStyleHashes(cspConfig),
 			...settings.injectedCsp.styleHashes,
-			...(await trackStyleHashes(internals, settings, algorithm)),
+			...(await trackStyleHashes({
+				internals,
+				settings,
+				algorithm,
+				clientRoot: opts.outputDirectories.client,
+			})),
 		];
 
 		// When both CSP and clientPrerender are enabled, generate a static speculation rules
@@ -531,8 +547,8 @@ async function buildManifest(
 		outDir: opts.settings.config.outDir.toString(),
 		srcDir: opts.settings.config.srcDir.toString(),
 		publicDir: opts.settings.config.publicDir.toString(),
-		buildClientDir: opts.settings.config.build.client.toString(),
-		buildServerDir: opts.settings.config.build.server.toString(),
+		buildClientDir: opts.outputDirectories.client.toString(),
+		buildServerDir: opts.outputDirectories.server.toString(),
 		adapterName: opts.settings.adapter?.name ?? '',
 		assetsDir: opts.settings.config.build.assets,
 		routes,

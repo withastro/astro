@@ -1,4 +1,5 @@
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
+import { time, timedVisitorPlugins } from '@astrojs/internal-helpers/timings';
 import {
 	defaultExcludeLanguages,
 	markdownConfigDefaults,
@@ -216,7 +217,7 @@ export function createHighlightPlugin(
 				}
 
 				const code = ctx.textContent(codeChild).replace(/\n$/, '');
-				return highlight(code, lang, meta);
+				return time('highlight', lang, () => highlight(code, lang, meta));
 			},
 		},
 	};
@@ -321,17 +322,22 @@ export async function createSatteriMarkdownProcessor(
 			hastPlugins.push(createImageMarkerPlugin());
 			hastPlugins.push(createHeadingIdsPlugin());
 
-			const { html, data } = await s.markdownToHtml(content, {
-				mdastPlugins: allMdastPlugins,
-				hastPlugins,
-				features: {
-					gfm: gfm !== false,
-					smartPunctuation: smartypants !== false,
-					...userFeatures,
-				},
-				fileURL: renderOpts?.fileURL,
-				data: { astro },
-			});
+			const { html, data } = await time(
+				'markdown-file',
+				String(renderOpts?.fileURL ?? 'unknown'),
+				() =>
+					s.markdownToHtml(content, {
+						mdastPlugins: timedVisitorPlugins('markdown-plugin', allMdastPlugins),
+						hastPlugins: timedVisitorPlugins('markdown-plugin', hastPlugins),
+						features: {
+							gfm: gfm !== false,
+							smartPunctuation: smartypants !== false,
+							...userFeatures,
+						},
+						fileURL: renderOpts?.fileURL,
+						data: { astro },
+					}),
+			);
 
 			// Read the returned bag, not the seeded reference, so a plugin that replaces
 			// `ctx.data.astro` wholesale is honored.

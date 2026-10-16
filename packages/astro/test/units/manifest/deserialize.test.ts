@@ -199,33 +199,35 @@ describe('toPortableManifest', () => {
 	// throw before the assertions run.
 	const root = pathToFileURL('/');
 
-	function createSettings(outDir = new URL('project/dist/', root)) {
+	function createOptions(outDir = new URL('project/dist/', root)) {
 		return {
-			config: {
-				root: new URL('project/', root),
-				cacheDir: new URL('project/node_modules/.astro/', root),
-				outDir,
-				srcDir: new URL('project/src/', root),
-				publicDir: new URL('project/public/', root),
-				build: {
-					server: new URL('project/dist/server/', root),
-					client: new URL('project/dist/client/', root),
+			settings: {
+				config: {
+					root: new URL('project/', root),
+					cacheDir: new URL('project/node_modules/.astro/', root),
+					outDir,
+					srcDir: new URL('project/src/', root),
+					publicDir: new URL('project/public/', root),
 				},
+				renderers: [],
 			},
-			renderers: [],
+			outputDirectories: {
+				server: new URL('project/dist/server/', root),
+				client: new URL('project/dist/client/', root),
+			},
 		} as never;
 	}
 
 	it('serializes a directory equal to the server directory as ./', () => {
-		const settings = createSettings(new URL('project/dist/server/', root));
-		const result = toPortableManifest(createSerializedManifest(), settings);
+		const options = createOptions(new URL('project/dist/server/', root));
+		const result = toPortableManifest(createSerializedManifest(), options);
 
 		assert.equal(result.outDir, './');
 		assert.equal(result.buildServerDir, './');
 	});
 
 	it('serializes sibling and parent directories relative to the server directory', () => {
-		const result = toPortableManifest(createSerializedManifest(), createSettings());
+		const result = toPortableManifest(createSerializedManifest(), createOptions());
 
 		assert.equal(result.buildClientDir, '../client/');
 		assert.equal(result.rootDir, '../../');
@@ -234,13 +236,13 @@ describe('toPortableManifest', () => {
 	});
 
 	it('records the absolute build server directory as a fallback', () => {
-		const result = toPortableManifest(createSerializedManifest(), createSettings());
+		const result = toPortableManifest(createSerializedManifest(), createOptions());
 
 		assert.equal(result.absoluteServerDir, new URL('project/dist/server/', root).href);
 	});
 
 	it('recovers the configured directories on a runtime with an opaque entry URL', () => {
-		const serialized = toPortableManifest(createSerializedManifest(), createSettings());
+		const serialized = toPortableManifest(createSerializedManifest(), createOptions());
 		const manifest = deserializeManifest(serialized, undefined, 'blob:https://example.com/abc');
 
 		assert.equal(manifest.rootDir.href, new URL('project/', root).href);
@@ -251,8 +253,8 @@ describe('toPortableManifest', () => {
 	});
 
 	it('resolves the serialized server directory back to the server entry directory', () => {
-		const settings = createSettings(new URL('project/dist/server/', root));
-		const serialized = toPortableManifest(createSerializedManifest(), settings);
+		const options = createOptions(new URL('project/dist/server/', root));
+		const serialized = toPortableManifest(createSerializedManifest(), options);
 
 		const manifest = deserializeManifest(
 			serialized,
