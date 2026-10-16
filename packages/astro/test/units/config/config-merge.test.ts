@@ -19,4 +19,31 @@ describe('mergeConfig', () => {
 		const merged = mergeConfig(defaults, overrides as typeof defaults);
 		assert.equal(merged.server.allowedHosts, true);
 	});
+
+	it('ignores image.service overrides with only undefined values', () => {
+		const service = {
+			build: { entrypoint: 'astro/assets/services/sharp' },
+			runtime: { entrypoint: 'astro/assets/services/noop' },
+		};
+		const merged = mergeConfig(
+			{ image: { service } } as any,
+			{ image: { service: { entrypoint: undefined } } } as any,
+		);
+		assert.deepEqual(merged.image.service, service);
+	});
+
+	it('replaces { build, runtime } image.service with a single service', () => {
+		const merged = mergeConfig(
+			{
+				image: {
+					service: {
+						build: { entrypoint: 'astro/assets/services/sharp' },
+						runtime: { entrypoint: 'astro/assets/services/noop' },
+					},
+				},
+			} as any,
+			{ image: { service: { entrypoint: '@astrojs/netlify/image-service.js' } } } as any,
+		);
+		assert.deepEqual(merged.image.service, { entrypoint: '@astrojs/netlify/image-service.js' });
+	});
 });

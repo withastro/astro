@@ -60,6 +60,8 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		contentIntellisense: false,
 		chromeDevtoolsWorkspace: false,
 		incrementalBuild: false,
+		redirectPage: false,
+		parallelPrerender: false,
 		collectionStorage: 'single-file',
 	},
 } satisfies AstroUserConfig & {

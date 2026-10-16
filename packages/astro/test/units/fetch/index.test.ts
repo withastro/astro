@@ -9,6 +9,7 @@ import {
 	redirects,
 	actions,
 	middleware,
+	notFound,
 	pages,
 	i18n,
 } from '../../../dist/core/fetch/index.js';
@@ -333,6 +334,50 @@ describe('redirects()', () => {
 		const response = await result;
 		assert.equal(response.status, 301);
 		assert.equal(response.headers.get('location'), 'https://other-site.com/landing');
+	});
+});
+
+// #endregion
+
+// #region notFound()
+
+describe('notFound()', () => {
+	it('returns undefined when a route matches', () => {
+		const app = createTestApp([createPage(simplePage, { route: '/' })]);
+		const request = stampApp(new Request('http://example.com/'), app);
+		const state = new FetchState(request);
+
+		assert.equal(notFound(state), undefined);
+	});
+
+	it('serves a prerendered 404 page through prerenderedErrorPageFetch', async () => {
+		const notFoundPage = createComponent((_result: any, _props: any, _slots: any) => {
+			return render`<h1>Not Found</h1>`;
+		});
+		const app = createTestApp([
+			createPage(simplePage, { route: '/' }),
+			createPage(notFoundPage, { route: '/404', prerender: true }),
+		]);
+		const request = stampApp(new Request('http://example.com/does-not-exist'), app);
+		const state = new FetchState(request);
+		const fetchedUrls: string[] = [];
+		state.renderOptions.prerenderedErrorPageFetch = async (url: string) => {
+			fetchedUrls.push(url);
+			return new Response('<h1>Prerendered 404</h1>', {
+				headers: { 'Content-Type': 'text/html' },
+			});
+		};
+
+		const response = await notFound(state);
+
+		assert.ok(response);
+		assert.equal(response.status, 404);
+		assert.equal(response.headers.get('X-Astro-Error'), null);
+		assert.deepEqual(
+			fetchedUrls.map((url) => new URL(url).pathname),
+			['/404.html'],
+		);
+		assert.equal(await response.text(), '<h1>Prerendered 404</h1>');
 	});
 });
 

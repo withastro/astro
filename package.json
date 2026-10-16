@@ -53,14 +53,8 @@
     "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail exec publint",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format"
   },
-  "workspaces": [
-    "packages/markdown/*",
-    "packages/integrations/*",
-    "packages/*",
-    "packages/language-tools/*"
-  ],
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.22.0"
   },
   "packageManager": "pnpm@11.28.4",
   "devDependencies": {
@@ -80,7 +74,7 @@
     "prettier": "^3.9.9",
     "prettier-plugin-astro": "^1.1.0",
     "publint": "^0.3.25",
-    "rolldown": "^1.2.12",
+    "rolldown": "^1.2.13",
     "tinyglobby": "^0.2.17",
     "turbo": "^2.11.7",
     "typescript": "~6.0.3",
