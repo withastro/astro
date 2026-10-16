@@ -114,6 +114,20 @@ export type CollectionConfig<
 	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
 > = ContentCollectionConfig<S> | DataCollectionConfig<S> | ContentLayerConfig<S, TLoader>;
 
+/**
+ * A live collection defined with `defineCollection()` in the content config file.
+ * `type: 'live'` is required so that live collections can be told apart from build-time
+ * collections both statically and at runtime.
+ */
+export type ContentConfigLiveCollectionConfig<
+	L extends LiveLoader,
+	S extends BaseSchema | undefined = undefined,
+> = {
+	type: 'live';
+	schema?: S;
+	loader: L;
+};
+
 export function defineLiveCollection<
 	L extends LiveLoader,
 	S extends BaseSchema | undefined = undefined,
@@ -130,7 +144,14 @@ export function defineLiveCollection<
 	}
 	// Default to live content type if not specified
 	config.type ??= LIVE_CONTENT_TYPE;
+	validateLiveCollectionConfig(config, importerFilename);
+	return config;
+}
 
+function validateLiveCollectionConfig(
+	config: LiveCollectionConfig<LiveLoader, BaseSchema | undefined>,
+	importerFilename: string | undefined,
+) {
 	if (config.type !== LIVE_CONTENT_TYPE) {
 		throw new AstroError({
 			...AstroErrorData.LiveContentConfigError,
@@ -170,14 +191,16 @@ export function defineLiveCollection<
 			),
 		});
 	}
-
-	return config;
 }
 
+export function defineCollection<L extends LiveLoader, S extends BaseSchema | undefined = undefined>(
+	config: ContentConfigLiveCollectionConfig<L, S>,
+): ContentConfigLiveCollectionConfig<L, S>;
 export function defineCollection<
 	S extends BaseSchema,
 	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
->(config: CollectionConfig<S, TLoader>): CollectionConfig<S, TLoader> {
+>(config: CollectionConfig<S, TLoader>): CollectionConfig<S, TLoader>;
+export function defineCollection(config: any): any {
 	const importerFilename = getImporterFilename();
 
 	if (importerFilename?.includes('live.config')) {
@@ -188,6 +211,11 @@ export function defineCollection<
 				importerFilename,
 			),
 		});
+	}
+
+	if (config.type === LIVE_CONTENT_TYPE) {
+		validateLiveCollectionConfig(config, importerFilename);
+		return config;
 	}
 
 	if ('loader' in config) {
@@ -202,7 +230,7 @@ export function defineCollection<
 			('loadEntry' in config.loader || 'loadCollection' in config.loader)
 		) {
 			throw new AstroUserError(
-				`Live content collections must be defined in "src/live.config.ts" file. Check the loaders used in "${importerFilename ?? 'your content config file'}" to ensure you are not using a live loader to define a build-time content collection.`,
+				`Collections with a live loader must set \`type: 'live'\` or be defined in a "src/live.config.ts" file. Check the loaders used in "${importerFilename ?? 'your content config file'}" to ensure you are not using a live loader to define a build-time content collection.`,
 			);
 		}
 		config.type = CONTENT_LAYER_TYPE;

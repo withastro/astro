@@ -154,6 +154,10 @@ declare module 'astro:content' {
 		LiveContentConfig['collections'][C]['loader']
 	>;
 
+	type PickLiveCollections<T> = {
+		[K in keyof T as T[K] extends { type: 'live' } ? K : never]: T[K];
+	};
+
 	export type ContentConfig = '@@CONTENT_CONFIG_TYPE@@';
 	export type LiveContentConfig = '@@LIVE_CONTENT_CONFIG_TYPE@@';
 }

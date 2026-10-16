@@ -21,7 +21,7 @@ import {
 	COLLECTIONS_DIR,
 	CONTENT_LAYER_TYPE,
 	CONTENT_TYPES_FILE,
-	type LIVE_CONTENT_TYPE,
+	LIVE_CONTENT_TYPE,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import {
@@ -474,6 +474,10 @@ async function writeContentFiles({
 	for (const collectionKey of Object.keys(collectionEntryMap).sort()) {
 		const collectionConfig = contentConfig?.collections[JSON.parse(collectionKey)];
 		const collection = collectionEntryMap[collectionKey];
+		// Live collections are typed from `LiveContentConfig` instead.
+		if (collectionConfig?.type === LIVE_CONTENT_TYPE) {
+			continue;
+		}
 		if (
 			collectionConfig?.type &&
 			collection.type !== 'unknown' &&
@@ -577,9 +581,22 @@ async function writeContentFiles({
 		contentPaths.config.url.pathname,
 	);
 
-	const liveConfigPathRelativeToCacheDir = contentPaths.liveConfig?.exists
-		? normalizeConfigPath(settings.dotAstroDir.pathname, contentPaths.liveConfig.url.pathname)
-		: undefined;
+	const liveConfigTypes: string[] = [];
+	if (
+		contentConfig &&
+		Object.values(contentConfig.collections).some((c) => c.type === LIVE_CONTENT_TYPE)
+	) {
+		liveConfigTypes.push(
+			`PickLiveCollections<typeof import(${configPathRelativeToCacheDir})['collections']>`,
+		);
+	}
+	if (contentPaths.liveConfig?.exists) {
+		const liveConfigPathRelativeToCacheDir = normalizeConfigPath(
+			settings.dotAstroDir.pathname,
+			contentPaths.liveConfig.url.pathname,
+		);
+		liveConfigTypes.push(`typeof import(${liveConfigPathRelativeToCacheDir})['collections']`);
+	}
 
 	for (const contentEntryType of contentEntryTypes) {
 		if (contentEntryType.contentModuleTypes) {
@@ -594,9 +611,7 @@ async function writeContentFiles({
 		)
 		.replace(
 			"'@@LIVE_CONTENT_CONFIG_TYPE@@'",
-			liveConfigPathRelativeToCacheDir
-				? `typeof import(${liveConfigPathRelativeToCacheDir})`
-				: 'never',
+			liveConfigTypes.length > 0 ? `{ collections: ${liveConfigTypes.join(' & ')} }` : 'never',
 		);
 
 	// If it's the first time, we inject types the usual way. sync() will handle creating files and references. If it's not the first time, we just override the dts content

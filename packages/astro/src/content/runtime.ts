@@ -807,14 +807,6 @@ function isPropagatedAssetsModule(module: any): module is PropagatedAssetsModule
 }
 
 export function defineCollection(config: any) {
-	if (config.type === 'live') {
-		throw new AstroError({
-			...AstroErrorData.LiveContentConfigError,
-			message: AstroErrorData.LiveContentConfigError.message(
-				'Collections with type `live` must be defined in a `src/live.config.ts` file.',
-			),
-		});
-	}
 	return defineCollectionOrig(config);
 }
 

@@ -16,6 +16,8 @@ import {
 	CONTENT_MODULE_FLAG,
 	CONTENT_RENDER_FLAG,
 	DATA_STORE_CHUNK_FILE_NAME_PATTERN,
+	LIVE_COLLECTIONS_FLAG,
+	LIVE_CONTENT_TYPE,
 	DATA_STORE_CHUNK_VIRTUAL_ID_PREFIX,
 	DATA_STORE_MANIFEST_FILE,
 	DATA_STORE_VIRTUAL_ID,
@@ -30,7 +32,7 @@ import {
 } from './consts.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from './paths.js';
-import { getContentPaths, isDeferredModule } from './utils.js';
+import { getContentPaths, hasLiveCollectionsFlag, isDeferredModule } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -210,6 +212,11 @@ export function astroContentVirtualModPlugin({
 					// Instead, we resolve the config util module, because that's all that it should use anyway.
 					if (liveConfig && importer && liveConfig === normalizePath(importer)) {
 						return this.resolve('astro/virtual-modules/live-config', importer, {
+							skipSelf: true,
+						});
+					}
+					if (importer && hasLiveCollectionsFlag(importer)) {
+						return this.resolve('astro/virtual-modules/content-config-live', importer, {
 							skipSelf: true,
 						});
 					}
@@ -445,15 +452,25 @@ async function generateContentEntryFile({
 			message: AstroErrorData.ServerOnlyModule.message('astro:content'),
 		});
 	} else {
+		// Dynamic imports so they extract the chunks and avoid a circular import
+		const liveCollectionSources: string[] = [];
+		if (contentPaths.config.exists) {
+			const id = `${fileURLToPath(contentPaths.config.url)}?${LIVE_COLLECTIONS_FLAG}`;
+			liveCollectionSources.push(
+				`Object.fromEntries(Object.entries((await import(${JSON.stringify(id)})).collections ?? {}).filter(([, c]) => c?.type === ${JSON.stringify(LIVE_CONTENT_TYPE)}))`,
+			);
+		}
+		if (contentPaths.liveConfig.exists) {
+			liveCollectionSources.push(
+				`(await import(${JSON.stringify(fileURLToPath(contentPaths.liveConfig.url))})).collections`,
+			);
+		}
 		virtualModContents = nodeFs
 			.readFileSync(contentPaths.virtualModTemplate, 'utf-8')
 			.replace('@@CONTENT_DIR@@', relContentDir)
 			.replace(
 				'/* @@LIVE_CONTENT_CONFIG@@ */',
-				contentPaths.liveConfig.exists
-					? // Dynamic import so it extracts the chunk and avoids a circular import
-						`const liveCollections = (await import(${JSON.stringify(fileURLToPath(contentPaths.liveConfig.url))})).collections;`
-					: 'const liveCollections = {};',
+				`const liveCollections = Object.assign({}, ${liveCollectionSources.join(', ')});`,
 			);
 	}
 

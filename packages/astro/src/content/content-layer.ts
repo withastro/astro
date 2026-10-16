@@ -13,6 +13,7 @@ import {
 	ASSET_IMPORTS_FILE,
 	COLLECTIONS_MANIFEST_FILE,
 	CONTENT_LAYER_TYPE,
+	LIVE_CONTENT_TYPE,
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
 import type { RenderedContent } from './data-store.js';
@@ -289,6 +290,10 @@ export class ContentLayer {
 
 		await Promise.all(
 			Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
+				// Live collections are loaded at request time
+				if (collection.type === LIVE_CONTENT_TYPE) {
+					return;
+				}
 				// Skip non-content_layer collections unless backwards compat is enabled
 				if (collection.type !== CONTENT_LAYER_TYPE && !backwardsCompatEnabled) {
 					return;
