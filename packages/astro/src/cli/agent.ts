@@ -14,3 +14,10 @@ export function supportsAgentAutoBackgrounding(platform: NodeJS.Platform): boole
 	// https://github.com/withastro/astro/issues/18019
 	return platform !== 'win32';
 }
+
+// Any value opts out of agent backgrounding; only a truthy one means the server runs in the background.
+export function isBackgroundEnvEnabled(value: string | undefined): boolean {
+	if (value === undefined) return false;
+	const normalized = value.trim().toLowerCase();
+	return normalized !== '' && normalized !== '0' && normalized !== 'false';
+}
