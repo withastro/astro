@@ -1,0 +1,92 @@
+---
+interface Props { todos: { text: string; done: boolean }[] }
+const { todos } = Astro.props;
+---
+<div class="todos">
+  <form class="add">
+    <input name="text" placeholder="What needs doing?" autocomplete="off" required />
+    <button>Add</button>
+  </form>
+
+  <ul class="list">
+    {todos.map((todo) => (
+      <li class:list={{ done: todo.done }}>
+        <input type="checkbox" class="toggle" checked={todo.done} />
+        <span class="text">{todo.text}</span>
+        <button class="delete" aria-label="Delete">×</button>
+      </li>
+    ))}
+  </ul>
+
+  <template class="row">
+    <li>
+      <input type="checkbox" class="toggle" />
+      <span class="text"></span>
+      <button class="delete" aria-label="Delete">×</button>
+    </li>
+  </template>
+
+  <footer>
+    <span class="remaining"></span>
+    <span class="filters">
+      <button data-filter="all" class="active">All</button>
+      <button data-filter="active">Active</button>
+      <button data-filter="done">Done</button>
+    </span>
+    <button class="sort">Sort A–Z</button>
+    <button class="clear">Clear done</button>
+  </footer>
+</div>
+
+<script scoped>
+  import { signal, computed } from '@astrojs/ui';
+
+  type Filter = 'all' | 'active' | 'done';
+  const filter = signal<Filter>('all');
+
+  // Rows already on the page are adopted; new ones are cloned from the template.
+  const todos = scope.list('.list', 'template.row', (row) => {
+    const todo = {
+      text: row('.text').text(),
+      done: row('.toggle').checked(),
+    };
+    row.root
+      .class('done', todo.done)
+      .show(() => filter() === 'all' || (filter() === 'done') === todo.done());
+    row('.delete').on('click', () => todos.remove(todo));
+    return todo;
+  });
+
+  const input = scope('.add input').value();
+  scope('.add').on('submit', (e) => {
+    e.preventDefault();
+    todos.add({ text: input().trim(), done: false });
+    input('');
+  });
+
+  const remaining = computed(() => todos.items().filter((t) => !t.done()).length);
+  scope('.remaining').text(() => `${remaining()} left`);
+
+  for (const button of scope.all('.filters button')) {
+    const value = button.el.dataset.filter as Filter;
+    button.on('click', () => filter(value)).class('active', () => filter() === value);
+  }
+
+  scope('.sort').on('click', () =>
+    todos.items([...todos.items()].sort((a, b) => a.text().localeCompare(b.text()))),
+  );
+  scope('.clear').on('click', () => todos.items(todos.items().filter((t) => !t.done())));
+</script>
+
+<style>
+  .add { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .add input { flex: 1; }
+  .list { list-style: none; padding: 0; margin: 0; }
+  li { display: flex; gap: 0.5rem; align-items: center; padding: 0.25rem 0; }
+  li .text { flex: 1; }
+  li.done .text { text-decoration: line-through; color: #888; }
+  .delete { border: none; background: none; cursor: pointer; font-size: 1.1rem; }
+  footer { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-top: 0.5rem; font-size: 0.9rem; }
+  .remaining { margin-right: auto; }
+  .filters button.active { font-weight: bold; }
+</style>

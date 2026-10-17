@@ -1,0 +1,45 @@
+---
+import { signal } from '@astrojs/ui';
+import Card from '../components/Card.astro';
+import Counter from '../components/Counter.astro';
+import NameField from '../components/NameField.astro';
+import Greeting from '../components/Greeting.astro';
+import TodoList from '../components/TodoList.astro';
+
+// Shared state: one signal, bound in two components that have no scripts.
+const name = signal('Astro');
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@astrojs/ui prototype</title>
+  </head>
+  <body>
+    <h1>@astrojs/ui prototype</h1>
+
+    <Card title="Counters (one script, scoped per instance)">
+      <Counter label="Apples" />
+      <Counter label="Oranges" start={10} />
+    </Card>
+
+    <Card title="Shared state (no scripts)">
+      <NameField name={name} />
+      <Greeting name={name} />
+    </Card>
+
+    <Card title="Todos (list enhancement)">
+      <TodoList
+        todos={[
+          { text: 'Write the RFC', done: false },
+          { text: 'Prototype <script scoped>', done: true },
+          { text: 'Ask agents to build things with it', done: false },
+        ]}
+      />
+    </Card>
+  </body>
+</html>
+
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
+</style>

@@ -1,0 +1,32 @@
+---
+interface Props { title: string }
+const { title } = Astro.props;
+---
+<section class="card">
+  <header>
+    <h2>{title}</h2>
+    <button class="toggle">Hide</button>
+  </header>
+  <div class="body">
+    <slot />
+  </div>
+</section>
+
+<script scoped>
+  import { signal } from '@astrojs/ui';
+
+  // `.toggle` is also the class of the todo checkboxes slotted into a card,
+  // but scope() only sees this card's own markup.
+  const open = signal(true);
+  scope('.toggle')
+    .on('click', () => open(!open()))
+    .text(() => (open() ? 'Hide' : 'Show'));
+  scope('.body').show(open);
+</script>
+
+<style>
+  .card { border: 1px solid #ddd; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  header { display: flex; justify-content: space-between; align-items: center; }
+  h2 { margin: 0; font-size: 1.1rem; }
+  .body { margin-top: 0.75rem; }
+</style>

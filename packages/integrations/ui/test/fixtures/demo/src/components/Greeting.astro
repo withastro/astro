@@ -1,0 +1,6 @@
+---
+import type { Signal } from '@astrojs/ui';
+interface Props { name: Signal<string> }
+const { name } = Astro.props;
+---
+<p>Hello, <strong>{name}</strong>! Your name has <span>{name}</span> in it.</p>
