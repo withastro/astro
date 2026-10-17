@@ -11,7 +11,11 @@ export async function logListeningOn(
 	server: http.Server | https.Server,
 	configuredHost: string | boolean | undefined,
 ) {
-	await new Promise<void>((resolve) => server.once('listening', resolve));
+	// `standalone()` calls this after awaiting the logger, and for an IP literal host
+	// `listening` may already have fired by then (#18381).
+	if (!server.listening) {
+		await new Promise<void>((resolve) => server.once('listening', resolve));
+	}
 	const protocol = server instanceof https.Server ? 'https' : 'http';
 	// Allow to provide host value at runtime
 	const host = getResolvedHostForHttpServer(configuredHost);
