@@ -1,6 +1,5 @@
 import type { OmitPreservingIndexSignature, Simplify, WithRequired } from '../type-utils.js';
 import type { VALID_INPUT_FORMATS, VALID_OUTPUT_FORMATS } from './consts.js';
-import type { ImageService } from './services/service.js';
 
 export type ImageQualityPreset = 'low' | 'mid' | 'high' | 'max' | (string & {});
 export type ImageQuality = ImageQualityPreset | number;
@@ -21,7 +20,7 @@ export type AssetsGlobalStaticImagesList = Map<
  * A single image transform flattened for persistence in the incremental build
  * cache. `AssetsGlobalStaticImagesList` nests transforms under their original
  * path; this carries the original path and transform hash inline so a skipped
- * page's transforms can be replayed into the global list without a re-render.
+ * page's transforms can be replayed into the static image list without a re-render.
  */
 export interface SerializedStaticImage {
 	originalPath: string;
@@ -33,13 +32,6 @@ export interface SerializedStaticImage {
 
 declare global {
 	var astroAsset: {
-		imageService?: ImageService;
-		addStaticImage?:
-			| ((options: ImageTransform, hashProperties: string[], fsPath: string | undefined) => string)
-			| undefined;
-		staticImages?: AssetsGlobalStaticImagesList;
-		referencedImages?: Set<string>;
-		recordReferencedImage?: ((fsPath: string) => void) | undefined;
 		/**
 		 * Resolves a content collection image source to an absolute path, the way read time
 		 * does. Installed by the content layer for the duration of a sync, and read by
@@ -47,8 +39,7 @@ declare global {
 		 *
 		 * Lives here rather than in module state because `content.config.ts` imports
 		 * `astro/content/image` through Vite while the content layer is loaded by Node, so
-		 * the two do not share module instances — the same reason `imageService` and
-		 * `addStaticImage` are global.
+		 * the two do not share module instances.
 		 */
 		contentImageResolver?: (source: string, importer: string) => Promise<string | undefined>;
 	};
@@ -74,7 +65,7 @@ export type ImageMetadata = {
 
 export function isImageMetadata(src: any): src is ImageMetadata {
 	// For ESM-imported images the fsPath property is set but not enumerable
-	return src.fsPath && !('fsPath' in src);
+	return !!src.fsPath && !Object.prototype.propertyIsEnumerable.call(src, 'fsPath');
 }
 
 /**

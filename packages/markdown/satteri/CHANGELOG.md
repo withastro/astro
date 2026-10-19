@@ -1,5 +1,21 @@
 # @astrojs/markdown-satteri
 
+## 0.4.4
+
+### Patch Changes
+
+- [#17894](https://github.com/withastro/astro/pull/17894) [`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds the measurements that `astro build --timings` reports for Markdown processing and syntax highlighting.
+- Updated dependencies [[`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8), [`2715958`](https://github.com/withastro/astro/commit/2715958666b0a706b069d0592da3a070b3796a9b)]:
+  - @astrojs/internal-helpers@0.13.0
+  - @astrojs/prism@4.1.0
+
+## 0.4.3
+
+### Patch Changes
+
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb), [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d)]:
+  - @astrojs/internal-helpers@0.12.0
+
 ## 0.4.2
 
 ### Patch Changes

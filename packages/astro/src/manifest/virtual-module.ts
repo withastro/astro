@@ -116,10 +116,10 @@ if (manifest.image) {
 
 const base = manifest.base;
 const build = {
-  server: new URL(manifest.buildServerDir),
-  client: new URL(manifest.buildClientDir),
-  format: manifest.buildFormat,
-  assetsPrefix: manifest.assetsPrefix,
+  server: new URL(${JSON.stringify(config.build.server.href)}),
+  client: new URL(${JSON.stringify(config.build.client.href)}),
+  format: ${JSON.stringify(config.build.format)},
+  assetsPrefix: ${JSON.stringify(config.build.assetsPrefix)},
 };
 
 const cacheDir = new URL(manifest.cacheDir);

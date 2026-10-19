@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.22.0"
   },
   "scripts": {
     "dev": "astro dev",
@@ -14,12 +14,9 @@
     "server": "node dist/server/entry.mjs"
   },
   "dependencies": {
-    "@astrojs/node": "^11.1.6",
-    "@astrojs/svelte": "^9.0.1",
-    "astro": "^7.3.5",
-    "svelte": "^5.55.7"
-  },
-  "allowScripts": {
-    "esbuild": true
+    "@astrojs/node": "^11.1.8",
+    "@astrojs/svelte": "^9.1.0",
+    "astro": "^7.4.0",
+    "svelte": "^5.57.2"
   }
 }

@@ -735,20 +735,24 @@
   - `Response` objects, since that is what fetch() returns:
     ```astro
     <div
-      set:html={new Response('<span>Hello world</span>', {
-        headers: { 'content-type': 'text/html' },
-      })}
+      set:html={
+        new Response('<span>Hello world</span>', {
+          headers: { 'content-type': 'text/html' },
+        })
+      }
     />
     ```
   - `ReadableStream`s:
     ```astro
     <div
-      set:html={new ReadableStream({
-        start(controller) {
-          controller.enqueue(`<span>read me</span>`);
-          controller.close();
-        },
-      })}
+      set:html={
+        new ReadableStream({
+          start(controller) {
+            controller.enqueue(`<span>read me</span>`);
+            controller.close();
+          },
+        })
+      }
     />
     ```
   - `AsyncIterable`s:

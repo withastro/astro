@@ -13,6 +13,8 @@ import { type LocalFamilyOptions, LocalFontProvider } from './local.js';
 import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 
+const VARIABLE_SUFFIX_RE = / Variable$/;
+
 /** [Adobe](https://docs.astro.build/en/reference/font-provider-reference/#adobe) */
 function adobe(config: AdobeProviderOptions): FontProvider {
 	const provider = providers.adobe(config);
@@ -28,6 +30,9 @@ function adobe(config: AdobeProviderOptions): FontProvider {
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
@@ -47,6 +52,9 @@ function bunny(): FontProvider {
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
 		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
+		},
 	};
 }
 
@@ -65,6 +73,9 @@ function fontshare(): FontProvider {
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
 		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
+		},
 	};
 }
 
@@ -78,10 +89,23 @@ function fontsource(): FontProvider {
 			initializedProvider = await provider(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
-			return await initializedProvider?.resolveFont(familyName, rest);
+			const result = await initializedProvider?.resolveFont(familyName, rest);
+			// The fontsource API uses family names without a "Variable" suffix (e.g. "Inter"),
+			// but fontsource's website and npm packages use "Inter Variable" for variable fonts.
+			// Retry without the suffix so both naming conventions work. See #18143.
+			if (!result?.fonts?.length && familyName.endsWith(' Variable')) {
+				return await initializedProvider?.resolveFont(
+					familyName.replace(VARIABLE_SUFFIX_RE, ''),
+					rest,
+				);
+			}
+			return result;
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
@@ -101,6 +125,9 @@ function google(): FontProvider<GoogleFamilyOptions | undefined> {
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
 		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
+		},
 	};
 }
 
@@ -118,6 +145,9 @@ function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }
@@ -148,6 +178,9 @@ function npm(
 		},
 		async listFonts() {
 			return await initializedProvider?.listFonts?.();
+		},
+		async getFontProperties({ familyName }) {
+			return await initializedProvider?.getFontProperties?.(familyName);
 		},
 	};
 }

@@ -24,7 +24,7 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 	}
 
 	// Throw a normal error instead of an AstroError as Vite captures this in the plugin lifecycle
-	// and would generate a different stack trace itself through esbuild.
+	// and would generate a different stack trace itself through Vite's transform pipeline.
 	const throwPrefetchNotEnabledError = () => {
 		throw new Error('You need to enable the `prefetch` Astro config to import `astro:prefetch`');
 	};

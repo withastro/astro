@@ -22,7 +22,10 @@ export function extractFrontmatter(code: string): string | undefined {
 }
 
 function getFrontmatterParser(code: string): [string, (str: string) => unknown] {
-	return frontmatterTypeRE.exec(code)?.[1] === '+++' ? ['+++', toml.parse] : ['---', parseYaml];
+	return frontmatterTypeRE.exec(code)?.[1] === '+++'
+		? // smol-toml returns null-prototype objects, so clone them to plain objects
+			['+++', (str: string) => structuredClone(toml.parse(str))]
+		: ['---', parseYaml];
 }
 
 export interface ParseFrontmatterOptions {

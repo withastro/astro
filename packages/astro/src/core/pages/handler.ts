@@ -3,12 +3,14 @@ import { renderPage } from '../../runtime/server/index.js';
 import type { APIContext } from '../../types/public/context.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { ASTRO_ERROR_HEADER } from '../constants.js';
+import { rejectInvalidEncoding } from '../routing/invalid-encoding.js';
 import {
 	createCrossOriginForbiddenResponse,
 	isForbiddenCrossOriginRequest,
 } from '../app/origin-check.js';
 import { getCookiesFromResponse } from '../cookies/response.js';
 import { renderErrorFromState } from '../errors/handler.js';
+import { isRoute404, isRoute500 } from '../routing/internal/route-errors.js';
 
 // Shared empty-slots object so we don't allocate `{}` on every render for
 // requests that don't come from the container API. Safe to share because
@@ -67,7 +69,7 @@ export async function handlePages(state: FetchState, ctx: APIContext): Promise<R
 			// Signal to the i18n middleware to maybe act on this response
 			state.responseRouteType = 'page';
 			// Signal to the error-page-rerouting infra to let this response pass through to avoid loops
-			if (state.routeData!.route === '/404' || state.routeData!.route === '/500') {
+			if (isRoute404(state.routeData!.route) || isRoute500(state.routeData!.route)) {
 				state.skipErrorReroute = true;
 			}
 			break;
@@ -102,6 +104,10 @@ export async function handlePages(state: FetchState, ctx: APIContext): Promise<R
  * there is no surrounding `handleRequest` to supply this fallback.
  */
 export async function handlePagesWithErrorFallback(state: FetchState): Promise<Response> {
+	const invalidEncodingResponse = rejectInvalidEncoding(state);
+	if (invalidEncodingResponse) {
+		return invalidEncodingResponse;
+	}
 	// `FetchState` falls back to an SSR 404 route when nothing matches,
 	// so routeData is only missing when the custom 404 page is
 	// prerendered (or absent). Return a marked 404 and let the app's
@@ -121,8 +127,10 @@ export async function handlePagesWithErrorFallback(state: FetchState): Promise<R
 	) {
 		return createCrossOriginForbiddenResponse(ctx.request);
 	}
+	state.applyDefaultStatus();
 	try {
-		return await handlePages(state, ctx);
+		await state.getProps();
+		return await handlePages(state, state.getAPIContext());
 	} catch (err: any) {
 		// The header marker can't carry the error object, so render the
 		// 500 page directly to preserve `error` and the logged stack.

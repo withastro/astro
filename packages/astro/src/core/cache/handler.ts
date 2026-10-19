@@ -125,6 +125,20 @@ export async function handleCache(
 	return response;
 }
 
+/**
+ * Registers the cache provider via `provideCache`, then runs `handleCache`.
+ * Used by the composable `cache()` handlers, where no earlier stage has
+ * registered the provider. Must run before the API context is built so
+ * `ctx.cache` / `Astro.cache` are defined downstream.
+ */
+export async function provideAndHandleCache(
+	state: FetchState,
+	next: () => Promise<Response>,
+): Promise<Response> {
+	await provideCache(state);
+	return handleCache(state, next);
+}
+
 const compiledCacheRoutesMemo = createManifestMemo((manifest: SSRManifest) =>
 	manifest.cacheConfig?.routes
 		? compileCacheRoutes(manifest.cacheConfig.routes, manifest.base, manifest.trailingSlash)

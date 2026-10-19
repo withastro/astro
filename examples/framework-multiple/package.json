@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.22.0"
   },
   "scripts": {
     "dev": "astro dev",
@@ -13,22 +13,19 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/preact": "^6.0.5",
-    "@astrojs/react": "^7.0.0",
-    "@astrojs/solid-js": "^7.0.2",
-    "@astrojs/svelte": "^9.0.1",
-    "@astrojs/vue": "^7.0.3",
-    "@types/react": "^18.3.28",
-    "@types/react-dom": "^18.3.7",
-    "astro": "^7.3.5",
-    "preact": "^10.28.4",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "solid-js": "^1.9.11",
-    "svelte": "^5.55.7",
-    "vue": "^3.5.29"
-  },
-  "allowScripts": {
-    "esbuild": true
+    "@astrojs/preact": "^6.1.0",
+    "@astrojs/react": "^7.1.0",
+    "@astrojs/solid-js": "^7.1.0",
+    "@astrojs/svelte": "^9.1.0",
+    "@astrojs/vue": "^7.1.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "astro": "^7.4.0",
+    "preact": "^11.0.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "solid-js": "^1.9.17",
+    "svelte": "^5.57.2",
+    "vue": "^3.5.43"
   }
 }
