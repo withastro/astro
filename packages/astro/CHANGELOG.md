@@ -1,5 +1,25 @@
 # astro
 
+## 7.4.1
+
+### Patch Changes
+
+- [#18425](https://github.com/withastro/astro/pull/18425) [`6fdc36e`](https://github.com/withastro/astro/commit/6fdc36ed97316d932d2e143b85739f0af37ab329) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Preserves the last modified date of cached optimized images and incrementally restored build output when copying them into the build output on all platforms
+
+- [#18419](https://github.com/withastro/astro/pull/18419) [`395d195`](https://github.com/withastro/astro/commit/395d19525986a276bf81af7bd365e7a35dc20ef3) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a typo in the error message shown when a font `cssVariable` is invalid
+
+- [#18401](https://github.com/withastro/astro/pull/18401) [`484822f`](https://github.com/withastro/astro/commit/484822fbba652745c4f2da5ef434a350203578e2) Thanks [@danielmlr](https://github.com/danielmlr)! - Fixes a bug where projects whose path contains an apostrophe (`'`) failed to load sessions, middleware, a cache provider, or a `src/fetch.ts` handler
+
+- [#18407](https://github.com/withastro/astro/pull/18407) [`a6e00be`](https://github.com/withastro/astro/commit/a6e00beae6c134d0c1b5248eb02fbf119b7d64e9) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a `TSCONFIG_ERROR` during `astro build` when a parent directory contains a `tsconfig.json` that cannot be resolved, such as one extending `astro/tsconfigs/strict` without installed dependencies
+
+- [#18427](https://github.com/withastro/astro/pull/18427) [`908f167`](https://github.com/withastro/astro/commit/908f1672a9fe6c40e6b73bfb0307f0d1f3ac2057) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes an `Unterminated string` build error when application code imports from `astro/config` (for example, `fontProviders` in a shared fonts module)
+
+- [#18428](https://github.com/withastro/astro/pull/18428) [`40e7d54`](https://github.com/withastro/astro/commit/40e7d54c7f969b402f011d32ccd87123835d0aa1) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes missing styles in production builds for conditionally rendered framework components (e.g. Svelte components inside `{#if}` blocks) imported by a hydrated island
+
+- [#18424](https://github.com/withastro/astro/pull/18424) [`617ff59`](https://github.com/withastro/astro/commit/617ff59820b4a5777eb5d3765c09d29082b11acc) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes style-only HMR in `.astro` components falling back to a full page reload when a PostCSS plugin (such as `@unocss/postcss`) lists the component as a dependency of its own style
+
+- [#18274](https://github.com/withastro/astro/pull/18274) [`70834bb`](https://github.com/withastro/astro/commit/70834bbea43695c563358ea055d32ecb5e0a78dd) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes increasing memory usage when editing the Astro configuration while the dev server is running
+
 ## 7.4.0
 
 ### Minor Changes

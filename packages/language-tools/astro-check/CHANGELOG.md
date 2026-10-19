@@ -1,5 +1,13 @@
 # @astrojs/check
 
+## 0.9.11
+
+### Patch Changes
+
+- [#18445](https://github.com/withastro/astro/pull/18445) [`d736df7`](https://github.com/withastro/astro/commit/d736df7a9cc03c12b22e538f058fb1f769672471) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the `--preserveWatchOutput` help text, which described the opposite of the flag's behavior. Setting it to `true` keeps output between checks in watch mode.
+
+- [#18444](https://github.com/withastro/astro/pull/18444) [`c55134c`](https://github.com/withastro/astro/commit/c55134c1d3c238a43e17cfeff136375a4d9d5d35) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `astro check --watch` exiting immediately when the project path contains `node_modules` or `.git`
+
 ## 0.9.10
 
 ### Patch Changes
