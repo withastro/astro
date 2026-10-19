@@ -32,38 +32,28 @@ import {
 	getInjectableWebAnalyticsContent,
 	type VercelWebAnalyticsConfig,
 } from './lib/web-analytics.js';
+import {
+	ASTRO_LOCALS_HEADER,
+	ASTRO_MIDDLEWARE_SECRET_HEADER,
+	ASTRO_PATH_HEADER,
+	ASTRO_PATH_PARAM,
+	ASTRO_PATH_TOKEN_PARAM,
+	NODE_PATH,
+} from './serverless/constants.js';
 import { generateEdgeMiddleware, type IsrForwarding } from './serverless/middleware.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
 
 const PACKAGE_NAME = '@astrojs/vercel';
 
-/**
- * The edge function calls the node server at /_render,
- * with the original path as the value of this header.
- */
-export const ASTRO_PATH_HEADER = 'x-astro-path';
-export const ASTRO_PATH_PARAM = 'x_astro_path';
-
-/**
- * ISR functions receive the target path through the `x_astro_path` query
- * parameter instead of a header. Because that parameter travels on the URL, it
- * is accompanied by this token so the entrypoint can confirm the path override
- * came from Astro's own build-time route rewrite rather than from an arbitrary
- * caller. The value is the per-build `middlewareSecret`.
- */
-export const ASTRO_PATH_TOKEN_PARAM = 'x_astro_path_token';
-
-/**
- * The edge function calls the node server at /_render,
- * with the locals serialized into this header.
- */
-export const ASTRO_LOCALS_HEADER = 'x-astro-locals';
-export const ASTRO_MIDDLEWARE_SECRET_HEADER = 'x-astro-middleware-secret';
+export {
+	ASTRO_LOCALS_HEADER,
+	ASTRO_MIDDLEWARE_SECRET_HEADER,
+	ASTRO_PATH_HEADER,
+	ASTRO_PATH_PARAM,
+	ASTRO_PATH_TOKEN_PARAM,
+	NODE_PATH,
+};
 export const VERCEL_EDGE_MIDDLEWARE_FILE = 'vercel-edge-middleware';
-
-// Vercel routes the folder names to a path on the deployed website.
-// We attempt to avoid interfering by prefixing with an underscore.
-export const NODE_PATH = '_render';
 const MIDDLEWARE_PATH = '_middleware';
 
 // Unlike serverless and edge functions, ISR functions are not passed the
@@ -698,7 +688,7 @@ function isAcceptedPattern(pattern: any): pattern is RemotePattern {
 	return true;
 }
 
-type Runtime = `nodejs${string}.x`;
+type Runtime = `nodejs${string}.x` | `bun${string}.x`;
 
 class VercelBuilder {
 	readonly NTF_CACHE = {};
@@ -805,7 +795,11 @@ class VercelBuilder {
 	}
 }
 
-function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Runtime {
+export function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Runtime {
+	if (process.versions.bun) {
+		const major = process.versions.bun.split('.')[0]; // '1.3.9' --> '1'
+		return `bun${major}.x`;
+	}
 	const version = process.version.slice(1); // 'v18.19.0' --> '18.19.0'
 	const major = version.split('.')[0]; // '18.19.0' --> '18'
 	const support = SUPPORTED_NODE_VERSIONS[major];

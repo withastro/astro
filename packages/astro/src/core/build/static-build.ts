@@ -31,6 +31,7 @@ import {
 	SERVER_ISLAND_MAP_MARKER,
 	hasServerIslands,
 } from '../server-islands/vite-plugin-server-islands.js';
+import { buildPhase, buildTimingsVitePlugins } from './timings/index.js';
 import { createViteBuildConfig } from './vite-build-config.js';
 import { removeViteManifestDirectories } from './vite-plugin-ssr-assets.js';
 
@@ -153,7 +154,7 @@ async function buildEnvironments(opts: StaticBuildOptionsInput, internals: Build
 
 	const buildPlugins = getAllBuildPlugins(internals, opts);
 	const flatPlugins = buildPlugins.flat().filter(Boolean);
-	const plugins = [...flatPlugins, ...(viteConfig.plugins || [])];
+	const plugins = [...flatPlugins, ...(viteConfig.plugins || []), ...buildTimingsVitePlugins()];
 	let currentRolldownInput: Rolldown.InputOption | undefined = undefined;
 	let buildPostHooks: BuildPostHook[] = [];
 	plugins.push({
@@ -189,11 +190,13 @@ async function buildEnvironments(opts: StaticBuildOptionsInput, internals: Build
 				};
 				try {
 					// Inject manifest and content placeholders into extracted chunks
-					await runManifestInjection(
-						resolvedOpts,
-						internals,
-						internals.extractedChunks ?? [],
-						buildPostHooks,
+					await buildPhase('manifest injection', () =>
+						runManifestInjection(
+							resolvedOpts,
+							internals,
+							internals.extractedChunks ?? [],
+							buildPostHooks,
+						),
 					);
 
 					// Generation and cleanup
@@ -204,17 +207,21 @@ async function buildEnvironments(opts: StaticBuildOptionsInput, internals: Build
 					if (settings.buildOutput === 'static') {
 						settings.timer.start('Static generate');
 						// Move prerender and SSR assets to client directory before cleaning up
-						await ssrMoveAssets(resolvedOpts, internals);
+						await buildPhase('rearrange assets', () => ssrMoveAssets(resolvedOpts, internals));
 						// Generate the pages
-						await generatePages(resolvedOpts, internals, prerenderOutputDir);
+						await buildPhase('generate pages', () =>
+							generatePages(resolvedOpts, internals, prerenderOutputDir, builder),
+						);
 						// Clean up prerender directory after generation
 						await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
 						settings.timer.end('Static generate');
 					} else if (settings.buildOutput === 'server') {
 						settings.timer.start('Server generate');
-						await generatePages(resolvedOpts, internals, prerenderOutputDir);
+						await buildPhase('generate pages', () =>
+							generatePages(resolvedOpts, internals, prerenderOutputDir, builder),
+						);
 						// Move prerender and SSR assets to client directory before cleaning up
-						await ssrMoveAssets(resolvedOpts, internals);
+						await buildPhase('rearrange assets', () => ssrMoveAssets(resolvedOpts, internals));
 						// Clean up prerender directory after generation
 						await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
 						settings.timer.end('Server generate');
@@ -250,7 +257,9 @@ async function buildEnvironments(opts: StaticBuildOptionsInput, internals: Build
 			async buildApp(builder: vite.ViteBuilder) {
 				// Build prerender environment for static generation
 				settings.timer.start('Prerender build');
-				let prerenderOutput = await builder.build(builder.environments.prerender);
+				let prerenderOutput = await buildPhase('prerender bundle', () =>
+					builder.build(builder.environments.prerender),
+				);
 				settings.timer.end('Prerender build');
 
 				// Extract prerender entry filename and store in internals
@@ -265,8 +274,8 @@ async function buildEnvironments(opts: StaticBuildOptionsInput, internals: Build
 				let ssrChunks: BuildInternals['extractedChunks'] = [];
 				if (needsServerBuild(settings, builder)) {
 					settings.timer.start('SSR build');
-					let ssrOutput = await builder.build(
-						builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr],
+					let ssrOutput = await buildPhase('ssr bundle', () =>
+						builder.build(builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]),
 					);
 					settings.timer.end('SSR build');
 					// Extract chunks needing injection, then release output for GC
@@ -301,7 +310,7 @@ async function buildEnvironments(opts: StaticBuildOptionsInput, internals: Build
 				const sortedClientInput = Array.from(internals.clientInput).sort();
 				builder.environments.client.config.build.rolldownOptions.input = sortedClientInput;
 				settings.timer.start('Client build');
-				await builder.build(builder.environments.client);
+				await buildPhase('client bundle', () => builder.build(builder.environments.client));
 				settings.timer.end('Client build');
 
 				// Store extracted chunks on internals for post plugin to consume

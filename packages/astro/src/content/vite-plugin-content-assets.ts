@@ -8,7 +8,7 @@ import { isRunnableDevEnvironment, type Plugin, type RunnableDevEnvironment } fr
 import type { BuildInternals } from '../core/build/internal.js';
 import type { ExtractedChunk } from '../core/build/static-build.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { wrapId } from '../core/util.js';
+import { isMarkdownFile, wrapId } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import { isBuildableCSSRequest } from '../vite-plugin-astro-server/util.js';
 import { crawlGraph } from '../vite-plugin-astro-server/vite.js';
@@ -16,6 +16,7 @@ import {
 	CONTENT_IMAGE_FLAG,
 	CONTENT_RENDER_FLAG,
 	LINKS_PLACEHOLDER,
+	MARKDOWN_CONTENT_ENTRY_FLAG,
 	PROPAGATED_ASSET_FLAG,
 	STYLES_PLACEHOLDER,
 } from './consts.js';
@@ -105,23 +106,28 @@ export function astroContentAssetPropagationPlugin({
 			async handler(_, id) {
 				if (hasContentFlag(id, PROPAGATED_ASSET_FLAG)) {
 					const basePath = id.split('?')[0];
+					// Markdown entries are imported under a dedicated id so `astro:markdown` can tell them
+					// apart from Markdown pages and direct imports, which share the bare path.
+					const modulePath = isMarkdownFile(basePath)
+						? `${basePath}?${MARKDOWN_CONTENT_ENTRY_FLAG}`
+						: basePath;
 					let stringifiedLinks: string, stringifiedStyles: string;
 
 					// We can access the server in dev,
 					// so resolve collected styles and scripts here.
 					if (isAstroServerEnvironment(this.environment) && environment) {
-						if (!environment.moduleGraph.getModuleById(basePath)?.ssrModule) {
+						if (!environment.moduleGraph.getModuleById(modulePath)?.ssrModule) {
 							// Ignore errors here — when using a fallback environment (e.g. the 'astro'
 							// env when Cloudflare's ssr env is non-runnable), the module may already be
 							// loaded in the fallback env's graph even if this import throws due to
 							// concurrent bundle editing.
-							await environment.runner.import(basePath).catch(() => {});
+							await environment.runner.import(modulePath).catch(() => {});
 						}
 						const {
 							styles,
 							urls,
 							crawledFiles: styleCrawledFiles,
-						} = await getStylesForURL(basePath, environment, cssContentCache);
+						} = await getStylesForURL(modulePath, environment, cssContentCache);
 
 						// Register files we crawled to be able to retrieve the rendered styles and scripts,
 						// as when they get updated, we need to re-transform ourselves.
@@ -147,7 +153,7 @@ export function astroContentAssetPropagationPlugin({
 
 					const code = `
 					async function getMod() {
-						return import(${JSON.stringify(basePath)});
+						return import(${JSON.stringify(modulePath)});
 					}
 					const collectedLinks = ${stringifiedLinks};
 					const collectedStyles = ${stringifiedStyles};
