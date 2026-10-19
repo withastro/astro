@@ -6,7 +6,7 @@
   "dependencies": {
     "@astrojs/cloudflare": "workspace:*",
     "astro": "workspace:*",
-    "hono": "^4.13.7"
+    "hono": "^4.13.13"
   },
   "devDependencies": {
     "cf": "0.13.0"

@@ -620,6 +620,21 @@ describe('context.cache disabled (no provider configured)', () => {
 		const body = await response.json();
 		assert.deepEqual(body, { ok: true });
 	});
+
+	it('Astro.cache is defined on the 404 page rendered for an unhandled API route method', async () => {
+		const notFoundPage = createComponent((result, props, slots) => {
+			const Astro = result.createAstro(props, slots);
+			Astro.cache.set({ maxAge: 120 });
+			return render`<html><head>${renderHead()}</head><body><h1>Not Found</h1></body></html>`;
+		});
+		const app = createTestApp([
+			createEndpoint({ POST: () => new Response('ok') }, { route: '/api/thing' }),
+			createPage(notFoundPage, { route: '/404' }),
+		]);
+		const response = await app.render(new Request('http://example.com/api/thing'));
+		assert.equal(response.status, 404);
+		assert.match(await response.text(), /<h1>Not Found<\/h1>/);
+	});
 });
 
 // #endregion
