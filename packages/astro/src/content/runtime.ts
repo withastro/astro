@@ -627,8 +627,14 @@ export function updateImageReferencesInData<T extends Record<string, unknown>>(
 		// Object form (from `image()`): merge so that fields added by transforms
 		// downstream of `image()` survive resolution.
 		if (current && typeof current === 'object' && typeof (current as any).src === 'string') {
-			const resolved = resolveImageAtPath((current as any).src, fileName, imageAssetMap);
+			const src = (current as any).src;
+			const resolved = resolveImageAtPath(src, fileName, imageAssetMap);
 			if (resolved === undefined) {
+				// A remote source has no import to resolve. Read it back as the URL string,
+				// which is what the deprecated `({ image })` helper produced.
+				if (isRemotePath(src)) {
+					result = setAtPathCopying(result, path, src);
+				}
 				continue;
 			}
 			result = setAtPathCopying(

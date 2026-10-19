@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { defineCollection } from '../../../dist/content/config.js';
 import { ContentLayer } from '../../../dist/content/content-layer.js';
 import { MutableDataStore } from '../../../dist/content/mutable-data-store.js';
+import { resolveEntryData } from '../../../dist/content/runtime.js';
 import { AstroLogger } from '../../../dist/core/logger/core.js';
 import { createTempDir, createTestConfigObserver, createMinimalSettings } from './test-helpers.ts';
 
@@ -859,6 +860,45 @@ describe('Content Layer - Schema Validation', () => {
 			const entry: any = store.get('posts', 'one');
 			assert.equal(entry.data.title, 'SHOUTY');
 			assert.equal(calls, 1);
+		});
+	});
+
+	describe('Legacy image() fields', () => {
+		it('reads a remote URL back as the URL string', async () => {
+			const store = new MutableDataStore();
+			const settings = createMinimalSettings(root);
+			const logger = new AstroLogger({
+				destination: { write: () => true },
+				level: 'silent',
+			});
+
+			const collections = {
+				posts: defineCollection({
+					loader: {
+						name: 'remote-image-loader',
+						load: async (context: any) => {
+							const data = await context.parseData({
+								id: 'one',
+								data: { cover: 'https://example.com/cover.jpg' },
+							});
+							await context.store.set({ id: 'one', data });
+						},
+					},
+					schema: ({ image }) => z.object({ cover: image() }),
+				}),
+			};
+
+			const contentLayer = new ContentLayer({
+				settings,
+				logger,
+				store,
+				contentConfigObserver: createTestConfigObserver(collections),
+			});
+
+			await contentLayer.sync();
+
+			const entry: any = store.get('posts', 'one');
+			assert.equal(resolveEntryData(entry).cover, 'https://example.com/cover.jpg');
 		});
 	});
 });
