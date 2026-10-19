@@ -11,6 +11,7 @@ import * as z from 'zod/v4';
 import {
 	AstroError,
 	AstroErrorData,
+	errorMap,
 	formatIssuePath,
 	formatSchemaIssues,
 	isStandardSchema,
@@ -104,15 +105,6 @@ function contentConfigParser(logger: AstroLogger) {
 										return undefined;
 									}
 									return v;
-								})
-								.superRefine((v, ctx) => {
-									if (v !== undefined && !isStandardSchema(v)) {
-										ctx.addIssue({
-											code: 'custom',
-											message: INVALID_SCHEMA_MESSAGE,
-										});
-										return z.NEVER;
-									}
 								})
 								.optional(),
 							createSchema: z
@@ -209,9 +201,28 @@ export async function getEntryData<
 				message: AstroErrorData.InvalidCollectionSchemaError.message(entry.collection),
 			});
 		}
-		// `validate()` may return a promise, which is what allows async transforms
-		patchZodStandardSchema(schema);
-		const result = await schema['~standard'].validate(data);
+		let result: StandardSchemaV1.Result<unknown>;
+		try {
+			// `validate()` may return a promise, which is what allows async transforms. The
+			// error map keeps the wording Astro's schema errors use for Zod schemas.
+			patchZodStandardSchema(schema, errorMap);
+			result = await schema['~standard'].validate(data);
+		} catch (error) {
+			// `image()` cannot see the entry it is resolving for, so add the entry to its
+			// error here, where the collection and id are known.
+			if (error instanceof AstroError && error.name === AstroErrorData.ImageNotFound.name) {
+				throw new AstroError({
+					...AstroErrorData.ImageNotFound,
+					message: `**${entry.collection} → ${entry.id}** ${error.message}`,
+					location: {
+						file: entry._internal?.filePath,
+						line: 0,
+						column: 0,
+					},
+				});
+			}
+			throw error;
+		}
 		if (result.issues) {
 			throw new AstroError({
 				...AstroErrorData.InvalidContentEntryDataError,
@@ -485,6 +496,32 @@ export function isDeferredModule(viteId: string): boolean {
 	return flags.has(CONTENT_MODULE_FLAG);
 }
 
+/**
+ * The name of the first collection whose `schema`, or whose loader's `schema`, is not a
+ * Standard Schema validator. Returns `undefined` when every schema is valid.
+ */
+function firstInvalidCollectionSchema(
+	collections: ContentConfig['collections'],
+): string | undefined {
+	for (const [name, collection] of Object.entries(collections)) {
+		const schema = collection.schema;
+		if (schema !== undefined && typeof schema !== 'function' && !isStandardSchema(schema)) {
+			return name;
+		}
+		const loader = 'loader' in collection ? collection.loader : undefined;
+		if (
+			loader !== undefined &&
+			typeof loader === 'object' &&
+			'schema' in loader &&
+			loader.schema !== undefined &&
+			!isStandardSchema(loader.schema)
+		) {
+			return name;
+		}
+	}
+	return undefined;
+}
+
 async function loadContentConfig({
 	fs,
 	settings,
@@ -509,6 +546,13 @@ async function loadContentConfig({
 
 	const config = contentConfigParser(logger).safeParse(unparsedConfig);
 	if (config.success) {
+		const invalidCollection = firstInvalidCollectionSchema(config.data.collections);
+		if (invalidCollection !== undefined) {
+			throw new AstroError({
+				...AstroErrorData.InvalidCollectionSchemaError,
+				message: AstroErrorData.InvalidCollectionSchemaError.message(invalidCollection),
+			});
+		}
 		// Generate a digest of the config file so we can invalidate the cache if it changes
 		const hasher = await xxhash();
 		const digest = hasher.h64ToString(await fs.promises.readFile(configPathname, 'utf-8'));

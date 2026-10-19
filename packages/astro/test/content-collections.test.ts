@@ -283,9 +283,7 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = (e as Error).message;
 			}
-			// Entries are parsed through the Standard Schema interface, so this message is
-			// Zod's own wording.
-			assert.match(error!, /\*\*title\*\*: Invalid input: expected string, received undefined/);
+			assert.match(error!, /\*\*title\*\*: Required/);
 		});
 	});
 
@@ -324,6 +322,69 @@ describe('Content Collections', () => {
 			const h1 = $('h1');
 			assert.equal(h1.text(), 'Entries length: 0');
 			assert.equal(h1.attr('data-entries'), '[]');
+		});
+	});
+
+	describe('With an invalid schema', () => {
+		it('Throws for a collection schema that is not a Standard Schema validator', async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/content-collections-empty-dir/',
+				outDir: './dist/content-collections-invalid-schema/',
+			});
+			const reset = await fixture.editFile(
+				'src/content.config.ts',
+				`import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+
+const blog = defineCollection({
+	loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
+	schema: { title: 'string' },
+});
+
+export const collections = { blog };
+`,
+			);
+			let error: string | undefined;
+			try {
+				await fixture.build({ force: true });
+			} catch (e) {
+				error = (e as Error).message;
+			} finally {
+				reset();
+			}
+			assert.match(error!, /\*\*blog\*\* collection is not a valid schema/);
+		});
+
+		it('Throws for a loader schema that is not a Standard Schema validator', async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/content-collections-empty-dir/',
+				outDir: './dist/content-collections-invalid-loader-schema/',
+			});
+			const reset = await fixture.editFile(
+				'src/content.config.ts',
+				`import { defineCollection } from 'astro:content';
+
+const posts = defineCollection({
+	type: 'content_layer',
+	loader: {
+		name: 'invalid-schema-loader',
+		load: async () => {},
+		schema: { title: 'string' },
+	},
+});
+
+export const collections = { posts };
+`,
+			);
+			let error: string | undefined;
+			try {
+				await fixture.build({ force: true });
+			} catch (e) {
+				error = (e as Error).message;
+			} finally {
+				reset();
+			}
+			assert.match(error!, /\*\*posts\*\* collection is not a valid schema/);
 		});
 	});
 

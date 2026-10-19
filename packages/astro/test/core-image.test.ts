@@ -1028,6 +1028,7 @@ describe('content collection image errors', () => {
 			},
 			(error) => {
 				assert.ok(error instanceof Error);
+				assert.ok(error.message.includes('**blog → one**'), error.message);
 				assert.ok(
 					error.message.includes(
 						'Could not find requested image `./does-not-exist.jpg`. Does it exist?',

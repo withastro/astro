@@ -729,7 +729,7 @@ async function generateJSONSchema(
 	}
 
 	if (!hasJsonSchema(collectionSchema)) {
-		logger.debug(
+		logger.warn(
 			'content',
 			`The schema for the ${collectionKey} collection cannot be converted to JSON Schema, so no \`.schema.json\` file was generated for it. Its validator does not implement https://standardschema.dev/json-schema.`,
 		);

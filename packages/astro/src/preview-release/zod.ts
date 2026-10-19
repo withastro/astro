@@ -2,8 +2,13 @@
 // to ship the preview. Remove them, and their callers, once Zod ships its
 // `~standard.validate` fix: https://github.com/colinhacks/zod/issues/5137
 
+import type { $ZodErrorMap } from 'zod/v4/core';
+
 const patchedPrototypes = new WeakSet<object>();
 const patchedProps = new WeakSet<object>();
+
+/** Per-schema error map, so one caller's messages do not leak into another's schemas. */
+const schemaErrorMaps = new WeakMap<object, $ZodErrorMap>();
 
 interface StandardProps {
 	vendor?: string;
@@ -19,8 +24,9 @@ function makeValidate(schema: any, original: NonNullable<StandardProps['validate
 		// core entrypoint does not, so its `~standard.validate` is forced down its async
 		// branch instead, which parses once and finalizes the issues the same way.
 		if (typeof schema.safeParseAsync === 'function') {
+			const errorMap = schemaErrorMaps.get(schema);
 			return schema
-				.safeParseAsync(value)
+				.safeParseAsync(value, errorMap ? { error: errorMap } : undefined)
 				.then((parsed: any) =>
 					parsed.success ? { value: parsed.data } : { issues: parsed.error?.issues ?? [] },
 				);
@@ -76,13 +82,18 @@ function patchProps(schema: object, props: StandardProps) {
  * `$ZodAsyncError` as soon as it starts, and that run cannot be resumed, so Zod parses a
  * second time asynchronously. Every async transform then runs twice, and a rejecting one
  * fails with nothing awaiting it, which surfaces as an unhandled rejection. This replaces
- * `validate` with a single async pass and does not import Zod, so importing this helper
- * does not ship Zod to apps that never validate with it.
+ * `validate` with a single async pass and imports Zod as a type only, so importing this
+ * helper does not ship Zod to apps that never validate with it.
+ *
+ * An optional `errorMap` applies to this schema only, which lets a caller keep its own issue
+ * wording without changing the messages other callers get from their Zod schemas.
  */
-export function patchZodStandardSchema(schema: unknown): void {
+export function patchZodStandardSchema(schema: unknown, errorMap?: $ZodErrorMap): void {
 	if (typeof schema !== 'object' || schema === null) return;
 	const props = Reflect.get(schema, '~standard') as StandardProps | undefined;
 	if (!props || props.vendor !== 'zod' || typeof props.validate !== 'function') return;
+
+	if (errorMap) schemaErrorMaps.set(schema, errorMap);
 
 	const proto = Object.getPrototypeOf(schema);
 	if (proto && !patchedPrototypes.has(proto)) {
