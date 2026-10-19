@@ -5682,10 +5682,10 @@ importers:
   packages/integrations/netlify/test/development/fixtures/primitives:
     dependencies:
       '@astrojs/netlify':
-        specifier: workspace:8.2.7-beta.0
+        specifier: 'workspace:'
         version: link:../../../..
       astro:
-        specifier: workspace:7.4.0-beta.1
+        specifier: 'workspace:'
         version: link:../../../../../../astro
       sharp:
         specifier: ^0.35.0
@@ -5694,13 +5694,13 @@ importers:
   packages/integrations/netlify/test/functions/fixtures/cookies:
     dependencies:
       '@astrojs/netlify':
-        specifier: workspace:8.2.7-beta.0
+        specifier: 'workspace:'
         version: link:../../../..
 
   packages/integrations/netlify/test/functions/fixtures/includes:
     dependencies:
       '@astrojs/netlify':
-        specifier: workspace:8.2.7-beta.0
+        specifier: 'workspace:'
         version: link:../../../..
       cowsay:
         specifier: 1.6.0
@@ -5709,7 +5709,7 @@ importers:
   packages/integrations/netlify/test/functions/fixtures/middleware:
     dependencies:
       '@astrojs/netlify':
-        specifier: workspace:8.2.7-beta.0
+        specifier: 'workspace:'
         version: link:../../../..
       sharp:
         specifier: ^0.35.0
@@ -5718,7 +5718,7 @@ importers:
   packages/integrations/netlify/test/functions/fixtures/redirects:
     dependencies:
       '@astrojs/netlify':
-        specifier: workspace:8.2.7-beta.0
+        specifier: 'workspace:'
         version: link:../../../..
 
   packages/integrations/netlify/test/functions/fixtures/sessions:
@@ -5734,7 +5734,7 @@ importers:
   packages/integrations/netlify/test/functions/fixtures/skew-protection:
     dependencies:
       '@astrojs/netlify':
-        specifier: workspace:8.2.7-beta.0
+        specifier: 'workspace:'
         version: link:../../../..
       astro:
         specifier: workspace:*
@@ -5761,13 +5761,13 @@ importers:
   packages/integrations/netlify/test/static/fixtures/redirects:
     dependencies:
       '@astrojs/netlify':
-        specifier: workspace:8.2.7-beta.0
+        specifier: 'workspace:'
         version: link:../../../..
 
   packages/integrations/netlify/test/static/fixtures/static-headers:
     dependencies:
       '@astrojs/netlify':
-        specifier: workspace:8.2.7-beta.0
+        specifier: 'workspace:'
         version: link:../../../..
 
   packages/integrations/node:
