@@ -69,8 +69,44 @@ export function getTSXRangesAsLSPRanges(tsx: ConvertToTsxResult): LSPTSXRanges {
 	};
 }
 
+/**
+ * Rewrites the `Astro` global of components with generic `Props` from
+ * `AstroGlobal<Parameters<typeof Component>[0], …>` to `AstroGlobal<Props<any, …>, …>`.
+ *
+ * `Parameters<>` instantiates the type parameters with their constraints, which turns
+ * `Astro.props` of components using the `Polymorphic` type into a union of every allowed
+ * element's attributes that `<Tag {...props} />` can never satisfy.
+ * See https://github.com/withastro/astro/issues/18447
+ */
+function instantiateGenericPropsWithAny(tsx: ConvertToTsxResult): ConvertToTsxResult {
+	const match =
+		/function (\w+)<.*>\(_props: Props<([\w$, ]+)>\): any \{\}[\s\S]*?(Parameters<typeof \1>\[0\])/.exec(
+			tsx.code,
+		);
+	if (!match) return tsx;
+
+	const [, , typeParameters, parametersType] = match;
+	const replacement = `Props<${typeParameters
+		.split(',')
+		.map(() => 'any')
+		.join(', ')}>`;
+	const start = match.index + match[0].length - parametersType.length;
+	const delta = replacement.length - parametersType.length;
+	const shift = (offset: number) => (offset >= start ? offset + delta : offset);
+
+	return {
+		...tsx,
+		code: tsx.code.slice(0, start) + replacement + tsx.code.slice(start + parametersType.length),
+		mappings: tsx.mappings.map(([generatedOffset, ...rest]) => [shift(generatedOffset), ...rest]),
+		generatedComponentExport: tsx.generatedComponentExport && {
+			start: shift(tsx.generatedComponentExport.start),
+			end: shift(tsx.generatedComponentExport.end),
+		},
+	};
+}
+
 export function astro2tsx(input: string, fileName: string) {
-	const tsx = safeConvertToTSX(input, { filename: fileName });
+	const tsx = instantiateGenericPropsWithAny(safeConvertToTSX(input, { filename: fileName }));
 	const { virtualCode, generatedComponentExport } = getVirtualCodeTSX(tsx);
 
 	return {

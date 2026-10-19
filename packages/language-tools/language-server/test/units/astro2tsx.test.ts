@@ -59,4 +59,24 @@ describe('astro2tsx - virtual code mappings', () => {
 			ranges.scripts[0].content,
 		);
 	});
+
+	it('types Astro.props of generic components with any type arguments', () => {
+		// https://github.com/withastro/astro/issues/18447
+		const input = [
+			'---',
+			'type Props<T extends HTMLTag, U extends string = "x"> = Polymorphic<{ as: T }> & { u: U };',
+			'const { as: Tag, ...props } = Astro.props;',
+			'---',
+			'<Tag {...props} />',
+		].join('\n');
+
+		const { virtualCode, ranges } = astro2tsx(input, 'Card.astro');
+		const generated = virtualCode.snapshot.getText(0, virtualCode.snapshot.getLength());
+
+		assert.match(generated, /AstroGlobal<Props<any, any>, typeof CardAstroComponent>/);
+		assert.doesNotMatch(generated, /Parameters<typeof CardAstroComponent>/);
+
+		const exportLine = generated.split('\n')[ranges.generatedComponentExport!.start.line];
+		assert.equal(exportLine, 'export { CardAstroComponent as Card };');
+	});
 });
