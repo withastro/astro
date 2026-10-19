@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { beforeAll, bench, describe } from 'vitest';
+import { beforeAll, test } from 'vitest';
 
 /**
  * Rendering performance benchmarks targeting specific hot paths from RENDERING_PERF_PLAN.md.
@@ -43,69 +43,69 @@ beforeAll(async () => {
 
 // Non-streaming (prerender path) — this is the primary target for most optimizations
 // since it's the path where all the overhead is synchronous and measurable.
-describe('Rendering perf (non-streaming)', () => {
-	bench('many-components (markHTMLString, isHTMLString, validateProps)', async () => {
+test('Rendering perf (non-streaming)', async ({ bench }) => {
+	await bench('many-components (markHTMLString, isHTMLString, validateProps)', async () => {
 		const request = new Request(new URL('http://example.com/many-components'));
 		await nonStreamingApp.render(request);
-	});
+	}).run();
 
-	bench('many-expressions (renderChild dispatch, escapeHTML)', async () => {
+	await bench('many-expressions (renderChild dispatch, escapeHTML)', async () => {
 		const request = new Request(new URL('http://example.com/many-expressions'));
 		await nonStreamingApp.render(request);
-	});
+	}).run();
 
-	bench('many-head-elements (head dedup)', async () => {
+	await bench('many-head-elements (head dedup)', async () => {
 		const request = new Request(new URL('http://example.com/many-head-elements'));
 		await nonStreamingApp.render(request);
-	});
+	}).run();
 
-	bench('many-slots (eager slot prerendering)', async () => {
+	await bench('many-slots (eager slot prerendering)', async () => {
 		const request = new Request(new URL('http://example.com/many-slots'));
 		await nonStreamingApp.render(request);
-	});
+	}).run();
 
-	bench('large-array (BufferedRenderer per child)', async () => {
+	await bench('large-array (BufferedRenderer per child)', async () => {
 		const request = new Request(new URL('http://example.com/large-array'));
 		await nonStreamingApp.render(request);
-	});
+	}).run();
 
-	bench('static-heavy (markHTMLString baseline)', async () => {
+	await bench('static-heavy (markHTMLString baseline)', async () => {
 		const request = new Request(new URL('http://example.com/static-heavy'));
 		await nonStreamingApp.render(request);
-	});
+	}).run();
 
-	bench('head-propagation-1000 (propagator collection)', async () => {
+	await bench('head-propagation-1000 (propagator collection)', async () => {
 		const request = new Request(new URL('http://example.com/head-propagation-1000'));
 		await nonStreamingApp.render(request);
-	});
+	}).run();
 
-	bench('head-propagation-2000 (propagator collection, 2x scale)', async () => {
+	await bench('head-propagation-2000 (propagator collection, 2x scale)', async () => {
 		const request = new Request(new URL('http://example.com/head-propagation-2000'));
 		await nonStreamingApp.render(request);
-	});
+	}).run();
 });
 
 // Streaming path — included for comparison. Optimizations to the sync path
 // (#1, #2, #5, #6) should show up here too, but BufferedRenderer (#8) and
 // slot prerendering (#9) may behave differently.
-describe('Rendering perf (streaming)', () => {
-	bench('many-components [streaming]', async () => {
+test('Rendering perf (streaming)', async ({ bench }) => {
+	await bench('many-components [streaming]', async () => {
 		const request = new Request(new URL('http://example.com/many-components'));
 		await streamingApp.render(request);
-	});
+	}).run();
 
-	bench('many-expressions [streaming]', async () => {
+	await bench('many-expressions [streaming]', async () => {
 		const request = new Request(new URL('http://example.com/many-expressions'));
 		await streamingApp.render(request);
-	});
+	}).run();
 
-	bench('large-array [streaming]', async () => {
+	await bench('large-array [streaming]', async () => {
 		const request = new Request(new URL('http://example.com/large-array'));
 		await streamingApp.render(request);
-	});
+	}).run();
 
-	bench('head-propagation-2000 [streaming]', async () => {
+	await bench('head-propagation-2000 [streaming]', async () => {
 		const request = new Request(new URL('http://example.com/head-propagation-2000'));
 		await streamingApp.render(request);
-	});
+	}).run();
 });
