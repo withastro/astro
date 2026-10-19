@@ -61,7 +61,7 @@ describe('InferData()', () => {
 
 	it('infers a collection from a schema factory', () => {
 		expectTypeOf<InferData<ContentConfig>['withSchemaFactory']>().toEqualTypeOf<{
-			filePath: string;
+			filePath: string | undefined;
 		}>();
 	});
 
