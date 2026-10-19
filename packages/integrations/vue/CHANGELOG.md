@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 7.1.1
+
+### Patch Changes
+
+- [#18398](https://github.com/withastro/astro/pull/18398) [`9731465`](https://github.com/withastro/astro/commit/9731465409e58b1b4c4939cb7a866e184ed8e9bc) Thanks [@ump45nose](https://github.com/ump45nose)! - Fixes Vue SSR concatenating Astro slot HTML character by character when the slot value is a String object (Astro's SlotString). StaticHtml now coerces the value with `String(...)` before passing it to `innerHTML`.
+
 ## 7.1.0
 
 ### Minor Changes
