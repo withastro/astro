@@ -20,7 +20,7 @@ beforeAll(async () => {
 	nonStreamingApp = createApp(manifest, false);
 }, 900000);
 
-test('Bench rendering', async ({ bench }) => {
+test('Bench rendering', { timeout: 300000 }, async ({ bench }) => {
 	await bench('Rendering: streaming [true], .astro file', async () => {
 		const request = new Request(new URL('http://exmpale.com/astro'));
 		await streamingApp.render(request);

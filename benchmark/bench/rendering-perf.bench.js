@@ -43,7 +43,7 @@ beforeAll(async () => {
 
 // Non-streaming (prerender path) — this is the primary target for most optimizations
 // since it's the path where all the overhead is synchronous and measurable.
-test('Rendering perf (non-streaming)', async ({ bench }) => {
+test('Rendering perf (non-streaming)', { timeout: 300000 }, async ({ bench }) => {
 	await bench('many-components (markHTMLString, isHTMLString, validateProps)', async () => {
 		const request = new Request(new URL('http://example.com/many-components'));
 		await nonStreamingApp.render(request);
@@ -88,7 +88,7 @@ test('Rendering perf (non-streaming)', async ({ bench }) => {
 // Streaming path — included for comparison. Optimizations to the sync path
 // (#1, #2, #5, #6) should show up here too, but BufferedRenderer (#8) and
 // slot prerendering (#9) may behave differently.
-test('Rendering perf (streaming)', async ({ bench }) => {
+test('Rendering perf (streaming)', { timeout: 300000 }, async ({ bench }) => {
 	await bench('many-components [streaming]', async () => {
 		const request = new Request(new URL('http://example.com/many-components'));
 		await streamingApp.render(request);
