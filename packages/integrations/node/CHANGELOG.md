@@ -7,6 +7,12 @@
 - Updated dependencies [[`c68d737`](https://github.com/withastro/astro/commit/c68d737f2de8ef8d3c1c0ba455dccbf2563fa7da), [`c68d737`](https://github.com/withastro/astro/commit/c68d737f2de8ef8d3c1c0ba455dccbf2563fa7da)]:
   - astro@7.4.0-beta.0
 
+## 11.1.9
+
+### Patch Changes
+
+- [#18382](https://github.com/withastro/astro/pull/18382) [`c75e897`](https://github.com/withastro/astro/commit/c75e89711a4935a0befea6f768842f6d6a9de2bb) Thanks [@Llois41](https://github.com/Llois41)! - Fixes the standalone server not logging `Server listening on …` when `HOST` is an IP address, which happens on Node.js 26.12 and later
+
 ## 11.1.8
 
 ### Patch Changes

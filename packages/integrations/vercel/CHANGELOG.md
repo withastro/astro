@@ -7,6 +7,12 @@
 - Updated dependencies [[`c68d737`](https://github.com/withastro/astro/commit/c68d737f2de8ef8d3c1c0ba455dccbf2563fa7da), [`c68d737`](https://github.com/withastro/astro/commit/c68d737f2de8ef8d3c1c0ba455dccbf2563fa7da)]:
   - astro@7.4.0-beta.0
 
+## 11.0.16
+
+### Patch Changes
+
+- [#18411](https://github.com/withastro/astro/pull/18411) [`48ec171`](https://github.com/withastro/astro/commit/48ec171f7bed5dbd5477a4fd5216ef5b53a2eb3a) Thanks [@matthewp](https://github.com/matthewp)! - Uses the Vercel Bun runtime for serverless functions when the project is built with Bun (e.g. `bunx --bun astro build`)
+
 ## 11.0.15
 
 ### Patch Changes
