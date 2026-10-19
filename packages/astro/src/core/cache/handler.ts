@@ -1,6 +1,7 @@
 import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import type { SSRManifest } from '../app/types.js';
+import { attachCookiesToResponse, getCookiesFromResponse } from '../cookies/response.js';
 import { getEnvironment } from '../environment/index.js';
 import { createManifestMemo } from '../manifest/memo.js';
 import { getCacheProvider } from './provider.js';
@@ -108,7 +109,18 @@ export async function handleCache(
 				},
 			},
 			async () => {
-				const res = await next();
+				let res = await next();
+				// `next()` resolves once the streamed body starts, but layouts and
+				// components can still call `cache.set()` while the rest renders.
+				// When the response is going to be cached, the provider buffers the
+				// body anyway, so render it fully before reading the cache options.
+				// https://github.com/withastro/astro/issues/18453
+				if (state.request.method === 'GET' && res.body && (cache!.options.maxAge ?? 0) > 0) {
+					const buffered = new Response(await res.arrayBuffer(), res);
+					const cookies = getCookiesFromResponse(res);
+					if (cookies) attachCookiesToResponse(buffered, cookies);
+					res = buffered;
+				}
 				applyCacheHeaders(cache!, res, state.request);
 				return res;
 			},

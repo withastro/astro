@@ -2,7 +2,12 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import sessionMemoryDriver from 'unstorage/drivers/memory';
 import memoryProvider from '../../../dist/core/cache/memory-provider.js';
-import { createComponent, render, renderHead } from '../../../dist/runtime/server/index.js';
+import {
+	createComponent,
+	render,
+	renderComponent,
+	renderHead,
+} from '../../../dist/runtime/server/index.js';
 import { createEndpoint, createPage, createTestApp } from '../mocks.ts';
 import type { APIContext } from '../../../dist/types/public/context.js';
 
@@ -435,6 +440,44 @@ describe('context.cache through App pipeline', () => {
 			}),
 		);
 		assert.equal(frSecond.headers.get('X-Astro-Cache'), 'HIT');
+	});
+
+	it('stores tags set by components after rendering has awaited', async () => {
+		const child = createComponent(async (result: any, props: any, slots: any) => {
+			const Astro = result.createAstro(props, slots);
+			await new Promise((resolve) => setTimeout(resolve, 5));
+			Astro.cache.set({ tags: ['late'] });
+			return render`<p>child</p>`;
+		});
+		const page = createComponent((result: any, props: any, slots: any) => {
+			const Astro = result.createAstro(props, slots);
+			Astro.cache.set({ maxAge: 300 });
+			return render`<html><head>${renderHead()}</head><body>${renderComponent(result, 'Child', child, {})}<p>${Date.now()}</p></body></html>`;
+		});
+		const invalidateLate = createEndpoint(
+			{
+				POST: async (ctx: APIContext) => {
+					await ctx.cache.invalidate({ tags: ['late'] });
+					return new Response(null, { status: 204 });
+				},
+			},
+			{ route: '/invalidate-late' },
+		);
+		const app = createTestApp(
+			[createPage(page, { route: '/page' }), invalidateLate],
+			createCacheManifestOverrides(),
+		);
+
+		const first = await app.render(new Request('http://localhost/page'));
+		assert.equal(first.headers.get('X-Astro-Cache'), 'MISS');
+		assert.match(await first.text(), /<p>child<\/p>/);
+		const hit = await app.render(new Request('http://localhost/page'));
+		assert.equal(hit.headers.get('X-Astro-Cache'), 'HIT');
+
+		await app.render(new Request('http://localhost/invalidate-late', { method: 'POST' }));
+
+		const after = await app.render(new Request('http://localhost/page'));
+		assert.equal(after.headers.get('X-Astro-Cache'), 'MISS');
 	});
 });
 
