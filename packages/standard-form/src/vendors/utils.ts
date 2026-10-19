@@ -25,3 +25,9 @@ export class MissingDependencyError extends Error {
 		super(`standard-form: Missing dependencies "${packageName}".`);
 	}
 }
+
+export class UnsupportedSchemaError extends Error {
+	constructor(vendor: string, requirement: string) {
+		super(`standard-form: Unsupported schema for vendor "${vendor}". ${requirement}.`);
+	}
+}

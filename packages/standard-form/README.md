@@ -22,7 +22,7 @@ if (result.issues) {
 ```
 
 `FormData` is flat and stringly typed, and the Standard Schema spec deliberately covers
-validation only — not introspection. There is no portable way to ask a schema "is this
+validation only, not introspection. There is no portable way to ask a schema "is this
 field a number?", which is what turning `age=25` into `{ age: 25 }` requires. Each
 validator therefore contributes a handler that does the coercion; validation itself goes
 through the spec.

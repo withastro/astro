@@ -1,5 +1,5 @@
 import type * as zCore from 'zod/v4/core';
-import { MissingDependencyError, type ToFormInputFn } from './utils.js';
+import { MissingDependencyError, type ToFormInputFn, UnsupportedSchemaError } from './utils.js';
 
 /**
  * Zod's class hierarchy, resolved by the handler below before anything here can run.
@@ -19,7 +19,7 @@ export default async function (): Promise<ToFormInputFn> {
 		// Zod recommends branching on the schema rather than the installed version.
 		// https://zod.dev/library-authors#how-to-support-zod-3-and-zod-4-simultaneously
 		if (!isZodSchema(schema)) {
-			throw new MissingDependencyError('zod@^4');
+			throw new UnsupportedSchemaError('zod', 'Zod 4 and higher is required');
 		}
 		const baseSchema = unwrapBaseObjectSchema(schema, formData);
 		return baseSchema instanceof z.$ZodObject ? formDataToObject(formData, baseSchema) : formData;

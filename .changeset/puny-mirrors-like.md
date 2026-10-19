@@ -4,7 +4,7 @@
 
 Adds support for any [Standard Schema](https://standardschema.dev) validator in content collection schemas
 
-The `schema` of a collection is no longer required to be a Zod schema. Any validator implementing Standard Schema — Zod, Valibot, ArkType, and others — can now be used, and the type of `entry.data` is inferred from it:
+The `schema` of a collection is no longer required to be a Zod schema. Any validator implementing Standard Schema, such as Zod, Valibot, or ArkType, can now be used, and the type of `entry.data` is inferred from it:
 
 ```ts
 // src/content.config.ts

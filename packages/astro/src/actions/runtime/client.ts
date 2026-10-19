@@ -145,13 +145,11 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 		});
 		this.issues = zodIssues;
 		this.fields = {};
-		for (const issue of issues.map(toStandardSchemaIssue)) {
+		for (const issue of zodIssues) {
 			const segment = issue.path?.[0];
 			if (segment === undefined) continue;
-			// A segment is either a key or a `{ key }` object, depending on the validator.
-			const key = String(
-				typeof segment === 'object' ? segment.key : segment,
-			) as keyof typeof this.fields;
+			// `toZodIssue` already unwraps the `{ key }` segments Standard Schema allows.
+			const key = String(segment) as keyof typeof this.fields;
 			this.fields[key] ??= [];
 			this.fields[key]?.push(issue.message);
 		}
@@ -179,17 +177,6 @@ function toZodIssue(issue: z.$ZodIssue | StandardSchemaV1.Issue): z.$ZodIssue {
 			typeof segment === 'object' ? segment.key : segment,
 		),
 	} satisfies z.$ZodIssueCustom;
-}
-
-/**
- * Describes an issue as the Standard Schema issue that `fields` is built from. A Zod issue
- * already is one — it carries a `message` and a `path` of plain keys — so this only drops
- * the properties the spec does not describe.
- */
-function toStandardSchemaIssue(
-	issue: z.$ZodIssue | StandardSchemaV1.Issue,
-): StandardSchemaV1.Issue {
-	return { message: issue.message, path: issue.path };
 }
 
 export function deserializeActionResult(res: SerializedActionResult): SafeResult<any, any> {

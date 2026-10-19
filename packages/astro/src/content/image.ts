@@ -34,7 +34,7 @@ export type ContentImageField = {
 } & Partial<Omit<OmitBrand<ImageMetadata>, 'src' | 'fsPath'>>;
 
 /** The part of the schema context `image()` needs. */
-export type ImageContext = { filePath: string };
+export type ImageContext = { filePath?: string };
 
 /**
  * Resolves an image source the way read time does, so that Vite aliases and root-absolute
@@ -69,7 +69,7 @@ let baseResolver: ImageSourceResolver | undefined;
 /**
  * Installs `resolver` as the ambient resolver `image()` reads, for the duration of `run()`.
  *
- * The slot is process-wide (see `ContentLayer#doSync` for why it has to be), and syncs
+ * The slot is process-wide (see {@link ContentLayer#doSync} for why it has to be), and syncs
  * belonging to different `ContentLayer` instances can overlap, so the installs are tracked in
  * a stack instead of each sync restoring whatever it happened to find: one finishing after
  * another started would otherwise leave that other sync's resolver installed for good.
@@ -93,14 +93,14 @@ export async function withContentImageResolver<T>(
 	}
 }
 
-function imageNotFound(src: string): never {
+function throwImageNotFound(src: string): never {
 	throw new AstroError({
 		...AstroErrorData.ImageNotFound,
 		message: AstroErrorData.ImageNotFound.message(src),
 	});
 }
 
-function marker(src: string): ContentImageField {
+function createImageMarker(src: string): ContentImageField {
 	return { [IMAGE_FIELD_MARKER]: true, src: `${IMAGE_IMPORT_PREFIX}${src}` };
 }
 
@@ -143,11 +143,10 @@ export async function image(
 ): Promise<ContentImageField> {
 	const rawSrc = options?.src;
 	if (typeof rawSrc !== 'string') {
-		imageNotFound(String(rawSrc));
+		throwImageNotFound(String(rawSrc));
 	}
 
-	const entryFilePath = context?.filePath;
-	if (typeof entryFilePath !== 'string') {
+	if (typeof context !== 'object' || context === null) {
 		throw new AstroError({
 			...AstroErrorData.ImageNotFound,
 			title: 'Invalid `image()` usage.',
@@ -157,10 +156,15 @@ export async function image(
 		});
 	}
 
+	const entryFilePath = context.filePath;
 	// Remote sources have no file to read, and an entry whose loader gave no absolute path
 	// gives us nothing to resolve against.
-	if (rawSrc.includes('://') || !path.isAbsolute(entryFilePath)) {
-		return marker(rawSrc);
+	if (
+		rawSrc.includes('://') ||
+		typeof entryFilePath !== 'string' ||
+		!path.isAbsolute(entryFilePath)
+	) {
+		return createImageMarker(rawSrc);
 	}
 
 	// `./` and `../` are unambiguously file paths, never Vite aliases.
@@ -176,13 +180,13 @@ export async function image(
 		if (fsMod.existsSync(candidate)) {
 			const metadata = await probe(candidate);
 			if (!metadata) {
-				imageNotFound(rawSrc);
+				throwImageNotFound(rawSrc);
 			}
-			return { ...marker(isRelative ? rawSrc : `./${rawSrc}`), ...metadata };
+			return { ...createImageMarker(isRelative ? rawSrc : `./${rawSrc}`), ...metadata };
 		}
 		if (isRelative) {
 			// Nothing else is going to resolve `./missing.png`.
-			imageNotFound(rawSrc);
+			throwImageNotFound(rawSrc);
 		}
 	}
 
@@ -191,20 +195,20 @@ export async function image(
 	// instance — defer to read time as before rather than reporting a false negative.
 	const resolveSource = globalThis.astroAsset?.contentImageResolver;
 	if (!resolveSource) {
-		return marker(rawSrc);
+		return createImageMarker(rawSrc);
 	}
 
 	const resolvedPath = await resolveSource(rawSrc, entryFilePath);
 	if (!resolvedPath) {
-		imageNotFound(rawSrc);
+		throwImageNotFound(rawSrc);
 	}
 
 	const metadata = await probe(resolvedPath);
 	if (!metadata) {
-		imageNotFound(rawSrc);
+		throwImageNotFound(rawSrc);
 	}
 
 	// The source is stored unchanged: Vite resolves it again at read time, from the entry
 	// file, so an alias must stay an alias.
-	return { ...marker(rawSrc), ...metadata };
+	return { ...createImageMarker(rawSrc), ...metadata };
 }

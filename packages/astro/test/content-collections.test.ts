@@ -283,8 +283,8 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = (e as Error).message;
 			}
-			// Messages come from the validator itself now that entries are parsed through the
-			// Standard Schema interface, so this is Zod's own wording.
+			// Entries are parsed through the Standard Schema interface, so this message is
+			// Zod's own wording.
 			assert.match(error!, /\*\*title\*\*: Invalid input: expected string, received undefined/);
 		});
 	});

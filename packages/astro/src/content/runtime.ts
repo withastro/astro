@@ -808,7 +808,7 @@ export type ReferenceLookup = string | number | ReferenceField;
  *
  * Note what is *not* checked here: whether the entry exists. A reference may point at a
  * collection whose loader has not run yet, so existence is verified once every loader has
- * finished, by walking the store (`ContentLayer#validateReferences`).
+ * finished, by walking the store ({@link ContentLayer#validateReferences}).
  */
 function resolveReference(
 	collection: string,

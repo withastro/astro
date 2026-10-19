@@ -10,9 +10,9 @@ const inputSchema = z.object({
 	age: z.number(),
 });
 
-// `accept` is a literal at every call site because form and JSON actions no longer
-// take the same kind of schema: form actions are Zod-only, JSON actions accept any
-// Standard Schema validator.
+// `accept` is a literal at every call site because form and JSON actions take
+// different schema types: form actions are Zod-only, JSON actions accept any Standard
+// Schema validator.
 
 describe('ActionInputSchema', () => {
 	describe(`accept = 'form'`, () => {

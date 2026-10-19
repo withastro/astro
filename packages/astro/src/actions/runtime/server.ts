@@ -121,9 +121,9 @@ export function defineAction<
  *
  * @see https://docs.astro.build/en/guides/actions/
  */
-// Kept so that an `accept` that isn't a literal — forwarded from a wrapper, say — still
-// resolves. It is Zod-only, matching what such a call could accept before JSON actions
-// took any Standard Schema validator.
+// Resolves an `accept` that isn't a literal, such as one forwarded from a wrapper. The
+// fallback is Zod-only because a non-literal `accept` may be a form action, which still
+// takes a Zod schema.
 // TODO: remove in Astro 8, once form actions no longer take an input schema
 export function defineAction<
 	TOutput,

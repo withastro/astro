@@ -1,6 +1,6 @@
 // Temporary. This whole module, and the `preview-release` directory it lives in, exist only
 // to ship the preview. Remove them, and their callers, once Zod ships its
-// `~standard.validate` fix.
+// `~standard.validate` fix: https://github.com/colinhacks/zod/issues/5137
 
 const patchedPrototypes = new WeakSet<object>();
 const patchedProps = new WeakSet<object>();

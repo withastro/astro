@@ -414,8 +414,8 @@ async function getContentLayerSchema<T extends keyof ContentConfig['collections'
 
 /**
  * The type of one collection's entries in the generated `DataMap`. Every collection gets a
- * member, so that the collection names are known without resolving the config — see the note on
- * `InferCollectionData` in `astro/types/content.d.ts` — but the type behind each name is
+ * member, so that the collection names are known without resolving the config (see the note on
+ * {@link InferCollectionData} in `astro/types/content.d.ts`), but the type behind each name is
  * inferred from the config rather than written out, in all but two cases:
  *
  * - a collection that exists as a directory under `src/content/` but is missing from the
@@ -713,14 +713,11 @@ async function generateJSONSchema(
 		typeof collectionConfig.schema === 'function'
 			? collectionConfig.schema({
 					// The schema factory is called once per collection to get its shape, not to parse
-					// an entry, so there is no file to point at — and nothing reads this, since
-					// transforms do not run during conversion. `''` is the same sentinel
-					// `parseData()` uses for a loader that provides no path, and `image()` treats a
-					// non-absolute path as "nothing to resolve against". Naming a real file here —
-					// the content config, say — would be worse than naming none: `image()` resolves
-					// sources relative to the *entry*, so it would resolve against the wrong
-					// directory.
-					filePath: '',
+					// an entry, so the context has no file to point at. Transforms do not run during
+					// conversion, and `image()` treats a missing path as "nothing to resolve
+					// against". Naming a real file here (the content config, say) would be worse than
+					// naming none: `image()` resolves sources relative to the *entry*, so it would
+					// resolve against the wrong directory.
 					// Deprecated `({ image })` form. Only the input shape matters here, and an image
 					// is referenced by path in a data file.
 					image: () => z.string() as any,
