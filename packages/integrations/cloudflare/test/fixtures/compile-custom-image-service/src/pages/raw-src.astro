@@ -1,0 +1,7 @@
+---
+import { Image } from 'astro:assets';
+import kept from '../assets/kept.jpg';
+---
+
+<Image src={kept} width={50} alt="optimized" />
+<img id="raw" src={kept.src} alt="original" />

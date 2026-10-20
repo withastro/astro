@@ -1,9 +1,8 @@
 import type { Plugin as VitePlugin } from 'vite';
-import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import { addRolldownInput } from '../build/add-rolldown-input.js';
+import { pathToDirectoryURL } from '../build/common.js';
 import type { BuildInternals } from '../build/internal.js';
-import type { StaticBuildOptions } from '../build/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES, MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
 import { MissingMiddlewareForInternationalization } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
@@ -100,7 +99,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 					const code = `
 				${
 					userMiddlewareIsPresent
-						? `import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';`
+						? `import { onRequest as userOnRequest } from ${JSON.stringify(resolvedMiddlewareId)};`
 						: ''
 				}
 import { sequence } from 'astro:middleware';
@@ -132,7 +131,7 @@ function createMiddlewareImports(
 	let index = 0;
 	for (const entrypoint of entrypoints) {
 		const name = `_${prefix}_${index}`;
-		importsRaw += `import { onRequest as ${name} } from '${normalizePath(entrypoint)}';\n`;
+		importsRaw += `import { onRequest as ${name} } from ${JSON.stringify(normalizePath(entrypoint))};\n`;
 		sequenceRaw += `${index > 0 ? ',' : ''}${name}`;
 		index++;
 	}
@@ -143,10 +142,7 @@ function createMiddlewareImports(
 	};
 }
 
-export function vitePluginMiddlewareBuild(
-	opts: StaticBuildOptions,
-	internals: BuildInternals,
-): VitePlugin {
+export function vitePluginMiddlewareBuild(internals: BuildInternals): VitePlugin {
 	let canSplitMiddleware = true;
 	return {
 		name: '@astro/plugin-middleware-build',
@@ -170,7 +166,7 @@ export function vitePluginMiddlewareBuild(
 		writeBundle(_, bundle) {
 			for (const [chunkName, chunk] of Object.entries(bundle)) {
 				if (chunk.type !== 'asset' && chunk.facadeModuleId === MIDDLEWARE_RESOLVED_MODULE_ID) {
-					const outputDirectory = getServerOutputDirectory(opts.settings);
+					const outputDirectory = pathToDirectoryURL(this.environment.config.build.outDir);
 					internals.middlewareEntryPoint = new URL(chunkName, outputDirectory);
 				}
 			}

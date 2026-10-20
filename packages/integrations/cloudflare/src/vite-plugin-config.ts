@@ -12,10 +12,6 @@ const RESOLVED_VIRTUAL_CONFIG_ID = '\0' + VIRTUAL_CONFIG_ID;
 const PRERENDER_SCOPE_PATH = fileURLToPath(new URL('./utils/prerender-scope.js', import.meta.url));
 
 export interface CompileImageConfig {
-	base: string;
-	assetsPrefix: string | undefined;
-	imageServiceEntrypoint: string;
-	buildAssets: string;
 	transformWithBinding: boolean;
 }
 

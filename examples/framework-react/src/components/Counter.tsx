@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import React from 'react';
 import './Counter.css';
 
 export default function Counter({
 	children,
 	count: initialCount,
 }: {
-	children: JSX.Element;
+	children: React.JSX.Element;
 	count: number;
 }) {
-	const [count, setCount] = useState(initialCount);
+	const [count, setCount] = React.useState(initialCount);
 	const add = () => setCount((i) => i + 1);
 	const subtract = () => setCount((i) => i - 1);
 

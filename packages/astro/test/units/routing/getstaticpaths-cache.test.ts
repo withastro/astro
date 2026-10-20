@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it, beforeEach } from 'node:test';
 import type { ComponentInstance } from '../../../dist/types/astro.js';
+import { getProps } from '../../../dist/core/render/index.js';
 import { RouteCache, callGetStaticPaths } from '../../../dist/core/render/route-cache.js';
+import { stringifyParams } from '../../../dist/core/routing/params.js';
 import { SpyLogger } from '../test-utils.ts';
 import { dynamicPart, makeRoute } from './test-helpers.ts';
 
@@ -220,6 +222,60 @@ describe('getStaticPaths caching behavior', () => {
 			overwriteWarnings.length,
 			0,
 			'SSR should not log "route cache overwritten" on repeated calls',
+		);
+	});
+
+	it('calls getStaticPaths once when a partial cache entry misses the requested paths', async () => {
+		const route = makeRoute({
+			segments: [[dynamicPart('param')]],
+			trailingSlash: 'never',
+			route: '/[param]',
+			pathname: undefined,
+			type: 'page',
+			prerender: true,
+		});
+		const testMod = mod({
+			getStaticPaths: async () => {
+				callCount++;
+				return [
+					{ params: { param: 'a' }, props: { name: 'a' } },
+					{ params: { param: 'b' }, props: { name: 'b' } },
+					{ params: { param: 'c' }, props: { name: 'c' } },
+				];
+			},
+		});
+		const item = { params: { param: 'a' }, props: { name: 'a' } };
+		routeCache.set(route, {
+			mod: testMod,
+			staticPaths: Object.assign([item], {
+				keyed: new Map([[stringifyParams(item.params, route, 'never'), item]]),
+			}),
+			partial: true,
+		});
+		const options = {
+			mod: testMod,
+			routeData: route,
+			routeCache,
+			logger,
+			serverLike: false,
+			base: '/',
+			trailingSlash: 'never' as const,
+		};
+
+		assert.deepEqual(await getProps({ ...options, pathname: '/a' }), { name: 'a' });
+		assert.equal(callCount, 0);
+
+		const [b, c] = await Promise.all([
+			getProps({ ...options, pathname: '/b' }),
+			getProps({ ...options, pathname: '/c' }),
+		]);
+		assert.deepEqual(b, { name: 'b' });
+		assert.deepEqual(c, { name: 'c' });
+		assert.equal(callCount, 1);
+		assert.equal(routeCache.get(route)?.partial, undefined);
+		assert.equal(
+			logger.logs.filter((log) => log.message.includes('route cache overwritten')).length,
+			0,
 		);
 	});
 });

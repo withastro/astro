@@ -1,5 +1,24 @@
 # @astrojs/vercel
 
+## 11.0.16
+
+### Patch Changes
+
+- [#18411](https://github.com/withastro/astro/pull/18411) [`48ec171`](https://github.com/withastro/astro/commit/48ec171f7bed5dbd5477a4fd5216ef5b53a2eb3a) Thanks [@matthewp](https://github.com/matthewp)! - Uses the Vercel Bun runtime for serverless functions when the project is built with Bun (e.g. `bunx --bun astro build`)
+
+## 11.0.15
+
+### Patch Changes
+
+- Updated dependencies [[`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8)]:
+  - @astrojs/internal-helpers@0.13.0
+
+## 11.0.14
+
+### Patch Changes
+
+- [#18339](https://github.com/withastro/astro/pull/18339) [`fcc050c`](https://github.com/withastro/astro/commit/fcc050cdc60e03b3594f19f6e5418c94f2e40774) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes on-demand routes failing with "Cannot find native binding" on Vercel, caused by the serverless function loading `rolldown` at runtime
+
 ## 11.0.13
 
 ### Patch Changes

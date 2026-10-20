@@ -56,7 +56,7 @@ export function vitePluginCacheProvider({
 				}
 
 				return {
-					code: `import { default as _default } from '${resolved.id}';\nexport * from '${resolved.id}';\nexport default _default;`,
+					code: `import { default as _default } from ${JSON.stringify(resolved.id)};\nexport * from ${JSON.stringify(resolved.id)};\nexport default _default;`,
 				};
 			},
 		},

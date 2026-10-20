@@ -237,42 +237,36 @@ describe('isLockFileProcessAlive', () => {
 
 	it('returns false when the lock file PID matches the current process', async () => {
 		const data = { ...validData, pid: process.pid };
-		const findProcess = async () => [
-			{
-				pid: process.pid,
-				ppid: process.ppid,
-				name: 'node',
-				cmd: 'node /workspace/node_modules/astro/bin/astro.mjs dev',
-			},
-		];
+		const findProcess = async () => ({
+			pid: process.pid,
+			ppid: process.ppid,
+			name: 'node',
+			command: 'node /workspace/node_modules/astro/bin/astro.mjs dev',
+		});
 
 		assert.equal(await isLockFileProcessAlive(data, findProcess), false);
 	});
 
 	it('returns true when the recorded process command is Astro', async () => {
 		const data = { ...validData, pid: childPid };
-		const findProcess = async () => [
-			{
-				pid: childPid,
-				ppid: process.pid,
-				name: 'node',
-				cmd: 'node /workspace/node_modules/astro/bin/astro.mjs dev',
-			},
-		];
+		const findProcess = async () => ({
+			pid: childPid,
+			ppid: process.pid,
+			name: 'node',
+			command: 'node /workspace/node_modules/astro/bin/astro.mjs dev',
+		});
 
 		assert.equal(await isLockFileProcessAlive(data, findProcess), true);
 	});
 
 	it('returns false when the PID belongs to another command', async () => {
 		const data = { ...validData, pid: childPid };
-		const findProcess = async () => [
-			{
-				pid: childPid,
-				ppid: process.pid,
-				name: 'node',
-				cmd: 'node /app/server.mjs',
-			},
-		];
+		const findProcess = async () => ({
+			pid: childPid,
+			ppid: process.pid,
+			name: 'node',
+			command: 'node /app/server.mjs',
+		});
 
 		assert.equal(await isLockFileProcessAlive(data, findProcess), false);
 	});
@@ -280,7 +274,7 @@ describe('isLockFileProcessAlive', () => {
 	it('keeps the PID-only result when the command cannot be inspected', async () => {
 		const data = { ...validData, pid: childPid };
 
-		assert.equal(await isLockFileProcessAlive(data, async () => []), true);
+		assert.equal(await isLockFileProcessAlive(data, async () => undefined), true);
 		assert.equal(
 			await isLockFileProcessAlive(data, async () => {
 				throw new Error('Process lookup failed');
