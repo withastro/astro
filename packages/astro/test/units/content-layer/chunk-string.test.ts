@@ -90,6 +90,33 @@ describe('Content Layer - chunkString', () => {
 		assert.equal(parts.map(decodeAndEncode).join(''), family);
 	});
 
+	it('budgets code points on the 1/2/3/4-byte UTF-8 boundaries', () => {
+		// U+007F (1 byte), U+0080 (2), U+07FF (2), U+0800 (3), U+FFFF (3), U+10000 (4)
+		const str = '\u007f\u0080\u07ff\u0800\uffff\u{10000}';
+		assert.deepEqual(chunkString(str, 3), [
+			'\u007f\u0080',
+			'\u07ff',
+			'\u0800',
+			'\uffff',
+			'\u{10000}',
+		]);
+		for (const maxBytes of [1, 2, 4, 5, 6, 15]) {
+			const parts = chunkString(str, maxBytes);
+			for (const part of parts) {
+				assert.ok(utf8ByteLength(part) <= maxBytes || [...part].length === 1);
+			}
+			assert.equal(parts.join(''), str);
+		}
+	});
+
+	it('budgets a lone surrogate as the 3 bytes of its U+FFFD replacement', () => {
+		// A lone surrogate cannot be encoded as UTF-8; TextEncoder substitutes
+		// U+FFFD (3 bytes), so that is what the part must be budgeted for.
+		assert.deepEqual(chunkString('a\ud800b', 4), ['a\ud800', 'b']);
+		assert.deepEqual(chunkString('\udc00\ud800', 3), ['\udc00', '\ud800']);
+		assert.equal(utf8ByteLength('\ud800'), 3);
+	});
+
 	it('emits a single code point that exceeds the limit as its own part', () => {
 		const parts = chunkString('😀', 1);
 		assert.deepEqual(parts, ['😀']);

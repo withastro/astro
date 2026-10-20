@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers",
-  "version": "14.4.0",
+  "version": "14.4.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -66,7 +66,7 @@
     "cheerio": "1.2.0",
     "devalue": "^6.0.2",
     "tinyglobby": "^0.2.17",
-    "vitest": "4.1.11",
+    "vitest": "5.0.5",
     "wrangler": "^4.149.0"
   },
   "publishConfig": {

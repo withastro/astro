@@ -1,5 +1,13 @@
 # @astrojs/cloudflare
 
+## 14.4.1
+
+### Patch Changes
+
+- [#18351](https://github.com/withastro/astro/pull/18351) [`9669d81`](https://github.com/withastro/astro/commit/9669d811cb3e60c91d4eee7823222d6a34c1cb34) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `Cannot find package 'prismjs'` errors when `prismjs` isn't hoisted, such as with pnpm's global virtual store or `hoist=false`
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.4.0
 
 ### Minor Changes

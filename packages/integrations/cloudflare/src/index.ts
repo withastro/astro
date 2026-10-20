@@ -349,12 +349,19 @@ export default function createIntegration({
 									const isServerEnvironment = ['astro', 'ssr', 'prerender'].includes(
 										environmentName,
 									);
-									if (isServerEnvironment && !_options.optimizeDeps?.noDiscovery) {
-										// The prerender environment runs on Node when `prerenderEnvironment:
-										// 'node'`, where pre-bundling renderers would duplicate framework
-										// modules; only the workerd environments get the renderer entries.
-										const isNodePrerender =
-											prerenderEnvironment === 'node' && environmentName === 'prerender';
+									// With `prerenderEnvironment: 'node'` the prerender environment runs on
+									// Node and loads the dev server app from Astro's unbundled files.
+									// Pre-bundling Astro there would give user code (e.g. `astro/fetch` in
+									// `src/fetch.ts`) a second copy of Astro's module-scoped registries,
+									// which miss the dev environment and render through the production
+									// one (https://github.com/withastro/astro/issues/18457).
+									const isNodePrerender =
+										prerenderEnvironment === 'node' && environmentName === 'prerender';
+									if (
+										isServerEnvironment &&
+										!isNodePrerender &&
+										!_options.optimizeDeps?.noDiscovery
+									) {
 										return {
 											optimizeDeps: {
 												include: [
@@ -393,7 +400,7 @@ export default function createIntegration({
 													...(prebundleContentRuntime ? (['astro/content/runtime'] as const) : []),
 													'astro/compiler-runtime',
 													'astro/jsx-runtime',
-													...(isNodePrerender ? [] : rendererServerEntries),
+													...rendererServerEntries,
 													// Pre-bundled so a late discovery can't trigger a mid-request
 													// re-optimization (https://github.com/withastro/astro/issues/17921).
 													'astro/logger/console',
@@ -466,7 +473,7 @@ export default function createIntegration({
 										: null,
 								cacheProviderEnabled: needsWorkerCache,
 							}),
-							cfPrismPlugin(),
+							cfPrismPlugin(isTypeGenPhase),
 						],
 					},
 					image,

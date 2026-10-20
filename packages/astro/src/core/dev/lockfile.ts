@@ -134,7 +134,10 @@ export async function isLockFileProcessAlive(
 
 	try {
 		const processInfo = await find(data.pid);
-		return processInfo?.command === undefined || isAstroCommand(processInfo.command);
+		if (processInfo === undefined) {
+			return false;
+		}
+		return processInfo.command === undefined || isAstroCommand(processInfo.command);
 	} catch {
 		return true;
 	}
