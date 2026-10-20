@@ -1,5 +1,5 @@
 import nodePath from 'node:path';
-import { isRemotePath, removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
+import { hasFileExtension, isRemotePath, removeLeadingForwardSlash, appendForwardSlash, removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Redirect } from '@vercel/routing-utils';
 import type { AstroConfig, IntegrationResolvedRoute, RoutePart } from 'astro';
 
@@ -131,22 +131,19 @@ export function adjustSourceForTrailingSlash(
 	trailingSlash: AstroConfig['trailingSlash'],
 ): string {
 	if (trailingSlash === 'always') {
-		if (source === '/' || source.endsWith('/')) {
+		if (source === '/' || source.endsWith('/') || route.segments.some((segment) => segment.some((part) => part.spread))) {
 			return source;
 		}
-		if (route.segments.some((segment) => segment.some((part) => part.spread))) {
+		if (hasFileExtension(source)) {
 			return source;
 		}
-		if (source.slice(source.lastIndexOf('/') + 1).includes('.')) {
-			return source;
-		}
-		return `${source}/`;
+		return appendForwardSlash(source);
 	}
 	if (trailingSlash === 'never') {
-		if (source.length > 1 && source.endsWith('/')) {
-			return source.slice(0, -1);
+		if (source === '/') {
+			return source;
 		}
-		return source;
+		return removeTrailingForwardSlash(source);
 	}
 	return source;
 }
