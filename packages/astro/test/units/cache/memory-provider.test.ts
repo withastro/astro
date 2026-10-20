@@ -40,7 +40,7 @@ function makeNext({
 	tags,
 	headers = {},
 }: {
-	body?: string;
+	body?: string | null;
 	status?: number;
 	maxAge?: number;
 	swr?: number;
@@ -546,6 +546,33 @@ describe('memory-provider SWR', () => {
 		assert.equal(res3.headers.has('X-Astro-Cache'), false);
 		assert.equal(await res3.text(), 'fresh-body');
 	});
+
+	it('removes stale entries when revalidation returns an empty 404', async (t) => {
+		t.mock.timers.enable({ apis: ['Date'], now: 1_000 });
+		t.after(() => mock.timers.reset());
+		const provider = createProvider();
+		const url = 'http://localhost/page';
+		await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ maxAge: 1, swr: 60, body: 'stale-body' }),
+		);
+
+		t.mock.timers.tick(2_000);
+		const res2 = await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ maxAge: 60, status: 404, body: null }),
+		);
+		assert.equal(res2.headers.get('X-Astro-Cache'), 'STALE');
+		await new Promise((r) => setTimeout(r, 0));
+
+		const res3 = await provider.onRequest!(
+			makeContext(makeRequest(url)),
+			makeNext({ maxAge: 60, status: 404, body: null }),
+		);
+		assert.equal(res3.headers.has('X-Astro-Cache'), false);
+		assert.equal(res3.status, 404);
+		assert.equal(res3.body, null);
+	});
 });
 
 // #endregion
@@ -583,6 +610,28 @@ describe('memory-provider response body', () => {
 		const res2 = await provider.onRequest!(makeContext(req2), makeNext({ maxAge: 60 }));
 		assert.equal(res2.status, 201);
 	});
+
+	for (const status of [404, 500]) {
+		it(`does not cache empty ${status} responses that the router replaces with the error page`, async () => {
+			const provider = createProvider();
+			const url = 'http://localhost/page';
+
+			const res1 = await provider.onRequest!(
+				makeContext(makeRequest(url)),
+				makeNext({ maxAge: 60, status, body: null }),
+			);
+			assert.equal(res1.headers.has('X-Astro-Cache'), false);
+			assert.equal(res1.body, null);
+
+			const res2 = await provider.onRequest!(
+				makeContext(makeRequest(url)),
+				makeNext({ maxAge: 60, status, body: null }),
+			);
+			assert.equal(res2.headers.has('X-Astro-Cache'), false);
+			assert.equal(res2.status, status);
+			assert.equal(res2.body, null);
+		});
+	}
 
 	it('preserves response headers from cache (except Set-Cookie)', async () => {
 		const provider = createProvider();
