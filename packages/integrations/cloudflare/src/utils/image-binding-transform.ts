@@ -38,6 +38,9 @@ export async function transform(
 		}
 	} else {
 		content = await assets.fetch(imageSrc);
+		if (!content.ok) {
+			return new Response('Not Found', { status: 404 });
+		}
 	}
 
 	if (!content.body) {
