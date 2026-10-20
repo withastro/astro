@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 15.0.0-beta.3
+
+### Patch Changes
+
+- [#18462](https://github.com/withastro/astro/pull/18462) [`f170236`](https://github.com/withastro/astro/commit/f170236974c5f225950485942e78d97d4d501bdf) Thanks [@ematipico](https://github.com/ematipico)! - Updates the `@cloudflare/vite-plugin` to the latest. The dependency isn't pinned anymore.
+
 ## 15.0.0-beta.2
 
 ### Patch Changes
