@@ -21,8 +21,9 @@ async function runConfigSetup(
 	command: 'dev' | 'build' | 'sync',
 	loggerConfig?: { entrypoint: string },
 	cacheConfig?: { provider?: { name: string; entrypoint: string } },
+	adapterOptions?: Parameters<typeof cloudflare>[0],
 ) {
-	const integration = cloudflare();
+	const integration = cloudflare(adapterOptions);
 	let updatedConfig: { vite: { plugins: unknown[] } } | undefined;
 
 	const context = {
@@ -146,6 +147,18 @@ describe('type generation phase (build and sync)', () => {
 			});
 			const withCacheInclude = withCache.configEnvironment('ssr', {})?.optimizeDeps?.include ?? [];
 			assert.ok(withCacheInclude.includes('@astrojs/cloudflare/cache/provider'));
+		});
+
+		it('does not prebundle Astro for the Node prerender environment', async () => {
+			const { configEnvironment } = await runConfigSetup('dev', undefined, undefined, {
+				prerenderEnvironment: 'node',
+			});
+			// A pre-bundled `astro/fetch` in the Node prerender environment is a
+			// second copy of Astro next to the unbundled dev server app, so a custom
+			// `src/fetch.ts` renders through the production environment (#18457).
+			assert.equal(configEnvironment('prerender', {}), undefined);
+			const ssrInclude = configEnvironment('ssr', {})?.optimizeDeps?.include ?? [];
+			assert.ok(ssrInclude.includes('astro/fetch'));
 		});
 
 		it('only prebundles the JSON logger when it is enabled', async () => {
