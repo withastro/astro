@@ -461,7 +461,7 @@ describe('CSS', function () {
 			assert.equal(allInjectedStyles.includes('.vue-css{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-sass{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-scss{'), true);
-			assert.equal(allInjectedStyles.includes('.vue-scoped{'), true);
+			assert.match(allInjectedStyles, /\.vue-scoped\[data-v-[a-z0-9]+\]\{/);
 			assert.equal(allInjectedStyles.includes('._vueModules_'), true);
 		});
 
