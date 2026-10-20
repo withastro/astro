@@ -1,20 +1,7 @@
 import type * as zCore from 'zod/v4/core';
-import { MissingDependencyError, type ToFormInputFn, UnsupportedSchemaError } from './utils.js';
-
-/**
- * Zod's class hierarchy, resolved by the handler below before anything here can run.
- * It is held at module scope so that the helpers can use `instanceof` freely rather than
- * threading it through every call.
- */
-let z: typeof zCore;
+import { type ToFormInputFn, UnsupportedSchemaError } from './utils.js';
 
 export default async function (): Promise<ToFormInputFn> {
-	try {
-		z ??= await import('zod/v4/core');
-	} catch {
-		throw new MissingDependencyError('zod');
-	}
-
 	return (schema, formData) => {
 		// Zod recommends branching on the schema rather than the installed version.
 		// https://zod.dev/library-authors#how-to-support-zod-3-and-zod-4-simultaneously
@@ -22,12 +9,32 @@ export default async function (): Promise<ToFormInputFn> {
 			throw new UnsupportedSchemaError('zod', 'Zod 4 and higher is required');
 		}
 		const baseSchema = unwrapBaseObjectSchema(schema, formData);
-		return baseSchema instanceof z.$ZodObject ? formDataToObject(formData, baseSchema) : formData;
+		return hasZodType<zCore.$ZodObject>(baseSchema, 'object')
+			? formDataToObject(formData, baseSchema)
+			: formData;
 	};
 }
 
 function isZodSchema(schema: unknown): schema is zCore.$ZodType {
 	return typeof schema === 'object' && schema !== null && '_zod' in schema;
+}
+
+/**
+ * Narrows `schema` by its Zod kind.
+ *
+ * The kind lives on `_zod.def.type`, so the coercion can dispatch without importing
+ * Zod at runtime. This module ships whenever the form parser is bundled, including in
+ * apps that never validate a form with Zod.
+ */
+function hasZodType<T extends zCore.$ZodType>(
+	schema: unknown,
+	type: T['_zod']['def']['type'],
+): schema is T {
+	return isZodSchema(schema) && schema._zod.def.type === type;
+}
+
+function isDiscriminatedUnion(schema: zCore.$ZodType): schema is zCore.$ZodDiscriminatedUnion {
+	return schema._zod.def.type === 'union' && 'discriminator' in schema._zod.def;
 }
 
 /** Transform form data to an object based on a Zod schema. */
@@ -49,12 +56,15 @@ function formDataToObject<T extends zCore.$ZodObject>(
 		let validator = baseValidator;
 
 		while (
-			validator instanceof z.$ZodOptional ||
-			validator instanceof z.$ZodNullable ||
-			validator instanceof z.$ZodDefault
+			hasZodType<zCore.$ZodOptional>(validator, 'optional') ||
+			hasZodType<zCore.$ZodNullable>(validator, 'nullable') ||
+			hasZodType<zCore.$ZodDefault>(validator, 'default')
 		) {
 			// use default value when key is undefined
-			if (validator instanceof z.$ZodDefault && !formDataHasKeyOrPrefix(formKeys, prefixedKey)) {
+			if (
+				hasZodType<zCore.$ZodDefault>(validator, 'default') &&
+				!formDataHasKeyOrPrefix(formKeys, prefixedKey)
+			) {
 				obj[key] =
 					validator._zod.def.defaultValue instanceof Function
 						? validator._zod.def.defaultValue()
@@ -64,12 +74,12 @@ function formDataToObject<T extends zCore.$ZodObject>(
 		}
 
 		// Unwrap pipe (from .transform() / .pipe()) to find nested objects
-		while (validator instanceof z.$ZodPipe) {
+		while (hasZodType<zCore.$ZodPipe>(validator, 'pipe')) {
 			validator = validator._zod.def.in;
 		}
 
 		// Resolve nested discriminatedUnion to the matching variant
-		if (validator instanceof z.$ZodDiscriminatedUnion) {
+		if (isDiscriminatedUnion(validator)) {
 			const typeKey = validator._zod.def.discriminator;
 			const typeValue = formData.get(prefixedKey + '.' + typeKey);
 			if (typeof typeValue === 'string') {
@@ -82,22 +92,22 @@ function formDataToObject<T extends zCore.$ZodObject>(
 			}
 		}
 
-		if (validator instanceof z.$ZodObject) {
+		if (hasZodType<zCore.$ZodObject>(validator, 'object')) {
 			const nestedPrefix = prefixedKey + '.';
 			const hasNestedKeys = formKeys.some((k) => k.startsWith(nestedPrefix));
 			if (hasNestedKeys) {
 				obj[key] = formDataToObject(formData, validator, nestedPrefix);
 			} else if (!(key in obj)) {
 				// No nested keys and no default was set — respect optional/nullable
-				obj[key] = baseValidator instanceof z.$ZodNullable ? null : undefined;
+				obj[key] = hasZodType<zCore.$ZodNullable>(baseValidator, 'nullable') ? null : undefined;
 			}
 		} else if (!formData.has(prefixedKey) && key in obj) {
 			// continue loop if form input is not found and default value is set
 			continue;
-		} else if (validator instanceof z.$ZodBoolean) {
+		} else if (hasZodType<zCore.$ZodBoolean>(validator, 'boolean')) {
 			const val = formData.get(prefixedKey);
 			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(prefixedKey);
-		} else if (validator instanceof z.$ZodArray) {
+		} else if (hasZodType<zCore.$ZodArray>(validator, 'array')) {
 			obj[key] = handleFormDataGetAll(prefixedKey, formData, validator);
 		} else {
 			obj[key] = handleFormDataGet(prefixedKey, formData, validator, baseValidator);
@@ -115,9 +125,9 @@ function formDataHasKeyOrPrefix(formKeys: string[], key: string): boolean {
 function handleFormDataGetAll(key: string, formData: FormData, validator: zCore.$ZodArray) {
 	const entries = Array.from(formData.getAll(key));
 	const elementValidator = validator._zod.def.element;
-	if (elementValidator instanceof z.$ZodNumber) {
+	if (hasZodType<zCore.$ZodNumber>(elementValidator, 'number')) {
 		return entries.map(Number);
-	} else if (elementValidator instanceof z.$ZodBoolean) {
+	} else if (hasZodType<zCore.$ZodBoolean>(elementValidator, 'boolean')) {
 		return entries.map((v) => (v === 'true' ? true : v === 'false' ? false : Boolean(v)));
 	}
 	return entries;
@@ -131,16 +141,16 @@ function handleFormDataGet(
 ) {
 	const value = formData.get(key);
 	if (!value) {
-		return baseValidator instanceof z.$ZodOptional ? undefined : null;
+		return hasZodType<zCore.$ZodOptional>(baseValidator, 'optional') ? undefined : null;
 	}
-	return validator instanceof z.$ZodNumber ? Number(value) : value;
+	return hasZodType<zCore.$ZodNumber>(validator, 'number') ? Number(value) : value;
 }
 
 function unwrapBaseObjectSchema(schema: zCore.$ZodType, unparsedInput: FormData) {
-	if (schema instanceof z.$ZodPipe) {
+	if (hasZodType<zCore.$ZodPipe>(schema, 'pipe')) {
 		return unwrapBaseObjectSchema(schema._zod.def.in, unparsedInput);
 	}
-	if (schema instanceof z.$ZodDiscriminatedUnion) {
+	if (isDiscriminatedUnion(schema)) {
 		const typeKey = schema._zod.def.discriminator;
 		const typeValue = unparsedInput.get(typeKey);
 		if (typeof typeValue !== 'string') return schema;
