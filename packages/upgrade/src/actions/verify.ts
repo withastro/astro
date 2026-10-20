@@ -145,8 +145,9 @@ export async function resolveTargetVersion(
 	}
 	const { 'dist-tags': distTags, versions = {} } = await packageMetadata.json();
 	let version = distTags[packageInfo.targetVersion];
-	if (!version && versions[packageInfo.targetVersion]) {
-		// An exact published version is installed as-is, without a `^` prefix.
+	if (!version && packageInfo.name === 'astro' && versions[packageInfo.targetVersion]) {
+		// An exact version refers to an Astro release and is installed as-is, without a `^` prefix.
+		// Integrations are versioned independently, so a matching version string for them is unrelated.
 		version = packageInfo.targetVersion;
 	} else if (version) {
 		const currentCoerced = coerce(packageInfo.currentVersion);

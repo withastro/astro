@@ -145,6 +145,17 @@ describe('resolveTargetVersion', () => {
 		assert.equal(packageInfo.targetVersion, '^3.7.4');
 	});
 
+	it('does not pin integrations to an exact Astro version they happen to publish', async () => {
+		mockFetch({ latest: '12.6.0' }, { '6.0.0': {}, '12.5.0': {}, '12.6.0': {} });
+		const packageInfo: PackageInfo = {
+			name: '@astrojs/cloudflare',
+			currentVersion: '^12.5.0',
+			targetVersion: '6.0.0',
+		};
+		await resolveTargetVersion(packageInfo, 'https://registry.npmjs.org');
+		assert.equal(packageInfo.targetVersion, '^12.6.0');
+	});
+
 	it('falls back to latest when dist-tag does not exist', async () => {
 		mockFetch({ latest: '3.7.3' });
 		const packageInfo = {
