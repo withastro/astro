@@ -71,7 +71,17 @@ async function runConfigSetup(
 		options: Record<string, unknown>,
 	) => OptimizeDepsPatch | undefined;
 
-	return { cloudflareVitePlugins, configEnvironment };
+	const prismPlugin = plugins
+		.flat()
+		.find((plugin) => (plugin as Plugin)?.name === '@astrojs/cloudflare:prism') as
+		| Plugin
+		| undefined;
+	assert.ok(prismPlugin, 'expected the @astrojs/cloudflare:prism plugin');
+	const prismConfigEnvironment = prismPlugin.configEnvironment as unknown as (
+		environmentName: string,
+	) => OptimizeDepsPatch | undefined;
+
+	return { cloudflareVitePlugins, configEnvironment, prismConfigEnvironment };
 }
 
 describe('type generation phase (build and sync)', () => {
@@ -98,6 +108,11 @@ describe('type generation phase (build and sync)', () => {
 					);
 				}
 			});
+
+			it('does not add Prism languages to the ssr optimizeDeps include', async () => {
+				const { prismConfigEnvironment } = await runConfigSetup(command);
+				assert.equal(prismConfigEnvironment('ssr')?.optimizeDeps?.include, undefined);
+			});
 		});
 	}
 
@@ -122,6 +137,13 @@ describe('type generation phase (build and sync)', () => {
 			// entrypoints (#16933); losing them reintroduces mid-request discovery.
 			assert.ok(include.includes('astro/actions/runtime/entrypoints/server.js'));
 			assert.ok(include.includes('astro/actions/runtime/entrypoints/route.js'));
+		});
+
+		it('prebundles Prism languages for the ssr environment', async () => {
+			const { prismConfigEnvironment } = await runConfigSetup('dev');
+			assert.deepEqual(prismConfigEnvironment('ssr')?.optimizeDeps?.include, [
+				'prismjs/components/prism-*.js',
+			]);
 		});
 
 		it('prebundles astro/app/manifest for server environments', async () => {
