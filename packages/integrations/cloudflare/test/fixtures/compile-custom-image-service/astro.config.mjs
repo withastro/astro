@@ -6,7 +6,11 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	adapter: cloudflare({
 		imageService: 'compile',
-		prerenderEnvironment: 'node',
 	}),
 	output: 'static',
+	image: {
+		service: {
+			entrypoint: './src/image-service.ts',
+		},
+	},
 });
