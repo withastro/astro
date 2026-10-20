@@ -4,10 +4,12 @@ import { readFile } from 'node:fs/promises';
 import { color } from '@astrojs/cli-kit';
 import { coerce, difference, isGreaterThan, tryParse } from 'verkit';
 import { bannerAbort, error, getRegistry, info, newline } from '../messages.js';
+import { shell } from '../shell.js';
 import type { Context, PackageInfo } from './context.js';
 
 export async function verify(
-	ctx: Pick<Context, 'version' | 'packages' | 'cwd' | 'dryRun' | 'exit'>,
+	ctx: Pick<Context, 'version' | 'packages' | 'cwd' | 'dryRun' | 'exit'> &
+		Partial<Pick<Context, 'packageManager'>>,
 ) {
 	const registry = await getRegistry();
 
@@ -29,7 +31,8 @@ export async function verify(
 		ctx.exit(1);
 	}
 
-	const ok = await verifyVersions(ctx, registry);
+	const minReleaseAge = await getMinReleaseAge(ctx.packageManager?.name);
+	const ok = await verifyVersions(ctx, registry, minReleaseAge);
 	if (!ok) {
 		bannerAbort();
 		newline();
@@ -112,13 +115,40 @@ export function collectPackageInfo(
 	}
 }
 
+const MS_PER_MINUTE = 60_000;
+const MS_PER_DAY = 24 * 60 * MS_PER_MINUTE;
+
+/**
+ * Reads the package manager's release age policy (npm `min-release-age`, pnpm `minimum-release-age`)
+ * and returns it in milliseconds, or `undefined` if no policy is set.
+ */
+export async function getMinReleaseAge(
+	packageManager = 'npm',
+	shellFn: typeof shell = shell,
+): Promise<number | undefined> {
+	const configs: Record<string, { key: string; unit: number }> = {
+		npm: { key: 'min-release-age', unit: MS_PER_DAY },
+		pnpm: { key: 'minimum-release-age', unit: MS_PER_MINUTE },
+	};
+	const config = configs[packageManager];
+	if (!config) return undefined;
+	try {
+		const { stdout } = await shellFn(packageManager, ['config', 'get', config.key]);
+		const value = Number(stdout.trim());
+		return Number.isFinite(value) && value > 0 ? value * config.unit : undefined;
+	} catch {
+		return undefined;
+	}
+}
+
 async function verifyVersions(
 	ctx: Pick<Context, 'version' | 'packages' | 'exit'>,
 	registry: string,
+	minReleaseAge?: number,
 ) {
 	const tasks: Promise<void>[] = [];
 	for (const packageInfo of ctx.packages) {
-		tasks.push(resolveTargetVersion(packageInfo, registry));
+		tasks.push(resolveTargetVersion(packageInfo, registry, minReleaseAge));
 	}
 	try {
 		await Promise.all(tasks);
@@ -133,20 +163,56 @@ async function verifyVersions(
 	return true;
 }
 
+/**
+ * Returns the newest version of a package published at least `minReleaseAge` ms ago,
+ * no newer than `candidate`. Prereleases are only considered if `candidate` is one.
+ * Returns `candidate` if it is old enough or if no older version qualifies.
+ */
+function findReleaseOldEnough(
+	time: Record<string, string>,
+	candidate: string,
+	minReleaseAge: number,
+): string {
+	const cutoff = Date.now() - minReleaseAge;
+	const isOldEnough = (version: string) => {
+		const published = Date.parse(time[version]);
+		return Number.isFinite(published) && published <= cutoff;
+	};
+	if (isOldEnough(candidate)) return candidate;
+	const candidateParsed = tryParse(candidate);
+	const allowPrerelease = (candidateParsed?.prerelease?.length ?? 0) > 0;
+	let best: string | undefined;
+	let bestParsed: ReturnType<typeof tryParse> | undefined;
+	for (const version of Object.keys(time)) {
+		const parsed = tryParse(version);
+		if (!parsed || !isOldEnough(version)) continue;
+		if (!allowPrerelease && (parsed.prerelease?.length ?? 0) > 0) continue;
+		if (candidateParsed && isGreaterThan(parsed, candidateParsed)) continue;
+		if (!bestParsed || isGreaterThan(parsed, bestParsed)) {
+			best = version;
+			bestParsed = parsed;
+		}
+	}
+	return best ?? candidate;
+}
+
 export async function resolveTargetVersion(
 	packageInfo: PackageInfo,
 	registry: string,
+	minReleaseAge?: number,
 ): Promise<void> {
-	const packageMetadata = await fetch(`${registry}/${packageInfo.name}`, {
-		headers: { accept: 'application/vnd.npm.install-v1+json' },
-	});
+	// The abbreviated packument has no publish times, so the full one is needed with a release age policy.
+	const packageMetadata = await fetch(
+		`${registry}/${packageInfo.name}`,
+		minReleaseAge ? undefined : { headers: { accept: 'application/vnd.npm.install-v1+json' } },
+	);
 	if (packageMetadata.status >= 400) {
 		throw new Error(`Unable to resolve "${packageInfo.name}"`);
 	}
-	const { 'dist-tags': distTags } = await packageMetadata.json();
+	const { 'dist-tags': distTags, time = {} } = await packageMetadata.json();
+	const currentCoerced = coerce(packageInfo.currentVersion);
 	let version = distTags[packageInfo.targetVersion];
 	if (version) {
-		const currentCoerced = coerce(packageInfo.currentVersion);
 		const targetParsed = tryParse(version);
 		// If the dist-tag points to a version older than the installed one, fall back to latest.
 		if (currentCoerced && targetParsed && isGreaterThan(currentCoerced, targetParsed)) {
@@ -159,6 +225,20 @@ export async function resolveTargetVersion(
 	} else {
 		packageInfo.targetVersion = 'latest';
 		version = distTags.latest;
+	}
+	if (minReleaseAge) {
+		const eligible = findReleaseOldEnough(time, version, minReleaseAge);
+		if (eligible !== version) {
+			// The package manager would reject the newest version, so target the newest allowed one.
+			version = eligible;
+			packageInfo.tag = undefined;
+			const eligibleParsed = tryParse(eligible);
+			if (currentCoerced && eligibleParsed && !isGreaterThan(eligibleParsed, currentCoerced)) {
+				// Nothing newer than what's installed is allowed yet.
+				packageInfo.targetVersion = packageInfo.currentVersion;
+				return;
+			}
+		}
 	}
 	if (packageInfo.currentVersion === version) {
 		return;
