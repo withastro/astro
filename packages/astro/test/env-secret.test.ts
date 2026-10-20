@@ -78,7 +78,7 @@ describe('astro:env secret variables', () => {
 		// and must be treated as literal text when inlining env variables.
 		// See https://github.com/withastro/astro/issues/18329
 		process.env.KNOWN_SECRET = '5';
-		process.env.HOSTILE_VAR = 'a$`b$&c$\'d$1e';
+		process.env.HOSTILE_VAR = "a$`b$&c$'d$1e";
 		fixture = await loadFixture({
 			root: './fixtures/astro-env-server-secret/',
 			outDir: './dist/env-secret-hostile-env-variable/',
