@@ -134,8 +134,6 @@ export async function isLockFileProcessAlive(
 
 	try {
 		const processInfo = await find(data.pid);
-		// On Linux, kill(tid, 0) succeeds for thread IDs that process listings omit. (#18343)
-		// tinyps throws if inspection fails; a successful lookup with no match is stale.
 		if (processInfo === undefined) {
 			return false;
 		}
