@@ -466,7 +466,7 @@ export default function createIntegration({
 										: null,
 								cacheProviderEnabled: needsWorkerCache,
 							}),
-							cfPrismPlugin(),
+							cfPrismPlugin(isTypeGenPhase),
 						],
 					},
 					image,
