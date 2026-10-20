@@ -14,6 +14,12 @@ import { create as createAstroService } from './plugins/astro.js';
 import { create as createTypeScriptServices } from './plugins/typescript/index.js';
 import { getAstroInstall } from './utils.js';
 
+const volarCommon: typeof import('@volar/language-service/lib/utils/common.js') = createRequire(
+	require.resolve('@volar/kit'),
+)('@volar/language-service/lib/utils/common.js');
+let activeChecks = 0;
+let originalSleep = volarCommon.sleep;
+
 // Export those for downstream consumers
 export { Diagnostic, DiagnosticSeverity };
 
@@ -84,79 +90,69 @@ export class AstroCheck {
 			hints: 0,
 			fileResult: [],
 		};
-		for (const file of files) {
-			if (cancel()) {
-				result.status = 'cancelled';
-				return result;
-			}
-			const fileDiagnostics = await this.checkFile(file);
-
-			// Filter diagnostics based on the logErrors level
-			const fileDiagnosticsToPrint = fileDiagnostics.filter((diag) => {
-				const severity = diag.severity ?? DiagnosticSeverity.Error;
-				switch (logErrors?.level ?? 'hint') {
-					case 'error':
-						return severity <= DiagnosticSeverity.Error;
-					case 'warning':
-						return severity <= DiagnosticSeverity.Warning;
-					case 'hint':
-						return severity <= DiagnosticSeverity.Hint;
+		// Skip Volar's LSP cancellation wait in the CLI: https://github.com/withastro/astro/issues/18310
+		if (activeChecks++ === 0) {
+			originalSleep = volarCommon.sleep;
+			volarCommon.sleep = () => Promise.resolve();
+		}
+		try {
+			for (const file of files) {
+				if (cancel()) {
+					result.status = 'cancelled';
+					return result;
 				}
-			});
+				const fileDiagnostics = await this.linter.check(file);
 
-			if (fileDiagnostics.length > 0) {
-				const errorText = this.linter.printErrors(file, fileDiagnosticsToPrint);
-
-				if (logErrors !== undefined && errorText) {
-					console.info(errorText);
-				}
-
-				const fileSnapshot = this.linter.language.scripts.get(URI.file(file))?.snapshot;
-				const fileContent = fileSnapshot?.getText(0, fileSnapshot.getLength());
-
-				result.fileResult.push({
-					errors: fileDiagnostics,
-					fileContent: fileContent ?? '',
-					fileUrl: pathToFileURL(file),
-					text: errorText,
+				// Filter diagnostics based on the logErrors level
+				const fileDiagnosticsToPrint = fileDiagnostics.filter((diag) => {
+					const severity = diag.severity ?? DiagnosticSeverity.Error;
+					switch (logErrors?.level ?? 'hint') {
+						case 'error':
+							return severity <= DiagnosticSeverity.Error;
+						case 'warning':
+							return severity <= DiagnosticSeverity.Warning;
+						case 'hint':
+							return severity <= DiagnosticSeverity.Hint;
+					}
 				});
 
-				result.errors += fileDiagnostics.filter(
-					(diag) => diag.severity === DiagnosticSeverity.Error,
-				).length;
-				result.warnings += fileDiagnostics.filter(
-					(diag) => diag.severity === DiagnosticSeverity.Warning,
-				).length;
-				result.hints += fileDiagnostics.filter(
-					(diag) => diag.severity === DiagnosticSeverity.Hint,
-				).length;
+				if (fileDiagnostics.length > 0) {
+					const errorText = this.linter.printErrors(file, fileDiagnosticsToPrint);
+
+					if (logErrors !== undefined && errorText) {
+						console.info(errorText);
+					}
+
+					const fileSnapshot = this.linter.language.scripts.get(URI.file(file))?.snapshot;
+					const fileContent = fileSnapshot?.getText(0, fileSnapshot.getLength());
+
+					result.fileResult.push({
+						errors: fileDiagnostics,
+						fileContent: fileContent ?? '',
+						fileUrl: pathToFileURL(file),
+						text: errorText,
+					});
+
+					result.errors += fileDiagnostics.filter(
+						(diag) => diag.severity === DiagnosticSeverity.Error,
+					).length;
+					result.warnings += fileDiagnostics.filter(
+						(diag) => diag.severity === DiagnosticSeverity.Warning,
+					).length;
+					result.hints += fileDiagnostics.filter(
+						(diag) => diag.severity === DiagnosticSeverity.Hint,
+					).length;
+				}
+
+				result.fileChecked += 1;
 			}
 
-			result.fileChecked += 1;
-		}
-
-		result.status = 'completed';
-		return result;
-	}
-
-	/**
-	 * Checks a single file with `@volar/language-service`'s cancellation polling disabled.
-	 */
-	private async checkFile(file: string) {
-		// Before each diagnostics plugin, Volar's `provideDiagnostics` sleeps 10 ms so an LSP server
-		// can notice cancelled requests. `@volar/kit`'s checker never passes a cancellation token,
-		// so here the sleep only adds ~10 ms per file. Volar has no option to turn it off, so its
-		// internal `sleep` helper is swapped out for the duration of the check.
-		// https://github.com/withastro/astro/issues/18310
-		const volarCommon = createRequire(require.resolve('@volar/kit'))(
-			'@volar/language-service/lib/utils/common.js',
-		);
-		const originalSleep = volarCommon.sleep;
-		volarCommon.sleep = () => Promise.resolve();
-		try {
-			return await this.linter.check(file);
+			result.status = 'completed';
+			return result;
 		} finally {
-			volarCommon.sleep = originalSleep;
+			if (--activeChecks === 0) {
+				volarCommon.sleep = originalSleep;
+			}
 		}
 	}
 
