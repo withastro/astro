@@ -1,4 +1,3 @@
-import type { BuildInternals } from './internal.js';
 import type { PageBuildData, StylesheetAsset } from './types.js';
 import { makePageDataKey } from './plugins/util.js';
 
@@ -8,11 +7,11 @@ import { makePageDataKey } from './plugins/util.js';
  * @param route The route of the page, used to identify the page
  * @param component The component of the page, used to identify the page
  */
-export function getPageData(
-	internals: BuildInternals,
+export function getPageData<T = PageBuildData>(
+	internals: { pagesByKeys: Map<string, T> },
 	route: string,
 	component: string,
-): PageBuildData | undefined {
+): T | undefined {
 	let pageData = internals.pagesByKeys.get(makePageDataKey(route, component));
 	if (pageData) {
 		return pageData;

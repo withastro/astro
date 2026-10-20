@@ -1,7 +1,12 @@
 import type { FontFaceData, Provider } from 'unifont';
 import { createUnifont, defineFontProvider, type Unifont } from 'unifont';
 import type { FontResolver, Hasher, Storage } from '../definitions.js';
-import type { FontProvider, ResolvedFontFamily, ResolveFontOptions } from '../types.js';
+import type {
+	FontProperties,
+	FontProvider,
+	ResolvedFontFamily,
+	ResolveFontOptions,
+} from '../types.js';
 
 type NonEmptyProviders = [
 	Provider<string, Record<string, any>>,
@@ -38,6 +43,9 @@ export class UnifontFontResolver implements FontResolver {
 				async listFonts() {
 					return astroProvider.listFonts?.();
 				},
+				getFontProperties: astroProvider.getFontProperties
+					? async (familyName) => astroProvider.getFontProperties!({ familyName })
+					: undefined,
 			};
 		})(astroProvider.config);
 	}
@@ -116,6 +124,27 @@ export class UnifontFontResolver implements FontResolver {
 			[id],
 		);
 		return fonts;
+	}
+
+	async getFontProperties({
+		familyName,
+		provider,
+	}: {
+		familyName: string;
+		provider: FontProvider;
+	}): Promise<FontProperties | undefined> {
+		const properties = await this.#unifont.getFontProperties(familyName, [
+			UnifontFontResolver.idFromProvider({
+				hasher: this.#hasher,
+				provider,
+			}),
+		]);
+		if (!properties) {
+			return undefined;
+		}
+		// The provider name is an internal id, it's not useful to consumers
+		const { provider: _, ...rest } = properties;
+		return rest;
 	}
 
 	async listFonts({ provider }: { provider: FontProvider }): Promise<string[] | undefined> {

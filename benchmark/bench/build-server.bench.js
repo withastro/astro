@@ -1,18 +1,14 @@
 import { fileURLToPath } from 'node:url';
 import { build } from 'astro';
-import { bench, describe } from 'vitest';
+import { test } from 'vitest';
 
 const serverRoot = fileURLToPath(new URL('../static-projects/build-server', import.meta.url));
 
-describe('Bench build time', () => {
-	bench(
-		'Build: full server site',
-		async () => {
-			await build({
-				root: serverRoot,
-				logLevel: 'error',
-			});
-		},
-		{ timeout: 300000, iterations: 3 },
-	);
+test('Bench build time', { timeout: 300000 }, async ({ bench }) => {
+	await bench('Build: full server site', async () => {
+		await build({
+			root: serverRoot,
+			logLevel: 'error',
+		});
+	}).run({ iterations: 3 });
 });

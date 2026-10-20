@@ -1,5 +1,19 @@
 # @astrojs/vue
 
+## 7.1.1
+
+### Patch Changes
+
+- [#18398](https://github.com/withastro/astro/pull/18398) [`9731465`](https://github.com/withastro/astro/commit/9731465409e58b1b4c4939cb7a866e184ed8e9bc) Thanks [@ump45nose](https://github.com/ump45nose)! - Fixes Vue SSR concatenating Astro slot HTML character by character when the slot value is a String object (Astro's SlotString). StaticHtml now coerces the value with `String(...)` before passing it to `innerHTML`.
+
+## 7.1.0
+
+### Minor Changes
+
+- [#18277](https://github.com/withastro/astro/pull/18277) [`2715958`](https://github.com/withastro/astro/commit/2715958666b0a706b069d0592da3a070b3796a9b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases the minimum Node.js version to 22.22.0
+  
+  The minimum supported Node.js version is now 22.22.0, the latest Node.js 22 release supported by StackBlitz. This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+
 ## 7.0.3
 
 ### Patch Changes

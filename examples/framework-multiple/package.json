@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.22.0"
   },
   "scripts": {
     "dev": "astro dev",
@@ -13,15 +13,15 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/preact": "^6.0.6",
-    "@astrojs/react": "^7.0.1",
-    "@astrojs/solid-js": "^7.0.2",
-    "@astrojs/svelte": "^9.0.1",
-    "@astrojs/vue": "^7.0.3",
+    "@astrojs/preact": "^6.1.0",
+    "@astrojs/react": "^7.1.0",
+    "@astrojs/solid-js": "^7.1.0",
+    "@astrojs/svelte": "^9.1.0",
+    "@astrojs/vue": "^7.1.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "astro": "^7.3.8",
-    "preact": "^10.29.8",
+    "astro": "^7.4.1",
+    "preact": "^11.0.1",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "solid-js": "^1.9.17",

@@ -16,9 +16,13 @@ const StaticHtml = defineComponent({
 		},
 	},
 	setup({ name, value, hydrate }) {
-		if (!value) return () => null;
+		// Astro's SlotString is a String object (HTMLString), not a primitive.
+		// Vue's SSR buffer treats non-primitives as nested buffers and
+		// concatenates them character by character (#18392).
+		const html = value == null ? '' : String(value);
+		if (!html) return () => null;
 		let tagName = hydrate ? 'astro-slot' : 'astro-static-slot';
-		return () => h(tagName, { name, innerHTML: value });
+		return () => h(tagName, { name, innerHTML: html });
 	},
 });
 

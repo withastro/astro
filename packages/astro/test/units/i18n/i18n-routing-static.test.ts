@@ -40,6 +40,7 @@ describe('[SSG] i18n routing — prefix-always', () => {
 	};
 
 	const prerenderer = createMockPrerenderer({
+		'/': '<html><body><p>Root page</p></body></html>',
 		'/en/start': '<html><body><p>Start</p></body></html>',
 		'/pt/start': '<html><body><p>Oi essa e start</p></body></html>',
 		'/spanish/start': '<html><body><p>Espanol</p></body></html>',
@@ -70,6 +71,14 @@ describe('[SSG] i18n routing — prefix-always', () => {
 			'/en/start/index.html',
 		);
 		assert.ok(result.body.toString().includes('Start'));
+	});
+
+	it('keeps the default-locale root page when generating locale redirects', async () => {
+		const route = options.routesList.routes.find((r) => r.route === '/' && r.type === 'page');
+		assert.ok(route);
+		const result = await renderAndAssertPath(prerenderer, '/', route, options, '/index.html');
+		assert.ok(result.body.toString().includes('Root page'));
+		assert.ok(!result.body.toString().includes('http-equiv="refresh"'));
 	});
 
 	it('renders Portuguese start page at /pt/start/', async () => {
@@ -306,6 +315,42 @@ describe('[SSG] i18n routing — fallback (it → en, spanish → en)', () => {
 			logger: options.logger,
 		});
 		assert.equal(result, null);
+	});
+});
+
+describe('[SSG] i18n routing — custom redirect page route', () => {
+	let options: StaticBuildOptions;
+
+	before(async () => {
+		options = await createStaticBuildOptions({
+			pages: {
+				'src/pages/index.astro': createMockAstroSource('<p>Root</p>'),
+				'src/pages/3xx.astro': createMockAstroSource('<p>Redirect</p>'),
+			},
+			inlineConfig: {
+				experimental: { redirectPage: true },
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'it'],
+					routing: { prefixDefaultLocale: true },
+					fallback: { it: 'en' },
+				},
+			},
+		});
+	});
+
+	it('does not generate locale routes or fallbacks for /3xx', () => {
+		const redirectPage = options.routesList.routes.find((route) => route.route === '/3xx');
+		assert.ok(redirectPage);
+		assert.deepEqual(redirectPage.fallbackRoutes, []);
+		assert.equal(
+			options.routesList.routes.some((route) => route.route === '/en/3xx'),
+			false,
+		);
+		assert.equal(
+			options.routesList.routes.some((route) => route.route === '/it/3xx'),
+			false,
+		);
 	});
 });
 

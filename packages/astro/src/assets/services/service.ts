@@ -34,7 +34,7 @@ export function parseQuality(quality: string): string | number {
 	return result;
 }
 
-type ImageConfig<T> = Omit<AstroConfig['image'], 'service'> & {
+export type ImageConfig<T = Record<string, any>> = Omit<AstroConfig['image'], 'service'> & {
 	service: { entrypoint: string; config: T };
 	assetQueryParams?: URLSearchParams;
 };

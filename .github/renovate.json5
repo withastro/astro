@@ -203,12 +203,23 @@
       "matchManagers": ["npm"],
       "matchPackageNames": ["vite"]
     },
+    {
+      "groupName": "rolldown",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["rolldown"]
+    },
     // Must be updated in all packages at once: loading two different @playwright/test versions in
     // the same process throws, which breaks `knip` when it loads the Playwright configs.
     {
       "groupName": "@playwright/test",
       "matchManagers": ["npm"],
       "matchPackageNames": ["@playwright/test"]
+    },
+    // The CodSpeed Vitest plugin, its core, and Vitest itself move in lockstep, so bump them in one update.
+    {
+      "groupName": "@codspeed",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["@codspeed/vitest-plugin", "@codspeed/core", "vitest", "@vitest/*"]
     }
     //#endregion
   ],

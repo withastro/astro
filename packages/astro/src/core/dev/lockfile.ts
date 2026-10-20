@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, unlinkSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import findProcess from 'find-proc';
+import { getProcessInfo } from 'tinyps';
 import type { ResolvedServerUrls } from 'vite';
 
 export type ServerCommand = 'dev' | 'preview';
@@ -107,14 +107,10 @@ export function isAstroCommand(command: string): boolean {
 
 interface ProcessInfo {
 	pid: number;
-	cmd?: string;
+	command?: string;
 }
 
-type ProcessLookup = (
-	by: 'pid',
-	value: number,
-	options: { logLevel: 'error' },
-) => Promise<ProcessInfo[]>;
+type ProcessLookup = (pid: number) => Promise<ProcessInfo | undefined>;
 
 /**
  * Check whether the live process recorded in a lock file is still Astro.
@@ -122,7 +118,7 @@ type ProcessLookup = (
  */
 export async function isLockFileProcessAlive(
 	data: LockFileData,
-	find: ProcessLookup = findProcess,
+	find: ProcessLookup = getProcessInfo,
 ): Promise<boolean> {
 	// The current process cannot be the server recorded in the lock file — it hasn't
 	// started one yet. In Docker containers the PID namespace resets on restart, so the
@@ -137,14 +133,13 @@ export async function isLockFileProcessAlive(
 	}
 
 	try {
-		const processInfo = (await find('pid', data.pid, { logLevel: 'error' })).find(
-			({ pid }) => pid === data.pid,
-		);
-		// On Linux, process.kill(pid, 0) succeeds for thread-ids, but `ps -p <tid>`
-		// returns no row. Treat a missing row as stale rather than alive.
-		// See https://github.com/withastro/astro/issues/18343
-		if (processInfo === undefined) return false;
-		return isAstroCommand(processInfo.cmd);
+		const processInfo = await find(data.pid);
+		// On Linux, kill(tid, 0) succeeds for thread IDs that process listings omit. (#18343)
+		// tinyps throws if inspection fails; a successful lookup with no match is stale.
+		if (processInfo === undefined) {
+			return false;
+		}
+		return processInfo.command === undefined || isAstroCommand(processInfo.command);
 	} catch {
 		return true;
 	}
