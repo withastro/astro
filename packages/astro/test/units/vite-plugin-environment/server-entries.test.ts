@@ -68,6 +68,32 @@ describe('vite-plugin-environment server entries', () => {
 		}
 	});
 
+	it('does not exclude node-fetch from server dependency optimization', async () => {
+		const settings = await createBasicSettings();
+		const plugin = vitePluginEnvironment({
+			command: 'dev',
+			settings,
+			astroPkgsConfig: {
+				optimizeDeps: { include: [], exclude: [] },
+				ssr: { noExternal: [], external: [] },
+			},
+		});
+
+		const configEnvironment = getConfigEnvironmentHook(plugin);
+		assert.ok(configEnvironment, 'configEnvironment hook should exist');
+
+		const result = await configEnvironment.call(
+			{} as never,
+			'ssr',
+			{ optimizeDeps: { noDiscovery: false } },
+			{} as never,
+		);
+
+		// CJS deps like `cross-fetch` require `node-fetch`; leaving it external emits a bare
+		// `require()` that fails in workerd. https://github.com/withastro/astro/issues/18436
+		assert.ok(!result?.optimizeDeps?.exclude?.includes('node-fetch'));
+	});
+
 	it('does not set entries when noDiscovery is not false', async () => {
 		const settings = await createBasicSettings();
 		const plugin = vitePluginEnvironment({
