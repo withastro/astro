@@ -67,7 +67,7 @@ jobs:
       matrix:
         # windows-latest is still windows-2022 for some reason, even though the windows-2025 image is GA
         OS: [ubuntu-latest, windows-2025]
-        NODE_VERSION: [22]
+        NODE_VERSION: [22.23.4]
       fail-fast: true
     steps:
       # Disable crlf so all OS can share the same Turbo cache
@@ -85,7 +85,6 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
-          check-latest: true
           cache: "pnpm"
 
       - name: Install dependencies
@@ -161,7 +160,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, macos-14, windows-2025]
-        NODE_VERSION: [22, 24]
+        NODE_VERSION: [22.23.4, 24]
         TEST_SUITE:
           - { name: astro, script: 'pnpm run test:astro' }
           - { name: integrations, script: 'pnpm run test:integrations' }
@@ -170,9 +169,9 @@ jobs:
         # Windows and use one of the older Node versions.
         exclude:
           - os: macos-14
-            NODE_VERSION: 22
+            NODE_VERSION: 22.23.4
           - os: windows-2025
-            NODE_VERSION: 22
+            NODE_VERSION: 22.23.4
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -192,7 +191,6 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
-          check-latest: true
           cache: "pnpm"
 
       # Deno 2.9.6 dropped `--allow-scripts` from `deno eval`, which @netlify/edge-functions-dev passes to boot its dev server.
@@ -294,7 +292,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-2025]
-        NODE_VERSION: [22]
+        NODE_VERSION: [22.23.4]
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -312,7 +310,6 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
-          check-latest: true
           cache: "pnpm"
 
       - name: Install dependencies
@@ -334,7 +331,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-2025]
-        NODE_VERSION: [22]
+        NODE_VERSION: [22.23.4]
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
     steps:
@@ -351,7 +348,6 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
-          check-latest: true
           cache: "pnpm"
 
       - name: Checkout docs
