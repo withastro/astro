@@ -1,5 +1,32 @@
 # astro
 
+## 7.4.2
+
+### Patch Changes
+
+- [#18430](https://github.com/withastro/astro/pull/18430) [`dda9ec3`](https://github.com/withastro/astro/commit/dda9ec395c89a1420abb3b8f88b5c7f1f385f82e) Thanks [@Abhirup-99](https://github.com/Abhirup-99)! - Speeds up content sync with `experimental.collectionStorage: "chunked"` by computing each character's UTF-8 width from its code point instead of encoding every character through `TextEncoder`. On a store of ~44k entries this cuts the chunking step from about 60 seconds to well under a second, with byte-identical output.
+
+- [#18438](https://github.com/withastro/astro/pull/18438) [`5e0eaa4`](https://github.com/withastro/astro/commit/5e0eaa4415a9081efdaeb3d9af3717ce3226ad18) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `astro dev` with `@astrojs/cloudflare` failing with ``Calling `require` for "node-fetch"`` when a server dependency such as `cross-fetch` requires `node-fetch`
+
+- [#18376](https://github.com/withastro/astro/pull/18376) [`a4e201d`](https://github.com/withastro/astro/commit/a4e201d79f19caa6bf4222f42167aeb602c066e6) Thanks [@okxint](https://github.com/okxint)! - Fixes `astro dev` treating a stale lock file containing a Linux thread ID as a running Astro server. A successful process lookup with no matching PID now marks the lock as stale, preventing `astro dev stop` and `astro dev --force` from killing the unrelated process that owns the thread.
+
+- [#18467](https://github.com/withastro/astro/pull/18467) [`d1fb7d3`](https://github.com/withastro/astro/commit/d1fb7d36dad440c57d62b071e752ae220cca2baa) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the `defineConfig()` types for `i18n.defaultLocale`, `i18n.fallback`, and `i18n.domains` so they accept a custom locale's `path` instead of its `codes`, matching how Astro validates and uses these values
+
+- [#18475](https://github.com/withastro/astro/pull/18475) [`cf27e70`](https://github.com/withastro/astro/commit/cf27e70a9057ce29ade2a8a843bd9275a696e9ab) Thanks [@ematipico](https://github.com/ematipico)! - Bumps the minimum supported Node.js version to 22.23.4, which includes the fixes from the [October 2026 Node.js security releases](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases)
+  
+  This is a patch release because the [Node.js support and upgrade policy](https://docs.astro.build/en/upgrade-astro/#nodejs-support-and-upgrade-policies) allows the Core team to raise the minimum Maintenance LTS version in a patch release when a disclosed and fixed Node.js security flaw affects Astro.
+
+- [#18451](https://github.com/withastro/astro/pull/18451) [`7a0ba6f`](https://github.com/withastro/astro/commit/7a0ba6f48ebae256a1ce49de4f1c62c009ff94e2) Thanks [@DenisCDev](https://github.com/DenisCDev)! - Fixes `astro sync`, `astro check` and `astro build` replacing the optimized dependencies of a dev server running in the same project, which broke framework islands in that dev server until it was restarted with `--force`
+
+- [#18336](https://github.com/withastro/astro/pull/18336) [`e943003`](https://github.com/withastro/astro/commit/e943003259c3bb4d528d3d49c8ccd3eb8f84b8b5) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes inline styles in dev so that framework-transformed CSS is used, such as scoped styles and `v-bind()` in Vue single-file components
+
+- [#18399](https://github.com/withastro/astro/pull/18399) [`829fc00`](https://github.com/withastro/astro/commit/829fc00629ef715fc606b89c6e684ca93f9253b9) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a dev server error (`Could not find server component name`) for a `server:defer` island that imports `astro:actions` or `astro:config/server`, when its page was not the first island page loaded after starting the server
+
+- [#18330](https://github.com/withastro/astro/pull/18330) [`4db9e0d`](https://github.com/withastro/astro/commit/4db9e0d1e6a54c2300b96a0ff0cfaf5c188cecda) Thanks [@Samuteg](https://github.com/Samuteg)! - Fixes the `astro:env/server` virtual module being generated with invalid JS in dev when any environment variable contains `$` replacement patterns (`` $` ``, `$&`, `$'`, `$1`, …). The inlined env JSON was passed as a string to `String.replace`, so e.g. the `KITTY_PUBLIC_KEY` value set by default in Kitty terminals corrupted the module and broke dev with `Failed to parse source for import analysis`
+- Updated dependencies [[`cf27e70`](https://github.com/withastro/astro/commit/cf27e70a9057ce29ade2a8a843bd9275a696e9ab)]:
+  - @astrojs/telemetry@3.4.1
+  - @astrojs/markdown-satteri@0.4.5
+
 ## 7.4.1
 
 ### Patch Changes
