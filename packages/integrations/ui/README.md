@@ -49,6 +49,19 @@ The integration rewrites `.astro` source (parsed with `@astrojs/compiler-rs`) be
 
 The client runtime walks the document once. Instance markers build an element → instance ownership map (slot markers hand ownership back to the outer instance), and binding markers revive signals. Each scoped script then runs per instance of its component.
 
+## Example: 7GUIs Cells
+
+`test/fixtures/cells` implements [7GUIs Cells](https://eugenkiss.github.io/7guis/tasks#cells): a 26 × 100 spreadsheet with formulas (`=B1*C1`, `=sum(D1:D3)`), in-cell and formula-bar editing, keyboard navigation, error values and cycle detection.
+
+- Each cell is one `signal` (its formula) and one `computed` (its value). Dependencies between cells are whatever a formula reads, so there is no dependency graph or recalculation code.
+- The formula engine is plain TypeScript shared by the server and the client. The server renders computed values, so the sheet is readable before any JavaScript runs.
+- All 2,600 cells are set up with `scope.all('td[data-ref]')`, using `.text()` and `.class()` bindings. The client ships about 6 KB gzipped, including the formula engine.
+
+Building it turned up two things a real version should handle:
+
+- A `computed` that ends up reading itself through other cells gets a stale value from alien-signals instead of an error. The example checks for cycles from each formula's references before evaluating. A library-level answer (throwing on re-entrant reads) would be friendlier.
+- Events from an element inside a delegated container bubble to the container's handlers too. Here, the Enter that closes the cell editor also reopened it. Plain DOM rules, but easy to miss.
+
 ## Open questions
 
 - Queries are document-wide and then filtered by owner; a real version would query within each instance's top-level nodes.

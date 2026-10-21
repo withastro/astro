@@ -6356,6 +6356,15 @@ importers:
         specifier: ^8.3.4
         version: 8.3.4(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1)
 
+  packages/integrations/ui/test/fixtures/cells:
+    dependencies:
+      '@astrojs/ui':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/ui/test/fixtures/demo:
     dependencies:
       '@astrojs/ui':
