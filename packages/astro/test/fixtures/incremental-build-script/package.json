@@ -1,0 +1,9 @@
+{
+  "name": "@test/incremental-build-script",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "astro": "workspace:*"
+  }
+}

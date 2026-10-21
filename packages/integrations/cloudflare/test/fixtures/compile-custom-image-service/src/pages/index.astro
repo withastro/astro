@@ -1,0 +1,14 @@
+---
+import { Image } from 'astro:assets';
+import testImage from '../assets/test.jpg';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>compile-custom-image-service</title>
+	</head>
+	<body>
+		<Image src={testImage} width={100} alt="test" />
+	</body>
+</html>

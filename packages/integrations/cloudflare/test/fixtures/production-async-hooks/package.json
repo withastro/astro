@@ -1,0 +1,10 @@
+{
+  "name": "@test/cloudflare-production-async-hooks",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@astrojs/cloudflare": "workspace:*",
+    "astro": "workspace:*"
+  }
+}

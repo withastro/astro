@@ -1,0 +1,42 @@
+>---
+#^^^ source.astro comment
+>const view = 'Gallery';
+#^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.embedded.block.astro source.ts
+>---
+#^^^ source.astro comment
+>
+>{view === 'Gallery' ? (
+#^ source.astro punctuation.section.embedded.begin.astro
+# ^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.embedded.expression.astro source.tsx
+>  <script>
+#^^ source.astro meta.embedded.expression.astro source.tsx
+#  ^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+#   ^^^^^^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro meta.tag.start.astro entity.name.tag.astro
+#         ^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>    for (let index = 0; index < 10; index++) {
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro meta.embedded.block.astro source.js
+>      console.log(index);
+#^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro meta.embedded.block.astro source.js
+>    }
+#^^^^^^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro meta.embedded.block.astro source.js
+>  </script>
+#^^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro
+#  ^^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#    ^^^^^^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro entity.name.tag.astro
+#          ^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>) : null}
+#^^^^^^^^ source.astro meta.embedded.expression.astro source.tsx
+#        ^ source.astro punctuation.section.embedded.end.astro
+>
+>{view === 'Gallery' && <script>console.log("inline")</script>}
+#^ source.astro punctuation.section.embedded.begin.astro
+# ^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.embedded.expression.astro source.tsx
+#                       ^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+#                        ^^^^^^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro meta.tag.start.astro entity.name.tag.astro
+#                              ^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+#                               ^^^^^^^^^^^^^^^^^^^^^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro meta.embedded.block.astro source.js
+#                                                    ^^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#                                                      ^^^^^^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro entity.name.tag.astro
+#                                                            ^ source.astro meta.embedded.expression.astro source.tsx meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+#                                                             ^ source.astro punctuation.section.embedded.end.astro
+>

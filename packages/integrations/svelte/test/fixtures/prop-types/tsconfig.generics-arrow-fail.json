@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["types/generics/arrow-fail.astro", "types/generics/ArrowGeneric.svelte"]
+}

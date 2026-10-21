@@ -1,0 +1,20 @@
+---
+import { Font } from 'astro:assets';
+
+export async function getStaticPaths() {
+	return [
+		{ params: { slug: 'page-1' }, props: { title: 'Page 1' }, cacheKey: 'v1' },
+		{ params: { slug: 'page-2' }, props: { title: 'Page 2' }, cacheKey: 'v1' },
+	];
+}
+
+const { title } = Astro.props;
+---
+<html lang="en">
+	<head>
+		<Font cssVariable="--font-test" />
+	</head>
+	<body>
+		<h1>{title}</h1>
+	</body>
+</html>

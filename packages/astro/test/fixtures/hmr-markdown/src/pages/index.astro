@@ -1,0 +1,21 @@
+---
+import { getCollection } from 'astro:content';
+
+const [post] = await getCollection('blog');
+---
+<html>
+	<head>
+		<title>HMR Markdown</title>
+	</head>
+	<body>
+		<h1>Blog Posts</h1>
+		{post ? (
+			<>
+				<h2>{post.data.title}</h2>
+				<div id="post-body">{post.body}</div>
+			</>
+		) : (
+			<p data-empty>Empty</p>
+		)}
+	</body>
+</html>

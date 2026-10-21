@@ -1,0 +1,13 @@
+---
+// Its pattern also matches `/live`, which `isr.exclude` keeps out of the cache.
+export const prerender = false;
+---
+
+<html lang="en">
+	<head>
+		<title>{Astro.params.slug}</title>
+	</head>
+	<body>
+		<h1>{Astro.params.slug}</h1>
+	</body>
+</html>

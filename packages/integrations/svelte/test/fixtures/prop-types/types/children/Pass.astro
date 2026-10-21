@@ -1,0 +1,17 @@
+---
+import Arbitrary from './Arbitrary.svelte';
+import Explicit from './Explicit.svelte';
+import Implicit from './Implicit.svelte';
+import Optional from './Optional.svelte';
+import Multiple from './Multiple.svelte';
+---
+
+<Explicit> Hello World </Explicit>
+<Implicit> Hello World </Implicit>
+<Arbitrary children={123}></Arbitrary>
+<Optional />
+<Optional>Hello</Optional>
+<Multiple>
+    <p>First Child</p>
+    <p>Second Child</p>
+</Multiple>

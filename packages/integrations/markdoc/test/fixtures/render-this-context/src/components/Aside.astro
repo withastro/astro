@@ -1,0 +1,13 @@
+---
+interface Props {
+  title: string;
+  transformed?: string;
+}
+
+const { title, transformed } = Astro.props;
+---
+
+<aside data-aside data-transformed={transformed}>
+  {title.length > 0 && <h2 data-aside-title>{title}</h2>}
+  <slot />
+</aside>

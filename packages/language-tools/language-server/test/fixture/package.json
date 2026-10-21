@@ -1,0 +1,10 @@
+{
+	"name": "astro-language-server-test",
+	"private": true,
+	"devDependencies": {
+		"astro": "workspace:*"
+	},
+	"scripts": {
+		"sync": "astro sync"
+	}
+}
