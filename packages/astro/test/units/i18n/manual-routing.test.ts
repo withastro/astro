@@ -1021,6 +1021,22 @@ describe('redirectToFallback', () => {
 
 			assert.equal(response.headers.get('Location'), '/fr/page');
 		});
+
+		it('should handle fallback to a locale object with path', async () => {
+			const payload = createMiddlewarePayload({
+				locales: ['en', 'es', { path: 'french', codes: ['fr', 'fr-CA'] }],
+				defaultLocale: 'en',
+				fallback: { es: 'french' },
+				fallbackType: 'redirect',
+			});
+			const fallbackFn = redirectToFallback(payload);
+			const context = createManualRoutingContext({ pathname: '/es/page' });
+			const originalResponse = new Response(null, { status: 404 });
+
+			const response = await fallbackFn(context, originalResponse);
+
+			assert.equal(response.headers.get('Location'), '/french/page');
+		});
 	});
 
 	describe('edge cases', () => {
