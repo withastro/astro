@@ -85,6 +85,7 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
+          check-latest: true
           cache: "pnpm"
 
       - name: Install dependencies
@@ -191,6 +192,7 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
+          check-latest: true
           cache: "pnpm"
 
       # Deno 2.9.6 dropped `--allow-scripts` from `deno eval`, which @netlify/edge-functions-dev passes to boot its dev server.
@@ -310,6 +312,7 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
+          check-latest: true
           cache: "pnpm"
 
       - name: Install dependencies
@@ -348,6 +351,7 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
+          check-latest: true
           cache: "pnpm"
 
       - name: Checkout docs
