@@ -213,8 +213,9 @@ export async function finalizeI18n(
  *   routes of type `fallback`;
  * - an on-demand page reached through one of its `fallbackRoutes`, which
  *   renders with the `302` that `getDefaultStatusCode` assigns to such
- *   matches and no `Location`. A page that took over the response (an
- *   explicit redirect or status) is not a missing page and is served as is.
+ *   matches and no `Location` (#18473; the status stopped being consumed
+ *   in #15704). A page that took over the response (an explicit redirect or
+ *   status) is not a missing page and is served as is.
  */
 function isMissingLocalePage(state: FetchState, routeData: RouteData, response: Response): boolean {
 	if (state.responseRouteType === 'fallback') {

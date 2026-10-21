@@ -759,7 +759,7 @@ describe('i18n fallback rewrite with prerendered routes not in pageMap', () => {
 // An on-demand page reached through one of its i18n fallback routes renders
 // with the 302 that `getDefaultStatusCode` assigns to fallback matches. The
 // fallback logic must turn that render into the configured fallback instead of
-// serving it as a bodyful 302 without `Location`.
+// serving it as a bodyful 302 without `Location` (#18473).
 describe('i18n fallback for on-demand routes reached through a fallback route', () => {
 	const redirectingPage = createComponent((result, props, slots) => {
 		const Astro = result.createAstro(props, slots);
@@ -772,7 +772,10 @@ describe('i18n fallback for on-demand routes reached through a fallback route', 
 		return render`<h1 id="forbidden">Forbidden</h1>`;
 	});
 
-	function createFallbackApp(fallbackType: 'rewrite' | 'redirect', component = localePage) {
+	function createFallbackApp(
+		fallbackType: 'rewrite' | 'redirect',
+		{ component = localePage, base = '/' } = {},
+	) {
 		const livePage = createPage(component, { route: '/live' });
 		livePage.routeData.fallbackRoutes.push(
 			createRouteData({
@@ -787,7 +790,7 @@ describe('i18n fallback for on-demand routes reached through a fallback route', 
 			fallbackType,
 			fallback: { de: 'en' },
 		});
-		return createTestApp([livePage], { i18n });
+		return createTestApp([livePage], { i18n, base });
 	}
 
 	it('rewrites to the default locale page', async () => {
@@ -800,22 +803,29 @@ describe('i18n fallback for on-demand routes reached through a fallback route', 
 		assert.equal($('#path').text(), '/live');
 	});
 
-	it('redirects to the default locale page', async () => {
+	it('redirects to the default locale page and keeps the query string', async () => {
 		const app = createFallbackApp('redirect');
-		const res = await app.render(new Request('http://example.com/de/live'));
+		const res = await app.render(new Request('http://example.com/de/live?a=1'));
 		assert.equal(res.status, 302);
-		assert.equal(res.headers.get('Location'), '/live');
+		assert.equal(res.headers.get('Location'), '/live?a=1');
+	});
+
+	it('applies the fallback under a base path', async () => {
+		const app = createFallbackApp('redirect', { base: '/docs' });
+		const res = await app.render(new Request('http://example.com/docs/de/live'));
+		assert.equal(res.status, 302);
+		assert.equal(res.headers.get('Location'), '/docs/live');
 	});
 
 	it('keeps a redirect issued by the page', async () => {
-		const app = createFallbackApp('rewrite', redirectingPage);
+		const app = createFallbackApp('rewrite', { component: redirectingPage });
 		const res = await app.render(new Request('http://example.com/de/live'));
 		assert.equal(res.status, 302);
 		assert.equal(res.headers.get('Location'), '/de/success');
 	});
 
 	it('keeps a status set by the page', async () => {
-		const app = createFallbackApp('rewrite', forbiddenPage);
+		const app = createFallbackApp('rewrite', { component: forbiddenPage });
 		const res = await app.render(new Request('http://example.com/de/live'));
 		assert.equal(res.status, 403);
 	});
