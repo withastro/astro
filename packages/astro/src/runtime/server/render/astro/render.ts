@@ -10,6 +10,7 @@ import {
 } from '../common.js';
 import { promiseWithResolvers } from '../util.js';
 import { bufferPropagatedHead } from '../head-propagation/runtime.js';
+import { renderCspMetaTag } from '../head.js';
 import { renderStreaming } from '../streaming.js';
 import type { AstroComponentFactory } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
@@ -53,7 +54,19 @@ async function renderStreamToString(
 		},
 	};
 
+	// Components rendered after the head can still insert CSP hashes, so the `<meta>` content
+	// is only computed once the whole page is known (https://github.com/withastro/astro/issues/18479).
+	const cspMetaPlaceholder =
+		isPage && result.shouldInjectCspMetaTags && result.cspDestination === 'meta'
+			? `<!--astro-csp-meta-${crypto.randomUUID()}-->`
+			: undefined;
+	result._metadata.cspMetaPlaceholder = cspMetaPlaceholder;
+
 	await renderStreaming(templateResult, result, destination);
+
+	if (cspMetaPlaceholder) {
+		str = str.replace(cspMetaPlaceholder, () => renderCspMetaTag(result));
+	}
 
 	return str;
 }
