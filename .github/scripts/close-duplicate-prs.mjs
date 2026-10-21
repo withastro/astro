@@ -190,12 +190,15 @@ async function closeAfterMerge({ github, context, core }) {
 	const { owner, repo } = context.repo;
 	const mergedNumber = context.payload.pull_request.number;
 	const merged = await getPullRequest(github, owner, repo, mergedNumber);
-	const mergedIssues = new Set(merged.issues.map((issue) => issue.number));
+	const mergedIssues = new Set();
 	const permissionCache = new Map();
 	const candidates = new Map();
 
 	for (const issue of merged.issues) {
-		const { pullRequests } = await getIssueReferences(github, owner, repo, issue.number);
+		const { state, pullRequests } = await getIssueReferences(github, owner, repo, issue.number);
+		// A merge into another branch or a reopened issue leaves the issue open, so it is not fixed.
+		if (state !== 'CLOSED') continue;
+		mergedIssues.add(issue.number);
 		for (const pr of pullRequests) {
 			if (pr.number === mergedNumber || pr.state !== 'OPEN' || pr.isDraft) continue;
 			if (await isMaintainer({ github, owner, repo, pr, cache: permissionCache, core })) continue;
