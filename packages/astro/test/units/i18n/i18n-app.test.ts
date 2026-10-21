@@ -755,3 +755,48 @@ describe('i18n fallback rewrite with prerendered routes not in pageMap', () => {
 		assert.equal(res.status, 404, 'should return 404, not 500');
 	});
 });
+
+// #18473: an on-demand page requested through one of its i18n fallback routes
+// must be rewritten or redirected to the fallback locale.
+describe('i18n fallback for on-demand pages matched through fallbackRoutes', () => {
+	function createFallbackApp(fallbackType: 'redirect' | 'rewrite') {
+		const i18n = makeI18nConfig({
+			defaultLocale: 'en',
+			locales: ['en', 'es'],
+			strategy: 'pathname-prefix-other-locales' as RoutingStrategies,
+			fallbackType,
+			fallback: { es: 'en' },
+		});
+		const livePage = createPage(localePage, { route: '/live' });
+		livePage.routeData.fallbackRoutes.push(
+			createRouteData({
+				route: '/es/live',
+				component: livePage.routeData.component,
+				type: 'fallback',
+			}),
+		);
+		return createTestApp([livePage], { i18n });
+	}
+
+	it('rewrites to the fallback locale page with fallbackType "rewrite"', async () => {
+		const app = createFallbackApp('rewrite');
+		const res = await app.render(new Request('http://example.com/es/live'));
+		assert.equal(res.status, 200);
+		assert.equal(res.headers.get('Location'), null);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#path').text(), '/live');
+	});
+
+	it('redirects to the fallback locale page with fallbackType "redirect"', async () => {
+		const app = createFallbackApp('redirect');
+		const res = await app.render(new Request('http://example.com/es/live?a=1'));
+		assert.equal(res.status, 302);
+		assert.equal(res.headers.get('Location'), '/live?a=1');
+	});
+
+	it('renders the source page normally', async () => {
+		const app = createFallbackApp('redirect');
+		const res = await app.render(new Request('http://example.com/live'));
+		assert.equal(res.status, 200);
+	});
+});

@@ -127,7 +127,7 @@ export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): A
 	// shims (e.g. `createI18nMiddleware`) can find per-request state.
 	const pipeline = createBasicPipeline();
 	const state = new FetchState(pipeline.manifest, request);
-	state.routeData = { prerender: isPrerendered } as any;
+	state.routeData = { prerender: isPrerendered, pattern: /^/, fallbackRoutes: [] } as any;
 	// If the test provides a mock rewrite, override the FetchState's
 	// rewrite method so it doesn't go through the real Rewrites handler.
 	if (overrides.rewrite) {

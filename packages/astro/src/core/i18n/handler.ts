@@ -167,7 +167,14 @@ export async function finalizeI18n(
 		// The fallback sentinel (X-Astro-Route-Type: fallback, status 500) signals
 		// that the render pipeline couldn't find this page in the current locale.
 		// Treat it as a 404 so computeFallbackRoute will apply fallback logic.
-		const effectiveStatus = state.responseRouteType === 'fallback' ? 404 : response.status;
+		// On-demand pages have no standalone fallback route: a request for a
+		// missing localized page matches the source page through its
+		// `fallbackRoutes` and renders it as-is, so treat that as a 404 too (#18473).
+		const isFallbackMatch =
+			!routeData.pattern.test(url.pathname) &&
+			routeData.fallbackRoutes.some((fallbackRoute) => fallbackRoute.pattern.test(url.pathname));
+		const effectiveStatus =
+			state.responseRouteType === 'fallback' || isFallbackMatch ? 404 : response.status;
 		const fallbackDecision = computeFallbackRoute({
 			pathname: url.pathname,
 			responseStatus: effectiveStatus,
