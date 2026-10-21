@@ -59,10 +59,6 @@ jobs:
           pr-title: "[ci] release"
           github-token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
 
-      # Derives the released-package cohort from the package.json version bumps in the
-      # "[ci] release" commit (diff vs its parent). The result is the same on every run of
-      # that commit, and drives the announcement, VS Code/OpenVSX publishing, and dispatch
-      # steps below. Commits with any other subject produce no cohort, so fixture edits,
       # Outputs a list of package.json version bumps in commits with the "[ci] release"
       # commit message for use in subsequent steps.
       - name: Detect release cohort
