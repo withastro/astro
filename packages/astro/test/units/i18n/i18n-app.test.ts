@@ -755,3 +755,68 @@ describe('i18n fallback rewrite with prerendered routes not in pageMap', () => {
 		assert.equal(res.status, 404, 'should return 404, not 500');
 	});
 });
+
+// An on-demand page reached through one of its i18n fallback routes renders
+// with the 302 that `getDefaultStatusCode` assigns to fallback matches. The
+// fallback logic must turn that render into the configured fallback instead of
+// serving it as a bodyful 302 without `Location`.
+describe('i18n fallback for on-demand routes reached through a fallback route', () => {
+	const redirectingPage = createComponent((result, props, slots) => {
+		const Astro = result.createAstro(props, slots);
+		return Astro.redirect('/de/success');
+	});
+
+	const forbiddenPage = createComponent((result, props, slots) => {
+		const Astro = result.createAstro(props, slots);
+		Astro.response.status = 403;
+		return render`<h1 id="forbidden">Forbidden</h1>`;
+	});
+
+	function createFallbackApp(fallbackType: 'rewrite' | 'redirect', component = localePage) {
+		const livePage = createPage(component, { route: '/live' });
+		livePage.routeData.fallbackRoutes.push(
+			createRouteData({
+				route: '/de/live',
+				type: 'fallback',
+				component: livePage.routeData.component,
+			}),
+		);
+		const i18n = makeI18nConfig({
+			locales: ['en', 'de'],
+			strategy: 'pathname-prefix-other-locales' as RoutingStrategies,
+			fallbackType,
+			fallback: { de: 'en' },
+		});
+		return createTestApp([livePage], { i18n });
+	}
+
+	it('rewrites to the default locale page', async () => {
+		const app = createFallbackApp('rewrite');
+		const res = await app.render(new Request('http://example.com/de/live'));
+		assert.equal(res.status, 200);
+		assert.equal(res.headers.has('Location'), false);
+		const $ = cheerio.load(await res.text());
+		assert.equal($('#locale').text(), 'de');
+		assert.equal($('#path').text(), '/live');
+	});
+
+	it('redirects to the default locale page', async () => {
+		const app = createFallbackApp('redirect');
+		const res = await app.render(new Request('http://example.com/de/live'));
+		assert.equal(res.status, 302);
+		assert.equal(res.headers.get('Location'), '/live');
+	});
+
+	it('keeps a redirect issued by the page', async () => {
+		const app = createFallbackApp('rewrite', redirectingPage);
+		const res = await app.render(new Request('http://example.com/de/live'));
+		assert.equal(res.status, 302);
+		assert.equal(res.headers.get('Location'), '/de/success');
+	});
+
+	it('keeps a status set by the page', async () => {
+		const app = createFallbackApp('rewrite', forbiddenPage);
+		const res = await app.render(new Request('http://example.com/de/live'));
+		assert.equal(res.status, 403);
+	});
+});
