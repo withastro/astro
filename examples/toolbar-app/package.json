@@ -19,7 +19,7 @@
     "astro": "^7.4.1"
   },
   "engines": {
-    "node": ">=22.22.0"
+    "node": ">=22.23.4"
   },
   "allowScripts": {
     "esbuild": true

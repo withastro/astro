@@ -53,7 +53,7 @@
     }
   },
   "engines": {
-    "node": ">=22.22.0"
+    "node": ">=22.23.4"
   },
   "publishConfig": {
     "provenance": true
