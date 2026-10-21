@@ -1,5 +1,12 @@
 # @astrojs/markdown-satteri
 
+## 0.4.5
+
+### Patch Changes
+
+- Updated dependencies [[`cf27e70`](https://github.com/withastro/astro/commit/cf27e70a9057ce29ade2a8a843bd9275a696e9ab)]:
+  - @astrojs/prism@4.1.1
+
 ## 0.4.4
 
 ### Patch Changes
