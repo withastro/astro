@@ -48,6 +48,53 @@ export function emitClientAsset(
 	return handle;
 }
 
+// Handles of assets emitted with emitServerAsset(), which must stay in the
+// server output even if they are also referenced as client assets.
+const serverAssetHandlesByEnvironment = new WeakMap<Environment, Set<string>>();
+
+/**
+ * Gets or creates the server asset handle set for an environment
+ */
+export function getServerHandles(env: Environment): Set<string> {
+	let handles = serverAssetHandlesByEnvironment.get(env);
+	if (!handles) {
+		handles = new Set();
+		serverAssetHandlesByEnvironment.set(env, handles);
+	}
+	return handles;
+}
+
+/**
+ * Resets the server asset handle tracking for an environment.
+ * Called at the start of each build.
+ */
+export function resetServerHandles(env: Environment): void {
+	serverAssetHandlesByEnvironment.set(env, new Set());
+}
+
+/**
+ * Emit a server-only asset: a file that ships with the server build and is
+ * never copied to the client directory, for server code to read at runtime
+ * (for example with `fs.readFile(new URL('./data.bin', import.meta.url))`).
+ * Use this instead of pluginContext.emitFile for assets that must stay
+ * private and next to the server code, even if they are also referenced as
+ * client assets.
+ *
+ * Only meaningful in server environments; in a client build it is the same as
+ * pluginContext.emitFile.
+ */
+export function emitServerAsset(
+	pluginContext: Rolldown.PluginContext,
+	options: EmitFileOptions,
+): string {
+	const env = (pluginContext as Rolldown.PluginContext & { environment: Environment }).environment;
+	const handle = pluginContext.emitFile(options);
+
+	getServerHandles(env).add(handle);
+
+	return handle;
+}
+
 export const ASSETS_ESM_PLUGIN_NAME = 'astro:assets:esm';
 
 export interface AssetsPluginApi {

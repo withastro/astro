@@ -144,6 +144,11 @@ async function createManifest(
 		}
 	}
 
+	// Server-only assets are never served (they are not in the client output)
+	for (const asset of internals.serverOnlyAssets) {
+		internals.staticFiles.delete(asset);
+	}
+
 	const staticFiles = internals.staticFiles;
 	const encodedKey = await encodeKey(await buildOpts.key);
 	const manifest = await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
