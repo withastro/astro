@@ -211,6 +211,25 @@ describe('I18nRouter', () => {
 				'/new-site/about',
 			);
 		});
+
+		it('only removes the locale segment when the base contains the default locale code', () => {
+			const configWithBase = makeI18nRouterConfig({
+				strategy: 'pathname-prefix-other-locales',
+				defaultLocale: 'en',
+				locales: ['en', 'es'],
+				base: '/entry',
+			});
+			const routerWithBase = new I18nRouter(configWithBase);
+			const context = makeRouterContext({ currentLocale: 'en' });
+
+			const result: I18nRouterMatch = routerWithBase.match('/entry/en/about', context);
+
+			assert.equal(result.type, 'notFound');
+			assert.equal(
+				(result as Extract<I18nRouterMatch, { type: 'notFound' }>).location,
+				'/entry/about',
+			);
+		});
 	});
 
 	describe('strategy: pathname-prefix-always-no-redirect', () => {

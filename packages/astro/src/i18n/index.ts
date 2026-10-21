@@ -11,6 +11,7 @@ import { i18nNoLocaleFoundInPath, MissingLocale } from '../core/errors/errors-da
 import { AstroError } from '../core/errors/index.js';
 import type { AstroConfig, Locales, ValidRedirectStatus } from '../types/public/config.js';
 import type { APIContext } from '../types/public/context.js';
+import { computeFallbackRoute } from './fallback.js';
 import { createI18nMiddleware } from './middleware.js';
 import { normalizeTheLocale, pathHasLocale } from './path.js';
 
@@ -107,7 +108,13 @@ export function getLocaleAbsoluteUrl({ site, isBuild, ...rest }: GetLocaleAbsolu
 	let url;
 	if (isBuild && domains && domains[locale]) {
 		const base = domains[locale];
-		url = joinPaths(base, localeUrl.replace(`/${rest.locale}`, ''));
+		// Match a whole segment: the base may contain the locale code as a substring (e.g. `/estore/es`).
+		const segments = localeUrl.split('/');
+		const localeIndex = segments.indexOf(rest.locale);
+		if (localeIndex !== -1) {
+			segments.splice(localeIndex, 1);
+		}
+		url = joinPaths(base, segments.join('/'));
 	} else {
 		if (localeUrl === '/') {
 			url = site || '/';
@@ -332,48 +339,27 @@ export function redirectToFallback({
 	fallbackType,
 }: MiddlewarePayload) {
 	return async function (context: APIContext, response: Response): Promise<Response> {
-		if (response.status === 404 && fallback) {
-			const fallbackKeys = fallback ? Object.keys(fallback) : [];
-			// we split the URL using the `/`, and then check in the returned array we have the locale
-			const segments = context.url.pathname.split('/');
-			const urlLocale = segments.find((segment) => {
-				for (const locale of locales) {
-					if (typeof locale === 'string') {
-						if (locale === segment) {
-							return true;
-						}
-					} else if (locale.path === segment) {
-						return true;
-					}
-				}
-				return false;
-			});
-
-			if (urlLocale && fallbackKeys.includes(urlLocale)) {
-				const fallbackLocale = fallback[urlLocale];
-				// the user might have configured the locale using the granular locales, so we want to retrieve its corresponding path instead
-				const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
-				let newPathname: string;
-				// If a locale falls back to the default locale, we want to **remove** the locale because
-				// the default locale doesn't have a prefix
-				if (pathFallbackLocale === defaultLocale && strategy === 'pathname-prefix-other-locales') {
-					if (context.url.pathname.includes(`${base}`)) {
-						newPathname = context.url.pathname.replace(`/${urlLocale}`, ``);
-					} else {
-						newPathname = context.url.pathname.replace(`/${urlLocale}`, `/`);
-					}
-				} else {
-					newPathname = context.url.pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
-				}
-
-				if (fallbackType === 'rewrite') {
-					return await context.rewrite(newPathname + context.url.search);
-				} else {
-					return context.redirect(newPathname + context.url.search);
-				}
-			}
+		if (!fallback) {
+			return response;
 		}
-		return response;
+		const result = computeFallbackRoute({
+			pathname: context.url.pathname,
+			responseStatus: response.status,
+			currentLocale: context.currentLocale,
+			fallback,
+			fallbackType,
+			locales,
+			defaultLocale,
+			strategy,
+			base,
+		});
+		if (result.type === 'none') {
+			return response;
+		}
+		if (result.type === 'rewrite') {
+			return await context.rewrite(result.pathname + context.url.search);
+		}
+		return context.redirect(result.pathname + context.url.search);
 	};
 }
 
