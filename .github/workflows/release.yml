@@ -60,7 +60,7 @@ jobs:
           github-token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
 
       # On a re-run after npm already received the versions, changesets publishes nothing new
-      # and its `published`/`publishedPackages` outputs are empty, so any downstream work gated
+      # and its `published`/`published-packages` outputs are empty, so any downstream work gated
       # on them would be skipped while the run turns green. The version bumps for this release
       # live in the release commit itself, so the cohort is rebuilt from the commit diff on
       # retries. Only the squash-merged "[ci] release" version PR commit bumps package versions;
@@ -72,7 +72,7 @@ jobs:
           HAS_VSCODE=false
           COHORT=""
           if [ "${{ steps.changesets.outputs.published }}" = "true" ]; then
-            PAYLOAD='${{ steps.changesets.outputs.publishedPackages }}'
+            PAYLOAD='${{ steps.changesets.outputs.published-packages }}'
             HAS_RELEASE=true
           elif git log -1 --format=%s HEAD | grep -q '^\[ci\] release'; then
             # Nothing was published, so this is a re-run (or the same commit on another branch):
@@ -111,7 +111,7 @@ jobs:
           else
             PAYLOAD=""
           fi
-          if echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null 2>&1 \
+          if echo '${{ steps.changesets.outputs.published-packages }}' | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null 2>&1 \
              || { [ -n "$COHORT" ] && echo "$COHORT" | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null 2>&1; }; then
             HAS_VSCODE=true
           fi
