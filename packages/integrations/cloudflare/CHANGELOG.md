@@ -1,5 +1,62 @@
 # @astrojs/cloudflare
 
+## 14.4.2
+
+### Patch Changes
+
+- [#18422](https://github.com/withastro/astro/pull/18422) [`07700d4`](https://github.com/withastro/astro/commit/07700d41fef1e5872b80d25e4226da867eca1c6f) Thanks [@cyface](https://github.com/cyface)! - Fixes the `/_image` endpoint returning a 500 error when `href` points to a missing file or a file that isn't an image. It now responds with a 404 or 400 instead.
+
+- [#18465](https://github.com/withastro/astro/pull/18465) [`f31f143`](https://github.com/withastro/astro/commit/f31f143b1b40b147c3b8c8db51a6dd431be2f529) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a custom `src/fetch.ts` rendering truncated pages without islands or hoisted scripts in `astro dev` when `prerenderEnvironment: 'node'` is set
+
+- [#18461](https://github.com/withastro/astro/pull/18461) [`8b77891`](https://github.com/withastro/astro/commit/8b77891ad30732a5385ada97bf5075b83a2e8f3d) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes options passed to `sharpImageService()` being ignored when generating images at build time with `imageService: 'compile'`
+
+- [#18468](https://github.com/withastro/astro/pull/18468) [`119263a`](https://github.com/withastro/astro/commit/119263a84f74ead8212cdc339f8da9552e4ddfd9) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `astro sync`, `astro check`, and `astro build` overwriting the dependency cache of a running `astro dev` server, which caused it to fail with "The file does not exist ... in the optimize deps directory" errors
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.4.1
+
+### Patch Changes
+
+- [#18351](https://github.com/withastro/astro/pull/18351) [`9669d81`](https://github.com/withastro/astro/commit/9669d811cb3e60c91d4eee7823222d6a34c1cb34) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `Cannot find package 'prismjs'` errors when `prismjs` isn't hoisted, such as with pnpm's global virtual store or `hoist=false`
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.4.0
+
+### Minor Changes
+
+- [#18177](https://github.com/withastro/astro/pull/18177) [`7d814e5`](https://github.com/withastro/astro/commit/7d814e5ac3e7c84b4e4fd4e6c7cc6820f553742c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Reworks image processing on prerendered pages to use Astro's built-in image pipeline. Requires `astro@^7.4.0`
+  
+  Images on prerendered pages now behave the same as on other adapters. Images optimized with the Cloudflare Images binding are now properly cached between builds, and image options such as `assetQueryParams` and `build.assetsPrefix` are applied the same way as everywhere else.
+
+### Patch Changes
+
+- Updated dependencies [[`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8)]:
+  - @astrojs/internal-helpers@0.13.0
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.3.4
+
+### Patch Changes
+
+- [#18213](https://github.com/withastro/astro/pull/18213) [`1e5523d`](https://github.com/withastro/astro/commit/1e5523d4be1dc009051eb1d95585da546322610e) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the `globalThis.process` shim being prepended to client-side scripts. The shim is now only added to the server output.
+
+- [#18253](https://github.com/withastro/astro/pull/18253) [`78dca00`](https://github.com/withastro/astro/commit/78dca0053467840f5ad0b79b5350b218ccedc3a7) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the `@astrojs/cloudflare/hono` usage example so `i18n()` is mounted before `pages()`. In the old order, `i18n()` never ran, so locale redirects and fallbacks were skipped.
+
+- [#18145](https://github.com/withastro/astro/pull/18145) [`02246c9`](https://github.com/withastro/astro/commit/02246c9047d8a54b1be1ccc176f88cd873ff0380) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes dev dependency scan failing when a frontmatter line starts with `import.meta` or `import(`
+
+- [#17677](https://github.com/withastro/astro/pull/17677) [`4f85749`](https://github.com/withastro/astro/commit/4f85749fc09865cb143e65fd10d42c80e8b21c60) Thanks [@andreialba](https://github.com/andreialba)! - Fixes remote images without a file extension failing with `400 Unsupported format: null` when using the `cloudflare-binding` image service
+  
+  Astro only adds the `f` (format) parameter to `/_image` URLs when it can infer a format from the source, and otherwise leaves it off so the image service resolves the format from the source itself. Extensionless remote images, such as GitHub avatars like `https://avatars.githubusercontent.com/u/1234`, take that path. The image transform endpoint now falls back to the source's media type when `f` is absent, passing SVG sources through unchanged and encoding everything else as WebP. This also fixes SVG images, which are requested as `f=svg` and previously failed the same way.
+
+- [#18057](https://github.com/withastro/astro/pull/18057) [`8db3024`](https://github.com/withastro/astro/commit/8db30243661f490003c8e38037b41d26d21a1f37) Thanks [@asqar](https://github.com/asqar)! - Fixes `astro build` failing with `fetch failed` / `connect ECONNREFUSED 127.0.0.1:<port>` during prerendering on hosts where `localhost` resolves to IPv6
+  
+  The prerenderer started its Vite preview server with `host: 'localhost'` and then built the fetch URL by re-stating that same hostname. `localhost` was therefore resolved twice, independently — once by `listen()` to pick a bind address and once by `fetch()` to pick a connect address — with nothing making the two agree. On hosts where those resolutions land on different families, the preview server listens on `::1` while `fetch` dials `127.0.0.1`, and every prerender request is refused. The URL is now derived from the address actually bound, so bind and connect agree by construction.
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb), [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d)]:
+  - @astrojs/internal-helpers@0.12.0
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.3.3
 
 ### Patch Changes

@@ -7,11 +7,17 @@ const RESOLVED_MODULE_ID = '\0' + MODULE_ID;
 
 const languages = Object.keys(components.languages).filter((l) => l !== 'meta');
 
-export default function cfPrismPlugin(): Plugin {
+/**
+ * @param isTypeGenPhase When true, the Prism language modules are not added to
+ * `optimizeDeps.include`.
+ */
+export default function cfPrismPlugin(isTypeGenPhase: boolean): Plugin {
 	return {
 		name: '@astrojs/cloudflare:prism',
 		configEnvironment(environmentName) {
-			if (environmentName === 'ssr') {
+			// A non-empty `include` makes Vite run the optimizer even with `noDiscovery: true`,
+			// which would overwrite the `deps_ssr` cache of a running dev server (#18464).
+			if (environmentName === 'ssr' && !isTypeGenPhase) {
 				return {
 					// Because this virtual module adds a large number of dynamic import statements,
 					// Vite’s logs will consequently display the message “new dependencies optimized” for all languages.

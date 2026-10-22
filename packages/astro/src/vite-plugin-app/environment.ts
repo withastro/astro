@@ -275,6 +275,7 @@ export function createRunnableEnvironment({
 		},
 
 		errorStrategy: 'dev',
+		rendersRedirectPage: () => false,
 		injectCspMetaTagsOnErrorPages: true,
 
 		logRequest(manifest: SSRManifest, payload: RequestLogPayload): void {

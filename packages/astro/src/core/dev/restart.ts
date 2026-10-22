@@ -113,7 +113,11 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 		// onto the existing server so Vite's restartServer() uses the new plugins.
 		container.viteServer.config = await vite.resolveConfig(newViteConfig, 'serve');
 
+		const previousEnvironments = container.viteServer.environments;
 		await container.viteServer.restart();
+		if (container.viteServer.environments !== previousEnvironments) {
+			releasePreviousEnvironments(previousEnvironments);
+		}
 
 		container.settings = settings;
 		return settings;
@@ -133,6 +137,20 @@ async function restartContainerInPlace(container: Container): Promise<AstroSetti
 		return error;
 	} finally {
 		container.restartInFlight = false;
+	}
+}
+
+function releasePreviousEnvironments(environments: Record<string, vite.Environment>) {
+	for (const environment of Object.values(environments)) {
+		if (environment.mode !== 'dev') continue;
+		const { moduleGraph } = environment as vite.DevEnvironment;
+		moduleGraph.urlToModuleMap.clear();
+		moduleGraph.idToModuleMap.clear();
+		moduleGraph.etagToModuleMap.clear();
+		moduleGraph.fileToModulesMap.clear();
+		(
+			moduleGraph as unknown as { _unresolvedUrlToModuleMap?: Map<unknown, unknown> }
+		)._unresolvedUrlToModuleMap?.clear();
 	}
 }
 
@@ -212,6 +230,7 @@ export async function createContainerWithAutomaticRestart({
 				} else {
 					setupContainer();
 					await attachContentServerListeners(restart.container);
+					await restartContentLayer();
 					resolveRestart(null);
 				}
 				restartComplete = new Promise<Error | null>((resolve) => {
@@ -219,6 +238,27 @@ export async function createContainerWithAutomaticRestart({
 				});
 			}
 		};
+	}
+
+	// Vite's in-place restart closes the old file watcher, so loaders must be
+	// re-registered on the new one, using the new settings.
+	async function restartContentLayer() {
+		const previousContentLayer = globalContentLayer.get();
+		if (!previousContentLayer) return;
+		const contentLayer = globalContentLayer.init({
+			settings: restart.container.settings,
+			logger,
+			watcher: restart.container.viteServer.watcher,
+			store: previousContentLayer.store,
+		});
+		contentLayer.watchContentConfig();
+		// A loader error must not reject the watcher callback that triggered the
+		// restart, or `restarted()` would never resolve.
+		try {
+			await contentLayer.sync();
+		} catch (err) {
+			logger.error('content', err instanceof Error ? err.message : String(err));
+		}
 	}
 
 	let changeHandler: (file: string) => void;

@@ -63,8 +63,12 @@ export async function compile({
 			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
 			resultScopedSlot: true,
 			transitionsAnimationURL: 'astro/components/viewtransitions.css',
+			// Source annotations only serve the dev toolbar. Vitest also runs Vite in `serve`,
+			// so skip them in `test` mode to keep rendered markup (e.g. from the Container API)
+			// free of machine-specific paths. See https://github.com/withastro/astro/issues/18162
 			annotateSourceFile:
 				viteConfig.command === 'serve' &&
+				viteConfig.mode !== 'test' &&
 				astroConfig.devToolbar &&
 				astroConfig.devToolbar.enabled &&
 				toolbarEnabled,

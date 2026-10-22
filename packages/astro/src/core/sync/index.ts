@@ -254,6 +254,10 @@ async function createTempViteServer(
 		await createVite(
 			{
 				server: { middlewareMode: true, hmr: false, watch: null, ws: false },
+				// Astro and integrations add `optimizeDeps.include` entries, which keep the dependency optimizer
+				// running here. A separate cache keeps its output from replacing the optimized dependencies
+				// of a dev server running in the same project: https://github.com/withastro/astro/issues/18449
+				cacheDir: fileURLToPath(new URL('./vite-sync/', settings.config.cacheDir)),
 				optimizeDeps: { noDiscovery: true },
 				ssr: { external: [] },
 				logLevel: 'silent',

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { afterEach, describe, it } from 'node:test';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 import { renderForPrerender, type PrerenderableApp } from '../../../dist/core/app/prerender.js';
 import { uninstallRenderScope } from '../../../dist/core/render-scope/scope.js';
 import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
@@ -8,6 +8,9 @@ import {
 	recordStaticImage,
 } from '../../../dist/core/render-scope/record.js';
 import type { SerializedStaticImage } from '../../../dist/assets/types.js';
+import { getEnvironment, setEnvironment } from '../../../dist/core/environment/index.js';
+import { productionEnvironment } from '../../../dist/core/environment/production.js';
+import { createManifest } from '../app/test-helpers.ts';
 import { defaultLogger } from '../test-utils.ts';
 
 function image(hash: string): SerializedStaticImage {
@@ -27,19 +30,11 @@ function appOf(render: PrerenderableApp['render']): PrerenderableApp {
 const request = () => new Request('https://example.com/page/');
 
 describe('renderForPrerender', () => {
-	afterEach(() => {
+	beforeEach(() => {
 		uninstallRenderScope();
 	});
-
-	it('short-circuits when not collecting: metadata undefined, response unbuffered', async () => {
-		ensureAsyncRenderScope();
-		const appResponse = new Response('<html></html>');
-		const app = appOf(async () => appResponse);
-		const result = await renderForPrerender(app, request());
-		assert.equal(result.metadata, undefined);
-		// The response object is the app's own — no buffering, no reconstruction.
-		assert.equal(result.response, appResponse);
-		assert.equal(result.response.bodyUsed, false);
+	afterEach(() => {
+		uninstallRenderScope();
 	});
 
 	it('captures records fired during body pull (the scope spans buffering)', async () => {
@@ -127,5 +122,34 @@ describe('renderForPrerender', () => {
 		});
 		await renderForPrerender(app, request(), { routeData });
 		assert.equal(received, routeData);
+	});
+
+	it('switches a production app manifest to the build error strategy', async () => {
+		const manifest = createManifest();
+		assert.equal(getEnvironment(manifest).errorStrategy, 'default');
+		let strategyDuringRender: string | undefined;
+		const app: PrerenderableApp = {
+			logger: defaultLogger,
+			manifest,
+			render: async () => {
+				strategyDuringRender = getEnvironment(manifest).errorStrategy;
+				return new Response('ok');
+			},
+		};
+		await renderForPrerender(app, request());
+		assert.equal(strategyDuringRender, 'build');
+		// Other environment behavior is preserved.
+		assert.equal(getEnvironment(manifest).resolve, productionEnvironment.resolve);
+	});
+
+	it('does not override a dev error strategy', async () => {
+		const manifest = createManifest();
+		const devEnvironment = { ...productionEnvironment, errorStrategy: 'dev' as const };
+		setEnvironment(manifest, devEnvironment);
+		await renderForPrerender(
+			{ logger: defaultLogger, manifest, render: async () => new Response('ok') },
+			request(),
+		);
+		assert.equal(getEnvironment(manifest), devEnvironment);
 	});
 });

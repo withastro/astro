@@ -24,6 +24,9 @@ export async function handleHotUpdate(
 	// If any `ctx.file` is part of a CSS dependency of any Astro file, invalidate its `astroFileToCompileMetadata`
 	// so the next transform of the Astro file or Astro script/style virtual module will re-generate it
 	for (const [astroFile, compileData] of astroFileToCompileMetadata) {
+		// PostCSS plugins such as `@unocss/postcss` can list the component itself as a dependency
+		// of its own style. Edits to `ctx.file` are handled below, which needs its metadata (#18406).
+		if (astroFile === ctx.file) continue;
 		const isUpdatedFileCssDep = compileData.css.some((css) => css.dependencies?.includes(ctx.file));
 		if (isUpdatedFileCssDep) {
 			astroFileToCompileMetadata.delete(astroFile);
@@ -61,6 +64,11 @@ export async function handleHotUpdate(
 			return query.container || (query.astro && query.type === 'style' && !query.inline);
 		});
 	}
+
+	// When non-style content changed (markup, frontmatter, scripts), Vite's default HMR
+	// invalidates the affected modules in its module graph. Clear the compile metadata so
+	// the load hook recompiles from disk on the next request instead of serving stale CSS.
+	astroFileToCompileMetadata.delete(ctx.file);
 }
 
 // Disable eslint as we're not sure how to improve this regex yet

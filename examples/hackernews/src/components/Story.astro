@@ -17,18 +17,21 @@ const { story } = Astro.props;
 				{story.title}
 			</a>
 			<span class="host"> ({story.domain})</span>
-			<a slot="fallback" href={`/item/${story.id}`}>{story.title}</a>
+			<a slot="fallback" href={`/item/${story.id}`}>
+				{story.title}
+			</a>
 		</Show>
 	</span>
 	<br />
 	<span class="meta">
 		<Show when={story.type !== 'job'}>
-			by <a href={`/users/${story.user}`}>{story.user}</a>{' '}
-			{story.time_ago}{' '}|{' '}
+			by <a href={`/users/${story.user}`}>{story.user}</a> {story.time_ago} |{' '}
 			<a href={`/stories/${story.id}`}>
 				{story.comments_count ? `${story.comments_count} comments` : 'discuss'}
 			</a>
-			<a slot="fallback" href={`/stories/${story.id}`}>{story.time_ago}</a>
+			<a slot="fallback" href={`/stories/${story.id}`}>
+				{story.time_ago}
+			</a>
 		</Show>
 	</span>
 	<Show when={story.type !== 'link'}>

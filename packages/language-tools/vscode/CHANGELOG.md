@@ -1,5 +1,17 @@
 # astro-vscode
 
+## 2.17.2
+
+### Patch Changes
+
+- [#18263](https://github.com/withastro/astro/pull/18263) [`882dd98`](https://github.com/withastro/astro/commit/882dd98cd9f11c4e7bd0b812d37f865dfca75d3d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Refactors internal bundling and code transforms to use Vite's Oxc-based `transformWithOxc` and Rolldown instead of esbuild. These packages no longer depend on esbuild directly.
+
+## 2.17.1
+
+### Patch Changes
+
+- [#18187](https://github.com/withastro/astro/pull/18187) [`8f5e7b5`](https://github.com/withastro/astro/commit/8f5e7b5071d4b5e7af2b207ff3fe27e1b22d3329) Thanks [@renovate](https://github.com/apps/renovate)! - Updates `prettier-plugin-astro` to 1.1.0
+
 ## 2.17.0
 
 ### Minor Changes

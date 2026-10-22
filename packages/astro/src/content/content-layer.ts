@@ -79,6 +79,10 @@ export class ContentLayer {
 		return this.#queue.size > 0 || this.#queue.pending > 0;
 	}
 
+	get store() {
+		return this.#store;
+	}
+
 	/**
 	 * Watch for changes to the content config and trigger a sync when it changes.
 	 */

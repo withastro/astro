@@ -58,9 +58,34 @@ describe('defineConfig()', () => {
 						never
 					>
 				>();
-				expectTypeOf(config.i18n!.defaultLocale).toEqualTypeOf<'en' | 'fr' | 'fr-FR'>();
+				expectTypeOf(config.i18n!.defaultLocale).toEqualTypeOf<'en' | 'french'>();
 			},
 		);
+
+		assertType(
+			defineConfig({
+				i18n: {
+					locales: [
+						{ path: 'en-us', codes: ['en-US'] },
+						{ path: 'french', codes: ['fr', 'fr-FR'] },
+					],
+					defaultLocale: 'en-us',
+					fallback: { french: 'en-us' },
+					domains: { french: 'https://fr.example.com' },
+				},
+			}),
+			(config) => {
+				expectTypeOf(config.i18n!.defaultLocale).toEqualTypeOf<'en-us' | 'french'>();
+			},
+		);
+
+		defineConfig({
+			i18n: {
+				locales: [{ path: 'en-us', codes: ['en-US'] }],
+				// @ts-expect-error `defaultLocale` must be a locale `path`, not one of its `codes`
+				defaultLocale: 'en-US',
+			},
+		});
 	});
 
 	it('Validates CSP hashes', () => {

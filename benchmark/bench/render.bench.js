@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { beforeAll, bench, describe } from 'vitest';
+import { beforeAll, test } from 'vitest';
 
 const renderRoot = new URL('../projects/render-bench/', import.meta.url);
 
@@ -20,30 +20,30 @@ beforeAll(async () => {
 	nonStreamingApp = createApp(manifest, false);
 }, 900000);
 
-describe('Bench rendering', () => {
-	bench('Rendering: streaming [true], .astro file', async () => {
+test('Bench rendering', { timeout: 300000 }, async ({ bench }) => {
+	await bench('Rendering: streaming [true], .astro file', async () => {
 		const request = new Request(new URL('http://exmpale.com/astro'));
 		await streamingApp.render(request);
-	});
-	bench('Rendering: streaming [true], .md file', async () => {
+	}).run();
+	await bench('Rendering: streaming [true], .md file', async () => {
 		const request = new Request(new URL('http://exmpale.com/md'));
 		await streamingApp.render(request);
-	});
-	bench('Rendering: streaming [true], .mdx file', async () => {
+	}).run();
+	await bench('Rendering: streaming [true], .mdx file', async () => {
 		const request = new Request(new URL('http://exmpale.com/mdx'));
 		await streamingApp.render(request);
-	});
+	}).run();
 
-	bench('Rendering: streaming [false], .astro file', async () => {
+	await bench('Rendering: streaming [false], .astro file', async () => {
 		const request = new Request(new URL('http://exmpale.com/astro'));
 		await nonStreamingApp.render(request);
-	});
-	bench('Rendering: streaming [false], .md file', async () => {
+	}).run();
+	await bench('Rendering: streaming [false], .md file', async () => {
 		const request = new Request(new URL('http://exmpale.com/md'));
 		await nonStreamingApp.render(request);
-	});
-	bench('Rendering: streaming [false], .mdx file', async () => {
+	}).run();
+	await bench('Rendering: streaming [false], .mdx file', async () => {
 		const request = new Request(new URL('http://exmpale.com/mdx'));
 		await nonStreamingApp.render(request);
-	});
+	}).run();
 });
