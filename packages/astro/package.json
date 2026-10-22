@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "7.4.0",
+  "version": "7.4.2",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -110,7 +110,7 @@
   ],
   "scripts": {
     "prebuild": "astro-scripts prebuild --to-string \"src/runtime/server/astro-island.ts\" \"src/runtime/client/{idle,load,media,only,visible}.ts\"",
-    "build": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm && tsc -b && astro-check -- -- --tsconfig ./tsconfig.components.json",
+    "build": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm && tsc -b && astro-check --tsconfig ./tsconfig.components.json",
     "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm",
     "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
     "test": "pnpm run test:unit && pnpm run test:integration && pnpm run test:types",
@@ -192,7 +192,7 @@
   "devDependencies": {
     "@astrojs/check": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
-    "@playwright/test": "1.64.0",
+    "@playwright/test": "1.64.1",
     "@types/aria-query": "^5.0.4",
     "@types/html-escaper": "3.0.4",
     "@types/http-cache-semantics": "^4.2.0",
@@ -214,10 +214,10 @@
     "sass": "^1.105.1",
     "typescript": "^6.0.3",
     "undici": "7.30.0",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.5"
   },
   "engines": {
-    "node": ">=22.22.0",
+    "node": ">=22.23.4",
     "npm": ">=9.6.5",
     "pnpm": ">=7.1.0"
   },

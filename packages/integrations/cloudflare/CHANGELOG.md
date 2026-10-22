@@ -1,5 +1,27 @@
 # @astrojs/cloudflare
 
+## 14.4.2
+
+### Patch Changes
+
+- [#18422](https://github.com/withastro/astro/pull/18422) [`07700d4`](https://github.com/withastro/astro/commit/07700d41fef1e5872b80d25e4226da867eca1c6f) Thanks [@cyface](https://github.com/cyface)! - Fixes the `/_image` endpoint returning a 500 error when `href` points to a missing file or a file that isn't an image. It now responds with a 404 or 400 instead.
+
+- [#18465](https://github.com/withastro/astro/pull/18465) [`f31f143`](https://github.com/withastro/astro/commit/f31f143b1b40b147c3b8c8db51a6dd431be2f529) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a custom `src/fetch.ts` rendering truncated pages without islands or hoisted scripts in `astro dev` when `prerenderEnvironment: 'node'` is set
+
+- [#18461](https://github.com/withastro/astro/pull/18461) [`8b77891`](https://github.com/withastro/astro/commit/8b77891ad30732a5385ada97bf5075b83a2e8f3d) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes options passed to `sharpImageService()` being ignored when generating images at build time with `imageService: 'compile'`
+
+- [#18468](https://github.com/withastro/astro/pull/18468) [`119263a`](https://github.com/withastro/astro/commit/119263a84f74ead8212cdc339f8da9552e4ddfd9) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `astro sync`, `astro check`, and `astro build` overwriting the dependency cache of a running `astro dev` server, which caused it to fail with "The file does not exist ... in the optimize deps directory" errors
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
+## 14.4.1
+
+### Patch Changes
+
+- [#18351](https://github.com/withastro/astro/pull/18351) [`9669d81`](https://github.com/withastro/astro/commit/9669d811cb3e60c91d4eee7823222d6a34c1cb34) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes `Cannot find package 'prismjs'` errors when `prismjs` isn't hoisted, such as with pnpm's global virtual store or `hoist=false`
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.4
+
 ## 14.4.0
 
 ### Minor Changes

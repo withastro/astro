@@ -2,7 +2,7 @@
   "name": "@example/component",
   "private": true,
   "engines": {
-    "node": ">=22.22.0"
+    "node": ">=22.23.4"
   },
   "version": "0.0.1",
   "type": "module",
@@ -18,7 +18,7 @@
   ],
   "scripts": {},
   "devDependencies": {
-    "astro": "^7.4.0"
+    "astro": "^7.4.2"
   },
   "peerDependencies": {
     "astro": "^5.0.0 || ^6.0.0"

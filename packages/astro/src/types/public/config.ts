@@ -53,11 +53,7 @@ export type CspScriptDirective = {
 };
 
 type NormalizeLocales<T extends Locales> = {
-	[K in keyof T]: T[K] extends string
-		? T[K]
-		: T[K] extends { codes: Array<string> }
-			? T[K]['codes'][number]
-			: never;
+	[K in keyof T]: T[K] extends string ? T[K] : T[K] extends { path: string } ? T[K]['path'] : never;
 }[number];
 
 export interface ImageServiceConfig<T extends Record<string, any> = Record<string, any>> {

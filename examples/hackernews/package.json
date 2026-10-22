@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "engines": {
-    "node": ">=22.22.0"
+    "node": ">=22.23.4"
   },
   "scripts": {
     "dev": "astro dev",
@@ -13,7 +13,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/node": "^11.1.8",
-    "astro": "^7.4.0"
+    "@astrojs/node": "^11.1.9",
+    "astro": "^7.4.2"
   }
 }
