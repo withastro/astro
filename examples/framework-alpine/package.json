@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "engines": {
-    "node": ">=22.22.0"
+    "node": ">=22.23.4"
   },
   "scripts": {
     "dev": "astro dev",
@@ -16,6 +16,6 @@
     "@astrojs/alpinejs": "^1.0.0",
     "@types/alpinejs": "^3.17.0",
     "alpinejs": "^3.17.4",
-    "astro": "^7.4.1"
+    "astro": "^7.4.2"
   }
 }
