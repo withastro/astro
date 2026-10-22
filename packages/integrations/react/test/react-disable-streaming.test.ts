@@ -9,6 +9,7 @@ describe('React with experimentalDisableStreaming', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/react-disable-streaming/', import.meta.url),
+			outDir: './dist/react-disable-streaming/',
 		});
 		await fixture.build();
 	});
