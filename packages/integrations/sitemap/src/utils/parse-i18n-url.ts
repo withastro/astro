@@ -29,7 +29,7 @@ export function parseI18nUrl(
 	// "/en-US/" -> "en-US"
 	// "/en-US/foo" -> "en-US"
 	const locale = s.split('/')[1];
-	if (locale in locales) {
+	if (Object.hasOwn(locales, locale)) {
 		// "/en-US/foo" -> "/foo"
 		let path = s.slice(1 + locale.length);
 		if (!path) {
