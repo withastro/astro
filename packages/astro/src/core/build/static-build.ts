@@ -103,7 +103,7 @@ export async function viteBuild(opts: StaticBuildOptionsInput) {
 	// but because we are running 2 vite builds in parallel, that would cause a race
 	// condition, so we are doing it ourselves.
 	if (settings.config?.vite?.build?.emptyOutDir !== false) {
-		emptyDir(settings.config.outDir, new Set('.git'));
+		emptyDir(settings.config.outDir, new Set(['.git']));
 	}
 
 	// Build your project (SSR application code, assets, client JS, etc.)
