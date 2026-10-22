@@ -1,0 +1,15 @@
+---
+interface Props {
+	error?: {
+		message?: string;
+	};
+}
+const { error } = Astro.props;
+---
+<html>
+<head><title>500</title></head>
+<body>
+	<h1>Custom 500 Page</h1>
+	<p id="error-message">{error?.message ?? 'no-message'}</p>
+</body>
+</html>
