@@ -58,7 +58,9 @@ describe('Redirects', () => {
 	it('defines dynamic routes', { timeout: 30000 }, async () => {
 		const config = await getVercelConfig(fixture);
 
-		const blogRoute = config.routes.find((r) => r.src.startsWith('^/blog'))!;
+		const blogRoute = config.routes.find(
+			(r) => r.src === '^/blog(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?/$',
+		)!;
 		assert.notEqual(blogRoute, undefined);
 		assert.equal(blogRoute.headers['Location'].startsWith('/team/articles'), true);
 		assert.equal(blogRoute.status, 301);

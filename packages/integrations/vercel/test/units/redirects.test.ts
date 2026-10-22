@@ -49,10 +49,10 @@ describe('getRedirects trailingSlash', () => {
 		assert.equal(redirects[0].source, '/blog/:slug/');
 	});
 
-	it('skips spread sources when trailingSlash is always', () => {
+	it('appends a slash to spread sources when trailingSlash is always', () => {
 		const routes = [makeRedirectRoute([[staticPart('blog')], [spreadPart('...slug')]])];
 		const redirects = getRedirects(routes, makeConfig('always'));
-		assert.equal(redirects[0].source, '/blog/:slug*');
+		assert.equal(redirects[0].source, '/blog/:slug*/');
 	});
 
 	it('skips file-extension sources when trailingSlash is always', () => {

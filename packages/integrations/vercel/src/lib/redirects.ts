@@ -1,5 +1,11 @@
 import nodePath from 'node:path';
-import { hasFileExtension, isRemotePath, removeLeadingForwardSlash, appendForwardSlash, removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
+import {
+	hasFileExtension,
+	isRemotePath,
+	removeLeadingForwardSlash,
+	appendForwardSlash,
+	removeTrailingForwardSlash,
+} from '@astrojs/internal-helpers/path';
 import type { Redirect } from '@vercel/routing-utils';
 import type { AstroConfig, IntegrationResolvedRoute, RoutePart } from 'astro';
 
@@ -122,16 +128,16 @@ export function escapeRegex(content: string) {
  * Adjust a Vercel redirect source for the Astro `trailingSlash` config.
  * With `trailingSlash: 'always'` Vercel normalizes `/old` to `/old/` before
  * redirects run, so an unslashed source can never match. Append a slash except
- * for the root, spread routes, and file-extension paths (which Vercel
- * normalizes without a slash even when `trailingSlash` is enabled).
+ * for the root and file-extension paths (which Vercel normalizes without a
+ * slash even when `trailingSlash` is enabled). Spread sources are adjusted too,
+ * so they match the normalized trailing slash.
  */
 export function adjustSourceForTrailingSlash(
 	source: string,
-	route: IntegrationResolvedRoute,
 	trailingSlash: AstroConfig['trailingSlash'],
 ): string {
 	if (trailingSlash === 'always') {
-		if (source === '/' || source.endsWith('/') || route.segments.some((segment) => segment.some((part) => part.spread))) {
+		if (source === '/' || source.endsWith('/')) {
 			return source;
 		}
 		if (hasFileExtension(source)) {
@@ -156,7 +162,6 @@ export function getRedirects(routes: IntegrationResolvedRoute[], config: AstroCo
 			redirects.push({
 				source: adjustSourceForTrailingSlash(
 					config.base + getMatchPattern(route.segments),
-					route,
 					config.trailingSlash,
 				),
 				destination: getRedirectLocation(route, config),
