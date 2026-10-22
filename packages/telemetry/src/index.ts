@@ -87,7 +87,6 @@ export class AstroTelemetry {
 
 	private getAnonymousProjectInfo(): Promise<ProjectInfo> {
 		// NOTE(fks): this value isn't global, so it can't use getConfigWithFallback().
-		// Cache the promise so events recorded at the same time share a single lookup.
 		this._anonymousProjectInfo ??= getProjectInfo(this.isCI);
 		return this._anonymousProjectInfo;
 	}
