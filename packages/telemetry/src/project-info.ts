@@ -68,8 +68,6 @@ function createAnonymousValue(payload: BinaryLike): string {
 	return hash.digest('hex');
 }
 
-// Spawned asynchronously: telemetry is recorded fire-and-forget at the start of
-// commands, so a synchronous spawn would block them for the lifetime of the git process.
 function getProjectIdFromGit(): Promise<string | null> {
 	return new Promise((resolve) => {
 		try {
