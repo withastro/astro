@@ -442,6 +442,16 @@ async function writeMutatedChunks(
 }
 
 /**
+ * Moves a server build asset to the client directory. WebAssembly modules are
+ * copied instead: Vite's server-side `.wasm` support (`.wasm?init` and direct
+ * imports) reads the file next to the server code at runtime, so the server
+ * build still needs it, while the client may also reference it by URL.
+ */
+function moveOrCopyAsset(filename: string, from: URL, to: URL): Promise<void> {
+	return filename.endsWith('.wasm') ? fs.promises.copyFile(from, to) : fs.promises.rename(from, to);
+}
+
+/**
  * Moves prerender and SSR assets to the client directory.
  * In server mode, assets are initially scattered across server and prerender
  * directories but need to be consolidated in the client directory for serving.
@@ -465,7 +475,7 @@ async function ssrMoveAssets(opts: StaticBuildOptions, internals: BuildInternals
 				if (!fs.existsSync(currentUrl)) return;
 				const dir = new URL(path.parse(clientUrl.href).dir);
 				if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
-				return fs.promises.rename(currentUrl, clientUrl);
+				return moveOrCopyAsset(filename, currentUrl, clientUrl);
 			}),
 		);
 	}
@@ -485,7 +495,7 @@ async function ssrMoveAssets(opts: StaticBuildOptions, internals: BuildInternals
 				if (!fs.existsSync(currentUrl)) return;
 				const dir = new URL(path.parse(clientUrl.href).dir);
 				if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
-				return fs.promises.rename(currentUrl, clientUrl);
+				return moveOrCopyAsset(filename, currentUrl, clientUrl);
 			}),
 		);
 		removeEmptyDirs(fileURLToPath(serverRoot));
