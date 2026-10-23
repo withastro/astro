@@ -137,6 +137,21 @@ describe('containsServerDirective', () => {
 	});
 });
 
+/**
+ * Evaluates the server island runtime followed by `islandContent` (the body of
+ * the island's module script) with stubbed `fetch` and `document` globals.
+ * Resolves or rejects like the browser's module evaluation would.
+ */
+function runIslandScript(islandContent: string, fetch: () => Promise<Response>) {
+	const runtime = renderServerIslandRuntime()
+		.replace(/^<script>/, '')
+		.replace(/<\/script>$/, '');
+	const hostScript = { previousSibling: null, before() {}, remove() {} };
+	const document = { querySelector: () => hostScript };
+	const AsyncFunction = (async () => {}).constructor as FunctionConstructor;
+	return new AsyncFunction('fetch', 'document', `${runtime}\n${islandContent}`)(fetch, document);
+}
+
 // #endregion
 
 // #region renderServerIslandRuntime
@@ -161,6 +176,12 @@ describe('renderServerIslandRuntime', () => {
 			!inner.includes('</script'),
 			'inner script content should not contain unescaped </script',
 		);
+	});
+
+	it('keeps the fallback when reading the island response body fails', async () => {
+		const response = new Response('<p>island</p>', { headers: { 'content-type': 'text/html' } });
+		response.text = () => Promise.reject(new TypeError('network error'));
+		await runIslandScript(`await replaceServerIsland('id', await fetch());`, async () => response);
 	});
 });
 
@@ -223,6 +244,23 @@ describe('ServerIslandComponent', () => {
 			const content = await component.getIslandContent();
 			assert.ok(content.includes("method: 'POST'"), 'large payloads should fall back to POST');
 		});
+
+		for (const [label, props] of [
+			['GET', islandProps()],
+			['POST', islandProps({ data: 'x'.repeat(2048) })],
+		] as const) {
+			it(`does not throw when the ${label} island fetch rejects`, async () => {
+				const result = await createStubResult();
+				const component = new ServerIslandComponent(result, props, {}, 'Island');
+				const content = await component.getIslandContent();
+				let fetchCalls = 0;
+				await runIslandScript(content, () => {
+					fetchCalls++;
+					return Promise.reject(new TypeError('Failed to fetch'));
+				});
+				assert.equal(fetchCalls, 1);
+			});
+		}
 
 		it('builds the island URL from base + componentId', async () => {
 			const result = await createStubResult({ base: '/app' });
