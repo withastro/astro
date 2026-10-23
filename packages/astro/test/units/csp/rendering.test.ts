@@ -160,6 +160,45 @@ describe('CSP Rendering', () => {
 			assert.ok(content.includes('style-src'), 'Should have style-src directive');
 		});
 
+		it('does not hash empty children on external stylesheets and scripts', async () => {
+			const pipeline = createCspPipeline();
+			const { setEnvironment } = await import('../../../dist/core/environment/index.js');
+			const { productionEnvironment } = await import(
+				'../../../dist/core/environment/production.js'
+			);
+			setEnvironment(pipeline.manifest, {
+				...productionEnvironment,
+				name: 'test',
+				runtimeMode: 'development',
+				defaultStreaming: () => true,
+				resolve: (_manifest: unknown, specifier: string) => Promise.resolve(specifier),
+				headElements: () => ({
+					scripts: new Set([{ props: { type: 'module', src: '/hoisted.js' }, children: '' }]),
+					styles: new Set([
+						{ props: { rel: 'stylesheet', href: '/index.css' }, children: '' },
+					]),
+					links: new Set(),
+				}),
+				componentMetadata: () => {},
+				getRenderers: () => [],
+				tryRewrite: () => {
+					throw new Error('tryRewrite is not implemented in the test environment');
+				},
+				getComponentByRoute: () => {
+					throw new Error('getComponentByRoute is not implemented in the test environment');
+				},
+			});
+
+			const { html } = await renderPage(SimplePage, pipeline);
+			const $ = cheerio.load(html);
+			const content = $('meta[http-equiv="Content-Security-Policy"]').attr('content') ?? '';
+			// SHA-256 of the empty string. External link/script entries must not contribute it.
+			assert.equal(
+				content.includes('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='),
+				false,
+			);
+		});
+
 		// Note: Inline style hashing requires the full build pipeline
 		// and cannot be easily unit tested. This is tested in integration tests.
 	});
