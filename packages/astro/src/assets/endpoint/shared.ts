@@ -2,12 +2,10 @@
 import { imageConfig } from 'astro:assets';
 import { isRemotePath, removeQueryString } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
-import * as mime from 'mrmime';
 import { getConfiguredImageService } from '../internal.js';
-import { etag } from '../utils/etag.js';
-import { inferSourceFormat } from '../utils/inferSourceFormat.js';
 import { fetchWithRedirects } from '../utils/redirectValidation.js';
 import type { AstroRuntimeLogger } from '../../types/public/context.js';
+import { createImageResponse } from './response.js';
 
 const isLocal = (url: string) => {
 	const hostname = new URL(url).hostname;
@@ -61,15 +59,6 @@ export const handleImageRequest = async ({
 		return new Response('Invalid request', { status: 400 });
 	}
 
-	// Reject requests that attempt to convert a non-SVG source to SVG output.
-	// This mirrors the same guard in verifyOptions() that protects the <Image> component path.
-	if (transform.format === 'svg') {
-		const sourceFormat = inferSourceFormat(transform.src);
-		if (sourceFormat !== 'svg') {
-			return new Response('Cannot convert non-SVG source to SVG format', { status: 403 });
-		}
-	}
-
 	let inputBuffer: Buffer | undefined = undefined;
 
 	if (isRemotePath(transform.src)) {
@@ -103,13 +92,5 @@ export const handleImageRequest = async ({
 		logger,
 	);
 
-	return new Response(data as Uint8Array<ArrayBuffer>, {
-		status: 200,
-		headers: {
-			'Content-Type': mime.lookup(format) ?? `image/${format}`,
-			'Cache-Control': 'public, max-age=31536000',
-			ETag: etag(data.toString()),
-			Date: new Date().toUTCString(),
-		},
-	});
+	return createImageResponse(data, format);
 };
