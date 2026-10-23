@@ -204,8 +204,10 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		enableVerboseLogging();
 	}
 
-	const { notify } = await import('./telemetry/index.js');
-	await notify(logger);
+	if (cmd !== 'check') {
+		const { notify } = await import('./telemetry/index.js');
+		await notify(logger);
+	}
 
 	// These commands uses the logging and user config. All commands are assumed to have been handled
 	// by the end of this switch statement.

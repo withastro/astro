@@ -6796,6 +6796,9 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
     devDependencies:
+      '@nodable/entities':
+        specifier: 3.1.0
+        version: 3.1.0
       '@types/node':
         specifier: ^22.19.0
         version: 22.19.19
@@ -6805,6 +6808,9 @@ importers:
       astro-scripts:
         specifier: workspace:*
         version: link:../../../scripts
+      fast-xml-parser:
+        specifier: 5.11.2
+        version: 5.11.2
       tinyglobby:
         specifier: ^0.2.17
         version: 0.2.17
