@@ -119,6 +119,39 @@ describe('Astro', () => {
 
 		assert.equal(redirects.definitions[0].status, 301);
 	});
+
+	it('Dynamic redirect targets the destination page', () => {
+		const segment = (content: string, dynamic: boolean, spread: boolean) => [
+			{ content, dynamic, spread },
+		];
+		const route = {
+			pattern: '/old/[...path]',
+			pathname: undefined,
+			segments: [segment('old', false, false), segment('path', true, true)],
+			type: 'redirect',
+			redirect: '/new/[...path]',
+			redirectRoute: {
+				pattern: '/new/[...path]',
+				segments: [segment('new', false, false), segment('path', true, true)],
+			},
+			entrypoint: '/old/[...path]',
+			isPrerendered: true,
+			origin: 'internal',
+		} as unknown as IntegrationResolvedRoute;
+
+		const redirects = createRedirectsFromAstroRoutes({
+			config: {
+				build: { format: 'directory' },
+			} as AstroConfig,
+			routeToDynamicTargetMap: new Map([[route, '']]),
+			dir: new URL(import.meta.url),
+			buildOutput: 'static',
+			assets: new Map([['/old/[...path]', [new URL('./old/index.html', import.meta.url)]]]),
+		});
+
+		assert.equal(redirects.definitions[0].input, '/old/*');
+		assert.equal(redirects.definitions[0].target, '/new/:splat');
+	});
 });
 
 function createIntegrationRoute(pattern: string, pathname = pattern): IntegrationResolvedRoute {
