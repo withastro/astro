@@ -160,7 +160,10 @@ export function getFetchStateFromAPIContext(context: APIContext): FetchState {
  * `children`. Hashing that empty string puts the SHA of `''` in CSP and
  * disables `'unsafe-inline'` for that directive.
  */
-function isInlineCspHeadContent(element: { children: string; props?: Record<string, unknown> }): boolean {
+function isInlineCspHeadContent(element: {
+	children: string;
+	props?: Record<string, unknown>;
+}): boolean {
 	if (!element.children) return false;
 	const props = element.props ?? {};
 	return props.href == null && props.src == null;

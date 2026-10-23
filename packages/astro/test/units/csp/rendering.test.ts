@@ -174,9 +174,7 @@ describe('CSP Rendering', () => {
 				resolve: (_manifest: unknown, specifier: string) => Promise.resolve(specifier),
 				headElements: () => ({
 					scripts: new Set([{ props: { type: 'module', src: '/hoisted.js' }, children: '' }]),
-					styles: new Set([
-						{ props: { rel: 'stylesheet', href: '/index.css' }, children: '' },
-					]),
+					styles: new Set([{ props: { rel: 'stylesheet', href: '/index.css' }, children: '' }]),
 					links: new Set(),
 				}),
 				componentMetadata: () => {},
@@ -193,10 +191,7 @@ describe('CSP Rendering', () => {
 			const $ = cheerio.load(html);
 			const content = $('meta[http-equiv="Content-Security-Policy"]').attr('content') ?? '';
 			// SHA-256 of the empty string. External link/script entries must not contribute it.
-			assert.equal(
-				content.includes('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='),
-				false,
-			);
+			assert.equal(content.includes('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), false);
 		});
 
 		// Note: Inline style hashing requires the full build pipeline
