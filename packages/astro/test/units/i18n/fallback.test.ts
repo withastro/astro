@@ -393,6 +393,48 @@ describe('computeFallbackRoute', () => {
 				'/en/page',
 			);
 		});
+
+		it('handles a fallback to a granular locale (object format)', () => {
+			const result: FallbackRouteResult = computeFallbackRoute(
+				makeFallbackOptions({
+					pathname: '/es/page',
+					responseStatus: 404,
+					currentLocale: 'es',
+					locales: ['en', 'es', { path: 'french', codes: ['fr', 'fr-CA'] }],
+					fallback: { es: 'french' },
+					fallbackType: 'redirect',
+				}),
+			);
+
+			assert.equal(result.type, 'redirect');
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'redirect' }>).pathname,
+				'/french/page',
+			);
+		});
+
+		it('handles a fallback to a default locale with a custom path', () => {
+			const result: FallbackRouteResult = computeFallbackRoute(
+				makeFallbackOptions({
+					pathname: '/french/page',
+					responseStatus: 404,
+					currentLocale: 'fr',
+					locales: [
+						{ path: 'en-us', codes: ['en-US'] },
+						{ path: 'french', codes: ['fr', 'fr-FR'] },
+					],
+					defaultLocale: 'en-us',
+					fallback: { french: 'en-us' },
+					fallbackType: 'redirect',
+				}),
+			);
+
+			assert.equal(result.type, 'redirect');
+			assert.equal(
+				(result as Extract<FallbackRouteResult, { type: 'redirect' }>).pathname,
+				'/page',
+			);
+		});
 	});
 
 	describe('edge cases', () => {
