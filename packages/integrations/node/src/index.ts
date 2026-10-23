@@ -34,6 +34,20 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 		throw new AstroError(`Setting the 'mode' option is required.`);
 	}
 
+	// Validated here rather than at the server: options cross a JSON boundary on their way
+	// to the built entrypoint, which turns `Infinity` and `NaN` into `null`, and Node.js
+	// assigns any value to `keepAliveTimeout` without complaint. Both would silently
+	// disable the timeout — the opposite of what the option is for.
+	const { keepAliveTimeout } = userOptions;
+	if (
+		keepAliveTimeout !== undefined &&
+		(!Number.isFinite(keepAliveTimeout) || keepAliveTimeout < 0)
+	) {
+		throw new AstroError(
+			`The 'keepAliveTimeout' option must be a finite, non-negative number of milliseconds.`,
+		);
+	}
+
 	let _config: AstroConfig | undefined = undefined;
 	let _routeToHeaders: RouteToHeaders | undefined = undefined;
 	return {
@@ -77,6 +91,9 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 								staticHeaders: userOptions.staticHeaders ?? false,
 								bodySizeLimit: userOptions.bodySizeLimit ?? 1024 * 1024 * 1024,
 								experimentalDisableStreaming: userOptions.experimentalDisableStreaming ?? false,
+								// Passed explicitly so the virtual config module always declares the export,
+								// even when unset — the server reads it off a module namespace object.
+								keepAliveTimeout: userOptions.keepAliveTimeout,
 							}),
 						],
 					},
