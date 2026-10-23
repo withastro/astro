@@ -34,7 +34,7 @@ export class HostRoutes {
 		}
 
 		binaryInsert(this.definitions, definition, (a, b) => {
-			if (a.weight && b.weight) {
+			if (a.weight !== undefined && b.weight !== undefined) {
 				return a.weight > b.weight;
 			} else {
 				return false;
