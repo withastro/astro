@@ -30,7 +30,12 @@ import {
 } from './consts.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import { getDataStoreChunkSize, getDataStoreDir, getDataStoreFile } from './paths.js';
-import { getContentPaths, isDeferredModule } from './utils.js';
+import {
+	getContentPaths,
+	globalContentConfigObserver,
+	isDeferredModule,
+	resolveLiveEntrypoint,
+} from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -454,8 +459,44 @@ async function generateContentEntryFile({
 					? // Dynamic import so it extracts the chunk and avoids a circular import
 						`const liveCollections = (await import(${JSON.stringify(fileURLToPath(contentPaths.liveConfig.url))})).collections;`
 					: 'const liveCollections = {};',
+			)
+			.replace(
+				'/* @@LIVE_CONTENT_ENTRYPOINTS@@ */',
+				`const liveCollectionEntrypoints = ${generateLiveCollectionEntrypoints(settings)};`,
+			)
+			.replace(
+				'/* @@DEFINE_LIVE_COLLECTION@@ */',
+				settings.config.experimental.liveContentEntrypoints
+					? "export { defineEntrypointLiveCollection as defineLiveCollection } from 'astro/content/runtime';"
+					: "export { defineLiveCollection } from 'astro/content/runtime';",
 			);
 	}
 
 	return virtualModContents;
+}
+
+/**
+ * Generates the map of the live collections declared with an `entrypoint` in the content config.
+ * Each entrypoint is imported on first use, so that it can import `astro:content` itself.
+ */
+function generateLiveCollectionEntrypoints(settings: AstroSettings): string {
+	if (!settings.config.experimental.liveContentEntrypoints) {
+		return '{}';
+	}
+	// The observer is read without waiting, because the content config imports this module while
+	// it loads, so waiting would deadlock. Server environments only load this module once the
+	// content config has loaded, and the types generator invalidates it when the config changes.
+	const observed = globalContentConfigObserver.get();
+	if (observed.status !== 'loaded') {
+		return '{}';
+	}
+	const entries: string[] = [];
+	for (const [name, collection] of Object.entries(observed.config.collections)) {
+		if (!('entrypoint' in collection)) continue;
+		const id = fileURLToPath(resolveLiveEntrypoint(settings.config.root, collection.entrypoint));
+		entries.push(
+			`${JSON.stringify(name)}: { entrypoint: ${JSON.stringify(collection.entrypoint)}, load: () => import(${JSON.stringify(id)}) }`,
+		);
+	}
+	return `{ ${entries.join(', ')} }`;
 }

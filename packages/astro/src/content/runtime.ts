@@ -25,8 +25,11 @@ import type {
 	LiveDataEntry,
 	LiveDataEntryResult,
 } from '../types/public/content.js';
-import { defineCollection as defineCollectionOrig } from './config.js';
-import type { LIVE_CONTENT_TYPE } from './consts.js';
+import {
+	defineCollection as defineCollectionOrig,
+	defineEntrypointLiveCollection,
+} from './config.js';
+import { LIVE_CONTENT_TYPE } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import {
 	LiveCollectionCacheHintError,
@@ -43,10 +46,51 @@ export {
 	LiveCollectionValidationError,
 };
 type LazyImport = () => Promise<any>;
-type LiveCollectionConfigMap = Record<
+type LiveCollectionConfig = {
+	loader: LiveLoader;
+	type: typeof LIVE_CONTENT_TYPE;
+	schema?: zCore.$ZodType;
+};
+type LiveCollectionConfigMap = Record<string, LiveCollectionConfig>;
+/**
+ * The live collections declared with an `entrypoint` in the content config, keyed by name.
+ * `load()` imports the entrypoint, whose default export is the collection.
+ */
+type LiveCollectionEntrypointMap = Record<
 	string,
-	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: zCore.$ZodType }
+	{ entrypoint: string; load: () => Promise<{ default?: unknown }> }
 >;
+
+function isLiveCollection(
+	collection: string,
+	liveCollections: LiveCollectionConfigMap,
+	liveCollectionEntrypoints: LiveCollectionEntrypointMap,
+) {
+	return collection in liveCollections || collection in liveCollectionEntrypoints;
+}
+
+/** Returns the config of a live collection. Call it only with names of live collections. */
+async function getLiveCollectionConfig(
+	collection: string,
+	liveCollections: LiveCollectionConfigMap,
+	liveCollectionEntrypoints: LiveCollectionEntrypointMap,
+): Promise<LiveCollectionConfig> {
+	if (collection in liveCollections) {
+		return liveCollections[collection];
+	}
+	const { entrypoint, load } = liveCollectionEntrypoints[collection];
+	const config = (await load()).default as LiveCollectionConfig | undefined;
+	if (config?.type !== LIVE_CONTENT_TYPE) {
+		throw new AstroError({
+			...AstroErrorData.LiveContentConfigError,
+			message: AstroErrorData.LiveContentConfigError.message(
+				`The entrypoint of the live collection "${collection}" must default-export a collection defined with \`defineLiveCollection()\`.`,
+				entrypoint,
+			),
+		});
+	}
+	return config;
+}
 
 const cacheHintSchema = z.object({
 	tags: z.array(z.string()).optional(),
@@ -94,16 +138,18 @@ async function parseLiveEntry(
 
 export function createGetCollection({
 	liveCollections,
+	liveCollectionEntrypoints = {},
 	logger,
 }: {
 	liveCollections: LiveCollectionConfigMap;
+	liveCollectionEntrypoints?: LiveCollectionEntrypointMap;
 	logger: AstroLogger;
 }) {
 	return async function getCollection(
 		collection: string,
 		filter?: ((entry: any) => unknown) | Record<string, unknown>,
 	) {
-		if (collection in liveCollections) {
+		if (isLiveCollection(collection, liveCollections, liveCollectionEntrypoints)) {
 			throw new AstroError({
 				...AstroErrorData.UnknownContentCollectionError,
 				message: `Collection "${collection}" is a live collection. Use getLiveCollection() instead of getCollection().`,
@@ -165,9 +211,11 @@ type EntryLookupObject = { collection: string; id: string } | { collection: stri
 
 export function createGetEntry({
 	liveCollections,
+	liveCollectionEntrypoints = {},
 	logger,
 }: {
 	liveCollections: LiveCollectionConfigMap;
+	liveCollectionEntrypoints?: LiveCollectionEntrypointMap;
 	logger: AstroLogger;
 }) {
 	return async function getEntry(
@@ -195,7 +243,7 @@ export function createGetEntry({
 					: collectionOrLookupObject.slug;
 		}
 
-		if (collection in liveCollections) {
+		if (isLiveCollection(collection, liveCollections, liveCollectionEntrypoints)) {
 			throw new AstroError({
 				...AstroErrorData.UnknownContentCollectionError,
 				message: `Collection "${collection}" is a live collection. Use getLiveEntry() instead of getEntry().`,
@@ -275,14 +323,16 @@ export function createGetEntries(getEntry: ReturnType<typeof createGetEntry>) {
 
 export function createGetLiveCollection({
 	liveCollections,
+	liveCollectionEntrypoints = {},
 }: {
 	liveCollections: LiveCollectionConfigMap;
+	liveCollectionEntrypoints?: LiveCollectionEntrypointMap;
 }) {
 	return async function getLiveCollection(
 		collection: string,
 		filter?: Record<string, unknown>,
 	): Promise<LiveDataCollectionResult> {
-		if (!(collection in liveCollections)) {
+		if (!isLiveCollection(collection, liveCollections, liveCollectionEntrypoints)) {
 			return {
 				error: new LiveCollectionError(
 					collection,
@@ -290,6 +340,11 @@ export function createGetLiveCollection({
 				),
 			};
 		}
+		const { loader, schema } = await getLiveCollectionConfig(
+			collection,
+			liveCollections,
+			liveCollectionEntrypoints,
+		);
 
 		try {
 			const context = {
@@ -298,15 +353,13 @@ export function createGetLiveCollection({
 			};
 
 			const response = await (
-				liveCollections[collection].loader as LiveLoader<any, any, Record<string, unknown>>
+				loader as LiveLoader<any, any, Record<string, unknown>>
 			)?.loadCollection?.(context);
 
 			// Check if loader returned an error
 			if (response && 'error' in response) {
 				return { error: response.error };
 			}
-
-			const { schema } = liveCollections[collection];
 
 			let processedEntries = response.entries;
 			if (schema) {
@@ -390,14 +443,16 @@ export function createGetLiveCollection({
 
 export function createGetLiveEntry({
 	liveCollections,
+	liveCollectionEntrypoints = {},
 }: {
 	liveCollections: LiveCollectionConfigMap;
+	liveCollectionEntrypoints?: LiveCollectionEntrypointMap;
 }) {
 	return async function getLiveEntry(
 		collection: string,
 		lookup: string | Record<string, unknown>,
 	): Promise<LiveDataEntryResult> {
-		if (!(collection in liveCollections)) {
+		if (!isLiveCollection(collection, liveCollections, liveCollectionEntrypoints)) {
 			return {
 				error: new LiveCollectionError(
 					collection,
@@ -405,6 +460,11 @@ export function createGetLiveEntry({
 				),
 			};
 		}
+		const { loader, schema } = await getLiveCollectionConfig(
+			collection,
+			liveCollections,
+			liveCollectionEntrypoints,
+		);
 
 		try {
 			const lookupObject = {
@@ -413,10 +473,7 @@ export function createGetLiveEntry({
 			};
 
 			let entry = await (
-				liveCollections[collection].loader as LiveLoader<
-					Record<string, unknown>,
-					Record<string, unknown>
-				>
+				loader as LiveLoader<Record<string, unknown>, Record<string, unknown>>
 			)?.loadEntry?.(lookupObject);
 
 			// Check if loader returned an error
@@ -430,7 +487,6 @@ export function createGetLiveEntry({
 				};
 			}
 
-			const { schema } = liveCollections[collection];
 			if (schema) {
 				const result = await parseLiveEntry(entry, schema, collection);
 				if (result.error) {
@@ -807,7 +863,7 @@ function isPropagatedAssetsModule(module: any): module is PropagatedAssetsModule
 }
 
 export function defineCollection(config: any) {
-	if (config.type === 'live') {
+	if (config.type === 'live' && !('entrypoint' in config)) {
 		throw new AstroError({
 			...AstroErrorData.LiveContentConfigError,
 			message: AstroErrorData.LiveContentConfigError.message(
@@ -817,6 +873,8 @@ export function defineCollection(config: any) {
 	}
 	return defineCollectionOrig(config);
 }
+
+export { defineEntrypointLiveCollection };
 
 export function defineLiveCollection() {
 	throw new AstroError({
