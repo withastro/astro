@@ -2,10 +2,12 @@ import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import { computeFallbackRoute } from '../../i18n/fallback.js';
 import { I18nRouter, type I18nRouterContext } from '../../i18n/router.js';
 import { markFeatureUsed, FetchFeatures } from '../fetch/features.js';
+import type { RouteData } from '../../types/public/internal.js';
 import type { SSRManifest } from '../app/types.js';
 import { shouldAppendForwardSlash } from '../build/util.js';
 import type { FetchState } from '../fetch/fetch-state.js';
 import { createManifestMemo } from '../manifest/memo.js';
+import { isFallbackRouteMatch } from '../routing/helpers.js';
 
 /**
  * The compiled i18n configuration for a manifest: the config values plus the
@@ -164,10 +166,9 @@ export async function finalizeI18n(
 
 	// Step 2: Apply fallback logic (if configured)
 	if (i18n.fallback && i18n.fallbackType) {
-		// The fallback sentinel (X-Astro-Route-Type: fallback, status 500) signals
-		// that the render pipeline couldn't find this page in the current locale.
-		// Treat it as a 404 so computeFallbackRoute will apply fallback logic.
-		const effectiveStatus = state.responseRouteType === 'fallback' ? 404 : response.status;
+		// Treat a missing locale page as a 404 so computeFallbackRoute will apply
+		// fallback logic.
+		const effectiveStatus = isMissingLocalePage(state, routeData, response) ? 404 : response.status;
 		const fallbackDecision = computeFallbackRoute({
 			pathname: url.pathname,
 			responseStatus: effectiveStatus,
@@ -202,4 +203,27 @@ export async function finalizeI18n(
 	}
 
 	return response;
+}
+
+/**
+ * Whether the render pipeline signals that the page does not exist in the
+ * requested locale. Two signals exist:
+ *
+ * - the fallback sentinel (`X-Astro-Route-Type: fallback`, status 500) for
+ *   routes of type `fallback`;
+ * - an on-demand page reached through one of its `fallbackRoutes`, which
+ *   renders with the `302` that `getDefaultStatusCode` assigns to such
+ *   matches and no `Location` (#18473; the status stopped being consumed
+ *   in #15704). A page that took over the response (an explicit redirect or
+ *   status) is not a missing page and is served as is.
+ */
+function isMissingLocalePage(state: FetchState, routeData: RouteData, response: Response): boolean {
+	if (state.responseRouteType === 'fallback') {
+		return true;
+	}
+	return (
+		isFallbackRouteMatch(routeData, state.pathname) &&
+		response.status === state.status &&
+		!response.headers.has('Location')
+	);
 }
