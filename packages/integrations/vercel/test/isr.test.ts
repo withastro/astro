@@ -40,23 +40,23 @@ describe('ISR', () => {
 		// the first two are /_astro/*, and filesystem routes
 		assert.deepEqual(routes, [
 			{
-				src: '^/two$',
+				src: '^/two/?$',
 				dest: '_render',
 			},
 			{
-				src: '^/excluded/([^/]+?)$',
+				src: '^/excluded/([^/]+?)/?$',
 				dest: '_render',
 			},
 			{
-				src: '^/excluded(?:/(.*?))?$',
+				src: '^/excluded(?:/(.*?))?/?$',
 				dest: '_render',
 			},
 			{
-				src: '^/api/([^/]+?)$',
+				src: '^/api/([^/]+?)/?$',
 				dest: '_render',
 			},
 			{
-				src: '^/api$',
+				src: '^/api/?$',
 				dest: '_render',
 			},
 			{
@@ -84,6 +84,25 @@ describe('ISR', () => {
 				src: '^/.*$',
 			},
 		]);
+	});
+
+	it('routes excluded paths with a trailing slash away from ISR', { timeout: 30000 }, async () => {
+		const deploymentConfig = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
+		const routes = deploymentConfig.routes.filter((route: { src?: string }) => route.src);
+		// Without the optional slash, `/excluded/foo/` skips its exclusion and
+		// matches the dynamic `[a]/[b]` ISR route instead.
+		for (const pathname of [
+			'/two/',
+			'/excluded/foo/',
+			'/excluded/foo/bar/',
+			'/api/',
+			'/api/foo/',
+		]) {
+			const firstMatch = routes.find((route: { src: string }) =>
+				new RegExp(route.src).test(pathname),
+			);
+			assert.equal(firstMatch?.dest, '_render', `expected ${pathname} to skip ISR`);
+		}
 	});
 
 	it('allow-lists every query param used in the ISR rewrite', { timeout: 30000 }, async () => {
