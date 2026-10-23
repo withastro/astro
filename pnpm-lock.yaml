@@ -6157,6 +6157,21 @@ importers:
         specifier: ^3.5.43
         version: 3.5.43(typescript@6.0.3)
 
+  packages/integrations/react/test/fixtures/react-disable-streaming:
+    dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      react:
+        specifier: ^19.3.0
+        version: 19.3.0
+      react-dom:
+        specifier: ^19.3.0
+        version: 19.3.0(react@19.3.0)
+
   packages/integrations/sitemap:
     dependencies:
       sitemap:
