@@ -5,6 +5,7 @@ import {
 	pathTag,
 	setConditionalHeaders,
 } from 'astro/cache/provider-utils';
+import { purgeTags } from './purge.js';
 
 const VERSION_TAG_PREFIX = 'astro-version:';
 
@@ -81,7 +82,7 @@ const factory: CacheProviderFactory = () => {
 			const { cache } = await import('cloudflare:workers');
 			const tags = collectInvalidationTags(options);
 			if (tags.length > 0) {
-				await cache.purge({ tags });
+				await purgeTags(cache, tags);
 			}
 		},
 	};
