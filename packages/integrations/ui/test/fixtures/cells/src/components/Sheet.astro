@@ -1,0 +1,310 @@
+---
+import { COLS, display, evaluateSheet, ROWS } from '../lib/formula';
+
+interface Props {
+	/** Cell formulas by reference, e.g. `{ A1: '3', B1: '=A1*2' }`. */
+	cells: Record<string, string>;
+}
+const { cells } = Astro.props;
+// The same formula engine the client uses, so the first paint has real values.
+const values = evaluateSheet(cells);
+---
+<div class="sheet">
+	<div class="bar">
+		<output class="name">A0</output>
+		<input class="formula" aria-label="Formula" spellcheck="false" autocomplete="off" />
+	</div>
+	<div class="grid" tabindex="0">
+		<table>
+			<thead>
+				<tr>
+					<th></th>
+					{COLS.map((col) => <th>{col}</th>)}
+				</tr>
+			</thead>
+			<tbody>
+				{ROWS.map((row) => (
+					<tr>
+						<th>{row}</th>
+						{COLS.map((col) => {
+							const ref = col + row;
+							const value = values[ref];
+							return (
+								<td
+									data-ref={ref}
+									data-f={cells[ref]}
+									class:list={{ num: typeof value === 'number', error: typeof value === 'object' }}
+								>
+									{display(value)}
+								</td>
+							);
+						})}
+					</tr>
+				))}
+			</tbody>
+		</table>
+		<input class="editor" aria-label="Edit cell" spellcheck="false" autocomplete="off" hidden />
+	</div>
+</div>
+
+<script scoped>
+	import { computed, effect, type Signal, signal } from '@astrojs/ui';
+	import {
+		COLS,
+		display,
+		evaluate,
+		type Formula,
+		FormulaError,
+		parse,
+		references,
+		ROWS,
+		type Value,
+	} from '../lib/formula';
+
+	interface Cell {
+		el: HTMLElement;
+		formula: Signal<string>;
+		refs: () => string[];
+		value: () => Value | FormulaError;
+	}
+
+	const cells = new Map<string, Cell>();
+
+	// Another cell's value, for formulas. Errors propagate to whoever reads them.
+	const get = (ref: string): Value => {
+		const cell = cells.get(ref);
+		if (!cell) throw new FormulaError('#REF!');
+		const v = cell.value();
+		if (v instanceof FormulaError) throw v;
+		return v;
+	};
+
+	// Does following references from `start` lead back to it? Checked before
+	// evaluating, so a computed never reads itself. It reads only `refs`, so it
+	// re-runs when any formula along the way changes.
+	const inCycle = (start: string) => {
+		const seen = new Set<string>();
+		const stack = [...cells.get(start)!.refs()];
+		while (stack.length) {
+			const ref = stack.pop()!;
+			if (ref === start) return true;
+			if (seen.has(ref)) continue;
+			seen.add(ref);
+			const cell = cells.get(ref);
+			if (cell) stack.push(...cell.refs());
+		}
+		return false;
+	};
+
+	// One formula signal and one computed value per cell. Dependencies between
+	// cells are whatever `evaluate` reads, tracked by the signals themselves.
+	for (const td of scope.all('td[data-ref]')) {
+		const ref = td.el.dataset.ref!;
+		const formula = signal(td.el.dataset.f ?? '');
+		const parsed = computed<Formula>(() => parse(formula()));
+		const refs = computed(() => references(parsed()));
+		const value = computed<Value | FormulaError>(() => {
+			if (inCycle(ref)) return new FormulaError('#CYCLE!');
+			try {
+				return evaluate(parsed(), get);
+			} catch (e) {
+				if (e instanceof FormulaError) return e;
+				throw e;
+			}
+		});
+		cells.set(ref, { el: td.el, formula, refs, value });
+
+		td.text(() => display(value()))
+			.class('num', () => typeof value() === 'number')
+			.class('error', () => value() instanceof FormulaError);
+	}
+
+	// Selection and editing.
+	const grid = scope('.grid');
+	const bar = scope('.formula');
+	const editor = scope('.editor');
+	const selected = signal('A0');
+	const editing = signal(false);
+	const current = computed(() => cells.get(selected())!);
+
+	effect(() => {
+		const el = current().el;
+		el.classList.add('selected');
+		el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+		return () => el.classList.remove('selected');
+	});
+	scope('.name').text(selected);
+	effect(() => {
+		bar.el.value = current().formula();
+	});
+
+	editor.show(editing);
+	effect(() => {
+		if (!editing()) return;
+		const { el } = current();
+		Object.assign(editor.el.style, {
+			left: `${el.offsetLeft}px`,
+			top: `${el.offsetTop}px`,
+			width: `${el.offsetWidth}px`,
+			height: `${el.offsetHeight}px`,
+		});
+	});
+
+	const move = (dc: number, dr: number) => {
+		const ref = selected();
+		const col = Math.min(Math.max(COLS.indexOf(ref[0]) + dc, 0), COLS.length - 1);
+		const row = Math.min(Math.max(Number(ref.slice(1)) + dr, 0), ROWS.length - 1);
+		selected(COLS[col] + row);
+	};
+
+	const startEdit = (text?: string) => {
+		editor.el.value = text ?? current().formula();
+		editing(true);
+		editor.el.focus();
+	};
+
+	const finishEdit = (save: boolean, dc = 0, dr = 0) => {
+		if (!editing()) return;
+		if (save) current().formula(editor.el.value);
+		editing(false);
+		move(dc, dr);
+		grid.el.focus();
+	};
+
+	const cellOf = (e: Event) => (e.target as Element).closest<HTMLElement>('td[data-ref]');
+
+	grid
+		.on('click', (e) => {
+			const td = cellOf(e);
+			if (!td) return;
+			finishEdit(true);
+			selected(td.dataset.ref!);
+			grid.el.focus();
+		})
+		.on('dblclick', (e) => {
+			if (cellOf(e)) startEdit();
+		})
+		.on('keydown', (e) => {
+			// Keys typed in the editor bubble up here too.
+			if (editing() || e.target === editor.el) return;
+			const arrows: Record<string, [number, number]> = {
+				ArrowUp: [0, -1],
+				ArrowDown: [0, 1],
+				ArrowLeft: [-1, 0],
+				ArrowRight: [1, 0],
+				Tab: [e.shiftKey ? -1 : 1, 0],
+			};
+			if (e.key in arrows) move(...arrows[e.key]);
+			else if (e.key === 'Enter' || e.key === 'F2') startEdit();
+			else if (e.key === 'Backspace' || e.key === 'Delete') current().formula('');
+			else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) startEdit(e.key);
+			else return;
+			e.preventDefault();
+		});
+
+	editor
+		.on('keydown', (e) => {
+			if (e.key === 'Enter') finishEdit(true, 0, e.shiftKey ? -1 : 1);
+			else if (e.key === 'Tab') finishEdit(true, e.shiftKey ? -1 : 1, 0);
+			else if (e.key === 'Escape') finishEdit(false);
+			else return;
+			e.preventDefault();
+		})
+		.on('blur', () => finishEdit(true));
+
+	bar.on('keydown', (e) => {
+		if (e.key === 'Enter') {
+			current().formula(bar.el.value);
+			grid.el.focus();
+		} else if (e.key === 'Escape') {
+			bar.el.value = current().formula();
+			grid.el.focus();
+		}
+	});
+</script>
+
+<style>
+	.sheet {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		font: 13px/1.4 system-ui, sans-serif;
+	}
+	.bar {
+		display: flex;
+		gap: 0.5rem;
+		padding: 0.4rem;
+		border-bottom: 1px solid #ccc;
+	}
+	.name {
+		min-width: 3.5rem;
+		font-weight: 600;
+		text-align: center;
+	}
+	.formula {
+		flex: 1;
+		font: inherit;
+	}
+	.grid {
+		position: relative;
+		overflow: auto;
+		flex: 1;
+		outline: none;
+	}
+	table {
+		border-collapse: collapse;
+		/* Fixed layout only applies with a set width: a row header plus 26 columns. */
+		table-layout: fixed;
+		width: calc(2.5rem + 26 * 6rem);
+	}
+	th,
+	td {
+		border: 1px solid #ddd;
+		height: 1.6rem;
+		padding: 0 0.3rem;
+		white-space: nowrap;
+		overflow: hidden;
+	}
+	th {
+		background: #f4f4f4;
+		color: #555;
+		font-weight: 500;
+		position: sticky;
+	}
+	thead th {
+		top: 0;
+		z-index: 2;
+		width: 6rem;
+	}
+	thead th:first-child {
+		left: 0;
+		z-index: 3;
+		width: 2.5rem;
+	}
+	tbody th {
+		left: 0;
+		z-index: 1;
+	}
+	td {
+		cursor: cell;
+	}
+	td.num {
+		text-align: right;
+	}
+	td.error {
+		color: #c00;
+	}
+	td.selected {
+		outline: 2px solid #1a73e8;
+		outline-offset: -2px;
+	}
+	.editor {
+		position: absolute;
+		box-sizing: border-box;
+		margin: 0;
+		border: 2px solid #1a73e8;
+		font: inherit;
+		padding: 0 0.3rem;
+		z-index: 4;
+	}
+</style>

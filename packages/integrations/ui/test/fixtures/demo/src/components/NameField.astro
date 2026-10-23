@@ -1,0 +1,6 @@
+---
+import type { Signal } from '@astrojs/ui';
+interface Props { name: Signal<string> }
+const { name } = Astro.props;
+---
+<label>Your name <input type="text" value={name} /></label>
