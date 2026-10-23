@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 
 import path from 'node:path';
-import { check, parseArgsAsCheckConfig } from '../dist/index.js';
+import { check, hasDefaultReporter, parseArgsAsCheckConfig } from '../dist/index.js';
 
 const args = parseArgsAsCheckConfig(process.argv);
 
-console.info(`Getting diagnostics for Astro files in ${path.resolve(args.root)}...`);
+if (hasDefaultReporter(args)) {
+	console.info(`Getting diagnostics for Astro files in ${path.resolve(args.root)}...`);
+}
 
 const result = await check(args);
 
 if (typeof result === 'boolean') {
-	process.exit(result ? 1 : 0);
+	process.exitCode = result ? 1 : 0;
 }
