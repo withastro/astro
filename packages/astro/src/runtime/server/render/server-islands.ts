@@ -223,7 +223,7 @@ export class ServerIslandComponent {
 		const method = useGETRequest
 			? // GET request
 				`const headers = new Headers(${headersJson});
-let response = await fetch(${serverIslandUrlJson}, { headers });`
+let response = await fetch(${serverIslandUrlJson}, { headers }).catch(() => {});`
 			: // POST request
 				`let data = {
 	encryptedComponentExport: ${stringifyForScript(componentExportEncrypted)},
@@ -235,7 +235,7 @@ let response = await fetch(${serverIslandUrlJson}, {
 	method: 'POST',
 	body: JSON.stringify(data),
 	headers,
-});`;
+}).catch(() => {});`;
 
 		this.islandContent = `${method}replaceServerIsland(${stringifyForScript(hostId)}, response);`;
 		return this.islandContent;
@@ -250,9 +250,14 @@ const SERVER_ISLAND_REPLACER = markHTMLString(
 	`async function replaceServerIsland(id, r) {
 	let s = document.querySelector(\`script[data-island-id="\${id}"]\`);
 	// If there's no matching script, or the request fails then return
-	if (!s || r.status !== 200 || r.headers.get('content-type')?.split(';')[0].trim() !== 'text/html') return;
+	if (!s || !r || r.status !== 200 || r.headers.get('content-type')?.split(';')[0].trim() !== 'text/html') return;
 	// Load the HTML before modifying the DOM in case of errors
-	let html = await r.text();
+	let html;
+	try {
+		html = await r.text();
+	} catch {
+		return;
+	}
 	// Remove any placeholder content before the island script
 	while (s.previousSibling && s.previousSibling.nodeType !== 8 && s.previousSibling.data !== '${SERVER_ISLAND_START}')
 		s.previousSibling.remove();
