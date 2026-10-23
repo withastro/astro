@@ -58,6 +58,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		clientPrerender: false,
 		contentIntellisense: false,
+		liveContentEntrypoints: false,
 		chromeDevtoolsWorkspace: false,
 		incrementalBuild: false,
 		redirectPage: false,
