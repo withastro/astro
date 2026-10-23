@@ -1,12 +1,26 @@
 import path from 'node:path';
 import { getMajor } from 'verkit';
+import jsonLoggerDestination from '../../core/logger/impls/json.js';
+import nodeLoggerDestination from '../../core/logger/impls/node.js';
 import { ensureProcessNodeEnv } from '../../core/util.js';
 import { createLoggerFromFlags, type Flags, flagsToAstroInlineConfig } from '../flags.js';
 import { getPackage, getPackageVersion } from '../install-package.js';
+import { notify } from '../telemetry/index.js';
 
 export async function check(flags: Flags): Promise<boolean | void> {
 	ensureProcessNodeEnv('production');
 	const logger = createLoggerFromFlags(flags);
+	const defaultDestination = logger.options.destination;
+	const stderrDestination = flags.json
+		? jsonLoggerDestination({ stream: 'stderr', level: logger.level() })
+		: nodeLoggerDestination({ stream: 'stderr', level: logger.level() });
+	if (
+		flags.reporter !== undefined ||
+		flags.reporterFile !== undefined ||
+		flags['reporter-file'] !== undefined
+	) {
+		logger.setDestination(stderrDestination);
+	}
 	const getPackageOpts = {
 		skipAsk: !!flags.yes || !!flags.y,
 		cwd: flags.root,
@@ -40,18 +54,29 @@ export async function check(flags: Flags): Promise<boolean | void> {
 		return;
 	}
 
+	const { check: checker, parseArgsAsCheckConfig } = checkPackage;
+	const config = parseArgsAsCheckConfig(process.argv);
+	const hasDefaultReporter = checkPackage.hasDefaultReporter?.(config) ?? true;
+	logger.setDestination(hasDefaultReporter ? defaultDestination : stderrDestination);
+	await notify(logger);
+
 	if (!flags.noSync && !flags.help) {
 		// Run sync before check to make sure types are generated.
 		// NOTE: In the future, `@astrojs/check` can expose a `before lint` hook so that this works during `astro check --watch` too.
 		// For now, we run this once as usually `astro check --watch` is ran alongside `astro dev` which also calls `astro sync`.
 		const { default: sync } = await import('../../core/sync/index.js');
-		await sync(flagsToAstroInlineConfig(flags));
+		const inlineConfig = flagsToAstroInlineConfig(flags);
+		if (!hasDefaultReporter) {
+			inlineConfig.logger = {
+				entrypoint: flags.json ? 'astro/logger/json' : 'astro/logger/node',
+				config: { stream: 'stderr', level: logger.level() },
+			};
+		}
+		await sync(inlineConfig);
 	}
 
-	const { check: checker, parseArgsAsCheckConfig } = checkPackage;
-
-	const config = parseArgsAsCheckConfig(process.argv);
-
-	logger.info('check', `Getting diagnostics for Astro files in ${path.resolve(config.root)}...`);
+	if (hasDefaultReporter) {
+		logger.info('check', `Getting diagnostics for Astro files in ${path.resolve(config.root)}...`);
+	}
 	return await checker(config);
 }

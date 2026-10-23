@@ -2,11 +2,16 @@
 
 This package powers the `astro check` CLI command for running type checking and diagnostics in Astro projects.
 
-This package's internal logic is powered by [the Astro language server](https://github.com/withastro/astro/blob/main/packages/language-tools/language-server/src/check.ts).
+To save diagnostics as SARIF while keeping terminal output:
+
+```shell
+npx astro check --reporter=default --reporter=sarif --reporter-file=reports/astro.sarif
+```
 
 ## Documentation
 
-Read [the Astro type checking docs][docs].
+- Read [the Astro type checking docs][docs].
+- See [diagnostic reports](./docs/reporting.md) for formats, output destinations, watch mode, and programmatic usage.
 
 ## Support
 

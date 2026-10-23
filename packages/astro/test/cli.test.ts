@@ -105,6 +105,134 @@ describe('astro cli', () => {
 		assert.equal(result.stdout.includes('1 error'), true);
 	});
 
+	it('astro check keeps structured stdout separate from sync logs', {
+		skip: !!process.env.ECOSYSTEM_CI,
+		timeout: 70000,
+	}, async () => {
+		const projectRoot = fileURLToPath(
+			new URL('./fixtures/astro-check-no-errors/', import.meta.url),
+		);
+		for (const loggerFlags of [[], ['--json']]) {
+			const result = await cli(
+				'check',
+				'--root',
+				projectRoot,
+				'--reporter=json',
+				...loggerFlags,
+			).getResult();
+			assert.equal(result.exitCode, 0, result.stderr);
+			assert.equal(JSON.parse(result.stdout).version, 1);
+			assert.match(result.stderr, /Generated/);
+			assert.ok(!result.stdout.includes('Getting diagnostics'));
+			if (loggerFlags.length > 0) {
+				const logs = result.stderr
+					.trim()
+					.split('\n')
+					.map((line) => JSON.parse(line));
+				assert.ok(logs.some((log) => log.label === 'types'));
+			}
+		}
+	});
+
+	it('astro check writes a file without implicit terminal diagnostics', {
+		skip: !!process.env.ECOSYSTEM_CI,
+		timeout: 35000,
+	}, async (t) => {
+		const directory = await fs.mkdtemp(join(tmpdir(), 'astro-check-file-'));
+		t.after(() => fs.rm(directory, { recursive: true, force: true }));
+		const projectRoot = fileURLToPath(
+			new URL('./fixtures/astro-check-no-errors/', import.meta.url),
+		);
+		const reporterFile = join(directory, 'report.json');
+		const result = await cli(
+			'check',
+			'--root',
+			projectRoot,
+			'--reporter=json',
+			'--reporter-file',
+			reporterFile,
+		).getResult();
+		assert.equal(result.exitCode, 0, result.stderr);
+		assert.equal(result.stdout, '');
+		assert.match(result.stderr, /Generated/);
+		assert.equal(JSON.parse(await fs.readFile(reporterFile, 'utf8')).version, 1);
+	});
+
+	it('astro check retains default stdout when explicitly combined with a file reporter', {
+		skip: !!process.env.ECOSYSTEM_CI,
+		timeout: 35000,
+	}, async (t) => {
+		const directory = await fs.mkdtemp(join(tmpdir(), 'astro-check-reporters-'));
+		t.after(() => fs.rm(directory, { recursive: true, force: true }));
+		const projectRoot = fileURLToPath(
+			new URL('./fixtures/astro-check-no-errors/', import.meta.url),
+		);
+		const reporterFile = join(directory, 'report.json');
+		const result = await cli(
+			'check',
+			'--root',
+			projectRoot,
+			'--noSync',
+			'--reporter=default',
+			'--reporter=json',
+			'--reporter-file',
+			reporterFile,
+		).getResult();
+		assert.equal(result.exitCode, 0, result.stderr);
+		assert.match(result.stdout, /Getting diagnostics/);
+		assert.match(result.stdout, /0 errors/);
+		assert.equal(JSON.parse(await fs.readFile(reporterFile, 'utf8')).version, 1);
+	});
+
+	it('astro check validates reporters before loading the project config', async () => {
+		const projectRoot = fileURLToPath(
+			new URL('./fixtures/astro-check-no-errors/', import.meta.url),
+		);
+		const result = await cli(
+			'check',
+			'--root',
+			projectRoot,
+			'--config',
+			'missing-config.mjs',
+			'--reporter=unknown',
+		).getResult();
+		assert.equal(result.exitCode, 1);
+		assert.match(result.stderr, /reporter/i);
+		assert.ok(!result.stderr.includes('missing-config.mjs'));
+		assert.equal(result.stdout, '');
+	});
+
+	it('astro check supports installed check packages without reporter selection', async (t) => {
+		const projectRoot = await fs.mkdtemp(join(tmpdir(), 'astro-check-package-'));
+		t.after(() => fs.rm(projectRoot, { recursive: true, force: true }));
+		for (const name of ['@astrojs/check', 'typescript']) {
+			const packageRoot = join(projectRoot, 'node_modules', name);
+			await fs.mkdir(packageRoot, { recursive: true });
+			await fs.writeFile(
+				join(packageRoot, 'package.json'),
+				JSON.stringify({ name, version: '6.0.0', type: 'module', main: 'index.js' }),
+			);
+			await fs.writeFile(
+				join(packageRoot, 'index.js'),
+				name === 'typescript'
+					? 'export {};\n'
+					: `
+export function parseArgsAsCheckConfig(args) {
+  return { root: args[args.indexOf('--root') + 1] };
+}
+export function check() {
+  console.info('Installed checker completed');
+  return false;
+}
+`,
+			);
+		}
+		const result = await cli('check', '--root', projectRoot, '--noSync').getResult();
+		assert.equal(result.exitCode, 0, result.stderr);
+		assert.match(result.stdout, /Getting diagnostics/);
+		assert.match(result.stdout, /Installed checker completed/);
+	});
+
 	it('astro check explains TypeScript 7 support', async () => {
 		const projectRoot = await fs.mkdtemp(join(tmpdir(), 'astro-check-ts7-'));
 		const typescriptRoot = join(projectRoot, 'node_modules', 'typescript');
