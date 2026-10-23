@@ -6,12 +6,22 @@ import { slug as githubSlug } from 'github-slugger';
 import colors from 'piccolore';
 import type { RunnableDevEnvironment, Rolldown } from 'vite';
 import xxhash from 'xxhash-wasm';
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 import * as z from 'zod/v4';
-import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
+import {
+	AstroError,
+	AstroErrorData,
+	errorMap,
+	formatIssuePath,
+	formatSchemaIssues,
+	isStandardSchema,
+	MarkdownError,
+} from '../core/errors/index.js';
 import { isYAMLParseError } from '../core/errors/utils.js';
 import type { AstroLogger } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
+import { patchZodStandardSchema } from '../preview-release/zod.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
@@ -20,9 +30,9 @@ import {
 	CONTENT_LAYER_TYPE,
 	CONTENT_MODULE_FLAG,
 	DEFERRED_MODULE,
-	IMAGE_IMPORT_PREFIX,
 	LIVE_CONTENT_TYPE,
 } from './consts.js';
+import { image as resolveImageField } from './image.js';
 import { glob, secretLegacyFlag } from './loaders/glob.js';
 import type { LoaderContext } from './loaders/types.js';
 import { createImage } from './runtime-assets.js';
@@ -51,6 +61,9 @@ export const loaderReturnSchema = z.union([
 			.passthrough(),
 	),
 ]);
+
+const INVALID_SCHEMA_MESSAGE =
+	'Invalid schema. Expected a Standard Schema validator (https://standardschema.dev), such as a Zod, Valibot or ArkType schema.';
 
 function contentConfigParser(logger: AstroLogger) {
 	return z.object({
@@ -93,22 +106,13 @@ function contentConfigParser(logger: AstroLogger) {
 									}
 									return v;
 								})
-								.superRefine((v, ctx) => {
-									if (v !== undefined && !('_zod' in v)) {
-										ctx.addIssue({
-											code: z.ZodIssueCode.custom,
-											message: 'Invalid Zod schema',
-										});
-										return z.NEVER;
-									}
-								})
 								.optional(),
 							createSchema: z
 								.function({
 									input: [],
 									output: z.promise(
 										z.object({
-											schema: z.custom<z.ZodSchema>((v: any) => '_zod' in v),
+											schema: z.custom<StandardSchemaV1>(isStandardSchema, INVALID_SCHEMA_MESSAGE),
 											types: z.string(),
 										}),
 									),
@@ -172,75 +176,72 @@ export async function getEntryData<
 	let schema = collectionConfig.schema;
 
 	if (typeof schema === 'function') {
+		const { filePath } = entry._internal;
 		if (pluginContext) {
 			schema = schema({
-				image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
+				filePath,
+				image: createImage(pluginContext, shouldEmitFile, filePath),
 			});
 		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
 			schema = schema({
-				image: () =>
-					z.string().transform((val) => {
-						// Normalize bare filenames to relative paths for consistent resolution
-						// This ensures bare filenames like "cover.jpg" work the same way as in markdown frontmatter
-						let normalizedPath = val;
-
-						// Skip normalization for URLs, absolute paths, and already-relative paths
-						const isUrl = val.includes('://');
-						const isAbsolute = val.startsWith('/');
-						const isRelative = val.startsWith('.');
-
-						if (val && !isUrl && !isAbsolute && !isRelative) {
-							// Check if this is a local file or an alias
-							// Resolve relative to the entry's directory
-							const entryDir = path.dirname(entry._internal.filePath);
-							const resolvedPath = path.resolve(entryDir, val);
-
-							// If the file exists, normalize to relative path
-							// Otherwise, keep as-is (likely a Vite alias)
-							if (fsMod.existsSync(resolvedPath)) {
-								normalizedPath = `./${val}`;
-							}
-						}
-						return `${IMAGE_IMPORT_PREFIX}${normalizedPath}`;
-					}),
+				// The entry's file path, so `image(context, { src })` can resolve relative
+				// sources.
+				filePath,
+				// Deprecated `({ image })` form. Routed through the same resolver, so legacy
+				// schemas gain probing and validation too.
+				image: () => z.string().transform((val) => resolveImageField({ filePath }, { src: val })),
 			});
 		}
 	}
 
 	if (schema) {
-		// Use `safeParseAsync` to allow async transforms
-		let formattedError;
-		const parsed = await (schema as z.ZodSchema).safeParseAsync(data, {
-			error(issue) {
-				if (issue.code === 'custom' && issue.params?.isHoistedAstroError) {
-					formattedError = issue.params?.astroError;
-				}
-				return errorMap(issue);
-			},
-		});
-		if (parsed.success) {
-			data = parsed.data as TOutputData;
-		} else {
-			if (!formattedError) {
-				formattedError = new AstroError({
-					...AstroErrorData.InvalidContentEntryDataError,
-					message: AstroErrorData.InvalidContentEntryDataError.message(
-						entry.collection,
-						entry.id,
-						parsed.error,
-					),
+		if (!isStandardSchema(schema)) {
+			throw new AstroError({
+				...AstroErrorData.InvalidCollectionSchemaError,
+				message: AstroErrorData.InvalidCollectionSchemaError.message(entry.collection),
+			});
+		}
+		let result: StandardSchemaV1.Result<unknown>;
+		try {
+			// `validate()` may return a promise, which is what allows async transforms. The
+			// error map keeps the wording Astro's schema errors use for Zod schemas.
+			patchZodStandardSchema(schema, errorMap);
+			result = await schema['~standard'].validate(data);
+		} catch (error) {
+			// `image()` cannot see the entry it is resolving for, so add the entry to its
+			// error here, where the collection and id are known.
+			if (error instanceof AstroError && error.name === AstroErrorData.ImageNotFound.name) {
+				throw new AstroError({
+					...AstroErrorData.ImageNotFound,
+					message: `**${entry.collection} → ${entry.id}** ${error.message}`,
 					location: {
 						file: entry._internal?.filePath,
-						line: getYAMLErrorLine(
-							entry._internal?.rawData,
-							String(parsed.error.issues[0].path[0]),
-						),
+						line: 0,
 						column: 0,
 					},
 				});
 			}
-			throw formattedError;
+			throw error;
 		}
+		if (result.issues) {
+			throw new AstroError({
+				...AstroErrorData.InvalidContentEntryDataError,
+				message: AstroErrorData.InvalidContentEntryDataError.message(
+					entry.collection,
+					entry.id,
+					formatSchemaIssues(result.issues),
+				),
+				location: {
+					file: entry._internal?.filePath,
+					line: getYAMLErrorLine(
+						entry._internal?.rawData,
+						formatIssuePath(result.issues[0]?.path).split('.')[0],
+					),
+					column: 0,
+				},
+			});
+		}
+		data = result.value as TOutputData;
 	}
 
 	return data;
@@ -495,6 +496,32 @@ export function isDeferredModule(viteId: string): boolean {
 	return flags.has(CONTENT_MODULE_FLAG);
 }
 
+/**
+ * The name of the first collection whose `schema`, or whose loader's `schema`, is not a
+ * Standard Schema validator. Returns `undefined` when every schema is valid.
+ */
+function firstInvalidCollectionSchema(
+	collections: ContentConfig['collections'],
+): string | undefined {
+	for (const [name, collection] of Object.entries(collections)) {
+		const schema = collection.schema;
+		if (schema !== undefined && typeof schema !== 'function' && !isStandardSchema(schema)) {
+			return name;
+		}
+		const loader = 'loader' in collection ? collection.loader : undefined;
+		if (
+			loader !== undefined &&
+			typeof loader === 'object' &&
+			'schema' in loader &&
+			loader.schema !== undefined &&
+			!isStandardSchema(loader.schema)
+		) {
+			return name;
+		}
+	}
+	return undefined;
+}
+
 async function loadContentConfig({
 	fs,
 	settings,
@@ -519,6 +546,13 @@ async function loadContentConfig({
 
 	const config = contentConfigParser(logger).safeParse(unparsedConfig);
 	if (config.success) {
+		const invalidCollection = firstInvalidCollectionSchema(config.data.collections);
+		if (invalidCollection !== undefined) {
+			throw new AstroError({
+				...AstroErrorData.InvalidCollectionSchemaError,
+				message: AstroErrorData.InvalidCollectionSchemaError.message(invalidCollection),
+			});
+		}
 		// Generate a digest of the config file so we can invalidate the cache if it changes
 		const hasher = await xxhash();
 		const digest = hasher.h64ToString(await fs.promises.readFile(configPathname, 'utf-8'));
