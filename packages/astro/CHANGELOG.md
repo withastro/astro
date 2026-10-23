@@ -1,5 +1,17 @@
 # astro
 
+## 7.4.3
+
+### Patch Changes
+
+- [#18488](https://github.com/withastro/astro/pull/18488) [`e4e25fa`](https://github.com/withastro/astro/commit/e4e25fa7d47e702985cbb1ee633d4ffb92f8dad6) Thanks [@umeraamir69](https://github.com/umeraamir69)! - CSP no longer hashes empty children on external stylesheets and scripts, which was inserting the SHA-256 of the empty string into `script-src` and `style-src`.
+
+- [#18494](https://github.com/withastro/astro/pull/18494) [`5fe699c`](https://github.com/withastro/astro/commit/5fe699c888d0423db75cac3f0939409d7eb28e37) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes the `astro` CLI refusing to run on StackBlitz by allowing Node.js `>=22.22.0` inside WebContainers, whose Node.js version users cannot change
+
+- [#18476](https://github.com/withastro/astro/pull/18476) [`8ea79a2`](https://github.com/withastro/astro/commit/8ea79a282e53b83c65f69c9013f5eeb5d97aadb1) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a `DataCloneError` crash when building pages that render SVG imports with `<Image />` or `getImage()` while `experimental.parallelPrerender` is enabled.
+- Updated dependencies [[`6cf3423`](https://github.com/withastro/astro/commit/6cf3423e4c62af5e54a2676c8304a209ab1e064d)]:
+  - @astrojs/telemetry@3.4.2
+
 ## 7.4.2
 
 ### Patch Changes

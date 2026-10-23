@@ -1,5 +1,11 @@
 # @astrojs/telemetry
 
+## 3.4.2
+
+### Patch Changes
+
+- [#18481](https://github.com/withastro/astro/pull/18481) [`6cf3423`](https://github.com/withastro/astro/commit/6cf3423e4c62af5e54a2676c8304a209ab1e064d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Avoids blocking Astro commands while looking up the anonymous project ID, by running `git` asynchronously. Events recorded at the same time now share a single lookup.
+
 ## 3.4.1
 
 ### Patch Changes
