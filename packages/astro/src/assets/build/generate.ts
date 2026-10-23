@@ -232,10 +232,15 @@ export async function generateImagesForPath(
 				// Try to revalidate the cache
 				if (JSONData.etag || JSONData.lastModified) {
 					try {
-						const revalidatedData = await revalidateRemoteImage(options.src as string, {
-							etag: JSONData.etag,
-							lastModified: JSONData.lastModified,
-						});
+						const revalidatedData = await revalidateRemoteImage(
+							options.src as string,
+							{
+								etag: JSONData.etag,
+								lastModified: JSONData.lastModified,
+							},
+							undefined,
+							env.imageConfig,
+						);
 
 						if (revalidatedData.data !== null) {
 							// Image cache was stale, update original image to avoid redownload
