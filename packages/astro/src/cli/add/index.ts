@@ -140,7 +140,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames, flags, logger);
 	const hasCloudflareIntegration = integrations.some(
-		(integration) => integration.id === 'cloudflare',
+		(integration) => integration.packageName === OFFICIAL_ADAPTER_TO_IMPORT_MAP.cloudflare,
 	);
 	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logger });
 	const rootPath = resolveRoot(cwd);
@@ -273,7 +273,11 @@ export async function add(names: string[], { flags }: AddOptions) {
 				});
 			}
 			// The Vercel adapter outputs to .vercel/output which should be gitignored
-			if (integrations.find((integration) => integration.id === 'vercel')) {
+			if (
+				integrations.find(
+					(integration) => integration.packageName === OFFICIAL_ADAPTER_TO_IMPORT_MAP.vercel,
+				)
+			) {
 				const gitignorePath = new URL('./.gitignore', root);
 				const gitignoreEntry = '.vercel';
 
@@ -345,7 +349,11 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 		for (const integration of integrations) {
 			if (isAdapter(integration)) {
-				const officialExportName = OFFICIAL_ADAPTER_TO_IMPORT_MAP[integration.id];
+				const officialExportName =
+					OFFICIAL_ADAPTER_TO_IMPORT_MAP[integration.id] ??
+					Object.values(OFFICIAL_ADAPTER_TO_IMPORT_MAP).find(
+						(packageName) => packageName === integration.packageName,
+					);
 				if (officialExportName) {
 					setAdapter(mod, integration, officialExportName);
 				} else {
@@ -582,8 +590,8 @@ function setAdapter(mod: ProxifiedModule<any>, adapter: IntegrationInfo, exportN
 		});
 	}
 
-	switch (adapter.id) {
-		case 'node':
+	switch (exportName) {
+		case '@astrojs/node':
 			config.adapter = builders.functionCall(adapterId, { mode: 'standalone' });
 			break;
 		default:
