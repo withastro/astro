@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
@@ -10,6 +10,7 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../core/constants.js';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
 import { generateCspDigest } from '../../core/encryption.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
+import { copyCachedFile } from '../../core/fs/index.js';
 import type { AstroLogger } from '../../core/logger/core.js';
 import { appendForwardSlash, joinPaths, prependForwardSlash } from '../../core/path.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -380,6 +381,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					resolvedConfig.environments[ASTRO_VITE_ENVIRONMENT_NAMES.client].build.outDir,
 				);
 				const fontsDir = new URL(`.${assetsDir}`, dir);
+				const cacheDir = new URL(CACHE_DIR, settings.config.cacheDir);
 				try {
 					mkdirSync(fontsDir, { recursive: true });
 				} catch (cause) {
@@ -392,9 +394,11 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					);
 					await Promise.all(
 						Array.from(fontFileById.entries()).map(async ([id, associatedData]) => {
-							const data = await fontFetcher!.fetch({ id, ...associatedData });
+							// Fetching populates the cache, so the output can be copied from it
+							// with its timestamps kept (#18483).
+							await fontFetcher!.fetch({ id, ...associatedData });
 							try {
-								writeFileSync(new URL(id, fontsDir), data);
+								await copyCachedFile(new URL(id, cacheDir), new URL(id, fontsDir));
 							} catch (cause) {
 								throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 							}
