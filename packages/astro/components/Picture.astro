@@ -135,8 +135,12 @@ const { class: className, ...attributes } = {
 
 <picture {...pictureAttributes}>
 	{Object.entries(optimizedImages).map(([_, image]) => {
+		// The descriptorless `image.src` is the implicit 1x candidate, so it is omitted when
+		// `densities` already produces an explicit 1x one (duplicate densities are invalid HTML).
+		const hasExplicit1x = image.srcSet.values.some((srcSet) => srcSet.descriptor === '1x');
 		const srcsetAttribute =
-			props.densities || (!props.densities && !props.widths && !useResponsive)
+			(props.densities && !hasExplicit1x) ||
+			(!props.densities && !props.widths && !useResponsive)
 				? `${image.src}${image.srcSet.values.length > 0 ? ', ' + image.srcSet.attribute : ''}`
 				: image.srcSet.attribute;
 		return (
