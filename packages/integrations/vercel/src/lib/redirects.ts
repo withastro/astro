@@ -129,7 +129,7 @@ export function escapeRegex(content: string) {
  * are left untouched, unless they end in an extension and already carry a
  * slash. So a source must stay unslashed whenever its last segment has a dot.
  */
-const LAST_SEGMENT_HAS_DOT = /\/[^/]*\.[^/]*$/;
+const LAST_SEGMENT_HAS_DOT = /\.[^/]*$/;
 
 /**
  * Adjust a Vercel redirect source for the Astro `trailingSlash` config.
