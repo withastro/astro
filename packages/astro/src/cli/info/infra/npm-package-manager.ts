@@ -17,13 +17,12 @@ export class NpmPackageManager implements PackageManager {
 	async getPackageVersion(name: string): Promise<string | undefined> {
 		try {
 			// https://docs.npmjs.com/cli/v9/commands/npm-ls
-			const { stdout } = await this.#commandExecutor.execute(
-				'npm',
-				['ls', name, '--json', '--depth=1'],
-				{
-					shell: true,
-				},
-			);
+			const { stdout } = await this.#commandExecutor.execute('npm', [
+				'ls',
+				name,
+				'--json',
+				'--depth=1',
+			]);
 			const parsedNpmOutput = JSON.parse(stdout) as BareNpmLikeVersionOutput;
 
 			if (!parsedNpmOutput.dependencies) {
