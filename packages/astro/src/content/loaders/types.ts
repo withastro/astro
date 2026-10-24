@@ -59,6 +59,12 @@ export type Loader = {
 	name: string;
 	/** Do the actual loading of the data */
 	load: (context: LoaderContext) => Promise<void>;
+	/**
+	 * Set to `true` if this loader can load collections defined with `storage: 'external'`.
+	 * Astro throws an error when a collection with `storage: 'external'` uses a loader
+	 * without it.
+	 */
+	supportsExternalStorage?: boolean;
 } & (
 	| {
 			/** Optionally, define the schema of the data. Will be overridden by user-defined schema */

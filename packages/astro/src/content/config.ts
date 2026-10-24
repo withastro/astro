@@ -87,6 +87,11 @@ type ContentLayerConfig<S extends BaseSchema, TLoader extends LoaderConstraint<{
 	type?: 'content_layer';
 	schema?: S | ((context: SchemaContext) => S);
 	loader: TLoader;
+	/**
+	 * Persists the collection with the driver configured in `experimental.collectionStorage`
+	 * instead of bundling it with the site. Requires a loader that supports external storage.
+	 */
+	storage?: 'external';
 };
 
 type DataCollectionConfig<S extends BaseSchema> = {
