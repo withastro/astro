@@ -1,11 +1,11 @@
 import { existsSync, promises as fs, type PathLike } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as devalue from 'devalue';
-import { forEach } from 'neotraverse';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroLogger } from '../core/logger/core.js';
-import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
+import { DATA_STORE_MANIFEST_FILE } from './consts.js';
+import { createDataEntry } from './data-entry.js';
 import {
 	ChunkedWriter,
 	type DataStoreManifest,
@@ -394,90 +394,23 @@ export default new Map([\n${lines.join(',\n')}]);
 			entries: () => this.entries(collectionName),
 			values: () => this.values(collectionName),
 			keys: () => this.keys(collectionName),
-			set: ({
-				id: key,
-				data,
-				body,
-				filePath,
-				deferredRender,
-				digest,
-				rendered,
-				assetImports,
-				imageImports: incomingImageImports,
-			}) => {
-				if (!key) {
+			set: (input) => {
+				if (!input.id) {
 					throw new Error(`ID must be a non-empty string`);
 				}
-				const id = String(key);
-				if (digest) {
+				const id = String(input.id);
+				if (input.digest) {
 					const existing = this.get<DataEntry>(collectionName, id);
-					if (existing && existing.digest === digest) {
+					if (existing && existing.digest === input.digest) {
 						return false;
 					}
 				}
-				const foundAssets = new Set<string>(assetImports);
-				const imageImports: (string | number)[][] = [];
-				const seenImageImportPaths = new Set();
-				const recordImageImport = (imagePath: (string | number)[]) => {
-					const pathKey = JSON.stringify(imagePath);
-					if (seenImageImportPaths.has(pathKey)) {
-						return;
-					}
-					seenImageImportPaths.add(pathKey);
-					imageImports.push(imagePath);
-				};
-				for (const existingImagePath of incomingImageImports ?? []) {
-					recordImageImport([...existingImagePath]);
+				const entry = createDataEntry(id, input);
+				if (entry.assetImports) {
+					this.addAssetImports(entry.assetImports, input.filePath);
 				}
-				// Image fields are prefixed during schema parsing. Record their locations and
-				// strip the prefix so the stored data holds a plain, devalue-serializable src
-				// string. The recorded paths let read-time resolution rewrite only these fields
-				// without traversing or cloning the rest of the data.
-				forEach(data, function (ctx, val) {
-					if (typeof val === 'string' && val.startsWith(IMAGE_IMPORT_PREFIX)) {
-						const src = val.replace(IMAGE_IMPORT_PREFIX, '');
-						foundAssets.add(src);
-						recordImageImport(ctx.path.map((segment) => segment as string | number));
-						ctx.update(src);
-					}
-				});
-
-				const entry: DataEntry = {
-					id,
-					data,
-				};
-				// We do it like this so we don't waste space stringifying
-				// the fields if they are not set
-				if (body) {
-					entry.body = body;
-				}
-				if (filePath) {
-					if (filePath.startsWith('/')) {
-						throw new Error(`File path must be relative to the site root. Got: ${filePath}`);
-					}
-					entry.filePath = filePath;
-				}
-
-				if (foundAssets.size) {
-					entry.assetImports = Array.from(foundAssets);
-					this.addAssetImports(entry.assetImports, filePath);
-				}
-
-				if (imageImports.length) {
-					entry.imageImports = imageImports;
-				}
-
-				if (digest) {
-					entry.digest = digest;
-				}
-				if (rendered) {
-					entry.rendered = rendered;
-				}
-				if (deferredRender) {
-					entry.deferredRender = deferredRender;
-					if (filePath) {
-						this.addModuleImport(filePath);
-					}
+				if (entry.deferredRender && input.filePath) {
+					this.addModuleImport(input.filePath);
 				}
 				this.set(collectionName, id, entry);
 				return true;
