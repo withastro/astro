@@ -248,6 +248,22 @@ describe('astro:image', () => {
 				assert.equal(res.headers.get('content-type'), 'image/avif');
 			});
 
+			it('supports .tif', async () => {
+				let res = await fixture.fetch('/tif');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				assert.equal($('#format').text(), 'tiff');
+
+				let $img = $('img');
+				assert.equal($img.length, 1);
+				assert.equal($img.attr('width'), '2');
+				assert.equal($img.attr('height'), '3');
+
+				res = await fixture.fetch($img.attr('src')!);
+				assert.equal(res.status, 200);
+			});
+
 			it('has a working Picture component', async () => {
 				let res = await fixture.fetch('/picturecomponent');
 				let html = await res.text();
