@@ -8,6 +8,7 @@ import type {
 import { AstroError } from '../../errors/errors.js';
 import { CacheNotEnabled } from '../../errors/errors-data.js';
 import { defaultSetHeaders, isLiveDataEntry } from './utils.js';
+import type { AstroLogger } from '../../logger/core.js';
 
 const APPLY_HEADERS = Symbol.for('astro:cache:apply');
 const IS_ACTIVE = Symbol.for('astro:cache:active');
@@ -38,14 +39,30 @@ export class AstroCache implements CacheLike {
 	#tags = new Set<string>();
 	#disabled = false;
 	#provider: CacheProvider | null;
+	#logger: AstroLogger | undefined;
+	#headersApplied = false;
+	#hasWarnedLateSet = false;
 
 	readonly enabled = true;
 
-	constructor(provider: CacheProvider | null) {
+	constructor(provider: CacheProvider | null, logger?: AstroLogger) {
 		this.#provider = provider;
+		this.#logger = logger;
 	}
 
 	set(input: CacheOptions | CacheHint | LiveDataEntry | false): void {
+		// With streaming, headers are applied once the page frontmatter has run, so calls from
+		// components rendered afterwards (e.g. a layout that awaits first) cannot reach the response.
+		// See https://github.com/withastro/astro/issues/18499
+		if (this.#headersApplied && !this.#hasWarnedLateSet) {
+			this.#hasWarnedLateSet = true;
+			this.#logger?.warn(
+				'cache',
+				'`Astro.cache.set()` was called after the cache headers had already been applied to the response, so it has no effect on this response.\n' +
+					'This may happen when it is called in a layout or other component after an `await` while streaming.\n' +
+					'Call `Astro.cache.set()` in the page frontmatter or in middleware instead, or before any `await` in the component.',
+			);
+		}
 		if (input === false) {
 			this.#disabled = true;
 			this.#tags.clear();
@@ -113,6 +130,7 @@ export class AstroCache implements CacheLike {
 
 	/** @internal */
 	[APPLY_HEADERS](response: Response, request: Request): void {
+		this.#headersApplied = true;
 		if (this.#disabled) return;
 		const finalOptions: CacheOptions = { ...this.#options, tags: this.tags };
 		if (finalOptions.maxAge === undefined && !finalOptions.tags?.length) return;

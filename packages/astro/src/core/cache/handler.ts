@@ -47,7 +47,7 @@ async function provideCacheAsync(state: FetchState, manifest: SSRManifest): Prom
 
 	state.provide<CacheLike>(CACHE_KEY, {
 		create() {
-			const cache = new AstroCache(cacheProvider);
+			const cache = new AstroCache(cacheProvider, state.logger);
 
 			// Apply config-level cache route matching as initial state. The
 			// compiled routes are derived lazily by the manifest memo, so the

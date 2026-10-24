@@ -6,6 +6,7 @@ import {
 	applyCacheHeaders,
 	isCacheActive,
 } from '../../../dist/core/cache/runtime/cache.js';
+import { SpyLogger } from '../test-utils.ts';
 
 // Mock provider
 function createMockProvider(overrides: Partial<CacheProvider> = {}): CacheProvider {
@@ -351,5 +352,21 @@ describe('isCacheActive()', () => {
 		cache.set({ maxAge: 60 });
 		cache.set(false);
 		assert.equal(isCacheActive(cache), false);
+	});
+});
+
+describe('AstroCache - set() after headers are applied', () => {
+	it('warns once when set() is called after applyCacheHeaders()', () => {
+		const logger = new SpyLogger({ level: 'warn' });
+		const cache = new AstroCache(null, logger);
+		cache.set({ tags: ['from-page'] });
+		applyCacheHeaders(cache, new Response('ok'), dummyRequest);
+		assert.equal(logger.logs.length, 0);
+
+		cache.set({ tags: ['from-layout'] });
+		cache.set({ tags: ['another'] });
+		const warnings = logger.logs.filter((log) => log.level === 'warn' && log.label === 'cache');
+		assert.equal(warnings.length, 1);
+		assert.match(warnings[0].message, /after the cache headers had already been applied/);
 	});
 });
