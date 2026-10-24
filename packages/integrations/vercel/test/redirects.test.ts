@@ -21,6 +21,7 @@ describe('Redirects', () => {
 				},
 				'/blog/[...slug]': '/team/articles/[...slug]',
 				'/Basic/http-2-0.html': '/posts/http2',
+				'/release-1.0-beta': '/posts/release',
 			},
 			trailingSlash: 'always',
 		});
@@ -55,6 +56,19 @@ describe('Redirects', () => {
 		assert.equal(staticRoute.status, 301);
 	});
 
+	it('does not add a slash Vercel would never add', { timeout: 30000 }, async () => {
+		const config = await getVercelConfig(fixture);
+
+		const dottedRoute = config.routes.find((r) => r.src === '^/release-1\\.0-beta$')!;
+		assert.notEqual(dottedRoute, undefined);
+		assert.equal(dottedRoute.headers['Location'], '/posts/release');
+		assert.equal(
+			config.routes.some((r) => r.src === '^/release-1\\.0-beta/$'),
+			false,
+			'a dotted path is never normalized to a slash by Vercel',
+		);
+	});
+
 	it('defines dynamic routes', { timeout: 30000 }, async () => {
 		const config = await getVercelConfig(fixture);
 
@@ -64,6 +78,14 @@ describe('Redirects', () => {
 		assert.notEqual(blogRoute, undefined);
 		assert.equal(blogRoute.headers['Location'].startsWith('/team/articles'), true);
 		assert.equal(blogRoute.status, 301);
+
+		// A spread value may contain a dot, which Vercel never slashes, so the
+		// unslashed form has to stay matchable too.
+		const unslashedBlogRoute = config.routes.find(
+			(r) => r.src === '^/blog(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?$',
+		)!;
+		assert.notEqual(unslashedBlogRoute, undefined);
+		assert.equal(unslashedBlogRoute.headers['Location'].startsWith('/team/articles'), true);
 	});
 
 	it('emits the assets cache rule after redirects and before the filesystem handle', async () => {
