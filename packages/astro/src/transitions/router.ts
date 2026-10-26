@@ -472,7 +472,7 @@ async function transition(
 	async function abortAndRecreateMostRecentTransition(): Promise<Transition> {
 		if (mostRecentTransition) {
 			if (mostRecentTransition.viewTransition) {
-				// skipTransition() does not throw — it rejects viewTransition.ready with
+				// skipTransition() does not throw; it rejects viewTransition.ready with
 				// an AbortError. Silence that rejection before calling skipTransition()
 				// so it does not surface as an unhandled promise rejection.
 				mostRecentTransition.viewTransition.ready.catch(() => {});
