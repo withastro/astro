@@ -1,0 +1,16 @@
+---
+import {ClientRouter} from "astro:transitions";
+---
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<ClientRouter />
+		<title>Script onload</title>
+	</head>
+	<body>
+		<a id="load-src-first" href="/script-onload/load-src-first">load, src first</a>
+		<a id="load-attr-first" href="/script-onload/load-attr-first">load, attribute first</a>
+		<a id="error-src-first" href="/script-onload/error-src-first">error, src first</a>
+		<a id="error-attr-first" href="/script-onload/error-attr-first">error, attribute first</a>
+	</body>
+</html>

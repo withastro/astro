@@ -149,13 +149,17 @@ function runScripts() {
 		const newScript = document.createElement('script');
 		newScript.innerHTML = script.innerHTML;
 		for (const attr of script.attributes) {
-			if (attr.name === 'src') {
-				const p = new Promise((r) => {
-					newScript.onload = newScript.onerror = r;
-				});
-				wait = wait.then(() => p as any);
-			}
 			newScript.setAttribute(attr.name, attr.value);
+		}
+		// Use listeners because assigning `onload`/`onerror` would replace the page's own handler
+		// attribute. Add them after copying attributes so that handler runs first, before
+		// `astro:page-load`, as on a full page load.
+		if (script.hasAttribute('src')) {
+			const p = new Promise((r) => {
+				newScript.addEventListener('load', r, { once: true });
+				newScript.addEventListener('error', r, { once: true });
+			});
+			wait = wait.then(() => p as any);
 		}
 		newScript.dataset.astroExec = '';
 		script.replaceWith(newScript);
