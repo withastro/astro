@@ -472,11 +472,11 @@ async function transition(
 	async function abortAndRecreateMostRecentTransition(): Promise<Transition> {
 		if (mostRecentTransition) {
 			if (mostRecentTransition.viewTransition) {
-				try {
-					mostRecentTransition.viewTransition.skipTransition();
-				} catch {
-					// might throw AbortError DOMException. Ignored on purpose.
-				}
+				// skipTransition() does not throw — it rejects viewTransition.ready with
+				// an AbortError. Silence that rejection before calling skipTransition()
+				// so it does not surface as an unhandled promise rejection.
+				mostRecentTransition.viewTransition.ready.catch(() => {});
+				mostRecentTransition.viewTransition.skipTransition();
 				try {
 					// UpdateCallbackDone might already been settled, i.e. if the previous transition finished updating the DOM.
 					// Could not take long, we wait for it to avoid parallel updates
