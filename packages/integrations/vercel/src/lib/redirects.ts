@@ -118,13 +118,45 @@ export function escapeRegex(content: string) {
 	return `^/${getMatchRegex(segments)}$`;
 }
 
+/**
+ * Adjusts a redirect source so it matches the path shape Vercel's trailing-slash
+ * normalization produces. With `trailingSlash: 'always'`, `@vercel/routing-utils`
+ * runs its normalization routes before redirect routes: extensionless paths are
+ * rewritten with a trailing slash and file paths without one, so the source must
+ * match the post-normalization form. A dynamic last segment can resolve to either
+ * shape (`/blog/a/` or `/blog/a.html`), so it gets an optional trailing slash. For
+ * any other `trailingSlash` value, and for the root path, the source is returned
+ * unchanged.
+ */
+function adjustSourceForTrailingSlash(
+	source: string,
+	segments: RoutePart[][],
+	trailingSlash: AstroConfig['trailingSlash'],
+): string {
+	if (trailingSlash !== 'always') return source;
+	if (source === '/') return source;
+
+	const lastSegment = segments[segments.length - 1];
+	if (lastSegment?.some((part) => part.dynamic)) return source + '{/}?';
+
+	const hasExtension = lastSegment?.some((part) => !part.dynamic && part.content.includes('.'));
+	if (hasExtension) return source;
+
+	return source.endsWith('/') ? source : source + '/';
+}
+
 export function getRedirects(routes: IntegrationResolvedRoute[], config: AstroConfig): Redirect[] {
 	const redirects: Redirect[] = [];
 
 	for (const route of routes) {
 		if (route.type === 'redirect') {
+			const source = adjustSourceForTrailingSlash(
+				config.base + getMatchPattern(route.segments),
+				route.segments,
+				config.trailingSlash,
+			);
 			redirects.push({
-				source: config.base + getMatchPattern(route.segments),
+				source,
 				destination: getRedirectLocation(route, config),
 				statusCode: getRedirectStatus(route),
 			});
