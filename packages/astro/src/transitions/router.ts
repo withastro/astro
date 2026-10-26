@@ -74,7 +74,7 @@ if (inBrowser) {
 		// Here we reloaded a page with history state
 		// (e.g. history navigation from non-transition page or browser reload)
 		currentHistoryIndex = history.state.index;
-		scrollTo({ left: history.state.scrollX, top: history.state.scrollY });
+		scrollTo({ left: history.state.scrollX, top: history.state.scrollY, behavior: 'instant' });
 	} else if (transitionEnabledOnThisPage()) {
 		// This page is loaded from the browser address bar or via a link from extern,
 		// it needs a state in the history
@@ -211,7 +211,7 @@ const moveToLocation = (
 	}
 
 	if (historyState) {
-		scrollTo(historyState.scrollX, historyState.scrollY);
+		scrollTo({ left: historyState.scrollX, top: historyState.scrollY, behavior: 'instant' });
 	} else {
 		if (to.hash) {
 			// because we are already on the target page ...
