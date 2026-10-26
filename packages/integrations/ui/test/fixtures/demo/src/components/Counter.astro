@@ -1,0 +1,26 @@
+---
+import { signal } from '@astrojs/ui';
+
+interface Props { label: string; start?: number }
+const { label, start = 0 } = Astro.props;
+const count = signal(start);
+---
+<div class="counter">
+  <span class="label">{label}</span>
+  <button class="dec" aria-label="Decrement">−</button>
+  <output>{count}</output>
+  <button class="inc" aria-label="Increment">+</button>
+</div>
+
+<script scoped>
+  // The signal from the frontmatter, revived as a number.
+  const count = scope('output').text();
+  scope('.inc').on('click', () => count(count() + 1));
+  scope('.dec').on('click', () => count(count() - 1));
+</script>
+
+<style>
+  .counter { display: flex; gap: 0.5rem; align-items: center; margin: 0.25rem 0; }
+  .label { min-width: 6rem; }
+  output { min-width: 2ch; text-align: center; font-variant-numeric: tabular-nums; }
+</style>

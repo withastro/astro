@@ -1,0 +1,52 @@
+---
+import Sheet from '../components/Sheet.astro';
+
+const cells: Record<string, string> = {
+	A0: 'Item',
+	B0: 'Qty',
+	C0: 'Price',
+	D0: 'Total',
+	A1: 'Apples',
+	B1: '6',
+	C1: '0.5',
+	D1: '=B1*C1',
+	A2: 'Bread',
+	B2: '1',
+	C2: '3.25',
+	D2: '=B2*C2',
+	A3: 'Coffee',
+	B3: '2',
+	C3: '9',
+	D3: '=B3*C3',
+	A5: 'Subtotal',
+	D5: '=sum(D1:D3)',
+	A6: 'Tax',
+	C6: '0.08',
+	D6: '=D5*C6',
+	A7: 'Total',
+	D7: '=D5+D6',
+	F0: 'Fibonacci',
+	F1: '1',
+	F2: '1',
+};
+// A chain of dependencies, to watch a change ripple down.
+for (let row = 3; row <= 20; row++) cells[`F${row}`] = `=F${row - 2}+F${row - 1}`;
+---
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>Cells</title>
+	</head>
+	<body>
+		<Sheet cells={cells} />
+	</body>
+</html>
+
+<style is:global>
+	html,
+	body {
+		height: 100%;
+		margin: 0;
+	}
+</style>

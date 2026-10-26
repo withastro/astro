@@ -1,0 +1,9 @@
+{
+  "name": "@test/ui-cells",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/ui": "workspace:*",
+    "astro": "workspace:*"
+  }
+}

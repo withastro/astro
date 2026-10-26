@@ -1,0 +1,60 @@
+{
+  "name": "@astrojs/ui",
+  "description": "Prototype: scoped scripts and DOM-bound signals for Astro components",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git",
+    "directory": "packages/integrations/ui"
+  },
+  "keywords": [
+    "astro-integration",
+    "signals",
+    "progressive-enhancement"
+  ],
+  "bugs": "https://github.com/withastro/astro/issues",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./integration": {
+      "types": "./dist/integration.d.ts",
+      "default": "./dist/integration.js"
+    },
+    "./server": "./dist/server.js",
+    "./client": "./dist/client.js",
+    "./scope": {
+      "types": "./dist/scope-global.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -b",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/units/**/*.test.ts\"",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@astrojs/compiler-rs": "^0.5.1",
+    "alien-signals": "^3.2.1"
+  },
+  "peerDependencies": {
+    "astro": "^7.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0",
+    "astro": "workspace:*",
+    "astro-scripts": "workspace:*",
+    "linkedom": "^0.18.13",
+    "vite": "^8.3.4"
+  }
+}
