@@ -8,11 +8,16 @@ export const rehypePrism: Plugin<[string[]?], Root> = (excludeLangs) => {
 		await highlightCodeBlocks(
 			tree,
 			async (code, language) => {
-				let { html, classLanguage } = await runHighlighterWithAstro(language, code);
+				const { html, classLanguage } = await runHighlighterWithAstro(language, code);
+				const className = escapeAttribute(classLanguage);
 
-				return `<pre class="${classLanguage}" data-language="${language}"><code class="${classLanguage}">${html}</code></pre>`;
+				return `<pre class="${className}" data-language="${escapeAttribute(language)}"><code class="${className}">${html}</code></pre>`;
 			},
 			excludeLangs,
 		);
 	};
 };
+
+function escapeAttribute(value: string) {
+	return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
