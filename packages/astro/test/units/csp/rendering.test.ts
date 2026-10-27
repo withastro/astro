@@ -6,6 +6,7 @@ import {
 	createComponent,
 	maybeRenderHead,
 	render,
+	renderComponent,
 	renderHead,
 } from '../../../dist/runtime/server/index.js';
 import type { SSRManifestCSP } from '../../../dist/types/public/internal.js';
@@ -36,6 +37,7 @@ type CspTestConfig = {
 	styleElemHashes?: string[];
 	styleAttrResources?: string[];
 	styleAttrHashes?: string[];
+	streaming?: boolean;
 };
 
 function createCspPipeline(config: CspTestConfig = {}, logger?: AstroLogger): TestPipeline {
@@ -54,6 +56,7 @@ function createCspPipeline(config: CspTestConfig = {}, logger?: AstroLogger): Te
 	// the pipeline delegates to is the one carrying the CSP settings.
 	return createBasicPipeline({
 		...(logger ? { logger } : {}),
+		...(config.streaming !== undefined ? { streaming: config.streaming } : {}),
 		manifest: {
 			shouldInjectCspMetaTags: true,
 			csp: {
@@ -384,6 +387,30 @@ describe('CSP Rendering', () => {
 				content.includes("img-src 'self' https://images.cdn.example.com"),
 				'Should merge img-src directives',
 			);
+		});
+
+		it('includes hashes inserted by components rendered after the head in non-streaming renders', async () => {
+			const pipeline = createCspPipeline({ streaming: false });
+
+			const BodyComponent = createComponent((result: any) => {
+				const Astro = result.createAstro({}, {});
+				Astro.csp.insertScriptHash('sha256-bodyComponentHash');
+				return render`<script>console.log('body');</script>`;
+			});
+
+			const Page = createComponent((result: any) => {
+				return render`<html>
+				<head>${renderHead()}</head>
+				<body>${maybeRenderHead()}${renderComponent(result, 'BodyComponent', BodyComponent, {})}</body>
+			</html>`;
+			});
+
+			const { html } = await renderPage(Page, pipeline);
+			const $ = cheerio.load(html);
+			const content = $('meta[http-equiv="Content-Security-Policy"]').attr('content')!;
+
+			assert.ok(content.includes('sha256-bodyComponentHash'));
+			assert.equal(html.includes('astro-csp-meta'), false);
 		});
 
 		it('should allow injecting custom style resources and hashes via Astro.csp', async () => {
