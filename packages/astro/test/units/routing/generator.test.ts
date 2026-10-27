@@ -185,4 +185,20 @@ describe('routing - generator', () => {
 		);
 		assert.equal(generator({ foo: 0 }), '/0');
 	});
+
+	it('generates a static route when called without params', () => {
+		const generator = getRouteGenerator(
+			[[{ spread: false, content: 'about', dynamic: false }]],
+			'never',
+		);
+		assert.equal(generator(), '/about');
+	});
+
+	it('throws a missing parameter error for a dynamic route called without params', () => {
+		const generator = getRouteGenerator(
+			[[{ spread: false, content: 'foo', dynamic: true }]],
+			'never',
+		);
+		assert.throws(() => generator(), { message: 'Missing parameter: foo' });
+	});
 });

@@ -51,7 +51,7 @@ export function getRouteGenerator(
 	segments: RoutePart[][],
 	addTrailingSlash: AstroConfig['trailingSlash'],
 ): RouteGenerator {
-	return (params?: any): string => {
+	return (params: any = {}): string => {
 		const sanitizedParams = sanitizeParams(params);
 
 		// Unless trailingSlash config is set to 'always', don't automatically append it.
