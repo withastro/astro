@@ -47,8 +47,10 @@ export function getContainerRenderer(): AstroRenderer {
 	return getContainerRendererImpl();
 }
 
-export interface Options
-	extends Pick<ViteSolidPluginOptions, 'include' | 'exclude' | 'compiler' | 'serverFunctions'> {}
+export type Options = Pick<
+	ViteSolidPluginOptions,
+	'include' | 'exclude' | 'compiler' | 'serverFunctions'
+>;
 
 export default function (options: Options = {}): AstroIntegration {
 	const serverComponents =

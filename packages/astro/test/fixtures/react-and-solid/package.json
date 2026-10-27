@@ -4,10 +4,10 @@
   "dependencies": {
     "@astrojs/react": "workspace:*",
     "@astrojs/solid-js": "workspace:*",
+    "@solidjs/web": "^2.0.0-rc.19",
     "astro": "workspace:*",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "solid-js": "^2.0.0-rc.5",
-    "@solidjs/web": "^2.0.0-rc.5"
+    "solid-js": "^2.0.0-rc.19"
   }
 }
