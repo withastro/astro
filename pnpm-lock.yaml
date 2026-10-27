@@ -2059,6 +2059,18 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
 
+  packages/astro/test/fixtures/astro-check-strictest-components:
+    dependencies:
+      '@astrojs/check':
+        specifier: workspace:*
+        version: link:../../../../language-tools/astro-check
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
   packages/astro/test/fixtures/astro-check-watch:
     dependencies:
       astro:

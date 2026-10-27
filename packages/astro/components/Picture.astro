@@ -55,12 +55,12 @@ const layout = props.layout ?? imageConfig.layout ?? 'none';
 const useResponsive = layout !== 'none';
 
 if (useResponsive) {
-	props.layout ??= imageConfig.layout;
+	props.layout ??= layout;
 	props.fit ??= imageConfig.objectFit ?? 'cover';
 	props.position ??= imageConfig.objectPosition ?? 'center';
 } else if (imageConfig.objectFit || imageConfig.objectPosition) {
-	props.fit ??= imageConfig.objectFit;
-	props.position ??= imageConfig.objectPosition;
+	if (imageConfig.objectFit) props.fit ??= imageConfig.objectFit;
+	if (imageConfig.objectPosition) props.position ??= imageConfig.objectPosition;
 }
 
 for (const key in props) {
