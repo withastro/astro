@@ -7,6 +7,7 @@
 	<p>This is a fully static Astro site using the Cloudflare adapter.</p>
 	<script>
 		document.querySelector("h1")?.setAttribute("data-ready", "");
+		if (process.env.DEBUG) console.log("debug");
 	</script>
 </body>
 </html>
