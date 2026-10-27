@@ -3,6 +3,7 @@
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 import type { SSRManifestCSP } from '../../core/app/types.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
+import type { Slots } from '../../core/render/slots.js';
 import type { AstroComponentInstance, ServerIslandComponent } from '../../runtime/server/index.js';
 import type { Params } from './common.js';
 import type { AstroConfig, RedirectConfig } from './config.js';
@@ -306,6 +307,12 @@ export interface SSRMetadata {
 	 */
 	extraStyleHashes: string[];
 	extraScriptHashes: string[];
+	/**
+	 * When set, the head renders this string in place of the CSP `<meta>` element, and the
+	 * renderer replaces it with the real element once the whole page has rendered. Only used for
+	 * non-streaming page renders, so hashes inserted by components rendered after the head are included.
+	 */
+	cspMetaPlaceholder?: string;
 	propagators: Set<AstroComponentInstance | ServerIslandComponent>;
 	/**
 	 * `true` when the page being rendered is on a head-propagation path (its
@@ -321,6 +328,7 @@ export interface SSRMetadata {
 	 * head content is flushed. Only populated when `routeHasPropagation` is true.
 	 */
 	pendingSlotEvaluations: Promise<unknown>[];
+	slotsByAstro?: WeakMap<object, Slots>;
 	/**
 	 * Tracks nesting depth of HTML `<template>` elements during rendering.
 	 * Scripts rendered inside `<template>` tags should not be deduplicated,

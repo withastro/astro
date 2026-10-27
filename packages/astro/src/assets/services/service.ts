@@ -13,6 +13,7 @@ import type {
 import { isESMImportedImage, isRemoteImage } from '../utils/imageKind.js';
 import { inferSourceFormat, resolveDefaultOutputFormat } from '../utils/inferSourceFormat.js';
 import { inferRemoteSize } from '../utils/remoteProbe.js';
+import type { AstroRuntimeLogger } from '../../types/public/context.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -33,7 +34,7 @@ export function parseQuality(quality: string): string | number {
 	return result;
 }
 
-type ImageConfig<T> = Omit<AstroConfig['image'], 'service'> & {
+export type ImageConfig<T = Record<string, any>> = Omit<AstroConfig['image'], 'service'> & {
 	service: { entrypoint: string; config: T };
 	assetQueryParams?: URLSearchParams;
 };
@@ -47,7 +48,11 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	 * For external services, this should point to the URL your images are coming from, for instance, `/_vercel/image`
 	 *
 	 */
-	getURL: (options: ImageTransform, imageConfig: ImageConfig<T>) => string | Promise<string>;
+	getURL: (
+		options: ImageTransform,
+		imageConfig: ImageConfig<T>,
+		logger: AstroRuntimeLogger,
+	) => string | Promise<string>;
 	/**
 	 * Generate additional `srcset` values for the image.
 	 *
@@ -57,6 +62,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	getSrcSet?: (
 		options: ImageTransform,
 		imageConfig: ImageConfig<T>,
+		logger: AstroRuntimeLogger,
 	) => UnresolvedSrcSetValue[] | Promise<UnresolvedSrcSetValue[]>;
 	/**
 	 * Return any additional HTML attributes separate from `src` that your service requires to show the image properly.
@@ -67,6 +73,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	getHTMLAttributes?: (
 		options: ImageTransform,
 		imageConfig: ImageConfig<T>,
+		logger: AstroRuntimeLogger,
 	) => Record<string, any> | Promise<Record<string, any>>;
 	/**
 	 * Validate and return the options passed by the user.
@@ -79,6 +86,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	validateOptions?: (
 		options: ImageTransform,
 		imageConfig: ImageConfig<T>,
+		logger: AstroRuntimeLogger,
 	) => ImageTransform | Promise<ImageTransform>;
 	/**
 	 * Return the dimensions of a remote image.
@@ -89,6 +97,7 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 	getRemoteSize?: (
 		url: string,
 		imageConfig: ImageConfig<T>,
+		logger: AstroRuntimeLogger,
 	) => Omit<ImageMetadata, 'src' | 'fsPath'> | Promise<Omit<ImageMetadata, 'src' | 'fsPath'>>;
 }
 
@@ -110,6 +119,7 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 	parseURL: (
 		url: URL,
 		imageConfig: ImageConfig<T>,
+		logger: AstroRuntimeLogger,
 	) => LocalImageTransform | undefined | Promise<LocalImageTransform> | Promise<undefined>;
 	/**
 	 * Performs the image transformations on the input image and returns both the binary data and
@@ -119,6 +129,7 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 		inputBuffer: Uint8Array,
 		transform: LocalImageTransform,
 		imageConfig: ImageConfig<T>,
+		logger: AstroRuntimeLogger,
 	) => Promise<{ data: Uint8Array; format: ImageOutputFormat }>;
 
 	/**
@@ -321,13 +332,17 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		}> = [];
 		if (densities) {
 			// Densities can either be specified as numbers, or descriptors (ex: '1x'), we'll convert them all to numbers
-			const densityValues = densities.map((density) => {
-				if (typeof density === 'number') {
-					return density;
-				} else {
-					return Number.parseFloat(density);
-				}
-			});
+			const densityValues = Array.from(
+				new Set(
+					densities.map((density) => {
+						if (typeof density === 'number') {
+							return density;
+						} else {
+							return Number.parseFloat(density);
+						}
+					}),
+				),
+			);
 
 			// Calculate the widths for each density, rounding to avoid floats.
 			const densityWidths = densityValues

@@ -1,5 +1,33 @@
 # @astrojs/vue
 
+## 7.1.2
+
+### Patch Changes
+
+- [#18475](https://github.com/withastro/astro/pull/18475) [`cf27e70`](https://github.com/withastro/astro/commit/cf27e70a9057ce29ade2a8a843bd9275a696e9ab) Thanks [@ematipico](https://github.com/ematipico)! - Bumps the minimum supported Node.js version to 22.23.4, which includes the fixes from the [October 2026 Node.js security releases](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases)
+  
+  This is a patch release because the [Node.js support and upgrade policy](https://docs.astro.build/en/upgrade-astro/#nodejs-support-and-upgrade-policies) allows the Core team to raise the minimum Maintenance LTS version in a patch release when a disclosed and fixed Node.js security flaw affects Astro.
+
+## 7.1.1
+
+### Patch Changes
+
+- [#18398](https://github.com/withastro/astro/pull/18398) [`9731465`](https://github.com/withastro/astro/commit/9731465409e58b1b4c4939cb7a866e184ed8e9bc) Thanks [@ump45nose](https://github.com/ump45nose)! - Fixes Vue SSR concatenating Astro slot HTML character by character when the slot value is a String object (Astro's SlotString). StaticHtml now coerces the value with `String(...)` before passing it to `innerHTML`.
+
+## 7.1.0
+
+### Minor Changes
+
+- [#18277](https://github.com/withastro/astro/pull/18277) [`2715958`](https://github.com/withastro/astro/commit/2715958666b0a706b069d0592da3a070b3796a9b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases the minimum Node.js version to 22.22.0
+  
+  The minimum supported Node.js version is now 22.22.0, the latest Node.js 22 release supported by StackBlitz. This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+
+## 7.0.3
+
+### Patch Changes
+
+- [#17985](https://github.com/withastro/astro/pull/17985) [`7a6e7f7`](https://github.com/withastro/astro/commit/7a6e7f7174147e38731e39378e6f5b294834d207) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes Vue render-function components failing to build when `@astrojs/react` is also enabled. React's renderer `check` no longer crashes on non-React object components, and Vue's `check` now recognizes `defineComponent()` components that use a `setup` function returning a render function.
+
 ## 7.0.2
 
 ### Patch Changes

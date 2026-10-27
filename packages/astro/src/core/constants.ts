@@ -26,6 +26,16 @@ export const REDIRECT_STATUS_CODES = [301, 302, 303, 307, 308, 300, 304] as cons
 export const REROUTABLE_STATUS_CODES = [404, 500];
 
 /**
+ * Pages Astro serves for an HTTP status rather than for their own URL.
+ *
+ * They are always written as `<name>.html`, never as `<name>/index.html`,
+ * whatever `build.format` says, because a host reaches them by status code and
+ * needs them at a predictable file path. Being status pages rather than site
+ * content, they are also skipped by i18n routing.
+ */
+export const STATUS_CODE_PAGES = new Set(['/404', '/500', '/3xx']);
+
+/**
  * The symbol which is used as a field on the request object to store the client address.
  * The clientAddress provided by the adapter (or the dev server) is stored on this field.
  */
@@ -55,6 +65,12 @@ export const fetchStateSymbol = Symbol.for('astro.fetchState');
  * Use this symbol to opt into handling prerender routes in Astro core dev middleware.
  */
 export const devPrerenderMiddlewareSymbol = Symbol.for('astro.devPrerenderMiddleware');
+
+/**
+ * A promise for background dev server app setup that must settle before Vite's
+ * runnable environments are closed.
+ */
+export const devServerAppReadySymbol = Symbol.for('astro.devServerAppReady');
 
 /**
  * The symbol used as a field on the request object to store a cleanup callback associated with aborting the request when the underlying socket closes.

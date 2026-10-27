@@ -1,19 +1,20 @@
-import type { DiagnosticMessage } from '@astrojs/compiler/types';
 import type {
 	CompletionItem,
 	Diagnostic,
+	DiagnosticSeverity,
 	LanguageServicePlugin,
 	LanguageServicePluginInstance,
 } from '@volar/language-server';
 import {
 	CompletionItemKind,
 	InsertTextFormat,
-	Position,
+	type Position,
 	Range,
 	TextEdit,
 } from '@volar/language-server';
 import type { TextDocument } from 'vscode-html-languageservice';
 import { URI } from 'vscode-uri';
+import type { AstroDiagnostic } from '@astrojs/astro2tsx';
 import { AstroVirtualCode } from '../core/index.js';
 
 export const create = (): LanguageServicePlugin => {
@@ -58,14 +59,14 @@ export const create = (): LanguageServicePlugin => {
 
 					return virtualCode.compilerDiagnostics.map(compilerMessageToDiagnostic);
 
-					function compilerMessageToDiagnostic(message: DiagnosticMessage): Diagnostic {
-						const start = Position.create(message.location.line - 1, message.location.column - 1);
-						const end = document.positionAt(document.offsetAt(start) + message.location.length);
+					function compilerMessageToDiagnostic(diagnostic: AstroDiagnostic): Diagnostic {
 						return {
-							message: message.text + (message.hint ? '\n\n' + message.hint : ''),
-							range: Range.create(start, end),
-							code: message.code,
-							severity: message.severity,
+							message: diagnostic.message,
+							range: Range.create(
+								document.positionAt(diagnostic.position.start),
+								document.positionAt(diagnostic.position.end),
+							),
+							severity: diagnostic.severity as DiagnosticSeverity,
 							source: 'astro',
 						};
 					}

@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { AstroCookies } from '../../../dist/core/cookies/index.js';
+import { mockLogger } from './test-helpers.ts';
 import {
 	attachCookiesToResponse,
 	getSetCookiesFromResponse,
@@ -11,11 +12,11 @@ const req = () => new Request('http://example.com/');
 
 describe('AstroCookies.merge()', () => {
 	it('copies all cookies from source into an empty target', () => {
-		const source = new AstroCookies(req());
+		const source = new AstroCookies(req(), mockLogger);
 		source.set('foo', 'bar');
 		source.set('baz', 'qux');
 
-		const target = new AstroCookies(req());
+		const target = new AstroCookies(req(), mockLogger);
 		target.merge(source);
 
 		const headers = Array.from(target.headers());
@@ -25,10 +26,10 @@ describe('AstroCookies.merge()', () => {
 	});
 
 	it('overwrites same-key cookies in target', () => {
-		const source = new AstroCookies(req());
+		const source = new AstroCookies(req(), mockLogger);
 		source.set('foo', 'new');
 
-		const target = new AstroCookies(req());
+		const target = new AstroCookies(req(), mockLogger);
 		target.set('foo', 'old');
 		target.merge(source);
 
@@ -38,10 +39,10 @@ describe('AstroCookies.merge()', () => {
 	});
 
 	it('preserves non-conflicting keys from target', () => {
-		const source = new AstroCookies(req());
+		const source = new AstroCookies(req(), mockLogger);
 		source.set('a', '1');
 
-		const target = new AstroCookies(req());
+		const target = new AstroCookies(req(), mockLogger);
 		target.set('b', '2');
 		target.merge(source);
 
@@ -52,9 +53,9 @@ describe('AstroCookies.merge()', () => {
 	});
 
 	it('is a no-op when source has no outgoing cookies', () => {
-		const source = new AstroCookies(req()); // no set() calls
+		const source = new AstroCookies(req(), mockLogger); // no set() calls
 
-		const target = new AstroCookies(req());
+		const target = new AstroCookies(req(), mockLogger);
 		target.set('foo', 'bar');
 		target.merge(source);
 
@@ -66,13 +67,13 @@ describe('AstroCookies.merge()', () => {
 
 describe('AstroCookies.headers()', () => {
 	it('yields nothing when no cookies have been set', () => {
-		const cookies = new AstroCookies(req());
+		const cookies = new AstroCookies(req(), mockLogger);
 		const headers = Array.from(cookies.headers());
 		assert.equal(headers.length, 0);
 	});
 
 	it('yields one header string per set cookie', () => {
-		const cookies = new AstroCookies(req());
+		const cookies = new AstroCookies(req(), mockLogger);
 		cookies.set('a', '1');
 		cookies.set('b', '2');
 		cookies.set('c', '3');
@@ -84,7 +85,7 @@ describe('AstroCookies.headers()', () => {
 
 describe('attachCookiesToResponse + getSetCookiesFromResponse', () => {
 	it('roundtrip: attached cookies are readable from the response', () => {
-		const cookies = new AstroCookies(req());
+		const cookies = new AstroCookies(req(), mockLogger);
 		cookies.set('session', 'abc');
 		cookies.set('theme', 'dark');
 

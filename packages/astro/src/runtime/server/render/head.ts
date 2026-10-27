@@ -30,21 +30,25 @@ function deduplicateElements(elements: any[]): any[] {
 	});
 }
 
+export function renderCspMetaTag(result: SSRResult): string {
+	return renderElement(
+		'meta',
+		{
+			props: {
+				'http-equiv': 'content-security-policy',
+				content: renderCspContent(result),
+			},
+			children: '',
+		},
+		false,
+	);
+}
+
 export function renderAllHeadContent(result: SSRResult) {
 	result._metadata.hasRenderedHead = true;
 	let content = '';
 	if (result.shouldInjectCspMetaTags && result.cspDestination === 'meta') {
-		content += renderElement(
-			'meta',
-			{
-				props: {
-					'http-equiv': 'content-security-policy',
-					content: renderCspContent(result),
-				},
-				children: '',
-			},
-			false,
-		);
+		content += result._metadata.cspMetaPlaceholder ?? renderCspMetaTag(result);
 	}
 	const styles = deduplicateElements(Array.from(result.styles)).map((style) =>
 		style.props.rel === 'stylesheet' ? renderElement('link', style) : renderElement('style', style),
@@ -89,8 +93,15 @@ export function renderAllHeadContent(result: SSRResult) {
 	return markHTMLString(content);
 }
 
+const HEAD_INSTRUCTION = Object.freeze(
+	createRenderInstruction({ type: 'head' } as RenderHeadInstruction),
+);
+const MAYBE_HEAD_INSTRUCTION = Object.freeze(
+	createRenderInstruction({ type: 'maybe-head' } as MaybeRenderHeadInstruction),
+);
+
 export function renderHead(): RenderHeadInstruction {
-	return createRenderInstruction({ type: 'head' });
+	return HEAD_INSTRUCTION;
 }
 
 // This function is called by Astro components that do not contain a <head> component
@@ -100,5 +111,5 @@ export function renderHead(): RenderHeadInstruction {
 export function maybeRenderHead(): MaybeRenderHeadInstruction {
 	// This is an instruction informing the page rendering that head might need rendering.
 	// This allows the page to deduplicate head injections.
-	return createRenderInstruction({ type: 'maybe-head' });
+	return MAYBE_HEAD_INSTRUCTION;
 }

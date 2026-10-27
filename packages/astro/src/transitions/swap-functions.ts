@@ -230,6 +230,10 @@ function reifyMediaElements(root: Element, liveMedia: ReadonlySet<Element>) {
 			fresh.setAttribute(attr.name, attr.value);
 		}
 		fresh.innerHTML = media.innerHTML;
+		// Chrome only syncs the muted IDL property from the content attribute when the
+		// HTML parser creates the element; setAttribute('muted', ...) on a script-created
+		// element leaves video.muted === false. https://github.com/withastro/astro/issues/18152
+		if (fresh.hasAttribute('muted')) (fresh as HTMLMediaElement).muted = true;
 		media.replaceWith(fresh);
 	}
 }

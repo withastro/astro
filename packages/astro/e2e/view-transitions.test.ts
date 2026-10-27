@@ -4,6 +4,7 @@ import { type DevServer, testFactory, waitForHydrate, warmupDevServer } from './
 declare global {
 	interface Window {
 		preloads: string[];
+		restoredScrollY?: number;
 		clientSideRouterForTestsParkedHere?: (
 			url: string,
 			options?: { history?: 'auto' | 'replace' | 'push' },
@@ -355,6 +356,31 @@ test.describe('View Transitions', () => {
 		expect(oldScrollY).toEqual(newScrollY);
 	});
 
+	test('Scroll position restored instantly with smooth scroll-behavior', async ({
+		page,
+		astro,
+	}) => {
+		await page.goto(astro.resolveUrl('/smooth-scroll'));
+		await expect(page.locator('#smooth-scroll')).toBeVisible();
+
+		await page.evaluate(() => window.scrollTo({ top: 2000, behavior: 'instant' }));
+		await expect.poll(() => page.evaluate(() => history.state.scrollY)).toBe(2000);
+
+		await page.click('#click-one');
+		await expect(page.locator('#one'), 'should have content').toHaveText('Page 1');
+
+		// Read scrollY synchronously after the router restores it, before a smooth scroll could progress
+		await page.evaluate(() =>
+			document.addEventListener(
+				'astro:after-swap',
+				() => (window.restoredScrollY = window.scrollY),
+				{ once: true },
+			),
+		);
+		await page.goBack();
+		await expect.poll(() => page.evaluate(() => window.restoredScrollY)).toBe(2000);
+	});
+
 	test('Fragment scroll position restored on back button', async ({ page, astro }) => {
 		// Go to the long page
 		await page.goto(astro.resolveUrl('/long-page'));
@@ -613,6 +639,21 @@ test.describe('View Transitions', () => {
 		expect(marker).toBe('yes');
 		// The placeholder of page 2 was replaced by the carried-over subtree.
 		await expect(page.locator('#nested-placeholder')).toHaveCount(0);
+	});
+
+	test('reified <video muted> preserves the muted IDL property after navigation', async ({
+		page,
+		astro,
+	}) => {
+		// Regression for #18152: reifyMediaElements() copies the muted content attribute
+		// via setAttribute(), but Chrome does not sync it to video.muted on script-created
+		// elements. The fix explicitly sets the property after cloning attributes.
+		await page.goto(astro.resolveUrl('/one'));
+		await page.click('#click-video-muted');
+		const vid = page.locator('#muted-vid');
+		await expect(vid).toBeVisible();
+		const muted = await vid.evaluate((el) => (el as HTMLVideoElement).muted);
+		expect(muted).toBe(true);
 	});
 
 	test('React Islands can persist using transition:persist', async ({ page, astro }) => {
@@ -1050,7 +1091,7 @@ test.describe('View Transitions', () => {
 		// go to external page
 		await page.click('#click-redirect-external');
 		await page.waitForURL('https://example.com/', { waitUntil: 'commit', timeout: 5000 });
-		await expect(page.locator('h1'), 'should have content').toHaveText('Example Domain');
+		await expect(page, 'should have content').toHaveTitle('Example Domain');
 		await expectLoads(2);
 	});
 
@@ -1184,6 +1225,7 @@ test.describe('View Transitions', () => {
 		const button = page.locator('#react-client-load-navigate-button');
 
 		await expect(button, 'should have content').toHaveText('Navigate to `/two`');
+		await waitForHydrate(page, button);
 
 		await button.click();
 

@@ -95,6 +95,17 @@ export async function handleCache(
 				request: state.request,
 				url: new URL(state.request.url),
 				waitUntil: state.renderOptions.waitUntil,
+				logger: {
+					info(msg) {
+						state.logger.info('cache', msg);
+					},
+					warn(msg) {
+						state.logger.warn('cache', msg);
+					},
+					error(msg) {
+						state.logger.error('cache', msg);
+					},
+				},
 			},
 			async () => {
 				const res = await next();
@@ -112,6 +123,20 @@ export async function handleCache(
 	// Apply cache headers for CDN-based providers (no onRequest)
 	applyCacheHeaders(cache!, response, state.request);
 	return response;
+}
+
+/**
+ * Registers the cache provider via `provideCache`, then runs `handleCache`.
+ * Used by the composable `cache()` handlers, where no earlier stage has
+ * registered the provider. Must run before the API context is built so
+ * `ctx.cache` / `Astro.cache` are defined downstream.
+ */
+export async function provideAndHandleCache(
+	state: FetchState,
+	next: () => Promise<Response>,
+): Promise<Response> {
+	await provideCache(state);
+	return handleCache(state, next);
 }
 
 const compiledCacheRoutesMemo = createManifestMemo((manifest: SSRManifest) =>

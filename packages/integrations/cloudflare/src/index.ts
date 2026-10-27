@@ -16,11 +16,11 @@ import { getParts } from './utils/generate-routes-json.js';
 import { buildAssetsHeadersContent } from './utils/headers.js';
 import {
 	type ImageServiceConfig,
-	hasUserImageService,
+	getRuntimeImageService,
 	normalizeImageServiceConfig,
 	setImageConfig,
 } from './utils/image-config.js';
-import { createConfigPlugin, type CompileImageConfig } from './vite-plugin-config.js';
+import { createConfigPlugin } from './vite-plugin-config.js';
 import { createNodePrerenderPlugin } from './vite-plugin-dev-server-prerender-middleware.js';
 import {
 	cloudflareConfigCustomizer,
@@ -28,7 +28,7 @@ import {
 	DEFAULT_IMAGES_BINDING_NAME,
 	withNodejsAlsFlag,
 } from './wrangler.js';
-import { sessionDrivers } from 'astro/config';
+import { passthroughImageService, sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
 import cfPrismPlugin from './vite-plugin-prism.js';
 import { loadWranglerEnv } from './utils/wrangler-config.js';
@@ -78,13 +78,6 @@ function hasContentCollectionsConfig(srcDir: URL) {
 	];
 
 	return contentConfigPaths.some((configPath) => existsSync(new URL(`./${configPath}`, srcDir)));
-}
-
-function resolveImageServiceEntrypoint(entrypoint: string, root: URL): string {
-	if (entrypoint.startsWith('.')) {
-		return new URL(entrypoint, root).href;
-	}
-	return entrypoint;
 }
 
 export interface Options
@@ -142,17 +135,20 @@ export default function createIntegration({
 	let _buildOutput: 'server' | 'static';
 	let _originalClientDir: URL;
 
+	// Renderer server entrypoints (e.g. `@astrojs/svelte/server.js`), read from
+	// the `astro:plugin-renderers` plugin in the adapter's Vite `config` hook.
+	// Pre-bundling them up front keeps the dep optimizer from re-running
+	// mid-request, when workerd still references the previous bundle (#17921).
+	let rendererServerEntries: string[] = [];
+
 	let _routes: IntegrationResolvedRoute[];
 	let cfPluginConfig: PluginConfig;
-	let hasUserBuildImageService = false;
-	let compileImageConfig: CompileImageConfig | null = null;
+	let isDev = false;
 
 	const { buildService, runtimeService, transformAtBuild } =
 		normalizeImageServiceConfig(imageService);
 	const needsImagesBinding = runtimeService === 'cloudflare-binding';
 	const hasBuildImageService = buildService === 'compile' || buildService === 'custom';
-	// Opt-in: user explicitly requested build-time image transformation via the compound config.
-	// The string shorthand `'cloudflare-binding'` keeps the historical runtime-only behavior.
 	const isBindingBuild = transformAtBuild && buildService === 'cloudflare-binding';
 
 	return {
@@ -214,10 +210,18 @@ export default function createIntegration({
 						experimental: {
 							prerenderWorker: {
 								config(_, { entryWorkerConfig }) {
-									const { queues, ...restWorkerConfig } = entryWorkerConfig;
+									const {
+										queues,
+										durable_objects,
+										migrations,
+										exports: _exports,
+										workflows,
+										...restWorkerConfig
+									} = entryWorkerConfig;
 									return {
 										...restWorkerConfig,
 										name: 'prerender',
+										main: '@astrojs/cloudflare/entrypoints/server',
 										// Make AsyncLocalStorage available in the build-time prerender
 										// worker (the render scope in `utils/prerender-scope.ts` needs
 										// it) by auto-appending `nodejs_als` when the user's config has
@@ -276,7 +280,7 @@ export default function createIntegration({
 				// Capture user's top-level optimizeDeps before Vite scopes it to the
 				// client environment only (Vite 6 Environment API design). We forward
 				// these settings into server environments so that user-provided exclude,
-				// include, and esbuildOptions (e.g. loader) entries are respected.
+				// include, and rolldownOptions (e.g. loader) entries are respected.
 				const userOptimizeDeps = config.vite?.optimizeDeps;
 
 				const cloudflareVitePlugins = cfVitePlugin({
@@ -294,6 +298,8 @@ export default function createIntegration({
 					}
 				}
 
+				isDev = command === 'dev';
+				const image = setImageConfig(imageService, config.image, command, logger);
 				updateConfig({
 					...(config.experimental.collectionStorage === 'chunked' && {
 						experimental: {
@@ -324,6 +330,17 @@ export default function createIntegration({
 							},
 							{
 								name: '@astrojs/cloudflare:environment',
+								config(viteConfig) {
+									const renderersPlugin = (viteConfig.plugins as any[])?.find(
+										(plugin) => plugin?.name === 'astro:plugin-renderers',
+									);
+									rendererServerEntries = (renderersPlugin?.renderers ?? []).map(
+										(renderer: { serverEntrypoint: string | URL }) =>
+											typeof renderer.serverEntrypoint === 'string'
+												? renderer.serverEntrypoint
+												: fileURLToPath(renderer.serverEntrypoint),
+									);
+								},
 								configEnvironment(environmentName, _options) {
 									// Skip dependency pre-bundling during type generation (see `isTypeGenPhase` above).
 									if (isTypeGenPhase) {
@@ -332,14 +349,26 @@ export default function createIntegration({
 									const isServerEnvironment = ['astro', 'ssr', 'prerender'].includes(
 										environmentName,
 									);
-									if (isServerEnvironment && !_options.optimizeDeps?.noDiscovery) {
+									// With `prerenderEnvironment: 'node'` the prerender environment runs on
+									// Node and loads the dev server app from Astro's unbundled files.
+									// Pre-bundling Astro there would give user code (e.g. `astro/fetch` in
+									// `src/fetch.ts`) a second copy of Astro's module-scoped registries,
+									// which miss the dev environment and render through the production
+									// one (https://github.com/withastro/astro/issues/18457).
+									const isNodePrerender =
+										prerenderEnvironment === 'node' && environmentName === 'prerender';
+									if (
+										isServerEnvironment &&
+										!isNodePrerender &&
+										!_options.optimizeDeps?.noDiscovery
+									) {
 										return {
 											optimizeDeps: {
 												include: [
 													'@astrojs/cloudflare/image-service-workerd',
 													'@astrojs/cloudflare/entrypoints/server',
 													'astro',
-													'astro/runtime/**',
+													'astro/runtime/**/*.js',
 													'astro > html-escaper',
 													'astro > mrmime',
 													'astro > zod/v4',
@@ -354,6 +383,7 @@ export default function createIntegration({
 													'astro > piccolore',
 													'astro > picomatch',
 													'astro/app',
+													'astro/app/manifest',
 													'astro/app/fetch/default-handler',
 													'astro/fetch',
 													'astro/hono',
@@ -362,15 +392,22 @@ export default function createIntegration({
 													'astro/actions/runtime/entrypoints/server.js',
 													'astro/actions/runtime/entrypoints/route.js',
 													'astro/assets',
+													'astro/assets/services/noop',
 													'astro/assets/runtime',
+													'astro/assets/image-asset',
 													'astro/assets/utils/inferRemoteSize.js',
 													'astro/assets/fonts/runtime.js',
 													...(prebundleContentRuntime ? (['astro/content/runtime'] as const) : []),
 													'astro/compiler-runtime',
 													'astro/jsx-runtime',
+													...rendererServerEntries,
+													// Pre-bundled so a late discovery can't trigger a mid-request
+													// re-optimization (https://github.com/withastro/astro/issues/17921).
+													'astro/logger/console',
 													...(config.logger?.entrypoint === 'astro/logger/json'
 														? ['astro/logger/json']
 														: []),
+													...(needsWorkerCache ? ['@astrojs/cloudflare/cache/provider'] : []),
 													'astro/app/entrypoint/dev',
 													'astro/middleware',
 													'astro/virtual-modules/middleware.js',
@@ -430,30 +467,16 @@ export default function createIntegration({
 							},
 							createConfigPlugin({
 								sessionKVBindingName,
-								// `imageServiceEntrypoint` is finalized in `astro:config:done`:
-								// integrations may set `image.service` via `updateConfig()` after
-								// this hook runs (the adapter always runs first), so the service
-								// cannot be resolved yet. The plugin serializes this object lazily
-								// at load time, after the mutation below has happened.
 								compileImageConfig:
 									(hasBuildImageService || isBindingBuild) && command !== 'dev'
-										? (compileImageConfig = {
-												base: config.base,
-												assetsPrefix:
-													typeof config.build.assetsPrefix === 'string'
-														? config.build.assetsPrefix
-														: undefined,
-												imageServiceEntrypoint: '@astrojs/cloudflare/image-service-workerd',
-												buildAssets: config.build.assets ?? '_astro',
-												transformWithBinding: isBindingBuild,
-											})
+										? { transformWithBinding: isBindingBuild }
 										: null,
 								cacheProviderEnabled: needsWorkerCache,
 							}),
-							cfPrismPlugin(),
+							cfPrismPlugin(isTypeGenPhase),
 						],
 					},
-					image: setImageConfig(imageService, config.image, command, logger),
+					image,
 				});
 
 				if (cloudflareOptions.configPath) {
@@ -472,13 +495,9 @@ export default function createIntegration({
 				_buildOutput = buildOutput;
 				_originalClientDir = new URL(config.build.client.href);
 
-				// Resolve the custom image service against the FINAL config: the adapter's
-				// `astro:config:setup` runs before every user integration (Astro unshifts
-				// the adapter onto the integrations list), so a service registered by an
-				// integration via `updateConfig()` is only visible here.
-				hasUserBuildImageService = hasBuildImageService && hasUserImageService(config.image);
-				if (compileImageConfig && hasUserBuildImageService) {
-					compileImageConfig.imageServiceEntrypoint = config.image.service.entrypoint;
+				if (isDev) {
+					// Dev renders in workerd, where `build` services like Sharp can't load.
+					config.image.service = getRuntimeImageService(config.image.service);
 				}
 
 				// When a base path is configured, nest the client output directory under
@@ -526,6 +545,17 @@ export default function createIntegration({
 				loadWranglerEnv(config.root, cloudflareOptions.configPath, logger);
 			},
 			'astro:build:start': ({ setPrerenderer, logger }) => {
+				if (
+					buildService === 'compile' &&
+					runtimeService === 'cloudflare-binding' &&
+					getRuntimeImageService(_config.image.service).entrypoint ===
+						passthroughImageService().entrypoint
+				) {
+					logger.warn(
+						`passthroughImageService() overrides runtime: 'cloudflare-binding'. Images remain untransformed at build time and are served unchanged on demand. Set imageService: 'compile' or runtime: 'passthrough' to make this configuration explicit, or remove passthroughImageService() to enable image transformation.`,
+					);
+				}
+
 				if (prerenderEnvironment === 'workerd') {
 					setPrerenderer(
 						createCloudflarePrerenderer({
@@ -535,80 +565,12 @@ export default function createIntegration({
 							base: _config.base,
 							trailingSlash: _config.trailingSlash,
 							cfPluginConfig,
-							hasBuildImageService,
-							hasBindingImageService: isBindingBuild,
-							userImageServiceEntrypoint: hasUserBuildImageService
-								? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
-								: undefined,
-							logger,
 						}),
 					);
-				} else if (hasBuildImageService) {
-					// When prerenderEnvironment is 'node', prerendering runs in the same
-					// Node process using the workerd-safe image service stub (which is a
-					// passthrough). We need to install the real image service (sharp or
-					// the user's custom service) before the image generation pipeline runs.
-					// This mirrors what collectStaticImages does in the workerd prerenderer.
-					const entrypoint = hasUserBuildImageService
-						? resolveImageServiceEntrypoint(_config.image.service.entrypoint, _config.root)
-						: undefined;
-					setPrerenderer((defaultPrerenderer) => ({
-						...defaultPrerenderer,
-						async collectStaticImages() {
-							globalThis.astroAsset ??= {};
-							if (entrypoint) {
-								// Belt-and-braces rather than load-bearing: with a user-configured
-								// image.service, the Node prerender bundle already loads the user
-								// service via virtual:image-service and caches it here whenever a
-								// page renders an image, so this re-import only exists for symmetry
-								// with the workerd prerenderer's collectStaticImages. Guard it: the
-								// raw entrypoint import can fail where the bundled service works
-								// (e.g. TypeScript entrypoints on Node versions without type
-								// stripping), and an empty cache means no image was rendered, so
-								// the service is never used by the generation pipeline anyway.
-								if (!globalThis.astroAsset.imageService) {
-									try {
-										const mod = await import(entrypoint);
-										globalThis.astroAsset.imageService = mod.default ?? mod;
-									} catch {
-										// Unused when no images were rendered — never fail the build.
-									}
-								}
-							} else {
-								const { default: sharpService } = await import('astro/assets/services/sharp');
-								globalThis.astroAsset.imageService = sharpService;
-							}
-							// Static images are already in globalThis.astroAsset.staticImages
-							// from the Node-side prerendering. Return an empty map since
-							// there are no additional images to merge from a separate runtime.
-							return new Map();
-						},
-					}));
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
-					// When prerenderEnvironment is 'node' and we used setPrerenderer
-					// to add collectStaticImages for compile-time image optimization,
-					// the prerender entrypoint gets skipped (because settings.prerenderer
-					// is truthy). Restore the default entrypoint since we're still using
-					// the default Node-based prerenderer — we only wrapped it.
-					//
-					// NOTE: the entrypoint specifier and config shape below mirror the
-					// skip logic in packages/astro/src/core/build/vite-build-config.ts
-					// (the `rolldownOptions.input` handling for the prerender
-					// environment). If core renames 'astro/entrypoints/prerender' or
-					// reshapes that config, this must be updated in lockstep — otherwise
-					// builds silently degrade back to unoptimized image output.
-					if (prerenderEnvironment === 'node' && hasBuildImageService) {
-						vite.environments ??= {};
-						vite.environments.prerender ??= {};
-						(vite.environments.prerender as Record<string, any>).build ??= {};
-						(vite.environments.prerender as Record<string, any>).build.rolldownOptions ??= {};
-						(vite.environments.prerender as Record<string, any>).build.rolldownOptions.input =
-							'astro/entrypoints/prerender';
-					}
-
 					vite.resolve ||= {};
 					vite.resolve.alias ||= {};
 					vite.ssr ||= {};
@@ -616,17 +578,33 @@ export default function createIntegration({
 
 					vite.build ||= {};
 					vite.build.rolldownOptions ||= {};
-					vite.build.rolldownOptions.output ||= {};
 					vite.build.rolldownOptions.external = ['sharp'];
 
+					// Scoped to the server environments: top-level `build` options are inherited by the
+					// client environment, which must not ship this shim to browsers. See https://github.com/withastro/astro/issues/18182
+					// A user-provided top-level banner takes precedence and is inherited by the server environments as-is.
 					// @ts-expect-error
-					vite.build.rolldownOptions.output.banner ||=
-						'globalThis.process ??= {}; globalThis.process.env ??= {};';
+					if (!vite.build.rolldownOptions.output?.banner) {
+						for (const name of ['ssr', 'prerender']) {
+							vite.environments ??= {};
+							const environment = (vite.environments[name] ??= {}) as Record<string, any>;
+							environment.build ??= {};
+							environment.build.rolldownOptions ??= {};
+							environment.build.rolldownOptions.output ??= {};
+							environment.build.rolldownOptions.output.banner ||=
+								'globalThis.process ??= {}; globalThis.process.env ??= {};';
+						}
+					}
 
 					// Cloudflare env is only available per request. This isn't feasible for code that access env vars
 					// in a global way, so we shim their access as `process.env.*`. This is not the recommended way for users to access environment variables. But we'll add this for compatibility for chosen variables. Mainly to support `@astrojs/db`
+					// Scoped to the server environments so the client keeps Vite's default `process.env` replacement. See https://github.com/withastro/astro/issues/18507
+					for (const name of ['ssr', 'prerender']) {
+						vite.environments ??= {};
+						const environment = (vite.environments[name] ??= {});
+						environment.define = { 'process.env': 'process.env', ...environment.define };
+					}
 					vite.define = {
-						'process.env': 'process.env',
 						'globalThis.__ASTRO_IMAGES_BINDING_NAME': JSON.stringify(imagesBindingName),
 						...vite.define,
 					};

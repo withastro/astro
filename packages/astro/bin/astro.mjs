@@ -23,8 +23,12 @@ const CI_INSTRUCTIONS = {
 	VERCEL: 'https://vercel.com/docs/runtimes#official-runtimes/node-js/node-js-version',
 };
 
+// StackBlitz WebContainers ship a Node.js version that users cannot change, so they get a lower floor.
+// See https://github.com/withastro/astro/issues/18492
+const IS_STACKBLITZ = !!process.versions.webcontainer;
+
 // Hardcode supported Node.js version so we don't have to read differently in CJS & ESM.
-const engines = '>=22.12.0';
+const engines = IS_STACKBLITZ ? '>=22.22.0' : '>=22.23.4';
 const skipSemverCheckIfAbove = 23;
 
 /** `astro *` */
@@ -32,9 +36,9 @@ async function main() {
 	const version = process.versions.node;
 	// Fast-path for higher Node.js versions
 	if ((Number.parseInt(version) || 0) <= skipSemverCheckIfAbove) {
-		const semver = await import('semver');
+		const { satisfies } = await import('verkit');
 		try {
-			if (!semver.satisfies(version, engines)) {
+			if (!satisfies(version, engines)) {
 				await errorNodeUnsupported();
 				return;
 			}

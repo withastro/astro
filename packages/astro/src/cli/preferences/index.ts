@@ -11,6 +11,7 @@ import dlv from '../../preferences/dlv.js';
 import { coerce, isValidKey, type PreferenceKey } from '../../preferences/index.js';
 import type { AstroSettings } from '../../types/astro.js';
 import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
+import type { AstroLogger } from '../../core/logger/core.js';
 import { loadOrCreateNodeLogger } from '../../core/logger/load.js';
 
 const { bgGreen, black, bold, dim, yellow } = colors;
@@ -82,7 +83,7 @@ export async function preferences(
 	};
 
 	if (subcommand === 'list') {
-		return listPreferences(settings, opts);
+		return listPreferences(settings, logger, opts);
 	}
 
 	if (subcommand === 'enable' || subcommand === 'disable') {
@@ -96,7 +97,8 @@ export async function preferences(
 
 	if (subcommand === 'set' && value === undefined) {
 		const type = typeof dlv(DEFAULT_PREFERENCES, key);
-		console.error(
+		logger.error(
+			'preferences',
 			msg.formatErrorMessage(
 				collectErrorMetadata(new Error(`Please provide a ${type} value for "${key}"`)),
 				true,
@@ -107,16 +109,16 @@ export async function preferences(
 
 	switch (subcommand) {
 		case 'get':
-			return getPreference(settings, key, opts);
+			return getPreference(settings, logger, key, opts);
 		case 'set':
-			return setPreference(settings, key, value, opts);
+			return setPreference(settings, logger, key, value, opts);
 		case 'reset':
 		case 'delete':
-			return resetPreference(settings, key, opts);
+			return resetPreference(settings, logger, key, opts);
 		case 'enable':
-			return enablePreference(settings, key, opts);
+			return enablePreference(settings, logger, key, opts);
 		case 'disable':
-			return disablePreference(settings, key, opts);
+			return disablePreference(settings, logger, key, opts);
 	}
 }
 
@@ -128,6 +130,7 @@ interface SubcommandOptions {
 // Default `location` to "project" to avoid reading default preferences
 async function getPreference(
 	settings: AstroSettings,
+	logger: AstroLogger,
 	key: PreferenceKey,
 	{ location = 'project' }: SubcommandOptions,
 ) {
@@ -136,17 +139,17 @@ async function getPreference(
 		if (value && typeof value === 'object' && !Array.isArray(value)) {
 			if (Object.keys(value).length === 0) {
 				value = dlv(DEFAULT_PREFERENCES, key);
-				console.log(msg.preferenceDefaultIntro(key));
+				logger.info('SKIP_FORMAT', msg.preferenceDefaultIntro(key));
 			}
-			prettyPrint({ [key]: value });
+			prettyPrint(logger, { [key]: value });
 			return 0;
 		}
 		if (value === undefined) {
 			const defaultValue = await settings.preferences.get(key);
-			console.log(msg.preferenceDefault(key, defaultValue));
+			logger.info('SKIP_FORMAT', msg.preferenceDefault(key, defaultValue));
 			return 0;
 		}
-		console.log(msg.preferenceGet(key, value));
+		logger.info('SKIP_FORMAT', msg.preferenceGet(key, value));
 		return 0;
 	} catch {}
 	return 1;
@@ -154,6 +157,7 @@ async function getPreference(
 
 async function setPreference(
 	settings: AstroSettings,
+	logger: AstroLogger,
 	key: PreferenceKey,
 	value: unknown,
 	{ location }: SubcommandOptions,
@@ -165,11 +169,11 @@ async function setPreference(
 		}
 
 		await settings.preferences.set(key, coerce(key, value), { location });
-		console.log(msg.preferenceSet(key, value));
+		logger.info('SKIP_FORMAT', msg.preferenceSet(key, value));
 		return 0;
 	} catch (e) {
 		if (e instanceof Error) {
-			console.error(msg.formatErrorMessage(collectErrorMetadata(e), true));
+			logger.error('preferences', msg.formatErrorMessage(collectErrorMetadata(e), true));
 			return 1;
 		}
 		throw e;
@@ -178,12 +182,13 @@ async function setPreference(
 
 async function enablePreference(
 	settings: AstroSettings,
+	logger: AstroLogger,
 	key: PreferenceKey,
 	{ location }: SubcommandOptions,
 ) {
 	try {
 		await settings.preferences.set(key, true, { location });
-		console.log(msg.preferenceEnabled(key.replace('.enabled', '')));
+		logger.info('SKIP_FORMAT', msg.preferenceEnabled(key.replace('.enabled', '')));
 		return 0;
 	} catch {}
 	return 1;
@@ -191,12 +196,13 @@ async function enablePreference(
 
 async function disablePreference(
 	settings: AstroSettings,
+	logger: AstroLogger,
 	key: PreferenceKey,
 	{ location }: SubcommandOptions,
 ) {
 	try {
 		await settings.preferences.set(key, false, { location });
-		console.log(msg.preferenceDisabled(key.replace('.enabled', '')));
+		logger.info('SKIP_FORMAT', msg.preferenceDisabled(key.replace('.enabled', '')));
 		return 0;
 	} catch {}
 	return 1;
@@ -204,12 +210,13 @@ async function disablePreference(
 
 async function resetPreference(
 	settings: AstroSettings,
+	logger: AstroLogger,
 	key: PreferenceKey,
 	{ location }: SubcommandOptions,
 ) {
 	try {
 		await settings.preferences.set(key, undefined as any, { location });
-		console.log(msg.preferenceReset(key));
+		logger.info('SKIP_FORMAT', msg.preferenceReset(key));
 		return 0;
 	} catch {}
 	return 1;
@@ -242,10 +249,14 @@ function userValues(
 	return result;
 }
 
-async function listPreferences(settings: AstroSettings, { location, json }: SubcommandOptions) {
+async function listPreferences(
+	settings: AstroSettings,
+	logger: AstroLogger,
+	{ location, json }: SubcommandOptions,
+) {
 	if (json) {
 		const resolved = await settings.preferences.getAll();
-		console.log(JSON.stringify(resolved, null, 2));
+		logger.info('SKIP_FORMAT', JSON.stringify(resolved, null, 2));
 		return 0;
 	}
 	const { global, project, fromAstroConfig, defaults } = await settings.preferences.list({
@@ -262,11 +273,11 @@ async function listPreferences(settings: AstroSettings, { location, json }: Subc
 		const badge = bgGreen(black(` Your Preferences `));
 		const table = formatTable(flatUser, ['Preference', 'Value']);
 
-		console.log(['', badge, table].join('\n'));
+		logger.info('SKIP_FORMAT', ['', badge, table].join('\n'));
 	} else {
 		const badge = bgGreen(black(` Your Preferences `));
 		const message = dim('No preferences set');
-		console.log(['', badge, '', message].join('\n'));
+		logger.info('SKIP_FORMAT', ['', badge, '', message].join('\n'));
 	}
 	const flatUnset = annotate(Object.assign({}, flatDefault), '');
 	for (const key of userKeys) {
@@ -278,17 +289,18 @@ async function listPreferences(settings: AstroSettings, { location, json }: Subc
 		const badge = bgGreen(black(` Default Preferences `));
 		const table = formatTable(flatUnset, ['Preference', 'Value']);
 
-		console.log(['', badge, table].join('\n'));
+		logger.info('SKIP_FORMAT', ['', badge, table].join('\n'));
 	} else {
 		const badge = bgGreen(black(` Default Preferences `));
 		const message = dim('All preferences have been set');
-		console.log(['', badge, '', message].join('\n'));
+		logger.info('SKIP_FORMAT', ['', badge, '', message].join('\n'));
 	}
 	if (
 		fromAstroConfig.devToolbar?.enabled === false &&
 		flatUser['devToolbar.enabled']?.value !== false
 	) {
-		console.log(
+		logger.info(
+			'SKIP_FORMAT',
 			yellow(
 				'The dev toolbar is currently disabled. To enable it, set devToolbar: {enabled: true} in your astroConfig file.',
 			),
@@ -298,10 +310,10 @@ async function listPreferences(settings: AstroSettings, { location, json }: Subc
 	return 0;
 }
 
-function prettyPrint(value: Record<string, string | number | boolean>) {
+function prettyPrint(logger: AstroLogger, value: Record<string, string | number | boolean>) {
 	const flattened = flattie(value);
 	const table = formatTable(flattened, ['Preference', 'Value']);
-	console.log(table);
+	logger.info('SKIP_FORMAT', table);
 }
 
 const chars = {

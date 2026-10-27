@@ -37,18 +37,30 @@ import { MultiLevelEncodingError, validateAndDecodePathname } from '../util/path
 import { setPathname } from '../util/normalized-url.js';
 import { getOriginPathname, setOriginPathname } from '../routing/rewrite.js';
 import { computePathnameFromDomain } from '../i18n/domain.js';
-import { getCustom404Route, routeHasHtmlExtension } from '../routing/helpers.js';
+import {
+	getCustom404Route,
+	getDefaultStatusCode,
+	routeHasHtmlExtension,
+} from '../routing/helpers.js';
 import type { RenderErrorOptions, ResolvedRenderOptions } from '../app/base.js';
 import { getRenderOptions } from '../app/render-options.js';
 import { getFirstForwardedValue, validateForwardedHeaders } from '../app/validate-headers.js';
 import type { SSRManifest } from '../app/types.js';
 import { getEnvironment, type RequestLogPayload } from '../environment/index.js';
 import { getLogger } from '../logger/manifest-logger.js';
-import type { AstroLogger } from '../logger/core.js';
+import { astroToRuntimeLogger, type AstroLogger } from '../logger/core.js';
 import { getSite } from '../manifest/derived.js';
 import { getRouteCache } from '../render/route-cache.js';
 import { getRouteTable, matchAllRoutes, matchRoute } from '../routing/route-table.js';
 import { getServerIslands } from '../server-islands/mappings.js';
+
+const slotValuesSymbol = Symbol('astro.slotValues');
+
+type AstroSlotValues = {
+	[slotValuesSymbol]: Record<string, any> | null;
+};
+
+type AstroComponentPartial = Omit<AstroGlobal, 'self' | 'slots'> & Partial<AstroSlotValues>;
 
 /**
  * Per-render facade inputs passed by `BaseApp.render`'s fast path to the
@@ -144,6 +156,20 @@ export function getFetchStateFromAPIContext(context: APIContext): FetchState {
 }
 
 /**
+ * External `<link href>` / `<script src>` entries are stored with empty
+ * `children`. Hashing that empty string puts the SHA of `''` in CSP and
+ * disables `'unsafe-inline'` for that directive.
+ */
+function isInlineCspHeadContent(element: {
+	children: string;
+	props?: Record<string, unknown>;
+}): boolean {
+	if (!element.children) return false;
+	const props = element.props ?? {};
+	return props.href == null && props.src == null;
+}
+
+/**
  * Holds per-request state as it flows through the handler pipeline.
  *
  * **This class is user-facing** via `astro/fetch` and `astro/hono`.
@@ -213,12 +239,29 @@ export class FetchState implements AstroFetchState {
 	 * rendering or middleware completes.
 	 */
 	response: Response | undefined;
+	/** Explicitly assigned status; `undefined` until a caller sets one. */
+	#status: number | undefined;
 	/**
 	 * Default HTTP status for the rendered response. Callers override
 	 * before rendering runs (e.g. `handleRequest` sets this from
 	 * `BaseApp.getDefaultStatusCode`; error handlers set `404` / `500`).
+	 * Reads `200` until assigned.
 	 */
-	status = 200;
+	get status(): number {
+		return this.#status ?? 200;
+	}
+	set status(value: number) {
+		this.#status = value;
+	}
+	/**
+	 * Sets `status` from the matched route (see `getDefaultStatusCode`)
+	 * unless a caller already assigned one.
+	 */
+	applyDefaultStatus(): void {
+		if (this.#status === undefined && this.routeData) {
+			this.#status = getDefaultStatusCode(this.manifest, this.routeData, this.pathname);
+		}
+	}
 	/** Whether user middleware should be skipped for this request. */
 	skipMiddleware = false;
 	/**
@@ -345,6 +388,7 @@ export class FetchState implements AstroFetchState {
 			manifest.i18n,
 			manifest.base,
 			manifest.trailingSlash,
+			manifest.allowedDomains,
 			this.logger,
 			pathname,
 		);
@@ -358,7 +402,7 @@ export class FetchState implements AstroFetchState {
 		this.clientAddress = options?.clientAddress;
 		this.locals = (options?.locals ?? {}) as App.Locals;
 		this.url = url;
-		this.cookies = new AstroCookies(request);
+		this.cookies = new AstroCookies(request, this.logger);
 
 		// Apply X-Forwarded-* headers only when the user has configured
 		// allowedDomains — without it, forwarded headers are never trusted
@@ -416,9 +460,11 @@ export class FetchState implements AstroFetchState {
 		const cspAlgorithm = manifest.csp?.algorithm ?? 'SHA-256';
 		if (shouldInjectCspMetaTags) {
 			for (const style of styles) {
+				if (!isInlineCspHeadContent(style)) continue;
 				extraStyleHashes.push(await generateCspDigest(style.children, cspAlgorithm));
 			}
 			for (const script of scripts) {
+				if (!isInlineCspHeadContent(script)) continue;
 				extraScriptHashes.push(await generateCspDigest(script.children, cspAlgorithm));
 			}
 		}
@@ -539,20 +585,15 @@ export class FetchState implements AstroFetchState {
 		}
 		this.#astroPagePartial ??= this.createAstroPagePartial(result, apiContext);
 		astroPagePartial = this.#astroPagePartial;
-		const astroComponentPartial = { props, self: null };
-		const Astro: Omit<AstroGlobal, 'self' | 'slots'> = Object.assign(
-			Object.create(astroPagePartial),
-			astroComponentPartial,
-		);
-
-		let _slots: AstroGlobal['slots'];
-		Object.defineProperty(Astro, 'slots', {
-			get: () => {
-				if (!_slots) {
-					_slots = new Slots(result, slotValues, this.logger) as unknown as AstroGlobal['slots'];
-				}
-				return _slots;
-			},
+		const Astro: AstroComponentPartial = Object.assign(Object.create(astroPagePartial), {
+			props,
+			self: null,
+		});
+		Object.defineProperty(Astro, slotValuesSymbol, {
+			value: slotValues,
+			writable: true,
+			configurable: true,
+			enumerable: false,
 		});
 
 		return Astro as AstroGlobal;
@@ -588,6 +629,19 @@ export class FetchState implements AstroFetchState {
 			routePattern: this.routeData!.route,
 			isPrerendered: this.routeData!.prerender,
 			cookies,
+			get slots(): Slots {
+				const slotsByAstro = (result._metadata.slotsByAstro ??= new WeakMap());
+				let slots = slotsByAstro.get(this);
+				if (slots === undefined) {
+					slots = new Slots(
+						result,
+						(this as Partial<AstroSlotValues>)[slotValuesSymbol] ?? null,
+						logger,
+					);
+					slotsByAstro.set(this, slots);
+				}
+				return slots;
+			},
 			get clientAddress() {
 				return state.getClientAddress();
 			},
@@ -619,17 +673,7 @@ export class FetchState implements AstroFetchState {
 				return state.getCsp();
 			},
 			get logger(): APIContext['logger'] {
-				return {
-					info(msg: string) {
-						logger.info(null, msg);
-					},
-					warn(msg: string) {
-						logger.warn(null, msg);
-					},
-					error(msg: string) {
-						logger.error(null, msg);
-					},
-				};
+				return astroToRuntimeLogger(logger);
 			},
 		};
 
@@ -1204,17 +1248,7 @@ export class FetchState implements AstroFetchState {
 				return state.getCsp();
 			},
 			get logger(): APIContext['logger'] {
-				return {
-					info(msg: string) {
-						state.logger.info(null, msg);
-					},
-					warn(msg: string) {
-						state.logger.warn(null, msg);
-					},
-					error(msg: string) {
-						state.logger.error(null, msg);
-					},
-				};
+				return astroToRuntimeLogger(state.logger);
 			},
 		};
 
@@ -1231,8 +1265,10 @@ export class FetchState implements AstroFetchState {
 	 * Returns the `APIContext` for this render, creating it lazily from
 	 * the memoized props + action context.
 	 *
-	 * Callers must ensure `getProps()` has resolved at least once before
-	 * calling this.
+	 * Called before `getProps()` has resolved, the context carries
+	 * `props: null` and is not memoized; the next call after `getProps()`
+	 * fills in `props` on the same object. Callers that read `props`
+	 * must await `getProps()` first.
 	 */
 	getAPIContext(): APIContext {
 		if (this.apiContext !== null) return this.apiContext;
@@ -1249,14 +1285,18 @@ export class FetchState implements AstroFetchState {
 
 		(actionApiContext as any)[fetchStateSymbol] = this;
 
-		this.apiContext = Object.assign(actionApiContext, {
+		const apiContext = Object.assign(actionApiContext, {
 			props: this.props!,
 			redirect,
 			rewrite,
 			getActionResult: createGetActionResult(actionApiContext.locals),
 			callAction: createCallAction(actionApiContext),
 		});
-		return this.apiContext;
+		// A composable handler such as `actions()` can run before anything has
+		// awaited `getProps()`. Memoizing only resolved props lets the next call
+		// copy them onto the same context object (#18229).
+		if (this.props !== null) this.apiContext = apiContext;
+		return apiContext;
 	}
 
 	/**

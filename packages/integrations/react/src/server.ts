@@ -23,7 +23,7 @@ async function check(
 	// Note: there are packages that do some unholy things to create "components".
 	// Checking the $$typeof property catches most of these patterns.
 	if (typeof Component === 'object') {
-		return Component['$$typeof'].toString().slice('Symbol('.length).startsWith('react');
+		return Component['$$typeof']?.toString().slice('Symbol('.length).startsWith('react') ?? false;
 	}
 	if (typeof Component !== 'function') return false;
 	if (Component.name === 'QwikComponent') return false;

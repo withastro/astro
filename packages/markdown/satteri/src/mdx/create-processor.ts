@@ -6,6 +6,7 @@ import type {
 	MdxRendererOptions,
 	MdxRenderResult,
 } from '@astrojs/internal-helpers/markdown';
+import { time, timedVisitorPlugins } from '@astrojs/internal-helpers/timings';
 import {
 	ASTRO_IMAGE_IMPORT,
 	createDefaultAstroMetadata,
@@ -30,6 +31,10 @@ import {
 } from '../satteri-processor.js';
 import { shouldAddCharset } from './charset.js';
 import { createAstroMetadataPlugin } from './hast-astro-metadata.js';
+import {
+	collapseScriptStyleText,
+	literalizeScriptStyleExpression,
+} from './hast-collapse-script-style.js';
 import { createImageToComponentPlugin, type ImageImportInfo } from './hast-images-to-component.js';
 
 type HighlightFn = (code: string, lang: string, meta?: string) => Promise<HastNode>;
@@ -98,7 +103,13 @@ export function createSatteriMdxProcessor(
 			if (satteriOptions.hastPlugins.length) {
 				hastPlugins.push(...satteriOptions.hastPlugins);
 			}
-			hastPlugins.push(imageToComponent, headingIds, astroMeta);
+			hastPlugins.push(
+				imageToComponent,
+				headingIds,
+				astroMeta,
+				literalizeScriptStyleExpression,
+				collapseScriptStyleText,
+			);
 
 			let optimizeStatic: MdxCompileOptions['optimizeStatic'];
 			if (mdx.optimize) {
@@ -114,24 +125,26 @@ export function createSatteriMdxProcessor(
 
 			const { gfm, smartPunctuation } = satteriOptions.features;
 
-			const mdxResult = await mdxToJs(content, {
-				mdastPlugins: allMdastPlugins,
-				hastPlugins,
-				optimizeStatic,
-				// `shared` carries the more specific `mdx({ gfm })` and wins, but only over booleans.
-				features: {
-					...satteriOptions.features,
-					gfm: typeof gfm === 'object' ? gfm : (shared.gfm ?? gfm ?? true) !== false,
-					smartPunctuation:
-						typeof smartPunctuation === 'object'
-							? smartPunctuation
-							: (shared.smartypants ?? smartPunctuation ?? true) !== false,
-				},
-				fileURL: pathToFileURL(filePath),
-				jsxImportSource: 'astro',
-				elementAttributeNameCase: 'html',
-				data: { astro: astroData },
-			});
+			const mdxResult = await time('markdown-file', filePath, () =>
+				mdxToJs(content, {
+					mdastPlugins: timedVisitorPlugins('mdx-plugin', allMdastPlugins),
+					hastPlugins: timedVisitorPlugins('mdx-plugin', hastPlugins),
+					optimizeStatic,
+					// `shared` carries the more specific `mdx({ gfm })` and wins, but only over booleans.
+					features: {
+						...satteriOptions.features,
+						gfm: typeof gfm === 'object' ? gfm : (shared.gfm ?? gfm ?? true) !== false,
+						smartPunctuation:
+							typeof smartPunctuation === 'object'
+								? smartPunctuation
+								: (shared.smartypants ?? smartPunctuation ?? true) !== false,
+					},
+					fileURL: pathToFileURL(filePath),
+					jsxImportSource: 'astro',
+					elementAttributeNameCase: 'html',
+					data: { astro: astroData },
+				}),
+			);
 			let compiled = mdxResult.code;
 
 			// Read the returned bag, not the seeded reference, so a plugin that replaces it is honored.

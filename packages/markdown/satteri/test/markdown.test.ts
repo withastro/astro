@@ -94,6 +94,52 @@ describe('satteri markdown', () => {
 		]);
 	});
 
+	it('resets heading slugs across multiple renders when `satteriHeadingIdsPlugin()` is reused', async () => {
+		const plugin = satteriHeadingIdsPlugin();
+		const processor = await createSatteriMarkdownProcessor({
+			hastPlugins: [plugin],
+		});
+		const first = await processor.render('## Introduction\n\n## Summary');
+		const second = await processor.render('## Introduction\n\n## Summary');
+		assert.deepEqual(first.metadata.headings, [
+			{ depth: 2, slug: 'introduction', text: 'Introduction' },
+			{ depth: 2, slug: 'summary', text: 'Summary' },
+		]);
+		assert.deepEqual(second.metadata.headings, [
+			{ depth: 2, slug: 'introduction', text: 'Introduction' },
+			{ depth: 2, slug: 'summary', text: 'Summary' },
+		]);
+	});
+
+	it('keeps heading slugs isolated across concurrent renders with async plugins', async () => {
+		let isFirstHeading = true;
+		const asyncPlugin: HastPluginDefinition = {
+			name: 'async-plugin',
+			element: {
+				filter: ['h1'],
+				async visit() {
+					if (isFirstHeading) {
+						isFirstHeading = false;
+						await new Promise((resolve) => setTimeout(resolve, 20));
+					}
+				},
+			},
+		};
+		const processor = await createSatteriMarkdownProcessor({
+			hastPlugins: [asyncPlugin, satteriHeadingIdsPlugin()],
+		});
+		const [first, second] = await Promise.all([
+			processor.render('# Introduction'),
+			processor.render('# Introduction'),
+		]);
+		assert.deepEqual(first.metadata.headings, [
+			{ depth: 1, slug: 'introduction', text: 'Introduction' },
+		]);
+		assert.deepEqual(second.metadata.headings, [
+			{ depth: 1, slug: 'introduction', text: 'Introduction' },
+		]);
+	});
+
 	it('respects heading IDs set by a user hast plugin in both DOM and `headings`', async () => {
 		const setIdPlugin: HastPluginDefinition = {
 			name: 'set-heading-id',

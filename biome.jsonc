@@ -149,6 +149,26 @@
       }
     },
     {
+      "includes": ["packages/astro/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["astro/_internal", "astro/_internal/**"],
+                    "message": "Internal Astro entrypoints are only available to workspace tests and cannot be imported by production source code."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "includes": ["**/*.astro", "**/client.d.ts", "**/jsx-runtime.d.ts"],
       "linter": {
         "rules": {

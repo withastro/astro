@@ -1,1 +1,1 @@
-![alt](../assets/penguin2.jpg)
+![A & B](../assets/penguin2.jpg "C & D")

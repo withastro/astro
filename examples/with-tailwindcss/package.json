@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.23.4"
   },
   "scripts": {
     "dev": "astro dev",
@@ -13,15 +13,12 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^8.0.0",
-    "@tailwindcss/vite": "^4.2.1",
+    "@astrojs/mdx": "^8.1.1",
+    "@tailwindcss/vite": "^4.3.3",
     "@types/canvas-confetti": "^1.9.0",
-    "astro": "^7.2.10",
+    "astro": "^7.4.2",
     "canvas-confetti": "^1.9.4",
-    "tailwindcss": "^4.2.1",
-    "vite": "^8.0.13"
-  },
-  "allowScripts": {
-    "esbuild": true
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.3.4"
   }
 }

@@ -2,8 +2,10 @@ import assert from 'node:assert/strict';
 import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
 import { baseService } from '../../../dist/assets/services/service.js';
 import type { GetImageResult, UnresolvedImageTransform } from '../../../dist/assets/types.js';
-import { getImage } from '../../../dist/assets/internal.js';
-import { installImageService } from '../mocks.ts';
+import { getImage, setConfiguredImageService } from '../../../dist/assets/internal.js';
+import { ensureAsyncRenderScope } from '../../../dist/core/render-scope/node-scope.js';
+import { uninstallRenderScope } from '../../../dist/core/render-scope/scope.js';
+import { installImageService, mockRuntimeLogger } from '../mocks.ts';
 
 describe('getImage', () => {
 	let imageService: ReturnType<typeof installImageService>;
@@ -18,7 +20,7 @@ describe('getImage', () => {
 
 	/** Shorthand for calling getImage with the installed service config */
 	function renderImage(props: UnresolvedImageTransform): Promise<GetImageResult> {
-		return getImage(props, imageService.imageConfig);
+		return getImage(props, imageService.imageConfig, mockRuntimeLogger);
 	}
 
 	describe('remote constrained', () => {
@@ -399,6 +401,22 @@ describe('getImage', () => {
 		});
 	});
 
+	describe('densities', () => {
+		it('emits one srcset candidate per equivalent density', async () => {
+			const result = await renderImage({
+				src: 'https://example.com/photo.jpg',
+				width: 400,
+				height: 280,
+				densities: [1, '1x', 2, '2x'],
+				alt: 'Densities',
+			});
+			assert.deepEqual(
+				result.srcSet.values.map((value) => value.descriptor),
+				['1x', '2x'],
+			);
+		});
+	});
+
 	describe('no layout', () => {
 		it('does not add data-astro-image when no layout', async () => {
 			const result = await renderImage({
@@ -440,6 +458,7 @@ describe('getImage - remotePatterns', () => {
 			const result = await getImage(
 				{ src: 'https://cdn.example.com/photo.jpg', width: 800, height: 600, alt: 'test' },
 				service.imageConfig,
+				mockRuntimeLogger,
 			);
 			assert.ok(result.src.startsWith('/_image'));
 		});
@@ -448,6 +467,7 @@ describe('getImage - remotePatterns', () => {
 			const result = await getImage(
 				{ src: 'https://a.b.c.example.com/photo.jpg', width: 800, height: 600, alt: 'test' },
 				service.imageConfig,
+				mockRuntimeLogger,
 			);
 			assert.ok(result.src.startsWith('/_image'));
 		});
@@ -456,6 +476,7 @@ describe('getImage - remotePatterns', () => {
 			const result = await getImage(
 				{ src: 'https://evil.com/photo.jpg', width: 800, height: 600, alt: 'test' },
 				service.imageConfig,
+				mockRuntimeLogger,
 			);
 			assert.equal(result.src, 'https://evil.com/photo.jpg');
 		});
@@ -478,6 +499,7 @@ describe('getImage - remotePatterns', () => {
 			const result = await getImage(
 				{ src: 'https://cdn.example.com/images/photo.jpg', width: 800, height: 600, alt: 'test' },
 				service.imageConfig,
+				mockRuntimeLogger,
 			);
 			assert.ok(result.src.startsWith('/_image'));
 		});
@@ -486,6 +508,7 @@ describe('getImage - remotePatterns', () => {
 			const result = await getImage(
 				{ src: 'https://cdn.example.com/other/photo.jpg', width: 800, height: 600, alt: 'test' },
 				service.imageConfig,
+				mockRuntimeLogger,
 			);
 			assert.equal(result.src, 'https://cdn.example.com/other/photo.jpg');
 		});
@@ -508,6 +531,7 @@ describe('getImage - remotePatterns', () => {
 			const result = await getImage(
 				{ src: 'https://example.com/photo.jpg', width: 800, height: 600, alt: 'test' },
 				service.imageConfig,
+				mockRuntimeLogger,
 			);
 			assert.ok(result.src.startsWith('/_image'));
 		});
@@ -516,6 +540,7 @@ describe('getImage - remotePatterns', () => {
 			const result = await getImage(
 				{ src: 'http://example.com/photo.jpg', width: 800, height: 600, alt: 'test' },
 				service.imageConfig,
+				mockRuntimeLogger,
 			);
 			assert.equal(result.src, 'http://example.com/photo.jpg');
 		});
@@ -539,6 +564,7 @@ describe('getImage - remotePatterns', () => {
 			const result = await getImage(
 				{ src: 'https://allowed.com/photo.jpg', width: 800, height: 600, alt: 'test' },
 				service.imageConfig,
+				mockRuntimeLogger,
 			);
 			assert.ok(result.src.startsWith('/_image'));
 		});
@@ -547,6 +573,7 @@ describe('getImage - remotePatterns', () => {
 			const result = await getImage(
 				{ src: 'https://cdn.patterns.com/photo.jpg', width: 800, height: 600, alt: 'test' },
 				service.imageConfig,
+				mockRuntimeLogger,
 			);
 			assert.ok(result.src.startsWith('/_image'));
 		});
@@ -555,6 +582,7 @@ describe('getImage - remotePatterns', () => {
 			const result = await getImage(
 				{ src: 'https://other.com/photo.jpg', width: 800, height: 600, alt: 'test' },
 				service.imageConfig,
+				mockRuntimeLogger,
 			);
 			assert.equal(result.src, 'https://other.com/photo.jpg');
 		});
@@ -591,27 +619,33 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 		endpoint: { route: '/_image' },
 		dangerouslyProcessSVG: false,
 		responsiveStyles: false,
+		staticImageConfig: { base: '/', assetsDir: '_astro' },
 	};
+
+	// Build-time image URLs are only resolved while a prerender collects them.
+	const getBuildImage: typeof getImage = (...args) =>
+		ensureAsyncRenderScope().run({ staticImages: [], referencedImages: new Set() }, () =>
+			getImage(...args),
+		);
 
 	beforeEach(() => {
 		probedFormat = undefined;
 		probeCalls = 0;
 		probeError = undefined;
-		(globalThis as any).astroAsset = {
-			imageService: localServiceWithProbe,
-			addStaticImage: () => '/_astro/peeked.hash.png',
-		};
+		setConfiguredImageService(localServiceWithProbe as any);
 	});
 
 	afterEach(() => {
-		(globalThis as any).astroAsset = undefined;
+		setConfiguredImageService(undefined);
+		uninstallRenderScope();
 	});
 
 	it('commits the probed format when the URL has no detectable extension', async () => {
 		probedFormat = 'png';
-		const result = await getImage(
+		const result = await getBuildImage(
 			{ src: 'https://example.com/api/avatar', width: 64, height: 64, alt: 'no-ext' },
 			imageConfig,
+			mockRuntimeLogger,
 		);
 		assert.equal(probeCalls, 1);
 		// Raster sources default to webp.
@@ -620,9 +654,10 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 
 	it('preserves svg through the peek so SVGs do not get rasterized', async () => {
 		probedFormat = 'svg';
-		const result = await getImage(
+		const result = await getBuildImage(
 			{ src: 'https://example.com/api/avatar', width: 64, height: 64, alt: 'svg-peek' },
 			imageConfig,
+			mockRuntimeLogger,
 		);
 		assert.equal(probeCalls, 1);
 		assert.equal(result.options.format, 'svg');
@@ -630,9 +665,10 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 
 	it('does not peek when the URL extension already resolved a format', async () => {
 		probedFormat = 'svg';
-		const result = await getImage(
+		const result = await getBuildImage(
 			{ src: 'https://example.com/photo.jpg', width: 64, height: 64, alt: 'has-ext' },
 			imageConfig,
+			mockRuntimeLogger,
 		);
 		assert.equal(probeCalls, 0);
 		assert.equal(result.options.format, 'webp');
@@ -640,7 +676,7 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 
 	it('does not peek when the caller already set an explicit format', async () => {
 		probedFormat = 'svg';
-		const result = await getImage(
+		const result = await getBuildImage(
 			{
 				src: 'https://example.com/api/avatar',
 				width: 64,
@@ -649,17 +685,18 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 				format: 'png',
 			},
 			imageConfig,
+			mockRuntimeLogger,
 		);
 		assert.equal(probeCalls, 0);
 		assert.equal(result.options.format, 'png');
 	});
 
-	it('does not peek when not running at build time (no addStaticImage)', async () => {
+	it('does not peek when not running at build time (no collecting render)', async () => {
 		probedFormat = 'svg';
-		(globalThis as any).astroAsset = { imageService: localServiceWithProbe };
 		const result = await getImage(
 			{ src: 'https://example.com/api/avatar', width: 64, height: 64, alt: 'ssr' },
 			imageConfig,
+			mockRuntimeLogger,
 		);
 		assert.equal(probeCalls, 0);
 		assert.equal(result.options.format, undefined);
@@ -667,9 +704,10 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 
 	it('does not peek when the remote URL is not allowed', async () => {
 		probedFormat = 'svg';
-		const result = await getImage(
+		const result = await getBuildImage(
 			{ src: 'https://untrusted.com/api/avatar', width: 64, height: 64, alt: 'blocked' },
 			imageConfig,
+			mockRuntimeLogger,
 		);
 		assert.equal(probeCalls, 0);
 		assert.equal(result.options.format, undefined);
@@ -685,13 +723,11 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 				return { format: 'svg', width: 100, height: 100 };
 			},
 		};
-		(globalThis as any).astroAsset = {
-			imageService: externalService,
-			addStaticImage: () => '/_astro/peeked.hash.png',
-		};
-		const result = await getImage(
+		setConfiguredImageService(externalService as any);
+		const result = await getBuildImage(
 			{ src: 'https://example.com/api/avatar', width: 64, height: 64, alt: 'external' },
 			imageConfig,
+			mockRuntimeLogger,
 		);
 		assert.equal(probeCalls, 0);
 		assert.equal(result.options.format, undefined);
@@ -699,9 +735,10 @@ describe('getImage - peekRemoteFormatForStaticEmit', () => {
 
 	it('falls back to undefined when the probe throws', async () => {
 		probeError = new Error('network down');
-		const result = await getImage(
+		const result = await getBuildImage(
 			{ src: 'https://example.com/api/avatar', width: 64, height: 64, alt: 'probe-fail' },
 			imageConfig,
+			mockRuntimeLogger,
 		);
 		assert.equal(probeCalls, 1);
 		assert.equal(result.options.format, undefined);

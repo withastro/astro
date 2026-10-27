@@ -1,5 +1,52 @@
 # @astrojs/vercel
 
+## 11.0.16
+
+### Patch Changes
+
+- [#18411](https://github.com/withastro/astro/pull/18411) [`48ec171`](https://github.com/withastro/astro/commit/48ec171f7bed5dbd5477a4fd5216ef5b53a2eb3a) Thanks [@matthewp](https://github.com/matthewp)! - Uses the Vercel Bun runtime for serverless functions when the project is built with Bun (e.g. `bunx --bun astro build`)
+
+## 11.0.15
+
+### Patch Changes
+
+- Updated dependencies [[`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8)]:
+  - @astrojs/internal-helpers@0.13.0
+
+## 11.0.14
+
+### Patch Changes
+
+- [#18339](https://github.com/withastro/astro/pull/18339) [`fcc050c`](https://github.com/withastro/astro/commit/fcc050cdc60e03b3594f19f6e5418c94f2e40774) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes on-demand routes failing with "Cannot find native binding" on Vercel, caused by the serverless function loading `rolldown` at runtime
+
+## 11.0.13
+
+### Patch Changes
+
+- [#18263](https://github.com/withastro/astro/pull/18263) [`882dd98`](https://github.com/withastro/astro/commit/882dd98cd9f11c4e7bd0b812d37f865dfca75d3d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Refactors internal bundling and code transforms to use Vite's Oxc-based `transformWithOxc` and Rolldown instead of esbuild. These packages no longer depend on esbuild directly.
+
+## 11.0.12
+
+### Patch Changes
+
+- [#18254](https://github.com/withastro/astro/pull/18254) [`36f3a0c`](https://github.com/withastro/astro/commit/36f3a0cef5e92de5fc4581f998e039024caf7f7c) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes middleware rewrites returning 404 instead of 200 when the 404 page is server-rendered
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb), [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d)]:
+  - @astrojs/internal-helpers@0.12.0
+
+## 11.0.11
+
+### Patch Changes
+
+- [#18044](https://github.com/withastro/astro/pull/18044) [`98c07e1`](https://github.com/withastro/astro/commit/98c07e1735b2c9e075ad31aeafa5af7db4bf0563) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes a rare issue where ISR pages on Vercel could intermittently be served a cached redirect to a nonsense URL (such as `/$0/`) instead of the page itself. Pages now render correctly, and requests that can't be resolved to a valid path return a `404` instead of a redirect.
+
+- [#18008](https://github.com/withastro/astro/pull/18008) [`a09b328`](https://github.com/withastro/astro/commit/a09b3288d5d893be230934cb3dbd43afefca0d6c) Thanks [@yanthomasdev](https://github.com/yanthomasdev)! - Fixes the immutable `Cache-Control` rule for hashed assets (`/_astro/*`) being emitted after the `filesystem` route handle in `.vercel/output/config.json`.
+
+## 11.0.10
+
+### Patch Changes
+
+- [#17818](https://github.com/withastro/astro/pull/17818) [`c0b6581`](https://github.com/withastro/astro/commit/c0b65811dfa0dafa1aa04b7d6d67fd09250ff8c1) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the development image service to forward every argument it receives to Astro's Sharp service, including the new `logger` parameter
+
 ## 11.0.9
 
 ### Patch Changes

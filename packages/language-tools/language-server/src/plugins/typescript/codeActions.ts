@@ -1,4 +1,4 @@
-import { type Range, TextDocumentEdit } from '@volar/language-server';
+import { type Range, TextDocumentEdit, TextEdit } from '@volar/language-server';
 import type { CodeAction, LanguageServiceContext } from '@volar/language-service';
 import { URI } from 'vscode-uri';
 import { AstroVirtualCode } from '../../core/index.js';
@@ -42,7 +42,10 @@ function mapCodeAction(codeAction: CodeAction, context: LanguageServiceContext) 
 			}
 			if (hadEdits && change.edits.length === 0) return [];
 
-			change.edits = change.edits.map((edit) => mapEdit(edit, root, virtualCode.languageId));
+			// Snippet edits have no `newText` to rewrite, so they're passed through untouched
+			change.edits = change.edits.map((edit) =>
+				TextEdit.is(edit) ? mapEdit(edit, root, virtualCode.languageId) : edit,
+			);
 		}
 
 		return [change];

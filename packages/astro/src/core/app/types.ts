@@ -26,7 +26,7 @@ import type { BaseApp } from './base.js';
 type ComponentPath = string;
 
 export type StylesheetAsset =
-	| { type: 'inline'; content: string }
+	| { type: 'inline'; content: string; viteDevId?: string }
 	| { type: 'external'; src: string };
 
 type ScriptAsset =
@@ -238,7 +238,9 @@ export type SerializedSSRManifest = Omit<
 	cacheDir: string;
 	outDir: string;
 	publicDir: string;
+	/** The resolved Vite client output directory for this build. */
 	buildClientDir: string;
+	/** The resolved Vite SSR output directory for this build. */
 	buildServerDir: string;
 	routes: SerializedRouteInfo[];
 	assets: string[];

@@ -15,8 +15,6 @@ import {
 	isPrerenderRequest,
 	handleStaticPathsRequest,
 	handlePrerenderRequest,
-	isStaticImagesRequest,
-	handleStaticImagesRequest,
 	isImageTransformRequest,
 	handleImageTransformRequest,
 	installPrerenderErrorPropagation,
@@ -30,6 +28,7 @@ import {
 	createLocals,
 	getClientAddress,
 } from './cf.js';
+import { applyCloudflareResponseHeaders } from './response.js';
 
 export type { Runtime };
 
@@ -55,27 +54,21 @@ export async function handle(
 ): Promise<CfResponse> {
 	// Handle prerender endpoints (only active during build prerender phase)
 	if (isPrerender) {
-		if (compileImageConfig) {
-			const { installAddStaticImage } = await import('./static-image-collection.js');
-			installAddStaticImage(compileImageConfig);
-		}
-
-		if (isStaticPathsRequest(request)) {
-			return handleStaticPathsRequest(app) as unknown as CfResponse;
-		}
-		if (isPrerenderRequest(request)) {
+		const isStaticPaths = isStaticPathsRequest(request);
+		if (isStaticPaths || isPrerenderRequest(request)) {
 			await app.getLogger();
 			// Install the isolate's render scope so concurrent prerender requests
-			// each collect incremental metadata in their own per-render store. The
+			// each collect their metadata in their own per-render store. The
 			// loader thunk is generated into the virtual config module only for the
 			// prerender environment, keeping the module — and its `node:async_hooks`
-			// reference — out of production worker output entirely; the install
+			// import — out of production worker output entirely; the install
 			// itself is first-wins, making the per-request call idempotent.
-			await (await loadPrerenderScope?.())?.ensurePrerenderScope(app.logger);
-			return handlePrerenderRequest(app, request) as unknown as CfResponse;
-		}
-		if (isStaticImagesRequest(request)) {
-			return handleStaticImagesRequest() as unknown as CfResponse;
+			(await loadPrerenderScope?.())?.ensurePrerenderScope();
+			// Without build-time image optimization, prerendered pages keep the runtime image URLs.
+			const options = { staticImages: compileImageConfig !== null };
+			return (isStaticPaths
+				? handleStaticPathsRequest(app, options)
+				: handlePrerenderRequest(app, request, options)) as unknown as CfResponse;
 		}
 		if (isImageTransformRequest(request)) {
 			const imagesBindingName = globalThis.__ASTRO_IMAGES_BINDING_NAME;
@@ -84,7 +77,6 @@ export async function handle(
 					compileImageConfig?.transformWithBinding && imagesBindingName
 						? (env as Record<string, any>)[imagesBindingName]
 						: undefined,
-				assets: compileImageConfig?.transformWithBinding ? env.ASSETS : undefined,
 			}) as unknown as CfResponse;
 		}
 	}
@@ -115,7 +107,7 @@ export async function handle(
 
 	const waitUntil: RenderOptions['waitUntil'] = context.waitUntil.bind(context);
 
-	let response = await app.render(request, {
+	const response = await app.render(request, {
 		routeData,
 		locals,
 		waitUntil,
@@ -127,34 +119,5 @@ export async function handle(
 	// response up by identity, so it must see the original object.
 	const setCookieHeaders = app.setCookieHeaders ? [...app.setCookieHeaders(response)] : [];
 
-	// When the Cloudflare cache provider is configured, default uncached
-	// responses to `no-store` so opting in to route caching never
-	// accidentally caches a route that didn't set any cache intent.
-	// Cloudflare's Worker cache otherwise caches all GET responses for
-	// up to 2 hours by default.
-	const needsNoStoreDefault =
-		cacheProviderEnabled && !response.headers.has('Cloudflare-CDN-Cache-Control');
-
-	if (setCookieHeaders.length > 0 || needsNoStoreDefault) {
-		const applyHeaders = (res: Response) => {
-			for (const setCookieHeader of setCookieHeaders) {
-				res.headers.append('Set-Cookie', setCookieHeader);
-			}
-			if (needsNoStoreDefault) {
-				res.headers.set('Cloudflare-CDN-Cache-Control', 'no-store');
-			}
-		};
-		try {
-			applyHeaders(response);
-		} catch {
-			// Responses served from the Workers Cache API (e.g. `/_image`
-			// cache hits) have immutable headers. The first mutation throws
-			// before changing anything, so rebuilding into a mutable
-			// Response and re-applying cannot duplicate headers.
-			response = new Response(response.body, response);
-			applyHeaders(response);
-		}
-	}
-
-	return response;
+	return applyCloudflareResponseHeaders(response, setCookieHeaders, cacheProviderEnabled);
 }

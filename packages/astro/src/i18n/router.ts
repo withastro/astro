@@ -1,5 +1,6 @@
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
+import { STATUS_CODE_PAGES } from '../core/constants.js';
 import type { Locales, ValidRedirectStatus } from '../types/public/config.js';
 import type { APIContext } from '../types/public/context.js';
 import { normalizeTheLocale, pathHasLocale } from './path.js';
@@ -43,6 +44,11 @@ export interface I18nRouterContext {
 	routeType?: 'page' | 'fallback';
 	/** Whether this is a reroute from response headers */
 	isReroute: boolean;
+	/**
+	 * Whether a non-root path without a locale segment is served instead of
+	 * returning 404 under the `prefix-always` strategies.
+	 */
+	allowUnprefixedPath?: boolean;
 }
 
 /**
@@ -119,9 +125,11 @@ export class I18nRouter {
 	 * Check if i18n processing should be skipped for this request
 	 */
 	private shouldSkipProcessing(pathname: string, context: I18nRouterContext): boolean {
-		// Skip 404/500 pages
-		if (pathname.includes('/404') || pathname.includes('/500')) {
-			return true;
+		// Skip status pages (404/500 and the redirect page)
+		for (const page of STATUS_CODE_PAGES) {
+			if (pathname.includes(page)) {
+				return true;
+			}
 		}
 
 		// Skip server islands
@@ -146,7 +154,7 @@ export class I18nRouter {
 	 * Strategy: pathname-prefix-always
 	 * All locales must have a prefix, including the default locale.
 	 */
-	private matchPrefixAlways(pathname: string, _context: I18nRouterContext): I18nRouterMatch {
+	private matchPrefixAlways(pathname: string, context: I18nRouterContext): I18nRouterMatch {
 		const isRoot = pathname === this.#base + '/' || pathname === this.#base;
 
 		if (isRoot) {
@@ -160,7 +168,7 @@ export class I18nRouter {
 		}
 
 		// Check if pathname has a locale
-		if (!pathHasLocale(pathname, this.#locales)) {
+		if (!context.allowUnprefixedPath && !pathHasLocale(pathname, this.#locales)) {
 			return { type: 'notFound' };
 		}
 
@@ -199,7 +207,7 @@ export class I18nRouter {
 	 */
 	private matchPrefixAlwaysNoRedirect(
 		pathname: string,
-		_context: I18nRouterContext,
+		context: I18nRouterContext,
 	): I18nRouterMatch {
 		const isRoot = pathname === this.#base + '/' || pathname === this.#base;
 
@@ -209,7 +217,7 @@ export class I18nRouter {
 		}
 
 		// Non-root paths must have a locale
-		if (!pathHasLocale(pathname, this.#locales)) {
+		if (!context.allowUnprefixedPath && !pathHasLocale(pathname, this.#locales)) {
 			return { type: 'notFound' };
 		}
 

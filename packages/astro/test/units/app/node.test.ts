@@ -877,6 +877,68 @@ describe('node', () => {
 	});
 
 	describe('createRequestFromNodeRequest', () => {
+		describe('host', () => {
+			it('falls back to localhost when allowedDomains is not configured', () => {
+				const result = createRequestFromNodeRequest({
+					...mockNodeRequest,
+					headers: { host: 'example.com' },
+				});
+				assert.equal(result.url, 'https://localhost/');
+			});
+
+			it('includes the server port when allowedDomains is empty', () => {
+				const result = createRequestFromNodeRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: { host: 'example.com' },
+					},
+					{ allowedDomains: [], port: 4321 },
+				);
+				assert.equal(result.url, 'http://localhost:4321/');
+			});
+
+			it('preserves Host when it matches allowedDomains', () => {
+				const result = createRequestFromNodeRequest(
+					{
+						...mockNodeRequest,
+						headers: { host: 'example.com' },
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal(result.url, 'https://example.com/');
+			});
+
+			it('rejects Host when it does not match allowedDomains', () => {
+				const result = createRequestFromNodeRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: { host: 'attacker.example.net' },
+					},
+					{ allowedDomains: [{ protocol: 'http', hostname: 'example.com' }], port: 4321 },
+				);
+				assert.equal(result.url, 'http://localhost:4321/');
+			});
+
+			it('uses the validated forwarded protocol to validate Host', () => {
+				const result = createRequestFromNodeRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: {
+							host: 'example.com',
+							'x-forwarded-proto': 'https',
+						},
+					},
+					{ allowedDomains: [{ protocol: 'https', hostname: 'example.com' }] },
+				);
+				// FetchState applies the forwarded protocol later. This helper only needs it
+				// to establish that the plain Host is trusted.
+				assert.equal(result.url, 'http://example.com/');
+			});
+		});
+
 		describe('x-forwarded-for', () => {
 			it('trusts x-forwarded-for when host matches allowedDomains', () => {
 				const result = createRequestFromNodeRequest(
@@ -962,12 +1024,15 @@ describe('node', () => {
 				});
 			}
 
-			it('preserves a valid host with the maximum port', () => {
-				const result = createRequestFromNodeRequest({
-					...mockNodeRequest,
-					socket: { encrypted: false, remoteAddress: '2.2.2.2' },
-					headers: { host: 'example.com:65535' },
-				});
+			it('preserves an allowed host with the maximum port', () => {
+				const result = createRequestFromNodeRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: { host: 'example.com:65535' },
+					},
+					{ allowedDomains: [{ hostname: 'example.com', port: '65535' }] },
+				);
 				assert.equal(new URL(result.url).host, 'example.com:65535');
 			});
 		});

@@ -20,8 +20,10 @@ interface OptimizeDepsPatch {
 async function runConfigSetup(
 	command: 'dev' | 'build' | 'sync',
 	loggerConfig?: { entrypoint: string },
+	cacheConfig?: { provider?: { name: string; entrypoint: string } },
+	adapterOptions?: Parameters<typeof cloudflare>[0],
 ) {
-	const integration = cloudflare();
+	const integration = cloudflare(adapterOptions);
 	let updatedConfig: { vite: { plugins: unknown[] } } | undefined;
 
 	const context = {
@@ -35,6 +37,7 @@ async function runConfigSetup(
 			vite: {},
 			image: {},
 			logger: loggerConfig,
+			cache: cacheConfig,
 		},
 		updateConfig(config: { vite: { plugins: unknown[] } }) {
 			updatedConfig = config;
@@ -68,7 +71,17 @@ async function runConfigSetup(
 		options: Record<string, unknown>,
 	) => OptimizeDepsPatch | undefined;
 
-	return { cloudflareVitePlugins, configEnvironment };
+	const prismPlugin = plugins
+		.flat()
+		.find((plugin) => (plugin as Plugin)?.name === '@astrojs/cloudflare:prism') as
+		| Plugin
+		| undefined;
+	assert.ok(prismPlugin, 'expected the @astrojs/cloudflare:prism plugin');
+	const prismConfigEnvironment = prismPlugin.configEnvironment as unknown as (
+		environmentName: string,
+	) => OptimizeDepsPatch | undefined;
+
+	return { cloudflareVitePlugins, configEnvironment, prismConfigEnvironment };
 }
 
 describe('type generation phase (build and sync)', () => {
@@ -95,6 +108,11 @@ describe('type generation phase (build and sync)', () => {
 					);
 				}
 			});
+
+			it('does not add Prism languages to the ssr optimizeDeps include', async () => {
+				const { prismConfigEnvironment } = await runConfigSetup(command);
+				assert.equal(prismConfigEnvironment('ssr')?.optimizeDeps?.include, undefined);
+			});
 		});
 	}
 
@@ -119,6 +137,50 @@ describe('type generation phase (build and sync)', () => {
 			// entrypoints (#16933); losing them reintroduces mid-request discovery.
 			assert.ok(include.includes('astro/actions/runtime/entrypoints/server.js'));
 			assert.ok(include.includes('astro/actions/runtime/entrypoints/route.js'));
+		});
+
+		it('prebundles Prism languages for the ssr environment', async () => {
+			const { prismConfigEnvironment } = await runConfigSetup('dev');
+			assert.deepEqual(prismConfigEnvironment('ssr')?.optimizeDeps?.include, [
+				'prismjs/components/prism-*.js',
+			]);
+		});
+
+		it('prebundles astro/app/manifest for server environments', async () => {
+			const { configEnvironment } = await runConfigSetup('dev');
+			const include = configEnvironment('ssr', {})?.optimizeDeps?.include ?? [];
+			assert.ok(include.includes('astro/app/manifest'));
+		});
+
+		it('prebundles the passthrough image service for server environments', async () => {
+			const { configEnvironment } = await runConfigSetup('dev');
+			const include = configEnvironment('ssr', {})?.optimizeDeps?.include ?? [];
+			assert.ok(include.includes('astro/assets/services/noop'));
+		});
+
+		it('only prebundles the cache provider when Workers Caching is enabled', async () => {
+			const withoutCache = await runConfigSetup('dev');
+			const withoutCacheInclude =
+				withoutCache.configEnvironment('ssr', {})?.optimizeDeps?.include ?? [];
+			assert.ok(!withoutCacheInclude.includes('@astrojs/cloudflare/cache/provider'));
+
+			const withCache = await runConfigSetup('dev', undefined, {
+				provider: { name: 'cloudflare', entrypoint: '@astrojs/cloudflare/cache/provider' },
+			});
+			const withCacheInclude = withCache.configEnvironment('ssr', {})?.optimizeDeps?.include ?? [];
+			assert.ok(withCacheInclude.includes('@astrojs/cloudflare/cache/provider'));
+		});
+
+		it('does not prebundle Astro for the Node prerender environment', async () => {
+			const { configEnvironment } = await runConfigSetup('dev', undefined, undefined, {
+				prerenderEnvironment: 'node',
+			});
+			// A pre-bundled `astro/fetch` in the Node prerender environment is a
+			// second copy of Astro next to the unbundled dev server app, so a custom
+			// `src/fetch.ts` renders through the production environment (#18457).
+			assert.equal(configEnvironment('prerender', {}), undefined);
+			const ssrInclude = configEnvironment('ssr', {})?.optimizeDeps?.include ?? [];
+			assert.ok(ssrInclude.includes('astro/fetch'));
 		});
 
 		it('only prebundles the JSON logger when it is enabled', async () => {

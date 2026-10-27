@@ -31,11 +31,15 @@ const { Content } = await render(entry);
 		<div class="stack gap-15">
 			<header>
 				<div class="wrapper stack gap-2">
-					<a class="back-link" href="/work/"><Icon icon="arrow-left" /> Work</a>
+					<a class="back-link" href="/work/">
+						<Icon icon="arrow-left" /> Work
+					</a>
 					<Hero title={entry.data.title} align="start">
 						<div class="details">
 							<div class="tags">
-								{entry.data.tags.map((t) => <Pill>{t}</Pill>)}
+								{entry.data.tags.map((t) => (
+									<Pill>{t}</Pill>
+								))}
 							</div>
 							<p class="description">{entry.data.description}</p>
 						</div>

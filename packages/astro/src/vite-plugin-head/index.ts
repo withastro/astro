@@ -47,8 +47,16 @@ export default function configHeadVitePlugin(): vite.Plugin {
 	function invalidateComponentMetadataModule() {
 		for (const env of environments) {
 			const virtualMod = env.moduleGraph.getModuleById(RESOLVED_VIRTUAL_COMPONENT_METADATA);
-			if (virtualMod) {
-				env.moduleGraph.invalidateModule(virtualMod);
+			// Clear only the transform result so the next dynamic import()
+			// re-runs load/transform. A full invalidateModule() would cascade
+			// to all importers, which in pre-bundled environments (e.g.
+			// Cloudflare) includes the entire SSR module graph — causing
+			// concurrent requests to observe partially-initialized modules.
+			// See https://github.com/withastro/astro/issues/18132
+			if (virtualMod?.transformResult) {
+				const etag = virtualMod.transformResult.etag;
+				if (etag) env.moduleGraph.etagToModuleMap.delete(etag);
+				virtualMod.transformResult = null;
 			}
 		}
 	}
@@ -183,6 +191,16 @@ export default function configHeadVitePlugin(): vite.Plugin {
 			}
 		},
 		transform(_source, id) {
+			if (id === RESOLVED_VIRTUAL_COMPONENT_METADATA) {
+				// The virtual module only reports metadata that other modules own, so
+				// transforming it cannot change what it emits. Invalidating it here
+				// would make every evaluation schedule the next one: the invalidation
+				// reaches the dev app entrypoint that imports it, the runner
+				// re-evaluates that chain on the next request, re-fetches this module,
+				// and arrives back here. https://github.com/withastro/astro/issues/17995
+				return;
+			}
+
 			let info = this.getModuleInfo(id);
 			if (info && getAstroMetadata(info)?.containsHead) {
 				// Keep bubbling `containsHead` when this module was already marked earlier.
@@ -213,7 +231,7 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 			const moduleIds = new Set<string>();
 			// Explicit runtime entries (`createComponent({ propagation: 'self' })`).
 			const selfPropagationSeeds = new Set<string>();
-			// Head propagation hint seeds (`"use astro:head-inject"` directive in source).
+			// Head propagation hint seeds (content render entries with ?astroPropagatedAssets).
 			const commentPropagationSeeds = new Set<string>();
 			function getOrCreateMetadata(id: string): SSRComponentMetadata {
 				if (map.has(id)) return map.get(id)!;

@@ -1,5 +1,5 @@
 import type { AstroConfig } from 'astro';
-import { type ExportSpecifier, type ImportSpecifier, parse } from 'es-module-lexer';
+import { type ExportSpecifier, type ImportSpecifier, parse } from 'es-module-lexer/minimal';
 import type { Plugin } from 'vite';
 import {
 	ASTRO_IMAGE_ELEMENT,

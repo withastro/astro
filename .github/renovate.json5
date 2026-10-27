@@ -4,6 +4,7 @@
     "config:recommended",
     "schedule:weekly",
     ":disablePeerDependencies",
+    ":disableDependencyDashboard",
     "customManagers:biomeVersions",
     "helpers:pinGitHubActionDigestsToSemver"
   ],
@@ -47,6 +48,7 @@
       "matchUpdateTypes": ["minor", "patch"],
       "matchFileNames": [
         "packages/markdown/remark/**",
+        "packages/markdown/satteri/**",
         "packages/integrations/mdx/**"
       ]
     },
@@ -160,6 +162,26 @@
     },
     //#endregion
 
+    //#region Repo-level tooling and examples
+    {
+      "groupName": "repo tooling",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": [
+        "package.json",
+        "pnpm-workspace.yaml",
+        "scripts/**",
+        "benchmark/**"
+      ]
+    },
+    {
+      "groupName": "examples",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": ["examples/**"]
+    },
+    //#endregion
+
     //#region Minor packages (few external deps, rarely trigger updates)
     {
       "groupName": "minor packages",
@@ -172,6 +194,32 @@
         "packages/telemetry/**",
         "packages/underscore-redirects/**"
       ]
+    },
+    //#endregion
+
+    //#region Shared dependency groups
+    {
+      "groupName": "vite",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["vite"]
+    },
+    {
+      "groupName": "rolldown",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["rolldown"]
+    },
+    // Must be updated in all packages at once: loading two different @playwright/test versions in
+    // the same process throws, which breaks `knip` when it loads the Playwright configs.
+    {
+      "groupName": "@playwright/test",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["@playwright/test"]
+    },
+    // The CodSpeed Vitest plugin, its core, and Vitest itself move in lockstep, so bump them in one update.
+    {
+      "groupName": "@codspeed",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["@codspeed/vitest-plugin", "@codspeed/core", "vitest", "@vitest/*"]
     }
     //#endregion
   ],
@@ -180,18 +228,18 @@
     "@biomejs/biome",
     "knip",
     "@types/node",
+    // pnpm override key in pnpm-workspace.yaml, extracted as its own dep name
+    "@types/node@22",
     "@types/vscode",
 
     // TODO: investigate upgrade (has type issues)
-    "drizzle-orm",
     "sharp",
 
     // manually bumping workflow actions
     "actions/labeler",
 
-    // follow vite deps version
-    "postcss-load-config",
-    "esbuild"
+    // pinned in .github/workflows/ci.yml while Deno 2.9.6 breaks @netlify/edge-functions-dev
+    "deno"
   ],
   "minimumReleaseAge": "3 days"
 }

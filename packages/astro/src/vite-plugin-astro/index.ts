@@ -30,7 +30,11 @@ const astroFileToCompileMetadataWeakMap = new WeakMap<AstroConfig, Map<string, C
 export default function astro({ settings, logger }: AstroPluginOptions): vite.Plugin[] {
 	const { config } = settings;
 	let server: vite.ViteDevServer | undefined;
-	let compile: (code: string, filename: string) => Promise<CompileAstroResult>;
+	let compile: (
+		code: string,
+		filename: string,
+		inlineComponentAssets?: boolean,
+	) => Promise<CompileAstroResult>;
 	// Each Astro file has its own compile metadata so that its scripts and styles virtual module
 	// can retrieve their code from here.
 	// NOTE: We need to initialize a map here and in `buildStart` because our unit tests don't
@@ -96,7 +100,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			async configResolved(viteConfig) {
 				const toolbarEnabled = await settings.preferences.get('devToolbar.enabled');
 				// Initialize `compile` function to simplify usage later
-				compile = (code, filename) => {
+				compile = (code, filename, inlineComponentAssets) => {
 					return compileAstro({
 						compileProps: {
 							astroConfig: config,
@@ -104,6 +108,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 							toolbarEnabled,
 							filename,
 							source: code,
+							inlineComponentAssets,
 						},
 						astroFileToCompileMetadata,
 					});
@@ -280,7 +285,12 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						};
 					}
 
-					const transformResult = await compile(source, filename);
+					const transformResult = await compile(source, filename, parsedId.query.container);
+					if (parsedId.query.container) {
+						for (const style of transformResult.css) {
+							style.dependencies?.forEach((dependency) => this.addWatchFile(dependency));
+						}
+					}
 
 					const astroMetadata: AstroPluginMetadata['astro'] = {
 						// Remove Astro components that have been mistakenly given client directives

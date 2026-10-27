@@ -1,5 +1,53 @@
 # @astrojs/mdx
 
+## 8.1.1
+
+### Patch Changes
+
+- [#18475](https://github.com/withastro/astro/pull/18475) [`cf27e70`](https://github.com/withastro/astro/commit/cf27e70a9057ce29ade2a8a843bd9275a696e9ab) Thanks [@ematipico](https://github.com/ematipico)! - Bumps the minimum supported Node.js version to 22.23.4, which includes the fixes from the [October 2026 Node.js security releases](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases)
+  
+  This is a patch release because the [Node.js support and upgrade policy](https://docs.astro.build/en/upgrade-astro/#nodejs-support-and-upgrade-policies) allows the Core team to raise the minimum Maintenance LTS version in a patch release when a disclosed and fixed Node.js security flaw affects Astro.
+- Updated dependencies []:
+  - @astrojs/markdown-satteri@0.4.5
+
+## 8.1.0
+
+### Minor Changes
+
+- [#18277](https://github.com/withastro/astro/pull/18277) [`2715958`](https://github.com/withastro/astro/commit/2715958666b0a706b069d0592da3a070b3796a9b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases the minimum Node.js version to 22.22.0
+  
+  The minimum supported Node.js version is now 22.22.0, the latest Node.js 22 release supported by StackBlitz. This change is in line with Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support).
+
+### Patch Changes
+
+- Updated dependencies [[`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8)]:
+  - @astrojs/internal-helpers@0.13.0
+  - @astrojs/markdown-satteri@0.4.4
+
+## 8.0.3
+
+### Patch Changes
+
+- [#18099](https://github.com/withastro/astro/pull/18099) [`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb) Thanks [@renovate](https://github.com/apps/renovate)! - Adds YAML parsing with timestamp and merge key support, and formats YAML errors consistently across Astro, Markdown, MDX, and Markdoc.
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb), [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d)]:
+  - @astrojs/internal-helpers@0.12.0
+  - @astrojs/markdown-satteri@0.4.3
+
+## 8.0.2
+
+### Patch Changes
+
+- [#18036](https://github.com/withastro/astro/pull/18036) [`f4444eb`](https://github.com/withastro/astro/commit/f4444ebcc17e37680e159d1801b79fa357f16461) Thanks [@astro-factory](https://github.com/apps/astro-factory)! - Fixes an incompatibility where `@astrojs/mdx` v8 could be installed with `astro` versions that bundle an older `@astrojs/markdown-satteri` lacking MDX support. Also improves the error message when the processor is too old to suggest updating `astro` itself.
+- Updated dependencies [[`3fd16ee`](https://github.com/withastro/astro/commit/3fd16eeb5cd096a6ceb8cc3e70b89ed30d6fcd4d), [`8358d59`](https://github.com/withastro/astro/commit/8358d59cba754480c7d830c473837a0d7100ac7e)]:
+  - @astrojs/markdown-satteri@0.4.2
+
+## 8.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`a548223`](https://github.com/withastro/astro/commit/a548223607b9bb146d5d90ddda495343f9a2a739)]:
+  - @astrojs/markdown-satteri@0.4.1
+
 ## 8.0.0
 
 ### Major Changes

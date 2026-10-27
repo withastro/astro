@@ -1,16 +1,19 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { AstroConfig, AstroIntegrationLogger } from 'astro';
+import { passthroughImageService, sharpImageService } from 'astro/config';
 import { normalizeImageServiceConfig, setImageConfig } from '../dist/utils/image-config.js';
 
 describe('normalizeImageServiceConfig', () => {
-	it('keeps the cloudflare-binding shorthand runtime-only', () => {
-		assert.deepEqual(normalizeImageServiceConfig('cloudflare-binding'), {
-			buildService: 'cloudflare-binding',
-			runtimeService: 'cloudflare-binding',
-			transformAtBuild: false,
+	for (const config of [undefined, 'cloudflare-binding'] as const) {
+		it(`transforms images at build time with imageService: ${config}`, () => {
+			assert.deepEqual(normalizeImageServiceConfig(config), {
+				buildService: 'cloudflare-binding',
+				runtimeService: 'cloudflare-binding',
+				transformAtBuild: true,
+			});
 		});
-	});
+	}
 
 	it('opts compound cloudflare-binding config into build-time transforms', () => {
 		assert.deepEqual(
@@ -24,6 +27,38 @@ describe('normalizeImageServiceConfig', () => {
 				transformAtBuild: true,
 			},
 		);
+	});
+});
+
+describe('setImageConfig compile mode', () => {
+	for (const command of ['dev', 'build'] as const) {
+		it(`gives passthrough precedence over the binding runtime during ${command}`, () => {
+			const service = passthroughImageService();
+			const result = setImageConfig(
+				{ build: 'compile', runtime: 'cloudflare-binding' },
+				{ service, endpoint: { route: '/_image' } } as AstroConfig['image'],
+				command,
+				{ warn() {} } as unknown as AstroIntegrationLogger,
+			);
+			assert.deepEqual(result.service, service);
+			assert.equal(result.endpoint?.entrypoint, '@astrojs/cloudflare/image-passthrough-endpoint');
+		});
+	}
+
+	it('keeps sharpImageService() options for the build service', () => {
+		const result = setImageConfig(
+			'compile',
+			{
+				service: sharpImageService({ avif: { effort: 2 } }),
+				endpoint: { route: '/_image' },
+			} as AstroConfig['image'],
+			'build',
+			{ warn() {} } as unknown as AstroIntegrationLogger,
+		);
+		assert.deepEqual(result.service, {
+			build: { entrypoint: 'astro/assets/services/sharp', config: { avif: { effort: 2 } } },
+			runtime: { entrypoint: '@astrojs/cloudflare/image-service-workerd' },
+		});
 	});
 });
 
@@ -71,7 +106,7 @@ describe('setImageConfig custom mode', () => {
 		assert.equal(warnings.length, 1);
 		assert.ok(warnings[0].includes('Sharp image service cannot run inside the workerd runtime'));
 		// The service is left untouched; only the endpoint is swapped.
-		assert.equal(result.service.entrypoint, 'astro/assets/services/sharp');
+		assert.deepEqual(result.service, { entrypoint: 'astro/assets/services/sharp', config: {} });
 	});
 
 	it('does not warn in dev for a non-Sharp service', () => {

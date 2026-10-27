@@ -3,7 +3,9 @@ import { after, before, describe, it } from 'node:test';
 import { remotePatternToRegex } from '@astrojs/netlify';
 import imageService from '../../dist/image-service.js';
 import { loadFixture, SpyLogger } from '../test-utils.ts';
-import type { ImageTransform } from 'astro';
+import type { AstroRuntimeLogger, ImageTransform } from 'astro';
+
+const noopLogger: AstroRuntimeLogger = { info() {}, warn() {}, error() {} };
 
 async function getURL(options: ImageTransform) {
 	return await imageService.getURL(
@@ -12,6 +14,7 @@ async function getURL(options: ImageTransform) {
 		// implementation of `imageService.getURL`, but we need to pass it
 		// to satisfy the type signature.
 		{},
+		noopLogger,
 	);
 }
 
@@ -185,6 +188,35 @@ describe('Image CDN', { timeout: 120000 }, () => {
 				anyPath.test('https://cdn.example.com/v1X0/a/b'),
 				false,
 				'dot in wildcard prefix should not act as a wildcard',
+			);
+		});
+
+		it('only matches paths below the directory for /** pathnames', async () => {
+			const spyLogger = new SpyLogger();
+			const logger = spyLogger.forkIntegrationLogger('test-spy');
+			const regex = new RegExp(
+				remotePatternToRegex(
+					{ protocol: 'https', hostname: 'cdn.example.com', pathname: '/public/**' },
+					logger,
+				)!,
+			);
+			assert.equal(regex.test('https://cdn.example.com/public/a.jpg'), true);
+			assert.equal(regex.test('https://cdn.example.com/public/a/b.jpg'), true);
+			assert.equal(regex.test('https://cdn.example.com/public/a.jpg?w=100'), true);
+			assert.equal(
+				regex.test('https://cdn.example.com/public-assets/a.jpg'),
+				false,
+				'sibling path sharing the prefix should not match',
+			);
+			assert.equal(
+				regex.test('https://cdn.example.com/publicfile.jpg'),
+				false,
+				'file sharing the prefix should not match',
+			);
+			assert.equal(
+				regex.test('https://cdn.example.com/public/'),
+				false,
+				'the directory itself should not match',
 			);
 		});
 

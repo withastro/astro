@@ -6,7 +6,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { ServerIslandsState } from './shared-state.js';
 
 export const SERVER_ISLAND_MANIFEST = 'virtual:astro:server-island-manifest';
-const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
+export const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
 
 const serverIslandPlaceholderMap = "'$$server-islands-map$$'";
 const serverIslandPlaceholderNameMap = "'$$server-islands-name-map$$'";
@@ -130,8 +130,16 @@ export function vitePluginServerIslands({
 				if (serverIslandsState.hasIslands()) {
 					for (const env of serverEnvironments) {
 						const mod = env.moduleGraph.getModuleById(RESOLVED_SERVER_ISLAND_MANIFEST);
-						if (mod) {
-							env.moduleGraph.invalidateModule(mod);
+						// Clear only the transform result so the next dynamic import()
+						// re-runs load/transform. A full invalidateModule() would cascade
+						// to all importers, which in pre-bundled environments (e.g.
+						// Cloudflare) includes the entire SSR module graph — causing
+						// concurrent requests to observe partially-initialized modules.
+						// See https://github.com/withastro/astro/issues/18132
+						if (mod?.transformResult) {
+							const etag = mod.transformResult.etag;
+							if (etag) env.moduleGraph.etagToModuleMap.delete(etag);
+							mod.transformResult = null;
 						}
 					}
 				}
@@ -163,6 +171,10 @@ export function vitePluginServerIslands({
 
 		renderChunk(code, chunk) {
 			if (!code.includes(SERVER_ISLAND_MAP_MARKER)) return;
+			// This plugin's own source also contains the marker and can be bundled into user
+			// output (e.g. via `getViteConfig` in `astro/config`), so only rewrite the manifest.
+			// See https://github.com/withastro/astro/issues/18364
+			if (!chunk.moduleIds.includes(RESOLVED_SERVER_ISLAND_MANIFEST)) return;
 
 			if (command === 'build') {
 				const envName = this.environment?.name;

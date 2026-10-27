@@ -1,10 +1,12 @@
 import { createBasicPipeline } from './test-utils.ts';
 import { makeRoute, staticPart } from './routing/test-helpers.ts';
 import { AstroCookies } from '../../dist/core/cookies/index.js';
+import { mockLogger } from './cookies/test-helpers.ts';
 import { App } from '../../dist/core/app/app.js';
 import { FetchState } from '../../dist/core/fetch/fetch-state.js';
 import { fetchStateSymbol } from '../../dist/core/constants.js';
 import { baseService } from '../../dist/assets/services/service.js';
+import { setConfiguredImageService } from '../../dist/assets/internal.js';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import {
 	createComponent,
@@ -20,6 +22,7 @@ import type { APIContext } from '../../dist/types/public/context.js';
 import type { SSRManifest, RouteInfo } from '../../dist/core/app/types.js';
 import type { AstroComponentFactory } from '../../dist/runtime/server/render/index.js';
 import type { ImageTransform } from '../../dist/assets/types.js';
+import type { AstroRuntimeLogger } from '../../dist/types/public/context.js';
 
 /**
  * Mock utilities for unit tests.
@@ -92,7 +95,7 @@ export function createMockAPIContext(overrides: MockAPIContextOverrides = {}): A
 	const url =
 		overrides.url instanceof URL ? overrides.url : new URL(overrides.url ?? 'http://localhost/');
 	const request = overrides.request ?? new Request(url);
-	const cookies = overrides.cookies ?? new AstroCookies(request);
+	const cookies = overrides.cookies ?? new AstroCookies(request, mockLogger);
 
 	const rewrite =
 		overrides.rewrite ??
@@ -320,13 +323,23 @@ const unitTestImageService = {
 	},
 };
 
+/**
+ * Minimal `AstroRuntimeLogger` stub for the arguments image service hooks
+ * receive, which the unit test service never logs through.
+ */
+export const mockRuntimeLogger: AstroRuntimeLogger = {
+	info() {},
+	warn() {},
+	error() {},
+};
+
 interface ImageServiceOverrides {
 	domains?: string[];
 	remotePatterns?: { hostname?: string; pathname?: string; protocol?: string; port?: string }[];
 }
 
 /**
- * Installs the unit test image service on globalThis so that getImage()
+ * Installs the unit test image service so that getImage()
  * can resolve it without the virtual:image-service Vite module.
  * Returns the imageConfig object to pass to getImage(), and a cleanup function.
  *
@@ -343,7 +356,7 @@ export function installImageService(overrides: ImageServiceOverrides = {}): {
 	};
 	cleanup: () => void;
 } {
-	(globalThis as any).astroAsset = { imageService: unitTestImageService };
+	setConfiguredImageService(unitTestImageService as any);
 
 	const imageConfig = {
 		service: { entrypoint: 'test', config: {} as Record<string, never> },
@@ -357,7 +370,7 @@ export function installImageService(overrides: ImageServiceOverrides = {}): {
 	return {
 		imageConfig,
 		cleanup() {
-			(globalThis as any).astroAsset = undefined;
+			setConfiguredImageService(undefined);
 		},
 	};
 }

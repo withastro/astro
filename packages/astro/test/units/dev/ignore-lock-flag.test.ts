@@ -1,6 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+	dev,
 	isIgnoreLock,
 	getBackgroundIgnoreLockConflict,
 	getForceIgnoreLockConflict,
@@ -24,26 +25,19 @@ describe('isIgnoreLock', () => {
 
 // #region getBackgroundIgnoreLockConflict
 describe('getBackgroundIgnoreLockConflict', () => {
-	it('returns null when background mode is not requested', () => {
-		assert.equal(getBackgroundIgnoreLockConflict({ _: [], background: false }, false), null);
+	it('returns null when --background is not set', () => {
+		assert.equal(getBackgroundIgnoreLockConflict({ _: [], background: false }), null);
 	});
 
 	it('returns a conflict message when --background is explicit', () => {
-		const message = getBackgroundIgnoreLockConflict({ _: [], background: true }, true);
+		const message = getBackgroundIgnoreLockConflict({ _: [], background: true });
 		assert.notEqual(message, null);
 		assert.match(message!, /`--background`/);
 		assert.match(message!, /cannot be used together/);
 	});
 
-	it('returns a conflict message when background is only implied by agent detection', () => {
-		const message = getBackgroundIgnoreLockConflict({ _: [], background: false }, true);
-		assert.notEqual(message, null);
-		assert.match(message!, /auto-detected AI agent environment/);
-		assert.doesNotMatch(message!, /`--background`/);
-	});
-
 	it('mentions astro dev stop/status/logs', () => {
-		const message = getBackgroundIgnoreLockConflict({ _: [], background: true }, true);
+		const message = getBackgroundIgnoreLockConflict({ _: [], background: true });
 		assert.match(message!, /astro dev stop/);
 		assert.match(message!, /astro dev status/);
 		assert.match(message!, /astro dev logs/);
@@ -70,3 +64,30 @@ describe('getForceIgnoreLockConflict', () => {
 	});
 });
 // #endregion
+
+describe('astro dev --ignore-lock with agent detection', () => {
+	it('starts a foreground server when an AI agent is detected, instead of refusing', async () => {
+		process.env.CLAUDECODE = '1';
+		try {
+			const server = await dev({
+				flags: {
+					_: ['', '', 'dev'],
+					ignoreLock: true,
+					port: 4734,
+					root: './test/fixtures/astro-preview-allowed-hosts/',
+					silent: true,
+				},
+			});
+			assert.ok(server, 'expected the dev server to start in the foreground');
+			try {
+				assert.ok(server.resolvedUrls, 'expected the dev server to expose a URL');
+				const response = await fetch('http://localhost:4734/');
+				assert.equal(response.status, 200);
+			} finally {
+				await server.stop();
+			}
+		} finally {
+			delete process.env.CLAUDECODE;
+		}
+	});
+});

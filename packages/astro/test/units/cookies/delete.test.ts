@@ -1,6 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { AstroCookies } from '../../../dist/core/cookies/index.js';
+import { mockLogger } from './test-helpers.ts';
 
 describe('astro/src/core/cookies', () => {
 	describe('Astro.cookies.delete', () => {
@@ -10,7 +11,7 @@ describe('astro/src/core/cookies', () => {
 					cookie: 'foo=bar',
 				},
 			});
-			let cookies = new AstroCookies(req);
+			let cookies = new AstroCookies(req, mockLogger);
 			assert.equal(cookies.get('foo')!.value, 'bar');
 
 			cookies.delete('foo');
@@ -24,7 +25,7 @@ describe('astro/src/core/cookies', () => {
 					cookie: 'foo=bar',
 				},
 			});
-			let cookies = new AstroCookies(req);
+			let cookies = new AstroCookies(req, mockLogger);
 			assert.equal(cookies.get('foo')!.value, 'bar');
 
 			cookies.delete('foo');
@@ -37,7 +38,7 @@ describe('astro/src/core/cookies', () => {
 					cookie: 'foo=bar',
 				},
 			});
-			let cookies = new AstroCookies(req);
+			let cookies = new AstroCookies(req, mockLogger);
 			assert.equal(cookies.has('foo'), true);
 
 			cookies.delete('foo');
@@ -46,7 +47,7 @@ describe('astro/src/core/cookies', () => {
 
 		it('deletes a cookie with attributes', () => {
 			let req = new Request('http://example.com/');
-			let cookies = new AstroCookies(req);
+			let cookies = new AstroCookies(req, mockLogger);
 
 			cookies.delete('foo', {
 				domain: 'example.com',
@@ -71,7 +72,7 @@ describe('astro/src/core/cookies', () => {
 
 		it('ignores expires option', () => {
 			let req = new Request('http://example.com/');
-			let cookies = new AstroCookies(req);
+			let cookies = new AstroCookies(req, mockLogger);
 
 			cookies.delete('foo', {
 				expires: new Date(),
@@ -85,7 +86,7 @@ describe('astro/src/core/cookies', () => {
 
 		it('ignores maxAge option', () => {
 			let req = new Request('http://example.com/');
-			let cookies = new AstroCookies(req);
+			let cookies = new AstroCookies(req, mockLogger);
 
 			cookies.delete('foo', {
 				maxAge: 60,

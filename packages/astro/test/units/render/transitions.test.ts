@@ -92,6 +92,25 @@ describe('stringifyAnimation', () => {
 		assert.ok(result.includes('both'));
 	});
 
+	it('escapes CSS delimiters in animation values', () => {
+		const result = stringifyAnimation({
+			name: 'fade',
+			duration: '1ms;}custom{value',
+		});
+
+		assert.ok(result.includes('animation-duration: 1ms\\3B \\7D custom\\7B value;'));
+		assert.ok(!result.includes('}custom{'));
+	});
+
+	it('preserves CSS functions in animation values', () => {
+		const result = stringifyAnimation({
+			name: 'fade',
+			duration: 'calc(1s + var(--transition-delay, 200ms))',
+		});
+
+		assert.ok(result.includes('calc(1s + var(--transition-delay, 200ms))'));
+	});
+
 	it('accepts an array of animations', () => {
 		const result = stringifyAnimation([{ name: 'fade-in' }, { name: 'slide-in' }]);
 		assert.ok(result.includes('fade-in'));
@@ -184,6 +203,31 @@ describe('ViewTransitionStyleSheet', () => {
 		);
 	});
 
+	it('addAnimationPair() quotes custom direction names in the selector', () => {
+		const sheet = new ViewTransitionStyleSheet('astro-xyz-1', 'banner');
+		sheet.addAnimationPair('downward', 'old', { name: 'slide-out' });
+		const css = sheet.toString();
+		assert.ok(
+			css.includes('[data-astro-transition="downward"]::view-transition-old(banner)'),
+			`expected quoted custom direction prefix: ${css}`,
+		);
+	});
+
+	it('addAnimationPair() supports custom direction names that are not CSS identifiers', () => {
+		const sheet = new ViewTransitionStyleSheet('astro-xyz-1', 'banner');
+		sheet.addAnimationPair('2nd step', 'new', { name: 'slide-in' });
+		sheet.addAnimationPair('a"b]c{d}', 'old', { name: 'slide-out' });
+		const css = sheet.toString();
+		assert.ok(
+			css.includes('[data-astro-transition="2nd step"]::view-transition-new(banner)'),
+			`expected quoted custom direction prefix: ${css}`,
+		);
+		assert.ok(
+			css.includes('[data-astro-transition="a\\"b]c{d}"]::view-transition-old(banner)'),
+			`expected punctuation in custom direction to be escaped: ${css}`,
+		);
+	});
+
 	it('addAnimationRaw() adds same rule to both modern and fallback', () => {
 		const sheet = new ViewTransitionStyleSheet('astro-abc-1', 'hero');
 		sheet.addAnimationRaw('new', 'animation: none; mix-blend-mode: normal;');
@@ -223,5 +267,27 @@ describe('renderTransition', () => {
 		assert.equal($('head style').length, 1);
 		assert.equal($('head script').length, 0);
 		assert.ok(style.includes('\\3C /style>\\3C script>test\\3C /script>'));
+	});
+
+	it('keeps animation values inside their generated CSS declarations', () => {
+		const result = {
+			_metadata: { extraHead: [] },
+		} as unknown as SSRResult;
+		const animation = {
+			forwards: {
+				old: { name: 'fade', duration: '1ms;}custom{value' },
+				new: { name: 'fade' },
+			},
+			backwards: {
+				old: { name: 'fade' },
+				new: { name: 'fade' },
+			},
+		};
+
+		renderTransition(result, 'hash', animation, 'name');
+
+		const style = String(result._metadata.extraHead[0]);
+		assert.ok(style.includes('animation-duration: 1ms\\3B \\7D custom\\7B value;'));
+		assert.ok(!style.includes('}custom{'));
 	});
 });

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { init, parse } from 'es-module-lexer';
+import { init, parse } from 'es-module-lexer/minimal';
 
 const distRoot = fileURLToPath(new URL('../../../dist/', import.meta.url));
 const srcRoot = fileURLToPath(new URL('../../../src/', import.meta.url));
@@ -13,7 +13,7 @@ const srcRoot = fileURLToPath(new URL('../../../src/', import.meta.url));
  * specifiers, and return every visited file.
  */
 async function collectModuleGraph(entry: string): Promise<Map<string, string>> {
-	await init;
+	await init();
 	const visited = new Map<string, string>();
 	const queue = [entry];
 	while (queue.length > 0) {
@@ -64,7 +64,7 @@ describe('render scope edge safety', () => {
 		}
 	});
 
-	it('node-scope.ts has exactly one importer: core/build/default-prerenderer.ts', () => {
+	it('node-scope.ts is only imported by Node-only build code in core/build/', () => {
 		const importers: string[] = [];
 		for (const file of walkSourceFiles(srcRoot)) {
 			if (file.endsWith(`core${path.sep}render-scope${path.sep}node-scope.ts`)) continue;
@@ -73,6 +73,12 @@ describe('render scope edge safety', () => {
 				importers.push(path.relative(srcRoot, file));
 			}
 		}
-		assert.deepEqual(importers, [path.join('core', 'build', 'default-prerenderer.ts')]);
+		assert.ok(importers.length > 0);
+		for (const importer of importers) {
+			assert.ok(
+				importer.startsWith(path.join('core', 'build') + path.sep),
+				`${importer} imports node-scope.ts`,
+			);
+		}
 	});
 });

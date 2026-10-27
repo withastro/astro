@@ -6,15 +6,15 @@
     "@astrojs/solid-js": "workspace:*",
     "@astrojs/svelte": "workspace:*",
     "@astrojs/vue": "workspace:*",
-    "@solidjs/web": "^2.0.0-rc.5",
     "astro": "workspace:*",
-    "autoprefixer": "^10.4.27",
-    "postcss": "^8.5.8",
+    "autoprefixer": "^10.6.1",
+    "postcss": "^8.5.29",
     "solid-js": "^2.0.0-rc.5",
-    "svelte": "^5.54.0",
-    "vue": "^3.5.30"
+    "svelte": "^5.57.2",
+    "vue": "^3.5.43",
+    "@solidjs/web": "^2.0.0-rc.5"
   },
   "devDependencies": {
-    "postcss-preset-env": "^11.2.0"
+    "postcss-preset-env": "^11.6.1"
   }
 }

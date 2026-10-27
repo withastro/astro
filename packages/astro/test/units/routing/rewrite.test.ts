@@ -2,10 +2,17 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+	findRouteToRewrite,
 	normalizeRewritePathname,
 	setOriginPathname,
 	getOriginPathname,
 } from '../../../dist/core/routing/rewrite.js';
+import { createRewriteRouteValidator } from '../../../dist/core/routing/rewrite-validate.js';
+import { setLogger } from '../../../dist/core/logger/manifest-logger.js';
+import type { SSRManifest } from '../../../dist/core/app/types.js';
+import type { RouteData } from '../../../dist/types/public/internal.js';
+import { defaultLogger } from '../test-utils.ts';
+import { dynamicPart, makeRoute, spreadPart } from './test-helpers.ts';
 
 describe('normalizeRewritePathname', () => {
 	describe('no base path', () => {
@@ -195,5 +202,96 @@ describe('setOriginPathname / getOriginPathname', () => {
 		const req = new Request('http://example.com/');
 		setOriginPathname(req, '/café', 'never', 'file');
 		assert.equal(getOriginPathname(req), '/café');
+	});
+});
+
+describe('findRouteToRewrite candidate selection', () => {
+	const trailingSlash = 'ignore';
+	// `/[category]` sorts ahead of `/[...slug]` and both patterns match `/alpha`.
+	const category = makeRoute({
+		segments: [[dynamicPart('category')]],
+		trailingSlash,
+		route: '/[category]',
+		pathname: undefined,
+		component: 'src/pages/[category]/index.astro',
+		prerender: true,
+		isIndex: true,
+	});
+	const slug = makeRoute({
+		segments: [[spreadPart('...slug')]],
+		trailingSlash,
+		route: '/[...slug]',
+		pathname: undefined,
+		component: 'src/pages/[...slug].astro',
+		prerender: true,
+	});
+
+	const owning = { getStaticPaths: () => [{ params: { category: 'alpha', slug: 'alpha' } }] };
+	const empty = { getStaticPaths: () => [] };
+	const broken = {
+		getStaticPaths() {
+			throw new Error('static paths error');
+		},
+	};
+
+	function rewrite(routes: RouteData[], componentModules: Record<string, any>) {
+		const manifest = {
+			serverLike: false,
+			base: '/',
+			trailingSlash,
+		} as unknown as SSRManifest;
+		setLogger(manifest, defaultLogger);
+		return findRouteToRewrite({
+			payload: '/alpha',
+			routes,
+			request: new Request('http://example.com/source'),
+			trailingSlash,
+			buildFormat: 'directory',
+			base: '/',
+			outDir: 'file:///out/',
+			validate: createRewriteRouteValidator(
+				manifest,
+				async (_manifest, route) => componentModules[route.component],
+			),
+		});
+	}
+
+	it('skips a matching route that does not own the pathname', async () => {
+		const result = await rewrite([category, slug], {
+			[category.component]: empty,
+			[slug.component]: owning,
+		});
+		assert.equal(result.routeData.route, '/[...slug]');
+	});
+
+	it('keeps the first match when it owns the pathname', async () => {
+		const result = await rewrite([category, slug], {
+			[category.component]: owning,
+			[slug.component]: owning,
+		});
+		assert.equal(result.routeData.route, '/[category]');
+	});
+
+	it('falls back to 404 when no candidate owns the pathname', async () => {
+		const result = await rewrite([category, slug], {
+			[category.component]: empty,
+			[slug.component]: empty,
+		});
+		assert.equal(result.routeData.route, '/404');
+	});
+
+	it('lets a later route win when an earlier getStaticPaths throws', async () => {
+		const result = await rewrite([category, slug], {
+			[category.component]: broken,
+			[slug.component]: owning,
+		});
+		assert.equal(result.routeData.route, '/[...slug]');
+	});
+
+	it('surfaces the getStaticPaths error when no route owns the pathname', async () => {
+		await assert.rejects(
+			rewrite([category], { [category.component]: broken }),
+			/static paths error/,
+		);
 	});
 });

@@ -1,6 +1,11 @@
 import assert from 'node:assert';
 import { before, describe, it } from 'node:test';
-import { type CodeAction, type FullDocumentDiagnosticReport, Range } from '@volar/language-server';
+// Imported from the node entry so the types line up with the `@volar/test-utils` handle
+import {
+	type CodeAction,
+	type FullDocumentDiagnosticReport,
+	Range,
+} from '@volar/language-server/node.js';
 import { getLanguageServer, type LanguageServer } from '../server.ts';
 
 describe('TypeScript - Code Actions', () => {

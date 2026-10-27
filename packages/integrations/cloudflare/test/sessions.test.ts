@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as devalue from 'devalue';
 import cloudflare from '../dist/index.js';
-import { type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
+import { type DevServer, type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 import type { AstroInlineConfig } from 'astro';
 
 describe('sessions', () => {
@@ -81,6 +81,43 @@ describe('sessions', () => {
 			secondData.message,
 			'Favorite URL set to https://example.com/ from https://domain.invalid/',
 		);
+	});
+});
+
+describe('sessions in dev mode with middleware', () => {
+	let fixture: Fixture;
+	let devServer: DevServer;
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/sessions/',
+		});
+		devServer = await fixture.startDevServer();
+		// Prime preloading
+		await fixture.fetch('/');
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('can write and read session data when middleware is present', async () => {
+		const firstResponse = await fixture.fetch('/update', { method: 'GET' });
+		assert.equal(firstResponse.status, 200, 'Expected 200 OK for session write');
+		const firstValue = await firstResponse.json();
+		assert.equal(firstValue.previousValue, 'none');
+
+		const firstHeaders = firstResponse.headers.get('set-cookie')!.split(',');
+		const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
+
+		const secondResponse = await fixture.fetch('/update', {
+			method: 'GET',
+			headers: {
+				cookie: `astro-session=${firstSessionId}`,
+			},
+		});
+		assert.equal(secondResponse.status, 200, 'Expected 200 OK for session read');
+		const secondValue = await secondResponse.json();
+		assert.equal(secondValue.previousValue, 'expected');
 	});
 });
 

@@ -1040,6 +1040,8 @@ export const AstroGlobNoMatch = {
 export const RedirectWithNoLocation = {
 	name: 'RedirectWithNoLocation',
 	title: 'A redirect must be given a location with the `Location` header.',
+	message:
+		'The redirect `Response` has no `Location` header. Use `Astro.redirect()` to create redirects, or add a `Location` header to the `Response`.',
 } satisfies ErrorData;
 
 /**
@@ -1186,7 +1188,7 @@ export const FailedToFindPageMapSSR = {
  * Astro can't find the requested locale. All supported locales must be configured in [`i18n.locales`](https://docs.astro.build/en/reference/configuration-reference/#i18nlocales) and have corresponding directories within `src/pages/`.
  */
 export const MissingLocale = {
-	name: 'MissingLocaleError',
+	name: 'MissingLocale',
 	title: 'The provided locale does not exist.',
 	message: (locale: string) =>
 		`The locale/path \`${locale}\` does not exist in the configured \`i18n.locales\`.`,
@@ -1201,7 +1203,7 @@ export const MissingLocale = {
  * - [`i18n.routing` Configuration Reference](https://docs.astro.build/en/reference/configuration-reference/#i18nrouting)
  */
 export const MissingIndexForInternationalization = {
-	name: 'MissingIndexForInternationalizationError',
+	name: 'MissingIndexForInternationalization',
 	title: 'Index page not found.',
 	message: (defaultLocale: string) =>
 		`Could not find index page. A root index page is required in order to create a redirect to the index URL of the default locale. (\`/${defaultLocale}\`)`,
@@ -1398,6 +1400,7 @@ export const RewriteWithBodyUsed = {
 	title: 'Cannot use `Astro.rewrite()` after the request body has been read.',
 	message:
 		'`Astro.rewrite()` cannot be used if the request body has already been read. If you need to read the body, first clone the request.',
+	hint: 'Read the body from `Astro.request.clone()` instead of `Astro.request`, so the original request can still be rewritten.',
 } satisfies ErrorData;
 
 /**
@@ -1564,7 +1567,7 @@ export const LoggerConfigurationNotSerializable = {
  * `new FetchState(request)` was called outside of an Astro server, so no manifest is available.
  */
 export const NoManifestAvailable = {
-	name: 'NoManifestAvailableError',
+	name: 'NoManifestAvailable',
 	title: 'No manifest available.',
 	message:
 		'`new FetchState(request)` was called outside of an Astro server, so no manifest is available.',

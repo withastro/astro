@@ -10,7 +10,16 @@ import { type Fixture, loadFixture } from './test-utils.ts';
 const createFixture = () => {
 	let astroFixture: Fixture;
 	const writtenFiles: Record<string, string> = {};
-	const warnLogs: Array<string> = [];
+	const logs: Array<AstroLoggerMessage> = [];
+	const logger = new AstroLogger({
+		level: 'debug',
+		destination: {
+			write(chunk) {
+				logs.push(chunk);
+				return true;
+			},
+		},
+	});
 
 	const getExpectedPath = (path: string) => fileURLToPath(new URL(path, astroFixture.config.root));
 
@@ -42,23 +51,14 @@ const createFixture = () => {
 				},
 			};
 
-			const originalWarn = console.warn;
-			console.warn = (message) => {
-				originalWarn(message);
-				warnLogs.push(message);
-			};
-
-			try {
-				await astroFixture.sync(
-					{ root: fileURLToPath(astroFixture.config.root) },
-					{
-						// @ts-ignore
-						fs: fsMock,
-					},
-				);
-			} finally {
-				console.error = originalWarn;
-			}
+			await astroFixture.sync(
+				// @ts-expect-error: `_logger` is an internal API
+				{ root: fileURLToPath(astroFixture.config.root), _logger: logger },
+				{
+					// @ts-ignore
+					fs: fsMock,
+				},
+			);
 		},
 		thenFileShouldExist(path: string) {
 			assert.equal(
@@ -104,11 +104,12 @@ const createFixture = () => {
 			}
 		},
 		thenWarnLogsInclude(message: string) {
+			const warnLogs = logs.filter((log) => log.level === 'warn');
 			if (warnLogs.length === 0) {
-				assert.fail('No error log');
+				assert.fail('No warn log');
 			}
-			const index = warnLogs.findIndex((log) => log.includes(message));
-			assert.equal(index !== -1, true, 'No error log found');
+			const index = warnLogs.findIndex((log) => log.message.includes(message));
+			assert.equal(index !== -1, true, `No warn log found matching: ${message}`);
 		},
 	};
 };
@@ -128,6 +129,24 @@ describe('astro sync', () => {
 			'.astro/types.d.ts',
 			`/// <reference types="astro/client" />`,
 		);
+	});
+
+	it('Does not write to the dependency cache used by the dev server', async () => {
+		// A fixture no other test starts a dev server on, since this test replaces its Vite cache.
+		const config = await fixture.load('./fixtures/astro-env-required-public/');
+		const devDepsDir = new URL('./node_modules/.vite/deps/', config.root);
+		const devDepsMetadata = new URL('./_metadata.json', devDepsDir);
+		// Stands in for the optimized dependencies of a dev server running in the same project.
+		const devServerMetadata = '{"hash":"dev-server"}';
+		fs.mkdirSync(devDepsDir, { recursive: true });
+		fs.writeFileSync(devDepsMetadata, devServerMetadata);
+		try {
+			fixture.clean();
+			await fixture.whenSyncing();
+			assert.equal(fs.readFileSync(devDepsMetadata, 'utf-8'), devServerMetadata);
+		} finally {
+			fs.rmSync(devDepsDir, { recursive: true, force: true });
+		}
 	});
 
 	describe('Content collections', () => {

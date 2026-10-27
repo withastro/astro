@@ -1,5 +1,6 @@
 import { AstroJSX, type AstroVNode, isVNode } from '../../jsx-runtime/index.js';
 import type { SSRResult } from '../../types/public/internal.js';
+import { escapeStyleText } from './escape.js';
 import {
 	escapeHTML,
 	HTMLString,
@@ -207,12 +208,13 @@ async function renderElement(
  * Pre-render the children with the given `tag` information
  */
 function prerenderElementChildren(tag: string, children: any) {
-	// For content within <style> and <script> tags that are plain strings, e.g. injected
-	// by remark/rehype plugins, or if a user explicitly does `<script>{'...'}</script>`,
-	// we mark it as an HTML string to prevent the content from being HTML-escaped.
-	if (typeof children === 'string' && (tag === 'style' || tag === 'script')) {
-		return markHTMLString(children);
-	} else {
-		return children;
+	// Literal `<style>`/`<script>` content (including content injected by remark/rehype
+	// plugins) is collapsed into `set:html` at compile time, so any remaining plain-string
+	// children here are dynamic values that should be escaped like other element content.
+	// `escapeStyleText` only escapes `<`, preserving quotes CSS commonly relies on while
+	// still preventing the value from closing the `<style>` tag early.
+	if (typeof children === 'string' && tag === 'style') {
+		return markHTMLString(escapeStyleText(children));
 	}
+	return children;
 }

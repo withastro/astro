@@ -2734,12 +2734,22 @@
   For example, you can now use `prefetch()` programmatically with large sets of links and avoid [browser limits in place to guard against over-speculating](https://developer.chrome.com/blog/speculation-rules-improvements#chrome-limits) (prerendering/prefetching too many links). Set `eagerness: 'moderate'` to take advantage of [First In, First Out (FIFO)](<https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)>) strategies and browser heuristics to let the browser decide when to prerender/prefetch them and in what order:
 
   ```astro
-  <a class="link-moderate" href="/nice-link-1">A Nice Link 1</a>
-  <a class="link-moderate" href="/nice-link-2">A Nice Link 2</a>
-  <a class="link-moderate" href="/nice-link-3">A Nice Link 3</a>
-  <a class="link-moderate" href="/nice-link-4">A Nice Link 4</a>
+  <a class="link-moderate" href="/nice-link-1">
+    A Nice Link 1
+  </a>
+  <a class="link-moderate" href="/nice-link-2">
+    A Nice Link 2
+  </a>
+  <a class="link-moderate" href="/nice-link-3">
+    A Nice Link 3
+  </a>
+  <a class="link-moderate" href="/nice-link-4">
+    A Nice Link 4
+  </a>
   ...
-  <a class="link-moderate" href="/nice-link-20">A Nice Link 20</a>
+  <a class="link-moderate" href="/nice-link-20">
+    A Nice Link 20
+  </a>
   <script>
     import { prefetch } from 'astro:prefetch';
     const linkModerate = document.getElementsByClassName('link-moderate');
@@ -4140,7 +4150,8 @@
   In the following `.astro` examples, only `allowfullscreen` is a boolean attribute:
 
   ```astro
-  <!-- src/pages/index.astro --><!-- `allowfullscreen` is a boolean attribute -->
+  <!-- src/pages/index.astro -->
+  <!-- `allowfullscreen` is a boolean attribute -->
   <p allowfullscreen={true}></p>
   <p allowfullscreen={false}></p>
 
@@ -6438,7 +6449,8 @@
   In the following `.astro` examples, only `allowfullscreen` is a boolean attribute:
 
   ```astro
-  <!-- src/pages/index.astro --><!-- `allowfullscreen` is a boolean attribute -->
+  <!-- src/pages/index.astro -->
+  <!-- `allowfullscreen` is a boolean attribute -->
   <p allowfullscreen={true}></p>
   <p allowfullscreen={false}></p>
 

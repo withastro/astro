@@ -1,6 +1,8 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import { passthroughImageService } from 'astro/config';
 import * as cheerio from 'cheerio';
+import cloudflare from '../dist/index.js';
 import { type DevServer, type Fixture, loadFixture, type PreviewServer } from './test-utils.ts';
 
 // Tests that generate assets with Astro's real Sharp native binary at build time
@@ -88,6 +90,40 @@ describe('CompileImageService', () => {
 	});
 });
 
+describe('Separate build and runtime image services in dev', () => {
+	let fixture: Fixture;
+	let devServer: DevServer;
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/compile-image-service/',
+			adapter: cloudflare({ imageService: 'custom' }),
+			image: {
+				service: {
+					build: { entrypoint: 'astro/assets/services/sharp' },
+					runtime: passthroughImageService(),
+				},
+			},
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	// Dev renders and serves /_image in workerd, where the Sharp build service can't run.
+	it('uses the runtime service', async () => {
+		const html = await fixture.fetch('/blog/post').then((res) => res.text());
+		const src = cheerio.load(html)('img').attr('src')!;
+		assert.ok(
+			src.startsWith('/_image'),
+			`Expected image src to route through /_image, got: ${src}`,
+		);
+		const res = await fixture.fetch(src);
+		assert.equal(res.status, 200);
+	});
+});
+
 // Both `imageService: 'compile'` and `imageService: 'custom'` opt in to build-time
 // asset generation.
 //
@@ -147,7 +183,9 @@ describe('CompileImageService build-time image generation', () => {
 	 * @param mode    `'compile'` or `'custom'`.
 	 * @param service `'default'` removes the user `image.service` (Astro's default
 	 *                Sharp service applies), `'sharp'` swaps in a Sharp-backed user
-	 *                service, and `'user'` keeps the fixture's Sharp-free service.
+	 *                service and makes the on-demand `api.ts` route call `getImage()`
+	 *                so the worker uses the service at runtime, and `'user'` keeps the
+	 *                fixture's Sharp-free service.
 	 */
 	async function buildFixture(
 		mode: 'compile' | 'custom',
@@ -177,6 +215,24 @@ describe('CompileImageService build-time image generation', () => {
 			},
 			false,
 		);
+		// Unused components are tree-shaken from the worker, so the Sharp chain is only
+		// bundled when an on-demand route actually uses the image service.
+		const resetApi =
+			service === 'sharp'
+				? await fixture.editFile(
+						'src/pages/api.ts',
+						[
+							"import { getImage } from 'astro:assets';",
+							"import testImage from '../assets/test.jpg';",
+							'',
+							'export const prerender = false;',
+							'',
+							'export const GET = async () => new Response((await getImage({ src: testImage, width: 50 })).src);',
+							'',
+						].join('\n'),
+						false,
+					)
+				: undefined;
 
 		try {
 			await fixture.build();
@@ -186,6 +242,7 @@ describe('CompileImageService build-time image generation', () => {
 			};
 		} finally {
 			resetConfig();
+			resetApi?.();
 		}
 	}
 
@@ -241,6 +298,15 @@ describe('CompileImageService build-time image generation', () => {
 					assert.match(serverBundle, /astro\/dist\/assets\/endpoint\/generic\.js/);
 					assert.doesNotMatch(serverBundle, /image-passthrough-endpoint/);
 				}
+
+				const pathsHtml = await fixture.readFile('client/paths/one/index.html');
+				const pathsSrc = cheerio.load(pathsHtml)('img').attr('src');
+				assert.match(pathsSrc ?? '', /^\/_astro\/paths\..+\.webp$/, 'getImage() in getStaticPaths');
+				assert.ok(fixture.pathExists(`client${pathsSrc}`));
+				assert.equal((await fixture.glob('client/_astro/paths.*')).length, 1);
+
+				// The page reads `kept.src`, so the original must survive next to the optimized copy.
+				assert.equal((await fixture.glob('client/_astro/kept.*')).length, 2);
 			});
 
 			it('with a Sharp-backed user image.service: generates assets, respects its markup, and bundles the Sharp chain', {

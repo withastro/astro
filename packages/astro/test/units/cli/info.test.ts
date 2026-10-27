@@ -539,6 +539,29 @@ describe('CLI info', () => {
 			});
 		});
 
+		describe('PackageManager.getPackageVersion()', () => {
+			for (const userAgent of ['npm/10.0.0', 'pnpm/10.0.0', 'yarn/4.0.0']) {
+				it(`spawns ${userAgent.split('/')[0]} without shell: true (DEP0190)`, async () => {
+					const calls: Array<{ command: string; options: unknown }> = [];
+					const commandExecutor = {
+						async execute(command: string, _args?: Array<string>, options?: unknown) {
+							calls.push({ command, options });
+							return { stdout: '' };
+						},
+					};
+					const packageManager = await getPackageManager({
+						packageManagerUserAgentProvider: new FakePackageManagerUserAgentProvider(userAgent),
+						commandExecutor,
+					});
+
+					await packageManager.getPackageVersion('vite');
+
+					assert.equal(calls.length, 1);
+					assert.equal((calls[0].options as { shell?: boolean } | undefined)?.shell, undefined);
+				});
+			}
+		});
+
 		it('ProcessPackageManagerUserAgentProvider', () => {
 			assert.equal(
 				new ProcessPackageManagerUserAgentProvider().userAgent,

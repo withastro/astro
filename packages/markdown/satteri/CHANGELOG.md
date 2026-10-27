@@ -1,5 +1,42 @@
 # @astrojs/markdown-satteri
 
+## 0.4.5
+
+### Patch Changes
+
+- Updated dependencies [[`cf27e70`](https://github.com/withastro/astro/commit/cf27e70a9057ce29ade2a8a843bd9275a696e9ab)]:
+  - @astrojs/prism@4.1.1
+
+## 0.4.4
+
+### Patch Changes
+
+- [#17894](https://github.com/withastro/astro/pull/17894) [`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds the measurements that `astro build --timings` reports for Markdown processing and syntax highlighting.
+- Updated dependencies [[`b7a1bd9`](https://github.com/withastro/astro/commit/b7a1bd99ac7c68cf36078058f15f1bd1fab4cbe8), [`2715958`](https://github.com/withastro/astro/commit/2715958666b0a706b069d0592da3a070b3796a9b)]:
+  - @astrojs/internal-helpers@0.13.0
+  - @astrojs/prism@4.1.0
+
+## 0.4.3
+
+### Patch Changes
+
+- Updated dependencies [[`6987261`](https://github.com/withastro/astro/commit/69872618b7b7c915b2bd51a4b41e3a3e3116f3bb), [`62b13ba`](https://github.com/withastro/astro/commit/62b13ba3e0068057a47fbfc2ab8842b263c68f0d)]:
+  - @astrojs/internal-helpers@0.12.0
+
+## 0.4.2
+
+### Patch Changes
+
+- [#17946](https://github.com/withastro/astro/pull/17946) [`3fd16ee`](https://github.com/withastro/astro/commit/3fd16eeb5cd096a6ceb8cc3e70b89ed30d6fcd4d) Thanks [@odysseus0](https://github.com/odysseus0)! - Fix syntax highlighting for fenced code blocks when raw HTML is enabled.
+
+- [#18046](https://github.com/withastro/astro/pull/18046) [`8358d59`](https://github.com/withastro/astro/commit/8358d59cba754480c7d830c473837a0d7100ac7e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes `satteriHeadingIdsPlugin` sharing Slugger state across documents when reused as a user hast plugin, which caused headings with the same text in different posts to receive incorrect numeric suffixes
+
+## 0.4.1
+
+### Patch Changes
+
+- [#17896](https://github.com/withastro/astro/pull/17896) [`a548223`](https://github.com/withastro/astro/commit/a548223607b9bb146d5d90ddda495343f9a2a739) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `<script>`/`<style>` rendering in MDX so that only literal content (including content injected by remark/rehype plugins) is treated as trusted markup. A dynamic value passed as a `<script>`/`<style>` child (e.g. `<script>{value}</script>`) is now escaped like any other element's content instead of being rendered raw. Use `set:html` to explicitly opt a dynamic value back into raw rendering.
+
 ## 0.4.0
 
 ### Minor Changes

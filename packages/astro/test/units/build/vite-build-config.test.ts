@@ -168,11 +168,11 @@ describe('createViteBuildConfig', () => {
 				settings,
 				viteConfig: {
 					build: { minify: false },
-					environments: { client: { build: { minify: 'esbuild' } } },
+					environments: { client: { build: { minify: 'oxc' } } },
 				},
 			});
 			const clientEnv = config.environments?.client as Record<string, any>;
-			assert.equal(clientEnv.build.minify, 'esbuild');
+			assert.equal(clientEnv.build.minify, 'oxc');
 		});
 
 		it('defaults sourcemap to false when not set', async () => {
@@ -362,6 +362,46 @@ describe('createViteBuildConfig', () => {
 			// minify explicitly false -> false
 			const config2 = buildConfig({ settings, viteConfig: { build: { minify: false } } });
 			assert.equal(config2.build?.cssMinify, false);
+		});
+	});
+
+	describe('treeshake', () => {
+		it('marks $$createComponent as pure', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({ settings });
+
+			assert.deepEqual(config.build?.rolldownOptions?.treeshake, {
+				manualPureFunctions: ['$$createComponent'],
+			});
+		});
+
+		it('merges with user treeshake options', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: {
+					build: {
+						rolldownOptions: {
+							treeshake: { annotations: false, manualPureFunctions: ['myPure'] },
+						},
+					},
+				},
+			});
+
+			assert.deepEqual(config.build?.rolldownOptions?.treeshake, {
+				annotations: false,
+				manualPureFunctions: ['myPure', '$$createComponent'],
+			});
+		});
+
+		it('preserves user treeshake: false', async () => {
+			const settings = await createBasicSettings();
+			const config = buildConfig({
+				settings,
+				viteConfig: { build: { rolldownOptions: { treeshake: false } } },
+			});
+
+			assert.equal(config.build?.rolldownOptions?.treeshake, false);
 		});
 	});
 });

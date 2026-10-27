@@ -58,29 +58,41 @@ function invalidateAssetImports(viteServer: ViteDevServer, filePath: string) {
 }
 
 function invalidateDataStore(viteServer: ViteDevServer, { notifyClient = true } = {}) {
-	const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
-	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
-	if (module) {
-		const timestamp = Date.now();
-		// Pass `true` to mark this as HMR invalidation so Vite drops cached SSR results.
-		environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
-	}
-	// Also invalidate the module in the SSR module runner's evaluation cache.
-	// Server-side invalidation only clears `transformResult`, but the runner
-	// may still hold a stale evaluated result. When the runner's `fetchModule`
-	// call triggers a fresh server transform, the transform re-populates
-	// `transformResult` before the runner checks it, causing a false cache hit.
-	if (isRunnableDevEnvironment(environment)) {
-		const runnerModule = environment.runner.evaluatedModules.getModuleById(
-			RESOLVED_DATA_STORE_VIRTUAL_ID,
-		);
-		if (runnerModule) {
-			environment.runner.evaluatedModules.invalidateModule(runnerModule);
+	const timestamp = Date.now();
+	// Invalidate both the ssr and prerender environments. When an adapter
+	// enables a separate prerender environment (e.g. Cloudflare with
+	// `prerenderEnvironment: 'node'`), prerendered pages are served by that
+	// environment's own module runner and route cache. Skipping it would
+	// leave the prerender environment serving stale content after edits.
+	for (const name of [
+		ASTRO_VITE_ENVIRONMENT_NAMES.ssr,
+		ASTRO_VITE_ENVIRONMENT_NAMES.prerender,
+	] as const) {
+		const environment = viteServer.environments[name];
+		if (!environment) continue;
+
+		const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
+		if (module) {
+			// Pass `true` to mark this as HMR invalidation so Vite drops cached SSR results.
+			environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
 		}
+		// Also invalidate the module in the runner's evaluation cache.
+		// Server-side invalidation only clears `transformResult`, but the runner
+		// may still hold a stale evaluated result. When the runner's `fetchModule`
+		// call triggers a fresh server transform, the transform re-populates
+		// `transformResult` before the runner checks it, causing a false cache hit.
+		if (isRunnableDevEnvironment(environment)) {
+			const runnerModule = environment.runner.evaluatedModules.getModuleById(
+				RESOLVED_DATA_STORE_VIRTUAL_ID,
+			);
+			if (runnerModule) {
+				environment.runner.evaluatedModules.invalidateModule(runnerModule);
+			}
+		}
+		// Signal the runner to clear its route cache so that getStaticPaths()
+		// is re-evaluated with the updated content collection data.
+		environment.hot.send('astro:content-changed', {});
 	}
-	// Signal the SSR runner to clear its route cache so that getStaticPaths()
-	// is re-evaluated with the updated content collection data.
-	environment.hot.send('astro:content-changed', {});
 	// Only notify the client to reload when data has actually changed at runtime.
 	// During initial startup (buildStart), no client has loaded content yet, so
 	// sending a full-reload would just cause a spurious page reload for the first

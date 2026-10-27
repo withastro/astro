@@ -5,22 +5,23 @@
  *
  * ```ts
  * import { Hono } from 'hono';
- * import { actions, middleware, pages, i18n } from 'astro/hono';
+ * import { actions, middleware, notFound, pages, i18n } from 'astro/hono';
  * import { cf } from '@astrojs/cloudflare/hono';
  *
  * const app = new Hono<{ Bindings: Env }>();
  *
  * app.use(cf());
+ * app.use(notFound());
  * app.use(actions());
  * app.use(middleware());
- * app.use(pages());
  * app.use(i18n());
+ * app.use(pages());
  *
  * export default app;
  * ```
  */
 import { FetchState } from 'astro/fetch';
-import { cf as cfFetch } from './fetch.js';
+import { cf as cfFetch, finalize } from './fetch.js';
 
 const FETCH_STATE_KEY = 'fetchState';
 
@@ -32,6 +33,7 @@ type HonoCloudflareContextLike = {
 	req: {
 		raw: Request;
 	};
+	res: Response;
 	env: Env;
 	executionCtx: {
 		waitUntil(promise: Promise<unknown>): void;
@@ -73,5 +75,17 @@ export function cf(): HonoMiddlewareHandler {
 		const asset = await cfFetch(state, context.env, context.executionCtx as ExecutionContext);
 		if (asset) return asset;
 		await next();
+		const response = finalize(state, context.res);
+		if (response !== context.res) {
+			// Hono's response setter clones the assigned response and restores the current
+			// response's cookies. Preserve the cookies added by finalize() so they can be
+			// reapplied to the new context.res instead of being discarded by the setter.
+			const setCookieHeaders = response.headers.getSetCookie();
+			context.res = response;
+			context.res.headers.delete('set-cookie');
+			for (const setCookieHeader of setCookieHeaders) {
+				context.res.headers.append('set-cookie', setCookieHeader);
+			}
+		}
 	};
 }

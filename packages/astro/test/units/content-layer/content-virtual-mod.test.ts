@@ -22,32 +22,40 @@ function createMockModuleGraph() {
 }
 
 /**
+ * Creates a mock environment with a module graph and HMR channel.
+ */
+function createMockEnvironment(name: string, sentMessages: Array<Record<string, unknown>>) {
+	return {
+		moduleGraph: createMockModuleGraph(),
+		hot: {
+			send: (...args: unknown[]) => {
+				if (typeof args[0] === 'string') {
+					sentMessages.push({ channel: name, type: args[0], data: args[1] });
+				} else {
+					sentMessages.push({ channel: name, ...(args[0] as Record<string, unknown>) });
+				}
+			},
+		},
+	};
+}
+
+/**
  * Creates a minimal mock ViteDevServer with just enough structure for
  * the content virtual mod plugin's buildStart hook.
  */
-function createMockViteDevServer() {
+function createMockViteDevServer({ includePrerender = false } = {}) {
 	const sentMessages: Array<Record<string, unknown>> = [];
 	const watcherListeners = new Map<string, Array<(path: string) => void>>();
+	const environments: Record<string, ReturnType<typeof createMockEnvironment>> = {
+		ssr: createMockEnvironment('ssr', sentMessages),
+		client: createMockEnvironment('client', sentMessages),
+	};
+	if (includePrerender) {
+		environments.prerender = createMockEnvironment('prerender', sentMessages);
+	}
 	return {
 		sentMessages,
-		environments: {
-			ssr: {
-				moduleGraph: createMockModuleGraph(),
-				hot: {
-					send: (type: unknown, data: unknown) => {
-						sentMessages.push({ channel: 'ssr', type, data });
-					},
-				},
-			},
-			client: {
-				moduleGraph: createMockModuleGraph(),
-				hot: {
-					send: (payload: Record<string, unknown>) => {
-						sentMessages.push({ channel: 'client', ...payload });
-					},
-				},
-			},
-		},
+		environments,
 		watcher: {
 			add: () => {},
 			on: (event: string, listener: (path: string) => void) => {
@@ -235,5 +243,43 @@ describe('attachDataStoreInvalidation', () => {
 		t.mock.timers.tick(5_000);
 		mockServer.watcher.emit('change', dataStorePath);
 		assert.equal(countClientReloads(mockServer), 2, 'a later external change should reload');
+	});
+
+	it('invalidates the prerender environment when it exists (#17991)', async (t) => {
+		const root = createTempDir('content-data-store-prerender-invalidation-test-');
+		const settings = createMinimalSettings(root, { config: { legacy: {} } });
+		const dataStoreFile = getDataStoreFile(settings, true);
+		await nodeFs.promises.mkdir(settings.dotAstroDir, { recursive: true });
+
+		t.mock.timers.enable({ apis: ['Date'], now: 10_000 });
+		t.after(() => mock.timers.reset());
+
+		const mockServer = createMockViteDevServer({ includePrerender: true });
+		const plugin = astroContentVirtualModPlugin({ settings, fs: nodeFs });
+		// @ts-expect-error - mock args are sufficient for this test
+		plugin.config?.({}, { command: 'serve' });
+		// @ts-expect-error - mock server has enough structure for this test
+		plugin.configureServer?.(mockServer);
+
+		const store = await MutableDataStore.fromFile(dataStoreFile);
+		// @ts-expect-error - mock server has enough structure for this test
+		attachDataStoreInvalidation(store, mockServer, settings);
+
+		store.set('dogs', 'poodle', { id: 'poodle', data: { breed: 'Poodle' } });
+		await store.waitUntilSaveComplete();
+
+		const prerenderChanged = mockServer.sentMessages.filter(
+			(msg) => msg.channel === 'prerender' && msg.type === 'astro:content-changed',
+		);
+		assert.equal(
+			prerenderChanged.length,
+			1,
+			'the prerender environment should receive astro:content-changed',
+		);
+
+		const ssrChanged = mockServer.sentMessages.filter(
+			(msg) => msg.channel === 'ssr' && msg.type === 'astro:content-changed',
+		);
+		assert.equal(ssrChanged.length, 1, 'the SSR environment should also receive the signal');
 	});
 });

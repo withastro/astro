@@ -8,6 +8,7 @@ import type {
 	SyntaxHighlightConfig,
 	SyntaxHighlightConfigType,
 } from '@astrojs/internal-helpers/markdown';
+import { time, timedPluggableList } from '@astrojs/internal-helpers/timings';
 import { createProcessor, nodeTypes } from '@mdx-js/mdx';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
@@ -22,6 +23,7 @@ import { remarkCollectImages } from '../remark-collect-images.js';
 import type { UnifiedResolvedOptions } from '../processor.js';
 import { getAstroMetadata, rehypeAnalyzeAstroMetadata } from './rehype-analyze-astro-metadata.js';
 import { rehypeApplyFrontmatterExport } from './rehype-apply-frontmatter-export.js';
+import { rehypeCollapseScriptStyle } from './rehype-collapse-script-style.js';
 import { rehypeInjectHeadingsExport } from './rehype-inject-headings-export.js';
 import { rehypeImageToComponent } from './rehype-images-to-component.js';
 import rehypeMetaString from './rehype-meta-string.js';
@@ -83,7 +85,7 @@ export function createUnifiedMdxProcessor(
 					applyFrontmatterExport: { srcDir: mdx.srcDir },
 				},
 			});
-			const compiled = await processor.process(vfile);
+			const compiled = await time('markdown-file', filePath, () => processor.process(vfile));
 			const astroMetadata = getAstroMetadata(vfile);
 			if (!astroMetadata) {
 				throw new Error(
@@ -104,8 +106,8 @@ export function createMdxProcessor(
 	extraOptions: MdxProcessorExtraOptions,
 ) {
 	return createProcessor({
-		remarkPlugins: getRemarkPlugins(mdxOptions),
-		rehypePlugins: getRehypePlugins(mdxOptions),
+		remarkPlugins: timedPluggableList('mdx-plugin', getRemarkPlugins(mdxOptions), 'remark plugin'),
+		rehypePlugins: timedPluggableList('mdx-plugin', getRehypePlugins(mdxOptions), 'rehype plugin'),
 		recmaPlugins: mdxOptions.recmaPlugins,
 		remarkRehypeOptions: mdxOptions.remarkRehype,
 		jsxImportSource: 'astro',
@@ -158,7 +160,11 @@ function getRehypePlugins(mdxOptions: UnifiedMdxOptions): PluggableList {
 		}
 	}
 
-	rehypePlugins.push(...mdxOptions.rehypePlugins, rehypeImageToComponent);
+	rehypePlugins.push(
+		...mdxOptions.rehypePlugins,
+		rehypeImageToComponent,
+		rehypeCollapseScriptStyle,
+	);
 
 	if (!isPerformanceBenchmark) {
 		// getHeadings() is guaranteed by TS, so this must be included.

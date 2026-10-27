@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { type Fixture, loadFixture } from './test-utils.ts';
+import testAdapter from './test-adapter.ts';
+import { type App, type Fixture, loadFixture } from './test-utils.ts';
 
 describe('Client only components', () => {
 	let fixture: Fixture;
@@ -61,10 +62,59 @@ describe('Client only components', () => {
 		assert.equal($('link[rel=stylesheet]').length, 1);
 	});
 
+	it('Includes CSS modules once when a component is rendered statically and client:only', async () => {
+		const html = await fixture.readFile('/css-modules-static-and-client-only/index.html');
+		const $ = cheerioLoad(html);
+		const stylesheets = await Promise.all(
+			$('link[rel=stylesheet]').map((_, el) => fixture.readFile(el.attribs.href)),
+		);
+		const inlineStyles = $('style')
+			.map((_, el) => $(el).text())
+			.get();
+		const sheetsWithModuleClass = [...stylesheets, ...inlineStyles].filter((css) =>
+			css.includes('._red_'),
+		);
+		assert.equal(sheetsWithModuleClass.length, 1);
+	});
+
 	it('Includes CSS from package components', async () => {
 		const html = await fixture.readFile('/pkg/index.html');
 		const $ = cheerioLoad(html);
 		assert.equal($('link[rel=stylesheet]').length, 1);
+	});
+});
+
+describe('Client only components with server output', () => {
+	let fixture: Fixture;
+	let app: App;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/astro-client-only/',
+			output: 'server',
+			adapter: testAdapter(),
+			build: { inlineStylesheets: 'never' },
+			outDir: './dist/astro-client-only-server-output/',
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('Includes CSS modules once when a component is rendered on demand and client:only', async () => {
+		const response = await app.render(
+			new Request('http://example.com/css-modules-static-and-client-only'),
+		);
+		const $ = cheerioLoad(await response.text());
+		const stylesheets = await Promise.all(
+			$('link[rel=stylesheet]').map((_, el) => fixture.readFile('/client' + el.attribs.href)),
+		);
+		const inlineStyles = $('style')
+			.map((_, el) => $(el).text())
+			.get();
+		const sheetsWithModuleClass = [...stylesheets, ...inlineStyles].filter((css) =>
+			css.includes('._red_'),
+		);
+		assert.equal(sheetsWithModuleClass.length, 1);
 	});
 });
 

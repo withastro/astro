@@ -20,6 +20,11 @@ export interface HeadPropagator {
  * because slots are drained before the iterator advances, nothing can register
  * a propagator after the iterator has reported `done`.
  *
+ * Set `awaitPendingSlots` to `false` when collecting from inside a render that
+ * may itself be one of the pending slot pre-renders (a server island rendered
+ * through `renderComponentToString`). Awaiting them there would wait on the
+ * caller's own enclosing slot and never resolve (#18156).
+ *
  * @example
  * If a layout initializes and discovers a nested component that also emits
  * `<link rel="stylesheet">`, both head chunks are collected before flush.
@@ -28,10 +33,12 @@ export async function collectPropagatedHeadParts(input: {
 	propagators: Set<HeadPropagator>;
 	result: SSRResult;
 	isHeadAndContent: (value: unknown) => value is { head: string };
+	awaitPendingSlots?: boolean;
 }): Promise<string[]> {
 	const collectedHeadParts: string[] = [];
 	// Populated (only on propagation routes) by eager async slot pre-renders.
-	const pendingSlotEvaluations = input.result._metadata?.pendingSlotEvaluations ?? [];
+	const pendingSlotEvaluations =
+		input.awaitPendingSlots === false ? [] : (input.result._metadata?.pendingSlotEvaluations ?? []);
 
 	// Resolving a pending slot pre-render runs the slot markup past its
 	// `await`s, registering any propagators inside — and possibly queueing
