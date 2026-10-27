@@ -1,3 +1,5 @@
+import { reporterNames } from './reporters.js';
+
 export const options = {
 	root: {
 		type: 'string',
@@ -6,6 +8,20 @@ export const options = {
 			'Manually specify a root dir to check in. By default, the current working directory is used.',
 	},
 	watch: { type: 'boolean', default: false, alias: 'w' },
+	reporter: {
+		type: 'string',
+		choices: reporterNames,
+		requiresArg: true,
+		description:
+			'Format of diagnostics and the run summary. Defaults to default. Repeat to use multiple reporters.',
+	},
+	reporterFile: {
+		type: 'string',
+		alias: 'reporter-file',
+		requiresArg: true,
+		description:
+			'Write the adjacent reporter to a file instead of stdout. Without an adjacent reporter, writes the default report.',
+	},
 	tsconfig: {
 		type: 'string',
 		description:
