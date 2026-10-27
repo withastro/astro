@@ -3,7 +3,7 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { type DevServer, type Fixture, isWindows, loadFixture } from './test-utils.ts';
 
-describe.skip('Solid component build', { todo: 'Check why an error is thrown.' }, () => {
+describe('Solid component build', () => {
 	let fixture: Fixture;
 	before(async () => {
 		fixture = await loadFixture({
@@ -42,6 +42,27 @@ describe.skip('Solid component build', { todo: 'Check why an error is thrown.' }
 		assert.equal($('button').length, 5);
 	});
 
+	it('Inlines CSS of lazy components into the island markup', async () => {
+		// Counter.css is only reachable through the lazy() boundary — the
+		// renderer resolves it via the client manifest and must inline it
+		// (style tag or stylesheet link) where the island renders, once per page.
+		for (const path of ['ssr-client-none/index.html', 'ssr-client-load/index.html']) {
+			const html = await fixture.readFile(path);
+			const $ = cheerio.load(html);
+			let occurrences = 0;
+			for (const el of $('style').toArray()) {
+				if ($(el).text().includes('.lazy-counter-style')) occurrences++;
+			}
+			for (const el of $('link[rel="stylesheet"]').toArray()) {
+				const href = $(el).attr('href');
+				if (!href) continue;
+				const css = await fixture.readFile(new URL(href, 'http://example.com/').pathname);
+				if (css?.includes('.lazy-counter-style')) occurrences++;
+			}
+			assert.equal(occurrences, 1, `lazy CSS delivered exactly once in ${path}`);
+		}
+	});
+
 	// ssr-client-none-throwing.astro
 	it('Supports server only components with error boundaries', async () => {
 		const html = await fixture.readFile('ssr-client-none-throwing/index.html');
@@ -77,8 +98,7 @@ describe.skip('Solid component build', { todo: 'Check why an error is thrown.' }
 		assert.equal(html.includes('Async error boundary fallback'), true);
 		assert.equal(html.includes('Sync error boundary fallback'), true);
 		const hydrationEventsCount = countHydrationEvents(html);
-		// @ts-expect-error: test is in describe.skip
-		assert.equal(hydrationEventsCount.length > 1, true);
+		assert.equal(hydrationEventsCount >= 1, true);
 	});
 
 	// ssr-client-only.astro
@@ -97,16 +117,14 @@ describe.skip('Solid component build', { todo: 'Check why an error is thrown.' }
 		const html = await fixture.readFile('nested/index.html');
 
 		const firstHydrationScriptAt = getFirstHydrationScriptLocation(html);
-		// @ts-expect-error: test is in describe.skip
-		assert.equal(firstHydrationScriptAt.length, 0);
+		assert.equal(typeof firstHydrationScriptAt === 'number' && firstHydrationScriptAt > 0, true);
 
 		const firstHydrationEventAt = getFirstHydrationEventLocation(html);
-		// @ts-expect-error: test is in describe.skip
-		assert.equal(firstHydrationEventAt.length, 0);
+		assert.equal(typeof firstHydrationEventAt === 'number' && firstHydrationEventAt > 0, true);
 
 		assert.equal(
-			// @ts-expect-error: test is in describe.skip
-			firstHydrationScriptAt < firstHydrationEventAt,
+			firstHydrationScriptAt! < firstHydrationEventAt!,
+			true,
 			'Position of first hydration event',
 		);
 	});
@@ -115,24 +133,22 @@ describe.skip('Solid component build', { todo: 'Check why an error is thrown.' }
 		const html = await fixture.readFile('deferred/index.html');
 
 		const firstHydrationScriptAt = getFirstHydrationScriptLocation(html);
-		// @ts-expect-error: test is in describe.skip
-		assert.equal(firstHydrationScriptAt > 0, true);
+		assert.equal(typeof firstHydrationScriptAt === 'number' && firstHydrationScriptAt > 0, true);
 
 		const firstHydrationEventAt = getFirstHydrationEventLocation(html);
-		// @ts-expect-error: test is in describe.skip
-		assert.equal(firstHydrationEventAt > 0, true);
+		assert.equal(typeof firstHydrationEventAt === 'number' && firstHydrationEventAt > 0, true);
 
 		const hydrationScriptCount = countHydrationScripts(html);
 		assert.equal(hydrationScriptCount, 1);
 		assert.equal(
-			// @ts-expect-error: test is in describe.skip
-			firstHydrationScriptAt < firstHydrationEventAt,
+			firstHydrationScriptAt! < firstHydrationEventAt!,
+			true,
 			'Position of first hydration event',
 		);
 	});
 });
 
-describe.skip('Solid component dev', { todo: 'Check why the test hangs.', skip: isWindows }, () => {
+describe('Solid component dev', { skip: isWindows }, () => {
 	let devServer: DevServer;
 	let fixture: Fixture;
 
