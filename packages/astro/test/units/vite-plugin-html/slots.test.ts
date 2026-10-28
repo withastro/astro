@@ -1,10 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import MagicString from 'magic-string';
-import {
-	collectSlots,
-	SLOT_PREFIX,
-} from '@astrojs/vite-plugin-astro/internal/vite-plugin-html/transform/slots.js';
+import { collectSlots, SLOT_PREFIX } from '../../../dist/vite-plugin-html/transform/slots.js';
 
 describe('vite-plugin-html: slot transformer', () => {
 	function testSlotTransform(html: string) {

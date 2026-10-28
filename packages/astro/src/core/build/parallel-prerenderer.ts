@@ -2,7 +2,7 @@ import os from 'node:os';
 import { Worker } from 'node:worker_threads';
 import type { AstroSettings } from '../../types/astro.js';
 import type { RouteData } from '../../types/public/internal.js';
-import { PAGE_SCRIPT_ID } from '@astrojs/vite-plugin-astro/internal/vite-plugin-scripts/index.js';
+import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type {
 	AstroPrerenderer,
 	PrerenderRenderMetadata,

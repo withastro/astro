@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import type { Connect, Plugin } from 'vite';
 import { notFoundTemplate, subpathNotUsedTemplate } from '../../template/4xx.js';
 import type { AstroSettings } from '../../types/astro.js';
-import { cleanUrl } from '@astrojs/vite-plugin-astro/internal/vite-plugin-utils/index.js';
+import { cleanUrl } from '../../vite-plugin-utils/index.js';
 import { stripBase } from './util.js';
 
 const HAS_FILE_EXTENSION_REGEXP = /\.[^/]+$/;

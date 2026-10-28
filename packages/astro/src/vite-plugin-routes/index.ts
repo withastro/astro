@@ -17,7 +17,7 @@ import type { PluginMetadata } from '@astrojs/vite-plugin-astro/internal/vite-pl
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
 import { RESOLVED_MODULE_DEV_CSS_ALL } from '@astrojs/vite-plugin-astro/internal/vite-plugin-css/const.js';
-import { PAGE_SCRIPT_ID } from '@astrojs/vite-plugin-astro/internal/vite-plugin-scripts/index.js';
+import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 
 type Payload = {
 	settings: AstroSettings;

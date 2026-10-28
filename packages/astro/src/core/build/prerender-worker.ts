@@ -3,7 +3,7 @@ import { parse, stringify } from 'devalue';
 import type { SerializedStaticImage } from '../../assets/types.js';
 import { StaticPaths } from '../../runtime/prerender/static-paths.js';
 import type { RouteData } from '../../types/public/internal.js';
-import { PAGE_SCRIPT_ID } from '@astrojs/vite-plugin-astro/internal/vite-plugin-scripts/index.js';
+import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { deserializeRouteData, serializeRouteData } from '../app/manifest.js';
 import { renderForPrerender } from '../app/prerender.js';
 import { ensureAsyncRenderScope } from '@astrojs/runtime/internal/core/render-scope/node-scope.js';

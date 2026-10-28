@@ -7338,9 +7338,6 @@ importers:
       smol-toml:
         specifier: ^1.9.0
         version: 1.9.1
-      ultrahtml:
-        specifier: ^1.7.0
-        version: 1.7.0
       zod:
         specifier: ^4.6.5
         version: 4.6.5

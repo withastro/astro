@@ -12,7 +12,7 @@ import { runHookBuildSetup } from '../../integrations/hooks.js';
 import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../manifest/serialized.js';
 import type { RouteData } from '../../types/public/internal.js';
 import type { AstroBuildOutputDirectories } from '../../types/public/integrations.js';
-import { PAGE_SCRIPT_ID } from '@astrojs/vite-plugin-astro/internal/vite-plugin-scripts/index.js';
+import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 
 import { generatePages } from './generate.js';
 import { pathToDirectoryURL } from './common.js';

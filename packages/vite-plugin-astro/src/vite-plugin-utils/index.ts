@@ -73,11 +73,6 @@ function isPathInRoot(filename: string, rootPath: string) {
 	return commonAncestorPath(filename.toLowerCase(), rootPath.toLowerCase()) !== '';
 }
 
-const postfixRE = /[?#].*$/s;
-export function cleanUrl(url: string): string {
-	return url.replace(postfixRE, '');
-}
-
 export const specialQueriesRE = /(?:\?|&)(?:url|raw|direct)(?:&|$)/;
 /**
  * Detect `?url`, `?raw`, and `?direct`, in which case we usually want to skip
