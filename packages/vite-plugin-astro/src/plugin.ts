@@ -177,7 +177,7 @@ export function getAstroApi(config: ResolvedConfig): AstroPluginApi {
 	const api = config.plugins.find((plugin) => plugin.name === PLUGIN_NAME)?.api?.astro;
 	if (!api) {
 		throw new Error(
-			`\`astro()\` from ${PLUGIN_NAME} is missing from the Vite \`plugins\` array. Plugins built on Astro, such as \`pages()\`, require it.`,
+			`\`astro()\` from ${PLUGIN_NAME} is missing from the Vite \`plugins\` array. Plugins that read \`api.astro\` require it.`,
 		);
 	}
 	return api;
