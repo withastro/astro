@@ -401,6 +401,22 @@ describe('getImage', () => {
 		});
 	});
 
+	describe('densities', () => {
+		it('emits one srcset candidate per equivalent density', async () => {
+			const result = await renderImage({
+				src: 'https://example.com/photo.jpg',
+				width: 400,
+				height: 280,
+				densities: [1, '1x', 2, '2x'],
+				alt: 'Densities',
+			});
+			assert.deepEqual(
+				result.srcSet.values.map((value) => value.descriptor),
+				['1x', '2x'],
+			);
+		});
+	});
+
 	describe('no layout', () => {
 		it('does not add data-astro-image when no layout', async () => {
 			const result = await renderImage({

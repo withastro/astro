@@ -131,6 +131,24 @@ describe('astro sync', () => {
 		);
 	});
 
+	it('Does not write to the dependency cache used by the dev server', async () => {
+		// A fixture no other test starts a dev server on, since this test replaces its Vite cache.
+		const config = await fixture.load('./fixtures/astro-env-required-public/');
+		const devDepsDir = new URL('./node_modules/.vite/deps/', config.root);
+		const devDepsMetadata = new URL('./_metadata.json', devDepsDir);
+		// Stands in for the optimized dependencies of a dev server running in the same project.
+		const devServerMetadata = '{"hash":"dev-server"}';
+		fs.mkdirSync(devDepsDir, { recursive: true });
+		fs.writeFileSync(devDepsMetadata, devServerMetadata);
+		try {
+			fixture.clean();
+			await fixture.whenSyncing();
+			assert.equal(fs.readFileSync(devDepsMetadata, 'utf-8'), devServerMetadata);
+		} finally {
+			fs.rmSync(devDepsDir, { recursive: true, force: true });
+		}
+	});
+
 	describe('Content collections', () => {
 		it('Adds reference to `.astro/types.d.ts`', async () => {
 			await fixture.load('./fixtures/content-collections/');

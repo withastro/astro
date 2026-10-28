@@ -10,6 +10,7 @@ import { getDevCSSModuleName } from './util.js';
 import { CSS_LANGS_RE } from '../core/viteUtils.js';
 import { PROPAGATED_ASSET_QUERY_PARAM } from '../content/consts.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
+import { RESOLVED_SERVER_ISLAND_MANIFEST } from '../core/server-islands/vite-plugin-server-islands.js';
 import {
 	ASTRO_CSS_EXTENSION_POST_PATTERN,
 	MODULE_DEV_CSS,
@@ -67,6 +68,12 @@ async function ensureModulesLoaded(
 		// page's module graph, fetching their CSS dependencies. This is the dev-mode
 		// counterpart of isBuildCssBoundary in plugin-css.ts. See #18060, #16116.
 		if (imp.id.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) continue;
+		// Skip the server island manifest. The server islands plugin refreshes it by clearing its
+		// transformResult so the module runner's next import re-transforms it and drops its stale
+		// copy. Fetching it here would repopulate transformResult first, so Vite would answer the
+		// runner with `cache: true` and it would keep an island map missing newly discovered
+		// islands. The manifest contains no CSS. See #18387.
+		if (imp.id === RESOLVED_SERVER_ISLAND_MANIFEST) continue;
 		// Skip virtual dev-css modules to prevent circular deadlocks with the Cloudflare adapter.
 		// The dev-css-all module statically imports all per-route dev-css:* modules, and those
 		// modules' load handlers may already be running (waiting on ensureModulesLoaded), causing
@@ -273,27 +280,6 @@ export function astroDevCssPlugin({
 					}
 				},
 			},
-
-			transform: {
-				filter: {
-					id: {
-						include: [CSS_LANGS_RE],
-						exclude: [rawRE, inlineRE],
-					},
-				},
-				handler(code, id) {
-					if (command === 'build') {
-						return;
-					}
-
-					// Cache CSS content as we see it
-					const env = getCurrentEnvironment(this.environment as DevEnvironment);
-					const mod = env?.moduleGraph.getModuleById(id);
-					if (mod) {
-						cssContentCache.set(id, code);
-					}
-				},
-			},
 		},
 		{
 			name: MODULE_DEV_CSS_ALL,
@@ -331,4 +317,42 @@ export function astroDevCssPlugin({
 			},
 		},
 	];
+}
+
+/**
+ * Caches the final CSS of each module in `cssContentCache` during dev, so it can be inlined
+ * into server-rendered HTML.
+ *
+ * Must be registered after all integration and user plugins: its normal-order `transform` then
+ * runs after framework transforms (e.g. `@vitejs/plugin-vue` scoping SFC styles) and before
+ * `vite:css-post` turns the CSS into JS. See #18333.
+ */
+export function astroDevCssContentCachePlugin({
+	cssContentCache,
+}: Pick<AstroVitePluginOptions, 'cssContentCache'>): Plugin {
+	return {
+		name: 'astro:dev-css-content-cache',
+		applyToEnvironment(env) {
+			return (
+				env.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
+				env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
+				env.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+			);
+		},
+		transform: {
+			filter: {
+				id: {
+					include: [CSS_LANGS_RE],
+					exclude: [rawRE, inlineRE],
+				},
+			},
+			handler(code, id) {
+				const mod = (this.environment as DevEnvironment).moduleGraph.getModuleById(id);
+				if (mod) {
+					cssContentCache.set(id, code);
+				}
+			},
+		},
+	};
 }

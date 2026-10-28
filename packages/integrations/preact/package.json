@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/preact",
   "description": "Use Preact components within Astro",
-  "version": "6.1.0",
+  "version": "6.1.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -51,7 +51,7 @@
     "preact": "^10.6.5 || ^11.0.0"
   },
   "engines": {
-    "node": ">=22.22.0"
+    "node": ">=22.23.4"
   },
   "publishConfig": {
     "provenance": true

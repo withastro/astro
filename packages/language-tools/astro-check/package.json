@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/check",
   "description": "Type checking and diagnostics for Astro projects",
-  "version": "0.9.11",
+  "version": "0.9.12",
   "author": "withastro",
   "license": "MIT",
   "homepage": "https://github.com/withastro/astro/tree/main/packages/language-tools/astro-check",
@@ -31,7 +31,7 @@
     "test": "astro-scripts test \"**/*.test.ts\"  --tsx true"
   },
   "dependencies": {
-    "@astrojs/language-server": "^2.17.2",
+    "@astrojs/language-server": "^2.17.3",
     "chokidar": "^5.0.0",
     "kleur": "^4.1.5",
     "yargs": "^18.2.0"
