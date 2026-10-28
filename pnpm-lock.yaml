@@ -6362,6 +6362,9 @@ importers:
         specifier: ^1.1.3
         version: 1.1.3(vite@8.3.5)
     devDependencies:
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../vite-plugin-astro
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -6371,6 +6374,32 @@ importers:
       solid-js:
         specifier: ^1.9.17
         version: 1.9.17
+
+  packages/integrations/solid/test/fixtures/renderer:
+    dependencies:
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../../../../runtime
+      '@astrojs/solid-js':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../../../../vite-plugin-astro
+      '@test/solid-renderer-lib':
+        specifier: workspace:*
+        version: link:../renderer-lib
+      solid-js:
+        specifier: ^1.9.17
+        version: 1.9.17
+      vite:
+        specifier: ^8.3.4
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1)
+      vite-plugin-solid:
+        specifier: ^2.11.14
+        version: 2.11.14(solid-js@1.9.17)(supports-color@10.2.2)(vite@8.3.5)
+
+  packages/integrations/solid/test/fixtures/renderer-lib: {}
 
   packages/integrations/svelte:
     dependencies:
