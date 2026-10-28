@@ -170,7 +170,11 @@ async function createResult(
 		async resolve(specifier) {
 			return assets.resolve[specifier] ?? config.resolve(specifier);
 		},
-		response: { status: 200, statusText: 'OK', headers: new Headers() },
+		response: {
+			status: 200,
+			statusText: 'OK',
+			headers: new Headers({ 'Content-Type': 'text/html' }),
+		},
 		scripts: new Set(
 			config.headScripts.map((children) => ({ props: { type: 'module' }, children })),
 		),
