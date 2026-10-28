@@ -6416,6 +6416,9 @@ importers:
         specifier: ^1.1.3
         version: 1.1.3(vite@8.3.5)
     devDependencies:
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../vite-plugin-astro
       '@testing-library/svelte':
         specifier: ^5.4.2
         version: 5.4.2(svelte@5.57.2)(vite@8.3.5)(vitest@5.0.5)
@@ -6479,6 +6482,32 @@ importers:
       svelte:
         specifier: ^5.57.2
         version: 5.57.2(@typescript-eslint/types@8.71.0)
+
+  packages/integrations/svelte/test/fixtures/renderer:
+    dependencies:
+      '@astrojs/runtime':
+        specifier: workspace:*
+        version: link:../../../../../runtime
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/vite-plugin-astro':
+        specifier: workspace:*
+        version: link:../../../../../vite-plugin-astro
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^7.3.1
+        version: 7.3.1(svelte@5.57.2)(vite@8.3.5)
+      '@test/svelte-renderer-lib':
+        specifier: workspace:*
+        version: link:../renderer-lib
+      svelte:
+        specifier: ^5.57.2
+        version: 5.57.2(@typescript-eslint/types@8.71.0)
+      vite:
+        specifier: ^8.3.4
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1)
+
+  packages/integrations/svelte/test/fixtures/renderer-lib: {}
 
   packages/integrations/svelte/test/fixtures/slot-names:
     dependencies:

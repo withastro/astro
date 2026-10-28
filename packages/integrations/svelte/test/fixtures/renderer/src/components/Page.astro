@@ -1,0 +1,11 @@
+---
+import Greeting from '@test/svelte-renderer-lib';
+import Counter from './Counter.svelte';
+---
+<html>
+	<head><title>Svelte</title></head>
+	<body>
+		<Counter client:load start={3} />
+		<Greeting name="lib" />
+	</body>
+</html>
