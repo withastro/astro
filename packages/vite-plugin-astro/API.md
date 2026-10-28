@@ -71,7 +71,7 @@ Standalone settings that have no option yet: `scopedStyleStrategy` is `'attribut
 
 ### Renderers
 
-Pass renderers in `options.renderers`; there are no integrations in plugin mode. A renderer is plain data (`AstroRenderer`), with no Vite plugins: compiling the framework's files is the job of its own Vite plugin (for example `@vitejs/plugin-react`), added next to `astro()`. The order of `renderers` is the order in which they are tried.
+Pass renderers in `options.renderers`; there are no integrations in plugin mode. A renderer is plain data (`AstroRenderer`), with no Vite plugins: compiling the framework's files is the job of its own Vite plugin (for example `@vitejs/plugin-react`), added next to `astro()`. The order of `renderers` is the order in which they are tried. `@astrojs/react/renderer` exports the React renderer: `astro({ renderers: [react()] })` next to `viteReact()`.
 
 | `AstroRenderer` field                          | What `astro()` does with it                                                                                                                                                                                                            |
 | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

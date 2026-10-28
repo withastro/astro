@@ -1,0 +1,11 @@
+---
+import Counter from './Counter.jsx';
+import Wrapper from './Wrapper.jsx';
+---
+<html>
+	<head><title>React</title></head>
+	<body>
+		<Counter client:load start={3} />
+		<Wrapper client:load><p>child</p></Wrapper>
+	</body>
+</html>
