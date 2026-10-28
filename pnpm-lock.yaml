@@ -455,6 +455,36 @@ importers:
         specifier: ^7.4.3
         version: link:../../packages/astro
 
+  examples/vite-plugin-astro-hono:
+    dependencies:
+      '@astrojs/react':
+        specifier: ^7.1.2
+        version: link:../../packages/integrations/react
+      '@astrojs/runtime':
+        specifier: ^0.0.0
+        version: link:../../packages/runtime
+      '@astrojs/vite-plugin-astro':
+        specifier: ^0.0.0
+        version: link:../../packages/vite-plugin-astro
+      '@hono/node-server':
+        specifier: ^2.0.4
+        version: 2.0.4(hono@4.13.13)
+      '@vitejs/plugin-react':
+        specifier: ^6.1.2
+        version: 6.1.2(@rolldown/plugin-babel@0.2.4)(oxc-transform-react@0.153.0)(vite@8.3.5)
+      hono:
+        specifier: ^4.13.13
+        version: 4.13.13
+      react:
+        specifier: ^19.3.0
+        version: 19.3.0
+      react-dom:
+        specifier: ^19.3.0
+        version: 19.3.0(react@19.3.0)
+      vite:
+        specifier: ^8.3.4
+        version: 8.3.5(@types/node@22.19.19)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(tsx@4.23.15)(yaml@2.9.1)
+
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
