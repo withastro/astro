@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createAstroComponentInstance } from '@astrojs/vite-plugin-astro/internal/runtime/server/render/astro/instance.js';
-import { bufferHeadContent } from '@astrojs/vite-plugin-astro/internal/runtime/server/render/astro/render.js';
+import { createAstroComponentInstance } from '@astrojs/runtime/internal/server/render/astro/instance.js';
+import { bufferHeadContent } from '@astrojs/runtime/internal/server/render/astro/render.js';
 import type { SSRResult } from '../../../../dist/types/public/internal.js';
 
 const headAndContentSym = Symbol.for('astro.headAndContent');

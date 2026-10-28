@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { encryptString } from '@astrojs/vite-plugin-astro/internal/core/encryption.js';
+import { encryptString } from '@astrojs/runtime/internal/core/encryption.js';
 import testAdapter from './test-adapter.ts';
 import { type Fixture, loadFixture } from './test-utils.ts';
 

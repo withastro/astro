@@ -1,1 +1,1 @@
-export * from '@astrojs/vite-plugin-astro/internal/transitions/types.js';
+export * from '@astrojs/runtime/internal/transitions/types.js';

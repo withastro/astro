@@ -21,11 +21,8 @@ import {
 } from '../constants.js';
 import type { CspKind } from '../csp/config.js';
 import { normalizeCspResourceEntry, pushDirective } from '../csp/runtime.js';
-import { generateCspDigest } from '@astrojs/vite-plugin-astro/internal/core/encryption.js';
-import {
-	AstroError,
-	AstroErrorData,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+import { generateCspDigest } from '@astrojs/runtime/internal/core/encryption.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import {
 	computeCurrentLocale as computeCurrentLocaleUtil,
 	computeCurrentLocaleFromParams,

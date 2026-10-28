@@ -12,7 +12,7 @@ import {
 	AggregateError,
 	CSSError,
 	MarkdownError,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+} from '@astrojs/runtime/internal/core/errors/index.js';
 import { getLogger } from '../core/logger/manifest-logger.js';
 import { req } from '../core/messages/runtime.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
@@ -28,7 +28,7 @@ import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import { getRouteTable } from '../core/routing/route-table.js';
 import { isPage } from '../core/util.js';
 import { resolveIdToUrl } from '../core/viteUtils.js';
-import { stringifyForScript } from '@astrojs/vite-plugin-astro/internal/runtime/server/escape.js';
+import { stringifyForScript } from '@astrojs/runtime/internal/server/escape.js';
 import type { AstroSettings, ComponentInstance, ImportedDevStyle } from '../types/astro.js';
 import type { RewritePayload } from '../types/public/common.js';
 import type { DevToolbarMetadata } from '../types/public/index.js';

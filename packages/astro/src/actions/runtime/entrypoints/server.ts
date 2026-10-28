@@ -1,6 +1,6 @@
 import { fetchStateSymbol } from '../../../core/constants.js';
-import { ActionCalledFromServerError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
-import { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
+import { ActionCalledFromServerError } from '@astrojs/runtime/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/errors.js';
 // Type-only so `astro:actions` doesn't pull the request core into its
 // import graph.
 import type { FetchState } from '../../../core/fetch/fetch-state.js';

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { addAttribute } from '../../../dist/runtime/server/index.js';
-import { toStyleString } from '@astrojs/vite-plugin-astro/internal/runtime/server/render/util.js';
+import { toStyleString } from '@astrojs/runtime/internal/server/render/util.js';
 import { createTestApp, createPage, createMultiChildPage, spreadPropsSpan } from '../mocks.ts';
 
 describe('class:list', () => {

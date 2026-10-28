@@ -21,11 +21,8 @@ import {
 	createKey,
 	getEnvironmentKey,
 	hasEnvironmentKey,
-} from '@astrojs/vite-plugin-astro/internal/core/encryption.js';
-import {
-	AstroError,
-	AstroErrorData,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+} from '@astrojs/runtime/internal/core/encryption.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { AstroLogger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { createRoutesList } from '../routing/create-manifest.js';

@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
-import { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
-import { CacheProviderNotFound } from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/errors.js';
+import { CacheProviderNotFound } from '@astrojs/runtime/internal/core/errors/errors-data.js';
 import { normalizeCacheProviderConfig } from './utils.js';
 
 export const VIRTUAL_CACHE_PROVIDER_ID = 'virtual:astro:cache-provider';

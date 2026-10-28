@@ -7,7 +7,7 @@ import type { RoutesList } from '../../types/astro.js';
 import {
 	isRoute404,
 	isRoute500,
-} from '@astrojs/vite-plugin-astro/internal/core/routing/internal/route-errors.js';
+} from '@astrojs/runtime/internal/core/routing/internal/route-errors.js';
 
 type RedirectRouteData = RouteData & {
 	redirect: string;

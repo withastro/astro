@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import type { AstroComponentFactory } from '@astrojs/vite-plugin-astro/internal/runtime/server/render/index.js';
+import type { AstroComponentFactory } from '@astrojs/runtime/internal/server/render/index.js';
 import { createTestApp, createPage } from '../mocks.ts';
 
 async function renderAndCapture(

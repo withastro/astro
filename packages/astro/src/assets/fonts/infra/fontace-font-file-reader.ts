@@ -1,9 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { fontace } from 'fontace';
-import {
-	AstroError,
-	AstroErrorData,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { FontFileReader } from '../definitions.js';
 import type { Style } from '../types.js';
 

@@ -7,18 +7,15 @@ import createPreferences from '../../preferences/index.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroConfig, AstroInlineConfig } from '../../types/public/config.js';
 import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
-import { getDefaultClientDirectives } from '@astrojs/vite-plugin-astro/internal/core/client-directive/index.js';
+import { getDefaultClientDirectives } from '@astrojs/runtime/internal/core/client-directive/default.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
-import {
-	AstroError,
-	AstroErrorData,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import {
 	formatTOMLError,
 	formatYAMLParseError,
 	isTOMLError,
-	isYAMLParseError,
 } from '@astrojs/vite-plugin-astro/internal/core/errors/utils.js';
+import { isYAMLParseError } from '@astrojs/internal-helpers/yaml-error';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
 

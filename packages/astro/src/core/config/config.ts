@@ -11,10 +11,7 @@ import type {
 	AstroUserConfig,
 } from '../../types/public/config.js';
 import { trackAstroConfigZodError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
-import {
-	AstroError,
-	AstroErrorData,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import { formatConfigErrorMessage } from '../messages/runtime.js';
 import { mergeConfig } from './merge.js';
 import { validateConfig } from './validate.js';

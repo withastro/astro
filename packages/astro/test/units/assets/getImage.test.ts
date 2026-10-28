@@ -3,8 +3,8 @@ import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
 import { baseService } from '../../../dist/assets/services/service.js';
 import type { GetImageResult, UnresolvedImageTransform } from '../../../dist/assets/types.js';
 import { getImage, setConfiguredImageService } from '../../../dist/assets/internal.js';
-import { ensureAsyncRenderScope } from '@astrojs/vite-plugin-astro/internal/core/render-scope/node-scope.js';
-import { uninstallRenderScope } from '@astrojs/vite-plugin-astro/internal/core/render-scope/scope.js';
+import { ensureAsyncRenderScope } from '@astrojs/runtime/internal/core/render-scope/node-scope.js';
+import { uninstallRenderScope } from '@astrojs/runtime/internal/core/render-scope/scope.js';
 import { installImageService, mockRuntimeLogger } from '../mocks.ts';
 
 describe('getImage', () => {

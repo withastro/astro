@@ -1,8 +1,5 @@
 import { isAbsolute } from 'node:path';
-import {
-	AstroError,
-	AstroErrorData,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { FontFileContentResolver } from '../definitions.js';
 
 type ReadFileSync = (path: string) => string;

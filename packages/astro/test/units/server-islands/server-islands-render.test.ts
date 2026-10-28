@@ -1,24 +1,24 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createKey } from '@astrojs/vite-plugin-astro/internal/core/encryption.js';
+import { createKey } from '@astrojs/runtime/internal/core/encryption.js';
 import {
 	ServerIslandComponent,
 	containsServerDirective,
 	renderServerIslandRuntime,
-} from '@astrojs/vite-plugin-astro/internal/runtime/server/render/server-islands.js';
+} from '@astrojs/runtime/internal/server/render/server-islands.js';
 import type { SSRResult } from '../../../dist/types/public/internal.js';
 import type {
 	RenderDestination,
 	RenderDestinationChunk,
-} from '@astrojs/vite-plugin-astro/internal/runtime/server/render/common.js';
-import type { ComponentSlotValue } from '@astrojs/vite-plugin-astro/internal/runtime/server/render/slot.js';
+} from '@astrojs/runtime/internal/server/render/common.js';
+import type { ComponentSlotValue } from '@astrojs/runtime/internal/server/render/slot.js';
 import {
 	createComponent,
 	createHeadAndContent,
 	renderComponent,
 	renderTemplate,
 } from '../../../dist/runtime/server/index.js';
-import { renderComponentToString } from '@astrojs/vite-plugin-astro/internal/runtime/server/render/component.js';
+import { renderComponentToString } from '@astrojs/runtime/internal/server/render/component.js';
 
 // #region Helpers
 

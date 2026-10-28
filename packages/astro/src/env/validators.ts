@@ -1,7 +1,4 @@
-import {
-	AstroError,
-	AstroErrorData,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+import { AstroError, AstroErrorData } from '@astrojs/runtime/internal/core/errors/index.js';
 import type { AstroConfig } from '../types/public/index.js';
 import type { EnumSchema, EnvFieldType, NumberSchema, StringSchema } from './schema.js';
 

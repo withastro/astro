@@ -5,8 +5,8 @@ import type {
 	InvalidateOptions,
 	LiveDataEntry,
 } from '../types.js';
-import { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
-import { CacheNotEnabled } from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/errors.js';
+import { CacheNotEnabled } from '@astrojs/runtime/internal/core/errors/errors-data.js';
 import { defaultSetHeaders, isLiveDataEntry } from './utils.js';
 
 const APPLY_HEADERS = Symbol.for('astro:cache:apply');

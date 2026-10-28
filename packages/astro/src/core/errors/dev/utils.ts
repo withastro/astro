@@ -11,9 +11,9 @@ import { normalizePath } from '../../viteUtils.js';
 import {
 	AggregateError,
 	type ErrorWithMetadata,
-} from '@astrojs/vite-plugin-astro/internal/core/errors/errors.js';
-import { codeFrame } from '@astrojs/vite-plugin-astro/internal/core/errors/printer.js';
-import { normalizeLF } from '@astrojs/vite-plugin-astro/internal/core/errors/utils.js';
+} from '@astrojs/runtime/internal/core/errors/errors.js';
+import { codeFrame } from '@astrojs/runtime/internal/core/errors/printer.js';
+import { normalizeLF } from '@astrojs/runtime/internal/core/errors/utils.js';
 
 type OxcMessage = Awaited<ReturnType<typeof transformWithOxc>>['warnings'][number];
 

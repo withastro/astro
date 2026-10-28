@@ -8,14 +8,14 @@ import { init, parse } from 'es-module-lexer/minimal';
 const distRoot = fileURLToPath(new URL('../../../dist/', import.meta.url));
 const srcRoot = fileURLToPath(new URL('../../../src/', import.meta.url));
 
-const pluginInternalPrefix = '@astrojs/vite-plugin-astro/internal/';
+const runtimeInternalPrefix = '@astrojs/runtime/internal/';
 const renderScopeModule = fileURLToPath(
-	import.meta.resolve(`${pluginInternalPrefix}core/render-scope/scope.js`),
+	import.meta.resolve(`${runtimeInternalPrefix}core/render-scope/scope.js`),
 );
 
 /**
  * Walk the static + dynamic import graph of a built module, following relative
- * specifiers and `@astrojs/vite-plugin-astro/internal/*` imports, and return every visited file.
+ * specifiers and `@astrojs/runtime/internal/*` imports, and return every visited file.
  */
 async function collectModuleGraph(entry: string): Promise<Map<string, string>> {
 	await init();
@@ -32,7 +32,7 @@ async function collectModuleGraph(entry: string): Promise<Map<string, string>> {
 			// Relative specifiers and the render runtime package are followed; other bare
 			// and node: specifiers are leaves (asserted on separately via the source
 			// text). Non-literal dynamic imports have no resolvable specifier.
-			if (specifier?.startsWith(pluginInternalPrefix)) {
+			if (specifier?.startsWith(runtimeInternalPrefix)) {
 				queue.push(fileURLToPath(import.meta.resolve(specifier)));
 				continue;
 			}

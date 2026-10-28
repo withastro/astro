@@ -4,8 +4,8 @@ import { addRolldownInput } from '../build/add-rolldown-input.js';
 import { pathToDirectoryURL } from '../build/common.js';
 import type { BuildInternals } from '../build/internal.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES, MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
-import { MissingMiddlewareForInternationalization } from '@astrojs/vite-plugin-astro/internal/core/errors/errors-data.js';
-import { AstroError } from '@astrojs/vite-plugin-astro/internal/core/errors/index.js';
+import { MissingMiddlewareForInternationalization } from '@astrojs/runtime/internal/core/errors/errors-data.js';
+import { AstroError } from '@astrojs/runtime/internal/core/errors/index.js';
 import { normalizePath } from '../viteUtils.js';
 import { isAstroServerEnvironment } from '../../environments.js';
 

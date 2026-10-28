@@ -6,11 +6,11 @@ import { isImageMetadata } from '../../../dist/assets/types.js';
 import type { ImageMetadata, SerializedStaticImage } from '../../../dist/assets/types.js';
 import { createImageAsset, getUntrackedImage } from '../../../dist/assets/utils/image-asset.js';
 import { resolveStaticImage } from '../../../dist/assets/utils/static-image.js';
-import { ensureAsyncRenderScope } from '@astrojs/vite-plugin-astro/internal/core/render-scope/node-scope.js';
+import { ensureAsyncRenderScope } from '@astrojs/runtime/internal/core/render-scope/node-scope.js';
 import {
 	type RenderCollectors,
 	uninstallRenderScope,
-} from '@astrojs/vite-plugin-astro/internal/core/render-scope/scope.js';
+} from '@astrojs/runtime/internal/core/render-scope/scope.js';
 import { mockRuntimeLogger } from '../mocks.ts';
 
 const fsPath = '/project/src/assets/photo.png';
