@@ -27,6 +27,7 @@ import {
 	isBuildableCSSRequest,
 	rawRE,
 } from '../vite-plugin-css/collect.js';
+import { RESOLVED_ASTRO_RENDERERS_MODULE_ID } from '../vite-plugin-renderers/const.js';
 import type { ComponentAssets, ComponentAssetsManifest } from './types.js';
 
 export type { ComponentAssets, ComponentAssetsManifest } from './types.js';
@@ -205,8 +206,8 @@ export async function getComponentAssets(moduleId) {
 					: (await env.pluginContainer.resolveId(moduleId))?.id;
 				const mod = resolvedId ? env.moduleGraph.getModuleById(resolvedId) : undefined;
 				if (mod?.id) {
-					await ensureModulesLoaded(env, mod);
-					for (const style of collectCSSWithOrder(mod.id, mod)) {
+					await ensureModulesLoaded(env, mod, { isBoundary: isRenderersModule });
+					for (const style of collectCSSWithOrder(mod.id, mod, { isBoundary: isRenderersModule })) {
 						assets.styles.push({
 							type: 'inline',
 							content: cssContentCache.get(style.idKey) ?? '',
@@ -413,6 +414,15 @@ function getClientSpecifiers(moduleId: string, astro: PluginMetadata['astro']): 
 	return specifiers;
 }
 
+/**
+ * Compiled components import the server code of every renderer through
+ * `virtual:astro:render-setup`. It is no part of a component tree: a server entrypoint can reach
+ * styles that belong only to the components it renders (Vue's `appEntrypoint`).
+ */
+function isRenderersModule(id: string): boolean {
+	return id === RESOLVED_ASTRO_RENDERERS_MODULE_ID;
+}
+
 function walkDevGraph(mod: { id: string | null; importedModules: Set<any> }, seen: Set<string>) {
 	if (!mod.id || seen.has(mod.id)) return;
 	seen.add(mod.id);
@@ -429,7 +439,7 @@ function walkBuildGraph(
 ) {
 	if (seen.has(id)) return;
 	seen.add(id);
-	if (id.includes(`?${PROPAGATED_ASSET_FLAG}`)) return;
+	if (id.includes(`?${PROPAGATED_ASSET_FLAG}`) || isRenderersModule(id)) return;
 	const info = context.getModuleInfo(id);
 	visit(id, info ? getAstroMetadata(info) : undefined);
 	if (!info || isBuildableCSSRequest(id)) return;

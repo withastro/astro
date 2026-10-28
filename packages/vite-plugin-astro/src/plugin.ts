@@ -136,7 +136,7 @@ export default function astro(options: AstroPluginOptions = {}, cli?: AstroPlugi
 			internalURL: cli?.internalURL,
 			transitionsAnimationURL: cli?.transitionsAnimationURL,
 		}),
-		renderersPlugin({ renderers, skipRenderers: cli?.skipRenderers }),
+		...renderersPlugin({ renderers, root: parsed.root, skipRenderers: cli?.skipRenderers }),
 		// The modules of the render API. The `astro` CLI renders pages itself.
 		...(cli
 			? []
